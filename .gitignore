@@ -1,0 +1,5 @@
+/build
+/deploy
+/bower_components
+src/scripts/templates.js
+node_modules
