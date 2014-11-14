@@ -356,9 +356,8 @@
         };
 
         self.initShadowRoot = function() {
-            var shadowRoot = this.createShadowRoot();
             this.getShadowRoot = function() {
-                return shadowRoot;
+                return this.shadowRoot;
             };
         };
 
@@ -367,7 +366,7 @@
 
             var self = this;
             var shadowRoot = this.getShadowRoot();
-            var domCanvas = document.createElement('fin-canvas');
+            var domCanvas = shadowRoot.querySelector('fin-canvas');
 
             domCanvas.setAttribute('fps', constants.repaintIntervalRate || 15);
 

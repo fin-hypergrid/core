@@ -9,7 +9,7 @@
   "main": "fin-hypergrid.html",
   "dependencies": {
     "polymer": "Polymer/polymer#^0.4.0",
-    "fin-canvas": "~0.0.3",
+    "fin-canvas": "~0.0.5",
     "fin-rectangle": "~0.2.2",
     "shadow-bar": "~0.12.0"
   },
