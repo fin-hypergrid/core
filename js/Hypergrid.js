@@ -152,7 +152,12 @@
                 var eb = self.getBoundsOfCell(new rectangles.create.Point(x, y));
                 var db = self.getDataBounds();
                 var cellBounds = eb.intersect(db);
-                input.style.webkitTransform = 'translate(' + (cellBounds.origin.x - 2) + 'px,' + (cellBounds.origin.y - 2) + 'px)';
+                var translation = 'translate(' + (cellBounds.origin.x - 2) + 'px,' + (cellBounds.origin.y - 2) + 'px)';
+                input.style.webkitTransform = translation;
+                input.style.MozTransform = translation;
+                input.style.msTransform = translation;
+                input.style.OTransform = translation;
+                input.style.transform = translation;
 
                 input.style.width = cellBounds.extent.x + 'px';
                 input.style.height = cellBounds.extent.y + 'px';
