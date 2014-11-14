@@ -12,4 +12,14 @@
   <fin-hypergrid style="position:absolute;width:100%;height:100%" ></fin-hypergrid>
 
 </body>
+    <script>
+      // Wait for 'polymer-ready'. Ensures the element is upgraded.
+      window.addEventListener('polymer-ready', function(e) {
+        var hypergrid = document.querySelector('fin-hypergrid');
+
+        //hypergrid.setBehavior(new fin.wc.hypergrid.DefaultGridBehavior());
+        hypergrid.setBehavior(new fin.wc.hypergrid.InMemoryGridBehavior());
+        //hypergrid.setBehavior(new fin.wc.hypergrid.QGridBehavior('ws://' + location.hostname + ':5000/'));
+      });
+    </script>
 </html>
