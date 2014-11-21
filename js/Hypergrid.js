@@ -54,7 +54,7 @@
             var self = this;
             var shadowRoot = this.getShadowRoot();
             var isEditing = false;
-            var editorPoint = new rectangles.create.Point(0, 0);
+            var editorPoint = rectangles.point.create(0, 0);
             var checkEditorPositionFlag = false;
 
             var inputTemplate = document.createElement('input');
@@ -83,7 +83,7 @@
 
             this.beginEditAt = function(point) {
                 this.setMouseDown(point);
-                this.setDragExtent(new rectangles.create.Point(0, 0));
+                this.setDragExtent(rectangles.point.create(0, 0));
                 var model = this.getBehavior();
                 this.setEditorPoint(point);
                 var value = model.getValue(point.x, point.y);
@@ -149,7 +149,7 @@
                 var editorPoint = this.getEditorPoint();
                 var x = editorPoint.x + numFixedCols - hScroll;
                 var y = editorPoint.y + numFixedRows - vScroll;
-                var eb = self.getBoundsOfCell(new rectangles.create.Point(x, y));
+                var eb = self.getBoundsOfCell(rectangles.point.create(x, y));
                 var db = self.getDataBounds();
                 var cellBounds = eb.intersect(db);
                 var translation = 'translate(' + (cellBounds.origin.x - 2) + 'px,' + (cellBounds.origin.y - 2) + 'px)';
@@ -295,8 +295,8 @@
         //Initialize our selectionmodel
         self.initSelectionModel = function() {
 
-            var mouseDown = new rectangles.create.Point(-1, -1);
-            var dragExtent = new rectangles.create.Point(0, 0);
+            var mouseDown = rectangles.point.create(-1, -1);
+            var dragExtent = rectangles.point.create(0, 0);
             var selectionModel = new DefaultSelectionModel(this);
 
             this.getSelectionModel = function() {
@@ -462,7 +462,7 @@
                 var x = behavior.getFixedColsWidth() + 2;
                 var y = behavior.getFixedRowsHeight() + 2;
 
-                var result = new rectangles.create.Rectangle(x, y, b.origin.x + b.extent.x - x, b.origin.y + b.extent.y - y);
+                var result = rectangles.rectangle.create(x, y, b.origin.x + b.extent.x - x, b.origin.y + b.extent.y - y);
                 return result;
             };
 
@@ -526,7 +526,7 @@
             if (x < 0 || y < 0) {
                 return;
             }
-            this.beginEditAt(new rectangles.create.Point(x, y));
+            this.beginEditAt(rectangles.point.create(x, y));
         };
 
         //Generate a function name and call it on self.  This should also be delegated through PluggableBehavior keeping the default implementation here though.
@@ -618,7 +618,7 @@
             this.clearMostRecentSelection();
             this.select(origin.x, origin.y, newX, newY);
 
-            this.setDragExtent(new rectangles.create.Point(newX, newY));
+            this.setDragExtent(rectangles.point.create(newX, newY));
 
             this.insureModelColIsViewable(newX + origin.x, offsetX);
             this.insureModelRowIsViewable(newY + origin.y, offsetY);
@@ -643,8 +643,8 @@
 
             this.clearSelections();
             this.select(newX, newY, 0, 0);
-            this.setMouseDown(new rectangles.create.Point(newX, newY));
-            this.setDragExtent(new rectangles.create.Point(0, 0));
+            this.setMouseDown(rectangles.point.create(newX, newY));
+            this.setDragExtent(rectangles.point.create(0, 0));
 
             this.insureModelColIsViewable(newX, offsetX);
             this.insureModelRowIsViewable(newY, offsetY);
@@ -736,7 +736,7 @@
 
             this.select(mouseDown.x, mouseDown.y, newX, newY);
 
-            var newDragExtent = new rectangles.create.Point(newX, newY);
+            var newDragExtent = rectangles.point.create(newX, newY);
             this.setDragExtent(newDragExtent);
 
             this.repaint();
@@ -769,11 +769,11 @@
             if (hasSHIFT) {
                 this.clearMostRecentSelection();
                 this.select(mousePoint.x, mousePoint.y, x + scrollLeft - mousePoint.x, y + scrollTop - mousePoint.y);
-                this.setDragExtent(new rectangles.create.Point(x + scrollLeft - mousePoint.x, y + scrollTop - mousePoint.y));
+                this.setDragExtent(rectangles.point.create(x + scrollLeft - mousePoint.x, y + scrollTop - mousePoint.y));
             } else {
                 this.select(x + scrollLeft, y + scrollTop, 0, 0);
-                this.setMouseDown(new rectangles.create.Point(x + scrollLeft, y + scrollTop));
-                this.setDragExtent(new rectangles.create.Point(0, 0));
+                this.setMouseDown(rectangles.point.create(x + scrollLeft, y + scrollTop));
+                this.setDragExtent(rectangles.point.create(0, 0));
             }
             this.repaint();
         };
@@ -878,7 +878,7 @@
                 }
                 mouseIsDown = false;
                 var origin = canvas.getOrigin();
-                var point = new rectangles.create.Point(e.x - origin.x, e.y - origin.y);
+                var point = rectangles.point.create(e.x - origin.x, e.y - origin.y);
                 if (!canvas.bounds.contains(point)) {
                     //it's a mouseup on the scrollbars we need to retake focus
                     self.takeFocus();

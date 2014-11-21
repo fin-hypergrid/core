@@ -53,7 +53,7 @@
             ey = -tmp;
         }
 
-        var newSelection = new this.rectangles.create.Rectangle(ox, oy, ex, ey);
+        var newSelection = this.rectangles.rectangle.create(ox, oy, ex, ey);
         this.selections.push(newSelection);
         this.flattenedX.push(newSelection.flattenXAt(0));
         this.flattenedY.push(newSelection.flattenYAt(0));

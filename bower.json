@@ -1,6 +1,6 @@
 {
   "name": "fin-hypergrid",
-  "version": "0.2.1",
+  "version": "0.2.11",
   "keywords": [
     "seed",
     "polymer",
@@ -8,12 +8,11 @@
   ],
   "main": "fin-hypergrid.html",
   "dependencies": {
-    "polymer": "Polymer/polymer#^0.4.0",
-    "fin-canvas": "~0.0.5",
-    "fin-rectangle": "~0.2.2",
-    "shadow-bar": "~0.12.0"
   },
   "devDependencies": {
-    "polymer-test-tools": "Polymer/polymer-test-tools#^0.4.0"
+    "polymer": "Polymer/polymer#~0.5",
+    "fin-canvas": "~0.1",
+    "fin-rectangle": "~0.2",
+    "shadow-bar": "~0.12.0"
   }
 }

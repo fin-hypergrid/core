@@ -59,7 +59,7 @@
                 ex = cx - ox,
                 ey = cy - oy;
 
-            var bounds = new rectangles.create.Rectangle(ox, oy, ex, ey);
+            var bounds = rectangles.rectangle.create(ox, oy, ex, ey);
 
             return bounds;
         };
@@ -99,8 +99,8 @@
             }
 
             return {
-                cell: new rectangles.create.Point(c, r),
-                location: new rectangles.create.Point(x, y)
+                cell: rectangles.point.create(c, r),
+                location: rectangles.point.create(x, y)
             };
         };
 
