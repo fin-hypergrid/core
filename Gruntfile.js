@@ -3,36 +3,46 @@
 var files = {
     js: [
         'gruntfile.js',
-        'js/**/*.js',
+        '*.js',
         'test/**/*.js'
     ],
 
     jshint: [
         'gruntfile.js',
-        'js/**/*.js',
+        '*.js',
         'test/**/*.js',
     ],
-
+    jsandhtml: [
+        'gruntfile.js',
+        '*.js',
+        '*.html',
+        'test/**/*.js',
+        'test/**/*.html'
+    ]
 };
+var delimeter = (__dirname.indexOf('/') > -1) ? '/' : '\\';
+var myDir = __dirname.split(delimeter);
+var elementName = myDir[myDir.length - 1];
+myDir.pop();
+var parentDir = myDir.join(delimeter);
 
 module.exports = function(grunt) {
-
     //load all npm tasks automagically
     require('load-grunt-tasks')(grunt);
 
     grunt.initConfig({
 
         watch: {
-            js: {
+            jsandhtml: {
                 files: files.js,
-                tasks: ['jsbeautifier', 'jshint', 'mochaTest'],
+                tasks: ['jsbeautifier', 'jshint', 'concat', 'wct-test'],
             },
             gruntfile: {
                 files: ['Gruntfile.js'],
                 tasks: []
             },
             lr: {
-                files: ['**/*.html', 'src/scripts/*.js'],
+                files: ['**/*.html', '*.js'],
                 options: {
                     livereload: true
                 },
@@ -48,12 +58,24 @@ module.exports = function(grunt) {
             }
         },
 
-        mochaTest: {
-            test: {
+        concat: {
+            'polymer-element': {
+                src: [elementName + '.pre.html', elementName + '.js', elementName + '.post.html'],
+                dest: elementName + '.html',
+            },
+            'basic-test': {
+                src: ['test/basic-test.pre.html', 'test/basic-test.js', 'test/basic-test.post.html'],
+                dest: 'test/basic-test.html',
+            }
+        },
+
+        'wct-test': {
+            default: {
                 options: {
-                    reporter: 'spec'
+                    testTimeout: 3 * 1000,
+                    browsers: ['chrome'],
+                    remote: false
                 },
-                src: ['test/*.js']
             }
         },
 
@@ -88,9 +110,38 @@ module.exports = function(grunt) {
                     port: 9000,
                     // Change this to '0.0.0.0' to access the server from outside.
                     hostname: '0.0.0.0',
-                    base: ['.', '../'],
                     livereload: true,
-                    open: true
+                    open: true,
+                    base: [{
+                            path: './',
+                            options: {
+                                index: 'demo.html',
+                                maxAge: 0
+                            }
+                        }, {
+                            path: '../',
+                            options: {
+                                maxAge: 0
+                            }
+                        }
+
+                    ]
+                }
+            },
+            serverDocs: {
+                options: {
+                    port: 9090,
+                    // Change this to '0.0.0.0' to access the server from outside.
+                    hostname: '0.0.0.0',
+                    livereload: true,
+                    open: {
+                        target: 'http://localhost:9090/' + elementName + '/' + 'index.html'
+                    },
+                    base: [{
+                            path: parentDir
+                        }
+
+                    ]
                 }
             }
         },
@@ -98,15 +149,18 @@ module.exports = function(grunt) {
         //----------------------------------
     });
 
-    grunt.registerTask('test', ['jshint', 'mochaTest']);
+    grunt.loadNpmTasks('web-component-tester');
+    grunt.registerTask('test', ['jshint', 'wct-test']);
     grunt.registerTask('default', [
         'jsbeautifier',
         'jshint',
-        'mochaTest',
+        'wct-test',
     ]);
 
     grunt.registerTask('serve', function() {
         return grunt.task.run([
+            'concat',
+            'wct-test',
             'connect',
             'watch'
         ]);

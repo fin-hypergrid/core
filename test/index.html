@@ -1,21 +1,19 @@
 <!doctype html>
 <html>
-
   <head>
-    <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
-    <title>Core Elements Test Runner</title>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+    <title>Tests</title>
 
-    <script src="../../platform/platform.js"></script>
-
-    <link rel="import" href="tests.html">
-
+  <script src="../../webcomponentsjs/webcomponents.js"></script>
+    <script src="../../web-component-tester/browser.js"></script>
   </head>
 
   <body>
-
-    <div id="mocha"></div>
-
+    <script>
+      WCT.loadSuites([
+        'basic-test.html',
+      ]);
+    </script>
   </body>
-
 </html>

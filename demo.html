@@ -5,21 +5,21 @@
   <title>fin-hypergrid Demo</title>
 
   <script src="../webcomponentsjs/webcomponents.js"></script>
-    <link rel="import" href="fin-hypergrid.html">
+  <link rel="import" href="fin-hypergrid-behavior-default.html">
+  <link rel="import" href="fin-hypergrid.html">
+  <style>
+    fin-hypergrid {
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
+    }
+  </style>
 </head>
 <body unresolved>
-
-  <fin-hypergrid style="position:absolute;width:100%;height:100%" ></fin-hypergrid>
-
+  <fin-hypergrid>
+    <fin-hypergrid-behavior-default class="fin-hypergrid-behavior"></fin-hypergrid-behavior-default>
+  </fin-hypergrid>
 </body>
-    <script>
-      // Wait for 'polymer-ready'. Ensures the element is upgraded.
-      window.addEventListener('polymer-ready', function(e) {
-        var hypergrid = document.querySelector('fin-hypergrid');
-
-        //hypergrid.setBehavior(new fin.wc.hypergrid.DefaultGridBehavior());
-        hypergrid.setBehavior(new fin.wc.hypergrid.InMemoryGridBehavior());
-        //hypergrid.setBehavior(new fin.wc.hypergrid.QGridBehavior('ws://' + location.hostname + ':5000/'));
-      });
-    </script>
 </html>

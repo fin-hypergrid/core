@@ -1,0 +1,39 @@
+<link rel="import" href="../polymer/polymer.html">
+<polymer-element name="fin-hypergrid-constants">
+  <template></template>
+  <script>
+
+'use strict';
+
+(function() {
+
+    var values = {
+        defaultFont: '13px Tahoma, Geneva, sans-serif',
+        foregroundColor: '#010126',
+        backgroundColor: '#FFFFFF',
+        foregroundSelColor: '#010126',
+        backgroundSelColor: '#B7DBFF',
+        fixedColBGColor: '#DFE3E8',
+        fixedRowBGColor: '#DFE3E8',
+        fixedColFGSelColor: '#010126',
+        fixedRowFGSelColor: '#010126',
+        fixedColBGSelColor: '#FFDC61',
+        fixedRowBGSelColor: '#FFDC61',
+        lineColor: '#C7C7C7',
+        fixedRowAlign: 'center',
+        fixedColAlign: 'center',
+        cellPadding: 5,
+        rowHeight: 20,
+        colWidth: 100,
+        topLeftHeaderBGColor: '#DFE3E8',
+        repaintIntervalRate: 15
+    };
+
+    Polymer({ /* jshint ignore:line */
+        values: values
+    });
+
+})(); /* jshint ignore:line */
+
+  </script>
+</polymer-element>

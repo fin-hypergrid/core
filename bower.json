@@ -1,18 +1,28 @@
 {
   "name": "fin-hypergrid",
-  "version": "0.2.11",
+  "version": "0.2.12",
+  "authors": [
+    "stevewirts <anonymous@example.com>"
+  ],
+  "description": "the hypergrid is a polmer web-component canvas based high performance grid control",
   "keywords": [
-    "seed",
-    "polymer",
-    "web-components"
+    "web-component",
+    "web-components",
+    "polymer"
   ],
   "main": "fin-hypergrid.html",
+  "license": "MIT",
+  "homepage": "https://github.com/stevewirts/fin-hypergrid/",
+  "ignore": [
+    "/.*",
+    "/tests/"
+  ],
   "dependencies": {
   },
   "devDependencies": {
-    "polymer": "Polymer/polymer#~0.5",
-    "fin-canvas": "~0.1",
-    "fin-rectangle": "~0.2",
+    "polymer": "Polymer/polymer#master",
+    "fin-canvas": "#master",
+    "fin-rectangle": "#master",
     "shadow-bar": "~0.12.0"
   }
 }
