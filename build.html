@@ -1,8 +1,4 @@
 <!DOCTYPE html><html><head>
-  <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
-  <title>fin-hypergrid Demo</title>
-
-  <script src="../webcomponentsjs/webcomponents.js"></script>
   <script src="../polymer-gestures/src/scope.js"></script>
 <script src="../polymer-gestures/src/targetfind.js"></script>
 <script src="../polymer-gestures/src/touch-action.js"></script>
@@ -327,7 +323,6 @@ html /deep/ [segment], html /deep/ segment {
   display: block;
   position: relative;
 }</style>
-
 
 
 
@@ -3038,11 +3033,28 @@ div.container {
     //<br>TODO:create a MutablePoint type in the rectangles project and use that here instead
     var tester = {
         isContainedWithinRectangle: function(rect) {
+            var minX = rect.origin.x;
+            var minY = rect.origin.y;
+            var maxX = minX + rect.extent.x;
+            var maxY = minY + rect.extent.y;
+
+            if (rect.extent.x < 0)
+            {
+                minX = maxX;
+                maxX = rect.origin.x;
+            }
+
+            if (rect.extent.y < 0)
+            {
+                minY = maxY;
+                maxY = rect.origin.y;
+            }
+
             var result =
-                this.x >= rect.origin.x &&
-                this.y >= rect.origin.y &&
-                this.x <= rect.corner.x &&
-                this.y <= rect.corner.y;
+                this.x >= minX &&
+                this.y >= minY &&
+                this.x <= maxX &&
+                this.y <= maxY;
 
             return result;
         },
@@ -3068,18 +3080,6 @@ div.container {
 
             //this is very hacky, we swap the origin and extent if the extents are negative
             //<br>TODO:fix rectangle package to implement high performant contains with negative extents
-            var tmp;
-            if (ex < 0) {
-                tmp = ex;
-                ox = ox + ex;
-                ex = -tmp;
-            }
-
-            if (ey < 0) {
-                tmp = ey;
-                oy = oy + ey;
-                ey = -tmp;
-            }
 
             var newSelection = this.rectangles.rectangle.create(ox, oy, ex, ey);
             this.selections.push(newSelection);
