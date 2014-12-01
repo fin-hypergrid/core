@@ -5,25 +5,15 @@
   <title>fin-hypergrid Demo</title>
 
   <script src="../webcomponentsjs/webcomponents.js"></script>
-  <link rel="import" href="fin-hypergrid-behavior-default.html">
-  <link rel="import" href="fin-hypergrid-behavior-in-memory.html">
-  <link rel="import" href="fin-hypergrid-behavior-q.html">
-  <link rel="import" href="fin-hypergrid.html">
-  <style>
-    fin-hypergrid {
-      position: absolute;
-      top: 0;
-      right: 0;
-      bottom: 0;
-      left: 0;
-    }
-  </style>
+  <link rel="import" href="build.html">
+
 </head>
 <body unresolved>
   <fin-hypergrid>
-    <!-- <fin-hypergrid-behavior-default class="fin-hypergrid-behavior"></fin-hypergrid-behavior-default> -->
-   <!--  <fin-hypergrid-behavior-in-memory class="fin-hypergrid-behavior"></fin-hypergrid-behavior-in-memory> -->
-    <fin-hypergrid-behavior-q url="ws://localhost:5000/" class="fin-hypergrid-behavior"></fin-hypergrid-behavior-q>
+    <!-- <fin-hypergrid-behavior-default></fin-hypergrid-behavior-default> -->
+    <!-- <fin-hypergrid-behavior-in-memory></fin-hypergrid-behavior-in-memory> -->
+    <fin-hypergrid-behavior-q url="ws://localhost:5000/"></fin-hypergrid-behavior-q>
+    <fin-hypergrid-excel></fin-hypergrid-excel>
   </fin-hypergrid>
 </body>
 </html>

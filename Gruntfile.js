@@ -35,7 +35,7 @@ module.exports = function(grunt) {
         watch: {
             jsandhtml: {
                 files: files.js,
-                tasks: ['jsbeautifier', 'jshint', 'concat', 'wct-test'],
+                tasks: ['jsbeautifier', 'jshint', 'concat', 'wct-test', 'vulcanize'],
             },
             gruntfile: {
                 files: ['Gruntfile.js'],
@@ -48,6 +48,15 @@ module.exports = function(grunt) {
                 },
                 tasks: ['jshint']
             }
+        },
+
+        vulcanize: {
+            default: {
+                options: {},
+                files: {
+                    'build.html': 'allInOne.html'
+                },
+            },
         },
 
         jshint: {

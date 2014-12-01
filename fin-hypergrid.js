@@ -68,10 +68,16 @@
             //this.selectionModel.setGrid(this);
 
             //setup the model
-            var behavior = this.querySelector('.fin-hypergrid-behavior');
+            var plugins = this.children;
+
+            for (var i = 0; i < plugins.length; i++) {
+                var plugin = plugins[i];
+                if (plugin.installOn) {
+                    plugin.installOn(this);
+                }
+            }
             // var children = this.children;
             // console.log(children);
-            this.setBehavior(behavior);
 
             this.mouseDown = this.rectangles.point.create(-1, -1);
             this.dragExtent = this.rectangles.point.create(0, 0);
@@ -841,7 +847,7 @@
         },
 
         setVScrollValue: function(y) {
-            this.getBehavior().setScrollTop(y);
+            this.getBehavior().setScrollPositionY(y);
             this.vScrollValue = y;
             this.scrollValueChangedNotification();
         },
@@ -851,7 +857,7 @@
         },
 
         setHScrollValue: function(x) {
-            this.getBehavior().setScrollLeft(x);
+            this.getBehavior().setScrollPositionX(x);
             this.hScrollValue = x;
             this.scrollValueChangedNotification();
         },

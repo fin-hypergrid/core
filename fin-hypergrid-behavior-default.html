@@ -1,7 +1,7 @@
 <link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="fin-hypergrid-constants.html">
 <link rel="import" href="fin-hypergrid-cell-provider.html">
-<polymer-element name="fin-hypergrid-behavior-default" class="fin-hypergrid-behavior">
+<polymer-element name="fin-hypergrid-behavior-default">
   <template></template>
   <script>
 
@@ -33,13 +33,15 @@
         readyInit: function() {
             this.constants = document.createElement('fin-hypergrid-constants').values;
             this.cellProvider = this.createCellProvider();
-            this.scrollLeft = 0;
-            this.scrollTop = 0;
+            this.scrollPositionX = 0;
+            this.scrollPositionY = 0;
             this.renderedWidth = 30;
             this.renderedHeight = 60;
             this.values = {}; //for overriding with edit values;
         },
-
+        installOn: function(grid) {
+            grid.setBehavior(this);
+        },
         getCellProvider: function() {
             return this.cellProvider;
         },
@@ -180,16 +182,16 @@
         //this is set by OFGrid on scroll
         //<br>this allows for fast scrolling through rows of very large external data sets
         //<br>this is ignored by in memory GridBehaviors
-        setScrollTop: function(y) {
-            this.scrollTop = y;
+        setScrollPositionY: function(y) {
+            this.scrollPositionY = y;
             this.changed();
         },
 
         //this is set by OFGrid on scroll
         //<br>this allows for fast scrolling through cols of very large external data sets
         //<br>this is ignored by in memory GridBehaviors
-        setScrollLeft: function(x) {
-            this.scrollLeft = x;
+        setScrollPositionX: function(x) {
+            this.scrollPositionX = x;
             this.changed();
         },
 

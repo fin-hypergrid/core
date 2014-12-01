@@ -1,7 +1,7 @@
 <link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="fin-hypergrid-cell-provider.html">
 <link rel="import" href="fin-hypergrid-behavior-default.html">
-<polymer-element name="fin-hypergrid-behavior-q" extends="fin-hypergrid-behavior-default" class="fin-hypergrid-behavior" attributes="url">
+<polymer-element name="fin-hypergrid-behavior-q" extends="fin-hypergrid-behavior-default" attributes="url">
   <template></template>
   <script>
 
@@ -115,7 +115,7 @@
         //This is overridden from DefaultGridBehavior.   This value is set on us by the OFGrid component on user scrolling.
         //<br>TODO: refactor: don't store this value in an local member, store it in the message ONLY.
         //<br>TODO: refactor: num should be dynamic
-        setScrollTop: function(y) {
+        setScrollPositionY: function(y) {
             this.scrollPositionY = y;
             this.ws.send(JSON.stringify({
                 cmd: 'fetch',
@@ -148,7 +148,7 @@
 
         //on a header click do a sort!
         fixedRowClicked: function(grid, mouse) {
-            this.toggleSort(this.scrollLeft + mouse.cell.x - this.getFixedColCount());
+            this.toggleSort(this.scrollPositionX + mouse.cell.x - this.getFixedColCount());
         },
 
         //first ask q if this is a sortable instance, then send a message to Q to sort our data set
