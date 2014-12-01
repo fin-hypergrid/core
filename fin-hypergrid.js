@@ -411,7 +411,7 @@
         },
 
         behaviorShapeChanged: function() {
-            this.syncronizeScrollingBoundries();
+            this.synchronizeScrollingBoundries();
         },
 
         repaint: function() {

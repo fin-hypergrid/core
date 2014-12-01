@@ -56,7 +56,7 @@
         //default to left halign for rendering performance improvement
         //<br>and make cols 3, 23, 41 use special cell renderers
         createCellProvider: function() {
-            var provider = document.createElement('fin-hypergrid-behavior-default');
+            var provider = document.createElement('fin-hypergrid-cell-provider');
             provider.getCell = function(config) {
                 var renderer = provider.cellCache.simpleCellRenderer;
                 config.halign = 'left';

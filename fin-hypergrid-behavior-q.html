@@ -51,7 +51,7 @@
             this.ws = null;
             this.url = 'ws://localhost:5000/';
             this.connect();
-            this.scrollTop = 0;
+            this.scrollPositionY = 0;
             this.scrolled = false;
             this.block = {
                 data: [],
@@ -80,14 +80,14 @@
         },
 
         //for now we use the hacky override implementation to save data, in the future we'll have a more elaborate protocol with Q to do real validation and setting of data.
-        //<br>take note of the usage of the scrollTop value in translating our in-memory data page
+        //<br>take note of the usage of the scrollPositionY value in translating our in-memory data page
         getValue: function(x, y) {
             var override = this.values['p_' + (x + 1) + '_' + y];
             if (override) {
                 return override;
             }
 
-            var normalized = Math.floor(y - this.scrollTop);
+            var normalized = Math.floor(y - this.scrollPositionY);
             if (this.block && normalized < this.block.data.length) {
                 return this.block.data[normalized][x + 1];
             } else {
@@ -116,11 +116,11 @@
         //<br>TODO: refactor: don't store this value in an local member, store it in the message ONLY.
         //<br>TODO: refactor: num should be dynamic
         setScrollTop: function(y) {
-            this.scrollTop = y;
+            this.scrollPositionY = y;
             this.ws.send(JSON.stringify({
                 cmd: 'fetch',
                 data: {
-                    start: this.scrollTop,
+                    start: this.scrollPositionY,
                     num: 60
                 }
             }));
@@ -168,7 +168,7 @@
                     sort: current === (stateCount - 1) ? '' : this.block.headers[colIndex][0],
                     asc: state.indexOf('^') > 0,
                     abs: state.indexOf('|') > 0,
-                    start: this.scrollTop,
+                    start: this.scrollPositionY,
                     num: 60
                 }
             };
@@ -199,7 +199,7 @@
                     self.ws.send(JSON.stringify({
                         cmd: 'fetch',
                         data: {
-                            start: this.scrollTop || 0,
+                            start: this.scrollPositionY || 0,
                             num: 60
                         }
                     }));

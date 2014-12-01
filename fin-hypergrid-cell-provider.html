@@ -19,6 +19,35 @@
     //override [createCellProvider](DefaultGridBehavior.html) creating an instance of thisobject.  Override members of this object per your specific needs.
     //see [QGridBehavior.createCellProvider](QGridBehavior.html) for an example of overriding createCellProvider.
 
+        //emersons utility function for rendering a rounded corner rectangle
+        //<br>TODO:this should be moved to a graphics rendering lib
+    var roundRect = function(ctx, x, y, width, height, radius, fill, stroke) {
+        if (!stroke) {
+            stroke = true;
+        }
+        if (!radius) {
+            radius = 5;
+        }
+        ctx.beginPath();
+        ctx.moveTo(x + radius, y);
+        ctx.lineTo(x + width - radius, y);
+        ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+        ctx.lineTo(x + width, y + height - radius);
+        ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+        ctx.lineTo(x + radius, y + height);
+        ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+        ctx.lineTo(x, y + radius);
+        ctx.quadraticCurveTo(x, y, x + radius, y);
+        ctx.closePath();
+        if (stroke) {
+            ctx.stroke();
+        }
+        if (fill) {
+            ctx.fill();
+        }
+    };
+
+
     Polymer({ /* jslint ignore:line */
         created: function() {
             if (!constants) {
@@ -99,34 +128,6 @@
 
         },
 
-        //emersons utility function for rendering a rounded corner rectangle
-        //<br>TODO:this should be moved to a graphics rendering lib
-        roundRect: function(ctx, x, y, width, height, radius, fill, stroke) {
-            if (!stroke) {
-                stroke = true;
-            }
-            if (!radius) {
-                radius = 5;
-            }
-            ctx.beginPath();
-            ctx.moveTo(x + radius, y);
-            ctx.lineTo(x + width - radius, y);
-            ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
-            ctx.lineTo(x + width, y + height - radius);
-            ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
-            ctx.lineTo(x + radius, y + height);
-            ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
-            ctx.lineTo(x, y + radius);
-            ctx.quadraticCurveTo(x, y, x + radius, y);
-            ctx.closePath();
-            if (stroke) {
-                ctx.stroke();
-            }
-            if (fill) {
-                ctx.fill();
-            }
-        },
-
         //emersons paint function for a slider button. currently the user cannot interact with it
         paintSlider: function(ctx, x, y, width, height) {
             ctx.strokeStyle = 'white';
@@ -141,7 +142,7 @@
             arcGradient.addColorStop(0, '#aaaaaa');
             arcGradient.addColorStop(1, '#777777');
             ctx.fillStyle = btnGradient;
-            this.roundRect(ctx, x, y, width, height, radius, btnGradient);
+            roundRect(ctx, x, y, width, height, radius, btnGradient);
             if (val < 1.0) {
                 ctx.fillStyle = arcGradient;
             } else {
