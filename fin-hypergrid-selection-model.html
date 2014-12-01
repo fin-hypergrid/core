@@ -9,39 +9,6 @@
 
 (function() {
 
-    //tester is here only to serve as a template for the testing of points being within a rectangle without the need to create a new point for each test.
-    //<br>TODO:create a MutablePoint type in the rectangles project and use that here instead
-    var tester = {
-        isContainedWithinRectangle: function(rect) {
-            var minX = rect.origin.x;
-            var minY = rect.origin.y;
-            var maxX = minX + rect.extent.x;
-            var maxY = minY + rect.extent.y;
-
-            if (rect.extent.x < 0)
-            {
-                minX = maxX;
-                maxX = rect.origin.x;
-            }
-
-            if (rect.extent.y < 0)
-            {
-                minY = maxY;
-                maxY = rect.origin.y;
-            }
-
-            var result =
-                this.x >= minX &&
-                this.y >= minY &&
-                this.x <= maxX &&
-                this.y <= maxY;
-
-            return result;
-        },
-        x: 0,
-        y: 0
-    };
-
     //We represent selections as a list of rectangles because large areas can be represented and tested against quickly with a minimal amount of memory usage. Also we need to maintain the selection rectangles flattened counter parts so we can test for single dimension contains.  This is how we know to highlight the fixed regions on the edges of the grid.
 
     Polymer({ /* jslint ignore:line */
@@ -101,9 +68,7 @@
         _isSelected: function(selections, x, y) {
             for (var i = 0; i < selections.length; i++) {
                 var each = selections[i];
-                tester.x = x;
-                tester.y = y;
-                if (each.contains(tester)) {
+                if (this.rectangles.rectangle.contains(each, x, y)) {
                     return true;
                 }
             }
