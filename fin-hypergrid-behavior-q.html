@@ -1,7 +1,7 @@
 <link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="fin-hypergrid-cell-provider.html">
 <link rel="import" href="fin-hypergrid-behavior-default.html">
-<polymer-element name="fin-hypergrid-behavior-q" extends="fin-hypergrid-behavior-default" class="fin-hypergrid-behavior">
+<polymer-element name="fin-hypergrid-behavior-q" extends="fin-hypergrid-behavior-default" class="fin-hypergrid-behavior" attributes="url">
   <template></template>
   <script>
 
@@ -49,7 +49,7 @@
             this.sorted = {};
             this.sortStates = ['', ' ^', ' v', ' |^|', ' |v|'];
             this.ws = null;
-            this.url = 'ws://localhost:5000/';
+            this.url = this.getAttribute('url') || 'ws://localhost:5000/';
             this.connect();
             this.scrollPositionY = 0;
             this.scrolled = false;
