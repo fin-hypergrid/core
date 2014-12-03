@@ -33,6 +33,7 @@
         constants: null,
         selectionModel: null,
         oncontextmenu: null,
+        cellEditors: {},
 
         domReady: function() {
             var self = this;
@@ -49,14 +50,12 @@
             //this.selectionModel.setGrid(this);
 
             //setup the model
-            var plugins = this.children;
-
-            for (var i = 0; i < plugins.length; i++) {
-                var plugin = plugins[i];
-                if (plugin.installOn) {
-                    plugin.installOn(this);
+            this.pluginsDo(function(each) {
+                if (each.installOn) {
+                    each.installOn(self);
                 }
-            }
+            });
+
             // var children = this.children;
             // console.log(children);
 
@@ -66,7 +65,6 @@
             this.initCanvas();
             this.initRenderer();
             this.initScrollbars();
-            this.initCellEditor();
 
             //Register a listener for the copy event so we can copy our selected region to the pastebuffer if conditions are right.
             document.body.addEventListener('copy', function(evt) {
@@ -75,7 +73,14 @@
             this.resized();
 
         },
+        pluginsDo: function(func) {
+            var plugins = this.children;
 
+            for (var i = 0; i < plugins.length; i++) {
+                var plugin = plugins[i];
+                func(plugin);
+            }
+        },
         getBehavior: function() {
             return this.behavior;
         },
@@ -86,139 +91,14 @@
             return provider;
         },
 
-        //Currently the only CellEditor is an input field.  The structure is in place for handling the CellEditor during focus change and grid scrolling.
-        //TODO:Generalize the cell editing functionality to delegate through the behvior objects and then through the cell editors.  Add more general CellEditor types/drop down/button/calendar/spinner/etc...
-        initCellEditor: function() {
-            var self = this;
-            var isEditing = false;
-            var editorPoint = this.rectangles.point.create(0, 0);
-            var checkEditorPositionFlag = false;
-
-            // var inputTemplate = document.createElement('input');
-            // inputTemplate.setAttribute('id', 'editor');
-            // shadowRoot.appendChild(inputTemplate);
-
-            var input = this.shadowRoot.querySelector('#editor');
-
-
-            input.addEventListener('keypress', function(e) {
-                if (e && e.keyCode === 13) {
-                    e.preventDefault();
-                    self.stopEditing();
-                    self.repaint();
-                    self.takeFocus();
-                }
-            });
-
-            this.setCheckEditorPositionFlag = function() {
-                checkEditorPositionFlag = true;
-            };
-
-            this.beginEditAt = function(point) {
-                this.setMouseDown(point);
-                this.setDragExtent(this.rectangles.point.create(0, 0));
-                var model = this.getBehavior();
-                this.setEditorPoint(point);
-                var value = model.getValue(point.x, point.y);
-                input.value = value + '';
-                isEditing = true;
-                self.setCheckEditorPositionFlag();
-                this.checkEditor();
-            };
-
-            this.getEditorPoint = function() {
-                return editorPoint;
-            };
-
-            this.setEditorPoint = function(point) {
-                editorPoint = point;
-            };
-
-            this.showEditor = function() {
-                input.style.display = 'inline';
-            };
-
-            this.hideEditor = function() {
-                input.style.display = 'none';
-            };
-
-            this.isEditing = function() {
-                return isEditing;
-            };
-
-            this.stopEditing = function() {
-                if (!isEditing) {
-                    return;
-                }
-                this.saveEditorValue();
-                isEditing = false;
-                this.hideEditor();
-            };
-
-            this.saveEditorValue = function() {
-                var point = this.getEditorPoint();
-                var value = this.getEditorValue();
-                this.getBehavior().setValue(point.x, point.y, value);
-            };
-
-            this.getEditorValue = function() {
-                var value = input.value;
-                return value;
-            };
-
-            this.editorTakeFocus = function() {
-                setTimeout(function() {
-                    input.focus();
-                    input.setSelectionRange(0, input.value.length);
-                }, 500);
-            };
-
-            this.moveEditor = function() {
-                var model = this.getBehavior();
-                var numFixedCols = model.getFixedColCount();
-                var numFixedRows = model.getFixedRowCount();
-                var vScroll = self.getVScrollValue();
-                var hScroll = self.getHScrollValue();
-                var editorPoint = this.getEditorPoint();
-                var x = editorPoint.x + numFixedCols - hScroll;
-                var y = editorPoint.y + numFixedRows - vScroll;
-                var eb = self.getBoundsOfCell(this.rectangles.point.create(x, y));
-                var db = self.getDataBounds();
-                var cellBounds = eb.intersect(db);
-                var translation = 'translate(' + (cellBounds.origin.x - 2) + 'px,' + (cellBounds.origin.y - 2) + 'px)';
-                input.style.webkitTransform = translation;
-                input.style.MozTransform = translation;
-                input.style.msTransform = translation;
-                input.style.OTransform = translation;
-
-                input.style.width = cellBounds.extent.x + 'px';
-                input.style.height = cellBounds.extent.y + 'px';
-                this.editorTakeFocus();
-            };
-
-            this.checkEditor = function() {
-                if (!checkEditorPositionFlag) {
-                    return;
-                } else {
-                    checkEditorPositionFlag = false;
-                }
-                if (!this.isEditing()) {
-                    return;
-                }
-                var editorPoint = this.getEditorPoint();
-                if (this.isDataVisible(editorPoint.x, editorPoint.y)) {
-                    this.moveEditor();
-                    this.showEditor();
-                } else {
-                    this.hideEditor();
-                }
-            };
-        },
-
         //This function is a callback from the HypergridRenderer sub-component.   It is called after each paint of the canvas.
         gridRenderedNotification: function() {
             this.updateRenderedSizes();
-            this.checkEditor();
+            this.pluginsDo(function(each) {
+                if (each.gridRenderedNotification) {
+                    each.gridRenderedNotification();
+                }
+            });
         },
 
         //Notify the PluggableGridBehavior how many rows and columns we just rendered.
@@ -452,6 +332,18 @@
             });
         },
 
+        stopEditing: function() {
+            this.pluginsDo(function(each) {
+                if (each.stopEditing) {
+                    each.stopEditing();
+                }
+            });
+        },
+
+        registerCellEditor: function(alias, cellEditor) {
+            this.cellEditors[alias] = cellEditor;
+        },
+
         scrollDrag: function() {
             if (!this.scrollingNow) {
                 return;
@@ -520,7 +412,13 @@
         },
 
         //Currently this is called by default from the PluggableBehavior, this piece needs to be reworked to re-delegate back through the PluggableBehavior to let it decide how to edit the cell.
-        editAt: function(coordinates) {
+        editAt: function(cellEditorAlias, coordinates) {
+
+            var cellEditor = this.cellEditors[cellEditorAlias];
+            if (!cellEditor) {
+                console.error('there is no cellEditor of type ' + cellEditorAlias);
+                return;
+            }
 
             var cell = coordinates.cell;
             var behavior = this.getBehavior();
@@ -536,7 +434,12 @@
             if (x < 0 || y < 0) {
                 return;
             }
-            this.beginEditAt(this.rectangles.point.create(x, y));
+
+
+            var editPoint = this.rectangles.point.create(x, y);
+            this.setMouseDown(editPoint);
+            this.setDragExtent(this.rectangles.point.create(0, 0));
+            cellEditor.beginEditAt(editPoint);
         },
 
         //Generate a function name and call it on self.  This should also be delegated through PluggableBehavior keeping the default implementation here though.
@@ -917,7 +820,11 @@
                 previousHScrollValue = this.hScrollValue;
                 previousVScrollValue = this.vScrollValue;
 
-                self.setCheckEditorPositionFlag();
+                self.pluginsDo(function(each) {
+                    if (each.scrollValueChangedNotification) {
+                        each.scrollValueChangedNotification();
+                    }
+                });
             };
 
             this.getScrollConfigs = function() {
