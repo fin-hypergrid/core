@@ -40,7 +40,9 @@ echo "{
   \"directory\": \"components\"
 }
 " > .bowerrc
-bower install --save $org/$repo#$branch
+
+git clone http://github.com/$org/$repo.git components/$repo
+rm -rf components/$repo/.git
 
 cp -rf ../../core-component-page ./components/core-component-page
 cp -rf ../../webcomponentsjs ./components/webcomponentsjs
