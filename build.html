@@ -1702,8 +1702,9 @@ html /deep/ [segment], html /deep/ segment {
   </script>
 </polymer-element>
 
-<polymer-element name="fin-rectangle" attributes="notitle author" assetpath="../fin-rectangle/">
+<polymer-element name="fin-rectangle" assetpath="../fin-rectangle/">
   <script>
+
 'use strict';
 
 (function() {
@@ -1737,6 +1738,13 @@ html /deep/ [segment], html /deep/ segment {
 
         var that = {};
 
+        /**
+         * The x of this point expressed as a number,
+         *
+         * @property point.x
+         * @type number
+         * @default '0'
+         */
         Object.defineProperty(that, 'x', {
             value: x || 0,
             writable: false,
@@ -1744,6 +1752,14 @@ html /deep/ [segment], html /deep/ segment {
             configurable: false
         });
 
+
+        /**
+         * The y of this point expressed as a number,
+         *
+         * @property point.y
+         * @type number
+         * @default '0'
+         */
         Object.defineProperty(that, 'y', {
             value: y || 0,
             writable: false,
@@ -1751,41 +1767,133 @@ html /deep/ [segment], html /deep/ segment {
             configurable: false
         });
 
+
+        /**
+         *                                                                      .
+         *                                                                      .
+         * returns an instance of point that is the sum of self and the argument.
+         *
+         * @method point.plus(point)
+         * @param {point} a point to add to self
+         * @returns {point} point object.
+         */
         that.plus = function(point) {
             var result = createPoint(this.x + point.x, y + point.y);
             return result;
         };
 
+
+        /**
+         *                                                                      .
+         *                                                                      .
+         * returns an instance of point that is the difference of self and the argument.
+         *
+         * @method point.minus(point)
+         * @param {point} a point to subtract from self
+         * @returns {point} point object.
+         */
         that.minus = function(point) {
             var result = createPoint(x - point.x, y - point.y);
             return result;
         };
+
+
+        /**
+         *                                                                      .
+         *                                                                      .
+         * returns an instance of point that is the min x and y of self and the argument.
+         *
+         * @method point.min(point)
+         * @param {point} a point to source min x and min y against self
+         * @returns {point} point object.
+         */
         that.min = function(point) {
             var result = createPoint(Math.min(x, point.x), Math.min(y, point.y));
             return result;
         };
+
+
+        /**
+         *                                                                      .
+         *                                                                      .
+         * returns an instance of point that is the max x and y of self and the argument.
+         *
+         * @method point.max(point)
+         * @param {point} a point to source max x and max y against self
+         * @returns {point} point object.
+         */
         that.max = function(point) {
             var result = createPoint(Math.max(x, point.x), Math.max(y, point.y));
             return result;
         };
+
+        /**
+         *                                                                      .
+         *                                                                      .
+         * returns distance between the argment and self using the distance formula.
+         *
+         * @method point.distance(point)
+         * @param {point} a point to compute the distance from self
+         * @returns {Number} number object.
+         */
         that.distance = function(point) {
             var dx = point.x - x,
                 dy = point.y - y,
                 result = Math.sqrt((dx * dx) + (dy * dy));
             return result;
         };
+
+        /**
+         *                                                                      .
+         *                                                                      .
+         * returns if both x and y of self is greater than that of the argument.
+         *
+         * @method point.greaterThan(point)
+         * @param {point} a point to compare against self
+         * @returns {boolean} boolean value.
+         */
         that.greaterThan = function(point) {
             var result = this.x > point.x && y > point.y;
             return result;
         };
+
+        /**
+         *                                                                      .
+         *                                                                      .
+         * returns if both x and y of self is less than that of the argument.
+         *
+         * @method point.lessThan(point)
+         * @param {point} a point to compare against self
+         * @returns {boolean} boolean value.
+         */
         that.lessThan = function(point) {
             var result = this.x < point.x && y < point.y;
             return result;
         };
+
+        /**
+         *                                                                      .
+         *                                                                      .
+         * returns if both x and y of self is greater than or equal to that of the argument.
+         *
+         * @method point.greaterThanEqualTo(point)
+         * @param {point} a point to compare against self
+         * @returns {boolean} boolean value.
+         */
         that.greaterThanEqualTo = function(point) {
             var result = this.x >= point.x && y >= point.y;
             return result;
         };
+
+        /**
+         *                                                                      .
+         *                                                                      .
+         * returns if both x and y of self is less than or equal to that of the argument.
+         *
+         * @method point.lessThanEqualTo(point)
+         * @param {point} a point to compare against self
+         * @returns {boolean} boolean value.
+         */
         that.lessThanEqualTo = function(point) {
             var result = this.x <= point.x && y <= point.y;
             return result;
@@ -1800,9 +1908,40 @@ html /deep/ [segment], html /deep/ segment {
 
         var that = {};
 
+        /**
+         * The origin of this rectangle expressed as a point object,
+         *
+         * @property rectangle.origin
+         * @type point
+         * @default 'point at 0,0'
+         */
         var origin = createPoint(x, y);
+
+        /**
+         * The extent of this rectangle expressed as a point object,
+         *
+         * @property rectangle.extent
+         * @type point
+         * @default 'point at 0,0'
+         */
         var extent = createPoint(width, height);
+
+        /**
+         * The corner of this rectangle expressed as a point object,
+         *
+         * @property rectangle.corner
+         * @type point
+         * @default 'point at 0,0'
+         */
         var corner = createPoint(x + width, y + height);
+
+        /**
+         * The center of this rectangle expressed as a point object,
+         *
+         * @property rectangle.center
+         * @type point
+         * @default 'point at 0,0'
+         */
         var center = createPoint(x + (width / 2), y + (height / 2));
 
         Object.defineProperty(that, 'origin', {
@@ -1833,46 +1972,116 @@ html /deep/ [segment], html /deep/ segment {
             configurable: false
         });
 
+        /**
+         *                                                                      .
+         *                                                                      .
+         * returns this.origin.y, this may need to change
+         *
+         * @method rectangle.top()
+         */
         that.top = function() {
             return this.origin.y;
         };
 
+        /**
+         *                                                                      .
+         *                                                                      .
+         * returns this.origin.x, this may need to change
+         *
+         * @method rectangle.left()
+         */
         that.left = function() {
             return this.origin.x;
         };
 
+        /**
+         *                                                                      .
+         *                                                                      .
+         * returns this.top() + this.extent.y, this may need to change
+         *
+         * @method rectangle.bottom()
+         */
         that.bottom = function() {
             return this.top() + this.extent.y;
         };
 
+        /**
+         *                                                                      .
+         *                                                                      .
+         * returns this.left() + this.extent.x, this may need to change
+         *
+         * @method rectangle.right()
+         */
         that.right = function() {
             return this.left() + this.extent.x;
         };
 
+        /**
+         *                                                                      .
+         *                                                                      .
+         * returns this.extent.x
+         *
+         * @method rectangle.width()
+         */
         that.width = function() {
             return this.extent.x;
         };
 
+        /**
+         *                                                                      .
+         *                                                                      .
+         * returns this.extent.y
+         *
+         * @method rectangle.height()
+         */
         that.height = function() {
             return this.extent.y;
         };
 
+        /**
+         *                                                                      .
+         *                                                                      .
+         * returns this.extent.x * this.extent.y
+         *
+         * @method rectangle.area()
+         */
         that.area = function() {
             return this.extent.x * this.extent.y;
         };
 
+        /**
+         *                                                                      .
+         *                                                                      .
+         * returns a rectangle width 0 and origin x set to argument
+         *
+         * @method rectangle.flattenXAt(x)
+         */
         that.flattenXAt = function(x) {
             var o = this.origin;
             var e = this.extent;
             return createRectangle(x, o.y, 0, e.y);
         };
 
+        /**
+         *                                                                      .
+         *                                                                      .
+         * returns a rectangle height 0 and origin y set to argument
+         *
+         * @method rectangle.flattenYAt(y)
+         */
         that.flattenYAt = function(y) {
             var o = this.origin;
             var e = this.extent;
             return createRectangle(o.x, y, e.x, 0);
         };
 
+        /**
+         *                                                                      .
+         *                                                                      .
+         * returns true if argument point or rectangle is entirely contained inside self
+         *
+         * @method rectangle.contains(pointOrRect)
+         */
         that.contains = function(pointOrRect) {
             var result = pointOrRect.isContainedWithinRectangle(this);
             return result;
@@ -1883,6 +2092,13 @@ html /deep/ [segment], html /deep/ segment {
             return result;
         };
 
+        /**
+         *                                                                      .
+         *                                                                      .
+         * return a Rectangle that is enlarged/shrunk by argument size
+         *
+         * @method rectangle.insetBy(thickness)
+         */
         that.insetBy = function(thickness) {
             var result = createRectangle(
                 this.origin.x + thickness,
@@ -1892,8 +2108,15 @@ html /deep/ [segment], html /deep/ segment {
             return result;
         };
 
+        /**
+         *                                                                      .
+         *                                                                      .
+         * return a Rectangle that contains the receiver and the argument
+         *
+         * @method rectangle.union(rectangle)
+         */
         that.union = function(rectangle) {
-            //answer a rectangle that contains the receiver and argment rectangles
+
             var anOrigin = this.origin.min(rectangle.origin),
                 aCorner = this.corner.max(rectangle.corner),
                 width = aCorner.x - anOrigin.x,
@@ -1903,6 +2126,13 @@ html /deep/ [segment], html /deep/ segment {
             return result;
         };
 
+        /**
+         *                                                                      .
+         *                                                                      .
+         * iterate over all points inside me calling function(x,y) for each
+         *
+         * @method rectangle.forEach(function)
+         */
         that.forEach = function(func) {
             var xstart = this.origin.x;
             var xstop = this.origin.x + this.extent.x;
@@ -1915,9 +2145,15 @@ html /deep/ [segment], html /deep/ segment {
             }
         };
 
+        /**
+         *                                                                      .
+         *                                                                      .
+         * returns a Rectangle that is the area in which the receiver overlaps with the argument.  ifNoneAction is called if there is no intersection; it has arguments this and rectangle passed in
+         *
+         * @method rectangle.intersect(rectangle,ifNoneAction)
+         */
         that.intersect = function(rectangle, ifNoneAction) {
-            //Answer a Rectangle that is the area in which the receiver overlaps with
-            //rectangle. Optimized for speed
+
             var point = rectangle.origin,
                 myCorner = this.corner,
                 left = null,
@@ -1958,8 +2194,14 @@ html /deep/ [segment], html /deep/ segment {
             return result;
         };
 
+        /**
+         *                                                                      .
+         *                                                                      .
+         * returns true if we overlap with the argument, false otherwise
+         *
+         * @method rectangle.intersects(rectangle)
+         */
         that.intersects = function(rectangle) {
-            //return true if we overlap, false otherwise
 
             var rOrigin = rectangle.origin,
                 rCorner = rectangle.corner;
@@ -1982,6 +2224,41 @@ html /deep/ [segment], html /deep/ segment {
         return that;
     }
 
+    /**
+     *                                                                        .
+     *                                                                      .
+     * returns an instance of point.
+     *
+     * @method static.point.create(x,y)
+     * @param {Number} the x coordinate
+     *    @param {Number} the y coordinate.
+     * @returns {point} point object.
+     */
+
+    /**
+     *                                                                      .
+     *                                                                      .
+     * returns an instance of rectangle.
+     *
+     * @method static.rectangle.create(ox,oy,ex,ey)
+     * @param {Number} the x origin coordinate
+     *    @param {Number} the y origin coordinate.
+     *    @param {Number} the width extent.
+     *    @param {Number} the height extent.
+     * @returns {rectangle} rectangle object.
+     */
+
+    /**
+     *                                                                      .
+     *                                                                      .
+     * returns if a rectangle contains x, y.
+     *
+     * @method static.rectangle.contains(rectangle,x,y)
+     * @param {rectangle} an instance of rectangle
+     *    @param {Number} the x coordinate.
+     *    @param {Number} the y coordinate.
+     * @returns {rectangle} rectangle object.
+     */
     Polymer('fin-rectangle', { /* jshint ignore:line  */
         point: {
             create: createPoint
@@ -2035,6 +2312,12 @@ div.container {
 
 (function() {
 
+    /**
+     * charMap is a private property that maps keys strokes to key chars,
+     *
+     * @property charMap
+     * @type Array
+     */
     var charMap = [];
     var empty = ['', ''];
     for (var i = 0; i < 256; i++) {
@@ -2107,6 +2390,185 @@ div.container {
     charMap[39] = ['RIGHT', 'RIGHTSHIFT'];
 
     Polymer('fin-canvas', { /* jshint ignore:line */
+        /**                                                             .
+         * g is the [fin-rectangle](http://stevewirts.github.io/fin-rectangle/components/fin-rectangle/) factory for creating instances of rectangle and point
+         *
+         * @property g
+         * @type fin-rectangle polymer-element
+         */
+        g: null,
+
+        /**                                                             .
+         * canvas is the actual rendering surface that bit-blit to from the buffer
+         *
+         * @property canvas
+         * @type HTMLCanvasElement
+         */
+        canvas: null,
+
+        /**                                                             .
+         * cavasCTX is the cached graphics context from canvas we bit blit to
+         *
+         * @property cavasCTX
+         * @type 2DRenderingContext
+         */
+        cavasCTX: null,
+
+        /**                                                             .
+         * focuser is a button element that is used to simulate proper focus semantics
+         *
+         * @property focuser
+         * @type HTMLButtonElement
+         */
+        focuser: null,
+
+        /**                                                             .
+         * buffer is the offscreen canvas component we draw to that will eventually be bit blit to canvas
+         *
+         * @property buffer
+         * @type HTMLCanvasElement
+         */
+        buffer: null,
+
+        /**                                                             .
+         * ctx is the offscreen cached graphics context from buffer that we draw to
+         *
+         * @property ctx
+         * @type 2DRenderingContext
+         */
+        ctx: null,
+
+        /**                                                             .
+         * fps is how many times a second we check the repaint flag for redrawing
+         *
+         * @property fps
+         * @type Number
+         */
+        fps: null,
+
+        /**                                                             .
+         * mouseLocation is the current position of the mouse pointer
+         *
+         * @property mouseLocation
+         * @type point
+         */
+        mouseLocation: null,
+
+        /**                                                             .
+         * dragstart is the origin of a drag region for the selection
+         *
+         * @property dragstart
+         * @type point
+         */
+        dragstart: null,
+
+        /**                                                             .
+         * origin location of the top right corner of the grid according to [getBoundingClientRect](https://developer.mozilla.org/en-US/docs/Web/API/Element.getBoundingClientRect)
+         *
+         * @property origin
+         * @type point
+         */
+        origin: null,
+
+        /**                                                             .
+         * bounds is a private property that maps keys strokes to key chars,
+         *
+         * @property bounds
+         * @type Array
+         */
+        bounds: null,
+
+        /**                                                             .
+         * repaintNow is a private property that maps keys strokes to key chars,
+         *
+         * @property repaintNow
+         * @type Array
+         */
+        repaintNow: false,
+
+        /**                                                             .
+         * size is a private property that maps keys strokes to key chars,
+         *
+         * @property size
+         * @type Array
+         */
+        size: null,
+
+        /**                                                             .
+         * mousedown is a private property that maps keys strokes to key chars,
+         *
+         * @property mousedown
+         * @type Array
+         */
+        mousedown: false,
+
+        /**                                                             .
+         * dragging is true if we are currently dragging
+         *
+         * @property dragging
+         * @type boolean
+         */
+        dragging: false,
+
+        /**                                                             .
+         * focused is true if we currently have input focus
+         *
+         * @property focused
+         * @type boolean
+         */
+        focused: false,
+
+        /**                                                             .
+         * repeatKeyCount is how many times we've recieved a key down event from the user holding a key down
+         *
+         * @property repeatKeyCount
+         * @type Number
+         */
+        repeatKeyCount: 0,
+
+        /**                                                             .
+         * repeatKey is the key that is currently being held down
+         *
+         * @property repeatKey
+         * @type char
+         */
+        repeatKey: null,
+
+        /**                                                             .
+         * repeatKeyStartTime is the start time in milliseconds of the initial keydown event of a key that is being held down
+         *
+         * @property repeatKeyStartTime
+         * @type Number
+         */
+        repeatKeyStartTime: 0,
+
+        /**                                                             .
+         * currentKeys is an array of the all the keys that are currently being pressed
+         *
+         * @property currentKeys
+         * @type Array
+         */
+        currentKeys: [],
+
+
+        /**
+         *                                                                      .
+         *                                                                      .
+         * the number of times per second we check the repaint flag to execute a repaint
+         *
+         * @attribute fps
+         * @default 60
+         * @type Number
+         */
+
+
+        /**
+         *                                                                      .
+         *                                                                      .
+         * a polymer lifecycle callback to initialize the canvas
+         *
+         * @method ready()
+         */
         ready: function() {
 
             this.g = document.createElement('fin-rectangle');
@@ -2120,63 +2582,65 @@ div.container {
 
             this.fps = this.getAttribute('fps') || 60;
 
-            document.addEventListener('mousemove', function(e) {
-                self.ofmousemove(e);
-            });
-            document.addEventListener('mouseup', function(e) {
-                self.ofmouseup(e);
-            });
-            this.focuser.addEventListener('focus', function(e) {
-                self.offocusgained(e);
-            });
-            this.focuser.addEventListener('blur', function(e) {
-                self.offocuslost(e);
-            });
-            this.addEventListener('mousedown', function(e) {
-                self.ofmousedown(e);
-            });
-            this.addEventListener('mouseout', function(e) {
-                self.ofmouseout(e);
-            });
-            document.addEventListener('keydown', function(e) {
-                self.ofkeydown(e);
-            });
-            document.addEventListener('keyup', function(e) {
-                self.ofkeyup(e);
-            });
-            this.addEventListener('click', function(e) {
-                self.ofclick(e);
-            });
-            this.addEventListener('dblclick', function(e) {
-                self.ofdblclick(e);
-            });
-
             this.mouseLocation = this.g.point.create(-1, -1);
             this.dragstart = this.g.point.create(-1, -1);
             this.origin = this.g.point.create(0, 0);
             this.bounds = this.g.rectangle.create(0, 0, 0, 0);
 
+            document.addEventListener('mousemove', function(e) {
+                self.finmousemove(e);
+            });
+            document.addEventListener('mouseup', function(e) {
+                self.finmouseup(e);
+            });
+            this.focuser.addEventListener('focus', function(e) {
+                self.finfocusgained(e);
+            });
+            this.focuser.addEventListener('blur', function(e) {
+                self.finfocuslost(e);
+            });
+            this.addEventListener('mousedown', function(e) {
+                self.finmousedown(e);
+            });
+            this.addEventListener('mouseout', function(e) {
+                self.finmouseout(e);
+            });
+            document.addEventListener('keydown', function(e) {
+                self.finkeydown(e);
+            });
+            document.addEventListener('keyup', function(e) {
+                self.finkeyup(e);
+            });
+            this.addEventListener('click', function(e) {
+                self.finclick(e);
+            });
+            this.addEventListener('dblclick', function(e) {
+                self.findblclick(e);
+            });
+
             this.resize();
             this.beginPainting();
         },
 
-
-        repaintNow: false,
-        size: null,
-
-        mousedown: false,
-        dragging: false,
-        focused: false,
-        repeatKeyCount: 0,
-        repeatKey: null,
-        repeatKeyStartTime: 0,
-        currentKeys: [],
-
+        /**
+         *                                                                      .
+         *                                                                      .
+         * return my one child fin-canvas-component
+         *
+         * @method getComponent()
+         */
         getComponent: function() {
             var comp = this.children[0];
             return comp;
         },
 
+        /**
+         *                                                                      .
+         *                                                                      .
+         * start the paint loop at this.fps rate
+         *
+         * @method beginPainting()
+         */
         beginPainting: function() {
             var self = this;
             self.repaintNow = true;
@@ -2194,6 +2658,13 @@ div.container {
             requestAnimationFrame(animate);
         },
 
+        /**
+         *                                                                      .
+         *                                                                      .
+         * check to see if my size has changed, if so notify myself
+         *
+         * @method checksize()
+         */
         checksize: function() {
             var sizeNow = this.getBoundingClientRect();
             if (sizeNow.width !== this.size.width || sizeNow.height !== this.size.height) {
@@ -2201,10 +2672,24 @@ div.container {
             }
         },
 
+        /**
+         *                                                                      .
+         *                                                                      .
+         * my size has changed, lets resize
+         *
+         * @method sizeChangedNotification()
+         */
         sizeChangedNotification: function() {
             this.resize();
         },
 
+        /**
+         *                                                                      .
+         *                                                                      .
+         * because HTMLCanvasElement doesn't obey normal HTML5 resize semantics, we need to update canvas and buffer sizes when our size changes
+         *
+         * @method resize()
+         */
         resize: function() {
             this.size = this.getBoundingClientRect();
 
@@ -2226,14 +2711,35 @@ div.container {
             //});
         },
 
+        /**
+         *                                                                      .
+         *                                                                      .
+         * my size has changed, lets resize
+         *
+         * @method sizeChangedNotification()
+         */
         resizeNotification: function() {
             //to be overridden
         },
 
+        /**
+         *                                                                      .
+         *                                                                      .
+         * my bounds with origin 0,0 and width and height set according to [getBoundingClientRect](https://developer.mozilla.org/en-US/docs/Web/API/Element.getBoundingClientRect)
+         *
+         * @method getBounds()
+         */
         getBounds: function() {
             return this.bounds;
         },
 
+        /**
+         *                                                                      .
+         *                                                                      .
+         * force a safe paint right now and then flush the buffer to the screen
+         *
+         * @method paintNow()
+         */
         paintNow: function() {
             var gc = this.ctx;
             try {
@@ -2247,12 +2753,26 @@ div.container {
             this.repaintNow = false;
         },
 
+        /**
+         *                                                                      .
+         *                                                                      .
+         * render the buffered drawing to the screen
+         *
+         * @method flushBuffer()
+         */
         flushBuffer: function() {
             if (this.buffer.width > 0 && this.buffer.height > 0) {
                 this.canvasCTX.drawImage(this.buffer, 0, 0);
             }
         },
 
+        /**
+         *                                                                      .
+         *                                                                      .
+         * this is the entry point to the view-heirarchy sub-structure painting, passing in the graphics context gc
+         *
+         * @method paint(gc)
+         */
         paint: function(gc) {
             var comp = this.getComponent();
             if (comp) {
@@ -2260,7 +2780,15 @@ div.container {
             }
         },
 
-        ofmousemove: function(e) {
+        /**
+         *                                                                      .
+         *                                                                      .
+         * handle the mouse move event
+         *
+         * @method finmousemove(e)
+         */
+
+        finmousemove: function(e) {
             var o = this.getOrigin();
             if (!this.dragging && this.mousedown) {
                 this.dragging = true;
@@ -2292,7 +2820,14 @@ div.container {
             }
         },
 
-        ofmousedown: function(e) {
+        /**
+         *                                                                      .
+         *                                                                      .
+         * handle the mouse down event
+         *
+         * @method finmousedown(e)
+         */
+        finmousedown: function(e) {
 
             this.mouseLocation = this.g.point.create((e.offsetX || e.layerX), (e.offsetY || e.layerY));
             this.mousedown = true;
@@ -2307,7 +2842,14 @@ div.container {
 
         },
 
-        ofmouseup: function() {
+        /**
+         *                                                                      .
+         *                                                                      .
+         * handle the mouse up event
+         *
+         * @method finmouseup(e)
+         */
+        finmouseup: function() {
             if (this.dragging) {
                 this.dispatchEvent(new CustomEvent('fin-dragend', {
                     detail: {
@@ -2328,7 +2870,14 @@ div.container {
             }));
         },
 
-        ofmouseout: function() {
+        /**
+         *                                                                      .
+         *                                                                      .
+         * handle the mouse out event
+         *
+         * @method finmouseout(e)
+         */
+        finmouseout: function() {
             if (!this.mousedown) {
                 this.mouseLocation = this.g.point.create(-1, -1);
             }
@@ -2340,7 +2889,14 @@ div.container {
             }));
         },
 
-        ofclick: function(e) {
+        /**
+         *                                                                      .
+         *                                                                      .
+         * handle the mouse click event
+         *
+         * @method finclick(e)
+         */
+        finclick: function(e) {
             this.mouseLocation = this.g.point.create((e.offsetX || e.layerX), (e.offsetY || e.layerY));
             this.dispatchEvent(new CustomEvent('fin-click', {
                 detail: {
@@ -2350,7 +2906,14 @@ div.container {
             }));
         },
 
-        ofdblclick: function(e) {
+        /**
+         *                                                                      .
+         *                                                                      .
+         * handle the mouse double click event
+         *
+         * @method findblclick(e)
+         */
+        findblclick: function(e) {
             this.mouseLocation = this.g.point.create((e.offsetX || e.layerX), (e.offsetY || e.layerY));
             this.dispatchEvent(new CustomEvent('fin-dblclick', {
                 detail: {
@@ -2360,7 +2923,14 @@ div.container {
             }));
         },
 
-        ofkeydown: function(e) {
+        /**
+         *                                                                      .
+         *                                                                      .
+         * handle the keydown event
+         *
+         * @method finkeydown(e)
+         */
+        finkeydown: function(e) {
             if (!this.hasFocus()) {
                 return;
             }
@@ -2397,7 +2967,14 @@ div.container {
             }));
         },
 
-        ofkeyup: function(e) {
+        /**
+         *                                                                      .
+         *                                                                      .
+         * handle the keyup event
+         *
+         * @method finkeyup(e)
+         */
+        finkeyup: function(e) {
             if (!this.hasFocus()) {
                 return;
             }
@@ -2421,7 +2998,14 @@ div.container {
             }));
         },
 
-        offocusgained: function(e) {
+        /**
+         *                                                                      .
+         *                                                                      .
+         * handle the focusgained event
+         *
+         * @method finfocusgained(e)
+         */
+        finfocusgained: function(e) {
             this.focused = true;
             this.dispatchEvent(new CustomEvent('fin-focus-gained', {
                 detail: {
@@ -2430,7 +3014,14 @@ div.container {
             }));
         },
 
-        offocuslost: function(e) {
+        /**
+         *                                                                      .
+         *                                                                      .
+         * handle the focuslost event
+         *
+         * @method finfocuslost(e)
+         */
+        finfocuslost: function(e) {
             this.focused = false;
             this.dispatchEvent(new CustomEvent('fin-focus-lost', {
                 detail: {
@@ -2439,22 +3030,57 @@ div.container {
             }));
         },
 
+        /**
+         *                                                                      .
+         *                                                                      .
+         * tickle the repaint flag to on
+         *
+         * @method repaint()
+         */
         repaint: function() {
             this.repaintNow = true;
         },
 
+        /**
+         *                                                                      .
+         *                                                                      .
+         * getter accessor for the mouseLocation field
+         *
+         * @method getMouseLocation()
+         */
         getMouseLocation: function() {
             return this.mouseLocation;
         },
 
+        /**
+         *                                                                      .
+         *                                                                      .
+         * getter accessor for the origin field
+         *
+         * @method getOrigin()
+         */
         getOrigin: function() {
             return this.origin;
         },
 
+        /**
+         *                                                                      .
+         *                                                                      .
+         * answer if I have focus
+         *
+         * @method hasFocus()
+         */
         hasFocus: function() {
             return this.focused;
         },
 
+        /**
+         *                                                                      .
+         *                                                                      .
+         * try to take global input focus
+         *
+         * @method takeFocus()
+         */
         takeFocus: function() {
             var self = this;
             if (document.activeElement !== this.focuser) {
