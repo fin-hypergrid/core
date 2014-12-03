@@ -336,6 +336,8 @@ html /deep/ [segment], html /deep/ segment {
 
 
 
+
+
 </head>
 <body><div hidden="">
 
@@ -3097,6 +3099,429 @@ div.container {
   </script>
 </polymer-element>
 
+<polymer-element name="fin-vampire-bar" attributes="" assetpath="../fin-vampire-bar/">
+  <template>
+    <style>
+    .scroll-bar {
+      width: 15px;
+      position: absolute;
+      top:0;
+      bottom:0;
+      background-color: lightgrey;
+    }
+    .scroll-bar-gutter {
+      position: absolute;
+      top: 0%;
+      bottom: 0%;
+      right: 0%;
+      left: 0%;
+      margin-top: 15px;
+      margin-bottom: 35px;
+    }
+    .scroll-bar.horizontal {
+      height: 15px;
+      width: 100%;
+      position: absolute;
+      left:0;
+      right: 100%;
+      top:100%;
+    }
+
+    .horizontal .scroll-bar-gutter {
+      position: absolute;
+      top: 0%;
+      bottom: 0%;
+      right: 0%;
+      left: 0%;
+      margin-top: 0px;
+      margin-bottom: 0px;
+      margin-left: 15px;
+      margin-right: 35px;
+    }
+
+    .scroll-bar-up{
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 15px;
+      height: 15px;
+      background-color: darkgrey;
+    }
+
+    .scroll-bar.horizontal .scroll-bar-up{
+      position: absolute;
+      top: 0;
+      right: 0;
+      left: auto;
+      width: 15px;
+      height: 15px;
+      background-color: darkgrey;
+    }
+
+    .scroll-bar-thumb {
+      background-color: gray;
+      width: 15px;
+      height: 20px;
+      top: 0;
+      left: 0px;
+      position: absolute;
+    }
+/*    .scroll-bar-thumb:mousedown {
+
+    }*/
+
+    .scroll-bar.horizontal .scroll-bar-thumb {
+      height: 15px;
+      width: 20px;
+      left: 0px;
+      top: 0;
+      position: absolute;
+    }
+
+    .scroll-bar-down{
+      position: absolute;
+      right: 0;
+      bottom: 0;
+      width: 15px;
+      height: 15px;
+      background-color: darkgrey;
+    }
+    .scroll-bar.horizontal .scroll-bar-down{
+      position: absolute;
+      left: 0;
+      width: 15px;
+      height: 15px;
+      background-color: darkgrey;
+    }
+
+    </style>
+    <div class="scroll-bar">
+      <div class="scroll-bar-up"></div>
+      <div class="scroll-bar-gutter">
+        <div class="scroll-bar-thumb" draggable="false"></div>
+      </div>
+      <div class="scroll-bar-down"></div>
+    </div>
+  </template>
+
+  <script>
+
+'use strict';
+
+(function() {
+
+    // # scroll-bar.js
+    //
+    // This module defines a custom `<scroll-bar>` element and attaches it to the
+    // document.
+    //
+
+
+    var //templateHolder = document.createElement('div'),
+    //SCROLL_BAR_BUTTON_SIZE = 15,
+        throttle = function(func, wait, options) {
+        var context, args, result;
+        var timeout = null;
+        var previous = 0;
+        if (!options) {
+            options = {};
+        }
+        var later = function() {
+            previous = options.leading === false ? 0 : Date.now();
+            timeout = null;
+            result = func.apply(context, args);
+            if (!timeout) {
+                context = args = null;
+            }
+        };
+        return function() {
+            var now = Date.now();
+            if (!previous && options.leading === false) {
+                previous = now;
+            }
+            var remaining = wait - (now - previous);
+            context = this;
+            args = arguments;
+            if (remaining <= 0 || remaining > wait) {
+                clearTimeout(timeout);
+                timeout = null;
+                previous = now;
+                result = func.apply(context, args);
+                if (!timeout) {
+                    context = args = null;
+                }
+            } else if (!timeout && options.trailing !== false) {
+                timeout = setTimeout(later, remaining);
+            }
+            return result;
+        };
+    };
+
+    //templateHolder.innerHTML = require('./templates.js').scrollbar();
+
+
+
+    //ScrollBar.prototype = Object.create(window.HTMLElement.prototype);
+
+    Polymer('fin-vampire-bar', { /* jshint ignore:line  */
+
+        setRangeAdapter: function(rangeAdapter) {
+
+            var that = this;
+
+            that.rangeAdapter = rangeAdapter;
+            if (that.thumb) {
+                that.thumb.rangeAdapter = rangeAdapter;
+            }
+
+            Object.observe(that.rangeAdapter.valueObj, function(change) {
+                var value = change[0].object.value;
+                if (value) {
+                    try {
+                        that.supressUpdates = true;
+                        that.moveToPercent(value);
+                    } finally {
+                        that.supressUpdates = false;
+                    }
+                }
+            });
+        },
+
+        // the createdCallback method will be called by the native code
+        attached: function() {
+
+            var that = this;
+
+
+
+
+            // this.this.shadowRoot = this.shadowRoot;
+
+            // get the actionable child elements
+            this.bar = this.shadowRoot.querySelector('.scroll-bar');
+            this.thumb = this.shadowRoot.querySelector('.scroll-bar-thumb');
+            this.gutter = this.shadowRoot.querySelector('.scroll-bar-gutter');
+
+            this.configureOrientation();
+
+            //var bounds = that.bounds = that.getBoundingClientRect();
+            that.isScrolling = false;
+
+            that.attachThumbMouseDown()
+                .attachThumbMouseMove()
+                .attachThumbMouseUp();
+        }, // end attaached
+
+
+        throttledWheelEvent: throttle(function(event) {
+
+            var that = this;
+
+            var directionXY = that.orientation.toUpperCase(),
+                styleProperty = directionXY === 'Y' ? 'top' : 'left',
+                rangeStop = that.rangeAdapter.rangeStop(),
+                currentPercent = ((that.thumb.style && that.thumb.style[styleProperty]) && parseFloat(that.thumb.style[styleProperty])) || 0,
+                direction = event['delta' + directionXY] > 0 ? 1 : -1,
+                currentPercentAsRows = Math.round(that.rangeAdapter.rangeStop() * currentPercent),
+                oneMoreRow = Math.round(currentPercentAsRows + (1 * direction)),
+                ranged = oneMoreRow / rangeStop / 100;
+
+            ranged = ranged > 1 ? 1 : ranged;
+            ranged = ranged < 0 ? 0 : ranged;
+
+            that.rangeAdapter.setValue(ranged);
+
+        }, 30),
+
+        attachWheelEvent: function() {
+            var that = this;
+
+            document.addEventListener('wheel', function(event) {
+                // dont pull on the page at all
+                event.preventDefault();
+                that.throttledWheelEvent(event);
+            });
+
+            return that;
+        },
+
+        attachThumbMouseDown: function() {
+            var that = this;
+
+            that.thumb.addEventListener('mousedown', function(event) {
+                that.isScrolling = true;
+                var offset = (typeof event['offset' + that.orientation.toUpperCase()] === 'undefined') ? 'layer' : 'offset';
+                that.offset = event[offset + that.orientation.toUpperCase()];
+            });
+
+            return that;
+        },
+
+        attachThumbMouseMove: function() {
+            var that = this;
+
+            document.addEventListener('mousemove', function(event) {
+                if (that.isScrolling) {
+
+                    that.moveThumb(event['page' + that.orientation.toUpperCase()]);
+                }
+            });
+
+            return that;
+        },
+
+        attachThumbMouseUp: function() {
+            var that = this;
+            document.addEventListener('mouseup', function() {
+                if (that.isScrolling) {
+                    that.isScrolling = false;
+                }
+            });
+
+            return that;
+        },
+
+        moveThumb: function(pageLocation) {
+            var that = this,
+                direction = this.orientation === 'y' ? 'top' : 'left',
+                //percent,
+                maxScroll = that.getMaxScroll(),
+                distanceFromEdge = that.gutter.getBoundingClientRect(),
+                offBy = pageLocation - distanceFromEdge[direction] - that.offset;
+
+            offBy = offBy < 0 ? 0 : offBy;
+            offBy = offBy / maxScroll;
+            offBy = offBy > 1 ? 1 : offBy;
+            offBy = offBy * 100;
+
+            that.thumb.style[direction] = offBy + '%';
+
+            if (that.rangeAdapter) {
+                if (that.supressUpdates) {
+                    return;
+                }
+                that.rangeAdapter.setValue(offBy / 100);
+            }
+        }, //end movethumb value
+
+        moveToPercent: function(percent) {
+            var that = this;
+
+            if (!that.isScrolling) {
+                that.moveThumb(percent * this.getMaxScroll());
+            }
+        },
+
+
+        setValueUpdatedCallback: function(callback) {
+            this.valueUpdatedCallback = callback;
+
+        },
+
+
+        setOrientation: function(orientation) {
+            this.orientation = orientation;
+
+        },
+
+        getMaxScroll: function() {
+            var direction = this.orientation === 'y' ? 'clientHeight' : 'clientWidth';
+            return this.gutter[direction];
+
+        },
+
+
+        configureOrientation: function() {
+            var orientation = 'y';
+
+            if ('horizontal' in this.attributes) {
+                orientation = 'x';
+                this.bar.classList.add('horizontal');
+            }
+
+            this.setOrientation(orientation);
+        },
+
+        tickle: function() {
+            this.rangeAdapter.setValue(this.lastPercent);
+        },
+
+        lastPercent: 0.0,
+
+        createRangeAdapter: function(subject, userConfig) {
+            var config = userConfig || {
+                    step: 1,
+                    page: 40,
+                    rangeStart: 0,
+                    rangeStop: 100
+                },
+                that = {};
+
+            // this is the 'cached' value that is listenable
+            that.valueObj = {
+                value: null
+            };
+
+            Object.observe(subject, function() {
+                that.subjectChanged();
+            });
+
+            that.subjectChanged = function() {
+                that.valueObj.value = that.computeNormalizedValue();
+            };
+
+            // that.grid = function(value) {
+            //     if (value === undefined) {
+            //         return grid;
+            //     }
+            //     grid = value;
+            // };
+
+            that.rangeStart = function(value) {
+                if (value === undefined) {
+                    return config.rangeStart;
+                }
+            };
+
+            that.rangeStop = function(value) {
+                if (value === undefined) {
+                    return config.rangeStop;
+                }
+            };
+
+            that.page = function(value) {
+                if (value === undefined) {
+                    return config.page;
+                }
+            };
+
+            // @param value is a number
+            that.setValue = function(newValue) {
+                if (typeof newValue !== 'number') {
+                    return;
+                }
+                var deNormalized = Math.floor((newValue * (config.rangeStop - config.rangeStart)) + config.rangeStart);
+                subject.setValue(deNormalized);
+                that.valueObj.value = newValue;
+            };
+            that.computeNormalizedValue = function() {
+                var value = (subject.getValue() - config.rangeStart) / (config.rangeStop - config.rangeStart);
+                return value;
+            };
+
+            that.getValue = function() {
+                return that.valueObj.value;
+            };
+
+            return that;
+        }
+
+    });
+
+})();
+
+  </script>
+</polymer-element>
 <polymer-element name="fin-canvas-component" class="fin-canvas-component" attributes="layoutProperties" assetpath="../fin-canvas/">
   <template></template>
   <script>
@@ -3750,10 +4175,34 @@ div.container {
         position: relative;
         display: inline-block;
     }
+    #verticalScroller {
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 100%;
+        margin-top: 0;
+        margin-left: -15px;
+        margin-bottom: 15px;
+        margin-right: 15px;
+    }
+    #horizontalScroller {
+        position: absolute;
+        top: 100%;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        margin-top: -15px;
+        margin-left: 0;
+        margin-bottom: 15px;
+        margin-right: 15px;
+    }
     </style>
     <fin-canvas>
       <fin-hypergrid-renderer></fin-hypergrid-renderer>
     </fin-canvas>
+    <fin-vampire-bar id="horizontalScroller" horizontal=""></fin-vampire-bar>
+    <fin-vampire-bar id="verticalScroller"></fin-vampire-bar>
     <content></content>
   </template>
   <script>
@@ -3772,41 +4221,6 @@ div.container {
 'use strict';
 
 (function() {
-
-    var shadowbars = {
-        RangeAdapter: function() {
-            return {
-
-            };
-        }
-    };
-
-    //Create a [shadow-bar](https://github.com/datamadic/shadow-bar) scrollbar instance
-    var createScrollbar = function(isHorizontal) {
-        var scroller = document.createElement('scroll-bar');
-        scroller.style.position = 'absolute';
-        scroller.style.top = 0;
-        scroller.style.right = 0;
-        scroller.style.bottom = 0;
-        scroller.style.left = 0;
-        scroller.style.marginTop = 0;
-        scroller.style.marginLeft = 0;
-        scroller.style.marginBottom = '15px';
-        scroller.style.marginRight = '15px';
-
-        if (isHorizontal) {
-            scroller.setAttribute('horizontal', true);
-            scroller.style.top = '100%';
-            scroller.style.marginTop = '-15px';
-        } else {
-            scroller.style.left = '100%';
-            scroller.style.marginLeft = '-15px';
-        }
-
-        scroller.setRangeAdapter = function() {};
-        scroller.tickle = function() {};
-        return scroller;
-    };
 
     Polymer('fin-hypergrid',{ /* jslint ignore:line */
 
@@ -4640,10 +5054,7 @@ div.container {
             var self = this;
             var canvas = this.getCanvas();
 
-            this.shadowRoot.appendChild(createScrollbar(true));
-            this.shadowRoot.appendChild(createScrollbar(false));
-
-            var scrollbars = this.shadowRoot.querySelectorAll('scroll-bar');
+            var scrollbars = this.shadowRoot.querySelectorAll('fin-vampire-bar');
             this.hscroller = scrollbars[0];
 
             var mouseIsDown = false;
@@ -4688,7 +5099,7 @@ div.container {
                 },
             };
 
-            this.hscroller.setRangeAdapter(new shadowbars.RangeAdapter(hValueHolder, hScrollConfig));
+            this.hscroller.setRangeAdapter(this.hscroller.createRangeAdapter(hValueHolder, hScrollConfig));
 
             this.scrollConfigs = {
                 vertical: vScrollConfig,
@@ -4704,7 +5115,7 @@ div.container {
                 },
             };
 
-            this.vscroller.setRangeAdapter(new shadowbars.RangeAdapter(vValueHolder, vScrollConfig));
+            this.vscroller.setRangeAdapter(this.hscroller.createRangeAdapter(vValueHolder, vScrollConfig));
 
             //provide a way to notify scrollbars that the underlying data has changed
             //the real solution is to use an aspect adapter here

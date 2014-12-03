@@ -55,6 +55,7 @@ cp -rf ../../polymer-expressions ./components/polymer-expressions
 cp -rf ../../polymer-gestures ./components/polymer-gestures
 cp -rf ../../fin-rectangle ./components/fin-rectangle
 cp -rf ../../fin-canvas ./components/fin-canvas
+cp -rf ../../fin-vampire-bar ./components/fin-vampire-bar
 
 # redirect by default to the component folder
 echo "<META http-equiv="refresh" content=\"0;URL=components/$repo/\">" >index.html

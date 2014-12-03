@@ -13,41 +13,6 @@
 
 (function() {
 
-    var shadowbars = {
-        RangeAdapter: function() {
-            return {
-
-            };
-        }
-    };
-
-    //Create a [shadow-bar](https://github.com/datamadic/shadow-bar) scrollbar instance
-    var createScrollbar = function(isHorizontal) {
-        var scroller = document.createElement('scroll-bar');
-        scroller.style.position = 'absolute';
-        scroller.style.top = 0;
-        scroller.style.right = 0;
-        scroller.style.bottom = 0;
-        scroller.style.left = 0;
-        scroller.style.marginTop = 0;
-        scroller.style.marginLeft = 0;
-        scroller.style.marginBottom = '15px';
-        scroller.style.marginRight = '15px';
-
-        if (isHorizontal) {
-            scroller.setAttribute('horizontal', true);
-            scroller.style.top = '100%';
-            scroller.style.marginTop = '-15px';
-        } else {
-            scroller.style.left = '100%';
-            scroller.style.marginLeft = '-15px';
-        }
-
-        scroller.setRangeAdapter = function() {};
-        scroller.tickle = function() {};
-        return scroller;
-    };
-
     Polymer({ /* jslint ignore:line */
 
         behavior: null,
@@ -880,10 +845,7 @@
             var self = this;
             var canvas = this.getCanvas();
 
-            this.shadowRoot.appendChild(createScrollbar(true));
-            this.shadowRoot.appendChild(createScrollbar(false));
-
-            var scrollbars = this.shadowRoot.querySelectorAll('scroll-bar');
+            var scrollbars = this.shadowRoot.querySelectorAll('fin-vampire-bar');
             this.hscroller = scrollbars[0];
 
             var mouseIsDown = false;
@@ -928,7 +890,7 @@
                 },
             };
 
-            this.hscroller.setRangeAdapter(new shadowbars.RangeAdapter(hValueHolder, hScrollConfig));
+            this.hscroller.setRangeAdapter(this.hscroller.createRangeAdapter(hValueHolder, hScrollConfig));
 
             this.scrollConfigs = {
                 vertical: vScrollConfig,
@@ -944,7 +906,7 @@
                 },
             };
 
-            this.vscroller.setRangeAdapter(new shadowbars.RangeAdapter(vValueHolder, vScrollConfig));
+            this.vscroller.setRangeAdapter(this.hscroller.createRangeAdapter(vValueHolder, vScrollConfig));
 
             //provide a way to notify scrollbars that the underlying data has changed
             //the real solution is to use an aspect adapter here

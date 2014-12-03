@@ -17,12 +17,12 @@
     "/.*",
     "/tests/"
   ],
-  "dependencies": {
-  },
+  "dependencies": {},
   "devDependencies": {
     "polymer": "Polymer/polymer#master",
     "fin-canvas": "#master",
     "fin-rectangle": "#master",
-    "shadow-bar": "~0.12.0"
+    "shadow-bar": "~0.12.0",
+    "fin-vampire-bar": "*"
   }
 }

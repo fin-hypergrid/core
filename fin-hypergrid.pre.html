@@ -21,6 +21,7 @@ The Hypergrid design makes no assumptions about the data you wish to view which 
 <link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="../fin-rectangle/fin-rectangle.html">
 <link rel="import" href="../fin-canvas/fin-canvas.html">
+<link rel="import" href="../fin-vampire-bar/fin-vampire-bar.html">
 <link rel="import" href="fin-hypergrid-renderer.html">
 <link rel="import" href="fin-hypergrid-selection-model.html">
 <polymer-element name="fin-hypergrid" attributes="">
@@ -30,10 +31,34 @@ The Hypergrid design makes no assumptions about the data you wish to view which 
         position: relative;
         display: inline-block;
     }
+    #verticalScroller {
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 100%;
+        margin-top: 0;
+        margin-left: -15px;
+        margin-bottom: 15px;
+        margin-right: 15px;
+    }
+    #horizontalScroller {
+        position: absolute;
+        top: 100%;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        margin-top: -15px;
+        margin-left: 0;
+        margin-bottom: 15px;
+        margin-right: 15px;
+    }
     </style>
     <fin-canvas>
       <fin-hypergrid-renderer></fin-hypergrid-renderer>
     </fin-canvas>
+    <fin-vampire-bar id="horizontalScroller" horizontal></fin-vampire-bar>
+    <fin-vampire-bar id="verticalScroller"></fin-vampire-bar>
     <content></content>
   </template>
   <script>
