@@ -1,12 +1,3 @@
-//The OpenFin Hypergrid is a high performant canvas based general grid control.  It is implemented as a HTML5 web-component. [see web-components](http://www.w3.org/TR/components-intro/).
-// * The Hypergrid is dependent on several other OpenFin projects
-//  * of-canvas: a wrapper to provid a simpler interface to the HTML5 canvas component
-//  * rectangles: a small library providing Point and Rectangle objects
-//  * shadow-bar: a web-component based general scroll bar control
-
-//### Pluggable Grid Behaviors
-//The Hypergrid design makes no assumptions about the data you wish to view which allows for external data sources and external manipulation and analytics.  Manipulations such as sorting, aggregation, and grouping can be achieved using best of breed high-performant real time tools designed for such purposes. All the code that impacts these operations has been factored into an Object called [PluggableGridBehavior](DefaultGridBehavior.html).  A PluggableGridBehavior can be thought of as a traditional tablemodel but with a little more responsibility.  There are Three example PluggableGridBehaviors provided, the base or DefaultGridBehavior, a QGridBehavior, and an InMemoryGridBehavior.
-
 /* globals document, alert */
 
 'use strict';
@@ -34,6 +25,7 @@
         selectionModel: null,
         oncontextmenu: null,
         cellEditors: {},
+        currentCellEditor: null,
 
         domReady: function() {
             var self = this;
@@ -333,11 +325,9 @@
         },
 
         stopEditing: function() {
-            this.pluginsDo(function(each) {
-                if (each.stopEditing) {
-                    each.stopEditing();
-                }
-            });
+            if (this.currentCellEditor) {
+                this.currentCellEditor.stopEditing();
+            }
         },
 
         registerCellEditor: function(alias, cellEditor) {
@@ -734,6 +724,13 @@
             this.getCanvas().takeFocus();
         },
 
+        isEditing: function() {
+            if (this.currentCellEditor) {
+                return this.currentCellEditor.isEditing;
+            }
+            return false;
+        },
+
         //Initialize the scrollbars.
         //<br>TODO:This should be refactored into its own file.
         initScrollbars: function() {
@@ -820,11 +817,9 @@
                 previousHScrollValue = this.hScrollValue;
                 previousVScrollValue = this.vScrollValue;
 
-                self.pluginsDo(function(each) {
-                    if (each.scrollValueChangedNotification) {
-                        each.scrollValueChangedNotification();
-                    }
-                });
+                if (self.currentCellEditor) {
+                    self.currentCellEditor.scrollValueChangedNotification();
+                }
             };
 
             this.getScrollConfigs = function() {

@@ -8,7 +8,8 @@ The `fin-hypergrid-cell-editor-textfield` element is a custom Polymer web compon
 -->
 <link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="../fin-rectangle/fin-rectangle.html">
-<polymer-element name="fin-hypergrid-cell-editor-textfield">
+<link rel="import" href="fin-hypergrid-cell-editor-base.html">
+<polymer-element name="fin-hypergrid-cell-editor-textfield" extends="fin-hypergrid-cell-editor-base">
   <template>
     <style>
        #editor {
@@ -29,17 +30,9 @@ The `fin-hypergrid-cell-editor-textfield` element is a custom Polymer web compon
 (function() {
 
     Polymer({ /* jshint ignore:line */
-
-        isEditing: false,
-        editorPoint: null,
-        checkEditorPositionFlag: false,
-        input: null,
         alias: 'textfield',
-        grid: null,
 
-        //Currently the only CellEditor is an input field.  The structure is in place for handling the CellEditor during focus change and grid scrolling.
-        //TODO:Generalize the cell editing functionality to delegate through the behvior objects and then through the cell editors.  Add more general CellEditor types/drop down/button/calendar/spinner/etc...
-        ready: function() {
+        readyInit: function() {
             var self = this;
             this.rectangles = document.createElement('fin-rectangle');
             this.editorPoint = this.rectangles.point.create(0, 0);
@@ -54,43 +47,13 @@ The `fin-hypergrid-cell-editor-textfield` element is a custom Polymer web compon
             });
         },
 
-        installOn: function(grid) {
-            this.grid = grid;
-            grid.registerCellEditor(this.alias, this);
+        getEditorValue: function() {
+            var value = this.input.value;
+            return value;
         },
 
-        getBehavior: function() {
-            return this.grid.getBehavior();
-        },
-
-        gridRenderedNotification: function() {
-            this.checkEditor();
-        },
-
-        scrollValueChangedNotification: function() {
-            this.setCheckEditorPositionFlag();
-        },
-
-        setCheckEditorPositionFlag: function() {
-            this.checkEditorPositionFlag = true;
-        },
-
-        beginEditAt: function(point) {
-            this.setEditorPoint(point);
-            var model = this.getBehavior();
-            var value = model.getValue(point.x, point.y);
+        setEditorValue: function(value) {
             this.input.value = value + '';
-            this.isEditing = true;
-            this.setCheckEditorPositionFlag();
-            this.checkEditor();
-        },
-
-        getEditorPoint: function() {
-            return this.editorPoint;
-        },
-
-        setEditorPoint: function(point) {
-            this.editorPoint = point;
         },
 
         showEditor: function() {
@@ -101,26 +64,6 @@ The `fin-hypergrid-cell-editor-textfield` element is a custom Polymer web compon
             this.input.style.display = 'none';
         },
 
-        stopEditing: function() {
-            if (!this.isEditing) {
-                return;
-            }
-            this.saveEditorValue();
-            this.isEditing = false;
-            this.hideEditor();
-        },
-
-        saveEditorValue: function() {
-            var point = this.getEditorPoint();
-            var value = this.getEditorValue();
-            this.getBehavior().setValue(point.x, point.y, value);
-        },
-
-        getEditorValue: function() {
-            var value = this.input.value;
-            return value;
-        },
-
         editorTakeFocus: function() {
             var self = this;
             setTimeout(function() {
@@ -129,18 +72,7 @@ The `fin-hypergrid-cell-editor-textfield` element is a custom Polymer web compon
             }, 500);
         },
 
-        moveEditor: function(model) {
-            var model = this.getBehavior();
-            var numFixedCols = model.getFixedColCount();
-            var numFixedRows = model.getFixedRowCount();
-            var vScroll = this.grid.getVScrollValue();
-            var hScroll = this.grid.getHScrollValue();
-            var editorPoint = this.getEditorPoint();
-            var x = editorPoint.x + numFixedCols - hScroll;
-            var y = editorPoint.y + numFixedRows - vScroll;
-            var eb = this.grid.getBoundsOfCell(this.rectangles.point.create(x, y));
-            var db = this.grid.getDataBounds();
-            var cellBounds = eb.intersect(db);
+        setBounds: function(cellBounds) {
             var translation = 'translate(' + (cellBounds.origin.x - 2) + 'px,' + (cellBounds.origin.y - 2) + 'px)';
             this.input.style.webkitTransform = translation;
             this.input.style.MozTransform = translation;
@@ -149,25 +81,6 @@ The `fin-hypergrid-cell-editor-textfield` element is a custom Polymer web compon
 
             this.input.style.width = cellBounds.extent.x + 'px';
             this.input.style.height = cellBounds.extent.y + 'px';
-            this.editorTakeFocus();
-        },
-
-        checkEditor: function() {
-            if (!this.checkEditorPositionFlag) {
-                return;
-            } else {
-                this.checkEditorPositionFlag = false;
-            }
-            if (!this.isEditing) {
-                return;
-            }
-            var editorPoint = this.getEditorPoint();
-            if (this.grid.isDataVisible(editorPoint.x, editorPoint.y)) {
-                this.moveEditor();
-                this.showEditor();
-            } else {
-                this.hideEditor();
-            }
         }
 
     });
