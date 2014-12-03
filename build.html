@@ -656,15 +656,11 @@ html /deep/ [segment], html /deep/ segment {
   <script>
 
 'use strict';
-//### Pluggable Grid Behaviors
 
-//The OFGrid design makes no assumptions about the data you wish to view which allows for external data sources and external manipulation and analytics.  Manipulations such as sorting, aggregation, and grouping can be achieved using best of breed high-performant real time tools designed for such purposes. All the code that impacts these operations has been factored into an Object called PluggableGridBehavior. A PluggableGridBehavior can be thought of as a traditional tablemodel but with a liitle more responsibility.  The Three Pluggable Grid Behavior objects can be found in the src/scripts/PluggableGridBehaviors subdirectory
 
 (function() {
 
     var noop = function() {};
-
-    // DefaultGridBehavior is the base class for the GridBehavior role in the design of the OpenFin grid.  Not only does it accomodate the interface getData(x,y) and setData(x,y) of a traditional table model, it encapsulates the behavior that allows its implementation to determine what happens on various click events. This allows for external data analytics tools to do sorting, drilling down, aggregation etc.
 
     Polymer('fin-hypergrid-behavior-default',{ /* jslint ignore:line */
 
@@ -4174,6 +4170,11 @@ div.container {
     :host {
         position: relative;
         display: inline-block;
+        webkit-user-select: none;
+        moz-user-select: none;
+        ms-user-select: none;
+        o-user-select: none;
+        user-select: none;
     }
     #verticalScroller {
         position: absolute;
@@ -4197,12 +4198,21 @@ div.container {
         margin-bottom: 15px;
         margin-right: 15px;
     }
+    #editor {
+        position: absolute;
+        display: none;
+        border: solid 2px black;
+        outline: 0;
+        padding: 0;
+        z-index: 1000;
+    }
     </style>
     <fin-canvas>
       <fin-hypergrid-renderer></fin-hypergrid-renderer>
     </fin-canvas>
     <fin-vampire-bar id="horizontalScroller" horizontal=""></fin-vampire-bar>
     <fin-vampire-bar id="verticalScroller"></fin-vampire-bar>
+    <input id="editor">
     <content></content>
   </template>
   <script>
@@ -4225,6 +4235,12 @@ div.container {
     Polymer('fin-hypergrid',{ /* jslint ignore:line */
 
         behavior: null,
+        /**                                                             .
+         * behavior is a property of fin-hypergrid
+         *
+         * @property behavior
+         * @type Object
+         */
         mouseDown: null,
         dragExtent: null,
         scrollingNow: false,
@@ -4232,9 +4248,19 @@ div.container {
         lastDragCell: null,
         vScrollValue: 0,
         hScrollValue: 0,
+        rectangles: null,
+        constants: null,
+        selectionModel: null,
+        oncontextmenu: null,
 
         domReady: function() {
             var self = this;
+
+            //prevent the default context menu for appearing
+            this.oncontextmenu = function(event) {
+                event.preventDefault();
+                return false;
+            };
 
             this.rectangles = document.createElement('fin-rectangle');
             this.constants = document.createElement('fin-hypergrid-constants').values;
@@ -4261,16 +4287,6 @@ div.container {
             this.initScrollbars();
             this.initCellEditor();
 
-            this.style.webkitUserSelect = 'none';
-            /* Chrome all / Safari all */
-            this.style.MozUserSelect = 'none';
-            /* Firefox all */
-            this.style.msUserSelect = 'none';
-            /* IE 10+ */
-            /* No support for these yet, use at own risk */
-            this.style.oUserSelect = 'none';
-            this.style.userSelect = 'none';
-
             //Register a listener for the copy event so we can copy our selected region to the pastebuffer if conditions are right.
             document.body.addEventListener('copy', function(evt) {
                 self.checkClipboardCopy(evt);
@@ -4278,13 +4294,6 @@ div.container {
             this.resized();
 
         },
-        //prevent the default context menu for appearing
-        oncontextmenu: function(event) {
-            event.preventDefault();
-            return false;
-        },
-
-
 
         getBehavior: function() {
             return this.behavior;
@@ -4300,22 +4309,17 @@ div.container {
         //TODO:Generalize the cell editing functionality to delegate through the behvior objects and then through the cell editors.  Add more general CellEditor types/drop down/button/calendar/spinner/etc...
         initCellEditor: function() {
             var self = this;
-            var shadowRoot = this.shadowRoot;
             var isEditing = false;
             var editorPoint = this.rectangles.point.create(0, 0);
             var checkEditorPositionFlag = false;
 
-            var inputTemplate = document.createElement('input');
-            inputTemplate.setAttribute('id', 'editor');
-            shadowRoot.appendChild(inputTemplate);
+            // var inputTemplate = document.createElement('input');
+            // inputTemplate.setAttribute('id', 'editor');
+            // shadowRoot.appendChild(inputTemplate);
 
-            var input = shadowRoot.querySelector('#editor');
+            var input = this.shadowRoot.querySelector('#editor');
 
-            input.style.position = 'absolute';
-            input.style.display = 'none';
-            input.style.border = 'solid 2px black';
-            input.style.outline = 0;
-            input.style.padding = 0;
+
             input.addEventListener('keypress', function(e) {
                 if (e && e.keyCode === 13) {
                     e.preventDefault();
@@ -4405,7 +4409,6 @@ div.container {
                 input.style.MozTransform = translation;
                 input.style.msTransform = translation;
                 input.style.OTransform = translation;
-                input.style.transform = translation;
 
                 input.style.width = cellBounds.extent.x + 'px';
                 input.style.height = cellBounds.extent.y + 'px';

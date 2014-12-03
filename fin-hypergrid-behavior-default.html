@@ -1,6 +1,6 @@
 <!--
 
-The `fin-hypergrid-behavior-default` element is a custom Polymer web component used to support the openfin [fin-hypergrid](http://github.com/openfin/fin-hypergrid) component.
+The `fin-hypergrid-behavior-default` element is a custom Polymer web component is the base class for the GridBehavior role in the design of the OpenFin hypergrid.  Not only does it accomodate the interface getValue(x,y) and setValue(x,y) of a traditional table model, it encapsulates the behavior that allows its implementation to determine what happens on various user events. This allows for external data analytics tools to do sorting, drilling down, aggregation etc.
 
 @group OpenFin hypergrid
 @element fin-hypergrid-behavior-default
@@ -14,15 +14,11 @@ The `fin-hypergrid-behavior-default` element is a custom Polymer web component u
   <script>
 
 'use strict';
-//### Pluggable Grid Behaviors
 
-//The OFGrid design makes no assumptions about the data you wish to view which allows for external data sources and external manipulation and analytics.  Manipulations such as sorting, aggregation, and grouping can be achieved using best of breed high-performant real time tools designed for such purposes. All the code that impacts these operations has been factored into an Object called PluggableGridBehavior. A PluggableGridBehavior can be thought of as a traditional tablemodel but with a liitle more responsibility.  The Three Pluggable Grid Behavior objects can be found in the src/scripts/PluggableGridBehaviors subdirectory
 
 (function() {
 
     var noop = function() {};
-
-    // DefaultGridBehavior is the base class for the GridBehavior role in the design of the OpenFin grid.  Not only does it accomodate the interface getData(x,y) and setData(x,y) of a traditional table model, it encapsulates the behavior that allows its implementation to determine what happens on various click events. This allows for external data analytics tools to do sorting, drilling down, aggregation etc.
 
     Polymer({ /* jslint ignore:line */
 

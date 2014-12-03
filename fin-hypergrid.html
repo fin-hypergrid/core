@@ -30,6 +30,11 @@ The Hypergrid design makes no assumptions about the data you wish to view which 
     :host {
         position: relative;
         display: inline-block;
+        webkit-user-select: none;
+        moz-user-select: none;
+        ms-user-select: none;
+        o-user-select: none;
+        user-select: none;
     }
     #verticalScroller {
         position: absolute;
@@ -53,12 +58,21 @@ The Hypergrid design makes no assumptions about the data you wish to view which 
         margin-bottom: 15px;
         margin-right: 15px;
     }
+    #editor {
+        position: absolute;
+        display: none;
+        border: solid 2px black;
+        outline: 0;
+        padding: 0;
+        z-index: 1000;
+    }
     </style>
     <fin-canvas>
       <fin-hypergrid-renderer></fin-hypergrid-renderer>
     </fin-canvas>
     <fin-vampire-bar id="horizontalScroller" horizontal></fin-vampire-bar>
     <fin-vampire-bar id="verticalScroller"></fin-vampire-bar>
+    <input id="editor"></input>
     <content></content>
   </template>
   <script>
@@ -81,6 +95,12 @@ The Hypergrid design makes no assumptions about the data you wish to view which 
     Polymer({ /* jslint ignore:line */
 
         behavior: null,
+        /**                                                             .
+         * behavior is a property of fin-hypergrid
+         *
+         * @property behavior
+         * @type Object
+         */
         mouseDown: null,
         dragExtent: null,
         scrollingNow: false,
@@ -88,9 +108,19 @@ The Hypergrid design makes no assumptions about the data you wish to view which 
         lastDragCell: null,
         vScrollValue: 0,
         hScrollValue: 0,
+        rectangles: null,
+        constants: null,
+        selectionModel: null,
+        oncontextmenu: null,
 
         domReady: function() {
             var self = this;
+
+            //prevent the default context menu for appearing
+            this.oncontextmenu = function(event) {
+                event.preventDefault();
+                return false;
+            };
 
             this.rectangles = document.createElement('fin-rectangle');
             this.constants = document.createElement('fin-hypergrid-constants').values;
@@ -117,16 +147,6 @@ The Hypergrid design makes no assumptions about the data you wish to view which 
             this.initScrollbars();
             this.initCellEditor();
 
-            this.style.webkitUserSelect = 'none';
-            /* Chrome all / Safari all */
-            this.style.MozUserSelect = 'none';
-            /* Firefox all */
-            this.style.msUserSelect = 'none';
-            /* IE 10+ */
-            /* No support for these yet, use at own risk */
-            this.style.oUserSelect = 'none';
-            this.style.userSelect = 'none';
-
             //Register a listener for the copy event so we can copy our selected region to the pastebuffer if conditions are right.
             document.body.addEventListener('copy', function(evt) {
                 self.checkClipboardCopy(evt);
@@ -134,13 +154,6 @@ The Hypergrid design makes no assumptions about the data you wish to view which 
             this.resized();
 
         },
-        //prevent the default context menu for appearing
-        oncontextmenu: function(event) {
-            event.preventDefault();
-            return false;
-        },
-
-
 
         getBehavior: function() {
             return this.behavior;
@@ -156,22 +169,17 @@ The Hypergrid design makes no assumptions about the data you wish to view which 
         //TODO:Generalize the cell editing functionality to delegate through the behvior objects and then through the cell editors.  Add more general CellEditor types/drop down/button/calendar/spinner/etc...
         initCellEditor: function() {
             var self = this;
-            var shadowRoot = this.shadowRoot;
             var isEditing = false;
             var editorPoint = this.rectangles.point.create(0, 0);
             var checkEditorPositionFlag = false;
 
-            var inputTemplate = document.createElement('input');
-            inputTemplate.setAttribute('id', 'editor');
-            shadowRoot.appendChild(inputTemplate);
+            // var inputTemplate = document.createElement('input');
+            // inputTemplate.setAttribute('id', 'editor');
+            // shadowRoot.appendChild(inputTemplate);
 
-            var input = shadowRoot.querySelector('#editor');
+            var input = this.shadowRoot.querySelector('#editor');
 
-            input.style.position = 'absolute';
-            input.style.display = 'none';
-            input.style.border = 'solid 2px black';
-            input.style.outline = 0;
-            input.style.padding = 0;
+
             input.addEventListener('keypress', function(e) {
                 if (e && e.keyCode === 13) {
                     e.preventDefault();
@@ -261,7 +269,6 @@ The Hypergrid design makes no assumptions about the data you wish to view which 
                 input.style.MozTransform = translation;
                 input.style.msTransform = translation;
                 input.style.OTransform = translation;
-                input.style.transform = translation;
 
                 input.style.width = cellBounds.extent.x + 'px';
                 input.style.height = cellBounds.extent.y + 'px';

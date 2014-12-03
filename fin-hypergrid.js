@@ -16,6 +16,12 @@
     Polymer({ /* jslint ignore:line */
 
         behavior: null,
+        /**                                                             .
+         * behavior is a property of fin-hypergrid
+         *
+         * @property behavior
+         * @type Object
+         */
         mouseDown: null,
         dragExtent: null,
         scrollingNow: false,
@@ -23,9 +29,19 @@
         lastDragCell: null,
         vScrollValue: 0,
         hScrollValue: 0,
+        rectangles: null,
+        constants: null,
+        selectionModel: null,
+        oncontextmenu: null,
 
         domReady: function() {
             var self = this;
+
+            //prevent the default context menu for appearing
+            this.oncontextmenu = function(event) {
+                event.preventDefault();
+                return false;
+            };
 
             this.rectangles = document.createElement('fin-rectangle');
             this.constants = document.createElement('fin-hypergrid-constants').values;
@@ -52,16 +68,6 @@
             this.initScrollbars();
             this.initCellEditor();
 
-            this.style.webkitUserSelect = 'none';
-            /* Chrome all / Safari all */
-            this.style.MozUserSelect = 'none';
-            /* Firefox all */
-            this.style.msUserSelect = 'none';
-            /* IE 10+ */
-            /* No support for these yet, use at own risk */
-            this.style.oUserSelect = 'none';
-            this.style.userSelect = 'none';
-
             //Register a listener for the copy event so we can copy our selected region to the pastebuffer if conditions are right.
             document.body.addEventListener('copy', function(evt) {
                 self.checkClipboardCopy(evt);
@@ -69,13 +75,6 @@
             this.resized();
 
         },
-        //prevent the default context menu for appearing
-        oncontextmenu: function(event) {
-            event.preventDefault();
-            return false;
-        },
-
-
 
         getBehavior: function() {
             return this.behavior;
@@ -91,22 +90,17 @@
         //TODO:Generalize the cell editing functionality to delegate through the behvior objects and then through the cell editors.  Add more general CellEditor types/drop down/button/calendar/spinner/etc...
         initCellEditor: function() {
             var self = this;
-            var shadowRoot = this.shadowRoot;
             var isEditing = false;
             var editorPoint = this.rectangles.point.create(0, 0);
             var checkEditorPositionFlag = false;
 
-            var inputTemplate = document.createElement('input');
-            inputTemplate.setAttribute('id', 'editor');
-            shadowRoot.appendChild(inputTemplate);
+            // var inputTemplate = document.createElement('input');
+            // inputTemplate.setAttribute('id', 'editor');
+            // shadowRoot.appendChild(inputTemplate);
 
-            var input = shadowRoot.querySelector('#editor');
+            var input = this.shadowRoot.querySelector('#editor');
 
-            input.style.position = 'absolute';
-            input.style.display = 'none';
-            input.style.border = 'solid 2px black';
-            input.style.outline = 0;
-            input.style.padding = 0;
+
             input.addEventListener('keypress', function(e) {
                 if (e && e.keyCode === 13) {
                     e.preventDefault();
@@ -196,7 +190,6 @@
                 input.style.MozTransform = translation;
                 input.style.msTransform = translation;
                 input.style.OTransform = translation;
-                input.style.transform = translation;
 
                 input.style.width = cellBounds.extent.x + 'px';
                 input.style.height = cellBounds.extent.y + 'px';
