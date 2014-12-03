@@ -22,7 +22,6 @@
     "polymer": "Polymer/polymer#master",
     "fin-canvas": "#master",
     "fin-rectangle": "#master",
-    "shadow-bar": "~0.12.0",
-    "fin-vampire-bar": "*"
+    "fin-vampire-bar": "#master"
   }
 }
