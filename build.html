@@ -4246,6 +4246,29 @@ div.container {
         cellEditors: {},
         currentCellEditor: null,
 
+        sbMouseIsDown: false,
+        sbHScroller: null,
+        sbVScroller: null,
+        sbHScrollConfig: {
+            step: 1,
+            page: 40,
+            rangeStart: 0,
+            rangeStop: 0
+        },
+        sbVScrollConfig: {
+            step: 1,
+            page: 40,
+            rangeStart: 0,
+            rangeStop: 0
+        },
+        sbLastAutoScroll: 0,
+        sbAutoScrollStartTime: 0,
+
+        sbPreviousVScrollValue: null,
+        sbPreviousHScrollValue: null,
+        sbHValueHolder: {},
+        sbVValueHolder: {},
+
         domReady: function() {
             var self = this;
 
@@ -4546,6 +4569,7 @@ div.container {
         stopEditing: function() {
             if (this.currentCellEditor) {
                 this.currentCellEditor.stopEditing();
+                this.currentCellEditor = null;
             }
         },
 
@@ -4628,6 +4652,7 @@ div.container {
                 console.error('there is no cellEditor of type ' + cellEditorAlias);
                 return;
             }
+            this.currentCellEditor = cellEditor;
 
             var cell = coordinates.cell;
             var behavior = this.getBehavior();
@@ -4807,7 +4832,7 @@ div.container {
         },
 
         scrollVBy: function(offsetY) {
-            var max = this.getScrollConfigs().vertical.rangeStop;
+            var max = this.sbVScrollConfig.rangeStop;
             var oldValue = this.getVScrollValue();
             var newValue = Math.min(max, Math.max(0, oldValue + offsetY));
             if (newValue === oldValue) {
@@ -4817,7 +4842,7 @@ div.container {
         },
 
         scrollHBy: function(offsetX) {
-            var max = this.getScrollConfigs().horizontal.rangeStop;
+            var max = this.sbHScrollConfig.rangeStop;
             var oldValue = this.getHScrollValue();
             var newValue = Math.min(max, Math.max(0, oldValue + offsetX));
             if (newValue === oldValue) {
@@ -4943,6 +4968,12 @@ div.container {
             this.getCanvas().takeFocus();
         },
 
+        editorTakeFocus: function() {
+            if (this.currentCellEditor) {
+                return this.currentCellEditor.takeFocus();
+            }
+        },
+
         isEditing: function() {
             if (this.currentCellEditor) {
                 return this.currentCellEditor.isEditing;
@@ -4950,26 +4981,24 @@ div.container {
             return false;
         },
 
-        //Initialize the scrollbars.
-        //<br>TODO:This should be refactored into its own file.
         initScrollbars: function() {
 
             var self = this;
             var canvas = this.getCanvas();
 
             var scrollbars = this.shadowRoot.querySelectorAll('fin-vampire-bar');
-            this.hscroller = scrollbars[0];
+            this.sbHScroller = scrollbars[0];
+            this.sbVScroller = scrollbars[1];
 
-            var mouseIsDown = false;
             this.addEventListener('mousedown', function() {
-                mouseIsDown = true;
+                this.sbMouseIsDown = true;
             });
 
             document.addEventListener('mouseup', function(e) {
-                if (!mouseIsDown) {
+                if (!this.sbMouseIsDown) {
                     return;
                 }
-                mouseIsDown = false;
+                self.sbMouseIsDown = false;
                 var origin = canvas.getOrigin();
                 var point = self.rectangles.point.create(e.x - origin.x, e.y - origin.y);
                 if (!canvas.bounds.contains(point)) {
@@ -4978,138 +5007,111 @@ div.container {
                 }
             });
 
-            this.vscroller = scrollbars[1];
-            var hScrollConfig = {
-                step: 1,
-                page: 40,
-                rangeStart: 0,
-                rangeStop: 0
-            };
-            var vScrollConfig = {
-                step: 1,
-                page: 40,
-                rangeStart: 0,
-                rangeStop: 0
-            };
-
-            var hValueHolder = {
+            this.sbHValueHolder = {
                 changed: false,
                 getValue: function() {
                     return self.getHScrollValue();
                 },
                 setValue: function(v) {
-                    return self.setHScrollValue(v);
-                },
+                    self.setHScrollValue(v);
+                }
             };
 
-            this.hscroller.setRangeAdapter(this.hscroller.createRangeAdapter(hValueHolder, hScrollConfig));
-
-            this.scrollConfigs = {
-                vertical: vScrollConfig,
-                horizontal: hScrollConfig
-            };
-
-            var vValueHolder = {
+            this.sbVValueHolder = {
+                changed: false,
                 getValue: function() {
                     return self.getVScrollValue();
                 },
                 setValue: function(v) {
-                    return self.setVScrollValue(v);
-                },
-            };
-
-            this.vscroller.setRangeAdapter(this.hscroller.createRangeAdapter(vValueHolder, vScrollConfig));
-
-            //provide a way to notify scrollbars that the underlying data has changed
-            //the real solution is to use an aspect adapter here
-            var previousVScrollValue = null;
-            var previousHScrollValue = null;
-            this.scrollValueChangedNotification = function() {
-
-                if (this.hScrollValue === previousHScrollValue && this.vScrollValue === previousVScrollValue) {
-                    return;
-                }
-
-                hValueHolder.changed = !hValueHolder.changed;
-                vValueHolder.changed = !vValueHolder.changed;
-
-                previousHScrollValue = this.hScrollValue;
-                previousVScrollValue = this.vScrollValue;
-
-                if (self.currentCellEditor) {
-                    self.currentCellEditor.scrollValueChangedNotification();
+                    self.setVScrollValue(v);
                 }
             };
 
-            this.getScrollConfigs = function() {
-                return this.scrollConfigs;
-            };
+            this.sbHScroller.setRangeAdapter(this.sbHScroller.createRangeAdapter(this.sbHValueHolder, this.sbHScrollConfig));
+            this.sbVScroller.setRangeAdapter(this.sbHScroller.createRangeAdapter(this.sbVValueHolder, this.sbVScrollConfig));
 
-            var lastAutoScroll = 0;
-            var autoScrollStartTime = 0;
+        },
+        //provide a way to notify scrollbars that the underlying data has changed
+        //the real solution is to use an aspect adapter here
 
-            var setAutoScrollStartTime = function() {
-                autoScrollStartTime = Date.now();
-            };
+        scrollValueChangedNotification: function() {
 
-            this.pingAutoScroll = function() {
-                var now = Date.now();
-                if (now - lastAutoScroll > 500) {
-                    setAutoScrollStartTime();
+            if (this.hScrollValue === this.sbPreviousHScrollValue && this.vScrollValue === this.sbPreviousVScrollValue) {
+                return;
+            }
+
+            this.sbHValueHolder.changed = !this.sbHValueHolder.changed;
+            this.sbVValueHolder.changed = !this.sbVValueHolder.changed;
+
+            this.sbPreviousHScrollValue = this.hScrollValue;
+            this.sbPreviousVScrollValue = this.vScrollValue;
+
+            if (this.currentCellEditor) {
+                this.currentCellEditor.scrollValueChangedNotification();
+            }
+        },
+
+        setAutoScrollStartTime: function() {
+            this.sbAutoScrollStartTime = Date.now();
+        },
+
+        pingAutoScroll: function() {
+            var now = Date.now();
+            if (now - this.sbLastAutoScroll > 500) {
+                this.setAutoScrollStartTime();
+            }
+            this.sbLastAutoScroll = Date.now();
+        },
+
+        getAutoScrollDuration: function() {
+            if (Date.now() - this.sbLastAutoScroll > 500) {
+                return 0;
+            }
+            return Date.now() - this.sbAutoScrollStartTime;
+        },
+
+        setValue: function(x, y, value) {
+            this.getBehavior().setValue(x, y, value);
+            this.repaint();
+        },
+        synchronizeScrollingBoundries: function() {
+
+            var behavior = this.getBehavior();
+            if (!behavior) {
+                return;
+            }
+            var numCols = behavior.getColCount();
+            var numRows = behavior.getRowCount();
+            var bounds = this.getCanvas().getBounds();
+            var scrollableHeight = bounds.height() - behavior.getFixedRowsHeight();
+            var scrollableWidth = bounds.width() - behavior.getFixedColsMaxWidth();
+
+            var lastPageColCount = 0;
+            var colsWidth = 0;
+            for (; lastPageColCount < numCols; lastPageColCount++) {
+                var eachWidth = behavior.getColWidth(numCols - lastPageColCount - 1);
+                colsWidth = colsWidth + eachWidth;
+                if (colsWidth > scrollableWidth) {
+                    break;
                 }
-                lastAutoScroll = Date.now();
-            };
+            }
 
-            this.getAutoScrollDuration = function() {
-                if (Date.now() - lastAutoScroll > 500) {
-                    return 0;
+            var lastPageRowCount = 0;
+            var rowsHeight = 0;
+            for (; lastPageRowCount < numRows; lastPageRowCount++) {
+                var eachHeight = behavior.getRowHeight(numRows - lastPageRowCount - 1);
+                rowsHeight = rowsHeight + eachHeight;
+                if (rowsHeight > scrollableHeight) {
+                    break;
                 }
-                return Date.now() - autoScrollStartTime;
-            };
-            this.setValue = function(x, y, value) {
-                this.getBehavior().setValue(x, y, value);
-                this.repaint();
-            };
-            this.synchronizeScrollingBoundries = function() {
+            }
 
-                var behavior = this.getBehavior();
-                if (!behavior) {
-                    return;
-                }
-                var numCols = behavior.getColCount();
-                var numRows = behavior.getRowCount();
-                var bounds = this.getCanvas().getBounds();
-                var scrollableHeight = bounds.height() - behavior.getFixedRowsHeight();
-                var scrollableWidth = bounds.width() - behavior.getFixedColsMaxWidth();
+            this.sbVScrollConfig.rangeStop = behavior.getRowCount() - lastPageRowCount;
 
-                var lastPageColCount = 0;
-                var colsWidth = 0;
-                for (; lastPageColCount < numCols; lastPageColCount++) {
-                    var eachWidth = behavior.getColWidth(numCols - lastPageColCount - 1);
-                    colsWidth = colsWidth + eachWidth;
-                    if (colsWidth > scrollableWidth) {
-                        break;
-                    }
-                }
+            this.sbHScrollConfig.rangeStop = behavior.getColCount() - lastPageColCount;
 
-                var lastPageRowCount = 0;
-                var rowsHeight = 0;
-                for (; lastPageRowCount < numRows; lastPageRowCount++) {
-                    var eachHeight = behavior.getRowHeight(numRows - lastPageRowCount - 1);
-                    rowsHeight = rowsHeight + eachHeight;
-                    if (rowsHeight > scrollableHeight) {
-                        break;
-                    }
-                }
-
-                vScrollConfig.rangeStop = behavior.getRowCount() - lastPageRowCount;
-
-                hScrollConfig.rangeStop = behavior.getColCount() - lastPageColCount;
-
-                this.vscroller.tickle();
-                this.hscroller.tickle();
-            };
-
+            this.sbVScroller.tickle();
+            this.sbHScroller.tickle();
         },
 
         //Answers the number of viewable rows, including any partially viewable rows.

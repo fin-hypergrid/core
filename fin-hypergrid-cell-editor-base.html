@@ -107,12 +107,12 @@ The `fin-hypergrid-cell-editor-base` element is a custom Polymer web component u
             return value;
         },
 
-        editorTakeFocus: function() {
+        takeFocus: function() {
             var self = this;
             setTimeout(function() {
                 self.input.focus();
                 self.input.setSelectionRange(0, self.input.value.length);
-            }, 500);
+            }, 100);
         },
 
         moveEditor: function(model) {
@@ -128,7 +128,7 @@ The `fin-hypergrid-cell-editor-base` element is a custom Polymer web component u
             var db = this.grid.getDataBounds();
             var cellBounds = eb.intersect(db);
             this.setBounds(cellBounds);
-            this.editorTakeFocus();
+            this.takeFocus();
         },
 
         setBounds: function(rectangle) {
