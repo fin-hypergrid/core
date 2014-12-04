@@ -3270,8 +3270,8 @@ div.container {
                 that.thumb.rangeAdapter = rangeAdapter;
             }
 
-            Object.observe(that.rangeAdapter.valueObj, function(change) {
-                var value = change[0].object.value;
+            rangeAdapter.valueChanged = function(change) {
+                var value = rangeAdapter.getValue();
                 if (value) {
                     try {
                         that.supressUpdates = true;
@@ -3280,8 +3280,11 @@ div.container {
                         that.supressUpdates = false;
                     }
                 }
-            });
+            };
+
         },
+
+        offset : 0,
 
         // the createdCallback method will be called by the native code
         attached: function() {
@@ -3458,12 +3461,14 @@ div.container {
                 value: null
             };
 
-            Object.observe(subject, function() {
-                that.subjectChanged();
-            });
+            // apparent Polymer object.observe polyfill breaking change...
+            // Object.observe(subject, function() {
+            //     that.subjectChanged();
+            // });
 
             that.subjectChanged = function() {
                 that.valueObj.value = that.computeNormalizedValue();
+                that.valueChanged();
             };
 
             // that.grid = function(value) {
@@ -3499,6 +3504,7 @@ div.container {
                 var deNormalized = Math.floor((newValue * (config.rangeStop - config.rangeStart)) + config.rangeStart);
                 subject.setValue(deNormalized);
                 that.valueObj.value = newValue;
+                that.valueChanged();
             };
             that.computeNormalizedValue = function() {
                 var value = (subject.getValue() - config.rangeStart) / (config.rangeStop - config.rangeStart);
@@ -3508,6 +3514,9 @@ div.container {
             that.getValue = function() {
                 return that.valueObj.value;
             };
+
+            that.valueChanged = function(){};
+
 
             return that;
         }
@@ -4940,11 +4949,19 @@ div.container {
         resized: function() {
             this.synchronizeScrollingBoundries();
         },
-
+        count: 0,
         setVScrollValue: function(y) {
+            this.count = this.count + 1;
+            var self = this;
             this.getBehavior().setScrollPositionY(y);
             this.vScrollValue = y;
             this.scrollValueChangedNotification();
+            if (this.count % 2 === 0) {
+                return;
+            }
+            setTimeout(function() {
+                self.sbVRangeAdapter.subjectChanged();
+            });
         },
 
         getVScrollValue: function() {
@@ -4952,9 +4969,13 @@ div.container {
         },
 
         setHScrollValue: function(x) {
+            var self = this;
             this.getBehavior().setScrollPositionX(x);
             this.hScrollValue = x;
             this.scrollValueChangedNotification();
+            setTimeout(function() {
+                self.sbHRangeAdapter.subjectChanged();
+            });
         },
 
         getHScrollValue: function() {
@@ -5027,8 +5048,11 @@ div.container {
                 }
             };
 
-            this.sbHScroller.setRangeAdapter(this.sbHScroller.createRangeAdapter(this.sbHValueHolder, this.sbHScrollConfig));
-            this.sbVScroller.setRangeAdapter(this.sbHScroller.createRangeAdapter(this.sbVValueHolder, this.sbVScrollConfig));
+            this.sbHRangeAdapter = this.sbHScroller.createRangeAdapter(this.sbHValueHolder, this.sbHScrollConfig);
+            this.sbVRangeAdapter = this.sbHScroller.createRangeAdapter(this.sbVValueHolder, this.sbVScrollConfig);
+
+            this.sbHScroller.setRangeAdapter(this.sbHRangeAdapter);
+            this.sbVScroller.setRangeAdapter(this.sbVRangeAdapter);
 
         },
         //provide a way to notify scrollbars that the underlying data has changed

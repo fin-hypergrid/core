@@ -721,11 +721,19 @@
         resized: function() {
             this.synchronizeScrollingBoundries();
         },
-
+        count: 0,
         setVScrollValue: function(y) {
+            this.count = this.count + 1;
+            var self = this;
             this.getBehavior().setScrollPositionY(y);
             this.vScrollValue = y;
             this.scrollValueChangedNotification();
+            if (this.count % 2 === 0) {
+                return;
+            }
+            setTimeout(function() {
+                self.sbVRangeAdapter.subjectChanged();
+            });
         },
 
         getVScrollValue: function() {
@@ -733,9 +741,13 @@
         },
 
         setHScrollValue: function(x) {
+            var self = this;
             this.getBehavior().setScrollPositionX(x);
             this.hScrollValue = x;
             this.scrollValueChangedNotification();
+            setTimeout(function() {
+                self.sbHRangeAdapter.subjectChanged();
+            });
         },
 
         getHScrollValue: function() {
@@ -808,8 +820,11 @@
                 }
             };
 
-            this.sbHScroller.setRangeAdapter(this.sbHScroller.createRangeAdapter(this.sbHValueHolder, this.sbHScrollConfig));
-            this.sbVScroller.setRangeAdapter(this.sbHScroller.createRangeAdapter(this.sbVValueHolder, this.sbVScrollConfig));
+            this.sbHRangeAdapter = this.sbHScroller.createRangeAdapter(this.sbHValueHolder, this.sbHScrollConfig);
+            this.sbVRangeAdapter = this.sbHScroller.createRangeAdapter(this.sbVValueHolder, this.sbVScrollConfig);
+
+            this.sbHScroller.setRangeAdapter(this.sbHRangeAdapter);
+            this.sbVScroller.setRangeAdapter(this.sbVRangeAdapter);
 
         },
         //provide a way to notify scrollbars that the underlying data has changed
