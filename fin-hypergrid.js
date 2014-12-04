@@ -728,9 +728,6 @@
             this.getBehavior().setScrollPositionY(y);
             this.vScrollValue = y;
             this.scrollValueChangedNotification();
-            if (this.count % 2 === 0) {
-                return;
-            }
             setTimeout(function() {
                 self.sbVRangeAdapter.subjectChanged();
             });
