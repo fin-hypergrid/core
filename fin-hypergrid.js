@@ -6,49 +6,216 @@
 
     Polymer({ /* jslint ignore:line */
 
-        behavior: null,
         /**                                                             .
          * behavior is a property of fin-hypergrid
          *
          * @property behavior
          * @type Object
          */
+        behavior: null,
+
+        /**                                                             .
+         * mouseDown is a property of fin-hypergrid
+         *
+         * @property mouseDown
+         * @type Object
+         */
         mouseDown: null,
+
+        /**                                                             .
+         * dragExtent is a property of fin-hypergrid
+         *
+         * @property dragExtent
+         * @type Object
+         */
         dragExtent: null,
+
+        /**                                                             .
+         * scrollingNow is a property of fin-hypergrid
+         *
+         * @property scrollingNow
+         * @type Object
+         */
         scrollingNow: false,
+
+        /**                                                             .
+         * currentDrag is a property of fin-hypergrid
+         *
+         * @property currentDrag
+         * @type Object
+         */
         currentDrag: null,
+
+        /**                                                             .
+         * lastDragCell is a property of fin-hypergrid
+         *
+         * @property lastDragCell
+         * @type Object
+         */
         lastDragCell: null,
+
+        /**                                                             .
+         * vScrollValue is a property of fin-hypergrid
+         *
+         * @property vScrollValue
+         * @type Object
+         */
         vScrollValue: 0,
+
+        /**                                                             .
+         * hScrollValue is a property of fin-hypergrid
+         *
+         * @property hScrollValue
+         * @type Object
+         */
         hScrollValue: 0,
+
+        /**                                                             .
+         * rectangles is a property of fin-hypergrid
+         *
+         * @property rectangles
+         * @type Object
+         */
         rectangles: null,
+
+        /**                                                             .
+         * constants is a property of fin-hypergrid
+         *
+         * @property constants
+         * @type Object
+         */
         constants: null,
+
+        /**                                                             .
+         * selectionModel is a property of fin-hypergrid
+         *
+         * @property selectionModel
+         * @type Object
+         */
         selectionModel: null,
+
+        /**                                                             .
+         * oncontextmenu is a property of fin-hypergrid
+         *
+         * @property oncontextmenu
+         * @type Object
+         */
         oncontextmenu: null,
-        cellEditors: {},
+
+        /**                                                             .
+         * currentCellEditor is a property of fin-hypergrid
+         *
+         * @property currentCellEditor
+         * @type Object
+         */
         currentCellEditor: null,
 
+        /**                                                             .
+         * sbMouseIsDown is a property of fin-hypergrid
+         *
+         * @property sbMouseIsDown
+         * @type Object
+         */
         sbMouseIsDown: false,
+
+        /**                                                             .
+         * sbHScroller is a property of fin-hypergrid
+         *
+         * @property sbHScroller
+         * @type Object
+         */
         sbHScroller: null,
+
+        /**                                                             .
+         * sbVScroller is a property of fin-hypergrid
+         *
+         * @property sbVScroller
+         * @type Object
+         */
         sbVScroller: null,
+
+        /**                                                             .
+         * sbHScrollConfig is a property of fin-hypergrid
+         *
+         * @property sbHScrollConfig
+         * @type Object
+         */
         sbHScrollConfig: {
             step: 1,
             page: 40,
             rangeStart: 0,
             rangeStop: 0
         },
+
+        /**                                                             .
+         * sbVScrollConfig is a property of fin-hypergrid
+         *
+         * @property sbVScrollConfig
+         * @type Object
+         */
         sbVScrollConfig: {
             step: 1,
             page: 40,
             rangeStart: 0,
             rangeStop: 0
         },
+
+        /**                                                             .
+         * sbLastAutoScroll is a property of fin-hypergrid
+         *
+         * @property sbLastAutoScroll
+         * @type Object
+         */
         sbLastAutoScroll: 0,
+
+        /**                                                             .
+         * sbAutoScrollStartTime is a property of fin-hypergrid
+         *
+         * @property sbAutoScrollStartTime
+         * @type Object
+         */
         sbAutoScrollStartTime: 0,
 
+        /**                                                             .
+         * sbPreviousVScrollValue is a property of fin-hypergrid
+         *
+         * @property sbPreviousVScrollValue
+         * @type Object
+         */
         sbPreviousVScrollValue: null,
+
+        /**                                                             .
+         * sbPreviousHScrollValue is a property of fin-hypergrid
+         *
+         * @property sbPreviousHScrollValue
+         * @type Object
+         */
         sbPreviousHScrollValue: null,
+
+        /**                                                             .
+         * sbHValueHolder is a property of fin-hypergrid
+         *
+         * @property sbHValueHolder
+         * @type Object
+         */
+
         sbHValueHolder: {},
+
+        /**                                                             .
+         * sbVValueHolder is a property of fin-hypergrid
+         *
+         * @property sbVValueHolder
+         * @type Object
+         */
         sbVValueHolder: {},
+
+        /**                                                             .
+         * cellEditors is a property of fin-hypergrid
+         *
+         * @property cellEditors
+         * @type Object
+         */
+        cellEditors: {},
 
         domReady: function() {
             var self = this;
