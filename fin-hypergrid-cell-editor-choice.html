@@ -69,12 +69,12 @@ The `fin-hypergrid-cell-editor-choice` element is a custom Polymer web component
             this.input.style.display = 'none';
         },
 
-        editorTakeFocus: function() {
+        takeFocus: function() {
             var self = this;
             setTimeout(function() {
                 self.input.focus();
                 //self.input.setSelectionRange(0, self.input.value.length);
-            }, 500);
+            }, 300);
         },
 
         setBounds: function(cellBounds) {
