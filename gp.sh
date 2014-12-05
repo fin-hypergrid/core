@@ -18,6 +18,9 @@ org=$1
 repo=$2
 branch=${3:-"master"} # default to master when branch isn't specified
 
+#delete existing dir
+rm -rf $repo
+
 # make folder (same as input, no checking!)
 mkdir $repo
 #git clone git@github.com:$org/$repo.git --single-branch
