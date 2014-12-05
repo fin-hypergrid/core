@@ -349,6 +349,7 @@ The Hypergrid design makes no assumptions about the data you wish to view which 
             this.resized();
 
         },
+
         pluginsDo: function(func) {
             var userPlugins = this.children.array();
             var pluginsTag = this.shadowRoot.querySelector('fin-plugins');
@@ -364,6 +365,7 @@ The Hypergrid design makes no assumptions about the data you wish to view which 
                 func(plugin);
             }
         },
+
         getBehavior: function() {
             return this.behavior;
         },

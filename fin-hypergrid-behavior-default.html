@@ -6,7 +6,7 @@ The `fin-hypergrid-behavior-default` element is a custom Polymer web component i
 @element fin-hypergrid-behavior-default
 @homepage http://github.com/openfin/fin-hypergrid
 -->
-<link rel="import" href="../polymer/polymer.html">
+
 <link rel="import" href="fin-hypergrid-constants.html">
 <link rel="import" href="fin-hypergrid-cell-provider.html">
 <polymer-element name="fin-hypergrid-behavior-default">
@@ -32,7 +32,6 @@ The `fin-hypergrid-behavior-default` element is a custom Polymer web component i
         //column widths<br>heights could be done the same way
         //<br>TODO: this colwidth example should be pushed into
         //<br>InMemoryGridBehavior
-        widths: [100, 100, 80, 90, 80, 150, 100, 80, 80, 100],
 
         readyInit: function() {
             this.constants = document.createElement('fin-hypergrid-constants').values;
@@ -123,9 +122,8 @@ The `fin-hypergrid-behavior-default` element is a custom Polymer web component i
         },
 
         //the height of the specific fixed row
-        getFixedRowHeight: function(r) {
-            noop(r);
-            return this.constants.rowHeight;
+        getFixedRowHeight: function(rowNum) {
+            return this.getRowHeight(rowNum);
         },
 
         //the potential maximum height of the fixed row area
@@ -162,9 +160,8 @@ The `fin-hypergrid-behavior-default` element is a custom Polymer web component i
         },
 
         //the width of the specific fixed col
-        getFixedColWidth: function(c) {
-            noop(c);
-            var width = this.constants.colWidth;
+        getFixedColWidth: function(colNum) {
+            var width = this.getColWidth(colNum);
             return width;
         },
 
@@ -179,8 +176,7 @@ The `fin-hypergrid-behavior-default` element is a custom Polymer web component i
         //<br>this implementation is driven by modulo
         //<br>TODO: move this example into InMemoryGridBehavior
         getColWidth: function(colNumber) {
-            //return this.constants.colWidth;
-            return this.widths[colNumber % 10];
+            return this.constants.colWidth;
         },
 
         //this is set by OFGrid on scroll

@@ -247,6 +247,7 @@
             this.resized();
 
         },
+
         pluginsDo: function(func) {
             var userPlugins = this.children.array();
             var pluginsTag = this.shadowRoot.querySelector('fin-plugins');
@@ -262,6 +263,7 @@
                 func(plugin);
             }
         },
+
         getBehavior: function() {
             return this.behavior;
         },

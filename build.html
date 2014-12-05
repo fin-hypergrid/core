@@ -1,4 +1,15 @@
 <!DOCTYPE html><html><head>
+  
+
+
+
+  
+
+
+  
+
+
+  
   <script src="../polymer-gestures/src/scope.js"></script>
 <script src="../polymer-gestures/src/targetfind.js"></script>
 <script src="../polymer-gestures/src/touch-action.js"></script>
@@ -302,23 +313,6 @@ html /deep/ [segment], html /deep/ segment {
 <!-- Do not load in the presence of webcomponents.js  -->
 
 
-
-
-
-
-
-  
-
-
-
-  
-
-
-
-  
-
-  
-
 <style type="text/css">:host {
   display: block;
   position: relative;
@@ -354,64 +348,8 @@ html /deep/ [segment], html /deep/ segment {
 
 
 
-
-
-
 </head>
-<body><div hidden="">
-
-<scripts>
-	<script>
-	(function() {
-		// evacipate all scripts in parent!
-		if (window.WebComponents) {
-			var scripts = document._currentScript.parentNode;
-			scripts.parentNode.removeChild(scripts);
-		}
-	})();
-	</script>
-	<script src="../polymer/src/system/compat.js"></script>
-	<script src="../polymer/src/system/HTMLImports/base.js"></script>
-	<script src="../polymer/src/system/unresolved.js"></script>
-</scripts>
-
-<script src="../observe-js/src/observe.js"></script>
-<script src="../NodeBind/src/NodeBind.js"></script>
-<script src="../TemplateBinding/src/TemplateBinding.js"></script>
-<script src="../URL/url.js"></script>
-<script src="../polymer/src/system/microtask.js"></script>
-<script src="../polymer/src/system/flush.js"></script>
-
-<script src="../polymer/src/lib/url.js"></script>
-<script src="../polymer/src/lib/loader.js"></script>
-<script src="../polymer/src/lib/styleloader.js"></script>
-<script src="../polymer/src/lib/lang.js"></script>
-<script src="../polymer/src/lib/job.js"></script>
-<script src="../polymer/src/lib/dom.js"></script>
-<script src="../polymer/src/lib/super.js"></script>
-<script src="../polymer/src/lib/deserialize.js"></script>
-<script src="../polymer/src/api.js"></script>
-<script src="../polymer/src/instance/utils.js"></script>
-<script src="../polymer/src/instance/events.js"></script>
-<script src="../polymer/src/instance/attributes.js"></script>
-<script src="../polymer/src/instance/properties.js"></script>
-<script src="../polymer/src/instance/mdv.js"></script>
-<script src="../polymer/src/instance/base.js"></script>
-<script src="../polymer/src/instance/styles.js"></script>
-<script src="../polymer/src/declaration/polymer.js"></script>
-<script src="../polymer/src/declaration/path.js"></script>
-<script src="../polymer/src/declaration/styles.js"></script>
-<script src="../polymer/src/declaration/events.js"></script>
-<script src="../polymer/src/declaration/properties.js"></script>
-<script src="../polymer/src/declaration/attributes.js"></script>
-<script src="../polymer/src/declaration/mdv.js"></script>
-<script src="../polymer/src/declaration/prototype.js"></script>
-<script src="../polymer/src/declaration/queue.js"></script>
-<script src="../polymer/src/declaration/polymer-element.js"></script>
-<script src="../polymer/src/lib/import.js"></script>
-<script src="../polymer/src/lib/auto-binding.js"></script>
-
-<polymer-element name="fin-hypergrid-constants" assetpath="">
+<body><div hidden=""><polymer-element name="fin-hypergrid-constants" assetpath="">
   <template></template>
   <script>
 
@@ -693,7 +631,6 @@ html /deep/ [segment], html /deep/ segment {
         //column widths<br>heights could be done the same way
         //<br>TODO: this colwidth example should be pushed into
         //<br>InMemoryGridBehavior
-        widths: [100, 100, 80, 90, 80, 150, 100, 80, 80, 100],
 
         readyInit: function() {
             this.constants = document.createElement('fin-hypergrid-constants').values;
@@ -784,9 +721,8 @@ html /deep/ [segment], html /deep/ segment {
         },
 
         //the height of the specific fixed row
-        getFixedRowHeight: function(r) {
-            noop(r);
-            return this.constants.rowHeight;
+        getFixedRowHeight: function(rowNum) {
+            return this.getRowHeight(rowNum);
         },
 
         //the potential maximum height of the fixed row area
@@ -823,9 +759,8 @@ html /deep/ [segment], html /deep/ segment {
         },
 
         //the width of the specific fixed col
-        getFixedColWidth: function(c) {
-            noop(c);
-            var width = this.constants.colWidth;
+        getFixedColWidth: function(colNum) {
+            var width = this.getColWidth(colNum);
             return width;
         },
 
@@ -840,8 +775,7 @@ html /deep/ [segment], html /deep/ segment {
         //<br>this implementation is driven by modulo
         //<br>TODO: move this example into InMemoryGridBehavior
         getColWidth: function(colNumber) {
-            //return this.constants.colWidth;
-            return this.widths[colNumber % 10];
+            return this.constants.colWidth;
         },
 
         //this is set by OFGrid on scroll
@@ -946,6 +880,7 @@ html /deep/ [segment], html /deep/ segment {
 
 (function() {
 
+    var widths = [100, 100, 80, 90, 80, 150, 100, 80, 80, 100];
     //helper function for randomizing data
     function rnd(max) {
         return Math.floor(Math.random() * max);
@@ -1371,8 +1306,11 @@ html /deep/ [segment], html /deep/ segment {
             this.sortLookup[colIndex].type = sortStateIndex;
             this.reorder();
             this.changed();
-        }
+        },
 
+        getColWidth: function(colNum) {
+            return widths[colNum % widths.length];
+        }
     });
 
 })(); /* jslint ignore:line */
@@ -1727,6 +1665,59 @@ html /deep/ [segment], html /deep/ segment {
 
   </script>
 </polymer-element>
+
+
+
+<scripts>
+	<script>
+	(function() {
+		// evacipate all scripts in parent!
+		if (window.WebComponents) {
+			var scripts = document._currentScript.parentNode;
+			scripts.parentNode.removeChild(scripts);
+		}
+	})();
+	</script>
+	<script src="../polymer/src/system/compat.js"></script>
+	<script src="../polymer/src/system/HTMLImports/base.js"></script>
+	<script src="../polymer/src/system/unresolved.js"></script>
+</scripts>
+
+<script src="../observe-js/src/observe.js"></script>
+<script src="../NodeBind/src/NodeBind.js"></script>
+<script src="../TemplateBinding/src/TemplateBinding.js"></script>
+<script src="../URL/url.js"></script>
+<script src="../polymer/src/system/microtask.js"></script>
+<script src="../polymer/src/system/flush.js"></script>
+
+<script src="../polymer/src/lib/url.js"></script>
+<script src="../polymer/src/lib/loader.js"></script>
+<script src="../polymer/src/lib/styleloader.js"></script>
+<script src="../polymer/src/lib/lang.js"></script>
+<script src="../polymer/src/lib/job.js"></script>
+<script src="../polymer/src/lib/dom.js"></script>
+<script src="../polymer/src/lib/super.js"></script>
+<script src="../polymer/src/lib/deserialize.js"></script>
+<script src="../polymer/src/api.js"></script>
+<script src="../polymer/src/instance/utils.js"></script>
+<script src="../polymer/src/instance/events.js"></script>
+<script src="../polymer/src/instance/attributes.js"></script>
+<script src="../polymer/src/instance/properties.js"></script>
+<script src="../polymer/src/instance/mdv.js"></script>
+<script src="../polymer/src/instance/base.js"></script>
+<script src="../polymer/src/instance/styles.js"></script>
+<script src="../polymer/src/declaration/polymer.js"></script>
+<script src="../polymer/src/declaration/path.js"></script>
+<script src="../polymer/src/declaration/styles.js"></script>
+<script src="../polymer/src/declaration/events.js"></script>
+<script src="../polymer/src/declaration/properties.js"></script>
+<script src="../polymer/src/declaration/attributes.js"></script>
+<script src="../polymer/src/declaration/mdv.js"></script>
+<script src="../polymer/src/declaration/prototype.js"></script>
+<script src="../polymer/src/declaration/queue.js"></script>
+<script src="../polymer/src/declaration/polymer-element.js"></script>
+<script src="../polymer/src/lib/import.js"></script>
+<script src="../polymer/src/lib/auto-binding.js"></script>
 
 <polymer-element name="fin-rectangle" assetpath="../fin-rectangle/">
   <script>
@@ -4889,6 +4880,7 @@ div.container {
             this.resized();
 
         },
+
         pluginsDo: function(func) {
             var userPlugins = this.children.array();
             var pluginsTag = this.shadowRoot.querySelector('fin-plugins');
@@ -4904,6 +4896,7 @@ div.container {
                 func(plugin);
             }
         },
+
         getBehavior: function() {
             return this.behavior;
         },
