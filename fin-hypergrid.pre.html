@@ -24,6 +24,18 @@ The Hypergrid design makes no assumptions about the data you wish to view which 
 <link rel="import" href="../fin-vampire-bar/fin-vampire-bar.html">
 <link rel="import" href="fin-hypergrid-renderer.html">
 <link rel="import" href="fin-hypergrid-selection-model.html">
+<link rel="import" href="fin-hypergrid-behavior-default.html">
+<link rel="import" href="fin-hypergrid-behavior-in-memory.html">
+<link rel="import" href="fin-hypergrid-behavior-q.html">
+
+<link rel="import" href="cell-editors/fin-hypergrid-cell-editor-textfield.html">
+<link rel="import" href="cell-editors/fin-hypergrid-cell-editor-choice.html">
+<link rel="import" href="cell-editors/fin-hypergrid-cell-editor-color.html">
+<link rel="import" href="cell-editors/fin-hypergrid-cell-editor-date.html">
+<link rel="import" href="cell-editors/fin-hypergrid-cell-editor-slider.html">
+<link rel="import" href="cell-editors/fin-hypergrid-cell-editor-spinner.html">
+<link rel="import" href="fin-hypergrid-excel.html">
+
 <polymer-element name="fin-hypergrid" attributes="">
   <template>
     <style>
@@ -67,6 +79,17 @@ The Hypergrid design makes no assumptions about the data you wish to view which 
         z-index: 1000;
     }
     </style>
+
+    <fin-plugins>
+        <fin-hypergrid-cell-editor-textfield></fin-hypergrid-cell-editor-textfield>
+        <fin-hypergrid-cell-editor-choice></fin-hypergrid-cell-editor-choice>
+        <fin-hypergrid-cell-editor-color></fin-hypergrid-cell-editor-color>
+        <fin-hypergrid-cell-editor-date></fin-hypergrid-cell-editor-date>
+        <fin-hypergrid-cell-editor-slider></fin-hypergrid-cell-editor-slider>
+        <fin-hypergrid-cell-editor-spinner></fin-hypergrid-cell-editor-spinner>
+        <fin-hypergrid-excel></fin-hypergrid-excel>
+    </fin-plugins>
+
     <fin-canvas>
       <fin-hypergrid-renderer></fin-hypergrid-renderer>
     </fin-canvas>

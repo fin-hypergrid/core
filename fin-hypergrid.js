@@ -248,7 +248,14 @@
 
         },
         pluginsDo: function(func) {
-            var plugins = this.children;
+            var userPlugins = this.children.array();
+            var pluginsTag = this.shadowRoot.querySelector('fin-plugins');
+
+            var plugins = userPlugins;
+            if (pluginsTag) {
+                var systemPlugins = pluginsTag.children.array();
+                plugins = systemPlugins.concat(plugins);
+            }
 
             for (var i = 0; i < plugins.length; i++) {
                 var plugin = plugins[i];

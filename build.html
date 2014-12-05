@@ -338,6 +338,25 @@ html /deep/ [segment], html /deep/ segment {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 </head>
 <body><div hidden="">
 
@@ -4182,6 +4201,381 @@ div.container {
 
   </script>
 </polymer-element>
+
+<polymer-element name="fin-hypergrid-cell-editor-base" assetpath="cell-editors/">
+  <template>
+  </template>
+  <script>
+
+'use strict';
+
+(function() {
+
+    Polymer('fin-hypergrid-cell-editor-base',{ /* jshint ignore:line */
+
+        isEditing: false,
+        editorPoint: null,
+        checkEditorPositionFlag: false,
+        input: null,
+        alias: 'base',
+        grid: null,
+
+        //Currently the only CellEditor is an input field.  The structure is in place for handling the CellEditor during focus change and grid scrolling.
+        //TODO:Generalize the cell editing functionality to delegate through the behvior objects and then through the cell editors.  Add more general CellEditor types/drop down/button/calendar/spinner/etc...
+        ready: function() {
+            this.readyInit();
+        },
+
+        readyInit: function() {
+
+        },
+
+        installOn: function(grid) {
+            this.grid = grid;
+            grid.registerCellEditor(this.alias, this);
+        },
+
+        getBehavior: function() {
+            return this.grid.getBehavior();
+        },
+
+        gridRenderedNotification: function() {
+            this.checkEditor();
+        },
+
+        scrollValueChangedNotification: function() {
+            this.setCheckEditorPositionFlag();
+        },
+
+        setCheckEditorPositionFlag: function() {
+            this.checkEditorPositionFlag = true;
+        },
+
+        beginEditAt: function(point) {
+            this.setEditorPoint(point);
+            var model = this.getBehavior();
+            var value = model.getValue(point.x, point.y);
+            this.setEditorValue(value);
+            this.isEditing = true;
+            this.setCheckEditorPositionFlag();
+            this.checkEditor();
+        },
+
+        setEditorValue: function(value) {
+
+        },
+
+        getEditorPoint: function() {
+            return this.editorPoint;
+        },
+
+        setEditorPoint: function(point) {
+            this.editorPoint = point;
+        },
+
+        showEditor: function() {
+        },
+
+        hideEditor: function() {
+        },
+
+        stopEditing: function() {
+            if (!this.isEditing) {
+                return;
+            }
+            this.saveEditorValue();
+            this.isEditing = false;
+            this.hideEditor();
+        },
+
+        saveEditorValue: function() {
+            var point = this.getEditorPoint();
+            var value = this.getEditorValue();
+            this.getBehavior().setValue(point.x, point.y, value);
+        },
+
+        getEditorValue: function() {
+
+        },
+
+        takeFocus: function() {
+
+        },
+
+        moveEditor: function(model) {
+            var model = this.getBehavior();
+            var numFixedCols = model.getFixedColCount();
+            var numFixedRows = model.getFixedRowCount();
+            var vScroll = this.grid.getVScrollValue();
+            var hScroll = this.grid.getHScrollValue();
+            var editorPoint = this.getEditorPoint();
+            var x = editorPoint.x + numFixedCols - hScroll;
+            var y = editorPoint.y + numFixedRows - vScroll;
+            var eb = this.grid.getBoundsOfCell(this.rectangles.point.create(x, y));
+            var db = this.grid.getDataBounds();
+            var cellBounds = eb.intersect(db);
+            this.setBounds(cellBounds);
+            this.takeFocus();
+        },
+
+        setBounds: function(rectangle) {
+
+        },
+
+        checkEditor: function() {
+            if (!this.checkEditorPositionFlag) {
+                return;
+            } else {
+                this.checkEditorPositionFlag = false;
+            }
+            if (!this.isEditing) {
+                return;
+            }
+            var editorPoint = this.getEditorPoint();
+            if (this.grid.isDataVisible(editorPoint.x, editorPoint.y)) {
+                this.moveEditor();
+                this.showEditor();
+            } else {
+                this.hideEditor();
+            }
+        }
+
+    });
+
+})(); /* jshint ignore:line */
+
+  </script>
+</polymer-element>
+<polymer-element name="fin-hypergrid-cell-editor-simple" extends="fin-hypergrid-cell-editor-base" assetpath="cell-editors/">
+  <template>
+    <div id="editor"></div>
+  </template>
+  <script>
+
+'use strict';
+
+(function() {
+
+    Polymer('fin-hypergrid-cell-editor-simple',{ /* jshint ignore:line */
+        alias: 'simple',
+
+        readyInit: function() {
+            var self = this;
+            this.rectangles = document.createElement('fin-rectangle');
+            this.editorPoint = this.rectangles.point.create(0, 0);
+            this.input = this.shadowRoot.querySelector('#editor');
+            this.input.addEventListener('keypress', function(e) {
+                if (e && e.keyCode === 13) {
+                    e.preventDefault();
+                    self.stopEditing();
+                    self.grid.repaint();
+                    self.grid.takeFocus();
+                }
+            });
+            this.input.style.position = 'absolute';
+            this.input.style.display = 'none';
+            this.input.style.border = 'solid 2px black';
+            this.input.style.outline = 0;
+            this.input.style.padding = 0;
+            this.input.style.zIndex = 1000;
+        },
+
+        getEditorValue: function() {
+            var value = this.input.value;
+            return value;
+        },
+
+        setEditorValue: function(value) {
+            this.input.value = value + '';
+        },
+
+        showEditor: function() {
+            this.input.style.display = 'inline';
+        },
+
+        hideEditor: function() {
+            this.input.style.display = 'none';
+        },
+
+        takeFocus: function() {
+            var self = this;
+            setTimeout(function() {
+                self.input.focus();
+                self.selectAll();
+            }, 300);
+        },
+
+        selectAll: function() {
+
+        },
+
+        setBounds: function(cellBounds) {
+            var translation = 'translate(' + (cellBounds.origin.x - 2) + 'px,' + (cellBounds.origin.y - 2) + 'px)';
+            this.input.style.webkitTransform = translation;
+            this.input.style.MozTransform = translation;
+            this.input.style.msTransform = translation;
+            this.input.style.OTransform = translation;
+
+            this.input.style.width = cellBounds.extent.x + 'px';
+            this.input.style.height = cellBounds.extent.y + 'px';
+        }
+
+    });
+
+})(); /* jshint ignore:line */
+
+  </script>
+</polymer-element>
+<polymer-element name="fin-hypergrid-cell-editor-textfield" extends="fin-hypergrid-cell-editor-simple" assetpath="cell-editors/">
+  <template>
+    <input id="editor">
+  </template>
+  <script>
+
+'use strict';
+
+(function() {
+
+    Polymer('fin-hypergrid-cell-editor-textfield',{ /* jshint ignore:line */
+        alias: 'textfield',
+        selectAll: function() {
+            this.input.setSelectionRange(0, this.input.value.length);
+        }
+    });
+
+})(); /* jshint ignore:line */
+
+  </script>
+</polymer-element>
+
+<polymer-element name="fin-hypergrid-cell-editor-choice" extends="fin-hypergrid-cell-editor-simple" assetpath="cell-editors/">
+  <template>
+    <select id="editor">
+        
+            <option value="{{item.id}}">{{item.description}}</option>
+        
+    </select>
+  </template>
+  <script>
+
+'use strict';
+
+(function() {
+
+    Polymer('fin-hypergrid-cell-editor-choice',{ /* jshint ignore:line */
+        alias: 'choice',
+        collection: [
+        {
+            id: 'moe',
+            description: 'Moe'
+        },
+        {
+            id: 'larry',
+            description: 'Larry'
+        },
+        {
+            id: 'curly',
+            description: 'Curly'
+        },
+        {
+            id: 'groucho',
+            description: 'Groucho'
+        },
+        {
+            id: 'harpo',
+            description: 'Harpo'
+        },
+        {
+            id: 'zeppo',
+            description: 'Zeppo'
+        },
+        {
+            id: 'chico',
+            description: 'Chico'
+        },
+        ],
+    });
+
+})(); /* jshint ignore:line */
+
+  </script>
+</polymer-element>
+
+<polymer-element name="fin-hypergrid-cell-editor-color" extends="fin-hypergrid-cell-editor-simple" assetpath="cell-editors/">
+  <template>
+    <input id="editor" type="color">
+  </template>
+  <script>
+
+'use strict';
+
+(function() {
+
+    Polymer('fin-hypergrid-cell-editor-color',{ /* jshint ignore:line */
+        alias: 'color'
+    });
+
+})(); /* jshint ignore:line */
+
+  </script>
+</polymer-element>
+
+<polymer-element name="fin-hypergrid-cell-editor-date" extends="fin-hypergrid-cell-editor-simple" assetpath="cell-editors/">
+  <template>
+    <input id="editor" type="date">
+  </template>
+  <script>
+
+'use strict';
+
+(function() {
+
+    Polymer('fin-hypergrid-cell-editor-date',{ /* jshint ignore:line */
+        alias: 'date'
+    });
+
+})(); /* jshint ignore:line */
+
+  </script>
+</polymer-element>
+
+<polymer-element name="fin-hypergrid-cell-editor-slider" extends="fin-hypergrid-cell-editor-simple" assetpath="cell-editors/">
+  <template>
+    <input id="editor" type="range">
+  </template>
+  <script>
+
+'use strict';
+
+(function() {
+
+    Polymer('fin-hypergrid-cell-editor-slider',{ /* jshint ignore:line */
+        alias: 'slider'
+    });
+
+})(); /* jshint ignore:line */
+
+  </script>
+</polymer-element>
+
+<polymer-element name="fin-hypergrid-cell-editor-spinner" extends="fin-hypergrid-cell-editor-simple" assetpath="cell-editors/">
+  <template>
+    <input id="editor" type="number">
+  </template>
+  <script>
+
+'use strict';
+
+(function() {
+
+    Polymer('fin-hypergrid-cell-editor-spinner',{ /* jshint ignore:line */
+        alias: 'spinner'
+    });
+
+})(); /* jshint ignore:line */
+
+  </script>
+</polymer-element>
 <polymer-element name="fin-hypergrid" attributes="" assetpath="">
   <template>
     <style>
@@ -4225,6 +4619,17 @@ div.container {
         z-index: 1000;
     }
     </style>
+
+    <fin-plugins>
+        <fin-hypergrid-cell-editor-textfield></fin-hypergrid-cell-editor-textfield>
+        <fin-hypergrid-cell-editor-choice></fin-hypergrid-cell-editor-choice>
+        <fin-hypergrid-cell-editor-color></fin-hypergrid-cell-editor-color>
+        <fin-hypergrid-cell-editor-date></fin-hypergrid-cell-editor-date>
+        <fin-hypergrid-cell-editor-slider></fin-hypergrid-cell-editor-slider>
+        <fin-hypergrid-cell-editor-spinner></fin-hypergrid-cell-editor-spinner>
+        <fin-hypergrid-excel></fin-hypergrid-excel>
+    </fin-plugins>
+
     <fin-canvas>
       <fin-hypergrid-renderer></fin-hypergrid-renderer>
     </fin-canvas>
@@ -4485,7 +4890,14 @@ div.container {
 
         },
         pluginsDo: function(func) {
-            var plugins = this.children;
+            var userPlugins = this.children.array();
+            var pluginsTag = this.shadowRoot.querySelector('fin-plugins');
+
+            var plugins = userPlugins;
+            if (pluginsTag) {
+                var systemPlugins = pluginsTag.children.array();
+                plugins = systemPlugins.concat(plugins);
+            }
 
             for (var i = 0; i < plugins.length; i++) {
                 var plugin = plugins[i];
