@@ -1,0 +1,28 @@
+<!--
+
+The `fin-hypergrid-cell-editor-color` element is a custom Polymer web component used to support the openfin [fin-hypergrid](http://github.com/openfin/fin-hypergrid) component.
+
+@group OpenFin hypergrid
+@element fin-hypergrid-cell-editor-color
+@homepage http://github.com/openfin/fin-hypergrid
+-->
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="fin-hypergrid-cell-editor-simple.html">
+<polymer-element name="fin-hypergrid-cell-editor-color" extends="fin-hypergrid-cell-editor-simple">
+  <template>
+    <input id="editor" type="color"></input>
+  </template>
+  <script>
+
+'use strict';
+
+(function() {
+
+    Polymer({ /* jshint ignore:line */
+        alias: 'color'
+    });
+
+})(); /* jshint ignore:line */
+
+  </script>
+</polymer-element>

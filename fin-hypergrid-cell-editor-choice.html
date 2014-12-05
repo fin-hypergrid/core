@@ -8,24 +8,13 @@ The `fin-hypergrid-cell-editor-choice` element is a custom Polymer web component
 -->
 <link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="../fin-rectangle/fin-rectangle.html">
-<link rel="import" href="fin-hypergrid-cell-editor-base.html">
-<polymer-element name="fin-hypergrid-cell-editor-choice" extends="fin-hypergrid-cell-editor-base">
+<link rel="import" href="fin-hypergrid-cell-editor-simple.html">
+<polymer-element name="fin-hypergrid-cell-editor-choice" extends="fin-hypergrid-cell-editor-simple">
   <template>
-    <style>
-       #editor {
-        position: absolute;
-        display: none;
-        border: solid 2px black;
-        outline: 0;
-        padding: 0;
-        z-index: 1000;
-    }
-    </style>
     <select id="editor">
-      <option value="volvo">Volvo</option>
-      <option value="saab">Saab</option>
-      <option value="mercedes">Mercedes</option>
-      <option value="audi">Audi</option>
+        <template repeat="{{item in collection}}">
+            <option value="{{item.id}}">{{item.description}}</option>
+        </template>
     </select>
   </template>
   <script>
@@ -36,58 +25,24 @@ The `fin-hypergrid-cell-editor-choice` element is a custom Polymer web component
 
     Polymer({ /* jshint ignore:line */
         alias: 'choice',
-
-        readyInit: function() {
-            var self = this;
-            this.rectangles = document.createElement('fin-rectangle');
-            this.editorPoint = this.rectangles.point.create(0, 0);
-            this.input = this.shadowRoot.querySelector('#editor');
-            this.input.addEventListener('keypress', function(e) {
-                if (e && e.keyCode === 13) {
-                    e.preventDefault();
-                    self.stopEditing();
-                    self.grid.repaint();
-                    self.grid.takeFocus();
-                }
-            });
+        collection: [
+        {
+            id: 'saab',
+            description: 'Saab'
         },
-
-        getEditorValue: function() {
-            var value = this.input.value;
-            return value;
+        {
+            id: 'volvo',
+            description: 'Volvo'
         },
-
-        setEditorValue: function(value) {
-            this.input.value = value + '';
+        {
+            id: 'jaguar',
+            description: 'Jaguar'
         },
-
-        showEditor: function() {
-            this.input.style.display = 'inline';
+        {
+            id: 'honda',
+            description: 'Honda'
         },
-
-        hideEditor: function() {
-            this.input.style.display = 'none';
-        },
-
-        takeFocus: function() {
-            var self = this;
-            setTimeout(function() {
-                self.input.focus();
-                //self.input.setSelectionRange(0, self.input.value.length);
-            }, 300);
-        },
-
-        setBounds: function(cellBounds) {
-            var translation = 'translate(' + (cellBounds.origin.x) + 'px,' + (cellBounds.origin.y) + 'px)';
-            this.input.style.webkitTransform = translation;
-            this.input.style.MozTransform = translation;
-            this.input.style.msTransform = translation;
-            this.input.style.OTransform = translation;
-
-            this.input.style.width = cellBounds.extent.x + 'px';
-            this.input.style.height = cellBounds.extent.y + 'px';
-        }
-
+        ],
     });
 
 })(); /* jshint ignore:line */

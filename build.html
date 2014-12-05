@@ -887,7 +887,7 @@ html /deep/ [segment], html /deep/ segment {
         //this is called by OFGrid when a fixed cell is clicked
         //<br>TODO:edit functionality needs to be abstracted out
         delegateDoubleClick: function(grid, mouse) {
-            var type = mouse.cell.x % 2 === 0 ? "choice" : "textfield";
+            var type = 'textfield';
             this.getGrid().editAt(type, mouse);
         },
 
@@ -1039,6 +1039,14 @@ html /deep/ [segment], html /deep/ segment {
             setTimeout(function() {
                 self.permute();
             }, self.permuteInterval);
+        },
+
+        editorTypes: ['choice','textfield','color','slider','spinner','date'],
+        delegateDoubleClick: function(grid, mouse) {
+            var mX = this.scrollPositionX + mouse.cell.x - 1;
+            var mY = this.scrollPositionY + mouse.cell.y - 1;
+            var type = mX !== 9 ? 'textfield' : this.editorTypes[mY % this.editorTypes.length];
+            this.getGrid().editAt(type, mouse);
         },
 
         //set a random value into col/row, cutoff is the threshold to exit if the random value is outside
@@ -4239,7 +4247,7 @@ div.container {
          * behavior is a property of fin-hypergrid
          *
          * @property behavior
-         * @type Object
+         * @type fin-hypergrid-behavior
          */
         behavior: null,
 
@@ -4247,7 +4255,7 @@ div.container {
          * mouseDown is a property of fin-hypergrid
          *
          * @property mouseDown
-         * @type Object
+         * @type boolean
          */
         mouseDown: null,
 
@@ -4255,7 +4263,7 @@ div.container {
          * dragExtent is a property of fin-hypergrid
          *
          * @property dragExtent
-         * @type Object
+         * @type fin-rectangle.point
          */
         dragExtent: null,
 
@@ -4263,7 +4271,7 @@ div.container {
          * scrollingNow is a property of fin-hypergrid
          *
          * @property scrollingNow
-         * @type Object
+         * @type boolean
          */
         scrollingNow: false,
 
@@ -4271,7 +4279,7 @@ div.container {
          * currentDrag is a property of fin-hypergrid
          *
          * @property currentDrag
-         * @type Object
+         * @type fin-rectangle.point
          */
         currentDrag: null,
 
@@ -4287,7 +4295,7 @@ div.container {
          * vScrollValue is a property of fin-hypergrid
          *
          * @property vScrollValue
-         * @type Object
+         * @type Number
          */
         vScrollValue: 0,
 
@@ -4295,7 +4303,7 @@ div.container {
          * hScrollValue is a property of fin-hypergrid
          *
          * @property hScrollValue
-         * @type Object
+         * @type Number
          */
         hScrollValue: 0,
 
@@ -4303,7 +4311,7 @@ div.container {
          * rectangles is a property of fin-hypergrid
          *
          * @property rectangles
-         * @type Object
+         * @type fin-rectange
          */
         rectangles: null,
 
@@ -4311,7 +4319,7 @@ div.container {
          * constants is a property of fin-hypergrid
          *
          * @property constants
-         * @type Object
+         * @type fin-hypergrid-constants
          */
         constants: null,
 
@@ -4319,23 +4327,15 @@ div.container {
          * selectionModel is a property of fin-hypergrid
          *
          * @property selectionModel
-         * @type Object
+         * @type fin-hypergrid-selection-model
          */
         selectionModel: null,
-
-        /**                                                             .
-         * oncontextmenu is a property of fin-hypergrid
-         *
-         * @property oncontextmenu
-         * @type Object
-         */
-        oncontextmenu: null,
 
         /**                                                             .
          * currentCellEditor is a property of fin-hypergrid
          *
          * @property currentCellEditor
-         * @type Object
+         * @type fin-hypergrid-cell-editor
          */
         currentCellEditor: null,
 
@@ -4343,7 +4343,7 @@ div.container {
          * sbMouseIsDown is a property of fin-hypergrid
          *
          * @property sbMouseIsDown
-         * @type Object
+         * @type boolean
          */
         sbMouseIsDown: false,
 
@@ -4351,7 +4351,7 @@ div.container {
          * sbHScroller is a property of fin-hypergrid
          *
          * @property sbHScroller
-         * @type Object
+         * @type fin-vampire-bar
          */
         sbHScroller: null,
 
@@ -4359,7 +4359,7 @@ div.container {
          * sbVScroller is a property of fin-hypergrid
          *
          * @property sbVScroller
-         * @type Object
+         * @type fin-vampire-bar
          */
         sbVScroller: null,
 
@@ -4393,7 +4393,7 @@ div.container {
          * sbLastAutoScroll is a property of fin-hypergrid
          *
          * @property sbLastAutoScroll
-         * @type Object
+         * @type Number
          */
         sbLastAutoScroll: 0,
 
@@ -4401,7 +4401,7 @@ div.container {
          * sbAutoScrollStartTime is a property of fin-hypergrid
          *
          * @property sbAutoScrollStartTime
-         * @type Object
+         * @type Number
          */
         sbAutoScrollStartTime: 0,
 
@@ -4409,7 +4409,7 @@ div.container {
          * sbPreviousVScrollValue is a property of fin-hypergrid
          *
          * @property sbPreviousVScrollValue
-         * @type Object
+         * @type Number
          */
         sbPreviousVScrollValue: null,
 
@@ -4417,7 +4417,7 @@ div.container {
          * sbPreviousHScrollValue is a property of fin-hypergrid
          *
          * @property sbPreviousHScrollValue
-         * @type Object
+         * @type Number
          */
         sbPreviousHScrollValue: null,
 

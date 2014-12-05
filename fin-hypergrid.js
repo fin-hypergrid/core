@@ -10,7 +10,7 @@
          * behavior is a property of fin-hypergrid
          *
          * @property behavior
-         * @type Object
+         * @type fin-hypergrid-behavior
          */
         behavior: null,
 
@@ -18,7 +18,7 @@
          * mouseDown is a property of fin-hypergrid
          *
          * @property mouseDown
-         * @type Object
+         * @type boolean
          */
         mouseDown: null,
 
@@ -26,7 +26,7 @@
          * dragExtent is a property of fin-hypergrid
          *
          * @property dragExtent
-         * @type Object
+         * @type fin-rectangle.point
          */
         dragExtent: null,
 
@@ -34,7 +34,7 @@
          * scrollingNow is a property of fin-hypergrid
          *
          * @property scrollingNow
-         * @type Object
+         * @type boolean
          */
         scrollingNow: false,
 
@@ -42,7 +42,7 @@
          * currentDrag is a property of fin-hypergrid
          *
          * @property currentDrag
-         * @type Object
+         * @type fin-rectangle.point
          */
         currentDrag: null,
 
@@ -58,7 +58,7 @@
          * vScrollValue is a property of fin-hypergrid
          *
          * @property vScrollValue
-         * @type Object
+         * @type Number
          */
         vScrollValue: 0,
 
@@ -66,7 +66,7 @@
          * hScrollValue is a property of fin-hypergrid
          *
          * @property hScrollValue
-         * @type Object
+         * @type Number
          */
         hScrollValue: 0,
 
@@ -74,7 +74,7 @@
          * rectangles is a property of fin-hypergrid
          *
          * @property rectangles
-         * @type Object
+         * @type fin-rectange
          */
         rectangles: null,
 
@@ -82,7 +82,7 @@
          * constants is a property of fin-hypergrid
          *
          * @property constants
-         * @type Object
+         * @type fin-hypergrid-constants
          */
         constants: null,
 
@@ -90,23 +90,15 @@
          * selectionModel is a property of fin-hypergrid
          *
          * @property selectionModel
-         * @type Object
+         * @type fin-hypergrid-selection-model
          */
         selectionModel: null,
-
-        /**                                                             .
-         * oncontextmenu is a property of fin-hypergrid
-         *
-         * @property oncontextmenu
-         * @type Object
-         */
-        oncontextmenu: null,
 
         /**                                                             .
          * currentCellEditor is a property of fin-hypergrid
          *
          * @property currentCellEditor
-         * @type Object
+         * @type fin-hypergrid-cell-editor
          */
         currentCellEditor: null,
 
@@ -114,7 +106,7 @@
          * sbMouseIsDown is a property of fin-hypergrid
          *
          * @property sbMouseIsDown
-         * @type Object
+         * @type boolean
          */
         sbMouseIsDown: false,
 
@@ -122,7 +114,7 @@
          * sbHScroller is a property of fin-hypergrid
          *
          * @property sbHScroller
-         * @type Object
+         * @type fin-vampire-bar
          */
         sbHScroller: null,
 
@@ -130,7 +122,7 @@
          * sbVScroller is a property of fin-hypergrid
          *
          * @property sbVScroller
-         * @type Object
+         * @type fin-vampire-bar
          */
         sbVScroller: null,
 
@@ -164,7 +156,7 @@
          * sbLastAutoScroll is a property of fin-hypergrid
          *
          * @property sbLastAutoScroll
-         * @type Object
+         * @type Number
          */
         sbLastAutoScroll: 0,
 
@@ -172,7 +164,7 @@
          * sbAutoScrollStartTime is a property of fin-hypergrid
          *
          * @property sbAutoScrollStartTime
-         * @type Object
+         * @type Number
          */
         sbAutoScrollStartTime: 0,
 
@@ -180,7 +172,7 @@
          * sbPreviousVScrollValue is a property of fin-hypergrid
          *
          * @property sbPreviousVScrollValue
-         * @type Object
+         * @type Number
          */
         sbPreviousVScrollValue: null,
 
@@ -188,7 +180,7 @@
          * sbPreviousHScrollValue is a property of fin-hypergrid
          *
          * @property sbPreviousHScrollValue
-         * @type Object
+         * @type Number
          */
         sbPreviousHScrollValue: null,
 

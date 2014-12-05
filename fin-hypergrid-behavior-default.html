@@ -245,7 +245,7 @@ The `fin-hypergrid-behavior-default` element is a custom Polymer web component i
         //this is called by OFGrid when a fixed cell is clicked
         //<br>TODO:edit functionality needs to be abstracted out
         delegateDoubleClick: function(grid, mouse) {
-            var type = mouse.cell.x % 2 === 0 ? "choice" : "textfield";
+            var type = 'textfield';
             this.getGrid().editAt(type, mouse);
         },
 
