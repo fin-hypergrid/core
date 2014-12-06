@@ -1,0 +1,114 @@
+<!--
+
+The `fin-hypergrid-behavior-json` element is a custom Polymer web component used to support the openfin [fin-hypergrid](http://github.com/openfin/fin-hypergrid) component.
+
+@group OpenFin hypergrid
+@element fin-hypergrid-behavior-json
+@homepage http://github.com/openfin/fin-hypergrid
+-->
+
+<link rel="import" href="fin-hypergrid-cell-provider.html">
+<link rel="import" href="fin-hypergrid-behavior-default.html">
+<polymer-element name="fin-hypergrid-behavior-json" extends="fin-hypergrid-behavior-default">
+  <template></template>
+  <script>
+
+/*jshint  bitwise: false */
+'use strict';
+
+(function() {
+    var headers =
+        [
+            'name',
+            'pets',
+            'birthdate',
+            'height'
+        ];
+    var data = [
+        {
+            name: 'bob',
+            pets: 3,
+            birthdate: '2014-12-03',
+            height: 18.50
+        },
+        {
+            name: 'paul',
+            pets: 1,
+            birthdate: '1970-06-02',
+            height: 68.50
+        },
+        {
+            name: 'harvey',
+            pets: 0,
+            birthdate: '1967-08-29',
+            height: 58.70
+        },
+        {
+            name: 'john',
+            pets: 3,
+            birthdate: '1974-03-15',
+            height: 63.22
+        },
+        {
+            name: 'ringo',
+            pets: 2,
+            birthdate: '1969-06-08',
+            height: 61.34
+        },
+        {
+            name: 'george',
+            pets: 7,
+            birthdate: '1956-01-02',
+            height: 59.12
+        },
+        {
+            name: 'charlie',
+            pets: 12,
+            birthdate: '1934-02-10',
+            height: 69.78
+        },
+        {
+            name: 'groucho',
+            pets: 5,
+            birthdate: '1947-06-11',
+            height: 63.19
+        },
+        {
+            name: 'adam',
+            pets: 6,
+            birthdate: '1989-07-22',
+            height: 56.10
+        },
+        {
+            name: 'xavier',
+            pets: 4,
+            birthdate: '2001-10-14',
+            height: 71.85
+        }
+    ];
+
+    Polymer({ /* jslint ignore:line */
+
+        // get value through the sorted indirection
+        getValue: function(col, y) {
+            return this.values[index];
+        },
+
+        getFixedColValue: function(x, y) {
+            return y;
+        },
+
+        getRowCount: function() {
+            return ;
+        },
+
+        getColCount: function() {
+            return this.cols;
+        },
+
+    });
+
+})(); /* jslint ignore:line */
+
+  </script>
+</polymer-element>

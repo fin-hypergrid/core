@@ -920,8 +920,8 @@ html /deep/ [segment], html /deep/ segment {
             this.createSort(0, 22);
             this.initOrder();
             this.initialize();
-            this.permute();
-            this.reorder();
+            //this.permute();
+            //this.reorder();
         },
 
         //default to left halign for rendering performance improvement
@@ -4637,6 +4637,8 @@ div.container {
 
 (function() {
 
+    var noop = function() {};
+
     Polymer('fin-hypergrid',{ /* jslint ignore:line */
 
         /**                                                             .
@@ -4645,7 +4647,21 @@ div.container {
          * @property behavior
          * @type fin-hypergrid-behavior
          */
-        behavior: null,
+        behavior: {
+            setScrollPositionY: noop,
+            setScrollPositionX: noop,
+            getColCount: noop,
+            getFixedColCount: noop,
+            getFixedColsWidth: noop,
+            getFixedColsMaxWidth: noop,
+            setRenderedWidth: noop,
+            getRowCount: noop,
+            getFixedRowCount: noop,
+            getFixedRowsHeight: noop,
+            getFixedRowsMaxHeight: noop,
+            setRenderedHeight: noop,
+            getCellProvider: noop
+        },
 
         /**                                                             .
          * mouseDown is a property of fin-hypergrid
@@ -4920,7 +4936,6 @@ div.container {
         //Notify the PluggableGridBehavior how many rows and columns we just rendered.
         updateRenderedSizes: function() {
             var behavior = this.getBehavior();
-
             //add one to each of these values as we want also to include
             //the cols and rows that are partially visible
             behavior.setRenderedWidth(this.getViewableCols() + 1);

@@ -4,6 +4,8 @@
 
 (function() {
 
+    var noop = function() {};
+
     Polymer({ /* jslint ignore:line */
 
         /**                                                             .
@@ -12,7 +14,21 @@
          * @property behavior
          * @type fin-hypergrid-behavior
          */
-        behavior: null,
+        behavior: {
+            setScrollPositionY: noop,
+            setScrollPositionX: noop,
+            getColCount: noop,
+            getFixedColCount: noop,
+            getFixedColsWidth: noop,
+            getFixedColsMaxWidth: noop,
+            setRenderedWidth: noop,
+            getRowCount: noop,
+            getFixedRowCount: noop,
+            getFixedRowsHeight: noop,
+            getFixedRowsMaxHeight: noop,
+            setRenderedHeight: noop,
+            getCellProvider: noop
+        },
 
         /**                                                             .
          * mouseDown is a property of fin-hypergrid
@@ -287,7 +303,6 @@
         //Notify the PluggableGridBehavior how many rows and columns we just rendered.
         updateRenderedSizes: function() {
             var behavior = this.getBehavior();
-
             //add one to each of these values as we want also to include
             //the cols and rows that are partially visible
             behavior.setRenderedWidth(this.getViewableCols() + 1);
