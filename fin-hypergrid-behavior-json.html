@@ -16,95 +16,160 @@ The `fin-hypergrid-behavior-json` element is a custom Polymer web component used
 /*jshint  bitwise: false */
 'use strict';
 
+var quickSort = function(arr, key) {
+
+  // return if array is unsortable
+  if (arr.length <= 1){
+    return arr;
+  }
+
+  var less = Array(), greater = Array();
+
+  // select and remove a pivot value pivot from array
+  // a pivot value closer to median of the dataset may result in better performance
+  var pivotIndex = Math.floor(arr.length / 2);
+  var pivot = arr.splice(pivotIndex, 1)[0];
+
+  // step through all array elements
+  for (var x = 0; x < arr.length; x++){
+
+    // if (current value is less than pivot),
+    // OR if (current value is the same as pivot AND this index is less than the index of the pivot in the original array)
+    // then push onto end of less array
+    if (
+      (
+        !key  // no object property name passed
+        &&
+        (
+          (arr[x] < pivot)
+          ||
+          (arr[x] == pivot && x < pivotIndex)  // this maintains the original order of values equal to the pivot
+        )
+      )
+      ||
+      (
+        key  // object property name passed
+        &&
+        (
+          (arr[x][key] < pivot[key])
+          ||
+          (arr[x][key] == pivot[key] && x < pivotIndex)  // this maintains the original order of values equal to the pivot
+        )
+      )
+    ){
+      less.push(arr[x]);
+    }
+
+    // if (current value is greater than pivot),
+    // OR if (current value is the same as pivot AND this index is greater than or equal to the index of the pivot in the original array)
+    // then push onto end of greater array
+    else {
+      greater.push(arr[x]);
+    }
+  }
+
+  // concatenate less+pivot+greater arrays
+  return quickSort(less, key).concat([pivot], quickSort(greater, key));
+};
+
+ var names = ['Olivia', 'Sophia', 'Ava', 'Isabella', 'Boy', 'Liam', 'Noah', 'Ethan', 'Mason', 'Logan', 'Moe', 'Larry', 'Curly', 'Shemp', 'Groucho', 'Harpo', 'Chico', 'Zeppo', 'Stanely', 'Hardy'];
+ var months = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12'];
+ var days = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '30'];
+
+var randomPerson = function() {
+    var name = Math.round((names.length - 1) * Math.random());
+    var pets = Math.round(10 * Math.random());
+    var birthyear = 1900 + Math.round(Math.random() * 113);
+    var birthmonth = Math.round(Math.random() * 11);
+    var birthday = Math.round(Math.random() * 29);
+    var score = Math.random() * 1000;
+    var person = {
+        name: names[name],
+        pets: pets,
+        birthdate: birthyear + '-' + months[birthmonth] + '-' + days[birthday],
+        score: score
+    };
+    return person;
+};
+
+
 (function() {
+
     var headers =
         [
             'name',
             'pets',
             'birthdate',
-            'height'
+            'score'
         ];
-    var data = [
-        {
-            name: 'bob',
-            pets: 3,
-            birthdate: '2014-12-03',
-            height: 18.50
-        },
-        {
-            name: 'paul',
-            pets: 1,
-            birthdate: '1970-06-02',
-            height: 68.50
-        },
-        {
-            name: 'harvey',
-            pets: 0,
-            birthdate: '1967-08-29',
-            height: 58.70
-        },
-        {
-            name: 'john',
-            pets: 3,
-            birthdate: '1974-03-15',
-            height: 63.22
-        },
-        {
-            name: 'ringo',
-            pets: 2,
-            birthdate: '1969-06-08',
-            height: 61.34
-        },
-        {
-            name: 'george',
-            pets: 7,
-            birthdate: '1956-01-02',
-            height: 59.12
-        },
-        {
-            name: 'charlie',
-            pets: 12,
-            birthdate: '1934-02-10',
-            height: 69.78
-        },
-        {
-            name: 'groucho',
-            pets: 5,
-            birthdate: '1947-06-11',
-            height: 63.19
-        },
-        {
-            name: 'adam',
-            pets: 6,
-            birthdate: '1989-07-22',
-            height: 56.10
-        },
-        {
-            name: 'xavier',
-            pets: 4,
-            birthdate: '2001-10-14',
-            height: 71.85
-        }
-    ];
+
+    var data = [];
+    for (var i = 0; i < 20; i ++) {
+        data.push(randomPerson());
+    }
 
     Polymer({ /* jslint ignore:line */
 
-        // get value through the sorted indirection
-        getValue: function(col, y) {
-            return this.values[index];
+        sorted: {},
+        sortStates: [' ', ' ^', ' v'],
+        data: data,
+        headers: headers,
+
+        getValue: function(x, y) {
+            return this.data[y][this.headers[x]];
         },
 
         getFixedColValue: function(x, y) {
             return y;
         },
 
+        getFixedRowValue: function(x, y) {
+            var sortIndex = this.sorted[x] || 0;
+            return this.headers[x] + this.sortStates[sortIndex];
+        },
+
+        getFixedColCount: function() {
+            return 0;
+        },
+
         getRowCount: function() {
-            return ;
+            return this.data.length;
         },
 
         getColCount: function() {
-            return this.cols;
+            return this.headers.length;
         },
+
+        fixedRowClicked: function(grid, mouse) {
+            var colIndex = this.scrollPositionX + mouse.cell.x - this.getFixedColCount();
+            this.toggleSort(colIndex);
+        },
+
+        toggleSort: function(colIndex) {
+            if (colIndex >= this.headers.length) {
+                return;
+            }
+            var current = this.sorted[colIndex] || 0;
+            var stateCount = this.sortStates.length;
+            var sortStateIndex = (current + 1) % stateCount;
+
+            for (var i = 0; i < this.headers.length; i++) {
+                this.sorted[i] = 0;
+            }
+
+            this.sorted[colIndex] = sortStateIndex;
+
+
+            var colName = this.headers[colIndex];
+            if (sortStateIndex === 0) {
+
+            } else if (sortStateIndex === 1) {
+                this.data = quickSort(this.data, colName);
+            } else {
+                this.data = this.data.reverse();
+            }
+            this.changed();
+        }
 
     });
 

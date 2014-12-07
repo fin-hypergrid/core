@@ -27,7 +27,9 @@
             getFixedRowsHeight: noop,
             getFixedRowsMaxHeight: noop,
             setRenderedHeight: noop,
-            getCellProvider: noop
+            getCellProvider: noop,
+            delegateClick: noop,
+            delegateDoubleClick: noop
         },
 
         /**                                                             .
