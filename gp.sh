@@ -60,6 +60,21 @@ cp -rf ../../fin-rectangle ./components/fin-rectangle
 cp -rf ../../fin-canvas ./components/fin-canvas
 cp -rf ../../fin-vampire-bar ./components/fin-vampire-bar
 
+cp -rf ../../core-focusable ./components/core-focusable
+cp -rf ../../core-icon ./components/core-icon
+cp -rf ../../core-icons ./components/core-icons
+cp -rf ../../core-iconset ./components/core-iconset
+cp -rf ../../core-iconset-svg ./components/core-iconset-svg
+cp -rf ../../core-meta ./components/core-meta
+cp -rf ../../core-pages ./components/core-pages
+cp -rf ../../core-selecction ./components/core-selection
+cp -rf ../../core-selector ./components/core-selector
+cp -rf ../../core-splitter ./components/core-splitter
+cp -rf ../../paper-buton ./components/paper-buton
+cp -rf ../../paper-icon-buton ./components/paper-icon-buton
+cp -rf ../../paper-buton ./components/paper-buton
+
+
 # redirect by default to the component folder
 echo "<META http-equiv="refresh" content=\"0;URL=components/$repo/\">" >index.html
 

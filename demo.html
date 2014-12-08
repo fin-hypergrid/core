@@ -5,23 +5,118 @@
   <title>fin-hypergrid Demo</title>
 
   <script src="../webcomponentsjs/webcomponents.js"></script>
+  <link rel="import" href="../paper-tabs/paper-tabs.html">
+  <link rel="import" href="../core-pages/core-pages.html">
+  <link rel="import" href="../core-splitter/core-splitter.html">
+
   <link rel="import" href="fin-hypergrid.html">
   <style>
     fin-hypergrid {
+
+    }
+    paper-tabs {
+        background-color: #E91E63;
+        color: #fff;
+        box-shadow: 0px 3px 2px rgba(0, 0, 0, 0.2);
+    }
+    core-header-panel {
+        height: 100%;
+        width: 100%;
+        position: absolute;
+    }
+    core-pages {
+        position: absolute;
+        top: 50px;
+        right: 0;
+        bottom: 0;
+        left: 0;
+    }
+    .abs {
         position: absolute;
         top: 0;
         right: 0;
         bottom: 0;
         left: 0;
     }
+    .rel {
+        position: relative;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+    }
+    .description {
+        height: 0px;
+    }
   </style>
 </head>
 <body unresolved fullbleed>
-  <fin-hypergrid>
-    <!-- <fin-hypergrid-behavior-default></fin-hypergrid-behavior-default> -->
-    <!-- <fin-hypergrid-behavior-in-memory></fin-hypergrid-behavior-in-memory> -->
-    <fin-hypergrid-behavior-json></fin-hypergrid-behavior-json>
-   <!--  <fin-hypergrid-behavior-q url="ws://localhost:5000/"></fin-hypergrid-behavior-q> -->
-  </fin-hypergrid>
+  <core-header-panel>
+
+    <core-toolbar>
+        <paper-tabs selected="0">
+            <paper-tab>Default</paper-tab>
+            <paper-tab>In Memory</paper-tab>
+            <paper-tab>JSON</paper-tab>
+            <paper-tab>Q</paper-tab>
+        </paper-tabs>
+    </core-toolbar>
+
+  <core-pages selected="0">
+
+        <div vertical layout>
+          <div class="description">Default</div>
+          <core-splitter direction="up"></core-splitter>
+          <div flex class="rel">
+            <fin-hypergrid class="abs">
+                <fin-hypergrid-behavior-default></fin-hypergrid-behavior-default>
+            </fin-hypergrid>
+          </div>
+        </div>
+
+        <div vertical layout>
+          <div class="description">In Memory</div>
+          <core-splitter direction="up"></core-splitter>
+          <div flex class="rel">
+            <fin-hypergrid class="abs">
+                <fin-hypergrid-behavior-in-memory></fin-hypergrid-behavior-in-memory>
+            </fin-hypergrid>
+          </div>
+        </div>
+
+        <div vertical layout>
+          <div class="description">JSON</div>
+          <core-splitter direction="up"></core-splitter>
+          <div flex class="rel">
+            <fin-hypergrid class="abs">
+                <fin-hypergrid-behavior-json></fin-hypergrid-behavior-json>
+            </fin-hypergrid>
+          </div>
+        </div>
+
+        <div vertical layout>
+          <div class="description">Q</div>
+          <core-splitter direction="up"></core-splitter>
+          <div flex class="rel">
+            <fin-hypergrid class="abs">
+                <fin-hypergrid-behavior-q></fin-hypergrid-behavior-q>
+            </fin-hypergrid>
+          </div>
+        </div>
+
+  </core-pages>
+
+
+  </core-header-panel>
+
+  <script>
+  var tabs = document.querySelector('paper-tabs');
+  var pages = document.querySelector('core-pages');
+
+  tabs.addEventListener('core-select', function() {
+    pages.selected = tabs.selected;
+  });
+  </script>
+
 </body>
 </html>

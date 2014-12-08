@@ -150,12 +150,7 @@
          * @property sbHScrollConfig
          * @type Object
          */
-        sbHScrollConfig: {
-            step: 1,
-            page: 40,
-            rangeStart: 0,
-            rangeStop: 0
-        },
+        sbHScrollConfig: {},
 
         /**                                                             .
          * sbVScrollConfig is a property of fin-hypergrid
@@ -163,12 +158,7 @@
          * @property sbVScrollConfig
          * @type Object
          */
-        sbVScrollConfig: {
-            step: 1,
-            page: 40,
-            rangeStart: 0,
-            rangeStop: 0
-        },
+        sbVScrollConfig: {},
 
         /**                                                             .
          * sbLastAutoScroll is a property of fin-hypergrid
@@ -1000,6 +990,20 @@
                 setValue: function(v) {
                     self.setVScrollValue(v);
                 }
+            };
+
+            this.sbHScrollConfig = {
+                step: 1,
+                page: 40,
+                rangeStart: 0,
+                rangeStop: 0
+            };
+
+            this.sbVScrollConfig = {
+                step: 1,
+                page: 40,
+                rangeStart: 0,
+                rangeStop: 0
             };
 
             this.sbHRangeAdapter = this.sbHScroller.createRangeAdapter(this.sbHValueHolder, this.sbHScrollConfig);
