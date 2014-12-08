@@ -67,12 +67,14 @@ cp -rf ../../core-iconset ./components/core-iconset
 cp -rf ../../core-iconset-svg ./components/core-iconset-svg
 cp -rf ../../core-meta ./components/core-meta
 cp -rf ../../core-pages ./components/core-pages
-cp -rf ../../core-selecction ./components/core-selection
+cp -rf ../../core-selection ./components/core-selection
 cp -rf ../../core-selector ./components/core-selector
 cp -rf ../../core-splitter ./components/core-splitter
-cp -rf ../../paper-buton ./components/paper-buton
-cp -rf ../../paper-icon-buton ./components/paper-icon-buton
-cp -rf ../../paper-buton ./components/paper-buton
+cp -rf ../../paper-button ./components/paper-button
+cp -rf ../../paper-icon-button ./components/paper-icon-button
+cp -rf ../../paper-button ./components/paper-button
+cp -rf ../../paper-tabs ./components/paper-tabs
+cp -rf ../../paper-tabs ./components/paper-tabs
 
 
 # redirect by default to the component folder

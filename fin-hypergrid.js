@@ -215,10 +215,12 @@
          * @property cellEditors
          * @type Object
          */
-        cellEditors: {},
+        cellEditors: null,
 
         domReady: function() {
             var self = this;
+
+            this.cellEditors = {};
 
             //prevent the default context menu for appearing
             this.oncontextmenu = function(event) {
@@ -270,10 +272,6 @@
                 var plugin = plugins[i];
                 func(plugin);
             }
-        },
-
-        getBehavior: function() {
-            return this.behavior;
         },
 
         //The CellProvider is accessed through Hypergrid because Hypergrid is the mediator and should have ultimate control on where it comes from.  The default is to delegate through the PluggableGridBehavior object.
@@ -414,27 +412,31 @@
             this.dragExtent = point;
         },
 
-        //Set the PluggableBehavior object for this grid control.  This can be done dynamically and is how you configure the self.
-        setBehavior: function(behavior) {
+        getBehavior: function() {
+            return this.behavior;
+        },
 
-            this.behavior = behavior;
-            behavior.setGrid(this);
+        //Set the PluggableBehavior object for this grid control.  This can be done dynamically and is how you configure the self.
+        setBehavior: function(newBehavior) {
+
+            this.behavior = newBehavior;
+            this.behavior.setGrid(this);
 
             var self = this;
 
-            var numCols = behavior.getColCount();
-            var numRows = behavior.getRowCount();
+            var numCols = this.behavior.getColCount();
+            var numRows = this.behavior.getRowCount();
 
-            behavior.changed = function() {
-                if (numCols !== behavior.getColCount() || numRows !== behavior.getRowCount()) {
-                    numCols = behavior.getColCount();
-                    numRows = behavior.getRowCount();
+            this.behavior.changed = function() {
+                if (numCols !== self.behavior.getColCount() || numRows !== self.behavior.getRowCount()) {
+                    numCols = self.behavior.getColCount();
+                    numRows = self.behavior.getRowCount();
                     self.behaviorShapeChanged();
                 }
                 self.repaint();
             };
 
-            behavior.sizeChanged = function() {
+            this.behavior.sizeChanged = function() {
                 self.repaint();
             };
 
