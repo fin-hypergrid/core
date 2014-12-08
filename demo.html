@@ -46,7 +46,8 @@
         left: 0;
     }
     .description {
-        height: 0px;
+        padding-left: 8%;
+        padding-right: 8%;
     }
   </style>
 </head>
@@ -65,7 +66,11 @@
   <core-pages selected="0">
 
         <div vertical layout>
-          <div class="description">Default</div>
+          <div class="description">
+            <h3>fin-hypergrid-behavior-default</h3> This element is a custom Polymer web component that is the base class for the GridBehavior role in the design of the OpenFin hypergrid.  Not only does it accomodate the interface getValue(x,y) and setValue(x,y) of a traditional table model, it encapsulates the behavior that allows its implementation to determine what happens on various user events. This allows for external data analytics tools to do sorting, drilling down, aggregation etc.  The default behavior is to just return a string of the passed in x and y coordinates.
+            <br>
+            <br>
+          </div>
           <core-splitter direction="up"></core-splitter>
           <div flex class="rel">
             <fin-hypergrid class="abs">
@@ -75,7 +80,11 @@
         </div>
 
         <div vertical layout>
-          <div class="description">In Memory</div>
+          <div class="description">
+            <h3>fin-hypergrid-behavior-in-memory</h3> This element is a custom Polymer web component that is a demonstration of a simple subclass of the fin-hypergrid-behavior-default.  It demonstrates live high frequency updating of data, variable width columns, alternate cell renderers, and alternate cell editors(double click in various cells of column 'J').
+            <br>
+            <br>
+          </div>
           <core-splitter direction="up"></core-splitter>
           <div flex class="rel">
             <fin-hypergrid class="abs">
@@ -85,7 +94,11 @@
         </div>
 
         <div vertical layout>
-          <div class="description">JSON</div>
+          <div class="description">
+            <h3>fin-hypergrid-behavior-json</h3> This element is a custom Polymer web component that manages small(<~10000 rows) and simple data sets all within javascript.  The data is "pushed" into the behavior object with the call to setData at anytime after the polymer ready event is fired, see documention for details.
+            <br>
+            <br>
+          </div>
           <core-splitter direction="up"></core-splitter>
           <div flex class="rel">
             <fin-hypergrid class="abs">
@@ -95,7 +108,11 @@
         </div>
 
         <div vertical layout>
-          <div class="description">Q</div>
+          <div class="description">
+            <h3>fin-hypergrid-behavior-json</h3> This element is a custom Polymer web component that demonstrates a simple interface to Q/KDB+ by kx systems.  In order for this to work you need to run either sorttable.q or bigtable.q scripts both of which are found in the root directory of this project.  The bigtable.q script simulates a billion row table and cannot be sorted in realtime.  The sorttable.q script is a true in memory million row table that allows you to sort on any column in realtime.
+            <br>
+            <br>
+          </div>
           <core-splitter direction="up"></core-splitter>
           <div flex class="rel">
             <fin-hypergrid class="abs">
