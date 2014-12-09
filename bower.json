@@ -23,6 +23,7 @@
     "fin-canvas": "#master",
     "fin-rectangle": "#master",
     "fin-vampire-bar": "#master",
-    "paper-elements": "Polymer/paper-elements#~0.5.1"
+    "paper-elements": "Polymer/paper-elements#master",
+    "core-elements": "Polymer/core-elements#master"
   }
 }
