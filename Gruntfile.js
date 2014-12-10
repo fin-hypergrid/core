@@ -54,7 +54,7 @@ module.exports = function(grunt) {
             default: {
                 options: {},
                 files: {
-                    'build.html': 'allInOne.html'
+                    'build.html': 'fin-hypergrid.html'
                 },
             },
         },
