@@ -52,9 +52,12 @@ module.exports = function(grunt) {
 
         vulcanize: {
             default: {
-                options: {},
+                options: {
+                    inline: true,
+                    strip: true
+                },
                 files: {
-                    'build.html': 'fin-hypergrid.html'
+                    'fin-hypergrid.min.html': 'fin-hypergrid.html'
                 },
             },
         },
