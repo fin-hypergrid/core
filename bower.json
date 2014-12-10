@@ -18,13 +18,13 @@
     "/tests/"
   ],
   "dependencies": {
+    "paper-elements": "Polymer/paper-elements#master",
+    "core-elements": "Polymer/core-elements#master"
+  },
+  "devDependencies": {
     "polymer": "Polymer/polymer#master",
     "fin-canvas": "#master",
     "fin-rectangle": "#master",
-    "fin-vampire-bar": "#master",
-    },
-  "devDependencies": {
-    "paper-elements": "Polymer/paper-elements#master",
-    "core-elements": "Polymer/core-elements#master"
-  }
+    "fin-vampire-bar": "#master"
+    }
 }
