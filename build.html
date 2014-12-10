@@ -624,6 +624,7 @@ html /deep/ [segment], html /deep/ segment {
         },
 
         grid: null,
+        editorTypes: ['choice','textfield','color','slider','spinner','date'],
 
         //this is here just to provide an example of arbitrary
         //column widths<br>heights could be done the same way
@@ -838,8 +839,17 @@ html /deep/ [segment], html /deep/ segment {
         //this is called by OFGrid when a fixed cell is clicked
         //<br>TODO:edit functionality needs to be abstracted out
         delegateDoubleClick: function(grid, mouse) {
-            var type = 'textfield';
-            this.getGrid().editAt(type, mouse);
+
+            var mX = this.scrollPositionX + mouse.cell.x - 1;
+            var mY = this.scrollPositionY + mouse.cell.y - 1;
+
+            var editor = this.getCellEditorAt(mX, mY);
+            this.getGrid().editAt(editor, mouse);
+        },
+
+        getCellEditorAt: function(x, y) {
+            var cellEditor = this.grid.cellEditors['textfield'];
+            return cellEditor;
         },
 
         //this is a helper function for generating fixed col/row data
@@ -993,14 +1003,11 @@ html /deep/ [segment], html /deep/ segment {
             }, self.permuteInterval);
         },
 
-        editorTypes: ['choice','textfield','color','slider','spinner','date'],
-        delegateDoubleClick: function(grid, mouse) {
-            var mX = this.scrollPositionX + mouse.cell.x - 1;
-            var mY = this.scrollPositionY + mouse.cell.y - 1;
-            var type = mX !== 9 ? 'textfield' : this.editorTypes[mY % this.editorTypes.length];
-            this.getGrid().editAt(type, mouse);
+        getCellEditorAt: function(x, y) {
+            var type = x !== 9 ? 'textfield' : this.editorTypes[y % this.editorTypes.length];
+            var cellEditor = this.grid.cellEditors[type];
+            return cellEditor;
         },
-
         //set a random value into col/row, cutoff is the threshold to exit if the random value is outside
         setRandomValue: function(col, row, cutoff) {
             var rand = Math.random();
@@ -1406,6 +1413,10 @@ var quickSort = function(arr, key) {
             return this.data[y][this.fields[x]];
         },
 
+        setValue: function(x, y, value) {
+            this.data[y][this.fields[x]] = value;
+        },
+
         getFixedColValue: function(x, y) {
             return y;
         },
@@ -1433,6 +1444,7 @@ var quickSort = function(arr, key) {
         },
 
         toggleSort: function(colIndex) {
+            this.grid.clearSelections();
             if (colIndex >= this.fields.length) {
                 return;
             }
@@ -4589,7 +4601,7 @@ div.container {
   <template>
     <select id="editor">
         
-            <option value="{{item.id}}">{{item.description}}</option>
+            <option value="{{item}}">{{item}}</option>
         
     </select>
   </template>
@@ -4601,36 +4613,7 @@ div.container {
 
     Polymer('fin-hypergrid-cell-editor-choice',{ /* jshint ignore:line */
         alias: 'choice',
-        collection: [
-        {
-            id: 'moe',
-            description: 'Moe'
-        },
-        {
-            id: 'larry',
-            description: 'Larry'
-        },
-        {
-            id: 'curly',
-            description: 'Curly'
-        },
-        {
-            id: 'groucho',
-            description: 'Groucho'
-        },
-        {
-            id: 'harpo',
-            description: 'Harpo'
-        },
-        {
-            id: 'zeppo',
-            description: 'Zeppo'
-        },
-        {
-            id: 'chico',
-            description: 'Chico'
-        },
-        ],
+        items:['Moe','Larry','Curly','Groucho','Harpo','Zeppo','Chico'],
     });
 
 })(); /* jshint ignore:line */
@@ -5382,13 +5365,8 @@ div.container {
         },
 
         //Currently this is called by default from the PluggableBehavior, this piece needs to be reworked to re-delegate back through the PluggableBehavior to let it decide how to edit the cell.
-        editAt: function(cellEditorAlias, coordinates) {
+        editAt: function(cellEditor, coordinates) {
 
-            var cellEditor = this.cellEditors[cellEditorAlias];
-            if (!cellEditor) {
-                console.error('there is no cellEditor of type ' + cellEditorAlias);
-                return;
-            }
             this.currentCellEditor = cellEditor;
 
             var cell = coordinates.cell;
@@ -5405,7 +5383,6 @@ div.container {
             if (x < 0 || y < 0) {
                 return;
             }
-
 
             var editPoint = this.rectangles.point.create(x, y);
             this.setMouseDown(editPoint);

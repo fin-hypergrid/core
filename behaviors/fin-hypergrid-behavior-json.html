@@ -97,6 +97,10 @@ var quickSort = function(arr, key) {
             return this.data[y][this.fields[x]];
         },
 
+        setValue: function(x, y, value) {
+            this.data[y][this.fields[x]] = value;
+        },
+
         getFixedColValue: function(x, y) {
             return y;
         },
@@ -124,6 +128,7 @@ var quickSort = function(arr, key) {
         },
 
         toggleSort: function(colIndex) {
+            this.grid.clearSelections();
             if (colIndex >= this.fields.length) {
                 return;
             }

@@ -139,7 +139,7 @@
     //setup random data for the JSON tab example
     (function(){
 
-        var numRows = 10000;
+        var numRows = 5000;
 
         var firstNames = ['Olivia', 'Sophia', 'Ava', 'Isabella', 'Boy', 'Liam', 'Noah', 'Ethan', 'Mason', 'Logan', 'Moe', 'Larry', 'Curly', 'Shemp', 'Groucho', 'Harpo', 'Chico', 'Zeppo', 'Stanely', 'Hardy'];
         var lastNames = ['Wirts', 'Oneil', 'Smith', 'Barbarosa', 'Soprano', 'Gotti', 'Columbo', 'Luciano', 'Doerre', 'DePena'];
@@ -204,6 +204,8 @@
             data.push(randomPerson());
         }
 
+        var editorTypes = ['choice','textfield','spinner','date','choice','choice','choice','textfield','textfield'];
+
         document.addEventListener('polymer-ready', function() {
 
             //get ahold of our json grid example
@@ -254,6 +256,20 @@
 
                 renderer.config = config;
                 return renderer;
+            };
+
+            //lets override the cell editors, and configure the drop down lists
+            jsonModel.getCellEditorAt = function(x, y) {
+                var type = editorTypes[x];
+                var cellEditor = this.grid.cellEditors[type];
+                if (x === 0) {
+                    cellEditor.items = lastNames;
+                } else if (x === 4 || x === 5) {
+                    cellEditor.items = states;
+                } else if (x === 6) {
+                    cellEditor.items = [true, false];
+                }
+                return cellEditor;
             };
 
         });

@@ -603,13 +603,8 @@
         },
 
         //Currently this is called by default from the PluggableBehavior, this piece needs to be reworked to re-delegate back through the PluggableBehavior to let it decide how to edit the cell.
-        editAt: function(cellEditorAlias, coordinates) {
+        editAt: function(cellEditor, coordinates) {
 
-            var cellEditor = this.cellEditors[cellEditorAlias];
-            if (!cellEditor) {
-                console.error('there is no cellEditor of type ' + cellEditorAlias);
-                return;
-            }
             this.currentCellEditor = cellEditor;
 
             var cell = coordinates.cell;
@@ -626,7 +621,6 @@
             if (x < 0 || y < 0) {
                 return;
             }
-
 
             var editPoint = this.rectangles.point.create(x, y);
             this.setMouseDown(editPoint);

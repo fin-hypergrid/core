@@ -131,14 +131,11 @@ The `fin-hypergrid-behavior-in-memory` element is a custom Polymer web component
             }, self.permuteInterval);
         },
 
-        editorTypes: ['choice','textfield','color','slider','spinner','date'],
-        delegateDoubleClick: function(grid, mouse) {
-            var mX = this.scrollPositionX + mouse.cell.x - 1;
-            var mY = this.scrollPositionY + mouse.cell.y - 1;
-            var type = mX !== 9 ? 'textfield' : this.editorTypes[mY % this.editorTypes.length];
-            this.getGrid().editAt(type, mouse);
+        getCellEditorAt: function(x, y) {
+            var type = x !== 9 ? 'textfield' : this.editorTypes[y % this.editorTypes.length];
+            var cellEditor = this.grid.cellEditors[type];
+            return cellEditor;
         },
-
         //set a random value into col/row, cutoff is the threshold to exit if the random value is outside
         setRandomValue: function(col, row, cutoff) {
             var rand = Math.random();
