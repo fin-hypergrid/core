@@ -14,9 +14,9 @@
 
 # usage gp Polymer core-item [branch]
 # Run in a clean directory passing in a GitHub org and repo name
-org=$1
-repo=$2
-branch=${3:-"master"} # default to master when branch isn't specified
+org="openfin"
+repo="fin-hypergrid"
+branch="master" # default to master when branch isn't specified
 
 #delete existing dir
 rm -rf $repo
