@@ -111,7 +111,7 @@ The Hypergrid design makes no assumptions about the data you wish to view which 
 
     Polymer({ /* jslint ignore:line */
 
-        /**                                                             .
+        /**
          * behavior is a property of fin-hypergrid
          *
          * @property behavior
@@ -135,7 +135,7 @@ The Hypergrid design makes no assumptions about the data you wish to view which 
             delegateDoubleClick: noop
         },
 
-        /**                                                             .
+        /**
          * mouseDown is a property of fin-hypergrid
          *
          * @property mouseDown
@@ -143,7 +143,7 @@ The Hypergrid design makes no assumptions about the data you wish to view which 
          */
         mouseDown: null,
 
-        /**                                                             .
+        /**
          * dragExtent is a property of fin-hypergrid
          *
          * @property dragExtent
@@ -151,7 +151,7 @@ The Hypergrid design makes no assumptions about the data you wish to view which 
          */
         dragExtent: null,
 
-        /**                                                             .
+        /**
          * scrollingNow is a property of fin-hypergrid
          *
          * @property scrollingNow
@@ -159,7 +159,7 @@ The Hypergrid design makes no assumptions about the data you wish to view which 
          */
         scrollingNow: false,
 
-        /**                                                             .
+        /**
          * currentDrag is a property of fin-hypergrid
          *
          * @property currentDrag
@@ -167,7 +167,7 @@ The Hypergrid design makes no assumptions about the data you wish to view which 
          */
         currentDrag: null,
 
-        /**                                                             .
+        /**
          * lastDragCell is a property of fin-hypergrid
          *
          * @property lastDragCell
@@ -175,7 +175,7 @@ The Hypergrid design makes no assumptions about the data you wish to view which 
          */
         lastDragCell: null,
 
-        /**                                                             .
+        /**
          * vScrollValue is a property of fin-hypergrid
          *
          * @property vScrollValue
@@ -183,7 +183,7 @@ The Hypergrid design makes no assumptions about the data you wish to view which 
          */
         vScrollValue: 0,
 
-        /**                                                             .
+        /**
          * hScrollValue is a property of fin-hypergrid
          *
          * @property hScrollValue
@@ -191,7 +191,7 @@ The Hypergrid design makes no assumptions about the data you wish to view which 
          */
         hScrollValue: 0,
 
-        /**                                                             .
+        /**
          * rectangles is a property of fin-hypergrid
          *
          * @property rectangles
@@ -199,7 +199,7 @@ The Hypergrid design makes no assumptions about the data you wish to view which 
          */
         rectangles: null,
 
-        /**                                                             .
+        /**
          * constants is a property of fin-hypergrid
          *
          * @property constants
@@ -207,7 +207,7 @@ The Hypergrid design makes no assumptions about the data you wish to view which 
          */
         constants: null,
 
-        /**                                                             .
+        /**
          * selectionModel is a property of fin-hypergrid
          *
          * @property selectionModel
@@ -215,7 +215,7 @@ The Hypergrid design makes no assumptions about the data you wish to view which 
          */
         selectionModel: null,
 
-        /**                                                             .
+        /**
          * currentCellEditor is a property of fin-hypergrid
          *
          * @property currentCellEditor
@@ -223,7 +223,7 @@ The Hypergrid design makes no assumptions about the data you wish to view which 
          */
         currentCellEditor: null,
 
-        /**                                                             .
+        /**
          * sbMouseIsDown is a property of fin-hypergrid
          *
          * @property sbMouseIsDown
@@ -231,7 +231,7 @@ The Hypergrid design makes no assumptions about the data you wish to view which 
          */
         sbMouseIsDown: false,
 
-        /**                                                             .
+        /**
          * sbHScroller is a property of fin-hypergrid
          *
          * @property sbHScroller
@@ -239,7 +239,7 @@ The Hypergrid design makes no assumptions about the data you wish to view which 
          */
         sbHScroller: null,
 
-        /**                                                             .
+        /**
          * sbVScroller is a property of fin-hypergrid
          *
          * @property sbVScroller
@@ -247,7 +247,7 @@ The Hypergrid design makes no assumptions about the data you wish to view which 
          */
         sbVScroller: null,
 
-        /**                                                             .
+        /**
          * sbHScrollConfig is a property of fin-hypergrid
          *
          * @property sbHScrollConfig
@@ -255,7 +255,7 @@ The Hypergrid design makes no assumptions about the data you wish to view which 
          */
         sbHScrollConfig: {},
 
-        /**                                                             .
+        /**
          * sbVScrollConfig is a property of fin-hypergrid
          *
          * @property sbVScrollConfig
@@ -263,7 +263,7 @@ The Hypergrid design makes no assumptions about the data you wish to view which 
          */
         sbVScrollConfig: {},
 
-        /**                                                             .
+        /**
          * sbLastAutoScroll is a property of fin-hypergrid
          *
          * @property sbLastAutoScroll
@@ -271,7 +271,7 @@ The Hypergrid design makes no assumptions about the data you wish to view which 
          */
         sbLastAutoScroll: 0,
 
-        /**                                                             .
+        /**
          * sbAutoScrollStartTime is a property of fin-hypergrid
          *
          * @property sbAutoScrollStartTime
@@ -279,7 +279,7 @@ The Hypergrid design makes no assumptions about the data you wish to view which 
          */
         sbAutoScrollStartTime: 0,
 
-        /**                                                             .
+        /**
          * sbPreviousVScrollValue is a property of fin-hypergrid
          *
          * @property sbPreviousVScrollValue
@@ -287,7 +287,7 @@ The Hypergrid design makes no assumptions about the data you wish to view which 
          */
         sbPreviousVScrollValue: null,
 
-        /**                                                             .
+        /**
          * sbPreviousHScrollValue is a property of fin-hypergrid
          *
          * @property sbPreviousHScrollValue
@@ -295,7 +295,7 @@ The Hypergrid design makes no assumptions about the data you wish to view which 
          */
         sbPreviousHScrollValue: null,
 
-        /**                                                             .
+        /**
          * sbHValueHolder is a property of fin-hypergrid
          *
          * @property sbHValueHolder
@@ -304,7 +304,7 @@ The Hypergrid design makes no assumptions about the data you wish to view which 
 
         sbHValueHolder: {},
 
-        /**                                                             .
+        /**
          * sbVValueHolder is a property of fin-hypergrid
          *
          * @property sbVValueHolder
@@ -312,7 +312,7 @@ The Hypergrid design makes no assumptions about the data you wish to view which 
          */
         sbVValueHolder: {},
 
-        /**                                                             .
+        /**
          * cellEditors is a property of fin-hypergrid
          *
          * @property cellEditors

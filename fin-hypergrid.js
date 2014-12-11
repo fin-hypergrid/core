@@ -8,7 +8,7 @@
 
     Polymer({ /* jslint ignore:line */
 
-        /**                                                             .
+        /**
          * behavior is a property of fin-hypergrid
          *
          * @property behavior
@@ -32,7 +32,7 @@
             delegateDoubleClick: noop
         },
 
-        /**                                                             .
+        /**
          * mouseDown is a property of fin-hypergrid
          *
          * @property mouseDown
@@ -40,7 +40,7 @@
          */
         mouseDown: null,
 
-        /**                                                             .
+        /**
          * dragExtent is a property of fin-hypergrid
          *
          * @property dragExtent
@@ -48,7 +48,7 @@
          */
         dragExtent: null,
 
-        /**                                                             .
+        /**
          * scrollingNow is a property of fin-hypergrid
          *
          * @property scrollingNow
@@ -56,7 +56,7 @@
          */
         scrollingNow: false,
 
-        /**                                                             .
+        /**
          * currentDrag is a property of fin-hypergrid
          *
          * @property currentDrag
@@ -64,7 +64,7 @@
          */
         currentDrag: null,
 
-        /**                                                             .
+        /**
          * lastDragCell is a property of fin-hypergrid
          *
          * @property lastDragCell
@@ -72,7 +72,7 @@
          */
         lastDragCell: null,
 
-        /**                                                             .
+        /**
          * vScrollValue is a property of fin-hypergrid
          *
          * @property vScrollValue
@@ -80,7 +80,7 @@
          */
         vScrollValue: 0,
 
-        /**                                                             .
+        /**
          * hScrollValue is a property of fin-hypergrid
          *
          * @property hScrollValue
@@ -88,7 +88,7 @@
          */
         hScrollValue: 0,
 
-        /**                                                             .
+        /**
          * rectangles is a property of fin-hypergrid
          *
          * @property rectangles
@@ -96,7 +96,7 @@
          */
         rectangles: null,
 
-        /**                                                             .
+        /**
          * constants is a property of fin-hypergrid
          *
          * @property constants
@@ -104,7 +104,7 @@
          */
         constants: null,
 
-        /**                                                             .
+        /**
          * selectionModel is a property of fin-hypergrid
          *
          * @property selectionModel
@@ -112,7 +112,7 @@
          */
         selectionModel: null,
 
-        /**                                                             .
+        /**
          * currentCellEditor is a property of fin-hypergrid
          *
          * @property currentCellEditor
@@ -120,7 +120,7 @@
          */
         currentCellEditor: null,
 
-        /**                                                             .
+        /**
          * sbMouseIsDown is a property of fin-hypergrid
          *
          * @property sbMouseIsDown
@@ -128,7 +128,7 @@
          */
         sbMouseIsDown: false,
 
-        /**                                                             .
+        /**
          * sbHScroller is a property of fin-hypergrid
          *
          * @property sbHScroller
@@ -136,7 +136,7 @@
          */
         sbHScroller: null,
 
-        /**                                                             .
+        /**
          * sbVScroller is a property of fin-hypergrid
          *
          * @property sbVScroller
@@ -144,7 +144,7 @@
          */
         sbVScroller: null,
 
-        /**                                                             .
+        /**
          * sbHScrollConfig is a property of fin-hypergrid
          *
          * @property sbHScrollConfig
@@ -152,7 +152,7 @@
          */
         sbHScrollConfig: {},
 
-        /**                                                             .
+        /**
          * sbVScrollConfig is a property of fin-hypergrid
          *
          * @property sbVScrollConfig
@@ -160,7 +160,7 @@
          */
         sbVScrollConfig: {},
 
-        /**                                                             .
+        /**
          * sbLastAutoScroll is a property of fin-hypergrid
          *
          * @property sbLastAutoScroll
@@ -168,7 +168,7 @@
          */
         sbLastAutoScroll: 0,
 
-        /**                                                             .
+        /**
          * sbAutoScrollStartTime is a property of fin-hypergrid
          *
          * @property sbAutoScrollStartTime
@@ -176,7 +176,7 @@
          */
         sbAutoScrollStartTime: 0,
 
-        /**                                                             .
+        /**
          * sbPreviousVScrollValue is a property of fin-hypergrid
          *
          * @property sbPreviousVScrollValue
@@ -184,7 +184,7 @@
          */
         sbPreviousVScrollValue: null,
 
-        /**                                                             .
+        /**
          * sbPreviousHScrollValue is a property of fin-hypergrid
          *
          * @property sbPreviousHScrollValue
@@ -192,7 +192,7 @@
          */
         sbPreviousHScrollValue: null,
 
-        /**                                                             .
+        /**
          * sbHValueHolder is a property of fin-hypergrid
          *
          * @property sbHValueHolder
@@ -201,7 +201,7 @@
 
         sbHValueHolder: {},
 
-        /**                                                             .
+        /**
          * sbVValueHolder is a property of fin-hypergrid
          *
          * @property sbVValueHolder
@@ -209,7 +209,7 @@
          */
         sbVValueHolder: {},
 
-        /**                                                             .
+        /**
          * cellEditors is a property of fin-hypergrid
          *
          * @property cellEditors

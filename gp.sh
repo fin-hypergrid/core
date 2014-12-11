@@ -71,11 +71,12 @@ cp -rf ../../core-pages ./components/core-pages
 cp -rf ../../core-selection ./components/core-selection
 cp -rf ../../core-selector ./components/core-selector
 cp -rf ../../core-splitter ./components/core-splitter
+cp -rf ../../core-resizeable ./components/core-resizeable
 cp -rf ../../paper-button ./components/paper-button
 cp -rf ../../paper-icon-button ./components/paper-icon-button
 cp -rf ../../paper-button ./components/paper-button
 cp -rf ../../paper-tabs ./components/paper-tabs
-cp -rf ../../paper-tabs ./components/paper-tabs
+cp -rf ../../paper-ripple ./components/paper-ripple
 
 
 # redirect by default to the component folder
