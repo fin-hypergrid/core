@@ -71,7 +71,7 @@ cp -rf ../../core-pages ./components/core-pages
 cp -rf ../../core-selection ./components/core-selection
 cp -rf ../../core-selector ./components/core-selector
 cp -rf ../../core-splitter ./components/core-splitter
-cp -rf ../../core-resizeable ./components/core-resizeable
+cp -rf ../../core-resizable ./components/core-resizable
 cp -rf ../../paper-button ./components/paper-button
 cp -rf ../../paper-icon-button ./components/paper-icon-button
 cp -rf ../../paper-button ./components/paper-button
