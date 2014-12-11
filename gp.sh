@@ -59,6 +59,7 @@ cp -rf ../../polymer-gestures ./components/polymer-gestures
 cp -rf ../../fin-rectangle ./components/fin-rectangle
 cp -rf ../../fin-canvas ./components/fin-canvas
 cp -rf ../../fin-vampire-bar ./components/fin-vampire-bar
+cp -rf ../../accountingjs ./components/accountingjs
 
 cp -rf ../../core-focusable ./components/core-focusable
 cp -rf ../../core-icon ./components/core-icon
