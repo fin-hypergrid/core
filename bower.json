@@ -25,6 +25,7 @@
     "polymer": "Polymer/polymer#master",
     "fin-canvas": "#master",
     "fin-rectangle": "#master",
-    "fin-vampire-bar": "#master"
-    }
+    "fin-vampire-bar": "#master",
+    "accountingjs": "~0.3.2"
+  }
 }

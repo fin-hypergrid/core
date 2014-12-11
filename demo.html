@@ -4,7 +4,8 @@
   <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
   <title>fin-hypergrid Demo</title>
 
-  <script src="../webcomponentsjs/webcomponents.js"></script>
+  <script src="../webcomponentsjs/webcomponents.min.js"></script>
+  <script src="../accountingjs/accounting.min.js"></script>
   <link rel="import" href="../paper-tabs/paper-tabs.html">
   <link rel="import" href="../core-pages/core-pages.html">
   <link rel="import" href="../core-splitter/core-splitter.html">
@@ -95,7 +96,7 @@
 
         <div vertical layout>
           <div class="description">
-            <h3>fin-hypergrid-behavior-json</h3> This element is a custom Polymer web component that manages small(<~10000 rows) and simple data sets all within javascript.  The data is "pushed" into the behavior object with the call to setData at anytime after the polymer ready event is fired, see documention for details.
+            <h3>fin-hypergrid-behavior-json</h3> This element is a custom Polymer web component that manages data sets within javascript.  The data is "pushed" into the behavior object with the call to setData at anytime after the polymer ready event is fired, see documention for details.
             <br>
             <br>
           </div>
@@ -156,8 +157,8 @@
             var birthday = Math.round(Math.random() * 29);
             var birthstate = Math.round(Math.random() * 49);
             var residencestate = Math.round(Math.random() * 49);
-            var score = Math.round(Math.random() * 1000000)/1000;
-            var income = Math.round(Math.random() * 10000000)/100;
+            var travel = Math.random() * 1000;
+            var income = Math.random() * 100000;
             var employed = Math.round(Math.random());
             var person = {
                 last: lastNames[lastName],
@@ -168,7 +169,7 @@
                 residencestate: states[residencestate],
                 employed: employed === 1,
                 income: income,
-                score: score
+                travel: travel
             };
             return person;
         };
@@ -183,7 +184,7 @@
                 'residence state',
                 'employed',
                 'income',
-                'score'
+                'travel'
             ];
 
         var fields =
@@ -196,7 +197,7 @@
                 'residencestate',
                 'employed',
                 'income',
-                'score'
+                'travel'
             ];
 
         var data = [];
@@ -241,17 +242,19 @@
                 } else if (x === 6) {
                     config.halign = 'center';
                 } else if (x === 7) {
-                    var score = 60 + Math.round(config.value*150/100000);
-                    var bcolor = score.toString(16);
+                    var travel = 60 + Math.round(config.value*150/100000);
+                    var bcolor = travel.toString(16);
                     config.halign = 'right';
                     config.bgColor = '#00' + bcolor + '00';
                     config.fgColor = '#FFFFFF';
+                    config.value = accounting.formatMoney(config.value);
                 } else if (x === 8) {
-                    var score = 105 + Math.round(config.value*150/1000);
-                    var bcolor = score.toString(16);
+                    var travel = 105 + Math.round(config.value*150/1000);
+                    var bcolor = travel.toString(16);
                     config.halign = 'right';
                     config.bgColor = '#' + bcolor+ '0000';
                     config.fgColor = '#FFFFFF';
+                    config.value = accounting.formatMoney(config.value, "€", 2, ".", ",");
                 }
 
                 renderer.config = config;
