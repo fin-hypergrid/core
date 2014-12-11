@@ -33,7 +33,8 @@
         },
 
         /**
-         * mouseDown is a property of fin-hypergrid
+         * mouseDown is the location of an initial mousedown click, either for editing
+         * a cell or for dragging a selection
          *
          * @property mouseDown
          * @type boolean
@@ -41,7 +42,7 @@
         mouseDown: null,
 
         /**
-         * dragExtent is a property of fin-hypergrid
+         * dragExtent is the extent from the mousedown point during a drag operation
          *
          * @property dragExtent
          * @type fin-rectangle.point
@@ -49,7 +50,7 @@
         dragExtent: null,
 
         /**
-         * scrollingNow is a property of fin-hypergrid
+         * scrollingNow is true if we are scrolling now or false otherwise
          *
          * @property scrollingNow
          * @type boolean
@@ -57,7 +58,7 @@
         scrollingNow: false,
 
         /**
-         * currentDrag is a property of fin-hypergrid
+         * currentDrag is the pixel location of the mouse pointer during a drag operation
          *
          * @property currentDrag
          * @type fin-rectangle.point
@@ -65,7 +66,8 @@
         currentDrag: null,
 
         /**
-         * lastDragCell is a property of fin-hypergrid
+         * lastDragCell is the cell coordinates of the where the mouse pointer is
+         * during a drag operation
          *
          * @property lastDragCell
          * @type Object
@@ -73,23 +75,23 @@
         lastDragCell: null,
 
         /**
-         * vScrollValue is a property of fin-hypergrid
+         * vScrlValue is a float value between 0.0 - 1.0 of the y scrollposition
          *
-         * @property vScrollValue
+         * @property vScrlValue
          * @type Number
          */
-        vScrollValue: 0,
+        vScrlValue: 0,
 
         /**
-         * hScrollValue is a property of fin-hypergrid
+         * hScrlValue is a float value between 0.0 - 1.0 of the x scrollposition
          *
-         * @property hScrollValue
+         * @property hScrlValue
          * @type Number
          */
-        hScrollValue: 0,
+        hScrlValue: 0,
 
         /**
-         * rectangles is a property of fin-hypergrid
+         * rectangles is a polymer element instance of [fin-rectange](http://stevewirts.github.io/fin-rectangle/components/fin-rectangle/)
          *
          * @property rectangles
          * @type fin-rectange
@@ -97,7 +99,7 @@
         rectangles: null,
 
         /**
-         * constants is a property of fin-hypergrid
+         * constants holds a [fin-constants](index.html#fin-hypergrid-constants) polymer-element singleton of constant values
          *
          * @property constants
          * @type fin-hypergrid-constants
@@ -105,7 +107,7 @@
         constants: null,
 
         /**
-         * selectionModel is a property of fin-hypergrid
+         * selectionModel is a [fin-hypergrid-selection-model](index.html#fin-hypergrid-selection-model) instance
          *
          * @property selectionModel
          * @type fin-hypergrid-selection-model
@@ -113,15 +115,16 @@
         selectionModel: null,
 
         /**
-         * currentCellEditor is a property of fin-hypergrid
+         * cellEdtr is the current instance of [fin-hypergrid-cell-editor](index.html#fin-hypergrid-cell-editor-base)
          *
-         * @property currentCellEditor
+         * @property cellEdtr
          * @type fin-hypergrid-cell-editor
          */
-        currentCellEditor: null,
+        cellEdtr: null,
 
         /**
-         * sbMouseIsDown is a property of fin-hypergrid
+         * sbMouseIsDown is true if the mouse button is currently down on the scrollbar, this is
+         * used to refocus the hypergrid canvas after a scrollbar scroll
          *
          * @property sbMouseIsDown
          * @type boolean
@@ -129,7 +132,7 @@
         sbMouseIsDown: false,
 
         /**
-         * sbHScroller is a property of fin-hypergrid
+         * sbHScroller is an instance of [fin-vampire-bar](http://datamadic.github.io/fin-vampire-bar/components/fin-vampire-bar/)
          *
          * @property sbHScroller
          * @type fin-vampire-bar
@@ -137,7 +140,7 @@
         sbHScroller: null,
 
         /**
-         * sbVScroller is a property of fin-hypergrid
+         * sbVScroller is an instance of [fin-vampire-bar](http://datamadic.github.io/fin-vampire-bar/components/fin-vampire-bar/)
          *
          * @property sbVScroller
          * @type fin-vampire-bar
@@ -145,55 +148,57 @@
         sbVScroller: null,
 
         /**
-         * sbHScrollConfig is a property of fin-hypergrid
+         * sbHScrlCfg is a config object allow us to dynamically reconfigure the scrollbars,
+         * it's properties include rangeStart, rangeStop, step, and page
          *
-         * @property sbHScrollConfig
+         * @property sbHScrlCfg
          * @type Object
          */
-        sbHScrollConfig: {},
+        sbHScrlCfg: {},
 
         /**
-         * sbVScrollConfig is a property of fin-hypergrid
+         * sbVScrlCfg is a config object allow us to dynamically reconfigure the scrollbars,
+         * it's properties include rangeStart, rangeStop, step, and page
          *
-         * @property sbVScrollConfig
+         * @property sbVScrlCfg
          * @type Object
          */
-        sbVScrollConfig: {},
+        sbVScrlCfg: {},
 
         /**
-         * sbLastAutoScroll is a property of fin-hypergrid
+         * sbLastAuto is a millisecond value representing the previous time an autoscroll started
          *
-         * @property sbLastAutoScroll
+         * @property sbLastAuto
          * @type Number
          */
-        sbLastAutoScroll: 0,
+        sbLastAuto: 0,
 
         /**
-         * sbAutoScrollStartTime is a property of fin-hypergrid
+         * sbAutoStart is a millisecond value representing the time the current autoscroll started
          *
-         * @property sbAutoScrollStartTime
+         * @property sbAutoStart
          * @type Number
          */
-        sbAutoScrollStartTime: 0,
+        sbAutoStart: 0,
 
         /**
-         * sbPreviousVScrollValue is a property of fin-hypergrid
+         * sbPrevVScrlVal is the previous value of sbVScrlVal
          *
-         * @property sbPreviousVScrollValue
+         * @property sbPrevVScrlVal
          * @type Number
          */
-        sbPreviousVScrollValue: null,
+        sbPrevVScrlVal: null,
 
         /**
-         * sbPreviousHScrollValue is a property of fin-hypergrid
+         * sbPrevHScrlVal is dthe previous value of SbHScrlVal
          *
-         * @property sbPreviousHScrollValue
+         * @property sbPrevHScrlVal
          * @type Number
          */
-        sbPreviousHScrollValue: null,
+        sbPrevHScrlVal: null,
 
         /**
-         * sbHValueHolder is a property of fin-hypergrid
+         * sbHValueHolder the listenable scroll model we share with the Horizontal scrollbar
          *
          * @property sbHValueHolder
          * @type Object
@@ -202,7 +207,7 @@
         sbHValueHolder: {},
 
         /**
-         * sbVValueHolder is a property of fin-hypergrid
+         * sbVValueHolder the listenable scroll model we share with the vertical scrollbar
          *
          * @property sbVValueHolder
          * @type Object
@@ -210,7 +215,7 @@
         sbVValueHolder: {},
 
         /**
-         * cellEditors is a property of fin-hypergrid
+         * cellEditors is the cache of singleton cellEditors
          *
          * @property cellEditors
          * @type Object
@@ -233,19 +238,17 @@
             this.selectionModel = document.createElement('fin-hypergrid-selection-model');
             //this.selectionModel.setGrid(this);
 
-            //setup the model
+            //install any plugins
             this.pluginsDo(function(each) {
                 if (each.installOn) {
                     each.installOn(self);
                 }
             });
 
-            // var children = this.children;
-            // console.log(children);
-
             this.mouseDown = this.rectangles.point.create(-1, -1);
             this.dragExtent = this.rectangles.point.create(0, 0);
 
+            //initialize our various pieces
             this.initCanvas();
             this.initRenderer();
             this.initScrollbars();
@@ -258,6 +261,13 @@
 
         },
 
+        /**
+         *                                                                      .
+         *                                                                      .
+         * iterate over the plugins invoking the passed in function with each
+         *
+         * @method pluginsDo(function)
+         */
         pluginsDo: function(func) {
             var userPlugins = this.children.array();
             var pluginsTag = this.shadowRoot.querySelector('fin-plugins');
@@ -274,13 +284,25 @@
             }
         },
 
-        //The CellProvider is accessed through Hypergrid because Hypergrid is the mediator and should have ultimate control on where it comes from.  The default is to delegate through the PluggableGridBehavior object.
+        /**
+         *                                                                      .
+         *                                                                      .
+         * The CellProvider is accessed through Hypergrid because Hypergrid is the mediator and should have ultimate control on where it comes from.  The default is to delegate through the PluggableGridBehavior object.
+         *
+         * @method getCellProvider()
+         */
         getCellProvider: function() {
             var provider = this.getBehavior().getCellProvider();
             return provider;
         },
 
-        //This function is a callback from the HypergridRenderer sub-component.   It is called after each paint of the canvas.
+        /**
+         *                                                                      .
+         *                                                                      .
+         * This function is a callback from the HypergridRenderer sub-component.   It is called after each paint of the canvas.
+         *
+         * @method gridRenderedNotification()
+         */
         gridRenderedNotification: function() {
             this.updateRenderedSizes();
             this.pluginsDo(function(each) {
@@ -290,7 +312,13 @@
             });
         },
 
-        //Notify the PluggableGridBehavior how many rows and columns we just rendered.
+        /**
+         *                                                                      .
+         *                                                                      .
+         * Notify the GridBehavior how many rows and columns we just rendered.
+         *
+         * @method updateRenderedSizes()
+         */
         updateRenderedSizes: function() {
             var behavior = this.getBehavior();
             //add one to each of these values as we want also to include
@@ -299,7 +327,13 @@
             behavior.setRenderedHeight(this.getViewableRows() + 1);
         },
 
-        //If we have focus, copy our current selection data to the system clipboard.
+        /**
+         *                                                                      .
+         *                                                                      .
+         * If we have focus, copy our current selection data to the system clipboard.
+         *
+         * @method checkClipboardCopy(event)
+         */
         checkClipboardCopy: function(evt) {
             if (!this.hasFocus()) {
                 return;
@@ -309,6 +343,13 @@
             evt.clipboardData.setData('text/plain', csvData);
         },
 
+        /**
+         *                                                                      .
+         *                                                                      .
+         * return true if we have any selections
+         *
+         * @method hasSelections()
+         */
         hasSelections: function() {
             if (!this.getSelectionModel) {
                 return; // were not fully initialized yet
@@ -316,7 +357,13 @@
             return this.getSelectionModel().hasSelections();
         },
 
-        //Return a tab seperated value string from the selection and our data.
+        /**
+         *                                                                      .
+         *                                                                      .
+         * Return a tab seperated value string from the selection and our data.
+         *
+         * @method getSelectionAsTSV()
+         */
         getSelectionAsTSV: function() {
             //only use the data from the last selection
             var selectionModel = this.getSelectionModel();
@@ -353,70 +400,160 @@
             return text;
         },
 
-        //Answer if we currently have focus
+        /**
+         *                                                                      .
+         *                                                                      .
+         * Answer if we currently have focus
+         *
+         * @method hasFocus()
+         */
         hasFocus: function() {
             return this.getCanvas().hasFocus();
         },
 
-        //Clear all the selections out
+        /**
+         *                                                                      .
+         *                                                                      .
+         * Clear all the selections out
+         *
+         * @method clearSelections()
+         */
         clearSelections: function() {
             this.getSelectionModel().clear();
         },
 
-        //Clear just the most recent selection
+        /**
+         *                                                                      .
+         *                                                                      .
+         * Clear just the most recent selection
+         *
+         * @method clearMostRecentSelection()
+         */
         clearMostRecentSelection: function() {
             this.getSelectionModel().clearMostRecentSelection();
         },
 
-        //Select a specific region by origin and extent
+        /**
+         *                                                                      .
+         *                                                                      .
+         * Select a specific region by origin and extent
+         *
+         * @method select(ox,oy,ex,ey)
+         */
         select: function(ox, oy, ex, ey) {
             this.getSelectionModel().select(ox, oy, ex, ey);
         },
 
-        //Answer if a specific point is selected
+        /**
+         *                                                                      .
+         *                                                                      .
+         * Answer if a specific point is selected
+         *
+         * @method isSelected(x,y)
+         */
         isSelected: function(x, y) {
             return this.getSelectionModel().isSelected(x, y);
         },
 
-        //Answer if a specific col is selected anywhere in the entire table
+        /**
+         *                                                                      .
+         *                                                                      .
+         * Answer if a specific col is selected anywhere in the entire table
+         *
+         * @method isFixedRowCellSelected(colIndex)
+         */
         isFixedRowCellSelected: function(col) {
             var selectionModel = this.getSelectionModel();
             var isSelected = selectionModel.isFixedRowCellSelected(col);
             return isSelected;
         },
 
-        //Answer if a specific row is selected anywhere in the entire table
+        /**
+         *                                                                      .
+         *                                                                      .
+         * Answer if a specific row is selected anywhere in the entire table
+         *
+         * @method isFixedColCellSelected(rowIndex)
+         */
         isFixedColCellSelected: function(row) {
             var selectionModel = this.getSelectionModel();
             var isSelected = selectionModel.isFixedColCellSelected(row);
             return isSelected;
         },
 
+        /**
+         *                                                                      .
+         *                                                                      .
+         * return the selection model
+         *
+         * @method getSelectionModel()
+         */
         getSelectionModel: function() {
             return this.selectionModel;
         },
 
+        /**
+         *                                                                      .
+         *                                                                      .
+         * answer the initial mouse position on a mouse down event for cell editing or a drag operation
+         *
+         * @method getMouseDown()
+         */
         getMouseDown: function() {
             return this.mouseDown;
         },
 
+        /**
+         *                                                                      .
+         *                                                                      .
+         * set the mouse point that initated a cell edit or drag operation
+         *
+         * @method setMouseDown(point)
+         */
         setMouseDown: function(point) {
             this.mouseDown = point;
         },
 
+        /**
+         *                                                                      .
+         *                                                                      .
+         * return the extent point of the current drag selection rectangle
+         *
+         * @method getDragExtent()
+         */
         getDragExtent: function() {
             return this.dragExtent;
         },
 
+        /**
+         *                                                                      .
+         *                                                                      .
+         * set the extent point of the current drag selection operation
+         *
+         * @method setDragExtent(point)
+         */
         setDragExtent: function(point) {
             this.dragExtent = point;
         },
 
+        /**
+         *                                                                      .
+         *                                                                      .
+         * return the behavior (model)
+         *
+         * @method getBehavior()
+         */
         getBehavior: function() {
             return this.behavior;
         },
 
-        //Set the PluggableBehavior object for this grid control.  This can be done dynamically and is how you configure the self.
+        /**
+         *                                                                      .
+         *                                                                      .
+         * Set the PluggableBehavior (model) object for this grid control.  This can be done dynamically.
+         *
+         * @method setBehavior(newBehavior)
+         */
         setBehavior: function(newBehavior) {
 
             this.behavior = newBehavior;
@@ -446,14 +583,35 @@
             }
         },
 
+        /**
+         *                                                                      .
+         *                                                                      .
+         * the dimensions of the grid data have changed, you've been notified
+         *
+         * @method behaviorShapeChanged()
+         */
         behaviorShapeChanged: function() {
             this.synchronizeScrollingBoundries();
         },
 
+        /**
+         *                                                                      .
+         *                                                                      .
+         * tickle the repaint flag on the canvas
+         *
+         * @method repaint()
+         */
         repaint: function() {
             this.getCanvas().repaint();
         },
 
+        /**
+         *                                                                      .
+         *                                                                      .
+         * initialize our drawing surface
+         *
+         * @method initCanvas()
+         */
         //Initialize the [OFCanvas](https://github.com/stevewirts/ofcanvas) component.
         initCanvas: function() {
 
@@ -524,17 +682,40 @@
             });
         },
 
+        /**
+         *                                                                      .
+         *                                                                      .
+         * shut down the current cell editor
+         *
+         * @method stopEditing()
+         */
         stopEditing: function() {
-            if (this.currentCellEditor) {
-                this.currentCellEditor.stopEditing();
-                this.currentCellEditor = null;
+            if (this.cellEdtr) {
+                this.cellEdtr.stopEditing();
+                this.cellEdtr = null;
             }
         },
 
+
+        /**
+         *                                                                      .
+         *                                                                      .
+         * register a cell editor, this is typically called from within a cell-editors installOn method, when it is being intialized as a plugin.
+         *
+         * @method registerCellEditor(alias,cellEditor)
+         */
         registerCellEditor: function(alias, cellEditor) {
             this.cellEditors[alias] = cellEditor;
         },
 
+        /**
+         *                                                                      .
+         *                                                                      .
+         * this function makes sure that while we are dragging outside of
+         * the grid visible bounds, we srcroll accordingly
+         *
+         * @method scrollDrag()
+         */
         scrollDrag: function() {
             if (!this.scrollingNow) {
                 return;
@@ -562,6 +743,14 @@
             setTimeout(this.scrollDrag.bind(this), 25);
         },
 
+        /**
+         *                                                                      .
+         *                                                                      .
+         * this checks while were dragging if we go outside the visible bounds,
+         * if so, kick off the external autoscroll check function (above)
+         *
+         * @method checkDragScroll(event)
+         */
         checkDragScroll: function(e) {
             var mouse = e.detail.mouse;
             var b = this.getDataBounds();
@@ -576,6 +765,13 @@
             }
         },
 
+        /**
+         *                                                                      .
+         *                                                                      .
+         * get the pixel coordinates of just the center "main" data area
+         *
+         * @method getDataBounds()
+         */
         getDataBounds: function() {
             var behavior = this.getBehavior();
             var b = this.canvas.bounds;
@@ -587,25 +783,54 @@
             return result;
         },
 
+        /**
+         *                                                                      .
+         *                                                                      .
+         * return our [fin-canvas](http://stevewirts.github.io/fin-canvas/components/fin-canvas/) instance
+         *
+         * @method getCanvas()
+         */
         getCanvas: function() {
             return this.canvas;
         },
+
+        /**
+         *                                                                      .
+         *                                                                      .
+         * we've been clicked on, delegate to the behavior (model)
+         *
+         * @method click(mouseDetails)
+         */
         //Delegate the click event to the PluggableBehavior.  We don't want to assume anything about what that may mean if anything.
-        click: function(mouse) {
+        click: function(mouseDetails) {
             var behavior = this.getBehavior();
-            behavior.delegateClick(this, mouse);
+            behavior.delegateClick(this, mouseDetails);
         },
 
+        /**
+         *                                                                      .
+         *                                                                      .
+         * we've been doubleclicked on, delegate through the behavior (model)
+         *
+         * @method doubleclick(mouseDetails)
+         */
         //Delegate the doubleclick event to the PluggableBehavior.  We don't want to assume anything about what that may mean if anything.
-        doubleclick: function(mouse) {
+        doubleclick: function(mouseDetails) {
             var behavior = this.getBehavior();
-            behavior.delegateDoubleClick(this, mouse);
+            behavior.delegateDoubleClick(this, mouseDetails);
         },
 
+        /**
+         *                                                                      .
+         *                                                                      .
+         * open a specific cell-editor at the provided model coordinates
+         *
+         * @method editAt(cellEditor,coordinates)
+         */
         //Currently this is called by default from the PluggableBehavior, this piece needs to be reworked to re-delegate back through the PluggableBehavior to let it decide how to edit the cell.
         editAt: function(cellEditor, coordinates) {
 
-            this.currentCellEditor = cellEditor;
+            this.cellEdtr = cellEditor;
 
             var cell = coordinates.cell;
             var behavior = this.getBehavior();
@@ -628,7 +853,13 @@
             cellEditor.beginEditAt(editPoint);
         },
 
-        //Generate a function name and call it on self.  This should also be delegated through PluggableBehavior keeping the default implementation here though.
+        /**
+         *                                                                      .
+         *                                                                      .
+         * Generate a function name and call it on self.  This should also be delegated through PluggableBehavior keeping the default implementation here though.
+         *
+         * @method keydown(event)
+         */
         keydown: function(e) {
             var command = 'handle' + e.detail.char;
             if (this[command]) {
@@ -636,7 +867,13 @@
             }
         },
 
-        //If we are holding down the same navigation key, accelerate the increment we scroll
+        /**
+         *                                                                      .
+         *                                                                      .
+         * If we are holding down the same navigation key, accelerate the increment we scroll
+         *
+         * @method getAutoScrollAcceleration()
+         */
         getAutoScrollAcceleration: function() {
             var count = 1;
             var elapsed = this.getAutoScrollDuration() / 2000;
@@ -644,61 +881,141 @@
             return count;
         },
 
+        /**
+         *                                                                      .
+         *                                                                      .
+         * handle the shift down arrow key event
+         *
+         * @method handleDOWNSHIFT()
+         */
         handleDOWNSHIFT: function() {
             var count = this.getAutoScrollAcceleration();
             this.moveShiftSelect(0, count);
         },
 
+        /**
+         *                                                                      .
+         *                                                                      .
+         * handle the shift up arrow key event
+         *
+         * @method handleUPSHIFT()
+         */
         handleUPSHIFT: function() {
             var count = this.getAutoScrollAcceleration();
             this.moveShiftSelect(0, -count);
         },
 
+        /**
+         *                                                                      .
+         *                                                                      .
+         * handle the shift left arrow key event
+         *
+         * @method handleLEFTSHIFT()
+         */
         handleLEFTSHIFT: function() {
             this.moveShiftSelect(-1, 0);
         },
 
+        /**
+         *                                                                      .
+         *                                                                      .
+         * handle the shift right arrow key event
+         *
+         * @method handleRIGHTSHIFT()
+         */
         handleRIGHTSHIFT: function() {
             this.moveShiftSelect(1, 0);
         },
 
+        /**
+         *                                                                      .
+         *                                                                      .
+         * handle the down arrow key event
+         *
+         * @method handleDOWN()
+         */
         handleDOWN: function() {
             var count = this.getAutoScrollAcceleration();
             this.moveSingleSelect(0, count);
         },
 
+        /**
+         *                                                                      .
+         *                                                                      .
+         * handle the up arrow key event
+         *
+         * @method handleUP()
+         */
         handleUP: function() {
             var count = this.getAutoScrollAcceleration();
             this.moveSingleSelect(0, -count);
         },
 
+        /**
+         *                                                                      .
+         *                                                                      .
+         * handle the left arrow key event
+         *
+         * @method handleLEFT()
+         */
         handleLEFT: function() {
             this.moveSingleSelect(-1, 0);
         },
 
+        /**
+         *                                                                      .
+         *                                                                      .
+         * handle the right arrow key event
+         *
+         * @method handleRIGHT()
+         */
         handleRIGHT: function() {
             this.moveSingleSelect(1, 0);
         },
 
-        //Answer if a specific col is fully visible
-        isDataColVisible: function(c) {
-            var isVisible = this.getRenderer().isColVisible(c);
+        /**
+         *                                                                      .
+         *                                                                      .
+         * Answer if a specific col is fully visible
+         *
+         * @method isDataColVisible(colIndex)
+         */
+        isDataColVisible: function(colIndex) {
+            var isVisible = this.getRenderer().isColVisible(colIndex);
             return isVisible;
         },
 
-        //Answer if a specific row is fully visible
-        isDataRowVisible: function(r) {
-            var isVisible = this.getRenderer().isRowVisible(r);
+        /**
+         *                                                                      .
+         *                                                                      .
+         * Answer if a specific row is fully visible
+         *
+         * @method isDataRowVisible(rowIndex)
+         */
+        isDataRowVisible: function(rowIndex) {
+            var isVisible = this.getRenderer().isRowVisible(rowIndex);
             return isVisible;
         },
 
-        //Answer if a specific cell (col,row) fully is visible
-        isDataVisible: function(c, r) {
-            var isVisible = this.isDataRowVisible(r) && this.isDataColVisible(c);
+        /**
+         *                                                                      .
+         *                                                                      .
+         * Answer if a specific cell (col,row) fully is visible
+         *
+         * @method isDataVisible(colIndex,rowIndex)
+         */
+        isDataVisible: function(colIndex, rowIndex) {
+            var isVisible = this.isDataRowVisible(rowIndex) && this.isDataColVisible(colIndex);
             return isVisible;
         },
 
-        //Augment the most recent selection extent by (offsetX,offsetY) and scroll if necessary.
+        /**
+         *                                                                      .
+         *                                                                      .
+         * Augment the most recent selection extent by (offsetX,offsetY) and scroll if necessary.
+         *
+         * @method moveShiftSelect(offsetX,offsetY)
+         */
         moveShiftSelect: function(offsetX, offsetY) {
             var behavior = this.getBehavior();
 
@@ -725,7 +1042,13 @@
 
         },
 
-        //Replace the most recent selection with a single cell selection that is moved (offsetX,offsetY) from the previous selection extent.
+        /**
+         *                                                                      .
+         *                                                                      .
+         * Replace the most recent selection with a single cell selection that is moved (offsetX,offsetY) from the previous selection extent.
+         *
+         * @method moveSingleSelect(offsetX,offsetY)
+         */
         moveSingleSelect: function(offsetX, offsetY) {
             var behavior = this.getBehavior();
 
@@ -752,7 +1075,13 @@
 
         },
 
-        //Offset indicates the direction we are moving
+        /**
+         *                                                                      .
+         *                                                                      .
+         * Offset indicates the direction we are moving
+         *
+         * @method insureModelColIsViewable(c,offsetX)
+         */
         insureModelColIsViewable: function(c, offsetX) {
             //-1 because we want only fully visible cols, don't include partially
             //viewable columns
@@ -765,7 +1094,13 @@
             }
         },
 
-        //Offset indicates the direction we are moving
+        /**
+         *                                                                      .
+         *                                                                      .
+         * Offset indicates the direction we are moving
+         *
+         * @method insureModelRowIsViewable(r,offsetY)
+         */
         insureModelRowIsViewable: function(r, offsetY) {
             //-1 because we want only fully visible rows, don't include partially
             //viewable rows
@@ -778,13 +1113,27 @@
             }
         },
 
+        /**
+         *                                                                      .
+         *                                                                      .
+         * scroll horizontal and vertically by the provided offsets
+         *
+         * @method scrollBy(offsetX,offsetY)
+         */
         scrollBy: function(offsetX, offsetY) {
             this.scrollHBy(offsetX);
             this.scrollVBy(offsetY);
         },
 
+        /**
+         *                                                                      .
+         *                                                                      .
+         * scroll verticallly by the provided offset
+         *
+         * @method scrollVBy(offsetY)
+         */
         scrollVBy: function(offsetY) {
-            var max = this.sbVScrollConfig.rangeStop;
+            var max = this.sbVScrlCfg.rangeStop;
             var oldValue = this.getVScrollValue();
             var newValue = Math.min(max, Math.max(0, oldValue + offsetY));
             if (newValue === oldValue) {
@@ -793,8 +1142,15 @@
             this.setVScrollValue(newValue);
         },
 
+        /**
+         *                                                                      .
+         *                                                                      .
+         * scroll horizontally by the provided offset
+         *
+         * @method scrollHBy(offsetX)
+         */
         scrollHBy: function(offsetX) {
-            var max = this.sbHScrollConfig.rangeStop;
+            var max = this.sbHScrlCfg.rangeStop;
             var oldValue = this.getHScrollValue();
             var newValue = Math.min(max, Math.max(0, oldValue + offsetX));
             if (newValue === oldValue) {
@@ -803,7 +1159,13 @@
             this.setHScrollValue(newValue);
         },
 
-        //Handle a mousedrag selection
+        /**
+         *                                                                      .
+         *                                                                      .
+         * Handle a mousedrag selection
+         *
+         * @method mouseDragHandler(mouse)
+         */
         mouseDragHandler: function(mouse /* ,keys */ ) {
 
             var behavior = this.getBehavior();
@@ -840,7 +1202,13 @@
             this.repaint();
         },
 
-        //Handle a mousedown event
+        /**
+         *                                                                      .
+         *                                                                      .
+         * Handle a mousedown event
+         *
+         * @method mouseDownHandler(mouse,keys)
+         */
         mouseDownHandler: function(mouse, keys) {
 
             var behavior = this.getBehavior();
@@ -876,52 +1244,104 @@
             this.repaint();
         },
 
-        //Answer which data cell is under a pixel value mouse point
+        /**
+         *                                                                      .
+         *                                                                      .
+         * Answer which data cell is under a pixel value mouse point
+         *
+         * @method getCellFromMousePoint(mouse)
+         */
         getCellFromMousePoint: function(mouse) {
             var cell = this.getRenderer().getCellFromMousePoint(mouse);
             return cell;
         },
 
-        //Answer pixel based bounds rectangle given a data cell point
+        /**
+         *                                                                      .
+         *                                                                      .
+         * Answer pixel based bounds rectangle given a data cell point
+         *
+         * @method getBoundsOfCell(cell)
+         */
         getBoundsOfCell: function(cell) {
             var bounds = this.getRenderer().getBoundsOfCell(cell);
             return bounds;
         },
 
-        //This is called by the OFCanvas when a resize occurs
+        /**
+         *                                                                      .
+         *                                                                      .
+         * This is called by the fin-canvas when a resize occurs
+         *
+         * @method resized()
+         */
         resized: function() {
             this.synchronizeScrollingBoundries();
         },
-        count: 0,
+
+        /**
+         *                                                                      .
+         *                                                                      .
+         * set the vertical scroll value
+         *
+         * @method setVScrollValue(y)
+         */
         setVScrollValue: function(y) {
-            this.count = this.count + 1;
             var self = this;
             this.getBehavior().setScrollPositionY(y);
-            this.vScrollValue = y;
+            this.vScrlValue = y;
             this.scrollValueChangedNotification();
             setTimeout(function() {
                 self.sbVRangeAdapter.subjectChanged();
             });
         },
 
+        /**
+         *                                                                      .
+         *                                                                      .
+         * return the vertical scroll value
+         *
+         * @method getVScrollValue()
+         */
         getVScrollValue: function() {
-            return this.vScrollValue;
+            return this.vScrlValue;
         },
 
+        /**
+         *                                                                      .
+         *                                                                      .
+         * set the horizontal scroll value
+         *
+         * @method setHScrollValue(x)
+         */
         setHScrollValue: function(x) {
             var self = this;
             this.getBehavior().setScrollPositionX(x);
-            this.hScrollValue = x;
+            this.hScrlValue = x;
             this.scrollValueChangedNotification();
             setTimeout(function() {
                 self.sbHRangeAdapter.subjectChanged();
             });
         },
 
+        /**
+         *                                                                      .
+         *                                                                      .
+         * return the horizontal scroll value
+         *
+         * @method getHScrollValue()
+         */
         getHScrollValue: function() {
-            return this.hScrollValue;
+            return this.hScrlValue;
         },
 
+        /**
+         *                                                                      .
+         *                                                                      .
+         * request input focus
+         *
+         * @method takeFocus()
+         */
         takeFocus: function() {
             if (this.isEditing()) {
                 this.editorTakeFocus();
@@ -929,19 +1349,40 @@
             this.getCanvas().takeFocus();
         },
 
+        /**
+         *                                                                      .
+         *                                                                      .
+         * request focus for our cell editor
+         *
+         * @method editorTakeFocus()
+         */
         editorTakeFocus: function() {
-            if (this.currentCellEditor) {
-                return this.currentCellEditor.takeFocus();
+            if (this.cellEdtr) {
+                return this.cellEdtr.takeFocus();
             }
         },
 
+        /**
+         *                                                                      .
+         *                                                                      .
+         * answer if we have an active cell editor currently
+         *
+         * @method isEditing()
+         */
         isEditing: function() {
-            if (this.currentCellEditor) {
-                return this.currentCellEditor.isEditing;
+            if (this.cellEdtr) {
+                return this.cellEdtr.isEditing;
             }
             return false;
         },
 
+        /**
+         *                                                                      .
+         *                                                                      .
+         * initialize the scroll bars
+         *
+         * @method initScrollbars()
+         */
         initScrollbars: function() {
 
             var self = this;
@@ -988,70 +1429,114 @@
                 }
             };
 
-            this.sbHScrollConfig = {
+            this.sbHScrlCfg = {
                 step: 1,
                 page: 40,
                 rangeStart: 0,
                 rangeStop: 0
             };
 
-            this.sbVScrollConfig = {
+            this.sbVScrlCfg = {
                 step: 1,
                 page: 40,
                 rangeStart: 0,
                 rangeStop: 0
             };
 
-            this.sbHRangeAdapter = this.sbHScroller.createRangeAdapter(this.sbHValueHolder, this.sbHScrollConfig);
-            this.sbVRangeAdapter = this.sbHScroller.createRangeAdapter(this.sbVValueHolder, this.sbVScrollConfig);
+            this.sbHRangeAdapter = this.sbHScroller.createRangeAdapter(this.sbHValueHolder, this.sbHScrlCfg);
+            this.sbVRangeAdapter = this.sbHScroller.createRangeAdapter(this.sbVValueHolder, this.sbVScrlCfg);
 
             this.sbHScroller.setRangeAdapter(this.sbHRangeAdapter);
             this.sbVScroller.setRangeAdapter(this.sbVRangeAdapter);
 
         },
-        //provide a way to notify scrollbars that the underlying data has changed
-        //the real solution is to use an aspect adapter here
 
+        /**
+         *                                                                      .
+         *                                                                      .
+         * provide a way to notify scrollbars that the underlying data has changed
+         * the real solution is to use an aspect adapter here
+         *
+         * @method scrollValueChangedNotification()
+         */
         scrollValueChangedNotification: function() {
 
-            if (this.hScrollValue === this.sbPreviousHScrollValue && this.vScrollValue === this.sbPreviousVScrollValue) {
+            if (this.hScrlValue === this.sbPrevHScrlVal && this.vScrlValue === this.sbPrevVScrlVal) {
                 return;
             }
 
             this.sbHValueHolder.changed = !this.sbHValueHolder.changed;
             this.sbVValueHolder.changed = !this.sbVValueHolder.changed;
 
-            this.sbPreviousHScrollValue = this.hScrollValue;
-            this.sbPreviousVScrollValue = this.vScrollValue;
+            this.sbPrevHScrlVal = this.hScrlValue;
+            this.sbPrevVScrlVal = this.vScrlValue;
 
-            if (this.currentCellEditor) {
-                this.currentCellEditor.scrollValueChangedNotification();
+            if (this.cellEdtr) {
+                this.cellEdtr.scrollValueChangedNotification();
             }
         },
 
+        /**
+         *                                                                      .
+         *                                                                      .
+         * set the start time when we initiated an auto scroll
+         *
+         * @method setAutoScrollStartTime()
+         */
         setAutoScrollStartTime: function() {
-            this.sbAutoScrollStartTime = Date.now();
+            this.sbAutoStart = Date.now();
         },
 
+        /**
+         *                                                                      .
+         *                                                                      .
+         * update the autoscroll start time if we haven't autoscrolled within the last 500ms
+         * otherwise update the current autoscroll time
+         *
+         * @method pingAutoScroll()
+         */
         pingAutoScroll: function() {
             var now = Date.now();
-            if (now - this.sbLastAutoScroll > 500) {
+            if (now - this.sbLastAuto > 500) {
                 this.setAutoScrollStartTime();
             }
-            this.sbLastAutoScroll = Date.now();
+            this.sbLastAuto = Date.now();
         },
 
+        /**
+         *                                                                      .
+         *                                                                      .
+         * answer how long we have been auto scrolling
+         *
+         * @method getAutoScrollDuration()
+         */
         getAutoScrollDuration: function() {
-            if (Date.now() - this.sbLastAutoScroll > 500) {
+            if (Date.now() - this.sbLastAuto > 500) {
                 return 0;
             }
-            return Date.now() - this.sbAutoScrollStartTime;
+            return Date.now() - this.sbAutoStart;
         },
 
+        /**
+         *                                                                      .
+         *                                                                      .
+         * set a data value into the behavior (model) at a specific point
+         *
+         * @method setValue(x,y,value)
+         */
         setValue: function(x, y, value) {
             this.getBehavior().setValue(x, y, value);
             this.repaint();
         },
+
+        /**
+         *                                                                      .
+         *                                                                      .
+         * the data dimensions have changed, or our pixel boundries have changed,
+         * adjust scrollbar properties as necessary
+         *
+         * @method synchronizeScrollingBoundries()
+         */
         synchronizeScrollingBoundries: function() {
 
             var behavior = this.getBehavior();
@@ -1084,38 +1569,60 @@
                 }
             }
 
-            this.sbVScrollConfig.rangeStop = behavior.getRowCount() - lastPageRowCount;
+            this.sbVScrlCfg.rangeStop = behavior.getRowCount() - lastPageRowCount;
 
-            this.sbHScrollConfig.rangeStop = behavior.getColCount() - lastPageColCount;
+            this.sbHScrlCfg.rangeStop = behavior.getColCount() - lastPageColCount;
 
             this.sbVScroller.tickle();
             this.sbHScroller.tickle();
         },
 
-        //Answers the number of viewable rows, including any partially viewable rows.
+
+        /**
+         *                                                                      .
+         *                                                                      .
+         * Answers the number of viewable rows, including any partially viewable rows.
+         *
+         * @method getViewableRows()
+         */
         getViewableRows: function() {
             return this.getRenderer().getViewableRows();
         },
 
-        //Answers the number of viewable cols, including any partially viewable cols.
+
+        /**
+         *                                                                      .
+         *                                                                      .
+         * Answers the number of viewable cols, including any partially viewable cols.
+         *
+         * @method getViewableCols()
+         */
         getViewableCols: function() {
             return this.getRenderer().getViewableCols();
         },
 
-        //Initialize the GridRenderering sub-component.
+
+        /**
+         *                                                                      .
+         *                                                                      .
+         * Initialize the GridRenderering sub-component.
+         *
+         * @method initRenderer()
+         */
         initRenderer: function() {
 
             this.renderer = this.shadowRoot.querySelector('fin-hypergrid-renderer');
             this.renderer.setGrid(this);
-            // var props = {
-            //     top: [0, 0],
-            //     right: [1, 0],
-            //     bottom: [1, 0],
-            //     left: [0, 0]
-            // };
-            // this.renderer.setLayoutProperties(props);
 
         },
+
+        /**
+         *                                                                      .
+         *                                                                      .
+         * return our [fin-hypergrid-renderer](index.html#fin-hypergrid-renderer)
+         *
+         * @method getRenderer()
+         */
         getRenderer: function() {
             return this.renderer;
         },
