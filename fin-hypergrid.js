@@ -1393,11 +1393,11 @@
             this.sbVScroller = scrollbars[1];
 
             this.addEventListener('mousedown', function() {
-                this.sbMouseIsDown = true;
+                self.sbMouseIsDown = true;
             });
 
             document.addEventListener('mouseup', function(e) {
-                if (!this.sbMouseIsDown) {
+                if (!self.sbMouseIsDown) {
                     return;
                 }
                 self.sbMouseIsDown = false;
