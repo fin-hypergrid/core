@@ -123,6 +123,9 @@ The `fin-hypergrid-behavior-q` element is a custom Polymer web component used to
         //<br>TODO: refactor: num should be dynamic
         setScrollPositionY: function(y) {
             this.scrollPositionY = y;
+            if (!this.isConnected()) {
+                return;
+            }
             this.ws.send(JSON.stringify({
                 cmd: 'fetch',
                 data: {
@@ -130,6 +133,10 @@ The `fin-hypergrid-behavior-q` element is a custom Polymer web component used to
                     num: 60
                 }
             }));
+        },
+
+        isConnected: function() {
+            return this.ws.readyState === this.ws.OPEN;
         },
 
         //return the column names, they are available to us as meta data in the most recent page Q sent us.
