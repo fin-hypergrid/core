@@ -2,16 +2,17 @@
 
 The OpenFin Hypergrid is a high performant canvas based general grid control.  It is implemented as a Polymer HTML5 web-component. See [Polymer](https://www.polymer-project.org/) and [Web Components](http://www.w3.org/TR/components-intro/).
 
-<br><br>
+<br>
+### Openfin Demo Installer
+To see the "pink" demo on your desktop run the [openfin installer](https://dl.openfin.co/services/download?fileName=hypergrid-demo-installer&config=http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/demo.json)
+
 
 ### The Hypergrid is dependent on several other OpenFin projects
-#### - [fin-canvas](http://stevewirts.github.io/fin-canvas/components/fin-canvas/): a wrapper to provide a simpler interface to the HTML5 canvas component
-#### - [fin-rectangle](http://stevewirts.github.io/fin-rectangle/components/fin-rectangle/): a small library providing Point and Rectangle objects
-#### - [fin-vampire-bar](http://datamadic.github.io/fin-vampire-bar/components/fin-vampire-bar/): a web-component based general scroll bar control
+- [fin-canvas](http://stevewirts.github.io/fin-canvas/components/fin-canvas/): a wrapper to provide a simpler interface to the HTML5 canvas component
+- [fin-rectangle](http://stevewirts.github.io/fin-rectangle/components/fin-rectangle/): a small library providing Point and Rectangle objects
+- [fin-vampire-bar](http://datamadic.github.io/fin-vampire-bar/components/fin-vampire-bar/): a web-component based general scroll bar control
 
-<br><br>
-
-## Pluggable Grid Behaviors
+### Pluggable Grid Behaviors
 The Hypergrid design makes no assumptions about the data you wish to view which allows for external data sources and external manipulation and analytics.  Manipulations such as sorting, aggregation, and grouping can be achieved using best of breed high-performant real time tools designed for such purposes. All the code that impacts these operations has been factored into an Object called [PluggableGridBehavior](index.html#fin-hypergrid-behavior-default).  A PluggableGridBehavior can be thought of as a traditional tablemodel but with a little more responsibility.  There are Three example PluggableGridBehaviors provided, the base or DefaultGridBehavior, a QGridBehavior, and an InMemoryGridBehavior.
 
 @group OpenFin hypergrid
