@@ -68,7 +68,7 @@
 
         <div vertical layout>
           <div class="description">
-            <h3>fin-hypergrid-behavior-default</h3> This element is a custom Polymer web component that is the base class for the GridBehavior role in the design of the OpenFin hypergrid.  Not only does it accomodate the interface getValue(x,y) and setValue(x,y) of a traditional table model, it encapsulates the behavior that allows its implementation to determine what happens on various user events. This allows for external data analytics tools to do sorting, drilling down, aggregation etc.  The default behavior is to just return a string of the passed in x and y coordinates.
+            <h3>fin-hypergrid-behavior-default</h3> This element is a custom Polymer web component that is the base class for the GridBehavior role in the design of the OpenFin hypergrid.  Not only does it accomodate the interface getValue(x,y) and setValue(x,y) of a traditional table model, it encapsulates the behavior that allows its implementation to determine what happens on various user events. This allows for external data analytics tools to do sorting, drilling down, aggregation etc.  With this example the getValue function is defined to simply return a string of the passed in x and y modulo 26 alpha character.  Notice the number of rows is set to a quadrillion.
             <br>
             <br>
           </div>
@@ -110,7 +110,7 @@
 
         <div vertical layout>
           <div class="description">
-            <h3>fin-hypergrid-behavior-q</h3> This element is a custom Polymer web component that demonstrates a simple interface to Q/KDB+ by kx systems.  In order for this to work you need to run either sorttable.q or bigtable.q scripts on localhost.  Both of these are found in the root directory of this project.  The bigtable.q script simulates a billion row table and cannot be sorted in realtime.  The sorttable.q script is a true in memory million row table that allows you to sort on any column in realtime.
+            <h3>fin-hypergrid-behavior-q</h3> This element is a custom Polymer web component that demonstrates a simple interface to Q/KDB+ by kx systems.  In order for this to work you need to run <a href="sorttable.q">sorttable.q</a> script on localhost.  The sorttable.q script is a true in memory million row table that allows you to sort on any column.
             <br>
             <br>
           </div>

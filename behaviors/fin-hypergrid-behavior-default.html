@@ -19,6 +19,7 @@ The `fin-hypergrid-behavior-default` element is a custom Polymer web component i
 (function() {
 
     var noop = function() {};
+    var a = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 
     Polymer({ /* jslint ignore:line */
 
@@ -72,7 +73,7 @@ The `fin-hypergrid-behavior-default` element is a custom Polymer web component i
             if (override) {
                 return override;
             }
-            return '(' + x + ', ' + y + ')';
+            return x + ', ' + a[y%26];
         },
 
         //set the data at the x, y
@@ -92,12 +93,14 @@ The `fin-hypergrid-behavior-default` element is a custom Polymer web component i
         //<br>they can be arbitary width by height in size
         //<br>here we just return an excel-ish base-26 alpha value
         getFixedColValue: function(x, y) {
-            return this.alphaFor(y);
+            //return this.alphaFor(y);
+            return y;
         },
 
         //can be dynamic if your data set changes size
         getRowCount: function() {
-            return 1000000000;
+            //jeepers batman a quadrillion rows!
+            return 1000000000000000 ;
         },
 
         //can be dynamic if your data set changes size
@@ -163,6 +166,9 @@ The `fin-hypergrid-behavior-default` element is a custom Polymer web component i
         //the width of the specific fixed col
         getFixedColWidth: function(colNum) {
             var width = this.getColWidth(colNum);
+            if (colNum === 0) {
+                return 120;
+            }
             return width;
         },
 
