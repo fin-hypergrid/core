@@ -110,9 +110,15 @@
 
         <div vertical layout>
           <div class="description">
-            <h3>fin-hypergrid-behavior-q</h3> This element is a custom Polymer web component that demonstrates a simple interface to Q/KDB+ by kx systems.  In order for this to work you need to run <a href="sorttable.q">sorttable.q</a> script on localhost.  The sorttable.q script is a true in memory million row table that allows you to sort on any column.
-            <br>
-            <br>
+            <h3>fin-hypergrid-behavior-q</h3> This element is a custom Polymer web component that demonstrates a simple interface to Q/KDB+ by kx systems.  In order for this to work you need to run a hypergrid compatible Q program on your machine.  The provided example sorttable.q script is a true in memory million row table that allows you to sort on any column.
+            <h3>To setup q for this demo</h3>
+                <ol>
+                    <li>Install <a href="http://kx.com/software-download.php">Q 32bit free version</a></li>
+                    <li>download <a href="sorttable.q">sorttable.q</a> and place it into a directory somewhere(myqdir for this example)</li>
+                    <li>make sure port 5000 is available</li>
+                    <li>start sorttable.q at the command line<pre>~/myqdir>q sortable.q</pre></li>
+                    <li>refresh your browser and reselect this tab</li>
+                </ol>
           </div>
           <core-splitter direction="up"></core-splitter>
           <div flex class="rel">
