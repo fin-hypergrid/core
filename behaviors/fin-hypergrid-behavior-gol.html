@@ -48,7 +48,11 @@ The `fin-hypergrid-behavior-gol` element is a custom Polymer web component used 
         createCellProvider: function() {
             var provider = document.createElement('fin-hypergrid-cell-provider');
             provider.cellCache.simpleCellRenderer.paint = function(gc, x, y, width, height) {
-                var color = colors[this.config.value[1]];
+                var weight = this.config.value[1];
+                if (weight === 0) {
+                    return;
+                }
+                var color = colors[weight];
                 if (this.config.value[0]) {
                     color = this.config.fgColor;
                 }
