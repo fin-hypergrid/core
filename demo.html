@@ -61,6 +61,7 @@
             <paper-tab>In Memory</paper-tab>
             <paper-tab>JSON</paper-tab>
             <paper-tab>Q</paper-tab>
+            <paper-tab>Game Of Life</paper-tab>
         </paper-tabs>
     </core-toolbar>
 
@@ -124,6 +125,22 @@
           <div flex class="rel">
             <fin-hypergrid class="abs">
                 <fin-hypergrid-behavior-q></fin-hypergrid-behavior-q>
+            </fin-hypergrid>
+          </div>
+        </div>
+
+        <div vertical layout>
+          <div class="description">
+            <h3>fin-hypergrid-behavior-gol</h3> This element is another custom Polymer web component grid behavior showing connors game of life<br>
+            <button id="play-button" onClick="toggleRunning()">play</button>
+            <button onClick="clearGOLGrid()">reset</button>
+            <br>
+            <br>
+          </div>
+          <core-splitter direction="up"></core-splitter>
+          <div flex class="rel">
+            <fin-hypergrid class="abs">
+                <fin-hypergrid-behavior-gol></fin-hypergrid-behavior-gol>
             </fin-hypergrid>
           </div>
         </div>
@@ -282,8 +299,21 @@
             };
 
         });
-
     })();
+
+    //game of life stuff
+    function clearGOLGrid() {
+        var gol = document.querySelector('fin-hypergrid-behavior-gol');
+        gol.resetPetriDish();
+    }
+    function toggleRunning() {
+        var button = document.querySelector('#play-button');
+        var gol = document.querySelector('fin-hypergrid-behavior-gol');
+        gol.toggleRunning();
+        var description = gol.getNextState();
+        button.innerText = description;
+    }
+
   </script>
 
 </body>

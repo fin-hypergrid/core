@@ -1,0 +1,258 @@
+<!--
+
+The `fin-hypergrid-behavior-gol` element is a custom Polymer web component used to support the openfin [fin-hypergrid](http://github.com/openfin/fin-hypergrid) component.
+
+@group OpenFin hypergrid
+@element fin-hypergrid-behavior-gol
+@homepage http://github.com/openfin/fin-hypergrid
+-->
+
+<polymer-element name="fin-hypergrid-behavior-gol" extends="fin-hypergrid-behavior-default">
+  <template></template>
+  <script>
+
+/*jshint  bitwise: false */
+'use strict';
+
+(function() {
+    var patterns = [
+        [
+            [false,true,true,true,false],
+            [true,false,true,false,true],
+            [false,false,true,false,false]
+        ],
+        [
+            [false, true, false],
+            [true, false, false],
+            [true, true, true]
+        ]
+    ];
+    var colors = ['#ffffff','#ffffff','#efefef','#00e7e7','#00dfdf','#00d7d7','#00cfcf','#00c7c7'];
+
+    Polymer({ /* jslint ignore:line */
+
+        rows: 60,
+        cols: 100,
+        data: null,
+        buffer: null,
+        running: false,
+
+        ready: function() {
+            this.readyInit();
+            this.rows = this.getAttribute('rows') || this.rows;
+            this.cols = this.getAttribute('cols') || this.cols;
+            this.resetPetriDish();
+            this.running = false;
+        },
+
+        createCellProvider: function() {
+            var provider = document.createElement('fin-hypergrid-cell-provider');
+            provider.cellCache.simpleCellRenderer.paint = function(gc, x, y, width, height) {
+                var color = colors[this.config.value[1]];
+                if (this.config.value[0]) {
+                    color = this.config.fgColor;
+                }
+                gc.fillStyle = color;
+                gc.fillRect(x, y, width, height);
+
+            };
+            return provider;
+        },
+
+        resetPetriDish: function() {
+            this.data = [],
+            this.buffer = [],
+            this.initializeData(this.data);
+            this.initializeData(this.buffer);
+            this.populate();
+            this.changed();
+        },
+
+        populate: function() {
+            var x = 0;
+            var y = 0;
+            for (var i = 0; i < 15; i++) {
+                y = Math.round(Math.random() * this.rows * 0.60);
+                x = Math.round(Math.random() * this.cols * 0.60);
+                this.applyPatternAt(this.data, x, y , patterns[i%2], i % 4);
+            }
+        },
+
+        initializeData: function(array2D) {
+            for (var c = 0; c < this.cols; c++) {
+                var col = [];
+                array2D.push(col);
+                for (var r = 0; r < this.rows; r++) {
+                    col.push([false,0]);
+                }
+            }
+        },
+
+        toggleRunning: function() {
+            this.running = !this.running;
+            if (this.running) {
+                this.startLife();
+            }
+        },
+
+        startLife: function() {
+            if (!this.running) {
+                return;
+            }
+            for (var c = 1; c < this.cols-2; c++) {
+                for (var r = 1; r < this.rows-2; r++) {
+                    this.computeLifeAt(c,r);
+                }
+            }
+            var temp = this.buffer;
+            this.buffer = this.data;
+            this.data = temp;
+            this.changed();
+            setTimeout(this.startLife.bind(this), 100);
+        },
+
+        computeLifeAt: function(x,y) {
+            var me = this.getValue(x,y);
+            var total = this.getNeighborCount(x,y);
+            me[1] = total;
+            if (me[0]) {
+                // Any live cell with fewer than two live neighbours dies, as if caused by under-population.
+                // Any live cell with two or three live neighbours lives on to the next generation.
+                // Any live cell with more than three live neighbours dies, as if by overcrowding.
+                if (total < 2) {
+                    this.buffer[x][y][0] = false;
+                } else if (total < 4) {
+                    this.buffer[x][y][0] = true;
+                } else {
+                    this.buffer[x][y][0] = false;
+                }
+            } else {
+                // Any dead cell with exactly three live neighbours becomes a live cell, as if by reproduction.
+                this.buffer[x][y][0] = (total === 3);
+            }
+
+        },
+
+        getNeighborCount: function(x,y) {
+            var data = this.data;
+            var sum = this.count3(data[x-1], y) + this.count2(data[x], y) + this.count3(data[x+1], y);
+            return sum;
+        },
+
+        count3: function(row, offset){
+            var sum = 0;
+            for (var i = offset-1; i <= offset+1; i++) {
+
+                if (row[i][0]) {
+                    sum++;
+
+                }
+            }
+            return sum;
+        },
+
+        count2: function(row, offset){
+            var sum = 0;
+            for (var i = offset-1; i <= offset+1; i++) {
+
+                if ((i !== offset) && row[i][0]) {
+                    sum++;
+
+                }
+            }
+            return sum;
+        },
+
+        getValue: function(x, y) {
+            return this.data[x][y];
+        },
+
+        setValue: function(x, y, value) {
+            this.data[x][y] = value;
+        },
+
+        getFixedColValue: function(x, y) {
+            return y;
+        },
+
+        getFixedRowValue: function(x, y) {
+            return "";
+        },
+
+        getFixedColCount: function() {
+            return 0;
+        },
+        getFixedRowCount: function() {
+            return 0;
+        },
+
+        getColCount: function() {
+            return this.data.length;
+        },
+
+        getRowCount: function() {
+            return this.data[0].length;
+        },
+
+        getRowHeight: function(y) {
+            return 10;
+        },
+
+        getColWidth: function(x) {
+            return 10;
+        },
+
+        getNextState: function() {
+            if (this.running) {
+                return 'pause';
+            } else {
+                return 'play';
+            }
+        },
+
+        delegateClick: function(grid, mouse) {
+
+            var mX = this.scrollPositionX + mouse.cell.x;
+            var mY = this.scrollPositionY + mouse.cell.y;
+
+            var v = this.getValue(mX, mY)[0];
+            this.setValue(mX, mY, [!v,0]);
+            this.changed();
+        },
+
+        applyPatternAt: function(array,c,r,pattern,dir) {
+            var w = pattern.length;
+            var h = pattern[0].length;
+            if (dir === 0) {
+                for (var x = 0; x < w; x++) {
+                    for (var y = 0; y < h; y++) {
+                        array[x + c][y + r][0] = pattern[w-x-1][y];
+                    }
+                }
+            } else if (dir === 1) {
+                for (var x = 0; x < w; x++) {
+                    for (var y = 0; y < h; y++) {
+                        array[x + c][y + r][0] = pattern[x][y];
+                    }
+                }
+            } else if (dir === 2) {
+                for (var x = 0; x < w; x++) {
+                    for (var y = 0; y < h; y++) {
+                        array[y + c][x + r][0] = pattern[x][y];
+                    }
+                }
+            } else {
+                for (var x = 0; x < w; x++) {
+                    for (var y = 0; y < h; y++) {
+                        array[y + c][x + r][0] = pattern[w-x-1][y];
+                    }
+                }
+            }
+        }
+
+    });
+
+})(); /* jslint ignore:line */
+
+  </script>
+</polymer-element>
