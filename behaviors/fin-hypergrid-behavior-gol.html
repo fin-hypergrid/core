@@ -55,13 +55,10 @@ The `fin-hypergrid-behavior-gol` element is a custom Polymer web component used 
                 var color = colors[weight];
                 if (this.config.value[0]) {
                     color = this.config.fgColor;
-
-                    // gc.fillStyle = color;
-                    // gc.fillRect(x, y, width, height);
                 }
 
-                    gc.fillStyle = color;
-                    gc.fillRect(x, y, width, height);
+                gc.fillStyle = color;
+                gc.fillRect(x, y, width, height);
             };
             return provider;
         },
