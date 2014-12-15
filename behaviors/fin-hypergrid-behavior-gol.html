@@ -115,7 +115,7 @@ The `fin-hypergrid-behavior-gol` element is a custom Polymer web component used 
             this.buffer = this.data;
             this.data = temp;
             this.changed();
-            setTimeout(this.startLife.bind(this), 100);
+            setTimeout(this.startLife.bind(this), 125);
         },
 
         computeLifeAt: function(x,y) {
@@ -127,15 +127,15 @@ The `fin-hypergrid-behavior-gol` element is a custom Polymer web component used 
                 // Any live cell with two or three live neighbours lives on to the next generation.
                 // Any live cell with more than three live neighbours dies, as if by overcrowding.
                 if (total < 2) {
-                    this.buffer[x][y][0] = false;
+                    this.buffer[x][y] = [false,0];
                 } else if (total < 4) {
-                    this.buffer[x][y][0] = true;
+                    this.buffer[x][y] = [true,1];
                 } else {
-                    this.buffer[x][y][0] = false;
+                    this.buffer[x][y] = [false,0];
                 }
             } else {
                 // Any dead cell with exactly three live neighbours becomes a live cell, as if by reproduction.
-                this.buffer[x][y][0] = (total === 3);
+                this.buffer[x][y] = [(total === 3),total];
             }
 
         },
@@ -257,7 +257,7 @@ The `fin-hypergrid-behavior-gol` element is a custom Polymer web component used 
             var mY = this.scrollPositionY + mouse.cell.y;
 
             var v = this.getValue(mX, mY)[0];
-            this.setValue(mX, mY, [!v,0]);
+            this.setValue(mX, mY, [!v,1]);
             this.changed();
         },
 
@@ -267,25 +267,25 @@ The `fin-hypergrid-behavior-gol` element is a custom Polymer web component used 
             if (dir === 0) {
                 for (var x = 0; x < w; x++) {
                     for (var y = 0; y < h; y++) {
-                        array[x + c][y + r][0] = pattern[w-x-1][y];
+                        array[x + c][y + r] = [pattern[w-x-1][y],1];
                     }
                 }
             } else if (dir === 1) {
                 for (var x = 0; x < w; x++) {
                     for (var y = 0; y < h; y++) {
-                        array[x + c][y + r][0] = pattern[x][y];
+                        array[x + c][y + r] = [pattern[x][y],1];
                     }
                 }
             } else if (dir === 2) {
                 for (var x = 0; x < w; x++) {
                     for (var y = 0; y < h; y++) {
-                        array[y + c][x + r][0] = pattern[x][y];
+                        array[y + c][x + r] = [pattern[x][y],1];
                     }
                 }
             } else {
                 for (var x = 0; x < w; x++) {
                     for (var y = 0; y < h; y++) {
-                        array[y + c][x + r][0] = pattern[w-x-1][y];
+                        array[y + c][x + r] = [pattern[w-x-1][y],1];
                     }
                 }
             }
