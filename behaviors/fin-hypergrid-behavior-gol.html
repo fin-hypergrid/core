@@ -31,8 +31,8 @@ The `fin-hypergrid-behavior-gol` element is a custom Polymer web component used 
 
     Polymer({ /* jslint ignore:line */
 
-        rows: 60,
-        cols: 100,
+        rows: 45,
+        cols: 75,
         data: null,
         buffer: null,
         running: false,
@@ -55,10 +55,13 @@ The `fin-hypergrid-behavior-gol` element is a custom Polymer web component used 
                 var color = colors[weight];
                 if (this.config.value[0]) {
                     color = this.config.fgColor;
-                }
-                gc.fillStyle = color;
-                gc.fillRect(x, y, width, height);
 
+                    // gc.fillStyle = color;
+                    // gc.fillRect(x, y, width, height);
+                }
+
+                    gc.fillStyle = color;
+                    gc.fillRect(x, y, width, height);
             };
             return provider;
         },
@@ -138,6 +141,40 @@ The `fin-hypergrid-behavior-gol` element is a custom Polymer web component used 
         },
 
         getNeighborCount: function(x,y) {
+            var data = this.data;
+            var total = 0;
+            if (data[x-1][y-1][0]) {
+                total++;
+            }
+            if (data[x-1][y][0]) {
+                total++;
+            }
+            if (data[x-1][y+1][0]) {
+                total++;
+            }
+
+            if (data[x][y-1][0]) {
+                total++;
+            }
+            if (data[x][y+1][0]) {
+                total++;
+            }
+
+            if (data[x+1][y-1][0]) {
+                total++;
+            }
+            if (data[x+1][y][0]) {
+                total++;
+            }
+            if (data[x+1][y+1][0]) {
+                total++;
+            }
+
+            return total;
+        },
+
+
+        _getNeighborCount: function(x,y) {
             var data = this.data;
             var sum = this.count3(data[x-1], y) + this.count2(data[x], y) + this.count3(data[x+1], y);
             return sum;
