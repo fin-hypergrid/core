@@ -28,8 +28,8 @@
             getFixedRowsMaxHeight: noop,
             setRenderedHeight: noop,
             getCellProvider: noop,
-            delegateClick: noop,
-            delegateDoubleClick: noop
+            click: noop,
+            doubleClick: noop
         },
 
         /**
@@ -804,7 +804,7 @@
         //Delegate the click event to the PluggableBehavior.  We don't want to assume anything about what that may mean if anything.
         click: function(mouseDetails) {
             var behavior = this.getBehavior();
-            behavior.delegateClick(this, mouseDetails);
+            behavior.click(this, mouseDetails);
         },
 
         /**
@@ -817,7 +817,7 @@
         //Delegate the doubleclick event to the PluggableBehavior.  We don't want to assume anything about what that may mean if anything.
         doubleclick: function(mouseDetails) {
             var behavior = this.getBehavior();
-            behavior.delegateDoubleClick(this, mouseDetails);
+            behavior.doubleClick(this, mouseDetails);
         },
 
         /**

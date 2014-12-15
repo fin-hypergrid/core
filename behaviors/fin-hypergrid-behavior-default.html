@@ -237,7 +237,7 @@ The `fin-hypergrid-behavior-default` element is a custom Polymer web component i
         },
 
         //this is called by OFGrid when a fixed cell is clicked
-        delegateClick: function(grid, mouse) {
+        click: function(grid, mouse) {
             if (mouse.cell.y < this.getFixedRowCount()) {
                 this.fixedRowClicked(grid, mouse);
             } else if (mouse.cell.x < this.getFixedColCount()) {
@@ -247,7 +247,7 @@ The `fin-hypergrid-behavior-default` element is a custom Polymer web component i
 
         //this is called by OFGrid when a fixed cell is clicked
         //<br>TODO:edit functionality needs to be abstracted out
-        delegateDoubleClick: function(grid, mouse) {
+        doubleClick: function(grid, mouse) {
 
             var mX = this.scrollPositionX + mouse.cell.x - 1;
             var mY = this.scrollPositionY + mouse.cell.y - 1;

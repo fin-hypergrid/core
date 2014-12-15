@@ -221,7 +221,7 @@ The `fin-hypergrid-behavior-q` element is a custom Polymer web component used to
                     self.clearData();
                     console.log('disconnected from ' + this.url + ', trying to reconnect in a moment...');
                     setTimeout(function() {
-                        self.connect();
+                    //    self.connect();
                     }, 2000);
                 };
                 this.ws.onmessage = function(e) {
@@ -240,7 +240,7 @@ The `fin-hypergrid-behavior-q` element is a custom Polymer web component used to
                     self.clearData();
                     console.error('problem with connection to q at ' + this.url + ', trying again in a moment...', e.data);
                     setTimeout(function() {
-                        self.connect();
+                   //     self.connect();
                     }, 2000);
                 };
             } else {
