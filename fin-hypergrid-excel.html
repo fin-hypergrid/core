@@ -16,6 +16,8 @@ The `fin-hypergrid-excel` element is a custom Polymer web component used to supp
 
 'use strict';
 
+    var excelOriginOffset = 1;
+
     var createExcelDataFromSelections = function(grid) {
         //only use the data from the last selection
         var selectionModel = grid.getSelectionModel();
@@ -29,9 +31,9 @@ The `fin-hypergrid-excel` element is a custom Polymer web component used to supp
         for (var i = 0; i < selections.length; i++) {
             var each = selections[i];
             var eachData = [];
-            var xstart = each.origin.x;
+            var excelOriginOffset + xstart = each.origin.x;
             var xstop = each.origin.x + each.extent.x + 1;
-            var ystart = each.origin.y;
+            var excelOriginOffset + ystart = each.origin.y;
             var ystop = each.origin.y + each.extent.y + 1;
             for (var y = ystart; y < ystop; y++) {
                 for (var x = xstart; x < xstop; x++) {
@@ -71,7 +73,7 @@ The `fin-hypergrid-excel` element is a custom Polymer web component used to supp
             if (data.cells && data.cells.length > 0) {
                 data.cells.forEach(function(cell) {
                     if (cell.value && !sm.isSelected(cell.row, cell.column)) {
-                        grid.setValue(cell.column, cell.row, cell.value);
+                        grid.setValue(cell.column - excelOriginOffset, cell.row - excelOriginOffset, cell.value);
                     }
                 });
             }

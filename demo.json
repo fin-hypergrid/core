@@ -4,7 +4,7 @@
         "name": "hypergrid-demo",
         "url": "http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/demo.html",
         "uuid": "hypergrid-demo",
-        "applicationIcon": "https://www.openfin.co/images/favicon.ico",
+        "applicationIcon": "http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/images/openfin.ico",
         "contextMenu" : true
     },
     "runtime": {
@@ -14,7 +14,7 @@
     "shortcut": {
         "company": "OpenFin",
         "description": "Hypergrid by OpenFin",
-        "icon": "https://www.openfin.co/images/favicon.ico",
+        "icon": "http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/images/openfin.ico",
         "name": "Hypergrid-Demo"
     }
 }
