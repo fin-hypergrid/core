@@ -205,7 +205,12 @@ The `fin-hypergrid-behavior-q` element is a custom Polymer web component used to
             var oldSize;
             var self = this;
             if ('WebSocket' in window) {
-                this.ws = new WebSocket(this.url);
+                try {
+                    this.ws = new WebSocket(this.url);
+                } catch (e) {
+                    console.log('could not connect to ' + this.url + ', trying to reconnect in a moment...');
+                    return;
+                }
                 console.log('connecting...');
                 this.ws.onopen = function() {
                     console.log('connected');
