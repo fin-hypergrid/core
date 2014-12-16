@@ -83,12 +83,11 @@ hypergrid-excel-integration
 
 There is an example integration between the Hypergrid and Microsoft Excel over the OpenFin InterApplicationBus. You must be running the Hypergrid demo in the openfin runtime which is installed from the [Hypergrid Openfin Installer](https://dl.openfin.co/services/download?fileName=hypergrid-demo-installer&config=http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/demo.json).
 
-The excel-integration demo consists of an OpenFin app, and a C# XLL plugin built using the Excel-DNA infrastructure.  
-
+The excel-integration demo consists of an OpenFin app, and a C# XLL plugin built using the Excel-DNA infrastructure.  This example assumes that you have the .NET framework installed on your windows machine.
 
 The Excel-DNA infrastructure provides a C++ XLL plugin which exposes the Excel Object Model to C# dll's and code which can be configured using a manifest file (.dna)
 
-The excel folder ([downloaded and unzipped locally](http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/excel.zip)) contains the implementation of the OpenFin C# adapter which connects to the OpenFin runtime over WebSockets, and exposes the InterApplicationBus to C# code.
+The excel folder ([download excel.zip](http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/excel.zip)) contains the source code and implementation of the OpenFin C# adapter which connects to the OpenFin runtime over WebSockets, and exposes the InterApplicationBus to C# code.  Download this zip file and unzip it into a new directory on your machine.
 
 The *desktop-cs-excel* folder contains the Excel-DNA interfaces in the *ExcelRtdAddin/RtdServer.cs* file, and also contains a complete distribution of the DNA source code in the Dna subfolder.
 
