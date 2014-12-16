@@ -1,5 +1,6 @@
 #Hypergrid by OpenFin
-================
+
+<img src="images/gridshot.png" alt="screenshot">
 
 See the [polymer component page](http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/) for api documentation and demos.
 
