@@ -136,6 +136,9 @@ The `fin-hypergrid-behavior-q` element is a custom Polymer web component used to
         },
 
         isConnected: function() {
+            if (!this.ws) {
+                return false;
+            }
             return this.ws.readyState === this.ws.OPEN;
         },
 
