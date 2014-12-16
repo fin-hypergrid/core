@@ -31,9 +31,9 @@ The `fin-hypergrid-excel` element is a custom Polymer web component used to supp
         for (var i = 0; i < selections.length; i++) {
             var each = selections[i];
             var eachData = [];
-            var excelOriginOffset + xstart = each.origin.x;
+            var xstart = excelOriginOffset + each.origin.x;
             var xstop = each.origin.x + each.extent.x + 1;
-            var excelOriginOffset + ystart = each.origin.y;
+            var ystart = excelOriginOffset + each.origin.y;
             var ystop = each.origin.y + each.extent.y + 1;
             for (var y = ystart; y < ystop; y++) {
                 for (var x = xstart; x < xstop; x++) {
