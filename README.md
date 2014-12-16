@@ -22,6 +22,9 @@ If you just want to see Hypergrid working you can run the [Hypergrid Openfin Ins
 ## Local Setup
 the following instructions and project structure is based on the google polymer team best practices for developement of polymer/web-components applications and elements.  It is further documented [here](https://www.polymer-project.org/docs/start/reusableelements.html) 
 
+## Deploy your app with fin-hypergrid
+the only js file that is necessary to deploy the hypergrid is fin-hypergrid.min.js which is a [vulcanzed](https://www.polymer-project.org/articles/concatenating-web-components.html) conglomeration of all code and dependencies required by fin-hypergrid.  An example of this is found [here](https://github.com/openfin/example-fin-hypergrid-behavior-json).  The webcomponents.js file is not necessary if your target platform is a webcomponents compatible browser.  As chrome is currently the only one, we suggest you include this polyfil.  
+
 1. This setup has been tested and works, if you have problems you most likely have security restrictions or proxy issues.  You may need to use sudo for npm and bower installs. Make sure you have internet access, node/npm, grunt-cli, and bower installed and working properly on your machine.
     1. [node installation](http://nodejs.org/download/)
     2. [grunt/grunt-cli installation](http://gruntjs.com/getting-started)
@@ -36,7 +39,7 @@ the following instructions and project structure is based on the google polymer 
 ## Important notes
 1. Notice that bower installs many dependencies a level up from the fin-hypegrid project directory, this is the polymer way of developing custom elements.  The actual project directory IS fin-hypergrid, everything is done relative to this, it just needs to live in it's own containing developement directory.
 
-##Q by kx systems [demo](http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/demo.html) tab (select the 'Q' tab)
+##Q by [kx](http://kx.com/) systems [demo](http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/demo.html) tab (select the 'Q' tab)
 1. The Q tab will not be populated with data until you run a Q server script that is provided.
 2. Make sure q 32 bit free version is installed [Q free version](http://kx.com/software-download.php)
 3. Startup either bigtable.q ```q bigtable.q``` or sorttable.q ```q sorttable.q```
