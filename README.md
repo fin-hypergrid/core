@@ -6,10 +6,10 @@ See the [polymer component page](http://openfin.github.io/fin-hypergrid/componen
 ## Getting Started
 Use the [Hypergrid Openfin Installer](https://dl.openfin.co/services/download?fileName=hypergrid-demo-installer&config=http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/demo.json) to install an openfin startup link and see the demo running on your desktop. 
 
-#About Hyperger by Openfin
+#Hypergrid
 The Hypergrid control is a [Google polymer](https://www.polymer-project.org/) [web component](http://webcomponents.org/presentations/), canvas based open source general purpose grid. The purpose of this project is to address the Finance/Big Data community's desire for a high performance, unlimited row data-grid. At the moment, it is in an beta stage and still has ongoing work to be completed. These include bug-fixes/features/automated testing/etc.  Please try it out and let us know what you think.
 
-## PluggableGridBehaviors
+## pluggable grid behaviors
 The design makes no assumptions about the data you wish to view which
 allows for external data sources as well as external manipulation and
 analytics.  Manipulations such as sorting, aggregation, and grouping 
