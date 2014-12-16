@@ -1,6 +1,8 @@
 #Hypergrid by OpenFin
 
-<img src="images/gridshot.png" alt="screenshot">
+<img src="images/gridshot01.png" alt="screenshot">
+
+
 
 See the [polymer component page](http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/) for api documentation and demos.
 
@@ -9,6 +11,9 @@ Use the [Hypergrid Openfin Installer](https://dl.openfin.co/services/download?fi
 
 #Hypergrid
 The Hypergrid control is a [Google polymer](https://www.polymer-project.org/) [web component](http://webcomponents.org/presentations/), canvas based open source general purpose grid. The purpose of this project is to address the Finance/Big Data community's desire for a high performance, unlimited row data-grid. At the moment, it is in a beta stage and still has ongoing work to be completed. These include bug-fixes/features/automated testing/etc.  Please try it out and let us know what you think.
+
+<img src="images/gridshot02.png" alt="screenshot">
+
 
 ## pluggable grid behaviors
 The design makes no assumptions about the data you wish to view which
@@ -49,6 +54,8 @@ The only js file that is necessary to deploy the hypergrid is fin-hypergrid.min.
 
 ## Custom Scrollbars
 Hypergrid utilizes a custom scrollbar component so as to not be limited to tables of 33MM pixels in width or height.   In addition to the custom scrollbar, The OpenFin hyergrid utilizes row and column cell scrolling, not pixel scrolling.  This has many benefits that become apparent over time.
+
+<img src="images/gridshot02.png" alt="screenshot">
 
 ## Road Map 
 1. Test suite for all components and upstream dependency projects
