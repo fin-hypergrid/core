@@ -39,7 +39,7 @@
          * @property mouseDown
          * @type boolean
          */
-        mouseDown: null,
+        mouseDown: [],
 
         /**
          * dragExtent is the extent from the mousedown point during a drag operation
@@ -245,7 +245,8 @@
                 }
             });
 
-            this.mouseDown = this.rectangles.point.create(-1, -1);
+            this.clearMouseDown();
+
             this.dragExtent = this.rectangles.point.create(0, 0);
 
             //initialize our various pieces
@@ -420,6 +421,7 @@
          */
         clearSelections: function() {
             this.getSelectionModel().clear();
+            this.clearMouseDown();
         },
 
         /**
@@ -441,6 +443,11 @@
          * @method select(ox,oy,ex,ey)
          */
         select: function(ox, oy, ex, ey) {
+            if (ox < 0 || oy < 0) {
+                //we don't select negative area
+                //also this means there is no origin mouse down for a selection rect
+                return;
+            }
             this.getSelectionModel().select(ox, oy, ex, ey);
         },
 
@@ -500,7 +507,36 @@
          * @method getMouseDown()
          */
         getMouseDown: function() {
-            return this.mouseDown;
+            var last = this.mouseDown.length - 1;
+            if (last < 0) {
+                return null;
+            }
+            return this.mouseDown[last];
+        },
+
+        /**
+         *                                                                      .
+         *                                                                      .
+         * remove the last item from the mouse down stack
+         *
+         * @method popMouseDown()
+         */
+        popMouseDown: function() {
+            if (this.mouseDown.length === 0) {
+                return;
+            }
+            this.mouseDown.length = this.mouseDown.length - 1;
+        },
+
+        /**
+         *                                                                      .
+         *                                                                      .
+         * empty out the mouse down stack
+         *
+         * @method clearMouseDown()
+         */
+        clearMouseDown: function() {
+            this.mouseDown = [this.rectangles.point.create(-1, -1)];
         },
 
         /**
@@ -511,7 +547,7 @@
          * @method setMouseDown(point)
          */
         setMouseDown: function(point) {
-            this.mouseDown = point;
+            this.mouseDown.push(point);
         },
 
         /**
@@ -641,41 +677,132 @@
             this.canvas.addEventListener('fin-mousedown', function(e) {
                 self.stopEditing();
                 var mouse = e.detail.mouse;
-                var cell = self.getCellFromMousePoint(mouse).cell;
-                self.mouseDownHandler(cell, e.detail.keys);
+                var mouseEvent = self.getGridCellFromMousePoint(mouse);
+                mouseEvent.primitiveEvent = e;
+                self.delegateMouseDown(mouseEvent);
             });
 
-            this.canvas.addEventListener('fin-mouseup', function() {
+            this.canvas.addEventListener('fin-mouseup', function(e) {
                 if (self.scrollingNow) {
                     self.scrollingNow = false;
                 }
+                var mouse = e.detail.mouse;
+                var mouseEvent = self.getGridCellFromMousePoint(mouse);
+                mouseEvent.primitiveEvent = e;
+                self.delegateMouseUp(mouseEvent);
+            });
+
+            this.canvas.addEventListener('fin-tap', function(e) {
+                var mouse = e.detail.mouse;
+                var tapEvent = self.getGridCellFromMousePoint(mouse);
+                tapEvent.primitiveEvent = e;
+                self.delegateTap(tapEvent);
             });
 
             this.canvas.addEventListener('fin-drag', function(e) {
                 var mouse = e.detail.mouse;
-                var cell = self.getCellFromMousePoint(mouse).cell;
-                self.currentDrag = mouse;
-                self.lastDragCell = cell;
-                self.checkDragScroll(e, cell);
-                self.mouseDragHandler(cell, e.detail.keys);
+                var mouseEvent = self.getGridCellFromMousePoint(mouse);
+                mouseEvent.primitiveEvent = e;
+                self.delegateMouseDrag(mouseEvent);
             });
-
 
             this.canvas.addEventListener('fin-keydown', function(e) {
                 self.keydown(e);
             });
 
-            this.canvas.addEventListener('fin-click', function(e) {
+            // this.canvas.addEventListener('fin-trackstart', function(e) {
+            //     var mouse = e.detail.mouse;
+            //     var cell = self.getGridCellFromMousePoint(mouse);
+            //     self.click(cell, e);
+            // });
+
+            this.canvas.addEventListener('fin-holdpulse', function(e) {
                 var mouse = e.detail.mouse;
-                var cell = self.getCellFromMousePoint(mouse);
-                self.click(cell);
+                var mouseEvent = self.getGridCellFromMousePoint(mouse);
+                mouseEvent.primitiveEvent = e;
+                self.delegateDoubleClick(mouseEvent);
             });
 
             this.canvas.addEventListener('fin-dblclick', function(e) {
                 var mouse = e.detail.mouse;
-                var cell = self.getCellFromMousePoint(mouse);
-                self.doubleclick(cell);
+                var mouseEvent = self.getGridCellFromMousePoint(mouse);
+                mouseEvent.primitiveEvent = e;
+                self.delegateHoldPulse(mouseEvent);
             });
+        },
+
+        /**
+         *                                                                      .
+         *                                                                      .
+         * delegate mousedown to the behavior (model)
+         *
+         * @method delegateMouseDown(mouseDetails)
+         */
+        delegateMouseDown: function(mouseDetails) {
+            var behavior = this.getBehavior();
+            behavior.onMouseDown(this, mouseDetails);
+        },
+
+        /**
+         *                                                                      .
+         *                                                                      .
+         * delegate mouseup to the behavior (model)
+         *
+         * @method delegateMouseUp(mouseDetails)
+         */
+        delegateMouseUp: function(mouseDetails) {
+            var behavior = this.getBehavior();
+            behavior.onMouseUp(this, mouseDetails);
+        },
+
+        /**
+         *                                                                      .
+         *                                                                      .
+         * delegate tap to the behavior (model)
+         *
+         * @method delegateTap(mouseDetails)
+         */
+        delegateTap: function(mouseDetails) {
+            var behavior = this.getBehavior();
+            behavior.onTap(this, mouseDetails);
+        },
+
+        /**
+         *                                                                      .
+         *                                                                      .
+         * delegate mouseDrag to the behavior (model)
+         *
+         * @method delegateMouseDrag(mouseDetails)
+         */
+        delegateMouseDrag: function(mouseDetails) {
+            var behavior = this.getBehavior();
+            behavior.onMouseDrag(this, mouseDetails);
+        },
+
+        /**
+         *                                                                      .
+         *                                                                      .
+         * we've been doubleclicked on, delegate through the behavior (model)
+         *
+         * @method delegateDoubleClick(mouseDetails)
+         */
+        //Delegate the doubleclick event to the PluggableBehavior.  We don't want to assume anything about what that may mean if anything.
+        delegateDoubleClick: function(mouseDetails) {
+            var behavior = this.getBehavior();
+            behavior.onDoubleClick(this, mouseDetails);
+        },
+
+        /**
+         *                                                                      .
+         *                                                                      .
+         * delegate holdpulse through the behavior (model)
+         *
+         * @method delegateDoubleClick(mouseDetails)
+         */
+        //Delegate the doubleclick event to the PluggableBehavior.  We don't want to assume anything about what that may mean if anything.
+        delegateHoldPulse: function(mouseDetails) {
+            var behavior = this.getBehavior();
+            behavior.onHoldPulse(this, mouseDetails);
         },
 
         /**
@@ -733,7 +860,7 @@
             }
 
             this.scrollBy(xOffset, yOffset);
-            this.mouseDragHandler(this.lastDragCell, []); // update the selection
+            this.handleMouseDrag(this.lastDragCell, []); // update the selection
             this.repaint();
 
             setTimeout(this.scrollDrag.bind(this), 25);
@@ -793,32 +920,6 @@
         /**
          *                                                                      .
          *                                                                      .
-         * we've been clicked on, delegate to the behavior (model)
-         *
-         * @method click(mouseDetails)
-         */
-        //Delegate the click event to the PluggableBehavior.  We don't want to assume anything about what that may mean if anything.
-        click: function(mouseDetails) {
-            var behavior = this.getBehavior();
-            behavior.click(this, mouseDetails);
-        },
-
-        /**
-         *                                                                      .
-         *                                                                      .
-         * we've been doubleclicked on, delegate through the behavior (model)
-         *
-         * @method doubleclick(mouseDetails)
-         */
-        //Delegate the doubleclick event to the PluggableBehavior.  We don't want to assume anything about what that may mean if anything.
-        doubleclick: function(mouseDetails) {
-            var behavior = this.getBehavior();
-            behavior.doubleClick(this, mouseDetails);
-        },
-
-        /**
-         *                                                                      .
-         *                                                                      .
          * open a specific cell-editor at the provided model coordinates
          *
          * @method editAt(cellEditor,coordinates)
@@ -828,7 +929,7 @@
 
             this.cellEdtr = cellEditor;
 
-            var cell = coordinates.cell;
+            var cell = coordinates.gridCell;
             var behavior = this.getBehavior();
             var scrollTop = this.getVScrollValue();
             var scrollLeft = this.getHScrollValue();
@@ -1160,9 +1261,9 @@
          *                                                                      .
          * Handle a mousedrag selection
          *
-         * @method mouseDragHandler(mouse)
+         * @method handleMouseDrag(mouse)
          */
-        mouseDragHandler: function(mouse /* ,keys */ ) {
+        handleMouseDrag: function(mouse /* ,keys */ ) {
 
             var behavior = this.getBehavior();
 
@@ -1201,12 +1302,11 @@
         /**
          *                                                                      .
          *                                                                      .
-         * Handle a mousedown event
+         * extend a selection or cteate one if there isnt yet
          *
-         * @method mouseDownHandler(mouse,keys)
+         * @method extendSelection(mouse,keys)
          */
-        mouseDownHandler: function(mouse, keys) {
-
+        extendSelection: function(gridCell, keys) {
             var behavior = this.getBehavior();
             var hasCTRL = keys.indexOf('CTRL') !== -1;
             var hasSHIFT = keys.indexOf('SHIFT') !== -1;
@@ -1217,10 +1317,19 @@
             var numFixedRows = behavior.getFixedRowCount();
 
             var mousePoint = this.getMouseDown();
-            var x = mouse.x - numFixedCols;
-            var y = mouse.y - numFixedRows;
+            var x = gridCell.x - numFixedCols;
+            var y = gridCell.y - numFixedRows;
 
+            //were outside of the grid do nothing
             if (x < 0 || y < 0) {
+                return;
+            }
+
+            //we have repeated a click in the same spot deslect the value from last time
+            if (x === mousePoint.x && y === mousePoint.y) {
+                this.clearMostRecentSelection();
+                this.popMouseDown();
+                this.repaint();
                 return;
             }
 
@@ -1245,10 +1354,10 @@
          *                                                                      .
          * Answer which data cell is under a pixel value mouse point
          *
-         * @method getCellFromMousePoint(mouse)
+         * @method getGridCellFromMousePoint(mouse)
          */
-        getCellFromMousePoint: function(mouse) {
-            var cell = this.getRenderer().getCellFromMousePoint(mouse);
+        getGridCellFromMousePoint: function(mouse) {
+            var cell = this.getRenderer().getGridCellFromMousePoint(mouse);
             return cell;
         },
 

@@ -225,7 +225,7 @@ The `fin-hypergrid-behavior-default` element is a custom Polymer web component i
         //<br>this is where we can hook in external data manipulation such as linking,
         //<br>drilling down on rows, etc...
         fixedRowClicked: function(grid, mouse) {
-            console.log('fixed row clicked: ' + mouse.cell.x, mouse);
+            console.log('fixed row clicked: ' + mouse.gridCell.x, mouse);
         },
 
         //this is called by OFGrid when a fixed col cell is clicked
@@ -233,27 +233,72 @@ The `fin-hypergrid-behavior-default` element is a custom Polymer web component i
         //<br>this is where we can hook in external data manipulation such as sorting,
         //<br>hiding/showing columns, etc...
         fixedColClicked: function(grid, mouse) {
-            console.log('fixed col clicked: ' + mouse.cell.y, mouse);
+            console.log('fixed col clicked: ' + mouse.gridCell.y, mouse);
         },
 
         //this is called by OFGrid when a fixed cell is clicked
-        click: function(grid, mouse) {
-            if (mouse.cell.y < this.getFixedRowCount()) {
-                this.fixedRowClicked(grid, mouse);
-            } else if (mouse.cell.x < this.getFixedColCount()) {
-                this.fixedColClicked(grid, mouse);
+        onTap: function(grid, mouseEvent) {
+            var gridCell = mouseEvent.gridCell;
+            if (gridCell.y < this.getFixedRowCount()) {
+                this.fixedRowClicked(grid, mouseEvent);
+            } else if (gridCell.x < this.getFixedColCount()) {
+                this.fixedColClicked(grid, mouseEvent);
             }
         },
 
-        //this is called by OFGrid when a fixed cell is clicked
-        //<br>TODO:edit functionality needs to be abstracted out
-        doubleClick: function(grid, mouse) {
+        onMouseDown: function(grid, mouseEvent) {
+            var gridCell = mouseEvent.gridCell;
+            if (gridCell.y < this.getFixedRowCount()) {
+                grid.clearSelections();
+                this.return;
+            } else if (gridCell.x < this.getFixedColCount()) {
+                grid.clearSelections();
+                this.return;
+            }
+            else {
+                var primEvent = mouseEvent.primitiveEvent;
+                var keys = primEvent.detail.keys;
+                grid.extendSelection(gridCell, keys);
+            }
+        },
 
-            var mX = this.scrollPositionX + mouse.cell.x - 1;
-            var mY = this.scrollPositionY + mouse.cell.y - 1;
+        onMouseUp: function(grid, mouseEvent) {
+           //do nothing for now
+        },
+
+        onMouseDrag: function(grid, mouseEvent) {
+            var mouseDown = grid.getMouseDown();
+            if (mouseDown.x < 0 || mouseDown.y < 0) {
+                //we are in the fixed area don't initiate a drag
+                return;
+            }
+            var gridCell = mouseEvent.gridCell;
+            var primEvent = mouseEvent.primitiveEvent;
+            grid.currentDrag = primEvent.detail.mouse;
+            grid.lastDragCell = gridCell;
+            grid.checkDragScroll(primEvent, gridCell);
+            grid.handleMouseDrag(gridCell, primEvent.detail.keys);
+        },
+
+        onDoubleClick: function(grid, mouseEvent) {
+            this.activateEditor(grid, mouseEvent);
+        },
+
+        onHoldPulse: function(grid, mouseEvent) {
+            var primEvent = mouseEvent.primitiveEvent;
+            if (primEvent.detail.count < 2) {
+                return;
+            }
+            this.activateEditor(grid, mouseEvent);
+        },
+
+        activateEditor: function(grid, mouseEvent) {
+            var gridCell = mouseEvent.gridCell;
+            var mX = this.scrollPositionX + gridCell.x - 1;
+            var mY = this.scrollPositionY + gridCell.y - 1;
 
             var editor = this.getCellEditorAt(mX, mY);
-            this.getGrid().editAt(editor, mouse);
+            this.getGrid().editAt(editor, mouseEvent);
         },
 
         getCellEditorAt: function(x, y) {

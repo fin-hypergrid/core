@@ -420,7 +420,7 @@ The `fin-hypergrid-behavior-in-memory` element is a custom Polymer web component
 
         //cols 2, 14, 22 are sortable
         fixedRowClicked: function(grid, mouse) {
-            var colIndex = this.scrollPositionX + mouse.cell.x - this.getFixedColCount();
+            var colIndex = this.scrollPositionX + mouse.gridCell.x - this.getFixedColCount();
             if ([2, 14, 22].indexOf(colIndex) === -1) {
                 return;
             }

@@ -73,7 +73,7 @@ The `fin-hypergrid-behavior-json` element is a custom Polymer web component used
         },
 
         fixedRowClicked: function(grid, mouse) {
-            var colIndex = this.scrollPositionX + mouse.cell.x - this.getFixedColCount();
+            var colIndex = this.scrollPositionX + mouse.gridCell.x - this.getFixedColCount();
             this.toggleSort(colIndex);
         },
 

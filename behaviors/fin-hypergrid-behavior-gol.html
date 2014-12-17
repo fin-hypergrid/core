@@ -248,10 +248,10 @@ The `fin-hypergrid-behavior-gol` element is a custom Polymer web component used 
             }
         },
 
-        click: function(grid, mouse) {
+        onTap: function(grid, mouse) {
 
-            var mX = this.scrollPositionX + mouse.cell.x;
-            var mY = this.scrollPositionY + mouse.cell.y;
+            var mX = this.scrollPositionX + mouse.gridCell.x;
+            var mY = this.scrollPositionY + mouse.gridCell.y;
 
             var v = this.getValue(mX, mY)[0];
             this.setValue(mX, mY, [!v,1]);

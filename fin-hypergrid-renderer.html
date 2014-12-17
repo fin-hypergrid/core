@@ -101,7 +101,7 @@ The `fin-hypergrid-renderer` element is a custom Polymer web component used to s
         },
 
         //Answer specific data cell coordinates given mouse coordinates in pixels.
-        getCellFromMousePoint: function(point) {
+        getGridCellFromMousePoint: function(point) {
 
             var width = 0;
             var height = 0;
@@ -135,8 +135,8 @@ The `fin-hypergrid-renderer` element is a custom Polymer web component used to s
             }
 
             return {
-                cell: this.g.point.create(c, r),
-                location: this.g.point.create(x, y)
+                gridCell: this.g.point.create(c, r),
+                mousePoint: this.g.point.create(x, y)
             };
         },
 

@@ -32,9 +32,6 @@ The `fin-hypergrid-selection-model` element is a custom Polymer web component us
         //select a rectangle
         select: function(ox, oy, ex, ey) {
 
-            //this is very hacky, we swap the origin and extent if the extents are negative
-            //<br>TODO:fix rectangle package to implement high performant contains with negative extents
-
             var newSelection = this.rectangles.rectangle.create(ox, oy, ex, ey);
             this.selections.push(newSelection);
             this.flattenedX.push(newSelection.flattenXAt(0));
