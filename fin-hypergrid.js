@@ -651,7 +651,6 @@
                 }
             });
 
-
             this.canvas.addEventListener('fin-drag', function(e) {
                 var mouse = e.detail.mouse;
                 var cell = self.getCellFromMousePoint(mouse).cell;
@@ -661,9 +660,6 @@
                 self.mouseDragHandler(cell, e.detail.keys);
             });
 
-            this.canvas.addEventListener('fin-mouseup', function() {
-                self.scrollingNow = false;
-            });
 
             this.canvas.addEventListener('fin-keydown', function(e) {
                 self.keydown(e);
@@ -1392,6 +1388,47 @@
             this.sbHScroller = scrollbars[0];
             this.sbVScroller = scrollbars[1];
 
+            this.sbHScroller.onUpClick = function() {
+                self.scrollHBy(1);
+            };
+
+            this.sbHScroller.onDownClick = function() {
+                self.scrollHBy(-1);
+            };
+
+            this.sbHScroller.onUpHold = function(event) {
+                event.preventTap();
+                self.scrollHBy(1);
+            };
+
+            this.sbHScroller.onDownHold = function(event) {
+                event.preventTap();
+                self.scrollHBy(-1);
+            };
+
+            this.addEventListener('mousedown', function() {
+                self.sbMouseIsDown = true;
+            });
+
+
+            this.sbVScroller.onUpClick = function() {
+                self.scrollVBy(-1);
+            };
+
+            this.sbVScroller.onDownClick = function() {
+                self.scrollVBy(1);
+            };
+
+            this.sbVScroller.onUpHold = function(event) {
+                event.preventTap();
+                self.scrollVBy(-1);
+            };
+
+            this.sbVScroller.onDownHold = function(event) {
+                event.preventTap();
+                self.scrollVBy(1);
+            };
+
             this.addEventListener('mousedown', function() {
                 self.sbMouseIsDown = true;
             });
@@ -1434,6 +1471,7 @@
                 page: 40,
                 rangeStart: 0,
                 rangeStop: 0
+
             };
 
             this.sbVScrlCfg = {

@@ -55,10 +55,6 @@ The `fin-hypergrid-behavior-json` element is a custom Polymer web component used
             this.data[y][this.fields[x]] = value;
         },
 
-        getFixedColValue: function(x, y) {
-            return y;
-        },
-
         getFixedRowValue: function(x, y) {
             var sortIndex = this.sorted[x] || 0;
             return this.headers[x] + this.sortStates[sortIndex];
