@@ -22,6 +22,9 @@ The `fin-hypergrid-cell-editor-choice` element is a custom Polymer web component
     Polymer({ /* jshint ignore:line */
         alias: 'choice',
         items:['Moe','Larry','Curly','Groucho','Harpo','Zeppo','Chico'],
+        originOffset: function() {
+            return [-1,-1];
+        },
     });
 
 })(); /* jshint ignore:line */

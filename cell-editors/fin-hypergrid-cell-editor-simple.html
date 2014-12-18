@@ -71,8 +71,13 @@ The `fin-hypergrid-cell-editor-textfield` element is a custom Polymer web compon
 
         },
 
+        originOffset: function() {
+            return [-2,-2];
+        },
+
         setBounds: function(cellBounds) {
-            var translation = 'translate(' + (cellBounds.origin.x - 2) + 'px,' + (cellBounds.origin.y - 2) + 'px)';
+            var originOffset = this.originOffset();
+            var translation = 'translate(' + (cellBounds.origin.x + originOffset[0]) + 'px,' + (cellBounds.origin.y + originOffset[1]) + 'px)';
             this.input.style.webkitTransform = translation;
             this.input.style.MozTransform = translation;
             this.input.style.msTransform = translation;
