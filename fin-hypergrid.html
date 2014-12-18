@@ -376,15 +376,14 @@ The Hypergrid design makes no assumptions about the data you wish to view which 
             });
 
         },
-
         wheelMoved: function(event) {
             if (event.wheelDeltaY > 0) {
                 this.scrollVBy(-1);
-            } else if (event.wheelDeltaY < 0) {
+            } else if (event.wheelDeltaY < -0) {
                 this.scrollVBy(1);
             } else if (event.wheelDeltaX > 0) {
                 this.scrollHBy(-1);
-            } else if (event.wheelDeltaX < 0) {
+            } else if (event.wheelDeltaX < -0) {
                 this.scrollHBy(1);
             }
         },
@@ -841,6 +840,23 @@ The Hypergrid design makes no assumptions about the data you wish to view which 
             //     var cell = self.getGridCellFromMousePoint(mouse);
             //     self.click(cell, e);
             // });
+            this.canvas.addEventListener('fin-track', function(e) {
+
+                var primEvent = e.detail.primitiveEvent;
+                if (Math.abs(primEvent.dy) > Math.abs(primEvent.dx)) {
+                    if (primEvent.yDirection > 0) {
+                        self.scrollVBy(-2);
+                    } else if (primEvent.yDirection < -0) {
+                        self.scrollVBy(2);
+                    }
+                } else {
+                    if (primEvent.xDirection > 0) {
+                        self.scrollHBy(-1);
+                    } else if (primEvent.xDirection < -0) {
+                        self.scrollHBy(1);
+                    }
+                }
+            });
 
             this.canvas.addEventListener('fin-holdpulse', function(e) {
                 var mouse = e.detail.mouse;
