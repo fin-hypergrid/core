@@ -260,8 +260,28 @@
             });
             this.resized();
 
+            document.addEventListener('wheel', function(event) {
+                // dont pull on the page at all
+                if (!self.hasFocus()) {
+                    return;
+                }
+                event.preventDefault();
+                self.wheelMoved(event);
+            });
+
         },
 
+        wheelMoved: function(event) {
+            if (event.wheelDeltaY > 0) {
+                this.scrollVBy(-1);
+            } else if (event.wheelDeltaY < 0) {
+                this.scrollVBy(1);
+            } else if (event.wheelDeltaX > 0) {
+                this.scrollHBy(-1);
+            } else if (event.wheelDeltaX < 0) {
+                this.scrollHBy(1);
+            }
+        },
         /**
          *                                                                      .
          *                                                                      .
