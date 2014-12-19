@@ -164,7 +164,7 @@
     //setup random data for the JSON tab example
     (function(){
 
-        var numRows = 20000;
+        var numRows = 1000000;
 
         var firstNames = ['Olivia', 'Sophia', 'Ava', 'Isabella', 'Boy', 'Liam', 'Noah', 'Ethan', 'Mason', 'Logan', 'Moe', 'Larry', 'Curly', 'Shemp', 'Groucho', 'Harpo', 'Chico', 'Zeppo', 'Stanley', 'Hardy'];
         var lastNames = ['Wirts', 'Oneil', 'Smith', 'Barbarosa', 'Soprano', 'Gotti', 'Columbo', 'Luciano', 'Doerre', 'DePena'];
@@ -224,7 +224,8 @@
                 'travel'
             ];
 
-        var data = [];
+        //lets make it available
+        data = [];
         for (var i = 0; i < numRows; i ++) {
             data.push(randomPerson());
         }
@@ -252,7 +253,7 @@
             jsonModel.setData(data);
 
             //sort ascending on the first column (first name)
-            jsonModel.toggleSort(0);
+//            jsonModel.toggleSort(0);
 
             //all formatting and rendering per cell can be overridden in here
             cellProvider.getCell = function(config) {
@@ -314,6 +315,9 @@
         var description = gol.getNextState();
         button.innerText = description;
     }
+
+
+resetM();
 
   </script>
 

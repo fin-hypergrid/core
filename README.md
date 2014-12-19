@@ -116,7 +116,7 @@ You should see 15 as the result.
 
 If this is working then you can proceed to installing the OpenFin runtime and setting up the grid application to be hosted locally.  You can also use the default remotely hosted grid if you like, but its better for learning to use the locally hosted version.
 
-Run the grid installer from here [here.](https://dl.openfin.co/services/download?fileName=hypergrid-demo-installer&config=http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/demo.json)
+Run the hypergrid installer from here [here.](https://dl.openfin.co/services/download?fileName=hypergrid-demo-installer&config=http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/demo.json)
 
 This will add a shortcut to your desktop which will connect to the remote grid using the default url.  
 

@@ -222,6 +222,14 @@
          */
         cellEditors: null,
 
+        /**
+         * answers if we are dragging right now
+         *
+         * @property dragging
+         * @type Boolean
+         */
+        dragging: null,
+
         domReady: function() {
             var self = this;
 
@@ -262,12 +270,14 @@
 
             document.addEventListener('wheel', function(event) {
                 // dont pull on the page at all
-                if (!self.hasFocus()) {
+
+                if (self.dragging || !self.hasFocus()) {
                     return;
                 }
                 event.preventDefault();
                 self.wheelMoved(event);
             });
+            this.dragging = false;
 
         },
         wheelMoved: function(event) {
@@ -702,6 +712,7 @@
             });
 
             this.canvas.addEventListener('fin-mouseup', function(e) {
+                self.dragging = false;
                 if (self.scrollingNow) {
                     self.scrollingNow = false;
                 }
@@ -719,6 +730,7 @@
             });
 
             this.canvas.addEventListener('fin-drag', function(e) {
+                self.dragging = true;
                 var mouse = e.detail.mouse;
                 var mouseEvent = self.getGridCellFromMousePoint(mouse);
                 mouseEvent.primitiveEvent = e;
@@ -735,7 +747,9 @@
             //     self.click(cell, e);
             // });
             this.canvas.addEventListener('fin-track', function(e) {
-
+                if (self.dragging) {
+                    return;
+                }
                 var primEvent = e.detail.primitiveEvent;
                 if (Math.abs(primEvent.dy) > Math.abs(primEvent.dx)) {
                     if (primEvent.yDirection > 0) {
