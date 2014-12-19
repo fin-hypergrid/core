@@ -163,8 +163,8 @@ The `fin-hypergrid-renderer` element is a custom Polymer web component used to s
             var offsetX = this.getBehavior().getFixedColsWidth();
             var offsetY = this.getBehavior().getFixedRowsHeight();
 
-            this.paintCells(gc, offsetX, offsetY);
             this.paintHeaders(gc, 0, 0);
+            this.paintCells(gc, offsetX, offsetY);
             this.paintGridlines(gc, offsetX, offsetY);
         },
 
