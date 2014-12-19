@@ -101,6 +101,7 @@ Assumptions
 * .NET framework installed
 
 Steps to Integration Demo
+
 1. Download [excel.zip](http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/excel.zip)
 2. Unzip files to a local folder 
 3. Launch the *FinDesktopAddin* located at 
