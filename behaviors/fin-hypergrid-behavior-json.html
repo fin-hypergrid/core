@@ -91,15 +91,12 @@ The `fin-hypergrid-behavior-json` element is a custom Polymer web component used
             this.sorted[colIndex] = sortStateIndex;
             var colName = this.fields[colIndex];
             if (sortStateIndex === 0) {
-                try {
-                    //see http://blog.vjeux.com/2009/javascript/speed-up-javascript-sort.html
-                    var save = Object.prototype.toString;
-                    Object.prototype.toString = function () { return this.__si; };
-                    this.data.sort();
+                var newData = new Array(this.data.length);
+                for (var i = 0; i < this.data.length; i++) {
+                    var each = this.data[i];
+                    newData[each.__si] = each;
                 }
-                finally {
-                    Object.prototype.toString = save;
-                }
+                this.data = newData;
             } else if (sortStateIndex === 1) {
                 this.data.sort(function (a, b) {
                   if (a[colName] === b[colName])
@@ -113,8 +110,8 @@ The `fin-hypergrid-behavior-json` element is a custom Polymer web component used
             }
             for (var i = 0; i < this.data.length; i++) {
                 this.data[i].__i = i;
-                this.changed();
             }
+            this.changed();
         }
 
     });

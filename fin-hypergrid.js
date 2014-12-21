@@ -1367,8 +1367,8 @@
             var numFixedRows = behavior.getFixedRowCount();
 
             var mousePoint = this.getMouseDown();
-            var x = gridCell.x - numFixedCols;
-            var y = gridCell.y - numFixedRows;
+            var x = gridCell.x - numFixedCols + scrollLeft;
+            var y = gridCell.y - numFixedRows + scrollTop;
 
             //were outside of the grid do nothing
             if (x < 0 || y < 0) {
@@ -1389,11 +1389,11 @@
 
             if (hasSHIFT) {
                 this.clearMostRecentSelection();
-                this.select(mousePoint.x, mousePoint.y, x + scrollLeft - mousePoint.x, y + scrollTop - mousePoint.y);
-                this.setDragExtent(this.rectangles.point.create(x + scrollLeft - mousePoint.x, y + scrollTop - mousePoint.y));
+                this.select(mousePoint.x, mousePoint.y, x - mousePoint.x, y - mousePoint.y);
+                this.setDragExtent(this.rectangles.point.create(x - mousePoint.x, y - mousePoint.y));
             } else {
-                this.select(x + scrollLeft, y + scrollTop, 0, 0);
-                this.setMouseDown(this.rectangles.point.create(x + scrollLeft, y + scrollTop));
+                this.select(x, y, 0, 0);
+                this.setMouseDown(this.rectangles.point.create(x, y));
                 this.setDragExtent(this.rectangles.point.create(0, 0));
             }
             this.repaint();
