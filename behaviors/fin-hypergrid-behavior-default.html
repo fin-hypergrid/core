@@ -246,14 +246,36 @@ The `fin-hypergrid-behavior-default` element is a custom Polymer web component i
             }
         },
 
+        onMouseMove: function(grid, mouseEvent) {
+            this.checkForColumnResizeCursorChange(grid, mouseEvent);
+        },
+
+        checkForColumnResizeCursorChange: function(grid, mouseEvent) {
+
+            var gridCell = mouseEvent.gridCell;
+
+            console.log(gridCell.y);
+            //if were not in the fixed row area, exit
+            if (gridCell.y >= this.getFixedRowCount()) {
+                return;
+            }
+
+            if (grid.isOverColumnDivider(mouseEvent)) {
+                grid.beColumnResizeCursor();
+            } else {
+                grid.beDefaultCursor();
+            }
+
+        },
+
         onMouseDown: function(grid, mouseEvent) {
             var gridCell = mouseEvent.gridCell;
             if (gridCell.y < this.getFixedRowCount()) {
                 grid.clearSelections();
-                this.return;
+                return;
             } else if (gridCell.x < this.getFixedColCount()) {
                 grid.clearSelections();
-                this.return;
+                return;
             }
             else {
                 var primEvent = mouseEvent.primitiveEvent;

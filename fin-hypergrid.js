@@ -703,6 +703,13 @@
                 self.resized();
             };
 
+            this.canvas.addEventListener('fin-mousemove', function(e) {
+                var mouse = e.detail.mouse;
+                var mouseEvent = self.getGridCellFromMousePoint(mouse);
+                mouseEvent.primitiveEvent = e;
+                self.delegateMouseMove(mouseEvent);
+            });
+
             this.canvas.addEventListener('fin-mousedown', function(e) {
                 self.stopEditing();
                 var mouse = e.detail.mouse;
@@ -779,6 +786,53 @@
                 mouseEvent.primitiveEvent = e;
                 self.delegateHoldPulse(mouseEvent);
             });
+        },
+
+        /**
+         *                                                                      .
+         *                                                                      .
+         * anser if the mouseEvent coordinates are over a column divider
+         *
+         * @method isOverColumnDivider(mouseEvent)
+         */
+        isOverColumnDivider: function(mouseEvent) {
+            var x = mouseEvent.mousePoint.x;
+            var isIt = this.getRenderer().isOverColumnDivider(x);
+            return isIt;
+        },
+
+        /**
+         *                                                                      .
+         *                                                                      .
+         * turn on the column resize cursor
+         *
+         * @method beColumnResizeCursor()
+         */
+        beColumnResizeCursor: function() {
+            this.style.cursor = 'col-resize';
+        },
+
+        /**
+         *                                                                      .
+         *                                                                      .
+         * turn on the column resize cursor
+         *
+         * @method beColumnResizeCursor()
+         */
+        beDefaultCursor: function() {
+            this.style.cursor = 'default';
+        },
+
+        /**
+         *                                                                      .
+         *                                                                      .
+         * delegate MouseMove to the behavior (model)
+         *
+         * @method delegateMouseMove(mouseDetails)
+         */
+        delegateMouseMove: function(mouseDetails) {
+            var behavior = this.getBehavior();
+            behavior.onMouseMove(this, mouseDetails);
         },
 
         /**
