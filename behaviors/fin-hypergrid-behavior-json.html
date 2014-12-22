@@ -15,6 +15,82 @@ The `fin-hypergrid-behavior-json` element is a custom Polymer web component used
 /*jshint  bitwise: false */
 'use strict';
 
+//only use on number columns
+window.flashSort = (function(){
+    /*jshint bitwise: false*/
+    "use strict";
+    return function(a, property) {
+        var n = a.length;
+
+        var i = 0, j = 0, k = 0, t;
+        var m = ~~( n * 0.125 );
+        var a_nmin = a[0];
+        var nmax = 0;
+        var nmove = 0;
+
+        var l = new Array(m);
+        for ( i = 0; i < m; i++ ) {
+            l[ i ] = 0;
+        }
+
+        for ( i = 1; i < n; ++i ) {
+            var a_i = a[ i ];
+            if ( a_i[property] < a_nmin[property] ) { a_nmin = a_i; }
+            if ( a_i[property] > a[ nmax ][property] ) { nmax = i; }
+        }
+
+        var a_nmax = a[ nmax ];
+        if ( a_nmin[property] === a_nmax[property]) { return a; }
+        var c1 = ( m - 1 ) / ( a_nmax[property] - a_nmin[property] );
+
+        for ( i = 0; i < n; ++i ) {
+            ++l[ ~~( c1 * ( a[ i ][property] - a_nmin[property] ) ) ];
+        }
+
+        for ( k = 1; k < m; ++k ) {
+            l[ k ] += l[ k - 1 ];
+        }
+
+        var hold = a_nmax;
+        a[ nmax ] = a[ 0 ];
+        a[ 0 ] = hold;
+
+        var flash;
+        j = 0;
+        k = m - 1;
+        i = n - 1;
+
+        while ( nmove < i ) {
+            while ( j > ( l[ k ] - 1 ) ) {
+                k = ~~( c1 * ( a[ ++j ][property] - a_nmin[property] ) );
+            }
+            // line below added 07/03/2013, ES
+            if (k < 0) { break; }
+
+            flash = a[ j ];
+
+            while ( j !== l[ k ] ) {
+                k = ~~( c1 * ( flash[property] - a_nmin[property] ) );
+                hold = a[ t = --l[ k ] ];
+                a[ t ] = flash;
+                flash = hold;
+                ++nmove;
+            }
+        }
+
+        for( j = 1; j < n; ++j ) {
+            hold = a[ j ];
+            i = j - 1;
+            while( i >= 0 && a[i][property] > hold[property] ) {
+                a[ i + 1 ] = a[ i-- ];
+            }
+            a[ i + 1 ] = hold;
+        }
+
+        return a;
+    };
+})();
+
     window.dualPivotQuickSort = (function() {
 
         var dualPivotQS = {};
@@ -245,10 +321,17 @@ The `fin-hypergrid-behavior-json` element is a custom Polymer web component used
                 //dualPivotQuickSort(this.data, colName);
 
 
+                //uncomment this to use a flash sort from above
+                //this is not a stable sort and it ONLY works on numberic/boolean columns
+                //the fastest sorting for numeric data
+                //flashSort(this.data, colName);
+
+
                 //uncomment this to use the crossfilter dual pivot sort (fastest)
                 //this is not a stable sort
-                // var sort = crossfilter.quicksort.by(function(d) { return d[colName]; });
-                // sort(this.data, 0, this.data.length);
+                //fastest for string and boolean data
+                //var sort = crossfilter.quicksort.by(function(d) { return d[colName]; });
+                //sort(this.data, 0, this.data.length);
 
 
                 console.log('duration: ' + (Date.now() - start) + 'ms');
