@@ -7,12 +7,140 @@ The `fin-hypergrid-behavior-json` element is a custom Polymer web component used
 @homepage http://github.com/openfin/fin-hypergrid
 -->
 
+<script src="../../crossfilter/crossfilter.js"></script>
 <polymer-element name="fin-hypergrid-behavior-json" extends="fin-hypergrid-behavior-default">
   <template></template>
   <script>
 
 /*jshint  bitwise: false */
 'use strict';
+
+    window.dualPivotQuickSort = (function() {
+
+        var dualPivotQS = {};
+
+        dualPivotQS.sort = function(arr, property, fromIndex, toIndex) {
+            if(fromIndex === undefined && toIndex === undefined){
+                dualPivotQS.sort(arr, property, 0, arr.length);
+            } else{
+                rangeCheck(arr.length, fromIndex, toIndex);
+                dualPivotQuicksort(property, arr, fromIndex, toIndex - 1, 3);
+            }
+            return arr;
+        }
+
+        function rangeCheck(length, fromIndex, toIndex) {
+            if (fromIndex > toIndex) {
+                console.error("fromIndex(" + fromIndex + ") > toIndex(" + toIndex + ")");
+            }
+            if (fromIndex < 0) {
+                console.error(fromIndex);
+            }
+            if (toIndex > length) {
+                console.error(toIndex);
+            }
+        }
+
+        function swap(arr, i, j) {
+            var temp = arr[i];
+            arr[i] = arr[j];
+            arr[j] = temp;
+        }
+
+        function dualPivotQuicksort(property, arr, left, right, div) {
+            var len = right - left;
+
+            if (len < 27) { // insertion sort for tiny array
+                for (var i = left + 1; i <= right; i++) {
+                    for (var j = i; j > left && arr[j][property] < arr[j - 1][property]; j--) {
+                        swap(arr, j, j - 1);
+                    }
+                }
+                return;
+            }
+            var third = Math.floor(len / div); //TODO: check if we need to round up or down or just nearest
+
+            // "medians"
+            var m1 = left  + third;
+            var m2 = right - third;
+
+            if (m1 <= left) {
+                m1 = left + 1;
+            }
+            if (m2 >= right) {
+                m2 = right - 1;
+            }
+            if (arr[m1][property] < arr[m2][property]) {
+                swap(arr, m1, left);
+                swap(arr, m2, right);
+            }
+            else {
+                swap(arr, m1, right);
+                swap(arr, m2, left);
+            }
+            // pivots
+            var pivot1 = arr[left];
+            var pivot2 = arr[right];
+
+            //their values
+            var pivot1Val = pivot1[property];
+            var pivot2Val = pivot2[property];
+
+            // pointers
+            var less  = left  + 1;
+            var great = right - 1;
+
+            // sorting
+            for (var k = less; k <= great; k++) {
+                if (arr[k][property] < pivot1Val) {
+                    swap(arr, k, less++);
+                }
+                else if (arr[k][property] > pivot2Val) {
+                    while (k < great && arr[great][property] > pivot2Val) {
+                        great--;
+                    }
+                    swap(arr, k, great--);
+
+                    if (arr[k][property] < pivot1Val) {
+                        swap(arr, k, less++);
+                    }
+                }
+            }
+            // swaps
+            var dist = great - less;
+
+            if (dist < 13) {
+                div++;
+            }
+            swap(arr, less  - 1, left);
+            swap(arr, great + 1, right);
+
+            // subarrays
+            dualPivotQuicksort(property, arr, left,   less - 2, div);
+            dualPivotQuicksort(property, arr, great + 2, right, div);
+
+            // equal elements
+            if (dist > len - 13 && pivot1Val != pivot2Val) {
+                for (var k = less; k <= great; k++) {
+                    if (arr[k][property] == pivot1Val) {
+                        swap(arr, k, less++);
+                    }
+                    else if (arr[k][property] == pivot2Val) {
+                        swap(arr, k, great--);
+
+                        if (arr[k][property] == pivot1Val) {
+                            swap(arr, k, less++);
+                        }
+                    }
+                }
+            }
+            // subarray
+            if (pivot1Val < pivot2Val) {
+                dualPivotQuicksort(property, arr, less, great, div);
+            }
+        }
+        return dualPivotQS.sort;
+    }());
 
 (function() {
 
@@ -98,6 +226,11 @@ The `fin-hypergrid-behavior-json` element is a custom Polymer web component used
                 }
                 this.data = newData;
             } else if (sortStateIndex === 1) {
+                var start = Date.now();
+
+
+                // uncomment this to use javascript native sorting
+                // this is also a stable sort
                 this.data.sort(function (a, b) {
                   if (a[colName] === b[colName])
                     return a.__i - b.__i;
@@ -105,6 +238,20 @@ The `fin-hypergrid-behavior-json` element is a custom Polymer web component used
                     return -1;
                   return 1;
                 });
+
+
+                //uncomment this to use a simple dual pivot sort from above
+                //this is not a stable sort
+                //dualPivotQuickSort(this.data, colName);
+
+
+                //uncomment this to use the crossfilter dual pivot sort (fastest)
+                //this is not a stable sort
+                // var sort = crossfilter.quicksort.by(function(d) { return d[colName]; });
+                // sort(this.data, 0, this.data.length);
+
+
+                console.log('duration: ' + (Date.now() - start) + 'ms');
             } else {
                 this.data = this.data.reverse();
             }
