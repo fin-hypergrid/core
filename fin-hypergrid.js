@@ -32,47 +32,6 @@
             doubleClick: noop
         },
 
-        /**
-         * mouseDown is the location of an initial mousedown click, either for editing
-         * a cell or for dragging a selection
-         *
-         * @property mouseDown
-         * @type boolean
-         */
-        mouseDown: [],
-
-        /**
-         * dragExtent is the extent from the mousedown point during a drag operation
-         *
-         * @property dragExtent
-         * @type fin-rectangle.point
-         */
-        dragExtent: null,
-
-        /**
-         * scrollingNow is true if we are scrolling now or false otherwise
-         *
-         * @property scrollingNow
-         * @type boolean
-         */
-        scrollingNow: false,
-
-        /**
-         * currentDrag is the pixel location of the mouse pointer during a drag operation
-         *
-         * @property currentDrag
-         * @type fin-rectangle.point
-         */
-        currentDrag: null,
-
-        /**
-         * lastDragCell is the cell coordinates of the where the mouse pointer is
-         * during a drag operation
-         *
-         * @property lastDragCell
-         * @type Object
-         */
-        lastDragCell: null,
 
         /**
          * vScrlValue is a float value between 0.0 - 1.0 of the y scrollposition
@@ -222,14 +181,6 @@
          */
         cellEditors: null,
 
-        /**
-         * answers if we are dragging right now
-         *
-         * @property dragging
-         * @type Boolean
-         */
-        dragging: null,
-
         domReady: function() {
             var self = this;
 
@@ -253,9 +204,6 @@
                 }
             });
 
-            this.clearMouseDown();
-
-            this.dragExtent = this.rectangles.point.create(0, 0);
 
             //initialize our various pieces
             this.initCanvas();
@@ -277,7 +225,7 @@
                 event.preventDefault();
                 self.wheelMoved(event);
             });
-            this.dragging = false;
+
 
         },
         wheelMoved: function(event) {
@@ -450,7 +398,7 @@
          */
         clearSelections: function() {
             this.getSelectionModel().clear();
-            this.clearMouseDown();
+            //this.clearMouseDown();
         },
 
         /**
@@ -526,79 +474,6 @@
          */
         getSelectionModel: function() {
             return this.selectionModel;
-        },
-
-        /**
-         *                                                                      .
-         *                                                                      .
-         * answer the initial mouse position on a mouse down event for cell editing or a drag operation
-         *
-         * @method getMouseDown()
-         */
-        getMouseDown: function() {
-            var last = this.mouseDown.length - 1;
-            if (last < 0) {
-                return null;
-            }
-            return this.mouseDown[last];
-        },
-
-        /**
-         *                                                                      .
-         *                                                                      .
-         * remove the last item from the mouse down stack
-         *
-         * @method popMouseDown()
-         */
-        popMouseDown: function() {
-            if (this.mouseDown.length === 0) {
-                return;
-            }
-            this.mouseDown.length = this.mouseDown.length - 1;
-        },
-
-        /**
-         *                                                                      .
-         *                                                                      .
-         * empty out the mouse down stack
-         *
-         * @method clearMouseDown()
-         */
-        clearMouseDown: function() {
-            this.mouseDown = [this.rectangles.point.create(-1, -1)];
-        },
-
-        /**
-         *                                                                      .
-         *                                                                      .
-         * set the mouse point that initated a cell edit or drag operation
-         *
-         * @method setMouseDown(point)
-         */
-        setMouseDown: function(point) {
-            this.mouseDown.push(point);
-        },
-
-        /**
-         *                                                                      .
-         *                                                                      .
-         * return the extent point of the current drag selection rectangle
-         *
-         * @method getDragExtent()
-         */
-        getDragExtent: function() {
-            return this.dragExtent;
-        },
-
-        /**
-         *                                                                      .
-         *                                                                      .
-         * set the extent point of the current drag selection operation
-         *
-         * @method setDragExtent(point)
-         */
-        setDragExtent: function(point) {
-            this.dragExtent = point;
         },
 
         /**
@@ -844,7 +719,7 @@
          */
         delegateMouseDown: function(mouseDetails) {
             var behavior = this.getBehavior();
-            behavior.onMouseDown(this, mouseDetails);
+            behavior.handleMouseDown(this, mouseDetails);
         },
 
         /**
@@ -1400,56 +1275,6 @@
             var newDragExtent = this.rectangles.point.create(newX, newY);
             this.setDragExtent(newDragExtent);
 
-            this.repaint();
-        },
-
-        /**
-         *                                                                      .
-         *                                                                      .
-         * extend a selection or cteate one if there isnt yet
-         *
-         * @method extendSelection(mouse,keys)
-         */
-        extendSelection: function(gridCell, keys) {
-            var behavior = this.getBehavior();
-            var hasCTRL = keys.indexOf('CTRL') !== -1;
-            var hasSHIFT = keys.indexOf('SHIFT') !== -1;
-            var scrollTop = this.getVScrollValue();
-            var scrollLeft = this.getHScrollValue();
-
-            var numFixedCols = behavior.getFixedColCount();
-            var numFixedRows = behavior.getFixedRowCount();
-
-            var mousePoint = this.getMouseDown();
-            var x = gridCell.x - numFixedCols + scrollLeft;
-            var y = gridCell.y - numFixedRows + scrollTop;
-
-            //were outside of the grid do nothing
-            if (x < 0 || y < 0) {
-                return;
-            }
-
-            //we have repeated a click in the same spot deslect the value from last time
-            if (x === mousePoint.x && y === mousePoint.y) {
-                this.clearMostRecentSelection();
-                this.popMouseDown();
-                this.repaint();
-                return;
-            }
-
-            if (!hasCTRL && !hasSHIFT) {
-                this.clearSelections();
-            }
-
-            if (hasSHIFT) {
-                this.clearMostRecentSelection();
-                this.select(mousePoint.x, mousePoint.y, x - mousePoint.x, y - mousePoint.y);
-                this.setDragExtent(this.rectangles.point.create(x - mousePoint.x, y - mousePoint.y));
-            } else {
-                this.select(x, y, 0, 0);
-                this.setMouseDown(this.rectangles.point.create(x, y));
-                this.setDragExtent(this.rectangles.point.create(0, 0));
-            }
             this.repaint();
         },
 

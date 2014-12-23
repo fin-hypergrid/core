@@ -1,0 +1,76 @@
+<!--
+
+The `fin-hypergrid-feature-base` element is a custom Polymer web component that serves as the base "class" or API for the grid features (controllers).
+
+@group OpenFin hypergrid
+@element fin-hypergrid-feature-base
+@homepage http://github.com/openfin/fin-hypergrid
+-->
+
+<polymer-element name="fin-hypergrid-feature-base">
+  <template></template>
+  <script>
+
+
+(function() {
+
+'use strict';
+
+    Polymer({ /* jshint ignore:line */
+
+        next: null,
+
+        created: function() {
+          this.createdInit();
+        },
+
+        createdInit: function() {
+        },
+
+        setBehavior: function(behavior) {
+            this.behavior = behavior;
+        },
+
+        getBehavior: function() {
+            return this.behavior;
+        },
+
+        setNext: function(nextFeature) {
+            if (this.next) {
+                this.next.setNext(nextFeature);
+            } else {
+                this.next = nextFeature;
+            }
+        },
+
+        handleMouseDown: function(e) {
+            if (this.next) {
+                this.next.handleMouseDown(e);
+            }
+        },
+
+        getFixedColCount: function() {
+            return this.getBehavior().getFixedRowCount();
+        },
+
+        getFixedRowCount: function() {
+            return this.getBehavior().getFixedRowCount();
+        },
+
+        getVScrollValue: function() {
+            return this.getBehavior().getVScrollValue();
+        },
+
+        getHScrollValue: function() {
+            return this.getBehavior().getHScrollValue();
+        },
+        repaint: function() {
+            this.getBehavior().repaint();
+        }
+
+    });
+
+})(); /* jshint ignore:line */
+
+  </script>
+</polymer-element>

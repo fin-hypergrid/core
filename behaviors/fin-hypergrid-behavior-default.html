@@ -9,6 +9,11 @@ The `fin-hypergrid-behavior-default` element is a custom Polymer web component i
 
 <link rel="import" href="../fin-hypergrid-constants.html">
 <link rel="import" href="../fin-hypergrid-cell-provider.html">
+<link rel="import" href="../features/fin-hypergrid-feature-cell-selection.html">
+<link rel="import" href="../features/fin-hypergrid-feature-thumbwheel-scrolling.html">
+<link rel="import" href="../features/fin-hypergrid-feature-cell-editing.html">
+<link rel="import" href="../features/fin-hypergrid-feature-column-sorting.html">
+<link rel="import" href="../features/fin-hypergrid-feature-column-resizing.html">
 <polymer-element name="fin-hypergrid-behavior-default">
   <template></template>
   <script>
@@ -29,7 +34,7 @@ The `fin-hypergrid-behavior-default` element is a custom Polymer web component i
 
         grid: null,
         editorTypes: ['choice','textfield','color','slider','spinner','date'],
-
+        featureChain: null,
         //this is here just to provide an example of arbitrary
         //column widths<br>heights could be done the same way
         //<br>TODO: this colwidth example should be pushed into
@@ -43,10 +48,26 @@ The `fin-hypergrid-behavior-default` element is a custom Polymer web component i
             this.renderedWidth = 30;
             this.renderedHeight = 60;
             this.values = {}; //for overriding with edit values;
+            this.setNextFeature(document.createElement('fin-hypergrid-feature-cell-selection'));
+            this.setNextFeature(document.createElement('fin-hypergrid-feature-thumbwheel-scrolling'));
+            this.setNextFeature(document.createElement('fin-hypergrid-feature-cell-editing'));
+            this.setNextFeature(document.createElement('fin-hypergrid-feature-column-sorting'));
+            this.setNextFeature(document.createElement('fin-hypergrid-feature-column-resizing'));
         },
+
+        setNextFeature: function(nextFeature) {
+            nextFeature.setBehavior(this);
+            if (this.featureChain) {
+                this.featureChain.setNext(nextFeature);
+            } else {
+                this.featureChain = nextFeature;
+            }
+        },
+
         installOn: function(grid) {
             grid.setBehavior(this);
         },
+
         getCellProvider: function() {
             return this.cellProvider;
         },
@@ -254,9 +275,9 @@ The `fin-hypergrid-behavior-default` element is a custom Polymer web component i
 
             var gridCell = mouseEvent.gridCell;
 
-            console.log(gridCell.y);
             //if were not in the fixed row area, exit
             if (gridCell.y >= this.getFixedRowCount()) {
+                grid.beDefaultCursor();
                 return;
             }
 
@@ -268,19 +289,9 @@ The `fin-hypergrid-behavior-default` element is a custom Polymer web component i
 
         },
 
-        onMouseDown: function(grid, mouseEvent) {
-            var gridCell = mouseEvent.gridCell;
-            if (gridCell.y < this.getFixedRowCount()) {
-                grid.clearSelections();
-                return;
-            } else if (gridCell.x < this.getFixedColCount()) {
-                grid.clearSelections();
-                return;
-            }
-            else {
-                var primEvent = mouseEvent.primitiveEvent;
-                var keys = primEvent.detail.keys;
-                grid.extendSelection(gridCell, keys);
+        handleMouseDown: function(grid, mouseEvent) {
+            if (this.featureChain) {
+                this.featureChain.handleMouseDown(mouseEvent);
             }
         },
 
@@ -343,10 +354,50 @@ The `fin-hypergrid-behavior-default` element is a custom Polymer web component i
             return code;
         },
 
+        extendSelection: function(gridCell, keys) {
+            this.getGrid().extendSelection(gridCell, keys);
+        },
+
         //changed function is overridden by the OFGrid when we set this as
         //<br>it's behavior
         //<br>TODO:we should be using event emitter or some other real observer mechanism here
-        changed: function() {}
+        changed: function() {},
+
+        getVScrollValue: function() {
+            return this.getGrid().getVScrollValue();
+        },
+
+        getHScrollValue: function() {
+            return this.getGrid().getHScrollValue();
+        },
+                /**
+         *                                                                      .
+         *                                                                      .
+         * empty out the selections
+         *
+         * @method clearSelections()
+         */
+        clearSelections: function() {
+            this.getGrid().clearSelections();
+        },
+
+        /**
+         *                                                                      .
+         *                                                                      .
+         * add a selection region
+         *
+         * @method select:(point)
+         */
+        select: function(ox, oy, ex, ey) {
+            this.getGrid().select(ox, oy, ex, ey);
+        },
+
+        repaint: function() {
+            this.changed();
+        },
+        clearMostRecentSelection: function() {
+            this.getGrid().clearMostRecentSelection();
+        }
 
     });
 

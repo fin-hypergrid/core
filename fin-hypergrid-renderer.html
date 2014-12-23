@@ -148,9 +148,6 @@ The `fin-hypergrid-renderer` element is a custom Polymer web component used to s
             if (point.y < 0) {
                 r = -1;
             }
-            if (r === 1) {
-                console.log('halt');
-            }
             return {
                 gridCell: this.g.point.create(c, r),
                 mousePoint: this.g.point.create(x, y)
