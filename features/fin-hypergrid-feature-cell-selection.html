@@ -19,15 +19,6 @@ The `fin-hypergrid-feature-cell-selection` element is a custom Polymer web compo
     Polymer({ /* jshint ignore:line */
 
         /**
-         * mouseDown is the location of an initial mousedown click, either for editing
-         * a cell or for dragging a selection
-         *
-         * @property mouseDown
-         * @type boolean
-         */
-        mouseDown: [],
-
-        /**
          * dragExtent is the extent from the mousedown point during a drag operation
          *
          * @property dragExtent
@@ -73,7 +64,6 @@ The `fin-hypergrid-feature-cell-selection` element is a custom Polymer web compo
         createdInit: function() {
 
             this.rectangles = document.createElement('fin-rectangle');
-            this.clearMouseDown();
             this.dragExtent = this.rectangles.point.create(0, 0);
             this.dragging = false;
 
@@ -95,60 +85,127 @@ The `fin-hypergrid-feature-cell-selection` element is a custom Polymer web compo
             }
         },
 
+        handleMouseDrag: function(grid, mouseEvent) {
+            var mouseDown = this.getMouseDown();
+            if (mouseDown.x < 0 || mouseDown.y < 0) {
+                //we are in the fixed area don't initiate a drag
+                return;
+            }
+            var gridCell = mouseEvent.gridCell;
+            var primEvent = mouseEvent.primitiveEvent;
+            this.currentDrag = primEvent.detail.mouse;
+            this.lastDragCell = gridCell;
+            this.checkDragScroll(grid, this.currentDrag);
+            this.handleMouseDragCellSelection(gridCell, primEvent.detail.keys);
+        },
+
+        handleKeyDown: function(grid, keyEvent) {
+            var command = 'handle' + keyEvent.detail.char;
+            if (this[command]) {
+                this[command].call(this, keyEvent.detail);
+            }
+        },
+
+        /**
+         *                                                                      .
+         *                                                                      .
+         * Handle a mousedrag selection
+         *
+         * @method handleMouseDragCellSelection(mouse)
+         */
+        handleMouseDragCellSelection: function(mouse /* ,keys */ ) {
+
+            var scrollTop = this.getVScrollValue();
+            var scrollLeft = this.getHScrollValue();
+
+            var numFixedCols = this.getFixedColCount();
+            var numFixedRows = this.getFixedRowCount();
+
+            var x = mouse.x - numFixedCols;
+            var y = mouse.y - numFixedRows;
+
+            x = Math.max(0, x);
+            y = Math.max(0, y);
+
+            var previousDragExtent = this.getDragExtent();
+            var mouseDown = this.getMouseDown();
+
+            var newX = x + scrollLeft - mouseDown.x;
+            var newY = y + scrollTop - mouseDown.y;
+
+            if (previousDragExtent.x === newX && previousDragExtent.y === newY) {
+                return;
+            }
+
+            this.clearMostRecentSelection();
+
+            this.select(mouseDown.x, mouseDown.y, newX, newY);
+
+            var newDragExtent = this.rectangles.point.create(newX, newY);
+            this.setDragExtent(newDragExtent);
+
+            this.repaint();
+        },
+
+        /**
+         *                                                                      .
+         *                                                                      .
+         * this checks while were dragging if we go outside the visible bounds,
+         * if so, kick off the external autoscroll check function (above)
+         *
+         * @method checkDragScroll(event)
+         */
+        checkDragScroll: function(grid, mouse) {
+            var b = grid.getDataBounds();
+            var inside = b.contains(mouse);
+            if (inside) {
+                if (this.scrollingNow) {
+                    this.scrollingNow = false;
+                }
+            } else if (!this.scrollingNow) {
+                this.scrollingNow = true;
+                this.scrollDrag(grid);
+            }
+        },
+
+        /**
+         *                                                                      .
+         *                                                                      .
+         * this function makes sure that while we are dragging outside of
+         * the grid visible bounds, we srcroll accordingly
+         *
+         * @method scrollDrag()
+         */
+        scrollDrag: function(grid) {
+            if (!this.scrollingNow) {
+                return;
+            }
+            var b = this.getDataBounds();
+            var xOffset = 0;
+            var yOffset = 0;
+            if (this.currentDrag.x < b.origin.x) {
+                xOffset = -1;
+            }
+            if (this.currentDrag.x > b.origin.x + b.extent.x) {
+                xOffset = 1;
+            }
+            if (this.currentDrag.y < b.origin.y) {
+                yOffset = -1;
+            }
+            if (this.currentDrag.y > b.origin.y + b.extent.y) {
+                yOffset = 1;
+            }
+
+            this.scrollBy(xOffset, yOffset);
+            this.handleMouseDragCellSelection(this.lastDragCell, []); // update the selection
+            this.repaint();
+
+            setTimeout(this.scrollDrag.bind(this), 25);
+        },
+
         clearSelections: function() {
             this.getBehavior().clearSelections();
             this.clearMouseDown();
-        },
-
-        /**
-         *                                                                      .
-         *                                                                      .
-         * answer the initial mouse position on a mouse down event for cell editing or a drag operation
-         *
-         * @method getMouseDown()
-         */
-        getMouseDown: function() {
-            var last = this.mouseDown.length - 1;
-            if (last < 0) {
-                return null;
-            }
-            return this.mouseDown[last];
-        },
-
-        /**
-         *                                                                      .
-         *                                                                      .
-         * remove the last item from the mouse down stack
-         *
-         * @method popMouseDown()
-         */
-        popMouseDown: function() {
-            if (this.mouseDown.length === 0) {
-                return;
-            }
-            this.mouseDown.length = this.mouseDown.length - 1;
-        },
-
-        /**
-         *                                                                      .
-         *                                                                      .
-         * empty out the mouse down stack
-         *
-         * @method clearMouseDown()
-         */
-        clearMouseDown: function() {
-            this.mouseDown = [this.rectangles.point.create(-1, -1)];
-        },
-
-        /**
-         *                                                                      .
-         *                                                                      .
-         * set the mouse point that initated a cell edit or drag operation
-         *
-         * @method setMouseDown(point)
-         */
-        setMouseDown: function(point) {
-            this.mouseDown.push(point);
         },
 
         /**

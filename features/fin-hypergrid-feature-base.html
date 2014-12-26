@@ -49,6 +49,43 @@ The `fin-hypergrid-feature-base` element is a custom Polymer web component that 
             }
         },
 
+        handleKeyDown: function(grid, e) {
+            if (this.next) {
+                this.next.handleKeyDown(grid, e);
+            }
+        },
+
+        getMouseDown: function() {
+            return this.getBehavior().getMouseDown();
+        },
+
+        setMouseDown: function(point) {
+            this.getBehavior().setMouseDown(point);
+        },
+
+
+        /**
+         *                                                                      .
+         *                                                                      .
+         * remove the last item from the mouse down stack
+         *
+         * @method popMouseDown()
+         */
+        popMouseDown: function() {
+            return this.getBehavior().popMouseDown();
+        },
+
+        /**
+         *                                                                      .
+         *                                                                      .
+         * empty out the mouse down stack
+         *
+         * @method clearMouseDown()
+         */
+        clearMouseDown: function() {
+            return this.getBehavior().clearMouseDown();
+        },
+
         getFixedColCount: function() {
             return this.getBehavior().getFixedRowCount();
         },
@@ -66,6 +103,12 @@ The `fin-hypergrid-feature-base` element is a custom Polymer web component that 
         },
         repaint: function() {
             this.getBehavior().repaint();
+        },
+        getDataBounds: function() {
+            return this.getBehavior().getDataBounds();
+        },
+        scrollBy: function(xOffset, yOffset) {
+            this.getBehavior().scrollBy(xOffset, yOffset);
         }
 
     });

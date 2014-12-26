@@ -300,17 +300,15 @@ The `fin-hypergrid-behavior-default` element is a custom Polymer web component i
         },
 
         onMouseDrag: function(grid, mouseEvent) {
-            var mouseDown = grid.getMouseDown();
-            if (mouseDown.x < 0 || mouseDown.y < 0) {
-                //we are in the fixed area don't initiate a drag
-                return;
+            if (this.featureChain) {
+                this.featureChain.handleMouseDrag(grid, mouseEvent);
             }
-            var gridCell = mouseEvent.gridCell;
-            var primEvent = mouseEvent.primitiveEvent;
-            grid.currentDrag = primEvent.detail.mouse;
-            grid.lastDragCell = gridCell;
-            grid.checkDragScroll(primEvent, gridCell);
-            grid.handleMouseDrag(gridCell, primEvent.detail.keys);
+        },
+
+        onKeyDown: function(grid, keyEvent) {
+            if (this.featureChain) {
+                this.featureChain.handleKeyDown(grid, keyEvent);
+            }
         },
 
         onDoubleClick: function(grid, mouseEvent) {
@@ -395,8 +393,47 @@ The `fin-hypergrid-behavior-default` element is a custom Polymer web component i
         repaint: function() {
             this.changed();
         },
+
         clearMostRecentSelection: function() {
             this.getGrid().clearMostRecentSelection();
+        },
+
+        getMouseDown: function() {
+            return this.getGrid().getMouseDown();
+        },
+
+        setMouseDown: function(point) {
+            this.getGrid().setMouseDown(point);
+        },
+
+        /**
+         *                                                                      .
+         *                                                                      .
+         * remove the last item from the mouse down stack
+         *
+         * @method popMouseDown()
+         */
+        popMouseDown: function() {
+            return this.getGrid().popMouseDown();
+        },
+
+        /**
+         *                                                                      .
+         *                                                                      .
+         * empty out the mouse down stack
+         *
+         * @method clearMouseDown()
+         */
+        clearMouseDown: function() {
+            return this.getGrid().clearMouseDown();
+        },
+
+        getDataBounds: function() {
+            return this.getGrid().getDataBounds();
+        },
+
+        scrollBy: function(xOffset, yOffset) {
+            this.getGrid().scrollBy(xOffset, yOffset);
         }
 
     });

@@ -32,6 +32,14 @@
             doubleClick: noop
         },
 
+        /**
+         * mouseDown is the location of an initial mousedown click, either for editing
+         * a cell or for dragging a selection
+         *
+         * @property mouseDown
+         * @type point
+         */
+        mouseDown: [],
 
         /**
          * vScrlValue is a float value between 0.0 - 1.0 of the y scrollposition
@@ -184,6 +192,10 @@
         domReady: function() {
             var self = this;
 
+            this.rectangles = document.createElement('fin-rectangle');
+            this.constants = document.createElement('fin-hypergrid-constants').values;
+            this.selectionModel = document.createElement('fin-hypergrid-selection-model');
+
             this.cellEditors = {};
 
             //prevent the default context menu for appearing
@@ -192,9 +204,8 @@
                 return false;
             };
 
-            this.rectangles = document.createElement('fin-rectangle');
-            this.constants = document.createElement('fin-hypergrid-constants').values;
-            this.selectionModel = document.createElement('fin-hypergrid-selection-model');
+
+            this.clearMouseDown();
             //this.selectionModel.setGrid(this);
 
             //install any plugins
@@ -228,6 +239,58 @@
 
 
         },
+
+        /**
+         *                                                                      .
+         *                                                                      .
+         * answer the initial mouse position on a mouse down event for cell editing or a drag operation
+         *
+         * @method getMouseDown()
+         */
+        getMouseDown: function() {
+            var last = this.mouseDown.length - 1;
+            if (last < 0) {
+                return null;
+            }
+            return this.mouseDown[last];
+        },
+
+        /**
+         *                                                                      .
+         *                                                                      .
+         * remove the last item from the mouse down stack
+         *
+         * @method popMouseDown()
+         */
+        popMouseDown: function() {
+            if (this.mouseDown.length === 0) {
+                return;
+            }
+            this.mouseDown.length = this.mouseDown.length - 1;
+        },
+
+        /**
+         *                                                                      .
+         *                                                                      .
+         * empty out the mouse down stack
+         *
+         * @method clearMouseDown()
+         */
+        clearMouseDown: function() {
+            this.mouseDown = [this.rectangles.point.create(-1, -1)];
+        },
+
+        /**
+         *                                                                      .
+         *                                                                      .
+         * set the mouse point that initated a cell edit or drag operation
+         *
+         * @method setMouseDown(point)
+         */
+        setMouseDown: function(point) {
+            this.mouseDown.push(point);
+        },
+
         wheelMoved: function(event) {
             if (event.wheelDeltaY > 0) {
                 this.scrollVBy(-1);
@@ -620,7 +683,7 @@
             });
 
             this.canvas.addEventListener('fin-keydown', function(e) {
-                self.keydown(e);
+                self.delegateKeyDown(e);
             });
 
             // this.canvas.addEventListener('fin-trackstart', function(e) {
@@ -787,6 +850,18 @@
         /**
          *                                                                      .
          *                                                                      .
+         * Generate a function name and call it on self.  This should also be delegated through PluggableBehavior keeping the default implementation here though.
+         *
+         * @method keydown(event)
+         */
+        delegateKeyDown: function(e) {
+            var behavior = this.getBehavior();
+            behavior.onKeyDown(this, e);
+        },
+
+        /**
+         *                                                                      .
+         *                                                                      .
          * shut down the current cell editor
          *
          * @method stopEditing()
@@ -808,63 +883,6 @@
          */
         registerCellEditor: function(alias, cellEditor) {
             this.cellEditors[alias] = cellEditor;
-        },
-
-        /**
-         *                                                                      .
-         *                                                                      .
-         * this function makes sure that while we are dragging outside of
-         * the grid visible bounds, we srcroll accordingly
-         *
-         * @method scrollDrag()
-         */
-        scrollDrag: function() {
-            if (!this.scrollingNow) {
-                return;
-            }
-            var b = this.getDataBounds();
-            var xOffset = 0;
-            var yOffset = 0;
-            if (this.currentDrag.x < b.origin.x) {
-                xOffset = -1;
-            }
-            if (this.currentDrag.x > b.origin.x + b.extent.x) {
-                xOffset = 1;
-            }
-            if (this.currentDrag.y < b.origin.y) {
-                yOffset = -1;
-            }
-            if (this.currentDrag.y > b.origin.y + b.extent.y) {
-                yOffset = 1;
-            }
-
-            this.scrollBy(xOffset, yOffset);
-            this.handleMouseDrag(this.lastDragCell, []); // update the selection
-            this.repaint();
-
-            setTimeout(this.scrollDrag.bind(this), 25);
-        },
-
-        /**
-         *                                                                      .
-         *                                                                      .
-         * this checks while were dragging if we go outside the visible bounds,
-         * if so, kick off the external autoscroll check function (above)
-         *
-         * @method checkDragScroll(event)
-         */
-        checkDragScroll: function(e) {
-            var mouse = e.detail.mouse;
-            var b = this.getDataBounds();
-            var inside = b.contains(mouse);
-            if (inside) {
-                if (this.scrollingNow) {
-                    this.scrollingNow = false;
-                }
-            } else if (!this.scrollingNow) {
-                this.scrollingNow = true;
-                this.scrollDrag();
-            }
         },
 
         /**
@@ -906,6 +924,10 @@
         //Currently this is called by default from the PluggableBehavior, this piece needs to be reworked to re-delegate back through the PluggableBehavior to let it decide how to edit the cell.
         editAt: function(cellEditor, coordinates) {
 
+            if (1 === 1) {
+                return;
+            }
+
             this.cellEdtr = cellEditor;
 
             var cell = coordinates.gridCell;
@@ -929,19 +951,6 @@
             cellEditor.beginEditAt(editPoint);
         },
 
-        /**
-         *                                                                      .
-         *                                                                      .
-         * Generate a function name and call it on self.  This should also be delegated through PluggableBehavior keeping the default implementation here though.
-         *
-         * @method keydown(event)
-         */
-        keydown: function(e) {
-            var command = 'handle' + e.detail.char;
-            if (this[command]) {
-                this[command].call(this, e.detail);
-            }
-        },
 
         /**
          *                                                                      .
@@ -1233,49 +1242,6 @@
                 return;
             }
             this.setHScrollValue(newValue);
-        },
-
-        /**
-         *                                                                      .
-         *                                                                      .
-         * Handle a mousedrag selection
-         *
-         * @method handleMouseDrag(mouse)
-         */
-        handleMouseDrag: function(mouse /* ,keys */ ) {
-
-            var behavior = this.getBehavior();
-
-            var scrollTop = this.getVScrollValue();
-            var scrollLeft = this.getHScrollValue();
-
-            var numFixedCols = behavior.getFixedColCount();
-            var numFixedRows = behavior.getFixedRowCount();
-
-            var x = mouse.x - numFixedCols;
-            var y = mouse.y - numFixedRows;
-
-            x = Math.max(0, x);
-            y = Math.max(0, y);
-
-            var previousDragExtent = this.getDragExtent();
-            var mouseDown = this.getMouseDown();
-
-            var newX = x + scrollLeft - mouseDown.x;
-            var newY = y + scrollTop - mouseDown.y;
-
-            if (previousDragExtent.x === newX && previousDragExtent.y === newY) {
-                return;
-            }
-
-            this.clearMostRecentSelection();
-
-            this.select(mouseDown.x, mouseDown.y, newX, newY);
-
-            var newDragExtent = this.rectangles.point.create(newX, newY);
-            this.setDragExtent(newDragExtent);
-
-            this.repaint();
         },
 
         /**
