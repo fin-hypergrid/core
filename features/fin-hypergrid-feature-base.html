@@ -86,8 +86,16 @@ The `fin-hypergrid-feature-base` element is a custom Polymer web component that 
             return this.getBehavior().clearMouseDown();
         },
 
+        getColCount: function() {
+            return this.getBehavior().getColCount();
+        },
+
+        getRowCount: function() {
+            return this.getBehavior().getRowCount();
+        },
+
         getFixedColCount: function() {
-            return this.getBehavior().getFixedRowCount();
+            return this.getBehavior().getFixedColCount();
         },
 
         getFixedRowCount: function() {
@@ -109,6 +117,12 @@ The `fin-hypergrid-feature-base` element is a custom Polymer web component that 
         },
         scrollBy: function(xOffset, yOffset) {
             this.getBehavior().scrollBy(xOffset, yOffset);
+        },
+        insureModelRowIsViewable: function(newY, offset) {
+            return this.getBehavior().insureModelRowIsViewable(newY, offset);
+        },
+        insureModelColIsViewable: function(newX, offset) {
+            return this.getBehavior().insureModelColIsViewable(newX, offset);
         }
 
     });

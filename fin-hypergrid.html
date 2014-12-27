@@ -240,22 +240,6 @@ The Hypergrid design makes no assumptions about the data you wish to view which 
         sbVScrlCfg: {},
 
         /**
-         * sbLastAuto is a millisecond value representing the previous time an autoscroll started
-         *
-         * @property sbLastAuto
-         * @type Number
-         */
-        sbLastAuto: 0,
-
-        /**
-         * sbAutoStart is a millisecond value representing the time the current autoscroll started
-         *
-         * @property sbAutoStart
-         * @type Number
-         */
-        sbAutoStart: 0,
-
-        /**
          * sbPrevVScrlVal is the previous value of sbVScrlVal
          *
          * @property sbPrevVScrlVal
@@ -1058,113 +1042,6 @@ The Hypergrid design makes no assumptions about the data you wish to view which 
             cellEditor.beginEditAt(editPoint);
         },
 
-
-        /**
-         *                                                                      .
-         *                                                                      .
-         * If we are holding down the same navigation key, accelerate the increment we scroll
-         *
-         * @method getAutoScrollAcceleration()
-         */
-        getAutoScrollAcceleration: function() {
-            var count = 1;
-            var elapsed = this.getAutoScrollDuration() / 2000;
-            count = Math.max(1, Math.floor(elapsed * elapsed * elapsed * elapsed));
-            return count;
-        },
-
-        /**
-         *                                                                      .
-         *                                                                      .
-         * handle the shift down arrow key event
-         *
-         * @method handleDOWNSHIFT()
-         */
-        handleDOWNSHIFT: function() {
-            var count = this.getAutoScrollAcceleration();
-            this.moveShiftSelect(0, count);
-        },
-
-        /**
-         *                                                                      .
-         *                                                                      .
-         * handle the shift up arrow key event
-         *
-         * @method handleUPSHIFT()
-         */
-        handleUPSHIFT: function() {
-            var count = this.getAutoScrollAcceleration();
-            this.moveShiftSelect(0, -count);
-        },
-
-        /**
-         *                                                                      .
-         *                                                                      .
-         * handle the shift left arrow key event
-         *
-         * @method handleLEFTSHIFT()
-         */
-        handleLEFTSHIFT: function() {
-            this.moveShiftSelect(-1, 0);
-        },
-
-        /**
-         *                                                                      .
-         *                                                                      .
-         * handle the shift right arrow key event
-         *
-         * @method handleRIGHTSHIFT()
-         */
-        handleRIGHTSHIFT: function() {
-            this.moveShiftSelect(1, 0);
-        },
-
-        /**
-         *                                                                      .
-         *                                                                      .
-         * handle the down arrow key event
-         *
-         * @method handleDOWN()
-         */
-        handleDOWN: function() {
-            var count = this.getAutoScrollAcceleration();
-            this.moveSingleSelect(0, count);
-        },
-
-        /**
-         *                                                                      .
-         *                                                                      .
-         * handle the up arrow key event
-         *
-         * @method handleUP()
-         */
-        handleUP: function() {
-            var count = this.getAutoScrollAcceleration();
-            this.moveSingleSelect(0, -count);
-        },
-
-        /**
-         *                                                                      .
-         *                                                                      .
-         * handle the left arrow key event
-         *
-         * @method handleLEFT()
-         */
-        handleLEFT: function() {
-            this.moveSingleSelect(-1, 0);
-        },
-
-        /**
-         *                                                                      .
-         *                                                                      .
-         * handle the right arrow key event
-         *
-         * @method handleRIGHT()
-         */
-        handleRIGHT: function() {
-            this.moveSingleSelect(1, 0);
-        },
-
         /**
          *                                                                      .
          *                                                                      .
@@ -1204,72 +1081,6 @@ The Hypergrid design makes no assumptions about the data you wish to view which 
         /**
          *                                                                      .
          *                                                                      .
-         * Augment the most recent selection extent by (offsetX,offsetY) and scroll if necessary.
-         *
-         * @method moveShiftSelect(offsetX,offsetY)
-         */
-        moveShiftSelect: function(offsetX, offsetY) {
-            var behavior = this.getBehavior();
-
-            var maxCols = behavior.getColCount() - 1;
-            var maxRows = behavior.getRowCount() - 1;
-
-            var origin = this.getMouseDown();
-            var extent = this.getDragExtent();
-
-            var newX = extent.x + offsetX;
-            var newY = extent.y + offsetY;
-
-            newX = Math.min(maxCols - origin.x, Math.max(-origin.x, newX));
-            newY = Math.min(maxRows - origin.y, Math.max(-origin.y, newY));
-
-            this.clearMostRecentSelection();
-            this.select(origin.x, origin.y, newX, newY);
-
-            this.setDragExtent(this.rectangles.point.create(newX, newY));
-
-            this.insureModelColIsViewable(newX + origin.x, offsetX);
-            this.insureModelRowIsViewable(newY + origin.y, offsetY);
-            this.repaint();
-
-        },
-
-        /**
-         *                                                                      .
-         *                                                                      .
-         * Replace the most recent selection with a single cell selection that is moved (offsetX,offsetY) from the previous selection extent.
-         *
-         * @method moveSingleSelect(offsetX,offsetY)
-         */
-        moveSingleSelect: function(offsetX, offsetY) {
-            var behavior = this.getBehavior();
-
-            var maxCols = behavior.getColCount() - 1;
-            var maxRows = behavior.getRowCount() - 1;
-
-            var mouseCorner = this.getMouseDown().plus(this.getDragExtent());
-
-            var newX = mouseCorner.x + offsetX;
-            var newY = mouseCorner.y + offsetY;
-
-            newX = Math.min(maxCols, Math.max(0, newX));
-            newY = Math.min(maxRows, Math.max(0, newY));
-
-            this.clearSelections();
-            this.select(newX, newY, 0, 0);
-            this.setMouseDown(this.rectangles.point.create(newX, newY));
-            this.setDragExtent(this.rectangles.point.create(0, 0));
-
-            this.insureModelColIsViewable(newX, offsetX);
-            this.insureModelRowIsViewable(newY, offsetY);
-
-            this.repaint();
-
-        },
-
-        /**
-         *                                                                      .
-         *                                                                      .
          * Offset indicates the direction we are moving
          *
          * @method insureModelColIsViewable(c,offsetX)
@@ -1282,8 +1093,9 @@ The Hypergrid design makes no assumptions about the data you wish to view which 
                 //the scroll position is the leftmost column
                 var newSX = offsetX < 0 ? c : c - viewableCols;
                 this.setHScrollValue(newSX);
-                this.pingAutoScroll();
+                return true;
             }
+            return false;
         },
 
         /**
@@ -1301,8 +1113,9 @@ The Hypergrid design makes no assumptions about the data you wish to view which 
                 //the scroll position is the topmost row
                 var newSY = offsetY < 0 ? r : r - viewableRows;
                 this.setVScrollValue(newSY);
-                this.pingAutoScroll();
+                return true;
             }
+            return false;
         },
 
         /**
@@ -1623,47 +1436,6 @@ The Hypergrid design makes no assumptions about the data you wish to view which 
             if (this.cellEdtr) {
                 this.cellEdtr.scrollValueChangedNotification();
             }
-        },
-
-        /**
-         *                                                                      .
-         *                                                                      .
-         * set the start time when we initiated an auto scroll
-         *
-         * @method setAutoScrollStartTime()
-         */
-        setAutoScrollStartTime: function() {
-            this.sbAutoStart = Date.now();
-        },
-
-        /**
-         *                                                                      .
-         *                                                                      .
-         * update the autoscroll start time if we haven't autoscrolled within the last 500ms
-         * otherwise update the current autoscroll time
-         *
-         * @method pingAutoScroll()
-         */
-        pingAutoScroll: function() {
-            var now = Date.now();
-            if (now - this.sbLastAuto > 500) {
-                this.setAutoScrollStartTime();
-            }
-            this.sbLastAuto = Date.now();
-        },
-
-        /**
-         *                                                                      .
-         *                                                                      .
-         * answer how long we have been auto scrolling
-         *
-         * @method getAutoScrollDuration()
-         */
-        getAutoScrollDuration: function() {
-            if (Date.now() - this.sbLastAuto > 500) {
-                return 0;
-            }
-            return Date.now() - this.sbAutoStart;
         },
 
         /**

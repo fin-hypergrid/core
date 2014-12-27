@@ -434,6 +434,12 @@ The `fin-hypergrid-behavior-default` element is a custom Polymer web component i
 
         scrollBy: function(xOffset, yOffset) {
             this.getGrid().scrollBy(xOffset, yOffset);
+        },
+        insureModelRowIsViewable: function(newY, offset) {
+            return this.getGrid().insureModelRowIsViewable(newY, offset);
+        },
+        insureModelColIsViewable: function(newX, offset) {
+            return this.getGrid().insureModelColIsViewable(newX, offset);
         }
 
     });
