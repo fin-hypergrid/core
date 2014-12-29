@@ -211,17 +211,6 @@
             });
             this.resized();
 
-            document.addEventListener('wheel', function(event) {
-                // dont pull on the page at all
-
-                if (self.dragging || !self.hasFocus()) {
-                    return;
-                }
-                event.preventDefault();
-                self.wheelMoved(event);
-            });
-
-
         },
 
         /**
@@ -275,17 +264,6 @@
             this.mouseDown.push(point);
         },
 
-        wheelMoved: function(event) {
-            if (event.wheelDeltaY > 0) {
-                this.scrollVBy(-1);
-            } else if (event.wheelDeltaY < -0) {
-                this.scrollVBy(1);
-            } else if (event.wheelDeltaX > 0) {
-                this.scrollHBy(-1);
-            } else if (event.wheelDeltaX < -0) {
-                this.scrollHBy(1);
-            }
-        },
         /**
          *                                                                      .
          *                                                                      .
@@ -708,6 +686,13 @@
                 mouseEvent.primitiveEvent = e;
                 self.delegateHoldPulse(mouseEvent);
             });
+
+            this.canvas.addEventListener('fin-wheelmoved', function(e) {
+                var mouse = e.detail.mouse;
+                var mouseEvent = self.getGridCellFromMousePoint(mouse);
+                mouseEvent.primitiveEvent = e.detail.primitiveEvent;
+                self.delegateWheelMoved(mouseEvent);
+            });
         },
 
         /**
@@ -743,6 +728,11 @@
          */
         beDefaultCursor: function() {
             this.style.cursor = 'default';
+        },
+
+        delegateWheelMoved: function(event) {
+            var behavior = this.getBehavior();
+            behavior.onWheelMoved(this, event);
         },
 
         /**

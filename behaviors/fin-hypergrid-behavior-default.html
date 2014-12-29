@@ -295,6 +295,12 @@ The `fin-hypergrid-behavior-default` element is a custom Polymer web component i
             }
         },
 
+        onWheelMoved: function(grid, event) {
+            if (this.featureChain) {
+                this.featureChain.handleWheelMoved(grid, event);
+            }
+        },
+
         onMouseUp: function(grid, mouseEvent) {
            //do nothing for now
         },

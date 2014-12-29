@@ -16,80 +16,78 @@ The `fin-hypergrid-behavior-json` element is a custom Polymer web component used
 'use strict';
 
 //only use on number columns
-window.flashSort = (function(){
-    /*jshint bitwise: false*/
-    "use strict";
-    return function(a, property) {
-        var n = a.length;
-
-        var i = 0, j = 0, k = 0, t;
-        var m = ~~( n * 0.125 );
-        var a_nmin = a[0];
-        var nmax = 0;
-        var nmove = 0;
-
-        var l = new Array(m);
-        for ( i = 0; i < m; i++ ) {
-            l[ i ] = 0;
-        }
-
-        for ( i = 1; i < n; ++i ) {
-            var a_i = a[ i ];
-            if ( a_i[property] < a_nmin[property] ) { a_nmin = a_i; }
-            if ( a_i[property] > a[ nmax ][property] ) { nmax = i; }
-        }
-
-        var a_nmax = a[ nmax ];
-        if ( a_nmin[property] === a_nmax[property]) { return a; }
-        var c1 = ( m - 1 ) / ( a_nmax[property] - a_nmin[property] );
-
-        for ( i = 0; i < n; ++i ) {
-            ++l[ ~~( c1 * ( a[ i ][property] - a_nmin[property] ) ) ];
-        }
-
-        for ( k = 1; k < m; ++k ) {
-            l[ k ] += l[ k - 1 ];
-        }
-
-        var hold = a_nmax;
-        a[ nmax ] = a[ 0 ];
-        a[ 0 ] = hold;
-
-        var flash;
-        j = 0;
-        k = m - 1;
-        i = n - 1;
-
-        while ( nmove < i ) {
-            while ( j > ( l[ k ] - 1 ) ) {
-                k = ~~( c1 * ( a[ ++j ][property] - a_nmin[property] ) );
-            }
-            // line below added 07/03/2013, ES
-            if (k < 0) { break; }
-
-            flash = a[ j ];
-
-            while ( j !== l[ k ] ) {
-                k = ~~( c1 * ( flash[property] - a_nmin[property] ) );
-                hold = a[ t = --l[ k ] ];
-                a[ t ] = flash;
-                flash = hold;
-                ++nmove;
-            }
-        }
-
-        for( j = 1; j < n; ++j ) {
-            hold = a[ j ];
-            i = j - 1;
-            while( i >= 0 && a[i][property] > hold[property] ) {
-                a[ i + 1 ] = a[ i-- ];
-            }
-            a[ i + 1 ] = hold;
-        }
-
-        return a;
-    };
-})();
+window.flashSort = function(a, property) {
+    var strVar="(function(a) { ";
+    strVar += "        var n = a.length;";
+    strVar += "";
+    strVar += "        var i = 0, j = 0, k = 0, t;";
+    strVar += "        var m = ~~( n * 0.125 );";
+    strVar += "        var a_nmin = a[0];";
+    strVar += "        var nmax = 0;";
+    strVar += "        var nmove = 0;";
+    strVar += "";
+    strVar += "        var l = new Array(m);";
+    strVar += "        for ( i = 0; i < m; i++ ) {";
+    strVar += "            l[ i ] = 0;";
+    strVar += "        }";
+    strVar += "";
+    strVar += "        for ( i = 1; i < n; ++i ) {";
+    strVar += "            var a_i = a[ i ];";
+    strVar += "            if ( a_i." + property + " < a_nmin." + property + " ) { a_nmin = a_i; }";
+    strVar += "            if ( a_i." + property + " > a[ nmax ]." + property + " ) { nmax = i; }";
+    strVar += "        }";
+    strVar += "";
+    strVar += "        var a_nmax = a[ nmax ];";
+    strVar += "        if ( a_nmin." + property + " === a_nmax." + property + ") { return a; }";
+    strVar += "        var c1 = ( m - 1 ) \/ ( a_nmax." + property + " - a_nmin." + property + " );";
+    strVar += "";
+    strVar += "        for ( i = 0; i < n; ++i ) {";
+    strVar += "            ++l[ ~~( c1 * ( a[ i ]." + property + " - a_nmin." + property + " ) ) ];";
+    strVar += "        }";
+    strVar += "";
+    strVar += "        for ( k = 1; k < m; ++k ) {";
+    strVar += "            l[ k ] += l[ k - 1 ];";
+    strVar += "        }";
+    strVar += "";
+    strVar += "        var hold = a_nmax;";
+    strVar += "        a[ nmax ] = a[ 0 ];";
+    strVar += "        a[ 0 ] = hold;";
+    strVar += "";
+    strVar += "        var flash;";
+    strVar += "        j = 0;";
+    strVar += "        k = m - 1;";
+    strVar += "        i = n - 1;";
+    strVar += "";
+    strVar += "        while ( nmove < i ) {";
+    strVar += "            while ( j > ( l[ k ] - 1 ) ) {";
+    strVar += "                k = ~~( c1 * ( a[ ++j ]." + property + " - a_nmin." + property + " ) );";
+    strVar += "            }";
+    strVar += "            if (k < 0) { break; }";
+    strVar += "";
+    strVar += "            flash = a[ j ];";
+    strVar += "";
+    strVar += "            while ( j !== l[ k ] ) {";
+    strVar += "                k = ~~( c1 * ( flash." + property + " - a_nmin." + property + " ) );";
+    strVar += "                hold = a[ t = --l[ k ] ];";
+    strVar += "                a[ t ] = flash;";
+    strVar += "                flash = hold;";
+    strVar += "                ++nmove;";
+    strVar += "            }";
+    strVar += "        }";
+    strVar += "";
+    strVar += "        for( j = 1; j < n; ++j ) {";
+    strVar += "            hold = a[ j ];";
+    strVar += "            i = j - 1;";
+    strVar += "            while( i >= 0 && a[i]." + property + " > hold." + property + " ) {";
+    strVar += "                a[ i + 1 ] = a[ i-- ];";
+    strVar += "            }";
+    strVar += "            a[ i + 1 ] = hold;";
+    strVar += "        }";
+    strVar += "";
+    strVar += "        return a; })";
+    var sortFunction = eval(strVar);
+    sortFunction(a);
+};
 
     window.dualPivotQuickSort = (function() {
 
@@ -304,34 +302,68 @@ window.flashSort = (function(){
             } else if (sortStateIndex === 1) {
                 var start = Date.now();
 
+//last,first,birthdate,employed,income
 
                 // uncomment this to use javascript native sorting
                 // this is also a stable sort
-                this.data.sort(function (a, b) {
-                  if (a[colName] === b[colName])
-                    return a.__i - b.__i;
-                  if (a[colName] < b[colName])
-                    return -1;
-                  return 1;
-                });
 
+                //  5602ms
+                //  2877ms
+                //  4570ms
+                //  1804ms
+                // 11073ms
+                // this.data.sort(function (a, b) {
+                //   if (a[colName] === b[colName])
+                //     return a.__i - b.__i;
+                //   if (a[colName] < b[colName])
+                //     return -1;
+                //   return 1;
+                // });
+
+                //  5382ms ~5000
+                //  1851ms
+                //  3682ms
+                //  1705ms ~1850
+                //  1852ms ~1850
+                var theSorter = eval('(function (a, b) {' +
+                '  if (a.' + colName + ' === b.' + colName + ')' +
+                '    return a.__i - b.__i;' +
+                '  if (a.' + colName + ' < b.' + colName + ')' +
+                '    return -1;' +
+                '  return 1;' +
+                '})');
+                this.data.sort(theSorter);
 
                 //uncomment this to use a simple dual pivot sort from above
                 //this is not a stable sort
+                //  4370ms
+                //  1338ms
+                //  3272ms
+                //   614ms
+                //  6336ms
                 //dualPivotQuickSort(this.data, colName);
 
-
+                //      ms
+                //      ms
+                //      ms
+                //   298ms  ~3300
+                //  3236ms  ~3300
                 //uncomment this to use a flash sort from above
                 //this is not a stable sort and it ONLY works on numberic/boolean columns
-                //the fastest sorting for numeric data
-                //flashSort(this.data, colName);
-
+                // the fastest sorting for numeric data
+                // var sort = flashSort(this.data, colName);
 
                 //uncomment this to use the crossfilter dual pivot sort (fastest)
                 //this is not a stable sort
                 //fastest for string and boolean data
-                //var sort = crossfilter.quicksort.by(function(d) { return d[colName]; });
-                //sort(this.data, 0, this.data.length);
+                // 3725ms
+                //  711ms
+                // 2261ms
+                //  383ms   ~1400
+                // 1639ms   ~1400
+                // var theSorter = eval('(function(d){return d.' + colName + '})');
+                // var sort = crossfilter.quicksort.by(theSorter);
+                // sort(this.data, 0, this.data.length);
 
 
                 console.log('duration: ' + (Date.now() - start) + 'ms');

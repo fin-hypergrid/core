@@ -55,6 +55,12 @@ The `fin-hypergrid-feature-base` element is a custom Polymer web component that 
             }
         },
 
+        handleWheelMoved: function(grid, event) {
+            if (this.next) {
+                this.next.handleWheelMoved(grid, event);
+            }
+        },
+
         getMouseDown: function() {
             return this.getBehavior().getMouseDown();
         },
