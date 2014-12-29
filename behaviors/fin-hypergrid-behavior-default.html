@@ -60,7 +60,6 @@ The `fin-hypergrid-behavior-default` element is a custom Polymer web component i
         },
 
         setNextFeature: function(nextFeature) {
-            nextFeature.setBehavior(this);
             if (this.featureChain) {
                 this.featureChain.setNext(nextFeature);
             } else {
@@ -328,19 +327,12 @@ The `fin-hypergrid-behavior-default` element is a custom Polymer web component i
             }
         },
 
-        activateEditor: function(grid, event) {
-            var gridCell = event.gridCell;
-            var mX = this.scrollPositionX + gridCell.x - 1;
-            var mY = this.scrollPositionY + gridCell.y - 1;
-
-            var editor = this.getCellEditorAt(mX, mY);
-            this.getGrid().editAt(editor, event);
-        },
-
         getCellEditorAt: function(x, y) {
             var cellEditor = this.grid.cellEditors['textfield'];
             return cellEditor;
         },
+
+        changed: function() {},
 
         alphaFor: function(i) {
             // Name the column headers in A, .., AA, AB, AC, .., AZ format
@@ -355,104 +347,6 @@ The `fin-hypergrid-behavior-default` element is a custom Polymer web component i
             code += String.fromCharCode('A'.charCodeAt(0) + rem);
             return code;
         },
-
-        extendSelection: function(gridCell, keys) {
-            this.getGrid().extendSelection(gridCell, keys);
-        },
-
-        //changed function is overridden by the OFGrid when we set this as
-        //<br>it's behavior
-        //<br>TODO:we should be using event emitter or some other real observer mechanism here
-        changed: function() {},
-
-        getVScrollValue: function() {
-            return this.getGrid().getVScrollValue();
-        },
-
-        getHScrollValue: function() {
-            return this.getGrid().getHScrollValue();
-        },
-                /**
-         *                                                                      .
-         *                                                                      .
-         * empty out the selections
-         *
-         * @method clearSelections()
-         */
-        clearSelections: function() {
-            this.getGrid().clearSelections();
-        },
-
-        /**
-         *                                                                      .
-         *                                                                      .
-         * add a selection region
-         *
-         * @method select:(point)
-         */
-        select: function(ox, oy, ex, ey) {
-            this.getGrid().select(ox, oy, ex, ey);
-        },
-
-        repaint: function() {
-            this.changed();
-        },
-
-        clearMostRecentSelection: function() {
-            this.getGrid().clearMostRecentSelection();
-        },
-
-        getMouseDown: function() {
-            return this.getGrid().getMouseDown();
-        },
-
-        setMouseDown: function(point) {
-            this.getGrid().setMouseDown(point);
-        },
-
-        getDragExtent: function() {
-            return this.getGrid().getDragExtent();
-        },
-
-        setDragExtent: function(point) {
-            this.getGrid().setDragExtent(point);
-        },
-
-        /**
-         *                                                                      .
-         *                                                                      .
-         * remove the last item from the mouse down stack
-         *
-         * @method popMouseDown()
-         */
-        popMouseDown: function() {
-            return this.getGrid().popMouseDown();
-        },
-
-        /**
-         *                                                                      .
-         *                                                                      .
-         * empty out the mouse down stack
-         *
-         * @method clearMouseDown()
-         */
-        clearMouseDown: function() {
-            return this.getGrid().clearMouseDown();
-        },
-
-        getDataBounds: function() {
-            return this.getGrid().getDataBounds();
-        },
-
-        scrollBy: function(xOffset, yOffset) {
-            this.getGrid().scrollBy(xOffset, yOffset);
-        },
-        insureModelRowIsViewable: function(newY, offset) {
-            return this.getGrid().insureModelRowIsViewable(newY, offset);
-        },
-        insureModelColIsViewable: function(newX, offset) {
-            return this.getGrid().insureModelColIsViewable(newX, offset);
-        }
 
     });
 

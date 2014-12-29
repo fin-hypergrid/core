@@ -1473,6 +1473,42 @@
         setFixedColumnWidth: function(colIndex, colWidth) {
             this.getBehavior().setFixedColumnWidth(colIndex, colWidth);
         },
+
+        getColCount: function() {
+            return this.getBehavior().getColCount();
+        },
+
+        getRowCount: function() {
+            return this.getBehavior().getRowCount();
+        },
+
+        getFixedColCount: function() {
+            return this.getBehavior().getFixedColCount();
+        },
+
+        getFixedRowCount: function() {
+            return this.getBehavior().getFixedRowCount();
+        },
+
+        fixedRowClicked: function(mouse) {
+            this.getBehavior().fixedRowClicked(this, mouse);
+        },
+
+        fixedColClicked: function(mouse) {
+            this.getBehavior().fixedColClicked(this, mouse);
+        },
+
+        activateEditor: function(event) {
+            var gridCell = event.gridCell;
+            var mX = this.getHScrollValue() + gridCell.x - 1;
+            var mY = this.getVScrollValue() + gridCell.y - 1;
+
+            var editor = this.getCellEditorAt(mX, mY);
+            this.editAt(editor, event);
+        },
+        getCellEditorAt: function(x, y) {
+            return this.getBehavior().getCellEditorAt(x, y);
+        }
     });
 
 })(); /* jslint ignore:line */

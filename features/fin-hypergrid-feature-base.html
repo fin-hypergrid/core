@@ -28,14 +28,6 @@ The `fin-hypergrid-feature-base` element is a custom Polymer web component that 
         createdInit: function() {
         },
 
-        setBehavior: function(behavior) {
-            this.behavior = behavior;
-        },
-
-        getBehavior: function() {
-            return this.behavior;
-        },
-
         setNext: function(nextFeature) {
             if (this.next) {
                 this.next.setNext(nextFeature);
@@ -107,93 +99,6 @@ The `fin-hypergrid-feature-base` element is a custom Polymer web component that 
             }
         },
 
-        getMouseDown: function() {
-            return this.getBehavior().getMouseDown();
-        },
-
-        setMouseDown: function(point) {
-            this.getBehavior().setMouseDown(point);
-        },
-
-        getDragExtent: function() {
-            return this.getBehavior().getDragExtent();
-        },
-
-        setDragExtent: function(point) {
-            this.getBehavior().setDragExtent(point);
-        },
-
-        /**
-         *                                                                      .
-         *                                                                      .
-         * remove the last item from the mouse down stack
-         *
-         * @method popMouseDown()
-         */
-        popMouseDown: function() {
-            return this.getBehavior().popMouseDown();
-        },
-
-        /**
-         *                                                                      .
-         *                                                                      .
-         * empty out the mouse down stack
-         *
-         * @method clearMouseDown()
-         */
-        clearMouseDown: function() {
-            return this.getBehavior().clearMouseDown();
-        },
-
-        getColCount: function() {
-            return this.getBehavior().getColCount();
-        },
-
-        getRowCount: function() {
-            return this.getBehavior().getRowCount();
-        },
-
-        getFixedColCount: function() {
-            return this.getBehavior().getFixedColCount();
-        },
-
-        getFixedRowCount: function() {
-            return this.getBehavior().getFixedRowCount();
-        },
-
-        getVScrollValue: function() {
-            return this.getBehavior().getVScrollValue();
-        },
-
-        getHScrollValue: function() {
-            return this.getBehavior().getHScrollValue();
-        },
-        repaint: function() {
-            this.getBehavior().repaint();
-        },
-        getDataBounds: function() {
-            return this.getBehavior().getDataBounds();
-        },
-        scrollBy: function(xOffset, yOffset) {
-            this.getBehavior().scrollBy(xOffset, yOffset);
-        },
-        insureModelRowIsViewable: function(newY, offset) {
-            return this.getBehavior().insureModelRowIsViewable(newY, offset);
-        },
-        insureModelColIsViewable: function(newX, offset) {
-            return this.getBehavior().insureModelColIsViewable(newX, offset);
-        },
-        activateEditor: function(grid, mouseEvent) {
-            this.getBehavior().activateEditor(grid, mouseEvent);
-        },
-
-        fixedRowClicked: function(grid, mouse) {
-            this.getBehavior().fixedRowClicked(grid, mouse);
-        },
-
-        fixedColClicked: function(grid, mouse) {
-            this.getBehavior().fixedColClicked(grid, mouse);
-        },
     });
 
 })(); /* jshint ignore:line */
