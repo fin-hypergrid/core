@@ -257,41 +257,13 @@ The `fin-hypergrid-behavior-default` element is a custom Polymer web component i
             console.log('fixed col clicked: ' + mouse.gridCell.y, mouse);
         },
 
-        //this is called by OFGrid when a fixed cell is clicked
-        onTap: function(grid, mouseEvent) {
-            var gridCell = mouseEvent.gridCell;
-            if (gridCell.y < this.getFixedRowCount()) {
-                this.fixedRowClicked(grid, mouseEvent);
-            } else if (gridCell.x < this.getFixedColCount()) {
-                this.fixedColClicked(grid, mouseEvent);
-            }
-        },
-
         onMouseMove: function(grid, mouseEvent) {
             this.checkForColumnResizeCursorChange(grid, mouseEvent);
         },
-
-        checkForColumnResizeCursorChange: function(grid, mouseEvent) {
-
-            var gridCell = mouseEvent.gridCell;
-
-            //if were not in the fixed row area, exit
-            if (gridCell.y >= this.getFixedRowCount()) {
-                grid.beDefaultCursor();
-                return;
-            }
-
-            if (grid.isOverColumnDivider(mouseEvent)) {
-                grid.beColumnResizeCursor();
-            } else {
-                grid.beDefaultCursor();
-            }
-
-        },
-
-        handleMouseDown: function(grid, mouseEvent) {
+        //this is called by OFGrid when a fixed cell is clicked
+        onTap: function(grid, event) {
             if (this.featureChain) {
-                this.featureChain.handleMouseDown(mouseEvent);
+                this.featureChain.handleTap(grid, event);
             }
         },
 
@@ -329,6 +301,30 @@ The `fin-hypergrid-behavior-default` element is a custom Polymer web component i
             }
         },
 
+
+        checkForColumnResizeCursorChange: function(grid, mouseEvent) {
+
+            var gridCell = mouseEvent.gridCell;
+
+            //if were not in the fixed row area, exit
+            if (gridCell.y >= this.getFixedRowCount()) {
+                grid.beDefaultCursor();
+                return;
+            }
+
+            if (grid.isOverColumnDivider(mouseEvent)) {
+                grid.beColumnResizeCursor();
+            } else {
+                grid.beDefaultCursor();
+            }
+
+        },
+
+        handleMouseDown: function(grid, mouseEvent) {
+            if (this.featureChain) {
+                this.featureChain.handleMouseDown(mouseEvent);
+            }
+        },
         activateEditor: function(grid, mouseEvent) {
             var gridCell = mouseEvent.gridCell;
             var mX = this.scrollPositionX + gridCell.x - 1;

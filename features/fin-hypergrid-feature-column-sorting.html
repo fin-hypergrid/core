@@ -17,7 +17,14 @@ The `fin-hypergrid-column-sorting` element is a custom Polymer web component tha
 'use strict';
 
     Polymer({ /* jshint ignore:line */
-
+        handleTap: function(grid, event) {
+            var gridCell = event.gridCell;
+            if (gridCell.y < this.getFixedRowCount()) {
+                this.fixedRowClicked(grid, event);
+            } else if (gridCell.x < this.getFixedColCount()) {
+                this.fixedColClicked(grid, event);
+            }
+        }
     });
 
 })(); /* jshint ignore:line */
