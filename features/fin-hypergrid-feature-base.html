@@ -61,6 +61,18 @@ The `fin-hypergrid-feature-base` element is a custom Polymer web component that 
             }
         },
 
+        handleDoubleClick: function(grid, event) {
+            if (this.next) {
+                this.next.handleDoubleClick(grid, event);
+            }
+        },
+
+        handleHoldPulse: function(grid, event) {
+            if (this.next) {
+                this.next.handleHoldPulse(grid, event);
+            }
+        },
+
         getMouseDown: function() {
             return this.getBehavior().getMouseDown();
         },
@@ -69,6 +81,13 @@ The `fin-hypergrid-feature-base` element is a custom Polymer web component that 
             this.getBehavior().setMouseDown(point);
         },
 
+        getDragExtent: function() {
+            return this.getBehavior().getDragExtent();
+        },
+
+        setDragExtent: function(point) {
+            this.getBehavior().setDragExtent(point);
+        },
 
         /**
          *                                                                      .
@@ -129,8 +148,10 @@ The `fin-hypergrid-feature-base` element is a custom Polymer web component that 
         },
         insureModelColIsViewable: function(newX, offset) {
             return this.getBehavior().insureModelColIsViewable(newX, offset);
+        },
+        activateEditor: function(grid, mouseEvent) {
+            this.getBehavior().activateEditor(grid, mouseEvent);
         }
-
     });
 
 })(); /* jshint ignore:line */

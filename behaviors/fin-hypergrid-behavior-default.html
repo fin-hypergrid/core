@@ -317,16 +317,16 @@ The `fin-hypergrid-behavior-default` element is a custom Polymer web component i
             }
         },
 
-        onDoubleClick: function(grid, mouseEvent) {
-            this.activateEditor(grid, mouseEvent);
+        onDoubleClick: function(grid, event) {
+            if (this.featureChain) {
+                this.featureChain.handleDoubleClick(grid, event);
+            }
         },
 
-        onHoldPulse: function(grid, mouseEvent) {
-            var primEvent = mouseEvent.primitiveEvent;
-            if (primEvent.detail.count < 2) {
-                return;
+        onHoldPulse: function(grid, event) {
+            if (this.featureChain) {
+                this.featureChain.handleHoldPulse(grid, event);
             }
-            this.activateEditor(grid, mouseEvent);
         },
 
         activateEditor: function(grid, mouseEvent) {
@@ -410,6 +410,14 @@ The `fin-hypergrid-behavior-default` element is a custom Polymer web component i
 
         setMouseDown: function(point) {
             this.getGrid().setMouseDown(point);
+        },
+
+        getDragExtent: function() {
+            return this.getGrid().getDragExtent();
+        },
+
+        setDragExtent: function(point) {
+            this.getGrid().setDragExtent(point);
         },
 
         /**

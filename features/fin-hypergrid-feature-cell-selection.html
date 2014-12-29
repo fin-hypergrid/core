@@ -19,14 +19,6 @@ The `fin-hypergrid-feature-cell-selection` element is a custom Polymer web compo
     Polymer({ /* jshint ignore:line */
 
         /**
-         * dragExtent is the extent from the mousedown point during a drag operation
-         *
-         * @property dragExtent
-         * @type fin-rectangle.point
-         */
-        dragExtent: null,
-
-        /**
          * scrollingNow is true if we are scrolling now or false otherwise
          *
          * @property scrollingNow
@@ -80,7 +72,6 @@ The `fin-hypergrid-feature-cell-selection` element is a custom Polymer web compo
         createdInit: function() {
 
             this.rectangles = document.createElement('fin-rectangle');
-            this.dragExtent = this.rectangles.point.create(0, 0);
             this.dragging = false;
 
         },
@@ -222,28 +213,6 @@ The `fin-hypergrid-feature-cell-selection` element is a custom Polymer web compo
         clearSelections: function() {
             this.getBehavior().clearSelections();
             this.clearMouseDown();
-        },
-
-        /**
-         *                                                                      .
-         *                                                                      .
-         * return the extent point of the current drag selection rectangle
-         *
-         * @method getDragExtent()
-         */
-        getDragExtent: function() {
-            return this.dragExtent;
-        },
-
-        /**
-         *                                                                      .
-         *                                                                      .
-         * set the extent point of the current drag selection operation
-         *
-         * @method setDragExtent(point)
-         */
-        setDragExtent: function(point) {
-            this.dragExtent = point;
         },
 
         /**

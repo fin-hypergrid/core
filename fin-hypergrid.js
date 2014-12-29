@@ -42,6 +42,14 @@
         mouseDown: [],
 
         /**
+         * dragExtent is the extent from the mousedown point during a drag operation
+         *
+         * @property dragExtent
+         * @type fin-rectangle.point
+         */
+        dragExtent: null,
+
+        /**
          * vScrlValue is a float value between 0.0 - 1.0 of the y scrollposition
          *
          * @property vScrlValue
@@ -190,6 +198,7 @@
 
 
             this.clearMouseDown();
+            this.dragExtent = this.rectangles.point.create(0, 0);
             //this.selectionModel.setGrid(this);
 
             //install any plugins
@@ -264,6 +273,28 @@
             this.mouseDown.push(point);
         },
 
+
+        /**
+         *                                                                      .
+         *                                                                      .
+         * return the extent point of the current drag selection rectangle
+         *
+         * @method getDragExtent()
+         */
+        getDragExtent: function() {
+            return this.dragExtent;
+        },
+
+        /**
+         *                                                                      .
+         *                                                                      .
+         * set the extent point of the current drag selection operation
+         *
+         * @method setDragExtent(point)
+         */
+        setDragExtent: function(point) {
+            this.dragExtent = point;
+        },
         /**
          *                                                                      .
          *                                                                      .
@@ -677,14 +708,14 @@
                 var mouse = e.detail.mouse;
                 var mouseEvent = self.getGridCellFromMousePoint(mouse);
                 mouseEvent.primitiveEvent = e;
-                self.delegateDoubleClick(mouseEvent);
+                self.delegateHoldPulse(mouseEvent);
             });
 
             this.canvas.addEventListener('fin-dblclick', function(e) {
                 var mouse = e.detail.mouse;
                 var mouseEvent = self.getGridCellFromMousePoint(mouse);
                 mouseEvent.primitiveEvent = e;
-                self.delegateHoldPulse(mouseEvent);
+                self.delegateDoubleClick(mouseEvent);
             });
 
             this.canvas.addEventListener('fin-wheelmoved', function(e) {
@@ -897,10 +928,6 @@
          */
         //Currently this is called by default from the PluggableBehavior, this piece needs to be reworked to re-delegate back through the PluggableBehavior to let it decide how to edit the cell.
         editAt: function(cellEditor, coordinates) {
-
-            if (1 === 1) {
-                return;
-            }
 
             this.cellEdtr = cellEditor;
 
