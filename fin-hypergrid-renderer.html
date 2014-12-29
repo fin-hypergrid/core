@@ -93,12 +93,15 @@ The `fin-hypergrid-renderer` element is a custom Polymer web component used to s
          *
          * @method isOverColumnDivider(x)
          */
-        isOverColumnDivider: function(x) {
-            var colWidths = this.renderedColWidths;
-            if (colWidths.indexOf(x) > -1) {
-                return true;
+        overColumnDivider: function(x) {
+            var whichCol = this.renderedColWidths.indexOf(x + 1);
+            if (whichCol < 0) {
+                whichCol = this.renderedColWidths.indexOf(x);
             }
-            return false;
+            if (whichCol < 0) {
+                whichCol = this.renderedColWidths.indexOf(x - 1);
+            }
+            return whichCol;
         },
 
         //Answer the pixel bounds of specific data cell. It must have just been rendered

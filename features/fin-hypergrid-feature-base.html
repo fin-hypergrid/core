@@ -19,6 +19,7 @@ The `fin-hypergrid-feature-base` element is a custom Polymer web component that 
     Polymer({ /* jshint ignore:line */
 
         next: null,
+        detached: null,
 
         created: function() {
           this.createdInit();
@@ -40,18 +41,39 @@ The `fin-hypergrid-feature-base` element is a custom Polymer web component that 
                 this.next.setNext(nextFeature);
             } else {
                 this.next = nextFeature;
+                this.detached = nextFeature;
             }
         },
 
-        handleMouseDown: function(e) {
+        detachChain: function() {
+            this.next = null;
+        },
+
+        attachChain: function() {
+            this.next = this.detached;
+        },
+
+        handleMouseMove: function(grid, event) {
             if (this.next) {
-                this.next.handleMouseDown(e);
+                this.next.handleMouseMove(grid, event);
             }
         },
 
-        handleKeyDown: function(grid, e) {
+        handleMouseDown: function(grid, event) {
             if (this.next) {
-                this.next.handleKeyDown(grid, e);
+                this.next.handleMouseDown(grid, event);
+            }
+        },
+
+        handleMouseUp: function(grid, event) {
+            if (this.next) {
+                this.next.handleMouseUp(grid, event);
+            }
+        },
+
+        handleKeyDown: function(grid, event) {
+            if (this.next) {
+                this.next.handleKeyDown(grid, event);
             }
         },
 
@@ -76,6 +98,12 @@ The `fin-hypergrid-feature-base` element is a custom Polymer web component that 
         handleTap: function(grid, event) {
             if (this.next) {
                 this.next.handleTap(grid, event);
+            }
+        },
+
+        handleMouseDrag: function(grid, event) {
+            if (this.next) {
+                this.next.handleMouseDrag(grid, event);
             }
         },
 

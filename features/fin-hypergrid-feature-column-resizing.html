@@ -18,6 +18,93 @@ The `fin-hypergrid-column-resizing` element is a custom Polymer web component th
 
     Polymer({ /* jshint ignore:line */
 
+        dragColumn: -1,
+        dragStart: -1,
+        dragColStartingWidth: -1,
+
+        handleMouseDrag: function(grid, event) {
+            if (this.dragColumn > -1) {
+                var fixedColCount = this.getFixedColCount();
+                var distance = event.primitiveEvent.detail.mouse.x - this.dragStart + this.dragColStartingWidth;
+                this.setColumnWidth(grid, this.dragColumn - fixedColCount - 1, distance);
+            } else if (this.next) {
+                this.next.handleMouseDrag(grid, event);
+            }
+        },
+
+        setColumnWidth: function(grid, colIndex, width) {
+            var fixedColCount = this.getFixedColCount();
+            var scrollLeft = this.getHScrollValue();
+            if (colIndex < 0) {
+                grid.setFixedColumnWidth(fixedColCount + colIndex, width);
+            } else {
+                grid.setColumnWidth(colIndex + scrollLeft, width);
+            }
+        },
+
+        getColumnWidth: function(grid, colIndex) {
+            var fixedColCount = this.getFixedColCount();
+            if (colIndex < 0) {
+                return grid.getFixedColumnWidth(fixedColCount + colIndex);
+            } else {
+                return grid.getColumnWidth(colIndex);
+            }
+        },
+
+        handleMouseDown: function(grid, event) {
+            var gridCell = event.gridCell;
+            var overCol = grid.overColumnDivider(event);
+            if (overCol > -1 && gridCell.y < this.getFixedRowCount()) {
+                var scrollLeft = this.getHScrollValue();
+                var fixedColCount = this.getFixedColCount();
+                this.dragColumn = overCol;
+                this.dragStart = event.primitiveEvent.detail.mouse.x;
+                this.dragColStartingWidth = this.getColumnWidth(grid, overCol - fixedColCount - 1 + scrollLeft);
+                this.detachChain();
+            } else if (this.next) {
+                this.next.handleMouseDown(grid, event);
+            }
+        },
+
+        handleMouseUp: function(grid, event) {
+            if (this.dragColumn > -1) {
+                grid.beDefaultCursor();
+                this.dragColumn = -1;
+
+                //delay here to give other events a chance to be dropped
+                var self = this;
+                setTimeout(function(){
+                    self.attachChain();
+                }, 200);
+            } else if (this.next) {
+                this.next.handleMouseUp(grid, event);
+            }
+        },
+
+        handleMouseMove: function(grid, event) {
+            if (this.dragColumn > -1) {
+                return;
+            }
+            this.checkForColumnResizeCursorChange(grid, event);
+        },
+
+        checkForColumnResizeCursorChange: function(grid, event) {
+
+            var gridCell = event.gridCell;
+
+            //if were not in the fixed row area, exit
+            if (gridCell.y >= this.getFixedRowCount()) {
+                grid.beDefaultCursor();
+                return;
+            }
+
+            if (grid.overColumnDivider(event) > -1) {
+                grid.beColumnResizeCursor();
+            } else {
+                grid.beDefaultCursor();
+            }
+
+        },
     });
 
 })(); /* jshint ignore:line */

@@ -76,8 +76,8 @@ The `fin-hypergrid-feature-cell-selection` element is a custom Polymer web compo
 
         },
 
-        handleMouseDown: function(mouseEvent) {
-            var gridCell = mouseEvent.gridCell;
+        handleMouseDown: function(grid, event) {
+            var gridCell = event.gridCell;
             if (gridCell.y < this.getFixedRowCount()) {
                 this.clearSelections();
                 return;
@@ -86,30 +86,30 @@ The `fin-hypergrid-feature-cell-selection` element is a custom Polymer web compo
                 return;
             }
             else {
-                var primEvent = mouseEvent.primitiveEvent;
+                var primEvent = event.primitiveEvent;
                 var keys = primEvent.detail.keys;
                 this.extendSelection(gridCell, keys);
             }
         },
 
-        handleMouseDrag: function(grid, mouseEvent) {
+        handleMouseDrag: function(grid, event) {
             var mouseDown = this.getMouseDown();
             if (mouseDown.x < 0 || mouseDown.y < 0) {
                 //we are in the fixed area don't initiate a drag
                 return;
             }
-            var gridCell = mouseEvent.gridCell;
-            var primEvent = mouseEvent.primitiveEvent;
+            var gridCell = event.gridCell;
+            var primEvent = event.primitiveEvent;
             this.currentDrag = primEvent.detail.mouse;
             this.lastDragCell = gridCell;
             this.checkDragScroll(grid, this.currentDrag);
             this.handleMouseDragCellSelection(gridCell, primEvent.detail.keys);
         },
 
-        handleKeyDown: function(grid, keyEvent) {
-            var command = 'handle' + keyEvent.detail.char;
+        handleKeyDown: function(grid, event) {
+            var command = 'handle' + event.detail.char;
             if (this[command]) {
-                this[command].call(this, keyEvent.detail);
+                this[command].call(this, event.detail);
             }
         },
 

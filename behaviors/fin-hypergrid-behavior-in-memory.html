@@ -16,7 +16,6 @@ The `fin-hypergrid-behavior-in-memory` element is a custom Polymer web component
 
 (function() {
 
-    var widths = [100, 100, 80, 90, 80, 150, 100, 80, 80, 100];
     //helper function for randomizing data
     function rnd(max) {
         return Math.floor(Math.random() * max);
@@ -50,6 +49,9 @@ The `fin-hypergrid-behavior-in-memory` element is a custom Polymer web component
             this.sortLookup = {};
             this.sorted = {};
             this.sortStates = [' -', ' ^', ' v'];
+
+            this.colWidths = [50, 150, 80, 90, 80, 150, 100, 80, 80, 100],
+            this.fixedColWidths = [120],
 
             this.createSort(0, 2);
             this.createSort(0, 14);
@@ -435,11 +437,8 @@ The `fin-hypergrid-behavior-in-memory` element is a custom Polymer web component
             this.sortLookup[colIndex].type = sortStateIndex;
             this.reorder();
             this.changed();
-        },
-
-        getColWidth: function(colNum) {
-            return widths[colNum % widths.length];
         }
+
     });
 
 })(); /* jslint ignore:line */

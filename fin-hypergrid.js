@@ -729,14 +729,14 @@
         /**
          *                                                                      .
          *                                                                      .
-         * anser if the mouseEvent coordinates are over a column divider
+         * answer if the mouseEvent coordinates are over a column divider
          *
          * @method isOverColumnDivider(mouseEvent)
          */
-        isOverColumnDivider: function(mouseEvent) {
-            var x = mouseEvent.mousePoint.x;
-            var isIt = this.getRenderer().isOverColumnDivider(x);
-            return isIt;
+        overColumnDivider: function(mouseEvent) {
+            var x = mouseEvent.primitiveEvent.detail.mouse.x;
+            var whichCol = this.getRenderer().overColumnDivider(x);
+            return whichCol;
         },
 
         /**
@@ -1458,8 +1458,21 @@
             return this.renderer;
         },
 
-        //Initialize the various pieces of the self.
+        getColumnWidth: function(colIndex) {
+            return this.getBehavior().getColWidth(colIndex);
+        },
 
+        setColumnWidth: function(colIndex, colWidth) {
+            this.getBehavior().setColumnWidth(colIndex, colWidth);
+        },
+
+        getFixedColumnWidth: function(colIndex) {
+            return this.getBehavior().getFixedColWidth(colIndex);
+        },
+
+        setFixedColumnWidth: function(colIndex, colWidth) {
+            this.getBehavior().setFixedColumnWidth(colIndex, colWidth);
+        },
     });
 
 })(); /* jslint ignore:line */

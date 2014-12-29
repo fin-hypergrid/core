@@ -32,6 +32,8 @@ The `fin-hypergrid-behavior-default` element is a custom Polymer web component i
           this.readyInit();
         },
 
+        colWidths: [],
+        fixedColWidths: [],
         grid: null,
         editorTypes: ['choice','textfield','color','slider','spinner','date'],
         featureChain: null,
@@ -47,12 +49,14 @@ The `fin-hypergrid-behavior-default` element is a custom Polymer web component i
             this.scrollPositionY = 0;
             this.renderedWidth = 30;
             this.renderedHeight = 60;
+            this.colWidths = [],
+            this.fixedColWidths = [],
             this.values = {}; //for overriding with edit values;
+            this.setNextFeature(document.createElement('fin-hypergrid-feature-column-resizing'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-cell-selection'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-thumbwheel-scrolling'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-cell-editing'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-column-sorting'));
-            this.setNextFeature(document.createElement('fin-hypergrid-feature-column-resizing'));
         },
 
         setNextFeature: function(nextFeature) {
@@ -185,14 +189,18 @@ The `fin-hypergrid-behavior-default` element is a custom Polymer web component i
         },
 
         //the width of the specific fixed col
-        getFixedColWidth: function(colNum) {
-            var width = this.getColWidth(colNum);
-            if (colNum === 0) {
-                return 120;
+        getFixedColWidth: function(colNumber) {
+            var override = this.fixedColWidths[colNumber];
+            if (override) {
+                return override;
             }
-            return width;
+            return 120;
         },
 
+        setFixedColumnWidth: function(colNumber, width) {
+            this.fixedColWidths[colNumber] = Math.max(5, width);
+            this.changed();
+        },
         //can be dynamic if we wish to allow users to resize
         //<br>or driven by data, etc...
         getRowHeight: function( /* rowNum */ ) {
@@ -204,7 +212,16 @@ The `fin-hypergrid-behavior-default` element is a custom Polymer web component i
         //<br>this implementation is driven by modulo
         //<br>TODO: move this example into InMemoryGridBehavior
         getColWidth: function(colNumber) {
+            var override = this.colWidths[colNumber];
+            if (override) {
+                return override;
+            }
             return this.constants.colWidth;
+        },
+
+        setColumnWidth: function(colNumber, width) {
+            this.colWidths[colNumber] = Math.max(5, width);
+            this.changed();
         },
 
         //this is set by OFGrid on scroll
@@ -257,8 +274,10 @@ The `fin-hypergrid-behavior-default` element is a custom Polymer web component i
             console.log('fixed col clicked: ' + mouse.gridCell.y, mouse);
         },
 
-        onMouseMove: function(grid, mouseEvent) {
-            this.checkForColumnResizeCursorChange(grid, mouseEvent);
+        onMouseMove: function(grid, event) {
+            if (this.featureChain) {
+                this.featureChain.handleMouseMove(grid, event);
+            }
         },
         //this is called by OFGrid when a fixed cell is clicked
         onTap: function(grid, event) {
@@ -273,19 +292,21 @@ The `fin-hypergrid-behavior-default` element is a custom Polymer web component i
             }
         },
 
-        onMouseUp: function(grid, mouseEvent) {
-           //do nothing for now
-        },
-
-        onMouseDrag: function(grid, mouseEvent) {
+        onMouseUp: function(grid, event) {
             if (this.featureChain) {
-                this.featureChain.handleMouseDrag(grid, mouseEvent);
+                this.featureChain.handleMouseUp(grid, event);
             }
         },
 
-        onKeyDown: function(grid, keyEvent) {
+        onMouseDrag: function(grid, event) {
             if (this.featureChain) {
-                this.featureChain.handleKeyDown(grid, keyEvent);
+                this.featureChain.handleMouseDrag(grid, event);
+            }
+        },
+
+        onKeyDown: function(grid, event) {
+            if (this.featureChain) {
+                this.featureChain.handleKeyDown(grid, event);
             }
         },
 
@@ -301,37 +322,19 @@ The `fin-hypergrid-behavior-default` element is a custom Polymer web component i
             }
         },
 
-
-        checkForColumnResizeCursorChange: function(grid, mouseEvent) {
-
-            var gridCell = mouseEvent.gridCell;
-
-            //if were not in the fixed row area, exit
-            if (gridCell.y >= this.getFixedRowCount()) {
-                grid.beDefaultCursor();
-                return;
-            }
-
-            if (grid.isOverColumnDivider(mouseEvent)) {
-                grid.beColumnResizeCursor();
-            } else {
-                grid.beDefaultCursor();
-            }
-
-        },
-
-        handleMouseDown: function(grid, mouseEvent) {
+        handleMouseDown: function(grid, event) {
             if (this.featureChain) {
-                this.featureChain.handleMouseDown(mouseEvent);
+                this.featureChain.handleMouseDown(grid, event);
             }
         },
-        activateEditor: function(grid, mouseEvent) {
-            var gridCell = mouseEvent.gridCell;
+
+        activateEditor: function(grid, event) {
+            var gridCell = event.gridCell;
             var mX = this.scrollPositionX + gridCell.x - 1;
             var mY = this.scrollPositionY + gridCell.y - 1;
 
             var editor = this.getCellEditorAt(mX, mY);
-            this.getGrid().editAt(editor, mouseEvent);
+            this.getGrid().editAt(editor, event);
         },
 
         getCellEditorAt: function(x, y) {
@@ -339,7 +342,6 @@ The `fin-hypergrid-behavior-default` element is a custom Polymer web component i
             return cellEditor;
         },
 
-        //this is a helper function for generating fixed col/row data
         alphaFor: function(i) {
             // Name the column headers in A, .., AA, AB, AC, .., AZ format
             // quotient/remainder
