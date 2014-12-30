@@ -215,7 +215,7 @@
             this.initScrollbars();
             this.dragger = this.shadowRoot.querySelector('#dragger');
             this.draggerCTX = this.dragger.getContext('2d');
-
+            //this.draggerCTX.setTransform(1, 0, 0, 1, 0, 0);
             //Register a listener for the copy event so we can copy our selected region to the pastebuffer if conditions are right.
             document.body.addEventListener('copy', function(evt) {
                 self.checkClipboardCopy(evt);
@@ -1538,9 +1538,24 @@
             return this.getBehavior().getCellEditorAt(x, y);
         },
 
-        moveDragger: function(x, y) {
+        dragColumn: function(x, colIndex) {
+            var colWidth = this.getColumnWidth(colIndex + this.getHScrollValue());
+            console.log('drag col ' + colIndex);
+            noop(colIndex);
+            var d = this.dragger;
+            d.setAttribute('width', colWidth + 'px');
+            d.setAttribute('height', this.clientHeight + 'px');
+            var startX = this.renderer.renderedColWidths[colIndex + 1];
+            this.draggerCTX.translate(-startX, 0);
             this.renderer.renderGrid(this.draggerCTX);
-            this.dragger.style.webkitTransform = 'translate(' + x + 'px, ' + y + 'px)';
+            this.draggerCTX.translate(startX, 0);
+            d.style.webkitTransform = 'translate(' + (x - (colWidth / 2)) + 'px, ' + 10 + 'px)';
+            d.style.zIndex = '100';
+            d.style.display = 'inline';
+        },
+        hideDragColumn: function() {
+            var d = this.dragger;
+            d.style.display = 'none';
         }
     });
 
