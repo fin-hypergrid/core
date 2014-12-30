@@ -71,7 +71,7 @@ The `fin-hypergrid-column-resizing` element is a custom Polymer web component th
 
         handleMouseUp: function(grid, event) {
             if (this.dragColumn > -1) {
-                grid.beDefaultCursor();
+                this.cursor = null;
                 this.dragColumn = -1;
 
                 //delay here to give other events a chance to be dropped
@@ -88,23 +88,21 @@ The `fin-hypergrid-column-resizing` element is a custom Polymer web component th
             if (this.dragColumn > -1) {
                 return;
             }
-            this.checkForColumnResizeCursorChange(grid, event);
+            this.cursor = null;
+            if (this.next) {
+                this.next.handleMouseMove(grid, event);
+            }
+            this.checkForColumnResizeCursorChange(grid, event)
         },
 
         checkForColumnResizeCursorChange: function(grid, event) {
 
             var gridCell = event.gridCell;
 
-            //if were not in the fixed row area, exit
-            if (gridCell.y >= grid.getFixedRowCount()) {
-                grid.beDefaultCursor();
-                return;
-            }
-
-            if (grid.overColumnDivider(event) > -1) {
-                grid.beColumnResizeCursor();
+            if (this.isFixedRow(grid, event) && grid.overColumnDivider(event) > -1) {
+                this.cursor = 'col-resize';
             } else {
-                grid.beDefaultCursor();
+                this.cursor = null;
             }
 
         },

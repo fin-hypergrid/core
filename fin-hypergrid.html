@@ -84,6 +84,15 @@ The Hypergrid design makes no assumptions about the data you wish to view which 
         padding: 0;
         z-index: 1000;
     }
+    #dragger {
+        width: 120px;
+        height: 800px;
+        background-color: red;
+        top: 0px;
+        left: 0px;
+        position: absolute;
+        z-index: 100;
+    }
     </style>
 
     <fin-plugins>
@@ -101,6 +110,7 @@ The Hypergrid design makes no assumptions about the data you wish to view which 
     <fin-vampire-bar id="horizontalScroller" horizontal></fin-vampire-bar>
     <fin-vampire-bar id="verticalScroller"></fin-vampire-bar>
     <input id="editor"></input>
+    <canvas id="dragger"></canvas>
     <content></content>
   </template>
   <script>
@@ -320,6 +330,8 @@ The Hypergrid design makes no assumptions about the data you wish to view which 
             this.initCanvas();
             this.initRenderer();
             this.initScrollbars();
+            this.dragger = this.shadowRoot.querySelector('#dragger');
+            this.draggerCTX = this.dragger.getContext('2d');
 
             //Register a listener for the copy event so we can copy our selected region to the pastebuffer if conditions are right.
             document.body.addEventListener('copy', function(evt) {
@@ -561,7 +573,7 @@ The Hypergrid design makes no assumptions about the data you wish to view which 
          */
         clearSelections: function() {
             this.getSelectionModel().clear();
-            //this.clearMouseDown();
+            this.clearMouseDown();
         },
 
         /**
@@ -855,6 +867,32 @@ The Hypergrid design makes no assumptions about the data you wish to view which 
          */
         beColumnResizeCursor: function() {
             this.style.cursor = 'col-resize';
+        },
+
+        /**
+         *                                                                      .
+         *                                                                      .
+         * turn on the column resize cursor
+         *
+         * @method bePointerCursor()
+         */
+        bePointerCursor: function() {
+            this.style.cursor = 'pointer';
+        },
+
+        /**
+         *                                                                      .
+         *                                                                      .
+         * turn on the column resize cursor
+         *
+         * @method beMoveCursor()
+         */
+        beMoveCursor: function() {
+            this.style.cursor = 'move';
+        },
+
+        beCursor: function(cursorName) {
+            this.style.cursor = cursorName;
         },
 
         /**
@@ -1615,6 +1653,11 @@ The Hypergrid design makes no assumptions about the data you wish to view which 
         },
         getCellEditorAt: function(x, y) {
             return this.getBehavior().getCellEditorAt(x, y);
+        },
+
+        moveDragger: function(x, y) {
+            this.renderer.renderGrid(this.draggerCTX);
+            this.dragger.style.webkitTransform = 'translate(' + x + 'px, ' + y + 'px)';
         }
     });
 

@@ -213,6 +213,8 @@
             this.initCanvas();
             this.initRenderer();
             this.initScrollbars();
+            this.dragger = this.shadowRoot.querySelector('#dragger');
+            this.draggerCTX = this.dragger.getContext('2d');
 
             //Register a listener for the copy event so we can copy our selected region to the pastebuffer if conditions are right.
             document.body.addEventListener('copy', function(evt) {
@@ -454,7 +456,7 @@
          */
         clearSelections: function() {
             this.getSelectionModel().clear();
-            //this.clearMouseDown();
+            this.clearMouseDown();
         },
 
         /**
@@ -748,6 +750,32 @@
          */
         beColumnResizeCursor: function() {
             this.style.cursor = 'col-resize';
+        },
+
+        /**
+         *                                                                      .
+         *                                                                      .
+         * turn on the column resize cursor
+         *
+         * @method bePointerCursor()
+         */
+        bePointerCursor: function() {
+            this.style.cursor = 'pointer';
+        },
+
+        /**
+         *                                                                      .
+         *                                                                      .
+         * turn on the column resize cursor
+         *
+         * @method beMoveCursor()
+         */
+        beMoveCursor: function() {
+            this.style.cursor = 'move';
+        },
+
+        beCursor: function(cursorName) {
+            this.style.cursor = cursorName;
         },
 
         /**
@@ -1508,6 +1536,11 @@
         },
         getCellEditorAt: function(x, y) {
             return this.getBehavior().getCellEditorAt(x, y);
+        },
+
+        moveDragger: function(x, y) {
+            this.renderer.renderGrid(this.draggerCTX);
+            this.dragger.style.webkitTransform = 'translate(' + x + 'px, ' + y + 'px)';
         }
     });
 

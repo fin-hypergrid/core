@@ -84,6 +84,15 @@ The Hypergrid design makes no assumptions about the data you wish to view which 
         padding: 0;
         z-index: 1000;
     }
+    #dragger {
+        width: 120px;
+        height: 800px;
+        background-color: red;
+        top: 0px;
+        left: 0px;
+        position: absolute;
+        z-index: 100;
+    }
     </style>
 
     <fin-plugins>
@@ -101,6 +110,7 @@ The Hypergrid design makes no assumptions about the data you wish to view which 
     <fin-vampire-bar id="horizontalScroller" horizontal></fin-vampire-bar>
     <fin-vampire-bar id="verticalScroller"></fin-vampire-bar>
     <input id="editor"></input>
+    <canvas id="dragger"></canvas>
     <content></content>
   </template>
   <script>

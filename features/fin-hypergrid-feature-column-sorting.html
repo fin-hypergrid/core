@@ -17,6 +17,7 @@ The `fin-hypergrid-column-sorting` element is a custom Polymer web component tha
 'use strict';
 
     Polymer({ /* jshint ignore:line */
+
         handleTap: function(grid, event) {
             var gridCell = event.gridCell;
             if (gridCell.y < grid.getFixedRowCount()) {
@@ -24,7 +25,18 @@ The `fin-hypergrid-column-sorting` element is a custom Polymer web component tha
             } else if (gridCell.x < grid.getFixedColCount()) {
                 grid.fixedColClicked(event);
             }
+        },
+        handleMouseMove: function(grid, event) {
+            if (this.isFixedRow(grid, event)) {
+                this.cursor = 'pointer';
+            } else {
+                this.cursor = null;
+            }
+            if (this.next) {
+                this.next.handleMouseMove(grid, event);
+            }
         }
+
     });
 
 })(); /* jshint ignore:line */

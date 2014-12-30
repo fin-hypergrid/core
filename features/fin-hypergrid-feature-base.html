@@ -20,6 +20,7 @@ The `fin-hypergrid-feature-base` element is a custom Polymer web component that 
 
         next: null,
         detached: null,
+        cursor: null,
 
         created: function() {
           this.createdInit();
@@ -98,6 +99,26 @@ The `fin-hypergrid-feature-base` element is a custom Polymer web component that 
                 this.next.handleMouseDrag(grid, event);
             }
         },
+
+        isFixedRow: function(grid, event) {
+            var gridCell = event.gridCell;
+            var isFixed = gridCell.y < grid.getFixedRowCount();
+            return isFixed;
+        },
+
+        isFixedCol: function(grid, event) {
+            var gridCell = event.gridCell;
+            var isFixed = gridCell.x < grid.getFixedColCount();
+            return isFixed;
+        },
+        setCursor: function(grid) {
+            if (this.next) {
+                this.next.setCursor(grid);
+            }
+            if (this.cursor) {
+                grid.beCursor(this.cursor);
+            }
+        }
 
     });
 

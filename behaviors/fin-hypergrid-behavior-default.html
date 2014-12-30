@@ -14,6 +14,7 @@ The `fin-hypergrid-behavior-default` element is a custom Polymer web component i
 <link rel="import" href="../features/fin-hypergrid-feature-cell-editing.html">
 <link rel="import" href="../features/fin-hypergrid-feature-column-sorting.html">
 <link rel="import" href="../features/fin-hypergrid-feature-column-resizing.html">
+<link rel="import" href="../features/fin-hypergrid-feature-column-moving.html">
 <polymer-element name="fin-hypergrid-behavior-default">
   <template></template>
   <script>
@@ -53,6 +54,7 @@ The `fin-hypergrid-behavior-default` element is a custom Polymer web component i
             this.fixedColWidths = [],
             this.values = {}; //for overriding with edit values;
             this.setNextFeature(document.createElement('fin-hypergrid-feature-column-resizing'));
+            this.setNextFeature(document.createElement('fin-hypergrid-feature-column-moving'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-cell-selection'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-thumbwheel-scrolling'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-cell-editing'));
@@ -273,57 +275,71 @@ The `fin-hypergrid-behavior-default` element is a custom Polymer web component i
             console.log('fixed col clicked: ' + mouse.gridCell.y, mouse);
         },
 
+        setCursor: function(grid) {
+            grid.beCursor('default');
+            this.featureChain.setCursor(grid);
+        },
+
         onMouseMove: function(grid, event) {
             if (this.featureChain) {
                 this.featureChain.handleMouseMove(grid, event);
+                this.setCursor(grid);
             }
         },
         //this is called by OFGrid when a fixed cell is clicked
         onTap: function(grid, event) {
             if (this.featureChain) {
                 this.featureChain.handleTap(grid, event);
+                this.setCursor(grid);
             }
         },
 
         onWheelMoved: function(grid, event) {
             if (this.featureChain) {
                 this.featureChain.handleWheelMoved(grid, event);
+                this.setCursor(grid);
             }
         },
 
         onMouseUp: function(grid, event) {
             if (this.featureChain) {
                 this.featureChain.handleMouseUp(grid, event);
+                this.setCursor(grid);
             }
         },
 
         onMouseDrag: function(grid, event) {
             if (this.featureChain) {
                 this.featureChain.handleMouseDrag(grid, event);
+                this.setCursor(grid);
             }
         },
 
         onKeyDown: function(grid, event) {
             if (this.featureChain) {
                 this.featureChain.handleKeyDown(grid, event);
+                this.setCursor(grid);
             }
         },
 
         onDoubleClick: function(grid, event) {
             if (this.featureChain) {
                 this.featureChain.handleDoubleClick(grid, event);
+                this.setCursor(grid);
             }
         },
 
         onHoldPulse: function(grid, event) {
             if (this.featureChain) {
                 this.featureChain.handleHoldPulse(grid, event);
+                this.setCursor(grid);
             }
         },
 
         handleMouseDown: function(grid, event) {
             if (this.featureChain) {
                 this.featureChain.handleMouseDown(grid, event);
+                this.setCursor(grid);
             }
         },
 
