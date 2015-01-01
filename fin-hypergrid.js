@@ -1472,7 +1472,6 @@
             return this.getRenderer().getViewableCols();
         },
 
-
         /**
          *                                                                      .
          *                                                                      .
@@ -1557,7 +1556,7 @@
             var d = this.dragger;
             d.setAttribute('width', colWidth + 'px');
             d.setAttribute('height', this.clientHeight + 'px');
-            var startX = this.renderer.renderedColWidths[colIndex + 1];
+            var startX = this.renderer.renderedColWidths[colIndex + numFixedCols];
             this.draggerCTX.translate(-startX, 0);
             //dragColumnIndex is the flag to blank out the column
             this.dragColumnIndex = null;
@@ -1573,13 +1572,25 @@
 
         dragColumn: function(x) {
             var d = this.dragger;
+            d.style.webkitTransition = '';
+            d.style.transition = '';
             d.style.webkitTransform = 'translate(' + x + 'px, ' + 0 + 'px)';
             d.style.display = 'inline';
         },
-        hideDragColumn: function() {
-            this.dragColumnIndex = null;
+
+        endDragColumn: function() {
+            var self = this;
+            var numFixedCols = this.getFixedColCount();
+            var startX = this.renderer.renderedColWidths[this.dragColumnIndex + numFixedCols];
             var d = this.dragger;
-            d.style.display = 'none';
+            d.style.webkitTransition = '-webkit-transform 350ms ease';
+            d.style.transition = 'transform 350ms ease';
+            d.style.webkitTransform = 'translate(' + startX + 'px, ' + 0 + 'px)';
+            setTimeout(function() {
+                self.dragColumnIndex = null;
+                d.style.display = 'none';
+                self.repaint();
+            }, 400);
         },
         isDraggingColumn: function() {
             return this.dragColumnIndex !== null;

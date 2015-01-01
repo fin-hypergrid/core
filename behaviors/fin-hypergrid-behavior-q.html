@@ -51,6 +51,11 @@ The `fin-hypergrid-behavior-q` element is a custom Polymer web component used to
 
     Polymer({ /* jslint ignore:line */
         ready: function() {
+            this.block = {
+                data: [],
+                headers: [],
+                rows: 0
+            };
             this.readyInit();
             this.sorted = {};
             this.sortStates = ['', ' ^', ' v', ' |^|', ' |v|'];
@@ -59,11 +64,6 @@ The `fin-hypergrid-behavior-q` element is a custom Polymer web component used to
             this.connect();
             this.scrollPositionY = 0;
             this.scrolled = false;
-            this.block = {
-                data: [],
-                headers: [],
-                rows: 0
-            };
         },
 
         //this is a good example of overriding the default cellprovider

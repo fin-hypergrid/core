@@ -250,14 +250,17 @@ window.flashSort = function(a, property) {
         },
 
         getValue: function(x, y) {
+            var x = this.translateColumnIndex(x);
             return this.data[y][this.fields[x]];
         },
 
         setValue: function(x, y, value) {
+            var x = this.translateColumnIndex(x);
             this.data[y][this.fields[x]] = value;
         },
 
         getFixedRowValue: function(x, y) {
+            x = this.translateColumnIndex(x);
             var sortIndex = this.sorted[x] || 0;
             return this.headers[x] + this.sortStates[sortIndex];
         },
@@ -280,6 +283,7 @@ window.flashSort = function(a, property) {
         },
 
         toggleSort: function(colIndex) {
+            var colIndex = this.translateColumnIndex(colIndex);
             this.grid.clearSelections();
             if (colIndex >= this.fields.length) {
                 return;

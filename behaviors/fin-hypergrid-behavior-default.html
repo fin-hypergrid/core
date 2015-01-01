@@ -33,6 +33,9 @@ The `fin-hypergrid-behavior-default` element is a custom Polymer web component i
           this.readyInit();
         },
 
+        colIndexes: [],
+        fixedColIndexes: [],
+
         colWidths: [],
         fixedColWidths: [],
         grid: null,
@@ -46,8 +49,10 @@ The `fin-hypergrid-behavior-default` element is a custom Polymer web component i
             this.scrollPositionY = 0;
             this.renderedWidth = 30;
             this.renderedHeight = 60;
-            this.colWidths = [],
-            this.fixedColWidths = [],
+            this.colWidths = this.colWidths || [],
+            this.fixedColWidths = this.fixedColWidths || [],
+            this.colIndexes = this.colIndexes || [],
+            this.fixedColIndexes = this.fixedColIndexes || [],
             this.values = {}; //for overriding with edit values;
             this.setNextFeature(document.createElement('fin-hypergrid-feature-column-resizing'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-column-moving'));
@@ -55,6 +60,35 @@ The `fin-hypergrid-behavior-default` element is a custom Polymer web component i
             this.setNextFeature(document.createElement('fin-hypergrid-feature-thumbwheel-scrolling'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-cell-editing'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-column-sorting'));
+            this.initColIndexes();
+        },
+
+        initColIndexes: function() {
+            var colCount = this.getColCount();
+            var fixedColCount = this.getColCount();
+            var i;
+
+            for (i = 0;i < colCount;i++) {
+                this.colIndexes[i] = i;
+            }
+
+            for (i = 0;i < fixedColCount;i++) {
+                this.fixedColIndexes[i] = i;
+            }
+
+            this.colIndexes[0] = 8;
+            this.colIndexes[1] = 7;
+            this.colIndexes[2] = 6;
+            this.colIndexes[3] = 5;
+            this.colIndexes[4] = 4;
+            this.colIndexes[5] = 3;
+            this.colIndexes[6] = 2;
+            this.colIndexes[7] = 1;
+            this.colIndexes[8] = 0;
+        },
+
+        translateColumnIndex: function(x) {
+            return this.colIndexes[x];
         },
 
         setNextFeature: function(nextFeature) {
@@ -91,6 +125,7 @@ The `fin-hypergrid-behavior-default` element is a custom Polymer web component i
         //provide the data at the x,y coordinate in the grid
         //<br>this function should be overridden by you
         getValue: function(x, y) {
+            x = this.translateColumnIndex(x);
             var override = this.values['p_' + x + '_' + y];
             if (override) {
                 return override;
@@ -101,6 +136,7 @@ The `fin-hypergrid-behavior-default` element is a custom Polymer web component i
         //set the data at the x, y
         //<br>this function should be overridden by you
         setValue: function(x, y, value) {
+            x = this.translateColumnIndex(x);
             this.values['p_' + x + '_' + y] = value;
         },
 
@@ -108,6 +144,7 @@ The `fin-hypergrid-behavior-default` element is a custom Polymer web component i
         //<br>they can be arbitary width by height in size
         //<br>here we just return an excel-ish base-26 alpha value
         getFixedRowValue: function(x /*, y*/ ) {
+            x = this.translateColumnIndex(x);
             return this.alphaFor(x);
         },
 
@@ -115,7 +152,7 @@ The `fin-hypergrid-behavior-default` element is a custom Polymer web component i
         //<br>they can be arbitary width by height in size
         //<br>here we just return an excel-ish base-26 alpha value
         getFixedColValue: function(x, y) {
-            //return this.alphaFor(y);
+            //x = this.fixedtranslateColumnIndex(x);
             return y + 1;
         },
 
@@ -209,6 +246,7 @@ The `fin-hypergrid-behavior-default` element is a custom Polymer web component i
         //<br>this implementation is driven by modulo
         //<br>TODO: move this example into InMemoryGridBehavior
         getColWidth: function(colNumber) {
+            colNumber = this.colIndexes[colNumber];
             var override = this.colWidths[colNumber];
             if (override) {
                 return override;
@@ -217,6 +255,7 @@ The `fin-hypergrid-behavior-default` element is a custom Polymer web component i
         },
 
         setColumnWidth: function(colNumber, width) {
+            colNumber = this.colIndexes[colNumber];
             this.colWidths[colNumber] = Math.max(5, width);
             this.changed();
         },
@@ -340,6 +379,7 @@ The `fin-hypergrid-behavior-default` element is a custom Polymer web component i
         },
 
         getCellEditorAt: function(x, y) {
+            x = this.translateColumnIndex(x);
             var cellEditor = this.grid.cellEditors['textfield'];
             return cellEditor;
         },

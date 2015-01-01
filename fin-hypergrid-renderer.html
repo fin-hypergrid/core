@@ -346,7 +346,9 @@ The `fin-hypergrid-renderer` element is a custom Polymer web component used to s
                     var height = this.getFixedRowHeight(r);
                     var value = behavior.getFixedRowValue(c + scrollLeft, r);
 
-                    var cell = cellProvider.getFixedRowCell(cellConfig(c + scrollLeft, r, value, fgColor, bgColor, fgSelColor, bgSelColor, font, isSelected, halign));
+                    //translatedX allows us to reorder columns
+                    var translatedX = behavior.translateColumnIndex(c + scrollLeft);
+                    var cell = cellProvider.getFixedRowCell(cellConfig(translatedX, r, value, fgColor, bgColor, fgSelColor, bgSelColor, font, isSelected, halign));
                     cell.paint(ctx, x, y, width, height);
                     y = y + height;
                 }
@@ -442,7 +444,11 @@ The `fin-hypergrid-renderer` element is a custom Polymer web component used to s
                     // if (!value && value !== 0) { // edge condition if were scrolled all the way to the end
                     //     break;
                     // }
-                    var cell = cellProvider.getCell(cellConfig(c + scrollLeft, r + scrollTop, value, fgColor, bgColor, fgSelColor, bgSelColor, font, isSelected, colAlign));
+
+                    //translatedX allows us to reorder columns
+                    var translatedX = behavior.translateColumnIndex(c + scrollLeft);
+
+                    var cell = cellProvider.getCell(cellConfig(translatedX, r + scrollTop, value, fgColor, bgColor, fgSelColor, bgSelColor, font, isSelected, colAlign));
 
                     cell.paint(ctx, x, y, width, height);
 

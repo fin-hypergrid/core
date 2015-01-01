@@ -61,7 +61,7 @@ The `fin-hypergrid-feature-column-moving` element is a custom Polymer web compon
                 this.cursor = null;
                 //delay here to give other events a chance to be dropped
                 var self = this;
-                grid.hideDragColumn();
+                grid.endDragColumn();
                 setTimeout(function(){
                     self.attachChain();
                 }, 200);
