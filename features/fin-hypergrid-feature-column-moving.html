@@ -21,19 +21,28 @@ The `fin-hypergrid-feature-column-moving` element is a custom Polymer web compon
         dragArmed: false,
         dragging: false,
         dragCol: -1,
+        dragOffset: 0,
 
         handleMouseDrag: function(grid, event) {
+
             var gridCell = event.gridCell;
+
+            var x, y;
+
             if (this.isFixedRow(grid,event) && this.dragArmed && !this.dragging) {
                 this.dragging = true;
                 this.dragCol = gridCell.x - grid.getFixedColCount();
+                this.dragOffset = event.mousePoint.x;
                 this.detachChain();
+                x = event.primitiveEvent.detail.mouse.x - this.dragOffset;
+                y = event.primitiveEvent.detail.mouse.y;
+                grid.createDragColumn(x, this.dragCol);
             } else if (this.next) {
                 this.next.handleMouseDrag(grid, event);
             }
             if (this.dragging) {
-                var x = event.primitiveEvent.detail.mouse.x;
-                var y = event.primitiveEvent.detail.mouse.y;
+                x = event.primitiveEvent.detail.mouse.x - this.dragOffset;
+                y = event.primitiveEvent.detail.mouse.y;
                 grid.dragColumn(x, this.dragCol);
             }
         },
@@ -60,6 +69,7 @@ The `fin-hypergrid-feature-column-moving` element is a custom Polymer web compon
             this.dragCol = -1;
             this.dragging = false;
             this.dragArmed = false;
+            grid.repaint();
             if (this.next) {
                 this.next.handleMouseUp(grid, event);
             }
@@ -73,7 +83,7 @@ The `fin-hypergrid-feature-column-moving` element is a custom Polymer web compon
                 this.next.handleMouseMove(grid, event);
             }
             if (this.isFixedRow(grid, event) && this.dragging) {
-                this.cursor = 'move';
+                this.cursor = 'none';//move';
             }
 
         }

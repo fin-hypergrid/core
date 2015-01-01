@@ -181,6 +181,14 @@
          */
         cellEditors: null,
 
+        /**
+         * dragColumn is index of the currently dragged column
+         *
+         * @property dragColumn
+         * @type integer
+         */
+        dragColumnIndex: null,
+
         domReady: function() {
             var self = this;
 
@@ -213,8 +221,12 @@
             this.initCanvas();
             this.initRenderer();
             this.initScrollbars();
+
             this.dragger = this.shadowRoot.querySelector('#dragger');
             this.draggerCTX = this.dragger.getContext('2d');
+
+            this.floatColumn = this.shadowRoot.querySelector('#floatColumn');
+            this.floatColumnCTX = this.floatColumn.getContext('2d');
             //this.draggerCTX.setTransform(1, 0, 0, 1, 0, 0);
             //Register a listener for the copy event so we can copy our selected region to the pastebuffer if conditions are right.
             document.body.addEventListener('copy', function(evt) {
@@ -1534,28 +1546,43 @@
             var editor = this.getCellEditorAt(mX, mY);
             this.editAt(editor, event);
         },
+
         getCellEditorAt: function(x, y) {
             return this.getBehavior().getCellEditorAt(x, y);
         },
 
-        dragColumn: function(x, colIndex) {
-            var colWidth = this.getColumnWidth(colIndex + this.getHScrollValue());
-            console.log('drag col ' + colIndex);
-            noop(colIndex);
+        createDragColumn: function(x, colIndex) {
+            var numFixedCols = this.getFixedColCount();
+            var colWidth = colIndex < 0 ? this.getFixedColumnWidth(numFixedCols + colIndex) : this.getColumnWidth(colIndex + this.getHScrollValue());
             var d = this.dragger;
             d.setAttribute('width', colWidth + 'px');
             d.setAttribute('height', this.clientHeight + 'px');
             var startX = this.renderer.renderedColWidths[colIndex + 1];
             this.draggerCTX.translate(-startX, 0);
+            //dragColumnIndex is the flag to blank out the column
+            this.dragColumnIndex = null;
             this.renderer.renderGrid(this.draggerCTX);
+            this.dragColumnIndex = colIndex;
+
             this.draggerCTX.translate(startX, 0);
-            d.style.webkitTransform = 'translate(' + (x - (colWidth / 2)) + 'px, ' + 10 + 'px)';
+            d.style.webkitTransform = 'translate(' + x + 'px, ' + 0 + 'px)';
             d.style.zIndex = '100';
+            d.style.cursor = 'none';
+            this.repaint();
+        },
+
+        dragColumn: function(x) {
+            var d = this.dragger;
+            d.style.webkitTransform = 'translate(' + x + 'px, ' + 0 + 'px)';
             d.style.display = 'inline';
         },
         hideDragColumn: function() {
+            this.dragColumnIndex = null;
             var d = this.dragger;
             d.style.display = 'none';
+        },
+        isDraggingColumn: function() {
+            return this.dragColumnIndex !== null;
         }
     });
 
