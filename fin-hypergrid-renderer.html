@@ -117,7 +117,27 @@ The `fin-hypergrid-renderer` element is a custom Polymer web component used to s
 
             return bounds;
         },
+        //Answer specific data cell coordinates given mouse coordinates in pixels.
+        getColumnFromPixelX: function(pixelX) {
 
+            var width = 0;
+            var x;
+            var c;
+            var previous = 0;
+            for (c = 1; c < this.renderedColWidths.length; c++) {
+                width = this.renderedColWidths[c];
+                if (pixelX < width) {
+                    x = Math.max(0, pixelX - previous - 2);
+                    break;
+                }
+                previous = width;
+            }
+            c--;
+            if (pixelX < 0) {
+                c = -1;
+            }
+            return c;
+        },
         //Answer specific data cell coordinates given mouse coordinates in pixels.
         getGridCellFromMousePoint: function(point) {
 

@@ -188,6 +188,7 @@
          * @type integer
          */
         dragColumnIndex: null,
+        dragColumnPositionIndex: null,
 
         /**
          * floatColumnIndex is index of the currently dragged column
@@ -1600,12 +1601,14 @@
             d.style.webkitTransition = '';
             d.style.transition = '';
             d.style.webkitTransform = '';
-            d.style.webkitTransition = '-webkit-transform 500ms ease';
-            d.style.transition = 'transform 500ms ease';
+            d.style.webkitTransition = '-webkit-transform 250ms ease';
+            d.style.transition = 'transform 250ms ease';
             d.style.webkitTransform = 'translate(' + startX + 'px, ' + 0 + 'px)';
 
         },
 
+        //do the animation and swap the columns
+        //we need a better name
         floatColumnTo: function(colIndex) {
 
             var srcIndex = this.floatColumnIndex;
@@ -1627,25 +1630,33 @@
 
             //need to change this to key frames
             var self = this;
+
+            var dragI = self.dragColumnIndex;
+            var floatI = self.floatColumnIndex;
+            self.getBehavior().swapColumns(dragI, floatI);
+
             setTimeout(function() {
                 d.style.display = 'none';
                 self.floatColumnIndex = null;
+                self.dragColumnIndex = floatI;
                 self.repaint();
-            }, 550);
+            }, 300);
             //this.repaint();
 
         },
 
         dragColumn: function(x) {
             var d = this.dragger;
-            var numFixedCols = this.getFixedColCount();
+            //var numFixedCols = this.getFixedColCount();
             d.style.webkitTransition = '';
             d.style.transition = '';
             d.style.webkitTransform = 'translate(' + x + 'px, ' + 0 + 'px)';
             d.style.display = 'inline';
-            var overEdge = this.renderer.overColumnDivider(x + (d.width / 2));
-            if (overEdge !== -1) {
-                this.createFloatColumn(overEdge - numFixedCols);
+            var overCol = this.renderer.getColumnFromPixelX(x + (d.width / 2));
+            if (overCol !== this.dragColumnPositionIndex) {
+                console.log(this.dragColumnIndex + ' hovering over ' + overCol);
+                this.dragColumnPositionIndex = overCol;
+                this.createFloatColumn(overCol);
                 this.floatColumnTo(this.dragColumnIndex);
             }
             //console.log('Im ' + this.dragColumnIndex + ' over ' + overEdge);

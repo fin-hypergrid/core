@@ -76,15 +76,21 @@ The `fin-hypergrid-behavior-default` element is a custom Polymer web component i
                 this.fixedColIndexes[i] = i;
             }
 
-            this.colIndexes[0] = 8;
-            this.colIndexes[1] = 7;
-            this.colIndexes[2] = 6;
-            this.colIndexes[3] = 5;
-            this.colIndexes[4] = 4;
-            this.colIndexes[5] = 3;
-            this.colIndexes[6] = 2;
-            this.colIndexes[7] = 1;
-            this.colIndexes[8] = 0;
+            // this.colIndexes[0] = 8;
+            // this.colIndexes[1] = 7;
+            // this.colIndexes[2] = 6;
+            // this.colIndexes[3] = 5;
+            // this.colIndexes[4] = 4;
+            // this.colIndexes[5] = 3;
+            // this.colIndexes[6] = 2;
+            // this.colIndexes[7] = 1;
+            // this.colIndexes[8] = 0;
+        },
+
+        swapColumns: function(src, tar) {
+            var tmp = this.colIndexes[src];
+            this.colIndexes[src] = this.colIndexes[tar];
+            this.colIndexes[tar] = tmp;
         },
 
         translateColumnIndex: function(x) {
