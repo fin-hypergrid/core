@@ -184,11 +184,25 @@ The `fin-hypergrid-renderer` element is a custom Polymer web component used to s
             this.paintCells(gc, offsetX, offsetY);
             this.paintGridlines(gc, offsetX, offsetY);
 
+
+            this.blankOutHiddenCols(gc);
+        },
+
+        blankOutHiddenCols: function(gc) {
             //lets blank out the drag row
             var grid = this.getGrid();
-            var skipCol = grid.dragColumnIndex;
+            var dragCol = grid.dragColumnIndex;
+            if (dragCol || dragCol === 0) {
+                this.blankOutCol(gc, dragCol);
+            }
+            var floatCol = grid.floatColumnIndex;
+            if (floatCol || floatCol === 0) {
+                this.blankOutCol(gc, floatCol);
+            }
+        },
 
-            if (skipCol || skipCol === 0) {
+        blankOutCol: function(gc, skipCol) {
+            //lets blank out the drag row
                 var behavior = this.getBehavior();
                 var numFixedCols = behavior.getFixedColCount();
                 var scrollLeft = this.getScrollLeft();
@@ -198,7 +212,6 @@ The `fin-hypergrid-renderer` element is a custom Polymer web component used to s
                 var width = this.renderedColWidths[skipCol + numFixedCols + 1] - startX;
                 gc.strokeStyle = constants.backgroundColor;
                 gc.fillRect(startX, 0, width, viewHeight);
-            }
         },
 
         //We opted to not paint borders for each cell as that was extremely expensive.  Instead we draw gridlines here.  Also we record the widths and heights for later.

@@ -189,6 +189,14 @@
          */
         dragColumnIndex: null,
 
+        /**
+         * floatColumnIndex is index of the currently dragged column
+         *
+         * @property floatColumnIndex
+         * @type integer
+         */
+        floatColumnIndex: null,
+
         domReady: function() {
             var self = this;
 
@@ -1562,20 +1570,85 @@
             this.dragColumnIndex = null;
             this.renderer.renderGrid(this.draggerCTX);
             this.dragColumnIndex = colIndex;
-
             this.draggerCTX.translate(startX, 0);
+
             d.style.webkitTransform = 'translate(' + x + 'px, ' + 0 + 'px)';
             d.style.zIndex = '100';
             d.style.cursor = 'none';
             this.repaint();
+
+        },
+
+        createFloatColumn: function(colIndex) {
+            //        var x = 0;
+            var numFixedCols = this.getFixedColCount();
+            var colWidth = colIndex < 0 ? this.getFixedColumnWidth(numFixedCols + colIndex) : this.getColumnWidth(colIndex + this.getHScrollValue());
+            var d = this.floatColumn;
+            d.setAttribute('width', colWidth + 'px');
+            d.setAttribute('height', this.clientHeight + 'px');
+            var startX = this.renderer.renderedColWidths[colIndex + numFixedCols];
+            this.floatColumnCTX.translate(-startX, 0);
+
+            //floatColumnIndex is the flag to blank out the column
+            this.floatColumnIndex = null;
+            this.renderer.renderGrid(this.floatColumnCTX);
+            this.floatColumnIndex = colIndex;
+
+            this.floatColumnCTX.translate(startX, 0);
+            d.style.zIndex = '99';
+            d.style.cursor = 'none';
+            d.style.webkitTransition = '';
+            d.style.transition = '';
+            d.style.webkitTransform = '';
+            d.style.webkitTransition = '-webkit-transform 500ms ease';
+            d.style.transition = 'transform 500ms ease';
+            d.style.webkitTransform = 'translate(' + startX + 'px, ' + 0 + 'px)';
+
+        },
+
+        floatColumnTo: function(colIndex) {
+
+            var srcIndex = this.floatColumnIndex;
+            var d = this.floatColumn;
+            var numFixedCols = this.getFixedColCount();
+            var srcWidth = colIndex < 0 ? this.getFixedColumnWidth(numFixedCols + srcIndex) : this.getColumnWidth(srcIndex + this.getHScrollValue());
+            var dirOffsetIndex = 0;
+            var dirOffset = 0;
+            if (srcIndex < colIndex) {
+                dirOffsetIndex++;
+                dirOffset = srcWidth;
+            }
+            var startX = this.renderer.renderedColWidths[colIndex + numFixedCols + dirOffsetIndex];
+            startX = startX - dirOffset;
+            d.style.display = 'inline';
+            setTimeout(function() {
+                d.style.webkitTransform = 'translate(' + startX + 'px, ' + 0 + 'px)';
+            });
+
+            //need to change this to key frames
+            var self = this;
+            setTimeout(function() {
+                d.style.display = 'none';
+                self.floatColumnIndex = null;
+                self.repaint();
+            }, 550);
+            //this.repaint();
+
         },
 
         dragColumn: function(x) {
             var d = this.dragger;
+            var numFixedCols = this.getFixedColCount();
             d.style.webkitTransition = '';
             d.style.transition = '';
             d.style.webkitTransform = 'translate(' + x + 'px, ' + 0 + 'px)';
             d.style.display = 'inline';
+            var overEdge = this.renderer.overColumnDivider(x + (d.width / 2));
+            if (overEdge !== -1) {
+                this.createFloatColumn(overEdge - numFixedCols);
+                this.floatColumnTo(this.dragColumnIndex);
+            }
+            //console.log('Im ' + this.dragColumnIndex + ' over ' + overEdge);
         },
 
         endDragColumn: function() {
@@ -1586,11 +1659,14 @@
             d.style.webkitTransition = '-webkit-transform 350ms ease';
             d.style.transition = 'transform 350ms ease';
             d.style.webkitTransform = 'translate(' + startX + 'px, ' + 0 + 'px)';
+
+            //need to change this to key frames
             setTimeout(function() {
                 self.dragColumnIndex = null;
                 d.style.display = 'none';
                 self.repaint();
             }, 400);
+
         },
         isDraggingColumn: function() {
             return this.dragColumnIndex !== null;
