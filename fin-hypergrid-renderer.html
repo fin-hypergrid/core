@@ -57,6 +57,7 @@ The `fin-hypergrid-renderer` element is a custom Polymer web component used to s
           this.renderedRowHeights = [0];
           this.renderedCols = [];
           this.renderedRows = [];
+          this.insertionBounds = []; // this is the midpoint of each column, used for column drag and drop
           this.setBackgroundColor(constants.gridBackgroundColor);
         },
 
@@ -117,26 +118,18 @@ The `fin-hypergrid-renderer` element is a custom Polymer web component used to s
 
             return bounds;
         },
-        //Answer specific data cell coordinates given mouse coordinates in pixels.
-        getColumnFromPixelX: function(pixelX) {
 
+        getColumnFromPixelX: function(pixelX) {
+            pixelX = pixelX - this.getBehavior().getFixedColsWidth();
             var width = 0;
-            var x;
             var c;
-            var previous = 0;
-            for (c = 1; c < this.renderedColWidths.length; c++) {
-                width = this.renderedColWidths[c];
+            for (c = 0; c < this.insertionBounds.length; c++) {
+                width = this.insertionBounds[c];
                 if (pixelX < width) {
-                    x = Math.max(0, pixelX - previous - 2);
-                    break;
+                    return c;
                 }
-                previous = width;
             }
-            c--;
-            if (pixelX < 0) {
-                c = -1;
-            }
-            return c;
+            return -1;
         },
         //Answer specific data cell coordinates given mouse coordinates in pixels.
         getGridCellFromMousePoint: function(point) {
@@ -205,33 +198,40 @@ The `fin-hypergrid-renderer` element is a custom Polymer web component used to s
             this.paintGridlines(gc, offsetX, offsetY);
 
 
-            this.blankOutHiddenCols(gc);
+            this.renderOverrides(gc);
         },
 
-        blankOutHiddenCols: function(gc) {
+        renderOverrides: function(gc) {
             //lets blank out the drag row
             var grid = this.getGrid();
-            var dragCol = grid.dragColumnIndex;
-            if (dragCol || dragCol === 0) {
-                this.blankOutCol(gc, dragCol);
+
+            var dragger = grid.columnRenderOverridesCache.dragger;
+            if (dragger) {
+                this.renderOverride(gc, dragger);
             }
-            var floatCol = grid.floatColumnIndex;
-            if (floatCol || floatCol === 0) {
-                this.blankOutCol(gc, floatCol);
+            var floater = grid.columnRenderOverridesCache.floater;
+            if (floater) {
+               this.renderOverride(gc, floater);
             }
         },
 
-        blankOutCol: function(gc, skipCol) {
+            // this.columnRenderOverridesCache.dragger = {
+            //     ctx: this.draggerCTX,
+            //     startX: startX,
+            //     width: colWidth
+            // };
+
+        renderOverride: function(gc, override) {
             //lets blank out the drag row
-                var behavior = this.getBehavior();
-                var numFixedCols = behavior.getFixedColCount();
-                var scrollLeft = this.getScrollLeft();
-                var viewHeight = this.getBounds().height() + 10;
-                var fixedColsWidth = behavior.getFixedColsWidth();
-                var startX = this.renderedColWidths[skipCol + numFixedCols];
-                var width = this.renderedColWidths[skipCol + numFixedCols + 1] - startX;
+                var startX = override.startX;
+                var width = override.width;
+                var height = override.height;
+                var targetCTX = override.ctx;
+                var imgData = gc.getImageData(startX,0,width,height);
+                targetCTX.putImageData(imgData, 0,0);
                 gc.strokeStyle = constants.backgroundColor;
-                gc.fillRect(startX, 0, width, viewHeight);
+                gc.fillRect(startX, 0, width, height);
+
         },
 
         //We opted to not paint borders for each cell as that was extremely expensive.  Instead we draw gridlines here.  Also we record the widths and heights for later.
@@ -251,12 +251,13 @@ The `fin-hypergrid-renderer` element is a custom Polymer web component used to s
             this.renderedRowHeights = [0];
             this.renderedCols = [];
             this.renderedRows = [];
+            this.insertionBounds = [];
+            var insertionBoundsCursor = 0;
 
             var scrollTop = this.getScrollTop();
             var scrollLeft = this.getScrollLeft();
             var viewWidth = this.getBounds().width();
             var viewHeight = this.getBounds().height();
-
 
             gc.strokeStyle = lineColor;
             gc.lineWidth = 1;
@@ -292,6 +293,7 @@ The `fin-hypergrid-renderer` element is a custom Polymer web component used to s
             gc.beginPath();
             gc.moveTo(0, 0);
             x = offsetX;
+            var previousInsertionBoundsCursorValue = 0;
             for (c = 0; c < numCols; c++) {
                 width = this.getColWidth(c + scrollLeft);
 
@@ -306,6 +308,9 @@ The `fin-hypergrid-renderer` element is a custom Polymer web component used to s
                 gc.stroke();
                 x = x + width;
                 this.renderedColWidths.push(x);
+                insertionBoundsCursor = insertionBoundsCursor + Math.round(width/2) + previousInsertionBoundsCursorValue;
+                this.insertionBounds.push(insertionBoundsCursor);
+                previousInsertionBoundsCursorValue = Math.round(width/2);
             }
 
             //main area horizontal grid lines

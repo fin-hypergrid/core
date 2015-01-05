@@ -33,11 +33,12 @@ The `fin-hypergrid-behavior-default` element is a custom Polymer web component i
           this.readyInit();
         },
 
-        colIndexes: [],
-        fixedColIndexes: [],
+        colIndexes: null,
+        fixedColIndexes: null,
 
-        colWidths: [],
-        fixedColWidths: [],
+        colWidths: null,
+        fixedColWidths: null,
+
         grid: null,
         editorTypes: ['choice','textfield','color','slider','spinner','date'],
         featureChain: null,
@@ -65,7 +66,7 @@ The `fin-hypergrid-behavior-default` element is a custom Polymer web component i
 
         initColIndexes: function() {
             var colCount = this.getColCount();
-            var fixedColCount = this.getColCount();
+            var fixedColCount = this.getFixedColCount();
             var i;
 
             for (i = 0;i < colCount;i++) {

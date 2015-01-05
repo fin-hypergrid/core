@@ -238,6 +238,7 @@ window.flashSort = function(a, property) {
         setData: function(jsonData) {
             this.data = jsonData;
             this.initDataIndexes();
+            this.initColIndexes();
             this.changed();
         },
 

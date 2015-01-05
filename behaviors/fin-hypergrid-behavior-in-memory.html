@@ -41,12 +41,12 @@ The `fin-hypergrid-behavior-in-memory` element is a custom Polymer web component
 
             this.colWidths = [50, 150, 80, 90, 80, 150, 100, 80, 80, 100],
             this.fixedColWidths = [120],
+            this.rows = 5000;
+            this.cols = 100;
 
             //milliseconds pause inbetween sweeps of random updates
             this.readyInit();
             this.permuteInterval = 50;
-            this.rows = 5000;
-            this.cols = 100;
             this.values = new Array(this.rows * this.cols);
             this.order = [];
             this.sorts = [];

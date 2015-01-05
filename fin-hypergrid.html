@@ -122,7 +122,7 @@ The Hypergrid design makes no assumptions about the data you wish to view which 
 (function() {
 
     var noop = function() {};
-
+    var colAnimationTime = 100;
     Polymer({ /* jslint ignore:line */
 
         /**
@@ -304,16 +304,10 @@ The Hypergrid design makes no assumptions about the data you wish to view which 
          * @property dragColumn
          * @type integer
          */
-        dragColumnIndex: null,
-        dragColumnPositionIndex: null,
 
-        /**
-         * floatColumnIndex is index of the currently dragged column
-         *
-         * @property floatColumnIndex
-         * @type integer
-         */
-        floatColumnIndex: null,
+        columnRenderOverridesCache: {},
+
+        floaterAnimationQueue: [],
 
         domReady: function() {
             var self = this;
@@ -323,6 +317,8 @@ The Hypergrid design makes no assumptions about the data you wish to view which 
             this.selectionModel = document.createElement('fin-hypergrid-selection-model');
 
             this.cellEditors = {};
+
+            this.columnRenderOverridesCache = {};
 
             //prevent the default context menu for appearing
             this.oncontextmenu = function(event) {
@@ -1676,27 +1672,6 @@ The Hypergrid design makes no assumptions about the data you wish to view which 
             return this.getBehavior().getCellEditorAt(x, y);
         },
 
-        createDragColumn: function(x, colIndex) {
-            var numFixedCols = this.getFixedColCount();
-            var colWidth = colIndex < 0 ? this.getFixedColumnWidth(numFixedCols + colIndex) : this.getColumnWidth(colIndex + this.getHScrollValue());
-            var d = this.dragger;
-            d.setAttribute('width', colWidth + 'px');
-            d.setAttribute('height', this.clientHeight + 'px');
-            var startX = this.renderer.renderedColWidths[colIndex + numFixedCols];
-            this.draggerCTX.translate(-startX, 0);
-            //dragColumnIndex is the flag to blank out the column
-            this.dragColumnIndex = null;
-            this.renderer.renderGrid(this.draggerCTX);
-            this.dragColumnIndex = colIndex;
-            this.draggerCTX.translate(startX, 0);
-
-            d.style.webkitTransform = 'translate(' + x + 'px, ' + 0 + 'px)';
-            d.style.zIndex = '100';
-            d.style.cursor = 'none';
-            this.repaint();
-
-        },
-
         createFloatColumn: function(colIndex) {
             //        var x = 0;
             var numFixedCols = this.getFixedColCount();
@@ -1705,99 +1680,162 @@ The Hypergrid design makes no assumptions about the data you wish to view which 
             d.setAttribute('width', colWidth + 'px');
             d.setAttribute('height', this.clientHeight + 'px');
             var startX = this.renderer.renderedColWidths[colIndex + numFixedCols];
-            this.floatColumnCTX.translate(-startX, 0);
 
-            //floatColumnIndex is the flag to blank out the column
-            this.floatColumnIndex = null;
-            this.renderer.renderGrid(this.floatColumnCTX);
-            this.floatColumnIndex = colIndex;
+            this.columnRenderOverridesCache.floater = {
+                colIndex: colIndex,
+                ctx: this.floatColumnCTX,
+                startX: startX,
+                width: colWidth,
+                height: this.clientHeight
+            };
 
-            this.floatColumnCTX.translate(startX, 0);
             d.style.zIndex = '99';
-            d.style.cursor = 'none';
-            d.style.webkitTransition = '';
-            d.style.transition = '';
-            d.style.webkitTransform = '';
-            d.style.webkitTransition = '-webkit-transform 250ms ease';
-            d.style.transition = 'transform 250ms ease';
             d.style.webkitTransform = 'translate(' + startX + 'px, ' + 0 + 'px)';
-
+            d.style.cursor = 'none';
+            this.repaint();
         },
 
         //do the animation and swap the columns
         //we need a better name
-        floatColumnTo: function(colIndex) {
+        floatColumnTo: function(columnDragDirection, colIndex) {
+            noop(colIndex);
 
-            var srcIndex = this.floatColumnIndex;
-            var d = this.floatColumn;
+
+            var floaterIndex = this.columnRenderOverridesCache.floater.colIndex;
+            var draggerIndex = this.columnRenderOverridesCache.dragger.colIndex;
             var numFixedCols = this.getFixedColCount();
-            var srcWidth = colIndex < 0 ? this.getFixedColumnWidth(numFixedCols + srcIndex) : this.getColumnWidth(srcIndex + this.getHScrollValue());
-            var dirOffsetIndex = 0;
-            var dirOffset = 0;
-            if (srcIndex < colIndex) {
-                dirOffsetIndex++;
-                dirOffset = srcWidth;
+            var draggerStartX;
+            var floaterStartX;
+            if (columnDragDirection) {
+                var dw = this.getColumnWidth(draggerIndex);
+                var fw = this.getColumnWidth(floaterIndex);
+                var fsx = this.renderer.renderedColWidths[floaterIndex + numFixedCols];
+                var drsx = this.renderer.renderedColWidths[draggerIndex + numFixedCols];
+                noop(dw, fw, fsx, drsx);
+                draggerStartX = this.renderer.renderedColWidths[draggerIndex + numFixedCols];
+                floaterStartX = draggerStartX + this.getColumnWidth(floaterIndex);
+
+                this.columnRenderOverridesCache.dragger.startX = floaterStartX;
+                this.columnRenderOverridesCache.floater.startX = draggerStartX;
+
+                floaterStartX = draggerStartX + this.getColumnWidth(draggerIndex);
+
+            } else {
+                floaterStartX = this.renderer.renderedColWidths[floaterIndex + numFixedCols];
+                draggerStartX = floaterStartX + this.getColumnWidth(draggerIndex);
+
+                this.columnRenderOverridesCache.dragger.startX = floaterStartX;
+                this.columnRenderOverridesCache.floater.startX = draggerStartX;
             }
-            var startX = this.renderer.renderedColWidths[colIndex + numFixedCols + dirOffsetIndex];
-            startX = startX - dirOffset;
-            d.style.display = 'inline';
-            setTimeout(function() {
-                d.style.webkitTransform = 'translate(' + startX + 'px, ' + 0 + 'px)';
-            });
+            this.getBehavior().swapColumns(draggerIndex, floaterIndex);
+            this.columnRenderOverridesCache.dragger.colIndex = floaterIndex;
+            this.columnRenderOverridesCache.floater.colIndex = draggerIndex;
 
-            //need to change this to key frames
-            var self = this;
 
-            var dragI = self.dragColumnIndex;
-            var floatI = self.floatColumnIndex;
-            self.getBehavior().swapColumns(dragI, floatI);
+            this.floaterAnimationQueue.unshift(this.doColumnMoveAnimation(floaterStartX, draggerStartX));
 
-            setTimeout(function() {
-                d.style.display = 'none';
-                self.floatColumnIndex = null;
-                self.dragColumnIndex = floatI;
-                self.repaint();
-            }, 300);
-            //this.repaint();
+            if (this.floaterAnimationQueue.length === 1) {
+                this.doFloaterAnimation();
+            }
 
         },
+        doColumnMoveAnimation: function(floaterStartX, draggerStartX) {
+            var self = this;
+            return function() {
+                var d = self.floatColumn;
+                d.style.display = 'inline';
+                d.style.webkitTransform = 'translate(' + floaterStartX + 'px, ' + 0 + 'px)';
+                //d.style.webkitTransform = 'translate(' + floaterStartX + 'px, ' + 0 + 'px)';
+                window.requestAnimationFrame(function() {
+                    d.style.webkitTransition = '-webkit-transform ' + colAnimationTime + 'ms ease';
+                    d.style.transition = 'transform ' + colAnimationTime + 'ms ease';
+                    d.style.webkitTransform = 'translate(' + draggerStartX + 'px, ' + 0 + 'px)';
+                });
+                self.repaint();
+                //need to change this to key frames
 
-        dragColumn: function(x) {
+                setTimeout(function() {
+                    d.style.display = 'none';
+                    d.style.webkitTransition = '';
+                    d.style.transition = '';
+                    self.columnRenderOverridesCache.floater = null;
+                    self.repaint();
+                    self.doFloaterAnimation();
+                }, colAnimationTime + 50);
+            };
+        },
+
+        doFloaterAnimation: function() {
+            if (this.floaterAnimationQueue.length === 0) {
+                return;
+            }
+            var animation = this.floaterAnimationQueue.pop();
+            animation();
+        },
+
+        createDragColumn: function(x, colIndex) {
+            var numFixedCols = this.getFixedColCount();
+            var colWidth = colIndex < 0 ? this.getFixedColumnWidth(numFixedCols + colIndex) : this.getColumnWidth(colIndex + this.getHScrollValue());
             var d = this.dragger;
-            //var numFixedCols = this.getFixedColCount();
+            d.setAttribute('width', colWidth + 'px');
+            d.setAttribute('height', this.clientHeight + 'px');
+
+            var startX = this.renderer.renderedColWidths[colIndex + numFixedCols];
+            //this.draggerCTX.translate(-startX, 0);
+            this.columnRenderOverridesCache.dragger = {
+                colIndex: colIndex,
+                ctx: this.draggerCTX,
+                startX: startX,
+                width: colWidth,
+                height: this.clientHeight
+            };
+            //this.renderer.renderGrid(this.draggerCTX);
+            //this.draggerCTX.translate(startX, 0);
+
+            d.style.webkitTransform = 'translate(' + x + 'px, ' + 0 + 'px)';
+            d.style.zIndex = '100';
+            d.style.cursor = 'none';
+            this.repaint();
+
+        },
+        dragColumn: function(x) {
+            var dragColumnIndex = this.columnRenderOverridesCache.dragger.colIndex;
+            var d = this.dragger;
+            //   var numFixedCols = this.getFixedColCount();
             d.style.webkitTransition = '';
             d.style.transition = '';
             d.style.webkitTransform = 'translate(' + x + 'px, ' + 0 + 'px)';
             d.style.display = 'inline';
             var overCol = this.renderer.getColumnFromPixelX(x + (d.width / 2));
-            if (overCol !== this.dragColumnPositionIndex) {
-                console.log(this.dragColumnIndex + ' hovering over ' + overCol);
-                this.dragColumnPositionIndex = overCol;
-                this.createFloatColumn(overCol);
-                this.floatColumnTo(this.dragColumnIndex);
+
+            //console.log(x + ' Im ' + dragColumnIndex + ' over ' + overCol);
+
+            var colDif = overCol - dragColumnIndex;
+            var columnDragDirection = colDif > 1;
+            var threshold = columnDragDirection ? 1 : 0;
+            if (colDif > 1 || colDif < 0) {
+                this.createFloatColumn(overCol - threshold);
+                this.floatColumnTo(columnDragDirection, dragColumnIndex);
             }
-            //console.log('Im ' + this.dragColumnIndex + ' over ' + overEdge);
         },
 
         endDragColumn: function() {
             var self = this;
             var numFixedCols = this.getFixedColCount();
-            var startX = this.renderer.renderedColWidths[this.dragColumnIndex + numFixedCols];
+            var colIndex = this.columnRenderOverridesCache.dragger.colIndex;
+            var startX = this.renderer.renderedColWidths[colIndex + numFixedCols];
             var d = this.dragger;
-            d.style.webkitTransition = '-webkit-transform 350ms ease';
-            d.style.transition = 'transform 350ms ease';
+            d.style.webkitTransition = '-webkit-transform ' + colAnimationTime + 'ms ease';
+            d.style.transition = 'transform ' + colAnimationTime + 'ms ease';
             d.style.webkitTransform = 'translate(' + startX + 'px, ' + 0 + 'px)';
 
             //need to change this to key frames
             setTimeout(function() {
-                self.dragColumnIndex = null;
+                self.columnRenderOverridesCache.dragger = null;
                 d.style.display = 'none';
                 self.repaint();
-            }, 400);
+            }, colAnimationTime + 50);
 
-        },
-        isDraggingColumn: function() {
-            return this.dragColumnIndex !== null;
         }
     });
 
