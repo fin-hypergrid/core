@@ -89,7 +89,13 @@ The `fin-hypergrid-feature-column-moving` element is a custom Polymer web compon
                 this.cursor = 'none';//move';
             }
 
-        }
+        },
+        handleHoldPulse: function(grid, event) {
+            console.log('pulse');
+            if (this.next) {
+                this.next.handleHoldPulse(grid, event);
+            }
+        },
 
     });
 

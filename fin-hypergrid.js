@@ -6,6 +6,7 @@
 
     var noop = function() {};
     var colAnimationTime = 100;
+
     Polymer({ /* jslint ignore:line */
 
         /**
@@ -191,6 +192,7 @@
         columnRenderOverridesCache: {},
 
         floaterAnimationQueue: [],
+        columnDragAutoScrolling: false,
 
         domReady: function() {
             var self = this;
@@ -212,7 +214,7 @@
 
             this.clearMouseDown();
             this.dragExtent = this.rectangles.point.create(0, 0);
-            //this.selectionModel.setGrid(this);
+            this.columnDragAutoScrolling = false;
 
             //install any plugins
             this.pluginsDo(function(each) {
@@ -673,6 +675,9 @@
                 self.dragging = false;
                 if (self.scrollingNow) {
                     self.scrollingNow = false;
+                }
+                if (self.columnDragAutoScrolling) {
+                    self.columnDragAutoScrolling = false;
                 }
                 var mouse = e.detail.mouse;
                 var mouseEvent = self.getGridCellFromMousePoint(mouse);
@@ -1692,9 +1697,13 @@
         dragColumn: function(x) {
 
             var minX = this.getFixedColsWidth();
-            x = Math.max(minX, x);
+            x = Math.max(minX - 15, x);
             var dragColumnIndex = this.columnRenderOverridesCache.dragger.colIndex;
-            var atMin = x === minX && dragColumnIndex !== 0;
+
+            //am I at my lower bound
+            var atMin = x < minX && dragColumnIndex !== 0;
+
+
             var d = this.dragger;
             //   var numFixedCols = this.getFixedColCount();
             d.style.webkitTransition = '';
@@ -1712,6 +1721,37 @@
                 this.createFloatColumn(overCol - threshold);
                 this.floatColumnTo(columnDragDirection);
             }
+            //lets check for autoscroll to left if were up against it
+            if (x < minX - 10) {
+                this.checkAutoScrollToLeft(x);
+            }
+            if (x > minX - 5) {
+                this.columnDragAutoScrolling = false;
+            }
+
+        },
+
+        checkAutoScrollToLeft: function(x) {
+            if (this.columnDragAutoScrolling) {
+                return;
+            }
+            this.columnDragAutoScrolling = true;
+            this._checkAutoScrollToLeft(x);
+        },
+
+        _checkAutoScrollToLeft: function(x) {
+            if (!this.columnDragAutoScrolling) {
+                return;
+            }
+            var behavior = this.getBehavior();
+            var scrollLeft = this.getHScrollValue();
+            if (!this.dragging || scrollLeft < 1) {
+                return;
+            }
+            var draggedIndex = this.columnRenderOverridesCache.dragger.colIndex;
+            behavior.swapColumns(draggedIndex + scrollLeft, draggedIndex + scrollLeft - 1);
+            this.scrollBy(-1, 0);
+            setTimeout(this._checkAutoScrollToLeft.bind(this, x), 250);
         },
 
         endDragColumn: function() {
