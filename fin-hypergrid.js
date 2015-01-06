@@ -1552,7 +1552,14 @@
         },
 
         getCellEditorAt: function(x, y) {
-            return this.getBehavior().getCellEditorAt(x, y);
+            var translatedX = this.translateColumnIndex(x);
+            return this.getBehavior().getCellEditorAt(translatedX, y);
+        },
+
+        translateColumnIndex: function(x) {
+            var behavior = this.getBehavior();
+            var translatedX = behavior.translateColumnIndex(x);
+            return translatedX;
         },
 
         createFloatColumn: function(colIndex) {
@@ -1617,9 +1624,7 @@
 
             this.floaterAnimationQueue.unshift(this.doColumnMoveAnimation(floaterStartX, draggerStartX));
 
-            if (this.floaterAnimationQueue.length === 1) {
-                this.doFloaterAnimation();
-            }
+            this.doFloaterAnimation();
 
         },
         doColumnMoveAnimation: function(floaterStartX, draggerStartX) {
@@ -1658,7 +1663,7 @@
 
         createDragColumn: function(x, colIndex) {
             var numFixedCols = this.getFixedColCount();
-            var colWidth = colIndex < 0 ? this.getFixedColumnWidth(numFixedCols + colIndex) : this.getColumnWidth(colIndex + this.getHScrollValue());
+            var colWidth = colIndex < 0 ? this.getFixedColumnWidth(numFixedCols + colIndex) : this.getColumnWidth(colIndex);
             var d = this.dragger;
             d.setAttribute('width', colWidth + 'px');
             d.setAttribute('height', this.clientHeight + 'px');
