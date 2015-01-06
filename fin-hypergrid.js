@@ -1563,9 +1563,9 @@
         },
 
         createFloatColumn: function(colIndex) {
-            //        var x = 0;
+            var scrollLeft = this.getHScrollValue();
             var numFixedCols = this.getFixedColCount();
-            var colWidth = colIndex < 0 ? this.getFixedColumnWidth(numFixedCols + colIndex) : this.getColumnWidth(colIndex + this.getHScrollValue());
+            var colWidth = colIndex < 0 ? this.getFixedColumnWidth(numFixedCols + colIndex + scrollLeft) : this.getColumnWidth(colIndex + scrollLeft);
             var d = this.floatColumn;
             d.setAttribute('width', colWidth + 'px');
             d.setAttribute('height', this.clientHeight + 'px');
@@ -1587,37 +1587,30 @@
 
         //do the animation and swap the columns
         //we need a better name
-        floatColumnTo: function(columnDragDirection, colIndex) {
-            noop(colIndex);
-
-
+        floatColumnTo: function(columnDragDirection) {
+            var scrollLeft = this.getHScrollValue();
             var floaterIndex = this.columnRenderOverridesCache.floater.colIndex;
             var draggerIndex = this.columnRenderOverridesCache.dragger.colIndex;
             var numFixedCols = this.getFixedColCount();
             var draggerStartX;
             var floaterStartX;
             if (columnDragDirection) {
-                var dw = this.getColumnWidth(draggerIndex);
-                var fw = this.getColumnWidth(floaterIndex);
-                var fsx = this.renderer.renderedColWidths[floaterIndex + numFixedCols];
-                var drsx = this.renderer.renderedColWidths[draggerIndex + numFixedCols];
-                noop(dw, fw, fsx, drsx);
                 draggerStartX = this.renderer.renderedColWidths[draggerIndex + numFixedCols];
-                floaterStartX = draggerStartX + this.getColumnWidth(floaterIndex);
+                floaterStartX = draggerStartX + this.getColumnWidth(floaterIndex + scrollLeft);
 
                 this.columnRenderOverridesCache.dragger.startX = floaterStartX;
                 this.columnRenderOverridesCache.floater.startX = draggerStartX;
 
-                floaterStartX = draggerStartX + this.getColumnWidth(draggerIndex);
+                floaterStartX = draggerStartX + this.getColumnWidth(draggerIndex + scrollLeft);
 
             } else {
                 floaterStartX = this.renderer.renderedColWidths[floaterIndex + numFixedCols];
-                draggerStartX = floaterStartX + this.getColumnWidth(draggerIndex);
+                draggerStartX = floaterStartX + this.getColumnWidth(draggerIndex + scrollLeft);
 
                 this.columnRenderOverridesCache.dragger.startX = floaterStartX;
                 this.columnRenderOverridesCache.floater.startX = draggerStartX;
             }
-            this.getBehavior().swapColumns(draggerIndex, floaterIndex);
+            this.getBehavior().swapColumns(draggerIndex + scrollLeft, floaterIndex + scrollLeft);
             this.columnRenderOverridesCache.dragger.colIndex = floaterIndex;
             this.columnRenderOverridesCache.floater.colIndex = draggerIndex;
 
@@ -1662,8 +1655,9 @@
         },
 
         createDragColumn: function(x, colIndex) {
+            var scrollLeft = this.getHScrollValue();
             var numFixedCols = this.getFixedColCount();
-            var colWidth = colIndex < 0 ? this.getFixedColumnWidth(numFixedCols + colIndex) : this.getColumnWidth(colIndex);
+            var colWidth = colIndex < 0 ? this.getFixedColumnWidth(numFixedCols + colIndex + scrollLeft) : this.getColumnWidth(colIndex + scrollLeft);
             var d = this.dragger;
             d.setAttribute('width', colWidth + 'px');
             d.setAttribute('height', this.clientHeight + 'px');
@@ -1703,7 +1697,7 @@
             var threshold = columnDragDirection ? 1 : 0;
             if (colDif > 1 || colDif < 0) {
                 this.createFloatColumn(overCol - threshold);
-                this.floatColumnTo(columnDragDirection, dragColumnIndex);
+                this.floatColumnTo(columnDragDirection);
             }
         },
 

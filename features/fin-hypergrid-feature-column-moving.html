@@ -26,13 +26,13 @@ The `fin-hypergrid-feature-column-moving` element is a custom Polymer web compon
         handleMouseDrag: function(grid, event) {
 
             var gridCell = event.gridCell;
-            var scrollLeft = grid.getHScrollValue();
+            //var scrollLeft = grid.getHScrollValue();
 
             var x, y;
 
             if (this.isFixedRow(grid,event) && this.dragArmed && !this.dragging) {
                 this.dragging = true;
-                this.dragCol = gridCell.x - grid.getFixedColCount() + scrollLeft;
+                this.dragCol = gridCell.x - grid.getFixedColCount();
                 this.dragOffset = event.mousePoint.x;
                 this.detachChain();
                 x = event.primitiveEvent.detail.mouse.x - this.dragOffset;
