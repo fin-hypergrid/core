@@ -27,7 +27,7 @@ The `fin-hypergrid-column-sorting` element is a custom Polymer web component tha
             }
         },
         handleMouseMove: function(grid, event) {
-            if (this.isFixedRow(grid, event)) {
+            if (this.isFixedRow(grid, event) && !this.isFixedCol(grid, event)) {
                 this.cursor = 'pointer';
             } else {
                 this.cursor = null;

@@ -279,6 +279,7 @@
          */
         clearMouseDown: function() {
             this.mouseDown = [this.rectangles.point.create(-1, -1)];
+            this.dragExtent = null;
         },
 
         /**
@@ -1514,6 +1515,14 @@
             return this.getBehavior().getFixedColWidth(colIndex);
         },
 
+        getFixedColsWidth: function() {
+            return this.getBehavior().getFixedColsWidth();
+        },
+
+        getFixedRowsHeight: function() {
+            return this.getBehavior().getFixedRowsHeight();
+        },
+
         setFixedColumnWidth: function(colIndex, colWidth) {
             this.getBehavior().setFixedColumnWidth(colIndex, colWidth);
         },
@@ -1681,7 +1690,11 @@
 
         },
         dragColumn: function(x) {
+
+            var minX = this.getFixedColsWidth();
+            x = Math.max(minX, x);
             var dragColumnIndex = this.columnRenderOverridesCache.dragger.colIndex;
+            var atMin = x === minX && dragColumnIndex !== 0;
             var d = this.dragger;
             //   var numFixedCols = this.getFixedColCount();
             d.style.webkitTransition = '';
@@ -1689,13 +1702,13 @@
             d.style.webkitTransform = 'translate(' + x + 'px, ' + 0 + 'px)';
             d.style.display = 'inline';
             var overCol = this.renderer.getColumnFromPixelX(x + (d.width / 2));
-
-            //console.log(x + ' Im ' + dragColumnIndex + ' over ' + overCol);
-
+            if (atMin) {
+                overCol = 0;
+            }
             var colDif = overCol - dragColumnIndex;
             var columnDragDirection = colDif > 1;
             var threshold = columnDragDirection ? 1 : 0;
-            if (colDif > 1 || colDif < 0) {
+            if (colDif > 1 || colDif < 0 || atMin) {
                 this.createFloatColumn(overCol - threshold);
                 this.floatColumnTo(columnDragDirection);
             }

@@ -19,14 +19,6 @@ The `fin-hypergrid-feature-cell-selection` element is a custom Polymer web compo
     Polymer({ /* jshint ignore:line */
 
         /**
-         * scrollingNow is true if we are scrolling now or false otherwise
-         *
-         * @property scrollingNow
-         * @type boolean
-         */
-        scrollingNow: false,
-
-        /**
          * currentDrag is the pixel location of the mouse pointer during a drag operation
          *
          * @property currentDrag
@@ -42,14 +34,6 @@ The `fin-hypergrid-feature-cell-selection` element is a custom Polymer web compo
          * @type Object
          */
         lastDragCell: null,
-
-        /**
-         * answers if we are dragging right now
-         *
-         * @property dragging
-         * @type Boolean
-         */
-        dragging: null,
 
         /**
          * sbLastAuto is a millisecond value representing the previous time an autoscroll started
@@ -72,28 +56,45 @@ The `fin-hypergrid-feature-cell-selection` element is a custom Polymer web compo
         createdInit: function() {
 
             this.rectangles = document.createElement('fin-rectangle');
-            this.dragging = false;
 
+        },
+
+        handleMouseUp: function(grid, event) {
+            this.dragging = false;
+            if (this.next) {
+                this.next.handleMouseUp(grid, event);
+            }
         },
 
         handleMouseDown: function(grid, event) {
             var gridCell = event.gridCell;
             if (gridCell.y < grid.getFixedRowCount()) {
                 grid.clearSelections();
+                this.dragging = false;
+                if (this.next) {
+                    this.next.handleMouseDown(grid, event);
+                }
                 return;
             } else if (gridCell.x < grid.getFixedColCount()) {
                 grid.clearSelections();
+                this.dragging = false;
                 return;
             }
             else {
                 var primEvent = event.primitiveEvent;
                 var keys = primEvent.detail.keys;
+                this.dragging = true;
                 this.extendSelection(grid, gridCell, keys);
             }
         },
 
         handleMouseDrag: function(grid, event) {
             var mouseDown = grid.getMouseDown();
+            if (!this.dragging) {
+                if (this.next) {
+                    this.next.handleMouseDrag(grid, event);
+                }
+            }
             if (mouseDown.x < 0 || mouseDown.y < 0) {
                 //we are in the fixed area don't initiate a drag
                 return;
@@ -166,11 +167,11 @@ The `fin-hypergrid-feature-cell-selection` element is a custom Polymer web compo
             var b = grid.getDataBounds();
             var inside = b.contains(mouse);
             if (inside) {
-                if (this.scrollingNow) {
-                    this.scrollingNow = false;
+                if (grid.scrollingNow) {
+                    grid.scrollingNow = false;
                 }
-            } else if (!this.scrollingNow) {
-                this.scrollingNow = true;
+            } else if (!grid.scrollingNow) {
+                grid.scrollingNow = true;
                 this.scrollDrag(grid);
             }
         },
@@ -184,7 +185,7 @@ The `fin-hypergrid-feature-cell-selection` element is a custom Polymer web compo
          * @method scrollDrag()
          */
         scrollDrag: function(grid) {
-            if (!this.scrollingNow) {
+            if (!grid.scrollingNow) {
                 return;
             }
             var b = grid.getDataBounds();
