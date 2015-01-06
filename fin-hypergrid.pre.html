@@ -93,6 +93,9 @@ The Hypergrid design makes no assumptions about the data you wish to view which 
         position: absolute;
         display: none;
     }
+    fin-vampire-bar {
+        z-index: 10;
+    }
     </style>
 
     <fin-plugins>
@@ -104,11 +107,12 @@ The Hypergrid design makes no assumptions about the data you wish to view which 
         <fin-hypergrid-cell-editor-spinner></fin-hypergrid-cell-editor-spinner>
     </fin-plugins>
 
+    <fin-vampire-bar id="horizontalScroller" horizontal></fin-vampire-bar>
+    <fin-vampire-bar id="verticalScroller"></fin-vampire-bar>
+
     <fin-canvas>
       <fin-hypergrid-renderer></fin-hypergrid-renderer>
     </fin-canvas>
-    <fin-vampire-bar id="horizontalScroller" horizontal></fin-vampire-bar>
-    <fin-vampire-bar id="verticalScroller"></fin-vampire-bar>
     <input id="editor"></input>
     <canvas id="dragger"></canvas>
     <canvas id="floatColumn"></canvas>

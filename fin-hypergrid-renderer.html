@@ -175,7 +175,9 @@ The `fin-hypergrid-renderer` element is a custom Polymer web component used to s
             var isVisible = this.renderedCols.indexOf(c) !== -1;
             return isVisible;
         },
-
+        getFinalVisableColumnBoundry: function() {
+            return this.getBounds().width() - 200;
+        },
         //Answer if a row is visible, must be fully visible
         isRowVisible: function(r) {
             var isVisible = this.renderedRows.indexOf(r) !== -1;
@@ -256,7 +258,7 @@ The `fin-hypergrid-renderer` element is a custom Polymer web component used to s
 
             var scrollTop = this.getScrollTop();
             var scrollLeft = this.getScrollLeft();
-            var viewWidth = this.getBounds().width();
+            var viewWidth = this.getBounds().width() - 200; // look in fin-hypergrid and initializtion of fin-canvas
             var viewHeight = this.getBounds().height();
 
             gc.strokeStyle = lineColor;
@@ -366,7 +368,7 @@ The `fin-hypergrid-renderer` element is a custom Polymer web component used to s
             var fixedRowBGColor = constants.fixedRowBGColor;
             var halign = constants.fixedRowAlign;
             var cellProvider = this.getGrid().getCellProvider();
-            var viewWidth = this.getBounds().width();
+            var viewWidth = this.getBounds().width() - 200; // look in fin-hypergrid and initializtion of fin-canvas
             var viewHeight = this.getBehavior().getFixedRowsHeight();
             for (var c = 0; c < numCols; c++) {
                 var width = this.getColWidth(c + scrollLeft);
@@ -456,7 +458,7 @@ The `fin-hypergrid-renderer` element is a custom Polymer web component used to s
             var bgColor = constants.backgroundColor;
             var fgSelColor = constants.foregroundSelColor;
             var bgSelColor = constants.backgroundSelColor;
-            var viewWidth = this.getBounds().width();
+            var viewWidth = this.getBounds().width() - 200; // look in fin-hypergrid and initializtion of fin-canvas
             var viewHeight = this.getBounds().height();
 
             for (var c = 0; c < numCols; c++) {

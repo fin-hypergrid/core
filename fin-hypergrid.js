@@ -644,7 +644,7 @@
 
             this.canvas.style.position = 'absolute';
             this.canvas.style.top = 0;
-            this.canvas.style.right = 0;
+            this.canvas.style.right = '-200px';
             //leave room for the vertical scrollbar
             this.canvas.style.marginRight = '15px';
             this.canvas.style.bottom = 0;
@@ -1429,7 +1429,7 @@
             var numRows = behavior.getRowCount();
             var bounds = this.getCanvas().getBounds();
             var scrollableHeight = bounds.height() - behavior.getFixedRowsHeight();
-            var scrollableWidth = bounds.width() - behavior.getFixedColsMaxWidth();
+            var scrollableWidth = bounds.width() - behavior.getFixedColsMaxWidth() - 200;
 
             var lastPageColCount = 0;
             var colsWidth = 0;
@@ -1593,7 +1593,7 @@
                 height: this.clientHeight
             };
 
-            d.style.zIndex = '99';
+            d.style.zIndex = '4';
             d.style.webkitTransform = 'translate(' + startX + 'px, ' + 0 + 'px)';
             d.style.cursor = 'none';
             this.repaint();
@@ -1689,16 +1689,26 @@
             //this.draggerCTX.translate(startX, 0);
 
             d.style.webkitTransform = 'translate(' + x + 'px, ' + 0 + 'px)';
-            d.style.zIndex = '100';
+            d.style.zIndex = '5';
             d.style.cursor = 'none';
             this.repaint();
 
         },
+
+        getFinalVisableColumnBoundry: function() {
+            var renderer = this.getRenderer();
+            var boundry = renderer.getFinalVisableColumnBoundry();
+            return boundry;
+        },
+
         dragColumn: function(x) {
 
-            var minX = this.getFixedColsWidth();
-            x = Math.max(minX - 15, x);
             var dragColumnIndex = this.columnRenderOverridesCache.dragger.colIndex;
+            var colWidth = this.columnRenderOverridesCache.dragger.width;
+            var minX = this.getFixedColsWidth();
+            var maxX = this.getFinalVisableColumnBoundry() - colWidth;
+            x = Math.min(x, maxX);
+            x = Math.max(minX - 15, x);
 
             //am I at my lower bound
             var atMin = x < minX && dragColumnIndex !== 0;
