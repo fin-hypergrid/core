@@ -1707,12 +1707,12 @@
             var colWidth = this.columnRenderOverridesCache.dragger.width;
             var minX = this.getFixedColsWidth();
             var maxX = this.getFinalVisableColumnBoundry() - colWidth;
-            x = Math.min(x, maxX);
+            x = Math.min(x, maxX + 15);
             x = Math.max(minX - 15, x);
 
             //am I at my lower bound
             var atMin = x < minX && dragColumnIndex !== 0;
-
+            var atMax = x > maxX;
 
             var d = this.dragger;
             //   var numFixedCols = this.getFixedColCount();
@@ -1727,7 +1727,7 @@
             var colDif = overCol - dragColumnIndex;
             var columnDragDirection = colDif > 1;
             var threshold = columnDragDirection ? 1 : 0;
-            if (colDif > 1 || colDif < 0 || atMin) {
+            if (colDif > 1 || colDif < 0 || atMin || atMax) {
                 this.createFloatColumn(overCol - threshold);
                 this.floatColumnTo(columnDragDirection);
             }
@@ -1735,10 +1735,39 @@
             if (x < minX - 10) {
                 this.checkAutoScrollToLeft(x);
             }
-            if (x > minX - 5) {
+            if (x > minX - 5 && x < minX + 5) {
                 this.columnDragAutoScrolling = false;
             }
+            //lets check for autoscroll to right if were up against it
+            if (x > maxX + 10) {
+                this.checkAutoScrollToRight(x);
+            }
+            if (x < maxX + 5 && x > maxX - 5) {
+                this.columnDragAutoScrolling = false;
+            }
+        },
 
+        checkAutoScrollToRight: function(x) {
+            if (this.columnDragAutoScrolling) {
+                return;
+            }
+            this.columnDragAutoScrolling = true;
+            this._checkAutoScrollToRight(x);
+        },
+
+        _checkAutoScrollToRight: function(x) {
+            if (!this.columnDragAutoScrolling) {
+                return;
+            }
+            var behavior = this.getBehavior();
+            var scrollLeft = this.getHScrollValue();
+            if (!this.dragging || scrollLeft > (this.sbHScrlCfg.rangeStop - 2)) {
+                return;
+            }
+            var draggedIndex = this.columnRenderOverridesCache.dragger.colIndex;
+            behavior.swapColumns(draggedIndex + scrollLeft, draggedIndex + scrollLeft + 1);
+            this.scrollBy(1, 0);
+            setTimeout(this._checkAutoScrollToRight.bind(this, x), 250);
         },
 
         checkAutoScrollToLeft: function(x) {
