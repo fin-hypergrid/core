@@ -1781,7 +1781,7 @@ The Hypergrid design makes no assumptions about the data you wish to view which 
             var colWidth = colIndex < 0 ? this.getFixedColumnWidth(numFixedCols + colIndex + scrollLeft) : this.getColumnWidth(colIndex + scrollLeft);
             var colHeight = this.clientHeight;
             var d = this.floatColumn;
-            var hdpiRatio = this.getHiDPI();
+            var hdpiRatio = this.getHiDPI(this.floatColumnCTX);
 
             d.setAttribute('width', Math.round(colWidth * hdpiRatio) + 'px');
             d.setAttribute('height', Math.round(colHeight * hdpiRatio) + 'px');
@@ -1792,7 +1792,8 @@ The Hypergrid design makes no assumptions about the data you wish to view which 
             var startX = this.renderer.renderedColWidths[colIndex + numFixedCols];
             startX = startX * hdpiRatio;
 
-            //this.setHiDPIOn(d, this.floatColumnCTX);
+            this.floatColumnCTX.scale(hdpiRatio, hdpiRatio);
+
             this.columnRenderOverridesCache.floater = {
                 colIndex: colIndex,
                 ctx: this.floatColumnCTX,
@@ -1811,7 +1812,7 @@ The Hypergrid design makes no assumptions about the data you wish to view which 
         createDragColumn: function(x, colIndex) {
             var scrollLeft = this.getHScrollValue();
             var numFixedCols = this.getFixedColCount();
-            var hdpiRatio = this.getHiDPI();
+            var hdpiRatio = this.getHiDPI(this.draggerCTX);
 
             var colWidth = colIndex < 0 ? this.getFixedColumnWidth(numFixedCols + colIndex + scrollLeft) : this.getColumnWidth(colIndex + scrollLeft);
             var colHeight = this.clientHeight;
@@ -1826,7 +1827,8 @@ The Hypergrid design makes no assumptions about the data you wish to view which 
             var startX = this.renderer.renderedColWidths[colIndex + numFixedCols];
             startX = startX * hdpiRatio;
 
-            //this.draggerCTX.translate(-startX, 0);
+            this.draggerCTX.scale(hdpiRatio, hdpiRatio);
+
             this.columnRenderOverridesCache.dragger = {
                 colIndex: colIndex,
                 ctx: this.draggerCTX,
@@ -1845,9 +1847,8 @@ The Hypergrid design makes no assumptions about the data you wish to view which 
 
         },
 
-        getHiDPI: function() {
+        getHiDPI: function(ctx) {
             if (window.devicePixelRatio && this.canvas.isHiDPI()) {
-                var ctx = this.canvas.canvasCTX;
                 var devicePixelRatio = window.devicePixelRatio || 1;
                 var backingStoreRatio = ctx.webkitBackingStorePixelRatio ||
                     ctx.mozBackingStorePixelRatio ||
@@ -1977,6 +1978,15 @@ The Hypergrid design makes no assumptions about the data you wish to view which 
                 self.repaint();
             }, colAnimationTime + 50);
 
+        },
+
+        toggleHiDPI: function() {
+            if (this.canvas.isHiDPI()) {
+                this.removeAttribute('hidpi');
+            } else {
+                this.setAttribute('hidpi', null);
+            }
+            this.canvas.resize();
         }
     });
 

@@ -75,7 +75,7 @@
           </div>
           <core-splitter direction="up"></core-splitter>
           <div flex class="rel">
-            <fin-hypergrid hidpi class="abs">
+            <fin-hypergrid class="abs">
                 <fin-hypergrid-behavior-in-memory></fin-hypergrid-behavior-in-memory>
                 <fin-hypergrid-excel></fin-hypergrid-excel>
             </fin-hypergrid>
@@ -98,7 +98,8 @@
 
         <div vertical layout>
           <div class="description">
-            <h3>fin-hypergrid-behavior-json</h3> This element is a custom Polymer web component that manages data sets within javascript.  You can sort on any column, with the sort being stable hence previous sorts are maintained.  The data is "pushed" into the behavior object with the call to setData at anytime after the polymer ready event is fired, see <a href="https://github.com/openfin/example-fin-hypergrid-behavior-json">(standalone json hypergrid project)</a> for an encapsulated version of this example.
+            <h3>fin-hypergrid-behavior-json</h3> This element is a custom Polymer web component that manages data sets within javascript.  You can sort on any column, with the sort being stable hence previous sorts are maintained.  The data is "pushed" into the behavior object with the call to setData at anytime after the polymer ready event is fired, see <a href="https://github.com/openfin/example-fin-hypergrid-behavior-json">(standalone json hypergrid project)</a> for an encapsulated version of this example.  Toggle the HiDPI button below to scale canvas to a higher pixel density with sharper rendering.  Keep in mind that the grid might exhibit a noticeable performance cost as there could be many more pixels to measure/render.
+            <button id="hidpi-button" onClick="toggleHiDPI()">toggle HiDPI</button>
             <br>
             <br>
           </div>
@@ -312,7 +313,11 @@
 
         });
     })();
-
+    //json-example stuff
+    function toggleHiDPI() {
+        var jsonGrid = document.querySelector('#json-example');
+        jsonGrid.toggleHiDPI();
+    }
     //game of life stuff
     function clearGOLGrid() {
         var gol = document.querySelector('fin-hypergrid-behavior-gol');

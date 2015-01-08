@@ -230,7 +230,7 @@ The `fin-hypergrid-renderer` element is a custom Polymer web component used to s
                 var width = override.width;
                 var height = override.height;
                 var targetCTX = override.ctx;
-                var imgData = gc.getImageData(startX,0,width,height);
+                var imgData = gc.getImageData(startX,0,width*hdpiRatio,height*hdpiRatio);
                 targetCTX.putImageData(imgData, 0,0);
                 gc.strokeStyle = constants.backgroundColor;
                 gc.fillRect(Math.round(startX/hdpiRatio), 0, width, height);

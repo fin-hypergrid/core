@@ -1659,7 +1659,7 @@
             var colWidth = colIndex < 0 ? this.getFixedColumnWidth(numFixedCols + colIndex + scrollLeft) : this.getColumnWidth(colIndex + scrollLeft);
             var colHeight = this.clientHeight;
             var d = this.floatColumn;
-            var hdpiRatio = this.getHiDPI();
+            var hdpiRatio = this.getHiDPI(this.floatColumnCTX);
 
             d.setAttribute('width', Math.round(colWidth * hdpiRatio) + 'px');
             d.setAttribute('height', Math.round(colHeight * hdpiRatio) + 'px');
@@ -1670,7 +1670,8 @@
             var startX = this.renderer.renderedColWidths[colIndex + numFixedCols];
             startX = startX * hdpiRatio;
 
-            //this.setHiDPIOn(d, this.floatColumnCTX);
+            this.floatColumnCTX.scale(hdpiRatio, hdpiRatio);
+
             this.columnRenderOverridesCache.floater = {
                 colIndex: colIndex,
                 ctx: this.floatColumnCTX,
@@ -1689,7 +1690,7 @@
         createDragColumn: function(x, colIndex) {
             var scrollLeft = this.getHScrollValue();
             var numFixedCols = this.getFixedColCount();
-            var hdpiRatio = this.getHiDPI();
+            var hdpiRatio = this.getHiDPI(this.draggerCTX);
 
             var colWidth = colIndex < 0 ? this.getFixedColumnWidth(numFixedCols + colIndex + scrollLeft) : this.getColumnWidth(colIndex + scrollLeft);
             var colHeight = this.clientHeight;
@@ -1704,7 +1705,8 @@
             var startX = this.renderer.renderedColWidths[colIndex + numFixedCols];
             startX = startX * hdpiRatio;
 
-            //this.draggerCTX.translate(-startX, 0);
+            this.draggerCTX.scale(hdpiRatio, hdpiRatio);
+
             this.columnRenderOverridesCache.dragger = {
                 colIndex: colIndex,
                 ctx: this.draggerCTX,
@@ -1723,9 +1725,8 @@
 
         },
 
-        getHiDPI: function() {
+        getHiDPI: function(ctx) {
             if (window.devicePixelRatio && this.canvas.isHiDPI()) {
-                var ctx = this.canvas.canvasCTX;
                 var devicePixelRatio = window.devicePixelRatio || 1;
                 var backingStoreRatio = ctx.webkitBackingStorePixelRatio ||
                     ctx.mozBackingStorePixelRatio ||
@@ -1855,6 +1856,15 @@
                 self.repaint();
             }, colAnimationTime + 50);
 
+        },
+
+        toggleHiDPI: function() {
+            if (this.canvas.isHiDPI()) {
+                this.removeAttribute('hidpi');
+            } else {
+                this.setAttribute('hidpi', null);
+            }
+            this.canvas.resize();
         }
     });
 
