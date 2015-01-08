@@ -626,11 +626,21 @@
         /**
          *                                                                      .
          *                                                                      .
+         * answer if we are in HiDPI mode, means having an attribute as such
+         *
+         * @method isHiDPI()
+         */
+        isHiDPI: function() {
+            return this.getAttribute('hidpi') !== null;
+        },
+
+        /**
+         *                                                                      .
+         *                                                                      .
          * initialize our drawing surface
          *
          * @method initCanvas()
          */
-        //Initialize the [OFCanvas](https://github.com/stevewirts/ofcanvas) component.
         initCanvas: function() {
 
             var self = this;
@@ -644,7 +654,7 @@
 
             //proxy the hidpi attribute through to the canvas
             this.canvas.isHiDPI = function() {
-                return self.getAttribute('hidpi') !== null;
+                return self.isHiDPI();
             };
 
             this.canvas.style.position = 'absolute';
@@ -1749,6 +1759,7 @@
 
         dragColumn: function(x) {
 
+            var hdpiRatio = this.getHiDPI(this.draggerCTX);
             var dragColumnIndex = this.columnRenderOverridesCache.dragger.colIndex;
             var colWidth = this.columnRenderOverridesCache.dragger.width;
             var minX = this.getFixedColsWidth();
@@ -1766,7 +1777,7 @@
             d.style.transition = '';
             d.style.webkitTransform = 'translate(' + x + 'px, ' + 0 + 'px)';
             d.style.display = 'inline';
-            var overCol = this.renderer.getColumnFromPixelX(x + (d.width / 2));
+            var overCol = this.renderer.getColumnFromPixelX(x + (d.width / 2 / hdpiRatio));
             if (atMin) {
                 overCol = 0;
             }
