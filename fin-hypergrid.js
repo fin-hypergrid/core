@@ -634,13 +634,18 @@
         initCanvas: function() {
 
             var self = this;
-            var domCanvas = this.shadowRoot.querySelector('fin-canvas');
-
-            domCanvas.setAttribute('fps', this.constants.repaintIntervalRate || 15);
-
-            this.shadowRoot.appendChild(domCanvas);
-
             this.canvas = this.shadowRoot.querySelector('fin-canvas');
+
+            this.canvas.setAttribute('fps', this.constants.repaintIntervalRate || 15);
+
+            //this.shadowRoot.appendChild(domCanvas);
+
+            //this.canvas = this.shadowRoot.querySelector('fin-canvas');
+
+            //proxy the hidpi attribute through to the canvas
+            this.canvas.isHiDPI = function() {
+                return self.getAttribute('hidpi') !== null;
+            };
 
             this.canvas.style.position = 'absolute';
             this.canvas.style.top = 0;
@@ -1576,35 +1581,14 @@
             return translatedX;
         },
 
-        createFloatColumn: function(colIndex) {
-            var scrollLeft = this.getHScrollValue();
-            var numFixedCols = this.getFixedColCount();
-            var colWidth = colIndex < 0 ? this.getFixedColumnWidth(numFixedCols + colIndex + scrollLeft) : this.getColumnWidth(colIndex + scrollLeft);
-            var d = this.floatColumn;
-            d.setAttribute('width', colWidth + 'px');
-            d.setAttribute('height', this.clientHeight + 'px');
-            var startX = this.renderer.renderedColWidths[colIndex + numFixedCols];
-
-            this.columnRenderOverridesCache.floater = {
-                colIndex: colIndex,
-                ctx: this.floatColumnCTX,
-                startX: startX,
-                width: colWidth,
-                height: this.clientHeight
-            };
-
-            d.style.zIndex = '4';
-            d.style.webkitTransform = 'translate(' + startX + 'px, ' + 0 + 'px)';
-            d.style.cursor = 'none';
-            this.repaint();
-        },
-
         //do the animation and swap the columns
         //we need a better name
         floatColumnTo: function(columnDragDirection) {
             var scrollLeft = this.getHScrollValue();
             var floaterIndex = this.columnRenderOverridesCache.floater.colIndex;
             var draggerIndex = this.columnRenderOverridesCache.dragger.colIndex;
+            var hdpiratio = this.columnRenderOverridesCache.dragger.hdpiratio;
+
             var numFixedCols = this.getFixedColCount();
             var draggerStartX;
             var floaterStartX;
@@ -1612,8 +1596,8 @@
                 draggerStartX = this.renderer.renderedColWidths[draggerIndex + numFixedCols];
                 floaterStartX = draggerStartX + this.getColumnWidth(floaterIndex + scrollLeft);
 
-                this.columnRenderOverridesCache.dragger.startX = floaterStartX;
-                this.columnRenderOverridesCache.floater.startX = draggerStartX;
+                this.columnRenderOverridesCache.dragger.startX = floaterStartX * hdpiratio;
+                this.columnRenderOverridesCache.floater.startX = draggerStartX * hdpiratio;
 
                 floaterStartX = draggerStartX + this.getColumnWidth(draggerIndex + scrollLeft);
 
@@ -1621,8 +1605,8 @@
                 floaterStartX = this.renderer.renderedColWidths[floaterIndex + numFixedCols];
                 draggerStartX = floaterStartX + this.getColumnWidth(draggerIndex + scrollLeft);
 
-                this.columnRenderOverridesCache.dragger.startX = floaterStartX;
-                this.columnRenderOverridesCache.floater.startX = draggerStartX;
+                this.columnRenderOverridesCache.dragger.startX = floaterStartX * hdpiratio;
+                this.columnRenderOverridesCache.floater.startX = draggerStartX * hdpiratio;
             }
             this.getBehavior().swapColumns(draggerIndex + scrollLeft, floaterIndex + scrollLeft);
             this.columnRenderOverridesCache.dragger.colIndex = floaterIndex;
@@ -1641,6 +1625,7 @@
                 d.style.display = 'inline';
                 d.style.webkitTransform = 'translate(' + floaterStartX + 'px, ' + 0 + 'px)';
                 //d.style.webkitTransform = 'translate(' + floaterStartX + 'px, ' + 0 + 'px)';
+
                 window.requestAnimationFrame(function() {
                     d.style.webkitTransition = '-webkit-transform ' + colAnimationTime + 'ms ease';
                     d.style.transition = 'transform ' + colAnimationTime + 'ms ease';
@@ -1668,22 +1653,65 @@
             animation();
         },
 
-        createDragColumn: function(x, colIndex) {
+        createFloatColumn: function(colIndex) {
             var scrollLeft = this.getHScrollValue();
             var numFixedCols = this.getFixedColCount();
             var colWidth = colIndex < 0 ? this.getFixedColumnWidth(numFixedCols + colIndex + scrollLeft) : this.getColumnWidth(colIndex + scrollLeft);
-            var d = this.dragger;
-            d.setAttribute('width', colWidth + 'px');
-            d.setAttribute('height', this.clientHeight + 'px');
+            var colHeight = this.clientHeight;
+            var d = this.floatColumn;
+            var hdpiRatio = this.getHiDPI();
+
+            d.setAttribute('width', Math.round(colWidth * hdpiRatio) + 'px');
+            d.setAttribute('height', Math.round(colHeight * hdpiRatio) + 'px');
+
+            d.style.width = colWidth + 'px'; //Math.round(colWidth / hdpiRatio) + 'px';
+            d.style.height = colHeight + 'px'; //Math.round(colHeight / hdpiRatio) + 'px';
 
             var startX = this.renderer.renderedColWidths[colIndex + numFixedCols];
+            startX = startX * hdpiRatio;
+
+            //this.setHiDPIOn(d, this.floatColumnCTX);
+            this.columnRenderOverridesCache.floater = {
+                colIndex: colIndex,
+                ctx: this.floatColumnCTX,
+                startX: startX,
+                width: colWidth,
+                height: colHeight,
+                hdpiratio: hdpiRatio
+            };
+
+            d.style.zIndex = '4';
+            d.style.webkitTransform = 'translate(' + startX + 'px, ' + 0 + 'px)';
+            d.style.cursor = 'none';
+            this.repaint();
+        },
+
+        createDragColumn: function(x, colIndex) {
+            var scrollLeft = this.getHScrollValue();
+            var numFixedCols = this.getFixedColCount();
+            var hdpiRatio = this.getHiDPI();
+
+            var colWidth = colIndex < 0 ? this.getFixedColumnWidth(numFixedCols + colIndex + scrollLeft) : this.getColumnWidth(colIndex + scrollLeft);
+            var colHeight = this.clientHeight;
+            var d = this.dragger;
+
+            d.setAttribute('width', Math.round(colWidth * hdpiRatio) + 'px');
+            d.setAttribute('height', Math.round(colHeight * hdpiRatio) + 'px');
+
+            d.style.width = colWidth + 'px'; //Math.round(colWidth / hdpiRatio) + 'px';
+            d.style.height = colHeight + 'px'; //Math.round(colHeight / hdpiRatio) + 'px';
+
+            var startX = this.renderer.renderedColWidths[colIndex + numFixedCols];
+            startX = startX * hdpiRatio;
+
             //this.draggerCTX.translate(-startX, 0);
             this.columnRenderOverridesCache.dragger = {
                 colIndex: colIndex,
                 ctx: this.draggerCTX,
                 startX: startX,
                 width: colWidth,
-                height: this.clientHeight
+                height: colHeight,
+                hdpiratio: hdpiRatio
             };
             //this.renderer.renderGrid(this.draggerCTX);
             //this.draggerCTX.translate(startX, 0);
@@ -1693,6 +1721,23 @@
             d.style.cursor = 'none';
             this.repaint();
 
+        },
+
+        getHiDPI: function() {
+            if (window.devicePixelRatio && this.canvas.isHiDPI()) {
+                var ctx = this.canvas.canvasCTX;
+                var devicePixelRatio = window.devicePixelRatio || 1;
+                var backingStoreRatio = ctx.webkitBackingStorePixelRatio ||
+                    ctx.mozBackingStorePixelRatio ||
+                    ctx.msBackingStorePixelRatio ||
+                    ctx.oBackingStorePixelRatio ||
+                    ctx.backingStorePixelRatio || 1;
+
+                var ratio = devicePixelRatio / backingStoreRatio;
+                return ratio;
+            } else {
+                return 1;
+            }
         },
 
         getFinalVisableColumnBoundry: function() {
