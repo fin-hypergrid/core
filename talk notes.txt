@@ -1,0 +1,316 @@
+talk notes
+---------------------
+high level use case
+
+openfin
+-customers moving to html5
+-industry/big data lacks html5 native feel grid control
+
+
+-----------------
+about me
+    I'm an engineer at OpenFin
+    worked in finance area for more than 15 years
+    smalltalk/java/k-q-kdb+/javascript/html5
+    user interfaces
+        full systems/ smalltalk/java/html5 thick and thin client
+            realtime pnl/trading systems
+        widgets
+            inputfields etc/ grids / graphs/ heatmaps/tree tables/treemap/nested pie charts
+    vnc-server + windowing system built in q on my github page
+    thick/thin client oscilation
+        full circle thin/thick/thin/thick
+        greenscreen/thick desktop/server generated web pages/thick javscript clients/ next step will be frameworks that jit construct thick clients on the desktop from server instructions
+    javascript/html5 is delivering on the java promise of write once run everywhere (applets), still write once debug everywhere
+
+
+---------------------------------------------
+goals for the hypergrid
+    lightweight
+        -the grid should use as little memory and cpu as possible
+    native widget feel and capbilities
+        -should be lightweight and feel fast not sluggish, feature set similar to java jide table controls
+    opensource
+        -all code freely available and community supported
+    very easy to get running with custom data
+        -default usage shoul be trivial
+    best general purpose html5 grid available, specifically for finance/big-data
+        -initial features to be driven by existing html5 popular grid components
+            slickgrid:      https://github.com/mleibman/SlickGrid
+            kendo ui grid:  http://demos.telerik.com/kendo-ui/grid/index
+            ext-livegrid:   http://www.ext-livegrid.com/
+            Flexigrid:      http://flexigrid.info/
+            jQuery Grid:    http://www.trirand.com/blog/
+            jqGridView:     http://plugins.jquery.com/project/jqGridView
+            jqxGrid:        http://www.jqwidgets.com/
+            Ingrid:         http://reconstrukt.com/ingrid/
+            DataTables      http://www.datatables.net/index
+
+    project uses html5/javascript best practices
+        -evolving daily
+        -already changed 3x
+            -browserify
+            -webcomponents
+            -polymer
+        -grunt/gulp
+        -linting/js-html-css validation
+        -vulcanize
+        -polymer/webcomponents
+        -automated in dev-cycle testing
+
+    no deferred rendering/instant rendering
+        -data is scrolled through and instantly visible, no blank screen waiting for data
+
+    allow for easy virtualization
+        -one of my biggest peeves from java/smalltalk days
+        -grid shouldn't assume that it's handling all of the analytics/operations
+
+-------------------------------------
+what is Polymer
+    -project by google
+    -three major components
+        -webcomponents pollyfil
+        -best practices convenience framework for building webcomponents
+        -material design compliant responsive design widget set
+            -includes a dnd layout tool
+
+-------------------------------------
+
+show the hypergrid "pink" demo features (so far)
+    unlimited row count
+        -quadrillion virtual row example
+        -q million sortable row, billion non-sortable row
+
+    currently minimal data management/sorting/editing/grouping
+        -planned is a data management internal piece (in JS process)
+        -already looked at alternate faster sorting of columns
+            -we may have Openfin only enhancements to allow for very fast data manipulation here
+        -exernal (in q initially) capbility
+
+    column resize/reordering
+        -a little buggy at the moment, it's new
+        -row resize/reordering is comming
+
+    easy custom cell rendering
+        -create your own custom renderers, there's lotsa of examples and source code to look at
+        -be carefull, it's easy to hang yourself here in terms of performance
+
+    full multiselect semantics
+        -shift/control ammending of selection
+        -undo support coming
+
+    non-linear auto scrolling speed to accomodate large data sets
+        -auto scrolling accelerates only vertically at the moment
+        -will be reasonable to scroll and find a specific row in an enormous table
+            -page up/down
+            -single row up/down
+            -hover on the scrollbar to show index(index might not be a fixed column)
+
+    json support
+        -json behavior
+        -very simple to provide initial dataset and update it
+
+    single file deployment of the grid
+        -polymer project vulcanize provides single webcomponent import
+        -scans through your component and all dependencies and creates a single htmlfile
+        -still need to minimize your own javascript
+        -grid is just a custom web component tag
+
+    easy augmentation via polymer plugin pattern
+        -create webcomponent with function 'installOn(hypergrid)' function, and make it a subtag of the hypergrid tag
+        -can programmatically ammend the hypergrid or its subcomponents
+
+    gesture control through polymer-gestures
+        -touch/tap events support
+        -its a little quirky on phones at the moment, will be fixed
+
+    exel integration
+        -only within openfin container, it uses the inter-app bus
+        -uses excel dna in conjunction with openfin excel adapter
+
+    interface to Q
+        -sorttable.q and bigtable.q provided as examples
+        -Q analytics coming
+        -other external interfaces coming.....
+        -any JSON source can be added very quickly
+
+--------------------------------------------------------------------------------
+
+high level design
+    hypergrid
+        -main container and custom tag of all other pieces
+        -using polymer can be subclassed if you really need to override something
+
+    fin-canvas
+        -wrapped up canvas to deal with resize issues
+        -provides the drawing surface and graphics context
+        -provides root functionality for a traditional composite pattern based gui system
+        -generate nicer events conducive to grid
+        -uses the fin-rectangles project for simple rectangle/point functionality
+
+    behavior
+        -similar to a traditional tablemodel++
+        -has the datamodel + feature chain of responsibility for event handling
+        -features may have state or manipulate state found on the hypergrid
+        -place to park code that is different if data is virtual or not
+
+    renderer
+        -implements the main paint function given a graphics context
+        -has all the logic for iterating cells and rendering the grid
+        -caches various values values for arbitrary querying after a rendering
+        -should query hypergrid for values/hypergrid my delegate to behavior
+
+    cell-provider
+        -cache of cell-renderers
+        -has 3 important functions getCell, getFixedCollCell, getFixedRowCell
+        -behavior is the factory for the cell provider
+
+    cell-renderers
+        -maintained in a lookup cache on the cell-provider
+        -create any kind of cell rendering you want, it's very easy
+        -be carefull here as you could hose the renderering performance
+        -sparklines are implemented here
+        -see json example
+
+    features
+        -lives on behavior
+        -chain of responsibility
+        -fields the events coming from the hypergrid
+        -alters data on itself or the hypergrid
+        -cell-editing,cell-selection,column-moving,column-resizing,column-sorting,thumbwheel-scrolling,etc...
+
+    plugins
+        -installOn(hypergrid) function must be implemented by plugin
+        -two places to load plugins
+            -hypergrid developers -> fin-hypergrid.pre.html <fin-plugins>
+            -application developers -> <fin-hypergrid>
+        -see demo.html
+        -how you provide the behavior
+        -how alot of the hypergrid behavior is implemented
+            excel
+            cell-editors
+                textfield
+                choice
+                color
+                date
+                slider
+                spinner
+
+    selection-model
+        -rectangle based selection management
+        -uses fin-rectangle project
+        -allows for arbitrary large rectangular selections
+
+    vampire-bars
+        -hypergrid uses custom scrollbars
+        -only 33million pixes to scroll with native scrollbars
+        -edward tufte calls them content-vampires ,8-12% of the screen real-estate
+
+    constants
+        -cannonical place to put various values
+        -default fg/bg color/font/widths/heights etc
+
+
+tricks
+    -alot of these are common sense and seen in grid controls in other languages
+    -avoid dom manipulation, all canvas hand coded rendering
+    -row/column based scrolling, not pixel
+    -good book "HTML5 game developement insights"
+    -video game technique influence
+        -fin-canvas requestAnimationFrame to control the fps
+        -dirtyflag set if the data is changed, then and only do a repaint
+        -double buffer the canvas and it's context so you don't see the rendering happening
+        -we could implement dirty rectangles in fin-canvas
+    -avoid talking to the context in precedence order of time consumption
+        -don't clip cells, paint in order to cover overflow
+    -"float" dom components when necessary
+    -rectangle based selection model
+    -stable sorting for sort accumulation
+    -polymer plugin pattern
+    -devicePixelDensity manipulation for sharper grid
+        -really looks better on super pixel dense displays like retina
+        -can cause a slowdown
+        -is optional attribute on fin-hypergrid 'hidpi'
+        -can be programmatically turned on/off
+    -canvas repaint "thread" de-coupled from data updates
+        -canvas repaint thread wakes up at some user definable interval
+        -checks if the canvas size has changed, makes adjustments to device pixel ratio
+        -checks if dirty flag is set and does a repaint
+    -only renderer whats visible
+        -be very carefull to not render anything not being looked at
+
+gotchas
+    -polymer inheritance issues
+        -override of superclass functions doesn't seem to work yet (maybe it does now)
+    -graphics context operations are expensive
+        -text measuring
+        -border rendering
+        -checking/changing the font
+    -dom access can be expensive
+        -do batch operations when possible
+            -querySelectAll
+            -build things in batch, then plug them into the dom in one operation
+        -"the dom isnt slow you are"
+
+iterative process for best practices
+    -major refactoring already 3x, browserify>webcomponents>polymer
+    -started with polymer custom component process
+        -modified as necessary
+        -.bowerrc
+        -extra nested directory
+    -livereload
+    -vulcanize
+    -wct-testing
+    -linting
+    -concat
+    -polymer-documentation "pink stuff"
+    -github pages live demo
+    -theres a major refactoring I'd like to do soon
+        -move to gulp
+        -make all .html files work ala fin-hypergrid.html
+            -it's generated from 3 files
+
+yeoman generator for a polymer component project
+    -maybe the polymer one is better, it wasn't working when I started
+    -https://github.com/stevewirts/generator-fin-polymer
+
+roadmap
+    features/features/features......
+        column autosizing
+        column picker
+        grouping
+        filters
+        pagination
+        heiarchical capbilities
+        bug fixes
+        more tests
+        better key navigation
+        scrollbar fixes
+        row dnd resize/reorder
+        cell editors
+        documentation
+        performance tuning
+        better mobile event handling/support
+        streamlined build process/tool chain
+            move to/also gulp
+        more behavior examples for various data sources
+        web-worker example
+        excel-esque features
+            hotedit
+            page up/down
+        enum columns to improve performance
+        damage rectangle updates?
+        angular example
+
+
+summary
+    -openfin is committed to making this the highest performing, best supported html5 grid available
+
+
+
+
+
+
+
+
+

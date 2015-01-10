@@ -88,6 +88,7 @@ The `fin-hypergrid-behavior-q` element is a custom Polymer web component used to
         //for now we use the hacky override implementation to save data, in the future we'll have a more elaborate protocol with Q to do real validation and setting of data.
         //<br>take note of the usage of the scrollPositionY value in translating our in-memory data page
         getValue: function(x, y) {
+            x = this.translateColumnIndex(x);
             var override = this.values['p_' + (x + 1) + '_' + y];
             if (override) {
                 return override;
@@ -144,6 +145,7 @@ The `fin-hypergrid-behavior-q` element is a custom Polymer web component used to
 
         //return the column names, they are available to us as meta data in the most recent page Q sent us.
         getFixedRowValue: function(x) {
+            x = this.translateColumnIndex(x);
             if (!this.sorted[x + 1]) {
                 this.sorted[x + 1] = 0;
             }
@@ -153,7 +155,7 @@ The `fin-hypergrid-behavior-q` element is a custom Polymer web component used to
 
         //for now just return the row number.  the simple protocol we talk with q assumes the first column is the real row index. so it is offset in all data access
         getFixedColValue: function(x, y) {
-            return this.getValue(-1, y);
+            return y;
         },
 
         //let Q decide if this instance is sortable or not
@@ -164,11 +166,12 @@ The `fin-hypergrid-behavior-q` element is a custom Polymer web component used to
 
         //on a header click do a sort!
         fixedRowClicked: function(grid, mouse) {
-            this.toggleSort(this.scrollPositionX + mouse.cell.x - this.getFixedColCount());
+            this.toggleSort(this.scrollPositionX + mouse.gridCell.x - this.getFixedColCount());
         },
 
         //first ask q if this is a sortable instance, then send a message to Q to sort our data set
         toggleSort: function(colIndex) {
+            var colIndex = this.translateColumnIndex(colIndex);
             if (!this.getCanSort()) {
                 return;
             }
@@ -193,12 +196,14 @@ The `fin-hypergrid-behavior-q` element is a custom Polymer web component used to
 
         //delegate column alignment through the map at the top based on the column type
         getColAlignment: function(x) {
+            x = this.translateColumnIndex(x);
             var alignment = typeAlignmentMap[this.block.headers[x + 1][1]];
             return alignment;
         },
 
         //for now use the cheesy local set data for storing user edits
         setValue: function(x, y, value) {
+            x = this.translateColumnIndex(x);
             this.values['p_' + (x + 1) + '_' + y] = value;
         },
 
@@ -241,7 +246,9 @@ The `fin-hypergrid-behavior-q` element is a custom Polymer web component used to
                     if (d.rows !== oldSize) {
                         self.sizeChanged();
                     }
-
+                    if (!self.colIndexes || self.colIndexes.length === 0)  {
+                        self.initColIndexes();
+                    }
                     self.changed();
                 };
                 this.ws.onerror = function(e) {
