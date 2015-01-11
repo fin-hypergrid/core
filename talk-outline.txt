@@ -85,7 +85,7 @@ show the hypergrid "pink" demo features (so far)
         -planned is a data management internal piece (in JS process)
         -already looked at alternate faster sorting of columns
             -we may have Openfin only enhancements to allow for very fast data manipulation here
-        -exernal (in q initially) capbility
+        -exernal (in q initially) capability
 
     column resize/reordering
         -a little buggy at the moment, it's new
@@ -133,6 +133,9 @@ show the hypergrid "pink" demo features (so far)
         -Q analytics coming
         -other external interfaces coming.....
         -any JSON source can be added very quickly
+
+    cut/copy/paste support
+        -only copy support at the moment///////9
 
 --------------------------------------------------------------------------------
 
@@ -211,10 +214,12 @@ high level design
         -default fg/bg color/font/widths/heights etc
 
 
-tricks
+techniques
     -alot of these are common sense and seen in grid controls in other languages
-    -avoid dom manipulation, all canvas hand coded rendering
-    -row/column based scrolling, not pixel
+    -avoid dom manipulation
+        -all canvas hand coded rendering
+    -row/column based scrolling
+        -not pixel,custom scrollbars,unlimited virtual rows
     -good book "HTML5 game developement insights"
     -video game technique influence
         -fin-canvas requestAnimationFrame to control the fps
@@ -222,8 +227,11 @@ tricks
         -double buffer the canvas and it's context so you don't see the rendering happening
         -we could implement dirty rectangles in fin-canvas
     -avoid talking to the context in precedence order of time consumption
+        -see fin-hypergrid-cell-provider.defaultCellPaint
         -don't clip cells, paint in order to cover overflow
     -"float" dom components when necessary
+        -some effects just require more dom elements
+        -drag columns, animations
     -rectangle based selection model
     -stable sorting for sort accumulation
     -polymer plugin pattern
@@ -242,6 +250,7 @@ tricks
 gotchas
     -polymer inheritance issues
         -override of superclass functions doesn't seem to work yet (maybe it does now)
+        -always an issue when on the bleeding edge
     -graphics context operations are expensive
         -text measuring
         -border rendering
@@ -252,18 +261,19 @@ gotchas
             -build things in batch, then plug them into the dom in one operation
         -"the dom isnt slow you are"
 
-iterative process for best practices
+process and best practices
     -major refactoring already 3x, browserify>webcomponents>polymer
-    -started with polymer custom component process
-        -modified as necessary
-        -.bowerrc
+    -polymer process, odd but necessary
         -extra nested directory
+        -.bowerrc
+        -modified as necessary
     -livereload
     -vulcanize
     -wct-testing
     -linting
     -concat
     -polymer-documentation "pink stuff"
+        -core component page - see index.html multiple files - not documented
     -github pages live demo
     -theres a major refactoring I'd like to do soon
         -move to gulp
