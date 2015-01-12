@@ -1,0 +1,198 @@
+talk-study
+---------------------
+about me
+
+---------------------------------------------
+goals for the hypergrid
+
+-look and behave great
+
+-super easy to use
+
+-lightweight
+
+-native widget feel
+
+-no deferred rendering/instant rendering
+
+-best general purpose html5 grid available
+
+-easy to integrate with your data
+
+-allow for easy virtualization
+
+-use html5/javascript best practices
+
+-opensource
+
+-initial features to be driven by existing html5 popular grid components
+
+-------------------------------------
+what is Polymer
+
+-project by google
+
+-built on top of the web components standard
+
+-webcomponents polyfill
+
+-best practices convenience framework for building webcomponents
+
+-material design compliant responsive design widget set
+
+-------------------------------------
+some hypergrid features;  the "pink" demo
+
+-unlimited row count
+
+-currently minimal data management/sorting/editing/grouping
+
+-column resize/reordering
+
+-easy custom cell rendering
+
+-full multiselect semantics
+
+-non-linear auto scrolling speed to accomodate large data sets
+
+-json support
+
+-single file deployment of the grid
+
+-easy augmentation via polymer plugin pattern
+
+-gesture control through polymer-gestures
+
+-excel integration
+
+-interface to Q
+
+-cut/copy/paste support
+
+--------------------------------------------------------------------------------
+quick hypergrid design
+
+* fin-hypergrid
+-polymer component
+-entrypoint for the grid
+
+* fin-canvas
+-wrapped up html5 canvas
+-uses the fin-rectangles project for simple rectangle/point functionality
+
+* fin-hypergrid-behavior
+-think of as a tablemodel++
+-place to park code that is different for virtualization
+
+* fin-rectangles
+-provides common rectangle and point objects and functions
+
+* fin-hypergrid-renderer
+-paint function using context from canvas
+-has the rows X columns iteration logic
+
+* fin-hypergrid-cell-renderer
+-stored in cell provider
+-easy to register
+-implements paint(graphicsContext)
+
+* fin-hypergrid-cell-provider
+-holds the cache of cell-renderers
+-behavior is the cell-provider factory
+
+* fin-hypergrid-cell-editor
+-stored in hypergrid
+-selected by behavior
+
+
+* fin-hypergrid-feature
+-linked list on behavior
+-chain of responisibility
+
+
+* fin-hypergrid-selection-model
+-rectangle based selection management
+-allows for arbitrary large rectangular selections
+
+
+* fin-hypergrid-constants
+-constant values for the grid
+-default fg/bg color/font/widths/heights etc
+
+* fin-vampire-bar
+-only 33million pixes to scroll with native scrollbars
+
+* plugins
+-installOn(hypergrid) function must be implemented by plugin
+-nest tags inside fin-hypergrid
+-two places to load plugins
+-refactor for more hypergrid functionality
+
+-------------------------------------------------
+techniques (things we learned)
+
+-common sense
+
+-used in grid controls in other languages
+
+-avoid dom manipulation
+
+-row/column based scrolling
+
+-good book "HTML5 game developement insights"
+
+-talking to graphicsContext is expensive
+
+-rectangle based selection model
+
+-stable sorting for sort accumulation
+
+-polymer plugin pattern
+
+-use requestAnimationFrame
+
+-know about device pixel density and the backing store
+
+-only iterate/render what is visible
+
+------------------------------------------------------------
+gotchas
+
+-polymer inheritance issues
+
+-specific graphics context operations are expensive
+
+-dom access can be expensive
+
+-------------------------------------------------------------
+process and best practices
+
+-environment was tricky
+
+-restarted three times
+
+-polymer
+
+-grunt based
+
+-livereload
+
+-vulcanize
+
+-wct-testing
+
+-aggresive validation
+
+-polymer-solutions
+
+-yeoman generator for polymer
+
+-my yeoman generator
+
+--------------------------------------------------------------
+roadmap
+
+---------------------------------------------------------------
+summary
+
+
