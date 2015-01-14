@@ -41,7 +41,6 @@ trade:([]
  date4:2000.01.01 + asc n ? 365;
  amount5:100 * 10 + n ? 20);
 
-trade:f 
 
 window:{[start;num]
     ii: start + til num;
@@ -58,10 +57,10 @@ fetch: {
  }
 
 
-sf:parse "delete av from `av xasc update av:RX_PRESC_ASN from `trade"
+sf:parse "delete av from `av xasc update av:abs quantity from `trade"
 sort: {
     $[0~count x`sort;
-        [trade::`RX_PRESC_ASN xasc select from trade];
+        [trade::`tradeId xasc select from trade];
         [sf[1;2;4;`av]:(`$x`sort);
          $[x`abs;
             $[11h~type (trade`$x`sort);;sf[1;2;4]:(enlist`av)!enlist (abs;`$x`sort)];
