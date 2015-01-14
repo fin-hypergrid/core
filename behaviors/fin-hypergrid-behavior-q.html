@@ -60,6 +60,15 @@ The `fin-hypergrid-behavior-q` element is a custom Polymer web component used to
             this.sorted = {};
             this.sortStates = ['', ' ^', ' v', ' |^|', ' |v|'];
             this.ws = null;
+            this.reconnect();
+        },
+
+        connectTo: function(newUrl) {
+            this.setAttribute('url', newUrl);
+            this.reconnect();
+        },
+
+        reconnect: function() {
             this.url = this.getAttribute('url') || 'ws://localhost:5000/';
             this.connect();
             this.scrollPositionY = 0;
