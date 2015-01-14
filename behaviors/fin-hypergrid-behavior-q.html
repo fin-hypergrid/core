@@ -83,6 +83,7 @@ The `fin-hypergrid-behavior-q` element is a custom Polymer web component used to
             provider.getCell = function(config) {
                 var x = config.x;
                 var renderer = provider.cellCache[typeRendererMap[self.block.headers[x + 1][1]]];
+                renderer = renderer  || provider.cellCache.simpleCellRenderer;
                 if (x === 11) {
                     renderer = provider.cellCache.sliderCellRenderer;
                 } else if (x === 13) {
