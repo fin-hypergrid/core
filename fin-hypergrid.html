@@ -88,6 +88,8 @@ The Hypergrid design makes no assumptions about the data you wish to view which 
         position: absolute;
         display: none;
         opacity: 0.75;
+        box-shadow: 5px 5px 5px #888888;
+        z-index: 100;
     }
     #floatColumn {
         position: absolute;
@@ -352,6 +354,7 @@ The Hypergrid design makes no assumptions about the data you wish to view which 
             this.initScrollbars();
 
             this.dragger = this.shadowRoot.querySelector('#dragger');
+            document.body.appendChild(this.dragger);
             this.draggerCTX = this.dragger.getContext('2d');
 
             this.floatColumn = this.shadowRoot.querySelector('#floatColumn');
@@ -1715,7 +1718,8 @@ The Hypergrid design makes no assumptions about the data you wish to view which 
 
         //do the animation and swap the columns
         //we need a better name
-        floatColumnTo: function(columnDragDirection) {
+        floatColumnTo: function(draggedToTheRight) {
+            this.floatingNow = true;
             var scrollLeft = this.getHScrollValue();
             var floaterIndex = this.columnRenderOverridesCache.floater.colIndex;
             var draggerIndex = this.columnRenderOverridesCache.dragger.colIndex;
@@ -1724,18 +1728,20 @@ The Hypergrid design makes no assumptions about the data you wish to view which 
             var numFixedCols = this.getFixedColCount();
             var draggerStartX;
             var floaterStartX;
-            if (columnDragDirection) {
-                draggerStartX = this.renderer.renderedColWidths[draggerIndex + numFixedCols];
-                floaterStartX = draggerStartX + this.getColumnWidth(floaterIndex + scrollLeft);
+            var draggerWidth = this.getColumnWidth(draggerIndex + scrollLeft);
+            var floaterWidth = this.getColumnWidth(floaterIndex + scrollLeft);
+            var max = this.renderer.renderedColWidths.length - 1;
+            if (draggedToTheRight) {
+                draggerStartX = this.renderer.renderedColWidths[Math.min(max, draggerIndex + numFixedCols)];
+                floaterStartX = draggerStartX + floaterWidth;
 
                 this.columnRenderOverridesCache.dragger.startX = floaterStartX * hdpiratio;
                 this.columnRenderOverridesCache.floater.startX = draggerStartX * hdpiratio;
 
-                floaterStartX = draggerStartX + this.getColumnWidth(draggerIndex + scrollLeft);
-
+                floaterStartX = draggerStartX + draggerWidth;
             } else {
-                floaterStartX = this.renderer.renderedColWidths[floaterIndex + numFixedCols];
-                draggerStartX = floaterStartX + this.getColumnWidth(draggerIndex + scrollLeft);
+                floaterStartX = this.renderer.renderedColWidths[Math.min(max, floaterIndex + numFixedCols)];
+                draggerStartX = floaterStartX + draggerWidth;
 
                 this.columnRenderOverridesCache.dragger.startX = floaterStartX * hdpiratio;
                 this.columnRenderOverridesCache.floater.startX = draggerStartX * hdpiratio;
@@ -1746,6 +1752,10 @@ The Hypergrid design makes no assumptions about the data you wish to view which 
 
 
             this.floaterAnimationQueue.unshift(this.doColumnMoveAnimation(floaterStartX, draggerStartX));
+
+            if (!this.columnRenderOverridesCache.dragger.startX) {
+                console.log('halt');
+            }
 
             this.doFloaterAnimation();
 
@@ -1779,6 +1789,8 @@ The Hypergrid design makes no assumptions about the data you wish to view which 
 
         doFloaterAnimation: function() {
             if (this.floaterAnimationQueue.length === 0) {
+                this.floatingNow = false;
+                this.repaint();
                 return;
             }
             var animation = this.floaterAnimationQueue.pop();
@@ -1828,11 +1840,22 @@ The Hypergrid design makes no assumptions about the data you wish to view which 
             var colHeight = this.clientHeight;
             var d = this.dragger;
 
+            var location = this.getBoundingClientRect();
+            var style = d.style;
+            style.top = location.top + 'px';
+            style.left = location.left + 'px';
+            style.position = 'absolute';
+            style.opacity = 0.85;
+            style.boxShadow = '5px 5px 5px #888888';
+            //style.zIndex = 100;
+            style.borderTop = '1px solid ' + this.constants.lineColor;
+            style.backgroundColor = this.constants.backgroundColor;
+
             d.setAttribute('width', Math.round(colWidth * hdpiRatio) + 'px');
             d.setAttribute('height', Math.round(colHeight * hdpiRatio) + 'px');
 
-            d.style.width = colWidth + 'px'; //Math.round(colWidth / hdpiRatio) + 'px';
-            d.style.height = colHeight + 'px'; //Math.round(colHeight / hdpiRatio) + 'px';
+            style.width = colWidth + 'px'; //Math.round(colWidth / hdpiRatio) + 'px';
+            style.height = colHeight + 'px'; //Math.round(colHeight / hdpiRatio) + 'px';
 
             var startX = this.renderer.renderedColWidths[colIndex + numFixedCols];
             startX = startX * hdpiRatio;
@@ -1850,9 +1873,9 @@ The Hypergrid design makes no assumptions about the data you wish to view which 
             //this.renderer.renderGrid(this.draggerCTX);
             //this.draggerCTX.translate(startX, 0);
 
-            d.style.webkitTransform = 'translate(' + x + 'px, ' + 0 + 'px)';
-            d.style.zIndex = '5';
-            d.style.cursor = 'none';
+            style.webkitTransform = 'translate(' + x + 'px, 0px)';
+            style.zIndex = '5';
+            style.cursor = 'none';
             this.repaint();
 
         },
@@ -1881,7 +1904,14 @@ The Hypergrid design makes no assumptions about the data you wish to view which 
 
         dragColumn: function(x) {
 
+            var autoScrollingNow = this.columnDragAutoScrollingRight || this.columnDragAutoScrollingLeft;
+            noop(autoScrollingNow);
+            if (this.autoScrollingNow) {
+                return;
+            }
+
             var hdpiRatio = this.getHiDPI(this.draggerCTX);
+            //var colCount = this.getColCount();
             var dragColumnIndex = this.columnRenderOverridesCache.dragger.colIndex;
             var colWidth = this.columnRenderOverridesCache.dragger.width;
             var minX = this.getFixedColsWidth();
@@ -1893,49 +1923,68 @@ The Hypergrid design makes no assumptions about the data you wish to view which 
             var atMin = x < minX && dragColumnIndex !== 0;
             var atMax = x > maxX;
 
+            if (x === maxX + 15) {
+                console.log('halt');
+            }
+
+
             var d = this.dragger;
             //   var numFixedCols = this.getFixedColCount();
             d.style.webkitTransition = '';
             d.style.transition = '';
-            d.style.webkitTransform = 'translate(' + x + 'px, ' + 0 + 'px)';
+
+            d.style.webkitTransform = 'translate(' + x + 'px, ' + -10 + 'px)';
             d.style.display = 'inline';
             var overCol = this.renderer.getColumnFromPixelX(x + (d.width / 2 / hdpiRatio));
             if (atMin) {
                 overCol = 0;
             }
-            var colDif = overCol - dragColumnIndex;
-            var columnDragDirection = colDif > 1;
-            var threshold = columnDragDirection ? 1 : 0;
-            if (colDif > 1 || colDif < 0 || atMin || atMax) {
-                this.createFloatColumn(overCol - threshold);
-                this.floatColumnTo(columnDragDirection);
+            if (atMax) {
+                overCol = this.renderer.renderedCols[this.renderer.renderedCols.length - 1];
             }
-            //lets check for autoscroll to left if were up against it
-            if (x < minX - 10) {
-                this.checkAutoScrollToLeft(x);
-            }
-            if (x > minX - 5 && x < minX + 5) {
-                this.columnDragAutoScrolling = false;
-            }
-            //lets check for autoscroll to right if were up against it
-            if (x > maxX + 10) {
-                this.checkAutoScrollToRight(x);
-            }
-            if (x < maxX + 5 && x > maxX - 5) {
-                this.columnDragAutoScrolling = false;
+
+            var doAFloat = dragColumnIndex > overCol && (dragColumnIndex - overCol > 0);
+            doAFloat = doAFloat || (overCol - dragColumnIndex > 1);
+            //var colDif = overCol - dragColumnIndex;
+            //var draggedToTheRight = colDif > 1;
+            //        var threshold = draggedToTheRight ? 1 : 0;
+            //        var isToFar = overCol > colCount;
+            if (doAFloat && !this.floatingNow && !atMax) {
+                var draggedToTheRight = dragColumnIndex < overCol;
+                if (draggedToTheRight) {
+                    overCol = overCol - 1;
+                }
+                this.createFloatColumn(overCol);
+                this.floatColumnTo(draggedToTheRight);
+            } else {
+
+                if (x < minX - 10) {
+                    this.checkAutoScrollToLeft(x);
+                }
+                if (x > minX - 10) {
+                    this.columnDragAutoScrollingLeft = false;
+                }
+                //lets check for autoscroll to right if were up against it
+                if (atMax || x > maxX + 10) {
+                    this.checkAutoScrollToRight(x);
+                    return;
+                }
+                if (x < maxX + 10) {
+                    this.columnDragAutoScrollingRight = false;
+                }
             }
         },
 
         checkAutoScrollToRight: function(x) {
-            if (this.columnDragAutoScrolling) {
+            if (this.columnDragAutoScrollingRight) {
                 return;
             }
-            this.columnDragAutoScrolling = true;
+            this.columnDragAutoScrollingRight = true;
             this._checkAutoScrollToRight(x);
         },
 
         _checkAutoScrollToRight: function(x) {
-            if (!this.columnDragAutoScrolling) {
+            if (!this.columnDragAutoScrollingRight) {
                 return;
             }
             var behavior = this.getBehavior();
@@ -1944,21 +1993,32 @@ The Hypergrid design makes no assumptions about the data you wish to view which 
                 return;
             }
             var draggedIndex = this.columnRenderOverridesCache.dragger.colIndex;
-            behavior.swapColumns(draggedIndex + scrollLeft, draggedIndex + scrollLeft + 1);
+
+            //var cw = this.renderer.renderedColWidths;
+            //var removeColWidth = behavior.getColWidth(0);
+            //var addColWidth = cw[cw.length - 1] - removeColWidth - this.columnRenderOverridesCache.dragger.width;
+            //var csx = this.columnRenderOverridesCache.dragger.startX;
+
+            behavior.swapColumns(draggedIndex + scrollLeft + 1, draggedIndex + scrollLeft);
             this.scrollBy(1, 0);
+
+            //this.columnRenderOverridesCache.dragger.startX = ;
+            //var startX = this.renderer.renderedColWidths[draggedIndex + numFixedCols];
+
+            //this.columnRenderOverridesCache.dragger.startX = startX;
             setTimeout(this._checkAutoScrollToRight.bind(this, x), 250);
         },
 
         checkAutoScrollToLeft: function(x) {
-            if (this.columnDragAutoScrolling) {
+            if (this.columnDragAutoScrollingLeft) {
                 return;
             }
-            this.columnDragAutoScrolling = true;
+            this.columnDragAutoScrollingLeft = true;
             this._checkAutoScrollToLeft(x);
         },
 
         _checkAutoScrollToLeft: function(x) {
-            if (!this.columnDragAutoScrolling) {
+            if (!this.columnDragAutoScrollingLeft) {
                 return;
             }
             var behavior = this.getBehavior();
@@ -1978,10 +2038,10 @@ The Hypergrid design makes no assumptions about the data you wish to view which 
             var colIndex = this.columnRenderOverridesCache.dragger.colIndex;
             var startX = this.renderer.renderedColWidths[colIndex + numFixedCols];
             var d = this.dragger;
-            d.style.webkitTransition = '-webkit-transform ' + colAnimationTime + 'ms ease';
-            d.style.transition = 'transform ' + colAnimationTime + 'ms ease';
-            d.style.webkitTransform = 'translate(' + startX + 'px, ' + 0 + 'px)';
-
+            d.style.webkitTransition = '-webkit-transform ' + colAnimationTime + 'ms ease, box-shadow ' + colAnimationTime + 'ms ease';
+            d.style.transition = 'transform ' + colAnimationTime + 'ms ease, box-shadow ' + colAnimationTime + 'ms ease';
+            d.style.webkitTransform = 'translate(' + startX + 'px, ' + -1 + 'px)';
+            d.style.boxShadow = '0px 0px 0px #888888';
             //need to change this to key frames
             setTimeout(function() {
                 self.columnRenderOverridesCache.dragger = null;
@@ -1998,6 +2058,13 @@ The Hypergrid design makes no assumptions about the data you wish to view which 
                 this.setAttribute('hidpi', null);
             }
             this.canvas.resize();
+        },
+
+        //answer true if the last col was rendered (is visible)
+        isLastColumnVisible: function() {
+            var lastColIndex = this.getColCount() - 1;
+            var isMax = this.renderer.renderedCols.indexOf(lastColIndex) !== -1;
+            return isMax;
         }
     });
 

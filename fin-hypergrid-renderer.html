@@ -129,7 +129,7 @@ The `fin-hypergrid-renderer` element is a custom Polymer web component used to s
                     return c;
                 }
             }
-            return -1;
+            return c;
         },
         //Answer specific data cell coordinates given mouse coordinates in pixels.
         getGridCellFromMousePoint: function(point) {
@@ -176,7 +176,12 @@ The `fin-hypergrid-renderer` element is a custom Polymer web component used to s
             return isVisible;
         },
         getFinalVisableColumnBoundry: function() {
-            return this.getBounds().width() - 200;
+            var grid = this.getGrid();
+            var isMaxX = grid.isLastColumnVisible();
+            var chop = isMaxX ? 2 : 1;
+            var colWall = this.renderedColWidths[this.renderedColWidths.length-chop];
+            var result = Math.min(colWall, this.getBounds().width() - 200);
+            return result;
         },
         //Answer if a row is visible, must be fully visible
         isRowVisible: function(r) {
@@ -199,8 +204,21 @@ The `fin-hypergrid-renderer` element is a custom Polymer web component used to s
             this.paintCells(gc, offsetX, offsetY);
             this.paintGridlines(gc, offsetX, offsetY);
 
+            this.blankOutOverflow(gc);
 
             this.renderOverrides(gc);
+        },
+
+        blankOutOverflow: function(gc) {
+            var grid = this.getGrid();
+            var isMaxX = grid.isLastColumnVisible();
+            var chop = isMaxX ? 2 : 1;
+            var x = this.renderedColWidths[this.renderedColWidths.length-chop];
+            var bounds = this.getBounds();
+            var width = bounds.width() - x;
+            var height = bounds.height();
+            gc.strokeStyle = constants.backgroundColor;
+            gc.fillRect(x, 0, width, height);
         },
 
         renderOverrides: function(gc) {
@@ -297,7 +315,7 @@ The `fin-hypergrid-renderer` element is a custom Polymer web component used to s
             gc.moveTo(0, 0);
             x = offsetX;
             var previousInsertionBoundsCursorValue = 0;
-            for (c = 0; c < numCols; c++) {
+            for (c = 0; c < numCols + 1; c++) {
                 width = this.getColWidth(c + scrollLeft);
 
                 this.renderedCols.push(c + scrollLeft);
