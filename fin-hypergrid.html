@@ -129,7 +129,7 @@ The Hypergrid design makes no assumptions about the data you wish to view which 
 (function() {
 
     var noop = function() {};
-    var colAnimationTime = 100;
+    var colAnimationTime = 200;
 
     Polymer({ /* jslint ignore:line */
 
@@ -358,6 +358,7 @@ The Hypergrid design makes no assumptions about the data you wish to view which 
             this.draggerCTX = this.dragger.getContext('2d');
 
             this.floatColumn = this.shadowRoot.querySelector('#floatColumn');
+            document.body.appendChild(this.floatColumn);
             this.floatColumnCTX = this.floatColumn.getContext('2d');
             //this.draggerCTX.setTransform(1, 0, 0, 1, 0, 0);
             //Register a listener for the copy event so we can copy our selected region to the pastebuffer if conditions are right.
@@ -1771,7 +1772,7 @@ The Hypergrid design makes no assumptions about the data you wish to view which 
                 window.requestAnimationFrame(function() {
                     d.style.webkitTransition = '-webkit-transform ' + colAnimationTime + 'ms ease';
                     d.style.transition = 'transform ' + colAnimationTime + 'ms ease';
-                    d.style.webkitTransform = 'translate(' + draggerStartX + 'px, ' + 0 + 'px)';
+                    d.style.webkitTransform = 'translate(' + draggerStartX + 'px, ' + -2 + 'px)';
                 });
                 self.repaint();
                 //need to change this to key frames
@@ -1803,13 +1804,22 @@ The Hypergrid design makes no assumptions about the data you wish to view which 
             var colWidth = colIndex < 0 ? this.getFixedColumnWidth(numFixedCols + colIndex + scrollLeft) : this.getColumnWidth(colIndex + scrollLeft);
             var colHeight = this.clientHeight;
             var d = this.floatColumn;
+            var style = d.style;
+            var location = this.getBoundingClientRect();
+
+            style.top = (location.top - 2) + 'px';
+            style.left = location.left + 'px';
+            style.position = 'absolute';
+
             var hdpiRatio = this.getHiDPI(this.floatColumnCTX);
 
             d.setAttribute('width', Math.round(colWidth * hdpiRatio) + 'px');
             d.setAttribute('height', Math.round(colHeight * hdpiRatio) + 'px');
-
-            d.style.width = colWidth + 'px'; //Math.round(colWidth / hdpiRatio) + 'px';
-            d.style.height = colHeight + 'px'; //Math.round(colHeight / hdpiRatio) + 'px';
+            style.boxShadow = '2px 2px 2px #888888';
+            style.width = colWidth + 'px'; //Math.round(colWidth / hdpiRatio) + 'px';
+            style.height = colHeight + 'px'; //Math.round(colHeight / hdpiRatio) + 'px';
+            style.borderTop = '1px solid ' + this.constants.lineColor;
+            style.backgroundColor = this.constants.backgroundColor;
 
             var startX = this.renderer.renderedColWidths[colIndex + numFixedCols];
             startX = startX * hdpiRatio;
@@ -1825,9 +1835,9 @@ The Hypergrid design makes no assumptions about the data you wish to view which 
                 hdpiratio: hdpiRatio
             };
 
-            d.style.zIndex = '4';
-            d.style.webkitTransform = 'translate(' + startX + 'px, ' + 0 + 'px)';
-            d.style.cursor = 'none';
+            style.zIndex = '4';
+            style.webkitTransform = 'translate(' + startX + 'px, ' + -2 + 'px)';
+            style.cursor = 'none';
             this.repaint();
         },
 
@@ -1873,7 +1883,7 @@ The Hypergrid design makes no assumptions about the data you wish to view which 
             //this.renderer.renderGrid(this.draggerCTX);
             //this.draggerCTX.translate(startX, 0);
 
-            style.webkitTransform = 'translate(' + x + 'px, 0px)';
+            style.webkitTransform = 'translate(' + x + 'px, -5px)';
             style.zIndex = '5';
             style.cursor = 'none';
             this.repaint();
@@ -1905,10 +1915,6 @@ The Hypergrid design makes no assumptions about the data you wish to view which 
         dragColumn: function(x) {
 
             var autoScrollingNow = this.columnDragAutoScrollingRight || this.columnDragAutoScrollingLeft;
-            noop(autoScrollingNow);
-            if (this.autoScrollingNow) {
-                return;
-            }
 
             var hdpiRatio = this.getHiDPI(this.draggerCTX);
             //var colCount = this.getColCount();
@@ -1949,7 +1955,7 @@ The Hypergrid design makes no assumptions about the data you wish to view which 
             //var draggedToTheRight = colDif > 1;
             //        var threshold = draggedToTheRight ? 1 : 0;
             //        var isToFar = overCol > colCount;
-            if (doAFloat && !this.floatingNow && !atMax) {
+            if (doAFloat && !this.floatingNow && !atMax && !autoScrollingNow) {
                 var draggedToTheRight = dragColumnIndex < overCol;
                 if (draggedToTheRight) {
                     overCol = overCol - 1;
@@ -1993,20 +1999,32 @@ The Hypergrid design makes no assumptions about the data you wish to view which 
                 return;
             }
             var draggedIndex = this.columnRenderOverridesCache.dragger.colIndex;
-
-            //var cw = this.renderer.renderedColWidths;
-            //var removeColWidth = behavior.getColWidth(0);
-            //var addColWidth = cw[cw.length - 1] - removeColWidth - this.columnRenderOverridesCache.dragger.width;
-            //var csx = this.columnRenderOverridesCache.dragger.startX;
-
-            behavior.swapColumns(draggedIndex + scrollLeft + 1, draggedIndex + scrollLeft);
             this.scrollBy(1, 0);
+            var newIndex = draggedIndex + scrollLeft + 1; //this.findNewPositionOnScrollRight(draggedIndex);
+            behavior.swapColumns(newIndex, draggedIndex + scrollLeft);
 
-            //this.columnRenderOverridesCache.dragger.startX = ;
-            //var startX = this.renderer.renderedColWidths[draggedIndex + numFixedCols];
+            setTimeout(this._checkAutoScrollToRight.bind(this, x), 1000);
+        },
 
-            //this.columnRenderOverridesCache.dragger.startX = startX;
-            setTimeout(this._checkAutoScrollToRight.bind(this, x), 250);
+        findNewPositionOnScrollRight: function(dragIndex) {
+            noop(dragIndex);
+            //we need to compute the new index of dragIndex if it's assumed to be on the far right and we scroll one cell to the right
+            var scrollLeft = this.getHScrollValue();
+            var behavior = this.getBehavior();
+            //var dragWidth = behavior.getColWidth(dragIndex + scrollLeft);
+            var bounds = this.canvas.getBounds();
+
+            //lets add the drag width in so we don't have to ignore it in the loop
+            var viewWidth = bounds.width() - behavior.getFixedColsWidth();
+            var max = behavior.getColCount();
+            for (var c = 0; c < max; c++) {
+                var eachColWidth = behavior.getColWidth(scrollLeft + c);
+                viewWidth = viewWidth - eachColWidth;
+                if (viewWidth < 0) {
+                    return c - 2;
+                }
+            }
+            return max - 1;
         },
 
         checkAutoScrollToLeft: function(x) {
