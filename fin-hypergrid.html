@@ -129,7 +129,7 @@ The Hypergrid design makes no assumptions about the data you wish to view which 
 (function() {
 
     var noop = function() {};
-    var colAnimationTime = 200;
+    var colAnimationTime = 150;
 
     Polymer({ /* jslint ignore:line */
 
@@ -156,6 +156,8 @@ The Hypergrid design makes no assumptions about the data you wish to view which 
             click: noop,
             doubleClick: noop
         },
+
+        isWebkit: true,
 
         /**
          * mouseDown is the location of an initial mousedown click, either for editing
@@ -320,6 +322,8 @@ The Hypergrid design makes no assumptions about the data you wish to view which 
 
         domReady: function() {
             var self = this;
+
+            this.isWebkit = navigator.userAgent.toLowerCase().indexOf('webkit') > -1;
 
             this.rectangles = document.createElement('fin-rectangle');
             this.constants = document.createElement('fin-hypergrid-constants').values;
@@ -1766,24 +1770,26 @@ The Hypergrid design makes no assumptions about the data you wish to view which 
             return function() {
                 var d = self.floatColumn;
                 d.style.display = 'inline';
-                d.style.webkitTransform = 'translate(' + floaterStartX + 'px, ' + 0 + 'px)';
-                //d.style.webkitTransform = 'translate(' + floaterStartX + 'px, ' + 0 + 'px)';
+                self.setCrossBrowserProperty(d, 'transform', 'translate(' + floaterStartX + 'px, ' + 0 + 'px)');
+
+                //d.style.webkit-webkit-Transform = 'translate(' + floaterStartX + 'px, ' + 0 + 'px)';
+                //d.style.webkit-webkit-Transform = 'translate(' + floaterStartX + 'px, ' + 0 + 'px)';
 
                 window.requestAnimationFrame(function() {
-                    d.style.webkitTransition = '-webkit-transform ' + colAnimationTime + 'ms ease';
-                    d.style.transition = 'transform ' + colAnimationTime + 'ms ease';
-                    d.style.webkitTransform = 'translate(' + draggerStartX + 'px, ' + -2 + 'px)';
+                    self.setCrossBrowserProperty(d, 'transition', (self.isWebkit ? '-webkit-' : '') + 'transform ' + colAnimationTime + 'ms ease');
+                    self.setCrossBrowserProperty(d, 'transform', 'translate(' + draggerStartX + 'px, ' + -2 + 'px)');
                 });
                 self.repaint();
                 //need to change this to key frames
 
                 setTimeout(function() {
-                    d.style.display = 'none';
-                    d.style.webkitTransition = '';
-                    d.style.transition = '';
+                    self.setCrossBrowserProperty(d, 'transition', '');
                     self.columnRenderOverridesCache.floater = null;
                     self.repaint();
                     self.doFloaterAnimation();
+                    requestAnimationFrame(function() {
+                        d.style.display = 'none';
+                    });
                 }, colAnimationTime + 50);
             };
         },
@@ -1836,11 +1842,23 @@ The Hypergrid design makes no assumptions about the data you wish to view which 
             };
 
             style.zIndex = '4';
-            style.webkitTransform = 'translate(' + startX + 'px, ' + -2 + 'px)';
+            this.setCrossBrowserProperty(d, 'transform', 'translate(' + startX + 'px, ' + -2 + 'px)');
             style.cursor = 'none';
             this.repaint();
         },
-
+        setCrossBrowserProperty: function(element, property, value) {
+            var uProperty = property[0].toUpperCase() + property.substr(1);
+            this.setProp(element, 'webkit' + uProperty, value);
+            this.setProp(element, 'Moz' + uProperty, value);
+            this.setProp(element, 'ms' + uProperty, value);
+            this.setProp(element, 'O' + uProperty, value);
+            this.setProp(element, property, value);
+        },
+        setProp: function(element, property, value) {
+            if (property in element.style) {
+                element.style[property] = value;
+            }
+        },
         createDragColumn: function(x, colIndex) {
             var scrollLeft = this.getHScrollValue();
             var numFixedCols = this.getFixedColCount();
@@ -1880,10 +1898,8 @@ The Hypergrid design makes no assumptions about the data you wish to view which 
                 height: colHeight,
                 hdpiratio: hdpiRatio
             };
-            //this.renderer.renderGrid(this.draggerCTX);
-            //this.draggerCTX.translate(startX, 0);
 
-            style.webkitTransform = 'translate(' + x + 'px, -5px)';
+            this.setCrossBrowserProperty(d, 'transform', 'translate(' + x + 'px, -5px)');
             style.zIndex = '5';
             style.cursor = 'none';
             this.repaint();
@@ -1917,7 +1933,7 @@ The Hypergrid design makes no assumptions about the data you wish to view which 
             var autoScrollingNow = this.columnDragAutoScrollingRight || this.columnDragAutoScrollingLeft;
 
             var hdpiRatio = this.getHiDPI(this.draggerCTX);
-            //var colCount = this.getColCount();
+
             var dragColumnIndex = this.columnRenderOverridesCache.dragger.colIndex;
             var colWidth = this.columnRenderOverridesCache.dragger.width;
             var minX = this.getFixedColsWidth();
@@ -1927,20 +1943,18 @@ The Hypergrid design makes no assumptions about the data you wish to view which 
 
             //am I at my lower bound
             var atMin = x < minX && dragColumnIndex !== 0;
+
+            //am I at my upper bound
             var atMax = x > maxX;
-
-            if (x === maxX + 15) {
-                console.log('halt');
-            }
-
 
             var d = this.dragger;
             //   var numFixedCols = this.getFixedColCount();
-            d.style.webkitTransition = '';
-            d.style.transition = '';
+            this.setCrossBrowserProperty(d, 'transition', '');
 
-            d.style.webkitTransform = 'translate(' + x + 'px, ' + -10 + 'px)';
-            d.style.display = 'inline';
+            this.setCrossBrowserProperty(d, 'transform', 'translate(' + x + 'px, ' + -10 + 'px)');
+            requestAnimationFrame(function() {
+                d.style.display = 'inline';
+            });
             var overCol = this.renderer.getColumnFromPixelX(x + (d.width / 2 / hdpiRatio));
             if (atMin) {
                 overCol = 0;
@@ -1949,12 +1963,9 @@ The Hypergrid design makes no assumptions about the data you wish to view which 
                 overCol = this.renderer.renderedCols[this.renderer.renderedCols.length - 1];
             }
 
-            var doAFloat = dragColumnIndex > overCol && (dragColumnIndex - overCol > 0);
+            var doAFloat = dragColumnIndex > overCol;
             doAFloat = doAFloat || (overCol - dragColumnIndex > 1);
-            //var colDif = overCol - dragColumnIndex;
-            //var draggedToTheRight = colDif > 1;
-            //        var threshold = draggedToTheRight ? 1 : 0;
-            //        var isToFar = overCol > colCount;
+
             if (doAFloat && !this.floatingNow && !atMax && !autoScrollingNow) {
                 var draggedToTheRight = dragColumnIndex < overCol;
                 if (draggedToTheRight) {
@@ -2056,15 +2067,18 @@ The Hypergrid design makes no assumptions about the data you wish to view which 
             var colIndex = this.columnRenderOverridesCache.dragger.colIndex;
             var startX = this.renderer.renderedColWidths[colIndex + numFixedCols];
             var d = this.dragger;
-            d.style.webkitTransition = '-webkit-transform ' + colAnimationTime + 'ms ease, box-shadow ' + colAnimationTime + 'ms ease';
-            d.style.transition = 'transform ' + colAnimationTime + 'ms ease, box-shadow ' + colAnimationTime + 'ms ease';
-            d.style.webkitTransform = 'translate(' + startX + 'px, ' + -1 + 'px)';
+            //requestAnimationFrame(function() {
+            self.setCrossBrowserProperty(d, 'transition', (self.isWebkit ? '-webkit-' : '') + 'transform ' + colAnimationTime + 'ms ease, box-shadow ' + colAnimationTime + 'ms ease');
+            self.setCrossBrowserProperty(d, 'transform', 'translate(' + startX + 'px, ' + -1 + 'px)');
             d.style.boxShadow = '0px 0px 0px #888888';
+            //});
             //need to change this to key frames
             setTimeout(function() {
                 self.columnRenderOverridesCache.dragger = null;
-                d.style.display = 'none';
                 self.repaint();
+                requestAnimationFrame(function() {
+                    d.style.display = 'none';
+                });
             }, colAnimationTime + 50);
 
         },

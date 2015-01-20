@@ -246,8 +246,8 @@ The `fin-hypergrid-renderer` element is a custom Polymer web component used to s
             var behavior = this.getBehavior();
             var colStarts = this.renderedColWidths;
             var fixedColCount = behavior.getFixedColCount();
-            var startX = colStarts[override.colIndex + fixedColCount];
             var hdpiRatio = override.hdpiratio;
+            var startX = hdpiRatio * colStarts[override.colIndex + fixedColCount];
             var width = override.width;
             var height = override.height;
             var targetCTX = override.ctx;
