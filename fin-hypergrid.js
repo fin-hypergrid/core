@@ -1879,7 +1879,7 @@
             var newIndex = draggedIndex + scrollLeft + 1; //this.findNewPositionOnScrollRight(draggedIndex);
             behavior.swapColumns(newIndex, draggedIndex + scrollLeft);
 
-            setTimeout(this._checkAutoScrollToRight.bind(this, x), 1000);
+            setTimeout(this._checkAutoScrollToRight.bind(this, x), 250);
         },
 
         findNewPositionOnScrollRight: function(dragIndex) {
