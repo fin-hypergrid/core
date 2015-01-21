@@ -1806,6 +1806,9 @@
 
         dragColumn: function(x) {
 
+            //TODO: this function is overly complex, refactor this in to something more reasonable
+            var self = this;
+
             var autoScrollingNow = this.columnDragAutoScrollingRight || this.columnDragAutoScrollingLeft;
 
             var hdpiRatio = this.getHiDPI(this.draggerCTX);
@@ -1824,13 +1827,14 @@
             var atMax = x > maxX;
 
             var d = this.dragger;
-            //   var numFixedCols = this.getFixedColCount();
-            this.setCrossBrowserProperty(d, 'transition', '');
+
+            this.setCrossBrowserProperty(d, 'transition', (self.isWebkit ? '-webkit-' : '') + 'transform ' + 0 + 'ms ease, box-shadow ' + colAnimationTime + 'ms ease');
 
             this.setCrossBrowserProperty(d, 'transform', 'translate(' + x + 'px, ' + -10 + 'px)');
             requestAnimationFrame(function() {
                 d.style.display = 'inline';
             });
+
             var overCol = this.renderer.getColumnFromPixelX(x + (d.width / 2 / hdpiRatio));
             if (atMin) {
                 overCol = 0;
@@ -1842,7 +1846,7 @@
             var doAFloat = dragColumnIndex > overCol;
             doAFloat = doAFloat || (overCol - dragColumnIndex > 1);
 
-            if (doAFloat && !this.floatingNow && !atMax && !autoScrollingNow) {
+            if (doAFloat && !atMax && !autoScrollingNow) {
                 var draggedToTheRight = dragColumnIndex < overCol;
                 if (draggedToTheRight) {
                     overCol = overCol - 1;

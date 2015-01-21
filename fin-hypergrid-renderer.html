@@ -222,24 +222,17 @@ The `fin-hypergrid-renderer` element is a custom Polymer web component used to s
         },
 
         renderOverrides: function(gc) {
-            //lets blank out the drag row
             var grid = this.getGrid();
-
-            var dragger = grid.columnRenderOverridesCache.dragger;
-            if (dragger) {
-                this.renderOverride(gc, dragger);
-            }
-            var floater = grid.columnRenderOverridesCache.floater;
-            if (floater) {
-               this.renderOverride(gc, floater);
+            var cache = grid.columnRenderOverridesCache;
+            for (var key in cache) {
+                if(cache.hasOwnProperty(key)) {
+                    var override = cache[key];
+                    if (override) {
+                        this.renderOverride(gc, override);
+                    }
+                }
             }
         },
-
-            // this.columnRenderOverridesCache.dragger = {
-            //     ctx: this.draggerCTX,
-            //     startX: startX,
-            //     width: colWidth
-            // };
 
         renderOverride: function(gc, override) {
             //lets blank out the drag row
