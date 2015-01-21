@@ -6,7 +6,7 @@
 
 See the [polymer component page](http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/) for api documentation and demos.
 
-See the [pivotal labs presentation] (http://www.livestream.com/pivotallabs/video?clipId=pla_01ae6683-c5ee-4567-9278-91524d09550a&utm_source=lslibrary&utm_medium=ui-thumb) recorded live jan 13th 2014.
+See the [pivotal labs presentation] (http://www.livestream.com/pivotallabs/video?clipId=pla_01ae6683-c5ee-4567-9278-91524d09550a&utm_source=lslibrary&utm_medium=ui-thumb) recorded live jan 13th 2015.
 
 
 ## Getting Started
