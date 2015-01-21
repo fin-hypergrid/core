@@ -129,8 +129,6 @@ The Hypergrid design makes no assumptions about the data you wish to view which 
 (function() {
 
     var noop = function() {};
-    var colAnimationTime = 150;
-
     Polymer({ /* jslint ignore:line */
 
         /**
@@ -315,10 +313,7 @@ The Hypergrid design makes no assumptions about the data you wish to view which 
          * @type integer
          */
 
-        columnRenderOverridesCache: {},
-
-        floaterAnimationQueue: [],
-        columnDragAutoScrolling: false,
+        renderOverridesCache: {},
 
         domReady: function() {
             var self = this;
@@ -331,7 +326,7 @@ The Hypergrid design makes no assumptions about the data you wish to view which 
 
             this.cellEditors = {};
 
-            this.columnRenderOverridesCache = {};
+            this.renderOverridesCache = {};
 
             //prevent the default context menu for appearing
             this.oncontextmenu = function(event) {
@@ -342,7 +337,6 @@ The Hypergrid design makes no assumptions about the data you wish to view which 
 
             this.clearMouseDown();
             this.dragExtent = this.rectangles.point.create(0, 0);
-            this.columnDragAutoScrolling = false;
 
             //install any plugins
             this.pluginsDo(function(each) {
@@ -1721,189 +1715,13 @@ The Hypergrid design makes no assumptions about the data you wish to view which 
             return translatedX;
         },
 
-        //do the animation and swap the columns
-        //we need a better name
-        floatColumnTo: function(draggedToTheRight) {
-            this.floatingNow = true;
-            var scrollLeft = this.getHScrollValue();
-            var floaterIndex = this.columnRenderOverridesCache.floater.colIndex;
-            var draggerIndex = this.columnRenderOverridesCache.dragger.colIndex;
-            var hdpiratio = this.columnRenderOverridesCache.dragger.hdpiratio;
-
-            var numFixedCols = this.getFixedColCount();
-            var draggerStartX;
-            var floaterStartX;
-            var draggerWidth = this.getColumnWidth(draggerIndex + scrollLeft);
-            var floaterWidth = this.getColumnWidth(floaterIndex + scrollLeft);
-            var max = this.renderer.renderedColWidths.length - 1;
-            if (draggedToTheRight) {
-                draggerStartX = this.renderer.renderedColWidths[Math.min(max, draggerIndex + numFixedCols)];
-                floaterStartX = draggerStartX + floaterWidth;
-
-                this.columnRenderOverridesCache.dragger.startX = floaterStartX * hdpiratio;
-                this.columnRenderOverridesCache.floater.startX = draggerStartX * hdpiratio;
-
-                floaterStartX = draggerStartX + draggerWidth;
+        toggleHiDPI: function() {
+            if (this.canvas.isHiDPI()) {
+                this.removeAttribute('hidpi');
             } else {
-                floaterStartX = this.renderer.renderedColWidths[Math.min(max, floaterIndex + numFixedCols)];
-                draggerStartX = floaterStartX + draggerWidth;
-
-                this.columnRenderOverridesCache.dragger.startX = floaterStartX * hdpiratio;
-                this.columnRenderOverridesCache.floater.startX = draggerStartX * hdpiratio;
+                this.setAttribute('hidpi', null);
             }
-            this.getBehavior().swapColumns(draggerIndex + scrollLeft, floaterIndex + scrollLeft);
-            this.columnRenderOverridesCache.dragger.colIndex = floaterIndex;
-            this.columnRenderOverridesCache.floater.colIndex = draggerIndex;
-
-
-            this.floaterAnimationQueue.unshift(this.doColumnMoveAnimation(floaterStartX, draggerStartX));
-
-            if (!this.columnRenderOverridesCache.dragger.startX) {
-                console.log('halt');
-            }
-
-            this.doFloaterAnimation();
-
-        },
-        doColumnMoveAnimation: function(floaterStartX, draggerStartX) {
-            var self = this;
-            return function() {
-                var d = self.floatColumn;
-                d.style.display = 'inline';
-                self.setCrossBrowserProperty(d, 'transform', 'translate(' + floaterStartX + 'px, ' + 0 + 'px)');
-
-                //d.style.webkit-webkit-Transform = 'translate(' + floaterStartX + 'px, ' + 0 + 'px)';
-                //d.style.webkit-webkit-Transform = 'translate(' + floaterStartX + 'px, ' + 0 + 'px)';
-
-                window.requestAnimationFrame(function() {
-                    self.setCrossBrowserProperty(d, 'transition', (self.isWebkit ? '-webkit-' : '') + 'transform ' + colAnimationTime + 'ms ease');
-                    self.setCrossBrowserProperty(d, 'transform', 'translate(' + draggerStartX + 'px, ' + -2 + 'px)');
-                });
-                self.repaint();
-                //need to change this to key frames
-
-                setTimeout(function() {
-                    self.setCrossBrowserProperty(d, 'transition', '');
-                    self.columnRenderOverridesCache.floater = null;
-                    self.repaint();
-                    self.doFloaterAnimation();
-                    requestAnimationFrame(function() {
-                        d.style.display = 'none';
-                    });
-                }, colAnimationTime + 50);
-            };
-        },
-
-        doFloaterAnimation: function() {
-            if (this.floaterAnimationQueue.length === 0) {
-                this.floatingNow = false;
-                this.repaint();
-                return;
-            }
-            var animation = this.floaterAnimationQueue.pop();
-            animation();
-        },
-
-        createFloatColumn: function(colIndex) {
-            var scrollLeft = this.getHScrollValue();
-            var numFixedCols = this.getFixedColCount();
-            var colWidth = colIndex < 0 ? this.getFixedColumnWidth(numFixedCols + colIndex + scrollLeft) : this.getColumnWidth(colIndex + scrollLeft);
-            var colHeight = this.clientHeight;
-            var d = this.floatColumn;
-            var style = d.style;
-            var location = this.getBoundingClientRect();
-
-            style.top = (location.top - 2) + 'px';
-            style.left = location.left + 'px';
-            style.position = 'absolute';
-
-            var hdpiRatio = this.getHiDPI(this.floatColumnCTX);
-
-            d.setAttribute('width', Math.round(colWidth * hdpiRatio) + 'px');
-            d.setAttribute('height', Math.round(colHeight * hdpiRatio) + 'px');
-            style.boxShadow = '2px 2px 2px #888888';
-            style.width = colWidth + 'px'; //Math.round(colWidth / hdpiRatio) + 'px';
-            style.height = colHeight + 'px'; //Math.round(colHeight / hdpiRatio) + 'px';
-            style.borderTop = '1px solid ' + this.constants.lineColor;
-            style.backgroundColor = this.constants.backgroundColor;
-
-            var startX = this.renderer.renderedColWidths[colIndex + numFixedCols];
-            startX = startX * hdpiRatio;
-
-            this.floatColumnCTX.scale(hdpiRatio, hdpiRatio);
-
-            this.columnRenderOverridesCache.floater = {
-                colIndex: colIndex,
-                ctx: this.floatColumnCTX,
-                startX: startX,
-                width: colWidth,
-                height: colHeight,
-                hdpiratio: hdpiRatio
-            };
-
-            style.zIndex = '4';
-            this.setCrossBrowserProperty(d, 'transform', 'translate(' + startX + 'px, ' + -2 + 'px)');
-            style.cursor = 'none';
-            this.repaint();
-        },
-        setCrossBrowserProperty: function(element, property, value) {
-            var uProperty = property[0].toUpperCase() + property.substr(1);
-            this.setProp(element, 'webkit' + uProperty, value);
-            this.setProp(element, 'Moz' + uProperty, value);
-            this.setProp(element, 'ms' + uProperty, value);
-            this.setProp(element, 'O' + uProperty, value);
-            this.setProp(element, property, value);
-        },
-        setProp: function(element, property, value) {
-            if (property in element.style) {
-                element.style[property] = value;
-            }
-        },
-        createDragColumn: function(x, colIndex) {
-            var scrollLeft = this.getHScrollValue();
-            var numFixedCols = this.getFixedColCount();
-            var hdpiRatio = this.getHiDPI(this.draggerCTX);
-
-            var colWidth = colIndex < 0 ? this.getFixedColumnWidth(numFixedCols + colIndex + scrollLeft) : this.getColumnWidth(colIndex + scrollLeft);
-            var colHeight = this.clientHeight;
-            var d = this.dragger;
-
-            var location = this.getBoundingClientRect();
-            var style = d.style;
-            style.top = location.top + 'px';
-            style.left = location.left + 'px';
-            style.position = 'absolute';
-            style.opacity = 0.85;
-            style.boxShadow = '5px 5px 5px #888888';
-            //style.zIndex = 100;
-            style.borderTop = '1px solid ' + this.constants.lineColor;
-            style.backgroundColor = this.constants.backgroundColor;
-
-            d.setAttribute('width', Math.round(colWidth * hdpiRatio) + 'px');
-            d.setAttribute('height', Math.round(colHeight * hdpiRatio) + 'px');
-
-            style.width = colWidth + 'px'; //Math.round(colWidth / hdpiRatio) + 'px';
-            style.height = colHeight + 'px'; //Math.round(colHeight / hdpiRatio) + 'px';
-
-            var startX = this.renderer.renderedColWidths[colIndex + numFixedCols];
-            startX = startX * hdpiRatio;
-
-            this.draggerCTX.scale(hdpiRatio, hdpiRatio);
-
-            this.columnRenderOverridesCache.dragger = {
-                colIndex: colIndex,
-                ctx: this.draggerCTX,
-                startX: startX,
-                width: colWidth,
-                height: colHeight,
-                hdpiratio: hdpiRatio
-            };
-
-            this.setCrossBrowserProperty(d, 'transform', 'translate(' + x + 'px, -5px)');
-            style.zIndex = '5';
-            style.cursor = 'none';
-            this.repaint();
-
+            this.canvas.resize();
         },
 
         getHiDPI: function(ctx) {
@@ -1920,188 +1738,8 @@ The Hypergrid design makes no assumptions about the data you wish to view which 
             } else {
                 return 1;
             }
-        },
-
-        getFinalVisableColumnBoundry: function() {
-            var renderer = this.getRenderer();
-            var boundry = renderer.getFinalVisableColumnBoundry();
-            return boundry;
-        },
-
-        dragColumn: function(x) {
-
-            //TODO: this function is overly complex, refactor this in to something more reasonable
-            var self = this;
-
-            var autoScrollingNow = this.columnDragAutoScrollingRight || this.columnDragAutoScrollingLeft;
-
-            var hdpiRatio = this.getHiDPI(this.draggerCTX);
-
-            var dragColumnIndex = this.columnRenderOverridesCache.dragger.colIndex;
-            var colWidth = this.columnRenderOverridesCache.dragger.width;
-            var minX = this.getFixedColsWidth();
-            var maxX = this.getFinalVisableColumnBoundry() - colWidth;
-            x = Math.min(x, maxX + 15);
-            x = Math.max(minX - 15, x);
-
-            //am I at my lower bound
-            var atMin = x < minX && dragColumnIndex !== 0;
-
-            //am I at my upper bound
-            var atMax = x > maxX;
-
-            var d = this.dragger;
-
-            this.setCrossBrowserProperty(d, 'transition', (self.isWebkit ? '-webkit-' : '') + 'transform ' + 0 + 'ms ease, box-shadow ' + colAnimationTime + 'ms ease');
-
-            this.setCrossBrowserProperty(d, 'transform', 'translate(' + x + 'px, ' + -10 + 'px)');
-            requestAnimationFrame(function() {
-                d.style.display = 'inline';
-            });
-
-            var overCol = this.renderer.getColumnFromPixelX(x + (d.width / 2 / hdpiRatio));
-            if (atMin) {
-                overCol = 0;
-            }
-            if (atMax) {
-                overCol = this.renderer.renderedCols[this.renderer.renderedCols.length - 1];
-            }
-
-            var doAFloat = dragColumnIndex > overCol;
-            doAFloat = doAFloat || (overCol - dragColumnIndex > 1);
-
-            if (doAFloat && !atMax && !autoScrollingNow) {
-                var draggedToTheRight = dragColumnIndex < overCol;
-                if (draggedToTheRight) {
-                    overCol = overCol - 1;
-                }
-                this.createFloatColumn(overCol);
-                this.floatColumnTo(draggedToTheRight);
-            } else {
-
-                if (x < minX - 10) {
-                    this.checkAutoScrollToLeft(x);
-                }
-                if (x > minX - 10) {
-                    this.columnDragAutoScrollingLeft = false;
-                }
-                //lets check for autoscroll to right if were up against it
-                if (atMax || x > maxX + 10) {
-                    this.checkAutoScrollToRight(x);
-                    return;
-                }
-                if (x < maxX + 10) {
-                    this.columnDragAutoScrollingRight = false;
-                }
-            }
-        },
-
-        checkAutoScrollToRight: function(x) {
-            if (this.columnDragAutoScrollingRight) {
-                return;
-            }
-            this.columnDragAutoScrollingRight = true;
-            this._checkAutoScrollToRight(x);
-        },
-
-        _checkAutoScrollToRight: function(x) {
-            if (!this.columnDragAutoScrollingRight) {
-                return;
-            }
-            var behavior = this.getBehavior();
-            var scrollLeft = this.getHScrollValue();
-            if (!this.dragging || scrollLeft > (this.sbHScrlCfg.rangeStop - 2)) {
-                return;
-            }
-            var draggedIndex = this.columnRenderOverridesCache.dragger.colIndex;
-            this.scrollBy(1, 0);
-            var newIndex = draggedIndex + scrollLeft + 1; //this.findNewPositionOnScrollRight(draggedIndex);
-            behavior.swapColumns(newIndex, draggedIndex + scrollLeft);
-
-            setTimeout(this._checkAutoScrollToRight.bind(this, x), 250);
-        },
-
-        findNewPositionOnScrollRight: function(dragIndex) {
-            noop(dragIndex);
-            //we need to compute the new index of dragIndex if it's assumed to be on the far right and we scroll one cell to the right
-            var scrollLeft = this.getHScrollValue();
-            var behavior = this.getBehavior();
-            //var dragWidth = behavior.getColWidth(dragIndex + scrollLeft);
-            var bounds = this.canvas.getBounds();
-
-            //lets add the drag width in so we don't have to ignore it in the loop
-            var viewWidth = bounds.width() - behavior.getFixedColsWidth();
-            var max = behavior.getColCount();
-            for (var c = 0; c < max; c++) {
-                var eachColWidth = behavior.getColWidth(scrollLeft + c);
-                viewWidth = viewWidth - eachColWidth;
-                if (viewWidth < 0) {
-                    return c - 2;
-                }
-            }
-            return max - 1;
-        },
-
-        checkAutoScrollToLeft: function(x) {
-            if (this.columnDragAutoScrollingLeft) {
-                return;
-            }
-            this.columnDragAutoScrollingLeft = true;
-            this._checkAutoScrollToLeft(x);
-        },
-
-        _checkAutoScrollToLeft: function(x) {
-            if (!this.columnDragAutoScrollingLeft) {
-                return;
-            }
-            var behavior = this.getBehavior();
-            var scrollLeft = this.getHScrollValue();
-            if (!this.dragging || scrollLeft < 1) {
-                return;
-            }
-            var draggedIndex = this.columnRenderOverridesCache.dragger.colIndex;
-            behavior.swapColumns(draggedIndex + scrollLeft, draggedIndex + scrollLeft - 1);
-            this.scrollBy(-1, 0);
-            setTimeout(this._checkAutoScrollToLeft.bind(this, x), 250);
-        },
-
-        endDragColumn: function() {
-            var self = this;
-            var numFixedCols = this.getFixedColCount();
-            var colIndex = this.columnRenderOverridesCache.dragger.colIndex;
-            var startX = this.renderer.renderedColWidths[colIndex + numFixedCols];
-            var d = this.dragger;
-            //requestAnimationFrame(function() {
-            self.setCrossBrowserProperty(d, 'transition', (self.isWebkit ? '-webkit-' : '') + 'transform ' + colAnimationTime + 'ms ease, box-shadow ' + colAnimationTime + 'ms ease');
-            self.setCrossBrowserProperty(d, 'transform', 'translate(' + startX + 'px, ' + -1 + 'px)');
-            d.style.boxShadow = '0px 0px 0px #888888';
-            //});
-            //need to change this to key frames
-            setTimeout(function() {
-                self.columnRenderOverridesCache.dragger = null;
-                self.repaint();
-                requestAnimationFrame(function() {
-                    d.style.display = 'none';
-                });
-            }, colAnimationTime + 50);
-
-        },
-
-        toggleHiDPI: function() {
-            if (this.canvas.isHiDPI()) {
-                this.removeAttribute('hidpi');
-            } else {
-                this.setAttribute('hidpi', null);
-            }
-            this.canvas.resize();
-        },
-
-        //answer true if the last col was rendered (is visible)
-        isLastColumnVisible: function() {
-            var lastColIndex = this.getColCount() - 1;
-            var isMax = this.renderer.renderedCols.indexOf(lastColIndex) !== -1;
-            return isMax;
         }
+
     });
 
 })(); /* jslint ignore:line */

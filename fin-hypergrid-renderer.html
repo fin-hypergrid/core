@@ -177,7 +177,7 @@ The `fin-hypergrid-renderer` element is a custom Polymer web component used to s
         },
         getFinalVisableColumnBoundry: function() {
             var grid = this.getGrid();
-            var isMaxX = grid.isLastColumnVisible();
+            var isMaxX = this.isLastColumnVisible();
             var chop = isMaxX ? 2 : 1;
             var colWall = this.renderedColWidths[this.renderedColWidths.length-chop];
             var result = Math.min(colWall, this.getBounds().width() - 200);
@@ -211,7 +211,7 @@ The `fin-hypergrid-renderer` element is a custom Polymer web component used to s
 
         blankOutOverflow: function(gc) {
             var grid = this.getGrid();
-            var isMaxX = grid.isLastColumnVisible();
+            var isMaxX = this.isLastColumnVisible();
             var chop = isMaxX ? 2 : 1;
             var x = this.renderedColWidths[this.renderedColWidths.length-chop];
             var bounds = this.getBounds();
@@ -223,7 +223,7 @@ The `fin-hypergrid-renderer` element is a custom Polymer web component used to s
 
         renderOverrides: function(gc) {
             var grid = this.getGrid();
-            var cache = grid.columnRenderOverridesCache;
+            var cache = grid.renderOverridesCache;
             for (var key in cache) {
                 if(cache.hasOwnProperty(key)) {
                     var override = cache[key];
@@ -570,6 +570,17 @@ The `fin-hypergrid-renderer` element is a custom Polymer web component used to s
         getFixedColWidth: function(rowIndex) {
             var height = this.getBehavior().getFixedColWidth(rowIndex);
             return height;
+        },
+
+        //answer true if the last col was rendered (is visible)
+        isLastColumnVisible: function() {
+            var lastColIndex = this.getColCount() - 1;
+            var isMax = this.renderedCols.indexOf(lastColIndex) !== -1;
+            return isMax;
+        },
+        getColCount: function() {
+            var count = this.getGrid().getColCount();
+            return count;
         }
 
     });
