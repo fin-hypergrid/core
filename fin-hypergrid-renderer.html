@@ -105,6 +105,24 @@ The `fin-hypergrid-renderer` element is a custom Polymer web component used to s
             return whichCol;
         },
 
+        /**
+         *                                                                      .
+         *                                                                      .
+         * answer if the mouseEvent coordinates are over a column divider
+         *
+         * @method overRowDivider(y)
+         */
+        overRowDivider: function(y) {
+            var which = this.renderedRowHeights.indexOf(y + 1);
+            if (which < 0) {
+                which = this.renderedRowHeights.indexOf(y);
+            }
+            if (which < 0) {
+                which = this.renderedRowHeights.indexOf(y - 1);
+            }
+            return which;
+        },
+
         //Answer the pixel bounds of specific data cell. It must have just been rendered
         getBoundsOfCell: function(cell) {
             var ox = this.renderedColumnWidths[cell.x],

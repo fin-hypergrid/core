@@ -18,51 +18,99 @@ The `fin-hypergrid-column-resizing` element is a custom Polymer web component th
 
     Polymer({ /* jshint ignore:line */
 
-        dragColumn: -1,
+        dragArea: -1,
         dragStart: -1,
-        dragColumnStartingWidth: -1,
+        dragAreaStartingSize: -1,
+
+        getFixedAreaCount: function(grid) {
+            return grid.getFixedColumnCount();
+        },
+
+        getMouseValue: function(event) {
+            return event.primitiveEvent.detail.mouse.x
+        },
+
+        getGridCellValue: function(gridCell) {
+            return gridCell.y;
+        },
+
+        getScrollValue: function(grid) {
+            return grid.getHScrollValue();
+        },
+
+        getAreaSize: function(grid, index) {
+            return grid.getColumnWidth(index);
+        },
+
+        setAreaSize: function(grid, index, value) {
+            grid.setColumnWidth(index, value);
+        },
+
+        getOtherFixedAreaCount: function(grid) {
+            return grid.getFixedRowCount();
+        },
+
+        getFixedAreaSize: function(grid, index) {
+            return grid.getFixedColumnWidth(index);
+        },
+
+        setFixedAreaSize: function(grid, index, value) {
+            grid.setFixedColumnWidth(index, value);
+        },
+
+        overAreaDivider: function(grid, event) {
+            return grid.overColumnDivider(event);
+        },
+
+        isFixedOtherArea: function(grid, event) {
+            return this.isFixedRow(grid, event);
+        },
+
+        getCursorName: function() {
+            return 'col-resize';
+        },
 
         handleMouseDrag: function(grid, event) {
-            if (this.dragColumn > -1) {
-                var fixedColumnCount = grid.getFixedColumnCount();
-                var distance = event.primitiveEvent.detail.mouse.x - this.dragStart + this.dragColumnStartingWidth;
-                this.setColumnWidth(grid, this.dragColumn - fixedColumnCount - 1, distance);
+            if (this.dragArea > -1) {
+                var fixedAreaCount = this.getFixedAreaCount(grid);
+                var distance = this.getMouseValue(event) - this.dragStart + this.dragAreaStartingSize;
+                this.setSize(grid, this.dragArea - fixedAreaCount - 1, distance);
             } else if (this.next) {
                 this.next.handleMouseDrag(grid, event);
             }
         },
 
-        setColumnWidth: function(grid, columnIndex, width) {
-            var fixedColumnCount = grid.getFixedColumnCount();
-            var scrollLeft = grid.getHScrollValue();
-            if (columnIndex < 0) {
-                grid.setFixedColumnWidth(fixedColumnCount + columnIndex, width);
+        setSize: function(grid, areaIndex, size) {
+            var fixedAreaCount = this.getFixedAreaCount(grid);
+            var scrollValue = this.getScrollValue(grid);
+            if (areaIndex < 0) {
+                this.setFixedAreaSize(grid, fixedAreaCount + areaIndex, size);
             } else {
-                grid.setColumnWidth(columnIndex + scrollLeft, width);
+                this.setAreaSize(grid, areaIndex + scrollValue, size);
             }
         },
 
-        getColumnWidth: function(grid, columnIndex) {
-            var fixedColumnCount = grid.getFixedColumnCount();
-            if (columnIndex < 0) {
-                return grid.getFixedColumnWidth(fixedColumnCount + columnIndex);
+        getSize: function(grid, areaIndex) {
+            var fixedAreaCount = this.getFixedAreaCount(grid);
+            if (areaIndex < 0) {
+                return this.getFixedAreaSize(grid, fixedAreaCount + areaIndex);
             } else {
-                return grid.getColumnWidth(columnIndex);
+                return this.getAreaSize(grid, areaIndex);
             }
         },
 
         handleMouseDown: function(grid, event) {
             var gridCell = event.gridCell;
-            var overCol = grid.overColumnDivider(event);
-            if (overCol > -1 && gridCell.y < grid.getFixedRowCount()) {
-                var scrollLeft = grid.getHScrollValue();
-                var fixedColumnCount = grid.getFixedColumnCount();
-                this.dragColumn = overCol;
-                this.dragStart = event.primitiveEvent.detail.mouse.x;
-                if (overCol < 2) {
-                    scrollLeft = 0;
+            var overArea = this.overAreaDivider(grid, event);
+            if (overArea > -1 && this.getGridCellValue(gridCell) < this.getOtherFixedAreaCount(grid)) {
+                var scrollValue = this.getScrollValue(grid);
+                var fixedAreaCount = this.getFixedAreaCount(grid);
+                this.dragArea = overArea;
+                this.dragStart = this.getMouseValue(event)
+                if (overArea < 2) {
+                    scrollValue = 0;
                 }
-                this.dragColumnStartingWidth = this.getColumnWidth(grid, overCol - fixedColumnCount - 1 + scrollLeft);
+                this.dragAreaStartingSize = this.getAreaSize(grid, overArea - fixedAreaCount - 1 + scrollValue);
                 this.detachChain();
             } else if (this.next) {
                 this.next.handleMouseDown(grid, event);
@@ -70,9 +118,9 @@ The `fin-hypergrid-column-resizing` element is a custom Polymer web component th
         },
 
         handleMouseUp: function(grid, event) {
-            if (this.dragColumn > -1) {
+            if (this.dragArea > -1) {
                 this.cursor = null;
-                this.dragColumn = -1;
+                this.dragArea = -1;
 
                 //delay here to give other events a chance to be dropped
                 var self = this;
@@ -85,22 +133,22 @@ The `fin-hypergrid-column-resizing` element is a custom Polymer web component th
         },
 
         handleMouseMove: function(grid, event) {
-            if (this.dragColumn > -1) {
+            if (this.dragArea > -1) {
                 return;
             }
             this.cursor = null;
             if (this.next) {
                 this.next.handleMouseMove(grid, event);
             }
-            this.checkForColumnResizeCursorChange(grid, event)
+            this.checkForAreaResizeCursorChange(grid, event)
         },
 
-        checkForColumnResizeCursorChange: function(grid, event) {
+        checkForAreaResizeCursorChange: function(grid, event) {
 
             var gridCell = event.gridCell;
 
-            if (this.isFixedRow(grid, event) && grid.overColumnDivider(event) > -1) {
-                this.cursor = 'col-resize';
+            if (this.isFixedOtherArea(grid, event) && this.overAreaDivider(grid, event) > -1) {
+                this.cursor = this.getCursorName();
             } else {
                 this.cursor = null;
             }

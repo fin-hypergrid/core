@@ -758,7 +758,7 @@
          *                                                                      .
          * answer if the mouseEvent coordinates are over a column divider
          *
-         * @method isOverColumnDivider(mouseEvent)
+         * @method overColumnDivider(mouseEvent)
          */
         overColumnDivider: function(mouseEvent) {
             var x = mouseEvent.primitiveEvent.detail.mouse.x;
@@ -769,35 +769,49 @@
         /**
          *                                                                      .
          *                                                                      .
-         * turn on the column resize cursor
+         * answer if the mouseEvent coordinates are over a column divider
          *
-         * @method beColumnResizeCursor()
+         * @method overRowDivider(mouseEvent)
          */
-        beColumnResizeCursor: function() {
-            this.style.cursor = 'col-resize';
+        overRowDivider: function(mouseEvent) {
+            var y = mouseEvent.primitiveEvent.detail.mouse.y;
+            var which = this.getRenderer().overRowDivider(y);
+            return which;
         },
 
-        /**
-         *                                                                      .
-         *                                                                      .
-         * turn on the column resize cursor
-         *
-         * @method bePointerCursor()
-         */
-        bePointerCursor: function() {
-            this.style.cursor = 'pointer';
-        },
+        // /**
+        //  *                                                                      .
+        //  *                                                                      .
+        //  * turn on the column resize cursor
+        //  *
+        //  * @method beColumnResizeCursor()
+        //  */
+        // beColumnResizeCursor: function() {
+        //     this.style.cursor = 'col-resize';
+        // },
 
-        /**
-         *                                                                      .
-         *                                                                      .
-         * turn on the column resize cursor
-         *
-         * @method beMoveCursor()
-         */
-        beMoveCursor: function() {
-            this.style.cursor = 'move';
-        },
+        // *
+        //  *                                                                      .
+        //  *                                                                      .
+        //  * turn on the column resize cursor
+        //  *
+        //  * @method bePointerCursor()
+
+        // bePointerCursor: function() {
+        //     this.style.cursor = 'pointer';
+        // },
+
+        // /**
+        //  *                                                                      .
+        //  *                                                                      .
+        //  * turn on the column resize cursor
+        //  *
+        //  * @method beMoveCursor()
+        //  */
+
+        // beMoveCursor: function() {
+        //     this.style.cursor = 'move';
+        // },
 
         beCursor: function(cursorName) {
             this.style.cursor = cursorName;
@@ -1436,7 +1450,7 @@
             var lastPageColumnCount = 0;
             var columnsWidth = 0;
             for (; lastPageColumnCount < numColumns; lastPageColumnCount++) {
-                var eachWidth = behavior.getColumnWidth(numColumns - lastPageColumnCount - 1);
+                var eachWidth = behavior.getRowHeight(numColumns - lastPageColumnCount - 1);
                 columnsWidth = columnsWidth + eachWidth;
                 if (columnsWidth > scrollableWidth) {
                     break;
@@ -1526,12 +1540,28 @@
             return this.getBehavior().getFixedColumnsWidth();
         },
 
-        getFixedRowsHeight: function() {
-            return this.getBehavior().getFixedRowsHeight();
-        },
-
         setFixedColumnWidth: function(columnIndex, columnWidth) {
             this.getBehavior().setFixedColumnWidth(columnIndex, columnWidth);
+        },
+
+        getRowHeight: function(index) {
+            return this.getBehavior().getRowHeight(index);
+        },
+
+        setRowHeight: function(index, height) {
+            this.getBehavior().setRowHeight(index, height);
+        },
+
+        getFixedRowHeight: function(index) {
+            return this.getBehavior().getFixedRowHeight(index);
+        },
+
+        setFixedRowHeight: function(index, height) {
+            this.getBehavior().setFixedRowHeight(index, height);
+        },
+
+        getFixedRowsHeight: function() {
+            return this.getBehavior().getFixedRowsHeight();
         },
 
         getColumnCount: function() {

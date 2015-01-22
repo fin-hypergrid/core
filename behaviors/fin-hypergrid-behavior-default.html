@@ -15,6 +15,7 @@ The `fin-hypergrid-behavior-default` element is a custom Polymer web component i
 <link rel="import" href="../features/fin-hypergrid-feature-column-sorting.html">
 <link rel="import" href="../features/fin-hypergrid-feature-column-resizing.html">
 <link rel="import" href="../features/fin-hypergrid-feature-column-moving.html">
+<link rel="import" href="../features/fin-hypergrid-feature-row-resizing.html">
 <polymer-element name="fin-hypergrid-behavior-default">
   <template></template>
   <script>
@@ -39,6 +40,9 @@ The `fin-hypergrid-behavior-default` element is a custom Polymer web component i
         columnWidths: null,
         fixedColumnWidths: null,
 
+        rowHeights: null,
+        fixedRowHeights: null,
+
         grid: null,
         editorTypes: ['choice','textfield','color','slider','spinner','date'],
         featureChain: null,
@@ -54,6 +58,8 @@ The `fin-hypergrid-behavior-default` element is a custom Polymer web component i
             this.fixedColumnWidths = this.fixedColumnWidths || [],
             this.columnIndexes = this.columnIndexes || [],
             this.fixedColumnIndexes = this.fixedColumnIndexes || [],
+            this.rowHeights = this.rowHeights || [],
+            this.fixedRowHeights = this.fixedRowHeights || [],
             this.values = {}; //for overriding with edit values;
             this.initColumnIndexes();
         },
@@ -98,6 +104,7 @@ The `fin-hypergrid-behavior-default` element is a custom Polymer web component i
 
         initializeFeatureChain: function(grid) {
             this.setNextFeature(document.createElement('fin-hypergrid-feature-column-resizing'));
+            this.setNextFeature(document.createElement('fin-hypergrid-feature-row-resizing'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-cell-selection'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-column-moving'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-thumbwheel-scrolling'));
@@ -189,14 +196,38 @@ The `fin-hypergrid-behavior-default` element is a custom Polymer web component i
 
         //the height of the specific fixed row
         getFixedRowHeight: function(rowNum) {
-            return this.getRowHeight(rowNum);
+            var override = this.fixedRowHeights[rowNum];
+            if (override) {
+                return override;
+            }
+            return this.constants.rowHeight;
+        },
+
+        setFixedRowHeight: function(rowNum, height) {
+            this.fixedRowHeights[rowNum] = Math.max(5, height);
+            this.changed();
+        },
+
+        //can be dynamic if we wish to allow users to resize
+        //<br>or driven by data, etc...
+        getRowHeight: function(rowNum) {
+            var override = this.rowHeights[rowNum];
+            if (override) {
+                return override;
+            }
+            return this.constants.rowHeight;
+        },
+
+        setRowHeight: function(rowNum, height) {
+            this.rowHeights[rowNum] = Math.max(5, height);
+            this.changed();
         },
 
         //the potential maximum height of the fixed row area
         //<br>TODO: move this logic into the OFGrid itself
         //<br>there should only be getFixedRows, and getMaxFixedRows
         getFixedRowsMaxHeight: function() {
-            var height = (0 + this.getFixedRowCount()) * (this.constants.rowHeight);
+            var height = this.getFixedRowsHeight();
             return height;
         },
 
@@ -216,12 +247,15 @@ The `fin-hypergrid-behavior-default` element is a custom Polymer web component i
             }
             return total;
         },
-
+        setFixedColumnWidth: function(colNumber, width) {
+            this.fixedColumnWidths[colNumber] = Math.max(5, width);
+            this.changed();
+        },
         //the potential maximum width of the fixed col area
         //<br>TODO: move this logic into the OFGrid itself
         //<br>there should only be getFixedColumns, and getMaxFixedColumns
         getFixedColumnsMaxWidth: function() {
-            var width = (0 + this.getFixedColumnCount()) * (this.constants.columnWidth);
+            var width = this.getFixedColumnsWidth();
             return width;
         },
 
@@ -231,17 +265,7 @@ The `fin-hypergrid-behavior-default` element is a custom Polymer web component i
             if (override) {
                 return override;
             }
-            return 120;
-        },
-
-        setFixedColumnumnWidth: function(colNumber, width) {
-            this.fixedColumnWidths[colNumber] = Math.max(5, width);
-            this.changed();
-        },
-        //can be dynamic if we wish to allow users to resize
-        //<br>or driven by data, etc...
-        getRowHeight: function( /* rowNum */ ) {
-            return this.constants.rowHeight;
+            return this.constants.columnWidth;
         },
 
         //can be dynamic if we wish to allow users to resize
