@@ -20,34 +20,34 @@ The `fin-hypergrid-column-resizing` element is a custom Polymer web component th
 
         dragColumn: -1,
         dragStart: -1,
-        dragColStartingWidth: -1,
+        dragColumnStartingWidth: -1,
 
         handleMouseDrag: function(grid, event) {
             if (this.dragColumn > -1) {
-                var fixedColCount = grid.getFixedColCount();
-                var distance = event.primitiveEvent.detail.mouse.x - this.dragStart + this.dragColStartingWidth;
-                this.setColumnWidth(grid, this.dragColumn - fixedColCount - 1, distance);
+                var fixedColumnCount = grid.getFixedColumnCount();
+                var distance = event.primitiveEvent.detail.mouse.x - this.dragStart + this.dragColumnStartingWidth;
+                this.setColumnWidth(grid, this.dragColumn - fixedColumnCount - 1, distance);
             } else if (this.next) {
                 this.next.handleMouseDrag(grid, event);
             }
         },
 
-        setColumnWidth: function(grid, colIndex, width) {
-            var fixedColCount = grid.getFixedColCount();
+        setColumnWidth: function(grid, columnIndex, width) {
+            var fixedColumnCount = grid.getFixedColumnCount();
             var scrollLeft = grid.getHScrollValue();
-            if (colIndex < 0) {
-                grid.setFixedColumnWidth(fixedColCount + colIndex, width);
+            if (columnIndex < 0) {
+                grid.setFixedColumnWidth(fixedColumnCount + columnIndex, width);
             } else {
-                grid.setColumnWidth(colIndex + scrollLeft, width);
+                grid.setColumnWidth(columnIndex + scrollLeft, width);
             }
         },
 
-        getColumnWidth: function(grid, colIndex) {
-            var fixedColCount = grid.getFixedColCount();
-            if (colIndex < 0) {
-                return grid.getFixedColumnWidth(fixedColCount + colIndex);
+        getColumnWidth: function(grid, columnIndex) {
+            var fixedColumnCount = grid.getFixedColumnCount();
+            if (columnIndex < 0) {
+                return grid.getFixedColumnWidth(fixedColumnCount + columnIndex);
             } else {
-                return grid.getColumnWidth(colIndex);
+                return grid.getColumnWidth(columnIndex);
             }
         },
 
@@ -56,13 +56,13 @@ The `fin-hypergrid-column-resizing` element is a custom Polymer web component th
             var overCol = grid.overColumnDivider(event);
             if (overCol > -1 && gridCell.y < grid.getFixedRowCount()) {
                 var scrollLeft = grid.getHScrollValue();
-                var fixedColCount = grid.getFixedColCount();
+                var fixedColumnCount = grid.getFixedColumnCount();
                 this.dragColumn = overCol;
                 this.dragStart = event.primitiveEvent.detail.mouse.x;
                 if (overCol < 2) {
                     scrollLeft = 0;
                 }
-                this.dragColStartingWidth = this.getColumnWidth(grid, overCol - fixedColCount - 1 + scrollLeft);
+                this.dragColumnStartingWidth = this.getColumnWidth(grid, overCol - fixedColumnCount - 1 + scrollLeft);
                 this.detachChain();
             } else if (this.next) {
                 this.next.handleMouseDown(grid, event);

@@ -16,10 +16,10 @@
         behavior: {
             setScrollPositionY: noop,
             setScrollPositionX: noop,
-            getColCount: noop,
-            getFixedColCount: noop,
-            getFixedColsWidth: noop,
-            getFixedColsMaxWidth: noop,
+            getColumnCount: noop,
+            getFixedColumnCount: noop,
+            getFixedColumnsWidth: noop,
+            getFixedColumnsMaxWidth: noop,
             setRenderedWidth: noop,
             getRowCount: noop,
             getFixedRowCount: noop,
@@ -227,14 +227,6 @@
             this.initRenderer();
             this.initScrollbars();
 
-            this.dragger = this.shadowRoot.querySelector('#dragger');
-            document.body.appendChild(this.dragger);
-            this.draggerCTX = this.dragger.getContext('2d');
-
-            this.floatColumn = this.shadowRoot.querySelector('#floatColumn');
-            document.body.appendChild(this.floatColumn);
-            this.floatColumnCTX = this.floatColumn.getContext('2d');
-            //this.draggerCTX.setTransform(1, 0, 0, 1, 0, 0);
             //Register a listener for the copy event so we can copy our selected region to the pastebuffer if conditions are right.
             document.body.addEventListener('copy', function(evt) {
                 self.checkClipboardCopy(evt);
@@ -378,8 +370,8 @@
         updateRenderedSizes: function() {
             var behavior = this.getBehavior();
             //add one to each of these values as we want also to include
-            //the cols and rows that are partially visible
-            behavior.setRenderedWidth(this.getViewableCols() + 1);
+            //the columns and rows that are partially visible
+            behavior.setRenderedWidth(this.getViewableColumns() + 1);
             behavior.setRenderedHeight(this.getViewableRows() + 1);
         },
 
@@ -522,7 +514,7 @@
          *                                                                      .
          * Answer if a specific col is selected anywhere in the entire table
          *
-         * @method isFixedRowCellSelected(colIndex)
+         * @method isFixedRowCellSelected(columnIndex)
          */
         isFixedRowCellSelected: function(col) {
             var selectionModel = this.getSelectionModel();
@@ -535,11 +527,11 @@
          *                                                                      .
          * Answer if a specific row is selected anywhere in the entire table
          *
-         * @method isFixedColCellSelected(rowIndex)
+         * @method isFixedColumnCellSelected(rowIndex)
          */
-        isFixedColCellSelected: function(row) {
+        isFixedColumnCellSelected: function(row) {
             var selectionModel = this.getSelectionModel();
-            var isSelected = selectionModel.isFixedColCellSelected(row);
+            var isSelected = selectionModel.isFixedColumnCellSelected(row);
             return isSelected;
         },
 
@@ -579,12 +571,12 @@
 
             var self = this;
 
-            var numCols = this.behavior.getColCount();
+            var numColumns = this.behavior.getColumnCount();
             var numRows = this.behavior.getRowCount();
 
             this.behavior.changed = function() {
-                if (numCols !== self.behavior.getColCount() || numRows !== self.behavior.getRowCount()) {
-                    numCols = self.behavior.getColCount();
+                if (numColumns !== self.behavior.getColumnCount() || numRows !== self.behavior.getRowCount()) {
+                    numColumns = self.behavior.getColumnCount();
                     numRows = self.behavior.getRowCount();
                     self.behaviorShapeChanged();
                 }
@@ -719,11 +711,6 @@
                 self.delegateKeyDown(e);
             });
 
-            // this.canvas.addEventListener('fin-trackstart', function(e) {
-            //     var mouse = e.detail.mouse;
-            //     var cell = self.getGridCellFromMousePoint(mouse);
-            //     self.click(cell, e);
-            // });
             this.canvas.addEventListener('fin-track', function(e) {
                 if (self.dragging) {
                     return;
@@ -967,7 +954,7 @@
             var behavior = this.getBehavior();
             var b = this.canvas.bounds;
 
-            var x = behavior.getFixedColsWidth() + 2;
+            var x = behavior.getFixedColumnsWidth() + 2;
             var y = behavior.getFixedRowsHeight() + 2;
 
             var result = this.rectangles.rectangle.create(x, y, b.origin.x + b.extent.x - x, b.origin.y + b.extent.y - y);
@@ -1002,10 +989,10 @@
             var scrollTop = this.getVScrollValue();
             var scrollLeft = this.getHScrollValue();
 
-            var numFixedCols = behavior.getFixedColCount();
+            var numFixedColumns = behavior.getFixedColumnCount();
             var numFixedRows = behavior.getFixedRowCount();
 
-            var x = cell.x - numFixedCols + scrollLeft;
+            var x = cell.x - numFixedColumns + scrollLeft;
             var y = cell.y - numFixedRows + scrollTop;
 
             if (x < 0 || y < 0) {
@@ -1023,10 +1010,10 @@
          *                                                                      .
          * Answer if a specific col is fully visible
          *
-         * @method isDataColVisible(colIndex)
+         * @method isDataColVisible(columnIndex)
          */
-        isDataColVisible: function(colIndex) {
-            var isVisible = this.getRenderer().isColVisible(colIndex);
+        isDataColVisible: function(columnIndex) {
+            var isVisible = this.getRenderer().isColVisible(columnIndex);
             return isVisible;
         },
 
@@ -1047,10 +1034,10 @@
          *                                                                      .
          * Answer if a specific cell (col,row) fully is visible
          *
-         * @method isDataVisible(colIndex,rowIndex)
+         * @method isDataVisible(columnIndex,rowIndex)
          */
-        isDataVisible: function(colIndex, rowIndex) {
-            var isVisible = this.isDataRowVisible(rowIndex) && this.isDataColVisible(colIndex);
+        isDataVisible: function(columnIndex, rowIndex) {
+            var isVisible = this.isDataRowVisible(rowIndex) && this.isDataColVisible(columnIndex);
             return isVisible;
         },
 
@@ -1062,12 +1049,12 @@
          * @method insureModelColIsViewable(c,offsetX)
          */
         insureModelColIsViewable: function(c, offsetX) {
-            //-1 because we want only fully visible cols, don't include partially
+            //-1 because we want only fully visible columns, don't include partially
             //viewable columns
-            var viewableCols = this.getViewableCols() - 1;
+            var viewableColumns = this.getViewableColumns() - 1;
             if (!this.isDataColVisible(c)) {
                 //the scroll position is the leftmost column
-                var newSX = offsetX < 0 ? c : c - viewableCols;
+                var newSX = offsetX < 0 ? c : c - viewableColumns;
                 this.setHScrollValue(newSX);
                 return true;
             }
@@ -1440,18 +1427,18 @@
             if (!behavior) {
                 return;
             }
-            var numCols = behavior.getColCount();
+            var numColumns = behavior.getColumnCount();
             var numRows = behavior.getRowCount();
             var bounds = this.getCanvas().getBounds();
             var scrollableHeight = bounds.height() - behavior.getFixedRowsHeight();
-            var scrollableWidth = bounds.width() - behavior.getFixedColsMaxWidth() - 200;
+            var scrollableWidth = bounds.width() - behavior.getFixedColumnsMaxWidth() - 200;
 
-            var lastPageColCount = 0;
-            var colsWidth = 0;
-            for (; lastPageColCount < numCols; lastPageColCount++) {
-                var eachWidth = behavior.getColWidth(numCols - lastPageColCount - 1);
-                colsWidth = colsWidth + eachWidth;
-                if (colsWidth > scrollableWidth) {
+            var lastPageColumnCount = 0;
+            var columnsWidth = 0;
+            for (; lastPageColumnCount < numColumns; lastPageColumnCount++) {
+                var eachWidth = behavior.getColumnWidth(numColumns - lastPageColumnCount - 1);
+                columnsWidth = columnsWidth + eachWidth;
+                if (columnsWidth > scrollableWidth) {
                     break;
                 }
             }
@@ -1468,7 +1455,7 @@
 
             this.sbVScrlCfg.rangeStop = behavior.getRowCount() - lastPageRowCount;
 
-            this.sbHScrlCfg.rangeStop = behavior.getColCount() - lastPageColCount;
+            this.sbHScrlCfg.rangeStop = behavior.getColumnCount() - lastPageColumnCount;
 
             this.sbVScroller.tickle();
             this.sbHScroller.tickle();
@@ -1490,12 +1477,12 @@
         /**
          *                                                                      .
          *                                                                      .
-         * Answers the number of viewable cols, including any partially viewable cols.
+         * Answers the number of viewable columns, including any partially viewable columns.
          *
-         * @method getViewableCols()
+         * @method getViewableColumns()
          */
-        getViewableCols: function() {
-            return this.getRenderer().getViewableCols();
+        getViewableColumns: function() {
+            return this.getRenderer().getViewableColumns();
         },
 
         /**
@@ -1523,40 +1510,40 @@
             return this.renderer;
         },
 
-        getColumnWidth: function(colIndex) {
-            return this.getBehavior().getColWidth(colIndex);
+        getColumnWidth: function(columnIndex) {
+            return this.getBehavior().getColumnWidth(columnIndex);
         },
 
-        setColumnWidth: function(colIndex, colWidth) {
-            this.getBehavior().setColumnWidth(colIndex, colWidth);
+        setColumnWidth: function(columnIndex, columnWidth) {
+            this.getBehavior().setColumnWidth(columnIndex, columnWidth);
         },
 
-        getFixedColumnWidth: function(colIndex) {
-            return this.getBehavior().getFixedColWidth(colIndex);
+        getFixedColumnWidth: function(columnIndex) {
+            return this.getBehavior().getFixedColumnWidth(columnIndex);
         },
 
-        getFixedColsWidth: function() {
-            return this.getBehavior().getFixedColsWidth();
+        getFixedColumnsWidth: function() {
+            return this.getBehavior().getFixedColumnsWidth();
         },
 
         getFixedRowsHeight: function() {
             return this.getBehavior().getFixedRowsHeight();
         },
 
-        setFixedColumnWidth: function(colIndex, colWidth) {
-            this.getBehavior().setFixedColumnWidth(colIndex, colWidth);
+        setFixedColumnWidth: function(columnIndex, columnWidth) {
+            this.getBehavior().setFixedColumnWidth(columnIndex, columnWidth);
         },
 
-        getColCount: function() {
-            return this.getBehavior().getColCount();
+        getColumnCount: function() {
+            return this.getBehavior().getColumnCount();
         },
 
         getRowCount: function() {
             return this.getBehavior().getRowCount();
         },
 
-        getFixedColCount: function() {
-            return this.getBehavior().getFixedColCount();
+        getFixedColumnCount: function() {
+            return this.getBehavior().getFixedColumnCount();
         },
 
         getFixedRowCount: function() {
@@ -1567,8 +1554,8 @@
             this.getBehavior().fixedRowClicked(this, mouse);
         },
 
-        fixedColClicked: function(mouse) {
-            this.getBehavior().fixedColClicked(this, mouse);
+        fixedColumnClicked: function(mouse) {
+            this.getBehavior().fixedColumnClicked(this, mouse);
         },
 
         activateEditor: function(event) {

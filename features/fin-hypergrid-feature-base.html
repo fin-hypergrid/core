@@ -106,9 +106,9 @@ The `fin-hypergrid-feature-base` element is a custom Polymer web component that 
             return isFixed;
         },
 
-        isFixedCol: function(grid, event) {
+        isFixedColumn: function(grid, event) {
             var gridCell = event.gridCell;
-            var isFixed = gridCell.x < grid.getFixedColCount();
+            var isFixed = gridCell.x < grid.getFixedColumnCount();
             return isFixed;
         },
         setCursor: function(grid) {
@@ -117,6 +117,11 @@ The `fin-hypergrid-feature-base` element is a custom Polymer web component that 
             }
             if (this.cursor) {
                 grid.beCursor(this.cursor);
+            }
+        },
+        initializeOn: function(grid) {
+            if (this.next) {
+                this.next.initializeOn(grid);
             }
         }
 

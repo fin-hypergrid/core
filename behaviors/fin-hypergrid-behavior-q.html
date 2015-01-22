@@ -125,7 +125,7 @@ The `fin-hypergrid-behavior-q` element is a custom Polymer web component used to
         },
 
         //Virtual column scrolling is not necessary with this GridBehavior because we only hold a small amount of vertical data in memory and most tables in Q are timeseries financial data meaning the are very tall and skinny.  We know all the columns from the first page from Q.
-        getColCount: function() {
+        getColumnCount: function() {
             return this.block.headers.length - 1;
         },
 
@@ -164,7 +164,7 @@ The `fin-hypergrid-behavior-q` element is a custom Polymer web component used to
         },
 
         //for now just return the row number.  the simple protocol we talk with q assumes the first column is the real row index. so it is offset in all data access
-        getFixedColValue: function(x, y) {
+        getFixedColumnValue: function(x, y) {
             return y;
         },
 
@@ -176,25 +176,25 @@ The `fin-hypergrid-behavior-q` element is a custom Polymer web component used to
 
         //on a header click do a sort!
         fixedRowClicked: function(grid, mouse) {
-            this.toggleSort(this.scrollPositionX + mouse.gridCell.x - this.getFixedColCount());
+            this.toggleSort(this.scrollPositionX + mouse.gridCell.x - this.getFixedColumnCount());
         },
 
         //first ask q if this is a sortable instance, then send a message to Q to sort our data set
-        toggleSort: function(colIndex) {
-            var colIndex = this.translateColumnIndex(colIndex);
+        toggleSort: function(columnIndex) {
+            var columnIndex = this.translateColumnIndex(columnIndex);
             if (!this.getCanSort()) {
                 return;
             }
-            colIndex++;
-            var current = this.sorted[colIndex];
+            columnIndex++;
+            var current = this.sorted[columnIndex];
             var stateCount = this.sortStates.length;
             this.sorted = {}; //clear out other sorted for now, well add multicolumn sort later
-            this.sorted[colIndex] = (current + 1) % stateCount;
-            var state = this.sortStates[this.sorted[colIndex]];
+            this.sorted[columnIndex] = (current + 1) % stateCount;
+            var state = this.sortStates[this.sorted[columnIndex]];
             var message = {
                 cmd: 'sort',
                 data: {
-                    sort: current === (stateCount - 1) ? '' : this.block.headers[colIndex][0],
+                    sort: current === (stateCount - 1) ? '' : this.block.headers[columnIndex][0],
                     asc: state.indexOf('^') > 0,
                     abs: state.indexOf('|') > 0,
                     start: this.scrollPositionY,
@@ -205,7 +205,7 @@ The `fin-hypergrid-behavior-q` element is a custom Polymer web component used to
         },
 
         //delegate column alignment through the map at the top based on the column type
-        getColAlignment: function(x) {
+        getColumnAlignment: function(x) {
             x = this.translateColumnIndex(x);
             var alignment = typeAlignmentMap[this.block.headers[x + 1][1]];
             return alignment;
@@ -256,8 +256,8 @@ The `fin-hypergrid-behavior-q` element is a custom Polymer web component used to
                     if (d.rows !== oldSize) {
                         self.sizeChanged();
                     }
-                    if (!self.colIndexes || self.colIndexes.length === 0)  {
-                        self.initColIndexes();
+                    if (!self.columnIndexes || self.columnIndexes.length === 0)  {
+                        self.initColumnIndexes();
                     }
                     self.changed();
                 };

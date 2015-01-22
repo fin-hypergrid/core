@@ -33,11 +33,11 @@ The `fin-hypergrid-behavior-default` element is a custom Polymer web component i
           this.readyInit();
         },
 
-        colIndexes: null,
-        fixedColIndexes: null,
+        columnIndexes: null,
+        fixedColumnIndexes: null,
 
-        colWidths: null,
-        fixedColWidths: null,
+        columnWidths: null,
+        fixedColumnWidths: null,
 
         grid: null,
         editorTypes: ['choice','textfield','color','slider','spinner','date'],
@@ -50,52 +50,37 @@ The `fin-hypergrid-behavior-default` element is a custom Polymer web component i
             this.scrollPositionY = 0;
             this.renderedWidth = 30;
             this.renderedHeight = 60;
-            this.colWidths = this.colWidths || [],
-            this.fixedColWidths = this.fixedColWidths || [],
-            this.colIndexes = this.colIndexes || [],
-            this.fixedColIndexes = this.fixedColIndexes || [],
+            this.columnWidths = this.columnWidths || [],
+            this.fixedColumnWidths = this.fixedColumnWidths || [],
+            this.columnIndexes = this.columnIndexes || [],
+            this.fixedColumnIndexes = this.fixedColumnIndexes || [],
             this.values = {}; //for overriding with edit values;
-            this.setNextFeature(document.createElement('fin-hypergrid-feature-column-resizing'));
-            this.setNextFeature(document.createElement('fin-hypergrid-feature-cell-selection'));
-            this.setNextFeature(document.createElement('fin-hypergrid-feature-column-moving'));
-            this.setNextFeature(document.createElement('fin-hypergrid-feature-thumbwheel-scrolling'));
-            this.setNextFeature(document.createElement('fin-hypergrid-feature-cell-editing'));
-            this.setNextFeature(document.createElement('fin-hypergrid-feature-column-sorting'));
-            this.initColIndexes();
+            this.initColumnIndexes();
         },
 
-        initColIndexes: function() {
-            var colCount = this.getColCount();
-            var fixedColCount = this.getFixedColCount();
+        initColumnIndexes: function() {
+            var columnCount = this.getColumnCount();
+            var fixedColumnCount = this.getFixedColumnCount();
             var i;
 
-            for (i = 0;i < colCount;i++) {
-                this.colIndexes[i] = i;
+            for (i = 0;i < columnCount;i++) {
+                this.columnIndexes[i] = i;
             }
 
-            for (i = 0;i < fixedColCount;i++) {
-                this.fixedColIndexes[i] = i;
+            for (i = 0;i < fixedColumnCount;i++) {
+                this.fixedColumnIndexes[i] = i;
             }
 
-            // this.colIndexes[0] = 8;
-            // this.colIndexes[1] = 7;
-            // this.colIndexes[2] = 6;
-            // this.colIndexes[3] = 5;
-            // this.colIndexes[4] = 4;
-            // this.colIndexes[5] = 3;
-            // this.colIndexes[6] = 2;
-            // this.colIndexes[7] = 1;
-            // this.colIndexes[8] = 0;
         },
 
         swapColumns: function(src, tar) {
-            var tmp = this.colIndexes[src];
-            this.colIndexes[src] = this.colIndexes[tar];
-            this.colIndexes[tar] = tmp;
+            var tmp = this.columnIndexes[src];
+            this.columnIndexes[src] = this.columnIndexes[tar];
+            this.columnIndexes[tar] = tmp;
         },
 
         translateColumnIndex: function(x) {
-            return this.colIndexes[x];
+            return this.columnIndexes[x];
         },
 
         setNextFeature: function(nextFeature) {
@@ -108,6 +93,17 @@ The `fin-hypergrid-behavior-default` element is a custom Polymer web component i
 
         installOn: function(grid) {
             grid.setBehavior(this);
+            this.initializeFeatureChain(grid);
+        },
+
+        initializeFeatureChain: function(grid) {
+            this.setNextFeature(document.createElement('fin-hypergrid-feature-column-resizing'));
+            this.setNextFeature(document.createElement('fin-hypergrid-feature-cell-selection'));
+            this.setNextFeature(document.createElement('fin-hypergrid-feature-column-moving'));
+            this.setNextFeature(document.createElement('fin-hypergrid-feature-thumbwheel-scrolling'));
+            this.setNextFeature(document.createElement('fin-hypergrid-feature-cell-editing'));
+            this.setNextFeature(document.createElement('fin-hypergrid-feature-column-sorting'));
+            this.featureChain.initializeOn(grid);
         },
 
         getCellProvider: function() {
@@ -155,10 +151,10 @@ The `fin-hypergrid-behavior-default` element is a custom Polymer web component i
             return this.alphaFor(x);
         },
 
-        //fixed cols are the static cols at the left of the grid that don't scroll up or down
+        //fixed columns are the static columns at the left of the grid that don't scroll up or down
         //<br>they can be arbitary width by height in size
         //<br>here we just return an excel-ish base-26 alpha value
-        getFixedColValue: function(x, y) {
+        getFixedColumnValue: function(x, y) {
             //x = this.fixedtranslateColumnIndex(x);
             return y + 1;
         },
@@ -170,7 +166,7 @@ The `fin-hypergrid-behavior-default` element is a custom Polymer web component i
         },
 
         //can be dynamic if your data set changes size
-        getColCount: function() {
+        getColumnCount: function() {
             return 300;
         },
 
@@ -204,42 +200,42 @@ The `fin-hypergrid-behavior-default` element is a custom Polymer web component i
             return height;
         },
 
-        //can be dynamic for supporting "floating" fixed cols
-        //<br>floating cols are cols that become fixed if you
+        //can be dynamic for supporting "floating" fixed columns
+        //<br>floating columns are columns that become fixed if you
         //<br>scroll past them
-        getFixedColCount: function() {
+        getFixedColumnCount: function() {
             return 1;
         },
 
-        //pixel width of the fixed cols area
-        getFixedColsWidth: function() {
-            var count = this.getFixedColCount();
+        //pixel width of the fixed columns area
+        getFixedColumnsWidth: function() {
+            var count = this.getFixedColumnCount();
             var total = 0;
             for (var i = 0; i < count; i++) {
-                total = total + this.getFixedColWidth(i);
+                total = total + this.getFixedColumnWidth(i);
             }
             return total;
         },
 
         //the potential maximum width of the fixed col area
         //<br>TODO: move this logic into the OFGrid itself
-        //<br>there should only be getFixedCols, and getMaxFixedCols
-        getFixedColsMaxWidth: function() {
-            var width = (0 + this.getFixedColCount()) * (this.constants.colWidth);
+        //<br>there should only be getFixedColumns, and getMaxFixedColumns
+        getFixedColumnsMaxWidth: function() {
+            var width = (0 + this.getFixedColumnCount()) * (this.constants.columnWidth);
             return width;
         },
 
         //the width of the specific fixed col
-        getFixedColWidth: function(colNumber) {
-            var override = this.fixedColWidths[colNumber];
+        getFixedColumnWidth: function(colNumber) {
+            var override = this.fixedColumnWidths[colNumber];
             if (override) {
                 return override;
             }
             return 120;
         },
 
-        setFixedColumnWidth: function(colNumber, width) {
-            this.fixedColWidths[colNumber] = Math.max(5, width);
+        setFixedColumnumnWidth: function(colNumber, width) {
+            this.fixedColumnWidths[colNumber] = Math.max(5, width);
             this.changed();
         },
         //can be dynamic if we wish to allow users to resize
@@ -252,18 +248,18 @@ The `fin-hypergrid-behavior-default` element is a custom Polymer web component i
         //<br>or driven by data, etc...
         //<br>this implementation is driven by modulo
         //<br>TODO: move this example into InMemoryGridBehavior
-        getColWidth: function(colNumber) {
-            colNumber = this.colIndexes[colNumber];
-            var override = this.colWidths[colNumber];
+        getColumnWidth: function(colNumber) {
+            colNumber = this.columnIndexes[colNumber];
+            var override = this.columnWidths[colNumber];
             if (override) {
                 return override;
             }
-            return this.constants.colWidth;
+            return this.constants.columnWidth;
         },
 
         setColumnWidth: function(colNumber, width) {
-            colNumber = this.colIndexes[colNumber];
-            this.colWidths[colNumber] = Math.max(5, width);
+            colNumber = this.columnIndexes[colNumber];
+            this.columnWidths[colNumber] = Math.max(5, width);
             this.changed();
         },
 
@@ -276,7 +272,7 @@ The `fin-hypergrid-behavior-default` element is a custom Polymer web component i
         },
 
         //this is set by OFGrid on scroll
-        //<br>this allows for fast scrolling through cols of very large external data sets
+        //<br>this allows for fast scrolling through columns of very large external data sets
         //<br>this is ignored by in memory GridBehaviors
         setScrollPositionX: function(x) {
             this.scrollPositionX = x;
@@ -297,7 +293,7 @@ The `fin-hypergrid-behavior-default` element is a custom Polymer web component i
 
         //answers the default col alignment for the main data area of the grid
         //<br>TODO:provide uniform mechanism for the fixed areas like this
-        getColAlignment: function( /* x */ ) {
+        getColumnAlignment: function( /* x */ ) {
             return 'center';
         },
 
@@ -313,7 +309,7 @@ The `fin-hypergrid-behavior-default` element is a custom Polymer web component i
         //<br>see DefaultGridBehavior.delegateClick() below
         //<br>this is where we can hook in external data manipulation such as sorting,
         //<br>hiding/showing columns, etc...
-        fixedColClicked: function(grid, mouse) {
+        fixedColumnClicked: function(grid, mouse) {
             console.log('fixed col clicked: ' + mouse.gridCell.y, mouse);
         },
 

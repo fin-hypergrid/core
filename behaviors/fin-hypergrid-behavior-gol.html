@@ -32,7 +32,7 @@ The `fin-hypergrid-behavior-gol` element is a custom Polymer web component used 
     Polymer({ /* jslint ignore:line */
 
         rows: 45,
-        cols: 75,
+        columns: 75,
         data: [],
         buffer: [],
         running: false,
@@ -40,7 +40,7 @@ The `fin-hypergrid-behavior-gol` element is a custom Polymer web component used 
         ready: function() {
             this.readyInit();
             this.rows = this.getAttribute('rows') || this.rows;
-            this.cols = this.getAttribute('cols') || this.cols;
+            this.columns = this.getAttribute('columns') || this.columns;
             this.resetPetriDish();
             this.running = false;
         },
@@ -77,13 +77,13 @@ The `fin-hypergrid-behavior-gol` element is a custom Polymer web component used 
             var y = 0;
             for (var i = 0; i < 15; i++) {
                 y = Math.round(Math.random() * this.rows * 0.60);
-                x = Math.round(Math.random() * this.cols * 0.60);
+                x = Math.round(Math.random() * this.columns * 0.60);
                 this.applyPatternAt(this.data, x, y , patterns[i%2], i % 4);
             }
         },
 
         initializeData: function(array2D) {
-            for (var c = 0; c < this.cols; c++) {
+            for (var c = 0; c < this.columns; c++) {
                 var col = [];
                 array2D.push(col);
                 for (var r = 0; r < this.rows; r++) {
@@ -103,7 +103,7 @@ The `fin-hypergrid-behavior-gol` element is a custom Polymer web component used 
             if (!this.running) {
                 return;
             }
-            for (var c = 1; c < this.cols-2; c++) {
+            for (var c = 1; c < this.columns-2; c++) {
                 for (var r = 1; r < this.rows-2; r++) {
                     this.computeLifeAt(c,r);
                 }
@@ -209,7 +209,7 @@ The `fin-hypergrid-behavior-gol` element is a custom Polymer web component used 
             this.data[x][y] = value;
         },
 
-        getFixedColValue: function(x, y) {
+        getFixedColumnValue: function(x, y) {
             return y;
         },
 
@@ -217,14 +217,14 @@ The `fin-hypergrid-behavior-gol` element is a custom Polymer web component used 
             return "";
         },
 
-        getFixedColCount: function() {
+        getFixedColumnCount: function() {
             return 0;
         },
         getFixedRowCount: function() {
             return 0;
         },
 
-        getColCount: function() {
+        getColumnCount: function() {
             return this.data.length;
         },
 
@@ -236,7 +236,7 @@ The `fin-hypergrid-behavior-gol` element is a custom Polymer web component used 
             return 10;
         },
 
-        getColWidth: function(x) {
+        getColumnWidth: function(x) {
             return 10;
         },
 

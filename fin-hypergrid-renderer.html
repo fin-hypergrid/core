@@ -53,9 +53,9 @@ The `fin-hypergrid-renderer` element is a custom Polymer web component used to s
           if (!constants) {
               constants = document.createElement('fin-hypergrid-constants').values;
           }
-          this.renderedColWidths = [0];
+          this.renderedColumnWidths = [0];
           this.renderedRowHeights = [0];
-          this.renderedCols = [];
+          this.renderedColumns = [];
           this.renderedRows = [];
           this.insertionBounds = []; // this is the midpoint of each column, used for column drag and drop
           this.setBackgroundColor(constants.gridBackgroundColor);
@@ -83,8 +83,8 @@ The `fin-hypergrid-renderer` element is a custom Polymer web component used to s
         },
 
         //Answer how many columns we just rendered
-        getViewableCols: function() {
-            return this.renderedCols.length;
+        getViewableColumns: function() {
+            return this.renderedColumns.length;
         },
 
         /**
@@ -95,21 +95,21 @@ The `fin-hypergrid-renderer` element is a custom Polymer web component used to s
          * @method isOverColumnDivider(x)
          */
         overColumnDivider: function(x) {
-            var whichCol = this.renderedColWidths.indexOf(x + 1);
+            var whichCol = this.renderedColumnWidths.indexOf(x + 1);
             if (whichCol < 0) {
-                whichCol = this.renderedColWidths.indexOf(x);
+                whichCol = this.renderedColumnWidths.indexOf(x);
             }
             if (whichCol < 0) {
-                whichCol = this.renderedColWidths.indexOf(x - 1);
+                whichCol = this.renderedColumnWidths.indexOf(x - 1);
             }
             return whichCol;
         },
 
         //Answer the pixel bounds of specific data cell. It must have just been rendered
         getBoundsOfCell: function(cell) {
-            var ox = this.renderedColWidths[cell.x],
+            var ox = this.renderedColumnWidths[cell.x],
                 oy = this.renderedRowHeights[cell.y],
-                cx = this.renderedColWidths[cell.x + 1],
+                cx = this.renderedColumnWidths[cell.x + 1],
                 cy = this.renderedRowHeights[cell.y + 1],
                 ex = cx - ox,
                 ey = cy - oy;
@@ -120,7 +120,7 @@ The `fin-hypergrid-renderer` element is a custom Polymer web component used to s
         },
 
         getColumnFromPixelX: function(pixelX) {
-            pixelX = pixelX - this.getBehavior().getFixedColsWidth();
+            pixelX = pixelX - this.getBehavior().getFixedColumnsWidth();
             var width = 0;
             var c;
             for (c = 0; c < this.insertionBounds.length; c++) {
@@ -139,8 +139,8 @@ The `fin-hypergrid-renderer` element is a custom Polymer web component used to s
             var x, y;
             var c, r;
             var previous = 0;
-            for (c = 1; c < this.renderedColWidths.length; c++) {
-                width = this.renderedColWidths[c];
+            for (c = 1; c < this.renderedColumnWidths.length; c++) {
+                width = this.renderedColumnWidths[c];
                 if (point.x < width) {
                     x = Math.max(0, point.x - previous - 2);
                     break;
@@ -172,14 +172,14 @@ The `fin-hypergrid-renderer` element is a custom Polymer web component used to s
 
         //Answer if a column is visible, must be fully visible
         isColVisible: function(c) {
-            var isVisible = this.renderedCols.indexOf(c) !== -1;
+            var isVisible = this.renderedColumns.indexOf(c) !== -1;
             return isVisible;
         },
         getFinalVisableColumnBoundry: function() {
             var grid = this.getGrid();
             var isMaxX = this.isLastColumnVisible();
             var chop = isMaxX ? 2 : 1;
-            var colWall = this.renderedColWidths[this.renderedColWidths.length-chop];
+            var colWall = this.renderedColumnWidths[this.renderedColumnWidths.length-chop];
             var result = Math.min(colWall, this.getBounds().width() - 200);
             return result;
         },
@@ -197,7 +197,7 @@ The `fin-hypergrid-renderer` element is a custom Polymer web component used to s
         //This is the main forking of the renderering task.  GC is a graphics context.
         //<br>[CanvasRenderingContext2D](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D)
         renderGrid: function(gc) {
-            var offsetX = this.getBehavior().getFixedColsWidth();
+            var offsetX = this.getBehavior().getFixedColumnsWidth();
             var offsetY = this.getBehavior().getFixedRowsHeight();
 
             this.paintHeaders(gc, 0, 0);
@@ -213,7 +213,7 @@ The `fin-hypergrid-renderer` element is a custom Polymer web component used to s
             var grid = this.getGrid();
             var isMaxX = this.isLastColumnVisible();
             var chop = isMaxX ? 2 : 1;
-            var x = this.renderedColWidths[this.renderedColWidths.length-chop];
+            var x = this.renderedColumnWidths[this.renderedColumnWidths.length-chop];
             var bounds = this.getBounds();
             var width = bounds.width() - x;
             var height = bounds.height();
@@ -237,10 +237,10 @@ The `fin-hypergrid-renderer` element is a custom Polymer web component used to s
         renderOverride: function(gc, override) {
             //lets blank out the drag row
             var behavior = this.getBehavior();
-            var colStarts = this.renderedColWidths;
-            var fixedColCount = behavior.getFixedColCount();
+            var columnStarts = this.renderedColumnWidths;
+            var fixedColCount = behavior.getFixedColumnCount();
             var hdpiRatio = override.hdpiratio;
-            var startX = hdpiRatio * colStarts[override.colIndex + fixedColCount];
+            var startX = hdpiRatio * columnStarts[override.columnIndex + fixedColCount];
             var width = override.width;
             var height = override.height;
             var targetCTX = override.ctx;
@@ -256,17 +256,17 @@ The `fin-hypergrid-renderer` element is a custom Polymer web component used to s
             var behavior = this.getBehavior();
             var lineColor = constants.lineColor; //draw horizontal grid line
 
-            var numCols = behavior.getColCount();
+            var numColumns = behavior.getColumnCount();
             var numRows = behavior.getRowCount();
-            var numFixedCols = behavior.getFixedColCount();
+            var numFixedColumns = behavior.getFixedColumnCount();
             var numFixedRows = behavior.getFixedRowCount();
 
-            var fixedColsWidth = behavior.getFixedColsWidth();
+            var fixedColumnsWidth = behavior.getFixedColumnsWidth();
             var fixedRowsHeight = behavior.getFixedRowsHeight();
 
-            this.renderedColWidths = [0];
+            this.renderedColumnWidths = [0];
             this.renderedRowHeights = [0];
-            this.renderedCols = [];
+            this.renderedColumns = [];
             this.renderedRows = [];
             this.insertionBounds = [];
             var insertionBoundsCursor = 0;
@@ -288,7 +288,7 @@ The `fin-hypergrid-renderer` element is a custom Polymer web component used to s
                 height = this.getFixedRowHeight(r);
                 y = y + height;
                 this.renderedRowHeights.push(y);
-                gc.moveTo(fixedColsWidth, y);
+                gc.moveTo(fixedColumnsWidth, y);
                 gc.lineTo(viewWidth, y);
                 gc.stroke();
             }
@@ -297,10 +297,10 @@ The `fin-hypergrid-renderer` element is a custom Polymer web component used to s
             gc.beginPath();
             gc.moveTo(0, 0);
             x = 0;
-            for (c = 0; c < numFixedCols; c++) {
-                width = this.getFixedColWidth(c);
+            for (c = 0; c < numFixedColumns; c++) {
+                width = this.getFixedColumnWidth(c);
                 x = x + width;
-                this.renderedColWidths.push(x);
+                this.renderedColumnWidths.push(x);
                 gc.moveTo(x, fixedRowsHeight);
                 gc.lineTo(x, viewHeight);
                 gc.stroke();
@@ -311,20 +311,20 @@ The `fin-hypergrid-renderer` element is a custom Polymer web component used to s
             gc.moveTo(0, 0);
             x = offsetX;
             var previousInsertionBoundsCursorValue = 0;
-            for (c = 0; c < numCols + 1; c++) {
-                width = this.getColWidth(c + scrollLeft);
+            for (c = 0; c < numColumns + 1; c++) {
+                width = this.getColumnWidth(c + scrollLeft);
 
-                this.renderedCols.push(c + scrollLeft);
+                this.renderedColumns.push(c + scrollLeft);
 
-                if (x > viewWidth || numCols < scrollLeft + c) {
-                    this.renderedCols.length = Math.max(0, this.renderedCols.length - 2);
+                if (x > viewWidth || numColumns < scrollLeft + c) {
+                    this.renderedColumns.length = Math.max(0, this.renderedColumns.length - 2);
                     break;
                 }
                 gc.moveTo(x, 0);
                 gc.lineTo(x, viewHeight);
                 gc.stroke();
                 x = x + width;
-                this.renderedColWidths.push(x);
+                this.renderedColumnWidths.push(x);
                 insertionBoundsCursor = insertionBoundsCursor + Math.round(width/2) + previousInsertionBoundsCursorValue;
                 this.insertionBounds.push(insertionBoundsCursor);
                 previousInsertionBoundsCursorValue = Math.round(width/2);
@@ -355,23 +355,23 @@ The `fin-hypergrid-renderer` element is a custom Polymer web component used to s
 
             this.paintFixedRows(
                 ctx,
-                offsetX + this.getBehavior().getFixedColsWidth(),
+                offsetX + this.getBehavior().getFixedColumnsWidth(),
                 offsetY,
-                this.getBehavior().getColCount(),
+                this.getBehavior().getColumnCount(),
                 this.getBehavior().getFixedRowCount());
 
-            this.paintFixedCols(
+            this.paintFixedColumns(
                 ctx,
                 offsetX,
                 offsetY + this.getBehavior().getFixedRowsHeight(),
-                this.getBehavior().getFixedColCount(),
+                this.getBehavior().getFixedColumnCount(),
                 this.getBehavior().getRowCount());
 
             this.paintTopLeft(ctx, 0, 0);
         },
 
         //Renderer the fixed header rows along the top
-        paintFixedRows: function(ctx, offsetX, offsetY, numCols, numRows) {
+        paintFixedRows: function(ctx, offsetX, offsetY, numColumns, numRows) {
             var behavior = this.getBehavior();
             var x = offsetX;
             var scrollLeft = this.getScrollLeft();
@@ -385,9 +385,9 @@ The `fin-hypergrid-renderer` element is a custom Polymer web component used to s
             var cellProvider = this.getGrid().getCellProvider();
             var viewWidth = this.getBounds().width() - 200; // look in fin-hypergrid and initializtion of fin-canvas
             var viewHeight = this.getBehavior().getFixedRowsHeight();
-            for (var c = 0; c < numCols; c++) {
-                var width = this.getColWidth(c + scrollLeft);
-                if (x > viewWidth || numCols <= scrollLeft + c) {
+            for (var c = 0; c < numColumns; c++) {
+                var width = this.getColumnWidth(c + scrollLeft);
+                if (x > viewWidth || numColumns <= scrollLeft + c) {
                     return;
                 }
                 var isSelected = this.isFixedRowCellSelected(c + scrollLeft);
@@ -412,7 +412,7 @@ The `fin-hypergrid-renderer` element is a custom Polymer web component used to s
         },
 
         //Render the fixed columns along the left side
-        paintFixedCols: function(ctx, offsetX, offsetY, numCols, numRows) {
+        paintFixedColumns: function(ctx, offsetX, offsetY, numColumns, numRows) {
             var behavior = this.getBehavior();
             var x = offsetX;
             var font = constants.defaultFont;
@@ -421,13 +421,13 @@ The `fin-hypergrid-renderer` element is a custom Polymer web component used to s
             var fixedColBGColor = constants.fixedColBGColor;
             var fgSelColor = constants.fixedColFGSelColor;
             var bgSelColor = constants.fixedColBGSelColor;
-            var halign = constants.fixedColAlign;
+            var halign = constants.fixedColumnAlign;
             var scrollTop = this.getScrollTop();
             var cellProvider = this.getGrid().getCellProvider();
             var viewHeight = this.getBounds().height();
 
-            for (var c = 0; c < numCols; c++) {
-                var width = this.getFixedColWidth(c);
+            for (var c = 0; c < numColumns; c++) {
+                var width = this.getFixedColumnWidth(c);
                 var y = offsetY;
 
                 ctx.fillStyle = fixedColBGColor;
@@ -435,12 +435,12 @@ The `fin-hypergrid-renderer` element is a custom Polymer web component used to s
 
                 for (var r = 0; r < numRows; r++) {
                     var height = this.getRowHeight(r + scrollTop);
-                    var isSelected = this.isFixedColCellSelected(r + scrollTop);
+                    var isSelected = this.isFixedColumnCellSelected(r + scrollTop);
                     if (y > viewHeight || numRows <= scrollTop + r) {
                         break;
                     }
-                    var value = behavior.getFixedColValue(c, r + scrollTop);
-                    var cell = cellProvider.getFixedColCell(cellConfig(c, r + scrollTop, value, fgColor, bgColor, fgSelColor, bgSelColor, font, isSelected, halign));
+                    var value = behavior.getFixedColumnValue(c, r + scrollTop);
+                    var cell = cellProvider.getFixedColumnCell(cellConfig(c, r + scrollTop, value, fgColor, bgColor, fgSelColor, bgSelColor, font, isSelected, halign));
                     cell.paint(ctx, x, y, width, height);
                     y = y + height;
                 }
@@ -449,7 +449,7 @@ The `fin-hypergrid-renderer` element is a custom Polymer web component used to s
         },
 
         //Render the main cells.  We snapshot the context to insure against its polution.
-        //<br>TODO:save/restore should be a general wrapper that we use here and for the other renderer, fixed rows/cols and gridlines as well.
+        //<br>TODO:save/restore should be a general wrapper that we use here and for the other renderer, fixed rows/columns and gridlines as well.
         paintCells: function(ctx, offsetX, offsetY) {
             try {
                 ctx.save();
@@ -461,7 +461,7 @@ The `fin-hypergrid-renderer` element is a custom Polymer web component used to s
 
         _paintCells: function(ctx, offsetX, offsetY) {
             var behavior = this.getBehavior();
-            var numCols = behavior.getColCount();
+            var numColumns = behavior.getColumnCount();
             var numRows = behavior.getRowCount();
             var x = offsetX;
             var startY = offsetY;
@@ -476,14 +476,14 @@ The `fin-hypergrid-renderer` element is a custom Polymer web component used to s
             var viewWidth = this.getBounds().width() - 200; // look in fin-hypergrid and initializtion of fin-canvas
             var viewHeight = this.getBounds().height();
 
-            for (var c = 0; c < numCols; c++) {
-                var width = this.getColWidth(c + scrollLeft);
-                if (x > viewWidth || numCols <= scrollLeft + c) {
+            for (var c = 0; c < numColumns; c++) {
+                var width = this.getColumnWidth(c + scrollLeft);
+                if (x > viewWidth || numColumns <= scrollLeft + c) {
                     return;
                 }
 
                 var y = startY;
-                var colAlign = behavior.getColAlignment(c + scrollLeft);
+                var columnAlign = behavior.getColumnAlignment(c + scrollLeft);
                 //fill background
                 ctx.fillStyle = bgColor;
                 ctx.fillRect(x, y, x + width, viewHeight - y);
@@ -503,7 +503,7 @@ The `fin-hypergrid-renderer` element is a custom Polymer web component used to s
                     //translatedX allows us to reorder columns
                     var translatedX = behavior.translateColumnIndex(c + scrollLeft);
 
-                    var cell = cellProvider.getCell(cellConfig(translatedX, r + scrollTop, value, fgColor, bgColor, fgSelColor, bgSelColor, font, isSelected, colAlign));
+                    var cell = cellProvider.getCell(cellConfig(translatedX, r + scrollTop, value, fgColor, bgColor, fgSelColor, bgSelColor, font, isSelected, columnAlign));
 
                     cell.paint(ctx, x, y, width, height);
 
@@ -519,10 +519,10 @@ The `fin-hypergrid-renderer` element is a custom Polymer web component used to s
             ctx.beginPath();
             //var border = this.getGrid().provider.require('borderprovider').getBorder('simple');
             var fixedRowHeight = this.getBehavior().getFixedRowsHeight();
-            var fixedColWidth = this.getBehavior().getFixedColsWidth();
+            var fixedColumnWidth = this.getBehavior().getFixedColumnsWidth();
             ctx.fillStyle = constants.topLeftHeaderBGColor;
-            ctx.fillRect(offsetX, offsetY, fixedColWidth, fixedRowHeight);
-            //border.paint(ctx, offsetX, offsetY, fixedColWidth, fixedRowHeight, constants.lineColor);
+            ctx.fillRect(offsetX, offsetY, fixedColumnWidth, fixedRowHeight);
+            //border.paint(ctx, offsetX, offsetY, fixedColumnWidth, fixedRowHeight, constants.lineColor);
             ctx.stroke();
         },
 
@@ -530,8 +530,8 @@ The `fin-hypergrid-renderer` element is a custom Polymer web component used to s
             return this.getGrid().isFixedRowCellSelected(col);
         },
 
-        isFixedColCellSelected: function(row) {
-            return this.getGrid().isFixedColCellSelected(row);
+        isFixedColumnCellSelected: function(row) {
+            return this.getGrid().isFixedColumnCellSelected(row);
         },
 
         getScrollTop: function() {
@@ -562,24 +562,24 @@ The `fin-hypergrid-renderer` element is a custom Polymer web component used to s
             return height;
         },
 
-        getColWidth: function(colIndex) {
-            var width = this.getBehavior().getColWidth(colIndex);
+        getColumnWidth: function(columnIndex) {
+            var width = this.getBehavior().getColumnWidth(columnIndex);
             return width;
         },
 
-        getFixedColWidth: function(rowIndex) {
-            var height = this.getBehavior().getFixedColWidth(rowIndex);
+        getFixedColumnWidth: function(rowIndex) {
+            var height = this.getBehavior().getFixedColumnWidth(rowIndex);
             return height;
         },
 
         //answer true if the last col was rendered (is visible)
         isLastColumnVisible: function() {
-            var lastColIndex = this.getColCount() - 1;
-            var isMax = this.renderedCols.indexOf(lastColIndex) !== -1;
+            var lastColumnIndex = this.getColumnCount() - 1;
+            var isMax = this.renderedColumns.indexOf(lastColumnIndex) !== -1;
             return isMax;
         },
-        getColCount: function() {
-            var count = this.getGrid().getColCount();
+        getColumnCount: function() {
+            var count = this.getGrid().getColumnCount();
             return count;
         }
 

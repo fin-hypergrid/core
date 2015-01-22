@@ -39,15 +39,15 @@ The `fin-hypergrid-behavior-in-memory` element is a custom Polymer web component
 
         ready: function() {
 
-            this.colWidths = [50, 150, 80, 90, 80, 150, 100, 80, 80, 100],
-            this.fixedColWidths = [120],
+            this.columnWidths = [50, 150, 80, 90, 80, 150, 100, 80, 80, 100],
+            this.fixedColumnWidths = [120],
             this.rows = 5000;
-            this.cols = 100;
+            this.columns = 100;
 
             //milliseconds pause inbetween sweeps of random updates
             this.readyInit();
             this.permuteInterval = 50;
-            this.values = new Array(this.rows * this.cols);
+            this.values = new Array(this.rows * this.columns);
             this.order = [];
             this.sorts = [];
             this.sortLookup = {};
@@ -65,7 +65,7 @@ The `fin-hypergrid-behavior-in-memory` element is a custom Polymer web component
         },
 
         //default to left halign for rendering performance improvement
-        //<br>and make cols 3, 23, 41 use special cell renderers
+        //<br>and make columns 3, 23, 41 use special cell renderers
         createCellProvider: function() {
             var self = this;
             var provider = document.createElement('fin-hypergrid-cell-provider');
@@ -107,7 +107,7 @@ The `fin-hypergrid-behavior-in-memory` element is a custom Polymer web component
         initialize: function() {
             var config = {
                 xstart: 0,
-                xstop: this.getColCount(),
+                xstop: this.getColumnCount(),
                 xinc: 1,
                 ystart: 0,
                 ystop: this.getRowCount(),
@@ -417,8 +417,8 @@ The `fin-hypergrid-behavior-in-memory` element is a custom Polymer web component
             return this.rows;
         },
 
-        getColCount: function() {
-            return this.cols;
+        getColumnCount: function() {
+            return this.columns;
         },
 
         getFixedRowValue: function(x /*, y*/ ) {
@@ -434,22 +434,22 @@ The `fin-hypergrid-behavior-in-memory` element is a custom Polymer web component
             return this.alphaFor(x) + sortIndicator;
         },
 
-        //cols 2, 14, 22 are sortable
+        //columns 2, 14, 22 are sortable
         fixedRowClicked: function(grid, mouse) {
-            var x = this.translateColumnIndex(mouse.gridCell.x - this.getFixedColCount());
-            var colIndex = this.scrollPositionX + x;
-            if ([2, 14, 22].indexOf(colIndex) === -1) {
+            var x = this.translateColumnIndex(mouse.gridCell.x - this.getFixedColumnCount());
+            var columnIndex = this.scrollPositionX + x;
+            if ([2, 14, 22].indexOf(columnIndex) === -1) {
                 return;
             }
-            this.toggleSort(colIndex);
+            this.toggleSort(columnIndex);
         },
 
-        toggleSort: function(colIndex) {
-            var current = this.sorted[colIndex];
+        toggleSort: function(columnIndex) {
+            var current = this.sorted[columnIndex];
             var stateCount = this.sortStates.length;
             var sortStateIndex = (current + 1) % stateCount;
-            this.sorted[colIndex] = sortStateIndex;
-            this.sortLookup[colIndex].type = sortStateIndex;
+            this.sorted[columnIndex] = sortStateIndex;
+            this.sortLookup[columnIndex].type = sortStateIndex;
             this.reorder();
             this.changed();
         }

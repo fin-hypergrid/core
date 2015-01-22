@@ -75,7 +75,7 @@ The `fin-hypergrid-feature-cell-selection` element is a custom Polymer web compo
                     this.next.handleMouseDown(grid, event);
                 }
                 return;
-            } else if (gridCell.x < grid.getFixedColCount()) {
+            } else if (gridCell.x < grid.getFixedColumnCount()) {
                 grid.clearSelections();
                 this.dragging = false;
                 return;
@@ -126,10 +126,10 @@ The `fin-hypergrid-feature-cell-selection` element is a custom Polymer web compo
             var scrollTop = grid.getVScrollValue();
             var scrollLeft = grid.getHScrollValue();
 
-            var numFixedCols = grid.getFixedColCount();
+            var numFixedColumns = grid.getFixedColumnCount();
             var numFixedRows = grid.getFixedRowCount();
 
-            var x = mouse.x - numFixedCols;
+            var x = mouse.x - numFixedColumns;
             var y = mouse.y - numFixedRows;
 
             x = Math.max(0, x);
@@ -224,11 +224,11 @@ The `fin-hypergrid-feature-cell-selection` element is a custom Polymer web compo
             var scrollTop = grid.getVScrollValue();
             var scrollLeft = grid.getHScrollValue();
 
-            var numFixedCols = grid.getFixedColCount();
+            var numFixedColumns = grid.getFixedColumnCount();
             var numFixedRows = grid.getFixedRowCount();
 
             var mousePoint = grid.getMouseDown();
-            var x = gridCell.x - numFixedCols + scrollLeft;
+            var x = gridCell.x - numFixedColumns + scrollLeft;
             var y = gridCell.y - numFixedRows + scrollTop;
 
             //were outside of the grid do nothing
@@ -416,7 +416,7 @@ The `fin-hypergrid-feature-cell-selection` element is a custom Polymer web compo
          */
         moveShiftSelect: function(grid, offsetX, offsetY) {
 
-            var maxCols = grid.getColCount() - 1;
+            var maxColumns = grid.getColumnCount() - 1;
             var maxRows = grid.getRowCount() - 1;
 
             var origin = grid.getMouseDown();
@@ -425,7 +425,7 @@ The `fin-hypergrid-feature-cell-selection` element is a custom Polymer web compo
             var newX = extent.x + offsetX;
             var newY = extent.y + offsetY;
 
-            newX = Math.min(maxCols - origin.x, Math.max(-origin.x, newX));
+            newX = Math.min(maxColumns - origin.x, Math.max(-origin.x, newX));
             newY = Math.min(maxRows - origin.y, Math.max(-origin.y, newY));
 
             grid.clearMostRecentSelection();
@@ -453,7 +453,7 @@ The `fin-hypergrid-feature-cell-selection` element is a custom Polymer web compo
          */
         moveSingleSelect: function(grid, offsetX, offsetY) {
 
-            var maxCols = grid.getColCount() - 1;
+            var maxColumns = grid.getColumnCount() - 1;
             var maxRows = grid.getRowCount() - 1;
 
             var mouseCorner = grid.getMouseDown().plus(grid.getDragExtent());
@@ -461,7 +461,7 @@ The `fin-hypergrid-feature-cell-selection` element is a custom Polymer web compo
             var newX = mouseCorner.x + offsetX;
             var newY = mouseCorner.y + offsetY;
 
-            newX = Math.min(maxCols, Math.max(0, newX));
+            newX = Math.min(maxColumns, Math.max(0, newX));
             newY = Math.min(maxRows, Math.max(0, newY));
 
             grid.clearSelections();

@@ -238,7 +238,7 @@ window.flashSort = function(a, property) {
         setData: function(jsonData) {
             this.data = jsonData;
             this.initDataIndexes();
-            this.initColIndexes();
+            this.initColumnIndexes();
             this.changed();
         },
 
@@ -266,7 +266,7 @@ window.flashSort = function(a, property) {
             return this.headers[x] + this.sortStates[sortIndex];
         },
 
-        getFixedColCount: function() {
+        getFixedColumnCount: function() {
             return 1;
         },
 
@@ -274,29 +274,29 @@ window.flashSort = function(a, property) {
             return this.data.length;
         },
 
-        getColCount: function() {
+        getColumnCount: function() {
             return this.fields.length;
         },
 
         fixedRowClicked: function(grid, mouse) {
-            var colIndex = this.scrollPositionX + mouse.gridCell.x - this.getFixedColCount();
-            this.toggleSort(colIndex);
+            var columnIndex = this.scrollPositionX + mouse.gridCell.x - this.getFixedColumnCount();
+            this.toggleSort(columnIndex);
         },
 
-        toggleSort: function(colIndex) {
-            var colIndex = this.translateColumnIndex(colIndex);
+        toggleSort: function(columnIndex) {
+            var columnIndex = this.translateColumnIndex(columnIndex);
             this.grid.clearSelections();
-            if (colIndex >= this.fields.length) {
+            if (columnIndex >= this.fields.length) {
                 return;
             }
-            var current = this.sorted[colIndex] || 0;
+            var current = this.sorted[columnIndex] || 0;
             var stateCount = this.sortStates.length;
             var sortStateIndex = (current + 1) % stateCount;
             for (var i = 0; i < this.fields.length; i++) {
                 this.sorted[i] = 0;
             }
-            this.sorted[colIndex] = sortStateIndex;
-            var colName = this.fields[colIndex];
+            this.sorted[columnIndex] = sortStateIndex;
+            var colName = this.fields[columnIndex];
             if (sortStateIndex === 0) {
                 var newData = new Array(this.data.length);
                 for (var i = 0; i < this.data.length; i++) {

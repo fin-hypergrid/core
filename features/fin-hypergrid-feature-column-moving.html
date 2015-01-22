@@ -16,7 +16,7 @@ The `fin-hypergrid-feature-column-moving` element is a custom Polymer web compon
 
 'use strict';
 
-    var colAnimationTime = 150;
+    var columnAnimationTime = 150;
 
     Polymer({ /* jshint ignore:line */
 
@@ -28,21 +28,36 @@ The `fin-hypergrid-feature-column-moving` element is a custom Polymer web compon
         dragCol: -1,
         dragOffset: 0,
 
-        createdInit: function() {
+        initializeOn: function(grid) {
+            this.initializeAnimationSupport(grid);
+            if (this.next) {
+                this.next.initializeOn(grid);
+            }
+        },
+
+        initializeAnimationSupport: function(grid) {
+            this.dragger = document.createElement('canvas');
+            document.body.appendChild(this.dragger);
+            this.draggerCTX = this.dragger.getContext('2d');
+
+            this.floatColumn = document.createElement('canvas');
+            document.body.appendChild(this.floatColumn);
+            this.floatColumnCTX = this.floatColumn.getContext('2d');
 
         },
+
         handleMouseDrag: function(grid, event) {
 
             var gridCell = event.gridCell;
             var x, y;
 
-            if (this.isFixedCol(grid, event)) {
+            if (this.isFixedColumn(grid, event)) {
                 return; //no rearranging fixed columns
             }
 
             if (this.isFixedRow(grid, event) && this.dragArmed && !this.dragging) {
                 this.dragging = true;
-                this.dragCol = gridCell.x - grid.getFixedColCount();
+                this.dragCol = gridCell.x - grid.getFixedColumnCount();
                 this.dragOffset = event.mousePoint.x;
                 this.detachChain();
                 x = event.primitiveEvent.detail.mouse.x - this.dragOffset;
@@ -102,20 +117,20 @@ The `fin-hypergrid-feature-column-moving` element is a custom Polymer web compon
         //do the animation and swap the columns
         //we need a better name
         floatColumnTo: function(grid, draggedToTheRight) {
-            grid.floatingNow = true;
+            this.floatingNow = true;
             var scrollLeft = grid.getHScrollValue();
-            var floaterIndex = grid.renderOverridesCache.floater.colIndex;
-            var draggerIndex = grid.renderOverridesCache.dragger.colIndex;
+            var floaterIndex = grid.renderOverridesCache.floater.columnIndex;
+            var draggerIndex = grid.renderOverridesCache.dragger.columnIndex;
             var hdpiratio = grid.renderOverridesCache.dragger.hdpiratio;
 
-            var numFixedCols = grid.getFixedColCount();
+            var numFixedColumns = grid.getFixedColumnCount();
             var draggerStartX;
             var floaterStartX;
             var draggerWidth = grid.getColumnWidth(draggerIndex + scrollLeft);
             var floaterWidth = grid.getColumnWidth(floaterIndex + scrollLeft);
-            var max = grid.renderer.renderedColWidths.length - 1;
+            var max = grid.renderer.renderedColumnWidths.length - 1;
             if (draggedToTheRight) {
-                draggerStartX = grid.renderer.renderedColWidths[Math.min(max, draggerIndex + numFixedCols)];
+                draggerStartX = grid.renderer.renderedColumnWidths[Math.min(max, draggerIndex + numFixedColumns)];
                 floaterStartX = draggerStartX + floaterWidth;
 
                 grid.renderOverridesCache.dragger.startX = floaterStartX * hdpiratio;
@@ -123,15 +138,15 @@ The `fin-hypergrid-feature-column-moving` element is a custom Polymer web compon
 
                 floaterStartX = draggerStartX + draggerWidth;
             } else {
-                floaterStartX = grid.renderer.renderedColWidths[Math.min(max, floaterIndex + numFixedCols)];
+                floaterStartX = grid.renderer.renderedColumnWidths[Math.min(max, floaterIndex + numFixedColumns)];
                 draggerStartX = floaterStartX + draggerWidth;
 
                 grid.renderOverridesCache.dragger.startX = floaterStartX * hdpiratio;
                 grid.renderOverridesCache.floater.startX = draggerStartX * hdpiratio;
             }
             grid.getBehavior().swapColumns(draggerIndex + scrollLeft, floaterIndex + scrollLeft);
-            grid.renderOverridesCache.dragger.colIndex = floaterIndex;
-            grid.renderOverridesCache.floater.colIndex = draggerIndex;
+            grid.renderOverridesCache.dragger.columnIndex = floaterIndex;
+            grid.renderOverridesCache.floater.columnIndex = draggerIndex;
 
 
             this.floaterAnimationQueue.unshift(this.doColumnMoveAnimation(grid, floaterStartX, draggerStartX));
@@ -142,7 +157,7 @@ The `fin-hypergrid-feature-column-moving` element is a custom Polymer web compon
         doColumnMoveAnimation: function(grid, floaterStartX, draggerStartX) {
             var self = this;
             return function() {
-                var d = grid.floatColumn;
+                var d = self.floatColumn;
                 d.style.display = 'inline';
                 self.setCrossBrowserProperty(d, 'transform', 'translate(' + floaterStartX + 'px, ' + 0 + 'px)');
 
@@ -150,7 +165,7 @@ The `fin-hypergrid-feature-column-moving` element is a custom Polymer web compon
                 //d.style.webkit-webkit-Transform = 'translate(' + floaterStartX + 'px, ' + 0 + 'px)';
 
                 window.requestAnimationFrame(function() {
-                    self.setCrossBrowserProperty(d, 'transition', (self.isWebkit ? '-webkit-' : '') + 'transform ' + colAnimationTime + 'ms ease');
+                    self.setCrossBrowserProperty(d, 'transition', (self.isWebkit ? '-webkit-' : '') + 'transform ' + columnAnimationTime + 'ms ease');
                     self.setCrossBrowserProperty(d, 'transform', 'translate(' + draggerStartX + 'px, ' + -2 + 'px)');
                 });
                 grid.repaint();
@@ -164,7 +179,7 @@ The `fin-hypergrid-feature-column-moving` element is a custom Polymer web compon
                     requestAnimationFrame(function() {
                         d.style.display = 'none';
                     });
-                }, colAnimationTime + 50);
+                }, columnAnimationTime + 50);
             };
         },
 
@@ -178,12 +193,12 @@ The `fin-hypergrid-feature-column-moving` element is a custom Polymer web compon
             animation();
         },
 
-        createFloatColumn: function(grid, colIndex) {
+        createFloatColumn: function(grid, columnIndex) {
             var scrollLeft = grid.getHScrollValue();
-            var numFixedCols = grid.getFixedColCount();
-            var colWidth = colIndex < 0 ? grid.getFixedColumnWidth(numFixedCols + colIndex + scrollLeft) : grid.getColumnWidth(colIndex + scrollLeft);
+            var numFixedColumns = grid.getFixedColumnCount();
+            var columnWidth = columnIndex < 0 ? grid.getFixedColumnWidth(numFixedColumns + columnIndex + scrollLeft) : grid.getColumnWidth(columnIndex + scrollLeft);
             var colHeight = grid.clientHeight;
-            var d = grid.floatColumn;
+            var d = this.floatColumn;
             var style = d.style;
             var location = grid.getBoundingClientRect();
 
@@ -191,26 +206,26 @@ The `fin-hypergrid-feature-column-moving` element is a custom Polymer web compon
             style.left = location.left + 'px';
             style.position = 'absolute';
 
-            var hdpiRatio = grid.getHiDPI(grid.floatColumnCTX);
+            var hdpiRatio = grid.getHiDPI(this.floatColumnCTX);
 
-            d.setAttribute('width', Math.round(colWidth * hdpiRatio) + 'px');
+            d.setAttribute('width', Math.round(columnWidth * hdpiRatio) + 'px');
             d.setAttribute('height', Math.round(colHeight * hdpiRatio) + 'px');
             style.boxShadow = '2px 2px 2px #888888';
-            style.width = colWidth + 'px'; //Math.round(colWidth / hdpiRatio) + 'px';
+            style.width = columnWidth + 'px'; //Math.round(columnWidth / hdpiRatio) + 'px';
             style.height = colHeight + 'px'; //Math.round(colHeight / hdpiRatio) + 'px';
             style.borderTop = '1px solid ' + grid.constants.lineColor;
             style.backgroundColor = grid.constants.backgroundColor;
 
-            var startX = grid.renderer.renderedColWidths[colIndex + numFixedCols];
+            var startX = grid.renderer.renderedColumnWidths[columnIndex + numFixedColumns];
             startX = startX * hdpiRatio;
 
-            grid.floatColumnCTX.scale(hdpiRatio, hdpiRatio);
+            this.floatColumnCTX.scale(hdpiRatio, hdpiRatio);
 
             grid.renderOverridesCache.floater = {
-                colIndex: colIndex,
-                ctx: grid.floatColumnCTX,
+                columnIndex: columnIndex,
+                ctx: this.floatColumnCTX,
                 startX: startX,
-                width: colWidth,
+                width: columnWidth,
                 height: colHeight,
                 hdpiratio: hdpiRatio
             };
@@ -233,14 +248,14 @@ The `fin-hypergrid-feature-column-moving` element is a custom Polymer web compon
                 element.style[property] = value;
             }
         },
-        createDragColumn: function(grid, x, colIndex) {
+        createDragColumn: function(grid, x, columnIndex) {
             var scrollLeft = grid.getHScrollValue();
-            var numFixedCols = grid.getFixedColCount();
-            var hdpiRatio = grid.getHiDPI(grid.draggerCTX);
+            var numFixedColumns = grid.getFixedColumnCount();
+            var hdpiRatio = grid.getHiDPI(this.draggerCTX);
 
-            var colWidth = colIndex < 0 ? grid.getFixedColumnWidth(numFixedCols + colIndex + scrollLeft) : grid.getColumnWidth(colIndex + scrollLeft);
+            var columnWidth = columnIndex < 0 ? grid.getFixedColumnWidth(numFixedColumns + columnIndex + scrollLeft) : grid.getColumnWidth(columnIndex + scrollLeft);
             var colHeight = grid.clientHeight;
-            var d = grid.dragger;
+            var d = this.dragger;
 
             var location = grid.getBoundingClientRect();
             var style = d.style;
@@ -253,22 +268,22 @@ The `fin-hypergrid-feature-column-moving` element is a custom Polymer web compon
             style.borderTop = '1px solid ' + grid.constants.lineColor;
             style.backgroundColor = grid.constants.backgroundColor;
 
-            d.setAttribute('width', Math.round(colWidth * hdpiRatio) + 'px');
+            d.setAttribute('width', Math.round(columnWidth * hdpiRatio) + 'px');
             d.setAttribute('height', Math.round(colHeight * hdpiRatio) + 'px');
 
-            style.width = colWidth + 'px'; //Math.round(colWidth / hdpiRatio) + 'px';
+            style.width = columnWidth + 'px'; //Math.round(columnWidth / hdpiRatio) + 'px';
             style.height = colHeight + 'px'; //Math.round(colHeight / hdpiRatio) + 'px';
 
-            var startX = grid.renderer.renderedColWidths[colIndex + numFixedCols];
+            var startX = grid.renderer.renderedColumnWidths[columnIndex + numFixedColumns];
             startX = startX * hdpiRatio;
 
-            grid.draggerCTX.scale(hdpiRatio, hdpiRatio);
+            this.draggerCTX.scale(hdpiRatio, hdpiRatio);
 
             grid.renderOverridesCache.dragger = {
-                colIndex: colIndex,
-                ctx: grid.draggerCTX,
+                columnIndex: columnIndex,
+                ctx: this.draggerCTX,
                 startX: startX,
-                width: colWidth,
+                width: columnWidth,
                 height: colHeight,
                 hdpiratio: hdpiRatio
             };
@@ -285,14 +300,14 @@ The `fin-hypergrid-feature-column-moving` element is a custom Polymer web compon
             //TODO: this function is overly complex, refactor this in to something more reasonable
             var self = this;
 
-            var autoScrollingNow = grid.columnDragAutoScrollingRight || grid.columnDragAutoScrollingLeft;
+            var autoScrollingNow = this.columnDragAutoScrollingRight || this.columnDragAutoScrollingLeft;
 
-            var hdpiRatio = grid.getHiDPI(grid.draggerCTX);
+            var hdpiRatio = grid.getHiDPI(this.draggerCTX);
 
-            var dragColumnIndex = grid.renderOverridesCache.dragger.colIndex;
-            var colWidth = grid.renderOverridesCache.dragger.width;
-            var minX = grid.getFixedColsWidth();
-            var maxX = grid.renderer.getFinalVisableColumnBoundry() - colWidth;
+            var dragColumnIndex = grid.renderOverridesCache.dragger.columnIndex;
+            var columnWidth = grid.renderOverridesCache.dragger.width;
+            var minX = grid.getFixedColumnsWidth();
+            var maxX = grid.renderer.getFinalVisableColumnBoundry() - columnWidth;
             x = Math.min(x, maxX + 15);
             x = Math.max(minX - 15, x);
 
@@ -302,9 +317,9 @@ The `fin-hypergrid-feature-column-moving` element is a custom Polymer web compon
             //am I at my upper bound
             var atMax = x > maxX;
 
-            var d = grid.dragger;
+            var d = this.dragger;
 
-            this.setCrossBrowserProperty(d, 'transition', (self.isWebkit ? '-webkit-' : '') + 'transform ' + 0 + 'ms ease, box-shadow ' + colAnimationTime + 'ms ease');
+            this.setCrossBrowserProperty(d, 'transition', (self.isWebkit ? '-webkit-' : '') + 'transform ' + 0 + 'ms ease, box-shadow ' + columnAnimationTime + 'ms ease');
 
             this.setCrossBrowserProperty(d, 'transform', 'translate(' + x + 'px, ' + -10 + 'px)');
             requestAnimationFrame(function() {
@@ -316,7 +331,7 @@ The `fin-hypergrid-feature-column-moving` element is a custom Polymer web compon
                 overCol = 0;
             }
             if (atMax) {
-                overCol = grid.renderer.renderedCols[grid.renderer.renderedCols.length - 1];
+                overCol = grid.renderer.renderedColumns[grid.renderer.renderedColumns.length - 1];
             }
 
             var doAFloat = dragColumnIndex > overCol;
@@ -365,9 +380,9 @@ The `fin-hypergrid-feature-column-moving` element is a custom Polymer web compon
             if (!grid.dragging || scrollLeft > (grid.sbHScrlCfg.rangeStop - 2)) {
                 return;
             }
-            var draggedIndex = grid.renderOverridesCache.dragger.colIndex;
+            var draggedIndex = grid.renderOverridesCache.dragger.columnIndex;
             grid.scrollBy(1, 0);
-            var newIndex = draggedIndex + scrollLeft + 1; //grid.findNewPositionOnScrollRight(draggedIndex);
+            var newIndex = draggedIndex + scrollLeft + 1;
             behavior.swapColumns(newIndex, draggedIndex + scrollLeft);
 
             setTimeout(this._checkAutoScrollToRight.bind(this, grid, x), 250);
@@ -378,15 +393,15 @@ The `fin-hypergrid-feature-column-moving` element is a custom Polymer web compon
             //we need to compute the new index of dragIndex if it's assumed to be on the far right and we scroll one cell to the right
             var scrollLeft = this.getHScrollValue();
             var behavior = this.getBehavior();
-            //var dragWidth = behavior.getColWidth(dragIndex + scrollLeft);
+            //var dragWidth = behavior.getColumnWidth(dragIndex + scrollLeft);
             var bounds = this.canvas.getBounds();
 
             //lets add the drag width in so we don't have to ignore it in the loop
-            var viewWidth = bounds.width() - behavior.getFixedColsWidth();
-            var max = behavior.getColCount();
+            var viewWidth = bounds.width() - behavior.getFixedColumnsWidth();
+            var max = behavior.getColumnCount();
             for (var c = 0; c < max; c++) {
-                var eachColWidth = behavior.getColWidth(scrollLeft + c);
-                viewWidth = viewWidth - eachColWidth;
+                var eachColumnWidth = behavior.getColumnWidth(scrollLeft + c);
+                viewWidth = viewWidth - eachColumnWidth;
                 if (viewWidth < 0) {
                     return c - 2;
                 }
@@ -411,7 +426,7 @@ The `fin-hypergrid-feature-column-moving` element is a custom Polymer web compon
             if (!grid.dragging || scrollLeft < 1) {
                 return;
             }
-            var draggedIndex = grid.renderOverridesCache.dragger.colIndex;
+            var draggedIndex = grid.renderOverridesCache.dragger.columnIndex;
             behavior.swapColumns(draggedIndex + scrollLeft, draggedIndex + scrollLeft - 1);
             grid.scrollBy(-1, 0);
             setTimeout(this._checkAutoScrollToLeft.bind(this, grid, x), 250);
@@ -419,12 +434,12 @@ The `fin-hypergrid-feature-column-moving` element is a custom Polymer web compon
 
         endDragColumn: function(grid) {
             var self = this;
-            var numFixedCols = grid.getFixedColCount();
-            var colIndex = grid.renderOverridesCache.dragger.colIndex;
-            var startX = grid.renderer.renderedColWidths[colIndex + numFixedCols];
-            var d = grid.dragger;
+            var numFixedColumns = grid.getFixedColumnCount();
+            var columnIndex = grid.renderOverridesCache.dragger.columnIndex;
+            var startX = grid.renderer.renderedColumnWidths[columnIndex + numFixedColumns];
+            var d = this.dragger;
 
-            self.setCrossBrowserProperty(d, 'transition', (self.isWebkit ? '-webkit-' : '') + 'transform ' + colAnimationTime + 'ms ease, box-shadow ' + colAnimationTime + 'ms ease');
+            self.setCrossBrowserProperty(d, 'transition', (self.isWebkit ? '-webkit-' : '') + 'transform ' + columnAnimationTime + 'ms ease, box-shadow ' + columnAnimationTime + 'ms ease');
             self.setCrossBrowserProperty(d, 'transform', 'translate(' + startX + 'px, ' + -1 + 'px)');
             d.style.boxShadow = '0px 0px 0px #888888';
 
@@ -434,7 +449,7 @@ The `fin-hypergrid-feature-column-moving` element is a custom Polymer web compon
                 requestAnimationFrame(function() {
                     d.style.display = 'none';
                 });
-            }, colAnimationTime + 50);
+            }, columnAnimationTime + 50);
 
         }
 

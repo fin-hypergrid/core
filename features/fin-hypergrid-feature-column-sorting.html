@@ -22,12 +22,12 @@ The `fin-hypergrid-column-sorting` element is a custom Polymer web component tha
             var gridCell = event.gridCell;
             if (gridCell.y < grid.getFixedRowCount()) {
                 grid.fixedRowClicked(event);
-            } else if (gridCell.x < grid.getFixedColCount()) {
-                grid.fixedColClicked(event);
+            } else if (gridCell.x < grid.getFixedColumnCount()) {
+                grid.fixedColumnClicked(event);
             }
         },
         handleMouseMove: function(grid, event) {
-            if (this.isFixedRow(grid, event) && !this.isFixedCol(grid, event)) {
+            if (this.isFixedRow(grid, event) && !this.isFixedColumn(grid, event)) {
                 this.cursor = 'pointer';
             } else {
                 this.cursor = null;
