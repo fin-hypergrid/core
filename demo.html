@@ -49,7 +49,7 @@
     .centered {
         margin-left: auto;
         margin-right: auto;
-        width: 25%;
+        width: 50%;
         white-space: nowrap;
     }
     .description {
@@ -128,14 +128,17 @@
                     <li>start sorttable.q at the command line<pre>~/myqdir>q sortable.q</pre></li>
                     <li>refresh your browser and reselect this tab</li>
                 </ol>
+            <h3>To point this example to your data</h3>
+            load <a href="http://q/hypergrid-support.q">hypergrid-support.q</a> into your running q process and modify the url, table name, then press reconnect.
           </div>
+          <br>
           <div width="100%">
-                <div class="centered">url:<input id="qurl" style="width:200px" value="ws://localhost:5000"></input><button id="connectq" onClick="connectQ()">reconnect</button></div>
+                <div class="centered">url:<input id="qurl" style="width:150px" value="ws://localhost:5000"></input>&nbsp;&nbsp;table:<input id="qtable" style="width:80px" value="trade"></input><button id="connectq" onClick="connectQ()">reconnect</button></div>
           </div>
           <core-splitter direction="up"></core-splitter>
           <div flex class="rel">
-            <fin-hypergrid class="abs">
-                <fin-hypergrid-behavior-q url="ws://localhost:5000"></fin-hypergrid-behavior-q>
+            <fin-hypergrid class="abs" id="q-example">
+                <fin-hypergrid-behavior-q url="ws://localhost:5000" table="trade"></fin-hypergrid-behavior-q>
             </fin-hypergrid>
           </div>
         </div>
@@ -169,6 +172,46 @@
         tabs.addEventListener('core-select', function() {
             pages.selected = tabs.selected;
         });
+    })();
+
+    //override the cell provider for the q example
+    (function() {
+        document.addEventListener('polymer-ready', function() {
+
+            //get ahold of our q grid example
+            var qGrid = document.querySelector('#q-example');
+
+            //get it's table model
+            var qModel = qGrid.getBehavior();
+
+            //get the cell cellProvider for altering cell renderers
+            var cellProvider = qModel.getCellProvider();
+
+            //there are 4 default cell renderer types to choose from at the moment
+            //<br>simpleCellRenderer, sliderCellRenderer, sparkbarCellRenderer, sparklineCellRenderer
+            var typeRendererMap = {
+                J: 'sparklineCellRenderer',
+                j: 'simpleCellRenderer',
+                s: 'simpleCellRenderer',
+                t: 'simpleCellRenderer',
+                f: 'simpleCellRenderer',
+                d: 'simpleCellRenderer'
+            };
+
+            cellProvider.getCell = function(config) {
+                var x = config.x;
+                var renderer = cellProvider.cellCache[typeRendererMap[qModel.block.headers[x + 1][1]]];
+                renderer = renderer || cellProvider.cellCache.simpleCellRenderer;
+                if (x === 11) {
+                    renderer = cellProvider.cellCache.sliderCellRenderer;
+                } else if (x === 13) {
+                    renderer = cellProvider.cellCache.sparkbarCellRenderer;
+                }
+                renderer.config = config;
+                return renderer;
+            };
+        });
+
     })();
 
     //setup random data for the JSON tab example
@@ -337,7 +380,13 @@
     function connectQ() {
         var q = document.querySelector('fin-hypergrid-behavior-q');
         var url = document.querySelector('#qurl').value;
-        q.connectTo(url);
+        var table = document.querySelector('#qtable').value;
+        //set it blank first to tickle the change event if its
+        //the same value
+        q.setAttribute('table', table);
+
+        q.setAttribute('url', '');
+        q.setAttribute('url', url);
     }
     function toggleRunning() {
         var button = document.querySelector('#play-button');

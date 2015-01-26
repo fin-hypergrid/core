@@ -1450,7 +1450,7 @@
             var lastPageColumnCount = 0;
             var columnsWidth = 0;
             for (; lastPageColumnCount < numColumns; lastPageColumnCount++) {
-                var eachWidth = behavior.getRowHeight(numColumns - lastPageColumnCount - 1);
+                var eachWidth = behavior.getColumnWidth(numColumns - lastPageColumnCount - 1);
                 columnsWidth = columnsWidth + eachWidth;
                 if (columnsWidth > scrollableWidth) {
                     break;

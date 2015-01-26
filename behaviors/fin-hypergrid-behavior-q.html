@@ -12,7 +12,7 @@ The `fin-hypergrid-behavior-q` element is a custom Polymer web component used to
   <script>
 
 'use strict';
-//QGridBehavior is a datasource based on an external Q data source.
+//fin-hypergrid-behavior-q is a datasource based on an external Q data source.
 //<br>See [kx.com](http://www.kx.com)
 //<br>Two example scripts are provided in the root of this project, bigtable.q and sorttable.q
 //<br>bigtable.q simulates an unsortable 100MM row table, and sorttable.q provides a true randomly generated 1MM row table sortable on any column.
@@ -62,37 +62,29 @@ The `fin-hypergrid-behavior-q` element is a custom Polymer web component used to
             this.ws = null;
             this.reconnect();
         },
-
+        attributeChanged: function(attrName, oldVal, newVal) {
+            console.log(attrName, 'old: ' + oldVal, 'new:', newVal);
+            if (attrName === 'url') {
+                this.reconnect();
+            }
+            if (attrName === 'table') {
+                //force a refresh of the data
+                this.setScrollPositionY(0);
+            }
+        },
         connectTo: function(newUrl) {
             this.setAttribute('url', newUrl);
             this.reconnect();
         },
 
         reconnect: function() {
-            this.url = this.getAttribute('url') || 'ws://localhost:5000/';
+            this.url = this.getAttribute('url');
+            if (!this.url) {
+                return;
+            }
             this.connect();
             this.scrollPositionY = 0;
             this.scrolled = false;
-        },
-
-        //this is a good example of overriding the default cellprovider
-        //<br>in this case config.x is how we specify a column through its index
-        createCellProvider: function() {
-            var provider = document.createElement('fin-hypergrid-cell-provider');
-            var self = this;
-            provider.getCell = function(config) {
-                var x = config.x;
-                var renderer = provider.cellCache[typeRendererMap[self.block.headers[x + 1][1]]];
-                renderer = renderer  || provider.cellCache.simpleCellRenderer;
-                if (x === 11) {
-                    renderer = provider.cellCache.sliderCellRenderer;
-                } else if (x === 13) {
-                    renderer = provider.cellCache.sparkbarCellRenderer;
-                }
-                renderer.config = config;
-                return renderer;
-            };
-            return provider;
         },
 
         //for now we use the hacky override implementation to save data, in the future we'll have a more elaborate protocol with Q to do real validation and setting of data.
@@ -137,9 +129,15 @@ The `fin-hypergrid-behavior-q` element is a custom Polymer web component used to
             if (!this.isConnected()) {
                 return;
             }
+            var tableName = this.getAttribute('table');
+            if (!tableName) {
+                console.log('you must provide a table attribute for the q behavior');
+                return;
+            }
             this.ws.send(JSON.stringify({
-                cmd: 'fetch',
+                cmd: 'fetchTableData',
                 data: {
+                    table: tableName,
                     start: this.scrollPositionY,
                     num: 60
                 }
@@ -192,8 +190,9 @@ The `fin-hypergrid-behavior-q` element is a custom Polymer web component used to
             this.sorted[columnIndex] = (current + 1) % stateCount;
             var state = this.sortStates[this.sorted[columnIndex]];
             var message = {
-                cmd: 'sort',
+                cmd: 'sortTable',
                 data: {
+                    table: 'trade',
                     sort: current === (stateCount - 1) ? '' : this.block.headers[columnIndex][0],
                     asc: state.indexOf('^') > 0,
                     abs: state.indexOf('|') > 0,
@@ -222,6 +221,11 @@ The `fin-hypergrid-behavior-q` element is a custom Polymer web component used to
             var d;
             var oldSize;
             var self = this;
+            var tableName = this.getAttribute('table');
+            if (!tableName) {
+                console.log('you must provide a table attribute for the q behavior');
+                return;
+            }
             if ('WebSocket' in window) {
                 try {
                     this.ws = new WebSocket(this.url);
@@ -233,8 +237,9 @@ The `fin-hypergrid-behavior-q` element is a custom Polymer web component used to
                 this.ws.onopen = function() {
                     console.log('connected');
                     self.ws.send(JSON.stringify({
-                        cmd: 'fetch',
+                        cmd: 'fetchTableData',
                         data: {
+                            table: tableName,
                             start: this.scrollPositionY || 0,
                             num: 60
                         }

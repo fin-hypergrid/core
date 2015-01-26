@@ -37,10 +37,16 @@ The `fin-hypergrid-feature-column-moving` element is a custom Polymer web compon
 
         initializeAnimationSupport: function(grid) {
             this.dragger = document.createElement('canvas');
+            this.dragger.setAttribute('width', '0px');
+            this.dragger.setAttribute('height', '0px');
+
             document.body.appendChild(this.dragger);
             this.draggerCTX = this.dragger.getContext('2d');
 
             this.floatColumn = document.createElement('canvas');
+            this.floatColumn.setAttribute('width', '0px');
+            this.floatColumn.setAttribute('height', '0px');
+
             document.body.appendChild(this.floatColumn);
             this.floatColumnCTX = this.floatColumn.getContext('2d');
 

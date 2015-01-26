@@ -2,14 +2,8 @@
 // a 255 row table, sorting is not supported in this example as it will blow up
 // the 32 bit free version of Q
 
-$[.z.K<3.19999;0N! "You need version 3.2 or later for this, please download a more recent version of q";]
 \p 5000
-
-features:flip (
-    (`sorting;   0b);
-    (`foo;       0b)
- );
-features:features[0]!features[1];
+\l hypergrid-support.q
 
 0N! "generate random row ordering";
 numRows:100000000;
@@ -45,21 +39,13 @@ trade:([]
  date4:2000.01.01 + asc n ? 365;
  amount5:100 * 10 + n ? 20);
 
-
 \t rowsIndexes:numRows?`short$til 255;
 
-window:{[start;num]
+//lets hack the default window function to use our index
+window:{[tableName;start;num]
     ii: start + til num;
-    ([]row:ii),'trade[rowsIndexes[ii]]}
+    ([]row:ii),'(value tableName)[rowsIndexes[ii]]}
 
-.z.ws:{
-  message: .j.c x;
-  @[`$message`cmd;message`data];
- }
-
-fetch: {
-  json: .j.j (`data`rows`headers`features)!(value each window[`long$(x`start);`long$(x`num)];numRows;(enlist (`row;"j")),(value each select c,t from meta trade);features);
-    neg[.z.w] json; //negating a handle makes the sending of data async
- }
-
+fetchTableRowCount: {
+ count rowsIndexes}
 
