@@ -17,27 +17,30 @@ window:{[tableName;start;num]
 
 .z.ws:{
   message: .j.c x;
-  @[`$message`cmd;message`data];
+  @[`$message`cmd;message];
  }
 
 fetchTableRowCount: {
- count (value x`table)}
+ data:x`data;
+ count (value data`table)}
 
 fetchTableData: {
-  json: .j.j (`data`rows`headers`features)!(value each window[(x`table);`long$(x`start);`long$(x`num)];fetchTableRowCount x;(enlist (`row;"j")),(value each select c,t from meta (value x`table));features);
-    neg[.z.w] json; //negating a handle makes the sending of data async
+  data:x`data;
+  json: .j.j (`data`rows`headers`features)!(value each window[(data`table);`long$(data`start);`long$(data`num)];fetchTableRowCount x;(enlist (`row;"j")),(value each select c,t from meta (value data`table));features);
+  neg[.z.w] json; //negating a handle makes the sending of data async
  }
 
 sf:parse "delete av from `av xasc update av:abs quantity from `myTable"
 sortTable: {
-    $[0~count x`sort;
+    data:x`data;
+    $[0~count data`sort;
         [];
-        [sf[1;2;4;`av]:(`$x`sort);
-         sf[1;2;1;0]:`$(x`table);
-         $[x`abs;
-            $[11h~type ((value x`table)`$x`sort);;sf[1;2;4]:(enlist`av)!enlist (abs;`$x`sort)];
+        [sf[1;2;4;`av]:(`$data`sort);
+         sf[1;2;1;0]:`$(data`table);
+         $[data`abs;
+            $[11h~type ((value data`table)`$data`sort);;sf[1;2;4]:(enlist`av)!enlist (abs;`$data`sort)];
             ()];
-        sf[1;0]:$[x`asc;xasc;xdesc];
+        sf[1;0]:$[data`asc;xasc;xdesc];
         eval sf]
    ];
    fetchTableData[x];
