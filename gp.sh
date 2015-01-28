@@ -62,6 +62,8 @@ cp -rf ../../fin-vampire-bar ./components/fin-vampire-bar
 cp -rf ../../accountingjs ./components/accountingjs
 
 cp -rf ../../core-focusable ./components/core-focusable
+cp -rf ../../core-collapse ./components/core-collapse
+cp -rf ../../core-menu ./components/core-menu
 cp -rf ../../core-icon ./components/core-icon
 cp -rf ../../core-icons ./components/core-icons
 cp -rf ../../core-iconset ./components/core-iconset
@@ -74,7 +76,9 @@ cp -rf ../../core-splitter ./components/core-splitter
 cp -rf ../../core-resizable ./components/core-resizable
 cp -rf ../../paper-button ./components/paper-button
 cp -rf ../../paper-icon-button ./components/paper-icon-button
+cp -rf ../../paper-item ./components/paper-item
 cp -rf ../../paper-button ./components/paper-button
+cp -rf ../../paper-dropdown ./components/paper-dropdown
 cp -rf ../../paper-tabs ./components/paper-tabs
 cp -rf ../../paper-ripple ./components/paper-ripple
 
