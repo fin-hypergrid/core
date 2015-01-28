@@ -46,6 +46,29 @@ The `fin-hypergrid-renderer` element is a custom Polymer web component used to s
         return config;
     };
 
+    function getCSSRule(selectorText) {
+      var i, j, noRules, rules, rule,
+      // also sheets MUST have an HREF(theme) or they will be skipped
+      sheets = document.styleSheets,
+      noSheets = sheets.length;
+
+      selectorText = selectorText.toLowerCase();
+
+      for (i = 0; i < noSheets; i++) {
+        var sheet = sheets[noSheets - i - 1];
+        if (sheet.href) {
+            rules = (sheet.rules || sheet.cssRules);
+            noRules = rules.length;
+            for (j = 0; j < noRules; j++) {
+              var eachText = rules[j].selectorText;
+              if (eachText && eachText.toLowerCase() === selectorText) {
+                return rules[j];
+              }
+            }
+        }
+      }
+    };
+
     Polymer({ /* jslint ignore:line */
 
         ready: function() {
@@ -58,7 +81,82 @@ The `fin-hypergrid-renderer` element is a custom Polymer web component used to s
           this.renderedColumns = [];
           this.renderedRows = [];
           this.insertionBounds = []; // this is the midpoint of each column, used for column drag and drop
+          this.initializeColors();
           this.setBackgroundColor(constants.gridBackgroundColor);
+        },
+        readPolymerThemeColors: function() {
+            var theme = {
+
+            };
+            var css = getCSSRule('html paper-button[disabled], html /deep/ paper-button[disabled]');
+            theme.backgroundDisabled = css.style.background;
+            theme.colorDisabled = css.style.color;
+
+            css = getCSSRule('html, body');
+            theme.color = css.style.color;
+            theme.background = css.style.backgroundColor;
+
+            css = getCSSRule('html section[hero], html /deep/ section[hero]');
+            theme.backgroundColor2 = css.style.backgroundColor;
+
+            css = getCSSRule('html paper-button[primary][raised], html /deep/ paper-button[primary][raised]');
+            theme.colorPrimary = css.style.color;
+            theme.backgroundPrimary = css.style.backgroundColor;
+
+            css = getCSSRule('html paper-button[secondary][raised], html /deep/ paper-button[secondary][raised]');
+            theme.colorSecondary = css.style.color;
+            theme.backgroundSecondary = css.style.backgroundColor;
+
+            css = getCSSRule('html paper-button[success][raised], html /deep/ paper-button[success][raised]');
+            theme.colorSuccess = css.style.color;
+            theme.backgroundSuccess = css.style.backgroundColor;
+
+            css = getCSSRule('html paper-button[info][raised], html /deep/ paper-button[info][raised]');
+            theme.colorInfo = css.style.color;
+            theme.backgroundInfo = css.style.backgroundColor;
+
+            css = getCSSRule('html paper-button[warning][raised], html /deep/ paper-button[warning][raised]');
+            theme.colorWarning = css.style.color;
+            theme.backgroundWarning = css.style.backgroundColor;
+
+            css = getCSSRule('html paper-button[error][raised], html /deep/ paper-button[error][raised]');
+            theme.colorError = css.style.color;
+            theme.backgroundError = css.style.backgroundColor;
+
+            css = getCSSRule('html paper-button[link][raised], html /deep/ paper-button[link][raised]');
+            theme.colorLink = css.style.color;
+            theme.backgroundLink = css.style.backgroundColor;
+
+            return theme;
+        },
+        initializeColors: function() {
+            var polymerTheme = this.readPolymerThemeColors();
+            this.theme = {};
+
+            var css = getCSSRule('html');
+            this.theme.font = css.style.font;
+
+            this.theme.color = polymerTheme.color;
+            this.theme.backgroundColor = polymerTheme.backgroundColor2;
+            this.theme.foregroundSelColor =  polymerTheme.color;
+            this.theme.backgroundSelColor =  polymerTheme.backgroundSecondary;
+
+            this.theme.fixedRowColor = polymerTheme.color;
+            this.theme.fixedRowBackgroundColor = polymerTheme.backgroundDisabled;
+            this.theme.fixedRowSelColor =  polymerTheme.color;
+            this.theme.fixedRowBGSelColor =  polymerTheme.backgroundInfo;
+
+            this.theme.fixedColumnColor = polymerTheme.color;
+            this.theme.fixedColumnBackgroundColor = polymerTheme.backgroundDisabled;
+            this.theme.fixedColumnSelColor =  polymerTheme.color;
+            this.theme.fixedColumnBGSelColor =  polymerTheme.backgroundInfo;
+
+            this.theme.topLeftBackgroundColor = polymerTheme.backgroundDisabled;
+
+            this.theme.lineColor = polymerTheme.colorDisabled;
+        },
+        themeChangedNotification: function() {
+            this.initializeColors();
         },
 
         getGrid: function() {
@@ -271,8 +369,12 @@ The `fin-hypergrid-renderer` element is a custom Polymer web component used to s
 
         //We opted to not paint borders for each cell as that was extremely expensive.  Instead we draw gridlines here.  Also we record the widths and heights for later.
         paintGridlines: function(gc, offsetX, offsetY) {
+
+            var drawThemH = constants.gridLinesH;
+            var drawThemV = constants.gridLinesV;
+
             var behavior = this.getBehavior();
-            var lineColor = constants.lineColor; //draw horizontal grid line
+            var lineColor = this.theme.lineColor; //draw horizontal grid line
 
             var numColumns = behavior.getColumnCount();
             var numRows = behavior.getRowCount();
@@ -306,9 +408,11 @@ The `fin-hypergrid-renderer` element is a custom Polymer web component used to s
                 height = this.getFixedRowHeight(r);
                 y = y + height;
                 this.renderedRowHeights.push(y);
-                gc.moveTo(fixedColumnsWidth, y);
-                gc.lineTo(viewWidth, y);
-                gc.stroke();
+                if (drawThemH) {
+                    gc.moveTo(fixedColumnsWidth, y);
+                    gc.lineTo(viewWidth, y);
+                    gc.stroke();
+                }
             }
 
             //fixedcol vertical grid lines
@@ -319,9 +423,11 @@ The `fin-hypergrid-renderer` element is a custom Polymer web component used to s
                 width = this.getFixedColumnWidth(c);
                 x = x + width;
                 this.renderedColumnWidths.push(x);
-                gc.moveTo(x, fixedRowsHeight);
-                gc.lineTo(x, viewHeight);
-                gc.stroke();
+                if (drawThemV) {
+                    gc.moveTo(x, fixedRowsHeight);
+                    gc.lineTo(x, viewHeight);
+                    gc.stroke();
+                }
             }
 
             //main area vertical grid lines
@@ -338,9 +444,11 @@ The `fin-hypergrid-renderer` element is a custom Polymer web component used to s
                     this.renderedColumns.length = Math.max(0, this.renderedColumns.length - 2);
                     break;
                 }
-                gc.moveTo(x, 0);
-                gc.lineTo(x, viewHeight);
-                gc.stroke();
+                if (drawThemV) {
+                    gc.moveTo(x, 0);
+                    gc.lineTo(x, viewHeight);
+                    gc.stroke();
+                }
                 x = x + width;
                 this.renderedColumnWidths.push(x);
                 insertionBoundsCursor = insertionBoundsCursor + Math.round(width/2) + previousInsertionBoundsCursorValue;
@@ -361,9 +469,12 @@ The `fin-hypergrid-renderer` element is a custom Polymer web component used to s
                     this.renderedRows.length = Math.max(0, this.renderedRows.length - 2);
                     break;
                 }
-                gc.moveTo(0, y);
-                gc.lineTo(viewWidth, y);
-                gc.stroke();
+
+                if (drawThemH) {
+                    gc.moveTo(0, y);
+                    gc.lineTo(viewWidth, y);
+                    gc.stroke();
+                }
                 y = y + height;
                 this.renderedRowHeights.push(y);
             }
@@ -393,12 +504,14 @@ The `fin-hypergrid-renderer` element is a custom Polymer web component used to s
             var behavior = this.getBehavior();
             var x = offsetX;
             var scrollLeft = this.getScrollLeft();
-            var font = constants.defaultFont;
-            var fgColor = constants.foregroundColor;
-            var bgColor = constants.backgroundColor;
-            var fgSelColor = constants.fixedRowFGSelColor;
-            var bgSelColor = constants.fixedRowBGSelColor;
-            var fixedRowBGColor = constants.fixedRowBGColor;
+            var font = this.theme.fixedRowFont;
+
+            var fgColor = this.theme.fixedRowColor;
+            var bgColor = this.theme.fixedRowBackgroundColor;
+
+            var fgSelColor = this.theme.fixedRowFGSelColor;
+            var bgSelColor = this.theme.fixedRowBGSelColor;
+
             var halign = constants.fixedRowAlign;
             var cellProvider = this.getGrid().getCellProvider();
             var viewWidth = this.getBounds().width() - 200; // look in fin-hypergrid and initializtion of fin-canvas
@@ -411,7 +524,7 @@ The `fin-hypergrid-renderer` element is a custom Polymer web component used to s
                 var isSelected = this.isFixedRowCellSelected(c + scrollLeft);
                 var y = offsetY;
 
-                ctx.fillStyle = fixedRowBGColor;
+                ctx.fillStyle = bgColor;
                 ctx.fillRect(x, y, x + width, viewHeight - y);
 
                 for (var r = 0; r < numRows; r++) {
@@ -433,12 +546,15 @@ The `fin-hypergrid-renderer` element is a custom Polymer web component used to s
         paintFixedColumns: function(ctx, offsetX, offsetY, numColumns, numRows) {
             var behavior = this.getBehavior();
             var x = offsetX;
-            var font = constants.defaultFont;
-            var fgColor = constants.foregroundColor;
-            var bgColor = constants.backgroundColor;
-            var fixedColBGColor = constants.fixedColBGColor;
-            var fgSelColor = constants.fixedColFGSelColor;
-            var bgSelColor = constants.fixedColBGSelColor;
+
+            var font = this.theme.fixedColumnFont;
+
+            var fgColor = this.theme.fixedColumnColor;
+            var bgColor = this.theme.fixedColumnBackgroundColor;
+
+            var fgSelColor = this.theme.fixedColumnFGSelColor;
+            var bgSelColor = this.theme.fixedColumnBGSelColor;
+
             var halign = constants.fixedColumnAlign;
             var scrollTop = this.getScrollTop();
             var cellProvider = this.getGrid().getCellProvider();
@@ -448,7 +564,7 @@ The `fin-hypergrid-renderer` element is a custom Polymer web component used to s
                 var width = this.getFixedColumnWidth(c);
                 var y = offsetY;
 
-                ctx.fillStyle = fixedColBGColor;
+                ctx.fillStyle = bgColor;
                 ctx.fillRect(x, y, width, viewHeight - y);
 
                 for (var r = 0; r < numRows; r++) {
@@ -486,11 +602,14 @@ The `fin-hypergrid-renderer` element is a custom Polymer web component used to s
             var scrollTop = this.getScrollTop();
             var scrollLeft = this.getScrollLeft();
             var cellProvider = this.getGrid().getCellProvider();
-            var font = constants.defaultFont;
-            var fgColor = constants.foregroundColor;
-            var bgColor = constants.backgroundColor;
-            var fgSelColor = constants.foregroundSelColor;
-            var bgSelColor = constants.backgroundSelColor;
+            var font = this.theme.font;
+
+            var fgColor = this.theme.color;
+            var bgColor = this.theme.backgroundColor;
+
+            var fgSelColor = this.theme.foregroundSelColor;
+            var bgSelColor = this.theme.backgroundSelColor;
+
             var viewWidth = this.getBounds().width() - 200; // look in fin-hypergrid and initializtion of fin-canvas
             var viewHeight = this.getBounds().height();
 
@@ -538,7 +657,7 @@ The `fin-hypergrid-renderer` element is a custom Polymer web component used to s
             //var border = this.getGrid().provider.require('borderprovider').getBorder('simple');
             var fixedRowHeight = this.getBehavior().getFixedRowsHeight();
             var fixedColumnWidth = this.getBehavior().getFixedColumnsWidth();
-            ctx.fillStyle = constants.topLeftHeaderBGColor;
+            ctx.fillStyle = this.theme.topLeftBackgroundColor;
             ctx.fillRect(offsetX, offsetY, fixedColumnWidth, fixedRowHeight);
             //border.paint(ctx, offsetX, offsetY, fixedColumnWidth, fixedRowHeight, constants.lineColor);
             ctx.stroke();

@@ -3,12 +3,24 @@
 <head>
   <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
   <title>fin-hypergrid Demo</title>
-
+<link rel="stylesheet" href="themes/the-times.css" shim-shadowdom="">
   <script src="../webcomponentsjs/webcomponents.js"></script>
   <script src="../accountingjs/accounting.min.js"></script>
   <link rel="import" href="../paper-tabs/paper-tabs.html">
+  <link rel="import" href="../paper-menu-button/paper-menu-button.html">
+
   <link rel="import" href="../core-pages/core-pages.html">
   <link rel="import" href="../core-splitter/core-splitter.html">
+
+
+  <link href="../core-collapse/core-collapse.html" rel="import">
+  <link href="../core-icons/core-icons.html" rel="import">
+  <link href="../core-menu/core-menu.html" rel="import">
+  <link href="../paper-button/paper-button.html" rel="import">
+  <link href="../paper-dropdown/paper-dropdown.html" rel="import">
+  <link href="../paper-icon-button/paper-icon-button.html" rel="import">
+  <link href="../paper-item/paper-item.html" rel="import">
+
 
   <link rel="import" href="fin-hypergrid.html">
   <style>
@@ -16,8 +28,6 @@
 
     }
     paper-tabs {
-        background-color: #E91E63;
-        color: #fff;
         box-shadow: 0px 3px 2px rgba(0, 0, 0, 0.2);
     }
     core-header-panel {
@@ -61,21 +71,37 @@
 <body unresolved fullbleed>
   <core-header-panel>
 
-    <core-toolbar>
-        <paper-tabs selected="0">
+    <core-toolbar layout horizontal>
+
+      <paper-menu-button>
+        <paper-icon-button icon="menu" style="padding-top: 11px"></paper-icon-button>
+        <paper-dropdown class="dropdown">
+          <core-menu class="menu">
+            <template is="auto-binding" id="themeDropDown" repeat="{{themes}}">
+              <paper-item onclick="selectTheme(this.innerText)">{{}}</paper-item>
+            </template>
+          </core-menu>
+        </paper-dropdown>
+      </paper-menu-button>
+
+        <paper-tabs selected="0" flex>
             <paper-tab>In Memory</paper-tab>
             <paper-tab>Default</paper-tab>
             <paper-tab>JSON</paper-tab>
             <paper-tab>Q</paper-tab>
             <paper-tab>Game Of Life</paper-tab>
         </paper-tabs>
+
     </core-toolbar>
 
   <core-pages selected="0">
 
         <div vertical layout>
           <div class="description">
-            <h3>fin-hypergrid-behavior-in-memory</h3> This element is a custom Polymer web component that is a demonstration of a simple subclass of the fin-hypergrid-behavior-default.  It demonstrates live high frequency updating of data, variable width columns, alternate cell renderers, and alternate cell editors(double click in various cells of column 'J').
+            <h3>fin-hypergrid-behavior-in-memory
+
+
+            </h3> This element is a custom Polymer web component that is a demonstration of a simple subclass of the fin-hypergrid-behavior-default.  It demonstrates live high frequency updating of data, variable width columns, alternate cell renderers, and alternate cell editors(double click in various cells of column 'J').
             <br>
             <br>
           </div>
@@ -165,6 +191,50 @@
   </core-header-panel>
 
   <script>
+
+  var updateThemes = function() {
+    var renderers = Array.prototype.slice.call(document.querySelectorAll('fin-hypergrid'));
+    renderers.forEach(function(each){
+        each.themeChangedNotification();
+    });
+  }
+
+    function selectTheme(themeName) {
+      var fileref = document.createElement("link");
+      fileref.setAttribute("rel", "stylesheet");
+      fileref.setAttribute("type", "text/css");
+      fileref.setAttribute("href", 'themes/' + themeName + '.css');
+      document.getElementsByTagName("head")[0].appendChild(fileref);
+      fileref.onload = updateThemes;
+    };
+
+    //some general setup
+    (function(){
+
+        document.addEventListener('polymer-ready', function() {
+
+                var scope = document.querySelector('#themeDropDown');
+
+                scope.themes = [
+                  'candy',
+                  'classical',
+                  'dark-side',
+                  'denim',
+                  'everest',
+                  'gelati',
+                  'golden-goose',
+                  'ice',
+                  'la-resistance',
+                  'melon',
+                  'seven-seas',
+                  'sky',
+                  'technology',
+                  'the-times'
+                ];
+        });
+
+    })();
+
     //lets initialize the tabs....
     (function() {
         var tabs = document.querySelector('paper-tabs');

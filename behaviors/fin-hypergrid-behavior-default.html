@@ -184,6 +184,13 @@ The `fin-hypergrid-behavior-default` element is a custom Polymer web component i
             return 1;
         },
 
+        //can be dynamic for supporting "floating" fixed columns
+        //<br>floating columns are columns that become fixed if you
+        //<br>scroll past them
+        getFixedColumnCount: function() {
+            return 1;
+        },
+
         //pixel height of the fixed rows area
         getFixedRowsHeight: function() {
             var count = this.getFixedRowCount();
@@ -229,13 +236,6 @@ The `fin-hypergrid-behavior-default` element is a custom Polymer web component i
         getFixedRowsMaxHeight: function() {
             var height = this.getFixedRowsHeight();
             return height;
-        },
-
-        //can be dynamic for supporting "floating" fixed columns
-        //<br>floating columns are columns that become fixed if you
-        //<br>scroll past them
-        getFixedColumnCount: function() {
-            return 1;
         },
 
         //pixel width of the fixed columns area

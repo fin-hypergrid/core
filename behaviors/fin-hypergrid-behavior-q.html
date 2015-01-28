@@ -259,7 +259,9 @@ The `fin-hypergrid-behavior-q` element is a custom Polymer web component used to
                     self.block = d;
 
                     if (d.rows !== oldSize) {
-                        self.sizeChanged();
+                        if (self.sizeChanged) {
+                            self.sizeChanged();
+                        }
                     }
                     if (!self.columnIndexes || self.columnIndexes.length === 0)  {
                         self.initColumnIndexes();

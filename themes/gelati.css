@@ -1,0 +1,624 @@
+@import url("//fonts.googleapis.com/css?family=Pacifico");
+@import url("//fonts.googleapis.com/css?family=Lato");
+/*
+ * PolymerThemes v0.4.0
+ * Homepage: http://polymerthemes.com
+ * Copyright 2014 Polymer Themes
+ * Licensed under BSD
+ * Based on Polymer: http://www.polymer-project.org/
+ * Compatible with Polymer 0.5.1
+ */
+html {
+  font-family: 'Lato', sans-serif;
+  -ms-text-size-adjust: 100%;
+  -webkit-text-size-adjust: 100%;
+  font-weight: 400;
+  font-size: 16px;
+}
+html,
+body {
+  margin: 0px;
+  padding: 0px;
+  height: 100%;
+  background-color: #00a0b0;
+  color: #fff;
+}
+html .font-special,
+html /deep/ .font-special {
+  font-family: 'Pacifico', cursive;
+}
+html core-header-panel,
+html /deep/ core-header-panel {
+  height: 100%;
+}
+html core-header-panel[mode=cover]::shadow #mainContainer,
+html /deep/ core-header-panel[mode=cover]::shadow #mainContainer {
+  left: 70px;
+}
+html .core-header,
+html /deep/ .core-header {
+  height: 60px;
+  font-size: 18px;
+  padding: 0 10px;
+  transition: height 0.2s;
+  background-color: #cc333f;
+  color: #fff;
+}
+html .core-header a,
+html /deep/ .core-header a {
+  color: #fff;
+}
+html .core-header paper-item,
+html /deep/ .core-header paper-item {
+  font-size: 18px;
+}
+html .core-header.tall,
+html /deep/ .core-header.tall {
+  height: 180px;
+}
+html .core-header.medium-tall,
+html /deep/ .core-header.medium-tall {
+  height: 120px;
+}
+html .core-header /deep/ core-menu-button a,
+html /deep/ .core-header /deep/ core-menu-button a {
+  color: #444;
+}
+html .content,
+html /deep/ .content {
+  background: linear-gradient(#d6e3e7, #add8e6);
+}
+html .wrapper,
+html /deep/ .wrapper {
+  text-align: center;
+}
+html section,
+html /deep/ section {
+  text-align: center;
+  padding: 40px 0px;
+}
+html section[hero],
+html /deep/ section[hero] {
+  background-color: #21acba;
+}
+html h1,
+html /deep/ h1,
+html h2,
+html /deep/ h2,
+html h3,
+html /deep/ h3,
+html h4,
+html /deep/ h4,
+html h5,
+html /deep/ h5,
+html h6,
+html /deep/ h6 {
+  font-weight: 400;
+  margin: 0px;
+  padding: 0px;
+}
+html h1,
+html /deep/ h1,
+html h3,
+html /deep/ h3,
+html h5,
+html /deep/ h5 {
+  font-family: 'Pacifico', cursive;
+}
+html h1,
+html /deep/ h1 {
+  font-size: 60px;
+  margin: 30px 0px;
+}
+html h2,
+html /deep/ h2 {
+  color: #fff;
+  font-size: 40px;
+  margin: 20px 0px;
+}
+html h3,
+html /deep/ h3 {
+  font-size: 25px;
+  margin: 15px 0px;
+}
+html h4,
+html /deep/ h4 {
+  font-size: 20px;
+}
+html a,
+html /deep/ a {
+  color: #fff;
+  text-decoration: none;
+}
+html a:hover,
+html /deep/ a:hover {
+  text-decoration: underline;
+}
+html .core-header /deep/ a:hover,
+html /deep/ .core-header /deep/ a:hover {
+  text-decoration: none;
+}
+html #ripple,
+html /deep/ #ripple,
+html::shadow #ripple,
+html /deep/::shadow #ripple {
+  color: #ebadb2;
+}
+html [autofocus],
+html /deep/ [autofocus] {
+  color: #cc333f;
+}
+html paper-button,
+html /deep/ paper-button {
+  margin: 2px;
+}
+html paper-button[link],
+html /deep/ paper-button[link] {
+  text-decoration: underline;
+}
+html paper-button[disabled],
+html /deep/ paper-button[disabled] {
+  color: #257e88 !important;
+  background: #7dd3dc !important;
+}
+html paper-button[raised],
+html /deep/ paper-button[raised] {
+  color: #425a60;
+}
+html paper-button #ripple,
+html /deep/ paper-button #ripple,
+html paper-button::shadow #ripple,
+html /deep/ paper-button::shadow #ripple {
+  color: #adc1c6;
+}
+html paper-button[primary],
+html /deep/ paper-button[primary] {
+  color: #cc333f;
+}
+html paper-button[primary] #ripple,
+html /deep/ paper-button[primary] #ripple,
+html paper-button[primary]::shadow #ripple,
+html /deep/ paper-button[primary]::shadow #ripple {
+  color: #ebadb2;
+}
+html paper-button[primary][raised],
+html /deep/ paper-button[primary][raised] {
+  background-color: #cc333f;
+  color: #fff;
+}
+html paper-button[primary][raised] #ripple,
+html /deep/ paper-button[primary][raised] #ripple,
+html paper-button[primary][raised]::shadow #ripple,
+html /deep/ paper-button[primary][raised]::shadow #ripple {
+  color: #ad2b36;
+}
+html paper-button[secondary],
+html /deep/ paper-button[secondary] {
+  color: #eb6841;
+}
+html paper-button[secondary] #ripple,
+html /deep/ paper-button[secondary] #ripple,
+html paper-button[secondary]::shadow #ripple,
+html /deep/ paper-button[secondary]::shadow #ripple {
+  color: #f7c3b3;
+}
+html paper-button[secondary][raised],
+html /deep/ paper-button[secondary][raised] {
+  background-color: #eb6841;
+  color: #fff;
+}
+html paper-button[secondary][raised] #ripple,
+html /deep/ paper-button[secondary][raised] #ripple,
+html paper-button[secondary][raised]::shadow #ripple,
+html /deep/ paper-button[secondary][raised]::shadow #ripple {
+  color: #e74818;
+}
+html paper-button[success],
+html /deep/ paper-button[success] {
+  color: #4caf50;
+}
+html paper-button[success] #ripple,
+html /deep/ paper-button[success] #ripple,
+html paper-button[success]::shadow #ripple,
+html /deep/ paper-button[success]::shadow #ripple {
+  color: #b7e0b8;
+}
+html paper-button[success][raised],
+html /deep/ paper-button[success][raised] {
+  background-color: #4caf50;
+  color: #fff;
+}
+html paper-button[success][raised] #ripple,
+html /deep/ paper-button[success][raised] #ripple,
+html paper-button[success][raised]::shadow #ripple,
+html /deep/ paper-button[success][raised]::shadow #ripple {
+  color: #419544;
+}
+html paper-button[info],
+html /deep/ paper-button[info] {
+  color: #6a4a3c;
+}
+html paper-button[info] #ripple,
+html /deep/ paper-button[info] #ripple,
+html paper-button[info]::shadow #ripple,
+html /deep/ paper-button[info]::shadow #ripple {
+  color: #cdb3a7;
+}
+html paper-button[info][raised],
+html /deep/ paper-button[info][raised] {
+  background-color: #6a4a3c;
+  color: #fff;
+}
+html paper-button[info][raised] #ripple,
+html /deep/ paper-button[info][raised] #ripple,
+html paper-button[info][raised]::shadow #ripple,
+html /deep/ paper-button[info][raised]::shadow #ripple {
+  color: #5a3f33;
+}
+html paper-button[warning],
+html /deep/ paper-button[warning] {
+  color: #edc951;
+}
+html paper-button[warning] #ripple,
+html /deep/ paper-button[warning] #ripple,
+html paper-button[warning]::shadow #ripple,
+html /deep/ paper-button[warning]::shadow #ripple {
+  color: #f8e9b9;
+}
+html paper-button[warning][raised],
+html /deep/ paper-button[warning][raised] {
+  background-color: #edc951;
+  color: #fff;
+}
+html paper-button[warning][raised] #ripple,
+html /deep/ paper-button[warning][raised] #ripple,
+html paper-button[warning][raised]::shadow #ripple,
+html /deep/ paper-button[warning][raised]::shadow #ripple {
+  color: #e9bc26;
+}
+html paper-button[error],
+html /deep/ paper-button[error] {
+  color: #a351b1;
+}
+html paper-button[error] #ripple,
+html /deep/ paper-button[error] #ripple,
+html paper-button[error]::shadow #ripple,
+html /deep/ paper-button[error]::shadow #ripple {
+  color: #dab9e0;
+}
+html paper-button[error][raised],
+html /deep/ paper-button[error][raised] {
+  background-color: #a351b1;
+  color: #fff;
+}
+html paper-button[error][raised] #ripple,
+html /deep/ paper-button[error][raised] #ripple,
+html paper-button[error][raised]::shadow #ripple,
+html /deep/ paper-button[error][raised]::shadow #ripple {
+  color: #8b4497;
+}
+html paper-button[link],
+html /deep/ paper-button[link] {
+  color: #000;
+}
+html paper-button[link] #ripple,
+html /deep/ paper-button[link] #ripple,
+html paper-button[link]::shadow #ripple,
+html /deep/ paper-button[link]::shadow #ripple {
+  color: #999;
+}
+html paper-button[link][raised],
+html /deep/ paper-button[link][raised] {
+  background-color: #fff;
+  color: #000;
+}
+html paper-button[link][raised] #ripple,
+html /deep/ paper-button[link][raised] #ripple,
+html paper-button[link][raised]::shadow #ripple,
+html /deep/ paper-button[link][raised]::shadow #ripple {
+  color: #d9d9d9;
+}
+html paper-checkbox,
+html /deep/ paper-checkbox {
+  padding: 20px;
+}
+html paper-checkbox::shadow #ink,
+html /deep/ paper-checkbox::shadow #ink {
+  color: #fff;
+/* Change the ink color for checked state */
+}
+html paper-checkbox::shadow #ink[checked],
+html /deep/ paper-checkbox::shadow #ink[checked] {
+  color: #cc333f;
+}
+html paper-checkbox::shadow #checkbox,
+html /deep/ paper-checkbox::shadow #checkbox {
+  border-color: #fff;
+/* Change the checkbox checked color */
+}
+html paper-checkbox::shadow #checkbox.checked,
+html /deep/ paper-checkbox::shadow #checkbox.checked {
+  border-color: #cc333f;
+}
+html paper-fab,
+html /deep/ paper-fab {
+  background-color: #cc333f;
+}
+html paper-fab::shadow core-icon,
+html /deep/ paper-fab::shadow core-icon {
+  color: #fff !important;
+}
+html core-toolbar paper-tabs,
+html /deep/ core-toolbar paper-tabs {
+  -webkit-box-shadow: none;
+  box-shadow: none;
+}
+html paper-tabs,
+html /deep/ paper-tabs,
+html core-toolbar,
+html /deep/ core-toolbar {
+  background-color: #cc333f;
+  color: #fff;
+  -webkit-box-shadow: 0px 3px 2px rgba(0,0,0,0.2);
+  box-shadow: 0px 3px 2px rgba(0,0,0,0.2);
+}
+html paper-tabs.transparent-teal,
+html /deep/ paper-tabs.transparent-teal {
+  background-color: transparent;
+  color: #cc333f;
+  -webkit-box-shadow: none;
+  box-shadow: none;
+}
+html paper-tabs.transparent-teal::shadow #selectionBar,
+html /deep/ paper-tabs.transparent-teal::shadow #selectionBar {
+  background-color: #cc333f;
+}
+html paper-tabs.transparent-teal paper-tab::shadow #ink,
+html /deep/ paper-tabs.transparent-teal paper-tab::shadow #ink {
+  color: #cc333f;
+}
+html paper-tabs[noink][nobar] paper-tab.core-selected,
+html /deep/ paper-tabs[noink][nobar] paper-tab.core-selected {
+  color: #edc951;
+}
+html paper-tabs::shadow *,
+html /deep/ paper-tabs::shadow * {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: rgba(0,0,0,0);
+  -webkit-touch-callout: none;
+}
+html paper-tabs::shadow #selectionBar,
+html /deep/ paper-tabs::shadow #selectionBar {
+  background-color: #edc951;
+}
+html paper-tab::shadow #ink,
+html /deep/ paper-tab::shadow #ink {
+  color: #edc951;
+}
+html paper-toast,
+html /deep/ paper-toast {
+  background: #323232;
+  color: #f1f1f1;
+  text-align: left;
+}
+html paper-toast .highlight,
+html /deep/ paper-toast .highlight {
+  color: #eeff41;
+}
+html paper-toast::shadow *,
+html /deep/ paper-toast::shadow * {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: rgba(0,0,0,0);
+  -webkit-touch-callout: none;
+}
+html paper-input[focused] .floated-label,
+html /deep/ paper-input[focused] .floated-label {
+  color: #cc333f;
+}
+html paper-input[focused] .error-text,
+html /deep/ paper-input[focused] .error-text,
+html paper-input[focused] .error-icon,
+html /deep/ paper-input[focused] .error-icon {
+  color: #a351b1;
+}
+html paper-input .focused-underline,
+html /deep/ paper-input .focused-underline {
+  background-color: #ccf2ff;
+}
+html paper-input.invalid .focused-underline,
+html /deep/ paper-input.invalid .focused-underline {
+  background-color: #a351b1;
+}
+html paper-input.invalid[focused] .floated-label,
+html /deep/ paper-input.invalid[focused] .floated-label {
+  color: #a351b1;
+}
+html paper-input[disabled],
+html /deep/ paper-input[disabled] {
+  color: #7dd3dc;
+}
+html paper-input-decorator /deep/ .label-text,
+html /deep/ paper-input-decorator /deep/ .label-text,
+html paper-input-decorator /deep/ .error,
+html /deep/ paper-input-decorator /deep/ .error {
+/* inline label,  floating label, error message and error icon color when the input is unfocused */
+  color: #fff;
+}
+html paper-input-decorator /deep/ .unfocused-underline,
+html /deep/ paper-input-decorator /deep/ .unfocused-underline {
+/* line color when the input is unfocused */
+  background-color: #fff;
+}
+html paper-input-decorator /deep/ .focused-underline,
+html /deep/ paper-input-decorator /deep/ .focused-underline {
+/* line color when the input is focused */
+  background-color: #cc333f;
+}
+html paper-input-decorator /deep/ .cursor,
+html /deep/ paper-input-decorator /deep/ .cursor {
+/* cursor color during the focus transition */
+  background-color: #cc333f;
+}
+html paper-input-decorator /deep/ ::-webkit-input-placeholder,
+html /deep/ paper-input-decorator /deep/ ::-webkit-input-placeholder {
+/* platform specific rules for placeholder text */
+  color: #fff;
+}
+html paper-input-decorator /deep/ ::-moz-placeholder,
+html /deep/ paper-input-decorator /deep/ ::-moz-placeholder {
+  color: #fff;
+}
+html paper-input-decorator /deep/ :-ms-input-placeholder,
+html /deep/ paper-input-decorator /deep/ :-ms-input-placeholder {
+  color: #fff;
+}
+html paper-input-decorator[focused] .floated-label .label-text,
+html /deep/ paper-input-decorator[focused] .floated-label .label-text,
+html paper-input-decorator[focused] /deep/ .floated-label .label-text,
+html /deep/ paper-input-decorator[focused] /deep/ .floated-label .label-text {
+/* floating label color when the input is focused */
+  color: #cc333f;
+}
+html paper-input-decorator.invalid[focused] /deep/ .floated-label .label-text,
+html /deep/ paper-input-decorator.invalid[focused] /deep/ .floated-label .label-text,
+html paper-input-decorator[focused] /deep/ .error,
+html /deep/ paper-input-decorator[focused] /deep/ .error {
+/* floating label, error message nad error icon color when the input is invalid and focused */
+  color: #a351b1;
+}
+html paper-input-decorator.invalid /deep/ .floated-label .label-text,
+html /deep/ paper-input-decorator.invalid /deep/ .floated-label .label-text,
+html paper-input-decorator /deep/ .error,
+html /deep/ paper-input-decorator /deep/ .error {
+/* floating label, error message nad error icon color when the input is invalid and not focused */
+  color: #a351b1;
+}
+html paper-input-decorator.invalid /deep/ .focused-underline,
+html /deep/ paper-input-decorator.invalid /deep/ .focused-underline,
+html paper-input-decorator.invalid /deep/ .cursor,
+html /deep/ paper-input-decorator.invalid /deep/ .cursor {
+/* line and cursor color when the input is invalid and focused */
+  background-color: #a351b1;
+}
+html .toolbar,
+html /deep/ .toolbar {
+  color: #fff;
+  background: #cc333f;
+}
+html .card,
+html /deep/ .card {
+  background: #00a0b0;
+}
+html paper-item,
+html /deep/ paper-item {
+  background-color: #dd3845;
+  color: #fff;
+}
+html paper-item:hover,
+html /deep/ paper-item:hover {
+  background-color: #cc333f;
+}
+html paper-item.core-selected,
+html /deep/ paper-item.core-selected {
+  background-color: #e4606a;
+}
+html paper-dropdown::shadow #background,
+html /deep/ paper-dropdown::shadow #background {
+  background-color: #dd3845;
+}
+html .small,
+html /deep/ .small {
+  font-size: 12px;
+}
+html .logo,
+html /deep/ .logo {
+  font-size: 21px;
+}
+html .logo a,
+html /deep/ .logo a {
+  font-weight: 700;
+  color: #fff;
+}
+html .inverse,
+html /deep/ .inverse {
+  background-color: #7ec0ee;
+  color: #fff;
+}
+html paper-progress::shadow #activeProgress,
+html /deep/ paper-progress::shadow #activeProgress {
+  background-color: #cc333f;
+}
+html paper-progress::shadow #secondaryProgress,
+html /deep/ paper-progress::shadow #secondaryProgress {
+  background-color: #eb6841;
+}
+html paper-radio-button::shadow #ink,
+html /deep/ paper-radio-button::shadow #ink {
+  color: #ebadb2;
+}
+html paper-radio-button::shadow #ink[checked],
+html /deep/ paper-radio-button::shadow #ink[checked] {
+  color: #ebadb2;
+}
+html paper-radio-button::shadow #onRadio,
+html /deep/ paper-radio-button::shadow #onRadio {
+  background-color: #cc333f;
+}
+html paper-radio-button::shadow #offRadio,
+html /deep/ paper-radio-button::shadow #offRadio {
+  background-color: #fff;
+}
+html paper-toggle-button::shadow paper-radio-button::shadow #ink,
+html /deep/ paper-toggle-button::shadow paper-radio-button::shadow #ink {
+  color: #ebadb2;
+}
+html paper-toggle-button::shadow paper-radio-button::shadow #ink[checked],
+html /deep/ paper-toggle-button::shadow paper-radio-button::shadow #ink[checked] {
+  color: #ebadb2;
+}
+html paper-toggle-button::shadow paper-radio-button::shadow #onRadio,
+html /deep/ paper-toggle-button::shadow paper-radio-button::shadow #onRadio {
+  background-color: #cc333f;
+}
+html paper-toggle-button::shadow paper-radio-button::shadow #offRadio,
+html /deep/ paper-toggle-button::shadow paper-radio-button::shadow #offRadio {
+  background-color: #fff;
+}
+html paper-toggle-button::shadow #toggleBar,
+html /deep/ paper-toggle-button::shadow #toggleBar {
+  background-color: #fff;
+}
+html paper-toggle-button::shadow #toggleBar[checked],
+html /deep/ paper-toggle-button::shadow #toggleBar[checked] {
+  background-color: #cc333f;
+}
+html paper-slider::shadow #sliderBar::shadow #activeProgress,
+html /deep/ paper-slider::shadow #sliderBar::shadow #activeProgress {
+  background-color: #cc333f;
+}
+html paper-slider::shadow #sliderBar::shadow #secondaryProgress,
+html /deep/ paper-slider::shadow #sliderBar::shadow #secondaryProgress {
+  background-color: #eb6841;
+}
+html paper-slider::shadow #sliderKnobInner,
+html /deep/ paper-slider::shadow #sliderKnobInner {
+  background-color: #cc333f;
+}
+html paper-slider::shadow #sliderKnobInner::before,
+html /deep/ paper-slider::shadow #sliderKnobInner::before {
+  background-color: #cc333f;
+}
+html paper-icon-button[disabled]::shadow core-icon,
+html /deep/ paper-icon-button[disabled]::shadow core-icon {
+  color: #7dd3dc !important;
+}
+html paper-spinner:not([default-spinner])::shadow .circle,
+html /deep/ paper-spinner:not([default-spinner])::shadow .circle {
+  border-color: #cc333f;
+}

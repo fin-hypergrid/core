@@ -965,13 +965,14 @@
          * @method getDataBounds()
          */
         getDataBounds: function() {
+            var colDNDHackWidth = 200; //this was a hack to help with column dnd, need to factor this into a shared variable
             var behavior = this.getBehavior();
             var b = this.canvas.bounds;
 
             var x = behavior.getFixedColumnsWidth() + 2;
             var y = behavior.getFixedRowsHeight() + 2;
 
-            var result = this.rectangles.rectangle.create(x, y, b.origin.x + b.extent.x - x, b.origin.y + b.extent.y - y);
+            var result = this.rectangles.rectangle.create(x, y, b.origin.x + b.extent.x - x - colDNDHackWidth, b.origin.y + b.extent.y - y);
             return result;
         },
 
@@ -1631,6 +1632,9 @@
             } else {
                 return 1;
             }
+        },
+        themeChangedNotification: function() {
+            this.getRenderer().themeChangedNotification();
         }
 
     });
