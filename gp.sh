@@ -69,12 +69,14 @@ cp -rf ../../core-icons ./components/core-icons
 cp -rf ../../core-iconset ./components/core-iconset
 cp -rf ../../core-iconset-svg ./components/core-iconset-svg
 cp -rf ../../core-meta ./components/core-meta
+cp -rf ../../core-menu ./components/core-menu
 cp -rf ../../core-pages ./components/core-pages
 cp -rf ../../core-selection ./components/core-selection
 cp -rf ../../core-selector ./components/core-selector
 cp -rf ../../core-splitter ./components/core-splitter
 cp -rf ../../core-resizable ./components/core-resizable
 cp -rf ../../paper-button ./components/paper-button
+cp -rf ../../paper-menu-button ./components/paper-menu-button
 cp -rf ../../paper-icon-button ./components/paper-icon-button
 cp -rf ../../paper-item ./components/paper-item
 cp -rf ../../paper-button ./components/paper-button
