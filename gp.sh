@@ -72,6 +72,7 @@ cp -rf ../../core-iconset ./components/core-iconset
 cp -rf ../../core-iconset-svg ./components/core-iconset-svg
 cp -rf ../../core-meta ./components/core-meta
 cp -rf ../../core-menu ./components/core-menu
+cp -rf ../../core-overlay ./components/core-overlay
 cp -rf ../../core-pages ./components/core-pages
 cp -rf ../../core-resizable ./components/core-resizable
 cp -rf ../../core-selection ./components/core-selection
@@ -87,6 +88,8 @@ cp -rf ../../paper-menu-button ./components/paper-menu-button
 cp -rf ../../paper-ripple ./components/paper-ripple
 cp -rf ../../paper-shadow ./components/paper-shadow
 cp -rf ../../paper-tabs ./components/paper-tabs
+
+cp -rf ../../web-animations-js ./components/web-animations-js
 
 
 # redirect by default to the component folder
