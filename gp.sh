@@ -65,7 +65,6 @@ cp -rf ../../core-animation ./components/core-animation
 cp -rf ../../core-component-page ./components/core-component-page
 cp -rf ../../core-collapse ./components/core-collapse
 cp -rf ../../core-dropdown ./components/core-dropdown
-cp -rf ../../core-dropdown-base ./components/core-dropdown-base
 cp -rf ../../core-focusable ./components/core-focusable
 cp -rf ../../core-icon ./components/core-icon
 cp -rf ../../core-icons ./components/core-icons
