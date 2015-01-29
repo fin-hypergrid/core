@@ -32,7 +32,7 @@ The `fin-hypergrid-renderer` element is a custom Polymer web component used to s
 
     // we need a reusable cellconfig object
     var config = {};
-    var cellConfig = function(x, y, value, fgColor, bgColor, fgSelColor, bgSelColor, font, isSelected, halign) {
+    var cellConfig = function(x, y, value, fgColor, bgColor, fgSelColor, bgSelColor, font, isSelected, halign, hoffset, voffset) {
         config.x = x;
         config.y = y;
         config.value = value;
@@ -43,6 +43,8 @@ The `fin-hypergrid-renderer` element is a custom Polymer web component used to s
         config.font = font;
         config.isSelected = isSelected;
         config.halign = halign || 'center';
+        config.hoffset = hoffset;
+        config.voffset = voffset;
         return config;
     };
 
@@ -92,13 +94,20 @@ The `fin-hypergrid-renderer` element is a custom Polymer web component used to s
             theme.backgroundDisabled = css.style.background;
             theme.colorDisabled = css.style.color;
 
-            css = getCSSRule('html');//html .small, html /deep/ .small
+            css = getCSSRule('html');
+
+            //padding-left/top on html in css will translate to an offset for
+            //displaying text within a cell
+            theme['-hg-padding-top'] = css.style.paddingTop;
+            theme['-hg-padding-left'] = css.style.paddingLeft;
+
+            var fontFamily = css.style.fontFamily;
+
             var fontFamily = css.style.fontFamily;
             theme.font2 = css.style.fontSize + ' ' + fontFamily;
 
             css = getCSSRule('html .small, html /deep/ .small');//
             theme.font1 = css.style.fontSize + ' ' + fontFamily;
-
 
             css = getCSSRule('html, body');
             theme.color = css.style.color;
@@ -135,6 +144,8 @@ The `fin-hypergrid-renderer` element is a custom Polymer web component used to s
             theme.colorLink = css.style.color;
             theme.backgroundLink = css.style.backgroundColor;
 
+            //lets let users override properties of anything if they want
+
             return theme;
         },
         initializeThemeProperties: function() {
@@ -152,17 +163,19 @@ The `fin-hypergrid-renderer` element is a custom Polymer web component used to s
 
             this.theme.fixedRowColor = polymerTheme.color;
             this.theme.fixedRowBackgroundColor = polymerTheme.backgroundDisabled;
-            this.theme.fixedRowSelColor =  polymerTheme.color;
+            this.theme.fixedRowFGSelColor =  polymerTheme.colorInfo;
             this.theme.fixedRowBGSelColor =  polymerTheme.backgroundInfo;
 
             this.theme.fixedColumnColor = polymerTheme.color;
             this.theme.fixedColumnBackgroundColor = polymerTheme.backgroundDisabled;
-            this.theme.fixedColumnSelColor =  polymerTheme.color;
+            this.theme.fixedColumnFGSelColor =  polymerTheme.colorInfo;
             this.theme.fixedColumnBGSelColor =  polymerTheme.backgroundInfo;
 
             this.theme.topLeftBackgroundColor = polymerTheme.backgroundDisabled;
 
             this.theme.lineColor = polymerTheme.colorDisabled;
+            this.theme.hoffset = parseInt(polymerTheme['-hg-padding-left'] || constants.hoffset);
+            this.theme.voffset = parseInt(polymerTheme['-hg-padding-top'] || constants.voffset);
         },
         themeChangedNotification: function() {
             this.initializeThemeProperties();
@@ -515,6 +528,9 @@ The `fin-hypergrid-renderer` element is a custom Polymer web component used to s
             var scrollLeft = this.getScrollLeft();
             var font = this.theme.fixedRowFont;
 
+            var voffset = this.theme.voffset;
+            var hoffset = this.theme.hoffset;
+
             var fgColor = this.theme.fixedRowColor;
             var bgColor = this.theme.fixedRowBackgroundColor;
 
@@ -543,7 +559,7 @@ The `fin-hypergrid-renderer` element is a custom Polymer web component used to s
 
                     //translatedX allows us to reorder columns
                     var translatedX = behavior.translateColumnIndex(c + scrollLeft);
-                    var cell = cellProvider.getFixedRowCell(cellConfig(translatedX, r, value, fgColor, bgColor, fgSelColor, bgSelColor, font, isSelected, halign));
+                    var cell = cellProvider.getFixedRowCell(cellConfig(translatedX, r, value, fgColor, bgColor, fgSelColor, bgSelColor, font, isSelected, halign, hoffset, voffset));
                     cell.paint(ctx, x, y, width, height);
                     y = y + height;
                 }
@@ -557,6 +573,9 @@ The `fin-hypergrid-renderer` element is a custom Polymer web component used to s
             var x = offsetX;
 
             var font = this.theme.fixedColumnFont;
+
+            var voffset = this.theme.voffset;
+            var hoffset = this.theme.hoffset;
 
             var fgColor = this.theme.fixedColumnColor;
             var bgColor = this.theme.fixedColumnBackgroundColor;
@@ -583,7 +602,7 @@ The `fin-hypergrid-renderer` element is a custom Polymer web component used to s
                         break;
                     }
                     var value = behavior.getFixedColumnValue(c, r + scrollTop);
-                    var cell = cellProvider.getFixedColumnCell(cellConfig(c, r + scrollTop, value, fgColor, bgColor, fgSelColor, bgSelColor, font, isSelected, halign));
+                    var cell = cellProvider.getFixedColumnCell(cellConfig(c, r + scrollTop, value, fgColor, bgColor, fgSelColor, bgSelColor, font, isSelected, halign, hoffset, voffset));
                     cell.paint(ctx, x, y, width, height);
                     y = y + height;
                 }
@@ -612,6 +631,9 @@ The `fin-hypergrid-renderer` element is a custom Polymer web component used to s
             var scrollLeft = this.getScrollLeft();
             var cellProvider = this.getGrid().getCellProvider();
             var font = this.theme.font;
+
+            var voffset = this.theme.voffset;
+            var hoffset = this.theme.hoffset;
 
             var fgColor = this.theme.color;
             var bgColor = this.theme.backgroundColor;
@@ -649,7 +671,7 @@ The `fin-hypergrid-renderer` element is a custom Polymer web component used to s
                     //translatedX allows us to reorder columns
                     var translatedX = behavior.translateColumnIndex(c + scrollLeft);
 
-                    var cell = cellProvider.getCell(cellConfig(translatedX, r + scrollTop, value, fgColor, bgColor, fgSelColor, bgSelColor, font, isSelected, columnAlign));
+                    var cell = cellProvider.getCell(cellConfig(translatedX, r + scrollTop, value, fgColor, bgColor, fgSelColor, bgSelColor, font, isSelected, columnAlign, hoffset, voffset));
 
                     cell.paint(ctx, x, y, width, height);
 

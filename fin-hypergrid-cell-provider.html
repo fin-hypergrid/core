@@ -91,8 +91,8 @@ The `fin-hypergrid-cell-provider` element is a custom Polymer web component used
         defaultCellPaint: function(gc, x, y, width, height) {
 
             var colHEdgeOffset = constants.cellPadding,
-                halignOffset = 0,
-                valignOffset = 0,
+                halignOffset = this.config.hoffset,
+                valignOffset = this.config.voffset,
                 halign = this.config.halign,
                 size,
                 textWidth;
@@ -122,7 +122,7 @@ The `fin-hypergrid-cell-provider` element is a custom Polymer web component used
             }
 
             halignOffset = Math.max(0, halignOffset);
-            valignOffset = height / 2;
+            valignOffset = valignOffset + Math.ceil(height / 2);
 
             //fill background only if our bgColor is populated or we are a selected cell
             if (this.config.bgColor || this.config.isSelected) {
@@ -131,7 +131,7 @@ The `fin-hypergrid-cell-provider` element is a custom Polymer web component used
             }
 
             //draw text
-            gc.fillStyle = this.config.isSelected ? this.config.bgColor : this.config.fgColor;
+            gc.fillStyle = this.config.isSelected ? this.config.fgSelColor : this.config.fgColor;
             gc.fillText(this.config.value, x + halignOffset, y + valignOffset);
 
         },
