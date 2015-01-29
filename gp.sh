@@ -60,7 +60,7 @@ cp -rf ../../fin-canvas ./components/fin-canvas
 cp -rf ../../fin-vampire-bar ./components/fin-vampire-bar
 cp -rf ../../accountingjs ./components/accountingjs
 
-cp -rf ../../core-core-a11y-keys ./components/core-core-a11y-keys
+cp -rf ../../core-a11y-keys ./components/core-a11y-keys
 cp -rf ../../core-animation ./components/core-animation
 cp -rf ../../core-component-page ./components/core-component-page
 cp -rf ../../core-collapse ./components/core-collapse
