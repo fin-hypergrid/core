@@ -24,6 +24,12 @@
 
   <link rel="import" href="fin-hypergrid.html">
   <style>
+    body {
+            transition: opacity 0.150s ease-in;
+    }
+    .rotateHalf {
+        opacity: 0;
+    }
     fin-hypergrid {
 
     }
@@ -77,6 +83,7 @@
         padding-top:12px;
         cursor: pointer;
     }
+
   </style>
 </head>
 <body unresolved fullbleed>
@@ -211,15 +218,21 @@
     renderers.forEach(function(each){
         each.themeChangedNotification();
     });
+    setTimeout(function() {
+        document.body.classList.remove('rotateHalf');
+    },50)
   }
 
     function selectTheme(themeName) {
-      var fileref = document.createElement("link");
-      fileref.setAttribute("rel", "stylesheet");
-      fileref.setAttribute("type", "text/css");
-      fileref.setAttribute("href", 'themes/' + themeName + '.css');
-      document.getElementsByTagName("head")[0].appendChild(fileref);
-      fileref.onload = updateThemes;
+      document.body.classList.add('rotateHalf');
+      setTimeout(function() {
+          var fileref = document.createElement("link");
+          fileref.setAttribute("rel", "stylesheet");
+          fileref.setAttribute("type", "text/css");
+          fileref.setAttribute("href", 'themes/' + themeName + '.css');
+          document.getElementsByTagName("head")[0].appendChild(fileref);
+          fileref.onload = updateThemes;
+      },200);
     };
 
     //some general setup
