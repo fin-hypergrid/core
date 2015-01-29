@@ -47,7 +47,6 @@ echo "{
 git clone http://github.com/$org/$repo.git components/$repo
 rm -rf components/$repo/.git
 
-cp -rf ../../core-component-page ./components/core-component-page
 cp -rf ../../webcomponentsjs ./components/webcomponentsjs
 cp -rf ../../polymer ./components/polymer
 cp -rf ../../NodeBind ./components/NodeBind
@@ -61,9 +60,13 @@ cp -rf ../../fin-canvas ./components/fin-canvas
 cp -rf ../../fin-vampire-bar ./components/fin-vampire-bar
 cp -rf ../../accountingjs ./components/accountingjs
 
-cp -rf ../../core-focusable ./components/core-focusable
+cp -rf ../../core-core-a11y-keys ./components/core-core-a11y-keys
+cp -rf ../../core-animation ./components/core-animation
+cp -rf ../../core-component-page ./components/core-component-page
 cp -rf ../../core-collapse ./components/core-collapse
-cp -rf ../../core-menu ./components/core-menu
+cp -rf ../../core-dropdown ./components/core-dropdown
+cp -rf ../../core-dropdown-base ./components/core-dropdown-base
+cp -rf ../../core-focusable ./components/core-focusable
 cp -rf ../../core-icon ./components/core-icon
 cp -rf ../../core-icons ./components/core-icons
 cp -rf ../../core-iconset ./components/core-iconset
@@ -71,18 +74,20 @@ cp -rf ../../core-iconset-svg ./components/core-iconset-svg
 cp -rf ../../core-meta ./components/core-meta
 cp -rf ../../core-menu ./components/core-menu
 cp -rf ../../core-pages ./components/core-pages
+cp -rf ../../core-resizable ./components/core-resizable
 cp -rf ../../core-selection ./components/core-selection
 cp -rf ../../core-selector ./components/core-selector
 cp -rf ../../core-splitter ./components/core-splitter
-cp -rf ../../core-resizable ./components/core-resizable
-cp -rf ../../paper-button ./components/paper-button
-cp -rf ../../paper-menu-button ./components/paper-menu-button
-cp -rf ../../paper-icon-button ./components/paper-icon-button
-cp -rf ../../paper-item ./components/paper-item
+cp -rf ../../core-transition ./components/core-transition
+
 cp -rf ../../paper-button ./components/paper-button
 cp -rf ../../paper-dropdown ./components/paper-dropdown
-cp -rf ../../paper-tabs ./components/paper-tabs
+cp -rf ../../paper-icon-button ./components/paper-icon-button
+cp -rf ../../paper-item ./components/paper-item
+cp -rf ../../paper-menu-button ./components/paper-menu-button
 cp -rf ../../paper-ripple ./components/paper-ripple
+cp -rf ../../paper-shadow ./components/paper-shadow
+cp -rf ../../paper-tabs ./components/paper-tabs
 
 
 # redirect by default to the component folder
