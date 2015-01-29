@@ -69,6 +69,8 @@ The `fin-hypergrid-renderer` element is a custom Polymer web component used to s
             }
         }
       }
+      //didn't find anything return a null object
+      return {style:{}};
     };
 
     Polymer({ /* jslint ignore:line */
@@ -86,63 +88,88 @@ The `fin-hypergrid-renderer` element is a custom Polymer web component used to s
           this.initializeThemeProperties();
           this.setBackgroundColor(constants.gridBackgroundColor);
         },
+        defaultTheme: function() {
+            //this is the excel theme,
+            //here as a safeguard for browsers that fail to find themes
+            return {
+                        '-hg-padding-left': '0px',
+                        '-hg-padding-top': '2px',
+                        background: 'rgb(255, 255, 255)',
+                        backgroundColor2: 'rgb(241, 241, 241)',
+                        backgroundDisabled: 'rgb(223, 227, 232)',
+                        backgroundError: 'rgb(239, 83, 80)',
+                        backgroundInfo: 'rgb(255, 220, 97)',
+                        backgroundLink: 'rgb(255, 255, 255)',
+                        backgroundPrimary: 'rgb(25, 25, 25)',
+                        backgroundSecondary: 'rgb(183, 219, 255)',
+                        backgroundSuccess: 'rgb(139, 195, 74)',
+                        backgroundWarning: 'rgb(255, 183, 77)',
+                        color: 'rgb(25, 25, 25)',
+                        colorDisabled: 'rgb(199, 199, 199)',
+                        colorError: 'rgb(255, 255, 255)',
+                        colorInfo: 'rgb(119, 100, 19)',
+                        colorLink: 'rgb(0, 0, 0)',
+                        colorPrimary: 'rgb(255, 255, 255)',
+                        colorSecondary: 'rgb(255, 255, 255)',
+                        colorSuccess: 'rgb(58, 87, 24)',
+                        colorWarning: 'rgb(255, 255, 255)',
+                        fontFamily: 'Tahoma, Geneva, sans-serif',
+                        fontSize: '14px'
+                    }
+        },
         readPolymerThemeProperties: function() {
-            var theme = {
-
-            };
+            var theme = this.defaultTheme();
             var css = getCSSRule('html paper-button[disabled], html /deep/ paper-button[disabled]');
-            theme.backgroundDisabled = css.style.background;
-            theme.colorDisabled = css.style.color;
+            theme.backgroundDisabled = css.style.background || theme.backgroundDisabled;
+            theme.colorDisabled = css.style.color || theme.colorDisabled;
 
             css = getCSSRule('html');
 
             //padding-left/top on html in css will translate to an offset for
             //displaying text within a cell
-            theme['-hg-padding-top'] = css.style.paddingTop;
-            theme['-hg-padding-left'] = css.style.paddingLeft;
+            theme['-hg-padding-top'] = css.style.paddingTop || theme['-hg-padding-top'];
+            theme['-hg-padding-left'] = css.style.paddingLeft || theme['-hg-padding-left'];
 
-            var fontFamily = css.style.fontFamily;
-
-            var fontFamily = css.style.fontFamily;
-            theme.font2 = css.style.fontSize + ' ' + fontFamily;
+            var fontFamily = css.style.fontFamily || theme.fontFamily;
+            theme.font2 = (css.style.fontSize || theme.fontSize) + ' ' + fontFamily;
 
             css = getCSSRule('html .small, html /deep/ .small');//
-            theme.font1 = css.style.fontSize + ' ' + fontFamily;
+            theme.font1 = (css.style.fontSize || theme.fontSize) + ' ' + fontFamily;
 
             css = getCSSRule('html, body');
-            theme.color = css.style.color;
-            theme.background = css.style.backgroundColor;
+            theme.color = css.style.color || theme.color;
+            theme.background = css.style.backgroundColor || theme.background;
 
             css = getCSSRule('html section[hero], html /deep/ section[hero]');
-            theme.backgroundColor2 = css.style.backgroundColor;
+            theme.backgroundColor2 = css.style.backgroundColor || theme.backgroundColor2;
 
             css = getCSSRule('html paper-button[primary][raised], html /deep/ paper-button[primary][raised]');
-            theme.colorPrimary = css.style.color;
-            theme.backgroundPrimary = css.style.backgroundColor;
+            theme.colorPrimary = css.style.color || theme.colorPrimary;
+            theme.backgroundPrimary = css.style.backgroundColor || theme.backgroundPrimary;
 
             css = getCSSRule('html paper-button[secondary][raised], html /deep/ paper-button[secondary][raised]');
-            theme.colorSecondary = css.style.color;
-            theme.backgroundSecondary = css.style.backgroundColor;
+            theme.colorSecondary = css.style.color || theme.colorSecondary;
+            theme.backgroundSecondary = css.style.backgroundColor || theme.backgroundSecondary;
 
             css = getCSSRule('html paper-button[success][raised], html /deep/ paper-button[success][raised]');
-            theme.colorSuccess = css.style.color;
-            theme.backgroundSuccess = css.style.backgroundColor;
+            theme.colorSuccess = css.style.color || theme.colorSuccess;
+            theme.backgroundSuccess = css.style.backgroundColor || theme.backgroundSuccess;
 
             css = getCSSRule('html paper-button[info][raised], html /deep/ paper-button[info][raised]');
-            theme.colorInfo = css.style.color;
-            theme.backgroundInfo = css.style.backgroundColor;
+            theme.colorInfo = css.style.color || theme.colorInfo;
+            theme.backgroundInfo = css.style.backgroundColor || theme.backgroundInfo;
 
             css = getCSSRule('html paper-button[warning][raised], html /deep/ paper-button[warning][raised]');
-            theme.colorWarning = css.style.color;
-            theme.backgroundWarning = css.style.backgroundColor;
+            theme.colorWarning = css.style.color || theme.colorWarning;
+            theme.backgroundWarning = css.style.backgroundColor || theme.backgroundWarning;
 
             css = getCSSRule('html paper-button[error][raised], html /deep/ paper-button[error][raised]');
-            theme.colorError = css.style.color;
-            theme.backgroundError = css.style.backgroundColor;
+            theme.colorError = css.style.color || theme.colorError;
+            theme.backgroundError = css.style.backgroundColor || theme.backgroundError;
 
             css = getCSSRule('html paper-button[link][raised], html /deep/ paper-button[link][raised]');
-            theme.colorLink = css.style.color;
-            theme.backgroundLink = css.style.backgroundColor;
+            theme.colorLink = css.style.color || theme.colorLink;
+            theme.backgroundLink = css.style.backgroundColor || theme.backgroundLink;
 
             //lets let users override properties of anything if they want
 
