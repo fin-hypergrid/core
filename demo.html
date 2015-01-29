@@ -42,6 +42,11 @@
         bottom: 0;
         left: 0;
     }
+    a {
+        font-weight: 900;
+        font-size: larger;
+        color: rgba(0, 115, 255, 0.9) !important;
+    }
     .abs {
         position: absolute;
         top: 0;
@@ -66,6 +71,12 @@
         padding-left: 8%;
         padding-right: 8%;
     }
+    .theme-menu {
+        width:140px;
+        text-align:center;
+        padding-top:12px;
+        cursor: pointer;
+    }
   </style>
 </head>
 <body unresolved fullbleed>
@@ -73,16 +84,19 @@
 
     <core-toolbar layout horizontal>
 
-      <paper-menu-button>
-        <paper-icon-button icon="menu" style="padding-top: 12px"></paper-icon-button>
-        <paper-dropdown class="dropdown">
-          <core-menu class="menu">
-            <template is="auto-binding" id="themeDropDown" repeat="{{themes}}">
-              <paper-item onclick="selectTheme(this.innerText)">{{}}</paper-item>
-            </template>
-          </core-menu>
-        </paper-dropdown>
-      </paper-menu-button>
+        <paper-menu-button class="nocollapse theme-menu">
+            Themes
+            <core-icon icon="arrow-drop-down"></core-icon>
+            <paper-dropdown class="dropdown" transition="">
+                <core-menu class="menu" style="width:140px;margin: 0px;">
+
+                    <template is="auto-binding" id="themeDropDown" repeat="{{themes}}">
+                      <paper-item onclick="selectTheme(this.innerText)">{{}}</paper-item>
+                    </template>
+
+                </core-menu>
+            </paper-dropdown>
+        </paper-menu-button>
 
         <paper-tabs selected="0" flex>
             <paper-tab>In Memory</paper-tab>
@@ -101,7 +115,7 @@
             <h3>fin-hypergrid-behavior-in-memory
 
 
-            </h3> This element is a custom Polymer web component that is a demonstration of a simple subclass of the fin-hypergrid-behavior-default.  It demonstrates live high frequency updating of data, variable width columns, alternate cell renderers, and alternate cell editors(double click in various cells of column 'J').
+            </h3> This element is a custom Polymer web component that is a demonstration of a simple subclass of the fin-hypergrid-behavior-default.  It demonstrates live high frequency updating of data, variable width columns, alternate cell renderers, and alternate cell editors(double click in various cells of column 'J').  Take note that hypergrid supports <a href="https://polymerthemes.com/">polymer themes</a> and one can be selected from the top left menu.
             <br>
             <br>
           </div>

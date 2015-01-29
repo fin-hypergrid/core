@@ -80,7 +80,7 @@ The `fin-hypergrid-behavior-in-memory` element is a custom Polymer web component
                 } else if (x === 3) {
                     renderer = provider.cellCache.sparklineCellRenderer;
                 } else if (x === 2) {
-                    var hex = Math.floor(config.value * 255 / 100).toString(16);
+                    var hex = Math.floor(Math.max(config.value,30) * 255 / 100).toString(16);
                     if (hex.length < 1) {
                         hex = '0' + hex;
                     }

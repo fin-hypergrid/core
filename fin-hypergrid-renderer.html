@@ -81,16 +81,24 @@ The `fin-hypergrid-renderer` element is a custom Polymer web component used to s
           this.renderedColumns = [];
           this.renderedRows = [];
           this.insertionBounds = []; // this is the midpoint of each column, used for column drag and drop
-          this.initializeColors();
+          this.initializeThemeProperties();
           this.setBackgroundColor(constants.gridBackgroundColor);
         },
-        readPolymerThemeColors: function() {
+        readPolymerThemeProperties: function() {
             var theme = {
 
             };
             var css = getCSSRule('html paper-button[disabled], html /deep/ paper-button[disabled]');
             theme.backgroundDisabled = css.style.background;
             theme.colorDisabled = css.style.color;
+
+            css = getCSSRule('html');//html .small, html /deep/ .small
+            var fontFamily = css.style.fontFamily;
+            theme.font2 = css.style.fontSize + ' ' + fontFamily;
+
+            css = getCSSRule('html .small, html /deep/ .small');//
+            theme.font1 = css.style.fontSize + ' ' + fontFamily;
+
 
             css = getCSSRule('html, body');
             theme.color = css.style.color;
@@ -129,12 +137,13 @@ The `fin-hypergrid-renderer` element is a custom Polymer web component used to s
 
             return theme;
         },
-        initializeColors: function() {
-            var polymerTheme = this.readPolymerThemeColors();
+        initializeThemeProperties: function() {
+            var polymerTheme = this.readPolymerThemeProperties();
             this.theme = {};
 
-            var css = getCSSRule('html');
-            this.theme.font = css.style.font;
+            this.theme.font = polymerTheme.font1;
+            this.theme.fixedRowFont = polymerTheme.font2;
+            this.theme.fixedColumnFont = polymerTheme.font2;
 
             this.theme.color = polymerTheme.color;
             this.theme.backgroundColor = polymerTheme.backgroundColor2;
@@ -156,7 +165,7 @@ The `fin-hypergrid-renderer` element is a custom Polymer web component used to s
             this.theme.lineColor = polymerTheme.colorDisabled;
         },
         themeChangedNotification: function() {
-            this.initializeColors();
+            this.initializeThemeProperties();
         },
 
         getGrid: function() {

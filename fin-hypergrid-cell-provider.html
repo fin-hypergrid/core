@@ -131,7 +131,7 @@ The `fin-hypergrid-cell-provider` element is a custom Polymer web component used
             }
 
             //draw text
-            gc.fillStyle = this.config.fgColor;
+            gc.fillStyle = this.config.isSelected ? this.config.bgColor : this.config.fgColor;
             gc.fillText(this.config.value, x + halignOffset, y + valignOffset);
 
         },
