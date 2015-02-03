@@ -108,10 +108,10 @@ Steps to Integration Demo
 1. Download [excel.zip](http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/excel.zip)
 2. Unzip files to a local folder 
 3. Launch the *FinDesktopAddin* located at 
-    64 Bit  <local folder>/desktop-cs-excal/ExcelRtdAddin/bin/x64/Release/
-    86 Bit  <local folder>/desktop-cs-excal/ExcelRtdAddin/bin/x64/Release/
+    64 Bit  &lt;local folder&gt;/desktop-cs-excal/ExcelRtdAddin/bin/x64/Release/
+    86 Bit  &lt;local folder&gt;/desktop-cs-excal/ExcelRtdAddin/bin/x64/Release/
 4. Start Hypergrid
-5. Open Hypergrid.xls stored in <local folder>
+5. Open Hypergrid.xls stored in &lt;local folder&gt;
 
 Steps 3-5 need to be repeated each time you want to run the demo. Alternatively, you can manage this addin so that step 3 does not need to be repeated Excel File -> Options -> Add-Ins -> Manage Addins -> Browse -> Select <local folder>/desktop-cs-excel/ExcelRtdAddin/bin/x64/Release/*FinDesktopAddin* 
 
