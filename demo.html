@@ -239,7 +239,7 @@
         var themeName = selection.innerText || selection.textContent;
         themeName = themeName.trim();
         setTimeout(function(){
-            document.location = document.location.origin + "/?theme=" + themeName;
+            document.location = document.location.href.split('?')[0]+'?theme=' + themeName;
         },50);
     };
 
