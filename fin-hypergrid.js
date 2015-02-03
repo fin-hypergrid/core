@@ -193,6 +193,9 @@
 
         domReady: function() {
             var self = this;
+            this.themeListener = document.createElement('html');
+            this.themeListener.classList.add('core-header');
+            this.shadowRoot.appendChild(this.themeListener);
 
             this.isWebkit = navigator.userAgent.toLowerCase().indexOf('webkit') > -1;
 
@@ -1632,9 +1635,6 @@
             } else {
                 return 1;
             }
-        },
-        themeChangedNotification: function() {
-            this.getRenderer().themeChangedNotification();
         }
 
     });

@@ -219,8 +219,8 @@ The `fin-hypergrid-feature-column-moving` element is a custom Polymer web compon
             style.boxShadow = '2px 2px 2px #888888';
             style.width = columnWidth + 'px'; //Math.round(columnWidth / hdpiRatio) + 'px';
             style.height = colHeight + 'px'; //Math.round(colHeight / hdpiRatio) + 'px';
-            style.borderTop = '1px solid ' + grid.renderer.theme.lineColor;
-            style.backgroundColor = grid.renderer.theme.backgroundColor;
+            style.borderTop = '1px solid ' + grid.renderer.resolveProperty('lineColor');
+            style.backgroundColor = grid.renderer.resolveProperty('backgroundColor');
 
             var startX = grid.renderer.renderedColumnWidths[columnIndex + numFixedColumns];
             startX = startX * hdpiRatio;
@@ -271,8 +271,8 @@ The `fin-hypergrid-feature-column-moving` element is a custom Polymer web compon
             style.opacity = 0.85;
             style.boxShadow = '5px 5px 5px #888888';
             //style.zIndex = 100;
-            style.borderTop = '1px solid ' + grid.renderer.theme.lineColor;
-            style.backgroundColor = grid.renderer.theme.backgroundColor;
+            style.borderTop = '1px solid ' + grid.renderer.resolveProperty('lineColor');
+            style.backgroundColor = grid.renderer.resolveProperty('backgroundColor');
 
             d.setAttribute('width', Math.round(columnWidth * hdpiRatio) + 'px');
             d.setAttribute('height', Math.round(colHeight * hdpiRatio) + 'px');

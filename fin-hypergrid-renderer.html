@@ -29,9 +29,88 @@ The `fin-hypergrid-renderer` element is a custom Polymer web component used to s
 (function() {
 
     var constants;
+    var defaults = {};
+    var polymerTheme = Object.create(defaults);
+    var themeInitialized = false;
+    var globalProperties = Object.create(polymerTheme);
+    var config = {};
+
+    var defaultProperties = function(proto) {
+        var theme = Object.create(proto);
+        theme.font = '13px Tahoma, Geneva, sans-serif';
+        theme.fixedRowFont = '14px Tahoma, Geneva, sans-serif';
+        theme.fixedColumnFont = '14px Tahoma, Geneva, sans-serif';
+        theme.color = 'rgb(25, 25, 25)';
+        theme.foregroundSelColor =  'rgb(25, 25, 25)';
+        theme.fixedRowColor = 'rgb(25, 25, 25)';
+        theme.fixedColumnColor = 'rgb(25, 25, 25)';
+        theme.backgroundColor = 'rgb(241, 241, 241)';
+        theme.backgroundSelColor =  'rgb(183, 219, 255)';
+        theme.fixedRowBackgroundColor = 'rgb(223, 227, 232)';
+        theme.topLeftBackgroundColor = 'rgb(223, 227, 232)';
+        theme.fixedColumnBackgroundColor = 'rgb(223, 227, 232)';
+        theme.fixedRowFGSelColor =  'rgb(255, 220, 97)';
+        theme.fixedColumnFGSelColor =  'rgb(255, 220, 97)';
+        theme.fixedRowBGSelColor =  'rgb(255, 220, 97)';
+        theme.fixedColumnBGSelColor =  'rgb(255, 220, 97)';
+        theme.lineColor = 'rgb(199, 199, 199)';
+        theme.hoffset = 0;
+        theme.voffset = 0;
+        return theme;
+    };
+
+    var buildPolymerTheme = function() {
+        clearObjectProperties(polymerTheme);
+        var pb = document.createElement('paper-button');
+        pb.style.display = 'none';
+        pb.setAttribute('disabled', true);
+        document.body.appendChild(pb);
+
+        var section = document.createElement('section');
+        section.style.display = 'none';
+        section.setAttribute('hero', true);
+        document.body.appendChild(section);
+
+        var p = window.getComputedStyle(pb);
+        var h = window.getComputedStyle(document.querySelector('html'));
+        var d = (h.flex || '0 0 0').split(' ');
+        var s = window.getComputedStyle(section);
+        polymerTheme.fixedRowBackgroundColor = p['background-color'];
+        polymerTheme.fixedColumnBackgroundColor = p['background-color'];
+        polymerTheme.topLeftBackgroundColor = p['background-color'];
+
+        polymerTheme.lineColor = p['color'];
+        polymerTheme.color = h['color'];
+        polymerTheme.fontFamily = h['font-family'];
+        polymerTheme.backgroundColor = s['background-color'];
+
+        pb.setAttribute('disabled', false);
+        pb.setAttribute('secondary', true);
+        pb.setAttribute('raised', true);
+
+        polymerTheme.backgroundSelColor = p['background-color'];
+
+        pb.setAttribute('secondary', false);
+        pb.setAttribute('info', true);
+
+        polymerTheme.fixedRowFGSelColor = p['color'];
+        polymerTheme.fixedRowBGSelColor = p['background-color'];
+        polymerTheme.fixedColumnFGSelColor = p['color'];
+        polymerTheme.fixedColumnBGSelColor = p['background-color'];
+
+        document.body.removeChild(pb);
+        document.body.removeChild(section);
+    };
+
+    var clearObjectProperties = function(obj) {
+        for (var prop in obj) {
+            if (obj.hasOwnProperty(prop)) {
+                delete obj[prop];
+            };
+        }
+    };
 
     // we need a reusable cellconfig object
-    var config = {};
     var cellConfig = function(x, y, value, fgColor, bgColor, fgSelColor, bgSelColor, font, isSelected, halign, hoffset, voffset) {
         config.x = x;
         config.y = y;
@@ -48,164 +127,31 @@ The `fin-hypergrid-renderer` element is a custom Polymer web component used to s
         return config;
     };
 
-    function getCSSRule(selectorText) {
-      var i, j, noRules, rules, rule,
-      // also sheets MUST have an HREF(theme) or they will be skipped
-      sheets = document.styleSheets,
-      noSheets = sheets.length;
-
-      selectorText = selectorText.toLowerCase();
-
-      for (i = 0; i < noSheets; i++) {
-        var sheet = sheets[noSheets - i - 1];
-        if (sheet.href) {
-            rules = (sheet.rules || sheet.cssRules);
-            noRules = rules.length;
-            for (j = 0; j < noRules; j++) {
-              var eachText = rules[j].selectorText;
-              if (eachText && eachText.toLowerCase() === selectorText) {
-                return rules[j];
-              }
-            }
-        }
-      }
-      //didn't find anything return a null object
-      return {style:{}};
-    };
-
     Polymer({ /* jslint ignore:line */
 
         ready: function() {
           this.readyInit();
           if (!constants) {
               constants = document.createElement('fin-hypergrid-constants').values;
+              defaults = defaultProperties(constants);
+              polymerTheme = Object.create(defaults);
+              globalProperties = Object.create(polymerTheme);
           }
+          this.lnfProperties = Object.create(globalProperties);
           this.renderedColumnWidths = [0];
           this.renderedRowHeights = [0];
           this.renderedColumns = [];
           this.renderedRows = [];
-          this.insertionBounds = []; // this is the midpoint of each column, used for column drag and drop
-          this.initializeThemeProperties();
-          this.setBackgroundColor(constants.gridBackgroundColor);
+          this.insertionBounds = []; // this is the midpoint of each column, used
+          //for column drag and drop
+ //         this.setBackgroundColor(constants.gridBackgroundColor);
+            if (!themeInitialized) {
+                buildPolymerTheme();
+                themeInitialized = true;
+            }
         },
-        defaultTheme: function() {
-            //this is the excel theme,
-            //here as a safeguard for browsers that fail to find themes
-            return {
-                        '-hg-padding-left': '0px',
-                        '-hg-padding-top': '0px',
-                        background: 'rgb(255, 255, 255)',
-                        backgroundColor2: 'rgb(241, 241, 241)',
-                        backgroundDisabled: 'rgb(223, 227, 232)',
-                        backgroundError: 'rgb(239, 83, 80)',
-                        backgroundInfo: 'rgb(255, 220, 97)',
-                        backgroundLink: 'rgb(255, 255, 255)',
-                        backgroundPrimary: 'rgb(25, 25, 25)',
-                        backgroundSecondary: 'rgb(183, 219, 255)',
-                        backgroundSuccess: 'rgb(139, 195, 74)',
-                        backgroundWarning: 'rgb(255, 183, 77)',
-                        color: 'rgb(25, 25, 25)',
-                        colorDisabled: 'rgb(199, 199, 199)',
-                        colorError: 'rgb(255, 255, 255)',
-                        colorInfo: 'rgb(119, 100, 19)',
-                        colorLink: 'rgb(0, 0, 0)',
-                        colorPrimary: 'rgb(255, 255, 255)',
-                        colorSecondary: 'rgb(255, 255, 255)',
-                        colorSuccess: 'rgb(58, 87, 24)',
-                        colorWarning: 'rgb(255, 255, 255)',
-                        fontFamily: 'Tahoma, Geneva, sans-serif',
-                        fontSize: '14px'
-                    }
-        },
-        readPolymerThemeProperties: function() {
-            var theme = this.defaultTheme();
-            var css = getCSSRule('html paper-button[disabled], html /deep/ paper-button[disabled]');
-            theme.backgroundDisabled = css.style.background || theme.backgroundDisabled;
-            theme.colorDisabled = css.style.color || theme.colorDisabled;
-
-            css = getCSSRule('html');
-
-            //padding-left/top on html in css will translate to an offset for
-            //displaying text within a cell
-            theme['-hg-padding-top'] = css.style.paddingTop || theme['-hg-padding-top'];
-            theme['-hg-padding-left'] = css.style.paddingLeft || theme['-hg-padding-left'];
-
-            var fontFamily = css.style.fontFamily || theme.fontFamily;
-            theme.font2 = (css.style.fontSize || theme.fontSize) + ' ' + fontFamily;
-
-            css = getCSSRule('html .small, html /deep/ .small');//
-            theme.font1 = (css.style.fontSize || theme.fontSize) + ' ' + fontFamily;
-
-            css = getCSSRule('html, body');
-            theme.color = css.style.color || theme.color;
-            theme.background = css.style.backgroundColor || theme.background;
-
-            css = getCSSRule('html section[hero], html /deep/ section[hero]');
-            theme.backgroundColor2 = css.style.backgroundColor || theme.backgroundColor2;
-
-            css = getCSSRule('html paper-button[primary][raised], html /deep/ paper-button[primary][raised]');
-            theme.colorPrimary = css.style.color || theme.colorPrimary;
-            theme.backgroundPrimary = css.style.backgroundColor || theme.backgroundPrimary;
-
-            css = getCSSRule('html paper-button[secondary][raised], html /deep/ paper-button[secondary][raised]');
-            theme.colorSecondary = css.style.color || theme.colorSecondary;
-            theme.backgroundSecondary = css.style.backgroundColor || theme.backgroundSecondary;
-
-            css = getCSSRule('html paper-button[success][raised], html /deep/ paper-button[success][raised]');
-            theme.colorSuccess = css.style.color || theme.colorSuccess;
-            theme.backgroundSuccess = css.style.backgroundColor || theme.backgroundSuccess;
-
-            css = getCSSRule('html paper-button[info][raised], html /deep/ paper-button[info][raised]');
-            theme.colorInfo = css.style.color || theme.colorInfo;
-            theme.backgroundInfo = css.style.backgroundColor || theme.backgroundInfo;
-
-            css = getCSSRule('html paper-button[warning][raised], html /deep/ paper-button[warning][raised]');
-            theme.colorWarning = css.style.color || theme.colorWarning;
-            theme.backgroundWarning = css.style.backgroundColor || theme.backgroundWarning;
-
-            css = getCSSRule('html paper-button[error][raised], html /deep/ paper-button[error][raised]');
-            theme.colorError = css.style.color || theme.colorError;
-            theme.backgroundError = css.style.backgroundColor || theme.backgroundError;
-
-            css = getCSSRule('html paper-button[link][raised], html /deep/ paper-button[link][raised]');
-            theme.colorLink = css.style.color || theme.colorLink;
-            theme.backgroundLink = css.style.backgroundColor || theme.backgroundLink;
-
-            //lets let users override properties of anything if they want
-
-            return theme;
-        },
-        initializeThemeProperties: function() {
-            var polymerTheme = this.readPolymerThemeProperties();
-            this.theme = {};
-
-            this.theme.font = polymerTheme.font1;
-            this.theme.fixedRowFont = polymerTheme.font2;
-            this.theme.fixedColumnFont = polymerTheme.font2;
-
-            this.theme.color = polymerTheme.color;
-            this.theme.backgroundColor = polymerTheme.backgroundColor2;
-            this.theme.foregroundSelColor =  polymerTheme.color;
-            this.theme.backgroundSelColor =  polymerTheme.backgroundSecondary;
-
-            this.theme.fixedRowColor = polymerTheme.color;
-            this.theme.fixedRowBackgroundColor = polymerTheme.backgroundDisabled;
-            this.theme.fixedRowFGSelColor =  polymerTheme.colorInfo;
-            this.theme.fixedRowBGSelColor =  polymerTheme.backgroundInfo;
-
-            this.theme.fixedColumnColor = polymerTheme.color;
-            this.theme.fixedColumnBackgroundColor = polymerTheme.backgroundDisabled;
-            this.theme.fixedColumnFGSelColor =  polymerTheme.colorInfo;
-            this.theme.fixedColumnBGSelColor =  polymerTheme.backgroundInfo;
-
-            this.theme.topLeftBackgroundColor = polymerTheme.backgroundDisabled;
-
-            this.theme.lineColor = polymerTheme.colorDisabled;
-            this.theme.hoffset = parseInt(polymerTheme['-hg-padding-left'] || constants.hoffset);
-            this.theme.voffset = parseInt(polymerTheme['-hg-padding-top'] || constants.voffset);
-        },
-        themeChangedNotification: function() {
-            this.initializeThemeProperties();
+        resolveProperty: function(key) {
+            return this.lnfProperties[key];
         },
 
         getGrid: function() {
@@ -382,7 +328,7 @@ The `fin-hypergrid-renderer` element is a custom Polymer web component used to s
             var bounds = this.getBounds();
             var width = bounds.width() - x;
             var height = bounds.height();
-            gc.strokeStyle = constants.backgroundColor;
+            gc.strokeStyle = this.resolveProperty('backgroundColor');
             gc.fillRect(x, 0, width, height);
         },
 
@@ -411,7 +357,7 @@ The `fin-hypergrid-renderer` element is a custom Polymer web component used to s
             var targetCTX = override.ctx;
             var imgData = gc.getImageData(startX,0,width*hdpiRatio,height*hdpiRatio);
             targetCTX.putImageData(imgData, 0,0);
-            gc.strokeStyle = constants.backgroundColor;
+            gc.strokeStyle = this.resolveProperty('backgroundColor');
             gc.fillRect(Math.round(startX/hdpiRatio), 0, width, height);
 
         },
@@ -419,11 +365,11 @@ The `fin-hypergrid-renderer` element is a custom Polymer web component used to s
         //We opted to not paint borders for each cell as that was extremely expensive.  Instead we draw gridlines here.  Also we record the widths and heights for later.
         paintGridlines: function(gc, offsetX, offsetY) {
 
-            var drawThemH = constants.gridLinesH;
-            var drawThemV = constants.gridLinesV;
+            var drawThemH = this.resolveProperty('gridLinesH');
+            var drawThemV = this.resolveProperty('gridLinesV');
 
             var behavior = this.getBehavior();
-            var lineColor = this.theme.lineColor; //draw horizontal grid line
+            var lineColor = this.resolveProperty('lineColor');
 
             var numColumns = behavior.getColumnCount();
             var numRows = behavior.getRowCount();
@@ -553,18 +499,18 @@ The `fin-hypergrid-renderer` element is a custom Polymer web component used to s
             var behavior = this.getBehavior();
             var x = offsetX;
             var scrollLeft = this.getScrollLeft();
-            var font = this.theme.fixedRowFont;
+            var font = this.resolveProperty('fixedRowFont');
 
-            var voffset = this.theme.voffset;
-            var hoffset = this.theme.hoffset;
+            var voffset = this.resolveProperty('voffset');
+            var hoffset = this.resolveProperty('hoffset');
 
-            var fgColor = this.theme.fixedRowColor;
-            var bgColor = this.theme.fixedRowBackgroundColor;
+            var fgColor = this.resolveProperty('fixedRowColor');
+            var bgColor = this.resolveProperty('fixedRowBackgroundColor');
 
-            var fgSelColor = this.theme.fixedRowFGSelColor;
-            var bgSelColor = this.theme.fixedRowBGSelColor;
+            var fgSelColor = this.resolveProperty('fixedRowFGSelColor');
+            var bgSelColor = this.resolveProperty('fixedRowBGSelColor');
 
-            var halign = constants.fixedRowAlign;
+            var halign = this.resolveProperty('fixedRowAlign');
             var cellProvider = this.getGrid().getCellProvider();
             var viewWidth = this.getBounds().width() - 200; // look in fin-hypergrid and initializtion of fin-canvas
             var viewHeight = this.getBehavior().getFixedRowsHeight();
@@ -599,16 +545,16 @@ The `fin-hypergrid-renderer` element is a custom Polymer web component used to s
             var behavior = this.getBehavior();
             var x = offsetX;
 
-            var font = this.theme.fixedColumnFont;
+            var font = this.resolveProperty('fixedColumnFont');
 
-            var voffset = this.theme.voffset;
-            var hoffset = this.theme.hoffset;
+            var voffset = this.resolveProperty('voffset');
+            var hoffset = this.resolveProperty('hoffset');
 
-            var fgColor = this.theme.fixedColumnColor;
-            var bgColor = this.theme.fixedColumnBackgroundColor;
+            var fgColor = this.resolveProperty('fixedColumnColor');
+            var bgColor = this.resolveProperty('fixedColumnBackgroundColor');
 
-            var fgSelColor = this.theme.fixedColumnFGSelColor;
-            var bgSelColor = this.theme.fixedColumnBGSelColor;
+            var fgSelColor = this.resolveProperty('fixedColumnFGSelColor');
+            var bgSelColor = this.resolveProperty('fixedColumnBGSelColor');
 
             var halign = constants.fixedColumnAlign;
             var scrollTop = this.getScrollTop();
@@ -657,16 +603,16 @@ The `fin-hypergrid-renderer` element is a custom Polymer web component used to s
             var scrollTop = this.getScrollTop();
             var scrollLeft = this.getScrollLeft();
             var cellProvider = this.getGrid().getCellProvider();
-            var font = this.theme.font;
+            var font = this.resolveProperty('font');
 
-            var voffset = this.theme.voffset;
-            var hoffset = this.theme.hoffset;
+            var voffset = this.resolveProperty('voffset');
+            var hoffset = this.resolveProperty('hoffset');
 
-            var fgColor = this.theme.color;
-            var bgColor = this.theme.backgroundColor;
+            var fgColor = this.resolveProperty('color');
+            var bgColor = this.resolveProperty('backgroundColor');
 
-            var fgSelColor = this.theme.foregroundSelColor;
-            var bgSelColor = this.theme.backgroundSelColor;
+            var fgSelColor = this.resolveProperty('foregroundSelColor');
+            var bgSelColor = this.resolveProperty('backgroundSelColor');
 
             var viewWidth = this.getBounds().width() - 200; // look in fin-hypergrid and initializtion of fin-canvas
             var viewHeight = this.getBounds().height();
@@ -715,7 +661,7 @@ The `fin-hypergrid-renderer` element is a custom Polymer web component used to s
             //var border = this.getGrid().provider.require('borderprovider').getBorder('simple');
             var fixedRowHeight = this.getBehavior().getFixedRowsHeight();
             var fixedColumnWidth = this.getBehavior().getFixedColumnsWidth();
-            ctx.fillStyle = this.theme.topLeftBackgroundColor;
+            ctx.fillStyle = this.resolveProperty('topLeftBackgroundColor');
             ctx.fillRect(offsetX, offsetY, fixedColumnWidth, fixedRowHeight);
             //border.paint(ctx, offsetX, offsetY, fixedColumnWidth, fixedRowHeight, constants.lineColor);
             ctx.stroke();
@@ -776,7 +722,7 @@ The `fin-hypergrid-renderer` element is a custom Polymer web component used to s
         getColumnCount: function() {
             var count = this.getGrid().getColumnCount();
             return count;
-        }
+        },
 
     });
 

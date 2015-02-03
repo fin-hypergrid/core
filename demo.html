@@ -1,9 +1,23 @@
 <!doctype html>
 <html>
 <head>
+    <script>
+        function getParameterByName(name) {
+            name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+            var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+                results = regex.exec(location.search);
+            return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+        }
+        var theme = getParameterByName("theme") || "excel";
+        var fileref = document.createElement("link");
+        fileref.setAttribute("rel", "stylesheet");
+        fileref.setAttribute("type", "text/css");
+        fileref.setAttribute("shim-shadowdom", ' ');
+        fileref.setAttribute("href", 'themes/' + theme + '.css');
+        document.getElementsByTagName("head")[0].appendChild(fileref);
+    </script>
   <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
   <title>fin-hypergrid Demo</title>
-<link rel="stylesheet" href="themes/excel.css" shim-shadowdom="">
   <script src="../webcomponentsjs/webcomponents.js"></script>
   <script src="../accountingjs/accounting.min.js"></script>
   <link rel="import" href="../paper-tabs/paper-tabs.html">
@@ -98,7 +112,7 @@
                 <core-menu class="menu" style="width:140px;margin: 0px;">
 
                     <template is="auto-binding" id="themeDropDown" repeat="{{themes}}">
-                      <paper-item onclick="selectTheme(this.innerText)">{{}}</paper-item>
+                      <paper-item onclick="selectTheme(this)">{{}}</paper-item>
                     </template>
 
                 </core-menu>
@@ -128,7 +142,7 @@
           </div>
           <core-splitter direction="up"></core-splitter>
           <div flex class="rel">
-            <fin-hypergrid class="abs">
+            <fin-hypergrid class="abs" id="in-memory-example">
                 <fin-hypergrid-behavior-in-memory></fin-hypergrid-behavior-in-memory>
                 <fin-hypergrid-excel></fin-hypergrid-excel>
             </fin-hypergrid>
@@ -215,24 +229,18 @@
 
   var updateThemes = function() {
     var renderers = Array.prototype.slice.call(document.querySelectorAll('fin-hypergrid'));
-    renderers.forEach(function(each){
-        each.themeChangedNotification();
-    });
-    setTimeout(function() {
-        document.body.classList.remove('rotateHalf');
-    },50)
+    //only need to tickle one as it's a global theme
+    if (renderers.length > 0) {
+        renderers[0].themeChangedNotification();
+    }
   }
 
-    function selectTheme(themeName) {
-      document.body.classList.add('rotateHalf');
-      setTimeout(function() {
-          var fileref = document.createElement("link");
-          fileref.setAttribute("rel", "stylesheet");
-          fileref.setAttribute("type", "text/css");
-          fileref.setAttribute("href", 'themes/' + themeName + '.css');
-          document.getElementsByTagName("head")[0].appendChild(fileref);
-          fileref.onload = updateThemes;
-      },200);
+    function selectTheme(selection) {
+        var themeName = selection.innerText || selection.textContent;
+        themeName = themeName.trim();
+        setTimeout(function(){
+            document.location = document.location.origin + "/?theme=" + themeName;
+        },50);
     };
 
     //some general setup
@@ -507,6 +515,50 @@
         button.innerText = description;
     }
 
+    function dumpTheme() {
+        var pb = document.createElement('paper-button');
+        pb.style.display = 'none';
+        pb.setAttribute('disabled', true);
+        document.body.appendChild(pb);
+
+        var section = document.createElement('section');
+        section.style.display = 'none';
+        section.setAttribute('hero', true);
+        document.body.appendChild(section);
+
+        var p = window.getComputedStyle(pb);
+        var h = window.getComputedStyle(document.querySelector('html'));
+        var d = (h.flex || '0 0 0').split(' ');
+        var s = window.getComputedStyle(section);
+        console.log('fixed', p['background-color']);
+        console.log('lineColor', p['color']);
+        console.log('color', h['color']);
+        console.log('font-family', h['font-family']);
+        console.log('backgroundColor', s['background-color']);
+
+        pb.setAttribute('disabled', false);
+        pb.setAttribute('secondary', true);
+        pb.setAttribute('raised', true);
+
+        console.log('backgroundSelColor', p['background-color']);
+
+
+        pb.setAttribute('secondary', false);
+        pb.setAttribute('info', true);
+
+        console.log('fixedRowFGSelColor', p['color']);
+        console.log('fixedRowBGSelColor', p['background-color']);
+
+        document.body.removeChild(pb);
+        document.body.removeChild(section);
+    }
+    var observer = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+        console.log(mutation.type);
+    });
+    var target = document.querySelector('html');
+    observer.observe(target, { attributes: true, childList: true, characterData: true });
+});
   </script>
 
 </body>
