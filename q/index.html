@@ -1,0 +1,84 @@
+<html>
+	<head></head>
+	<body>
+	<script>
+	var url = 'ws://localhost:12345';
+	//var url = 'ws://192.168.1.11:12345';
+	var cmds = [{
+					id: "abc",
+					fn: "node",
+					node: ["foo","bar"]
+				},
+				{
+					id: "abc",
+					fn: "groups",
+					groups: ["a","b"]
+				},
+				{
+					id: "abc",
+					fn: "sorts",
+					sorts: {
+						"f":"a",
+						"g":"d",
+						"h":"a"
+						}
+				},
+				{
+					id: "abc",
+					fn: "cols",
+					cols: ["f","g","h"]
+				},
+				{
+					id: "abc",
+					fn: "get",
+					rows: {
+						start: 100,
+						end: 200
+					}
+				}
+				];
+	var connect = function() {
+
+            var self = this;
+            if ('WebSocket' in window) {
+                try {
+                    this.ws = new WebSocket(url);
+                } catch (e) {
+                    console.log('could not connect to ' + url + ', trying to reconnect in a moment...');
+                    return;
+                }
+                console.log('connecting...');
+                this.ws.onopen = function() {
+                    console.log('connected');
+                    // self.ws.send(JSON.stringify({
+                    //     cmd: 'fetch',
+                    //     data: {
+                    //         start: this.scrollPositionY || 0,
+                    //         num: 60
+                    //     }
+                    // }));
+                };
+                this.ws.onclose = function() {
+                    console.log('disconnected from ' + url + ', trying to reconnect in a moment...');
+                    setTimeout(function() {
+                    //    self.connect();
+                    }, 2000);
+                };
+                this.ws.onmessage = function(e) {
+                    var d = JSON.parse(e.data);
+                    console.log(e.data, d);
+                };
+                this.ws.onerror = function(e) {
+                    self.clearData();
+                    console.error('problem with connection to q at ' + url + ', trying again in a moment...', e.data);
+                    setTimeout(function() {
+                   //     self.connect();
+                    }, 2000);
+                };
+            } else {
+                console.error('WebSockets not supported on your browser.');
+            }
+    }
+	</script>
+	</body>
+</html>

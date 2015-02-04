@@ -528,11 +528,12 @@ The `fin-hypergrid-renderer` element is a custom Polymer web component used to s
                 for (var r = 0; r < numRows; r++) {
 
                     var height = this.getFixedRowHeight(r);
+                    var align = behavior.getFixedRowAlignment(r);
                     var value = behavior.getFixedRowValue(c + scrollLeft, r);
 
                     //translatedX allows us to reorder columns
                     var translatedX = behavior.translateColumnIndex(c + scrollLeft);
-                    var cell = cellProvider.getFixedRowCell(cellConfig(translatedX, r, value, fgColor, bgColor, fgSelColor, bgSelColor, font, isSelected, halign, hoffset, voffset));
+                    var cell = cellProvider.getFixedRowCell(cellConfig(translatedX, r, value, fgColor, bgColor, fgSelColor, bgSelColor, font, isSelected, align, hoffset, voffset));
                     cell.paint(ctx, x, y, width, height);
                     y = y + height;
                 }
@@ -556,13 +557,14 @@ The `fin-hypergrid-renderer` element is a custom Polymer web component used to s
             var fgSelColor = this.resolveProperty('fixedColumnFGSelColor');
             var bgSelColor = this.resolveProperty('fixedColumnBGSelColor');
 
-            var halign = constants.fixedColumnAlign;
+
             var scrollTop = this.getScrollTop();
             var cellProvider = this.getGrid().getCellProvider();
             var viewHeight = this.getBounds().height();
 
             for (var c = 0; c < numColumns; c++) {
                 var width = this.getFixedColumnWidth(c);
+                var align = behavior.getFixedColumnAlignment(c);
                 var y = offsetY;
 
                 ctx.fillStyle = bgColor;
@@ -575,7 +577,7 @@ The `fin-hypergrid-renderer` element is a custom Polymer web component used to s
                         break;
                     }
                     var value = behavior.getFixedColumnValue(c, r + scrollTop);
-                    var cell = cellProvider.getFixedColumnCell(cellConfig(c, r + scrollTop, value, fgColor, bgColor, fgSelColor, bgSelColor, font, isSelected, halign, hoffset, voffset));
+                    var cell = cellProvider.getFixedColumnCell(cellConfig(c, r + scrollTop, value, fgColor, bgColor, fgSelColor, bgSelColor, font, isSelected, align, hoffset, voffset));
                     cell.paint(ctx, x, y, width, height);
                     y = y + height;
                 }

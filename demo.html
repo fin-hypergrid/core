@@ -119,17 +119,18 @@
             </paper-dropdown>
         </paper-menu-button>
 
-        <paper-tabs selected="0" flex>
+        <paper-tabs selected="4" flex>
             <paper-tab>In Memory</paper-tab>
             <paper-tab>Default</paper-tab>
             <paper-tab>JSON</paper-tab>
             <paper-tab>Q</paper-tab>
+            <paper-tab>Q Tree</paper-tab>
             <paper-tab>Game Of Life</paper-tab>
         </paper-tabs>
 
     </core-toolbar>
 
-  <core-pages selected="0">
+  <core-pages selected="4">
 
         <div vertical layout>
           <div class="description">
@@ -200,6 +201,18 @@
           <div flex class="rel">
             <fin-hypergrid class="abs" id="q-example">
                 <fin-hypergrid-behavior-q url="ws://localhost:5000" table="trade"></fin-hypergrid-behavior-q>
+            </fin-hypergrid>
+          </div>
+        </div>
+
+        <div vertical layout>
+          <div class="description">
+            <h3>fin-hypergrid-behavior-qtree</h3> This element is a custom Polymer web component that demonstrates a more complex interface to Q/KDB+ by kx systems.  In order for this to work you need to run the provided <a href="https://github.com/openfin/fin-hypergrid/blob/master/q/t.q">t.q script</a> found in the q directory of this project.  This example shows the powerfull dynamic analytic capabilities of an external data engine.  This example Q script was based on <a href="http://archive.vector.org.uk/art10500340">code and a paper</a> written by <a href="http://http://www.nsl.com/">Steven Apter.</a>
+          </div>
+          <core-splitter direction="up"></core-splitter>
+          <div flex class="rel">
+            <fin-hypergrid class="abs" id="qtree-example">
+                <fin-hypergrid-behavior-qtree url="ws://localhost:12345"></fin-hypergrid-behavior-qtree>
             </fin-hypergrid>
           </div>
         </div>
@@ -304,18 +317,18 @@
                 d: 'simpleCellRenderer'
             };
 
-            cellProvider.getCell = function(config) {
-                var x = config.x;
-                var renderer = cellProvider.cellCache[typeRendererMap[qModel.block.headers[x + 1][1]]];
-                renderer = renderer || cellProvider.cellCache.simpleCellRenderer;
-                if (x === 11) {
-                    renderer = cellProvider.cellCache.sliderCellRenderer;
-                } else if (x === 13) {
-                    renderer = cellProvider.cellCache.sparkbarCellRenderer;
-                }
-                renderer.config = config;
-                return renderer;
-            };
+            // cellProvider.getCell = function(config) {
+            //     var x = config.x;
+            //     var renderer = cellProvider.cellCache[typeRendererMap[qModel.block.headers[x + 1][1]]];
+            //     renderer = renderer || cellProvider.cellCache.simpleCellRenderer;
+            //     if (x === 11) {
+            //         renderer = cellProvider.cellCache.sliderCellRenderer;
+            //     } else if (x === 13) {
+            //         renderer = cellProvider.cellCache.sparkbarCellRenderer;
+            //     }
+            //     renderer.config = config;
+            //     return renderer;
+            // };
         });
 
     })();

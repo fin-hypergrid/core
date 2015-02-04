@@ -1,0 +1,363 @@
+<!--
+
+The `fin-hypergrid-behavior-qtree` element is a custom Polymer web component used to support the openfin [fin-hypergrid](http://github.com/openfin/fin-hypergrid) component.
+
+@group OpenFin hypergrid
+@element fin-hypergrid-behavior-qtree
+@homepage http://github.com/openfin/fin-hypergrid
+-->
+
+<polymer-element name="fin-hypergrid-behavior-qtree" extends="fin-hypergrid-behavior-default" attributes="url">
+  <template></template>
+  <script>
+
+'use strict';
+//fin-hypergrid-behavior-qtree is a datasource based on an external Q data source with tree-centric analytic capilities
+//<br>See [kx.com](http://www.kx.com)
+//<br>Two example scripts are provided in the root of this project, bigtable.q and sorttable.q
+//<br>bigtable.q simulates an unsortable 100MM row table, and sorttable.q provides a true randomly generated 1MM row table sortable on any column.
+//<br>Run either of these scripts with this GridBehavior.
+
+(function() {
+
+    //keys mapping Q datatypes to aligment and renderers are setup here.
+    //<br>see [q datatypes](http://code.kx.com/wiki/Reference/Datatypes) for more.
+
+    var typeAlignmentMap = {
+        j: 'right',
+        s: 'left',
+        t: 'center',
+        f: 'right',
+        d: 'center'
+    };
+
+    //there are 4 default cell renderer types to choose from at the moment
+    //<br>simpleCellRenderer, sliderCellRenderer, sparkbarCellRenderer, sparklineCellRenderer
+    var typeRendererMap = {
+        J: 'sparklineCellRenderer',
+        j: 'simpleCellRenderer',
+        s: 'simpleCellRenderer',
+        t: 'simpleCellRenderer',
+        f: 'simpleCellRenderer',
+        d: 'simpleCellRenderer'
+    };
+
+    //sort states are also the visual queues in the column headers
+    //* '' no sort
+    //* ^ sort ascending
+    //* v sort descending
+    //* |^| sort absolute value ascending
+    //* |v| sort absolute value descending
+
+    Polymer({ /* jslint ignore:line */
+        ready: function() {
+            this.block = {
+                N: 0,
+                H: []
+            };
+            this.readyInit();
+            this.sorted = {};
+            this.sortStates = ['', ' ^', ' v', ' |^|', ' |v|'];
+            this.ws = null;
+            this.reconnect();
+        },
+        // translateColumnIndex: function(x) {
+        //     return x;//this.columnIndexes[x];
+        // },
+
+        //override this function on your GridBehavior to have custom cell renderering
+        //<br>see [QGridBehavior.createCellProvider()](QGridBehavior.html) for an example
+        createCellProvider: function() {
+            var provider = document.createElement('fin-hypergrid-cell-provider');
+            provider.getFixedColumnCell = function(config) {
+            var cell = provider.cellCache.treeCellRenderer;
+                cell.config = config;
+                return cell;
+            };
+            return provider;
+        },
+
+        attributeChanged: function(attrName, oldVal, newVal) {
+            // console.log(attrName, 'old: ' + oldVal, 'new:', newVal);
+            // if (attrName === 'url') {
+            //     this.reconnect();
+            // }
+            // if (attrName === 'table') {
+            //     //force a refresh of the data
+            //     this.setScrollPositionY(0);
+            // }
+        },
+        connectTo: function(newUrl) {
+            // this.setAttribute('url', newUrl);
+            // this.reconnect();
+        },
+
+        reconnect: function() {
+            this.url = this.getAttribute('url');
+            if (!this.url) {
+                return;
+            }
+            this.connect();
+            this.scrollPositionY = 0;
+            this.scrolled = false;
+        },
+
+        //for now we use the hacky override implementation to save data, in the future we'll have a more elaborate protocol with Q to do real validation and setting of data.
+        //<br>take note of the usage of the scrollPositionY value in translating our in-memory data page
+        getValue: function(x, y) {
+            var col = this.getColumnId(x);
+            //x = this.translateColumnIndex(x);
+            // var override = this.values['p_' + (x + 1) + '_' + y];
+            // if (override) {
+            //     return override;
+            // }
+
+            var normalized = Math.floor(y - this.scrollPositionY);
+            if (this.block) {
+                return this.block.Z[1][col][normalized];
+            } else {
+                return '';
+            }
+        },
+
+        //empty out our page of local data, this function is used when we lose connectivity
+        //<br>this function is primarily used as a visual queue so the user doesn't see stale data
+        clearData: function() {
+            this.block.rows = [];
+            this.changed();
+        },
+
+        //rows is a field in our data payload from Q that tells us the total number of rows available in the Q process data source
+        getRowCount: function() {
+            return this.block.N - 1;
+        },
+
+        //Virtual column scrolling is not necessary with this GridBehavior because we only hold a small amount of vertical data in memory and most tables in Q are timeseries financial data meaning the are very tall and skinny.  We know all the columns from the first page from Q.
+        getColumnCount: function() {
+            return this.block.H.length
+        },
+
+        //This is overridden from DefaultGridBehavior.   This value is set on us by the OFGrid component on user scrolling.
+        //<br>TODO: refactor: don't store this value in an local member, store it in the message ONLY.
+        //<br>TODO: refactor: num should be dynamic
+        setScrollPositionY: function(y) {
+            this.scrollPositionY = y;
+            if (!this.isConnected()) {
+                return;
+            }
+            var startY = this.scrollPositionY || 0;
+            var stopY = startY + 60;
+            this.ws.send(JSON.stringify({
+                id: "abc",
+                fn: "get",
+                start: startY,
+                end: stopY
+            }));
+        },
+
+        isConnected: function() {
+            if (!this.ws) {
+                return false;
+            }
+            return this.ws.readyState === this.ws.OPEN;
+        },
+
+        //return the column names, they are available to us as meta data in the most recent page Q sent us.
+        getFixedRowValue: function(x) {
+            var headers = this.block.H;
+            x = this.translateColumnIndex(x);
+            var col = headers[x];
+            if (!this.sorted[x + 1]) {
+                this.sorted[x + 1] = 0;
+            }
+            var sortIndicator = this.sortStates[this.sorted[x + 1]];
+            return col + ' ' + sortIndicator;
+        },
+
+    // h_ is the text of the hierarchy column.
+    // l_ is the level of the row of the table.
+    // e_ tells you whether the row is a leaf or a node.
+    // o_ tells you whether the row is open, if it's a node
+    // n_ is a list of nodes
+    // so:
+    // indent h_[i] l_[i] spaces.
+    // if e_[i]=1 then row i is a leaf. otherwise it's a node.
+    // if row i is a node, then if o_[i]=0 then row i is closed (prefix with a +) else it's open (prefix with a -)
+
+        getFixedColumnValue: function(x, y) {
+            var indentPixels = 10;
+            var blob = this.block.Z_[1];
+            var transY = Math.max(0, y - this.scrollPositionY);
+            var data = blob.h_[transY];
+            var indent = blob.l_[transY] * indentPixels;
+            var icon = '';
+            if (!blob.e_[transY]) {
+                icon = blob.o_[transY] ? '[--] ' : '[+] ';
+            }
+            return {
+                data: data,
+                indent: indent,
+                icon: icon
+            }
+        },
+
+        //let Q decide if this instance is sortable or not
+        getCanSort: function() {
+            return false; // for now.....
+            var canSort = this.block.features.sorting === true;
+            return canSort;
+        },
+
+        //on a header click do a sort!
+        fixedRowClicked: function(grid, mouse) {
+            this.toggleSort(this.scrollPositionX + mouse.gridCell.x - this.getFixedColumnCount());
+        },
+
+        //first ask q if this is a sortable instance, then send a message to Q to sort our data set
+        toggleSort: function(columnIndex) {
+            var columnIndex = this.translateColumnIndex(columnIndex);
+            if (!this.getCanSort()) {
+                return;
+            }
+            columnIndex++;
+            var current = this.sorted[columnIndex];
+            var stateCount = this.sortStates.length;
+            this.sorted = {}; //clear out other sorted for now, well add multicolumn sort later
+            this.sorted[columnIndex] = (current + 1) % stateCount;
+            var state = this.sortStates[this.sorted[columnIndex]];
+            var message = {
+                cmd: 'sortTable',
+                data: {
+                    table: 'trade',
+                    sort: current === (stateCount - 1) ? '' : this.block.headers[columnIndex][0],
+                    asc: state.indexOf('^') > 0,
+                    abs: state.indexOf('|') > 0,
+                    start: this.scrollPositionY,
+                    num: 60
+                }
+            };
+            this.ws.send(JSON.stringify(message));
+        },
+
+        //delegate column alignment through the map at the top based on the column type
+        getColumnAlignment: function(x) {
+            var colId = this.getColumnId(x);
+            var type = this.block.Q[colId];
+            var alignment = typeAlignmentMap[type];
+            return alignment;
+        },
+        getColumnId: function(x) {
+            var headers = this.block.H;
+            x = this.translateColumnIndex(x);
+            var col = headers[x];
+            return col;
+        },
+        getFixedColumnAlignment: function( /* x */ ) {
+            return 'left';
+        },
+
+        //for now use the cheesy local set data for storing user edits
+        setValue: function(x, y, value) {
+            x = this.translateColumnIndex(x);
+            this.values['p_' + (x + 1) + '_' + y] = value;
+        },
+
+        fixedColumnClicked: function(grid, mouse) {
+            var rowNum = mouse.gridCell.y - 1;
+            var nodes = this.block.Z_[1].n_[rowNum];
+            var nodeClick = {
+                    id: "abc",
+                    fn: "node",
+                    node: nodes
+                };
+            this.ws.send(JSON.stringify(nodeClick));
+        },
+
+        //websocket connection to Q.  try and do a reconnect after 2 seconds if we fail
+        connect: function() {
+            var d = {};
+            var self = this;
+            var oldSize = 0;
+            if ('WebSocket' in window) {
+                try {
+                    this.ws = new WebSocket(this.url);
+                } catch (e) {
+                    console.log('could not connect to ' + this.url + ', trying to reconnect in a moment...');
+                    return;
+                }
+                console.log('connecting...');
+                this.ws.onopen = function() {
+                    var startY = this.scrollPositionY || 0;
+                    var stopY = startY + 60;
+                    self.ws.send(JSON.stringify({
+                        id: "abc",
+                        fn: "get",
+                        start: startY,
+                        end: stopY
+                    }));
+                };
+                this.ws.onclose = function() {
+
+                    console.log('disconnected from ' + this.url + ', trying to reconnect in a moment...');
+
+                };
+                this.ws.onmessage = function(e) {
+                    d = JSON.parse(e.data);
+                    self.block = d;
+                    oldSize = self.block.N - 1;
+
+                    if (d.rows !== oldSize) {
+                        if (self.sizeChanged) {
+                            self.sizeChanged();
+                        }
+                    }
+                    if (!self.columnIndexes || self.columnIndexes.length === 0)  {
+                        self.initColumnIndexes();
+                    }
+                    console.dir(d);
+                    self.changed();
+                };
+                this.ws.onerror = function(e) {
+                    self.clearData();
+                    console.error('problem with connection to q at ' + this.url + ', trying again in a moment...', e.data);
+                    setTimeout(function() {
+                   //     self.connect();
+                    }, 2000);
+                };
+            } else {
+                console.error('WebSockets not supported on your browser.');
+            }
+        }
+
+    });
+
+})(); /* jslint ignore:line */
+
+    // h_ is the text of the hierarchy column.
+    // l_ is the level of the row of the table.
+    // e_ tells you whether the row is a leaf or a node.
+    // o_ tells you whether the row is open, if it's a node
+    // n_ is a list of nodes
+    // so:
+    // indent h_[i] l_[i] spaces.
+    // if e_[i]=1 then row i is a leaf. otherwise it's a node.
+    // if row i is a node, then if o_[i]=0 then row i is closed (prefix with a +) else it's open (prefix with a -)
+    // once we get the node message working, so you can open and close nodes, you'll get a better idea of how the rendering is based on the first four of these columns (if it isn't already clear.)
+    // i think we should definitely get the 'node' message working.
+    // i've attached a version which contains that function.
+
+    // Z  =  data table (first record;rest of the records)
+    // Z_ =  ctl table (ditto)
+    // G  =  groups
+    // G_ = rest of the groupable cols
+    // H  = rolled up cols
+    // H_ = columns not in table
+    // Q  = type map
+    // S  = sort map
+    // R  = rows map (block of table i'm sending you)
+    // N  = count of treetable
+
+
+
+  </script>
+</polymer-element>
