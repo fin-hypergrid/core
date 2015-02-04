@@ -1,3 +1,5 @@
+/// copyright stevan apter 2004-2015
+
 \e 1
 \p 12345
 \P 14
@@ -195,8 +197,7 @@ sector:`energy`materials`industrials`financials`healthcare`utilities`infotech
 strategy:`statarb`pairs`mergerarb`house`chart`indexarb
 
 n:100000
-T:1!([]
- tradeId:til n;
+T:([tradeId:til n]
  holdingId:n?holdingId;
  symbol:n?symbol;
  sector:n?sector;
@@ -221,131 +222,3 @@ T:1!([]
 
 G:`sector`trader`strategy
 H:`symbol`price`quantity
-
-.js.set()!();
-
-\
-
-/ change grouping
-
-m:update trader:`zelda,price:price+1,quantity:quantity+10 from 1!20#0!select tradeId,trader,price,quantity from T where sector=`financials,trader=`abbott,strategy=`pairs
-m:update tradeId:100000+til 10 from m where i<10
-
-\
-
-.js.exe`id`fn`node!(`;`node;1#`financials)
-.js.exe`id`fn`node!(`;`node;`financials`abbott)
-
-t:T
-
-update trader:`foo from `T where sector=`financials,trader=`abbott,strategy=`pairs
-
-\
-
-
-.js.set()!();
-
-.js.exe`id`fn`node!(`;`node;1#`financials)
-.js.exe`id`fn`node!(`;`node;`financials`harpo)
-.js.exe`id`fn`node!(`;`node;`financials`harpo`statarb)
-
-/ update
-
-j:3#exec i from T where sector=`financials,trader=`harpo,strategy<>`statarb
-o:1!select tradeId,price,quantity,price3,symbol from T where i in j
-update price:price+1,quantity:quantity+10,price3:price+5,symbol:`AARRGGH from`T where i in j
-n:1!select tradeId,price,quantity,price3,symbol from T where i in j
-
-t:T
-z:Z;z_:Z_
-g:t[key n;G]
-p:z_[`p_]\'[z_[`n_]?g]
-c:cols[n]inter cols z
-a:?[n;();0b;c!c]
-b:?[o;();0b;c!c]
-u:U[first each .tt.rollups[a;A]c]`u
-b:null u
-d:c where b
-f:{[d;g]1!?[T;G(=;;)'enlist each g;0b;d!d]}
-t:raze f[`tradeId,G,c,key S]each g
-`z`z_ set'.tt.cons[t;G;P;A;S]d
-Z[Z_[`n_]?z_`n_;d]:z[::;d]
-
-/ w/ u.u
-c@:where not b
-c@:where not b
-u@:where not b
-a:?[n;();0b;c!c]
-b:?[o;();0b;c!c]
-f:{[c;u;z;p;a;b]z[p;c]:flip get{[u;z;a;b]u[z;a]b}'[u;z[p]c;a]b;z}
-z:f[c;u]/[Z;p;a;b]
-
-/ append
-
-z:Z;z_:Z_
-q:select from T where i in j
-q:update tradeId:99999+1+til[count j]from q
-`T upsert q
-g:T[key q;G]
-p:z_[`p_]\'[z_[`n_]?g]
-c:cols[z]inter cols a:get q
-u:U[first each .tt.rollups[a;A]c]`a
-b:null u
-d:c where b
-f:{[d;g]1!?[T;G(=;;)'enlist each g;0b;d!d]}
-t:raze f[`tradeId,G,c,key S]each g
-h:{[g]select from P where n in raze g{y!count[y]#x}/:\:til[1+count G]#\:G}
-`z`z_ set'.tt.cons[t;G;P;A;S]d
-Z[Z_[`n_]?z_`n_;d]:z[::;d]
-
-/ w/ u.a
-c@:where not b
-u@:where not b
-a:?[q;();0b;c!c]
-f:{[c;u;z;p;a]z[p;c]:flip get{[u;z;a]u[z]a}'[u;z[p]c]a;z}
-z:f[c;u]/[Z;p;a]
-
-/ delete
-
-q:select from T where i in j
-g:T[key q;G]
-delete from `T where i in j
-p:z_[`p_]\'[z_[`n_]?g]
-c:cols[z]inter cols a:get q
-u:U[first each .tt.rollups[a;A]c]`d
-b:null u
-d:c where b
-f:{[d;g]1!?[T;G(=;;)'enlist each g;0b;d!d]}
-t:raze f[`tradeId,G,c,key S]each g
-`z`z_ set'.tt.cons[t;G;P;A;S]d
-Z[Z_[`n_]?z_`n_;d]:z[::;d]
-
-/ w/ u.d
-c@:where not b
-u@:where not b
-a:?[q;();0b;c!c]
-f:{[c;u;z;p;a]z[p;c]:flip get{[u;z;a]u[z]a}'[u;z[p]c]a;z}
-z:f[c;u]/[Z;p;a]
-
-\
-
-cells:{[n]
- f:{z;where 0=floor x?1%y};
- r:distinct f[count T;.0001]each til n;
- c:c f[count c:1_cols T;.3]each til count r;
- diffs[r]c}
-
-diffs:{[r;c](r xfrc[incr]'c;r xfrc[{y}]'c)}
-xfrc:{[f;r;c]key[T][r]!flip c!c f'(0!T)[r]c}
-incr:{[c;d]$[c in key`.;count[d]?get c;d+1]}
-
-\t .js.exe`id`fn`node!(`;`node;1#`financials)                       ;Z1:Z,'Z_; P1:P
-\t .js.exe`id`fn`node!(`;`node;`financials`harpo)                   ;Z2:Z,'Z_; P2:P
-\t .js.exe`id`fn`node!(`;`node;`financials`harpo`statarb)     ;Z3:Z,'Z_; P3:P
-\t .js.exe`id`fn`node!(`;`node;1#`financials)                          ;Z4:Z,'Z_; P4:P
-\t .js.exe`id`fn`node!(`;`node;1#`financials)                          ;Z5:Z,'Z_; P5:P
-\t .js.exe`id`fn`cols`sorts!(`;`sorts;`quantity`price;`a`a) ;Z6:Z,'Z_;
-\t .js.exe`id`fn`cols!(`;`groups;`sector`strategy)                    ;Z7:Z,'Z_;
-\t .js.exe`id`fn`cols!(`;`cols;reverse H)                               ;Z8:Z,'Z_;
-\t .js.exe`id`fn`start`end!(`;`set;5;120)                           ;Z9:Z,'Z_;
-
