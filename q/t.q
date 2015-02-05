@@ -107,7 +107,8 @@ at:{[b;p;g;n]p,([n:enlist(count[n]#g)!n,()]v:enlist b)}
 tsort:{[t;o]
  n:exec n_ from t;
  i:children[parent n]except enlist();
- j:msort[0!t;key o;(`a`d!(iasc;idesc))get o]each i;
+ f:{x((abs;lower)type[y]in 10 11h)y};
+ j:msort[0!t;key o;(`a`d`A`D!(iasc;idesc;f iasc;f idesc))get o]each i;
  n?pmesh over n j}
 
 / parent-vector -> child-list
@@ -162,7 +163,7 @@ $[.z.K<3.3;
 .js.upd:{.js.snd .js.set()!()}
 .js.set:{`Z`Z_ set'.tt.cons[T;G;P;A;S]H;.js.ret x}
 .js.sub:{[z]flip each(1#;1_)@\:.tt.rows[R]z}
-.js.obj:{`Z`Z_`G`G_`H`H_`Q`S`R`N!(.js.sub Z;.js.sub Z_;G;where["S"=q]except G;H;cols[T]except H;q:.tt.qtype T;S;R;count Z)}
+.js.obj:{`Z`Z_`G`G_`H`H_`Q`S`R`N!(.js.sub Z;.js.sub Z_;G;where["S"=q]except G;H;cols[T]except H;q:.tt.qtype T;`cols`sorts!(key S;get S);R;count Z)}
 .js.ret:{x,.js.obj[]}
 
 // globals
@@ -196,29 +197,20 @@ trader:`chico`harpo`groucho`zeppo`moe`larry`curly`shemp`abbott`costello
 sector:`energy`materials`industrials`financials`healthcare`utilities`infotech
 strategy:`statarb`pairs`mergerarb`house`chart`indexarb
 
-n:100000
+n:1000000
 T:([tradeId:til n]
  holdingId:n?holdingId;
  symbol:n?symbol;
  sector:n?sector;
  trader:n?trader;
  strategy:n?strategy;
- time:09:30:00.0+n?23000000;
  price:50+.23*n?400;
  quantity:(100*10+n?20)-2000;
  date:2000.01.01+asc n?365;
- price1:50+.23*n?400;
- amount1:n?1.0;
- price2:50+.23*n?400;
- amount2:(20*til n)_(n*20)?100;
- date2:2000.01.01+asc n?365;
- price3:50+.23*n?400;
- amount3:(20*til n)_(n*20)?100;
- date3:2000.01.01+asc n?365;
- price4:50+.23*n?400;
- amount4:100*10+n?20;
- date4:2000.01.01+asc n?365;
- amount5:100*10+n?20)
+ time:09:30:00.0+n?23000000)
 
 G:`sector`trader`strategy
-H:`symbol`price`quantity
+H:cols[T]except G,keys T
+A[`price]:(avg;`price)
+
+/ show .js.set()!();

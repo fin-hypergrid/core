@@ -48,6 +48,19 @@ The `fin-hypergrid-behavior-qtree` element is a custom Polymer web component use
     //* v sort descending
     //* |^| sort absolute value ascending
     //* |v| sort absolute value descending
+    var sortMap = {
+        a: '^',
+        d: 'v',
+        A: '|^|',
+        D: '|v|'
+    };
+
+    var sortStates = {
+        n: 'a',
+        a: 'd',
+        d: 'A',
+        A: 'D',
+    };
 
     Polymer({ /* jslint ignore:line */
         ready: function() {
@@ -57,7 +70,6 @@ The `fin-hypergrid-behavior-qtree` element is a custom Polymer web component use
             };
             this.readyInit();
             this.sorted = {};
-            this.sortStates = ['', ' ^', ' v', ' |^|', ' |v|'];
             this.ws = null;
             this.reconnect();
         },
@@ -164,16 +176,19 @@ The `fin-hypergrid-behavior-qtree` element is a custom Polymer web component use
 
         //return the column names, they are available to us as meta data in the most recent page Q sent us.
         getFixedRowValue: function(x) {
-            var headers = this.block.H;
-            x = this.translateColumnIndex(x);
-            var col = headers[x];
-            if (!this.sorted[x + 1]) {
-                this.sorted[x + 1] = 0;
-            }
-            var sortIndicator = this.sortStates[this.sorted[x + 1]];
-            return col + ' ' + sortIndicator;
+            var colId = this.getColumnId(x);
+            var sortIndicator = this.getSortIndicator(colId);
+            return colId + ' ' + sortIndicator;
         },
 
+        getSortIndicator: function(colId) {
+            var sortIndex = this.block.S.cols.indexOf(colId);
+            if (sortIndex < 0) return '';
+            var sortState = this.block.S.sorts[sortIndex];
+            var symbol = sortMap[sortState];
+            var state = symbol + ' ' + (sortIndex + 1);
+            return state;
+        },
     // h_ is the text of the hierarchy column.
     // l_ is the level of the row of the table.
     // e_ tells you whether the row is a leaf or a node.
@@ -203,9 +218,7 @@ The `fin-hypergrid-behavior-qtree` element is a custom Polymer web component use
 
         //let Q decide if this instance is sortable or not
         getCanSort: function() {
-            return false; // for now.....
-            var canSort = this.block.features.sorting === true;
-            return canSort;
+            return true
         },
 
         //on a header click do a sort!
@@ -215,28 +228,63 @@ The `fin-hypergrid-behavior-qtree` element is a custom Polymer web component use
 
         //first ask q if this is a sortable instance, then send a message to Q to sort our data set
         toggleSort: function(columnIndex) {
-            var columnIndex = this.translateColumnIndex(columnIndex);
+            var colId = this.getColumnId(columnIndex);
             if (!this.getCanSort()) {
                 return;
             }
-            columnIndex++;
-            var current = this.sorted[columnIndex];
-            var stateCount = this.sortStates.length;
-            this.sorted = {}; //clear out other sorted for now, well add multicolumn sort later
-            this.sorted[columnIndex] = (current + 1) % stateCount;
-            var state = this.sortStates[this.sorted[columnIndex]];
-            var message = {
-                cmd: 'sortTable',
-                data: {
-                    table: 'trade',
-                    sort: current === (stateCount - 1) ? '' : this.block.headers[columnIndex][0],
-                    asc: state.indexOf('^') > 0,
-                    abs: state.indexOf('|') > 0,
-                    start: this.scrollPositionY,
-                    num: 60
-                }
+            var sortBlob = this.block.S;
+            var sortIndex = sortBlob.cols.indexOf(colId);
+
+            //lets get the current state or 'n' if it doesn't exist yet
+            var currentState = sortBlob.sorts[sortIndex] || 'n';
+
+            //lets set to the next state or undefined
+            var newState = sortStates[currentState];
+
+            //remove this column from it's current order position
+            if (sortIndex > -1) {
+                sortBlob.cols.splice(sortIndex, 1);
+                sortBlob.sorts.splice(sortIndex, 1);
+            }
+
+            //push to the front the new state
+            if (newState) {
+                sortBlob.cols.unshift(colId);
+                sortBlob.sorts.unshift(newState);
+            }
+
+            //ony 3 nested sorts allowed for now
+            sortBlob.cols.length = sortBlob.sorts.length = Math.min(3, sortBlob.cols.length);
+
+            //lets tell Q now
+            var msg = {
+                id: "abc",
+                fn: "sorts",
+                cols: sortBlob.cols,
+                sorts: sortBlob.sorts
             };
-            this.ws.send(JSON.stringify(message));
+
+            msg.sorts[colId] = 'a';
+            this.ws.send(JSON.stringify(msg));
+
+            // columnIndex++;
+            // var current = this.sorted[columnIndex];
+            // var stateCount = this.sortStates.length;
+            // this.sorted = {}; //clear out other sorted for now, well add multicolumn sort later
+            // this.sorted[columnIndex] = (current + 1) % stateCount;
+            // var state = this.sortStates[this.sorted[columnIndex]];
+            // var message = {
+            //     cmd: 'sortTable',
+            //     data: {
+            //         table: 'trade',
+            //         sort: current === (stateCount - 1) ? '' : this.block.headers[columnIndex][0],
+            //         asc: state.indexOf('^') > 0,
+            //         abs: state.indexOf('|') > 0,
+            //         start: this.scrollPositionY,
+            //         num: 60
+            //     }
+            // };
+            // this.ws.send(JSON.stringify(message));
         },
 
         //delegate column alignment through the map at the top based on the column type
