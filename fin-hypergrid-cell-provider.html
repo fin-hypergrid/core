@@ -125,7 +125,7 @@ The `fin-hypergrid-cell-provider` element is a custom Polymer web component used
             valignOffset = valignOffset + Math.ceil(height / 2);
 
             //fill background only if our bgColor is populated or we are a selected cell
-           if (this.config.isSelected) {
+           if (this.config.bgColor || this.config.isSelected) {
                gc.fillStyle = this.config.isSelected ? this.config.bgSelColor : this.config.bgColor;
                gc.fillRect(x, y, width, height);
            }
@@ -221,7 +221,7 @@ The `fin-hypergrid-cell-provider` element is a custom Polymer web component used
             var valignOffset = Math.ceil(height / 2);
 
             //fill background only if our bgColor is populated or we are a selected cell
-            if (this.config.isSelected) {
+            if (this.config.bgColor || this.config.isSelected) {
                gc.fillStyle = this.config.isSelected ? this.config.bgSelColor : this.config.bgColor;
                gc.fillRect(x, y, width, height);
             }

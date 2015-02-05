@@ -330,7 +330,7 @@ The `fin-hypergrid-behavior-default` element is a custom Polymer web component i
 
         //answers the default row alignment for the fixed row data area of the grid
         //<br>TODO:provide uniform mechanism for the fixed areas like this
-        getFixedRowAlignment: function( /* x */ ) {
+        getFixedRowAlignment: function( /* x, y */ ) {
             return this.constants.fixedRowAlign;
         },
         //this is called by OFGrid when a fixed row cell is clicked

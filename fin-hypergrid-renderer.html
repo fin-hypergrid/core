@@ -111,12 +111,12 @@ The `fin-hypergrid-renderer` element is a custom Polymer web component used to s
     };
 
     // we need a reusable cellconfig object
-    var cellConfig = function(x, y, value, fgColor, bgColor, fgSelColor, bgSelColor, font, isSelected, halign, hoffset, voffset) {
+    var cellConfig = function(x, y, value, fgColor, bgColor, fgSelColor, bgSelColor, font, isSelected, halign, hoffset, voffset, properties) {
         config.x = x;
         config.y = y;
         config.value = value;
         config.fgColor = fgColor;
-        config.bgColor = bgColor; //
+        config.bgColor = properties.bgColor === bgColor ? null : bgColor; //
         config.fgSelColor = fgSelColor;
         config.bgSelColor = bgSelColor;
         config.font = font;
@@ -124,6 +124,7 @@ The `fin-hypergrid-renderer` element is a custom Polymer web component used to s
         config.halign = halign || 'center';
         config.hoffset = hoffset;
         config.voffset = voffset;
+        config.properties = properties;
         return config;
     };
 
@@ -153,7 +154,10 @@ The `fin-hypergrid-renderer` element is a custom Polymer web component used to s
         resolveProperty: function(key) {
             return this.lnfProperties[key];
         },
-
+        cellConfig: function(x, y, value, fgColor, bgColor, fgSelColor, bgSelColor, font, isSelected, halign, hoffset, voffset) {
+            var config = cellConfig(x, y, value, fgColor, bgColor, fgSelColor, bgSelColor, font, isSelected, halign, hoffset, voffset, this.lnfProperties);
+            return config;
+        },
         getGrid: function() {
             return this.hypergrid;
         },
@@ -528,12 +532,12 @@ The `fin-hypergrid-renderer` element is a custom Polymer web component used to s
                 for (var r = 0; r < numRows; r++) {
 
                     var height = this.getFixedRowHeight(r);
-                    var align = behavior.getFixedRowAlignment(r);
+                    var align = behavior.getFixedRowAlignment(c, r);
                     var value = behavior.getFixedRowValue(c + scrollLeft, r);
 
                     //translatedX allows us to reorder columns
                     var translatedX = behavior.translateColumnIndex(c + scrollLeft);
-                    var cell = cellProvider.getFixedRowCell(cellConfig(translatedX, r, value, fgColor, bgColor, fgSelColor, bgSelColor, font, isSelected, align, hoffset, voffset));
+                    var cell = cellProvider.getFixedRowCell(this.cellConfig(translatedX, r, value, fgColor, bgColor, fgSelColor, bgSelColor, font, isSelected, align, hoffset, voffset));
                     cell.paint(ctx, x, y, width, height);
                     y = y + height;
                 }
@@ -577,7 +581,7 @@ The `fin-hypergrid-renderer` element is a custom Polymer web component used to s
                         break;
                     }
                     var value = behavior.getFixedColumnValue(c, r + scrollTop);
-                    var cell = cellProvider.getFixedColumnCell(cellConfig(c, r + scrollTop, value, fgColor, bgColor, fgSelColor, bgSelColor, font, isSelected, align, hoffset, voffset));
+                    var cell = cellProvider.getFixedColumnCell(this.cellConfig(c, r + scrollTop, value, fgColor, bgColor, fgSelColor, bgSelColor, font, isSelected, align, hoffset, voffset));
                     cell.paint(ctx, x, y, width, height);
                     y = y + height;
                 }
@@ -646,7 +650,7 @@ The `fin-hypergrid-renderer` element is a custom Polymer web component used to s
                     //translatedX allows us to reorder columns
                     var translatedX = behavior.translateColumnIndex(c + scrollLeft);
 
-                    var cell = cellProvider.getCell(cellConfig(translatedX, r + scrollTop, value, fgColor, bgColor, fgSelColor, bgSelColor, font, isSelected, columnAlign, hoffset, voffset));
+                    var cell = cellProvider.getCell(this.cellConfig(translatedX, r + scrollTop, value, fgColor, bgColor, fgSelColor, bgSelColor, font, isSelected, columnAlign, hoffset, voffset));
 
                     cell.paint(ctx, x, y, width, height);
 

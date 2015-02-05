@@ -73,9 +73,9 @@ The `fin-hypergrid-behavior-qtree` element is a custom Polymer web component use
             this.ws = null;
             this.reconnect();
         },
-        // translateColumnIndex: function(x) {
-        //     return x;//this.columnIndexes[x];
-        // },
+        getFixedRowCount: function() {
+            return 2;
+        },
 
         //override this function on your GridBehavior to have custom cell renderering
         //<br>see [QGridBehavior.createCellProvider()](QGridBehavior.html) for an example
@@ -85,6 +85,21 @@ The `fin-hypergrid-behavior-qtree` element is a custom Polymer web component use
             var cell = provider.cellCache.treeCellRenderer;
                 cell.config = config;
                 return cell;
+            };
+            provider.getFixedRowCell = function(config) {
+            var label = provider.cellCache.simpleCellRenderer;
+                label.config = config;
+                if (config.y === 1)
+                    {
+                        //make it look like a normal main area cell
+
+                        config.font = config.properties.font;
+                        config.fgColor = config.properties.color;
+                        config.bgColor = config.properties.backgroundColor;
+                        config.fgSelColor = config.properties.foregroundSelColor;
+                        config.bgSelColor = config.properties.backgroundSelColor;
+                    }
+                return label;
             };
             return provider;
         },
@@ -175,10 +190,14 @@ The `fin-hypergrid-behavior-qtree` element is a custom Polymer web component use
         },
 
         //return the column names, they are available to us as meta data in the most recent page Q sent us.
-        getFixedRowValue: function(x) {
+        getFixedRowValue: function(x, y) {
             var colId = this.getColumnId(x);
-            var sortIndicator = this.getSortIndicator(colId);
-            return colId + ' ' + sortIndicator;
+            if (y < 1) {
+                var sortIndicator = this.getSortIndicator(colId);
+                return colId + ' ' + sortIndicator;
+            }
+            var total = this.block.Z[0][colId];
+            return total;
         },
 
         getSortIndicator: function(colId) {
@@ -286,7 +305,12 @@ The `fin-hypergrid-behavior-qtree` element is a custom Polymer web component use
             // };
             // this.ws.send(JSON.stringify(message));
         },
-
+        getFixedRowAlignment: function(x, y) {
+            if (y > 0) {
+                return this.getColumnAlignment(x);
+            }
+            return this.constants.fixedRowAlign;
+        },
         //delegate column alignment through the map at the top based on the column type
         getColumnAlignment: function(x) {
             var colId = this.getColumnId(x);
@@ -311,7 +335,7 @@ The `fin-hypergrid-behavior-qtree` element is a custom Polymer web component use
         },
 
         fixedColumnClicked: function(grid, mouse) {
-            var rowNum = mouse.gridCell.y - 1;
+            var rowNum = mouse.gridCell.y - this.getFixedRowCount();
             var nodes = this.block.Z_[1].n_[rowNum];
             var nodeClick = {
                     id: "abc",
