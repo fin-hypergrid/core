@@ -92,12 +92,11 @@ The `fin-hypergrid-behavior-qtree` element is a custom Polymer web component use
                 if (config.y === 1)
                     {
                         //make it look like a normal main area cell
-
                         config.font = config.properties.font;
-                        config.fgColor = config.properties.color;
-                        config.bgColor = config.properties.backgroundColor;
-                        config.fgSelColor = config.properties.foregroundSelColor;
-                        config.bgSelColor = config.properties.backgroundSelColor;
+                        config.fgColor = config.fgSelColor = config.properties.color;
+                        config.bgColor = config.bgSelColor = config.properties.backgroundColor;
+                        //config.fgSelColor = config.properties.foregroundSelColor;
+                        //config.bgSelColor = config.properties.backgroundSelColor;
                     }
                 return label;
             };

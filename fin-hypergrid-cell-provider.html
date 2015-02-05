@@ -215,16 +215,16 @@ The `fin-hypergrid-cell-provider` element is a custom Polymer web component used
             var indent = this.config.value.indent;
             var icon = this.config.value.icon;
 
-            if (!val || !val.length) {
-                return;
-            }
-            var valignOffset = Math.ceil(height / 2);
-
             //fill background only if our bgColor is populated or we are a selected cell
             if (this.config.bgColor || this.config.isSelected) {
                gc.fillStyle = this.config.isSelected ? this.config.bgSelColor : this.config.bgColor;
                gc.fillRect(x, y, width, height);
             }
+
+            if (!val || !val.length) {
+                return;
+            }
+            var valignOffset = Math.ceil(height / 2);
 
             gc.fillStyle = this.config.isSelected ? this.config.fgSelColor : this.config.fgColor;
             gc.fillText(icon + val, x + indent, y + valignOffset);

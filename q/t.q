@@ -12,7 +12,7 @@
 cons:{[t;g;p;a;s;h]cons_[csub[t]g,h;g;p;a;s]h}
 
 cons_:{[t;g;p;a;s;h]
- d:dat[t;g;p;rollups[t]a]h;
+ d:dat[t;g;p;rollups[t;g]a]h;
  d:1!(0!d)tsort[d]s;
  z:get d;z_:ctl[d;g]p;
  (z;z_)}
@@ -120,20 +120,26 @@ msort:{[t;c;o;i]i{x y z x}/[til count i;o;flip[t i]c]}
 / mesh nest of paths
 pmesh:{i:1+x?-1_first y;(i#x),y,i _ x}
 
-/ first if 1=count else null (for syms, non-summable nums)
-nul:{first$[1=count distinct x,();x;0#x]}
-
 / discard invalid paths
 valid:{[p;g]
  n:key each exec n from p;
  i:where til[count g]{(count[y]#x)~y}/:g?/:n;
  1!(0!p)i}
 
-/ cast <- type
-qtype:{exec c!t from meta x}
+/ first if 1=count else null (for syms, non-summable nums)
+nul:{first$[1=count distinct x,();x;0#x]}
+
+/ count
+cnt:{`$"N=[",string[count x],"]"}
+
+/ type -> rollup
+A:" bgxhijefcspmdznuvt"!(cnt;all;cnt;cnt;sum;sum;sum;sum;sum;nul;cnt;max;max;max;max;max;max;max;max)
 
 / default rollups
-rollups:{[t;a]@[a;k;:;((.tt.nul;sum)qtype[t][k]in"HIJEFhijef"),'k:cols[t]except key a]}
+rollups:{[t;g;a]@[@[a;k;:;A[lower qtype[t]k],'k:cols[t]except g,key a];g;:;nul,'g]}
+
+/ cast <- type
+qtype:{exec c!t from meta x}
 
 \d .
 
@@ -172,7 +178,7 @@ $[.z.K<3.3;
 G:0#`
 
 / visible order
-H::cols[T]except G
+H::cols[T]except G,keys T
 
 / rollups
 A:()!()
@@ -210,7 +216,4 @@ T:([tradeId:til n]
  time:09:30:00.0+n?23000000)
 
 G:`sector`trader`strategy
-H:cols[T]except G,keys T
 A[`price]:(avg;`price)
-
-/ show .js.set()!();
