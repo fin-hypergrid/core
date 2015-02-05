@@ -72,6 +72,13 @@ The `fin-hypergrid-cell-provider` element is a custom Polymer web component used
             return cell;
         },
 
+        //replace this function in on your instance of cellProvider
+        getTopLeftCell: function(config) {
+            var cell = this.cellCache.emptyCellRenderer;
+            cell.config = config;
+            return cell;
+        },
+
         //return the cellRenderer instance for renderering fixed col cells
         getFixedColumnCell: function(config) {
             var cell = this.cellCache.simpleCellRenderer;
@@ -231,6 +238,10 @@ The `fin-hypergrid-cell-provider` element is a custom Polymer web component used
 
         },
 
+        //do nothing
+        emptyCellRenderer: function(gc, x, y, width, height) {
+        },
+
         //default cellRenderers are initialized here.  you can augment the visible on your cellProvider instance: field ```myCellProviderInstance.cellCache.myCellRendererName = myCellRenderer```
         initializeCells: function() {
             this.cellCache.simpleCellRenderer = {
@@ -247,6 +258,9 @@ The `fin-hypergrid-cell-provider` element is a custom Polymer web component used
             };
             this.cellCache.treeCellRenderer = {
                 paint: this.treeCellRenderer
+            };
+            this.cellCache.emptyCellRenderer = {
+                paint: this.emptyCellRenderer
             };
         },
 

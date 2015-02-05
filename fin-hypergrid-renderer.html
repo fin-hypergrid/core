@@ -37,25 +37,36 @@ The `fin-hypergrid-renderer` element is a custom Polymer web component used to s
 
     var defaultProperties = function(proto) {
         var theme = Object.create(proto);
+
         theme.font = '13px Tahoma, Geneva, sans-serif';
-        theme.fixedRowFont = '14px Tahoma, Geneva, sans-serif';
-        theme.fixedColumnFont = '14px Tahoma, Geneva, sans-serif';
         theme.color = 'rgb(25, 25, 25)';
-        theme.foregroundSelColor =  'rgb(25, 25, 25)';
-        theme.fixedRowColor = 'rgb(25, 25, 25)';
-        theme.fixedColumnColor = 'rgb(25, 25, 25)';
         theme.backgroundColor = 'rgb(241, 241, 241)';
+        theme.foregroundSelColor =  'rgb(25, 25, 25)';
         theme.backgroundSelColor =  'rgb(183, 219, 255)';
-        theme.fixedRowBackgroundColor = 'rgb(223, 227, 232)';
+
+        theme.topLeftFont = '13px Tahoma, Geneva, sans-serif';
+        theme.topLeftColor = 'rgb(25, 25, 25)';
         theme.topLeftBackgroundColor = 'rgb(223, 227, 232)';
+        theme.topLeftFGSelColor =  'rgb(255, 220, 97)';
+        theme.topLeftBGSelColor =  'rgb(255, 220, 97)';
+
+        theme.fixedColumnFont = '14px Tahoma, Geneva, sans-serif';
+        theme.fixedColumnColor = 'rgb(25, 25, 25)';
         theme.fixedColumnBackgroundColor = 'rgb(223, 227, 232)';
-        theme.fixedRowFGSelColor =  'rgb(255, 220, 97)';
         theme.fixedColumnFGSelColor =  'rgb(255, 220, 97)';
-        theme.fixedRowBGSelColor =  'rgb(255, 220, 97)';
         theme.fixedColumnBGSelColor =  'rgb(255, 220, 97)';
+
+        theme.fixedRowFont = '14px Tahoma, Geneva, sans-serif';
+        theme.fixedRowColor = 'rgb(25, 25, 25)';
+        theme.fixedRowBackgroundColor = 'rgb(223, 227, 232)';
+        theme.fixedRowFGSelColor =  'rgb(255, 220, 97)';
+        theme.fixedRowBGSelColor =  'rgb(255, 220, 97)';
+
+        theme.backgroundColor2 = 'rgb(201, 201, 201)';
         theme.lineColor = 'rgb(199, 199, 199)';
         theme.hoffset = 0;
         theme.voffset = 0;
+
         return theme;
     };
 
@@ -73,11 +84,14 @@ The `fin-hypergrid-renderer` element is a custom Polymer web component used to s
 
         var p = window.getComputedStyle(pb);
         var h = window.getComputedStyle(document.querySelector('html'));
-        var d = (h.flex || '0 0 0').split(' ');
+        var hb = window.getComputedStyle(document.querySelector('html, body'));
         var s = window.getComputedStyle(section);
+
         polymerTheme.fixedRowBackgroundColor = p['background-color'];
         polymerTheme.fixedColumnBackgroundColor = p['background-color'];
         polymerTheme.topLeftBackgroundColor = p['background-color'];
+
+        polymerTheme.backgroundColor2 = hb['background-color'];
 
         polymerTheme.lineColor = p['color'];
         polymerTheme.color = h['color'];
@@ -89,6 +103,7 @@ The `fin-hypergrid-renderer` element is a custom Polymer web component used to s
         pb.setAttribute('raised', true);
 
         polymerTheme.backgroundSelColor = p['background-color'];
+        polymerTheme.foregroundSelColor = p['color'];
 
         pb.setAttribute('secondary', false);
         pb.setAttribute('info', true);
@@ -315,12 +330,11 @@ The `fin-hypergrid-renderer` element is a custom Polymer web component used to s
             var offsetX = this.getBehavior().getFixedColumnsWidth();
             var offsetY = this.getBehavior().getFixedRowsHeight();
 
+            this.paintTopLeft(gc, offsetX, offsetY);
             this.paintHeaders(gc, 0, 0);
             this.paintCells(gc, offsetX, offsetY);
             this.paintGridlines(gc, offsetX, offsetY);
-
             this.blankOutOverflow(gc);
-
             this.renderOverrides(gc);
         },
 
@@ -332,7 +346,7 @@ The `fin-hypergrid-renderer` element is a custom Polymer web component used to s
             var bounds = this.getBounds();
             var width = bounds.width() - x;
             var height = bounds.height();
-            gc.strokeStyle = this.resolveProperty('backgroundColor');
+            gc.fillStyle = this.resolveProperty('backgroundColor2');
             gc.fillRect(x, 0, width, height);
         },
 
@@ -361,7 +375,7 @@ The `fin-hypergrid-renderer` element is a custom Polymer web component used to s
             var targetCTX = override.ctx;
             var imgData = gc.getImageData(startX,0,width*hdpiRatio,height*hdpiRatio);
             targetCTX.putImageData(imgData, 0,0);
-            gc.strokeStyle = this.resolveProperty('backgroundColor');
+            gc.fillStyle = this.resolveProperty('backgroundColor2');
             gc.fillRect(Math.round(startX/hdpiRatio), 0, width, height);
 
         },
@@ -495,7 +509,6 @@ The `fin-hypergrid-renderer` element is a custom Polymer web component used to s
                 this.getBehavior().getFixedColumnCount(),
                 this.getBehavior().getRowCount());
 
-            this.paintTopLeft(ctx, 0, 0);
         },
 
         //Renderer the fixed header rows along the top
@@ -663,15 +676,81 @@ The `fin-hypergrid-renderer` element is a custom Polymer web component used to s
 
         //This is the empty top left corner of the grid.
         paintTopLeft: function(ctx, offsetX, offsetY) {
-            ctx.beginPath();
-            //var border = this.getGrid().provider.require('borderprovider').getBorder('simple');
-            var fixedRowHeight = this.getBehavior().getFixedRowsHeight();
-            var fixedColumnWidth = this.getBehavior().getFixedColumnsWidth();
-            ctx.fillStyle = this.resolveProperty('topLeftBackgroundColor');
-            ctx.fillRect(offsetX, offsetY, fixedColumnWidth, fixedRowHeight);
-            //border.paint(ctx, offsetX, offsetY, fixedColumnWidth, fixedRowHeight, constants.lineColor);
-            ctx.stroke();
+
+            // ctx.beginPath();
+            // var fixedRowHeight = this.getBehavior().getFixedRowsHeight();
+            // var fixedColumnWidth = this.getBehavior().getFixedColumnsWidth();
+            // ctx.fillStyle = this.resolveProperty('topLeftBackgroundColor');
+            // ctx.fillRect(offsetX, offsetY, fixedColumnWidth, fixedRowHeight);
+            // ctx.stroke();
+
+            try {
+                ctx.save();
+                this._paintTopLeft(ctx);
+            } finally {
+                ctx.restore();
+            }
+
+
         },
+
+        _paintTopLeft: function(ctx) {
+            var behavior = this.getBehavior();
+            var numColumns = behavior.getFixedColumnCount();
+            var numRows = behavior.getFixedRowCount();
+            var x = 0;
+            var startY = 0;
+            var cellProvider = this.getGrid().getCellProvider();
+
+            var font = this.resolveProperty('topLeftFont');
+
+            var voffset = this.resolveProperty('voffset');
+            var hoffset = this.resolveProperty('hoffset');
+
+            var fgColor = this.resolveProperty('topLeftColor');
+            var bgColor = this.resolveProperty('topLeftBackgroundColor');
+
+            var fgSelColor = this.resolveProperty('topLeftFGSelColor');
+            var bgSelColor = this.resolveProperty('topLeftBGSelColor');
+
+            var viewWidth = behavior.getFixedColumnsWidth(); // look in fin-hypergrid and initializtion of fin-canvas
+            var viewHeight = behavior.getFixedRowsHeight();
+
+            for (var c = 0; c < numColumns; c++) {
+                var width = this.getFixedColumnWidth(c);
+                if (x > viewWidth || numColumns <= c) {
+                    return;
+                }
+
+                var y = startY;
+                var columnAlign = behavior.getTopLeftAlignment(c,r);
+                //fill background
+                ctx.fillStyle = bgColor;
+                ctx.fillRect(x, y, x + width, viewHeight - y);
+
+                for (var r = 0; r < numRows; r++) {
+                    var height = this.getFixedRowHeight(r);
+                    if (y > viewHeight || numRows <= r) {
+                        break;
+                    }
+
+                    var value = behavior.getTopLeftValue(c, r);
+                    // if (!value && value !== 0) { // edge condition if were scrolled all the way to the end
+                    //     break;
+                    // }
+
+                    var cell = cellProvider.getTopLeftCell(this.cellConfig(x, r, value, fgColor, bgColor, fgSelColor, bgSelColor, font, false, columnAlign, hoffset, voffset));
+
+                    cell.paint(ctx, x, y, width, height);
+
+                    y = y + height;
+                }
+
+                x = x + width;
+            }
+        },
+
+
 
         isFixedRowCellSelected: function(col) {
             return this.getGrid().isFixedRowCellSelected(col);

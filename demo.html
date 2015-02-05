@@ -8,7 +8,7 @@
                 results = regex.exec(location.search);
             return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
         }
-        var theme = getParameterByName("theme") || "excel";
+        var theme = getParameterByName("theme") || "seven-seas";
         var fileref = document.createElement("link");
         fileref.setAttribute("rel", "stylesheet");
         fileref.setAttribute("type", "text/css");
@@ -119,7 +119,7 @@
             </paper-dropdown>
         </paper-menu-button>
 
-        <paper-tabs selected="0" flex>
+        <paper-tabs selected="4" flex>
             <paper-tab>In Memory</paper-tab>
             <paper-tab>Default</paper-tab>
             <paper-tab>JSON</paper-tab>
@@ -130,7 +130,7 @@
 
     </core-toolbar>
 
-  <core-pages selected="0">
+  <core-pages selected="4">
 
         <div vertical layout>
           <div class="description">
@@ -207,8 +207,9 @@
 
         <div vertical layout>
           <div class="description">
-            <h3>fin-hypergrid-behavior-qtree</h3> This element is a custom Polymer web component that demonstrates a more complex interface to Q/KDB+ by kx systems.  In order for this to work you need to run the provided <a href="https://github.com/openfin/fin-hypergrid/blob/master/q/t.q">t.q script</a> found in the q directory of this project.  This example shows the powerful dynamic analytic capabilities of an external data engine.  This example Q script was based on <a href="http://archive.vector.org.uk/art10500340">code and a paper</a> written by <a href="http://http://www.nsl.com/">Stevan Apter.</a>
+            <h3>fin-hypergrid-behavior-qtree</h3> This element is a custom Polymer web component that demonstrates a more complex interface to Q/KDB+ by kx systems.  In order for this to work you need to run the provided <a href="https://github.com/openfin/fin-hypergrid/blob/master/q/d.q">d.q script</a> found in the q directory of this project.  This example shows the powerful dynamic analytic capabilities of an external data engine.  This example Q script was based on <a href="http://archive.vector.org.uk/art10500340">code and a paper</a> written by <a href="http://http://www.nsl.com/">Stevan Apter.</a>
           </div>
+          <br>
           <core-splitter direction="up"></core-splitter>
           <div flex class="rel">
             <fin-hypergrid class="abs" id="qtree-example">

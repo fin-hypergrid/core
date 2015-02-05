@@ -20,9 +20,14 @@ The `fin-hypergrid-column-sorting` element is a custom Polymer web component tha
 
         handleTap: function(grid, event) {
             var gridCell = event.gridCell;
-            if (gridCell.y < grid.getFixedRowCount()) {
+            var inFixedRowArea = gridCell.y < grid.getFixedRowCount();
+            var inFixedColumnArea = gridCell.x < grid.getFixedColumnCount();
+
+            if (inFixedRowArea && inFixedColumnArea) {
+                grid.topLeftClicked(event);
+            } else if (inFixedRowArea) {
                 grid.fixedRowClicked(event);
-            } else if (gridCell.x < grid.getFixedColumnCount()) {
+            } else if (inFixedColumnArea) {
                 grid.fixedColumnClicked(event);
             }
         },

@@ -66,7 +66,12 @@ The `fin-hypergrid-behavior-qtree` element is a custom Polymer web component use
         ready: function() {
             this.block = {
                 N: 0,
-                H: []
+                H: [],
+                G: [],
+                S: {
+                    cols: [],
+                    rows: []
+                }
             };
             this.readyInit();
             this.sorted = {};
@@ -91,12 +96,43 @@ The `fin-hypergrid-behavior-qtree` element is a custom Polymer web component use
                 label.config = config;
                 if (config.y === 1)
                     {
-                        //make it look like a normal main area cell
                         config.font = config.properties.font;
                         config.fgColor = config.fgSelColor = config.properties.color;
-                        config.bgColor = config.bgSelColor = config.properties.backgroundColor;
-                        //config.fgSelColor = config.properties.foregroundSelColor;
-                        //config.bgSelColor = config.properties.backgroundSelColor;
+                        config.bgColor = config.bgSelColor = config.properties.backgroundColor2;
+                    }
+                return label;
+            };
+            var topLeftPainter = {
+                paint: function(gc, x, y, width, height) {
+                    //we know we are 1/2 height x 2 rows
+                    //so offset height
+                    var val = this.config.value;
+                    gc.font = this.config.properties.font;
+                    gc.fillStyle = this.config.properties['topLeftColor'];
+                    gc.textAlign = 'left';
+                    gc.textBaseline = 'middle';
+
+                    //approxiamte line height is a 'W'
+                    var size = gc.measureText('W');
+                    var textHeight = size.width;
+                    var hoffset = Math.ceil(textHeight / 2);
+
+                    if (val) {
+                        for (var i = 0; i < val.length; i++)
+                        {
+                            gc.fillText(val[i], 5, hoffset + (i*textHeight));
+                        }
+                    }
+                    gc.stroke();
+                }
+            }
+            provider.getTopLeftCell = function(config) {
+            var label = provider.cellCache.emptyCellRenderer;
+                label.config = config;
+                if (config.y === 0)
+                    {
+                        topLeftPainter.config = config;
+                        return topLeftPainter;
                     }
                 return label;
             };
@@ -126,6 +162,13 @@ The `fin-hypergrid-behavior-qtree` element is a custom Polymer web component use
             this.connect();
             this.scrollPositionY = 0;
             this.scrolled = false;
+        },
+
+        getTopLeftValue: function(/* x, y */) {
+            var sortIndicator = this.getSortIndicator('h_');
+            var clone = this.block.G.slice(0);
+            clone[0] = clone[0] + ' ' + sortIndicator;
+            return clone;
         },
 
         //for now we use the hacky override implementation to save data, in the future we'll have a more elaborate protocol with Q to do real validation and setting of data.
@@ -244,9 +287,16 @@ The `fin-hypergrid-behavior-qtree` element is a custom Polymer web component use
             this.toggleSort(this.scrollPositionX + mouse.gridCell.x - this.getFixedColumnCount());
         },
 
+        //hierarchy area clicked on lets sort there
+        topLeftClicked: function(grid, mouse) {
+            this._toggleSort('h_');
+        },
         //first ask q if this is a sortable instance, then send a message to Q to sort our data set
         toggleSort: function(columnIndex) {
             var colId = this.getColumnId(columnIndex);
+            this._toggleSort(colId);
+        },
+        _toggleSort: function(colId) {
             if (!this.getCanSort()) {
                 return;
             }
@@ -282,27 +332,8 @@ The `fin-hypergrid-behavior-qtree` element is a custom Polymer web component use
                 sorts: sortBlob.sorts
             };
 
-            msg.sorts[colId] = 'a';
             this.ws.send(JSON.stringify(msg));
 
-            // columnIndex++;
-            // var current = this.sorted[columnIndex];
-            // var stateCount = this.sortStates.length;
-            // this.sorted = {}; //clear out other sorted for now, well add multicolumn sort later
-            // this.sorted[columnIndex] = (current + 1) % stateCount;
-            // var state = this.sortStates[this.sorted[columnIndex]];
-            // var message = {
-            //     cmd: 'sortTable',
-            //     data: {
-            //         table: 'trade',
-            //         sort: current === (stateCount - 1) ? '' : this.block.headers[columnIndex][0],
-            //         asc: state.indexOf('^') > 0,
-            //         abs: state.indexOf('|') > 0,
-            //         start: this.scrollPositionY,
-            //         num: 60
-            //     }
-            // };
-            // this.ws.send(JSON.stringify(message));
         },
         getFixedRowAlignment: function(x, y) {
             if (y > 0) {

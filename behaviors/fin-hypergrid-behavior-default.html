@@ -132,6 +132,10 @@ The `fin-hypergrid-behavior-default` element is a custom Polymer web component i
             return provider;
         },
 
+        getTopLeftValue: function(/* x, y */) {
+            return '';
+        },
+
         //provide the data at the x,y coordinate in the grid
         //<br>this function should be overridden by you
         getValue: function(x, y) {
@@ -321,6 +325,11 @@ The `fin-hypergrid-behavior-default` element is a custom Polymer web component i
             return 'center';
         },
 
+        //answers the default alignment for the topleft area of the grid
+        //<br>TODO:provide uniform mechanism for the fixed areas like this
+        getTopLeftAlignment: function( /* x, y */ ) {
+            return 'center';
+        },
         //answers the default col alignment for the fixed column data area of the grid
         //<br>TODO:provide uniform mechanism for the fixed areas like this
         getFixedColumnAlignment: function( /* x */ ) {
@@ -332,6 +341,12 @@ The `fin-hypergrid-behavior-default` element is a custom Polymer web component i
         //<br>TODO:provide uniform mechanism for the fixed areas like this
         getFixedRowAlignment: function( /* x, y */ ) {
             return this.constants.fixedRowAlign;
+        },
+        //this is called by OFGrid when top left area is clicked
+        //<br>see DefaultGridBehavior.delegateClick() below
+        //<br>this is where we can hook in external data manipulation
+        topLeftClicked: function(grid, mouse) {
+            console.log('top Left clicked: ' + mouse.gridCell.x, mouse);
         },
         //this is called by OFGrid when a fixed row cell is clicked
         //<br>see DefaultGridBehavior.delegateClick() below

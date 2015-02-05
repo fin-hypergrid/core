@@ -1,9 +1,5 @@
 /// copyright stevan apter 2004-2015
 
-\e 1
-\p 12345
-\P 14
-
 // treetable
 
 \d .tt
@@ -24,10 +20,13 @@ csub:{[t;f]?[t;();0b;f!f]}
 rows:{[r;v]take[v]. r`start`end}
 take:{[v;s;e]$[s>=count v;0#v;((1+e-s)&count z)#z:s _ v]}
 
-/ data table
+/ data table (serial/parallel)
 dat:{[t;g;p;a;h]
- z:1!`n_ xasc root[t;g;a]block[t;g;a]/visible p;
+ z:1!`n_ xasc$[system"s";pdat;sdat][t;g;a]visible p;
  key[z]!flip h!get[z]h}
+
+sdat:{[t;g;a;p]root[t;g;a]block[t;g;a]/p}
+pdat:{[t;g;a;p]root[t;g;a],raze block[t;g;a;()]peach p}
 
 / control table
 ctl:{[t;g;p]
@@ -42,10 +41,7 @@ isleaf:{[t;g]level[t]>count g}
 level:{[t]count each key[t]`n_}
 
 / visible paths
-visible:{[p]
- q:parent n:exec n from p;
- k:(reverse q scan)each til count q;
- n where all each(exec v from p)k}
+visible:{[p]n where all each(exec v from p)(reverse q scan)each til count q:parent n:exec n from p}
 
 / path-list -> parent-vector
 parent:{[n]n?-1_'n}
@@ -57,40 +53,22 @@ constraint:{[p]flip(=;key p;flip enlist get p)}
 root:{[t;g;a](`n_,g)xcols node_[g;`]flip enlist each?[t;();();@[a;g;:;{`},'g]]}
 
 / construct a block = node or leaf
-block:{[t;g;a;r;p]
- f:$[g~key p;leaf;node g(`,g)?last key p];
- r,(`n_,g)xcols f[t;g;a]p}
+block:{[t;g;a;r;p]r,(`n_,g)xcols$[g~key p;leaf;node g(`,g)?last key p][t;g;a]p}
 
 / construct node block
-node:{[b;t;g;a;p]
- c:constraint p;
- a[h]:first,'h:(i:g?b)#g;
- a[h]:nul,'h:(1+i)_g;
- node_[g;b]get?[t;c;enlist[b]!enlist b;a]}
+node:{[b;t;g;a;p]node_[g;b]get?[t;constraint p;enlist[b]!enlist b;a]}
 
 / compute n_ for node block
-node_:{[g;b;t]
- n:$[null[b]|not count g;enlist 0#`;(1+g?b)#/:flip flip[t]g];
- ![t;();0b;enlist[`n_]!2 enlist/n]}
+node_:{[g;b;t]![t;();0b;enlist[`n_]!2 enlist/$[null[b]|not count g;enlist 0#`;(1+g?b)#/:flip flip[t]g]]}
 
 / construct leaf block
-leaf:{[t;g;a;p]
- c:constraint p;
- a:last each a;
- a[g]:g;
- leaf_[g]0!?[t;c;0b;a]}
+leaf:{[t;g;a;p]leaf_[g;`$string til count u]u:0!?[t;constraint p;0b;@[last each a;g;:;g]]}
 
 / compute n_ for leaf block
-leaf_:{[g;t]
- i:`$string til count t;
- n:$[count g;flip[flip[t]g],'i;flip enlist i];
- ![t;();0b;enlist[`n_]!2 enlist/n]}
+leaf_:{[g;i;t]![t;();0b;enlist[`n_]!2 enlist/$[count g;flip[flip[t]g],'i;flip enlist i]]}
 
-/ keep valid paths
-paths:{[p;g]
- n:key each exec n from p;
- i:where til[count g]{(count[y]#x)~y}/:g?/:n;
- 1!(0!p)i}
+/ discard invalid paths
+valid:{[p;g]1!(0!p)where til[count g]{(count[y]#x)~y}/:g?/:key each exec n from p}
 
 / open/close to group (h=` -> open to leaves)
 opento:{[t;g;h]
@@ -119,12 +97,6 @@ msort:{[t;c;o;i]i{x y z x}/[til count i;o;flip[t i]c]}
 
 / mesh nest of paths
 pmesh:{i:1+x?-1_first y;(i#x),y,i _ x}
-
-/ discard invalid paths
-valid:{[p;g]
- n:key each exec n from p;
- i:where til[count g]{(count[y]#x)~y}/:g?/:n;
- 1!(0!p)i}
 
 / first if 1=count else null (for syms, non-summable nums)
 nul:{first$[1=count distinct x,();x;0#x]}
@@ -194,33 +166,3 @@ R:`start`end!0 100
 
 / sorts (a,d)
 S:()!()
-
-// example
-
-holdingId:`abcde`bcdef`cdefgh`defgh`efghi`fghij`ghijk
-symbol:`msft`amat`csco`intc`yhoo`aapl
-trader:`chico`harpo`groucho`zeppo`moe`larry`curly`shemp`abbott`costello
-sector:`energy`materials`industrials`financials`healthcare`utilities`infotech
-strategy:`statarb`pairs`mergerarb`house`chart`indexarb
-
-n:1000000
-T:([tradeId:til n]
- holdingId:n?holdingId;
- symbol:n?symbol;
- sector:n?sector;
- trader:n?trader;
- strategy:n?strategy;
- price:50+.23*n?400;
- quantity:(100*10+n?20)-2000;
- date:2000.01.01+asc n?365;
- time:09:30:00.0+n?23000000)
-
-G:`sector`trader`strategy
-A[`price]:(avg;`price)
-
-r:.js.set()!();
-
-\
-
-.js.exe`id`fn`node!(`;`node;1#`financials)  ;
-

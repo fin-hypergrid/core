@@ -1584,6 +1584,10 @@
             return this.getBehavior().getFixedRowCount();
         },
 
+        topLeftClicked: function(mouse) {
+            this.getBehavior().topLeftClicked(this, mouse);
+        },
+
         fixedRowClicked: function(mouse) {
             this.getBehavior().fixedRowClicked(this, mouse);
         },
