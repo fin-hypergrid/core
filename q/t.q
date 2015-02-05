@@ -168,7 +168,7 @@ $[.z.K<3.3;
 .js.exe:{.js[x`fn]x}
 .js.upd:{.js.snd .js.set()!()}
 .js.set:{`Z`Z_ set'.tt.cons[T;G;P;A;S]H;.js.ret x}
-.js.sub:{[z]flip each(1#;1_)@\:.tt.rows[R]z}
+.js.sub:{[z]flip each(1#z;.tt.rows[R]1_z)}
 .js.obj:{`Z`Z_`G`G_`H`H_`Q`S`R`N!(.js.sub Z;.js.sub Z_;G;where["S"=q]except G;H;cols[T]except H;q:.tt.qtype T;`cols`sorts!(key S;get S);R;count Z)}
 .js.ret:{x,.js.obj[]}
 
@@ -217,3 +217,10 @@ T:([tradeId:til n]
 
 G:`sector`trader`strategy
 A[`price]:(avg;`price)
+
+r:.js.set()!();
+
+\
+
+.js.exe`id`fn`node!(`;`node;1#`financials)  ;
+
