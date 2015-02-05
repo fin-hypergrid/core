@@ -48,12 +48,14 @@ The only file that is necessary to deploy the hypergrid is the webcomponent html
 ## Important notes
 1. Notice that bower installs many dependencies a level up from the fin-hypegrid project directory, this is the polymer way of developing custom elements.  The actual project directory IS fin-hypergrid, everything is done relative to this, it just needs to live in it's own containing developement directory.
 
-##Q by [kx](http://kx.com/) systems [demo](http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/demo.html) tab (select the 'Q' tab)
-1. The Q tab will not be populated with data until you run a Q server script that is provided.
+##Q by [kx](http://kx.com/) systems [demo](http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/demo.html) tabs (select either the 'Q' or 'Q Tree' tabs).
+1. The Q tabs will not be populated with data until you run a Q server script that is provided.
 2. Make sure q 32 bit free version is installed [Q free version](http://kx.com/software-download.php)
-3. Startup either bigtable.q ```q bigtable.q``` or sorttable.q ```q sorttable.q```
+3. Startup either ```q bigtable.q```, ```q sorttable.q```, or ```t.q```
 4. Make sure grunt serve is running
 5. If you are running locally, the grunt serve process should automatically refresh your web browser with the q driven grid now populated with data
+
+<img src="images/gridshot04.png" alt="screenshot">
 
 ## Custom Scrollbars
 Hypergrid utilizes a custom scrollbar component so as to not be limited to tables of 33MM pixels in width or height.   In addition to the custom scrollbar, The OpenFin hyergrid utilizes row and column cell scrolling, not pixel scrolling.  This has many benefits that become apparent over time.
