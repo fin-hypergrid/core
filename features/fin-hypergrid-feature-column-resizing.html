@@ -18,9 +18,9 @@ The `fin-hypergrid-column-resizing` element is a custom Polymer web component th
 
     Polymer({ /* jshint ignore:line */
 
-        dragArea: -1,
+        dragIndex: -1,
         dragStart: -1,
-        dragAreaStartingSize: -1,
+        dragIndexStartingSize: -1,
 
         getFixedAreaCount: function(grid) {
             return grid.getFixedColumnCount();
@@ -53,7 +53,9 @@ The `fin-hypergrid-column-resizing` element is a custom Polymer web component th
         getFixedAreaSize: function(grid, index) {
             return grid.getFixedColumnWidth(index);
         },
-
+        getPreviousAbsoluteSize: function(grid, index) {
+            return grid.getLeftSideSize(index);
+        },
         setFixedAreaSize: function(grid, index, value) {
             grid.setFixedColumnWidth(index, value);
         },
@@ -71,10 +73,11 @@ The `fin-hypergrid-column-resizing` element is a custom Polymer web component th
         },
 
         handleMouseDrag: function(grid, event) {
-            if (this.dragArea > -1) {
+            if (this.dragIndex > -1) {
                 var fixedAreaCount = this.getFixedAreaCount(grid);
-                var distance = this.getMouseValue(event) - this.dragStart + this.dragAreaStartingSize;
-                this.setSize(grid, this.dragArea - fixedAreaCount - 1, distance);
+                //var offset = this.getFixedAreaSize(grid, fixedAreaCount + areaIndex);
+                var distance = this.getMouseValue(event) - this.getPreviousAbsoluteSize(grid, this.dragIndex);
+                this.setSize(grid, this.dragIndex, distance);
             } else if (this.next) {
                 this.next.handleMouseDrag(grid, event);
             }
@@ -83,10 +86,10 @@ The `fin-hypergrid-column-resizing` element is a custom Polymer web component th
         setSize: function(grid, areaIndex, size) {
             var fixedAreaCount = this.getFixedAreaCount(grid);
             var scrollValue = this.getScrollValue(grid);
-            if (areaIndex < 0) {
-                this.setFixedAreaSize(grid, fixedAreaCount + areaIndex, size);
+            if (areaIndex < fixedAreaCount) {
+                this.setFixedAreaSize(grid, areaIndex, size);
             } else {
-                this.setAreaSize(grid, areaIndex + scrollValue, size);
+                this.setAreaSize(grid, areaIndex - fixedAreaCount + scrollValue, size);
             }
         },
 
@@ -105,12 +108,13 @@ The `fin-hypergrid-column-resizing` element is a custom Polymer web component th
             if (overArea > -1 && this.getGridCellValue(gridCell) < this.getOtherFixedAreaCount(grid)) {
                 var scrollValue = this.getScrollValue(grid);
                 var fixedAreaCount = this.getFixedAreaCount(grid);
-                this.dragArea = overArea;
+                this.dragIndex = overArea - 1;
+                console.log(this.dragIndex);
                 this.dragStart = this.getMouseValue(event)
-                if (overArea < 2) {
+                if (overArea < fixedAreaCount) {
                     scrollValue = 0;
                 }
-                this.dragAreaStartingSize = this.getAreaSize(grid, overArea - fixedAreaCount - 1 + scrollValue);
+                this.dragIndexStartingSize = this.getAreaSize(grid, overArea - fixedAreaCount + scrollValue);
                 this.detachChain();
             } else if (this.next) {
                 this.next.handleMouseDown(grid, event);
@@ -118,9 +122,9 @@ The `fin-hypergrid-column-resizing` element is a custom Polymer web component th
         },
 
         handleMouseUp: function(grid, event) {
-            if (this.dragArea > -1) {
+            if (this.dragIndex > -1) {
                 this.cursor = null;
-                this.dragArea = -1;
+                this.dragIndex = -1;
 
                 //delay here to give other events a chance to be dropped
                 var self = this;
@@ -133,7 +137,7 @@ The `fin-hypergrid-column-resizing` element is a custom Polymer web component th
         },
 
         handleMouseMove: function(grid, event) {
-            if (this.dragArea > -1) {
+            if (this.dragIndex > -1) {
                 return;
             }
             this.cursor = null;

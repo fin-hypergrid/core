@@ -1639,6 +1639,12 @@
             } else {
                 return 1;
             }
+        },
+        getLeftSideSize: function(index) {
+            return this.renderer.getLeftSideSize(index);
+        },
+        getTopSideSize: function(index) {
+            return this.renderer.getTopSideSize(index);
         }
 
     });

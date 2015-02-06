@@ -215,6 +215,7 @@ The `fin-hypergrid-behavior-default` element is a custom Polymer web component i
         },
 
         setFixedRowHeight: function(rowNum, height) {
+            //console.log(rowNum + ' ' + height);
             this.fixedRowHeights[rowNum] = Math.max(5, height);
             this.changed();
         },

@@ -808,6 +808,12 @@ The `fin-hypergrid-renderer` element is a custom Polymer web component used to s
             var count = this.getGrid().getColumnCount();
             return count;
         },
+        getLeftSideSize: function(index) {
+            return this.renderedColumnWidths[index];
+        },
+        getTopSideSize: function(index) {
+            return this.renderedRowHeights[index];
+        }
 
     });
 
