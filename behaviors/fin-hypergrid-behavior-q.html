@@ -125,6 +125,9 @@ The `fin-hypergrid-behavior-q` element is a custom Polymer web component used to
         //<br>TODO: refactor: don't store this value in an local member, store it in the message ONLY.
         //<br>TODO: refactor: num should be dynamic
         setScrollPositionY: function(y) {
+            if (this.scrollPositionY === y) {
+                return;
+            };
             this.scrollPositionY = y;
             if (!this.isConnected()) {
                 return;

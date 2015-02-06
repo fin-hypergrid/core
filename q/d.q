@@ -25,3 +25,4 @@ T:([tradeId:til n]
 
 G:`sector`trader`strategy
 A[`price]:(avg;`price)
+A[`tradeId]:(.tt.nul;`tradeId)

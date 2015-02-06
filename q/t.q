@@ -8,13 +8,13 @@
 cons:{[t;g;p;a;s;h]cons_[csub[t]g,h;g;p;a;s]h}
 
 cons_:{[t;g;p;a;s;h]
- d:dat[t;g;p;rollups[t;g]a]h;
+ d:dat[t;g;p;rollups[t;g]a]h,`s_;
  d:1!(0!d)tsort[d]s;
- z:get d;z_:ctl[d;g]p;
- (z;z_)}
+ z:get d;z_:ctl[z;d;g]p;
+ (delete s_ from z;z_)}
 
 / column subset
-csub:{[t;f]?[t;();0b;f!f]}
+csub:{[t;f]![?[t;();0b;f!f];();0b;(1#`s_)!1#1]}
 
 / block of rows
 rows:{[r;v]take[v]. r`start`end}
@@ -29,9 +29,12 @@ sdat:{[t;g;a;p]root[t;g;a]block[t;g;a]/p}
 pdat:{[t;g;a;p]root[t;g;a],raze block[t;g;a;()]peach p}
 
 / control table
-ctl:{[t;g;p]
- c:([]n_:key[t]`n_;l_:level t;e_:isleaf[t]g;o_:isopen[t]p);
- update p_:.tt.parent n_,h_:e_{$[x;`;last y]}'n_ from c}
+ctl:{[z;t;g;p]
+ c:([]s_:z`s_;n_:key[t]`n_;l_:level t;e_:isleaf[t]g;o_:isopen[t]p);
+ update p_:.tt.parent n_,h_:.tt.hierarchy'[e_;n_;s_]from c}
+
+/ construct h_
+hierarchy:{`$string[$[x;`;last y]],"[",string[z],"]"}
 
 / predicates
 isopen:{[t;p](0!p)[`v](get each key[p]`n)?key[t]`n_}
@@ -98,17 +101,17 @@ msort:{[t;c;o;i]i{x y z x}/[til count i;o;flip[t i]c]}
 / mesh nest of paths
 pmesh:{i:1+x?-1_first y;(i#x),y,i _ x}
 
-/ first if 1=count else null (for syms, non-summable nums)
+/ first if 1=count else null
 nul:{first$[1=count distinct x,();x;0#x]}
 
-/ count
-cnt:{`$"N=[",string[count x],"]"}
+/ first if 1=count else (first
+fpo:{`$string[first x],$[1=count distinct x;"";"+"]}
 
 / type -> rollup
-A:" bgxhijefcspmdznuvt"!(cnt;all;cnt;cnt;sum;sum;sum;sum;sum;nul;cnt;max;max;max;max;max;max;max;max)
+A:" bgxhijefcspmdznuvt"!(null;any;null;null;sum;sum;sum;sum;sum;nul;fpo;max;max;max;max;max;max;max;max)
 
 / default rollups
-rollups:{[t;g;a]@[@[a;k;:;A[lower qtype[t]k],'k:cols[t]except g,key a];g;:;nul,'g]}
+rollups:{[t;g;a]@[@[a;k;:;A[lower qtype[t]k],'k:cols[t]except g,key a];`s_,g;:;enlist[(sum;`s_)],nul,'g]}
 
 / cast <- type
 qtype:{exec c!t from meta x}
@@ -117,13 +120,15 @@ qtype:{exec c!t from meta x}
 
 // websocket communications
 
+WS:0Ni
+
 $[.z.K<3.3;
-  [.z.pc:{[w]if[w=WS;WS::0]};
-   .z.po:{[w]WS::.z.w;.js.set()!()}];
-  [.z.wc:{[w]if[w=WS;WS::0]};
+  [.z.pc:{[w]if[w=WS;WS::0Ni]};
+   .z.po:{WS::.z.w;.js.set()!()}];
+  [.z.wc:{[w]if[w=WS;WS::0Ni]};
    .z.wo:{WS::.z.w;.js.set()!()}]];
 
-.z.ws:{.js.snd .js.exe .js.sym .j.k x}
+.z.ws:{t:.z.z;.js.snd .js.exe .js.sym a:.j.k x;.js.log[t]a}
 
 / entry points
 
@@ -135,13 +140,15 @@ $[.z.K<3.3;
 
 / utilities
 
+.js.log:{0N!(.js.elt x;y);}
 .js.snd:{neg[WS].j.j x}
+.js.elt:{`time$"z"$.z.z-x}
 .js.sym:{$[(t:abs type x)in 0 99h;.z.s each x;10=t;`$x;x]}
 .js.exe:{.js[x`fn]x}
-.js.upd:{.js.snd .js.set()!()}
+.js.upd:{if[not null WS;t:.z.z;.js.snd .js.set()!();.js.log[t]`upd]}
 .js.set:{`Z`Z_ set'.tt.cons[T;G;P;A;S]H;.js.ret x}
 .js.sub:{[z]flip each(1#z;.tt.rows[R]1_z)}
-.js.obj:{`Z`Z_`G`G_`H`H_`Q`S`R`N!(.js.sub Z;.js.sub Z_;G;where["S"=q]except G;H;cols[T]except H;q:.tt.qtype T;`cols`sorts!(key S;get S);R;count Z)}
+.js.obj:{`Z`Z_`G`G_`H`H_`Q`S`R`N!(.js.sub Z;.js.sub Z_;G;where["S"=q]except G;H;cols[T]except G,H;q:.tt.qtype T;`cols`sorts!(key S;get S);R;count Z)}
 .js.ret:{x,.js.obj[]}
 
 // globals
@@ -150,7 +157,7 @@ $[.z.K<3.3;
 G:0#`
 
 / visible order
-H::cols[T]except G,keys T
+H::cols[T]except G
 
 / rollups
 A:()!()

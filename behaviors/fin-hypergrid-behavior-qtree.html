@@ -42,6 +42,15 @@ The `fin-hypergrid-behavior-qtree` element is a custom Polymer web component use
         d: 'simpleCellRenderer'
     };
 
+    var typeFormatMap = {
+        J: function(v) { return v; },
+        j: function(v) { return v; },
+        s: function(v) { return v; },
+        t: function(v) { return v; },
+        f: function(v) { return v.toFixed(4); },
+        d: function(v) { return v; }
+    };
+
     //sort states are also the visual queues in the column headers
     //* '' no sort
     //* ^ sort ascending
@@ -63,6 +72,7 @@ The `fin-hypergrid-behavior-qtree` element is a custom Polymer web component use
     };
 
     Polymer({ /* jslint ignore:line */
+
         ready: function() {
             this.block = {
                 N: 0,
@@ -71,7 +81,10 @@ The `fin-hypergrid-behavior-qtree` element is a custom Polymer web component use
                 S: {
                     cols: [],
                     rows: []
-                }
+                },
+                Z_:[{
+                    h_:['']
+                }]
             };
             this.readyInit();
             this.sorted = {};
@@ -85,7 +98,16 @@ The `fin-hypergrid-behavior-qtree` element is a custom Polymer web component use
         //override this function on your GridBehavior to have custom cell renderering
         //<br>see [QGridBehavior.createCellProvider()](QGridBehavior.html) for an example
         createCellProvider: function() {
+            var self = this;
             var provider = document.createElement('fin-hypergrid-cell-provider');
+            provider.getCell = function(config) {
+                var cell = provider.cellCache.simpleCellRenderer;
+                var colId = self.block.H[config.x];
+                var type = self.block.Q[colId];
+                var formatter = typeFormatMap[type] || function(v) { return v; };
+                config.value = formatter(config.value);
+                return cell;
+            };
             provider.getFixedColumnCell = function(config) {
             var cell = provider.cellCache.treeCellRenderer;
                 cell.config = config;
@@ -96,10 +118,15 @@ The `fin-hypergrid-behavior-qtree` element is a custom Polymer web component use
                 label.config = config;
                 if (config.y === 1)
                     {
-                        config.font = config.properties.font;
+                        //config.font = config.properties.font;
                         config.fgColor = config.fgSelColor = config.properties.color;
                         config.bgColor = config.bgSelColor = config.properties.backgroundColor2;
+                        var colId = self.block.H[config.x];
+                        var type = self.block.Q[colId];
+                        var formatter = typeFormatMap[type] || function(v) { return v; };
+                        config.value = formatter(config.value[0]);
                     }
+                config.value = config.value || '';
                 return label;
             };
             var topLeftPainter = {
@@ -107,20 +134,20 @@ The `fin-hypergrid-behavior-qtree` element is a custom Polymer web component use
                     //we know we are 1/2 height x 2 rows
                     //so offset height
                     var val = this.config.value;
-                    gc.font = this.config.properties.font;
+                    gc.font = this.config.font;
                     gc.fillStyle = this.config.properties['topLeftColor'];
                     gc.textAlign = 'left';
                     gc.textBaseline = 'middle';
 
                     //approxiamte line height is a 'W'
                     var size = gc.measureText('W');
-                    var textHeight = size.width;
-                    var hoffset = Math.ceil(textHeight / 2);
+                    var textHeight = size.width * 1.4;
+                    var hoffset = Math.ceil(textHeight / 1.8);
 
                     if (val) {
                         for (var i = 0; i < val.length; i++)
                         {
-                            gc.fillText(val[i], 5, hoffset + (i*textHeight));
+                            gc.fillText(val[i], 6, hoffset + (i*textHeight));
                         }
                     }
                     gc.stroke();
@@ -166,7 +193,12 @@ The `fin-hypergrid-behavior-qtree` element is a custom Polymer web component use
 
         getTopLeftValue: function(/* x, y */) {
             var sortIndicator = this.getSortIndicator('h_');
-            var clone = this.block.G.slice(0);
+            // var clone = this.block.G.slice(0);
+            // if (clone.length === 0) {
+            //     return clone;
+            // }
+            var hValue = this.block.Z_[0].h_[0];
+            var clone = ['Hierarchy', hValue];
             clone[0] = clone[0] + ' ' + sortIndicator;
             return clone;
         },
@@ -175,18 +207,14 @@ The `fin-hypergrid-behavior-qtree` element is a custom Polymer web component use
         //<br>take note of the usage of the scrollPositionY value in translating our in-memory data page
         getValue: function(x, y) {
             var col = this.getColumnId(x);
-            //x = this.translateColumnIndex(x);
-            // var override = this.values['p_' + (x + 1) + '_' + y];
-            // if (override) {
-            //     return override;
-            // }
-
             var normalized = Math.floor(y - this.scrollPositionY);
             if (this.block) {
-                return this.block.Z[1][col][normalized];
-            } else {
-                return '';
+                var val = this.block.Z[1][col][normalized];
+                if (val) {
+                    return val;
+                }
             }
+            return '';
         },
 
         //empty out our page of local data, this function is used when we lose connectivity
@@ -210,6 +238,9 @@ The `fin-hypergrid-behavior-qtree` element is a custom Polymer web component use
         //<br>TODO: refactor: don't store this value in an local member, store it in the message ONLY.
         //<br>TODO: refactor: num should be dynamic
         setScrollPositionY: function(y) {
+            if (this.scrollPositionY === y) {
+                return;
+            }
             this.scrollPositionY = y;
             if (!this.isConnected()) {
                 return;
@@ -265,7 +296,7 @@ The `fin-hypergrid-behavior-qtree` element is a custom Polymer web component use
             var blob = this.block.Z_[1];
             var transY = Math.max(0, y - this.scrollPositionY);
             var data = blob.h_[transY];
-            var indent = blob.l_[transY] * indentPixels;
+            var indent = 5 + (blob.l_[transY] - 1) * indentPixels;
             var icon = '';
             if (!blob.e_[transY]) {
                 icon = blob.o_[transY] ? '[--] ' : '[+] ';
@@ -389,6 +420,7 @@ The `fin-hypergrid-behavior-qtree` element is a custom Polymer web component use
                 }
                 console.log('connecting...');
                 this.ws.onopen = function() {
+                    self.setFixedColumnWidth(0, 160);
                     var startY = this.scrollPositionY || 0;
                     var stopY = startY + 60;
                     self.ws.send(JSON.stringify({
