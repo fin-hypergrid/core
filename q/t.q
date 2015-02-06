@@ -60,18 +60,14 @@ block:{[t;g;a;r;p]r,(`n_,g)xcols$[g~key p;leaf;node g(`,g)?last key p][t;g;a]p}
 
 / construct node block
 node:{[b;t;g;a;p]node_[g;b]get?[t;constraint p;enlist[b]!enlist b;a]}
-
-/ compute n_ for node block
 node_:{[g;b;t]![t;();0b;enlist[`n_]!2 enlist/$[null[b]|not count g;enlist 0#`;(1+g?b)#/:flip flip[t]g]]}
 
 / construct leaf block
 leaf:{[t;g;a;p]leaf_[g;`$string til count u]u:0!?[t;constraint p;0b;@[last each a;g;:;g]]}
-
-/ compute n_ for leaf block
 leaf_:{[g;i;t]![t;();0b;enlist[`n_]!2 enlist/$[count g;flip[flip[t]g],'i;flip enlist i]]}
 
 / discard invalid paths
-valid:{[p;g]1!(0!p)where til[count g]{(count[y]#x)~y}/:g?/:key each exec n from p}
+paths:{[p;g]1!(0!p)where til[count g]{(count[y]#x)~y}/:g?/:key each exec n from p}
 
 / open/close to group (h=` -> open to leaves)
 opento:{[t;g;h]
@@ -105,7 +101,7 @@ pmesh:{i:1+x?-1_first y;(i#x),y,i _ x}
 nul:{first$[1=count distinct x,();x;0#x]}
 
 / first if 1=count else (first
-fpo:{`$string[first x],$[1=count distinct x;"";"+"]}
+fpo:{$[1=count distinct x;first x;`$string[first x],"+"]}
 
 / type -> rollup
 A:" bgxhijefcspmdznuvt"!(null;any;null;null;sum;sum;sum;sum;sum;nul;fpo;max;max;max;max;max;max;max;max)
@@ -134,8 +130,7 @@ $[.z.K<3.3;
 
 .js.node:{[d]$[0=count n:d`node;d;count[Z_]=r:Z_[`n_]?n;d;[`P set .tt.at[not Z_[`o_]r;P;G]n;.js.set d]]}
 .js.sorts:{[d]`S set d[`cols]!d`sorts;i:.tt.tsort[Z,'Z_]S;Z@:i;Z_@:i;.js.ret d}
-.js.groups:{[d]`G set d`cols;`P set .tt.valid[P]G;.js.set d}
-.js.cols:{[d]`H set d`cols;.js.set d}
+.js.groups:{[d]`H`G set d`visible`groups;`P set .tt.paths[P]G;.js.set d}
 .js.get:{[d]`R set`start`end!"j"$d`start`end;.js.ret d}
 
 / utilities
