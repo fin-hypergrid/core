@@ -5,13 +5,16 @@
 \d .tt
 
 / construct treetable
-cons:{[t;g;p;a;s;h]cons_[csub[t]g,h;g;p;a;s]h}
+cons:{[t;p;a;s;g;h]cons_[csub[t]g,h;p;a;s]. ungrp[t;g]h}
 
-cons_:{[t;g;p;a;s;h]
- d:dat[t;g;p;rollups[t;g]a]h,`s_;
+cons_:{[t;p;a;s;g;h]
+ d:dat[t;p;rollups[t;g]a;g]h,`s_;
  d:1!(0!d)tsort[d]s;
- z:get d;z_:ctl[z;d;g]p;
+ z:get d;z_:ctl[z;d;p]g;
  (delete s_ from z;z_)}
+
+/ flatten if keys in G
+ungrp:{[t;g;h]if[all keys[t]in g;h:distinct g,h;g:0#`];(g;h)}
 
 / column subset
 csub:{[t;f]![?[t;();0b;f!f];();0b;(1#`s_)!1#1]}
@@ -21,20 +24,17 @@ rows:{[r;v]take[v]. r`start`end}
 take:{[v;s;e]$[s>=count v;0#v;((1+e-s)&count z)#z:s _ v]}
 
 / data table (serial/parallel)
-dat:{[t;g;p;a;h]
- z:1!`n_ xasc$[system"s";pdat;sdat][t;g;a]visible p;
- key[z]!flip h!get[z]h}
-
+dat:{[t;p;a;g;h]key[z]!flip h!get[z:1!`n_ xasc$[system"s";pdat;sdat][t;g;a]visible p]h}
 sdat:{[t;g;a;p]root[t;g;a]block[t;g;a]/p}
 pdat:{[t;g;a;p]root[t;g;a],raze block[t;g;a;()]peach p}
 
 / control table
-ctl:{[z;t;g;p]
+ctl:{[z;t;p;g]
  c:([]s_:z`s_;n_:key[t]`n_;l_:level t;e_:isleaf[t]g;o_:isopen[t]p);
  update p_:.tt.parent n_,h_:.tt.hierarchy'[e_;n_;s_]from c}
 
 / construct h_
-hierarchy:{`$string[$[x;`;last y]],"[",string[z],"]"}
+hierarchy:{$[x;`;`$string[last y],"[",string[z],"]"]}
 
 / predicates
 isopen:{[t;p](0!p)[`v](get each key[p]`n)?key[t]`n_}
@@ -146,7 +146,7 @@ $[.z.K<3.3;
 .js.sym:{$[(t:abs type x)in 0 99h;.z.s each x;10=t;`$x;x]}
 .js.exe:{.js[x`fn]x}
 .js.upd:{if[not null WS;t:.z.z;.js.snd .js.set()!();.js.log[t]`upd]}
-.js.set:{`Z`Z_ set'.tt.cons[T;G;P;A;S]H;.js.ret x}
+.js.set:{`Z`Z_ set'.tt.cons[T;P;A;S;G]H;.js.ret x}
 .js.sub:{[z]flip each(1#z;.tt.rows[R]1_z)}
 .js.obj:{`Z`Z_`G`G_`H`H_`Q`S`R`N!(.js.sub Z;.js.sub Z_;G;where["S"=q]except G;H;cols[T]except G,H;q:.tt.qtype T;`cols`sorts!(key S;get S);R;count Z)}
 .js.ret:{x,.js.obj[]}
