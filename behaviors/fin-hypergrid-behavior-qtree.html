@@ -210,7 +210,7 @@ The `fin-hypergrid-behavior-qtree` element is a custom Polymer web component use
             var normalized = Math.floor(y - this.scrollPositionY);
             if (this.block) {
                 var val = this.block.Z[1][col][normalized];
-                if (val) {
+                if (val || val === 0) {
                     return val;
                 }
             }
