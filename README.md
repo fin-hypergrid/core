@@ -64,7 +64,7 @@ Hypergrid utilizes a custom scrollbar component so as to not be limited to table
 
 ##Hypergrid example for displaying RDBMS data
 
-<img src="../gridshot05.png" alt="screenshot">
+<img src="images/gridshot05.png" alt="screenshot">
 
 this is an example usage of the hypergrid control looking at the +1MM row postrgres db example from the [greenplum getting started tutorial](http://gpdb.docs.pivotal.io/gs/42/pdf/GP-Getting-Started.pdf).  For this example to work you'll need to 
 
