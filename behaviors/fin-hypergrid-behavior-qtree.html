@@ -147,7 +147,7 @@ The `fin-hypergrid-behavior-qtree` element is a custom Polymer web component use
                     if (val) {
                         for (var i = 0; i < val.length; i++)
                         {
-                            gc.fillText(val[i], 6, hoffset + (i*textHeight));
+                            gc.fillText(val[i], 5, hoffset + (i*textHeight));
                         }
                     }
                     gc.stroke();
@@ -198,7 +198,7 @@ The `fin-hypergrid-behavior-qtree` element is a custom Polymer web component use
             //     return clone;
             // }
             var hValue = this.block.Z_[0].h_[0];
-            var clone = ['Hierarchy', hValue];
+            var clone = ['Hierarchy', '[--] ' + hValue];
             clone[0] = clone[0] + ' ' + sortIndicator;
             return clone;
         },
@@ -296,7 +296,7 @@ The `fin-hypergrid-behavior-qtree` element is a custom Polymer web component use
             var blob = this.block.Z_[1];
             var transY = Math.max(0, y - this.scrollPositionY);
             var data = blob.h_[transY];
-            var indent = 5 + (blob.l_[transY] - 1) * indentPixels;
+            var indent = 5 + indentPixels + (blob.l_[transY] - 1) * indentPixels;
             var icon = '';
             if (!blob.e_[transY]) {
                 icon = blob.o_[transY] ? '[--] ' : '[+] ';
