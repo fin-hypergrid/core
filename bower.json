@@ -19,13 +19,13 @@
   ],
   "dependencies": {
     "paper-elements": "Polymer/paper-elements#master",
-    "core-elements": "Polymer/core-elements#master"
+    "core-elements": "Polymer/core-elements#master",
+    "fin-canvas": "#master",
+    "fin-rectangle": "#master",
+    "fin-vampire-bar": "#master"
   },
   "devDependencies": {
     "polymer": "Polymer/polymer#master",
-    "fin-canvas": "#master",
-    "fin-rectangle": "#master",
-    "fin-vampire-bar": "#master",
     "accountingjs": "~0.3.2"
   }
 }
