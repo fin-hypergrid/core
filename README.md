@@ -62,6 +62,22 @@ Hypergrid utilizes a custom scrollbar component so as to not be limited to table
 
 <img src="images/gridshot03.png" alt="screenshot">
 
+##Hypergrid example for displaying RDBMS data
+
+<img src="../gridshot05.png" alt="screenshot">
+
+this is an example usage of the hypergrid control looking at the +1MM row postrgres db example from the [greenplum getting started tutorial](http://gpdb.docs.pivotal.io/gs/42/pdf/GP-Getting-Started.pdf).  For this example to work you'll need to 
+
+* install the [greenplum tutorial db](http://gpdb.docs.pivotal.io/gs/42/pdf/GP-Getting-Started.pdf
+* npm install [any-db-postgress](https://github.com/grncdr/node-any-db) and websocket.io
+* run the node [script](https://github.com/openfin/fin-hypergrid/blob/master/rdbms/rdbms-example.js) found in the [rdbms](https://github.com/openfin/fin-hypergrid/blob/master/rdbms) directory
+* navigate to the q behavior [example](http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/demo.html) and press "reconnect"
+
+feel free to connect this example to any other db that any-db supports (MS SQL, MySQL, Postgres, and SQLite3).
+Make sure to npm install the proper any-db-***** interface and edit the config.js file.
+
+
+
 ## Road Map 
 1. Test suite for all components and upstream dependency projects
 2. Continued bug-fixing, refactoring, documentation and cleanup of the existing code base
