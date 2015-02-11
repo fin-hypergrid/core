@@ -1,0 +1,81 @@
+<!--
+
+The `fin-hypergrid-column-picker` element is a custom Polymer web component that serves as the base "class" or API for the grid features (controllers).
+
+@group OpenFin hypergrid
+@element fin-hypergrid-column-picker
+@homepage http://github.com/openfin/fin-hypergrid
+-->
+
+<polymer-element name="fin-hypergrid-feature-column-picker" extends="fin-hypergrid-feature-base">
+  <template></template>
+  <script>
+
+
+(function() {
+
+'use strict';
+    var animationTime = 300;
+    Polymer({ /* jshint ignore:line */
+       handleKeyUp: function(grid, event) {
+            var key = event.detail.char;
+            if (key === 'ALT') {
+                this.toggleColumnPicker(grid);
+            }
+        },
+        toggleColumnPicker: function(grid) {
+            if (this.isColumnPickerOpen(grid)) {
+                this.closeColumnPicker(grid);
+            } else {
+                this.openColumnPicker(grid);
+            }
+        },
+        isColumnPickerOpen: function(grid) {
+            return this.overlay.style.display !== 'none';
+        },
+        openColumnPicker: function(grid) {
+            var self = this;
+            var bounds = grid.getBoundingClientRect();
+            this.overlay.style.backgroundColor = grid.resolveProperty('backgroundColor2');
+            this.overlay.style.top = (bounds.top + 8) + 'px';
+            this.overlay.style.left = (bounds.left + 8) + 'px';
+            this.overlay.style.width = (bounds.width - 35) + 'px';
+            this.overlay.style.height = (bounds.height - 35)+ 'px';
+            self.overlay.style.display = '';
+            requestAnimationFrame(function(){
+                self.overlay.style.opacity = 0.85;
+            });
+        },
+        closeColumnPicker: function(grid) {
+            var self = this;
+
+            requestAnimationFrame(function(){
+                self.overlay.style.opacity = 0;
+            });
+
+            setTimeout(function(){
+                self.overlay.style.display = 'none';
+            }, animationTime);
+        },
+        initializeOn: function(grid) {
+            this.initializeOverlaySurface(grid);
+            if (this.next) {
+                this.next.initializeOn(grid);
+            }
+        },
+        initializeOverlaySurface: function(grid) {
+            this.overlay = document.createElement('div');
+            this.overlay.style.boxShadow = '5px 5px 2px #888888';
+            this.overlay.style.position = 'absolute';
+            this.overlay.style.display = 'none';
+            this.overlay.style.transition = 'opacity ' + animationTime + 'ms ease-in';
+            this.overlay.style.opacity = 0;
+            document.body.appendChild(this.overlay);
+        },
+
+    });
+
+})(); /* jshint ignore:line */
+
+  </script>
+</polymer-element>

@@ -601,6 +601,28 @@
          *                                                                      .
          * the dimensions of the grid data have changed, you've been notified
          *
+         * @method getBounds()
+         */
+        getBounds: function() {
+            return this.getCanvas().getBounds();
+        },
+
+        /**
+         *                                                                      .
+         *                                                                      .
+         * return the value of a lnf property
+         *
+         * @method resolveProperty()
+         */
+        resolveProperty: function(key) {
+            var prop = this.renderer.resolveProperty(key);
+            return prop;
+        },
+        /**
+         *                                                                      .
+         *                                                                      .
+         * the dimensions of the grid data have changed, you've been notified
+         *
          * @method behaviorShapeChanged()
          */
         behaviorShapeChanged: function() {
@@ -712,6 +734,10 @@
 
             this.canvas.addEventListener('fin-keydown', function(e) {
                 self.delegateKeyDown(e);
+            });
+
+            this.canvas.addEventListener('fin-keyup', function(e) {
+                self.delegateKeyUp(e);
             });
 
             this.canvas.addEventListener('fin-track', function(e) {
@@ -932,6 +958,18 @@
         delegateKeyDown: function(e) {
             var behavior = this.getBehavior();
             behavior.onKeyDown(this, e);
+        },
+
+        /**
+         *                                                                      .
+         *                                                                      .
+         * Generate a function name and call it on self.  This should also be delegated through PluggableBehavior keeping the default implementation here though.
+         *
+         * @method keydown(event)
+         */
+        delegateKeyUp: function(e) {
+            var behavior = this.getBehavior();
+            behavior.onKeyUp(this, e);
         },
 
         /**
@@ -1447,7 +1485,7 @@
             }
             var numColumns = behavior.getColumnCount();
             var numRows = behavior.getRowCount();
-            var bounds = this.getCanvas().getBounds();
+            var bounds = this.getBounds();
             var scrollableHeight = bounds.height() - behavior.getFixedRowsHeight();
             var scrollableWidth = bounds.width() - behavior.getFixedColumnsMaxWidth() - 200;
 

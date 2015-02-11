@@ -70,6 +70,12 @@ The `fin-hypergrid-feature-base` element is a custom Polymer web component that 
             }
         },
 
+        handleKeyUp: function(grid, event) {
+            if (this.next) {
+                this.next.handleKeyUp(grid, event);
+            }
+        },
+
         handleWheelMoved: function(grid, event) {
             if (this.next) {
                 this.next.handleWheelMoved(grid, event);

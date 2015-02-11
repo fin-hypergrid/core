@@ -10,6 +10,7 @@ The `fin-hypergrid-behavior-default` element is a custom Polymer web component i
 <link rel="import" href="../fin-hypergrid-constants.html">
 <link rel="import" href="../fin-hypergrid-cell-provider.html">
 <link rel="import" href="../features/fin-hypergrid-feature-cell-selection.html">
+<link rel="import" href="../features/fin-hypergrid-feature-column-picker.html">
 <link rel="import" href="../features/fin-hypergrid-feature-thumbwheel-scrolling.html">
 <link rel="import" href="../features/fin-hypergrid-feature-cell-editing.html">
 <link rel="import" href="../features/fin-hypergrid-feature-column-sorting.html">
@@ -21,7 +22,6 @@ The `fin-hypergrid-behavior-default` element is a custom Polymer web component i
   <script>
 
 'use strict';
-
 
 (function() {
 
@@ -103,6 +103,7 @@ The `fin-hypergrid-behavior-default` element is a custom Polymer web component i
         },
 
         initializeFeatureChain: function(grid) {
+            this.setNextFeature(document.createElement('fin-hypergrid-feature-column-picker'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-column-resizing'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-row-resizing'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-cell-selection'));
@@ -408,6 +409,13 @@ The `fin-hypergrid-behavior-default` element is a custom Polymer web component i
         onKeyDown: function(grid, event) {
             if (this.featureChain) {
                 this.featureChain.handleKeyDown(grid, event);
+                this.setCursor(grid);
+            }
+        },
+
+        onKeyUp: function(grid, event) {
+            if (this.featureChain) {
+                this.featureChain.handleKeyUp(grid, event);
                 this.setCursor(grid);
             }
         },
