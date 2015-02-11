@@ -1,13 +1,13 @@
 <!--
 
-The `fin-hypergrid-column-picker` element is a custom Polymer web component that serves as the base "class" or API for the grid features (controllers).
+The `fin-hypergrid-overlay` element is a custom Polymer web component that can open and close an overlay surface.
 
 @group OpenFin hypergrid
-@element fin-hypergrid-column-picker
+@element fin-hypergrid-overlay
 @homepage http://github.com/openfin/fin-hypergrid
 -->
 
-<polymer-element name="fin-hypergrid-feature-column-picker" extends="fin-hypergrid-feature-base">
+<polymer-element name="fin-hypergrid-feature-overlay" extends="fin-hypergrid-feature-base">
   <template></template>
   <script>
 
@@ -15,7 +15,7 @@ The `fin-hypergrid-column-picker` element is a custom Polymer web component that
 (function() {
 
 'use strict';
-    var animationTime = 300;
+    var animationTime = 200;
     Polymer({ /* jshint ignore:line */
        handleKeyUp: function(grid, event) {
             var key = event.detail.char;
@@ -34,19 +34,53 @@ The `fin-hypergrid-column-picker` element is a custom Polymer web component that
             return this.overlay.style.display !== 'none';
         },
         openColumnPicker: function(grid) {
+            if (this.isColumnPickerOpen()) {
+                return;
+            }
+            if (grid.getBehavior().openEditor(this.overlay) === false) {
+                return;
+            }
+
             var self = this;
-            var bounds = grid.getBoundingClientRect();
-            this.overlay.style.backgroundColor = grid.resolveProperty('backgroundColor2');
-            this.overlay.style.top = (bounds.top + 8) + 'px';
-            this.overlay.style.left = (bounds.left + 8) + 'px';
-            this.overlay.style.width = (bounds.width - 35) + 'px';
-            this.overlay.style.height = (bounds.height - 35)+ 'px';
+            this.overlay.style.backgroundColor = grid.resolveProperty('backgroundColor');
+
+            this.overlay.style.top = '0%';
+            this.overlay.style.right = '0%';
+            this.overlay.style.bottom = '0%';
+            this.overlay.style.left = '0%';
+
+            this.overlay.style.marginTop = '15px';
+            this.overlay.style.marginRight = '35px';
+            this.overlay.style.marginBottom = '35px';
+            this.overlay.style.marginLeft = '15px';
+
             self.overlay.style.display = '';
+
+            if (!this._closer) {
+                this._closer = function(e) {
+                    if (!e.altKey) {
+                        return;
+                    }
+                    e.preventDefault();
+                    self.closeColumnPicker(grid);
+                }
+            }
+
             requestAnimationFrame(function(){
-                self.overlay.style.opacity = 0.85;
+                self.overlay.style.opacity = 0.95;
+                document.addEventListener('keydown', self._closer, false);
             });
         },
         closeColumnPicker: function(grid) {
+            if (!this.isColumnPickerOpen()) {
+                return;
+            }
+            if (grid.getBehavior().closeEditor(this.overlay) === false) {
+                return;
+            }
+
+            document.removeEventListener('keydown', this._closer, false);
+
             var self = this;
 
             requestAnimationFrame(function(){
@@ -54,7 +88,9 @@ The `fin-hypergrid-column-picker` element is a custom Polymer web component that
             });
 
             setTimeout(function(){
+                self.overlay.innerHTML = '';
                 self.overlay.style.display = 'none';
+                grid.takeFocus();
             }, animationTime);
         },
         initializeOn: function(grid) {
@@ -70,7 +106,8 @@ The `fin-hypergrid-column-picker` element is a custom Polymer web component that
             this.overlay.style.display = 'none';
             this.overlay.style.transition = 'opacity ' + animationTime + 'ms ease-in';
             this.overlay.style.opacity = 0;
-            document.body.appendChild(this.overlay);
+            grid.shadowRoot.appendChild(this.overlay);
+            //document.body.appendChild(this.overlay);
         },
 
     });

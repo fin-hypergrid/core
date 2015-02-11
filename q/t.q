@@ -5,7 +5,7 @@
 \d .tt
 
 / construct treetable
-cons:{[t;p;a;s;g;h]cons_[csub[t]g,h;p;a;s]. ungrp[t;g]h}
+cons:{[t;p;a;s;g;h]cons_[csub[t]g,h;p;(h inter key a)#a;s]. ungrp[t;g]h}
 
 cons_:{[t;p;a;s;g;h]
  d:dat[t;p;rollups[t;g]a;g]h,`s_;

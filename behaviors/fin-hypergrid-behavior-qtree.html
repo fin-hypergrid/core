@@ -406,7 +406,52 @@ The `fin-hypergrid-behavior-qtree` element is a custom Polymer web component use
                 };
             this.ws.send(JSON.stringify(nodeClick));
         },
+        openEditor: function(div) {
+            var container = document.createElement('div');
+            //container.style.display = 'inline-flex';
 
+            var groupsList = this.createList('hierarchy', this.block.G);
+            container.appendChild(groupsList);
+
+            var visibleList = this.createList('visible columns', this.block.H);
+            container.appendChild(visibleList);
+
+            var hiddenList = this.createList('hidden columns', this.block.H_);
+            container.appendChild(hiddenList);
+
+            div.appendChild(container);
+            return true;
+        },
+        createList: function(title, data) {
+            var span = document.createElement('span');
+            span.style.margin = '10px';
+
+            var titleNode = document.createElement('span');
+            titleNode.innerText = title;
+            titleNode.style.verticalAlign = 'top';
+
+            var select = document.createElement('select');
+            select.style.width = '150px';
+            select.style.height = '400px';
+            select.setAttribute('size', 10);
+            select.setAttribute('multiple', true);
+            for (var i = 0; i < data.length; i++) {
+                var o = document.createElement('option');
+                o.setAttribute('value', data[i]);
+                o.text = data[i];
+                select.appendChild(o);
+            };
+            span.appendChild(titleNode);
+            span.appendChild(select);
+            return span;
+        },
+        closeEditor: function(div) {
+            //this is the main "big" editor for the table,
+            //not an individual cell editor
+            //return true to close the editor
+            //anything else will leave the editor open
+            return true;
+        },
         //websocket connection to Q.  try and do a reconnect after 2 seconds if we fail
         connect: function() {
             var d = {};
@@ -450,6 +495,7 @@ The `fin-hypergrid-behavior-qtree` element is a custom Polymer web component use
                         self.initColumnIndexes();
                     }
                     self.changed();
+                    //console.dir(self.block);
                 };
                 this.ws.onerror = function(e) {
                     self.clearData();
@@ -466,29 +512,6 @@ The `fin-hypergrid-behavior-qtree` element is a custom Polymer web component use
     });
 
 })(); /* jslint ignore:line */
-
-    // h_ is the text of the hierarchy column.
-    // l_ is the level of the row of the table.
-    // e_ tells you whether the row is a leaf or a node.
-    // o_ tells you whether the row is open, if it's a node
-    // n_ is a list of nodes
-    // so:
-    // indent h_[i] l_[i] spaces.
-    // if e_[i]=1 then row i is a leaf. otherwise it's a node.
-    // if row i is a node, then if o_[i]=0 then row i is closed (prefix with a +) else it's open (prefix with a -)
-
-    // Z  =  data table (first record;rest of the records)
-    // Z_ =  ctl table (ditto)
-    // G  =  groups
-    // G_ = rest of the groupable cols
-    // H  = rolled up cols
-    // H_ = columns not in table
-    // Q  = type map
-    // S  = sort map
-    // R  = rows map (block of table i'm sending you)
-    // N  = count of treetable
-
-
 
   </script>
 </polymer-element>

@@ -10,7 +10,7 @@ The `fin-hypergrid-behavior-default` element is a custom Polymer web component i
 <link rel="import" href="../fin-hypergrid-constants.html">
 <link rel="import" href="../fin-hypergrid-cell-provider.html">
 <link rel="import" href="../features/fin-hypergrid-feature-cell-selection.html">
-<link rel="import" href="../features/fin-hypergrid-feature-column-picker.html">
+<link rel="import" href="../features/fin-hypergrid-feature-overlay.html">
 <link rel="import" href="../features/fin-hypergrid-feature-thumbwheel-scrolling.html">
 <link rel="import" href="../features/fin-hypergrid-feature-cell-editing.html">
 <link rel="import" href="../features/fin-hypergrid-feature-column-sorting.html">
@@ -103,7 +103,7 @@ The `fin-hypergrid-behavior-default` element is a custom Polymer web component i
         },
 
         initializeFeatureChain: function(grid) {
-            this.setNextFeature(document.createElement('fin-hypergrid-feature-column-picker'));
+            this.setNextFeature(document.createElement('fin-hypergrid-feature-overlay'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-column-resizing'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-row-resizing'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-cell-selection'));
@@ -462,6 +462,18 @@ The `fin-hypergrid-behavior-default` element is a custom Polymer web component i
             code += String.fromCharCode('A'.charCodeAt(0) + rem);
             return code;
         },
+        openEditor: function(div) {
+            //enhance the editor to suit your needs
+            //also
+            //return false to keep the editor from opening
+            //anything else will leave the editor open
+            return false;
+        },
+        closeEditor: function(div) {
+            //return true to close the editor
+            //anything else will leave the editor open
+            return true;
+        }
 
     });
 

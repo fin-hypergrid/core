@@ -24,5 +24,6 @@ T:([tradeId:til n]
  time:09:30:00.0+n?23000000)
 
 G:`sector`trader`strategy
+H:`tradeId`price`quantity
 A[`price]:(avg;`price)
 A[`tradeId]:(.tt.nul;`tradeId)

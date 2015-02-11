@@ -190,7 +190,6 @@
          */
 
         renderOverridesCache: {},
-
         domReady: function() {
             var self = this;
             this.themeListener = document.createElement('html');
