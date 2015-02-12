@@ -22,7 +22,8 @@
     "core-elements": "Polymer/core-elements#master",
     "fin-canvas": "#master",
     "fin-rectangle": "#master",
-    "fin-vampire-bar": "#master"
+    "fin-vampire-bar": "#master",
+    "fin-hypergrid-dnd-list": "*"
   },
   "devDependencies": {
     "polymer": "Polymer/polymer#master",

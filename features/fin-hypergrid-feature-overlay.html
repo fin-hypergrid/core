@@ -69,6 +69,7 @@ The `fin-hypergrid-overlay` element is a custom Polymer web component that can o
             requestAnimationFrame(function(){
                 self.overlay.style.opacity = 0.95;
                 document.addEventListener('keydown', self._closer, false);
+                self.overlay.focus();
             });
         },
         closeColumnPicker: function(grid) {
@@ -101,6 +102,8 @@ The `fin-hypergrid-overlay` element is a custom Polymer web component that can o
         },
         initializeOverlaySurface: function(grid) {
             this.overlay = document.createElement('div');
+            this.overlay.setAttribute('tabindex', 0);
+            this.overlay.style.outline = 'none';
             this.overlay.style.boxShadow = '5px 5px 2px #888888';
             this.overlay.style.position = 'absolute';
             this.overlay.style.display = 'none';

@@ -58,6 +58,7 @@ cp -rf ../../polymer-gestures ./components/polymer-gestures
 cp -rf ../../fin-rectangle ./components/fin-rectangle
 cp -rf ../../fin-canvas ./components/fin-canvas
 cp -rf ../../fin-vampire-bar ./components/fin-vampire-bar
+cp -rf ../../fin-hypergrid-dnd-list ./components/fin-hypergrid-dnd-list
 cp -rf ../../accountingjs ./components/accountingjs
 
 cp -rf ../../core-a11y-keys ./components/core-a11y-keys

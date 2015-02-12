@@ -408,19 +408,40 @@ The `fin-hypergrid-behavior-qtree` element is a custom Polymer web component use
         },
         openEditor: function(div) {
             var container = document.createElement('div');
-            //container.style.display = 'inline-flex';
 
-            var groupsList = this.createList('hierarchy', this.block.G);
-            container.appendChild(groupsList);
+            var group = document.createElement('fin-hypergrid-dnd-list');
+            var hidden = document.createElement('fin-hypergrid-dnd-list');
+            var visible = document.createElement('fin-hypergrid-dnd-list');
 
-            var visibleList = this.createList('visible columns', this.block.H);
-            container.appendChild(visibleList);
+            container.appendChild(group);
+            container.appendChild(hidden);
+            container.appendChild(visible);
 
-            var hiddenList = this.createList('hidden columns', this.block.H_);
-            container.appendChild(hiddenList);
+            this.beColumnStyle(group.style);
+            group.style.left = '0%';
+            group.label = 'groups';
+            group.list = this.block.G;
+
+            this.beColumnStyle(hidden.style);
+            hidden.style.left = '33.3333%';
+            hidden.label = 'hidden columns';
+            hidden.list = this.block.H;
+
+            this.beColumnStyle(visible.style);
+            visible.style.left = '66.6666%';
+            visible.label = 'visible columns';
+            visible.list = this.block.H_;
+
 
             div.appendChild(container);
             return true;
+        },
+        beColumnStyle: function(style) {
+              style.top = '5%';
+              style.position = 'absolute';
+              style.width = '33.3333%';
+              style.height = '90%';
+              style.whiteSpace = 'nowrap';
         },
         createList: function(title, data) {
             var span = document.createElement('span');
