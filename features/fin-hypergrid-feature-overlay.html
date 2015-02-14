@@ -109,7 +109,7 @@ The `fin-hypergrid-overlay` element is a custom Polymer web component that can o
             this.overlay.style.display = 'none';
             this.overlay.style.transition = 'opacity ' + animationTime + 'ms ease-in';
             this.overlay.style.opacity = 0;
-            grid.shadowRoot.appendChild(this.overlay);
+            grid.appendChild(this.overlay);
             //document.body.appendChild(this.overlay);
         },
 
