@@ -449,6 +449,11 @@ The `fin-hypergrid-behavior-default` element is a custom Polymer web component i
 
         changed: function() {},
 
+        //this is done through the dnd tool for now...
+        isColumnReorderable: function() {
+            return true;
+        },
+
         alphaFor: function(i) {
             // Name the column headers in A, .., AA, AB, AC, .., AZ format
             // quotient/remainder
