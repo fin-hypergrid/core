@@ -80,8 +80,10 @@ The `fin-hypergrid-feature-column-moving` element is a custom Polymer web compon
         },
 
         handleMouseDown: function(grid, event) {
-            if (this.isFixedRow(grid, event)) {
-                this.dragArmed = true;
+            if (grid.getBehavior().isColumnReorderable()) {
+                if (this.isFixedRow(grid, event)) {
+                    this.dragArmed = true;
+                }
             }
             if (this.next) {
                 this.next.handleMouseDown(grid, event);

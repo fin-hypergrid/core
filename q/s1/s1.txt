@@ -1,0 +1,11 @@
+single-process treetable server
+-------------------------------
+
+u.q     creates example table, updates price and quantity
+t.q     computes simple treetable
+w.q     websocket interface and hypergrid API
+
+start treetable/web process (port 12345):
+
+        cd s1
+        q u.q
