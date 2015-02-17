@@ -2,9 +2,9 @@
 
 W:0Ni
 
-.z.po:{[w]`W set w}
+.z.po:{[w]`W set w;neg[W](`.js.ini;.js.obj[]);}
 .z.pc:{[w]`W set 0Ni}
-.z.ps:{neg[W].js.exe .js.sym x}
+.z.ps:{neg[W](`.js.exe;.js.exe x)}
 
 / entry points
 
@@ -15,12 +15,9 @@ W:0Ni
 
 / utilities
 
-.js.sym:{$[(t:abs type x)in 0 99h;.z.s each x;10=t;`$x;x]}
 .js.exe:{.js[x`fn]x}
 .js.set:{`Z set .tt.cons[T;P;A;S;G]F;.js.ret x}
-.js.sub:{flip each(1#x;.js.row[1_x]. R`start`end)}
-.js.row:{$[y>=count x;0#x;((1+z-y)&count r)#r:y _ x]}
-.js.obj:{`Z`G`H`F`I`Q`S`R`N!(.js.sub Z;G;H;F;I;Q;`cols`sorts!(key S;get S);R;N)}
+.js.obj:{`Z`G`H`F`I`Q`S`R`N!(Z;G;H;F;I;Q;S;R;N)}
 .js.ret:{x,.js.obj[]}
-.js.upd:{if[not null W;neg[W].js.set()!()]}
-.js.ups:{if[not null W;`Z set 0!(`n_ xkey Z)upsert`n_ xkey .tt.cons[T;P;A;S;G]x;neg[W].js.ret()!()]}
+.js.upd:{if[not null W;neg[W](`.js.exe;.js.set()!())]}
+.js.ups:{if[not null W;`Z set 0!(`n_ xkey Z)upsert`n_ xkey .tt.cons[T;P;A;S;G]x;neg[W](`.js.exe;.js.ret()!())]}

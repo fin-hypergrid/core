@@ -30,8 +30,9 @@ $[.z.K<3.3;
 .js.sym:{$[(t:abs type x)in 0 99h;.z.s each x;10=t;`$x;x]}
 .js.exe:{.js[x`fn]x}
 .js.set:{`Z set .tt.cons[T;P;A;S;G]F;.js.ret x}
-.js.sub:{flip each(1#x;.tt.rows[R]1_x)}
-.js.obj:{`Z`G`H`F`I`Q`S`R`N!(.js.sub Z;G;H;F;I;.tt.qtype T;`cols`sorts!(key S;get S);R;count Z)}
+.js.sub:{flip each(1#x;.js.row[1_x]. R`start`end)}
+.js.row:{$[y>=count x;0#x;((1+z-y)&count r)#r:y _ x]}
+.js.obj:{`Z`G`H`F`I`Q`S`R`N!(.js.sub Z;G;H;F;I;Q;`cols`sorts!(key S;get S);R;N)}
 .js.ret:{x,.js.obj[]}
 .js.upd:{if[not null W;t:.z.z;.js.snd .js.set()!();.js.log[t]`upd]}
 .js.ups:{if[not null W;t:.z.z;`Z set 0!(`n_ xkey Z)upsert`n_ xkey .tt.cons[T;P;A;S;G]x;.js.snd .js.ret()!();.js.log[t]`ups]}

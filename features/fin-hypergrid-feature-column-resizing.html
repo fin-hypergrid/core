@@ -109,7 +109,6 @@ The `fin-hypergrid-column-resizing` element is a custom Polymer web component th
                 var scrollValue = this.getScrollValue(grid);
                 var fixedAreaCount = this.getFixedAreaCount(grid);
                 this.dragIndex = overArea - 1;
-                console.log(this.dragIndex);
                 this.dragStart = this.getMouseValue(event)
                 if (overArea < fixedAreaCount) {
                     scrollValue = 0;

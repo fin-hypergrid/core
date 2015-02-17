@@ -1,0 +1,27 @@
+two-process treetable
+---------------------
+
+u.q     creates example table, updates price and quantity
+t.q     computes simple treetable
+w.q     qipc interface to v.q
+
+v.q     websocket interface and hypergird API + services scrolling requests (non-computational tasks)
+
+start web process (port 12345):
+
+        cd s2
+        q v.q
+
+start treetable process (port 12346):
+
+        cd s2
+        q u.q
+
+web and treetable processes can be started in either order.
+
+the two-process version decouples treetable recomputation and hypergrid interaction.
+
+
+ 
+
+

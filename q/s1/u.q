@@ -24,13 +24,13 @@ T:([tradeId:til n]
  sector:n?sector;
  trader:n?trader;
  strategy:n?strategy;
- price:50+.23*n?400;
+ price:{0.01*"i"$100*x}20+n?400.;
  quantity:(100*10+n?20)-2000;
  date:2000.01.01+asc n?365;
- time:09:30:00.0+n?23000000)
+ time:09:30:00.0+n?06:30)
 
 G:`sector`trader`strategy
-F:`symbol`price`quantity
+F:`holdingId`symbol`price`quantity`date`time
 A[`price]:(avg;`price)
 A[`tradeId]:(.tt.nul;`tradeId)
 

@@ -91,6 +91,8 @@ The `fin-hypergrid-behavior-qtree` element is a custom Polymer web component use
             this.sorted = {};
             this.ws = null;
             this.reconnect();
+            this.msgCounter = Date.now();
+            this.msgResponsesActions = {};
         },
         getFixedRowCount: function() {
             return 2;
@@ -144,15 +146,20 @@ The `fin-hypergrid-behavior-qtree` element is a custom Polymer web component use
 
                     //approxiamte line height is a 'W'
                     var size = gc.measureText('W');
-                    var textHeight = size.width * 1.4;
-                    var hoffset = Math.ceil(textHeight / 1.8);
+                    var textHeight = size.width * 1.6;
+                    var hoffset = Math.ceil(textHeight / 2.1);
 
                     if (val) {
                         for (var i = 0; i < val.length; i++)
                         {
-                            gc.fillText(val[i], 5, hoffset + (i*textHeight));
+                            gc.fillText(val[i], 4, hoffset + (i*textHeight));
                         }
                     }
+                    gc.strokeStyle = this.config.properties['lineColor'];
+                    gc.moveTo(0, height-0.5);
+                    gc.lineTo(width + 0, height-0.5);
+                    gc.moveTo(0, height+0.5);
+                    gc.lineTo(width + 0, height+0.5);
                     gc.stroke();
                 }
             }
@@ -252,7 +259,7 @@ The `fin-hypergrid-behavior-qtree` element is a custom Polymer web component use
             var startY = this.scrollPositionY || 0;
             var stopY = startY + 60;
             this.ws.send(JSON.stringify({
-                id: "abc",
+                id: this.getNextMessageId(),
                 fn: "get",
                 start: startY,
                 end: stopY
@@ -361,7 +368,7 @@ The `fin-hypergrid-behavior-qtree` element is a custom Polymer web component use
 
             //lets tell Q now
             var msg = {
-                id: "abc",
+                id: this.getNextMessageId(),
                 fn: "sorts",
                 cols: sortBlob.cols,
                 sorts: sortBlob.sorts
@@ -403,7 +410,7 @@ The `fin-hypergrid-behavior-qtree` element is a custom Polymer web component use
             var rowNum = mouse.gridCell.y - this.getFixedRowCount();
             var nodes = this.block.Z[1].n_[rowNum];
             var nodeClick = {
-                    id: "abc",
+                    id: this.getNextMessageId(),
                     fn: "node",
                     node: nodes
                 };
@@ -461,7 +468,7 @@ The `fin-hypergrid-behavior-qtree` element is a custom Polymer web component use
         closeEditor: function(div) {
             var lists = div.lists;
             var changeCols = {
-                    id: "abc",
+                    id: this.getNextMessageId(),
                     fn: "groups",
                     groups: lists.group,
                     visible: lists.visible
@@ -475,9 +482,16 @@ The `fin-hypergrid-behavior-qtree` element is a custom Polymer web component use
         isColumnReorderable: function() {
             return true;
         },
-
+        getNextMessageId: function(onResponseDo) {
+            this.msgResponsesActions
+            var id = 'js_' + this.msgCounter++;
+            if (onResponseDo) {
+              this.msgResponsesActions[id] = onResponseDo;
+            }
+            return id;
+        },
         swapColumns: function(src, tar) {
-
+            var self = this;
             var tmp = this.columnIndexes[src];
             this.columnIndexes[src] = this.columnIndexes[tar];
             this.columnIndexes[tar] = tmp;
@@ -486,8 +500,11 @@ The `fin-hypergrid-behavior-qtree` element is a custom Polymer web component use
             var t = visible[src];
             visible[src] = visible[tar];
             visible[tar] = t;
+            var msgId = this.getNextMessageId(function() {
+                self.initColumnIndexes();
+            });
             var changeCols = {
-                    id: "abc",
+                    id: msgId,
                     fn: "groups",
                     groups: this.block.G,
                     visible: visible
@@ -524,7 +541,7 @@ The `fin-hypergrid-behavior-qtree` element is a custom Polymer web component use
                     var startY = this.scrollPositionY || 0;
                     var stopY = startY + 60;
                     self.ws.send(JSON.stringify({
-                        id: "abc",
+                        id: self.getNextMessageId(),
                         fn: "get",
                         start: startY,
                         end: stopY
@@ -537,8 +554,13 @@ The `fin-hypergrid-behavior-qtree` element is a custom Polymer web component use
                 };
                 this.ws.onmessage = function(e) {
                     d = JSON.parse(e.data);
-                    self.initColumnIndexes();
                     self.block = d;
+                    var msgId = d.id;
+                    var action = self.msgResponsesActions[msgId];
+                    if (action) {
+                        action(d);
+                        self.msgResponsesActions[id] = "done";
+                    }
                     oldSize = self.block.N - 1;
 
                     if (d.rows !== oldSize) {

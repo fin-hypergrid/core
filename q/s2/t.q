@@ -106,13 +106,15 @@ rollups_:{[t;a]@[a;k;:;A[lower qtype[t]k],'k:cols[t]except key a]}
 / cast <- type
 qtype:{exec c!t from meta x}
 
-/ block of rows
-rows:{[r;v]take[v]. r`start`end}
-take:{[v;s;e]$[s>=count v;0#v;((1+e-s)&count z)#z:s _ v]}
-
 \d .
 
 // globals
+
+/ qtypes
+Q::.tt.qtype T
+
+/ count of Z
+N::count Z
 
 / visible order
 F::cols[T]except G
