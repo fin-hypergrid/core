@@ -17,7 +17,7 @@ W:0Ni
 
 .js.exe:{.js[x`fn]x}
 .js.set:{`Z set .tt.cons[T;P;A;S;G]F;.js.ret x}
-.js.obj:{`Z`G`H`F`I`Q`S`R`N!(Z;G;H;F;I;Q;S;R;N)}
+.js.obj:{{x!get each x}`Z`G`H`F`I`Q`S`R`N}
 .js.ret:{x,.js.obj[]}
 .js.upd:{if[not null W;neg[W](`.js.exe;.js.set()!())]}
 .js.ups:{if[not null W;`Z set 0!(`n_ xkey Z)upsert`n_ xkey .tt.cons[T;P;A;S;G]x;neg[W](`.js.exe;.js.ret()!())]}

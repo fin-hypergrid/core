@@ -545,7 +545,7 @@ The `fin-hypergrid-renderer` element is a custom Polymer web component used to s
                 for (var r = 0; r < numRows; r++) {
 
                     var height = this.getFixedRowHeight(r);
-                    var align = behavior.getFixedRowAlignment(c, r);
+                    var align = behavior.getFixedRowAlignment(c + scrollLeft, r);
                     var value = behavior.getFixedRowValue(c + scrollLeft, r);
 
                     //translatedX allows us to reorder columns

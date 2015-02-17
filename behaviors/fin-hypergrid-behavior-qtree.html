@@ -93,7 +93,8 @@ The `fin-hypergrid-behavior-qtree` element is a custom Polymer web component use
             this.reconnect();
             this.msgCounter = Date.now();
             this.msgResponsesActions = {};
-        },
+
+},
         getFixedRowCount: function() {
             return 2;
         },
@@ -490,18 +491,17 @@ The `fin-hypergrid-behavior-qtree` element is a custom Polymer web component use
             }
             return id;
         },
-        swapColumns: function(src, tar) {
+        endDragColumnNotification: function() {
             var self = this;
-            var tmp = this.columnIndexes[src];
-            this.columnIndexes[src] = this.columnIndexes[tar];
-            this.columnIndexes[tar] = tmp;
 
             var visible = this.block.F.slice(0);
-            var t = visible[src];
-            visible[src] = visible[tar];
-            visible[tar] = t;
-            var msgId = this.getNextMessageId(function() {
+            for (var i = 0; i < visible.length; i++) {
+                visible[i] = this.getColumnId(i);
+            }
+            var msgId = this.getNextMessageId(function(message) {
+                //ignore any predecessor column swap results if a new one has been posted
                 self.initColumnIndexes();
+                self.handleMessage(message);
             });
             var changeCols = {
                     id: msgId,
@@ -523,11 +523,23 @@ The `fin-hypergrid-behavior-qtree` element is a custom Polymer web component use
               style.height = '90%';
               style.whiteSpace = 'nowrap';
         },
+        handleMessage: function(d) {
+            this.block = d;
+
+            if (d.rows !== this.block.N - 1) {
+                if (this.sizeChanged) {
+                    this.sizeChanged();
+                }
+            }
+            if (!this.columnIndexes || this.columnIndexes.length === 0)  {
+                this.initColumnIndexes();
+            }
+            this.changed();
+        },
         //websocket connection to Q.  try and do a reconnect after 2 seconds if we fail
         connect: function() {
             var d = {};
             var self = this;
-            var oldSize = 0;
             if ('WebSocket' in window) {
                 try {
                     this.ws = new WebSocket(this.url);
@@ -554,25 +566,15 @@ The `fin-hypergrid-behavior-qtree` element is a custom Polymer web component use
                 };
                 this.ws.onmessage = function(e) {
                     d = JSON.parse(e.data);
-                    self.block = d;
                     var msgId = d.id;
                     var action = self.msgResponsesActions[msgId];
                     if (action) {
                         action(d);
-                        self.msgResponsesActions[id] = "done";
+                        self.msgResponsesActions[msgId] = undefined;
+                    } else {
+                        self.handleMessage(d);
                     }
-                    oldSize = self.block.N - 1;
 
-                    if (d.rows !== oldSize) {
-                        if (self.sizeChanged) {
-                            self.sizeChanged();
-                        }
-                    }
-                    if (!self.columnIndexes || self.columnIndexes.length === 0)  {
-                        self.initColumnIndexes();
-                    }
-                    self.changed();
-                    //console.dir(self.block);
                 };
                 this.ws.onerror = function(e) {
                     self.clearData();
