@@ -1,5 +1,12 @@
 talk #3 GDG meetup more polymer notes
 -----------------------------------------
+
+describe my dev environment, dev loop and build
+    aggresive valididation
+    odd project structure
+    vulcanizer doesn't compress any of the files
+    also a better google pages export script
+
 what is and why is polymer cool
     core/paper elements
     material design
@@ -13,12 +20,6 @@ what is and why is polymer cool
         templates
         data binding
         pub/sub mechanism
-
-describe my dev environment, dev loop and build
-    aggresive valididation
-    odd project structure
-    vulcanizer doesn't compress any of the files
-    also a better google pages export script
 
 fix yeoman build - move to gulp
 plugin pattern

@@ -83,7 +83,7 @@ The `fin-hypergrid-behavior-qtree` element is a custom Polymer web component use
                     cols: [],
                     rows: []
                 },
-                Z_:[{
+                Z:[{
                     g_:['']
                 }]
             };
@@ -125,7 +125,9 @@ The `fin-hypergrid-behavior-qtree` element is a custom Polymer web component use
                         var colId = self.block.F[config.x];
                         var type = self.block.Q[colId];
                         var formatter = typeFormatMap[type] || function(v) { return v; };
-                        config.value = formatter(config.value[0]);
+                        if (config.value) {
+                            config.value = formatter(config.value[0]);
+                        }
                     }
                 config.value = config.value || '';
                 return label;
@@ -167,11 +169,6 @@ The `fin-hypergrid-behavior-qtree` element is a custom Polymer web component use
             return provider;
         },
 
-        //this is done through the dnd tool for now...
-        //we can fix this to work both ways later
-        isColumnReorderable: function() {
-            return false;
-        },
 
         attributeChanged: function(attrName, oldVal, newVal) {
             // console.log(attrName, 'old: ' + oldVal, 'new:', newVal);
@@ -204,7 +201,7 @@ The `fin-hypergrid-behavior-qtree` element is a custom Polymer web component use
             // if (clone.length === 0) {
             //     return clone;
             // }
-            var hValue = this.block.Z_[0].g_[0];
+            var hValue = this.block.Z[0].g_[0];
             var clone = ['Hierarchy', '\u25be ' + hValue];
             clone[0] = clone[0] + ' ' + sortIndicator;
             return clone;
@@ -215,7 +212,7 @@ The `fin-hypergrid-behavior-qtree` element is a custom Polymer web component use
         getValue: function(x, y) {
             var col = this.getColumnId(x);
             var normalized = Math.floor(y - this.scrollPositionY);
-            if (this.block) {
+            if (this.block && col) {
                 var val = this.block.Z[1][col][normalized];
                 if (val || val === 0) {
                     return val;
@@ -300,7 +297,7 @@ The `fin-hypergrid-behavior-qtree` element is a custom Polymer web component use
 
         getFixedColumnValue: function(x, y) {
             var indentPixels = 10;
-            var blob = this.block.Z_[1];
+            var blob = this.block.Z[1];
             var transY = Math.max(0, y - this.scrollPositionY);
             var data = blob.g_[transY];
             var indent = 5 + indentPixels + (blob.l_[transY] - 1) * indentPixels;
@@ -404,7 +401,7 @@ The `fin-hypergrid-behavior-qtree` element is a custom Polymer web component use
 
         fixedColumnClicked: function(grid, mouse) {
             var rowNum = mouse.gridCell.y - this.getFixedRowCount();
-            var nodes = this.block.Z_[1].n_[rowNum];
+            var nodes = this.block.Z[1].n_[rowNum];
             var nodeClick = {
                     id: "abc",
                     fn: "node",
@@ -413,6 +410,7 @@ The `fin-hypergrid-behavior-qtree` element is a custom Polymer web component use
             this.ws.send(JSON.stringify(nodeClick));
         },
         openEditor: function(div) {
+            var self = this;
             var container = document.createElement('div');
 
             var group = document.createElement('fin-hypergrid-dnd-list');
@@ -426,17 +424,29 @@ The `fin-hypergrid-behavior-qtree` element is a custom Polymer web component use
             this.beColumnStyle(group.style);
             group.style.left = '0%';
             group.label = 'groups';
-            group.list = this.block.G;
+            group.list = this.block.G.slice(0);
+            //can't remove the last item
+            group.canDragItem = function(list, item, index, e) {
+                return list.length > 1;
+            };
+            //only allow dropping of H fields
+            group.canDropItem = function(sourceList, myList, sourceIndex, item, e) {
+                return self.block.H.indexOf(item) > -1;
+            };
 
             this.beColumnStyle(hidden.style);
             hidden.style.left = '33.3333%';
             hidden.label = 'hidden columns';
-            hidden.list = this.block.F_;
+            hidden.list = this.block.I.slice(0);
 
             this.beColumnStyle(visible.style);
             visible.style.left = '66.6666%';
             visible.label = 'visible columns';
-            visible.list = this.block.F;
+            visible.list = this.block.F.slice(0);
+            //can't remove the last item
+            visible.canDragItem = function(list, item, index, e) {
+                return list.length > 1;
+            };
 
             //attach for later retrieval
             div.lists = {
@@ -458,6 +468,36 @@ The `fin-hypergrid-behavior-qtree` element is a custom Polymer web component use
                 };
             this.ws.send(JSON.stringify(changeCols));
             return true;
+        },
+
+        //this is done through the dnd tool for now...
+        //we can fix this to work both ways later
+        isColumnReorderable: function() {
+            return true;
+        },
+
+        swapColumns: function(src, tar) {
+
+            var tmp = this.columnIndexes[src];
+            this.columnIndexes[src] = this.columnIndexes[tar];
+            this.columnIndexes[tar] = tmp;
+
+            var visible = this.block.F.slice(0);
+            var t = visible[src];
+            visible[src] = visible[tar];
+            visible[tar] = t;
+            var changeCols = {
+                    id: "abc",
+                    fn: "groups",
+                    groups: this.block.G,
+                    visible: visible
+                };
+            this.ws.send(JSON.stringify(changeCols));
+            return true;
+
+            var tmp = this.columnIndexes[src];
+            this.columnIndexes[src] = this.columnIndexes[tar];
+            this.columnIndexes[tar] = tmp;
         },
         beColumnStyle: function(style) {
               style.top = '5%';
@@ -497,6 +537,7 @@ The `fin-hypergrid-behavior-qtree` element is a custom Polymer web component use
                 };
                 this.ws.onmessage = function(e) {
                     d = JSON.parse(e.data);
+                    self.initColumnIndexes();
                     self.block = d;
                     oldSize = self.block.N - 1;
 

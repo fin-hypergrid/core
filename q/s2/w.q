@@ -15,12 +15,11 @@ W:0Ni
 
 / utilities
 
-.js.elt:{`time$"z"$.z.z-x}
 .js.sym:{$[(t:abs type x)in 0 99h;.z.s each x;10=t;`$x;x]}
 .js.exe:{.js[x`fn]x}
 .js.set:{`Z set .tt.cons[T;P;A;S;G]F;.js.ret x}
-.js.sub:{[f;z]flip each(1#z;.tt.rows[R]1_z:?[z;();0b;{x!x}h where f(h:cols z)like"*_"])}
-.js.obj:{`Z`Z_`G`G_`F`F_`Q`S`R`N!(.js.sub[not]Z;.js.sub[::]Z;G;where["S"=q]except G;F;cols[T]except G,F;q:.tt.qtype T;`cols`sorts!(key S;get S);R;count Z)}
+.js.sub:{flip each(1#x;.tt.rows[R]1_x)}
+.js.obj:{`Z`G`H`F`I`Q`S`R`N!(.js.sub Z;G;H;F;I;.tt.qtype T;`cols`sorts!(key S;get S);R;count Z)}
 .js.ret:{x,.js.obj[]}
 .js.upd:{if[not null W;neg[W].js.set()!()]}
 .js.ups:{if[not null W;`Z set 0!(`n_ xkey Z)upsert`n_ xkey .tt.cons[T;P;A;S;G]x;neg[W].js.ret()!()]}

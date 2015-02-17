@@ -29,6 +29,7 @@ The `fin-hypergrid-feature-column-moving` element is a custom Polymer web compon
         dragOffset: 0,
 
         initializeOn: function(grid) {
+            this.isFloatingNow = false;
             this.initializeAnimationSupport(grid);
             if (this.next) {
                 this.next.initializeOn(grid);
@@ -186,6 +187,7 @@ The `fin-hypergrid-feature-column-moving` element is a custom Polymer web compon
                     self.doFloaterAnimation(grid);
                     requestAnimationFrame(function() {
                         d.style.display = 'none';
+                        self.isFloatingNow = false;
                     });
                 }, columnAnimationTime + 50);
             };
@@ -350,6 +352,10 @@ The `fin-hypergrid-feature-column-moving` element is a custom Polymer web compon
                 if (draggedToTheRight) {
                     overCol = overCol - 1;
                 }
+                if (this.isFloatingNow) {
+                    return;
+                }
+                this.isFloatingNow = true;
                 this.createFloatColumn(grid, overCol);
                 this.floatColumnTo(grid, draggedToTheRight);
             } else {

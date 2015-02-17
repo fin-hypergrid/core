@@ -5,8 +5,12 @@
 \d .tt
 
 / construct treetable
-cons:{[t;p;a;s;g;f]cons_[csub[t]g,f;p;(f inter key a)#a;s]. ungrp[t;g]f}
+cons:{[t;p;a;s;g;f]cons_[csub[csym[t]g]g,f;p;(f inter key a)#a;s]. ungrp[t;g]f}
 cons_:{[t;p;a;s;g;f]0!ctl[1!(0!d)tsort[d:dat[t;p;rollups[t;g]a;g]f,`s_]s;p]g}
+
+/ symbolize non-symbolic grouping fields
+csym:{[t;g]![t;();0b;h!(`$string@;)each h:.tt.csym_[t]g]}
+csym_:{[t;g]exec c from meta?[t;();0b;g!g]where t<>"s"}
 
 / flatten if keys in G
 ungrp:{[t;g;f]if[all keys[t]in g;f:distinct g,f;g:0#`];(g;f)}
@@ -110,11 +114,17 @@ take:{[v;s;e]$[s>=count v;0#v;((1+e-s)&count z)#z:s _ v]}
 
 // globals
 
+/ visible order
+F::cols[T]except G
+
 / group by
 G:()
 
-/ visible order
-F::cols[T]except G
+/ groupable
+H::exec c from meta get T where t in"bhijspmdznuvt"
+
+/ invisible
+I::cols[T]except G,F
 
 / rollups
 A:()!()

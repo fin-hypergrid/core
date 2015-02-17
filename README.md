@@ -51,7 +51,7 @@ The only file that is necessary to deploy the hypergrid is the webcomponent html
 ##Q by [kx](http://kx.com/) systems [demo](http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/demo.html) tabs (select either the 'Q' or 'Q Tree' tabs).
 1. The Q tabs will not be populated with data until you run a Q server script that is provided.
 2. Make sure q 32 bit free version is installed [Q free version](http://kx.com/software-download.php)
-3. Startup either ```q bigtable.q```, ```q sorttable.q```, or ```d.q```
+3. Startup either ```q bigtable.q```, ```q sorttable.q```, or the analytics examples found in s1.zip and s2.zip
 4. Make sure grunt serve is running
 5. If you are running locally, the grunt serve process should automatically refresh your web browser with the q driven grid now populated with data
 
@@ -121,55 +121,18 @@ The excel-integration demo consists of an OpenFin app, and a C# XLL plugin built
 
 Assumptions
 * Windows machine
-* .NET framework installed
 
 Steps to Integration Demo
 
 1. Download [excel.zip](http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/excel.zip)
 2. Unzip files to a local folder 
 3. Launch the *FinDesktopAddin* located at 
-    64 Bit  &lt;local folder&gt;/desktop-cs-excal/ExcelRtdAddin/bin/x64/Release/
-    86 Bit  &lt;local folder&gt;/desktop-cs-excal/ExcelRtdAddin/bin/x64/Release/
+    64 Bit  &lt;local folder&gt;/FinDesktopAddin64-packed.xll
+    86 Bit  &lt;local folder&gt;/FinDesktopAddin-packed.xll
 4. Start Hypergrid
-5. Open Hypergrid.xls stored in &lt;local folder&gt;
+5. Open Hypergrid.xlsx stored in &lt;local folder&gt;
 
-Steps 3-5 need to be repeated each time you want to run the demo. Alternatively, you can manage this addin so that step 3 does not need to be repeated Excel File -> Options -> Add-Ins -> Manage Addins -> Browse -> Select <local folder>/desktop-cs-excel/ExcelRtdAddin/bin/x64/Release/*FinDesktopAddin* 
-
-The Excel-DNA infrastructure provides a C++ XLL plugin which exposes the Excel Object Model to C# dll's and code which can be configured using a manifest file (.dna)
-
-The excel folder ([download excel.zip](http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/excel.zip)) contains the source code and implementation of the OpenFin C# adapter which connects to the OpenFin runtime over WebSockets, and exposes the InterApplicationBus to C# code.  Download this zip file and unzip it into a new directory on your machine.
-
-The *desktop-cs-excel* folder contains the Excel-DNA interfaces in the *ExcelRtdAddin/RtdServer.cs* file, and also contains a complete distribution of the DNA source code in the Dna subfolder.
-
-*ExcelRtdAddin/RtdServer.cs* combines the ExcelRtdServer interface with the asynchronous OpenFin DesktopStateListener interfaces to expose a higher level set of classes DesktopRtdServer and SubscriptionRtdServer which can be used to integrate Excel functionality with OpenFin.  The SelectionRtdServer class implements the grid specifc behavior using a simple JSON serialisation of the selection, and provides updates from Excel using delegates on the ExcelDnaUtil.Application object and its associated worksheets.
-
-
-Running the Excel Integration Example
-=======
-
-To test that the Excel-DNA infrastructure is working on your system first load the appropriate 32bit or 64bit .xll file from the *desktop-cs-excel/Dna/Distribution/* folder.  You should be prompted with a security warning to enable the addin, after which you can create a new worksheet and enter the following formula in a cell (as described in ExcelDna.dna):
-
-*=AddThem(5,10)*
-
-You should see 15 as the result.
-
-If this is working then you can proceed to installing the OpenFin runtime and setting up the grid application to be hosted locally.  You can also use the default remotely hosted grid if you like, but its better for learning to use the locally hosted version.
-
-Run the hypergrid installer from here [here.](https://dl.openfin.co/services/download?fileName=hypergrid-demo-installer&config=http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/demo.json)
-
-This will add a shortcut to your desktop which will connect to the remote grid using the default url.  
-
-Once verified you can launch either the x86 or x64 OpenFin .xll addin:
-
-*desktop-cs-excel/ExcelRtdAddin/bin/x86/Release/FinDesktopAddin.xll*
-
-*desktop-cs-excel/ExcelRtdAddin/bin/x64/Release/FinDesktopAddin64.xll*
-
-
-Then open the xlsx file 'hypergrid.xlsx' found in the root of the downloaded excel.zip
-
-This will show two worksheets, the first sheet should now show data from the grid when you click a cell or if you hold shift and click multiple cells.  You can edit a cell which has a value in Excel and that change will be reflected in the equivalent grid cell.
-
+Steps 3-5 need to be repeated each time you want to run the demo. Alternatively, you can manage this addin so that step 3 does not need to be repeated Excel File -> Options -> Add-Ins -> Manage Addins -> Browse -> Select <local folder>/*FinDesktopAddin* 
 
 Excel Integration Links
 =====
