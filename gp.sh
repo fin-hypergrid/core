@@ -14,17 +14,22 @@
 
 # usage gp Polymer core-item [branch]
 # Run in a clean directory passing in a GitHub org and repo name
+
 org="openfin"
 repo="fin-hypergrid"
 branch="master" # default to master when branch isn't specified
 
-#delete existing dir
-rm -rf $repo
+#delete existing temp and recreate it, them move there
+rm -rf ../temp
+mkdir ../temp
+cd ../temp
 
 # make folder (same as input, no checking!)
 mkdir $repo
+
 #git clone git@github.com:$org/$repo.git --single-branch
 git clone http://github.com/$org/$repo.git --single-branch
+
 # switch to gh-pages branch
 pushd $repo >/dev/null
 git checkout --orphan gh-pages
@@ -45,53 +50,11 @@ echo "{
 " > .bowerrc
 
 git clone http://github.com/$org/$repo.git components/$repo
+pwd
 rm -rf components/$repo/.git
 
-cp -rf ../../webcomponentsjs ./components/webcomponentsjs
-cp -rf ../../polymer ./components/polymer
-cp -rf ../../NodeBind ./components/NodeBind
-cp -rf ../../TemplateBinding ./components/TemplateBinding
-cp -rf ../../URL ./components/URL
-cp -rf ../../observe-js ./components/observe-js
-cp -rf ../../polymer-expressions ./components/polymer-expressions
-cp -rf ../../polymer-gestures ./components/polymer-gestures
-cp -rf ../../fin-rectangle ./components/fin-rectangle
-cp -rf ../../fin-canvas ./components/fin-canvas
-cp -rf ../../fin-vampire-bar ./components/fin-vampire-bar
-cp -rf ../../fin-hypergrid-dnd-list ./components/fin-hypergrid-dnd-list
-cp -rf ../../accountingjs ./components/accountingjs
-
-cp -rf ../../core-a11y-keys ./components/core-a11y-keys
-cp -rf ../../core-animation ./components/core-animation
-cp -rf ../../core-component-page ./components/core-component-page
-cp -rf ../../core-collapse ./components/core-collapse
-cp -rf ../../core-dropdown ./components/core-dropdown
-cp -rf ../../core-focusable ./components/core-focusable
-cp -rf ../../core-icon ./components/core-icon
-cp -rf ../../core-icons ./components/core-icons
-cp -rf ../../core-iconset ./components/core-iconset
-cp -rf ../../core-iconset-svg ./components/core-iconset-svg
-cp -rf ../../core-meta ./components/core-meta
-cp -rf ../../core-menu ./components/core-menu
-cp -rf ../../core-overlay ./components/core-overlay
-cp -rf ../../core-pages ./components/core-pages
-cp -rf ../../core-resizable ./components/core-resizable
-cp -rf ../../core-selection ./components/core-selection
-cp -rf ../../core-selector ./components/core-selector
-cp -rf ../../core-splitter ./components/core-splitter
-cp -rf ../../core-transition ./components/core-transition
-
-cp -rf ../../paper-button ./components/paper-button
-cp -rf ../../paper-dropdown ./components/paper-dropdown
-cp -rf ../../paper-icon-button ./components/paper-icon-button
-cp -rf ../../paper-item ./components/paper-item
-cp -rf ../../paper-menu-button ./components/paper-menu-button
-cp -rf ../../paper-ripple ./components/paper-ripple
-cp -rf ../../paper-shadow ./components/paper-shadow
-cp -rf ../../paper-tabs ./components/paper-tabs
-
-cp -rf ../../web-animations-js ./components/web-animations-js
-
+# copy all dependencies while excluding this directory...
+rsync -r --exclude=temp --exclude=fin-hypergrid ../../ ./components/
 
 # redirect by default to the component folder
 echo "<META http-equiv="refresh" content=\"0;URL=components/$repo/\">" >index.html

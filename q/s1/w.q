@@ -35,4 +35,4 @@ $[.z.K<3.3;
 .js.obj:{`Z`G`H`F`I`Q`S`R`N!(.js.sub Z;G;H;F;I;Q;`cols`sorts!(key S;get S);R;N)}
 .js.ret:{x,.js.obj[]}
 .js.upd:{if[not null W;t:.z.z;.js.snd .js.set()!();.js.log[t]`upd]}
-.js.ups:{if[not null W;t:.z.z;`Z set 0!(`n_ xkey Z)upsert`n_ xkey .tt.cons[T;P;A;S;G]x;.js.snd .js.ret()!();.js.log[t]`ups]}
+.js.ups:{if[not null W;t:.z.z;`Z set 0!(`n_ xkey Z)upsert`n_ xkey .tt.cons[T;P;A;S;G]x inter cols Z;.js.snd .js.ret()!();.js.log[t]`ups]}

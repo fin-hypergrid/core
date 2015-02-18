@@ -20,4 +20,4 @@ W:0Ni
 .js.obj:{{x!get each x}`Z`G`H`F`I`Q`S`R`N}
 .js.ret:{x,.js.obj[]}
 .js.upd:{if[not null W;neg[W](`.js.exe;.js.set()!())]}
-.js.ups:{if[not null W;`Z set 0!(`n_ xkey Z)upsert`n_ xkey .tt.cons[T;P;A;S;G]x;neg[W](`.js.exe;.js.ret()!())]}
+.js.ups:{if[not null W;`Z set 0!(`n_ xkey Z)upsert`n_ xkey .tt.cons[T;P;A;S;G]x inter cols Z;neg[W](`.js.exe;.js.ret()!())]}

@@ -23,4 +23,4 @@ W:0Ni
 .js.obj:{`Z`G`H`F`I`Q`S`R`N!(.js.sub Z;G;H;F;I;Q;`cols`sorts!(key S;get S);R;N)}
 .js.ret:{x,.js.obj[]}
 .js.upd:{if[not null W;neg[W].js.set()!()]}
-.js.ups:{if[not null W;`Z set 0!(`n_ xkey Z)upsert`n_ xkey .tt.cons[T;P;A;S;G]x;neg[W].js.ret()!()]}
+.js.ups:{if[not null W;`Z set 0!(`n_ xkey Z)upsert`n_ xkey .tt.cons[T;P;A;S;G]x inter cols Z;neg[W].js.ret()!()]}
