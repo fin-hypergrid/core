@@ -73,16 +73,17 @@ The `fin-hypergrid-renderer` element is a custom Polymer web component used to s
     var buildPolymerTheme = function() {
         clearObjectProperties(polymerTheme);
         var pb = document.createElement('paper-button');
+
         pb.style.display = 'none';
         pb.setAttribute('disabled', true);
         document.body.appendChild(pb);
+        var p = window.getComputedStyle(pb);
 
         var section = document.createElement('section');
         section.style.display = 'none';
         section.setAttribute('hero', true);
         document.body.appendChild(section);
 
-        var p = window.getComputedStyle(pb);
         var h = window.getComputedStyle(document.querySelector('html'));
         var hb = window.getComputedStyle(document.querySelector('html, body'));
         var s = window.getComputedStyle(section);
@@ -112,6 +113,12 @@ The `fin-hypergrid-renderer` element is a custom Polymer web component used to s
         polymerTheme.fixedRowBGSelColor = p['background-color'];
         polymerTheme.fixedColumnFGSelColor = p['color'];
         polymerTheme.fixedColumnBGSelColor = p['background-color'];
+
+        //check if there is actuall a theme loaded if not, clear out all bogus values
+        //from my cache
+        if (polymerTheme.fixedRowBGSelColor === 'rgba(0, 0, 0, 0)') {
+            clearObjectProperties(polymerTheme);
+        }
 
         document.body.removeChild(pb);
         document.body.removeChild(section);
