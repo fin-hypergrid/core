@@ -25,7 +25,7 @@ T:([tradeId:til n]
  trader:n?trader;
  strategy:n?strategy;
  price:{0.01*"i"$100*x}20+n?400.;
- quantity:(100*10+n?20)-2000;
+ quantity:-50+n?100;
  date:2000.01.01+asc n?365;
  time:09:30:00.0+n?06:30)
 

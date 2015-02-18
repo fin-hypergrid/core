@@ -24,7 +24,8 @@ $[.z.K<3.3;
 
 .z.ws:{.js.rcv .js.sym .j.k x}
 
-/ javascript utilities
+/ utilities
+
 .js.sym:{$[(t:abs type x)in 0 99h;.z.s each x;10=t;`$x;x]}
 .js.sub:{flip each(1#x;.js.row[1_x]. R`start`end)}
 .js.row:{$[y>=count x;0#x;((1+z-y)&count r)#r:y _ x]}
