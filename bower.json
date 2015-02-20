@@ -18,15 +18,15 @@
     "/tests/"
   ],
   "dependencies": {
-    "paper-elements": "Polymer/paper-elements#master",
-    "core-elements": "Polymer/core-elements#master",
+    "paper-elements": "Polymer/paper-elements#0.5.4",
+    "core-elements": "Polymer/core-elements#0.5.4",
     "fin-canvas": "#master",
     "fin-rectangle": "#master",
     "fin-vampire-bar": "#master",
     "fin-hypergrid-dnd-list": "*"
   },
   "devDependencies": {
-    "polymer": "Polymer/polymer#master",
+    "polymer": "Polymer/polymer#0.5.4",
     "accountingjs": "~0.3.2"
   }
 }
