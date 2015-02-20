@@ -16,24 +16,6 @@ var files = {
         'polymer/js/**/*.js',
         'test/**/*.js'
     ],
-    // js: [
-    //     'gruntfile.js',
-    //     '*.js',
-    //     'test/**/*.js'
-    // ],
-
-    // jshint: [
-    //     'gruntfile.js',
-    //     '*.js',
-    //     'test/**/*.js',
-    // ],
-    // jsandhtml: [
-    //     'gruntfile.js',
-    //     '*.js',
-    //     '*.html',
-    //     'test/**/*.js',
-    //     'test/**/*.html'
-    // ]
 };
 var delimeter = (__dirname.indexOf('/') > -1) ? '/' : '\\';
 var myDir = __dirname.split(delimeter);
@@ -69,14 +51,6 @@ module.exports = function(grunt) {
                     debounceDelay: 1000,
                 },
             },
-            // jsandhtml: {
-            //     files: files.js,
-            //     tasks: ['jsbeautifier', 'jshint', 'concat', 'wct-test', 'vulcanize'],
-            // },
-            // gruntfile: {
-            //     files: ['Gruntfile.js'],
-            //     tasks: []
-            // },
             lr: {
                 files: ['polymer/**/*.*'],
                 options: {
@@ -329,13 +303,19 @@ module.exports = function(grunt) {
         return strVar
     }
 
-    function createHtml(pathToCSS, pathToJS, elName){
-        var strVar = '<link rel=\"import\" href=\"..\/..\/..\/polymer\/polymer.html\">\n';
-        strVar += '<polymer-element name=\"' + elName + '\" attributes=\"\">\n';
+    function createHtml(elName){
+
+        var shortName = elName.split(delimeter).reverse()[0];
+        var nestingLevel = Math.max(0,(elName.split('/').length + 1)) * 3;
+        var nestingProto = '..\/..\/..\/..\/..\/..\/..\/..\/..\/..\/..\/..\/..\/..\/..\/..\/';
+        var nestingPad = nestingProto.substr(0, nestingLevel);
+
+        var strVar = '<link rel=\"import\" href=\"' + nestingPad + '..\/polymer\/polymer.html\">\n';
+        strVar += '<polymer-element name=\"' + shortName + '\" attributes=\"\">\n';
         strVar += '  <template>\n';
-        strVar += '    <link rel=\"stylesheet\" type=\"text\/css\" href=\"..\/..\/' + pathToCSS + '.css\">\n';
+        strVar += '    <link rel=\"stylesheet\" type=\"text\/css\" href=\"' + nestingPad + 'polymer/css/' + elName + '.css\">\n';
         strVar += '  <\/template>\n';
-        strVar += '  <script src=\"..\/..\/' + pathToJS + '.js\"></script>\n';
+        strVar += '  <script src=\"' + nestingPad + 'polymer/js/' + elName + '.js\"></script>\n';
         strVar += '<\/polymer-element>\n';
         return strVar;
     }
@@ -405,7 +385,7 @@ module.exports = function(grunt) {
         });
         htmlToAdd.forEach(function(e) {
             console.log('adding ' + data.html + e + '.html');
-            grunt.file.write(data.html + e + '.html', createHtml(data.css + delimeter + e.substr(1), data.js + delimeter + e.substr(1), e.split(delimeter).reverse()[0]));
+            grunt.file.write(data.html + e + '.html', createHtml(e.substr(1)));
         });
 
         //adjust the css files
