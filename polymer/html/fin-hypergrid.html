@@ -1,0 +1,59 @@
+<!--
+The OpenFin Hypergrid is a high performant canvas based general grid control.  It is implemented as a Polymer HTML5 web-component. See [Polymer](https://www.polymer-project.org/) and [Web Components](http://www.w3.org/TR/components-intro/).
+<br>
+### Openfin polymerized hypergrid Demo
+To see the "pink" demo
+- see the [github pages hosted deplyment](http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/demo.html) or
+- run the [openfin installer](https://dl.openfin.co/services/download?fileName=hypergrid-demo-installer&config=http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/demo.json)
+### The Hypergrid is dependent on several other OpenFin projects
+- [fin-canvas](http://stevewirts.github.io/fin-canvas/components/fin-canvas/): a wrapper to provide a simpler interface to the HTML5 canvas component
+- [fin-rectangle](http://stevewirts.github.io/fin-rectangle/components/fin-rectangle/): a small library providing Point and Rectangle objects
+- [fin-vampire-bar](http://datamadic.github.io/fin-vampire-bar/components/fin-vampire-bar/): a web-component based general scroll bar control
+### Pluggable Grid Behaviors
+The Hypergrid design makes no assumptions about the data you wish to view which allows for external data sources and external manipulation and analytics.  Manipulations such as sorting, aggregation, and grouping can be achieved using best of breed high-performant real time tools designed for such purposes. All the code that impacts these operations has been factored into an Object called [PluggableGridBehavior](index.html#fin-hypergrid-behavior-default).  A PluggableGridBehavior can be thought of as a traditional tablemodel but with a little more responsibility.  There are Three example PluggableGridBehaviors provided, the base or DefaultGridBehavior, a QGridBehavior, and an InMemoryGridBehavior.
+@group OpenFin hypergrid
+@element fin-hypergrid
+@homepage http://github.com/openfin/fin-hypergrid
+-->
+<link rel="import" href="../../../polymer/polymer.html">
+<link rel="import" href="../../../fin-rectangle/fin-rectangle.html">
+<link rel="import" href="../../../fin-canvas/fin-canvas.html">
+<link rel="import" href="../../../fin-vampire-bar/fin-vampire-bar.html">
+<link rel="import" href="../../../fin-hypergrid-dnd-list/fin-hypergrid-dnd-list.html">
+<link rel="import" href="fin-hypergrid-renderer.html">
+<link rel="import" href="fin-hypergrid-selection-model.html">
+<link rel="import" href="fin-hypergrid-excel.html">
+<link rel="import" href="../../features/fin-hypergrid-feature-base.html">
+<link rel="import" href="../../behaviors/fin-hypergrid-behavior-default.html">
+<link rel="import" href="../../behaviors/fin-hypergrid-behavior-gol.html">
+<link rel="import" href="../../behaviors/fin-hypergrid-behavior-in-memory.html">
+<link rel="import" href="../../behaviors/fin-hypergrid-behavior-json.html">
+<link rel="import" href="../../behaviors/fin-hypergrid-behavior-q.html">
+<link rel="import" href="../../behaviors/fin-hypergrid-behavior-qtree.html">
+<link rel="import" href="../../cell-editors/fin-hypergrid-cell-editor-textfield.html">
+<link rel="import" href="../../cell-editors/fin-hypergrid-cell-editor-choice.html">
+<link rel="import" href="../../cell-editors/fin-hypergrid-cell-editor-color.html">
+<link rel="import" href="../../cell-editors/fin-hypergrid-cell-editor-date.html">
+<link rel="import" href="../../cell-editors/fin-hypergrid-cell-editor-slider.html">
+<link rel="import" href="../../cell-editors/fin-hypergrid-cell-editor-spinner.html">
+<polymer-element name="fin-hypergrid">
+  <template>
+    <link rel="stylesheet" type="text/css" href="../../polymer/css/fin-hypergrid.css">
+    <fin-plugins>
+      <fin-hypergrid-cell-editor-textfield></fin-hypergrid-cell-editor-textfield>
+      <fin-hypergrid-cell-editor-choice></fin-hypergrid-cell-editor-choice>
+      <fin-hypergrid-cell-editor-color></fin-hypergrid-cell-editor-color>
+      <fin-hypergrid-cell-editor-date></fin-hypergrid-cell-editor-date>
+      <fin-hypergrid-cell-editor-slider></fin-hypergrid-cell-editor-slider>
+      <fin-hypergrid-cell-editor-spinner></fin-hypergrid-cell-editor-spinner>
+    </fin-plugins>
+    <fin-vampire-bar class="horizontalScroller" horizontal></fin-vampire-bar>
+    <fin-vampire-bar class="verticalScroller"></fin-vampire-bar>
+    <fin-canvas>
+      <fin-hypergrid-renderer></fin-hypergrid-renderer>
+    </fin-canvas>
+    <input class="editor">
+    <content></content>
+  </template>
+  <script src="../../polymer/js/fin-hypergrid.js"></script>
+</polymer-element>

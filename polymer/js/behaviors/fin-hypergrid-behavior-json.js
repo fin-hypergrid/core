@@ -1,0 +1,374 @@
+/*jshint  bitwise: false */
+'use strict';
+
+var noop = function() {};
+
+//only use on number columns
+window.flashSort = function(a, property) {
+    var strVar = '(function(a) { ';
+    strVar += '        var n = a.length;';
+    strVar += '';
+    strVar += '        var i = 0, j = 0, k = 0, t;';
+    strVar += '        var m = ~~( n * 0.125 );';
+    strVar += '        var a_nmin = a[0];';
+    strVar += '        var nmax = 0;';
+    strVar += '        var nmove = 0;';
+    strVar += '';
+    strVar += '        var l = new Array(m);';
+    strVar += '        for ( i = 0; i < m; i++ ) {';
+    strVar += '            l[ i ] = 0;';
+    strVar += '        }';
+    strVar += '';
+    strVar += '        for ( i = 1; i < n; ++i ) {';
+    strVar += '            var a_i = a[ i ];';
+    strVar += '            if ( a_i.' + property + ' < a_nmin.' + property + ' ) { a_nmin = a_i; }';
+    strVar += '            if ( a_i.' + property + ' > a[ nmax ].' + property + ' ) { nmax = i; }';
+    strVar += '        }';
+    strVar += '';
+    strVar += '        var a_nmax = a[ nmax ];';
+    strVar += '        if ( a_nmin.' + property + ' === a_nmax.' + property + ') { return a; }';
+    strVar += '        var c1 = ( m - 1 ) \/ ( a_nmax.' + property + ' - a_nmin.' + property + ' );';
+    strVar += '';
+    strVar += '        for ( i = 0; i < n; ++i ) {';
+    strVar += '            ++l[ ~~( c1 * ( a[ i ].' + property + ' - a_nmin.' + property + ' ) ) ];';
+    strVar += '        }';
+    strVar += '';
+    strVar += '        for ( k = 1; k < m; ++k ) {';
+    strVar += '            l[ k ] += l[ k - 1 ];';
+    strVar += '        }';
+    strVar += '';
+    strVar += '        var hold = a_nmax;';
+    strVar += '        a[ nmax ] = a[ 0 ];';
+    strVar += '        a[ 0 ] = hold;';
+    strVar += '';
+    strVar += '        var flash;';
+    strVar += '        j = 0;';
+    strVar += '        k = m - 1;';
+    strVar += '        i = n - 1;';
+    strVar += '';
+    strVar += '        while ( nmove < i ) {';
+    strVar += '            while ( j > ( l[ k ] - 1 ) ) {';
+    strVar += '                k = ~~( c1 * ( a[ ++j ].' + property + ' - a_nmin.' + property + ' ) );';
+    strVar += '            }';
+    strVar += '            if (k < 0) { break; }';
+    strVar += '';
+    strVar += '            flash = a[ j ];';
+    strVar += '';
+    strVar += '            while ( j !== l[ k ] ) {';
+    strVar += '                k = ~~( c1 * ( flash.' + property + ' - a_nmin.' + property + ' ) );';
+    strVar += '                hold = a[ t = --l[ k ] ];';
+    strVar += '                a[ t ] = flash;';
+    strVar += '                flash = hold;';
+    strVar += '                ++nmove;';
+    strVar += '            }';
+    strVar += '        }';
+    strVar += '';
+    strVar += '        for( j = 1; j < n; ++j ) {';
+    strVar += '            hold = a[ j ];';
+    strVar += '            i = j - 1;';
+    strVar += '            while( i >= 0 && a[i].' + property + ' > hold.' + property + ' ) {';
+    strVar += '                a[ i + 1 ] = a[ i-- ];';
+    strVar += '            }';
+    strVar += '            a[ i + 1 ] = hold;';
+    strVar += '        }';
+    strVar += '';
+    strVar += '        return a; })';
+    var sortFunction = eval(strVar); /* jshint ignore:line  */
+    sortFunction(a);
+};
+
+window.dualPivotQuickSort = (function() {
+
+    var dualPivotQS = {};
+
+    dualPivotQS.sort = function(arr, property, fromIndex, toIndex) {
+        if (fromIndex === undefined && toIndex === undefined) {
+            dualPivotQS.sort(arr, property, 0, arr.length);
+        } else {
+            rangeCheck(arr.length, fromIndex, toIndex);
+            dualPivotQuicksort(property, arr, fromIndex, toIndex - 1, 3);
+        }
+        return arr;
+    };
+
+    function rangeCheck(length, fromIndex, toIndex) {
+        if (fromIndex > toIndex) {
+            console.error('fromIndex(' + fromIndex + ') > toIndex(' + toIndex + ')');
+        }
+        if (fromIndex < 0) {
+            console.error(fromIndex);
+        }
+        if (toIndex > length) {
+            console.error(toIndex);
+        }
+    }
+
+    function swap(arr, i, j) {
+        var temp = arr[i];
+        arr[i] = arr[j];
+        arr[j] = temp;
+    }
+
+    function dualPivotQuicksort(property, arr, left, right, div) {
+        var len = right - left;
+
+        if (len < 27) { // insertion sort for tiny array
+            for (var i = left + 1; i <= right; i++) {
+                for (var j = i; j > left && arr[j][property] < arr[j - 1][property]; j--) {
+                    swap(arr, j, j - 1);
+                }
+            }
+            return;
+        }
+        var third = Math.floor(len / div); //TODO: check if we need to round up or down or just nearest
+
+        // "medians"
+        var m1 = left + third;
+        var m2 = right - third;
+
+        if (m1 <= left) {
+            m1 = left + 1;
+        }
+        if (m2 >= right) {
+            m2 = right - 1;
+        }
+        if (arr[m1][property] < arr[m2][property]) {
+            swap(arr, m1, left);
+            swap(arr, m2, right);
+        } else {
+            swap(arr, m1, right);
+            swap(arr, m2, left);
+        }
+        // pivots
+        var pivot1 = arr[left];
+        var pivot2 = arr[right];
+
+        //their values
+        var pivot1Val = pivot1[property];
+        var pivot2Val = pivot2[property];
+
+        // pointers
+        var less = left + 1;
+        var great = right - 1;
+
+        // sorting
+        var k = less;
+        for (; k <= great; k++) {
+            if (arr[k][property] < pivot1Val) {
+                swap(arr, k, less++);
+            } else if (arr[k][property] > pivot2Val) {
+                while (k < great && arr[great][property] > pivot2Val) {
+                    great--;
+                }
+                swap(arr, k, great--);
+
+                if (arr[k][property] < pivot1Val) {
+                    swap(arr, k, less++);
+                }
+            }
+        }
+        // swaps
+        var dist = great - less;
+
+        if (dist < 13) {
+            div++;
+        }
+        swap(arr, less - 1, left);
+        swap(arr, great + 1, right);
+
+        // subarrays
+        dualPivotQuicksort(property, arr, left, less - 2, div);
+        dualPivotQuicksort(property, arr, great + 2, right, div);
+
+        // equal elements
+        if (dist > len - 13 && pivot1Val !== pivot2Val) {
+            for (k = less; k <= great; k++) {
+                if (arr[k][property] === pivot1Val) {
+                    swap(arr, k, less++);
+                } else if (arr[k][property] === pivot2Val) {
+                    swap(arr, k, great--);
+
+                    if (arr[k][property] === pivot1Val) {
+                        swap(arr, k, less++);
+                    }
+                }
+            }
+        }
+        // subarray
+        if (pivot1Val < pivot2Val) {
+            dualPivotQuicksort(property, arr, less, great, div);
+        }
+    }
+    return dualPivotQS.sort;
+}());
+
+(function() {
+
+    Polymer({ /* jslint ignore:line */
+
+        sorted: {},
+        sortStates: [' ', ' ^', ' v'],
+        dataIndexes: [],
+        data: [],
+        headers: [],
+        fields: [],
+
+        setHeaders: function(headerLabels) {
+            this.headers = headerLabels;
+        },
+
+        setFields: function(fieldNames) {
+            this.fields = fieldNames;
+        },
+
+        setData: function(jsonData) {
+            this.data = jsonData;
+            this.initDataIndexes();
+            this.initColumnIndexes();
+            this.changed();
+        },
+
+        initDataIndexes: function() {
+            //initialize the indexe cache
+            for (var i = 0; i < this.data.length; i++) {
+                this.data[i].__si = i;
+                this.data[i].__i = i;
+            }
+        },
+
+        getValue: function(x, y) {
+            x = this.translateColumnIndex(x);
+            return this.data[y][this.fields[x]];
+        },
+
+        setValue: function(x, y, value) {
+            x = this.translateColumnIndex(x);
+            this.data[y][this.fields[x]] = value;
+        },
+
+        getFixedRowValue: function(x, y) {
+            noop(y);
+            x = this.translateColumnIndex(x);
+            var sortIndex = this.sorted[x] || 0;
+            return this.headers[x] + this.sortStates[sortIndex];
+        },
+
+        getFixedColumnCount: function() {
+            return 1;
+        },
+
+        getRowCount: function() {
+            return this.data.length;
+        },
+
+        getColumnCount: function() {
+            return this.fields.length;
+        },
+
+        fixedRowClicked: function(grid, mouse) {
+            var columnIndex = this.scrollPositionX + mouse.gridCell.x - this.getFixedColumnCount();
+            this.toggleSort(columnIndex);
+        },
+
+        toggleSort: function(columnIndex) {
+            columnIndex = this.translateColumnIndex(columnIndex);
+            this.grid.clearSelections();
+            if (columnIndex >= this.fields.length) {
+                return;
+            }
+            var current = this.sorted[columnIndex] || 0;
+            var stateCount = this.sortStates.length;
+            var sortStateIndex = (current + 1) % stateCount;
+            var i = 0;
+            for (; i < this.fields.length; i++) {
+                this.sorted[i] = 0;
+            }
+            this.sorted[columnIndex] = sortStateIndex;
+            var colName = this.fields[columnIndex];
+            if (sortStateIndex === 0) {
+                var newData = new Array(this.data.length);
+                for (i = 0; i < this.data.length; i++) {
+                    var each = this.data[i];
+                    newData[each.__si] = each;
+                }
+                this.data = newData;
+            } else if (sortStateIndex === 1) {
+                //var start = Date.now();
+
+                //last,first,birthdate,employed,income
+
+                // uncomment this to use javascript native sorting
+                // this is also a stable sort
+
+                //  5602ms
+                //  2877ms
+                //  4570ms
+                //  1804ms
+                // 11073ms
+                // this.data.sort(function (a, b) {
+                //   if (a[colName] === b[colName])
+                //     return a.__i - b.__i;
+                //   if (a[colName] < b[colName])
+                //     return -1;
+                //   return 1;
+                // });
+
+                //  5382ms ~5000
+                //  1851ms
+                //  3682ms
+                //  1705ms ~1850
+                //  1852ms ~1850
+                var theSorter = eval('(function (a, b) {' + /* jshint ignore:line  */
+                    '  if (a.' + colName + ' === b.' + colName + ')' +
+                    '    return a.__i - b.__i;' +
+                    '  if (a.' + colName + ' < b.' + colName + ')' +
+                    '    return -1;' +
+                    '  return 1;' +
+                    '})');
+                this.data.sort(theSorter);
+
+                //uncomment this to use a simple dual pivot sort from above
+                //this is not a stable sort
+                //  4370ms
+                //  1338ms
+                //  3272ms
+                //   614ms
+                //  6336ms
+                //dualPivotQuickSort(this.data, colName);
+
+                //      ms
+                //      ms
+                //      ms
+                //   298ms  ~3300
+                //  3236ms  ~3300
+                //uncomment this to use a flash sort from above
+                //this is not a stable sort and it ONLY works on numberic/boolean columns
+                // the fastest sorting for numeric data
+                // var sort = flashSort(this.data, colName);
+
+                //uncomment this to use the crossfilter dual pivot sort (fastest)
+                //this is not a stable sort
+                //fastest for string and boolean data
+                // 3725ms
+                //  711ms
+                // 2261ms
+                //  383ms   ~1400
+                // 1639ms   ~1400
+                // var theSorter = eval('(function(d){return d.' + colName + '})');
+                // var sort = crossfilter.quicksort.by(theSorter);
+                // sort(this.data, 0, this.data.length);
+
+
+                //console.log('duration: ' + (Date.now() - start) + 'ms');
+            } else {
+                this.data = this.data.reverse();
+            }
+            for (i = 0; i < this.data.length; i++) {
+                this.data[i].__i = i;
+            }
+            this.changed();
+        }
+
+    });
+
+})(); /* jslint ignore:line */

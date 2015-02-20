@@ -1,0 +1,53 @@
+:host {
+    position: relative;
+    display: inline-block;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    -o-user-select: none;
+    user-select: none;
+}
+
+.verticalScroller {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 100%;
+    margin: 0 15px 15px -15px;
+}
+
+.horizontalScroller {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    margin: -15px 15px 15px 0;
+}
+
+.editor {
+    position: absolute;
+    display: none;
+    border: solid 2px black;
+    outline: 0;
+    padding: 0;
+    z-index: 1000;
+}
+
+/*.dragger {
+    position: absolute;
+    display: none;
+    opacity: 0.75;
+    box-shadow: 5px 5px 5px #888888;
+    z-index: 100;
+}*/
+
+/*.floatColumn {
+    position: absolute;
+    display: none;
+}*/
+
+fin-vampire-bar {
+    z-index: 10;
+}

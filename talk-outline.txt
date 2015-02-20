@@ -1,3 +1,20 @@
+fix gp to copy all directories EXCEPT project dir
+    copy all dirs first, delete project directory then build it
+
+make all files pre - js - post html dynamically buildable
+validate all js files
+
+
+/poly-css
+/poly-html
+/poly-js
+
+minimize all files before vulcanize
+vulcanize ONLY 1X
+
+
+
+
 talk #3 GDG meetup more polymer notes
 -----------------------------------------
 

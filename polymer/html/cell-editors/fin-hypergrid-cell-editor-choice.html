@@ -1,0 +1,16 @@
+<!--
+The `fin-hypergrid-cell-editor-choice` element is a custom Polymer web component used to support the openfin [fin-hypergrid](http://github.com/openfin/fin-hypergrid) component.
+@group OpenFin hypergrid
+@element fin-hypergrid-cell-editor-choice
+@homepage http://github.com/openfin/fin-hypergrid
+-->
+<link rel="import" href="fin-hypergrid-cell-editor-simple.html">
+<polymer-element name="fin-hypergrid-cell-editor-choice" extends="fin-hypergrid-cell-editor-simple">
+  <template>
+    <link rel="stylesheet" type="text/css" href="../../../polymer/css/cell-editors/fin-hypergrid-cell-editor-choice.css">
+    <select id="editor">
+      <option template repeat="{{item in items}}" value="{{item}}">{{item}}</option>
+    </select>
+  </template>
+  <script src="../../../polymer/js/cell-editors/fin-hypergrid-cell-editor-choice.js"></script>
+</polymer-element>
