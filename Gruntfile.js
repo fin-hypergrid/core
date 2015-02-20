@@ -235,6 +235,46 @@ module.exports = function(grunt) {
             'watch'
         ]);
     });
+
+    function createIndexHtml(files) {
+        var strVar='<!doctype html>\n';
+        strVar += '<!--\n';
+        strVar += 'Copyright (c) 2014 The Polymer Project Authors. All rights reserved.\n';
+        strVar += 'This code may only be used under the BSD style license found at http:\/\/polymer.github.io\/LICENSE\n';
+        strVar += 'The complete set of authors may be found at http:\/\/polymer.github.io\/AUTHORS\n';
+        strVar += 'The complete set of contributors may be found at http:\/\/polymer.github.io\/CONTRIBUTORS\n';
+        strVar += 'Code distributed by Google as part of the polymer project is also\n';
+        strVar += 'subject to an additional IP rights grant found at http:\/\/polymer.github.io\/PATENTS\n';
+        strVar += '-->\n';
+        strVar += '<html>\n';
+        strVar += '<head>\n';
+        strVar += '  <meta name=\"viewport\" content=\"width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes\">\n';
+        strVar += '  <script src=\"..\/webcomponentsjs\/webcomponents.js\"><\/script>\n';
+        strVar += '  <link rel=\"import\" href=\"..\/core-component-page\/core-component-page.html\">\n';
+        strVar += '\n';
+        strVar += '<\/head>\n';
+        strVar += '<body unresolved>\n';
+        strVar += '\n';
+        strVar += '  <core-component-page\n';
+        strVar += '    sources=\"[';
+        //strVar += '      \'.\/polymer\/html\/' + elementName + '.html\'';
+        var isFirst = true;
+        for (var i = 0; i < files.length; i++) {
+            if (isFirst) {
+                isFirst = false;
+            } else {
+                strVar += ',';
+            }
+            if (files[i] !== elementName) {
+                strVar += '\n      \'.\/polymer\/html' + files[i] + '.html\'';
+            }
+        }
+        strVar += '\n      ]\"><\/core-component-page>\n';
+        strVar += '<\/body>\n';
+        strVar += '<\/html>\n';
+        return strVar;
+    }
+
     function createTestJS(elementName) {
         var shortName = elementName.split(delimeter).reverse()[0];
         var strVar = '\/* globals describe, it, assert *\/\n';
@@ -309,8 +349,16 @@ module.exports = function(grunt) {
         var nestingLevel = Math.max(0,(elName.split('/').length + 1)) * 3;
         var nestingProto = '..\/..\/..\/..\/..\/..\/..\/..\/..\/..\/..\/..\/..\/..\/..\/..\/';
         var nestingPad = nestingProto.substr(0, nestingLevel);
-
-        var strVar = '<link rel=\"import\" href=\"' + nestingPad + '..\/polymer\/polymer.html\">\n';
+        var strVar = '<!--\n';
+        strVar += 'The `' + shortName + '` element is a custom Polymer web component\n';
+        strVar += '@element ' + shortName + '\n';
+        strVar += '-->\n';
+        if (elName === elementName) {
+            '<link rel=\"import\" href=\"' + nestingPad + '..\/polymer\/polymer.html\">\n';
+        } else
+        {
+            '<!-- only needed for root element <link rel=\"import\" href=\"' + nestingPad + '..\/polymer\/polymer.html\"> -->\n';
+        }
         strVar += '<polymer-element name=\"' + shortName + '\" attributes=\"\">\n';
         strVar += '  <template>\n';
         strVar += '    <link rel=\"stylesheet\" type=\"text\/css\" href=\"' + nestingPad + 'polymer/css/' + elName + '.css\">\n';
@@ -346,7 +394,7 @@ module.exports = function(grunt) {
         grunt.file.mkdir(data.html);
         grunt.file.mkdir(data.css);
 
-        var jsFiles = grunt.file.expand([data.js + '/**/*.js']).map(function(e) { return e.slice(0,-3).replace(data.js,''); });
+        var jsFiles = grunt.file.expand([data.js + '/**/*.js']).map(function(e) { return e.slice(0,-3).replace(data.js,''); }).sort();
         var htmlFiles = grunt.file.expand([data.html + '/**/*.html']).map(function(e) { return e.slice(0,-5).replace(data.html,''); });
         var cssFiles = grunt.file.expand([data.css + '/**/*.css']).map(function(e) { return e.slice(0,-4).replace(data.css,''); });
 
@@ -417,6 +465,11 @@ module.exports = function(grunt) {
             console.log('adding test' + e + '.html');
             grunt.file.write('test' + e + '.html', createTestHtml(e.substr(1)));
         });
+
+        //create core index.html file
+        var indexhtml = createIndexHtml(jsFiles);
+        console.log('creating index.html');
+        grunt.file.write('index.html', indexhtml);
 
         //create main testing file
         var testhtml = createTestIndexHtml(jsFiles);
