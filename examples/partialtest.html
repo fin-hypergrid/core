@@ -1,0 +1,85 @@
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>
+    .hypergrid {
+      bottom: 0;
+      height: calc(100% - 200px);
+      left: 0;
+      max-height: calc(100% - 200px);
+      overflow-x: hidden;
+      position: absolute;
+      right: 0;
+      width: 100%;
+    }
+    .hypergrid fin-hypergrid {
+      bottom: 0;
+      left: 0;
+      position: absolute;
+      right: 0;
+      top: 10px;
+    }
+  </style>
+  <title>Hyperfin Test</title>
+  <script src="jquery-1.11.2.min.js"></script>
+  <script src="../../webcomponentsjs/webcomponents.js"></script>
+  <link rel="import" href="../polymer/html/fin-hypergrid.html">
+</head>
+<body>
+  <div class="container">
+    <div class="row">
+      <div class="col-xs-12">
+        <button class="btn btn-primary" id="button-load">Load the partial</button>
+        <button class="btn btn-primary" id="button-delete">Delete the partial</button>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-xs-12" id="view"></div>
+    </div>
+  </div>
+<!--   // <script src="../fin-hypergrid.min.js"></script> -->
+  <script>
+    var doc = $(document),
+        data = {
+          cols: ['foo', 'bar', 'foobar', 'barfoo'],
+          rows: []
+        },
+        row;
+
+    for (var i = 1000; i >= 0; i--) {
+      row = {};
+
+      data.cols.forEach(function (col) {
+        row[col] = Math.random();
+      });
+      data.rows.push(row);
+    }
+
+    doc.ready(function () {
+      var buttonDelete = $('#button-delete'),
+          buttonLoad = $('#button-load'),
+          view = $('#view');
+
+      buttonDelete.click(function () {
+        view.empty();
+      });
+
+      buttonLoad.click(function () {
+        view.load('partial.html');
+      });
+
+    });
+
+    function populateHypergrid(newHypergrid) {
+
+        var hypergrid = newHypergrid,
+        hypergridModel = hypergrid.getBehavior();
+        hypergridModel.setHeaders(data.cols);
+        hypergridModel.setFields(data.cols);
+        hypergridModel.setData(data.rows);
+
+    }
+
+  </script>
+</body>
+</html>

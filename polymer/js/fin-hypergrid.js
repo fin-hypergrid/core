@@ -234,7 +234,7 @@
                 self.checkClipboardCopy(evt);
             });
             this.resized();
-
+            this.fire('load');
         },
 
         /**
