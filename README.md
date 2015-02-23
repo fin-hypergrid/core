@@ -117,22 +117,21 @@ hypergrid-excel-integration
 
 There is an example integration between the Hypergrid and Microsoft Excel over the OpenFin InterApplicationBus. The example only works when running Hypergrid in the OpenFin Runtime, which is installed from the [Hypergrid Openfin Installer](https://dl.openfin.co/services/download?fileName=hypergrid-demo-installer&config=http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/demo.json).
 
-The excel-integration demo consists of an OpenFin app, and a C# XLL plugin built using the Excel-DNA infrastructure. The Excel-DNA infrastructure provides a C++ XLL plugin which exposes the Excel Object Model to C# dll's and code which can be configured using a manifest file (.dna).  Here are the steps to setting up the integration demo...
-
 Assumptions
 * Windows machine
 
-Steps to Integration Demo
+Steps to Excel-Hypergrid Integration Demo
 
-1. Download [excel.zip](http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/excel.zip)
-2. Unzip files to a local folder 
-3. Launch the *FinDesktopAddin* located at 
-    64 Bit  &lt;local folder&gt;/FinDesktopAddin64-packed.xll
-    86 Bit  &lt;local folder&gt;/FinDesktopAddin-packed.xll
-4. Start Hypergrid
-5. Open Hypergrid.xlsx stored in &lt;local folder&gt;
+1. Download and Unzip [excel-packed.zip](https://github.com/openfin/fin-hypergrid/blob/master/excel-packed.zip)
+2. Launch Hypergrid Demo application
+3. Launch Excel
+4. Open either FinDesktopAddin-packed or FinDesktopAddin64-packed depending for your Excel
+      * Enable plug for the session
+5. Open hypergrid.xls file from unzipped directory
+6. Select a cell(s) in Hypergrid Demo Applications
 
-Steps 3-5 need to be repeated each time you want to run the demo. Alternatively, you can manage this addin so that step 3 does not need to be repeated Excel File -> Options -> Add-Ins -> Manage Addins -> Browse -> Select <local folder>/*FinDesktopAddin* 
+The excel-integration demo consists of an OpenFin app, and a C# XLL plugin built using the Excel-DNA infrastructure. The Excel-DNA infrastructure provides a C++ XLL plugin which exposes the Excel Object Model to C# dll's and code which can be configured using a manifest file (.dna).  Here are the steps to setting up the integration demo...
+
 
 Excel Integration Links
 =====
