@@ -10,7 +10,12 @@ Watch the [Pivotal Labs presentation] (http://www.livestream.com/pivotallabs/vid
 
 
 ## Getting Started
-Use the [Hypergrid Openfin Installer](https://dl.openfin.co/services/download?fileName=hypergrid-demo-installer&config=http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/demo.json) to install an openfin startup link and see the demo running on your desktop.   You can also see a demo of it [here](http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/demo.html) and [here](http://openfin.github.io/example-fin-hypergrid-behavior-json/)
+Use the [Hypergrid Openfin Installer](https://dl.openfin.co/services/download?fileName=hypergrid-demo-installer&config=http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/demo.json) to install an openfin startup link and see the demo running on your desktop.   You can also see a few demos.. 
+    * [behaviors](http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/demo.html)
+    * [json standalone](http://openfin.github.io/example-fin-hypergrid-behavior-json/)
+    * [simple standalone](http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/examples/standalone.html)
+    * [jquery partials](http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/examples/partialtest.html)
+
 
 #Hypergrid
 The Hypergrid control is a [Google polymer](https://www.polymer-project.org/) [web component](http://webcomponents.org/presentations/), canvas based open source general purpose grid. The purpose of this project is to address the Finance/Big Data community's desire for a high performance, unlimited row data-grid. At the moment, it is in a beta stage and still has ongoing work to be completed. These include bug-fixes/features/automated testing/etc.  Please try it out and let us know what you think.
