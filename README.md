@@ -83,20 +83,23 @@ For this example to work you'll need to
 feel free to connect this example to any other db that any-db supports (MS SQL, MySQL, Postgres, and SQLite3).
 Make sure to npm install the proper any-db-***** interface and edit the config.js file.
 
-## Cell Editors are supported and Hypergrid comes with several default ones, and the ability to easily configure your data to select from any of these pre-defined ones or create your own.
+## Cell Editors
+
+Hypergrid comes with several default cell editors you can easily select, and the ability to create your own.
+
 # default cell editors
 * [choice](http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/#fin-hypergrid-cell-editor-choice)
-<img src="images/choice.png" alt="screenshot">
-* [choice](http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/#fin-hypergrid-cell-editor-choice)
-<img src="images/color.png" alt="screenshot">
+<br><img src="images/choice.png" alt="screenshot">
 * [color](http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/#fin-hypergrid-cell-editor-color)
-<img src="images/date.png" alt="screenshot">
+<br><img src="images/color.png" alt="screenshot">
 * [date](http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/#fin-hypergrid-cell-editor-date)
-<img src="images/slider.png" alt="screenshot">
+<br><img src="images/date.png" alt="screenshot">
 * [slider](http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/#fin-hypergrid-cell-editor-slider)
-<img src="images/spinner.png" alt="screenshot">
+<br><img src="images/slider.png" alt="screenshot">
+* [spinner](http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/#fin-hypergrid-cell-editor-spinner)
+<br><img src="images/spinner.png" alt="screenshot">
 * [textfield](http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/#fin-hypergrid-cell-editor-textfield)
-<img src="images/textfield.png" alt="screenshot">
+<br><img src="images/textfield.png" alt="screenshot">
 
 ## Road Map 
 * Fix live reload on file change edge conditions
