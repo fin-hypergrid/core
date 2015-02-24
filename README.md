@@ -85,17 +85,17 @@ Make sure to npm install the proper any-db-***** interface and edit the config.j
 
 ## Cell Editors are supported and Hypergrid comes with several default ones, and the ability to easily configure your data to select from any of these pre-defined ones or create your own.
 # default cell editors
-* choice
+* [choice](http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/#fin-hypergrid-cell-editor-choice)
 <img src="images/choice.png" alt="screenshot">
-* color
+* [choice](http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/#fin-hypergrid-cell-editor-choice)
 <img src="images/color.png" alt="screenshot">
-* date
+* [color](http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/#fin-hypergrid-cell-editor-color)
 <img src="images/date.png" alt="screenshot">
-* slider
+* [date](http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/#fin-hypergrid-cell-editor-date)
 <img src="images/slider.png" alt="screenshot">
-* spinner
+* [slider](http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/#fin-hypergrid-cell-editor-slider)
 <img src="images/spinner.png" alt="screenshot">
-* textfield
+* [textfield](http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/#fin-hypergrid-cell-editor-textfield)
 <img src="images/textfield.png" alt="screenshot">
 
 ## Road Map 
