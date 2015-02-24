@@ -11,10 +11,10 @@ Watch the [Pivotal Labs presentation] (http://www.livestream.com/pivotallabs/vid
 
 ## Getting Started
 Use the [Hypergrid Openfin Installer](https://dl.openfin.co/services/download?fileName=hypergrid-demo-installer&config=http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/demo.json) to install an openfin startup link and see the demo running on your desktop.   You can also see a few demos.. 
-    * [behaviors](http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/demo.html)
-    * [json standalone](http://openfin.github.io/example-fin-hypergrid-behavior-json/)
-    * [simple standalone](http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/examples/standalone.html)
-    * [jquery partials](http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/examples/partialtest.html)
+* [behaviors](http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/demo.html)
+* [json standalone](http://openfin.github.io/example-fin-hypergrid-behavior-json/)
+* [simple standalone](http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/examples/standalone.html)
+* [jquery partials](http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/examples/partialtest.html)
 
 
 #Hypergrid
