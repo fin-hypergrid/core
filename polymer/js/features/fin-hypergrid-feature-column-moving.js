@@ -203,7 +203,7 @@
 
             style.top = (location.top - 2) + 'px';
             style.left = location.left + 'px';
-            style.position = 'absolute';
+            style.position = 'fixed';
 
             var hdpiRatio = grid.getHiDPI(this.floatColumnCTX);
 
@@ -258,9 +258,10 @@
 
             var location = grid.getBoundingClientRect();
             var style = d.style;
+            console.log(location.top);
             style.top = location.top + 'px';
             style.left = location.left + 'px';
-            style.position = 'absolute';
+            style.position = 'fixed';
             style.opacity = 0.85;
             style.boxShadow = '0 19px 38px rgba(0,0,0,0.30), 0 15px 12px rgba(0,0,0,0.22)';
             //style.zIndex = 100;

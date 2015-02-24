@@ -84,16 +84,24 @@ feel free to connect this example to any other db that any-db supports (MS SQL, 
 Make sure to npm install the proper any-db-***** interface and edit the config.js file.
 
 
-
 ## Road Map 
-1. Test suite for all components and upstream dependency projects
-2. Continued bug-fixing, refactoring, documentation and cleanup of the existing code base
-4. GridBehaviors for other data sources
-5. Column reordering/resizing/autosizing
-6. Hover event support
-7. Tooltip support 
-8. Layer abstraction
-9. Continue adding features
+* Fix live reload on file change edge conditions
+* fix mouse event locations when zoomed
+* fix events to work well with mobile
+* fix scrollbar
+* add ink effects
+* Test suite for all components and upstream dependency projects
+* Continued bug-fixing, refactoring, documentation and cleanup of the existing code base
+* GridBehaviors for other data sources
+* Hover event support
+* Tooltip support
+* context menu support
+* Layer abstraction
+* Continue adding features
+* Move to gulp
+* add filtering
+* add column selection/reordering to all behaviors
+* refactor behaviors to controller-chain and model
 
 ## Feature List
 * High performant canvas based

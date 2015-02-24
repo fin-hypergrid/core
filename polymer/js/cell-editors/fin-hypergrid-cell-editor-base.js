@@ -93,8 +93,8 @@
 
         },
 
-        moveEditor: function(model) {
-            //var model = this.getBehavior();
+        moveEditor: function() {
+            var model = this.getBehavior();
             var numFixedColumns = model.getFixedColumnCount();
             var numFixedRows = model.getFixedRowCount();
             var vScroll = this.grid.getVScrollValue();
