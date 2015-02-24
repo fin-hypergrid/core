@@ -22,7 +22,7 @@ The Hypergrid control is a [Google polymer](https://www.polymer-project.org/) [w
 
 <img src="images/gridshot02.png" alt="screenshot">
 
-
+ 
 ## Pluggable Grid Behaviors
 The design makes no assumptions about the data you wish to view which
 allows for external data sources as well as external manipulation and
