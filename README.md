@@ -127,7 +127,7 @@ Assumptions
 
 Steps to Excel-Hypergrid Integration Demo
 
-1. Download and Unzip [excel-packed.zip](https://github.com/openfin/fin-hypergrid/blob/master/excel-packed.zip)
+1. Download and Unzip [excel.zip](https://github.com/openfin/fin-hypergrid/blob/master/excel.zip)
 2. Launch Hypergrid Demo application
 3. Launch Excel
 4. Open either FinDesktopAddin-packed or FinDesktopAddin64-packed depending for your Excel
