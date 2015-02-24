@@ -11,10 +11,10 @@ Watch the [Pivotal Labs presentation] (http://www.livestream.com/pivotallabs/vid
 
 ## Getting Started
 Use the [Hypergrid Openfin Installer](https://dl.openfin.co/services/download?fileName=hypergrid-demo-installer&config=http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/demo.json) to install an openfin startup link and see the demo running on your desktop.   You can also see a few demos.. 
-* [behaviors](http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/demo.html) the main demo using some paper-elements, showing off all the current behaviors
-* [json standalone](http://openfin.github.io/example-fin-hypergrid-behavior-json/) a side project demonstrating a fin-hypergrid use case of a standalone json behaviour
-* [simple standalone](http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/examples/standalone.html) the simplest example of just a standalone fin-hypergrid with default behavior
-* [jquery partials](http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/examples/partialtest.html) an example using jquery dynamic partial loading
+* [behaviors](http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/demo.html) - the main demo using some paper-elements, showing off all the current behaviors
+* [json standalone](http://openfin.github.io/example-fin-hypergrid-behavior-json/) - a side project demonstrating a fin-hypergrid use case of a standalone json behaviour
+* [simple standalone](http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/examples/standalone.html) - the simplest example of just a standalone fin-hypergrid with default behavior
+* [jquery partials](http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/examples/partialtest.html) - an example using jquery dynamic partial loading
 
 
 #Hypergrid
