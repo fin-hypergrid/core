@@ -19,7 +19,7 @@ var files = {
 var testingDurationTimeout = 3; //this may need to be larger if your tests take more time
 var delimeter = (__dirname.indexOf('/') > -1) ? '/' : '\\';
 var myDir = __dirname.split(delimeter);
-var elementName = myDir[myDir.length - 1];
+var elementName = 'fin-hypergrid';
 myDir.pop();
 var parentDir = myDir.join(delimeter);
 var lr = require('connect-livereload')({

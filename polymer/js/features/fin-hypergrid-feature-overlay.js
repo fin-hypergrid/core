@@ -4,11 +4,15 @@
 
     var noop = function() {};
 
-    var animationTime = 200;
+    var ANIMATION_TIME = 200;
+    var ACTIVATION = {
+        ALT: 'blah',
+        ESC: 'blah'
+    };
     Polymer({ /* jshint ignore:line */
         handleKeyUp: function(grid, event) {
             var key = event.detail.char;
-            if (key === 'ALT') {
+            if (ACTIVATION[key]) {
                 this.toggleColumnPicker(grid);
             }
         },
@@ -48,11 +52,10 @@
 
             if (!this._closer) {
                 this._closer = function(e) {
-                    if (!e.altKey) {
-                        return;
+                    if (e.altKey || e.keyCode === 27) {
+                        e.preventDefault();
+                        self.closeColumnPicker(grid);
                     }
-                    e.preventDefault();
-                    self.closeColumnPicker(grid);
                 };
             }
 
@@ -82,7 +85,7 @@
                 self.overlay.innerHTML = '';
                 self.overlay.style.display = 'none';
                 grid.takeFocus();
-            }, animationTime);
+            }, ANIMATION_TIME);
         },
         initializeOn: function(grid) {
             this.initializeOverlaySurface(grid);
@@ -97,8 +100,8 @@
             this.overlay.style.boxShadow = '0 19px 38px rgba(0,0,0,0.30), 0 15px 12px rgba(0,0,0,0.22)';
             this.overlay.style.position = 'absolute';
             this.overlay.style.display = 'none';
-            this.overlay.style.transition = 'opacity ' + animationTime + 'ms ease-in';
-            this.overlay.style.opacity = 0;
+            this.overlay.style.transition = 'opacity ' + ANIMATION_TIME + 'ms ease-in';
+            this.overlay.stylACTIVATION = 0;
             grid.appendChild(this.overlay);
             //document.body.appendChild(this.overlay);
         },
