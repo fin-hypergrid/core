@@ -207,7 +207,7 @@ window.dualPivotQuickSort = (function() {
     Polymer({ /* jslint ignore:line */
 
         sorted: {},
-        sortStates: [' ', ' ^', ' v'],
+        sortStates: [' ', ' \u2191', ' \u2193'],
         dataIndexes: [],
         data: [],
         headers: [],
@@ -217,8 +217,51 @@ window.dualPivotQuickSort = (function() {
             this.headers = headerLabels;
         },
 
+        getHeaders: function() {
+            if (this.headers.length === 0) {
+                this.setHeaders(this.getDefaultHeaders());
+            }
+            return this.headers;
+        },
+
+        getDefaultHeaders: function() {
+            var self = this;
+            var fields = this.getFields();
+            if (fields.length === 0) {
+                return [];
+            }
+            var headers = fields.map(function(e) {
+                return self.headerify(e);
+            });
+            return headers;
+        },
+
+        headerify: function(string) {
+            var pieces = string.replace(/[_-]/g, ' ').replace(/[A-Z]/g, ' $&').split(' ').map(function(s) {
+                return s.charAt(0).toUpperCase() + s.slice(1);
+            });
+            return pieces;
+        },
+
         setFields: function(fieldNames) {
             this.fields = fieldNames;
+        },
+
+        getFields: function() {
+            if (this.fields.length === 0) {
+                this.setFields(this.getDefaultFields());
+            }
+            return this.fields;
+        },
+
+        getDefaultFields: function() {
+            if (this.data && this.data.length === 0) {
+                return [];
+            }
+            var fields = Object.getOwnPropertyNames(this.data[0]).filter(function(e) {
+                return e.substr(0, 2) !== '__';
+            });
+            return fields;
         },
 
         setData: function(jsonData) {
@@ -238,19 +281,22 @@ window.dualPivotQuickSort = (function() {
 
         getValue: function(x, y) {
             x = this.translateColumnIndex(x);
-            return this.data[y][this.fields[x]];
+            var fields = this.getFields();
+            return this.data[y][fields[x]];
         },
 
         setValue: function(x, y, value) {
             x = this.translateColumnIndex(x);
-            this.data[y][this.fields[x]] = value;
+            var fields = this.getFields();
+            this.data[y][fields[x]] = value;
         },
 
         getFixedRowValue: function(x, y) {
+            var headers = this.getHeaders();
             noop(y);
             x = this.translateColumnIndex(x);
             var sortIndex = this.sorted[x] || 0;
-            return this.headers[x] + this.sortStates[sortIndex];
+            return headers[x] + this.sortStates[sortIndex];
         },
 
         getFixedColumnCount: function() {
@@ -262,7 +308,8 @@ window.dualPivotQuickSort = (function() {
         },
 
         getColumnCount: function() {
-            return this.fields.length;
+            var fields = this.getFields();
+            return fields.length;
         },
 
         fixedRowClicked: function(grid, mouse) {
@@ -273,18 +320,19 @@ window.dualPivotQuickSort = (function() {
         toggleSort: function(columnIndex) {
             columnIndex = this.translateColumnIndex(columnIndex);
             this.grid.clearSelections();
-            if (columnIndex >= this.fields.length) {
+            var fields = this.getFields();
+            if (columnIndex >= fields.length) {
                 return;
             }
             var current = this.sorted[columnIndex] || 0;
             var stateCount = this.sortStates.length;
             var sortStateIndex = (current + 1) % stateCount;
             var i = 0;
-            for (; i < this.fields.length; i++) {
+            for (; i < fields.length; i++) {
                 this.sorted[i] = 0;
             }
             this.sorted[columnIndex] = sortStateIndex;
-            var colName = this.fields[columnIndex];
+            var colName = fields[columnIndex];
             if (sortStateIndex === 0) {
                 var newData = new Array(this.data.length);
                 for (i = 0; i < this.data.length; i++) {

@@ -103,6 +103,9 @@ Hypergrid comes with several default cell editors you can easily select, and the
 
 ## Road Map 
 * Fix live reload on file change edge conditions
+* refactor column selection feature
+* have column dnd shift columns, not swap
+* add filter support
 * fix mouse event locations when zoomed
 * fix events to work well with mobile
 * fix scrollbar

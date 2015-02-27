@@ -48,6 +48,7 @@
          * @property dragExtent
          * @type fin-rectangle.point
          */
+
         dragExtent: null,
 
         /**

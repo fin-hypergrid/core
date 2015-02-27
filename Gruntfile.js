@@ -1,8 +1,10 @@
 'use strict';
 
 var files = {
+
     polymerjs: [
-        'polymer/js/**/*.js'
+        'polymer/js/**/*.js',
+        'test/**/*.js'
     ],
 
     polymercss: [
@@ -12,51 +14,48 @@ var files = {
     polymerhtml: [
         'polymer/html/**/*.html'
     ],
-    polymertestjs: [
-        'polymer/js/**/*.js',
-        'test/**/*.js'
-    ],
+
 };
+var testingDurationTimeout = 3; //this may need to be larger if your tests take more time
 var delimeter = (__dirname.indexOf('/') > -1) ? '/' : '\\';
 var myDir = __dirname.split(delimeter);
 var elementName = myDir[myDir.length - 1];
 myDir.pop();
 var parentDir = myDir.join(delimeter);
+var lr = require('connect-livereload')({
+    port: 35729
+});
 
 module.exports = function(grunt) {
     //load all npm tasks automagically
+    console.log(__dirname);
     require('load-grunt-tasks')(grunt);
 
     var myConfig = {
 
         watch: {
             polymerjs: {
-                files: files.polymertestjs,
+                files: files.polymerjs,
                 tasks: ['jshint', 'polymer-component-sync', 'jsbeautifier', 'wct-test', 'vulcanize:default'],
-                options: {
-                    debounceDelay: 1000,
-                },
             },
             polymercss: {
                 files: files.polymercss,
-                tasks: ['csslint:default', 'cssbeautifier', 'wct-test', 'vulcanize:default'],
-                options: {
-                    debounceDelay: 1000,
-                },
+                tasks: ['csslint:default', 'cssbeautifier', 'vulcanize:default'],
             },
             polymerhtml: {
                 files: files.polymerhtml,
-                tasks: ['htmllint', 'prettify', 'wct-test', 'vulcanize:default'],
-                options: {
-                    debounceDelay: 1000,
-                },
+                tasks: ['htmllint', 'prettify', 'vulcanize:default'],
             },
-            lr: {
-                files: ['polymer/**/*.*'],
+            livereloadflag: {
+                files: ['abc.html'],
                 options: {
                     livereload: true
                 },
-            }
+            },
+            livereload: {
+                files: ['polymer/**/*.*', 'demo.html'],
+                tasks: ['http:livereload'],
+            },
         },
         vulcanize: {
             default: {
@@ -72,7 +71,7 @@ module.exports = function(grunt) {
         },
 
         jshint: {
-            files: files.polymertestjs,
+            files: files.polymerjs,
             options: {
                 jshintrc: '.jshintrc',
                 reporter: require('jshint-stylish')
@@ -99,21 +98,11 @@ module.exports = function(grunt) {
                 src: files.polymerhtml,
             }
         },
-        concat: {
-            // 'polymer-element': {
-            //     src: [elementName + '.pre.html', elementName + '.js', elementName + '.post.html'],
-            //     dest: elementName + '.html',
-            // },
-            // 'basic-test': {
-            //     src: ['test/basic-test.pre.html', 'test/basic-test.js', 'test/basic-test.post.html'],
-            //     dest: 'test/basic-test.html',
-            // }
-        },
 
         'wct-test': {
             default: {
                 options: {
-                    testTimeout: 3 * 1000,
+                    testTimeout: testingDurationTimeout * 1000,
                     browsers: ['chrome'],
                     remote: false
                 },
@@ -121,7 +110,7 @@ module.exports = function(grunt) {
         },
 
         jsbeautifier: {
-            files:  files.polymertestjs,
+            files:  files.polymerjs,
             options: {
                 js: {
                     braceStyle: 'collapse',
@@ -161,49 +150,38 @@ module.exports = function(grunt) {
                 css: 'polymer/css'
             }
         },
-        connect: {
-            server: {
-                options: {
-                    port: 9000,
-                    // Change this to '0.0.0.0' to access the server from outside.
-                    hostname: '0.0.0.0',
-                    livereload: true,
-                    open: true,
-                    base: [{
-                            path: './',
-                            options: {
-                                index: 'demo.html',
-                                maxAge: 0
-                            }
-                        }, {
-                            path: '../',
-                            options: {
-                                maxAge: 0
-                            }
-                        }
 
-                    ]
+        http: {
+            livereload: {
+              options: {
+                url: 'http://localhost:35729/changed',
+                qs: {
+                    files: 'foobarbaz'
                 }
-            },
-            serverDocs: {
-                options: {
-                    port: 9090,
-                    // Change this to '0.0.0.0' to access the server from outside.
-                    hostname: '0.0.0.0',
-                    livereload: true,
-                    open: {
-                        target: 'http://localhost:9090/' + elementName + '/' + 'index.html'
-                    },
-                    base: [{
-                            path: parentDir
-                        }
-
-                    ]
-                }
+              }
             }
         },
 
-        //----------------------------------
+        express: {
+          all: {
+            options: {
+              port: 9000,
+              hostname: "0.0.0.0",
+              bases: [parentDir + '\/'],
+              middleware: [lr]
+            }
+          }
+        },
+        open: {
+            docs: {
+                path: 'http://localhost:<%= express.all.options.port%>' + delimeter + elementName
+            },
+            demo: {
+                path: 'http://localhost:<%= express.all.options.port%>' + delimeter + elementName + '/demo.html'
+            }
+
+        },
+
     };
 
     //we need to dynamicaly set the name of this property
@@ -229,13 +207,15 @@ module.exports = function(grunt) {
 
     grunt.registerTask('serve', function() {
         return grunt.task.run([
+            'express',
             'build',
-            // 'wct-test',
-            'connect',
+            'open',
             'watch'
         ]);
     });
 
+
+    //these functions need to be moved into a yeoman subgenerator
     function createIndexHtml(files) {
         var strVar='<!doctype html>\n';
         strVar += '<!--\n';
@@ -296,28 +276,6 @@ module.exports = function(grunt) {
         return strVar;
     }
 
-    function createTestHtml(elementName) {
-        var shortName = elementName.split(delimeter).reverse()[0];
-        var nestingLevel = Math.max(0,(elementName.split('/').length - 1)) * 3;
-        var nestingProto = '..\/..\/..\/..\/..\/..\/..\/..\/..\/..\/..\/..\/..\/..\/..\/..\/';
-        var nestingPad = nestingProto.substr(0, nestingLevel);
-        var strVar = '<!doctype html>\n';
-        strVar += '<html>\n';
-        strVar += '<head>\n';
-        strVar += '    <meta charset=\"UTF-8\">\n';
-        strVar += '    <meta name=\"viewport\" content=\"width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes\">\n';
-        strVar += '    <title>' + shortName + '<\/title>\n';
-        strVar += '    <script src=\"' + nestingPad + '..\/..\/webcomponentsjs\/webcomponents.js\"><\/script>\n';
-        strVar += '    <script src=\"' + nestingPad + '..\/..\/web-component-tester\/browser.js\"><\/script>\n';
-        strVar += '    <link rel=\"import\" href=\"' + nestingPad + '..\/..\/polymer/js/' + elementName + '.html\">\n';
-        strVar += '<\/head>\n';
-        strVar += '<body>\n';
-        strVar += '    <' + shortName + '><\/' + shortName + '>\n';
-        strVar += '    <script src=\"' + shortName + '.js\"><\/script>\n';
-        strVar += '<\/body>\n';
-        strVar += '<\/html>\n';
-        return strVar;
-    }
     function createTestIndexHtml(fileNames) {
         var strVar ='<!doctype html>\n';
         strVar +='<html>\n';
@@ -334,7 +292,7 @@ module.exports = function(grunt) {
         strVar +='    <script>\n';
         strVar +='      WCT.loadSuites([\n';
         for (var i = 0; i < fileNames.length; i++) {
-            strVar +='        \'' + fileNames[i].slice(1) + '.html\',\n';
+            strVar +='        \'' + fileNames[i].slice(1) + '.js\',\n';
         }
         strVar +='      ]);\n';
         strVar +='    <\/script>\n';
@@ -399,7 +357,6 @@ module.exports = function(grunt) {
         var cssFiles = grunt.file.expand([data.css + '/**/*.css']).map(function(e) { return e.slice(0,-4).replace(data.css,''); });
 
         var jsTestFiles = grunt.file.expand(['test/**/*.js']).map(function(e) { return e.slice(0,-3).replace('test',''); });
-        var htmlTestFiles = grunt.file.expand(['test/**/*.html']).map(function(e) { return e.slice(0,-5).replace('test',''); });
 
 
         //now we try and keep pre/post/css files in sync with the js files
@@ -418,13 +375,11 @@ module.exports = function(grunt) {
         var htmlToDelete = htmlFiles.filter(function(e) { return jsFiles.indexOf(e) === -1});
         var cssToDelete = cssFiles.filter(function(e) { return jsFiles.indexOf(e) === -1});
         var jsTestToDelete = jsTestFiles.filter(function(e) { return jsFiles.indexOf(e) === -1});
-        var htmlTestToDelete = htmlTestFiles.filter(function(e) { return htmlFiles.indexOf(e) === -1});
 
         //if html files do exist and there are no js files, delete them
         var htmlToAdd = jsFiles.filter(function(e) { return htmlFiles.indexOf(e) === -1});
         var cssToAdd = jsFiles.filter(function(e) { return cssFiles.indexOf(e) === -1});
         var jsTestToAdd = jsFiles.filter(function(e) { return jsTestFiles.indexOf(e) === -1});
-        var htmlTestToAdd = jsFiles.filter(function(e) { return htmlTestFiles.indexOf(e) === -1});
 
         //adjust the html files
         htmlToDelete.forEach(function(e) {
@@ -454,16 +409,6 @@ module.exports = function(grunt) {
         jsTestToAdd.forEach(function(e) {
             console.log('adding test' + e + '.js');
             grunt.file.write('test' + e + '.js', createTestJS(e.substr(1)));
-        });
-
-        //addjust the html test files
-        htmlTestToDelete.forEach(function(e) {
-            console.log('deleting test' + e + '.html');
-            grunt.file.delete('test' + e + '.html');
-        });
-        htmlTestToAdd.forEach(function(e) {
-            console.log('adding test' + e + '.html');
-            grunt.file.write('test' + e + '.html', createTestHtml(e.substr(1)));
         });
 
         //create core index.html file

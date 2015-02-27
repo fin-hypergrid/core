@@ -15,19 +15,20 @@
     "adm-zip": "^0.4.4",
     "grunt": "^0.4.5",
     "grunt-cli": "^0.1.13",
-    "grunt-contrib-connect": "^0.9.0",
     "grunt-contrib-csslint": "^0.4.0",
     "grunt-contrib-jshint": "^0.10.0",
     "grunt-contrib-watch": "^0.6.1",
     "grunt-cssbeautifier": "^0.1.2",
+    "grunt-express": "^1.4.1",
     "grunt-html": "^3.0.0",
+    "grunt-http": "^1.5.0",
     "grunt-jsbeautifier": "^0.2.7",
+    "grunt-open": "^0.2.3",
     "grunt-prettify": "^0.4.0",
     "grunt-vulcanize": "^0.5.0",
     "jshint": "^2.5.0",
     "jshint-stylish": "^1.0.0",
-    "load-grunt-tasks": "^1.0.0",
-    "web-component-tester": "^2.0.1"
+    "load-grunt-tasks": "^1.0.0"
   },
   "scripts": {
     "test": "grunt test"

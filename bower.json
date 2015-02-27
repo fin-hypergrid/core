@@ -23,7 +23,8 @@
     "fin-canvas": "#master",
     "fin-rectangle": "#master",
     "fin-vampire-bar": "#master",
-    "fin-hypergrid-dnd-list": "*"
+    "fin-hypergrid-dnd-list": "*",
+    "web-component-tester": "Polymer/web-component-tester#~2.2.4"
   },
   "devDependencies": {
     "polymer": "Polymer/polymer#0.5.4",
