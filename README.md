@@ -101,7 +101,8 @@ Hypergrid comes with several default cell editors you can easily select, and the
 * [textfield](http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/#fin-hypergrid-cell-editor-textfield)
 <br><img src="images/textfield.png" alt="screenshot">
 
-## Road Map 
+## Road Map
+* Column autosizing
 * Fix live reload on file change edge conditions
 * refactor column selection feature
 * have column dnd shift columns, not swap

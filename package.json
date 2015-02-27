@@ -5,10 +5,12 @@
   "directories": {
     "test": "test"
   },
-  "dependencies": {
-  },
+  "dependencies": {},
   "devDependencies": {
     "adm-zip": "^0.4.4",
+    "any-db": "^2.1.0",
+    "any-db-postgres": "^2.1.3",
+    "connect-livereload": "^0.5.3",
     "grunt": "^0.4.5",
     "grunt-cli": "^0.1.13",
     "grunt-contrib-csslint": "^0.4.0",
@@ -26,8 +28,6 @@
     "jshint-stylish": "^1.0.0",
     "load-grunt-tasks": "^1.0.0",
     "web-component-tester": "^2.0.1",
-    "any-db": "^2.1.0",
-    "any-db-postgres": "^2.1.3",
     "websocket.io": "^0.2.1"
   },
   "scripts": {
