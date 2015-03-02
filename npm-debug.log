@@ -1,0 +1,141 @@
+0 info it worked if it ends with ok
+1 verbose cli [ 'node',
+1 verbose cli   '/usr/local/bin/npm',
+1 verbose cli   'install',
+1 verbose cli   'web-component-tester',
+1 verbose cli   '--save-dev' ]
+2 info using npm@1.4.28
+3 info using node@v0.10.33
+4 warn package.json websocket.io@0.2.1 No repository field.
+5 verbose readDependencies using package.json deps
+6 verbose cache add [ 'web-component-tester', null ]
+7 verbose cache add name=undefined spec="web-component-tester" args=["web-component-tester",null]
+8 verbose parsed url { protocol: null,
+8 verbose parsed url   slashes: null,
+8 verbose parsed url   auth: null,
+8 verbose parsed url   host: null,
+8 verbose parsed url   port: null,
+8 verbose parsed url   hostname: null,
+8 verbose parsed url   hash: null,
+8 verbose parsed url   search: null,
+8 verbose parsed url   query: null,
+8 verbose parsed url   pathname: 'web-component-tester',
+8 verbose parsed url   path: 'web-component-tester',
+8 verbose parsed url   href: 'web-component-tester' }
+9 silly lockFile cf175d26-web-component-tester web-component-tester
+10 verbose lock web-component-tester /Users/steve/.npm/cf175d26-web-component-tester.lock
+11 silly lockFile cf175d26-web-component-tester web-component-tester
+12 silly lockFile cf175d26-web-component-tester web-component-tester
+13 verbose addNamed [ 'web-component-tester', '' ]
+14 verbose addNamed [ null, '*' ]
+15 silly lockFile d5dbf07a-web-component-tester web-component-tester@
+16 verbose lock web-component-tester@ /Users/steve/.npm/d5dbf07a-web-component-tester.lock
+17 silly addNameRange { name: 'web-component-tester', range: '*', hasData: false }
+18 verbose request where is /web-component-tester
+19 verbose request registry https://registry.npmjs.org/
+20 verbose request id 7901e0d0791b2399
+21 verbose url raw /web-component-tester
+22 verbose url resolving [ 'https://registry.npmjs.org/', './web-component-tester' ]
+23 verbose url resolved https://registry.npmjs.org/web-component-tester
+24 verbose request where is https://registry.npmjs.org/web-component-tester
+25 info trying registry request attempt 1 at 22:24:05
+26 verbose etag "7SGB8TI0KAF3444XKNK7CFQ1O"
+27 http GET https://registry.npmjs.org/web-component-tester
+28 http 304 https://registry.npmjs.org/web-component-tester
+29 silly registry.get cb [ 304,
+29 silly registry.get   { date: 'Sat, 28 Feb 2015 03:24:05 GMT',
+29 silly registry.get     server: 'Apache',
+29 silly registry.get     via: '1.1 varnish',
+29 silly registry.get     'last-modified': 'Sat, 28 Feb 2015 03:24:06 GMT',
+29 silly registry.get     'cache-control': 'max-age=60',
+29 silly registry.get     etag: '"7SGB8TI0KAF3444XKNK7CFQ1O"',
+29 silly registry.get     age: '0',
+29 silly registry.get     'x-served-by': 'cache-jfk1032-JFK',
+29 silly registry.get     'x-cache': 'MISS',
+29 silly registry.get     'x-cache-hits': '0',
+29 silly registry.get     'x-timer': 'S1425093845.768337,VS0,VE251',
+29 silly registry.get     vary: 'Accept',
+29 silly registry.get     'content-length': '0',
+29 silly registry.get     'keep-alive': 'timeout=10, max=50',
+29 silly registry.get     connection: 'Keep-Alive' } ]
+30 verbose etag https://registry.npmjs.org/web-component-tester from cache
+31 silly addNameRange number 2 { name: 'web-component-tester', range: '*', hasData: true }
+32 silly addNameRange versions [ 'web-component-tester',
+32 silly addNameRange   [ '0.2.0',
+32 silly addNameRange     '0.3.0',
+32 silly addNameRange     '0.3.2',
+32 silly addNameRange     '0.3.3',
+32 silly addNameRange     '0.4.1',
+32 silly addNameRange     '0.5.1',
+32 silly addNameRange     '0.6.0',
+32 silly addNameRange     '0.6.1',
+32 silly addNameRange     '0.6.2',
+32 silly addNameRange     '0.6.3',
+32 silly addNameRange     '0.7.1',
+32 silly addNameRange     '0.7.3',
+32 silly addNameRange     '0.8.0',
+32 silly addNameRange     '1.0.0',
+32 silly addNameRange     '1.0.1',
+32 silly addNameRange     '1.1.0',
+32 silly addNameRange     '1.1.1',
+32 silly addNameRange     '1.1.2',
+32 silly addNameRange     '1.1.3',
+32 silly addNameRange     '1.1.4',
+32 silly addNameRange     '1.2.0',
+32 silly addNameRange     '1.3.0',
+32 silly addNameRange     '1.4.0',
+32 silly addNameRange     '1.4.1',
+32 silly addNameRange     '1.4.2',
+32 silly addNameRange     '1.4.3',
+32 silly addNameRange     '1.5.0-rc1',
+32 silly addNameRange     '1.5.1',
+32 silly addNameRange     '1.5.2',
+32 silly addNameRange     '1.6.0',
+32 silly addNameRange     '1.6.1',
+32 silly addNameRange     '2.0.0-rc1',
+32 silly addNameRange     '1.6.2',
+32 silly addNameRange     '2.0.0',
+32 silly addNameRange     '2.0.1',
+32 silly addNameRange     '2.0.2',
+32 silly addNameRange     '2.0.3',
+32 silly addNameRange     '2.0.5',
+32 silly addNameRange     '2.2.0',
+32 silly addNameRange     '2.2.1',
+32 silly addNameRange     '2.2.2',
+32 silly addNameRange     '2.2.3',
+32 silly addNameRange     '2.2.4' ] ]
+33 verbose addNamed [ 'web-component-tester', '2.2.4' ]
+34 verbose addNamed [ '2.2.4', '2.2.4' ]
+35 silly lockFile e7b994f4-web-component-tester-2-2-4 web-component-tester@2.2.4
+36 verbose lock web-component-tester@2.2.4 /Users/steve/.npm/e7b994f4-web-component-tester-2-2-4.lock
+37 silly lockFile f430d79c-r-web-component-tester-2-2-4-tgz https://registry.npmjs.org/web-component-tester/-/web-component-tester-2.2.4.tgz
+38 verbose lock https://registry.npmjs.org/web-component-tester/-/web-component-tester-2.2.4.tgz /Users/steve/.npm/f430d79c-r-web-component-tester-2-2-4-tgz.lock
+39 verbose addRemoteTarball [ 'https://registry.npmjs.org/web-component-tester/-/web-component-tester-2.2.4.tgz',
+39 verbose addRemoteTarball   'cfec01ae2219b6b29cd8d473e55ecb61f13ce387' ]
+40 info retry fetch attempt 1 at 22:24:06
+41 verbose fetch to= /var/folders/5t/4957fq2n6lbcncpnj_mypjxh0000gn/T/npm-5340-vFmgoh-s/registry.npmjs.org/web-component-tester/-/web-component-tester-2.2.4.tgz
+42 http GET https://registry.npmjs.org/web-component-tester/-/web-component-tester-2.2.4.tgz
+43 http 200 https://registry.npmjs.org/web-component-tester/-/web-component-tester-2.2.4.tgz
+44 silly lockFile f430d79c-r-web-component-tester-2-2-4-tgz https://registry.npmjs.org/web-component-tester/-/web-component-tester-2.2.4.tgz
+45 silly lockFile f430d79c-r-web-component-tester-2-2-4-tgz https://registry.npmjs.org/web-component-tester/-/web-component-tester-2.2.4.tgz
+46 silly lockFile e7b994f4-web-component-tester-2-2-4 web-component-tester@2.2.4
+47 silly lockFile e7b994f4-web-component-tester-2-2-4 web-component-tester@2.2.4
+48 silly lockFile d5dbf07a-web-component-tester web-component-tester@
+49 silly lockFile d5dbf07a-web-component-tester web-component-tester@
+50 error Error: EACCES, mkdir '/Users/steve/.npm/web-component-tester/2.2.4'
+50 error  { [Error: EACCES, mkdir '/Users/steve/.npm/web-component-tester/2.2.4']
+50 error   errno: 3,
+50 error   code: 'EACCES',
+50 error   path: '/Users/steve/.npm/web-component-tester/2.2.4',
+50 error   parent: 'fin-hypergrid' }
+51 error Please try running this command again as root/Administrator.
+52 error System Darwin 14.0.0
+53 error command "node" "/usr/local/bin/npm" "install" "web-component-tester" "--save-dev"
+54 error cwd /Users/steve/Project/dev/fin-hypergrid
+55 error node -v v0.10.33
+56 error npm -v 1.4.28
+57 error path /Users/steve/.npm/web-component-tester/2.2.4
+58 error code EACCES
+59 error errno 3
+60 error stack Error: EACCES, mkdir '/Users/steve/.npm/web-component-tester/2.2.4'
+61 verbose exit [ 3, true ]

@@ -77,31 +77,40 @@ var noop = function() {};
         var hb = window.getComputedStyle(document.querySelector('html, body'));
         var s = window.getComputedStyle(section);
 
-        polymerTheme.fixedRowBackgroundColor = p['background-color'];
-        polymerTheme.fixedColumnBackgroundColor = p['background-color'];
-        polymerTheme.topLeftBackgroundColor = p['background-color'];
 
-        polymerTheme.backgroundColor2 = hb['background-color'];
+        polymerTheme.fixedRowBackgroundColor = p.color;
+        polymerTheme.fixedColumnBackgroundColor = p.color;
+        polymerTheme.topLeftBackgroundColor = p.color;
+        polymerTheme.lineColor = p.backgroundColor;
 
-        polymerTheme.lineColor = p.color;
+        polymerTheme.backgroundColor2 = hb.backgroundColor;
+
         polymerTheme.color = h.color;
-        polymerTheme.fontFamily = h['font-family'];
-        polymerTheme.backgroundColor = s['background-color'];
+        polymerTheme.fontFamily = h.fontFamily;
+        polymerTheme.backgroundColor = s.backgroundColor;
+
+
 
         pb.setAttribute('disabled', false);
         pb.setAttribute('secondary', true);
         pb.setAttribute('raised', true);
+        p = window.getComputedStyle(pb);
 
-        polymerTheme.backgroundSelColor = p['background-color'];
+        polymerTheme.fixedRowColor = p.color;
+        polymerTheme.fixedColumnColor = p.color;
+        polymerTheme.topLeftColor = p.color;
+
+
+        polymerTheme.backgroundSelColor = p.backgroundColor;
         polymerTheme.foregroundSelColor = p.color;
 
         pb.setAttribute('secondary', false);
-        pb.setAttribute('info', true);
+        pb.setAttribute('warning', true);
 
         polymerTheme.fixedRowFGSelColor = p.color;
-        polymerTheme.fixedRowBGSelColor = p['background-color'];
+        polymerTheme.fixedRowBGSelColor = p.backgroundColor;
         polymerTheme.fixedColumnFGSelColor = p.color;
-        polymerTheme.fixedColumnBGSelColor = p['background-color'];
+        polymerTheme.fixedColumnBGSelColor = p.backgroundColor;
 
         //check if there is actuall a theme loaded if not, clear out all bogus values
         //from my cache
