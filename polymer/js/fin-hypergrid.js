@@ -7,8 +7,8 @@
     var rectangles;
     var constants;
     var defaults = {};
-    var polymerTheme = Object.create(defaults);
-    var globalProperties = Object.create(polymerTheme);
+    var polymerTheme = {};
+    var globalProperties = {};
     var globalCellEditors = {};
 
     var noop = function() {};
@@ -374,6 +374,20 @@
             });
             this.resized();
             this.fire('load');
+        },
+        addGlobalProperties: function(props) {
+            for (var key in props) {
+                if (props.hasOwnProperty(key)) {
+                    globalProperties[key] = props[key];
+                }
+            }
+        },
+        addProperties: function(props) {
+            for (var key in props) {
+                if (props.hasOwnProperty(key)) {
+                    this.lnfProperties[key] = props[key];
+                }
+            }
         },
 
         /**

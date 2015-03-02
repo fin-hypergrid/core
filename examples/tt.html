@@ -1,0 +1,92 @@
+<html>
+<head>
+  <link rel="import" href="../fin-hypergrid.min.html">
+<style>
+
+ body {
+    position: absolute;
+    top: 0%;
+    right: 0%;
+    bottom: 0%;
+    left: 0%;
+    padding: 0%;
+    margin: 15px 0 0 0;
+    background-color: #202020;
+ }
+
+</style>
+</head>
+<body>
+<fin-hypergrid  id="tt" style="width:100%;height:100%">
+    <fin-hypergrid-behavior-json></fin-hypergrid-behavior-json>
+</fin-hypergrid>
+<script>
+
+    var randomRow = function() {
+         var row = {
+            work: '',
+            asks: (Math.random() * 100).toFixed(0),
+            bids: (Math.random() * 100).toFixed(0),
+            price: (Math.random() * 1000).toFixed(3),
+            ltq: (Math.random() * 1000).toFixed(0)
+        };
+        return row;
+    };
+
+    var generateRandomData = function() {
+        var rowCount = 1000;
+        var data = new Array(rowCount);
+        for (var i = 0; i < rowCount; i ++) {
+            data[i] = randomRow();
+        }
+        return data;
+    };
+
+    var lnfOverrides = {
+        font: '13px Tahoma, Geneva, sans-serif',
+        color: '#ffffff',
+        backgroundColor: '#505050',
+        foregroundSelColor: 'rgb(25, 25, 25)',
+        backgroundSelColor: 'rgb(183, 219, 255)',
+
+        topLeftFont: '14px Tahoma, Geneva, sans-serif',
+        topLeftColor: 'rgb(25, 25, 25)',
+        topLeftBackgroundColor: 'rgb(223, 227, 232)',
+        topLeftFGSelColor: 'rgb(25, 25, 25)',
+        topLeftBGSelColor: 'rgb(255, 220, 97)',
+
+        fixedColumnFont: '14px Tahoma, Geneva, sans-serif',
+        fixedColumnColor: 'rgb(25, 25, 25)',
+        fixedColumnBackgroundColor: 'rgb(223, 227, 232)',
+        fixedColumnFGSelColor: 'rgb(25, 25, 25)',
+        fixedColumnBGSelColor: 'rgb(255, 220, 97)',
+
+        fixedRowFont: '11px Tahoma, Geneva, sans-serif',
+        fixedRowColor: '#ffffff',
+        fixedRowBackgroundColor: '#303030',
+        fixedRowFGSelColor: 'rgb(25, 25, 25)',
+        fixedRowBGSelColor: 'rgb(255, 220, 97)',
+
+        backgroundColor2: '#303030',
+        lineColor: '#707070',
+        hoffset: 0,
+        voffset: 0,
+    }
+
+    var initialize = function() {
+        var data = generateRandomData();
+        var table = document.querySelector('#tt');
+        var model = table.getBehavior();
+        model.setData(data);
+        model.getFixedColumnCount = function() {
+            return 0;
+        }
+        table.addGlobalProperties(lnfOverrides);
+    };
+
+    document.addEventListener('polymer-ready', function() {
+        initialize();
+    });
+</script>
+</body>
+</html>

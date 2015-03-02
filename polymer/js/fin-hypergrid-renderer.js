@@ -300,8 +300,8 @@ var config = {};
                 y = y + height;
                 this.renderedRowHeights.push(y);
                 if (drawThemH) {
-                    gc.moveTo(fixedColumnsWidth, y);
-                    gc.lineTo(viewWidth, y);
+                    gc.moveTo(fixedColumnsWidth, y + 0.5);
+                    gc.lineTo(viewWidth, y + 0.5);
                     gc.stroke();
                 }
             }
@@ -315,8 +315,8 @@ var config = {};
                 x = x + width;
                 this.renderedColumnWidths.push(x);
                 if (drawThemV) {
-                    gc.moveTo(x, fixedRowsHeight);
-                    gc.lineTo(x, viewHeight);
+                    gc.moveTo(x + 0.5, fixedRowsHeight);
+                    gc.lineTo(x + 0.5, viewHeight);
                     gc.stroke();
                 }
             }
@@ -336,8 +336,8 @@ var config = {};
                     break;
                 }
                 if (drawThemV) {
-                    gc.moveTo(x, 0);
-                    gc.lineTo(x, viewHeight);
+                    gc.moveTo(x + 0.5, 0);
+                    gc.lineTo(x + 0.5, viewHeight);
                     gc.stroke();
                 }
                 x = x + width;
@@ -362,8 +362,8 @@ var config = {};
                 }
 
                 if (drawThemH) {
-                    gc.moveTo(0, y);
-                    gc.lineTo(viewWidth, y);
+                    gc.moveTo(0, y + 0.5);
+                    gc.lineTo(viewWidth, y + 0.5);
                     gc.stroke();
                 }
                 y = y + height;
