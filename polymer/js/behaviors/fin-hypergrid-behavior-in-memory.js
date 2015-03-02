@@ -126,7 +126,7 @@
         getCellEditorAt: function(x, y) {
             x = this.translateColumnIndex(x);
             var type = x !== 9 ? 'textfield' : this.editorTypes[y % this.editorTypes.length];
-            var cellEditor = this.grid.cellEditors[type];
+            var cellEditor = this.grid.resolveCellEditor(type);
             return cellEditor;
         },
         //set a random value into col/row, cutoff is the threshold to exit if the random value is outside

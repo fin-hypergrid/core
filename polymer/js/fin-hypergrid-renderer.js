@@ -14,121 +14,9 @@
 'use strict';
 
 var noop = function() {};
+var config = {};
 
 (function() {
-
-    var constants;
-    var defaults = {};
-    var polymerTheme = Object.create(defaults);
-    var themeInitialized = false;
-    var globalProperties = Object.create(polymerTheme);
-    var config = {};
-
-    var defaultProperties = function(proto) {
-        var theme = Object.create(proto);
-
-        theme.font = '13px Tahoma, Geneva, sans-serif';
-        theme.color = 'rgb(25, 25, 25)';
-        theme.backgroundColor = 'rgb(241, 241, 241)';
-        theme.foregroundSelColor = 'rgb(25, 25, 25)';
-        theme.backgroundSelColor = 'rgb(183, 219, 255)';
-
-        theme.topLeftFont = '14px Tahoma, Geneva, sans-serif';
-        theme.topLeftColor = 'rgb(25, 25, 25)';
-        theme.topLeftBackgroundColor = 'rgb(223, 227, 232)';
-        theme.topLeftFGSelColor = 'rgb(25, 25, 25)';
-        theme.topLeftBGSelColor = 'rgb(255, 220, 97)';
-
-        theme.fixedColumnFont = '14px Tahoma, Geneva, sans-serif';
-        theme.fixedColumnColor = 'rgb(25, 25, 25)';
-        theme.fixedColumnBackgroundColor = 'rgb(223, 227, 232)';
-        theme.fixedColumnFGSelColor = 'rgb(25, 25, 25)';
-        theme.fixedColumnBGSelColor = 'rgb(255, 220, 97)';
-
-        theme.fixedRowFont = '14px Tahoma, Geneva, sans-serif';
-        theme.fixedRowColor = 'rgb(25, 25, 25)';
-        theme.fixedRowBackgroundColor = 'rgb(223, 227, 232)';
-        theme.fixedRowFGSelColor = 'rgb(25, 25, 25)';
-        theme.fixedRowBGSelColor = 'rgb(255, 220, 97)';
-
-        theme.backgroundColor2 = 'rgb(201, 201, 201)';
-        theme.lineColor = 'rgb(199, 199, 199)';
-        theme.hoffset = 0;
-        theme.voffset = 0;
-
-        return theme;
-    };
-
-    var buildPolymerTheme = function() {
-        clearObjectProperties(polymerTheme);
-        var pb = document.createElement('paper-button');
-
-        pb.style.display = 'none';
-        pb.setAttribute('disabled', true);
-        document.body.appendChild(pb);
-        var p = window.getComputedStyle(pb);
-
-        var section = document.createElement('section');
-        section.style.display = 'none';
-        section.setAttribute('hero', true);
-        document.body.appendChild(section);
-
-        var h = window.getComputedStyle(document.querySelector('html'));
-        var hb = window.getComputedStyle(document.querySelector('html, body'));
-        var s = window.getComputedStyle(section);
-
-
-        polymerTheme.fixedRowBackgroundColor = p.color;
-        polymerTheme.fixedColumnBackgroundColor = p.color;
-        polymerTheme.topLeftBackgroundColor = p.color;
-        polymerTheme.lineColor = p.backgroundColor;
-
-        polymerTheme.backgroundColor2 = hb.backgroundColor;
-
-        polymerTheme.color = h.color;
-        polymerTheme.fontFamily = h.fontFamily;
-        polymerTheme.backgroundColor = s.backgroundColor;
-
-
-
-        pb.setAttribute('disabled', false);
-        pb.setAttribute('secondary', true);
-        pb.setAttribute('raised', true);
-        p = window.getComputedStyle(pb);
-
-        polymerTheme.fixedRowColor = p.color;
-        polymerTheme.fixedColumnColor = p.color;
-        polymerTheme.topLeftColor = p.color;
-
-
-        polymerTheme.backgroundSelColor = p.backgroundColor;
-        polymerTheme.foregroundSelColor = p.color;
-
-        pb.setAttribute('secondary', false);
-        pb.setAttribute('warning', true);
-
-        polymerTheme.fixedRowFGSelColor = p.color;
-        polymerTheme.fixedRowBGSelColor = p.backgroundColor;
-        polymerTheme.fixedColumnFGSelColor = p.color;
-        polymerTheme.fixedColumnBGSelColor = p.backgroundColor;
-
-        //check if there is actuall a theme loaded if not, clear out all bogus values
-        //from my cache
-        if (polymerTheme.fixedRowBGSelColor === 'rgba(0, 0, 0, 0)') {
-            clearObjectProperties(polymerTheme);
-        }
-
-        document.body.removeChild(pb);
-        document.body.removeChild(section);
-    };
-
-    var clearObjectProperties = function(obj) {
-        for (var prop in obj) {
-            if (obj.hasOwnProperty(prop)) {
-                delete obj[prop];
-            }
-        }
-    };
 
     // we need a reusable cellconfig object
     var cellConfig = function(x, y, value, fgColor, bgColor, fgSelColor, bgSelColor, font, isSelected, halign, hoffset, voffset, properties) {
@@ -136,7 +24,7 @@ var noop = function() {};
         config.y = y;
         config.value = value;
         config.fgColor = fgColor;
-        config.bgColor = properties.bgColor === bgColor ? null : bgColor; //
+        config.bgColor = undefined; //properties.bgColor === bgColor ? null : bgColor; //
         config.fgSelColor = fgSelColor;
         config.bgSelColor = bgSelColor;
         config.font = font;
@@ -152,30 +40,17 @@ var noop = function() {};
 
         attached: function() {
             this.readyInit();
-            if (!constants) {
-                constants = document.createElement('fin-hypergrid-constants').values;
-                defaults = defaultProperties(constants);
-                polymerTheme = Object.create(defaults);
-                globalProperties = Object.create(polymerTheme);
-            }
-            this.lnfProperties = Object.create(globalProperties);
             this.renderedColumnWidths = [0];
             this.renderedRowHeights = [0];
             this.renderedColumns = [];
             this.renderedRows = [];
             this.insertionBounds = []; // this is the midpoint of each column, used
-            //for column drag and drop
-            //         this.setBackgroundColor(constants.gridBackgroundColor);
-            if (!themeInitialized) {
-                buildPolymerTheme();
-                themeInitialized = true;
-            }
         },
         resolveProperty: function(key) {
-            return this.lnfProperties[key];
+            return this.hypergrid.resolveProperty(key);
         },
         cellConfig: function(x, y, value, fgColor, bgColor, fgSelColor, bgSelColor, font, isSelected, halign, hoffset, voffset) {
-            var config = cellConfig(x, y, value, fgColor, bgColor, fgSelColor, bgSelColor, font, isSelected, halign, hoffset, voffset, this.lnfProperties);
+            var config = cellConfig(x, y, value, fgColor, bgColor, fgSelColor, bgSelColor, font, isSelected, halign, hoffset, voffset, this.hypergrid.lnfProperties);
             return config;
         },
         getGrid: function() {

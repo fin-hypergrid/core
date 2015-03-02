@@ -23,11 +23,6 @@
 
         },
 
-        installOn: function(grid) {
-            this.grid = grid;
-            grid.registerCellEditor(this.alias, this);
-        },
-
         getBehavior: function() {
             return this.grid.getBehavior();
         },

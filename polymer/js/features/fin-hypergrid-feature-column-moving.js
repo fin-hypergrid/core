@@ -5,6 +5,10 @@
     var noop = function() {};
 
     var columnAnimationTime = 150;
+    var dragger;
+    var draggerCTX;
+    var floatColumn;
+    var floatColumnCTX;
 
     Polymer({ /* jshint ignore:line */
 
@@ -26,19 +30,22 @@
 
         initializeAnimationSupport: function(grid) {
             noop(grid);
-            this.dragger = document.createElement('canvas');
-            this.dragger.setAttribute('width', '0px');
-            this.dragger.setAttribute('height', '0px');
+            if (!dragger) {
+                dragger = document.createElement('canvas');
+                dragger.setAttribute('width', '0px');
+                dragger.setAttribute('height', '0px');
 
-            document.body.appendChild(this.dragger);
-            this.draggerCTX = this.dragger.getContext('2d');
+                document.body.appendChild(dragger);
+                draggerCTX = dragger.getContext('2d');
+            }
+            if (!floatColumn) {
+                floatColumn = document.createElement('canvas');
+                floatColumn.setAttribute('width', '0px');
+                floatColumn.setAttribute('height', '0px');
 
-            this.floatColumn = document.createElement('canvas');
-            this.floatColumn.setAttribute('width', '0px');
-            this.floatColumn.setAttribute('height', '0px');
-
-            document.body.appendChild(this.floatColumn);
-            this.floatColumnCTX = this.floatColumn.getContext('2d');
+                document.body.appendChild(floatColumn);
+                floatColumnCTX = floatColumn.getContext('2d');
+            }
 
         },
 
@@ -155,7 +162,7 @@
         doColumnMoveAnimation: function(grid, floaterStartX, draggerStartX) {
             var self = this;
             return function() {
-                var d = self.floatColumn;
+                var d = floatColumn;
                 d.style.display = 'inline';
                 self.setCrossBrowserProperty(d, 'transform', 'translate(' + floaterStartX + 'px, ' + 0 + 'px)');
 
@@ -197,7 +204,7 @@
             var numFixedColumns = grid.getFixedColumnCount();
             var columnWidth = columnIndex < 0 ? grid.getFixedColumnWidth(numFixedColumns + columnIndex + scrollLeft) : grid.getColumnWidth(columnIndex + scrollLeft);
             var colHeight = grid.clientHeight - grid.constants.scrollerSize + 1;
-            var d = this.floatColumn;
+            var d = floatColumn;
             var style = d.style;
             var location = grid.getBoundingClientRect();
 
@@ -205,7 +212,7 @@
             style.left = location.left + 'px';
             style.position = 'fixed';
 
-            var hdpiRatio = grid.getHiDPI(this.floatColumnCTX);
+            var hdpiRatio = grid.getHiDPI(floatColumnCTX);
 
             d.setAttribute('width', Math.round(columnWidth * hdpiRatio) + 'px');
             d.setAttribute('height', Math.round(colHeight * hdpiRatio) + 'px');
@@ -218,11 +225,11 @@
             var startX = grid.renderer.renderedColumnWidths[columnIndex + numFixedColumns];
             startX = startX * hdpiRatio;
 
-            this.floatColumnCTX.scale(hdpiRatio, hdpiRatio);
+            floatColumnCTX.scale(hdpiRatio, hdpiRatio);
 
             grid.renderOverridesCache.floater = {
                 columnIndex: columnIndex,
-                ctx: this.floatColumnCTX,
+                ctx: floatColumnCTX,
                 startX: startX,
                 width: columnWidth,
                 height: colHeight,
@@ -250,11 +257,11 @@
         createDragColumn: function(grid, x, columnIndex) {
             var scrollLeft = grid.getHScrollValue();
             var numFixedColumns = grid.getFixedColumnCount();
-            var hdpiRatio = grid.getHiDPI(this.draggerCTX);
+            var hdpiRatio = grid.getHiDPI(draggerCTX);
 
             var columnWidth = columnIndex < 0 ? grid.getFixedColumnWidth(numFixedColumns + columnIndex + scrollLeft) : grid.getColumnWidth(columnIndex + scrollLeft);
             var colHeight = grid.clientHeight - grid.constants.scrollerSize + 1;
-            var d = this.dragger;
+            var d = dragger;
 
             var location = grid.getBoundingClientRect();
             var style = d.style;
@@ -277,11 +284,11 @@
             var startX = grid.renderer.renderedColumnWidths[columnIndex + numFixedColumns];
             startX = startX * hdpiRatio;
 
-            this.draggerCTX.scale(hdpiRatio, hdpiRatio);
+            draggerCTX.scale(hdpiRatio, hdpiRatio);
 
             grid.renderOverridesCache.dragger = {
                 columnIndex: columnIndex,
-                ctx: this.draggerCTX,
+                ctx: draggerCTX,
                 startX: startX,
                 width: columnWidth,
                 height: colHeight,
@@ -302,7 +309,7 @@
 
             var autoScrollingNow = this.columnDragAutoScrollingRight || this.columnDragAutoScrollingLeft;
 
-            var hdpiRatio = grid.getHiDPI(this.draggerCTX);
+            var hdpiRatio = grid.getHiDPI(draggerCTX);
 
             var dragColumnIndex = grid.renderOverridesCache.dragger.columnIndex;
             var columnWidth = grid.renderOverridesCache.dragger.width;
@@ -317,7 +324,7 @@
             //am I at my upper bound
             var atMax = x > maxX;
 
-            var d = this.dragger;
+            var d = dragger;
 
             this.setCrossBrowserProperty(d, 'transition', (self.isWebkit ? '-webkit-' : '') + 'transform ' + 0 + 'ms ease, box-shadow ' + columnAnimationTime + 'ms ease');
 
@@ -441,7 +448,7 @@
             var numFixedColumns = grid.getFixedColumnCount();
             var columnIndex = grid.renderOverridesCache.dragger.columnIndex;
             var startX = grid.renderer.renderedColumnWidths[columnIndex + numFixedColumns];
-            var d = this.dragger;
+            var d = dragger;
 
             self.setCrossBrowserProperty(d, 'transition', (self.isWebkit ? '-webkit-' : '') + 'transform ' + columnAnimationTime + 'ms ease, box-shadow ' + columnAnimationTime + 'ms ease');
             self.setCrossBrowserProperty(d, 'transform', 'translate(' + startX + 'px, ' + -1 + 'px)');

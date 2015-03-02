@@ -421,7 +421,7 @@
         getCellEditorAt: function(x, y) {
             noop(y);
             x = this.translateColumnIndex(x);
-            var cellEditor = this.grid.cellEditors.textfield;
+            var cellEditor = this.grid.resolveCellEditor('textfield');
             return cellEditor;
         },
 

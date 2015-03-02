@@ -4,7 +4,136 @@
 
 (function() {
 
+    var rectangles;
+    var constants;
+    var defaults = {};
+    var polymerTheme = Object.create(defaults);
+    var globalProperties = Object.create(polymerTheme);
+    var globalCellEditors = {};
+
     var noop = function() {};
+
+    var initializeBasicCellEditors = function() {
+
+        initializeCellEditor('fin-hypergrid-cell-editor-textfield');
+        initializeCellEditor('fin-hypergrid-cell-editor-choice');
+        initializeCellEditor('fin-hypergrid-cell-editor-color');
+        initializeCellEditor('fin-hypergrid-cell-editor-date');
+        initializeCellEditor('fin-hypergrid-cell-editor-slider');
+        initializeCellEditor('fin-hypergrid-cell-editor-spinner');
+    };
+
+    var initializeCellEditor = function(name) {
+        var cellEditor = document.createElement(name);
+        globalCellEditors[cellEditor.alias] = cellEditor;
+    };
+
+    var defaultProperties = function(proto) {
+        var theme = Object.create(proto);
+
+        theme.font = '13px Tahoma, Geneva, sans-serif';
+        theme.color = 'rgb(25, 25, 25)';
+        theme.backgroundColor = 'rgb(241, 241, 241)';
+        theme.foregroundSelColor = 'rgb(25, 25, 25)';
+        theme.backgroundSelColor = 'rgb(183, 219, 255)';
+
+        theme.topLeftFont = '14px Tahoma, Geneva, sans-serif';
+        theme.topLeftColor = 'rgb(25, 25, 25)';
+        theme.topLeftBackgroundColor = 'rgb(223, 227, 232)';
+        theme.topLeftFGSelColor = 'rgb(25, 25, 25)';
+        theme.topLeftBGSelColor = 'rgb(255, 220, 97)';
+
+        theme.fixedColumnFont = '14px Tahoma, Geneva, sans-serif';
+        theme.fixedColumnColor = 'rgb(25, 25, 25)';
+        theme.fixedColumnBackgroundColor = 'rgb(223, 227, 232)';
+        theme.fixedColumnFGSelColor = 'rgb(25, 25, 25)';
+        theme.fixedColumnBGSelColor = 'rgb(255, 220, 97)';
+
+        theme.fixedRowFont = '14px Tahoma, Geneva, sans-serif';
+        theme.fixedRowColor = 'rgb(25, 25, 25)';
+        theme.fixedRowBackgroundColor = 'rgb(223, 227, 232)';
+        theme.fixedRowFGSelColor = 'rgb(25, 25, 25)';
+        theme.fixedRowBGSelColor = 'rgb(255, 220, 97)';
+
+        theme.backgroundColor2 = 'rgb(201, 201, 201)';
+        theme.lineColor = 'rgb(199, 199, 199)';
+        theme.hoffset = 0;
+        theme.voffset = 0;
+
+        return theme;
+    };
+
+    var buildPolymerTheme = function() {
+        clearObjectProperties(polymerTheme);
+        var pb = document.createElement('paper-button');
+
+        pb.style.display = 'none';
+        pb.setAttribute('disabled', true);
+        document.body.appendChild(pb);
+        var p = window.getComputedStyle(pb);
+
+        var section = document.createElement('section');
+        section.style.display = 'none';
+        section.setAttribute('hero', true);
+        document.body.appendChild(section);
+
+        var h = window.getComputedStyle(document.querySelector('html'));
+        var hb = window.getComputedStyle(document.querySelector('html, body'));
+        var s = window.getComputedStyle(section);
+
+
+        polymerTheme.fixedRowBackgroundColor = p.color;
+        polymerTheme.fixedColumnBackgroundColor = p.color;
+        polymerTheme.topLeftBackgroundColor = p.color;
+        polymerTheme.lineColor = p.backgroundColor;
+
+        polymerTheme.backgroundColor2 = hb.backgroundColor;
+
+        polymerTheme.color = h.color;
+        polymerTheme.fontFamily = h.fontFamily;
+        polymerTheme.backgroundColor = s.backgroundColor;
+
+
+
+        pb.setAttribute('disabled', false);
+        pb.setAttribute('secondary', true);
+        pb.setAttribute('raised', true);
+        p = window.getComputedStyle(pb);
+
+        polymerTheme.fixedRowColor = p.color;
+        polymerTheme.fixedColumnColor = p.color;
+        polymerTheme.topLeftColor = p.color;
+
+
+        polymerTheme.backgroundSelColor = p.backgroundColor;
+        polymerTheme.foregroundSelColor = p.color;
+
+        pb.setAttribute('secondary', false);
+        pb.setAttribute('warning', true);
+
+        polymerTheme.fixedRowFGSelColor = p.color;
+        polymerTheme.fixedRowBGSelColor = p.backgroundColor;
+        polymerTheme.fixedColumnFGSelColor = p.color;
+        polymerTheme.fixedColumnBGSelColor = p.backgroundColor;
+
+        //check if there is actuall a theme loaded if not, clear out all bogus values
+        //from my cache
+        if (polymerTheme.fixedRowBGSelColor === 'rgba(0, 0, 0, 0)') {
+            clearObjectProperties(polymerTheme);
+        }
+
+        document.body.removeChild(pb);
+        document.body.removeChild(section);
+    };
+
+    var clearObjectProperties = function(obj) {
+        for (var prop in obj) {
+            if (obj.hasOwnProperty(prop)) {
+                delete obj[prop];
+            }
+        }
+    };
+
     Polymer({ /* jslint ignore:line */
 
         /**
@@ -191,20 +320,29 @@
          */
 
         renderOverridesCache: {},
+
+
         domReady: function() {
             var self = this;
-            this.themeListener = document.createElement('html');
-            this.themeListener.classList.add('core-header');
-            this.shadowRoot.appendChild(this.themeListener);
+            if (!constants) {
+                constants = document.createElement('fin-hypergrid-constants').values;
+                defaults = defaultProperties(constants);
+                polymerTheme = Object.create(defaults);
+                globalProperties = Object.create(polymerTheme);
+                buildPolymerTheme();
+                initializeBasicCellEditors();
+            }
+            rectangles = rectangles || document.createElement('fin-rectangle');
+            constants = constants || document.createElement('fin-hypergrid-constants').values;
+
+            this.rectangles = rectangles;
+            this.constants = constants;
+
+            this.lnfProperties = Object.create(globalProperties);
 
             this.isWebkit = navigator.userAgent.toLowerCase().indexOf('webkit') > -1;
-
-            this.rectangles = document.createElement('fin-rectangle');
-            this.constants = document.createElement('fin-hypergrid-constants').values;
             this.selectionModel = document.createElement('fin-hypergrid-selection-model');
-
-            this.cellEditors = {};
-
+            this.cellEditors = Object.create(globalCellEditors);
             this.renderOverridesCache = {};
 
             //prevent the default context menu for appearing
@@ -215,7 +353,7 @@
 
 
             this.clearMouseDown();
-            this.dragExtent = this.rectangles.point.create(0, 0);
+            this.dragExtent = rectangles.point.create(0, 0);
 
             //install any plugins
             this.pluginsDo(function(each) {
@@ -275,7 +413,7 @@
          * @method clearMouseDown()
          */
         clearMouseDown: function() {
-            this.mouseDown = [this.rectangles.point.create(-1, -1)];
+            this.mouseDown = [rectangles.point.create(-1, -1)];
             this.dragExtent = null;
         },
 
@@ -356,11 +494,9 @@
          */
         gridRenderedNotification: function() {
             this.updateRenderedSizes();
-            this.pluginsDo(function(each) {
-                if (each.gridRenderedNotification) {
-                    each.gridRenderedNotification();
-                }
-            });
+            if (this.cellEdtr) {
+                this.cellEdtr.gridRenderedNotification();
+            }
         },
 
         /**
@@ -615,8 +751,7 @@
          * @method resolveProperty()
          */
         resolveProperty: function(key) {
-            var prop = this.renderer.resolveProperty(key);
-            return prop;
+            return this.lnfProperties[key];
         },
         /**
          *                                                                      .
@@ -663,7 +798,7 @@
             var self = this;
             this.canvas = this.shadowRoot.querySelector('fin-canvas');
 
-            this.canvas.setAttribute('fps', this.constants.repaintIntervalRate || 15);
+            this.canvas.setAttribute('fps', constants.repaintIntervalRate || 15);
 
             //this.shadowRoot.appendChild(domCanvas);
 
@@ -1013,7 +1148,7 @@
             var x = behavior.getFixedColumnsWidth() + 2;
             var y = behavior.getFixedRowsHeight() + 2;
 
-            var result = this.rectangles.rectangle.create(x, y, b.origin.x + b.extent.x - x - colDNDHackWidth, b.origin.y + b.extent.y - y);
+            var result = rectangles.rectangle.create(x, y, b.origin.x + b.extent.x - x - colDNDHackWidth, b.origin.y + b.extent.y - y);
             return result;
         },
 
@@ -1055,9 +1190,12 @@
                 return;
             }
 
-            var editPoint = this.rectangles.point.create(x, y);
+            var editPoint = rectangles.point.create(x, y);
             this.setMouseDown(editPoint);
-            this.setDragExtent(this.rectangles.point.create(0, 0));
+            this.setDragExtent(rectangles.point.create(0, 0));
+
+            this.shadowRoot.appendChild(cellEditor);
+            cellEditor.grid = this;
             cellEditor.beginEditAt(editPoint);
         },
 
@@ -1644,14 +1782,7 @@
         },
 
         getCellEditorAt: function(x, y) {
-            var translatedX = this.translateColumnIndex(x);
-            return this.getBehavior().getCellEditorAt(translatedX, y);
-        },
-
-        translateColumnIndex: function(x) {
-            var behavior = this.getBehavior();
-            var translatedX = behavior.translateColumnIndex(x);
-            return translatedX;
+            return this.getBehavior().getCellEditorAt(x, y);
         },
 
         toggleHiDPI: function() {
@@ -1683,6 +1814,9 @@
         },
         getTopSideSize: function(index) {
             return this.renderer.getTopSideSize(index);
+        },
+        resolveCellEditor: function(name) {
+            return this.cellEditors[name];
         }
 
     });
