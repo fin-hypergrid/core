@@ -167,10 +167,11 @@ var noop = function() {};
             }
             var count = val.length;
             var eWidth = width / count;
-            var bgColor = this.config.isSelected ? this.config.bgSelColor : this.config.bgColor;
-            var fgColor = this.config.isSelected ? this.config.bgColor : this.config.bgSelColor;
-            ctx.fillStyle = bgColor;
-            ctx.fillRect(x, y, width, height);
+            var fgColor = this.config.isSelected ? this.config.fgSelColor : this.config.fgColor;
+            if (this.config.bgColor || this.config.isSelected) {
+                ctx.fillStyle = this.config.isSelected ? this.config.bgSelColor : this.config.bgColor;
+                ctx.fillRect(x, y, width, height);
+            }
             ctx.fillStyle = fgColor;
             for (var i = 0; i < val.length; i++) {
                 var barheight = val[i] / 110 * height;
@@ -187,10 +188,12 @@ var noop = function() {};
             }
             var count = val.length;
             var eWidth = width / count;
-            var bgColor = this.config.isSelected ? this.config.bgSelColor : this.config.bgColor;
-            var fgColor = this.config.isSelected ? this.config.bgColor : this.config.bgSelColor;
-            ctx.fillStyle = bgColor;
-            ctx.fillRect(x, y, width, height);
+
+            var fgColor = this.config.isSelected ? this.config.fgSelColor : this.config.fgColor;
+            if (this.config.bgColor || this.config.isSelected) {
+                ctx.fillStyle = this.config.isSelected ? this.config.bgSelColor : this.config.bgColor;
+                ctx.fillRect(x, y, width, height);
+            }
             ctx.strokeStyle = fgColor;
             ctx.fillStyle = fgColor;
             ctx.beginPath();
