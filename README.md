@@ -162,7 +162,7 @@ Steps to Excel-Hypergrid Integration Demo
 4. Open either FinDesktopAddin-packed or FinDesktopAddin64-packed depending for your Excel
       * Enable plug for the session
 5. Open hypergrid.xls file from unzipped directory
-6. Select a cell(s) in Hypergrid Demo Applications
+6. Select a cell(s) in Hypergrid Demo Application
 
 The excel-integration demo consists of an OpenFin app, and a C# XLL plugin built using the Excel-DNA infrastructure. The Excel-DNA infrastructure provides a C++ XLL plugin which exposes the Excel Object Model to C# dll's and code which can be configured using a manifest file (.dna).  Here are the steps to setting up the integration demo...
 
