@@ -24,6 +24,16 @@
         editorTypes: ['choice', 'textfield', 'color', 'slider', 'spinner', 'date'],
         featureChain: null,
 
+        columnProperties: {
+
+        },
+        clearObjectProperties: function(obj) {
+            for (var prop in obj) {
+                if (obj.hasOwnProperty(prop)) {
+                    delete obj[prop];
+                }
+            }
+        },
         readyInit: function() {
             this.constants = document.createElement('fin-hypergrid-constants').values;
             this.cellProvider = this.createCellProvider();
@@ -461,6 +471,17 @@
         },
         endDragColumnNotification: function() {
             console.log('end drag column notification');
+        },
+        getColumnProperties: function(columnIndex) {
+            noop(columnIndex);
+            //if no cell properties are supplied these properties are used
+            //this probably should be moved into it's own object
+            // this.clearObjectProperties(this.columnProperties);
+            // if (columnIndex === 4) {
+            //     this.columnProperties.bgColor = 'maroon';
+            //     this.columnProperties.fgColor = 'white';
+            // }
+            return this.columnProperties;
         }
 
     });

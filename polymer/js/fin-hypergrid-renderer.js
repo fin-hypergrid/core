@@ -520,9 +520,14 @@ var config = {};
                 }
 
                 var y = startY;
-                var columnAlign = behavior.getColumnAlignment(c + scrollLeft);
+                var translatedX = behavior.translateColumnIndex(c + scrollLeft);
+
+                var columnAlign = behavior.getColumnAlignment(translatedX);
+                var columnProperties = behavior.getColumnProperties(translatedX);
+                var overrideFGColor = columnProperties.fgColor || fgColor;
+                var overrideFont = columnProperties.font || font;
                 //fill background
-                ctx.fillStyle = bgColor;
+                ctx.fillStyle = columnProperties.bgColor || bgColor;
                 ctx.fillRect(x, y, x + width, viewHeight - y);
 
                 for (var r = 0; r < numRows; r++) {
@@ -538,9 +543,8 @@ var config = {};
                     // }
 
                     //translatedX allows us to reorder columns
-                    var translatedX = behavior.translateColumnIndex(c + scrollLeft);
 
-                    var cell = cellProvider.getCell(this.cellConfig(translatedX, r + scrollTop, value, fgColor, bgColor, fgSelColor, bgSelColor, font, isSelected, columnAlign, hoffset, voffset));
+                    var cell = cellProvider.getCell(this.cellConfig(translatedX, r + scrollTop, value, overrideFGColor, bgColor, fgSelColor, bgSelColor, overrideFont, isSelected, columnAlign, hoffset, voffset));
 
                     cell.paint(ctx, x, y, width, height);
 
