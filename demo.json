@@ -1,4 +1,5 @@
 {
+    "devtools_port": 9090,
     "startup_app": {
         "autoShow": true,
         "name": "hypergrid-demo",
