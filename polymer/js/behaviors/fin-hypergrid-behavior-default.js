@@ -13,6 +13,7 @@
 
         columnIndexes: null,
         fixedColumnIndexes: null,
+        hiddenColumns: [],
 
         columnWidths: null,
         fixedColumnWidths: null,
@@ -49,6 +50,7 @@
             this.fixedRowHeights = this.fixedRowHeights || [];
             this.values = {}; //for overriding with edit values;
             this.initColumnIndexes();
+            this.hiddenColumns = [];
         },
 
         initColumnIndexes: function() {
@@ -147,9 +149,13 @@
         //<br>here we just return an excel-ish base-26 alpha value
         getFixedRowValue: function(x /*, y*/ ) {
             x = this.translateColumnIndex(x);
-            return this.alphaFor(x);
+            return this.getHeader(x);
         },
 
+        //the untranslated value
+        getHeader: function(x /*, y*/ ) {
+            return this.alphaFor(x);
+        },
         //fixed columns are the static columns at the left of the grid that don't scroll up or down
         //<br>they can be arbitary width by height in size
         //<br>here we just return an excel-ish base-26 alpha value
@@ -166,7 +172,7 @@
 
         //can be dynamic if your data set changes size
         getColumnCount: function() {
-            return 300;
+            return 300 - this.hiddenColumns.length;
         },
 
         //can be dynamic for supporting "floating" fixed rows
@@ -455,23 +461,7 @@
             code += String.fromCharCode('A'.charCodeAt(0) + rem);
             return code;
         },
-        openEditor: function(div) {
-            noop(div);
-            //enhance the editor to suit your needs
-            //also
-            //return false to keep the editor from opening
-            //anything else will leave the editor open
-            return false;
-        },
-        closeEditor: function(div) {
-            noop(div);
-            //return true to close the editor
-            //anything else will leave the editor open
-            return true;
-        },
-        endDragColumnNotification: function() {
-            console.log('end drag column notification');
-        },
+
         getColumnProperties: function(columnIndex) {
             noop(columnIndex);
             //if no cell properties are supplied these properties are used
@@ -482,7 +472,71 @@
             //     this.columnProperties.fgColor = 'white';
             // }
             return this.columnProperties;
-        }
+        },
+        getDNDColumnLabels: function() {
+            //assumes there is one row....
+            var columnCount = this.getColumnCount();
+            var labels = new Array(columnCount);
+            for (var i = 0; i < columnCount; i++) {
+                var id = this.columnIndexes[i];
+                labels[i] = {
+                    id: id,
+                    label: this.getHeader(id)
+                };
+            }
+            return labels;
+        },
+        setDNDColumnLabels: function(list) {
+            //assumes there is one row....
+            var columnCount = list.length;
+            var indexes = new Array(columnCount);
+            for (var i = 0; i < columnCount; i++) {
+                indexes[i] = list[i].id;
+            }
+            this.columnIndexes = indexes;
+            this.changed();
+        },
+        openEditor: function(div) {
+            var container = document.createElement('div');
+
+            var hidden = document.createElement('fin-hypergrid-dnd-list');
+            var visible = document.createElement('fin-hypergrid-dnd-list');
+
+            container.appendChild(hidden);
+            container.appendChild(visible);
+
+            this.beColumnStyle(hidden.style);
+            hidden.title = 'hidden columns';
+            hidden.list = this.hiddenColumns;
+
+            this.beColumnStyle(visible.style);
+            visible.style.left = '50%';
+            visible.title = 'visible columns';
+            visible.list = this.getDNDColumnLabels();
+
+            div.lists = {
+                hidden: hidden.list,
+                visible: visible.list
+            };
+            div.appendChild(container);
+            return true;
+        },
+        closeEditor: function(div) {
+            noop(div);
+            var lists = div.lists;
+            this.setDNDColumnLabels(lists.visible);
+            return true;
+        },
+        endDragColumnNotification: function() {
+            return true;
+        },
+        beColumnStyle: function(style) {
+            style.top = '5%';
+            style.position = 'absolute';
+            style.width = '50%';
+            style.height = '90%';
+            style.whiteSpace = 'nowrap';
+        },
 
     });
 

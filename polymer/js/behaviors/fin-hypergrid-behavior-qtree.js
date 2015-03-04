@@ -426,7 +426,7 @@
 
             this.beColumnStyle(group.style);
             group.style.left = '0%';
-            group.label = 'groups';
+            group.title = 'groups';
             group.list = this.block.G.slice(0);
             //can't remove the last item
             group.canDragItem = function(list, item, index, e) {
@@ -441,12 +441,12 @@
 
             this.beColumnStyle(hidden.style);
             hidden.style.left = '33.3333%';
-            hidden.label = 'hidden columns';
+            hidden.title = 'hidden columns';
             hidden.list = this.block.I.slice(0);
 
             this.beColumnStyle(visible.style);
             visible.style.left = '66.6666%';
-            visible.label = 'visible columns';
+            visible.title = 'visible columns';
             visible.list = this.block.F.slice(0);
             //can't remove the last item
             visible.canDragItem = function(list, item, index, e) {
@@ -508,13 +508,6 @@
             };
             this.ws.send(JSON.stringify(changeCols));
             return true;
-        },
-        beColumnStyle: function(style) {
-            style.top = '5%';
-            style.position = 'absolute';
-            style.width = '33.3333%';
-            style.height = '90%';
-            style.whiteSpace = 'nowrap';
         },
         handleMessage: function(d) {
             this.block = d;
@@ -579,6 +572,13 @@
             } else {
                 console.error('WebSockets not supported on your browser.');
             }
+        },
+        beColumnStyle: function(style) {
+            style.top = '5%';
+            style.position = 'absolute';
+            style.width = '33.3333%';
+            style.height = '90%';
+            style.whiteSpace = 'nowrap';
         }
 
     });

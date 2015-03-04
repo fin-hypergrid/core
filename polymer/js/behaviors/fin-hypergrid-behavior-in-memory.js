@@ -405,7 +405,7 @@
         },
 
         getColumnCount: function() {
-            return this.columns;
+            return this.columns - this.hiddenColumns.length;
         },
 
         getFixedRowValue: function(x /*, y*/ ) {

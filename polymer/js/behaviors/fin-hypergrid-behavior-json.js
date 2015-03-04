@@ -223,7 +223,9 @@ window.dualPivotQuickSort = (function() {
             }
             return this.headers;
         },
-
+        getHeader: function(x /*, y*/ ) {
+            return this.headers[x];
+        },
         getDefaultHeaders: function() {
             var self = this;
             var fields = this.getFields();
@@ -309,7 +311,7 @@ window.dualPivotQuickSort = (function() {
 
         getColumnCount: function() {
             var fields = this.getFields();
-            return fields.length;
+            return fields.length - this.hiddenColumns.length;
         },
 
         fixedRowClicked: function(grid, mouse) {
