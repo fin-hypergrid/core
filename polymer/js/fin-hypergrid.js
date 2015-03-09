@@ -321,6 +321,7 @@
 
         renderOverridesCache: {},
 
+        isScrollButtonClick: false,
 
         domReady: function() {
             var self = this;
@@ -374,6 +375,7 @@
             });
             this.resized();
             this.fire('load');
+            this.isScrollButtonClick = false;
         },
         addGlobalProperties: function(props) {
             for (var key in props) {
@@ -827,10 +829,10 @@
             this.canvas.style.top = 0;
             this.canvas.style.right = '-200px';
             //leave room for the vertical scrollbar
-            this.canvas.style.marginRight = '15px';
+            //this.canvas.style.marginRight = '15px';
             this.canvas.style.bottom = 0;
             //leave room for the horizontal scrollbar
-            this.canvas.style.marginBottom = '15px';
+            //this.canvas.style.marginBottom = '15px';
             this.canvas.style.left = 0;
 
             this.canvas.resizeNotification = function() {
@@ -854,8 +856,8 @@
 
             this.canvas.addEventListener('fin-mouseup', function(e) {
                 self.dragging = false;
-                if (self.scrollingNow) {
-                    self.scrollingNow = false;
+                if (self.isScrollingNow()) {
+                    self.setScrollingNow(false);
                 }
                 if (self.columnDragAutoScrolling) {
                     self.columnDragAutoScrolling = false;
@@ -929,6 +931,14 @@
                 mouseEvent.primitiveEvent = e.detail.primitiveEvent;
                 self.delegateWheelMoved(mouseEvent);
             });
+        },
+
+        setScrollingNow: function(isItNow) {
+            this.scrollingNow = isItNow;
+        },
+
+        isScrollingNow: function() {
+            return this.scrollingNow;
         },
 
         /**
@@ -1477,7 +1487,6 @@
         initScrollbars: function() {
 
             var self = this;
-            var canvas = this.getCanvas();
 
             var scrollbars = this.shadowRoot.querySelectorAll('fin-vampire-bar');
             this.sbHScroller = scrollbars[0];
@@ -1485,20 +1494,55 @@
 
             this.sbHScroller.onUpClick = function() {
                 self.scrollHBy(1);
+                self.isScrollButtonClick = true;
             };
 
             this.sbHScroller.onDownClick = function() {
                 self.scrollHBy(-1);
+                self.isScrollButtonClick = true;
             };
 
             this.sbHScroller.onUpHold = function(event) {
                 event.preventTap();
                 self.scrollHBy(1);
+                self.isScrollButtonClick = true;
             };
 
             this.sbHScroller.onDownHold = function(event) {
                 event.preventTap();
                 self.scrollHBy(-1);
+                self.isScrollButtonClick = true;
+            };
+
+            this.sbHScroller.onmouseover = function(event) {
+                noop(event);
+                self.isScrollButtonClick = false;
+                self.sbHScroller.classList.add('visible');
+            };
+
+            this.sbHScroller.onmouseout = function(event) {
+                noop(event);
+                if (self.sbMouseIsDown) {
+                    return;
+                } else {
+                    self.sbHScroller.classList.remove('visible');
+                }
+            };
+
+
+            this.sbVScroller.onmouseover = function(event) {
+                noop(event);
+                self.isScrollButtonClick = false;
+                self.sbVScroller.classList.add('visible');
+            };
+
+            this.sbVScroller.onmouseout = function(event) {
+                noop(event);
+                if (self.sbMouseIsDown) {
+                    return;
+                } else {
+                    self.sbVScroller.classList.remove('visible');
+                }
             };
 
             this.addEventListener('mousedown', function() {
@@ -1508,20 +1552,24 @@
 
             this.sbVScroller.onUpClick = function() {
                 self.scrollVBy(-1);
+                self.isScrollButtonClick = true;
             };
 
             this.sbVScroller.onDownClick = function() {
                 self.scrollVBy(1);
+                self.isScrollButtonClick = true;
             };
 
             this.sbVScroller.onUpHold = function(event) {
                 event.preventTap();
                 self.scrollVBy(-1);
+                self.isScrollButtonClick = true;
             };
 
             this.sbVScroller.onDownHold = function(event) {
                 event.preventTap();
                 self.scrollVBy(1);
+                self.isScrollButtonClick = true;
             };
 
             this.addEventListener('mousedown', function() {
@@ -1529,15 +1577,18 @@
             });
 
             document.addEventListener('mouseup', function(e) {
+                noop(e);
                 if (!self.sbMouseIsDown) {
                     return;
                 }
                 self.sbMouseIsDown = false;
-                var origin = canvas.getOrigin();
-                var point = self.rectangles.point.create(e.x - origin.x, e.y - origin.y);
-                if (!canvas.bounds.contains(point)) {
-                    //it's a mouseup on the scrollbars we need to retake focus
-                    self.takeFocus();
+                self.takeFocus();
+                var x = e.x || e.clientX;
+                var y = e.y || e.clientY;
+                var elementAt = self.shadowRoot.elementFromPoint(x, y);
+                if (!(elementAt === self.sbVScroller || elementAt === self.sbHScroller)) {
+                    self.sbVScroller.classList.remove('visible');
+                    self.sbHScroller.classList.remove('visible');
                 }
             });
 

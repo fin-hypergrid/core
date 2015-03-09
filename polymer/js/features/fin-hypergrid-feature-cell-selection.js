@@ -152,11 +152,11 @@
             var b = grid.getDataBounds();
             var inside = b.contains(mouse);
             if (inside) {
-                if (grid.scrollingNow) {
-                    grid.scrollingNow = false;
+                if (grid.isScrollingNow()) {
+                    grid.setScrollingNow(false);
                 }
-            } else if (!grid.scrollingNow) {
-                grid.scrollingNow = true;
+            } else if (!grid.isScrollingNow()) {
+                grid.setScrollingNow(true);
                 this.scrollDrag(grid);
             }
         },
@@ -170,7 +170,7 @@
          * @method scrollDrag()
          */
         scrollDrag: function(grid) {
-            if (!grid.scrollingNow) {
+            if (!grid.isScrollingNow()) {
                 return;
             }
             var b = grid.getDataBounds();
