@@ -87,17 +87,20 @@
 
         behavior.getColumnProperties = function(columnIndex) {
             behavior.clearObjectProperties(behavior.columnProperties);
-            if (columnIndex === 1) {
-                behavior.columnProperties.bgColor = '#2565a2';
-                behavior.columnProperties.fgColor = 'white';
-            }
-            else if (columnIndex === 2) {
-                behavior.columnProperties.bgColor = '#c1c1c1';
-                behavior.columnProperties.fgColor = 'black';
-            }
-            else if (columnIndex === 3) {
-                behavior.columnProperties.bgColor = '#941e20';
-                behavior.columnProperties.fgColor = 'white';
+
+            switch(columnIndex) {
+                case 1:
+                    behavior.columnProperties.bgColor = '#2565a2';
+                    behavior.columnProperties.fgColor = 'white';
+                    break;
+                case 2:
+                    behavior.columnProperties.bgColor = '#c1c1c1';
+                    behavior.columnProperties.fgColor = 'black';
+                    break;
+                case 3:
+                    behavior.columnProperties.bgColor = '#941e20';
+                    behavior.columnProperties.fgColor = 'white';
+                    break;
             }
             return behavior.columnProperties;
         },

@@ -203,7 +203,7 @@
             var scrollLeft = grid.getHScrollValue();
             var numFixedColumns = grid.getFixedColumnCount();
             var columnWidth = columnIndex < 0 ? grid.getFixedColumnWidth(numFixedColumns + columnIndex + scrollLeft) : grid.getColumnWidth(columnIndex + scrollLeft);
-            var colHeight = grid.clientHeight - grid.constants.scrollerSize + 1;
+            var colHeight = grid.clientHeight;
             var d = floatColumn;
             var style = d.style;
             var location = grid.getBoundingClientRect();
@@ -260,7 +260,7 @@
             var hdpiRatio = grid.getHiDPI(draggerCTX);
 
             var columnWidth = columnIndex < 0 ? grid.getFixedColumnWidth(numFixedColumns + columnIndex + scrollLeft) : grid.getColumnWidth(columnIndex + scrollLeft);
-            var colHeight = grid.clientHeight - grid.constants.scrollerSize + 1;
+            var colHeight = grid.clientHeight;
             var d = dragger;
 
             var location = grid.getBoundingClientRect();
