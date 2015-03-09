@@ -59,6 +59,7 @@
         theme.lineColor = 'rgb(199, 199, 199)';
         theme.hoffset = 0;
         theme.voffset = 0;
+        theme.scrollbarHover = 'visible';
 
         return theme;
     };
@@ -1517,7 +1518,7 @@
             this.sbHScroller.onmouseover = function(event) {
                 noop(event);
                 self.isScrollButtonClick = false;
-                self.sbHScroller.classList.add('visible');
+                self.sbHScroller.classList.add(self.resolveProperty('scrollbarHover'));
             };
 
             this.sbHScroller.onmouseout = function(event) {
@@ -1525,7 +1526,7 @@
                 if (self.sbMouseIsDown) {
                     return;
                 } else {
-                    self.sbHScroller.classList.remove('visible');
+                    self.sbHScroller.classList.remove(self.resolveProperty('scrollbarHover'));
                 }
             };
 
@@ -1533,7 +1534,7 @@
             this.sbVScroller.onmouseover = function(event) {
                 noop(event);
                 self.isScrollButtonClick = false;
-                self.sbVScroller.classList.add('visible');
+                self.sbVScroller.classList.add(self.resolveProperty('scrollbarHover'));
             };
 
             this.sbVScroller.onmouseout = function(event) {
@@ -1541,7 +1542,7 @@
                 if (self.sbMouseIsDown) {
                     return;
                 } else {
-                    self.sbVScroller.classList.remove('visible');
+                    self.sbVScroller.classList.remove(self.resolveProperty('scrollbarHover'));
                 }
             };
 
@@ -1587,8 +1588,8 @@
                 var y = e.y || e.clientY;
                 var elementAt = self.shadowRoot.elementFromPoint(x, y);
                 if (!(elementAt === self.sbVScroller || elementAt === self.sbHScroller)) {
-                    self.sbVScroller.classList.remove('visible');
-                    self.sbHScroller.classList.remove('visible');
+                    self.sbVScroller.classList.remove(self.resolveProperty('scrollbarHover'));
+                    self.sbHScroller.classList.remove(self.resolveProperty('scrollbarHover'));
                 }
             });
 
