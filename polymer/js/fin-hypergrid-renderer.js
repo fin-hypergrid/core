@@ -221,9 +221,9 @@ var config = {};
             var isMaxX = this.isLastColumnVisible();
             var chop = isMaxX ? 2 : 1;
             var x = this.renderedColumnWidths[this.renderedColumnWidths.length - chop];
-            var bounds = this.getBounds();
-            var width = bounds.width() - x;
-            var height = bounds.height();
+            var bounds = this.getGrid().getBoundingClientRect();
+            var width = bounds.width - x;
+            var height = bounds.height;
             gc.fillStyle = this.resolveProperty('backgroundColor2');
             gc.fillRect(x, 0, width, height);
         },

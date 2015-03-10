@@ -1,7 +1,7 @@
 <html>
 <head>
-  <link rel="import" href="../fin-hypergrid.min.html">
-  <!-- <link rel="import" href="../polymer/html/fin-hypergrid.html"> -->
+  <!-- <link rel="import" href="../fin-hypergrid.min.html"> -->
+  <link rel="import" href="../polymer/html/fin-hypergrid.html">
 <style>
 
  body {
@@ -18,7 +18,7 @@
 </style>
 </head>
 <body>
-<fin-hypergrid  id="tt" style="width:100%;height:100%">
+<fin-hypergrid  id="tt" style="height:100%;width:100%">
     <fin-hypergrid-behavior-json></fin-hypergrid-behavior-json>
 </fin-hypergrid>
 <script>
@@ -72,7 +72,7 @@
         lineColor: '#707070',
         hoffset: 0,
         voffset: 0,
-        scrollbarHover: 'hidden'
+        scrollbarHover: 'visible'
     }
 
     var initialize = function() {
