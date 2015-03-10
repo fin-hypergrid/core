@@ -61,7 +61,7 @@ module.exports = function(grunt) {
             default: {
                 options: {
                     inline: true,
-                    strip: true,
+                    strip: false,
                     abspath: '../../'
                 },
                 files: {

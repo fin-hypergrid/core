@@ -507,7 +507,7 @@
 
             this.beColumnStyle(hidden.style);
             hidden.title = 'hidden columns';
-            hidden.list = this.hiddenColumns;
+            hidden.list = this.hiddenColumns.slice(0);
 
             this.beColumnStyle(visible.style);
             visible.style.left = '50%';
@@ -525,6 +525,7 @@
             noop(div);
             var lists = div.lists;
             this.setDNDColumnLabels(lists.visible);
+            this.hiddenColumns = lists.hidden;
             return true;
         },
         endDragColumnNotification: function() {
