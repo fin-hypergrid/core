@@ -131,7 +131,7 @@
 
     var constants, defaults, polymerTheme, globalProperties;
 
-    window.addEventListener('polymer-ready', function() {
+    var initializeGlobals = function() {
         constants = document.createElement('fin-hypergrid-constants').values;
         defaults = defaultProperties(constants);
         polymerTheme = Object.create(defaults);
@@ -139,7 +139,7 @@
 
         buildPolymerTheme();
         initializeBasicCellEditors();
-    });
+    };
 
     Polymer({ /* jslint ignore:line */
 
@@ -331,6 +331,11 @@
         isScrollButtonClick: false,
 
         domReady: function() {
+
+            if (!constants) {
+                initializeGlobals();
+            }
+
             var self = this;
             rectangles = rectangles || document.createElement('fin-rectangle');
             constants = constants || document.createElement('fin-hypergrid-constants').values;
@@ -377,6 +382,18 @@
             this.isScrollButtonClick = false;
         },
         addGlobalProperties: function(props) {
+            //we check for existence to avoid race condition in initialization
+            if (!globalProperties) {
+                var self = this;
+                setTimeout(function() {
+                    self.addGlobalProperties(props);
+                }, 10);
+            } else {
+                this._addGlobalProperties(props);
+            }
+
+        },
+        _addGlobalProperties: function(props) {
             for (var key in props) {
                 if (props.hasOwnProperty(key)) {
                     globalProperties[key] = props[key];

@@ -21074,6 +21074,7 @@ div.container {
 
 
 
+
 </style>
   </template>
   <script>'use strict';
@@ -21201,6 +21202,7 @@ div.container {
     display: block;
     position: relative;
 }
+
 
 
 
@@ -21959,6 +21961,7 @@ var config = {};
 
 
 
+
 </style>
   </template>
   <script>'use strict';
@@ -22046,6 +22049,7 @@ var config = {};
     display: block;
     position: relative;
 }
+
 
 
 
@@ -22204,6 +22208,7 @@ var config = {};
 
 
 
+
 </style>
   </template>
   <script>(function() {
@@ -22335,6 +22340,7 @@ var config = {};
     display: block;
     position: relative;
 }
+
 
 
 
@@ -22631,6 +22637,7 @@ var noop = function() {};
     display: block;
     position: relative;
 }
+
 
 
 
@@ -23157,6 +23164,7 @@ var noop = function() {};
 
 
 
+
 </style>
   </template>
   <script>(function() {
@@ -23301,6 +23309,7 @@ var noop = function() {};
 
 
 
+
 </style>
   </template>
   <script>(function() {
@@ -23333,6 +23342,7 @@ var noop = function() {};
     display: block;
     position: relative;
 }
+
 
 
 
@@ -23408,6 +23418,7 @@ var noop = function() {};
 
 
 
+
 </style>
   </template>
   <script>(function() {
@@ -23451,6 +23462,7 @@ var noop = function() {};
     display: block;
     position: relative;
 }
+
 
 
 
@@ -23634,6 +23646,7 @@ var noop = function() {};
     display: block;
     position: relative;
 }
+
 
 
 
@@ -24160,6 +24173,7 @@ var noop = function() {};
 
 
 
+
 </style>
   </template>
   <script>(function() {
@@ -24233,6 +24247,7 @@ var noop = function() {};
     display: block;
     position: relative;
 }
+
 
 
 
@@ -24833,6 +24848,7 @@ var noop = function() {};
 
 
 
+
 </style>
   </template>
   <script>/*jshint  bitwise: false */
@@ -25131,6 +25147,7 @@ var noop = function() {};
     display: block;
     position: relative;
 }
+
 
 
 
@@ -25633,6 +25650,7 @@ var noop = function() {};
 
 
 
+
 </style>
   </template>
   <script>/*jshint  bitwise: false */
@@ -26051,6 +26069,7 @@ window.dualPivotQuickSort = (function() {
 
 
 
+
 </style>
   </template>
   <script>'use strict';
@@ -26339,6 +26358,7 @@ window.dualPivotQuickSort = (function() {
     display: block;
     position: relative;
 }
+
 
 
 
@@ -26981,6 +27001,7 @@ window.dualPivotQuickSort = (function() {
 
 
 
+
 </style>
   </template>
   <script>'use strict';
@@ -27144,6 +27165,7 @@ window.dualPivotQuickSort = (function() {
 
 
 
+
 </style>
     <div id="editor"></div>
   </template>
@@ -27253,6 +27275,7 @@ window.dualPivotQuickSort = (function() {
 
 
 
+
 </style>
     <input id="editor">
   </template>
@@ -27276,6 +27299,7 @@ window.dualPivotQuickSort = (function() {
     display: block;
     position: relative;
 }
+
 
 
 
@@ -27348,6 +27372,7 @@ window.dualPivotQuickSort = (function() {
 
 
 
+
 </style>
     <input id="editor" type="color">
   </template>
@@ -27368,6 +27393,7 @@ window.dualPivotQuickSort = (function() {
     display: block;
     position: relative;
 }
+
 
 
 
@@ -27434,6 +27460,7 @@ window.dualPivotQuickSort = (function() {
 
 
 
+
 </style>
     <input id="editor" type="range">
   </template>
@@ -27454,6 +27481,7 @@ window.dualPivotQuickSort = (function() {
     display: block;
     position: relative;
 }
+
 
 
 
@@ -27563,6 +27591,7 @@ fin-vampire-bar {
 fin-vampire-bar {
     z-index: 10;
 }
+
 
 
 
@@ -27729,7 +27758,7 @@ fin-vampire-bar {
 
     var constants, defaults, polymerTheme, globalProperties;
 
-    window.addEventListener('polymer-ready', function() {
+    var initializeGlobals = function() {
         constants = document.createElement('fin-hypergrid-constants').values;
         defaults = defaultProperties(constants);
         polymerTheme = Object.create(defaults);
@@ -27737,7 +27766,7 @@ fin-vampire-bar {
 
         buildPolymerTheme();
         initializeBasicCellEditors();
-    });
+    };
 
     Polymer('fin-hypergrid',{ /* jslint ignore:line */
 
@@ -27929,6 +27958,11 @@ fin-vampire-bar {
         isScrollButtonClick: false,
 
         domReady: function() {
+
+            if (!constants) {
+                initializeGlobals();
+            }
+
             var self = this;
             rectangles = rectangles || document.createElement('fin-rectangle');
             constants = constants || document.createElement('fin-hypergrid-constants').values;
@@ -27975,6 +28009,18 @@ fin-vampire-bar {
             this.isScrollButtonClick = false;
         },
         addGlobalProperties: function(props) {
+            //we check for existence to avoid race condition in initialization
+            if (!globalProperties) {
+                var self = this;
+                setTimeout(function() {
+                    self.addGlobalProperties(props);
+                }, 10);
+            } else {
+                this._addGlobalProperties(props);
+            }
+
+        },
+        _addGlobalProperties: function(props) {
             for (var key in props) {
                 if (props.hasOwnProperty(key)) {
                     globalProperties[key] = props[key];
