@@ -1,7 +1,7 @@
 <html>
 <head>
-  <link rel="import" href="../fin-hypergrid.min.html">
-  <!-- <link rel="import" href="../polymer/html/fin-hypergrid.html"> -->
+ <!--  <link rel="import" href="../fin-hypergrid.min.html"> -->
+  <link rel="import" href="../polymer/html/fin-hypergrid.html">
 <style>
 
  body {
@@ -18,9 +18,6 @@
 </style>
 </head>
 <body>
-<fin-hypergrid  id="tt" style="height:100%;width:100%">
-    <fin-hypergrid-behavior-json></fin-hypergrid-behavior-json>
-</fin-hypergrid>
 <script>
 
     var randomRow = function() {
@@ -76,9 +73,17 @@
     }
 
     var initialize = function() {
+
+        var h = document.createElement('fin-hypergrid');
+        h.setAttribute('id', 'tt');
+        h.style.height = '100%';
+        h.style.width = '100%';
+        document.body.appendChild(h);
+
         var data = generateRandomData();
         var table = document.querySelector('#tt');
-        var behavior = table.getBehavior();
+        var behavior = document.createElement('fin-hypergrid-behavior-json');
+        behavior.installOn(table);
         behavior.setData(data);
         behavior.getFixedColumnCount = function() {
             return 0;
@@ -112,7 +117,7 @@
         }
     };
 
-    document.addEventListener('polymer-ready', function() {
+    window.addEventListener('polymer-ready', function() {
         initialize();
     });
 </script>

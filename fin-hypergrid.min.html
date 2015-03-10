@@ -18316,6 +18316,7 @@ CustomElements.addModule(function(scope) {
 
 
 
+
 </head><body><div hidden="">
 <polymer-element name="fin-rectangle" assetpath="/dev/fin-rectangle/">
   <script>
@@ -21044,6 +21045,75 @@ div.container {
 
   </script>
 </polymer-element>
+<polymer-element name="fin-hypergrid-constants" assetpath="/dev/fin-hypergrid/polymer/html/">
+  <template>
+    <style type="text/css">:host {
+    display: block;
+    position: relative;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</style>
+  </template>
+  <script>'use strict';
+
+(function() {
+
+    var values = {
+        defaultFont: '13px Tahoma, Geneva, sans-serif',
+        foregroundColor: '#010126',
+        backgroundColor: '#FFFFFF',
+        foregroundSelColor: '#010126',
+        backgroundSelColor: '#B7DBFF',
+        fixedRowBackgroundColor: '#DFE3E8',
+        fixedColumnBackgroundColor: '#DFE3E8',
+        topLeftBackgroundColor: '#DFE3E8',
+        fixedColFGSelColor: '#010126',
+        fixedRowFGSelColor: '#010126',
+        fixedColBGSelColor: '#FFDC61',
+        fixedRowBGSelColor: '#FFDC61',
+        fixedRowAlign: 'center',
+        fixedColAlign: 'center',
+        cellPadding: 5,
+        rowHeight: 20,
+        columnWidth: 100,
+        repaintIntervalRate: 15,
+        lineColor: '#C7C7C7',
+        gridLinesH: true,
+        gridLinesV: true,
+        scrollerSize: 15,
+        voffset: '0px',
+        hoffset: '0px'
+    };
+
+    Polymer('fin-hypergrid-constants',{ /* jshint ignore:line */
+        values: values
+    });
+
+})(); /* jshint ignore:line */
+</script>
+</polymer-element>
 <polymer-element name="fin-canvas-component" class="fin-canvas-component" attributes="layoutProperties" assetpath="/dev/fin-canvas/">
   <template></template>
   <script>
@@ -21131,6 +21201,7 @@ div.container {
     display: block;
     position: relative;
 }
+
 
 
 
@@ -21887,6 +21958,7 @@ var config = {};
 
 
 
+
 </style>
   </template>
   <script>'use strict';
@@ -21974,6 +22046,7 @@ var config = {};
     display: block;
     position: relative;
 }
+
 
 
 
@@ -22130,6 +22203,7 @@ var config = {};
 
 
 
+
 </style>
   </template>
   <script>(function() {
@@ -22255,80 +22329,13 @@ var config = {};
 })(); /* jshint ignore:line */
 </script>
 </polymer-element>
-<polymer-element name="fin-hypergrid-constants" assetpath="/dev/fin-hypergrid/polymer/html/">
-  <template>
-    <style type="text/css">:host {
-    display: block;
-    position: relative;
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-</style>
-  </template>
-  <script>'use strict';
-
-(function() {
-
-    var values = {
-        defaultFont: '13px Tahoma, Geneva, sans-serif',
-        foregroundColor: '#010126',
-        backgroundColor: '#FFFFFF',
-        foregroundSelColor: '#010126',
-        backgroundSelColor: '#B7DBFF',
-        fixedRowBackgroundColor: '#DFE3E8',
-        fixedColumnBackgroundColor: '#DFE3E8',
-        topLeftBackgroundColor: '#DFE3E8',
-        fixedColFGSelColor: '#010126',
-        fixedRowFGSelColor: '#010126',
-        fixedColBGSelColor: '#FFDC61',
-        fixedRowBGSelColor: '#FFDC61',
-        fixedRowAlign: 'center',
-        fixedColAlign: 'center',
-        cellPadding: 5,
-        rowHeight: 20,
-        columnWidth: 100,
-        repaintIntervalRate: 15,
-        lineColor: '#C7C7C7',
-        gridLinesH: true,
-        gridLinesV: true,
-        scrollerSize: 15,
-        voffset: '0px',
-        hoffset: '0px'
-    };
-
-    Polymer('fin-hypergrid-constants',{ /* jshint ignore:line */
-        values: values
-    });
-
-})(); /* jshint ignore:line */
-</script>
-</polymer-element>
 <polymer-element name="fin-hypergrid-cell-provider" assetpath="/dev/fin-hypergrid/polymer/html/">
   <template>
     <style type="text/css">:host {
     display: block;
     position: relative;
 }
+
 
 
 
@@ -22624,6 +22631,7 @@ var noop = function() {};
     display: block;
     position: relative;
 }
+
 
 
 
@@ -23148,6 +23156,7 @@ var noop = function() {};
 
 
 
+
 </style>
   </template>
   <script>(function() {
@@ -23291,6 +23300,7 @@ var noop = function() {};
 
 
 
+
 </style>
   </template>
   <script>(function() {
@@ -23323,6 +23333,7 @@ var noop = function() {};
     display: block;
     position: relative;
 }
+
 
 
 
@@ -23396,6 +23407,7 @@ var noop = function() {};
 
 
 
+
 </style>
   </template>
   <script>(function() {
@@ -23439,6 +23451,7 @@ var noop = function() {};
     display: block;
     position: relative;
 }
+
 
 
 
@@ -23621,6 +23634,7 @@ var noop = function() {};
     display: block;
     position: relative;
 }
+
 
 
 
@@ -24145,6 +24159,7 @@ var noop = function() {};
 
 
 
+
 </style>
   </template>
   <script>(function() {
@@ -24218,6 +24233,7 @@ var noop = function() {};
     display: block;
     position: relative;
 }
+
 
 
 
@@ -24816,6 +24832,7 @@ var noop = function() {};
 
 
 
+
 </style>
   </template>
   <script>/*jshint  bitwise: false */
@@ -25114,6 +25131,7 @@ var noop = function() {};
     display: block;
     position: relative;
 }
+
 
 
 
@@ -25614,6 +25632,7 @@ var noop = function() {};
 
 
 
+
 </style>
   </template>
   <script>/*jshint  bitwise: false */
@@ -26031,6 +26050,7 @@ window.dualPivotQuickSort = (function() {
 
 
 
+
 </style>
   </template>
   <script>'use strict';
@@ -26319,6 +26339,7 @@ window.dualPivotQuickSort = (function() {
     display: block;
     position: relative;
 }
+
 
 
 
@@ -26959,6 +26980,7 @@ window.dualPivotQuickSort = (function() {
 
 
 
+
 </style>
   </template>
   <script>'use strict';
@@ -27121,6 +27143,7 @@ window.dualPivotQuickSort = (function() {
 
 
 
+
 </style>
     <div id="editor"></div>
   </template>
@@ -27229,6 +27252,7 @@ window.dualPivotQuickSort = (function() {
 
 
 
+
 </style>
     <input id="editor">
   </template>
@@ -27252,6 +27276,7 @@ window.dualPivotQuickSort = (function() {
     display: block;
     position: relative;
 }
+
 
 
 
@@ -27322,6 +27347,7 @@ window.dualPivotQuickSort = (function() {
 
 
 
+
 </style>
     <input id="editor" type="color">
   </template>
@@ -27342,6 +27368,7 @@ window.dualPivotQuickSort = (function() {
     display: block;
     position: relative;
 }
+
 
 
 
@@ -27406,6 +27433,7 @@ window.dualPivotQuickSort = (function() {
 
 
 
+
 </style>
     <input id="editor" type="range">
   </template>
@@ -27426,6 +27454,7 @@ window.dualPivotQuickSort = (function() {
     display: block;
     position: relative;
 }
+
 
 
 
@@ -27555,6 +27584,7 @@ fin-vampire-bar {
 
 
 
+
 </style>
     <fin-plugins>
     </fin-plugins>
@@ -27566,17 +27596,13 @@ fin-vampire-bar {
     <input class="editor">
     <content></content>
   </template>
-  <script>/* globals document, alert */
+  <script>/* globals document, alert, Polymer */
 
 'use strict';
 
 (function() {
 
     var rectangles;
-    var constants;
-    var defaults = {};
-    var polymerTheme = {};
-    var globalProperties = {};
     var globalCellEditors = {};
 
     var noop = function() {};
@@ -27662,8 +27688,6 @@ fin-vampire-bar {
         polymerTheme.fontFamily = h.fontFamily;
         polymerTheme.backgroundColor = s.backgroundColor;
 
-
-
         pb.setAttribute('disabled', false);
         pb.setAttribute('secondary', true);
         pb.setAttribute('raised', true);
@@ -27702,6 +27726,18 @@ fin-vampire-bar {
             }
         }
     };
+
+    var constants, defaults, polymerTheme, globalProperties;
+
+    window.addEventListener('polymer-ready', function() {
+        constants = document.createElement('fin-hypergrid-constants').values;
+        defaults = defaultProperties(constants);
+        polymerTheme = Object.create(defaults);
+        globalProperties = Object.create(polymerTheme);
+
+        buildPolymerTheme();
+        initializeBasicCellEditors();
+    });
 
     Polymer('fin-hypergrid',{ /* jslint ignore:line */
 
@@ -27894,14 +27930,6 @@ fin-vampire-bar {
 
         domReady: function() {
             var self = this;
-            if (!constants) {
-                constants = document.createElement('fin-hypergrid-constants').values;
-                defaults = defaultProperties(constants);
-                polymerTheme = Object.create(defaults);
-                globalProperties = Object.create(polymerTheme);
-                buildPolymerTheme();
-                initializeBasicCellEditors();
-            }
             rectangles = rectangles || document.createElement('fin-rectangle');
             constants = constants || document.createElement('fin-hypergrid-constants').values;
 
@@ -28325,7 +28353,12 @@ fin-vampire-bar {
          * @method getBounds()
          */
         getBounds: function() {
-            return this.getCanvas().getBounds();
+            var canvas = this.getCanvas();
+            if (canvas) {
+                return canvas.getBounds();
+            } else {
+                return null;
+            }
         },
 
         /**
@@ -28357,7 +28390,10 @@ fin-vampire-bar {
          * @method repaint()
          */
         repaint: function() {
-            this.getCanvas().repaint();
+            var canvas = this.getCanvas();
+            if (canvas) {
+                canvas.repaint();
+            }
         },
 
         /**
@@ -29258,6 +29294,9 @@ fin-vampire-bar {
             var numColumns = behavior.getColumnCount();
             var numRows = behavior.getRowCount();
             var bounds = this.getBounds();
+            if (!bounds) {
+                return;
+            }
             var scrollableHeight = bounds.height() - behavior.getFixedRowsHeight();
             var scrollableWidth = bounds.width() - behavior.getFixedColumnsMaxWidth() - 200;
 

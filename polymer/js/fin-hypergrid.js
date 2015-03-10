@@ -1,14 +1,10 @@
-/* globals document, alert */
+/* globals document, alert, Polymer */
 
 'use strict';
 
 (function() {
 
     var rectangles;
-    var constants;
-    var defaults = {};
-    var polymerTheme = {};
-    var globalProperties = {};
     var globalCellEditors = {};
 
     var noop = function() {};
@@ -94,8 +90,6 @@
         polymerTheme.fontFamily = h.fontFamily;
         polymerTheme.backgroundColor = s.backgroundColor;
 
-
-
         pb.setAttribute('disabled', false);
         pb.setAttribute('secondary', true);
         pb.setAttribute('raised', true);
@@ -134,6 +128,18 @@
             }
         }
     };
+
+    var constants, defaults, polymerTheme, globalProperties;
+
+    window.addEventListener('polymer-ready', function() {
+        constants = document.createElement('fin-hypergrid-constants').values;
+        defaults = defaultProperties(constants);
+        polymerTheme = Object.create(defaults);
+        globalProperties = Object.create(polymerTheme);
+
+        buildPolymerTheme();
+        initializeBasicCellEditors();
+    });
 
     Polymer({ /* jslint ignore:line */
 
@@ -326,14 +332,6 @@
 
         domReady: function() {
             var self = this;
-            if (!constants) {
-                constants = document.createElement('fin-hypergrid-constants').values;
-                defaults = defaultProperties(constants);
-                polymerTheme = Object.create(defaults);
-                globalProperties = Object.create(polymerTheme);
-                buildPolymerTheme();
-                initializeBasicCellEditors();
-            }
             rectangles = rectangles || document.createElement('fin-rectangle');
             constants = constants || document.createElement('fin-hypergrid-constants').values;
 
@@ -757,7 +755,12 @@
          * @method getBounds()
          */
         getBounds: function() {
-            return this.getCanvas().getBounds();
+            var canvas = this.getCanvas();
+            if (canvas) {
+                return canvas.getBounds();
+            } else {
+                return null;
+            }
         },
 
         /**
@@ -789,7 +792,10 @@
          * @method repaint()
          */
         repaint: function() {
-            this.getCanvas().repaint();
+            var canvas = this.getCanvas();
+            if (canvas) {
+                canvas.repaint();
+            }
         },
 
         /**
@@ -1690,6 +1696,9 @@
             var numColumns = behavior.getColumnCount();
             var numRows = behavior.getRowCount();
             var bounds = this.getBounds();
+            if (!bounds) {
+                return;
+            }
             var scrollableHeight = bounds.height() - behavior.getFixedRowsHeight();
             var scrollableWidth = bounds.width() - behavior.getFixedColumnsMaxWidth() - 200;
 
