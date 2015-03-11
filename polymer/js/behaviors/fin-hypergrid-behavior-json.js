@@ -206,12 +206,15 @@ window.dualPivotQuickSort = (function() {
 
     Polymer({ /* jslint ignore:line */
 
-        sorted: {},
-        sortStates: [' ', ' \u2191', ' \u2193'],
-        dataIndexes: [],
         data: [],
         headers: [],
         fields: [],
+
+        ready: function() {
+            this.readyInit();
+            this.tableState.sorted = [];
+            this.sortStates = [' ', ' \u2191', ' \u2193'];
+        },
 
         isValidIdentifer: function(string) {
             return 0 === (string + '').search(validIdentifierMatch);
@@ -246,7 +249,7 @@ window.dualPivotQuickSort = (function() {
             var pieces = string.replace(/[_-]/g, ' ').replace(/[A-Z]/g, ' $&').split(' ').map(function(s) {
                 return s.charAt(0).toUpperCase() + s.slice(1);
             });
-            return pieces;
+            return pieces[0];
         },
 
         setFields: function(fieldNames) {
@@ -301,7 +304,7 @@ window.dualPivotQuickSort = (function() {
             var headers = this.getHeaders();
             noop(y);
             x = this.translateColumnIndex(x);
-            var sortIndex = this.sorted[x] || 0;
+            var sortIndex = this.tableState.sorted[x] || 0;
             return headers[x] + this.sortStates[sortIndex];
         },
 
@@ -315,7 +318,7 @@ window.dualPivotQuickSort = (function() {
 
         getColumnCount: function() {
             var fields = this.getFields();
-            return fields.length - this.hiddenColumns.length;
+            return fields.length - this.tableState.hiddenColumns.length;
         },
 
         fixedRowClicked: function(grid, mouse) {
@@ -323,21 +326,63 @@ window.dualPivotQuickSort = (function() {
             this.toggleSort(columnIndex);
         },
 
-        toggleSort: function(columnIndex) {
+        setState: function(state) {
+            this.tableState = state;
+            this.applySorts();
+            this.changed();
+        },
+
+        applySorts: function() {
+            var state = this.getState();
+            var sorts = state.sorted;
+            var colIndexes = state.columnIndexes;
+            if (!sorts) {
+                return;
+            }
+            //remove any sorts
+            var newData = new Array(this.data.length);
+            var i;
+            for (i = 0; i < this.data.length; i++) {
+                var each = this.data[i];
+                newData[each.__si] = each;
+            }
+            this.data = newData;
+
+            //apply the sort
+            for (i = 0; i < sorts.length; i++) {
+                if (sorts[i] > 0) {
+                    var actualCol = i;
+                    for (i = 0; i < colIndexes.length; i++) {
+                        if (colIndexes[i] === actualCol) {
+                            this.toggleSort(i, 0);
+                            if (sorts[i] === 2) {
+                                this.data.reverse();
+                            }
+                            return;
+                        }
+                    }
+                }
+            }
+        },
+
+        toggleSort: function(columnIndex, incrementIt) {
+            if (incrementIt === undefined) {
+                incrementIt = 1;
+            }
             columnIndex = this.translateColumnIndex(columnIndex);
             this.grid.clearSelections();
             var fields = this.getFields();
             if (columnIndex >= fields.length) {
                 return;
             }
-            var current = this.sorted[columnIndex] || 0;
+            var current = this.tableState.sorted[columnIndex] || 0;
             var stateCount = this.sortStates.length;
-            var sortStateIndex = (current + 1) % stateCount;
+            var sortStateIndex = (current + incrementIt) % stateCount;
             var i = 0;
             for (; i < fields.length; i++) {
-                this.sorted[i] = 0;
+                this.tableState.sorted[i] = 0;
             }
-            this.sorted[columnIndex] = sortStateIndex;
+            this.tableState.sorted[columnIndex] = sortStateIndex;
             var colName = fields[columnIndex];
             if (sortStateIndex === 0) {
                 var newData = new Array(this.data.length);

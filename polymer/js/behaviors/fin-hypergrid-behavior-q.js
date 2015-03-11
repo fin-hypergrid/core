@@ -105,7 +105,7 @@
 
         //Virtual column scrolling is not necessary with this GridBehavior because we only hold a small amount of vertical data in memory and most tables in Q are timeseries financial data meaning the are very tall and skinny.  We know all the columns from the first page from Q.
         getColumnCount: function() {
-            return this.block.headers.length - 1 - this.hiddenColumns.length;
+            return this.block.headers.length - 1 - this.tableState.hiddenColumns.length;
         },
 
         //This is overridden from DefaultGridBehavior.   This value is set on us by the OFGrid component on user scrolling.

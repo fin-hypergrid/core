@@ -11,23 +11,13 @@
             this.readyInit();
         },
 
-        columnIndexes: null,
-        fixedColumnIndexes: null,
-        hiddenColumns: [],
+        tableState: {},
 
-        columnWidths: null,
-        fixedColumnWidths: null,
-
-        rowHeights: null,
-        fixedRowHeights: null,
-
+        columnProperties: {},
         grid: null,
         editorTypes: ['choice', 'textfield', 'color', 'slider', 'spinner', 'date'],
         featureChain: null,
 
-        columnProperties: {
-
-        },
         clearObjectProperties: function(obj) {
             for (var prop in obj) {
                 if (obj.hasOwnProperty(prop)) {
@@ -35,6 +25,7 @@
                 }
             }
         },
+
         readyInit: function() {
             this.constants = document.createElement('fin-hypergrid-constants').values;
             this.cellProvider = this.createCellProvider();
@@ -42,15 +33,28 @@
             this.scrollPositionY = 0;
             this.renderedWidth = 30;
             this.renderedHeight = 60;
-            this.columnWidths = this.columnWidths || [];
-            this.fixedColumnWidths = this.fixedColumnWidths || [];
-            this.columnIndexes = this.columnIndexes || [];
-            this.fixedColumnIndexes = this.fixedColumnIndexes || [];
-            this.rowHeights = this.rowHeights || [];
-            this.fixedRowHeights = this.fixedRowHeights || [];
+            this.setState({
+                columnIndexes: [],
+                fixedColumnIndexes: [],
+                hiddenColumns: [],
+
+                columnWidths: [],
+                fixedColumnWidths: [],
+
+                rowHeights: {},
+                fixedRowHeights: {},
+            });
+
             this.values = {}; //for overriding with edit values;
             this.initColumnIndexes();
-            this.hiddenColumns = [];
+        },
+
+        getState: function() {
+            return this.tableState;
+        },
+
+        setState: function(state) {
+            this.tableState = state;
         },
 
         initColumnIndexes: function() {
@@ -59,23 +63,23 @@
             var i;
 
             for (i = 0; i < columnCount; i++) {
-                this.columnIndexes[i] = i;
+                this.tableState.columnIndexes[i] = i;
             }
 
             for (i = 0; i < fixedColumnCount; i++) {
-                this.fixedColumnIndexes[i] = i;
+                this.tableState.fixedColumnIndexes[i] = i;
             }
 
         },
 
         swapColumns: function(src, tar) {
-            var tmp = this.columnIndexes[src];
-            this.columnIndexes[src] = this.columnIndexes[tar];
-            this.columnIndexes[tar] = tmp;
+            var tmp = this.tableState.columnIndexes[src];
+            this.tableState.columnIndexes[src] = this.tableState.columnIndexes[tar];
+            this.tableState.columnIndexes[tar] = tmp;
         },
 
         translateColumnIndex: function(x) {
-            return this.columnIndexes[x];
+            return this.tableState.columnIndexes[x];
         },
 
         setNextFeature: function(nextFeature) {
@@ -172,7 +176,7 @@
 
         //can be dynamic if your data set changes size
         getColumnCount: function() {
-            return 300 - this.hiddenColumns.length;
+            return 300 - this.tableState.hiddenColumns.length;
         },
 
         //can be dynamic for supporting "floating" fixed rows
@@ -201,7 +205,7 @@
 
         //the height of the specific fixed row
         getFixedRowHeight: function(rowNum) {
-            var override = this.fixedRowHeights[rowNum];
+            var override = this.tableState.fixedRowHeights[rowNum];
             if (override) {
                 return override;
             }
@@ -210,14 +214,14 @@
 
         setFixedRowHeight: function(rowNum, height) {
             //console.log(rowNum + ' ' + height);
-            this.fixedRowHeights[rowNum] = Math.max(5, height);
+            this.tableState.fixedRowHeights[rowNum] = Math.max(5, height);
             this.changed();
         },
 
         //can be dynamic if we wish to allow users to resize
         //<br>or driven by data, etc...
         getRowHeight: function(rowNum) {
-            var override = this.rowHeights[rowNum];
+            var override = this.tableState.rowHeights[rowNum];
             if (override) {
                 return override;
             }
@@ -225,7 +229,7 @@
         },
 
         setRowHeight: function(rowNum, height) {
-            this.rowHeights[rowNum] = Math.max(5, height);
+            this.tableState.rowHeights[rowNum] = Math.max(5, height);
             this.changed();
         },
 
@@ -247,7 +251,7 @@
             return total;
         },
         setFixedColumnWidth: function(colNumber, width) {
-            this.fixedColumnWidths[colNumber] = Math.max(5, width);
+            this.tableState.fixedColumnWidths[colNumber] = Math.max(5, width);
             this.changed();
         },
         //the potential maximum width of the fixed col area
@@ -260,7 +264,7 @@
 
         //the width of the specific fixed col
         getFixedColumnWidth: function(colNumber) {
-            var override = this.fixedColumnWidths[colNumber];
+            var override = this.tableState.fixedColumnWidths[colNumber];
             if (override) {
                 return override;
             }
@@ -272,8 +276,8 @@
         //<br>this implementation is driven by modulo
         //<br>TODO: move this example into InMemoryGridBehavior
         getColumnWidth: function(colNumber) {
-            colNumber = this.columnIndexes[colNumber];
-            var override = this.columnWidths[colNumber];
+            colNumber = this.tableState.columnIndexes[colNumber];
+            var override = this.tableState.columnWidths[colNumber];
             if (override) {
                 return override;
             }
@@ -281,8 +285,8 @@
         },
 
         setColumnWidth: function(colNumber, width) {
-            colNumber = this.columnIndexes[colNumber];
-            this.columnWidths[colNumber] = Math.max(5, width);
+            colNumber = this.tableState.columnIndexes[colNumber];
+            this.tableState.columnWidths[colNumber] = Math.max(5, width);
             this.changed();
         },
 
@@ -478,7 +482,7 @@
             var columnCount = this.getColumnCount();
             var labels = new Array(columnCount);
             for (var i = 0; i < columnCount; i++) {
-                var id = this.columnIndexes[i];
+                var id = this.tableState.columnIndexes[i];
                 labels[i] = {
                     id: id,
                     label: this.getHeader(id)
@@ -493,7 +497,29 @@
             for (var i = 0; i < columnCount; i++) {
                 indexes[i] = list[i].id;
             }
-            this.columnIndexes = indexes;
+            this.tableState.columnIndexes = indexes;
+            this.changed();
+        },
+        getDNDHiddenColumnLabels: function() {
+            var indexes = this.tableState.hiddenColumns;
+            var labels = new Array(indexes.length);
+            for (var i = 0; i < labels.length; i++) {
+                var id = indexes[i];
+                labels[i] = {
+                    id: id,
+                    label: this.getHeader(id)
+                };
+            }
+            return labels;
+        },
+        setDNDHiddenColumnLabels: function(list) {
+            //assumes there is one row....
+            var columnCount = list.length;
+            var indexes = new Array(columnCount);
+            for (var i = 0; i < columnCount; i++) {
+                indexes[i] = list[i].id;
+            }
+            this.tableState.hiddenColumns = indexes;
             this.changed();
         },
         openEditor: function(div) {
@@ -507,7 +533,7 @@
 
             this.beColumnStyle(hidden.style);
             hidden.title = 'hidden columns';
-            hidden.list = this.hiddenColumns.slice(0);
+            hidden.list = this.getDNDHiddenColumnLabels();
 
             this.beColumnStyle(visible.style);
             visible.style.left = '50%';
@@ -525,7 +551,7 @@
             noop(div);
             var lists = div.lists;
             this.setDNDColumnLabels(lists.visible);
-            this.hiddenColumns = lists.hidden;
+            this.setDNDHiddenColumnLabels(lists.hidden);
             return true;
         },
         endDragColumnNotification: function() {

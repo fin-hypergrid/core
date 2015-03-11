@@ -411,6 +411,29 @@
         /**
          *                                                                      .
          *                                                                      .
+         * answer the state object for remembering our state (memento pattern)
+         *
+         * @method setState()
+         */
+        getState: function() {
+            var state = this.getBehavior().getState();
+            return state;
+        },
+
+        /**
+         *                                                                      .
+         *                                                                      .
+         * set the state object to return to a specific user configuration
+         *
+         * @method setState()
+         */
+        setState: function(state) {
+            this.getBehavior().setState(state);
+        },
+
+        /**
+         *                                                                      .
+         *                                                                      .
          * answer the initial mouse position on a mouse down event for cell editing or a drag operation
          *
          * @method getMouseDown()
@@ -1184,7 +1207,7 @@
         /**
          *                                                                      .
          *                                                                      .
-         * get the pixel coordinates of just the center "main" data area
+         * get the pixel coordinates of just the center 'main" data area
          *
          * @method getDataBounds()
          */
