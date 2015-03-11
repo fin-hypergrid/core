@@ -128,7 +128,7 @@ this table will produce a state object
        "sorted":[0,0,0,0,0,0,0,1,0]                     //1 ascending, 2 descending
     }
 
-state objects can be created programmatically or by hand and applied.  This is how you may pre configure your table.
+state objects can be created programmatically or by hand and applied.  This is how you may pre configure your grid properties.
 
 ## Road Map
 * Column autosizing
