@@ -110,24 +110,28 @@ Hypergrid allows you to snapshot the user configured state and then reapply it l
 * sorted column asc/des
 
 to do this
+
 1. configure the table the way you would like
 2. call ```var state = myGrid.getState();```
 3. save the state object however you, json/local storage/mongodb/etc...
 4. call ```myGrid.setState(state);``` to return the table to the previous state
 
 this table will produce a state object 
-<img src="images/gridshot06.png" alt="screenshot">
-    {  
-       "columnIndexes":[8,7,1,3,2,4,6],                 //column order
-       "fixedColumnIndexes":[0],                        //fixed columns order
-       "hiddenColumns":[5,0],                           //hidden column indexes
-       "columnWidths":[66,50,51,81,73,96,78,74,60],     //
-       "fixedColumnWidths":[53],                        //
-       "rowHeights":{"1":46,"3":51,"5":51,"7":50},      //
-       "fixedRowHeights":{},                            //
-       "sorted":[0,0,0,0,0,0,0,1,0]                     //1 ascending, 2 descending
-    }
 
+<img src="images/gridshot06.png" alt="screenshot">
+
+```javascript
+{  
+   "columnIndexes":[8,7,1,3,2,4,6],                 //column order
+   "fixedColumnIndexes":[0],                        //fixed columns order
+   "hiddenColumns":[5,0],                           //hidden column indexes
+   "columnWidths":[66,50,51,81,73,96,78,74,60],     //
+   "fixedColumnWidths":[53],                        //
+   "rowHeights":{"1":46,"3":51,"5":51,"7":50},      //
+   "fixedRowHeights":{},                            //
+   "sorted":[0,0,0,0,0,0,0,1,0]                     //1 ascending, 2 descending
+}
+```
 state objects can be created programmatically or by hand and applied.  This is how you may pre configure your grid properties.
 
 ## Road Map
