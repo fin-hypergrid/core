@@ -102,7 +102,7 @@ Hypergrid comes with several default cell editors you can easily select, and the
 * [textfield](http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/#fin-hypergrid-cell-editor-textfield)
 <br><img src="images/textfield.png" alt="screenshot">
 
-## JSON table state
+## JSON behavior table state
 Hypergrid allows you to snapshot the user configured state and then reapply it later(memento pattern) this includes.
 * column order
 * column widths
@@ -113,12 +113,12 @@ to do this
 
 1. configure the table the way you would like
 2. call ```var state = myGrid.getState();```
-3. save the state object however you, json/local storage/mongodb/etc...
-4. call ```myGrid.setState(state);``` to return the table to the previous state
-
-this table will produce a state object 
+3. save the state object however you like, json/local storage/mongodb/etc...
+4. later on, call ```myGrid.setState(state);``` with the previous state object to return 
 
 <img src="images/gridshot06.png" alt="screenshot">
+
+the above table will produce the below state object 
 
 ```javascript
 {  
@@ -133,6 +133,11 @@ this table will produce a state object
 }
 ```
 state objects can be created programmatically or by hand and applied.  This is how you may pre configure your grid properties.
+
+## Column Picker
+Hypergrid has a column picker that allows you to drag and drop columns for configuring which are visible.  You can also reorder the columns here.
+
+<img src="images/gridshot07.png" alt="screenshot">
 
 ## Road Map
 * Column autosizing
