@@ -4,7 +4,7 @@
 
 
 
-See the [polymer component page](http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/) for api documentation and demos.
+See the [polymer component page](http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/#fin-hypergrid) for api documentation and demos.
 
 Watch the [Pivotal Labs presentation] (http://www.livestream.com/pivotallabs/video?clipId=pla_01ae6683-c5ee-4567-9278-91524d09550a&utm_source=lslibrary&utm_medium=ui-thumb) recorded on Jan 13th 2015.
 
@@ -102,7 +102,65 @@ Hypergrid comes with several default cell editors you can easily select, and the
 * [textfield](http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/#fin-hypergrid-cell-editor-textfield)
 <br><img src="images/textfield.png" alt="screenshot">
 
-## JSON behavior table state
+## JSON behavior
+
+# Populating with data
+
+To populate the json behavior with data simply provide hypergrid with an array of same shaped objects.   
+```
+    var myJSONBehavior = document.querySelector('#myHypergrid').getBehavior();
+    myJSONBehavior.setData([
+        {   
+            first_name:'moe',
+            last_name: 'stooge',
+            birth_date: '1920-01-01'
+        },
+        {   
+            first_name:'larry',
+            last_name: 'stooge',
+            birth_date: '1922-05-05'
+        },
+        {   
+            first_name:'curly',
+            last_name: 'stooge',
+            birth_date: '1924-03-07'
+        },
+    ]);
+```
+# Specifying fields and headers
+
+There are several ways to specify fields and headers with hypergrid.
+
+* Let hypergrid default them.  Hypergrid will inspect the first object in the data array and use all fields it finds.  It will create header labels by uppercasing and placing spaces between the words delimitted by camelcase, dashes, or underscores.
+    * moeLarryCurly -> Moe, Larry, Curly
+    * moe-larry-curly -> Moe, Larry, Curly
+    * moe_larry_curly -> Moe, Larry, Curly
+* Specify fields and headers using setFields and setHeaders
+```
+    myJSONBehavior.setData(myData);
+    myJSONBehavior.setHeaders(['header one','header two','header three','header four']);
+    myJSONBehavior.setFields(['one','two','three','four']);
+```
+* Specify fields and headers using setColumns ala slickgrid API.
+```
+    myJSONBehavior.setData(myData);
+    myJSONBehavior.setColumns([
+        {
+            title: 'First Name',
+            field: 'first_name',
+        },
+        {
+            title: 'Last Name',
+            field: 'last_name',
+        },
+        {
+            title: 'Birth Date',
+            field: 'birthdate',
+        }
+    ]);
+```
+
+# table state
 Hypergrid allows you to snapshot the user configured state and then reapply it later(memento pattern) this includes.
 * column order
 * column widths
@@ -136,7 +194,7 @@ state objects can be created programmatically or by hand and applied.  This is h
 
 ## Column Picker
 Hypergrid has a column picker that allows you to drag and drop columns for configuring which are visible.  You can also reorder the columns here.
-
+press alt/option to open the column picker, you can press alt/option or esc to close it
 <img src="images/gridshot07.png" alt="screenshot">
 
 ## Road Map

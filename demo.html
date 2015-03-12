@@ -369,12 +369,12 @@
             var income = randomFunc() * 100000;
             var employed = Math.round(randomFunc());
             var person = {
-                last: lastNames[lastName],
-                first: firstNames[firstName],
+                last_name: lastNames[lastName],
+                first_name: firstNames[firstName],
                 pets: pets,
-                birthdate: birthyear + '-' + months[birthmonth] + '-' + days[birthday],
-                birthstate: states[birthstate],
-                residencestate: states[residencestate],
+                birthDate: birthyear + '-' + months[birthmonth] + '-' + days[birthday],
+                birthState: states[birthstate],
+                residenceState: states[residencestate],
                 employed: employed === 1,
                 income: income,
                 travel: travel
@@ -382,31 +382,32 @@
             return person;
         };
 
-       var headers =
-            [
-                'last',
-                'first',
-                'pets',
-                'birth date',
-                'birth state',
-                'residence state',
-                'employed',
-                'income',
-                'travel'
-            ];
+       // alternate way to set fields and headers
+       // var headers =
+       //      [
+       //          'Last Name',
+       //          'First Name',
+       //          'Pets',
+       //          'Birth Date',
+       //          'Birth State',
+       //          'Residence State',
+       //          'Employed',
+       //          'Income',
+       //          'Travel'
+       //      ];
 
-        var fields =
-            [
-                'last',
-                'first',
-                'pets',
-                'birthDate',
-                'birthState',
-                'residenceState',
-                'employed',
-                'income',
-                'travel'
-            ];
+       //  var fields =
+       //      [
+       //          'last_name',
+       //          'first_name',
+       //          'pets',
+       //          'birthDate',
+       //          'birthState',
+       //          'residenceState',
+       //          'employed',
+       //          'income',
+       //          'travel'
+       //      ];
 
         //lets make it available
         data = [];
@@ -427,17 +428,34 @@
             //get the cell cellProvider for altering cell renderers
             var cellProvider = jsonModel.getCellProvider();
 
-            //set the header labels
-//            jsonModel.setHeaders(headers);
+            //alternate way to set the header labels
+            //jsonModel.setHeaders(headers);
 
-            //set the fields found on the row objects
- //           jsonModel.setFields(fields);
+            //alternate way to set the fields found on the row objects
+            //jsonModel.setFields(fields);
+
+
+            //yet another way to set the fields and headers
+            // jsonModel.setColumns([
+            //     {
+            //         title: 'First Name',
+            //         field: 'last_name',
+            //     },
+            //     {
+            //         title: 'Last Name',
+            //         field: 'first_name',
+            //     },
+            //     {
+            //         title: 'Birth Date',
+            //         field: 'birthDate',
+            //     }
+            // ]);
 
             //set the actual json row objects
             jsonModel.setData(data);
 
             //sort ascending on the first column (first name)
-//            jsonModel.toggleSort(0);
+            //jsonModel.toggleSort(0);
 
             //all formatting and rendering per cell can be overridden in here
             cellProvider.getCell = function(config) {

@@ -249,7 +249,7 @@ window.dualPivotQuickSort = (function() {
             var pieces = string.replace(/[_-]/g, ' ').replace(/[A-Z]/g, ' $&').split(' ').map(function(s) {
                 return s.charAt(0).toUpperCase() + s.slice(1);
             });
-            return pieces[0];
+            return pieces.join(' ');
         },
 
         setFields: function(fieldNames) {
@@ -278,6 +278,18 @@ window.dualPivotQuickSort = (function() {
             this.initDataIndexes();
             this.initColumnIndexes();
             this.changed();
+        },
+
+        setColumns: function(columnDefinitions) {
+            var fields = new Array(columnDefinitions.length);
+            var headers = new Array(columnDefinitions.length);
+            for (var i = 0; i < columnDefinitions.length; i++) {
+                var each = columnDefinitions[i];
+                fields[i] = each.field;
+                headers[i] = each.title;
+            }
+            this.setFields(fields);
+            this.setHeaders(headers);
         },
 
         initDataIndexes: function() {
