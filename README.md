@@ -102,9 +102,9 @@ Hypergrid comes with several default cell editors you can easily select, and the
 * [textfield](http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/#fin-hypergrid-cell-editor-textfield)
 <br><img src="images/textfield.png" alt="screenshot">
 
-## JSON behavior
+# JSON behavior
 
-# Populating with data
+## Populating a JSON behavior with data
 
 To populate the json behavior with data simply provide hypergrid with an array of same shaped objects.   
 ```
@@ -127,7 +127,7 @@ To populate the json behavior with data simply provide hypergrid with an array o
         },
     ]);
 ```
-# Specifying fields and headers
+## Specifying fields and headers for a JSON behavior
 
 There are several ways to specify fields and headers with hypergrid.
 
@@ -155,12 +155,12 @@ There are several ways to specify fields and headers with hypergrid.
         },
         {
             title: 'Birth Date',
-            field: 'birthdate',
+            field: 'birth_date',
         }
     ]);
 ```
 
-# table state
+## JSON behavior table state
 Hypergrid allows you to snapshot the user configured state and then reapply it later(memento pattern) this includes.
 * column order
 * column widths
