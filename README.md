@@ -197,6 +197,36 @@ Hypergrid has a column picker that allows you to drag and drop columns for confi
 press alt/option to open the column picker, you can press alt/option or esc to close it
 <img src="images/gridshot07.png" alt="screenshot">
 
+hypergrid-excel-integration
+======================
+
+There is an example integration between the Hypergrid and Microsoft Excel over the OpenFin InterApplicationBus. The example only works when running Hypergrid in the OpenFin Runtime, which is installed from the [Hypergrid Openfin Installer](https://dl.openfin.co/services/download?fileName=hypergrid-demo-installer&config=http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/demo.json).
+
+Assumptions
+* Windows machine
+
+Steps to Excel-Hypergrid Integration Demo
+
+1. Download and Unzip [excel.zip](https://github.com/openfin/fin-hypergrid/blob/master/excel.zip)
+2. Launch Hypergrid Demo application
+3. Launch Excel
+4. Open either FinDesktopAddin-packed or FinDesktopAddin64-packed depending for your Excel
+      * Enable plug for the session
+5. Open hypergrid.xls file from unzipped directory
+6. Select a cell(s) in Hypergrid Demo Application
+
+The excel-integration demo consists of an OpenFin app, and a C# XLL plugin built using the Excel-DNA infrastructure. The Excel-DNA infrastructure provides a C++ XLL plugin which exposes the Excel Object Model to C# dll's and code which can be configured using a manifest file (.dna).  Here are the steps to setting up the integration demo...
+
+
+Excel Integration Links
+=====
+
+http://exceldna.codeplex.com/
+
+https://exceldna.codeplex.com/documentation
+
+http://nodejs.org/download/
+
 ## Road Map
 * Column autosizing
 * Fix live reload on file change edge conditions
@@ -243,34 +273,3 @@ press alt/option to open the column picker, you can press alt/option or esc to c
 * Easily customizable and extensible cell rendering
 * Npm/grunt-based full featured dev environment
 * ...
-
-hypergrid-excel-integration
-======================
-
-There is an example integration between the Hypergrid and Microsoft Excel over the OpenFin InterApplicationBus. The example only works when running Hypergrid in the OpenFin Runtime, which is installed from the [Hypergrid Openfin Installer](https://dl.openfin.co/services/download?fileName=hypergrid-demo-installer&config=http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/demo.json).
-
-Assumptions
-* Windows machine
-
-Steps to Excel-Hypergrid Integration Demo
-
-1. Download and Unzip [excel.zip](https://github.com/openfin/fin-hypergrid/blob/master/excel.zip)
-2. Launch Hypergrid Demo application
-3. Launch Excel
-4. Open either FinDesktopAddin-packed or FinDesktopAddin64-packed depending for your Excel
-      * Enable plug for the session
-5. Open hypergrid.xls file from unzipped directory
-6. Select a cell(s) in Hypergrid Demo Application
-
-The excel-integration demo consists of an OpenFin app, and a C# XLL plugin built using the Excel-DNA infrastructure. The Excel-DNA infrastructure provides a C++ XLL plugin which exposes the Excel Object Model to C# dll's and code which can be configured using a manifest file (.dna).  Here are the steps to setting up the integration demo...
-
-
-Excel Integration Links
-=====
-
-http://exceldna.codeplex.com/
-
-https://exceldna.codeplex.com/documentation
-
-http://nodejs.org/download/
-
