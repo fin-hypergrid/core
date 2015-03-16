@@ -888,14 +888,14 @@
                 self.resized();
             };
 
-            this.addFinListener('fin-mousemove', function(e) {
+            this.addFinEventListener('fin-mousemove', function(e) {
                 var mouse = e.detail.mouse;
                 var mouseEvent = self.getGridCellFromMousePoint(mouse);
                 mouseEvent.primitiveEvent = e;
                 self.delegateMouseMove(mouseEvent);
             });
 
-            this.addFinListener('fin-mousedown', function(e) {
+            this.addFinEventListener('fin-mousedown', function(e) {
                 self.stopEditing();
                 var mouse = e.detail.mouse;
                 var mouseEvent = self.getGridCellFromMousePoint(mouse);
@@ -903,7 +903,7 @@
                 self.delegateMouseDown(mouseEvent);
             });
 
-            this.addFinListener('fin-mouseup', function(e) {
+            this.addFinEventListener('fin-mouseup', function(e) {
                 self.dragging = false;
                 if (self.isScrollingNow()) {
                     self.setScrollingNow(false);
@@ -917,14 +917,14 @@
                 self.delegateMouseUp(mouseEvent);
             });
 
-            this.addFinListener('fin-tap', function(e) {
+            this.addFinEventListener('fin-tap', function(e) {
                 var mouse = e.detail.mouse;
                 var tapEvent = self.getGridCellFromMousePoint(mouse);
                 tapEvent.primitiveEvent = e;
                 self.delegateTap(tapEvent);
             });
 
-            this.addFinListener('fin-drag', function(e) {
+            this.addFinEventListener('fin-drag', function(e) {
                 self.dragging = true;
                 var mouse = e.detail.mouse;
                 var mouseEvent = self.getGridCellFromMousePoint(mouse);
@@ -932,15 +932,15 @@
                 self.delegateMouseDrag(mouseEvent);
             });
 
-            this.addFinListener('fin-keydown', function(e) {
+            this.addFinEventListener('fin-keydown', function(e) {
                 self.delegateKeyDown(e);
             });
 
-            this.addFinListener('fin-keyup', function(e) {
+            this.addFinEventListener('fin-keyup', function(e) {
                 self.delegateKeyUp(e);
             });
 
-            this.addFinListener('fin-track', function(e) {
+            this.addFinEventListener('fin-track', function(e) {
                 if (self.dragging) {
                     return;
                 }
@@ -960,21 +960,21 @@
                 }
             });
 
-            this.addFinListener('fin-holdpulse', function(e) {
+            this.addFinEventListener('fin-holdpulse', function(e) {
                 var mouse = e.detail.mouse;
                 var mouseEvent = self.getGridCellFromMousePoint(mouse);
                 mouseEvent.primitiveEvent = e;
                 self.delegateHoldPulse(mouseEvent);
             });
 
-            this.addFinListener('fin-dblclick', function(e) {
+            this.addFinEventListener('fin-dblclick', function(e) {
                 var mouse = e.detail.mouse;
                 var mouseEvent = self.getGridCellFromMousePoint(mouse);
                 mouseEvent.primitiveEvent = e;
                 self.delegateDoubleClick(mouseEvent);
             });
 
-            this.addFinListener('fin-wheelmoved', function(e) {
+            this.addFinEventListener('fin-wheelmoved', function(e) {
                 var mouse = e.detail.mouse;
                 var mouseEvent = self.getGridCellFromMousePoint(mouse);
                 mouseEvent.primitiveEvent = e.detail.primitiveEvent;
@@ -982,7 +982,7 @@
             });
         },
 
-        addFinListener: function(eventName, callback) {
+        addFinEventListener: function(eventName, callback) {
             this.canvas.addEventListener(eventName, callback);
         },
 

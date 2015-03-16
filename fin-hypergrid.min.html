@@ -21168,6 +21168,7 @@ div.container {
 
 
 
+
 </style>
   </template>
   <script>//HypergridRenderer is the canvas enabled top level sub component that handles the renderering of the Grid.
@@ -21918,6 +21919,7 @@ var config = {};
 
 
 
+
 </style>
   </template>
   <script>'use strict';
@@ -22005,6 +22007,7 @@ var config = {};
     display: block;
     position: relative;
 }
+
 
 
 
@@ -22195,6 +22198,7 @@ var config = {};
 
 
 
+
 </style>
   </template>
   <script>(function() {
@@ -22326,6 +22330,7 @@ var config = {};
     display: block;
     position: relative;
 }
+
 
 
 
@@ -22633,6 +22638,7 @@ var noop = function() {};
     display: block;
     position: relative;
 }
+
 
 
 
@@ -23210,6 +23216,7 @@ var noop = function() {};
 
 
 
+
 </style>
   </template>
   <script>(function() {
@@ -23370,6 +23377,7 @@ var noop = function() {};
 
 
 
+
 </style>
   </template>
   <script>(function() {
@@ -23405,6 +23413,7 @@ var noop = function() {};
     display: block;
     position: relative;
 }
+
 
 
 
@@ -23512,6 +23521,7 @@ var noop = function() {};
 
 
 
+
 </style>
   </template>
   <script>(function() {
@@ -23555,6 +23565,7 @@ var noop = function() {};
     display: block;
     position: relative;
 }
+
 
 
 
@@ -23754,6 +23765,7 @@ var noop = function() {};
     display: block;
     position: relative;
 }
+
 
 
 
@@ -24312,6 +24324,7 @@ var noop = function() {};
 
 
 
+
 </style>
   </template>
   <script>(function() {
@@ -24385,6 +24398,7 @@ var noop = function() {};
     display: block;
     position: relative;
 }
+
 
 
 
@@ -25043,6 +25057,7 @@ var noop = function() {};
 
 
 
+
 </style>
   </template>
   <script>/*jshint  bitwise: false */
@@ -25341,6 +25356,7 @@ var noop = function() {};
     display: block;
     position: relative;
 }
+
 
 
 
@@ -25875,6 +25891,7 @@ var noop = function() {};
 
 
 
+
 </style>
   </template>
   <script>/*jshint  bitwise: false */
@@ -26366,6 +26383,7 @@ window.dualPivotQuickSort = (function() {
 
 
 
+
 </style>
   </template>
   <script>'use strict';
@@ -26654,6 +26672,7 @@ window.dualPivotQuickSort = (function() {
     display: block;
     position: relative;
 }
+
 
 
 
@@ -27328,6 +27347,7 @@ window.dualPivotQuickSort = (function() {
 
 
 
+
 </style>
   </template>
   <script>'use strict';
@@ -27507,6 +27527,7 @@ window.dualPivotQuickSort = (function() {
 
 
 
+
 </style>
     <div id="editor"></div>
   </template>
@@ -27632,6 +27653,7 @@ window.dualPivotQuickSort = (function() {
 
 
 
+
 </style>
     <input id="editor">
   </template>
@@ -27655,6 +27677,7 @@ window.dualPivotQuickSort = (function() {
     display: block;
     position: relative;
 }
+
 
 
 
@@ -27759,6 +27782,7 @@ window.dualPivotQuickSort = (function() {
 
 
 
+
 </style>
     <input id="editor" type="color">
   </template>
@@ -27779,6 +27803,7 @@ window.dualPivotQuickSort = (function() {
     display: block;
     position: relative;
 }
+
 
 
 
@@ -27877,6 +27902,7 @@ window.dualPivotQuickSort = (function() {
 
 
 
+
 </style>
     <input id="editor" type="range">
   </template>
@@ -27897,6 +27923,7 @@ window.dualPivotQuickSort = (function() {
     display: block;
     position: relative;
 }
+
 
 
 
@@ -28022,6 +28049,7 @@ fin-vampire-bar {
 fin-vampire-bar {
     z-index: 10;
 }
+
 
 
 
@@ -28961,14 +28989,14 @@ fin-vampire-bar {
                 self.resized();
             };
 
-            this.addFinListener('fin-mousemove', function(e) {
+            this.addFinEventListener('fin-mousemove', function(e) {
                 var mouse = e.detail.mouse;
                 var mouseEvent = self.getGridCellFromMousePoint(mouse);
                 mouseEvent.primitiveEvent = e;
                 self.delegateMouseMove(mouseEvent);
             });
 
-            this.addFinListener('fin-mousedown', function(e) {
+            this.addFinEventListener('fin-mousedown', function(e) {
                 self.stopEditing();
                 var mouse = e.detail.mouse;
                 var mouseEvent = self.getGridCellFromMousePoint(mouse);
@@ -28976,7 +29004,7 @@ fin-vampire-bar {
                 self.delegateMouseDown(mouseEvent);
             });
 
-            this.addFinListener('fin-mouseup', function(e) {
+            this.addFinEventListener('fin-mouseup', function(e) {
                 self.dragging = false;
                 if (self.isScrollingNow()) {
                     self.setScrollingNow(false);
@@ -28990,14 +29018,14 @@ fin-vampire-bar {
                 self.delegateMouseUp(mouseEvent);
             });
 
-            this.addFinListener('fin-tap', function(e) {
+            this.addFinEventListener('fin-tap', function(e) {
                 var mouse = e.detail.mouse;
                 var tapEvent = self.getGridCellFromMousePoint(mouse);
                 tapEvent.primitiveEvent = e;
                 self.delegateTap(tapEvent);
             });
 
-            this.addFinListener('fin-drag', function(e) {
+            this.addFinEventListener('fin-drag', function(e) {
                 self.dragging = true;
                 var mouse = e.detail.mouse;
                 var mouseEvent = self.getGridCellFromMousePoint(mouse);
@@ -29005,15 +29033,15 @@ fin-vampire-bar {
                 self.delegateMouseDrag(mouseEvent);
             });
 
-            this.addFinListener('fin-keydown', function(e) {
+            this.addFinEventListener('fin-keydown', function(e) {
                 self.delegateKeyDown(e);
             });
 
-            this.addFinListener('fin-keyup', function(e) {
+            this.addFinEventListener('fin-keyup', function(e) {
                 self.delegateKeyUp(e);
             });
 
-            this.addFinListener('fin-track', function(e) {
+            this.addFinEventListener('fin-track', function(e) {
                 if (self.dragging) {
                     return;
                 }
@@ -29033,21 +29061,21 @@ fin-vampire-bar {
                 }
             });
 
-            this.addFinListener('fin-holdpulse', function(e) {
+            this.addFinEventListener('fin-holdpulse', function(e) {
                 var mouse = e.detail.mouse;
                 var mouseEvent = self.getGridCellFromMousePoint(mouse);
                 mouseEvent.primitiveEvent = e;
                 self.delegateHoldPulse(mouseEvent);
             });
 
-            this.addFinListener('fin-dblclick', function(e) {
+            this.addFinEventListener('fin-dblclick', function(e) {
                 var mouse = e.detail.mouse;
                 var mouseEvent = self.getGridCellFromMousePoint(mouse);
                 mouseEvent.primitiveEvent = e;
                 self.delegateDoubleClick(mouseEvent);
             });
 
-            this.addFinListener('fin-wheelmoved', function(e) {
+            this.addFinEventListener('fin-wheelmoved', function(e) {
                 var mouse = e.detail.mouse;
                 var mouseEvent = self.getGridCellFromMousePoint(mouse);
                 mouseEvent.primitiveEvent = e.detail.primitiveEvent;
@@ -29055,7 +29083,7 @@ fin-vampire-bar {
             });
         },
 
-        addFinListener: function(eventName, callback) {
+        addFinEventListener: function(eventName, callback) {
             this.canvas.addEventListener(eventName, callback);
         },
 
