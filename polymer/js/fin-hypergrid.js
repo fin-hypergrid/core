@@ -1436,6 +1436,23 @@
         /**
          *                                                                      .
          *                                                                      .
+         * synthesize and fire a scroll event
+         *
+         * @method fireScrollEvent(y)
+         */
+        fireScrollEvent: function(type, oldValue, newValue) {
+            var event = new CustomEvent(type, {
+                detail: {
+                    oldValue: oldValue,
+                    value: newValue,
+                    time: Date.now()
+                }
+            });
+            this.dispatchEvent(event);
+        },
+        /**
+         *                                                                      .
+         *                                                                      .
          * set the vertical scroll value
          *
          * @method setVScrollValue(y)
@@ -1443,10 +1460,12 @@
         setVScrollValue: function(y) {
             var self = this;
             this.getBehavior().setScrollPositionY(y);
+            var oldY = this.vScrlValue;
             this.vScrlValue = y;
             this.scrollValueChangedNotification();
             setTimeout(function() {
                 self.sbVRangeAdapter.subjectChanged();
+                self.fireScrollEvent('fin-scroll-y', oldY, y);
             });
         },
 
@@ -1471,10 +1490,12 @@
         setHScrollValue: function(x) {
             var self = this;
             this.getBehavior().setScrollPositionX(x);
+            var oldX = this.hScrlValue;
             this.hScrlValue = x;
             this.scrollValueChangedNotification();
             setTimeout(function() {
                 self.sbHRangeAdapter.subjectChanged();
+                self.fireScrollEvent('fin-scroll-x', oldX, x);
             });
         },
 

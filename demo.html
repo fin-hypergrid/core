@@ -502,6 +502,12 @@
                 return cellEditor;
             };
 
+            jsonGrid.addEventListener('fin-scroll-x', function(e){
+                console.log('x', e);
+            });
+            jsonGrid.addEventListener('fin-scroll-y', function(e){
+                console.log('y', e);
+            });
         });
     })();
     //json-example stuff
