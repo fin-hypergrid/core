@@ -149,6 +149,9 @@
          * @method checkDragScroll(event)
          */
         checkDragScroll: function(grid, mouse) {
+            if (!grid.resolveProperty('scrollingEnabled')) {
+                return;
+            }
             var b = grid.getDataBounds();
             var inside = b.contains(mouse);
             if (inside) {
@@ -199,7 +202,7 @@
         /**
          *                                                                      .
          *                                                                      .
-         * extend a selection or cteate one if there isnt yet
+         * extend a selection or create one if there isnt yet
          *
          * @method extendSelection(mouse,keys)
          */
@@ -404,6 +407,14 @@
             var maxColumns = grid.getColumnCount() - 1;
             var maxRows = grid.getRowCount() - 1;
 
+            var maxViewableColumns = grid.getViewableColumns() - 1;
+            var maxViewableRows = grid.getViewableRows() - 1;
+
+            if (!grid.resolveProperty('scrollingEnabled')) {
+                maxColumns = Math.min(maxColumns, maxViewableColumns);
+                maxRows = Math.min(maxRows, maxViewableRows);
+            }
+
             var origin = grid.getMouseDown();
             var extent = grid.getDragExtent();
 
@@ -440,6 +451,14 @@
 
             var maxColumns = grid.getColumnCount() - 1;
             var maxRows = grid.getRowCount() - 1;
+
+            var maxViewableColumns = grid.getViewableColumns() - 1;
+            var maxViewableRows = grid.getViewableRows() - 1;
+
+            if (!grid.resolveProperty('scrollingEnabled')) {
+                maxColumns = Math.min(maxColumns, maxViewableColumns);
+                maxRows = Math.min(maxRows, maxViewableRows);
+            }
 
             var mouseCorner = grid.getMouseDown().plus(grid.getDragExtent());
 

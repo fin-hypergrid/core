@@ -326,6 +326,7 @@ var config = {};
             gc.moveTo(0, 0);
             x = offsetX;
             var previousInsertionBoundsCursorValue = 0;
+            //render the final line with numColumns + 1
             for (c = 0; c < numColumns + 1; c++) {
                 width = this.getColumnWidth(c + scrollLeft);
 
@@ -341,7 +342,9 @@ var config = {};
                     gc.stroke();
                 }
                 x = x + width;
+
                 this.renderedColumnWidths.push(x);
+
                 insertionBoundsCursor = insertionBoundsCursor + Math.round(width / 2) + previousInsertionBoundsCursorValue;
                 this.insertionBounds.push(insertionBoundsCursor);
                 previousInsertionBoundsCursorValue = Math.round(width / 2);

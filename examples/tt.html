@@ -1,7 +1,7 @@
 <html>
-<head>
-  <link rel="import" href="../fin-hypergrid.min.html">
-  <!-- <link rel="import" href="../polymer/html/fin-hypergrid.html"> -->
+<!-- <head>
+  <link rel="import" href="../fin-hypergrid.min.html"> -->
+  <link rel="import" href="../polymer/html/fin-hypergrid.html">
 <style>
 
  body {
@@ -67,9 +67,13 @@
 
         backgroundColor2: '#303030',
         lineColor: '#707070',
-        hoffset: 0,
         voffset: 0,
-        scrollbarHover: 'hidden'
+        scrollingEnabled: false,
+
+        defaultRowHeight: 20,
+        defaultFixedRowHeight: 20,
+        defaultColumnWidth: 100,
+        defaultFixedColumnWidth: 100
     }
 
     var initialize = function() {

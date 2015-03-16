@@ -21165,6 +21165,8 @@ div.container {
 
 
 
+
+
 </style>
   </template>
   <script>//HypergridRenderer is the canvas enabled top level sub component that handles the renderering of the Grid.
@@ -21495,6 +21497,7 @@ var config = {};
             gc.moveTo(0, 0);
             x = offsetX;
             var previousInsertionBoundsCursorValue = 0;
+            //render the final line with numColumns + 1
             for (c = 0; c < numColumns + 1; c++) {
                 width = this.getColumnWidth(c + scrollLeft);
 
@@ -21510,7 +21513,9 @@ var config = {};
                     gc.stroke();
                 }
                 x = x + width;
+
                 this.renderedColumnWidths.push(x);
+
                 insertionBoundsCursor = insertionBoundsCursor + Math.round(width / 2) + previousInsertionBoundsCursorValue;
                 this.insertionBounds.push(insertionBoundsCursor);
                 previousInsertionBoundsCursorValue = Math.round(width / 2);
@@ -21909,6 +21914,8 @@ var config = {};
 
 
 
+
+
 </style>
   </template>
   <script>'use strict';
@@ -21996,6 +22003,8 @@ var config = {};
     display: block;
     position: relative;
 }
+
+
 
 
 
@@ -22180,6 +22189,8 @@ var config = {};
 
 
 
+
+
 </style>
   </template>
   <script>(function() {
@@ -22311,6 +22322,8 @@ var config = {};
     display: block;
     position: relative;
 }
+
+
 
 
 
@@ -22651,6 +22664,8 @@ var noop = function() {};
 
 
 
+
+
 </style>
   </template>
   <script>(function() {
@@ -22804,6 +22819,9 @@ var noop = function() {};
          * @method checkDragScroll(event)
          */
         checkDragScroll: function(grid, mouse) {
+            if (!grid.resolveProperty('scrollingEnabled')) {
+                return;
+            }
             var b = grid.getDataBounds();
             var inside = b.contains(mouse);
             if (inside) {
@@ -22854,7 +22872,7 @@ var noop = function() {};
         /**
          *                                                                      .
          *                                                                      .
-         * extend a selection or cteate one if there isnt yet
+         * extend a selection or create one if there isnt yet
          *
          * @method extendSelection(mouse,keys)
          */
@@ -23059,6 +23077,14 @@ var noop = function() {};
             var maxColumns = grid.getColumnCount() - 1;
             var maxRows = grid.getRowCount() - 1;
 
+            var maxViewableColumns = grid.getViewableColumns() - 1;
+            var maxViewableRows = grid.getViewableRows() - 1;
+
+            if (!grid.resolveProperty('scrollingEnabled')) {
+                maxColumns = Math.min(maxColumns, maxViewableColumns);
+                maxRows = Math.min(maxRows, maxViewableRows);
+            }
+
             var origin = grid.getMouseDown();
             var extent = grid.getDragExtent();
 
@@ -23096,6 +23122,14 @@ var noop = function() {};
             var maxColumns = grid.getColumnCount() - 1;
             var maxRows = grid.getRowCount() - 1;
 
+            var maxViewableColumns = grid.getViewableColumns() - 1;
+            var maxViewableRows = grid.getViewableRows() - 1;
+
+            if (!grid.resolveProperty('scrollingEnabled')) {
+                maxColumns = Math.min(maxColumns, maxViewableColumns);
+                maxRows = Math.min(maxRows, maxViewableRows);
+            }
+
             var mouseCorner = grid.getMouseDown().plus(grid.getDragExtent());
 
             var newX = mouseCorner.x + offsetX;
@@ -23131,6 +23165,8 @@ var noop = function() {};
     display: block;
     position: relative;
 }
+
+
 
 
 
@@ -23324,6 +23360,8 @@ var noop = function() {};
 
 
 
+
+
 </style>
   </template>
   <script>(function() {
@@ -23332,6 +23370,9 @@ var noop = function() {};
 
     Polymer('fin-hypergrid-feature-thumbwheel-scrolling',{ /* jshint ignore:line */
         handleWheelMoved: function(grid, e) {
+            if (!grid.resolveProperty('scrollingEnabled')) {
+                return;
+            }
             var primEvent = e.primitiveEvent;
             var deltaY = primEvent.wheelDeltaY || -primEvent.deltaY;
             var deltaX = primEvent.wheelDeltaX || -primEvent.deltaX;
@@ -23356,6 +23397,8 @@ var noop = function() {};
     display: block;
     position: relative;
 }
+
+
 
 
 
@@ -23457,6 +23500,8 @@ var noop = function() {};
 
 
 
+
+
 </style>
   </template>
   <script>(function() {
@@ -23500,6 +23545,8 @@ var noop = function() {};
     display: block;
     position: relative;
 }
+
+
 
 
 
@@ -23696,6 +23743,8 @@ var noop = function() {};
     display: block;
     position: relative;
 }
+
+
 
 
 
@@ -24248,6 +24297,8 @@ var noop = function() {};
 
 
 
+
+
 </style>
   </template>
   <script>(function() {
@@ -24321,6 +24372,8 @@ var noop = function() {};
     display: block;
     position: relative;
 }
+
+
 
 
 
@@ -24629,7 +24682,7 @@ var noop = function() {};
             if (override) {
                 return override;
             }
-            return this.resolveProperty('columnWidth');
+            return this.resolveProperty('defaultFixedColumnWidth');
         },
 
         //can be dynamic if we wish to allow users to resize
@@ -24642,7 +24695,7 @@ var noop = function() {};
             if (override) {
                 return override;
             }
-            return this.resolveProperty('columnWidth');
+            return this.resolveProperty('defaultColumnWidth');
         },
 
         setColumnWidth: function(colNumber, width) {
@@ -24937,6 +24990,8 @@ var noop = function() {};
     display: block;
     position: relative;
 }
+
+
 
 
 
@@ -25271,6 +25326,8 @@ var noop = function() {};
     display: block;
     position: relative;
 }
+
+
 
 
 
@@ -25799,6 +25856,8 @@ var noop = function() {};
 
 
 
+
+
 </style>
   </template>
   <script>/*jshint  bitwise: false */
@@ -26287,6 +26346,8 @@ window.dualPivotQuickSort = (function() {
 
 
 
+
+
 </style>
   </template>
   <script>'use strict';
@@ -26575,6 +26636,8 @@ window.dualPivotQuickSort = (function() {
     display: block;
     position: relative;
 }
+
+
 
 
 
@@ -27243,6 +27306,8 @@ window.dualPivotQuickSort = (function() {
 
 
 
+
+
 </style>
   </template>
   <script>'use strict';
@@ -27419,6 +27484,8 @@ window.dualPivotQuickSort = (function() {
 
 
 
+
+
 </style>
     <div id="editor"></div>
   </template>
@@ -27541,6 +27608,8 @@ window.dualPivotQuickSort = (function() {
 
 
 
+
+
 </style>
     <input id="editor">
   </template>
@@ -27564,6 +27633,8 @@ window.dualPivotQuickSort = (function() {
     display: block;
     position: relative;
 }
+
+
 
 
 
@@ -27662,6 +27733,8 @@ window.dualPivotQuickSort = (function() {
 
 
 
+
+
 </style>
     <input id="editor" type="color">
   </template>
@@ -27682,6 +27755,8 @@ window.dualPivotQuickSort = (function() {
     display: block;
     position: relative;
 }
+
+
 
 
 
@@ -27774,6 +27849,8 @@ window.dualPivotQuickSort = (function() {
 
 
 
+
+
 </style>
     <input id="editor" type="range">
   </template>
@@ -27794,6 +27871,8 @@ window.dualPivotQuickSort = (function() {
     display: block;
     position: relative;
 }
+
+
 
 
 
@@ -27951,6 +28030,8 @@ fin-vampire-bar {
 
 
 
+
+
 </style>
     <fin-plugins>
     </fin-plugins>
@@ -28020,9 +28101,9 @@ fin-vampire-bar {
             lineColor: 'rgb(199, 199, 199)',
             voffset: 0,
             scrollbarHover: 'visible',
+            scrollingEnabled: true,
 
-            //these are constants
-
+            //these used to be in the constants element
             fixedRowAlign: 'center',
             fixedColAlign: 'center',
             cellPadding: 5,
@@ -28030,8 +28111,11 @@ fin-vampire-bar {
             repaintIntervalRate: 15,
             gridLinesH: true,
             gridLinesV: true,
+
             defaultRowHeight: 20,
-            defaultFixedRowHeight: 20
+            defaultFixedRowHeight: 20,
+            defaultColumnWidth: 100,
+            defaultFixedColumnWidth: 100
         };
         return properties;
     };
@@ -29527,7 +29611,11 @@ fin-vampire-bar {
             this.sbHScroller.onmouseover = function(event) {
                 noop(event);
                 self.isScrollButtonClick = false;
-                self.sbHScroller.classList.add(self.resolveProperty('scrollbarHover'));
+                var hoverClass = self.resolveProperty('scrollbarHover');
+                if (!self.resolveProperty('scrollingEnabled')) {
+                    hoverClass = 'hidden';
+                }
+                self.sbHScroller.classList.add(hoverClass);
             };
 
             this.sbHScroller.onmouseout = function(event) {
@@ -29535,7 +29623,11 @@ fin-vampire-bar {
                 if (self.sbMouseIsDown) {
                     return;
                 } else {
-                    self.sbHScroller.classList.remove(self.resolveProperty('scrollbarHover'));
+                    var hoverClass = self.resolveProperty('scrollbarHover');
+                    if (!self.resolveProperty('scrollingEnabled')) {
+                        hoverClass = 'hidden';
+                    }
+                    self.sbHScroller.classList.remove(hoverClass);
                 }
             };
 
@@ -29543,7 +29635,11 @@ fin-vampire-bar {
             this.sbVScroller.onmouseover = function(event) {
                 noop(event);
                 self.isScrollButtonClick = false;
-                self.sbVScroller.classList.add(self.resolveProperty('scrollbarHover'));
+                var hoverClass = self.resolveProperty('scrollbarHover');
+                if (!self.resolveProperty('scrollingEnabled')) {
+                    hoverClass = 'hidden';
+                }
+                self.sbVScroller.classList.add(hoverClass);
             };
 
             this.sbVScroller.onmouseout = function(event) {
@@ -29551,7 +29647,11 @@ fin-vampire-bar {
                 if (self.sbMouseIsDown) {
                     return;
                 } else {
-                    self.sbVScroller.classList.remove(self.resolveProperty('scrollbarHover'));
+                    var hoverClass = self.resolveProperty('scrollbarHover');
+                    if (!self.resolveProperty('scrollingEnabled')) {
+                        hoverClass = 'hidden';
+                    }
+                    self.sbVScroller.classList.remove(hoverClass);
                 }
             };
 

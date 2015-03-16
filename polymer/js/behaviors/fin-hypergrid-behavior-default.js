@@ -268,7 +268,7 @@
             if (override) {
                 return override;
             }
-            return this.resolveProperty('columnWidth');
+            return this.resolveProperty('defaultFixedColumnWidth');
         },
 
         //can be dynamic if we wish to allow users to resize
@@ -281,7 +281,7 @@
             if (override) {
                 return override;
             }
-            return this.resolveProperty('columnWidth');
+            return this.resolveProperty('defaultColumnWidth');
         },
 
         setColumnWidth: function(colNumber, width) {
