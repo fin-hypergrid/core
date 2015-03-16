@@ -31,7 +31,7 @@
             this.scrollPositionY = 0;
             this.renderedWidth = 30;
             this.renderedHeight = 60;
-            this.setState({
+            this.tableState = {
                 columnIndexes: [],
                 fixedColumnIndexes: [],
                 hiddenColumns: [],
@@ -41,7 +41,7 @@
 
                 rowHeights: {},
                 fixedRowHeights: {},
-            });
+            };
 
             this.values = {}; //for overriding with edit values;
             this.initColumnIndexes();
@@ -54,7 +54,11 @@
         },
 
         setState: function(state) {
-            this.tableState = state;
+            for (var key in state) {
+                if (state.hasOwnProperty(key)) {
+                    this.tableState[key] = state[key];
+                }
+            }
         },
 
         initColumnIndexes: function() {
@@ -205,9 +209,11 @@
 
         //the height of the specific fixed row
         getFixedRowHeight: function(rowNum) {
-            var override = this.tableState.fixedRowHeights[rowNum];
-            if (override) {
-                return override;
+            if (this.tableState.fixedRowHeights) {
+                var override = this.tableState.fixedRowHeights[rowNum];
+                if (override) {
+                    return override;
+                }
             }
             return this.resolveProperty('defaultFixedRowHeight');
         },
@@ -221,9 +227,11 @@
         //can be dynamic if we wish to allow users to resize
         //<br>or driven by data, etc...
         getRowHeight: function(rowNum) {
-            var override = this.tableState.rowHeights[rowNum];
-            if (override) {
-                return override;
+            if (this.tableState.rowHeights) {
+                var override = this.tableState.rowHeights[rowNum];
+                if (override) {
+                    return override;
+                }
             }
             return this.resolveProperty('defaultRowHeight');
         },
