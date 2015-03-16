@@ -377,7 +377,7 @@
             if (y > 0) {
                 return this.getColumnAlignment(x);
             }
-            return this.constants.fixedRowAlign;
+            return this.resolve('fixedRowAlign');
         },
         //delegate column alignment through the map at the top based on the column type
         getColumnAlignment: function(x) {

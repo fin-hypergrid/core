@@ -114,11 +114,6 @@ quick hypergrid design
 -rectangle based selection management
 -allows for arbitrary large rectangular selections
 
-
-* fin-hypergrid-constants
--constant values for the grid
--default fg/bg color/font/widths/heights etc
-
 * fin-vampire-bar
 -only 33million pixes to scroll with native scrollbars
 

@@ -656,10 +656,6 @@ var config = {};
             return this.getGrid().getBehavior();
         },
 
-        getConstants: function() {
-            return this.getGrid().constants;
-        },
-
         getFixedRowHeight: function(rowIndex) {
             var height = this.getBehavior().getFixedRowHeight(rowIndex);
             return height;

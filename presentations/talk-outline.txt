@@ -317,11 +317,6 @@ quick hypergrid design
         allows for arbitrary large rectangular selections
             -renderes extremely fast
 
-    fin-hypergrid-constants
-        constant values for the grid
-            -cannonical place to put various values
-        default fg/bg color/font/widths/heights etc
-
     plugins
         installOn(hypergrid) function must be implemented by plugin
         nest tags inside fin-hypergrid

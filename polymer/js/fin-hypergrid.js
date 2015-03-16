@@ -6,6 +6,7 @@
 
     var rectangles;
     var globalCellEditors = {};
+    var propertiesInitialized = false;
 
     var noop = function() {};
 
@@ -24,40 +25,50 @@
         globalCellEditors[cellEditor.alias] = cellEditor;
     };
 
-    var defaultProperties = function(proto) {
-        var theme = Object.create(proto);
+    var defaultProperties = function() {
+        var properties = {
+            //these are for the theme
+            font: '13px Tahoma, Geneva, sans-serif',
+            color: 'rgb(25, 25, 25)',
+            backgroundColor: 'rgb(241, 241, 241)',
+            foregroundSelColor: 'rgb(25, 25, 25)',
+            backgroundSelColor: 'rgb(183, 219, 255)',
 
-        theme.font = '13px Tahoma, Geneva, sans-serif';
-        theme.color = 'rgb(25, 25, 25)';
-        theme.backgroundColor = 'rgb(241, 241, 241)';
-        theme.foregroundSelColor = 'rgb(25, 25, 25)';
-        theme.backgroundSelColor = 'rgb(183, 219, 255)';
+            topLeftFont: '14px Tahoma, Geneva, sans-serif',
+            topLeftColor: 'rgb(25, 25, 25)',
+            topLeftBackgroundColor: 'rgb(223, 227, 232)',
+            topLeftFGSelColor: 'rgb(25, 25, 25)',
+            topLeftBGSelColor: 'rgb(255, 220, 97)',
 
-        theme.topLeftFont = '14px Tahoma, Geneva, sans-serif';
-        theme.topLeftColor = 'rgb(25, 25, 25)';
-        theme.topLeftBackgroundColor = 'rgb(223, 227, 232)';
-        theme.topLeftFGSelColor = 'rgb(25, 25, 25)';
-        theme.topLeftBGSelColor = 'rgb(255, 220, 97)';
+            fixedColumnFont: '14px Tahoma, Geneva, sans-serif',
+            fixedColumnColor: 'rgb(25, 25, 25)',
+            fixedColumnBackgroundColor: 'rgb(223, 227, 232)',
+            fixedColumnFGSelColor: 'rgb(25, 25, 25)',
+            fixedColumnBGSelColor: 'rgb(255, 220, 97)',
 
-        theme.fixedColumnFont = '14px Tahoma, Geneva, sans-serif';
-        theme.fixedColumnColor = 'rgb(25, 25, 25)';
-        theme.fixedColumnBackgroundColor = 'rgb(223, 227, 232)';
-        theme.fixedColumnFGSelColor = 'rgb(25, 25, 25)';
-        theme.fixedColumnBGSelColor = 'rgb(255, 220, 97)';
+            fixedRowFont: '14px Tahoma, Geneva, sans-serif',
+            fixedRowColor: 'rgb(25, 25, 25)',
+            fixedRowBackgroundColor: 'rgb(223, 227, 232)',
+            fixedRowFGSelColor: 'rgb(25, 25, 25)',
+            fixedRowBGSelColor: 'rgb(255, 220, 97)',
 
-        theme.fixedRowFont = '14px Tahoma, Geneva, sans-serif';
-        theme.fixedRowColor = 'rgb(25, 25, 25)';
-        theme.fixedRowBackgroundColor = 'rgb(223, 227, 232)';
-        theme.fixedRowFGSelColor = 'rgb(25, 25, 25)';
-        theme.fixedRowBGSelColor = 'rgb(255, 220, 97)';
+            backgroundColor2: 'rgb(201, 201, 201)',
+            lineColor: 'rgb(199, 199, 199)',
+            voffset: 0,
+            scrollbarHover: 'visible',
 
-        theme.backgroundColor2 = 'rgb(201, 201, 201)';
-        theme.lineColor = 'rgb(199, 199, 199)';
-        theme.hoffset = 0;
-        theme.voffset = 0;
-        theme.scrollbarHover = 'visible';
-
-        return theme;
+            //these used to be in the constants element
+            fixedRowAlign: 'center',
+            fixedColAlign: 'center',
+            cellPadding: 5,
+            columnWidth: 100,
+            repaintIntervalRate: 15,
+            gridLinesH: true,
+            gridLinesV: true,
+            defaultRowHeight: 20,
+            defaultFixedRowHeight: 20
+        };
+        return properties;
     };
 
     var buildPolymerTheme = function() {
@@ -77,7 +88,6 @@
         var h = window.getComputedStyle(document.querySelector('html'));
         var hb = window.getComputedStyle(document.querySelector('html, body'));
         var s = window.getComputedStyle(section);
-
 
         polymerTheme.fixedRowBackgroundColor = p.color;
         polymerTheme.fixedColumnBackgroundColor = p.color;
@@ -111,7 +121,7 @@
         polymerTheme.fixedColumnFGSelColor = p.color;
         polymerTheme.fixedColumnBGSelColor = p.backgroundColor;
 
-        //check if there is actuall a theme loaded if not, clear out all bogus values
+        //check if there is actually a theme loaded if not, clear out all bogus values
         //from my cache
         if (polymerTheme.fixedRowBGSelColor === 'rgba(0, 0, 0, 0)') {
             clearObjectProperties(polymerTheme);
@@ -129,17 +139,13 @@
         }
     };
 
-    var constants, defaults, polymerTheme, globalProperties;
+    var defaults, polymerTheme, globalProperties;
 
-    var initializeGlobals = function() {
-        constants = document.createElement('fin-hypergrid-constants').values;
-        defaults = defaultProperties(constants);
+    (function() {
+        defaults = defaultProperties();
         polymerTheme = Object.create(defaults);
         globalProperties = Object.create(polymerTheme);
-
-        buildPolymerTheme();
-        initializeBasicCellEditors();
-    };
+    })();
 
     Polymer({ /* jslint ignore:line */
 
@@ -210,14 +216,6 @@
          * @type fin-rectange
          */
         rectangles: null,
-
-        /**
-         * constants holds a [fin-constants](index.html#fin-hypergrid-constants) polymer-element singleton of constant values
-         *
-         * @property constants
-         * @type fin-hypergrid-constants
-         */
-        constants: null,
 
         /**
          * selectionModel is a [fin-hypergrid-selection-model](index.html#fin-hypergrid-selection-model) instance
@@ -332,16 +330,16 @@
 
         domReady: function() {
 
-            if (!constants) {
-                initializeGlobals();
+            if (!propertiesInitialized) {
+                propertiesInitialized = true;
+                buildPolymerTheme();
+                initializeBasicCellEditors();
             }
 
             var self = this;
             rectangles = rectangles || document.createElement('fin-rectangle');
-            constants = constants || document.createElement('fin-hypergrid-constants').values;
 
             this.rectangles = rectangles;
-            this.constants = constants;
 
             this.lnfProperties = Object.create(globalProperties);
 
@@ -859,9 +857,9 @@
         initCanvas: function() {
 
             var self = this;
+            var interval = this.resolveProperty('repaintIntervalRate');
             this.canvas = this.shadowRoot.querySelector('fin-canvas');
-
-            this.canvas.setAttribute('fps', constants.repaintIntervalRate || 15);
+            this.canvas.setAttribute('fps', interval || 15);
 
             //this.shadowRoot.appendChild(domCanvas);
 

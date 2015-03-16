@@ -4,9 +4,6 @@ var noop = function() {};
 
 (function() {
 
-    //global variable for all instances to share, initialized by the first instances' ready call
-    var constants;
-
     //DefaultCellProvider is the cache for cell renderers.  A CellRenderer is an object with a single function 'paint'.
     //There should only be a single reused CellRenderer object created for each type of CellRenderer.
 
@@ -45,10 +42,8 @@ var noop = function() {};
 
 
     Polymer({ /* jslint ignore:line */
+
         created: function() {
-            if (!constants) {
-                constants = document.createElement('fin-hypergrid-constants').values;
-            }
             this.cellCache = {};
             this.initializeCells();
         },
@@ -85,8 +80,8 @@ var noop = function() {};
 
         defaultCellPaint: function(gc, x, y, width, height) {
 
-            var colHEdgeOffset = constants.cellPadding,
-                halignOffset = this.config.hoffset,
+            var colHEdgeOffset = this.config.properties.cellPadding,
+                halignOffset = 0,
                 valignOffset = this.config.voffset,
                 halign = this.config.halign,
                 size,
@@ -99,7 +94,7 @@ var noop = function() {};
             if (gc.textAlign !== 'left') {
                 gc.textAlign = 'left';
             }
-            if (gc.textBasline !== 'middle') {
+            if (gc.textBaseline !== 'middle') {
                 gc.textBaseline = 'middle';
             }
 

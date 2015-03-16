@@ -12,7 +12,6 @@
         },
 
         tableState: {},
-
         columnProperties: {},
         grid: null,
         editorTypes: ['choice', 'textfield', 'color', 'slider', 'spinner', 'date'],
@@ -27,7 +26,6 @@
         },
 
         readyInit: function() {
-            this.constants = document.createElement('fin-hypergrid-constants').values;
             this.cellProvider = this.createCellProvider();
             this.scrollPositionX = 0;
             this.scrollPositionY = 0;
@@ -48,7 +46,9 @@
             this.values = {}; //for overriding with edit values;
             this.initColumnIndexes();
         },
-
+        resolveProperty: function(key) {
+            return this.grid.resolveProperty(key);
+        },
         getState: function() {
             return this.tableState;
         },
@@ -209,7 +209,7 @@
             if (override) {
                 return override;
             }
-            return this.constants.rowHeight;
+            return this.resolveProperty('defaultFixedRowHeight');
         },
 
         setFixedRowHeight: function(rowNum, height) {
@@ -225,7 +225,7 @@
             if (override) {
                 return override;
             }
-            return this.constants.rowHeight;
+            return this.resolveProperty('defaultRowHeight');
         },
 
         setRowHeight: function(rowNum, height) {
@@ -268,7 +268,7 @@
             if (override) {
                 return override;
             }
-            return this.constants.columnWidth;
+            return this.resolveProperty('columnWidth');
         },
 
         //can be dynamic if we wish to allow users to resize
@@ -281,7 +281,7 @@
             if (override) {
                 return override;
             }
-            return this.constants.columnWidth;
+            return this.resolveProperty('columnWidth');
         },
 
         setColumnWidth: function(colNumber, width) {
@@ -332,14 +332,14 @@
         //answers the default col alignment for the fixed column data area of the grid
         //<br>TODO:provide uniform mechanism for the fixed areas like this
         getFixedColumnAlignment: function( /* x */ ) {
-            return this.constants.fixedColumnAlign;
+            return this.resolveProperty('fixedColumnAlign');
         },
 
 
         //answers the default row alignment for the fixed row data area of the grid
         //<br>TODO:provide uniform mechanism for the fixed areas like this
         getFixedRowAlignment: function( /* x, y */ ) {
-            return this.constants.fixedRowAlign;
+            return this.resolveProperty('fixedRowAlign');
         },
         //this is called by OFGrid when top left area is clicked
         //<br>see DefaultGridBehavior.delegateClick() below

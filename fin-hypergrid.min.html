@@ -18314,9 +18314,6 @@ CustomElements.addModule(function(scope) {
 
 
 
-
-
-
 </head><body><div hidden="">
 <polymer-element name="fin-rectangle" assetpath="/dev/fin-rectangle/">
   <script>
@@ -21045,79 +21042,6 @@ div.container {
 
   </script>
 </polymer-element>
-<polymer-element name="fin-hypergrid-constants" assetpath="/dev/fin-hypergrid/polymer/html/">
-  <template>
-    <style type="text/css">:host {
-    display: block;
-    position: relative;
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-</style>
-  </template>
-  <script>'use strict';
-
-(function() {
-
-    var values = {
-        defaultFont: '13px Tahoma, Geneva, sans-serif',
-        foregroundColor: '#010126',
-        backgroundColor: '#FFFFFF',
-        foregroundSelColor: '#010126',
-        backgroundSelColor: '#B7DBFF',
-        fixedRowBackgroundColor: '#DFE3E8',
-        fixedColumnBackgroundColor: '#DFE3E8',
-        topLeftBackgroundColor: '#DFE3E8',
-        fixedColFGSelColor: '#010126',
-        fixedRowFGSelColor: '#010126',
-        fixedColBGSelColor: '#FFDC61',
-        fixedRowBGSelColor: '#FFDC61',
-        fixedRowAlign: 'center',
-        fixedColAlign: 'center',
-        cellPadding: 5,
-        rowHeight: 20,
-        columnWidth: 100,
-        repaintIntervalRate: 15,
-        lineColor: '#C7C7C7',
-        gridLinesH: true,
-        gridLinesV: true,
-        scrollerSize: 15,
-        voffset: '0px',
-        hoffset: '0px'
-    };
-
-    Polymer('fin-hypergrid-constants',{ /* jshint ignore:line */
-        values: values
-    });
-
-})(); /* jshint ignore:line */
-</script>
-</polymer-element>
 <polymer-element name="fin-canvas-component" class="fin-canvas-component" attributes="layoutProperties" assetpath="/dev/fin-canvas/">
   <template></template>
   <script>
@@ -21205,6 +21129,15 @@ div.container {
     display: block;
     position: relative;
 }
+
+
+
+
+
+
+
+
+
 
 
 
@@ -21892,10 +21825,6 @@ var config = {};
             return this.getGrid().getBehavior();
         },
 
-        getConstants: function() {
-            return this.getGrid().constants;
-        },
-
         getFixedRowHeight: function(rowIndex) {
             var height = this.getBehavior().getFixedRowHeight(rowIndex);
             return height;
@@ -21944,6 +21873,15 @@ var config = {};
     display: block;
     position: relative;
 }
+
+
+
+
+
+
+
+
+
 
 
 
@@ -22085,6 +22023,15 @@ var config = {};
 
 
 
+
+
+
+
+
+
+
+
+
 </style>
   </template>
   <script>/* globals fin */
@@ -22197,6 +22144,15 @@ var config = {};
     display: block;
     position: relative;
 }
+
+
+
+
+
+
+
+
+
 
 
 
@@ -22382,6 +22338,15 @@ var config = {};
 
 
 
+
+
+
+
+
+
+
+
+
 </style>
   </template>
   <script>'use strict';
@@ -22389,9 +22354,6 @@ var config = {};
 var noop = function() {};
 
 (function() {
-
-    //global variable for all instances to share, initialized by the first instances' ready call
-    var constants;
 
     //DefaultCellProvider is the cache for cell renderers.  A CellRenderer is an object with a single function 'paint'.
     //There should only be a single reused CellRenderer object created for each type of CellRenderer.
@@ -22431,10 +22393,8 @@ var noop = function() {};
 
 
     Polymer('fin-hypergrid-cell-provider',{ /* jslint ignore:line */
+
         created: function() {
-            if (!constants) {
-                constants = document.createElement('fin-hypergrid-constants').values;
-            }
             this.cellCache = {};
             this.initializeCells();
         },
@@ -22471,8 +22431,8 @@ var noop = function() {};
 
         defaultCellPaint: function(gc, x, y, width, height) {
 
-            var colHEdgeOffset = constants.cellPadding,
-                halignOffset = this.config.hoffset,
+            var colHEdgeOffset = this.config.properties.cellPadding,
+                halignOffset = 0,
                 valignOffset = this.config.voffset,
                 halign = this.config.halign,
                 size,
@@ -22485,7 +22445,7 @@ var noop = function() {};
             if (gc.textAlign !== 'left') {
                 gc.textAlign = 'left';
             }
-            if (gc.textBasline !== 'middle') {
+            if (gc.textBaseline !== 'middle') {
                 gc.textBaseline = 'middle';
             }
 
@@ -22655,6 +22615,15 @@ var noop = function() {};
     display: block;
     position: relative;
 }
+
+
+
+
+
+
+
+
+
 
 
 
@@ -23189,6 +23158,15 @@ var noop = function() {};
 
 
 
+
+
+
+
+
+
+
+
+
 </style>
   </template>
   <script>(function() {
@@ -23337,6 +23315,15 @@ var noop = function() {};
 
 
 
+
+
+
+
+
+
+
+
+
 </style>
   </template>
   <script>(function() {
@@ -23369,6 +23356,15 @@ var noop = function() {};
     display: block;
     position: relative;
 }
+
+
+
+
+
+
+
+
+
 
 
 
@@ -23452,6 +23448,15 @@ var noop = function() {};
 
 
 
+
+
+
+
+
+
+
+
+
 </style>
   </template>
   <script>(function() {
@@ -23495,6 +23500,15 @@ var noop = function() {};
     display: block;
     position: relative;
 }
+
+
+
+
+
+
+
+
+
 
 
 
@@ -23682,6 +23696,15 @@ var noop = function() {};
     display: block;
     position: relative;
 }
+
+
+
+
+
+
+
+
+
 
 
 
@@ -24216,6 +24239,15 @@ var noop = function() {};
 
 
 
+
+
+
+
+
+
+
+
+
 </style>
   </template>
   <script>(function() {
@@ -24316,6 +24348,15 @@ var noop = function() {};
 
 
 
+
+
+
+
+
+
+
+
+
 </style>
   </template>
   <script>'use strict';
@@ -24332,7 +24373,6 @@ var noop = function() {};
         },
 
         tableState: {},
-
         columnProperties: {},
         grid: null,
         editorTypes: ['choice', 'textfield', 'color', 'slider', 'spinner', 'date'],
@@ -24347,7 +24387,6 @@ var noop = function() {};
         },
 
         readyInit: function() {
-            this.constants = document.createElement('fin-hypergrid-constants').values;
             this.cellProvider = this.createCellProvider();
             this.scrollPositionX = 0;
             this.scrollPositionY = 0;
@@ -24368,7 +24407,9 @@ var noop = function() {};
             this.values = {}; //for overriding with edit values;
             this.initColumnIndexes();
         },
-
+        resolveProperty: function(key) {
+            return this.grid.resolveProperty(key);
+        },
         getState: function() {
             return this.tableState;
         },
@@ -24529,7 +24570,7 @@ var noop = function() {};
             if (override) {
                 return override;
             }
-            return this.constants.rowHeight;
+            return this.resolveProperty('defaultFixedRowHeight');
         },
 
         setFixedRowHeight: function(rowNum, height) {
@@ -24545,7 +24586,7 @@ var noop = function() {};
             if (override) {
                 return override;
             }
-            return this.constants.rowHeight;
+            return this.resolveProperty('defaultRowHeight');
         },
 
         setRowHeight: function(rowNum, height) {
@@ -24588,7 +24629,7 @@ var noop = function() {};
             if (override) {
                 return override;
             }
-            return this.constants.columnWidth;
+            return this.resolveProperty('columnWidth');
         },
 
         //can be dynamic if we wish to allow users to resize
@@ -24601,7 +24642,7 @@ var noop = function() {};
             if (override) {
                 return override;
             }
-            return this.constants.columnWidth;
+            return this.resolveProperty('columnWidth');
         },
 
         setColumnWidth: function(colNumber, width) {
@@ -24652,14 +24693,14 @@ var noop = function() {};
         //answers the default col alignment for the fixed column data area of the grid
         //<br>TODO:provide uniform mechanism for the fixed areas like this
         getFixedColumnAlignment: function( /* x */ ) {
-            return this.constants.fixedColumnAlign;
+            return this.resolveProperty('fixedColumnAlign');
         },
 
 
         //answers the default row alignment for the fixed row data area of the grid
         //<br>TODO:provide uniform mechanism for the fixed areas like this
         getFixedRowAlignment: function( /* x, y */ ) {
-            return this.constants.fixedRowAlign;
+            return this.resolveProperty('fixedRowAlign');
         },
         //this is called by OFGrid when top left area is clicked
         //<br>see DefaultGridBehavior.delegateClick() below
@@ -24896,6 +24937,15 @@ var noop = function() {};
     display: block;
     position: relative;
 }
+
+
+
+
+
+
+
+
+
 
 
 
@@ -25221,6 +25271,15 @@ var noop = function() {};
     display: block;
     position: relative;
 }
+
+
+
+
+
+
+
+
+
 
 
 
@@ -25731,6 +25790,15 @@ var noop = function() {};
 
 
 
+
+
+
+
+
+
+
+
+
 </style>
   </template>
   <script>/*jshint  bitwise: false */
@@ -26210,6 +26278,15 @@ window.dualPivotQuickSort = (function() {
 
 
 
+
+
+
+
+
+
+
+
+
 </style>
   </template>
   <script>'use strict';
@@ -26498,6 +26575,15 @@ window.dualPivotQuickSort = (function() {
     display: block;
     position: relative;
 }
+
+
+
+
+
+
+
+
+
 
 
 
@@ -26906,7 +26992,7 @@ window.dualPivotQuickSort = (function() {
             if (y > 0) {
                 return this.getColumnAlignment(x);
             }
-            return this.constants.fixedRowAlign;
+            return this.resolve('fixedRowAlign');
         },
         //delegate column alignment through the map at the top based on the column type
         getColumnAlignment: function(x) {
@@ -27148,6 +27234,15 @@ window.dualPivotQuickSort = (function() {
 
 
 
+
+
+
+
+
+
+
+
+
 </style>
   </template>
   <script>'use strict';
@@ -27315,6 +27410,15 @@ window.dualPivotQuickSort = (function() {
 
 
 
+
+
+
+
+
+
+
+
+
 </style>
     <div id="editor"></div>
   </template>
@@ -27428,6 +27532,15 @@ window.dualPivotQuickSort = (function() {
 
 
 
+
+
+
+
+
+
+
+
+
 </style>
     <input id="editor">
   </template>
@@ -27451,6 +27564,15 @@ window.dualPivotQuickSort = (function() {
     display: block;
     position: relative;
 }
+
+
+
+
+
+
+
+
+
 
 
 
@@ -27531,6 +27653,15 @@ window.dualPivotQuickSort = (function() {
 
 
 
+
+
+
+
+
+
+
+
+
 </style>
     <input id="editor" type="color">
   </template>
@@ -27551,6 +27682,15 @@ window.dualPivotQuickSort = (function() {
     display: block;
     position: relative;
 }
+
+
+
+
+
+
+
+
+
 
 
 
@@ -27625,6 +27765,15 @@ window.dualPivotQuickSort = (function() {
 
 
 
+
+
+
+
+
+
+
+
+
 </style>
     <input id="editor" type="range">
   </template>
@@ -27645,6 +27794,15 @@ window.dualPivotQuickSort = (function() {
     display: block;
     position: relative;
 }
+
+
+
+
+
+
+
+
+
 
 
 
@@ -27784,6 +27942,15 @@ fin-vampire-bar {
 
 
 
+
+
+
+
+
+
+
+
+
 </style>
     <fin-plugins>
     </fin-plugins>
@@ -27803,6 +27970,7 @@ fin-vampire-bar {
 
     var rectangles;
     var globalCellEditors = {};
+    var propertiesInitialized = false;
 
     var noop = function() {};
 
@@ -27821,40 +27989,51 @@ fin-vampire-bar {
         globalCellEditors[cellEditor.alias] = cellEditor;
     };
 
-    var defaultProperties = function(proto) {
-        var theme = Object.create(proto);
+    var defaultProperties = function() {
+        var properties = {
+            //these are for the theme
+            font: '13px Tahoma, Geneva, sans-serif',
+            color: 'rgb(25, 25, 25)',
+            backgroundColor: 'rgb(241, 241, 241)',
+            foregroundSelColor: 'rgb(25, 25, 25)',
+            backgroundSelColor: 'rgb(183, 219, 255)',
 
-        theme.font = '13px Tahoma, Geneva, sans-serif';
-        theme.color = 'rgb(25, 25, 25)';
-        theme.backgroundColor = 'rgb(241, 241, 241)';
-        theme.foregroundSelColor = 'rgb(25, 25, 25)';
-        theme.backgroundSelColor = 'rgb(183, 219, 255)';
+            topLeftFont: '14px Tahoma, Geneva, sans-serif',
+            topLeftColor: 'rgb(25, 25, 25)',
+            topLeftBackgroundColor: 'rgb(223, 227, 232)',
+            topLeftFGSelColor: 'rgb(25, 25, 25)',
+            topLeftBGSelColor: 'rgb(255, 220, 97)',
 
-        theme.topLeftFont = '14px Tahoma, Geneva, sans-serif';
-        theme.topLeftColor = 'rgb(25, 25, 25)';
-        theme.topLeftBackgroundColor = 'rgb(223, 227, 232)';
-        theme.topLeftFGSelColor = 'rgb(25, 25, 25)';
-        theme.topLeftBGSelColor = 'rgb(255, 220, 97)';
+            fixedColumnFont: '14px Tahoma, Geneva, sans-serif',
+            fixedColumnColor: 'rgb(25, 25, 25)',
+            fixedColumnBackgroundColor: 'rgb(223, 227, 232)',
+            fixedColumnFGSelColor: 'rgb(25, 25, 25)',
+            fixedColumnBGSelColor: 'rgb(255, 220, 97)',
 
-        theme.fixedColumnFont = '14px Tahoma, Geneva, sans-serif';
-        theme.fixedColumnColor = 'rgb(25, 25, 25)';
-        theme.fixedColumnBackgroundColor = 'rgb(223, 227, 232)';
-        theme.fixedColumnFGSelColor = 'rgb(25, 25, 25)';
-        theme.fixedColumnBGSelColor = 'rgb(255, 220, 97)';
+            fixedRowFont: '14px Tahoma, Geneva, sans-serif',
+            fixedRowColor: 'rgb(25, 25, 25)',
+            fixedRowBackgroundColor: 'rgb(223, 227, 232)',
+            fixedRowFGSelColor: 'rgb(25, 25, 25)',
+            fixedRowBGSelColor: 'rgb(255, 220, 97)',
 
-        theme.fixedRowFont = '14px Tahoma, Geneva, sans-serif';
-        theme.fixedRowColor = 'rgb(25, 25, 25)';
-        theme.fixedRowBackgroundColor = 'rgb(223, 227, 232)';
-        theme.fixedRowFGSelColor = 'rgb(25, 25, 25)';
-        theme.fixedRowBGSelColor = 'rgb(255, 220, 97)';
+            backgroundColor2: 'rgb(201, 201, 201)',
+            lineColor: 'rgb(199, 199, 199)',
+            voffset: 0,
+            scrollbarHover: 'visible',
 
-        theme.backgroundColor2 = 'rgb(201, 201, 201)';
-        theme.lineColor = 'rgb(199, 199, 199)';
-        theme.hoffset = 0;
-        theme.voffset = 0;
-        theme.scrollbarHover = 'visible';
+            //these are constants
 
-        return theme;
+            fixedRowAlign: 'center',
+            fixedColAlign: 'center',
+            cellPadding: 5,
+            columnWidth: 100,
+            repaintIntervalRate: 15,
+            gridLinesH: true,
+            gridLinesV: true,
+            defaultRowHeight: 20,
+            defaultFixedRowHeight: 20
+        };
+        return properties;
     };
 
     var buildPolymerTheme = function() {
@@ -27874,7 +28053,6 @@ fin-vampire-bar {
         var h = window.getComputedStyle(document.querySelector('html'));
         var hb = window.getComputedStyle(document.querySelector('html, body'));
         var s = window.getComputedStyle(section);
-
 
         polymerTheme.fixedRowBackgroundColor = p.color;
         polymerTheme.fixedColumnBackgroundColor = p.color;
@@ -27908,7 +28086,7 @@ fin-vampire-bar {
         polymerTheme.fixedColumnFGSelColor = p.color;
         polymerTheme.fixedColumnBGSelColor = p.backgroundColor;
 
-        //check if there is actuall a theme loaded if not, clear out all bogus values
+        //check if there is actually a theme loaded if not, clear out all bogus values
         //from my cache
         if (polymerTheme.fixedRowBGSelColor === 'rgba(0, 0, 0, 0)') {
             clearObjectProperties(polymerTheme);
@@ -27926,17 +28104,13 @@ fin-vampire-bar {
         }
     };
 
-    var constants, defaults, polymerTheme, globalProperties;
+    var defaults, polymerTheme, globalProperties;
 
-    var initializeGlobals = function() {
-        constants = document.createElement('fin-hypergrid-constants').values;
-        defaults = defaultProperties(constants);
+    (function() {
+        defaults = defaultProperties();
         polymerTheme = Object.create(defaults);
         globalProperties = Object.create(polymerTheme);
-
-        buildPolymerTheme();
-        initializeBasicCellEditors();
-    };
+    })();
 
     Polymer('fin-hypergrid',{ /* jslint ignore:line */
 
@@ -28007,14 +28181,6 @@ fin-vampire-bar {
          * @type fin-rectange
          */
         rectangles: null,
-
-        /**
-         * constants holds a [fin-constants](index.html#fin-hypergrid-constants) polymer-element singleton of constant values
-         *
-         * @property constants
-         * @type fin-hypergrid-constants
-         */
-        constants: null,
 
         /**
          * selectionModel is a [fin-hypergrid-selection-model](index.html#fin-hypergrid-selection-model) instance
@@ -28129,16 +28295,16 @@ fin-vampire-bar {
 
         domReady: function() {
 
-            if (!constants) {
-                initializeGlobals();
+            if (!propertiesInitialized) {
+                propertiesInitialized = true;
+                buildPolymerTheme();
+                initializeBasicCellEditors();
             }
 
             var self = this;
             rectangles = rectangles || document.createElement('fin-rectangle');
-            constants = constants || document.createElement('fin-hypergrid-constants').values;
 
             this.rectangles = rectangles;
-            this.constants = constants;
 
             this.lnfProperties = Object.create(globalProperties);
 
@@ -28656,9 +28822,9 @@ fin-vampire-bar {
         initCanvas: function() {
 
             var self = this;
+            var interval = this.resolveProperty('repaintIntervalRate');
             this.canvas = this.shadowRoot.querySelector('fin-canvas');
-
-            this.canvas.setAttribute('fps', constants.repaintIntervalRate || 15);
+            this.canvas.setAttribute('fps', interval || 15);
 
             //this.shadowRoot.appendChild(domCanvas);
 
