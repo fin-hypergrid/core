@@ -109,32 +109,33 @@ Hypergrid comes with several default cell editors you can easily select, and the
 Many of the hypergrid default values and properties can be set through property overriding functions
 ```addGlobalProperties``` and ```addProperties```.  The current list is.
 
-property|values|description
+property|values/examles|description
 --------|------|-----------
-font|13px Tahoma, Geneva, sans-serif|The default font for main table area
-color|rgb(25, 25, 25)|The main foreground color
-backgroundColor|rgb(241, 241, 241)|The main background color
-foregroundSelColor|rgb(25, 25, 25)|Foreground Selection Color
-backgroundSelColor|rgb(183, 219, 255),|Background Selection Color
-topLeftFont|14px Tahoma, Geneva, sans-serif|Top Left Area Font
-topLeftColor|rgb(25, 25, 25)|Top Left Area Foreground Color
-topLeftBackgroundColor|rgb(223, 227, 232)|Top Left Area Background Color
-topLeftFGSelColor|rgb(25, 25, 25)|Top Left Area Foreground Selection Color
-topLeftBGSelColor|rgb(255, 220, 97),|Top Left Area Background Selection Color
-fixedColumnFont|14px Tahoma, Geneva, sans-serif|Fixed Column Area default Font
-fixedColumnColor|rgb(25, 25, 25)|Fixed Column Area Foreground Color
-fixedColumnBackgroundColor|rgb(223, 227, 232)|Fixed Column Area Background Color
-fixedColumnFGSelColor|rgb(25, 25, 25)|Fixed Column Area Foreground Selection Color
-fixedColumnBGSelColor|rgb(255, 220, 97),|Fixed Column Area Background Selection Color
-fixedRowFont|14px Tahoma, Geneva, sans-serif|Fixed Row Area Font
-fixedRowColor|rgb(25, 25, 25)|Fixed Row Area Foreground Color
-fixedRowBackgroundColor|rgb(223, 227, 232)|Fixed Row Area Background Color
-fixedRowFGSelColor|rgb(25, 25, 25)|Fixed Row Area Foreground Selection Color
-fixedRowBGSelColor|rgb(255, 220, 97),|Fixed Row Area Background Selection Color
-backgroundColor2|rgb(201, 201, 201)|Secondary Background Color
-lineColor|rgb(199, 199, 199)|Grid Lines Color
-voffset|0|Offset from top of all text
-scrollbarHover|visible/hidden|shadow class name on hover
+font|13px Tahoma, Geneva, sans-serif, italic, bold|the default font for main table area
+color|rgb(25, 25, 25)|the main foreground color
+backgroundColor|rgb(241, 241, 241)|the main background color
+foregroundSelColor|rgb(25, 25, 25)|foreground selection Color
+backgroundSelColor|rgb(183, 219, 255),|background selection color
+topLeftFont|14px Tahoma, Geneva, sans-serif|top left area font
+topLeftColor|rgb(25, 25, 25)|top left area foreground color
+topLeftBackgroundColor|rgb(223, 227, 232)|top left area background color
+topLeftFGSelColor|rgb(25, 25, 25)|top left area foreground selection color
+topLeftBGSelColor|rgb(255, 220, 97),|top left area background selection color
+fixedColumnFont|14px Tahoma, Geneva, sans-serif|fixed column area default font
+fixedColumnColor|rgb(25, 25, 25)|fixed column area foreground color
+fixedColumnBackgroundColor|rgb(223, 227, 232)|fixed column area background color
+fixedColumnFGSelColor|rgb(25, 25, 25)|fixed column area foreground selection color
+fixedColumnBGSelColor|rgb(255, 220, 97),|fixed column area background selection color
+fixedRowFont|14px Tahoma, Geneva, sans-serif|fixed row area font
+fixedRowColor|rgb(25, 25, 25)|fixed row area foreground color
+fixedRowBackgroundColor|rgb(223, 227, 232)|fixed row area background color
+fixedRowFGSelColor|rgb(25, 25, 25)|fixed row area foreground selection color
+fixedRowBGSelColor|rgb(255, 220, 97),|fixed row area background selection color
+backgroundColor2|rgb(201, 201, 201)|secondary background color
+lineColor|rgb(199, 199, 199)|grid lines color
+voffset|0|offset from top of all text
+scrollbarHoverOver|visible/hidden|shadow class name on hover over
+scrollbarHoverOff|visible/hidden|shadow class name on hover off
 scrollingEnabled|true/false|enable/disable scrolling
 fixedRowAlign|left/center/right|fixed row area text alignment
 fixedColAlign|left/center/right|fixed column area text alignment
@@ -177,7 +178,9 @@ defaultFixedColumnWidth|100|the default column width of the fixed column area
         backgroundColor2: '#303030',
         lineColor: '#707070',
         voffset: 0,
-        scrollingEnabled: false,
+        scrollbarHoverOver: 'visible',
+        scrollbarHoverOff: 'visible',
+        scrollingEnabled: true,
 
         defaultRowHeight: 20,
         defaultFixedRowHeight: 20,
@@ -320,6 +323,7 @@ https://exceldna.codeplex.com/documentation
 http://nodejs.org/download/
 
 ## Road Map
+* Page up/down buttons
 * Column autosizing
 * events should work for mobile
 * add filter support

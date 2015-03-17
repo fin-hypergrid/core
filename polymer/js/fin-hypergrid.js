@@ -55,7 +55,8 @@
             backgroundColor2: 'rgb(201, 201, 201)',
             lineColor: 'rgb(199, 199, 199)',
             voffset: 0,
-            scrollbarHover: 'visible',
+            scrollbarHoverOver: 'visible',
+            scrollbarHoverOff: 'hidden',
             scrollingEnabled: true,
 
             //these used to be in the constants element
@@ -1448,6 +1449,35 @@
                 }
             });
             this.dispatchEvent(event);
+
+            //make the scrollbars show up
+            var self = this;
+            self.lastScrollTime = Date.now();
+            var hoverClassOver = self.resolveProperty('scrollbarHoverOver');
+            var hoverClassOff = self.resolveProperty('scrollbarHoverOff');
+            if (!self.resolveProperty('scrollingEnabled')) {
+                hoverClassOver = 'hidden';
+                hoverClassOff = 'hidden';
+            }
+            if (type === 'fin-scroll-x') {
+                self.sbHScroller.classList.add(hoverClassOver);
+                self.sbHScroller.classList.remove(hoverClassOff);
+                setTimeout(function() {
+                    if (!self.sbMouseIsDown && !self.scrollBarHasMouse && Date.now() - self.lastScrollTime > 100) {
+                        self.sbHScroller.classList.remove(hoverClassOver);
+                        self.sbHScroller.classList.add(hoverClassOff);
+                    }
+                }, 700);
+            } else {
+                self.sbVScroller.classList.add(hoverClassOver);
+                self.sbVScroller.classList.remove(hoverClassOff);
+                setTimeout(function() {
+                    if (!self.sbMouseIsDown && !self.scrollBarHasMouse && Date.now() - self.lastScrollTime > 100) {
+                        self.sbVScroller.classList.remove(hoverClassOver);
+                        self.sbVScroller.classList.add(hoverClassOff);
+                    }
+                }, 700);
+            }
         },
         /**
          *                                                                      .
@@ -1590,11 +1620,14 @@
             this.sbHScroller.onmouseover = function(event) {
                 noop(event);
                 self.isScrollButtonClick = false;
-                var hoverClass = self.resolveProperty('scrollbarHover');
+                var hoverClassOver = self.resolveProperty('scrollbarHoverOver');
+                var hoverClassOff = self.resolveProperty('scrollbarHoverOff');
                 if (!self.resolveProperty('scrollingEnabled')) {
-                    hoverClass = 'hidden';
+                    hoverClassOver = 'hidden';
+                    hoverClassOff = 'hidden';
                 }
-                self.sbHScroller.classList.add(hoverClass);
+                self.sbHScroller.classList.add(hoverClassOver);
+                self.sbHScroller.classList.remove(hoverClassOff);
             };
 
             this.sbHScroller.onmouseout = function(event) {
@@ -1602,11 +1635,14 @@
                 if (self.sbMouseIsDown) {
                     return;
                 } else {
-                    var hoverClass = self.resolveProperty('scrollbarHover');
+                    var hoverClassOver = self.resolveProperty('scrollbarHoverOver');
+                    var hoverClassOff = self.resolveProperty('scrollbarHoverOff');
                     if (!self.resolveProperty('scrollingEnabled')) {
-                        hoverClass = 'hidden';
+                        hoverClassOver = 'hidden';
+                        hoverClassOff = 'hidden';
                     }
-                    self.sbHScroller.classList.remove(hoverClass);
+                    self.sbHScroller.classList.remove(hoverClassOver);
+                    self.sbHScroller.classList.add(hoverClassOff);
                 }
             };
 
@@ -1614,11 +1650,14 @@
             this.sbVScroller.onmouseover = function(event) {
                 noop(event);
                 self.isScrollButtonClick = false;
-                var hoverClass = self.resolveProperty('scrollbarHover');
+                var hoverClassOver = self.resolveProperty('scrollbarHoverOver');
+                var hoverClassOff = self.resolveProperty('scrollbarHoverOff');
                 if (!self.resolveProperty('scrollingEnabled')) {
-                    hoverClass = 'hidden';
+                    hoverClassOver = 'hidden';
+                    hoverClassOff = 'hidden';
                 }
-                self.sbVScroller.classList.add(hoverClass);
+                self.sbVScroller.classList.add(hoverClassOver);
+                self.sbVScroller.classList.remove(hoverClassOff);
             };
 
             this.sbVScroller.onmouseout = function(event) {
@@ -1626,11 +1665,14 @@
                 if (self.sbMouseIsDown) {
                     return;
                 } else {
-                    var hoverClass = self.resolveProperty('scrollbarHover');
+                    var hoverClassOver = self.resolveProperty('scrollbarHoverOver');
+                    var hoverClassOff = self.resolveProperty('scrollbarHoverOff');
                     if (!self.resolveProperty('scrollingEnabled')) {
-                        hoverClass = 'hidden';
+                        hoverClassOver = 'hidden';
+                        hoverClassOff = 'hidden';
                     }
-                    self.sbVScroller.classList.remove(hoverClass);
+                    self.sbVScroller.classList.remove(hoverClassOver);
+                    self.sbVScroller.classList.add(hoverClassOff);
                 }
             };
 
@@ -1675,9 +1717,18 @@
                 var x = e.x || e.clientX;
                 var y = e.y || e.clientY;
                 var elementAt = self.shadowRoot.elementFromPoint(x, y);
-                if (!(elementAt === self.sbVScroller || elementAt === self.sbHScroller)) {
-                    self.sbVScroller.classList.remove(self.resolveProperty('scrollbarHover'));
-                    self.sbHScroller.classList.remove(self.resolveProperty('scrollbarHover'));
+                self.scrollBarHasMouse = (elementAt === self.sbVScroller || elementAt === self.sbHScroller);
+                if (!self.scrollBarHasMouse) {
+                    var hoverClassOver = self.resolveProperty('scrollbarHoverOver');
+                    var hoverClassOff = self.resolveProperty('scrollbarHoverOff');
+                    if (!self.resolveProperty('scrollingEnabled')) {
+                        hoverClassOver = 'hidden';
+                        hoverClassOff = 'hidden';
+                    }
+                    self.sbVScroller.classList.add(hoverClassOff);
+                    self.sbHScroller.classList.add(hoverClassOff);
+                    self.sbVScroller.classList.remove(hoverClassOver);
+                    self.sbHScroller.classList.remove(hoverClassOver);
                 }
             });
 
