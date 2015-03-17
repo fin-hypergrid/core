@@ -62,7 +62,6 @@
             fixedRowAlign: 'center',
             fixedColAlign: 'center',
             cellPadding: 5,
-            columnWidth: 100,
             repaintIntervalRate: 15,
             gridLinesH: true,
             gridLinesV: true,

@@ -38,7 +38,7 @@ If you just want to see Hypergrid working you can run the [Hypergrid Openfin Ins
 The following instructions and project structure is based on the google polymer team best practices for developement of polymer/web-components applications and elements.  It is further documented [here](https://www.polymer-project.org/docs/start/reusableelements.html).
 
 ## Deploy your app with fin-hypergrid
-The only file that is necessary to deploy the hypergrid is the webcomponent html file, fin-hypergrid.min.html which is a [vulcanzed](https://www.polymer-project.org/articles/concatenating-web-components.html) conglomeration of all code and dependencies required by fin-hypergrid.  This file must be imported according to the webcomponents specification.  If you are targeting non webcomponent compliant browsers you will also need the webcomponents.js polyfill found within the polymer project.  An example of this is found [here](https://github.com/openfin/example-fin-hypergrid-behavior-json).  The webcomponents.js file is not necessary if your target platform is a webcomponents compatible browser.  As chrome is currently the only one, we suggest you include this polyfil.  
+The only file that is necessary to deploy the hypergrid is the webcomponent html file, fin-hypergrid.min.html which is a [vulcanized](https://www.polymer-project.org/articles/concatenating-web-components.html) conglomeration of all code and dependencies required by fin-hypergrid.  This file must be imported according to the webcomponents specification.  If you are targeting non webcomponent compliant browsers you will also need the webcomponents.js polyfill found within the polymer project.  An example of this is found [here](https://github.com/openfin/example-fin-hypergrid-behavior-json).  The webcomponents.js file is not necessary if your target platform is a webcomponents compatible browser.  As chrome is currently the only one, we suggest you include this polyfil.  
 
 1. This setup has been tested and works, if you have problems you most likely have security restrictions or proxy issues.  You may need to use sudo for npm and bower installs. Make sure you have internet access, node/npm, grunt-cli, and bower installed and working properly on your machine.
     1. [node installation](http://nodejs.org/download/)
@@ -101,6 +101,97 @@ Hypergrid comes with several default cell editors you can easily select, and the
 <br><img src="images/spinner.png" alt="screenshot">
 * [textfield](http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/#fin-hypergrid-cell-editor-textfield)
 <br><img src="images/textfield.png" alt="screenshot">
+
+# Hypergrid configuration
+
+## Modifying various hypergrid features and property defaults
+Many of the hypergrid default values and properties can be set through property overriding functions
+```addGlobalProperties``` and ```addProperties```.  The current list is.
+
+property|values|description
+---------------------------
+font|13px Tahoma, Geneva, sans-serif|The default font for main table area
+color|rgb(25, 25, 25)|The main foreground color
+backgroundColor|rgb(241, 241, 241)|The main background color
+foregroundSelColor|rgb(25, 25, 25)|Foreground Selection Color
+backgroundSelColor|rgb(183, 219, 255),|Background Selection Color
+topLeftFont|14px Tahoma, Geneva, sans-serif|Top Left Area Font
+topLeftColor|rgb(25, 25, 25)|Top Left Area Foreground Color
+topLeftBackgroundColor|rgb(223, 227, 232)|Top Left Area Background Color
+topLeftFGSelColor|rgb(25, 25, 25)|Top Left Area Foreground Selection Color
+topLeftBGSelColor|rgb(255, 220, 97),|Top Left Area Background Selection Color
+fixedColumnFont|14px Tahoma, Geneva, sans-serif|Fixed Column Area default Font
+fixedColumnColor|rgb(25, 25, 25)|Fixed Column Area Foreground Color
+fixedColumnBackgroundColor|rgb(223, 227, 232)|Fixed Column Area Background Color
+fixedColumnFGSelColor|rgb(25, 25, 25)|Fixed Column Area Foreground Selection Color
+fixedColumnBGSelColor|rgb(255, 220, 97),|Fixed Column Area Background Selection Color
+fixedRowFont|14px Tahoma, Geneva, sans-serif|Fixed Row Area Font
+fixedRowColor|rgb(25, 25, 25)|Fixed Row Area Foreground Color
+fixedRowBackgroundColor|rgb(223, 227, 232)|Fixed Row Area Background Color
+fixedRowFGSelColor|rgb(25, 25, 25)|Fixed Row Area Foreground Selection Color
+fixedRowBGSelColor|rgb(255, 220, 97),|Fixed Row Area Background Selection Color
+backgroundColor2|rgb(201, 201, 201)|Secondary Background Color
+lineColor|rgb(199, 199, 199)|Grid Lines Color
+voffset|0|Offset from top of all text
+scrollbarHover|visible/hidden|shadow class name on hover
+scrollingEnabled|true/false|enable/disable scrolling
+fixedRowAlign|left/center/right|fixed row area text alignment
+fixedColAlign|left/center/right|fixed column area text alignment
+cellPadding|5|left and right padding around text inside the cells
+repaintIntervalRate|15|how often the canvas checks for a dirty paint state
+gridLinesH|true/false|draw the horizontal grid lines
+gridLinesV|true/false|draw the vertical grid lines
+defaultRowHeight|20|the default row height in pixels
+defaultFixedRowHeight|20|the default row height in pixels of the fixed row area
+defaultColumnWidth|100|the default column width
+defaultFixedColumnWidth|100|the default column width of the fixed column area
+
+## example usage
+```
+    var lnfOverrides = {
+        font: '13px Tahoma, Geneva, sans-serif',
+        color: '#ffffff',
+        backgroundColor: '#505050',
+        foregroundSelColor: 'rgb(25, 25, 25)',
+        backgroundSelColor: 'rgb(183, 219, 255)',
+
+        topLeftFont: '14px Tahoma, Geneva, sans-serif',
+        topLeftColor: 'rgb(25, 25, 25)',
+        topLeftBackgroundColor: 'rgb(223, 227, 232)',
+        topLeftFGSelColor: 'rgb(25, 25, 25)',
+        topLeftBGSelColor: 'rgb(255, 220, 97)',
+
+        fixedColumnFont: '14px Tahoma, Geneva, sans-serif',
+        fixedColumnColor: 'rgb(25, 25, 25)',
+        fixedColumnBackgroundColor: 'rgb(223, 227, 232)',
+        fixedColumnFGSelColor: 'rgb(25, 25, 25)',
+        fixedColumnBGSelColor: 'rgb(255, 220, 97)',
+
+        fixedRowFont: '11px Tahoma, Geneva, sans-serif',
+        fixedRowColor: '#ffffff',
+        fixedRowBackgroundColor: '#303030',
+        fixedRowFGSelColor: 'rgb(25, 25, 25)',
+        fixedRowBGSelColor: 'rgb(255, 220, 97)',
+
+        backgroundColor2: '#303030',
+        lineColor: '#707070',
+        voffset: 0,
+        scrollingEnabled: false,
+
+        defaultRowHeight: 20,
+        defaultFixedRowHeight: 20,
+        defaultColumnWidth: 100,
+        defaultFixedColumnWidth: 100
+    };
+
+    var table = document.querySelector('#myHypergrid');
+
+    //to apply to a specific table
+    table.addProperties(lnfOverrides);
+
+    //to apply for all tables
+    //table.addGlobalProperties(lnfOverrides);
+```
 
 # JSON behavior
 
@@ -229,28 +320,33 @@ http://nodejs.org/download/
 
 ## Road Map
 * Column autosizing
-* Fix live reload on file change edge conditions
-* refactor column selection feature to other behaviors
-* rafactor features to be self contained/column selector
-* have column dnd shift columns, not swap
+* events should work for mobile
 * add filter support
-* fix mouse event locations when zoomed
-* fix events to work well with mobile
-* fix scrollbar/scrolled mouse events are broken
+* add filtering
 * local storage for layout values
 * add ink effects
 * Test suite for all components and upstream dependency projects
 * Continued bug-fixing, refactoring, documentation and cleanup of the existing code base
-* GridBehaviors for other data sources
 * Hover event support
 * Tooltip support
 * context menu support
 * Layer abstraction
-* Continue adding features
 * Move to gulp
-* add filtering
-* add column selection/reordering to all behaviors
 * refactor behaviors to controller-chain and model
+* instant edit
+* support expandable sub-content
+* tree-table support
+* move this todo to github issues
+
+-- done --
+* add column selection/reordering to all behaviors
+* Fix live reload on file change edge conditions
+* GridBehaviors for other data sources
+* fix mouse event locations when zoomed
+* fix scrollbar/scrolled mouse events are broken
+* fix events to work well with mobile
+* refactor column selection feature to other behaviors
+* rafactor features to be self contained/column selector
 
 ## Feature List
 * High performant canvas based
