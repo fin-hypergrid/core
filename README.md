@@ -109,7 +109,7 @@ Many of the hypergrid default values and properties can be set through property 
 ```addGlobalProperties``` and ```addProperties```.  The current list is.
 
 property|values|description
----------------------------
+--------|------|-----------
 font|13px Tahoma, Geneva, sans-serif|The default font for main table area
 color|rgb(25, 25, 25)|The main foreground color
 backgroundColor|rgb(241, 241, 241)|The main background color
