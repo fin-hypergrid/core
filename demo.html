@@ -299,6 +299,17 @@
     (function() {
         document.addEventListener('polymer-ready', function() {
 
+            //get ahold of our in memory example
+            var inMemoryGrid = document.querySelector('#in-memory-example');
+
+            //lets turn his scrollbars to always on....
+            var lnfOverrides = {
+                scrollbarHoverOver: 'visible',
+                scrollbarHoverOff: 'visible',
+                scrollingEnabled: true
+            };
+            inMemoryGrid.addProperties(lnfOverrides);
+
             //get ahold of our q grid example
             var qGrid = document.querySelector('#q-example');
 

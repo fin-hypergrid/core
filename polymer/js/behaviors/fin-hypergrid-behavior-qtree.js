@@ -377,7 +377,7 @@
             if (y > 0) {
                 return this.getColumnAlignment(x);
             }
-            return this.resolve('fixedRowAlign');
+            return this.resolveProperty('fixedRowAlign');
         },
         //delegate column alignment through the map at the top based on the column type
         getColumnAlignment: function(x) {
@@ -512,12 +512,7 @@
         handleMessage: function(d) {
             this.block = d;
 
-            if (d.rows !== this.block.N - 1) {
-                if (this.sizeChanged) {
-                    this.sizeChanged();
-                }
-            }
-            if (!this.columnIndexes || this.columnIndexes.length === 0) {
+            if (!this.tableState.columnIndexes || this.tableState.columnIndexes.length === 0) {
                 this.initColumnIndexes();
             }
             this.changed();

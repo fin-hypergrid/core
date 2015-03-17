@@ -21175,6 +21175,9 @@ div.container {
 
 
 
+
+
+
 </style>
   </template>
   <script>//HypergridRenderer is the canvas enabled top level sub component that handles the renderering of the Grid.
@@ -21932,6 +21935,9 @@ var config = {};
 
 
 
+
+
+
 </style>
   </template>
   <script>'use strict';
@@ -22019,6 +22025,9 @@ var config = {};
     display: block;
     position: relative;
 }
+
+
+
 
 
 
@@ -22223,6 +22232,9 @@ var config = {};
 
 
 
+
+
+
 </style>
   </template>
   <script>(function() {
@@ -22354,6 +22366,9 @@ var config = {};
     display: block;
     position: relative;
 }
+
+
+
 
 
 
@@ -22668,6 +22683,9 @@ var noop = function() {};
     display: block;
     position: relative;
 }
+
+
+
 
 
 
@@ -23259,6 +23277,9 @@ var noop = function() {};
 
 
 
+
+
+
 </style>
   </template>
   <script>(function() {
@@ -23426,6 +23447,9 @@ var noop = function() {};
 
 
 
+
+
+
 </style>
   </template>
   <script>(function() {
@@ -23461,6 +23485,9 @@ var noop = function() {};
     display: block;
     position: relative;
 }
+
+
+
 
 
 
@@ -23582,6 +23609,9 @@ var noop = function() {};
 
 
 
+
+
+
 </style>
   </template>
   <script>(function() {
@@ -23625,6 +23655,9 @@ var noop = function() {};
     display: block;
     position: relative;
 }
+
+
+
 
 
 
@@ -23831,6 +23864,9 @@ var noop = function() {};
     display: block;
     position: relative;
 }
+
+
+
 
 
 
@@ -24403,6 +24439,9 @@ var noop = function() {};
 
 
 
+
+
+
 </style>
   </template>
   <script>(function() {
@@ -24476,6 +24515,9 @@ var noop = function() {};
     display: block;
     position: relative;
 }
+
+
+
 
 
 
@@ -25156,6 +25198,9 @@ var noop = function() {};
 
 
 
+
+
+
 </style>
   </template>
   <script>/*jshint  bitwise: false */
@@ -25454,6 +25499,9 @@ var noop = function() {};
     display: block;
     position: relative;
 }
+
+
+
 
 
 
@@ -26002,6 +26050,9 @@ var noop = function() {};
 
 
 
+
+
+
 </style>
   </template>
   <script>/*jshint  bitwise: false */
@@ -26500,6 +26551,9 @@ window.dualPivotQuickSort = (function() {
 
 
 
+
+
+
 </style>
   </template>
   <script>'use strict';
@@ -26788,6 +26842,9 @@ window.dualPivotQuickSort = (function() {
     display: block;
     position: relative;
 }
+
+
+
 
 
 
@@ -27215,7 +27272,7 @@ window.dualPivotQuickSort = (function() {
             if (y > 0) {
                 return this.getColumnAlignment(x);
             }
-            return this.resolve('fixedRowAlign');
+            return this.resolveProperty('fixedRowAlign');
         },
         //delegate column alignment through the map at the top based on the column type
         getColumnAlignment: function(x) {
@@ -27350,12 +27407,7 @@ window.dualPivotQuickSort = (function() {
         handleMessage: function(d) {
             this.block = d;
 
-            if (d.rows !== this.block.N - 1) {
-                if (this.sizeChanged) {
-                    this.sizeChanged();
-                }
-            }
-            if (!this.columnIndexes || this.columnIndexes.length === 0) {
+            if (!this.tableState.columnIndexes || this.tableState.columnIndexes.length === 0) {
                 this.initColumnIndexes();
             }
             this.changed();
@@ -27430,6 +27482,9 @@ window.dualPivotQuickSort = (function() {
     display: block;
     position: relative;
 }
+
+
+
 
 
 
@@ -27662,6 +27717,9 @@ window.dualPivotQuickSort = (function() {
 
 
 
+
+
+
 </style>
     <div id="editor"></div>
   </template>
@@ -27794,6 +27852,9 @@ window.dualPivotQuickSort = (function() {
 
 
 
+
+
+
 </style>
     <input id="editor">
   </template>
@@ -27817,6 +27878,9 @@ window.dualPivotQuickSort = (function() {
     display: block;
     position: relative;
 }
+
+
+
 
 
 
@@ -27935,6 +27999,9 @@ window.dualPivotQuickSort = (function() {
 
 
 
+
+
+
 </style>
     <input id="editor" type="color">
   </template>
@@ -27955,6 +28022,9 @@ window.dualPivotQuickSort = (function() {
     display: block;
     position: relative;
 }
+
+
+
 
 
 
@@ -28067,6 +28137,9 @@ window.dualPivotQuickSort = (function() {
 
 
 
+
+
+
 </style>
     <input id="editor" type="range">
   </template>
@@ -28087,6 +28160,9 @@ window.dualPivotQuickSort = (function() {
     display: block;
     position: relative;
 }
+
+
+
 
 
 
@@ -28219,6 +28295,9 @@ fin-vampire-bar {
 fin-vampire-bar {
     z-index: 10;
 }
+
+
+
 
 
 
@@ -29737,8 +29816,8 @@ fin-vampire-bar {
                 hoverClassOff = 'hidden';
             }
             if (type === 'fin-scroll-x') {
-                self.sbHScroller.classList.add(hoverClassOver);
                 self.sbHScroller.classList.remove(hoverClassOff);
+                self.sbHScroller.classList.add(hoverClassOver);
                 setTimeout(function() {
                     if (!self.sbMouseIsDown && !self.scrollBarHasMouse && Date.now() - self.lastScrollTime > 100) {
                         self.sbHScroller.classList.remove(hoverClassOver);
@@ -29746,8 +29825,8 @@ fin-vampire-bar {
                     }
                 }, 700);
             } else {
-                self.sbVScroller.classList.add(hoverClassOver);
                 self.sbVScroller.classList.remove(hoverClassOff);
+                self.sbVScroller.classList.add(hoverClassOver);
                 setTimeout(function() {
                     if (!self.sbMouseIsDown && !self.scrollBarHasMouse && Date.now() - self.lastScrollTime > 100) {
                         self.sbVScroller.classList.remove(hoverClassOver);
@@ -29903,8 +29982,8 @@ fin-vampire-bar {
                     hoverClassOver = 'hidden';
                     hoverClassOff = 'hidden';
                 }
-                self.sbHScroller.classList.add(hoverClassOver);
                 self.sbHScroller.classList.remove(hoverClassOff);
+                self.sbHScroller.classList.add(hoverClassOver);
             };
 
             this.sbHScroller.onmouseout = function(event) {
@@ -29933,8 +30012,8 @@ fin-vampire-bar {
                     hoverClassOver = 'hidden';
                     hoverClassOff = 'hidden';
                 }
-                self.sbVScroller.classList.add(hoverClassOver);
                 self.sbVScroller.classList.remove(hoverClassOff);
+                self.sbVScroller.classList.add(hoverClassOver);
             };
 
             this.sbVScroller.onmouseout = function(event) {
@@ -30002,10 +30081,10 @@ fin-vampire-bar {
                         hoverClassOver = 'hidden';
                         hoverClassOff = 'hidden';
                     }
-                    self.sbVScroller.classList.add(hoverClassOff);
-                    self.sbHScroller.classList.add(hoverClassOff);
                     self.sbVScroller.classList.remove(hoverClassOver);
                     self.sbHScroller.classList.remove(hoverClassOver);
+                    self.sbVScroller.classList.add(hoverClassOff);
+                    self.sbHScroller.classList.add(hoverClassOff);
                 }
             });
 

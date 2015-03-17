@@ -1460,8 +1460,8 @@
                 hoverClassOff = 'hidden';
             }
             if (type === 'fin-scroll-x') {
-                self.sbHScroller.classList.add(hoverClassOver);
                 self.sbHScroller.classList.remove(hoverClassOff);
+                self.sbHScroller.classList.add(hoverClassOver);
                 setTimeout(function() {
                     if (!self.sbMouseIsDown && !self.scrollBarHasMouse && Date.now() - self.lastScrollTime > 100) {
                         self.sbHScroller.classList.remove(hoverClassOver);
@@ -1469,8 +1469,8 @@
                     }
                 }, 700);
             } else {
-                self.sbVScroller.classList.add(hoverClassOver);
                 self.sbVScroller.classList.remove(hoverClassOff);
+                self.sbVScroller.classList.add(hoverClassOver);
                 setTimeout(function() {
                     if (!self.sbMouseIsDown && !self.scrollBarHasMouse && Date.now() - self.lastScrollTime > 100) {
                         self.sbVScroller.classList.remove(hoverClassOver);
@@ -1626,8 +1626,8 @@
                     hoverClassOver = 'hidden';
                     hoverClassOff = 'hidden';
                 }
-                self.sbHScroller.classList.add(hoverClassOver);
                 self.sbHScroller.classList.remove(hoverClassOff);
+                self.sbHScroller.classList.add(hoverClassOver);
             };
 
             this.sbHScroller.onmouseout = function(event) {
@@ -1656,8 +1656,8 @@
                     hoverClassOver = 'hidden';
                     hoverClassOff = 'hidden';
                 }
-                self.sbVScroller.classList.add(hoverClassOver);
                 self.sbVScroller.classList.remove(hoverClassOff);
+                self.sbVScroller.classList.add(hoverClassOver);
             };
 
             this.sbVScroller.onmouseout = function(event) {
@@ -1725,10 +1725,10 @@
                         hoverClassOver = 'hidden';
                         hoverClassOff = 'hidden';
                     }
-                    self.sbVScroller.classList.add(hoverClassOff);
-                    self.sbHScroller.classList.add(hoverClassOff);
                     self.sbVScroller.classList.remove(hoverClassOver);
                     self.sbHScroller.classList.remove(hoverClassOver);
+                    self.sbVScroller.classList.add(hoverClassOff);
+                    self.sbHScroller.classList.add(hoverClassOff);
                 }
             });
 
