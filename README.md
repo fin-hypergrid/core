@@ -325,10 +325,10 @@ http://nodejs.org/download/
 ## Road Map
 * Page up/down buttons
 * Column autosizing
-* events should work for mobile
 * add filter support
-* add filtering
+* add grouping
 * local storage for layout values
+* events should work for mobile
 * add ink effects
 * Test suite for all components and upstream dependency projects
 * Continued bug-fixing, refactoring, documentation and cleanup of the existing code base
@@ -354,23 +354,36 @@ http://nodejs.org/download/
 * rafactor features to be self contained/column selector
 
 ## Feature List
-* High performant canvas based
-* Arbitrary row/col sizes
+* polymer web component based
+* material design compliant
+* high performant canvas based rendering
+* low cpu and memory usage
+* Arbitrary row/column sizes
+* Drag and Drop column resizing and animated reordering
+* Drag and Drop row resizing
+* Memento based table state retention
 * Data per cell can be anything (text, numerical, nested arrays, etc.)
 * Shape/size in both pixel and row/column count can change dynamically
 * Infinite scrolling row/col through external high performant data sources (see Q examples)
-* Copy to paste buffer selected cells (work in progress...)
+* Copy to paste buffer selected cells
 * Multi-rectangle based selection model
 * Mouse driven dragging selections
 * Shift/control selection augmentation
+* Arbitrary fixed columns and/or rows
+* configurable via passed in properties
+* polymer themes supported
 * Fast arrow key navigation
 * Non-linear accelerated vertical key navigation
 * Custom scrollbar implementation for infinite scroll of large data sets
 * Cell based scrolling (not pixel) 
 * Pluggable behavior based eventing
 * In place editing mechanism using html5 overlayed components
-* Simple Q-based GridBehavior example provided with 2 q scripts. 100MM example, and 1MM sortable example
+* Q\kdb+ GridBehavior examples provided. 
+    1. 100MM row example
+    2. 1MM row sortable example
+    3. 1MM row analytic tree/pivot table example
 * Simple in memory based GridBehavior example provided
+* JSON example
 * Easily customizable and extensible cell rendering
 * Npm/grunt-based full featured dev environment
-* ...
+

@@ -160,8 +160,8 @@
                         }
                     }
                     gc.strokeStyle = this.config.properties.lineColor;
-                    gc.moveTo(0, height - 0.5);
-                    gc.lineTo(width + 0, height - 0.5);
+                    // gc.moveTo(0, height - 0.5);
+                    // gc.lineTo(width + 0, height - 0.5);
                     gc.moveTo(0, height + 0.5);
                     gc.lineTo(width + 0, height + 0.5);
                     gc.stroke();
