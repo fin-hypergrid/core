@@ -121,9 +121,9 @@ window.dualPivotQuickSort = (function() {
     }
 
     function swap(indexVector, arr, i, j) {
-        var temp = arr[i];
-        arr[i] = arr[j];
-        arr[j] = temp;
+        var temp = indexVector[i];
+        indexVector[i] = indexVector[j];
+        indexVector[j] = temp;
     }
 
     function dualPivotQuicksort(indexVector, arr, left, right, div) {
@@ -131,7 +131,7 @@ window.dualPivotQuickSort = (function() {
 
         if (len < 27) { // insertion sort for tiny array
             for (var i = left + 1; i <= right; i++) {
-                for (var j = i; j > left && arr[j] < arr[j - 1]; j--) {
+                for (var j = i; j > left && arr[indexVector[j]] < arr[indexVector[j - 1]]; j--) {
                     swap(indexVector, arr, j, j - 1);
                 }
             }
@@ -149,7 +149,7 @@ window.dualPivotQuickSort = (function() {
         if (m2 >= right) {
             m2 = right - 1;
         }
-        if (arr[m1] < arr[m2]) {
+        if (arr[indexVector[m1]] < arr[indexVector[m2]]) {
             swap(indexVector, arr, m1, left);
             swap(indexVector, arr, m2, right);
         } else {
@@ -157,8 +157,8 @@ window.dualPivotQuickSort = (function() {
             swap(indexVector, arr, m2, left);
         }
         // pivots
-        var pivot1 = arr[left];
-        var pivot2 = arr[right];
+        var pivot1 = arr[indexVector[left]];
+        var pivot2 = arr[indexVector[right]];
 
         // pointers
         var less = left + 1;
@@ -166,15 +166,15 @@ window.dualPivotQuickSort = (function() {
         var k;
         // sorting
         for (k = less; k <= great; k++) {
-            if (arr[k] < pivot1) {
+            if (arr[indexVector[k]] < pivot1) {
                 swap(indexVector, arr, k, less++);
-            } else if (arr[k] > pivot2) {
+            } else if (arr[indexVector[k]] > pivot2) {
                 while (k < great && arr[great] > pivot2) {
                     great--;
                 }
                 swap(indexVector, arr, k, great--);
 
-                if (arr[k] < pivot1) {
+                if (arr[indexVector[k]] < pivot1) {
                     swap(indexVector, arr, k, less++);
                 }
             }
@@ -195,12 +195,12 @@ window.dualPivotQuickSort = (function() {
         // equal            var k;elements
         if (dist > len - 13 && pivot1 !== pivot2) {
             for (k = less; k <= great; k++) {
-                if (arr[k] === pivot1) {
+                if (arr[indexVector[k]] === pivot1) {
                     swap(indexVector, arr, k, less++);
-                } else if (arr[k] === pivot2) {
+                } else if (arr[indexVector[k]] === pivot2) {
                     swap(indexVector, arr, k, great--);
 
-                    if (arr[k] === pivot1) {
+                    if (arr[indexVector[k]] === pivot1) {
                         swap(indexVector, arr, k, less++);
                     }
                 }
@@ -214,13 +214,16 @@ window.dualPivotQuickSort = (function() {
     return dualPivotQS.sort;
 }());
 
-var SIZE = 1000;
+var SIZE = 3000000;
 var seed = 0;
 var firstNames = ['Olivia', 'Sophia', 'Ava', 'Isabella', 'Boy', 'Liam', 'Noah', 'Ethan', 'Mason', 'Logan', 'Moe', 'Larry', 'Curly', 'Shemp', 'Groucho', 'Harpo', 'Chico', 'Zeppo', 'Stanley', 'Hardy'];
 var lastNames = ['Wirts', 'Oneil', 'Smith', 'Barbarosa', 'Soprano', 'Gotti', 'Columbo', 'Luciano', 'Doerre', 'DePena'];
 var states = ['Alabama', 'Alaska', 'Arizona', 'Arkansas', 'California', 'Colorado', 'Connecticut', 'Delaware', 'Florida', 'Georgia', 'Hawaii', 'Idaho', 'Illinois', 'Indiana', 'Iowa', 'Kansas', 'Kentucky', 'Louisiana', 'Maine', 'Maryland', 'Massachusetts', 'Michigan', 'Minnesota', 'Mississippi', 'Missouri', 'Montana', 'Nebraska', 'Nevada', 'New Hampshire', 'New Jersey', 'New Mexico', 'New York', 'North Carolina', 'North Dakota', 'Ohio', 'Oklahoma', 'Oregon', 'Pennsylvania', 'Rhode Island', 'South Carolina', 'South Dakota', 'Tennessee', 'Texas', 'Utah', 'Vermont', 'Virginia', 'Washington', 'West Virginia', 'Wisconsin', 'Wyoming'];
+var months = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12'];
+var days = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '30'];
+
 var randomFunc = function() {
-    return Math.abs(Math.sin(seed++));
+    return (Math.sin(seed++) + 1) / 2;
 };
 var data = new Array(SIZE);
 var randomPerson = function() {
@@ -228,9 +231,6 @@ var randomPerson = function() {
     //var lastName = 'a' + randomFunc() + 'b';
     var lastName = Math.round((lastNames.length - 1) * randomFunc());
     var pets = Math.round(10 * randomFunc());
-    // var birthyear = 1900 + Math.round(randomFunc() * 114);
-    // var birthmonth = Math.round(randomFunc() * 11);
-    // var birthday = Math.round(randomFunc() * 29);
     var birthstate = Math.round(randomFunc() * 49);
     var residencestate = Math.round(randomFunc() * 49);
     var travel = Number.parseFloat((randomFunc() * 1000).toFixed(2));
@@ -241,6 +241,7 @@ var randomPerson = function() {
         firstName: firstNames[firstName],
         pets: pets,
         birthDate: new Date(randomFunc() * 1000),
+        randLabel: randomFunc() + '',
         birthState: states[birthstate],
         residenceState: states[residencestate],
         employed: employed === 1,
@@ -259,6 +260,7 @@ var fields = [
     'firstName',
     'pets',
     'birthDate',
+    'randLabel',
     'birthState',
     'residenceState',
     'employed',
@@ -273,13 +275,15 @@ var fields = [
 var finanalytics = function(data, fields) {
     noop(data, fields);
     var that = {};
-    var enumThreshold = 0.40;
+    var enumThresholdCount = 100000; // don't make an enum unless row count is over this
+    var enumThresholdPercent = 0.40; // don't make an enum unless unique values are less than this count of rows
     var initializers = {
         String: function(index, data, meta, value) {
             data[index] = value;
             meta.enum.add(value);
             meta.types.add('String');
             meta.sort = window.dualPivotQuickSort;
+            meta.label = 'dualPivotQuickSort';
         },
         Number: function(index, data, meta, value) {
             data[index] = value;
@@ -295,7 +299,6 @@ var finanalytics = function(data, fields) {
             data[index] = value.getTime();
             meta.enum.add(value);
             meta.types.add('Date');
-            meta.sort = window.dualPivotQuickSort;
         }
     };
     that.initialize = function() {
@@ -307,6 +310,7 @@ var finanalytics = function(data, fields) {
         for (i = 0; i < fields.length; i++) {
             that.data[i] = new Array(data.length);
             that.meta[i] = {
+                label: 'flashSort',
                 enum: new Set(),
                 sort: window.flashSort,
                 types: new Set(),
@@ -358,7 +362,9 @@ var finanalytics = function(data, fields) {
             each = that.meta[f];
 
             //lots of redundant data here, lets turn it into an enum
-            if (each.enum.size < enumThreshold * that.data[f].length) {
+            //if data is under enumCountThreshold count dont bother
+            //unique values need to be enumThresholdPercent size of the overall row count
+            if (that.data[f].length > enumThresholdCount && each.enum.size < enumThresholdPercent * that.data[f].length) {
                 console.log('enum ' + fields[f]);
                 var items = new Array(each.enum.size);
                 i = 0;
@@ -380,6 +386,7 @@ var finanalytics = function(data, fields) {
                 }; /* jshint ignore:line */
                 //now we can do a flash sort! super fast man!
                 each.sort = window.flashSort;
+                each.label = 'enum - flashSort';
             } else {
                 //clear out our enum counter
                 each.enum = null;
@@ -402,7 +409,7 @@ var finanalytics = function(data, fields) {
     that.sort = function(index) {
         var start = Date.now();
         that.meta[index].sort(that.index, that.data[index]);
-        console.log('sort first col', Date.now() - start);
+        console.log('sort ' + index + ' col', that.meta[index].label, Date.now() - start);
     };
     that.initialize();
     data = null;
@@ -414,4 +421,6 @@ var start = Date.now();
 var fa = finanalytics(data, fields);
 console.log('create', Date.now() - start);
 
-fa.sort(3);
+for (var f = 0; f < fields.length; f++) {
+    fa.sort(f);
+}
