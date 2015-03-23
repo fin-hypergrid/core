@@ -1,5 +1,4 @@
-
-<style>
+<st_yle>
     .hovertrigger {
         cursor: default;
     }
@@ -25,8 +24,7 @@
         -webkit-transform: scale(1.0,1.0); /* Chrome, Safari, Opera */
         transform: scale(1.0,1.0);
     }
-
-</style>
+</st_yle>
 
 #Hypergrid by OpenFin
 
@@ -84,6 +82,7 @@ The only file that is necessary to deploy the hypergrid is the webcomponent html
 ## Important notes
 1. Notice that bower installs many dependencies a level up from the fin-hypegrid project directory, this is the polymer way of developing custom elements.  The actual project directory IS fin-hypergrid, everything is done relative to this, it just needs to live in it's own containing developement directory.
 
+<a name="q-behavior"></a>
 ##Q by [kx](http://kx.com/) systems [demo](http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/demo.html) tabs (select either the 'Q' or 'Q Tree' tabs).
 1. The Q tabs will not be populated with data until you run a Q server script that is provided.
 2. Make sure q 32 bit free version is installed [Q free version](http://kx.com/software-download.php)
@@ -326,10 +325,12 @@ Hypergrid Excel Integration
 
 There is an example integration between the Hypergrid and Microsoft Excel over the OpenFin InterApplicationBus. The example only works when running Hypergrid in the OpenFin Runtime, which is installed from the [Hypergrid Openfin Installer](https://dl.openfin.co/services/download?fileName=hypergrid-demo-installer&config=http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/demo.json).
 
+Keep in mind the Excel integration is NOT a Hypergrid specific feature but is a feature that allows any OpenFin application to communicate with Excel via the InterApplicationBus.
+
 Assumptions
 
 * Windows machine
-* Running in openfin container
+* Running in an openfin container
 
 Steps to Excel-Hypergrid Integration Demo
 
@@ -370,7 +371,7 @@ logging|Boolean value<br>true<br>false|enable or disable logging of messages and
 
 <a class="hovertrigger"></a><div class="hoverdiv"></div>
 Another important dependency to be aware of is the
-<a class="hovertrigger">OpenFin application name in the configuration.json file</a><div class="hoverdiv"><img src="images/excel-integration03.png" alt="screenshot"></div>
+<a class="hovertrigger">OpenFin startup_app name in the configuration.json file</a><div class="hoverdiv"><img src="images/excel-integration03.png" alt="screenshot"></div>
 MUST be the same as the first argument to the Excel function
 <a class="hovertrigger">=FinDesktopSync("hypergrid-demo","onSelect","").</a><div class="hoverdiv"><img src="images/excel-integration02.png" alt="screenshot"></div>
 
