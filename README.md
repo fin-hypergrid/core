@@ -1,4 +1,4 @@
-<style<style>>
+<style><style>
     .hovertrigger {
         cursor: default;
     }
@@ -24,7 +24,7 @@
         -webkit-transform: scale(1.0,1.0); /* Chrome, Safari, Opera */
         transform: scale(1.0,1.0);
     }
-</style</style>>
+</style></style>
 
 #Hypergrid by OpenFin
 
