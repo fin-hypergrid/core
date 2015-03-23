@@ -1,31 +1,3 @@
-<style><style>
-    .hovertrigger {
-        cursor: default;
-    }
-    .hoverdiv {
-        z-index: 100;
-        position: absolute;
-        -ms-transform: scale(0,0); /* IE 9 */
-        -ms-transform-origin: 0% 0%; /* Chrome, Safari, Opera */
-        -ms-transition: -ms-transform 500ms;
- 
-        -webkit-transform: scale(0,0); /* Chrome, Safari, Opera */
-        -webkit-transform-origin: 0% 0%; /* Chrome, Safari, Opera */
-        -webkit-transition: -webkit-transform 500ms;
- 
-        transform: scale(0,0);
-        transform-origin: 0% 0%;
-        transition:transform 500ms;
-    }
-    .hovertrigger:hover + .hoverdiv { 
-        overflow: visible;
-        opacity: 1.0;
-        -ms-transform: scale(1.0,1.0); /* IE 9 */
-        -webkit-transform: scale(1.0,1.0); /* Chrome, Safari, Opera */
-        transform: scale(1.0,1.0);
-    }
-</style></style>
-
 #Hypergrid by OpenFin
 
 <img src="images/gridshot01.png" alt="screenshot">
