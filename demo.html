@@ -176,6 +176,12 @@
           <div flex class="rel">
             <fin-hypergrid class="abs" id="json-example">
                 <fin-hypergrid-behavior-json></fin-hypergrid-behavior-json>
+                <fin-hypergrid-excel
+                        publish="onJSONSelect",
+                        subscribe="onJSONExcelChange"
+                        interval="500"
+                        logging=false>
+                </fin-hypergrid-excel>
             </fin-hypergrid>
           </div>
         </div>

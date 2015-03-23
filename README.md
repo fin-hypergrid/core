@@ -1,7 +1,36 @@
+
+<style>
+    .hovertrigger {
+        cursor: default;
+    }
+    .hoverdiv {
+        z-index: 100;
+        position: absolute;
+        -ms-transform: scale(0,0); /* IE 9 */
+        -ms-transform-origin: 0% 0%; /* Chrome, Safari, Opera */
+        -ms-transition: -ms-transform 500ms;
+ 
+        -webkit-transform: scale(0,0); /* Chrome, Safari, Opera */
+        -webkit-transform-origin: 0% 0%; /* Chrome, Safari, Opera */
+        -webkit-transition: -webkit-transform 500ms;
+ 
+        transform: scale(0,0);
+        transform-origin: 0% 0%;
+        transition:transform 500ms;
+    }
+    .hovertrigger:hover + .hoverdiv { 
+        overflow: visible;
+        opacity: 1.0;
+        -ms-transform: scale(1.0,1.0); /* IE 9 */
+        -webkit-transform: scale(1.0,1.0); /* Chrome, Safari, Opera */
+        transform: scale(1.0,1.0);
+    }
+
+</style>
+
 #Hypergrid by OpenFin
 
 <img src="images/gridshot01.png" alt="screenshot">
-
 
 
 See the [polymer component page](http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/#fin-hypergrid) for api documentation and demos.
@@ -292,13 +321,15 @@ Hypergrid has a column picker that allows you to drag and drop columns for confi
 press alt/option to open the column picker, you can press alt/option or esc to close it
 <img src="images/gridshot07.png" alt="screenshot">
 
-hypergrid-excel-integration
+Hypergrid Excel Integration
 ======================
 
 There is an example integration between the Hypergrid and Microsoft Excel over the OpenFin InterApplicationBus. The example only works when running Hypergrid in the OpenFin Runtime, which is installed from the [Hypergrid Openfin Installer](https://dl.openfin.co/services/download?fileName=hypergrid-demo-installer&config=http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/demo.json).
 
 Assumptions
+
 * Windows machine
+* Running in openfin container
 
 Steps to Excel-Hypergrid Integration Demo
 
@@ -311,6 +342,37 @@ Steps to Excel-Hypergrid Integration Demo
 6. Select a cell(s) in Hypergrid Demo Application
 
 The excel-integration demo consists of an OpenFin app, and a C# XLL plugin built using the Excel-DNA infrastructure. The Excel-DNA infrastructure provides a C++ XLL plugin which exposes the Excel Object Model to C# dll's and code which can be configured using a manifest file (.dna).  Here are the steps to setting up the integration demo...
+
+Fin-Hypergrid-Excel plugin element
+=========================
+
+To enable excel messaging for your behavior, embed the fin-hypergrid-excel tag inside your grid tag
+
+```
+<fin-hypergrid>
+    <fin-hypergrid-behavior-default></fin-hypergrid-behavior-default>
+    <fin-hypergrid-excel
+            publish="onSelect",
+            subscribe="onExcelChange"
+            interval="500"
+            logging=false>
+    </fin-hypergrid-excel>
+</fin-hypergrid>
+```
+All the attributes listed above default to the values listed above.  These properties can be described as follows...
+
+attribute|values/examles|description
+--------|------|-----------
+publish|any valid javascript identifier<br>onSelect<br>onJSONSelect|this is the topic used to [publish the cell data messages to the InterApplicationBus ](http://cdn.openfin.co/jsdocs/3.0.1.5/fin.desktop.module_InterApplicationBus.html#publish).  This value MUST be the same as the second argument in the Excel addin function <a class="hovertrigger">=FinDesktopSync("hypergrid-demo","onSelect","").</a><div class="hoverdiv"><img src="images/excel-integration01.png" alt="screenshot"></div>
+subscribe|any valid javascript identifier<br>onExcelChange<br>onJSONExcelChange|this is the topic used to [subscribe to cell data messages from the InterApplicationBus ](http://cdn.openfin.co/jsdocs/3.0.1.5/fin.desktop.module_InterApplicationBus.html#subscribe). This should be left to the default of "onExcelChange" unless you want to push the cell data to other InterApplicationBus endpoints. 
+interval|integer value in milliseconds<br>500<br>1000|millisecond interval to [publish the cell data messages to the InterApplicationBus ](http://cdn.openfin.co/jsdocs/3.0.1.5/fin.desktop.module_InterApplicationBus.html#publish)
+logging|Boolean value<br>true<br>false|enable or disable logging of messages and errors to the console
+
+<a class="hovertrigger"></a><div class="hoverdiv"></div>
+Another important dependency to be aware of is the
+<a class="hovertrigger">OpenFin application name in the configuration.json file</a><div class="hoverdiv"><img src="images/excel-integration03.png" alt="screenshot"></div>
+MUST be the same as the first argument to the Excel function
+<a class="hovertrigger">=FinDesktopSync("hypergrid-demo","onSelect","").</a><div class="hoverdiv"><img src="images/excel-integration02.png" alt="screenshot"></div>
 
 
 Excel Integration Links
