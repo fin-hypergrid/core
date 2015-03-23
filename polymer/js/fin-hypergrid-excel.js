@@ -108,6 +108,7 @@
             fin.desktop.InterApplicationBus.unsubscribe('*', 'ExcelError', this.errorCallback.bind(this));
         },
         subscriptionCallback: function(data) {
+            var self = this;
             var sm = this.grid.getSelectionModel();
             if (this.logging) {
                 console.log(JSON.stringify(data));
@@ -115,7 +116,7 @@
             if (data.cells && data.cells.length > 0) {
                 data.cells.forEach(function(cell) {
                     if (cell.value && !sm.isSelected(cell.row, cell.column)) {
-                        this.grid.setValue(cell.column - excelOriginOffset, cell.row - excelOriginOffset, cell.value);
+                        self.grid.setValue(cell.column - excelOriginOffset, cell.row - excelOriginOffset, cell.value);
                     }
                 });
             }
