@@ -38,7 +38,7 @@
             }
             this.running = true;
             setInterval(function() {
-                if (!this.running) {
+                if (!self.running) {
                     //were done lets exit
                     return;
                 }
