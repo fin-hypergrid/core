@@ -317,7 +317,7 @@ Steps to Excel-Hypergrid Integration Demo
 
 The excel-integration demo consists of an OpenFin app, and a C# XLL plugin built using the Excel-DNA infrastructure. The Excel-DNA infrastructure provides a C++ XLL plugin which exposes the Excel Object Model to C# dll's and code which can be configured using a manifest file (.dna).  Here are the steps to setting up the integration demo...
 
-<a name="hypergrid-excel-json-behavior-example"></a>
+<a name="excel-json-behavior-example"></a>
 
 Hypergrid Excel JSON Behavior Example Application
 =========================
