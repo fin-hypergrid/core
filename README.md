@@ -292,7 +292,7 @@ Hypergrid has a column picker that allows you to drag and drop columns for confi
 press alt/option to open the column picker, you can press alt/option or esc to close it
 <img src="images/gridshot07.png" alt="screenshot">
 
-<a name="excel-integration"></a>
+<a name="hypergrid-excel-integration"></a>
 Hypergrid Excel Integration
 ======================
 
