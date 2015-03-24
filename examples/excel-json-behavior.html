@@ -2,9 +2,9 @@
 <head>
   <script src="../../webcomponentsjs/webcomponents.js"></script>
   <!-- <link rel="stylesheet" href="../themes/excel.css"> -->
-  <!-- <link rel="import" href="../polymer/html/fin-hypergrid.html"> -->
+  <link rel="import" href="../polymer/html/fin-hypergrid.html">
 
-  <link rel="import" href="../fin-hypergrid.min.html">
+<!--   <link rel="import" href="../fin-hypergrid.min.html"> -->
   <script src="excel-json-behavior-data.js"></script>
 <style>
 
@@ -37,6 +37,11 @@
 <script>
 window.addEventListener('polymer-ready',function() {
         var table = document.querySelector('#json-grid');
+
+        table.addFinEventListener('fin-scroll-y', function(e){
+            console.log('fin-scroll-y', e);
+        });
+
         var behavior = table.getBehavior();
         behavior.setData(data); //data is set in excel-json-behavior-data.js
 });

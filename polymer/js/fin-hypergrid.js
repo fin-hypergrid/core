@@ -162,16 +162,36 @@
         behavior: {
             setScrollPositionY: noop,
             setScrollPositionX: noop,
-            getColumnCount: noop,
-            getFixedColumnCount: noop,
-            getFixedColumnsWidth: noop,
-            getFixedColumnsMaxWidth: noop,
-            setRenderedWidth: noop,
-            getRowCount: noop,
-            getFixedRowCount: noop,
-            getFixedRowsHeight: noop,
-            getFixedRowsMaxHeight: noop,
-            setRenderedHeight: noop,
+            getColumnCount: function() {
+                return 0;
+            },
+            getFixedColumnCount: function() {
+                return 0;
+            },
+            getFixedColumnsWidth: function() {
+                return 0;
+            },
+            getFixedColumnsMaxWidth: function() {
+                return 0;
+            },
+            setRenderedWidth: function() {
+                return 0;
+            },
+            getRowCount: function() {
+                return 0;
+            },
+            getFixedRowCount: function() {
+                return 0;
+            },
+            getFixedRowsHeight: function() {
+                return 0;
+            },
+            getFixedRowsMaxHeight: function() {
+                return 0;
+            },
+            setRenderedHeight: function() {
+                return 0;
+            },
             getCellProvider: noop,
             click: noop,
             doubleClick: noop
@@ -332,7 +352,7 @@
 
         isScrollButtonClick: false,
 
-        domReady: function() {
+        ready: function() {
 
             if (!propertiesInitialized) {
                 propertiesInitialized = true;
@@ -1448,7 +1468,7 @@
                     time: Date.now()
                 }
             });
-            this.dispatchEvent(event);
+            this.canvas.dispatchEvent(event);
 
             //make the scrollbars show up
             var self = this;
