@@ -389,7 +389,8 @@
                 }
             });
 
-
+            this.numRows = 0;
+            this.numColumns = 0;
             //initialize our various pieces
             this.initCanvas();
             this.initRenderer();
@@ -785,28 +786,23 @@
             this.behavior = newBehavior;
             this.behavior.setGrid(this);
 
-            var self = this;
+            this.behavior.changed = this.behaviorChanged.bind(this);
+        },
 
-            var numColumns = this.behavior.getColumnCount();
-            var numRows = this.behavior.getRowCount();
-
-            this.behavior.changed = function() {
-                if (numColumns !== self.behavior.getColumnCount() || numRows !== self.behavior.getRowCount()) {
-                    numColumns = self.behavior.getColumnCount();
-                    numRows = self.behavior.getRowCount();
-                    self.behaviorShapeChanged();
-                }
-                self.repaint();
-            };
-
-            this.behavior.sizeChanged = function() {
-                self.repaint();
-            };
-
-            //this.detachRenderer();
-            if (this.behavior) {
-                //this.attachRenderer();
+        /**
+         *                                                                      .
+         *                                                                      .
+         * I've been notified that the behavior has changed
+         *
+         * @method setBehavior(newBehavior)
+         */
+        behaviorChanged: function() {
+            if (this.numColumns !== this.behavior.getColumnCount() || this.numRows !== this.behavior.getRowCount()) {
+                this.numColumns = this.behavior.getColumnCount();
+                this.numRows = this.behavior.getRowCount();
+                this.behaviorShapeChanged();
             }
+            this.repaint();
         },
 
         /**
@@ -1569,8 +1565,9 @@
         takeFocus: function() {
             if (this.isEditing()) {
                 this.editorTakeFocus();
+            } else {
+                this.getCanvas().takeFocus();
             }
-            this.getCanvas().takeFocus();
         },
 
         /**

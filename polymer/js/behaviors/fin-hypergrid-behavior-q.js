@@ -252,8 +252,8 @@
                     self.block = d;
 
                     if (d.rows !== oldSize) {
-                        if (self.sizeChanged) {
-                            self.sizeChanged();
+                        if (self.changed) {
+                            self.changed();
                         }
                     }
                     if (!self.columnIndexes || self.columnIndexes.length === 0) {
