@@ -4,13 +4,14 @@
         "autoShow": true,
         "name": "hypergrid-demo",
         "url": "http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/examples/excel-json-behavior.html",
+        "Xurl": "http://10.9.98.117:9000/fin-hypergrid/examples/excel-json-behavior.html",
         "uuid": "hypergrid-demo",
         "applicationIcon": "http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/images/openfin.ico",
         "contextMenu" : true
     },
     "runtime": {
         "arguments": "",
-        "version": "v35"
+        "version": "stable"
     },
     "shortcut": {
         "company": "OpenFin",
