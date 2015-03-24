@@ -1859,8 +1859,10 @@
 
             this.sbHScrlCfg.rangeStop = behavior.getColumnCount() - lastPageColumnCount;
 
-            this.sbVScroller.tickle();
-            this.sbHScroller.tickle();
+            this.setVScrollValue(Math.min(this.getVScrollValue(), this.sbVScrlCfg.rangeStop));
+            this.setHScrollValue(Math.min(this.getHScrollValue(), this.sbHScrlCfg.rangeStop));
+            //this.sbVScroller.tickle();
+            //this.sbHScroller.tickle();
         },
 
 

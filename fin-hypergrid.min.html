@@ -21198,6 +21198,7 @@ div.container {
 
 
 
+
 </style>
   </template>
   <script>//HypergridRenderer is the canvas enabled top level sub component that handles the renderering of the Grid.
@@ -21978,6 +21979,7 @@ var config = {};
 
 
 
+
 </style>
   </template>
   <script>'use strict';
@@ -22065,6 +22067,7 @@ var config = {};
     display: block;
     position: relative;
 }
+
 
 
 
@@ -22344,6 +22347,7 @@ var config = {};
 
 
 
+
 </style>
   </template>
   <script>(function() {
@@ -22475,6 +22479,7 @@ var config = {};
     display: block;
     position: relative;
 }
+
 
 
 
@@ -22812,6 +22817,7 @@ var noop = function() {};
     display: block;
     position: relative;
 }
+
 
 
 
@@ -23449,6 +23455,7 @@ var noop = function() {};
 
 
 
+
 </style>
   </template>
   <script>(function() {
@@ -23639,6 +23646,7 @@ var noop = function() {};
 
 
 
+
 </style>
   </template>
   <script>(function() {
@@ -23674,6 +23682,7 @@ var noop = function() {};
     display: block;
     position: relative;
 }
+
 
 
 
@@ -23841,6 +23850,7 @@ var noop = function() {};
 
 
 
+
 </style>
   </template>
   <script>(function() {
@@ -23884,6 +23894,7 @@ var noop = function() {};
     display: block;
     position: relative;
 }
+
 
 
 
@@ -24113,6 +24124,7 @@ var noop = function() {};
     display: block;
     position: relative;
 }
+
 
 
 
@@ -24731,6 +24743,7 @@ var noop = function() {};
 
 
 
+
 </style>
   </template>
   <script>(function() {
@@ -24804,6 +24817,7 @@ var noop = function() {};
     display: block;
     position: relative;
 }
+
 
 
 
@@ -25530,6 +25544,7 @@ var noop = function() {};
 
 
 
+
 </style>
   </template>
   <script>/*jshint  bitwise: false */
@@ -25828,6 +25843,7 @@ var noop = function() {};
     display: block;
     position: relative;
 }
+
 
 
 
@@ -26422,6 +26438,7 @@ var noop = function() {};
 
 
 
+
 </style>
   </template>
   <script>/*jshint  bitwise: false */
@@ -26943,6 +26960,7 @@ window.dualPivotQuickSort = (function() {
 
 
 
+
 </style>
   </template>
   <script>'use strict';
@@ -27231,6 +27249,7 @@ window.dualPivotQuickSort = (function() {
     display: block;
     position: relative;
 }
+
 
 
 
@@ -27960,6 +27979,7 @@ window.dualPivotQuickSort = (function() {
 
 
 
+
 </style>
   </template>
   <script>'use strict';
@@ -28100,6 +28120,7 @@ window.dualPivotQuickSort = (function() {
     display: block;
     position: relative;
 }
+
 
 
 
@@ -28324,6 +28345,7 @@ window.dualPivotQuickSort = (function() {
 
 
 
+
 </style>
     <input id="editor">
   </template>
@@ -28347,6 +28369,7 @@ window.dualPivotQuickSort = (function() {
     display: block;
     position: relative;
 }
+
 
 
 
@@ -28511,6 +28534,7 @@ window.dualPivotQuickSort = (function() {
 
 
 
+
 </style>
     <input id="editor" type="color">
   </template>
@@ -28531,6 +28555,7 @@ window.dualPivotQuickSort = (function() {
     display: block;
     position: relative;
 }
+
 
 
 
@@ -28689,6 +28714,7 @@ window.dualPivotQuickSort = (function() {
 
 
 
+
 </style>
     <input id="editor" type="range">
   </template>
@@ -28709,6 +28735,7 @@ window.dualPivotQuickSort = (function() {
     display: block;
     position: relative;
 }
+
 
 
 
@@ -28864,6 +28891,7 @@ fin-vampire-bar {
 fin-vampire-bar {
     z-index: 10;
 }
+
 
 
 
@@ -30804,8 +30832,10 @@ fin-vampire-bar {
 
             this.sbHScrlCfg.rangeStop = behavior.getColumnCount() - lastPageColumnCount;
 
-            this.sbVScroller.tickle();
-            this.sbHScroller.tickle();
+            this.setVScrollValue(Math.min(this.getVScrollValue(), this.sbVScrlCfg.rangeStop));
+            this.setHScrollValue(Math.min(this.getHScrollValue(), this.sbHScrlCfg.rangeStop));
+            //this.sbVScroller.tickle();
+            //this.sbHScroller.tickle();
         },
 
 
