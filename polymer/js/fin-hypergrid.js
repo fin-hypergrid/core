@@ -352,7 +352,7 @@
 
         isScrollButtonClick: false,
 
-        ready: function() {
+        domReady: function() {
 
             if (!propertiesInitialized) {
                 propertiesInitialized = true;
