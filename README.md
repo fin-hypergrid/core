@@ -292,6 +292,7 @@ Hypergrid has a column picker that allows you to drag and drop columns for confi
 press alt/option to open the column picker, you can press alt/option or esc to close it
 <img src="images/gridshot07.png" alt="screenshot">
 
+<a name="excel-integration"></a>
 Hypergrid Excel Integration
 ======================
 
@@ -315,6 +316,13 @@ Steps to Excel-Hypergrid Integration Demo
 6. Select a cell(s) in Hypergrid Demo Application
 
 The excel-integration demo consists of an OpenFin app, and a C# XLL plugin built using the Excel-DNA infrastructure. The Excel-DNA infrastructure provides a C++ XLL plugin which exposes the Excel Object Model to C# dll's and code which can be configured using a manifest file (.dna).  Here are the steps to setting up the integration demo...
+
+Hypergrid Excel JSON Behavior example app
+=========================
+
+Because so many folks have been asking for an example of JSON with Excel, we've provided a bare bones example that should help you out understanding how it all works. [here is the link for the installer.](https://dl.openfin.co/services/download?fileName=hypergrid-json-demo-installer&config=http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/examples/excel-json-behavior.json) The example uses the same FinDesktopAddin-packed and hypergrid.xls file from the above [Hypergrid Excel Integration](http://#excel-integration) above.
+
+<img src="images/excel-integration04.png" alt="screenshot">
 
 Fin-Hypergrid-Excel plugin element
 =========================
