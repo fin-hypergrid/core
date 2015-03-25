@@ -4,6 +4,25 @@ var noop = function() {};
 
 (function() {
 
+    var underline = function(ctx, text, x, y, size, thickness, offset) {
+        var width = ctx.measureText(text).width;
+
+        switch (ctx.textAlign) {
+            case 'center':
+                x -= (width / 2);
+                break;
+            case 'right':
+                x -= width;
+                break;
+        }
+
+        y += size + offset;
+
+        ctx.beginPath();
+        ctx.lineWidth = thickness;
+        ctx.moveTo(x + 0.5, y + 0.5);
+        ctx.lineTo(x + width + 0.5, y + 0.5);
+    };
     //DefaultCellProvider is the cache for cell renderers.  A CellRenderer is an object with a single function 'paint'.
     //There should only be a single reused CellRenderer object created for each type of CellRenderer.
 
@@ -80,14 +99,19 @@ var noop = function() {};
 
         defaultCellPaint: function(gc, x, y, width, height) {
 
+
             var colHEdgeOffset = this.config.properties.cellPadding,
                 halignOffset = 0,
                 valignOffset = this.config.voffset,
                 halign = this.config.halign,
+                isHovered = this.config.isHovered,
                 size,
                 textWidth;
 
             //setting gc properties are expensive, lets not do it unnecessarily
+
+            var fontMetrics = this.config.getTextHeight(this.config.font);
+
             if (gc.font !== this.config.font) {
                 gc.font = this.config.font;
             }
@@ -127,6 +151,18 @@ var noop = function() {};
             }
             gc.fillText(this.config.value, x + halignOffset, y + valignOffset);
 
+            if (isHovered) {
+                //gc.fillStyle = this.config.isSelected ? this.config.bgSelColor : this.config.bgColor;
+                // var prevLW = gc.lineWidth;
+                // var prevSS = gc.strokeStyle;
+                gc.strokeStyle = theColor;
+                // gc.lineWidth = 3;
+                gc.rect(x + 2, y + 2, width - 4, height - 4);
+                underline(gc, this.config.value, x + halignOffset, y, valignOffset + Math.floor(fontMetrics.height / 2), 1, 1, 0);
+                gc.stroke();
+                //gc.lineWidth = prevLW;
+                // gc.strokeStyle = prevSS;
+            }
         },
 
         //emersons paint function for a slider button. currently the user cannot interact with it

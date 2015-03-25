@@ -108,6 +108,8 @@
             this.setNextFeature(document.createElement('fin-hypergrid-feature-thumbwheel-scrolling'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-cell-editing'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-column-sorting'));
+            this.setNextFeature(document.createElement('fin-hypergrid-feature-on-hover'));
+
             this.featureChain.initializeOn(grid);
         },
 
@@ -442,6 +444,13 @@
         handleMouseDown: function(grid, event) {
             if (this.featureChain) {
                 this.featureChain.handleMouseDown(grid, event);
+                this.setCursor(grid);
+            }
+        },
+
+        handleMouseExit: function(grid, event) {
+            if (this.featureChain) {
+                this.featureChain.handleMouseExit(grid, event);
                 this.setCursor(grid);
             }
         },

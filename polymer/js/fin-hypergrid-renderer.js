@@ -14,12 +14,64 @@
 'use strict';
 
 var noop = function() {};
-var config = {};
+
+var fontData = {
+
+};
+
+var config = {
+    getTextHeight: function(font) {
+
+        var result = fontData[font];
+        if (result) {
+            return result;
+        }
+        result = {};
+        var text = document.createElement('span');
+        text.textContent = 'Hg';
+        text.style.font = font;
+
+        var block = document.createElement('div');
+        block.style.display = 'inline-block';
+        block.style.width = '1px';
+        block.style.height = '0px';
+
+        var div = document.createElement('div');
+        div.appendChild(text);
+        div.appendChild(block);
+
+        div.style.position = 'absolute';
+        document.body.appendChild(div);
+
+        try {
+
+            block.style.verticalAlign = 'baseline';
+
+            var blockRect = block.getBoundingClientRect();
+            var textRect = text.getBoundingClientRect();
+
+            result.ascent = blockRect.top - textRect.top;
+
+            block.style.verticalAlign = 'bottom';
+            result.height = blockRect.top - textRect.top;
+
+            result.descent = result.height - result.ascent;
+
+        } finally {
+            div.remove();
+        }
+        if (result.height !== 0) {
+            fontData[font] = result;
+        }
+        return result;
+    }
+
+};
 
 (function() {
 
     // we need a reusable cellconfig object
-    var cellConfig = function(x, y, value, fgColor, bgColor, fgSelColor, bgSelColor, font, isSelected, halign, hoffset, voffset, properties) {
+    var cellConfig = function(x, y, value, fgColor, bgColor, fgSelColor, bgSelColor, font, isSelected, isHovered, halign, hoffset, voffset, properties) {
         config.x = x;
         config.y = y;
         config.value = value;
@@ -29,6 +81,7 @@ var config = {};
         config.bgSelColor = bgSelColor;
         config.font = font;
         config.isSelected = isSelected;
+        config.isHovered = isHovered || false;
         config.halign = halign || 'center';
         config.hoffset = hoffset;
         config.voffset = voffset;
@@ -47,22 +100,22 @@ var config = {};
             this.insertionBounds = []; // this is the midpoint of each column, used
         },
         resolveProperty: function(key) {
-            return this.hypergrid.resolveProperty(key);
+            return this.grid.resolveProperty(key);
         },
-        cellConfig: function(x, y, value, fgColor, bgColor, fgSelColor, bgSelColor, font, isSelected, halign, hoffset, voffset) {
-            var config = cellConfig(x, y, value, fgColor, bgColor, fgSelColor, bgSelColor, font, isSelected, halign, hoffset, voffset, this.hypergrid.lnfProperties);
+        cellConfig: function(x, y, value, fgColor, bgColor, fgSelColor, bgSelColor, font, isSelected, isHovered, halign, hoffset, voffset) {
+            var config = cellConfig(x, y, value, fgColor, bgColor, fgSelColor, bgSelColor, font, isSelected, isHovered, halign, hoffset, voffset, this.grid.lnfProperties);
             return config;
         },
         getGrid: function() {
-            return this.hypergrid;
+            return this.grid;
         },
 
         setGrid: function(grid) {
-            this.hypergrid = grid;
+            this.grid = grid;
         },
         //This is the entry point from OFCanvas.  Notify the OFGrid everytime we've repainted.
         paint: function(gc) {
-            if (!this.hypergrid) {
+            if (!this.grid) {
                 return;
             }
             this.renderGrid(gc);
@@ -392,6 +445,10 @@ var config = {};
 
         },
 
+        isHovered: function(x, y) {
+            return this.grid.isHovered(x, y);
+        },
+
         //Renderer the fixed header rows along the top
         paintFixedRows: function(ctx, offsetX, offsetY, numColumns, numRows) {
             var behavior = this.getBehavior();
@@ -427,10 +484,10 @@ var config = {};
                     var height = this.getFixedRowHeight(r);
                     var align = behavior.getFixedRowAlignment(c + scrollLeft, r);
                     var value = behavior.getFixedRowValue(c + scrollLeft, r);
-
+                    var isHovered = false; //this.isHovered(c, r);
                     //translatedX allows us to reorder columns
                     var translatedX = behavior.translateColumnIndex(c + scrollLeft);
-                    var cell = cellProvider.getFixedRowCell(this.cellConfig(translatedX, r, value, fgColor, bgColor, fgSelColor, bgSelColor, font, isSelected, align, hoffset, voffset));
+                    var cell = cellProvider.getFixedRowCell(this.cellConfig(translatedX, r, value, fgColor, bgColor, fgSelColor, bgSelColor, font, isSelected, isHovered, align, hoffset, voffset));
                     cell.paint(ctx, x, y, width, height);
                     y = y + height;
                 }
@@ -474,7 +531,8 @@ var config = {};
                         break;
                     }
                     var value = behavior.getFixedColumnValue(c, r + scrollTop);
-                    var cell = cellProvider.getFixedColumnCell(this.cellConfig(c, r + scrollTop, value, fgColor, bgColor, fgSelColor, bgSelColor, font, isSelected, align, hoffset, voffset));
+                    var isHovered = false; //this.isHovered(c, r);
+                    var cell = cellProvider.getFixedColumnCell(this.cellConfig(c, r + scrollTop, value, fgColor, bgColor, fgSelColor, bgSelColor, font, isSelected, isHovered, align, hoffset, voffset));
                     cell.paint(ctx, x, y, width, height);
                     y = y + height;
                 }
@@ -488,6 +546,8 @@ var config = {};
             try {
                 ctx.save();
                 this._paintCells(ctx, offsetX, offsetY);
+            } catch (e) {
+                console.error(e);
             } finally {
                 ctx.restore();
             }
@@ -547,7 +607,8 @@ var config = {};
 
                     //translatedX allows us to reorder columns
 
-                    var cell = cellProvider.getCell(this.cellConfig(translatedX, r + scrollTop, value, overrideFGColor, bgColor, fgSelColor, bgSelColor, overrideFont, isSelected, columnAlign, hoffset, voffset));
+                    var isHovered = this.isHovered(c, r);
+                    var cell = cellProvider.getCell(this.cellConfig(translatedX, r + scrollTop, value, overrideFGColor, bgColor, fgSelColor, bgSelColor, overrideFont, isSelected, isHovered, columnAlign, hoffset, voffset));
 
                     cell.paint(ctx, x, y, width, height);
 
@@ -624,7 +685,8 @@ var config = {};
                     //     break;
                     // }
 
-                    var cell = cellProvider.getTopLeftCell(this.cellConfig(x, r, value, fgColor, bgColor, fgSelColor, bgSelColor, font, false, columnAlign, hoffset, voffset));
+                    var isHovered = this.isHovered(c, r);
+                    var cell = cellProvider.getTopLeftCell(this.cellConfig(x, r, value, fgColor, bgColor, fgSelColor, bgSelColor, font, false, isHovered, columnAlign, hoffset, voffset));
 
                     cell.paint(ctx, x, y, width, height);
 

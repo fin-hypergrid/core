@@ -342,13 +342,22 @@
         cellEditors: null,
 
         /**
-         * dragColumn is index of the currently dragged column
+         * renderOverridesCache is the short term memory of what column I might be dragging around
          *
-         * @property dragColumn
+         * @property renderOverridesCache
          * @type integer
          */
 
         renderOverridesCache: {},
+
+        /**
+         * hoverCell is always the current hovered cell
+         *
+         * @property hoverCell
+         * @type integer
+         */
+
+        hoverCell: null,
 
         isScrollButtonClick: false,
 
@@ -404,6 +413,26 @@
             this.fire('load');
             this.isScrollButtonClick = false;
         },
+
+        isHovered: function(x, y) {
+            var p = this.getHoverCell();
+            if (!p) {
+                return false;
+            }
+            return p.x === x && p.y === y;
+        },
+
+        getHoverCell: function() {
+            return this.hoverCell;
+        },
+
+        setHoverCell: function(point) {
+            var fixedX = this.getFixedColumnCount();
+            var fixedY = this.getFixedRowCount();
+            this.hoverCell = rectangles.point.create(point.x - fixedX, point.y - fixedY);
+            this.repaint();
+        },
+
         addGlobalProperties: function(props) {
             //we check for existence to avoid race condition in initialization
             if (!globalProperties) {
@@ -996,6 +1025,14 @@
                 mouseEvent.primitiveEvent = e.detail.primitiveEvent;
                 self.delegateWheelMoved(mouseEvent);
             });
+
+            this.addFinEventListener('fin-mouseout', function(e) {
+                var mouse = e.detail.mouse;
+                var mouseEvent = self.getGridCellFromMousePoint(mouse);
+                mouseEvent.primitiveEvent = e.detail.primitiveEvent;
+                self.delegateMouseExit(mouseEvent);
+            });
+
         },
 
         addFinEventListener: function(eventName, callback) {
@@ -1088,6 +1125,18 @@
         delegateWheelMoved: function(event) {
             var behavior = this.getBehavior();
             behavior.onWheelMoved(this, event);
+        },
+
+        /**
+         *                                                                      .
+         *                                                                      .
+         * delegate MouseExit to the behavior (model)
+         *
+         * @method delegateMouseExit(mouseDetails)
+         */
+        delegateMouseExit: function(event) {
+            var behavior = this.getBehavior();
+            behavior.handleMouseExit(this, event);
         },
 
         /**

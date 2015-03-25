@@ -7,6 +7,7 @@
         next: null,
         detached: null,
         cursor: null,
+        currentHoverCell: null,
 
         created: function() {
             this.createdInit();
@@ -36,7 +37,16 @@
                 this.next.handleMouseMove(grid, event);
             }
         },
-
+        handleMouseExit: function(grid, event) {
+            if (this.next) {
+                this.next.handleMouseExit(grid, event);
+            }
+        },
+        handleMouseEnter: function(grid, event) {
+            if (this.next) {
+                this.next.handleMouseEnter(grid, event);
+            }
+        },
         handleMouseDown: function(grid, event) {
             if (this.next) {
                 this.next.handleMouseDown(grid, event);

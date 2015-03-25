@@ -18314,6 +18314,7 @@ CustomElements.addModule(function(scope) {
 
 
 
+
 </head><body><div hidden="">
 <polymer-element name="fin-rectangle" assetpath="/dev/fin-rectangle/">
   <script>
@@ -18321,6 +18322,10 @@ CustomElements.addModule(function(scope) {
 'use strict';
 
 (function() {
+
+    function pointEqualsPoint(a, b) {
+        return a.x === b.x && a.y === b.y;
+    }
 
     function rectangleContains(rect, x, y) {
         var minX = rect.origin.x;
@@ -18513,6 +18518,12 @@ CustomElements.addModule(function(scope) {
         };
         that.isContainedWithinRectangle = function(rect) {
             return rectangleContains(rect, this.x, this.y);
+        };
+        that.equals = function(point) {
+            if (!point) {
+                return false;
+            }
+            return pointEqualsPoint(this, point);
         };
         return that;
     }
@@ -21205,6 +21216,12 @@ div.container {
 
 
 
+
+
+
+
+
+
 </style>
   </template>
   <script>//HypergridRenderer is the canvas enabled top level sub component that handles the renderering of the Grid.
@@ -21223,12 +21240,64 @@ div.container {
 'use strict';
 
 var noop = function() {};
-var config = {};
+
+var fontData = {
+
+};
+
+var config = {
+    getTextHeight: function(font) {
+
+        var result = fontData[font];
+        if (result) {
+            return result;
+        }
+        result = {};
+        var text = document.createElement('span');
+        text.textContent = 'Hg';
+        text.style.font = font;
+
+        var block = document.createElement('div');
+        block.style.display = 'inline-block';
+        block.style.width = '1px';
+        block.style.height = '0px';
+
+        var div = document.createElement('div');
+        div.appendChild(text);
+        div.appendChild(block);
+
+        div.style.position = 'absolute';
+        document.body.appendChild(div);
+
+        try {
+
+            block.style.verticalAlign = 'baseline';
+
+            var blockRect = block.getBoundingClientRect();
+            var textRect = text.getBoundingClientRect();
+
+            result.ascent = blockRect.top - textRect.top;
+
+            block.style.verticalAlign = 'bottom';
+            result.height = blockRect.top - textRect.top;
+
+            result.descent = result.height - result.ascent;
+
+        } finally {
+            div.remove();
+        }
+        if (result.height !== 0) {
+            fontData[font] = result;
+        }
+        return result;
+    }
+
+};
 
 (function() {
 
     // we need a reusable cellconfig object
-    var cellConfig = function(x, y, value, fgColor, bgColor, fgSelColor, bgSelColor, font, isSelected, halign, hoffset, voffset, properties) {
+    var cellConfig = function(x, y, value, fgColor, bgColor, fgSelColor, bgSelColor, font, isSelected, isHovered, halign, hoffset, voffset, properties) {
         config.x = x;
         config.y = y;
         config.value = value;
@@ -21238,6 +21307,7 @@ var config = {};
         config.bgSelColor = bgSelColor;
         config.font = font;
         config.isSelected = isSelected;
+        config.isHovered = isHovered || false;
         config.halign = halign || 'center';
         config.hoffset = hoffset;
         config.voffset = voffset;
@@ -21256,22 +21326,22 @@ var config = {};
             this.insertionBounds = []; // this is the midpoint of each column, used
         },
         resolveProperty: function(key) {
-            return this.hypergrid.resolveProperty(key);
+            return this.grid.resolveProperty(key);
         },
-        cellConfig: function(x, y, value, fgColor, bgColor, fgSelColor, bgSelColor, font, isSelected, halign, hoffset, voffset) {
-            var config = cellConfig(x, y, value, fgColor, bgColor, fgSelColor, bgSelColor, font, isSelected, halign, hoffset, voffset, this.hypergrid.lnfProperties);
+        cellConfig: function(x, y, value, fgColor, bgColor, fgSelColor, bgSelColor, font, isSelected, isHovered, halign, hoffset, voffset) {
+            var config = cellConfig(x, y, value, fgColor, bgColor, fgSelColor, bgSelColor, font, isSelected, isHovered, halign, hoffset, voffset, this.grid.lnfProperties);
             return config;
         },
         getGrid: function() {
-            return this.hypergrid;
+            return this.grid;
         },
 
         setGrid: function(grid) {
-            this.hypergrid = grid;
+            this.grid = grid;
         },
         //This is the entry point from OFCanvas.  Notify the OFGrid everytime we've repainted.
         paint: function(gc) {
-            if (!this.hypergrid) {
+            if (!this.grid) {
                 return;
             }
             this.renderGrid(gc);
@@ -21601,6 +21671,10 @@ var config = {};
 
         },
 
+        isHovered: function(x, y) {
+            return this.grid.isHovered(x, y);
+        },
+
         //Renderer the fixed header rows along the top
         paintFixedRows: function(ctx, offsetX, offsetY, numColumns, numRows) {
             var behavior = this.getBehavior();
@@ -21636,10 +21710,10 @@ var config = {};
                     var height = this.getFixedRowHeight(r);
                     var align = behavior.getFixedRowAlignment(c + scrollLeft, r);
                     var value = behavior.getFixedRowValue(c + scrollLeft, r);
-
+                    var isHovered = false; //this.isHovered(c, r);
                     //translatedX allows us to reorder columns
                     var translatedX = behavior.translateColumnIndex(c + scrollLeft);
-                    var cell = cellProvider.getFixedRowCell(this.cellConfig(translatedX, r, value, fgColor, bgColor, fgSelColor, bgSelColor, font, isSelected, align, hoffset, voffset));
+                    var cell = cellProvider.getFixedRowCell(this.cellConfig(translatedX, r, value, fgColor, bgColor, fgSelColor, bgSelColor, font, isSelected, isHovered, align, hoffset, voffset));
                     cell.paint(ctx, x, y, width, height);
                     y = y + height;
                 }
@@ -21683,7 +21757,8 @@ var config = {};
                         break;
                     }
                     var value = behavior.getFixedColumnValue(c, r + scrollTop);
-                    var cell = cellProvider.getFixedColumnCell(this.cellConfig(c, r + scrollTop, value, fgColor, bgColor, fgSelColor, bgSelColor, font, isSelected, align, hoffset, voffset));
+                    var isHovered = false; //this.isHovered(c, r);
+                    var cell = cellProvider.getFixedColumnCell(this.cellConfig(c, r + scrollTop, value, fgColor, bgColor, fgSelColor, bgSelColor, font, isSelected, isHovered, align, hoffset, voffset));
                     cell.paint(ctx, x, y, width, height);
                     y = y + height;
                 }
@@ -21697,6 +21772,8 @@ var config = {};
             try {
                 ctx.save();
                 this._paintCells(ctx, offsetX, offsetY);
+            } catch (e) {
+                console.error(e);
             } finally {
                 ctx.restore();
             }
@@ -21756,7 +21833,8 @@ var config = {};
 
                     //translatedX allows us to reorder columns
 
-                    var cell = cellProvider.getCell(this.cellConfig(translatedX, r + scrollTop, value, overrideFGColor, bgColor, fgSelColor, bgSelColor, overrideFont, isSelected, columnAlign, hoffset, voffset));
+                    var isHovered = this.isHovered(c, r);
+                    var cell = cellProvider.getCell(this.cellConfig(translatedX, r + scrollTop, value, overrideFGColor, bgColor, fgSelColor, bgSelColor, overrideFont, isSelected, isHovered, columnAlign, hoffset, voffset));
 
                     cell.paint(ctx, x, y, width, height);
 
@@ -21833,7 +21911,8 @@ var config = {};
                     //     break;
                     // }
 
-                    var cell = cellProvider.getTopLeftCell(this.cellConfig(x, r, value, fgColor, bgColor, fgSelColor, bgSelColor, font, false, columnAlign, hoffset, voffset));
+                    var isHovered = this.isHovered(c, r);
+                    var cell = cellProvider.getTopLeftCell(this.cellConfig(x, r, value, fgColor, bgColor, fgSelColor, bgSelColor, font, false, isHovered, columnAlign, hoffset, voffset));
 
                     cell.paint(ctx, x, y, width, height);
 
@@ -21916,6 +21995,12 @@ var config = {};
     display: block;
     position: relative;
 }
+
+
+
+
+
+
 
 
 
@@ -22079,6 +22164,12 @@ var config = {};
     display: block;
     position: relative;
 }
+
+
+
+
+
+
 
 
 
@@ -22372,6 +22463,12 @@ var config = {};
 
 
 
+
+
+
+
+
+
 </style>
   </template>
   <script>(function() {
@@ -22383,6 +22480,7 @@ var config = {};
         next: null,
         detached: null,
         cursor: null,
+        currentHoverCell: null,
 
         created: function() {
             this.createdInit();
@@ -22412,7 +22510,16 @@ var config = {};
                 this.next.handleMouseMove(grid, event);
             }
         },
-
+        handleMouseExit: function(grid, event) {
+            if (this.next) {
+                this.next.handleMouseExit(grid, event);
+            }
+        },
+        handleMouseEnter: function(grid, event) {
+            if (this.next) {
+                this.next.handleMouseEnter(grid, event);
+            }
+        },
         handleMouseDown: function(grid, event) {
             if (this.next) {
                 this.next.handleMouseDown(grid, event);
@@ -22579,6 +22686,12 @@ var config = {};
 
 
 
+
+
+
+
+
+
 </style>
   </template>
   <script>'use strict';
@@ -22587,6 +22700,25 @@ var noop = function() {};
 
 (function() {
 
+    var underline = function(ctx, text, x, y, size, thickness, offset) {
+        var width = ctx.measureText(text).width;
+
+        switch (ctx.textAlign) {
+            case 'center':
+                x -= (width / 2);
+                break;
+            case 'right':
+                x -= width;
+                break;
+        }
+
+        y += size + offset;
+
+        ctx.beginPath();
+        ctx.lineWidth = thickness;
+        ctx.moveTo(x + 0.5, y + 0.5);
+        ctx.lineTo(x + width + 0.5, y + 0.5);
+    };
     //DefaultCellProvider is the cache for cell renderers.  A CellRenderer is an object with a single function 'paint'.
     //There should only be a single reused CellRenderer object created for each type of CellRenderer.
 
@@ -22663,14 +22795,19 @@ var noop = function() {};
 
         defaultCellPaint: function(gc, x, y, width, height) {
 
+
             var colHEdgeOffset = this.config.properties.cellPadding,
                 halignOffset = 0,
                 valignOffset = this.config.voffset,
                 halign = this.config.halign,
+                isHovered = this.config.isHovered,
                 size,
                 textWidth;
 
             //setting gc properties are expensive, lets not do it unnecessarily
+
+            var fontMetrics = this.config.getTextHeight(this.config.font);
+
             if (gc.font !== this.config.font) {
                 gc.font = this.config.font;
             }
@@ -22710,6 +22847,18 @@ var noop = function() {};
             }
             gc.fillText(this.config.value, x + halignOffset, y + valignOffset);
 
+            if (isHovered) {
+                //gc.fillStyle = this.config.isSelected ? this.config.bgSelColor : this.config.bgColor;
+                // var prevLW = gc.lineWidth;
+                // var prevSS = gc.strokeStyle;
+                gc.strokeStyle = theColor;
+                // gc.lineWidth = 3;
+                gc.rect(x + 2, y + 2, width - 4, height - 4);
+                underline(gc, this.config.value, x + halignOffset, y, valignOffset + Math.floor(fontMetrics.height / 2), 1, 1, 0);
+                gc.stroke();
+                //gc.lineWidth = prevLW;
+                // gc.strokeStyle = prevSS;
+            }
         },
 
         //emersons paint function for a slider button. currently the user cannot interact with it
@@ -22847,6 +22996,12 @@ var noop = function() {};
     display: block;
     position: relative;
 }
+
+
+
+
+
+
 
 
 
@@ -23498,6 +23653,12 @@ var noop = function() {};
 
 
 
+
+
+
+
+
+
 </style>
   </template>
   <script>(function() {
@@ -23695,6 +23856,12 @@ var noop = function() {};
 
 
 
+
+
+
+
+
+
 </style>
   </template>
   <script>(function() {
@@ -23730,6 +23897,12 @@ var noop = function() {};
     display: block;
     position: relative;
 }
+
+
+
+
+
+
 
 
 
@@ -23911,6 +24084,12 @@ var noop = function() {};
 
 
 
+
+
+
+
+
+
 </style>
   </template>
   <script>(function() {
@@ -23954,6 +24133,12 @@ var noop = function() {};
     display: block;
     position: relative;
 }
+
+
+
+
+
+
 
 
 
@@ -24190,6 +24375,12 @@ var noop = function() {};
     display: block;
     position: relative;
 }
+
+
+
+
+
+
 
 
 
@@ -24822,6 +25013,12 @@ var noop = function() {};
 
 
 
+
+
+
+
+
+
 </style>
   </template>
   <script>(function() {
@@ -24889,12 +25086,64 @@ var noop = function() {};
 
 })(); /* jshint ignore:line */
 </script>
+</polymer-element>
+<polymer-element name="fin-hypergrid-feature-on-hover" extends="fin-hypergrid-feature-base" assetpath="/dev/fin-hypergrid/polymer/html/features/">
+  <template>
+    <style type="text/css">:host {
+    display: block;
+    position: relative;
+}
+
+
+
+
+</style>
+  </template>
+  <script>(function() {
+
+    'use strict';
+
+    //var noop = function() {};
+
+    //var ANIMATION_TIME = 200;
+
+    Polymer('fin-hypergrid-feature-on-hover',{ /* jshint ignore:line */
+        handleMouseMove: function(grid, event) {
+            var currentHoverCell = grid.getHoverCell();
+            if (!event.gridCell.equals(currentHoverCell)) {
+                if (currentHoverCell) {
+                    this.handleMouseExit(grid, currentHoverCell);
+                }
+                this.handleMouseEnter(grid, event);
+                grid.setHoverCell(event.gridCell);
+            } else {
+                if (this.next) {
+                    this.next.handleMouseMove(grid, event);
+                }
+            }
+        },
+        handleMouseEnter: function(grid, event) {
+            console.log('mouse enter', event);
+        },
+        handleMouseExit: function(grid, event) {
+            console.log('mouse exit', event);
+        }
+    });
+
+})(); /* jshint ignore:line */
+</script>
 </polymer-element><polymer-element name="fin-hypergrid-behavior-default" assetpath="/dev/fin-hypergrid/polymer/html/behaviors/">
   <template>
     <style type="text/css">:host {
     display: block;
     position: relative;
 }
+
+
+
+
+
+
 
 
 
@@ -25083,6 +25332,8 @@ var noop = function() {};
             this.setNextFeature(document.createElement('fin-hypergrid-feature-thumbwheel-scrolling'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-cell-editing'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-column-sorting'));
+            this.setNextFeature(document.createElement('fin-hypergrid-feature-on-hover'));
+
             this.featureChain.initializeOn(grid);
         },
 
@@ -25421,6 +25672,13 @@ var noop = function() {};
             }
         },
 
+        handleMouseExit: function(grid, event) {
+            if (this.featureChain) {
+                this.featureChain.handleMouseExit(grid, event);
+                this.setCursor(grid);
+            }
+        },
+
         getCellEditorAt: function(x, y) {
             noop(y);
             x = this.translateColumnIndex(x);
@@ -25559,6 +25817,12 @@ var noop = function() {};
     display: block;
     position: relative;
 }
+
+
+
+
+
+
 
 
 
@@ -25933,6 +26197,12 @@ var noop = function() {};
     display: block;
     position: relative;
 }
+
+
+
+
+
+
 
 
 
@@ -26541,6 +26811,12 @@ var noop = function() {};
 
 
 
+
+
+
+
+
+
 </style>
   </template>
   <script>/*jshint  bitwise: false */
@@ -27069,6 +27345,12 @@ window.dualPivotQuickSort = (function() {
 
 
 
+
+
+
+
+
+
 </style>
   </template>
   <script>'use strict';
@@ -27357,6 +27639,12 @@ window.dualPivotQuickSort = (function() {
     display: block;
     position: relative;
 }
+
+
+
+
+
+
 
 
 
@@ -28100,6 +28388,12 @@ window.dualPivotQuickSort = (function() {
 
 
 
+
+
+
+
+
+
 </style>
   </template>
   <script>'use strict';
@@ -28240,6 +28534,12 @@ window.dualPivotQuickSort = (function() {
     display: block;
     position: relative;
 }
+
+
+
+
+
+
 
 
 
@@ -28478,6 +28778,12 @@ window.dualPivotQuickSort = (function() {
 
 
 
+
+
+
+
+
+
 </style>
     <input id="editor">
   </template>
@@ -28501,6 +28807,12 @@ window.dualPivotQuickSort = (function() {
     display: block;
     position: relative;
 }
+
+
+
+
+
+
 
 
 
@@ -28679,6 +28991,12 @@ window.dualPivotQuickSort = (function() {
 
 
 
+
+
+
+
+
+
 </style>
     <input id="editor" type="color">
   </template>
@@ -28699,6 +29017,12 @@ window.dualPivotQuickSort = (function() {
     display: block;
     position: relative;
 }
+
+
+
+
+
+
 
 
 
@@ -28871,6 +29195,12 @@ window.dualPivotQuickSort = (function() {
 
 
 
+
+
+
+
+
+
 </style>
     <input id="editor" type="range">
   </template>
@@ -28891,6 +29221,12 @@ window.dualPivotQuickSort = (function() {
     display: block;
     position: relative;
 }
+
+
+
+
+
+
 
 
 
@@ -29053,6 +29389,12 @@ fin-vampire-bar {
 fin-vampire-bar {
     z-index: 10;
 }
+
+
+
+
+
+
 
 
 
@@ -29483,13 +29825,22 @@ fin-vampire-bar {
         cellEditors: null,
 
         /**
-         * dragColumn is index of the currently dragged column
+         * renderOverridesCache is the short term memory of what column I might be dragging around
          *
-         * @property dragColumn
+         * @property renderOverridesCache
          * @type integer
          */
 
         renderOverridesCache: {},
+
+        /**
+         * hoverCell is always the current hovered cell
+         *
+         * @property hoverCell
+         * @type integer
+         */
+
+        hoverCell: null,
 
         isScrollButtonClick: false,
 
@@ -29545,6 +29896,26 @@ fin-vampire-bar {
             this.fire('load');
             this.isScrollButtonClick = false;
         },
+
+        isHovered: function(x, y) {
+            var p = this.getHoverCell();
+            if (!p) {
+                return false;
+            }
+            return p.x === x && p.y === y;
+        },
+
+        getHoverCell: function() {
+            return this.hoverCell;
+        },
+
+        setHoverCell: function(point) {
+            var fixedX = this.getFixedColumnCount();
+            var fixedY = this.getFixedRowCount();
+            this.hoverCell = rectangles.point.create(point.x - fixedX, point.y - fixedY);
+            this.repaint();
+        },
+
         addGlobalProperties: function(props) {
             //we check for existence to avoid race condition in initialization
             if (!globalProperties) {
@@ -30137,6 +30508,14 @@ fin-vampire-bar {
                 mouseEvent.primitiveEvent = e.detail.primitiveEvent;
                 self.delegateWheelMoved(mouseEvent);
             });
+
+            this.addFinEventListener('fin-mouseout', function(e) {
+                var mouse = e.detail.mouse;
+                var mouseEvent = self.getGridCellFromMousePoint(mouse);
+                mouseEvent.primitiveEvent = e.detail.primitiveEvent;
+                self.delegateMouseExit(mouseEvent);
+            });
+
         },
 
         addFinEventListener: function(eventName, callback) {
@@ -30229,6 +30608,18 @@ fin-vampire-bar {
         delegateWheelMoved: function(event) {
             var behavior = this.getBehavior();
             behavior.onWheelMoved(this, event);
+        },
+
+        /**
+         *                                                                      .
+         *                                                                      .
+         * delegate MouseExit to the behavior (model)
+         *
+         * @method delegateMouseExit(mouseDetails)
+         */
+        delegateMouseExit: function(event) {
+            var behavior = this.getBehavior();
+            behavior.handleMouseExit(this, event);
         },
 
         /**
