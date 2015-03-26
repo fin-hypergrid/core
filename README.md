@@ -296,7 +296,7 @@ Cells as Links
 ======================
 Hypergrid supports clickable link cells, to achieve this you need to...
 
-1. register a listener to the table for 'fin-cell-click'
+* register a listener to the table for 'fin-cell-click'
 ```
 jsonGrid.addFinEventListener('fin-cell-click', function(e){
     var cell = e.detail.cell;
@@ -306,7 +306,7 @@ jsonGrid.addFinEventListener('fin-cell-click', function(e){
     alert('fin-cell-click at (' + cell.x + ', ' + cell.y + ')');
 });
 ```
-2. override the getCursorAt method on behavior to be a function that returns the string of the name of the cursor for the column with the links
+* override the getCursorAt method on behavior to be a function that returns the string of the name of the cursor for the column with the links
 ```
 jsonModel.getCursorAt = function(x,y) {
     if (x === 0) {
@@ -316,7 +316,7 @@ jsonModel.getCursorAt = function(x,y) {
     }
 };
 ```
-3. override the cell-provider to return the linkRenderer for the desired link columns
+* override the cell-provider to return the linkRenderer for the desired link columns
 ```
 cellProvider.getCell = function(config) {
     var renderer = cellProvider.cellCache.simpleCellRenderer;
