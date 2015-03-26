@@ -1490,8 +1490,18 @@
         fireCellClickEvent: function(event) {
             var behavior = this.getBehavior();
             var hovered = this.getHoverCell();
-            var x = behavior.translateColumnIndex(hovered.x + this.getHScrollValue());
-            hovered = rectangles.point.create(x, hovered.y + this.getVScrollValue());
+            var sy = this.getVScrollValue();
+            var x = hovered.x;
+            if (hovered.x > -1) {
+                x = behavior.translateColumnIndex(hovered.x + this.getHScrollValue());
+            }
+
+            if (hovered.y < 0) {
+                sy = 0;
+            }
+
+
+            hovered = rectangles.point.create(x, hovered.y + sy);
             var clickEvent = new CustomEvent('fin-cell-click', {
                 detail: {
                     cell: hovered,
@@ -2100,10 +2110,13 @@
         },
         setDefaultCursor: function() {
             var behavior = this.getBehavior();
-            var hoverCell = this.hoverCell;
-            var x = hoverCell.x + this.getHScrollValue();
-            x = behavior.translateColumnIndex(x);
-            var cursor = hoverCell ? behavior.getCursorAt(x, hoverCell.y + this.getVScrollValue()) : behavior.getCursorAt(-1, -1);
+            var cursor = behavior.getCursorAt(-1, -1);
+            var hoverCell = this.getHoverCell();
+            if (hoverCell) {
+                var x = hoverCell.x + this.getHScrollValue();
+                x = behavior.translateColumnIndex(x);
+                cursor = behavior.getCursorAt(x, hoverCell.y + this.getVScrollValue());
+            }
             this.beCursor(cursor);
         }
 
