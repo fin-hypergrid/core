@@ -439,6 +439,7 @@ http://nodejs.org/download/
 * rafactor features to be self contained/column selector
 
 ## Feature List
+* clickable hyperlink cells
 * polymer web component based
 * material design compliant
 * high performant canvas based rendering
