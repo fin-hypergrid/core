@@ -472,7 +472,9 @@
                 var renderer = cellProvider.cellCache.simpleCellRenderer;
                 config.halign = 'left';
                 var x = config.x;
-                if (x === 2) {
+                if (x === 0) {
+                    renderer = cellProvider.cellCache.linkCellRenderer;
+                } else if (x === 2) {
                     config.halign = 'center';
                 } else if (x === 3) {
                     config.halign = 'center';
@@ -512,11 +514,26 @@
                 return cellEditor;
             };
 
+            jsonModel.getCursorAt = function(x,y) {
+                if (x === 0) {
+                    return 'pointer'
+                } else {
+                    return null;
+                }
+            };
+
+            jsonGrid.addFinEventListener('fin-cell-click', function(e){
+                var cell = e.detail.cell;
+                if (cell.x !== 0) {
+                    return;
+                }
+                alert('fin-cell-click at (' + cell.x + ', ' + cell.y + ')');
+            });
             jsonGrid.addFinEventListener('fin-scroll-x', function(e){
-                console.log('x', e);
+                console.log('fin-scroll-x', e);
             });
             jsonGrid.addFinEventListener('fin-scroll-y', function(e){
-                console.log('y', e);
+                console.log('fin-scroll-y', e);
             });
         });
     })();

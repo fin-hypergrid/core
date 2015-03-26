@@ -4,7 +4,7 @@ var noop = function() {};
 
 (function() {
 
-    var underline = function(ctx, text, x, y, size, thickness, offset) {
+    var underline = function(ctx, text, x, y, thickness) {
         var width = ctx.measureText(text).width;
 
         switch (ctx.textAlign) {
@@ -15,8 +15,6 @@ var noop = function() {};
                 x -= width;
                 break;
         }
-
-        y += size + offset;
 
         ctx.beginPath();
         ctx.lineWidth = thickness;
@@ -94,12 +92,10 @@ var noop = function() {};
             cell.config = config;
             return cell;
         },
-
         //This is the default cell rendering function for rendering a vanilla cell. Great care was taken in crafting this function as it needs to perform extremely fast. Reads on the gc object are expensive but not quite as expensive as writes to it. We do our best to avoid writes, then avoid reads. Clipping bounds are not set here as this is also an expensive operation. Instead, we truncate overflowing text and content by filling a rectangle with background color column by column instead of cell by cell.  This column by column fill happens higher up on the stack in a calling function from OFGridRenderer.  Take note we do not do cell by cell border renderering as that is expensive.  Instead we render many fewer gridlines after all cells are rendered.
+        defaultCellPaint: function(gc, x, y, width, height, isLink) {
 
-        defaultCellPaint: function(gc, x, y, width, height) {
-
-
+            isLink = isLink || false;
             var colHEdgeOffset = this.config.properties.cellPadding,
                 halignOffset = 0,
                 valignOffset = this.config.voffset,
@@ -151,14 +147,14 @@ var noop = function() {};
             }
             gc.fillText(this.config.value, x + halignOffset, y + valignOffset);
 
-            if (isHovered) {
+            if (isLink && isHovered) {
                 //gc.fillStyle = this.config.isSelected ? this.config.bgSelColor : this.config.bgColor;
                 // var prevLW = gc.lineWidth;
                 // var prevSS = gc.strokeStyle;
                 gc.strokeStyle = theColor;
                 // gc.lineWidth = 3;
                 gc.rect(x + 2, y + 2, width - 4, height - 4);
-                underline(gc, this.config.value, x + halignOffset, y, valignOffset + Math.floor(fontMetrics.height / 2), 1, 1, 0);
+                underline(gc, this.config.value, x + halignOffset, y + valignOffset + Math.floor(fontMetrics.height / 2), 1);
                 gc.stroke();
                 //gc.lineWidth = prevLW;
                 // gc.strokeStyle = prevSS;
@@ -270,6 +266,7 @@ var noop = function() {};
 
         //default cellRenderers are initialized here.  you can augment the visible on your cellProvider instance: field ```myCellProviderInstance.cellCache.myCellRendererName = myCellRenderer```
         initializeCells: function() {
+            var self = this;
             this.cellCache.simpleCellRenderer = {
                 paint: this.defaultCellPaint
             };
@@ -287,6 +284,12 @@ var noop = function() {};
             };
             this.cellCache.emptyCellRenderer = {
                 paint: this.emptyCellRenderer
+            };
+            this.cellCache.linkCellRenderer = {
+                paint: function(gc, x, y, width, height) {
+                    self.config = this.config;
+                    self.defaultCellPaint(gc, x, y, width, height, true);
+                },
             };
         },
 

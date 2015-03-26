@@ -1111,17 +1111,6 @@
             this.style.cursor = cursorName;
         },
 
-        /**
-         *                                                                      .
-         *                                                                      .
-         * turn on the column resize cursor
-         *
-         * @method beColumnResizeCursor()
-         */
-        beDefaultCursor: function() {
-            this.style.cursor = 'default';
-        },
-
         delegateWheelMoved: function(event) {
             var behavior = this.getBehavior();
             behavior.onWheelMoved(this, event);
@@ -1496,6 +1485,21 @@
          */
         resized: function() {
             this.synchronizeScrollingBoundries();
+        },
+
+        fireCellClickEvent: function(event) {
+            var behavior = this.getBehavior();
+            var hovered = this.getHoverCell();
+            var x = behavior.translateColumnIndex(hovered.x + this.getHScrollValue());
+            hovered = rectangles.point.create(x, hovered.y + this.getVScrollValue());
+            var clickEvent = new CustomEvent('fin-cell-click', {
+                detail: {
+                    cell: hovered,
+                    event: event,
+                    time: Date.now()
+                }
+            });
+            this.canvas.dispatchEvent(clickEvent);
         },
 
         /**
@@ -2093,6 +2097,14 @@
         },
         resolveCellEditor: function(name) {
             return this.cellEditors[name];
+        },
+        setDefaultCursor: function() {
+            var behavior = this.getBehavior();
+            var hoverCell = this.hoverCell;
+            var x = hoverCell.x + this.getHScrollValue();
+            x = behavior.translateColumnIndex(x);
+            var cursor = hoverCell ? behavior.getCursorAt(x, hoverCell.y + this.getVScrollValue()) : behavior.getCursorAt(-1, -1);
+            this.beCursor(cursor);
         }
 
     });

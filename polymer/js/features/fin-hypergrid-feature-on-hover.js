@@ -20,13 +20,19 @@
                     this.next.handleMouseMove(grid, event);
                 }
             }
-        },
-        handleMouseEnter: function(grid, event) {
-            console.log('mouse enter', event);
-        },
-        handleMouseExit: function(grid, event) {
-            console.log('mouse exit', event);
         }
     });
 
 })(); /* jshint ignore:line */
+
+
+// handleMouseMove: function(grid, event) {
+//     if (this.isFixedRow(grid, event) && !this.isFixedColumn(grid, event)) {
+//         this.cursor = 'pointer';
+//     } else {
+//         this.cursor = null;
+//     }
+//     if (this.next) {
+//         this.next.handleMouseMove(grid, event);
+//     }
+// }

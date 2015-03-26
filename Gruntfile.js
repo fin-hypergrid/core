@@ -36,15 +36,15 @@ module.exports = function(grunt) {
         watch: {
             polymerjs: {
                 files: files.polymerjs,
-                tasks: ['jshint', 'polymer-component-sync', 'jsbeautifier', 'wct-test', 'vulcanize:default'],
+                tasks: ['jshint', 'polymer-component-sync', 'jsbeautifier', 'wct-test', 'vulcanize-both'],
             },
             polymercss: {
                 files: files.polymercss,
-                tasks: ['csslint:default', 'cssbeautifier', 'vulcanize:default'],
+                tasks: ['csslint:default', 'cssbeautifier', 'vulcanize-both'],
             },
             polymerhtml: {
                 files: files.polymerhtml,
-                tasks: ['htmllint', 'prettify', 'vulcanize:default'],
+                tasks: ['htmllint', 'prettify', 'vulcanize-both'],
             },
             livereloadflag: {
                 files: ['abc.html'],
@@ -58,7 +58,17 @@ module.exports = function(grunt) {
             },
         },
         vulcanize: {
-            default: {
+            min: {
+                options: {
+                    inline: true,
+                    strip: true,
+                    abspath: '../../'
+                },
+                files: {
+                    //see below as this key value pair is set programmatically
+                }
+            },
+            dev: {
                 options: {
                     inline: true,
                     strip: false,
@@ -181,18 +191,18 @@ module.exports = function(grunt) {
             }
 
         },
-
     };
 
     //we need to dynamicaly set the name of this property
-    myConfig.vulcanize.default.files[elementName + '.min.html'] = myConfig['polymer-component-sync'].default.html + delimeter + elementName + '.html';
+    myConfig.vulcanize.min.files[elementName + '.min.html'] = myConfig['polymer-component-sync'].default.html + delimeter + elementName + '.html';
+    myConfig.vulcanize.dev.files[elementName + '.dev.html'] = myConfig['polymer-component-sync'].default.html + delimeter + elementName + '.html';
 
     grunt.initConfig(myConfig);
 
     grunt.loadNpmTasks('web-component-tester');
     grunt.registerTask('test', ['build', 'wct-test']);
+    grunt.registerTask('vulcanize-both', ['vulcanize:min', 'vulcanize:dev']);
     grunt.registerTask('default', ['build']);
-
     grunt.registerTask('build', [
                 'polymer-component-sync',
                 'jshint',
@@ -202,9 +212,8 @@ module.exports = function(grunt) {
                 'htmllint',
                 'prettify',
                 'wct-test',
-                'vulcanize:default'
+                'vulcanize-both'
     ]);
-
     grunt.registerTask('serve', function() {
         return grunt.task.run([
             'express',
@@ -213,8 +222,6 @@ module.exports = function(grunt) {
             'watch'
         ]);
     });
-
-
     //these functions need to be moved into a yeoman subgenerator
     function createIndexHtml(files) {
         var strVar='<!doctype html>\n';
@@ -421,7 +428,6 @@ module.exports = function(grunt) {
         console.log('creating test/index.html');
         grunt.file.write('test/index.html', testhtml);
     });
-
     grunt.registerTask('polymer','create a new polymer component', function() {
         var elName = this.args[0];
         var shortName = elName.split(delimeter).reverse()[0];
@@ -431,5 +437,4 @@ module.exports = function(grunt) {
         grunt.task.run('polymer-component-sync');
         console.log('created boilerplate ' + jsDir + delimeter + elName + '.js file and accompanying pre/post/css files');
     });
-
 };

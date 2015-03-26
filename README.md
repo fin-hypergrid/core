@@ -292,6 +292,46 @@ Hypergrid has a column picker that allows you to drag and drop columns for confi
 press alt/option to open the column picker, you can press alt/option or esc to close it
 <img src="images/gridshot07.png" alt="screenshot">
 
+Cells as Links
+======================
+Hypergrid supports clickable link cells, to achieve this you need to...
+
+1. register a listener to the table for 'fin-cell-click'
+```
+jsonGrid.addFinEventListener('fin-cell-click', function(e){
+    var cell = e.detail.cell;
+    if (cell.x !== 0) {
+        return;
+    }
+    alert('fin-cell-click at (' + cell.x + ', ' + cell.y + ')');
+});
+```
+2. override the getCursorAt method on behavior to be a function that returns the string of the name of the cursor for the column with the links
+```
+jsonModel.getCursorAt = function(x,y) {
+    if (x === 0) {
+        return 'pointer'
+    } else {
+        return null;
+    }
+};
+```
+3. override the cell-provider to return the linkRenderer for the desired link columns
+```
+cellProvider.getCell = function(config) {
+    var renderer = cellProvider.cellCache.simpleCellRenderer;
+    config.halign = 'left';
+    var x = config.x;
+    if (x === 0) {
+        renderer = cellProvider.cellCache.linkCellRenderer;
+    } else if (x === 2) {
+    ...
+    ...
+    ...
+```
+ 
+see the 'Last Name' column of the JSON tab in the main example;
+
 <a name="hypergrid-excel-integration"></a>
 Hypergrid Excel Integration
 ======================

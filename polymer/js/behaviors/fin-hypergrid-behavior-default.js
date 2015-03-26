@@ -100,6 +100,7 @@
         },
 
         initializeFeatureChain: function(grid) {
+            this.setNextFeature(document.createElement('fin-hypergrid-feature-cell-click'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-overlay'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-column-resizing'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-row-resizing'));
@@ -374,7 +375,7 @@
         },
 
         setCursor: function(grid) {
-            grid.beCursor('default');
+            grid.setDefaultCursor();
             this.featureChain.setCursor(grid);
         },
 
@@ -581,6 +582,9 @@
             style.height = '90%';
             style.whiteSpace = 'nowrap';
         },
+        getCursorAt: function( /* x, y */ ) {
+            return null;
+        }
 
     });
 
