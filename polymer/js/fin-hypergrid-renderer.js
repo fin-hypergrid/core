@@ -353,14 +353,14 @@ var config = {
             gc.lineWidth = 1;
             var c, r, x, y, width, height;
 
-            //fixedrow horiontal grid lines
+            //fixedrow horizontal grid lines
             //gc.beginPath();
             gc.moveTo(0, 0);
             y = 0;
             for (r = 0; r < numFixedRows; r++) {
                 height = this.getFixedRowHeight(r);
                 y = y + height;
-                this.renderedRowHeights.push(y);
+                this.renderedRowHeights.push(Math.round(y));
                 if (drawThemH) {
                     gc.moveTo(fixedColumnsWidth, y + 0.5);
                     gc.lineTo(viewWidth, y + 0.5);
@@ -375,7 +375,7 @@ var config = {
             for (c = 0; c < numFixedColumns; c++) {
                 width = this.getFixedColumnWidth(c);
                 x = x + width;
-                this.renderedColumnWidths.push(x);
+                this.renderedColumnWidths.push(Math.round(x));
                 if (drawThemV) {
                     gc.moveTo(x + 0.5, fixedRowsHeight);
                     gc.lineTo(x + 0.5, viewHeight);
@@ -405,7 +405,7 @@ var config = {
                 }
                 x = x + width;
 
-                this.renderedColumnWidths.push(x);
+                this.renderedColumnWidths.push(Math.round(x));
 
                 insertionBoundsCursor = insertionBoundsCursor + Math.round(width / 2) + previousInsertionBoundsCursorValue;
                 this.insertionBounds.push(insertionBoundsCursor);
@@ -432,7 +432,7 @@ var config = {
                     //gc.stroke();
                 }
                 y = y + height;
-                this.renderedRowHeights.push(y);
+                this.renderedRowHeights.push(Math.round(y));
             }
             gc.stroke();
             gc.closePath();

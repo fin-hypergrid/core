@@ -21243,6 +21243,7 @@ div.container {
 
 
 
+
 </style>
   </template>
   <script>//HypergridRenderer is the canvas enabled top level sub component that handles the renderering of the Grid.
@@ -21600,14 +21601,14 @@ var config = {
             gc.lineWidth = 1;
             var c, r, x, y, width, height;
 
-            //fixedrow horiontal grid lines
+            //fixedrow horizontal grid lines
             //gc.beginPath();
             gc.moveTo(0, 0);
             y = 0;
             for (r = 0; r < numFixedRows; r++) {
                 height = this.getFixedRowHeight(r);
                 y = y + height;
-                this.renderedRowHeights.push(y);
+                this.renderedRowHeights.push(Math.round(y));
                 if (drawThemH) {
                     gc.moveTo(fixedColumnsWidth, y + 0.5);
                     gc.lineTo(viewWidth, y + 0.5);
@@ -21622,7 +21623,7 @@ var config = {
             for (c = 0; c < numFixedColumns; c++) {
                 width = this.getFixedColumnWidth(c);
                 x = x + width;
-                this.renderedColumnWidths.push(x);
+                this.renderedColumnWidths.push(Math.round(x));
                 if (drawThemV) {
                     gc.moveTo(x + 0.5, fixedRowsHeight);
                     gc.lineTo(x + 0.5, viewHeight);
@@ -21652,7 +21653,7 @@ var config = {
                 }
                 x = x + width;
 
-                this.renderedColumnWidths.push(x);
+                this.renderedColumnWidths.push(Math.round(x));
 
                 insertionBoundsCursor = insertionBoundsCursor + Math.round(width / 2) + previousInsertionBoundsCursorValue;
                 this.insertionBounds.push(insertionBoundsCursor);
@@ -21679,7 +21680,7 @@ var config = {
                     //gc.stroke();
                 }
                 y = y + height;
-                this.renderedRowHeights.push(y);
+                this.renderedRowHeights.push(Math.round(y));
             }
             gc.stroke();
             gc.closePath();
@@ -22200,6 +22201,7 @@ var config = {
 
 
 
+
 </style>
   </template>
   <script>'use strict';
@@ -22287,6 +22289,7 @@ var config = {
     display: block;
     position: relative;
 }
+
 
 
 
@@ -22618,6 +22621,7 @@ var config = {
 
 
 
+
 </style>
   </template>
   <script>(function() {
@@ -22759,6 +22763,7 @@ var config = {
     display: block;
     position: relative;
 }
+
 
 
 
@@ -23175,6 +23180,7 @@ var noop = function() {};
 
 
 
+
 </style>
   </template>
   <script>'use strict';
@@ -23199,6 +23205,7 @@ var noop = function() {};
     display: block;
     position: relative;
 }
+
 
 
 
@@ -23888,6 +23895,7 @@ var noop = function() {};
 
 
 
+
 </style>
   </template>
   <script>(function() {
@@ -24009,6 +24017,7 @@ var noop = function() {};
     display: block;
     position: relative;
 }
+
 
 
 
@@ -24234,6 +24243,7 @@ var noop = function() {};
 
 
 
+
 </style>
   </template>
   <script>(function() {
@@ -24263,6 +24273,7 @@ var noop = function() {};
     display: block;
     position: relative;
 }
+
 
 
 
@@ -24401,6 +24412,7 @@ var noop = function() {};
     display: block;
     position: relative;
 }
+
 
 
 
@@ -24656,6 +24668,7 @@ var noop = function() {};
     display: block;
     position: relative;
 }
+
 
 
 
@@ -25326,6 +25339,7 @@ var noop = function() {};
 
 
 
+
 </style>
   </template>
   <script>(function() {
@@ -25417,6 +25431,7 @@ var noop = function() {};
 
 
 
+
 </style>
   </template>
   <script>(function() {
@@ -25464,6 +25479,7 @@ var noop = function() {};
     display: block;
     position: relative;
 }
+
 
 
 
@@ -26259,6 +26275,7 @@ var noop = function() {};
 
 
 
+
 </style>
   </template>
   <script>/*jshint  bitwise: false */
@@ -26557,6 +26574,7 @@ var noop = function() {};
     display: block;
     position: relative;
 }
+
 
 
 
@@ -27203,6 +27221,7 @@ var noop = function() {};
 
 
 
+
 </style>
   </template>
   <script>/*jshint  bitwise: false */
@@ -27750,6 +27769,7 @@ window.dualPivotQuickSort = (function() {
 
 
 
+
 </style>
   </template>
   <script>'use strict';
@@ -28038,6 +28058,7 @@ window.dualPivotQuickSort = (function() {
     display: block;
     position: relative;
 }
+
 
 
 
@@ -28819,6 +28840,7 @@ window.dualPivotQuickSort = (function() {
 
 
 
+
 </style>
   </template>
   <script>'use strict';
@@ -28959,6 +28981,7 @@ window.dualPivotQuickSort = (function() {
     display: block;
     position: relative;
 }
+
 
 
 
@@ -29235,6 +29258,7 @@ window.dualPivotQuickSort = (function() {
 
 
 
+
 </style>
     <input id="editor">
   </template>
@@ -29258,6 +29282,7 @@ window.dualPivotQuickSort = (function() {
     display: block;
     position: relative;
 }
+
 
 
 
@@ -29474,6 +29499,7 @@ window.dualPivotQuickSort = (function() {
 
 
 
+
 </style>
     <input id="editor" type="color">
   </template>
@@ -29494,6 +29520,7 @@ window.dualPivotQuickSort = (function() {
     display: block;
     position: relative;
 }
+
 
 
 
@@ -29704,6 +29731,7 @@ window.dualPivotQuickSort = (function() {
 
 
 
+
 </style>
     <input id="editor" type="range">
   </template>
@@ -29724,6 +29752,7 @@ window.dualPivotQuickSort = (function() {
     display: block;
     position: relative;
 }
+
 
 
 
@@ -29905,6 +29934,7 @@ fin-vampire-bar {
 fin-vampire-bar {
     z-index: 10;
 }
+
 
 
 
