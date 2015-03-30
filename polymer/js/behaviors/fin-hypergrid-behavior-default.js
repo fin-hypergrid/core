@@ -86,6 +86,10 @@
             return this.tableState.columnIndexes[x];
         },
 
+        unTranslateColumnIndex: function(x) {
+            return this.tableState.columnIndexes.indexOf(x);
+        },
+
         setNextFeature: function(nextFeature) {
             if (this.featureChain) {
                 this.featureChain.setNext(nextFeature);

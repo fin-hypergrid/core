@@ -19473,16 +19473,23 @@ div.container {
          * @method paintNow()
          */
         paintNow: function() {
+            var self = this;
+            this.safePaintImmediately(function(gc) {
+                gc.clearRect(0, 0, self.canvas.width, self.canvas.height);
+                self.paint(gc);
+                self.repaintNow = false;
+            });
+        },
+
+        safePaintImmediately: function(paintFunction) {
             var gc = this.bufferCTX;
             try {
                 gc.save();
-                gc.clearRect(0, 0, this.canvas.width, this.canvas.height);
-                this.paint(gc);
+                paintFunction(gc);
             } finally {
                 gc.restore();
             }
             this.flushBuffer();
-            this.repaintNow = false;
         },
 
         /**
@@ -21232,6 +21239,10 @@ div.container {
 
 
 
+
+
+
+
 </style>
   </template>
   <script>//HypergridRenderer is the canvas enabled top level sub component that handles the renderering of the Grid.
@@ -21376,6 +21387,7 @@ var config = {
          * @method isOverColumnDivider(x)
          */
         overColumnDivider: function(x) {
+            x = Math.round(x);
             var whichCol = this.renderedColumnWidths.indexOf(x + 1);
             if (whichCol < 0) {
                 whichCol = this.renderedColumnWidths.indexOf(x);
@@ -21394,6 +21406,7 @@ var config = {
          * @method overRowDivider(y)
          */
         overRowDivider: function(y) {
+            y = Math.round(y);
             var which = this.renderedRowHeights.indexOf(y + 1);
             if (which < 0) {
                 which = this.renderedRowHeights.indexOf(y);
@@ -21404,12 +21417,16 @@ var config = {
             return which;
         },
 
-        //Answer the pixel bounds of specific data cell. It must have just been rendered
         getBoundsOfCell: function(cell) {
-            var ox = this.renderedColumnWidths[cell.x],
-                oy = this.renderedRowHeights[cell.y],
-                cx = this.renderedColumnWidths[cell.x + 1],
-                cy = this.renderedRowHeights[cell.y + 1],
+            return this._getBoundsOfCell(cell.x, cell.y);
+        },
+
+        //Answer the pixel bounds of specific data cell. It must have just been rendered
+        _getBoundsOfCell: function(x, y) {
+            var ox = this.renderedColumnWidths[x],
+                oy = this.renderedRowHeights[y],
+                cx = this.renderedColumnWidths[x + 1],
+                cy = this.renderedRowHeights[y + 1],
                 ex = cx - ox,
                 ey = cy - oy;
 
@@ -21498,12 +21515,14 @@ var config = {
             var offsetX = this.getBehavior().getFixedColumnsWidth();
             var offsetY = this.getBehavior().getFixedRowsHeight();
 
+            gc.beginPath();
             this.paintTopLeft(gc, offsetX, offsetY);
             this.paintHeaders(gc, 0, 0);
             this.paintCells(gc, offsetX, offsetY);
             this.paintGridlines(gc, offsetX, offsetY);
             this.blankOutOverflow(gc);
             this.renderOverrides(gc);
+            gc.closePath();
         },
 
         blankOutOverflow: function(gc) {
@@ -21576,12 +21595,13 @@ var config = {
             var viewWidth = this.getBounds().width() - 200; // look in fin-hypergrid and initializtion of fin-canvas
             var viewHeight = this.getBounds().height();
 
+            gc.beginPath();
             gc.strokeStyle = lineColor;
             gc.lineWidth = 1;
             var c, r, x, y, width, height;
 
             //fixedrow horiontal grid lines
-            gc.beginPath();
+            //gc.beginPath();
             gc.moveTo(0, 0);
             y = 0;
             for (r = 0; r < numFixedRows; r++) {
@@ -21591,12 +21611,12 @@ var config = {
                 if (drawThemH) {
                     gc.moveTo(fixedColumnsWidth, y + 0.5);
                     gc.lineTo(viewWidth, y + 0.5);
-                    gc.stroke();
+                    //gc.stroke();
                 }
             }
 
             //fixedcol vertical grid lines
-            gc.beginPath();
+            //gc.beginPath();
             gc.moveTo(0, 0);
             x = 0;
             for (c = 0; c < numFixedColumns; c++) {
@@ -21606,12 +21626,12 @@ var config = {
                 if (drawThemV) {
                     gc.moveTo(x + 0.5, fixedRowsHeight);
                     gc.lineTo(x + 0.5, viewHeight);
-                    gc.stroke();
+                    //gc.stroke();
                 }
             }
 
             //main area vertical grid lines
-            gc.beginPath();
+            //gc.beginPath();
             gc.moveTo(0, 0);
             x = offsetX;
             var previousInsertionBoundsCursorValue = 0;
@@ -21628,7 +21648,7 @@ var config = {
                 if (drawThemV) {
                     gc.moveTo(x + 0.5, 0);
                     gc.lineTo(x + 0.5, viewHeight);
-                    gc.stroke();
+                    //gc.stroke();
                 }
                 x = x + width;
 
@@ -21640,7 +21660,7 @@ var config = {
             }
 
             //main area horizontal grid lines
-            gc.beginPath();
+            //gc.beginPath();
             gc.moveTo(0, 0);
             y = offsetY;
             for (r = 0; r < numRows; r++) {
@@ -21656,11 +21676,13 @@ var config = {
                 if (drawThemH) {
                     gc.moveTo(0, y + 0.5);
                     gc.lineTo(viewWidth, y + 0.5);
-                    gc.stroke();
+                    //gc.stroke();
                 }
                 y = y + height;
                 this.renderedRowHeights.push(y);
             }
+            gc.stroke();
+            gc.closePath();
         },
 
         paintHeaders: function(ctx, offsetX, offsetY) {
@@ -21992,8 +22014,86 @@ var config = {
         },
         getTopSideSize: function(index) {
             return this.renderedRowHeights[index];
-        }
+        },
+        getCanvas: function() {
+            return this.getGrid().getCanvas();
+        },
+        repaintCell: function(x, y) {
+            if (this.isDraggingColumn()) {
+                return;
+            }
+            var self = this;
+            var behavior = this.getBehavior();
 
+            var numFixedCols = behavior.getFixedColumnCount();
+            var numFixedRows = behavior.getFixedRowCount();
+
+            var scrollLeft = this.getScrollLeft();
+            var unTranslatedX = behavior.unTranslateColumnIndex(x + scrollLeft);
+
+            //it's not being viewed exit...
+            if (!this.isRowVisible(y) || !this.isColVisible(unTranslatedX)) {
+                return;
+            }
+            //var offsetX = behavior.getFixedColumnsWidth();
+            //var offsetY = behavior.getFixedRowsHeight();
+
+            var ox = this.renderedColumnWidths[numFixedCols + unTranslatedX],
+                oy = this.renderedRowHeights[numFixedRows + y],
+                cx = this.renderedColumnWidths[numFixedCols + unTranslatedX + 1],
+                cy = this.renderedRowHeights[numFixedRows + y + 1],
+                ex = cx - ox,
+                ey = cy - oy;
+
+            var func = function(gc) {
+                self._repaintCell(gc, x, unTranslatedX, y, ox, oy, ex, ey);
+            };
+
+            this.getCanvas().safePaintImmediately(func);
+
+        },
+        _repaintCell: function(ctx, translatedX, x, y, startX, startY, width, height) {
+            ctx.rect(startX + 1, startY + 1, width, height);
+            ctx.clip();
+            var behavior = this.getBehavior();
+            var scrollTop = this.getScrollTop();
+            var scrollLeft = this.getScrollLeft();
+            var cellProvider = this.getGrid().getCellProvider();
+            var font = this.resolveProperty('font');
+
+            var voffset = this.resolveProperty('voffset');
+            var hoffset = this.resolveProperty('hoffset');
+
+            var fgColor = this.resolveProperty('color');
+            var bgColor = this.resolveProperty('backgroundColor');
+
+            var fgSelColor = this.resolveProperty('foregroundSelColor');
+            var bgSelColor = this.resolveProperty('backgroundSelColor');
+
+            //        var viewWidth = this.getBounds().width() - 200; // look in fin-hypergrid and initializtion of fin-canvas
+            //        var viewHeight = this.getBounds().height();
+
+            var columnAlign = behavior.getColumnAlignment(translatedX);
+            var columnProperties = behavior.getColumnProperties(translatedX);
+            var overrideFGColor = columnProperties.fgColor || fgColor;
+            var overrideFont = columnProperties.font || font;
+            //fill background
+            ctx.fillStyle = columnProperties.bgColor || bgColor;
+            ctx.fillRect(startX, startY, width, height);
+
+            var isSelected = this.isSelected(x + scrollLeft, y + scrollTop);
+
+            var value = behavior.getValue(x + scrollLeft, y + scrollTop);
+
+            var isHovered = this.isHovered(x, y);
+            var cell = cellProvider.getCell(this.cellConfig(translatedX, y + scrollTop, value, overrideFGColor, bgColor, fgSelColor, bgSelColor, overrideFont, isSelected, isHovered, columnAlign, hoffset, voffset));
+
+            cell.paint(ctx, startX, startY, width, height);
+
+        },
+        isDraggingColumn: function() {
+            return this.getGrid().isDraggingColumn();
+        }
     });
 
 })(); /* jslint ignore:line */
@@ -22005,6 +22105,10 @@ var config = {
     display: block;
     position: relative;
 }
+
+
+
+
 
 
 
@@ -22183,6 +22287,10 @@ var config = {
     display: block;
     position: relative;
 }
+
+
+
+
 
 
 
@@ -22506,6 +22614,10 @@ var config = {
 
 
 
+
+
+
+
 </style>
   </template>
   <script>(function() {
@@ -22738,6 +22850,10 @@ var config = {
 
 
 
+
+
+
+
 </style>
   </template>
   <script>'use strict';
@@ -22758,7 +22874,7 @@ var noop = function() {};
                 break;
         }
 
-        ctx.beginPath();
+        //ctx.beginPath();
         ctx.lineWidth = thickness;
         ctx.moveTo(x + 0.5, y + 0.5);
         ctx.lineTo(x + width + 0.5, y + 0.5);
@@ -22797,6 +22913,7 @@ var noop = function() {};
         if (fill) {
             ctx.fill();
         }
+        ctx.closePath();
     };
 
 
@@ -22889,17 +23006,15 @@ var noop = function() {};
             }
             gc.fillText(this.config.value, x + halignOffset, y + valignOffset);
 
-            if (isLink && isHovered) {
-                //gc.fillStyle = this.config.isSelected ? this.config.bgSelColor : this.config.bgColor;
-                // var prevLW = gc.lineWidth;
-                // var prevSS = gc.strokeStyle;
-                gc.strokeStyle = theColor;
-                // gc.lineWidth = 3;
-                gc.rect(x + 2, y + 2, width - 4, height - 4);
-                underline(gc, this.config.value, x + halignOffset, y + valignOffset + Math.floor(fontMetrics.height / 2), 1);
+            if (isHovered) {
+                gc.beginPath();
+                if (isLink) {
+                    underline(gc, this.config.value, x + halignOffset, y + valignOffset + Math.floor(fontMetrics.height / 2), 1);
+                } else {
+                    gc.rect(x + 2, y + 2, width - 4, height - 4);
+                }
                 gc.stroke();
-                //gc.lineWidth = prevLW;
-                // gc.strokeStyle = prevSS;
+                gc.closePath();
             }
         },
 
@@ -22926,10 +23041,12 @@ var noop = function() {};
             ctx.beginPath();
             ctx.arc(x + Math.max(offset - radius, radius), y + radius, radius, 0, 2 * Math.PI);
             ctx.fill();
+            ctx.closePath();
         },
 
         //simple implementation of a sparkline.  see [Edward Tufte sparkline](http://www.edwardtufte.com/bboard/q-and-a-fetch-msg?msg_id=0001OR)
         paintSparkbar: function(ctx, x, y, width, height) {
+            ctx.beginPath();
             var val = this.config.value;
             if (!val || !val.length) {
                 return;
@@ -22947,10 +23064,13 @@ var noop = function() {};
                 ctx.fillRect(x + 5, y + height - barheight, eWidth * 0.6666, barheight);
                 x = x + eWidth;
             }
+            ctx.closePath();
+
         },
 
         //simple implementation of a sparkline, because it's a barchart we've changed the name ;).  see [Edward Tufte sparkline](http://www.edwardtufte.com/bboard/q-and-a-fetch-msg?msg_id=0001OR)
         paintSparkline: function(ctx, x, y, width, height) {
+            ctx.beginPath();
             var val = this.config.value;
             if (!val || !val.length) {
                 return;
@@ -22977,6 +23097,7 @@ var noop = function() {};
                 x = x + eWidth;
             }
             ctx.stroke();
+            ctx.closePath();
         },
 
         //simple implementation of a tree cell
@@ -23050,6 +23171,10 @@ var noop = function() {};
 
 
 
+
+
+
+
 </style>
   </template>
   <script>'use strict';
@@ -23074,6 +23199,10 @@ var noop = function() {};
     display: block;
     position: relative;
 }
+
+
+
+
 
 
 
@@ -23755,6 +23884,10 @@ var noop = function() {};
 
 
 
+
+
+
+
 </style>
   </template>
   <script>(function() {
@@ -23876,6 +24009,10 @@ var noop = function() {};
     display: block;
     position: relative;
 }
+
+
+
+
 
 
 
@@ -24093,6 +24230,10 @@ var noop = function() {};
 
 
 
+
+
+
+
 </style>
   </template>
   <script>(function() {
@@ -24122,6 +24263,10 @@ var noop = function() {};
     display: block;
     position: relative;
 }
+
+
+
+
 
 
 
@@ -24256,6 +24401,10 @@ var noop = function() {};
     display: block;
     position: relative;
 }
+
+
+
+
 
 
 
@@ -24507,6 +24656,10 @@ var noop = function() {};
     display: block;
     position: relative;
 }
+
+
+
+
 
 
 
@@ -25169,6 +25322,10 @@ var noop = function() {};
 
 
 
+
+
+
+
 </style>
   </template>
   <script>(function() {
@@ -25256,6 +25413,10 @@ var noop = function() {};
 
 
 
+
+
+
+
 </style>
   </template>
   <script>(function() {
@@ -25303,6 +25464,10 @@ var noop = function() {};
     display: block;
     position: relative;
 }
+
+
+
+
 
 
 
@@ -25482,6 +25647,10 @@ var noop = function() {};
 
         translateColumnIndex: function(x) {
             return this.tableState.columnIndexes[x];
+        },
+
+        unTranslateColumnIndex: function(x) {
+            return this.tableState.columnIndexes.indexOf(x);
         },
 
         setNextFeature: function(nextFeature) {
@@ -26086,6 +26255,10 @@ var noop = function() {};
 
 
 
+
+
+
+
 </style>
   </template>
   <script>/*jshint  bitwise: false */
@@ -26384,6 +26557,10 @@ var noop = function() {};
     display: block;
     position: relative;
 }
+
+
+
+
 
 
 
@@ -27022,6 +27199,10 @@ var noop = function() {};
 
 
 
+
+
+
+
 </style>
   </template>
   <script>/*jshint  bitwise: false */
@@ -27565,6 +27746,10 @@ window.dualPivotQuickSort = (function() {
 
 
 
+
+
+
+
 </style>
   </template>
   <script>'use strict';
@@ -27853,6 +28038,10 @@ window.dualPivotQuickSort = (function() {
     display: block;
     position: relative;
 }
+
+
+
+
 
 
 
@@ -28626,6 +28815,10 @@ window.dualPivotQuickSort = (function() {
 
 
 
+
+
+
+
 </style>
   </template>
   <script>'use strict';
@@ -28766,6 +28959,10 @@ window.dualPivotQuickSort = (function() {
     display: block;
     position: relative;
 }
+
+
+
+
 
 
 
@@ -29034,6 +29231,10 @@ window.dualPivotQuickSort = (function() {
 
 
 
+
+
+
+
 </style>
     <input id="editor">
   </template>
@@ -29057,6 +29258,10 @@ window.dualPivotQuickSort = (function() {
     display: block;
     position: relative;
 }
+
+
+
+
 
 
 
@@ -29265,6 +29470,10 @@ window.dualPivotQuickSort = (function() {
 
 
 
+
+
+
+
 </style>
     <input id="editor" type="color">
   </template>
@@ -29285,6 +29494,10 @@ window.dualPivotQuickSort = (function() {
     display: block;
     position: relative;
 }
+
+
+
+
 
 
 
@@ -29487,6 +29700,10 @@ window.dualPivotQuickSort = (function() {
 
 
 
+
+
+
+
 </style>
     <input id="editor" type="range">
   </template>
@@ -29507,6 +29724,10 @@ window.dualPivotQuickSort = (function() {
     display: block;
     position: relative;
 }
+
+
+
+
 
 
 
@@ -29774,6 +29995,10 @@ fin-vampire-bar {
 
 
 
+
+
+
+
 </style>
     <fin-plugins>
     </fin-plugins>
@@ -29850,7 +30075,6 @@ fin-vampire-bar {
             fixedRowAlign: 'center',
             fixedColAlign: 'center',
             cellPadding: 5,
-            repaintIntervalRate: 0,
             gridLinesH: true,
             gridLinesV: true,
 
@@ -29858,7 +30082,10 @@ fin-vampire-bar {
             defaultFixedRowHeight: 20,
             defaultColumnWidth: 100,
             defaultFixedColumnWidth: 100,
-            repaintImmediately: true
+
+            //for immediate painting, set these values to 0, true respectively
+            repaintIntervalRate: 20,
+            repaintImmediately: false
         };
         return properties;
     };
@@ -31912,6 +32139,16 @@ fin-vampire-bar {
                 cursor = behavior.getCursorAt(x, hoverCell.y + this.getVScrollValue());
             }
             this.beCursor(cursor);
+        },
+        repaintCell: function(x, y) {
+            this.getRenderer().repaintCell(x, y);
+        },
+        isDraggingColumn: function() {
+            if (this.renderOverridesCache.dragger) {
+                return true;
+            } else {
+                return false;
+            }
         }
 
     });

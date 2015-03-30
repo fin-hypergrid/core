@@ -72,7 +72,7 @@
             defaultFixedColumnWidth: 100,
 
             //for immediate painting, set these values to 0, true respectively
-            repaintIntervalRate: 15,
+            repaintIntervalRate: 20,
             repaintImmediately: false
         };
         return properties;
@@ -2127,6 +2127,16 @@
                 cursor = behavior.getCursorAt(x, hoverCell.y + this.getVScrollValue());
             }
             this.beCursor(cursor);
+        },
+        repaintCell: function(x, y) {
+            this.getRenderer().repaintCell(x, y);
+        },
+        isDraggingColumn: function() {
+            if (this.renderOverridesCache.dragger) {
+                return true;
+            } else {
+                return false;
+            }
         }
 
     });

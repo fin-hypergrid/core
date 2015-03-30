@@ -140,6 +140,7 @@ var config = {
          * @method isOverColumnDivider(x)
          */
         overColumnDivider: function(x) {
+            x = Math.round(x);
             var whichCol = this.renderedColumnWidths.indexOf(x + 1);
             if (whichCol < 0) {
                 whichCol = this.renderedColumnWidths.indexOf(x);
@@ -158,6 +159,7 @@ var config = {
          * @method overRowDivider(y)
          */
         overRowDivider: function(y) {
+            y = Math.round(y);
             var which = this.renderedRowHeights.indexOf(y + 1);
             if (which < 0) {
                 which = this.renderedRowHeights.indexOf(y);
@@ -168,12 +170,16 @@ var config = {
             return which;
         },
 
-        //Answer the pixel bounds of specific data cell. It must have just been rendered
         getBoundsOfCell: function(cell) {
-            var ox = this.renderedColumnWidths[cell.x],
-                oy = this.renderedRowHeights[cell.y],
-                cx = this.renderedColumnWidths[cell.x + 1],
-                cy = this.renderedRowHeights[cell.y + 1],
+            return this._getBoundsOfCell(cell.x, cell.y);
+        },
+
+        //Answer the pixel bounds of specific data cell. It must have just been rendered
+        _getBoundsOfCell: function(x, y) {
+            var ox = this.renderedColumnWidths[x],
+                oy = this.renderedRowHeights[y],
+                cx = this.renderedColumnWidths[x + 1],
+                cy = this.renderedRowHeights[y + 1],
                 ex = cx - ox,
                 ey = cy - oy;
 
@@ -262,12 +268,14 @@ var config = {
             var offsetX = this.getBehavior().getFixedColumnsWidth();
             var offsetY = this.getBehavior().getFixedRowsHeight();
 
+            gc.beginPath();
             this.paintTopLeft(gc, offsetX, offsetY);
             this.paintHeaders(gc, 0, 0);
             this.paintCells(gc, offsetX, offsetY);
             this.paintGridlines(gc, offsetX, offsetY);
             this.blankOutOverflow(gc);
             this.renderOverrides(gc);
+            gc.closePath();
         },
 
         blankOutOverflow: function(gc) {
@@ -340,12 +348,13 @@ var config = {
             var viewWidth = this.getBounds().width() - 200; // look in fin-hypergrid and initializtion of fin-canvas
             var viewHeight = this.getBounds().height();
 
+            gc.beginPath();
             gc.strokeStyle = lineColor;
             gc.lineWidth = 1;
             var c, r, x, y, width, height;
 
             //fixedrow horiontal grid lines
-            gc.beginPath();
+            //gc.beginPath();
             gc.moveTo(0, 0);
             y = 0;
             for (r = 0; r < numFixedRows; r++) {
@@ -355,12 +364,12 @@ var config = {
                 if (drawThemH) {
                     gc.moveTo(fixedColumnsWidth, y + 0.5);
                     gc.lineTo(viewWidth, y + 0.5);
-                    gc.stroke();
+                    //gc.stroke();
                 }
             }
 
             //fixedcol vertical grid lines
-            gc.beginPath();
+            //gc.beginPath();
             gc.moveTo(0, 0);
             x = 0;
             for (c = 0; c < numFixedColumns; c++) {
@@ -370,12 +379,12 @@ var config = {
                 if (drawThemV) {
                     gc.moveTo(x + 0.5, fixedRowsHeight);
                     gc.lineTo(x + 0.5, viewHeight);
-                    gc.stroke();
+                    //gc.stroke();
                 }
             }
 
             //main area vertical grid lines
-            gc.beginPath();
+            //gc.beginPath();
             gc.moveTo(0, 0);
             x = offsetX;
             var previousInsertionBoundsCursorValue = 0;
@@ -392,7 +401,7 @@ var config = {
                 if (drawThemV) {
                     gc.moveTo(x + 0.5, 0);
                     gc.lineTo(x + 0.5, viewHeight);
-                    gc.stroke();
+                    //gc.stroke();
                 }
                 x = x + width;
 
@@ -404,7 +413,7 @@ var config = {
             }
 
             //main area horizontal grid lines
-            gc.beginPath();
+            //gc.beginPath();
             gc.moveTo(0, 0);
             y = offsetY;
             for (r = 0; r < numRows; r++) {
@@ -420,11 +429,13 @@ var config = {
                 if (drawThemH) {
                     gc.moveTo(0, y + 0.5);
                     gc.lineTo(viewWidth, y + 0.5);
-                    gc.stroke();
+                    //gc.stroke();
                 }
                 y = y + height;
                 this.renderedRowHeights.push(y);
             }
+            gc.stroke();
+            gc.closePath();
         },
 
         paintHeaders: function(ctx, offsetX, offsetY) {
@@ -756,8 +767,86 @@ var config = {
         },
         getTopSideSize: function(index) {
             return this.renderedRowHeights[index];
-        }
+        },
+        getCanvas: function() {
+            return this.getGrid().getCanvas();
+        },
+        repaintCell: function(x, y) {
+            if (this.isDraggingColumn()) {
+                return;
+            }
+            var self = this;
+            var behavior = this.getBehavior();
 
+            var numFixedCols = behavior.getFixedColumnCount();
+            var numFixedRows = behavior.getFixedRowCount();
+
+            var scrollLeft = this.getScrollLeft();
+            var unTranslatedX = behavior.unTranslateColumnIndex(x + scrollLeft);
+
+            //it's not being viewed exit...
+            if (!this.isRowVisible(y) || !this.isColVisible(unTranslatedX)) {
+                return;
+            }
+            //var offsetX = behavior.getFixedColumnsWidth();
+            //var offsetY = behavior.getFixedRowsHeight();
+
+            var ox = this.renderedColumnWidths[numFixedCols + unTranslatedX],
+                oy = this.renderedRowHeights[numFixedRows + y],
+                cx = this.renderedColumnWidths[numFixedCols + unTranslatedX + 1],
+                cy = this.renderedRowHeights[numFixedRows + y + 1],
+                ex = cx - ox,
+                ey = cy - oy;
+
+            var func = function(gc) {
+                self._repaintCell(gc, x, unTranslatedX, y, ox, oy, ex, ey);
+            };
+
+            this.getCanvas().safePaintImmediately(func);
+
+        },
+        _repaintCell: function(ctx, translatedX, x, y, startX, startY, width, height) {
+            ctx.rect(startX + 1, startY + 1, width, height);
+            ctx.clip();
+            var behavior = this.getBehavior();
+            var scrollTop = this.getScrollTop();
+            var scrollLeft = this.getScrollLeft();
+            var cellProvider = this.getGrid().getCellProvider();
+            var font = this.resolveProperty('font');
+
+            var voffset = this.resolveProperty('voffset');
+            var hoffset = this.resolveProperty('hoffset');
+
+            var fgColor = this.resolveProperty('color');
+            var bgColor = this.resolveProperty('backgroundColor');
+
+            var fgSelColor = this.resolveProperty('foregroundSelColor');
+            var bgSelColor = this.resolveProperty('backgroundSelColor');
+
+            //        var viewWidth = this.getBounds().width() - 200; // look in fin-hypergrid and initializtion of fin-canvas
+            //        var viewHeight = this.getBounds().height();
+
+            var columnAlign = behavior.getColumnAlignment(translatedX);
+            var columnProperties = behavior.getColumnProperties(translatedX);
+            var overrideFGColor = columnProperties.fgColor || fgColor;
+            var overrideFont = columnProperties.font || font;
+            //fill background
+            ctx.fillStyle = columnProperties.bgColor || bgColor;
+            ctx.fillRect(startX, startY, width, height);
+
+            var isSelected = this.isSelected(x + scrollLeft, y + scrollTop);
+
+            var value = behavior.getValue(x + scrollLeft, y + scrollTop);
+
+            var isHovered = this.isHovered(x, y);
+            var cell = cellProvider.getCell(this.cellConfig(translatedX, y + scrollTop, value, overrideFGColor, bgColor, fgSelColor, bgSelColor, overrideFont, isSelected, isHovered, columnAlign, hoffset, voffset));
+
+            cell.paint(ctx, startX, startY, width, height);
+
+        },
+        isDraggingColumn: function() {
+            return this.getGrid().isDraggingColumn();
+        }
     });
 
 })(); /* jslint ignore:line */

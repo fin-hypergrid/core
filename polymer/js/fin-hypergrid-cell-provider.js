@@ -16,7 +16,7 @@ var noop = function() {};
                 break;
         }
 
-        ctx.beginPath();
+        //ctx.beginPath();
         ctx.lineWidth = thickness;
         ctx.moveTo(x + 0.5, y + 0.5);
         ctx.lineTo(x + width + 0.5, y + 0.5);
@@ -55,6 +55,7 @@ var noop = function() {};
         if (fill) {
             ctx.fill();
         }
+        ctx.closePath();
     };
 
 
@@ -147,17 +148,15 @@ var noop = function() {};
             }
             gc.fillText(this.config.value, x + halignOffset, y + valignOffset);
 
-            if (isLink && isHovered) {
-                //gc.fillStyle = this.config.isSelected ? this.config.bgSelColor : this.config.bgColor;
-                // var prevLW = gc.lineWidth;
-                // var prevSS = gc.strokeStyle;
-                gc.strokeStyle = theColor;
-                // gc.lineWidth = 3;
-                gc.rect(x + 2, y + 2, width - 4, height - 4);
-                underline(gc, this.config.value, x + halignOffset, y + valignOffset + Math.floor(fontMetrics.height / 2), 1);
+            if (isHovered) {
+                gc.beginPath();
+                if (isLink) {
+                    underline(gc, this.config.value, x + halignOffset, y + valignOffset + Math.floor(fontMetrics.height / 2), 1);
+                } else {
+                    gc.rect(x + 2, y + 2, width - 4, height - 4);
+                }
                 gc.stroke();
-                //gc.lineWidth = prevLW;
-                // gc.strokeStyle = prevSS;
+                gc.closePath();
             }
         },
 
@@ -184,10 +183,12 @@ var noop = function() {};
             ctx.beginPath();
             ctx.arc(x + Math.max(offset - radius, radius), y + radius, radius, 0, 2 * Math.PI);
             ctx.fill();
+            ctx.closePath();
         },
 
         //simple implementation of a sparkline.  see [Edward Tufte sparkline](http://www.edwardtufte.com/bboard/q-and-a-fetch-msg?msg_id=0001OR)
         paintSparkbar: function(ctx, x, y, width, height) {
+            ctx.beginPath();
             var val = this.config.value;
             if (!val || !val.length) {
                 return;
@@ -205,10 +206,13 @@ var noop = function() {};
                 ctx.fillRect(x + 5, y + height - barheight, eWidth * 0.6666, barheight);
                 x = x + eWidth;
             }
+            ctx.closePath();
+
         },
 
         //simple implementation of a sparkline, because it's a barchart we've changed the name ;).  see [Edward Tufte sparkline](http://www.edwardtufte.com/bboard/q-and-a-fetch-msg?msg_id=0001OR)
         paintSparkline: function(ctx, x, y, width, height) {
+            ctx.beginPath();
             var val = this.config.value;
             if (!val || !val.length) {
                 return;
@@ -235,6 +239,7 @@ var noop = function() {};
                 x = x + eWidth;
             }
             ctx.stroke();
+            ctx.closePath();
         },
 
         //simple implementation of a tree cell

@@ -167,7 +167,7 @@
 
         <div vertical layout>
           <div class="description">
-            <h3>fin-hypergrid-behavior-json</h3> This element is a custom Polymer web component that manages data sets within javascript.  You can sort on any column, with the sort being stable hence previous sorts are maintained.  The data is "pushed" into the behavior object with the call to setData at anytime after the polymer ready event is fired, see <a href="https://github.com/openfin/example-fin-hypergrid-behavior-json">(standalone json hypergrid project)</a> for an encapsulated version of this example.  Toggle the HiDPI button below to scale canvas to a higher pixel density with sharper rendering.  Keep in mind that the grid might exhibit a noticeable performance cost on chrome as there is an <a href="https://code.google.com/p/chromium/issues/detail?id=445372&q=drawImage&colspec=ID%20Pri%20M%20Week%20ReleaseBlock%20Cr%20Status%20Owner%20Summary%20OS%20Modified">outstanding bug</a> that is triggered in HiDPI mode because the double buffering image dimensions are much larger on some devices.
+            <h3>fin-hypergrid-behavior-json</h3> This element is a custom Polymer web component that manages data sets within javascript.  You can sort on any column, with the sort being stable hence previous sorts are maintained.  The data is "pushed" into the behavior object with the call to setData at anytime after the polymer ready event is fired, see <a href="https://github.com/openfin/example-fin-hypergrid-behavior-json">(standalone json hypergrid project)</a> for an encapsulated version of this example.  An example using Hypergrid.repaintCell(x,y) can be seen for the pets field of the first row. Toggle the HiDPI button below to scale canvas to a higher pixel density with sharper rendering.  Keep in mind that the grid might exhibit a noticeable performance cost on chrome as there is an <a href="https://code.google.com/p/chromium/issues/detail?id=445372&q=drawImage&colspec=ID%20Pri%20M%20Week%20ReleaseBlock%20Cr%20Status%20Owner%20Summary%20OS%20Modified">outstanding bug</a> that is triggered in HiDPI mode because the double buffering image dimensions are much larger on some devices.
             <button id="hidpi-button" onClick="toggleHiDPI()">enable HiDPI</button>
             <br>
             <br>
@@ -535,6 +535,12 @@
             jsonGrid.addFinEventListener('fin-scroll-y', function(e){
                 console.log('fin-scroll-y', e);
             });
+            // lets setup a cell update
+            var g = document.querySelector('#json-example');
+            var model = g.getBehavior();row = model.data[0];
+            setInterval(function() { row.pets = Date.now()}, 10);
+            setInterval(function() { g.repaintCell(2,0); }, 20);
+
         });
     })();
     //json-example stuff
