@@ -63,14 +63,17 @@
             fixedRowAlign: 'center',
             fixedColAlign: 'center',
             cellPadding: 5,
-            repaintIntervalRate: 15,
             gridLinesH: true,
             gridLinesV: true,
 
             defaultRowHeight: 20,
             defaultFixedRowHeight: 20,
             defaultColumnWidth: 100,
-            defaultFixedColumnWidth: 100
+            defaultFixedColumnWidth: 100,
+
+            //for immediate painting, set these values to 0, true respectively
+            repaintIntervalRate: 15,
+            repaintImmediately: false
         };
         return properties;
     };
@@ -860,6 +863,7 @@
         resolveProperty: function(key) {
             return this.lnfProperties[key];
         },
+
         /**
          *                                                                      .
          *                                                                      .
@@ -875,13 +879,19 @@
          *                                                                      .
          *                                                                      .
          * tickle the repaint flag on the canvas
+         * if now is true, paint immediately
          *
          * @method repaint()
          */
         repaint: function() {
+            var now = this.resolveProperty('repaintImmediately');
             var canvas = this.getCanvas();
             if (canvas) {
-                canvas.repaint();
+                if (now === true) {
+                    canvas.paintNow();
+                } else {
+                    canvas.repaint();
+                }
             }
         },
 
@@ -1889,7 +1899,6 @@
          */
         setValue: function(x, y, value) {
             this.getBehavior().setValue(x, y, value);
-            this.repaint();
         },
 
         /**

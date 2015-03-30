@@ -140,13 +140,14 @@ scrollingEnabled|true/false|enable/disable scrolling
 fixedRowAlign|left/center/right|fixed row area text alignment
 fixedColAlign|left/center/right|fixed column area text alignment
 cellPadding|5|left and right padding around text inside the cells
-repaintIntervalRate|15|how often the canvas checks for a dirty paint state
 gridLinesH|true/false|draw the horizontal grid lines
 gridLinesV|true/false|draw the vertical grid lines
 defaultRowHeight|20|the default row height in pixels
 defaultFixedRowHeight|20|the default row height in pixels of the fixed row area
 defaultColumnWidth|100|the default column width
 defaultFixedColumnWidth|100|the default column width of the fixed column area
+repaintIntervalRate|15|how often the canvas checks the repaint flag, set 0 to never check
+repaintImmediately|false|cause painting to happen immediately within the same micro task, if true repaintIntervalRate should be set to 0
 
 ## example usage
 ```

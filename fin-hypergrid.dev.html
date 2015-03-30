@@ -21231,6 +21231,7 @@ div.container {
 
 
 
+
 </style>
   </template>
   <script>//HypergridRenderer is the canvas enabled top level sub component that handles the renderering of the Grid.
@@ -22094,6 +22095,7 @@ var config = {
 
 
 
+
 </style>
   </template>
   <script>'use strict';
@@ -22181,6 +22183,7 @@ var config = {
     display: block;
     position: relative;
 }
+
 
 
 
@@ -22502,6 +22505,7 @@ var config = {
 
 
 
+
 </style>
   </template>
   <script>(function() {
@@ -22643,6 +22647,7 @@ var config = {
     display: block;
     position: relative;
 }
+
 
 
 
@@ -23044,6 +23049,7 @@ var noop = function() {};
 
 
 
+
 </style>
   </template>
   <script>'use strict';
@@ -23068,6 +23074,7 @@ var noop = function() {};
     display: block;
     position: relative;
 }
+
 
 
 
@@ -23747,6 +23754,7 @@ var noop = function() {};
 
 
 
+
 </style>
   </template>
   <script>(function() {
@@ -23868,6 +23876,7 @@ var noop = function() {};
     display: block;
     position: relative;
 }
+
 
 
 
@@ -24083,6 +24092,7 @@ var noop = function() {};
 
 
 
+
 </style>
   </template>
   <script>(function() {
@@ -24112,6 +24122,7 @@ var noop = function() {};
     display: block;
     position: relative;
 }
+
 
 
 
@@ -24245,6 +24256,7 @@ var noop = function() {};
     display: block;
     position: relative;
 }
+
 
 
 
@@ -24495,6 +24507,7 @@ var noop = function() {};
     display: block;
     position: relative;
 }
+
 
 
 
@@ -25155,6 +25168,7 @@ var noop = function() {};
 
 
 
+
 </style>
   </template>
   <script>(function() {
@@ -25241,6 +25255,7 @@ var noop = function() {};
 
 
 
+
 </style>
   </template>
   <script>(function() {
@@ -25288,6 +25303,7 @@ var noop = function() {};
     display: block;
     position: relative;
 }
+
 
 
 
@@ -26069,6 +26085,7 @@ var noop = function() {};
 
 
 
+
 </style>
   </template>
   <script>/*jshint  bitwise: false */
@@ -26367,6 +26384,7 @@ var noop = function() {};
     display: block;
     position: relative;
 }
+
 
 
 
@@ -27003,6 +27021,7 @@ var noop = function() {};
 
 
 
+
 </style>
   </template>
   <script>/*jshint  bitwise: false */
@@ -27545,6 +27564,7 @@ window.dualPivotQuickSort = (function() {
 
 
 
+
 </style>
   </template>
   <script>'use strict';
@@ -27833,6 +27853,7 @@ window.dualPivotQuickSort = (function() {
     display: block;
     position: relative;
 }
+
 
 
 
@@ -28604,6 +28625,7 @@ window.dualPivotQuickSort = (function() {
 
 
 
+
 </style>
   </template>
   <script>'use strict';
@@ -28744,6 +28766,7 @@ window.dualPivotQuickSort = (function() {
     display: block;
     position: relative;
 }
+
 
 
 
@@ -29010,6 +29033,7 @@ window.dualPivotQuickSort = (function() {
 
 
 
+
 </style>
     <input id="editor">
   </template>
@@ -29033,6 +29057,7 @@ window.dualPivotQuickSort = (function() {
     display: block;
     position: relative;
 }
+
 
 
 
@@ -29239,6 +29264,7 @@ window.dualPivotQuickSort = (function() {
 
 
 
+
 </style>
     <input id="editor" type="color">
   </template>
@@ -29259,6 +29285,7 @@ window.dualPivotQuickSort = (function() {
     display: block;
     position: relative;
 }
+
 
 
 
@@ -29459,6 +29486,7 @@ window.dualPivotQuickSort = (function() {
 
 
 
+
 </style>
     <input id="editor" type="range">
   </template>
@@ -29479,6 +29507,7 @@ window.dualPivotQuickSort = (function() {
     display: block;
     position: relative;
 }
+
 
 
 
@@ -29744,6 +29773,7 @@ fin-vampire-bar {
 
 
 
+
 </style>
     <fin-plugins>
     </fin-plugins>
@@ -29820,14 +29850,15 @@ fin-vampire-bar {
             fixedRowAlign: 'center',
             fixedColAlign: 'center',
             cellPadding: 5,
-            repaintIntervalRate: 15,
+            repaintIntervalRate: 0,
             gridLinesH: true,
             gridLinesV: true,
 
             defaultRowHeight: 20,
             defaultFixedRowHeight: 20,
             defaultColumnWidth: 100,
-            defaultFixedColumnWidth: 100
+            defaultFixedColumnWidth: 100,
+            repaintImmediately: true
         };
         return properties;
     };
@@ -30617,6 +30648,7 @@ fin-vampire-bar {
         resolveProperty: function(key) {
             return this.lnfProperties[key];
         },
+
         /**
          *                                                                      .
          *                                                                      .
@@ -30632,13 +30664,19 @@ fin-vampire-bar {
          *                                                                      .
          *                                                                      .
          * tickle the repaint flag on the canvas
+         * if now is true, paint immediately
          *
          * @method repaint()
          */
         repaint: function() {
+            var now = this.resolveProperty('repaintImmediately');
             var canvas = this.getCanvas();
             if (canvas) {
-                canvas.repaint();
+                if (now === true) {
+                    canvas.paintNow();
+                } else {
+                    canvas.repaint();
+                }
             }
         },
 
@@ -31646,7 +31684,6 @@ fin-vampire-bar {
          */
         setValue: function(x, y, value) {
             this.getBehavior().setValue(x, y, value);
-            this.repaint();
         },
 
         /**
