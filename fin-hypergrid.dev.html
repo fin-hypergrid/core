@@ -19043,12 +19043,12 @@ div.container {
         canvas: null,
 
         /**                                                             .
-         * cavasCTX is the cached graphics context from canvas we bit blit to
+         * canvasCTX is the cached graphics context from canvas we bit blit to
          *
-         * @property cavasCTX
+         * @property canvasCTX
          * @type 2DRenderingContext
          */
-        cavasCTX: null,
+        canvasCTX: null,
 
         /**                                                             .
          * focuser is a button element that is used to simulate proper focus semantics
@@ -19205,8 +19205,6 @@ div.container {
          */
         hasMouse: false,
 
-
-
         /**
          *                                                                      .
          *                                                                      .
@@ -19216,7 +19214,6 @@ div.container {
          * @default 0
          * @type Number
          */
-
         checkSizeCounter: 0,
 
         /**
@@ -19302,11 +19299,21 @@ div.container {
          *                                                                      .
          * return if I have the hidpi attribute set
          *
-         * @method hidpi()
+         * @method isHiDPI()
          */
-
         isHiDPI: function() {
             return this.getAttribute('hidpi') !== null;
+        },
+
+        /**
+         *                                                                      .
+         *                                                                      .
+         * return if I have the bitblit attribute set
+         *
+         * @method useBitBlit()
+         */
+        useBitBlit: function() {
+            return this.getAttribute('bitblit') !== 'false';
         },
 
         /**
@@ -19482,14 +19489,17 @@ div.container {
         },
 
         safePaintImmediately: function(paintFunction) {
-            var gc = this.bufferCTX;
+            var useBitBlit = this.useBitBlit();
+            var gc = useBitBlit ? this.bufferCTX : this.canvasCTX;
             try {
                 gc.save();
                 paintFunction(gc);
             } finally {
                 gc.restore();
             }
-            this.flushBuffer();
+            if (useBitBlit) {
+                this.flushBuffer();
+            }
         },
 
         /**
@@ -21245,6 +21255,8 @@ div.container {
 
 
 
+
+
 </style>
   </template>
   <script>//HypergridRenderer is the canvas enabled top level sub component that handles the renderering of the Grid.
@@ -22204,6 +22216,8 @@ var config = {
 
 
 
+
+
 </style>
   </template>
   <script>'use strict';
@@ -22291,6 +22305,8 @@ var config = {
     display: block;
     position: relative;
 }
+
+
 
 
 
@@ -22626,6 +22642,8 @@ var config = {
 
 
 
+
+
 </style>
   </template>
   <script>(function() {
@@ -22767,6 +22785,8 @@ var config = {
     display: block;
     position: relative;
 }
+
+
 
 
 
@@ -23187,6 +23207,8 @@ var noop = function() {};
 
 
 
+
+
 </style>
   </template>
   <script>'use strict';
@@ -23211,6 +23233,8 @@ var noop = function() {};
     display: block;
     position: relative;
 }
+
+
 
 
 
@@ -23904,6 +23928,8 @@ var noop = function() {};
 
 
 
+
+
 </style>
   </template>
   <script>(function() {
@@ -24025,6 +24051,8 @@ var noop = function() {};
     display: block;
     position: relative;
 }
+
+
 
 
 
@@ -24254,6 +24282,8 @@ var noop = function() {};
 
 
 
+
+
 </style>
   </template>
   <script>(function() {
@@ -24283,6 +24313,8 @@ var noop = function() {};
     display: block;
     position: relative;
 }
+
+
 
 
 
@@ -24423,6 +24455,8 @@ var noop = function() {};
     display: block;
     position: relative;
 }
+
+
 
 
 
@@ -24680,6 +24714,8 @@ var noop = function() {};
     display: block;
     position: relative;
 }
+
+
 
 
 
@@ -25354,6 +25390,8 @@ var noop = function() {};
 
 
 
+
+
 </style>
   </template>
   <script>(function() {
@@ -25447,6 +25485,8 @@ var noop = function() {};
 
 
 
+
+
 </style>
   </template>
   <script>(function() {
@@ -25494,6 +25534,8 @@ var noop = function() {};
     display: block;
     position: relative;
 }
+
+
 
 
 
@@ -25835,7 +25877,15 @@ var noop = function() {};
                     return override;
                 }
             }
-            return this.resolveProperty('defaultRowHeight');
+            return this.getDefaultRowHeight();
+        },
+
+        //lets cache this as it's expensive to keep looking it up;
+        getDefaultRowHeight: function() {
+            if (!this.defaultRowHeight) {
+                this.defaultRowHeight = this.resolveProperty('defaultRowHeight');
+            }
+            return this.defaultRowHeight;
         },
 
         setRowHeight: function(rowNum, height) {
@@ -26293,6 +26343,8 @@ var noop = function() {};
 
 
 
+
+
 </style>
   </template>
   <script>/*jshint  bitwise: false */
@@ -26591,6 +26643,8 @@ var noop = function() {};
     display: block;
     position: relative;
 }
+
+
 
 
 
@@ -27241,6 +27295,8 @@ var noop = function() {};
 
 
 
+
+
 </style>
   </template>
   <script>/*jshint  bitwise: false */
@@ -27790,6 +27846,8 @@ window.dualPivotQuickSort = (function() {
 
 
 
+
+
 </style>
   </template>
   <script>'use strict';
@@ -28078,6 +28136,8 @@ window.dualPivotQuickSort = (function() {
     display: block;
     position: relative;
 }
+
+
 
 
 
@@ -28863,6 +28923,8 @@ window.dualPivotQuickSort = (function() {
 
 
 
+
+
 </style>
   </template>
   <script>'use strict';
@@ -29003,6 +29065,8 @@ window.dualPivotQuickSort = (function() {
     display: block;
     position: relative;
 }
+
+
 
 
 
@@ -29283,6 +29347,8 @@ window.dualPivotQuickSort = (function() {
 
 
 
+
+
 </style>
     <input id="editor">
   </template>
@@ -29306,6 +29372,8 @@ window.dualPivotQuickSort = (function() {
     display: block;
     position: relative;
 }
+
+
 
 
 
@@ -29526,6 +29594,8 @@ window.dualPivotQuickSort = (function() {
 
 
 
+
+
 </style>
     <input id="editor" type="color">
   </template>
@@ -29546,6 +29616,8 @@ window.dualPivotQuickSort = (function() {
     display: block;
     position: relative;
 }
+
+
 
 
 
@@ -29760,6 +29832,8 @@ window.dualPivotQuickSort = (function() {
 
 
 
+
+
 </style>
     <input id="editor" type="range">
   </template>
@@ -29780,6 +29854,8 @@ window.dualPivotQuickSort = (function() {
     display: block;
     position: relative;
 }
+
+
 
 
 
@@ -30059,6 +30135,8 @@ fin-vampire-bar {
 
 
 
+
+
 </style>
     <fin-plugins>
     </fin-plugins>
@@ -30144,8 +30222,11 @@ fin-vampire-bar {
             defaultFixedColumnWidth: 100,
 
             //for immediate painting, set these values to 0, true respectively
-            repaintIntervalRate: 20,
-            repaintImmediately: false
+            repaintIntervalRate: 0,
+            repaintImmediately: true,
+
+            //enable or disable double buffering
+            useBitBlit: false
         };
         return properties;
     };
@@ -30989,8 +31070,10 @@ fin-vampire-bar {
 
             var self = this;
             var interval = this.resolveProperty('repaintIntervalRate');
+            var useBitBlit = this.resolveProperty('useBitBlit');
             this.canvas = this.shadowRoot.querySelector('fin-canvas');
             this.canvas.setAttribute('fps', interval || 15);
+            this.canvas.setAttribute('bitblit', useBitBlit === true);
 
             //this.shadowRoot.appendChild(domCanvas);
 

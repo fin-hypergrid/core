@@ -72,8 +72,11 @@
             defaultFixedColumnWidth: 100,
 
             //for immediate painting, set these values to 0, true respectively
-            repaintIntervalRate: 20,
-            repaintImmediately: false
+            repaintIntervalRate: 0,
+            repaintImmediately: true,
+
+            //enable or disable double buffering
+            useBitBlit: false
         };
         return properties;
     };
@@ -917,8 +920,10 @@
 
             var self = this;
             var interval = this.resolveProperty('repaintIntervalRate');
+            var useBitBlit = this.resolveProperty('useBitBlit');
             this.canvas = this.shadowRoot.querySelector('fin-canvas');
             this.canvas.setAttribute('fps', interval || 15);
+            this.canvas.setAttribute('bitblit', useBitBlit === true);
 
             //this.shadowRoot.appendChild(domCanvas);
 

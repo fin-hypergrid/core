@@ -148,7 +148,7 @@ defaultColumnWidth|100|the default column width
 defaultFixedColumnWidth|100|the default column width of the fixed column area
 repaintIntervalRate|15|how often the canvas checks the repaint flag, set 0 to never check
 repaintImmediately|false|cause painting to happen immediately within the same micro task, if true repaintIntervalRate should be set to 0
-
+useBitBlit|false/true|enable or disable double buffering
 ## example usage
 ```
     var lnfOverrides = {

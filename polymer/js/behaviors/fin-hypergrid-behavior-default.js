@@ -240,7 +240,15 @@
                     return override;
                 }
             }
-            return this.resolveProperty('defaultRowHeight');
+            return this.getDefaultRowHeight();
+        },
+
+        //lets cache this as it's expensive to keep looking it up;
+        getDefaultRowHeight: function() {
+            if (!this.defaultRowHeight) {
+                this.defaultRowHeight = this.resolveProperty('defaultRowHeight');
+            }
+            return this.defaultRowHeight;
         },
 
         setRowHeight: function(rowNum, height) {
