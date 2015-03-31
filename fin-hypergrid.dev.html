@@ -21244,6 +21244,7 @@ div.container {
 
 
 
+
 </style>
   </template>
   <script>//HypergridRenderer is the canvas enabled top level sub component that handles the renderering of the Grid.
@@ -22202,6 +22203,7 @@ var config = {
 
 
 
+
 </style>
   </template>
   <script>'use strict';
@@ -22289,6 +22291,7 @@ var config = {
     display: block;
     position: relative;
 }
+
 
 
 
@@ -22622,6 +22625,7 @@ var config = {
 
 
 
+
 </style>
   </template>
   <script>(function() {
@@ -22763,6 +22767,7 @@ var config = {
     display: block;
     position: relative;
 }
+
 
 
 
@@ -23181,6 +23186,7 @@ var noop = function() {};
 
 
 
+
 </style>
   </template>
   <script>'use strict';
@@ -23205,6 +23211,7 @@ var noop = function() {};
     display: block;
     position: relative;
 }
+
 
 
 
@@ -23896,6 +23903,7 @@ var noop = function() {};
 
 
 
+
 </style>
   </template>
   <script>(function() {
@@ -24017,6 +24025,7 @@ var noop = function() {};
     display: block;
     position: relative;
 }
+
 
 
 
@@ -24244,6 +24253,7 @@ var noop = function() {};
 
 
 
+
 </style>
   </template>
   <script>(function() {
@@ -24273,6 +24283,7 @@ var noop = function() {};
     display: block;
     position: relative;
 }
+
 
 
 
@@ -24412,6 +24423,7 @@ var noop = function() {};
     display: block;
     position: relative;
 }
+
 
 
 
@@ -24668,6 +24680,7 @@ var noop = function() {};
     display: block;
     position: relative;
 }
+
 
 
 
@@ -25340,6 +25353,7 @@ var noop = function() {};
 
 
 
+
 </style>
   </template>
   <script>(function() {
@@ -25432,6 +25446,7 @@ var noop = function() {};
 
 
 
+
 </style>
   </template>
   <script>(function() {
@@ -25479,6 +25494,7 @@ var noop = function() {};
     display: block;
     position: relative;
 }
+
 
 
 
@@ -26276,6 +26292,7 @@ var noop = function() {};
 
 
 
+
 </style>
   </template>
   <script>/*jshint  bitwise: false */
@@ -26574,6 +26591,7 @@ var noop = function() {};
     display: block;
     position: relative;
 }
+
 
 
 
@@ -27222,6 +27240,7 @@ var noop = function() {};
 
 
 
+
 </style>
   </template>
   <script>/*jshint  bitwise: false */
@@ -27770,6 +27789,7 @@ window.dualPivotQuickSort = (function() {
 
 
 
+
 </style>
   </template>
   <script>'use strict';
@@ -28058,6 +28078,7 @@ window.dualPivotQuickSort = (function() {
     display: block;
     position: relative;
 }
+
 
 
 
@@ -28841,6 +28862,7 @@ window.dualPivotQuickSort = (function() {
 
 
 
+
 </style>
   </template>
   <script>'use strict';
@@ -28981,6 +29003,7 @@ window.dualPivotQuickSort = (function() {
     display: block;
     position: relative;
 }
+
 
 
 
@@ -29259,6 +29282,7 @@ window.dualPivotQuickSort = (function() {
 
 
 
+
 </style>
     <input id="editor">
   </template>
@@ -29282,6 +29306,7 @@ window.dualPivotQuickSort = (function() {
     display: block;
     position: relative;
 }
+
 
 
 
@@ -29500,6 +29525,7 @@ window.dualPivotQuickSort = (function() {
 
 
 
+
 </style>
     <input id="editor" type="color">
   </template>
@@ -29520,6 +29546,7 @@ window.dualPivotQuickSort = (function() {
     display: block;
     position: relative;
 }
+
 
 
 
@@ -29732,6 +29759,7 @@ window.dualPivotQuickSort = (function() {
 
 
 
+
 </style>
     <input id="editor" type="range">
   </template>
@@ -29752,6 +29780,7 @@ window.dualPivotQuickSort = (function() {
     display: block;
     position: relative;
 }
+
 
 
 
@@ -29934,6 +29963,7 @@ fin-vampire-bar {
 fin-vampire-bar {
     z-index: 10;
 }
+
 
 
 
@@ -32114,9 +32144,13 @@ fin-vampire-bar {
         },
 
         activateEditor: function(event) {
+            var fixedColCount = this.getFixedColumnCount();
+            var fixedRowCount = this.getFixedRowCount();
             var gridCell = event.gridCell;
-            var mX = this.getHScrollValue() + gridCell.x - 1;
-            var mY = this.getVScrollValue() + gridCell.y - 1;
+            var mX = this.getHScrollValue() + gridCell.x - fixedColCount;
+            var mY = this.getVScrollValue() + gridCell.y - fixedRowCount;
+
+            mX = this.getBehavior().translateColumnIndex(mX);
 
             var editor = this.getCellEditorAt(mX, mY);
             this.editAt(editor, event);

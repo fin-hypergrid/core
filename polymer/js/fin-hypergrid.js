@@ -2072,9 +2072,13 @@
         },
 
         activateEditor: function(event) {
+            var fixedColCount = this.getFixedColumnCount();
+            var fixedRowCount = this.getFixedRowCount();
             var gridCell = event.gridCell;
-            var mX = this.getHScrollValue() + gridCell.x - 1;
-            var mY = this.getVScrollValue() + gridCell.y - 1;
+            var mX = this.getHScrollValue() + gridCell.x - fixedColCount;
+            var mY = this.getVScrollValue() + gridCell.y - fixedRowCount;
+
+            mX = this.getBehavior().translateColumnIndex(mX);
 
             var editor = this.getCellEditorAt(mX, mY);
             this.editAt(editor, event);
