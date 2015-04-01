@@ -158,8 +158,8 @@ html /deep/ paper-button[link] {
 }
 html paper-button[disabled],
 html /deep/ paper-button[disabled] {
-  color: #C7C7C7 !important;
-  background: #DFE3E8 !important;
+  color: rgb(215, 220, 227) !important;
+  background: rgb(176, 181, 186) !important;
 }
 html paper-button[raised],
 html /deep/ paper-button[raised] {
@@ -204,7 +204,7 @@ html /deep/ paper-button[secondary]::shadow #ripple {
 }
 html paper-button[secondary][raised],
 html /deep/ paper-button[secondary][raised] {
-  background-color: #B7DBFF;
+  background-color: rgb(170, 210, 254);
   color: #000;
 }
 html paper-button[secondary][raised] #ripple,
@@ -267,8 +267,8 @@ html /deep/ paper-button[warning]::shadow #ripple {
 }
 html paper-button[warning][raised],
 html /deep/ paper-button[warning][raised] {
-  background-color: #ffb74d;
-  color: #fff;
+  background-color: #f4d64f;
+  color: #000;
 }
 html paper-button[warning][raised] #ripple,
 html /deep/ paper-button[warning][raised] #ripple,

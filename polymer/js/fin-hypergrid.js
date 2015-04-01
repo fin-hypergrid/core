@@ -34,19 +34,19 @@
             foregroundSelColor: 'rgb(25, 25, 25)',
             backgroundSelColor: 'rgb(183, 219, 255)',
 
-            topLeftFont: '14px Tahoma, Geneva, sans-serif',
+            topLeftFont: '12px Tahoma, Geneva, sans-serif',
             topLeftColor: 'rgb(25, 25, 25)',
             topLeftBackgroundColor: 'rgb(223, 227, 232)',
             topLeftFGSelColor: 'rgb(25, 25, 25)',
             topLeftBGSelColor: 'rgb(255, 220, 97)',
 
-            fixedColumnFont: '14px Tahoma, Geneva, sans-serif',
+            fixedColumnFont: '12px Tahoma, Geneva, sans-serif',
             fixedColumnColor: 'rgb(25, 25, 25)',
             fixedColumnBackgroundColor: 'rgb(223, 227, 232)',
             fixedColumnFGSelColor: 'rgb(25, 25, 25)',
             fixedColumnBGSelColor: 'rgb(255, 220, 97)',
 
-            fixedRowFont: '14px Tahoma, Geneva, sans-serif',
+            fixedRowFont: '12px Tahoma, Geneva, sans-serif',
             fixedRowColor: 'rgb(25, 25, 25)',
             fixedRowBackgroundColor: 'rgb(223, 227, 232)',
             fixedRowFGSelColor: 'rgb(25, 25, 25)',
