@@ -76,8 +76,7 @@
 
         //for now we use the hacky override implementation to save data, in the future we'll have a more elaborate protocol with Q to do real validation and setting of data.
         //<br>take note of the usage of the scrollPositionY value in translating our in-memory data page
-        getValue: function(x, y) {
-            x = this.translateColumnIndex(x);
+        __getValue: function(x, y) {
             var override = this.values['p_' + (x + 1) + '_' + y];
             if (override) {
                 return override;
@@ -104,8 +103,8 @@
         },
 
         //Virtual column scrolling is not necessary with this GridBehavior because we only hold a small amount of vertical data in memory and most tables in Q are timeseries financial data meaning the are very tall and skinny.  We know all the columns from the first page from Q.
-        getColumnCount: function() {
-            return this.block.headers.length - 1 - this.tableState.hiddenColumns.length;
+        __getColumnCount: function() {
+            return Math.max(0, this.block.headers.length - 1);
         },
 
         //This is overridden from DefaultGridBehavior.   This value is set on us by the OFGrid component on user scrolling.
@@ -142,8 +141,7 @@
         },
 
         //return the column names, they are available to us as meta data in the most recent page Q sent us.
-        getFixedRowValue: function(x) {
-            x = this.translateColumnIndex(x);
+        __getFixedRowValue: function(x) {
             if (!this.sorted[x + 1]) {
                 this.sorted[x + 1] = 0;
             }
@@ -166,13 +164,12 @@
         },
 
         //on a header click do a sort!
-        fixedRowClicked: function(grid, mouse) {
+        __fixedRowClicked: function(grid, mouse) {
             this.toggleSort(this.scrollPositionX + mouse.gridCell.x - this.getFixedColumnCount());
         },
 
         //first ask q if this is a sortable instance, then send a message to Q to sort our data set
         toggleSort: function(columnIndex) {
-            columnIndex = this.translateColumnIndex(columnIndex);
             if (!this.getCanSort()) {
                 return;
             }
@@ -197,15 +194,13 @@
         },
 
         //delegate column alignment through the map at the top based on the column type
-        getColumnAlignment: function(x) {
-            x = this.translateColumnIndex(x);
+        __getColumnAlignment: function(x) {
             var alignment = typeAlignmentMap[this.block.headers[x + 1][1]];
             return alignment;
         },
 
         //for now use the cheesy local set data for storing user edits
-        setValue: function(x, y, value) {
-            x = this.translateColumnIndex(x);
+        __setValue: function(x, y, value) {
             this.values['p_' + (x + 1) + '_' + y] = value;
         },
 
@@ -255,9 +250,6 @@
                         if (self.changed) {
                             self.changed();
                         }
-                    }
-                    if (!self.columnIndexes || self.columnIndexes.length === 0) {
-                        self.initColumnIndexes();
                     }
                     self.changed();
                 };

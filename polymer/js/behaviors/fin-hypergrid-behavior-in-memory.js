@@ -2,6 +2,19 @@
 'use strict';
 
 (function() {
+    var alphaFor = function(i) {
+        // Name the column headers in A, .., AA, AB, AC, .., AZ format
+        // quotient/remainder
+        //var quo = Math.floor(col/27);
+        var quo = Math.floor((i) / 26);
+        var rem = (i) % 26;
+        var code = '';
+        if (quo > 0) {
+            code += String.fromCharCode('A'.charCodeAt(0) + quo - 1);
+        }
+        code += String.fromCharCode('A'.charCodeAt(0) + rem);
+        return code;
+    };
 
     //helper function for randomizing data
     function rnd(max) {
@@ -94,7 +107,7 @@
         initialize: function() {
             var config = {
                 xstart: 0,
-                xstop: this.getColumnCount(),
+                xstop: this._getColumnCount(),
                 xinc: 1,
                 ystart: 0,
                 ystop: this.getRowCount(),
@@ -123,23 +136,27 @@
             }, self.permuteInterval);
         },
 
-        getCellEditorAt: function(x, y) {
-            x = this.translateColumnIndex(x);
+        __getCellEditorAt: function(x, y) {
             var type = x !== 9 ? 'textfield' : this.editorTypes[y % this.editorTypes.length];
             var cellEditor = this.grid.resolveCellEditor(type);
             return cellEditor;
         },
+
+        __getColumnCount: function() {
+            return this.columns;
+        },
+
         //set a random value into col/row, cutoff is the threshold to exit if the random value is outside
         setRandomValue: function(col, row, cutoff) {
             var rand = Math.random();
-            var val = this._getValue(col, row);
+            var val = this.__getValue(col, row);
             var rndV;
             if (rand > cutoff) {
                 return;
             }
             if (col === 13) {
                 val = rand < 0.1 ? true : false;
-                this._setValue(col, row, val);
+                this.__setValue(col, row, val);
             } else if (col === 23) {
                 if (!val) {
                     val = [rnd(100), rnd(100), rnd(100), rnd(100), rnd(100), rnd(100), rnd(100), rnd(100), rnd(100), rnd(100)];
@@ -153,7 +170,7 @@
                         val[i] = Math.min(Math.max(0, val[i] + rndOffsets[i]), 100);
                     }
                 }
-                this._setValue(col, row, val);
+                this.__setValue(col, row, val);
             } else if (col === 3) {
                 if (!val) {
                     val = [rnd(100), rnd(100), rnd(100), rnd(100), rnd(100), rnd(100), rnd(100), rnd(100), rnd(100), rnd(100)];
@@ -167,10 +184,10 @@
                         val.push(rndV);
                     }
                 }
-                this._setValue(col, row, val);
+                this.__setValue(col, row, val);
             } else if (col % 10 === 0) {
                 val = [rand < 0.1 ? false : true, 1.0];
-                this._setValue(col, row, val);
+                this.__setValue(col, row, val);
             } else if (col === 9) {
                 if (val) {
                     return; // only set this onece
@@ -180,25 +197,25 @@
                     hex = '0' + hex;
                 }
                 val = '0x' + hex;
-                this._setValue(col, row, val);
+                this.__setValue(col, row, val);
             } else if (col % 6 === 0) {
                 if (val) {
                     return; // only set this onece
                 }
                 var profound = 'Quidquid latine dictum sit, altum sonatur.';
-                this._setValue(col, row, profound);
+                this.__setValue(col, row, profound);
             } else if (col % 4 === 0) {
                 var ipsum = 'Lorem ipsum dolor sit amet, malis repudiare mei in. Cu munere expetendis mea, affert aliquid definiebas at nam. Te scripta delectus singulis mel, et vidit error legere eum, ea latine feugait ponderum vix. Ius ei electram patrioque, et eum propriae deseruisse necessitatibus. Epicurei adipisci ex duo. Quidam iudicabit ullamcorper ex vel, per quot ipsum ad, libris quaeque iudicabit et usu. Ut postea nominavi cum, id eius porro mundi qui. Nec ex altera dolorum definiebas, consul viderer ex est. ';
                 var index = Math.max(0, (rand * ipsum.length) - 20);
                 val = ipsum.slice(index, index + 20).toUpperCase();
-                this._setValue(col, row, val);
+                this.__setValue(col, row, val);
             } else if (col === 2 || col === 14 || col === 22) {
                 var v = Math.min(Math.floor(rand * 2000), 100);
-                this._setValue(col, row, Math.max(v));
+                this.__setValue(col, row, Math.max(v));
             } else if (col === 41) {
-                this._setValue(col, row, Math.random());
+                this.__setValue(col, row, Math.random());
             } else {
-                this._setValue(col, row, rand);
+                this.__setValue(col, row, rand);
             }
         },
 
@@ -375,26 +392,16 @@
             var row = this.order[y];
             return row;
         },
-        setValue: function(col, y, value) {
-            col = this.translateColumnIndex(col);
-            this._setValue(col, y, value);
-        },
 
         //set value through the sorted indirection
-        _setValue: function(col, y, value) {
+        __setValue: function(col, y, value) {
             var row = this.orderOf(y);
             var index = this.indexOf(row, col);
             this.values[index] = value;
         },
 
         // get value through the sorted indirection
-        getValue: function(col, y) {
-            col = this.translateColumnIndex(col);
-            return this._getValue(col, y);
-        },
-
-        // get value through the sorted indirection
-        _getValue: function(col, y) {
+        __getValue: function(col, y) {
             var row = this.orderOf(y);
             var index = this.indexOf(row, col);
             return this.values[index];
@@ -404,12 +411,7 @@
             return this.rows;
         },
 
-        getColumnCount: function() {
-            return this.columns - this.tableState.hiddenColumns.length;
-        },
-
-        getFixedRowValue: function(x /*, y*/ ) {
-            x = this.translateColumnIndex(x);
+        __getFixedRowValue: function(x /*, y*/ ) {
             var sortIndicator = '';
             if (this.tableState.sortLookup[x] && !this.tableState.sorted[x]) {
                 this.tableState.sorted[x] = 0;
@@ -418,17 +420,15 @@
             if (this.tableState.sorted[x]) {
                 sortIndicator = this.sortStates[this.tableState.sorted[x]];
             }
-            return this.alphaFor(x) + sortIndicator;
+            return alphaFor(x) + sortIndicator;
         },
 
         //columns 2, 14, 22 are sortable
-        fixedRowClicked: function(grid, mouse) {
-            var x = this.translateColumnIndex(mouse.gridCell.x - this.getFixedColumnCount());
-            var columnIndex = this.scrollPositionX + x;
-            if ([2, 14, 22].indexOf(columnIndex) === -1) {
+        __fixedRowClicked: function(grid, mouse) {
+            if ([2, 14, 22].indexOf(mouse.gridCell.x) === -1) {
                 return;
             }
-            this.toggleSort(columnIndex);
+            this.toggleSort(mouse.gridCell.x);
         },
 
         toggleSort: function(columnIndex) {

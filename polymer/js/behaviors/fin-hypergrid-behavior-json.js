@@ -300,22 +300,19 @@ window.dualPivotQuickSort = (function() {
             }
         },
 
-        getValue: function(x, y) {
-            x = this.translateColumnIndex(x);
+        __getValue: function(x, y) {
             var fields = this.getFields();
             return this.data[y][fields[x]];
         },
 
-        setValue: function(x, y, value) {
-            x = this.translateColumnIndex(x);
+        __setValue: function(x, y, value) {
             var fields = this.getFields();
             this.data[y][fields[x]] = value;
         },
 
-        getFixedRowValue: function(x, y) {
+        __getFixedRowValue: function(x, y) {
             var headers = this.getHeaders();
             noop(y);
-            x = this.translateColumnIndex(x);
             var sortIndex = this.tableState.sorted[x] || 0;
             return headers[x] + this.sortStates[sortIndex];
         },
@@ -328,7 +325,7 @@ window.dualPivotQuickSort = (function() {
             return this.data.length;
         },
 
-        getColumnCount: function() {
+        __getColumnCount: function() {
             var fields = this.getFields();
             return fields.length - this.tableState.hiddenColumns.length;
         },
@@ -381,7 +378,6 @@ window.dualPivotQuickSort = (function() {
             if (incrementIt === undefined) {
                 incrementIt = 1;
             }
-            columnIndex = this.translateColumnIndex(columnIndex);
             this.grid.clearSelections();
             var fields = this.getFields();
             if (columnIndex >= fields.length) {

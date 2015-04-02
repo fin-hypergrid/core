@@ -1,5 +1,6 @@
 /* globals document, alert, Polymer */
 
+
 'use strict';
 
 (function() {
@@ -686,7 +687,7 @@
             var ystop = last.origin.y + last.extent.y + 1;
             for (var y = ystart; y < ystop; y++) {
                 for (var x = xstart; x < xstop; x++) {
-                    var data = behavior.getValue(x, y);
+                    var data = behavior._getValue(x, y);
                     collector.push(data);
                     if (x !== xstop - 1) {
                         collector.push('\t');
@@ -832,8 +833,8 @@
          * @method setBehavior(newBehavior)
          */
         behaviorChanged: function() {
-            if (this.numColumns !== this.behavior.getColumnCount() || this.numRows !== this.behavior.getRowCount()) {
-                this.numColumns = this.behavior.getColumnCount();
+            if (this.numColumns !== this.behavior._getColumnCount() || this.numRows !== this.behavior.getRowCount()) {
+                this.numColumns = this.behavior._getColumnCount();
                 this.numRows = this.behavior.getRowCount();
                 this.behaviorShapeChanged();
             }
@@ -1582,7 +1583,7 @@
          */
         setVScrollValue: function(y) {
             var self = this;
-            this.getBehavior().setScrollPositionY(y);
+            this.getBehavior()._setScrollPositionY(y);
             var oldY = this.vScrlValue;
             this.vScrlValue = y;
             this.scrollValueChangedNotification();
@@ -1612,7 +1613,7 @@
          */
         setHScrollValue: function(x) {
             var self = this;
-            this.getBehavior().setScrollPositionX(x);
+            this.getBehavior()._setScrollPositionX(x);
             var oldX = this.hScrlValue;
             this.hScrlValue = x;
             this.scrollValueChangedNotification();
@@ -1903,7 +1904,7 @@
          * @method setValue(x,y,value)
          */
         setValue: function(x, y, value) {
-            this.getBehavior().setValue(x, y, value);
+            this.getBehavior()._setValue(x, y, value);
         },
 
         /**
@@ -1920,7 +1921,7 @@
             if (!behavior) {
                 return;
             }
-            var numColumns = behavior.getColumnCount();
+            var numColumns = behavior._getColumnCount();
             var numRows = behavior.getRowCount();
             var bounds = this.getBounds();
             if (!bounds) {
@@ -1932,7 +1933,7 @@
             var lastPageColumnCount = 0;
             var columnsWidth = 0;
             for (; lastPageColumnCount < numColumns; lastPageColumnCount++) {
-                var eachWidth = behavior.getColumnWidth(numColumns - lastPageColumnCount - 1);
+                var eachWidth = behavior._getColumnWidth(numColumns - lastPageColumnCount - 1);
                 columnsWidth = columnsWidth + eachWidth;
                 if (columnsWidth > scrollableWidth) {
                     break;
@@ -1951,7 +1952,7 @@
 
             this.sbVScrlCfg.rangeStop = behavior.getRowCount() - lastPageRowCount;
 
-            this.sbHScrlCfg.rangeStop = behavior.getColumnCount() - lastPageColumnCount;
+            this.sbHScrlCfg.rangeStop = behavior._getColumnCount() - lastPageColumnCount;
 
             this.setVScrollValue(Math.min(this.getVScrollValue(), this.sbVScrlCfg.rangeStop));
             this.setHScrollValue(Math.min(this.getHScrollValue(), this.sbHScrlCfg.rangeStop));
@@ -2007,13 +2008,11 @@
         getRenderer: function() {
             return this.renderer;
         },
-
         getColumnWidth: function(columnIndex) {
-            return this.getBehavior().getColumnWidth(columnIndex);
+            return this.getBehavior()._getColumnWidth(columnIndex);
         },
-
         setColumnWidth: function(columnIndex, columnWidth) {
-            this.getBehavior().setColumnWidth(columnIndex, columnWidth);
+            this.getBehavior()._setColumnWidth(columnIndex, columnWidth);
         },
 
         getFixedColumnWidth: function(columnIndex) {
@@ -2049,7 +2048,7 @@
         },
 
         getColumnCount: function() {
-            return this.getBehavior().getColumnCount();
+            return this.getBehavior()._getColumnCount();
         },
 
         getRowCount: function() {
@@ -2069,11 +2068,11 @@
         },
 
         fixedRowClicked: function(mouse) {
-            this.getBehavior().fixedRowClicked(this, mouse);
+            this.getBehavior()._fixedRowClicked(this, mouse);
         },
 
         fixedColumnClicked: function(mouse) {
-            this.getBehavior().fixedColumnClicked(this, mouse);
+            this.getBehavior()._fixedColumnClicked(this, mouse);
         },
 
         activateEditor: function(event) {
@@ -2083,14 +2082,12 @@
             var mX = this.getHScrollValue() + gridCell.x - fixedColCount;
             var mY = this.getVScrollValue() + gridCell.y - fixedRowCount;
 
-            mX = this.getBehavior().translateColumnIndex(mX);
-
             var editor = this.getCellEditorAt(mX, mY);
             this.editAt(editor, event);
         },
 
         getCellEditorAt: function(x, y) {
-            return this.getBehavior().getCellEditorAt(x, y);
+            return this.getBehavior()._getCellEditorAt(x, y);
         },
 
         toggleHiDPI: function() {

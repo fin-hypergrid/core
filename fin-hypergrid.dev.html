@@ -18316,6 +18316,18 @@ CustomElements.addModule(function(scope) {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
 </head><body><div hidden="">
 <polymer-element name="fin-rectangle" assetpath="/dev/fin-rectangle/">
   <script>
@@ -21259,6 +21271,21 @@ div.container {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 </style>
   </template>
   <script>//HypergridRenderer is the canvas enabled top level sub component that handles the renderering of the Grid.
@@ -21591,7 +21618,7 @@ var config = {
             var behavior = this.getBehavior();
             var lineColor = this.resolveProperty('lineColor');
 
-            var numColumns = behavior.getColumnCount();
+            var numColumns = this.getColumnCount();
             var numRows = behavior.getRowCount();
             var numFixedColumns = behavior.getFixedColumnCount();
             var numFixedRows = behavior.getFixedRowCount();
@@ -21707,7 +21734,7 @@ var config = {
                 ctx,
                 offsetX + this.getBehavior().getFixedColumnsWidth(),
                 offsetY,
-                this.getBehavior().getColumnCount(),
+                this.getColumnCount(),
                 this.getBehavior().getFixedRowCount());
 
             this.paintFixedColumns(
@@ -21756,8 +21783,8 @@ var config = {
                 for (var r = 0; r < numRows; r++) {
 
                     var height = this.getFixedRowHeight(r);
-                    var align = behavior.getFixedRowAlignment(c + scrollLeft, r);
-                    var value = behavior.getFixedRowValue(c + scrollLeft, r);
+                    var align = behavior._getFixedRowAlignment(c + scrollLeft, r);
+                    var value = behavior._getFixedRowValue(c + scrollLeft, r);
                     var isHovered = false; //this.isHovered(c, r);
                     //translatedX allows us to reorder columns
                     var translatedX = behavior.translateColumnIndex(c + scrollLeft);
@@ -21829,7 +21856,7 @@ var config = {
 
         _paintCells: function(ctx, offsetX, offsetY) {
             var behavior = this.getBehavior();
-            var numColumns = behavior.getColumnCount();
+            var numColumns = this.getColumnCount();
             var numRows = behavior.getRowCount();
             var x = offsetX;
             var startY = offsetY;
@@ -21859,8 +21886,8 @@ var config = {
                 var y = startY;
                 var translatedX = behavior.translateColumnIndex(c + scrollLeft);
 
-                var columnAlign = behavior.getColumnAlignment(translatedX);
-                var columnProperties = behavior.getColumnProperties(translatedX);
+                var columnAlign = behavior._getColumnAlignment(c + scrollLeft);
+                var columnProperties = behavior.getColumnProperties(c + scrollLeft);
                 var overrideFGColor = columnProperties.fgColor || fgColor;
                 var overrideFont = columnProperties.font || font;
                 //fill background
@@ -21874,7 +21901,7 @@ var config = {
                         break;
                     }
 
-                    var value = behavior.getValue(c + scrollLeft, r + scrollTop);
+                    var value = behavior._getValue(c + scrollLeft, r + scrollTop);
                     // if (!value && value !== 0) { // edge condition if were scrolled all the way to the end
                     //     break;
                     // }
@@ -22006,7 +22033,7 @@ var config = {
         },
 
         getColumnWidth: function(columnIndex) {
-            var width = this.getBehavior().getColumnWidth(columnIndex);
+            var width = this.getBehavior()._getColumnWidth(columnIndex);
             return width;
         },
 
@@ -22089,7 +22116,7 @@ var config = {
             //        var viewWidth = this.getBounds().width() - 200; // look in fin-hypergrid and initializtion of fin-canvas
             //        var viewHeight = this.getBounds().height();
 
-            var columnAlign = behavior.getColumnAlignment(translatedX);
+            var columnAlign = behavior._getColumnAlignment(translatedX);
             var columnProperties = behavior.getColumnProperties(translatedX);
             var overrideFGColor = columnProperties.fgColor || fgColor;
             var overrideFont = columnProperties.font || font;
@@ -22099,7 +22126,7 @@ var config = {
 
             var isSelected = this.isSelected(x + scrollLeft, y + scrollTop);
 
-            var value = behavior.getValue(x + scrollLeft, y + scrollTop);
+            var value = behavior._getValue(x + scrollLeft, y + scrollTop);
 
             var isHovered = this.isHovered(x, y);
             var cell = cellProvider.getCell(this.cellConfig(translatedX, y + scrollTop, value, overrideFGColor, bgColor, fgSelColor, bgSelColor, overrideFont, isSelected, isHovered, columnAlign, hoffset, voffset));
@@ -22121,6 +22148,21 @@ var config = {
     display: block;
     position: relative;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -22309,6 +22351,21 @@ var config = {
     display: block;
     position: relative;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -22652,6 +22709,21 @@ var config = {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 </style>
   </template>
   <script>(function() {
@@ -22793,6 +22865,21 @@ var config = {
     display: block;
     position: relative;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -23221,6 +23308,21 @@ var noop = function() {};
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 </style>
   </template>
   <script>'use strict';
@@ -23245,6 +23347,21 @@ var noop = function() {};
     display: block;
     position: relative;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -23946,6 +24063,21 @@ var noop = function() {};
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 </style>
   </template>
   <script>(function() {
@@ -24067,6 +24199,21 @@ var noop = function() {};
     display: block;
     position: relative;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -24304,6 +24451,21 @@ var noop = function() {};
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 </style>
   </template>
   <script>(function() {
@@ -24333,6 +24495,21 @@ var noop = function() {};
     display: block;
     position: relative;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -24477,6 +24654,21 @@ var noop = function() {};
     display: block;
     position: relative;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -24738,6 +24930,21 @@ var noop = function() {};
     display: block;
     position: relative;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -25420,6 +25627,21 @@ var noop = function() {};
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 </style>
   </template>
   <script>(function() {
@@ -25517,6 +25739,21 @@ var noop = function() {};
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 </style>
   </template>
   <script>(function() {
@@ -25558,101 +25795,12 @@ var noop = function() {};
 //     }
 // }
 </script>
-</polymer-element><polymer-element name="fin-hypergrid-behavior-default" assetpath="/dev/fin-hypergrid/polymer/html/behaviors/">
+</polymer-element><polymer-element name="fin-hypergrid-behavior-base" attributes="" assetpath="/dev/fin-hypergrid/polymer/html/behaviors/">
   <template>
     <style type="text/css">:host {
     display: block;
     position: relative;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -25672,13 +25820,8 @@ var noop = function() {};
 (function() {
 
     var noop = function() {};
-    var a = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 
-    Polymer('fin-hypergrid-behavior-default',{ /* jslint ignore:line */
-
-        ready: function() {
-            this.readyInit();
-        },
+    Polymer('fin-hypergrid-behavior-base', { /* jslint ignore:line */
 
         tableState: {},
         columnProperties: {},
@@ -25692,6 +25835,10 @@ var noop = function() {};
                     delete obj[prop];
                 }
             }
+        },
+
+        ready: function() {
+            this.readyInit();
         },
 
         readyInit: function() {
@@ -25712,12 +25859,14 @@ var noop = function() {};
                 fixedRowHeights: {},
             };
 
-            this.values = {}; //for overriding with edit values;
-            this.initColumnIndexes();
+            this.dataUpdates = {}; //for overriding with edit values;
+            //this.initColumnIndexes();
         },
+
         resolveProperty: function(key) {
             return this.grid.resolveProperty(key);
         },
+
         getState: function() {
             return this.tableState;
         },
@@ -25731,28 +25880,34 @@ var noop = function() {};
         },
 
         initColumnIndexes: function() {
-            var columnCount = this.getColumnCount();
+            var columnCount = this._getColumnCount();
             var fixedColumnCount = this.getFixedColumnCount();
             var i;
-
             for (i = 0; i < columnCount; i++) {
                 this.tableState.columnIndexes[i] = i;
             }
-
             for (i = 0; i < fixedColumnCount; i++) {
                 this.tableState.fixedColumnIndexes[i] = i;
             }
-
         },
 
         swapColumns: function(src, tar) {
-            var tmp = this.tableState.columnIndexes[src];
-            this.tableState.columnIndexes[src] = this.tableState.columnIndexes[tar];
-            this.tableState.columnIndexes[tar] = tmp;
+            var indexes = this.tableState.columnIndexes;
+            if (indexes.length === 0) {
+                this.initColumnIndexes();
+                indexes = this.tableState.columnIndexes;
+            }
+            var tmp = indexes[src];
+            indexes[src] = indexes[tar];
+            indexes[tar] = tmp;
         },
 
         translateColumnIndex: function(x) {
-            return this.tableState.columnIndexes[x];
+            var indexes = this.tableState.columnIndexes;
+            if (indexes.length === 0) {
+                return x;
+            }
+            return indexes[x];
         },
 
         unTranslateColumnIndex: function(x) {
@@ -25812,34 +25967,30 @@ var noop = function() {};
 
         //provide the data at the x,y coordinate in the grid
         //<br>this function should be overridden by you
-        getValue: function(x, y) {
+        _getValue: function(x, y) {
             x = this.translateColumnIndex(x);
-            var override = this.values['p_' + x + '_' + y];
+            var override = this.dataUpdates['p_' + x + '_' + y];
             if (override) {
                 return override;
             }
-            return x + ', ' + a[y % 26];
+            return this.__getValue(x, y);
         },
 
         //set the data at the x, y
         //<br>this function should be overridden by you
-        setValue: function(x, y, value) {
+        _setValue: function(x, y, value) {
             x = this.translateColumnIndex(x);
-            this.values['p_' + x + '_' + y] = value;
+            this.__setValue(x, y, value);
         },
 
         //fixed rows are the static rows at the top of the grid that don't scroll up or down
         //<br>they can be arbitary width by height in size
         //<br>here we just return an excel-ish base-26 alpha value
-        getFixedRowValue: function(x /*, y*/ ) {
+        _getFixedRowValue: function(x, y) {
             x = this.translateColumnIndex(x);
-            return this.getHeader(x);
+            return this.__getFixedRowValue(x, y);
         },
 
-        //the untranslated value
-        getHeader: function(x /*, y*/ ) {
-            return this.alphaFor(x);
-        },
         //fixed columns are the static columns at the left of the grid that don't scroll up or down
         //<br>they can be arbitary width by height in size
         //<br>here we just return an excel-ish base-26 alpha value
@@ -25855,8 +26006,8 @@ var noop = function() {};
         },
 
         //can be dynamic if your data set changes size
-        getColumnCount: function() {
-            return 300 - this.tableState.hiddenColumns.length;
+        _getColumnCount: function() {
+            return this.__getColumnCount() - this.tableState.hiddenColumns.length;
         },
 
         //can be dynamic for supporting "floating" fixed rows
@@ -25967,34 +26118,30 @@ var noop = function() {};
         //<br>or driven by data, etc...
         //<br>this implementation is driven by modulo
         //<br>TODO: move this example into InMemoryGridBehavior
-        getColumnWidth: function(colNumber) {
-            colNumber = this.tableState.columnIndexes[colNumber];
-            var override = this.tableState.columnWidths[colNumber];
-            if (override) {
-                return override;
-            }
-            return this.resolveProperty('defaultColumnWidth');
+        _getColumnWidth: function(x) {
+            x = this.translateColumnIndex(x);
+            return this.__getColumnWidth(x);
         },
 
-        setColumnWidth: function(colNumber, width) {
-            colNumber = this.tableState.columnIndexes[colNumber];
-            this.tableState.columnWidths[colNumber] = Math.max(5, width);
+        _setColumnWidth: function(x, width) {
+            x = this.translateColumnIndex(x);
+            this.__setColumnWidth(x, width);
             this.changed();
         },
 
         //this is set by OFGrid on scroll
         //<br>this allows for fast scrolling through rows of very large external data sets
         //<br>this is ignored by in memory GridBehaviors
-        setScrollPositionY: function(y) {
-            this.scrollPositionY = y;
+        _setScrollPositionY: function(y) {
+            this.__setScrollPositionY(y);
             this.changed();
         },
 
         //this is set by OFGrid on scroll
         //<br>this allows for fast scrolling through columns of very large external data sets
         //<br>this is ignored by in memory GridBehaviors
-        setScrollPositionX: function(x) {
-            this.scrollPositionX = x;
+        _setScrollPositionX: function(x) {
+            this.__setScrollPositionX(x);
             this.changed();
         },
 
@@ -26012,8 +26159,9 @@ var noop = function() {};
 
         //answers the default col alignment for the main data area of the grid
         //<br>TODO:provide uniform mechanism for the fixed areas like this
-        getColumnAlignment: function( /* x */ ) {
-            return 'center';
+        _getColumnAlignment: function(x) {
+            x = this.translateColumnIndex(x);
+            return this.__getColumnAlignment(x);
         },
 
         //answers the default alignment for the topleft area of the grid
@@ -26030,9 +26178,12 @@ var noop = function() {};
 
         //answers the default row alignment for the fixed row data area of the grid
         //<br>TODO:provide uniform mechanism for the fixed areas like this
-        getFixedRowAlignment: function( /* x, y */ ) {
-            return this.resolveProperty('fixedRowAlign');
+        _getFixedRowAlignment: function(x, y) {
+            noop(y);
+            x = this.translateColumnIndex(x);
+            return this.__getFixedRowAlignment(x);
         },
+
         //this is called by OFGrid when top left area is clicked
         //<br>see DefaultGridBehavior.delegateClick() below
         //<br>this is where we can hook in external data manipulation
@@ -26043,16 +26194,21 @@ var noop = function() {};
         //<br>see DefaultGridBehavior.delegateClick() below
         //<br>this is where we can hook in external data manipulation such as linking,
         //<br>drilling down on rows, etc...
-        fixedRowClicked: function(grid, mouse) {
-            console.log('fixed row clicked: ' + mouse.gridCell.x, mouse);
+        _fixedRowClicked: function(grid, mouse) {
+            var x = this.translateColumnIndex(mouse.gridCell.x - this.getFixedColumnCount());
+            var translatedPoint = this.grid.rectangles.point.create(this.scrollPositionX + x, mouse.gridCell.y);
+            mouse.gridCell = translatedPoint;
+            this.__fixedRowClicked(grid, mouse);
         },
 
         //this is called by OFGrid when a fixed col cell is clicked
         //<br>see DefaultGridBehavior.delegateClick() below
         //<br>this is where we can hook in external data manipulation such as sorting,
         //<br>hiding/showing columns, etc...
-        fixedColumnClicked: function(grid, mouse) {
-            console.log('fixed col clicked: ' + mouse.gridCell.y, mouse);
+        _fixedColumnClicked: function(grid, mouse) {
+            var translatedPoint = this.grid.rectangles.point.create(mouse.gridCell.x, this.scrollPositionY + mouse.gridCell.y - this.getFixedRowCount());
+            mouse.gridCell = translatedPoint;
+            this.__fixedColumnClicked(grid, mouse);
         },
 
         setCursor: function(grid) {
@@ -26137,11 +26293,10 @@ var noop = function() {};
             }
         },
 
-        getCellEditorAt: function(x, y) {
+        _getCellEditorAt: function(x, y) {
             noop(y);
             x = this.translateColumnIndex(x);
-            var cellEditor = this.grid.resolveCellEditor('textfield');
-            return cellEditor;
+            return this.___getCellEditorAt(x);
         },
 
         changed: function() {},
@@ -26149,20 +26304,6 @@ var noop = function() {};
         //this is done through the dnd tool for now...
         isColumnReorderable: function() {
             return true;
-        },
-
-        alphaFor: function(i) {
-            // Name the column headers in A, .., AA, AB, AC, .., AZ format
-            // quotient/remainder
-            //var quo = Math.floor(col/27);
-            var quo = Math.floor((i) / 26);
-            var rem = (i) % 26;
-            var code = '';
-            if (quo > 0) {
-                code += String.fromCharCode('A'.charCodeAt(0) + quo - 1);
-            }
-            code += String.fromCharCode('A'.charCodeAt(0) + rem);
-            return code;
         },
 
         getColumnProperties: function(columnIndex) {
@@ -26178,7 +26319,7 @@ var noop = function() {};
         },
         getDNDColumnLabels: function() {
             //assumes there is one row....
-            var columnCount = this.getColumnCount();
+            var columnCount = this._getColumnCount();
             var labels = new Array(columnCount);
             for (var i = 0; i < columnCount; i++) {
                 var id = this.tableState.columnIndexes[i];
@@ -26265,19 +26406,251 @@ var noop = function() {};
         },
         getCursorAt: function( /* x, y */ ) {
             return null;
-        }
+        },
+
+        //****************************************************
+        //functions to override
+
+        __getValue: function(x, y) {
+            return x + ', ' + y;
+        },
+
+        __setValue: function(x, y, value) {
+            this.dataUpdates['p_' + x + '_' + y] = value;
+        },
+        __getColumnCount: function() {
+            return 300;
+        },
+
+        __getColumnWidth: function(x) {
+            var override = this.tableState.columnWidths[x];
+            if (override) {
+                return override;
+            }
+            return this.resolveProperty('defaultColumnWidth');
+        },
+
+        __setColumnWidth: function(x, width) {
+            this.tableState.columnWidths[x] = Math.max(5, width);
+        },
+
+        __getColumnAlignment: function( /* x */ ) {
+            return 'center';
+        },
+
+        __setScrollPositionX: function(x) {
+            if (x < 0) {
+                console.log(x);
+            }
+            this.scrollPositionX = x;
+        },
+
+        __setScrollPositionY: function(y) {
+            this.scrollPositionY = y;
+        },
+        __getFixedRowAlignment: function(x, y) {
+            noop(x, y);
+            return this.resolveProperty('fixedRowAlign');
+        },
+
+        __getFixedRowValue: function(x /*, y*/ ) {
+            return x;
+        },
+
+        ___getCellEditorAt: function(x, y) {
+            noop(x, y);
+            var cellEditor = this.grid.resolveCellEditor('textfield');
+            return cellEditor;
+        },
+
+        __fixedRowClicked: function(grid, mouse) {
+            console.log('__fixedRowClicked(' + mouse.gridCell.x + ', ' + mouse.gridCell.y + ')');
+        },
+
+        __fixedColumnClicked: function(grid, mouse) {
+            console.log('__fixedColumnClicked(' + mouse.gridCell.x + ', ' + mouse.gridCell.y + ')');
+        },
 
     });
 
-})(); /* jslint ignore:line */
+})();
 </script>
-</polymer-element>
-<polymer-element name="fin-hypergrid-behavior-gol" extends="fin-hypergrid-behavior-default" assetpath="/dev/fin-hypergrid/polymer/html/behaviors/">
+</polymer-element><polymer-element name="fin-hypergrid-behavior-default" extends="fin-hypergrid-behavior-base" assetpath="/dev/fin-hypergrid/polymer/html/behaviors/">
   <template>
     <style type="text/css">:host {
     display: block;
     position: relative;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</style>
+  </template>
+  <script>'use strict';
+
+(function() {
+    var alphaFor = function(i) {
+        // Name the column headers in A, .., AA, AB, AC, .., AZ format
+        // quotient/remainder
+        //var quo = Math.floor(col/27);
+        var quo = Math.floor((i) / 26);
+        var rem = (i) % 26;
+        var code = '';
+        if (quo > 0) {
+            code += String.fromCharCode('A'.charCodeAt(0) + quo - 1);
+        }
+        code += String.fromCharCode('A'.charCodeAt(0) + rem);
+        return code;
+    };
+    //var noop = function() {};
+    var a = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+
+    Polymer('fin-hypergrid-behavior-default',{ /* jslint ignore:line */
+        __getValue: function(x, y) {
+            return x + ', ' + a[y % 26];
+        },
+        __getFixedRowValue: function(x /*, y*/ ) {
+            return alphaFor(x);
+        },
+    });
+
+})(); /* jslint ignore:line */
+</script>
+</polymer-element>
+<polymer-element name="fin-hypergrid-behavior-gol" extends="fin-hypergrid-behavior-base" assetpath="/dev/fin-hypergrid/polymer/html/behaviors/">
+  <template>
+    <style type="text/css">:host {
+    display: block;
+    position: relative;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -26489,7 +26862,7 @@ var noop = function() {};
         },
 
         computeLifeAt: function(x, y) {
-            var me = this.getValue(x, y);
+            var me = this._getValue(x, y);
             var total = this.getNeighborCount(x, y);
             me[1] = total;
             if (me[0]) {
@@ -26574,11 +26947,11 @@ var noop = function() {};
             return sum;
         },
 
-        getValue: function(x, y) {
+        __getValue: function(x, y) {
             return this.data[x][y];
         },
 
-        setValue: function(x, y, value) {
+        __setValue: function(x, y, value) {
             this.data[x][y] = value;
         },
 
@@ -26586,7 +26959,7 @@ var noop = function() {};
             return y;
         },
 
-        getFixedRowValue: function(x, y) {
+        __getFixedRowValue: function(x, y) {
             noop(x, y);
             return '';
         },
@@ -26598,7 +26971,7 @@ var noop = function() {};
             return 0;
         },
 
-        getColumnCount: function() {
+        __getColumnCount: function() {
             return this.data.length;
         },
 
@@ -26611,7 +26984,7 @@ var noop = function() {};
             return 10;
         },
 
-        getColumnWidth: function(x) {
+        __getColumnWidth: function(x) {
             noop(x);
             return 10;
         },
@@ -26629,8 +27002,8 @@ var noop = function() {};
             var mX = this.scrollPositionX + mouse.gridCell.x;
             var mY = this.scrollPositionY + mouse.gridCell.y;
 
-            var v = this.getValue(mX, mY)[0];
-            this.setValue(mX, mY, [!v, 1]);
+            var v = this._getValue(mX, mY)[0];
+            this._setValue(mX, mY, [!v, 1]);
             this.changed();
         },
 
@@ -26671,12 +27044,27 @@ var noop = function() {};
 })(); /* jslint ignore:line */
 </script>
 </polymer-element>
-<polymer-element name="fin-hypergrid-behavior-in-memory" extends="fin-hypergrid-behavior-default" assetpath="/dev/fin-hypergrid/polymer/html/behaviors/">
+<polymer-element name="fin-hypergrid-behavior-in-memory" extends="fin-hypergrid-behavior-base" assetpath="/dev/fin-hypergrid/polymer/html/behaviors/">
   <template>
     <style type="text/css">:host {
     display: block;
     position: relative;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -26784,6 +27172,19 @@ var noop = function() {};
 'use strict';
 
 (function() {
+    var alphaFor = function(i) {
+        // Name the column headers in A, .., AA, AB, AC, .., AZ format
+        // quotient/remainder
+        //var quo = Math.floor(col/27);
+        var quo = Math.floor((i) / 26);
+        var rem = (i) % 26;
+        var code = '';
+        if (quo > 0) {
+            code += String.fromCharCode('A'.charCodeAt(0) + quo - 1);
+        }
+        code += String.fromCharCode('A'.charCodeAt(0) + rem);
+        return code;
+    };
 
     //helper function for randomizing data
     function rnd(max) {
@@ -26876,7 +27277,7 @@ var noop = function() {};
         initialize: function() {
             var config = {
                 xstart: 0,
-                xstop: this.getColumnCount(),
+                xstop: this._getColumnCount(),
                 xinc: 1,
                 ystart: 0,
                 ystop: this.getRowCount(),
@@ -26905,23 +27306,27 @@ var noop = function() {};
             }, self.permuteInterval);
         },
 
-        getCellEditorAt: function(x, y) {
-            x = this.translateColumnIndex(x);
+        __getCellEditorAt: function(x, y) {
             var type = x !== 9 ? 'textfield' : this.editorTypes[y % this.editorTypes.length];
             var cellEditor = this.grid.resolveCellEditor(type);
             return cellEditor;
         },
+
+        __getColumnCount: function() {
+            return this.columns;
+        },
+
         //set a random value into col/row, cutoff is the threshold to exit if the random value is outside
         setRandomValue: function(col, row, cutoff) {
             var rand = Math.random();
-            var val = this._getValue(col, row);
+            var val = this.__getValue(col, row);
             var rndV;
             if (rand > cutoff) {
                 return;
             }
             if (col === 13) {
                 val = rand < 0.1 ? true : false;
-                this._setValue(col, row, val);
+                this.__setValue(col, row, val);
             } else if (col === 23) {
                 if (!val) {
                     val = [rnd(100), rnd(100), rnd(100), rnd(100), rnd(100), rnd(100), rnd(100), rnd(100), rnd(100), rnd(100)];
@@ -26935,7 +27340,7 @@ var noop = function() {};
                         val[i] = Math.min(Math.max(0, val[i] + rndOffsets[i]), 100);
                     }
                 }
-                this._setValue(col, row, val);
+                this.__setValue(col, row, val);
             } else if (col === 3) {
                 if (!val) {
                     val = [rnd(100), rnd(100), rnd(100), rnd(100), rnd(100), rnd(100), rnd(100), rnd(100), rnd(100), rnd(100)];
@@ -26949,10 +27354,10 @@ var noop = function() {};
                         val.push(rndV);
                     }
                 }
-                this._setValue(col, row, val);
+                this.__setValue(col, row, val);
             } else if (col % 10 === 0) {
                 val = [rand < 0.1 ? false : true, 1.0];
-                this._setValue(col, row, val);
+                this.__setValue(col, row, val);
             } else if (col === 9) {
                 if (val) {
                     return; // only set this onece
@@ -26962,25 +27367,25 @@ var noop = function() {};
                     hex = '0' + hex;
                 }
                 val = '0x' + hex;
-                this._setValue(col, row, val);
+                this.__setValue(col, row, val);
             } else if (col % 6 === 0) {
                 if (val) {
                     return; // only set this onece
                 }
                 var profound = 'Quidquid latine dictum sit, altum sonatur.';
-                this._setValue(col, row, profound);
+                this.__setValue(col, row, profound);
             } else if (col % 4 === 0) {
                 var ipsum = 'Lorem ipsum dolor sit amet, malis repudiare mei in. Cu munere expetendis mea, affert aliquid definiebas at nam. Te scripta delectus singulis mel, et vidit error legere eum, ea latine feugait ponderum vix. Ius ei electram patrioque, et eum propriae deseruisse necessitatibus. Epicurei adipisci ex duo. Quidam iudicabit ullamcorper ex vel, per quot ipsum ad, libris quaeque iudicabit et usu. Ut postea nominavi cum, id eius porro mundi qui. Nec ex altera dolorum definiebas, consul viderer ex est. ';
                 var index = Math.max(0, (rand * ipsum.length) - 20);
                 val = ipsum.slice(index, index + 20).toUpperCase();
-                this._setValue(col, row, val);
+                this.__setValue(col, row, val);
             } else if (col === 2 || col === 14 || col === 22) {
                 var v = Math.min(Math.floor(rand * 2000), 100);
-                this._setValue(col, row, Math.max(v));
+                this.__setValue(col, row, Math.max(v));
             } else if (col === 41) {
-                this._setValue(col, row, Math.random());
+                this.__setValue(col, row, Math.random());
             } else {
-                this._setValue(col, row, rand);
+                this.__setValue(col, row, rand);
             }
         },
 
@@ -27157,26 +27562,16 @@ var noop = function() {};
             var row = this.order[y];
             return row;
         },
-        setValue: function(col, y, value) {
-            col = this.translateColumnIndex(col);
-            this._setValue(col, y, value);
-        },
 
         //set value through the sorted indirection
-        _setValue: function(col, y, value) {
+        __setValue: function(col, y, value) {
             var row = this.orderOf(y);
             var index = this.indexOf(row, col);
             this.values[index] = value;
         },
 
         // get value through the sorted indirection
-        getValue: function(col, y) {
-            col = this.translateColumnIndex(col);
-            return this._getValue(col, y);
-        },
-
-        // get value through the sorted indirection
-        _getValue: function(col, y) {
+        __getValue: function(col, y) {
             var row = this.orderOf(y);
             var index = this.indexOf(row, col);
             return this.values[index];
@@ -27186,12 +27581,7 @@ var noop = function() {};
             return this.rows;
         },
 
-        getColumnCount: function() {
-            return this.columns - this.tableState.hiddenColumns.length;
-        },
-
-        getFixedRowValue: function(x /*, y*/ ) {
-            x = this.translateColumnIndex(x);
+        __getFixedRowValue: function(x /*, y*/ ) {
             var sortIndicator = '';
             if (this.tableState.sortLookup[x] && !this.tableState.sorted[x]) {
                 this.tableState.sorted[x] = 0;
@@ -27200,17 +27590,15 @@ var noop = function() {};
             if (this.tableState.sorted[x]) {
                 sortIndicator = this.sortStates[this.tableState.sorted[x]];
             }
-            return this.alphaFor(x) + sortIndicator;
+            return alphaFor(x) + sortIndicator;
         },
 
         //columns 2, 14, 22 are sortable
-        fixedRowClicked: function(grid, mouse) {
-            var x = this.translateColumnIndex(mouse.gridCell.x - this.getFixedColumnCount());
-            var columnIndex = this.scrollPositionX + x;
-            if ([2, 14, 22].indexOf(columnIndex) === -1) {
+        __fixedRowClicked: function(grid, mouse) {
+            if ([2, 14, 22].indexOf(mouse.gridCell.x) === -1) {
                 return;
             }
-            this.toggleSort(columnIndex);
+            this.toggleSort(mouse.gridCell.x);
         },
 
         toggleSort: function(columnIndex) {
@@ -27228,12 +27616,27 @@ var noop = function() {};
 })(); /* jslint ignore:line */
 </script>
 </polymer-element>
-<polymer-element name="fin-hypergrid-behavior-json" extends="fin-hypergrid-behavior-default" assetpath="/dev/fin-hypergrid/polymer/html/behaviors/">
+<polymer-element name="fin-hypergrid-behavior-json" extends="fin-hypergrid-behavior-base" assetpath="/dev/fin-hypergrid/polymer/html/behaviors/">
   <template>
     <style type="text/css">:host {
     display: block;
     position: relative;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -27639,22 +28042,19 @@ window.dualPivotQuickSort = (function() {
             }
         },
 
-        getValue: function(x, y) {
-            x = this.translateColumnIndex(x);
+        __getValue: function(x, y) {
             var fields = this.getFields();
             return this.data[y][fields[x]];
         },
 
-        setValue: function(x, y, value) {
-            x = this.translateColumnIndex(x);
+        __setValue: function(x, y, value) {
             var fields = this.getFields();
             this.data[y][fields[x]] = value;
         },
 
-        getFixedRowValue: function(x, y) {
+        __getFixedRowValue: function(x, y) {
             var headers = this.getHeaders();
             noop(y);
-            x = this.translateColumnIndex(x);
             var sortIndex = this.tableState.sorted[x] || 0;
             return headers[x] + this.sortStates[sortIndex];
         },
@@ -27667,7 +28067,7 @@ window.dualPivotQuickSort = (function() {
             return this.data.length;
         },
 
-        getColumnCount: function() {
+        __getColumnCount: function() {
             var fields = this.getFields();
             return fields.length - this.tableState.hiddenColumns.length;
         },
@@ -27720,7 +28120,6 @@ window.dualPivotQuickSort = (function() {
             if (incrementIt === undefined) {
                 incrementIt = 1;
             }
-            columnIndex = this.translateColumnIndex(columnIndex);
             this.grid.clearSelections();
             var fields = this.getFields();
             if (columnIndex >= fields.length) {
@@ -27781,12 +28180,27 @@ window.dualPivotQuickSort = (function() {
 })(); /* jslint ignore:line */
 </script>
 </polymer-element>
-<polymer-element name="fin-hypergrid-behavior-q" extends="fin-hypergrid-behavior-default" attributes="url" assetpath="/dev/fin-hypergrid/polymer/html/behaviors/">
+<polymer-element name="fin-hypergrid-behavior-q" extends="fin-hypergrid-behavior-base" attributes="url" assetpath="/dev/fin-hypergrid/polymer/html/behaviors/">
   <template>
     <style type="text/css">:host {
     display: block;
     position: relative;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -27968,8 +28382,7 @@ window.dualPivotQuickSort = (function() {
 
         //for now we use the hacky override implementation to save data, in the future we'll have a more elaborate protocol with Q to do real validation and setting of data.
         //<br>take note of the usage of the scrollPositionY value in translating our in-memory data page
-        getValue: function(x, y) {
-            x = this.translateColumnIndex(x);
+        __getValue: function(x, y) {
             var override = this.values['p_' + (x + 1) + '_' + y];
             if (override) {
                 return override;
@@ -27996,8 +28409,8 @@ window.dualPivotQuickSort = (function() {
         },
 
         //Virtual column scrolling is not necessary with this GridBehavior because we only hold a small amount of vertical data in memory and most tables in Q are timeseries financial data meaning the are very tall and skinny.  We know all the columns from the first page from Q.
-        getColumnCount: function() {
-            return this.block.headers.length - 1 - this.tableState.hiddenColumns.length;
+        __getColumnCount: function() {
+            return Math.max(0, this.block.headers.length - 1);
         },
 
         //This is overridden from DefaultGridBehavior.   This value is set on us by the OFGrid component on user scrolling.
@@ -28034,8 +28447,7 @@ window.dualPivotQuickSort = (function() {
         },
 
         //return the column names, they are available to us as meta data in the most recent page Q sent us.
-        getFixedRowValue: function(x) {
-            x = this.translateColumnIndex(x);
+        __getFixedRowValue: function(x) {
             if (!this.sorted[x + 1]) {
                 this.sorted[x + 1] = 0;
             }
@@ -28058,13 +28470,12 @@ window.dualPivotQuickSort = (function() {
         },
 
         //on a header click do a sort!
-        fixedRowClicked: function(grid, mouse) {
+        __fixedRowClicked: function(grid, mouse) {
             this.toggleSort(this.scrollPositionX + mouse.gridCell.x - this.getFixedColumnCount());
         },
 
         //first ask q if this is a sortable instance, then send a message to Q to sort our data set
         toggleSort: function(columnIndex) {
-            columnIndex = this.translateColumnIndex(columnIndex);
             if (!this.getCanSort()) {
                 return;
             }
@@ -28089,15 +28500,13 @@ window.dualPivotQuickSort = (function() {
         },
 
         //delegate column alignment through the map at the top based on the column type
-        getColumnAlignment: function(x) {
-            x = this.translateColumnIndex(x);
+        __getColumnAlignment: function(x) {
             var alignment = typeAlignmentMap[this.block.headers[x + 1][1]];
             return alignment;
         },
 
         //for now use the cheesy local set data for storing user edits
-        setValue: function(x, y, value) {
-            x = this.translateColumnIndex(x);
+        __setValue: function(x, y, value) {
             this.values['p_' + (x + 1) + '_' + y] = value;
         },
 
@@ -28148,9 +28557,6 @@ window.dualPivotQuickSort = (function() {
                             self.changed();
                         }
                     }
-                    if (!self.columnIndexes || self.columnIndexes.length === 0) {
-                        self.initColumnIndexes();
-                    }
                     self.changed();
                 };
                 this.ws.onerror = function(e) {
@@ -28170,12 +28576,27 @@ window.dualPivotQuickSort = (function() {
 })(); /* jslint ignore:line */
 </script>
 </polymer-element>
-<polymer-element name="fin-hypergrid-behavior-qtree" extends="fin-hypergrid-behavior-default" attributes="url" assetpath="/dev/fin-hypergrid/polymer/html/behaviors/">
+<polymer-element name="fin-hypergrid-behavior-qtree" extends="fin-hypergrid-behavior-base" attributes="url" assetpath="/dev/fin-hypergrid/polymer/html/behaviors/">
   <template>
     <style type="text/css">:host {
     display: block;
     position: relative;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -28432,8 +28853,8 @@ window.dualPivotQuickSort = (function() {
 
                     //approxiamte line height is a 'W'
                     var size = gc.measureText('W');
-                    var textHeight = size.width * 1.6;
-                    var hoffset = Math.ceil(textHeight / 2.1);
+                    var textHeight = size.width * 1.8;
+                    var hoffset = Math.ceil(textHeight / 2.0);
 
                     if (val) {
                         for (var i = 0; i < val.length; i++) {
@@ -28490,7 +28911,7 @@ window.dualPivotQuickSort = (function() {
 
         //for now we use the hacky override implementation to save data, in the future we'll have a more elaborate protocol with Q to do real validation and setting of data.
         //<br>take note of the usage of the scrollPositionY value in translating our in-memory data page
-        getValue: function(x, y) {
+        __getValue: function(x, y) {
             var col = this.getColumnId(x);
             var normalized = Math.floor(y - this.scrollPositionY);
             if (this.block && col) {
@@ -28515,7 +28936,7 @@ window.dualPivotQuickSort = (function() {
         },
 
         //Virtual column scrolling is not necessary with this GridBehavior because we only hold a small amount of vertical data in memory and most tables in Q are timeseries financial data meaning the are very tall and skinny.  We know all the columns from the first page from Q.
-        getColumnCount: function() {
+        __getColumnCount: function() {
             return this.block.F.length;
         },
 
@@ -28548,7 +28969,7 @@ window.dualPivotQuickSort = (function() {
         },
 
         //return the column names, they are available to us as meta data in the most recent page Q sent us.
-        getFixedRowValue: function(x, y) {
+        __getFixedRowValue: function(x, y) {
             var colId = this.getColumnId(x);
             if (y < 1) {
                 var sortIndicator = this.getSortIndicator(colId);
@@ -28598,11 +29019,6 @@ window.dualPivotQuickSort = (function() {
         //let Q decide if this instance is sortable or not
         getCanSort: function() {
             return true;
-        },
-
-        //on a header click do a sort!
-        fixedRowClicked: function(grid, mouse) {
-            this.toggleSort(this.scrollPositionX + mouse.gridCell.x - this.getFixedColumnCount());
         },
 
         //hierarchy area clicked on lets sort there
@@ -28661,7 +29077,7 @@ window.dualPivotQuickSort = (function() {
             return this.resolveProperty('fixedRowAlign');
         },
         //delegate column alignment through the map at the top based on the column type
-        getColumnAlignment: function(x) {
+        __getColumnAlignment: function(x) {
             var colId = this.getColumnId(x);
             var type = this.block.Q[colId];
             var alignment = typeAlignmentMap[type];
@@ -28669,18 +29085,11 @@ window.dualPivotQuickSort = (function() {
         },
         getColumnId: function(x) {
             var headers = this.block.F;
-            x = this.translateColumnIndex(x);
             var col = headers[x];
             return col;
         },
         getFixedColumnAlignment: function( /* x */ ) {
             return 'left';
-        },
-
-        //for now use the cheesy local set data for storing user edits
-        setValue: function(x, y, value) {
-            x = this.translateColumnIndex(x);
-            this.values['p_' + (x + 1) + '_' + y] = value;
         },
 
         fixedColumnClicked: function(grid, mouse) {
@@ -28774,7 +29183,8 @@ window.dualPivotQuickSort = (function() {
 
             var visible = this.block.F.slice(0);
             for (var i = 0; i < visible.length; i++) {
-                visible[i] = this.getColumnId(i);
+                var transX = this.translateColumnIndex(i);
+                visible[i] = this.getColumnId(transX);
             }
             var msgId = this.getNextMessageId(function(message) {
                 //ignore any predecessor column swap results if a new one has been posted
@@ -28868,6 +29278,21 @@ window.dualPivotQuickSort = (function() {
     display: block;
     position: relative;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -29210,6 +29635,21 @@ window.dualPivotQuickSort = (function() {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 </style>
     <div id="editor"></div>
   </template>
@@ -29397,6 +29837,21 @@ window.dualPivotQuickSort = (function() {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 </style>
     <input id="editor">
   </template>
@@ -29420,6 +29875,21 @@ window.dualPivotQuickSort = (function() {
     display: block;
     position: relative;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -29648,6 +30118,21 @@ window.dualPivotQuickSort = (function() {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 </style>
     <input id="editor" type="color">
   </template>
@@ -29668,6 +30153,21 @@ window.dualPivotQuickSort = (function() {
     display: block;
     position: relative;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -29890,6 +30390,21 @@ window.dualPivotQuickSort = (function() {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 </style>
     <input id="editor" type="range">
   </template>
@@ -29910,6 +30425,21 @@ window.dualPivotQuickSort = (function() {
     display: block;
     position: relative;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -30197,6 +30727,21 @@ fin-vampire-bar {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 </style>
     <fin-plugins>
     </fin-plugins>
@@ -30209,6 +30754,7 @@ fin-vampire-bar {
     <content></content>
   </template>
   <script>/* globals document, alert, Polymer */
+
 
 'use strict';
 
@@ -30896,7 +31442,7 @@ fin-vampire-bar {
             var ystop = last.origin.y + last.extent.y + 1;
             for (var y = ystart; y < ystop; y++) {
                 for (var x = xstart; x < xstop; x++) {
-                    var data = behavior.getValue(x, y);
+                    var data = behavior._getValue(x, y);
                     collector.push(data);
                     if (x !== xstop - 1) {
                         collector.push('\t');
@@ -31042,8 +31588,8 @@ fin-vampire-bar {
          * @method setBehavior(newBehavior)
          */
         behaviorChanged: function() {
-            if (this.numColumns !== this.behavior.getColumnCount() || this.numRows !== this.behavior.getRowCount()) {
-                this.numColumns = this.behavior.getColumnCount();
+            if (this.numColumns !== this.behavior._getColumnCount() || this.numRows !== this.behavior.getRowCount()) {
+                this.numColumns = this.behavior._getColumnCount();
                 this.numRows = this.behavior.getRowCount();
                 this.behaviorShapeChanged();
             }
@@ -31792,7 +32338,7 @@ fin-vampire-bar {
          */
         setVScrollValue: function(y) {
             var self = this;
-            this.getBehavior().setScrollPositionY(y);
+            this.getBehavior()._setScrollPositionY(y);
             var oldY = this.vScrlValue;
             this.vScrlValue = y;
             this.scrollValueChangedNotification();
@@ -31822,7 +32368,7 @@ fin-vampire-bar {
          */
         setHScrollValue: function(x) {
             var self = this;
-            this.getBehavior().setScrollPositionX(x);
+            this.getBehavior()._setScrollPositionX(x);
             var oldX = this.hScrlValue;
             this.hScrlValue = x;
             this.scrollValueChangedNotification();
@@ -32113,7 +32659,7 @@ fin-vampire-bar {
          * @method setValue(x,y,value)
          */
         setValue: function(x, y, value) {
-            this.getBehavior().setValue(x, y, value);
+            this.getBehavior()._setValue(x, y, value);
         },
 
         /**
@@ -32130,7 +32676,7 @@ fin-vampire-bar {
             if (!behavior) {
                 return;
             }
-            var numColumns = behavior.getColumnCount();
+            var numColumns = behavior._getColumnCount();
             var numRows = behavior.getRowCount();
             var bounds = this.getBounds();
             if (!bounds) {
@@ -32142,7 +32688,7 @@ fin-vampire-bar {
             var lastPageColumnCount = 0;
             var columnsWidth = 0;
             for (; lastPageColumnCount < numColumns; lastPageColumnCount++) {
-                var eachWidth = behavior.getColumnWidth(numColumns - lastPageColumnCount - 1);
+                var eachWidth = behavior._getColumnWidth(numColumns - lastPageColumnCount - 1);
                 columnsWidth = columnsWidth + eachWidth;
                 if (columnsWidth > scrollableWidth) {
                     break;
@@ -32161,7 +32707,7 @@ fin-vampire-bar {
 
             this.sbVScrlCfg.rangeStop = behavior.getRowCount() - lastPageRowCount;
 
-            this.sbHScrlCfg.rangeStop = behavior.getColumnCount() - lastPageColumnCount;
+            this.sbHScrlCfg.rangeStop = behavior._getColumnCount() - lastPageColumnCount;
 
             this.setVScrollValue(Math.min(this.getVScrollValue(), this.sbVScrlCfg.rangeStop));
             this.setHScrollValue(Math.min(this.getHScrollValue(), this.sbHScrlCfg.rangeStop));
@@ -32217,13 +32763,11 @@ fin-vampire-bar {
         getRenderer: function() {
             return this.renderer;
         },
-
         getColumnWidth: function(columnIndex) {
-            return this.getBehavior().getColumnWidth(columnIndex);
+            return this.getBehavior()._getColumnWidth(columnIndex);
         },
-
         setColumnWidth: function(columnIndex, columnWidth) {
-            this.getBehavior().setColumnWidth(columnIndex, columnWidth);
+            this.getBehavior()._setColumnWidth(columnIndex, columnWidth);
         },
 
         getFixedColumnWidth: function(columnIndex) {
@@ -32259,7 +32803,7 @@ fin-vampire-bar {
         },
 
         getColumnCount: function() {
-            return this.getBehavior().getColumnCount();
+            return this.getBehavior()._getColumnCount();
         },
 
         getRowCount: function() {
@@ -32279,11 +32823,11 @@ fin-vampire-bar {
         },
 
         fixedRowClicked: function(mouse) {
-            this.getBehavior().fixedRowClicked(this, mouse);
+            this.getBehavior()._fixedRowClicked(this, mouse);
         },
 
         fixedColumnClicked: function(mouse) {
-            this.getBehavior().fixedColumnClicked(this, mouse);
+            this.getBehavior()._fixedColumnClicked(this, mouse);
         },
 
         activateEditor: function(event) {
@@ -32293,14 +32837,12 @@ fin-vampire-bar {
             var mX = this.getHScrollValue() + gridCell.x - fixedColCount;
             var mY = this.getVScrollValue() + gridCell.y - fixedRowCount;
 
-            mX = this.getBehavior().translateColumnIndex(mX);
-
             var editor = this.getCellEditorAt(mX, mY);
             this.editAt(editor, event);
         },
 
         getCellEditorAt: function(x, y) {
-            return this.getBehavior().getCellEditorAt(x, y);
+            return this.getBehavior()._getCellEditorAt(x, y);
         },
 
         toggleHiDPI: function() {

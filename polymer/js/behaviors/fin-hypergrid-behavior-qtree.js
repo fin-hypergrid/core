@@ -151,8 +151,8 @@
 
                     //approxiamte line height is a 'W'
                     var size = gc.measureText('W');
-                    var textHeight = size.width * 1.6;
-                    var hoffset = Math.ceil(textHeight / 2.1);
+                    var textHeight = size.width * 1.8;
+                    var hoffset = Math.ceil(textHeight / 2.0);
 
                     if (val) {
                         for (var i = 0; i < val.length; i++) {
@@ -209,7 +209,7 @@
 
         //for now we use the hacky override implementation to save data, in the future we'll have a more elaborate protocol with Q to do real validation and setting of data.
         //<br>take note of the usage of the scrollPositionY value in translating our in-memory data page
-        getValue: function(x, y) {
+        __getValue: function(x, y) {
             var col = this.getColumnId(x);
             var normalized = Math.floor(y - this.scrollPositionY);
             if (this.block && col) {
@@ -234,7 +234,7 @@
         },
 
         //Virtual column scrolling is not necessary with this GridBehavior because we only hold a small amount of vertical data in memory and most tables in Q are timeseries financial data meaning the are very tall and skinny.  We know all the columns from the first page from Q.
-        getColumnCount: function() {
+        __getColumnCount: function() {
             return this.block.F.length;
         },
 
@@ -267,7 +267,7 @@
         },
 
         //return the column names, they are available to us as meta data in the most recent page Q sent us.
-        getFixedRowValue: function(x, y) {
+        __getFixedRowValue: function(x, y) {
             var colId = this.getColumnId(x);
             if (y < 1) {
                 var sortIndicator = this.getSortIndicator(colId);
@@ -317,11 +317,6 @@
         //let Q decide if this instance is sortable or not
         getCanSort: function() {
             return true;
-        },
-
-        //on a header click do a sort!
-        fixedRowClicked: function(grid, mouse) {
-            this.toggleSort(this.scrollPositionX + mouse.gridCell.x - this.getFixedColumnCount());
         },
 
         //hierarchy area clicked on lets sort there
@@ -380,7 +375,7 @@
             return this.resolveProperty('fixedRowAlign');
         },
         //delegate column alignment through the map at the top based on the column type
-        getColumnAlignment: function(x) {
+        __getColumnAlignment: function(x) {
             var colId = this.getColumnId(x);
             var type = this.block.Q[colId];
             var alignment = typeAlignmentMap[type];
@@ -388,18 +383,11 @@
         },
         getColumnId: function(x) {
             var headers = this.block.F;
-            x = this.translateColumnIndex(x);
             var col = headers[x];
             return col;
         },
         getFixedColumnAlignment: function( /* x */ ) {
             return 'left';
-        },
-
-        //for now use the cheesy local set data for storing user edits
-        setValue: function(x, y, value) {
-            x = this.translateColumnIndex(x);
-            this.values['p_' + (x + 1) + '_' + y] = value;
         },
 
         fixedColumnClicked: function(grid, mouse) {
@@ -493,7 +481,8 @@
 
             var visible = this.block.F.slice(0);
             for (var i = 0; i < visible.length; i++) {
-                visible[i] = this.getColumnId(i);
+                var transX = this.translateColumnIndex(i);
+                visible[i] = this.getColumnId(transX);
             }
             var msgId = this.getNextMessageId(function(message) {
                 //ignore any predecessor column swap results if a new one has been posted

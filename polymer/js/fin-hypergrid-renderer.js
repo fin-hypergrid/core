@@ -328,7 +328,7 @@ var config = {
             var behavior = this.getBehavior();
             var lineColor = this.resolveProperty('lineColor');
 
-            var numColumns = behavior.getColumnCount();
+            var numColumns = this.getColumnCount();
             var numRows = behavior.getRowCount();
             var numFixedColumns = behavior.getFixedColumnCount();
             var numFixedRows = behavior.getFixedRowCount();
@@ -444,7 +444,7 @@ var config = {
                 ctx,
                 offsetX + this.getBehavior().getFixedColumnsWidth(),
                 offsetY,
-                this.getBehavior().getColumnCount(),
+                this.getColumnCount(),
                 this.getBehavior().getFixedRowCount());
 
             this.paintFixedColumns(
@@ -493,8 +493,8 @@ var config = {
                 for (var r = 0; r < numRows; r++) {
 
                     var height = this.getFixedRowHeight(r);
-                    var align = behavior.getFixedRowAlignment(c + scrollLeft, r);
-                    var value = behavior.getFixedRowValue(c + scrollLeft, r);
+                    var align = behavior._getFixedRowAlignment(c + scrollLeft, r);
+                    var value = behavior._getFixedRowValue(c + scrollLeft, r);
                     var isHovered = false; //this.isHovered(c, r);
                     //translatedX allows us to reorder columns
                     var translatedX = behavior.translateColumnIndex(c + scrollLeft);
@@ -566,7 +566,7 @@ var config = {
 
         _paintCells: function(ctx, offsetX, offsetY) {
             var behavior = this.getBehavior();
-            var numColumns = behavior.getColumnCount();
+            var numColumns = this.getColumnCount();
             var numRows = behavior.getRowCount();
             var x = offsetX;
             var startY = offsetY;
@@ -596,8 +596,8 @@ var config = {
                 var y = startY;
                 var translatedX = behavior.translateColumnIndex(c + scrollLeft);
 
-                var columnAlign = behavior.getColumnAlignment(translatedX);
-                var columnProperties = behavior.getColumnProperties(translatedX);
+                var columnAlign = behavior._getColumnAlignment(c + scrollLeft);
+                var columnProperties = behavior.getColumnProperties(c + scrollLeft);
                 var overrideFGColor = columnProperties.fgColor || fgColor;
                 var overrideFont = columnProperties.font || font;
                 //fill background
@@ -611,7 +611,7 @@ var config = {
                         break;
                     }
 
-                    var value = behavior.getValue(c + scrollLeft, r + scrollTop);
+                    var value = behavior._getValue(c + scrollLeft, r + scrollTop);
                     // if (!value && value !== 0) { // edge condition if were scrolled all the way to the end
                     //     break;
                     // }
@@ -743,7 +743,7 @@ var config = {
         },
 
         getColumnWidth: function(columnIndex) {
-            var width = this.getBehavior().getColumnWidth(columnIndex);
+            var width = this.getBehavior()._getColumnWidth(columnIndex);
             return width;
         },
 
@@ -826,7 +826,7 @@ var config = {
             //        var viewWidth = this.getBounds().width() - 200; // look in fin-hypergrid and initializtion of fin-canvas
             //        var viewHeight = this.getBounds().height();
 
-            var columnAlign = behavior.getColumnAlignment(translatedX);
+            var columnAlign = behavior._getColumnAlignment(translatedX);
             var columnProperties = behavior.getColumnProperties(translatedX);
             var overrideFGColor = columnProperties.fgColor || fgColor;
             var overrideFont = columnProperties.font || font;
@@ -836,7 +836,7 @@ var config = {
 
             var isSelected = this.isSelected(x + scrollLeft, y + scrollTop);
 
-            var value = behavior.getValue(x + scrollLeft, y + scrollTop);
+            var value = behavior._getValue(x + scrollLeft, y + scrollTop);
 
             var isHovered = this.isHovered(x, y);
             var cell = cellProvider.getCell(this.cellConfig(translatedX, y + scrollTop, value, overrideFGColor, bgColor, fgSelColor, bgSelColor, overrideFont, isSelected, isHovered, columnAlign, hoffset, voffset));

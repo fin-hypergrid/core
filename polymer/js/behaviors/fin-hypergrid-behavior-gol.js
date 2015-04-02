@@ -106,7 +106,7 @@
         },
 
         computeLifeAt: function(x, y) {
-            var me = this.getValue(x, y);
+            var me = this._getValue(x, y);
             var total = this.getNeighborCount(x, y);
             me[1] = total;
             if (me[0]) {
@@ -191,11 +191,11 @@
             return sum;
         },
 
-        getValue: function(x, y) {
+        __getValue: function(x, y) {
             return this.data[x][y];
         },
 
-        setValue: function(x, y, value) {
+        __setValue: function(x, y, value) {
             this.data[x][y] = value;
         },
 
@@ -203,7 +203,7 @@
             return y;
         },
 
-        getFixedRowValue: function(x, y) {
+        __getFixedRowValue: function(x, y) {
             noop(x, y);
             return '';
         },
@@ -215,7 +215,7 @@
             return 0;
         },
 
-        getColumnCount: function() {
+        __getColumnCount: function() {
             return this.data.length;
         },
 
@@ -228,7 +228,7 @@
             return 10;
         },
 
-        getColumnWidth: function(x) {
+        __getColumnWidth: function(x) {
             noop(x);
             return 10;
         },
@@ -246,8 +246,8 @@
             var mX = this.scrollPositionX + mouse.gridCell.x;
             var mY = this.scrollPositionY + mouse.gridCell.y;
 
-            var v = this.getValue(mX, mY)[0];
-            this.setValue(mX, mY, [!v, 1]);
+            var v = this._getValue(mX, mY)[0];
+            this._setValue(mX, mY, [!v, 1]);
             this.changed();
         },
 

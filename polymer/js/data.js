@@ -214,7 +214,7 @@ window.dualPivotQuickSort = (function() {
     return dualPivotQS.sort;
 }());
 
-var SIZE = 3000000;
+var SIZE = 1000000;
 var seed = 0;
 var firstNames = ['Olivia', 'Sophia', 'Ava', 'Isabella', 'Boy', 'Liam', 'Noah', 'Ethan', 'Mason', 'Logan', 'Moe', 'Larry', 'Curly', 'Shemp', 'Groucho', 'Harpo', 'Chico', 'Zeppo', 'Stanley', 'Hardy'];
 var lastNames = ['Wirts', 'Oneil', 'Smith', 'Barbarosa', 'Soprano', 'Gotti', 'Columbo', 'Luciano', 'Doerre', 'DePena'];
@@ -251,10 +251,6 @@ var randomPerson = function() {
     return person;
 };
 
-for (var i = 0; i < SIZE; i++) {
-    data[i] = randomPerson();
-}
-
 var fields = [
     'lastName',
     'firstName',
@@ -268,10 +264,6 @@ var fields = [
     'travel'
 ];
 
-//turn each field into a column
-//is it an enumeration?
-//is it a number
-//for each column
 var finanalytics = function(data, fields) {
     noop(data, fields);
     var that = {};
@@ -416,6 +408,11 @@ var finanalytics = function(data, fields) {
     fields = null;
     return that;
 };
+
+
+for (var i = 0; i < SIZE; i++) {
+    data[i] = randomPerson();
+}
 
 var start = Date.now();
 var fa = finanalytics(data, fields);
