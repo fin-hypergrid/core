@@ -436,10 +436,14 @@
         },
 
         setHoverCell: function(point) {
+            var me = this.hoverCell;
+            if (me && me.equals(point)) {
+                return;
+            }
             var fixedX = this.getFixedColumnCount();
             var fixedY = this.getFixedRowCount();
             this.hoverCell = rectangles.point.create(point.x - fixedX, point.y - fixedY);
-            this.repaint();
+            this.paintNow();
         },
 
         addGlobalProperties: function(props) {
@@ -901,6 +905,10 @@
             }
         },
 
+        paintNow: function() {
+            var canvas = this.getCanvas();
+            canvas.paintNow();
+        },
         /**
          *                                                                      .
          *                                                                      .
