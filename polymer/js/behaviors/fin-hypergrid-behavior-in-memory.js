@@ -51,7 +51,7 @@
             this.tableState.sorted = {};
             this.sortStates = [' -', ' ^', ' v'];
 
-            this.permuteInterval = 50;
+            this.permuteInterval = 250;
             this.values = new Array(this.rows * this.columns);
             this.order = [];
 
@@ -136,7 +136,7 @@
             }, self.permuteInterval);
         },
 
-        __getCellEditorAt: function(x, y) {
+        getCellEditorAt: function(x, y) {
             var type = x !== 9 ? 'textfield' : this.editorTypes[y % this.editorTypes.length];
             var cellEditor = this.grid.resolveCellEditor(type);
             return cellEditor;

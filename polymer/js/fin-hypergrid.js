@@ -73,7 +73,7 @@
             defaultFixedColumnWidth: 100,
 
             //for immediate painting, set these values to 0, true respectively
-            repaintIntervalRate: 13,
+            repaintIntervalRate: 4,
             repaintImmediately: false,
 
             //enable or disable double buffering
