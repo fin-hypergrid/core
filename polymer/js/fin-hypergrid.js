@@ -77,7 +77,9 @@
             repaintImmediately: false,
 
             //enable or disable double buffering
-            useBitBlit: false
+            useBitBlit: false,
+
+            useHiDPI: true
         };
         return properties;
     };
@@ -907,7 +909,7 @@
          * @method isHiDPI()
          */
         isHiDPI: function() {
-            return this.getAttribute('hidpi') !== null;
+            return this.resolveProperty('useHiDPI') !== false;
         },
 
         /**

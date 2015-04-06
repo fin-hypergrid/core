@@ -23,6 +23,8 @@ The Hypergrid control is a [Google polymer](https://www.polymer-project.org/) [w
 
 <img src="images/gridshot02.png" alt="screenshot">
 
+## Recent 
+* [HiDPI](http://www.html5rocks.com/en/tutorials/canvas/hidpi/) mode is now enabled by default and is no longer an attribute but a json startup config property.  The performance issue witnessed in chrome browsers seems to have been fixed.
  
 ## Pluggable Grid Behaviors
 The design makes no assumptions about the data you wish to view which
@@ -149,6 +151,7 @@ defaultFixedColumnWidth|100|the default column width of the fixed column area
 repaintIntervalRate|15|how often the canvas checks the repaint flag, set 0 to never check
 repaintImmediately|false|cause painting to happen immediately within the same micro task, if true repaintIntervalRate should be set to 0
 useBitBlit|false/true|enable or disable double buffering
+useHiDPI|true/false|make use of hi dpi displays (defaults to true)
 ## example usage
 ```
     var lnfOverrides = {

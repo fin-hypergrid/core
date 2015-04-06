@@ -19421,7 +19421,9 @@ div.container {
             //http://www.html5rocks.com/en/tutorials/canvas/hidpi/
             //just add 'hdpi' as an attribute to the fin-canvas tag
             var ratio = 1;
-            if (window.devicePixelRatio && this.isHiDPI()) {
+            var useBitBlit = this.useBitBlit();
+            var isHIDPI = window.devicePixelRatio && this.isHiDPI();
+            if (isHIDPI) {
                 var devicePixelRatio = window.devicePixelRatio || 1;
                 var backingStoreRatio = this.canvasCTX.webkitBackingStorePixelRatio ||
                     this.canvasCTX.mozBackingStorePixelRatio ||
@@ -19448,7 +19450,9 @@ div.container {
             this.buffer.style.height = height + 'px';
 
             this.bufferCTX.scale(ratio, ratio);
-
+            if (isHIDPI && !useBitBlit) {
+                this.canvasCTX.scale(ratio, ratio);
+            }
 
             //this.origin = this.g.point.create(Math.round(this.size.left), Math.round(this.size.top));
             this.bounds = this.g.rectangle.create(0, 0, this.size.width, this.size.height);
@@ -21287,6 +21291,9 @@ div.container {
 
 
 
+
+
+
 </style>
   </template>
   <script>//HypergridRenderer is the canvas enabled top level sub component that handles the renderering of the Grid.
@@ -22266,6 +22273,9 @@ var config = {
 
 
 
+
+
+
 </style>
   </template>
   <script>'use strict';
@@ -22353,6 +22363,9 @@ var config = {
     display: block;
     position: relative;
 }
+
+
+
 
 
 
@@ -22728,6 +22741,9 @@ var config = {
 
 
 
+
+
+
 </style>
   </template>
   <script>(function() {
@@ -22869,6 +22885,9 @@ var config = {
     display: block;
     position: relative;
 }
+
+
+
 
 
 
@@ -23329,6 +23348,9 @@ var noop = function() {};
 
 
 
+
+
+
 </style>
   </template>
   <script>'use strict';
@@ -23353,6 +23375,9 @@ var noop = function() {};
     display: block;
     position: relative;
 }
+
+
+
 
 
 
@@ -24086,6 +24111,9 @@ var noop = function() {};
 
 
 
+
+
+
 </style>
   </template>
   <script>(function() {
@@ -24207,6 +24235,9 @@ var noop = function() {};
     display: block;
     position: relative;
 }
+
+
+
 
 
 
@@ -24476,6 +24507,9 @@ var noop = function() {};
 
 
 
+
+
+
 </style>
   </template>
   <script>(function() {
@@ -24505,6 +24539,9 @@ var noop = function() {};
     display: block;
     position: relative;
 }
+
+
+
 
 
 
@@ -24782,6 +24819,9 @@ var noop = function() {};
 
 
 
+
+
+
 </style>
   </template>
   <script>(function() {
@@ -24942,6 +24982,9 @@ var noop = function() {};
     display: block;
     position: relative;
 }
+
+
+
 
 
 
@@ -25656,6 +25699,9 @@ var noop = function() {};
 
 
 
+
+
+
 </style>
   </template>
   <script>(function() {
@@ -25769,6 +25815,9 @@ var noop = function() {};
 
 
 
+
+
+
 </style>
   </template>
   <script>(function() {
@@ -25816,6 +25865,9 @@ var noop = function() {};
     display: block;
     position: relative;
 }
+
+
+
 
 
 
@@ -26621,6 +26673,9 @@ var noop = function() {};
 
 
 
+
+
+
 </style>
   </template>
   <script>'use strict';
@@ -26660,6 +26715,9 @@ var noop = function() {};
     display: block;
     position: relative;
 }
+
+
+
 
 
 
@@ -27075,6 +27133,9 @@ var noop = function() {};
     display: block;
     position: relative;
 }
+
+
+
 
 
 
@@ -27765,6 +27826,9 @@ var noop = function() {};
 
 
 
+
+
+
 </style>
   </template>
   <script>/*jshint  bitwise: false */
@@ -28325,6 +28389,9 @@ window.dualPivotQuickSort = (function() {
 
 
 
+
+
+
 </style>
   </template>
   <script>'use strict';
@@ -28597,6 +28664,9 @@ window.dualPivotQuickSort = (function() {
     display: block;
     position: relative;
 }
+
+
+
 
 
 
@@ -29412,6 +29482,9 @@ window.dualPivotQuickSort = (function() {
 
 
 
+
+
+
 </style>
   </template>
   <script>'use strict';
@@ -29552,6 +29625,9 @@ window.dualPivotQuickSort = (function() {
     display: block;
     position: relative;
 }
+
+
+
 
 
 
@@ -29872,6 +29948,9 @@ window.dualPivotQuickSort = (function() {
 
 
 
+
+
+
 </style>
     <input id="editor">
   </template>
@@ -29895,6 +29974,9 @@ window.dualPivotQuickSort = (function() {
     display: block;
     position: relative;
 }
+
+
+
 
 
 
@@ -30155,6 +30237,9 @@ window.dualPivotQuickSort = (function() {
 
 
 
+
+
+
 </style>
     <input id="editor" type="color">
   </template>
@@ -30175,6 +30260,9 @@ window.dualPivotQuickSort = (function() {
     display: block;
     position: relative;
 }
+
+
+
 
 
 
@@ -30429,6 +30517,9 @@ window.dualPivotQuickSort = (function() {
 
 
 
+
+
+
 </style>
     <input id="editor" type="range">
   </template>
@@ -30449,6 +30540,9 @@ window.dualPivotQuickSort = (function() {
     display: block;
     position: relative;
 }
+
+
+
 
 
 
@@ -30768,6 +30862,9 @@ fin-vampire-bar {
 
 
 
+
+
+
 </style>
     <fin-plugins>
     </fin-plugins>
@@ -30858,7 +30955,9 @@ fin-vampire-bar {
             repaintImmediately: false,
 
             //enable or disable double buffering
-            useBitBlit: false
+            useBitBlit: false,
+
+            useHiDPI: true
         };
         return properties;
     };
@@ -31688,7 +31787,7 @@ fin-vampire-bar {
          * @method isHiDPI()
          */
         isHiDPI: function() {
-            return this.getAttribute('hidpi') !== null;
+            return this.resolveProperty('useHiDPI') !== false;
         },
 
         /**
