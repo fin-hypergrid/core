@@ -191,11 +191,11 @@
             return sum;
         },
 
-        __getValue: function(x, y) {
+        getValue: function(x, y) {
             return this.data[x][y];
         },
 
-        __setValue: function(x, y, value) {
+        setValue: function(x, y, value) {
             this.data[x][y] = value;
         },
 
@@ -203,7 +203,7 @@
             return y;
         },
 
-        __getFixedRowValue: function(x, y) {
+        getFixedRowValue: function(x, y) {
             noop(x, y);
             return '';
         },
@@ -215,7 +215,7 @@
             return 0;
         },
 
-        __getColumnCount: function() {
+        getColumnCount: function() {
             return this.data.length;
         },
 
@@ -228,7 +228,7 @@
             return 10;
         },
 
-        __getColumnWidth: function(x) {
+        getColumnWidth: function(x) {
             noop(x);
             return 10;
         },

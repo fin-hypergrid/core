@@ -42,7 +42,7 @@
         beginEditAt: function(point) {
             this.setEditorPoint(point);
             var model = this.getBehavior();
-            var value = model.getValue(point.x, point.y);
+            var value = model._getValue(point.x, point.y);
             this.setEditorValue(value);
             this.isEditing = true;
             this.setCheckEditorPositionFlag();
@@ -77,7 +77,7 @@
         saveEditorValue: function() {
             var point = this.getEditorPoint();
             var value = this.getEditorValue();
-            this.getBehavior().setValue(point.x, point.y, value);
+            this.getBehavior()._setValue(point.x, point.y, value);
         },
 
         getEditorValue: function() {

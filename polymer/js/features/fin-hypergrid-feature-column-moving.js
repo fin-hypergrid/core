@@ -265,7 +265,7 @@
 
             var location = grid.getBoundingClientRect();
             var style = d.style;
-            console.log(location.top);
+
             style.top = location.top + 'px';
             style.left = location.left + 'px';
             style.position = 'fixed';

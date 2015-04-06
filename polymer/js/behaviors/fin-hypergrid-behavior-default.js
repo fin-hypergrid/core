@@ -18,10 +18,10 @@
     var a = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 
     Polymer({ /* jslint ignore:line */
-        __getValue: function(x, y) {
+        getValue: function(x, y) {
             return x + ', ' + a[y % 26];
         },
-        __getFixedRowValue: function(x /*, y*/ ) {
+        getFixedRowValue: function(x /*, y*/ ) {
             return alphaFor(x);
         },
     });

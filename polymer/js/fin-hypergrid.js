@@ -1899,6 +1899,17 @@
         /**
          *                                                                      .
          *                                                                      .
+         * get a data value from the behavior (model) at a specific point
+         *
+         * @method getValue(x,y)
+         */
+        getValue: function(x, y) {
+            this.getBehavior()._getValue(x, y);
+        },
+
+        /**
+         *                                                                      .
+         *                                                                      .
          * set a data value into the behavior (model) at a specific point
          *
          * @method setValue(x,y,value)
@@ -1906,7 +1917,6 @@
         setValue: function(x, y, value) {
             this.getBehavior()._setValue(x, y, value);
         },
-
         /**
          *                                                                      .
          *                                                                      .

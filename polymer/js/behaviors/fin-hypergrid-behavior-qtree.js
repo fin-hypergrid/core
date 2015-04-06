@@ -9,6 +9,7 @@
 
     var noop = function() {};
 
+    var hierarchyColumn = 'h_';
     //keys mapping Q datatypes to aligment and renderers are setup here.
     //<br>see [q datatypes](http://code.kx.com/wiki/Reference/Datatypes) for more.
 
@@ -196,7 +197,7 @@
         },
 
         getTopLeftValue: function( /* x, y */ ) {
-            var sortIndicator = this.getSortIndicator('h_');
+            var sortIndicator = this.getSortIndicator(hierarchyColumn);
             // var clone = this.block.G.slice(0);
             // if (clone.length === 0) {
             //     return clone;
@@ -209,7 +210,7 @@
 
         //for now we use the hacky override implementation to save data, in the future we'll have a more elaborate protocol with Q to do real validation and setting of data.
         //<br>take note of the usage of the scrollPositionY value in translating our in-memory data page
-        __getValue: function(x, y) {
+        getValue: function(x, y) {
             var col = this.getColumnId(x);
             var normalized = Math.floor(y - this.scrollPositionY);
             if (this.block && col) {
@@ -230,11 +231,11 @@
 
         //rows is a field in our data payload from Q that tells us the total number of rows available in the Q process data source
         getRowCount: function() {
-            return this.block.N - 1;
+            return Math.max(0, this.block.N - 1);
         },
 
         //Virtual column scrolling is not necessary with this GridBehavior because we only hold a small amount of vertical data in memory and most tables in Q are timeseries financial data meaning the are very tall and skinny.  We know all the columns from the first page from Q.
-        __getColumnCount: function() {
+        getColumnCount: function() {
             return this.block.F.length;
         },
 
@@ -267,7 +268,7 @@
         },
 
         //return the column names, they are available to us as meta data in the most recent page Q sent us.
-        __getFixedRowValue: function(x, y) {
+        getFixedRowValue: function(x, y) {
             var colId = this.getColumnId(x);
             if (y < 1) {
                 var sortIndicator = this.getSortIndicator(colId);
@@ -287,13 +288,13 @@
             var state = symbol + ' ' + (sortIndex + 1);
             return state;
         },
-        // h_ is the text of the hierarchy column.
+        //hierarchyColumn is the text of the hierarchy column.
         // l_ is the level of the row of the table.
         // e_ tells you whether the row is a leaf or a node.
         // o_ tells you whether the row is open, if it's a node
         // n_ is a list of nodes
         // so:
-        // indent h_[i] l_[i] spaces.
+        // indenthierarchyColumni] l_[i] spaces.
         // if e_[i]=1 then row i is a leaf. otherwise it's a node.
         // if row i is a node, then if o_[i]=0 then row i is closed (prefix with a +) else it's open (prefix with a -)
 
@@ -322,7 +323,7 @@
         //hierarchy area clicked on lets sort there
         topLeftClicked: function(grid, mouse) {
             noop(grid, mouse);
-            this._toggleSort('h_');
+            this._toggleSort(hierarchyColumn);
         },
         //first ask q if this is a sortable instance, then send a message to Q to sort our data set
         toggleSort: function(columnIndex) {
@@ -375,7 +376,7 @@
             return this.resolveProperty('fixedRowAlign');
         },
         //delegate column alignment through the map at the top based on the column type
-        __getColumnAlignment: function(x) {
+        getColumnAlignment: function(x) {
             var colId = this.getColumnId(x);
             var type = this.block.Q[colId];
             var alignment = typeAlignmentMap[type];
@@ -391,7 +392,7 @@
         },
 
         fixedColumnClicked: function(grid, mouse) {
-            var rowNum = mouse.gridCell.y - this.getFixedRowCount();
+            var rowNum = mouse.gridCell.y - this.scrollPositionY;
             var nodes = this.block.Z[1].n_[rowNum];
             var nodeClick = {
                 id: this.getNextMessageId(),
@@ -561,7 +562,7 @@
             style.top = '5%';
             style.position = 'absolute';
             style.width = '33.3333%';
-            style.height = '90%';
+            style.height = '99%';
             style.whiteSpace = 'nowrap';
         }
 

@@ -76,8 +76,8 @@
 
         //for now we use the hacky override implementation to save data, in the future we'll have a more elaborate protocol with Q to do real validation and setting of data.
         //<br>take note of the usage of the scrollPositionY value in translating our in-memory data page
-        __getValue: function(x, y) {
-            var override = this.values['p_' + (x + 1) + '_' + y];
+        getValue: function(x, y) {
+            var override = this.dataUpdates['p_' + x + '_' + y];
             if (override) {
                 return override;
             }
@@ -103,7 +103,7 @@
         },
 
         //Virtual column scrolling is not necessary with this GridBehavior because we only hold a small amount of vertical data in memory and most tables in Q are timeseries financial data meaning the are very tall and skinny.  We know all the columns from the first page from Q.
-        __getColumnCount: function() {
+        getColumnCount: function() {
             return Math.max(0, this.block.headers.length - 1);
         },
 
@@ -141,7 +141,7 @@
         },
 
         //return the column names, they are available to us as meta data in the most recent page Q sent us.
-        __getFixedRowValue: function(x) {
+        getFixedRowValue: function(x) {
             if (!this.sorted[x + 1]) {
                 this.sorted[x + 1] = 0;
             }
@@ -161,11 +161,6 @@
         getCanSort: function() {
             var canSort = this.block.features.sorting === true;
             return canSort;
-        },
-
-        //on a header click do a sort!
-        __fixedRowClicked: function(grid, mouse) {
-            this.toggleSort(this.scrollPositionX + mouse.gridCell.x - this.getFixedColumnCount());
         },
 
         //first ask q if this is a sortable instance, then send a message to Q to sort our data set
@@ -194,15 +189,12 @@
         },
 
         //delegate column alignment through the map at the top based on the column type
-        __getColumnAlignment: function(x) {
+        getColumnAlignment: function(x) {
             var alignment = typeAlignmentMap[this.block.headers[x + 1][1]];
             return alignment;
         },
 
-        //for now use the cheesy local set data for storing user edits
-        __setValue: function(x, y, value) {
-            this.values['p_' + (x + 1) + '_' + y] = value;
-        },
+
 
         //websocket connection to Q.  try and do a reconnect after 2 seconds if we fail
         connect: function() {

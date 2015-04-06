@@ -300,17 +300,17 @@ window.dualPivotQuickSort = (function() {
             }
         },
 
-        __getValue: function(x, y) {
+        getValue: function(x, y) {
             var fields = this.getFields();
             return this.data[y][fields[x]];
         },
 
-        __setValue: function(x, y, value) {
+        setValue: function(x, y, value) {
             var fields = this.getFields();
             this.data[y][fields[x]] = value;
         },
 
-        __getFixedRowValue: function(x, y) {
+        getFixedRowValue: function(x, y) {
             var headers = this.getHeaders();
             noop(y);
             var sortIndex = this.tableState.sorted[x] || 0;
@@ -325,14 +325,9 @@ window.dualPivotQuickSort = (function() {
             return this.data.length;
         },
 
-        __getColumnCount: function() {
+        getColumnCount: function() {
             var fields = this.getFields();
             return fields.length - this.tableState.hiddenColumns.length;
-        },
-
-        fixedRowClicked: function(grid, mouse) {
-            var columnIndex = this.scrollPositionX + mouse.gridCell.x - this.getFixedColumnCount();
-            this.toggleSort(columnIndex);
         },
 
         setState: function(state) {

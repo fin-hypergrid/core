@@ -74,6 +74,10 @@
             }
         },
 
+        insureColumnIndexesAreInitialized: function() {
+            this.swapColumns(0, 0);
+        },
+
         swapColumns: function(src, tar) {
             var indexes = this.tableState.columnIndexes;
             if (indexes.length === 0) {
@@ -156,14 +160,14 @@
             if (override) {
                 return override;
             }
-            return this.__getValue(x, y);
+            return this.getValue(x, y);
         },
 
         //set the data at the x, y
         //<br>this function should be overridden by you
         _setValue: function(x, y, value) {
             x = this.translateColumnIndex(x);
-            this.__setValue(x, y, value);
+            this.setValue(x, y, value);
         },
 
         //fixed rows are the static rows at the top of the grid that don't scroll up or down
@@ -171,7 +175,7 @@
         //<br>here we just return an excel-ish base-26 alpha value
         _getFixedRowValue: function(x, y) {
             x = this.translateColumnIndex(x);
-            return this.__getFixedRowValue(x, y);
+            return this.getFixedRowValue(x, y);
         },
 
         //fixed columns are the static columns at the left of the grid that don't scroll up or down
@@ -190,7 +194,7 @@
 
         //can be dynamic if your data set changes size
         _getColumnCount: function() {
-            return this.__getColumnCount() - this.tableState.hiddenColumns.length;
+            return this.getColumnCount() - this.tableState.hiddenColumns.length;
         },
 
         //can be dynamic for supporting "floating" fixed rows
@@ -303,12 +307,12 @@
         //<br>TODO: move this example into InMemoryGridBehavior
         _getColumnWidth: function(x) {
             x = this.translateColumnIndex(x);
-            return this.__getColumnWidth(x);
+            return this.getColumnWidth(x);
         },
 
         _setColumnWidth: function(x, width) {
             x = this.translateColumnIndex(x);
-            this.__setColumnWidth(x, width);
+            this.setColumnWidth(x, width);
             this.changed();
         },
 
@@ -316,7 +320,7 @@
         //<br>this allows for fast scrolling through rows of very large external data sets
         //<br>this is ignored by in memory GridBehaviors
         _setScrollPositionY: function(y) {
-            this.__setScrollPositionY(y);
+            this.setScrollPositionY(y);
             this.changed();
         },
 
@@ -324,7 +328,7 @@
         //<br>this allows for fast scrolling through columns of very large external data sets
         //<br>this is ignored by in memory GridBehaviors
         _setScrollPositionX: function(x) {
-            this.__setScrollPositionX(x);
+            this.setScrollPositionX(x);
             this.changed();
         },
 
@@ -344,7 +348,7 @@
         //<br>TODO:provide uniform mechanism for the fixed areas like this
         _getColumnAlignment: function(x) {
             x = this.translateColumnIndex(x);
-            return this.__getColumnAlignment(x);
+            return this.getColumnAlignment(x);
         },
 
         //answers the default alignment for the topleft area of the grid
@@ -364,7 +368,7 @@
         _getFixedRowAlignment: function(x, y) {
             noop(y);
             x = this.translateColumnIndex(x);
-            return this.__getFixedRowAlignment(x);
+            return this.getFixedRowAlignment(x);
         },
 
         //this is called by OFGrid when top left area is clicked
@@ -381,7 +385,7 @@
             var x = this.translateColumnIndex(mouse.gridCell.x - this.getFixedColumnCount());
             var translatedPoint = this.grid.rectangles.point.create(this.scrollPositionX + x, mouse.gridCell.y);
             mouse.gridCell = translatedPoint;
-            this.__fixedRowClicked(grid, mouse);
+            this.fixedRowClicked(grid, mouse);
         },
 
         //this is called by OFGrid when a fixed col cell is clicked
@@ -391,7 +395,7 @@
         _fixedColumnClicked: function(grid, mouse) {
             var translatedPoint = this.grid.rectangles.point.create(mouse.gridCell.x, this.scrollPositionY + mouse.gridCell.y - this.getFixedRowCount());
             mouse.gridCell = translatedPoint;
-            this.__fixedColumnClicked(grid, mouse);
+            this.fixedColumnClicked(grid, mouse);
         },
 
         setCursor: function(grid) {
@@ -479,7 +483,7 @@
         _getCellEditorAt: function(x, y) {
             noop(y);
             x = this.translateColumnIndex(x);
-            return this.___getCellEditorAt(x);
+            return this.getCellEditorAt(x);
         },
 
         changed: function() {},
@@ -502,13 +506,14 @@
         },
         getDNDColumnLabels: function() {
             //assumes there is one row....
+            this.insureColumnIndexesAreInitialized();
             var columnCount = this._getColumnCount();
             var labels = new Array(columnCount);
             for (var i = 0; i < columnCount; i++) {
                 var id = this.tableState.columnIndexes[i];
                 labels[i] = {
                     id: id,
-                    label: this.getHeader(id)
+                    label: this.getFixedRowValue(id, 0)
                 };
             }
             return labels;
@@ -530,7 +535,7 @@
                 var id = indexes[i];
                 labels[i] = {
                     id: id,
-                    label: this.getHeader(id)
+                    label: this.getFixedRowValue(id, 0)
                 };
             }
             return labels;
@@ -584,7 +589,7 @@
             style.top = '5%';
             style.position = 'absolute';
             style.width = '50%';
-            style.height = '90%';
+            style.height = '99%';
             style.whiteSpace = 'nowrap';
         },
         getCursorAt: function( /* x, y */ ) {
@@ -594,18 +599,18 @@
         //****************************************************
         //functions to override
 
-        __getValue: function(x, y) {
+        getValue: function(x, y) {
             return x + ', ' + y;
         },
 
-        __setValue: function(x, y, value) {
+        setValue: function(x, y, value) {
             this.dataUpdates['p_' + x + '_' + y] = value;
         },
-        __getColumnCount: function() {
+        getColumnCount: function() {
             return 300;
         },
 
-        __getColumnWidth: function(x) {
+        getColumnWidth: function(x) {
             var override = this.tableState.columnWidths[x];
             if (override) {
                 return override;
@@ -613,45 +618,47 @@
             return this.resolveProperty('defaultColumnWidth');
         },
 
-        __setColumnWidth: function(x, width) {
+        setColumnWidth: function(x, width) {
             this.tableState.columnWidths[x] = Math.max(5, width);
         },
 
-        __getColumnAlignment: function( /* x */ ) {
+        getColumnAlignment: function( /* x */ ) {
             return 'center';
         },
 
-        __setScrollPositionX: function(x) {
-            if (x < 0) {
-                console.log(x);
-            }
+        setScrollPositionX: function(x) {
             this.scrollPositionX = x;
         },
 
-        __setScrollPositionY: function(y) {
+        setScrollPositionY: function(y) {
             this.scrollPositionY = y;
         },
-        __getFixedRowAlignment: function(x, y) {
+        getFixedRowAlignment: function(x, y) {
             noop(x, y);
             return this.resolveProperty('fixedRowAlign');
         },
 
-        __getFixedRowValue: function(x /*, y*/ ) {
+        getFixedRowValue: function(x /*, y*/ ) {
             return x;
         },
 
-        ___getCellEditorAt: function(x, y) {
+        getCellEditorAt: function(x, y) {
             noop(x, y);
             var cellEditor = this.grid.resolveCellEditor('textfield');
             return cellEditor;
         },
 
-        __fixedRowClicked: function(grid, mouse) {
-            console.log('__fixedRowClicked(' + mouse.gridCell.x + ', ' + mouse.gridCell.y + ')');
+        //on a header click do a sort!
+        fixedRowClicked: function(grid, mouse) {
+            this.toggleSort(mouse.gridCell.x);
         },
 
-        __fixedColumnClicked: function(grid, mouse) {
-            console.log('__fixedColumnClicked(' + mouse.gridCell.x + ', ' + mouse.gridCell.y + ')');
+        toggleSort: function(colIndex) {
+            console.log('toggleSort(' + colIndex + ')');
+        },
+
+        fixedColumnClicked: function(grid, mouse) {
+            console.log('fixedColumnClicked(' + mouse.gridCell.x + ', ' + mouse.gridCell.y + ')');
         },
 
     });

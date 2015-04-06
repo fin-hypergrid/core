@@ -58,7 +58,7 @@
             if (selections.length === 0) {
                 return;
             }
-            var behavior = this.grid.getBehavior();
+
             var collector = [];
             var obj;
             for (var i = 0; i < selections.length; i++) {
@@ -70,7 +70,7 @@
                 var ystop = each.origin.y + each.extent.y + 1;
                 for (var y = ystart; y < ystop; y++) {
                     for (var x = xstart; x < xstop; x++) {
-                        var data = behavior.getValue(x, y);
+                        var data = this.grid.getValue(x, y);
                         eachData.push(data + '');
                     }
                 }
