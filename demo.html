@@ -532,10 +532,10 @@
                 alert('fin-cell-click at (' + cell.x + ', ' + cell.y + ')');
             });
             jsonGrid.addFinEventListener('fin-scroll-x', function(e){
-                console.log('fin-scroll-x', e);
+                console.log('fin-scroll-x ', e.detail.value);
             });
             jsonGrid.addFinEventListener('fin-scroll-y', function(e){
-                console.log('fin-scroll-y', e);
+                console.log('fin-scroll-y', e.detail.value);
             });
             // lets setup a cell update
             // var g = document.querySelector('#json-example');
