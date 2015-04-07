@@ -21299,6 +21299,8 @@ div.container {
 
 
 
+
+
 </style>
   </template>
   <script>//HypergridRenderer is the canvas enabled top level sub component that handles the renderering of the Grid.
@@ -22286,6 +22288,8 @@ var config = {
 
 
 
+
+
 </style>
   </template>
   <script>'use strict';
@@ -22373,6 +22377,8 @@ var config = {
     display: block;
     position: relative;
 }
+
+
 
 
 
@@ -22764,6 +22770,8 @@ var config = {
 
 
 
+
+
 </style>
   </template>
   <script>(function() {
@@ -22905,6 +22913,8 @@ var config = {
     display: block;
     position: relative;
 }
+
+
 
 
 
@@ -23187,7 +23197,7 @@ var noop = function() {};
                 if (isLink) {
                     underline(gc, this.config.value, x + halignOffset, y + valignOffset + Math.floor(fontMetrics.height / 2), 1);
                 } else {
-                    gc.rect(x + 2, y + 2, width - 4, height - 4);
+                    gc.rect(x + 2, y + 2, width - 3, height - 3);
                 }
                 gc.stroke();
                 gc.closePath();
@@ -23381,6 +23391,8 @@ var noop = function() {};
 
 
 
+
+
 </style>
   </template>
   <script>'use strict';
@@ -23405,6 +23417,8 @@ var noop = function() {};
     display: block;
     position: relative;
 }
+
+
 
 
 
@@ -24154,6 +24168,8 @@ var noop = function() {};
 
 
 
+
+
 </style>
   </template>
   <script>(function() {
@@ -24208,8 +24224,16 @@ var noop = function() {};
 
             self.overlay.style.display = '';
 
+            var called = false;
             if (!this._closer) {
                 this._closer = function(e) {
+                    if (called) {
+                        //already called
+                        //this is to address a bug in safari
+                        //calling this 2x
+                        return;
+                    }
+                    called = true;
                     if (e.altKey || e.keyCode === 27) {
                         e.preventDefault();
                         self.closeColumnPicker(grid);
@@ -24275,6 +24299,8 @@ var noop = function() {};
     display: block;
     position: relative;
 }
+
+
 
 
 
@@ -24560,6 +24586,8 @@ var noop = function() {};
 
 
 
+
+
 </style>
   </template>
   <script>(function() {
@@ -24589,6 +24617,8 @@ var noop = function() {};
     display: block;
     position: relative;
 }
+
+
 
 
 
@@ -24882,6 +24912,8 @@ var noop = function() {};
 
 
 
+
+
 </style>
   </template>
   <script>(function() {
@@ -25042,6 +25074,8 @@ var noop = function() {};
     display: block;
     position: relative;
 }
+
+
 
 
 
@@ -25772,6 +25806,8 @@ var noop = function() {};
 
 
 
+
+
 </style>
   </template>
   <script>(function() {
@@ -25893,6 +25929,8 @@ var noop = function() {};
 
 
 
+
+
 </style>
   </template>
   <script>(function() {
@@ -25940,6 +25978,8 @@ var noop = function() {};
     display: block;
     position: relative;
 }
+
+
 
 
 
@@ -26761,6 +26801,8 @@ var noop = function() {};
 
 
 
+
+
 </style>
   </template>
   <script>'use strict';
@@ -26800,6 +26842,8 @@ var noop = function() {};
     display: block;
     position: relative;
 }
+
+
 
 
 
@@ -27223,6 +27267,8 @@ var noop = function() {};
     display: block;
     position: relative;
 }
+
+
 
 
 
@@ -27929,6 +27975,8 @@ var noop = function() {};
 
 
 
+
+
 </style>
   </template>
   <script>/*jshint  bitwise: false */
@@ -28497,6 +28545,8 @@ window.dualPivotQuickSort = (function() {
 
 
 
+
+
 </style>
   </template>
   <script>'use strict';
@@ -28769,6 +28819,8 @@ window.dualPivotQuickSort = (function() {
     display: block;
     position: relative;
 }
+
+
 
 
 
@@ -29297,6 +29349,7 @@ window.dualPivotQuickSort = (function() {
                 fn: 'node',
                 node: nodes
             };
+
             this.ws.send(JSON.stringify(nodeClick));
         },
         openEditor: function(div) {
@@ -29359,6 +29412,7 @@ window.dualPivotQuickSort = (function() {
                 groups: lists.group,
                 visible: lists.visible
             };
+
             this.ws.send(JSON.stringify(changeCols));
             return true;
         },
@@ -29394,6 +29448,7 @@ window.dualPivotQuickSort = (function() {
                 groups: this.block.G,
                 visible: visible
             };
+
             this.ws.send(JSON.stringify(changeCols));
             return true;
         },
@@ -29421,6 +29476,7 @@ window.dualPivotQuickSort = (function() {
                     self.setFixedColumnWidth(0, 160);
                     var startY = this.scrollPositionY || 0;
                     var stopY = startY + 60;
+
                     self.ws.send(JSON.stringify({
                         id: self.getNextMessageId(),
                         fn: 'get',
@@ -29475,6 +29531,8 @@ window.dualPivotQuickSort = (function() {
     display: block;
     position: relative;
 }
+
+
 
 
 
@@ -29865,6 +29923,8 @@ window.dualPivotQuickSort = (function() {
 
 
 
+
+
 </style>
     <div id="editor"></div>
   </template>
@@ -30076,6 +30136,8 @@ window.dualPivotQuickSort = (function() {
 
 
 
+
+
 </style>
     <input id="editor">
   </template>
@@ -30099,6 +30161,8 @@ window.dualPivotQuickSort = (function() {
     display: block;
     position: relative;
 }
+
+
 
 
 
@@ -30375,6 +30439,8 @@ window.dualPivotQuickSort = (function() {
 
 
 
+
+
 </style>
     <input id="editor" type="color">
   </template>
@@ -30395,6 +30461,8 @@ window.dualPivotQuickSort = (function() {
     display: block;
     position: relative;
 }
+
+
 
 
 
@@ -30665,6 +30733,8 @@ window.dualPivotQuickSort = (function() {
 
 
 
+
+
 </style>
     <input id="editor" type="range">
   </template>
@@ -30685,6 +30755,8 @@ window.dualPivotQuickSort = (function() {
     display: block;
     position: relative;
 }
+
+
 
 
 
@@ -30896,6 +30968,8 @@ fin-vampire-bar {
 fin-vampire-bar {
     z-index: 10;
 }
+
+
 
 
 

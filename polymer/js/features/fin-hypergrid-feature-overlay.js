@@ -50,8 +50,16 @@
 
             self.overlay.style.display = '';
 
+            var called = false;
             if (!this._closer) {
                 this._closer = function(e) {
+                    if (called) {
+                        //already called
+                        //this is to address a bug in safari
+                        //calling this 2x
+                        return;
+                    }
+                    called = true;
                     if (e.altKey || e.keyCode === 27) {
                         e.preventDefault();
                         self.closeColumnPicker(grid);

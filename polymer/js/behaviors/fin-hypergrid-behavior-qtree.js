@@ -399,6 +399,7 @@
                 fn: 'node',
                 node: nodes
             };
+
             this.ws.send(JSON.stringify(nodeClick));
         },
         openEditor: function(div) {
@@ -461,6 +462,7 @@
                 groups: lists.group,
                 visible: lists.visible
             };
+
             this.ws.send(JSON.stringify(changeCols));
             return true;
         },
@@ -496,6 +498,7 @@
                 groups: this.block.G,
                 visible: visible
             };
+
             this.ws.send(JSON.stringify(changeCols));
             return true;
         },
@@ -523,6 +526,7 @@
                     self.setFixedColumnWidth(0, 160);
                     var startY = this.scrollPositionY || 0;
                     var stopY = startY + 60;
+
                     self.ws.send(JSON.stringify({
                         id: self.getNextMessageId(),
                         fn: 'get',

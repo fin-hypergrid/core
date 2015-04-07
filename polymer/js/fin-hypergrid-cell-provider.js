@@ -153,7 +153,7 @@ var noop = function() {};
                 if (isLink) {
                     underline(gc, this.config.value, x + halignOffset, y + valignOffset + Math.floor(fontMetrics.height / 2), 1);
                 } else {
-                    gc.rect(x + 2, y + 2, width - 4, height - 4);
+                    gc.rect(x + 2, y + 2, width - 3, height - 3);
                 }
                 gc.stroke();
                 gc.closePath();
