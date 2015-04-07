@@ -9,7 +9,7 @@
 
     var noop = function() {};
 
-    var hierarchyColumn = 'h_';
+    var hierarchyColumn = 'g_';
     //keys mapping Q datatypes to aligment and renderers are setup here.
     //<br>see [q datatypes](http://code.kx.com/wiki/Reference/Datatypes) for more.
 
