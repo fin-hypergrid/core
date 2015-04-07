@@ -1914,7 +1914,7 @@
          * @method getValue(x,y)
          */
         getValue: function(x, y) {
-            this.getBehavior()._getValue(x, y);
+            return this.getBehavior()._getValue(x, y);
         },
 
         /**
