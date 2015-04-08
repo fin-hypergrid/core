@@ -7,9 +7,16 @@
   <link rel="import" href="http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/fin-hypergrid.min.html">
 
   <style>
+    .titlebar {
+      -webkit-user-select: none;
+      -webkit-app-region: drag;
+      background-color: #B2B2B2;
+      padding: 3px;
+      padding-left: 10px;
+    }
     fin-hypergrid {
         position: absolute;
-        top: 10px;
+        top: 22px;
         right: 10px;
         bottom: 0;
         left: 0;
@@ -18,11 +25,12 @@
   </style>
 </head>
 <body unresolved fullbleed>
+    <div class="titlebar">&nbsp;</div>
 
-            <fin-hypergrid>
-                <fin-hypergrid-behavior-in-memory></fin-hypergrid-behavior-in-memory>
-                <fin-hypergrid-excel></fin-hypergrid-excel>
-            </fin-hypergrid>
+    <fin-hypergrid>
+        <fin-hypergrid-behavior-in-memory></fin-hypergrid-behavior-in-memory>
+        <fin-hypergrid-excel></fin-hypergrid-excel>
+    </fin-hypergrid>
 
 </body>
 </html>
