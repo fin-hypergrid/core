@@ -94,6 +94,7 @@ var config = {
         attached: function() {
             this.readyInit();
             this.renderedColumnWidths = [0];
+            this.renderedHeight = 0;
             this.renderedRowHeights = [0];
             this.renderedColumns = [];
             this.renderedRows = [];
@@ -337,6 +338,7 @@ var config = {
             var fixedRowsHeight = behavior.getFixedRowsHeight();
 
             this.renderedColumnWidths = [0];
+            this.renderedHeight = 0;
             this.renderedRowHeights = [0];
             this.renderedColumns = [];
             this.renderedRows = [];
@@ -432,6 +434,7 @@ var config = {
                     //gc.stroke();
                 }
                 y = y + height;
+                this.renderedHeight = this.renderedHeight + height;
                 this.renderedRowHeights.push(Math.round(y));
             }
             gc.stroke();
@@ -846,6 +849,31 @@ var config = {
         },
         isDraggingColumn: function() {
             return this.getGrid().isDraggingColumn();
+        },
+        getPageUpRow: function() {
+            if (this.renderedRowHeights.length === 0) {
+                return;
+            }
+            var behavior = this.getBehavior();
+            var h = this.renderedHeight;
+            var topRow = this.renderedRows[0];
+            while (h > 0 && topRow >= 1) {
+                topRow--;
+                var eachHeight = behavior.getRowHeight(topRow);
+                h = h - eachHeight;
+            }
+            if (topRow === 0) {
+                return 0;
+            }
+            return topRow + 1;
+
+        },
+        getPageDownRow: function() {
+            if (this.renderedRowHeights.length === 0) {
+                return;
+            }
+            var row = this.renderedRows[this.renderedRows.length - 1] + 1;
+            return row;
         }
     });
 

@@ -412,7 +412,7 @@ https://exceldna.codeplex.com/documentation
 http://nodejs.org/download/
 
 ## Road Map
-* Page up/down buttons
+
 * Column autosizing
 * add filter support
 * add grouping
@@ -420,7 +420,6 @@ http://nodejs.org/download/
 * events should work for mobile
 * add ink effects
 * Test suite for all components and upstream dependency projects
-* Continued bug-fixing, refactoring, documentation and cleanup of the existing code base
 * Hover event support
 * Tooltip support
 * context menu support
@@ -433,6 +432,7 @@ http://nodejs.org/download/
 * move this todo to github issues
 
 -- done --
+* Page up/down buttons
 * add column selection/reordering to all behaviors
 * Fix live reload on file change edge conditions
 * GridBehaviors for other data sources

@@ -2165,10 +2165,12 @@
             }
         },
         pageUp: function() {
-            console.log('page up');
+            var rowNum = this.getRenderer().getPageUpRow();
+            this.setVScrollValue(rowNum);
         },
         pageDown: function() {
-            console.log('page down');
+            var rowNum = this.getRenderer().getPageDownRow();
+            this.setVScrollValue(rowNum);
         },
         pageLeft: function() {
             console.log('page left');

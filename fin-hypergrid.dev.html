@@ -21315,6 +21315,7 @@ div.container {
 
 
 
+
 </style>
   </template>
   <script>//HypergridRenderer is the canvas enabled top level sub component that handles the renderering of the Grid.
@@ -21413,6 +21414,7 @@ var config = {
         attached: function() {
             this.readyInit();
             this.renderedColumnWidths = [0];
+            this.renderedHeight = 0;
             this.renderedRowHeights = [0];
             this.renderedColumns = [];
             this.renderedRows = [];
@@ -21656,6 +21658,7 @@ var config = {
             var fixedRowsHeight = behavior.getFixedRowsHeight();
 
             this.renderedColumnWidths = [0];
+            this.renderedHeight = 0;
             this.renderedRowHeights = [0];
             this.renderedColumns = [];
             this.renderedRows = [];
@@ -21751,6 +21754,7 @@ var config = {
                     //gc.stroke();
                 }
                 y = y + height;
+                this.renderedHeight = this.renderedHeight + height;
                 this.renderedRowHeights.push(Math.round(y));
             }
             gc.stroke();
@@ -22165,6 +22169,31 @@ var config = {
         },
         isDraggingColumn: function() {
             return this.getGrid().isDraggingColumn();
+        },
+        getPageUpRow: function() {
+            if (this.renderedRowHeights.length === 0) {
+                return;
+            }
+            var behavior = this.getBehavior();
+            var h = this.renderedHeight;
+            var topRow = this.renderedRows[0];
+            while (h > 0 && topRow >= 1) {
+                topRow--;
+                var eachHeight = behavior.getRowHeight(topRow);
+                h = h - eachHeight;
+            }
+            if (topRow === 0) {
+                return 0;
+            }
+            return topRow + 1;
+
+        },
+        getPageDownRow: function() {
+            if (this.renderedRowHeights.length === 0) {
+                return;
+            }
+            var row = this.renderedRows[this.renderedRows.length - 1] + 1;
+            return row;
         }
     });
 
@@ -22177,6 +22206,7 @@ var config = {
     display: block;
     position: relative;
 }
+
 
 
 
@@ -22398,6 +22428,7 @@ var config = {
     display: block;
     position: relative;
 }
+
 
 
 
@@ -22807,6 +22838,7 @@ var config = {
 
 
 
+
 </style>
   </template>
   <script>(function() {
@@ -22948,6 +22980,7 @@ var config = {
     display: block;
     position: relative;
 }
+
 
 
 
@@ -23395,6 +23428,7 @@ var noop = function() {};
     position: relative;
 }
 
+
 </style>
   </template>
   <script>'use strict';
@@ -23484,6 +23518,7 @@ var commands = {
 
 
 
+
 </style>
   </template>
   <script>'use strict';
@@ -23508,6 +23543,7 @@ var commands = {
     display: block;
     position: relative;
 }
+
 
 
 
@@ -24275,6 +24311,7 @@ var commands = {
 
 
 
+
 </style>
   </template>
   <script>(function() {
@@ -24404,6 +24441,7 @@ var commands = {
     display: block;
     position: relative;
 }
+
 
 
 
@@ -24707,6 +24745,7 @@ var commands = {
 
 
 
+
 </style>
   </template>
   <script>(function() {
@@ -24736,6 +24775,7 @@ var commands = {
     display: block;
     position: relative;
 }
+
 
 
 
@@ -25047,6 +25087,7 @@ var commands = {
 
 
 
+
 </style>
   </template>
   <script>(function() {
@@ -25207,6 +25248,7 @@ var commands = {
     display: block;
     position: relative;
 }
+
 
 
 
@@ -25955,6 +25997,7 @@ var commands = {
 
 
 
+
 </style>
   </template>
   <script>(function() {
@@ -26085,6 +26128,7 @@ var commands = {
 
 
 
+
 </style>
   </template>
   <script>(function() {
@@ -26132,6 +26176,7 @@ var commands = {
     display: block;
     position: relative;
 }
+
 
 
 
@@ -26972,6 +27017,7 @@ var commands = {
 
 
 
+
 </style>
   </template>
   <script>'use strict';
@@ -27011,6 +27057,7 @@ var commands = {
     display: block;
     position: relative;
 }
+
 
 
 
@@ -27443,6 +27490,7 @@ var commands = {
     display: block;
     position: relative;
 }
+
 
 
 
@@ -28167,6 +28215,7 @@ var commands = {
 
 
 
+
 </style>
   </template>
   <script>/*jshint  bitwise: false */
@@ -28744,6 +28793,7 @@ window.dualPivotQuickSort = (function() {
 
 
 
+
 </style>
   </template>
   <script>'use strict';
@@ -29016,6 +29066,7 @@ window.dualPivotQuickSort = (function() {
     display: block;
     position: relative;
 }
+
 
 
 
@@ -29869,6 +29920,7 @@ window.dualPivotQuickSort = (function() {
 
 
 
+
 </style>
   </template>
   <script>'use strict';
@@ -30009,6 +30061,7 @@ window.dualPivotQuickSort = (function() {
     display: block;
     position: relative;
 }
+
 
 
 
@@ -30363,6 +30416,7 @@ window.dualPivotQuickSort = (function() {
 
 
 
+
 </style>
     <input id="editor">
   </template>
@@ -30386,6 +30440,7 @@ window.dualPivotQuickSort = (function() {
     display: block;
     position: relative;
 }
+
 
 
 
@@ -30680,6 +30735,7 @@ window.dualPivotQuickSort = (function() {
 
 
 
+
 </style>
     <input id="editor" type="color">
   </template>
@@ -30700,6 +30756,7 @@ window.dualPivotQuickSort = (function() {
     display: block;
     position: relative;
 }
+
 
 
 
@@ -30988,6 +31045,7 @@ window.dualPivotQuickSort = (function() {
 
 
 
+
 </style>
     <input id="editor" type="range">
   </template>
@@ -31008,6 +31066,7 @@ window.dualPivotQuickSort = (function() {
     display: block;
     position: relative;
 }
+
 
 
 
@@ -31228,6 +31287,7 @@ fin-vampire-bar {
 fin-vampire-bar {
     z-index: 10;
 }
+
 
 
 
@@ -33539,10 +33599,12 @@ fin-vampire-bar {
             }
         },
         pageUp: function() {
-            console.log('page up');
+            var rowNum = this.getRenderer().getPageUpRow();
+            this.setVScrollValue(rowNum);
         },
         pageDown: function() {
-            console.log('page down');
+            var rowNum = this.getRenderer().getPageDownRow();
+            this.setVScrollValue(rowNum);
         },
         pageLeft: function() {
             console.log('page left');
