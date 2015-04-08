@@ -17,7 +17,7 @@
   },
   "shortcut": {
     "company": "OpenFin",
-    "description": "docking-manager-example",
+    "description": "snap and dock",
     "icon": "http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/images/hypergrid_thumb.ico",
     "name": "hypergrid-demo"
   }
