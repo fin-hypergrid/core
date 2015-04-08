@@ -115,6 +115,7 @@
         },
 
         initializeFeatureChain: function(grid) {
+            this.setNextFeature(document.createElement('fin-hypergrid-feature-key-paging'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-cell-click'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-overlay'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-column-resizing'));

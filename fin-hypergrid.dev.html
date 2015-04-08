@@ -18328,6 +18328,7 @@ CustomElements.addModule(function(scope) {
 
 
 
+
 </head><body><div hidden="">
 <polymer-element name="fin-rectangle" assetpath="/dev/fin-rectangle/">
   <script>
@@ -19036,6 +19037,11 @@ div.container {
     charMap[37] = ['LEFT', 'LEFTSHIFT'];
     charMap[40] = ['DOWN', 'DOWNSHIFT'];
     charMap[39] = ['RIGHT', 'RIGHTSHIFT'];
+
+    charMap[33] = ['PAGEUP', 'PAGEUPSHIFT'];
+    charMap[34] = ['PAGEDOWN', 'PAGEDOWNSHIFT'];
+    charMap[35] = ['PAGERIGHT', 'PAGERIGHTSHIFT'];
+    charMap[36] = ['PAGELEFT', 'PAGELEFTSHIFT'];
 
     Polymer('fin-canvas', { /* jshint ignore:line */
         /**                                                             .
@@ -19885,6 +19891,7 @@ div.container {
             if (this.currentKeys.indexOf(keyChar) === -1) {
                 this.currentKeys.push(keyChar);
             }
+            //console.log(keyChar, e.keyCode);
             this.dispatchEvent(new CustomEvent('fin-keydown', {
                 detail: {
                     alt: e.altKey,
@@ -21304,6 +21311,10 @@ div.container {
 
 
 
+
+
+
+
 </style>
   </template>
   <script>//HypergridRenderer is the canvas enabled top level sub component that handles the renderering of the Grid.
@@ -22296,6 +22307,10 @@ var config = {
 
 
 
+
+
+
+
 </style>
   </template>
   <script>'use strict';
@@ -22383,6 +22398,10 @@ var config = {
     display: block;
     position: relative;
 }
+
+
+
+
 
 
 
@@ -22784,6 +22803,10 @@ var config = {
 
 
 
+
+
+
+
 </style>
   </template>
   <script>(function() {
@@ -22925,6 +22948,10 @@ var config = {
     display: block;
     position: relative;
 }
+
+
+
+
 
 
 
@@ -23361,12 +23388,58 @@ var noop = function() {};
 })(); /* jslint ignore:line */
 </script>
 </polymer-element>
+<polymer-element name="fin-hypergrid-feature-key-paging" extends="fin-hypergrid-feature-base" assetpath="/dev/fin-hypergrid/polymer/html/features/">
+  <template>
+    <style type="text/css">:host {
+    display: block;
+    position: relative;
+}
+
+</style>
+  </template>
+  <script>'use strict';
+
+var commands = {
+    PAGEDOWN: function(grid) {
+        grid.pageDown();
+    },
+    PAGEUP: function(grid) {
+        grid.pageUp();
+    },
+    PAGELEFT: function(grid) {
+        grid.pageLeft();
+    },
+    PAGERIGHT: function(grid) {
+        grid.pageRight();
+    }
+};
+
+(function() {
+
+    Polymer('fin-hypergrid-feature-key-paging', { /* jshint ignore:line  */
+        handleKeyDown: function(grid, event) {
+            var detail = event.detail.char;
+            var func = commands[detail];
+            if (func) {
+                func(grid);
+            } else if (this.next) {
+                this.next.handleKeyDown(grid, event);
+            }
+        }
+    });
+})();
+</script>
+</polymer-element>
 <polymer-element name="fin-hypergrid-feature-cell-click" extends="fin-hypergrid-feature-base" assetpath="/dev/fin-hypergrid/polymer/html/features/">
   <template>
     <style type="text/css">:host {
     display: block;
     position: relative;
 }
+
+
+
+
 
 
 
@@ -23435,6 +23508,10 @@ var noop = function() {};
     display: block;
     position: relative;
 }
+
+
+
+
 
 
 
@@ -24194,6 +24271,10 @@ var noop = function() {};
 
 
 
+
+
+
+
 </style>
   </template>
   <script>(function() {
@@ -24323,6 +24404,10 @@ var noop = function() {};
     display: block;
     position: relative;
 }
+
+
+
+
 
 
 
@@ -24618,6 +24703,10 @@ var noop = function() {};
 
 
 
+
+
+
+
 </style>
   </template>
   <script>(function() {
@@ -24647,6 +24736,10 @@ var noop = function() {};
     display: block;
     position: relative;
 }
+
+
+
+
 
 
 
@@ -24950,6 +25043,10 @@ var noop = function() {};
 
 
 
+
+
+
+
 </style>
   </template>
   <script>(function() {
@@ -25110,6 +25207,10 @@ var noop = function() {};
     display: block;
     position: relative;
 }
+
+
+
+
 
 
 
@@ -25850,6 +25951,10 @@ var noop = function() {};
 
 
 
+
+
+
+
 </style>
   </template>
   <script>(function() {
@@ -25976,6 +26081,10 @@ var noop = function() {};
 
 
 
+
+
+
+
 </style>
   </template>
   <script>(function() {
@@ -26023,6 +26132,10 @@ var noop = function() {};
     display: block;
     position: relative;
 }
+
+
+
+
 
 
 
@@ -26168,6 +26281,7 @@ var noop = function() {};
         },
 
         initializeFeatureChain: function(grid) {
+            this.setNextFeature(document.createElement('fin-hypergrid-feature-key-paging'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-cell-click'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-overlay'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-column-resizing'));
@@ -26854,6 +26968,10 @@ var noop = function() {};
 
 
 
+
+
+
+
 </style>
   </template>
   <script>'use strict';
@@ -26893,6 +27011,10 @@ var noop = function() {};
     display: block;
     position: relative;
 }
+
+
+
+
 
 
 
@@ -27321,6 +27443,10 @@ var noop = function() {};
     display: block;
     position: relative;
 }
+
+
+
+
 
 
 
@@ -28037,6 +28163,10 @@ var noop = function() {};
 
 
 
+
+
+
+
 </style>
   </template>
   <script>/*jshint  bitwise: false */
@@ -28610,6 +28740,10 @@ window.dualPivotQuickSort = (function() {
 
 
 
+
+
+
+
 </style>
   </template>
   <script>'use strict';
@@ -28882,6 +29016,10 @@ window.dualPivotQuickSort = (function() {
     display: block;
     position: relative;
 }
+
+
+
+
 
 
 
@@ -29727,6 +29865,10 @@ window.dualPivotQuickSort = (function() {
 
 
 
+
+
+
+
 </style>
   </template>
   <script>'use strict';
@@ -29867,6 +30009,10 @@ window.dualPivotQuickSort = (function() {
     display: block;
     position: relative;
 }
+
+
+
+
 
 
 
@@ -30213,6 +30359,10 @@ window.dualPivotQuickSort = (function() {
 
 
 
+
+
+
+
 </style>
     <input id="editor">
   </template>
@@ -30236,6 +30386,10 @@ window.dualPivotQuickSort = (function() {
     display: block;
     position: relative;
 }
+
+
+
+
 
 
 
@@ -30522,6 +30676,10 @@ window.dualPivotQuickSort = (function() {
 
 
 
+
+
+
+
 </style>
     <input id="editor" type="color">
   </template>
@@ -30542,6 +30700,10 @@ window.dualPivotQuickSort = (function() {
     display: block;
     position: relative;
 }
+
+
+
+
 
 
 
@@ -30822,6 +30984,10 @@ window.dualPivotQuickSort = (function() {
 
 
 
+
+
+
+
 </style>
     <input id="editor" type="range">
   </template>
@@ -30842,6 +31008,10 @@ window.dualPivotQuickSort = (function() {
     display: block;
     position: relative;
 }
+
+
+
+
 
 
 
@@ -31058,6 +31228,10 @@ fin-vampire-bar {
 fin-vampire-bar {
     z-index: 10;
 }
+
+
+
+
 
 
 
@@ -33363,6 +33537,18 @@ fin-vampire-bar {
             } else {
                 return false;
             }
+        },
+        pageUp: function() {
+            console.log('page up');
+        },
+        pageDown: function() {
+            console.log('page down');
+        },
+        pageLeft: function() {
+            console.log('page left');
+        },
+        pageRight: function() {
+            console.log('page right');
         }
 
     });

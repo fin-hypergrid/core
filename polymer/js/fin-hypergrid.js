@@ -2163,6 +2163,18 @@
             } else {
                 return false;
             }
+        },
+        pageUp: function() {
+            console.log('page up');
+        },
+        pageDown: function() {
+            console.log('page down');
+        },
+        pageLeft: function() {
+            console.log('page left');
+        },
+        pageRight: function() {
+            console.log('page right');
         }
 
     });
