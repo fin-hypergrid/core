@@ -4,7 +4,7 @@
   <head lang="en">
     <meta charset="UTF-8">
     <title>Snap & Dock</title>
-    <script src="DockingManager.js"></script>
+    <script src="http://openfin.github.io/snap-and-dock/DockingManager.js"></script>
   </head>
   <body>
     <div id="console"></div>
@@ -24,7 +24,7 @@
 
                 name: 'hyper-child' + counter++,
                 uuid: 'hyper-child' + counter++,
-                url: 'http://openfin.github.io/snap-and-dock/hypergrid-snap-child.html',
+                url: 'http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/examples/hypergrid-snap-child.html',
                 defaultWidth: 400,
                 defaultHeight: 300,
                 defaultTop: (screen.availHeight - 800) / 2,
@@ -45,7 +45,7 @@
         function undockAll() {
           dockingManager.undockAll();
         }
-        
+
         document.querySelector('#createWindows').onclick = createChildWindow;
         document.querySelector('#undockWindows').onclick = undockAll;
     });

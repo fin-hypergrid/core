@@ -2,9 +2,9 @@
   "devtools_port": 9090,
   "startup_app": {
     "name": "hypergrid-demo",
-    "url": "http://openfin.github.io/fin-hypergrid/examples/hypergrid-snap.html",
+    "url": "http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/examples/hypergrid-snap.html",
     "uuid": "hypergrid-demo",
-    "applicationIcon": "http://openfin.github.io/fin-hypergrid/examples/openfin.ico",
+    "applicationIcon": "http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/images/hypergrid_thumb.png",
     "autoShow": true,
     "defaultWidth": 250,
     "defaultHeight": 200,
@@ -18,7 +18,7 @@
   "shortcut": {
     "company": "OpenFin",
     "description": "docking-manager-example",
-    "icon": "http://openfin.github.io/fin-hypergrid/examples/openfin.ico",
+    "icon": "http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/images/hypergrid_thumb.png",
     "name": "hypergrid-demo"
   }
 }
