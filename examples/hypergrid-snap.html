@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<!-- https://dl.openfin.co/services/download?fileName=hypergrid-demo-installer&config=http://openfin.github.io/openfin/snap-and-dock/app.json -->
+<html>
+  <head lang="en">
+    <meta charset="UTF-8">
+    <title>Snap & Dock</title>
+    <script src="DockingManager.js"></script>
+  </head>
+  <body>
+    <div id="console"></div>
+    <div>uuid: hypergrid-snap</div>
+    <Button id="createWindows"> Create HyperGrid Window </Button>
+    <Button id="undockWindows"> Unlink all HyperGrid Windows </Button>
+    <script>
+    window.addEventListener('DOMContentLoaded', function() {
+    fin.desktop.main(function() {
+
+        var dockingManager = DockingManager.getInstance();
+        var counter = 0;
+
+        function createChildWindow() {
+
+            var dw = new fin.desktop.Window({
+
+                name: 'hyper-child' + counter++,
+                uuid: 'hyper-child' + counter++,
+                url: 'http://openfin.github.io/snap-and-dock/hypergrid-snap-child.html',
+                defaultWidth: 400,
+                defaultHeight: 300,
+                defaultTop: (screen.availHeight - 800) / 2,
+                defaultLeft: (screen.availWidth - 600) / 2,
+                resize: true,
+                windowState: 'normal',
+                autoShow: true
+
+            }, function() {
+
+                dockingManager.register(dw);
+            });
+
+
+            return dw;
+        }
+
+        function undockAll() {
+          dockingManager.undockAll();
+        }
+        
+        document.querySelector('#createWindows').onclick = createChildWindow;
+        document.querySelector('#undockWindows').onclick = undockAll;
+    });
+});
+    </script>
+  </body>
+</html>
