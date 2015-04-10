@@ -87,7 +87,7 @@ For this example to work you'll need to
 feel free to connect this example to any other db that any-db supports (MS SQL, MySQL, Postgres, and SQLite3).
 Make sure to npm install the proper any-db-***** interface and edit the config.js file.
 
-# Cell Renderers
+# Cell Renderers<a name="cell-renderers"></a>
 Cell renderers are easy to create and the default method for generating highly customized dynamic cell content.  They live in an object called a cellProvider which is provided by [YOUR](https://github.com/openfin/fin-hypergrid/blob/master/polymer/js/behaviors/fin-hypergrid-behavior-base.js#L145) behavior object.
 
 There are four areas that have distinct cell renderering override capabilities.  
@@ -188,7 +188,7 @@ Hypergrid comes with several default cell editors you can easily select, and the
 * [textfield](http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/#fin-hypergrid-cell-editor-textfield)
 <br><img src="images/textfield.png" alt="screenshot">
 
-Creating your own cell editor
+Creating your own cell editor <a name="creating-cell-editors"></a>
 ============
 You can easily create your own cell editors by subclassing any of the existing cell editors and registering your cell editor with Hypergrid.
 
@@ -417,7 +417,7 @@ Hypergrid has a column picker that allows you to drag and drop columns for confi
 press alt/option to open the column picker, you can press alt/option or esc to close it
 <img src="images/gridshot07.png" alt="screenshot">
 
-Updating Hypergrid Data with the JSON Behavior 
+Updating Hypergrid Data with the JSON Behavior  <a name="updating-data"></a>
 ======================
 It's really easy to see your data updates manifest in the hypergrid with the JSON behavior. You don't need to call setData again.
 
