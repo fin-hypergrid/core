@@ -87,9 +87,92 @@ For this example to work you'll need to
 feel free to connect this example to any other db that any-db supports (MS SQL, MySQL, Postgres, and SQLite3).
 Make sure to npm install the proper any-db-***** interface and edit the config.js file.
 
-## Cell Editors
+# Cell Renderers
+Cell renderers are easy to create and the default method for generating highly customized dynamic cell content.  They live in an object called a cellProvider which is provided by [YOUR](https://github.com/openfin/fin-hypergrid/blob/master/polymer/js/behaviors/fin-hypergrid-behavior-base.js#L145) behavior object.
 
-Hypergrid comes with several default cell editors you can easily select, and the ability to create your own.
+There are four areas that have distinct cell renderering override capabilities.  
+
+<img src="images/grid-regions.png" alt="screenshot">
+
+These areas coorespond to four functions on a [CellProvider](https://github.com/openfin/fin-hypergrid/blob/master/polymer/js/fin-hypergrid-cell-provider.js) found in [YOUR](https://github.com/openfin/fin-hypergrid/blob/master/polymer/js/behaviors/fin-hypergrid-behavior-base.js#L145) behavior object.
+
+```
+        getCell: function(config) {
+            var cell = this.cellCache.simpleCellRenderer;
+            cell.config = config;
+            return cell;
+        },
+
+        //replace this function in on your instance of cellProvider
+        getTopLeftCell: function(config) {
+            var cell = this.cellCache.emptyCellRenderer;
+            cell.config = config;
+            return cell;
+        },
+
+        //return the cellRenderer instance for renderering fixed col cells
+        getFixedColumnCell: function(config) {
+            var cell = this.cellCache.simpleCellRenderer;
+            cell.config = config;
+            return cell;
+        },
+
+        //return the cellRenderer instance for renderering fixed row cells
+        getFixedRowCell: function(config) {
+            var cell = this.cellCache.simpleCellRenderer;
+            cell.config = config;
+            return cell;
+        },
+``` 
+
+#Creating a custom cell renderer.
+Creating a cell renderer and using it is very easy, ie:
+
+<img src="images/customrenderer.png">
+
+```
+var jsonModel = jsonGrid.getBehavior();
+
+//get the cell cellProvider for altering cell renderers
+var cellProvider = jsonModel.getCellProvider();
+
+//replace the main area's getCell functon
+cellProvider.getCell = function(config) {
+    var renderer = cellProvider.cellCache.simpleCellRenderer;
+    config.halign = 'left';
+    var x = config.x;
+    if (x === 0) {
+        renderer = cellProvider.cellCache.linkCellRenderer;
+    } else if (x === 2) {
+        config.halign = 'center';
+    } else if (x === 3) {
+        config.halign = 'center';
+    } else if (x === 6) {
+        config.halign = 'center';
+    } else if (x === 7) {
+        var travel = 60 + Math.round(config.value*150/100000);
+        var bcolor = travel.toString(16);
+        config.halign = 'right';
+        config.bgColor = '#00' + bcolor + '00';
+        config.fgColor = '#FFFFFF';
+        config.value = accounting.formatMoney(config.value);
+    } else if (x === 8) {
+        var travel = 105 + Math.round(config.value*150/1000);
+        var bcolor = travel.toString(16);
+        config.halign = 'right';
+        config.bgColor = '#' + bcolor+ '0000';
+        config.fgColor = '#FFFFFF';
+        config.value = accounting.formatMoney(config.value, "€", 2, ".", ",");
+    }
+
+    renderer.config = config;
+    return renderer;
+};
+```
+
+# Cell Editors
+
+Hypergrid comes with several default cell editors you can easily select, and the ability to create your own. [The javascript code](https://github.com/openfin/fin-hypergrid/tree/master/polymer/js/cell-editors) for the cell editors is found here.
 
 # default cell editors
 * [choice](http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/#fin-hypergrid-cell-editor-choice)
@@ -104,6 +187,44 @@ Hypergrid comes with several default cell editors you can easily select, and the
 <br><img src="images/spinner.png" alt="screenshot">
 * [textfield](http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/#fin-hypergrid-cell-editor-textfield)
 <br><img src="images/textfield.png" alt="screenshot">
+
+Creating your own cell editor
+============
+You can easily create your own cell editors by subclassing any of the existing cell editors and registering your cell editor with Hypergrid.
+
+* Create a subclass of an existing cell editor.  See [creating polymer components](https://www.polymer-project.org/0.5/docs/polymer/polymer.html) for understanding more about the google best practices for building next generation web components.
+```
+<link rel="import" href="../fin-hypergrid/html/cell-editors/fin-hypergrid-cell-editor-simple.html">
+<polymer-element name="my-number-cell-editor" extends="fin-hypergrid-cell-editor-simple">
+  <template>
+    <input id="editor" type="number">
+  </template>
+  <script>
+    Polymer({
+        alias: 'numberfield',
+        selectAll: function() {
+            this.input.setSelectionRange(0, this.input.value.length);
+        }
+    });
+  </script>
+</polymer-element>
+```
+
+* Register it with your hypergrid
+```
+myHypergrid.initializeCellEditor('my-number-cell-editor');
+```
+
+* make use of your new new cell editor
+```
+var editorTypes = ['choice','numberfield','spinner','date','choice','numberfield','choice','textfield','numberfield'];
+myBehavior.getCellEditorAt = function(x, y) {
+    var type = editorTypes[x];
+    var cellEditor = this.grid.cellEditors[type];
+    return cellEditor;
+};
+```
+
 
 # Hypergrid configuration
 
@@ -295,6 +416,43 @@ state objects can be created programmatically or by hand and applied.  This is h
 Hypergrid has a column picker that allows you to drag and drop columns for configuring which are visible.  You can also reorder the columns here.
 press alt/option to open the column picker, you can press alt/option or esc to close it
 <img src="images/gridshot07.png" alt="screenshot">
+
+Updating Hypergrid Data with the JSON Behavior 
+======================
+It's really easy to see your data updates manifest in the hypergrid with the JSON behavior. You don't need to call setData again.
+
+1. Update the underlying javascript object field.
+2. Call the 'changed()' function on the json behavior object.
+```
+    var myData = [
+        {   
+            first_name:'moe',
+            last_name: 'stooge',
+            birth_date: '1920-01-01'
+        },
+        {   
+            first_name:'larry',
+            last_name: 'stooge',
+            birth_date: '1922-05-05'
+        },
+        {   
+            first_name:'curly',
+            last_name: 'stooge',
+            birth_date: '1924-03-07'
+        },
+    ];
+
+    var myJSONBehavior = document.querySelector('#myHypergrid').getBehavior();
+    myJSONBehavior.setData(myData);
+    
+    //update my data
+    myData[0].first_name = 'Groucho';
+    myData[0].last_name = 'Marx';
+    
+    //tell the behavior it's underlying data has changed
+    myJSONBehavior.changed();
+
+```
 
 Cells as Links
 ======================

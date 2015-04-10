@@ -4,7 +4,8 @@ var files = {
 
     polymerjs: [
         'polymer/js/**/*.js',
-        'test/**/*.js'
+        'test/**/*.js',
+        'js/**/*.js'
     ],
 
     polymercss: [
