@@ -75,7 +75,6 @@
     };
 
     Polymer({ /* jslint ignore:line */
-
         ready: function() {
             this.block = {
                 N: 0,

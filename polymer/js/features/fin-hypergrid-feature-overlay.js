@@ -10,6 +10,9 @@
         ESC: 'blah'
     };
     Polymer({ /* jshint ignore:line */
+
+        openEditor: false,
+
         handleKeyUp: function(grid, event) {
             var key = event.detail.char;
             if (ACTIVATION[key]) {
@@ -31,6 +34,7 @@
             if (this.isColumnPickerOpen()) {
                 return;
             }
+            this.openEditor = true;
             if (grid.getBehavior().openEditor(this.overlay) === false) {
                 return;
             }
@@ -50,16 +54,9 @@
 
             self.overlay.style.display = '';
 
-            var called = false;
+
             if (!this._closer) {
                 this._closer = function(e) {
-                    if (called) {
-                        //already called
-                        //this is to address a bug in safari
-                        //calling this 2x
-                        return;
-                    }
-                    called = true;
                     if (e.altKey || e.keyCode === 27) {
                         e.preventDefault();
                         self.closeColumnPicker(grid);
@@ -75,6 +72,11 @@
         },
         closeColumnPicker: function(grid) {
             if (!this.isColumnPickerOpen()) {
+                return;
+            }
+            if (this.openEditor) {
+                this.openEditor = false;
+            } else {
                 return;
             }
             if (grid.getBehavior().closeEditor(this.overlay) === false) {
