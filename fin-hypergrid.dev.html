@@ -12192,7 +12192,7 @@ window.WebComponents = window.WebComponents || {};
         }
       }
     }
-    if (flags.log) {
+    if (flags.log && flags.log.split) {
       var parts = flags.log.split(",");
       flags.log = {};
       parts.forEach(function(f) {
@@ -14692,7 +14692,7 @@ if (WebComponents.flags.shadow) {
        case '"':
         return "&quot;";
 
-       case " ":
+       case " ":
         return "&nbsp;";
       }
     }
@@ -16603,7 +16603,7 @@ if (WebComponents.flags.shadow) {
         if (cssRules) {
           Array.prototype.forEach.call(cssRules, function(rule) {
             if (rule.selectorText && (rule.style && rule.style.cssText !== undefined)) {
-              cssText += this.scopeSelector(rule.selectorText, scopeSelector, this.strictStyling) + " {\n	";
+              cssText += this.scopeSelector(rule.selectorText, scopeSelector, this.strictStyling) + " {\n ";
               cssText += this.propertiesFromRule(rule) + "\n}\n\n";
             } else if (rule.type === CSSRule.MEDIA_RULE) {
               cssText += "@media " + rule.media.mediaText + " {\n";
@@ -17093,7 +17093,7 @@ HTMLImports.addModule(function(scope) {
   scope.xhr = xhr;
 });
 
-HTMLImports.addModule(function(scope) {
+HTMLImports.addModule(function(scope) {  
   var xhr = scope.xhr;
   var flags = scope.flags;
   var Loader = function(onLoad, onComplete) {
@@ -17610,6 +17610,9 @@ window.CustomElements = window.CustomElements || {
 };
 
 (function(scope) {
+  scope.flags = scope.flags || {
+    flags: {}
+  };
   var flags = scope.flags;
   var modules = [];
   var addModule = function(module) {
@@ -18244,7 +18247,7 @@ CustomElements.addModule(function(scope) {
     }
     elementDeclarations.push(arguments);
   };
-  window.Polymer = polymerStub;
+  // window.Polymer = polymerStub;
   scope.consumeDeclarations = function(callback) {
     scope.consumeDeclarations = function() {
       throw "Possible attempt to load Polymer twice";
