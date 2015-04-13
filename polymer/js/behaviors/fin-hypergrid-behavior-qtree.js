@@ -46,7 +46,11 @@
             return v;
         },
         f: function(v) {
-            return v.toFixed(4);
+            if (v) {
+                return v.toFixed(4);
+            } else {
+                return v;
+            }
         },
         d: function(v) {
             return v;
