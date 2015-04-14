@@ -64,7 +64,7 @@ The only file that is necessary to deploy the hypergrid is the webcomponent html
 4. Make sure grunt serve is running or your browser is pointed to the proper [demo](http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/demo.html?tab=4) tab.
 5. If you are running locally, the grunt serve process should automatically refresh your web browser with the q driven grid now populated with data
 
-<img src="images/gridshot04.png" alt="screenshot">
+<img src="images/gridshot04.gif" alt="screenshot">
 
 ## Custom Scrollbars
 Hypergrid utilizes a custom scrollbar component so as to not be limited to tables of 33MM pixels in width or height.   In addition to the custom scrollbar, The OpenFin hyergrid utilizes row and column cell scrolling, not pixel scrolling.  This has many benefits that become apparent over time.
