@@ -57,11 +57,11 @@ The only file that is necessary to deploy the hypergrid is the webcomponent html
 1. Notice that bower installs many dependencies a level up from the fin-hypegrid project directory, this is the polymer way of developing custom elements.  The actual project directory IS fin-hypergrid, everything is done relative to this, it just needs to live in it's own containing developement directory.
 
 <a name="q-behavior"></a>
-##Q by [kx](http://kx.com/) systems [demo](http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/demo.html) tabs (select either the 'Q' or 'Q Tree' tabs).
+##Q by [kx](http://kx.com/) systems [demo](http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/demo.html?tab=4) tabs (select either the 'Q' or 'Q Tree' tabs).
 1. The Q tabs will not be populated with data until you run a Q server script that is provided.
 2. Make sure q 32 bit free version is installed [Q free version](http://kx.com/software-download.php)
 3. Startup either ```q bigtable.q```, ```q sorttable.q```, or install and run the extremely powerfull [Hypertree server found in Stevan Apters github area](https://github.com/stevanapter/hypertree).
-4. Make sure grunt serve is running
+4. Make sure grunt serve is running or your browser is pointed to the proper [demo](http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/demo.html?tab=4) tab.
 5. If you are running locally, the grunt serve process should automatically refresh your web browser with the q driven grid now populated with data
 
 <img src="images/gridshot04.png" alt="screenshot">
