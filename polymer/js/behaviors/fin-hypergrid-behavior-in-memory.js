@@ -2,6 +2,7 @@
 'use strict';
 
 (function() {
+
     var alphaFor = function(i) {
         // Name the column headers in A, .., AA, AB, AC, .., AZ format
         // quotient/remainder
@@ -439,7 +440,7 @@
             this.tableState.sortLookup[columnIndex].type = sortStateIndex;
             this.reorder();
             this.changed();
-        }
+        },
 
     });
 

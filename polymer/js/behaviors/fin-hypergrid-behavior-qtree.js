@@ -8,7 +8,7 @@
 (function() {
 
     var noop = function() {};
-
+    var logMessages = false;
     var hierarchyColumn = 'g_';
     //keys mapping Q datatypes to aligment and renderers are setup here.
     //<br>see [q datatypes](http://code.kx.com/wiki/Reference/Datatypes) for more.
@@ -111,6 +111,7 @@
             var provider = document.createElement('fin-hypergrid-cell-provider');
             provider.getCell = function(config) {
                 var cell = provider.cellCache.simpleCellRenderer;
+                cell.config = config;
                 var colId = self.block.F[config.x];
                 var type = self.block.Q[colId];
                 var formatter = typeFormatMap[type] || function(v) {
@@ -255,12 +256,12 @@
             }
             var startY = this.scrollPositionY || 0;
             var stopY = startY + 60;
-            this.ws.send(JSON.stringify({
+            this.sendMessage({
                 id: this.getNextMessageId(),
                 fn: 'get',
                 start: startY,
                 end: stopY
-            }));
+            });
         },
 
         isConnected: function() {
@@ -291,6 +292,7 @@
             var state = symbol + ' ' + (sortIndex + 1);
             return state;
         },
+
         //hierarchyColumn is the text of the hierarchy column.
         // l_ is the level of the row of the table.
         // e_ tells you whether the row is a leaf or a node.
@@ -328,11 +330,13 @@
             noop(grid, mouse);
             this._toggleSort(hierarchyColumn);
         },
+
         //first ask q if this is a sortable instance, then send a message to Q to sort our data set
         toggleSort: function(columnIndex) {
             var colId = this.getColumnId(columnIndex);
             this._toggleSort(colId);
         },
+
         _toggleSort: function(colId) {
             if (!this.getCanSort()) {
                 return;
@@ -369,9 +373,10 @@
                 sorts: sortBlob.sorts
             };
 
-            this.ws.send(JSON.stringify(msg));
+            this.sendMessage(msg);
 
         },
+
         getFixedRowAlignment: function(x, y) {
             if (y > 0) {
                 return this.getColumnAlignment(x);
@@ -385,11 +390,13 @@
             var alignment = typeAlignmentMap[type];
             return alignment;
         },
+
         getColumnId: function(x) {
             var headers = this.block.F;
             var col = headers[x];
             return col;
         },
+
         getFixedColumnAlignment: function( /* x */ ) {
             return 'left';
         },
@@ -402,9 +409,16 @@
                 fn: 'node',
                 node: nodes
             };
-
-            this.ws.send(JSON.stringify(nodeClick));
+            this.sendMessage(nodeClick);
         },
+
+        sendMessage: function(message) {
+            if (logMessages) {
+                console.dir(message);
+            }
+            this.ws.send(JSON.stringify(message));
+        },
+
         openEditor: function(div) {
             var self = this;
             var container = document.createElement('div');
@@ -457,6 +471,7 @@
             div.appendChild(container);
             return true;
         },
+
         closeEditor: function(div) {
             var lists = div.lists;
             var changeCols = {
@@ -466,7 +481,7 @@
                 visible: lists.visible
             };
 
-            this.ws.send(JSON.stringify(changeCols));
+            this.sendMessage(changeCols);
             return true;
         },
 
@@ -475,6 +490,7 @@
         isColumnReorderable: function() {
             return true;
         },
+
         getNextMessageId: function(onResponseDo) {
             var id = 'js_' + this.msgCounter++;
             if (onResponseDo) {
@@ -482,6 +498,7 @@
             }
             return id;
         },
+
         endDragColumnNotification: function() {
             var self = this;
 
@@ -502,9 +519,10 @@
                 visible: visible
             };
 
-            this.ws.send(JSON.stringify(changeCols));
+            this.sendMessage(changeCols);
             return true;
         },
+
         handleMessage: function(d) {
             this.block = d;
 
@@ -530,12 +548,12 @@
                     var startY = this.scrollPositionY || 0;
                     var stopY = startY + 60;
 
-                    self.ws.send(JSON.stringify({
+                    self.sendMessage({
                         id: self.getNextMessageId(),
                         fn: 'get',
                         start: startY,
                         end: stopY
-                    }));
+                    });
                 };
                 this.ws.onclose = function() {
 
@@ -565,12 +583,17 @@
                 console.error('WebSockets not supported on your browser.');
             }
         },
+
         beColumnStyle: function(style) {
             style.top = '5%';
             style.position = 'absolute';
             style.width = '33.3333%';
             style.height = '99%';
             style.whiteSpace = 'nowrap';
+        },
+
+        highlightCellOnHover: function(isColumnHovered, isRowHovered) {
+            return isRowHovered;
         }
 
     });

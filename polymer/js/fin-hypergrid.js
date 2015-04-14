@@ -431,6 +431,22 @@
             return p.x === x && p.y === y;
         },
 
+        isColumnHovered: function(x) {
+            var p = this.getHoverCell();
+            if (!p) {
+                return false;
+            }
+            return p.x === x;
+        },
+
+        isRowHovered: function(y) {
+            var p = this.getHoverCell();
+            if (!p) {
+                return false;
+            }
+            return p.y === y;
+        },
+
         getHoverCell: function() {
             return this.hoverCell;
         },

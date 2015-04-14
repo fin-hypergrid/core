@@ -101,7 +101,8 @@ var noop = function() {};
                 halignOffset = 0,
                 valignOffset = this.config.voffset,
                 halign = this.config.halign,
-                isHovered = this.config.isHovered,
+                isColumnHovered = this.config.isColumnHovered,
+                isRowHovered = this.config.isRowHovered,
                 size,
                 textWidth;
 
@@ -148,15 +149,14 @@ var noop = function() {};
             }
             gc.fillText(this.config.value, x + halignOffset, y + valignOffset);
 
-            if (isHovered) {
+            if (isColumnHovered && isRowHovered) {
                 gc.beginPath();
                 if (isLink) {
+                    gc.beginPath();
                     underline(gc, this.config.value, x + halignOffset, y + valignOffset + Math.floor(fontMetrics.height / 2), 1);
-                } else {
-                    gc.rect(x + 2, y + 2, width - 3, height - 3);
+                    gc.stroke();
+                    gc.closePath();
                 }
-                gc.stroke();
-                gc.closePath();
             }
         },
 

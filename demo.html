@@ -208,8 +208,8 @@
 
         <div vertical layout>
           <div class="description">
-            <h3>fin-hypergrid-behavior-qtree</h3> This element is a custom Polymer web component that demonstrates a more complex interface to Q/KDB+ by kx systems.  In order for this to work you need to run either provided q scripts found in <a href="https://github.com/openfin/fin-hypergrid/blob/master/q/s1.zip">s1.zip scripts (see s1.txt for instructions)</a>, <a href="https://github.com/openfin/fin-hypergrid/blob/master/q/s2.zip">s2.zip scripts (see s2.txt for instructions)</a>, or <a href="https://github.com/openfin/fin-hypergrid/blob/master/q/s3.zip">s3.zip scripts (see s32.txt for instructions)</a>.  The s1 example is a +1MM row tree table with static data, the s2 example has live updates without page caching, and the s3 example demonstrates true backend view caching delivering +1MM updates X 4 times a second push to the hypergrid.  These examples show the powerful dynamic analytic capabilities of an external data engine.  These example Q script are based on <a href="http://archive.vector.org.uk/art10500340">code and a paper</a> written by <a href="http://nsl.com/">Stevan Apter.</a>  Press the alt/option button for a popup to select the hierarchy columns or select/hide the visible columns.
-            <br>
+            <h3>fin-hypergrid-behavior-qtree</h3> This element is a custom Polymer web component that demonstrates a more complex interface to Q/KDB+ by kx systems.  In order for this to work you need to git clone and run <a href="https://github.com/stevanapter/hypertree">Stevan Apters hypertree server.</a> This Hypertree + Hypergrid example allows you to define a on the fly custom drill down hierarchy while supporting grouping, aggregations, and sorting in realtime.  The current example demonstrates 20MM updates/second.  The default aggregations available are sum, min, max, first, last, average, weighted average, mean, and standard deviation.  Press options/alt to drag and drop define the visible columns and the drill down hierarchy.
+            <br><br>
         </div>
           <core-splitter direction="up"></core-splitter>
           <div flex class="rel">
@@ -542,7 +542,11 @@
             // var model = g.getBehavior();row = model.data[0];
             // setInterval(function() { row.pets = Date.now()}, 100);
             // setInterval(function() { g.repaintCell(2,0); }, 110);
-
+            var tabs = document.getElementsByTagName('paper-tabs')[0];
+            var tab = getParameterByName("tab");
+            if (tab) {
+                tabs.setAttribute('selected', tab);
+            }
         });
     })();
     //json-example stuff

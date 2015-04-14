@@ -662,6 +662,10 @@
             console.log('fixedColumnClicked(' + mouse.gridCell.x + ', ' + mouse.gridCell.y + ')');
         },
 
+        highlightCellOnHover: function(isColumnHovered, isRowHovered) {
+            return isColumnHovered && isRowHovered;
+        }
+
     });
 
 })();

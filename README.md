@@ -60,7 +60,7 @@ The only file that is necessary to deploy the hypergrid is the webcomponent html
 ##Q by [kx](http://kx.com/) systems [demo](http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/demo.html) tabs (select either the 'Q' or 'Q Tree' tabs).
 1. The Q tabs will not be populated with data until you run a Q server script that is provided.
 2. Make sure q 32 bit free version is installed [Q free version](http://kx.com/software-download.php)
-3. Startup either ```q bigtable.q```, ```q sorttable.q```, or the analytics examples found in s1.zip and s2.zip
+3. Startup either ```q bigtable.q```, ```q sorttable.q```, or install and run the extremely powerfull [Hypertree server found in Stevan Apters github area](https://github.com/stevanapter/hypertree).
 4. Make sure grunt serve is running
 5. If you are running locally, the grunt serve process should automatically refresh your web browser with the q driven grid now populated with data
 

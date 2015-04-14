@@ -71,7 +71,7 @@ var config = {
 (function() {
 
     // we need a reusable cellconfig object
-    var cellConfig = function(x, y, value, fgColor, bgColor, fgSelColor, bgSelColor, font, isSelected, isHovered, halign, hoffset, voffset, properties) {
+    var cellConfig = function(x, y, value, fgColor, bgColor, fgSelColor, bgSelColor, font, isSelected, isColumnHovered, isRowHovered, halign, hoffset, voffset, properties) {
         config.x = x;
         config.y = y;
         config.value = value;
@@ -81,7 +81,8 @@ var config = {
         config.bgSelColor = bgSelColor;
         config.font = font;
         config.isSelected = isSelected;
-        config.isHovered = isHovered || false;
+        config.isColumnHovered = isColumnHovered || false;
+        config.isRowHovered = isRowHovered || false;
         config.halign = halign || 'center';
         config.hoffset = hoffset;
         config.voffset = voffset;
@@ -103,8 +104,8 @@ var config = {
         resolveProperty: function(key) {
             return this.grid.resolveProperty(key);
         },
-        cellConfig: function(x, y, value, fgColor, bgColor, fgSelColor, bgSelColor, font, isSelected, isHovered, halign, hoffset, voffset) {
-            var config = cellConfig(x, y, value, fgColor, bgColor, fgSelColor, bgSelColor, font, isSelected, isHovered, halign, hoffset, voffset, this.grid.lnfProperties);
+        cellConfig: function(x, y, value, fgColor, bgColor, fgSelColor, bgSelColor, font, isSelected, isColumnHovered, isRowHovered, halign, hoffset, voffset) {
+            var config = cellConfig(x, y, value, fgColor, bgColor, fgSelColor, bgSelColor, font, isSelected, isColumnHovered, isRowHovered, halign, hoffset, voffset, this.grid.lnfProperties);
             return config;
         },
         getGrid: function() {
@@ -463,6 +464,14 @@ var config = {
             return this.grid.isHovered(x, y);
         },
 
+        isRowHovered: function(y) {
+            return this.grid.isRowHovered(y);
+        },
+
+        isColumnHovered: function(x) {
+            return this.grid.isColumnHovered(x);
+        },
+
         //Renderer the fixed header rows along the top
         paintFixedRows: function(ctx, offsetX, offsetY, numColumns, numRows) {
             var behavior = this.getBehavior();
@@ -498,11 +507,22 @@ var config = {
                     var height = this.getFixedRowHeight(r);
                     var align = behavior._getFixedRowAlignment(c + scrollLeft, r);
                     var value = behavior._getFixedRowValue(c + scrollLeft, r);
-                    var isHovered = false; //this.isHovered(c, r);
+                    var isColumnHovered = this.isColumnHovered(c);
+                    var isRowHovered = false; //this.isHovered(c, r);
                     //translatedX allows us to reorder columns
                     var translatedX = behavior.translateColumnIndex(c + scrollLeft);
-                    var cell = cellProvider.getFixedRowCell(this.cellConfig(translatedX, r, value, fgColor, bgColor, fgSelColor, bgSelColor, font, isSelected, isHovered, align, hoffset, voffset));
+                    var cell = cellProvider.getFixedRowCell(this.cellConfig(translatedX, r, value, fgColor, bgColor, fgSelColor, bgSelColor, font, isSelected, isColumnHovered, isRowHovered, align, hoffset, voffset));
                     cell.paint(ctx, x, y, width, height);
+
+                    if (behavior.highlightCellOnHover(isColumnHovered, isRowHovered)) {
+                        ctx.beginPath();
+                        var pre = ctx.globalAlpha;
+                        ctx.globalAlpha = 0.2;
+                        ctx.fillRect(x + 2, y + 2, width - 3, height - 3);
+                        ctx.globalAlpha = pre;
+                        ctx.stroke();
+                        ctx.closePath();
+                    }
                     y = y + height;
                 }
                 x = x + width;
@@ -545,10 +565,23 @@ var config = {
                         break;
                     }
                     var value = behavior.getFixedColumnValue(c, r + scrollTop);
-                    var isHovered = false; //this.isHovered(c, r);
-                    var cell = cellProvider.getFixedColumnCell(this.cellConfig(c, r + scrollTop, value, fgColor, bgColor, fgSelColor, bgSelColor, font, isSelected, isHovered, align, hoffset, voffset));
+                    var isColumnHovered = false; //this.isHovered(c, r);
+                    var isRowHovered = this.isRowHovered(r);
+                    var cell = cellProvider.getFixedColumnCell(this.cellConfig(c, r + scrollTop, value, fgColor, bgColor, fgSelColor, bgSelColor, font, isSelected, isColumnHovered, isRowHovered, align, hoffset, voffset));
                     cell.paint(ctx, x, y, width, height);
+
+                    if (behavior.highlightCellOnHover(isColumnHovered, isRowHovered)) {
+                        ctx.beginPath();
+                        var pre = ctx.globalAlpha;
+                        ctx.globalAlpha = 0.2;
+                        ctx.fillRect(x + 2, y + 2, width - 3, height - 3);
+                        ctx.globalAlpha = pre;
+                        ctx.stroke();
+                        ctx.closePath();
+                    }
+
                     y = y + height;
+
                 }
                 x = x + width;
             }
@@ -621,10 +654,22 @@ var config = {
 
                     //translatedX allows us to reorder columns
 
-                    var isHovered = this.isHovered(c, r);
-                    var cell = cellProvider.getCell(this.cellConfig(translatedX, r + scrollTop, value, overrideFGColor, bgColor, fgSelColor, bgSelColor, overrideFont, isSelected, isHovered, columnAlign, hoffset, voffset));
+                    var isColumnHovered = this.isColumnHovered(c);
+                    var isRowHovered = this.isRowHovered(r);
+
+                    var cell = cellProvider.getCell(this.cellConfig(translatedX, r + scrollTop, value, overrideFGColor, bgColor, fgSelColor, bgSelColor, overrideFont, isSelected, isColumnHovered, isRowHovered, columnAlign, hoffset, voffset));
 
                     cell.paint(ctx, x, y, width, height);
+
+                    if (behavior.highlightCellOnHover(isColumnHovered, isRowHovered)) {
+                        ctx.beginPath();
+                        var pre = ctx.globalAlpha;
+                        ctx.globalAlpha = 0.2;
+                        ctx.fillRect(x + 2, y + 2, width - 3, height - 3);
+                        ctx.globalAlpha = pre;
+                        ctx.stroke();
+                        ctx.closePath();
+                    }
 
                     y = y + height;
                 }
@@ -699,8 +744,10 @@ var config = {
                     //     break;
                     // }
 
-                    var isHovered = this.isHovered(c, r);
-                    var cell = cellProvider.getTopLeftCell(this.cellConfig(x, r, value, fgColor, bgColor, fgSelColor, bgSelColor, font, false, isHovered, columnAlign, hoffset, voffset));
+                    var isColumnHovered = this.isHovered(c);
+                    var isRowHovered = this.isHovered(r);
+
+                    var cell = cellProvider.getTopLeftCell(this.cellConfig(x, r, value, fgColor, bgColor, fgSelColor, bgSelColor, font, false, isColumnHovered, isRowHovered, columnAlign, hoffset, voffset));
 
                     cell.paint(ctx, x, y, width, height);
 
@@ -841,15 +888,19 @@ var config = {
 
             var value = behavior._getValue(x + scrollLeft, y + scrollTop);
 
-            var isHovered = this.isHovered(x, y);
-            var cell = cellProvider.getCell(this.cellConfig(translatedX, y + scrollTop, value, overrideFGColor, bgColor, fgSelColor, bgSelColor, overrideFont, isSelected, isHovered, columnAlign, hoffset, voffset));
+            var isColumnHovered = this.isHovered(x, y);
+            var isRowHovered = this.isHovered(x, y);
+
+            var cell = cellProvider.getCell(this.cellConfig(translatedX, y + scrollTop, value, overrideFGColor, bgColor, fgSelColor, bgSelColor, overrideFont, isSelected, isColumnHovered, isRowHovered, columnAlign, hoffset, voffset));
 
             cell.paint(ctx, startX, startY, width, height);
 
         },
+
         isDraggingColumn: function() {
             return this.getGrid().isDraggingColumn();
         },
+
         getPageUpRow: function() {
             if (this.renderedRowHeights.length === 0) {
                 return;
