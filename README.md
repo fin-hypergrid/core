@@ -106,7 +106,7 @@ jsonModel.getTopLeftValue = function(x, y) {
 ```
 
 ## Custom Scrollbars
-Hypergrid utilizes a custom scrollbar component so as to not be limited to tables of 33MM pixels in width or height.   In addition to the custom scrollbar, The OpenFin hyergrid utilizes row and column cell scrolling, not pixel scrolling.  This has many benefits that become apparent over time.
+Hypergrid utilizes a custom scrollbar component so as to not be limited to tables of 33MM pixels in width or height.   In addition to the custom scrollbar, The OpenFin hypergrid utilizes row and column cell scrolling, not pixel scrolling.  This has many benefits that become apparent over time.
 
 <img src="images/gridshot03.png" alt="screenshot">
 
