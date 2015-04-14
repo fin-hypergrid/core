@@ -68,6 +68,42 @@ This Hypertree + Hypergrid example allows you to define a on the fly custom dril
 5. If you are running locally, the grunt serve process should automatically refresh your web browser with the q driven grid now populated with data
 
 <img src="images/gridshot04.png" alt="screenshot">
+## Fixed Columns and Rows
+Hypergrid supports both arbitrary number of fixed columns and fixed rows.  The are controlled by overriding/replacing functions on YOUR behavior.  An example of this can be found on the [JSON tab](http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/demo.html?tab=2).
+
+```
+var jsonGrid = document.querySelector('#json-example');
+
+var jsonModel = jsonGrid.getBehavior();
+
+var cellProvider = jsonModel.getCellProvider();
+
+cellProvider.getTopLeftCell = function(config) {
+    var cell = this.cellCache.simpleCellRenderer;
+    cell.config = config;
+    return cell;
+};
+
+jsonModel.getFixedColumnCount = function() {
+  return 2;
+};
+
+jsonModel.getFixedColumnValue = function(x,y) {
+  if (x === 0) {
+    return y + 1;
+  } else {
+    return jsonModel.getRowCount() - y;
+  }
+};
+
+jsonModel.getTopLeftValue = function(x, y) {
+    if (x === 0) {
+    return 'n';
+  } else {
+    return 'count - n';
+  }
+};
+```
 
 ## Custom Scrollbars
 Hypergrid utilizes a custom scrollbar component so as to not be limited to tables of 33MM pixels in width or height.   In addition to the custom scrollbar, The OpenFin hyergrid utilizes row and column cell scrolling, not pixel scrolling.  This has many benefits that become apparent over time.
