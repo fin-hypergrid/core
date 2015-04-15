@@ -69,7 +69,7 @@ This Hypertree + Hypergrid example allows you to define a on the fly custom dril
 
 <img src="images/gridshot04.png" alt="screenshot">
 ## Fixed Columns
-Hypergrid supports both arbitrary number of fixed columns.  Simply call the setFixedColumnCount(num) function on YOUR behavior object. An example of this can be found on the [JSON tab](http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/demo.html?tab=2).
+Hypergrid supports arbitrary numbers of fixed columns.  Simply call the setFixedColumnCount() function on YOUR behavior object. An example of this can be found on the [JSON tab](http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/demo.html?tab=2).
 
 ```
 var jsonGrid = document.querySelector('#json-example');
