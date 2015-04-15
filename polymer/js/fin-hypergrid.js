@@ -1485,11 +1485,12 @@
          * @method scrollHBy(offsetX)
          */
         scrollHBy: function(offsetX) {
+            var max = this.sbHScrlCfg.rangeStop;
             var oldValue = this.getHScrollValue();
+            var newValue = Math.min(max, Math.max(0, oldValue + offsetX));
             if (newValue === oldValue) {
                 return;
             }
-            this.setHScrollValue(newValue);
         },
 
         /**
@@ -2121,7 +2122,9 @@
             var mY = this.getVScrollValue() + gridCell.y - fixedRowCount;
 
             var editor = this.getCellEditorAt(mX, mY);
-            this.editAt(editor, event);
+            if (editor) {
+                this.editAt(editor, event);
+            }
         },
 
         getCellEditorAt: function(x, y) {

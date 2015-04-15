@@ -594,7 +594,12 @@
 
         highlightCellOnHover: function(isColumnHovered, isRowHovered) {
             return isRowHovered;
-        }
+        },
+
+        getCellEditorAt: function(x, y) {
+            noop(x, y);
+            return null;
+        },
 
     });
 
