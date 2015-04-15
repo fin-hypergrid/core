@@ -59,16 +59,16 @@
 
     //sort states are also the visual queues in the column headers
     //* '' no sort
-    //* ^ sort ascending
-    //* v sort descending
-    //* |^| sort absolute value ascending
-    //* |v| sort absolute value descending;
+    //* ↑ sort ascending
+    //* ↓ sort descending
+    //* ⤒ sort absolute value ascending
+    //* ⤓ sort absolute value descending;
     // \u25be
     var sortMap = {
-        a: '\u2191',
-        d: '\u2193',
-        A: '\u2912',
-        D: '\u2913'
+        a: '↑', //'\u2191',
+        d: '↓', //'\u2193',
+        A: '⤒', //'\u2912',
+        D: '⤓', //'\u2913'
     };
 
     var sortStates = {

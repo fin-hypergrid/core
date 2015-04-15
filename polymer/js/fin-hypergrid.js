@@ -1485,9 +1485,7 @@
          * @method scrollHBy(offsetX)
          */
         scrollHBy: function(offsetX) {
-            var max = this.sbHScrlCfg.rangeStop;
             var oldValue = this.getHScrollValue();
-            var newValue = Math.min(max, Math.max(0, oldValue + offsetX));
             if (newValue === oldValue) {
                 return;
             }
@@ -1608,6 +1606,8 @@
          * @method setVScrollValue(y)
          */
         setVScrollValue: function(y) {
+            var max = this.sbVScrlCfg.rangeStop;
+            y = Math.min(max, Math.max(0, y));
             var self = this;
             this.getBehavior()._setScrollPositionY(y);
             var oldY = this.vScrlValue;
@@ -1638,6 +1638,8 @@
          * @method setHScrollValue(x)
          */
         setHScrollValue: function(x) {
+            var max = this.sbHScrlCfg.rangeStop;
+            x = Math.min(max, Math.max(0, x));
             var self = this;
             this.getBehavior()._setScrollPositionX(x);
             var oldX = this.hScrlValue;

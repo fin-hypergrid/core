@@ -21324,6 +21324,7 @@ div.container {
 
 
 
+
 </style>
   </template>
   <script>//HypergridRenderer is the canvas enabled top level sub component that handles the renderering of the Grid.
@@ -22407,6 +22408,7 @@ var config = {
 
 
 
+
 </style>
   </template>
   <script>'use strict';
@@ -22494,6 +22496,7 @@ var config = {
     display: block;
     position: relative;
 }
+
 
 
 
@@ -22919,6 +22922,7 @@ var config = {
 
 
 
+
 </style>
   </template>
   <script>(function() {
@@ -23060,6 +23064,7 @@ var config = {
     display: block;
     position: relative;
 }
+
 
 
 
@@ -23523,6 +23528,7 @@ var noop = function() {};
 
 
 
+
 </style>
   </template>
   <script>'use strict';
@@ -23620,6 +23626,7 @@ var commands = {
 
 
 
+
 </style>
   </template>
   <script>'use strict';
@@ -23644,6 +23651,7 @@ var commands = {
     display: block;
     position: relative;
 }
+
 
 
 
@@ -24427,6 +24435,7 @@ var commands = {
 
 
 
+
 </style>
   </template>
   <script>(function() {
@@ -24558,6 +24567,7 @@ var commands = {
     display: block;
     position: relative;
 }
+
 
 
 
@@ -24877,6 +24887,7 @@ var commands = {
 
 
 
+
 </style>
   </template>
   <script>(function() {
@@ -24906,6 +24917,7 @@ var commands = {
     display: block;
     position: relative;
 }
+
 
 
 
@@ -25233,6 +25245,7 @@ var commands = {
 
 
 
+
 </style>
   </template>
   <script>(function() {
@@ -25393,6 +25406,7 @@ var commands = {
     display: block;
     position: relative;
 }
+
 
 
 
@@ -26157,6 +26171,7 @@ var commands = {
 
 
 
+
 </style>
   </template>
   <script>(function() {
@@ -26295,6 +26310,7 @@ var commands = {
 
 
 
+
 </style>
   </template>
   <script>(function() {
@@ -26342,6 +26358,7 @@ var commands = {
     display: block;
     position: relative;
 }
+
 
 
 
@@ -27202,6 +27219,7 @@ var commands = {
 
 
 
+
 </style>
   </template>
   <script>'use strict';
@@ -27241,6 +27259,7 @@ var commands = {
     display: block;
     position: relative;
 }
+
 
 
 
@@ -27823,6 +27842,7 @@ var commands = {
 
 
 
+
 </style>
   </template>
   <script>/*jshint  bitwise: false */
@@ -27877,7 +27897,7 @@ var commands = {
             this.tableState.sorts = [];
             this.tableState.sortLookup = {};
             this.tableState.sorted = {};
-            this.sortStates = [' -', ' ^', ' v'];
+            this.sortStates = [' -', ' ↑', ' ↓'];
 
             this.permuteInterval = 250;
             this.values = new Array(this.rows * this.columns);
@@ -28422,6 +28442,7 @@ var commands = {
 
 
 
+
 </style>
   </template>
   <script>/*jshint  bitwise: false */
@@ -28441,7 +28462,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         ready: function() {
             this.readyInit();
             this.tableState.sorted = [];
-            this.sortStates = [' ', ' \u2191', ' \u2193'];
+            this.sortStates = [' ', ' ↑', ' ↓'];
         },
 
         isValidIdentifer: function(string) {
@@ -28663,6 +28684,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
     display: block;
     position: relative;
 }
+
 
 
 
@@ -29219,6 +29241,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
 
 
 
+
 </style>
   </template>
   <script>'use strict';
@@ -29282,16 +29305,16 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
 
     //sort states are also the visual queues in the column headers
     //* '' no sort
-    //* ^ sort ascending
-    //* v sort descending
-    //* |^| sort absolute value ascending
-    //* |v| sort absolute value descending;
+    //* ↑ sort ascending
+    //* ↓ sort descending
+    //* ⤒ sort absolute value ascending
+    //* ⤓ sort absolute value descending;
     // \u25be
     var sortMap = {
-        a: '\u2191',
-        d: '\u2193',
-        A: '\u2912',
-        D: '\u2913'
+        a: '↑', //'\u2191',
+        d: '↓', //'\u2193',
+        A: '⤒', //'\u2912',
+        D: '⤓', //'\u2913'
     };
 
     var sortStates = {
@@ -29836,6 +29859,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
 
 
 
+
 </style>
   </template>
   <script>'use strict';
@@ -30004,6 +30028,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
     display: block;
     position: relative;
 }
+
 
 
 
@@ -30428,6 +30453,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
 
 
 
+
 </style>
     <div id="editor"></div>
   </template>
@@ -30656,6 +30682,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
 
 
 
+
 </style>
     <input id="editor">
   </template>
@@ -30679,6 +30706,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
     display: block;
     position: relative;
 }
+
 
 
 
@@ -30989,6 +31017,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
 
 
 
+
 </style>
     <input id="editor" type="color">
   </template>
@@ -31009,6 +31038,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
     display: block;
     position: relative;
 }
+
 
 
 
@@ -31313,6 +31343,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
 
 
 
+
 </style>
     <input id="editor" type="range">
   </template>
@@ -31333,6 +31364,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
     display: block;
     position: relative;
 }
+
 
 
 
@@ -31561,6 +31593,7 @@ fin-vampire-bar {
 fin-vampire-bar {
     z-index: 10;
 }
+
 
 
 
@@ -33323,6 +33356,7 @@ fin-vampire-bar {
          * @method setVScrollValue(y)
          */
         setVScrollValue: function(y) {
+            y = Math.max(0, y);
             var self = this;
             this.getBehavior()._setScrollPositionY(y);
             var oldY = this.vScrlValue;
@@ -33353,6 +33387,7 @@ fin-vampire-bar {
          * @method setHScrollValue(x)
          */
         setHScrollValue: function(x) {
+            x = Math.max(0, x);
             var self = this;
             this.getBehavior()._setScrollPositionX(x);
             var oldX = this.hScrlValue;

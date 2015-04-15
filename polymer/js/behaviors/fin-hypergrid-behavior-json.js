@@ -15,7 +15,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         ready: function() {
             this.readyInit();
             this.tableState.sorted = [];
-            this.sortStates = [' ', ' \u2191', ' \u2193'];
+            this.sortStates = [' ', ' ↑', ' ↓'];
         },
 
         isValidIdentifer: function(string) {

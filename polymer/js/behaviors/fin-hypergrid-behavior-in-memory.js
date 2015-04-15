@@ -50,7 +50,7 @@
             this.tableState.sorts = [];
             this.tableState.sortLookup = {};
             this.tableState.sorted = {};
-            this.sortStates = [' -', ' ^', ' v'];
+            this.sortStates = [' -', ' ↑', ' ↓'];
 
             this.permuteInterval = 250;
             this.values = new Array(this.rows * this.columns);
