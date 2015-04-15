@@ -107,6 +107,10 @@
             return Math.max(0, this.block.headers.length - 1);
         },
 
+        getFixedColumnCount: function() {
+            return 1;
+        },
+
         //This is overridden from DefaultGridBehavior.   This value is set on us by the OFGrid component on user scrolling.
         //<br>TODO: refactor: don't store this value in an local member, store it in the message ONLY.
         //<br>TODO: refactor: num should be dynamic

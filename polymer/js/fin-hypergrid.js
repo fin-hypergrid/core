@@ -474,6 +474,7 @@
             }
 
         },
+
         _addGlobalProperties: function(props) {
             for (var key in props) {
                 if (props.hasOwnProperty(key)) {
@@ -481,6 +482,7 @@
                 }
             }
         },
+
         addProperties: function(props) {
             for (var key in props) {
                 if (props.hasOwnProperty(key)) {
@@ -1491,6 +1493,7 @@
             if (newValue === oldValue) {
                 return;
             }
+            this.setHScrollValue(newValue);
         },
 
         /**

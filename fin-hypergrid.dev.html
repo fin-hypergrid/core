@@ -21326,6 +21326,7 @@ div.container {
 
 
 
+
 </style>
   </template>
   <script>//HypergridRenderer is the canvas enabled top level sub component that handles the renderering of the Grid.
@@ -22411,6 +22412,7 @@ var config = {
 
 
 
+
 </style>
   </template>
   <script>'use strict';
@@ -22498,6 +22500,7 @@ var config = {
     display: block;
     position: relative;
 }
+
 
 
 
@@ -22927,6 +22930,7 @@ var config = {
 
 
 
+
 </style>
   </template>
   <script>(function() {
@@ -23068,6 +23072,7 @@ var config = {
     display: block;
     position: relative;
 }
+
 
 
 
@@ -23535,6 +23540,7 @@ var noop = function() {};
 
 
 
+
 </style>
   </template>
   <script>'use strict';
@@ -23634,6 +23640,7 @@ var commands = {
 
 
 
+
 </style>
   </template>
   <script>'use strict';
@@ -23658,6 +23665,7 @@ var commands = {
     display: block;
     position: relative;
 }
+
 
 
 
@@ -24445,6 +24453,7 @@ var commands = {
 
 
 
+
 </style>
   </template>
   <script>(function() {
@@ -24576,6 +24585,7 @@ var commands = {
     display: block;
     position: relative;
 }
+
 
 
 
@@ -24899,6 +24909,7 @@ var commands = {
 
 
 
+
 </style>
   </template>
   <script>(function() {
@@ -24928,6 +24939,7 @@ var commands = {
     display: block;
     position: relative;
 }
+
 
 
 
@@ -25259,6 +25271,7 @@ var commands = {
 
 
 
+
 </style>
   </template>
   <script>(function() {
@@ -25419,6 +25432,7 @@ var commands = {
     display: block;
     position: relative;
 }
+
 
 
 
@@ -26187,6 +26201,7 @@ var commands = {
 
 
 
+
 </style>
   </template>
   <script>(function() {
@@ -26261,6 +26276,7 @@ var commands = {
     display: block;
     position: relative;
 }
+
 
 
 
@@ -26414,6 +26430,7 @@ var commands = {
 
 
 
+
 </style>
   </template>
   <script>'use strict';
@@ -26429,6 +26446,7 @@ var commands = {
         grid: null,
         editorTypes: ['choice', 'textfield', 'color', 'slider', 'spinner', 'date'],
         featureChain: null,
+        fixedColumnCount: 0,
 
         clearObjectProperties: function(obj) {
             for (var prop in obj) {
@@ -26462,6 +26480,7 @@ var commands = {
 
             this.dataUpdates = {}; //for overriding with edit values;
             //this.initColumnIndexes();
+            this.fixedColumnCount = 0;
         },
 
         resolveProperty: function(key) {
@@ -26502,9 +26521,9 @@ var commands = {
                 this.initColumnIndexes();
                 indexes = this.tableState.columnIndexes;
             }
-            var tmp = indexes[src];
-            indexes[src] = indexes[tar];
-            indexes[tar] = tmp;
+            var tmp = indexes[src + this.fixedColumnCount];
+            indexes[src + this.fixedColumnCount] = indexes[tar + this.fixedColumnCount];
+            indexes[tar + this.fixedColumnCount] = tmp;
         },
 
         translateColumnIndex: function(x) {
@@ -26512,7 +26531,7 @@ var commands = {
             if (indexes.length === 0) {
                 return x;
             }
-            return indexes[x];
+            return indexes[x + this.fixedColumnCount];
         },
 
         unTranslateColumnIndex: function(x) {
@@ -26613,20 +26632,13 @@ var commands = {
 
         //can be dynamic if your data set changes size
         _getColumnCount: function() {
-            return this.getColumnCount() - this.tableState.hiddenColumns.length;
+            return this.getColumnCount() - this.tableState.hiddenColumns.length - this.fixedColumnCount;
         },
 
         //can be dynamic for supporting "floating" fixed rows
         //<br>floating rows are rows that become fixed if you
         //<br>scroll past them
         getFixedRowCount: function() {
-            return 1;
-        },
-
-        //can be dynamic for supporting "floating" fixed columns
-        //<br>floating columns are columns that become fixed if you
-        //<br>scroll past them
-        getFixedColumnCount: function() {
             return 1;
         },
 
@@ -26794,7 +26806,11 @@ var commands = {
         //<br>see DefaultGridBehavior.delegateClick() below
         //<br>this is where we can hook in external data manipulation
         topLeftClicked: function(grid, mouse) {
-            console.log('top Left clicked: ' + mouse.gridCell.x, mouse);
+            if (mouse.gridCell.x < this.fixedColumnCount) {
+                this.fixedRowClicked(grid, mouse);
+            } else {
+                console.log('top Left clicked: ' + mouse.gridCell.x, mouse);
+            }
         },
         //this is called by OFGrid when a fixed row cell is clicked
         //<br>see DefaultGridBehavior.delegateClick() below
@@ -26923,26 +26939,34 @@ var commands = {
             // }
             return this.columnProperties;
         },
+
         getDNDColumnLabels: function() {
             //assumes there is one row....
             this.insureColumnIndexesAreInitialized();
-            var columnCount = this._getColumnCount();
-            var labels = new Array(columnCount);
+            var columnCount = this.tableState.columnIndexes.length;
+            var labels = [];
             for (var i = 0; i < columnCount; i++) {
                 var id = this.tableState.columnIndexes[i];
-                labels[i] = {
-                    id: id,
-                    label: this.getFixedRowValue(id, 0)
-                };
+                if (id >= this.fixedColumnCount) {
+                    labels.push({
+                        id: id,
+                        label: this.getFixedRowValue(id, 0)
+                    });
+                }
             }
             return labels;
         },
+
         setDNDColumnLabels: function(list) {
             //assumes there is one row....
             var columnCount = list.length;
-            var indexes = new Array(columnCount);
-            for (var i = 0; i < columnCount; i++) {
-                indexes[i] = list[i].id;
+            var indexes = [];
+            var i;
+            for (i = 0; i < this.fixedColumnCount; i++) {
+                indexes.push(i);
+            }
+            for (i = 0; i < columnCount; i++) {
+                indexes.push(list[i].id);
             }
             this.tableState.columnIndexes = indexes;
             this.changed();
@@ -26959,6 +26983,7 @@ var commands = {
             }
             return labels;
         },
+
         setDNDHiddenColumnLabels: function(list) {
             //assumes there is one row....
             var columnCount = list.length;
@@ -26969,6 +26994,27 @@ var commands = {
             this.tableState.hiddenColumns = indexes;
             this.changed();
         },
+
+        hideColumns: function(arrayOfIndexes) {
+            var indexes = this.tableState.hiddenColumns;
+            var order = this.tableState.columnIndexes;
+            for (var i = 0; i < arrayOfIndexes.length; i++) {
+                var each = arrayOfIndexes[i];
+                if (indexes.indexOf(each) === -1) {
+                    indexes.push(each);
+                    order.splice(order.indexOf(each), 1);
+                }
+            }
+        },
+
+        getFixedColumnCount: function() {
+            return this.fixedColumnCount;
+        },
+
+        setFixedColumnCount: function(numberOfFixedColumns) {
+            this.fixedColumnCount = numberOfFixedColumns;
+        },
+
         openEditor: function(div) {
             var container = document.createElement('div');
 
@@ -27238,6 +27284,7 @@ var commands = {
 
 
 
+
 </style>
   </template>
   <script>'use strict';
@@ -27266,6 +27313,10 @@ var commands = {
         getFixedRowValue: function(x /*, y*/ ) {
             return alphaFor(x);
         },
+
+        getFixedColumnCount: function() {
+            return 1;
+        },
     });
 
 })(); /* jslint ignore:line */
@@ -27277,6 +27328,7 @@ var commands = {
     display: block;
     position: relative;
 }
+
 
 
 
@@ -27719,6 +27771,7 @@ var commands = {
     display: block;
     position: relative;
 }
+
 
 
 
@@ -28309,6 +28362,9 @@ var commands = {
             this.changed();
         },
 
+        getFixedColumnCount: function() {
+            return 1;
+        },
     });
 
 })(); /* jslint ignore:line */
@@ -28320,6 +28376,7 @@ var commands = {
     display: block;
     position: relative;
 }
+
 
 
 
@@ -28490,6 +28547,36 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
             return 0 === (string + '').search(validIdentifierMatch);
         },
 
+        createCellProvider: function() {
+            var self = this;
+            var provider = document.createElement('fin-hypergrid-cell-provider');
+            provider.getTopLeftCell = function(config) {
+                var empty = this.cellCache.emptyCellRenderer;
+                var render = this.cellCache.simpleCellRenderer;
+                empty.config = config;
+                render.config = config;
+                if (self.fixedColumnCount > 0) {
+                    return render;
+                } else {
+                    return empty;
+                }
+            };
+            return provider;
+        },
+
+        getTopLeftAlignment: function(x, y) {
+            return this.getFixedRowAlignment(x, y);
+        },
+
+        getFixedColumnAlignment: function( /* x */ ) {
+            var cell = this.cellProvider.getCell({});
+            return cell.config.halign;
+        },
+
+        getTopLeftValue: function(x, y) {
+            return this.getFixedRowValue(x, y);
+        },
+
         setHeaders: function(headerLabels) {
             this.headers = headerLabels;
         },
@@ -28500,9 +28587,11 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
             }
             return this.headers;
         },
+
         getHeader: function(x /*, y*/ ) {
             return this.headers[x];
         },
+
         getDefaultHeaders: function() {
             var self = this;
             var fields = this.getFields();
@@ -28580,6 +28669,11 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
             this.data[y][fields[x]] = value;
         },
 
+        getFixedColumnValue: function(x, y) {
+            //x = this.fixedtranslateColumnIndex(x);
+            return this.getValue(x, y);
+        },
+
         getFixedRowValue: function(x, y) {
             var headers = this.getHeaders();
             noop(y);
@@ -28588,7 +28682,11 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         },
 
         getFixedColumnCount: function() {
-            return 1;
+            return this.fixedColumnCount;
+        },
+
+        setFixedColumnCount: function(numberOfFixedColumns) {
+            this.fixedColumnCount = numberOfFixedColumns;
         },
 
         getRowCount: function() {
@@ -28597,7 +28695,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
 
         getColumnCount: function() {
             var fields = this.getFields();
-            return fields.length - this.tableState.hiddenColumns.length;
+            return fields.length;
         },
 
         setState: function(state) {
@@ -28705,6 +28803,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
     display: block;
     position: relative;
 }
+
 
 
 
@@ -28960,6 +29059,10 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
             return Math.max(0, this.block.headers.length - 1);
         },
 
+        getFixedColumnCount: function() {
+            return 1;
+        },
+
         //This is overridden from DefaultGridBehavior.   This value is set on us by the OFGrid component on user scrolling.
         //<br>TODO: refactor: don't store this value in an local member, store it in the message ONLY.
         //<br>TODO: refactor: num should be dynamic
@@ -29121,6 +29224,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
     display: block;
     position: relative;
 }
+
 
 
 
@@ -29870,6 +29974,9 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
             return null;
         },
 
+        getFixedColumnCount: function() {
+            return 1;
+        },
     });
 
 })(); /* jslint ignore:line */
@@ -29881,6 +29988,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
     display: block;
     position: relative;
 }
+
 
 
 
@@ -30046,6 +30154,9 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
             return 'center';
         },
 
+        getFixedColumnCount: function() {
+            return 1;
+        },
 
     });
 })();
@@ -30057,6 +30168,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
     display: block;
     position: relative;
 }
+
 
 
 
@@ -30485,6 +30597,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
 
 
 
+
 </style>
     <div id="editor"></div>
   </template>
@@ -30715,6 +30828,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
 
 
 
+
 </style>
     <input id="editor">
   </template>
@@ -30738,6 +30852,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
     display: block;
     position: relative;
 }
+
 
 
 
@@ -31052,6 +31167,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
 
 
 
+
 </style>
     <input id="editor" type="color">
   </template>
@@ -31072,6 +31188,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
     display: block;
     position: relative;
 }
+
 
 
 
@@ -31380,6 +31497,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
 
 
 
+
 </style>
     <input id="editor" type="range">
   </template>
@@ -31400,6 +31518,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
     display: block;
     position: relative;
 }
+
 
 
 
@@ -31630,6 +31749,7 @@ fin-vampire-bar {
 fin-vampire-bar {
     z-index: 10;
 }
+
 
 
 
@@ -32260,6 +32380,7 @@ fin-vampire-bar {
             }
 
         },
+
         _addGlobalProperties: function(props) {
             for (var key in props) {
                 if (props.hasOwnProperty(key)) {
@@ -32267,6 +32388,7 @@ fin-vampire-bar {
                 }
             }
         },
+
         addProperties: function(props) {
             for (var key in props) {
                 if (props.hasOwnProperty(key)) {
@@ -33277,6 +33399,7 @@ fin-vampire-bar {
             if (newValue === oldValue) {
                 return;
             }
+            this.setHScrollValue(newValue);
         },
 
         /**

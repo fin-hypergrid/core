@@ -601,6 +601,9 @@
             return null;
         },
 
+        getFixedColumnCount: function() {
+            return 1;
+        },
     });
 
 })(); /* jslint ignore:line */

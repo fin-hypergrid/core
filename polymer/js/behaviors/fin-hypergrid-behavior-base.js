@@ -11,6 +11,7 @@
         grid: null,
         editorTypes: ['choice', 'textfield', 'color', 'slider', 'spinner', 'date'],
         featureChain: null,
+        fixedColumnCount: 0,
 
         clearObjectProperties: function(obj) {
             for (var prop in obj) {
@@ -44,6 +45,7 @@
 
             this.dataUpdates = {}; //for overriding with edit values;
             //this.initColumnIndexes();
+            this.fixedColumnCount = 0;
         },
 
         resolveProperty: function(key) {
@@ -84,9 +86,9 @@
                 this.initColumnIndexes();
                 indexes = this.tableState.columnIndexes;
             }
-            var tmp = indexes[src];
-            indexes[src] = indexes[tar];
-            indexes[tar] = tmp;
+            var tmp = indexes[src + this.fixedColumnCount];
+            indexes[src + this.fixedColumnCount] = indexes[tar + this.fixedColumnCount];
+            indexes[tar + this.fixedColumnCount] = tmp;
         },
 
         translateColumnIndex: function(x) {
@@ -94,7 +96,7 @@
             if (indexes.length === 0) {
                 return x;
             }
-            return indexes[x];
+            return indexes[x + this.fixedColumnCount];
         },
 
         unTranslateColumnIndex: function(x) {
@@ -195,20 +197,13 @@
 
         //can be dynamic if your data set changes size
         _getColumnCount: function() {
-            return this.getColumnCount() - this.tableState.hiddenColumns.length;
+            return this.getColumnCount() - this.tableState.hiddenColumns.length - this.fixedColumnCount;
         },
 
         //can be dynamic for supporting "floating" fixed rows
         //<br>floating rows are rows that become fixed if you
         //<br>scroll past them
         getFixedRowCount: function() {
-            return 1;
-        },
-
-        //can be dynamic for supporting "floating" fixed columns
-        //<br>floating columns are columns that become fixed if you
-        //<br>scroll past them
-        getFixedColumnCount: function() {
             return 1;
         },
 
@@ -376,7 +371,11 @@
         //<br>see DefaultGridBehavior.delegateClick() below
         //<br>this is where we can hook in external data manipulation
         topLeftClicked: function(grid, mouse) {
-            console.log('top Left clicked: ' + mouse.gridCell.x, mouse);
+            if (mouse.gridCell.x < this.fixedColumnCount) {
+                this.fixedRowClicked(grid, mouse);
+            } else {
+                console.log('top Left clicked: ' + mouse.gridCell.x, mouse);
+            }
         },
         //this is called by OFGrid when a fixed row cell is clicked
         //<br>see DefaultGridBehavior.delegateClick() below
@@ -505,26 +504,34 @@
             // }
             return this.columnProperties;
         },
+
         getDNDColumnLabels: function() {
             //assumes there is one row....
             this.insureColumnIndexesAreInitialized();
-            var columnCount = this._getColumnCount();
-            var labels = new Array(columnCount);
+            var columnCount = this.tableState.columnIndexes.length;
+            var labels = [];
             for (var i = 0; i < columnCount; i++) {
                 var id = this.tableState.columnIndexes[i];
-                labels[i] = {
-                    id: id,
-                    label: this.getFixedRowValue(id, 0)
-                };
+                if (id >= this.fixedColumnCount) {
+                    labels.push({
+                        id: id,
+                        label: this.getFixedRowValue(id, 0)
+                    });
+                }
             }
             return labels;
         },
+
         setDNDColumnLabels: function(list) {
             //assumes there is one row....
             var columnCount = list.length;
-            var indexes = new Array(columnCount);
-            for (var i = 0; i < columnCount; i++) {
-                indexes[i] = list[i].id;
+            var indexes = [];
+            var i;
+            for (i = 0; i < this.fixedColumnCount; i++) {
+                indexes.push(i);
+            }
+            for (i = 0; i < columnCount; i++) {
+                indexes.push(list[i].id);
             }
             this.tableState.columnIndexes = indexes;
             this.changed();
@@ -541,6 +548,7 @@
             }
             return labels;
         },
+
         setDNDHiddenColumnLabels: function(list) {
             //assumes there is one row....
             var columnCount = list.length;
@@ -551,6 +559,27 @@
             this.tableState.hiddenColumns = indexes;
             this.changed();
         },
+
+        hideColumns: function(arrayOfIndexes) {
+            var indexes = this.tableState.hiddenColumns;
+            var order = this.tableState.columnIndexes;
+            for (var i = 0; i < arrayOfIndexes.length; i++) {
+                var each = arrayOfIndexes[i];
+                if (indexes.indexOf(each) === -1) {
+                    indexes.push(each);
+                    order.splice(order.indexOf(each), 1);
+                }
+            }
+        },
+
+        getFixedColumnCount: function() {
+            return this.fixedColumnCount;
+        },
+
+        setFixedColumnCount: function(numberOfFixedColumns) {
+            this.fixedColumnCount = numberOfFixedColumns;
+        },
+
         openEditor: function(div) {
             var container = document.createElement('div');
 

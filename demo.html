@@ -466,34 +466,8 @@
             //set the actual json row objects
             jsonModel.setData(data);
 
-
-
-            //example of replacing functions to have more fixed columns
-            //make sure to override the default cell renderer for the top left area or it will be blank
-            cellProvider.getTopLeftCell = function(config) {
-                var cell = this.cellCache.simpleCellRenderer;
-                cell.config = config;
-                return cell;
-            };
-            jsonModel.getFixedColumnCount = function() {
-              return 2;
-            };
-            jsonModel.getFixedColumnValue = function(x,y) {
-              if (x === 0) {
-                return y + 1;
-              } else {
-                return jsonModel.getRowCount() - y;
-              }
-            };
-            jsonModel.getTopLeftValue = function(x, y) {
-                if (x === 0) {
-                return 'n';
-              } else {
-                return 'count - n';
-              }
-            };
-
-
+            //make the first col fixed;
+            jsonModel.setFixedColumnCount(1);
 
             //sort ascending on the first column (first name)
             //jsonModel.toggleSort(0);

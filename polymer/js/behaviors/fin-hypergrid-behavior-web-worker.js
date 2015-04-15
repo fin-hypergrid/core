@@ -153,6 +153,9 @@
             return 'center';
         },
 
+        getFixedColumnCount: function() {
+            return 1;
+        },
 
     });
 })();

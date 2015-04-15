@@ -22,6 +22,36 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
             return 0 === (string + '').search(validIdentifierMatch);
         },
 
+        createCellProvider: function() {
+            var self = this;
+            var provider = document.createElement('fin-hypergrid-cell-provider');
+            provider.getTopLeftCell = function(config) {
+                var empty = this.cellCache.emptyCellRenderer;
+                var render = this.cellCache.simpleCellRenderer;
+                empty.config = config;
+                render.config = config;
+                if (self.fixedColumnCount > 0) {
+                    return render;
+                } else {
+                    return empty;
+                }
+            };
+            return provider;
+        },
+
+        getTopLeftAlignment: function(x, y) {
+            return this.getFixedRowAlignment(x, y);
+        },
+
+        getFixedColumnAlignment: function( /* x */ ) {
+            var cell = this.cellProvider.getCell({});
+            return cell.config.halign;
+        },
+
+        getTopLeftValue: function(x, y) {
+            return this.getFixedRowValue(x, y);
+        },
+
         setHeaders: function(headerLabels) {
             this.headers = headerLabels;
         },
@@ -32,9 +62,11 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
             }
             return this.headers;
         },
+
         getHeader: function(x /*, y*/ ) {
             return this.headers[x];
         },
+
         getDefaultHeaders: function() {
             var self = this;
             var fields = this.getFields();
@@ -112,6 +144,11 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
             this.data[y][fields[x]] = value;
         },
 
+        getFixedColumnValue: function(x, y) {
+            //x = this.fixedtranslateColumnIndex(x);
+            return this.getValue(x, y);
+        },
+
         getFixedRowValue: function(x, y) {
             var headers = this.getHeaders();
             noop(y);
@@ -120,7 +157,11 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         },
 
         getFixedColumnCount: function() {
-            return 1;
+            return this.fixedColumnCount;
+        },
+
+        setFixedColumnCount: function(numberOfFixedColumns) {
+            this.fixedColumnCount = numberOfFixedColumns;
         },
 
         getRowCount: function() {
@@ -129,7 +170,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
 
         getColumnCount: function() {
             var fields = this.getFields();
-            return fields.length - this.tableState.hiddenColumns.length;
+            return fields.length;
         },
 
         setState: function(state) {

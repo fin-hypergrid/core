@@ -24,6 +24,10 @@
         getFixedRowValue: function(x /*, y*/ ) {
             return alphaFor(x);
         },
+
+        getFixedColumnCount: function() {
+            return 1;
+        },
     });
 
 })(); /* jslint ignore:line */
