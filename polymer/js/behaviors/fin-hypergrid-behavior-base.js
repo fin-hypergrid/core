@@ -362,9 +362,8 @@
         //answers the default row alignment for the fixed row data area of the grid
         //<br>TODO:provide uniform mechanism for the fixed areas like this
         _getFixedRowAlignment: function(x, y) {
-            noop(y);
             x = this.translateColumnIndex(x);
-            return this.getFixedRowAlignment(x);
+            return this.getFixedRowAlignment(x, y);
         },
 
         //this is called by OFGrid when top left area is clicked

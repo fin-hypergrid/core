@@ -8,7 +8,7 @@
 (function() {
 
     var noop = function() {};
-    var logMessages = false;
+    var logMessages = true;
     var hierarchyColumn = 'g_';
     //keys mapping Q datatypes to aligment and renderers are setup here.
     //<br>see [q datatypes](http://code.kx.com/wiki/Reference/Datatypes) for more.
@@ -18,6 +18,8 @@
         s: 'left',
         t: 'center',
         f: 'right',
+        i: 'right',
+        e: 'right',
         d: 'center'
     };
 
@@ -45,6 +47,20 @@
         t: function(v) {
             return v;
         },
+        e: function(v) {
+            if (v) {
+                return v.toFixed(4);
+            } else {
+                return v;
+            }
+        },
+        i: function(v) {
+            if (v) {
+                return v.toFixed(4);
+            } else {
+                return v;
+            }
+        },
         f: function(v) {
             if (v) {
                 return v.toFixed(4);
@@ -56,6 +72,34 @@
             return v;
         }
     };
+
+    //this will map will ultimately be user editable and persisted
+    //it maps an alias from the Q data world to behavior, formatting and look and feel
+    var propertiesMap = {
+        columns: {
+            TEST: {
+                formatter: function(v) {
+                    if (v) {
+                        return v.toFixed(2);
+                    } else {
+                        return v;
+                    }
+                },
+                alignment: 'right'
+            },
+            VOL: {
+                formatter: function(v) {
+                    if (v) {
+                        return v.toFixed(2);
+                    } else {
+                        return v;
+                    }
+                },
+                alignment: 'right'
+            }
+        }
+    };
+
 
     //sort states are also the visual queues in the column headers
     //* '' no sort
@@ -81,6 +125,9 @@
     Polymer({ /* jslint ignore:line */
         ready: function() {
             this.block = {
+                O: {
+                    columns: {}
+                },
                 N: 0,
                 F: [],
                 G: [],
@@ -109,12 +156,18 @@
         createCellProvider: function() {
             var self = this;
             var provider = document.createElement('fin-hypergrid-cell-provider');
+            var columns = propertiesMap.columns;
             provider.getCell = function(config) {
                 var cell = provider.cellCache.simpleCellRenderer;
                 cell.config = config;
                 var colId = self.block.F[config.x];
                 var type = self.block.Q[colId];
-                var formatter = typeFormatMap[type] || function(v) {
+                var colProps;
+                var colPropertyAlias = self.block.O.columns[colId];
+                if (colPropertyAlias) {
+                    colProps = columns[colPropertyAlias];
+                }
+                var formatter = colProps ? colProps.formatter : typeFormatMap[type] || function(v) {
                     return v;
                 };
                 config.value = formatter(config.value);
@@ -129,17 +182,8 @@
                 var label = provider.cellCache.simpleCellRenderer;
                 label.config = config;
                 if (config.y === 1) {
-                    //config.font = config.properties.font;
-                    config.fgColor = config.fgSelColor = config.properties.color;
-                    config.bgColor = config.bgSelColor = config.properties.backgroundColor2;
-                    var colId = self.block.F[config.x];
-                    var type = self.block.Q[colId];
-                    var formatter = typeFormatMap[type] || function(v) {
-                        return v;
-                    };
-                    if (config.value) {
-                        config.value = formatter(config.value[0]);
-                    }
+                    config.value = config.value[0];
+                    return provider.getCell(config);
                 }
                 config.value = config.value || '';
                 return label;
@@ -387,7 +431,12 @@
         getColumnAlignment: function(x) {
             var colId = this.getColumnId(x);
             var type = this.block.Q[colId];
-            var alignment = typeAlignmentMap[type];
+            var colProps;
+            var colPropertyAlias = this.block.O.columns[colId];
+            if (colPropertyAlias) {
+                colProps = propertiesMap.columns[colPropertyAlias];
+            }
+            var alignment = colProps ? colProps.alignment : typeAlignmentMap[type];
             return alignment;
         },
 
@@ -414,7 +463,7 @@
 
         sendMessage: function(message) {
             if (logMessages) {
-                console.dir(message);
+                console.dir('out-' + Date.now(), message);
             }
             this.ws.send(JSON.stringify(message));
         },
@@ -524,8 +573,12 @@
         },
 
         handleMessage: function(d) {
-            this.block = d;
+            //insure certain things exist
+            if (!d.O.columns) {
+                d.O.columns = {};
+            }
 
+            this.block = d;
             if (!this.tableState.columnIndexes || this.tableState.columnIndexes.length === 0) {
                 this.initColumnIndexes();
             }
@@ -562,6 +615,9 @@
                 };
                 this.ws.onmessage = function(e) {
                     d = JSON.parse(e.data);
+                    if (logMessages) {
+                        console.log('in-' + Date.now(), d);
+                    }
                     var msgId = d.id;
                     var action = self.msgResponsesActions[msgId];
                     if (action) {

@@ -21327,6 +21327,7 @@ div.container {
 
 
 
+
 </style>
   </template>
   <script>//HypergridRenderer is the canvas enabled top level sub component that handles the renderering of the Grid.
@@ -22413,6 +22414,7 @@ var config = {
 
 
 
+
 </style>
   </template>
   <script>'use strict';
@@ -22500,6 +22502,7 @@ var config = {
     display: block;
     position: relative;
 }
+
 
 
 
@@ -22931,6 +22934,7 @@ var config = {
 
 
 
+
 </style>
   </template>
   <script>(function() {
@@ -23072,6 +23076,7 @@ var config = {
     display: block;
     position: relative;
 }
+
 
 
 
@@ -23541,6 +23546,7 @@ var noop = function() {};
 
 
 
+
 </style>
   </template>
   <script>'use strict';
@@ -23641,6 +23647,7 @@ var commands = {
 
 
 
+
 </style>
   </template>
   <script>'use strict';
@@ -23665,6 +23672,7 @@ var commands = {
     display: block;
     position: relative;
 }
+
 
 
 
@@ -24454,6 +24462,7 @@ var commands = {
 
 
 
+
 </style>
   </template>
   <script>(function() {
@@ -24585,6 +24594,7 @@ var commands = {
     display: block;
     position: relative;
 }
+
 
 
 
@@ -24910,6 +24920,7 @@ var commands = {
 
 
 
+
 </style>
   </template>
   <script>(function() {
@@ -24939,6 +24950,7 @@ var commands = {
     display: block;
     position: relative;
 }
+
 
 
 
@@ -25272,6 +25284,7 @@ var commands = {
 
 
 
+
 </style>
   </template>
   <script>(function() {
@@ -25432,6 +25445,7 @@ var commands = {
     display: block;
     position: relative;
 }
+
 
 
 
@@ -26202,6 +26216,7 @@ var commands = {
 
 
 
+
 </style>
   </template>
   <script>(function() {
@@ -26343,6 +26358,7 @@ var commands = {
 
 
 
+
 </style>
   </template>
   <script>(function() {
@@ -26390,6 +26406,7 @@ var commands = {
     display: block;
     position: relative;
 }
+
 
 
 
@@ -26797,9 +26814,8 @@ var commands = {
         //answers the default row alignment for the fixed row data area of the grid
         //<br>TODO:provide uniform mechanism for the fixed areas like this
         _getFixedRowAlignment: function(x, y) {
-            noop(y);
             x = this.translateColumnIndex(x);
-            return this.getFixedRowAlignment(x);
+            return this.getFixedRowAlignment(x, y);
         },
 
         //this is called by OFGrid when top left area is clicked
@@ -27285,6 +27301,7 @@ var commands = {
 
 
 
+
 </style>
   </template>
   <script>'use strict';
@@ -27328,6 +27345,7 @@ var commands = {
     display: block;
     position: relative;
 }
+
 
 
 
@@ -27771,6 +27789,7 @@ var commands = {
     display: block;
     position: relative;
 }
+
 
 
 
@@ -28521,6 +28540,7 @@ var commands = {
 
 
 
+
 </style>
   </template>
   <script>/*jshint  bitwise: false */
@@ -28803,6 +28823,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
     display: block;
     position: relative;
 }
+
 
 
 
@@ -29369,6 +29390,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
 
 
 
+
 </style>
   </template>
   <script>'use strict';
@@ -29381,7 +29403,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
 (function() {
 
     var noop = function() {};
-    var logMessages = false;
+    var logMessages = true;
     var hierarchyColumn = 'g_';
     //keys mapping Q datatypes to aligment and renderers are setup here.
     //<br>see [q datatypes](http://code.kx.com/wiki/Reference/Datatypes) for more.
@@ -29391,6 +29413,8 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         s: 'left',
         t: 'center',
         f: 'right',
+        i: 'right',
+        e: 'right',
         d: 'center'
     };
 
@@ -29418,6 +29442,20 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         t: function(v) {
             return v;
         },
+        e: function(v) {
+            if (v) {
+                return v.toFixed(4);
+            } else {
+                return v;
+            }
+        },
+        i: function(v) {
+            if (v) {
+                return v.toFixed(4);
+            } else {
+                return v;
+            }
+        },
         f: function(v) {
             if (v) {
                 return v.toFixed(4);
@@ -29429,6 +29467,34 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
             return v;
         }
     };
+
+    //this will map will ultimately be user editable and persisted
+    //it maps an alias from the Q data world to behavior, formatting and look and feel
+    var propertiesMap = {
+        columns: {
+            TEST: {
+                formatter: function(v) {
+                    if (v) {
+                        return v.toFixed(2);
+                    } else {
+                        return v;
+                    }
+                },
+                alignment: 'right'
+            },
+            VOL: {
+                formatter: function(v) {
+                    if (v) {
+                        return v.toFixed(2);
+                    } else {
+                        return v;
+                    }
+                },
+                alignment: 'right'
+            }
+        }
+    };
+
 
     //sort states are also the visual queues in the column headers
     //* '' no sort
@@ -29454,6 +29520,9 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
     Polymer('fin-hypergrid-behavior-qtree',{ /* jslint ignore:line */
         ready: function() {
             this.block = {
+                O: {
+                    columns: {}
+                },
                 N: 0,
                 F: [],
                 G: [],
@@ -29482,12 +29551,18 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         createCellProvider: function() {
             var self = this;
             var provider = document.createElement('fin-hypergrid-cell-provider');
+            var columns = propertiesMap.columns;
             provider.getCell = function(config) {
                 var cell = provider.cellCache.simpleCellRenderer;
                 cell.config = config;
                 var colId = self.block.F[config.x];
                 var type = self.block.Q[colId];
-                var formatter = typeFormatMap[type] || function(v) {
+                var colProps;
+                var colPropertyAlias = self.block.O.columns[colId];
+                if (colPropertyAlias) {
+                    colProps = columns[colPropertyAlias];
+                }
+                var formatter = colProps ? colProps.formatter : typeFormatMap[type] || function(v) {
                     return v;
                 };
                 config.value = formatter(config.value);
@@ -29502,17 +29577,8 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
                 var label = provider.cellCache.simpleCellRenderer;
                 label.config = config;
                 if (config.y === 1) {
-                    //config.font = config.properties.font;
-                    config.fgColor = config.fgSelColor = config.properties.color;
-                    config.bgColor = config.bgSelColor = config.properties.backgroundColor2;
-                    var colId = self.block.F[config.x];
-                    var type = self.block.Q[colId];
-                    var formatter = typeFormatMap[type] || function(v) {
-                        return v;
-                    };
-                    if (config.value) {
-                        config.value = formatter(config.value[0]);
-                    }
+                    config.value = config.value[0];
+                    return provider.getCell(config);
                 }
                 config.value = config.value || '';
                 return label;
@@ -29760,7 +29826,12 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         getColumnAlignment: function(x) {
             var colId = this.getColumnId(x);
             var type = this.block.Q[colId];
-            var alignment = typeAlignmentMap[type];
+            var colProps;
+            var colPropertyAlias = this.block.O.columns[colId];
+            if (colPropertyAlias) {
+                colProps = propertiesMap.columns[colPropertyAlias];
+            }
+            var alignment = colProps ? colProps.alignment : typeAlignmentMap[type];
             return alignment;
         },
 
@@ -29787,7 +29858,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
 
         sendMessage: function(message) {
             if (logMessages) {
-                console.dir(message);
+                console.dir('out-' + Date.now(), message);
             }
             this.ws.send(JSON.stringify(message));
         },
@@ -29897,8 +29968,12 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         },
 
         handleMessage: function(d) {
-            this.block = d;
+            //insure certain things exist
+            if (!d.O.columns) {
+                d.O.columns = {};
+            }
 
+            this.block = d;
             if (!this.tableState.columnIndexes || this.tableState.columnIndexes.length === 0) {
                 this.initColumnIndexes();
             }
@@ -29935,6 +30010,9 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
                 };
                 this.ws.onmessage = function(e) {
                     d = JSON.parse(e.data);
+                    if (logMessages) {
+                        console.log('in-' + Date.now(), d);
+                    }
                     var msgId = d.id;
                     var action = self.msgResponsesActions[msgId];
                     if (action) {
@@ -29988,6 +30066,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
     display: block;
     position: relative;
 }
+
 
 
 
@@ -30168,6 +30247,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
     display: block;
     position: relative;
 }
+
 
 
 
@@ -30598,6 +30678,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
 
 
 
+
 </style>
     <div id="editor"></div>
   </template>
@@ -30829,6 +30910,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
 
 
 
+
 </style>
     <input id="editor">
   </template>
@@ -30852,6 +30934,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
     display: block;
     position: relative;
 }
+
 
 
 
@@ -31168,6 +31251,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
 
 
 
+
 </style>
     <input id="editor" type="color">
   </template>
@@ -31188,6 +31272,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
     display: block;
     position: relative;
 }
+
 
 
 
@@ -31498,6 +31583,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
 
 
 
+
 </style>
     <input id="editor" type="range">
   </template>
@@ -31518,6 +31604,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
     display: block;
     position: relative;
 }
+
 
 
 
@@ -31749,6 +31836,7 @@ fin-vampire-bar {
 fin-vampire-bar {
     z-index: 10;
 }
+
 
 
 
