@@ -88,8 +88,25 @@
                     }
                 },
                 alignment: 'right',
-                modifyConfig: function(config) {
-                    noop(config);
+                modifyConfig: function(cell) {
+                    noop(cell);
+                }
+            },
+            USD: {
+                formatter: function(v) {
+                    if (v) {
+                        var result = numeral(v).format('$0,0.00');
+                        return result;
+                    } else {
+                        return v;
+                    }
+                },
+                alignment: 'right',
+                modifyConfig: function(cell) {
+                    cell.config.fgColor = '#669203'; //'#53FF07'; //green
+                    if (cell.config.value.indexOf('-1') > -1) {
+                        cell.config.fgColor = '#C13527'; //'#FF1515'; //red
+                    }
                 }
             },
             VOL: {
@@ -103,9 +120,9 @@
                 },
                 alignment: 'right',
                 modifyConfig: function(cell) {
-                    cell.config.bgColor = '#53FF07'; //green
+                    cell.config.fgColor = '#669203'; //'#53FF07'; //green
                     if (cell.config.value.indexOf('-1') > -1) {
-                        cell.config.bgColor = '#FF1515'; //red
+                        cell.config.fgColor = '#C13527'; //'#FF1515'; //red
                     }
                 }
             }
