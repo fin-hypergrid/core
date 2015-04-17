@@ -1,3 +1,4 @@
+/* global numeral*/
 'use strict';
 //fin-hypergrid-behavior-qtree is a datasource based on an external Q data source with tree-centric analytic capilities
 //<br>See [kx.com](http://www.kx.com)
@@ -8,7 +9,7 @@
 (function() {
 
     var noop = function() {};
-    var logMessages = true;
+    var logMessages = false;
     var hierarchyColumn = 'g_';
     //keys mapping Q datatypes to aligment and renderers are setup here.
     //<br>see [q datatypes](http://code.kx.com/wiki/Reference/Datatypes) for more.
@@ -80,7 +81,8 @@
             TEST: {
                 formatter: function(v) {
                     if (v) {
-                        return v.toFixed(2);
+                        var result = numeral(v).format('$0,0.00');
+                        return result;
                     } else {
                         return v;
                     }
@@ -90,7 +92,8 @@
             VOL: {
                 formatter: function(v) {
                     if (v) {
-                        return v.toFixed(2);
+                        var result = numeral(v).format('0.000a');
+                        return result;
                     } else {
                         return v;
                     }

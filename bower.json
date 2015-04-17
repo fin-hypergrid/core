@@ -28,6 +28,7 @@
   },
   "devDependencies": {
     "polymer": "Polymer/polymer#0.5.4",
-    "accountingjs": "~0.3.2"
+    "accountingjs": "~0.3.2",
+    "numeral": "~1.5.3"
   }
 }
