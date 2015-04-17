@@ -87,7 +87,10 @@
                         return v;
                     }
                 },
-                alignment: 'right'
+                alignment: 'right',
+                modifyConfig: function(config) {
+                    noop(config);
+                }
             },
             VOL: {
                 formatter: function(v) {
@@ -98,7 +101,13 @@
                         return v;
                     }
                 },
-                alignment: 'right'
+                alignment: 'right',
+                modifyConfig: function(cell) {
+                    cell.config.bgColor = '#53FF07'; //green
+                    if (cell.config.value.indexOf('-1') > -1) {
+                        cell.config.bgColor = '#FF1515'; //red
+                    }
+                }
             }
         }
     };
@@ -174,6 +183,9 @@
                     return v;
                 };
                 config.value = formatter(config.value);
+                if (colPropertyAlias) {
+                    colProps.modifyConfig(cell);
+                }
                 return cell;
             };
             provider.getFixedColumnCell = function(config) {
