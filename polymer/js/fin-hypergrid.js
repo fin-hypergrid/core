@@ -635,6 +635,7 @@
             if (this.cellEdtr) {
                 this.cellEdtr.gridRenderedNotification();
             }
+            this.fireSyntheticGridRenderedEvent();
         },
 
         /**
@@ -1559,6 +1560,23 @@
         /**
          *                                                                      .
          *                                                                      .
+         * synthesize and fire a rendered event
+         *
+         * @method fireSyntheticGridRenderedEvent()
+         */
+        fireSyntheticGridRenderedEvent: function() {
+            var event = new CustomEvent('fin-grid-rendered', {
+                detail: {
+                    source: this,
+                    time: Date.now()
+                }
+            });
+            this.canvas.dispatchEvent(event);
+        },
+
+        /**
+         *                                                                      .
+         *                                                                      .
          * synthesize and fire a scroll event
          *
          * @method fireScrollEvent(y)
@@ -2201,6 +2219,29 @@
         },
         pageRight: function() {
             console.log('page right');
+        },
+        getRenderedData: function() {
+            // assumes one row of headers
+            var behavior = this.getBehavior();
+            var renderer = this.getRenderer();
+            var colCount = this.getColumnCount();
+            var rowCount = renderer.getViewableRows();
+            var headers = [];
+            var result = [];
+            var r, c;
+            for (c = 0; c < colCount; c++) {
+                headers[c] = behavior.getFixedRowValue(c, 0);
+            }
+            for (r = 0; r < rowCount; r++) {
+                var row = {};
+                row.hierarchy = behavior.getFixedColumnValue(0, r);
+                for (c = 0; c < colCount; c++) {
+                    var field = headers[c];
+                    row[field] = behavior.getValue(c, r);
+                }
+                result[r] = row;
+            }
+            return result;
         }
 
     });

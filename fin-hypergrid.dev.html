@@ -21339,6 +21339,8 @@ div.container {
 
 
 
+
+
 </style>
   </template>
   <script>//HypergridRenderer is the canvas enabled top level sub component that handles the renderering of the Grid.
@@ -22429,6 +22431,8 @@ var config = {
 
 
 
+
+
 </style>
   </template>
   <script>'use strict';
@@ -22516,6 +22520,8 @@ var config = {
     display: block;
     position: relative;
 }
+
+
 
 
 
@@ -22955,6 +22961,8 @@ var config = {
 
 
 
+
+
 </style>
   </template>
   <script>(function() {
@@ -23096,6 +23104,8 @@ var config = {
     display: block;
     position: relative;
 }
+
+
 
 
 
@@ -23573,6 +23583,8 @@ var noop = function() {};
 
 
 
+
+
 </style>
   </template>
   <script>'use strict';
@@ -23677,6 +23689,8 @@ var commands = {
 
 
 
+
+
 </style>
   </template>
   <script>'use strict';
@@ -23701,6 +23715,8 @@ var commands = {
     display: block;
     position: relative;
 }
+
+
 
 
 
@@ -24498,6 +24514,8 @@ var commands = {
 
 
 
+
+
 </style>
   </template>
   <script>(function() {
@@ -24629,6 +24647,8 @@ var commands = {
     display: block;
     position: relative;
 }
+
+
 
 
 
@@ -24962,6 +24982,8 @@ var commands = {
 
 
 
+
+
 </style>
   </template>
   <script>(function() {
@@ -24991,6 +25013,8 @@ var commands = {
     display: block;
     position: relative;
 }
+
+
 
 
 
@@ -25332,6 +25356,8 @@ var commands = {
 
 
 
+
+
 </style>
   </template>
   <script>(function() {
@@ -25492,6 +25518,8 @@ var commands = {
     display: block;
     position: relative;
 }
+
+
 
 
 
@@ -26270,6 +26298,8 @@ var commands = {
 
 
 
+
+
 </style>
   </template>
   <script>(function() {
@@ -26415,6 +26445,8 @@ var commands = {
 
 
 
+
+
 </style>
   </template>
   <script>(function() {
@@ -26462,6 +26494,8 @@ var commands = {
     display: block;
     position: relative;
 }
+
+
 
 
 
@@ -27364,6 +27398,8 @@ var commands = {
 
 
 
+
+
 </style>
   </template>
   <script>'use strict';
@@ -27407,6 +27443,8 @@ var commands = {
     display: block;
     position: relative;
 }
+
+
 
 
 
@@ -28003,6 +28041,8 @@ var commands = {
 
 
 
+
+
 </style>
   </template>
   <script>/*jshint  bitwise: false */
@@ -28059,7 +28099,7 @@ var commands = {
             this.tableState.sorted = {};
             this.sortStates = [' -', ' ↑', ' ↓'];
 
-            this.permuteInterval = 250;
+            this.permuteInterval = 50;
             this.values = new Array(this.rows * this.columns);
             this.order = [];
 
@@ -28463,6 +28503,8 @@ var commands = {
     display: block;
     position: relative;
 }
+
+
 
 
 
@@ -29043,6 +29085,8 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
 
 
 
+
+
 </style>
   </template>
   <script>'use strict';
@@ -29319,6 +29363,8 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
     display: block;
     position: relative;
 }
+
+
 
 
 
@@ -30188,6 +30234,8 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
 
 
 
+
+
 </style>
   </template>
   <script>'use strict';
@@ -30359,6 +30407,8 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
     display: block;
     position: relative;
 }
+
+
 
 
 
@@ -30797,6 +30847,8 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
 
 
 
+
+
 </style>
     <div id="editor"></div>
   </template>
@@ -31032,6 +31084,8 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
 
 
 
+
+
 </style>
     <input id="editor">
   </template>
@@ -31055,6 +31109,8 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
     display: block;
     position: relative;
 }
+
+
 
 
 
@@ -31379,6 +31435,8 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
 
 
 
+
+
 </style>
     <input id="editor" type="color">
   </template>
@@ -31399,6 +31457,8 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
     display: block;
     position: relative;
 }
+
+
 
 
 
@@ -31717,6 +31777,8 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
 
 
 
+
+
 </style>
     <input id="editor" type="range">
   </template>
@@ -31737,6 +31799,8 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
     display: block;
     position: relative;
 }
+
+
 
 
 
@@ -31972,6 +32036,8 @@ fin-vampire-bar {
 fin-vampire-bar {
     z-index: 10;
 }
+
+
 
 
 
@@ -32768,6 +32834,7 @@ fin-vampire-bar {
             if (this.cellEdtr) {
                 this.cellEdtr.gridRenderedNotification();
             }
+            this.fireSyntheticGridRenderedEvent();
         },
 
         /**
@@ -33692,6 +33759,23 @@ fin-vampire-bar {
         /**
          *                                                                      .
          *                                                                      .
+         * synthesize and fire a rendered event
+         *
+         * @method fireSyntheticGridRenderedEvent()
+         */
+        fireSyntheticGridRenderedEvent: function() {
+            var event = new CustomEvent('fin-grid-rendered', {
+                detail: {
+                    source: this,
+                    time: Date.now()
+                }
+            });
+            this.canvas.dispatchEvent(event);
+        },
+
+        /**
+         *                                                                      .
+         *                                                                      .
          * synthesize and fire a scroll event
          *
          * @method fireScrollEvent(y)
@@ -34334,6 +34418,29 @@ fin-vampire-bar {
         },
         pageRight: function() {
             console.log('page right');
+        },
+        getRenderedData: function() {
+            // assumes one row of headers
+            var behavior = this.getBehavior();
+            var renderer = this.getRenderer();
+            var colCount = this.getColumnCount();
+            var rowCount = renderer.getViewableRows();
+            var headers = [];
+            var result = [];
+            var r, c;
+            for (c = 0; c < colCount; c++) {
+                headers[c] = behavior.getFixedRowValue(c, 0);
+            }
+            for (r = 0; r < rowCount; r++) {
+                var row = {};
+                row.hierarchy = behavior.getFixedColumnValue(0, r);
+                for (c = 0; c < colCount; c++) {
+                    var field = headers[c];
+                    row[field] = behavior.getValue(c, r);
+                }
+                result[r] = row;
+            }
+            return result;
         }
 
     });

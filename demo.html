@@ -429,128 +429,132 @@
 
         var editorTypes = ['choice','textfield','spinner','date','choice','choice','choice','textfield','textfield'];
 
-        document.addEventListener('polymer-ready', function() {
+        // document.addEventListener('polymer-ready', function() {
 
-            //get ahold of our json grid example
-            var jsonGrid = document.querySelector('#json-example');
+        //     //get ahold of our json grid example
+        //     var jsonGrid = document.querySelector('#json-example');
 
-            //get it's table model
-            var jsonModel = jsonGrid.getBehavior();
+        //     //get it's table model
+        //     var jsonModel = jsonGrid.getBehavior();
 
-            //get the cell cellProvider for altering cell renderers
-            var cellProvider = jsonModel.getCellProvider();
+        //     //get the cell cellProvider for altering cell renderers
+        //     var cellProvider = jsonModel.getCellProvider();
 
-            //alternate way to set the header labels
-            //jsonModel.setHeaders(headers);
+        //     //alternate way to set the header labels
+        //     //jsonModel.setHeaders(headers);
 
-            //alternate way to set the fields found on the row objects
-            //jsonModel.setFields(fields);
+        //     //alternate way to set the fields found on the row objects
+        //     //jsonModel.setFields(fields);
 
 
-            //yet another way to set the fields and headers
-            // jsonModel.setColumns([
-            //     {
-            //         title: 'First Name',
-            //         field: 'last_name',
-            //     },
-            //     {
-            //         title: 'Last Name',
-            //         field: 'first_name',
-            //     },
-            //     {
-            //         title: 'Birth Date',
-            //         field: 'birthDate',
-            //     }
-            // ]);
+        //     //yet another way to set the fields and headers
+        //     // jsonModel.setColumns([
+        //     //     {
+        //     //         title: 'First Name',
+        //     //         field: 'last_name',
+        //     //     },
+        //     //     {
+        //     //         title: 'Last Name',
+        //     //         field: 'first_name',
+        //     //     },
+        //     //     {
+        //     //         title: 'Birth Date',
+        //     //         field: 'birthDate',
+        //     //     }
+        //     // ]);
 
-            //set the actual json row objects
-            jsonModel.setData(data);
+        //     //set the actual json row objects
+        //     jsonModel.setData(data);
 
-            //make the first col fixed;
-            jsonModel.setFixedColumnCount(1);
+        //     //make the first col fixed;
+        //     jsonModel.setFixedColumnCount(1);
 
-            //sort ascending on the first column (first name)
-            //jsonModel.toggleSort(0);
+        //     //sort ascending on the first column (first name)
+        //     //jsonModel.toggleSort(0);
 
-            //all formatting and rendering per cell can be overridden in here
-            cellProvider.getCell = function(config) {
-                var renderer = cellProvider.cellCache.simpleCellRenderer;
-                config.halign = 'left';
-                var x = config.x;
-                if (x === 0) {
-                    renderer = cellProvider.cellCache.linkCellRenderer;
-                } else if (x === 2) {
-                    config.halign = 'center';
-                } else if (x === 3) {
-                    config.halign = 'center';
-                } else if (x === 6) {
-                    config.halign = 'center';
-                } else if (x === 7) {
-                    var travel = 60 + Math.round(config.value*150/100000);
-                    var bcolor = travel.toString(16);
-                    config.halign = 'right';
-                    config.bgColor = '#00' + bcolor + '00';
-                    config.fgColor = '#FFFFFF';
-                    config.value = accounting.formatMoney(config.value);
-                } else if (x === 8) {
-                    var travel = 105 + Math.round(config.value*150/1000);
-                    var bcolor = travel.toString(16);
-                    config.halign = 'right';
-                    config.bgColor = '#' + bcolor+ '0000';
-                    config.fgColor = '#FFFFFF';
-                    config.value = accounting.formatMoney(config.value, "€", 2, ".", ",");
-                }
+        //     //all formatting and rendering per cell can be overridden in here
+        //     cellProvider.getCell = function(config) {
+        //         var renderer = cellProvider.cellCache.simpleCellRenderer;
+        //         config.halign = 'left';
+        //         var x = config.x;
+        //         if (x === 0) {
+        //             renderer = cellProvider.cellCache.linkCellRenderer;
+        //         } else if (x === 2) {
+        //             config.halign = 'center';
+        //         } else if (x === 3) {
+        //             config.halign = 'center';
+        //         } else if (x === 6) {
+        //             config.halign = 'center';
+        //         } else if (x === 7) {
+        //             var travel = 60 + Math.round(config.value*150/100000);
+        //             var bcolor = travel.toString(16);
+        //             config.halign = 'right';
+        //             config.bgColor = '#00' + bcolor + '00';
+        //             config.fgColor = '#FFFFFF';
+        //             config.value = accounting.formatMoney(config.value);
+        //         } else if (x === 8) {
+        //             var travel = 105 + Math.round(config.value*150/1000);
+        //             var bcolor = travel.toString(16);
+        //             config.halign = 'right';
+        //             config.bgColor = '#' + bcolor+ '0000';
+        //             config.fgColor = '#FFFFFF';
+        //             config.value = accounting.formatMoney(config.value, "€", 2, ".", ",");
+        //         }
 
-                renderer.config = config;
-                return renderer;
-            };
+        //         renderer.config = config;
+        //         return renderer;
+        //     };
 
-            //lets override the cell editors, and configure the drop down lists
-            jsonModel.getCellEditorAt = function(x, y) {
-                var type = editorTypes[x];
-                var cellEditor = this.grid.cellEditors[type];
-                if (x === 0) {
-                    cellEditor.items = lastNames;
-                } else if (x === 4 || x === 5) {
-                    cellEditor.items = states;
-                } else if (x === 6) {
-                    cellEditor.items = [true, false];
-                }
-                return cellEditor;
-            };
+        //     //lets override the cell editors, and configure the drop down lists
+        //     jsonModel.getCellEditorAt = function(x, y) {
+        //         var type = editorTypes[x];
+        //         var cellEditor = this.grid.cellEditors[type];
+        //         if (x === 0) {
+        //             cellEditor.items = lastNames;
+        //         } else if (x === 4 || x === 5) {
+        //             cellEditor.items = states;
+        //         } else if (x === 6) {
+        //             cellEditor.items = [true, false];
+        //         }
+        //         return cellEditor;
+        //     };
 
-            jsonModel.getCursorAt = function(x,y) {
-                if (x === 0) {
-                    return 'pointer'
-                } else {
-                    return null;
-                }
-            };
+        //     jsonModel.getCursorAt = function(x,y) {
+        //         if (x === 0) {
+        //             return 'pointer'
+        //         } else {
+        //             return null;
+        //         }
+        //     };
 
-            jsonGrid.addFinEventListener('fin-cell-click', function(e){
-                var cell = e.detail.cell;
-                if (cell.x !== 0) {
-                    return;
-                }
-                alert('fin-cell-click at (' + cell.x + ', ' + cell.y + ')');
-            });
-            jsonGrid.addFinEventListener('fin-scroll-x', function(e){
-                console.log('fin-scroll-x ', e.detail.value);
-            });
-            jsonGrid.addFinEventListener('fin-scroll-y', function(e){
-                console.log('fin-scroll-y', e.detail.value);
-            });
-            // lets setup a cell update
-            // var g = document.querySelector('#json-example');
-            // var model = g.getBehavior();row = model.data[0];
-            // setInterval(function() { row.pets = Date.now()}, 100);
-            // setInterval(function() { g.repaintCell(2,0); }, 110);
-            var tabs = document.getElementsByTagName('paper-tabs')[0];
-            var tab = getParameterByName("tab");
-            if (tab) {
-                tabs.setAttribute('selected', tab);
-            }
-        });
+        //     jsonGrid.addFinEventListener('fin-cell-click', function(e){
+        //         var cell = e.detail.cell;
+        //         if (cell.x !== 0) {
+        //             return;
+        //         }
+        //         alert('fin-cell-click at (' + cell.x + ', ' + cell.y + ')');
+        //     });
+        //     jsonGrid.addFinEventListener('fin-scroll-x', function(e){
+        //         console.log('fin-scroll-x ', e.detail.value);
+        //     });
+        //     jsonGrid.addFinEventListener('fin-scroll-y', function(e){
+        //         console.log('fin-scroll-y', e.detail.value);
+        //     });
+        //     // lets setup a cell update
+        //     // var g = document.querySelector('#json-example');
+        //     // var model = g.getBehavior();row = model.data[0];
+        //     // setInterval(function() { row.pets = Date.now()}, 100);
+        //     // setInterval(function() { g.repaintCell(2,0); }, 110);
+        //     var tabs = document.getElementsByTagName('paper-tabs')[0];
+        //     var tab = getParameterByName("tab");
+        //     if (tab) {
+        //         tabs.setAttribute('selected', tab);
+        //     }
+        //     var qTree = document.querySelector('#qtree-example');
+        //     qTree.addEventListener('fin-grid-rendered', function(e) {
+        //       console.dir(qTree.getRenderedData());
+        //     });
+        // });
     })();
     //json-example stuff
     function toggleHiDPI() {

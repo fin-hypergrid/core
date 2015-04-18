@@ -52,7 +52,7 @@
             this.tableState.sorted = {};
             this.sortStates = [' -', ' ↑', ' ↓'];
 
-            this.permuteInterval = 250;
+            this.permuteInterval = 50;
             this.values = new Array(this.rows * this.columns);
             this.order = [];
 
