@@ -387,6 +387,9 @@
 
             this.isWebkit = navigator.userAgent.toLowerCase().indexOf('webkit') > -1;
             this.selectionModel = document.createElement('fin-hypergrid-selection-model');
+            this.selectionModel.getGrid = function() {
+                return self;
+            };
             this.cellEditors = Object.create(globalCellEditors);
             this.renderOverridesCache = {};
 
@@ -2242,6 +2245,9 @@
                 result[r] = row;
             }
             return result;
+        },
+        selectionChanged: function() {
+            console.log('selection changed');
         }
 
     });

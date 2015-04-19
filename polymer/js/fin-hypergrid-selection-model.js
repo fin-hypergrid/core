@@ -22,6 +22,7 @@
             this.selections.push(newSelection);
             this.flattenedX.push(newSelection.flattenXAt(0));
             this.flattenedY.push(newSelection.flattenYAt(0));
+            this.getGrid().selectionChanged();
         },
 
         //remove the last selection that was created
