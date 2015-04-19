@@ -551,8 +551,11 @@
                 tabs.setAttribute('selected', tab);
             }
             var qTree = document.querySelector('#qtree-example');
-            qTree.addEventListener('fin-grid-rendered', function(e) {
-              console.dir(qTree.getRenderedData());
+            // qTree.addEventListener('fin-grid-rendered', function(e) {
+            //   console.dir(qTree.getRenderedData());
+            // });
+            qTree.addEventListener('fin-selection-changed', function(e) {
+                console.dir(qTree.getSelectedRow());
             });
         });
     })();

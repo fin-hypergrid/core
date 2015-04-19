@@ -2247,7 +2247,33 @@
             return result;
         },
         selectionChanged: function() {
-            console.log('selection changed');
+            var event = new CustomEvent('fin-selection-changed', {
+                detail: {
+                    time: Date.now()
+                }
+            });
+            this.canvas.dispatchEvent(event);
+        },
+        getSelectedRow: function() {
+            var sels = this.getSelectionModel().getSelections();
+            if (sels.length < 1) {
+                return;
+            }
+            var behavior = this.getBehavior();
+            var colCount = this.getColumnCount();
+            var headers = [];
+            var topRow = sels[0].origin.y;
+            var c;
+            for (c = 0; c < colCount; c++) {
+                headers[c] = behavior.getFixedRowValue(c, 0);
+            }
+            var row = {};
+            row.hierarchy = behavior.getFixedColumnValue(0, topRow);
+            for (c = 0; c < colCount; c++) {
+                var field = headers[c];
+                row[field] = behavior.getValue(c, topRow);
+            }
+            return row;
         }
 
     });
