@@ -38,16 +38,20 @@
     var icommify = function(v) {
         if (v) {
             return numeral(v).format('0,0');
+        } else if (v === 0) {
+            return '0.00';
         } else {
-            return v;
+            return '';
         }
     };
 
     var fcommify = function(v) {
         if (v) {
             return numeral(v).format('0,0.00');
+        } else if (v === 0) {
+            return '0.00';
         } else {
-            return v;
+            return '';
         }
     };
 
@@ -75,32 +79,18 @@
     var propertiesMap = {
         columns: {
             TEST: {
-                formatter: function(v) {
-                    if (v) {
-                        var result = numeral(v).format('$0,0.00');
-                        return result;
-                    } else {
-                        return v;
-                    }
-                },
+                formatter: fcommify,
                 alignment: 'right',
                 modifyConfig: function(cell) {
                     noop(cell);
                 }
             },
             USD: {
-                formatter: function(v) {
-                    if (v) {
-                        var result = numeral(v).format('0,0.00');
-                        return result;
-                    } else {
-                        return v;
-                    }
-                },
+                formatter: fcommify,
                 alignment: 'right',
                 modifyConfig: function(cell) {
                     cell.config.fgColor = '#1C4A16'; //'#53FF07'; //green
-                    if (cell.config.value.indexOf('-1') > -1) {
+                    if (cell.config.value < 0) {
                         cell.config.fgColor = '#C13527'; //'#FF1515'; //red
                     }
                 }
@@ -117,7 +107,7 @@
                 alignment: 'right',
                 modifyConfig: function(cell) {
                     cell.config.fgColor = '#669203'; //'#53FF07'; //green
-                    if (cell.config.value.indexOf('-1') > -1) {
+                    if (cell.config.value < 0) {
                         cell.config.fgColor = '#C13527'; //'#FF1515'; //red
                     }
                 }
@@ -191,14 +181,12 @@
                 var colPropertyAlias = self.block.O.columns[colId];
                 if (colPropertyAlias) {
                     colProps = columns[colPropertyAlias];
+                    colProps.modifyConfig(cell);
                 }
                 var formatter = colProps ? colProps.formatter : typeFormatMap[type] || function(v) {
                     return v;
                 };
                 config.value = formatter(config.value);
-                if (colPropertyAlias) {
-                    colProps.modifyConfig(cell);
-                }
                 return cell;
             };
             provider.getFixedColumnCell = function(config) {
