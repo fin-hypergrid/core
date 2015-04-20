@@ -35,40 +35,36 @@
     //     d: 'simpleCellRenderer'
     // };
 
+    var icommify = function(v) {
+        if (v) {
+            return numeral(v).format('0,0');
+        } else {
+            return v;
+        }
+    };
+
+    var fcommify = function(v) {
+        if (v) {
+            return numeral(v).format('0,0.00');
+        } else {
+            return v;
+        }
+    };
+
     var typeFormatMap = {
         J: function(v) {
             return v;
         },
-        j: function(v) {
-            return v;
-        },
+        j: icommify,
         s: function(v) {
             return v;
         },
         t: function(v) {
             return v;
         },
-        e: function(v) {
-            if (v) {
-                return v.toFixed(4);
-            } else {
-                return v;
-            }
-        },
-        i: function(v) {
-            if (v) {
-                return v.toFixed(4);
-            } else {
-                return v;
-            }
-        },
-        f: function(v) {
-            if (v) {
-                return v.toFixed(4);
-            } else {
-                return v;
-            }
-        },
+        e: fcommify,
+        i: icommify,
+        f: icommify,
         d: function(v) {
             return v;
         }
@@ -95,7 +91,7 @@
             USD: {
                 formatter: function(v) {
                     if (v) {
-                        var result = numeral(v).format('$0,0.00');
+                        var result = numeral(v).format('0,0.00');
                         return result;
                     } else {
                         return v;
@@ -103,7 +99,7 @@
                 },
                 alignment: 'right',
                 modifyConfig: function(cell) {
-                    cell.config.fgColor = '#669203'; //'#53FF07'; //green
+                    cell.config.fgColor = '#1C4A16'; //'#53FF07'; //green
                     if (cell.config.value.indexOf('-1') > -1) {
                         cell.config.fgColor = '#C13527'; //'#FF1515'; //red
                     }
