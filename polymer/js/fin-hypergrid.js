@@ -1373,7 +1373,10 @@
             this.setMouseDown(editPoint);
             this.setDragExtent(rectangles.point.create(0, 0));
 
-            this.shadowRoot.appendChild(cellEditor);
+            if (!cellEditor.isAdded) {
+                cellEditor.isAdded = true;
+                this.shadowRoot.appendChild(cellEditor);
+            }
             cellEditor.grid = this;
             cellEditor.beginEditAt(editPoint);
         },
