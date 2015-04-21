@@ -1,3 +1,4 @@
+/* global alert */
 'use strict';
 
 (function() {
@@ -87,8 +88,13 @@
         takeFocus: function() {
 
         },
-
+        count: 0,
         moveEditor: function() {
+            console.log('move editor');
+            this.count++;
+            if (this.count === 2) {
+                debugger;
+            }
             var model = this.getBehavior();
             var numFixedColumns = model.getFixedColumnCount();
             var numFixedRows = model.getFixedRowCount();
