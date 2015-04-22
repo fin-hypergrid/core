@@ -368,9 +368,10 @@
             var blob = this.block.Z[1];
             var transY = Math.max(0, y - this.scrollPositionY);
             var data = blob.g_[transY];
-            var indent = 5 + indentPixels + (blob.l_[transY] - 1) * indentPixels;
+            var level = blob.l_[transY];
+            var indent = 5 + indentPixels + (level - 1) * indentPixels;
             var icon = '';
-            if (!blob.e_[transY]) {
+            if (!blob.e_[transY] && (level !== this.block.G.length)) {
                 icon = blob.o_[transY] ? '\u25be ' : '\u25b8 ';
             }
             return {
@@ -469,6 +470,10 @@
         fixedColumnClicked: function(grid, mouse) {
             var rowNum = mouse.gridCell.y - this.scrollPositionY;
             var nodes = this.block.Z[1].n_[rowNum];
+            if (nodes.length === this.block.G.length) {
+                //this is a leaf, don't send anything
+                return;
+            }
             var nodeClick = {
                 id: this.getNextMessageId(),
                 fn: 'node',
@@ -598,7 +603,7 @@
 
         handleMessage: function(d) {
             //insure certain things exist
-            if (!d.O.columns) {
+            if (d.O && !d.O.columns) {
                 d.O.columns = {};
             }
 

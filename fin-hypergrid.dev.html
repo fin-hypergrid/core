@@ -21353,6 +21353,7 @@ div.container {
 
 
 
+
 </style>
   </template>
   <script>//HypergridRenderer is the canvas enabled top level sub component that handles the renderering of the Grid.
@@ -22457,6 +22458,7 @@ var config = {
 
 
 
+
 </style>
   </template>
   <script>'use strict';
@@ -22545,6 +22547,7 @@ var config = {
     display: block;
     position: relative;
 }
+
 
 
 
@@ -23012,6 +23015,7 @@ var config = {
 
 
 
+
 </style>
   </template>
   <script>(function() {
@@ -23153,6 +23157,7 @@ var config = {
     display: block;
     position: relative;
 }
+
 
 
 
@@ -23658,6 +23663,7 @@ var noop = function() {};
 
 
 
+
 </style>
   </template>
   <script>'use strict';
@@ -23776,6 +23782,7 @@ var commands = {
 
 
 
+
 </style>
   </template>
   <script>'use strict';
@@ -23800,6 +23807,7 @@ var commands = {
     display: block;
     position: relative;
 }
+
 
 
 
@@ -24625,6 +24633,7 @@ var commands = {
 
 
 
+
 </style>
   </template>
   <script>(function() {
@@ -24756,6 +24765,7 @@ var commands = {
     display: block;
     position: relative;
 }
+
 
 
 
@@ -25117,6 +25127,7 @@ var commands = {
 
 
 
+
 </style>
   </template>
   <script>(function() {
@@ -25146,6 +25157,7 @@ var commands = {
     display: block;
     position: relative;
 }
+
 
 
 
@@ -25515,6 +25527,7 @@ var commands = {
 
 
 
+
 </style>
   </template>
   <script>(function() {
@@ -25675,6 +25688,7 @@ var commands = {
     display: block;
     position: relative;
 }
+
 
 
 
@@ -26481,6 +26495,7 @@ var commands = {
 
 
 
+
 </style>
   </template>
   <script>(function() {
@@ -26640,6 +26655,7 @@ var commands = {
 
 
 
+
 </style>
   </template>
   <script>(function() {
@@ -26687,6 +26703,7 @@ var commands = {
     display: block;
     position: relative;
 }
+
 
 
 
@@ -27617,6 +27634,7 @@ var commands = {
 
 
 
+
 </style>
   </template>
   <script>'use strict';
@@ -27660,6 +27678,7 @@ var commands = {
     display: block;
     position: relative;
 }
+
 
 
 
@@ -28121,6 +28140,7 @@ var commands = {
     display: block;
     position: relative;
 }
+
 
 
 
@@ -28907,6 +28927,7 @@ var commands = {
 
 
 
+
 </style>
   </template>
   <script>/*jshint  bitwise: false */
@@ -29189,6 +29210,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
     display: block;
     position: relative;
 }
+
 
 
 
@@ -29791,6 +29813,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
 
 
 
+
 </style>
   </template>
   <script>/* global numeral*/
@@ -30163,9 +30186,10 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
             var blob = this.block.Z[1];
             var transY = Math.max(0, y - this.scrollPositionY);
             var data = blob.g_[transY];
-            var indent = 5 + indentPixels + (blob.l_[transY] - 1) * indentPixels;
+            var level = blob.l_[transY];
+            var indent = 5 + indentPixels + (level - 1) * indentPixels;
             var icon = '';
-            if (!blob.e_[transY]) {
+            if (!blob.e_[transY] && (level !== this.block.G.length)) {
                 icon = blob.o_[transY] ? '\u25be ' : '\u25b8 ';
             }
             return {
@@ -30264,6 +30288,10 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         fixedColumnClicked: function(grid, mouse) {
             var rowNum = mouse.gridCell.y - this.scrollPositionY;
             var nodes = this.block.Z[1].n_[rowNum];
+            if (nodes.length === this.block.G.length) {
+                //this is a leaf, don't send anything
+                return;
+            }
             var nodeClick = {
                 id: this.getNextMessageId(),
                 fn: 'node',
@@ -30393,7 +30421,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
 
         handleMessage: function(d) {
             //insure certain things exist
-            if (!d.O.columns) {
+            if (d.O && !d.O.columns) {
                 d.O.columns = {};
             }
 
@@ -30490,6 +30518,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
     display: block;
     position: relative;
 }
+
 
 
 
@@ -30688,6 +30717,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
     display: block;
     position: relative;
 }
+
 
 
 
@@ -31154,6 +31184,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
 
 
 
+
 </style>
     <div id="editor"></div>
   </template>
@@ -31403,6 +31434,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
 
 
 
+
 </style>
     <input id="editor">
   </template>
@@ -31426,6 +31458,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
     display: block;
     position: relative;
 }
+
 
 
 
@@ -31778,6 +31811,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
 
 
 
+
 </style>
     <input id="editor" type="color">
   </template>
@@ -31798,6 +31832,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
     display: block;
     position: relative;
 }
+
 
 
 
@@ -32144,6 +32179,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
 
 
 
+
 </style>
     <input id="editor" type="range">
   </template>
@@ -32164,6 +32200,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
     display: block;
     position: relative;
 }
+
 
 
 
@@ -32413,6 +32450,7 @@ fin-vampire-bar {
 fin-vampire-bar {
     z-index: 10;
 }
+
 
 
 
