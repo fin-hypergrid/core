@@ -574,7 +574,15 @@
             }
             var msgId = this.getNextMessageId(function(message) {
                 //ignore any predecessor column swap results if a new one has been posted
+                var colCount = self.getColumnCount();
+                var widths = [];
+                for (var i = 0; i < colCount; i++) {
+                    widths[i] = self._getColumnWidth(i);
+                }
                 self.initColumnIndexes();
+                for (i = 0; i < colCount; i++) {
+                    widths[i] = self._setColumnWidth(i, widths[i]);
+                }
                 self.handleMessage(message);
             });
             var changeCols = {
