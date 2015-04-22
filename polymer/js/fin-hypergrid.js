@@ -136,7 +136,8 @@
 
         //check if there is actually a theme loaded if not, clear out all bogus values
         //from my cache
-        if (polymerTheme.fixedRowBGSelColor === 'rgba(0, 0, 0, 0)') {
+        if (polymerTheme.fixedRowBGSelColor === 'rgba(0, 0, 0, 0)' ||
+            polymerTheme.lineColor === 'transparent') {
             clearObjectProperties(polymerTheme);
         }
 
