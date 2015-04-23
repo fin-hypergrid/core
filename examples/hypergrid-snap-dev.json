@@ -1,0 +1,24 @@
+{
+  "devtools_port": 9090,
+  "startup_app": {
+    "name": "hypergrid-snap-demo",
+    "url": "http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/examples/hypergrid-snap.html",
+    "uuid": "hypergrid-snap-demo",
+    "applicationIcon": "http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/images/hypergrid_thumb.ico",
+    "autoShow": true,
+    "defaultWidth": 250,
+    "defaultHeight": 200,
+    "defaultTop": 200,
+    "defaultLeft": 200
+  },
+  "runtime": {
+    "arguments": "",
+    "version": "stable"
+  },
+  "shortcut": {
+    "company": "OpenFin",
+    "description": "snap and dock",
+    "icon": "http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/images/hypergrid_thumb.ico",
+    "name": "hypergrid-snap-demo"
+  }
+}

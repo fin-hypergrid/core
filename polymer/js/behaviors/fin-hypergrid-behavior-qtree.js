@@ -336,16 +336,22 @@
             var colId = this.getColumnId(x);
             if (y < 1) {
                 var sortIndicator = this.getSortIndicator(colId);
-                return colId + ' ' + sortIndicator;
+                var clickIndicator = this.getClickIndicator(colId);
+                return clickIndicator + ' ' + colId + ' ' + sortIndicator;
             }
             var total = this.block.Z[0][colId];
             return total;
         },
 
+        getClickIndicator: function(colId) {
+            noop(colId);
+            return '⨁ ';
+        },
+
         getSortIndicator: function(colId) {
             var sortIndex = this.block.S.cols.indexOf(colId);
             if (sortIndex < 0) {
-                return '';
+                return ' ⇕ ';
             }
             var sortState = this.block.S.sorts[sortIndex];
             var symbol = sortMap[sortState];
@@ -469,17 +475,33 @@
 
         fixedColumnClicked: function(grid, mouse) {
             var rowNum = mouse.gridCell.y - this.scrollPositionY;
-            var nodes = this.block.Z[1].n_[rowNum];
-            if (nodes.length === this.block.G.length) {
+            var rows = this.block.Z[1].n_[rowNum];
+            if (rows.length === this.block.G.length) {
                 //this is a leaf, don't send anything
                 return;
             }
-            var nodeClick = {
+            var rowClick = {
                 id: this.getNextMessageId(),
-                fn: 'node',
-                node: nodes
+                fn: 'row',
+                row: rows
             };
-            this.sendMessage(nodeClick);
+            this.sendMessage(rowClick);
+        },
+
+        fixedRowClicked: function(grid, mouse) {
+            var colId = this.getColumnId(mouse.gridCell.x);
+            var colWidth = this.getColumnWidth(mouse.gridCell.x);
+            var mousePoint = mouse.mousePoint.x;
+            if (mousePoint < (colWidth / 2)) {
+                var colClick = {
+                    id: this.getNextMessageId(),
+                    fn: 'col',
+                    col: colId
+                };
+                this.sendMessage(colClick);
+            } else {
+                this.toggleSort(mouse.gridCell.x);
+            }
         },
 
         sendMessage: function(message) {
