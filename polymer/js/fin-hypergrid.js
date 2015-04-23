@@ -1555,7 +1555,6 @@
         },
 
         fireCellClickEvent: function(cell, event) {
-            var behavior = this.getBehavior();
             var clickEvent = new CustomEvent('fin-cell-click', {
                 detail: {
                     cell: cell,
