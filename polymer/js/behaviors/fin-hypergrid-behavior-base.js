@@ -64,6 +64,10 @@
             }
         },
 
+        cellClicked: function(cell, event) {
+            this.grid.fireCellClickEvent(cell, event);
+        },
+
         initColumnIndexes: function() {
             var columnCount = this._getColumnCount();
             var fixedColumnCount = this.getFixedColumnCount();

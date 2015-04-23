@@ -1539,7 +1539,7 @@
             this.synchronizeScrollingBoundries();
         },
 
-        fireCellClickEvent: function(event) {
+        cellClicked: function(event) {
             var behavior = this.getBehavior();
             var hovered = this.getHoverCell();
             var sy = this.getVScrollValue();
@@ -1547,16 +1547,18 @@
             if (hovered.x > -1) {
                 x = behavior.translateColumnIndex(hovered.x + this.getHScrollValue());
             }
-
             if (hovered.y < 0) {
                 sy = 0;
             }
-
-
             hovered = rectangles.point.create(x, hovered.y + sy);
+            this.getBehavior().cellClicked(hovered, event);
+        },
+
+        fireCellClickEvent: function(cell, event) {
+            var behavior = this.getBehavior();
             var clickEvent = new CustomEvent('fin-cell-click', {
                 detail: {
-                    cell: hovered,
+                    cell: cell,
                     event: event,
                     time: Date.now()
                 }

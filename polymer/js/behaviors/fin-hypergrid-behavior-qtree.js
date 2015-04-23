@@ -504,6 +504,20 @@
             }
         },
 
+        cellClicked: function(cell, event) {
+            var rowNum = cell.y - this.scrollPositionY;
+            var rows = this.block.Z[1].n_[rowNum];
+            var colId = this.getColumnId(cell.x);
+            var colClick = {
+                id: this.getNextMessageId(),
+                fn: 'cell',
+                col: colId,
+                row: rows
+            };
+            this.sendMessage(colClick);
+            this.grid.fireCellClickEvent(cell, event);
+        },
+
         sendMessage: function(message) {
             if (logMessages) {
                 console.dir('out-' + Date.now(), message);
@@ -711,6 +725,7 @@
         getFixedColumnCount: function() {
             return 1;
         },
+
     });
 
 })(); /* jslint ignore:line */
