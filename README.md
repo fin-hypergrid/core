@@ -57,7 +57,7 @@ The only file that is necessary to deploy the hypergrid is the webcomponent html
 1. Notice that bower installs many dependencies a level up from the fin-hypegrid project directory, this is the polymer way of developing custom elements.  The actual project directory IS fin-hypergrid, everything is done relative to this, it just needs to live in it's own containing developement directory.
 
 <a name="q-behavior"></a>
-##Q by [kx](http://kx.com/) systems [demo](http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/demo.html?tab=4) tabs (select either the 'Q' or 'Q Tree' tabs).
+##KDB+/Q by [kx](http://kx.com/) systems [demo](http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/demo.html?tab=4) tabs (select either the 'Q' or 'Q Tree' tabs).
 
 This Hypertree + Hypergrid example allows you to define a on the fly custom drill down hierarchy while supporting grouping, aggregations, and sorting in realtime.  The current example demonstrates 20MM updates/second.  The default aggregations available are sum, min, max, first, last, average, weighted average, mean, and standard deviation.  Press options/alt to drag and drop define the visible columns and the drill down hierarchy.
 
@@ -339,7 +339,7 @@ useHiDPI|true/false|make use of hi dpi displays (defaults to true)
 ```
 # Hypergrid events
 
-You can listen to various events that occur within the Hypergrid.  Take note to attach listeners you must call addFinListener on the grid.  Each event has a detail object with various bits of information about the event.  Please contact us if there are more events you need and we'll be happy to put them in.
+You can listen to various events that occur within the Hypergrid.  Take note in order to attach listeners you must call 'addFinListener' on the grid.  Each event has a detail object with various bits of information about the event.  Please contact us if there are more events you need and we'll be happy to put them in.
 
 event|description
 -----|-----------
