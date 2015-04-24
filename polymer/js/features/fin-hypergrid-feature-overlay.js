@@ -5,17 +5,15 @@
     var noop = function() {};
 
     var ANIMATION_TIME = 200;
-    var ACTIVATION = {
-        ALT: 'blah',
-        ESC: 'blah'
-    };
+
     Polymer({ /* jshint ignore:line */
 
         openEditor: false,
 
         handleKeyUp: function(grid, event) {
-            var key = event.detail.char;
-            if (ACTIVATION[key]) {
+            var key = event.detail.char.toLowerCase();
+            var keys = grid.resolveProperty('editorActivationKeys');
+            if (keys.indexOf(key) > -1) {
                 this.toggleColumnPicker(grid);
             }
         },
@@ -57,7 +55,9 @@
 
             if (!this._closer) {
                 this._closer = function(e) {
-                    if (e.altKey || e.keyCode === 27) {
+                    var key = self.getCharFor(grid, e.keyCode).toLowerCase();
+                    var keys = grid.resolveProperty('editorActivationKeys');
+                    if (keys.indexOf(key) > -1 || e.keyCode === 27) {
                         e.preventDefault();
                         self.closeColumnPicker(grid);
                     }
@@ -115,7 +115,10 @@
             grid.appendChild(this.overlay);
             //document.body.appendChild(this.overlay);
         },
-
+        getCharFor: function(grid, integer) {
+            var charMap = grid.getCanvas().getCharMap();
+            return charMap[integer][0];
+        }
     });
 
 })(); /* jshint ignore:line */

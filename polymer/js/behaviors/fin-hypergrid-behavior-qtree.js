@@ -351,7 +351,7 @@
         getSortIndicator: function(colId) {
             var sortIndex = this.block.S.cols.indexOf(colId);
             if (sortIndex < 0) {
-                return ' ◼ ';
+                return ' ▪ ';
             }
             var sortState = this.block.S.sorts[sortIndex];
             var symbol = sortMap[sortState];

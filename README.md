@@ -271,6 +271,7 @@ fixedRowBGSelColor|rgb(255, 220, 97),|fixed row area background selection color
 backgroundColor2|rgb(201, 201, 201)|secondary background color
 lineColor|rgb(199, 199, 199)|grid lines color
 voffset|0|offset from top of all text
+editorActivationKeys|['esc','alt','a','b','c']|what keys open and close the column editor
 scrollbarHoverOver|visible/hidden|shadow class name on hover over
 scrollbarHoverOff|visible/hidden|shadow class name on hover off
 scrollingEnabled|true/false|enable/disable scrolling
@@ -317,6 +318,7 @@ useHiDPI|true/false|make use of hi dpi displays (defaults to true)
         backgroundColor2: '#303030',
         lineColor: '#707070',
         voffset: 0,
+        editorActivationKeys: ['esc', 'alt'],
         scrollbarHoverOver: 'visible',
         scrollbarHoverOff: 'visible',
         scrollingEnabled: true,
@@ -335,6 +337,27 @@ useHiDPI|true/false|make use of hi dpi displays (defaults to true)
     //to apply for all tables
     //table.addGlobalProperties(lnfOverrides);
 ```
+# Hypergrid events
+
+You can listen to various events that occur within the Hypergrid.  Take note to attach listeners you must call addFinListener on the grid.  Each event has a detail object with various bits of information about the event.  Please contact us if there are more events you need and we'll be happy to put them in.
+
+event|description
+--------------------
+fin-before-cell-edit|this is fired just before a cell edit occurs
+fin-after-cell-edit|this is fired just after a cell edit occurs
+fin-selection-changed|this is fired whenever the selection changes
+fin-scroll-x|this is fired on any scroll in the horizontal dimension
+fin-scroll-y|this is fired on any scroll in the vertical dimension
+fin-cell-click|this is fired on cell click
+fin-grid-rendered|this is fired after a repaint occurs
+
+```
+    var jsonModel = document.querySelection('#json-grid');
+    jsonModel.addFinListener('fin-cell-click', function(event) {
+        console.log('fin-cell-click', event.detail);
+    });
+```
+
 
 # JSON behavior
 

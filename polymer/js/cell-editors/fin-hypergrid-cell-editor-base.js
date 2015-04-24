@@ -43,6 +43,7 @@
             this.setEditorPoint(point);
             var model = this.getBehavior();
             var value = model._getValue(point.x, point.y);
+            this.grid.fireBeforeCellEdit(point, value);
             this.setEditorValue(value);
             this.isEditing = true;
             this.setCheckEditorPositionFlag();
@@ -78,6 +79,7 @@
             var point = this.getEditorPoint();
             var value = this.getEditorValue();
             this.getBehavior()._setValue(point.x, point.y, value);
+            this.grid.fireAfterCellEdit(point, value);
         },
 
         getEditorValue: function() {

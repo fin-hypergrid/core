@@ -79,7 +79,9 @@
             //enable or disable double buffering
             useBitBlit: false,
 
-            useHiDPI: true
+            useHiDPI: true,
+            editorActivationKeys: ['alt', 'esc']
+
         };
         return properties;
     };
@@ -2279,8 +2281,27 @@
                 row[field] = behavior.getValue(c, topRow);
             }
             return row;
-        }
-
+        },
+        fireBeforeCellEdit: function(cell, value) {
+            var clickEvent = new CustomEvent('fin-before-cell-edit', {
+                detail: {
+                    value: value,
+                    cell: cell,
+                    time: Date.now()
+                }
+            });
+            this.canvas.dispatchEvent(clickEvent);
+        },
+        fireAfterCellEdit: function(cell, value) {
+            var clickEvent = new CustomEvent('fin-after-cell-edit', {
+                detail: {
+                    value: value,
+                    cell: cell,
+                    time: Date.now()
+                }
+            });
+            this.canvas.dispatchEvent(clickEvent);
+        },
     });
 
 })(); /* jslint ignore:line */

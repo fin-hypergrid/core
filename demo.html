@@ -554,9 +554,18 @@
             // qTree.addEventListener('fin-grid-rendered', function(e) {
             //   console.dir(qTree.getRenderedData());
             // });
-            qTree.addEventListener('fin-selection-changed', function(e) {
-                console.dir(qTree.getSelectedRow());
+            qTree.addFinEventListener('fin-selection-changed', function(e) {
+                console.dir('fin-selection-changed', qTree.getSelectedRow());
             });
+
+            jsonGrid.addFinEventListener('fin-before-cell-edit', function(e) {
+                console.dir('fin-before-cell-edit', e);
+            });
+
+            jsonGrid.addFinEventListener('fin-after-cell-edit', function(e) {
+                console.dir('fin-after-cell-edit', e);
+            });
+
         });
     })();
     //json-example stuff
