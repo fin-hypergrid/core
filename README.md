@@ -155,6 +155,16 @@ cellProvider.getCell = function(config) {
     var renderer = cellProvider.cellCache.simpleCellRenderer;
     config.halign = 'left';
     var x = config.x;
+
+    //setting properties for an entire row, just use modulo operator
+    if (y % 3 === 0) {
+        //change the background color to green on every 3rd row
+        config.bgColor = '#00ff00';
+    } else if ((y - 1) % 3 === 0) {
+        //change the background color to blue and foreground to white just below every 3rd row
+        config.bgColor = '#0000ff';
+        config.fgColor = '#ffffff';
+    }
     if (x === 0) {
         renderer = cellProvider.cellCache.linkCellRenderer;
     } else if (x === 2) {
@@ -361,6 +371,8 @@ fin-grid-rendered|this is fired after a repaint occurs
 
 # JSON behavior
 
+By far the most common behavior to use will be the JSON behavior.  If you're not sure which one to start with, select this one.
+
 ## Populating a JSON behavior with data
 
 To populate the json behavior with data simply provide hypergrid with an array of same shaped objects.   
@@ -415,6 +427,22 @@ There are several ways to specify fields and headers with hypergrid.
             field: 'birth_date',
         }
     ]);
+```
+
+# JSON behavior totals rows
+
+adding totals rows just under the column headers is a simple.  Call setTotals function on the JSON behavior an array of arrays of the content you want displayed.
+
+```
+    var totals =
+        [['','1st',251,'XXXX-XX-XX','1 of 50','1 of 50','T/F','$$$$$','£££££']];
+
+    myJSONBehavior.setTotals(totals);
+
+    //update the totals and see the change
+    totals[0][2] = 300;
+    myJSONBehavior.changed();
+
 ```
 
 ## JSON behavior table state

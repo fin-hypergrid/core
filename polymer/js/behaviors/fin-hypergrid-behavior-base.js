@@ -12,6 +12,7 @@
         editorTypes: ['choice', 'textfield', 'color', 'slider', 'spinner', 'date'],
         featureChain: null,
         fixedColumnCount: 0,
+        fixedRowCount: 1,
 
         clearObjectProperties: function(obj) {
             for (var prop in obj) {
@@ -202,13 +203,6 @@
         //can be dynamic if your data set changes size
         _getColumnCount: function() {
             return this.getColumnCount() - this.tableState.hiddenColumns.length - this.fixedColumnCount;
-        },
-
-        //can be dynamic for supporting "floating" fixed rows
-        //<br>floating rows are rows that become fixed if you
-        //<br>scroll past them
-        getFixedRowCount: function() {
-            return 1;
         },
 
         //pixel height of the fixed rows area
@@ -575,12 +569,26 @@
             }
         },
 
+        //can be dynamic for supporting "floating" fixed cols
+        //<br>floating cols are cols that become fixed if you
+        //<br>scroll past them
         getFixedColumnCount: function() {
             return this.fixedColumnCount;
         },
 
         setFixedColumnCount: function(numberOfFixedColumns) {
             this.fixedColumnCount = numberOfFixedColumns;
+        },
+
+        //can be dynamic for supporting "floating" fixed rows
+        //<br>floating rows are rows that become fixed if you
+        //<br>scroll past them
+        getFixedRowCount: function() {
+            return this.fixedRowCount;
+        },
+
+        setFixedRowCount: function(numberOfFixedRows) {
+            this.fixedRowCount = numberOfFixedRows;
         },
 
         openEditor: function(div) {

@@ -146,6 +146,7 @@ var noop = function() {};
             var theColor = this.config.isSelected ? this.config.fgSelColor : this.config.fgColor;
             if (gc.fillStyle !== theColor) {
                 gc.fillStyle = theColor;
+                gc.strokeStyle = theColor;
             }
             gc.fillText(this.config.value, x + halignOffset, y + valignOffset);
 
