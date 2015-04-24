@@ -111,7 +111,7 @@
             this.overlay.style.position = 'absolute';
             this.overlay.style.display = 'none';
             this.overlay.style.transition = 'opacity ' + ANIMATION_TIME + 'ms ease-in';
-            this.overlay.stylACTIVATION = 0;
+            this.overlay.style.opacity = 0;
             grid.appendChild(this.overlay);
             //document.body.appendChild(this.overlay);
         },

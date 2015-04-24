@@ -696,8 +696,13 @@
 
         highlightCellOnHover: function(isColumnHovered, isRowHovered) {
             return isColumnHovered && isRowHovered;
-        }
+        },
 
+        getColumnId: function(x) {
+            x = this.translateColumnIndex(x);
+            var col = this.getFixedRowValue(x, 0);
+            return col;
+        }
     });
 
 })();

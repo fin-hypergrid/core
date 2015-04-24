@@ -9,7 +9,7 @@
 (function() {
 
     var noop = function() {};
-    var logMessages = false;
+    var logMessages = true;
     var hierarchyColumn = 'g_';
     //keys mapping Q datatypes to aligment and renderers are setup here.
     //<br>see [q datatypes](http://code.kx.com/wiki/Reference/Datatypes) for more.
@@ -267,7 +267,7 @@
             //     return clone;
             // }
             var hValue = this.block.Z[0].g_[0];
-            var clone = ['Hierarchy', '\u25be ' + hValue];
+            var clone = ['▴ Hierarchy', '\u25be ' + hValue];
             clone[0] = clone[0] + ' ' + sortIndicator;
             return clone;
         },
@@ -345,13 +345,13 @@
 
         getClickIndicator: function(colId) {
             noop(colId);
-            return '⨁ ';
+            return '▾ ';
         },
 
         getSortIndicator: function(colId) {
             var sortIndex = this.block.S.cols.indexOf(colId);
             if (sortIndex < 0) {
-                return ' ⇕ ';
+                return ' ◼ ';
             }
             var sortState = this.block.S.sorts[sortIndex];
             var symbol = sortMap[sortState];

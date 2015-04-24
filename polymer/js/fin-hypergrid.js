@@ -2238,7 +2238,7 @@
             var result = [];
             var r, c;
             for (c = 0; c < colCount; c++) {
-                headers[c] = behavior.getFixedRowValue(c, 0);
+                headers[c] = behavior.getColumnId(c, 0);
             }
             for (r = 0; r < rowCount; r++) {
                 var row = {};
@@ -2270,7 +2270,7 @@
             var topRow = sels[0].origin.y;
             var c;
             for (c = 0; c < colCount; c++) {
-                headers[c] = behavior.getFixedRowValue(c, 0);
+                headers[c] = behavior.getColumnId(c, 0);
             }
             var row = {};
             row.hierarchy = behavior.getFixedColumnValue(0, topRow);

@@ -2,16 +2,15 @@
     "devtools_port": 9090,
     "startup_app": {
         "autoShow": true,
-        "name": "hypergrid-demo",
-        "url": "http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/examples/excel-json-behavior.html",
-        "Xurl": "http://10.9.97.244:9000/fin-hypergrid/examples/excel-json-behavior.html",
+        "name": "hypergrid-dev-demo",
+        "url": "http://10.9.97.244:9000/fin-hypergrid/demo.html",
         "uuid": "hypergrid-demo",
         "applicationIcon": "http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/images/openfin.ico",
         "contextMenu" : true
     },
     "runtime": {
         "arguments": "",
-        "version": "stable"
+        "version": "4.40.2.0-x64"
     },
     "shortcut": {
         "company": "OpenFin",
