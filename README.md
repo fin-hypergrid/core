@@ -342,7 +342,7 @@ useHiDPI|true/false|make use of hi dpi displays (defaults to true)
 You can listen to various events that occur within the Hypergrid.  Take note to attach listeners you must call addFinListener on the grid.  Each event has a detail object with various bits of information about the event.  Please contact us if there are more events you need and we'll be happy to put them in.
 
 event|description
---------------------
+-----|-----------
 fin-before-cell-edit|this is fired just before a cell edit occurs
 fin-after-cell-edit|this is fired just after a cell edit occurs
 fin-selection-changed|this is fired whenever the selection changes
