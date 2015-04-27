@@ -1,6 +1,4 @@
-/* globals document, alert, Polymer */
-
-
+/* global alert */
 'use strict';
 
 (function() {
@@ -465,7 +463,7 @@
             var fixedX = this.getFixedColumnCount();
             var fixedY = this.getFixedRowCount();
             this.hoverCell = rectangles.point.create(point.x - fixedX, point.y - fixedY);
-            this.paintNow();
+            this.repaint();
         },
 
         addGlobalProperties: function(props) {
@@ -1358,15 +1356,9 @@
             this.cellEdtr = cellEditor;
 
             var cell = coordinates.gridCell;
-            var behavior = this.getBehavior();
-            var scrollTop = this.getVScrollValue();
-            var scrollLeft = this.getHScrollValue();
 
-            var numFixedColumns = behavior.getFixedColumnCount();
-            var numFixedRows = behavior.getFixedRowCount();
-
-            var x = cell.x - numFixedColumns + scrollLeft;
-            var y = cell.y - numFixedRows + scrollTop;
+            var x = cell.x;
+            var y = cell.y;
 
             if (x < 0 || y < 0) {
                 return;
@@ -2146,13 +2138,8 @@
         },
 
         activateEditor: function(event) {
-            var fixedColCount = this.getFixedColumnCount();
-            var fixedRowCount = this.getFixedRowCount();
             var gridCell = event.gridCell;
-            var mX = this.getHScrollValue() + gridCell.x - fixedColCount;
-            var mY = this.getVScrollValue() + gridCell.y - fixedRowCount;
-
-            var editor = this.getCellEditorAt(mX, mY);
+            var editor = this.getCellEditorAt(gridCell.x, gridCell.y);
             if (editor) {
                 this.editAt(editor, event);
             }
@@ -2302,6 +2289,11 @@
             });
             this.canvas.dispatchEvent(clickEvent);
         },
+        autosizeColumn: function(column) {
+            var width = this.getRenderer().renderedColumnMinWidths[column];
+            console.log(column + ' - ' + width);
+            this.setColumnWidth(column, width);
+        }
     });
 
 })(); /* jslint ignore:line */

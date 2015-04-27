@@ -29,6 +29,7 @@
   "devDependencies": {
     "polymer": "Polymer/polymer#0.5.4",
     "accountingjs": "~0.3.2",
-    "numeral": "~1.5.3"
+    "numeral": "~1.5.3",
+    "simple-lru": "~0.0.3"
   }
 }

@@ -1,3 +1,5 @@
+/* global SimpleLRU */
+
 //HypergridRenderer is the canvas enabled top level sub component that handles the renderering of the Grid.
 // * It relies on two other external subprojects
 //  * of-canvas: a wrapper to provide a simpler interface to the HTML5 canvas component
@@ -15,11 +17,23 @@
 
 var noop = function() {};
 
-var fontData = {
-
-};
+var fontData = {};
+var textWidthCache = new SimpleLRU(10000);
 
 var config = {
+    getTextWidth: function(gc, string) {
+        if (string.length === 0) {
+            return 0;
+        }
+        var key = gc.font + string;
+        var width = textWidthCache.get(key);
+        if (!width) {
+            width = gc.measureText(string).width;
+            textWidthCache.set(key, width);
+        }
+        return width;
+    },
+
     getTextHeight: function(font) {
 
         var result = fontData[font];
@@ -95,6 +109,7 @@ var config = {
         attached: function() {
             this.readyInit();
             this.renderedColumnWidths = [0];
+            this.renderedColumnMinWidths = [];
             this.renderedHeight = 0;
             this.renderedRowHeights = [0];
             this.renderedColumns = [];
@@ -502,6 +517,9 @@ var config = {
                 ctx.fillStyle = bgColor;
                 ctx.fillRect(x, y, x + width, viewHeight - y);
 
+                //reset this for this pass..
+                this.renderedColumnMinWidths[c + scrollLeft] = 0;
+
                 for (var r = 0; r < numRows; r++) {
 
                     var height = this.getFixedRowHeight(r);
@@ -513,6 +531,9 @@ var config = {
                     var translatedX = behavior.translateColumnIndex(c + scrollLeft);
                     var cell = cellProvider.getFixedRowCell(this.cellConfig(translatedX, r, value, fgColor, bgColor, fgSelColor, bgSelColor, font, isSelected, isColumnHovered, isRowHovered, align, hoffset, voffset));
                     cell.paint(ctx, x, y, width, height);
+
+                    //lets capture the col preferred widths for col autosizing
+                    this.renderedColumnMinWidths[c + scrollLeft] = Math.max(cell.config.minWidth || 0, this.renderedColumnMinWidths[c + scrollLeft]);
 
                     if (behavior.highlightCellOnHover(isColumnHovered, isRowHovered)) {
                         ctx.beginPath();
@@ -660,6 +681,9 @@ var config = {
                     var cell = cellProvider.getCell(this.cellConfig(translatedX, r + scrollTop, value, overrideFGColor, bgColor, fgSelColor, bgSelColor, overrideFont, isSelected, isColumnHovered, isRowHovered, columnAlign, hoffset, voffset));
 
                     cell.paint(ctx, x, y, width, height);
+
+                    //lets capture the col preferred widths for col autosizing
+                    this.renderedColumnMinWidths[c + scrollLeft] = Math.max(cell.config.minWidth || 0, this.renderedColumnMinWidths[c + scrollLeft]);
 
                     if (behavior.highlightCellOnHover(isColumnHovered, isRowHovered)) {
                         ctx.beginPath();

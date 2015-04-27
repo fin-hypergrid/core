@@ -133,6 +133,7 @@
             this.setNextFeature(document.createElement('fin-hypergrid-feature-cell-editing'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-column-sorting'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-on-hover'));
+            this.setNextFeature(document.createElement('fin-hypergrid-feature-column-autosizing'));
 
             this.featureChain.initializeOn(grid);
         },

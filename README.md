@@ -194,6 +194,12 @@ cellProvider.getCell = function(config) {
 };
 ```
 
+# Column autosizing
+
+You can autosize a column to best fit size by double clicking on the column header.
+
+<img src="images/gridshot09.png">
+
 # Cell Editors
 
 Hypergrid comes with several default cell editors you can easily select, and the ability to create your own. [The javascript code](https://github.com/openfin/fin-hypergrid/tree/master/polymer/js/cell-editors) for the cell editors is found here.

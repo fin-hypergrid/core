@@ -3,8 +3,18 @@
     'use strict';
 
     Polymer({ /* jshint ignore:line */
-        handleDoubleClick: function(grid, mouseEvent) {
-            grid.activateEditor(mouseEvent);
+        handleDoubleClick: function(grid, event) {
+            var fixedColCount = grid.getFixedColumnCount();
+            var fixedRowCount = grid.getFixedRowCount();
+            var gridCell = event.gridCell;
+            if (gridCell.x > fixedColCount && gridCell.y > fixedRowCount) {
+                var x = grid.getHScrollValue() + gridCell.x - fixedColCount;
+                var y = grid.getVScrollValue() + gridCell.y - fixedRowCount;
+                event.gridCell = grid.rectangles.point.create(x, y);
+                grid.activateEditor(event);
+            } else if (this.next) {
+                this.next.handleDoubleClick(grid, event);
+            }
         },
 
         handleHoldPulse: function(grid, mouseEvent) {

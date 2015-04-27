@@ -4,8 +4,8 @@ var noop = function() {};
 
 (function() {
 
-    var underline = function(ctx, text, x, y, thickness) {
-        var width = ctx.measureText(text).width;
+    var underline = function(config, ctx, text, x, y, thickness) {
+        var width = config.getTextWidth(ctx, text);
 
         switch (ctx.textAlign) {
             case 'center':
@@ -103,7 +103,6 @@ var noop = function() {};
                 halign = this.config.halign,
                 isColumnHovered = this.config.isColumnHovered,
                 isRowHovered = this.config.isRowHovered,
-                size,
                 textWidth;
 
             //setting gc properties are expensive, lets not do it unnecessarily
@@ -120,14 +119,17 @@ var noop = function() {};
                 gc.textBaseline = 'middle';
             }
 
-            //don't measure the text if we don't have to as it is very expensive
+            textWidth = this.config.getTextWidth(gc, this.config.value);
+
+            //we must set this in order to compute the minimum width
+            //for column autosizing purposes
+            this.config.minWidth = textWidth + (2 * colHEdgeOffset);
+
             if (halign === 'right') {
-                size = gc.measureText(this.config.value);
-                textWidth = size.width;
+                //textWidth = this.config.getTextWidth(gc, this.config.value);
                 halignOffset = width - colHEdgeOffset - textWidth;
             } else if (halign === 'center') {
-                size = gc.measureText(this.config.value);
-                textWidth = size.width;
+                //textWidth = this.config.getTextWidth(gc, this.config.value);
                 halignOffset = (width - textWidth) / 2;
             } else if (halign === 'left') {
                 halignOffset = colHEdgeOffset;
@@ -154,7 +156,7 @@ var noop = function() {};
                 gc.beginPath();
                 if (isLink) {
                     gc.beginPath();
-                    underline(gc, this.config.value, x + halignOffset, y + valignOffset + Math.floor(fontMetrics.height / 2), 1);
+                    underline(this.config, gc, this.config.value, x + halignOffset, y + valignOffset + Math.floor(fontMetrics.height / 2), 1);
                     gc.stroke();
                     gc.closePath();
                 }

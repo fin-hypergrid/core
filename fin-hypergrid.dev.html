@@ -18280,6 +18280,8 @@ CustomElements.addModule(function(scope) {
 })(window.WebComponents);</script>
 <!-- <link rel="import" href="../../polymer-gestures.html"> -->
 
+<script>(function(){"use strict";if(typeof define==="function"&&define.amd){define(function(){return r})}else if(typeof module!=="undefined"&&module.exports){module.exports=r}else if(typeof window!=="undefined"){window.SimpleLRU=r}r.version="0.0.3";function t(t,i){for(var e in i)t[e]=i[e]}var i=Object.create;var e=function(){var e,n;if(typeof i==="function"){e=function(){this.data=i(null)};n={get:function(t){return this.data[t]},has:function(t){return!!this.data[t]}}}else{e=function(){this.data={}};n={get:function(t){if(this.has(t))return this.data[t]},has:function(t){return Object.prototype.hasOwnProperty.call(this.data,t)}}}t(n,{set:function(t,i){this.data[t]=i},del:function(t){var i=this.get(t);if(typeof i!=="undefined"){delete this.data[t];return i}}});t(e.prototype,n);return e}();function n(t,i,e){this.key=t;this.val=i;this.index=e}function r(t){if(typeof t!=="number")throw new TypeError("max is requried");this.max(t);this.reset()}t(r.prototype,{set:function(t,i){var e=this._byKey.get(t);if(e){this._touch(e);e.val=i;return}e=new n(t,i,this._head++);this._byKey.set(t,e);this._byOrder[e.index]=e;this._len++;this._trim()},del:function(t){var i=this._byKey.del(t);if(!i)return;delete this._byOrder[i.index];this._len--;if(this._len===0){this._head=this._tail=0}else{if(i.index===this._head-1)this._pop();if(i.index===this._tail)this._shift()}return i.val},get:function(t){var i=this._byKey.get(t);if(i){this._touch(i);return i.val}},peek:function(t){var i=this._byKey.get(t);if(i)return i.val},has:function(t){return this._byKey.has(t)},length:function(){return this._len},reset:function(){this._byKey=new e;this._byOrder=i?i(null):{};this._head=0;this._tail=0;this._len=0},max:function(t){if(typeof t!=="number")return this._max;if(t<1)throw new TypeError("max should be a positive number");var i=(this._max||0)>t;this._max=t;if(i)this._trim()},keys:function(){var t=0,i=this._tail,e=this._head,n=new Array(this._len);for(var r=i;r<e;r++){var h=this._byOrder[r];if(h)n[t++]=h.key}return n},_touch:function(t){if(t.index!==this._head-1){var i=t.index===this._tail;delete this._byOrder[t.index];t.index=this._head++;this._byOrder[t.index]=t;if(i)this._shift()}},_trim:function(){var t=this._max;while(t<this._len){var i=this._byOrder[this._tail];this.del(i.key)}},_shift:function(){var t=this._tail,i=this._head;for(var e=t;e<i;e++){var n=this._byOrder[e];if(n){this._tail=e;return n}}},_pop:function(){var t=this._tail,i=this._head;for(var e=i-1;e>=t;e--){var n=this._byOrder[e];if(n){this._head=e+1;return n}}}})})();</script>
+
 
 
 
@@ -18950,7 +18952,7 @@ div.container {
 }
 </style>
     <button></button>
-    <canvas class="canvas" on-tap="{{fintap}}" on-hold="{{finhold}}" on-holdpulse="{{finholdpulse}}" on-flick="{{finflick}}" on-release="{{finrelease}}" on-trackstart="{{fintrackstart}}" on-track="{{fintrack}}" on-trackend="{{fintrackend}}"></canvas>
+    <canvas class="canvas" on-tap="{{fintap}}" on-hold="{{finhold}}" on-holdpulse="{{finholdpulse}}" on-flick="{{finflick}}" on-release="{{finrelease}}" on-dblclick="{{findblclick}}" on-trackstart="{{fintrackstart}}" on-track="{{fintrack}}" on-trackend="{{fintrackend}}"></canvas>
   </template>
   <script>
 
@@ -19243,6 +19245,8 @@ div.container {
          */
         checkSizeCounter: 0,
 
+        lastDoubleClickTime: 0,
+
         /**
          *                                                                      .
          *                                                                      .
@@ -19308,9 +19312,9 @@ div.container {
             this.addEventListener('click', function(e) {
                 self.finclick(e);
             });
-            this.addEventListener('dblclick', function(e) {
-                self.findblclick(e);
-            });
+            // this.addEventListener('dblclick', function(e) {
+            //     self.findblclick(e);
+            // });
 
             this.resize();
             this.beginPainting();
@@ -19747,23 +19751,6 @@ div.container {
         /**
          *                                                                      .
          *                                                                      .
-         * handle the tap event
-         *
-         * @method fintap(e)
-         */
-        fintap: function(e) {
-            this.mouseLocation = this.getLocal(e);
-            this.dispatchEvent(new CustomEvent('fin-tap', {
-                detail: {
-                    mouse: this.mouseLocation,
-                    keys: this.currentKeys
-                }
-            }));
-        },
-
-        /**
-         *                                                                      .
-         *                                                                      .
          * handle the trackstart event
          *
          * @method fintap(e)
@@ -19858,12 +19845,48 @@ div.container {
         /**
          *                                                                      .
          *                                                                      .
+         * handle the tap event
+         *
+         * @method fintap(e)
+         */
+        fintap: function(e) {
+            //this nonsense is to hold a tap if it's really a double click
+            var self = this;
+            var now = Date.now();
+            var dif = now - this.lastDoubleClickTime;
+            if (dif < 300) {
+                return;
+            }
+            setTimeout(function() {
+                self._fintap(e);
+            }, 180);
+        },
+
+        _fintap: function(e) {
+            //this nonsense is to hold a tap if it's really a double click
+            var now = Date.now();
+            var dif = now - this.lastDoubleClickTime;
+            if (dif < 300) {
+                return;
+            }
+            this.mouseLocation = this.getLocal(e);
+            this.dispatchEvent(new CustomEvent('fin-tap', {
+                detail: {
+                    mouse: this.mouseLocation,
+                    keys: this.currentKeys
+                }
+            }));
+        },
+        /**
+         *                                                                      .
+         *                                                                      .
          * handle the mouse double click event
          *
          * @method findblclick(e)
          */
         findblclick: function(e) {
             this.mouseLocation = this.getLocal(e);
+            this.lastDoubleClickTime = Date.now();
             this.dispatchEvent(new CustomEvent('fin-dblclick', {
                 detail: {
                     mouse: this.mouseLocation,
@@ -21370,7 +21393,9 @@ div.container {
 
 </style>
   </template>
-  <script>//HypergridRenderer is the canvas enabled top level sub component that handles the renderering of the Grid.
+  <script>/* global SimpleLRU */
+
+//HypergridRenderer is the canvas enabled top level sub component that handles the renderering of the Grid.
 // * It relies on two other external subprojects
 //  * of-canvas: a wrapper to provide a simpler interface to the HTML5 canvas component
 //  * rectangles: a small library providing Point and Rectangle objects
@@ -21387,11 +21412,23 @@ div.container {
 
 var noop = function() {};
 
-var fontData = {
-
-};
+var fontData = {};
+var textWidthCache = new SimpleLRU(10000);
 
 var config = {
+    getTextWidth: function(gc, string) {
+        if (string.length === 0) {
+            return 0;
+        }
+        var key = gc.font + string;
+        var width = textWidthCache.get(key);
+        if (!width) {
+            width = gc.measureText(string).width;
+            textWidthCache.set(key, width);
+        }
+        return width;
+    },
+
     getTextHeight: function(font) {
 
         var result = fontData[font];
@@ -21467,6 +21504,7 @@ var config = {
         attached: function() {
             this.readyInit();
             this.renderedColumnWidths = [0];
+            this.renderedColumnMinWidths = [];
             this.renderedHeight = 0;
             this.renderedRowHeights = [0];
             this.renderedColumns = [];
@@ -21874,6 +21912,9 @@ var config = {
                 ctx.fillStyle = bgColor;
                 ctx.fillRect(x, y, x + width, viewHeight - y);
 
+                //reset this for this pass..
+                this.renderedColumnMinWidths[c + scrollLeft] = 0;
+
                 for (var r = 0; r < numRows; r++) {
 
                     var height = this.getFixedRowHeight(r);
@@ -21885,6 +21926,9 @@ var config = {
                     var translatedX = behavior.translateColumnIndex(c + scrollLeft);
                     var cell = cellProvider.getFixedRowCell(this.cellConfig(translatedX, r, value, fgColor, bgColor, fgSelColor, bgSelColor, font, isSelected, isColumnHovered, isRowHovered, align, hoffset, voffset));
                     cell.paint(ctx, x, y, width, height);
+
+                    //lets capture the col preferred widths for col autosizing
+                    this.renderedColumnMinWidths[c + scrollLeft] = Math.max(cell.config.minWidth || 0, this.renderedColumnMinWidths[c + scrollLeft]);
 
                     if (behavior.highlightCellOnHover(isColumnHovered, isRowHovered)) {
                         ctx.beginPath();
@@ -22032,6 +22076,9 @@ var config = {
                     var cell = cellProvider.getCell(this.cellConfig(translatedX, r + scrollTop, value, overrideFGColor, bgColor, fgSelColor, bgSelColor, overrideFont, isSelected, isColumnHovered, isRowHovered, columnAlign, hoffset, voffset));
 
                     cell.paint(ctx, x, y, width, height);
+
+                    //lets capture the col preferred widths for col autosizing
+                    this.renderedColumnMinWidths[c + scrollLeft] = Math.max(cell.config.minWidth || 0, this.renderedColumnMinWidths[c + scrollLeft]);
 
                     if (behavior.highlightCellOnHover(isColumnHovered, isRowHovered)) {
                         ctx.beginPath();
@@ -23375,8 +23422,8 @@ var noop = function() {};
 
 (function() {
 
-    var underline = function(ctx, text, x, y, thickness) {
-        var width = ctx.measureText(text).width;
+    var underline = function(config, ctx, text, x, y, thickness) {
+        var width = config.getTextWidth(ctx, text);
 
         switch (ctx.textAlign) {
             case 'center':
@@ -23474,7 +23521,6 @@ var noop = function() {};
                 halign = this.config.halign,
                 isColumnHovered = this.config.isColumnHovered,
                 isRowHovered = this.config.isRowHovered,
-                size,
                 textWidth;
 
             //setting gc properties are expensive, lets not do it unnecessarily
@@ -23491,14 +23537,17 @@ var noop = function() {};
                 gc.textBaseline = 'middle';
             }
 
-            //don't measure the text if we don't have to as it is very expensive
+            textWidth = this.config.getTextWidth(gc, this.config.value);
+
+            //we must set this in order to compute the minimum width
+            //for column autosizing purposes
+            this.config.minWidth = textWidth + (2 * colHEdgeOffset);
+
             if (halign === 'right') {
-                size = gc.measureText(this.config.value);
-                textWidth = size.width;
+                //textWidth = this.config.getTextWidth(gc, this.config.value);
                 halignOffset = width - colHEdgeOffset - textWidth;
             } else if (halign === 'center') {
-                size = gc.measureText(this.config.value);
-                textWidth = size.width;
+                //textWidth = this.config.getTextWidth(gc, this.config.value);
                 halignOffset = (width - textWidth) / 2;
             } else if (halign === 'left') {
                 halignOffset = colHEdgeOffset;
@@ -23525,7 +23574,7 @@ var noop = function() {};
                 gc.beginPath();
                 if (isLink) {
                     gc.beginPath();
-                    underline(gc, this.config.value, x + halignOffset, y + valignOffset + Math.floor(fontMetrics.height / 2), 1);
+                    underline(this.config, gc, this.config.value, x + halignOffset, y + valignOffset + Math.floor(fontMetrics.height / 2), 1);
                     gc.stroke();
                     gc.closePath();
                 }
@@ -25237,8 +25286,18 @@ var commands = {
     'use strict';
 
     Polymer('fin-hypergrid-feature-cell-editing',{ /* jshint ignore:line */
-        handleDoubleClick: function(grid, mouseEvent) {
-            grid.activateEditor(mouseEvent);
+        handleDoubleClick: function(grid, event) {
+            var fixedColCount = grid.getFixedColumnCount();
+            var fixedRowCount = grid.getFixedRowCount();
+            var gridCell = event.gridCell;
+            if (gridCell.x > fixedColCount && gridCell.y > fixedRowCount) {
+                var x = grid.getHScrollValue() + gridCell.x - fixedColCount;
+                var y = grid.getVScrollValue() + gridCell.y - fixedRowCount;
+                event.gridCell = grid.rectangles.point.create(x, y);
+                grid.activateEditor(event);
+            } else if (this.next) {
+                this.next.handleDoubleClick(grid, event);
+            }
         },
 
         handleHoldPulse: function(grid, mouseEvent) {
@@ -26839,6 +26898,35 @@ var commands = {
 //     }
 // }
 </script>
+</polymer-element>
+<polymer-element name="fin-hypergrid-feature-column-autosizing" extends="fin-hypergrid-feature-base" assetpath="/dev/fin-hypergrid/polymer/html/features/">
+  <template>
+    <style type="text/css">:host {
+    display: block;
+    position: relative;
+}
+</style>
+  </template>
+  <script>'use strict';
+
+(function() {
+
+    Polymer('fin-hypergrid-feature-column-autosizing', { /* jshint ignore:line  */
+        handleDoubleClick: function(grid, event) {
+            var fixedRowCount = grid.getFixedRowCount();
+            var fixedColCount = grid.getFixedColumnCount();
+            var gridCell = event.gridCell;
+            if (gridCell.y <= fixedRowCount) {
+                var col = grid.getHScrollValue() + gridCell.x - fixedColCount;
+                grid.autosizeColumn(col);
+            } else if (this.next) {
+                this.next.handleDoubleClick(grid, event);
+            }
+        }
+    });
+
+})(); /* jshint ignore:line */
+</script>
 </polymer-element><polymer-element name="fin-hypergrid-behavior-base" attributes="" assetpath="/dev/fin-hypergrid/polymer/html/behaviors/">
   <template>
     <style type="text/css">:host {
@@ -27050,6 +27138,7 @@ var commands = {
             this.setNextFeature(document.createElement('fin-hypergrid-feature-cell-editing'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-column-sorting'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-on-hover'));
+            this.setNextFeature(document.createElement('fin-hypergrid-feature-column-autosizing'));
 
             this.featureChain.initializeOn(grid);
         },
@@ -32976,9 +33065,7 @@ fin-vampire-bar {
     <input class="editor">
     <content></content>
   </template>
-  <script>/* globals document, alert, Polymer */
-
-
+  <script>/* global alert */
 'use strict';
 
 (function() {
@@ -33443,7 +33530,7 @@ fin-vampire-bar {
             var fixedX = this.getFixedColumnCount();
             var fixedY = this.getFixedRowCount();
             this.hoverCell = rectangles.point.create(point.x - fixedX, point.y - fixedY);
-            this.paintNow();
+            this.repaint();
         },
 
         addGlobalProperties: function(props) {
@@ -34336,15 +34423,9 @@ fin-vampire-bar {
             this.cellEdtr = cellEditor;
 
             var cell = coordinates.gridCell;
-            var behavior = this.getBehavior();
-            var scrollTop = this.getVScrollValue();
-            var scrollLeft = this.getHScrollValue();
 
-            var numFixedColumns = behavior.getFixedColumnCount();
-            var numFixedRows = behavior.getFixedRowCount();
-
-            var x = cell.x - numFixedColumns + scrollLeft;
-            var y = cell.y - numFixedRows + scrollTop;
+            var x = cell.x;
+            var y = cell.y;
 
             if (x < 0 || y < 0) {
                 return;
@@ -35124,13 +35205,8 @@ fin-vampire-bar {
         },
 
         activateEditor: function(event) {
-            var fixedColCount = this.getFixedColumnCount();
-            var fixedRowCount = this.getFixedRowCount();
             var gridCell = event.gridCell;
-            var mX = this.getHScrollValue() + gridCell.x - fixedColCount;
-            var mY = this.getVScrollValue() + gridCell.y - fixedRowCount;
-
-            var editor = this.getCellEditorAt(mX, mY);
+            var editor = this.getCellEditorAt(gridCell.x, gridCell.y);
             if (editor) {
                 this.editAt(editor, event);
             }
@@ -35280,6 +35356,11 @@ fin-vampire-bar {
             });
             this.canvas.dispatchEvent(clickEvent);
         },
+        autosizeColumn: function(column) {
+            var width = this.getRenderer().renderedColumnMinWidths[column];
+            console.log(column + ' - ' + width);
+            this.setColumnWidth(column, width);
+        }
     });
 
 })(); /* jslint ignore:line */
