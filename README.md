@@ -642,14 +642,12 @@ http://nodejs.org/download/
 
 ## Road Map
 
-* Column autosizing
 * add filter support
 * add grouping
 * local storage for layout values
 * events should work for mobile
 * add ink effects
 * Test suite for all components and upstream dependency projects
-* Hover event support
 * Tooltip support
 * context menu support
 * Layer abstraction
@@ -657,10 +655,12 @@ http://nodejs.org/download/
 * refactor behaviors to controller-chain and model
 * instant edit
 * support expandable sub-content
-* tree-table support
 * move this todo to github issues
 
 -- done --
+* tree-table support
+* Column autosizing
+* Hover event support
 * Page up/down buttons
 * add column selection/reordering to all behaviors
 * Fix live reload on file change edge conditions
@@ -672,6 +672,9 @@ http://nodejs.org/download/
 * rafactor features to be self contained/column selector
 
 ## Feature List
+* tree-table support
+* Column autosizing
+* Hover event support
 * clickable hyperlink cells
 * polymer web component based
 * material design compliant
