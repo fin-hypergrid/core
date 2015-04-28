@@ -15,7 +15,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         ready: function() {
             this.readyInit();
             this.tableState.sorted = [];
-            this.sortStates = [' ', ' ↑', ' ↓'];
+            this.sortStates = [undefined, this.getImage('up-arrow'), this.getImage('down-arrow')];
         },
 
         isValidIdentifer: function(string) {
@@ -172,7 +172,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
             if (y === 0) {
                 var headers = this.getHeaders();
                 var sortIndex = this.tableState.sorted[x] || 0;
-                return headers[x] + this.sortStates[sortIndex];
+                return [undefined, headers[x], this.sortStates[sortIndex]];
             } else {
                 return this.totals[y - 1][x];
             }

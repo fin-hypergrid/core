@@ -19246,6 +19246,7 @@ div.container {
         checkSizeCounter: 0,
 
         lastDoubleClickTime: 0,
+        dragEndTime: 0,
 
         /**
          *                                                                      .
@@ -19258,6 +19259,7 @@ div.container {
 
             var self = this;
             this.checkSizeCounter = 0;
+            this.dragEndtime = Date.now();
             this.g = document.createElement('fin-rectangle');
             this.canvas = this.shadowRoot.querySelector('.canvas');
             this.focuser = this.shadowRoot.querySelector('button');
@@ -19642,6 +19644,7 @@ div.container {
                     }
                 }));
                 this.beNotDragging();
+                this.dragEndtime = Date.now();
             }
             this.mousedown = false;
             this.mouseLocation = this.g.point.create(-1, -1);
@@ -19855,6 +19858,11 @@ div.container {
             var now = Date.now();
             var dif = now - this.lastDoubleClickTime;
             if (dif < 300) {
+                return;
+            }
+            //dragend is also causing a tap
+            //lets fix this here
+            if (now - this.dragEndtime < 100) {
                 return;
             }
             setTimeout(function() {
@@ -23521,11 +23529,20 @@ var noop = function() {};
                 halign = this.config.halign,
                 isColumnHovered = this.config.isColumnHovered,
                 isRowHovered = this.config.isRowHovered,
-                textWidth;
+                val = this.config.value;
+
+            var leftIcon, rightIcon, ixoffset, iyoffset;
 
             //setting gc properties are expensive, lets not do it unnecessarily
 
+            if (val && val.constructor === Array) {
+                leftIcon = val[0];
+                rightIcon = val[2];
+                val = val[1];
+            }
+
             var fontMetrics = this.config.getTextHeight(this.config.font);
+            var textWidth = this.config.getTextWidth(gc, val);
 
             if (gc.font !== this.config.font) {
                 gc.font = this.config.font;
@@ -23536,8 +23553,6 @@ var noop = function() {};
             if (gc.textBaseline !== 'middle') {
                 gc.textBaseline = 'middle';
             }
-
-            textWidth = this.config.getTextWidth(gc, this.config.value);
 
             //we must set this in order to compute the minimum width
             //for column autosizing purposes
@@ -23568,16 +23583,27 @@ var noop = function() {};
                 gc.fillStyle = theColor;
                 gc.strokeStyle = theColor;
             }
-            gc.fillText(this.config.value, x + halignOffset, y + valignOffset);
+            gc.fillText(val, x + halignOffset, y + valignOffset);
 
             if (isColumnHovered && isRowHovered) {
                 gc.beginPath();
                 if (isLink) {
                     gc.beginPath();
-                    underline(this.config, gc, this.config.value, x + halignOffset, y + valignOffset + Math.floor(fontMetrics.height / 2), 1);
+                    underline(this.config, gc, val, x + halignOffset, y + valignOffset + Math.floor(fontMetrics.height / 2), 1);
                     gc.stroke();
                     gc.closePath();
                 }
+            }
+
+            if (leftIcon) {
+                iyoffset = Math.round((height - leftIcon.height) / 2);
+                ixoffset = Math.round((halignOffset - leftIcon.width) / 2);
+                gc.drawImage(leftIcon, x + ixoffset, y + iyoffset);
+            }
+            if (rightIcon) {
+                iyoffset = Math.round((height - rightIcon.height) / 2);
+                ixoffset = Math.round((halignOffset - rightIcon.width) / 2);
+                gc.drawImage(rightIcon, x + width - ixoffset - rightIcon.width, y + iyoffset);
             }
         },
 
@@ -25822,6 +25848,7 @@ var commands = {
                 this.cursor = null;
                 this.dragIndex = -1;
 
+                event.primitiveEvent.stopPropagation();
                 //delay here to give other events a chance to be dropped
                 var self = this;
                 setTimeout(function() {
@@ -27008,6 +27035,42 @@ var commands = {
 (function() {
 
     var noop = function() {};
+    var imageCache = {};
+
+    var imgData = [
+        ['1-abs-down', 'iVBORw0KGgoAAAANSUhEUgAAAA4AAAAKCAYAAACE2W/HAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC41ZYUyZQAAAFFJREFUKFNjQAL/oTTD////CWJkgFMjEAgD8Q4gLkMSgwOsGoGgDCQExcRrRFJImo1ICqmnEUSiYJgkMgYCrDYia8TQBFVIJ6cCAXJ0QDGDDQD67OYX9wdp0wAAAABJRU5ErkJggg=='],
+        ['1-abs-up', 'iVBORw0KGgoAAAANSUhEUgAAAA4AAAAKCAYAAACE2W/HAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC41ZYUyZQAAAExJREFUKFPtjYEJACAIBN2hdZqr2dqu3tB8C5qghzPxlAQZJ4iWJ9E8DpACOmh7ZkLLwoWDNPJxSMONSwa5fzSBJy8z/9B6RpfVZaRO2oo/zJVRDvIAAAAASUVORK5CYII='],
+        ['1-down', 'iVBORw0KGgoAAAANSUhEUgAAAA4AAAAKCAYAAACE2W/HAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC41ZYUyZQAAAGtJREFUKFOtjoEJgDAQA6uiC7iOc3U2t3sT6Uu+XxDBwFliEtoisnYWM3vFtQG6mWZQ2sEJqvy7tQC6FUzdqLaMpCH1OB1KcXgjBZ8HDhSHEuCIZeW/IcRvwEMFyjey7HjQA317KsvMIuW4AFTUEgvs+3wkAAAAAElFTkSuQmCC'],
+        ['1-up', 'iVBORw0KGgoAAAANSUhEUgAAAA4AAAAKCAYAAACE2W/HAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAadEVYdFNvZnR3YXJlAFBhaW50Lk5FVCB2My41LjExR/NCNwAAAFBJREFUKFPtjdsNQCEIQ93BdZzL2dwOjw9CuV93AEmOJbYNxcw2DHL2P5wHcdR0mAoDuvxFyXHzBrp4UZQAEoUvTL4oBpLDyiveXVnh5WVKm6iPR8RbHxLhAAAAAElFTkSuQmCC'],
+
+        ['2-abs-down', 'iVBORw0KGgoAAAANSUhEUgAAAA4AAAAKCAYAAACE2W/HAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC41ZYUyZQAAAH5JREFUKFOVkAsNgDAMROcBBxjAAEJwgAMcYGGmsIAGLJS7piE3FjJ2yRvpxus+SWLxTWbWRFOJyAgyuDgNDjD9EWewAzZgvElTVCJshLJfXED3jjwu77pG7UKBCvHTAPgwWeY8Kn5KLN4i81SyyOOdgHfzqMixQBb9FWvSdgNN871AHwblVAAAAABJRU5ErkJggg=='],
+        ['2-abs-up', 'iVBORw0KGgoAAAANSUhEUgAAAA4AAAAKCAYAAACE2W/HAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC41ZYUyZQAAAJVJREFUKFN9kAEVgzAMRPEwBzOAgQnBwRzgYBZqCgtowAL7l6VtILB77zc01yttB7SfQRr+0j8uAugJBTb5sMBoni/QYNSQ91/wAW0g2Sbu9VAlhisubcSUeTCscYdrgt8fg0HJgQrScXXXt82DQckBgR6ghymtF0zKMSBQC2nS+mEBJYV0vBV0N1PzwiJKCtorZob5Cy2RFvXFQAKlAAAAAElFTkSuQmCC'],
+        ['2-down', 'iVBORw0KGgoAAAANSUhEUgAAAA4AAAAKCAYAAACE2W/HAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC41ZYUyZQAAAJtJREFUKFOFkAsNAjEQRAsXMIADDJwBhOAABzjAwpnCAhqwUN4s2zJQCJO8bGa3018x1ayl1vqXpi3IrWVsuIcF7mrDFWYPTiC3gZUFD3ABbSDFJh6UumtBJ6WNsB/BtugbqSM8T7QBZQw0kK6rt57C24AyBgTagT5msV687Y02zAU9JNP7OfwV0vVuoLeF+swWUV6h7MUvjpTzA6fM6SVV2CbgAAAAAElFTkSuQmCC'],
+        ['2-up', 'iVBORw0KGgoAAAANSUhEUgAAAA4AAAAKCAYAAACE2W/HAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAadEVYdFNvZnR3YXJlAFBhaW50Lk5FVCB2My41LjExR/NCNwAAAIxJREFUKFOVkFsRgDAMBOsBBxjAAEJwgAMcYAFTWEADFspe+iDQH8jMcrSX6yvEGA0KSf9fSB+k8DBD6GGDUx7sMGTvDhVccIQVtIDKFjHPNSH3bm9yaSGG/4MT/N5Rx9VdZxs7A2kDgupAD7PVOWciz4CgakiDOu8akCak4x2gu1lVzzUhTdBesSUsF/uHHu110bZRAAAAAElFTkSuQmCC'],
+
+        ['3-abs-down', 'iVBORw0KGgoAAAANSUhEUgAAAA4AAAAKCAYAAACE2W/HAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC41ZYUyZQAAAJVJREFUKFONkQENhDAMRecBB2cAAyhAwTnAAQ6wgAa8nIXTcBbGf6NduiyEe8ljadlfOkiBbGvKOT8a6YLiJXf5oy2/8v1PcJKb5ABYJS+8LnTBqMFBFGOpjKfgIBl7t7pyGxQ+InecPcizMYZ8kzFLGnXUGLwLOTS5a6XuCqFFMib3A2p+Tfmq7GgMQU4+vC8/Vy+lEzGdowwHiWM2AAAAAElFTkSuQmCC'],
+        ['3-abs-up', 'iVBORw0KGgoAAAANSUhEUgAAAA4AAAAKCAYAAACE2W/HAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC41ZYUyZQAAAJtJREFUKFOFkQERwjAMResBBzOAgSmYAhzgAAdYmAa8YAENWID3SgM5soN/95om6e+lW0OPb5DLTz6bDQOaYIW7fbjBoffGAZdOmEZ9hjN4gTqBjZ6/TUE2B0NeZLLPDUI1BGgHjr32PDUI1SAoRvSNS6+lJqGaJGkBC/9H3ZDFOR8gFNMRHNP3KXN/zZQPEYrRr3ixN7i+aq09ARE7/LLO8L26AAAAAElFTkSuQmCC'],
+        ['3-down', 'iVBORw0KGgoAAAANSUhEUgAAAA4AAAAKCAYAAACE2W/HAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC41ZYUyZQAAAKdJREFUKFN1kQERwjAMRQscGMDBDGBgCqYABzjAARamAS9YQAMWyn8hodlt/Xfv0p80uXQrSdXjX7XWLqGTwO3NNQ1iFh9B/S2uufEgcEexI+EaxUMwAN0F98Kb2hjXxmoMwlzMuVRfviMjnQVrz+ZTQWHdAFKsyBsny6WiwroJkiZBwlblsKDTFCI5RrHXdBOsyfsQnl8z5EsKrclzfMUnNef1y5XyBYgdtwl+Lm+LAAAAAElFTkSuQmCC'],
+        ['3-up', 'iVBORw0KGgoAAAANSUhEUgAAAA4AAAAKCAYAAACE2W/HAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAadEVYdFNvZnR3YXJlAFBhaW50Lk5FVCB2My41LjExR/NCNwAAAJpJREFUKFONkQsRwjAQBeMBBzWAgSqoAhzgAAdYqAa8YAENWAi7+cAx6UDfzPaae32ZS5pyzgVEqe97qA9K58tMaYIVnnrwgFPzPqFOCM5wBTdQF9CY4u7vwBZNbuTiGA3KGOigAzj2WtbBoIwBQX1Ez7iUXjApY0iCFrDxf9QN2ZzjB5QhdAbH9HzKtb/m960ib/Gm17jXXkov3zEEuQ7h10oAAAAASUVORK5CYII='],
+
+        ['up-rectangle', 'iVBORw0KGgoAAAANSUhEUgAAAAkAAAAECAYAAABcDxXOAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAOwgAADsIBFShKgAAAABp0RVh0U29mdHdhcmUAUGFpbnQuTkVUIHYzLjUuMTFH80I3AAAAHklEQVQYV2PAAv5DaZwApACGsQJkBVgVYlMAxQwMABOrD/GvP+EWAAAAAElFTkSuQmCC'],
+        ['down-rectangle', 'iVBORw0KGgoAAAANSUhEUgAAAAkAAAAECAYAAABcDxXOAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAadEVYdFNvZnR3YXJlAFBhaW50Lk5FVCB2My41LjExR/NCNwAAABpJREFUGFdjgIL/eDAKIKgABggqgAE0BQwMAPTlD/Fpi0JfAAAAAElFTkSuQmCC'],
+
+        ['up-arrow', 'iVBORw0KGgoAAAANSUhEUgAAAAUAAAAKCAYAAAB8OZQwAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAYdEVYdFNvZnR3YXJlAHBhaW50Lm5ldCA0LjAuNWWFMmUAAAA9SURBVBhXbYvRCgAgCAOtqP//Y9tElw8NDrcDzd0DBCd7iSL3E0IvGOpf2fKXeZUFKDcYFMwBlDNWS76bXUM5P9In5AzyAAAAAElFTkSuQmCC'],
+        ['down-arrow', 'iVBORw0KGgoAAAANSUhEUgAAAAUAAAAKCAYAAAB8OZQwAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAYdEVYdFNvZnR3YXJlAHBhaW50Lm5ldCA0LjAuNWWFMmUAAAA+SURBVBhXhYvRCgAgCAOtqP//4+WWhtBDB1duqBUQ/2W5LLtSMFyW020skuecwOGj6QzfkuExt1LlcqICgG3S7z/SL/jVpgAAAABJRU5ErkJggg==']
+    ];
+
+    (function() {
+        var each, img;
+        for (var i = 0; i < imgData.length; i++) {
+            each = imgData[i];
+            img = new Image();
+            img.src = 'data:image/png;base64,' + each[1];
+            imageCache[each[0]] = img;
+        }
+    })();
+
+
 
     Polymer('fin-hypergrid-behavior-base', { /* jslint ignore:line */
 
@@ -27716,6 +27779,11 @@ var commands = {
             x = this.translateColumnIndex(x);
             var col = this.getFixedRowValue(x, 0);
             return col;
+        },
+
+        getImage: function(key) {
+            var image = imageCache[key];
+            return image;
         }
     });
 
@@ -28775,7 +28843,7 @@ var commands = {
                 }
                 this.setValue(col, row, val);
             } else if (col % 10 === 0) {
-                val = [rand < 0.1 ? false : true, 1.0];
+                val = rand < 0.1 ? false : true;
                 this.setValue(col, row, val);
             } else if (col === 9) {
                 if (val) {
@@ -29235,7 +29303,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         ready: function() {
             this.readyInit();
             this.tableState.sorted = [];
-            this.sortStates = [' ', ' ↑', ' ↓'];
+            this.sortStates = [undefined, this.getImage('up-arrow'), this.getImage('down-arrow')];
         },
 
         isValidIdentifer: function(string) {
@@ -29392,7 +29460,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
             if (y === 0) {
                 var headers = this.getHeaders();
                 var sortIndex = this.tableState.sorted[x] || 0;
-                return headers[x] + this.sortStates[sortIndex];
+                return [undefined, headers[x], this.sortStates[sortIndex]];
             } else {
                 return this.totals[y - 1][x];
             }
@@ -30151,6 +30219,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
     var noop = function() {};
     var logMessages = true;
     var hierarchyColumn = 'g_';
+
     //keys mapping Q datatypes to aligment and renderers are setup here.
     //<br>see [q datatypes](http://code.kx.com/wiki/Reference/Datatypes) for more.
 
@@ -30179,7 +30248,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         if (v) {
             return numeral(v).format('0,0');
         } else if (v === 0) {
-            return '0.00';
+            return '0';
         } else {
             return '';
         }
@@ -30208,7 +30277,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         },
         e: fcommify,
         i: icommify,
-        f: icommify,
+        f: fcommify,
         d: function(v) {
             return v;
         }
@@ -30349,19 +30418,39 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
                     //we know we are 1/2 height x 2 rows
                     //so offset height
                     var val = this.config.value;
+                    var leftIcon, rightIcon, each, textWidth, voffset, iyoffset, ixoffset;
+
                     gc.font = this.config.font;
                     gc.fillStyle = this.config.properties.topLeftColor;
                     gc.textAlign = 'left';
                     gc.textBaseline = 'middle';
 
                     //approxiamte line height is a 'W'
-                    var size = gc.measureText('W');
-                    var textHeight = size.width * 1.8;
-                    var hoffset = Math.ceil(textHeight / 2.0);
+                    var hoffset = height / 2;
 
                     if (val) {
                         for (var i = 0; i < val.length; i++) {
-                            gc.fillText(val[i], 4, hoffset + (i * textHeight));
+                            each = val[i];
+                            if (each.constructor === Array) {
+                                leftIcon = each[0];
+                                rightIcon = each[2];
+                                each = each[1];
+                            }
+                            textWidth = this.config.getTextWidth(gc, each);
+                            voffset = (width - textWidth) / 2;
+                            gc.fillText(each, voffset, hoffset + (i * height));
+
+
+                            if (leftIcon) {
+                                iyoffset = Math.round((height - leftIcon.height) / 2);
+                                ixoffset = Math.round((voffset - leftIcon.width) / 2);
+                                gc.drawImage(leftIcon, ixoffset, iyoffset);
+                            }
+                            if (rightIcon) {
+                                iyoffset = Math.round((height - rightIcon.height) / 2);
+                                ixoffset = Math.round((voffset - rightIcon.width) / 2);
+                                gc.drawImage(rightIcon, width - ixoffset - rightIcon.width, iyoffset);
+                            }
                         }
                     }
                     gc.strokeStyle = this.config.properties.lineColor;
@@ -30370,6 +30459,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
                     gc.moveTo(0, height + 0.5);
                     gc.lineTo(width + 0, height + 0.5);
                     gc.stroke();
+
                 }
             };
             provider.getTopLeftCell = function(config) {
@@ -30401,14 +30491,16 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         },
 
         getTopLeftValue: function( /* x, y */ ) {
-            var sortIndicator = this.getSortIndicator(hierarchyColumn);
+            //var sortIndicator = this.getSortIndicator(hierarchyColumn);
             // var clone = this.block.G.slice(0);
             // if (clone.length === 0) {
             //     return clone;
             // }
-            var hValue = this.block.Z[0].g_[0];
-            var clone = ['▴ Hierarchy', '\u25be ' + hValue];
-            clone[0] = clone[0] + ' ' + sortIndicator;
+            //var hValue = this.block.Z[0].g_[0];
+            var clone = [
+                [this.getImage('up-arrow'), 'Hierarchy', this.getImage('down-arrow')]
+            ];
+            //clone[0] = clone[0] + ' ' + sortIndicator;
             return clone;
         },
 

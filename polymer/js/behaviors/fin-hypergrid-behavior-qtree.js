@@ -11,6 +11,7 @@
     var noop = function() {};
     var logMessages = true;
     var hierarchyColumn = 'g_';
+
     //keys mapping Q datatypes to aligment and renderers are setup here.
     //<br>see [q datatypes](http://code.kx.com/wiki/Reference/Datatypes) for more.
 
@@ -39,7 +40,7 @@
         if (v) {
             return numeral(v).format('0,0');
         } else if (v === 0) {
-            return '0.00';
+            return '0';
         } else {
             return '';
         }
@@ -68,7 +69,7 @@
         },
         e: fcommify,
         i: icommify,
-        f: icommify,
+        f: fcommify,
         d: function(v) {
             return v;
         }
@@ -209,19 +210,39 @@
                     //we know we are 1/2 height x 2 rows
                     //so offset height
                     var val = this.config.value;
+                    var leftIcon, rightIcon, each, textWidth, voffset, iyoffset, ixoffset;
+
                     gc.font = this.config.font;
                     gc.fillStyle = this.config.properties.topLeftColor;
                     gc.textAlign = 'left';
                     gc.textBaseline = 'middle';
 
                     //approxiamte line height is a 'W'
-                    var size = gc.measureText('W');
-                    var textHeight = size.width * 1.8;
-                    var hoffset = Math.ceil(textHeight / 2.0);
+                    var hoffset = height / 2;
 
                     if (val) {
                         for (var i = 0; i < val.length; i++) {
-                            gc.fillText(val[i], 4, hoffset + (i * textHeight));
+                            each = val[i];
+                            if (each.constructor === Array) {
+                                leftIcon = each[0];
+                                rightIcon = each[2];
+                                each = each[1];
+                            }
+                            textWidth = this.config.getTextWidth(gc, each);
+                            voffset = (width - textWidth) / 2;
+                            gc.fillText(each, voffset, hoffset + (i * height));
+
+
+                            if (leftIcon) {
+                                iyoffset = Math.round((height - leftIcon.height) / 2);
+                                ixoffset = Math.round((voffset - leftIcon.width) / 2);
+                                gc.drawImage(leftIcon, ixoffset, iyoffset);
+                            }
+                            if (rightIcon) {
+                                iyoffset = Math.round((height - rightIcon.height) / 2);
+                                ixoffset = Math.round((voffset - rightIcon.width) / 2);
+                                gc.drawImage(rightIcon, width - ixoffset - rightIcon.width, iyoffset);
+                            }
                         }
                     }
                     gc.strokeStyle = this.config.properties.lineColor;
@@ -230,6 +251,7 @@
                     gc.moveTo(0, height + 0.5);
                     gc.lineTo(width + 0, height + 0.5);
                     gc.stroke();
+
                 }
             };
             provider.getTopLeftCell = function(config) {
@@ -261,14 +283,16 @@
         },
 
         getTopLeftValue: function( /* x, y */ ) {
-            var sortIndicator = this.getSortIndicator(hierarchyColumn);
+            //var sortIndicator = this.getSortIndicator(hierarchyColumn);
             // var clone = this.block.G.slice(0);
             // if (clone.length === 0) {
             //     return clone;
             // }
-            var hValue = this.block.Z[0].g_[0];
-            var clone = ['▴ Hierarchy', '\u25be ' + hValue];
-            clone[0] = clone[0] + ' ' + sortIndicator;
+            //var hValue = this.block.Z[0].g_[0];
+            var clone = [
+                [this.getImage('up-arrow'), 'Hierarchy', this.getImage('down-arrow')]
+            ];
+            //clone[0] = clone[0] + ' ' + sortIndicator;
             return clone;
         },
 

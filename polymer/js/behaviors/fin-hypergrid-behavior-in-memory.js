@@ -187,7 +187,7 @@
                 }
                 this.setValue(col, row, val);
             } else if (col % 10 === 0) {
-                val = [rand < 0.1 ? false : true, 1.0];
+                val = rand < 0.1 ? false : true;
                 this.setValue(col, row, val);
             } else if (col === 9) {
                 if (val) {

@@ -113,6 +113,7 @@
                 this.cursor = null;
                 this.dragIndex = -1;
 
+                event.primitiveEvent.stopPropagation();
                 //delay here to give other events a chance to be dropped
                 var self = this;
                 setTimeout(function() {

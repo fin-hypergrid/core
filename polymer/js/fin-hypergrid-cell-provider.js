@@ -103,11 +103,20 @@ var noop = function() {};
                 halign = this.config.halign,
                 isColumnHovered = this.config.isColumnHovered,
                 isRowHovered = this.config.isRowHovered,
-                textWidth;
+                val = this.config.value;
+
+            var leftIcon, rightIcon, ixoffset, iyoffset;
 
             //setting gc properties are expensive, lets not do it unnecessarily
 
+            if (val && val.constructor === Array) {
+                leftIcon = val[0];
+                rightIcon = val[2];
+                val = val[1];
+            }
+
             var fontMetrics = this.config.getTextHeight(this.config.font);
+            var textWidth = this.config.getTextWidth(gc, val);
 
             if (gc.font !== this.config.font) {
                 gc.font = this.config.font;
@@ -118,8 +127,6 @@ var noop = function() {};
             if (gc.textBaseline !== 'middle') {
                 gc.textBaseline = 'middle';
             }
-
-            textWidth = this.config.getTextWidth(gc, this.config.value);
 
             //we must set this in order to compute the minimum width
             //for column autosizing purposes
@@ -150,16 +157,27 @@ var noop = function() {};
                 gc.fillStyle = theColor;
                 gc.strokeStyle = theColor;
             }
-            gc.fillText(this.config.value, x + halignOffset, y + valignOffset);
+            gc.fillText(val, x + halignOffset, y + valignOffset);
 
             if (isColumnHovered && isRowHovered) {
                 gc.beginPath();
                 if (isLink) {
                     gc.beginPath();
-                    underline(this.config, gc, this.config.value, x + halignOffset, y + valignOffset + Math.floor(fontMetrics.height / 2), 1);
+                    underline(this.config, gc, val, x + halignOffset, y + valignOffset + Math.floor(fontMetrics.height / 2), 1);
                     gc.stroke();
                     gc.closePath();
                 }
+            }
+
+            if (leftIcon) {
+                iyoffset = Math.round((height - leftIcon.height) / 2);
+                ixoffset = Math.round((halignOffset - leftIcon.width) / 2);
+                gc.drawImage(leftIcon, x + ixoffset, y + iyoffset);
+            }
+            if (rightIcon) {
+                iyoffset = Math.round((height - rightIcon.height) / 2);
+                ixoffset = Math.round((halignOffset - rightIcon.width) / 2);
+                gc.drawImage(rightIcon, x + width - ixoffset - rightIcon.width, y + iyoffset);
             }
         },
 
