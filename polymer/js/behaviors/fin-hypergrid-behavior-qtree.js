@@ -416,12 +416,6 @@
             return true;
         },
 
-        //hierarchy area clicked on lets sort there
-        topLeftClicked: function(grid, mouse) {
-            noop(grid, mouse);
-            this._toggleSort(hierarchyColumn);
-        },
-
         //first ask q if this is a sortable instance, then send a message to Q to sort our data set
         toggleSort: function(columnIndex) {
             var colId = this.getColumnId(columnIndex);
@@ -497,6 +491,22 @@
             return 'left';
         },
 
+        //hierarchy area clicked on lets sort there
+        topLeftClicked: function(grid, mouse) {
+            var colId = hierarchyColumn;
+            var colWidth = this.getFixedColumnWidth(0);
+            var mousePoint = mouse.mousePoint.x;
+            if (mousePoint < (colWidth / 2)) {
+                var colClick = {
+                    id: this.getNextMessageId(),
+                    fn: 'col',
+                    col: colId
+                };
+                this.sendMessage(colClick);
+            } else {
+                this._toggleSort(colId);
+            }
+        },
         fixedColumnClicked: function(grid, mouse) {
             var rowNum = mouse.gridCell.y - this.scrollPositionY;
             var rows = this.block.Z[1].n_[rowNum];
