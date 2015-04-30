@@ -196,7 +196,7 @@ cellProvider.getCell = function(config) {
 
 # Column autosizing
 
-You can autosize a column to best fit size by double clicking on the column header.
+You can autosize a column to best fit size by double clicking on the column header, or automagically always set all columns by setting the property columnAutosizing to true.
 
 <img src="images/gridshot09.png">
 
