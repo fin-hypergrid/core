@@ -115,9 +115,6 @@ var noop = function() {};
                 val = val[1];
             }
 
-            var fontMetrics = this.config.getTextHeight(this.config.font);
-            var textWidth = this.config.getTextWidth(gc, val);
-
             if (gc.font !== this.config.font) {
                 gc.font = this.config.font;
             }
@@ -127,6 +124,10 @@ var noop = function() {};
             if (gc.textBaseline !== 'middle') {
                 gc.textBaseline = 'middle';
             }
+
+            var fontMetrics = this.config.getTextHeight(this.config.font);
+            var textWidth = this.config.getTextWidth(gc, val);
+
 
             //we must set this in order to compute the minimum width
             //for column autosizing purposes

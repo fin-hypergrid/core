@@ -206,55 +206,6 @@
                 config.value = config.value || '';
                 return label;
             };
-            var topLeftPainter = {
-                paint: function(gc, x, y, width, height) {
-                    //we know we are 1/2 height x 2 rows
-                    //so offset height
-                    var val = this.config.value;
-                    var leftIcon, rightIcon, each, textWidth, voffset, iyoffset, ixoffset;
-
-                    gc.font = this.config.font;
-                    gc.fillStyle = this.config.properties.topLeftColor;
-                    gc.textAlign = 'left';
-                    gc.textBaseline = 'middle';
-
-                    //approxiamte line height is a 'W'
-                    var hoffset = height / 2;
-
-                    if (val) {
-                        for (var i = 0; i < val.length; i++) {
-                            each = val[i];
-                            if (each.constructor === Array) {
-                                leftIcon = each[0];
-                                rightIcon = each[2];
-                                each = each[1];
-                            }
-                            textWidth = this.config.getTextWidth(gc, each);
-                            voffset = (width - textWidth) / 2;
-                            gc.fillText(each, voffset, hoffset + (i * height));
-
-
-                            if (leftIcon) {
-                                iyoffset = Math.round((height - leftIcon.height) / 2);
-                                ixoffset = Math.round((voffset - leftIcon.width) / 2);
-                                gc.drawImage(leftIcon, ixoffset, iyoffset);
-                            }
-                            if (rightIcon) {
-                                iyoffset = Math.round((height - rightIcon.height) / 2);
-                                ixoffset = Math.round((voffset - rightIcon.width) / 2);
-                                gc.drawImage(rightIcon, width - ixoffset - rightIcon.width, iyoffset);
-                            }
-                        }
-                    }
-                    gc.strokeStyle = this.config.properties.lineColor;
-                    // gc.moveTo(0, height - 0.5);
-                    // gc.lineTo(width + 0, height - 0.5);
-                    gc.moveTo(0, height + 0.5);
-                    gc.lineTo(width + 0, height + 0.5);
-                    gc.stroke();
-
-                }
-            };
 
             provider.getTopLeftCell = function(config) {
                 var empty = provider.cellCache.emptyCellRenderer;
@@ -267,15 +218,6 @@
                 }
             };
 
-            provider.getTopLeftCellX = function(config) {
-                var label = provider.cellCache.emptyCellRenderer;
-                label.config = config;
-                if (config.y === 0) {
-                    topLeftPainter.config = config;
-                    return topLeftPainter;
-                }
-                return label;
-            };
             return provider;
         },
 
