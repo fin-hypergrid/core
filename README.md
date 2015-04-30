@@ -304,6 +304,7 @@ repaintIntervalRate|15|how often the canvas checks the repaint flag, set 0 to ne
 repaintImmediately|false|cause painting to happen immediately within the same micro task, if true repaintIntervalRate should be set to 0
 useBitBlit|false/true|enable or disable double buffering
 useHiDPI|true/false|make use of hi dpi displays (defaults to true)
+columnAutosizing|true/false|enable column autosizing
 ## example usage
 ```
     var lnfOverrides = {
@@ -342,7 +343,8 @@ useHiDPI|true/false|make use of hi dpi displays (defaults to true)
         defaultRowHeight: 20,
         defaultFixedRowHeight: 20,
         defaultColumnWidth: 100,
-        defaultFixedColumnWidth: 100
+        defaultFixedColumnWidth: 100,
+        columnAutosizing: true
     };
 
     var table = document.querySelector('#myHypergrid');

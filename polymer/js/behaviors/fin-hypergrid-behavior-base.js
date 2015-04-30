@@ -50,6 +50,8 @@
         featureChain: null,
         fixedColumnCount: 0,
         fixedRowCount: 1,
+        columnAutosized: [],
+        fixedColumnAutosized: [],
 
         clearObjectProperties: function(obj) {
             for (var prop in obj) {
@@ -84,6 +86,8 @@
             this.dataUpdates = {}; //for overriding with edit values;
             //this.initColumnIndexes();
             this.fixedColumnCount = 0;
+            this.columnAutosized = [];
+            this.fixedColumnAutosized = [];
         },
 
         resolveProperty: function(key) {
@@ -522,6 +526,7 @@
         },
 
         changed: function() {},
+        shapeChanged: function() {},
 
         //this is done through the dnd tool for now...
         isColumnReorderable: function() {
@@ -757,7 +762,41 @@
         getImage: function(key) {
             var image = imageCache[key];
             return image;
+        },
+        checkColumnAutosizing: function(fixedWidths, widths) {
+            var self = this;
+            var myFixed = this.tableState.fixedColumnWidths;
+            var myWidths = this.tableState.columnWidths;
+            var repaint = false;
+            var a, b, c, d = 0;
+            for (c = 0; c < fixedWidths.length; c++) {
+                a = myFixed[c];
+                b = fixedWidths[c];
+                d = this.fixedColumnAutosized[c];
+                if (a !== b || !d) {
+                    myFixed[c] = !d ? b : Math.max(a, b);
+                    this.fixedColumnAutosized[c] = true;
+                    repaint = true;
+                }
+            }
+            for (c = 0; c < widths.length; c++) {
+                var ti = this.translateColumnIndex(c);
+                a = myWidths[ti];
+                b = widths[c];
+                d = this.columnAutosized[c];
+                if (a !== b || !d) {
+                    myWidths[ti] = !d ? b : Math.max(a, b);
+                    this.columnAutosized[c] = true;
+                    repaint = true;
+                }
+            }
+            if (repaint) {
+                setTimeout(function() {
+                    self.shapeChanged();
+                }, 40);
+            }
         }
+
     });
 
 })();

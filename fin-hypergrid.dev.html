@@ -23650,6 +23650,7 @@ var noop = function() {};
             ctx.arc(x + Math.max(offset - radius, radius), y + radius, radius, 0, 2 * Math.PI);
             ctx.fill();
             ctx.closePath();
+            this.config.minWidth = 100;
         },
 
         //simple implementation of a sparkline.  see [Edward Tufte sparkline](http://www.edwardtufte.com/bboard/q-and-a-fetch-msg?msg_id=0001OR)
@@ -23673,6 +23674,7 @@ var noop = function() {};
                 x = x + eWidth;
             }
             ctx.closePath();
+            this.config.minWidth = count * 10;
 
         },
 
@@ -23704,6 +23706,7 @@ var noop = function() {};
                 ctx.arc(x + 5, y + height - barheight, 1, 0, 2 * Math.PI, false);
                 x = x + eWidth;
             }
+            this.config.minWidth = count * 10;
             ctx.stroke();
             ctx.closePath();
         },
@@ -23728,6 +23731,9 @@ var noop = function() {};
             gc.fillStyle = this.config.isSelected ? this.config.fgSelColor : this.config.fgColor;
             gc.fillText(icon + val, x + indent, y + valignOffset);
 
+            var textWidth = this.config.getTextWidth(gc, icon + val);
+            var minWidth = x + indent + textWidth + 10;
+            this.config.minWidth = minWidth;
         },
 
         //do nothing
@@ -27101,6 +27107,8 @@ var commands = {
         featureChain: null,
         fixedColumnCount: 0,
         fixedRowCount: 1,
+        columnAutosized: [],
+        fixedColumnAutosized: [],
 
         clearObjectProperties: function(obj) {
             for (var prop in obj) {
@@ -27135,6 +27143,8 @@ var commands = {
             this.dataUpdates = {}; //for overriding with edit values;
             //this.initColumnIndexes();
             this.fixedColumnCount = 0;
+            this.columnAutosized = [];
+            this.fixedColumnAutosized = [];
         },
 
         resolveProperty: function(key) {
@@ -27573,6 +27583,7 @@ var commands = {
         },
 
         changed: function() {},
+        shapeChanged: function() {},
 
         //this is done through the dnd tool for now...
         isColumnReorderable: function() {
@@ -27808,7 +27819,41 @@ var commands = {
         getImage: function(key) {
             var image = imageCache[key];
             return image;
+        },
+        checkColumnAutosizing: function(fixedWidths, widths) {
+            var self = this;
+            var myFixed = this.tableState.fixedColumnWidths;
+            var myWidths = this.tableState.columnWidths;
+            var repaint = false;
+            var a, b, c, d = 0;
+            for (c = 0; c < fixedWidths.length; c++) {
+                a = myFixed[c];
+                b = fixedWidths[c];
+                d = this.fixedColumnAutosized[c];
+                if (a !== b || !d) {
+                    myFixed[c] = !d ? b : Math.max(a, b);
+                    this.fixedColumnAutosized[c] = true;
+                    repaint = true;
+                }
+            }
+            for (c = 0; c < widths.length; c++) {
+                var ti = this.translateColumnIndex(c);
+                a = myWidths[ti];
+                b = widths[c];
+                d = this.columnAutosized[c];
+                if (a !== b || !d) {
+                    myWidths[ti] = !d ? b : Math.max(a, b);
+                    this.columnAutosized[c] = true;
+                    repaint = true;
+                }
+            }
+            if (repaint) {
+                setTimeout(function() {
+                    self.shapeChanged();
+                }, 40);
+            }
         }
+
     });
 
 })();
@@ -30866,8 +30911,21 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
             if (!this.tableState.columnIndexes || this.tableState.columnIndexes.length === 0) {
                 this.initColumnIndexes();
             }
+            //let's autosize the hierarchy column
             this.changed();
+            this.autosizeHierarchyColumn();
         },
+
+        autosizeHierarchyColumn: function() {
+            if (this.grid.resolveProperty('columnAutosizing') === false) {
+                return;
+            }
+            var self = this;
+            setTimeout(function() {
+                self.grid.autosizeColumn(-1);
+            }, 40);
+        },
+
         //websocket connection to Q.  try and do a reconnect after 2 seconds if we fail
         connect: function() {
             var d = {};
@@ -33224,7 +33282,8 @@ fin-vampire-bar {
             useBitBlit: false,
 
             useHiDPI: true,
-            editorActivationKeys: ['alt', 'esc']
+            editorActivationKeys: ['alt', 'esc'],
+            columnAutosizing: true
 
         };
         return properties;
@@ -33785,7 +33844,18 @@ fin-vampire-bar {
             if (this.cellEdtr) {
                 this.cellEdtr.gridRenderedNotification();
             }
+            this.checkColumnAutosizing();
             this.fireSyntheticGridRenderedEvent();
+        },
+
+        checkColumnAutosizing: function() {
+            if (this.resolveProperty('columnAutosizing') === false) {
+                return;
+            }
+            var renderer = this.getRenderer();
+            var fixedColSizes = renderer.renderedFixedColumnMinWidths;
+            var colSizes = renderer.renderedColumnMinWidths;
+            this.getBehavior().checkColumnAutosizing(fixedColSizes, colSizes);
         },
 
         /**
@@ -33998,6 +34068,7 @@ fin-vampire-bar {
             this.behavior.setGrid(this);
 
             this.behavior.changed = this.behaviorChanged.bind(this);
+            this.behavior.shapeChanged = this.behaviorShapeChanged.bind(this);
         },
 
         /**

@@ -208,6 +208,7 @@ var noop = function() {};
             ctx.arc(x + Math.max(offset - radius, radius), y + radius, radius, 0, 2 * Math.PI);
             ctx.fill();
             ctx.closePath();
+            this.config.minWidth = 100;
         },
 
         //simple implementation of a sparkline.  see [Edward Tufte sparkline](http://www.edwardtufte.com/bboard/q-and-a-fetch-msg?msg_id=0001OR)
@@ -231,6 +232,7 @@ var noop = function() {};
                 x = x + eWidth;
             }
             ctx.closePath();
+            this.config.minWidth = count * 10;
 
         },
 
@@ -262,6 +264,7 @@ var noop = function() {};
                 ctx.arc(x + 5, y + height - barheight, 1, 0, 2 * Math.PI, false);
                 x = x + eWidth;
             }
+            this.config.minWidth = count * 10;
             ctx.stroke();
             ctx.closePath();
         },
@@ -286,6 +289,9 @@ var noop = function() {};
             gc.fillStyle = this.config.isSelected ? this.config.fgSelColor : this.config.fgColor;
             gc.fillText(icon + val, x + indent, y + valignOffset);
 
+            var textWidth = this.config.getTextWidth(gc, icon + val);
+            var minWidth = x + indent + textWidth + 10;
+            this.config.minWidth = minWidth;
         },
 
         //do nothing

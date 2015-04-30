@@ -78,7 +78,8 @@
             useBitBlit: false,
 
             useHiDPI: true,
-            editorActivationKeys: ['alt', 'esc']
+            editorActivationKeys: ['alt', 'esc'],
+            columnAutosizing: true
 
         };
         return properties;
@@ -639,7 +640,18 @@
             if (this.cellEdtr) {
                 this.cellEdtr.gridRenderedNotification();
             }
+            this.checkColumnAutosizing();
             this.fireSyntheticGridRenderedEvent();
+        },
+
+        checkColumnAutosizing: function() {
+            if (this.resolveProperty('columnAutosizing') === false) {
+                return;
+            }
+            var renderer = this.getRenderer();
+            var fixedColSizes = renderer.renderedFixedColumnMinWidths;
+            var colSizes = renderer.renderedColumnMinWidths;
+            this.getBehavior().checkColumnAutosizing(fixedColSizes, colSizes);
         },
 
         /**
@@ -852,6 +864,7 @@
             this.behavior.setGrid(this);
 
             this.behavior.changed = this.behaviorChanged.bind(this);
+            this.behavior.shapeChanged = this.behaviorShapeChanged.bind(this);
         },
 
         /**

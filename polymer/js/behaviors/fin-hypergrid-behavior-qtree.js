@@ -634,8 +634,21 @@
             if (!this.tableState.columnIndexes || this.tableState.columnIndexes.length === 0) {
                 this.initColumnIndexes();
             }
+            //let's autosize the hierarchy column
             this.changed();
+            this.autosizeHierarchyColumn();
         },
+
+        autosizeHierarchyColumn: function() {
+            if (this.grid.resolveProperty('columnAutosizing') === false) {
+                return;
+            }
+            var self = this;
+            setTimeout(function() {
+                self.grid.autosizeColumn(-1);
+            }, 40);
+        },
+
         //websocket connection to Q.  try and do a reconnect after 2 seconds if we fail
         connect: function() {
             var d = {};
