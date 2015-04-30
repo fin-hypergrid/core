@@ -173,11 +173,13 @@ var noop = function() {};
                 iyoffset = Math.round((height - leftIcon.height) / 2);
                 ixoffset = Math.round((halignOffset - leftIcon.width) / 2);
                 gc.drawImage(leftIcon, x + ixoffset, y + iyoffset);
+                this.config.minWidth = this.config.minWidth + leftIcon.width + 6;
             }
             if (rightIcon) {
                 iyoffset = Math.round((height - rightIcon.height) / 2);
                 ixoffset = Math.round((halignOffset - rightIcon.width) / 2);
                 gc.drawImage(rightIcon, x + width - ixoffset - rightIcon.width, y + iyoffset);
+                this.config.minWidth = this.config.minWidth + rightIcon.width + 6;
             }
         },
 

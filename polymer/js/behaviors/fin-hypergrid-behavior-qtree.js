@@ -124,11 +124,12 @@
     //* ⤒ sort absolute value ascending
     //* ⤓ sort absolute value descending;
     // \u25be
+
     var sortMap = {
-        a: '↑', //'\u2191',
-        d: '↓', //'\u2193',
-        A: '⤒', //'\u2912',
-        D: '⤓', //'\u2913'
+        a: '-up',
+        d: '-down',
+        A: '-abs-up',
+        D: '-abs-down',
     };
 
     var sortStates = {
@@ -254,7 +255,19 @@
 
                 }
             };
+
             provider.getTopLeftCell = function(config) {
+                var empty = provider.cellCache.emptyCellRenderer;
+                var label = provider.cellCache.simpleCellRenderer;
+                label.config = config;
+                if (config.y === 0) {
+                    return label;
+                } else {
+                    return empty;
+                }
+            };
+
+            provider.getTopLeftCellX = function(config) {
                 var label = provider.cellCache.emptyCellRenderer;
                 label.config = config;
                 if (config.y === 0) {
@@ -289,9 +302,7 @@
             //     return clone;
             // }
             //var hValue = this.block.Z[0].g_[0];
-            var clone = [
-                [this.getImage('up-arrow'), 'Hierarchy', this.getImage('down-arrow')]
-            ];
+            var clone = [this.getImage('up-rectangle'), 'Hierarchy', this.getSortIndicator(hierarchyColumn)];
             //clone[0] = clone[0] + ' ' + sortIndicator;
             return clone;
         },
@@ -361,7 +372,7 @@
             if (y < 1) {
                 var sortIndicator = this.getSortIndicator(colId);
                 var clickIndicator = this.getClickIndicator(colId);
-                return clickIndicator + ' ' + colId + ' ' + sortIndicator;
+                return [clickIndicator, colId, sortIndicator];
             }
             var total = this.block.Z[0][colId];
             return total;
@@ -369,17 +380,17 @@
 
         getClickIndicator: function(colId) {
             noop(colId);
-            return '▾ ';
+            return this.getImage('down-rectangle');
         },
 
         getSortIndicator: function(colId) {
             var sortIndex = this.block.S.cols.indexOf(colId);
             if (sortIndex < 0) {
-                return ' ▪ ';
+                return this.getImage('sortable');
             }
             var sortState = this.block.S.sorts[sortIndex];
-            var symbol = sortMap[sortState];
-            var state = symbol + ' ' + (sortIndex + 1);
+            var symbol = (sortIndex + 1) + sortMap[sortState];
+            var state = this.getImage(symbol);
             return state;
         },
 

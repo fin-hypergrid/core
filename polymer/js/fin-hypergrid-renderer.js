@@ -22,6 +22,9 @@ var textWidthCache = new SimpleLRU(10000);
 
 var config = {
     getTextWidth: function(gc, string) {
+        if (!string) {
+            return 0;
+        }
         if (string.length === 0) {
             return 0;
         }
