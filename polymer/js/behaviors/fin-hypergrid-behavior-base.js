@@ -550,11 +550,15 @@
                 if (id >= this.fixedColumnCount) {
                     labels.push({
                         id: id,
-                        label: this.getFixedRowValue(id, 0)
+                        label: this.getHeader(id)
                     });
                 }
             }
             return labels;
+        },
+
+        getHeader: function(colIndex) {
+            return this.getFixedRowValue(colIndex, 0);
         },
 
         setDNDColumnLabels: function(list) {
