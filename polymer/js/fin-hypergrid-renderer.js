@@ -22,9 +22,10 @@ var textWidthCache = new SimpleLRU(10000);
 
 var config = {
     getTextWidth: function(gc, string) {
-        if (!string) {
+        if (string === null || string === undefined) {
             return 0;
         }
+        string = string + '';
         if (string.length === 0) {
             return 0;
         }
@@ -113,6 +114,7 @@ var config = {
             this.readyInit();
             this.renderedColumnWidths = [0];
             this.renderedColumnMinWidths = [];
+            this.renderedFixedColumnMinWidths = [];
             this.renderedHeight = 0;
             this.renderedRowHeights = [0];
             this.renderedColumns = [];
@@ -508,7 +510,9 @@ var config = {
 
             var cellProvider = this.getGrid().getCellProvider();
             var viewWidth = this.getBounds().width() - 200; // look in fin-hypergrid and initializtion of fin-canvas
-            var viewHeight = this.getBehavior().getFixedRowsHeight();
+            var viewHeight = behavior.getFixedRowsHeight();
+            var fixedColumnCount = behavior.getFixedColumnCount();
+
             for (var c = 0; c < numColumns; c++) {
                 var width = this.getColumnWidth(c + scrollLeft);
                 if (x > viewWidth || numColumns <= scrollLeft + c) {
@@ -522,6 +526,10 @@ var config = {
 
                 //reset this for this pass..
                 this.renderedColumnMinWidths[c + scrollLeft] = 0;
+
+                if (c < fixedColumnCount) {
+                    this.renderedFixedColumnMinWidths[c] = 0;
+                }
 
                 for (var r = 0; r < numRows; r++) {
 
@@ -537,6 +545,9 @@ var config = {
 
                     //lets capture the col preferred widths for col autosizing
                     this.renderedColumnMinWidths[c + scrollLeft] = Math.max(cell.config.minWidth || 0, this.renderedColumnMinWidths[c + scrollLeft]);
+                    if (c < fixedColumnCount) {
+                        this.renderedFixedColumnMinWidths[c] = Math.max(cell.config.minWidth || 0, this.renderedFixedColumnMinWidths[c]);
+                    }
 
                     if (behavior.highlightCellOnHover(isColumnHovered, isRowHovered)) {
                         ctx.beginPath();
@@ -593,6 +604,8 @@ var config = {
                     var isRowHovered = this.isRowHovered(r);
                     var cell = cellProvider.getFixedColumnCell(this.cellConfig(c, r + scrollTop, value, fgColor, bgColor, fgSelColor, bgSelColor, font, isSelected, isColumnHovered, isRowHovered, align, hoffset, voffset));
                     cell.paint(ctx, x, y, width, height);
+
+                    this.renderedFixedColumnMinWidths[c] = Math.max(cell.config.minWidth || 0, this.renderedFixedColumnMinWidths[c]);
 
                     if (behavior.highlightCellOnHover(isColumnHovered, isRowHovered)) {
                         ctx.beginPath();

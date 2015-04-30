@@ -2290,9 +2290,16 @@
             this.canvas.dispatchEvent(clickEvent);
         },
         autosizeColumn: function(column) {
-            var width = this.getRenderer().renderedColumnMinWidths[column];
-            console.log(column + ' - ' + width);
-            this.setColumnWidth(column, width);
+            var width;
+            if (column < 0) {
+                var numFixedCols = this.getFixedColumnCount();
+                column = column + numFixedCols;
+                width = this.getRenderer().renderedFixedColumnMinWidths[column];
+                this.setFixedColumnWidth(column, width);
+            } else {
+                width = this.getRenderer().renderedColumnMinWidths[column];
+                this.setColumnWidth(column, width);
+            }
         }
     });
 
