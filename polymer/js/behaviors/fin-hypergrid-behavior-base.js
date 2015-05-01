@@ -794,7 +794,7 @@
             if (repaint) {
                 setTimeout(function() {
                     self.shapeChanged();
-                }, 40);
+                });
             }
         }
 
