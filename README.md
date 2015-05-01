@@ -8,10 +8,10 @@ See the [polymer component page](http://openfin.github.io/fin-hypergrid/componen
 Watch the [Pivotal Labs presentation](http://www.livestream.com/pivotallabs/video?clipId=pla_01ae6683-c5ee-4567-9278-91524d09550a&utm_source=lslibrary&utm_medium=ui-thumb) recorded on Jan 13th 2015.
 
 
-## Getting Started
+# Getting Started
 Use the [Hypergrid Openfin Installer](https://dl.openfin.co/services/download?fileName=hypergrid-demo-installer&config=http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/demo.json) to install an openfin startup link and see the demo running on your desktop.   You can also see a few demos..
 
-* [behaviors](http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/demo.html) - the main demo using some paper-elements, showing off all the current behaviors
+* [main demo](http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/demo.html) - the main demo using some paper-elements, showing off all the current behaviors
 * [json standalone](http://openfin.github.io/example-fin-hypergrid-behavior-json/) - a side project demonstrating a fin-hypergrid use case of a standalone json behaviour
 * [simple standalone](http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/examples/standalone.html) - the simplest example of just a standalone fin-hypergrid with default behavior
 * [styled standalone](http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/examples/tt.html) - a slightly more sophisticated styled example of a standalone fin-hypergrid with a json behavior
@@ -23,23 +23,23 @@ The Hypergrid control is a [Google polymer](https://www.polymer-project.org/) [w
 
 <img src="images/gridshot02.png" alt="screenshot">
 
-## Recent 
+# Recent 
 * [HiDPI](http://www.html5rocks.com/en/tutorials/canvas/hidpi/) mode is now enabled by default and is no longer an attribute but a json startup config property.  The performance issue witnessed in chrome browsers seems to have been fixed.
  
-## Pluggable Grid Behaviors
+# Pluggable Grid Behaviors
 The design makes no assumptions about the data you wish to view which
 allows for external data sources as well as external manipulation and
 analytics.  Manipulations such as sorting, aggregation, and grouping 
 can be achieved using external best of breed high-performant real time tools 
 designed for such purposes.  Several grid behavior examples are provided including a [Kx](http://www.kx.com/) Q Kdb+ example.
 
-##The Super Easy Setup
+# The Super Easy Setup
 If you just want to see Hypergrid working you can run the [Hypergrid Openfin Installer](https://dl.openfin.co/services/download?fileName=hypergrid-demo-installer&config=http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/demo.json) or just go to the [demo](http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/demo.html).
 
-## Local Setup
+# Local Setup
 The following instructions and project structure is based on the google polymer team best practices for developement of polymer/web-components applications and elements.  It is further documented [here](https://www.polymer-project.org/docs/start/reusableelements.html).
 
-## Deploy your app with fin-hypergrid
+# Deploy your app with fin-hypergrid
 The only file that is necessary to deploy the hypergrid is the webcomponent html file, fin-hypergrid.min.html which is a [vulcanized](https://www.polymer-project.org/articles/concatenating-web-components.html) conglomeration of all code and dependencies required by fin-hypergrid.  This file must be imported according to the webcomponents specification.  If you are targeting non webcomponent compliant browsers you will also need the webcomponents.js polyfill found within the polymer project.  An example of this is found [here](https://github.com/openfin/example-fin-hypergrid-behavior-json).  The webcomponents.js file is not necessary if your target platform is a webcomponents compatible browser.  As chrome is currently the only one, we suggest you include this polyfil.  
 
 1. This setup has been tested and works, if you have problems you most likely have security restrictions or proxy issues.  You may need to use sudo for npm and bower installs. Make sure you have internet access, node/npm, grunt-cli, and bower installed and working properly on your machine.
@@ -53,22 +53,197 @@ The only file that is necessary to deploy the hypergrid is the webcomponent html
 6. Install the bower dependencies ```bower install```
 7. Start the grunt process ```grunt serve```, after which your browser should automatically open
 
-## Important notes
+# Important notes about Polymer Development
 1. Notice that bower installs many dependencies a level up from the fin-hypegrid project directory, this is the polymer way of developing custom elements.  The actual project directory IS fin-hypergrid, everything is done relative to this, it just needs to live in it's own containing developement directory.
 
-<a name="q-behavior"></a>
-##KDB+/Q by [kx](http://kx.com/) systems [demo](http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/demo.html?tab=4) tabs (select either the 'Q' or 'Q Tree' tabs).
 
-This Hypertree + Hypergrid example allows you to define a on the fly custom drill down hierarchy while supporting grouping, aggregations, and sorting in realtime.  The current example demonstrates 20MM updates/second.  The default aggregations available are sum, min, max, first, last, average, weighted average, mean, and standard deviation.  Press options/alt to drag and drop define the visible columns and the drill down hierarchy.
+# JSON behavior
 
-1. The Q tabs will not be populated with data until you run a Q server script that is provided.
-2. Make sure q 32 bit free version is installed [Q free version](http://kx.com/software-download.php)
-3. Startup either ```q bigtable.q```, ```q sorttable.q```, or install and run the extremely powerfull [Hypertree server found in Stevan Apters github area](https://github.com/stevanapter/hypertree).
-4. Make sure grunt serve is running or your browser is pointed to the proper [demo](http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/demo.html?tab=4) tab.
-5. If you are running locally, the grunt serve process should automatically refresh your web browser with the q driven grid now populated with data
+By far the most common behavior to use will be the JSON behavior.  If you're not sure which one to start with, select this one.
 
-<img src="images/gridshot04.png" alt="screenshot">
-## Fixed Columns
+# Populating a JSON behavior with data
+
+To populate the json behavior with data simply provide hypergrid with an array of same shaped objects.   
+```
+    var myJSONBehavior = document.querySelector('#myHypergrid').getBehavior();
+    myJSONBehavior.setData([
+        {   
+            first_name:'moe',
+            last_name: 'stooge',
+            birth_date: '1920-01-01'
+        },
+        {   
+            first_name:'larry',
+            last_name: 'stooge',
+            birth_date: '1922-05-05'
+        },
+        {   
+            first_name:'curly',
+            last_name: 'stooge',
+            birth_date: '1924-03-07'
+        },
+    ]);
+```
+# Specifying fields and headers for a JSON behavior
+
+There are several ways to specify fields and headers with hypergrid.
+
+* Let hypergrid default them.  Hypergrid will inspect the first object in the data array and use all fields it finds.  It will create header labels by uppercasing and placing spaces between the words delimitted by camelcase, dashes, or underscores.
+    * moeLarryCurly -> Moe, Larry, Curly
+    * moe-larry-curly -> Moe, Larry, Curly
+    * moe_larry_curly -> Moe, Larry, Curly
+* Specify fields and headers using setFields and setHeaders
+```
+    myJSONBehavior.setData(myData);
+    myJSONBehavior.setHeaders(['header one','header two','header three','header four']);
+    myJSONBehavior.setFields(['one','two','three','four']);
+```
+* Specify fields and headers using setColumns ala slickgrid API.
+```
+    myJSONBehavior.setData(myData);
+    myJSONBehavior.setColumns([
+        {
+            title: 'First Name',
+            field: 'first_name',
+        },
+        {
+            title: 'Last Name',
+            field: 'last_name',
+        },
+        {
+            title: 'Birth Date',
+            field: 'birth_date',
+        }
+    ]);
+```
+
+# JSON behavior totals rows
+
+adding totals rows just under the column headers with Hypergrid is extremely simple.  Call setTotals function on the JSON behavior and pass in an array of arrays of the content you want displayed.
+
+```
+    var totals =
+        [['','1st',251,'XXXX-XX-XX','1 of 50','1 of 50','T/F','$$$$$','£££££']];
+
+    myJSONBehavior.setTotals(totals);
+
+    //update the totals and see the change
+    totals[0][2] = 300;
+    myJSONBehavior.changed();
+
+```
+
+# JSON behavior table state
+Hypergrid allows you to snapshot the user configured state and then reapply it later(memento pattern) this includes.
+* column order
+* column widths
+* row heights
+* sorted column asc/des
+
+to do this
+
+1. configure the table the way you would like
+2. call ```var state = myGrid.getState();```
+3. save the state object however you like, json/local storage/mongodb/etc...
+4. later on, call ```myGrid.setState(state);``` with the previous state object to return 
+
+<img src="images/gridshot06.png" alt="screenshot">
+
+the above table will produce the below state object 
+
+```javascript
+{  
+   "columnIndexes":[8,7,1,3,2,4,6],                 //column order
+   "fixedColumnIndexes":[0],                        //fixed columns order
+   "hiddenColumns":[5,0],                           //hidden column indexes
+   "columnWidths":[66,50,51,81,73,96,78,74,60],     //
+   "fixedColumnWidths":[53],                        //
+   "rowHeights":{"1":46,"3":51,"5":51,"7":50},      //
+   "fixedRowHeights":{},                            //
+   "sorted":[0,0,0,0,0,0,0,1,0]                     //1 ascending, 2 descending
+}
+```
+state objects can be created programmatically or by hand and applied.  This is how you may pre configure your grid properties.
+
+Updating Hypergrid Data with the JSON Behavior  <a name="updating-data"></a>
+======================
+It's really easy to see your data updates manifest in the hypergrid with the JSON behavior. You don't need to call setData again.
+
+1. Update the underlying javascript object field.
+2. Call the 'changed()' function on the json behavior object.
+```
+    var myData = [
+        {   
+            first_name:'moe',
+            last_name: 'stooge',
+            birth_date: '1920-01-01'
+        },
+        {   
+            first_name:'larry',
+            last_name: 'stooge',
+            birth_date: '1922-05-05'
+        },
+        {   
+            first_name:'curly',
+            last_name: 'stooge',
+            birth_date: '1924-03-07'
+        },
+    ];
+
+    var myJSONBehavior = document.querySelector('#myHypergrid').getBehavior();
+    myJSONBehavior.setData(myData);
+    
+    //update my data
+    myData[0].first_name = 'Groucho';
+    myData[0].last_name = 'Marx';
+    
+    //tell the behavior it's underlying data has changed
+    myJSONBehavior.changed();
+
+```
+
+Cells as Links
+======================
+Hypergrid supports clickable link cells, to achieve this you need to...
+
+* register a listener to the table for 'fin-cell-click'
+```
+jsonGrid.addFinEventListener('fin-cell-click', function(e){
+    var cell = e.detail.cell;
+    if (cell.x !== 0) {
+        return;
+    }
+    alert('fin-cell-click at (' + cell.x + ', ' + cell.y + ')');
+});
+```
+* override the getCursorAt method on behavior to be a function that returns the string of the name of the cursor for the column with the links
+```
+jsonModel.getCursorAt = function(x,y) {
+    if (x === 0) {
+        return 'pointer'
+    } else {
+        return null;
+    }
+};
+```
+* override the cell-provider to return the linkRenderer for the desired link columns
+```
+cellProvider.getCell = function(config) {
+    var renderer = cellProvider.cellCache.simpleCellRenderer;
+    config.halign = 'left';
+    var x = config.x;
+    if (x === 0) {
+        renderer = cellProvider.cellCache.linkCellRenderer;
+    } else if (x === 2) {
+    ...
+    ...
+    ...
+```
+ 
+see the 'Last Name' column of the JSON tab in the main example;
+
+
+# Fixed Columns
 Hypergrid supports arbitrary numbers of fixed columns.  Simply call the setFixedColumnCount() function on YOUR behavior object. An example of this can be found on the [JSON tab](http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/demo.html?tab=2).
 
 ```
@@ -79,27 +254,6 @@ var jsonModel = jsonGrid.getBehavior();
 jsonModel.setFixedColumnCount(1);
 
 ```
-
-## Custom Scrollbars
-Hypergrid utilizes a custom scrollbar component so as to not be limited to tables of 33MM pixels in width or height.   In addition to the custom scrollbar, The OpenFin hypergrid utilizes row and column cell scrolling, not pixel scrolling.  This has many benefits that become apparent over time.
-
-<img src="images/gridshot03.png" alt="screenshot">
-
-##Hypergrid example for displaying RDBMS data
-
-This is an example usage of the hypergrid control looking at the +1MM row postrgres db example from the [greenplum getting started tutorial](http://gpdb.docs.pivotal.io/gs/42/pdf/GP-Getting-Started.pdf).  
-
-<img src="images/gridshot05.png" alt="screenshot">
-
-For this example to work you'll need to 
-
-* install the [greenplum tutorial db](http://gpdb.docs.pivotal.io/gs/42/pdf/GP-Getting-Started.pdf
-* npm install [any-db-postgress](https://github.com/grncdr/node-any-db) and [websocket.io](https://www.npmjs.com/package/websocket.io)
-* run the node [script](https://github.com/openfin/fin-hypergrid/blob/master/rdbms/rdbms-example.js) found in the [rdbms](https://github.com/openfin/fin-hypergrid/blob/master/rdbms) directory
-* navigate to the q behavior [example](http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/demo.html) and press "reconnect"
-
-feel free to connect this example to any other db that any-db supports (MS SQL, MySQL, Postgres, and SQLite3).
-Make sure to npm install the proper any-db-***** interface and edit the config.js file.
 
 # Cell Renderers<a name="cell-renderers"></a>
 Cell renderers are easy to create and the default method for generating highly customized dynamic cell content.  They live in an object called a cellProvider which is provided by [YOUR](https://github.com/openfin/fin-hypergrid/blob/master/polymer/js/behaviors/fin-hypergrid-behavior-base.js#L145) behavior object.
@@ -258,7 +412,7 @@ myBehavior.getCellEditorAt = function(x, y) {
 
 # Hypergrid configuration
 
-## Modifying various hypergrid features and property defaults
+# Modifying various hypergrid features and property defaults
 Many of the hypergrid default values and properties can be set through property overriding functions
 ```addGlobalProperties``` and ```addProperties```.  The current list is.
 
@@ -305,7 +459,7 @@ repaintImmediately|false|cause painting to happen immediately within the same mi
 useBitBlit|false/true|enable or disable double buffering
 useHiDPI|true/false|make use of hi dpi displays (defaults to true)
 columnAutosizing|true/false|enable column autosizing
-## example usage
+# example usage
 ```
     var lnfOverrides = {
         font: '13px Tahoma, Geneva, sans-serif',
@@ -376,196 +530,10 @@ fin-grid-rendered|this is fired after a repaint occurs
     });
 ```
 
-
-# JSON behavior
-
-By far the most common behavior to use will be the JSON behavior.  If you're not sure which one to start with, select this one.
-
-## Populating a JSON behavior with data
-
-To populate the json behavior with data simply provide hypergrid with an array of same shaped objects.   
-```
-    var myJSONBehavior = document.querySelector('#myHypergrid').getBehavior();
-    myJSONBehavior.setData([
-        {   
-            first_name:'moe',
-            last_name: 'stooge',
-            birth_date: '1920-01-01'
-        },
-        {   
-            first_name:'larry',
-            last_name: 'stooge',
-            birth_date: '1922-05-05'
-        },
-        {   
-            first_name:'curly',
-            last_name: 'stooge',
-            birth_date: '1924-03-07'
-        },
-    ]);
-```
-## Specifying fields and headers for a JSON behavior
-
-There are several ways to specify fields and headers with hypergrid.
-
-* Let hypergrid default them.  Hypergrid will inspect the first object in the data array and use all fields it finds.  It will create header labels by uppercasing and placing spaces between the words delimitted by camelcase, dashes, or underscores.
-    * moeLarryCurly -> Moe, Larry, Curly
-    * moe-larry-curly -> Moe, Larry, Curly
-    * moe_larry_curly -> Moe, Larry, Curly
-* Specify fields and headers using setFields and setHeaders
-```
-    myJSONBehavior.setData(myData);
-    myJSONBehavior.setHeaders(['header one','header two','header three','header four']);
-    myJSONBehavior.setFields(['one','two','three','four']);
-```
-* Specify fields and headers using setColumns ala slickgrid API.
-```
-    myJSONBehavior.setData(myData);
-    myJSONBehavior.setColumns([
-        {
-            title: 'First Name',
-            field: 'first_name',
-        },
-        {
-            title: 'Last Name',
-            field: 'last_name',
-        },
-        {
-            title: 'Birth Date',
-            field: 'birth_date',
-        }
-    ]);
-```
-
-# JSON behavior totals rows
-
-adding totals rows just under the column headers with Hypergrid is extremely simple.  Call setTotals function on the JSON behavior and pass in an array of arrays of the content you want displayed.
-
-```
-    var totals =
-        [['','1st',251,'XXXX-XX-XX','1 of 50','1 of 50','T/F','$$$$$','£££££']];
-
-    myJSONBehavior.setTotals(totals);
-
-    //update the totals and see the change
-    totals[0][2] = 300;
-    myJSONBehavior.changed();
-
-```
-
-## JSON behavior table state
-Hypergrid allows you to snapshot the user configured state and then reapply it later(memento pattern) this includes.
-* column order
-* column widths
-* row heights
-* sorted column asc/des
-
-to do this
-
-1. configure the table the way you would like
-2. call ```var state = myGrid.getState();```
-3. save the state object however you like, json/local storage/mongodb/etc...
-4. later on, call ```myGrid.setState(state);``` with the previous state object to return 
-
-<img src="images/gridshot06.png" alt="screenshot">
-
-the above table will produce the below state object 
-
-```javascript
-{  
-   "columnIndexes":[8,7,1,3,2,4,6],                 //column order
-   "fixedColumnIndexes":[0],                        //fixed columns order
-   "hiddenColumns":[5,0],                           //hidden column indexes
-   "columnWidths":[66,50,51,81,73,96,78,74,60],     //
-   "fixedColumnWidths":[53],                        //
-   "rowHeights":{"1":46,"3":51,"5":51,"7":50},      //
-   "fixedRowHeights":{},                            //
-   "sorted":[0,0,0,0,0,0,0,1,0]                     //1 ascending, 2 descending
-}
-```
-state objects can be created programmatically or by hand and applied.  This is how you may pre configure your grid properties.
-
-## Column Picker
+# Column Picker
 Hypergrid has a column picker that allows you to drag and drop columns for configuring which are visible.  You can also reorder the columns here.
 press alt/option to open the column picker, you can press alt/option or esc to close it
 <img src="images/gridshot07.png" alt="screenshot">
-
-Updating Hypergrid Data with the JSON Behavior  <a name="updating-data"></a>
-======================
-It's really easy to see your data updates manifest in the hypergrid with the JSON behavior. You don't need to call setData again.
-
-1. Update the underlying javascript object field.
-2. Call the 'changed()' function on the json behavior object.
-```
-    var myData = [
-        {   
-            first_name:'moe',
-            last_name: 'stooge',
-            birth_date: '1920-01-01'
-        },
-        {   
-            first_name:'larry',
-            last_name: 'stooge',
-            birth_date: '1922-05-05'
-        },
-        {   
-            first_name:'curly',
-            last_name: 'stooge',
-            birth_date: '1924-03-07'
-        },
-    ];
-
-    var myJSONBehavior = document.querySelector('#myHypergrid').getBehavior();
-    myJSONBehavior.setData(myData);
-    
-    //update my data
-    myData[0].first_name = 'Groucho';
-    myData[0].last_name = 'Marx';
-    
-    //tell the behavior it's underlying data has changed
-    myJSONBehavior.changed();
-
-```
-
-Cells as Links
-======================
-Hypergrid supports clickable link cells, to achieve this you need to...
-
-* register a listener to the table for 'fin-cell-click'
-```
-jsonGrid.addFinEventListener('fin-cell-click', function(e){
-    var cell = e.detail.cell;
-    if (cell.x !== 0) {
-        return;
-    }
-    alert('fin-cell-click at (' + cell.x + ', ' + cell.y + ')');
-});
-```
-* override the getCursorAt method on behavior to be a function that returns the string of the name of the cursor for the column with the links
-```
-jsonModel.getCursorAt = function(x,y) {
-    if (x === 0) {
-        return 'pointer'
-    } else {
-        return null;
-    }
-};
-```
-* override the cell-provider to return the linkRenderer for the desired link columns
-```
-cellProvider.getCell = function(config) {
-    var renderer = cellProvider.cellCache.simpleCellRenderer;
-    config.halign = 'left';
-    var x = config.x;
-    if (x === 0) {
-        renderer = cellProvider.cellCache.linkCellRenderer;
-    } else if (x === 2) {
-    ...
-    ...
-    ...
-```
- 
-see the 'Last Name' column of the JSON tab in the main example;
 
 <a name="hypergrid-excel-integration"></a>
 Hypergrid Excel Integration
@@ -642,7 +610,43 @@ https://exceldna.codeplex.com/documentation
 
 http://nodejs.org/download/
 
-## Road Map
+<a name="q-behavior"></a>
+#KDB+/Q by [kx](http://kx.com/) systems [demo](http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/demo.html?tab=4) tabs (select either the 'Q' or 'Q Tree' tabs).
+
+This Hypertree + Hypergrid example allows you to define a on the fly custom drill down hierarchy while supporting grouping, aggregations, and sorting in realtime.  The current example demonstrates 20MM updates/second.  The default aggregations available are sum, min, max, first, last, average, weighted average, mean, and standard deviation.  Press options/alt to drag and drop define the visible columns and the drill down hierarchy.
+
+1. The Q tabs will not be populated with data until you run a Q server script that is provided.
+2. Make sure q 32 bit free version is installed [Q free version](http://kx.com/software-download.php)
+3. Startup either ```q bigtable.q```, ```q sorttable.q```, or install and run the extremely powerfull [Hypertree server found in Stevan Apters github area](https://github.com/stevanapter/hypertree).
+4. Make sure grunt serve is running or your browser is pointed to the proper [demo](http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/demo.html?tab=4) tab.
+5. If you are running locally, the grunt serve process should automatically refresh your web browser with the q driven grid now populated with data
+
+<img src="images/gridshot04.png" alt="screenshot">
+
+#Hypergrid example for displaying RDBMS data
+
+This is an example usage of the hypergrid control looking at the +1MM row postrgres db example from the [greenplum getting started tutorial](http://gpdb.docs.pivotal.io/gs/42/pdf/GP-Getting-Started.pdf).  
+
+<img src="images/gridshot05.png" alt="screenshot">
+
+For this example to work you'll need to 
+
+* install the [greenplum tutorial db](http://gpdb.docs.pivotal.io/gs/42/pdf/GP-Getting-Started.pdf
+* npm install [any-db-postgress](https://github.com/grncdr/node-any-db) and [websocket.io](https://www.npmjs.com/package/websocket.io)
+* run the node [script](https://github.com/openfin/fin-hypergrid/blob/master/rdbms/rdbms-example.js) found in the [rdbms](https://github.com/openfin/fin-hypergrid/blob/master/rdbms) directory
+* navigate to the q behavior [example](http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/demo.html) and press "reconnect"
+
+feel free to connect this example to any other db that any-db supports (MS SQL, MySQL, Postgres, and SQLite3).
+Make sure to npm install the proper any-db-***** interface and edit the config.js file.
+
+
+# Custom Scrollbars
+Hypergrid utilizes a custom scrollbar component so as to not be limited to tables of 33MM pixels in width or height.   In addition to the custom scrollbar, The OpenFin hypergrid utilizes row and column cell scrolling, not pixel scrolling.  This has many benefits that become apparent over time.
+
+<img src="images/gridshot03.png" alt="screenshot">
+
+
+# Road Map
 
 * add filter support
 * add grouping
@@ -673,7 +677,7 @@ http://nodejs.org/download/
 * refactor column selection feature to other behaviors
 * rafactor features to be self contained/column selector
 
-## Feature List
+# Feature List
 * tree-table support
 * Column autosizing
 * Hover event support
