@@ -511,7 +511,6 @@ var config = {
             var cellProvider = this.getGrid().getCellProvider();
             var viewWidth = this.getBounds().width() - 200; // look in fin-hypergrid and initializtion of fin-canvas
             var viewHeight = behavior.getFixedRowsHeight();
-            var fixedColumnCount = behavior.getFixedColumnCount();
 
             for (var c = 0; c < numColumns; c++) {
                 var width = this.getColumnWidth(c + scrollLeft);
@@ -527,10 +526,6 @@ var config = {
                 //reset this for this pass..
                 this.renderedColumnMinWidths[c + scrollLeft] = 0;
 
-                if (c < fixedColumnCount) {
-                    this.renderedFixedColumnMinWidths[c] = 0;
-                }
-
                 for (var r = 0; r < numRows; r++) {
 
                     var height = this.getFixedRowHeight(r);
@@ -545,9 +540,6 @@ var config = {
 
                     //lets capture the col preferred widths for col autosizing
                     this.renderedColumnMinWidths[c + scrollLeft] = Math.max(cell.config.minWidth || 0, this.renderedColumnMinWidths[c + scrollLeft]);
-                    if (c < fixedColumnCount) {
-                        this.renderedFixedColumnMinWidths[c] = Math.max(cell.config.minWidth || 0, this.renderedFixedColumnMinWidths[c]);
-                    }
 
                     if (behavior.highlightCellOnHover(isColumnHovered, isRowHovered)) {
                         ctx.beginPath();
@@ -773,6 +765,8 @@ var config = {
                 ctx.fillStyle = bgColor;
                 ctx.fillRect(x, y, x + width, viewHeight - y);
 
+                this.renderedFixedColumnMinWidths[c] = 0;
+
                 for (; r < numRows; r++) {
                     var height = this.getFixedRowHeight(r);
                     if (y > viewHeight || numRows <= r) {
@@ -791,8 +785,12 @@ var config = {
 
                     cell.paint(ctx, x, y, width, height);
 
+                    var minWidth = cell.config ? cell.config.minWidth : 0;
+                    this.renderedFixedColumnMinWidths[c] = Math.max(minWidth || 0, this.renderedFixedColumnMinWidths[c]);
+
                     y = y + height;
                 }
+
 
                 x = x + width;
             }

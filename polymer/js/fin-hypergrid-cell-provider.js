@@ -169,19 +169,20 @@ var noop = function() {};
                     gc.closePath();
                 }
             }
-
+            var iconWidth = 0;
             if (leftIcon) {
                 iyoffset = Math.round((height - leftIcon.height) / 2);
                 ixoffset = Math.round((halignOffset - leftIcon.width) / 2);
                 gc.drawImage(leftIcon, x + ixoffset, y + iyoffset);
-                this.config.minWidth = this.config.minWidth + leftIcon.width + 6;
+                iconWidth = Math.max(leftIcon.width);
             }
             if (rightIcon) {
                 iyoffset = Math.round((height - rightIcon.height) / 2);
                 ixoffset = Math.round((halignOffset - rightIcon.width) / 2);
                 gc.drawImage(rightIcon, x + width - ixoffset - rightIcon.width, y + iyoffset);
-                this.config.minWidth = this.config.minWidth + rightIcon.width + 6;
+                iconWidth = Math.max(rightIcon.width);
             }
+            this.config.minWidth = this.config.minWidth + 2 * (iconWidth + 2);
         },
 
         //emersons paint function for a slider button. currently the user cannot interact with it

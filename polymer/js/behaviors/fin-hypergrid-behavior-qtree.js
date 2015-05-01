@@ -139,6 +139,12 @@
         A: 'D',
     };
 
+    var imageMap = {
+        u: 'up-rectangle',
+        d: 'down-rectangle',
+        '': 'rectangle-spacer'
+    };
+
     Polymer({ /* jslint ignore:line */
         ready: function() {
             this.block = {
@@ -162,6 +168,22 @@
             this.reconnect();
             this.msgCounter = Date.now();
             this.msgResponsesActions = {};
+
+            var cursorChanger = function(grid, event) {
+                if (this.isTopLeft(grid, event)) {
+                    this.cursor = 'pointer';
+                } else {
+                    this.cursor = null;
+                }
+                if (this.next) {
+                    this.next.handleMouseMove(grid, event);
+                }
+            };
+            var self = this;
+            setTimeout(function() {
+                self.featureChain.handleMouseMove = cursorChanger;
+                cursorChanger.bind(self.featureChain);
+            }, 500);
 
         },
         getFixedRowCount: function() {
@@ -244,7 +266,8 @@
             //     return clone;
             // }
             //var hValue = this.block.Z[0].g_[0];
-            var clone = [this.getImage('up-rectangle'), 'Hierarchy', this.getSortIndicator(hierarchyColumn)];
+            var image = this.getClickIndicator(hierarchyColumn);
+            var clone = [image, 'Hierarchy', this.getSortIndicator(hierarchyColumn)];
             //clone[0] = clone[0] + ' ' + sortIndicator;
             return clone;
         },
@@ -254,7 +277,7 @@
         getValue: function(x, y) {
             var col = this.getColumnId(x);
             var normalized = Math.floor(y - this.scrollPositionY);
-            if (this.block && col) {
+            if (this.block && (typeof col === 'string')) {
                 var val = this.block.Z[1][col][normalized];
                 if (val || val === 0) {
                     return val;
@@ -321,8 +344,9 @@
         },
 
         getClickIndicator: function(colId) {
-            noop(colId);
-            return this.getImage('down-rectangle');
+            var direction = this.block.C[colId];
+            var image = this.getImage(imageMap[direction]);
+            return image;
         },
 
         getSortIndicator: function(colId) {
@@ -449,13 +473,18 @@
             var colId = hierarchyColumn;
             var colWidth = this.getFixedColumnWidth(0);
             var mousePoint = mouse.mousePoint.x;
+            var direction = this.block.C[hierarchyColumn];
             if (mousePoint < (colWidth / 2)) {
-                var colClick = {
-                    id: this.getNextMessageId(),
-                    fn: 'col',
-                    col: colId
-                };
-                this.sendMessage(colClick);
+                if (direction) {
+                    var colClick = {
+                        id: this.getNextMessageId(),
+                        fn: 'col',
+                        col: colId
+                    };
+                    this.sendMessage(colClick);
+                } else {
+                    return;
+                }
             } else {
                 this._toggleSort(colId);
             }
@@ -477,15 +506,18 @@
 
         fixedRowClicked: function(grid, mouse) {
             var colId = this.getColumnId(mouse.gridCell.x);
+            var direction = this.block.C[colId];
             var colWidth = this.getColumnWidth(mouse.gridCell.x);
             var mousePoint = mouse.mousePoint.x;
             if (mousePoint < (colWidth / 2)) {
-                var colClick = {
-                    id: this.getNextMessageId(),
-                    fn: 'col',
-                    col: colId
-                };
-                this.sendMessage(colClick);
+                if (direction) {
+                    var colClick = {
+                        id: this.getNextMessageId(),
+                        fn: 'col',
+                        col: colId
+                    };
+                    this.sendMessage(colClick);
+                }
             } else {
                 this.toggleSort(mouse.gridCell.x);
             }
@@ -513,6 +545,9 @@
         },
 
         openEditor: function(div) {
+            if (!this.block.W) {
+                return false;
+            }
             var self = this;
             var container = document.createElement('div');
 

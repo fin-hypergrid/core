@@ -112,6 +112,12 @@
             var isFixed = gridCell.x < grid.getFixedColumnCount();
             return isFixed;
         },
+
+        isTopLeft: function(grid, event) {
+            var isTopLeft = this.isFixedRow(grid, event) && this.isFixedColumn(grid, event);
+            return isTopLeft;
+        },
+
         setCursor: function(grid) {
             if (this.next) {
                 this.next.setCursor(grid);
