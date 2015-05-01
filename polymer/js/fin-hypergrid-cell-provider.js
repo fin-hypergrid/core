@@ -174,15 +174,15 @@ var noop = function() {};
                 iyoffset = Math.round((height - leftIcon.height) / 2);
                 ixoffset = Math.round((halignOffset - leftIcon.width) / 2);
                 gc.drawImage(leftIcon, x + ixoffset, y + iyoffset);
-                iconWidth = Math.max(leftIcon.width);
+                iconWidth = Math.max(leftIcon.width + 2);
             }
             if (rightIcon) {
                 iyoffset = Math.round((height - rightIcon.height) / 2);
                 ixoffset = Math.round((halignOffset - rightIcon.width) / 2);
                 gc.drawImage(rightIcon, x + width - ixoffset - rightIcon.width, y + iyoffset);
-                iconWidth = Math.max(rightIcon.width);
+                iconWidth = Math.max(rightIcon.width + 2);
             }
-            this.config.minWidth = this.config.minWidth + 2 * (iconWidth + 2);
+            this.config.minWidth = this.config.minWidth + 2 * (iconWidth);
         },
 
         //emersons paint function for a slider button. currently the user cannot interact with it

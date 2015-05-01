@@ -1547,6 +1547,15 @@
         },
 
         cellClicked: function(event) {
+            var cell = event.gridCell;
+            var colCount = this.getColumnCount();
+            var rowCount = this.getRowCount();
+
+            //click occured in background area
+            if (cell.x > colCount || cell.y > rowCount) {
+                return;
+            }
+
             var behavior = this.getBehavior();
             var hovered = this.getHoverCell();
             var sy = this.getVScrollValue();
@@ -1646,6 +1655,9 @@
             var max = this.sbVScrlCfg.rangeStop;
             y = Math.min(max, Math.max(0, y));
             var self = this;
+            if (y === this.vScrlValue) {
+                return;
+            }
             this.getBehavior()._setScrollPositionY(y);
             var oldY = this.vScrlValue;
             this.vScrlValue = y;
@@ -1678,6 +1690,9 @@
             var max = this.sbHScrlCfg.rangeStop;
             x = Math.min(max, Math.max(0, x));
             var self = this;
+            if (x === this.hScrlValue) {
+                return;
+            }
             this.getBehavior()._setScrollPositionX(x);
             var oldX = this.hScrlValue;
             this.hScrlValue = x;
@@ -2031,6 +2046,8 @@
 
             this.setVScrollValue(Math.min(this.getVScrollValue(), this.sbVScrlCfg.rangeStop));
             this.setHScrollValue(Math.min(this.getHScrollValue(), this.sbHScrlCfg.rangeStop));
+
+            this.repaint();
             //this.sbVScroller.tickle();
             //this.sbHScroller.tickle();
         },
@@ -2199,7 +2216,7 @@
             var behavior = this.getBehavior();
             var cursor = behavior.getCursorAt(-1, -1);
             var hoverCell = this.getHoverCell();
-            if (hoverCell) {
+            if (hoverCell && hoverCell.x > -1 && hoverCell.y > -1) {
                 var x = hoverCell.x + this.getHScrollValue();
                 x = behavior.translateColumnIndex(x);
                 cursor = behavior.getCursorAt(x, hoverCell.y + this.getVScrollValue());

@@ -21938,11 +21938,13 @@ var config = {
                     var isRowHovered = false; //this.isHovered(c, r);
                     //translatedX allows us to reorder columns
                     var translatedX = behavior.translateColumnIndex(c + scrollLeft);
-                    var cell = cellProvider.getFixedRowCell(this.cellConfig(translatedX, r, value, fgColor, bgColor, fgSelColor, bgSelColor, font, isSelected, isColumnHovered, isRowHovered, align, hoffset, voffset));
+                    var config = this.cellConfig(translatedX, r, value, fgColor, bgColor, fgSelColor, bgSelColor, font, isSelected, isColumnHovered, isRowHovered, align, hoffset, voffset);
+                    var cell = cellProvider.getFixedRowCell(config);
+                    config.minWidth = 0;
                     cell.paint(ctx, x, y, width, height);
 
                     //lets capture the col preferred widths for col autosizing
-                    this.renderedColumnMinWidths[c + scrollLeft] = Math.max(cell.config.minWidth || 0, this.renderedColumnMinWidths[c + scrollLeft]);
+                    this.renderedColumnMinWidths[c + scrollLeft] = Math.max(config.minWidth || 0, this.renderedColumnMinWidths[c + scrollLeft]);
 
                     if (behavior.highlightCellOnHover(isColumnHovered, isRowHovered)) {
                         ctx.beginPath();
@@ -21997,10 +21999,12 @@ var config = {
                     var value = behavior.getFixedColumnValue(c, r + scrollTop);
                     var isColumnHovered = false; //this.isHovered(c, r);
                     var isRowHovered = this.isRowHovered(r);
-                    var cell = cellProvider.getFixedColumnCell(this.cellConfig(c, r + scrollTop, value, fgColor, bgColor, fgSelColor, bgSelColor, font, isSelected, isColumnHovered, isRowHovered, align, hoffset, voffset));
+                    var config = this.cellConfig(c, r + scrollTop, value, fgColor, bgColor, fgSelColor, bgSelColor, font, isSelected, isColumnHovered, isRowHovered, align, hoffset, voffset);
+                    var cell = cellProvider.getFixedColumnCell(config);
+                    config.minWidth = 0;
                     cell.paint(ctx, x, y, width, height);
 
-                    this.renderedFixedColumnMinWidths[c] = Math.max(cell.config.minWidth || 0, this.renderedFixedColumnMinWidths[c]);
+                    this.renderedFixedColumnMinWidths[c] = Math.max(config.minWidth || 0, this.renderedFixedColumnMinWidths[c]);
 
                     if (behavior.highlightCellOnHover(isColumnHovered, isRowHovered)) {
                         ctx.beginPath();
@@ -22089,12 +22093,14 @@ var config = {
                     var isColumnHovered = this.isColumnHovered(c);
                     var isRowHovered = this.isRowHovered(r);
 
-                    var cell = cellProvider.getCell(this.cellConfig(translatedX, r + scrollTop, value, overrideFGColor, bgColor, fgSelColor, bgSelColor, overrideFont, isSelected, isColumnHovered, isRowHovered, columnAlign, hoffset, voffset));
+                    var config = this.cellConfig(translatedX, r + scrollTop, value, overrideFGColor, bgColor, fgSelColor, bgSelColor, overrideFont, isSelected, isColumnHovered, isRowHovered, columnAlign, hoffset, voffset);
+                    var cell = cellProvider.getCell(config);
 
+                    config.minWidth = 0;
                     cell.paint(ctx, x, y, width, height);
 
                     //lets capture the col preferred widths for col autosizing
-                    this.renderedColumnMinWidths[c + scrollLeft] = Math.max(cell.config.minWidth || 0, this.renderedColumnMinWidths[c + scrollLeft]);
+                    this.renderedColumnMinWidths[c + scrollLeft] = Math.max(config.minWidth || 0, this.renderedColumnMinWidths[c + scrollLeft]);
 
                     if (behavior.highlightCellOnHover(isColumnHovered, isRowHovered)) {
                         ctx.beginPath();
@@ -22184,11 +22190,15 @@ var config = {
                     var isColumnHovered = this.isHovered(c);
                     var isRowHovered = this.isHovered(r);
 
-                    var cell = cellProvider.getTopLeftCell(this.cellConfig(x, r, value, fgColor, bgColor, fgSelColor, bgSelColor, font, false, isColumnHovered, isRowHovered, columnAlign, hoffset, voffset));
+                    var config = this.cellConfig(x, r, value, fgColor, bgColor, fgSelColor, bgSelColor, font, false, isColumnHovered, isRowHovered, columnAlign, hoffset, voffset);
+                    var cell = cellProvider.getTopLeftCell(config);
 
+                    config.minWidth = 0;
+
+                    //minWidth should be set inside this function call
                     cell.paint(ctx, x, y, width, height);
 
-                    var minWidth = cell.config ? cell.config.minWidth : 0;
+                    var minWidth = config.minWidth;
                     this.renderedFixedColumnMinWidths[c] = Math.max(minWidth || 0, this.renderedFixedColumnMinWidths[c]);
 
                     y = y + height;
@@ -23620,15 +23630,15 @@ var noop = function() {};
                 iyoffset = Math.round((height - leftIcon.height) / 2);
                 ixoffset = Math.round((halignOffset - leftIcon.width) / 2);
                 gc.drawImage(leftIcon, x + ixoffset, y + iyoffset);
-                iconWidth = Math.max(leftIcon.width);
+                iconWidth = Math.max(leftIcon.width + 2);
             }
             if (rightIcon) {
                 iyoffset = Math.round((height - rightIcon.height) / 2);
                 ixoffset = Math.round((halignOffset - rightIcon.width) / 2);
                 gc.drawImage(rightIcon, x + width - ixoffset - rightIcon.width, y + iyoffset);
-                iconWidth = Math.max(rightIcon.width);
+                iconWidth = Math.max(rightIcon.width + 2);
             }
-            this.config.minWidth = this.config.minWidth + 2 * (iconWidth + 2);
+            this.config.minWidth = this.config.minWidth + 2 * (iconWidth);
         },
 
         //emersons paint function for a slider button. currently the user cannot interact with it
@@ -34792,6 +34802,15 @@ fin-vampire-bar {
         },
 
         cellClicked: function(event) {
+            var cell = event.gridCell;
+            var colCount = this.getColumnCount();
+            var rowCount = this.getRowCount();
+
+            //click occured in background area
+            if (cell.x > colCount || cell.y > rowCount) {
+                return;
+            }
+
             var behavior = this.getBehavior();
             var hovered = this.getHoverCell();
             var sy = this.getVScrollValue();
@@ -34891,6 +34910,9 @@ fin-vampire-bar {
             var max = this.sbVScrlCfg.rangeStop;
             y = Math.min(max, Math.max(0, y));
             var self = this;
+            if (y === this.vScrlValue) {
+                return;
+            }
             this.getBehavior()._setScrollPositionY(y);
             var oldY = this.vScrlValue;
             this.vScrlValue = y;
@@ -34923,6 +34945,9 @@ fin-vampire-bar {
             var max = this.sbHScrlCfg.rangeStop;
             x = Math.min(max, Math.max(0, x));
             var self = this;
+            if (x === this.hScrlValue) {
+                return;
+            }
             this.getBehavior()._setScrollPositionX(x);
             var oldX = this.hScrlValue;
             this.hScrlValue = x;
@@ -35276,6 +35301,8 @@ fin-vampire-bar {
 
             this.setVScrollValue(Math.min(this.getVScrollValue(), this.sbVScrlCfg.rangeStop));
             this.setHScrollValue(Math.min(this.getHScrollValue(), this.sbHScrlCfg.rangeStop));
+
+            this.repaint();
             //this.sbVScroller.tickle();
             //this.sbHScroller.tickle();
         },
@@ -35444,7 +35471,7 @@ fin-vampire-bar {
             var behavior = this.getBehavior();
             var cursor = behavior.getCursorAt(-1, -1);
             var hoverCell = this.getHoverCell();
-            if (hoverCell) {
+            if (hoverCell && hoverCell.x > -1 && hoverCell.y > -1) {
                 var x = hoverCell.x + this.getHScrollValue();
                 x = behavior.translateColumnIndex(x);
                 cursor = behavior.getCursorAt(x, hoverCell.y + this.getVScrollValue());

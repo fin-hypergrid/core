@@ -535,11 +535,13 @@ var config = {
                     var isRowHovered = false; //this.isHovered(c, r);
                     //translatedX allows us to reorder columns
                     var translatedX = behavior.translateColumnIndex(c + scrollLeft);
-                    var cell = cellProvider.getFixedRowCell(this.cellConfig(translatedX, r, value, fgColor, bgColor, fgSelColor, bgSelColor, font, isSelected, isColumnHovered, isRowHovered, align, hoffset, voffset));
+                    var config = this.cellConfig(translatedX, r, value, fgColor, bgColor, fgSelColor, bgSelColor, font, isSelected, isColumnHovered, isRowHovered, align, hoffset, voffset);
+                    var cell = cellProvider.getFixedRowCell(config);
+                    config.minWidth = 0;
                     cell.paint(ctx, x, y, width, height);
 
                     //lets capture the col preferred widths for col autosizing
-                    this.renderedColumnMinWidths[c + scrollLeft] = Math.max(cell.config.minWidth || 0, this.renderedColumnMinWidths[c + scrollLeft]);
+                    this.renderedColumnMinWidths[c + scrollLeft] = Math.max(config.minWidth || 0, this.renderedColumnMinWidths[c + scrollLeft]);
 
                     if (behavior.highlightCellOnHover(isColumnHovered, isRowHovered)) {
                         ctx.beginPath();
@@ -594,10 +596,12 @@ var config = {
                     var value = behavior.getFixedColumnValue(c, r + scrollTop);
                     var isColumnHovered = false; //this.isHovered(c, r);
                     var isRowHovered = this.isRowHovered(r);
-                    var cell = cellProvider.getFixedColumnCell(this.cellConfig(c, r + scrollTop, value, fgColor, bgColor, fgSelColor, bgSelColor, font, isSelected, isColumnHovered, isRowHovered, align, hoffset, voffset));
+                    var config = this.cellConfig(c, r + scrollTop, value, fgColor, bgColor, fgSelColor, bgSelColor, font, isSelected, isColumnHovered, isRowHovered, align, hoffset, voffset);
+                    var cell = cellProvider.getFixedColumnCell(config);
+                    config.minWidth = 0;
                     cell.paint(ctx, x, y, width, height);
 
-                    this.renderedFixedColumnMinWidths[c] = Math.max(cell.config.minWidth || 0, this.renderedFixedColumnMinWidths[c]);
+                    this.renderedFixedColumnMinWidths[c] = Math.max(config.minWidth || 0, this.renderedFixedColumnMinWidths[c]);
 
                     if (behavior.highlightCellOnHover(isColumnHovered, isRowHovered)) {
                         ctx.beginPath();
@@ -686,12 +690,14 @@ var config = {
                     var isColumnHovered = this.isColumnHovered(c);
                     var isRowHovered = this.isRowHovered(r);
 
-                    var cell = cellProvider.getCell(this.cellConfig(translatedX, r + scrollTop, value, overrideFGColor, bgColor, fgSelColor, bgSelColor, overrideFont, isSelected, isColumnHovered, isRowHovered, columnAlign, hoffset, voffset));
+                    var config = this.cellConfig(translatedX, r + scrollTop, value, overrideFGColor, bgColor, fgSelColor, bgSelColor, overrideFont, isSelected, isColumnHovered, isRowHovered, columnAlign, hoffset, voffset);
+                    var cell = cellProvider.getCell(config);
 
+                    config.minWidth = 0;
                     cell.paint(ctx, x, y, width, height);
 
                     //lets capture the col preferred widths for col autosizing
-                    this.renderedColumnMinWidths[c + scrollLeft] = Math.max(cell.config.minWidth || 0, this.renderedColumnMinWidths[c + scrollLeft]);
+                    this.renderedColumnMinWidths[c + scrollLeft] = Math.max(config.minWidth || 0, this.renderedColumnMinWidths[c + scrollLeft]);
 
                     if (behavior.highlightCellOnHover(isColumnHovered, isRowHovered)) {
                         ctx.beginPath();
@@ -781,11 +787,15 @@ var config = {
                     var isColumnHovered = this.isHovered(c);
                     var isRowHovered = this.isHovered(r);
 
-                    var cell = cellProvider.getTopLeftCell(this.cellConfig(x, r, value, fgColor, bgColor, fgSelColor, bgSelColor, font, false, isColumnHovered, isRowHovered, columnAlign, hoffset, voffset));
+                    var config = this.cellConfig(x, r, value, fgColor, bgColor, fgSelColor, bgSelColor, font, false, isColumnHovered, isRowHovered, columnAlign, hoffset, voffset);
+                    var cell = cellProvider.getTopLeftCell(config);
 
+                    config.minWidth = 0;
+
+                    //minWidth should be set inside this function call
                     cell.paint(ctx, x, y, width, height);
 
-                    var minWidth = cell.config ? cell.config.minWidth : 0;
+                    var minWidth = config.minWidth;
                     this.renderedFixedColumnMinWidths[c] = Math.max(minWidth || 0, this.renderedFixedColumnMinWidths[c]);
 
                     y = y + height;
