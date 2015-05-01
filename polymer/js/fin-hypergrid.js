@@ -426,6 +426,8 @@
             this.resized();
             this.fire('load');
             this.isScrollButtonClick = false;
+
+
         },
 
         isHovered: function(x, y) {
@@ -1094,6 +1096,8 @@
                 mouseEvent.primitiveEvent = e.detail.primitiveEvent;
                 self.delegateMouseExit(mouseEvent);
             });
+
+            this.canvas.removeAttribute('tabindex');
 
         },
 
@@ -2309,6 +2313,7 @@
             });
             this.canvas.dispatchEvent(clickEvent);
         },
+
         fireAfterCellEdit: function(cell, value) {
             var clickEvent = new CustomEvent('fin-after-cell-edit', {
                 detail: {
@@ -2319,6 +2324,7 @@
             });
             this.canvas.dispatchEvent(clickEvent);
         },
+
         autosizeColumn: function(column) {
             var width;
             if (column < 0) {
@@ -2330,6 +2336,10 @@
                 width = this.getRenderer().renderedColumnMinWidths[column];
                 this.setColumnWidth(column, width);
             }
+        },
+
+        setFocusable: function(boolean) {
+            this.getCanvas().setFocusable(boolean);
         }
     });
 

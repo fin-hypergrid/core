@@ -64,6 +64,7 @@
                 };
             }
 
+            grid.setFocusable(false);
             requestAnimationFrame(function() {
                 self.overlay.style.opacity = 0.95;
                 document.addEventListener('keydown', self._closer, false);
@@ -71,6 +72,8 @@
             });
         },
         closeColumnPicker: function(grid) {
+            grid.setFocusable(true);
+
             if (!this.isColumnPickerOpen()) {
                 return;
             }

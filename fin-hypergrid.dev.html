@@ -20117,7 +20117,16 @@ div.container {
         enableDocumentElementSelection: function() {
             var style = document.body.style;
             style.cssText = style.cssText.replace('-webkit-user-select: none', '');
-        }
+        },
+
+        setFocusable: function(boolean) {
+            if (boolean === true) {
+                this.focuser.style.display = '';
+            } else {
+                this.focuser.style.display = 'none';
+            }
+
+        },
 
     });
 
@@ -24900,6 +24909,7 @@ var commands = {
                 };
             }
 
+            grid.setFocusable(false);
             requestAnimationFrame(function() {
                 self.overlay.style.opacity = 0.95;
                 document.addEventListener('keydown', self._closer, false);
@@ -24907,6 +24917,8 @@ var commands = {
             });
         },
         closeColumnPicker: function(grid) {
+            grid.setFocusable(true);
+
             if (!this.isColumnPickerOpen()) {
                 return;
             }
@@ -33681,6 +33693,8 @@ fin-vampire-bar {
             this.resized();
             this.fire('load');
             this.isScrollButtonClick = false;
+
+
         },
 
         isHovered: function(x, y) {
@@ -34349,6 +34363,8 @@ fin-vampire-bar {
                 mouseEvent.primitiveEvent = e.detail.primitiveEvent;
                 self.delegateMouseExit(mouseEvent);
             });
+
+            this.canvas.removeAttribute('tabindex');
 
         },
 
@@ -35564,6 +35580,7 @@ fin-vampire-bar {
             });
             this.canvas.dispatchEvent(clickEvent);
         },
+
         fireAfterCellEdit: function(cell, value) {
             var clickEvent = new CustomEvent('fin-after-cell-edit', {
                 detail: {
@@ -35574,6 +35591,7 @@ fin-vampire-bar {
             });
             this.canvas.dispatchEvent(clickEvent);
         },
+
         autosizeColumn: function(column) {
             var width;
             if (column < 0) {
@@ -35585,6 +35603,10 @@ fin-vampire-bar {
                 width = this.getRenderer().renderedColumnMinWidths[column];
                 this.setColumnWidth(column, width);
             }
+        },
+
+        setFocusable: function(boolean) {
+            this.getCanvas().setFocusable(boolean);
         }
     });
 

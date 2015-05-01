@@ -307,7 +307,7 @@
         //<br>TODO: refactor: don't store this value in an local member, store it in the message ONLY.
         //<br>TODO: refactor: num should be dynamic
         setScrollPositionY: function(y) {
-            if (this.scrollPositionY === y) {
+            if (this.scrollPositionY === y) {S
                 return;
             }
             this.scrollPositionY = y;
@@ -545,7 +545,7 @@
         },
 
         openEditor: function(div) {
-            if (!this.block.W) {
+            if (!this.block.V) {
                 return false;
             }
             var self = this;
