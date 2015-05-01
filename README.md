@@ -1,12 +1,52 @@
 #Hypergrid by OpenFin
 
 <img src="images/gridshot04.gif" alt="screenshot">
+#Hypergrid
+The Hypergrid control is a [Google polymer](https://www.polymer-project.org/) [web component](http://webcomponents.org/presentations/), canvas based open source general purpose grid. The purpose of this project is to address the Finance/Big Data community's desire for a high performance, unlimited row data-grid. At the moment, it is in a beta stage and still has ongoing work to be completed. These include bug-fixes/features/automated testing/etc.  Please try it out and let us know what you think.
 
+* See the [polymer component page](http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/#fin-hypergrid) for api documentation and demos.
 
-See the [polymer component page](http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/#fin-hypergrid) for api documentation and demos.
+* Watch the [Pivotal Labs presentation](http://www.livestream.com/pivotallabs/video?clipId=pla_01ae6683-c5ee-4567-9278-91524d09550a&utm_source=lslibrary&utm_medium=ui-thumb) recorded on Jan 13th 2015.
 
-Watch the [Pivotal Labs presentation](http://www.livestream.com/pivotallabs/video?clipId=pla_01ae6683-c5ee-4567-9278-91524d09550a&utm_source=lslibrary&utm_medium=ui-thumb) recorded on Jan 13th 2015.
+<img src="images/gridshot02.png" alt="screenshot">
 
+## Shortcuts
+
+* [Getting Started](https://github.com/openfin/fin-hypergrid#getting-started)
+* [Recent](https://github.com/openfin/fin-hypergrid#recent)
+* [Pluggable Grid Behaviors](https://github.com/openfin/fin-hypergrid#pluggable-grid-behaviors)
+* [The Super Easy Setup](https://github.com/openfin/fin-hypergrid#the-super-easy-setup)
+* [Local Setup](https://github.com/openfin/fin-hypergrid#local-setup)
+* [Deploy your app with fin-hypergrid](https://github.com/openfin/fin-hypergrid#deploy-your-app-with-fin-hypergrid)
+* [Important notes about Polymer Development](https://github.com/openfin/fin-hypergrid#important-notes-about-polymer-development)
+* [JSON behavior](https://github.com/openfin/fin-hypergrid#json-behavior)
+* [Populating a JSON behavior with data](https://github.com/openfin/fin-hypergrid#populating-a-json-behavior-with-data)
+* [Specifying fields and headers for a JSON behavior](https://github.com/openfin/fin-hypergrid#specifying-fields-and-headers-for-a-json-behavior)
+* [JSON behavior totals rows](https://github.com/openfin/fin-hypergrid#json-behavior-totals-rows)
+* [JSON behavior table state](https://github.com/openfin/fin-hypergrid#json-behavior-table-state)
+* [Updating Hypergrid Data with the JSON Behavior](https://github.com/openfin/fin-hypergrid#updating-hypergrid-data-with-the-json-behavior--)
+* [Cells as Links](https://github.com/openfin/fin-hypergrid#cells-as-links)
+* [Fixed Columns](https://github.com/openfin/fin-hypergrid#fixed-columns)
+* [Cell Renderers](https://github.com/openfin/fin-hypergrid#cell-renderers)
+* [Creating a custom cell renderer.](https://github.com/openfin/fin-hypergrid#creating-a-custom-cell-renderer)
+* [Column autosizing](https://github.com/openfin/fin-hypergrid#column-autosizing)
+* [Cell Editors](https://github.com/openfin/fin-hypergrid#cell-editors)
+* [default cell editors](https://github.com/openfin/fin-hypergrid#default-cell-editors)
+* [Creating your own cell editor](https://github.com/openfin/fin-hypergrid#creating-your-own-cell-editor-)
+* [Hypergrid configuration](https://github.com/openfin/fin-hypergrid#hypergrid-configuration)
+* [Modifying various hypergrid features and property defaults](https://github.com/openfin/fin-hypergrid#modifying-various-hypergrid-features-and-property-defaults)
+* [example usage](https://github.com/openfin/fin-hypergrid#example-usage)
+* [Hypergrid events](https://github.com/openfin/fin-hypergrid#hypergrid-events)
+* [Column Picker](https://github.com/openfin/fin-hypergrid#column-picker)
+* [Hypergrid Excel Integration](https://github.com/openfin/fin-hypergrid#hypergrid-excel-integration)
+* [Hypergrid Excel JSON Behavior Example Application](https://github.com/openfin/fin-hypergrid#hypergrid-excel-json-behavior-example-application)
+* [Fin-Hypergrid-Excel plugin element](https://github.com/openfin/fin-hypergrid#fin-hypergrid-excel-plugin-element)
+* [Excel Integration Links](https://github.com/openfin/fin-hypergrid#excel-integration-links)
+* [KDB+/Q by kx systems demo](https://github.com/openfin/fin-hypergrid#kdbq-by-kx-systems-demo-tabs-select-either-the-q-or-q-tree-tabs)
+* [Hypergrid example for displaying RDBMS data](https://github.com/openfin/fin-hypergrid#hypergrid-example-for-displaying-rdbms-data)
+* [Custom Scrollbars](https://github.com/openfin/fin-hypergrid#custom-scrollbars)
+* [Road Map](https://github.com/openfin/fin-hypergrid#road-map)
+* [Feature List](https://github.com/openfin/fin-hypergrid#feature-list)
 
 # Getting Started
 Use the [Hypergrid Openfin Installer](https://dl.openfin.co/services/download?fileName=hypergrid-demo-installer&config=http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/demo.json) to install an openfin startup link and see the demo running on your desktop.   You can also see a few demos..
@@ -17,11 +57,6 @@ Use the [Hypergrid Openfin Installer](https://dl.openfin.co/services/download?fi
 * [styled standalone](http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/examples/tt.html) - a slightly more sophisticated styled example of a standalone fin-hypergrid with a json behavior
 * [jquery partials](http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/examples/partialtest.html) - an example using jquery dynamic partial loading
 * [multi window snap and dock example](https://dl.openfin.co/services/download?fileName=hypergrid-snap-installer&config=http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/examples/hypergrid-snap.json) 
-
-#Hypergrid
-The Hypergrid control is a [Google polymer](https://www.polymer-project.org/) [web component](http://webcomponents.org/presentations/), canvas based open source general purpose grid. The purpose of this project is to address the Finance/Big Data community's desire for a high performance, unlimited row data-grid. At the moment, it is in a beta stage and still has ongoing work to be completed. These include bug-fixes/features/automated testing/etc.  Please try it out and let us know what you think.
-
-<img src="images/gridshot02.png" alt="screenshot">
 
 # Recent 
 * [HiDPI](http://www.html5rocks.com/en/tutorials/canvas/hidpi/) mode is now enabled by default and is no longer an attribute but a json startup config property.  The performance issue witnessed in chrome browsers seems to have been fixed.
