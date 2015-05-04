@@ -307,7 +307,7 @@
         //<br>TODO: refactor: don't store this value in an local member, store it in the message ONLY.
         //<br>TODO: refactor: num should be dynamic
         setScrollPositionY: function(y) {
-            if (this.scrollPositionY === y) {S
+            if (this.scrollPositionY === y) {
                 return;
             }
             this.scrollPositionY = y;
@@ -666,7 +666,7 @@
             }
 
             this.block = d;
-            if (!this.tableState.columnIndexes || this.tableState.columnIndexes.length === 0) {
+            if (!this.tableState.columnIndexes || this.tableState.columnIndexes.length === 0 || d.F.length !== this.tableState.columnIndexes.length) {
                 this.initColumnIndexes();
             }
             //let's autosize the hierarchy column

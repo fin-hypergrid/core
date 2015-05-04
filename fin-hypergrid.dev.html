@@ -30850,7 +30850,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         },
 
         openEditor: function(div) {
-            if (!this.block.W) {
+            if (!this.block.V) {
                 return false;
             }
             var self = this;
@@ -30971,7 +30971,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
             }
 
             this.block = d;
-            if (!this.tableState.columnIndexes || this.tableState.columnIndexes.length === 0) {
+            if (!this.tableState.columnIndexes || this.tableState.columnIndexes.length === 0 || d.F.length !== this.tableState.columnIndexes.length) {
                 this.initColumnIndexes();
             }
             //let's autosize the hierarchy column
