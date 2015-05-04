@@ -566,7 +566,11 @@
             //can't remove the last item
             group.canDragItem = function(list, item, index, e) {
                 noop(item, index, e);
-                return list.length > 1;
+                if (self.block.U) {
+                    return list.length > 1;
+                } else {
+                    return true;
+                }
             };
             //only allow dropping of H fields
             group.canDropItem = function(sourceList, myList, sourceIndex, item, e) {
