@@ -123,6 +123,10 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
 
         setData: function(jsonData) {
             this.data = jsonData;
+            this.dataChanged();
+        },
+
+        dataChanged: function() {
             this.initDataIndexes();
             this.initColumnIndexes();
             this.changed();
