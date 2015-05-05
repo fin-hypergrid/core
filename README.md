@@ -20,28 +20,28 @@ The Hypergrid control is a [Google polymer](https://www.polymer-project.org/) [w
 * [Deploy your app with fin-hypergrid](https://github.com/openfin/fin-hypergrid#deploy-your-app-with-fin-hypergrid)
 * [Important notes about Polymer Development](https://github.com/openfin/fin-hypergrid#important-notes-about-polymer-development)
 * [JSON behavior](https://github.com/openfin/fin-hypergrid#json-behavior)
-* [Populating a JSON behavior with data](https://github.com/openfin/fin-hypergrid#populating-a-json-behavior-with-data)
-* [Specifying fields and headers for a JSON behavior](https://github.com/openfin/fin-hypergrid#specifying-fields-and-headers-for-a-json-behavior)
-* [JSON behavior totals rows](https://github.com/openfin/fin-hypergrid#json-behavior-totals-rows)
-* [JSON behavior table state](https://github.com/openfin/fin-hypergrid#json-behavior-table-state)
-* [Updating Hypergrid Data with the JSON Behavior](https://github.com/openfin/fin-hypergrid#updating-hypergrid-data-with-the-json-behavior--)
+    * [Populating a JSON behavior with data](https://github.com/openfin/fin-hypergrid#populating-a-json-behavior-with-data)
+    * [Specifying fields and headers for a JSON behavior](https://github.com/openfin/fin-hypergrid#specifying-fields-and-headers-for-a-json-behavior)
+    * [JSON behavior totals rows](https://github.com/openfin/fin-hypergrid#json-behavior-totals-rows)
+    * [JSON behavior table state](https://github.com/openfin/fin-hypergrid#json-behavior-table-state)
+    * [Updating Hypergrid Data with the JSON Behavior](https://github.com/openfin/fin-hypergrid#updating-hypergrid-data-with-the-json-behavior--)
 * [Cells as Links](https://github.com/openfin/fin-hypergrid#cells-as-links)
 * [Fixed Columns](https://github.com/openfin/fin-hypergrid#fixed-columns)
 * [Cell Renderers](https://github.com/openfin/fin-hypergrid#cell-renderers)
-* [Creating a custom cell renderer.](https://github.com/openfin/fin-hypergrid#creating-a-custom-cell-renderer)
+    * [Creating a custom cell renderer.](https://github.com/openfin/fin-hypergrid#creating-a-custom-cell-renderer)
 * [Column autosizing](https://github.com/openfin/fin-hypergrid#column-autosizing)
 * [Cell Editors](https://github.com/openfin/fin-hypergrid#cell-editors)
-* [default cell editors](https://github.com/openfin/fin-hypergrid#default-cell-editors)
-* [Creating your own cell editor](https://github.com/openfin/fin-hypergrid#creating-your-own-cell-editor-)
+    * [Default cell editors](https://github.com/openfin/fin-hypergrid#default-cell-editors)
+    * [Creating your own cell editor](https://github.com/openfin/fin-hypergrid#creating-your-own-cell-editor-)
 * [Hypergrid configuration](https://github.com/openfin/fin-hypergrid#hypergrid-configuration)
-* [Modifying various hypergrid features and property defaults](https://github.com/openfin/fin-hypergrid#modifying-various-hypergrid-features-and-property-defaults)
-* [example usage](https://github.com/openfin/fin-hypergrid#example-usage)
+    * [Modifying various hypergrid features and property defaults](https://github.com/openfin/fin-hypergrid#modifying-various-hypergrid-features-and-property-defaults)
+    * [Example usage](https://github.com/openfin/fin-hypergrid#example-usage)
 * [Hypergrid events](https://github.com/openfin/fin-hypergrid#hypergrid-events)
 * [Column Picker](https://github.com/openfin/fin-hypergrid#column-picker)
 * [Hypergrid Excel Integration](https://github.com/openfin/fin-hypergrid#hypergrid-excel-integration)
-* [Hypergrid Excel JSON Behavior Example Application](https://github.com/openfin/fin-hypergrid#hypergrid-excel-json-behavior-example-application)
-* [Fin-Hypergrid-Excel plugin element](https://github.com/openfin/fin-hypergrid#fin-hypergrid-excel-plugin-element)
-* [Excel Integration Links](https://github.com/openfin/fin-hypergrid#excel-integration-links)
+    * [Hypergrid Excel JSON Behavior Example Application](https://github.com/openfin/fin-hypergrid#hypergrid-excel-json-behavior-example-application)
+    * [Fin-Hypergrid-Excel plugin element](https://github.com/openfin/fin-hypergrid#fin-hypergrid-excel-plugin-element)
+    * [Excel Integration Links](https://github.com/openfin/fin-hypergrid#excel-integration-links)
 * [KDB+/Q by kx systems demo](https://github.com/openfin/fin-hypergrid#kdbq-by-kx-systems-demo-tabs-select-either-the-q-or-q-tree-tabs)
 * [Hypergrid example for displaying RDBMS data](https://github.com/openfin/fin-hypergrid#hypergrid-example-for-displaying-rdbms-data)
 * [Custom Scrollbars](https://github.com/openfin/fin-hypergrid#custom-scrollbars)
@@ -96,7 +96,7 @@ The only file that is necessary to deploy the hypergrid is the webcomponent html
 
 By far the most common behavior to use will be the JSON behavior.  If you're not sure which one to start with, select this one.
 
-# Populating a JSON behavior with data
+## Populating a JSON behavior with data
 
 To populate the json behavior with data simply provide hypergrid with an array of same shaped objects.   
 ```
@@ -119,7 +119,7 @@ To populate the json behavior with data simply provide hypergrid with an array o
         },
     ]);
 ```
-# Specifying fields and headers for a JSON behavior
+## Specifying fields and headers for a JSON behavior
 
 There are several ways to specify fields and headers with hypergrid.
 
@@ -152,7 +152,7 @@ There are several ways to specify fields and headers with hypergrid.
     ]);
 ```
 
-# JSON behavior totals rows
+## JSON behavior totals rows
 
 adding totals rows just under the column headers with Hypergrid is extremely simple.  Call setTotals function on the JSON behavior and pass in an array of arrays of the content you want displayed.
 
@@ -168,7 +168,7 @@ adding totals rows just under the column headers with Hypergrid is extremely sim
 
 ```
 
-# JSON behavior table state
+## JSON behavior table state
 Hypergrid allows you to snapshot the user configured state and then reapply it later(memento pattern) this includes.
 * column order
 * column widths
@@ -200,8 +200,8 @@ the above table will produce the below state object
 ```
 state objects can be created programmatically or by hand and applied.  This is how you may pre configure your grid properties.
 
-Updating Hypergrid Data with the JSON Behavior  <a name="updating-data"></a>
-======================
+## Updating Hypergrid Data with the JSON Behavior  <a name="updating-data"></a>
+
 It's really easy to see your data updates manifest in the hypergrid with the JSON behavior. You don't need to call setData again.
 
 1. Update the underlying javascript object field.
@@ -328,7 +328,7 @@ These areas coorespond to four functions on a [CellProvider](https://github.com/
         },
 ``` 
 
-#Creating a custom cell renderer.
+## Creating a custom cell renderer.
 Creating a cell renderer and using it is very easy, ie:
 
 <img src="images/customrenderer.png">
@@ -393,7 +393,7 @@ You can autosize a column to best fit size by double clicking on the column head
 
 Hypergrid comes with several default cell editors you can easily select, and the ability to create your own. [The javascript code](https://github.com/openfin/fin-hypergrid/tree/master/polymer/js/cell-editors) for the cell editors is found here.
 
-# default cell editors
+## Default cell editors
 * [choice](http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/#fin-hypergrid-cell-editor-choice)
 <br><img src="images/choice.png" alt="screenshot">
 * [color](http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/#fin-hypergrid-cell-editor-color)
@@ -407,8 +407,8 @@ Hypergrid comes with several default cell editors you can easily select, and the
 * [textfield](http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/#fin-hypergrid-cell-editor-textfield)
 <br><img src="images/textfield.png" alt="screenshot">
 
-Creating your own cell editor <a name="creating-cell-editors"></a>
-============
+## Creating your own cell editor <a name="creating-cell-editors"></a>
+
 You can easily create your own cell editors by subclassing any of the existing cell editors and registering your cell editor with Hypergrid.
 
 * Create a subclass of an existing cell editor.  See [creating polymer components](https://www.polymer-project.org/0.5/docs/polymer/polymer.html) for understanding more about the google best practices for building next generation web components.
@@ -447,7 +447,7 @@ myBehavior.getCellEditorAt = function(x, y) {
 
 # Hypergrid configuration
 
-# Modifying various hypergrid features and property defaults
+## Modifying various hypergrid features and property defaults
 Many of the hypergrid default values and properties can be set through property overriding functions
 ```addGlobalProperties``` and ```addProperties```.  The current list is.
 
@@ -494,7 +494,9 @@ repaintImmediately|false|cause painting to happen immediately within the same mi
 useBitBlit|false/true|enable or disable double buffering
 useHiDPI|true/false|make use of hi dpi displays (defaults to true)
 columnAutosizing|true/false|enable column autosizing
-# example usage
+
+## Example usage
+
 ```
     var lnfOverrides = {
         font: '13px Tahoma, Geneva, sans-serif',
@@ -571,8 +573,8 @@ press alt/option to open the column picker, you can press alt/option or esc to c
 <img src="images/gridshot07.png" alt="screenshot">
 
 <a name="hypergrid-excel-integration"></a>
-Hypergrid Excel Integration
-======================
+
+# Hypergrid Excel Integration
 
 There is an example integration between the Hypergrid and Microsoft Excel over the OpenFin InterApplicationBus. The example only works when running Hypergrid in the OpenFin Runtime, which is installed from the [Hypergrid Openfin Installer](https://dl.openfin.co/services/download?fileName=hypergrid-demo-installer&config=http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/demo.json).
 
@@ -597,15 +599,13 @@ The excel-integration demo consists of an OpenFin app, and a C# XLL plugin built
 
 <a name="excel-json-behavior-example"></a>
 
-Hypergrid Excel JSON Behavior Example Application
-=========================
+## Hypergrid Excel JSON Behavior Example Application
  
 Because so many folks have been asking for an example of JSON with Excel, we've provided a bare bones example that should help you out understanding how it all works.  [Here is the link for the installer.](https://dl.openfin.co/services/download?fileName=hypergrid-json-demo-installer&config=http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/examples/excel-json-behavior.json)  The example uses the same FinDesktopAddin-packed and hypergrid.xls file from the above [Hypergrid Excel Integration](#hypergrid-excel-integration) above.  The html for the example is [here.](https://github.com/openfin/fin-hypergrid/blob/master/examples/excel-json-behavior.html)
 
 <img src="images/excel-integration04.png" alt="screenshot">
 
-Fin-Hypergrid-Excel plugin element
-=========================
+## Fin-Hypergrid-Excel plugin element
 
 To enable excel messaging for your behavior, embed the fin-hypergrid-excel tag inside your grid tag
 
@@ -636,8 +636,7 @@ MUST be the same as the first argument to the Excel function
 <a class="hovertrigger">=FinDesktopSync("hypergrid-demo","onSelect","").</a><div class="hoverdiv"><img src="images/excel-integration02.png" alt="screenshot"></div>
 
 
-Excel Integration Links
-=====
+## Excel Integration Links
 
 http://exceldna.codeplex.com/
 
@@ -645,8 +644,9 @@ https://exceldna.codeplex.com/documentation
 
 http://nodejs.org/download/
 
+
 <a name="q-behavior"></a>
-#KDB+/Q by [kx](http://kx.com/) systems [demo](http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/demo.html?tab=4) tabs (select either the 'Q' or 'Q Tree' tabs).
+# Q/KDB+ by [kx](http://kx.com/) systems [demo](http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/demo.html?tab=4).
 
 This Hypertree + Hypergrid example allows you to define a on the fly custom drill down hierarchy while supporting grouping, aggregations, and sorting in realtime.  The current example demonstrates 20MM updates/second.  The default aggregations available are sum, min, max, first, last, average, weighted average, mean, and standard deviation.  Press options/alt to drag and drop define the visible columns and the drill down hierarchy.
 
