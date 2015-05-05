@@ -1,0 +1,71 @@
+<html>
+<head>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/webcomponentsjs/0.6.1/webcomponents.min.js"></script>
+  <link rel="import" href="../fin-hypergrid.dev.html">
+    <script>
+        function launchRuntimeAsset(subPath, args, callback, errorCallback) {
+        fin.desktop.System.getEnvironmentVariable(['LOCALAPPDATA', 'USERNAME'], function(result) {
+            var localAppData = result['LOCALAPPDATA'];
+            var userName = result['USERNAME'];
+
+            // Assuming on Windows XP when LOCALAPPDATA fails to expand. Using default location. Anything with registry setting for installDir will fail.
+            if(typeof localAppData !== 'string' || localAppData === 'LOCALAPPDATA') {
+            // Assuming on XP
+            localAppData = 'C:\\Documents and Settings\\' + userName + '\\Local Settings\\Application Data';
+            }
+
+            var runtimePath = localAppData + '\\OpenFin\\runtime\\' + fin.desktop.getVersion() + '\\OpenFin\\';
+
+            fin.desktop.System.launchExternalProcess(runtimePath + subPath, runtimePath + args, callback, errorCallback);
+            }, errorCallback);
+        }
+        document.addEventListener('DOMContentLoaded', function() {
+            fin.desktop.main(function() {
+                launchRuntimeAsset('qtree\\q.exe', 'qtree\\c.q', function(){
+                    console.log('YAY IT LAUNCHED!');
+                    var grid = document.querySelector('#grid');
+                    var behavior = grid.getBehavior();
+                    behavior.reconnect();
+                },
+                function(err) {
+                    console.error("Oh no it failed!");
+                });
+            });
+        });
+    </script>
+
+<style>
+::-webkit-scrollbar {
+    -webkit-appearance: none;
+    width: 8px;
+    height: 8px;
+}
+::-webkit-scrollbar-thumb {
+    border-radius: 4px;
+    background-color: rgba(0,0,0,.5);
+    -webkit-box-shadow: 0 0 1px rgba(255,255,255,.5);
+}
+ html {
+    overflow: scroll;
+}
+ body {
+    margin: 0;
+    padding: 0;
+ }
+ fin-hypergrid {
+    position: absolute;
+    top: 0%;
+    bottom: 0%;
+    left: 0%;
+    right: 0%;
+}
+</style>
+</head>
+<body>
+
+<fin-hypergrid id="grid">
+    <fin-hypergrid-behavior-qtree url="ws://localhost:12345"></fin-hypergrid-behavior-qtree>
+</fin-hypergrid>
+
+</body>
+</html>
