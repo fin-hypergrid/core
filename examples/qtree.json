@@ -5,7 +5,7 @@
         "name": "hypergrid-qtree-demo",
         "url": "http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/examples/qtree.html",
         "uuid": "hypergrid-qtree-demo",
-        "applicationIcon": "http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/images/openfin.ico",
+        "applicationIcon": "http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/images/hypergrid_thumb.ico",
         "contextMenu" : true
     },
     "runtime": {
@@ -20,10 +20,10 @@
     "shortcut": {
         "company": "OpenFin",
         "description": "Hypergrid by OpenFin",
-        "icon": "http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/images/openfin.ico",
+        "icon": "http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/images/hypergrid_thumb.ico",
         "name": "Hypergrid-QTree-Demo"
     },
-    "ignore": "https://dl.openfin.co/services/download?fileName=hypergrid-demo-installer&config=http://10.9.105.182:8080/examples/qtree-local.json"
+    "ignore": "https://dl.openfin.co/services/download?fileName=hypergrid-demo-installer&config=http://http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/examples/qtree.json"
 }
 
 }
