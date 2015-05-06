@@ -1,5 +1,9 @@
 'use strict';
-
+/**
+ *
+ * @module features\cell-click
+ *
+ */
 (function() {
 
     Polymer('fin-hypergrid-feature-cell-click', { /* jshint ignore:line  */

@@ -1,6 +1,9 @@
-/*jshint  bitwise: false */
 'use strict';
-
+/**
+ *
+ * @module behaviors\gol
+ *
+ */
 (function() {
 
     var noop = function() {};

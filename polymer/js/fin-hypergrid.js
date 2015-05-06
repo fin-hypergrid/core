@@ -1,8 +1,11 @@
 /* global alert */
 'use strict';
 
-(function() {
+/**
+ * @module root\fin-hypergrid
+ */
 
+(function() {
     var rectangles;
     var globalCellEditors = {};
     var propertiesInitialized = false;

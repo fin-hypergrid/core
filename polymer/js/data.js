@@ -1,5 +1,9 @@
 'use strict';
-
+/**
+ *
+ * @module root\data
+ *
+ */
 var noop = function() {};
 
 window.flashSort = (function() {

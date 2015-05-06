@@ -1,5 +1,9 @@
 'use strict';
-
+/**
+ *
+ * @module features\column-autosizing
+ *
+ */
 (function() {
 
     Polymer('fin-hypergrid-feature-column-autosizing', { /* jshint ignore:line  */

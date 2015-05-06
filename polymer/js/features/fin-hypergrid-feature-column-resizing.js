@@ -1,6 +1,10 @@
+'use strict';
+/**
+ *
+ * @module features\column-resizing
+ *
+ */
 (function() {
-
-    'use strict';
 
     //var noop = function() {};
 

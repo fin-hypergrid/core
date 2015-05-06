@@ -1,8 +1,14 @@
 /* globals fin */
 
-(function() {
+'use strict';
 
-    'use strict';
+/**
+ *
+ * @module root\excel
+ *
+ */
+
+(function() {
 
     var excelOriginOffset = 1;
 
@@ -15,6 +21,11 @@
             interval: 500,
             logging: false
         },
+
+        /**
+         *
+         * @function
+         */
         installOn: function(grid) {
             var self = this;
             this.grid = grid;

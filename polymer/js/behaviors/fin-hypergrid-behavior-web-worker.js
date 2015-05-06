@@ -1,5 +1,9 @@
 'use strict';
-
+/**
+ *
+ * @module behaviors\web-worker
+ *
+ */
 (function() {
 
     Polymer({ /* jslint ignore:line */

@@ -1,3 +1,9 @@
+'use strict';
+/**
+ *
+ * @module features\column-moving
+ *
+ */
 (function() {
 
     'use strict';

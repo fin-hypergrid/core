@@ -1,5 +1,11 @@
 /* global numeral*/
 'use strict';
+/**
+ *
+ * @module behaviors\qtree
+ *
+ */
+
 //fin-hypergrid-behavior-qtree is a datasource based on an external Q data source with tree-centric analytic capilities
 //<br>See [kx.com](http://www.kx.com)
 //<br>Two example scripts are provided in the root of this project, bigtable.q and sorttable.q

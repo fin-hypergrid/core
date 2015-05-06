@@ -13,6 +13,13 @@
 // * render main data cells
 // * render grid lines
 
+
+/**
+ *
+ * @module root\renderer
+ *
+ */
+
 'use strict';
 
 var noop = function() {};

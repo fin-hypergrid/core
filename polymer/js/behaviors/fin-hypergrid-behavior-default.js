@@ -1,5 +1,9 @@
 'use strict';
-
+/**
+ *
+ * @module behaviors\default
+ *
+ */
 (function() {
     var alphaFor = function(i) {
         // Name the column headers in A, .., AA, AB, AC, .., AZ format

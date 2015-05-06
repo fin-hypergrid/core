@@ -1,6 +1,10 @@
+'use strict';
+/**
+ *
+ * @module features\thumbwheel-scrolling
+ *
+ */
 (function() {
-
-    'use strict';
 
     Polymer({ /* jshint ignore:line */
         handleWheelMoved: function(grid, e) {

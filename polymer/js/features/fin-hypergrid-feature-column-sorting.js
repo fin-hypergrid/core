@@ -1,6 +1,10 @@
+'use strict';
+/**
+ *
+ * @module features\column-sorting
+ *
+ */
 (function() {
-
-    'use strict';
 
     Polymer({ /* jshint ignore:line */
 

@@ -1,6 +1,10 @@
+'use strict';
+/**
+ *
+ * @module features\row-resizing
+ *
+ */
 (function() {
-
-    'use strict';
 
     Polymer({ /* jshint ignore:line */
 

@@ -1,6 +1,10 @@
+'use strict';
+/**
+ *
+ * @module features\cell-editing
+ *
+ */
 (function() {
-
-    'use strict';
 
     Polymer({ /* jshint ignore:line */
         handleDoubleClick: function(grid, event) {

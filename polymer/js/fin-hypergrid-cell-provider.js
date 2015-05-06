@@ -1,5 +1,9 @@
 'use strict';
-
+/**
+ *
+ * @module root\cell-provider
+ *
+ */
 var noop = function() {};
 
 (function() {

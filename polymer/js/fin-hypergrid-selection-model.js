@@ -1,5 +1,10 @@
 'use strict';
 
+/**
+ *
+ * @module root\selection-model
+ */
+
 (function() {
 
     //We represent selections as a list of rectangles because large areas can be represented and tested against quickly with a minimal amount of memory usage. Also we need to maintain the selection rectangles flattened counter parts so we can test for single dimension contains.  This is how we know to highlight the fixed regions on the edges of the grid.

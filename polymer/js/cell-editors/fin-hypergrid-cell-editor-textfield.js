@@ -1,5 +1,9 @@
 'use strict';
-
+/**
+ *
+ * @module cell-editors\textfield
+ *
+ */
 (function() {
 
     Polymer({ /* jshint ignore:line */

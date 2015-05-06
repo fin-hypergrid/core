@@ -1,5 +1,9 @@
 'use strict';
-
+/**
+ *
+ * @module cell-editors\base
+ *
+ */
 (function() {
 
     var noop = function() {};

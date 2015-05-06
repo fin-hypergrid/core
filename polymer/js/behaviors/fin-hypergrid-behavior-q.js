@@ -1,4 +1,10 @@
 'use strict';
+'use strict';
+/**
+ *
+ * @module behaviors\q
+ *
+ */
 //fin-hypergrid-behavior-q is a datasource based on an external Q data source.
 //<br>See [kx.com](http://www.kx.com)
 //<br>Two example scripts are provided in the root of this project, bigtable.q and sorttable.q

@@ -1,6 +1,10 @@
+'use strict';
+/**
+ *
+ * @module features\overlay
+ *
+ */
 (function() {
-
-    'use strict';
 
     var noop = function() {};
 

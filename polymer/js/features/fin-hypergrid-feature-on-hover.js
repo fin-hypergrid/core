@@ -1,6 +1,10 @@
+'use strict';
+/**
+ *
+ * @module features\on-hover
+ *
+ */
 (function() {
-
-    'use strict';
 
     //var noop = function() {};
 

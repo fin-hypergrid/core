@@ -1,5 +1,9 @@
 'use strict';
-
+/**
+ *
+ * @module features\key-paging
+ *
+ */
 var commands = {
     PAGEDOWN: function(grid) {
         grid.pageDown();

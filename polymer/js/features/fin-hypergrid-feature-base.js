@@ -1,6 +1,10 @@
+'use strict';
+/**
+ *
+ * @module features\base
+ *
+ */
 (function() {
-
-    'use strict';
 
     Polymer({ /* jshint ignore:line */
 

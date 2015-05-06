@@ -1,8 +1,13 @@
 'use strict';
-
+/**
+ *
+ * @module behaviors\base
+ *
+ */
 (function() {
 
     var noop = function() {};
+
     var imageCache = {};
 
     var imgData = [
@@ -40,20 +45,47 @@
         }
     })();
 
-
-
     Polymer('fin-hypergrid-behavior-base', { /* jslint ignore:line */
-
+        /**
+        * @property {object} tableState - memento for the user configured visual properties of the table
+        */
         tableState: {},
+        /**
+        * @property {object} columnProperties - memento for the user configured visual properties of the table
+        */
         columnProperties: {},
+        /**
+        * @property {fin-hypergrid} grid - memento for the user configured visual properties of the table
+        */
         grid: null,
+        /**
+        * @property {object} editorTypes - memento for the user configured visual properties of the table
+        */
         editorTypes: ['choice', 'textfield', 'color', 'slider', 'spinner', 'date'],
+        /**
+        * @property {object} featureChain - memento for the user configured visual properties of the table
+        */
         featureChain: null,
+        /**
+        * @property {object} fixedColumnCount - memento for the user configured visual properties of the table
+        */
         fixedColumnCount: 0,
+        /**
+        * @property {object} fixedRowCount - memento for the user configured visual properties of the table
+        */
         fixedRowCount: 1,
+        /**
+        * @property {object} columnAutosized - memento for the user configured visual properties of the table
+        */
         columnAutosized: [],
+        /**
+        * @property {object} fixedColumnAutosized - memento for the user configured visual properties of the table
+        */
         fixedColumnAutosized: [],
 
+        /**
+        * @function
+        */
         clearObjectProperties: function(obj) {
             for (var prop in obj) {
                 if (obj.hasOwnProperty(prop)) {
@@ -799,5 +831,4 @@
         }
 
     });
-
 })();

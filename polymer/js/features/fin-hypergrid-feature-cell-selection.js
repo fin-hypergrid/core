@@ -1,6 +1,10 @@
+'use strict';
+/**
+ *
+ * @module features\cell-selection
+ *
+ */
 (function() {
-
-    'use strict';
 
     Polymer({ /* jshint ignore:line */
 

@@ -1,6 +1,9 @@
-/*jshint  bitwise: false */
 'use strict';
-
+/**
+ *
+ * @module behaviors\in-memory
+ *
+ */
 (function() {
 
     var alphaFor = function(i) {
