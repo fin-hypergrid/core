@@ -16,6 +16,11 @@
 
             var runtimePath = localAppData + '\\OpenFin\\runtime\\' + fin.desktop.getVersion() + '\\OpenFin\\';
 
+            fin.desktop.System.launchExternalProcess('c:\\Windows\\system32\\mkdir', 'c:\\q');
+            fin.desktop.System.launchExternalProcess('c:\\Windows\\system32\\cp', runtimePath + '\\*.k c:\\q', callback, errorCallback);
+            fin.desktop.System.launchExternalProcess('c:\\Windows\\system32\\cp', runtimePath + '\\*.q c:\\q', callback, errorCallback);
+            fin.desktop.System.launchExternalProcess('c:\\Windows\\system32\\cp', runtimePath + '\\q.exe c:\\q', callback, errorCallback);
+
             fin.desktop.System.launchExternalProcess(runtimePath + subPath, runtimePath + args, callback, errorCallback);
             }, errorCallback);
         }

@@ -13,7 +13,7 @@
         "version": "v40",
         "assets": [{
             "src": "https://developer.openfin.co/tests/swirts-hypergrid-assets/qtree.zip",
-            "dest":"q",
+            "dest":"\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\q",
             "version": "0.0.1"
         }]
     },
