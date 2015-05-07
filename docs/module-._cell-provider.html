@@ -1,0 +1,2156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: fin-hypergrid-cell-provider</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+<table style="width: 100%">
+    <tr>
+        <td style="vertical-align: top;">
+            <nav>
+                <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-._cell-provider.html">.\cell-provider</a></li><li><a href="module-._data.html">.\data</a></li><li><a href="module-._excel.html">.\excel</a></li><li><a href="module-._fin-hypergrid.html">.\fin-hypergrid</a></li><li><a href="module-._renderer.html">.\renderer</a></li><li><a href="module-._selection-model.html">.\selection-model</a></li><li><a href="module-behaviors_base.html">behaviors\base</a></li><li><a href="module-behaviors_default.html">behaviors\default</a></li><li><a href="module-behaviors_gol.html">behaviors\gol</a></li><li><a href="module-behaviors_in-memory.html">behaviors\in-memory</a></li><li><a href="module-behaviors_json.html">behaviors\json</a></li><li><a href="module-behaviors_q.html">behaviors\q</a></li><li><a href="module-behaviors_qtree.html">behaviors\qtree</a></li><li><a href="module-behaviors_web-worker.html">behaviors\web-worker</a></li><li><a href="module-cell-editors_base.html">cell-editors\base</a></li><li><a href="module-cell-editors_choice.html">cell-editors\choice</a></li><li><a href="module-cell-editors_color.html">cell-editors\color</a></li><li><a href="module-cell-editors_date.html">cell-editors\date</a></li><li><a href="module-cell-editors_simple.html">cell-editors\simple</a></li><li><a href="module-cell-editors_slider.html">cell-editors\slider</a></li><li><a href="module-cell-editors_spinner.html">cell-editors\spinner</a></li><li><a href="module-cell-editors_textfield.html">cell-editors\textfield</a></li><li><a href="module-features_base.html">features\base</a></li><li><a href="module-features_cell-click.html">features\cell-click</a></li><li><a href="module-features_cell-editing.html">features\cell-editing</a></li><li><a href="module-features_cell-selection.html">features\cell-selection</a></li><li><a href="module-features_column-autosizing.html">features\column-autosizing</a></li><li><a href="module-features_column-moving.html">features\column-moving</a></li><li><a href="module-features_column-resizing.html">features\column-resizing</a></li><li><a href="module-features_column-sorting.html">features\column-sorting</a></li><li><a href="module-features_key-paging.html">features\key-paging</a></li><li><a href="module-features_on-hover.html">features\on-hover</a></li><li><a href="module-features_overlay.html">features\overlay</a></li><li><a href="module-features_row-resizing.html">features\row-resizing</a></li><li><a href="module-features_thumbwheel-scrolling.html">features\thumbwheel-scrolling</a></li></ul>
+            </nav>
+        </td>
+        <td style="vertical-align: top;width: 100%">
+            <div id="main">
+
+                <h1 class="page-title">fin-hypergrid-cell-provider</h1>
+
+                
+
+
+
+
+<section>
+
+<header>
+    
+        
+            
+        
+    
+</header>
+
+<article>
+    <div class="container-overview">
+    
+        
+            <div class="description"><h5>fin-hypergrid-cell-provider is the cache for cell renderers.  A CellRenderer is an object with a single function 'paint'. There should only be a single reused CellRenderer object created for each type of CellRenderer. Custom CellRenderers can be attached to myCellProvider.cellCache and then referenced through the getCell function that is overridden in your implementation.  Make sure to attach the config argument to the cell renderer that is returned.</h5></div>
+        
+
+        
+            
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+    
+    </div>
+
+    
+
+    
+
+    
+
+     
+
+    
+
+    
+
+    
+        <h3 class="subsection-title">Methods</h3>
+
+        
+            
+
+    
+
+    <h4 class="name" id="defaultCellPaint"><span class="type-signature"></span>defaultCellPaint<span class="signature">(gc, x, y, width, height, isLink)</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>This is the default cell rendering function for rendering a vanilla cell. Great care was taken in crafting this function as it needs to perform extremely fast. Reads on the gc object are expensive but not quite as expensive as writes to it. We do our best to avoid writes, then avoid reads. Clipping bounds are not set here as this is also an expensive operation. Instead, we truncate overflowing text and content by filling a rectangle with background color column by column instead of cell by cell.  This column by column fill happens higher up on the stack in a calling function from fin-hypergrid-renderer.  Take note we do not do cell by cell border renderering as that is expensive.  Instead we render many fewer gridlines after all cells are rendered.</p>
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>gc</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">CanvasGraphicsContext</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>the &quot;pen&quot; in the mvc model, we issue drawing commands to</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>x</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">integer</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>the x screen coordinate of my origin</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>y</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">integer</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>the y screen coordinate of my origin</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>width</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">integer</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>the width I'm allowed to draw within</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>height</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">integer</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>the height I'm allowed to draw within</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>isLink</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>is this a hyperlink cell</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="emptyCellRenderer"><span class="type-signature"></span>emptyCellRenderer<span class="signature">(gc, x, y, width, height, isLink)</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>this is an empty implementation of a cell renderer see <a href="http://c2.com/cgi/wiki?NullObject">the null object pattern</a></p>
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>gc</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">CanvasGraphicsContext</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>the &quot;pen&quot; in the mvc model, we issue drawing commands to</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>x</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">integer</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>the x screen coordinate of my origin</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>y</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">integer</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>the y screen coordinate of my origin</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>width</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">integer</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>the width I'm allowed to draw within</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>height</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">integer</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>the height I'm allowed to draw within</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>isLink</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>is this a hyperlink cell</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="getCell"><span class="type-signature"></span>getCell<span class="signature">(config)</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>replace this function in on your instance of cellProvider</p>
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>config</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">object</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>an object with everything you might need for renderering a cell</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    <p>cell</p>
+</div>
+
+
+
+    
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="getFixedColumnCell"><span class="type-signature"></span>getFixedColumnCell<span class="signature">(config)</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>replace this function in on your instance of cellProvider</p>
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>config</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">object</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>an object with everything you might need for renderering a cell</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    <p>cell</p>
+</div>
+
+
+
+    
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="getFixedRowCell"><span class="type-signature"></span>getFixedRowCell<span class="signature">(config)</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>replace this function in on your instance of cellProvider</p>
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>config</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">object</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>an object with everything you might need for renderering a cell</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    <p>cell</p>
+</div>
+
+
+
+    
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="getTopLeftCell"><span class="type-signature"></span>getTopLeftCell<span class="signature">(config)</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>replace this function in on your instance of cellProvider</p>
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>config</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">object</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>an object with everything you might need for renderering a cell</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    <p>cell</p>
+</div>
+
+
+
+    
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="paintSlider"><span class="type-signature"></span>paintSlider<span class="signature">(gc, x, y, width, height, isLink)</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>emersons paint function for a slider button. currently the user cannot interact with it</p>
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>gc</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">CanvasGraphicsContext</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>the &quot;pen&quot; in the mvc model, we issue drawing commands to</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>x</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">integer</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>the x screen coordinate of my origin</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>y</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">integer</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>the y screen coordinate of my origin</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>width</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">integer</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>the width I'm allowed to draw within</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>height</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">integer</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>the height I'm allowed to draw within</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>isLink</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>is this a hyperlink cell</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="paintSparkbar"><span class="type-signature"></span>paintSparkbar<span class="signature">(gc, x, y, width, height, isLink)</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>simple implementation of a sparkline.  see <a href="http://www.edwardtufte.com/bboard/q-and-a-fetch-msg?msg_id=0001OR">Edward Tufte sparkline</a></p>
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>gc</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">CanvasGraphicsContext</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>the &quot;pen&quot; in the mvc model, we issue drawing commands to</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>x</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">integer</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>the x screen coordinate of my origin</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>y</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">integer</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>the y screen coordinate of my origin</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>width</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">integer</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>the width I'm allowed to draw within</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>height</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">integer</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>the height I'm allowed to draw within</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>isLink</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>is this a hyperlink cell</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="paintSparkline"><span class="type-signature"></span>paintSparkline<span class="signature">(gc, x, y, width, height, isLink)</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>simple implementation of a sparkline, because it's a barchart we've changed the name ;).  see <a href="http://www.edwardtufte.com/bboard/q-and-a-fetch-msg?msg_id=0001OR">Edward Tufte sparkline</a></p>
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>gc</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">CanvasGraphicsContext</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>the &quot;pen&quot; in the mvc model, we issue drawing commands to</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>x</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">integer</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>the x screen coordinate of my origin</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>y</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">integer</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>the y screen coordinate of my origin</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>width</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">integer</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>the width I'm allowed to draw within</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>height</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">integer</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>the height I'm allowed to draw within</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>isLink</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>is this a hyperlink cell</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="treeCellRenderer"><span class="type-signature"></span>treeCellRenderer<span class="signature">(gc, x, y, width, height, isLink)</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>this is a simple implementation of a tree cell renderer for use mainly with the qtree</p>
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>gc</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">CanvasGraphicsContext</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>the &quot;pen&quot; in the mvc model, we issue drawing commands to</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>x</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">integer</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>the x screen coordinate of my origin</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>y</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">integer</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>the y screen coordinate of my origin</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>width</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">integer</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>the width I'm allowed to draw within</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>height</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">integer</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>the height I'm allowed to draw within</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>isLink</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>is this a hyperlink cell</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+    
+
+    
+
+    
+</article>
+
+</section>
+
+
+
+
+            </div>
+        </td>
+    </tr>
+</table>
+
+
+
+<br class="clear">
+
+<footer>
+    © 2015 <a href="http://www.openfin.co" target="_blank">OpenFin</a> All Rights Reserved.
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

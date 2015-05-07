@@ -342,7 +342,7 @@
             while (first < last) {
                 var right = last;
                 var left = first;
-                pivot = (first + last) >> 1;
+                pivot = (first + last) >> 1; /* jshint ignore:line */
                 if (pivot < 0 || pivot >= last) {
                     break;
                 }

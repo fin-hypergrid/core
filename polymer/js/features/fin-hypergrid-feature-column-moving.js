@@ -6,8 +6,6 @@
  */
 (function() {
 
-    'use strict';
-
     var noop = function() {};
 
     var columnAnimationTime = 150;

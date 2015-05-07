@@ -2,7 +2,7 @@
 'use strict';
 
 /**
- * @module root\fin-hypergrid
+ * @module .\fin-hypergrid
  */
 
 (function() {

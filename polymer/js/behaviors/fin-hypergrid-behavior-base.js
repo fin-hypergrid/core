@@ -47,45 +47,45 @@
 
     Polymer('fin-hypergrid-behavior-base', { /* jslint ignore:line */
         /**
-        * @property {object} tableState - memento for the user configured visual properties of the table
-        */
+         * @property {object} tableState - memento for the user configured visual properties of the table
+         */
         tableState: {},
         /**
-        * @property {object} columnProperties - memento for the user configured visual properties of the table
-        */
+         * @property {object} columnProperties - a hook to put fgcolor, bgcolor, font for a column if no cell properties are available
+         */
         columnProperties: {},
         /**
-        * @property {fin-hypergrid} grid - memento for the user configured visual properties of the table
-        */
+         * @property {fin-hypergrid} grid - my instance of hypergrid
+         */
         grid: null,
         /**
-        * @property {object} editorTypes - memento for the user configured visual properties of the table
-        */
+         * @property {array} editorTypes - list of default cell editor names
+         */
         editorTypes: ['choice', 'textfield', 'color', 'slider', 'spinner', 'date'],
         /**
-        * @property {object} featureChain - memento for the user configured visual properties of the table
-        */
+         * @property {object} featureChain - controller chain of command
+         */
         featureChain: null,
         /**
-        * @property {object} fixedColumnCount - memento for the user configured visual properties of the table
-        */
+         * @property {integer} fixedColumnCount - the number of fixed columns
+         */
         fixedColumnCount: 0,
         /**
-        * @property {object} fixedRowCount - memento for the user configured visual properties of the table
-        */
+         * @property {integer} fixedRowCount - the number of fixed rows
+         */
         fixedRowCount: 1,
         /**
-        * @property {object} columnAutosized - memento for the user configured visual properties of the table
-        */
+         * @property {array} columnAutosized - boolean vector of which columns have been autosized
+         */
         columnAutosized: [],
         /**
-        * @property {object} fixedColumnAutosized - memento for the user configured visual properties of the table
-        */
+         * @property {array} fixedColumnAutosized - boolean vector of which fixed columns have been autosized
+         */
         fixedColumnAutosized: [],
 
         /**
-        * @function
-        */
+         * @function
+         */
         clearObjectProperties: function(obj) {
             for (var prop in obj) {
                 if (obj.hasOwnProperty(prop)) {
@@ -94,10 +94,16 @@
             }
         },
 
+        /**
+         * @function
+         */
         ready: function() {
             this.readyInit();
         },
 
+        /**
+         * @function
+         */
         readyInit: function() {
             this.cellProvider = this.createCellProvider();
             this.scrollPositionX = 0;
@@ -123,14 +129,23 @@
             this.fixedColumnAutosized = [];
         },
 
+        /**
+         * @function
+         */
         resolveProperty: function(key) {
             return this.grid.resolveProperty(key);
         },
 
+        /**
+         * @function
+         */
         getState: function() {
             return this.tableState;
         },
 
+        /**
+         * @function
+         */
         setState: function(state) {
             for (var key in state) {
                 if (state.hasOwnProperty(key)) {
@@ -139,10 +154,16 @@
             }
         },
 
+        /**
+         * @function
+         */
         cellClicked: function(cell, event) {
             this.grid.fireCellClickEvent(cell, event);
         },
 
+        /**
+         * @function
+         */
         initColumnIndexes: function() {
             var columnCount = this._getColumnCount();
             var fixedColumnCount = this.getFixedColumnCount();
@@ -155,10 +176,16 @@
             }
         },
 
+        /**
+         * @function
+         */
         insureColumnIndexesAreInitialized: function() {
             this.swapColumns(0, 0);
         },
 
+        /**
+         * @function
+         */
         swapColumns: function(src, tar) {
             var indexes = this.tableState.columnIndexes;
             if (indexes.length === 0) {
@@ -170,6 +197,9 @@
             indexes[tar + this.fixedColumnCount] = tmp;
         },
 
+        /**
+         * @function
+         */
         translateColumnIndex: function(x) {
             var indexes = this.tableState.columnIndexes;
             if (indexes.length === 0) {
@@ -178,10 +208,16 @@
             return indexes[x + this.fixedColumnCount];
         },
 
+        /**
+         * @function
+         */
         unTranslateColumnIndex: function(x) {
             return this.tableState.columnIndexes.indexOf(x);
         },
 
+        /**
+         * @function
+         */
         setNextFeature: function(nextFeature) {
             if (this.featureChain) {
                 this.featureChain.setNext(nextFeature);
@@ -190,11 +226,17 @@
             }
         },
 
+        /**
+         * @function
+         */
         installOn: function(grid) {
             grid.setBehavior(this);
             this.initializeFeatureChain(grid);
         },
 
+        /**
+         * @function
+         */
         initializeFeatureChain: function(grid) {
             this.setNextFeature(document.createElement('fin-hypergrid-feature-key-paging'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-cell-click'));
@@ -212,31 +254,45 @@
             this.featureChain.initializeOn(grid);
         },
 
+        /**
+         * @function
+         */
         getCellProvider: function() {
             return this.cellProvider;
         },
 
+        /**
+         * @function
+         */
         setGrid: function(finGrid) {
             this.grid = finGrid;
         },
 
+        /**
+         * @function
+         */
         getGrid: function() {
             return this.grid;
         },
 
-        //override this function on your GridBehavior to have custom cell renderering
-        //<br>see [QGridBehavior.createCellProvider()](QGridBehavior.html) for an example
+        /**
+         * @function
+         */
         createCellProvider: function() {
             var provider = document.createElement('fin-hypergrid-cell-provider');
             return provider;
         },
 
+        /**
+         * @function
+         */
         getTopLeftValue: function( /* x, y */ ) {
             return '';
         },
 
-        //provide the data at the x,y coordinate in the grid
-        //<br>this function should be overridden by you
+        /**
+         * @function
+         */
         _getValue: function(x, y) {
             x = this.translateColumnIndex(x);
             var override = this.dataUpdates['p_' + x + '_' + y];
@@ -246,41 +302,48 @@
             return this.getValue(x, y);
         },
 
-        //set the data at the x, y
-        //<br>this function should be overridden by you
+        /**
+         * @function
+         */
         _setValue: function(x, y, value) {
             x = this.translateColumnIndex(x);
             this.setValue(x, y, value);
         },
 
-        //fixed rows are the static rows at the top of the grid that don't scroll up or down
-        //<br>they can be arbitary width by height in size
-        //<br>here we just return an excel-ish base-26 alpha value
+        /**
+         * @function
+         */
         _getFixedRowValue: function(x, y) {
             x = this.translateColumnIndex(x);
             return this.getFixedRowValue(x, y);
         },
 
-        //fixed columns are the static columns at the left of the grid that don't scroll up or down
-        //<br>they can be arbitary width by height in size
-        //<br>here we just return an excel-ish base-26 alpha value
+        /**
+         * @function
+         */
         getFixedColumnValue: function(x, y) {
             //x = this.fixedtranslateColumnIndex(x);
             return y + 1;
         },
 
-        //can be dynamic if your data set changes size
+        /**
+         * @function
+         */
         getRowCount: function() {
             //jeepers batman a quadrillion rows!
             return 1000000000000000;
         },
 
-        //can be dynamic if your data set changes size
+        /**
+         * @function
+         */
         _getColumnCount: function() {
             return this.getColumnCount() - this.tableState.hiddenColumns.length - this.fixedColumnCount;
         },
 
-        //pixel height of the fixed rows area
+        /**
+         * @function
+         */
         getFixedRowsHeight: function() {
             var count = this.getFixedRowCount();
             var total = 0;
@@ -290,7 +353,9 @@
             return total;
         },
 
-        //the height of the specific fixed row
+        /**
+         * @function
+         */
         getFixedRowHeight: function(rowNum) {
             if (this.tableState.fixedRowHeights) {
                 var override = this.tableState.fixedRowHeights[rowNum];
@@ -301,14 +366,18 @@
             return this.resolveProperty('defaultFixedRowHeight');
         },
 
+        /**
+         * @function
+         */
         setFixedRowHeight: function(rowNum, height) {
             //console.log(rowNum + ' ' + height);
             this.tableState.fixedRowHeights[rowNum] = Math.max(5, height);
             this.changed();
         },
 
-        //can be dynamic if we wish to allow users to resize
-        //<br>or driven by data, etc...
+        /**
+         * @function
+         */
         getRowHeight: function(rowNum) {
             if (this.tableState.rowHeights) {
                 var override = this.tableState.rowHeights[rowNum];
@@ -319,7 +388,9 @@
             return this.getDefaultRowHeight();
         },
 
-        //lets cache this as it's expensive to keep looking it up;
+        /**
+         * @function
+         */
         getDefaultRowHeight: function() {
             if (!this.defaultRowHeight) {
                 this.defaultRowHeight = this.resolveProperty('defaultRowHeight');
@@ -327,20 +398,25 @@
             return this.defaultRowHeight;
         },
 
+        /**
+         * @function
+         */
         setRowHeight: function(rowNum, height) {
             this.tableState.rowHeights[rowNum] = Math.max(5, height);
             this.changed();
         },
 
-        //the potential maximum height of the fixed row area
-        //<br>TODO: move this logic into the OFGrid itself
-        //<br>there should only be getFixedRows, and getMaxFixedRows
+        /**
+         * @function
+         */
         getFixedRowsMaxHeight: function() {
             var height = this.getFixedRowsHeight();
             return height;
         },
 
-        //pixel width of the fixed columns area
+        /**
+         * @function
+         */
         getFixedColumnsWidth: function() {
             var count = this.getFixedColumnCount();
             var total = 0;
@@ -349,19 +425,26 @@
             }
             return total;
         },
+
+        /**
+         * @function
+         */
         setFixedColumnWidth: function(colNumber, width) {
             this.tableState.fixedColumnWidths[colNumber] = Math.max(5, width);
             this.changed();
         },
-        //the potential maximum width of the fixed col area
-        //<br>TODO: move this logic into the OFGrid itself
-        //<br>there should only be getFixedColumns, and getMaxFixedColumns
+
+        /**
+         * @function
+         */
         getFixedColumnsMaxWidth: function() {
             var width = this.getFixedColumnsWidth();
             return width;
         },
 
-        //the width of the specific fixed col
+        /**
+         * @function
+         */
         getFixedColumnWidth: function(colNumber) {
             var override = this.tableState.fixedColumnWidths[colNumber];
             if (override) {
@@ -370,78 +453,86 @@
             return this.resolveProperty('defaultFixedColumnWidth');
         },
 
-        //can be dynamic if we wish to allow users to resize
-        //<br>or driven by data, etc...
-        //<br>this implementation is driven by modulo
-        //<br>TODO: move this example into InMemoryGridBehavior
+        /**
+         * @function
+         */
         _getColumnWidth: function(x) {
             x = this.translateColumnIndex(x);
             return this.getColumnWidth(x);
         },
 
+        /**
+         * @function
+         */
         _setColumnWidth: function(x, width) {
             x = this.translateColumnIndex(x);
             this.setColumnWidth(x, width);
             this.changed();
         },
 
-        //this is set by OFGrid on scroll
-        //<br>this allows for fast scrolling through rows of very large external data sets
-        //<br>this is ignored by in memory GridBehaviors
+        /**
+         * @function
+         */
         _setScrollPositionY: function(y) {
             this.setScrollPositionY(y);
             this.changed();
         },
 
-        //this is set by OFGrid on scroll
-        //<br>this allows for fast scrolling through columns of very large external data sets
-        //<br>this is ignored by in memory GridBehaviors
+        /**
+         * @function
+         */
         _setScrollPositionX: function(x) {
             this.setScrollPositionX(x);
             this.changed();
         },
 
-        //the number of viewable columns we just rendered
-        //<br>set by OFGrid on every repaint
+        /**
+         * @function
+         */
         setRenderedWidth: function(width) {
             this.renderedWidth = width;
         },
 
-        //the number of viewable rows we just rendered
-        //<br>set by OFGrid on every repaint
+        /**
+         * @function
+         */
         setRenderedHeight: function(height) {
             this.renderedHeight = height;
         },
 
-        //answers the default col alignment for the main data area of the grid
-        //<br>TODO:provide uniform mechanism for the fixed areas like this
+        /**
+         * @function
+         */
         _getColumnAlignment: function(x) {
             x = this.translateColumnIndex(x);
             return this.getColumnAlignment(x);
         },
 
-        //answers the default alignment for the topleft area of the grid
-        //<br>TODO:provide uniform mechanism for the fixed areas like this
+        /**
+         * @function
+         */
         getTopLeftAlignment: function( /* x, y */ ) {
             return 'center';
         },
-        //answers the default col alignment for the fixed column data area of the grid
-        //<br>TODO:provide uniform mechanism for the fixed areas like this
+
+        /**
+         * @function
+         */
         getFixedColumnAlignment: function( /* x */ ) {
             return this.resolveProperty('fixedColumnAlign');
         },
 
-
-        //answers the default row alignment for the fixed row data area of the grid
-        //<br>TODO:provide uniform mechanism for the fixed areas like this
+        /**
+         * @function
+         */
         _getFixedRowAlignment: function(x, y) {
             x = this.translateColumnIndex(x);
             return this.getFixedRowAlignment(x, y);
         },
 
-        //this is called by OFGrid when top left area is clicked
-        //<br>see DefaultGridBehavior.delegateClick() below
-        //<br>this is where we can hook in external data manipulation
+        /**
+         * @function
+         */
         topLeftClicked: function(grid, mouse) {
             if (mouse.gridCell.x < this.fixedColumnCount) {
                 this.fixedRowClicked(grid, mouse);
@@ -449,10 +540,10 @@
                 console.log('top Left clicked: ' + mouse.gridCell.x, mouse);
             }
         },
-        //this is called by OFGrid when a fixed row cell is clicked
-        //<br>see DefaultGridBehavior.delegateClick() below
-        //<br>this is where we can hook in external data manipulation such as linking,
-        //<br>drilling down on rows, etc...
+
+        /**
+         * @function
+         */
         _fixedRowClicked: function(grid, mouse) {
             var x = this.translateColumnIndex(mouse.gridCell.x - this.getFixedColumnCount());
             var translatedPoint = this.grid.rectangles.point.create(this.scrollPositionX + x, mouse.gridCell.y);
@@ -460,28 +551,36 @@
             this.fixedRowClicked(grid, mouse);
         },
 
-        //this is called by OFGrid when a fixed col cell is clicked
-        //<br>see DefaultGridBehavior.delegateClick() below
-        //<br>this is where we can hook in external data manipulation such as sorting,
-        //<br>hiding/showing columns, etc...
+        /**
+         * @function
+         */
         _fixedColumnClicked: function(grid, mouse) {
             var translatedPoint = this.grid.rectangles.point.create(mouse.gridCell.x, this.scrollPositionY + mouse.gridCell.y - this.getFixedRowCount());
             mouse.gridCell = translatedPoint;
             this.fixedColumnClicked(grid, mouse);
         },
 
+        /**
+         * @function
+         */
         setCursor: function(grid) {
             grid.setDefaultCursor();
             this.featureChain.setCursor(grid);
         },
 
+        /**
+         * @function
+         */
         onMouseMove: function(grid, event) {
             if (this.featureChain) {
                 this.featureChain.handleMouseMove(grid, event);
                 this.setCursor(grid);
             }
         },
-        //this is called by OFGrid when a fixed cell is clicked
+
+        /**
+         * @function
+         */
         onTap: function(grid, event) {
             if (this.featureChain) {
                 this.featureChain.handleTap(grid, event);
@@ -489,6 +588,9 @@
             }
         },
 
+        /**
+         * @function
+         */
         onWheelMoved: function(grid, event) {
             if (this.featureChain) {
                 this.featureChain.handleWheelMoved(grid, event);
@@ -496,6 +598,9 @@
             }
         },
 
+        /**
+         * @function
+         */
         onMouseUp: function(grid, event) {
             if (this.featureChain) {
                 this.featureChain.handleMouseUp(grid, event);
@@ -503,6 +608,9 @@
             }
         },
 
+        /**
+         * @function
+         */
         onMouseDrag: function(grid, event) {
             if (this.featureChain) {
                 this.featureChain.handleMouseDrag(grid, event);
@@ -510,6 +618,9 @@
             }
         },
 
+        /**
+         * @function
+         */
         onKeyDown: function(grid, event) {
             if (this.featureChain) {
                 this.featureChain.handleKeyDown(grid, event);
@@ -517,6 +628,9 @@
             }
         },
 
+        /**
+         * @function
+         */
         onKeyUp: function(grid, event) {
             if (this.featureChain) {
                 this.featureChain.handleKeyUp(grid, event);
@@ -524,6 +638,9 @@
             }
         },
 
+        /**
+         * @function
+         */
         onDoubleClick: function(grid, event) {
             if (this.featureChain) {
                 this.featureChain.handleDoubleClick(grid, event);
@@ -531,6 +648,9 @@
             }
         },
 
+        /**
+         * @function
+         */
         onHoldPulse: function(grid, event) {
             if (this.featureChain) {
                 this.featureChain.handleHoldPulse(grid, event);
@@ -538,6 +658,9 @@
             }
         },
 
+        /**
+         * @function
+         */
         handleMouseDown: function(grid, event) {
             if (this.featureChain) {
                 this.featureChain.handleMouseDown(grid, event);
@@ -545,6 +668,9 @@
             }
         },
 
+        /**
+         * @function
+         */
         handleMouseExit: function(grid, event) {
             if (this.featureChain) {
                 this.featureChain.handleMouseExit(grid, event);
@@ -552,20 +678,35 @@
             }
         },
 
+        /**
+         * @function
+         */
         _getCellEditorAt: function(x, y) {
             noop(y);
             x = this.translateColumnIndex(x);
             return this.getCellEditorAt(x);
         },
 
+        /**
+         * @function
+         */
         changed: function() {},
+
+        /**
+         * @function
+         */
         shapeChanged: function() {},
 
-        //this is done through the dnd tool for now...
+        /**
+         * @function
+         */
         isColumnReorderable: function() {
             return true;
         },
 
+        /**
+         * @function
+         */
         getColumnProperties: function(columnIndex) {
             noop(columnIndex);
             //if no cell properties are supplied these properties are used
@@ -578,6 +719,9 @@
             return this.columnProperties;
         },
 
+        /**
+         * @function
+         */
         getDNDColumnLabels: function() {
             //assumes there is one row....
             this.insureColumnIndexesAreInitialized();
@@ -595,10 +739,16 @@
             return labels;
         },
 
+        /**
+         * @function
+         */
         getHeader: function(colIndex) {
             return this.getFixedRowValue(colIndex, 0);
         },
 
+        /**
+         * @function
+         */
         setDNDColumnLabels: function(list) {
             //assumes there is one row....
             var columnCount = list.length;
@@ -613,6 +763,10 @@
             this.tableState.columnIndexes = indexes;
             this.changed();
         },
+
+        /**
+         * @function
+         */
         getDNDHiddenColumnLabels: function() {
             var indexes = this.tableState.hiddenColumns;
             var labels = new Array(indexes.length);
@@ -626,6 +780,9 @@
             return labels;
         },
 
+        /**
+         * @function
+         */
         setDNDHiddenColumnLabels: function(list) {
             //assumes there is one row....
             var columnCount = list.length;
@@ -637,6 +794,9 @@
             this.changed();
         },
 
+        /**
+         * @function
+         */
         hideColumns: function(arrayOfIndexes) {
             var indexes = this.tableState.hiddenColumns;
             var order = this.tableState.columnIndexes;
@@ -649,28 +809,37 @@
             }
         },
 
-        //can be dynamic for supporting "floating" fixed cols
-        //<br>floating cols are cols that become fixed if you
-        //<br>scroll past them
+        /**
+         * @function
+         */
         getFixedColumnCount: function() {
             return this.fixedColumnCount;
         },
 
+        /**
+         * @function
+         */
         setFixedColumnCount: function(numberOfFixedColumns) {
             this.fixedColumnCount = numberOfFixedColumns;
         },
 
-        //can be dynamic for supporting "floating" fixed rows
-        //<br>floating rows are rows that become fixed if you
-        //<br>scroll past them
+        /**
+         * @function
+         */
         getFixedRowCount: function() {
             return this.fixedRowCount;
         },
 
+        /**
+         * @function
+         */
         setFixedRowCount: function(numberOfFixedRows) {
             this.fixedRowCount = numberOfFixedRows;
         },
 
+        /**
+         * @function
+         */
         openEditor: function(div) {
             var container = document.createElement('div');
 
@@ -696,6 +865,10 @@
             div.appendChild(container);
             return true;
         },
+
+        /**
+         * @function
+         */
         closeEditor: function(div) {
             noop(div);
             var lists = div.lists;
@@ -703,9 +876,17 @@
             this.setDNDHiddenColumnLabels(lists.hidden);
             return true;
         },
+
+        /**
+         * @function
+         */
         endDragColumnNotification: function() {
             return true;
         },
+
+        /**
+         * @function
+         */
         beColumnStyle: function(style) {
             style.top = '5%';
             style.position = 'absolute';
@@ -713,24 +894,38 @@
             style.height = '99%';
             style.whiteSpace = 'nowrap';
         },
+
+        /**
+         * @function
+         */
         getCursorAt: function( /* x, y */ ) {
             return null;
         },
 
-        //****************************************************
-        //functions to override
-
+        /**
+         * @function
+         */
         getValue: function(x, y) {
             return x + ', ' + y;
         },
 
+        /**
+         * @function
+         */
         setValue: function(x, y, value) {
             this.dataUpdates['p_' + x + '_' + y] = value;
         },
+
+        /**
+         * @function
+         */
         getColumnCount: function() {
             return 300;
         },
 
+        /**
+         * @function
+         */
         getColumnWidth: function(x) {
             var override = this.tableState.columnWidths[x];
             if (override) {
@@ -739,63 +934,106 @@
             return this.resolveProperty('defaultColumnWidth');
         },
 
+        /**
+         * @function
+         */
         setColumnWidth: function(x, width) {
             this.tableState.columnWidths[x] = Math.max(5, width);
         },
 
+        /**
+         * @function
+         */
         getColumnAlignment: function( /* x */ ) {
             return 'center';
         },
 
+        /**
+         * @function
+         */
         setScrollPositionX: function(x) {
             this.scrollPositionX = x;
         },
 
+        /**
+         * @function
+         */
         setScrollPositionY: function(y) {
             this.scrollPositionY = y;
         },
+
+        /**
+         * @function
+         */
         getFixedRowAlignment: function(x, y) {
             noop(x, y);
             return this.resolveProperty('fixedRowAlign');
         },
 
+        /**
+         * @function
+         */
         getFixedRowValue: function(x /*, y*/ ) {
             return x;
         },
 
+        /**
+         * @function
+         */
         getCellEditorAt: function(x, y) {
             noop(x, y);
             var cellEditor = this.grid.resolveCellEditor('textfield');
             return cellEditor;
         },
 
-        //on a header click do a sort!
+        /**
+         * @function
+         */
         fixedRowClicked: function(grid, mouse) {
             this.toggleSort(mouse.gridCell.x);
         },
 
+        /**
+         * @function
+         */
         toggleSort: function(colIndex) {
             console.log('toggleSort(' + colIndex + ')');
         },
 
+        /**
+         * @function
+         */
         fixedColumnClicked: function(grid, mouse) {
             console.log('fixedColumnClicked(' + mouse.gridCell.x + ', ' + mouse.gridCell.y + ')');
         },
 
+        /**
+         * @function
+         */
         highlightCellOnHover: function(isColumnHovered, isRowHovered) {
             return isColumnHovered && isRowHovered;
         },
 
+        /**
+         * @function
+         */
         getColumnId: function(x) {
             x = this.translateColumnIndex(x);
             var col = this.getFixedRowValue(x, 0);
             return col;
         },
 
+        /**
+         * @function
+         */
         getImage: function(key) {
             var image = imageCache[key];
             return image;
         },
+
+        /**
+         * @function
+         */
         checkColumnAutosizing: function(fixedWidths, widths) {
             var self = this;
             var myFixed = this.tableState.fixedColumnWidths;

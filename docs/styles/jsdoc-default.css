@@ -47,7 +47,7 @@ tt, code, kbd, samp {
 
 #main {
     float: left;
-    width: 75%;
+    /* width: 75%; */
 }
 
 article dl {
@@ -58,8 +58,8 @@ section
 {
     display: block;
     background-color: #fff;
-    padding: 12px 24px;
-    margin-right: 30px;
+    /* padding: 12px 24px; */
+    /* margin-right: 30px; */
 }
 
 .variation {
@@ -326,14 +326,14 @@ h6
     color: #454545;
 }
 
-@media only screen and (max-width : 1200px) { 
+@media only screen and (max-width : 1200px) {
    nav
     {
         width:70%;
         padding-bottom: 5%;
     }
     #main {
-        width: 85%;
+        /* width: 85%; */
         margin-left: 0;
         padding-left: 16px;
         border-top:black solid 1px;

@@ -2,7 +2,7 @@
 
 /**
  *
- * @module root\selection-model
+ * @module .\selection-model
  */
 
 (function() {

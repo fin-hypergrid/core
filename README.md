@@ -4,7 +4,7 @@
 #Hypergrid
 The Hypergrid control is a [Google polymer](https://www.polymer-project.org/) [web component](http://webcomponents.org/presentations/), canvas based open source general purpose grid. The purpose of this project is to address the Finance/Big Data community's desire for a high performance, unlimited row data-grid. At the moment, it is in a beta stage and still has ongoing work to be completed. These include bug-fixes/features/automated testing/etc.  Please try it out and let us know what you think.
 
-* See the [polymer component page](http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/#fin-hypergrid) for api documentation and demos.
+* See the [jsdocs page](http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/docs/module-._fin-hypergrid.html) for api documentation.
 
 * Watch the [Pivotal Labs presentation](http://www.livestream.com/pivotallabs/video?clipId=pla_01ae6683-c5ee-4567-9278-91524d09550a&utm_source=lslibrary&utm_medium=ui-thumb) recorded on Jan 13th 2015.
 

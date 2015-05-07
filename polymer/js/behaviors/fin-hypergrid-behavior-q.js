@@ -1,5 +1,4 @@
 'use strict';
-'use strict';
 /**
  *
  * @module behaviors\q

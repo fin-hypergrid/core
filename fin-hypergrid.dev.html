@@ -15312,6 +15312,13 @@ div.container {
 // * render main data cells
 // * render grid lines
 
+
+/**
+ *
+ * @module .\renderer
+ *
+ */
+
 'use strict';
 
 var noop = function() {};
@@ -16460,6 +16467,11 @@ var config = {
   </template>
   <script>'use strict';
 
+/**
+ *
+ * @module .\selection-model
+ */
+
 (function() {
 
     //We represent selections as a list of rectangles because large areas can be represented and tested against quickly with a minimal amount of memory usage. Also we need to maintain the selection rectangles flattened counter parts so we can test for single dimension contains.  This is how we know to highlight the fixed regions on the edges of the grid.
@@ -16720,9 +16732,15 @@ var config = {
   </template>
   <script>/* globals fin */
 
-(function() {
+'use strict';
 
-    'use strict';
+/**
+ *
+ * @module .\excel
+ *
+ */
+
+(function() {
 
     var excelOriginOffset = 1;
 
@@ -16735,6 +16753,11 @@ var config = {
             interval: 500,
             logging: false
         },
+
+        /**
+         *
+         * @function
+         */
         installOn: function(grid) {
             var self = this;
             this.grid = grid;
@@ -17031,9 +17054,13 @@ var config = {
 
 </style>
   </template>
-  <script>(function() {
-
-    'use strict';
+  <script>'use strict';
+/**
+ *
+ * @module features\base
+ *
+ */
+(function() {
 
     Polymer('fin-hypergrid-feature-base',{ /* jshint ignore:line */
 
@@ -17351,15 +17378,20 @@ var config = {
 </style>
   </template>
   <script>'use strict';
-
+/**
+ *
+ * @module .\cell-provider
+ * @description
+##### fin-hypergrid-cell-provider is the cache for cell renderers.  A CellRenderer is an object with a single function 'paint'. There should only be a single reused CellRenderer object created for each type of CellRenderer. Custom CellRenderers can be attached to myCellProvider.cellCache and then referenced through the getCell function that is overridden in your implementation.  Make sure to attach the config argument to the cell renderer that is returned.
+ */
 var noop = function() {};
 
 (function() {
 
-    var underline = function(config, ctx, text, x, y, thickness) {
-        var width = config.getTextWidth(ctx, text);
+    var underline = function(config, gc, text, x, y, thickness) {
+        var width = config.getTextWidth(gc, text);
 
-        switch (ctx.textAlign) {
+        switch (gc.textAlign) {
             case 'center':
                 x -= (width / 2);
                 break;
@@ -17368,84 +17400,116 @@ var noop = function() {};
                 break;
         }
 
-        //ctx.beginPath();
-        ctx.lineWidth = thickness;
-        ctx.moveTo(x + 0.5, y + 0.5);
-        ctx.lineTo(x + width + 0.5, y + 0.5);
+        //gc.beginPath();
+        gc.lineWidth = thickness;
+        gc.moveTo(x + 0.5, y + 0.5);
+        gc.lineTo(x + width + 0.5, y + 0.5);
     };
-    //DefaultCellProvider is the cache for cell renderers.  A CellRenderer is an object with a single function 'paint'.
-    //There should only be a single reused CellRenderer object created for each type of CellRenderer.
 
-    //Custom CellRenderers can be attached to myCellProvider.cellCache and then referenced through the getCell function that is overridden in your implementation.  Make sure to attach the config argument to the cell renderer that is returne
-
-    //override [createCellProvider](DefaultGridBehavior.html) creating an instance of thisobject.  Override members of this object per your specific needs.
-    //see [QGridBehavior.createCellProvider](QGridBehavior.html) for an example of overriding createCellProvider.
-
-    //emersons utility function for rendering a rounded corner rectangle
-    //<br>TODO:this should be moved to a graphics rendering lib
-    var roundRect = function(ctx, x, y, width, height, radius, fill, stroke) {
+    var roundRect = function(gc, x, y, width, height, radius, fill, stroke) {
         if (!stroke) {
             stroke = true;
         }
         if (!radius) {
             radius = 5;
         }
-        ctx.beginPath();
-        ctx.moveTo(x + radius, y);
-        ctx.lineTo(x + width - radius, y);
-        ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
-        ctx.lineTo(x + width, y + height - radius);
-        ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
-        ctx.lineTo(x + radius, y + height);
-        ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
-        ctx.lineTo(x, y + radius);
-        ctx.quadraticCurveTo(x, y, x + radius, y);
-        ctx.closePath();
+        gc.beginPath();
+        gc.moveTo(x + radius, y);
+        gc.lineTo(x + width - radius, y);
+        gc.quadraticCurveTo(x + width, y, x + width, y + radius);
+        gc.lineTo(x + width, y + height - radius);
+        gc.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+        gc.lineTo(x + radius, y + height);
+        gc.quadraticCurveTo(x, y + height, x, y + height - radius);
+        gc.lineTo(x, y + radius);
+        gc.quadraticCurveTo(x, y, x + radius, y);
+        gc.closePath();
         if (stroke) {
-            ctx.stroke();
+            gc.stroke();
         }
         if (fill) {
-            ctx.fill();
+            gc.fill();
         }
-        ctx.closePath();
+        gc.closePath();
     };
 
 
     Polymer('fin-hypergrid-cell-provider',{ /* jslint ignore:line */
 
+        /**
+         * @function
+         * @private
+         * @instance
+         */
         created: function() {
             this.cellCache = {};
             this.initializeCells();
         },
 
-        //replace this function in on your instance of cellProvider
+        /**
+         * @function
+         * @description replace this function in on your instance of cellProvider
+         * @returns cell
+         * @param {object} config - an object with everything you might need for renderering a cell
+         * @instance
+         */
         getCell: function(config) {
             var cell = this.cellCache.simpleCellRenderer;
             cell.config = config;
             return cell;
         },
 
-        //replace this function in on your instance of cellProvider
+        /**
+         * @function
+         * @description replace this function in on your instance of cellProvider
+         * @returns cell
+         * @param {object} config - an object with everything you might need for renderering a cell
+         * @instance
+         */
         getTopLeftCell: function(config) {
             var cell = this.cellCache.emptyCellRenderer;
             cell.config = config;
             return cell;
         },
 
-        //return the cellRenderer instance for renderering fixed col cells
+        /**
+         * @function
+         * @description replace this function in on your instance of cellProvider
+         * @returns cell
+         * @param {object} config - an object with everything you might need for renderering a cell
+         * @instance
+         */
         getFixedColumnCell: function(config) {
             var cell = this.cellCache.simpleCellRenderer;
             cell.config = config;
             return cell;
         },
 
-        //return the cellRenderer instance for renderering fixed row cells
+        /**
+         * @function
+         * @description replace this function in on your instance of cellProvider
+         * @returns cell
+         * @param {object} config - an object with everything you might need for renderering a cell
+         * @instance
+         */
         getFixedRowCell: function(config) {
             var cell = this.cellCache.simpleCellRenderer;
             cell.config = config;
             return cell;
         },
-        //This is the default cell rendering function for rendering a vanilla cell. Great care was taken in crafting this function as it needs to perform extremely fast. Reads on the gc object are expensive but not quite as expensive as writes to it. We do our best to avoid writes, then avoid reads. Clipping bounds are not set here as this is also an expensive operation. Instead, we truncate overflowing text and content by filling a rectangle with background color column by column instead of cell by cell.  This column by column fill happens higher up on the stack in a calling function from OFGridRenderer.  Take note we do not do cell by cell border renderering as that is expensive.  Instead we render many fewer gridlines after all cells are rendered.
+
+        /**
+         * @function
+         * @param {CanvasGraphicsContext} gc - the "pen" in the mvc model, we issue drawing commands to
+         * @param {integer} x - the x screen coordinate of my origin
+         * @param {integer} y - the y screen coordinate of my origin
+         * @param {integer} width - the width I'm allowed to draw within
+         * @param {integer} height - the height I'm allowed to draw within
+         * @param {boolean} isLink - is this a hyperlink cell
+         * @instance
+         * @description
+        This is the default cell rendering function for rendering a vanilla cell. Great care was taken in crafting this function as it needs to perform extremely fast. Reads on the gc object are expensive but not quite as expensive as writes to it. We do our best to avoid writes, then avoid reads. Clipping bounds are not set here as this is also an expensive operation. Instead, we truncate overflowing text and content by filling a rectangle with background color column by column instead of cell by cell.  This column by column fill happens higher up on the stack in a calling function from fin-hypergrid-renderer.  Take note we do not do cell by cell border renderering as that is expensive.  Instead we render many fewer gridlines after all cells are rendered.
+        */
         defaultCellPaint: function(gc, x, y, width, height, isLink) {
 
             isLink = isLink || false;
@@ -17537,36 +17601,57 @@ var noop = function() {};
             this.config.minWidth = this.config.minWidth + 2 * (iconWidth);
         },
 
-        //emersons paint function for a slider button. currently the user cannot interact with it
-        paintSlider: function(ctx, x, y, width, height) {
-            ctx.strokeStyle = 'white';
+        /**
+         * @function
+         * @param {CanvasGraphicsContext} gc - the "pen" in the mvc model, we issue drawing commands to
+         * @param {integer} x - the x screen coordinate of my origin
+         * @param {integer} y - the y screen coordinate of my origin
+         * @param {integer} width - the width I'm allowed to draw within
+         * @param {integer} height - the height I'm allowed to draw within
+         * @param {boolean} isLink - is this a hyperlink cell
+         * @instance
+         * @description emersons paint function for a slider button. currently the user cannot interact with it
+         */
+        paintSlider: function(gc, x, y, width, height) {
+            gc.strokeStyle = 'white';
             var val = this.config.value;
             var radius = height / 2;
             var offset = width * val;
             var bgColor = this.config.isSelected ? this.config.bgSelColor : '#333333';
-            var btnGradient = ctx.createLinearGradient(x, y, x, y + height);
+            var btnGradient = gc.createLinearGradient(x, y, x, y + height);
             btnGradient.addColorStop(0, bgColor);
             btnGradient.addColorStop(1, '#666666');
-            var arcGradient = ctx.createLinearGradient(x, y, x, y + height);
+            var arcGradient = gc.createLinearGradient(x, y, x, y + height);
             arcGradient.addColorStop(0, '#aaaaaa');
             arcGradient.addColorStop(1, '#777777');
-            ctx.fillStyle = btnGradient;
-            roundRect(ctx, x, y, width, height, radius, btnGradient);
+            gc.fillStyle = btnGradient;
+            roundRect(gc, x, y, width, height, radius, btnGradient);
             if (val < 1.0) {
-                ctx.fillStyle = arcGradient;
+                gc.fillStyle = arcGradient;
             } else {
-                ctx.fillStyle = '#eeeeee';
+                gc.fillStyle = '#eeeeee';
             }
-            ctx.beginPath();
-            ctx.arc(x + Math.max(offset - radius, radius), y + radius, radius, 0, 2 * Math.PI);
-            ctx.fill();
-            ctx.closePath();
+            gc.beginPath();
+            gc.arc(x + Math.max(offset - radius, radius), y + radius, radius, 0, 2 * Math.PI);
+            gc.fill();
+            gc.closePath();
             this.config.minWidth = 100;
         },
 
-        //simple implementation of a sparkline.  see [Edward Tufte sparkline](http://www.edwardtufte.com/bboard/q-and-a-fetch-msg?msg_id=0001OR)
-        paintSparkbar: function(ctx, x, y, width, height) {
-            ctx.beginPath();
+        /**
+         * @function
+         * @param {CanvasGraphicsContext} gc - the "pen" in the mvc model, we issue drawing commands to
+         * @param {integer} x - the x screen coordinate of my origin
+         * @param {integer} y - the y screen coordinate of my origin
+         * @param {integer} width - the width I'm allowed to draw within
+         * @param {integer} height - the height I'm allowed to draw within
+         * @param {boolean} isLink - is this a hyperlink cell
+         * @instance
+         * @description
+         simple implementation of a sparkline.  see [Edward Tufte sparkline](http://www.edwardtufte.com/bboard/q-and-a-fetch-msg?msg_id=0001OR)
+         */
+        paintSparkbar: function(gc, x, y, width, height) {
+            gc.beginPath();
             var val = this.config.value;
             if (!val || !val.length) {
                 return;
@@ -17575,23 +17660,35 @@ var noop = function() {};
             var eWidth = width / count;
             var fgColor = this.config.isSelected ? this.config.fgSelColor : this.config.fgColor;
             if (this.config.bgColor || this.config.isSelected) {
-                ctx.fillStyle = this.config.isSelected ? this.config.bgSelColor : this.config.bgColor;
-                ctx.fillRect(x, y, width, height);
+                gc.fillStyle = this.config.isSelected ? this.config.bgSelColor : this.config.bgColor;
+                gc.fillRect(x, y, width, height);
             }
-            ctx.fillStyle = fgColor;
+            gc.fillStyle = fgColor;
             for (var i = 0; i < val.length; i++) {
                 var barheight = val[i] / 110 * height;
-                ctx.fillRect(x + 5, y + height - barheight, eWidth * 0.6666, barheight);
+                gc.fillRect(x + 5, y + height - barheight, eWidth * 0.6666, barheight);
                 x = x + eWidth;
             }
-            ctx.closePath();
+            gc.closePath();
             this.config.minWidth = count * 10;
 
         },
 
-        //simple implementation of a sparkline, because it's a barchart we've changed the name ;).  see [Edward Tufte sparkline](http://www.edwardtufte.com/bboard/q-and-a-fetch-msg?msg_id=0001OR)
-        paintSparkline: function(ctx, x, y, width, height) {
-            ctx.beginPath();
+
+        /**
+         * @function
+         * @param {CanvasGraphicsContext} gc - the "pen" in the mvc model, we issue drawing commands to
+         * @param {integer} x - the x screen coordinate of my origin
+         * @param {integer} y - the y screen coordinate of my origin
+         * @param {integer} width - the width I'm allowed to draw within
+         * @param {integer} height - the height I'm allowed to draw within
+         * @param {boolean} isLink - is this a hyperlink cell
+         * @instance
+         * @description
+        simple implementation of a sparkline, because it's a barchart we've changed the name ;).  see [Edward Tufte sparkline](http://www.edwardtufte.com/bboard/q-and-a-fetch-msg?msg_id=0001OR)
+        */
+        paintSparkline: function(gc, x, y, width, height) {
+            gc.beginPath();
             var val = this.config.value;
             if (!val || !val.length) {
                 return;
@@ -17601,28 +17698,39 @@ var noop = function() {};
 
             var fgColor = this.config.isSelected ? this.config.fgSelColor : this.config.fgColor;
             if (this.config.bgColor || this.config.isSelected) {
-                ctx.fillStyle = this.config.isSelected ? this.config.bgSelColor : this.config.bgColor;
-                ctx.fillRect(x, y, width, height);
+                gc.fillStyle = this.config.isSelected ? this.config.bgSelColor : this.config.bgColor;
+                gc.fillRect(x, y, width, height);
             }
-            ctx.strokeStyle = fgColor;
-            ctx.fillStyle = fgColor;
-            ctx.beginPath();
+            gc.strokeStyle = fgColor;
+            gc.fillStyle = fgColor;
+            gc.beginPath();
             var prev;
             for (var i = 0; i < val.length; i++) {
                 var barheight = val[i] / 110 * height;
                 if (!prev) {
                     prev = barheight;
                 }
-                ctx.lineTo(x + 5, y + height - barheight);
-                ctx.arc(x + 5, y + height - barheight, 1, 0, 2 * Math.PI, false);
+                gc.lineTo(x + 5, y + height - barheight);
+                gc.arc(x + 5, y + height - barheight, 1, 0, 2 * Math.PI, false);
                 x = x + eWidth;
             }
             this.config.minWidth = count * 10;
-            ctx.stroke();
-            ctx.closePath();
+            gc.stroke();
+            gc.closePath();
         },
 
-        //simple implementation of a tree cell
+        /**
+         * @function
+         * @param {CanvasGraphicsContext} gc - the "pen" in the mvc model, we issue drawing commands to
+         * @param {integer} x - the x screen coordinate of my origin
+         * @param {integer} y - the y screen coordinate of my origin
+         * @param {integer} width - the width I'm allowed to draw within
+         * @param {integer} height - the height I'm allowed to draw within
+         * @param {boolean} isLink - is this a hyperlink cell
+         * @instance
+         * @description
+         this is a simple implementation of a tree cell renderer for use mainly with the qtree
+         */
         treeCellRenderer: function(gc, x, y, width, height) {
             var val = this.config.value.data;
             var indent = this.config.value.indent;
@@ -17647,12 +17755,27 @@ var noop = function() {};
             this.config.minWidth = minWidth;
         },
 
-        //do nothing
+        /**
+         * @function
+         * @param {CanvasGraphicsContext} gc - the "pen" in the mvc model, we issue drawing commands to
+         * @param {integer} x - the x screen coordinate of my origin
+         * @param {integer} y - the y screen coordinate of my origin
+         * @param {integer} width - the width I'm allowed to draw within
+         * @param {integer} height - the height I'm allowed to draw within
+         * @instance
+         * @param {boolean} isLink - is this a hyperlink cell
+         * @description
+         this is an empty implementation of a cell renderer, see [the null object pattern](http://c2.com/cgi/wiki?NullObject)
+         */
         emptyCellRenderer: function(gc, x, y, width, height) {
             noop(gc, x, y, width, height);
         },
 
-        //default cellRenderers are initialized here.  you can augment the visible on your cellProvider instance: field ```myCellProviderInstance.cellCache.myCellRendererName = myCellRenderer```
+        /**
+         * @function
+         * @instance
+         * @private
+         */
         initializeCells: function() {
             var self = this;
             this.cellCache.simpleCellRenderer = {
@@ -17733,7 +17856,11 @@ var noop = function() {};
 </style>
   </template>
   <script>'use strict';
-
+/**
+ *
+ * @module features\key-paging
+ *
+ */
 var commands = {
     PAGEDOWN: function(grid) {
         grid.pageDown();
@@ -17860,7 +17987,11 @@ var commands = {
 </style>
   </template>
   <script>'use strict';
-
+/**
+ *
+ * @module features\cell-click
+ *
+ */
 (function() {
 
     Polymer('fin-hypergrid-feature-cell-click', { /* jshint ignore:line  */
@@ -18059,9 +18190,13 @@ var commands = {
 
 </style>
   </template>
-  <script>(function() {
-
-    'use strict';
+  <script>'use strict';
+/**
+ *
+ * @module features\cell-selection
+ *
+ */
+(function() {
 
     Polymer('fin-hypergrid-feature-cell-selection',{ /* jshint ignore:line */
 
@@ -18730,9 +18865,13 @@ var commands = {
 
 </style>
   </template>
-  <script>(function() {
-
-    'use strict';
+  <script>'use strict';
+/**
+ *
+ * @module features\overlay
+ *
+ */
+(function() {
 
     var noop = function() {};
 
@@ -19039,9 +19178,13 @@ var commands = {
 
 </style>
   </template>
-  <script>(function() {
-
-    'use strict';
+  <script>'use strict';
+/**
+ *
+ * @module features\thumbwheel-scrolling
+ *
+ */
+(function() {
 
     Polymer('fin-hypergrid-feature-thumbwheel-scrolling',{ /* jshint ignore:line */
         handleWheelMoved: function(grid, e) {
@@ -19246,9 +19389,13 @@ var commands = {
 
 </style>
   </template>
-  <script>(function() {
-
-    'use strict';
+  <script>'use strict';
+/**
+ *
+ * @module features\cell-editing
+ *
+ */
+(function() {
 
     Polymer('fin-hypergrid-feature-cell-editing',{ /* jshint ignore:line */
         handleDoubleClick: function(grid, event) {
@@ -19457,9 +19604,13 @@ var commands = {
 
 </style>
   </template>
-  <script>(function() {
-
-    'use strict';
+  <script>'use strict';
+/**
+ *
+ * @module features\column-sorting
+ *
+ */
+(function() {
 
     Polymer('fin-hypergrid-feature-column-sorting',{ /* jshint ignore:line */
 
@@ -19672,9 +19823,13 @@ var commands = {
 
 </style>
   </template>
-  <script>(function() {
-
-    'use strict';
+  <script>'use strict';
+/**
+ *
+ * @module features\column-resizing
+ *
+ */
+(function() {
 
     //var noop = function() {};
 
@@ -20005,9 +20160,13 @@ var commands = {
 
 </style>
   </template>
-  <script>(function() {
-
-    'use strict';
+  <script>'use strict';
+/**
+ *
+ * @module features\column-moving
+ *
+ */
+(function() {
 
     var noop = function() {};
 
@@ -20657,9 +20816,13 @@ var commands = {
 
 </style>
   </template>
-  <script>(function() {
-
-    'use strict';
+  <script>'use strict';
+/**
+ *
+ * @module features\row-resizing
+ *
+ */
+(function() {
 
     Polymer('fin-hypergrid-feature-row-resizing',{ /* jshint ignore:line */
 
@@ -20825,9 +20988,13 @@ var commands = {
 
 </style>
   </template>
-  <script>(function() {
-
-    'use strict';
+  <script>'use strict';
+/**
+ *
+ * @module features\on-hover
+ *
+ */
+(function() {
 
     //var noop = function() {};
 
@@ -20874,7 +21041,11 @@ var commands = {
 </style>
   </template>
   <script>'use strict';
-
+/**
+ *
+ * @module features\column-autosizing
+ *
+ */
 (function() {
 
     Polymer('fin-hypergrid-feature-column-autosizing', { /* jshint ignore:line  */
@@ -20970,10 +21141,15 @@ var commands = {
 </style>
   </template>
   <script>'use strict';
-
+/**
+ *
+ * @module behaviors\base
+ *
+ */
 (function() {
 
     var noop = function() {};
+
     var imageCache = {};
 
     var imgData = [
@@ -21011,20 +21187,47 @@ var commands = {
         }
     })();
 
-
-
     Polymer('fin-hypergrid-behavior-base', { /* jslint ignore:line */
-
+        /**
+         * @property {object} tableState - memento for the user configured visual properties of the table
+         */
         tableState: {},
+        /**
+         * @property {object} columnProperties - a hook to put fgcolor, bgcolor, font for a column if no cell properties are available
+         */
         columnProperties: {},
+        /**
+         * @property {fin-hypergrid} grid - my instance of hypergrid
+         */
         grid: null,
+        /**
+         * @property {array} editorTypes - list of default cell editor names
+         */
         editorTypes: ['choice', 'textfield', 'color', 'slider', 'spinner', 'date'],
+        /**
+         * @property {object} featureChain - controller chain of command
+         */
         featureChain: null,
+        /**
+         * @property {integer} fixedColumnCount - the number of fixed columns
+         */
         fixedColumnCount: 0,
+        /**
+         * @property {integer} fixedRowCount - the number of fixed rows
+         */
         fixedRowCount: 1,
+        /**
+         * @property {array} columnAutosized - boolean vector of which columns have been autosized
+         */
         columnAutosized: [],
+        /**
+         * @property {array} fixedColumnAutosized - boolean vector of which fixed columns have been autosized
+         */
         fixedColumnAutosized: [],
 
+        /**
+         * @function
+         */
         clearObjectProperties: function(obj) {
             for (var prop in obj) {
                 if (obj.hasOwnProperty(prop)) {
@@ -21033,10 +21236,16 @@ var commands = {
             }
         },
 
+        /**
+         * @function
+         */
         ready: function() {
             this.readyInit();
         },
 
+        /**
+         * @function
+         */
         readyInit: function() {
             this.cellProvider = this.createCellProvider();
             this.scrollPositionX = 0;
@@ -21062,14 +21271,23 @@ var commands = {
             this.fixedColumnAutosized = [];
         },
 
+        /**
+         * @function
+         */
         resolveProperty: function(key) {
             return this.grid.resolveProperty(key);
         },
 
+        /**
+         * @function
+         */
         getState: function() {
             return this.tableState;
         },
 
+        /**
+         * @function
+         */
         setState: function(state) {
             for (var key in state) {
                 if (state.hasOwnProperty(key)) {
@@ -21078,10 +21296,16 @@ var commands = {
             }
         },
 
+        /**
+         * @function
+         */
         cellClicked: function(cell, event) {
             this.grid.fireCellClickEvent(cell, event);
         },
 
+        /**
+         * @function
+         */
         initColumnIndexes: function() {
             var columnCount = this._getColumnCount();
             var fixedColumnCount = this.getFixedColumnCount();
@@ -21094,10 +21318,16 @@ var commands = {
             }
         },
 
+        /**
+         * @function
+         */
         insureColumnIndexesAreInitialized: function() {
             this.swapColumns(0, 0);
         },
 
+        /**
+         * @function
+         */
         swapColumns: function(src, tar) {
             var indexes = this.tableState.columnIndexes;
             if (indexes.length === 0) {
@@ -21109,6 +21339,9 @@ var commands = {
             indexes[tar + this.fixedColumnCount] = tmp;
         },
 
+        /**
+         * @function
+         */
         translateColumnIndex: function(x) {
             var indexes = this.tableState.columnIndexes;
             if (indexes.length === 0) {
@@ -21117,10 +21350,16 @@ var commands = {
             return indexes[x + this.fixedColumnCount];
         },
 
+        /**
+         * @function
+         */
         unTranslateColumnIndex: function(x) {
             return this.tableState.columnIndexes.indexOf(x);
         },
 
+        /**
+         * @function
+         */
         setNextFeature: function(nextFeature) {
             if (this.featureChain) {
                 this.featureChain.setNext(nextFeature);
@@ -21129,11 +21368,17 @@ var commands = {
             }
         },
 
+        /**
+         * @function
+         */
         installOn: function(grid) {
             grid.setBehavior(this);
             this.initializeFeatureChain(grid);
         },
 
+        /**
+         * @function
+         */
         initializeFeatureChain: function(grid) {
             this.setNextFeature(document.createElement('fin-hypergrid-feature-key-paging'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-cell-click'));
@@ -21151,31 +21396,45 @@ var commands = {
             this.featureChain.initializeOn(grid);
         },
 
+        /**
+         * @function
+         */
         getCellProvider: function() {
             return this.cellProvider;
         },
 
+        /**
+         * @function
+         */
         setGrid: function(finGrid) {
             this.grid = finGrid;
         },
 
+        /**
+         * @function
+         */
         getGrid: function() {
             return this.grid;
         },
 
-        //override this function on your GridBehavior to have custom cell renderering
-        //<br>see [QGridBehavior.createCellProvider()](QGridBehavior.html) for an example
+        /**
+         * @function
+         */
         createCellProvider: function() {
             var provider = document.createElement('fin-hypergrid-cell-provider');
             return provider;
         },
 
+        /**
+         * @function
+         */
         getTopLeftValue: function( /* x, y */ ) {
             return '';
         },
 
-        //provide the data at the x,y coordinate in the grid
-        //<br>this function should be overridden by you
+        /**
+         * @function
+         */
         _getValue: function(x, y) {
             x = this.translateColumnIndex(x);
             var override = this.dataUpdates['p_' + x + '_' + y];
@@ -21185,41 +21444,48 @@ var commands = {
             return this.getValue(x, y);
         },
 
-        //set the data at the x, y
-        //<br>this function should be overridden by you
+        /**
+         * @function
+         */
         _setValue: function(x, y, value) {
             x = this.translateColumnIndex(x);
             this.setValue(x, y, value);
         },
 
-        //fixed rows are the static rows at the top of the grid that don't scroll up or down
-        //<br>they can be arbitary width by height in size
-        //<br>here we just return an excel-ish base-26 alpha value
+        /**
+         * @function
+         */
         _getFixedRowValue: function(x, y) {
             x = this.translateColumnIndex(x);
             return this.getFixedRowValue(x, y);
         },
 
-        //fixed columns are the static columns at the left of the grid that don't scroll up or down
-        //<br>they can be arbitary width by height in size
-        //<br>here we just return an excel-ish base-26 alpha value
+        /**
+         * @function
+         */
         getFixedColumnValue: function(x, y) {
             //x = this.fixedtranslateColumnIndex(x);
             return y + 1;
         },
 
-        //can be dynamic if your data set changes size
+        /**
+         * @function
+         */
         getRowCount: function() {
             //jeepers batman a quadrillion rows!
             return 1000000000000000;
         },
 
-        //can be dynamic if your data set changes size
+        /**
+         * @function
+         */
         _getColumnCount: function() {
             return this.getColumnCount() - this.tableState.hiddenColumns.length - this.fixedColumnCount;
         },
 
-        //pixel height of the fixed rows area
+        /**
+         * @function
+         */
         getFixedRowsHeight: function() {
             var count = this.getFixedRowCount();
             var total = 0;
@@ -21229,7 +21495,9 @@ var commands = {
             return total;
         },
 
-        //the height of the specific fixed row
+        /**
+         * @function
+         */
         getFixedRowHeight: function(rowNum) {
             if (this.tableState.fixedRowHeights) {
                 var override = this.tableState.fixedRowHeights[rowNum];
@@ -21240,14 +21508,18 @@ var commands = {
             return this.resolveProperty('defaultFixedRowHeight');
         },
 
+        /**
+         * @function
+         */
         setFixedRowHeight: function(rowNum, height) {
             //console.log(rowNum + ' ' + height);
             this.tableState.fixedRowHeights[rowNum] = Math.max(5, height);
             this.changed();
         },
 
-        //can be dynamic if we wish to allow users to resize
-        //<br>or driven by data, etc...
+        /**
+         * @function
+         */
         getRowHeight: function(rowNum) {
             if (this.tableState.rowHeights) {
                 var override = this.tableState.rowHeights[rowNum];
@@ -21258,7 +21530,9 @@ var commands = {
             return this.getDefaultRowHeight();
         },
 
-        //lets cache this as it's expensive to keep looking it up;
+        /**
+         * @function
+         */
         getDefaultRowHeight: function() {
             if (!this.defaultRowHeight) {
                 this.defaultRowHeight = this.resolveProperty('defaultRowHeight');
@@ -21266,20 +21540,25 @@ var commands = {
             return this.defaultRowHeight;
         },
 
+        /**
+         * @function
+         */
         setRowHeight: function(rowNum, height) {
             this.tableState.rowHeights[rowNum] = Math.max(5, height);
             this.changed();
         },
 
-        //the potential maximum height of the fixed row area
-        //<br>TODO: move this logic into the OFGrid itself
-        //<br>there should only be getFixedRows, and getMaxFixedRows
+        /**
+         * @function
+         */
         getFixedRowsMaxHeight: function() {
             var height = this.getFixedRowsHeight();
             return height;
         },
 
-        //pixel width of the fixed columns area
+        /**
+         * @function
+         */
         getFixedColumnsWidth: function() {
             var count = this.getFixedColumnCount();
             var total = 0;
@@ -21288,19 +21567,26 @@ var commands = {
             }
             return total;
         },
+
+        /**
+         * @function
+         */
         setFixedColumnWidth: function(colNumber, width) {
             this.tableState.fixedColumnWidths[colNumber] = Math.max(5, width);
             this.changed();
         },
-        //the potential maximum width of the fixed col area
-        //<br>TODO: move this logic into the OFGrid itself
-        //<br>there should only be getFixedColumns, and getMaxFixedColumns
+
+        /**
+         * @function
+         */
         getFixedColumnsMaxWidth: function() {
             var width = this.getFixedColumnsWidth();
             return width;
         },
 
-        //the width of the specific fixed col
+        /**
+         * @function
+         */
         getFixedColumnWidth: function(colNumber) {
             var override = this.tableState.fixedColumnWidths[colNumber];
             if (override) {
@@ -21309,78 +21595,86 @@ var commands = {
             return this.resolveProperty('defaultFixedColumnWidth');
         },
 
-        //can be dynamic if we wish to allow users to resize
-        //<br>or driven by data, etc...
-        //<br>this implementation is driven by modulo
-        //<br>TODO: move this example into InMemoryGridBehavior
+        /**
+         * @function
+         */
         _getColumnWidth: function(x) {
             x = this.translateColumnIndex(x);
             return this.getColumnWidth(x);
         },
 
+        /**
+         * @function
+         */
         _setColumnWidth: function(x, width) {
             x = this.translateColumnIndex(x);
             this.setColumnWidth(x, width);
             this.changed();
         },
 
-        //this is set by OFGrid on scroll
-        //<br>this allows for fast scrolling through rows of very large external data sets
-        //<br>this is ignored by in memory GridBehaviors
+        /**
+         * @function
+         */
         _setScrollPositionY: function(y) {
             this.setScrollPositionY(y);
             this.changed();
         },
 
-        //this is set by OFGrid on scroll
-        //<br>this allows for fast scrolling through columns of very large external data sets
-        //<br>this is ignored by in memory GridBehaviors
+        /**
+         * @function
+         */
         _setScrollPositionX: function(x) {
             this.setScrollPositionX(x);
             this.changed();
         },
 
-        //the number of viewable columns we just rendered
-        //<br>set by OFGrid on every repaint
+        /**
+         * @function
+         */
         setRenderedWidth: function(width) {
             this.renderedWidth = width;
         },
 
-        //the number of viewable rows we just rendered
-        //<br>set by OFGrid on every repaint
+        /**
+         * @function
+         */
         setRenderedHeight: function(height) {
             this.renderedHeight = height;
         },
 
-        //answers the default col alignment for the main data area of the grid
-        //<br>TODO:provide uniform mechanism for the fixed areas like this
+        /**
+         * @function
+         */
         _getColumnAlignment: function(x) {
             x = this.translateColumnIndex(x);
             return this.getColumnAlignment(x);
         },
 
-        //answers the default alignment for the topleft area of the grid
-        //<br>TODO:provide uniform mechanism for the fixed areas like this
+        /**
+         * @function
+         */
         getTopLeftAlignment: function( /* x, y */ ) {
             return 'center';
         },
-        //answers the default col alignment for the fixed column data area of the grid
-        //<br>TODO:provide uniform mechanism for the fixed areas like this
+
+        /**
+         * @function
+         */
         getFixedColumnAlignment: function( /* x */ ) {
             return this.resolveProperty('fixedColumnAlign');
         },
 
-
-        //answers the default row alignment for the fixed row data area of the grid
-        //<br>TODO:provide uniform mechanism for the fixed areas like this
+        /**
+         * @function
+         */
         _getFixedRowAlignment: function(x, y) {
             x = this.translateColumnIndex(x);
             return this.getFixedRowAlignment(x, y);
         },
 
-        //this is called by OFGrid when top left area is clicked
-        //<br>see DefaultGridBehavior.delegateClick() below
-        //<br>this is where we can hook in external data manipulation
+        /**
+         * @function
+         */
         topLeftClicked: function(grid, mouse) {
             if (mouse.gridCell.x < this.fixedColumnCount) {
                 this.fixedRowClicked(grid, mouse);
@@ -21388,10 +21682,10 @@ var commands = {
                 console.log('top Left clicked: ' + mouse.gridCell.x, mouse);
             }
         },
-        //this is called by OFGrid when a fixed row cell is clicked
-        //<br>see DefaultGridBehavior.delegateClick() below
-        //<br>this is where we can hook in external data manipulation such as linking,
-        //<br>drilling down on rows, etc...
+
+        /**
+         * @function
+         */
         _fixedRowClicked: function(grid, mouse) {
             var x = this.translateColumnIndex(mouse.gridCell.x - this.getFixedColumnCount());
             var translatedPoint = this.grid.rectangles.point.create(this.scrollPositionX + x, mouse.gridCell.y);
@@ -21399,28 +21693,36 @@ var commands = {
             this.fixedRowClicked(grid, mouse);
         },
 
-        //this is called by OFGrid when a fixed col cell is clicked
-        //<br>see DefaultGridBehavior.delegateClick() below
-        //<br>this is where we can hook in external data manipulation such as sorting,
-        //<br>hiding/showing columns, etc...
+        /**
+         * @function
+         */
         _fixedColumnClicked: function(grid, mouse) {
             var translatedPoint = this.grid.rectangles.point.create(mouse.gridCell.x, this.scrollPositionY + mouse.gridCell.y - this.getFixedRowCount());
             mouse.gridCell = translatedPoint;
             this.fixedColumnClicked(grid, mouse);
         },
 
+        /**
+         * @function
+         */
         setCursor: function(grid) {
             grid.setDefaultCursor();
             this.featureChain.setCursor(grid);
         },
 
+        /**
+         * @function
+         */
         onMouseMove: function(grid, event) {
             if (this.featureChain) {
                 this.featureChain.handleMouseMove(grid, event);
                 this.setCursor(grid);
             }
         },
-        //this is called by OFGrid when a fixed cell is clicked
+
+        /**
+         * @function
+         */
         onTap: function(grid, event) {
             if (this.featureChain) {
                 this.featureChain.handleTap(grid, event);
@@ -21428,6 +21730,9 @@ var commands = {
             }
         },
 
+        /**
+         * @function
+         */
         onWheelMoved: function(grid, event) {
             if (this.featureChain) {
                 this.featureChain.handleWheelMoved(grid, event);
@@ -21435,6 +21740,9 @@ var commands = {
             }
         },
 
+        /**
+         * @function
+         */
         onMouseUp: function(grid, event) {
             if (this.featureChain) {
                 this.featureChain.handleMouseUp(grid, event);
@@ -21442,6 +21750,9 @@ var commands = {
             }
         },
 
+        /**
+         * @function
+         */
         onMouseDrag: function(grid, event) {
             if (this.featureChain) {
                 this.featureChain.handleMouseDrag(grid, event);
@@ -21449,6 +21760,9 @@ var commands = {
             }
         },
 
+        /**
+         * @function
+         */
         onKeyDown: function(grid, event) {
             if (this.featureChain) {
                 this.featureChain.handleKeyDown(grid, event);
@@ -21456,6 +21770,9 @@ var commands = {
             }
         },
 
+        /**
+         * @function
+         */
         onKeyUp: function(grid, event) {
             if (this.featureChain) {
                 this.featureChain.handleKeyUp(grid, event);
@@ -21463,6 +21780,9 @@ var commands = {
             }
         },
 
+        /**
+         * @function
+         */
         onDoubleClick: function(grid, event) {
             if (this.featureChain) {
                 this.featureChain.handleDoubleClick(grid, event);
@@ -21470,6 +21790,9 @@ var commands = {
             }
         },
 
+        /**
+         * @function
+         */
         onHoldPulse: function(grid, event) {
             if (this.featureChain) {
                 this.featureChain.handleHoldPulse(grid, event);
@@ -21477,6 +21800,9 @@ var commands = {
             }
         },
 
+        /**
+         * @function
+         */
         handleMouseDown: function(grid, event) {
             if (this.featureChain) {
                 this.featureChain.handleMouseDown(grid, event);
@@ -21484,6 +21810,9 @@ var commands = {
             }
         },
 
+        /**
+         * @function
+         */
         handleMouseExit: function(grid, event) {
             if (this.featureChain) {
                 this.featureChain.handleMouseExit(grid, event);
@@ -21491,20 +21820,35 @@ var commands = {
             }
         },
 
+        /**
+         * @function
+         */
         _getCellEditorAt: function(x, y) {
             noop(y);
             x = this.translateColumnIndex(x);
             return this.getCellEditorAt(x);
         },
 
+        /**
+         * @function
+         */
         changed: function() {},
+
+        /**
+         * @function
+         */
         shapeChanged: function() {},
 
-        //this is done through the dnd tool for now...
+        /**
+         * @function
+         */
         isColumnReorderable: function() {
             return true;
         },
 
+        /**
+         * @function
+         */
         getColumnProperties: function(columnIndex) {
             noop(columnIndex);
             //if no cell properties are supplied these properties are used
@@ -21517,6 +21861,9 @@ var commands = {
             return this.columnProperties;
         },
 
+        /**
+         * @function
+         */
         getDNDColumnLabels: function() {
             //assumes there is one row....
             this.insureColumnIndexesAreInitialized();
@@ -21534,10 +21881,16 @@ var commands = {
             return labels;
         },
 
+        /**
+         * @function
+         */
         getHeader: function(colIndex) {
             return this.getFixedRowValue(colIndex, 0);
         },
 
+        /**
+         * @function
+         */
         setDNDColumnLabels: function(list) {
             //assumes there is one row....
             var columnCount = list.length;
@@ -21552,6 +21905,10 @@ var commands = {
             this.tableState.columnIndexes = indexes;
             this.changed();
         },
+
+        /**
+         * @function
+         */
         getDNDHiddenColumnLabels: function() {
             var indexes = this.tableState.hiddenColumns;
             var labels = new Array(indexes.length);
@@ -21565,6 +21922,9 @@ var commands = {
             return labels;
         },
 
+        /**
+         * @function
+         */
         setDNDHiddenColumnLabels: function(list) {
             //assumes there is one row....
             var columnCount = list.length;
@@ -21576,6 +21936,9 @@ var commands = {
             this.changed();
         },
 
+        /**
+         * @function
+         */
         hideColumns: function(arrayOfIndexes) {
             var indexes = this.tableState.hiddenColumns;
             var order = this.tableState.columnIndexes;
@@ -21588,28 +21951,37 @@ var commands = {
             }
         },
 
-        //can be dynamic for supporting "floating" fixed cols
-        //<br>floating cols are cols that become fixed if you
-        //<br>scroll past them
+        /**
+         * @function
+         */
         getFixedColumnCount: function() {
             return this.fixedColumnCount;
         },
 
+        /**
+         * @function
+         */
         setFixedColumnCount: function(numberOfFixedColumns) {
             this.fixedColumnCount = numberOfFixedColumns;
         },
 
-        //can be dynamic for supporting "floating" fixed rows
-        //<br>floating rows are rows that become fixed if you
-        //<br>scroll past them
+        /**
+         * @function
+         */
         getFixedRowCount: function() {
             return this.fixedRowCount;
         },
 
+        /**
+         * @function
+         */
         setFixedRowCount: function(numberOfFixedRows) {
             this.fixedRowCount = numberOfFixedRows;
         },
 
+        /**
+         * @function
+         */
         openEditor: function(div) {
             var container = document.createElement('div');
 
@@ -21635,6 +22007,10 @@ var commands = {
             div.appendChild(container);
             return true;
         },
+
+        /**
+         * @function
+         */
         closeEditor: function(div) {
             noop(div);
             var lists = div.lists;
@@ -21642,9 +22018,17 @@ var commands = {
             this.setDNDHiddenColumnLabels(lists.hidden);
             return true;
         },
+
+        /**
+         * @function
+         */
         endDragColumnNotification: function() {
             return true;
         },
+
+        /**
+         * @function
+         */
         beColumnStyle: function(style) {
             style.top = '5%';
             style.position = 'absolute';
@@ -21652,24 +22036,38 @@ var commands = {
             style.height = '99%';
             style.whiteSpace = 'nowrap';
         },
+
+        /**
+         * @function
+         */
         getCursorAt: function( /* x, y */ ) {
             return null;
         },
 
-        //****************************************************
-        //functions to override
-
+        /**
+         * @function
+         */
         getValue: function(x, y) {
             return x + ', ' + y;
         },
 
+        /**
+         * @function
+         */
         setValue: function(x, y, value) {
             this.dataUpdates['p_' + x + '_' + y] = value;
         },
+
+        /**
+         * @function
+         */
         getColumnCount: function() {
             return 300;
         },
 
+        /**
+         * @function
+         */
         getColumnWidth: function(x) {
             var override = this.tableState.columnWidths[x];
             if (override) {
@@ -21678,63 +22076,106 @@ var commands = {
             return this.resolveProperty('defaultColumnWidth');
         },
 
+        /**
+         * @function
+         */
         setColumnWidth: function(x, width) {
             this.tableState.columnWidths[x] = Math.max(5, width);
         },
 
+        /**
+         * @function
+         */
         getColumnAlignment: function( /* x */ ) {
             return 'center';
         },
 
+        /**
+         * @function
+         */
         setScrollPositionX: function(x) {
             this.scrollPositionX = x;
         },
 
+        /**
+         * @function
+         */
         setScrollPositionY: function(y) {
             this.scrollPositionY = y;
         },
+
+        /**
+         * @function
+         */
         getFixedRowAlignment: function(x, y) {
             noop(x, y);
             return this.resolveProperty('fixedRowAlign');
         },
 
+        /**
+         * @function
+         */
         getFixedRowValue: function(x /*, y*/ ) {
             return x;
         },
 
+        /**
+         * @function
+         */
         getCellEditorAt: function(x, y) {
             noop(x, y);
             var cellEditor = this.grid.resolveCellEditor('textfield');
             return cellEditor;
         },
 
-        //on a header click do a sort!
+        /**
+         * @function
+         */
         fixedRowClicked: function(grid, mouse) {
             this.toggleSort(mouse.gridCell.x);
         },
 
+        /**
+         * @function
+         */
         toggleSort: function(colIndex) {
             console.log('toggleSort(' + colIndex + ')');
         },
 
+        /**
+         * @function
+         */
         fixedColumnClicked: function(grid, mouse) {
             console.log('fixedColumnClicked(' + mouse.gridCell.x + ', ' + mouse.gridCell.y + ')');
         },
 
+        /**
+         * @function
+         */
         highlightCellOnHover: function(isColumnHovered, isRowHovered) {
             return isColumnHovered && isRowHovered;
         },
 
+        /**
+         * @function
+         */
         getColumnId: function(x) {
             x = this.translateColumnIndex(x);
             var col = this.getFixedRowValue(x, 0);
             return col;
         },
 
+        /**
+         * @function
+         */
         getImage: function(key) {
             var image = imageCache[key];
             return image;
         },
+
+        /**
+         * @function
+         */
         checkColumnAutosizing: function(fixedWidths, widths) {
             var self = this;
             var myFixed = this.tableState.fixedColumnWidths;
@@ -21770,7 +22211,6 @@ var commands = {
         }
 
     });
-
 })();
 </script>
 </polymer-element><polymer-element name="fin-hypergrid-behavior-default" extends="fin-hypergrid-behavior-base" assetpath="/dev/fin-hypergrid/polymer/html/behaviors/">
@@ -21954,7 +22394,11 @@ var commands = {
 </style>
   </template>
   <script>'use strict';
-
+/**
+ *
+ * @module behaviors\default
+ *
+ */
 (function() {
     var alphaFor = function(i) {
         // Name the column headers in A, .., AA, AB, AC, .., AZ format
@@ -22168,9 +22612,12 @@ var commands = {
 
 </style>
   </template>
-  <script>/*jshint  bitwise: false */
-'use strict';
-
+  <script>'use strict';
+/**
+ *
+ * @module behaviors\gol
+ *
+ */
 (function() {
 
     var noop = function() {};
@@ -22638,9 +23085,12 @@ var commands = {
 
 </style>
   </template>
-  <script>/*jshint  bitwise: false */
-'use strict';
-
+  <script>'use strict';
+/**
+ *
+ * @module behaviors\in-memory
+ *
+ */
 (function() {
 
     var alphaFor = function(i) {
@@ -22979,7 +23429,7 @@ var commands = {
             while (first < last) {
                 var right = last;
                 var left = first;
-                pivot = (first + last) >> 1;
+                pivot = (first + last) >> 1; /* jshint ignore:line */
                 if (pivot < 0 || pivot >= last) {
                     break;
                 }
@@ -23272,7 +23722,11 @@ var commands = {
   </template>
   <script>/*jshint  bitwise: false */
 'use strict';
-
+/**
+ *
+ * @module behaviors\json
+ *
+ */
 var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|class|const|continue|debugger|default|delete|do|double|else|enum|export|extends|final|finally|float|for|function|goto|if|implements|import|in|instanceof|int|interface|let|long|native|new|package|private|protected|public|return|short|static|super|switch|synchronized|this|throw|throws|transient|try|typeof|var|void|volatile|while|with|yield)$)[\x24\x41-\x5A\x5F\x61-\x7A\xAA\xB5\xBA\xC0-\xD6\xD8-\xF6\xF8-\u02C1\u02C6-\u02D1\u02E0-\u02E4\u02EC\u02EE\u0370-\u0374\u0376-\u0377\u037A-\u037D\u0386\u0388-\u038A\u038C\u038E-\u03A1\u03A3-\u03F5\u03F7-\u0481\u048A-\u0527\u0531-\u0556\u0559\u0561-\u0587\u05D0-\u05EA\u05F0-\u05F2\u0620-\u064A\u066E-\u066F\u0671-\u06D3\u06D5\u06E5-\u06E6\u06EE-\u06EF\u06FA-\u06FC\u06FF\u0710\u0712-\u072F\u074D-\u07A5\u07B1\u07CA-\u07EA\u07F4-\u07F5\u07FA\u0800-\u0815\u081A\u0824\u0828\u0840-\u0858\u08A0\u08A2-\u08AC\u0904-\u0939\u093D\u0950\u0958-\u0961\u0971-\u0977\u0979-\u097F\u0985-\u098C\u098F-\u0990\u0993-\u09A8\u09AA-\u09B0\u09B2\u09B6-\u09B9\u09BD\u09CE\u09DC-\u09DD\u09DF-\u09E1\u09F0-\u09F1\u0A05-\u0A0A\u0A0F-\u0A10\u0A13-\u0A28\u0A2A-\u0A30\u0A32-\u0A33\u0A35-\u0A36\u0A38-\u0A39\u0A59-\u0A5C\u0A5E\u0A72-\u0A74\u0A85-\u0A8D\u0A8F-\u0A91\u0A93-\u0AA8\u0AAA-\u0AB0\u0AB2-\u0AB3\u0AB5-\u0AB9\u0ABD\u0AD0\u0AE0-\u0AE1\u0B05-\u0B0C\u0B0F-\u0B10\u0B13-\u0B28\u0B2A-\u0B30\u0B32-\u0B33\u0B35-\u0B39\u0B3D\u0B5C-\u0B5D\u0B5F-\u0B61\u0B71\u0B83\u0B85-\u0B8A\u0B8E-\u0B90\u0B92-\u0B95\u0B99-\u0B9A\u0B9C\u0B9E-\u0B9F\u0BA3-\u0BA4\u0BA8-\u0BAA\u0BAE-\u0BB9\u0BD0\u0C05-\u0C0C\u0C0E-\u0C10\u0C12-\u0C28\u0C2A-\u0C33\u0C35-\u0C39\u0C3D\u0C58-\u0C59\u0C60-\u0C61\u0C85-\u0C8C\u0C8E-\u0C90\u0C92-\u0CA8\u0CAA-\u0CB3\u0CB5-\u0CB9\u0CBD\u0CDE\u0CE0-\u0CE1\u0CF1-\u0CF2\u0D05-\u0D0C\u0D0E-\u0D10\u0D12-\u0D3A\u0D3D\u0D4E\u0D60-\u0D61\u0D7A-\u0D7F\u0D85-\u0D96\u0D9A-\u0DB1\u0DB3-\u0DBB\u0DBD\u0DC0-\u0DC6\u0E01-\u0E30\u0E32-\u0E33\u0E40-\u0E46\u0E81-\u0E82\u0E84\u0E87-\u0E88\u0E8A\u0E8D\u0E94-\u0E97\u0E99-\u0E9F\u0EA1-\u0EA3\u0EA5\u0EA7\u0EAA-\u0EAB\u0EAD-\u0EB0\u0EB2-\u0EB3\u0EBD\u0EC0-\u0EC4\u0EC6\u0EDC-\u0EDF\u0F00\u0F40-\u0F47\u0F49-\u0F6C\u0F88-\u0F8C\u1000-\u102A\u103F\u1050-\u1055\u105A-\u105D\u1061\u1065-\u1066\u106E-\u1070\u1075-\u1081\u108E\u10A0-\u10C5\u10C7\u10CD\u10D0-\u10FA\u10FC-\u1248\u124A-\u124D\u1250-\u1256\u1258\u125A-\u125D\u1260-\u1288\u128A-\u128D\u1290-\u12B0\u12B2-\u12B5\u12B8-\u12BE\u12C0\u12C2-\u12C5\u12C8-\u12D6\u12D8-\u1310\u1312-\u1315\u1318-\u135A\u1380-\u138F\u13A0-\u13F4\u1401-\u166C\u166F-\u167F\u1681-\u169A\u16A0-\u16EA\u16EE-\u16F0\u1700-\u170C\u170E-\u1711\u1720-\u1731\u1740-\u1751\u1760-\u176C\u176E-\u1770\u1780-\u17B3\u17D7\u17DC\u1820-\u1877\u1880-\u18A8\u18AA\u18B0-\u18F5\u1900-\u191C\u1950-\u196D\u1970-\u1974\u1980-\u19AB\u19C1-\u19C7\u1A00-\u1A16\u1A20-\u1A54\u1AA7\u1B05-\u1B33\u1B45-\u1B4B\u1B83-\u1BA0\u1BAE-\u1BAF\u1BBA-\u1BE5\u1C00-\u1C23\u1C4D-\u1C4F\u1C5A-\u1C7D\u1CE9-\u1CEC\u1CEE-\u1CF1\u1CF5-\u1CF6\u1D00-\u1DBF\u1E00-\u1F15\u1F18-\u1F1D\u1F20-\u1F45\u1F48-\u1F4D\u1F50-\u1F57\u1F59\u1F5B\u1F5D\u1F5F-\u1F7D\u1F80-\u1FB4\u1FB6-\u1FBC\u1FBE\u1FC2-\u1FC4\u1FC6-\u1FCC\u1FD0-\u1FD3\u1FD6-\u1FDB\u1FE0-\u1FEC\u1FF2-\u1FF4\u1FF6-\u1FFC\u2071\u207F\u2090-\u209C\u2102\u2107\u210A-\u2113\u2115\u2119-\u211D\u2124\u2126\u2128\u212A-\u212D\u212F-\u2139\u213C-\u213F\u2145-\u2149\u214E\u2160-\u2188\u2C00-\u2C2E\u2C30-\u2C5E\u2C60-\u2CE4\u2CEB-\u2CEE\u2CF2-\u2CF3\u2D00-\u2D25\u2D27\u2D2D\u2D30-\u2D67\u2D6F\u2D80-\u2D96\u2DA0-\u2DA6\u2DA8-\u2DAE\u2DB0-\u2DB6\u2DB8-\u2DBE\u2DC0-\u2DC6\u2DC8-\u2DCE\u2DD0-\u2DD6\u2DD8-\u2DDE\u2E2F\u3005-\u3007\u3021-\u3029\u3031-\u3035\u3038-\u303C\u3041-\u3096\u309D-\u309F\u30A1-\u30FA\u30FC-\u30FF\u3105-\u312D\u3131-\u318E\u31A0-\u31BA\u31F0-\u31FF\u3400-\u4DB5\u4E00-\u9FCC\uA000-\uA48C\uA4D0-\uA4FD\uA500-\uA60C\uA610-\uA61F\uA62A-\uA62B\uA640-\uA66E\uA67F-\uA697\uA6A0-\uA6EF\uA717-\uA71F\uA722-\uA788\uA78B-\uA78E\uA790-\uA793\uA7A0-\uA7AA\uA7F8-\uA801\uA803-\uA805\uA807-\uA80A\uA80C-\uA822\uA840-\uA873\uA882-\uA8B3\uA8F2-\uA8F7\uA8FB\uA90A-\uA925\uA930-\uA946\uA960-\uA97C\uA984-\uA9B2\uA9CF\uAA00-\uAA28\uAA40-\uAA42\uAA44-\uAA4B\uAA60-\uAA76\uAA7A\uAA80-\uAAAF\uAAB1\uAAB5-\uAAB6\uAAB9-\uAABD\uAAC0\uAAC2\uAADB-\uAADD\uAAE0-\uAAEA\uAAF2-\uAAF4\uAB01-\uAB06\uAB09-\uAB0E\uAB11-\uAB16\uAB20-\uAB26\uAB28-\uAB2E\uABC0-\uABE2\uAC00-\uD7A3\uD7B0-\uD7C6\uD7CB-\uD7FB\uF900-\uFA6D\uFA70-\uFAD9\uFB00-\uFB06\uFB13-\uFB17\uFB1D\uFB1F-\uFB28\uFB2A-\uFB36\uFB38-\uFB3C\uFB3E\uFB40-\uFB41\uFB43-\uFB44\uFB46-\uFBB1\uFBD3-\uFD3D\uFD50-\uFD8F\uFD92-\uFDC7\uFDF0-\uFDFB\uFE70-\uFE74\uFE76-\uFEFC\uFF21-\uFF3A\uFF41-\uFF5A\uFF66-\uFFBE\uFFC2-\uFFC7\uFFCA-\uFFCF\uFFD2-\uFFD7\uFFDA-\uFFDC][\x24\x30-\x39\x41-\x5A\x5F\x61-\x7A\xA0\xAA\xB5\xBA\xC0-\xD6\xD8-\xF6\xF8-\u02C1\u02C6-\u02D1\u02E0-\u02E4\u02EC\u02EE\u0300-\u0374\u0376-\u0377\u037A-\u037D\u0386\u0388-\u038A\u038C\u038E-\u03A1\u03A3-\u03F5\u03F7-\u0481\u0483-\u0487\u048A-\u0527\u0531-\u0556\u0559\u0561-\u0587\u0591-\u05BD\u05BF\u05C1-\u05C2\u05C4-\u05C5\u05C7\u05D0-\u05EA\u05F0-\u05F2\u0610-\u061A\u0620-\u0669\u066E-\u06D3\u06D5-\u06DC\u06DF-\u06E8\u06EA-\u06FC\u06FF\u0710-\u074A\u074D-\u07B1\u07C0-\u07F5\u07FA\u0800-\u082D\u0840-\u085B\u08A0\u08A2-\u08AC\u08E4-\u08FE\u0900-\u0963\u0966-\u096F\u0971-\u0977\u0979-\u097F\u0981-\u0983\u0985-\u098C\u098F-\u0990\u0993-\u09A8\u09AA-\u09B0\u09B2\u09B6-\u09B9\u09BC-\u09C4\u09C7-\u09C8\u09CB-\u09CE\u09D7\u09DC-\u09DD\u09DF-\u09E3\u09E6-\u09F1\u0A01-\u0A03\u0A05-\u0A0A\u0A0F-\u0A10\u0A13-\u0A28\u0A2A-\u0A30\u0A32-\u0A33\u0A35-\u0A36\u0A38-\u0A39\u0A3C\u0A3E-\u0A42\u0A47-\u0A48\u0A4B-\u0A4D\u0A51\u0A59-\u0A5C\u0A5E\u0A66-\u0A75\u0A81-\u0A83\u0A85-\u0A8D\u0A8F-\u0A91\u0A93-\u0AA8\u0AAA-\u0AB0\u0AB2-\u0AB3\u0AB5-\u0AB9\u0ABC-\u0AC5\u0AC7-\u0AC9\u0ACB-\u0ACD\u0AD0\u0AE0-\u0AE3\u0AE6-\u0AEF\u0B01-\u0B03\u0B05-\u0B0C\u0B0F-\u0B10\u0B13-\u0B28\u0B2A-\u0B30\u0B32-\u0B33\u0B35-\u0B39\u0B3C-\u0B44\u0B47-\u0B48\u0B4B-\u0B4D\u0B56-\u0B57\u0B5C-\u0B5D\u0B5F-\u0B63\u0B66-\u0B6F\u0B71\u0B82-\u0B83\u0B85-\u0B8A\u0B8E-\u0B90\u0B92-\u0B95\u0B99-\u0B9A\u0B9C\u0B9E-\u0B9F\u0BA3-\u0BA4\u0BA8-\u0BAA\u0BAE-\u0BB9\u0BBE-\u0BC2\u0BC6-\u0BC8\u0BCA-\u0BCD\u0BD0\u0BD7\u0BE6-\u0BEF\u0C01-\u0C03\u0C05-\u0C0C\u0C0E-\u0C10\u0C12-\u0C28\u0C2A-\u0C33\u0C35-\u0C39\u0C3D-\u0C44\u0C46-\u0C48\u0C4A-\u0C4D\u0C55-\u0C56\u0C58-\u0C59\u0C60-\u0C63\u0C66-\u0C6F\u0C82-\u0C83\u0C85-\u0C8C\u0C8E-\u0C90\u0C92-\u0CA8\u0CAA-\u0CB3\u0CB5-\u0CB9\u0CBC-\u0CC4\u0CC6-\u0CC8\u0CCA-\u0CCD\u0CD5-\u0CD6\u0CDE\u0CE0-\u0CE3\u0CE6-\u0CEF\u0CF1-\u0CF2\u0D02-\u0D03\u0D05-\u0D0C\u0D0E-\u0D10\u0D12-\u0D3A\u0D3D-\u0D44\u0D46-\u0D48\u0D4A-\u0D4E\u0D57\u0D60-\u0D63\u0D66-\u0D6F\u0D7A-\u0D7F\u0D82-\u0D83\u0D85-\u0D96\u0D9A-\u0DB1\u0DB3-\u0DBB\u0DBD\u0DC0-\u0DC6\u0DCA\u0DCF-\u0DD4\u0DD6\u0DD8-\u0DDF\u0DF2-\u0DF3\u0E01-\u0E3A\u0E40-\u0E4E\u0E50-\u0E59\u0E81-\u0E82\u0E84\u0E87-\u0E88\u0E8A\u0E8D\u0E94-\u0E97\u0E99-\u0E9F\u0EA1-\u0EA3\u0EA5\u0EA7\u0EAA-\u0EAB\u0EAD-\u0EB9\u0EBB-\u0EBD\u0EC0-\u0EC4\u0EC6\u0EC8-\u0ECD\u0ED0-\u0ED9\u0EDC-\u0EDF\u0F00\u0F18-\u0F19\u0F20-\u0F29\u0F35\u0F37\u0F39\u0F3E-\u0F47\u0F49-\u0F6C\u0F71-\u0F84\u0F86-\u0F97\u0F99-\u0FBC\u0FC6\u1000-\u1049\u1050-\u109D\u10A0-\u10C5\u10C7\u10CD\u10D0-\u10FA\u10FC-\u1248\u124A-\u124D\u1250-\u1256\u1258\u125A-\u125D\u1260-\u1288\u128A-\u128D\u1290-\u12B0\u12B2-\u12B5\u12B8-\u12BE\u12C0\u12C2-\u12C5\u12C8-\u12D6\u12D8-\u1310\u1312-\u1315\u1318-\u135A\u135D-\u135F\u1380-\u138F\u13A0-\u13F4\u1401-\u166C\u166F-\u169A\u16A0-\u16EA\u16EE-\u16F0\u1700-\u170C\u170E-\u1714\u1720-\u1734\u1740-\u1753\u1760-\u176C\u176E-\u1770\u1772-\u1773\u1780-\u17D3\u17D7\u17DC-\u17DD\u17E0-\u17E9\u180B-\u180E\u1810-\u1819\u1820-\u1877\u1880-\u18AA\u18B0-\u18F5\u1900-\u191C\u1920-\u192B\u1930-\u193B\u1946-\u196D\u1970-\u1974\u1980-\u19AB\u19B0-\u19C9\u19D0-\u19D9\u1A00-\u1A1B\u1A20-\u1A5E\u1A60-\u1A7C\u1A7F-\u1A89\u1A90-\u1A99\u1AA7\u1B00-\u1B4B\u1B50-\u1B59\u1B6B-\u1B73\u1B80-\u1BF3\u1C00-\u1C37\u1C40-\u1C49\u1C4D-\u1C7D\u1CD0-\u1CD2\u1CD4-\u1CF6\u1D00-\u1DE6\u1DFC-\u1F15\u1F18-\u1F1D\u1F20-\u1F45\u1F48-\u1F4D\u1F50-\u1F57\u1F59\u1F5B\u1F5D\u1F5F-\u1F7D\u1F80-\u1FB4\u1FB6-\u1FBC\u1FBE\u1FC2-\u1FC4\u1FC6-\u1FCC\u1FD0-\u1FD3\u1FD6-\u1FDB\u1FE0-\u1FEC\u1FF2-\u1FF4\u1FF6-\u1FFC\u2000-\u200A\u200C-\u200D\u2028-\u2029\u202F\u203F-\u2040\u2054\u205F\u2071\u207F\u2090-\u209C\u20D0-\u20DC\u20E1\u20E5-\u20F0\u2102\u2107\u210A-\u2113\u2115\u2119-\u211D\u2124\u2126\u2128\u212A-\u212D\u212F-\u2139\u213C-\u213F\u2145-\u2149\u214E\u2160-\u2188\u2C00-\u2C2E\u2C30-\u2C5E\u2C60-\u2CE4\u2CEB-\u2CF3\u2D00-\u2D25\u2D27\u2D2D\u2D30-\u2D67\u2D6F\u2D7F-\u2D96\u2DA0-\u2DA6\u2DA8-\u2DAE\u2DB0-\u2DB6\u2DB8-\u2DBE\u2DC0-\u2DC6\u2DC8-\u2DCE\u2DD0-\u2DD6\u2DD8-\u2DDE\u2DE0-\u2DFF\u2E2F\u3000\u3005-\u3007\u3021-\u302F\u3031-\u3035\u3038-\u303C\u3041-\u3096\u3099-\u309A\u309D-\u309F\u30A1-\u30FA\u30FC-\u30FF\u3105-\u312D\u3131-\u318E\u31A0-\u31BA\u31F0-\u31FF\u3400-\u4DB5\u4E00-\u9FCC\uA000-\uA48C\uA4D0-\uA4FD\uA500-\uA60C\uA610-\uA62B\uA640-\uA66F\uA674-\uA67D\uA67F-\uA697\uA69F-\uA6F1\uA717-\uA71F\uA722-\uA788\uA78B-\uA78E\uA790-\uA793\uA7A0-\uA7AA\uA7F8-\uA827\uA840-\uA873\uA880-\uA8C4\uA8D0-\uA8D9\uA8E0-\uA8F7\uA8FB\uA900-\uA92D\uA930-\uA953\uA960-\uA97C\uA980-\uA9C0\uA9CF-\uA9D9\uAA00-\uAA36\uAA40-\uAA4D\uAA50-\uAA59\uAA60-\uAA76\uAA7A-\uAA7B\uAA80-\uAAC2\uAADB-\uAADD\uAAE0-\uAAEF\uAAF2-\uAAF6\uAB01-\uAB06\uAB09-\uAB0E\uAB11-\uAB16\uAB20-\uAB26\uAB28-\uAB2E\uABC0-\uABEA\uABEC-\uABED\uABF0-\uABF9\uAC00-\uD7A3\uD7B0-\uD7C6\uD7CB-\uD7FB\uF900-\uFA6D\uFA70-\uFAD9\uFB00-\uFB06\uFB13-\uFB17\uFB1D-\uFB28\uFB2A-\uFB36\uFB38-\uFB3C\uFB3E\uFB40-\uFB41\uFB43-\uFB44\uFB46-\uFBB1\uFBD3-\uFD3D\uFD50-\uFD8F\uFD92-\uFDC7\uFDF0-\uFDFB\uFE00-\uFE0F\uFE20-\uFE26\uFE33-\uFE34\uFE4D-\uFE4F\uFE70-\uFE74\uFE76-\uFEFC\uFEFF\uFF10-\uFF19\uFF21-\uFF3A\uFF3F\uFF41-\uFF5A\uFF66-\uFFBE\uFFC2-\uFFC7\uFFCA-\uFFCF\uFFD2-\uFFD7\uFFDA-\uFFDC\uFFFE]*$/;
 
 (function() {
@@ -23747,6 +24201,11 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
 </style>
   </template>
   <script>'use strict';
+/**
+ *
+ * @module behaviors\q
+ *
+ */
 //fin-hypergrid-behavior-q is a datasource based on an external Q data source.
 //<br>See [kx.com](http://www.kx.com)
 //<br>Two example scripts are provided in the root of this project, bigtable.q and sorttable.q
@@ -24196,6 +24655,12 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
   </template>
   <script>/* global numeral*/
 'use strict';
+/**
+ *
+ * @module behaviors\qtree
+ *
+ */
+
 //fin-hypergrid-behavior-qtree is a datasource based on an external Q data source with tree-centric analytic capilities
 //<br>See [kx.com](http://www.kx.com)
 //<br>Two example scripts are provided in the root of this project, bigtable.q and sorttable.q
@@ -25011,7 +25476,11 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
 </style>
   </template>
   <script>'use strict';
-
+/**
+ *
+ * @module behaviors\web-worker
+ *
+ */
 (function() {
 
     Polymer('fin-hypergrid-behavior-web-worker',{ /* jslint ignore:line */
@@ -25354,7 +25823,11 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
 </style>
   </template>
   <script>'use strict';
-
+/**
+ *
+ * @module cell-editors\base
+ *
+ */
 (function() {
 
     var noop = function() {};
@@ -25669,7 +26142,11 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
     <div id="editor"></div>
   </template>
   <script>'use strict';
-
+/**
+ *
+ * @module cell-editors\simple
+ *
+ */
 (function() {
 
     Polymer('fin-hypergrid-cell-editor-simple',{ /* jshint ignore:line */
@@ -25927,7 +26404,11 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
     <input id="editor">
   </template>
   <script>'use strict';
-
+/**
+ *
+ * @module cell-editors\textfield
+ *
+ */
 (function() {
 
     Polymer('fin-hypergrid-cell-editor-textfield',{ /* jshint ignore:line */
@@ -26124,7 +26605,11 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
     </select>
   </template>
   <script>'use strict';
-
+/**
+ *
+ * @module cell-editors\choice
+ *
+ */
 (function() {
 
     Polymer('fin-hypergrid-cell-editor-choice',{ /* jshint ignore:line */
@@ -26320,7 +26805,11 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
     <input id="editor" type="color">
   </template>
   <script>'use strict';
-
+/**
+ *
+ * @module cell-editors\color
+ *
+ */
 (function() {
 
     Polymer('fin-hypergrid-cell-editor-color',{ /* jshint ignore:line */
@@ -26512,7 +27001,11 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
     <input id="editor" type="date">
   </template>
   <script>'use strict';
-
+/**
+ *
+ * @module cell-editors\date
+ *
+ */
 (function() {
 
     Polymer('fin-hypergrid-cell-editor-date',{ /* jshint ignore:line */
@@ -26704,7 +27197,11 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
     <input id="editor" type="range">
   </template>
   <script>'use strict';
-
+/**
+ *
+ * @module cell-editors\slider
+ *
+ */
 (function() {
 
     Polymer('fin-hypergrid-cell-editor-slider',{ /* jshint ignore:line */
@@ -26896,7 +27393,11 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
     <input id="editor" type="number">
   </template>
   <script>'use strict';
-
+/**
+ *
+ * @module cell-editors\spinner
+ *
+ */
 (function() {
 
     Polymer('fin-hypergrid-cell-editor-spinner',{ /* jshint ignore:line */
@@ -27164,8 +27665,11 @@ fin-vampire-bar {
   <script>/* global alert */
 'use strict';
 
-(function() {
+/**
+ * @module .\fin-hypergrid
+ */
 
+(function() {
     var rectangles;
     var globalCellEditors = {};
     var propertiesInitialized = false;

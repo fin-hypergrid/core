@@ -16,7 +16,7 @@
 
 /**
  *
- * @module root\renderer
+ * @module .\renderer
  *
  */
 
