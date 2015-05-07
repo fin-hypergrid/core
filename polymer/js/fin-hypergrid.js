@@ -3,6 +3,10 @@
 
 /**
  * @module .\fin-hypergrid
+ * @description
+ This is the main polymer web-component of the hypergrid project, you create an "instance" of the hypergrid by
+ 1. ```var myInstance = document.createElement('fin-hypergrid');```  or
+ 2. ```<fin-hypergrid></fin-hypergrid>```
  */
 
 (function() {
@@ -168,10 +172,9 @@
     Polymer({ /* jslint ignore:line */
 
         /**
-         * behavior is a property of fin-hypergrid
          *
-         * @property behavior
-         * @type fin-hypergrid-behavior
+         * @property {object} behavior - a null object behavior serves as a place holder
+         * @instance
          */
         behavior: {
             setScrollPositionY: noop,
@@ -211,170 +214,164 @@
             doubleClick: noop
         },
 
+        /**
+         *
+         * @property {boolean} isWebkit - cached result of if we are running in webkit
+         * @instance
+         */
         isWebkit: true,
 
         /**
-         * mouseDown is the location of an initial mousedown click, either for editing
-         * a cell or for dragging a selection
          *
-         * @property mouseDown
-         * @type point
+         * @property {fin-rectangle.point} mouseDown - mouseDown is the location of an initial mousedown click, either for editing a cell or for dragging a selection. see [fin-rectangle.point](http://stevewirts.github.io/fin-rectangle/components/fin-rectangle/)
+         * @instance
          */
         mouseDown: [],
 
         /**
-         * dragExtent is the extent from the mousedown point during a drag operation
          *
-         * @property dragExtent
-         * @type fin-rectangle.point
+         * @property {fin-rectangle.point} dragExtent - the extent from the mousedown point during a drag operation. see [fin-rectangle.point](http://stevewirts.github.io/fin-rectangle/components/fin-rectangle/)
+         * @instance
          */
 
         dragExtent: null,
 
         /**
-         * vScrlValue is a float value between 0.0 - 1.0 of the y scrollposition
+         * vScrollValue is
          *
-         * @property vScrlValue
-         * @type Number
+         * @property {number} vScrollValue - a float value between 0.0 - 1.0 of the y scrollposition
+         * @instance
          */
-        vScrlValue: 0,
+        vScrollValue: 0,
 
         /**
-         * hScrlValue is a float value between 0.0 - 1.0 of the x scrollposition
          *
-         * @property hScrlValue
-         * @type Number
+         * @property {number} hScrollValue - a float value between 0.0 - 1.0 of the y scrollposition
+         * @instance
          */
-        hScrlValue: 0,
+        hScrollValue: 0,
 
         /**
-         * rectangles is a polymer element instance of [fin-rectange](http://stevewirts.github.io/fin-rectangle/components/fin-rectangle/)
          *
-         * @property rectangles
-         * @type fin-rectange
+         * @property {fin-rectange} rectangles - a polymer element instance of [fin-rectange](http://stevewirts.github.io/fin-rectangle/components/fin-rectangle/)
+         * @instance
          */
         rectangles: null,
 
         /**
-         * selectionModel is a [fin-hypergrid-selection-model](index.html#fin-hypergrid-selection-model) instance
          *
-         * @property selectionModel
-         * @type fin-hypergrid-selection-model
+         * @property {fin-hypergrid-selection-model} selectionModel - a [fin-hypergrid-selection-model](http://localhost:9000/fin-hypergrid/docs/module-._selection-model.html) instance
+         * @instance
          */
         selectionModel: null,
 
         /**
-         * cellEdtr is the current instance of [fin-hypergrid-cell-editor](index.html#fin-hypergrid-cell-editor-base)
          *
-         * @property cellEdtr
-         * @type fin-hypergrid-cell-editor
+         * @property {fin-hypergrid-cell-editor} cellEditor - the current instance of [fin-hypergrid-cell-editor](http://localhost:9000/fin-hypergrid/docs/module-cell-editors_base.html)
+         * @instance
          */
-        cellEdtr: null,
+        cellEditor: null,
 
         /**
-         * sbMouseIsDown is true if the mouse button is currently down on the scrollbar, this is
-         * used to refocus the hypergrid canvas after a scrollbar scroll
          *
-         * @property sbMouseIsDown
-         * @type boolean
+         * @property {boolean} sbMouseIsDown - true if the mouse button is currently down on the scrollbar, this is used to refocus the hypergrid canvas after a scrollbar scroll
+         * @instance
          */
         sbMouseIsDown: false,
 
         /**
-         * sbHScroller is an instance of [fin-vampire-bar](http://datamadic.github.io/fin-vampire-bar/components/fin-vampire-bar/)
          *
-         * @property sbHScroller
-         * @type fin-vampire-bar
+         * @property {fin-vampire-bar} sbHScroller - an instance of [fin-vampire-bar](http://datamadic.github.io/fin-vampire-bar/components/fin-vampire-bar/)
+         * @instance
          */
         sbHScroller: null,
 
         /**
-         * sbVScroller is an instance of [fin-vampire-bar](http://datamadic.github.io/fin-vampire-bar/components/fin-vampire-bar/)
          *
-         * @property sbVScroller
-         * @type fin-vampire-bar
+         * @property {fin-vampire-bar} sbVScroller - an instance of [fin-vampire-bar](http://datamadic.github.io/fin-vampire-bar/components/fin-vampire-bar/)
+         * @instance
          */
         sbVScroller: null,
 
         /**
-         * sbHScrlCfg is a config object allow us to dynamically reconfigure the scrollbars,
-         * it's properties include rangeStart, rangeStop, step, and page
          *
-         * @property sbHScrlCfg
-         * @type Object
+         * @property {object} sbHScrollConfig - a config object allow us to dynamically reconfigure the scrollbars, it's properties include rangeStart, rangeStop, step, and page
+         * @instance
          */
-        sbHScrlCfg: {},
+        sbHScrollConfig: {},
 
         /**
-         * sbVScrlCfg is a config object allow us to dynamically reconfigure the scrollbars,
-         * it's properties include rangeStart, rangeStop, step, and page
          *
-         * @property sbVScrlCfg
-         * @type Object
+         * @property {object} sbVScrollConfig - a config object to allow us to dynamically reconfigure the scrollbars, it's properties include rangeStart, rangeStop, step, and page
+         * @instance
          */
-        sbVScrlCfg: {},
+        sbVScrollConfig: {},
 
         /**
-         * sbPrevVScrlVal is the previous value of sbVScrlVal
          *
-         * @property sbPrevVScrlVal
-         * @type Number
+         * @property {integer} sbPrevVScrollValue - the previous value of sbVScrollVal
+         * @instance
          */
-        sbPrevVScrlVal: null,
+        sbPrevVScrollValue: null,
 
         /**
-         * sbPrevHScrlVal is dthe previous value of SbHScrlVal
          *
-         * @property sbPrevHScrlVal
-         * @type Number
+         * @property {integer} sbPrevHScrollValue - the previous value of sbHScrollValue
+         * @instance
          */
-        sbPrevHScrlVal: null,
+        sbPrevHScrollValue: null,
 
         /**
-         * sbHValueHolder the listenable scroll model we share with the Horizontal scrollbar
          *
-         * @property sbHValueHolder
-         * @type Object
+         * @property {object} sbHValueHolder - the listenable scroll model we share with the horizontal scrollbar
+         * @instance
          */
 
         sbHValueHolder: {},
 
         /**
-         * sbVValueHolder the listenable scroll model we share with the vertical scrollbar
          *
-         * @property sbVValueHolder
-         * @type Object
+         * @property {object} sbVValueHolder - the listenable scroll model we share with the vertical scrollbar
+         * @instance
          */
         sbVValueHolder: {},
 
         /**
-         * cellEditors is the cache of singleton cellEditors
+         * cellEditors is
          *
-         * @property cellEditors
-         * @type Object
+         * @property {object} cellEditors - the cache of singleton cellEditors
+         * @instance
          */
         cellEditors: null,
 
         /**
-         * renderOverridesCache is the short term memory of what column I might be dragging around
          *
-         * @property renderOverridesCache
-         * @type integer
+         * @property {object} renderOverridesCache - is the short term memory of what column I might be dragging around
+         * @instance
          */
 
         renderOverridesCache: {},
 
         /**
-         * hoverCell is always the current hovered cell
          *
-         * @property hoverCell
-         * @type integer
+         * @property {fin-rectangle.point} hoverCell - the current hovered cell
+         * @instance
          */
-
         hoverCell: null,
 
+
+        /**
+         *
+         * @property {boolean} isScrollButtonClick - was the scroll button was clicked
+         * @instance
+         */
         isScrollButtonClick: false,
 
+        /**
+         * @function
+         * @private
+         * @instance
+         */
         domReady: function() {
 
             if (!propertiesInitialized) {
@@ -433,6 +430,15 @@
 
         },
 
+        /**
+         * @function
+         * @instance
+         * @description
+         answers if (x,y) is currently where the pointer is hovering
+         * #### returns: boolean
+         * @param {integer} x - the x cell coordinate
+         * @param {integer} y - the y cell coordinate
+         */
         isHovered: function(x, y) {
             var p = this.getHoverCell();
             if (!p) {
@@ -441,6 +447,14 @@
             return p.x === x && p.y === y;
         },
 
+        /**
+         * @function
+         * @instance
+         * @description
+         answers if the pointer is hovering over the column x
+         * #### returns: boolean
+         * @param {integer} x - the x cell coordinate
+         */
         isColumnHovered: function(x) {
             var p = this.getHoverCell();
             if (!p) {
@@ -449,6 +463,14 @@
             return p.x === x;
         },
 
+        /**
+         * @function
+         * @instance
+         * @description
+         answers if the pointer is hovering over the row y
+         * #### returns: boolean
+         * @param {integer} y - the y cell coordinate
+         */
         isRowHovered: function(y) {
             var p = this.getHoverCell();
             if (!p) {
@@ -457,10 +479,25 @@
             return p.y === y;
         },
 
+        /**
+         * @function
+         * @instance
+         * @description
+         answers the cell of where the cursor is hovering
+         * #### returns: fin-rectangle.point
+         */
         getHoverCell: function() {
             return this.hoverCell;
         },
 
+
+        /**
+         * @function
+         * @instance
+         * @description
+         set the cell of where the cursor is hovering
+         * @param {fin-rectangle.point} point - an instance of [fin-rectangle.point](http://stevewirts.github.io/fin-rectangle/components/fin-rectangle/)
+         */
         setHoverCell: function(point) {
             var me = this.hoverCell;
             if (me && me.equals(point)) {
@@ -472,41 +509,63 @@
             this.repaint();
         },
 
-        addGlobalProperties: function(props) {
+        /**
+         * @function
+         * @description
+         ammend properties for all hypergrids in this process
+         * @param {object} properties - an object of various key value pairs
+         * @instance
+         */
+        addGlobalProperties: function(properties) {
             //we check for existence to avoid race condition in initialization
             if (!globalProperties) {
                 var self = this;
                 setTimeout(function() {
-                    self.addGlobalProperties(props);
+                    self.addGlobalProperties(properties);
                 }, 10);
             } else {
-                this._addGlobalProperties(props);
+                this._addGlobalProperties(properties);
             }
 
         },
 
-        _addGlobalProperties: function(props) {
-            for (var key in props) {
-                if (props.hasOwnProperty(key)) {
-                    globalProperties[key] = props[key];
-                }
-            }
-        },
-
-        addProperties: function(props) {
-            for (var key in props) {
-                if (props.hasOwnProperty(key)) {
-                    this.lnfProperties[key] = props[key];
+        /**
+         * @function
+         * @description
+         ammend properties for all hypergrids in this process
+         * @param {object} properties - an object of various key value pairs
+         * @instance
+         * @private
+         */
+        _addGlobalProperties: function(properties) {
+            for (var key in properties) {
+                if (properties.hasOwnProperty(key)) {
+                    globalProperties[key] = properties[key];
                 }
             }
         },
 
         /**
-         *                                                                      .
-         *                                                                      .
-         * answer the state object for remembering our state (memento pattern)
-         *
-         * @method setState()
+         * @function
+         * @description
+         ammend properties for this hypergrid only
+         * @param {object} properties - an object of various key value pairs
+         * @instance
+         */
+        addProperties: function(properties) {
+            for (var key in properties) {
+                if (properties.hasOwnProperty(key)) {
+                    this.lnfProperties[key] = properties[key];
+                }
+            }
+        },
+
+        /**
+         * @function
+         * @description
+         answer the state object for remembering our state, see the [memento pattern](http://en.wikipedia.org/wiki/Memento_pattern)
+         * #### returns: object
+         * @instance
          */
         getState: function() {
             var state = this.getBehavior().getState();
@@ -514,22 +573,23 @@
         },
 
         /**
-         *                                                                      .
-         *                                                                      .
-         * set the state object to return to a specific user configuration
-         *
-         * @method setState()
+         * @function
+         * @instance
+         * @description
+         set the state object to return to a specific user configuration
+         * @param {object} state - a memento object, see the [memento pattern](http://en.wikipedia.org/wiki/Memento_pattern)
          */
         setState: function(state) {
             this.getBehavior().setState(state);
         },
 
         /**
-         *                                                                      .
-         *                                                                      .
-         * answer the initial mouse position on a mouse down event for cell editing or a drag operation
-         *
-         * @method getMouseDown()
+         * @function
+         * @instance
+         * @description
+         answer the initial mouse position on a mouse down event for cell editing or a drag operation
+         * #### returns: object
+         * @instance
          */
         getMouseDown: function() {
             var last = this.mouseDown.length - 1;
@@ -540,11 +600,11 @@
         },
 
         /**
-         *                                                                      .
-         *                                                                      .
-         * remove the last item from the mouse down stack
+         * @function
+         * @instance
+         * @description
+         remove the last item from the mouse down stack
          *
-         * @method popMouseDown()
          */
         popMouseDown: function() {
             if (this.mouseDown.length === 0) {
@@ -554,11 +614,11 @@
         },
 
         /**
-         *                                                                      .
-         *                                                                      .
-         * empty out the mouse down stack
+         * @function
+         * @instance
+         * @description
+         empty out the mouse down stack
          *
-         * @method clearMouseDown()
          */
         clearMouseDown: function() {
             this.mouseDown = [rectangles.point.create(-1, -1)];
@@ -566,44 +626,47 @@
         },
 
         /**
-         *                                                                      .
-         *                                                                      .
-         * set the mouse point that initated a cell edit or drag operation
+         * @function
+         * @instance
+         * @description
+         set the mouse point that initated a cell edit or drag operation
          *
-         * @method setMouseDown(point)
+         * @param {fin-rectangle.point} point - a [fin-rectangle.point](http://stevewirts.github.io/fin-rectangle/components/fin-rectangle/) object
          */
         setMouseDown: function(point) {
             this.mouseDown.push(point);
         },
 
-
         /**
-         *                                                                      .
-         *                                                                      .
-         * return the extent point of the current drag selection rectangle
+         * @function
+         * @instance
+         * @description
+         return the extent point of the current drag selection rectangle
          *
-         * @method getDragExtent()
+         * #### returns: [fin-rectangle.point](http://stevewirts.github.io/fin-rectangle/components/fin-rectangle/)
          */
         getDragExtent: function() {
             return this.dragExtent;
         },
 
         /**
-         *                                                                      .
-         *                                                                      .
-         * set the extent point of the current drag selection operation
+         * @function
+         * @instance
+         * @descriptionset the extent point of the current drag selection operation
          *
-         * @method setDragExtent(point)
+         * @param {fin-rectangle.point}
          */
         setDragExtent: function(point) {
             this.dragExtent = point;
         },
+
         /**
-         *                                                                      .
-         *                                                                      .
-         * iterate over the plugins invoking the passed in function with each
+         * @function
+         * @instance
+         * @description
+         iterate over the plugins invoking the passed in function with each
          *
-         * @method pluginsDo(function)
+         * @param {function} func - the function to invoke on all the plugins
          */
         pluginsDo: function(func) {
             var userPlugins = this.children.array();
@@ -622,11 +685,12 @@
         },
 
         /**
-         *                                                                      .
-         *                                                                      .
-         * The CellProvider is accessed through Hypergrid because Hypergrid is the mediator and should have ultimate control on where it comes from.  The default is to delegate through the PluggableGridBehavior object.
+         * @function
+         * @instance
+         * @description
+         The CellProvider is accessed through Hypergrid because Hypergrid is the mediator and should have ultimate control on where it comes from.  The default is to delegate through the behavior object.
          *
-         * @method getCellProvider()
+         * #### returns: [fin-hypergrid-cell-provider](module-._cell-provider.html)
          */
         getCellProvider: function() {
             var provider = this.getBehavior().getCellProvider();
@@ -634,21 +698,28 @@
         },
 
         /**
-         *                                                                      .
-         *                                                                      .
-         * This function is a callback from the HypergridRenderer sub-component.   It is called after each paint of the canvas.
+         * @function
+         * @instance
+         * @description
+         This function is a callback from the HypergridRenderer sub-component.   It is called after each paint of the canvas.
          *
-         * @method gridRenderedNotification()
          */
         gridRenderedNotification: function() {
             this.updateRenderedSizes();
-            if (this.cellEdtr) {
-                this.cellEdtr.gridRenderedNotification();
+            if (this.cellEditor) {
+                this.cellEditor.gridRenderedNotification();
             }
             this.checkColumnAutosizing();
             this.fireSyntheticGridRenderedEvent();
         },
 
+        /**
+         * @function
+         * @instance
+         * @description
+         the grid has just been rendered, make sure the column widths are optimal
+         *
+         */
         checkColumnAutosizing: function() {
             if (this.resolveProperty('columnAutosizing') === false) {
                 return;
@@ -660,11 +731,11 @@
         },
 
         /**
-         *                                                                      .
-         *                                                                      .
-         * Notify the GridBehavior how many rows and columns we just rendered.
+         * @function
+         * @instance
+         * @description
+          Notify the GridBehavior how many rows and columns we just rendered.
          *
-         * @method updateRenderedSizes()
          */
         updateRenderedSizes: function() {
             var behavior = this.getBehavior();
@@ -675,27 +746,29 @@
         },
 
         /**
-         *                                                                      .
-         *                                                                      .
-         * If we have focus, copy our current selection data to the system clipboard.
+         * @function
+         * @instance
+         * @description
+         If we have focus, copy our current selection data to the system clipboard.
          *
-         * @method checkClipboardCopy(event)
+         * @param {event} event - the copy system event
          */
-        checkClipboardCopy: function(evt) {
+        checkClipboardCopy: function(event) {
             if (!this.hasFocus()) {
                 return;
             }
-            evt.preventDefault();
+            event.preventDefault();
             var csvData = this.getSelectionAsTSV();
-            evt.clipboardData.setData('text/plain', csvData);
+            event.clipboardData.setData('text/plain', csvData);
         },
 
         /**
-         *                                                                      .
-         *                                                                      .
-         * return true if we have any selections
+         * @function
+         * @instance
+         * @description
+         answers true if we have any selections
          *
-         * @method hasSelections()
+         * #### returns: boolean
          */
         hasSelections: function() {
             if (!this.getSelectionModel) {
@@ -705,11 +778,12 @@
         },
 
         /**
-         *                                                                      .
-         *                                                                      .
-         * Return a tab seperated value string from the selection and our data.
+         * @function
+         * @instance
+         * @description
+         answers a tab seperated value string from the selection and our data.
          *
-         * @method getSelectionAsTSV()
+         * #### returns: string
          */
         getSelectionAsTSV: function() {
             //only use the data from the last selection
@@ -748,22 +822,23 @@
         },
 
         /**
-         *                                                                      .
-         *                                                                      .
-         * Answer if we currently have focus
+         * @function
+         * @instance
+         * @description
+         Answer if we currently have focus
          *
-         * @method hasFocus()
+         * #### returns: boolean
          */
         hasFocus: function() {
             return this.getCanvas().hasFocus();
         },
 
         /**
-         *                                                                      .
-         *                                                                      .
-         * Clear all the selections out
+         * @function
+         * @instance
+         * @description
+         Clear all the selections out
          *
-         * @method clearSelections()
          */
         clearSelections: function() {
             this.getSelectionModel().clear();
@@ -771,22 +846,26 @@
         },
 
         /**
-         *                                                                      .
-         *                                                                      .
-         * Clear just the most recent selection
+         * @function
+         * @instance
+         * @description
+         Clear just the most recent selection
          *
-         * @method clearMostRecentSelection()
          */
         clearMostRecentSelection: function() {
             this.getSelectionModel().clearMostRecentSelection();
         },
 
         /**
-         *                                                                      .
-         *                                                                      .
-         * Select a specific region by origin and extent
+         * @function
+         * @instance
+         * @description
+         Select a specific region by origin and extent
          *
-         * @method select(ox,oy,ex,ey)
+         * @param {integer} ox - origin x
+         * @param {integer} oy - origin y
+         * @param {integer} ex - extent x
+         * @param {integer} ex - extent y
          */
         select: function(ox, oy, ex, ey) {
             if (ox < 0 || oy < 0) {
@@ -798,22 +877,25 @@
         },
 
         /**
-         *                                                                      .
-         *                                                                      .
-         * Answer if a specific point is selected
-         *
-         * @method isSelected(x,y)
+         * @function
+         * @instance
+         * @description
+         Answer if a specific point is selected
+         * #### returns: boolean
+         * @param {integer} x - x coordinate
+         * @param {integer} y - y coordinate
          */
         isSelected: function(x, y) {
             return this.getSelectionModel().isSelected(x, y);
         },
 
         /**
-         *                                                                      .
-         *                                                                      .
-         * Answer if a specific col is selected anywhere in the entire table
-         *
-         * @method isFixedRowCellSelected(columnIndex)
+         * @function
+         * @instance
+         * @description
+         Answer if a specific col is selected anywhere in the entire table
+         * #### returns: boolean
+         * @param {integer} col - column index
          */
         isFixedRowCellSelected: function(col) {
             var selectionModel = this.getSelectionModel();
@@ -822,11 +904,12 @@
         },
 
         /**
-         *                                                                      .
-         *                                                                      .
-         * Answer if a specific row is selected anywhere in the entire table
-         *
-         * @method isFixedColumnCellSelected(rowIndex)
+         * @function
+         * @instance
+         * @description
+         Answer if a specific row is selected anywhere in the entire table
+         * #### returns: boolean
+         * @param {integer} row - row index
          */
         isFixedColumnCellSelected: function(row) {
             var selectionModel = this.getSelectionModel();
@@ -835,33 +918,36 @@
         },
 
         /**
-         *                                                                      .
-         *                                                                      .
-         * return the selection model
+         * @function
+         * @instance
+         * @description
+         answers the selection model
          *
-         * @method getSelectionModel()
+         * #### return: [fin-hypergrid-selection-model](module-._selection-model.html)
          */
         getSelectionModel: function() {
             return this.selectionModel;
         },
 
         /**
-         *                                                                      .
-         *                                                                      .
-         * return the behavior (model)
+         * @function
+         * @instance
+         * @description
+         return the behavior (model)
          *
-         * @method getBehavior()
+         * #### returns: [fin-hypergrid-behavior-base](module-behaviors_base.html)
          */
         getBehavior: function() {
             return this.behavior;
         },
 
         /**
-         *                                                                      .
-         *                                                                      .
-         * Set the PluggableBehavior (model) object for this grid control.  This can be done dynamically.
+         * @function
+         * @instance
+         * @description
+         Set the Behavior (model) object for this grid control.  This can be done dynamically.
          *
-         * @method setBehavior(newBehavior)
+         * @param {fin-hypergrid-behavior-base} newBehavior - see [fin-hypergrid-behavior-base](module-behaviors_base.html)
          */
         setBehavior: function(newBehavior) {
 
@@ -873,11 +959,11 @@
         },
 
         /**
-         *                                                                      .
-         *                                                                      .
-         * I've been notified that the behavior has changed
+         * @function
+         * @instance
+         * @description
+         I've been notified that the behavior has changed
          *
-         * @method setBehavior(newBehavior)
          */
         behaviorChanged: function() {
             if (this.numColumns !== this.behavior._getColumnCount() || this.numRows !== this.behavior.getRowCount()) {
@@ -889,11 +975,12 @@
         },
 
         /**
-         *                                                                      .
-         *                                                                      .
-         * the dimensions of the grid data have changed, you've been notified
+         * @function
+         * @instance
+         * @description
+         answers my bounds as [fin-rectangle](http://stevewirts.github.io/fin-rectangle/components/fin-rectangle/)
          *
-         * @method getBounds()
+         * #### returns: [fin-rectangle](http://stevewirts.github.io/fin-rectangle/components/fin-rectangle/)
          */
         getBounds: function() {
             var canvas = this.getCanvas();
@@ -905,34 +992,35 @@
         },
 
         /**
-         *                                                                      .
-         *                                                                      .
-         * return the value of a lnf property
+         * @function
+         * @instance
+         * @description
+         return the value of a lnf property
          *
-         * @method resolveProperty()
+         * #### returns: string
+         * @param {string} key - a look and feel key
          */
         resolveProperty: function(key) {
             return this.lnfProperties[key];
         },
 
         /**
-         *                                                                      .
-         *                                                                      .
-         * the dimensions of the grid data have changed, you've been notified
+         * @function
+         * @instance
+         * @description
+         the dimensions of the grid data have changed, you've been notified
          *
-         * @method behaviorShapeChanged()
          */
         behaviorShapeChanged: function() {
             this.synchronizeScrollingBoundries();
         },
 
         /**
-         *                                                                      .
-         *                                                                      .
-         * tickle the repaint flag on the canvas
-         * if now is true, paint immediately
+         * @function
+         * @instance
+         * @description
+         tickle the repaint flag on the canvas, if ```repaintImmediately``` is true, paint immediately
          *
-         * @method repaint()
          */
         repaint: function() {
             var now = this.resolveProperty('repaintImmediately');
@@ -946,27 +1034,37 @@
             }
         },
 
+        /**
+         * @function
+         * @instance
+         * @description
+         paint immediatelly in this microtask
+         *
+         */
         paintNow: function() {
             var canvas = this.getCanvas();
             canvas.paintNow();
         },
+
         /**
-         *                                                                      .
-         *                                                                      .
-         * answer if we are in HiDPI mode, means having an attribute as such
+         * @function
+         * @instance
+         * @description
+         answer if we are in HiDPI mode, means having an attribute as such
          *
-         * @method isHiDPI()
+         * #### returns: boolean
          */
         isHiDPI: function() {
             return this.resolveProperty('useHiDPI') !== false;
         },
 
         /**
-         *                                                                      .
-         *                                                                      .
-         * initialize our drawing surface
+         * @function
+         * @instance
+         * @description
+         initialize our drawing surface
          *
-         * @method initCanvas()
+         * @private
          */
         initCanvas: function() {
 
@@ -1104,24 +1202,47 @@
 
         },
 
+        /**
+         * @function
+         * @instance
+         * @description
+         add an event listener to me
+         * @param {string} eventName - the type of event we are interested in
+         * @param {function} callback - the event handler
+         */
         addFinEventListener: function(eventName, callback) {
             this.canvas.addEventListener(eventName, callback);
         },
 
+        /**
+         * @function
+         * @instance
+         * @description
+         setter for scrollingNow field
+         * @param {boolean} isItNow - the type of event we are interested in
+         */
         setScrollingNow: function(isItNow) {
             this.scrollingNow = isItNow;
         },
 
+        /**
+         * @function
+         * @instance
+         * @description
+         getter for scrollingNow field
+         * #### returns: boolean
+         */
         isScrollingNow: function() {
             return this.scrollingNow;
         },
 
         /**
-         *                                                                      .
-         *                                                                      .
-         * answer if the mouseEvent coordinates are over a column divider
-         *
-         * @method overColumnDivider(mouseEvent)
+         * @function
+         * @instance
+         * @description
+        answer the index of the column divider that the mouseEvent coordinates are over
+         * #### returns: integer
+         * @param {MouseEvent} mouseEvent - the event to interogate
          */
         overColumnDivider: function(mouseEvent) {
             var x = mouseEvent.primitiveEvent.detail.mouse.x;
@@ -1130,11 +1251,12 @@
         },
 
         /**
-         *                                                                      .
-         *                                                                      .
-         * answer if the mouseEvent coordinates are over a column divider
-         *
-         * @method overRowDivider(mouseEvent)
+         * @function
+         * @instance
+         * @description
+        answer the index of the row divider that the mouseEvent coordinates are over
+         * #### returns: integer
+         * @param {MouseEvent} mouseEvent - the event to interogate
          */
         overRowDivider: function(mouseEvent) {
             var y = mouseEvent.primitiveEvent.detail.mouse.y;
@@ -1142,55 +1264,36 @@
             return which;
         },
 
-        // /**
-        //  *                                                                      .
-        //  *                                                                      .
-        //  * turn on the column resize cursor
-        //  *
-        //  * @method beColumnResizeCursor()
-        //  */
-        // beColumnResizeCursor: function() {
-        //     this.style.cursor = 'col-resize';
-        // },
-
-        // *
-        //  *                                                                      .
-        //  *                                                                      .
-        //  * turn on the column resize cursor
-        //  *
-        //  * @method bePointerCursor()
-
-        // bePointerCursor: function() {
-        //     this.style.cursor = 'pointer';
-        // },
-
-        // /**
-        //  *                                                                      .
-        //  *                                                                      .
-        //  * turn on the column resize cursor
-        //  *
-        //  * @method beMoveCursor()
-        //  */
-
-        // beMoveCursor: function() {
-        //     this.style.cursor = 'move';
-        // },
-
+        /**
+         * @function
+         * @instance
+         * @description
+        switch the cursor for the grid
+         * @param {string} cursorName - a well know cursor name, see [cursor names](http://www.javascripter.net/faq/stylesc.htm)
+         */
         beCursor: function(cursorName) {
             this.style.cursor = cursorName;
         },
 
+        /**
+         * @function
+         * @instance
+         * @description
+        delegate the wheel moved event to the behavior
+         * @param {Event} event - the pertinent event
+         */
         delegateWheelMoved: function(event) {
             var behavior = this.getBehavior();
             behavior.onWheelMoved(this, event);
         },
 
         /**
-         *                                                                      .
-         *                                                                      .
-         * delegate MouseExit to the behavior (model)
+         * @function
+         * @instance
+         * @description
+        delegate MouseExit to the behavior (model)
          *
-         * @method delegateMouseExit(mouseDetails)
+         * @param {Event} event - the pertinent event
          */
         delegateMouseExit: function(event) {
             var behavior = this.getBehavior();
@@ -1198,11 +1301,12 @@
         },
 
         /**
-         *                                                                      .
-         *                                                                      .
-         * delegate MouseMove to the behavior (model)
+         * @function
+         * @instance
+         * @description
+        delegate MouseMove to the behavior (model)
          *
-         * @method delegateMouseMove(mouseDetails)
+         * @param {mouseDetails} mouseDetails - an enriched mouse event from fin-canvas
          */
         delegateMouseMove: function(mouseDetails) {
             var behavior = this.getBehavior();
@@ -1210,11 +1314,12 @@
         },
 
         /**
-         *                                                                      .
-         *                                                                      .
-         * delegate mousedown to the behavior (model)
+         * @function
+         * @instance
+         * @description
+        delegate mousedown to the behavior (model)
          *
-         * @method delegateMouseDown(mouseDetails)
+         * @param {mouseDetails} mouseDetails - an enriched mouse event from fin-canvas
          */
         delegateMouseDown: function(mouseDetails) {
             var behavior = this.getBehavior();
@@ -1222,11 +1327,12 @@
         },
 
         /**
-         *                                                                      .
-         *                                                                      .
-         * delegate mouseup to the behavior (model)
+         * @function
+         * @instance
+         * @description
+        delegate mouseup to the behavior (model)
          *
-         * @method delegateMouseUp(mouseDetails)
+         * @param {mouseDetails} mouseDetails - an enriched mouse event from fin-canvas
          */
         delegateMouseUp: function(mouseDetails) {
             var behavior = this.getBehavior();
@@ -1234,11 +1340,12 @@
         },
 
         /**
-         *                                                                      .
-         *                                                                      .
-         * delegate tap to the behavior (model)
+         * @function
+         * @instance
+         * @description
+        delegate tap to the behavior (model)
          *
-         * @method delegateTap(mouseDetails)
+         * @param {mouseDetails} mouseDetails - an enriched mouse event from fin-canvas
          */
         delegateTap: function(mouseDetails) {
             var behavior = this.getBehavior();
@@ -1246,11 +1353,12 @@
         },
 
         /**
-         *                                                                      .
-         *                                                                      .
-         * delegate mouseDrag to the behavior (model)
+         * @function
+         * @instance
+         * @description
+        delegate mouseDrag to the behavior (model)
          *
-         * @method delegateMouseDrag(mouseDetails)
+         * @param {mouseDetails} mouseDetails - an enriched mouse event from fin-canvas
          */
         delegateMouseDrag: function(mouseDetails) {
             var behavior = this.getBehavior();
@@ -1258,87 +1366,91 @@
         },
 
         /**
-         *                                                                      .
-         *                                                                      .
-         * we've been doubleclicked on, delegate through the behavior (model)
+         * @function
+         * @instance
+         * @description
+        we've been doubleclicked on, delegate through the behavior (model)
          *
-         * @method delegateDoubleClick(mouseDetails)
+         * @param {mouseDetails} mouseDetails - an enriched mouse event from fin-canvas
          */
-        //Delegate the doubleclick event to the PluggableBehavior.  We don't want to assume anything about what that may mean if anything.
         delegateDoubleClick: function(mouseDetails) {
             var behavior = this.getBehavior();
             behavior.onDoubleClick(this, mouseDetails);
         },
 
         /**
-         *                                                                      .
-         *                                                                      .
-         * delegate holdpulse through the behavior (model)
+         * @function
+         * @instance
+         * @description
+        delegate holdpulse through the behavior (model)
          *
-         * @method delegateDoubleClick(mouseDetails)
+         * @param {mouseDetails} mouseDetails - an enriched mouse event from fin-canvas
          */
-        //Delegate the doubleclick event to the PluggableBehavior.  We don't want to assume anything about what that may mean if anything.
         delegateHoldPulse: function(mouseDetails) {
             var behavior = this.getBehavior();
             behavior.onHoldPulse(this, mouseDetails);
         },
 
         /**
-         *                                                                      .
-         *                                                                      .
-         * Generate a function name and call it on self.  This should also be delegated through PluggableBehavior keeping the default implementation here though.
+         * @function
+         * @instance
+         * @description
+        Generate a function name and call it on self.  This should also be delegated through Behavior keeping the default implementation here though.
          *
-         * @method keydown(event)
+         * @param {event} event - the pertinent event
          */
-        delegateKeyDown: function(e) {
+        delegateKeyDown: function(event) {
             var behavior = this.getBehavior();
-            behavior.onKeyDown(this, e);
+            behavior.onKeyDown(this, event);
         },
 
         /**
-         *                                                                      .
-         *                                                                      .
-         * Generate a function name and call it on self.  This should also be delegated through PluggableBehavior keeping the default implementation here though.
+         * @function
+         * @instance
+         * @description
+        Generate a function name and call it on self.  This should also be delegated through Behavior keeping the default implementation here though.
          *
-         * @method keydown(event)
+         * @param {event} event - the pertinent event
          */
-        delegateKeyUp: function(e) {
+        delegateKeyUp: function(event) {
             var behavior = this.getBehavior();
-            behavior.onKeyUp(this, e);
+            behavior.onKeyUp(this, event);
         },
 
         /**
-         *                                                                      .
-         *                                                                      .
-         * shut down the current cell editor
+         * @function
+         * @instance
+         * @description
+        shut down the current cell editor
          *
-         * @method stopEditing()
          */
         stopEditing: function() {
-            if (this.cellEdtr) {
-                this.cellEdtr.stopEditing();
-                this.cellEdtr = null;
+            if (this.cellEditor) {
+                this.cellEditor.stopEditing();
+                this.cellEditor = null;
             }
         },
 
-
         /**
-         *                                                                      .
-         *                                                                      .
-         * register a cell editor, this is typically called from within a cell-editors installOn method, when it is being intialized as a plugin.
+         * @function
+         * @instance
+         * @description
+        register a cell editor, this is typically called from within a cell-editors installOn method, when it is being intialized as a plugin.
          *
-         * @method registerCellEditor(alias,cellEditor)
+         * @param {string} alias - the name/id of the cell editor
+         * @param {fin-hypergrid-cell-editor-base} cellEditor - see [fin-hypergrid-cell-editor-base](module-cell-editors_base.html)
          */
         registerCellEditor: function(alias, cellEditor) {
             this.cellEditors[alias] = cellEditor;
         },
 
         /**
-         *                                                                      .
-         *                                                                      .
-         * get the pixel coordinates of just the center 'main" data area
+         * @function
+         * @instance
+         * @description
+        get the pixel coordinates of just the center 'main" data area
          *
-         * @method getDataBounds()
+         * #### returns: [fin-rectangle.rectangle](http://stevewirts.github.io/fin-rectangle/components/fin-rectangle/)
          */
         getDataBounds: function() {
             var colDNDHackWidth = 200; //this was a hack to help with column dnd, need to factor this into a shared variable
@@ -1353,27 +1465,29 @@
         },
 
         /**
-         *                                                                      .
-         *                                                                      .
-         * return our [fin-canvas](http://stevewirts.github.io/fin-canvas/components/fin-canvas/) instance
+         * @function
+         * @instance
+         * @description
+        return our [fin-canvas](http://stevewirts.github.io/fin-canvas/components/fin-canvas/) instance
          *
-         * @method getCanvas()
+         * #### returns: [fin-canvas](http://stevewirts.github.io/fin-canvas/components/fin-canvas/)
          */
         getCanvas: function() {
             return this.canvas;
         },
 
         /**
-         *                                                                      .
-         *                                                                      .
-         * open a specific cell-editor at the provided model coordinates
+         * @function
+         * @instance
+         * @description
+        open a specific cell-editor at the provided model coordinates
          *
-         * @method editAt(cellEditor,coordinates)
+         * @param {string} cellEditor - the specific cell editor to use
+         * @param {fin-rectangle.point} coordinates - what cell to edit at
          */
-        //Currently this is called by default from the PluggableBehavior, this piece needs to be reworked to re-delegate back through the PluggableBehavior to let it decide how to edit the cell.
         editAt: function(cellEditor, coordinates) {
 
-            this.cellEdtr = cellEditor;
+            this.cellEditor = cellEditor;
 
             var cell = coordinates.gridCell;
 
@@ -1397,11 +1511,13 @@
         },
 
         /**
-         *                                                                      .
-         *                                                                      .
-         * Answer if a specific col is fully visible
+         * @function
+         * @instance
+         * @description
+        Answer if a specific col is fully visible
          *
-         * @method isDataColVisible(columnIndex)
+         * #### returns: boolean
+         * @param {integer} columnIndex - the column index in question
          */
         isDataColVisible: function(columnIndex) {
             var isVisible = this.getRenderer().isColVisible(columnIndex);
@@ -1409,11 +1525,13 @@
         },
 
         /**
-         *                                                                      .
-         *                                                                      .
-         * Answer if a specific row is fully visible
+         * @function
+         * @instance
+         * @description
+        Answer if a specific row is fully visible
          *
-         * @method isDataRowVisible(rowIndex)
+         * #### returns: boolean
+         * @param {integer} rowIndex - the row index in question
          */
         isDataRowVisible: function(rowIndex) {
             var isVisible = this.getRenderer().isRowVisible(rowIndex);
@@ -1421,11 +1539,14 @@
         },
 
         /**
-         *                                                                      .
-         *                                                                      .
-         * Answer if a specific cell (col,row) fully is visible
+         * @function
+         * @instance
+         * @description
+        Answer if a specific cell (col,row) fully is visible
          *
-         * @method isDataVisible(columnIndex,rowIndex)
+         * #### returns: boolean
+         * @param {integer} columnIndex - the column index in question
+         * @param {integer} rowIndex - the row index in question
          */
         isDataVisible: function(columnIndex, rowIndex) {
             var isVisible = this.isDataRowVisible(rowIndex) && this.isDataColVisible(columnIndex);
@@ -1433,19 +1554,21 @@
         },
 
         /**
-         *                                                                      .
-         *                                                                      .
-         * Offset indicates the direction we are moving
+         * @function
+         * @instance
+         * @description
+        scroll in the offsetX direction if column index c is not visible
          *
-         * @method insureModelColIsViewable(c,offsetX)
+         * @param {integer} colIndex - the column index in question
+         * @param {integer} offsetX - the direction and magnitude to scroll if we need to
          */
-        insureModelColIsViewable: function(c, offsetX) {
+        insureModelColIsViewable: function(colIndex, offsetX) {
             //-1 because we want only fully visible columns, don't include partially
             //viewable columns
             var viewableColumns = this.getViewableColumns() - 1;
-            if (!this.isDataColVisible(c)) {
+            if (!this.isDataColVisible(colIndex)) {
                 //the scroll position is the leftmost column
-                var newSX = offsetX < 0 ? c : c - viewableColumns;
+                var newSX = offsetX < 0 ? colIndex : colIndex - viewableColumns;
                 this.setHScrollValue(newSX);
                 return true;
             }
@@ -1453,19 +1576,21 @@
         },
 
         /**
-         *                                                                      .
-         *                                                                      .
-         * Offset indicates the direction we are moving
+         * @function
+         * @instance
+         * @description
+        scroll in the offsetY direction if column index c is not visible
          *
-         * @method insureModelRowIsViewable(r,offsetY)
+         * @param {integer} rowIndex - the column index in question
+         * @param {integer} offsetX - the direction and magnitude to scroll if we need to
          */
-        insureModelRowIsViewable: function(r, offsetY) {
+        insureModelRowIsViewable: function(rowIndex, offsetY) {
             //-1 because we want only fully visible rows, don't include partially
             //viewable rows
             var viewableRows = this.getViewableRows() - 1;
-            if (!this.isDataRowVisible(r)) {
+            if (!this.isDataRowVisible(rowIndex)) {
                 //the scroll position is the topmost row
-                var newSY = offsetY < 0 ? r : r - viewableRows;
+                var newSY = offsetY < 0 ? rowIndex : rowIndex - viewableRows;
                 this.setVScrollValue(newSY);
                 return true;
             }
@@ -1473,11 +1598,13 @@
         },
 
         /**
-         *                                                                      .
-         *                                                                      .
-         * scroll horizontal and vertically by the provided offsets
+         * @function
+         * @instance
+         * @description
+        scroll horizontal and vertically by the provided offsets
          *
-         * @method scrollBy(offsetX,offsetY)
+         * @param {integer} offsetX - scroll in the x direction this much
+         * @param {integer} offsetY - scroll in the y direction this much
          */
         scrollBy: function(offsetX, offsetY) {
             this.scrollHBy(offsetX);
@@ -1485,14 +1612,15 @@
         },
 
         /**
-         *                                                                      .
-         *                                                                      .
-         * scroll verticallly by the provided offset
+         * @function
+         * @instance
+         * @description
+        scroll verticallly by the provided offset
          *
-         * @method scrollVBy(offsetY)
+         * @param {integer} offsetY - scroll in the y direction this much
          */
         scrollVBy: function(offsetY) {
-            var max = this.sbVScrlCfg.rangeStop;
+            var max = this.sbVScrollConfig.rangeStop;
             var oldValue = this.getVScrollValue();
             var newValue = Math.min(max, Math.max(0, oldValue + offsetY));
             if (newValue === oldValue) {
@@ -1502,14 +1630,15 @@
         },
 
         /**
-         *                                                                      .
-         *                                                                      .
-         * scroll horizontally by the provided offset
+         * @function
+         * @instance
+         * @description
+        scroll horizontally by the provided offset
          *
-         * @method scrollHBy(offsetX)
+         * @param {integer} offsetX - scroll in the x direction this much
          */
         scrollHBy: function(offsetX) {
-            var max = this.sbHScrlCfg.rangeStop;
+            var max = this.sbHScrollConfig.rangeStop;
             var oldValue = this.getHScrollValue();
             var newValue = Math.min(max, Math.max(0, oldValue + offsetX));
             if (newValue === oldValue) {
@@ -1519,11 +1648,12 @@
         },
 
         /**
-         *                                                                      .
-         *                                                                      .
-         * Answer which data cell is under a pixel value mouse point
-         *
-         * @method getGridCellFromMousePoint(mouse)
+         * @function
+         * @instance
+         * @description
+        Answer which data cell is under a pixel value mouse point
+         * #### returns: [fin-rectangle.point](http://stevewirts.github.io/fin-rectangle/components/fin-rectangle/)
+         * @param {mousePoint} mouse - the mouse point to interogate
          */
         getGridCellFromMousePoint: function(mouse) {
             var cell = this.getRenderer().getGridCellFromMousePoint(mouse);
@@ -1531,11 +1661,13 @@
         },
 
         /**
-         *                                                                      .
-         *                                                                      .
-         * Answer pixel based bounds rectangle given a data cell point
-         *
-         * @method getBoundsOfCell(cell)
+         * @function
+         * @description
+        Answer pixel based bounds rectangle given a data cell point
+        * #### returns: [fin-rectangle.rectangle](http://stevewirts.github.io/fin-rectangle/components/fin-rectangle/)
+         * @param {fin-rectangle.point} cell - the mouse point, see [fin-rectangle.point](http://stevewirts.github.io/fin-rectangle/components/fin-rectangle/)
+         * @instance
+
          */
         getBoundsOfCell: function(cell) {
             var bounds = this.getRenderer().getBoundsOfCell(cell);
@@ -1543,16 +1675,24 @@
         },
 
         /**
-         *                                                                      .
-         *                                                                      .
-         * This is called by the fin-canvas when a resize occurs
+         * @function
+         * @instance
+         * @description
+        This is called by the fin-canvas when a resize occurs
          *
-         * @method resized()
          */
         resized: function() {
             this.synchronizeScrollingBoundries();
         },
 
+        /**
+         * @function
+         * @instance
+         * @description
+        A click event occured, determine the cell and delegate to the behavior (model)
+         * @param {MouseEvent} event - the mouse event to interogate
+         *
+         */
         cellClicked: function(event) {
             var cell = event.gridCell;
             var colCount = this.getColumnCount();
@@ -1577,6 +1717,15 @@
             this.getBehavior().cellClicked(hovered, event);
         },
 
+        /**
+         * @function
+         * @instance
+         * @description
+        Synthesize and fire a fin-cell-click event
+         * @param {fin-rectangle.point} cell - the cell that the click occured in
+         * @param {MouseEvent} event - the system mouse event
+         *
+         */
         fireCellClickEvent: function(cell, event) {
             var clickEvent = new CustomEvent('fin-cell-click', {
                 detail: {
@@ -1589,11 +1738,11 @@
         },
 
         /**
-         *                                                                      .
-         *                                                                      .
-         * synthesize and fire a rendered event
+         * @function
+         * @instance
+         * @description
+        synthesize and fire a rendered event
          *
-         * @method fireSyntheticGridRenderedEvent()
          */
         fireSyntheticGridRenderedEvent: function() {
             var event = new CustomEvent('fin-grid-rendered', {
@@ -1606,11 +1755,14 @@
         },
 
         /**
-         *                                                                      .
-         *                                                                      .
-         * synthesize and fire a scroll event
+         * @function
+         * @instance
+         * @description
+        synthesize and fire a scroll event
          *
-         * @method fireScrollEvent(y)
+         * @param {string} type - fin-scroll-x or fin-scroll-y
+         * @param {integer} oldValue - the old value
+         * @param {integer} newValue - the new value
          */
         fireScrollEvent: function(type, oldValue, newValue) {
             var event = new CustomEvent(type, {
@@ -1651,23 +1803,25 @@
                 }, 700);
             }
         },
+
         /**
-         *                                                                      .
-         *                                                                      .
-         * set the vertical scroll value
+         * @function
+         * @instance
+         * @description
+        set the vertical scroll value
          *
-         * @method setVScrollValue(y)
+         * @param {integer} newValue - the new value
          */
         setVScrollValue: function(y) {
-            var max = this.sbVScrlCfg.rangeStop;
+            var max = this.sbVScrollConfig.rangeStop;
             y = Math.min(max, Math.max(0, y));
             var self = this;
-            if (y === this.vScrlValue) {
+            if (y === this.vScrollValue) {
                 return;
             }
             this.getBehavior()._setScrollPositionY(y);
-            var oldY = this.vScrlValue;
-            this.vScrlValue = y;
+            var oldY = this.vScrollValue;
+            this.vScrollValue = y;
             this.scrollValueChangedNotification();
             setTimeout(function() {
                 self.sbVRangeAdapter.subjectChanged();
@@ -1676,33 +1830,35 @@
         },
 
         /**
-         *                                                                      .
-         *                                                                      .
-         * return the vertical scroll value
+         * @function
+         * @instance
+         * @description
+        return the vertical scroll value
          *
-         * @method getVScrollValue()
+         * #### returns: integer
          */
         getVScrollValue: function() {
-            return this.vScrlValue;
+            return this.vScrollValue;
         },
 
         /**
-         *                                                                      .
-         *                                                                      .
-         * set the horizontal scroll value
+         * @function
+         * @instance
+         * @description
+        set the horizontal scroll value
          *
-         * @method setHScrollValue(x)
+         * @param {integer} newValue - the new value
          */
         setHScrollValue: function(x) {
-            var max = this.sbHScrlCfg.rangeStop;
+            var max = this.sbHScrollConfig.rangeStop;
             x = Math.min(max, Math.max(0, x));
             var self = this;
-            if (x === this.hScrlValue) {
+            if (x === this.hScrollValue) {
                 return;
             }
             this.getBehavior()._setScrollPositionX(x);
-            var oldX = this.hScrlValue;
-            this.hScrlValue = x;
+            var oldX = this.hScrollValue;
+            this.hScrollValue = x;
             this.scrollValueChangedNotification();
             setTimeout(function() {
                 self.sbHRangeAdapter.subjectChanged();
@@ -1711,22 +1867,23 @@
         },
 
         /**
-         *                                                                      .
-         *                                                                      .
-         * return the horizontal scroll value
+         * @function
+         * @instance
+         * @description
+        return the vertical scroll value
          *
-         * @method getHScrollValue()
+         * #### returns: integer
          */
         getHScrollValue: function() {
-            return this.hScrlValue;
+            return this.hScrollValue;
         },
 
         /**
-         *                                                                      .
-         *                                                                      .
-         * request input focus
+         * @function
+         * @instance
+         * @description
+        request input focus
          *
-         * @method takeFocus()
          */
         takeFocus: function() {
             if (this.isEditing()) {
@@ -1737,38 +1894,39 @@
         },
 
         /**
-         *                                                                      .
-         *                                                                      .
-         * request focus for our cell editor
+         * @function
+         * @instance
+         * @description
+        request focus for our cell editor
          *
-         * @method editorTakeFocus()
          */
         editorTakeFocus: function() {
-            if (this.cellEdtr) {
-                return this.cellEdtr.takeFocus();
+            if (this.cellEditor) {
+                return this.cellEditor.takeFocus();
             }
         },
 
         /**
-         *                                                                      .
-         *                                                                      .
-         * answer if we have an active cell editor currently
+         * @function
+         * @instance
+         * @description
+        answer if we have an active cell editor currently
          *
-         * @method isEditing()
+         * #### returns: boolean
          */
         isEditing: function() {
-            if (this.cellEdtr) {
-                return this.cellEdtr.isEditing;
+            if (this.cellEditor) {
+                return this.cellEditor.isEditing;
             }
             return false;
         },
 
         /**
-         *                                                                      .
-         *                                                                      .
-         * initialize the scroll bars
+         * @function
+         * @instance
+         * @description
+        initialize the scroll bars
          *
-         * @method initScrollbars()
          */
         initScrollbars: function() {
 
@@ -1935,7 +2093,7 @@
                 }
             };
 
-            this.sbHScrlCfg = {
+            this.sbHScrollConfig = {
                 step: 1,
                 page: 40,
                 rangeStart: 0,
@@ -1943,15 +2101,15 @@
 
             };
 
-            this.sbVScrlCfg = {
+            this.sbVScrollConfig = {
                 step: 1,
                 page: 40,
                 rangeStart: 0,
                 rangeStop: 0
             };
 
-            this.sbHRangeAdapter = this.sbHScroller.createRangeAdapter(this.sbHValueHolder, this.sbHScrlCfg);
-            this.sbVRangeAdapter = this.sbHScroller.createRangeAdapter(this.sbVValueHolder, this.sbVScrlCfg);
+            this.sbHRangeAdapter = this.sbHScroller.createRangeAdapter(this.sbHValueHolder, this.sbHScrollConfig);
+            this.sbVRangeAdapter = this.sbHScroller.createRangeAdapter(this.sbVValueHolder, this.sbVScrollConfig);
 
             this.sbHScroller.setRangeAdapter(this.sbHRangeAdapter);
             this.sbVScroller.setRangeAdapter(this.sbVRangeAdapter);
@@ -1959,58 +2117,64 @@
         },
 
         /**
-         *                                                                      .
-         *                                                                      .
-         * provide a way to notify scrollbars that the underlying data has changed
-         * the real solution is to use an aspect adapter here
+         * @function
+         * @instance
+         * @description
+        provide a way to notify scrollbars that the underlying data has changed, the real solution is to use an aspect adapter here
          *
-         * @method scrollValueChangedNotification()
          */
         scrollValueChangedNotification: function() {
 
-            if (this.hScrlValue === this.sbPrevHScrlVal && this.vScrlValue === this.sbPrevVScrlVal) {
+            if (this.hScrollValue === this.sbPrevHScrollValue && this.vScrollValue === this.sbPrevVScrollValue) {
                 return;
             }
 
             this.sbHValueHolder.changed = !this.sbHValueHolder.changed;
             this.sbVValueHolder.changed = !this.sbVValueHolder.changed;
 
-            this.sbPrevHScrlVal = this.hScrlValue;
-            this.sbPrevVScrlVal = this.vScrlValue;
+            this.sbPrevHScrollValue = this.hScrollValue;
+            this.sbPrevVScrollValue = this.vScrollValue;
 
-            if (this.cellEdtr) {
-                this.cellEdtr.scrollValueChangedNotification();
+            if (this.cellEditor) {
+                this.cellEditor.scrollValueChangedNotification();
             }
         },
 
         /**
-         *                                                                      .
-         *                                                                      .
-         * get a data value from the behavior (model) at a specific point
+         * @function
+         * @instance
+         * @description
+        get a data value from the behavior (model) at a specific point
          *
-         * @method getValue(x,y)
+         * @param {integer} x
+         * @param {integer} y
+         * returns: anything
          */
         getValue: function(x, y) {
             return this.getBehavior()._getValue(x, y);
         },
 
         /**
-         *                                                                      .
-         *                                                                      .
-         * set a data value into the behavior (model) at a specific point
+         * @function
+         * @instance
+         * @description
+        set a data value into the behavior (model) at a specific point
          *
-         * @method setValue(x,y,value)
+         * @param {integer} x
+         * @param {integer} y
+         * @param {anything} value
          */
         setValue: function(x, y, value) {
             this.getBehavior()._setValue(x, y, value);
         },
+
         /**
-         *                                                                      .
-         *                                                                      .
-         * the data dimensions have changed, or our pixel boundries have changed,
+         * @function
+         * @instance
+         * @description
+        the data dimensions have changed, or our pixel boundries have changed,
          * adjust scrollbar properties as necessary
          *
-         * @method synchronizeScrollingBoundries()
          */
         synchronizeScrollingBoundries: function() {
 
@@ -2047,46 +2211,47 @@
                 }
             }
 
-            this.sbVScrlCfg.rangeStop = behavior.getRowCount() - lastPageRowCount;
+            this.sbVScrollConfig.rangeStop = behavior.getRowCount() - lastPageRowCount;
 
-            this.sbHScrlCfg.rangeStop = behavior._getColumnCount() - lastPageColumnCount;
+            this.sbHScrollConfig.rangeStop = behavior._getColumnCount() - lastPageColumnCount;
 
-            this.setVScrollValue(Math.min(this.getVScrollValue(), this.sbVScrlCfg.rangeStop));
-            this.setHScrollValue(Math.min(this.getHScrollValue(), this.sbHScrlCfg.rangeStop));
+            this.setVScrollValue(Math.min(this.getVScrollValue(), this.sbVScrollConfig.rangeStop));
+            this.setHScrollValue(Math.min(this.getHScrollValue(), this.sbHScrollConfig.rangeStop));
 
             this.repaint();
             //this.sbVScroller.tickle();
             //this.sbHScroller.tickle();
         },
 
-
         /**
-         *                                                                      .
-         *                                                                      .
-         * Answers the number of viewable rows, including any partially viewable rows.
+         * @function
+         * @instance
+         * @description
+        Answers the number of viewable rows, including any partially viewable rows.
          *
-         * @method getViewableRows()
+         * #### returns: integer
          */
         getViewableRows: function() {
             return this.getRenderer().getViewableRows();
         },
 
-
         /**
-         *                                                                      .
-         *                                                                      .
-         * Answers the number of viewable columns, including any partially viewable columns.
+         * @function
+         * @instance
+         * @description
+        Answers the number of viewable columns, including any partially viewable columns.
          *
-         * @method getViewableColumns()
+         * #### returns: integer
          */
         getViewableColumns: function() {
             return this.getRenderer().getViewableColumns();
         },
 
         /**
-         *                                                                      .
-         *                                                                      .
-         * Initialize the GridRenderering sub-component.
+         * @function
+         * @instance
+         * @description
+        Initialize the [fin-hypergrid-renderer](module-._renderer.html) sub-component.
          *
          * @method initRenderer()
          */
@@ -2098,11 +2263,12 @@
         },
 
         /**
-         *                                                                      .
-         *                                                                      .
-         * return our [fin-hypergrid-renderer](index.html#fin-hypergrid-renderer)
+         * @function
+         * @instance
+         * @description
+        return our [fin-hypergrid-renderer](module-._renderer.html) sub-component.
          *
-         * @method getRenderer()
+         * #### returns: [fin-hypergrid-renderer](module-._renderer.html) sub-component.
          */
         getRenderer: function() {
             return this.renderer;

@@ -37,7 +37,7 @@ module.exports = function(grunt) {
         watch: {
             polymerjs: {
                 files: files.polymerjs,
-                tasks: ['jshint', 'polymer-component-sync', 'jsbeautifier', 'wct-test', 'vulcanize-both'],
+                tasks: ['jshint', 'polymer-component-sync', 'jsbeautifier', 'wct-test', 'vulcanize-both', 'shell'],
             },
             polymercss: {
                 files: files.polymercss,
@@ -185,13 +185,21 @@ module.exports = function(grunt) {
         },
         open: {
             docs: {
-                path: 'http://localhost:<%= express.all.options.port%>' + delimeter + elementName
+                path: 'http://localhost:<%= express.all.options.port%>' + delimeter + elementName + '/docs/module-._fin-hypergrid.html'
             },
             demo: {
                 path: 'http://localhost:<%= express.all.options.port%>' + delimeter + elementName + '/demo.html'
             }
 
         },
+        shell: {
+            options: {
+                stderr: false
+            },
+            jsdocs: {
+                command: './jsdoc.sh'
+            }
+        }
     };
 
     //we need to dynamicaly set the name of this property
