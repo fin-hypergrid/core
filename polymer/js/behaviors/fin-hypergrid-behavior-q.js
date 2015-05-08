@@ -186,7 +186,7 @@
             var message = {
                 cmd: 'sortTable',
                 data: {
-                    table: 'trade',
+                    table: this.getAttribute('table') || 'trade',
                     sort: current === (stateCount - 1) ? '' : this.block.headers[columnIndex][0],
                     asc: state.indexOf('^') > 0,
                     abs: state.indexOf('|') > 0,
