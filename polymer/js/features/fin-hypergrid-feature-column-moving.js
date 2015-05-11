@@ -392,7 +392,7 @@
             }
             var behavior = grid.getBehavior();
             var scrollLeft = grid.getHScrollValue();
-            if (!grid.dragging || scrollLeft > (grid.sbHScrlCfg.rangeStop - 2)) {
+            if (!grid.dragging || scrollLeft > (grid.sbHScrollConfig.rangeStop - 2)) {
                 return;
             }
             var draggedIndex = grid.renderOverridesCache.dragger.columnIndex;

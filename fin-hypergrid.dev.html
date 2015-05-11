@@ -20554,7 +20554,7 @@ var commands = {
             }
             var behavior = grid.getBehavior();
             var scrollLeft = grid.getHScrollValue();
-            if (!grid.dragging || scrollLeft > (grid.sbHScrlCfg.rangeStop - 2)) {
+            if (!grid.dragging || scrollLeft > (grid.sbHScrollConfig.rangeStop - 2)) {
                 return;
             }
             var draggedIndex = grid.renderOverridesCache.dragger.columnIndex;
@@ -23849,12 +23849,12 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
 
         setData: function(jsonData) {
             this.data = jsonData;
+            this.initColumnIndexes();
             this.dataModified();
         },
 
         dataModified: function() {
             this.initDataIndexes();
-            this.initColumnIndexes();
             this.applySorts();
             this.changed();
         },
