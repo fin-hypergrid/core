@@ -564,8 +564,8 @@ fin-cell-click|this is fired on cell click
 fin-grid-rendered|this is fired after a repaint occurs
 
 ```
-    var jsonModel = document.querySelection('#json-grid');
-    jsonModel.addFinListener('fin-cell-click', function(event) {
+    var jsonGrid = document.querySelector('#json-grid');
+    jsonGrid.addFinEventListener('fin-cell-click', function(event) {
         console.log('fin-cell-click', event.detail);
     });
 ```
