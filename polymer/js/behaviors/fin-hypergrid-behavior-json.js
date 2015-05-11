@@ -292,8 +292,11 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
                 this.data[i].__i = i;
             }
             this.changed();
-        }
+        },
 
+        getRow: function(y) {
+            return this.data[y];
+        }
     });
 
 })(); /* jslint ignore:line */
