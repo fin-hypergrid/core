@@ -206,6 +206,7 @@ It's really easy to see your data updates manifest in the hypergrid with the JSO
 
 1. Update the underlying javascript object field.
 2. Call the 'changed()' function on the json behavior object.
+3. If you have sorts in place that you want reapplied, call 'dataModified()' instead of calling 'changed()'
 ```
     var myData = [
         {   
@@ -234,7 +235,9 @@ It's really easy to see your data updates manifest in the hypergrid with the JSO
     
     //tell the behavior it's underlying data has changed
     myJSONBehavior.changed();
-
+    
+    //call this insted of 'changed()' if you have sorts that you want reapplied
+    //myJSONBehavior.dataModified();
 ```
 
 Cells as Links
