@@ -229,9 +229,6 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
                     for (i = 0; i < colIndexes.length; i++) {
                         if (colIndexes[i] === actualCol) {
                             this.toggleSort(i, 0);
-                            if (sorts[i] === 2) {
-                                this.data.reverse();
-                            }
                             return;
                         }
                     }
