@@ -752,4 +752,43 @@ Hypergrid utilizes a custom scrollbar component so as to not be limited to table
 * JSON example
 * Easily customizable and extensible cell rendering
 * Npm/grunt-based full featured dev environment
+--------------
+provide column names in cell provider
+row object in the config
+alternative column picker
+cell update event vetoable, before and after
+filter row under header
+autopersist layouts
+visual queue for nested sort
 
+sorting double click
+column selection single click
+
+summary functions
+summary row at bottom
+
+example of adding a column
+
+line numbers with row indicator clicking selects row
+select cells selects the row
+make frozen colums appear as normal columns
+
+save data as csv 
+configurable tab/enter excel style cell editing
+
+double click event
+
+reasonable default cell editors based on datatype
+make example using rgb in custom cell renderers
+
+theme coloring is broken 
+single click cell editing
+
+tooltips
+
+enum filtering by checkbox
+
+cell click events should have the unformatted cell value
+initialize celleditor is missing
+ clear out drop down cell editor dummy data
+fixed row height different to header, click events segregated also
