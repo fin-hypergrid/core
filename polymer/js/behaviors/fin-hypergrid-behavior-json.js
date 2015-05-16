@@ -19,7 +19,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         ready: function() {
             this.readyInit();
             this.tableState.sorted = [];
-            this.sortStates = [undefined, this.getImage('up-arrow'), this.getImage('down-arrow')];
+            this.sortStates = [undefined, 'up-arrow', 'down-arrow'];
         },
 
         isValidIdentifer: function(string) {
@@ -128,11 +128,11 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         setData: function(jsonData) {
             this.data = jsonData;
             this.initColumnIndexes();
+            this.initDataIndexes();
             this.dataModified();
         },
 
         dataModified: function() {
-            this.initDataIndexes();
             this.applySorts();
             this.changed();
         },
@@ -181,7 +181,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
             if (y === 0) {
                 var headers = this.getHeaders();
                 var sortIndex = this.tableState.sorted[x] || 0;
-                return [undefined, headers[x], this.sortStates[sortIndex]];
+                return [undefined, headers[x], this.getImage(this.sortStates[sortIndex])];
             } else {
                 return this.totals[y - 1][x];
             }
@@ -209,7 +209,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         applySorts: function() {
             var state = this.getState();
             var sorts = state.sorted;
-            var colIndexes = state.columnIndexes;
+            //var colIndexes = state.columnIndexes;
             if (!sorts) {
                 return;
             }
@@ -225,13 +225,10 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
             //apply the sort
             for (i = 0; i < sorts.length; i++) {
                 if (sorts[i] > 0) {
-                    var actualCol = i;
-                    for (i = 0; i < colIndexes.length; i++) {
-                        if (colIndexes[i] === actualCol) {
-                            this.toggleSort(i, 0);
-                            return;
-                        }
-                    }
+
+                    this.toggleSort(i, 0);
+                    return;
+
                 }
             }
         },

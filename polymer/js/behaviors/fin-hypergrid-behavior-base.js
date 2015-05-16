@@ -1031,6 +1031,14 @@
             return image;
         },
 
+
+        /**
+         * @function
+         */
+        setImage: function(key, image) {
+            imageCache[key] = image;
+        },
+
         /**
          * @function
          */
