@@ -749,6 +749,18 @@
          * @function
          * @instance
          * @description
+         Empty out the textWidthCache
+         *
+         * @param {event} event - the copy system event
+         */
+        resetTextWidthCache: function() {
+            this.getRenderer().resetTextWidthCache();
+        },
+
+        /**
+         * @function
+         * @instance
+         * @description
          If we have focus, copy our current selection data to the system clipboard.
          *
          * @param {event} event - the copy system event

@@ -307,6 +307,10 @@ var config = {
             gc.closePath();
         },
 
+        resetTextWidthCache: function() {
+            textWidthCache = new SimpleLRU(10000);
+        },
+
         blankOutOverflow: function(gc) {
             var isMaxX = this.isLastColumnVisible();
             var chop = isMaxX ? 2 : 1;

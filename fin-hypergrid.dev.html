@@ -21709,6 +21709,10 @@ var config = {
             gc.closePath();
         },
 
+        resetTextWidthCache: function() {
+            textWidthCache = new SimpleLRU(10000);
+        },
+
         blankOutOverflow: function(gc) {
             var isMaxX = this.isLastColumnVisible();
             var chop = isMaxX ? 2 : 1;
@@ -34517,6 +34521,18 @@ fin-vampire-bar {
             //the columns and rows that are partially visible
             behavior.setRenderedWidth(this.getViewableColumns() + 1);
             behavior.setRenderedHeight(this.getViewableRows() + 1);
+        },
+
+        /**
+         * @function
+         * @instance
+         * @description
+         Empty out the textWidthCache
+         *
+         * @param {event} event - the copy system event
+         */
+        resetTextWidthCache: function() {
+            this.getRenderer().resetTextWidthCache();
         },
 
         /**
