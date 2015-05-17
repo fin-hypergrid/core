@@ -384,7 +384,7 @@
             var level = blob.l_[transY];
             var indent = 5 + indentPixels + (level - 1) * indentPixels;
             var icon = '';
-            if (!blob.e_[transY] && (level !== this.block.G.length)) {
+            if (!blob.e_[transY]) {
                 icon = blob.o_[transY] ? '\u25be ' : '\u25b8 ';
             }
             return {
@@ -498,7 +498,7 @@
         fixedColumnClicked: function(grid, mouse) {
             var rowNum = mouse.gridCell.y - this.scrollPositionY;
             var rows = this.block.Z[1].n_[rowNum];
-            if (rows.length === this.block.G.length) {
+            if (rows.length === this.block.G.length + 1) {
                 //this is a leaf, don't send anything
                 return;
             }
