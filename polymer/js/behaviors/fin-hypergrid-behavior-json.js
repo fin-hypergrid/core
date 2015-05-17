@@ -128,11 +128,11 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         setData: function(jsonData) {
             this.data = jsonData;
             this.initColumnIndexes();
-            this.initDataIndexes();
             this.dataModified();
         },
 
         dataModified: function() {
+            this.initDataIndexes();
             this.applySorts();
             this.changed();
         },
