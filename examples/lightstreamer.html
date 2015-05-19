@@ -4,6 +4,7 @@
   <script src="http://demos.lightstreamer.com/commons/noloadamd.js"></script>
   <script src="http://demos.lightstreamer.com/commons/lightstreamer.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/numeral.js/1.5.3/numeral.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.10.3/moment.min.js"></script>
   <link rel="import" href="../fin-hypergrid.dev.html">
 <style>
 ::-webkit-scrollbar {
@@ -23,15 +24,25 @@
     margin: 0;
     padding: 0;
  }
- #stock-grid {
+
+ #stock-grid-top {
     top: 10px;
-    height: 100px;
+    height: 50px;
     right: 10px;
     left: 10px;
     position: absolute;
  }
+
+#stock-grid-bottom {
+    top: 60px;
+    height: 50px;
+    right: 10px;
+    left: 10px;
+    position: absolute;
+ }
+
  #buy-sell-grid {
-    top: 100px;
+    top: 110px;
     bottom: 10px;
     right: 10px;
     left: 10px;
@@ -40,7 +51,10 @@
 </style>
 </head>
 <body>
-    <fin-hypergrid id="stock-grid">
+    <fin-hypergrid id="stock-grid-top">
+        <fin-hypergrid-behavior-json></fin-hypergrid-behavior-json>
+    </fin-hypergrid>
+    <fin-hypergrid id="stock-grid-bottom">
         <fin-hypergrid-behavior-json></fin-hypergrid-behavior-json>
     </fin-hypergrid>
     <fin-hypergrid id="buy-sell-grid">
@@ -57,10 +71,14 @@
         this.sellList = [];
 
         //get ahold of our json grid example
-        var jsonGrid = document.querySelector(grid);;
+        var jsonGrid = document.querySelector(grid);
 
         //get it's table model
         this.jsonModel = jsonGrid.getBehavior();
+
+        //cell provider
+        var cellProvider = this.jsonModel.getCellProvider();
+
         this.jsonModel.getRowCount = function() {
             return Math.max(self.buyList.length, self.sellList.length);
         }
@@ -117,12 +135,12 @@
             return y;
         };
 
-        var bgColor = '#07071E';
-        var fixedAreasBGColor = bgColor;
+        var bgColor = '#000000';
+        var fixedAreasBGColor = '#262626';
 
-        var font = "24px Roboto Condensed";
+        var font = "12px Roboto Condensed";
         var headingFont = "14px Roboto Condensed";
-        var headingFGColor = '#3D77FE';
+        var headingFGColor = '#717871';
 
         var lnfOverrides = {
             font: font,
@@ -147,9 +165,9 @@
             fixedRowFGSelColor: 'white',
             fixedRowBGSelColor: '#3D77FE',
 
-            defaultFixedRowHeight: 40
+            defaultFixedRowHeight: 20
         };
-        this.jsonModel.defaultRowHeight = 57,
+        this.jsonModel.defaultRowHeight = 27,
 
         //to apply to a specific table
         jsonGrid.addGlobalProperties(lnfOverrides);
@@ -230,25 +248,60 @@
 
         document.addEventListener('polymer-ready', function() {
 
-            var stockGrid = document.querySelector("#stock-grid");
-            var stockModel = stockGrid.getBehavior();
-            stockModel.defaultRowHeight = 57,
-            stockModel.setColumns([
+            var stockGridTop = document.querySelector("#stock-grid-top");
+            var stockModelTop = stockGridTop.getBehavior();
+            stockModelTop.defaultRowHeight = 27,
+            stockModelTop.setColumns([
               { title: 'Stock Name', field: 'short_description' },
               { title: 'Status', field: 'trading_phase' },
-              { title: 'Reference Price', field: 'reference_price' },
-              { title: 'Last', field: 'last' },
-              { title: 'Last Price', field: 'last_price' },
-              { title: 'Last Quantity', field: 'last_qty' }
+              { title: 'Reference Price', field: 'reference_price' }
             ]);
-            stockModel.setFixedRowCount(1);
-            stockModel.setData([{
+            stockModelTop.setFixedRowCount(1);
+            stockModelTop.setData([{
                 short_description: "",
                 reference_price: "",
                 last: "",
                 last_price: "",
                 last_qty: ""
             }]);
+
+
+            var stockGridBottom = document.querySelector("#stock-grid-bottom");
+            var stockModelBottom = stockGridBottom.getBehavior();
+            var bottomProvider = stockModelBottom.getCellProvider();
+
+            stockModelBottom.defaultRowHeight = 27,
+            stockModelBottom.setColumns([
+              { title: 'Last', field: 'last' },
+              { title: 'Last Price', field: 'last_price' },
+              { title: 'Last Quantity', field: 'last_qty' }
+            ]);
+            stockModelBottom.setFixedRowCount(1);
+            stockModelBottom.setData([{
+                short_description: "",
+                reference_price: "",
+                last: "",
+                last_price: "",
+                last_qty: ""
+            }]);
+
+
+            bottomProvider.getCell = function(config) {
+                var renderer = bottomProvider.cellCache.simpleCellRenderer;
+                var x = config.x;
+                var y = config.y;
+
+                if (x === 0) {
+                    // config.bgColor = '#FAFF38';
+                    // config.fgColor = '#000000';
+                    config.value = moment(parseInt(config.value)).format('hh:mm:ss');
+                }
+
+                renderer.config = config;
+                return renderer;
+            };
+
+
 
             var buySell = new MarketDepthGrid('#buy-sell-grid');
             BS = buySell;
@@ -307,8 +360,11 @@
                 stockSubscription.addListener({
                    onItemUpdate: function(itemUpdate) {
                        itemUpdate.forEachChangedField(function(name,pos,value) {
-                           stockModel.data[0][name] = value;
-                           stockModel.changed();
+                           stockModelTop.data[0][name] = value;
+                           stockModelTop.changed();
+
+                           stockModelBottom.data[0][name] = value;
+                           stockModelBottom.changed();
                        });
                    }
                 });
