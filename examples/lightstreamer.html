@@ -1,8 +1,10 @@
 <html>
 <head>
+  <link href='http://fonts.googleapis.com/css?family=Roboto+Condensed:400,300,700' rel='stylesheet' type='text/css'>
   <script src="http://demos.lightstreamer.com/commons/noloadamd.js"></script>
   <script src="http://demos.lightstreamer.com/commons/lightstreamer.js"></script>
-  <link rel="import" href="../fin-hypergrid.min.html">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/numeral.js/1.5.3/numeral.min.js"></script>
+  <link rel="import" href="../fin-hypergrid.dev.html">
 <style>
 ::-webkit-scrollbar {
     -webkit-appearance: none;
@@ -23,13 +25,13 @@
  }
  #stock-grid {
     top: 10px;
-    height: 40px;
+    height: 100px;
     right: 10px;
     left: 10px;
     position: absolute;
  }
  #buy-sell-grid {
-    top: 50px;
+    top: 100px;
     bottom: 10px;
     right: 10px;
     left: 10px;
@@ -66,14 +68,35 @@
             return 4;
         };
         this.jsonModel.getValue = function(x,y) {
+            var piece;
             if (x === 0) {
-                return self.buyList[y].qty;
+                piece = self.buyList[y];
+                if (piece) {
+                    return numeral(piece.qty).format('0,0');
+                } else {
+                    return '';
+                }
             } else if (x === 1) {
-                return self.buyList[y].key;
+                piece = self.buyList[y];
+                if (piece) {
+                    return numeral(piece.key).format('0.00');
+                } else {
+                    return '';
+                }
             } else if (x === 2) {
-                return self.sellList[y].key;
+                piece = self.sellList[y];
+                if (piece) {
+                    return numeral(piece.key).format('0.00');
+                } else {
+                    return '';
+                }
             } else {
-                return self.sellList[y].qty;
+                piece = self.sellList[y];
+                if (piece) {
+                    return numeral(piece.qty).format('0,0');
+                } else {
+                    return '';
+                }
             }
         };
 
@@ -93,6 +116,46 @@
         this.jsonModel.getFixedColumnValue = function(x,y) {
             return y;
         };
+
+        var bgColor = '#07071E';
+        var fixedAreasBGColor = bgColor;
+
+        var font = "24px Roboto Condensed";
+        var headingFont = "14px Roboto Condensed";
+        var headingFGColor = '#3D77FE';
+
+        var lnfOverrides = {
+            font: font,
+            topLeftFont: headingFont,
+            fixedRowFont: headingFont,
+            fixedColumnFont: font,
+            backgroundColor2: bgColor,
+            backgroundColor: bgColor,
+            topLeftBackgroundColor: fixedAreasBGColor,
+            fixedColumnBackgroundColor: fixedAreasBGColor,
+            fixedRowBackgroundColor: fixedAreasBGColor,
+            color: 'white',
+            topLeftColor: headingFGColor,
+            fixedColumnColor: 'white',
+            fixedRowColor: headingFGColor,
+            lineColor: '#131C23',
+            gridLinesV: false,
+            gridLinesH: true,
+
+            fixedColumnFGSelColor: 'white',
+            fixedColumnBGSelColor: '#3D77FE',
+            fixedRowFGSelColor: 'white',
+            fixedRowBGSelColor: '#3D77FE',
+
+            defaultFixedRowHeight: 40
+        };
+        this.jsonModel.defaultRowHeight = 57,
+
+        //to apply to a specific table
+        jsonGrid.addGlobalProperties(lnfOverrides);
+        jsonGrid.editAt = function(){};
+
+
 
       };
 
@@ -169,6 +232,7 @@
 
             var stockGrid = document.querySelector("#stock-grid");
             var stockModel = stockGrid.getBehavior();
+            stockModel.defaultRowHeight = 57,
             stockModel.setColumns([
               { title: 'Stock Name', field: 'short_description' },
               { title: 'Status', field: 'trading_phase' },
