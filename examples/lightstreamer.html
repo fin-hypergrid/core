@@ -23,23 +23,16 @@
  }
  #stock-grid {
     top: 10px;
-    bottom: 50px;
+    height: 40px;
     right: 10px;
     left: 10px;
     position: absolute;
  }
- #buy-grid {
-    top: 50px;
-    bottom: 10px;
-    right: 50%;
-    left: 10px;
-    position: absolute;
- }
- #sell-grid {
+ #buy-sell-grid {
     top: 50px;
     bottom: 10px;
     right: 10px;
-    left: 50%;
+    left: 10px;
     position: absolute;
  }
 </style>
@@ -48,98 +41,120 @@
     <fin-hypergrid id="stock-grid">
         <fin-hypergrid-behavior-json></fin-hypergrid-behavior-json>
     </fin-hypergrid>
-    <fin-hypergrid id="buy-grid">
-        <fin-hypergrid-behavior-json></fin-hypergrid-behavior-json>
-    </fin-hypergrid>
-    <fin-hypergrid id="sell-grid">
+    <fin-hypergrid id="buy-sell-grid">
         <fin-hypergrid-behavior-json></fin-hypergrid-behavior-json>
     </fin-hypergrid>
 <script>
 
 
-    function MarketDepthGrid(grid,sortConf,columns) {
-        this.map = {};
+    function MarketDepthGrid(grid) {
+        var self = this;
+        this.buyMap = {};
+        this.sellMap = {};
+        this.buyList = [];
+        this.sellList = [];
 
         //get ahold of our json grid example
-        var jsonGrid = document.querySelector(grid);
-
+        var jsonGrid = document.querySelector(grid);;
 
         //get it's table model
         this.jsonModel = jsonGrid.getBehavior();
-
-        this.emptyState = {
-            columnIndexes:[0,1],
-            fixedColumnIndexes:[],
-            hiddenColumns: [],
-            columnWidths: [52,69],
-            fixedColumnWidths: [],
-            rowHeights: {},
-            fixedRowHeights: {},
-            sorted: []
-          };
-
-        this.sortedState = {};
-        for (var i in this.emptyState) {
-            this.sortedState[i] = this.emptyState[i];
+        this.jsonModel.getRowCount = function() {
+            return Math.max(self.buyList.length, self.sellList.length);
         }
-        this.sortedState.sorted = sortConf;
+        this.jsonModel.getColumnCount = function() {
+            return 4;
+        };
+        this.jsonModel.getValue = function(x,y) {
+            if (x === 0) {
+                return self.buyList[y].qty;
+            } else if (x === 1) {
+                return self.buyList[y].key;
+            } else if (x === 2) {
+                return self.sellList[y].key;
+            } else {
+                return self.sellList[y].qty;
+            }
+        };
 
-        this.jsonModel.setState(this.emptyState);
+        var headers =
+            [
+                'Quantity',
+                'Buy',
+                'Sell',
+                'Quantity'
+            ];
 
-        this.jsonModel.setColumns(columns);
+        this.jsonModel.setHeaders(headers);
+        this.jsonModel.getFixedColumnCount = function() {
+            return 1;
+        }
 
-        //set the actual json row objects
-        this.jsonModel.setData([]);
-
-        //make the first row fixed;
-        this.jsonModel.setFixedRowCount(1);
+        this.jsonModel.getFixedColumnValue = function(x,y) {
+            return y;
+        };
 
       };
 
       MarketDepthGrid.prototype = {
 
           onEndOfSnapshot: function() {
-            this.jsonModel.setState(this.sortedState);
-            this.jsonModel.dataModified();
+            // this.jsonModel.setState(this.sortedState);
+            // this.jsonModel.dataModified();
           },
 
           onItemUpdate: function(itemUpdate) {
               var command = itemUpdate.getValue("command");
               var key = Number(itemUpdate.getValue("key")); //make it anumber to help the sort
               var qty = Number(itemUpdate.getValue("qty"));
+              var isBuy = itemUpdate.Ay.indexOf('BUY') > -1;
+              var map =  isBuy ? this.buyMap : this.sellMap;
+              var list = isBuy ? this.buyList : this.sellList;
               switch(command) {
                   case "UPDATE":
-                    if (this.map[key]) {
-                      this.map[key].qty = qty;
-                      this.jsonModel.changed();
+                    if (map[key]) {
+                      map[key].qty = qty;
                       break;
                     }
                     //else should not happen, let's do the ADD anyway
                   case "ADD":
-                    this.map[key] = {key: key, qty: qty};
-                    this.jsonModel.data.push(this.map[key]);
-                    this.jsonModel.dataModified();
+                    map[key] = {key: key, qty: qty};
+                    list.push(map[key]);
                     break;
 
                   case "DELETE":
-                    var index = this.jsonModel.data.indexOf(this.map[key]);
+                    var index = list.indexOf(map[key]);
                     if (index > -1) {
-                        this.jsonModel.data.splice(index,1);
+                        list.splice(index,1);
                     } //else ??
-                    delete(this.map[key]);
-                    this.jsonModel.dataModified();
+                    delete(map[key]);
                     break;
               };
 
+                list.sort(function(a, b) {
+                    if (a.key < b.key) {
+                        return 1;
+                    }
+                    return -1;
+                });
+                if (!isBuy) {
+                    list.reverse();
+                }
+
+                this.jsonModel.changed();
           },
 
           onSubscription: function() {
-            this.jsonModel.setData([]); //reset data
-            this.jsonModel.setState(this.emptyState); //disable sorting while receiving the snapshot
+            this.buyList.length = 0; //reset data
+            this.sellList.length = 0; //reset data
+            this.jsonModel.changed();
+            //this.jsonModel.setState(this.emptyState); //disable sorting while receiving the snapshot
           },
 
           onClearSnapshot: function(itemName,itemPos) {
-            this.jsonModel.setData([]); //reset data
+            this.buyList.length = 0; //reset data
+            this.sellList.length = 0; //reset data
+            this.jsonModel.changed();
           }
       };
 
@@ -171,13 +186,8 @@
                 last_qty: ""
             }]);
 
-
-            var qtyColumn = { title: 'Quantity', field: 'qty' };
-            var priceColumn = { title: 'Price', field: 'key' };
-
-            var buy = new MarketDepthGrid('#buy-grid',[0,2],[qtyColumn,priceColumn]);
-            var sell = new MarketDepthGrid('#sell-grid',[1,0],[priceColumn,qtyColumn]);
-
+            var buySell = new MarketDepthGrid('#buy-sell-grid');
+            BS = buySell;
 
             require(["LightstreamerClient","Subscription"], function(LightstreamerClient,Subscription) {
 
@@ -208,7 +218,7 @@
 
                 var buySubscription = new Subscription("COMMAND",STOCK+"_BUYSIDE",["command", "key", "qty"]);
                 buySubscription.setRequestedSnapshot("yes");
-                buySubscription.addListener(buy);
+                buySubscription.addListener(buySell);
                 buySubscription.addListener({
                      onItemLostUpdates: function () {
                          // Unsubcribe and then subscribe again the Item in order that the snapshot restore the list.
@@ -219,7 +229,7 @@
 
                 var sellSubscription = new Subscription("COMMAND",STOCK+"_SELLSIDE",["command", "key", "qty"]);
                 sellSubscription.setRequestedSnapshot("yes");
-                sellSubscription.addListener(sell);
+                sellSubscription.addListener(buySell);
                 sellSubscription.addListener({
                      onItemLostUpdates: function () {
                          // Unsubcribe and then subscribe again the Item in order that the snapshot restore the list.
