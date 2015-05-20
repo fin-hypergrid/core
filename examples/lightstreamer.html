@@ -173,7 +173,19 @@
         jsonGrid.addGlobalProperties(lnfOverrides);
         jsonGrid.editAt = function(){};
 
+        cellProvider.getCell = function(config) {
+            var renderer = bottomProvider.cellCache.simpleCellRenderer;
+            var x = config.x;
+            var y = config.y;
 
+            if (x === 0) {
+                // config.bgColor = '#FAFF38';
+                // config.fgColor = '#000000';
+            }
+
+            renderer.config = config;
+            return renderer;
+        };
 
       };
 
