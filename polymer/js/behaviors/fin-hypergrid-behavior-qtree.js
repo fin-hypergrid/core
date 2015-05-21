@@ -511,9 +511,14 @@
         },
 
         fixedRowClicked: function(grid, mouse) {
-            var colId = this.getColumnId(mouse.gridCell.x);
+            var x = mouse.gridCell.x;
+            var y = mouse.gridCell.y;
+            if (y > 0) {
+                return;
+            }
+            var colId = this.getColumnId(x);
             var direction = this.block.C[colId];
-            var colWidth = this.getColumnWidth(mouse.gridCell.x);
+            var colWidth = this.getColumnWidth(x);
             var mousePoint = mouse.mousePoint.x;
             if (mousePoint < (colWidth / 2)) {
                 if (direction) {
@@ -525,7 +530,7 @@
                     this.sendMessage(colClick);
                 }
             } else {
-                this.toggleSort(mouse.gridCell.x);
+                this.toggleSort(x);
             }
         },
 

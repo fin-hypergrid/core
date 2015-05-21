@@ -11,7 +11,7 @@
             var fixedColCount = grid.getFixedColumnCount();
             var fixedRowCount = grid.getFixedRowCount();
             var gridCell = event.gridCell;
-            if (gridCell.x > fixedColCount && gridCell.y > fixedRowCount) {
+            if (gridCell.x >= fixedColCount && gridCell.y >= fixedRowCount) {
                 var x = grid.getHScrollValue() + gridCell.x - fixedColCount;
                 var y = grid.getVScrollValue() + gridCell.y - fixedRowCount;
                 event.gridCell = grid.rectangles.point.create(x, y);

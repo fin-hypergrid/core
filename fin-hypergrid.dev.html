@@ -19406,7 +19406,7 @@ var commands = {
             var fixedColCount = grid.getFixedColumnCount();
             var fixedRowCount = grid.getFixedRowCount();
             var gridCell = event.gridCell;
-            if (gridCell.x > fixedColCount && gridCell.y > fixedRowCount) {
+            if (gridCell.x >= fixedColCount && gridCell.y >= fixedRowCount) {
                 var x = grid.getHScrollValue() + gridCell.x - fixedColCount;
                 var y = grid.getVScrollValue() + gridCell.y - fixedRowCount;
                 event.gridCell = grid.rectangles.point.create(x, y);
@@ -25177,9 +25177,14 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         },
 
         fixedRowClicked: function(grid, mouse) {
-            var colId = this.getColumnId(mouse.gridCell.x);
+            var x = mouse.gridCell.x;
+            var y = mouse.gridCell.y;
+            if (y > 0) {
+                return;
+            }
+            var colId = this.getColumnId(x);
             var direction = this.block.C[colId];
-            var colWidth = this.getColumnWidth(mouse.gridCell.x);
+            var colWidth = this.getColumnWidth(x);
             var mousePoint = mouse.mousePoint.x;
             if (mousePoint < (colWidth / 2)) {
                 if (direction) {
@@ -25191,7 +25196,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
                     this.sendMessage(colClick);
                 }
             } else {
-                this.toggleSort(mouse.gridCell.x);
+                this.toggleSort(x);
             }
         },
 
