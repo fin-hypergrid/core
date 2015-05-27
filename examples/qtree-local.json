@@ -10,7 +10,7 @@
     },
     "runtime": {
         "arguments": "",
-        "version": "v40",
+        "version": "4.40.3.7",
         "assets": [{
             "src": "https://developer.openfin.co/tests/swirts-hypergrid-assets/qtree.zip",
             "dest": "q",

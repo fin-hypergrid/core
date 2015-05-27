@@ -187,10 +187,6 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
             }
         },
 
-        getFixedRowCount: function() {
-            return this.totals.length + 1; //the header row
-        },
-
         getRowCount: function() {
             return this.data.length;
         },
