@@ -557,7 +557,9 @@
             jsonGrid.addFinEventListener('fin-scroll-y', function(e){
                 console.log('fin-scroll-y', e.detail.value);
             });
-
+            jsonGrid.addProperties({
+                readOnly: false
+            });
             // lets setup a cell update
             // var g = document.querySelector('#json-example');
             // var model = g.getBehavior();row = model.data[0];

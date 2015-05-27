@@ -86,7 +86,8 @@
 
             useHiDPI: true,
             editorActivationKeys: ['alt', 'esc'],
-            columnAutosizing: true
+            columnAutosizing: true,
+            readOnly: false
 
         };
         return properties;
@@ -1111,6 +1112,9 @@
             };
 
             this.addFinEventListener('fin-mousemove', function(e) {
+                if (self.resolveProperty('readOnly')) {
+                    return;
+                }
                 var mouse = e.detail.mouse;
                 var mouseEvent = self.getGridCellFromMousePoint(mouse);
                 mouseEvent.primitiveEvent = e;
@@ -1118,6 +1122,9 @@
             });
 
             this.addFinEventListener('fin-mousedown', function(e) {
+                if (self.resolveProperty('readOnly')) {
+                    return;
+                }
                 self.stopEditing();
                 var mouse = e.detail.mouse;
                 var mouseEvent = self.getGridCellFromMousePoint(mouse);
@@ -1126,6 +1133,9 @@
             });
 
             this.addFinEventListener('fin-mouseup', function(e) {
+                if (self.resolveProperty('readOnly')) {
+                    return;
+                }
                 self.dragging = false;
                 if (self.isScrollingNow()) {
                     self.setScrollingNow(false);
@@ -1140,6 +1150,9 @@
             });
 
             this.addFinEventListener('fin-tap', function(e) {
+                if (self.resolveProperty('readOnly')) {
+                    return;
+                }
                 var mouse = e.detail.mouse;
                 var tapEvent = self.getGridCellFromMousePoint(mouse);
                 tapEvent.primitiveEvent = e;
@@ -1147,6 +1160,9 @@
             });
 
             this.addFinEventListener('fin-drag', function(e) {
+                if (self.resolveProperty('readOnly')) {
+                    return;
+                }
                 self.dragging = true;
                 var mouse = e.detail.mouse;
                 var mouseEvent = self.getGridCellFromMousePoint(mouse);
@@ -1155,14 +1171,23 @@
             });
 
             this.addFinEventListener('fin-keydown', function(e) {
+                if (self.resolveProperty('readOnly')) {
+                    return;
+                }
                 self.delegateKeyDown(e);
             });
 
             this.addFinEventListener('fin-keyup', function(e) {
+                if (self.resolveProperty('readOnly')) {
+                    return;
+                }
                 self.delegateKeyUp(e);
             });
 
             this.addFinEventListener('fin-track', function(e) {
+                if (self.resolveProperty('readOnly')) {
+                    return;
+                }
                 if (self.dragging) {
                     return;
                 }
@@ -1183,6 +1208,9 @@
             });
 
             this.addFinEventListener('fin-holdpulse', function(e) {
+                if (self.resolveProperty('readOnly')) {
+                    return;
+                }
                 var mouse = e.detail.mouse;
                 var mouseEvent = self.getGridCellFromMousePoint(mouse);
                 mouseEvent.primitiveEvent = e;
@@ -1190,6 +1218,9 @@
             });
 
             this.addFinEventListener('fin-dblclick', function(e) {
+                if (self.resolveProperty('readOnly')) {
+                    return;
+                }
                 var mouse = e.detail.mouse;
                 var mouseEvent = self.getGridCellFromMousePoint(mouse);
                 mouseEvent.primitiveEvent = e;
@@ -1204,6 +1235,9 @@
             });
 
             this.addFinEventListener('fin-mouseout', function(e) {
+                if (self.resolveProperty('readOnly')) {
+                    return;
+                }
                 var mouse = e.detail.mouse;
                 var mouseEvent = self.getGridCellFromMousePoint(mouse);
                 mouseEvent.primitiveEvent = e.detail.primitiveEvent;
