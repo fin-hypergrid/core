@@ -287,6 +287,29 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
 
         getRow: function(y) {
             return this.data[y];
+        },
+
+
+        cellPrePaintNotification: function(cell) {
+            var row = this.getRow(cell.config.y);
+            var columnId = this.getHeader(cell.config.x);
+            cell.config.row = row;
+            cell.config.columnId = columnId;
+        },
+
+        cellFixedRowPrePaintNotification: function( /* cell */ ) {
+
+        },
+
+        cellFixedColumnPrePaintNotification: function(cell) {
+            var row = this.getRow(cell.config.y);
+            var columnId = this.getHeader(cell.config.x);
+            cell.config.row = row;
+            cell.config.columnId = columnId;
+        },
+
+        cellTopLeftPrePaintNotification: function( /* cell */ ) {
+
         }
     });
 

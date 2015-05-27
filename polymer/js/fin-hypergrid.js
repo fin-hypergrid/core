@@ -1531,8 +1531,8 @@
          * #### returns: boolean
          * @param {integer} columnIndex - the column index in question
          */
-        isDataColVisible: function(columnIndex) {
-            var isVisible = this.getRenderer().isColVisible(columnIndex);
+        isColumnVisible: function(columnIndex) {
+            var isVisible = this.getRenderer().isColumnVisible(columnIndex);
             return isVisible;
         },
 
@@ -1561,7 +1561,7 @@
          * @param {integer} rowIndex - the row index in question
          */
         isDataVisible: function(columnIndex, rowIndex) {
-            var isVisible = this.isDataRowVisible(rowIndex) && this.isDataColVisible(columnIndex);
+            var isVisible = this.isDataRowVisible(rowIndex) && this.isColumnVisible(columnIndex);
             return isVisible;
         },
 
@@ -1578,7 +1578,7 @@
             //-1 because we want only fully visible columns, don't include partially
             //viewable columns
             var viewableColumns = this.getViewableColumns() - 1;
-            if (!this.isDataColVisible(colIndex)) {
+            if (!this.isColumnVisible(colIndex)) {
                 //the scroll position is the leftmost column
                 var newSX = offsetX < 0 ? colIndex : colIndex - viewableColumns;
                 this.setHScrollValue(newSX);
@@ -2484,6 +2484,7 @@
             }
             return row;
         },
+
         fireBeforeCellEdit: function(cell, value) {
             var clickEvent = new CustomEvent('fin-before-cell-edit', {
                 detail: {
@@ -2492,13 +2493,15 @@
                     time: Date.now()
                 }
             });
-            this.canvas.dispatchEvent(clickEvent);
+            var proceed = this.canvas.dispatchEvent(clickEvent);
+            return proceed; //I wasn't cancelled
         },
 
-        fireAfterCellEdit: function(cell, value) {
+        fireAfterCellEdit: function(cell, oldValue, newValue) {
             var clickEvent = new CustomEvent('fin-after-cell-edit', {
                 detail: {
-                    value: value,
+                    newValue: newValue,
+                    oldValue: oldValue,
                     cell: cell,
                     time: Date.now()
                 }
@@ -2521,6 +2524,14 @@
 
         setFocusable: function(boolean) {
             this.getCanvas().setFocusable(boolean);
+        },
+
+        getVisibleColumns: function() {
+            return this.getRenderer().getVisibleColumns();
+        },
+
+        getVisibleRows: function() {
+            return this.getRenderer().getVisibleRows();
         }
     });
 

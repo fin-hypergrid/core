@@ -15400,7 +15400,7 @@ var config = {
         config.y = y;
         config.value = value;
         config.fgColor = fgColor;
-        config.bgColor = undefined; //properties.bgColor === bgColor ? null : bgColor; //
+        config.bgColor = undefined;
         config.fgSelColor = fgSelColor;
         config.bgSelColor = bgSelColor;
         config.font = font;
@@ -15455,9 +15455,19 @@ var config = {
             return this.renderedRows.length;
         },
 
+        //Answer what rows we just rendered
+        getVisibleRows: function() {
+            return this.renderedRows;
+        },
+
         //Answer how many columns we just rendered
         getViewableColumns: function() {
             return this.renderedColumns.length;
+        },
+
+        //Answer what columns we just rendered
+        getVisibleColumns: function() {
+            return this.renderedColumns;
         },
 
         /**
@@ -15848,6 +15858,8 @@ var config = {
                     var config = this.cellConfig(translatedX, r, value, fgColor, bgColor, fgSelColor, bgSelColor, font, isSelected, isColumnHovered, isRowHovered, align, hoffset, voffset);
                     var cell = cellProvider.getFixedRowCell(config);
                     config.minWidth = 0;
+
+                    behavior.cellFixedRowPrePaintNotification(cell);
                     cell.paint(ctx, x, y, width, height);
 
                     //lets capture the col preferred widths for col autosizing
@@ -15909,6 +15921,8 @@ var config = {
                     var config = this.cellConfig(c, r + scrollTop, value, fgColor, bgColor, fgSelColor, bgSelColor, font, isSelected, isColumnHovered, isRowHovered, align, hoffset, voffset);
                     var cell = cellProvider.getFixedColumnCell(config);
                     config.minWidth = 0;
+
+                    behavior.cellFixedColumnPrePaintNotification(cell);
                     cell.paint(ctx, x, y, width, height);
 
                     this.renderedFixedColumnMinWidths[c] = Math.max(config.minWidth || 0, this.renderedFixedColumnMinWidths[c]);
@@ -16004,6 +16018,8 @@ var config = {
                     var cell = cellProvider.getCell(config);
 
                     config.minWidth = 0;
+
+                    behavior.cellPrePaintNotification(cell);
                     cell.paint(ctx, x, y, width, height);
 
                     //lets capture the col preferred widths for col autosizing
@@ -16103,6 +16119,7 @@ var config = {
                     config.minWidth = 0;
 
                     //minWidth should be set inside this function call
+                    behavior.cellTopLeftPrePaintNotification(cell);
                     cell.paint(ctx, x, y, width, height);
 
                     var minWidth = config.minWidth;
@@ -16251,6 +16268,7 @@ var config = {
 
             var cell = cellProvider.getCell(this.cellConfig(translatedX, y + scrollTop, value, overrideFGColor, bgColor, fgSelColor, bgSelColor, overrideFont, isSelected, isColumnHovered, isRowHovered, columnAlign, hoffset, voffset));
 
+            behavior.cellPrePaintNotification(cell);
             cell.paint(ctx, startX, startY, width, height);
 
         },
@@ -16481,19 +16499,20 @@ var config = {
     //We represent selections as a list of rectangles because large areas can be represented and tested against quickly with a minimal amount of memory usage. Also we need to maintain the selection rectangles flattened counter parts so we can test for single dimension contains.  This is how we know to highlight the fixed regions on the edges of the grid.
 
     Polymer('fin-hypergrid-selection-model',{ /* jslint ignore:line */
-        ready: function() {
 
+        ready: function() {
             this.rectangles = document.createElement('fin-rectangle');
             this.selections = [];
             this.flattenedX = [];
             this.flattenedY = [];
         },
+
         getGrid: function() {
             return null;
         },
+
         //select a rectangle
         select: function(ox, oy, ex, ey) {
-
             var newSelection = this.rectangles.rectangle.create(ox, oy, ex, ey);
             this.selections.push(newSelection);
             this.flattenedX.push(newSelection.flattenXAt(0));
@@ -22220,7 +22239,24 @@ var commands = {
                     self.shapeChanged();
                 });
             }
+        },
+
+        cellPrePaintNotification: function( /* cell */ ) {
+
+        },
+
+        cellFixedRowPrePaintNotification: function( /* cell */ ) {
+
+        },
+
+        cellFixedColumnPrePaintNotification: function( /* cell */ ) {
+
+        },
+
+        cellTopLeftPrePaintNotification: function( /* cell */ ) {
+
         }
+
 
     });
 })();
@@ -24021,6 +24057,29 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
 
         getRow: function(y) {
             return this.data[y];
+        },
+
+
+        cellPrePaintNotification: function(cell) {
+            var row = this.getRow(cell.config.y);
+            var columnId = this.getHeader(cell.config.x);
+            cell.config.row = row;
+            cell.config.columnId = columnId;
+        },
+
+        cellFixedRowPrePaintNotification: function( /* cell */ ) {
+
+        },
+
+        cellFixedColumnPrePaintNotification: function(cell) {
+            var row = this.getRow(cell.config.y);
+            var columnId = this.getHeader(cell.config.x);
+            cell.config.row = row;
+            cell.config.columnId = columnId;
+        },
+
+        cellTopLeftPrePaintNotification: function( /* cell */ ) {
+
         }
     });
 
@@ -25852,6 +25911,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         input: null,
         alias: 'base',
         grid: null,
+        initialValue: null,
 
         //Currently the only CellEditor is an input field.  The structure is in place for handling the CellEditor during focus change and grid scrolling.
         //TODO:Generalize the cell editing functionality to delegate through the behvior objects and then through the cell editors.  Add more general CellEditor types/drop down/button/calendar/spinner/etc...
@@ -25883,7 +25943,12 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
             this.setEditorPoint(point);
             var model = this.getBehavior();
             var value = model._getValue(point.x, point.y);
-            this.grid.fireBeforeCellEdit(point, value);
+            var proceed = this.grid.fireBeforeCellEdit(point, value);
+            if (!proceed) {
+                //we were cancelled
+                return;
+            }
+            this.initialValue = value;
             this.setEditorValue(value);
             this.isEditing = true;
             this.setCheckEditorPositionFlag();
@@ -25919,7 +25984,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
             var point = this.getEditorPoint();
             var value = this.getEditorValue();
             this.getBehavior()._setValue(point.x, point.y, value);
-            this.grid.fireAfterCellEdit(point, value);
+            this.grid.fireAfterCellEdit(point, this.initialValue, value);
         },
 
         getEditorValue: function() {
@@ -29207,8 +29272,8 @@ fin-vampire-bar {
          * #### returns: boolean
          * @param {integer} columnIndex - the column index in question
          */
-        isDataColVisible: function(columnIndex) {
-            var isVisible = this.getRenderer().isColVisible(columnIndex);
+        isColumnVisible: function(columnIndex) {
+            var isVisible = this.getRenderer().isColumnVisible(columnIndex);
             return isVisible;
         },
 
@@ -29237,7 +29302,7 @@ fin-vampire-bar {
          * @param {integer} rowIndex - the row index in question
          */
         isDataVisible: function(columnIndex, rowIndex) {
-            var isVisible = this.isDataRowVisible(rowIndex) && this.isDataColVisible(columnIndex);
+            var isVisible = this.isDataRowVisible(rowIndex) && this.isColumnVisible(columnIndex);
             return isVisible;
         },
 
@@ -29254,7 +29319,7 @@ fin-vampire-bar {
             //-1 because we want only fully visible columns, don't include partially
             //viewable columns
             var viewableColumns = this.getViewableColumns() - 1;
-            if (!this.isDataColVisible(colIndex)) {
+            if (!this.isColumnVisible(colIndex)) {
                 //the scroll position is the leftmost column
                 var newSX = offsetX < 0 ? colIndex : colIndex - viewableColumns;
                 this.setHScrollValue(newSX);
@@ -30160,6 +30225,7 @@ fin-vampire-bar {
             }
             return row;
         },
+
         fireBeforeCellEdit: function(cell, value) {
             var clickEvent = new CustomEvent('fin-before-cell-edit', {
                 detail: {
@@ -30168,13 +30234,15 @@ fin-vampire-bar {
                     time: Date.now()
                 }
             });
-            this.canvas.dispatchEvent(clickEvent);
+            var proceed = this.canvas.dispatchEvent(clickEvent);
+            return proceed; //I wasn't cancelled
         },
 
-        fireAfterCellEdit: function(cell, value) {
+        fireAfterCellEdit: function(cell, oldValue, newValue) {
             var clickEvent = new CustomEvent('fin-after-cell-edit', {
                 detail: {
-                    value: value,
+                    newValue: newValue,
+                    oldValue: oldValue,
                     cell: cell,
                     time: Date.now()
                 }
@@ -30197,6 +30265,14 @@ fin-vampire-bar {
 
         setFocusable: function(boolean) {
             this.getCanvas().setFocusable(boolean);
+        },
+
+        getVisibleColumns: function() {
+            return this.getRenderer().getVisibleColumns();
+        },
+
+        getVisibleRows: function() {
+            return this.getRenderer().getVisibleRows();
         }
     });
 

@@ -10,19 +10,20 @@
     //We represent selections as a list of rectangles because large areas can be represented and tested against quickly with a minimal amount of memory usage. Also we need to maintain the selection rectangles flattened counter parts so we can test for single dimension contains.  This is how we know to highlight the fixed regions on the edges of the grid.
 
     Polymer({ /* jslint ignore:line */
-        ready: function() {
 
+        ready: function() {
             this.rectangles = document.createElement('fin-rectangle');
             this.selections = [];
             this.flattenedX = [];
             this.flattenedY = [];
         },
+
         getGrid: function() {
             return null;
         },
+
         //select a rectangle
         select: function(ox, oy, ex, ey) {
-
             var newSelection = this.rectangles.rectangle.create(ox, oy, ex, ey);
             this.selections.push(newSelection);
             this.flattenedX.push(newSelection.flattenXAt(0));

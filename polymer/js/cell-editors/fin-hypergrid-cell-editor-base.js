@@ -16,6 +16,7 @@
         input: null,
         alias: 'base',
         grid: null,
+        initialValue: null,
 
         //Currently the only CellEditor is an input field.  The structure is in place for handling the CellEditor during focus change and grid scrolling.
         //TODO:Generalize the cell editing functionality to delegate through the behvior objects and then through the cell editors.  Add more general CellEditor types/drop down/button/calendar/spinner/etc...
@@ -47,7 +48,12 @@
             this.setEditorPoint(point);
             var model = this.getBehavior();
             var value = model._getValue(point.x, point.y);
-            this.grid.fireBeforeCellEdit(point, value);
+            var proceed = this.grid.fireBeforeCellEdit(point, value);
+            if (!proceed) {
+                //we were cancelled
+                return;
+            }
+            this.initialValue = value;
             this.setEditorValue(value);
             this.isEditing = true;
             this.setCheckEditorPositionFlag();
@@ -83,7 +89,7 @@
             var point = this.getEditorPoint();
             var value = this.getEditorValue();
             this.getBehavior()._setValue(point.x, point.y, value);
-            this.grid.fireAfterCellEdit(point, value);
+            this.grid.fireAfterCellEdit(point, this.initialValue, value);
         },
 
         getEditorValue: function() {

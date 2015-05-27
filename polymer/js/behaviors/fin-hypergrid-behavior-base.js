@@ -1074,7 +1074,24 @@
                     self.shapeChanged();
                 });
             }
+        },
+
+        cellPrePaintNotification: function( /* cell */ ) {
+
+        },
+
+        cellFixedRowPrePaintNotification: function( /* cell */ ) {
+
+        },
+
+        cellFixedColumnPrePaintNotification: function( /* cell */ ) {
+
+        },
+
+        cellTopLeftPrePaintNotification: function( /* cell */ ) {
+
         }
+
 
     });
 })();

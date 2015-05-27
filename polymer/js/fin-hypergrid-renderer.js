@@ -101,7 +101,7 @@ var config = {
         config.y = y;
         config.value = value;
         config.fgColor = fgColor;
-        config.bgColor = undefined; //properties.bgColor === bgColor ? null : bgColor; //
+        config.bgColor = undefined;
         config.fgSelColor = fgSelColor;
         config.bgSelColor = bgSelColor;
         config.font = font;
@@ -156,9 +156,19 @@ var config = {
             return this.renderedRows.length;
         },
 
+        //Answer what rows we just rendered
+        getVisibleRows: function() {
+            return this.renderedRows;
+        },
+
         //Answer how many columns we just rendered
         getViewableColumns: function() {
             return this.renderedColumns.length;
+        },
+
+        //Answer what columns we just rendered
+        getVisibleColumns: function() {
+            return this.renderedColumns;
         },
 
         /**
@@ -549,6 +559,8 @@ var config = {
                     var config = this.cellConfig(translatedX, r, value, fgColor, bgColor, fgSelColor, bgSelColor, font, isSelected, isColumnHovered, isRowHovered, align, hoffset, voffset);
                     var cell = cellProvider.getFixedRowCell(config);
                     config.minWidth = 0;
+
+                    behavior.cellFixedRowPrePaintNotification(cell);
                     cell.paint(ctx, x, y, width, height);
 
                     //lets capture the col preferred widths for col autosizing
@@ -610,6 +622,8 @@ var config = {
                     var config = this.cellConfig(c, r + scrollTop, value, fgColor, bgColor, fgSelColor, bgSelColor, font, isSelected, isColumnHovered, isRowHovered, align, hoffset, voffset);
                     var cell = cellProvider.getFixedColumnCell(config);
                     config.minWidth = 0;
+
+                    behavior.cellFixedColumnPrePaintNotification(cell);
                     cell.paint(ctx, x, y, width, height);
 
                     this.renderedFixedColumnMinWidths[c] = Math.max(config.minWidth || 0, this.renderedFixedColumnMinWidths[c]);
@@ -705,6 +719,8 @@ var config = {
                     var cell = cellProvider.getCell(config);
 
                     config.minWidth = 0;
+
+                    behavior.cellPrePaintNotification(cell);
                     cell.paint(ctx, x, y, width, height);
 
                     //lets capture the col preferred widths for col autosizing
@@ -804,6 +820,7 @@ var config = {
                     config.minWidth = 0;
 
                     //minWidth should be set inside this function call
+                    behavior.cellTopLeftPrePaintNotification(cell);
                     cell.paint(ctx, x, y, width, height);
 
                     var minWidth = config.minWidth;
@@ -952,6 +969,7 @@ var config = {
 
             var cell = cellProvider.getCell(this.cellConfig(translatedX, y + scrollTop, value, overrideFGColor, bgColor, fgSelColor, bgSelColor, overrideFont, isSelected, isColumnHovered, isRowHovered, columnAlign, hoffset, voffset));
 
+            behavior.cellPrePaintNotification(cell);
             cell.paint(ctx, startX, startY, width, height);
 
         },
