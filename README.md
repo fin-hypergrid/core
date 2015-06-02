@@ -761,6 +761,23 @@ filter row under header
 autopersist layouts
 visual queue for nested sort
 
+
+json behavior enhancements
+    cell.config.row is the underling object of the row
+    cell.config.columnId is the current columnId
+
+jsonBehavior.getRow(y); //returns row object
+
+hypergrid.getVisibleRows();     //returns indexes of visible rows
+hypergrid.getVisibleColumns();  //returns indexes of visible columns
+
+fin-after-cell-edit event has newValue, oldValue in the event now
+fin-before-cell-edit event can veto the edit with event.preventDefault();
+
+
+double click event with row object
+
+
 sorting double click
 column selection single click
 

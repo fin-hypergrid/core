@@ -279,7 +279,7 @@ var config = {
         },
 
         //Answer if a column is visible, must be fully visible
-        isColVisible: function(c) {
+        isColumnVisible: function(c) {
             var isVisible = this.renderedColumns.indexOf(c) !== -1;
             return isVisible;
         },
@@ -911,7 +911,7 @@ var config = {
             var unTranslatedX = behavior.unTranslateColumnIndex(x + scrollLeft);
 
             //it's not being viewed exit...
-            if (!this.isRowVisible(y) || !this.isColVisible(unTranslatedX)) {
+            if (!this.isRowVisible(y) || !this.isColumnVisible(unTranslatedX)) {
                 return;
             }
             //var offsetX = behavior.getFixedColumnsWidth();
