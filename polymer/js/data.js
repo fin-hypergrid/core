@@ -2,8 +2,12 @@
 /**
  *
  * @module .\data
+ * @description
+this file holds code that is exploratory for data manipulation, it is currently not used by hypergrid
  *
- */
+ *
+ **/
+
 var noop = function() {};
 
 window.flashSort = (function() {

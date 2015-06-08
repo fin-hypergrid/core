@@ -15299,33 +15299,49 @@ div.container {
   </template>
   <script>/* global SimpleLRU */
 
-//HypergridRenderer is the canvas enabled top level sub component that handles the renderering of the Grid.
-// * It relies on two other external subprojects
-//  * of-canvas: a wrapper to provide a simpler interface to the HTML5 canvas component
-//  * rectangles: a small library providing Point and Rectangle objects
-
-//The HypergridRenderer is in a unique position to provide critical functionality to the OFGrid in a hightly performant manner.  Because it MUST iterate over all the visible cells it can store various bits of information that can be encapsulated as a service for consumption by the OFGrid component.
-
-//this object is basically four main functions
-// * render fixed row headers
-// * render fixed col headers
-// * render main data cells
-// * render grid lines
-
-
 /**
  *
  * @module .\renderer
- *
- */
+ * @description
+fin-hypergrid-renderer is the canvas enabled top level sub component that handles the renderering of the Grid.
+
+It relies on two other external subprojects
+
+1. fin-canvas: a wrapper to provide a simpler interface to the HTML5 canvas component
+2. fin-rectangles: a small library providing Point and Rectangle objects
+
+The fin-ypergrid-renderer is in a unique position to provide critical functionality to the fin-hypergrid in a hightly performant manner.
+Because it MUST iterate over all the visible cells it can store various bits of information that can be encapsulated as a service for consumption by the fin-hypergrid component.
+
+Instances of this object have basically four main functions.
+
+1. render fixed row headers
+2. render fixed col headers
+3. render main data cells
+4. render grid lines
+
+**/
 
 'use strict';
 
 var noop = function() {};
 
+/**
+ *
+ * @property {object} fontData - the cached font heights
+ */
 var fontData = {};
+
+/**
+ *
+ * @property {SimpleLRU} textWidthCache - a LRU cache of 10000 of text widths
+ */
 var textWidthCache = new SimpleLRU(10000);
 
+/**
+ *
+ * @property {Object} config - the shared singleton cell renderering config object, this gets passed into the cell renderer on every cell paint
+ */
 var config = {
     getTextWidth: function(gc, string) {
         if (string === null || string === undefined) {
@@ -15416,6 +15432,14 @@ var config = {
 
     Polymer('fin-hypergrid-renderer',{ /* jslint ignore:line */
 
+
+        /**
+         * @function
+         * @instance
+         * @description
+        a Polymer web-component life cycle event, called when an instance of this is plugged into the dom
+         *
+         */
         attached: function() {
             this.readyInit();
             this.renderedColumnWidths = [0];
@@ -15427,21 +15451,62 @@ var config = {
             this.renderedRows = [];
             this.insertionBounds = []; // this is the midpoint of each column, used
         },
+
+        /**
+         * @function
+         * @instance
+         * @description
+        returns a property value at a key, delegates to the grid
+         * #### returns: Object
+         */
         resolveProperty: function(key) {
             return this.grid.resolveProperty(key);
         },
+
+        /**
+         * @function
+         * @instance
+         * @description
+        this is a utility function for initializing the cellConfig
+         * #### returns: Object
+         */
         cellConfig: function(x, y, value, fgColor, bgColor, fgSelColor, bgSelColor, font, isSelected, isColumnHovered, isRowHovered, halign, hoffset, voffset) {
             var config = cellConfig(x, y, value, fgColor, bgColor, fgSelColor, bgSelColor, font, isSelected, isColumnHovered, isRowHovered, halign, hoffset, voffset, this.grid.lnfProperties);
             return config;
         },
+
+
+        /**
+         * @function
+         * @instance
+         * @description
+        getter for the [fin-hypergrid](module-._fin-hypergrid.html)
+         * #### returns: fin-hypergrid
+         */
         getGrid: function() {
             return this.grid;
         },
 
+        /**
+         * @function
+         * @instance
+         * @description
+        setter for the [fin-hypergrid](module-._fin-hypergrid.html)
+         *
+         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+         */
         setGrid: function(grid) {
             this.grid = grid;
         },
-        //This is the entry point from OFCanvas.  Notify the OFGrid everytime we've repainted.
+
+        /**
+         * @function
+         * @instance
+         * @description
+        This is the entry point from fin-canvas.  Notify the fin-hypergrid everytime we've repainted.
+         *
+         * @param {CanvasRenderingContext2D} gc - [CanvasRenderingContext2D](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D)
+         */
         paint: function(gc) {
             if (!this.grid) {
                 return;
@@ -15450,32 +15515,56 @@ var config = {
             this.getGrid().gridRenderedNotification();
         },
 
-        //Answer how many rows we rendered
+        /**
+         * @function
+         * @instance
+         * @description
+        Answer how many rows we rendered
+         * #### returns: integer
+         */
         getViewableRows: function() {
             return this.renderedRows.length;
         },
 
-        //Answer what rows we just rendered
+        /**
+         * @function
+         * @instance
+         * @description
+        Answer what rows we just rendered as an Array of integers
+         * #### returns: Array
+         */
         getVisibleRows: function() {
             return this.renderedRows;
         },
 
-        //Answer how many columns we just rendered
+        /**
+         * @function
+         * @instance
+         * @description
+        Answer how many columns we just rendered
+         * #### returns: integer
+         */
         getViewableColumns: function() {
             return this.renderedColumns.length;
         },
 
-        //Answer what columns we just rendered
+        /**
+         * @function
+         * @instance
+         * @description
+        Answer what columns we just rendered as an Array of indexes
+         * #### returns: Array
+         */
         getVisibleColumns: function() {
             return this.renderedColumns;
         },
 
         /**
-         *                                                                      .
-         *                                                                      .
-         * answer if the mouseEvent coordinates are over a column divider
-         *
-         * @method isOverColumnDivider(x)
+         * @function
+         * @instance
+         * @description
+        answer with the column index if the mouseEvent coordinates are over a column divider
+         * #### returns: integer
          */
         overColumnDivider: function(x) {
             x = Math.round(x);
@@ -15490,11 +15579,11 @@ var config = {
         },
 
         /**
-         *                                                                      .
-         *                                                                      .
-         * answer if the mouseEvent coordinates are over a column divider
-         *
-         * @method overRowDivider(y)
+         * @function
+         * @instance
+         * @description
+        answer with the row index if the mouseEvent coordinates are over a row divider
+         * #### returns: integer
          */
         overRowDivider: function(y) {
             y = Math.round(y);
@@ -15508,11 +15597,32 @@ var config = {
             return which;
         },
 
+        /**
+         * @function
+         * @instance
+         * @description
+        answer with a rectangle the bounds of a specific cell
+         *
+         * @param {fin-rectangle.point} cell - [fin-rectangle.point](http://stevewirts.github.io/fin-rectangle/components/fin-rectangle/)
+         * @description
+         * #### returns: [fin-rectangle](http://stevewirts.github.io/fin-rectangle/components/fin-rectangle/)
+         */
         getBoundsOfCell: function(cell) {
             return this._getBoundsOfCell(cell.x, cell.y);
         },
 
-        //Answer the pixel bounds of specific data cell. It must have just been rendered
+        /**
+         * @function
+         * @instance
+         * @description
+        answer with a rectangle the bounds of a specific cell
+         *
+         * @param {integer} x - x coordinate
+         * @param {integer} y - y coordinate
+         *
+         * @description
+         * #### returns: [fin-rectangle](http://stevewirts.github.io/fin-rectangle/components/fin-rectangle/)
+         */
         _getBoundsOfCell: function(x, y) {
             var ox = this.renderedColumnWidths[x],
                 oy = this.renderedRowHeights[y],
@@ -15526,6 +15636,16 @@ var config = {
             return bounds;
         },
 
+        /**
+         * @function
+         * @instance
+         * @description
+        answer the column index under the coordinate at pixelX
+         *
+         * @param {pixelX} x - x coordinate
+         * @description
+         * #### returns: integer
+         */
         getColumnFromPixelX: function(pixelX) {
             pixelX = pixelX - this.getBehavior().getFixedColumnsWidth();
             var width = 0;
@@ -15538,7 +15658,17 @@ var config = {
             }
             return c;
         },
-        //Answer specific data cell coordinates given mouse coordinates in pixels.
+
+        /**
+         * @function
+         * @instance
+         * @description
+        Answer specific data cell coordinates given mouse coordinates in pixels.
+         *
+         * @param {fin-rectangle.point} point - [fin-rectangle.point](http://stevewirts.github.io/fin-rectangle/components/fin-rectangle/)
+         * @description
+         * #### returns: Object
+         */
         getGridCellFromMousePoint: function(point) {
 
             var width = 0;
@@ -15577,11 +15707,28 @@ var config = {
             };
         },
 
-        //Answer if a column is visible, must be fully visible
-        isColumnVisible: function(c) {
-            var isVisible = this.renderedColumns.indexOf(c) !== -1;
+        /**
+         * @function
+         * @instance
+         * @description
+        Answer if a column is visible, must be fully visible
+         *
+         * @param {integer} colIndex - the column index
+         * @description
+         * #### returns: boolean
+         */
+        isColumnVisible: function(colIndex) {
+            var isVisible = this.renderedColumns.indexOf(colIndex) !== -1;
             return isVisible;
         },
+
+        /**
+         * @function
+         * @instance
+         * @description
+        Answer the width x coordinate of the last rendered column
+         * #### returns: integer
+         */
         getFinalVisableColumnBoundry: function() {
             var isMaxX = this.isLastColumnVisible();
             var chop = isMaxX ? 2 : 1;
@@ -15589,19 +15736,47 @@ var config = {
             var result = Math.min(colWall, this.getBounds().width() - 200);
             return result;
         },
-        //Answer if a row is visible, must be fully visible
-        isRowVisible: function(r) {
-            var isVisible = this.renderedRows.indexOf(r) !== -1;
+
+        /**
+         * @function
+         * @instance
+         * @description
+        Answer if a row is visible, must be fully visible
+         *
+         * @param {integer} rowIndex - the row index
+         *
+         * @description
+         * #### returns: boolean
+         */
+        isRowVisible: function(rowIndex) {
+            var isVisible = this.renderedRows.indexOf(rowIndex) !== -1;
             return isVisible;
         },
 
-        //Answer if a data cell is selected.
+        /**
+         * @function
+         * @instance
+         * @description
+        Answer if a data cell is selected.
+         *
+         * @param {integer} x - the x cell coordinate
+         * @param {integer} y - the y cell coordinate
+         *
+         * @description
+         * #### returns: boolean
+         */
         isSelected: function(x, y) {
             return this.getGrid().isSelected(x, y);
         },
 
-        //This is the main forking of the renderering task.  GC is a graphics context.
-        //<br>[CanvasRenderingContext2D](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D)
+        /**
+         * @function
+         * @instance
+         * @description
+        This is the main forking of the renderering task.
+         *
+         * @param {CanvasRenderingContext2D} gc - [CanvasRenderingContext2D](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D)
+         */
         renderGrid: function(gc) {
             var offsetX = this.getBehavior().getFixedColumnsWidth();
             var offsetY = this.getBehavior().getFixedRowsHeight();
@@ -15616,10 +15791,25 @@ var config = {
             gc.closePath();
         },
 
+        /**
+         * @function
+         * @instance
+         * @description
+        clear out the LRU cache of text widths
+         *
+         */
         resetTextWidthCache: function() {
             textWidthCache = new SimpleLRU(10000);
         },
 
+        /**
+         * @function
+         * @instance
+         * @description
+        Paint the background color over the overflow from the final column paint
+         *
+         * @param {CanvasRenderingContext2D} gc - [CanvasRenderingContext2D](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D)
+        */
         blankOutOverflow: function(gc) {
             var isMaxX = this.isLastColumnVisible();
             var chop = isMaxX ? 2 : 1;
@@ -15631,6 +15821,14 @@ var config = {
             gc.fillRect(x, 0, width, height);
         },
 
+        /**
+         * @function
+         * @instance
+         * @description
+        iterate the renderering overrides and manifest each
+         *
+         * @param {CanvasRenderingContext2D} gc - [CanvasRenderingContext2D](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D)
+        */
         renderOverrides: function(gc) {
             var grid = this.getGrid();
             var cache = grid.renderOverridesCache;
@@ -15644,6 +15842,15 @@ var config = {
             }
         },
 
+        /**
+         * @function
+         * @instance
+         * @description
+        copy each overrides specified area to it's target and blank out the source area
+         *
+         * @param {CanvasRenderingContext2D} gc - [CanvasRenderingContext2D](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D)
+         * @param {OverrideObject} override - an object with details contain an area and a target context
+        */
         renderOverride: function(gc, override) {
             //lets blank out the drag row
             var behavior = this.getBehavior();
@@ -15661,7 +15868,16 @@ var config = {
 
         },
 
-        //We opted to not paint borders for each cell as that was extremely expensive.  Instead we draw gridlines here.  Also we record the widths and heights for later.
+        /**
+         * @function
+         * @instance
+         * @description
+        We opted to not paint borders for each cell as that was extremely expensive.  Instead we draw gridlines here.  Also we record the widths and heights for later.
+         *
+         * @param {CanvasRenderingContext2D} gc - [CanvasRenderingContext2D](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D)
+         * @param {integer} offsetX - x coordinate to start at
+         * @param {integer} offsetY - y coordinate to start at
+        */
         paintGridlines: function(gc, offsetX, offsetY) {
 
             var drawThemH = this.resolveProperty('gridLinesH');
@@ -15782,6 +15998,16 @@ var config = {
             gc.closePath();
         },
 
+        /**
+         * @function
+         * @instance
+         * @description
+        paint the fixed rows and columns areas
+         *
+         * @param {CanvasRenderingContext2D} gc - [CanvasRenderingContext2D](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D)
+         * @param {integer} offsetX - x coordinate to start at
+         * @param {integer} offsetY - y coordinate to start at
+        */
         paintHeaders: function(ctx, offsetX, offsetY) {
 
             this.paintFixedRows(
@@ -15800,20 +16026,59 @@ var config = {
 
         },
 
+        /**
+         * @function
+         * @instance
+         * @description
+        answers if x, y is currently being hovered over
+         * #### returns: boolean
+         * @param {integer} offsetX - x coordinate
+         * @param {integer} offsetY - y coordinate
+         *
+        */
         isHovered: function(x, y) {
             return this.grid.isHovered(x, y);
         },
 
+        /**
+         * @function
+         * @instance
+         * @description
+        answers if row y is currently being hovered over
+         * #### returns: boolean
+         * @param {integer} offsetY - y coordinate
+         *
+        */
         isRowHovered: function(y) {
             return this.grid.isRowHovered(y);
         },
 
+        /**
+         * @function
+         * @instance
+         * @description
+        answers if column x is currently being hovered over
+         * #### returns: boolean
+         * @param {integer} offsetX - x coordinate
+         *
+        */
         isColumnHovered: function(x) {
             return this.grid.isColumnHovered(x);
         },
 
-        //Renderer the fixed header rows along the top
-        paintFixedRows: function(ctx, offsetX, offsetY, numColumns, numRows) {
+        /**
+         * @function
+         * @instance
+         * @description
+        Renderer the fixed header rows along the top
+         * @param {CanvasRenderingContext2D} gc - [CanvasRenderingContext2D](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D)
+         * @param {integer} offsetX - x coordinate to start at
+         * @param {integer} offsetY - y coordinate to start at
+         * @param {integer} numColumns - the max columns to iterate through
+         * @param {integer} numRows - the max rows to iterate through
+         *
+        */
+        paintFixedRows: function(gc, offsetX, offsetY, numColumns, numRows) {
             var behavior = this.getBehavior();
             var x = offsetX;
             var scrollLeft = this.getScrollLeft();
@@ -15840,8 +16105,8 @@ var config = {
                 var isSelected = this.isFixedRowCellSelected(c + scrollLeft);
                 var y = offsetY;
 
-                ctx.fillStyle = bgColor;
-                ctx.fillRect(x, y, x + width, viewHeight - y);
+                gc.fillStyle = bgColor;
+                gc.fillRect(x, y, x + width, viewHeight - y);
 
                 //reset this for this pass..
                 this.renderedColumnMinWidths[c + scrollLeft] = 0;
@@ -15860,19 +16125,19 @@ var config = {
                     config.minWidth = 0;
 
                     behavior.cellFixedRowPrePaintNotification(cell);
-                    cell.paint(ctx, x, y, width, height);
+                    cell.paint(gc, x, y, width, height);
 
                     //lets capture the col preferred widths for col autosizing
                     this.renderedColumnMinWidths[c + scrollLeft] = Math.max(config.minWidth || 0, this.renderedColumnMinWidths[c + scrollLeft]);
 
                     if (behavior.highlightCellOnHover(isColumnHovered, isRowHovered)) {
-                        ctx.beginPath();
-                        var pre = ctx.globalAlpha;
-                        ctx.globalAlpha = 0.2;
-                        ctx.fillRect(x + 2, y + 2, width - 3, height - 3);
-                        ctx.globalAlpha = pre;
-                        ctx.stroke();
-                        ctx.closePath();
+                        gc.beginPath();
+                        var pre = gc.globalAlpha;
+                        gc.globalAlpha = 0.2;
+                        gc.fillRect(x + 2, y + 2, width - 3, height - 3);
+                        gc.globalAlpha = pre;
+                        gc.stroke();
+                        gc.closePath();
                     }
                     y = y + height;
                 }
@@ -15880,8 +16145,19 @@ var config = {
             }
         },
 
-        //Render the fixed columns along the left side
-        paintFixedColumns: function(ctx, offsetX, offsetY, numColumns, numRows) {
+        /**
+         * @function
+         * @instance
+         * @description
+        Render the fixed columns along the left side
+         * @param {CanvasRenderingContext2D} gc - [CanvasRenderingContext2D](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D)
+         * @param {integer} offsetX - x coordinate to start at
+         * @param {integer} offsetY - y coordinate to start at
+         * @param {integer} numColumns - the max columns to iterate through
+         * @param {integer} numRows - the max rows to iterate through
+         *
+        */
+        paintFixedColumns: function(gc, offsetX, offsetY, numColumns, numRows) {
             var behavior = this.getBehavior();
             var x = offsetX;
 
@@ -15906,8 +16182,8 @@ var config = {
                 var align = behavior.getFixedColumnAlignment(c);
                 var y = offsetY;
 
-                ctx.fillStyle = bgColor;
-                ctx.fillRect(x, y, width, viewHeight - y);
+                gc.fillStyle = bgColor;
+                gc.fillRect(x, y, width, viewHeight - y);
 
                 for (var r = 0; r < numRows; r++) {
                     var height = this.getRowHeight(r + scrollTop);
@@ -15923,18 +16199,18 @@ var config = {
                     config.minWidth = 0;
 
                     behavior.cellFixedColumnPrePaintNotification(cell);
-                    cell.paint(ctx, x, y, width, height);
+                    cell.paint(gc, x, y, width, height);
 
                     this.renderedFixedColumnMinWidths[c] = Math.max(config.minWidth || 0, this.renderedFixedColumnMinWidths[c]);
 
                     if (behavior.highlightCellOnHover(isColumnHovered, isRowHovered)) {
-                        ctx.beginPath();
-                        var pre = ctx.globalAlpha;
-                        ctx.globalAlpha = 0.2;
-                        ctx.fillRect(x + 2, y + 2, width - 3, height - 3);
-                        ctx.globalAlpha = pre;
-                        ctx.stroke();
-                        ctx.closePath();
+                        gc.beginPath();
+                        var pre = gc.globalAlpha;
+                        gc.globalAlpha = 0.2;
+                        gc.fillRect(x + 2, y + 2, width - 3, height - 3);
+                        gc.globalAlpha = pre;
+                        gc.stroke();
+                        gc.closePath();
                     }
 
                     y = y + height;
@@ -15944,20 +16220,40 @@ var config = {
             }
         },
 
-        //Render the main cells.  We snapshot the context to insure against its polution.
-        //<br>TODO:save/restore should be a general wrapper that we use here and for the other renderer, fixed rows/columns and gridlines as well.
-        paintCells: function(ctx, offsetX, offsetY) {
+        /**
+         * @function
+         * @instance
+         * @description
+        Protected render the main cells.  We snapshot the context to insure against its polution.
+         * @param {CanvasRenderingContext2D} gc - [CanvasRenderingContext2D](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D)
+         * @param {integer} offsetX - x coordinate to start at
+         * @param {integer} offsetY - y coordinate to start at
+         *
+        */
+        paintCells: function(gc, offsetX, offsetY) {
             try {
-                ctx.save();
-                this._paintCells(ctx, offsetX, offsetY);
+                gc.save();
+                this._paintCells(gc, offsetX, offsetY);
             } catch (e) {
                 console.error(e);
             } finally {
-                ctx.restore();
+                gc.restore();
             }
         },
 
-        _paintCells: function(ctx, offsetX, offsetY) {
+        /**
+         * @function
+         * @instance
+         * @description
+        Unprotected rendering the fixed columns along the left side
+         * @param {CanvasRenderingContext2D} gc - [CanvasRenderingContext2D](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D)
+         * @param {integer} offsetX - x coordinate to start at
+         * @param {integer} offsetY - y coordinate to start at
+         * @param {integer} numColumns - the max columns to iterate through
+         * @param {integer} numRows - the max rows to iterate through
+         *
+        */
+        _paintCells: function(gc, offsetX, offsetY) {
             var behavior = this.getBehavior();
             var numColumns = this.getColumnCount();
             var numRows = behavior.getRowCount();
@@ -15994,8 +16290,8 @@ var config = {
                 var overrideFGColor = columnProperties.fgColor || fgColor;
                 var overrideFont = columnProperties.font || font;
                 //fill background
-                ctx.fillStyle = columnProperties.bgColor || bgColor;
-                ctx.fillRect(x, y, x + width, viewHeight - y);
+                gc.fillStyle = columnProperties.bgColor || bgColor;
+                gc.fillRect(x, y, x + width, viewHeight - y);
 
                 for (var r = 0; r < numRows; r++) {
                     var isSelected = this.isSelected(c + scrollLeft, r + scrollTop);
@@ -16020,19 +16316,19 @@ var config = {
                     config.minWidth = 0;
 
                     behavior.cellPrePaintNotification(cell);
-                    cell.paint(ctx, x, y, width, height);
+                    cell.paint(gc, x, y, width, height);
 
                     //lets capture the col preferred widths for col autosizing
                     this.renderedColumnMinWidths[c + scrollLeft] = Math.max(config.minWidth || 0, this.renderedColumnMinWidths[c + scrollLeft]);
 
                     if (behavior.highlightCellOnHover(isColumnHovered, isRowHovered)) {
-                        ctx.beginPath();
-                        var pre = ctx.globalAlpha;
-                        ctx.globalAlpha = 0.2;
-                        ctx.fillRect(x + 2, y + 2, width - 3, height - 3);
-                        ctx.globalAlpha = pre;
-                        ctx.stroke();
-                        ctx.closePath();
+                        gc.beginPath();
+                        var pre = gc.globalAlpha;
+                        gc.globalAlpha = 0.2;
+                        gc.fillRect(x + 2, y + 2, width - 3, height - 3);
+                        gc.globalAlpha = pre;
+                        gc.stroke();
+                        gc.closePath();
                     }
 
                     y = y + height;
@@ -16042,27 +16338,46 @@ var config = {
             }
         },
 
-        //This is the empty top left corner of the grid.
-        paintTopLeft: function(ctx, offsetX, offsetY) {
+        /**
+         * @function
+         * @instance
+         * @description
+        This is the empty top left corner of the grid. protected execution
+         * @param {CanvasRenderingContext2D} gc - [CanvasRenderingContext2D](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D)
+         * @param {integer} offsetX - x coordinate to start at
+         * @param {integer} offsetY - y coordinate to start at
+         *
+        */
+        paintTopLeft: function(gc, offsetX, offsetY) {
             noop(offsetX, offsetY);
-            // ctx.beginPath();
+            // gc.beginPath();
             // var fixedRowHeight = this.getBehavior().getFixedRowsHeight();
             // var fixedColumnWidth = this.getBehavior().getFixedColumnsWidth();
-            // ctx.fillStyle = this.resolveProperty('topLeftBackgroundColor');
-            // ctx.fillRect(offsetX, offsetY, fixedColumnWidth, fixedRowHeight);
-            // ctx.stroke();
+            // gc.fillStyle = this.resolveProperty('topLeftBackgroundColor');
+            // gc.fillRect(offsetX, offsetY, fixedColumnWidth, fixedRowHeight);
+            // gc.stroke();
 
             try {
-                ctx.save();
-                this._paintTopLeft(ctx);
+                gc.save();
+                this._paintTopLeft(gc);
             } finally {
-                ctx.restore();
+                gc.restore();
             }
 
 
         },
 
-        _paintTopLeft: function(ctx) {
+        /**
+         * @function
+         * @instance
+         * @description
+        This is the empty top left corner of the grid. unprotected execution
+         * @param {CanvasRenderingContext2D} gc - [CanvasRenderingContext2D](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D)
+         * @param {integer} offsetX - x coordinate to start at
+         * @param {integer} offsetY - y coordinate to start at
+         *
+        */
+        _paintTopLeft: function(gc) {
             var behavior = this.getBehavior();
             var numColumns = behavior.getFixedColumnCount();
             var numRows = behavior.getFixedRowCount();
@@ -16094,8 +16409,8 @@ var config = {
                 var r = 0;
                 var columnAlign = behavior.getTopLeftAlignment(c, r);
                 //fill background
-                ctx.fillStyle = bgColor;
-                ctx.fillRect(x, y, x + width, viewHeight - y);
+                gc.fillStyle = bgColor;
+                gc.fillRect(x, y, x + width, viewHeight - y);
 
                 this.renderedFixedColumnMinWidths[c] = 0;
 
@@ -16120,7 +16435,7 @@ var config = {
 
                     //minWidth should be set inside this function call
                     behavior.cellTopLeftPrePaintNotification(cell);
-                    cell.paint(ctx, x, y, width, height);
+                    cell.paint(gc, x, y, width, height);
 
                     var minWidth = config.minWidth;
                     this.renderedFixedColumnMinWidths[c] = Math.max(minWidth || 0, this.renderedFixedColumnMinWidths[c]);
@@ -16133,69 +16448,185 @@ var config = {
             }
         },
 
-
-
-        isFixedRowCellSelected: function(col) {
-            return this.getGrid().isFixedRowCellSelected(col);
+        /**
+         * @function
+         * @instance
+         * @description
+        answers if a specfic column in the fixed row area is selected
+         * @param {integer} colIndex - column index
+         *
+        */
+        isFixedRowCellSelected: function(colIndex) {
+            return this.getGrid().isFixedRowCellSelected(colIndex);
         },
 
-        isFixedColumnCellSelected: function(row) {
-            return this.getGrid().isFixedColumnCellSelected(row);
+        /**
+         * @function
+         * @instance
+         * @description
+        answers if a specfic row in the fixed column area is selected
+         * @param {integer} rowIndex - column index
+         *
+        */
+        isFixedColumnCellSelected: function(rowIndex) {
+            return this.getGrid().isFixedColumnCellSelected(rowIndex);
         },
 
+        /**
+         * @function
+         * @instance
+         * @description
+        answers current vertical scroll value
+         * #### returns: integer
+        */
         getScrollTop: function() {
             var st = this.getGrid().getVScrollValue();
             return st;
         },
 
+        /**
+         * @function
+         * @instance
+         * @description
+        answers current horizontal scroll value
+         * #### returns: integer
+        */
         getScrollLeft: function() {
             var st = this.getGrid().getHScrollValue();
             return st;
         },
 
+        /**
+         * @function
+         * @instance
+         * @description
+        getter for my behavior (model)
+         * #### returns: [fin-hypergrid-behavior-base](module-behaviors_base.html)
+        */
         getBehavior: function() {
             return this.getGrid().getBehavior();
         },
 
+        /**
+         * @function
+         * @instance
+         * @description
+        answers the row height of the fixed row at index rowIndex
+         * #### returns: integer
+         * @param {integer} rowIndex - the row index
+        */
         getFixedRowHeight: function(rowIndex) {
             var height = this.getBehavior().getFixedRowHeight(rowIndex);
             return height;
         },
 
+        /**
+         * @function
+         * @instance
+         * @description
+        answers the row height of the row at index rowIndex
+         * #### returns: integer
+         * @param {integer} rowIndex - the row index
+        */
         getRowHeight: function(rowIndex) {
             var height = this.getBehavior().getRowHeight(rowIndex);
             return height;
         },
 
+        /**
+         * @function
+         * @instance
+         * @description
+        answers the columnWidth of the column at index columnIndex
+         * #### returns: integer
+         * @param {integer} columnIndex - the row index
+        */
         getColumnWidth: function(columnIndex) {
             var width = this.getBehavior()._getColumnWidth(columnIndex);
             return width;
         },
 
-        getFixedColumnWidth: function(rowIndex) {
-            var height = this.getBehavior().getFixedColumnWidth(rowIndex);
+        /**
+         * @function
+         * @instance
+         * @description
+        answers the column width of the row in the fixedColumn area at index columnIndex
+         * #### returns: integer
+         * @param {integer} columnIndex - the column index
+        */
+        getFixedColumnWidth: function(columnIndex) {
+            var height = this.getBehavior().getFixedColumnWidth(columnIndex);
             return height;
         },
 
-        //answer true if the last col was rendered (is visible)
+        /**
+         * @function
+         * @instance
+         * @description
+        answer true if the last col was rendered (is visible)
+         * #### returns: boolean
+        */
         isLastColumnVisible: function() {
             var lastColumnIndex = this.getColumnCount() - 1;
             var isMax = this.renderedColumns.indexOf(lastColumnIndex) !== -1;
             return isMax;
         },
+
+        /**
+         * @function
+         * @instance
+         * @description
+        answer the total number of columns
+         * #### returns: integer
+        */
         getColumnCount: function() {
             var count = this.getGrid().getColumnCount();
             return count;
         },
+
+        /**
+         * @function
+         * @instance
+         * @description
+        answer the rendered column width at index
+         * #### returns: integer
+        */
         getRenderedWidth: function(index) {
             return this.renderedColumnWidths[index];
         },
+
+        /**
+         * @function
+         * @instance
+         * @description
+        answer the rendered row height at index
+         * #### returns: integer
+        */
         getRenderedHeight: function(index) {
             return this.renderedRowHeights[index];
         },
+
+        /**
+         * @function
+         * @instance
+         * @description
+        getter for my [fin-canvas](https://github.com/stevewirts/fin-canvas)
+         * #### returns: [fin-canvas](https://github.com/stevewirts/fin-canvas)
+        */
         getCanvas: function() {
             return this.getGrid().getCanvas();
         },
+
+        /**
+         * @function
+         * @instance
+         * @description
+        answer the row to goto for a page down
+         *
+         * @param {integer} x - the x cell coordinate
+         * @param {integer} y - the y cell coordinate
+         *
+        */
         repaintCell: function(x, y) {
             if (this.isDraggingColumn()) {
                 return;
@@ -16273,10 +16704,24 @@ var config = {
 
         },
 
+        /**
+         * @function
+         * @instance
+         * @description
+        answer if the user is currently dragging a column for reordering
+         * #### returns: boolean
+        */
         isDraggingColumn: function() {
             return this.getGrid().isDraggingColumn();
         },
 
+        /**
+         * @function
+         * @instance
+         * @description
+        answer the row to goto for a page up
+         * #### returns: integer
+        */
         getPageUpRow: function() {
             if (this.renderedRowHeights.length === 0) {
                 return;
@@ -16295,6 +16740,14 @@ var config = {
             return topRow + 1;
 
         },
+
+        /**
+         * @function
+         * @instance
+         * @description
+        answer the row to goto for a page down
+         * #### returns: integer
+        */
         getPageDownRow: function() {
             if (this.renderedRowHeights.length === 0) {
                 return;
@@ -16760,6 +17213,8 @@ var config = {
 /**
  *
  * @module .\excel
+  * @description
+##### fin-hypergrid-excel is is a plugin for hypergrid that provides integration with excel.
  *
  */
 
@@ -16768,8 +17223,26 @@ var config = {
     var excelOriginOffset = 1;
 
     Polymer('fin-hypergrid-excel',{ /* jshint ignore:line */
+
+        /**
+         *
+         * @property {object} grid - the grid I'm installed into
+         * @instance
+         */
         grid: {},
+
+        /**
+         *
+         * @property {object} running - am I currently running (polling for changes to push to excel)
+         * @instance
+         */
         running: false,
+
+        /**
+         *
+         * @property {object} publish - default configuration values
+         * @instance
+         */
         publish: {
             publish: 'onSelect',
             subscribe: 'onExcelChange',
@@ -16778,8 +17251,12 @@ var config = {
         },
 
         /**
-         *
          * @function
+         * @instance
+         * @description
+         Select a specific region by origin and extent
+         *
+         * @param {fin-hypergrid} grid - see [fin-hypergrid](module-._fin-hypergrid.html)
          */
         installOn: function(grid) {
             var self = this;
@@ -16796,6 +17273,15 @@ var config = {
                 self.start();
             });
         },
+
+
+        /**
+         * @function
+         * @instance
+         * @description
+         start polling for pushes to excel
+         *
+         */
         start: function() {
             var self = this;
             // This should be the same interval as the cells layer
@@ -16813,10 +17299,27 @@ var config = {
 
             self.subscribeToBus();
         },
+
+        /**
+         * @function
+         * @instance
+         * @description
+         stop polling for pushes to excel
+         *
+         */
         stop: function() {
             this.running = false;
             this.unSubscribeToBus();
         },
+
+        /**
+         * @function
+         * @instance
+         * @description
+         create a blob appropriate to send to excel
+         *
+         * #### returns: Object
+         */
         createExcelDataFromSelections: function() {
             //only use the data from the last selection
             var selectionModel = this.grid.getSelectionModel();
@@ -16852,6 +17355,14 @@ var config = {
             };
             return obj;
         },
+
+        /**
+         * @function
+         * @instance
+         * @description
+        create and send a blob of the current selection to excel
+         *
+         */
         publishToBus: function() {
 
             if (!this.grid.hasSelections()) {
@@ -16865,14 +17376,38 @@ var config = {
                 console.log('push to excel', excelMessage);
             }
         },
+
+        /**
+         * @function
+         * @instance
+         * @description
+        subscribe to excel
+         *
+         */
         subscribeToBus: function() {
             fin.desktop.InterApplicationBus.subscribe('*', this.subscribe, this.subscriptionCallback.bind(this));
             fin.desktop.InterApplicationBus.subscribe('*', 'ExcelError', this.errorCallback.bind(this));
         },
+
+        /**
+         * @function
+         * @instance
+         * @description
+        unsubscribe to excel
+         *
+         */
         unSubscribeToBus: function() {
             fin.desktop.InterApplicationBus.unsubscribe('*', this.subscribe, this.subscriptionCallback.bind(this));
             fin.desktop.InterApplicationBus.unsubscribe('*', 'ExcelError', this.errorCallback.bind(this));
         },
+
+        /**
+         * @function
+         * @instance
+         * @description
+        handle the data that comes from excel
+         *
+         */
         subscriptionCallback: function(data) {
             var self = this;
             var sm = this.grid.getSelectionModel();
@@ -16887,6 +17422,15 @@ var config = {
                 });
             }
         },
+
+        /**
+         * @function
+         * @instance
+         * @description
+        handle any errors excel might publish to the bus
+         *
+         */
+
         errorCallback: function(data) {
             if (this.logging) {
                 console.error(JSON.stringify(data));

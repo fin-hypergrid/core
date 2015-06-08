@@ -5,6 +5,8 @@
 /**
  *
  * @module .\excel
+  * @description
+##### fin-hypergrid-excel is is a plugin for hypergrid that provides integration with excel.
  *
  */
 
@@ -13,8 +15,26 @@
     var excelOriginOffset = 1;
 
     Polymer({ /* jshint ignore:line */
+
+        /**
+         *
+         * @property {object} grid - the grid I'm installed into
+         * @instance
+         */
         grid: {},
+
+        /**
+         *
+         * @property {object} running - am I currently running (polling for changes to push to excel)
+         * @instance
+         */
         running: false,
+
+        /**
+         *
+         * @property {object} publish - default configuration values
+         * @instance
+         */
         publish: {
             publish: 'onSelect',
             subscribe: 'onExcelChange',
@@ -23,8 +43,12 @@
         },
 
         /**
-         *
          * @function
+         * @instance
+         * @description
+         Select a specific region by origin and extent
+         *
+         * @param {fin-hypergrid} grid - see [fin-hypergrid](module-._fin-hypergrid.html)
          */
         installOn: function(grid) {
             var self = this;
@@ -41,6 +65,15 @@
                 self.start();
             });
         },
+
+
+        /**
+         * @function
+         * @instance
+         * @description
+         start polling for pushes to excel
+         *
+         */
         start: function() {
             var self = this;
             // This should be the same interval as the cells layer
@@ -58,10 +91,27 @@
 
             self.subscribeToBus();
         },
+
+        /**
+         * @function
+         * @instance
+         * @description
+         stop polling for pushes to excel
+         *
+         */
         stop: function() {
             this.running = false;
             this.unSubscribeToBus();
         },
+
+        /**
+         * @function
+         * @instance
+         * @description
+         create a blob appropriate to send to excel
+         *
+         * #### returns: Object
+         */
         createExcelDataFromSelections: function() {
             //only use the data from the last selection
             var selectionModel = this.grid.getSelectionModel();
@@ -97,6 +147,14 @@
             };
             return obj;
         },
+
+        /**
+         * @function
+         * @instance
+         * @description
+        create and send a blob of the current selection to excel
+         *
+         */
         publishToBus: function() {
 
             if (!this.grid.hasSelections()) {
@@ -110,14 +168,38 @@
                 console.log('push to excel', excelMessage);
             }
         },
+
+        /**
+         * @function
+         * @instance
+         * @description
+        subscribe to excel
+         *
+         */
         subscribeToBus: function() {
             fin.desktop.InterApplicationBus.subscribe('*', this.subscribe, this.subscriptionCallback.bind(this));
             fin.desktop.InterApplicationBus.subscribe('*', 'ExcelError', this.errorCallback.bind(this));
         },
+
+        /**
+         * @function
+         * @instance
+         * @description
+        unsubscribe to excel
+         *
+         */
         unSubscribeToBus: function() {
             fin.desktop.InterApplicationBus.unsubscribe('*', this.subscribe, this.subscriptionCallback.bind(this));
             fin.desktop.InterApplicationBus.unsubscribe('*', 'ExcelError', this.errorCallback.bind(this));
         },
+
+        /**
+         * @function
+         * @instance
+         * @description
+        handle the data that comes from excel
+         *
+         */
         subscriptionCallback: function(data) {
             var self = this;
             var sm = this.grid.getSelectionModel();
@@ -132,6 +214,15 @@
                 });
             }
         },
+
+        /**
+         * @function
+         * @instance
+         * @description
+        handle any errors excel might publish to the bus
+         *
+         */
+
         errorCallback: function(data) {
             if (this.logging) {
                 console.error(JSON.stringify(data));
