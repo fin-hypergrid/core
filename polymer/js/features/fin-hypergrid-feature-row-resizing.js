@@ -60,7 +60,7 @@
             return 'row-resize';
         },
         getPreviousAbsoluteSize: function(grid, index) {
-            return grid.getTopSideSize(index);
+            return grid.getRenderedHeight(index);
         },
 
     });

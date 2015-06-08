@@ -15,7 +15,7 @@
                 var x = grid.getHScrollValue() + gridCell.x - fixedColCount;
                 var y = grid.getVScrollValue() + gridCell.y - fixedRowCount;
                 event.gridCell = grid.rectangles.point.create(x, y);
-                grid.activateEditor(event);
+                grid._activateEditor(event);
             } else if (this.next) {
                 this.next.handleDoubleClick(grid, event);
             }
@@ -26,7 +26,7 @@
             if (primEvent.detail.count < 2) {
                 return;
             }
-            grid.activateEditor(mouseEvent);
+            grid._activateEditor(mouseEvent);
         },
     });
 

@@ -5,8 +5,14 @@
  * @module .\fin-hypergrid
  * @description
  This is the main polymer web-component of the hypergrid project, you create an "instance" of the hypergrid by
- 1. ```var myInstance = document.createElement('fin-hypergrid');```  or
- 2. ```<fin-hypergrid></fin-hypergrid>```
+ 1. programmatically
+ ```
+ var myInstance = document.createElement('fin-hypergrid');
+ ```
+ 2. or directly in the html
+ ```
+ <fin-hypergrid></fin-hypergrid>
+ ```
  */
 
 (function() {
@@ -2319,85 +2325,271 @@
         getRenderer: function() {
             return this.renderer;
         },
+
+        /**
+         * @function
+         * @instance
+         * @description
+        return the width of a specific column
+         *
+         * #### returns: integer
+         * @param {integer} columnIndex - the untranslated column index
+         */
         getColumnWidth: function(columnIndex) {
             return this.getBehavior()._getColumnWidth(columnIndex);
         },
+
+        /**
+         * @function
+         * @instance
+         * @description
+        set the column width at a specific column index
+         *
+         * @param {integer} columnIndex - the untranslated column index
+         * @param {integer} columnWidth - the width in pixels
+         */
         setColumnWidth: function(columnIndex, columnWidth) {
             this.getBehavior()._setColumnWidth(columnIndex, columnWidth);
         },
 
+        /**
+         * @function
+         * @instance
+         * @description
+        return the width of a specific fixed column
+         *
+         * #### returns: integer
+         * @param {integer} columnIndex - the untranslated fixed column index
+         */
         getFixedColumnWidth: function(columnIndex) {
             return this.getBehavior().getFixedColumnWidth(columnIndex);
         },
 
+        /**
+         * @function
+         * @instance
+         * @description
+        return the total width of all the fixed columns
+         *
+         * #### returns: integer
+         */
         getFixedColumnsWidth: function() {
             return this.getBehavior().getFixedColumnsWidth();
         },
 
+        /**
+         * @function
+         * @instance
+         * @description
+        set the column width at a specific fixed column index
+         *
+         * @param {integer} columnIndex - the untranslated column index
+         * @param {integer} columnWidth - the width in pixels
+         */
         setFixedColumnWidth: function(columnIndex, columnWidth) {
             this.getBehavior().setFixedColumnWidth(columnIndex, columnWidth);
         },
 
-        getRowHeight: function(index) {
-            return this.getBehavior().getRowHeight(index);
+        /**
+         * @function
+         * @instance
+         * @description
+       return the height of a specific row
+         *
+         * #### returns: integer
+         * @param {integer} rowIndex - the untranslated fixed column index
+         */
+        getRowHeight: function(rowIndex) {
+            return this.getBehavior().getRowHeight(rowIndex);
         },
 
-        setRowHeight: function(index, height) {
-            this.getBehavior().setRowHeight(index, height);
+        /**
+         * @function
+         * @instance
+         * @description
+        set the row height at a specific row index
+         *
+         * @param {integer} rowIndex - the row index
+         * @param {integer} rowHeight - the width in pixels
+         */
+        setRowHeight: function(rowIndex, rowHeight) {
+            this.getBehavior().setRowHeight(rowIndex, rowHeight);
         },
 
-        getFixedRowHeight: function(index) {
-            return this.getBehavior().getFixedRowHeight(index);
+        /**
+         * @function
+         * @instance
+         * @description
+       return the height of a specific fixed row
+         *
+         * #### returns: integer
+         * @param {integer} rowIndex - the untranslated fixed row index
+         */
+        getFixedRowHeight: function(rowIndex) {
+            return this.getBehavior().getFixedRowHeight(rowIndex);
         },
 
-        setFixedRowHeight: function(index, height) {
-            this.getBehavior().setFixedRowHeight(index, height);
+        /**
+         * @function
+         * @instance
+         * @description
+       set the row height at a specific fixed for index
+         *
+         * @param {integer} rowIndex - the untranslated row index
+         * @param {integer} rowHeight - the height in pixels
+         */
+        setFixedRowHeight: function(rowIndex, rowHeight) {
+            this.getBehavior().setFixedRowHeight(rowIndex, rowHeight);
         },
 
+        /**
+         * @function
+         * @instance
+         * @description
+        return the total fixed rows height
+         *
+         */
         getFixedRowsHeight: function() {
             return this.getBehavior().getFixedRowsHeight();
         },
 
+        /**
+         * @function
+         * @instance
+         * @description
+        return the number of columns
+         *
+         * #### returns: integer
+         */
         getColumnCount: function() {
             return this.getBehavior()._getColumnCount();
         },
 
+        /**
+         * @function
+         * @instance
+         * @description
+        return the number of rows
+         *
+         * #### returns: integer
+         */
         getRowCount: function() {
             return this.getBehavior().getRowCount();
         },
 
+        /**
+         * @function
+         * @instance
+         * @description
+        return the number of fixed columns
+         *
+         * #### returns: integer
+         */
         getFixedColumnCount: function() {
             return this.getBehavior().getFixedColumnCount();
         },
 
+        /**
+         * @function
+         * @instance
+         * @description
+        return the number of fixed rows
+         *
+         * #### returns: integer
+         */
         getFixedRowCount: function() {
             return this.getBehavior().getFixedRowCount();
         },
 
+        /**
+         * @function
+         * @instance
+         * @description
+        the top left area has been clicked on; delegate to the behavior
+         *
+         * @param {mouse} mouse - the event details
+         */
         topLeftClicked: function(mouse) {
             this.getBehavior().topLeftClicked(this, mouse);
         },
 
+        /**
+         * @function
+         * @instance
+         * @description
+        a fixed row has been clicked; delegate to the behavior
+         *
+         * @param {mouse} mouse - the event details
+         */
         fixedRowClicked: function(mouse) {
             this.getBehavior()._fixedRowClicked(this, mouse);
         },
 
+        /**
+         * @function
+         * @instance
+         * @description
+        a fixed column cell has been clicked; delegate to the behavior
+         *
+         * @param {mouse} mouse - the event details
+         */
         fixedColumnClicked: function(mouse) {
             this.getBehavior()._fixedColumnClicked(this, mouse);
         },
 
-        activateEditor: function(event) {
+        /**
+         * @function
+         * @instance
+         * @description
+         an edit event has occured; activate the editor
+         *
+         * @param {event} event - the event details
+         */
+        _activateEditor: function(event) {
             var gridCell = event.gridCell;
-            var editor = this.getCellEditorAt(gridCell.x, gridCell.y);
+            this.activateEditor(gridCell.x, gridCell.y);
+        },
+
+        /**
+         * @function
+         * @instance
+         * @description
+         activate the editor at x, y
+         *
+         * @param {x} x - the x coordinate
+         * @param {y} y - the y coordinate
+         */
+        activateEditor: function(x, y) {
+            var editor = this.getCellEditorAt(x, y);
             if (editor) {
+                event.gridCell = {
+                    x: x,
+                    y: y
+                };
                 this.editAt(editor, event);
             }
         },
 
+        /**
+         * @function
+         * @instance
+         * @description
+        return the cell editor at a specific point; delegate to the behavior
+         *
+         * @param {x} x - the x coordinate
+         * @param {y} y - the y coordinate
+         */
         getCellEditorAt: function(x, y) {
             return this.getBehavior()._getCellEditorAt(x, y);
         },
 
+        /**
+         * @function
+         * @instance
+         * @description
+        toggle HiDPI support; HiDPI support is now on by default.  There used to be a bug in chrome that caused severe slow down on bit blit of large images, so this HiDPI needed to be optional.
+         *
+         */
         toggleHiDPI: function() {
             if (this.canvas.isHiDPI()) {
                 this.removeAttribute('hidpi');
@@ -2407,6 +2599,14 @@
             this.canvas.resize();
         },
 
+        /**
+         * @function
+         * @instance
+         * @description
+        get the HiDPI ratio
+         *
+         * #### returns: float
+         */
         getHiDPI: function(ctx) {
             if (window.devicePixelRatio && this.canvas.isHiDPI()) {
                 var devicePixelRatio = window.devicePixelRatio || 1;
@@ -2422,16 +2622,56 @@
                 return 1;
             }
         },
-        getLeftSideSize: function(index) {
-            return this.renderer.getLeftSideSize(index);
+
+        /**
+         * @function
+         * @instance
+         * @description
+        return the recently rendered width of column at colIndex
+         *
+         * #### returns: integer
+         *
+         * @param {integer} colIndex - the column index
+         */
+        getRenderedWidth: function(colIndex) {
+            return this.renderer.getRenderedWidth(colIndex);
         },
-        getTopSideSize: function(index) {
-            return this.renderer.getTopSideSize(index);
+
+        /**
+         * @function
+         * @instance
+         * @description
+        return the recently rendered height of a row at rowIndex
+         *
+         * #### returns: integer
+         *
+         * @param {integer} rowIndex - the row index
+         */
+        getRenderedHeight: function(rowIndex) {
+            return this.renderer.getRenderedHeight(rowIndex);
         },
+
+        /**
+         * @function
+         * @instance
+         * @description
+        return the cell editor at alias "name"
+         *
+         * #### returns: [fin-hypergrid-cell-editor](module-cell-editors_base.html) sub-component.
+         * @param
+         */
         resolveCellEditor: function(name) {
             return this.cellEditors[name];
         },
-        setDefaultCursor: function() {
+
+        /**
+         * @function
+         * @instance
+         * @description
+        update the cursor under the hover cell
+         *
+         */
+        updateCursor: function() {
             var behavior = this.getBehavior();
             var cursor = behavior.getCursorAt(-1, -1);
             var hoverCell = this.getHoverCell();
@@ -2442,9 +2682,28 @@
             }
             this.beCursor(cursor);
         },
+
+        /**
+         * @function
+         * @instance
+         * @description
+        repaint only a specific cell at coordinate x, y
+         *
+         * @param {x} x - the x coordinate
+         * @param {y} y - the y coordinate
+         */
         repaintCell: function(x, y) {
             this.getRenderer().repaintCell(x, y);
         },
+
+        /**
+         * @function
+         * @instance
+         * @description
+        return true if the user is currently dragging a column to reorder it
+         *
+         * #### returns: boolean
+         */
         isDraggingColumn: function() {
             if (this.renderOverridesCache.dragger) {
                 return true;
@@ -2452,20 +2711,62 @@
                 return false;
             }
         },
+
+        /**
+         * @function
+         * @instance
+         * @description
+        scroll up one full page
+         *
+         */
         pageUp: function() {
             var rowNum = this.getRenderer().getPageUpRow();
             this.setVScrollValue(rowNum);
         },
+
+        /**
+         * @function
+         * @instance
+         * @description
+        scroll down one full page
+         *
+         * #### returns: [fin-hypergrid-renderer](module-._renderer.html) sub-component.
+         */
         pageDown: function() {
             var rowNum = this.getRenderer().getPageDownRow();
             this.setVScrollValue(rowNum);
         },
+
+        /**
+         * @function
+         * @instance
+         * @description
+        nyi
+         *
+         */
         pageLeft: function() {
             console.log('page left');
         },
+
+        /**
+         * @function
+         * @instance
+         * @description
+        nyi
+         *
+         */
         pageRight: function() {
             console.log('page right');
         },
+
+        /**
+         * @function
+         * @instance
+         * @description
+        return a array of objects with the values that were just rendered
+         *
+         * #### returns: Array.
+         */
         getRenderedData: function() {
             // assumes one row of headers
             var behavior = this.getBehavior();
@@ -2489,6 +2790,14 @@
             }
             return result;
         },
+
+        /**
+         * @function
+         * @instance
+         * @description
+        synthesize and dispatch a fin-selection-changed event
+         *
+         */
         selectionChanged: function() {
             var event = new CustomEvent('fin-selection-changed', {
                 detail: {
@@ -2497,6 +2806,15 @@
             });
             this.canvas.dispatchEvent(event);
         },
+
+        /**
+         * @function
+         * @instance
+         * @description
+        return an object that represets the currently selection row
+         *
+         * #### returns: Object
+         */
         getSelectedRow: function() {
             var sels = this.getSelectionModel().getSelections();
             if (sels.length < 1) {
@@ -2519,6 +2837,15 @@
             return row;
         },
 
+        /**
+         * @function
+         * @instance
+         * @description
+        synthesize and fire a fin-before-cell-edit event
+         *
+         * @param {rectangle.point} cell - the x,y coordinates
+         * @param {Object} value - the current value
+         */
         fireBeforeCellEdit: function(cell, value) {
             var clickEvent = new CustomEvent('fin-before-cell-edit', {
                 detail: {
@@ -2531,6 +2858,16 @@
             return proceed; //I wasn't cancelled
         },
 
+        /**
+         * @function
+         * @instance
+         * @description
+        return our [fin-hypergrid-renderer](module-._renderer.html) sub-component.
+         *
+         * @param {rectangle.point} cell - the x,y coordinates
+         * @param {Object} oldValue - the old value
+         * @param {Object} newValue - the new value
+         */
         fireAfterCellEdit: function(cell, oldValue, newValue) {
             var clickEvent = new CustomEvent('fin-after-cell-edit', {
                 detail: {
@@ -2543,27 +2880,60 @@
             this.canvas.dispatchEvent(clickEvent);
         },
 
-        autosizeColumn: function(column) {
+        /**
+         * @function
+         * @instance
+         * @description
+        autosize the column at colIndex for best fit
+         *
+         * @param {integer} colIndex - the column index to modify at
+         *
+         */
+        autosizeColumn: function(colIndex) {
             var width;
-            if (column < 0) {
+            if (colIndex < 0) {
                 var numFixedCols = this.getFixedColumnCount();
-                column = column + numFixedCols;
-                width = this.getRenderer().renderedFixedColumnMinWidths[column];
-                this.setFixedColumnWidth(column, width);
+                colIndex = colIndex + numFixedCols;
+                width = this.getRenderer().renderedFixedColumnMinWidths[colIndex];
+                this.setFixedColumnWidth(colIndex, width);
             } else {
-                width = this.getRenderer().renderedColumnMinWidths[column];
-                this.setColumnWidth(column, width);
+                width = this.getRenderer().renderedColumnMinWidths[colIndex];
+                this.setColumnWidth(colIndex, width);
             }
         },
 
+        /**
+         * @function
+         * @instance
+         * @description
+        enable/disable if this component can be focusable
+         *
+         * @param {boolean} boolean - true/false
+         */
         setFocusable: function(boolean) {
             this.getCanvas().setFocusable(boolean);
         },
 
+        /**
+         * @function
+         * @instance
+         * @description
+        return the number of columns that were just rendered
+         *
+         * #### returns: integer
+         */
         getVisibleColumns: function() {
             return this.getRenderer().getVisibleColumns();
         },
 
+        /**
+         * @function
+         * @instance
+         * @description
+        return the number of rows that were just rendered
+         *
+         * #### returns: integer
+         */
         getVisibleRows: function() {
             return this.getRenderer().getVisibleRows();
         }

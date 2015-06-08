@@ -564,7 +564,7 @@
          * @function
          */
         setCursor: function(grid) {
-            grid.setDefaultCursor();
+            grid.updateCursor();
             this.featureChain.setCursor(grid);
         },
 

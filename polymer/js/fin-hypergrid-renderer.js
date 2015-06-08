@@ -888,10 +888,10 @@ var config = {
             var count = this.getGrid().getColumnCount();
             return count;
         },
-        getLeftSideSize: function(index) {
+        getRenderedWidth: function(index) {
             return this.renderedColumnWidths[index];
         },
-        getTopSideSize: function(index) {
+        getRenderedHeight: function(index) {
             return this.renderedRowHeights[index];
         },
         getCanvas: function() {

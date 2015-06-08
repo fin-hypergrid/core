@@ -46,7 +46,7 @@
             return grid.getFixedColumnWidth(index);
         },
         getPreviousAbsoluteSize: function(grid, index) {
-            return grid.getLeftSideSize(index);
+            return grid.getRenderedWidth(index);
         },
         setFixedAreaSize: function(grid, index, value) {
             grid.setFixedColumnWidth(index, value);
