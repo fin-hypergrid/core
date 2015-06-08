@@ -41,6 +41,14 @@
 
     Polymer({ /* jslint ignore:line */
 
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         ready: function() {
 
             this.rows = 5000;
@@ -70,6 +78,14 @@
 
         //default to left halign for rendering performance improvement
         //<br>and make columns 3, 23, 41 use special cell renderers
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         createCellProvider: function() {
             //var self = this;
             var provider = document.createElement('fin-hypergrid-cell-provider');
@@ -97,6 +113,14 @@
             return provider;
         },
 
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         setValues: function(c) {
             var self = this;
             for (var x = c.xstart; x < c.xstop; x = x + c.xinc) {
@@ -108,6 +132,14 @@
         },
 
         //fill in random data
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         initialize: function() {
             var config = {
                 xstart: 0,
@@ -123,6 +155,14 @@
 
         //kick off randomizing data every 200ms,
         //<br>simulate data streaming in...
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         permute: function() {
             var self = this;
             var config = {
@@ -140,17 +180,41 @@
             }, self.permuteInterval);
         },
 
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         getCellEditorAt: function(x, y) {
             var type = x !== 9 ? 'textfield' : this.editorTypes[y % this.editorTypes.length];
             var cellEditor = this.grid.resolveCellEditor(type);
             return cellEditor;
         },
 
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         getColumnCount: function() {
             return this.columns;
         },
 
         //set a random value into col/row, cutoff is the threshold to exit if the random value is outside
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         setRandomValue: function(col, row, cutoff) {
             var rand = Math.random();
             var val = this.getValue(col, row);
@@ -224,6 +288,14 @@
         },
 
         //int vector indirection layer so sorting doesn't actually move items around
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         indexOf: function(row, col) {
             var index = (col * this.rows) + row;
             return index;
@@ -231,6 +303,14 @@
 
         //create a sort object per column we consider sortable
         //TODO:rethink sorting encapsulation
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         createSort: function(type, col) {
             var self = this;
             var that = {};
@@ -277,12 +357,28 @@
             this.tableState.sortLookup[col] = that;
         },
 
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         swap: function(array, x, y) {
             var tmp = this.order[x];
             this.order[x] = this.order[y];
             this.order[y] = tmp;
         },
 
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         compare: function(array, first, last) {
             var comp = 0;
             for (var i = 0; i < this.tableState.sorts.length; ++i) {
@@ -299,6 +395,14 @@
         },
 
         //initialize int vector indirection to ascending integers 0 through row count
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         initOrder: function() {
             this.order = [];
             // Re-initialise the row order, as this is what we sort, not the actual data.
@@ -309,6 +413,14 @@
 
         //emersons stable quicksort algorithm, hacked up by me
         //<br>TODO: this needs serious attention, could be exposed as part of a bowerized sorting lib
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         quicksort: function(array, first, last, depth) {
             // In place quickstort, stable.  We cant use the inbuilt Array.tableState.sort() since its a hybrid sort
             // potentially and may not be stable (non quicksort) on small sizes.
@@ -381,12 +493,28 @@
         },
 
         //invoke the sorting
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         reorder: function() {
             this.initOrder();
             this.quicksort(this.values, 0, this.rows - 1, 0);
         },
 
         //give me the indirect sorted index of the data I'm looking for
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         orderOf: function(y) {
             // Provide indirection of indexing for row/col so that we can use sort and or alternate between
             // coloumn and row oriented sotrage.  For example to maximise performance we currently paint by
@@ -398,6 +526,14 @@
         },
 
         //set value through the sorted indirection
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         setValue: function(col, y, value) {
             var row = this.orderOf(y);
             var index = this.indexOf(row, col);
@@ -405,16 +541,40 @@
         },
 
         // get value through the sorted indirection
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         getValue: function(col, y) {
             var row = this.orderOf(y);
             var index = this.indexOf(row, col);
             return this.values[index];
         },
 
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         getRowCount: function() {
             return this.rows;
         },
 
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         getFixedRowValue: function(x /*, y*/ ) {
             var sortIndicator = '';
             if (this.tableState.sortLookup[x] && !this.tableState.sorted[x]) {
@@ -428,6 +588,14 @@
         },
 
         //columns 2, 14, 22 are sortable
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         fixedRowClicked: function(grid, mouse) {
             if ([2, 14, 22].indexOf(mouse.gridCell.x) === -1) {
                 return;
@@ -435,6 +603,14 @@
             this.toggleSort(mouse.gridCell.x);
         },
 
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         toggleSort: function(columnIndex) {
             var current = this.tableState.sorted[columnIndex];
             var stateCount = this.sortStates.length;
@@ -445,6 +621,14 @@
             this.changed();
         },
 
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         getFixedColumnCount: function() {
             return 1;
         },

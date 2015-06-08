@@ -7,6 +7,15 @@
 (function() {
 
     Polymer('fin-hypergrid-feature-cell-click', { /* jshint ignore:line  */
+
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         handleTap: function(grid, event) {
             var fixedRowsHeight = grid.getFixedRowsHeight();
             var fixedColsWidth = grid.getFixedColumnsWidth();

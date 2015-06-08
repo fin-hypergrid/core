@@ -2,6 +2,8 @@
 /**
  *
  * @module behaviors\base
+ * @description
+ this is the base class for creating behaviors
  *
  */
 (function() {
@@ -46,45 +48,68 @@
     })();
 
     Polymer('fin-hypergrid-behavior-base', { /* jslint ignore:line */
+
         /**
          * @property {object} tableState - memento for the user configured visual properties of the table
+         * @instance
          */
         tableState: {},
+
         /**
          * @property {object} columnProperties - a hook to put fgcolor, bgcolor, font for a column if no cell properties are available
+         * @instance
          */
         columnProperties: {},
+
         /**
          * @property {fin-hypergrid} grid - my instance of hypergrid
+         * @instance
          */
         grid: null,
+
         /**
          * @property {array} editorTypes - list of default cell editor names
+         * @instance
          */
         editorTypes: ['choice', 'textfield', 'color', 'slider', 'spinner', 'date'],
+
         /**
          * @property {object} featureChain - controller chain of command
+         * @instance
          */
         featureChain: null,
+
         /**
          * @property {integer} fixedColumnCount - the number of fixed columns
+         * @instance
          */
         fixedColumnCount: 0,
+
         /**
          * @property {integer} fixedRowCount - the number of fixed rows
+         * @instance
          */
         fixedRowCount: 1,
+
         /**
          * @property {array} columnAutosized - boolean vector of which columns have been autosized
+         * @instance
          */
         columnAutosized: [],
+
         /**
          * @property {array} fixedColumnAutosized - boolean vector of which fixed columns have been autosized
+         * @instance
          */
         fixedColumnAutosized: [],
 
         /**
          * @function
+         * @instance
+         * @description
+         fill this in
+         * #### returns: type
+         * @param {type} varname - descripton
          */
         clearObjectProperties: function(obj) {
             for (var prop in obj) {
@@ -96,6 +121,11 @@
 
         /**
          * @function
+         * @instance
+         * @description
+         fill this in
+         * #### returns: type
+         * @param {type} varname - descripton
          */
         ready: function() {
             this.readyInit();
@@ -103,6 +133,11 @@
 
         /**
          * @function
+         * @instance
+         * @description
+         fill this in
+         * #### returns: type
+         * @param {type} varname - descripton
          */
         readyInit: function() {
             this.cellProvider = this.createCellProvider();
@@ -131,6 +166,11 @@
 
         /**
          * @function
+         * @instance
+         * @description
+         fill this in
+         * #### returns: type
+         * @param {type} varname - descripton
          */
         resolveProperty: function(key) {
             return this.grid.resolveProperty(key);
@@ -138,6 +178,11 @@
 
         /**
          * @function
+         * @instance
+         * @description
+         fill this in
+         * #### returns: type
+         * @param {type} varname - descripton
          */
         getState: function() {
             return this.tableState;
@@ -145,6 +190,11 @@
 
         /**
          * @function
+         * @instance
+         * @description
+         fill this in
+         * #### returns: type
+         * @param {type} varname - descripton
          */
         setState: function(state) {
             for (var key in state) {
@@ -156,6 +206,11 @@
 
         /**
          * @function
+         * @instance
+         * @description
+         fill this in
+         * #### returns: type
+         * @param {type} varname - descripton
          */
         cellClicked: function(cell, event) {
             this.grid.fireCellClickEvent(cell, event);
@@ -163,6 +218,11 @@
 
         /**
          * @function
+         * @instance
+         * @description
+         fill this in
+         * #### returns: type
+         * @param {type} varname - descripton
          */
         initColumnIndexes: function() {
             var columnCount = this._getColumnCount();
@@ -178,6 +238,11 @@
 
         /**
          * @function
+         * @instance
+         * @description
+         fill this in
+         * #### returns: type
+         * @param {type} varname - descripton
          */
         insureColumnIndexesAreInitialized: function() {
             this.swapColumns(0, 0);
@@ -185,6 +250,11 @@
 
         /**
          * @function
+         * @instance
+         * @description
+         fill this in
+         * #### returns: type
+         * @param {type} varname - descripton
          */
         swapColumns: function(src, tar) {
             var indexes = this.tableState.columnIndexes;
@@ -199,6 +269,11 @@
 
         /**
          * @function
+         * @instance
+         * @description
+         fill this in
+         * #### returns: type
+         * @param {type} varname - descripton
          */
         translateColumnIndex: function(x) {
             var indexes = this.tableState.columnIndexes;
@@ -210,6 +285,11 @@
 
         /**
          * @function
+         * @instance
+         * @description
+         fill this in
+         * #### returns: type
+         * @param {type} varname - descripton
          */
         unTranslateColumnIndex: function(x) {
             return this.tableState.columnIndexes.indexOf(x);
@@ -217,6 +297,11 @@
 
         /**
          * @function
+         * @instance
+         * @description
+         fill this in
+         * #### returns: type
+         * @param {type} varname - descripton
          */
         setNextFeature: function(nextFeature) {
             if (this.featureChain) {
@@ -228,6 +313,11 @@
 
         /**
          * @function
+         * @instance
+         * @description
+         fill this in
+         * #### returns: type
+         * @param {type} varname - descripton
          */
         installOn: function(grid) {
             grid.setBehavior(this);
@@ -236,6 +326,11 @@
 
         /**
          * @function
+         * @instance
+         * @description
+         fill this in
+         * #### returns: type
+         * @param {type} varname - descripton
          */
         initializeFeatureChain: function(grid) {
             this.setNextFeature(document.createElement('fin-hypergrid-feature-key-paging'));
@@ -256,6 +351,11 @@
 
         /**
          * @function
+         * @instance
+         * @description
+         fill this in
+         * #### returns: type
+         * @param {type} varname - descripton
          */
         getCellProvider: function() {
             return this.cellProvider;
@@ -263,6 +363,11 @@
 
         /**
          * @function
+         * @instance
+         * @description
+         fill this in
+         * #### returns: type
+         * @param {type} varname - descripton
          */
         setGrid: function(finGrid) {
             this.grid = finGrid;
@@ -270,6 +375,11 @@
 
         /**
          * @function
+         * @instance
+         * @description
+         fill this in
+         * #### returns: type
+         * @param {type} varname - descripton
          */
         getGrid: function() {
             return this.grid;
@@ -277,6 +387,11 @@
 
         /**
          * @function
+         * @instance
+         * @description
+         fill this in
+         * #### returns: type
+         * @param {type} varname - descripton
          */
         createCellProvider: function() {
             var provider = document.createElement('fin-hypergrid-cell-provider');
@@ -285,6 +400,11 @@
 
         /**
          * @function
+         * @instance
+         * @description
+         fill this in
+         * #### returns: type
+         * @param {type} varname - descripton
          */
         getTopLeftValue: function( /* x, y */ ) {
             return '';
@@ -292,6 +412,11 @@
 
         /**
          * @function
+         * @instance
+         * @description
+         fill this in
+         * #### returns: type
+         * @param {type} varname - descripton
          */
         _getValue: function(x, y) {
             x = this.translateColumnIndex(x);
@@ -304,6 +429,11 @@
 
         /**
          * @function
+         * @instance
+         * @description
+         fill this in
+         * #### returns: type
+         * @param {type} varname - descripton
          */
         _setValue: function(x, y, value) {
             x = this.translateColumnIndex(x);
@@ -312,6 +442,11 @@
 
         /**
          * @function
+         * @instance
+         * @description
+         fill this in
+         * #### returns: type
+         * @param {type} varname - descripton
          */
         _getFixedRowValue: function(x, y) {
             x = this.translateColumnIndex(x);
@@ -320,6 +455,11 @@
 
         /**
          * @function
+         * @instance
+         * @description
+         fill this in
+         * #### returns: type
+         * @param {type} varname - descripton
          */
         getFixedColumnValue: function(x, y) {
             //x = this.fixedtranslateColumnIndex(x);
@@ -328,6 +468,11 @@
 
         /**
          * @function
+         * @instance
+         * @description
+         fill this in
+         * #### returns: type
+         * @param {type} varname - descripton
          */
         getRowCount: function() {
             //jeepers batman a quadrillion rows!
@@ -336,6 +481,11 @@
 
         /**
          * @function
+         * @instance
+         * @description
+         fill this in
+         * #### returns: type
+         * @param {type} varname - descripton
          */
         _getColumnCount: function() {
             return this.getColumnCount() - this.tableState.hiddenColumns.length - this.fixedColumnCount;
@@ -343,6 +493,11 @@
 
         /**
          * @function
+         * @instance
+         * @description
+         fill this in
+         * #### returns: type
+         * @param {type} varname - descripton
          */
         getFixedRowsHeight: function() {
             var count = this.getFixedRowCount();
@@ -355,6 +510,11 @@
 
         /**
          * @function
+         * @instance
+         * @description
+         fill this in
+         * #### returns: type
+         * @param {type} varname - descripton
          */
         getFixedRowHeight: function(rowNum) {
             if (this.tableState.fixedRowHeights) {
@@ -368,6 +528,11 @@
 
         /**
          * @function
+         * @instance
+         * @description
+         fill this in
+         * #### returns: type
+         * @param {type} varname - descripton
          */
         setFixedRowHeight: function(rowNum, height) {
             //console.log(rowNum + ' ' + height);
@@ -377,6 +542,11 @@
 
         /**
          * @function
+         * @instance
+         * @description
+         fill this in
+         * #### returns: type
+         * @param {type} varname - descripton
          */
         getRowHeight: function(rowNum) {
             if (this.tableState.rowHeights) {
@@ -390,6 +560,11 @@
 
         /**
          * @function
+         * @instance
+         * @description
+         fill this in
+         * #### returns: type
+         * @param {type} varname - descripton
          */
         getDefaultRowHeight: function() {
             if (!this.defaultRowHeight) {
@@ -400,6 +575,11 @@
 
         /**
          * @function
+         * @instance
+         * @description
+         fill this in
+         * #### returns: type
+         * @param {type} varname - descripton
          */
         setRowHeight: function(rowNum, height) {
             this.tableState.rowHeights[rowNum] = Math.max(5, height);
@@ -408,6 +588,11 @@
 
         /**
          * @function
+         * @instance
+         * @description
+         fill this in
+         * #### returns: type
+         * @param {type} varname - descripton
          */
         getFixedRowsMaxHeight: function() {
             var height = this.getFixedRowsHeight();
@@ -416,6 +601,11 @@
 
         /**
          * @function
+         * @instance
+         * @description
+         fill this in
+         * #### returns: type
+         * @param {type} varname - descripton
          */
         getFixedColumnsWidth: function() {
             var count = this.getFixedColumnCount();
@@ -428,6 +618,11 @@
 
         /**
          * @function
+         * @instance
+         * @description
+         fill this in
+         * #### returns: type
+         * @param {type} varname - descripton
          */
         setFixedColumnWidth: function(colNumber, width) {
             this.tableState.fixedColumnWidths[colNumber] = Math.max(5, width);
@@ -436,6 +631,11 @@
 
         /**
          * @function
+         * @instance
+         * @description
+         fill this in
+         * #### returns: type
+         * @param {type} varname - descripton
          */
         getFixedColumnsMaxWidth: function() {
             var width = this.getFixedColumnsWidth();
@@ -444,6 +644,11 @@
 
         /**
          * @function
+         * @instance
+         * @description
+         fill this in
+         * #### returns: type
+         * @param {type} varname - descripton
          */
         getFixedColumnWidth: function(colNumber) {
             var override = this.tableState.fixedColumnWidths[colNumber];
@@ -455,6 +660,11 @@
 
         /**
          * @function
+         * @instance
+         * @description
+         fill this in
+         * #### returns: type
+         * @param {type} varname - descripton
          */
         _getColumnWidth: function(x) {
             x = this.translateColumnIndex(x);
@@ -463,6 +673,11 @@
 
         /**
          * @function
+         * @instance
+         * @description
+         fill this in
+         * #### returns: type
+         * @param {type} varname - descripton
          */
         _setColumnWidth: function(x, width) {
             x = this.translateColumnIndex(x);
@@ -472,6 +687,11 @@
 
         /**
          * @function
+         * @instance
+         * @description
+         fill this in
+         * #### returns: type
+         * @param {type} varname - descripton
          */
         _setScrollPositionY: function(y) {
             this.setScrollPositionY(y);
@@ -480,6 +700,11 @@
 
         /**
          * @function
+         * @instance
+         * @description
+         fill this in
+         * #### returns: type
+         * @param {type} varname - descripton
          */
         _setScrollPositionX: function(x) {
             this.setScrollPositionX(x);
@@ -488,6 +713,11 @@
 
         /**
          * @function
+         * @instance
+         * @description
+         fill this in
+         * #### returns: type
+         * @param {type} varname - descripton
          */
         setRenderedWidth: function(width) {
             this.renderedWidth = width;
@@ -495,6 +725,11 @@
 
         /**
          * @function
+         * @instance
+         * @description
+         fill this in
+         * #### returns: type
+         * @param {type} varname - descripton
          */
         setRenderedHeight: function(height) {
             this.renderedHeight = height;
@@ -502,6 +737,11 @@
 
         /**
          * @function
+         * @instance
+         * @description
+         fill this in
+         * #### returns: type
+         * @param {type} varname - descripton
          */
         _getColumnAlignment: function(x) {
             x = this.translateColumnIndex(x);
@@ -510,6 +750,11 @@
 
         /**
          * @function
+         * @instance
+         * @description
+         fill this in
+         * #### returns: type
+         * @param {type} varname - descripton
          */
         getTopLeftAlignment: function( /* x, y */ ) {
             return 'center';
@@ -517,6 +762,11 @@
 
         /**
          * @function
+         * @instance
+         * @description
+         fill this in
+         * #### returns: type
+         * @param {type} varname - descripton
          */
         getFixedColumnAlignment: function( /* x */ ) {
             return this.resolveProperty('fixedColumnAlign');
@@ -524,6 +774,11 @@
 
         /**
          * @function
+         * @instance
+         * @description
+         fill this in
+         * #### returns: type
+         * @param {type} varname - descripton
          */
         _getFixedRowAlignment: function(x, y) {
             x = this.translateColumnIndex(x);
@@ -532,6 +787,11 @@
 
         /**
          * @function
+         * @instance
+         * @description
+         fill this in
+         * #### returns: type
+         * @param {type} varname - descripton
          */
         topLeftClicked: function(grid, mouse) {
             if (mouse.gridCell.x < this.fixedColumnCount) {
@@ -543,6 +803,11 @@
 
         /**
          * @function
+         * @instance
+         * @description
+         fill this in
+         * #### returns: type
+         * @param {type} varname - descripton
          */
         _fixedRowClicked: function(grid, mouse) {
             var x = this.translateColumnIndex(mouse.gridCell.x - this.getFixedColumnCount());
@@ -553,6 +818,11 @@
 
         /**
          * @function
+         * @instance
+         * @description
+         fill this in
+         * #### returns: type
+         * @param {type} varname - descripton
          */
         _fixedColumnClicked: function(grid, mouse) {
             var translatedPoint = this.grid.rectangles.point.create(mouse.gridCell.x, this.scrollPositionY + mouse.gridCell.y - this.getFixedRowCount());
@@ -562,6 +832,11 @@
 
         /**
          * @function
+         * @instance
+         * @description
+         fill this in
+         * #### returns: type
+         * @param {type} varname - descripton
          */
         setCursor: function(grid) {
             grid.updateCursor();
@@ -570,6 +845,11 @@
 
         /**
          * @function
+         * @instance
+         * @description
+         fill this in
+         * #### returns: type
+         * @param {type} varname - descripton
          */
         onMouseMove: function(grid, event) {
             if (this.featureChain) {
@@ -580,6 +860,11 @@
 
         /**
          * @function
+         * @instance
+         * @description
+         fill this in
+         * #### returns: type
+         * @param {type} varname - descripton
          */
         onTap: function(grid, event) {
             if (this.featureChain) {
@@ -590,6 +875,11 @@
 
         /**
          * @function
+         * @instance
+         * @description
+         fill this in
+         * #### returns: type
+         * @param {type} varname - descripton
          */
         onWheelMoved: function(grid, event) {
             if (this.featureChain) {
@@ -600,6 +890,11 @@
 
         /**
          * @function
+         * @instance
+         * @description
+         fill this in
+         * #### returns: type
+         * @param {type} varname - descripton
          */
         onMouseUp: function(grid, event) {
             if (this.featureChain) {
@@ -610,6 +905,11 @@
 
         /**
          * @function
+         * @instance
+         * @description
+         fill this in
+         * #### returns: type
+         * @param {type} varname - descripton
          */
         onMouseDrag: function(grid, event) {
             if (this.featureChain) {
@@ -620,6 +920,11 @@
 
         /**
          * @function
+         * @instance
+         * @description
+         fill this in
+         * #### returns: type
+         * @param {type} varname - descripton
          */
         onKeyDown: function(grid, event) {
             if (this.featureChain) {
@@ -630,6 +935,11 @@
 
         /**
          * @function
+         * @instance
+         * @description
+         fill this in
+         * #### returns: type
+         * @param {type} varname - descripton
          */
         onKeyUp: function(grid, event) {
             if (this.featureChain) {
@@ -640,6 +950,11 @@
 
         /**
          * @function
+         * @instance
+         * @description
+         fill this in
+         * #### returns: type
+         * @param {type} varname - descripton
          */
         onDoubleClick: function(grid, event) {
             if (this.featureChain) {
@@ -650,6 +965,11 @@
 
         /**
          * @function
+         * @instance
+         * @description
+         fill this in
+         * #### returns: type
+         * @param {type} varname - descripton
          */
         onHoldPulse: function(grid, event) {
             if (this.featureChain) {
@@ -660,6 +980,11 @@
 
         /**
          * @function
+         * @instance
+         * @description
+         fill this in
+         * #### returns: type
+         * @param {type} varname - descripton
          */
         handleMouseDown: function(grid, event) {
             if (this.featureChain) {
@@ -670,6 +995,11 @@
 
         /**
          * @function
+         * @instance
+         * @description
+         fill this in
+         * #### returns: type
+         * @param {type} varname - descripton
          */
         handleMouseExit: function(grid, event) {
             if (this.featureChain) {
@@ -680,6 +1010,11 @@
 
         /**
          * @function
+         * @instance
+         * @description
+         fill this in
+         * #### returns: type
+         * @param {type} varname - descripton
          */
         _getCellEditorAt: function(x, y) {
             noop(y);
@@ -689,16 +1024,31 @@
 
         /**
          * @function
+         * @instance
+         * @description
+         fill this in
+         * #### returns: type
+         * @param {type} varname - descripton
          */
         changed: function() {},
 
         /**
          * @function
+         * @instance
+         * @description
+         fill this in
+         * #### returns: type
+         * @param {type} varname - descripton
          */
         shapeChanged: function() {},
 
         /**
          * @function
+         * @instance
+         * @description
+         fill this in
+         * #### returns: type
+         * @param {type} varname - descripton
          */
         isColumnReorderable: function() {
             return true;
@@ -706,6 +1056,11 @@
 
         /**
          * @function
+         * @instance
+         * @description
+         fill this in
+         * #### returns: type
+         * @param {type} varname - descripton
          */
         getColumnProperties: function(columnIndex) {
             noop(columnIndex);
@@ -721,6 +1076,11 @@
 
         /**
          * @function
+         * @instance
+         * @description
+         fill this in
+         * #### returns: type
+         * @param {type} varname - descripton
          */
         getDNDColumnLabels: function() {
             //assumes there is one row....
@@ -741,6 +1101,11 @@
 
         /**
          * @function
+         * @instance
+         * @description
+         fill this in
+         * #### returns: type
+         * @param {type} varname - descripton
          */
         getHeader: function(colIndex) {
             return this.getFixedRowValue(colIndex, 0);
@@ -748,6 +1113,11 @@
 
         /**
          * @function
+         * @instance
+         * @description
+         fill this in
+         * #### returns: type
+         * @param {type} varname - descripton
          */
         setDNDColumnLabels: function(list) {
             //assumes there is one row....
@@ -766,6 +1136,11 @@
 
         /**
          * @function
+         * @instance
+         * @description
+         fill this in
+         * #### returns: type
+         * @param {type} varname - descripton
          */
         getDNDHiddenColumnLabels: function() {
             var indexes = this.tableState.hiddenColumns;
@@ -782,6 +1157,11 @@
 
         /**
          * @function
+         * @instance
+         * @description
+         fill this in
+         * #### returns: type
+         * @param {type} varname - descripton
          */
         setDNDHiddenColumnLabels: function(list) {
             //assumes there is one row....
@@ -796,6 +1176,11 @@
 
         /**
          * @function
+         * @instance
+         * @description
+         fill this in
+         * #### returns: type
+         * @param {type} varname - descripton
          */
         hideColumns: function(arrayOfIndexes) {
             var indexes = this.tableState.hiddenColumns;
@@ -811,6 +1196,11 @@
 
         /**
          * @function
+         * @instance
+         * @description
+         fill this in
+         * #### returns: type
+         * @param {type} varname - descripton
          */
         getFixedColumnCount: function() {
             return this.fixedColumnCount;
@@ -818,6 +1208,11 @@
 
         /**
          * @function
+         * @instance
+         * @description
+         fill this in
+         * #### returns: type
+         * @param {type} varname - descripton
          */
         setFixedColumnCount: function(numberOfFixedColumns) {
             this.fixedColumnCount = numberOfFixedColumns;
@@ -825,6 +1220,11 @@
 
         /**
          * @function
+         * @instance
+         * @description
+         fill this in
+         * #### returns: type
+         * @param {type} varname - descripton
          */
         getFixedRowCount: function() {
             return this.fixedRowCount;
@@ -832,6 +1232,11 @@
 
         /**
          * @function
+         * @instance
+         * @description
+         fill this in
+         * #### returns: type
+         * @param {type} varname - descripton
          */
         setFixedRowCount: function(numberOfFixedRows) {
             this.fixedRowCount = numberOfFixedRows;
@@ -839,6 +1244,11 @@
 
         /**
          * @function
+         * @instance
+         * @description
+         fill this in
+         * #### returns: type
+         * @param {type} varname - descripton
          */
         openEditor: function(div) {
             var container = document.createElement('div');
@@ -868,6 +1278,11 @@
 
         /**
          * @function
+         * @instance
+         * @description
+         fill this in
+         * #### returns: type
+         * @param {type} varname - descripton
          */
         closeEditor: function(div) {
             noop(div);
@@ -879,6 +1294,11 @@
 
         /**
          * @function
+         * @instance
+         * @description
+         fill this in
+         * #### returns: type
+         * @param {type} varname - descripton
          */
         endDragColumnNotification: function() {
             return true;
@@ -886,6 +1306,11 @@
 
         /**
          * @function
+         * @instance
+         * @description
+         fill this in
+         * #### returns: type
+         * @param {type} varname - descripton
          */
         beColumnStyle: function(style) {
             style.top = '5%';
@@ -897,6 +1322,11 @@
 
         /**
          * @function
+         * @instance
+         * @description
+         fill this in
+         * #### returns: type
+         * @param {type} varname - descripton
          */
         getCursorAt: function( /* x, y */ ) {
             return null;
@@ -904,6 +1334,11 @@
 
         /**
          * @function
+         * @instance
+         * @description
+         fill this in
+         * #### returns: type
+         * @param {type} varname - descripton
          */
         getValue: function(x, y) {
             return x + ', ' + y;
@@ -911,6 +1346,11 @@
 
         /**
          * @function
+         * @instance
+         * @description
+         fill this in
+         * #### returns: type
+         * @param {type} varname - descripton
          */
         setValue: function(x, y, value) {
             this.dataUpdates['p_' + x + '_' + y] = value;
@@ -918,6 +1358,11 @@
 
         /**
          * @function
+         * @instance
+         * @description
+         fill this in
+         * #### returns: type
+         * @param {type} varname - descripton
          */
         getColumnCount: function() {
             return 300;
@@ -925,6 +1370,11 @@
 
         /**
          * @function
+         * @instance
+         * @description
+         fill this in
+         * #### returns: type
+         * @param {type} varname - descripton
          */
         getColumnWidth: function(x) {
             var override = this.tableState.columnWidths[x];
@@ -936,6 +1386,11 @@
 
         /**
          * @function
+         * @instance
+         * @description
+         fill this in
+         * #### returns: type
+         * @param {type} varname - descripton
          */
         setColumnWidth: function(x, width) {
             this.tableState.columnWidths[x] = Math.max(5, width);
@@ -943,6 +1398,11 @@
 
         /**
          * @function
+         * @instance
+         * @description
+         fill this in
+         * #### returns: type
+         * @param {type} varname - descripton
          */
         getColumnAlignment: function( /* x */ ) {
             return 'center';
@@ -950,6 +1410,11 @@
 
         /**
          * @function
+         * @instance
+         * @description
+         fill this in
+         * #### returns: type
+         * @param {type} varname - descripton
          */
         setScrollPositionX: function(x) {
             this.scrollPositionX = x;
@@ -957,6 +1422,11 @@
 
         /**
          * @function
+         * @instance
+         * @description
+         fill this in
+         * #### returns: type
+         * @param {type} varname - descripton
          */
         setScrollPositionY: function(y) {
             this.scrollPositionY = y;
@@ -964,6 +1434,11 @@
 
         /**
          * @function
+         * @instance
+         * @description
+         fill this in
+         * #### returns: type
+         * @param {type} varname - descripton
          */
         getFixedRowAlignment: function(x, y) {
             noop(x, y);
@@ -972,6 +1447,11 @@
 
         /**
          * @function
+         * @instance
+         * @description
+         fill this in
+         * #### returns: type
+         * @param {type} varname - descripton
          */
         getFixedRowValue: function(x /*, y*/ ) {
             return x;
@@ -979,6 +1459,11 @@
 
         /**
          * @function
+         * @instance
+         * @description
+         fill this in
+         * #### returns: type
+         * @param {type} varname - descripton
          */
         getCellEditorAt: function(x, y) {
             noop(x, y);
@@ -988,6 +1473,11 @@
 
         /**
          * @function
+         * @instance
+         * @description
+         fill this in
+         * #### returns: type
+         * @param {type} varname - descripton
          */
         fixedRowClicked: function(grid, mouse) {
             this.toggleSort(mouse.gridCell.x);
@@ -995,6 +1485,11 @@
 
         /**
          * @function
+         * @instance
+         * @description
+         fill this in
+         * #### returns: type
+         * @param {type} varname - descripton
          */
         toggleSort: function(colIndex) {
             console.log('toggleSort(' + colIndex + ')');
@@ -1002,6 +1497,11 @@
 
         /**
          * @function
+         * @instance
+         * @description
+         fill this in
+         * #### returns: type
+         * @param {type} varname - descripton
          */
         fixedColumnClicked: function(grid, mouse) {
             console.log('fixedColumnClicked(' + mouse.gridCell.x + ', ' + mouse.gridCell.y + ')');
@@ -1009,6 +1509,11 @@
 
         /**
          * @function
+         * @instance
+         * @description
+         fill this in
+         * #### returns: type
+         * @param {type} varname - descripton
          */
         highlightCellOnHover: function(isColumnHovered, isRowHovered) {
             return isColumnHovered && isRowHovered;
@@ -1016,6 +1521,11 @@
 
         /**
          * @function
+         * @instance
+         * @description
+         fill this in
+         * #### returns: type
+         * @param {type} varname - descripton
          */
         getColumnId: function(x) {
             x = this.translateColumnIndex(x);
@@ -1025,6 +1535,11 @@
 
         /**
          * @function
+         * @instance
+         * @description
+         fill this in
+         * #### returns: type
+         * @param {type} varname - descripton
          */
         getImage: function(key) {
             var image = imageCache[key];
@@ -1034,6 +1549,11 @@
 
         /**
          * @function
+         * @instance
+         * @description
+         fill this in
+         * #### returns: type
+         * @param {type} varname - descripton
          */
         setImage: function(key, image) {
             imageCache[key] = image;
@@ -1041,6 +1561,11 @@
 
         /**
          * @function
+         * @instance
+         * @description
+         fill this in
+         * #### returns: type
+         * @param {type} varname - descripton
          */
         checkColumnAutosizing: function(fixedWidths, widths) {
             var self = this;
@@ -1076,18 +1601,50 @@
             }
         },
 
+        /**
+         * @function
+         * @instance
+         * @description
+         fill this in
+         * #### returns: type
+         * @param {type} varname - descripton
+         */
         cellPrePaintNotification: function( /* cell */ ) {
 
         },
 
+        /**
+         * @function
+         * @instance
+         * @description
+         fill this in
+         * #### returns: type
+         * @param {type} varname - descripton
+         */
         cellFixedRowPrePaintNotification: function( /* cell */ ) {
 
         },
 
+        /**
+         * @function
+         * @instance
+         * @description
+         fill this in
+         * #### returns: type
+         * @param {type} varname - descripton
+         */
         cellFixedColumnPrePaintNotification: function( /* cell */ ) {
 
         },
 
+        /**
+         * @function
+         * @instance
+         * @description
+         fill this in
+         * #### returns: type
+         * @param {type} varname - descripton
+         */
         cellTopLeftPrePaintNotification: function( /* cell */ ) {
 
         }

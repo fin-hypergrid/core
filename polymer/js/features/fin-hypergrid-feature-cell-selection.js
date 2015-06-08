@@ -43,12 +43,30 @@
 
         rectangles: {},
 
+
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         createdInit: function() {
 
             this.rectangles = document.createElement('fin-rectangle');
 
         },
 
+
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         handleMouseUp: function(grid, event) {
             this.dragging = false;
             if (this.next) {
@@ -56,6 +74,15 @@
             }
         },
 
+
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         handleMouseDown: function(grid, event) {
             var gridCell = event.gridCell;
             if (gridCell.y < grid.getFixedRowCount()) {
@@ -77,6 +104,15 @@
             }
         },
 
+
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         handleMouseDrag: function(grid, event) {
             var mouseDown = grid.getMouseDown();
             if (!this.dragging) {
@@ -96,6 +132,15 @@
             this.handleMouseDragCellSelection(grid, gridCell, primEvent.detail.keys);
         },
 
+
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         handleKeyDown: function(grid, event) {
             var command = 'handle' + event.detail.char;
             if (this[command]) {
@@ -110,6 +155,15 @@
          *
          * @method handleMouseDragCellSelection(mouse)
          */
+
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         handleMouseDragCellSelection: function(grid, mouse /* ,keys */ ) {
 
             var scrollTop = grid.getVScrollValue();
@@ -152,6 +206,15 @@
          *
          * @method checkDragScroll(event)
          */
+
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         checkDragScroll: function(grid, mouse) {
             if (!grid.resolveProperty('scrollingEnabled')) {
                 return;
@@ -176,6 +239,15 @@
          *
          * @method scrollDrag()
          */
+
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         scrollDrag: function(grid) {
             if (!grid.isScrollingNow()) {
                 return;
@@ -210,6 +282,15 @@
          *
          * @method extendSelection(mouse,keys)
          */
+
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         extendSelection: function(grid, gridCell, keys) {
             var hasCTRL = keys.indexOf('CTRL') !== -1;
             var hasSHIFT = keys.indexOf('SHIFT') !== -1;
@@ -259,6 +340,15 @@
          *
          * @method handleDOWNSHIFT()
          */
+
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         handleDOWNSHIFT: function(grid) {
             var count = this.getAutoScrollAcceleration();
             this.moveShiftSelect(grid, 0, count);
@@ -271,6 +361,15 @@
          *
          * @method handleUPSHIFT()
          */
+
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         handleUPSHIFT: function(grid) {
             var count = this.getAutoScrollAcceleration();
             this.moveShiftSelect(grid, 0, -count);
@@ -283,6 +382,15 @@
          *
          * @method handleLEFTSHIFT()
          */
+
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         handleLEFTSHIFT: function(grid) {
             this.moveShiftSelect(grid, -1, 0);
         },
@@ -294,6 +402,15 @@
          *
          * @method handleRIGHTSHIFT()
          */
+
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         handleRIGHTSHIFT: function(grid) {
             this.moveShiftSelect(grid, 1, 0);
         },
@@ -305,6 +422,15 @@
          *
          * @method handleDOWN()
          */
+
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         handleDOWN: function(grid) {
             var count = this.getAutoScrollAcceleration();
             this.moveSingleSelect(grid, 0, count);
@@ -317,6 +443,15 @@
          *
          * @method handleUP()
          */
+
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         handleUP: function(grid) {
             var count = this.getAutoScrollAcceleration();
             this.moveSingleSelect(grid, 0, -count);
@@ -329,6 +464,15 @@
          *
          * @method handleLEFT()
          */
+
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         handleLEFT: function(grid) {
             this.moveSingleSelect(grid, -1, 0);
         },
@@ -340,6 +484,15 @@
          *
          * @method handleRIGHT()
          */
+
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         handleRIGHT: function(grid) {
             this.moveSingleSelect(grid, 1, 0);
         },
@@ -351,6 +504,15 @@
          *
          * @method getAutoScrollAcceleration()
          */
+
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         getAutoScrollAcceleration: function() {
             var count = 1;
             var elapsed = this.getAutoScrollDuration() / 2000;
@@ -365,6 +527,15 @@
          *
          * @method setAutoScrollStartTime()
          */
+
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         setAutoScrollStartTime: function() {
             this.sbAutoStart = Date.now();
         },
@@ -377,6 +548,15 @@
          *
          * @method pingAutoScroll()
          */
+
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         pingAutoScroll: function() {
             var now = Date.now();
             if (now - this.sbLastAuto > 500) {
@@ -392,6 +572,15 @@
          *
          * @method getAutoScrollDuration()
          */
+
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         getAutoScrollDuration: function() {
             if (Date.now() - this.sbLastAuto > 500) {
                 return 0;
@@ -406,6 +595,15 @@
          *
          * @method moveShiftSelect(grid, offsetX,offsetY)
          */
+
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         moveShiftSelect: function(grid, offsetX, offsetY) {
 
             var maxColumns = grid.getColumnCount() - 1;
@@ -451,6 +649,15 @@
          *
          * @method moveSingleSelect(offsetX,offsetY)
          */
+
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         moveSingleSelect: function(grid, offsetX, offsetY) {
 
             var maxColumns = grid.getColumnCount() - 1;

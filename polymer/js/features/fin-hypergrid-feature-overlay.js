@@ -12,8 +12,21 @@
 
     Polymer({ /* jshint ignore:line */
 
+        /**
+         * @property {type} varname - description
+         * @instance
+         */
         openEditor: false,
 
+
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         handleKeyUp: function(grid, event) {
             var key = event.detail.char.toLowerCase();
             var keys = grid.resolveProperty('editorActivationKeys');
@@ -21,6 +34,15 @@
                 this.toggleColumnPicker(grid);
             }
         },
+
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         toggleColumnPicker: function(grid) {
             if (this.isColumnPickerOpen(grid)) {
                 this.closeColumnPicker(grid);
@@ -28,10 +50,28 @@
                 this.openColumnPicker(grid);
             }
         },
+
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         isColumnPickerOpen: function(grid) {
             noop(grid);
             return this.overlay.style.display !== 'none';
         },
+
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         openColumnPicker: function(grid) {
             if (this.isColumnPickerOpen()) {
                 return;
@@ -75,6 +115,15 @@
                 self.overlay.focus();
             });
         },
+
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         closeColumnPicker: function(grid) {
             grid.setFocusable(true);
 
@@ -104,12 +153,30 @@
                 grid.takeFocus();
             }, ANIMATION_TIME);
         },
+
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         initializeOn: function(grid) {
             this.initializeOverlaySurface(grid);
             if (this.next) {
                 this.next.initializeOn(grid);
             }
         },
+
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         initializeOverlaySurface: function(grid) {
             this.overlay = document.createElement('div');
             this.overlay.setAttribute('tabindex', 0);
@@ -122,6 +189,15 @@
             grid.appendChild(this.overlay);
             //document.body.appendChild(this.overlay);
         },
+
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         getCharFor: function(grid, integer) {
             var charMap = grid.getCanvas().getCharMap();
             return charMap[integer][0];

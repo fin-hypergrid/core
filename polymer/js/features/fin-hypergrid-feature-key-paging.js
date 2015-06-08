@@ -22,6 +22,15 @@ var commands = {
 (function() {
 
     Polymer('fin-hypergrid-feature-key-paging', { /* jshint ignore:line  */
+
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         handleKeyDown: function(grid, event) {
             var detail = event.detail.char;
             var func = commands[detail];

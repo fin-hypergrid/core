@@ -11,6 +11,15 @@
     //var ANIMATION_TIME = 200;
 
     Polymer({ /* jshint ignore:line */
+
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         handleMouseMove: function(grid, event) {
             var currentHoverCell = grid.getHoverCell();
             if (!event.gridCell.equals(currentHoverCell)) {

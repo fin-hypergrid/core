@@ -7,8 +7,21 @@
 (function() {
 
     Polymer({ /* jshint ignore:line */
+
+        /**
+         * @property {type} varname - description
+         * @instance
+         */
         alias: 'simple',
 
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         readyInit: function() {
             var self = this;
             this.rectangles = document.createElement('fin-rectangle');
@@ -30,23 +43,63 @@
             this.input.style.zIndex = 1000;
         },
 
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         getEditorValue: function() {
             var value = this.input.value;
             return value;
         },
 
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         setEditorValue: function(value) {
             this.input.value = value + '';
         },
 
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         showEditor: function() {
             this.input.style.display = 'inline';
         },
 
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         hideEditor: function() {
             this.input.style.display = 'none';
         },
 
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         takeFocus: function() {
             var self = this;
             setTimeout(function() {
@@ -55,14 +108,38 @@
             }, 300);
         },
 
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         selectAll: function() {
 
         },
 
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         originOffset: function() {
             return [-2, -2];
         },
 
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         setBounds: function(cellBounds) {
             var originOffset = this.originOffset();
             var translation = 'translate(' + (cellBounds.origin.x + originOffset[0]) + 'px,' + (cellBounds.origin.y + originOffset[1]) + 'px)';

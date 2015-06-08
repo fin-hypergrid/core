@@ -7,6 +7,15 @@
 (function() {
 
     Polymer({ /* jshint ignore:line */
+
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         handleWheelMoved: function(grid, e) {
             if (!grid.resolveProperty('scrollingEnabled')) {
                 return;

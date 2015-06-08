@@ -152,6 +152,14 @@
     };
 
     Polymer({ /* jslint ignore:line */
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         ready: function() {
             this.block = {
                 O: {
@@ -192,12 +200,28 @@
             }, 500);
 
         },
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         getFixedRowCount: function() {
             return 2;
         },
 
         //override this function on your GridBehavior to have custom cell renderering
         //<br>see [QGridBehavior.createCellProvider()](QGridBehavior.html) for an example
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         createCellProvider: function() {
             var self = this;
             var provider = document.createElement('fin-hypergrid-cell-provider');
@@ -249,12 +273,28 @@
             return provider;
         },
 
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         connectTo: function(newUrl) {
             noop(newUrl);
             // this.setAttribute('url', newUrl);
             // this.reconnect();
         },
 
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         reconnect: function() {
             this.url = this.getAttribute('url');
             if (!this.url) {
@@ -265,6 +305,14 @@
             this.scrolled = false;
         },
 
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         getTopLeftValue: function( /* x, y */ ) {
             //var sortIndicator = this.getSortIndicator(hierarchyColumn);
             // var clone = this.block.G.slice(0);
@@ -280,6 +328,14 @@
 
         //for now we use the hacky override implementation to save data, in the future we'll have a more elaborate protocol with Q to do real validation and setting of data.
         //<br>take note of the usage of the scrollPositionY value in translating our in-memory data page
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         getValue: function(x, y) {
             var col = this.getColumnId(x);
             var normalized = Math.floor(y - this.scrollPositionY);
@@ -294,17 +350,41 @@
 
         //empty out our page of local data, this function is used when we lose connectivity
         //<br>this function is primarily used as a visual queue so the user doesn't see stale data
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         clearData: function() {
             this.block.rows = [];
             this.changed();
         },
 
         //rows is a field in our data payload from Q that tells us the total number of rows available in the Q process data source
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         getRowCount: function() {
             return Math.max(0, this.block.N - 1);
         },
 
         //Virtual column scrolling is not necessary with this GridBehavior because we only hold a small amount of vertical data in memory and most tables in Q are timeseries financial data meaning the are very tall and skinny.  We know all the columns from the first page from Q.
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         getColumnCount: function() {
             return this.block.F.length;
         },
@@ -312,6 +392,14 @@
         //This is overridden from DefaultGridBehavior.   This value is set on us by the OFGrid component on user scrolling.
         //<br>TODO: refactor: don't store this value in an local member, store it in the message ONLY.
         //<br>TODO: refactor: num should be dynamic
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         setScrollPositionY: function(y) {
             if (this.scrollPositionY === y) {
                 return;
@@ -330,6 +418,14 @@
             });
         },
 
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         isConnected: function() {
             if (!this.ws) {
                 return false;
@@ -338,6 +434,14 @@
         },
 
         //return the column names, they are available to us as meta data in the most recent page Q sent us.
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         getFixedRowValue: function(x, y) {
             var colId = this.getColumnId(x);
             if (y < 1) {
@@ -349,12 +453,28 @@
             return total;
         },
 
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         getClickIndicator: function(colId) {
             var direction = this.block.C[colId];
             var image = this.getImage(imageMap[direction]);
             return image;
         },
 
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         getSortIndicator: function(colId) {
             var sortIndex = this.block.S.cols.indexOf(colId);
             if (sortIndex < 0) {
@@ -376,6 +496,14 @@
         // if e_[i]=1 then row i is a leaf. otherwise it's a node.
         // if row i is a node, then if o_[i]=0 then row i is closed (prefix with a +) else it's open (prefix with a -)
 
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         getFixedColumnValue: function(x, y) {
             var indentPixels = 10;
             var blob = this.block.Z[1];
@@ -395,16 +523,40 @@
         },
 
         //let Q decide if this instance is sortable or not
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         getCanSort: function() {
             return true;
         },
 
         //first ask q if this is a sortable instance, then send a message to Q to sort our data set
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         toggleSort: function(columnIndex) {
             var colId = this.getColumnId(columnIndex);
             this._toggleSort(colId);
         },
 
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         _toggleSort: function(colId) {
             if (!this.getCanSort()) {
                 return;
@@ -445,6 +597,14 @@
 
         },
 
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         getFixedRowAlignment: function(x, y) {
             if (y > 0) {
                 return this.getColumnAlignment(x);
@@ -452,6 +612,14 @@
             return this.resolveProperty('fixedRowAlign');
         },
         //delegate column alignment through the map at the top based on the column type
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         getColumnAlignment: function(x) {
             var colId = this.getColumnId(x);
             var type = this.block.Q[colId];
@@ -464,17 +632,41 @@
             return alignment;
         },
 
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         getColumnId: function(x) {
             var headers = this.block.F;
             var col = headers[x];
             return col;
         },
 
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         getFixedColumnAlignment: function( /* x */ ) {
             return 'left';
         },
 
         //hierarchy area clicked on lets sort there
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         topLeftClicked: function(grid, mouse) {
             var colId = hierarchyColumn;
             var colWidth = this.getFixedColumnWidth(0);
@@ -495,6 +687,14 @@
                 this._toggleSort(colId);
             }
         },
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         fixedColumnClicked: function(grid, mouse) {
             var rowNum = mouse.gridCell.y - this.scrollPositionY;
             var rows = this.block.Z[1].n_[rowNum];
@@ -510,6 +710,14 @@
             this.sendMessage(rowClick);
         },
 
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         fixedRowClicked: function(grid, mouse) {
             var x = mouse.gridCell.x;
             var y = mouse.gridCell.y;
@@ -534,6 +742,14 @@
             }
         },
 
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         cellClicked: function(cell, event) {
             var rowNum = cell.y - this.scrollPositionY;
             var rows = this.block.Z[1].n_[rowNum];
@@ -548,6 +764,14 @@
             this.grid.fireCellClickEvent(cell, event);
         },
 
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         sendMessage: function(message) {
             if (logMessages) {
                 console.dir('out-' + Date.now(), message);
@@ -555,6 +779,14 @@
             this.ws.send(JSON.stringify(message));
         },
 
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         openEditor: function(div) {
             if (!this.block.V) {
                 return false;
@@ -615,6 +847,14 @@
             return true;
         },
 
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         closeEditor: function(div) {
             var lists = div.lists;
             var changeCols = {
@@ -630,10 +870,26 @@
 
         //this is done through the dnd tool for now...
         //we can fix this to work both ways later
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         isColumnReorderable: function() {
             return true;
         },
 
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         getNextMessageId: function(onResponseDo) {
             var id = 'js_' + this.msgCounter++;
             if (onResponseDo) {
@@ -642,6 +898,14 @@
             return id;
         },
 
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         endDragColumnNotification: function() {
             var self = this;
 
@@ -674,6 +938,14 @@
             return true;
         },
 
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         handleMessage: function(d) {
             //insure certain things exist
             if (d.O && !d.O.columns) {
@@ -689,6 +961,14 @@
             this.autosizeHierarchyColumn();
         },
 
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         autosizeHierarchyColumn: function() {
             if (this.grid.resolveProperty('columnAutosizing') === false) {
                 return;
@@ -700,6 +980,14 @@
         },
 
         //websocket connection to Q.  try and do a reconnect after 2 seconds if we fail
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         connect: function() {
             var d = {};
             var self = this;
@@ -755,6 +1043,14 @@
             }
         },
 
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         beColumnStyle: function(style) {
             style.top = '5%';
             style.position = 'absolute';
@@ -763,15 +1059,39 @@
             style.whiteSpace = 'nowrap';
         },
 
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         highlightCellOnHover: function(isColumnHovered, isRowHovered) {
             return isRowHovered;
         },
 
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         getCellEditorAt: function(x, y) {
             noop(x, y);
             return null;
         },
 
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         getFixedColumnCount: function() {
             return 1;
         },

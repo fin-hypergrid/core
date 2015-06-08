@@ -24,12 +24,45 @@
 
     Polymer({ /* jslint ignore:line */
 
+        /**
+         * @property {type} varname - description
+         * @instance
+         */
         rows: 45,
+
+        /**
+         * @property {type} varname - description
+         * @instance
+         */
         columns: 75,
+
+        /**
+         * @property {type} varname - description
+         * @instance
+         */
         data: [],
+
+        /**
+         * @property {type} varname - description
+         * @instance
+         */
         buffer: [],
+
+        /**
+         * @property {type} varname - description
+         * @instance
+         */
         running: false,
 
+
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         ready: function() {
             this.readyInit();
             this.rows = this.getAttribute('rows') || this.rows;
@@ -38,6 +71,14 @@
             this.running = false;
         },
 
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         createCellProvider: function() {
             var provider = document.createElement('fin-hypergrid-cell-provider');
             provider.cellCache.simpleCellRenderer.paint = function(gc, x, y, width, height) {
@@ -56,6 +97,14 @@
             return provider;
         },
 
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         resetPetriDish: function() {
             this.data = [];
             this.buffer = [];
@@ -65,6 +114,14 @@
             this.changed();
         },
 
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         populate: function() {
             var x = 0;
             var y = 0;
@@ -75,6 +132,14 @@
             }
         },
 
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         initializeData: function(array2D) {
             for (var c = 0; c < this.columns; c++) {
                 var col = [];
@@ -85,6 +150,14 @@
             }
         },
 
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         toggleRunning: function() {
             this.running = !this.running;
             if (this.running) {
@@ -92,6 +165,14 @@
             }
         },
 
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         startLife: function() {
             if (!this.running) {
                 return;
@@ -108,6 +189,14 @@
             setTimeout(this.startLife.bind(this), 125);
         },
 
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         computeLifeAt: function(x, y) {
             var me = this._getValue(x, y);
             var total = this.getNeighborCount(x, y);
@@ -130,6 +219,14 @@
 
         },
 
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         getNeighborCount: function(x, y) {
             var data = this.data;
             var total = 0;
@@ -164,12 +261,28 @@
         },
 
 
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         _getNeighborCount: function(x, y) {
             var data = this.data;
             var sum = this.count3(data[x - 1], y) + this.count2(data[x], y) + this.count3(data[x + 1], y);
             return sum;
         },
 
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         count3: function(row, offset) {
             var sum = 0;
             for (var i = offset - 1; i <= offset + 1; i++) {
@@ -182,6 +295,14 @@
             return sum;
         },
 
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         count2: function(row, offset) {
             var sum = 0;
             for (var i = offset - 1; i <= offset + 1; i++) {
@@ -194,48 +315,136 @@
             return sum;
         },
 
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         getValue: function(x, y) {
             return this.data[x][y];
         },
 
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         setValue: function(x, y, value) {
             this.data[x][y] = value;
         },
 
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         getFixedColumnValue: function(x, y) {
             return y;
         },
 
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         getFixedRowValue: function(x, y) {
             noop(x, y);
             return '';
         },
 
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         getFixedColumnCount: function() {
             return 0;
         },
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         getFixedRowCount: function() {
             return 0;
         },
 
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         getColumnCount: function() {
             return this.data.length;
         },
 
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         getRowCount: function() {
             return this.data[0].length;
         },
 
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         getRowHeight: function(y) {
             noop(y);
             return 10;
         },
 
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         getColumnWidth: function(x) {
             noop(x);
             return 10;
         },
 
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         getNextState: function() {
             if (this.running) {
                 return 'pause';
@@ -244,6 +453,14 @@
             }
         },
 
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         onTap: function(grid, mouse) {
 
             var mX = this.scrollPositionX + mouse.gridCell.x;
@@ -254,6 +471,14 @@
             this.changed();
         },
 
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         applyPatternAt: function(array, c, r, pattern, dir) {
             var w = pattern.length;
             var h = pattern[0].length;

@@ -8,6 +8,14 @@
 
     Polymer({ /* jshint ignore:line */
 
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         handleTap: function(grid, event) {
             var gridCell = event.gridCell;
             var inFixedRowArea = gridCell.y < grid.getFixedRowCount();
@@ -21,6 +29,15 @@
                 grid.fixedColumnClicked(event);
             }
         },
+
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         handleMouseMove: function(grid, event) {
             if (this.isFixedRow(grid, event) && !this.isFixedColumn(grid, event)) {
                 this.cursor = 'pointer';

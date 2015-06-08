@@ -7,6 +7,15 @@
 (function() {
 
     Polymer('fin-hypergrid-feature-column-autosizing', { /* jshint ignore:line  */
+
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         handleDoubleClick: function(grid, event) {
             var fixedRowCount = grid.getFixedRowCount();
             var fixedColCount = grid.getFixedColumnCount();

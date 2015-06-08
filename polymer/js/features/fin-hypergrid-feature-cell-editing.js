@@ -7,6 +7,15 @@
 (function() {
 
     Polymer({ /* jshint ignore:line */
+
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         handleDoubleClick: function(grid, event) {
             var fixedColCount = grid.getFixedColumnCount();
             var fixedRowCount = grid.getFixedRowCount();
@@ -21,6 +30,14 @@
             }
         },
 
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         handleHoldPulse: function(grid, mouseEvent) {
             var primEvent = mouseEvent.primitiveEvent;
             if (primEvent.detail.count < 2) {

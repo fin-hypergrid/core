@@ -16,14 +16,56 @@
 
     Polymer({ /* jshint ignore:line */
 
+        /**
+         * @property {type} varname - description
+         * @instance
+         */
         floaterAnimationQueue: [],
+
+        /**
+         * @property {type} varname - description
+         * @instance
+         */
         columnDragAutoScrollingRight: false,
+
+        /**
+         * @property {type} varname - description
+         * @instance
+         */
         columnDragAutoScrollingLeft: false,
+
+        /**
+         * @property {type} varname - description
+         * @instance
+         */
         dragArmed: false,
+
+        /**
+         * @property {type} varname - description
+         * @instance
+         */
         dragging: false,
+
+        /**
+         * @property {type} varname - description
+         * @instance
+         */
         dragCol: -1,
+
+        /**
+         * @property {type} varname - description
+         * @instance
+         */
         dragOffset: 0,
 
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         initializeOn: function(grid) {
             this.isFloatingNow = false;
             this.initializeAnimationSupport(grid);
@@ -32,6 +74,14 @@
             }
         },
 
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         initializeAnimationSupport: function(grid) {
             noop(grid);
             if (!dragger) {
@@ -53,6 +103,14 @@
 
         },
 
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         handleMouseDrag: function(grid, event) {
 
             var gridCell = event.gridCell;
@@ -80,6 +138,14 @@
             }
         },
 
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         handleMouseDown: function(grid, event) {
             if (grid.getBehavior().isColumnReorderable()) {
                 if (this.isFixedRow(grid, event)) {
@@ -91,6 +157,14 @@
             }
         },
 
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         handleMouseUp: function(grid, event) {
             if (this.dragging) {
                 this.cursor = null;
@@ -111,6 +185,14 @@
 
         },
 
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         handleMouseMove: function(grid, event) {
 
             this.cursor = null;
@@ -125,6 +207,14 @@
 
         //do the animation and swap the columns
         //we need a better name
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         floatColumnTo: function(grid, draggedToTheRight) {
             this.floatingNow = true;
             var scrollLeft = grid.getHScrollValue();
@@ -163,6 +253,14 @@
             this.doFloaterAnimation(grid);
 
         },
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         doColumnMoveAnimation: function(grid, floaterStartX, draggerStartX) {
             var self = this;
             return function() {
@@ -193,6 +291,14 @@
             };
         },
 
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         doFloaterAnimation: function(grid) {
             if (this.floaterAnimationQueue.length === 0) {
                 this.floatingNow = false;
@@ -203,6 +309,14 @@
             animation();
         },
 
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         createFloatColumn: function(grid, columnIndex) {
             var scrollLeft = grid.getHScrollValue();
             var numFixedColumns = grid.getFixedColumnCount();
@@ -245,6 +359,14 @@
             style.cursor = 'none';
             grid.repaint();
         },
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         setCrossBrowserProperty: function(element, property, value) {
             var uProperty = property[0].toUpperCase() + property.substr(1);
             this.setProp(element, 'webkit' + uProperty, value);
@@ -253,11 +375,27 @@
             this.setProp(element, 'O' + uProperty, value);
             this.setProp(element, property, value);
         },
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         setProp: function(element, property, value) {
             if (property in element.style) {
                 element.style[property] = value;
             }
         },
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         createDragColumn: function(grid, x, columnIndex) {
             var scrollLeft = grid.getHScrollValue();
             var numFixedColumns = grid.getFixedColumnCount();
@@ -306,6 +444,14 @@
 
         },
 
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         dragColumn: function(grid, x) {
 
             //TODO: this function is overly complex, refactor this in to something more reasonable
@@ -378,6 +524,14 @@
             }
         },
 
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         checkAutoScrollToRight: function(grid, x) {
             if (this.columnDragAutoScrollingRight) {
                 return;
@@ -386,6 +540,14 @@
             this._checkAutoScrollToRight(grid, x);
         },
 
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         _checkAutoScrollToRight: function(grid, x) {
             if (!this.columnDragAutoScrollingRight) {
                 return;
@@ -403,6 +565,14 @@
             setTimeout(this._checkAutoScrollToRight.bind(this, grid, x), 250);
         },
 
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         findNewPositionOnScrollRight: function(dragIndex) {
             noop(dragIndex);
             //we need to compute the new index of dragIndex if it's assumed to be on the far right and we scroll one cell to the right
@@ -424,6 +594,14 @@
             return max - 1;
         },
 
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         checkAutoScrollToLeft: function(grid, x) {
             if (this.columnDragAutoScrollingLeft) {
                 return;
@@ -432,6 +610,14 @@
             this._checkAutoScrollToLeft(grid, x);
         },
 
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         _checkAutoScrollToLeft: function(grid, x) {
             if (!this.columnDragAutoScrollingLeft) {
                 return;
@@ -447,6 +633,14 @@
             setTimeout(this._checkAutoScrollToLeft.bind(this, grid, x), 250);
         },
 
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         endDragColumn: function(grid) {
             var self = this;
             var numFixedColumns = grid.getFixedColumnCount();

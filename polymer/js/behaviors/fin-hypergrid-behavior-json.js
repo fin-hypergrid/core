@@ -11,21 +11,65 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
 
     Polymer({ /* jslint ignore:line */
 
+
+        /**
+         * @property {type} varname - description
+         * @instance
+         */
         data: [],
+
+        /**
+         * @property {type} varname - description
+         * @instance
+         */
         headers: [],
+
+        /**
+         * @property {type} varname - description
+         * @instance
+         */
         fields: [],
+
+        /**
+         * @property {type} varname - description
+         * @instance
+         */
         totals: [],
 
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         ready: function() {
             this.readyInit();
             this.tableState.sorted = [];
             this.sortStates = [undefined, 'up-arrow', 'down-arrow'];
         },
 
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         isValidIdentifer: function(string) {
             return 0 === (string + '').search(validIdentifierMatch);
         },
 
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         createCellProvider: function() {
             var self = this;
             var provider = document.createElement('fin-hypergrid-cell-provider');
@@ -43,10 +87,26 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
             return provider;
         },
 
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         getTopLeftAlignment: function(x, y) {
             return this.getFixedRowAlignment(x, y);
         },
 
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         getFixedRowAlignment: function(x, y) {
             if (y === 0) {
                 return 'center';
@@ -58,6 +118,14 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
             return cell.config.halign;
         },
 
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         getFixedColumnAlignment: function(x, y) {
             var cell = this.cellProvider.getCell({
                 x: x,
@@ -66,14 +134,38 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
             return cell.config.halign;
         },
 
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         getTopLeftValue: function(x, y) {
             return this.getFixedRowValue(x, y);
         },
 
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         setHeaders: function(headerLabels) {
             this.headers = headerLabels;
         },
 
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         getHeaders: function() {
             if (this.headers.length === 0) {
                 this.setHeaders(this.getDefaultHeaders());
@@ -81,10 +173,26 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
             return this.headers;
         },
 
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         getHeader: function(x /*, y*/ ) {
             return this.headers[x];
         },
 
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         getDefaultHeaders: function() {
             var self = this;
             var fields = this.getFields();
@@ -97,6 +205,14 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
             return headers;
         },
 
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         headerify: function(string) {
             var pieces = string.replace(/[_-]/g, ' ').replace(/[A-Z]/g, ' $&').split(' ').map(function(s) {
                 return s.charAt(0).toUpperCase() + s.slice(1);
@@ -104,10 +220,26 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
             return pieces.join(' ');
         },
 
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         setFields: function(fieldNames) {
             this.fields = fieldNames;
         },
 
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         getFields: function() {
             if (this.fields.length === 0) {
                 this.setFields(this.getDefaultFields());
@@ -115,6 +247,14 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
             return this.fields;
         },
 
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         getDefaultFields: function() {
             if (this.data && this.data.length === 0) {
                 return [];
@@ -125,23 +265,55 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
             return fields;
         },
 
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         setData: function(jsonData) {
             this.data = jsonData;
             this.initColumnIndexes();
             this.dataModified();
         },
 
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         dataModified: function() {
             this.initDataIndexes();
             this.applySorts();
             this.changed();
         },
 
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         setTotals: function(jsonData) {
             this.totals = jsonData;
             this.changed();
         },
 
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         setColumns: function(columnDefinitions) {
             var fields = new Array(columnDefinitions.length);
             var headers = new Array(columnDefinitions.length);
@@ -154,6 +326,14 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
             this.setHeaders(headers);
         },
 
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         initDataIndexes: function() {
             //initialize the indexe cache
             for (var i = 0; i < this.data.length; i++) {
@@ -162,21 +342,53 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
             }
         },
 
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         getValue: function(x, y) {
             var fields = this.getFields();
             return this.data[y][fields[x]];
         },
 
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         setValue: function(x, y, value) {
             var fields = this.getFields();
             this.data[y][fields[x]] = value;
         },
 
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         getFixedColumnValue: function(x, y) {
             //x = this.fixedtranslateColumnIndex(x);
             return this.getValue(x, y);
         },
 
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         getFixedRowValue: function(x, y) {
             if (y === 0) {
                 var headers = this.getHeaders();
@@ -187,21 +399,53 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
             }
         },
 
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         getRowCount: function() {
             return this.data.length;
         },
 
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         getColumnCount: function() {
             var fields = this.getFields();
             return fields.length;
         },
 
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         setState: function(state) {
             this.tableState = state;
             this.applySorts();
             this.changed();
         },
 
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         applySorts: function() {
             var state = this.getState();
             var sorts = state.sorted;
@@ -229,6 +473,14 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
             }
         },
 
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         toggleSort: function(columnIndex, incrementIt) {
             if (incrementIt === undefined) {
                 incrementIt = 1;
@@ -285,11 +537,27 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
             this.changed();
         },
 
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         getRow: function(y) {
             return this.data[y];
         },
 
 
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         cellPrePaintNotification: function(cell) {
             var row = this.getRow(cell.config.y);
             var columnId = this.getHeader(cell.config.x);
@@ -297,10 +565,26 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
             cell.config.columnId = columnId;
         },
 
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         cellFixedRowPrePaintNotification: function( /* cell */ ) {
 
         },
 
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         cellFixedColumnPrePaintNotification: function(cell) {
             var row = this.getRow(cell.config.y);
             var columnId = this.getHeader(cell.config.x);
@@ -308,6 +592,14 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
             cell.config.columnId = columnId;
         },
 
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         cellTopLeftPrePaintNotification: function( /* cell */ ) {
 
         }

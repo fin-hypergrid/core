@@ -22,13 +22,40 @@
     var a = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 
     Polymer({ /* jslint ignore:line */
+
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         getValue: function(x, y) {
             return x + ', ' + a[y % 26];
         },
+
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         getFixedRowValue: function(x /*, y*/ ) {
             return alphaFor(x);
         },
 
+
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         getFixedColumnCount: function() {
             return 1;
         },

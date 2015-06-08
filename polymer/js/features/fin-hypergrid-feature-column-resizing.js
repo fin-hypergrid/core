@@ -10,60 +10,186 @@
 
     Polymer({ /* jshint ignore:line */
 
+        /**
+         * @property {type} varname - description
+         * @instance
+         */
         dragIndex: -1,
+
+        /**
+         * @property {type} varname - description
+         * @instance
+         */
         dragStart: -1,
+
+        /**
+         * @property {type} varname - description
+         * @instance
+         */
         dragIndexStartingSize: -1,
 
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         getFixedAreaCount: function(grid) {
             return grid.getFixedColumnCount();
         },
 
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         getMouseValue: function(event) {
             return event.primitiveEvent.detail.mouse.x;
         },
 
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         getGridCellValue: function(gridCell) {
             return gridCell.y;
         },
 
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         getScrollValue: function(grid) {
             return grid.getHScrollValue();
         },
 
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         getAreaSize: function(grid, index) {
             return grid.getColumnWidth(index);
         },
 
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         setAreaSize: function(grid, index, value) {
             grid.setColumnWidth(index, value);
         },
 
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         getOtherFixedAreaCount: function(grid) {
             return grid.getFixedRowCount();
         },
 
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         getFixedAreaSize: function(grid, index) {
             return grid.getFixedColumnWidth(index);
         },
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         getPreviousAbsoluteSize: function(grid, index) {
             return grid.getRenderedWidth(index);
         },
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         setFixedAreaSize: function(grid, index, value) {
             grid.setFixedColumnWidth(index, value);
         },
 
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         overAreaDivider: function(grid, event) {
             return grid.overColumnDivider(event);
         },
 
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         isFixedOtherArea: function(grid, event) {
             return this.isFixedRow(grid, event);
         },
 
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         getCursorName: function() {
             return 'col-resize';
         },
 
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         handleMouseDrag: function(grid, event) {
             if (this.dragIndex > -1) {
                 //var fixedAreaCount = this.getFixedAreaCount(grid);
@@ -75,6 +201,14 @@
             }
         },
 
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         setSize: function(grid, areaIndex, size) {
             var fixedAreaCount = this.getFixedAreaCount(grid);
             var scrollValue = this.getScrollValue(grid);
@@ -85,6 +219,14 @@
             }
         },
 
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         getSize: function(grid, areaIndex) {
             var fixedAreaCount = this.getFixedAreaCount(grid);
             if (areaIndex < 0) {
@@ -94,6 +236,14 @@
             }
         },
 
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         handleMouseDown: function(grid, event) {
             var gridCell = event.gridCell;
             var overArea = this.overAreaDivider(grid, event);
@@ -112,6 +262,14 @@
             }
         },
 
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         handleMouseUp: function(grid, event) {
             if (this.dragIndex > -1) {
                 this.cursor = null;
@@ -128,6 +286,14 @@
             }
         },
 
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         handleMouseMove: function(grid, event) {
             if (this.dragIndex > -1) {
                 return;
@@ -139,6 +305,14 @@
             this.checkForAreaResizeCursorChange(grid, event);
         },
 
+        /**
+        * @function
+        * @instance
+        * @description
+        fill this in
+        * #### returns: type
+        * @param {type} varname - descripton
+        */
         checkForAreaResizeCursorChange: function(grid, event) {
 
             //var gridCell = event.gridCell;
