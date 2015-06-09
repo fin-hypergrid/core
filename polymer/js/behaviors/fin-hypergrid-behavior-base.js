@@ -107,9 +107,8 @@
          * @function
          * @instance
          * @description
-         fill this in
-         * #### returns: type
-         * @param {type} varname - descripton
+         utility function to empty an object of its members
+         * @param {Object} obj - the object to empty
          */
         clearObjectProperties: function(obj) {
             for (var prop in obj) {
@@ -123,9 +122,7 @@
          * @function
          * @instance
          * @description
-         fill this in
-         * #### returns: type
-         * @param {type} varname - descripton
+         polymer lifecycle event
          */
         ready: function() {
             this.readyInit();
@@ -135,16 +132,14 @@
          * @function
          * @instance
          * @description
-         fill this in
-         * #### returns: type
-         * @param {type} varname - descripton
+         the function to override for initialization
          */
         readyInit: function() {
             this.cellProvider = this.createCellProvider();
             this.scrollPositionX = 0;
             this.scrollPositionY = 0;
-            this.renderedWidth = 30;
-            this.renderedHeight = 60;
+            this.renderedColumnCount = 30;
+            this.renderedRowCount = 60;
             this.tableState = {
                 columnIndexes: [],
                 fixedColumnIndexes: [],
@@ -168,9 +163,9 @@
          * @function
          * @instance
          * @description
-         fill this in
-         * #### returns: type
-         * @param {type} varname - descripton
+         fetch the value for a property key
+         * #### returns: Object
+         * @param {string} key - a property name
          */
         resolveProperty: function(key) {
             return this.grid.resolveProperty(key);
@@ -180,9 +175,8 @@
          * @function
          * @instance
          * @description
-         fill this in
-         * #### returns: type
-         * @param {type} varname - descripton
+         getter for a [Memento](http://c2.com/cgi/wiki?MementoPattern) Object
+         * #### returns: Object
          */
         getState: function() {
             return this.tableState;
@@ -192,9 +186,8 @@
          * @function
          * @instance
          * @description
-         fill this in
-         * #### returns: type
-         * @param {type} varname - descripton
+         setter for a [Memento](http://c2.com/cgi/wiki?MementoPattern) Object
+         * @param {Object} state - [Memento](http://c2.com/cgi/wiki?MementoPattern) Object
          */
         setState: function(state) {
             for (var key in state) {
@@ -208,9 +201,9 @@
          * @function
          * @instance
          * @description
-         fill this in
-         * #### returns: type
-         * @param {type} varname - descripton
+         a specific cell was clicked, you've been notified
+         * @param {rectangle.point} cell - point of cell coordinates
+         * @param {Object} event - all event information
          */
         cellClicked: function(cell, event) {
             this.grid.fireCellClickEvent(cell, event);
@@ -220,9 +213,7 @@
          * @function
          * @instance
          * @description
-         fill this in
-         * #### returns: type
-         * @param {type} varname - descripton
+         reset both fixed and normal column indexes, this is will cause columns to display in their true order
          */
         initColumnIndexes: function() {
             var columnCount = this._getColumnCount();
@@ -240,9 +231,7 @@
          * @function
          * @instance
          * @description
-         fill this in
-         * #### returns: type
-         * @param {type} varname - descripton
+         make sure the column indexes are initialized
          */
         insureColumnIndexesAreInitialized: function() {
             this.swapColumns(0, 0);
@@ -252,9 +241,9 @@
          * @function
          * @instance
          * @description
-         fill this in
-         * #### returns: type
-         * @param {type} varname - descripton
+         swap src and tar columns
+         * @param {integer} src - column index
+         * @param {integer} tar - column index
          */
         swapColumns: function(src, tar) {
             var indexes = this.tableState.columnIndexes;
@@ -271,9 +260,9 @@
          * @function
          * @instance
          * @description
-         fill this in
-         * #### returns: type
-         * @param {type} varname - descripton
+         translate the viewed index to the real index
+         * #### returns: integer
+         * @param {integer} x - viewed index
          */
         translateColumnIndex: function(x) {
             var indexes = this.tableState.columnIndexes;
@@ -287,9 +276,9 @@
          * @function
          * @instance
          * @description
-         fill this in
-         * #### returns: type
-         * @param {type} varname - descripton
+         translate the real index to the viewed index
+         * #### returns: integer
+         * @param {integer} x - the real index
          */
         unTranslateColumnIndex: function(x) {
             return this.tableState.columnIndexes.indexOf(x);
@@ -299,9 +288,8 @@
          * @function
          * @instance
          * @description
-         fill this in
-         * #### returns: type
-         * @param {type} varname - descripton
+         add nextFeature to me If I don't have a next node, otherwise pass it along
+         * @param {fin-hypergrid-feature-base} nextFeature - [fin-hypergrid-feature-base](module-features_base.html)
          */
         setNextFeature: function(nextFeature) {
             if (this.featureChain) {
@@ -315,9 +303,8 @@
          * @function
          * @instance
          * @description
-         fill this in
-         * #### returns: type
-         * @param {type} varname - descripton
+         this is the callback for the plugin pattern of nested tags
+         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
          */
         installOn: function(grid) {
             grid.setBehavior(this);
@@ -328,9 +315,8 @@
          * @function
          * @instance
          * @description
-         fill this in
-         * #### returns: type
-         * @param {type} varname - descripton
+         create the feature chain - this is the [chain of responsibility](http://c2.com/cgi/wiki?ChainOfResponsibilityPattern) pattern.
+         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
          */
         initializeFeatureChain: function(grid) {
             this.setNextFeature(document.createElement('fin-hypergrid-feature-key-paging'));
@@ -353,9 +339,8 @@
          * @function
          * @instance
          * @description
-         fill this in
-         * #### returns: type
-         * @param {type} varname - descripton
+         getter for the cell provider
+         * #### returns: [fin-hypergrid-cell-provider](module-._cell-provider.html)
          */
         getCellProvider: function() {
             return this.cellProvider;
@@ -365,9 +350,8 @@
          * @function
          * @instance
          * @description
-         fill this in
-         * #### returns: type
-         * @param {type} varname - descripton
+         setter for the hypergrid
+         * @param {fin-hypergrid} finGrid - [fin-hypergrid](module-._fin-hypergrid.html)
          */
         setGrid: function(finGrid) {
             this.grid = finGrid;
@@ -377,8 +361,8 @@
          * @function
          * @instance
          * @description
-         fill this in
-         * #### returns: type
+         getter for the hypergrid
+         * #### returns: [fin-hypergrid](module-._fin-hypergrid.html)
          * @param {type} varname - descripton
          */
         getGrid: function() {
@@ -389,9 +373,8 @@
          * @function
          * @instance
          * @description
-         fill this in
-         * #### returns: type
-         * @param {type} varname - descripton
+         you can override this function and substitute your own cell provider
+         * #### returns: [fin-hypergrid-cell-provider](module-._cell-provider.html)
          */
         createCellProvider: function() {
             var provider = document.createElement('fin-hypergrid-cell-provider');
@@ -402,9 +385,10 @@
          * @function
          * @instance
          * @description
-         fill this in
-         * #### returns: type
-         * @param {type} varname - descripton
+         return the value at x,y for the top left section of the hypergrid
+         * #### returns: Object
+         * @param {integer} x - x coordinate
+         * @param {integer} y - y coordinate
          */
         getTopLeftValue: function( /* x, y */ ) {
             return '';
@@ -414,9 +398,10 @@
          * @function
          * @instance
          * @description
-         fill this in
-         * #### returns: type
-         * @param {type} varname - descripton
+         return the value at x,y for the top left section of the hypergrid, first check to see if something was overridden
+         * #### returns: Object
+         * @param {integer} x - x coordinate
+         * @param {integer} y - y coordinate
          */
         _getValue: function(x, y) {
             x = this.translateColumnIndex(x);
@@ -431,9 +416,11 @@
          * @function
          * @instance
          * @description
-         fill this in
+         update the data at point x, y with value
          * #### returns: type
-         * @param {type} varname - descripton
+         * @param {integer} x - x coordinate
+         * @param {integer} y - y coordinate
+         * @param {Object} value - the value to use
          */
         _setValue: function(x, y, value) {
             x = this.translateColumnIndex(x);
@@ -444,9 +431,10 @@
          * @function
          * @instance
          * @description
-         fill this in
-         * #### returns: type
-         * @param {type} varname - descripton
+         return the view translated value at x,y for the fixed row area
+         * #### returns: Object
+         * @param {integer} x - x coordinate
+         * @param {integer} y - y coordinate
          */
         _getFixedRowValue: function(x, y) {
             x = this.translateColumnIndex(x);
@@ -457,9 +445,10 @@
          * @function
          * @instance
          * @description
-         fill this in
-         * #### returns: type
-         * @param {type} varname - descripton
+         return the value at x,y for the fixed row area
+         * #### returns: Object
+         * @param {integer} x - x coordinate
+         * @param {integer} y - y coordinate
          */
         getFixedColumnValue: function(x, y) {
             //x = this.fixedtranslateColumnIndex(x);
@@ -470,9 +459,8 @@
          * @function
          * @instance
          * @description
-         fill this in
-         * #### returns: type
-         * @param {type} varname - descripton
+         return the number of rows
+         * #### returns: integer
          */
         getRowCount: function() {
             //jeepers batman a quadrillion rows!
@@ -483,9 +471,8 @@
          * @function
          * @instance
          * @description
-         fill this in
-         * #### returns: type
-         * @param {type} varname - descripton
+         return the total number of columns adjusted for hidden columns
+         * #### returns: integer
          */
         _getColumnCount: function() {
             return this.getColumnCount() - this.tableState.hiddenColumns.length - this.fixedColumnCount;
@@ -495,9 +482,8 @@
          * @function
          * @instance
          * @description
-         fill this in
-         * #### returns: type
-         * @param {type} varname - descripton
+         return the height in pixels of the fixed rows area
+         * #### returns: integer
          */
         getFixedRowsHeight: function() {
             var count = this.getFixedRowCount();
@@ -512,9 +498,9 @@
          * @function
          * @instance
          * @description
-         fill this in
-         * #### returns: type
-         * @param {type} varname - descripton
+         return the pixel height of a specific row in the fixed row area
+         * #### returns: integer
+         * @param {integer} rowNum - the row index of interest
          */
         getFixedRowHeight: function(rowNum) {
             if (this.tableState.fixedRowHeights) {
@@ -530,9 +516,9 @@
          * @function
          * @instance
          * @description
-         fill this in
-         * #### returns: type
-         * @param {type} varname - descripton
+         set the height of a specific row in the fixed row area
+         * @param {integer} rowNum - the row integer to affect
+         * @param {integer} height - the pixel height to set it to
          */
         setFixedRowHeight: function(rowNum, height) {
             //console.log(rowNum + ' ' + height);
@@ -544,9 +530,9 @@
          * @function
          * @instance
          * @description
-         fill this in
-         * #### returns: type
-         * @param {type} varname - descripton
+         get height in pixels of a specific row
+         * #### returns: integer
+         * @param {integer} rowNum - row index of interest
          */
         getRowHeight: function(rowNum) {
             if (this.tableState.rowHeights) {
@@ -562,9 +548,8 @@
          * @function
          * @instance
          * @description
-         fill this in
-         * #### returns: type
-         * @param {type} varname - descripton
+         returns a lazily initialized value from the properties mechanism for 'defaultRowHeight', should be ~20px
+         * #### returns: integer
          */
         getDefaultRowHeight: function() {
             if (!this.defaultRowHeight) {
@@ -577,9 +562,9 @@
          * @function
          * @instance
          * @description
-         fill this in
-         * #### returns: type
-         * @param {type} varname - descripton
+         set the pixel height of a specific row
+         * @param {integer} rowNum - the row index of interest
+         * @param {integer} height - pixel height
          */
         setRowHeight: function(rowNum, height) {
             this.tableState.rowHeights[rowNum] = Math.max(5, height);
@@ -590,9 +575,8 @@
          * @function
          * @instance
          * @description
-         fill this in
-         * #### returns: type
-         * @param {type} varname - descripton
+         return the potential maximum height of the fixed rows areas, this will allow 'floating' fixed rows
+         * #### returns: integer
          */
         getFixedRowsMaxHeight: function() {
             var height = this.getFixedRowsHeight();
@@ -603,9 +587,8 @@
          * @function
          * @instance
          * @description
-         fill this in
-         * #### returns: type
-         * @param {type} varname - descripton
+         return the width of the fixed column area
+         * #### returns: integer
          */
         getFixedColumnsWidth: function() {
             var count = this.getFixedColumnCount();
@@ -620,9 +603,9 @@
          * @function
          * @instance
          * @description
-         fill this in
-         * #### returns: type
-         * @param {type} varname - descripton
+         set the width of a specific column in the fixed column area
+         * @param {integer} colNumber - the column index of interest
+         * @param {integer} width - the width in pixels
          */
         setFixedColumnWidth: function(colNumber, width) {
             this.tableState.fixedColumnWidths[colNumber] = Math.max(5, width);
@@ -633,9 +616,8 @@
          * @function
          * @instance
          * @description
-         fill this in
-         * #### returns: type
-         * @param {type} varname - descripton
+         return the potential total width of the fixed columns area; this exists to support 'floating' columns
+         * #### returns: integer
          */
         getFixedColumnsMaxWidth: function() {
             var width = this.getFixedColumnsWidth();
@@ -646,9 +628,9 @@
          * @function
          * @instance
          * @description
-         fill this in
-         * #### returns: type
-         * @param {type} varname - descripton
+         return the width of a specific column in the fixed column area
+         * #### returns: integer
+         * @param {integer} colNumber - the column index of interest
          */
         getFixedColumnWidth: function(colNumber) {
             var override = this.tableState.fixedColumnWidths[colNumber];
@@ -662,9 +644,9 @@
          * @function
          * @instance
          * @description
-         fill this in
-         * #### returns: type
-         * @param {type} varname - descripton
+         return the behavior column width of specific column given a view column index
+         * #### returns: integer
+         * @param {integer} x - the view column index
          */
         _getColumnWidth: function(x) {
             x = this.translateColumnIndex(x);
@@ -675,9 +657,9 @@
          * @function
          * @instance
          * @description
-         fill this in
-         * #### returns: type
-         * @param {type} varname - descripton
+         set the width of a specific column in the model given a view column index
+         * @param {integer} x - the view column index
+         * @param {integer} width - the width in pixels
          */
         _setColumnWidth: function(x, width) {
             x = this.translateColumnIndex(x);
@@ -689,9 +671,8 @@
          * @function
          * @instance
          * @description
-         fill this in
-         * #### returns: type
-         * @param {type} varname - descripton
+         set the scroll position in vertical dimension and notifiy listeners
+         * @param {integer} y - the new y value
          */
         _setScrollPositionY: function(y) {
             this.setScrollPositionY(y);
@@ -702,9 +683,8 @@
          * @function
          * @instance
          * @description
-         fill this in
-         * #### returns: type
-         * @param {type} varname - descripton
+         set the scroll position in horizontal dimension and notifiy listeners
+         * @param {integer} x - the new x value
          */
         _setScrollPositionX: function(x) {
             this.setScrollPositionX(x);
@@ -715,33 +695,31 @@
          * @function
          * @instance
          * @description
-         fill this in
-         * #### returns: type
-         * @param {type} varname - descripton
+         set the number of columns just rendered, includes partially rendered columns
+         * @param {integer} count - how many columns were just rendered
          */
-        setRenderedWidth: function(width) {
-            this.renderedWidth = width;
+        setRenderedColumnCount: function(count) {
+            this.renderedColumnCount = count;
         },
 
         /**
          * @function
          * @instance
          * @description
-         fill this in
-         * #### returns: type
-         * @param {type} varname - descripton
+         set the number of rows just rendered, includes partially rendered rows
+         * @param {integer} count - how many rows were just rendered
          */
-        setRenderedHeight: function(height) {
-            this.renderedHeight = height;
+        setRenderedRowCount: function(count) {
+            this.renderedRowCount = count;
         },
 
         /**
          * @function
          * @instance
          * @description
-         fill this in
-         * #### returns: type
-         * @param {type} varname - descripton
+         return the view translated alignment for column x
+         * #### returns: string ['left','center','right']
+         * @param {integer} x - descripton
          */
         _getColumnAlignment: function(x) {
             x = this.translateColumnIndex(x);
@@ -752,8 +730,8 @@
          * @function
          * @instance
          * @description
-         fill this in
-         * #### returns: type
+         return the alignment at x,y of the top left area
+         * #### returns: string ['left','center','right']
          * @param {type} varname - descripton
          */
         getTopLeftAlignment: function( /* x, y */ ) {
@@ -764,9 +742,9 @@
          * @function
          * @instance
          * @description
-         fill this in
-         * #### returns: type
-         * @param {type} varname - descripton
+         return the alignment at x for the fixed column area
+         * #### returns: string ['left','center','right']
+         * @param {integer} x - the fixed column index of interest
          */
         getFixedColumnAlignment: function( /* x */ ) {
             return this.resolveProperty('fixedColumnAlign');
@@ -776,9 +754,10 @@
          * @function
          * @instance
          * @description
-         fill this in
-         * #### returns: type
-         * @param {type} varname - descripton
+         return the view translated alignment at x,y in the fixed row area
+         * #### returns: string ['left','center','right']
+         * @param {integer} x - the fixed column index of interest
+         * @param {integer} y - the fixed row index of interest
          */
         _getFixedRowAlignment: function(x, y) {
             x = this.translateColumnIndex(x);
@@ -789,9 +768,9 @@
          * @function
          * @instance
          * @description
-         fill this in
-         * #### returns: type
-         * @param {type} varname - descripton
+         the top left area has been clicked, you've been notified
+         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+         * @param {Object} mouse - event details
          */
         topLeftClicked: function(grid, mouse) {
             if (mouse.gridCell.x < this.fixedColumnCount) {
@@ -805,9 +784,9 @@
          * @function
          * @instance
          * @description
-         fill this in
-         * #### returns: type
-         * @param {type} varname - descripton
+         the fixed row area has been clicked, massage the details and call the real function
+         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+         * @param {Object} mouse - event details
          */
         _fixedRowClicked: function(grid, mouse) {
             var x = this.translateColumnIndex(mouse.gridCell.x - this.getFixedColumnCount());
@@ -820,10 +799,10 @@
          * @function
          * @instance
          * @description
-         fill this in
-         * #### returns: type
-         * @param {type} varname - descripton
-         */
+         the fixed column area has been clicked, massage the details and call the real function
+         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+         * @param {Object} mouse - event details
+        */
         _fixedColumnClicked: function(grid, mouse) {
             var translatedPoint = this.grid.rectangles.point.create(mouse.gridCell.x, this.scrollPositionY + mouse.gridCell.y - this.getFixedRowCount());
             mouse.gridCell = translatedPoint;
@@ -834,9 +813,8 @@
          * @function
          * @instance
          * @description
-         fill this in
-         * #### returns: type
-         * @param {type} varname - descripton
+         delegate setting the cursor up the feature chain of responsibility
+         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
          */
         setCursor: function(grid) {
             grid.updateCursor();
@@ -847,9 +825,9 @@
          * @function
          * @instance
          * @description
-         fill this in
-         * #### returns: type
-         * @param {type} varname - descripton
+         delegate handling mouse move to the feature chain of responsibility
+         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+         * @param {Object} event - the event details
          */
         onMouseMove: function(grid, event) {
             if (this.featureChain) {
@@ -862,9 +840,9 @@
          * @function
          * @instance
          * @description
-         fill this in
-         * #### returns: type
-         * @param {type} varname - descripton
+         delegate handling tap to the feature chain of responsibility
+         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+         * @param {Object} event - the event details
          */
         onTap: function(grid, event) {
             if (this.featureChain) {
@@ -877,9 +855,9 @@
          * @function
          * @instance
          * @description
-         fill this in
-         * #### returns: type
-         * @param {type} varname - descripton
+         delegate handling wheel moved to the feature chain of responsibility
+         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+         * @param {Object} event - the event details
          */
         onWheelMoved: function(grid, event) {
             if (this.featureChain) {
@@ -892,9 +870,9 @@
          * @function
          * @instance
          * @description
-         fill this in
-         * #### returns: type
-         * @param {type} varname - descripton
+         delegate handling mouse up to the feature chain of responsibility
+         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+         * @param {Object} event - the event details
          */
         onMouseUp: function(grid, event) {
             if (this.featureChain) {
@@ -907,9 +885,9 @@
          * @function
          * @instance
          * @description
-         fill this in
-         * #### returns: type
-         * @param {type} varname - descripton
+         delegate handling mouse drag to the feature chain of responsibility
+         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+         * @param {Object} event - the event details
          */
         onMouseDrag: function(grid, event) {
             if (this.featureChain) {
@@ -922,9 +900,9 @@
          * @function
          * @instance
          * @description
-         fill this in
-         * #### returns: type
-         * @param {type} varname - descripton
+         delegate handling key down to the feature chain of responsibility
+         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+         * @param {Object} event - the event details
          */
         onKeyDown: function(grid, event) {
             if (this.featureChain) {
@@ -937,9 +915,9 @@
          * @function
          * @instance
          * @description
-         fill this in
-         * #### returns: type
-         * @param {type} varname - descripton
+         delegate handling key up to the feature chain of responsibility
+         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+         * @param {Object} event - the event details
          */
         onKeyUp: function(grid, event) {
             if (this.featureChain) {
@@ -952,9 +930,9 @@
          * @function
          * @instance
          * @description
-         fill this in
-         * #### returns: type
-         * @param {type} varname - descripton
+         delegate handling double click to the feature chain of responsibility
+         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+         * @param {Object} event - the event details
          */
         onDoubleClick: function(grid, event) {
             if (this.featureChain) {
@@ -967,9 +945,9 @@
          * @function
          * @instance
          * @description
-         fill this in
-         * #### returns: type
-         * @param {type} varname - descripton
+         delegate handling hold pulse to the feature chain of responsibility
+         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+         * @param {Object} event - the event details
          */
         onHoldPulse: function(grid, event) {
             if (this.featureChain) {
@@ -982,9 +960,9 @@
          * @function
          * @instance
          * @description
-         fill this in
-         * #### returns: type
-         * @param {type} varname - descripton
+         delegate handling mouse down to the feature chain of responsibility
+         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+         * @param {Object} event - the event details
          */
         handleMouseDown: function(grid, event) {
             if (this.featureChain) {
@@ -997,9 +975,9 @@
          * @function
          * @instance
          * @description
-         fill this in
-         * #### returns: type
-         * @param {type} varname - descripton
+         delegate handling mouse exit to the feature chain of responsibility
+         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+         * @param {Object} event - the event details
          */
         handleMouseExit: function(grid, event) {
             if (this.featureChain) {
@@ -1012,9 +990,10 @@
          * @function
          * @instance
          * @description
-         fill this in
-         * #### returns: type
-         * @param {type} varname - descripton
+         return the cell editor for cell at x,y
+         * #### returns: [fin-hypergrid-cell-editor-base](module-cell-editors_base.html)
+         * @param {integer} x - x coordinate
+         * @param {integer} y - y coordinate
          */
         _getCellEditorAt: function(x, y) {
             noop(y);
@@ -1026,9 +1005,7 @@
          * @function
          * @instance
          * @description
-         fill this in
-         * #### returns: type
-         * @param {type} varname - descripton
+         this function is replaced by the grid on initialization and serves as the callback
          */
         changed: function() {},
 
@@ -1036,9 +1013,7 @@
          * @function
          * @instance
          * @description
-         fill this in
-         * #### returns: type
-         * @param {type} varname - descripton
+         this function is replaced by the grid on initialization and serves as the callback
          */
         shapeChanged: function() {},
 
@@ -1046,9 +1021,8 @@
          * @function
          * @instance
          * @description
-         fill this in
-         * #### returns: type
-         * @param {type} varname - descripton
+         return true if we can re-order columns
+         * #### returns: boolean
          */
         isColumnReorderable: function() {
             return true;
@@ -1058,9 +1032,9 @@
          * @function
          * @instance
          * @description
-         fill this in
-         * #### returns: type
-         * @param {type} varname - descripton
+         return the properties for a specific column, these are used if no cell properties are specified
+         * #### returns: Object
+         * @param {index} columnIndex - the column index of interest
          */
         getColumnProperties: function(columnIndex) {
             noop(columnIndex);
@@ -1078,9 +1052,8 @@
          * @function
          * @instance
          * @description
-         fill this in
-         * #### returns: type
-         * @param {type} varname - descripton
+         returns the list of labels to use for the column picker
+         * #### returns: Array of strings
          */
         getDNDColumnLabels: function() {
             //assumes there is one row....
@@ -1103,9 +1076,9 @@
          * @function
          * @instance
          * @description
-         fill this in
-         * #### returns: type
-         * @param {type} varname - descripton
+         return the column heading at colIndex
+         * #### returns: string
+         * @param {integer} colIndex - the column index of interest
          */
         getHeader: function(colIndex) {
             return this.getFixedRowValue(colIndex, 0);
@@ -1115,9 +1088,8 @@
          * @function
          * @instance
          * @description
-         fill this in
-         * #### returns: type
-         * @param {type} varname - descripton
+         this is called by the column editor post closing; rebuild the column order indexes
+         * @param {Array} list - list of column objects from the column editor
          */
         setDNDColumnLabels: function(list) {
             //assumes there is one row....
@@ -1138,9 +1110,8 @@
          * @function
          * @instance
          * @description
-         fill this in
-         * #### returns: type
-         * @param {type} varname - descripton
+         return an Array of strings of the column header labels that are currently hidden
+         * #### returns: Array of strings
          */
         getDNDHiddenColumnLabels: function() {
             var indexes = this.tableState.hiddenColumns;
@@ -1159,9 +1130,8 @@
          * @function
          * @instance
          * @description
-         fill this in
-         * #### returns: type
-         * @param {type} varname - descripton
+         set which column are hidden post column editor close
+         * @param {Array} list - the list column descriptors
          */
         setDNDHiddenColumnLabels: function(list) {
             //assumes there is one row....
@@ -1178,9 +1148,8 @@
          * @function
          * @instance
          * @description
-         fill this in
-         * #### returns: type
-         * @param {type} varname - descripton
+         hide columns that are specified by their indexes
+         * @param {Array} arrayOfIndexes - an array of column indexes to hide
          */
         hideColumns: function(arrayOfIndexes) {
             var indexes = this.tableState.hiddenColumns;
@@ -1198,9 +1167,8 @@
          * @function
          * @instance
          * @description
-         fill this in
-         * #### returns: type
-         * @param {type} varname - descripton
+         return the number of fixed columns
+         * #### returns: integer
          */
         getFixedColumnCount: function() {
             return this.fixedColumnCount;
@@ -1210,9 +1178,8 @@
          * @function
          * @instance
          * @description
-         fill this in
-         * #### returns: type
-         * @param {type} varname - descripton
+         set the number of fixed columns
+         * @param {integer} numberOfFixedColumns - the integer count of how many columns to be fixed
          */
         setFixedColumnCount: function(numberOfFixedColumns) {
             this.fixedColumnCount = numberOfFixedColumns;
@@ -1222,9 +1189,8 @@
          * @function
          * @instance
          * @description
-         fill this in
-         * #### returns: type
-         * @param {type} varname - descripton
+         return the count of fixed rows
+         * #### returns: integer
          */
         getFixedRowCount: function() {
             return this.fixedRowCount;
@@ -1234,9 +1200,8 @@
          * @function
          * @instance
          * @description
-         fill this in
-         * #### returns: type
-         * @param {type} varname - descripton
+         set the number of rows that are fixed
+         * @param {integer} numberOfFixedRows - the count of rows to be set fixed
          */
         setFixedRowCount: function(numberOfFixedRows) {
             this.fixedRowCount = numberOfFixedRows;
@@ -1246,9 +1211,9 @@
          * @function
          * @instance
          * @description
-         fill this in
-         * #### returns: type
-         * @param {type} varname - descripton
+         build and open the editor within the container div argument, this function should return false if we don't want the editor to open
+         * #### returns: boolean
+         * @param {HTMLDivElement} div - the containing div element
          */
         openEditor: function(div) {
             var container = document.createElement('div');
@@ -1280,9 +1245,8 @@
          * @function
          * @instance
          * @description
-         fill this in
-         * #### returns: type
-         * @param {type} varname - descripton
+         the editor is requesting close return true or false, and deal with the edits
+         * @param {HTMLDivElement} div - the containing div element
          */
         closeEditor: function(div) {
             noop(div);
@@ -1296,21 +1260,16 @@
          * @function
          * @instance
          * @description
-         fill this in
-         * #### returns: type
-         * @param {type} varname - descripton
+         a dnd column has just been dropped, we've been notified
          */
-        endDragColumnNotification: function() {
-            return true;
-        },
+        endDragColumnNotification: function() {},
 
         /**
          * @function
          * @instance
          * @description
-         fill this in
-         * #### returns: type
-         * @param {type} varname - descripton
+         bind column editor appropriate css values to arg style
+         * @param {HTMLStyleElement} style - the style object to enhance
          */
         beColumnStyle: function(style) {
             style.top = '5%';
@@ -1324,9 +1283,10 @@
          * @function
          * @instance
          * @description
-         fill this in
-         * #### returns: type
-         * @param {type} varname - descripton
+         return the cursor at a specific x,y coordinate
+         * #### returns: string
+         * @param {integer} x - the x coordinate
+         * @param {integer} y - the y coordinate
          */
         getCursorAt: function( /* x, y */ ) {
             return null;
@@ -1336,9 +1296,10 @@
          * @function
          * @instance
          * @description
-         fill this in
-         * #### returns: type
-         * @param {type} varname - descripton
+         return the data value at coordinates x,y.  this is the main "model" function that allows for virtualization
+         * #### returns: Object
+         * @param {integer} x - the x coordinate
+         * @param {integer} y - the y coordinate
          */
         getValue: function(x, y) {
             return x + ', ' + y;
@@ -1348,9 +1309,9 @@
          * @function
          * @instance
          * @description
-         fill this in
-         * #### returns: type
-         * @param {type} varname - descripton
+         set the data value at coordinates x,y
+         * @param {integer} x - the x coordinate
+         * @param {integer} y - the y coordinate
          */
         setValue: function(x, y, value) {
             this.dataUpdates['p_' + x + '_' + y] = value;
@@ -1360,9 +1321,8 @@
          * @function
          * @instance
          * @description
-         fill this in
-         * #### returns: type
-         * @param {type} varname - descripton
+         return the total number of columns
+         * #### returns: integer
          */
         getColumnCount: function() {
             return 300;
@@ -1372,9 +1332,9 @@
          * @function
          * @instance
          * @description
-         fill this in
-         * #### returns: type
-         * @param {type} varname - descripton
+         return the column width at index x
+         * #### returns: integer
+         * @param {integer} x - the column index of interest
          */
         getColumnWidth: function(x) {
             var override = this.tableState.columnWidths[x];
@@ -1388,9 +1348,9 @@
          * @function
          * @instance
          * @description
-         fill this in
-         * #### returns: type
-         * @param {type} varname - descripton
+         set the column width at column x
+         * @param {integer} x - the column index of interest
+         * @param {integer} width - the width in pixels
          */
         setColumnWidth: function(x, width) {
             this.tableState.columnWidths[x] = Math.max(5, width);
@@ -1400,9 +1360,9 @@
          * @function
          * @instance
          * @description
-         fill this in
-         * #### returns: type
-         * @param {type} varname - descripton
+         return the column alignment at column x
+         * #### returns: string ['left','center','right']
+         * @param {integer} x - the column index of interest
          */
         getColumnAlignment: function( /* x */ ) {
             return 'center';
@@ -1412,9 +1372,8 @@
          * @function
          * @instance
          * @description
-         fill this in
-         * #### returns: type
-         * @param {type} varname - descripton
+         quietly set the scroll position in the horizontal dimension
+         * @param {integer} x - the position in pixels
          */
         setScrollPositionX: function(x) {
             this.scrollPositionX = x;
@@ -1424,9 +1383,9 @@
          * @function
          * @instance
          * @description
-         fill this in
+         quietly set the scroll position in the horizontal dimension
          * #### returns: type
-         * @param {type} varname - descripton
+         * @param {integer} y - the position in pixels
          */
         setScrollPositionY: function(y) {
             this.scrollPositionY = y;
@@ -1436,9 +1395,10 @@
          * @function
          * @instance
          * @description
-         fill this in
-         * #### returns: type
-         * @param {type} varname - descripton
+         get the view translated alignment at x,y in the fixed row area
+         * #### returns: string ['left','center','right']
+         * @param {integer} x - x coordinate
+         * @param {integer} y - y coordinate
          */
         getFixedRowAlignment: function(x, y) {
             noop(x, y);
@@ -1449,9 +1409,10 @@
          * @function
          * @instance
          * @description
-         fill this in
-         * #### returns: type
-         * @param {type} varname - descripton
+         return the data value at point x,y
+         * #### returns: Object
+         * @param {integer} x - x coordinate
+         * @param {integer} y - y coordinate
          */
         getFixedRowValue: function(x /*, y*/ ) {
             return x;
@@ -1461,9 +1422,10 @@
          * @function
          * @instance
          * @description
-         fill this in
-         * #### returns: type
-         * @param {type} varname - descripton
+         return the cell editor for coordinate x,y
+         * #### returns: [fin-hypergrid-cell-editor-base](module-cell-editors_base.html)
+         * @param {integer} x - x coordinate
+         * @param {integer} y - y coordinate
          */
         getCellEditorAt: function(x, y) {
             noop(x, y);
@@ -1475,9 +1437,9 @@
          * @function
          * @instance
          * @description
-         fill this in
-         * #### returns: type
-         * @param {type} varname - descripton
+         fixed row has been clicked, you've been notified
+         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+         * @param {Object} mouse - event details
          */
         fixedRowClicked: function(grid, mouse) {
             this.toggleSort(mouse.gridCell.x);
@@ -1487,9 +1449,8 @@
          * @function
          * @instance
          * @description
-         fill this in
-         * #### returns: type
-         * @param {type} varname - descripton
+         toggle the sort at colIndex to it's next state
+         * @param {integer} colIndex - the column index of interest
          */
         toggleSort: function(colIndex) {
             console.log('toggleSort(' + colIndex + ')');
@@ -1499,9 +1460,9 @@
          * @function
          * @instance
          * @description
-         fill this in
-         * #### returns: type
-         * @param {type} varname - descripton
+         fixed column has been clicked, you've been notified
+         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+         * @param {Object} mouse - event details
          */
         fixedColumnClicked: function(grid, mouse) {
             console.log('fixedColumnClicked(' + mouse.gridCell.x + ', ' + mouse.gridCell.y + ')');
@@ -1511,9 +1472,10 @@
          * @function
          * @instance
          * @description
-         fill this in
-         * #### returns: type
-         * @param {type} varname - descripton
+         returns true if we should highlight on hover
+         * #### returns: boolean
+         * @param {boolean} isColumnHovered - the column is hovered or not
+         * @param {boolean} isRowHovered - the row is hovered or not
          */
         highlightCellOnHover: function(isColumnHovered, isRowHovered) {
             return isColumnHovered && isRowHovered;
@@ -1523,9 +1485,9 @@
          * @function
          * @instance
          * @description
-         fill this in
-         * #### returns: type
-         * @param {type} varname - descripton
+         return the columnId/label/fixedRowValue at x
+         * #### returns: string
+         * @param {integer} x - the view translated x index
          */
         getColumnId: function(x) {
             x = this.translateColumnIndex(x);
@@ -1537,9 +1499,9 @@
          * @function
          * @instance
          * @description
-         fill this in
-         * #### returns: type
-         * @param {type} varname - descripton
+         return an HTMLImageElement given it's alias
+         * #### returns: HTMLImageElement
+         * @param {string} key - an image alias
          */
         getImage: function(key) {
             var image = imageCache[key];
@@ -1551,9 +1513,9 @@
          * @function
          * @instance
          * @description
-         fill this in
-         * #### returns: type
-         * @param {type} varname - descripton
+         set the image for a specific alias
+         * @param {string} key - an image alias
+         * @param {HTMLImageElement} image - the image to cache
          */
         setImage: function(key, image) {
             imageCache[key] = image;
@@ -1563,19 +1525,19 @@
          * @function
          * @instance
          * @description
-         fill this in
-         * #### returns: type
-         * @param {type} varname - descripton
+         check to see that columns are at their minimum width to display all data
+         * @param {Array} fixedMinWidths - the minimum sizes to fit all data for each column in the fixed area
+         * @param {Array} minWidths - the minimum sizes to fit all data for each column in the data area
          */
-        checkColumnAutosizing: function(fixedWidths, widths) {
+        checkColumnAutosizing: function(fixedMinWidths, minWidths) {
             var self = this;
             var myFixed = this.tableState.fixedColumnWidths;
             var myWidths = this.tableState.columnWidths;
             var repaint = false;
             var a, b, c, d = 0;
-            for (c = 0; c < fixedWidths.length; c++) {
+            for (c = 0; c < fixedMinWidths.length; c++) {
                 a = myFixed[c];
-                b = fixedWidths[c];
+                b = fixedMinWidths[c];
                 d = this.fixedColumnAutosized[c];
                 if (a !== b || !d) {
                     myFixed[c] = !d ? b : Math.max(a, b);
@@ -1583,10 +1545,10 @@
                     repaint = true;
                 }
             }
-            for (c = 0; c < widths.length; c++) {
+            for (c = 0; c < minWidths.length; c++) {
                 var ti = this.translateColumnIndex(c);
                 a = myWidths[ti];
-                b = widths[c];
+                b = minWidths[c];
                 d = this.columnAutosized[c];
                 if (a !== b || !d) {
                     myWidths[ti] = !d ? b : Math.max(a, b);
@@ -1605,9 +1567,8 @@
          * @function
          * @instance
          * @description
-         fill this in
-         * #### returns: type
-         * @param {type} varname - descripton
+         this function is a hook and is called just before the painting of a cell occurs
+         * @param {rectangle.point} cell - [rectangle.point](http://stevewirts.github.io/fin-rectangle/components/fin-rectangle/)
          */
         cellPrePaintNotification: function( /* cell */ ) {
 
@@ -1617,9 +1578,8 @@
          * @function
          * @instance
          * @description
-         fill this in
-         * #### returns: type
-         * @param {type} varname - descripton
+         this function is a hook and is called just before the painting of a fixed row cell occurs
+         * @param {rectangle.point} cell - [rectangle.point](http://stevewirts.github.io/fin-rectangle/components/fin-rectangle/)
          */
         cellFixedRowPrePaintNotification: function( /* cell */ ) {
 
@@ -1629,10 +1589,9 @@
          * @function
          * @instance
          * @description
-         fill this in
-         * #### returns: type
-         * @param {type} varname - descripton
-         */
+         this function is a hook and is called just before the painting of a fixed column cell occurs
+         * @param {rectangle.point} cell - [rectangle.point](http://stevewirts.github.io/fin-rectangle/components/fin-rectangle/)
+        */
         cellFixedColumnPrePaintNotification: function( /* cell */ ) {
 
         },
@@ -1641,9 +1600,8 @@
          * @function
          * @instance
          * @description
-         fill this in
-         * #### returns: type
-         * @param {type} varname - descripton
+         this function is a hook and is called just before the painting of a top left cell occurs
+         * @param {rectangle.point} cell - [rectangle.point](http://stevewirts.github.io/fin-rectangle/components/fin-rectangle/)
          */
         cellTopLeftPrePaintNotification: function( /* cell */ ) {
 

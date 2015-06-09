@@ -748,8 +748,8 @@
             var behavior = this.getBehavior();
             //add one to each of these values as we want also to include
             //the columns and rows that are partially visible
-            behavior.setRenderedWidth(this.getViewableColumns() + 1);
-            behavior.setRenderedHeight(this.getViewableRows() + 1);
+            behavior.setRenderedColumnCount(this.getViewableColumns() + 1);
+            behavior.setRenderedRowCount(this.getViewableRows() + 1);
         },
 
         /**

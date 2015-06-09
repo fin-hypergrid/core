@@ -167,10 +167,10 @@
             var self = this;
             var config = {
                 xstart: this.scrollPositionX,
-                xstop: this.scrollPositionX + this.renderedWidth,
+                xstop: this.scrollPositionX + this.renderedColumnCount,
                 xinc: 1,
                 ystart: this.scrollPositionY,
-                ystop: this.scrollPositionY + this.renderedHeight,
+                ystop: this.scrollPositionY + this.renderedRowCount,
                 yinc: 1,
                 cutoff: 0.05
             };
