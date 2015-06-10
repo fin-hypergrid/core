@@ -2,6 +2,8 @@
 /**
  *
  * @module features\column-moving
+ * @description
+ this feature is responsible for column drag and drop reordering
  *
  */
 (function() {
@@ -17,43 +19,43 @@
     Polymer({ /* jshint ignore:line */
 
         /**
-         * @property {type} varname - description
+         * @property {Array} floaterAnimationQueue - queue up the animations that need to play so they are done synchronously
          * @instance
          */
         floaterAnimationQueue: [],
 
         /**
-         * @property {type} varname - description
+         * @property {boolean} columnDragAutoScrollingRight - am I currently auto scrolling right
          * @instance
          */
         columnDragAutoScrollingRight: false,
 
         /**
-         * @property {type} varname - description
+         * @property {boolean} columnDragAutoScrollingLeft  - am I currently auto scrolling left
          * @instance
          */
         columnDragAutoScrollingLeft: false,
 
         /**
-         * @property {type} varname - description
+         * @property {boolean} dragArmed - is the drag mechanism currently enabled(armed)
          * @instance
          */
         dragArmed: false,
 
         /**
-         * @property {type} varname - description
+         * @property {boolean} dragging - am I dragging right now
          * @instance
          */
         dragging: false,
 
         /**
-         * @property {type} varname - description
+         * @property {integer} dragCol - return the column index of the currently dragged column
          * @instance
          */
         dragCol: -1,
 
         /**
-         * @property {type} varname - description
+         * @property {integer} dragOffset - an offset to position the dragged item from the cursor
          * @instance
          */
         dragOffset: 0,
@@ -62,9 +64,8 @@
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        give me an opportunity to initialize stuff on the grid
+        * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
         */
         initializeOn: function(grid) {
             this.isFloatingNow = false;
@@ -78,9 +79,8 @@
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        initialize animation support on the grid
+        * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
         */
         initializeAnimationSupport: function(grid) {
             noop(grid);
@@ -107,9 +107,9 @@
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+         handle this event
+         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+         * @param {Object} event - the event details
         */
         handleMouseDrag: function(grid, event) {
 
@@ -142,9 +142,9 @@
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+         handle this event
+         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+         * @param {Object} event - the event details
         */
         handleMouseDown: function(grid, event) {
             if (grid.getBehavior().isColumnReorderable()) {
@@ -161,9 +161,9 @@
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+         handle this event
+         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+         * @param {Object} event - the event details
         */
         handleMouseUp: function(grid, event) {
             if (this.dragging) {
@@ -189,9 +189,9 @@
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+         handle this event
+         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+         * @param {Object} event - the event details
         */
         handleMouseMove: function(grid, event) {
 
@@ -205,15 +205,13 @@
 
         },
 
-        //do the animation and swap the columns
-        //we need a better name
         /**
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        this is the main event handler that manages the dragging of the column
+        * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+        * @param {boolean} draggedToTheRight - are we moving to the right
         */
         floatColumnTo: function(grid, draggedToTheRight) {
             this.floatingNow = true;
@@ -253,13 +251,15 @@
             this.doFloaterAnimation(grid);
 
         },
+
         /**
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        manifest the column drag and drop animation
+        * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+        * @param {integer} floaterStartX - the x start coordinate of the column underneath that floats behind the dragged column
+        * @param {integer} draggerStartX - the x start coordinate of the dragged column
         */
         doColumnMoveAnimation: function(grid, floaterStartX, draggerStartX) {
             var self = this;
@@ -295,9 +295,8 @@
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        manifest the floater animation
+        * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
         */
         doFloaterAnimation: function(grid) {
             if (this.floaterAnimationQueue.length === 0) {
@@ -313,9 +312,9 @@
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        create the float column at columnIndex underneath the dragged column
+        * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+        * @param {integer} columnIndex - the index of the column that will be floating
         */
         createFloatColumn: function(grid, columnIndex) {
             var scrollLeft = grid.getHScrollValue();
@@ -359,13 +358,15 @@
             style.cursor = 'none';
             grid.repaint();
         },
+
         /**
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        utility function for setting cross browser css properties
+        * @param {HTMLElement} element - descripton
+        * @param {string} property - the property
+        * @param {string} value - the value to assign
         */
         setCrossBrowserProperty: function(element, property, value) {
             var uProperty = property[0].toUpperCase() + property.substr(1);
@@ -375,26 +376,30 @@
             this.setProp(element, 'O' + uProperty, value);
             this.setProp(element, property, value);
         },
+
         /**
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        utility function for setting properties on HTMLElements
+        * @param {HTMLElement} element - descripton
+        * @param {string} property - the property
+        * @param {string} value - the value to assign
         */
         setProp: function(element, property, value) {
             if (property in element.style) {
                 element.style[property] = value;
             }
         },
+
         /**
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        create the dragged column at columnIndex above the floated column
+        * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+        * @param {integer} x - the start position
+        * @param {integer} columnIndex - the index of the column that will be floating
         */
         createDragColumn: function(grid, x, columnIndex) {
             var scrollLeft = grid.getHScrollValue();
@@ -448,9 +453,9 @@
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        this function is the main dragging logic
+        * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+        * @param {integer} x - the start position
         */
         dragColumn: function(grid, x) {
 
@@ -528,9 +533,9 @@
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        autoscroll to the right if necessary
+        * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+        * @param {integer} x - the start position
         */
         checkAutoScrollToRight: function(grid, x) {
             if (this.columnDragAutoScrollingRight) {
@@ -540,14 +545,6 @@
             this._checkAutoScrollToRight(grid, x);
         },
 
-        /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
         _checkAutoScrollToRight: function(grid, x) {
             if (!this.columnDragAutoScrollingRight) {
                 return;
@@ -569,9 +566,9 @@
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        return the new column index for where I'm currently dragged at
+        * #### returns: integer
+        * @param {integer} dragIndex - descripton
         */
         findNewPositionOnScrollRight: function(dragIndex) {
             noop(dragIndex);
@@ -598,9 +595,9 @@
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        autoscroll to the left if necessary
+        * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+        * @param {integer} x - the start position
         */
         checkAutoScrollToLeft: function(grid, x) {
             if (this.columnDragAutoScrollingLeft) {
@@ -610,14 +607,6 @@
             this._checkAutoScrollToLeft(grid, x);
         },
 
-        /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
         _checkAutoScrollToLeft: function(grid, x) {
             if (!this.columnDragAutoScrollingLeft) {
                 return;
@@ -633,13 +622,14 @@
             setTimeout(this._checkAutoScrollToLeft.bind(this, grid, x), 250);
         },
 
+
+
         /**
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        a column drag has completed, update data and cleanup
+        * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
         */
         endDragColumn: function(grid) {
             var self = this;

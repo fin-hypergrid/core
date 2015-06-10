@@ -2172,8 +2172,7 @@
          * @function
          * @instance
          * @description
-        provide a way to notify scrollbars that the underlying data has changed, the real solution is to use an aspect adapter here
-         *
+        scroll values have changed, we've been notified *
          */
         scrollValueChangedNotification: function() {
 

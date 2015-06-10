@@ -9,63 +9,54 @@
     Polymer({ /* jshint ignore:line */
 
         /**
-         * currentDrag is the pixel location of the mouse pointer during a drag operation
-         *
-         * @property currentDrag
-         * @type fin-rectangle.point
+         * @property {fin-rectangle.point} currentDrag - currentDrag is the pixel location of the mouse pointer during a drag operation
+         * @instance
          */
         currentDrag: null,
 
         /**
-         * lastDragCell is the cell coordinates of the where the mouse pointer is
-         * during a drag operation
-         *
-         * @property lastDragCell
-         * @type Object
+         * @property {Object} lastDragCell - lastDragCell is the cell coordinates of the where the mouse pointer is during a drag operation
+         * @instance
          */
         lastDragCell: null,
 
         /**
-         * sbLastAuto is a millisecond value representing the previous time an autoscroll started
-         *
-         * @property sbLastAuto
-         * @type Number
+         * @property {Number} sbLastAuto - sbLastAuto is a millisecond value representing the previous time an autoscroll started
+         * @instance
          */
         sbLastAuto: 0,
 
         /**
-         * sbAutoStart is a millisecond value representing the time the current autoscroll started
-         *
-         * @property sbAutoStart
-         * @type Number
+         * @property {Number} sbAutoStart - sbAutoStart is a millisecond value representing the time the current autoscroll started
+         * @instance
          */
         sbAutoStart: 0,
 
+        /**
+         * @property {fin-rectangle.point} rectangles - the util rectangles factory [fin-rectangles](https://github.com/stevewirts/fin-rectangle)
+         * @instance
+         */
         rectangles: {},
 
-
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         the function to override for initialization
+         */
         createdInit: function() {
 
             this.rectangles = document.createElement('fin-rectangle');
 
         },
 
-
         /**
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+         handle this event down the feature chain of responsibility
+         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+         * @param {Object} event - the event details
         */
         handleMouseUp: function(grid, event) {
             this.dragging = false;
@@ -74,14 +65,13 @@
             }
         },
 
-
         /**
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+         handle this event down the feature chain of responsibility
+         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+         * @param {Object} event - the event details
         */
         handleMouseDown: function(grid, event) {
             var gridCell = event.gridCell;
@@ -104,14 +94,13 @@
             }
         },
 
-
         /**
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+         handle this event down the feature chain of responsibility
+         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+         * @param {Object} event - the event details
         */
         handleMouseDrag: function(grid, event) {
             var mouseDown = grid.getMouseDown();
@@ -132,14 +121,13 @@
             this.handleMouseDragCellSelection(grid, gridCell, primEvent.detail.keys);
         },
 
-
         /**
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+         handle this event down the feature chain of responsibility
+         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+         * @param {Object} event - the event details
         */
         handleKeyDown: function(grid, event) {
             var command = 'handle' + event.detail.char;
@@ -149,20 +137,14 @@
         },
 
         /**
-         *                                                                      .
-         *                                                                      .
-         * Handle a mousedrag selection
-         *
-         * @method handleMouseDragCellSelection(mouse)
-         */
-
-        /**
         * @function
         * @instance
         * @description
-        fill this in
+        Handle a mousedrag selection
         * #### returns: type
-        * @param {type} varname - descripton
+        * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+        * @param {Object} mouse - the event details
+        * @param {Array} keys - array of the keys that are currently pressed down
         */
         handleMouseDragCellSelection: function(grid, mouse /* ,keys */ ) {
 
@@ -199,21 +181,12 @@
         },
 
         /**
-         *                                                                      .
-         *                                                                      .
-         * this checks while were dragging if we go outside the visible bounds,
-         * if so, kick off the external autoscroll check function (above)
-         *
-         * @method checkDragScroll(event)
-         */
-
-        /**
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        this checks while were dragging if we go outside the visible bounds, if so, kick off the external autoscroll check function (above)
+        * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+        * @param {Object} mouse - the event details
         */
         checkDragScroll: function(grid, mouse) {
             if (!grid.resolveProperty('scrollingEnabled')) {
@@ -232,21 +205,11 @@
         },
 
         /**
-         *                                                                      .
-         *                                                                      .
-         * this function makes sure that while we are dragging outside of
-         * the grid visible bounds, we srcroll accordingly
-         *
-         * @method scrollDrag()
-         */
-
-        /**
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        this function makes sure that while we are dragging outside of the grid visible bounds, we srcroll accordingly
+        * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
         */
         scrollDrag: function(grid) {
             if (!grid.isScrollingNow()) {
@@ -276,20 +239,13 @@
         },
 
         /**
-         *                                                                      .
-         *                                                                      .
-         * extend a selection or create one if there isnt yet
-         *
-         * @method extendSelection(mouse,keys)
-         */
-
-        /**
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        extend a selection or create one if there isnt yet
+        * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+        * @param {Object} gridCell - the event details
+        * @param {Array} keys - array of the keys that are currently pressed down
         */
         extendSelection: function(grid, gridCell, keys) {
             var hasCTRL = keys.indexOf('CTRL') !== -1;
@@ -333,21 +289,13 @@
             grid.repaint();
         },
 
-        /**
-         *                                                                      .
-         *                                                                      .
-         * handle the shift down arrow key event
-         *
-         * @method handleDOWNSHIFT()
-         */
 
         /**
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+         handle this event
+         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
         */
         handleDOWNSHIFT: function(grid) {
             var count = this.getAutoScrollAcceleration();
@@ -355,20 +303,12 @@
         },
 
         /**
-         *                                                                      .
-         *                                                                      .
-         * handle the shift up arrow key event
-         *
-         * @method handleUPSHIFT()
-         */
-
-        /**
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+         handle this event
+         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+         * @param {Object} event - the event details
         */
         handleUPSHIFT: function(grid) {
             var count = this.getAutoScrollAcceleration();
@@ -376,60 +316,36 @@
         },
 
         /**
-         *                                                                      .
-         *                                                                      .
-         * handle the shift left arrow key event
-         *
-         * @method handleLEFTSHIFT()
-         */
-
-        /**
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+         handle this event
+         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+         * @param {Object} event - the event details
         */
         handleLEFTSHIFT: function(grid) {
             this.moveShiftSelect(grid, -1, 0);
         },
 
         /**
-         *                                                                      .
-         *                                                                      .
-         * handle the shift right arrow key event
-         *
-         * @method handleRIGHTSHIFT()
-         */
-
-        /**
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+         handle this event
+         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+         * @param {Object} event - the event details
         */
         handleRIGHTSHIFT: function(grid) {
             this.moveShiftSelect(grid, 1, 0);
         },
 
         /**
-         *                                                                      .
-         *                                                                      .
-         * handle the down arrow key event
-         *
-         * @method handleDOWN()
-         */
-
-        /**
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+         handle this event
+         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+         * @param {Object} event - the event details
         */
         handleDOWN: function(grid) {
             var count = this.getAutoScrollAcceleration();
@@ -437,20 +353,12 @@
         },
 
         /**
-         *                                                                      .
-         *                                                                      .
-         * handle the up arrow key event
-         *
-         * @method handleUP()
-         */
-
-        /**
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+         handle this event
+         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+         * @param {Object} event - the event details
         */
         handleUP: function(grid) {
             var count = this.getAutoScrollAcceleration();
@@ -458,60 +366,35 @@
         },
 
         /**
-         *                                                                      .
-         *                                                                      .
-         * handle the left arrow key event
-         *
-         * @method handleLEFT()
-         */
-
-        /**
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+         handle this event
+         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+         * @param {Object} event - the event details
         */
         handleLEFT: function(grid) {
             this.moveSingleSelect(grid, -1, 0);
         },
 
         /**
-         *                                                                      .
-         *                                                                      .
-         * handle the right arrow key event
-         *
-         * @method handleRIGHT()
-         */
-
-        /**
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+         handle this event
+         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+         * @param {Object} event - the event details
         */
         handleRIGHT: function(grid) {
             this.moveSingleSelect(grid, 1, 0);
         },
 
         /**
-         *                                                                      .
-         *                                                                      .
-         * If we are holding down the same navigation key, accelerate the increment we scroll
-         *
-         * @method getAutoScrollAcceleration()
-         */
-
-        /**
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        If we are holding down the same navigation key, accelerate the increment we scroll
+        * #### returns: integer
         */
         getAutoScrollAcceleration: function() {
             var count = 1;
@@ -521,41 +404,20 @@
         },
 
         /**
-         *                                                                      .
-         *                                                                      .
-         * set the start time when we initiated an auto scroll
-         *
-         * @method setAutoScrollStartTime()
-         */
-
-        /**
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        set the start time to right now when we initiate an auto scroll
         */
         setAutoScrollStartTime: function() {
             this.sbAutoStart = Date.now();
         },
 
         /**
-         *                                                                      .
-         *                                                                      .
-         * update the autoscroll start time if we haven't autoscrolled within the last 500ms
-         * otherwise update the current autoscroll time
-         *
-         * @method pingAutoScroll()
-         */
-
-        /**
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        update the autoscroll start time if we haven't autoscrolled within the last 500ms otherwise update the current autoscroll time
         */
         pingAutoScroll: function() {
             var now = Date.now();
@@ -566,20 +428,11 @@
         },
 
         /**
-         *                                                                      .
-         *                                                                      .
-         * answer how long we have been auto scrolling
-         *
-         * @method getAutoScrollDuration()
-         */
-
-        /**
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        answer how long we have been auto scrolling
+        * #### returns: integer
         */
         getAutoScrollDuration: function() {
             if (Date.now() - this.sbLastAuto > 500) {
@@ -589,20 +442,13 @@
         },
 
         /**
-         *                                                                      .
-         *                                                                      .
-         * Augment the most recent selection extent by (offsetX,offsetY) and scroll if necessary.
-         *
-         * @method moveShiftSelect(grid, offsetX,offsetY)
-         */
-
-        /**
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        Augment the most recent selection extent by (offsetX,offsetY) and scroll if necessary.
+         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+         * @param {integer} offsetX - x coordinate to start at
+         * @param {integer} offsetY - y coordinate to start at
         */
         moveShiftSelect: function(grid, offsetX, offsetY) {
 
@@ -643,20 +489,13 @@
         },
 
         /**
-         *                                                                      .
-         *                                                                      .
-         * Replace the most recent selection with a single cell selection that is moved (offsetX,offsetY) from the previous selection extent.
-         *
-         * @method moveSingleSelect(offsetX,offsetY)
-         */
-
-        /**
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        Replace the most recent selection with a single cell selection that is moved (offsetX,offsetY) from the previous selection extent.
+         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+         * @param {integer} offsetX - x coordinate to start at
+         * @param {integer} offsetY - y coordinate to start at
         */
         moveSingleSelect: function(grid, offsetX, offsetY) {
 

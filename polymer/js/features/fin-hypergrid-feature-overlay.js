@@ -13,19 +13,18 @@
     Polymer({ /* jshint ignore:line */
 
         /**
-         * @property {type} varname - description
+         * @property {boolean} openEditor - is the editor open
          * @instance
          */
         openEditor: false,
-
 
         /**
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+         handle this event down the feature chain of responsibility
+         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+         * @param {Object} event - the event details
         */
         handleKeyUp: function(grid, event) {
             var key = event.detail.char.toLowerCase();
@@ -39,9 +38,8 @@
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        toggle the column picker on/off
+        * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
         */
         toggleColumnPicker: function(grid) {
             if (this.isColumnPickerOpen(grid)) {
@@ -55,9 +53,9 @@
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        returns true if the column picker is open
+        * #### returns: boolean
+        * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
         */
         isColumnPickerOpen: function(grid) {
             noop(grid);
@@ -68,9 +66,9 @@
         * @function
         * @instance
         * @description
-        fill this in
+        open the column picker
         * #### returns: type
-        * @param {type} varname - descripton
+        * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
         */
         openColumnPicker: function(grid) {
             if (this.isColumnPickerOpen()) {
@@ -120,9 +118,9 @@
         * @function
         * @instance
         * @description
-        fill this in
+        close the column picker
         * #### returns: type
-        * @param {type} varname - descripton
+        * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
         */
         closeColumnPicker: function(grid) {
             grid.setFocusable(true);
@@ -158,9 +156,9 @@
         * @function
         * @instance
         * @description
-        fill this in
+        initialize myself into the grid
         * #### returns: type
-        * @param {type} varname - descripton
+        * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
         */
         initializeOn: function(grid) {
             this.initializeOverlaySurface(grid);
@@ -173,9 +171,9 @@
         * @function
         * @instance
         * @description
-        fill this in
+        initialize the overlay surface into the grid
         * #### returns: type
-        * @param {type} varname - descripton
+        * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
         */
         initializeOverlaySurface: function(grid) {
             this.overlay = document.createElement('div');
@@ -194,9 +192,10 @@
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        get a human readable description of the key pressed from it's integer representation
+        * #### returns: string
+        * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+        * @param {integer} integer - the integer we want the char for
         */
         getCharFor: function(grid, integer) {
             var charMap = grid.getCanvas().getCharMap();

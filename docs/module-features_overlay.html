@@ -100,13 +100,13 @@
 
         <tr>
             
-                <td class="name"><code>varname</code></td>
+                <td class="name"><code>openEditor</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">type</span>
+<span class="param-type">boolean</span>
 
 
             
@@ -116,7 +116,7 @@
 
             
 
-            <td class="description last"><p>description</p></td>
+            <td class="description last"><p>is the editor open</p></td>
         </tr>
 
     
@@ -177,14 +177,14 @@
 
     
 
-    <h4 class="name" id="closeColumnPicker"><span class="type-signature"></span>closeColumnPicker<span class="signature">(varname)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="closeColumnPicker"><span class="type-signature"></span>closeColumnPicker<span class="signature">(grid)</span><span class="type-signature"></span></h4>
 
     
 
 
 
 <div class="description">
-    <p>fill this in</p>
+    <p>close the column picker</p>
 <h4>returns: type</h4>
 </div>
 
@@ -221,13 +221,13 @@
 
         <tr>
             
-                <td class="name"><code>varname</code></td>
+                <td class="name"><code>grid</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">type</span>
+<span class="param-type">fin-hypergrid</span>
 
 
             
@@ -237,7 +237,7 @@
 
             
 
-            <td class="description last"><p>descripton</p></td>
+            <td class="description last"><p><a href="module-._fin-hypergrid.html">fin-hypergrid</a></p></td>
         </tr>
 
     
@@ -304,15 +304,15 @@
 
     
 
-    <h4 class="name" id="getCharFor"><span class="type-signature"></span>getCharFor<span class="signature">(varname)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="getCharFor"><span class="type-signature"></span>getCharFor<span class="signature">(grid, integer)</span><span class="type-signature"></span></h4>
 
     
 
 
 
 <div class="description">
-    <p>fill this in</p>
-<h4>returns: type</h4>
+    <p>get a human readable description of the key pressed from it's integer representation</p>
+<h4>returns: string</h4>
 </div>
 
 
@@ -348,13 +348,13 @@
 
         <tr>
             
-                <td class="name"><code>varname</code></td>
+                <td class="name"><code>grid</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">type</span>
+<span class="param-type">fin-hypergrid</span>
 
 
             
@@ -364,7 +364,30 @@
 
             
 
-            <td class="description last"><p>descripton</p></td>
+            <td class="description last"><p><a href="module-._fin-hypergrid.html">fin-hypergrid</a></p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>integer</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">integer</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>the integer we want the char for</p></td>
         </tr>
 
     
@@ -431,15 +454,14 @@
 
     
 
-    <h4 class="name" id="handleKeyUp"><span class="type-signature"></span>handleKeyUp<span class="signature">(varname)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="handleKeyUp"><span class="type-signature"></span>handleKeyUp<span class="signature">(grid, event)</span><span class="type-signature"></span></h4>
 
     
 
 
 
 <div class="description">
-    <p>fill this in</p>
-<h4>returns: type</h4>
+    <p>handle this event down the feature chain of responsibility</p>
 </div>
 
 
@@ -475,13 +497,13 @@
 
         <tr>
             
-                <td class="name"><code>varname</code></td>
+                <td class="name"><code>grid</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">type</span>
+<span class="param-type">fin-hypergrid</span>
 
 
             
@@ -491,7 +513,30 @@
 
             
 
-            <td class="description last"><p>descripton</p></td>
+            <td class="description last"><p><a href="module-._fin-hypergrid.html">fin-hypergrid</a></p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>event</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>the event details</p></td>
         </tr>
 
     
@@ -558,14 +603,14 @@
 
     
 
-    <h4 class="name" id="initializeOn"><span class="type-signature"></span>initializeOn<span class="signature">(varname)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="initializeOn"><span class="type-signature"></span>initializeOn<span class="signature">(grid)</span><span class="type-signature"></span></h4>
 
     
 
 
 
 <div class="description">
-    <p>fill this in</p>
+    <p>initialize myself into the grid</p>
 <h4>returns: type</h4>
 </div>
 
@@ -602,13 +647,13 @@
 
         <tr>
             
-                <td class="name"><code>varname</code></td>
+                <td class="name"><code>grid</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">type</span>
+<span class="param-type">fin-hypergrid</span>
 
 
             
@@ -618,7 +663,7 @@
 
             
 
-            <td class="description last"><p>descripton</p></td>
+            <td class="description last"><p><a href="module-._fin-hypergrid.html">fin-hypergrid</a></p></td>
         </tr>
 
     
@@ -685,14 +730,14 @@
 
     
 
-    <h4 class="name" id="initializeOverlaySurface"><span class="type-signature"></span>initializeOverlaySurface<span class="signature">(varname)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="initializeOverlaySurface"><span class="type-signature"></span>initializeOverlaySurface<span class="signature">(grid)</span><span class="type-signature"></span></h4>
 
     
 
 
 
 <div class="description">
-    <p>fill this in</p>
+    <p>initialize the overlay surface into the grid</p>
 <h4>returns: type</h4>
 </div>
 
@@ -729,13 +774,13 @@
 
         <tr>
             
-                <td class="name"><code>varname</code></td>
+                <td class="name"><code>grid</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">type</span>
+<span class="param-type">fin-hypergrid</span>
 
 
             
@@ -745,7 +790,7 @@
 
             
 
-            <td class="description last"><p>descripton</p></td>
+            <td class="description last"><p><a href="module-._fin-hypergrid.html">fin-hypergrid</a></p></td>
         </tr>
 
     
@@ -812,15 +857,15 @@
 
     
 
-    <h4 class="name" id="isColumnPickerOpen"><span class="type-signature"></span>isColumnPickerOpen<span class="signature">(varname)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="isColumnPickerOpen"><span class="type-signature"></span>isColumnPickerOpen<span class="signature">(grid)</span><span class="type-signature"></span></h4>
 
     
 
 
 
 <div class="description">
-    <p>fill this in</p>
-<h4>returns: type</h4>
+    <p>returns true if the column picker is open</p>
+<h4>returns: boolean</h4>
 </div>
 
 
@@ -856,13 +901,13 @@
 
         <tr>
             
-                <td class="name"><code>varname</code></td>
+                <td class="name"><code>grid</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">type</span>
+<span class="param-type">fin-hypergrid</span>
 
 
             
@@ -872,7 +917,7 @@
 
             
 
-            <td class="description last"><p>descripton</p></td>
+            <td class="description last"><p><a href="module-._fin-hypergrid.html">fin-hypergrid</a></p></td>
         </tr>
 
     
@@ -939,14 +984,14 @@
 
     
 
-    <h4 class="name" id="openColumnPicker"><span class="type-signature"></span>openColumnPicker<span class="signature">(varname)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="openColumnPicker"><span class="type-signature"></span>openColumnPicker<span class="signature">(grid)</span><span class="type-signature"></span></h4>
 
     
 
 
 
 <div class="description">
-    <p>fill this in</p>
+    <p>open the column picker</p>
 <h4>returns: type</h4>
 </div>
 
@@ -983,13 +1028,13 @@
 
         <tr>
             
-                <td class="name"><code>varname</code></td>
+                <td class="name"><code>grid</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">type</span>
+<span class="param-type">fin-hypergrid</span>
 
 
             
@@ -999,7 +1044,7 @@
 
             
 
-            <td class="description last"><p>descripton</p></td>
+            <td class="description last"><p><a href="module-._fin-hypergrid.html">fin-hypergrid</a></p></td>
         </tr>
 
     
@@ -1066,15 +1111,14 @@
 
     
 
-    <h4 class="name" id="toggleColumnPicker"><span class="type-signature"></span>toggleColumnPicker<span class="signature">(varname)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="toggleColumnPicker"><span class="type-signature"></span>toggleColumnPicker<span class="signature">(grid)</span><span class="type-signature"></span></h4>
 
     
 
 
 
 <div class="description">
-    <p>fill this in</p>
-<h4>returns: type</h4>
+    <p>toggle the column picker on/off</p>
 </div>
 
 
@@ -1110,13 +1154,13 @@
 
         <tr>
             
-                <td class="name"><code>varname</code></td>
+                <td class="name"><code>grid</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">type</span>
+<span class="param-type">fin-hypergrid</span>
 
 
             
@@ -1126,7 +1170,7 @@
 
             
 
-            <td class="description last"><p>descripton</p></td>
+            <td class="description last"><p><a href="module-._fin-hypergrid.html">fin-hypergrid</a></p></td>
         </tr>
 
     

@@ -27,9 +27,9 @@ var commands = {
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+         handle this event down the feature chain of responsibility
+         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+         * @param {Object} event - the event details
         */
         handleKeyDown: function(grid, event) {
             var detail = event.detail.char;

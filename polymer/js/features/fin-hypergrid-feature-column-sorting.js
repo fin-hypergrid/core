@@ -12,9 +12,9 @@
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+         handle this event down the feature chain of responsibility
+         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+         * @param {Object} event - the event details
         */
         handleTap: function(grid, event) {
             var gridCell = event.gridCell;
@@ -34,9 +34,9 @@
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        handle this event down the feature chain of responsibility
+        * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+        * @param {Object} event - the event details
         */
         handleMouseMove: function(grid, event) {
             if (this.isFixedRow(grid, event) && !this.isFixedColumn(grid, event)) {

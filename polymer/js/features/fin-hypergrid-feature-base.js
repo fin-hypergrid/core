@@ -2,6 +2,8 @@
 /**
  *
  * @module features\base
+ * @description
+ instances of features are connected to one another to make a chain of responsibility for handling all the input to the hypergrid.
  *
  */
 (function() {
@@ -9,58 +11,53 @@
     Polymer({ /* jshint ignore:line */
 
         /**
-         * @property {type} varname - description
+         * @property {fin-hypergrid-feature-base} next - the next feature to be given a chance to handle incoming events
          * @instance
          */
         next: null,
 
         /**
-         * @property {type} varname - description
+         * @property {fin-hypergrid-feature-base} detached - a temporary holding field for my next feature when I'm in a disconnected state
          * @instance
          */
         detached: null,
 
         /**
-         * @property {type} varname - description
+         * @property {string} cursor - the cursor I want to be displayed
          * @instance
          */
         cursor: null,
 
         /**
-         * @property {type} varname - description
+         * @property {rectangle.point} currentHoverCell - the cell location where the cursor is currently
          * @instance
          */
         currentHoverCell: null,
 
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         polymer lifecycle event
+         */
         created: function() {
             this.createdInit();
         },
 
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         the function to override for initialization
+         */
         createdInit: function() {},
 
         /**
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        set my next field, or if it's populated delegate to the feature in my next field
+        * @param {fin-hypergrid-feature-base} nextFeature - this is how we build the chain of responsibility
         */
         setNext: function(nextFeature) {
             if (this.next) {
@@ -75,9 +72,7 @@
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        disconnect my child
         */
         detachChain: function() {
             this.next = null;
@@ -87,9 +82,7 @@
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        reattach my child from the detached reference
         */
         attachChain: function() {
             this.next = this.detached;
@@ -99,48 +92,51 @@
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+         handle mouse move down the feature chain of responsibility
+         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+         * @param {Object} event - the event details
         */
         handleMouseMove: function(grid, event) {
             if (this.next) {
                 this.next.handleMouseMove(grid, event);
             }
         },
+
         /**
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+         handle this event down the feature chain of responsibility
+         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+         * @param {Object} event - the event details
         */
         handleMouseExit: function(grid, event) {
             if (this.next) {
                 this.next.handleMouseExit(grid, event);
             }
         },
+
         /**
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+         handle this event down the feature chain of responsibility
+         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+         * @param {Object} event - the event details
         */
         handleMouseEnter: function(grid, event) {
             if (this.next) {
                 this.next.handleMouseEnter(grid, event);
             }
         },
+
         /**
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+         handle this event down the feature chain of responsibility
+         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+         * @param {Object} event - the event details
         */
         handleMouseDown: function(grid, event) {
             if (this.next) {
@@ -152,9 +148,9 @@
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+         handle this event down the feature chain of responsibility
+         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+         * @param {Object} event - the event details
         */
         handleMouseUp: function(grid, event) {
             if (this.next) {
@@ -166,9 +162,9 @@
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+         handle this event down the feature chain of responsibility
+         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+         * @param {Object} event - the event details
         */
         handleKeyDown: function(grid, event) {
             if (this.next) {
@@ -180,9 +176,9 @@
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+         handle this event down the feature chain of responsibility
+         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+         * @param {Object} event - the event details
         */
         handleKeyUp: function(grid, event) {
             if (this.next) {
@@ -194,9 +190,9 @@
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+         handle this event down the feature chain of responsibility
+         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+         * @param {Object} event - the event details
         */
         handleWheelMoved: function(grid, event) {
             if (this.next) {
@@ -208,9 +204,9 @@
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+         handle this event down the feature chain of responsibility
+         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+         * @param {Object} event - the event details
         */
         handleDoubleClick: function(grid, event) {
             if (this.next) {
@@ -222,9 +218,9 @@
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+         handle this event down the feature chain of responsibility
+         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+         * @param {Object} event - the event details
         */
         handleHoldPulse: function(grid, event) {
             if (this.next) {
@@ -236,9 +232,9 @@
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+         handle this event down the feature chain of responsibility
+         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+         * @param {Object} event - the event details
         */
         handleTap: function(grid, event) {
             if (this.next) {
@@ -250,9 +246,9 @@
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+         handle this event down the feature chain of responsibility
+         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+         * @param {Object} event - the event details
         */
         handleMouseDrag: function(grid, event) {
             if (this.next) {
@@ -264,9 +260,9 @@
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+         handle this event down the feature chain of responsibility
+         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+         * @param {Object} event - the event details
         */
         isFixedRow: function(grid, event) {
             var gridCell = event.gridCell;
@@ -278,9 +274,9 @@
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+         handle this event down the feature chain of responsibility
+         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+         * @param {Object} event - the event details
         */
         isFixedColumn: function(grid, event) {
             var gridCell = event.gridCell;
@@ -292,9 +288,9 @@
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+         handle this event down the feature chain of responsibility
+         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+         * @param {Object} event - the event details
         */
         isTopLeft: function(grid, event) {
             var isTopLeft = this.isFixedRow(grid, event) && this.isFixedColumn(grid, event);
@@ -305,9 +301,9 @@
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+         handle this event down the feature chain of responsibility
+         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+         * @param {Object} event - the event details
         */
         setCursor: function(grid) {
             if (this.next) {
@@ -317,13 +313,14 @@
                 grid.beCursor(this.cursor);
             }
         },
+
         /**
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+         handle this event down the feature chain of responsibility
+         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+         * @param {Object} event - the event details
         */
         initializeOn: function(grid) {
             if (this.next) {

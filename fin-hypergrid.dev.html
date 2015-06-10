@@ -17727,6 +17727,8 @@ var config = {
 /**
  *
  * @module features\base
+ * @description
+ instances of features are connected to one another to make a chain of responsibility for handling all the input to the hypergrid.
  *
  */
 (function() {
@@ -17734,58 +17736,53 @@ var config = {
     Polymer('fin-hypergrid-feature-base',{ /* jshint ignore:line */
 
         /**
-         * @property {type} varname - description
+         * @property {fin-hypergrid-feature-base} next - the next feature to be given a chance to handle incoming events
          * @instance
          */
         next: null,
 
         /**
-         * @property {type} varname - description
+         * @property {fin-hypergrid-feature-base} detached - a temporary holding field for my next feature when I'm in a disconnected state
          * @instance
          */
         detached: null,
 
         /**
-         * @property {type} varname - description
+         * @property {string} cursor - the cursor I want to be displayed
          * @instance
          */
         cursor: null,
 
         /**
-         * @property {type} varname - description
+         * @property {rectangle.point} currentHoverCell - the cell location where the cursor is currently
          * @instance
          */
         currentHoverCell: null,
 
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         polymer lifecycle event
+         */
         created: function() {
             this.createdInit();
         },
 
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         the function to override for initialization
+         */
         createdInit: function() {},
 
         /**
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        set my next field, or if it's populated delegate to the feature in my next field
+        * @param {fin-hypergrid-feature-base} nextFeature - this is how we build the chain of responsibility
         */
         setNext: function(nextFeature) {
             if (this.next) {
@@ -17800,9 +17797,7 @@ var config = {
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        disconnect my child
         */
         detachChain: function() {
             this.next = null;
@@ -17812,9 +17807,7 @@ var config = {
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        reattach my child from the detached reference
         */
         attachChain: function() {
             this.next = this.detached;
@@ -17824,48 +17817,51 @@ var config = {
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+         handle mouse move down the feature chain of responsibility
+         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+         * @param {Object} event - the event details
         */
         handleMouseMove: function(grid, event) {
             if (this.next) {
                 this.next.handleMouseMove(grid, event);
             }
         },
+
         /**
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+         handle this event down the feature chain of responsibility
+         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+         * @param {Object} event - the event details
         */
         handleMouseExit: function(grid, event) {
             if (this.next) {
                 this.next.handleMouseExit(grid, event);
             }
         },
+
         /**
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+         handle this event down the feature chain of responsibility
+         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+         * @param {Object} event - the event details
         */
         handleMouseEnter: function(grid, event) {
             if (this.next) {
                 this.next.handleMouseEnter(grid, event);
             }
         },
+
         /**
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+         handle this event down the feature chain of responsibility
+         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+         * @param {Object} event - the event details
         */
         handleMouseDown: function(grid, event) {
             if (this.next) {
@@ -17877,9 +17873,9 @@ var config = {
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+         handle this event down the feature chain of responsibility
+         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+         * @param {Object} event - the event details
         */
         handleMouseUp: function(grid, event) {
             if (this.next) {
@@ -17891,9 +17887,9 @@ var config = {
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+         handle this event down the feature chain of responsibility
+         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+         * @param {Object} event - the event details
         */
         handleKeyDown: function(grid, event) {
             if (this.next) {
@@ -17905,9 +17901,9 @@ var config = {
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+         handle this event down the feature chain of responsibility
+         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+         * @param {Object} event - the event details
         */
         handleKeyUp: function(grid, event) {
             if (this.next) {
@@ -17919,9 +17915,9 @@ var config = {
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+         handle this event down the feature chain of responsibility
+         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+         * @param {Object} event - the event details
         */
         handleWheelMoved: function(grid, event) {
             if (this.next) {
@@ -17933,9 +17929,9 @@ var config = {
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+         handle this event down the feature chain of responsibility
+         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+         * @param {Object} event - the event details
         */
         handleDoubleClick: function(grid, event) {
             if (this.next) {
@@ -17947,9 +17943,9 @@ var config = {
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+         handle this event down the feature chain of responsibility
+         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+         * @param {Object} event - the event details
         */
         handleHoldPulse: function(grid, event) {
             if (this.next) {
@@ -17961,9 +17957,9 @@ var config = {
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+         handle this event down the feature chain of responsibility
+         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+         * @param {Object} event - the event details
         */
         handleTap: function(grid, event) {
             if (this.next) {
@@ -17975,9 +17971,9 @@ var config = {
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+         handle this event down the feature chain of responsibility
+         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+         * @param {Object} event - the event details
         */
         handleMouseDrag: function(grid, event) {
             if (this.next) {
@@ -17989,9 +17985,9 @@ var config = {
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+         handle this event down the feature chain of responsibility
+         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+         * @param {Object} event - the event details
         */
         isFixedRow: function(grid, event) {
             var gridCell = event.gridCell;
@@ -18003,9 +17999,9 @@ var config = {
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+         handle this event down the feature chain of responsibility
+         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+         * @param {Object} event - the event details
         */
         isFixedColumn: function(grid, event) {
             var gridCell = event.gridCell;
@@ -18017,9 +18013,9 @@ var config = {
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+         handle this event down the feature chain of responsibility
+         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+         * @param {Object} event - the event details
         */
         isTopLeft: function(grid, event) {
             var isTopLeft = this.isFixedRow(grid, event) && this.isFixedColumn(grid, event);
@@ -18030,9 +18026,9 @@ var config = {
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+         handle this event down the feature chain of responsibility
+         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+         * @param {Object} event - the event details
         */
         setCursor: function(grid) {
             if (this.next) {
@@ -18042,13 +18038,14 @@ var config = {
                 grid.beCursor(this.cursor);
             }
         },
+
         /**
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+         handle this event down the feature chain of responsibility
+         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+         * @param {Object} event - the event details
         */
         initializeOn: function(grid) {
             if (this.next) {
@@ -18748,9 +18745,9 @@ var commands = {
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+         handle this event down the feature chain of responsibility
+         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+         * @param {Object} event - the event details
         */
         handleKeyDown: function(grid, event) {
             var detail = event.detail.char;
@@ -18873,9 +18870,9 @@ var commands = {
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+         handle this event down the feature chain of responsibility
+         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+         * @param {Object} event - the event details
         */
         handleTap: function(grid, event) {
             var fixedRowsHeight = grid.getFixedRowsHeight();
@@ -19083,63 +19080,54 @@ var commands = {
     Polymer('fin-hypergrid-feature-cell-selection',{ /* jshint ignore:line */
 
         /**
-         * currentDrag is the pixel location of the mouse pointer during a drag operation
-         *
-         * @property currentDrag
-         * @type fin-rectangle.point
+         * @property {fin-rectangle.point} currentDrag - currentDrag is the pixel location of the mouse pointer during a drag operation
+         * @instance
          */
         currentDrag: null,
 
         /**
-         * lastDragCell is the cell coordinates of the where the mouse pointer is
-         * during a drag operation
-         *
-         * @property lastDragCell
-         * @type Object
+         * @property {Object} lastDragCell - lastDragCell is the cell coordinates of the where the mouse pointer is during a drag operation
+         * @instance
          */
         lastDragCell: null,
 
         /**
-         * sbLastAuto is a millisecond value representing the previous time an autoscroll started
-         *
-         * @property sbLastAuto
-         * @type Number
+         * @property {Number} sbLastAuto - sbLastAuto is a millisecond value representing the previous time an autoscroll started
+         * @instance
          */
         sbLastAuto: 0,
 
         /**
-         * sbAutoStart is a millisecond value representing the time the current autoscroll started
-         *
-         * @property sbAutoStart
-         * @type Number
+         * @property {Number} sbAutoStart - sbAutoStart is a millisecond value representing the time the current autoscroll started
+         * @instance
          */
         sbAutoStart: 0,
 
+        /**
+         * @property {fin-rectangle.point} rectangles - the util rectangles factory [fin-rectangles](https://github.com/stevewirts/fin-rectangle)
+         * @instance
+         */
         rectangles: {},
 
-
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         the function to override for initialization
+         */
         createdInit: function() {
 
             this.rectangles = document.createElement('fin-rectangle');
 
         },
 
-
         /**
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+         handle this event down the feature chain of responsibility
+         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+         * @param {Object} event - the event details
         */
         handleMouseUp: function(grid, event) {
             this.dragging = false;
@@ -19148,14 +19136,13 @@ var commands = {
             }
         },
 
-
         /**
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+         handle this event down the feature chain of responsibility
+         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+         * @param {Object} event - the event details
         */
         handleMouseDown: function(grid, event) {
             var gridCell = event.gridCell;
@@ -19178,14 +19165,13 @@ var commands = {
             }
         },
 
-
         /**
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+         handle this event down the feature chain of responsibility
+         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+         * @param {Object} event - the event details
         */
         handleMouseDrag: function(grid, event) {
             var mouseDown = grid.getMouseDown();
@@ -19206,14 +19192,13 @@ var commands = {
             this.handleMouseDragCellSelection(grid, gridCell, primEvent.detail.keys);
         },
 
-
         /**
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+         handle this event down the feature chain of responsibility
+         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+         * @param {Object} event - the event details
         */
         handleKeyDown: function(grid, event) {
             var command = 'handle' + event.detail.char;
@@ -19223,20 +19208,14 @@ var commands = {
         },
 
         /**
-         *                                                                      .
-         *                                                                      .
-         * Handle a mousedrag selection
-         *
-         * @method handleMouseDragCellSelection(mouse)
-         */
-
-        /**
         * @function
         * @instance
         * @description
-        fill this in
+        Handle a mousedrag selection
         * #### returns: type
-        * @param {type} varname - descripton
+        * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+        * @param {Object} mouse - the event details
+        * @param {Array} keys - array of the keys that are currently pressed down
         */
         handleMouseDragCellSelection: function(grid, mouse /* ,keys */ ) {
 
@@ -19273,21 +19252,12 @@ var commands = {
         },
 
         /**
-         *                                                                      .
-         *                                                                      .
-         * this checks while were dragging if we go outside the visible bounds,
-         * if so, kick off the external autoscroll check function (above)
-         *
-         * @method checkDragScroll(event)
-         */
-
-        /**
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        this checks while were dragging if we go outside the visible bounds, if so, kick off the external autoscroll check function (above)
+        * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+        * @param {Object} mouse - the event details
         */
         checkDragScroll: function(grid, mouse) {
             if (!grid.resolveProperty('scrollingEnabled')) {
@@ -19306,21 +19276,11 @@ var commands = {
         },
 
         /**
-         *                                                                      .
-         *                                                                      .
-         * this function makes sure that while we are dragging outside of
-         * the grid visible bounds, we srcroll accordingly
-         *
-         * @method scrollDrag()
-         */
-
-        /**
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        this function makes sure that while we are dragging outside of the grid visible bounds, we srcroll accordingly
+        * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
         */
         scrollDrag: function(grid) {
             if (!grid.isScrollingNow()) {
@@ -19350,20 +19310,13 @@ var commands = {
         },
 
         /**
-         *                                                                      .
-         *                                                                      .
-         * extend a selection or create one if there isnt yet
-         *
-         * @method extendSelection(mouse,keys)
-         */
-
-        /**
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        extend a selection or create one if there isnt yet
+        * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+        * @param {Object} gridCell - the event details
+        * @param {Array} keys - array of the keys that are currently pressed down
         */
         extendSelection: function(grid, gridCell, keys) {
             var hasCTRL = keys.indexOf('CTRL') !== -1;
@@ -19407,21 +19360,13 @@ var commands = {
             grid.repaint();
         },
 
-        /**
-         *                                                                      .
-         *                                                                      .
-         * handle the shift down arrow key event
-         *
-         * @method handleDOWNSHIFT()
-         */
 
         /**
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+         handle this event
+         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
         */
         handleDOWNSHIFT: function(grid) {
             var count = this.getAutoScrollAcceleration();
@@ -19429,20 +19374,12 @@ var commands = {
         },
 
         /**
-         *                                                                      .
-         *                                                                      .
-         * handle the shift up arrow key event
-         *
-         * @method handleUPSHIFT()
-         */
-
-        /**
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+         handle this event
+         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+         * @param {Object} event - the event details
         */
         handleUPSHIFT: function(grid) {
             var count = this.getAutoScrollAcceleration();
@@ -19450,60 +19387,36 @@ var commands = {
         },
 
         /**
-         *                                                                      .
-         *                                                                      .
-         * handle the shift left arrow key event
-         *
-         * @method handleLEFTSHIFT()
-         */
-
-        /**
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+         handle this event
+         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+         * @param {Object} event - the event details
         */
         handleLEFTSHIFT: function(grid) {
             this.moveShiftSelect(grid, -1, 0);
         },
 
         /**
-         *                                                                      .
-         *                                                                      .
-         * handle the shift right arrow key event
-         *
-         * @method handleRIGHTSHIFT()
-         */
-
-        /**
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+         handle this event
+         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+         * @param {Object} event - the event details
         */
         handleRIGHTSHIFT: function(grid) {
             this.moveShiftSelect(grid, 1, 0);
         },
 
         /**
-         *                                                                      .
-         *                                                                      .
-         * handle the down arrow key event
-         *
-         * @method handleDOWN()
-         */
-
-        /**
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+         handle this event
+         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+         * @param {Object} event - the event details
         */
         handleDOWN: function(grid) {
             var count = this.getAutoScrollAcceleration();
@@ -19511,20 +19424,12 @@ var commands = {
         },
 
         /**
-         *                                                                      .
-         *                                                                      .
-         * handle the up arrow key event
-         *
-         * @method handleUP()
-         */
-
-        /**
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+         handle this event
+         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+         * @param {Object} event - the event details
         */
         handleUP: function(grid) {
             var count = this.getAutoScrollAcceleration();
@@ -19532,60 +19437,35 @@ var commands = {
         },
 
         /**
-         *                                                                      .
-         *                                                                      .
-         * handle the left arrow key event
-         *
-         * @method handleLEFT()
-         */
-
-        /**
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+         handle this event
+         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+         * @param {Object} event - the event details
         */
         handleLEFT: function(grid) {
             this.moveSingleSelect(grid, -1, 0);
         },
 
         /**
-         *                                                                      .
-         *                                                                      .
-         * handle the right arrow key event
-         *
-         * @method handleRIGHT()
-         */
-
-        /**
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+         handle this event
+         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+         * @param {Object} event - the event details
         */
         handleRIGHT: function(grid) {
             this.moveSingleSelect(grid, 1, 0);
         },
 
         /**
-         *                                                                      .
-         *                                                                      .
-         * If we are holding down the same navigation key, accelerate the increment we scroll
-         *
-         * @method getAutoScrollAcceleration()
-         */
-
-        /**
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        If we are holding down the same navigation key, accelerate the increment we scroll
+        * #### returns: integer
         */
         getAutoScrollAcceleration: function() {
             var count = 1;
@@ -19595,41 +19475,20 @@ var commands = {
         },
 
         /**
-         *                                                                      .
-         *                                                                      .
-         * set the start time when we initiated an auto scroll
-         *
-         * @method setAutoScrollStartTime()
-         */
-
-        /**
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        set the start time to right now when we initiate an auto scroll
         */
         setAutoScrollStartTime: function() {
             this.sbAutoStart = Date.now();
         },
 
         /**
-         *                                                                      .
-         *                                                                      .
-         * update the autoscroll start time if we haven't autoscrolled within the last 500ms
-         * otherwise update the current autoscroll time
-         *
-         * @method pingAutoScroll()
-         */
-
-        /**
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        update the autoscroll start time if we haven't autoscrolled within the last 500ms otherwise update the current autoscroll time
         */
         pingAutoScroll: function() {
             var now = Date.now();
@@ -19640,20 +19499,11 @@ var commands = {
         },
 
         /**
-         *                                                                      .
-         *                                                                      .
-         * answer how long we have been auto scrolling
-         *
-         * @method getAutoScrollDuration()
-         */
-
-        /**
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        answer how long we have been auto scrolling
+        * #### returns: integer
         */
         getAutoScrollDuration: function() {
             if (Date.now() - this.sbLastAuto > 500) {
@@ -19663,20 +19513,13 @@ var commands = {
         },
 
         /**
-         *                                                                      .
-         *                                                                      .
-         * Augment the most recent selection extent by (offsetX,offsetY) and scroll if necessary.
-         *
-         * @method moveShiftSelect(grid, offsetX,offsetY)
-         */
-
-        /**
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        Augment the most recent selection extent by (offsetX,offsetY) and scroll if necessary.
+         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+         * @param {integer} offsetX - x coordinate to start at
+         * @param {integer} offsetY - y coordinate to start at
         */
         moveShiftSelect: function(grid, offsetX, offsetY) {
 
@@ -19717,20 +19560,13 @@ var commands = {
         },
 
         /**
-         *                                                                      .
-         *                                                                      .
-         * Replace the most recent selection with a single cell selection that is moved (offsetX,offsetY) from the previous selection extent.
-         *
-         * @method moveSingleSelect(offsetX,offsetY)
-         */
-
-        /**
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        Replace the most recent selection with a single cell selection that is moved (offsetX,offsetY) from the previous selection extent.
+         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+         * @param {integer} offsetX - x coordinate to start at
+         * @param {integer} offsetY - y coordinate to start at
         */
         moveSingleSelect: function(grid, offsetX, offsetY) {
 
@@ -19969,19 +19805,18 @@ var commands = {
     Polymer('fin-hypergrid-feature-overlay',{ /* jshint ignore:line */
 
         /**
-         * @property {type} varname - description
+         * @property {boolean} openEditor - is the editor open
          * @instance
          */
         openEditor: false,
-
 
         /**
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+         handle this event down the feature chain of responsibility
+         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+         * @param {Object} event - the event details
         */
         handleKeyUp: function(grid, event) {
             var key = event.detail.char.toLowerCase();
@@ -19995,9 +19830,8 @@ var commands = {
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        toggle the column picker on/off
+        * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
         */
         toggleColumnPicker: function(grid) {
             if (this.isColumnPickerOpen(grid)) {
@@ -20011,9 +19845,9 @@ var commands = {
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        returns true if the column picker is open
+        * #### returns: boolean
+        * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
         */
         isColumnPickerOpen: function(grid) {
             noop(grid);
@@ -20024,9 +19858,9 @@ var commands = {
         * @function
         * @instance
         * @description
-        fill this in
+        open the column picker
         * #### returns: type
-        * @param {type} varname - descripton
+        * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
         */
         openColumnPicker: function(grid) {
             if (this.isColumnPickerOpen()) {
@@ -20076,9 +19910,9 @@ var commands = {
         * @function
         * @instance
         * @description
-        fill this in
+        close the column picker
         * #### returns: type
-        * @param {type} varname - descripton
+        * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
         */
         closeColumnPicker: function(grid) {
             grid.setFocusable(true);
@@ -20114,9 +19948,9 @@ var commands = {
         * @function
         * @instance
         * @description
-        fill this in
+        initialize myself into the grid
         * #### returns: type
-        * @param {type} varname - descripton
+        * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
         */
         initializeOn: function(grid) {
             this.initializeOverlaySurface(grid);
@@ -20129,9 +19963,9 @@ var commands = {
         * @function
         * @instance
         * @description
-        fill this in
+        initialize the overlay surface into the grid
         * #### returns: type
-        * @param {type} varname - descripton
+        * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
         */
         initializeOverlaySurface: function(grid) {
             this.overlay = document.createElement('div');
@@ -20150,9 +19984,10 @@ var commands = {
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        get a human readable description of the key pressed from it's integer representation
+        * #### returns: string
+        * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+        * @param {integer} integer - the integer we want the char for
         */
         getCharFor: function(grid, integer) {
             var charMap = grid.getCanvas().getCharMap();
@@ -20357,9 +20192,9 @@ var commands = {
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+         handle this event down the feature chain of responsibility
+         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+         * @param {Object} event - the event details
         */
         handleWheelMoved: function(grid, e) {
             if (!grid.resolveProperty('scrollingEnabled')) {
@@ -20577,9 +20412,9 @@ var commands = {
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+         handle this event down the feature chain of responsibility
+         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+         * @param {Object} event - the event details
         */
         handleDoubleClick: function(grid, event) {
             var fixedColCount = grid.getFixedColumnCount();
@@ -20599,9 +20434,9 @@ var commands = {
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+         handle this event down the feature chain of responsibility
+         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+         * @param {Object} event - the event details
         */
         handleHoldPulse: function(grid, mouseEvent) {
             var primEvent = mouseEvent.primitiveEvent;
@@ -20809,9 +20644,9 @@ var commands = {
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+         handle this event down the feature chain of responsibility
+         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+         * @param {Object} event - the event details
         */
         handleTap: function(grid, event) {
             var gridCell = event.gridCell;
@@ -20831,9 +20666,9 @@ var commands = {
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        handle this event down the feature chain of responsibility
+        * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+        * @param {Object} event - the event details
         */
         handleMouseMove: function(grid, event) {
             if (this.isFixedRow(grid, event) && !this.isFixedColumn(grid, event)) {
@@ -21035,28 +20870,28 @@ var commands = {
 /**
  *
  * @module features\column-resizing
+ * @description
+ this feature is responsible for being able to resize columns
  *
  */
 (function() {
 
-    //var noop = function() {};
-
     Polymer('fin-hypergrid-feature-column-resizing',{ /* jshint ignore:line */
 
         /**
-         * @property {type} varname - description
+         * @property {integer} dragIndex - the index of the column wall were currently dragging
          * @instance
          */
         dragIndex: -1,
 
         /**
-         * @property {type} varname - description
+         * @property {integer} dragStart - the pixel location of the where the drag was initiated
          * @instance
          */
         dragStart: -1,
 
         /**
-         * @property {type} varname - description
+         * @property {integer} dragIndexStartingSize - the starting width/height of the row/column we are dragging
          * @instance
          */
         dragIndexStartingSize: -1,
@@ -21065,9 +20900,9 @@ var commands = {
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        return the count of fixed rows/columns
+        * #### returns: integer
+        * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
         */
         getFixedAreaCount: function(grid) {
             return grid.getFixedColumnCount();
@@ -21077,9 +20912,9 @@ var commands = {
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        get the mouse x,y coordinate
+        * #### returns: integer
+        * @param {MouseEvent} event - the mouse event to query
         */
         getMouseValue: function(event) {
             return event.primitiveEvent.detail.mouse.x;
@@ -21089,9 +20924,9 @@ var commands = {
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        get the grid cell x,y coordinate
+        * #### returns: integer
+        * @param {rectangle.point} gridCell - [rectangle.point](https://github.com/stevewirts/fin-rectangle)
         */
         getGridCellValue: function(gridCell) {
             return gridCell.y;
@@ -21101,9 +20936,9 @@ var commands = {
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        return the grids x,y scroll value
+        * #### returns: integer
+        * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
         */
         getScrollValue: function(grid) {
             return grid.getHScrollValue();
@@ -21113,9 +20948,10 @@ var commands = {
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        return the width/height of the row/column of interest
+        * #### returns: integer
+        * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+        * @param {integer} index - the row/column index of interest
         */
         getAreaSize: function(grid, index) {
             return grid.getColumnWidth(index);
@@ -21125,9 +20961,11 @@ var commands = {
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        set the width/height of the row/column at index
+        * #### returns: integer
+        * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+        * @param {integer} index - the row/column index of interest
+        * @param {integer} value - the width/height to set to
         */
         setAreaSize: function(grid, index, value) {
             grid.setColumnWidth(index, value);
@@ -21137,9 +20975,9 @@ var commands = {
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        return the fixed area rows/columns count
+        * #### returns: integer
+        * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
         */
         getOtherFixedAreaCount: function(grid) {
             return grid.getFixedRowCount();
@@ -21149,31 +20987,36 @@ var commands = {
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        return the fixed area rows/columns width/height
+        * #### returns: integer
+        * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+        * @param {integer} index - the row/column index of interest
         */
         getFixedAreaSize: function(grid, index) {
             return grid.getFixedColumnWidth(index);
         },
+
         /**
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        return the recently rendered area's width/height
+        * #### returns: integer
+        * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+        * @param {integer} index - the row/column index of interest
         */
         getPreviousAbsoluteSize: function(grid, index) {
             return grid.getRenderedWidth(index);
         },
+
         /**
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        set the row/column width/height at index to value
+        * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+        * @param {integer} index - the row/column index of interest
+        * @param {integer} value - the width/height to set to
         */
         setFixedAreaSize: function(grid, index, value) {
             grid.setFixedColumnWidth(index, value);
@@ -21183,9 +21026,10 @@ var commands = {
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        returns the index of which divider I'm over
+        * #### returns: integer
+        * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+        * @param {Object} event - the event details
         */
         overAreaDivider: function(grid, event) {
             return grid.overColumnDivider(event);
@@ -21195,9 +21039,10 @@ var commands = {
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        am I over the column/row area
+        * #### returns: boolean
+        * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+        * @param {Object} event - the event details
         */
         isFixedOtherArea: function(grid, event) {
             return this.isFixedRow(grid, event);
@@ -21207,9 +21052,8 @@ var commands = {
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        return the cursor name
+        * #### returns: string
         */
         getCursorName: function() {
             return 'col-resize';
@@ -21219,9 +21063,9 @@ var commands = {
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        handle this event
+        * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+        * @param {Object} event - the event details
         */
         handleMouseDrag: function(grid, event) {
             if (this.dragIndex > -1) {
@@ -21238,9 +21082,10 @@ var commands = {
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        set the width/height of a specific row/column
+        * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+        * @param {integer} areaIndex - the row/column index to affect
+        * @param {integer} size - the width/height to set to
         */
         setSize: function(grid, areaIndex, size) {
             var fixedAreaCount = this.getFixedAreaCount(grid);
@@ -21256,9 +21101,9 @@ var commands = {
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        get the width/height of a specific row/column
+        * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+        * @param {integer} areaIndex - the row/column index of interest
         */
         getSize: function(grid, areaIndex) {
             var fixedAreaCount = this.getFixedAreaCount(grid);
@@ -21273,9 +21118,9 @@ var commands = {
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+         handle this event down the feature chain of responsibility
+         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+         * @param {Object} event - the event details
         */
         handleMouseDown: function(grid, event) {
             var gridCell = event.gridCell;
@@ -21299,9 +21144,9 @@ var commands = {
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+         handle this event down the feature chain of responsibility
+         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+         * @param {Object} event - the event details
         */
         handleMouseUp: function(grid, event) {
             if (this.dragIndex > -1) {
@@ -21323,9 +21168,9 @@ var commands = {
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        handle this event down the feature chain of responsibility
+        * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+        * @param {Object} event - the event details
         */
         handleMouseMove: function(grid, event) {
             if (this.dragIndex > -1) {
@@ -21343,8 +21188,8 @@ var commands = {
         * @instance
         * @description
         fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+        * @param {Object} event - the event details
         */
         checkForAreaResizeCursorChange: function(grid, event) {
 
@@ -21546,6 +21391,8 @@ var commands = {
 /**
  *
  * @module features\column-moving
+ * @description
+ this feature is responsible for column drag and drop reordering
  *
  */
 (function() {
@@ -21561,43 +21408,43 @@ var commands = {
     Polymer('fin-hypergrid-feature-column-moving',{ /* jshint ignore:line */
 
         /**
-         * @property {type} varname - description
+         * @property {Array} floaterAnimationQueue - queue up the animations that need to play so they are done synchronously
          * @instance
          */
         floaterAnimationQueue: [],
 
         /**
-         * @property {type} varname - description
+         * @property {boolean} columnDragAutoScrollingRight - am I currently auto scrolling right
          * @instance
          */
         columnDragAutoScrollingRight: false,
 
         /**
-         * @property {type} varname - description
+         * @property {boolean} columnDragAutoScrollingLeft  - am I currently auto scrolling left
          * @instance
          */
         columnDragAutoScrollingLeft: false,
 
         /**
-         * @property {type} varname - description
+         * @property {boolean} dragArmed - is the drag mechanism currently enabled(armed)
          * @instance
          */
         dragArmed: false,
 
         /**
-         * @property {type} varname - description
+         * @property {boolean} dragging - am I dragging right now
          * @instance
          */
         dragging: false,
 
         /**
-         * @property {type} varname - description
+         * @property {integer} dragCol - return the column index of the currently dragged column
          * @instance
          */
         dragCol: -1,
 
         /**
-         * @property {type} varname - description
+         * @property {integer} dragOffset - an offset to position the dragged item from the cursor
          * @instance
          */
         dragOffset: 0,
@@ -21606,9 +21453,8 @@ var commands = {
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        give me an opportunity to initialize stuff on the grid
+        * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
         */
         initializeOn: function(grid) {
             this.isFloatingNow = false;
@@ -21622,9 +21468,8 @@ var commands = {
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        initialize animation support on the grid
+        * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
         */
         initializeAnimationSupport: function(grid) {
             noop(grid);
@@ -21651,9 +21496,9 @@ var commands = {
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+         handle this event
+         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+         * @param {Object} event - the event details
         */
         handleMouseDrag: function(grid, event) {
 
@@ -21686,9 +21531,9 @@ var commands = {
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+         handle this event
+         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+         * @param {Object} event - the event details
         */
         handleMouseDown: function(grid, event) {
             if (grid.getBehavior().isColumnReorderable()) {
@@ -21705,9 +21550,9 @@ var commands = {
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+         handle this event
+         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+         * @param {Object} event - the event details
         */
         handleMouseUp: function(grid, event) {
             if (this.dragging) {
@@ -21733,9 +21578,9 @@ var commands = {
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+         handle this event
+         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+         * @param {Object} event - the event details
         */
         handleMouseMove: function(grid, event) {
 
@@ -21749,15 +21594,13 @@ var commands = {
 
         },
 
-        //do the animation and swap the columns
-        //we need a better name
         /**
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        this is the main event handler that manages the dragging of the column
+        * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+        * @param {boolean} draggedToTheRight - are we moving to the right
         */
         floatColumnTo: function(grid, draggedToTheRight) {
             this.floatingNow = true;
@@ -21797,13 +21640,15 @@ var commands = {
             this.doFloaterAnimation(grid);
 
         },
+
         /**
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        manifest the column drag and drop animation
+        * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+        * @param {integer} floaterStartX - the x start coordinate of the column underneath that floats behind the dragged column
+        * @param {integer} draggerStartX - the x start coordinate of the dragged column
         */
         doColumnMoveAnimation: function(grid, floaterStartX, draggerStartX) {
             var self = this;
@@ -21839,9 +21684,8 @@ var commands = {
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        manifest the floater animation
+        * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
         */
         doFloaterAnimation: function(grid) {
             if (this.floaterAnimationQueue.length === 0) {
@@ -21857,9 +21701,9 @@ var commands = {
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        create the float column at columnIndex underneath the dragged column
+        * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+        * @param {integer} columnIndex - the index of the column that will be floating
         */
         createFloatColumn: function(grid, columnIndex) {
             var scrollLeft = grid.getHScrollValue();
@@ -21903,13 +21747,15 @@ var commands = {
             style.cursor = 'none';
             grid.repaint();
         },
+
         /**
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        utility function for setting cross browser css properties
+        * @param {HTMLElement} element - descripton
+        * @param {string} property - the property
+        * @param {string} value - the value to assign
         */
         setCrossBrowserProperty: function(element, property, value) {
             var uProperty = property[0].toUpperCase() + property.substr(1);
@@ -21919,26 +21765,30 @@ var commands = {
             this.setProp(element, 'O' + uProperty, value);
             this.setProp(element, property, value);
         },
+
         /**
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        utility function for setting properties on HTMLElements
+        * @param {HTMLElement} element - descripton
+        * @param {string} property - the property
+        * @param {string} value - the value to assign
         */
         setProp: function(element, property, value) {
             if (property in element.style) {
                 element.style[property] = value;
             }
         },
+
         /**
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        create the dragged column at columnIndex above the floated column
+        * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+        * @param {integer} x - the start position
+        * @param {integer} columnIndex - the index of the column that will be floating
         */
         createDragColumn: function(grid, x, columnIndex) {
             var scrollLeft = grid.getHScrollValue();
@@ -21992,9 +21842,9 @@ var commands = {
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        this function is the main dragging logic
+        * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+        * @param {integer} x - the start position
         */
         dragColumn: function(grid, x) {
 
@@ -22072,9 +21922,9 @@ var commands = {
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        autoscroll to the right if necessary
+        * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+        * @param {integer} x - the start position
         */
         checkAutoScrollToRight: function(grid, x) {
             if (this.columnDragAutoScrollingRight) {
@@ -22084,14 +21934,6 @@ var commands = {
             this._checkAutoScrollToRight(grid, x);
         },
 
-        /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
         _checkAutoScrollToRight: function(grid, x) {
             if (!this.columnDragAutoScrollingRight) {
                 return;
@@ -22113,9 +21955,9 @@ var commands = {
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        return the new column index for where I'm currently dragged at
+        * #### returns: integer
+        * @param {integer} dragIndex - descripton
         */
         findNewPositionOnScrollRight: function(dragIndex) {
             noop(dragIndex);
@@ -22142,9 +21984,9 @@ var commands = {
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        autoscroll to the left if necessary
+        * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+        * @param {integer} x - the start position
         */
         checkAutoScrollToLeft: function(grid, x) {
             if (this.columnDragAutoScrollingLeft) {
@@ -22154,14 +21996,6 @@ var commands = {
             this._checkAutoScrollToLeft(grid, x);
         },
 
-        /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
         _checkAutoScrollToLeft: function(grid, x) {
             if (!this.columnDragAutoScrollingLeft) {
                 return;
@@ -22177,13 +22011,14 @@ var commands = {
             setTimeout(this._checkAutoScrollToLeft.bind(this, grid, x), 250);
         },
 
+
+
         /**
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        a column drag has completed, update data and cleanup
+        * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
         */
         endDragColumn: function(grid) {
             var self = this;
@@ -22403,19 +22238,19 @@ var commands = {
     Polymer('fin-hypergrid-feature-row-resizing',{ /* jshint ignore:line */
 
         /**
-         * @property {type} varname - description
+         * @property {integer} dragArea - the index of the row/column we are dragging
          * @instance
          */
         dragArea: -1,
 
         /**
-         * @property {type} varname - description
+         * @property {integer} dragStart - the pixel location of the where the drag was initiated
          * @instance
          */
         dragStart: -1,
 
         /**
-         * @property {type} varname - description
+         * @property {integer} dragAreaStartingSize - the starting width/height of the row/column we are dragging
          * @instance
          */
         dragAreaStartingSize: -1,
@@ -22424,9 +22259,9 @@ var commands = {
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        return the count of fixed rows/columns
+        * #### returns: integer
+        * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
         */
         getFixedAreaCount: function(grid) {
             return grid.getFixedRowCount();
@@ -22436,9 +22271,9 @@ var commands = {
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        get the mouse x,y coordinate
+        * #### returns: integer
+        * @param {MouseEvent} event - the mouse event to query
         */
         getMouseValue: function(event) {
             return event.primitiveEvent.detail.mouse.y;
@@ -22448,9 +22283,9 @@ var commands = {
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        get the grid cell x,y coordinate
+        * #### returns: integer
+        * @param {rectangle.point} gridCell - [rectangle.point](https://github.com/stevewirts/fin-rectangle)
         */
         getGridCellValue: function(gridCell) {
             return gridCell.x;
@@ -22460,9 +22295,9 @@ var commands = {
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        return the grids x,y scroll value
+        * #### returns: integer
+        * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
         */
         getScrollValue: function(grid) {
             return grid.getVScrollValue();
@@ -22472,9 +22307,10 @@ var commands = {
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        return the width/height of the row/column of interest
+        * #### returns: integer
+        * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+        * @param {integer} index - the row/column index of interest
         */
         getAreaSize: function(grid, index) {
             return grid.getRowHeight(index);
@@ -22484,9 +22320,11 @@ var commands = {
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        set the width/height of the row/column at index
+        * #### returns: integer
+        * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+        * @param {integer} index - the row/column index of interest
+        * @param {integer} value - the width/height to set to
         */
         setAreaSize: function(grid, index, value) {
             grid.setRowHeight(index, value);
@@ -22496,9 +22334,9 @@ var commands = {
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        return the fixed area rows/columns count
+        * #### returns: integer
+        * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
         */
         getOtherFixedAreaCount: function(grid) {
             return grid.getFixedColumnCount();
@@ -22508,9 +22346,10 @@ var commands = {
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        return the fixed area rows/columns width/height
+        * #### returns: integer
+        * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+        * @param {integer} index - the row/column index of interest
         */
         getFixedAreaSize: function(grid, index) {
             return grid.getFixedRowHeight(index);
@@ -22520,9 +22359,10 @@ var commands = {
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        set the row/column width/height at index to value
+        * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+        * @param {integer} index - the row/column index of interest
+        * @param {integer} value - the width/height to set to
         */
         setFixedAreaSize: function(grid, index, value) {
             grid.setFixedRowHeight(index, value);
@@ -22532,9 +22372,10 @@ var commands = {
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        returns the index of which divider I'm over
+        * #### returns: integer
+        * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+        * @param {Object} event - the event details
         */
         overAreaDivider: function(grid, event) {
             return grid.overRowDivider(event);
@@ -22544,9 +22385,10 @@ var commands = {
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        am I over the column/row area
+        * #### returns: boolean
+        * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+        * @param {Object} event - the event details
         */
         isFixedOtherArea: function(grid, event) {
             return this.isFixedColumn(grid, event);
@@ -22556,9 +22398,8 @@ var commands = {
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        return the cursor name
+        * #### returns: string
         */
         getCursorName: function() {
             return 'row-resize';
@@ -22568,9 +22409,10 @@ var commands = {
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        return the recently rendered area's width/height
+        * #### returns: integer
+        * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+        * @param {integer} index - the row/column index of interest
         */
         getPreviousAbsoluteSize: function(grid, index) {
             return grid.getRenderedHeight(index);
@@ -22701,9 +22543,9 @@ var commands = {
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+         handle this event down the feature chain of responsibility
+         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+         * @param {Object} event - the event details
         */
         handleMouseMove: function(grid, event) {
             var currentHoverCell = grid.getHoverCell();
@@ -22722,18 +22564,6 @@ var commands = {
     });
 
 })(); /* jshint ignore:line */
-
-
-// handleMouseMove: function(grid, event) {
-//     if (this.isFixedRow(grid, event) && !this.isFixedColumn(grid, event)) {
-//         this.cursor = 'pointer';
-//     } else {
-//         this.cursor = null;
-//     }
-//     if (this.next) {
-//         this.next.handleMouseMove(grid, event);
-//     }
-// }
 </script>
 </polymer-element>
 <polymer-element name="fin-hypergrid-feature-column-autosizing" extends="fin-hypergrid-feature-base" assetpath="/dev/fin-hypergrid/polymer/html/features/">
@@ -22758,9 +22588,9 @@ var commands = {
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+         handle this event down the feature chain of responsibility
+         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+         * @param {Object} event - the event details
         */
         handleDoubleClick: function(grid, event) {
             var fixedRowCount = grid.getFixedRowCount();
@@ -28757,14 +28587,13 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
 (function() {
 
     Polymer('fin-hypergrid-behavior-web-worker',{ /* jslint ignore:line */
+
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         polymer lifecycle event
+         */
         ready: function() {
 
             this.readyInit();
@@ -28792,9 +28621,8 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        send a message to the web worker
+        * @param {type} message - a json object message
         */
         postMessage: function(message) {
             this.worker.postMessage(message);
@@ -28804,9 +28632,8 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        push data to the web worker
+        * @param {Array} jsonData - the array of object data
         */
         setData: function(jsonData) {
             this.postMessage({
@@ -28820,9 +28647,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        initialize myself and the web worker
         */
         initialize: function() {
             this.initColumnIndexes();
@@ -28836,16 +28661,15 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
             });
         },
 
-        //for now we use the hacky override implementation to save data, in the future we'll have a more elaborate protocol with Q to do real validation and setting of data.
-        //<br>take note of the usage of the scrollPositionY value in translating our in-memory data page
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         return the data value at coordinates x,y.  this is the main "model" function that allows for virtualization
+         * #### returns: Object
+         * @param {integer} x - the x coordinate
+         * @param {integer} y - the y coordinate
+         */
         getValue: function(x, y) {
             var override = this.dataUpdates['p_' + x + '_' + y];
             if (override) {
@@ -28856,58 +28680,47 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
             return this.block.data[y - this.scrollPositionY][fields[x]];
         },
 
-        //empty out our page of local data, this function is used when we lose connectivity
-        //<br>this function is primarily used as a visual queue so the user doesn't see stale data
         /**
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        empty out our page of local data, this function is used when we lose connectivity.  this function is primarily used as a visual queue so the user doesn't see stale data
         */
         clearData: function() {
             this.block.rows = [];
             this.changed();
         },
 
-        //rows is a field in our data payload from Q that tells us the total number of rows available in the Q process data source
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         return the number of rows
+         * #### returns: integer
+         */
         getRowCount: function() {
             return this.block.rows;
         },
 
-        //Virtual column scrolling is not necessary with this GridBehavior because we only hold a small amount of vertical data in memory and most tables in Q are timeseries financial data meaning the are very tall and skinny.  We know all the columns from the first page from Q.
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         return the total number of columns
+         * #### returns: integer
+         */
         getColumnCount: function() {
             return this.block.headers.length;
         },
 
-        //This is overridden from DefaultGridBehavior.   This value is set on us by the OFGrid component on user scrolling.
-        //<br>TODO: refactor: don't store this value in an local member, store it in the message ONLY.
-        //<br>TODO: refactor: num should be dynamic
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         quietly set the scroll position in the horizontal dimension
+         * #### returns: type
+         * @param {integer} y - the position in pixels
+         */
         setScrollPositionY: function(y) {
             if (this.scrollPositionY === y) {
                 return;
@@ -28922,15 +28735,15 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
             });
         },
 
-        //return the column names, they are available to us as meta data in the most recent page Q sent us.
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         return the data value at point x,y in the fixed row area
+         * #### returns: Object
+         * @param {integer} x - x coordinate
+         * @param {integer} y - y coordinate
+         */
         getFixedRowValue: function(x) {
             if (!this.tableState.sorted[x]) {
                 this.tableState.sorted[x] = 0;
@@ -28943,9 +28756,8 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        getter for the field names
+        * #### returns: Array
         */
         getFields: function() {
             return this.block.fields;
@@ -28955,49 +28767,46 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        return a specific header at column index x
+        * #### returns: string
+        * @param {integer} x - the column index of interest
         */
         getHeader: function(x) {
             return this.block.headers[x];
         },
-        //for now just return the row number.  the simple protocol we talk with q assumes the first column is the real row index. so it is offset in all data access
+
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         return the value at x,y for the fixed row area
+         * #### returns: Object
+         * @param {integer} x - x coordinate
+         * @param {integer} y - y coordinate
+         */
         getFixedColumnValue: function(x, y) {
             return y;
         },
 
-        //let Q decide if this instance is sortable or not
         /**
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        returns true if we support sorting
+        * #### returns: boolean
         */
         getCanSort: function() {
             var canSort = this.block.features.sorting === true;
             return canSort;
         },
 
-        //first ask q if this is a sortable instance, then send a message to Q to sort our data set
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         toggle the sort at columnIndex to it's next state
+         * @param {integer} columnIndex - the column index of interest
+         */
         toggleSort: function(columnIndex) {
             if (!this.getCanSort()) {
                 return;
@@ -29022,27 +28831,25 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
             this.postMessage(message);
         },
 
-        //delegate column alignment through the map at the top based on the column type
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         return the column alignment at column x
+         * #### returns: string ['left','center','right']
+         * @param {integer} x - the column index of interest
+         */
         getColumnAlignment: function( /* x */ ) {
             return 'center';
         },
 
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         return the number of fixed columns
+         * #### returns: integer
+         */
         getFixedColumnCount: function() {
             return 1;
         },
@@ -29244,106 +29051,97 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
     Polymer('fin-hypergrid-cell-editor-base',{ /* jshint ignore:line */
 
         /**
-         * @property {type} varname - description
+         * @property {boolean} isEditing - am I currently editing
          * @instance
          */
         isEditing: false,
 
         /**
-         * @property {type} varname - description
+         * @property {rectangle.point} editorPoint - the point that I am editing at right now
          * @instance
          */
         editorPoint: null,
 
         /**
-         * @property {type} varname - description
+         * @property {boolean} checkEditorPositionFlag - if true, check that the editor is in the right location
          * @instance
          */
         checkEditorPositionFlag: false,
 
         /**
-         * @property {type} varname - description
+         * @property {HTMLElement} input - my main input control
          * @instance
          */
         input: null,
 
         /**
-         * @property {type} varname - description
+         * @property {string} alias - my look up name
          * @instance
          */
         alias: 'base',
 
         /**
-         * @property {type} varname - description
+         * @property {fin-hypergrid} grid - my instance of hypergrid
          * @instance
          */
         grid: null,
 
         /**
-         * @property {type} varname - description
+         * @property {type} initialValue - the value before editing
          * @instance
          */
         initialValue: null,
 
 
-        //Currently the only CellEditor is an input field.  The structure is in place for handling the CellEditor during focus change and grid scrolling.
-        //TODO:Generalize the cell editing functionality to delegate through the behvior objects and then through the cell editors.  Add more general CellEditor types/drop down/button/calendar/spinner/etc...
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         polymer lifecycle event
+         */
         ready: function() {
             this.readyInit();
         },
 
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         the function to override for initialization
+         */
         readyInit: function() {
 
         },
 
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         return the behavior (model)
+         *
+         * #### returns: [fin-hypergrid-behavior-base](module-behaviors_base.html)
+         */
         getBehavior: function() {
             return this.grid.getBehavior();
         },
 
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         This function is a callback from the fin-hypergrid.   It is called after each paint of the canvas.
+         *
+         */
         gridRenderedNotification: function() {
             this.checkEditor();
         },
 
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+        scroll values have changed, we've been notified
+         */
         scrollValueChangedNotification: function() {
             this.setCheckEditorPositionFlag();
         },
@@ -29352,9 +29150,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        turn on checkEditorPositionFlag boolean field
         */
         setCheckEditorPositionFlag: function() {
             this.checkEditorPositionFlag = true;
@@ -29364,9 +29160,8 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        begin editing at location point
+        * @param {rectangle.point} point - the location to start editing at
         */
         beginEditAt: function(point) {
             this.setEditorPoint(point);
@@ -29388,9 +29183,8 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        put value into our editor
+        * @param {object} value - whatever value we want to edit
         */
         setEditorValue: function(value) {
             noop(value);
@@ -29400,9 +29194,8 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        returns the point at which we are currently editing
+        * #### returns: rectangle.point
         */
         getEditorPoint: function() {
             return this.editorPoint;
@@ -29412,9 +29205,8 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        set the current editor location
+        * @param {rectangle.point} point - the data location of the current editor
         */
         setEditorPoint: function(point) {
             this.editorPoint = point;
@@ -29424,9 +29216,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        display the editor
         */
         showEditor: function() {},
 
@@ -29434,9 +29224,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        hide the editor
         */
         hideEditor: function() {},
 
@@ -29444,9 +29232,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        stop editing
         */
         stopEditing: function() {
             if (!this.isEditing) {
@@ -29461,9 +29247,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        save the new value into the behavior(model)
         */
         saveEditorValue: function() {
             var point = this.getEditorPoint();
@@ -29476,9 +29260,8 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        return the current editor's value
+        * #### returns: Object
         */
         getEditorValue: function() {
 
@@ -29488,9 +29271,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        request focus for my input control
         */
         takeFocus: function() {
 
@@ -29500,9 +29281,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        move the editor to the current editor point
         */
         moveEditor: function() {
             var model = this.getBehavior();
@@ -29524,9 +29303,8 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        set the bounds of my input control
+        * @param {rectangle} rectangle - the bounds to move to
         */
         setBounds: function(rectangle) {
             noop(rectangle);
@@ -29536,9 +29314,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        check that the editor is in the correct location, and is showing/hidden appropriately
         */
         checkEditor: function() {
             if (!this.checkEditorPositionFlag) {
@@ -29754,19 +29530,17 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
     Polymer('fin-hypergrid-cell-editor-simple',{ /* jshint ignore:line */
 
         /**
-         * @property {type} varname - description
+         * @property {string} alias - my lookup alias
          * @instance
          */
         alias: 'simple',
 
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         the function to override for initialization
+         */
         readyInit: function() {
             var self = this;
             this.rectangles = document.createElement('fin-rectangle');
@@ -29792,9 +29566,8 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        return the current editor's value
+        * #### returns: Object
         */
         getEditorValue: function() {
             var value = this.input.value;
@@ -29805,9 +29578,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        save the new value into the behavior(model)
         */
         setEditorValue: function(value) {
             this.input.value = value + '';
@@ -29817,9 +29588,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        display the editor
         */
         showEditor: function() {
             this.input.style.display = 'inline';
@@ -29829,9 +29598,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        hide the editor
         */
         hideEditor: function() {
             this.input.style.display = 'none';
@@ -29841,9 +29608,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        request focus for my input control
         */
         takeFocus: function() {
             var self = this;
@@ -29857,9 +29622,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        select everything
         */
         selectAll: function() {
 
@@ -29869,9 +29632,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        how much should I offset my bounds from 0,0
         */
         originOffset: function() {
             return [-2, -2];
@@ -29881,9 +29642,8 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        set the bounds of my input control
+        * @param {rectangle} rectangle - the bounds to move to
         */
         setBounds: function(cellBounds) {
             var originOffset = this.originOffset();
@@ -30093,7 +29853,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
     Polymer('fin-hypergrid-cell-editor-textfield',{ /* jshint ignore:line */
 
         /**
-         * @property {type} varname - description
+         * @property {string} alias - my lookup alias
          * @instance
          */
         alias: 'textfield',
@@ -30102,9 +29862,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        select everything
         */
         selectAll: function() {
             this.input.setSelectionRange(0, this.input.value.length);
@@ -30308,24 +30066,22 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
     Polymer('fin-hypergrid-cell-editor-choice',{ /* jshint ignore:line */
 
         /**
-         * @property {type} varname - description
+         * @property {string} alias - my lookup alias
          * @instance
          */
         alias: 'choice',
 
         /**
-         * @property {type} varname - description
+         * @property {Array} items - the list of items to pick from
          * @instance
          */
-        items: ['Moe', 'Larry', 'Curly', 'Groucho', 'Harpo', 'Zeppo', 'Chico'],
+        items: [],
 
         /**
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        how much should I offset my bounds from 0,0
         */
         originOffset: function() {
             return [-1, -1];
@@ -30525,8 +30281,9 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
 (function() {
 
     Polymer('fin-hypergrid-cell-editor-color',{ /* jshint ignore:line */
+
         /**
-         * @property {type} varname - description
+         * @property {string} alias - my lookup alias
          * @instance
          */
         alias: 'color'
@@ -30725,8 +30482,9 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
 (function() {
 
     Polymer('fin-hypergrid-cell-editor-date',{ /* jshint ignore:line */
+
         /**
-         * @property {type} varname - description
+         * @property {string} alias - my lookup alias
          * @instance
          */
         alias: 'date'
@@ -30927,7 +30685,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
     Polymer('fin-hypergrid-cell-editor-slider',{ /* jshint ignore:line */
 
         /**
-         * @property {type} varname - description
+         * @property {string} alias - my lookup alias
          * @instance
          */
         alias: 'slider'
@@ -31128,7 +30886,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
     Polymer('fin-hypergrid-cell-editor-spinner',{ /* jshint ignore:line */
 
         /**
-         * @property {type} varname - description
+         * @property {string} alias - my lookup alias
          * @instance
          */
         alias: 'spinner'
@@ -33566,8 +33324,7 @@ fin-vampire-bar {
          * @function
          * @instance
          * @description
-        provide a way to notify scrollbars that the underlying data has changed, the real solution is to use an aspect adapter here
-         *
+        scroll values have changed, we've been notified *
          */
         scrollValueChangedNotification: function() {
 

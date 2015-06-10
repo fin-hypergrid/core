@@ -100,13 +100,13 @@
 
         <tr>
             
-                <td class="name"><code>varname</code></td>
+                <td class="name"><code>alias</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">type</span>
+<span class="param-type">string</span>
 
 
             
@@ -116,7 +116,7 @@
 
             
 
-            <td class="description last"><p>description</p></td>
+            <td class="description last"><p>my look up name</p></td>
         </tr>
 
     
@@ -205,13 +205,13 @@
 
         <tr>
             
-                <td class="name"><code>varname</code></td>
+                <td class="name"><code>checkEditorPositionFlag</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">type</span>
+<span class="param-type">boolean</span>
 
 
             
@@ -221,7 +221,7 @@
 
             
 
-            <td class="description last"><p>description</p></td>
+            <td class="description last"><p>if true, check that the editor is in the right location</p></td>
         </tr>
 
     
@@ -310,13 +310,13 @@
 
         <tr>
             
-                <td class="name"><code>varname</code></td>
+                <td class="name"><code>editorPoint</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">type</span>
+<span class="param-type">rectangle.point</span>
 
 
             
@@ -326,7 +326,7 @@
 
             
 
-            <td class="description last"><p>description</p></td>
+            <td class="description last"><p>the point that I am editing at right now</p></td>
         </tr>
 
     
@@ -415,13 +415,13 @@
 
         <tr>
             
-                <td class="name"><code>varname</code></td>
+                <td class="name"><code>grid</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">type</span>
+<span class="param-type">fin-hypergrid</span>
 
 
             
@@ -431,7 +431,7 @@
 
             
 
-            <td class="description last"><p>description</p></td>
+            <td class="description last"><p>my instance of hypergrid</p></td>
         </tr>
 
     
@@ -520,7 +520,7 @@
 
         <tr>
             
-                <td class="name"><code>varname</code></td>
+                <td class="name"><code>initialValue</code></td>
             
 
             <td class="type">
@@ -536,7 +536,7 @@
 
             
 
-            <td class="description last"><p>description</p></td>
+            <td class="description last"><p>the value before editing</p></td>
         </tr>
 
     
@@ -625,13 +625,13 @@
 
         <tr>
             
-                <td class="name"><code>varname</code></td>
+                <td class="name"><code>input</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">type</span>
+<span class="param-type">HTMLElement</span>
 
 
             
@@ -641,7 +641,7 @@
 
             
 
-            <td class="description last"><p>description</p></td>
+            <td class="description last"><p>my main input control</p></td>
         </tr>
 
     
@@ -730,13 +730,13 @@
 
         <tr>
             
-                <td class="name"><code>varname</code></td>
+                <td class="name"><code>isEditing</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">type</span>
+<span class="param-type">boolean</span>
 
 
             
@@ -746,7 +746,7 @@
 
             
 
-            <td class="description last"><p>description</p></td>
+            <td class="description last"><p>am I currently editing</p></td>
         </tr>
 
     
@@ -807,15 +807,14 @@
 
     
 
-    <h4 class="name" id="beginEditAt"><span class="type-signature"></span>beginEditAt<span class="signature">(varname)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="beginEditAt"><span class="type-signature"></span>beginEditAt<span class="signature">(point)</span><span class="type-signature"></span></h4>
 
     
 
 
 
 <div class="description">
-    <p>fill this in</p>
-<h4>returns: type</h4>
+    <p>begin editing at location point</p>
 </div>
 
 
@@ -851,13 +850,13 @@
 
         <tr>
             
-                <td class="name"><code>varname</code></td>
+                <td class="name"><code>point</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">type</span>
+<span class="param-type">rectangle.point</span>
 
 
             
@@ -867,7 +866,7 @@
 
             
 
-            <td class="description last"><p>descripton</p></td>
+            <td class="description last"><p>the location to start editing at</p></td>
         </tr>
 
     
@@ -934,15 +933,864 @@
 
     
 
-    <h4 class="name" id="checkEditor"><span class="type-signature"></span>checkEditor<span class="signature">(varname)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="checkEditor"><span class="type-signature"></span>checkEditor<span class="signature">()</span><span class="type-signature"></span></h4>
 
     
 
 
 
 <div class="description">
-    <p>fill this in</p>
-<h4>returns: type</h4>
+    <p>check that the editor is in the correct location, and is showing/hidden appropriately</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="getBehavior"><span class="type-signature"></span>getBehavior<span class="signature">()</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>return the behavior (model)</p>
+<h4>returns: <a href="module-behaviors_base.html">fin-hypergrid-behavior-base</a></h4>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="getEditorPoint"><span class="type-signature"></span>getEditorPoint<span class="signature">()</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>returns the point at which we are currently editing</p>
+<h4>returns: rectangle.point</h4>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="getEditorValue"><span class="type-signature"></span>getEditorValue<span class="signature">()</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>return the current editor's value</p>
+<h4>returns: Object</h4>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="gridRenderedNotification"><span class="type-signature"></span>gridRenderedNotification<span class="signature">()</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>This function is a callback from the fin-hypergrid.   It is called after each paint of the canvas.</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="hideEditor"><span class="type-signature"></span>hideEditor<span class="signature">()</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>hide the editor</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="moveEditor"><span class="type-signature"></span>moveEditor<span class="signature">()</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>move the editor to the current editor point</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="ready"><span class="type-signature"></span>ready<span class="signature">()</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>polymer lifecycle event</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="readyInit"><span class="type-signature"></span>readyInit<span class="signature">()</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>the function to override for initialization</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="saveEditorValue"><span class="type-signature"></span>saveEditorValue<span class="signature">()</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>save the new value into the behavior(model)</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="scrollValueChangedNotification"><span class="type-signature"></span>scrollValueChangedNotification<span class="signature">()</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>scroll values have changed, we've been notified</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="setBounds"><span class="type-signature"></span>setBounds<span class="signature">(rectangle)</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>set the bounds of my input control</p>
 </div>
 
 
@@ -978,13 +1826,13 @@
 
         <tr>
             
-                <td class="name"><code>varname</code></td>
+                <td class="name"><code>rectangle</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">type</span>
+<span class="param-type">rectangle</span>
 
 
             
@@ -994,7 +1842,7 @@
 
             
 
-            <td class="description last"><p>descripton</p></td>
+            <td class="description last"><p>the bounds to move to</p></td>
         </tr>
 
     
@@ -1061,15 +1909,91 @@
 
     
 
-    <h4 class="name" id="getBehavior"><span class="type-signature"></span>getBehavior<span class="signature">(varname)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="setCheckEditorPositionFlag"><span class="type-signature"></span>setCheckEditorPositionFlag<span class="signature">()</span><span class="type-signature"></span></h4>
 
     
 
 
 
 <div class="description">
-    <p>fill this in</p>
-<h4>returns: type</h4>
+    <p>turn on checkEditorPositionFlag boolean field</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="setEditorPoint"><span class="type-signature"></span>setEditorPoint<span class="signature">(point)</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>set the current editor location</p>
 </div>
 
 
@@ -1105,13 +2029,13 @@
 
         <tr>
             
-                <td class="name"><code>varname</code></td>
+                <td class="name"><code>point</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">type</span>
+<span class="param-type">rectangle.point</span>
 
 
             
@@ -1121,7 +2045,7 @@
 
             
 
-            <td class="description last"><p>descripton</p></td>
+            <td class="description last"><p>the data location of the current editor</p></td>
         </tr>
 
     
@@ -1188,15 +2112,14 @@
 
     
 
-    <h4 class="name" id="getEditorPoint"><span class="type-signature"></span>getEditorPoint<span class="signature">(varname)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="setEditorValue"><span class="type-signature"></span>setEditorValue<span class="signature">(value)</span><span class="type-signature"></span></h4>
 
     
 
 
 
 <div class="description">
-    <p>fill this in</p>
-<h4>returns: type</h4>
+    <p>put value into our editor</p>
 </div>
 
 
@@ -1232,13 +2155,13 @@
 
         <tr>
             
-                <td class="name"><code>varname</code></td>
+                <td class="name"><code>value</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">type</span>
+<span class="param-type">object</span>
 
 
             
@@ -1248,7 +2171,7 @@
 
             
 
-            <td class="description last"><p>descripton</p></td>
+            <td class="description last"><p>whatever value we want to edit</p></td>
         </tr>
 
     
@@ -1315,15 +2238,14 @@
 
     
 
-    <h4 class="name" id="getEditorValue"><span class="type-signature"></span>getEditorValue<span class="signature">(varname)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="showEditor"><span class="type-signature"></span>showEditor<span class="signature">()</span><span class="type-signature"></span></h4>
 
     
 
 
 
 <div class="description">
-    <p>fill this in</p>
-<h4>returns: type</h4>
+    <p>display the editor</p>
 </div>
 
 
@@ -1332,55 +2254,6 @@
 
 
 
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>varname</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">type</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>descripton</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
 
 
 
@@ -1442,15 +2315,14 @@
 
     
 
-    <h4 class="name" id="gridRenderedNotification"><span class="type-signature"></span>gridRenderedNotification<span class="signature">(varname)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="stopEditing"><span class="type-signature"></span>stopEditing<span class="signature">()</span><span class="type-signature"></span></h4>
 
     
 
 
 
 <div class="description">
-    <p>fill this in</p>
-<h4>returns: type</h4>
+    <p>stop editing</p>
 </div>
 
 
@@ -1459,55 +2331,6 @@
 
 
 
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>varname</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">type</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>descripton</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
 
 
 
@@ -1569,15 +2392,14 @@
 
     
 
-    <h4 class="name" id="hideEditor"><span class="type-signature"></span>hideEditor<span class="signature">(varname)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="takeFocus"><span class="type-signature"></span>takeFocus<span class="signature">()</span><span class="type-signature"></span></h4>
 
     
 
 
 
 <div class="description">
-    <p>fill this in</p>
-<h4>returns: type</h4>
+    <p>request focus for my input control</p>
 </div>
 
 
@@ -1586,1579 +2408,6 @@
 
 
 
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>varname</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">type</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>descripton</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-            
-
-    
-
-    <h4 class="name" id="moveEditor"><span class="type-signature"></span>moveEditor<span class="signature">(varname)</span><span class="type-signature"></span></h4>
-
-    
-
-
-
-<div class="description">
-    <p>fill this in</p>
-<h4>returns: type</h4>
-</div>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>varname</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">type</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>descripton</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-            
-
-    
-
-    <h4 class="name" id="ready"><span class="type-signature"></span>ready<span class="signature">(varname)</span><span class="type-signature"></span></h4>
-
-    
-
-
-
-<div class="description">
-    <p>fill this in</p>
-<h4>returns: type</h4>
-</div>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>varname</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">type</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>descripton</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-            
-
-    
-
-    <h4 class="name" id="readyInit"><span class="type-signature"></span>readyInit<span class="signature">(varname)</span><span class="type-signature"></span></h4>
-
-    
-
-
-
-<div class="description">
-    <p>fill this in</p>
-<h4>returns: type</h4>
-</div>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>varname</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">type</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>descripton</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-            
-
-    
-
-    <h4 class="name" id="saveEditorValue"><span class="type-signature"></span>saveEditorValue<span class="signature">(varname)</span><span class="type-signature"></span></h4>
-
-    
-
-
-
-<div class="description">
-    <p>fill this in</p>
-<h4>returns: type</h4>
-</div>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>varname</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">type</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>descripton</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-            
-
-    
-
-    <h4 class="name" id="scrollValueChangedNotification"><span class="type-signature"></span>scrollValueChangedNotification<span class="signature">(varname)</span><span class="type-signature"></span></h4>
-
-    
-
-
-
-<div class="description">
-    <p>fill this in</p>
-<h4>returns: type</h4>
-</div>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>varname</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">type</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>descripton</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-            
-
-    
-
-    <h4 class="name" id="setBounds"><span class="type-signature"></span>setBounds<span class="signature">(varname)</span><span class="type-signature"></span></h4>
-
-    
-
-
-
-<div class="description">
-    <p>fill this in</p>
-<h4>returns: type</h4>
-</div>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>varname</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">type</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>descripton</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-            
-
-    
-
-    <h4 class="name" id="setCheckEditorPositionFlag"><span class="type-signature"></span>setCheckEditorPositionFlag<span class="signature">(varname)</span><span class="type-signature"></span></h4>
-
-    
-
-
-
-<div class="description">
-    <p>fill this in</p>
-<h4>returns: type</h4>
-</div>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>varname</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">type</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>descripton</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-            
-
-    
-
-    <h4 class="name" id="setEditorPoint"><span class="type-signature"></span>setEditorPoint<span class="signature">(varname)</span><span class="type-signature"></span></h4>
-
-    
-
-
-
-<div class="description">
-    <p>fill this in</p>
-<h4>returns: type</h4>
-</div>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>varname</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">type</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>descripton</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-            
-
-    
-
-    <h4 class="name" id="setEditorValue"><span class="type-signature"></span>setEditorValue<span class="signature">(varname)</span><span class="type-signature"></span></h4>
-
-    
-
-
-
-<div class="description">
-    <p>fill this in</p>
-<h4>returns: type</h4>
-</div>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>varname</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">type</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>descripton</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-            
-
-    
-
-    <h4 class="name" id="showEditor"><span class="type-signature"></span>showEditor<span class="signature">(varname)</span><span class="type-signature"></span></h4>
-
-    
-
-
-
-<div class="description">
-    <p>fill this in</p>
-<h4>returns: type</h4>
-</div>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>varname</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">type</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>descripton</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-            
-
-    
-
-    <h4 class="name" id="stopEditing"><span class="type-signature"></span>stopEditing<span class="signature">(varname)</span><span class="type-signature"></span></h4>
-
-    
-
-
-
-<div class="description">
-    <p>fill this in</p>
-<h4>returns: type</h4>
-</div>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>varname</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">type</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>descripton</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-            
-
-    
-
-    <h4 class="name" id="takeFocus"><span class="type-signature"></span>takeFocus<span class="signature">(varname)</span><span class="type-signature"></span></h4>
-
-    
-
-
-
-<div class="description">
-    <p>fill this in</p>
-<h4>returns: type</h4>
-</div>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>varname</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">type</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>descripton</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
 
 
 

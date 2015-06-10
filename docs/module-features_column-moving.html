@@ -36,6 +36,8 @@
 <header>
     
         
+            
+        
     
 </header>
 
@@ -43,6 +45,75 @@
     <div class="container-overview">
     
         
+            <div class="description"><p>this feature is responsible for column drag and drop reordering</p></div>
+        
+
+        
+            
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
         
     
@@ -100,13 +171,13 @@
 
         <tr>
             
-                <td class="name"><code>varname</code></td>
+                <td class="name"><code>columnDragAutoScrollingLeft</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">type</span>
+<span class="param-type">boolean</span>
 
 
             
@@ -116,7 +187,7 @@
 
             
 
-            <td class="description last"><p>description</p></td>
+            <td class="description last"><p>am I currently auto scrolling left</p></td>
         </tr>
 
     
@@ -205,13 +276,13 @@
 
         <tr>
             
-                <td class="name"><code>varname</code></td>
+                <td class="name"><code>columnDragAutoScrollingRight</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">type</span>
+<span class="param-type">boolean</span>
 
 
             
@@ -221,7 +292,7 @@
 
             
 
-            <td class="description last"><p>description</p></td>
+            <td class="description last"><p>am I currently auto scrolling right</p></td>
         </tr>
 
     
@@ -310,13 +381,13 @@
 
         <tr>
             
-                <td class="name"><code>varname</code></td>
+                <td class="name"><code>dragArmed</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">type</span>
+<span class="param-type">boolean</span>
 
 
             
@@ -326,7 +397,7 @@
 
             
 
-            <td class="description last"><p>description</p></td>
+            <td class="description last"><p>is the drag mechanism currently enabled(armed)</p></td>
         </tr>
 
     
@@ -415,13 +486,13 @@
 
         <tr>
             
-                <td class="name"><code>varname</code></td>
+                <td class="name"><code>dragCol</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">type</span>
+<span class="param-type">integer</span>
 
 
             
@@ -431,7 +502,7 @@
 
             
 
-            <td class="description last"><p>description</p></td>
+            <td class="description last"><p>return the column index of the currently dragged column</p></td>
         </tr>
 
     
@@ -520,13 +591,13 @@
 
         <tr>
             
-                <td class="name"><code>varname</code></td>
+                <td class="name"><code>dragging</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">type</span>
+<span class="param-type">boolean</span>
 
 
             
@@ -536,7 +607,7 @@
 
             
 
-            <td class="description last"><p>description</p></td>
+            <td class="description last"><p>am I dragging right now</p></td>
         </tr>
 
     
@@ -625,13 +696,13 @@
 
         <tr>
             
-                <td class="name"><code>varname</code></td>
+                <td class="name"><code>dragOffset</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">type</span>
+<span class="param-type">integer</span>
 
 
             
@@ -641,7 +712,7 @@
 
             
 
-            <td class="description last"><p>description</p></td>
+            <td class="description last"><p>an offset to position the dragged item from the cursor</p></td>
         </tr>
 
     
@@ -730,13 +801,13 @@
 
         <tr>
             
-                <td class="name"><code>varname</code></td>
+                <td class="name"><code>floaterAnimationQueue</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">type</span>
+<span class="param-type">Array</span>
 
 
             
@@ -746,7 +817,7 @@
 
             
 
-            <td class="description last"><p>description</p></td>
+            <td class="description last"><p>queue up the animations that need to play so they are done synchronously</p></td>
         </tr>
 
     
@@ -807,15 +878,14 @@
 
     
 
-    <h4 class="name" id="_checkAutoScrollToLeft"><span class="type-signature"></span>_checkAutoScrollToLeft<span class="signature">(varname)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="checkAutoScrollToLeft"><span class="type-signature"></span>checkAutoScrollToLeft<span class="signature">(grid, x)</span><span class="type-signature"></span></h4>
 
     
 
 
 
 <div class="description">
-    <p>fill this in</p>
-<h4>returns: type</h4>
+    <p>autoscroll to the left if necessary</p>
 </div>
 
 
@@ -851,13 +921,1206 @@
 
         <tr>
             
-                <td class="name"><code>varname</code></td>
+                <td class="name"><code>grid</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">type</span>
+<span class="param-type">fin-hypergrid</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p><a href="module-._fin-hypergrid.html">fin-hypergrid</a></p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>x</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">integer</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>the start position</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="checkAutoScrollToRight"><span class="type-signature"></span>checkAutoScrollToRight<span class="signature">(grid, x)</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>autoscroll to the right if necessary</p>
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>grid</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">fin-hypergrid</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p><a href="module-._fin-hypergrid.html">fin-hypergrid</a></p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>x</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">integer</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>the start position</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="createDragColumn"><span class="type-signature"></span>createDragColumn<span class="signature">(grid, x, columnIndex)</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>create the dragged column at columnIndex above the floated column</p>
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>grid</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">fin-hypergrid</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p><a href="module-._fin-hypergrid.html">fin-hypergrid</a></p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>x</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">integer</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>the start position</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>columnIndex</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">integer</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>the index of the column that will be floating</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="createFloatColumn"><span class="type-signature"></span>createFloatColumn<span class="signature">(grid, columnIndex)</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>create the float column at columnIndex underneath the dragged column</p>
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>grid</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">fin-hypergrid</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p><a href="module-._fin-hypergrid.html">fin-hypergrid</a></p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>columnIndex</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">integer</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>the index of the column that will be floating</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="doColumnMoveAnimation"><span class="type-signature"></span>doColumnMoveAnimation<span class="signature">(grid, floaterStartX, draggerStartX)</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>manifest the column drag and drop animation</p>
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>grid</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">fin-hypergrid</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p><a href="module-._fin-hypergrid.html">fin-hypergrid</a></p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>floaterStartX</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">integer</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>the x start coordinate of the column underneath that floats behind the dragged column</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>draggerStartX</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">integer</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>the x start coordinate of the dragged column</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="doFloaterAnimation"><span class="type-signature"></span>doFloaterAnimation<span class="signature">(grid)</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>manifest the floater animation</p>
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>grid</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">fin-hypergrid</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p><a href="module-._fin-hypergrid.html">fin-hypergrid</a></p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="dragColumn"><span class="type-signature"></span>dragColumn<span class="signature">(grid, x)</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>this function is the main dragging logic</p>
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>grid</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">fin-hypergrid</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p><a href="module-._fin-hypergrid.html">fin-hypergrid</a></p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>x</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">integer</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>the start position</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="endDragColumn"><span class="type-signature"></span>endDragColumn<span class="signature">(grid)</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>a column drag has completed, update data and cleanup</p>
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>grid</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">fin-hypergrid</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p><a href="module-._fin-hypergrid.html">fin-hypergrid</a></p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="findNewPositionOnScrollRight"><span class="type-signature"></span>findNewPositionOnScrollRight<span class="signature">(dragIndex)</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>return the new column index for where I'm currently dragged at</p>
+<h4>returns: integer</h4>
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>dragIndex</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">integer</span>
 
 
             
@@ -934,15 +2197,14 @@
 
     
 
-    <h4 class="name" id="_checkAutoScrollToRight"><span class="type-signature"></span>_checkAutoScrollToRight<span class="signature">(varname)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="floatColumnTo"><span class="type-signature"></span>floatColumnTo<span class="signature">(grid, draggedToTheRight)</span><span class="type-signature"></span></h4>
 
     
 
 
 
 <div class="description">
-    <p>fill this in</p>
-<h4>returns: type</h4>
+    <p>this is the main event handler that manages the dragging of the column</p>
 </div>
 
 
@@ -978,13 +2240,13 @@
 
         <tr>
             
-                <td class="name"><code>varname</code></td>
+                <td class="name"><code>grid</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">type</span>
+<span class="param-type">fin-hypergrid</span>
 
 
             
@@ -994,7 +2256,30 @@
 
             
 
-            <td class="description last"><p>descripton</p></td>
+            <td class="description last"><p><a href="module-._fin-hypergrid.html">fin-hypergrid</a></p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>draggedToTheRight</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>are we moving to the right</p></td>
         </tr>
 
     
@@ -1061,15 +2346,14 @@
 
     
 
-    <h4 class="name" id="checkAutoScrollToLeft"><span class="type-signature"></span>checkAutoScrollToLeft<span class="signature">(varname)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="handleMouseDown"><span class="type-signature"></span>handleMouseDown<span class="signature">(grid, event)</span><span class="type-signature"></span></h4>
 
     
 
 
 
 <div class="description">
-    <p>fill this in</p>
-<h4>returns: type</h4>
+    <p>handle this event</p>
 </div>
 
 
@@ -1105,13 +2389,13 @@
 
         <tr>
             
-                <td class="name"><code>varname</code></td>
+                <td class="name"><code>grid</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">type</span>
+<span class="param-type">fin-hypergrid</span>
 
 
             
@@ -1121,7 +2405,30 @@
 
             
 
-            <td class="description last"><p>descripton</p></td>
+            <td class="description last"><p><a href="module-._fin-hypergrid.html">fin-hypergrid</a></p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>event</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>the event details</p></td>
         </tr>
 
     
@@ -1188,15 +2495,14 @@
 
     
 
-    <h4 class="name" id="checkAutoScrollToRight"><span class="type-signature"></span>checkAutoScrollToRight<span class="signature">(varname)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="handleMouseDrag"><span class="type-signature"></span>handleMouseDrag<span class="signature">(grid, event)</span><span class="type-signature"></span></h4>
 
     
 
 
 
 <div class="description">
-    <p>fill this in</p>
-<h4>returns: type</h4>
+    <p>handle this event</p>
 </div>
 
 
@@ -1232,13 +2538,13 @@
 
         <tr>
             
-                <td class="name"><code>varname</code></td>
+                <td class="name"><code>grid</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">type</span>
+<span class="param-type">fin-hypergrid</span>
 
 
             
@@ -1248,7 +2554,30 @@
 
             
 
-            <td class="description last"><p>descripton</p></td>
+            <td class="description last"><p><a href="module-._fin-hypergrid.html">fin-hypergrid</a></p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>event</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>the event details</p></td>
         </tr>
 
     
@@ -1315,15 +2644,14 @@
 
     
 
-    <h4 class="name" id="createDragColumn"><span class="type-signature"></span>createDragColumn<span class="signature">(varname)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="handleMouseMove"><span class="type-signature"></span>handleMouseMove<span class="signature">(grid, event)</span><span class="type-signature"></span></h4>
 
     
 
 
 
 <div class="description">
-    <p>fill this in</p>
-<h4>returns: type</h4>
+    <p>handle this event</p>
 </div>
 
 
@@ -1359,13 +2687,13 @@
 
         <tr>
             
-                <td class="name"><code>varname</code></td>
+                <td class="name"><code>grid</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">type</span>
+<span class="param-type">fin-hypergrid</span>
 
 
             
@@ -1375,7 +2703,30 @@
 
             
 
-            <td class="description last"><p>descripton</p></td>
+            <td class="description last"><p><a href="module-._fin-hypergrid.html">fin-hypergrid</a></p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>event</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>the event details</p></td>
         </tr>
 
     
@@ -1442,15 +2793,14 @@
 
     
 
-    <h4 class="name" id="createFloatColumn"><span class="type-signature"></span>createFloatColumn<span class="signature">(varname)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="handleMouseUp"><span class="type-signature"></span>handleMouseUp<span class="signature">(grid, event)</span><span class="type-signature"></span></h4>
 
     
 
 
 
 <div class="description">
-    <p>fill this in</p>
-<h4>returns: type</h4>
+    <p>handle this event</p>
 </div>
 
 
@@ -1486,13 +2836,13 @@
 
         <tr>
             
-                <td class="name"><code>varname</code></td>
+                <td class="name"><code>grid</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">type</span>
+<span class="param-type">fin-hypergrid</span>
 
 
             
@@ -1502,7 +2852,30 @@
 
             
 
-            <td class="description last"><p>descripton</p></td>
+            <td class="description last"><p><a href="module-._fin-hypergrid.html">fin-hypergrid</a></p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>event</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>the event details</p></td>
         </tr>
 
     
@@ -1569,15 +2942,14 @@
 
     
 
-    <h4 class="name" id="doColumnMoveAnimation"><span class="type-signature"></span>doColumnMoveAnimation<span class="signature">(varname)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="initializeAnimationSupport"><span class="type-signature"></span>initializeAnimationSupport<span class="signature">(grid)</span><span class="type-signature"></span></h4>
 
     
 
 
 
 <div class="description">
-    <p>fill this in</p>
-<h4>returns: type</h4>
+    <p>initialize animation support on the grid</p>
 </div>
 
 
@@ -1613,13 +2985,13 @@
 
         <tr>
             
-                <td class="name"><code>varname</code></td>
+                <td class="name"><code>grid</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">type</span>
+<span class="param-type">fin-hypergrid</span>
 
 
             
@@ -1629,7 +3001,7 @@
 
             
 
-            <td class="description last"><p>descripton</p></td>
+            <td class="description last"><p><a href="module-._fin-hypergrid.html">fin-hypergrid</a></p></td>
         </tr>
 
     
@@ -1696,15 +3068,14 @@
 
     
 
-    <h4 class="name" id="doFloaterAnimation"><span class="type-signature"></span>doFloaterAnimation<span class="signature">(varname)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="initializeOn"><span class="type-signature"></span>initializeOn<span class="signature">(grid)</span><span class="type-signature"></span></h4>
 
     
 
 
 
 <div class="description">
-    <p>fill this in</p>
-<h4>returns: type</h4>
+    <p>give me an opportunity to initialize stuff on the grid</p>
 </div>
 
 
@@ -1740,13 +3111,13 @@
 
         <tr>
             
-                <td class="name"><code>varname</code></td>
+                <td class="name"><code>grid</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">type</span>
+<span class="param-type">fin-hypergrid</span>
 
 
             
@@ -1756,7 +3127,7 @@
 
             
 
-            <td class="description last"><p>descripton</p></td>
+            <td class="description last"><p><a href="module-._fin-hypergrid.html">fin-hypergrid</a></p></td>
         </tr>
 
     
@@ -1823,15 +3194,14 @@
 
     
 
-    <h4 class="name" id="dragColumn"><span class="type-signature"></span>dragColumn<span class="signature">(varname)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="setCrossBrowserProperty"><span class="type-signature"></span>setCrossBrowserProperty<span class="signature">(element, property, value)</span><span class="type-signature"></span></h4>
 
     
 
 
 
 <div class="description">
-    <p>fill this in</p>
-<h4>returns: type</h4>
+    <p>utility function for setting cross browser css properties</p>
 </div>
 
 
@@ -1867,13 +3237,13 @@
 
         <tr>
             
-                <td class="name"><code>varname</code></td>
+                <td class="name"><code>element</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">type</span>
+<span class="param-type">HTMLElement</span>
 
 
             
@@ -1884,6 +3254,52 @@
             
 
             <td class="description last"><p>descripton</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>property</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>the property</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>value</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>the value to assign</p></td>
         </tr>
 
     
@@ -1950,15 +3366,14 @@
 
     
 
-    <h4 class="name" id="endDragColumn"><span class="type-signature"></span>endDragColumn<span class="signature">(varname)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="setProp"><span class="type-signature"></span>setProp<span class="signature">(element, property, value)</span><span class="type-signature"></span></h4>
 
     
 
 
 
 <div class="description">
-    <p>fill this in</p>
-<h4>returns: type</h4>
+    <p>utility function for setting properties on HTMLElements</p>
 </div>
 
 
@@ -1994,13 +3409,13 @@
 
         <tr>
             
-                <td class="name"><code>varname</code></td>
+                <td class="name"><code>element</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">type</span>
+<span class="param-type">HTMLElement</span>
 
 
             
@@ -2014,120 +3429,16 @@
         </tr>
 
     
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-            
-
-    
-
-    <h4 class="name" id="findNewPositionOnScrollRight"><span class="type-signature"></span>findNewPositionOnScrollRight<span class="signature">(varname)</span><span class="type-signature"></span></h4>
-
-    
-
-
-
-<div class="description">
-    <p>fill this in</p>
-<h4>returns: type</h4>
-</div>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
 
         <tr>
             
-                <td class="name"><code>varname</code></td>
+                <td class="name"><code>property</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">type</span>
+<span class="param-type">string</span>
 
 
             
@@ -2137,124 +3448,20 @@
 
             
 
-            <td class="description last"><p>descripton</p></td>
+            <td class="description last"><p>the property</p></td>
         </tr>
 
     
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-            
-
-    
-
-    <h4 class="name" id="floatColumnTo"><span class="type-signature"></span>floatColumnTo<span class="signature">(varname)</span><span class="type-signature"></span></h4>
-
-    
-
-
-
-<div class="description">
-    <p>fill this in</p>
-<h4>returns: type</h4>
-</div>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
 
         <tr>
             
-                <td class="name"><code>varname</code></td>
+                <td class="name"><code>value</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">type</span>
+<span class="param-type">string</span>
 
 
             
@@ -2264,1023 +3471,7 @@
 
             
 
-            <td class="description last"><p>descripton</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-            
-
-    
-
-    <h4 class="name" id="handleMouseDown"><span class="type-signature"></span>handleMouseDown<span class="signature">(varname)</span><span class="type-signature"></span></h4>
-
-    
-
-
-
-<div class="description">
-    <p>fill this in</p>
-<h4>returns: type</h4>
-</div>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>varname</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">type</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>descripton</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-            
-
-    
-
-    <h4 class="name" id="handleMouseDrag"><span class="type-signature"></span>handleMouseDrag<span class="signature">(varname)</span><span class="type-signature"></span></h4>
-
-    
-
-
-
-<div class="description">
-    <p>fill this in</p>
-<h4>returns: type</h4>
-</div>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>varname</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">type</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>descripton</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-            
-
-    
-
-    <h4 class="name" id="handleMouseMove"><span class="type-signature"></span>handleMouseMove<span class="signature">(varname)</span><span class="type-signature"></span></h4>
-
-    
-
-
-
-<div class="description">
-    <p>fill this in</p>
-<h4>returns: type</h4>
-</div>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>varname</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">type</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>descripton</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-            
-
-    
-
-    <h4 class="name" id="handleMouseUp"><span class="type-signature"></span>handleMouseUp<span class="signature">(varname)</span><span class="type-signature"></span></h4>
-
-    
-
-
-
-<div class="description">
-    <p>fill this in</p>
-<h4>returns: type</h4>
-</div>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>varname</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">type</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>descripton</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-            
-
-    
-
-    <h4 class="name" id="initializeAnimationSupport"><span class="type-signature"></span>initializeAnimationSupport<span class="signature">(varname)</span><span class="type-signature"></span></h4>
-
-    
-
-
-
-<div class="description">
-    <p>fill this in</p>
-<h4>returns: type</h4>
-</div>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>varname</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">type</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>descripton</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-            
-
-    
-
-    <h4 class="name" id="initializeOn"><span class="type-signature"></span>initializeOn<span class="signature">(varname)</span><span class="type-signature"></span></h4>
-
-    
-
-
-
-<div class="description">
-    <p>fill this in</p>
-<h4>returns: type</h4>
-</div>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>varname</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">type</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>descripton</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-            
-
-    
-
-    <h4 class="name" id="setCrossBrowserProperty"><span class="type-signature"></span>setCrossBrowserProperty<span class="signature">(varname)</span><span class="type-signature"></span></h4>
-
-    
-
-
-
-<div class="description">
-    <p>fill this in</p>
-<h4>returns: type</h4>
-</div>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>varname</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">type</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>descripton</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-            
-
-    
-
-    <h4 class="name" id="setProp"><span class="type-signature"></span>setProp<span class="signature">(varname)</span><span class="type-signature"></span></h4>
-
-    
-
-
-
-<div class="description">
-    <p>fill this in</p>
-<h4>returns: type</h4>
-</div>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>varname</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">type</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>descripton</p></td>
+            <td class="description last"><p>the value to assign</p></td>
         </tr>
 
     

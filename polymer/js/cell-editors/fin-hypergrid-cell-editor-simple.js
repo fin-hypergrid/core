@@ -9,19 +9,17 @@
     Polymer({ /* jshint ignore:line */
 
         /**
-         * @property {type} varname - description
+         * @property {string} alias - my lookup alias
          * @instance
          */
         alias: 'simple',
 
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         the function to override for initialization
+         */
         readyInit: function() {
             var self = this;
             this.rectangles = document.createElement('fin-rectangle');
@@ -47,9 +45,8 @@
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        return the current editor's value
+        * #### returns: Object
         */
         getEditorValue: function() {
             var value = this.input.value;
@@ -60,9 +57,7 @@
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        save the new value into the behavior(model)
         */
         setEditorValue: function(value) {
             this.input.value = value + '';
@@ -72,9 +67,7 @@
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        display the editor
         */
         showEditor: function() {
             this.input.style.display = 'inline';
@@ -84,9 +77,7 @@
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        hide the editor
         */
         hideEditor: function() {
             this.input.style.display = 'none';
@@ -96,9 +87,7 @@
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        request focus for my input control
         */
         takeFocus: function() {
             var self = this;
@@ -112,9 +101,7 @@
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        select everything
         */
         selectAll: function() {
 
@@ -124,9 +111,7 @@
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        how much should I offset my bounds from 0,0
         */
         originOffset: function() {
             return [-2, -2];
@@ -136,9 +121,8 @@
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        set the bounds of my input control
+        * @param {rectangle} rectangle - the bounds to move to
         */
         setBounds: function(cellBounds) {
             var originOffset = this.originOffset();

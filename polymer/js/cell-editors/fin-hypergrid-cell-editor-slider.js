@@ -9,7 +9,7 @@
     Polymer({ /* jshint ignore:line */
 
         /**
-         * @property {type} varname - description
+         * @property {string} alias - my lookup alias
          * @instance
          */
         alias: 'slider'

@@ -9,7 +9,7 @@
     Polymer({ /* jshint ignore:line */
 
         /**
-         * @property {type} varname - description
+         * @property {string} alias - my lookup alias
          * @instance
          */
         alias: 'textfield',
@@ -18,9 +18,7 @@
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        select everything
         */
         selectAll: function() {
             this.input.setSelectionRange(0, this.input.value.length);

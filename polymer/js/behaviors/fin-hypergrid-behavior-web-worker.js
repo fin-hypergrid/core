@@ -7,14 +7,13 @@
 (function() {
 
     Polymer({ /* jslint ignore:line */
+
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         polymer lifecycle event
+         */
         ready: function() {
 
             this.readyInit();
@@ -42,9 +41,8 @@
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        send a message to the web worker
+        * @param {type} message - a json object message
         */
         postMessage: function(message) {
             this.worker.postMessage(message);
@@ -54,9 +52,8 @@
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        push data to the web worker
+        * @param {Array} jsonData - the array of object data
         */
         setData: function(jsonData) {
             this.postMessage({
@@ -70,9 +67,7 @@
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        initialize myself and the web worker
         */
         initialize: function() {
             this.initColumnIndexes();
@@ -86,16 +81,15 @@
             });
         },
 
-        //for now we use the hacky override implementation to save data, in the future we'll have a more elaborate protocol with Q to do real validation and setting of data.
-        //<br>take note of the usage of the scrollPositionY value in translating our in-memory data page
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         return the data value at coordinates x,y.  this is the main "model" function that allows for virtualization
+         * #### returns: Object
+         * @param {integer} x - the x coordinate
+         * @param {integer} y - the y coordinate
+         */
         getValue: function(x, y) {
             var override = this.dataUpdates['p_' + x + '_' + y];
             if (override) {
@@ -106,58 +100,47 @@
             return this.block.data[y - this.scrollPositionY][fields[x]];
         },
 
-        //empty out our page of local data, this function is used when we lose connectivity
-        //<br>this function is primarily used as a visual queue so the user doesn't see stale data
         /**
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        empty out our page of local data, this function is used when we lose connectivity.  this function is primarily used as a visual queue so the user doesn't see stale data
         */
         clearData: function() {
             this.block.rows = [];
             this.changed();
         },
 
-        //rows is a field in our data payload from Q that tells us the total number of rows available in the Q process data source
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         return the number of rows
+         * #### returns: integer
+         */
         getRowCount: function() {
             return this.block.rows;
         },
 
-        //Virtual column scrolling is not necessary with this GridBehavior because we only hold a small amount of vertical data in memory and most tables in Q are timeseries financial data meaning the are very tall and skinny.  We know all the columns from the first page from Q.
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         return the total number of columns
+         * #### returns: integer
+         */
         getColumnCount: function() {
             return this.block.headers.length;
         },
 
-        //This is overridden from DefaultGridBehavior.   This value is set on us by the OFGrid component on user scrolling.
-        //<br>TODO: refactor: don't store this value in an local member, store it in the message ONLY.
-        //<br>TODO: refactor: num should be dynamic
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         quietly set the scroll position in the horizontal dimension
+         * #### returns: type
+         * @param {integer} y - the position in pixels
+         */
         setScrollPositionY: function(y) {
             if (this.scrollPositionY === y) {
                 return;
@@ -172,15 +155,15 @@
             });
         },
 
-        //return the column names, they are available to us as meta data in the most recent page Q sent us.
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         return the data value at point x,y in the fixed row area
+         * #### returns: Object
+         * @param {integer} x - x coordinate
+         * @param {integer} y - y coordinate
+         */
         getFixedRowValue: function(x) {
             if (!this.tableState.sorted[x]) {
                 this.tableState.sorted[x] = 0;
@@ -193,9 +176,8 @@
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        getter for the field names
+        * #### returns: Array
         */
         getFields: function() {
             return this.block.fields;
@@ -205,49 +187,46 @@
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        return a specific header at column index x
+        * #### returns: string
+        * @param {integer} x - the column index of interest
         */
         getHeader: function(x) {
             return this.block.headers[x];
         },
-        //for now just return the row number.  the simple protocol we talk with q assumes the first column is the real row index. so it is offset in all data access
+
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         return the value at x,y for the fixed row area
+         * #### returns: Object
+         * @param {integer} x - x coordinate
+         * @param {integer} y - y coordinate
+         */
         getFixedColumnValue: function(x, y) {
             return y;
         },
 
-        //let Q decide if this instance is sortable or not
         /**
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        returns true if we support sorting
+        * #### returns: boolean
         */
         getCanSort: function() {
             var canSort = this.block.features.sorting === true;
             return canSort;
         },
 
-        //first ask q if this is a sortable instance, then send a message to Q to sort our data set
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         toggle the sort at columnIndex to it's next state
+         * @param {integer} columnIndex - the column index of interest
+         */
         toggleSort: function(columnIndex) {
             if (!this.getCanSort()) {
                 return;
@@ -272,27 +251,25 @@
             this.postMessage(message);
         },
 
-        //delegate column alignment through the map at the top based on the column type
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         return the column alignment at column x
+         * #### returns: string ['left','center','right']
+         * @param {integer} x - the column index of interest
+         */
         getColumnAlignment: function( /* x */ ) {
             return 'center';
         },
 
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         return the number of fixed columns
+         * #### returns: integer
+         */
         getFixedColumnCount: function() {
             return 1;
         },

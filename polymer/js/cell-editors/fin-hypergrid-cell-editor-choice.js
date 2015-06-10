@@ -9,24 +9,22 @@
     Polymer({ /* jshint ignore:line */
 
         /**
-         * @property {type} varname - description
+         * @property {string} alias - my lookup alias
          * @instance
          */
         alias: 'choice',
 
         /**
-         * @property {type} varname - description
+         * @property {Array} items - the list of items to pick from
          * @instance
          */
-        items: ['Moe', 'Larry', 'Curly', 'Groucho', 'Harpo', 'Zeppo', 'Chico'],
+        items: [],
 
         /**
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        how much should I offset my bounds from 0,0
         */
         originOffset: function() {
             return [-1, -1];

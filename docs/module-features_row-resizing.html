@@ -100,13 +100,13 @@
 
         <tr>
             
-                <td class="name"><code>varname</code></td>
+                <td class="name"><code>dragArea</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">type</span>
+<span class="param-type">integer</span>
 
 
             
@@ -116,7 +116,7 @@
 
             
 
-            <td class="description last"><p>description</p></td>
+            <td class="description last"><p>the index of the row/column we are dragging</p></td>
         </tr>
 
     
@@ -205,13 +205,13 @@
 
         <tr>
             
-                <td class="name"><code>varname</code></td>
+                <td class="name"><code>dragAreaStartingSize</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">type</span>
+<span class="param-type">integer</span>
 
 
             
@@ -221,7 +221,7 @@
 
             
 
-            <td class="description last"><p>description</p></td>
+            <td class="description last"><p>the starting width/height of the row/column we are dragging</p></td>
         </tr>
 
     
@@ -310,13 +310,13 @@
 
         <tr>
             
-                <td class="name"><code>varname</code></td>
+                <td class="name"><code>dragStart</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">type</span>
+<span class="param-type">integer</span>
 
 
             
@@ -326,7 +326,7 @@
 
             
 
-            <td class="description last"><p>description</p></td>
+            <td class="description last"><p>the pixel location of the where the drag was initiated</p></td>
         </tr>
 
     
@@ -387,15 +387,15 @@
 
     
 
-    <h4 class="name" id="getAreaSize"><span class="type-signature"></span>getAreaSize<span class="signature">(varname)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="getAreaSize"><span class="type-signature"></span>getAreaSize<span class="signature">(grid, index)</span><span class="type-signature"></span></h4>
 
     
 
 
 
 <div class="description">
-    <p>fill this in</p>
-<h4>returns: type</h4>
+    <p>return the width/height of the row/column of interest</p>
+<h4>returns: integer</h4>
 </div>
 
 
@@ -431,13 +431,13 @@
 
         <tr>
             
-                <td class="name"><code>varname</code></td>
+                <td class="name"><code>grid</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">type</span>
+<span class="param-type">fin-hypergrid</span>
 
 
             
@@ -447,7 +447,30 @@
 
             
 
-            <td class="description last"><p>descripton</p></td>
+            <td class="description last"><p><a href="module-._fin-hypergrid.html">fin-hypergrid</a></p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>index</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">integer</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>the row/column index of interest</p></td>
         </tr>
 
     
@@ -514,15 +537,93 @@
 
     
 
-    <h4 class="name" id="getCursorName"><span class="type-signature"></span>getCursorName<span class="signature">(varname)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="getCursorName"><span class="type-signature"></span>getCursorName<span class="signature">()</span><span class="type-signature"></span></h4>
 
     
 
 
 
 <div class="description">
-    <p>fill this in</p>
-<h4>returns: type</h4>
+    <p>return the cursor name</p>
+<h4>returns: string</h4>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="getFixedAreaCount"><span class="type-signature"></span>getFixedAreaCount<span class="signature">(grid)</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>return the count of fixed rows/columns</p>
+<h4>returns: integer</h4>
 </div>
 
 
@@ -558,13 +659,13 @@
 
         <tr>
             
-                <td class="name"><code>varname</code></td>
+                <td class="name"><code>grid</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">type</span>
+<span class="param-type">fin-hypergrid</span>
 
 
             
@@ -574,7 +675,7 @@
 
             
 
-            <td class="description last"><p>descripton</p></td>
+            <td class="description last"><p><a href="module-._fin-hypergrid.html">fin-hypergrid</a></p></td>
         </tr>
 
     
@@ -641,15 +742,15 @@
 
     
 
-    <h4 class="name" id="getFixedAreaCount"><span class="type-signature"></span>getFixedAreaCount<span class="signature">(varname)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="getFixedAreaSize"><span class="type-signature"></span>getFixedAreaSize<span class="signature">(grid, index)</span><span class="type-signature"></span></h4>
 
     
 
 
 
 <div class="description">
-    <p>fill this in</p>
-<h4>returns: type</h4>
+    <p>return the fixed area rows/columns width/height</p>
+<h4>returns: integer</h4>
 </div>
 
 
@@ -685,13 +786,13 @@
 
         <tr>
             
-                <td class="name"><code>varname</code></td>
+                <td class="name"><code>grid</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">type</span>
+<span class="param-type">fin-hypergrid</span>
 
 
             
@@ -701,7 +802,30 @@
 
             
 
-            <td class="description last"><p>descripton</p></td>
+            <td class="description last"><p><a href="module-._fin-hypergrid.html">fin-hypergrid</a></p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>index</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">integer</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>the row/column index of interest</p></td>
         </tr>
 
     
@@ -768,15 +892,15 @@
 
     
 
-    <h4 class="name" id="getFixedAreaSize"><span class="type-signature"></span>getFixedAreaSize<span class="signature">(varname)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="getGridCellValue"><span class="type-signature"></span>getGridCellValue<span class="signature">(gridCell)</span><span class="type-signature"></span></h4>
 
     
 
 
 
 <div class="description">
-    <p>fill this in</p>
-<h4>returns: type</h4>
+    <p>get the grid cell x,y coordinate</p>
+<h4>returns: integer</h4>
 </div>
 
 
@@ -812,13 +936,13 @@
 
         <tr>
             
-                <td class="name"><code>varname</code></td>
+                <td class="name"><code>gridCell</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">type</span>
+<span class="param-type">rectangle.point</span>
 
 
             
@@ -828,7 +952,7 @@
 
             
 
-            <td class="description last"><p>descripton</p></td>
+            <td class="description last"><p><a href="https://github.com/stevewirts/fin-rectangle">rectangle.point</a></p></td>
         </tr>
 
     
@@ -895,15 +1019,15 @@
 
     
 
-    <h4 class="name" id="getGridCellValue"><span class="type-signature"></span>getGridCellValue<span class="signature">(varname)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="getMouseValue"><span class="type-signature"></span>getMouseValue<span class="signature">(event)</span><span class="type-signature"></span></h4>
 
     
 
 
 
 <div class="description">
-    <p>fill this in</p>
-<h4>returns: type</h4>
+    <p>get the mouse x,y coordinate</p>
+<h4>returns: integer</h4>
 </div>
 
 
@@ -939,13 +1063,13 @@
 
         <tr>
             
-                <td class="name"><code>varname</code></td>
+                <td class="name"><code>event</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">type</span>
+<span class="param-type">MouseEvent</span>
 
 
             
@@ -955,7 +1079,7 @@
 
             
 
-            <td class="description last"><p>descripton</p></td>
+            <td class="description last"><p>the mouse event to query</p></td>
         </tr>
 
     
@@ -1022,15 +1146,15 @@
 
     
 
-    <h4 class="name" id="getMouseValue"><span class="type-signature"></span>getMouseValue<span class="signature">(varname)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="getOtherFixedAreaCount"><span class="type-signature"></span>getOtherFixedAreaCount<span class="signature">(grid)</span><span class="type-signature"></span></h4>
 
     
 
 
 
 <div class="description">
-    <p>fill this in</p>
-<h4>returns: type</h4>
+    <p>return the fixed area rows/columns count</p>
+<h4>returns: integer</h4>
 </div>
 
 
@@ -1066,13 +1190,13 @@
 
         <tr>
             
-                <td class="name"><code>varname</code></td>
+                <td class="name"><code>grid</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">type</span>
+<span class="param-type">fin-hypergrid</span>
 
 
             
@@ -1082,7 +1206,7 @@
 
             
 
-            <td class="description last"><p>descripton</p></td>
+            <td class="description last"><p><a href="module-._fin-hypergrid.html">fin-hypergrid</a></p></td>
         </tr>
 
     
@@ -1149,15 +1273,15 @@
 
     
 
-    <h4 class="name" id="getOtherFixedAreaCount"><span class="type-signature"></span>getOtherFixedAreaCount<span class="signature">(varname)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="getPreviousAbsoluteSize"><span class="type-signature"></span>getPreviousAbsoluteSize<span class="signature">(grid, index)</span><span class="type-signature"></span></h4>
 
     
 
 
 
 <div class="description">
-    <p>fill this in</p>
-<h4>returns: type</h4>
+    <p>return the recently rendered area's width/height</p>
+<h4>returns: integer</h4>
 </div>
 
 
@@ -1193,13 +1317,13 @@
 
         <tr>
             
-                <td class="name"><code>varname</code></td>
+                <td class="name"><code>grid</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">type</span>
+<span class="param-type">fin-hypergrid</span>
 
 
             
@@ -1209,7 +1333,30 @@
 
             
 
-            <td class="description last"><p>descripton</p></td>
+            <td class="description last"><p><a href="module-._fin-hypergrid.html">fin-hypergrid</a></p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>index</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">integer</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>the row/column index of interest</p></td>
         </tr>
 
     
@@ -1276,15 +1423,15 @@
 
     
 
-    <h4 class="name" id="getPreviousAbsoluteSize"><span class="type-signature"></span>getPreviousAbsoluteSize<span class="signature">(varname)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="getScrollValue"><span class="type-signature"></span>getScrollValue<span class="signature">(grid)</span><span class="type-signature"></span></h4>
 
     
 
 
 
 <div class="description">
-    <p>fill this in</p>
-<h4>returns: type</h4>
+    <p>return the grids x,y scroll value</p>
+<h4>returns: integer</h4>
 </div>
 
 
@@ -1320,13 +1467,13 @@
 
         <tr>
             
-                <td class="name"><code>varname</code></td>
+                <td class="name"><code>grid</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">type</span>
+<span class="param-type">fin-hypergrid</span>
 
 
             
@@ -1336,7 +1483,7 @@
 
             
 
-            <td class="description last"><p>descripton</p></td>
+            <td class="description last"><p><a href="module-._fin-hypergrid.html">fin-hypergrid</a></p></td>
         </tr>
 
     
@@ -1403,15 +1550,15 @@
 
     
 
-    <h4 class="name" id="getScrollValue"><span class="type-signature"></span>getScrollValue<span class="signature">(varname)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="isFixedOtherArea"><span class="type-signature"></span>isFixedOtherArea<span class="signature">(grid, event)</span><span class="type-signature"></span></h4>
 
     
 
 
 
 <div class="description">
-    <p>fill this in</p>
-<h4>returns: type</h4>
+    <p>am I over the column/row area</p>
+<h4>returns: boolean</h4>
 </div>
 
 
@@ -1447,13 +1594,13 @@
 
         <tr>
             
-                <td class="name"><code>varname</code></td>
+                <td class="name"><code>grid</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">type</span>
+<span class="param-type">fin-hypergrid</span>
 
 
             
@@ -1463,7 +1610,30 @@
 
             
 
-            <td class="description last"><p>descripton</p></td>
+            <td class="description last"><p><a href="module-._fin-hypergrid.html">fin-hypergrid</a></p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>event</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>the event details</p></td>
         </tr>
 
     
@@ -1530,15 +1700,15 @@
 
     
 
-    <h4 class="name" id="isFixedOtherArea"><span class="type-signature"></span>isFixedOtherArea<span class="signature">(varname)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="overAreaDivider"><span class="type-signature"></span>overAreaDivider<span class="signature">(grid, event)</span><span class="type-signature"></span></h4>
 
     
 
 
 
 <div class="description">
-    <p>fill this in</p>
-<h4>returns: type</h4>
+    <p>returns the index of which divider I'm over</p>
+<h4>returns: integer</h4>
 </div>
 
 
@@ -1574,13 +1744,13 @@
 
         <tr>
             
-                <td class="name"><code>varname</code></td>
+                <td class="name"><code>grid</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">type</span>
+<span class="param-type">fin-hypergrid</span>
 
 
             
@@ -1590,7 +1760,30 @@
 
             
 
-            <td class="description last"><p>descripton</p></td>
+            <td class="description last"><p><a href="module-._fin-hypergrid.html">fin-hypergrid</a></p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>event</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>the event details</p></td>
         </tr>
 
     
@@ -1657,15 +1850,15 @@
 
     
 
-    <h4 class="name" id="overAreaDivider"><span class="type-signature"></span>overAreaDivider<span class="signature">(varname)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="setAreaSize"><span class="type-signature"></span>setAreaSize<span class="signature">(grid, index, value)</span><span class="type-signature"></span></h4>
 
     
 
 
 
 <div class="description">
-    <p>fill this in</p>
-<h4>returns: type</h4>
+    <p>set the width/height of the row/column at index</p>
+<h4>returns: integer</h4>
 </div>
 
 
@@ -1701,13 +1894,13 @@
 
         <tr>
             
-                <td class="name"><code>varname</code></td>
+                <td class="name"><code>grid</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">type</span>
+<span class="param-type">fin-hypergrid</span>
 
 
             
@@ -1717,7 +1910,53 @@
 
             
 
-            <td class="description last"><p>descripton</p></td>
+            <td class="description last"><p><a href="module-._fin-hypergrid.html">fin-hypergrid</a></p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>index</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">integer</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>the row/column index of interest</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>value</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">integer</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>the width/height to set to</p></td>
         </tr>
 
     
@@ -1784,15 +2023,14 @@
 
     
 
-    <h4 class="name" id="setAreaSize"><span class="type-signature"></span>setAreaSize<span class="signature">(varname)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="setFixedAreaSize"><span class="type-signature"></span>setFixedAreaSize<span class="signature">(grid, index, value)</span><span class="type-signature"></span></h4>
 
     
 
 
 
 <div class="description">
-    <p>fill this in</p>
-<h4>returns: type</h4>
+    <p>set the row/column width/height at index to value</p>
 </div>
 
 
@@ -1828,13 +2066,13 @@
 
         <tr>
             
-                <td class="name"><code>varname</code></td>
+                <td class="name"><code>grid</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">type</span>
+<span class="param-type">fin-hypergrid</span>
 
 
             
@@ -1844,124 +2082,20 @@
 
             
 
-            <td class="description last"><p>descripton</p></td>
+            <td class="description last"><p><a href="module-._fin-hypergrid.html">fin-hypergrid</a></p></td>
         </tr>
 
     
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-            
-
-    
-
-    <h4 class="name" id="setFixedAreaSize"><span class="type-signature"></span>setFixedAreaSize<span class="signature">(varname)</span><span class="type-signature"></span></h4>
-
-    
-
-
-
-<div class="description">
-    <p>fill this in</p>
-<h4>returns: type</h4>
-</div>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
 
         <tr>
             
-                <td class="name"><code>varname</code></td>
+                <td class="name"><code>index</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">type</span>
+<span class="param-type">integer</span>
 
 
             
@@ -1971,7 +2105,30 @@
 
             
 
-            <td class="description last"><p>descripton</p></td>
+            <td class="description last"><p>the row/column index of interest</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>value</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">integer</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>the width/height to set to</p></td>
         </tr>
 
     
