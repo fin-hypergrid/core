@@ -17328,7 +17328,7 @@ var config = {
 
         /**
          *
-         * @property {object} grid - the grid I'm installed into
+         * @property {object} grid - the [fin-hypergrid](module-._fin-hypergrid.html) I'm installed into
          * @instance
          */
         grid: {},
@@ -17356,7 +17356,7 @@ var config = {
          * @function
          * @instance
          * @description
-         Select a specific region by origin and extent
+         this is called as the hook for the nested tag plugin pattern. this is how this excel component is installed into the hypergrid
          *
          * @param {fin-hypergrid} grid - see [fin-hypergrid](module-._fin-hypergrid.html)
          */
@@ -22563,6 +22563,7 @@ var commands = {
         getCursorName: function() {
             return 'row-resize';
         },
+
         /**
         * @function
         * @instance
@@ -22857,7 +22858,8 @@ var commands = {
  *
  * @module behaviors\base
  * @description
- this is the base class for creating behaviors
+this is the base class for creating behaviors.  a behavior can be thought of as a model++.
+it contains all code/data that's necessary for easily implementing a virtual data source and it's manipulation/analytics
  *
  */
 (function() {
@@ -23573,7 +23575,7 @@ var commands = {
          * @description
          return the view translated alignment for column x
          * #### returns: string ['left','center','right']
-         * @param {integer} x - descripton
+         * @param {integer} x - the column index of interest
          */
         _getColumnAlignment: function(x) {
             x = this.translateColumnIndex(x);
@@ -23586,7 +23588,8 @@ var commands = {
          * @description
          return the alignment at x,y of the top left area
          * #### returns: string ['left','center','right']
-         * @param {type} varname - descripton
+         * @param {integer} x - the x coordinate
+         * @param {integer} x - the y coordinate
          */
         getTopLeftAlignment: function( /* x, y */ ) {
             return 'center';
@@ -24649,6 +24652,8 @@ var commands = {
 /**
  *
  * @module behaviors\default
+ * @description
+ this is the simplest example of a behavior
  *
  */
 (function() {
@@ -24674,9 +24679,10 @@ var commands = {
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        this is the most important behavior function it returns each data point at x,y coordinates
+        * #### returns: Object
+         * @param {integer} x - the x coordinate
+         * @param {integer} x - the y coordinate
         */
         getValue: function(x, y) {
             return x + ', ' + a[y % 26];
@@ -24686,9 +24692,10 @@ var commands = {
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        return data point at x,y coordinates in the fixed row area
+        * #### returns: object
+         * @param {integer} x - the x coordinate
+         * @param {integer} x - the y coordinate
         */
         getFixedRowValue: function(x /*, y*/ ) {
             return alphaFor(x);
@@ -24699,9 +24706,8 @@ var commands = {
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        return the total number of fixed columns
+        * #### returns: integer
         */
         getFixedColumnCount: function() {
             return 1;
@@ -24918,43 +24924,40 @@ var commands = {
     Polymer('fin-hypergrid-behavior-gol',{ /* jslint ignore:line */
 
         /**
-         * @property {type} varname - description
+         * @property {integer} rows - the number of rows
          * @instance
          */
         rows: 45,
 
         /**
-         * @property {type} varname - description
+         * @property {integer} columns - the number of columns
          * @instance
          */
         columns: 75,
 
         /**
-         * @property {type} varname - description
+         * @property {Array} data - the matrix of data
          * @instance
          */
         data: [],
 
         /**
-         * @property {type} varname - description
+         * @property {Array} buffer - double buffer the data
          * @instance
          */
         buffer: [],
 
         /**
-         * @property {type} varname - description
+         * @property {boolean} running - flag if were running or not
          * @instance
          */
         running: false,
-
 
         /**
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        polymer lifecycle event
         */
         ready: function() {
             this.readyInit();
@@ -24965,13 +24968,12 @@ var commands = {
         },
 
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         you can override this function and substitute your own cell provider
+         * #### returns: [fin-hypergrid-cell-provider](module-._cell-provider.html)
+         */
         createCellProvider: function() {
             var provider = document.createElement('fin-hypergrid-cell-provider');
             provider.cellCache.simpleCellRenderer.paint = function(gc, x, y, width, height) {
@@ -24994,9 +24996,7 @@ var commands = {
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        reset the gamegrid
         */
         resetPetriDish: function() {
             this.data = [];
@@ -25011,9 +25011,7 @@ var commands = {
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        fill the gamegrid with random valued well known gol templates
         */
         populate: function() {
             var x = 0;
@@ -25029,9 +25027,8 @@ var commands = {
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        initialize a gamegrid with empty data
+        * @param {Array} array2D - a 2d matrix gamegrid
         */
         initializeData: function(array2D) {
             for (var c = 0; c < this.columns; c++) {
@@ -25047,9 +25044,7 @@ var commands = {
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        turn gol on/off
         */
         toggleRunning: function() {
             this.running = !this.running;
@@ -25062,9 +25057,7 @@ var commands = {
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        start gol
         */
         startLife: function() {
             if (!this.running) {
@@ -25086,9 +25079,7 @@ var commands = {
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        apply the gol rules at a specific point
         */
         computeLifeAt: function(x, y) {
             var me = this._getValue(x, y);
@@ -25116,9 +25107,10 @@ var commands = {
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        return the total weight around point x,y
+        * #### returns: float
+        * @param {integer} x - x coordinate
+        * @param {integer} y - y coordinate
         */
         getNeighborCount: function(x, y) {
             var data = this.data;
@@ -25153,93 +25145,40 @@ var commands = {
             return total;
         },
 
-
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
-        _getNeighborCount: function(x, y) {
-            var data = this.data;
-            var sum = this.count3(data[x - 1], y) + this.count2(data[x], y) + this.count3(data[x + 1], y);
-            return sum;
-        },
-
-        /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
-        count3: function(row, offset) {
-            var sum = 0;
-            for (var i = offset - 1; i <= offset + 1; i++) {
-
-                if (row[i][0]) {
-                    sum++;
-
-                }
-            }
-            return sum;
-        },
-
-        /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
-        count2: function(row, offset) {
-            var sum = 0;
-            for (var i = offset - 1; i <= offset + 1; i++) {
-
-                if ((i !== offset) && row[i][0]) {
-                    sum++;
-
-                }
-            }
-            return sum;
-        },
-
-        /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         return the data value at coordinates x,y.  this is the main "model" function that allows for virtualization
+         * #### returns: Object
+         * @param {integer} x - the x coordinate
+         * @param {integer} y - the y coordinate
+         */
         getValue: function(x, y) {
             return this.data[x][y];
         },
 
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         set the data value at coordinates x,y
+         * @param {integer} x - the x coordinate
+         * @param {integer} y - the y coordinate
+         */
         setValue: function(x, y, value) {
             this.data[x][y] = value;
         },
 
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         return the value at x,y for the fixed row area
+         * #### returns: Object
+         * @param {integer} x - x coordinate
+         * @param {integer} y - y coordinate
+         */
         getFixedColumnValue: function(x, y) {
             return y;
         },
@@ -25248,9 +25187,10 @@ var commands = {
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        return the data value at point x,y
+        * #### returns: Object
+        * @param {integer} x - x coordinate
+        * @param {integer} y - y coordinate
         */
         getFixedRowValue: function(x, y) {
             noop(x, y);
@@ -25258,73 +25198,70 @@ var commands = {
         },
 
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         return the number of fixed columns
+         * #### returns: integer
+         */
         getFixedColumnCount: function() {
             return 0;
         },
+
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         return the count of fixed rows
+         * #### returns: integer
+         */
         getFixedRowCount: function() {
             return 0;
         },
 
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         return the total number of columns
+         * #### returns: integer
+         */
         getColumnCount: function() {
             return this.data.length;
         },
 
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         return the number of rows
+         * #### returns: integer
+         */
         getRowCount: function() {
             return this.data[0].length;
         },
 
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         get height in pixels of a specific row
+         * #### returns: integer
+         * @param {integer} rowNum - row index of interest
+         */
         getRowHeight: function(y) {
             noop(y);
             return 10;
         },
 
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         return the column width at index x
+         * #### returns: integer
+         * @param {integer} x - the column index of interest
+         */
         getColumnWidth: function(x) {
             noop(x);
             return 10;
@@ -25334,9 +25271,8 @@ var commands = {
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        provide the label for the toggle state
+        * #### returns: string
         */
         getNextState: function() {
             if (this.running) {
@@ -25345,15 +25281,14 @@ var commands = {
                 return 'play';
             }
         },
-
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         toggle the value at position specified by the mouse point
+         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+         * @param {Object} event - the event details
+         */
         onTap: function(grid, mouse) {
 
             var mX = this.scrollPositionX + mouse.gridCell.x;
@@ -25368,9 +25303,12 @@ var commands = {
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        apply the gol well known template at x,y
+        * @param {Array} array - an array2D gamegrid to modifiy
+        * @param {integer} c - column coordinate
+        * @param {integer} r - row coordinate
+        * @param {Array} pattern - a 2d matrix of a well known gol template
+        * @param {integer} dir - direction to rotate the pattern
         */
         applyPatternAt: function(array, c, r, pattern, dir) {
             var w = pattern.length;
@@ -25593,6 +25531,8 @@ var commands = {
 /**
  *
  * @module behaviors\in-memory
+ * @description
+This is a very rough in memory data source example.  fin-hypergrid-behavior-in-memory is a more traditional gridmodel where all data and its analytics, sorting, aggregation happen in the same local process.
  *
  */
 (function() {
@@ -25625,21 +25565,14 @@ var commands = {
         }
     }
 
-    //This is a very rough in memory data source example.  InMemoryGridBehavior is a more traditional gridmodel
-    //where all data and its analytics, sorting, aggregation happen in the same process.
-    //<br>much of this is loosely based on emerson's original grid POC
-    //<br>TODO:needs alot of work/bug-fixing/feature completion/tests/cleanup/commenting here...
-
     Polymer('fin-hypergrid-behavior-in-memory',{ /* jslint ignore:line */
 
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         polymer lifecycle event
+         */
         ready: function() {
 
             this.rows = 5000;
@@ -25667,16 +25600,13 @@ var commands = {
             this.reorder();
         },
 
-        //default to left halign for rendering performance improvement
-        //<br>and make columns 3, 23, 41 use special cell renderers
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         you can override this function and substitute your own cell provider
+         * #### returns: [fin-hypergrid-cell-provider](module-._cell-provider.html)
+         */
         createCellProvider: function() {
             //var self = this;
             var provider = document.createElement('fin-hypergrid-cell-provider');
@@ -25708,9 +25638,8 @@ var commands = {
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        set random values drivien by a config object c
+        * @param {Object} c - a config object
         */
         setValues: function(c) {
             var self = this;
@@ -25727,9 +25656,7 @@ var commands = {
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        initialize with random data
         */
         initialize: function() {
             var config = {
@@ -25750,9 +25677,7 @@ var commands = {
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        randomize a variable amount of data on a timeout
         */
         permute: function() {
             var self = this;
@@ -25772,13 +25697,14 @@ var commands = {
         },
 
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         return the cell editor for cell at x,y
+         * #### returns: [fin-hypergrid-cell-editor-base](module-cell-editors_base.html)
+         * @param {integer} x - x coordinate
+         * @param {integer} y - y coordinate
+         */
         getCellEditorAt: function(x, y) {
             var type = x !== 9 ? 'textfield' : this.editorTypes[y % this.editorTypes.length];
             var cellEditor = this.grid.resolveCellEditor(type);
@@ -25786,26 +25712,22 @@ var commands = {
         },
 
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         return the total number of columns
+         * #### returns: integer
+         */
         getColumnCount: function() {
             return this.columns;
         },
 
-        //set a random value into col/row, cutoff is the threshold to exit if the random value is outside
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         randomize the value at coordinate col, row
+         */
         setRandomValue: function(col, row, cutoff) {
             var rand = Math.random();
             var val = this.getValue(col, row);
@@ -25878,29 +25800,28 @@ var commands = {
             }
         },
 
-        //int vector indirection layer so sorting doesn't actually move items around
+        //
         /**
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        decode row,col into a straight index value; int vector indirection layer so sorting doesn't actually move items around
+        * #### returns: integer
+        * @param {integer} col - x coordinate
+        * @param {integer} row - y coordinate
         */
         indexOf: function(row, col) {
             var index = (col * this.rows) + row;
             return index;
         },
 
-        //create a sort object per column we consider sortable
-        //TODO:rethink sorting encapsulation
         /**
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        create a sort object per column we consider sortable
+        * @param {integer} type - sort type, 0/1 - up/down
+        * @param {integer} col - the column index of interest
         */
         createSort: function(type, col) {
             var self = this;
@@ -25952,9 +25873,10 @@ var commands = {
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        swap values in array at locations x, y
+        * @param {Array} array - array of values
+        * @param {integer} x - integer index
+        * @param {integer} y - integer index
         */
         swap: function(array, x, y) {
             var tmp = this.order[x];
@@ -25966,9 +25888,11 @@ var commands = {
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        this is a compare function used by Emersons pivot sort algorithm
+        * #### returns: integer
+        * @param {Array} array - descripton
+        * @param {integer} first - pivot start
+        * @param {integer} last - pivot end
         */
         compare: function(array, first, last) {
             var comp = 0;
@@ -25990,9 +25914,7 @@ var commands = {
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        initialize the row sort indirection layer
         */
         initOrder: function() {
             this.order = [];
@@ -26002,15 +25924,15 @@ var commands = {
             }
         },
 
-        //emersons stable quicksort algorithm, hacked up by me
-        //<br>TODO: this needs serious attention, could be exposed as part of a bowerized sorting lib
         /**
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        emersons stable quicksort algorithm, hacked up by me
+        * @param {Array} array - array of items to sort
+        * @param {type} first - index to start at
+        * @param {type} last - index to end at
+        * @param {type} depth - recursion depth
         */
         quicksort: function(array, first, last, depth) {
             // In place quickstort, stable.  We cant use the inbuilt Array.tableState.sort() since its a hybrid sort
@@ -26088,23 +26010,20 @@ var commands = {
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        apply the quicksort to our data
         */
         reorder: function() {
             this.initOrder();
             this.quicksort(this.values, 0, this.rows - 1, 0);
         },
 
-        //give me the indirect sorted index of the data I'm looking for
         /**
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        return the indirect sorted index of the data I'm looking for
+        * #### returns: integer
+        * @param {integer} y - the natural y index
         */
         orderOf: function(y) {
             // Provide indirection of indexing for row/col so that we can use sort and or alternate between
@@ -26116,56 +26035,54 @@ var commands = {
             return row;
         },
 
-        //set value through the sorted indirection
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
-        setValue: function(col, y, value) {
+         * @function
+         * @instance
+         * @description
+         set the data value at coordinates x,y
+         * @param {integer} x - the x coordinate
+         * @param {integer} y - the y coordinate
+         */
+        setValue: function(x, y, value) {
             var row = this.orderOf(y);
-            var index = this.indexOf(row, col);
+            var index = this.indexOf(row, x);
             this.values[index] = value;
         },
 
-        // get value through the sorted indirection
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
-        getValue: function(col, y) {
+         * @function
+         * @instance
+         * @description
+         return the data value at coordinates x,y.  this is the main "model" function that allows for virtualization
+         * #### returns: Object
+         * @param {integer} x - the x coordinate
+         * @param {integer} y - the y coordinate
+         */
+        getValue: function(x, y) {
             var row = this.orderOf(y);
-            var index = this.indexOf(row, col);
+            var index = this.indexOf(row, x);
             return this.values[index];
         },
 
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         return the number of rows
+         * #### returns: integer
+         */
         getRowCount: function() {
             return this.rows;
         },
 
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         return the column heading at colIndex
+         * #### returns: string
+         * @param {integer} colIndex - the column index of interest
+         */
         getFixedRowValue: function(x /*, y*/ ) {
             var sortIndicator = '';
             if (this.tableState.sortLookup[x] && !this.tableState.sorted[x]) {
@@ -26178,15 +26095,14 @@ var commands = {
             return alphaFor(x) + sortIndicator;
         },
 
-        //columns 2, 14, 22 are sortable
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         fixed row has been clicked, you've been notified
+         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+         * @param {Object} mouse - event details
+         */
         fixedRowClicked: function(grid, mouse) {
             if ([2, 14, 22].indexOf(mouse.gridCell.x) === -1) {
                 return;
@@ -26195,13 +26111,12 @@ var commands = {
         },
 
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         toggle the sort at colIndex to it's next state
+         * @param {integer} colIndex - the column index of interest
+         */
         toggleSort: function(columnIndex) {
             var current = this.tableState.sorted[columnIndex];
             var stateCount = this.sortStates.length;
@@ -26213,13 +26128,12 @@ var commands = {
         },
 
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         return the number of fixed columns
+         * #### returns: integer
+         */
         getFixedColumnCount: function() {
             return 1;
         },
@@ -26423,25 +26337,25 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
 
 
         /**
-         * @property {type} varname - description
+         * @property {Array} data - main storage array
          * @instance
          */
         data: [],
 
         /**
-         * @property {type} varname - description
+         * @property {Array} headers - the list of header labels
          * @instance
          */
         headers: [],
 
         /**
-         * @property {type} varname - description
+         * @property {Array} fields - the list of fields on the underlying data objects <> columns
          * @instance
          */
         fields: [],
 
         /**
-         * @property {type} varname - description
+         * @property {Array} totals - the totals row values
          * @instance
          */
         totals: [],
@@ -26450,9 +26364,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        polymer lifecycle event
         */
         ready: function() {
             this.readyInit();
@@ -26464,22 +26376,21 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        returns true if the argument string is a valid javascript identifier
+        * #### returns: boolean
+        * @param {string} string - the token to test if it is a valid javascript identifier
         */
         isValidIdentifer: function(string) {
             return 0 === (string + '').search(validIdentifierMatch);
         },
 
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         you can override this function and substitute your own cell provider
+         * #### returns: [fin-hypergrid-cell-provider](module-._cell-provider.html)
+         */
         createCellProvider: function() {
             var self = this;
             var provider = document.createElement('fin-hypergrid-cell-provider');
@@ -26498,25 +26409,27 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         },
 
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         return the alignment at x,y of the top left area
+         * #### returns: string ['left','center','right']
+         * @param {integer} x - the x coordinate
+         * @param {integer} x - the y coordinate
+         */
         getTopLeftAlignment: function(x, y) {
             return this.getFixedRowAlignment(x, y);
         },
 
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         return the view translated alignment at x,y in the fixed row area
+         * #### returns: string ['left','center','right']
+         * @param {integer} x - the fixed column index of interest
+         * @param {integer} y - the fixed row index of interest
+         */
         getFixedRowAlignment: function(x, y) {
             if (y === 0) {
                 return 'center';
@@ -26529,13 +26442,13 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         },
 
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         return the alignment at x for the fixed column area
+         * #### returns: string ['left','center','right']
+         * @param {integer} x - the fixed column index of interest
+         */
         getFixedColumnAlignment: function(x, y) {
             var cell = this.cellProvider.getCell({
                 x: x,
@@ -26545,13 +26458,14 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         },
 
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         return the value at x,y for the top left section of the hypergrid
+         * #### returns: Object
+         * @param {integer} x - x coordinate
+         * @param {integer} y - y coordinate
+         */
         getTopLeftValue: function(x, y) {
             return this.getFixedRowValue(x, y);
         },
@@ -26560,9 +26474,8 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        set the header labels
+        * @param {Array} headerLabels - an array of strings
         */
         setHeaders: function(headerLabels) {
             this.headers = headerLabels;
@@ -26572,9 +26485,8 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        returns the array of header labels
+        * #### returns: Array
         */
         getHeaders: function() {
             if (this.headers.length === 0) {
@@ -26587,9 +26499,9 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        return a specific header at column index x
+        * #### returns: string
+        * @param {integer} x - the column index of interest
         */
         getHeader: function(x /*, y*/ ) {
             return this.headers[x];
@@ -26599,9 +26511,8 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        compute the default headers from the fields
+        * #### returns: Array of strings
         */
         getDefaultHeaders: function() {
             var self = this;
@@ -26619,9 +26530,9 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        assuming the input string is camelCase, underbar, or dash delimitted, make a nice reading header string
+        * #### returns: string
+        * @param {string} string - the input string to transform
         */
         headerify: function(string) {
             var pieces = string.replace(/[_-]/g, ' ').replace(/[A-Z]/g, ' $&').split(' ').map(function(s) {
@@ -26634,9 +26545,8 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        setter for the fields array
+        * @param {Array} fieldNames - an array of strings of the field names
         */
         setFields: function(fieldNames) {
             this.fields = fieldNames;
@@ -26646,9 +26556,8 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        getter for the field names
+        * #### returns: Array
         */
         getFields: function() {
             if (this.fields.length === 0) {
@@ -26661,9 +26570,8 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        compute the default field names from the first object in the data field
+        * #### returns: Array of strings
         */
         getDefaultFields: function() {
             if (this.data && this.data.length === 0) {
@@ -26679,12 +26587,11 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        setter for the data field
+        * @param {Array} arrayOfUniformObjects - an array of uniform objects, each being a row in the grid
         */
-        setData: function(jsonData) {
-            this.data = jsonData;
+        setData: function(arrayOfUniformObjects) {
+            this.data = arrayOfUniformObjects;
             this.initColumnIndexes();
             this.dataModified();
         },
@@ -26693,9 +26600,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        we've been notified the data has changed in some way, reinitialize our various meta data
         */
         dataModified: function() {
             this.initDataIndexes();
@@ -26707,12 +26612,11 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        setter for the totals field
+        * @param {array} nestedArray - array2D of totals data
         */
-        setTotals: function(jsonData) {
-            this.totals = jsonData;
+        setTotals: function(nestedArray) {
+            this.totals = nestedArray;
             this.changed();
         },
 
@@ -26720,9 +26624,15 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        build the fields and headers from the supplied column definitions
+
+    myJsonBehavior.setColumns([
+      { title: 'Stock Name', field: 'short_description' },
+      { title: 'Status', field: 'trading_phase' },
+      { title: 'Reference Price', field: 'reference_price' }
+    ]);
+
+        * @param {Array} columnDefinitions - an array of objects with fields 'title', and 'field'
         */
         setColumns: function(columnDefinitions) {
             var fields = new Array(columnDefinitions.length);
@@ -26740,9 +26650,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        rip through the user data and ammend it with indexes
         */
         initDataIndexes: function() {
             //initialize the indexe cache
@@ -26753,52 +26661,55 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         },
 
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         return the data value at coordinates x,y.  this is the main "model" function that allows for virtualization
+         * #### returns: Object
+         * @param {integer} x - the x coordinate
+         * @param {integer} y - the y coordinate
+         */
         getValue: function(x, y) {
             var fields = this.getFields();
             return this.data[y][fields[x]];
         },
 
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         set the data value at coordinates x,y
+         * @param {integer} x - the x coordinate
+         * @param {integer} y - the y coordinate
+         */
         setValue: function(x, y, value) {
             var fields = this.getFields();
             this.data[y][fields[x]] = value;
         },
 
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         return the value at x,y for the fixed row area
+         * #### returns: Object
+         * @param {integer} x - x coordinate
+         * @param {integer} y - y coordinate
+         */
         getFixedColumnValue: function(x, y) {
             //x = this.fixedtranslateColumnIndex(x);
             return this.getValue(x, y);
         },
 
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         return the data value at point x,y
+         * #### returns: Object
+         * @param {integer} x - x coordinate
+         * @param {integer} y - y coordinate
+         */
         getFixedRowValue: function(x, y) {
             if (y === 0) {
                 var headers = this.getHeaders();
@@ -26810,25 +26721,23 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         },
 
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         return the number of rows
+         * #### returns: integer
+         */
         getRowCount: function() {
             return this.data.length;
         },
 
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         return the total number of columns
+         * #### returns: integer
+         */
         getColumnCount: function() {
             var fields = this.getFields();
             return fields.length;
@@ -26838,12 +26747,11 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        return this table to a previous state. see the [memento pattern](http://c2.com/cgi/wiki?MementoPattern)
+        * @param {Object} memento - an encapulated representation of table state
         */
-        setState: function(state) {
-            this.tableState = state;
+        setState: function(memento) {
+            this.tableState = memento;
             this.applySorts();
             this.changed();
         },
@@ -26852,9 +26760,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        reapply the sorts to our underlying dataset
         */
         applySorts: function() {
             var state = this.getState();
@@ -26884,13 +26790,13 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         },
 
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         toggle the sort at colIndex to it's next state
+         * @param {integer} columnIndex - the column index of interest
+         * @param {integer} incrementIt - integer amount to advance the sort state (default 1)
+         */
         toggleSort: function(columnIndex, incrementIt) {
             if (incrementIt === undefined) {
                 incrementIt = 1;
@@ -26951,23 +26857,21 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        return the object at y index
+        * #### returns: Object
+        * @param {integer} y - the row index of interest
         */
         getRow: function(y) {
             return this.data[y];
         },
 
-
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         this function is a hook and is called just before the painting of a cell occurs
+         * @param {rectangle.point} cell - [rectangle.point](http://stevewirts.github.io/fin-rectangle/components/fin-rectangle/)
+         */
         cellPrePaintNotification: function(cell) {
             var row = this.getRow(cell.config.y);
             var columnId = this.getHeader(cell.config.x);
@@ -26976,24 +26880,11 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         },
 
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
-        cellFixedRowPrePaintNotification: function( /* cell */ ) {
-
-        },
-
-        /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+         * @function
+         * @instance
+         * @description
+         this function is a hook and is called just before the painting of a fixed column cell occurs
+         * @param {rectangle.point} cell - [rectangle.point](http://stevewirts.github.io/fin-rectangle/components/fin-rectangle/)
         */
         cellFixedColumnPrePaintNotification: function(cell) {
             var row = this.getRow(cell.config.y);
@@ -27001,18 +26892,6 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
             cell.config.row = row;
             cell.config.columnId = columnId;
         },
-
-        /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
-        cellTopLeftPrePaintNotification: function( /* cell */ ) {
-
-        }
     });
 
 })(); /* jslint ignore:line */
@@ -27202,13 +27081,15 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
 /**
  *
  * @module behaviors\q
+ * @description
+ fin-hypergrid-behavior-q is a datasource based on an external Q data source.
+<br>See [kx.com](http://www.kx.com)
+<br>Two example scripts are provided in the root of this project, bigtable.q and sorttable.q
+<br>bigtable.q simulates an unsortable 100MM row table, and sorttable.q provides a true randomly generated 1MM row table sortable on any column.
+<br>Run either of these scripts with this behavior.
+
  *
  */
-//fin-hypergrid-behavior-q is a datasource based on an external Q data source.
-//<br>See [kx.com](http://www.kx.com)
-//<br>Two example scripts are provided in the root of this project, bigtable.q and sorttable.q
-//<br>bigtable.q simulates an unsortable 100MM row table, and sorttable.q provides a true randomly generated 1MM row table sortable on any column.
-//<br>Run either of these scripts with this GridBehavior.
 
 (function() {
 
@@ -27242,14 +27123,13 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
     //* |v| sort absolute value descending
 
     Polymer('fin-hypergrid-behavior-q',{ /* jslint ignore:line */
+
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         polymer lifecycle event
+         */
         ready: function() {
             this.block = {
                 data: [],
@@ -27262,13 +27142,15 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
             this.ws = null;
             this.reconnect();
         },
+
         /**
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        polymer callback
+        * @param {string} attrName - the attribute name
+        * @param {string} oldVal - the old value
+        * @param {string} newVal - the new value
         */
         attributeChanged: function(attrName, oldVal, newVal) {
             console.log(attrName, 'old: ' + oldVal, 'new:', newVal);
@@ -27280,13 +27162,13 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
                 this.setScrollPositionY(0);
             }
         },
+
         /**
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        connect to q at newUrl
+        * @param {string} newUrl - the url of the q server
         */
         connectTo: function(newUrl) {
             this.setAttribute('url', newUrl);
@@ -27297,9 +27179,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        try reconnecting
         */
         reconnect: function() {
             this.url = this.getAttribute('url');
@@ -27311,16 +27191,15 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
             this.scrolled = false;
         },
 
-        //for now we use the hacky override implementation to save data, in the future we'll have a more elaborate protocol with Q to do real validation and setting of data.
-        //<br>take note of the usage of the scrollPositionY value in translating our in-memory data page
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         return the data value at coordinates x,y.  this is the main "model" function that allows for virtualization
+         * #### returns: Object
+         * @param {integer} x - the x coordinate
+         * @param {integer} y - the y coordinate
+         */
         getValue: function(x, y) {
             var override = this.dataUpdates['p_' + x + '_' + y];
             if (override) {
@@ -27335,70 +27214,58 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
             }
         },
 
-        //empty out our page of local data, this function is used when we lose connectivity
-        //<br>this function is primarily used as a visual queue so the user doesn't see stale data
         /**
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        empty out our page of local data, this function is used when we lose connectivity.  this function is primarily used as a visual queue so the user doesn't see stale data
         */
         clearData: function() {
             this.block.rows = [];
             this.changed();
         },
 
-        //rows is a field in our data payload from Q that tells us the total number of rows available in the Q process data source
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         return the number of rows
+         * #### returns: integer
+         */
         getRowCount: function() {
             return this.block.rows;
         },
 
-        //Virtual column scrolling is not necessary with this GridBehavior because we only hold a small amount of vertical data in memory and most tables in Q are timeseries financial data meaning the are very tall and skinny.  We know all the columns from the first page from Q.
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         return the total number of columns
+         * #### returns: integer
+         */
         getColumnCount: function() {
             return Math.max(0, this.block.headers.length - 1);
         },
 
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         return the number of fixed columns
+         * #### returns: integer
+         */
         getFixedColumnCount: function() {
             return 1;
         },
 
-        //This is overridden from DefaultGridBehavior.   This value is set on us by the OFGrid component on user scrolling.
-        //<br>TODO: refactor: don't store this value in an local member, store it in the message ONLY.
-        //<br>TODO: refactor: num should be dynamic
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         quietly set the scroll position in the horizontal dimension
+         * #### returns: type
+         * @param {integer} y - the position in pixels
+         */
         setScrollPositionY: function(y) {
             if (this.scrollPositionY === y) {
                 return;
@@ -27426,9 +27293,8 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        return true if we are connected to q
+        * #### returns: boolean
         */
         isConnected: function() {
             if (!this.ws) {
@@ -27437,15 +27303,15 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
             return this.ws.readyState === this.ws.OPEN;
         },
 
-        //return the column names, they are available to us as meta data in the most recent page Q sent us.
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         return the data value at point x,y in the fixed row area
+         * #### returns: Object
+         * @param {integer} x - x coordinate
+         * @param {integer} y - y coordinate
+         */
         getFixedRowValue: function(x) {
             if (!this.sorted[x + 1]) {
                 this.sorted[x + 1] = 0;
@@ -27455,52 +27321,49 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         },
 
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         return the column heading at colIndex
+         * #### returns: string
+         * @param {integer} colIndex - the column index of interest
+         */
         getHeader: function(x) {
             return this.block.headers[x + 1][0];
         },
-        //for now just return the row number.  the simple protocol we talk with q assumes the first column is the real row index. so it is offset in all data access
+
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         return the value at x,y for the fixed row area
+         * #### returns: Object
+         * @param {integer} x - x coordinate
+         * @param {integer} y - y coordinate
+         */
         getFixedColumnValue: function(x, y) {
             return y;
         },
 
-        //let Q decide if this instance is sortable or not
         /**
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        returns true if we support sorting
+        * #### returns: boolean
         */
         getCanSort: function() {
             var canSort = this.block.features.sorting === true;
             return canSort;
         },
 
-        //first ask q if this is a sortable instance, then send a message to Q to sort our data set
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         toggle the sort at columnIndex to it's next state
+         * @param {integer} columnIndex - the column index of interest
+         */
         toggleSort: function(columnIndex) {
             if (!this.getCanSort()) {
                 return;
@@ -27525,30 +27388,24 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
             this.ws.send(JSON.stringify(message));
         },
 
-        //delegate column alignment through the map at the top based on the column type
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         return the column alignment at column x
+         * #### returns: string ['left','center','right']
+         * @param {integer} x - the column index of interest
+         */
         getColumnAlignment: function(x) {
             var alignment = typeAlignmentMap[this.block.headers[x + 1][1]];
             return alignment;
         },
 
-
-
-        //websocket connection to Q.  try and do a reconnect after 2 seconds if we fail
         /**
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        connect to q at newUrl
         */
         connect: function() {
             var d;
@@ -27800,14 +27657,14 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
 /**
  *
  * @module behaviors\qtree
+ * @description
+ fin-hypergrid-behavior-qtree is a datasource based on an external Q data source with tree-centric analytic capilities
+<br>See [kx.com](http://www.kx.com)
+<br>See steve apters [hypertree](https://github.com/stevanapter/hypertree) project
  *
  */
 
-//fin-hypergrid-behavior-qtree is a datasource based on an external Q data source with tree-centric analytic capilities
-//<br>See [kx.com](http://www.kx.com)
-//<br>Two example scripts are provided in the root of this project, bigtable.q and sorttable.q
-//<br>bigtable.q simulates an unsortable 100MM row table, and sorttable.q provides a true randomly generated 1MM row table sortable on any column.
-//<br>Run either of these scripts with this GridBehavior.
+
 
 (function() {
 
@@ -27949,14 +27806,13 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
     };
 
     Polymer('fin-hypergrid-behavior-qtree',{ /* jslint ignore:line */
+
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         the function to override for initialization
+         */
         ready: function() {
             this.block = {
                 O: {
@@ -27997,28 +27853,25 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
             }, 500);
 
         },
+
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         return the count of fixed rows
+         * #### returns: integer
+         */
         getFixedRowCount: function() {
             return 2;
         },
 
-        //override this function on your GridBehavior to have custom cell renderering
-        //<br>see [QGridBehavior.createCellProvider()](QGridBehavior.html) for an example
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         you can override this function and substitute your own cell provider
+         * #### returns: [fin-hypergrid-cell-provider](module-._cell-provider.html)
+         */
         createCellProvider: function() {
             var self = this;
             var provider = document.createElement('fin-hypergrid-cell-provider');
@@ -28074,9 +27927,8 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        connect to q at newUrl
+        * @param {string} newUrl - the url of the q server
         */
         connectTo: function(newUrl) {
             noop(newUrl);
@@ -28088,9 +27940,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        try reconnecting
         */
         reconnect: function() {
             this.url = this.getAttribute('url');
@@ -28103,36 +27953,30 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         },
 
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         return the value at x,y for the top left section of the hypergrid
+         * #### returns: Object
+         * @param {integer} x - x coordinate
+         * @param {integer} y - y coordinate
+         */
         getTopLeftValue: function( /* x, y */ ) {
-            //var sortIndicator = this.getSortIndicator(hierarchyColumn);
-            // var clone = this.block.G.slice(0);
-            // if (clone.length === 0) {
-            //     return clone;
-            // }
-            //var hValue = this.block.Z[0].g_[0];
             var image = this.getClickIndicator(hierarchyColumn);
             var clone = [image, 'Hierarchy', this.getSortIndicator(hierarchyColumn)];
             //clone[0] = clone[0] + ' ' + sortIndicator;
             return clone;
         },
 
-        //for now we use the hacky override implementation to save data, in the future we'll have a more elaborate protocol with Q to do real validation and setting of data.
-        //<br>take note of the usage of the scrollPositionY value in translating our in-memory data page
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         return the data value at coordinates x,y.  this is the main "model" function that allows for virtualization
+         * #### returns: Object
+         * @param {integer} x - the x coordinate
+         * @param {integer} y - the y coordinate
+         */
         getValue: function(x, y) {
             var col = this.getColumnId(x);
             var normalized = Math.floor(y - this.scrollPositionY);
@@ -28145,58 +27989,47 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
             return '';
         },
 
-        //empty out our page of local data, this function is used when we lose connectivity
-        //<br>this function is primarily used as a visual queue so the user doesn't see stale data
         /**
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        empty out our page of local data, this function is used when we lose connectivity.  this function is primarily used as a visual queue so the user doesn't see stale data
         */
         clearData: function() {
             this.block.rows = [];
             this.changed();
         },
 
-        //rows is a field in our data payload from Q that tells us the total number of rows available in the Q process data source
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         return the number of rows
+         * #### returns: integer
+         */
         getRowCount: function() {
             return Math.max(0, this.block.N - 1);
         },
 
-        //Virtual column scrolling is not necessary with this GridBehavior because we only hold a small amount of vertical data in memory and most tables in Q are timeseries financial data meaning the are very tall and skinny.  We know all the columns from the first page from Q.
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         return the total number of columns.  Virtual column scrolling is not necessary with this GridBehavior because we only hold a small amount of vertical data in memory and most tables in Q are timeseries financial data meaning the are very tall and skinny.  We know all the columns from the first page from Q.
+         * #### returns: integer
+         */
         getColumnCount: function() {
             return this.block.F.length;
         },
 
-        //This is overridden from DefaultGridBehavior.   This value is set on us by the OFGrid component on user scrolling.
-        //<br>TODO: refactor: don't store this value in an local member, store it in the message ONLY.
-        //<br>TODO: refactor: num should be dynamic
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         quietly set the scroll position in the horizontal dimension
+         * #### returns: type
+         * @param {integer} y - the position in pixels
+         */
         setScrollPositionY: function(y) {
             if (this.scrollPositionY === y) {
                 return;
@@ -28219,9 +28052,8 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        return true if we are connected to q
+        * #### returns: boolean
         */
         isConnected: function() {
             if (!this.ws) {
@@ -28230,15 +28062,15 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
             return this.ws.readyState === this.ws.OPEN;
         },
 
-        //return the column names, they are available to us as meta data in the most recent page Q sent us.
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         return the data value at point x,y in the fixed row area
+         * #### returns: Object
+         * @param {integer} x - x coordinate
+         * @param {integer} y - y coordinate
+         */
         getFixedRowValue: function(x, y) {
             var colId = this.getColumnId(x);
             if (y < 1) {
@@ -28254,9 +28086,9 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        return the click indicator image for a colId
+        * #### returns: HTMLImageElement
+        * @param {string} colId - the column id of interest
         */
         getClickIndicator: function(colId) {
             var direction = this.block.C[colId];
@@ -28268,9 +28100,9 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        return the sort indicator image for a colId
+        * #### returns: HTMLImageElement
+        * @param {string} colId - the column id of interest
         */
         getSortIndicator: function(colId) {
             var sortIndex = this.block.S.cols.indexOf(colId);
@@ -28283,24 +28115,15 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
             return state;
         },
 
-        //hierarchyColumn is the text of the hierarchy column.
-        // l_ is the level of the row of the table.
-        // e_ tells you whether the row is a leaf or a node.
-        // o_ tells you whether the row is open, if it's a node
-        // n_ is a list of nodes
-        // so:
-        // indenthierarchyColumni] l_[i] spaces.
-        // if e_[i]=1 then row i is a leaf. otherwise it's a node.
-        // if row i is a node, then if o_[i]=0 then row i is closed (prefix with a +) else it's open (prefix with a -)
-
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         return the value at x,y for the fixed row area
+         * #### returns: Object
+         * @param {integer} x - x coordinate
+         * @param {integer} y - y coordinate
+         */
         getFixedColumnValue: function(x, y) {
             var indentPixels = 10;
             var blob = this.block.Z[1];
@@ -28319,41 +28142,36 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
             };
         },
 
-        //let Q decide if this instance is sortable or not
         /**
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        returns true if we support sorting
+        * #### returns: boolean
         */
         getCanSort: function() {
             return true;
         },
 
-        //first ask q if this is a sortable instance, then send a message to Q to sort our data set
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         toggle the sort at columnIndex to it's next state
+         * @param {integer} columnIndex - the column index of interest
+         */
         toggleSort: function(columnIndex) {
             var colId = this.getColumnId(columnIndex);
             this._toggleSort(colId);
         },
 
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         build our local q message with sorting details and fire it off to Q
+         * @param {string} colId - the column of interest
+         */
         _toggleSort: function(colId) {
             if (!this.getCanSort()) {
                 return;
@@ -28395,28 +28213,29 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         },
 
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         get the view translated alignment at x,y in the fixed row area
+         * #### returns: string ['left','center','right']
+         * @param {integer} x - x coordinate
+         * @param {integer} y - y coordinate
+         */
         getFixedRowAlignment: function(x, y) {
             if (y > 0) {
                 return this.getColumnAlignment(x);
             }
             return this.resolveProperty('fixedRowAlign');
         },
-        //delegate column alignment through the map at the top based on the column type
+
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         return the column alignment at column x
+         * #### returns: string ['left','center','right']
+         * @param {integer} x - the column index of interest
+         */
         getColumnAlignment: function(x) {
             var colId = this.getColumnId(x);
             var type = this.block.Q[colId];
@@ -28430,13 +28249,13 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         },
 
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         return the columnId/label/fixedRowValue at x
+         * #### returns: string
+         * @param {integer} x - the view translated x index
+         */
         getColumnId: function(x) {
             var headers = this.block.F;
             var col = headers[x];
@@ -28444,26 +28263,25 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         },
 
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         return the alignment at x for the fixed column area
+         * #### returns: string ['left','center','right']
+         * @param {integer} x - the fixed column index of interest
+         */
         getFixedColumnAlignment: function( /* x */ ) {
             return 'left';
         },
 
-        //hierarchy area clicked on lets sort there
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         the top left area has been clicked, you've been notified
+         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+         * @param {Object} mouse - event details
+         */
         topLeftClicked: function(grid, mouse) {
             var colId = hierarchyColumn;
             var colWidth = this.getFixedColumnWidth(0);
@@ -28484,14 +28302,15 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
                 this._toggleSort(colId);
             }
         },
+
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         fixed column has been clicked, you've been notified
+         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+         * @param {Object} mouse - event details
+         */
         fixedColumnClicked: function(grid, mouse) {
             var rowNum = mouse.gridCell.y - this.scrollPositionY;
             var rows = this.block.Z[1].n_[rowNum];
@@ -28508,13 +28327,13 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         },
 
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         fixed row has been clicked, you've been notified
+         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+         * @param {Object} mouse - event details
+         */
         fixedRowClicked: function(grid, mouse) {
             var x = mouse.gridCell.x;
             var y = mouse.gridCell.y;
@@ -28540,13 +28359,13 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         },
 
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         a specific cell was clicked, you've been notified
+         * @param {rectangle.point} cell - point of cell coordinates
+         * @param {Object} event - all event information
+         */
         cellClicked: function(cell, event) {
             var rowNum = cell.y - this.scrollPositionY;
             var rows = this.block.Z[1].n_[rowNum];
@@ -28565,9 +28384,8 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        set message to Q
+        * @param {Object} message - a Q-centric well formed message
         */
         sendMessage: function(message) {
             if (logMessages) {
@@ -28577,13 +28395,13 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         },
 
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         build and open the editor within the container div argument, this function should return false if we don't want the editor to open
+         * #### returns: boolean
+         * @param {HTMLDivElement} div - the containing div element
+         */
         openEditor: function(div) {
             if (!this.block.V) {
                 return false;
@@ -28645,13 +28463,12 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         },
 
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         the editor is requesting close return true or false, and deal with the edits
+         * @param {HTMLDivElement} div - the containing div element
+         */
         closeEditor: function(div) {
             var lists = div.lists;
             var changeCols = {
@@ -28665,16 +28482,13 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
             return true;
         },
 
-        //this is done through the dnd tool for now...
-        //we can fix this to work both ways later
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         return true if we can re-order columns
+         * #### returns: boolean
+         */
         isColumnReorderable: function() {
             return true;
         },
@@ -28683,9 +28497,9 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        generate a new unique message id
+        * #### returns: string
+        * @param {function} onResponseDo - this is the callback to associate with the message id
         */
         getNextMessageId: function(onResponseDo) {
             var id = 'js_' + this.msgCounter++;
@@ -28696,13 +28510,11 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         },
 
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         a dnd column has just been dropped, we've been notified
+         */
         endDragColumnNotification: function() {
             var self = this;
 
@@ -28739,9 +28551,8 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        handle the message d
+        * @param {Object} d - a q-centeric well formed message
         */
         handleMessage: function(d) {
             //insure certain things exist
@@ -28762,9 +28573,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        try autosizing the hierarchy column
         */
         autosizeHierarchyColumn: function() {
             if (this.grid.resolveProperty('columnAutosizing') === false) {
@@ -28776,14 +28585,11 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
             }, 40);
         },
 
-        //websocket connection to Q.  try and do a reconnect after 2 seconds if we fail
         /**
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        connect to q at newUrl
         */
         connect: function() {
             var d = {};
@@ -28841,13 +28647,12 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         },
 
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         bind column editor appropriate css values to arg style
+         * @param {HTMLStyleElement} style - the style object to enhance
+         */
         beColumnStyle: function(style) {
             style.top = '5%';
             style.position = 'absolute';
@@ -28857,38 +28662,39 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         },
 
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         returns true if we should highlight on hover
+         * #### returns: boolean
+         * @param {boolean} isColumnHovered - the column is hovered or not
+         * @param {boolean} isRowHovered - the row is hovered or not
+         */
         highlightCellOnHover: function(isColumnHovered, isRowHovered) {
             return isRowHovered;
         },
 
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         return the cell editor for coordinate x,y
+         * #### returns: [fin-hypergrid-cell-editor-base](module-cell-editors_base.html)
+         * @param {integer} x - x coordinate
+         * @param {integer} y - y coordinate
+         */
         getCellEditorAt: function(x, y) {
             noop(x, y);
             return null;
         },
 
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         return the number of fixed columns
+         * #### returns: integer
+         */
         getFixedColumnCount: function() {
             return 1;
         },

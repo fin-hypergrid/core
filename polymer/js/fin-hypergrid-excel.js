@@ -18,7 +18,7 @@
 
         /**
          *
-         * @property {object} grid - the grid I'm installed into
+         * @property {object} grid - the [fin-hypergrid](module-._fin-hypergrid.html) I'm installed into
          * @instance
          */
         grid: {},
@@ -46,7 +46,7 @@
          * @function
          * @instance
          * @description
-         Select a specific region by origin and extent
+         this is called as the hook for the nested tag plugin pattern. this is how this excel component is installed into the hypergrid
          *
          * @param {fin-hypergrid} grid - see [fin-hypergrid](module-._fin-hypergrid.html)
          */

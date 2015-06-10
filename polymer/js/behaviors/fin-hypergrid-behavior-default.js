@@ -2,6 +2,8 @@
 /**
  *
  * @module behaviors\default
+ * @description
+ this is the simplest example of a behavior
  *
  */
 (function() {
@@ -27,9 +29,10 @@
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        this is the most important behavior function it returns each data point at x,y coordinates
+        * #### returns: Object
+         * @param {integer} x - the x coordinate
+         * @param {integer} x - the y coordinate
         */
         getValue: function(x, y) {
             return x + ', ' + a[y % 26];
@@ -39,9 +42,10 @@
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        return data point at x,y coordinates in the fixed row area
+        * #### returns: object
+         * @param {integer} x - the x coordinate
+         * @param {integer} x - the y coordinate
         */
         getFixedRowValue: function(x /*, y*/ ) {
             return alphaFor(x);
@@ -52,9 +56,8 @@
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        return the total number of fixed columns
+        * #### returns: integer
         */
         getFixedColumnCount: function() {
             return 1;

@@ -2,6 +2,8 @@
 /**
  *
  * @module behaviors\in-memory
+ * @description
+This is a very rough in memory data source example.  fin-hypergrid-behavior-in-memory is a more traditional gridmodel where all data and its analytics, sorting, aggregation happen in the same local process.
  *
  */
 (function() {
@@ -34,21 +36,14 @@
         }
     }
 
-    //This is a very rough in memory data source example.  InMemoryGridBehavior is a more traditional gridmodel
-    //where all data and its analytics, sorting, aggregation happen in the same process.
-    //<br>much of this is loosely based on emerson's original grid POC
-    //<br>TODO:needs alot of work/bug-fixing/feature completion/tests/cleanup/commenting here...
-
     Polymer({ /* jslint ignore:line */
 
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         polymer lifecycle event
+         */
         ready: function() {
 
             this.rows = 5000;
@@ -76,16 +71,13 @@
             this.reorder();
         },
 
-        //default to left halign for rendering performance improvement
-        //<br>and make columns 3, 23, 41 use special cell renderers
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         you can override this function and substitute your own cell provider
+         * #### returns: [fin-hypergrid-cell-provider](module-._cell-provider.html)
+         */
         createCellProvider: function() {
             //var self = this;
             var provider = document.createElement('fin-hypergrid-cell-provider');
@@ -117,9 +109,8 @@
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        set random values drivien by a config object c
+        * @param {Object} c - a config object
         */
         setValues: function(c) {
             var self = this;
@@ -136,9 +127,7 @@
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        initialize with random data
         */
         initialize: function() {
             var config = {
@@ -159,9 +148,7 @@
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        randomize a variable amount of data on a timeout
         */
         permute: function() {
             var self = this;
@@ -181,13 +168,14 @@
         },
 
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         return the cell editor for cell at x,y
+         * #### returns: [fin-hypergrid-cell-editor-base](module-cell-editors_base.html)
+         * @param {integer} x - x coordinate
+         * @param {integer} y - y coordinate
+         */
         getCellEditorAt: function(x, y) {
             var type = x !== 9 ? 'textfield' : this.editorTypes[y % this.editorTypes.length];
             var cellEditor = this.grid.resolveCellEditor(type);
@@ -195,26 +183,22 @@
         },
 
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         return the total number of columns
+         * #### returns: integer
+         */
         getColumnCount: function() {
             return this.columns;
         },
 
-        //set a random value into col/row, cutoff is the threshold to exit if the random value is outside
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         randomize the value at coordinate col, row
+         */
         setRandomValue: function(col, row, cutoff) {
             var rand = Math.random();
             var val = this.getValue(col, row);
@@ -287,29 +271,28 @@
             }
         },
 
-        //int vector indirection layer so sorting doesn't actually move items around
+        //
         /**
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        decode row,col into a straight index value; int vector indirection layer so sorting doesn't actually move items around
+        * #### returns: integer
+        * @param {integer} col - x coordinate
+        * @param {integer} row - y coordinate
         */
         indexOf: function(row, col) {
             var index = (col * this.rows) + row;
             return index;
         },
 
-        //create a sort object per column we consider sortable
-        //TODO:rethink sorting encapsulation
         /**
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        create a sort object per column we consider sortable
+        * @param {integer} type - sort type, 0/1 - up/down
+        * @param {integer} col - the column index of interest
         */
         createSort: function(type, col) {
             var self = this;
@@ -361,9 +344,10 @@
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        swap values in array at locations x, y
+        * @param {Array} array - array of values
+        * @param {integer} x - integer index
+        * @param {integer} y - integer index
         */
         swap: function(array, x, y) {
             var tmp = this.order[x];
@@ -375,9 +359,11 @@
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        this is a compare function used by Emersons pivot sort algorithm
+        * #### returns: integer
+        * @param {Array} array - descripton
+        * @param {integer} first - pivot start
+        * @param {integer} last - pivot end
         */
         compare: function(array, first, last) {
             var comp = 0;
@@ -399,9 +385,7 @@
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        initialize the row sort indirection layer
         */
         initOrder: function() {
             this.order = [];
@@ -411,15 +395,15 @@
             }
         },
 
-        //emersons stable quicksort algorithm, hacked up by me
-        //<br>TODO: this needs serious attention, could be exposed as part of a bowerized sorting lib
         /**
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        emersons stable quicksort algorithm, hacked up by me
+        * @param {Array} array - array of items to sort
+        * @param {type} first - index to start at
+        * @param {type} last - index to end at
+        * @param {type} depth - recursion depth
         */
         quicksort: function(array, first, last, depth) {
             // In place quickstort, stable.  We cant use the inbuilt Array.tableState.sort() since its a hybrid sort
@@ -497,23 +481,20 @@
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        apply the quicksort to our data
         */
         reorder: function() {
             this.initOrder();
             this.quicksort(this.values, 0, this.rows - 1, 0);
         },
 
-        //give me the indirect sorted index of the data I'm looking for
         /**
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        return the indirect sorted index of the data I'm looking for
+        * #### returns: integer
+        * @param {integer} y - the natural y index
         */
         orderOf: function(y) {
             // Provide indirection of indexing for row/col so that we can use sort and or alternate between
@@ -525,56 +506,54 @@
             return row;
         },
 
-        //set value through the sorted indirection
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
-        setValue: function(col, y, value) {
+         * @function
+         * @instance
+         * @description
+         set the data value at coordinates x,y
+         * @param {integer} x - the x coordinate
+         * @param {integer} y - the y coordinate
+         */
+        setValue: function(x, y, value) {
             var row = this.orderOf(y);
-            var index = this.indexOf(row, col);
+            var index = this.indexOf(row, x);
             this.values[index] = value;
         },
 
-        // get value through the sorted indirection
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
-        getValue: function(col, y) {
+         * @function
+         * @instance
+         * @description
+         return the data value at coordinates x,y.  this is the main "model" function that allows for virtualization
+         * #### returns: Object
+         * @param {integer} x - the x coordinate
+         * @param {integer} y - the y coordinate
+         */
+        getValue: function(x, y) {
             var row = this.orderOf(y);
-            var index = this.indexOf(row, col);
+            var index = this.indexOf(row, x);
             return this.values[index];
         },
 
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         return the number of rows
+         * #### returns: integer
+         */
         getRowCount: function() {
             return this.rows;
         },
 
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         return the column heading at colIndex
+         * #### returns: string
+         * @param {integer} colIndex - the column index of interest
+         */
         getFixedRowValue: function(x /*, y*/ ) {
             var sortIndicator = '';
             if (this.tableState.sortLookup[x] && !this.tableState.sorted[x]) {
@@ -587,15 +566,14 @@
             return alphaFor(x) + sortIndicator;
         },
 
-        //columns 2, 14, 22 are sortable
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         fixed row has been clicked, you've been notified
+         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+         * @param {Object} mouse - event details
+         */
         fixedRowClicked: function(grid, mouse) {
             if ([2, 14, 22].indexOf(mouse.gridCell.x) === -1) {
                 return;
@@ -604,13 +582,12 @@
         },
 
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         toggle the sort at colIndex to it's next state
+         * @param {integer} colIndex - the column index of interest
+         */
         toggleSort: function(columnIndex) {
             var current = this.tableState.sorted[columnIndex];
             var stateCount = this.sortStates.length;
@@ -622,13 +599,12 @@
         },
 
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         return the number of fixed columns
+         * #### returns: integer
+         */
         getFixedColumnCount: function() {
             return 1;
         },

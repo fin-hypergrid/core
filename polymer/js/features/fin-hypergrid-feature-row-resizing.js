@@ -169,6 +169,7 @@
         getCursorName: function() {
             return 'row-resize';
         },
+
         /**
         * @function
         * @instance

@@ -13,25 +13,25 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
 
 
         /**
-         * @property {type} varname - description
+         * @property {Array} data - main storage array
          * @instance
          */
         data: [],
 
         /**
-         * @property {type} varname - description
+         * @property {Array} headers - the list of header labels
          * @instance
          */
         headers: [],
 
         /**
-         * @property {type} varname - description
+         * @property {Array} fields - the list of fields on the underlying data objects <> columns
          * @instance
          */
         fields: [],
 
         /**
-         * @property {type} varname - description
+         * @property {Array} totals - the totals row values
          * @instance
          */
         totals: [],
@@ -40,9 +40,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        polymer lifecycle event
         */
         ready: function() {
             this.readyInit();
@@ -54,22 +52,21 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        returns true if the argument string is a valid javascript identifier
+        * #### returns: boolean
+        * @param {string} string - the token to test if it is a valid javascript identifier
         */
         isValidIdentifer: function(string) {
             return 0 === (string + '').search(validIdentifierMatch);
         },
 
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         you can override this function and substitute your own cell provider
+         * #### returns: [fin-hypergrid-cell-provider](module-._cell-provider.html)
+         */
         createCellProvider: function() {
             var self = this;
             var provider = document.createElement('fin-hypergrid-cell-provider');
@@ -88,25 +85,27 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         },
 
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         return the alignment at x,y of the top left area
+         * #### returns: string ['left','center','right']
+         * @param {integer} x - the x coordinate
+         * @param {integer} x - the y coordinate
+         */
         getTopLeftAlignment: function(x, y) {
             return this.getFixedRowAlignment(x, y);
         },
 
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         return the view translated alignment at x,y in the fixed row area
+         * #### returns: string ['left','center','right']
+         * @param {integer} x - the fixed column index of interest
+         * @param {integer} y - the fixed row index of interest
+         */
         getFixedRowAlignment: function(x, y) {
             if (y === 0) {
                 return 'center';
@@ -119,13 +118,13 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         },
 
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         return the alignment at x for the fixed column area
+         * #### returns: string ['left','center','right']
+         * @param {integer} x - the fixed column index of interest
+         */
         getFixedColumnAlignment: function(x, y) {
             var cell = this.cellProvider.getCell({
                 x: x,
@@ -135,13 +134,14 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         },
 
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         return the value at x,y for the top left section of the hypergrid
+         * #### returns: Object
+         * @param {integer} x - x coordinate
+         * @param {integer} y - y coordinate
+         */
         getTopLeftValue: function(x, y) {
             return this.getFixedRowValue(x, y);
         },
@@ -150,9 +150,8 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        set the header labels
+        * @param {Array} headerLabels - an array of strings
         */
         setHeaders: function(headerLabels) {
             this.headers = headerLabels;
@@ -162,9 +161,8 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        returns the array of header labels
+        * #### returns: Array
         */
         getHeaders: function() {
             if (this.headers.length === 0) {
@@ -177,9 +175,9 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        return a specific header at column index x
+        * #### returns: string
+        * @param {integer} x - the column index of interest
         */
         getHeader: function(x /*, y*/ ) {
             return this.headers[x];
@@ -189,9 +187,8 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        compute the default headers from the fields
+        * #### returns: Array of strings
         */
         getDefaultHeaders: function() {
             var self = this;
@@ -209,9 +206,9 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        assuming the input string is camelCase, underbar, or dash delimitted, make a nice reading header string
+        * #### returns: string
+        * @param {string} string - the input string to transform
         */
         headerify: function(string) {
             var pieces = string.replace(/[_-]/g, ' ').replace(/[A-Z]/g, ' $&').split(' ').map(function(s) {
@@ -224,9 +221,8 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        setter for the fields array
+        * @param {Array} fieldNames - an array of strings of the field names
         */
         setFields: function(fieldNames) {
             this.fields = fieldNames;
@@ -236,9 +232,8 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        getter for the field names
+        * #### returns: Array
         */
         getFields: function() {
             if (this.fields.length === 0) {
@@ -251,9 +246,8 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        compute the default field names from the first object in the data field
+        * #### returns: Array of strings
         */
         getDefaultFields: function() {
             if (this.data && this.data.length === 0) {
@@ -269,12 +263,11 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        setter for the data field
+        * @param {Array} arrayOfUniformObjects - an array of uniform objects, each being a row in the grid
         */
-        setData: function(jsonData) {
-            this.data = jsonData;
+        setData: function(arrayOfUniformObjects) {
+            this.data = arrayOfUniformObjects;
             this.initColumnIndexes();
             this.dataModified();
         },
@@ -283,9 +276,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        we've been notified the data has changed in some way, reinitialize our various meta data
         */
         dataModified: function() {
             this.initDataIndexes();
@@ -297,12 +288,11 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        setter for the totals field
+        * @param {array} nestedArray - array2D of totals data
         */
-        setTotals: function(jsonData) {
-            this.totals = jsonData;
+        setTotals: function(nestedArray) {
+            this.totals = nestedArray;
             this.changed();
         },
 
@@ -310,9 +300,15 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        build the fields and headers from the supplied column definitions
+
+    myJsonBehavior.setColumns([
+      { title: 'Stock Name', field: 'short_description' },
+      { title: 'Status', field: 'trading_phase' },
+      { title: 'Reference Price', field: 'reference_price' }
+    ]);
+
+        * @param {Array} columnDefinitions - an array of objects with fields 'title', and 'field'
         */
         setColumns: function(columnDefinitions) {
             var fields = new Array(columnDefinitions.length);
@@ -330,9 +326,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        rip through the user data and ammend it with indexes
         */
         initDataIndexes: function() {
             //initialize the indexe cache
@@ -343,52 +337,55 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         },
 
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         return the data value at coordinates x,y.  this is the main "model" function that allows for virtualization
+         * #### returns: Object
+         * @param {integer} x - the x coordinate
+         * @param {integer} y - the y coordinate
+         */
         getValue: function(x, y) {
             var fields = this.getFields();
             return this.data[y][fields[x]];
         },
 
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         set the data value at coordinates x,y
+         * @param {integer} x - the x coordinate
+         * @param {integer} y - the y coordinate
+         */
         setValue: function(x, y, value) {
             var fields = this.getFields();
             this.data[y][fields[x]] = value;
         },
 
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         return the value at x,y for the fixed row area
+         * #### returns: Object
+         * @param {integer} x - x coordinate
+         * @param {integer} y - y coordinate
+         */
         getFixedColumnValue: function(x, y) {
             //x = this.fixedtranslateColumnIndex(x);
             return this.getValue(x, y);
         },
 
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         return the data value at point x,y
+         * #### returns: Object
+         * @param {integer} x - x coordinate
+         * @param {integer} y - y coordinate
+         */
         getFixedRowValue: function(x, y) {
             if (y === 0) {
                 var headers = this.getHeaders();
@@ -400,25 +397,23 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         },
 
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         return the number of rows
+         * #### returns: integer
+         */
         getRowCount: function() {
             return this.data.length;
         },
 
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         return the total number of columns
+         * #### returns: integer
+         */
         getColumnCount: function() {
             var fields = this.getFields();
             return fields.length;
@@ -428,12 +423,11 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        return this table to a previous state. see the [memento pattern](http://c2.com/cgi/wiki?MementoPattern)
+        * @param {Object} memento - an encapulated representation of table state
         */
-        setState: function(state) {
-            this.tableState = state;
+        setState: function(memento) {
+            this.tableState = memento;
             this.applySorts();
             this.changed();
         },
@@ -442,9 +436,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        reapply the sorts to our underlying dataset
         */
         applySorts: function() {
             var state = this.getState();
@@ -474,13 +466,13 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         },
 
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         toggle the sort at colIndex to it's next state
+         * @param {integer} columnIndex - the column index of interest
+         * @param {integer} incrementIt - integer amount to advance the sort state (default 1)
+         */
         toggleSort: function(columnIndex, incrementIt) {
             if (incrementIt === undefined) {
                 incrementIt = 1;
@@ -541,23 +533,21 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        return the object at y index
+        * #### returns: Object
+        * @param {integer} y - the row index of interest
         */
         getRow: function(y) {
             return this.data[y];
         },
 
-
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         this function is a hook and is called just before the painting of a cell occurs
+         * @param {rectangle.point} cell - [rectangle.point](http://stevewirts.github.io/fin-rectangle/components/fin-rectangle/)
+         */
         cellPrePaintNotification: function(cell) {
             var row = this.getRow(cell.config.y);
             var columnId = this.getHeader(cell.config.x);
@@ -566,24 +556,11 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         },
 
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
-        cellFixedRowPrePaintNotification: function( /* cell */ ) {
-
-        },
-
-        /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+         * @function
+         * @instance
+         * @description
+         this function is a hook and is called just before the painting of a fixed column cell occurs
+         * @param {rectangle.point} cell - [rectangle.point](http://stevewirts.github.io/fin-rectangle/components/fin-rectangle/)
         */
         cellFixedColumnPrePaintNotification: function(cell) {
             var row = this.getRow(cell.config.y);
@@ -591,18 +568,6 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
             cell.config.row = row;
             cell.config.columnId = columnId;
         },
-
-        /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
-        cellTopLeftPrePaintNotification: function( /* cell */ ) {
-
-        }
     });
 
 })(); /* jslint ignore:line */

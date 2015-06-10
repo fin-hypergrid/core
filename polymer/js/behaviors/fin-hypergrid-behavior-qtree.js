@@ -3,14 +3,14 @@
 /**
  *
  * @module behaviors\qtree
+ * @description
+ fin-hypergrid-behavior-qtree is a datasource based on an external Q data source with tree-centric analytic capilities
+<br>See [kx.com](http://www.kx.com)
+<br>See steve apters [hypertree](https://github.com/stevanapter/hypertree) project
  *
  */
 
-//fin-hypergrid-behavior-qtree is a datasource based on an external Q data source with tree-centric analytic capilities
-//<br>See [kx.com](http://www.kx.com)
-//<br>Two example scripts are provided in the root of this project, bigtable.q and sorttable.q
-//<br>bigtable.q simulates an unsortable 100MM row table, and sorttable.q provides a true randomly generated 1MM row table sortable on any column.
-//<br>Run either of these scripts with this GridBehavior.
+
 
 (function() {
 
@@ -152,14 +152,13 @@
     };
 
     Polymer({ /* jslint ignore:line */
+
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         the function to override for initialization
+         */
         ready: function() {
             this.block = {
                 O: {
@@ -200,28 +199,25 @@
             }, 500);
 
         },
+
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         return the count of fixed rows
+         * #### returns: integer
+         */
         getFixedRowCount: function() {
             return 2;
         },
 
-        //override this function on your GridBehavior to have custom cell renderering
-        //<br>see [QGridBehavior.createCellProvider()](QGridBehavior.html) for an example
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         you can override this function and substitute your own cell provider
+         * #### returns: [fin-hypergrid-cell-provider](module-._cell-provider.html)
+         */
         createCellProvider: function() {
             var self = this;
             var provider = document.createElement('fin-hypergrid-cell-provider');
@@ -277,9 +273,8 @@
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        connect to q at newUrl
+        * @param {string} newUrl - the url of the q server
         */
         connectTo: function(newUrl) {
             noop(newUrl);
@@ -291,9 +286,7 @@
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        try reconnecting
         */
         reconnect: function() {
             this.url = this.getAttribute('url');
@@ -306,36 +299,30 @@
         },
 
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         return the value at x,y for the top left section of the hypergrid
+         * #### returns: Object
+         * @param {integer} x - x coordinate
+         * @param {integer} y - y coordinate
+         */
         getTopLeftValue: function( /* x, y */ ) {
-            //var sortIndicator = this.getSortIndicator(hierarchyColumn);
-            // var clone = this.block.G.slice(0);
-            // if (clone.length === 0) {
-            //     return clone;
-            // }
-            //var hValue = this.block.Z[0].g_[0];
             var image = this.getClickIndicator(hierarchyColumn);
             var clone = [image, 'Hierarchy', this.getSortIndicator(hierarchyColumn)];
             //clone[0] = clone[0] + ' ' + sortIndicator;
             return clone;
         },
 
-        //for now we use the hacky override implementation to save data, in the future we'll have a more elaborate protocol with Q to do real validation and setting of data.
-        //<br>take note of the usage of the scrollPositionY value in translating our in-memory data page
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         return the data value at coordinates x,y.  this is the main "model" function that allows for virtualization
+         * #### returns: Object
+         * @param {integer} x - the x coordinate
+         * @param {integer} y - the y coordinate
+         */
         getValue: function(x, y) {
             var col = this.getColumnId(x);
             var normalized = Math.floor(y - this.scrollPositionY);
@@ -348,58 +335,47 @@
             return '';
         },
 
-        //empty out our page of local data, this function is used when we lose connectivity
-        //<br>this function is primarily used as a visual queue so the user doesn't see stale data
         /**
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        empty out our page of local data, this function is used when we lose connectivity.  this function is primarily used as a visual queue so the user doesn't see stale data
         */
         clearData: function() {
             this.block.rows = [];
             this.changed();
         },
 
-        //rows is a field in our data payload from Q that tells us the total number of rows available in the Q process data source
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         return the number of rows
+         * #### returns: integer
+         */
         getRowCount: function() {
             return Math.max(0, this.block.N - 1);
         },
 
-        //Virtual column scrolling is not necessary with this GridBehavior because we only hold a small amount of vertical data in memory and most tables in Q are timeseries financial data meaning the are very tall and skinny.  We know all the columns from the first page from Q.
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         return the total number of columns.  Virtual column scrolling is not necessary with this GridBehavior because we only hold a small amount of vertical data in memory and most tables in Q are timeseries financial data meaning the are very tall and skinny.  We know all the columns from the first page from Q.
+         * #### returns: integer
+         */
         getColumnCount: function() {
             return this.block.F.length;
         },
 
-        //This is overridden from DefaultGridBehavior.   This value is set on us by the OFGrid component on user scrolling.
-        //<br>TODO: refactor: don't store this value in an local member, store it in the message ONLY.
-        //<br>TODO: refactor: num should be dynamic
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         quietly set the scroll position in the horizontal dimension
+         * #### returns: type
+         * @param {integer} y - the position in pixels
+         */
         setScrollPositionY: function(y) {
             if (this.scrollPositionY === y) {
                 return;
@@ -422,9 +398,8 @@
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        return true if we are connected to q
+        * #### returns: boolean
         */
         isConnected: function() {
             if (!this.ws) {
@@ -433,15 +408,15 @@
             return this.ws.readyState === this.ws.OPEN;
         },
 
-        //return the column names, they are available to us as meta data in the most recent page Q sent us.
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         return the data value at point x,y in the fixed row area
+         * #### returns: Object
+         * @param {integer} x - x coordinate
+         * @param {integer} y - y coordinate
+         */
         getFixedRowValue: function(x, y) {
             var colId = this.getColumnId(x);
             if (y < 1) {
@@ -457,9 +432,9 @@
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        return the click indicator image for a colId
+        * #### returns: HTMLImageElement
+        * @param {string} colId - the column id of interest
         */
         getClickIndicator: function(colId) {
             var direction = this.block.C[colId];
@@ -471,9 +446,9 @@
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        return the sort indicator image for a colId
+        * #### returns: HTMLImageElement
+        * @param {string} colId - the column id of interest
         */
         getSortIndicator: function(colId) {
             var sortIndex = this.block.S.cols.indexOf(colId);
@@ -486,24 +461,15 @@
             return state;
         },
 
-        //hierarchyColumn is the text of the hierarchy column.
-        // l_ is the level of the row of the table.
-        // e_ tells you whether the row is a leaf or a node.
-        // o_ tells you whether the row is open, if it's a node
-        // n_ is a list of nodes
-        // so:
-        // indenthierarchyColumni] l_[i] spaces.
-        // if e_[i]=1 then row i is a leaf. otherwise it's a node.
-        // if row i is a node, then if o_[i]=0 then row i is closed (prefix with a +) else it's open (prefix with a -)
-
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         return the value at x,y for the fixed row area
+         * #### returns: Object
+         * @param {integer} x - x coordinate
+         * @param {integer} y - y coordinate
+         */
         getFixedColumnValue: function(x, y) {
             var indentPixels = 10;
             var blob = this.block.Z[1];
@@ -522,41 +488,36 @@
             };
         },
 
-        //let Q decide if this instance is sortable or not
         /**
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        returns true if we support sorting
+        * #### returns: boolean
         */
         getCanSort: function() {
             return true;
         },
 
-        //first ask q if this is a sortable instance, then send a message to Q to sort our data set
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         toggle the sort at columnIndex to it's next state
+         * @param {integer} columnIndex - the column index of interest
+         */
         toggleSort: function(columnIndex) {
             var colId = this.getColumnId(columnIndex);
             this._toggleSort(colId);
         },
 
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         build our local q message with sorting details and fire it off to Q
+         * @param {string} colId - the column of interest
+         */
         _toggleSort: function(colId) {
             if (!this.getCanSort()) {
                 return;
@@ -598,28 +559,29 @@
         },
 
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         get the view translated alignment at x,y in the fixed row area
+         * #### returns: string ['left','center','right']
+         * @param {integer} x - x coordinate
+         * @param {integer} y - y coordinate
+         */
         getFixedRowAlignment: function(x, y) {
             if (y > 0) {
                 return this.getColumnAlignment(x);
             }
             return this.resolveProperty('fixedRowAlign');
         },
-        //delegate column alignment through the map at the top based on the column type
+
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         return the column alignment at column x
+         * #### returns: string ['left','center','right']
+         * @param {integer} x - the column index of interest
+         */
         getColumnAlignment: function(x) {
             var colId = this.getColumnId(x);
             var type = this.block.Q[colId];
@@ -633,13 +595,13 @@
         },
 
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         return the columnId/label/fixedRowValue at x
+         * #### returns: string
+         * @param {integer} x - the view translated x index
+         */
         getColumnId: function(x) {
             var headers = this.block.F;
             var col = headers[x];
@@ -647,26 +609,25 @@
         },
 
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         return the alignment at x for the fixed column area
+         * #### returns: string ['left','center','right']
+         * @param {integer} x - the fixed column index of interest
+         */
         getFixedColumnAlignment: function( /* x */ ) {
             return 'left';
         },
 
-        //hierarchy area clicked on lets sort there
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         the top left area has been clicked, you've been notified
+         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+         * @param {Object} mouse - event details
+         */
         topLeftClicked: function(grid, mouse) {
             var colId = hierarchyColumn;
             var colWidth = this.getFixedColumnWidth(0);
@@ -687,14 +648,15 @@
                 this._toggleSort(colId);
             }
         },
+
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         fixed column has been clicked, you've been notified
+         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+         * @param {Object} mouse - event details
+         */
         fixedColumnClicked: function(grid, mouse) {
             var rowNum = mouse.gridCell.y - this.scrollPositionY;
             var rows = this.block.Z[1].n_[rowNum];
@@ -711,13 +673,13 @@
         },
 
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         fixed row has been clicked, you've been notified
+         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+         * @param {Object} mouse - event details
+         */
         fixedRowClicked: function(grid, mouse) {
             var x = mouse.gridCell.x;
             var y = mouse.gridCell.y;
@@ -743,13 +705,13 @@
         },
 
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         a specific cell was clicked, you've been notified
+         * @param {rectangle.point} cell - point of cell coordinates
+         * @param {Object} event - all event information
+         */
         cellClicked: function(cell, event) {
             var rowNum = cell.y - this.scrollPositionY;
             var rows = this.block.Z[1].n_[rowNum];
@@ -768,9 +730,8 @@
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        set message to Q
+        * @param {Object} message - a Q-centric well formed message
         */
         sendMessage: function(message) {
             if (logMessages) {
@@ -780,13 +741,13 @@
         },
 
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         build and open the editor within the container div argument, this function should return false if we don't want the editor to open
+         * #### returns: boolean
+         * @param {HTMLDivElement} div - the containing div element
+         */
         openEditor: function(div) {
             if (!this.block.V) {
                 return false;
@@ -848,13 +809,12 @@
         },
 
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         the editor is requesting close return true or false, and deal with the edits
+         * @param {HTMLDivElement} div - the containing div element
+         */
         closeEditor: function(div) {
             var lists = div.lists;
             var changeCols = {
@@ -868,16 +828,13 @@
             return true;
         },
 
-        //this is done through the dnd tool for now...
-        //we can fix this to work both ways later
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         return true if we can re-order columns
+         * #### returns: boolean
+         */
         isColumnReorderable: function() {
             return true;
         },
@@ -886,9 +843,9 @@
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        generate a new unique message id
+        * #### returns: string
+        * @param {function} onResponseDo - this is the callback to associate with the message id
         */
         getNextMessageId: function(onResponseDo) {
             var id = 'js_' + this.msgCounter++;
@@ -899,13 +856,11 @@
         },
 
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         a dnd column has just been dropped, we've been notified
+         */
         endDragColumnNotification: function() {
             var self = this;
 
@@ -942,9 +897,8 @@
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        handle the message d
+        * @param {Object} d - a q-centeric well formed message
         */
         handleMessage: function(d) {
             //insure certain things exist
@@ -965,9 +919,7 @@
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        try autosizing the hierarchy column
         */
         autosizeHierarchyColumn: function() {
             if (this.grid.resolveProperty('columnAutosizing') === false) {
@@ -979,14 +931,11 @@
             }, 40);
         },
 
-        //websocket connection to Q.  try and do a reconnect after 2 seconds if we fail
         /**
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        connect to q at newUrl
         */
         connect: function() {
             var d = {};
@@ -1044,13 +993,12 @@
         },
 
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         bind column editor appropriate css values to arg style
+         * @param {HTMLStyleElement} style - the style object to enhance
+         */
         beColumnStyle: function(style) {
             style.top = '5%';
             style.position = 'absolute';
@@ -1060,38 +1008,39 @@
         },
 
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         returns true if we should highlight on hover
+         * #### returns: boolean
+         * @param {boolean} isColumnHovered - the column is hovered or not
+         * @param {boolean} isRowHovered - the row is hovered or not
+         */
         highlightCellOnHover: function(isColumnHovered, isRowHovered) {
             return isRowHovered;
         },
 
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         return the cell editor for coordinate x,y
+         * #### returns: [fin-hypergrid-cell-editor-base](module-cell-editors_base.html)
+         * @param {integer} x - x coordinate
+         * @param {integer} y - y coordinate
+         */
         getCellEditorAt: function(x, y) {
             noop(x, y);
             return null;
         },
 
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         return the number of fixed columns
+         * #### returns: integer
+         */
         getFixedColumnCount: function() {
             return 1;
         },

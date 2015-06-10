@@ -3,7 +3,8 @@
  *
  * @module behaviors\base
  * @description
- this is the base class for creating behaviors
+this is the base class for creating behaviors.  a behavior can be thought of as a model++.
+it contains all code/data that's necessary for easily implementing a virtual data source and it's manipulation/analytics
  *
  */
 (function() {
@@ -719,7 +720,7 @@
          * @description
          return the view translated alignment for column x
          * #### returns: string ['left','center','right']
-         * @param {integer} x - descripton
+         * @param {integer} x - the column index of interest
          */
         _getColumnAlignment: function(x) {
             x = this.translateColumnIndex(x);
@@ -732,7 +733,8 @@
          * @description
          return the alignment at x,y of the top left area
          * #### returns: string ['left','center','right']
-         * @param {type} varname - descripton
+         * @param {integer} x - the x coordinate
+         * @param {integer} x - the y coordinate
          */
         getTopLeftAlignment: function( /* x, y */ ) {
             return 'center';

@@ -100,13 +100,13 @@
 
         <tr>
             
-                <td class="name"><code>varname</code></td>
+                <td class="name"><code>buffer</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">type</span>
+<span class="param-type">Array</span>
 
 
             
@@ -116,7 +116,7 @@
 
             
 
-            <td class="description last"><p>description</p></td>
+            <td class="description last"><p>double buffer the data</p></td>
         </tr>
 
     
@@ -205,13 +205,13 @@
 
         <tr>
             
-                <td class="name"><code>varname</code></td>
+                <td class="name"><code>columns</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">type</span>
+<span class="param-type">integer</span>
 
 
             
@@ -221,7 +221,7 @@
 
             
 
-            <td class="description last"><p>description</p></td>
+            <td class="description last"><p>the number of columns</p></td>
         </tr>
 
     
@@ -310,13 +310,13 @@
 
         <tr>
             
-                <td class="name"><code>varname</code></td>
+                <td class="name"><code>data</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">type</span>
+<span class="param-type">Array</span>
 
 
             
@@ -326,7 +326,7 @@
 
             
 
-            <td class="description last"><p>description</p></td>
+            <td class="description last"><p>the matrix of data</p></td>
         </tr>
 
     
@@ -415,13 +415,13 @@
 
         <tr>
             
-                <td class="name"><code>varname</code></td>
+                <td class="name"><code>rows</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">type</span>
+<span class="param-type">integer</span>
 
 
             
@@ -431,7 +431,7 @@
 
             
 
-            <td class="description last"><p>description</p></td>
+            <td class="description last"><p>the number of rows</p></td>
         </tr>
 
     
@@ -520,13 +520,13 @@
 
         <tr>
             
-                <td class="name"><code>varname</code></td>
+                <td class="name"><code>running</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">type</span>
+<span class="param-type">boolean</span>
 
 
             
@@ -536,7 +536,7 @@
 
             
 
-            <td class="description last"><p>description</p></td>
+            <td class="description last"><p>flag if were running or not</p></td>
         </tr>
 
     
@@ -597,15 +597,14 @@
 
     
 
-    <h4 class="name" id="_getNeighborCount"><span class="type-signature"></span>_getNeighborCount<span class="signature">(varname)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="applyPatternAt"><span class="type-signature"></span>applyPatternAt<span class="signature">(array, c, r, pattern, dir)</span><span class="type-signature"></span></h4>
 
     
 
 
 
 <div class="description">
-    <p>fill this in</p>
-<h4>returns: type</h4>
+    <p>apply the gol well known template at x,y</p>
 </div>
 
 
@@ -641,13 +640,13 @@
 
         <tr>
             
-                <td class="name"><code>varname</code></td>
+                <td class="name"><code>array</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">type</span>
+<span class="param-type">Array</span>
 
 
             
@@ -657,7 +656,99 @@
 
             
 
-            <td class="description last"><p>descripton</p></td>
+            <td class="description last"><p>an array2D gamegrid to modifiy</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>c</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">integer</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>column coordinate</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>r</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">integer</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>row coordinate</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>pattern</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Array</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>a 2d matrix of a well known gol template</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>dir</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">integer</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>direction to rotate the pattern</p></td>
         </tr>
 
     
@@ -724,15 +815,248 @@
 
     
 
-    <h4 class="name" id="applyPatternAt"><span class="type-signature"></span>applyPatternAt<span class="signature">(varname)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="computeLifeAt"><span class="type-signature"></span>computeLifeAt<span class="signature">()</span><span class="type-signature"></span></h4>
 
     
 
 
 
 <div class="description">
-    <p>fill this in</p>
-<h4>returns: type</h4>
+    <p>apply the gol rules at a specific point</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="createCellProvider"><span class="type-signature"></span>createCellProvider<span class="signature">()</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>you can override this function and substitute your own cell provider</p>
+<h4>returns: <a href="module-._cell-provider.html">fin-hypergrid-cell-provider</a></h4>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="getColumnCount"><span class="type-signature"></span>getColumnCount<span class="signature">()</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>return the total number of columns</p>
+<h4>returns: integer</h4>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="getColumnWidth"><span class="type-signature"></span>getColumnWidth<span class="signature">(x)</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>return the column width at index x</p>
+<h4>returns: integer</h4>
 </div>
 
 
@@ -768,13 +1092,13 @@
 
         <tr>
             
-                <td class="name"><code>varname</code></td>
+                <td class="name"><code>x</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">type</span>
+<span class="param-type">integer</span>
 
 
             
@@ -784,7 +1108,7 @@
 
             
 
-            <td class="description last"><p>descripton</p></td>
+            <td class="description last"><p>the column index of interest</p></td>
         </tr>
 
     
@@ -851,15 +1175,93 @@
 
     
 
-    <h4 class="name" id="computeLifeAt"><span class="type-signature"></span>computeLifeAt<span class="signature">(varname)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="getFixedColumnCount"><span class="type-signature"></span>getFixedColumnCount<span class="signature">()</span><span class="type-signature"></span></h4>
 
     
 
 
 
 <div class="description">
-    <p>fill this in</p>
-<h4>returns: type</h4>
+    <p>return the number of fixed columns</p>
+<h4>returns: integer</h4>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="getFixedColumnValue"><span class="type-signature"></span>getFixedColumnValue<span class="signature">(x, y)</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>return the value at x,y for the fixed row area</p>
+<h4>returns: Object</h4>
 </div>
 
 
@@ -895,13 +1297,13 @@
 
         <tr>
             
-                <td class="name"><code>varname</code></td>
+                <td class="name"><code>x</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">type</span>
+<span class="param-type">integer</span>
 
 
             
@@ -911,7 +1313,30 @@
 
             
 
-            <td class="description last"><p>descripton</p></td>
+            <td class="description last"><p>x coordinate</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>y</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">integer</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>y coordinate</p></td>
         </tr>
 
     
@@ -978,15 +1403,93 @@
 
     
 
-    <h4 class="name" id="count2"><span class="type-signature"></span>count2<span class="signature">(varname)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="getFixedRowCount"><span class="type-signature"></span>getFixedRowCount<span class="signature">()</span><span class="type-signature"></span></h4>
 
     
 
 
 
 <div class="description">
-    <p>fill this in</p>
-<h4>returns: type</h4>
+    <p>return the count of fixed rows</p>
+<h4>returns: integer</h4>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="getFixedRowValue"><span class="type-signature"></span>getFixedRowValue<span class="signature">(x, y)</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>return the data value at point x,y</p>
+<h4>returns: Object</h4>
 </div>
 
 
@@ -1022,13 +1525,13 @@
 
         <tr>
             
-                <td class="name"><code>varname</code></td>
+                <td class="name"><code>x</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">type</span>
+<span class="param-type">integer</span>
 
 
             
@@ -1038,7 +1541,30 @@
 
             
 
-            <td class="description last"><p>descripton</p></td>
+            <td class="description last"><p>x coordinate</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>y</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">integer</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>y coordinate</p></td>
         </tr>
 
     
@@ -1105,15 +1631,15 @@
 
     
 
-    <h4 class="name" id="count3"><span class="type-signature"></span>count3<span class="signature">(varname)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="getNeighborCount"><span class="type-signature"></span>getNeighborCount<span class="signature">(x, y)</span><span class="type-signature"></span></h4>
 
     
 
 
 
 <div class="description">
-    <p>fill this in</p>
-<h4>returns: type</h4>
+    <p>return the total weight around point x,y</p>
+<h4>returns: float</h4>
 </div>
 
 
@@ -1149,13 +1675,13 @@
 
         <tr>
             
-                <td class="name"><code>varname</code></td>
+                <td class="name"><code>x</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">type</span>
+<span class="param-type">integer</span>
 
 
             
@@ -1165,7 +1691,30 @@
 
             
 
-            <td class="description last"><p>descripton</p></td>
+            <td class="description last"><p>x coordinate</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>y</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">integer</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>y coordinate</p></td>
         </tr>
 
     
@@ -1232,15 +1781,171 @@
 
     
 
-    <h4 class="name" id="createCellProvider"><span class="type-signature"></span>createCellProvider<span class="signature">(varname)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="getNextState"><span class="type-signature"></span>getNextState<span class="signature">()</span><span class="type-signature"></span></h4>
 
     
 
 
 
 <div class="description">
-    <p>fill this in</p>
-<h4>returns: type</h4>
+    <p>provide the label for the toggle state</p>
+<h4>returns: string</h4>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="getRowCount"><span class="type-signature"></span>getRowCount<span class="signature">()</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>return the number of rows</p>
+<h4>returns: integer</h4>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="getRowHeight"><span class="type-signature"></span>getRowHeight<span class="signature">(rowNum)</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>get height in pixels of a specific row</p>
+<h4>returns: integer</h4>
 </div>
 
 
@@ -1276,13 +1981,13 @@
 
         <tr>
             
-                <td class="name"><code>varname</code></td>
+                <td class="name"><code>rowNum</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">type</span>
+<span class="param-type">integer</span>
 
 
             
@@ -1292,7 +1997,7 @@
 
             
 
-            <td class="description last"><p>descripton</p></td>
+            <td class="description last"><p>row index of interest</p></td>
         </tr>
 
     
@@ -1359,15 +2064,15 @@
 
     
 
-    <h4 class="name" id="getColumnCount"><span class="type-signature"></span>getColumnCount<span class="signature">(varname)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="getValue"><span class="type-signature"></span>getValue<span class="signature">(x, y)</span><span class="type-signature"></span></h4>
 
     
 
 
 
 <div class="description">
-    <p>fill this in</p>
-<h4>returns: type</h4>
+    <p>return the data value at coordinates x,y.  this is the main &quot;model&quot; function that allows for virtualization</p>
+<h4>returns: Object</h4>
 </div>
 
 
@@ -1403,13 +2108,13 @@
 
         <tr>
             
-                <td class="name"><code>varname</code></td>
+                <td class="name"><code>x</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">type</span>
+<span class="param-type">integer</span>
 
 
             
@@ -1419,7 +2124,30 @@
 
             
 
-            <td class="description last"><p>descripton</p></td>
+            <td class="description last"><p>the x coordinate</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>y</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">integer</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>the y coordinate</p></td>
         </tr>
 
     
@@ -1486,15 +2214,14 @@
 
     
 
-    <h4 class="name" id="getColumnWidth"><span class="type-signature"></span>getColumnWidth<span class="signature">(varname)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="initializeData"><span class="type-signature"></span>initializeData<span class="signature">(array2D)</span><span class="type-signature"></span></h4>
 
     
 
 
 
 <div class="description">
-    <p>fill this in</p>
-<h4>returns: type</h4>
+    <p>initialize a gamegrid with empty data</p>
 </div>
 
 
@@ -1530,13 +2257,13 @@
 
         <tr>
             
-                <td class="name"><code>varname</code></td>
+                <td class="name"><code>array2D</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">type</span>
+<span class="param-type">Array</span>
 
 
             
@@ -1546,7 +2273,7 @@
 
             
 
-            <td class="description last"><p>descripton</p></td>
+            <td class="description last"><p>a 2d matrix gamegrid</p></td>
         </tr>
 
     
@@ -1613,15 +2340,14 @@
 
     
 
-    <h4 class="name" id="getFixedColumnCount"><span class="type-signature"></span>getFixedColumnCount<span class="signature">(varname)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="onTap"><span class="type-signature"></span>onTap<span class="signature">(grid, event)</span><span class="type-signature"></span></h4>
 
     
 
 
 
 <div class="description">
-    <p>fill this in</p>
-<h4>returns: type</h4>
+    <p>toggle the value at position specified by the mouse point</p>
 </div>
 
 
@@ -1657,13 +2383,13 @@
 
         <tr>
             
-                <td class="name"><code>varname</code></td>
+                <td class="name"><code>grid</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">type</span>
+<span class="param-type">fin-hypergrid</span>
 
 
             
@@ -1673,7 +2399,30 @@
 
             
 
-            <td class="description last"><p>descripton</p></td>
+            <td class="description last"><p><a href="module-._fin-hypergrid.html">fin-hypergrid</a></p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>event</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>the event details</p></td>
         </tr>
 
     
@@ -1740,15 +2489,245 @@
 
     
 
-    <h4 class="name" id="getFixedColumnValue"><span class="type-signature"></span>getFixedColumnValue<span class="signature">(varname)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="populate"><span class="type-signature"></span>populate<span class="signature">()</span><span class="type-signature"></span></h4>
 
     
 
 
 
 <div class="description">
-    <p>fill this in</p>
-<h4>returns: type</h4>
+    <p>fill the gamegrid with random valued well known gol templates</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="ready"><span class="type-signature"></span>ready<span class="signature">()</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>polymer lifecycle event</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="resetPetriDish"><span class="type-signature"></span>resetPetriDish<span class="signature">()</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>reset the gamegrid</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="setValue"><span class="type-signature"></span>setValue<span class="signature">(x, y)</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>set the data value at coordinates x,y</p>
 </div>
 
 
@@ -1784,13 +2763,13 @@
 
         <tr>
             
-                <td class="name"><code>varname</code></td>
+                <td class="name"><code>x</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">type</span>
+<span class="param-type">integer</span>
 
 
             
@@ -1800,7 +2779,30 @@
 
             
 
-            <td class="description last"><p>descripton</p></td>
+            <td class="description last"><p>the x coordinate</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>y</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">integer</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>the y coordinate</p></td>
         </tr>
 
     
@@ -1867,15 +2869,14 @@
 
     
 
-    <h4 class="name" id="getFixedRowCount"><span class="type-signature"></span>getFixedRowCount<span class="signature">(varname)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="startLife"><span class="type-signature"></span>startLife<span class="signature">()</span><span class="type-signature"></span></h4>
 
     
 
 
 
 <div class="description">
-    <p>fill this in</p>
-<h4>returns: type</h4>
+    <p>start gol</p>
 </div>
 
 
@@ -1884,55 +2885,6 @@
 
 
 
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>varname</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">type</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>descripton</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
 
 
 
@@ -1994,15 +2946,14 @@
 
     
 
-    <h4 class="name" id="getFixedRowValue"><span class="type-signature"></span>getFixedRowValue<span class="signature">(varname)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="toggleRunning"><span class="type-signature"></span>toggleRunning<span class="signature">()</span><span class="type-signature"></span></h4>
 
     
 
 
 
 <div class="description">
-    <p>fill this in</p>
-<h4>returns: type</h4>
+    <p>turn gol on/off</p>
 </div>
 
 
@@ -2011,1706 +2962,6 @@
 
 
 
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>varname</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">type</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>descripton</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-            
-
-    
-
-    <h4 class="name" id="getNeighborCount"><span class="type-signature"></span>getNeighborCount<span class="signature">(varname)</span><span class="type-signature"></span></h4>
-
-    
-
-
-
-<div class="description">
-    <p>fill this in</p>
-<h4>returns: type</h4>
-</div>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>varname</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">type</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>descripton</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-            
-
-    
-
-    <h4 class="name" id="getNextState"><span class="type-signature"></span>getNextState<span class="signature">(varname)</span><span class="type-signature"></span></h4>
-
-    
-
-
-
-<div class="description">
-    <p>fill this in</p>
-<h4>returns: type</h4>
-</div>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>varname</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">type</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>descripton</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-            
-
-    
-
-    <h4 class="name" id="getRowCount"><span class="type-signature"></span>getRowCount<span class="signature">(varname)</span><span class="type-signature"></span></h4>
-
-    
-
-
-
-<div class="description">
-    <p>fill this in</p>
-<h4>returns: type</h4>
-</div>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>varname</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">type</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>descripton</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-            
-
-    
-
-    <h4 class="name" id="getRowHeight"><span class="type-signature"></span>getRowHeight<span class="signature">(varname)</span><span class="type-signature"></span></h4>
-
-    
-
-
-
-<div class="description">
-    <p>fill this in</p>
-<h4>returns: type</h4>
-</div>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>varname</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">type</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>descripton</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-            
-
-    
-
-    <h4 class="name" id="getValue"><span class="type-signature"></span>getValue<span class="signature">(varname)</span><span class="type-signature"></span></h4>
-
-    
-
-
-
-<div class="description">
-    <p>fill this in</p>
-<h4>returns: type</h4>
-</div>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>varname</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">type</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>descripton</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-            
-
-    
-
-    <h4 class="name" id="initializeData"><span class="type-signature"></span>initializeData<span class="signature">(varname)</span><span class="type-signature"></span></h4>
-
-    
-
-
-
-<div class="description">
-    <p>fill this in</p>
-<h4>returns: type</h4>
-</div>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>varname</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">type</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>descripton</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-            
-
-    
-
-    <h4 class="name" id="onTap"><span class="type-signature"></span>onTap<span class="signature">(varname)</span><span class="type-signature"></span></h4>
-
-    
-
-
-
-<div class="description">
-    <p>fill this in</p>
-<h4>returns: type</h4>
-</div>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>varname</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">type</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>descripton</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-            
-
-    
-
-    <h4 class="name" id="populate"><span class="type-signature"></span>populate<span class="signature">(varname)</span><span class="type-signature"></span></h4>
-
-    
-
-
-
-<div class="description">
-    <p>fill this in</p>
-<h4>returns: type</h4>
-</div>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>varname</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">type</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>descripton</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-            
-
-    
-
-    <h4 class="name" id="ready"><span class="type-signature"></span>ready<span class="signature">(varname)</span><span class="type-signature"></span></h4>
-
-    
-
-
-
-<div class="description">
-    <p>fill this in</p>
-<h4>returns: type</h4>
-</div>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>varname</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">type</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>descripton</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-            
-
-    
-
-    <h4 class="name" id="resetPetriDish"><span class="type-signature"></span>resetPetriDish<span class="signature">(varname)</span><span class="type-signature"></span></h4>
-
-    
-
-
-
-<div class="description">
-    <p>fill this in</p>
-<h4>returns: type</h4>
-</div>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>varname</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">type</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>descripton</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-            
-
-    
-
-    <h4 class="name" id="setValue"><span class="type-signature"></span>setValue<span class="signature">(varname)</span><span class="type-signature"></span></h4>
-
-    
-
-
-
-<div class="description">
-    <p>fill this in</p>
-<h4>returns: type</h4>
-</div>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>varname</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">type</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>descripton</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-            
-
-    
-
-    <h4 class="name" id="startLife"><span class="type-signature"></span>startLife<span class="signature">(varname)</span><span class="type-signature"></span></h4>
-
-    
-
-
-
-<div class="description">
-    <p>fill this in</p>
-<h4>returns: type</h4>
-</div>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>varname</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">type</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>descripton</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-            
-
-    
-
-    <h4 class="name" id="toggleRunning"><span class="type-signature"></span>toggleRunning<span class="signature">(varname)</span><span class="type-signature"></span></h4>
-
-    
-
-
-
-<div class="description">
-    <p>fill this in</p>
-<h4>returns: type</h4>
-</div>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>varname</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">type</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>descripton</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
 
 
 

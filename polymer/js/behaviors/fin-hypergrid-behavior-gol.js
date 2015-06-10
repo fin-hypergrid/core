@@ -25,43 +25,40 @@
     Polymer({ /* jslint ignore:line */
 
         /**
-         * @property {type} varname - description
+         * @property {integer} rows - the number of rows
          * @instance
          */
         rows: 45,
 
         /**
-         * @property {type} varname - description
+         * @property {integer} columns - the number of columns
          * @instance
          */
         columns: 75,
 
         /**
-         * @property {type} varname - description
+         * @property {Array} data - the matrix of data
          * @instance
          */
         data: [],
 
         /**
-         * @property {type} varname - description
+         * @property {Array} buffer - double buffer the data
          * @instance
          */
         buffer: [],
 
         /**
-         * @property {type} varname - description
+         * @property {boolean} running - flag if were running or not
          * @instance
          */
         running: false,
-
 
         /**
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        polymer lifecycle event
         */
         ready: function() {
             this.readyInit();
@@ -72,13 +69,12 @@
         },
 
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         you can override this function and substitute your own cell provider
+         * #### returns: [fin-hypergrid-cell-provider](module-._cell-provider.html)
+         */
         createCellProvider: function() {
             var provider = document.createElement('fin-hypergrid-cell-provider');
             provider.cellCache.simpleCellRenderer.paint = function(gc, x, y, width, height) {
@@ -101,9 +97,7 @@
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        reset the gamegrid
         */
         resetPetriDish: function() {
             this.data = [];
@@ -118,9 +112,7 @@
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        fill the gamegrid with random valued well known gol templates
         */
         populate: function() {
             var x = 0;
@@ -136,9 +128,8 @@
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        initialize a gamegrid with empty data
+        * @param {Array} array2D - a 2d matrix gamegrid
         */
         initializeData: function(array2D) {
             for (var c = 0; c < this.columns; c++) {
@@ -154,9 +145,7 @@
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        turn gol on/off
         */
         toggleRunning: function() {
             this.running = !this.running;
@@ -169,9 +158,7 @@
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        start gol
         */
         startLife: function() {
             if (!this.running) {
@@ -193,9 +180,7 @@
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        apply the gol rules at a specific point
         */
         computeLifeAt: function(x, y) {
             var me = this._getValue(x, y);
@@ -223,9 +208,10 @@
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        return the total weight around point x,y
+        * #### returns: float
+        * @param {integer} x - x coordinate
+        * @param {integer} y - y coordinate
         */
         getNeighborCount: function(x, y) {
             var data = this.data;
@@ -260,93 +246,40 @@
             return total;
         },
 
-
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
-        _getNeighborCount: function(x, y) {
-            var data = this.data;
-            var sum = this.count3(data[x - 1], y) + this.count2(data[x], y) + this.count3(data[x + 1], y);
-            return sum;
-        },
-
-        /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
-        count3: function(row, offset) {
-            var sum = 0;
-            for (var i = offset - 1; i <= offset + 1; i++) {
-
-                if (row[i][0]) {
-                    sum++;
-
-                }
-            }
-            return sum;
-        },
-
-        /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
-        count2: function(row, offset) {
-            var sum = 0;
-            for (var i = offset - 1; i <= offset + 1; i++) {
-
-                if ((i !== offset) && row[i][0]) {
-                    sum++;
-
-                }
-            }
-            return sum;
-        },
-
-        /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         return the data value at coordinates x,y.  this is the main "model" function that allows for virtualization
+         * #### returns: Object
+         * @param {integer} x - the x coordinate
+         * @param {integer} y - the y coordinate
+         */
         getValue: function(x, y) {
             return this.data[x][y];
         },
 
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         set the data value at coordinates x,y
+         * @param {integer} x - the x coordinate
+         * @param {integer} y - the y coordinate
+         */
         setValue: function(x, y, value) {
             this.data[x][y] = value;
         },
 
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         return the value at x,y for the fixed row area
+         * #### returns: Object
+         * @param {integer} x - x coordinate
+         * @param {integer} y - y coordinate
+         */
         getFixedColumnValue: function(x, y) {
             return y;
         },
@@ -355,9 +288,10 @@
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        return the data value at point x,y
+        * #### returns: Object
+        * @param {integer} x - x coordinate
+        * @param {integer} y - y coordinate
         */
         getFixedRowValue: function(x, y) {
             noop(x, y);
@@ -365,73 +299,70 @@
         },
 
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         return the number of fixed columns
+         * #### returns: integer
+         */
         getFixedColumnCount: function() {
             return 0;
         },
+
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         return the count of fixed rows
+         * #### returns: integer
+         */
         getFixedRowCount: function() {
             return 0;
         },
 
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         return the total number of columns
+         * #### returns: integer
+         */
         getColumnCount: function() {
             return this.data.length;
         },
 
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         return the number of rows
+         * #### returns: integer
+         */
         getRowCount: function() {
             return this.data[0].length;
         },
 
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         get height in pixels of a specific row
+         * #### returns: integer
+         * @param {integer} rowNum - row index of interest
+         */
         getRowHeight: function(y) {
             noop(y);
             return 10;
         },
 
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         return the column width at index x
+         * #### returns: integer
+         * @param {integer} x - the column index of interest
+         */
         getColumnWidth: function(x) {
             noop(x);
             return 10;
@@ -441,9 +372,8 @@
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        provide the label for the toggle state
+        * #### returns: string
         */
         getNextState: function() {
             if (this.running) {
@@ -452,15 +382,14 @@
                 return 'play';
             }
         },
-
         /**
-        * @function
-        * @instance
-        * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
-        */
+         * @function
+         * @instance
+         * @description
+         toggle the value at position specified by the mouse point
+         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+         * @param {Object} event - the event details
+         */
         onTap: function(grid, mouse) {
 
             var mX = this.scrollPositionX + mouse.gridCell.x;
@@ -475,9 +404,12 @@
         * @function
         * @instance
         * @description
-        fill this in
-        * #### returns: type
-        * @param {type} varname - descripton
+        apply the gol well known template at x,y
+        * @param {Array} array - an array2D gamegrid to modifiy
+        * @param {integer} c - column coordinate
+        * @param {integer} r - row coordinate
+        * @param {Array} pattern - a 2d matrix of a well known gol template
+        * @param {integer} dir - direction to rotate the pattern
         */
         applyPatternAt: function(array, c, r, pattern, dir) {
             var w = pattern.length;
