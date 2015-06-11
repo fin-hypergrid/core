@@ -744,12 +744,22 @@
          * @function
          * @instance
          * @description
+         return true if we can re-order columns
+         * #### returns: boolean
+         */
+        isColumnReorderable: function() {
+            return this.block.V;
+        },
+        /**
+         * @function
+         * @instance
+         * @description
          build and open the editor within the container div argument, this function should return false if we don't want the editor to open
          * #### returns: boolean
          * @param {HTMLDivElement} div - the containing div element
          */
         openEditor: function(div) {
-            if (!this.block.V) {
+            if (!this.isColumnReorderable) {
                 return false;
             }
             var self = this;
@@ -825,17 +835,6 @@
             };
 
             this.sendMessage(changeCols);
-            return true;
-        },
-
-        /**
-         * @function
-         * @instance
-         * @description
-         return true if we can re-order columns
-         * #### returns: boolean
-         */
-        isColumnReorderable: function() {
             return true;
         },
 
@@ -1044,6 +1043,17 @@
         getFixedColumnCount: function() {
             return 1;
         },
+        getTreeStateDescription: function() {
+            var object = this.block.M;
+            var result = '<table>\n';
+            for (var property in object) {
+                if (object.hasOwnProperty(property)) {
+                    result = result + '<tr><td>' + property + '</td><td>' + object[property] + '</td></tr>\n';
+                }
+            }
+            result = result + '</table>';
+            return result;
+        }
 
     });
 

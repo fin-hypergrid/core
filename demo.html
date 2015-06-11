@@ -212,9 +212,13 @@
         </div>
           <core-splitter direction="up"></core-splitter>
           <div flex class="rel">
-            <fin-hypergrid class="abs" id="qtree-example">
-                <fin-hypergrid-behavior-qtree url="ws://localhost:12345"></fin-hypergrid-behavior-qtree>
-            </fin-hypergrid>
+              <div class="abs" style="width:200px" id="qtreedescription">
+              </div>
+              <div class="abs" style="left:200px">
+                <fin-hypergrid class="abs" id="qtree-example">
+                    <fin-hypergrid-behavior-qtree url="ws://localhost:12345"></fin-hypergrid-behavior-qtree>
+                </fin-hypergrid>
+              </div>
           </div>
         </div>
 
@@ -312,9 +316,11 @@
 
             //get ahold of our q grid example
             var qGrid = document.querySelector('#q-example');
+            var qTreeGrid = document.querySelector('#qtree-example');
 
             //get it's table model
             var qModel = qGrid.getBehavior();
+            var qTreeModel = qTreeGrid.getBehavior();
 
             //get the cell cellProvider for altering cell renderers
             var cellProvider = qModel.getCellProvider();
@@ -342,6 +348,12 @@
             //     renderer.config = config;
             //     return renderer;
             // };
+            var descriptionPanel = document.querySelector('#qtreedescription');
+            var description = '';
+            setInterval(function(){
+                description = qTreeModel.getTreeStateDescription();
+                descriptionPanel.innerHTML = description;
+            }, 500);
         });
 
     })();

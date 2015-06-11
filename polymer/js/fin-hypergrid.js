@@ -267,14 +267,14 @@
 
         /**
          *
-         * @property {fin-hypergrid-selection-model} selectionModel - a [fin-hypergrid-selection-model](http://localhost:9000/fin-hypergrid/docs/module-._selection-model.html) instance
+         * @property {fin-hypergrid-selection-model} selectionModel - a [fin-hypergrid-selection-model](module-._selection-model.html) instance
          * @instance
          */
         selectionModel: null,
 
         /**
          *
-         * @property {fin-hypergrid-cell-editor} cellEditor - the current instance of [fin-hypergrid-cell-editor](http://localhost:9000/fin-hypergrid/docs/module-cell-editors_base.html)
+         * @property {fin-hypergrid-cell-editor} cellEditor - the current instance of [fin-hypergrid-cell-editor](module-cell-editors_base.html)
          * @instance
          */
         cellEditor: null,
