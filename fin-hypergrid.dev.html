@@ -22698,6 +22698,8 @@ it contains all code/data that's necessary for easily implementing a virtual dat
 
     var imageCache = {};
 
+
+    // create these images with http://www.base64-image.de/
     var imgData = [
         ['1-abs-down', 'iVBORw0KGgoAAAANSUhEUgAAAA4AAAAKCAYAAACE2W/HAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC41ZYUyZQAAAFFJREFUKFNjQAL/oTTD////CWJkgFMjEAgD8Q4gLkMSgwOsGoGgDCQExcRrRFJImo1ICqmnEUSiYJgkMgYCrDYia8TQBFVIJ6cCAXJ0QDGDDQD67OYX9wdp0wAAAABJRU5ErkJggg=='],
         ['1-abs-up', 'iVBORw0KGgoAAAANSUhEUgAAAA4AAAAKCAYAAACE2W/HAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC41ZYUyZQAAAExJREFUKFPtjYEJACAIBN2hdZqr2dqu3tB8C5qghzPxlAQZJ4iWJ9E8DpACOmh7ZkLLwoWDNPJxSMONSwa5fzSBJy8z/9B6RpfVZaRO2oo/zJVRDvIAAAAASUVORK5CYII='],
@@ -22718,6 +22720,8 @@ it contains all code/data that's necessary for easily implementing a virtual dat
         ['down-rectangle', 'iVBORw0KGgoAAAANSUhEUgAAAAkAAAAECAYAAABcDxXOAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAadEVYdFNvZnR3YXJlAFBhaW50Lk5FVCB2My41LjExR/NCNwAAABpJREFUGFdjgIL/eDAKIKgABggqgAE0BQwMAPTlD/Fpi0JfAAAAAElFTkSuQmCC'],
         ['rectangle-spacer', 'iVBORw0KGgoAAAANSUhEUgAAAAkAAAAECAYAAABcDxXOAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAOwQAADsEBuJFr7QAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC41ZYUyZQAAAA1JREFUGFdjGHSAgQEAAJQAAY8LvLEAAAAASUVORK5CYII='],
 
+        ['expand-all', 'iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAExSURBVDhPY3CKKv2PjP+TCBhAms8/+grGIDapAGzA1ksfwBiXAQrtQv+RMbIlYAMIeQGkOeioLRiD2CgGEONkkKbQkw5gjNUABgYGuDnYXATSFHHWGYwJugBboII0xVxyA2O8LgC5BFuggjTFX/MEY6JcgB6oIE3Jt3zAmGAYwAKjYFM6StSl3/f/D8LI0VmwMf0/IvSgOmG2O8QU/FdplPsfesL+f9bjIBQMErOaqvv/04+PEANgsQALA1jKtE5J+K85QQpsc96L0P+5z0P/p93z/6/eL/H/zONTYCuxugA5ZU440vnffIna/4LX4WAMYvcdbIdHO04vwLzy99/f/4EL3f4HHLCG4AWu///8/Y3bAGwp8+nHx//1JiqA8eP3D0lPyiAd66+s+r/u0goM8wHtCSnFKywCAAAAAABJRU5ErkJggg=='],
+        ['collapse-all', 'iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAEvSURBVDhPY3CKKv2PjP/jAOuvrPq/7tIKDFkGkObzj76CMYiNDTz9+Pi/3kQFMH78/iGKErABWy99AGNsBvz99/d/4EK3/wEHrCF4gev/P39/ww0BG4DPCxOOdP43X6L2v+B1OBiD2H0H2xEG4PIzSPzckzP/NSdI/U+/7/8/93koGKfd8/+v3i/x/8zjU2CtDCBi5qxZcHNAbBCeNHPyf/1O5f+hJ+z/Zz0OQsEgMaupuv8//fgIMQAZwAwr3JzxX6FdCI5BrgBhZLGCjemoLoDZDjMQZhhIU/ItHzAGsZEBVhfADEI2IP6a538QxmoAchhgC1SQpphLbmBMtgsizjr/B2G8LsAXBqEnHf6DMFEuwBaIQUdt/4MwUQZgC0Tk6MMbC/hSJjY5jGgk1QAASC9JvTamTUkAAAAASUVORK5CYII='],
         ['sortable', 'iVBORw0KGgoAAAANSUhEUgAAAA4AAAAKCAYAAACE2W/HAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAYdEVYdFNvZnR3YXJlAHBhaW50Lm5ldCA0LjAuNWWFMmUAAAAxSURBVChTY8AD/kNpkgBIEwwTDZA1Ea0ZmyYYHmQAmxNhmCAgSxMMkKUJBvBoYmAAAJCXH+FU1T8+AAAAAElFTkSuQmCC'],
         ['up-arrow', 'iVBORw0KGgoAAAANSUhEUgAAAAUAAAAKCAYAAAB8OZQwAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAYdEVYdFNvZnR3YXJlAHBhaW50Lm5ldCA0LjAuNWWFMmUAAAA9SURBVBhXbYvRCgAgCAOtqP//Y9tElw8NDrcDzd0DBCd7iSL3E0IvGOpf2fKXeZUFKDcYFMwBlDNWS76bXUM5P9In5AzyAAAAAElFTkSuQmCC'],
         ['down-arrow', 'iVBORw0KGgoAAAANSUhEUgAAAAUAAAAKCAYAAAB8OZQwAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAYdEVYdFNvZnR3YXJlAHBhaW50Lm5ldCA0LjAuNWWFMmUAAAA+SURBVBhXhYvRCgAgCAOtqP//4+WWhtBDB1duqBUQ/2W5LLtSMFyW020skuecwOGj6QzfkuExt1LlcqICgG3S7z/SL/jVpgAAAABJRU5ErkJggg==']
@@ -27482,7 +27486,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
 
 </style>
   </template>
-  <script>/* global numeral*/
+  <script>/* global numeral, alert */
 'use strict';
 /**
  *
@@ -27580,9 +27584,9 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
                 formatter: fcommify,
                 alignment: 'right',
                 modifyConfig: function(cell) {
-                    cell.config.fgColor = 'green';//#1C4A16'; //'#53FF07'; //green
+                    cell.config.fgColor = 'green'; //#1C4A16'; //'#53FF07'; //green
                     if (cell.config.value < 0) {
-                        cell.config.fgColor = 'red';//#C13527'; //'#FF1515'; //red
+                        cell.config.fgColor = 'red'; //#C13527'; //'#FF1515'; //red
                     }
                 }
             },
@@ -27740,13 +27744,13 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
             };
 
             provider.getTopLeftCell = function(config) {
-                var empty = provider.cellCache.emptyCellRenderer;
+                //var empty = provider.cellCache.emptyCellRenderer;
                 var label = provider.cellCache.simpleCellRenderer;
                 label.config = config;
                 if (config.y === 0) {
                     return label;
                 } else {
-                    return empty;
+                    return label;
                 }
             };
 
@@ -27791,11 +27795,15 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
          * @param {integer} x - x coordinate
          * @param {integer} y - y coordinate
          */
-        getTopLeftValue: function( /* x, y */ ) {
-            var image = this.getClickIndicator(hierarchyColumn);
-            var clone = [image, 'Hierarchy', this.getSortIndicator(hierarchyColumn)];
-            //clone[0] = clone[0] + ' ' + sortIndicator;
-            return clone;
+        getTopLeftValue: function(x, y) {
+            if (y === 0) {
+                var image = this.getClickIndicator(hierarchyColumn);
+                var clone = [image, 'Hierarchy', this.getSortIndicator(hierarchyColumn)];
+                //clone[0] = clone[0] + ' ' + sortIndicator;
+                return clone;
+            } else {
+                return [this.getImage('collapse-all'), '®', this.getImage('expand-all')];
+            }
         },
 
         /**
@@ -28113,11 +28121,28 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
          * @param {Object} mouse - event details
          */
         topLeftClicked: function(grid, mouse) {
+            var gridY = mouse.gridCell.y;
+            if (gridY < 1) {
+                this.hierarchyCellClicked(grid, mouse);
+            } else {
+                this.controlCellClick(grid, mouse);
+            }
+        },
+
+        /**
+         * @function
+         * @instance
+         * @description
+         fixed column header has been clicked, you've been notified
+         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+         * @param {Object} mouse - event details
+         */
+        hierarchyCellClicked: function(grid, mouse) {
             var colId = hierarchyColumn;
             var colWidth = this.getFixedColumnWidth(0);
-            var mousePoint = mouse.mousePoint.x;
+            var mouseX = mouse.mousePoint.x;
             var direction = this.block.C[hierarchyColumn];
-            if (mousePoint < (colWidth / 2)) {
+            if (mouseX < (colWidth / 2)) {
                 if (direction) {
                     var colClick = {
                         id: this.getNextMessageId(),
@@ -28133,6 +28158,22 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
             }
         },
 
+        /**
+         * @function
+         * @instance
+         * @description
+         control cell has been clicked, you've been notified
+         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+         * @param {Object} mouse - event details
+         */
+        controlCellClick: function(grid, mouse) {
+            // var colId = hierarchyColumn;
+            // var colWidth = this.getFixedColumnWidth(0);
+            // var mouseX = mouse.mousePoint.x;
+            // var direction = this.block.C[hierarchyColumn];
+            noop(grid, mouse);
+            alert('control cell clicked');
+        },
         /**
          * @function
          * @instance

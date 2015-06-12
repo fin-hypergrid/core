@@ -1,4 +1,4 @@
-/* global numeral*/
+/* global numeral */
 'use strict';
 /**
  *
@@ -96,9 +96,9 @@
                 formatter: fcommify,
                 alignment: 'right',
                 modifyConfig: function(cell) {
-                    cell.config.fgColor = 'green';//#1C4A16'; //'#53FF07'; //green
+                    cell.config.fgColor = 'green'; //#1C4A16'; //'#53FF07'; //green
                     if (cell.config.value < 0) {
-                        cell.config.fgColor = 'red';//#C13527'; //'#FF1515'; //red
+                        cell.config.fgColor = 'red'; //#C13527'; //'#FF1515'; //red
                     }
                 }
             },
@@ -256,13 +256,13 @@
             };
 
             provider.getTopLeftCell = function(config) {
-                var empty = provider.cellCache.emptyCellRenderer;
+                //var empty = provider.cellCache.emptyCellRenderer;
                 var label = provider.cellCache.simpleCellRenderer;
                 label.config = config;
                 if (config.y === 0) {
                     return label;
                 } else {
-                    return empty;
+                    return label;
                 }
             };
 
@@ -307,11 +307,15 @@
          * @param {integer} x - x coordinate
          * @param {integer} y - y coordinate
          */
-        getTopLeftValue: function( /* x, y */ ) {
-            var image = this.getClickIndicator(hierarchyColumn);
-            var clone = [image, 'Hierarchy', this.getSortIndicator(hierarchyColumn)];
-            //clone[0] = clone[0] + ' ' + sortIndicator;
-            return clone;
+        getTopLeftValue: function(x, y) {
+            if (y === 0) {
+                var image = this.getClickIndicator(hierarchyColumn);
+                var clone = [image, 'Hierarchy', this.getSortIndicator(hierarchyColumn)];
+                //clone[0] = clone[0] + ' ' + sortIndicator;
+                return clone;
+            } else {
+                return [this.getImage('collapse-all'), '®', this.getImage('expand-all')];
+            }
         },
 
         /**
@@ -629,11 +633,28 @@
          * @param {Object} mouse - event details
          */
         topLeftClicked: function(grid, mouse) {
+            var gridY = mouse.gridCell.y;
+            if (gridY < 1) {
+                this.hierarchyCellClicked(grid, mouse);
+            } else {
+                this.controlCellClick(grid, mouse);
+            }
+        },
+
+        /**
+         * @function
+         * @instance
+         * @description
+         fixed column header has been clicked, you've been notified
+         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+         * @param {Object} mouse - event details
+         */
+        hierarchyCellClicked: function(grid, mouse) {
             var colId = hierarchyColumn;
             var colWidth = this.getFixedColumnWidth(0);
-            var mousePoint = mouse.mousePoint.x;
+            var mouseX = mouse.mousePoint.x;
             var direction = this.block.C[hierarchyColumn];
-            if (mousePoint < (colWidth / 2)) {
+            if (mouseX < (colWidth / 2)) {
                 if (direction) {
                     var colClick = {
                         id: this.getNextMessageId(),
@@ -649,6 +670,29 @@
             }
         },
 
+        /**
+         * @function
+         * @instance
+         * @description
+         control cell has been clicked, you've been notified
+         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+         * @param {Object} mouse - event details
+         */
+        controlCellClick: function(grid, mouse) {
+            var colWidth = this.getFixedColumnWidth(0);
+            var mouseX = mouse.mousePoint.x;
+            var fn = 'expandall';
+            if (mouseX < (colWidth / 3)) {
+                fn = 'collapseall';
+            } else if (mouseX < (2 * colWidth / 3)) {
+                fn = 'resetall';
+            }
+            var msg = {
+                id: this.getNextMessageId(),
+                fn: fn
+            };
+            this.sendMessage(msg);
+        },
         /**
          * @function
          * @instance
@@ -735,7 +779,7 @@
         */
         sendMessage: function(message) {
             if (logMessages) {
-                console.dir('out-' + Date.now(), message);
+                console.log('out-' + Date.now(), message);
             }
             this.ws.send(JSON.stringify(message));
         },
