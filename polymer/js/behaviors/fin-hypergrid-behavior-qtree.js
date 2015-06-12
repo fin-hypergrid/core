@@ -314,7 +314,11 @@
                 //clone[0] = clone[0] + ' ' + sortIndicator;
                 return clone;
             } else {
-                return [this.getImage('collapse-all'), '®', this.getImage('expand-all')];
+                if (this.isColumnReorderable()) {
+                    return [this.getImage('collapse-all'), '®', this.getImage('expand-all')];
+                } else {
+                    return '®';
+                }
             }
         },
 
@@ -687,6 +691,11 @@
             } else if (mouseX < (2 * colWidth / 3)) {
                 fn = 'reset';
             }
+
+            if (!this.isColumnReorderable()) {
+                fn = 'reset';
+            }
+
             var msg = {
                 id: this.getNextMessageId(),
                 fn: fn
