@@ -659,7 +659,7 @@ This Hypertree + Hypergrid example allows you to define a on the fly custom dril
 4. Make sure grunt serve is running or your browser is pointed to the proper [demo](http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/demo.html?tab=4) tab.
 5. If you are running locally, the grunt serve process should automatically refresh your web browser with the q driven grid now populated with data
 
-<img src="images/gridshot04.png" alt="screenshot">
+<img src="images/gridshot10.png" alt="screenshot">
 
 #Hypergrid example for displaying RDBMS data
 
