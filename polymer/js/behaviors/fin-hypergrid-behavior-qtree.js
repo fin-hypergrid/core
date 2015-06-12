@@ -1098,13 +1098,15 @@
         },
         getTreeStateDescription: function() {
             var object = this.block.M;
-            var result = '<table>\n';
+            var result = '<table class="qtreedescription">\n';
+            var data = '<tr>';
             for (var property in object) {
                 if (object.hasOwnProperty(property)) {
-                    result = result + '<tr><td>' + property + '</td><td>' + object[property] + '</td></tr>\n';
+                    result = result + '<col><col>';
+                    data = data + '<td>' + property + ':</td><td>' + object[property] + '</td>\n';
                 }
             }
-            result = result + '</table>';
+            result = result + '\n' + data + '</tr></table>';
             return result;
         }
 

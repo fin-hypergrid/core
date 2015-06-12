@@ -41,6 +41,12 @@
     body {
             transition: opacity 0.150s ease-in;
     }
+    table.qtreedescription col:nth-child(2n) {
+      background: #9AB1FF;
+    }
+    table.qtreedescription {
+      background: #CFD3DD;
+    }
     .rotateHalf {
         opacity: 0;
     }
@@ -212,9 +218,9 @@
         </div>
           <core-splitter direction="up"></core-splitter>
           <div flex class="rel">
-              <div class="abs" style="width:200px" id="qtreedescription">
+              <div class="abs" style="bottom:24px" id="qtreedescription">
               </div>
-              <div class="abs" style="left:200px">
+              <div class="abs" style="top:24px">
                 <fin-hypergrid class="abs" id="qtree-example">
                     <fin-hypergrid-behavior-qtree url="ws://localhost:12345"></fin-hypergrid-behavior-qtree>
                 </fin-hypergrid>
