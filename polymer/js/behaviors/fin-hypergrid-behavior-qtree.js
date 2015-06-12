@@ -96,9 +96,9 @@
                 formatter: fcommify,
                 alignment: 'right',
                 modifyConfig: function(cell) {
-                    cell.config.fgColor = '#1C4A16'; //'#53FF07'; //green
+                    cell.config.fgColor = 'green';//#1C4A16'; //'#53FF07'; //green
                     if (cell.config.value < 0) {
-                        cell.config.fgColor = '#C13527'; //'#FF1515'; //red
+                        cell.config.fgColor = 'red';//#C13527'; //'#FF1515'; //red
                     }
                 }
             },
