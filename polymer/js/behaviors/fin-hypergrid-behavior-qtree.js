@@ -681,11 +681,11 @@
         controlCellClick: function(grid, mouse) {
             var colWidth = this.getFixedColumnWidth(0);
             var mouseX = mouse.mousePoint.x;
-            var fn = 'expandall';
+            var fn = 'expand';
             if (mouseX < (colWidth / 3)) {
-                fn = 'collapseall';
+                fn = 'collapse';
             } else if (mouseX < (2 * colWidth / 3)) {
-                fn = 'resetall';
+                fn = 'reset';
             }
             var msg = {
                 id: this.getNextMessageId(),
