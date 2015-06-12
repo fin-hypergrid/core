@@ -27486,7 +27486,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
 
 </style>
   </template>
-  <script>/* global numeral, alert */
+  <script>/* global numeral */
 'use strict';
 /**
  *
@@ -28167,12 +28167,19 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
          * @param {Object} mouse - event details
          */
         controlCellClick: function(grid, mouse) {
-            // var colId = hierarchyColumn;
-            // var colWidth = this.getFixedColumnWidth(0);
-            // var mouseX = mouse.mousePoint.x;
-            // var direction = this.block.C[hierarchyColumn];
-            noop(grid, mouse);
-            alert('control cell clicked');
+            var colWidth = this.getFixedColumnWidth(0);
+            var mouseX = mouse.mousePoint.x;
+            var fn = 'expand';
+            if (mouseX < (colWidth / 3)) {
+                fn = 'collapse';
+            } else if (mouseX < (2 * colWidth / 3)) {
+                fn = 'reset';
+            }
+            var msg = {
+                id: this.getNextMessageId(),
+                fn: fn
+            };
+            this.sendMessage(msg);
         },
         /**
          * @function
@@ -28260,7 +28267,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         */
         sendMessage: function(message) {
             if (logMessages) {
-                console.dir('out-' + Date.now(), message);
+                console.log('out-' + Date.now(), message);
             }
             this.ws.send(JSON.stringify(message));
         },
