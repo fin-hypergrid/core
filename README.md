@@ -751,7 +751,7 @@ Hypergrid utilizes a custom scrollbar component so as to not be limited to table
 * Simple in memory based GridBehavior example provided
 * JSON example
 * Easily customizable and extensible cell rendering
-* Npm/grunt-based full featured dev environment
+
 --------------
 provide column names in cell provider
 row object in the config

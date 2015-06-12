@@ -26505,7 +26505,12 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
          */
         getValue: function(x, y) {
             var fields = this.getFields();
-            return this.data[y][fields[x]];
+            var row = this.data[y];
+            var result = row[fields[x]];
+            if (typeof result === 'function') {
+                result = row[fields[x]]();
+            }
+            return result;
         },
 
         /**
