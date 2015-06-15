@@ -1611,8 +1611,16 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          */
         cellTopLeftPrePaintNotification: function( /* cell */ ) {
 
-        }
+        },
 
+        /**
+         * @function
+         * @instance
+         * @description
+         this function enhance the double click event just before it's broadcast to listeners
+         * @param {Object} event - event to enhance
+         */
+        enhanceDoubleClickEvent: function( /* event */ ) {},
 
     });
 })();

@@ -1800,11 +1800,15 @@
          *
          */
         fireSyntheticDoubleClickEvent: function(mouseEvent) {
-            mouseEvent.gridCell = mouseEvent.gridCell.plus(this.rectangles.point.create(this.getHScrollValue(), this.getVScrollValue()));
-            mouseEvent.time = Date.now();
-            mouseEvent.grid = this;
+            var detail = {
+                gridCell: mouseEvent.gridCell.plus(this.rectangles.point.create(this.getHScrollValue() - this.getFixedColumnCount(), this.getVScrollValue() - this.getFixedRowCount())),
+                mousePoint: mouseEvent.mousePoint,
+                time: Date.now(),
+                grid: this
+            };
+            this.getBehavior().enhanceDoubleClickEvent(mouseEvent);
             var clickEvent = new CustomEvent('fin-double-click', {
-                detail: mouseEvent
+                detail: detail
             });
             this.canvas.dispatchEvent(clickEvent);
         },

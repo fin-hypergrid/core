@@ -445,6 +445,9 @@
         * @param {string} colId - the column id of interest
         */
         getClickIndicator: function(colId) {
+            if (!this.block.C) {
+                return this.getImage('rectangle-spacer');
+            }
             var direction = this.block.C[colId];
             var image = this.getImage(imageMap[direction]);
             return image;

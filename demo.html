@@ -575,7 +575,7 @@
 
             jsonGrid.addFinEventListener('fin-double-click', function(e){
                 var cell = e.detail.gridCell;
-                if (cell.x < 9) {
+                if (cell.x < 8) {
                     return; // lets only see console output on the final column
                 }
                 alert('fin-double-click at (' + cell.x + ', ' + cell.y + ')');

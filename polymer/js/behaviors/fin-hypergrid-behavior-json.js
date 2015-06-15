@@ -573,6 +573,17 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
             cell.config.row = row;
             cell.config.columnId = columnId;
         },
+
+        /**
+         * @function
+         * @instance
+         * @description
+         this function enhance the double click event just before it's broadcast to listeners
+         * @param {Object} event - [rectangle.point](http://stevewirts.github.io/fin-rectangle/components/fin-rectangle/)
+         */
+        enhanceDoubleClickEvent: function(event) {
+            event.row = this.getRow(event.gridCell.y);
+        },
     });
 
 })(); /* jslint ignore:line */
