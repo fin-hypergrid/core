@@ -387,8 +387,6 @@
                 descriptionPanel.innerHTML = description;
             }, 500);
 
-            var jsonModel = document.querySelector('#json-example');
-            jsonModel.initializeCellEditor('fin-hypergrid-cell-editor-prompt');
         });
 
     })();
@@ -634,17 +632,23 @@
             //   console.dir(qTree.getRenderedData());
             // });
             qTree.addFinEventListener('fin-selection-changed', function(e) {
-                console.dir('fin-selection-changed', qTree.getSelectedRow());
+                console.log('fin-selection-changed', qTree.getSelectedRow());
             });
 
             jsonGrid.addFinEventListener('fin-before-cell-edit', function(e) {
-                console.dir('fin-before-cell-edit', e);
+                console.log('fin-before-cell-edit', e);
             });
 
             jsonGrid.addFinEventListener('fin-after-cell-edit', function(e) {
-                console.dir('fin-after-cell-edit', e);
+                console.log('fin-after-cell-edit', e);
             });
 
+            jsonGrid.addFinEventListener('fin-cell-enter', function(e) {
+                console.log('fin-after-cell-enter', e);
+            });
+
+            // initialize our custom cell renderer
+            jsonGrid.initializeCellEditor('fin-hypergrid-cell-editor-prompt');
         });
     })();
     //json-example stuff

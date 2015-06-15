@@ -563,6 +563,7 @@ fin-scroll-y|this is fired on any scroll in the vertical dimension
 fin-cell-click|this is fired on cell click
 fin-grid-rendered|this is fired after a repaint occurs
 fin-double-click|fired on double click
+fin-cell-enter|this is fired when the mouse enters a new cell
 
 ```
     var jsonModel = document.querySelection('#json-grid');

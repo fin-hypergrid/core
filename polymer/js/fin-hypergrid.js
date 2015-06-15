@@ -437,6 +437,10 @@
 
         },
 
+        initializeCellEditor: function(cellEditorName) {
+            initializeCellEditor(cellEditorName);
+        },
+
         /**
          * @function
          * @instance
@@ -507,12 +511,14 @@
          */
         setHoverCell: function(point) {
             var me = this.hoverCell;
-            if (me && me.equals(point)) {
-                return;
-            }
             var fixedX = this.getFixedColumnCount();
             var fixedY = this.getFixedRowCount();
-            this.hoverCell = rectangles.point.create(point.x - fixedX, point.y - fixedY);
+            var newPoint = rectangles.point.create(point.x - fixedX, point.y - fixedY);
+            if (me && me.equals(newPoint)) {
+                return;
+            }
+            this.hoverCell = newPoint;
+            this.fireSyntheticOnCellEnterEvent(newPoint);
             this.repaint();
         },
 
@@ -1794,6 +1800,48 @@
          * @function
          * @instance
          * @description
+        Synthesize and fire a fin-cell-enter event
+         * @param {fin-rectangle.point} cell - the cell that the click occured in
+         * @param {MouseEvent} event - the system mouse event
+         *
+         */
+        fireSyntheticOnCellEnterEvent: function(mouseEvent) {
+            var detail = {
+                gridCell: this.rectangles.point.create(mouseEvent.x + this.getHScrollValue(), mouseEvent.y + this.getVScrollValue()),
+                time: Date.now(),
+                grid: this
+            };
+            var clickEvent = new CustomEvent('fin-cell-enter', {
+                detail: detail
+            });
+            this.canvas.dispatchEvent(clickEvent);
+        },
+
+        /**
+         * @function
+         * @instance
+         * @description
+        Synthesize and fire a fin-cell-enter event
+         * @param {fin-rectangle.point} cell - the cell that the click occured in
+         * @param {MouseEvent} event - the system mouse event
+         *
+         */
+        fireSyntheticOnCellExitEvent: function(mouseEvent) {
+            var detail = {
+                gridCell: this.rectangles.point.create(mouseEvent.x + this.getHScrollValue(), mouseEvent.y + this.getVScrollValue()),
+                time: Date.now(),
+                grid: this
+            };
+            var clickEvent = new CustomEvent('fin-cell-exit', {
+                detail: detail
+            });
+            this.canvas.dispatchEvent(clickEvent);
+        },
+
+        /**
+         * @function
+         * @instance
+         * @description
         Synthesize and fire a fin-cell-click event
          * @param {fin-rectangle.point} cell - the cell that the click occured in
          * @param {MouseEvent} event - the system mouse event
@@ -2959,10 +3007,6 @@
          */
         getVisibleRows: function() {
             return this.getRenderer().getVisibleRows();
-        },
-
-        initializeCellEditor: function(cellEditorName) {
-            initializeCellEditor(cellEditorName);
         }
     });
 
