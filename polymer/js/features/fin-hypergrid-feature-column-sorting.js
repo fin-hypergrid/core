@@ -39,7 +39,8 @@
         * @param {Object} event - the event details
         */
         handleMouseMove: function(grid, event) {
-            if (this.isFixedRow(grid, event) && !this.isFixedColumn(grid, event)) {
+            var y = event.gridCell.y;
+            if (this.isFixedRow(grid, event) && !this.isFixedColumn(grid, event) && y < 1) {
                 this.cursor = 'pointer';
             } else {
                 this.cursor = null;

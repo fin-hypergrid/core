@@ -2959,6 +2959,10 @@
          */
         getVisibleRows: function() {
             return this.getRenderer().getVisibleRows();
+        },
+
+        initializeCellEditor: function(cellEditorName) {
+            initializeCellEditor(cellEditorName);
         }
     });
 

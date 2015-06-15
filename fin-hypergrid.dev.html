@@ -20671,7 +20671,8 @@ var commands = {
         * @param {Object} event - the event details
         */
         handleMouseMove: function(grid, event) {
-            if (this.isFixedRow(grid, event) && !this.isFixedColumn(grid, event)) {
+            var y = event.gridCell.y;
+            if (this.isFixedRow(grid, event) && !this.isFixedColumn(grid, event) && y < 1) {
                 this.cursor = 'pointer';
             } else {
                 this.cursor = null;
@@ -26750,6 +26751,21 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         enhanceDoubleClickEvent: function(event) {
             event.row = this.getRow(event.gridCell.y);
         },
+
+        /**
+         * @function
+         * @instance
+         * @description
+         fixed row has been clicked, you've been notified
+         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+         * @param {Object} mouse - event details
+         */
+        fixedRowClicked: function(grid, mouse) {
+            if (mouse.gridCell.y > 0) {
+                return; // don't allow clicking in the non-top header cell
+            }
+            this.toggleSort(mouse.gridCell.x);
+        },
     });
 
 })(); /* jslint ignore:line */
@@ -29348,6 +29364,9 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         saveEditorValue: function() {
             var point = this.getEditorPoint();
             var value = this.getEditorValue();
+            if (value === this.initialValue) {
+                return; //data didn't change do nothing
+            }
             this.getBehavior()._setValue(point.x, point.y, value);
             this.grid.fireAfterCellEdit(point, this.initialValue, value);
         },
@@ -34207,6 +34226,10 @@ fin-vampire-bar {
          */
         getVisibleRows: function() {
             return this.getRenderer().getVisibleRows();
+        },
+
+        initializeCellEditor: function(cellEditorName) {
+            initializeCellEditor(cellEditorName);
         }
     });
 

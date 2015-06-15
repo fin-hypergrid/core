@@ -212,6 +212,9 @@
         saveEditorValue: function() {
             var point = this.getEditorPoint();
             var value = this.getEditorValue();
+            if (value === this.initialValue) {
+                return; //data didn't change do nothing
+            }
             this.getBehavior()._setValue(point.x, point.y, value);
             this.grid.fireAfterCellEdit(point, this.initialValue, value);
         },

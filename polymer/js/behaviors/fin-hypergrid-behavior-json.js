@@ -584,6 +584,21 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         enhanceDoubleClickEvent: function(event) {
             event.row = this.getRow(event.gridCell.y);
         },
+
+        /**
+         * @function
+         * @instance
+         * @description
+         fixed row has been clicked, you've been notified
+         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+         * @param {Object} mouse - event details
+         */
+        fixedRowClicked: function(grid, mouse) {
+            if (mouse.gridCell.y > 0) {
+                return; // don't allow clicking in the non-top header cell
+            }
+            this.toggleSort(mouse.gridCell.x);
+        },
     });
 
 })(); /* jslint ignore:line */
