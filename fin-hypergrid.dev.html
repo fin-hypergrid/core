@@ -15568,13 +15568,20 @@ var config = {
          */
         overColumnDivider: function(x) {
             x = Math.round(x);
-            var whichCol = this.renderedColumnWidths.indexOf(x + 1);
+            var whichCol = this.renderedColumnWidths.indexOf(x - 1);
             if (whichCol < 0) {
                 whichCol = this.renderedColumnWidths.indexOf(x);
             }
             if (whichCol < 0) {
-                whichCol = this.renderedColumnWidths.indexOf(x - 1);
+                whichCol = this.renderedColumnWidths.indexOf(x - 2);
             }
+            if (whichCol < 0) {
+                whichCol = this.renderedColumnWidths.indexOf(x + 1);
+            }
+            if (whichCol < 0) {
+                whichCol = this.renderedColumnWidths.indexOf(x - 3);
+            }
+
             return whichCol;
         },
 
