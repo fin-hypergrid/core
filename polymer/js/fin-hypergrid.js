@@ -1230,6 +1230,7 @@
                 var mouse = e.detail.mouse;
                 var mouseEvent = self.getGridCellFromMousePoint(mouse);
                 mouseEvent.primitiveEvent = e;
+                self.fireSyntheticDoubleClickEvent(mouseEvent, e);
                 self.delegateDoubleClick(mouseEvent);
             });
 
@@ -1781,10 +1782,29 @@
         fireCellClickEvent: function(cell, event) {
             var clickEvent = new CustomEvent('fin-cell-click', {
                 detail: {
-                    cell: cell,
+                    gridCell: cell,
                     event: event,
                     time: Date.now()
                 }
+            });
+            this.canvas.dispatchEvent(clickEvent);
+        },
+
+        /**
+         * @function
+         * @instance
+         * @description
+        Synthesize and fire a fin-cell-click event
+         * @param {fin-rectangle.point} cell - the cell that the click occured in
+         * @param {MouseEvent} event - the system mouse event
+         *
+         */
+        fireSyntheticDoubleClickEvent: function(mouseEvent) {
+            mouseEvent.gridCell = mouseEvent.gridCell.plus(this.rectangles.point.create(this.getHScrollValue(), this.getVScrollValue()));
+            mouseEvent.time = Date.now();
+            mouseEvent.grid = this;
+            var clickEvent = new CustomEvent('fin-double-click', {
+                detail: mouseEvent
             });
             this.canvas.dispatchEvent(clickEvent);
         },
@@ -2849,7 +2869,7 @@
             var clickEvent = new CustomEvent('fin-before-cell-edit', {
                 detail: {
                     value: value,
-                    cell: cell,
+                    gridCell: cell,
                     time: Date.now()
                 }
             });
@@ -2872,7 +2892,7 @@
                 detail: {
                     newValue: newValue,
                     oldValue: oldValue,
-                    cell: cell,
+                    gridCell: cell,
                     time: Date.now()
                 }
             });
