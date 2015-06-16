@@ -1805,16 +1805,16 @@
          * @param {MouseEvent} event - the system mouse event
          *
          */
-        fireSyntheticOnCellEnterEvent: function(mouseEvent) {
-            var detail = {
-                gridCell: this.rectangles.point.create(mouseEvent.x + this.getHScrollValue(), mouseEvent.y + this.getVScrollValue()),
-                time: Date.now(),
-                grid: this
-            };
-            var clickEvent = new CustomEvent('fin-cell-enter', {
-                detail: detail
-            });
-            this.canvas.dispatchEvent(clickEvent);
+        fireSyntheticOnCellEnterEvent: function( /* mouseEvent */ ) {
+            // var detail = {
+            //     gridCell: this.rectangles.point.create(mouseEvent.x + this.getHScrollValue(), mouseEvent.y + this.getVScrollValue()),
+            //     time: Date.now(),
+            //     grid: this
+            // };
+            // var clickEvent = new CustomEvent('fin-cell-enter', {
+            //     detail: detail
+            // });
+            // this.canvas.dispatchEvent(clickEvent);
         },
 
         /**

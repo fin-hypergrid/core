@@ -2,25 +2,20 @@
     "devtools_port": 9090,
     "startup_app": {
         "autoShow": true,
-        "name": "hypergrid-qtree-demo",
-        "url": "http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/demo.html",
-        "uuid": "hypergrid-qtree-demo",
-        "applicationIcon": "http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/images/openfin.ico",
+        "name": "Hypergrid-Demo",
+        "url": "http://10.9.105.94:9000/fin-hypergrid/demo.html",
+        "uuid": "Hypergrid-Demo",
+        "applicationIcon": "http://10.9.105.94:9000/fin-hypergrid/images/openfin.ico",
         "contextMenu" : true
     },
     "runtime": {
         "arguments": "",
-        "version": "alpha",
-        "assets": [{
-            "src": "https://developer.openfin.co/tests/swirts-hypergrid-assets/qtree.zip",
-            "dest": "q",
-            "version": "0.0.1"
-        }]
+        "version": "stable"
     },
     "shortcut": {
         "company": "OpenFin",
         "description": "Hypergrid by OpenFin",
-        "icon": "http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/images/openfin.ico",
-        "name": "Hypergrid-QTree-Demo"
+        "icon": "http://10.9.105.94:9000/fin-hypergrid/images/openfin.ico",
+        "name": "Hypergrid-Demo"
     }
 }
