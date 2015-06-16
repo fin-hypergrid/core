@@ -5162,6 +5162,84 @@ it contains all code/data that's necessary for easily implementing a virtual dat
 
     
 
+    <h4 class="name" id="getColumnDescriptors"><span class="type-signature"></span>getColumnDescriptors<span class="signature">()</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>returns the list of labels to use for the column picker</p>
+<h4>returns: Array of strings</h4>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
     <h4 class="name" id="getColumnId"><span class="type-signature"></span>getColumnId<span class="signature">(x)</span><span class="type-signature"></span></h4>
 
     
@@ -5771,15 +5849,15 @@ it contains all code/data that's necessary for easily implementing a virtual dat
 
     
 
-    <h4 class="name" id="getDNDColumnLabels"><span class="type-signature"></span>getDNDColumnLabels<span class="signature">()</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="getField"><span class="type-signature"></span>getField<span class="signature">(colIndex)</span><span class="type-signature"></span></h4>
 
     
 
 
 
 <div class="description">
-    <p>returns the list of labels to use for the column picker</p>
-<h4>returns: Array of strings</h4>
+    <p>return the field at colIndex</p>
+<h4>returns: string</h4>
 </div>
 
 
@@ -5790,82 +5868,53 @@ it contains all code/data that's necessary for easily implementing a virtual dat
 
 
 
-
-
-
-
-<dl class="details">
-
+    <h5>Parameters:</h5>
     
 
-    
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
 
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+        <th>Type</th>
 
         
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>colIndex</code></td>
             
 
+            <td class="type">
+            
+                
+<span class="param-type">integer</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>the column index of interest</p></td>
+        </tr>
+
     
-
-    <h4 class="name" id="getDNDHiddenColumnLabels"><span class="type-signature"></span>getDNDHiddenColumnLabels<span class="signature">()</span><span class="type-signature"></span></h4>
-
-    
-
-
-
-<div class="description">
-    <p>return an Array of strings of the column header labels that are currently hidden</p>
-<h4>returns: Array of strings</h4>
-</div>
-
-
-
-
-
-
-
+    </tbody>
+</table>
 
 
 
@@ -7419,6 +7468,84 @@ it contains all code/data that's necessary for easily implementing a virtual dat
     
     </tbody>
 </table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="getHiddenColumnDescriptors"><span class="type-signature"></span>getHiddenColumnDescriptors<span class="signature">()</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>return an Array of strings of the column header labels that are currently hidden</p>
+<h4>returns: Array of strings</h4>
+</div>
+
+
+
+
+
+
+
 
 
 
@@ -11147,6 +11274,132 @@ it contains all code/data that's necessary for easily implementing a virtual dat
 
     
 
+    <h4 class="name" id="setColumnDescriptors"><span class="type-signature"></span>setColumnDescriptors<span class="signature">(list)</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>this is called by the column editor post closing; rebuild the column order indexes</p>
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>list</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Array</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>list of column objects from the column editor</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
     <h4 class="name" id="setColumnWidth"><span class="type-signature"></span>setColumnWidth<span class="signature">(x, width)</span><span class="type-signature"></span></h4>
 
     
@@ -11356,258 +11609,6 @@ it contains all code/data that's necessary for easily implementing a virtual dat
             
 
             <td class="description last"><p><a href="module-._fin-hypergrid.html">fin-hypergrid</a></p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-            
-
-    
-
-    <h4 class="name" id="setDNDColumnLabels"><span class="type-signature"></span>setDNDColumnLabels<span class="signature">(list)</span><span class="type-signature"></span></h4>
-
-    
-
-
-
-<div class="description">
-    <p>this is called by the column editor post closing; rebuild the column order indexes</p>
-</div>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>list</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Array</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>list of column objects from the column editor</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-            
-
-    
-
-    <h4 class="name" id="setDNDHiddenColumnLabels"><span class="type-signature"></span>setDNDHiddenColumnLabels<span class="signature">(list)</span><span class="type-signature"></span></h4>
-
-    
-
-
-
-<div class="description">
-    <p>set which column are hidden post column editor close</p>
-</div>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>list</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Array</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>the list column descriptors</p></td>
         </tr>
 
     
@@ -12284,6 +12285,132 @@ it contains all code/data that's necessary for easily implementing a virtual dat
             
 
             <td class="description last"><p><a href="module-._fin-hypergrid.html">fin-hypergrid</a></p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="setHiddenColumnDescriptors"><span class="type-signature"></span>setHiddenColumnDescriptors<span class="signature">(list)</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>set which column are hidden post column editor close</p>
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>list</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Array</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>the list column descriptors</p></td>
         </tr>
 
     

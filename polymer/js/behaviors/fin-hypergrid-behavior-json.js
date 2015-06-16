@@ -243,6 +243,18 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         },
 
         /**
+         * @function
+         * @instance
+         * @description
+         return the field at colIndex
+         * #### returns: string
+         * @param {integer} colIndex - the column index of interest
+         */
+        getField: function(colIndex) {
+            return this.getFields()[colIndex];
+        },
+
+        /**
         * @function
         * @instance
         * @description

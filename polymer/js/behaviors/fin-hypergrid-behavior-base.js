@@ -1043,7 +1043,6 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          * @param {index} columnIndex - the column index of interest
          */
         getColumnProperties: function(columnIndex) {
-            noop(columnIndex);
             //if no cell properties are supplied these properties are used
             //this probably should be moved into it's own object
             // this.clearObjectProperties(this.columnProperties);
@@ -1051,7 +1050,18 @@ it contains all code/data that's necessary for easily implementing a virtual dat
             //     this.columnProperties.bgColor = 'maroon';
             //     this.columnProperties.fgColor = 'white';
             // }
-            return this.columnProperties;
+            var properties = this.columnProperties[columnIndex];
+            if (!properties) {
+                properties = {};
+                this.columnProperties[columnIndex] = properties;
+            }
+            return properties;
+        },
+
+        setColumnProperty: function(columnIndex, key, value) {
+            var properties = this.getColumnProperties(columnIndex);
+            properties[key] = value;
+            this.changed();
         },
 
         /**
@@ -1061,7 +1071,7 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          returns the list of labels to use for the column picker
          * #### returns: Array of strings
          */
-        getDNDColumnLabels: function() {
+        getColumnDescriptors: function() {
             //assumes there is one row....
             this.insureColumnIndexesAreInitialized();
             var columnCount = this.tableState.columnIndexes.length;
@@ -1071,11 +1081,24 @@ it contains all code/data that's necessary for easily implementing a virtual dat
                 if (id >= this.fixedColumnCount) {
                     labels.push({
                         id: id,
-                        label: this.getHeader(id)
+                        label: this.getHeader(id),
+                        field: this.getField(id)
                     });
                 }
             }
             return labels;
+        },
+
+        /**
+         * @function
+         * @instance
+         * @description
+         return the field at colIndex
+         * #### returns: string
+         * @param {integer} colIndex - the column index of interest
+         */
+        getField: function(colIndex) {
+            return colIndex;
         },
 
         /**
@@ -1097,7 +1120,7 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          this is called by the column editor post closing; rebuild the column order indexes
          * @param {Array} list - list of column objects from the column editor
          */
-        setDNDColumnLabels: function(list) {
+        setColumnDescriptors: function(list) {
             //assumes there is one row....
             var columnCount = list.length;
             var indexes = [];
@@ -1119,14 +1142,15 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          return an Array of strings of the column header labels that are currently hidden
          * #### returns: Array of strings
          */
-        getDNDHiddenColumnLabels: function() {
+        getHiddenColumnDescriptors: function() {
             var indexes = this.tableState.hiddenColumns;
             var labels = new Array(indexes.length);
             for (var i = 0; i < labels.length; i++) {
                 var id = indexes[i];
                 labels[i] = {
                     id: id,
-                    label: this.getFixedRowValue(id, 0)
+                    label: this.getHeader(id),
+                    field: this.getField(id)
                 };
             }
             return labels;
@@ -1139,7 +1163,7 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          set which column are hidden post column editor close
          * @param {Array} list - the list column descriptors
          */
-        setDNDHiddenColumnLabels: function(list) {
+        setHiddenColumnDescriptors: function(list) {
             //assumes there is one row....
             var columnCount = list.length;
             var indexes = new Array(columnCount);
@@ -1232,12 +1256,12 @@ it contains all code/data that's necessary for easily implementing a virtual dat
 
             this.beColumnStyle(hidden.style);
             hidden.title = 'hidden columns';
-            hidden.list = this.getDNDHiddenColumnLabels();
+            hidden.list = this.getHiddenColumnDescriptors();
 
             this.beColumnStyle(visible.style);
             visible.style.left = '50%';
             visible.title = 'visible columns';
-            visible.list = this.getDNDColumnLabels();
+            visible.list = this.getColumnDescriptors();
 
             div.lists = {
                 hidden: hidden.list,
@@ -1257,8 +1281,8 @@ it contains all code/data that's necessary for easily implementing a virtual dat
         closeEditor: function(div) {
             noop(div);
             var lists = div.lists;
-            this.setDNDColumnLabels(lists.visible);
-            this.setDNDHiddenColumnLabels(lists.hidden);
+            this.setColumnDescriptors(lists.visible);
+            this.setHiddenColumnDescriptors(lists.hidden);
             return true;
         },
 
