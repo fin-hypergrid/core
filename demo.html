@@ -307,29 +307,28 @@
 
         // create and install a cell editor into the json example
         // the install code is inside a 'polymer-reader' callback below
-        // Polymer('fin-hypergrid-cell-editor-prompt', {
-        //     alias: 'prompt',
-        //     beginEditAt: function(point) {
-        //         var grid = this.grid;
-        //         var model = grid.getBehavior();
-        //         initialValue = model._getValue(point.x, point.y);
-        //         var proceed = grid.fireBeforeCellEdit(point, initialValue);
-        //         if (!proceed) {
-        //             //we were cancelled
-        //             return;
-        //         }
-        //         var newValue = prompt('input', initialValue);
-        //         if (newValue === null || newValue === initialValue) {
-        //             return; //data didn't change do nothing
-        //         }
+        Polymer('fin-hypergrid-cell-editor-prompt', {
+            alias: 'prompt',
+            beginEditAt: function(point) {
+                var grid = this.grid;
+                var model = grid.getBehavior();
+                initialValue = model._getValue(point.x, point.y);
+                var proceed = grid.fireBeforeCellEdit(point, initialValue);
+                if (!proceed) {
+                    //we were cancelled
+                    return;
+                }
+                var newValue = prompt('input', initialValue);
+                if (newValue === null || newValue === initialValue) {
+                    return; //data didn't change do nothing
+                }
 
-        //         model._setValue(point.x, point.y, newValue);
-        //         grid.fireAfterCellEdit(point, initialValue, newValue);
-        //     },
-        // });
-        // var el = document.createElement('div');
-        // el.innerHTML = '<polymer-element name="fin-hypergrid-cell-editor-prompt" ></polymer-element>';
-        // document.body.appendChild(el);
+                model._setValue(point.x, point.y, newValue);
+                grid.fireAfterCellEdit(point, initialValue, newValue);
+            },
+        });
+        var el = document.createElement('div');
+        el.innerHTML = '<polymer-element name="fin-hypergrid-cell-editor-prompt" ></polymer-element>';
 
     //override the cell provider for the q example
     (function() {
@@ -474,7 +473,7 @@
             data.push(randomPerson());
         }
 
-        var editorTypes = ['choice','textfield','spinner','date','choice','choice','choice','textfield','textfield','textfield'];
+        var editorTypes = ['choice','textfield','spinner','date','choice','choice','choice','textfield','textfield','prompt'];
 
         document.addEventListener('polymer-ready', function() {
 
@@ -643,12 +642,12 @@
                 console.log('fin-after-cell-edit', e);
             });
 
-            // jsonGrid.addFinEventListener('fin-cell-enter', function(e) {
-            //     console.log('fin-after-cell-enter', e);
-            // });
+            jsonGrid.addFinEventListener('fin-cell-enter', function(e) {
+                console.log('fin-after-cell-enter', e);
+            });
 
-            // // // initialize our custom cell renderer
-            // jsonGrid.initializeCellEditor('fin-hypergrid-cell-editor-prompt');
+            // // initialize our custom cell renderer
+            jsonGrid.initializeCellEditor('fin-hypergrid-cell-editor-prompt');
         });
     })();
     //json-example stuff
