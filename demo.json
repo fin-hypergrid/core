@@ -10,7 +10,7 @@
     },
     "runtime": {
         "arguments": "",
-        "version": "v40"
+        "version": "stable"
     },
     "shortcut": {
         "company": "OpenFin",
