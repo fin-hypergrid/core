@@ -1144,6 +1144,18 @@
                 self.delegateMouseDown(mouseEvent);
             });
 
+
+            this.addFinEventListener('fin-canvas-click', function(e) {
+                if (self.resolveProperty('readOnly')) {
+                    return;
+                }
+                self.stopEditing();
+                var mouse = e.detail.mouse;
+                var mouseEvent = self.getGridCellFromMousePoint(mouse);
+                mouseEvent.primitiveEvent = e;
+                self.fireSyntheticClickEvent(mouseEvent);
+            });
+
             this.addFinEventListener('fin-mouseup', function(e) {
                 if (self.resolveProperty('readOnly')) {
                     return;
@@ -1182,17 +1194,19 @@
                 self.delegateMouseDrag(mouseEvent);
             });
 
-            this.addFinEventListener('fin-keydown', function(e) {
+            this.addFinEventListener('fin-canvas-keydown', function(e) {
                 if (self.resolveProperty('readOnly')) {
                     return;
                 }
+                self.fireSyntheticKeydownEvent(e);
                 self.delegateKeyDown(e);
             });
 
-            this.addFinEventListener('fin-keyup', function(e) {
+            this.addFinEventListener('fin-canvas-keyup', function(e) {
                 if (self.resolveProperty('readOnly')) {
                     return;
                 }
+                self.fireSyntheticKeyupEvent(e);
                 self.delegateKeyUp(e);
             });
 
@@ -1485,7 +1499,9 @@
          */
         stopEditing: function() {
             if (this.cellEditor) {
-                this.cellEditor.stopEditing();
+                if (this.cellEditor.stopEditing) {
+                    this.cellEditor.stopEditing();
+                }
                 this.cellEditor = null;
             }
         },
@@ -1780,18 +1796,28 @@
          * @function
          * @instance
          * @description
-        Synthesize and fire a fin-cell-click event
-         * @param {fin-rectangle.point} cell - the cell that the click occured in
-         * @param {MouseEvent} event - the system mouse event
+        Synthesize and fire a fin-keydown event
+         * @param {keyEvent} event - the canvas event
          *
          */
-        fireCellClickEvent: function(cell, event) {
-            var clickEvent = new CustomEvent('fin-cell-click', {
-                detail: {
-                    gridCell: cell,
-                    event: event,
-                    time: Date.now()
-                }
+        fireSyntheticKeydownEvent: function(keyEvent) {
+            var clickEvent = new CustomEvent('fin-keydown', {
+                detail: keyEvent.detail
+            });
+            this.canvas.dispatchEvent(clickEvent);
+        },
+
+        /**
+         * @function
+         * @instance
+         * @description
+        Synthesize and fire a fin-keyup event
+         * @param {keyEvent} event - the canvas event
+         *
+         */
+        fireSyntheticKeyupEvent: function(keyEvent) {
+            var clickEvent = new CustomEvent('fin-keyup', {
+                detail: keyEvent.detail
             });
             this.canvas.dispatchEvent(clickEvent);
         },
@@ -1805,16 +1831,16 @@
          * @param {MouseEvent} event - the system mouse event
          *
          */
-        fireSyntheticOnCellEnterEvent: function( /* mouseEvent */ ) {
-            // var detail = {
-            //     gridCell: this.rectangles.point.create(mouseEvent.x + this.getHScrollValue(), mouseEvent.y + this.getVScrollValue()),
-            //     time: Date.now(),
-            //     grid: this
-            // };
-            // var clickEvent = new CustomEvent('fin-cell-enter', {
-            //     detail: detail
-            // });
-            // this.canvas.dispatchEvent(clickEvent);
+        fireSyntheticOnCellEnterEvent: function(mouseEvent) {
+            var detail = {
+                gridCell: this.rectangles.point.create(mouseEvent.x + this.getHScrollValue(), mouseEvent.y + this.getVScrollValue()),
+                time: Date.now(),
+                grid: this
+            };
+            var clickEvent = new CustomEvent('fin-cell-enter', {
+                detail: detail
+            });
+            this.canvas.dispatchEvent(clickEvent);
         },
 
         /**
@@ -1847,9 +1873,43 @@
          * @param {MouseEvent} event - the system mouse event
          *
          */
-        fireSyntheticDoubleClickEvent: function(mouseEvent) {
+        fireSyntheticClickEvent: function(mouseEvent) {
+            var cell = mouseEvent.gridCell;
+            var fixedColCount = this.getFixedColumnCount();
+            var fixedRowCount = this.getFixedRowCount();
+            var x = cell.x < fixedColCount ? cell.x - fixedColCount : cell.x + this.getHScrollValue() - fixedColCount;
+            var y = cell.y < fixedRowCount ? cell.y - fixedRowCount : cell.y + this.getVScrollValue() - fixedRowCount;
             var detail = {
-                gridCell: mouseEvent.gridCell.plus(this.rectangles.point.create(this.getHScrollValue() - this.getFixedColumnCount(), this.getVScrollValue() - this.getFixedRowCount())),
+                gridCell: this.rectangles.point.create(x, y),
+                mousePoint: mouseEvent.mousePoint,
+                primitiveEvent: mouseEvent,
+                time: Date.now(),
+                grid: this
+            };
+            this.getBehavior().enhanceDoubleClickEvent(detail);
+            var clickEvent = new CustomEvent('fin-click', {
+                detail: detail
+            });
+            this.canvas.dispatchEvent(clickEvent);
+        },
+
+        /**
+         * @function
+         * @instance
+         * @description
+        Synthesize and fire a fin-cell-click event
+         * @param {fin-rectangle.point} cell - the cell that the click occured in
+         * @param {MouseEvent} event - the system mouse event
+         *
+         */
+        fireSyntheticDoubleClickEvent: function(mouseEvent) {
+            var cell = mouseEvent.gridCell;
+            var fixedColCount = this.getFixedColumnCount();
+            var fixedRowCount = this.getFixedRowCount();
+            var x = cell.x < fixedColCount ? cell.x - fixedColCount : cell.x + this.getHScrollValue() - fixedColCount;
+            var y = cell.y < fixedRowCount ? cell.y - fixedRowCount : cell.y + this.getVScrollValue() - fixedRowCount;
+            var detail = {
+                gridCell: this.rectangles.point.create(x, y),
                 mousePoint: mouseEvent.mousePoint,
                 time: Date.now(),
                 grid: this

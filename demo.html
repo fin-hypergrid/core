@@ -591,20 +591,28 @@
                 }
             };
 
-            jsonGrid.addFinEventListener('fin-cell-click', function(e){
-                var cell = e.detail.gridCell;
-                if (cell.x !== 1) {
-                    return;
-                }
-                alert('fin-cell-click at (' + cell.x + ', ' + cell.y + ')');
-            });
-
             jsonGrid.addFinEventListener('fin-double-click', function(e){
                 var cell = e.detail.gridCell;
                 if (cell.x < 8) {
                     return; // lets only see console output on the final column
                 }
                 alert('fin-double-click at (' + cell.x + ', ' + cell.y + ')');
+            });
+
+            jsonGrid.addFinEventListener('fin-click', function(e){
+                var cell = e.detail.gridCell;
+                if (cell.x !== 7) {
+                    return; // lets only see console output on the final column
+                }
+                alert('fin-click at (' + cell.x + ', ' + cell.y + ')');
+            });
+
+            jsonGrid.addFinEventListener('fin-header-click', function(e){
+                var cell = e.detail.gridCell;
+                if (cell.x !== 7) {
+                    return; // lets only see console output on the final column
+                }
+                alert('fin-click at (' + cell.x + ', ' + cell.y + ')');
             });
 
             jsonGrid.addFinEventListener('fin-scroll-x', function(e){
@@ -643,7 +651,12 @@
             });
 
             jsonGrid.addFinEventListener('fin-cell-enter', function(e) {
-                console.log('fin-after-cell-enter', e);
+                var cell = e.detail.gridCell;
+                console.log('fin-cell-enter', cell.x, cell.y);
+            });
+
+            jsonGrid.addFinEventListener('fin-keydown', function(e) {
+                console.log('fin-keydown', e);
             });
 
             // // initialize our custom cell renderer

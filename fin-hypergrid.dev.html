@@ -13592,7 +13592,7 @@ div.container {
          */
         finclick: function(e) {
             this.mouseLocation = this.getLocal(e);
-            this.dispatchEvent(new CustomEvent('fin-click', {
+            this.dispatchEvent(new CustomEvent('fin-canvas-click', {
                 detail: {
                     mouse: this.mouseLocation,
                     keys: this.currentKeys
@@ -13825,7 +13825,7 @@ div.container {
                 this.currentKeys.push(keyChar);
             }
             //console.log(keyChar, e.keyCode);
-            this.dispatchEvent(new CustomEvent('fin-keydown', {
+            this.dispatchEvent(new CustomEvent('fin-canvas-keydown', {
                 detail: {
                     alt: e.altKey,
                     ctrl: e.ctrlKey,
@@ -13858,7 +13858,7 @@ div.container {
             this.repeatKeyCount = 0;
             this.repeatKey = null;
             this.repeatKeyStartTime = 0;
-            this.dispatchEvent(new CustomEvent('fin-keyup', {
+            this.dispatchEvent(new CustomEvent('fin-canvas-keyup', {
                 detail: {
                     alt: e.altKey,
                     ctrl: e.ctrlKey,
@@ -23018,7 +23018,7 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          */
         initializeFeatureChain: function(grid) {
             this.setNextFeature(document.createElement('fin-hypergrid-feature-key-paging'));
-            this.setNextFeature(document.createElement('fin-hypergrid-feature-cell-click'));
+            //this.setNextFeature(document.createElement('fin-hypergrid-feature-cell-click'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-overlay'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-column-resizing'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-row-resizing'));
@@ -26648,6 +26648,19 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
          * @function
          * @instance
          * @description
+         answer if this field is a computed field
+         * @param {string} columnId
+         */
+        isComputedField: function(columnId) {
+            var row = this.data[0];
+            var first = row[columnId];
+            return (typeof first === 'function');
+        },
+
+        /**
+         * @function
+         * @instance
+         * @description
          toggle the sort at colIndex to it's next state
          * @param {integer} columnIndex - the column index of interest
          * @param {integer} incrementIt - integer amount to advance the sort state (default 1)
@@ -26678,25 +26691,57 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
                 }
                 this.data = newData;
             } else if (sortStateIndex > 0) {
+                var theSorter;
                 if (this.isValidIdentifer(colName)) {
-                    var theSorter = eval('(function (a, b) {' + /* jshint ignore:line  */
-                        '  if (a.' + colName + ' === b.' + colName + ')' +
-                        '    return a.__i - b.__i;' +
-                        '  if (a.' + colName + ' < b.' + colName + ')' +
-                        '    return -1;' +
-                        '  return 1;' +
-                        '})');
+                    if (this.isComputedField(colName)) {
+                        theSorter = eval('(function (a, b) {' + /* jshint ignore:line  */
+                            '  var first = a.' + colName + '();' +
+                            '  var second = b.' + colName + '();' +
+                            '  if (first === second) {' +
+                            '    return a.__i - b.__i;};' +
+                            '  if (first < second) {' +
+                            '    return -1;};' +
+                            '  return 1;' +
+                            '})');
+                    } else {
+                        theSorter = eval('(function (a, b) {' + /* jshint ignore:line  */
+                            '  var first = a.' + colName + ';' +
+                            '  var second = b.' + colName + ';' +
+                            '  if (first === second) {' +
+                            '    return a.__i - b.__i;};' +
+                            '  if (first < second) {' +
+                            '    return -1;};' +
+                            '  return 1;' +
+                            '})');
+                    }
                     this.data.sort(theSorter);
                 } else {
-                    this.data.sort(function(a, b) {
-                        if (a[colName] === b[colName]) {
-                            return a.__i - b.__i;
-                        }
-                        if (a[colName] < b[colName]) {
-                            return -1;
-                        }
-                        return 1;
-                    });
+                    if (this.isComputedField(colName)) {
+                        theSorter = function(a, b) {
+                            var first = a[colName]();
+                            var second = b[colName]();
+                            if (first === second) {
+                                return a.__i - b.__i;
+                            }
+                            if (first < second) {
+                                return -1;
+                            }
+                            return 1;
+                        };
+                    } else {
+                        theSorter = function(a, b) {
+                            var first = a[colName];
+                            var second = b[colName];
+                            if (first === second) {
+                                return a.__i - b.__i;
+                            }
+                            if (first < second) {
+                                return -1;
+                            }
+                            return 1;
+                        };
+                    }
+                    this.data.sort();
                 }
             }
             if (sortStateIndex === 2) {
@@ -32418,6 +32463,18 @@ fin-vampire-bar {
                 self.delegateMouseDown(mouseEvent);
             });
 
+
+            this.addFinEventListener('fin-canvas-click', function(e) {
+                if (self.resolveProperty('readOnly')) {
+                    return;
+                }
+                self.stopEditing();
+                var mouse = e.detail.mouse;
+                var mouseEvent = self.getGridCellFromMousePoint(mouse);
+                mouseEvent.primitiveEvent = e;
+                self.fireSyntheticClickEvent(mouseEvent);
+            });
+
             this.addFinEventListener('fin-mouseup', function(e) {
                 if (self.resolveProperty('readOnly')) {
                     return;
@@ -32456,17 +32513,19 @@ fin-vampire-bar {
                 self.delegateMouseDrag(mouseEvent);
             });
 
-            this.addFinEventListener('fin-keydown', function(e) {
+            this.addFinEventListener('fin-canvas-keydown', function(e) {
                 if (self.resolveProperty('readOnly')) {
                     return;
                 }
+                self.fireSyntheticKeydownEvent(e);
                 self.delegateKeyDown(e);
             });
 
-            this.addFinEventListener('fin-keyup', function(e) {
+            this.addFinEventListener('fin-canvas-keyup', function(e) {
                 if (self.resolveProperty('readOnly')) {
                     return;
                 }
+                self.fireSyntheticKeyupEvent(e);
                 self.delegateKeyUp(e);
             });
 
@@ -32759,7 +32818,9 @@ fin-vampire-bar {
          */
         stopEditing: function() {
             if (this.cellEditor) {
-                this.cellEditor.stopEditing();
+                if (this.cellEditor.stopEditing) {
+                    this.cellEditor.stopEditing();
+                }
                 this.cellEditor = null;
             }
         },
@@ -33054,18 +33115,28 @@ fin-vampire-bar {
          * @function
          * @instance
          * @description
-        Synthesize and fire a fin-cell-click event
-         * @param {fin-rectangle.point} cell - the cell that the click occured in
-         * @param {MouseEvent} event - the system mouse event
+        Synthesize and fire a fin-keydown event
+         * @param {keyEvent} event - the canvas event
          *
          */
-        fireCellClickEvent: function(cell, event) {
-            var clickEvent = new CustomEvent('fin-cell-click', {
-                detail: {
-                    gridCell: cell,
-                    event: event,
-                    time: Date.now()
-                }
+        fireSyntheticKeydownEvent: function(keyEvent) {
+            var clickEvent = new CustomEvent('fin-keydown', {
+                detail: keyEvent.detail
+            });
+            this.canvas.dispatchEvent(clickEvent);
+        },
+
+        /**
+         * @function
+         * @instance
+         * @description
+        Synthesize and fire a fin-keyup event
+         * @param {keyEvent} event - the canvas event
+         *
+         */
+        fireSyntheticKeyupEvent: function(keyEvent) {
+            var clickEvent = new CustomEvent('fin-keyup', {
+                detail: keyEvent.detail
             });
             this.canvas.dispatchEvent(clickEvent);
         },
@@ -33079,16 +33150,16 @@ fin-vampire-bar {
          * @param {MouseEvent} event - the system mouse event
          *
          */
-        fireSyntheticOnCellEnterEvent: function( /* mouseEvent */ ) {
-            // var detail = {
-            //     gridCell: this.rectangles.point.create(mouseEvent.x + this.getHScrollValue(), mouseEvent.y + this.getVScrollValue()),
-            //     time: Date.now(),
-            //     grid: this
-            // };
-            // var clickEvent = new CustomEvent('fin-cell-enter', {
-            //     detail: detail
-            // });
-            // this.canvas.dispatchEvent(clickEvent);
+        fireSyntheticOnCellEnterEvent: function(mouseEvent) {
+            var detail = {
+                gridCell: this.rectangles.point.create(mouseEvent.x + this.getHScrollValue(), mouseEvent.y + this.getVScrollValue()),
+                time: Date.now(),
+                grid: this
+            };
+            var clickEvent = new CustomEvent('fin-cell-enter', {
+                detail: detail
+            });
+            this.canvas.dispatchEvent(clickEvent);
         },
 
         /**
@@ -33121,9 +33192,43 @@ fin-vampire-bar {
          * @param {MouseEvent} event - the system mouse event
          *
          */
-        fireSyntheticDoubleClickEvent: function(mouseEvent) {
+        fireSyntheticClickEvent: function(mouseEvent) {
+            var cell = mouseEvent.gridCell;
+            var fixedColCount = this.getFixedColumnCount();
+            var fixedRowCount = this.getFixedRowCount();
+            var x = cell.x < fixedColCount ? cell.x - fixedColCount : cell.x + this.getHScrollValue() - fixedColCount;
+            var y = cell.y < fixedRowCount ? cell.y - fixedRowCount : cell.y + this.getVScrollValue() - fixedRowCount;
             var detail = {
-                gridCell: mouseEvent.gridCell.plus(this.rectangles.point.create(this.getHScrollValue() - this.getFixedColumnCount(), this.getVScrollValue() - this.getFixedRowCount())),
+                gridCell: this.rectangles.point.create(x, y),
+                mousePoint: mouseEvent.mousePoint,
+                primitiveEvent: mouseEvent,
+                time: Date.now(),
+                grid: this
+            };
+            this.getBehavior().enhanceDoubleClickEvent(detail);
+            var clickEvent = new CustomEvent('fin-click', {
+                detail: detail
+            });
+            this.canvas.dispatchEvent(clickEvent);
+        },
+
+        /**
+         * @function
+         * @instance
+         * @description
+        Synthesize and fire a fin-cell-click event
+         * @param {fin-rectangle.point} cell - the cell that the click occured in
+         * @param {MouseEvent} event - the system mouse event
+         *
+         */
+        fireSyntheticDoubleClickEvent: function(mouseEvent) {
+            var cell = mouseEvent.gridCell;
+            var fixedColCount = this.getFixedColumnCount();
+            var fixedRowCount = this.getFixedRowCount();
+            var x = cell.x < fixedColCount ? cell.x - fixedColCount : cell.x + this.getHScrollValue() - fixedColCount;
+            var y = cell.y < fixedRowCount ? cell.y - fixedRowCount : cell.y + this.getVScrollValue() - fixedRowCount;
+            var detail = {
+                gridCell: this.rectangles.point.create(x, y),
                 mousePoint: mouseEvent.mousePoint,
                 time: Date.now(),
                 grid: this

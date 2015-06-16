@@ -551,7 +551,7 @@ columnAutosizing|true/false|enable column autosizing
 ```
 # Hypergrid events
 
-You can listen to various events that occur within the Hypergrid.  Take note in order to attach listeners you must call 'addFinListener' on the grid.  Each event has a detail object with various bits of information about the event.  Please contact us if there are more events you need and we'll be happy to put them in.
+You can listen to various events that occur within the Hypergrid.  Take note in order to attach listeners you must call 'addFinListener' on the grid.  Each event has a detail object with various bits of information about the event.  Please contact us if there are more events you need and we'll be happy to put them in.  When the X and Y values reported by the accompanying event object are negative this means the user has clicked int the fixed areas.
 
 event|description
 -----|-----------
@@ -560,10 +560,12 @@ fin-after-cell-edit|this is fired just after a cell edit occurs
 fin-selection-changed|this is fired whenever the selection changes
 fin-scroll-x|this is fired on any scroll in the horizontal dimension
 fin-scroll-y|this is fired on any scroll in the vertical dimension
-fin-cell-click|this is fired on cell click
 fin-grid-rendered|this is fired after a repaint occurs
-fin-double-click|fired on double click
-fin-cell-enter|this is fired when the mouse enters a new cell
+fin-click|this is fired on cell click
+fin-double-click|this is fired on double click
+fin-cell-enter|this is fired when the mouse enters a new cell,
+fin-keydown|this is fired on a keydown event
+fin-keyup|this is fired on a keyup event
 
 ```
     var jsonModel = document.querySelection('#json-grid');

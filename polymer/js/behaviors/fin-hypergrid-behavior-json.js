@@ -474,6 +474,19 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
          * @function
          * @instance
          * @description
+         answer if this field is a computed field
+         * @param {string} columnId
+         */
+        isComputedField: function(columnId) {
+            var row = this.data[0];
+            var first = row[columnId];
+            return (typeof first === 'function');
+        },
+
+        /**
+         * @function
+         * @instance
+         * @description
          toggle the sort at colIndex to it's next state
          * @param {integer} columnIndex - the column index of interest
          * @param {integer} incrementIt - integer amount to advance the sort state (default 1)
@@ -504,25 +517,57 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
                 }
                 this.data = newData;
             } else if (sortStateIndex > 0) {
+                var theSorter;
                 if (this.isValidIdentifer(colName)) {
-                    var theSorter = eval('(function (a, b) {' + /* jshint ignore:line  */
-                        '  if (a.' + colName + ' === b.' + colName + ')' +
-                        '    return a.__i - b.__i;' +
-                        '  if (a.' + colName + ' < b.' + colName + ')' +
-                        '    return -1;' +
-                        '  return 1;' +
-                        '})');
+                    if (this.isComputedField(colName)) {
+                        theSorter = eval('(function (a, b) {' + /* jshint ignore:line  */
+                            '  var first = a.' + colName + '();' +
+                            '  var second = b.' + colName + '();' +
+                            '  if (first === second) {' +
+                            '    return a.__i - b.__i;};' +
+                            '  if (first < second) {' +
+                            '    return -1;};' +
+                            '  return 1;' +
+                            '})');
+                    } else {
+                        theSorter = eval('(function (a, b) {' + /* jshint ignore:line  */
+                            '  var first = a.' + colName + ';' +
+                            '  var second = b.' + colName + ';' +
+                            '  if (first === second) {' +
+                            '    return a.__i - b.__i;};' +
+                            '  if (first < second) {' +
+                            '    return -1;};' +
+                            '  return 1;' +
+                            '})');
+                    }
                     this.data.sort(theSorter);
                 } else {
-                    this.data.sort(function(a, b) {
-                        if (a[colName] === b[colName]) {
-                            return a.__i - b.__i;
-                        }
-                        if (a[colName] < b[colName]) {
-                            return -1;
-                        }
-                        return 1;
-                    });
+                    if (this.isComputedField(colName)) {
+                        theSorter = function(a, b) {
+                            var first = a[colName]();
+                            var second = b[colName]();
+                            if (first === second) {
+                                return a.__i - b.__i;
+                            }
+                            if (first < second) {
+                                return -1;
+                            }
+                            return 1;
+                        };
+                    } else {
+                        theSorter = function(a, b) {
+                            var first = a[colName];
+                            var second = b[colName];
+                            if (first === second) {
+                                return a.__i - b.__i;
+                            }
+                            if (first < second) {
+                                return -1;
+                            }
+                            return 1;
+                        };
+                    }
+                    this.data.sort();
                 }
             }
             if (sortStateIndex === 2) {
