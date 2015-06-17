@@ -764,11 +764,11 @@
          * @function
          * @instance
          * @description
-         a specific cell was clicked, you've been notified
+         a specific cell was double clicked, you've been notified
          * @param {rectangle.point} cell - point of cell coordinates
          * @param {Object} event - all event information
          */
-        cellClicked: function(cell, event) {
+        cellDoubleClicked: function(cell, event) {
             var rowNum = cell.y - this.scrollPositionY;
             var rows = this.block.Z[1].n_[rowNum];
             var colId = this.getColumnId(cell.x);
@@ -779,7 +779,6 @@
                 row: rows
             };
             this.sendMessage(colClick);
-            this.grid.fireCellClickEvent(cell, event);
         },
 
         /**

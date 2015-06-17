@@ -208,7 +208,19 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          * @param {Object} event - all event information
          */
         cellClicked: function(cell, event) {
-            this.grid.fireCellClickEvent(cell, event);
+
+        },
+
+        /**
+         * @function
+         * @instance
+         * @description
+         a specific cell was le doubclicked, you've been notified
+         * @param {rectangle.point} cell - point of cell coordinates
+         * @param {Object} event - all event information
+         */
+        cellDoubleClicked: function(cell, event) {
+
         },
 
         /**

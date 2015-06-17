@@ -1906,6 +1906,7 @@
          */
         fireSyntheticDoubleClickEvent: function(mouseEvent) {
             var cell = mouseEvent.gridCell;
+            var behavior = this.getBehavior();
             var fixedColCount = this.getFixedColumnCount();
             var fixedRowCount = this.getFixedRowCount();
             var x = cell.x < fixedColCount ? cell.x - fixedColCount : cell.x + this.getHScrollValue() - fixedColCount;
@@ -1916,10 +1917,11 @@
                 time: Date.now(),
                 grid: this
             };
-            this.getBehavior().enhanceDoubleClickEvent(mouseEvent);
+            behavior.enhanceDoubleClickEvent(mouseEvent);
             var clickEvent = new CustomEvent('fin-double-click', {
                 detail: detail
             });
+            behavior.cellDoubleClicked(cell, mouseEvent);
             this.canvas.dispatchEvent(clickEvent);
         },
 
