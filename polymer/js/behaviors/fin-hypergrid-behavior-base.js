@@ -207,7 +207,7 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          * @param {rectangle.point} cell - point of cell coordinates
          * @param {Object} event - all event information
          */
-        cellClicked: function(cell, event) {
+        cellClicked: function( /* cell, event */ ) {
 
         },
 
@@ -219,7 +219,7 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          * @param {rectangle.point} cell - point of cell coordinates
          * @param {Object} event - all event information
          */
-        cellDoubleClicked: function(cell, event) {
+        cellDoubleClicked: function( /* cell, event */ ) {
 
         },
 

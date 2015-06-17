@@ -22900,8 +22900,20 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          * @param {rectangle.point} cell - point of cell coordinates
          * @param {Object} event - all event information
          */
-        cellClicked: function(cell, event) {
-            this.grid.fireCellClickEvent(cell, event);
+        cellClicked: function( /* cell, event */ ) {
+
+        },
+
+        /**
+         * @function
+         * @instance
+         * @description
+         a specific cell was le doubclicked, you've been notified
+         * @param {rectangle.point} cell - point of cell coordinates
+         * @param {Object} event - all event information
+         */
+        cellDoubleClicked: function( /* cell, event */ ) {
+
         },
 
         /**
@@ -23925,7 +23937,8 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          * @param {integer} numberOfFixedColumns - the integer count of how many columns to be fixed
          */
         setFixedColumnCount: function(numberOfFixedColumns) {
-            this.tableState.fixedColumnCount = numberOfFixedColumns;
+            var tableState = this.getState();
+            tableState.fixedColumnCount = numberOfFixedColumns;
         },
 
         /**
@@ -26338,14 +26351,14 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
          * #### returns: [fin-hypergrid-cell-provider](module-._cell-provider.html)
          */
         createCellProvider: function() {
-            var self = this;
+            var tableState = this.getState();
             var provider = document.createElement('fin-hypergrid-cell-provider');
             provider.getTopLeftCell = function(config) {
                 var empty = this.cellCache.emptyCellRenderer;
                 var render = this.cellCache.simpleCellRenderer;
                 empty.config = config;
                 render.config = config;
-                if (self.fixedColumnCount > 0) {
+                if (tableState.fixedColumnCount > 0) {
                     return render;
                 } else {
                     return empty;
@@ -28460,11 +28473,11 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
          * @function
          * @instance
          * @description
-         a specific cell was clicked, you've been notified
+         a specific cell was double clicked, you've been notified
          * @param {rectangle.point} cell - point of cell coordinates
          * @param {Object} event - all event information
          */
-        cellClicked: function(cell, event) {
+        cellDoubleClicked: function(cell /*, event */ ) {
             var rowNum = cell.y - this.scrollPositionY;
             var rows = this.block.Z[1].n_[rowNum];
             var colId = this.getColumnId(cell.x);
@@ -28475,7 +28488,6 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
                 row: rows
             };
             this.sendMessage(colClick);
-            this.grid.fireCellClickEvent(cell, event);
         },
 
         /**
@@ -33345,6 +33357,7 @@ fin-vampire-bar {
          */
         fireSyntheticDoubleClickEvent: function(mouseEvent) {
             var cell = mouseEvent.gridCell;
+            var behavior = this.getBehavior();
             var fixedColCount = this.getFixedColumnCount();
             var fixedRowCount = this.getFixedRowCount();
             var x = cell.x < fixedColCount ? cell.x - fixedColCount : cell.x + this.getHScrollValue() - fixedColCount;
@@ -33355,10 +33368,11 @@ fin-vampire-bar {
                 time: Date.now(),
                 grid: this
             };
-            this.getBehavior().enhanceDoubleClickEvent(mouseEvent);
+            behavior.enhanceDoubleClickEvent(mouseEvent);
             var clickEvent = new CustomEvent('fin-double-click', {
                 detail: detail
             });
+            behavior.cellDoubleClicked(cell, mouseEvent);
             this.canvas.dispatchEvent(clickEvent);
         },
 

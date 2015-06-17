@@ -91,7 +91,6 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
          * #### returns: [fin-hypergrid-cell-provider](module-._cell-provider.html)
          */
         createCellProvider: function() {
-            var self = this;
             var tableState = this.getState();
             var provider = document.createElement('fin-hypergrid-cell-provider');
             provider.getTopLeftCell = function(config) {
