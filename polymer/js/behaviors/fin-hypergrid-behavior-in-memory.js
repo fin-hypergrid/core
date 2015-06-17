@@ -90,6 +90,9 @@ This is a very rough in memory data source example.  fin-hypergrid-behavior-in-m
                 sorts: [],
                 sortLookup: {},
                 sorted: {},
+
+                fixedColumnCount: 0,
+                fixedRowCount: 1,
             };
         },
         /**

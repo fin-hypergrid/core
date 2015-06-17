@@ -69,6 +69,9 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
                 columnAutosized: [],
 
                 sorted: [],
+
+                fixedColumnCount: 0,
+                fixedRowCount: 1
             };
         },
         /**

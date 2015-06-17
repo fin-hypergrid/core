@@ -231,7 +231,7 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          */
         initColumnIndexes: function(tableState) {
             var columnCount = this.getColumnCount();
-            var fixedColumnCount = this.getFixedColumnCount();
+            var fixedColumnCount = this.getState().fixedColumnCount;
             var i;
             for (i = 0; i < columnCount; i++) {
                 tableState.columnIndexes[i] = i;
@@ -261,7 +261,7 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          */
         swapColumns: function(src, tar) {
             var tableState = this.getState();
-            var fixedColumnCount = this.getFixedColumnCount();
+            var fixedColumnCount = this.getState().fixedColumnCount;
             var indexes = tableState.columnIndexes;
             if (indexes.length === 0) {
                 this.initColumnIndexes(tableState);
@@ -282,7 +282,7 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          */
         translateColumnIndex: function(x) {
             var tableState = this.getState();
-            var fixedColumnCount = this.getFixedColumnCount();
+            var fixedColumnCount = tableState.fixedColumnCount;
             var indexes = tableState.columnIndexes;
             if (indexes.length === 0) {
                 return x;
@@ -495,7 +495,7 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          */
         _getColumnCount: function() {
             var tableState = this.getState();
-            var fixedColumnCount = this.getFixedColumnCount();
+            var fixedColumnCount = this.getState().fixedColumnCount;
             return this.getColumnCount() - tableState.hiddenColumns.length - fixedColumnCount;
         },
 
@@ -801,7 +801,7 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          * @param {Object} mouse - event details
          */
         topLeftClicked: function(grid, mouse) {
-            if (mouse.gridCell.x < this.getFixedColumnCount()) {
+            if (mouse.gridCell.x < this.getState().fixedColumnCount) {
                 this.fixedRowClicked(grid, mouse);
             } else {
                 console.log('top Left clicked: ' + mouse.gridCell.x, mouse);
@@ -817,7 +817,7 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          * @param {Object} mouse - event details
          */
         _fixedRowClicked: function(grid, mouse) {
-            var x = this.translateColumnIndex(mouse.gridCell.x - this.getFixedColumnCount());
+            var x = this.translateColumnIndex(mouse.gridCell.x - this.getState().fixedColumnCount);
             var translatedPoint = this.grid.rectangles.point.create(this.scrollPositionX + x, mouse.gridCell.y);
             mouse.gridCell = translatedPoint;
             this.fixedRowClicked(grid, mouse);
@@ -1099,7 +1099,7 @@ it contains all code/data that's necessary for easily implementing a virtual dat
             this.insureColumnIndexesAreInitialized();
             var tableState = this.getState();
             var columnCount = tableState.columnIndexes.length;
-            var fixedColumnCount = this.getFixedColumnCount();
+            var fixedColumnCount = this.getState().fixedColumnCount;
             var labels = [];
             for (var i = 0; i < columnCount; i++) {
                 var id = tableState.columnIndexes[i];
@@ -1148,7 +1148,7 @@ it contains all code/data that's necessary for easily implementing a virtual dat
         setColumnDescriptors: function(list) {
             //assumes there is one row....
             var tableState = this.getState();
-            var fixedColumnCount = this.getFixedColumnCount();
+            var fixedColumnCount = this.getState().fixedColumnCount;
 
             var columnCount = list.length;
             var indexes = [];
