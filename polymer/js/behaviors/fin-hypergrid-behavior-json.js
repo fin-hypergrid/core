@@ -70,7 +70,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
 
                 sorted: [],
 
-                fixedColumnCount: 0,
+                fixedColumnCount: 1,
                 fixedRowCount: 1
             };
         },

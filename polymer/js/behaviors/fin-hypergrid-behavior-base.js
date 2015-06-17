@@ -817,7 +817,7 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          * @param {Object} mouse - event details
          */
         _fixedRowClicked: function(grid, mouse) {
-            var x = this.translateColumnIndex(mouse.gridCell.x - this.getState().fixedColumnCount);
+            var x = this.translateColumnIndex(mouse.gridCell.x - this.getFixedColumnCount());
             var translatedPoint = this.grid.rectangles.point.create(this.scrollPositionX + x, mouse.gridCell.y);
             mouse.gridCell = translatedPoint;
             this.fixedRowClicked(grid, mouse);
