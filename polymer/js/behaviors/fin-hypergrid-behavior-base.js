@@ -79,18 +79,6 @@ it contains all code/data that's necessary for easily implementing a virtual dat
         featureChain: null,
 
         /**
-         * @property {integer} fixedColumnCount - the number of fixed columns
-         * @instance
-         */
-        fixedColumnCount: 0,
-
-        /**
-         * @property {integer} fixedRowCount - the number of fixed rows
-         * @instance
-         */
-        fixedRowCount: 1,
-
-        /**
          * @function
          * @instance
          * @description
@@ -129,7 +117,6 @@ it contains all code/data that's necessary for easily implementing a virtual dat
             this.renderedRowCount = 60;
             this.dataUpdates = {}; //for overriding with edit values;
             //this.initColumnIndexes();
-            this.fixedColumnCount = 0;
         },
 
         /**
@@ -178,6 +165,9 @@ it contains all code/data that's necessary for easily implementing a virtual dat
                 fixedRowHeights: {},
                 columnProperties: [],
                 columnAutosized: [],
+
+                fixedColumnCount: 0,
+                fixedRowCount: 1,
             };
         },
 
@@ -259,14 +249,15 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          */
         swapColumns: function(src, tar) {
             var tableState = this.getState();
+            var fixedColumnCount = this.getFixedColumnCount();
             var indexes = tableState.columnIndexes;
             if (indexes.length === 0) {
                 this.initColumnIndexes(tableState);
                 indexes = tableState.columnIndexes;
             }
-            var tmp = indexes[src + this.fixedColumnCount];
-            indexes[src + this.fixedColumnCount] = indexes[tar + this.fixedColumnCount];
-            indexes[tar + this.fixedColumnCount] = tmp;
+            var tmp = indexes[src + fixedColumnCount];
+            indexes[src + fixedColumnCount] = indexes[tar + fixedColumnCount];
+            indexes[tar + fixedColumnCount] = tmp;
         },
 
         /**
@@ -279,11 +270,12 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          */
         translateColumnIndex: function(x) {
             var tableState = this.getState();
+            var fixedColumnCount = this.getFixedColumnCount();
             var indexes = tableState.columnIndexes;
             if (indexes.length === 0) {
                 return x;
             }
-            return indexes[x + this.fixedColumnCount];
+            return indexes[x + fixedColumnCount];
         },
 
         /**
@@ -491,7 +483,8 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          */
         _getColumnCount: function() {
             var tableState = this.getState();
-            return this.getColumnCount() - tableState.hiddenColumns.length - this.fixedColumnCount;
+            var fixedColumnCount = this.getFixedColumnCount();
+            return this.getColumnCount() - tableState.hiddenColumns.length - fixedColumnCount;
         },
 
         /**
@@ -796,7 +789,7 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          * @param {Object} mouse - event details
          */
         topLeftClicked: function(grid, mouse) {
-            if (mouse.gridCell.x < this.fixedColumnCount) {
+            if (mouse.gridCell.x < this.getFixedColumnCount()) {
                 this.fixedRowClicked(grid, mouse);
             } else {
                 console.log('top Left clicked: ' + mouse.gridCell.x, mouse);
@@ -1094,10 +1087,11 @@ it contains all code/data that's necessary for easily implementing a virtual dat
             this.insureColumnIndexesAreInitialized();
             var tableState = this.getState();
             var columnCount = tableState.columnIndexes.length;
+            var fixedColumnCount = this.getFixedColumnCount();
             var labels = [];
             for (var i = 0; i < columnCount; i++) {
                 var id = tableState.columnIndexes[i];
-                if (id >= this.fixedColumnCount) {
+                if (id >= fixedColumnCount) {
                     labels.push({
                         id: id,
                         label: this.getHeader(id),
@@ -1141,16 +1135,18 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          */
         setColumnDescriptors: function(list) {
             //assumes there is one row....
+            var tableState = this.getState();
+            var fixedColumnCount = this.getFixedColumnCount();
+
             var columnCount = list.length;
             var indexes = [];
             var i;
-            for (i = 0; i < this.fixedColumnCount; i++) {
+            for (i = 0; i < fixedColumnCount; i++) {
                 indexes.push(i);
             }
             for (i = 0; i < columnCount; i++) {
                 indexes.push(list[i].id);
             }
-            var tableState = this.getState();
             tableState.columnIndexes = indexes;
             this.changed();
         },
@@ -1224,7 +1220,8 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          * #### returns: integer
          */
         getFixedColumnCount: function() {
-            return this.fixedColumnCount;
+            var tableState = this.getState();
+            return tableState.fixedColumnCount || 0;
         },
 
         /**
@@ -1235,7 +1232,8 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          * @param {integer} numberOfFixedColumns - the integer count of how many columns to be fixed
          */
         setFixedColumnCount: function(numberOfFixedColumns) {
-            this.fixedColumnCount = numberOfFixedColumns;
+            var tableState = this.getState();
+            tableState.fixedColumnCount = numberOfFixedColumns;
         },
 
         /**
@@ -1246,7 +1244,7 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          * #### returns: integer
          */
         getFixedRowCount: function() {
-            return this.fixedRowCount;
+            return this.tableState.fixedRowCount || 0;
         },
 
         /**
@@ -1257,7 +1255,7 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          * @param {integer} numberOfFixedRows - the count of rows to be set fixed
          */
         setFixedRowCount: function(numberOfFixedRows) {
-            this.fixedRowCount = numberOfFixedRows;
+            this.tableState.fixedRowCount = numberOfFixedRows;
         },
 
         /**

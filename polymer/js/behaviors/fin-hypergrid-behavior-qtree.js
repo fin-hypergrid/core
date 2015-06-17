@@ -978,6 +978,9 @@
         try autosizing the hierarchy column
         */
         autosizeHierarchyColumn: function() {
+            if (!this.grid) {
+                return false; //too early
+            }
             if (this.grid.resolveProperty('columnAutosizing') === false) {
                 return;
             }

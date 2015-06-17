@@ -22,13 +22,13 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
          * @property {Array} headers - the list of header labels
          * @instance
          */
-        headers: [],
+        headers: null,
 
         /**
          * @property {Array} fields - the list of fields on the underlying data objects <> columns
          * @instance
          */
-        fields: [],
+        fields: null,
 
         /**
          * @property {Array} totals - the totals row values
@@ -92,13 +92,14 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
          */
         createCellProvider: function() {
             var self = this;
+            var tableState = this.getState();
             var provider = document.createElement('fin-hypergrid-cell-provider');
             provider.getTopLeftCell = function(config) {
                 var empty = this.cellCache.emptyCellRenderer;
                 var render = this.cellCache.simpleCellRenderer;
                 empty.config = config;
                 render.config = config;
-                if (self.fixedColumnCount > 0) {
+                if (tableState.fixedColumnCount > 0) {
                     return render;
                 } else {
                     return empty;
@@ -188,7 +189,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         * #### returns: Array
         */
         getHeaders: function() {
-            if (this.headers.length === 0) {
+            if (!this.headers || this.headers.length === 0) {
                 this.setHeaders(this.getDefaultHeaders());
             }
             return this.headers;
@@ -203,7 +204,8 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         * @param {integer} x - the column index of interest
         */
         getHeader: function(x /*, y*/ ) {
-            return this.headers[x];
+            var headers = this.getHeaders();
+            return headers[x];
         },
 
         /**
@@ -259,7 +261,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         * #### returns: Array
         */
         getFields: function() {
-            if (this.fields.length === 0) {
+            if (!this.fields || this.fields.length === 0) {
                 this.setFields(this.getDefaultFields());
             }
             return this.fields;
@@ -288,9 +290,9 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
             if (this.data && this.data.length === 0) {
                 return [];
             }
-            var fields = Object.getOwnPropertyNames(this.data[0]).filter(function(e) {
+            var fields = [].concat(Object.getOwnPropertyNames(this.data[0]).filter(function(e) {
                 return e.substr(0, 2) !== '__';
-            });
+            }));
             return fields;
         },
 
