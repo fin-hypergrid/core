@@ -58,13 +58,7 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          * @property {object} tableState - memento for the user configured visual properties of the table
          * @instance
          */
-        tableState: {},
-
-        /**
-         * @property {object} columnProperties - a hook to put fgcolor, bgcolor, font for a column if no cell properties are available
-         * @instance
-         */
-        columnProperties: {},
+        tableState: null,
 
         /**
          * @property {fin-hypergrid} grid - my instance of hypergrid
@@ -95,18 +89,6 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          * @instance
          */
         fixedRowCount: 1,
-
-        /**
-         * @property {array} columnAutosized - boolean vector of which columns have been autosized
-         * @instance
-         */
-        columnAutosized: [],
-
-        /**
-         * @property {array} fixedColumnAutosized - boolean vector of which fixed columns have been autosized
-         * @instance
-         */
-        fixedColumnAutosized: [],
 
         /**
          * @function
@@ -145,23 +127,74 @@ it contains all code/data that's necessary for easily implementing a virtual dat
             this.scrollPositionY = 0;
             this.renderedColumnCount = 30;
             this.renderedRowCount = 60;
-            this.tableState = {
+            this.dataUpdates = {}; //for overriding with edit values;
+            //this.initColumnIndexes();
+            this.fixedColumnCount = 0;
+        },
+
+        /**
+         * @function
+         * @instance
+         * @description
+         getter for a [Memento](http://c2.com/cgi/wiki?MementoPattern) Object
+         * #### returns: Object
+         */
+        getState: function() {
+            if (!this.tableState) {
+                this.tableState = this.getDefaultState();
+                this.initColumnIndexes(this.tableState);
+            }
+            return this.tableState;
+        },
+
+        /**
+         * @function
+         * @instance
+         * @description
+         clear all table state
+         */
+        clearState: function() {
+            this.tableState = null;
+        },
+
+        /**
+         * @function
+         * @instance
+         * @description
+         create a default empty tablestate
+         * #### returns: Object
+         */
+        getDefaultState: function() {
+            return {
                 columnIndexes: [],
                 fixedColumnIndexes: [],
                 hiddenColumns: [],
 
                 columnWidths: [],
                 fixedColumnWidths: [],
+                fixedColumnAutosized: [],
 
                 rowHeights: {},
                 fixedRowHeights: {},
+                columnProperties: [],
+                columnAutosized: [],
             };
+        },
 
-            this.dataUpdates = {}; //for overriding with edit values;
-            //this.initColumnIndexes();
-            this.fixedColumnCount = 0;
-            this.columnAutosized = [];
-            this.fixedColumnAutosized = [];
+        /**
+         * @function
+         * @instance
+         * @description
+         setter for a [Memento](http://c2.com/cgi/wiki?MementoPattern) Object
+         * @param {Object} state - [Memento](http://c2.com/cgi/wiki?MementoPattern) Object
+         */
+        setState: function(state) {
+            var tableState = this.getState();
+            for (var key in state) {
+                if (state.hasOwnProperty(key)) {
+                    tableState[key] = state[key];
+                }
+            }
         },
 
         /**
@@ -174,32 +207,6 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          */
         resolveProperty: function(key) {
             return this.grid.resolveProperty(key);
-        },
-
-        /**
-         * @function
-         * @instance
-         * @description
-         getter for a [Memento](http://c2.com/cgi/wiki?MementoPattern) Object
-         * #### returns: Object
-         */
-        getState: function() {
-            return this.tableState;
-        },
-
-        /**
-         * @function
-         * @instance
-         * @description
-         setter for a [Memento](http://c2.com/cgi/wiki?MementoPattern) Object
-         * @param {Object} state - [Memento](http://c2.com/cgi/wiki?MementoPattern) Object
-         */
-        setState: function(state) {
-            for (var key in state) {
-                if (state.hasOwnProperty(key)) {
-                    this.tableState[key] = state[key];
-                }
-            }
         },
 
         /**
@@ -220,15 +227,15 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          * @description
          reset both fixed and normal column indexes, this is will cause columns to display in their true order
          */
-        initColumnIndexes: function() {
-            var columnCount = this._getColumnCount();
+        initColumnIndexes: function(tableState) {
+            var columnCount = this.getColumnCount();
             var fixedColumnCount = this.getFixedColumnCount();
             var i;
             for (i = 0; i < columnCount; i++) {
-                this.tableState.columnIndexes[i] = i;
+                tableState.columnIndexes[i] = i;
             }
             for (i = 0; i < fixedColumnCount; i++) {
-                this.tableState.fixedColumnIndexes[i] = i;
+                tableState.fixedColumnIndexes[i] = i;
             }
         },
 
@@ -251,10 +258,11 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          * @param {integer} tar - column index
          */
         swapColumns: function(src, tar) {
-            var indexes = this.tableState.columnIndexes;
+            var tableState = this.getState();
+            var indexes = tableState.columnIndexes;
             if (indexes.length === 0) {
-                this.initColumnIndexes();
-                indexes = this.tableState.columnIndexes;
+                this.initColumnIndexes(tableState);
+                indexes = tableState.columnIndexes;
             }
             var tmp = indexes[src + this.fixedColumnCount];
             indexes[src + this.fixedColumnCount] = indexes[tar + this.fixedColumnCount];
@@ -270,7 +278,8 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          * @param {integer} x - viewed index
          */
         translateColumnIndex: function(x) {
-            var indexes = this.tableState.columnIndexes;
+            var tableState = this.getState();
+            var indexes = tableState.columnIndexes;
             if (indexes.length === 0) {
                 return x;
             }
@@ -286,7 +295,8 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          * @param {integer} x - the real index
          */
         unTranslateColumnIndex: function(x) {
-            return this.tableState.columnIndexes.indexOf(x);
+            var tableState = this.getState();
+            return tableState.columnIndexes.indexOf(x);
         },
 
         /**
@@ -325,7 +335,7 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          */
         initializeFeatureChain: function(grid) {
             this.setNextFeature(document.createElement('fin-hypergrid-feature-key-paging'));
-            //this.setNextFeature(document.createElement('fin-hypergrid-feature-cell-click'));
+            this.setNextFeature(document.createElement('fin-hypergrid-feature-cell-click'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-overlay'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-column-resizing'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-row-resizing'));
@@ -480,7 +490,8 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          * #### returns: integer
          */
         _getColumnCount: function() {
-            return this.getColumnCount() - this.tableState.hiddenColumns.length - this.fixedColumnCount;
+            var tableState = this.getState();
+            return this.getColumnCount() - tableState.hiddenColumns.length - this.fixedColumnCount;
         },
 
         /**
@@ -508,8 +519,9 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          * @param {integer} rowNum - the row index of interest
          */
         getFixedRowHeight: function(rowNum) {
-            if (this.tableState.fixedRowHeights) {
-                var override = this.tableState.fixedRowHeights[rowNum];
+            var tableState = this.getState();
+            if (tableState.fixedRowHeights) {
+                var override = tableState.fixedRowHeights[rowNum];
                 if (override) {
                     return override;
                 }
@@ -527,7 +539,8 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          */
         setFixedRowHeight: function(rowNum, height) {
             //console.log(rowNum + ' ' + height);
-            this.tableState.fixedRowHeights[rowNum] = Math.max(5, height);
+            var tableState = this.getState();
+            tableState.fixedRowHeights[rowNum] = Math.max(5, height);
             this.changed();
         },
 
@@ -540,8 +553,9 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          * @param {integer} rowNum - row index of interest
          */
         getRowHeight: function(rowNum) {
-            if (this.tableState.rowHeights) {
-                var override = this.tableState.rowHeights[rowNum];
+            var tableState = this.getState();
+            if (tableState.rowHeights) {
+                var override = tableState.rowHeights[rowNum];
                 if (override) {
                     return override;
                 }
@@ -572,7 +586,8 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          * @param {integer} height - pixel height
          */
         setRowHeight: function(rowNum, height) {
-            this.tableState.rowHeights[rowNum] = Math.max(5, height);
+            var tableState = this.getState();
+            tableState.rowHeights[rowNum] = Math.max(5, height);
             this.changed();
         },
 
@@ -613,7 +628,8 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          * @param {integer} width - the width in pixels
          */
         setFixedColumnWidth: function(colNumber, width) {
-            this.tableState.fixedColumnWidths[colNumber] = Math.max(5, width);
+            var tableState = this.getState();
+            tableState.fixedColumnWidths[colNumber] = Math.max(5, width);
             this.changed();
         },
 
@@ -638,7 +654,8 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          * @param {integer} colNumber - the column index of interest
          */
         getFixedColumnWidth: function(colNumber) {
-            var override = this.tableState.fixedColumnWidths[colNumber];
+            var tableState = this.getState();
+            var override = tableState.fixedColumnWidths[colNumber];
             if (override) {
                 return override;
             }
@@ -1050,10 +1067,11 @@ it contains all code/data that's necessary for easily implementing a virtual dat
             //     this.columnProperties.bgColor = 'maroon';
             //     this.columnProperties.fgColor = 'white';
             // }
-            var properties = this.columnProperties[columnIndex];
+            var tableState = this.getState();
+            var properties = tableState.columnProperties[columnIndex];
             if (!properties) {
                 properties = {};
-                this.columnProperties[columnIndex] = properties;
+                tableState.columnProperties[columnIndex] = properties;
             }
             return properties;
         },
@@ -1074,10 +1092,11 @@ it contains all code/data that's necessary for easily implementing a virtual dat
         getColumnDescriptors: function() {
             //assumes there is one row....
             this.insureColumnIndexesAreInitialized();
-            var columnCount = this.tableState.columnIndexes.length;
+            var tableState = this.getState();
+            var columnCount = tableState.columnIndexes.length;
             var labels = [];
             for (var i = 0; i < columnCount; i++) {
-                var id = this.tableState.columnIndexes[i];
+                var id = tableState.columnIndexes[i];
                 if (id >= this.fixedColumnCount) {
                     labels.push({
                         id: id,
@@ -1131,7 +1150,8 @@ it contains all code/data that's necessary for easily implementing a virtual dat
             for (i = 0; i < columnCount; i++) {
                 indexes.push(list[i].id);
             }
-            this.tableState.columnIndexes = indexes;
+            var tableState = this.getState();
+            tableState.columnIndexes = indexes;
             this.changed();
         },
 
@@ -1143,7 +1163,8 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          * #### returns: Array of strings
          */
         getHiddenColumnDescriptors: function() {
-            var indexes = this.tableState.hiddenColumns;
+            var tableState = this.getState();
+            var indexes = tableState.hiddenColumns;
             var labels = new Array(indexes.length);
             for (var i = 0; i < labels.length; i++) {
                 var id = indexes[i];
@@ -1170,7 +1191,8 @@ it contains all code/data that's necessary for easily implementing a virtual dat
             for (var i = 0; i < columnCount; i++) {
                 indexes[i] = list[i].id;
             }
-            this.tableState.hiddenColumns = indexes;
+            var tableState = this.getState();
+            tableState.hiddenColumns = indexes;
             this.changed();
         },
 
@@ -1182,8 +1204,9 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          * @param {Array} arrayOfIndexes - an array of column indexes to hide
          */
         hideColumns: function(arrayOfIndexes) {
-            var indexes = this.tableState.hiddenColumns;
-            var order = this.tableState.columnIndexes;
+            var tableState = this.getState();
+            var indexes = tableState.hiddenColumns;
+            var order = tableState.columnIndexes;
             for (var i = 0; i < arrayOfIndexes.length; i++) {
                 var each = arrayOfIndexes[i];
                 if (indexes.indexOf(each) === -1) {
@@ -1367,7 +1390,8 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          * @param {integer} x - the column index of interest
          */
         getColumnWidth: function(x) {
-            var override = this.tableState.columnWidths[x];
+            var tableState = this.getState();
+            var override = tableState.columnWidths[x];
             if (override) {
                 return override;
             }
@@ -1383,7 +1407,8 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          * @param {integer} width - the width in pixels
          */
         setColumnWidth: function(x, width) {
-            this.tableState.columnWidths[x] = Math.max(5, width);
+            var tableState = this.getState();
+            tableState.columnWidths[x] = Math.max(5, width);
         },
 
         /**
@@ -1561,17 +1586,18 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          */
         checkColumnAutosizing: function(fixedMinWidths, minWidths) {
             var self = this;
-            var myFixed = this.tableState.fixedColumnWidths;
-            var myWidths = this.tableState.columnWidths;
+            var tableState = this.getState();
+            var myFixed = tableState.fixedColumnWidths;
+            var myWidths = tableState.columnWidths;
             var repaint = false;
             var a, b, c, d = 0;
             for (c = 0; c < fixedMinWidths.length; c++) {
                 a = myFixed[c];
                 b = fixedMinWidths[c];
-                d = this.fixedColumnAutosized[c];
+                d = tableState.fixedColumnAutosized[c];
                 if (a !== b || !d) {
                     myFixed[c] = !d ? b : Math.max(a, b);
-                    this.fixedColumnAutosized[c] = true;
+                    tableState.fixedColumnAutosized[c] = true;
                     repaint = true;
                 }
             }
@@ -1579,10 +1605,10 @@ it contains all code/data that's necessary for easily implementing a virtual dat
                 var ti = this.translateColumnIndex(c);
                 a = myWidths[ti];
                 b = minWidths[c];
-                d = this.columnAutosized[c];
+                d = tableState.columnAutosized[c];
                 if (a !== b || !d) {
                     myWidths[ti] = !d ? b : Math.max(a, b);
-                    this.columnAutosized[c] = true;
+                    tableState.columnAutosized[c] = true;
                     repaint = true;
                 }
             }

@@ -44,10 +44,33 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         */
         ready: function() {
             this.readyInit();
-            this.tableState.sorted = [];
             this.sortStates = [undefined, 'up-arrow', 'down-arrow'];
         },
+        /**
+         * @function
+         * @instance
+         * @description
+         create a default empty tablestate
+         * #### returns: Object
+         */
+        getDefaultState: function() {
+            return {
+                columnIndexes: [],
+                fixedColumnIndexes: [],
+                hiddenColumns: [],
 
+                columnWidths: [],
+                fixedColumnWidths: [],
+                fixedColumnAutosized: [],
+
+                rowHeights: {},
+                fixedRowHeights: {},
+                columnProperties: [],
+                columnAutosized: [],
+
+                sorted: [],
+            };
+        },
         /**
         * @function
         * @instance
@@ -280,7 +303,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         */
         setData: function(arrayOfUniformObjects) {
             this.data = arrayOfUniformObjects;
-            this.initColumnIndexes();
+            this.initColumnIndexes(this.getState());
             this.dataModified();
         },
 
@@ -405,8 +428,9 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
          */
         getFixedRowValue: function(x, y) {
             if (y === 0) {
+                var tableState = this.getState();
                 var headers = this.getHeaders();
-                var sortIndex = this.tableState.sorted[x] || 0;
+                var sortIndex = tableState.sorted[x] || 0;
                 return [undefined, headers[x], this.getImage(this.sortStates[sortIndex])];
             } else {
                 return this.totals[y - 1][x];
@@ -444,7 +468,12 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         * @param {Object} memento - an encapulated representation of table state
         */
         setState: function(memento) {
-            this.tableState = memento;
+            var tableState = this.getState();
+            for (var key in memento) {
+                if (memento.hasOwnProperty(key)) {
+                    tableState[key] = memento[key];
+                }
+            }
             this.applySorts();
             this.changed();
         },
@@ -504,6 +533,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
          * @param {integer} incrementIt - integer amount to advance the sort state (default 1)
          */
         toggleSort: function(columnIndex, incrementIt) {
+            var tableState = this.getState();
             if (incrementIt === undefined) {
                 incrementIt = 1;
             }
@@ -512,14 +542,14 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
             if (columnIndex >= fields.length) {
                 return;
             }
-            var current = this.tableState.sorted[columnIndex] || 0;
+            var current = tableState.sorted[columnIndex] || 0;
             var stateCount = this.sortStates.length;
             var sortStateIndex = (current + incrementIt) % stateCount;
             var i = 0;
             for (; i < fields.length; i++) {
-                this.tableState.sorted[i] = 0;
+                tableState.sorted[i] = 0;
             }
-            this.tableState.sorted[columnIndex] = sortStateIndex;
+            tableState.sorted[columnIndex] = sortStateIndex;
             var colName = fields[columnIndex];
             if (sortStateIndex === 0) {
                 var newData = new Array(this.data.length);

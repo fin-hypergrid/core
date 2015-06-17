@@ -16293,7 +16293,7 @@ var config = {
                 var translatedX = behavior.translateColumnIndex(c + scrollLeft);
 
                 var columnAlign = behavior._getColumnAlignment(c + scrollLeft);
-                var columnProperties = behavior.getColumnProperties(c + scrollLeft);
+                var columnProperties = behavior.getColumnProperties(translatedX);
                 var overrideFGColor = columnProperties.fgColor || fgColor;
                 var overrideFont = columnProperties.font || font;
                 //fill background
@@ -22751,13 +22751,7 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          * @property {object} tableState - memento for the user configured visual properties of the table
          * @instance
          */
-        tableState: {},
-
-        /**
-         * @property {object} columnProperties - a hook to put fgcolor, bgcolor, font for a column if no cell properties are available
-         * @instance
-         */
-        columnProperties: {},
+        tableState: null,
 
         /**
          * @property {fin-hypergrid} grid - my instance of hypergrid
@@ -22788,18 +22782,6 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          * @instance
          */
         fixedRowCount: 1,
-
-        /**
-         * @property {array} columnAutosized - boolean vector of which columns have been autosized
-         * @instance
-         */
-        columnAutosized: [],
-
-        /**
-         * @property {array} fixedColumnAutosized - boolean vector of which fixed columns have been autosized
-         * @instance
-         */
-        fixedColumnAutosized: [],
 
         /**
          * @function
@@ -22838,23 +22820,74 @@ it contains all code/data that's necessary for easily implementing a virtual dat
             this.scrollPositionY = 0;
             this.renderedColumnCount = 30;
             this.renderedRowCount = 60;
-            this.tableState = {
+            this.dataUpdates = {}; //for overriding with edit values;
+            //this.initColumnIndexes();
+            this.fixedColumnCount = 0;
+        },
+
+        /**
+         * @function
+         * @instance
+         * @description
+         getter for a [Memento](http://c2.com/cgi/wiki?MementoPattern) Object
+         * #### returns: Object
+         */
+        getState: function() {
+            if (!this.tableState) {
+                this.tableState = this.getDefaultState();
+                this.initColumnIndexes(this.tableState);
+            }
+            return this.tableState;
+        },
+
+        /**
+         * @function
+         * @instance
+         * @description
+         clear all table state
+         */
+        clearState: function() {
+            this.tableState = null;
+        },
+
+        /**
+         * @function
+         * @instance
+         * @description
+         create a default empty tablestate
+         * #### returns: Object
+         */
+        getDefaultState: function() {
+            return {
                 columnIndexes: [],
                 fixedColumnIndexes: [],
                 hiddenColumns: [],
 
                 columnWidths: [],
                 fixedColumnWidths: [],
+                fixedColumnAutosized: [],
 
                 rowHeights: {},
                 fixedRowHeights: {},
+                columnProperties: [],
+                columnAutosized: [],
             };
+        },
 
-            this.dataUpdates = {}; //for overriding with edit values;
-            //this.initColumnIndexes();
-            this.fixedColumnCount = 0;
-            this.columnAutosized = [];
-            this.fixedColumnAutosized = [];
+        /**
+         * @function
+         * @instance
+         * @description
+         setter for a [Memento](http://c2.com/cgi/wiki?MementoPattern) Object
+         * @param {Object} state - [Memento](http://c2.com/cgi/wiki?MementoPattern) Object
+         */
+        setState: function(state) {
+            var tableState = this.getState();
+            for (var key in state) {
+                if (state.hasOwnProperty(key)) {
+                    tableState[key] = state[key];
+                }
+            }
         },
 
         /**
@@ -22867,32 +22900,6 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          */
         resolveProperty: function(key) {
             return this.grid.resolveProperty(key);
-        },
-
-        /**
-         * @function
-         * @instance
-         * @description
-         getter for a [Memento](http://c2.com/cgi/wiki?MementoPattern) Object
-         * #### returns: Object
-         */
-        getState: function() {
-            return this.tableState;
-        },
-
-        /**
-         * @function
-         * @instance
-         * @description
-         setter for a [Memento](http://c2.com/cgi/wiki?MementoPattern) Object
-         * @param {Object} state - [Memento](http://c2.com/cgi/wiki?MementoPattern) Object
-         */
-        setState: function(state) {
-            for (var key in state) {
-                if (state.hasOwnProperty(key)) {
-                    this.tableState[key] = state[key];
-                }
-            }
         },
 
         /**
@@ -22913,15 +22920,15 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          * @description
          reset both fixed and normal column indexes, this is will cause columns to display in their true order
          */
-        initColumnIndexes: function() {
-            var columnCount = this._getColumnCount();
+        initColumnIndexes: function(tableState) {
+            var columnCount = this.getColumnCount();
             var fixedColumnCount = this.getFixedColumnCount();
             var i;
             for (i = 0; i < columnCount; i++) {
-                this.tableState.columnIndexes[i] = i;
+                tableState.columnIndexes[i] = i;
             }
             for (i = 0; i < fixedColumnCount; i++) {
-                this.tableState.fixedColumnIndexes[i] = i;
+                tableState.fixedColumnIndexes[i] = i;
             }
         },
 
@@ -22944,10 +22951,11 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          * @param {integer} tar - column index
          */
         swapColumns: function(src, tar) {
-            var indexes = this.tableState.columnIndexes;
+            var tableState = this.getState();
+            var indexes = tableState.columnIndexes;
             if (indexes.length === 0) {
-                this.initColumnIndexes();
-                indexes = this.tableState.columnIndexes;
+                this.initColumnIndexes(tableState);
+                indexes = tableState.columnIndexes;
             }
             var tmp = indexes[src + this.fixedColumnCount];
             indexes[src + this.fixedColumnCount] = indexes[tar + this.fixedColumnCount];
@@ -22963,7 +22971,8 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          * @param {integer} x - viewed index
          */
         translateColumnIndex: function(x) {
-            var indexes = this.tableState.columnIndexes;
+            var tableState = this.getState();
+            var indexes = tableState.columnIndexes;
             if (indexes.length === 0) {
                 return x;
             }
@@ -22979,7 +22988,8 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          * @param {integer} x - the real index
          */
         unTranslateColumnIndex: function(x) {
-            return this.tableState.columnIndexes.indexOf(x);
+            var tableState = this.getState();
+            return tableState.columnIndexes.indexOf(x);
         },
 
         /**
@@ -23018,7 +23028,7 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          */
         initializeFeatureChain: function(grid) {
             this.setNextFeature(document.createElement('fin-hypergrid-feature-key-paging'));
-            //this.setNextFeature(document.createElement('fin-hypergrid-feature-cell-click'));
+            this.setNextFeature(document.createElement('fin-hypergrid-feature-cell-click'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-overlay'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-column-resizing'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-row-resizing'));
@@ -23173,7 +23183,8 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          * #### returns: integer
          */
         _getColumnCount: function() {
-            return this.getColumnCount() - this.tableState.hiddenColumns.length - this.fixedColumnCount;
+            var tableState = this.getState();
+            return this.getColumnCount() - tableState.hiddenColumns.length - this.fixedColumnCount;
         },
 
         /**
@@ -23201,8 +23212,9 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          * @param {integer} rowNum - the row index of interest
          */
         getFixedRowHeight: function(rowNum) {
-            if (this.tableState.fixedRowHeights) {
-                var override = this.tableState.fixedRowHeights[rowNum];
+            var tableState = this.getState();
+            if (tableState.fixedRowHeights) {
+                var override = tableState.fixedRowHeights[rowNum];
                 if (override) {
                     return override;
                 }
@@ -23220,7 +23232,8 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          */
         setFixedRowHeight: function(rowNum, height) {
             //console.log(rowNum + ' ' + height);
-            this.tableState.fixedRowHeights[rowNum] = Math.max(5, height);
+            var tableState = this.getState();
+            tableState.fixedRowHeights[rowNum] = Math.max(5, height);
             this.changed();
         },
 
@@ -23233,8 +23246,9 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          * @param {integer} rowNum - row index of interest
          */
         getRowHeight: function(rowNum) {
-            if (this.tableState.rowHeights) {
-                var override = this.tableState.rowHeights[rowNum];
+            var tableState = this.getState();
+            if (tableState.rowHeights) {
+                var override = tableState.rowHeights[rowNum];
                 if (override) {
                     return override;
                 }
@@ -23265,7 +23279,8 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          * @param {integer} height - pixel height
          */
         setRowHeight: function(rowNum, height) {
-            this.tableState.rowHeights[rowNum] = Math.max(5, height);
+            var tableState = this.getState();
+            tableState.rowHeights[rowNum] = Math.max(5, height);
             this.changed();
         },
 
@@ -23306,7 +23321,8 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          * @param {integer} width - the width in pixels
          */
         setFixedColumnWidth: function(colNumber, width) {
-            this.tableState.fixedColumnWidths[colNumber] = Math.max(5, width);
+            var tableState = this.getState();
+            tableState.fixedColumnWidths[colNumber] = Math.max(5, width);
             this.changed();
         },
 
@@ -23331,7 +23347,8 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          * @param {integer} colNumber - the column index of interest
          */
         getFixedColumnWidth: function(colNumber) {
-            var override = this.tableState.fixedColumnWidths[colNumber];
+            var tableState = this.getState();
+            var override = tableState.fixedColumnWidths[colNumber];
             if (override) {
                 return override;
             }
@@ -23743,10 +23760,11 @@ it contains all code/data that's necessary for easily implementing a virtual dat
             //     this.columnProperties.bgColor = 'maroon';
             //     this.columnProperties.fgColor = 'white';
             // }
-            var properties = this.columnProperties[columnIndex];
+            var tableState = this.getState();
+            var properties = tableState.columnProperties[columnIndex];
             if (!properties) {
                 properties = {};
-                this.columnProperties[columnIndex] = properties;
+                tableState.columnProperties[columnIndex] = properties;
             }
             return properties;
         },
@@ -23767,10 +23785,11 @@ it contains all code/data that's necessary for easily implementing a virtual dat
         getColumnDescriptors: function() {
             //assumes there is one row....
             this.insureColumnIndexesAreInitialized();
-            var columnCount = this.tableState.columnIndexes.length;
+            var tableState = this.getState();
+            var columnCount = tableState.columnIndexes.length;
             var labels = [];
             for (var i = 0; i < columnCount; i++) {
-                var id = this.tableState.columnIndexes[i];
+                var id = tableState.columnIndexes[i];
                 if (id >= this.fixedColumnCount) {
                     labels.push({
                         id: id,
@@ -23824,7 +23843,8 @@ it contains all code/data that's necessary for easily implementing a virtual dat
             for (i = 0; i < columnCount; i++) {
                 indexes.push(list[i].id);
             }
-            this.tableState.columnIndexes = indexes;
+            var tableState = this.getState();
+            tableState.columnIndexes = indexes;
             this.changed();
         },
 
@@ -23836,7 +23856,8 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          * #### returns: Array of strings
          */
         getHiddenColumnDescriptors: function() {
-            var indexes = this.tableState.hiddenColumns;
+            var tableState = this.getState();
+            var indexes = tableState.hiddenColumns;
             var labels = new Array(indexes.length);
             for (var i = 0; i < labels.length; i++) {
                 var id = indexes[i];
@@ -23863,7 +23884,8 @@ it contains all code/data that's necessary for easily implementing a virtual dat
             for (var i = 0; i < columnCount; i++) {
                 indexes[i] = list[i].id;
             }
-            this.tableState.hiddenColumns = indexes;
+            var tableState = this.getState();
+            tableState.hiddenColumns = indexes;
             this.changed();
         },
 
@@ -23875,8 +23897,9 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          * @param {Array} arrayOfIndexes - an array of column indexes to hide
          */
         hideColumns: function(arrayOfIndexes) {
-            var indexes = this.tableState.hiddenColumns;
-            var order = this.tableState.columnIndexes;
+            var tableState = this.getState();
+            var indexes = tableState.hiddenColumns;
+            var order = tableState.columnIndexes;
             for (var i = 0; i < arrayOfIndexes.length; i++) {
                 var each = arrayOfIndexes[i];
                 if (indexes.indexOf(each) === -1) {
@@ -24060,7 +24083,8 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          * @param {integer} x - the column index of interest
          */
         getColumnWidth: function(x) {
-            var override = this.tableState.columnWidths[x];
+            var tableState = this.getState();
+            var override = tableState.columnWidths[x];
             if (override) {
                 return override;
             }
@@ -24076,7 +24100,8 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          * @param {integer} width - the width in pixels
          */
         setColumnWidth: function(x, width) {
-            this.tableState.columnWidths[x] = Math.max(5, width);
+            var tableState = this.getState();
+            tableState.columnWidths[x] = Math.max(5, width);
         },
 
         /**
@@ -24254,17 +24279,18 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          */
         checkColumnAutosizing: function(fixedMinWidths, minWidths) {
             var self = this;
-            var myFixed = this.tableState.fixedColumnWidths;
-            var myWidths = this.tableState.columnWidths;
+            var tableState = this.getState();
+            var myFixed = tableState.fixedColumnWidths;
+            var myWidths = tableState.columnWidths;
             var repaint = false;
             var a, b, c, d = 0;
             for (c = 0; c < fixedMinWidths.length; c++) {
                 a = myFixed[c];
                 b = fixedMinWidths[c];
-                d = this.fixedColumnAutosized[c];
+                d = tableState.fixedColumnAutosized[c];
                 if (a !== b || !d) {
                     myFixed[c] = !d ? b : Math.max(a, b);
-                    this.fixedColumnAutosized[c] = true;
+                    tableState.fixedColumnAutosized[c] = true;
                     repaint = true;
                 }
             }
@@ -24272,10 +24298,10 @@ it contains all code/data that's necessary for easily implementing a virtual dat
                 var ti = this.translateColumnIndex(c);
                 a = myWidths[ti];
                 b = minWidths[c];
-                d = this.columnAutosized[c];
+                d = tableState.columnAutosized[c];
                 if (a !== b || !d) {
                     myWidths[ti] = !d ? b : Math.max(a, b);
-                    this.columnAutosized[c] = true;
+                    tableState.columnAutosized[c] = true;
                     repaint = true;
                 }
             }
@@ -25454,11 +25480,6 @@ This is a very rough in memory data source example.  fin-hypergrid-behavior-in-m
 
             //milliseconds pause inbetween sweeps of random updates
             this.readyInit();
-            this.tableState.columnWidths = [50, 150, 80, 90, 80, 150, 100, 80, 80, 100];
-            this.tableState.fixedColumnWidths = [120];
-            this.tableState.sorts = [];
-            this.tableState.sortLookup = {};
-            this.tableState.sorted = {};
             this.sortStates = [' -', ' ↑', ' ↓'];
 
             this.permuteInterval = 50;
@@ -25473,7 +25494,33 @@ This is a very rough in memory data source example.  fin-hypergrid-behavior-in-m
             this.permute();
             this.reorder();
         },
+        /**
+         * @function
+         * @instance
+         * @description
+         create a default empty tablestate
+         * #### returns: Object
+         */
+        getDefaultState: function() {
+            return {
+                columnIndexes: [],
+                fixedColumnIndexes: [],
+                hiddenColumns: [],
 
+                columnWidths: [50, 150, 80, 90, 80, 150, 100, 80, 80, 100],
+                fixedColumnWidths: [120],
+                fixedColumnAutosized: [],
+
+                rowHeights: {},
+                fixedRowHeights: {},
+                columnProperties: [],
+                columnAutosized: [],
+
+                sorts: [],
+                sortLookup: {},
+                sorted: {},
+            };
+        },
         /**
          * @function
          * @instance
@@ -25700,6 +25747,7 @@ This is a very rough in memory data source example.  fin-hypergrid-behavior-in-m
         createSort: function(type, col) {
             var self = this;
             var that = {};
+            var tableState = this.getState();
             that.type = type;
             that.col = col;
             that.value = function(array, index) {
@@ -25739,8 +25787,8 @@ This is a very rough in memory data source example.  fin-hypergrid-behavior-in-m
                 }
                 return 0;
             };
-            this.tableState.sorts.push(that);
-            this.tableState.sortLookup[col] = that;
+            tableState.sorts.push(that);
+            tableState.sortLookup[col] = that;
         },
 
         /**
@@ -25770,8 +25818,9 @@ This is a very rough in memory data source example.  fin-hypergrid-behavior-in-m
         */
         compare: function(array, first, last) {
             var comp = 0;
-            for (var i = 0; i < this.tableState.sorts.length; ++i) {
-                var sort = this.tableState.sorts[i];
+            var tableState = this.getState();
+            for (var i = 0; i < tableState.sorts.length; ++i) {
+                var sort = tableState.sorts[i];
                 if (sort.type !== 0) {
                     comp = sort.compare(array, first, last);
                     if (comp === 0) {
@@ -25809,6 +25858,7 @@ This is a very rough in memory data source example.  fin-hypergrid-behavior-in-m
         * @param {type} depth - recursion depth
         */
         quicksort: function(array, first, last, depth) {
+            var tableState = this.getState();
             // In place quickstort, stable.  We cant use the inbuilt Array.tableState.sort() since its a hybrid sort
             // potentially and may not be stable (non quicksort) on small sizes.
             if (depth > 1000) {
@@ -25818,11 +25868,11 @@ This is a very rough in memory data source example.  fin-hypergrid-behavior-in-m
             var pivot = 0;
             if (depth === 0) {
                 // Is there something to sort ??
-                if (this.tableState.sorts.length <= 0) {
+                if (tableState.sorts.length <= 0) {
                     return;
                 }
                 // Optimise for null trailing nulls.
-                var sort = this.tableState.sorts[0];
+                var sort = tableState.sorts[0];
                 while (!sort.value(array, last) && last > first) {
                     --last;
                 }
@@ -25959,12 +26009,13 @@ This is a very rough in memory data source example.  fin-hypergrid-behavior-in-m
          */
         getFixedRowValue: function(x /*, y*/ ) {
             var sortIndicator = '';
-            if (this.tableState.sortLookup[x] && !this.tableState.sorted[x]) {
-                this.tableState.sorted[x] = 0;
-                sortIndicator = this.sortStates[this.tableState.sorted[x]];
+            var tableState = this.getState();
+            if (tableState.sortLookup[x] && !tableState.sorted[x]) {
+                tableState.sorted[x] = 0;
+                sortIndicator = this.sortStates[tableState.sorted[x]];
             }
-            if (this.tableState.sorted[x]) {
-                sortIndicator = this.sortStates[this.tableState.sorted[x]];
+            if (tableState.sorted[x]) {
+                sortIndicator = this.sortStates[tableState.sorted[x]];
             }
             return alphaFor(x) + sortIndicator;
         },
@@ -25992,11 +26043,12 @@ This is a very rough in memory data source example.  fin-hypergrid-behavior-in-m
          * @param {integer} colIndex - the column index of interest
          */
         toggleSort: function(columnIndex) {
-            var current = this.tableState.sorted[columnIndex];
+            var tableState = this.getState();
+            var current = tableState.sorted[columnIndex];
             var stateCount = this.sortStates.length;
             var sortStateIndex = (current + 1) % stateCount;
-            this.tableState.sorted[columnIndex] = sortStateIndex;
-            this.tableState.sortLookup[columnIndex].type = sortStateIndex;
+            tableState.sorted[columnIndex] = sortStateIndex;
+            tableState.sortLookup[columnIndex].type = sortStateIndex;
             this.reorder();
             this.changed();
         },
@@ -26242,10 +26294,33 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         */
         ready: function() {
             this.readyInit();
-            this.tableState.sorted = [];
             this.sortStates = [undefined, 'up-arrow', 'down-arrow'];
         },
+        /**
+         * @function
+         * @instance
+         * @description
+         create a default empty tablestate
+         * #### returns: Object
+         */
+        getDefaultState: function() {
+            return {
+                columnIndexes: [],
+                fixedColumnIndexes: [],
+                hiddenColumns: [],
 
+                columnWidths: [],
+                fixedColumnWidths: [],
+                fixedColumnAutosized: [],
+
+                rowHeights: {},
+                fixedRowHeights: {},
+                columnProperties: [],
+                columnAutosized: [],
+
+                sorted: [],
+            };
+        },
         /**
         * @function
         * @instance
@@ -26478,7 +26553,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         */
         setData: function(arrayOfUniformObjects) {
             this.data = arrayOfUniformObjects;
-            this.initColumnIndexes();
+            this.initColumnIndexes(this.getState());
             this.dataModified();
         },
 
@@ -26603,8 +26678,9 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
          */
         getFixedRowValue: function(x, y) {
             if (y === 0) {
+                var tableState = this.getState();
                 var headers = this.getHeaders();
-                var sortIndex = this.tableState.sorted[x] || 0;
+                var sortIndex = tableState.sorted[x] || 0;
                 return [undefined, headers[x], this.getImage(this.sortStates[sortIndex])];
             } else {
                 return this.totals[y - 1][x];
@@ -26642,7 +26718,12 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         * @param {Object} memento - an encapulated representation of table state
         */
         setState: function(memento) {
-            this.tableState = memento;
+            var tableState = this.getState();
+            for (var key in memento) {
+                if (memento.hasOwnProperty(key)) {
+                    tableState[key] = memento[key];
+                }
+            }
             this.applySorts();
             this.changed();
         },
@@ -26702,6 +26783,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
          * @param {integer} incrementIt - integer amount to advance the sort state (default 1)
          */
         toggleSort: function(columnIndex, incrementIt) {
+            var tableState = this.getState();
             if (incrementIt === undefined) {
                 incrementIt = 1;
             }
@@ -26710,14 +26792,14 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
             if (columnIndex >= fields.length) {
                 return;
             }
-            var current = this.tableState.sorted[columnIndex] || 0;
+            var current = tableState.sorted[columnIndex] || 0;
             var stateCount = this.sortStates.length;
             var sortStateIndex = (current + incrementIt) % stateCount;
             var i = 0;
             for (; i < fields.length; i++) {
-                this.tableState.sorted[i] = 0;
+                tableState.sorted[i] = 0;
             }
-            this.tableState.sorted[columnIndex] = sortStateIndex;
+            tableState.sorted[columnIndex] = sortStateIndex;
             var colName = fields[columnIndex];
             if (sortStateIndex === 0) {
                 var newData = new Array(this.data.length);
@@ -28431,7 +28513,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
          * @param {HTMLDivElement} div - the containing div element
          */
         openEditor: function(div) {
-            if (!this.isColumnReorderable) {
+            if (!this.isColumnReorderable()) {
                 return false;
             }
             var self = this;
@@ -28573,13 +28655,14 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         */
         handleMessage: function(d) {
             //insure certain things exist
+            var tableState = this.getState();
             if (d.O && !d.O.columns) {
                 d.O.columns = {};
             }
 
             this.block = d;
-            if (!this.tableState.columnIndexes || this.tableState.columnIndexes.length === 0 || d.F.length !== this.tableState.columnIndexes.length) {
-                this.initColumnIndexes();
+            if (!tableState.columnIndexes || tableState.columnIndexes.length === 0 || d.F.length !== tableState.columnIndexes.length) {
+                this.initColumnIndexes(tableState);
             }
             //let's autosize the hierarchy column
             this.changed();
@@ -32499,17 +32582,17 @@ fin-vampire-bar {
                 self.delegateMouseDown(mouseEvent);
             });
 
-
-            this.addFinEventListener('fin-canvas-click', function(e) {
-                if (self.resolveProperty('readOnly')) {
-                    return;
-                }
-                self.stopEditing();
-                var mouse = e.detail.mouse;
-                var mouseEvent = self.getGridCellFromMousePoint(mouse);
-                mouseEvent.primitiveEvent = e;
-                self.fireSyntheticClickEvent(mouseEvent);
-            });
+            //
+            // this.addFinEventListener('fin-canvas-click', function(e) {
+            //     if (self.resolveProperty('readOnly')) {
+            //         return;
+            //     }
+            //     self.stopEditing();
+            //     var mouse = e.detail.mouse;
+            //     var mouseEvent = self.getGridCellFromMousePoint(mouse);
+            //     mouseEvent.primitiveEvent = e;
+            //     self.fireSyntheticClickEvent(mouseEvent);
+            // });
 
             this.addFinEventListener('fin-mouseup', function(e) {
                 if (self.resolveProperty('readOnly')) {
@@ -32532,9 +32615,11 @@ fin-vampire-bar {
                 if (self.resolveProperty('readOnly')) {
                     return;
                 }
+                self.stopEditing();
                 var mouse = e.detail.mouse;
                 var tapEvent = self.getGridCellFromMousePoint(mouse);
                 tapEvent.primitiveEvent = e;
+                self.fireSyntheticClickEvent(tapEvent);
                 self.delegateTap(tapEvent);
             });
 

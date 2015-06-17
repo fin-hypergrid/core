@@ -51,11 +51,6 @@ This is a very rough in memory data source example.  fin-hypergrid-behavior-in-m
 
             //milliseconds pause inbetween sweeps of random updates
             this.readyInit();
-            this.tableState.columnWidths = [50, 150, 80, 90, 80, 150, 100, 80, 80, 100];
-            this.tableState.fixedColumnWidths = [120];
-            this.tableState.sorts = [];
-            this.tableState.sortLookup = {};
-            this.tableState.sorted = {};
             this.sortStates = [' -', ' ↑', ' ↓'];
 
             this.permuteInterval = 50;
@@ -70,7 +65,33 @@ This is a very rough in memory data source example.  fin-hypergrid-behavior-in-m
             this.permute();
             this.reorder();
         },
+        /**
+         * @function
+         * @instance
+         * @description
+         create a default empty tablestate
+         * #### returns: Object
+         */
+        getDefaultState: function() {
+            return {
+                columnIndexes: [],
+                fixedColumnIndexes: [],
+                hiddenColumns: [],
 
+                columnWidths: [50, 150, 80, 90, 80, 150, 100, 80, 80, 100],
+                fixedColumnWidths: [120],
+                fixedColumnAutosized: [],
+
+                rowHeights: {},
+                fixedRowHeights: {},
+                columnProperties: [],
+                columnAutosized: [],
+
+                sorts: [],
+                sortLookup: {},
+                sorted: {},
+            };
+        },
         /**
          * @function
          * @instance
@@ -297,6 +318,7 @@ This is a very rough in memory data source example.  fin-hypergrid-behavior-in-m
         createSort: function(type, col) {
             var self = this;
             var that = {};
+            var tableState = this.getState();
             that.type = type;
             that.col = col;
             that.value = function(array, index) {
@@ -336,8 +358,8 @@ This is a very rough in memory data source example.  fin-hypergrid-behavior-in-m
                 }
                 return 0;
             };
-            this.tableState.sorts.push(that);
-            this.tableState.sortLookup[col] = that;
+            tableState.sorts.push(that);
+            tableState.sortLookup[col] = that;
         },
 
         /**
@@ -367,8 +389,9 @@ This is a very rough in memory data source example.  fin-hypergrid-behavior-in-m
         */
         compare: function(array, first, last) {
             var comp = 0;
-            for (var i = 0; i < this.tableState.sorts.length; ++i) {
-                var sort = this.tableState.sorts[i];
+            var tableState = this.getState();
+            for (var i = 0; i < tableState.sorts.length; ++i) {
+                var sort = tableState.sorts[i];
                 if (sort.type !== 0) {
                     comp = sort.compare(array, first, last);
                     if (comp === 0) {
@@ -406,6 +429,7 @@ This is a very rough in memory data source example.  fin-hypergrid-behavior-in-m
         * @param {type} depth - recursion depth
         */
         quicksort: function(array, first, last, depth) {
+            var tableState = this.getState();
             // In place quickstort, stable.  We cant use the inbuilt Array.tableState.sort() since its a hybrid sort
             // potentially and may not be stable (non quicksort) on small sizes.
             if (depth > 1000) {
@@ -415,11 +439,11 @@ This is a very rough in memory data source example.  fin-hypergrid-behavior-in-m
             var pivot = 0;
             if (depth === 0) {
                 // Is there something to sort ??
-                if (this.tableState.sorts.length <= 0) {
+                if (tableState.sorts.length <= 0) {
                     return;
                 }
                 // Optimise for null trailing nulls.
-                var sort = this.tableState.sorts[0];
+                var sort = tableState.sorts[0];
                 while (!sort.value(array, last) && last > first) {
                     --last;
                 }
@@ -556,12 +580,13 @@ This is a very rough in memory data source example.  fin-hypergrid-behavior-in-m
          */
         getFixedRowValue: function(x /*, y*/ ) {
             var sortIndicator = '';
-            if (this.tableState.sortLookup[x] && !this.tableState.sorted[x]) {
-                this.tableState.sorted[x] = 0;
-                sortIndicator = this.sortStates[this.tableState.sorted[x]];
+            var tableState = this.getState();
+            if (tableState.sortLookup[x] && !tableState.sorted[x]) {
+                tableState.sorted[x] = 0;
+                sortIndicator = this.sortStates[tableState.sorted[x]];
             }
-            if (this.tableState.sorted[x]) {
-                sortIndicator = this.sortStates[this.tableState.sorted[x]];
+            if (tableState.sorted[x]) {
+                sortIndicator = this.sortStates[tableState.sorted[x]];
             }
             return alphaFor(x) + sortIndicator;
         },
@@ -589,11 +614,12 @@ This is a very rough in memory data source example.  fin-hypergrid-behavior-in-m
          * @param {integer} colIndex - the column index of interest
          */
         toggleSort: function(columnIndex) {
-            var current = this.tableState.sorted[columnIndex];
+            var tableState = this.getState();
+            var current = tableState.sorted[columnIndex];
             var stateCount = this.sortStates.length;
             var sortStateIndex = (current + 1) % stateCount;
-            this.tableState.sorted[columnIndex] = sortStateIndex;
-            this.tableState.sortLookup[columnIndex].type = sortStateIndex;
+            tableState.sorted[columnIndex] = sortStateIndex;
+            tableState.sortLookup[columnIndex].type = sortStateIndex;
             this.reorder();
             this.changed();
         },

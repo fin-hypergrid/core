@@ -994,7 +994,7 @@ var config = {
                 var translatedX = behavior.translateColumnIndex(c + scrollLeft);
 
                 var columnAlign = behavior._getColumnAlignment(c + scrollLeft);
-                var columnProperties = behavior.getColumnProperties(c + scrollLeft);
+                var columnProperties = behavior.getColumnProperties(translatedX);
                 var overrideFGColor = columnProperties.fgColor || fgColor;
                 var overrideFont = columnProperties.font || font;
                 //fill background

@@ -1144,17 +1144,17 @@
                 self.delegateMouseDown(mouseEvent);
             });
 
-
-            this.addFinEventListener('fin-canvas-click', function(e) {
-                if (self.resolveProperty('readOnly')) {
-                    return;
-                }
-                self.stopEditing();
-                var mouse = e.detail.mouse;
-                var mouseEvent = self.getGridCellFromMousePoint(mouse);
-                mouseEvent.primitiveEvent = e;
-                self.fireSyntheticClickEvent(mouseEvent);
-            });
+            //
+            // this.addFinEventListener('fin-canvas-click', function(e) {
+            //     if (self.resolveProperty('readOnly')) {
+            //         return;
+            //     }
+            //     self.stopEditing();
+            //     var mouse = e.detail.mouse;
+            //     var mouseEvent = self.getGridCellFromMousePoint(mouse);
+            //     mouseEvent.primitiveEvent = e;
+            //     self.fireSyntheticClickEvent(mouseEvent);
+            // });
 
             this.addFinEventListener('fin-mouseup', function(e) {
                 if (self.resolveProperty('readOnly')) {
@@ -1177,9 +1177,11 @@
                 if (self.resolveProperty('readOnly')) {
                     return;
                 }
+                self.stopEditing();
                 var mouse = e.detail.mouse;
                 var tapEvent = self.getGridCellFromMousePoint(mouse);
                 tapEvent.primitiveEvent = e;
+                self.fireSyntheticClickEvent(tapEvent);
                 self.delegateTap(tapEvent);
             });
 

@@ -815,7 +815,7 @@
          * @param {HTMLDivElement} div - the containing div element
          */
         openEditor: function(div) {
-            if (!this.isColumnReorderable) {
+            if (!this.isColumnReorderable()) {
                 return false;
             }
             var self = this;
@@ -957,13 +957,14 @@
         */
         handleMessage: function(d) {
             //insure certain things exist
+            var tableState = this.getState();
             if (d.O && !d.O.columns) {
                 d.O.columns = {};
             }
 
             this.block = d;
-            if (!this.tableState.columnIndexes || this.tableState.columnIndexes.length === 0 || d.F.length !== this.tableState.columnIndexes.length) {
-                this.initColumnIndexes();
+            if (!tableState.columnIndexes || tableState.columnIndexes.length === 0 || d.F.length !== tableState.columnIndexes.length) {
+                this.initColumnIndexes(tableState);
             }
             //let's autosize the hierarchy column
             this.changed();
