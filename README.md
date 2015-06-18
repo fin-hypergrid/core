@@ -568,8 +568,8 @@ fin-keydown|this is fired on a keydown event
 fin-keyup|this is fired on a keyup event
 
 ```
-    var jsonModel = document.querySelection('#json-grid');
-    jsonModel.addFinListener('fin-cell-click', function(event) {
+    var jsonGrid = document.querySelector('#json-grid');
+    jsonGrid.addFinEventListener('fin-cell-click', function(event) {
         console.log('fin-cell-click', event.detail);
     });
 ```
