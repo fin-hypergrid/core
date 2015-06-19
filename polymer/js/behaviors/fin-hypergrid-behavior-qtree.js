@@ -769,6 +769,9 @@
          * @param {Object} event - all event information
          */
         cellDoubleClicked: function(cell /*, event */ ) {
+            if (!this.isCellClickEnabled()) {
+                return;
+            }
             var rowNum = cell.y - this.scrollPositionY;
             var rows = this.block.Z[1].n_[rowNum];
             var colId = this.getColumnId(cell.x);
@@ -793,6 +796,17 @@
                 console.log('out-' + Date.now(), message);
             }
             this.ws.send(JSON.stringify(message));
+        },
+
+        /**
+         * @function
+         * @instance
+         * @description
+         return true if we can re-order columns
+         * #### returns: boolean
+         */
+        isCellClickEnabled: function() {
+            return this.block.W;
         },
 
         /**
