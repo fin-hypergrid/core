@@ -4,7 +4,7 @@
         "autoShow": true,
         "name": "hypergrid-demo",
         "url": "http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/demo.html",
-        "xxx": "https://dl.openfin.co/services/download?fileName=hypergrid-demo-installer&config=http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/local.json",
+        "xxx": "https://dl.openfin.co/services/download?fileName=hypergrid-demo-installer&config=http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/demo.json",
         "uuid": "hypergrid-demo",
         "applicationIcon": "http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/images/openfin.ico",
         "contextMenu" : true
