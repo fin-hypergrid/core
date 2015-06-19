@@ -4,6 +4,7 @@
         "autoShow": true,
         "name": "hypergrid-demo",
         "url": "http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/demo.html",
+        "xxx": "https://dl.openfin.co/services/download?fileName=hypergrid-demo-installer&config=http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/local.json",
         "uuid": "hypergrid-demo",
         "applicationIcon": "http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/images/openfin.ico",
         "contextMenu" : true
@@ -17,5 +18,25 @@
         "description": "Hypergrid by OpenFin",
         "icon": "http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/images/openfin.ico",
         "name": "Hypergrid-Demo"
-    }
+    },
+    "appAssets": [
+       {
+           "src": "https://developer.openfin.co/tests/swirts-hypergrid-assets/q.zip",
+           "alias": "qhypertree",
+           "version": "0.0.0.1",
+           "args": ""
+       },
+       {
+           "src": "http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/starthypertree.zip",
+           "alias": "qhypertree",
+           "version": "0.0.0.1",
+           "args": ""
+       },
+       {
+           "src": "https://github.com/stevanapter/hypertree2/archive/master.zip",
+           "alias": "qhypertree",
+           "version": "0.0.0.1",
+           "args": ""
+       }
+   ]
 }

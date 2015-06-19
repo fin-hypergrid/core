@@ -3,9 +3,10 @@
     "startup_app": {
         "autoShow": true,
         "name": "Hypergrid-Demo",
-        "url": "http://10.9.105.94:9000/fin-hypergrid/demo.html",
+        "url": "http://10.9.107.239:9000/fin-hypergrid/demo.html",
+        "xxx": "https://dl.openfin.co/services/download?fileName=hypergrid-demo-installer&config=http://10.9.107.239:9000/fin-hypergrid/local.json",
         "uuid": "Hypergrid-Demo",
-        "applicationIcon": "http://10.9.105.94:9000/fin-hypergrid/images/openfin.ico",
+        "applicationIcon": "http://10.9.107.239:9000/fin-hypergrid/images/openfin.ico",
         "contextMenu" : true
     },
     "runtime": {
@@ -15,7 +16,28 @@
     "shortcut": {
         "company": "OpenFin",
         "description": "Hypergrid by OpenFin",
-        "icon": "http://10.9.105.94:9000/fin-hypergrid/images/openfin.ico",
-        "name": "Hypergrid-Demo"
-    }
+        "icon": "http://10.9.107.239:9000/fin-hypergrid/images/openfin.ico",
+        "name": "Hypergrid-Demo",
+        "force": true
+    },
+    "appAssets": [
+       {
+           "src": "http://10.9.107.239:9000/fin-hypergrid/q/q.zip",
+           "alias": "qhypertree",
+           "version": "0.0.0.1",
+           "args": ""
+       },
+       {
+           "src": "http://10.9.107.239:9000/fin-hypergrid/starthypertree.zip",
+           "alias": "qhypertree",
+           "version": "0.0.0.1",
+           "args": ""
+       },
+       {
+           "src": "https://github.com/stevanapter/hypertree2/archive/master.zip",
+           "alias": "qhypertree",
+           "version": "0.0.0.1",
+           "args": ""
+       }
+   ]
 }
