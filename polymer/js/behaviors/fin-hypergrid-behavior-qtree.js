@@ -315,9 +315,10 @@
                 return clone;
             } else {
                 if (this.isColumnReorderable()) {
-                    return [this.getImage('collapse-all'), '®', this.getImage('expand-all')];
+                    return [this.getImage('collapse-all'), this.getImage('reset'), this.getImage('expand-all')];
+                    //return [this.getImage('collapse-all'), '®', this.getImage('expand-all')];
                 } else {
-                    return '®';
+                    return [this.getImage('empty'), this.getImage('reset'), this.getImage('empty')];
                 }
             }
         },

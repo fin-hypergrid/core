@@ -142,7 +142,7 @@ var noop = function() {};
                 isRowHovered = this.config.isRowHovered,
                 val = this.config.value;
 
-            var leftIcon, rightIcon, ixoffset, iyoffset;
+            var leftIcon, rightIcon, centerIcon, ixoffset, iyoffset;
 
             //setting gc properties are expensive, lets not do it unnecessarily
 
@@ -150,6 +150,10 @@ var noop = function() {};
                 leftIcon = val[0];
                 rightIcon = val[2];
                 val = val[1];
+                if (typeof val === 'object') { // must be an image
+                    centerIcon = val;
+                    val = null;
+                }
             }
 
             if (gc.font !== this.config.font) {
@@ -195,8 +199,11 @@ var noop = function() {};
                 gc.fillStyle = theColor;
                 gc.strokeStyle = theColor;
             }
-            gc.fillText(val, x + halignOffset, y + valignOffset);
+            if (val) {
+                gc.fillText(val, x + halignOffset, y + valignOffset);
+            } else if (centerIcon) {
 
+            }
             if (isColumnHovered && isRowHovered) {
                 gc.beginPath();
                 if (isLink) {
@@ -218,6 +225,12 @@ var noop = function() {};
                 ixoffset = Math.round((halignOffset - rightIcon.width) / 2);
                 gc.drawImage(rightIcon, x + width - ixoffset - rightIcon.width, y + iyoffset);
                 iconWidth = Math.max(rightIcon.width + 2);
+            }
+            if (centerIcon) {
+                iyoffset = Math.round((height - rightIcon.height) / 2);
+                ixoffset = Math.round((width - centerIcon.width) / 2);
+                gc.drawImage(centerIcon, x + width - ixoffset - centerIcon.width, y + iyoffset);
+                iconWidth = Math.max(centerIcon.width + 2);
             }
             this.config.minWidth = this.config.minWidth + 2 * (iconWidth);
         },

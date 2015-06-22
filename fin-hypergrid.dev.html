@@ -18389,7 +18389,7 @@ var noop = function() {};
                 isRowHovered = this.config.isRowHovered,
                 val = this.config.value;
 
-            var leftIcon, rightIcon, ixoffset, iyoffset;
+            var leftIcon, rightIcon, centerIcon, ixoffset, iyoffset;
 
             //setting gc properties are expensive, lets not do it unnecessarily
 
@@ -18397,6 +18397,10 @@ var noop = function() {};
                 leftIcon = val[0];
                 rightIcon = val[2];
                 val = val[1];
+                if (typeof val === 'object') { // must be an image
+                    centerIcon = val;
+                    val = null;
+                }
             }
 
             if (gc.font !== this.config.font) {
@@ -18442,8 +18446,11 @@ var noop = function() {};
                 gc.fillStyle = theColor;
                 gc.strokeStyle = theColor;
             }
-            gc.fillText(val, x + halignOffset, y + valignOffset);
+            if (val) {
+                gc.fillText(val, x + halignOffset, y + valignOffset);
+            } else if (centerIcon) {
 
+            }
             if (isColumnHovered && isRowHovered) {
                 gc.beginPath();
                 if (isLink) {
@@ -18465,6 +18472,12 @@ var noop = function() {};
                 ixoffset = Math.round((halignOffset - rightIcon.width) / 2);
                 gc.drawImage(rightIcon, x + width - ixoffset - rightIcon.width, y + iyoffset);
                 iconWidth = Math.max(rightIcon.width + 2);
+            }
+            if (centerIcon) {
+                iyoffset = Math.round((height - rightIcon.height) / 2);
+                ixoffset = Math.round((width - centerIcon.width) / 2);
+                gc.drawImage(centerIcon, x + width - ixoffset - centerIcon.width, y + iyoffset);
+                iconWidth = Math.max(centerIcon.width + 2);
             }
             this.config.minWidth = this.config.minWidth + 2 * (iconWidth);
         },
@@ -22731,6 +22744,8 @@ it contains all code/data that's necessary for easily implementing a virtual dat
         ['expand-all', 'iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC41ZYUyZQAAAQ9JREFUOE9jcIoq/Y+MgYCBFAw2AMahmQEK7UL/kTGyHFFeAGkKOmoLxhgGIHNwYZCm0JMOYIzVACCAC2JzEUhTxFlnMCboAmRvIBsQc8kNjPG6AETjMiD+micYE+UCZAwSA2lKvuUDxnhdgIwLNqWDFcNw+n1/MEYWK9iYjqoJhGE2O8QU/FdplPsfesL+f9bjIBQMErOaqgtUjuYCEA1zNghbpyT815wgBbY570Xo/9znof/T7vn/V++X+N93sB2iB6YYhpENALFBCs2XqP0veB0OxiA2TDMIo2gGYZgXYBgkFrjQ7X/AAWsIXuAKFoNhFM34sN5Ehf8g/Pj9QyAXIY6iCB8GORvZ6RD8nwEA/ZSbmLCRhEoAAAAASUVORK5CYII='],
         ['collapse-all', 'iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAOwQAADsEBuJFr7QAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC41ZYUyZQAAAPNJREFUOE9jcIoq/Y+MGXCACUc6/4MwlIsAyJrwGaA3UeE/CEO5CECMAYEL3f4HHLCG4AWuqGpAmpAxVBgOQM42X6L2v+B1OBiD2H0H27FahAFAmjUnSP1Pv+//P/d5KBin3fP/r94vgREecA6ya/Q7lf+HnrD/n/U4CAWDxKym6mJ3BcwbhZsz/iu0C8ExyBUgjCxWsDEdbgiMgRIOMDZIcfItHzAGscGSuADM+TAMEgNpir/mCca4DMBrKkhTzCU3MCbbBRFnncGYkAvgmkAA2YDQkw5gTJQLoEwUA4KO2oIxUQYgY5AYSBMyBiscJICBAQCpROGZ6kqHfwAAAABJRU5ErkJggg=='],
         ['sortable', 'iVBORw0KGgoAAAANSUhEUgAAAA4AAAAKCAYAAACE2W/HAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAYdEVYdFNvZnR3YXJlAHBhaW50Lm5ldCA0LjAuNWWFMmUAAAAxSURBVChTY8AD/kNpkgBIEwwTDZA1Ea0ZmyYYHmQAmxNhmCAgSxMMkKUJBvBoYmAAAJCXH+FU1T8+AAAAAElFTkSuQmCC'],
+        ['reset', 'iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAYdEVYdFNvZnR3YXJlAHBhaW50Lm5ldCA0LjAuNWWFMmUAAAL8SURBVDhPbZLZTxNRFMbnDzD65BsurC2tSFlENiG4EARBguzIGkBDwKAsIqA+EAIE45JgogaCxrdqgiQmxhAVjWIEpEioChRKUGmZTpeZaSlQ6OedoVYxnOSXe893vnPvzcml/o+V4WGJrbOmgm+tVLJN+UqeYL1Zp+TbLpy1qz7ud9m2D+u9tjq+qYTmLmbZuUvZIOsmNTnCauOvlWuX77dHuux/wzQ6sIvrbOziKrPBlqa64ZsrwF8u26Jxl4pg7WppxuSbHa52iuJry9rZgtOwZCdsUpgKC8nXtRqsDQ2SxgxY8pPddZbU2drSarHZdqsjxXTqqNl8MhYCXEkO1j59AFeeD6fFDMcXFazkQseECmxBuugROZMwtXKrQ0KxRdl95mPRMMdFgi3KxYZuEWtjn2FJT4HTTA4YHwN7rgTr8/PkkHFYUhNFrzkhjryssIgyRkWOmYKDYAoLxUr/MziNRmI6DUFzmkxwjI6Ie0tWJpwMA+5KA0whwaJmSkrqpgwSuZqRyGAMjyY3q2BXPgEjkRNkZAZarL56Le4FbfXlAGw9vTAGKETNKA1QUkxolJX28IEhOAJr4xOwPeiBkAswMSfAhMe6c/vTPtgePgbtLRdzY0o6Tem85WrdHl/opYFYffeevGIc+n1+ELR/ETTHt+/gWjug85SKGq0IU1K/5CFvf+71gwDXcQNO+wrMDVfF/F+4ztvYIPMxZOS6taX45BZKn5Z1d8HLf32BCAv+Clifv8A6TYO9cxd0TiEMBaWwkadvsBzY7l4s+MgheH/Igux0Wk4ixdTXe8wdDBvS7JdCYE4WDH1tA5aHR+AwMHDo9eDJ8HTnqzArVYgeAW1QhJKpur5T/EyWnkfHZ8mwpkhBYNpLhpkDIdAoDovMyIIw5envrs8eIcN90BsuNv+JxZor6dOHorWTPnKnmgxpO776HnBoYuJVS7e7ol1tW2O++JxsNiOvcTIkYlBNbp7w8seEtwzfImKhDjzUr8nMq14srtrtspOgqN9wa0YvcwzUuQAAAABJRU5ErkJggg=='],
+        ['empty', 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAYdEVYdFNvZnR3YXJlAHBhaW50Lm5ldCA0LjAuNWWFMmUAAAANSURBVBhXY/j//z8DAAj8Av6IXwbgAAAAAElFTkSuQmCC'],
         ['up-arrow', 'iVBORw0KGgoAAAANSUhEUgAAAAUAAAAKCAYAAAB8OZQwAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAYdEVYdFNvZnR3YXJlAHBhaW50Lm5ldCA0LjAuNWWFMmUAAAA9SURBVBhXbYvRCgAgCAOtqP//Y9tElw8NDrcDzd0DBCd7iSL3E0IvGOpf2fKXeZUFKDcYFMwBlDNWS76bXUM5P9In5AzyAAAAAElFTkSuQmCC'],
         ['down-arrow', 'iVBORw0KGgoAAAANSUhEUgAAAAUAAAAKCAYAAAB8OZQwAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAYdEVYdFNvZnR3YXJlAHBhaW50Lm5ldCA0LjAuNWWFMmUAAAA+SURBVBhXhYvRCgAgCAOtqP//4+WWhtBDB1duqBUQ/2W5LLtSMFyW020skuecwOGj6QzfkuExt1LlcqICgG3S7z/SL/jVpgAAAABJRU5ErkJggg==']
     ];
@@ -28030,9 +28045,10 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
                 return clone;
             } else {
                 if (this.isColumnReorderable()) {
-                    return [this.getImage('collapse-all'), '®', this.getImage('expand-all')];
+                    return [this.getImage('collapse-all'), this.getImage('reset'), this.getImage('expand-all')];
+                    //return [this.getImage('collapse-all'), '®', this.getImage('expand-all')];
                 } else {
-                    return '®';
+                    return [this.getImage('empty'), this.getImage('reset'), this.getImage('empty')];
                 }
             }
         },
