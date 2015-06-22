@@ -1,4 +1,4 @@
-/* global numeral */
+/* global numeral, SimpleLRU */
 'use strict';
 /**
  *
@@ -15,7 +15,7 @@
 (function() {
 
     var noop = function() {};
-    var logMessages = true;
+    var logMessages = false;
     var hierarchyColumn = 'g_';
 
     //keys mapping Q datatypes to aligment and renderers are setup here.
@@ -41,22 +41,38 @@
     //     f: 'simpleCellRenderer',
     //     d: 'simpleCellRenderer'
     // };
+    var iCache = new SimpleLRU(10000);
+    iCache.set(0, '0');
+    var fCache = new SimpleLRU(10000);
+    fCache.set(0, '0.00');
 
     var icommify = function(v) {
+        var result;
         if (v) {
-            return numeral(v).format('0,0');
-        } else if (v === 0) {
-            return '0';
+            result = iCache.get(v);
+            if (result) {
+                return result;
+            } else {
+                result = numeral(v).format('0,0');
+                iCache.set(v, result);
+                return result;
+            }
         } else {
             return '';
         }
     };
 
     var fcommify = function(v) {
+        var result;
         if (v) {
-            return numeral(v).format('0,0.00');
-        } else if (v === 0) {
-            return '0.00';
+            result = iCache.get(v);
+            if (result) {
+                return result;
+            } else {
+                result = numeral(v).format('0,0.00');
+                iCache.set(v, result);
+                return result;
+            }
         } else {
             return '';
         }

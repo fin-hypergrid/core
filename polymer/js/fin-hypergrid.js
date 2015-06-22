@@ -3025,12 +3025,13 @@
          *
          */
         autosizeColumn: function(colIndex) {
-            var width;
+            var width, currentWidth;
             if (colIndex < 0) {
                 var numFixedCols = this.getFixedColumnCount();
                 colIndex = colIndex + numFixedCols;
+                currentWidth = this.getFixedColumnWidth(colIndex);
                 width = this.getRenderer().renderedFixedColumnMinWidths[colIndex];
-                this.setFixedColumnWidth(colIndex, width);
+                this.setFixedColumnWidth(colIndex, Math.max(width, currentWidth));
             } else {
                 width = this.getRenderer().renderedColumnMinWidths[colIndex];
                 this.setColumnWidth(colIndex, width);

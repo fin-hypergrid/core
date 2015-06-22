@@ -27726,7 +27726,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
 
 </style>
   </template>
-  <script>/* global numeral */
+  <script>/* global numeral, SimpleLRU */
 'use strict';
 /**
  *
@@ -27743,7 +27743,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
 (function() {
 
     var noop = function() {};
-    var logMessages = true;
+    var logMessages = false;
     var hierarchyColumn = 'g_';
 
     //keys mapping Q datatypes to aligment and renderers are setup here.
@@ -27769,22 +27769,38 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
     //     f: 'simpleCellRenderer',
     //     d: 'simpleCellRenderer'
     // };
+    var iCache = new SimpleLRU(10000);
+    iCache.set(0, '0');
+    var fCache = new SimpleLRU(10000);
+    fCache.set(0, '0.00');
 
     var icommify = function(v) {
+        var result;
         if (v) {
-            return numeral(v).format('0,0');
-        } else if (v === 0) {
-            return '0';
+            result = iCache.get(v);
+            if (result) {
+                return result;
+            } else {
+                result = numeral(v).format('0,0');
+                iCache.set(v, result);
+                return result;
+            }
         } else {
             return '';
         }
     };
 
     var fcommify = function(v) {
+        var result;
         if (v) {
-            return numeral(v).format('0,0.00');
-        } else if (v === 0) {
-            return '0.00';
+            result = iCache.get(v);
+            if (result) {
+                return result;
+            } else {
+                result = numeral(v).format('0,0.00');
+                iCache.set(v, result);
+                return result;
+            }
         } else {
             return '';
         }
@@ -34506,12 +34522,13 @@ fin-vampire-bar {
          *
          */
         autosizeColumn: function(colIndex) {
-            var width;
+            var width, currentWidth;
             if (colIndex < 0) {
                 var numFixedCols = this.getFixedColumnCount();
                 colIndex = colIndex + numFixedCols;
+                currentWidth = this.getFixedColumnWidth(colIndex);
                 width = this.getRenderer().renderedFixedColumnMinWidths[colIndex];
-                this.setFixedColumnWidth(colIndex, width);
+                this.setFixedColumnWidth(colIndex, Math.max(width, currentWidth));
             } else {
                 width = this.getRenderer().renderedColumnMinWidths[colIndex];
                 this.setColumnWidth(colIndex, width);
