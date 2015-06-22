@@ -22,21 +22,21 @@
     },
     "appAssets": [
        {
-           "src": "http://10.9.107.239:9000/fin-hypergrid/q/q.zip",
+           "src": "https://developer.openfin.co/tests/swirts-hypergrid-assets/q.zip",
            "alias": "qhypertree",
-           "version": "0.0.0.1",
+           "version": "0.0.0.4",
            "args": ""
        },
        {
            "src": "http://10.9.107.239:9000/fin-hypergrid/starthypertree.zip",
            "alias": "qhypertree",
-           "version": "0.0.0.1",
+           "version": "0.0.0.4",
            "args": ""
        },
        {
            "src": "https://github.com/stevanapter/hypertree2/archive/master.zip",
            "alias": "qhypertree",
-           "version": "0.0.0.1",
+           "version": "0.0.0.4",
            "args": ""
        }
    ]
