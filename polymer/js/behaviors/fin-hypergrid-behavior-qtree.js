@@ -766,6 +766,9 @@
             if (!this.isCellClickEnabled()) {
                 return;
             }
+            if (cell.x <= this.getFixedColumnCount() || cell.y <= this.getFixedRowCount()) {
+                return; //no grey area double clicking alowed
+            }
             var rowNum = cell.y - this.scrollPositionY;
             var rows = this.block.hypertree[1].n_[rowNum];
             var colId = this.getColumnId(cell.x);
