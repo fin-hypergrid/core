@@ -971,12 +971,12 @@
         handleMessage: function(d) {
             //insure certain things exist
             var tableState = this.getState();
-            if (d.O && !d.O.columns) {
-                d.O.columns = {};
+            if (d.properties && !d.properties.columns) {
+                d.properties.columns = {};
             }
 
             this.block = d;
-            if (!tableState.columnIndexes || tableState.columnIndexes.length === 0 || d.F.length !== tableState.columnIndexes.length) {
+            if (!tableState.columnIndexes || tableState.columnIndexes.length === 0 || d.visible.length !== tableState.columnIndexes.length) {
                 this.initColumnIndexes(tableState);
             }
             //let's autosize the hierarchy column
