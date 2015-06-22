@@ -161,17 +161,17 @@
          */
         ready: function() {
             this.block = {
-                O: {
+                properties: {
                     columns: {}
                 },
-                N: 0,
-                F: [],
-                G: [],
-                S: {
+                count: 0,
+                visible: [],
+                groups: [],
+                sorts: {
                     cols: [],
                     rows: []
                 },
-                Z: [{
+                hypertree: [{
                     g_: ['']
                 }]
             };
@@ -225,10 +225,10 @@
             provider.getCell = function(config) {
                 var cell = provider.cellCache.simpleCellRenderer;
                 cell.config = config;
-                var colId = self.block.F[config.x];
-                var type = self.block.Q[colId];
+                var colId = self.block.visible[config.x];
+                var type = self.block.qtypes[colId];
                 var colProps;
-                var colPropertyAlias = self.block.O.columns[colId];
+                var colPropertyAlias = self.block.properties.columns[colId];
                 if (colPropertyAlias) {
                     colProps = columns[colPropertyAlias];
                     colProps.modifyConfig(cell);
@@ -335,7 +335,7 @@
             var col = this.getColumnId(x);
             var normalized = Math.floor(y - this.scrollPositionY);
             if (this.block && (typeof col === 'string')) {
-                var val = this.block.Z[1][col][normalized];
+                var val = this.block.hypertree[1][col][normalized];
                 if (val || val === 0) {
                     return val;
                 }
@@ -362,7 +362,7 @@
          * #### returns: integer
          */
         getRowCount: function() {
-            return Math.max(0, this.block.N - 1);
+            return Math.max(0, this.block.count - 1);
         },
 
         /**
@@ -373,7 +373,7 @@
          * #### returns: integer
          */
         getColumnCount: function() {
-            return this.block.F.length;
+            return this.block.visible.length;
         },
 
         /**
@@ -432,7 +432,7 @@
                 var clickIndicator = this.getClickIndicator(colId);
                 return [clickIndicator, colId, sortIndicator];
             }
-            var total = this.block.Z[0][colId];
+            var total = this.block.hypertree[0][colId];
             return total;
         },
 
@@ -445,10 +445,10 @@
         * @param {string} colId - the column id of interest
         */
         getClickIndicator: function(colId) {
-            if (!this.block.C) {
+            if (!this.block.icons) {
                 return this.getImage('rectangle-spacer');
             }
-            var direction = this.block.C[colId];
+            var direction = this.block.icons[colId];
             var image = this.getImage(imageMap[direction]);
             return image;
         },
@@ -462,11 +462,11 @@
         * @param {string} colId - the column id of interest
         */
         getSortIndicator: function(colId) {
-            var sortIndex = this.block.S.cols.indexOf(colId);
+            var sortIndex = this.block.sorts.cols.indexOf(colId);
             if (sortIndex < 0) {
                 return this.getImage('sortable');
             }
-            var sortState = this.block.S.sorts[sortIndex];
+            var sortState = this.block.sorts.sorts[sortIndex];
             var symbol = (sortIndex + 1) + sortMap[sortState];
             var state = this.getImage(symbol);
             return state;
@@ -483,7 +483,7 @@
          */
         getFixedColumnValue: function(x, y) {
             var indentPixels = 10;
-            var blob = this.block.Z[1];
+            var blob = this.block.hypertree[1];
             var transY = Math.max(0, y - this.scrollPositionY);
             var data = blob.g_[transY];
             var level = blob.l_[transY];
@@ -533,7 +533,7 @@
             if (!this.getCanSort()) {
                 return;
             }
-            var sortBlob = this.block.S;
+            var sortBlob = this.block.sorts;
             var sortIndex = sortBlob.cols.indexOf(colId);
 
             //lets get the current state or 'n' if it doesn't exist yet
@@ -595,9 +595,9 @@
          */
         getColumnAlignment: function(x) {
             var colId = this.getColumnId(x);
-            var type = this.block.Q[colId];
+            var type = this.block.qtypes[colId];
             var colProps;
-            var colPropertyAlias = this.block.O.columns[colId];
+            var colPropertyAlias = this.block.properties.columns[colId];
             if (colPropertyAlias) {
                 colProps = propertiesMap.columns[colPropertyAlias];
             }
@@ -614,7 +614,7 @@
          * @param {integer} x - the view translated x index
          */
         getColumnId: function(x) {
-            var headers = this.block.F;
+            var headers = this.block.visible;
             var col = headers[x];
             return col;
         },
@@ -660,7 +660,7 @@
             var colId = hierarchyColumn;
             var colWidth = this.getFixedColumnWidth(0);
             var mouseX = mouse.mousePoint.x;
-            var direction = this.block.C[hierarchyColumn];
+            var direction = this.block.icons[hierarchyColumn];
             if (mouseX < (colWidth / 2)) {
                 if (direction) {
                     var colClick = {
@@ -715,8 +715,8 @@
          */
         fixedColumnClicked: function(grid, mouse) {
             var rowNum = mouse.gridCell.y - this.scrollPositionY;
-            var rows = this.block.Z[1].n_[rowNum];
-            if (rows.length === this.block.G.length + 1) {
+            var rows = this.block.hypertree[1].n_[rowNum];
+            if (rows.length === this.block.groups.length + 1) {
                 //this is a leaf, don't send anything
                 return;
             }
@@ -743,7 +743,7 @@
                 return;
             }
             var colId = this.getColumnId(x);
-            var direction = this.block.C[colId];
+            var direction = this.block.icons[colId];
             var colWidth = this.getColumnWidth(x);
             var mousePoint = mouse.mousePoint.x;
             if (mousePoint < (colWidth / 2)) {
@@ -773,7 +773,7 @@
                 return;
             }
             var rowNum = cell.y - this.scrollPositionY;
-            var rows = this.block.Z[1].n_[rowNum];
+            var rows = this.block.hypertree[1].n_[rowNum];
             var colId = this.getColumnId(cell.x);
             var colClick = {
                 id: this.getNextMessageId(),
@@ -806,7 +806,7 @@
          * #### returns: boolean
          */
         isCellClickEnabled: function() {
-            return this.block.W;
+            return this.block.cell;
         },
 
         /**
@@ -817,7 +817,7 @@
          * #### returns: boolean
          */
         isColumnReorderable: function() {
-            return this.block.V;
+            return this.block.reorderable;
         },
         /**
          * @function
@@ -845,11 +845,11 @@
             this.beColumnStyle(group.style);
             group.style.left = '0%';
             group.title = 'groups';
-            group.list = this.block.G.slice(0);
+            group.list = this.block.groups.slice(0);
             //can't remove the last item
             group.canDragItem = function(list, item, index, e) {
                 noop(item, index, e);
-                if (self.block.U) {
+                if (self.block.ungrouped) {
                     return list.length > 1;
                 } else {
                     return true;
@@ -858,18 +858,18 @@
             //only allow dropping of H fields
             group.canDropItem = function(sourceList, myList, sourceIndex, item, e) {
                 noop(sourceList, myList, sourceIndex, e);
-                return self.block.H.indexOf(item) > -1;
+                return self.block.groupable.indexOf(item) > -1;
             };
 
             this.beColumnStyle(hidden.style);
             hidden.style.left = '33.3333%';
             hidden.title = 'hidden columns';
-            hidden.list = this.block.I.slice(0);
+            hidden.list = this.block.invisible.slice(0);
 
             this.beColumnStyle(visible.style);
             visible.style.left = '66.6666%';
             visible.title = 'visible columns';
-            visible.list = this.block.F.slice(0);
+            visible.list = this.block.visible.slice(0);
             //can't remove the last item
             visible.canDragItem = function(list, item, index, e) {
                 noop(item, index, e);
@@ -932,7 +932,7 @@
         endDragColumnNotification: function() {
             var self = this;
 
-            var visible = this.block.F.slice(0);
+            var visible = this.block.visible.slice(0);
             for (var i = 0; i < visible.length; i++) {
                 var transX = this.translateColumnIndex(i);
                 visible[i] = this.getColumnId(transX);
@@ -953,7 +953,7 @@
             var changeCols = {
                 id: msgId,
                 fn: 'groups',
-                groups: this.block.G,
+                groups: this.block.groups,
                 visible: visible
             };
 
@@ -1117,7 +1117,7 @@
             return 1;
         },
         getTreeStateDescription: function() {
-            var object = this.block.M;
+            var object = this.block.message;
             var result = '<table class="qtreedescription">\n';
             var data = '<tr>';
             for (var property in object) {
