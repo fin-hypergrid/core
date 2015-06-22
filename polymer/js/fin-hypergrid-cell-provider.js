@@ -199,10 +199,8 @@ var noop = function() {};
                 gc.fillStyle = theColor;
                 gc.strokeStyle = theColor;
             }
-            if (val) {
+            if (val !== null) {
                 gc.fillText(val, x + halignOffset, y + valignOffset);
-            } else if (centerIcon) {
-
             }
             if (isColumnHovered && isRowHovered) {
                 gc.beginPath();
