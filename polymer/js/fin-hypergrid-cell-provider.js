@@ -227,7 +227,7 @@ var noop = function() {};
                 iconWidth = Math.max(rightIcon.width + 2);
             }
             if (centerIcon) {
-                iyoffset = Math.round((height - rightIcon.height) / 2);
+                iyoffset = Math.round((height - centerIcon.height) / 2);
                 ixoffset = Math.round((width - centerIcon.width) / 2);
                 gc.drawImage(centerIcon, x + width - ixoffset - centerIcon.width, y + iyoffset);
                 iconWidth = Math.max(centerIcon.width + 2);
