@@ -26,7 +26,6 @@
                 rows: 0
             };
 
-            this.tableState.sorted = [];
             this.sortStates = [' ', ' \u2191', ' \u2193'];
 
             this.worker = new Worker('js/json-web-worker.js');
@@ -36,7 +35,34 @@
                 self.changed();
             };
         },
+        /**
+         * @function
+         * @instance
+         * @description
+         create a default empty tablestate
+         * #### returns: Object
+         */
+        getDefaultState: function() {
+            return {
+                columnIndexes: [],
+                fixedColumnIndexes: [],
+                hiddenColumns: [],
 
+                columnWidths: [],
+                fixedColumnWidths: [],
+                fixedColumnAutosized: [],
+
+                rowHeights: {},
+                fixedRowHeights: {},
+                columnProperties: [],
+                columnAutosized: [],
+
+                sorted: [],
+
+                fixedColumnCount: 1,
+                fixedRowCount: 1
+            };
+        },
         /**
         * @function
         * @instance
@@ -70,7 +96,7 @@
         initialize myself and the web worker
         */
         initialize: function() {
-            this.initColumnIndexes();
+            //this.initColumnIndexes();
             this.changed();
             this.postMessage({
                 cmd: 'fetchTableData',
