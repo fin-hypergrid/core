@@ -12991,14 +12991,6 @@ div.container {
         ctx: null,
 
         /**                                                             .
-         * fps is how many times a second we check the repaint flag for redrawing
-         *
-         * @property fps
-         * @type Number
-         */
-        fps: null,
-
-        /**                                                             .
          * mouseLocation is the current position of the mouse pointer
          *
          * @property mouseLocation
@@ -13155,8 +13147,6 @@ div.container {
             this.buffer = document.createElement('canvas');
             this.bufferCTX = this.buffer.getContext('2d');
 
-            this.fps = this.getAttribute('fps') || 60;
-
             this.mouseLocation = this.g.point.create(-1, -1);
             this.dragstart = this.g.point.create(-1, -1);
             //this.origin = this.g.point.create(0, 0);
@@ -13239,6 +13229,21 @@ div.container {
         /**
          *                                                                      .
          *                                                                      .
+         * return if I have the bitblit attribute set
+         *
+         * @method useBitBlit()
+         */
+        getFPS: function() {
+            var fps = this.getAttribute('fps');
+            if (fps === 0 || !fps) {
+                return 0;
+            }
+            return parseInt(fps);
+        },
+
+        /**
+         *                                                                      .
+         *                                                                      .
          * return my one child fin-canvas-component
          *
          * @method getComponent()
@@ -13269,7 +13274,7 @@ div.container {
         },
 
         tickPaint: function(now) {
-            var interval = 1000 / this.fps;
+            var interval = 1000 / this.getFPS();
             var lastRepaintTime = 0;
             this.checkSizeCounter++;
             if (this.checkSizeCounter < 3 || (this.checkSizeCounter % 45) === 0) {
@@ -13914,7 +13919,11 @@ div.container {
          * @method repaint()
          */
         repaint: function() {
+            var fps = this.getFPS();
             this.repaintNow = true;
+            if (fps === 0) {
+                this.paintNow();
+            }
         },
 
         /**
@@ -32094,6 +32103,24 @@ fin-vampire-bar {
                     this.lnfProperties[key] = properties[key];
                 }
             }
+            this.refreshProperties();
+        },
+
+        /**
+         * @function
+         * @description
+         utility function to push out properties if we change them
+         * @param {object} properties - an object of various key value pairs
+         * @instance
+         */
+
+        refreshProperties: function() {
+            var interval = this.resolveProperty('repaintIntervalRate');
+            var useBitBlit = this.resolveProperty('useBitBlit');
+            this.canvas = this.shadowRoot.querySelector('fin-canvas');
+            interval = interval === undefined ? 15 : interval;
+            this.canvas.setAttribute('fps', interval);
+            this.canvas.setAttribute('bitblit', useBitBlit === true);
         },
 
         /**
@@ -32620,7 +32647,8 @@ fin-vampire-bar {
             var interval = this.resolveProperty('repaintIntervalRate');
             var useBitBlit = this.resolveProperty('useBitBlit');
             this.canvas = this.shadowRoot.querySelector('fin-canvas');
-            this.canvas.setAttribute('fps', interval || 15);
+            interval = interval === undefined ? 15 : interval;
+            this.canvas.setAttribute('fps', interval);
             this.canvas.setAttribute('bitblit', useBitBlit === true);
 
             //this.shadowRoot.appendChild(domCanvas);

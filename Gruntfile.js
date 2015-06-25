@@ -5,7 +5,9 @@ var files = {
     polymerjs: [
         'polymer/js/**/*.js',
         'test/**/*.js',
-        'js/**/*.js'
+        'js/**/*.js',
+        '!polymer/js/bitset.min.js',
+        '!polymer/js/data.js'
     ],
 
     polymercss: [

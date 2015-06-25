@@ -571,6 +571,24 @@
                     this.lnfProperties[key] = properties[key];
                 }
             }
+            this.refreshProperties();
+        },
+
+        /**
+         * @function
+         * @description
+         utility function to push out properties if we change them
+         * @param {object} properties - an object of various key value pairs
+         * @instance
+         */
+
+        refreshProperties: function() {
+            var interval = this.resolveProperty('repaintIntervalRate');
+            var useBitBlit = this.resolveProperty('useBitBlit');
+            this.canvas = this.shadowRoot.querySelector('fin-canvas');
+            interval = interval === undefined ? 15 : interval;
+            this.canvas.setAttribute('fps', interval);
+            this.canvas.setAttribute('bitblit', useBitBlit === true);
         },
 
         /**
@@ -1097,7 +1115,8 @@
             var interval = this.resolveProperty('repaintIntervalRate');
             var useBitBlit = this.resolveProperty('useBitBlit');
             this.canvas = this.shadowRoot.querySelector('fin-canvas');
-            this.canvas.setAttribute('fps', interval || 15);
+            interval = interval === undefined ? 15 : interval;
+            this.canvas.setAttribute('fps', interval);
             this.canvas.setAttribute('bitblit', useBitBlit === true);
 
             //this.shadowRoot.appendChild(domCanvas);
