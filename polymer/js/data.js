@@ -10,6 +10,196 @@ this file holds code that is exploratory for data manipulation, it is currently 
 
 var noop = function() {};
 
+window.directFlashSort = function(a) {
+    var n = a.length;
+    var i = 0, j = 0, k = 0, t;
+    var m = ~~( n * 0.125 );
+    var l = [];
+    var anmin = a[ 0 ];
+    var nmax = 0;
+    var nmove = 0;
+
+    for ( i = 0; i < m; i++ ) {
+            l[ i ] = 0;
+    }
+
+    for ( i = 1; i < n; ++i ) {
+            if ( a[ i ] < anmin ) anmin = a[ i ];
+            if ( a[ i ] > a[ nmax ] ) nmax = i;
+    }
+
+    if ( anmin == a[ nmax ]) return;
+
+    var c1 = ( m - 1 ) / ( a[ nmax ] - anmin );
+
+    for ( i = 0; i < n; ++i ) {
+            k = ~~( c1 * ( a[ i ] - anmin ) );
+            ++l[ k ];
+    }
+
+    for ( k = 1; k < m; ++k ) {
+            l[ k ] += l[ k - 1 ];
+    }
+
+    var hold = a[ nmax ];
+    a[ nmax ] = a[ 0 ];
+    a[ 0 ] = hold;
+
+    var flash;
+    j = 0;
+    k = m - 1;
+    i = n - 1;
+
+    while ( nmove < i ) {
+            while ( j > ( l[ k ] - 1 ) ) {
+                    k = ~~( c1 * ( a[ ++j ] - anmin ) );
+            }
+            flash = a[ j ];
+
+            while ( j != l[ k ] ) {
+                    k = ~~( c1 * ( flash - anmin ) );
+                    hold = a[ ( t = l[ k ]-1) ];
+                    a[ t ] = flash;
+                    flash = hold;
+                    --l[ k ];
+                    ++nmove;
+            }
+    }
+
+    for( j = 1; j < n; ++j ) {
+            hold = a[ j ];
+            i = j - 1;
+            while( i >= 0 && a[i] > hold ) {
+                    a[ i + 1 ] = a[ i-- ];
+            }
+            a[ i + 1 ] = hold;
+    }
+}
+
+window.directDualPivotQuicksort = (function() {
+
+    var dualPivotQS = {};
+
+    dualPivotQS.sort = function(arr, fromIndex, toIndex) {
+        if(fromIndex === undefined && toIndex === undefined){
+            dualPivotQS.sort(arr, 0, arr.length);
+        } else{
+            rangeCheck(arr.length, fromIndex, toIndex);
+            dualPivotQuicksort(arr, fromIndex, toIndex - 1, 3);
+        }
+        return arr;
+    }
+
+    function rangeCheck(length, fromIndex, toIndex) {
+        if (fromIndex > toIndex) {
+            console.error("fromIndex(" + fromIndex + ") > toIndex(" + toIndex + ")");
+        }
+        if (fromIndex < 0) {
+            console.error(fromIndex);
+        }
+        if (toIndex > length) {
+            console.error(toIndex);
+        }
+    }
+
+    function swap(arr, i, j) {
+        var temp = arr[i];
+        arr[i] = arr[j];
+        arr[j] = temp;
+    }
+
+    function dualPivotQuicksort( arr, left, right, div) {
+        var len = right - left;
+
+        if (len < 27) { // insertion sort for tiny array
+            for (var i = left + 1; i <= right; i++) {
+                for (var j = i; j > left && arr[j] < arr[j - 1]; j--) {
+                    swap(arr, j, j - 1);
+                }
+            }
+            return;
+        }
+        var third = Math.floor(len / div); //TODO: check if we need to round up or down or just nearest
+
+        // "medians"
+        var m1 = left  + third;
+        var m2 = right - third;
+
+        if (m1 <= left) {
+            m1 = left + 1;
+        }
+        if (m2 >= right) {
+            m2 = right - 1;
+        }
+        if (arr[m1] < arr[m2]) {
+            swap(arr, m1, left);
+            swap(arr, m2, right);
+        }
+        else {
+            swap(arr, m1, right);
+            swap(arr, m2, left);
+        }
+        // pivots
+        var pivot1 = arr[left];
+        var pivot2 = arr[right];
+
+        // pointers
+        var less  = left  + 1;
+        var great = right - 1;
+
+        // sorting
+        for (var k = less; k <= great; k++) {
+            if (arr[k] < pivot1) {
+                swap(arr, k, less++);
+            }
+            else if (arr[k] > pivot2) {
+                while (k < great && arr[great] > pivot2) {
+                    great--;
+                }
+                swap(arr, k, great--);
+
+                if (arr[k] < pivot1) {
+                    swap(arr, k, less++);
+                }
+            }
+        }
+        // swaps
+        var dist = great - less;
+
+        if (dist < 13) {
+            div++;
+        }
+        swap(arr, less  - 1, left);
+        swap(arr, great + 1, right);
+
+        // subarrays
+        dualPivotQuicksort(arr, left,   less - 2, div);
+        dualPivotQuicksort(arr, great + 2, right, div);
+
+        // equal elements
+        if (dist > len - 13 && pivot1 != pivot2) {
+            for (var k = less; k <= great; k++) {
+                if (arr[k] == pivot1) {
+                    swap(arr, k, less++);
+                }
+                else if (arr[k] == pivot2) {
+                    swap(arr, k, great--);
+
+                    if (arr[k] == pivot1) {
+                        swap(arr, k, less++);
+                    }
+                }
+            }
+        }
+        // subarray
+        if (pivot1 < pivot2) {
+            dualPivotQuicksort(arr, less, great, div);
+        }
+    }
+    return dualPivotQS.sort;
+}());
+
+
 window.flashSort = (function() {
     /*jshint bitwise: false*/
     return function(indexVector, a) {
@@ -102,127 +292,7 @@ window.flashSort = (function() {
     };
 })();
 
-window.dualPivotQuickSort = (function() {
-
-    var dualPivotQS = {};
-
-    dualPivotQS.sort = function(indexVector, arr, fromIndex, toIndex) {
-        if (fromIndex === undefined && toIndex === undefined) {
-            this.sort(indexVector, arr, 0, arr.length);
-        } else {
-            rangeCheck(indexVector, arr.length, fromIndex, toIndex);
-            dualPivotQuicksort(indexVector, arr, fromIndex, toIndex - 1, 3);
-        }
-        return arr;
-    };
-
-    function rangeCheck(indexVector, length, fromIndex, toIndex) {
-        if (fromIndex > toIndex) {
-            console.error('fromIndex(' + fromIndex + ') > toIndex(' + toIndex + ')');
-        }
-        if (fromIndex < 0) {
-            console.error(fromIndex);
-        }
-        if (toIndex > length) {
-            console.error(toIndex);
-        }
-    }
-
-    function swap(indexVector, arr, i, j) {
-        var temp = indexVector[i];
-        indexVector[i] = indexVector[j];
-        indexVector[j] = temp;
-    }
-
-    function dualPivotQuicksort(indexVector, arr, left, right, div) {
-        var len = right - left;
-
-        if (len < 27) { // insertion sort for tiny array
-            for (var i = left + 1; i <= right; i++) {
-                for (var j = i; j > left && arr[indexVector[j]] < arr[indexVector[j - 1]]; j--) {
-                    swap(indexVector, arr, j, j - 1);
-                }
-            }
-            return;
-        }
-        var third = Math.floor(len / div); //TODO: check if we need to round up or down or just nearest
-
-        // 'medians'
-        var m1 = left + third;
-        var m2 = right - third;
-
-        if (m1 <= left) {
-            m1 = left + 1;
-        }
-        if (m2 >= right) {
-            m2 = right - 1;
-        }
-        if (arr[indexVector[m1]] < arr[indexVector[m2]]) {
-            swap(indexVector, arr, m1, left);
-            swap(indexVector, arr, m2, right);
-        } else {
-            swap(indexVector, arr, m1, right);
-            swap(indexVector, arr, m2, left);
-        }
-        // pivots
-        var pivot1 = arr[indexVector[left]];
-        var pivot2 = arr[indexVector[right]];
-
-        // pointers
-        var less = left + 1;
-        var great = right - 1;
-        var k;
-        // sorting
-        for (k = less; k <= great; k++) {
-            if (arr[indexVector[k]] < pivot1) {
-                swap(indexVector, arr, k, less++);
-            } else if (arr[indexVector[k]] > pivot2) {
-                while (k < great && arr[great] > pivot2) {
-                    great--;
-                }
-                swap(indexVector, arr, k, great--);
-
-                if (arr[indexVector[k]] < pivot1) {
-                    swap(indexVector, arr, k, less++);
-                }
-            }
-        }
-        // swaps
-        var dist = great - less;
-
-        if (dist < 13) {
-            div++;
-        }
-        swap(indexVector, arr, less - 1, left);
-        swap(indexVector, arr, great + 1, right);
-
-        // subarrays
-        dualPivotQuicksort(indexVector, arr, left, less - 2, div);
-        dualPivotQuicksort(indexVector, arr, great + 2, right, div);
-
-        // equal            var k;elements
-        if (dist > len - 13 && pivot1 !== pivot2) {
-            for (k = less; k <= great; k++) {
-                if (arr[indexVector[k]] === pivot1) {
-                    swap(indexVector, arr, k, less++);
-                } else if (arr[indexVector[k]] === pivot2) {
-                    swap(indexVector, arr, k, great--);
-
-                    if (arr[indexVector[k]] === pivot1) {
-                        swap(indexVector, arr, k, less++);
-                    }
-                }
-            }
-        }
-        // subarray
-        if (pivot1 < pivot2) {
-            dualPivotQuicksort(indexVector, arr, less, great, div);
-        }
-    }
-    return dualPivotQS.sort;
-}());
-
-var SIZE = 1000000;
+var SIZE = 1000;
 var seed = 0;
 var firstNames = ['Olivia', 'Sophia', 'Ava', 'Isabella', 'Boy', 'Liam', 'Noah', 'Ethan', 'Mason', 'Logan', 'Moe', 'Larry', 'Curly', 'Shemp', 'Groucho', 'Harpo', 'Chico', 'Zeppo', 'Stanley', 'Hardy'];
 var lastNames = ['Wirts', 'Oneil', 'Smith', 'Barbarosa', 'Soprano', 'Gotti', 'Columbo', 'Luciano', 'Doerre', 'DePena'];
@@ -272,33 +342,103 @@ var fields = [
     'travel'
 ];
 
+var buildIndex = function(/* data, index */) {
+    self = this;
+    this.items = new Array(this.enum.size);
+    i = 0;
+    this.enum.forEach(function(e) {
+        self.items[i++] = e;
+    }); /* jshint ignore:line */
+    this.enumSort(this.items);
+    this.enumMap = new Map();
+    this.enum = this.items;
+    for (i = 0; i < this.items.length; i++) {
+        this.enumMap.set(this.items[i], i);
+    }
+};
+
+var buildDateIndex = function(data, index) {
+    var self = this;
+    this.enumMap = new Map();
+    var length = data[index].length;
+    var set = new Set();
+    var items = new Array();
+    for (var i = 0; i < length; i++) {
+        var date = data[index][i];
+        var time = date.getTime();
+        var beforeSize = set.size;
+        data[index][i] = time;
+        set.add(time);
+        if (beforeSize !== set.size) {
+            this.enumMap.set(time, date);
+        }
+    }
+};
+
+var buildBooleanIndex = function(data, f) {
+    self = this;
+    var bs = new BitSet(data[f].length);
+    i = 0;
+    for (i = 0; i < data[f].length; i++) {
+        var b = data[f][i] ? 1 : 0;
+        bs.set(i, b);
+    }
+    data[f] = bs;
+};
+
+var getValue = function(array, index) {
+    return this.items[array[index]];
+}; /* jshint ignore:line */
+
+var initIndex = function(array) {
+    //lets swap out my real value for an integer
+    for (i = 0; i < array.length; i++) {
+        array[i] = this.enumMap.get(array[i]);
+    }
+}; /* jshint ignore:line */
+
 var finanalytics = function(data, fields) {
     noop(data, fields);
     var that = {};
-    var enumThresholdCount = 100000; // don't make an enum unless row count is over this
-    var enumThresholdPercent = 0.40; // don't make an enum unless unique values are less than this count of rows
     var initializers = {
         String: function(index, data, meta, value) {
             data[index] = value;
             meta.enum.add(value);
             meta.types.add('String');
-            meta.sort = window.dualPivotQuickSort;
-            meta.label = 'dualPivotQuickSort';
+            meta.enumSort = window.directDualPivotQuicksort;
+            meta.buildIndex = buildIndex;
+            meta.get = getValue;
+            meta.init = initIndex;
         },
         Number: function(index, data, meta, value) {
             data[index] = value;
             meta.enum.add(value);
             meta.types.add('Number');
+            meta.enumSort = window.directFlashSort;
+            meta.buildIndex = buildIndex;
+            meta.get = getValue;
+            meta.init = initIndex;
         },
         Boolean: function(index, data, meta, value) {
             data[index] = value;
             meta.enum.add(value);
             meta.types.add('Boolean');
+            meta.enumSort = window.directDualPivotQuicksort;
+            meta.buildIndex = buildBooleanIndex;
+            meta.get = function(array, index) {
+                return array.get(array[index]);
+            }; /* jshint ignore:line */;
+            meta.init = function(array) {
+            };
         },
         Date: function(index, data, meta, value) {
-            data[index] = value.getTime();
+            data[index] = value;
             meta.enum.add(value);
             meta.types.add('Date');
+            meta.enumSort = window.directFlashSort;
+            meta.buildIndex = buildIndex;
+            meta.get = getValue;
+            meta.init = initIndex;
         }
     };
     that.initialize = function() {
@@ -313,12 +453,8 @@ var finanalytics = function(data, fields) {
                 label: 'flashSort',
                 enum: new Set(),
                 sort: window.flashSort,
-                types: new Set(),
-                get: function(array, index) {
-                    return array[index];
-                },
-                /* jshint ignore:line */
-                init: function( /* array, index */ ) {} /* jshint ignore:line */
+                enumSort: function(array) {},
+                types: new Set()
             };
         }
         for (i = 0; i < data.length; i++) {
@@ -361,46 +497,22 @@ var finanalytics = function(data, fields) {
         for (f = 0; f < fields.length; f++) {
             each = that.meta[f];
 
-            //lots of redundant data here, lets turn it into an enum
-            //if data is under enumCountThreshold count dont bother
-            //unique values need to be enumThresholdPercent size of the overall row count
-            if (that.data[f].length > enumThresholdCount && each.enum.size < enumThresholdPercent * that.data[f].length) {
-                console.log('enum ' + fields[f]);
-                var items = new Array(each.enum.size);
-                i = 0;
-                each.enum.forEach(function(e) {
-                    items[i++] = e;
-                }); /* jshint ignore:line */
-                items.sort();
-                each.enumMap = new Map();
-                each.enum = items;
-                for (i = 0; i < items.length; i++) {
-                    each.enumMap.set(items[i], i);
-                }
-                each.get = function(array, index) {
-                    return items[array[index]];
-                }; /* jshint ignore:line */
-                each.init = function(array, index) {
-                    //lets swap out my real value for an integer
-                    array[index] = each.enumMap.get(array[index]);
-                }; /* jshint ignore:line */
-                //now we can do a flash sort! super fast man!
-                each.sort = window.flashSort;
-                each.label = 'enum - flashSort';
-            } else {
-                //clear out our enum counter
-                each.enum = null;
-            }
+            console.log('enum ' + fields[f]);
+            each.buildIndex(that.data, f);
+
+            //now we can do a flash sort! super fast man!
+            each.sort = window.flashSort;
+            each.label = 'enum - flashSort';
+
         }
 
         //iterate through the data one more time and let
         //the column meta objects do what they want
-        for (i = 0; i < data.length; i++) {
+
             for (f = 0; f < fields.length; f++) {
                 each = that.meta[f];
-                each.init(that.data[f], i);
+                each.init(that.data[f]);
             }
-        }
     };
     that.getValue = function(x, y) {
         var value = that.meta[x].get(that.data[x], that.index[y]);
