@@ -78,8 +78,8 @@ This is a very rough in memory data source example.  fin-hypergrid-behavior-in-m
                 fixedColumnIndexes: [],
                 hiddenColumns: [],
 
-                columnWidths: [50, 150, 80, 90, 80, 150, 100, 80, 80, 100],
-                fixedColumnWidths: [120],
+                columnWidths: [],
+                fixedColumnWidths: [],
                 fixedColumnAutosized: [],
 
                 rowHeights: {},
@@ -87,12 +87,12 @@ This is a very rough in memory data source example.  fin-hypergrid-behavior-in-m
                 columnProperties: [],
                 columnAutosized: [],
 
+                fixedColumnCount: 0,
+                fixedRowCount: 1,
+
                 sorts: [],
                 sortLookup: {},
                 sorted: {},
-
-                fixedColumnCount: 0,
-                fixedRowCount: 1,
             };
         },
         /**

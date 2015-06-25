@@ -434,6 +434,9 @@
             this.fire('load');
             this.isScrollButtonClick = false;
 
+            setInterval(function() {
+                self.checkRepaint();
+            }, 16);
 
         },
 
@@ -587,6 +590,7 @@
             var useBitBlit = this.resolveProperty('useBitBlit');
             this.canvas = this.shadowRoot.querySelector('fin-canvas');
             interval = interval === undefined ? 15 : interval;
+            console.log('refresh rate = ' + interval);
             this.canvas.setAttribute('fps', interval);
             this.canvas.setAttribute('bitblit', useBitBlit === true);
         },
@@ -742,6 +746,8 @@
             }
             this.checkColumnAutosizing();
             this.fireSyntheticGridRenderedEvent();
+
+            this.repaintFlag = false;
         },
 
         /**
@@ -1058,6 +1064,19 @@
             this.synchronizeScrollingBoundries();
         },
 
+        checkRepaint: function() {
+            if (this.repaintFlag) {
+                var now = this.resolveProperty('repaintImmediately');
+                var canvas = this.getCanvas();
+                if (canvas) {
+                    if (now === true) {
+                        canvas.paintNow();
+                    } else {
+                        canvas.repaint();
+                    }
+                }
+            }
+        },
         /**
          * @function
          * @instance
@@ -1066,15 +1085,7 @@
          *
          */
         repaint: function() {
-            var now = this.resolveProperty('repaintImmediately');
-            var canvas = this.getCanvas();
-            if (canvas) {
-                if (now === true) {
-                    canvas.paintNow();
-                } else {
-                    canvas.repaint();
-                }
-            }
+            this.repaintFlag = true;
         },
 
         /**
@@ -3091,7 +3102,64 @@
          */
         getVisibleRows: function() {
             return this.getRenderer().getVisibleRows();
-        }
+        },
+
+        /**
+         * @function
+         * @instance
+         * @description
+        update the size of the grid
+         *
+         * #### returns: integer
+         */
+        updateSize: function() {
+            this.canvas.checksize();
+        },
+
+
+        /**
+         * @function
+         * @instance
+         * @description
+        stop the global repainting flag thread
+         *
+         */
+        stopPaintThread: function() {
+            this.canvas.stopPaintThread();
+        },
+
+        /**
+         * @function
+         * @instance
+         * @description
+        stop the global resize check flag thread
+         *
+         */
+        stopResizeThread: function() {
+            this.canvas.stopResizeThread();
+        },
+
+        /**
+         * @function
+         * @instance
+         * @description
+        restart the global resize check flag thread
+         *
+         */
+        restartResizeThread: function() {
+            this.canvas.restartResizeThread();
+        },
+
+        /**
+         * @function
+         * @instance
+         * @description
+        restart the global repainting check flag thread
+         *
+         */
+        restartPaintThread: function() {
+            this.canvas.restartPaintThread();
+        },
     });
 
 })(); /* jslint ignore:line */

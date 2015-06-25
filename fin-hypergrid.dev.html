@@ -12848,23 +12848,43 @@ div.container {
 
 (function() {
 
-    /**
-     * charMap is a private property that maps keys strokes to key chars,
-     *
-     * @property charMap
-     * @type Array
-     */
-    var canvases = [];
+    var paintables = [];
+    var resizables = [];
+    var paintLoopRunning = true;
+    var resizeLoopRunning = true;
+
     var paintLoopFunction = function(now) {
-        for (var i = 0; i < canvases.length; i++) {
+        if (!paintLoopRunning) {
+            return;
+        }
+        for (var i = 0; i < paintables.length; i++) {
             try {
-                canvases[i](now);
+                paintables[i](now);
             } catch (e) {}
         }
         requestAnimationFrame(paintLoopFunction);
     };
     requestAnimationFrame(paintLoopFunction);
 
+
+    var resizablesLoopFunction = function(now) {
+        if (!resizeLoopRunning) {
+            return;
+        }
+        for (var i = 0; i < resizables.length; i++) {
+            try {
+                resizables[i](now);
+            } catch (e) {}
+        }
+    };
+    setInterval(resizablesLoopFunction, 200);
+
+    /**
+     * charMap is a private property that maps keys strokes to key chars,
+     *
+     * @property charMap
+     * @type Array
+     */
     var charMap = [];
     var empty = ['', ''];
     for (var i = 0; i < 256; i++) {
@@ -13113,17 +13133,6 @@ div.container {
          */
         hasMouse: false,
 
-        /**
-         *                                                                      .
-         *                                                                      .
-         * counter to throttle size checking
-         *
-         * @attribute checkSizeCounter
-         * @default 0
-         * @type Number
-         */
-        checkSizeCounter: 0,
-
         lastDoubleClickTime: 0,
         dragEndTime: 0,
 
@@ -13137,7 +13146,6 @@ div.container {
         ready: function() {
 
             var self = this;
-            this.checkSizeCounter = 0;
             this.dragEndtime = Date.now();
             this.g = document.createElement('fin-rectangle');
             this.canvas = this.shadowRoot.querySelector('.canvas');
@@ -13196,12 +13204,38 @@ div.container {
             // });
 
             this.resize();
+            this.beginResizing();
             this.beginPainting();
 
         },
 
+        stopPaintThread: function() {
+            paintLoopRunning = false;
+        },
+
+        restartPaintThread: function() {
+            if (paintLoopRunning) {
+                return; // already running
+            }
+            paintLoopRunning = true;
+            requestAnimationFrame(paintLoopFunction);
+        },
+
+        stopResizeThread: function() {
+            resizeLoopRunning = false;
+        },
+
+        restartResizeThread: function() {
+            if (resizeLoopRunning) {
+                return; // already running
+            }
+            resizeLoopRunning = true;
+            setInterval(resizablesLoopFunction, 200);
+        },
+
         detached: function() {
             this.stopPainting();
+            this.stopResizing();
         },
 
         /**
@@ -13229,16 +13263,18 @@ div.container {
         /**
          *                                                                      .
          *                                                                      .
-         * return if I have the bitblit attribute set
+         * return frames per second
          *
-         * @method useBitBlit()
+         * @method getFPS()
          */
         getFPS: function() {
             var fps = this.getAttribute('fps');
             if (fps === 0 || !fps) {
-                return 0;
+                fps = 0;
             }
-            return parseInt(fps);
+            fps = parseInt(fps);
+            return fps;
+
         },
 
         /**
@@ -13251,6 +13287,21 @@ div.container {
         getComponent: function() {
             var comp = this.children[0];
             return comp;
+        },
+
+        tickPaint: function(now) {
+            var fps = this.getFPS();
+            if (fps === 0) {
+                return;
+            }
+            var interval = 1000 / fps;
+            var lastRepaintTime = 0;
+
+            var delta = now - lastRepaintTime;
+            if (delta > interval && this.repaintNow) {
+                lastRepaintTime = now - (delta % interval);
+                this.paintNow();
+            }
         },
 
         /**
@@ -13266,25 +13317,23 @@ div.container {
             this.tickPainter = function(now) {
                 self.tickPaint(now);
             };
-            canvases.push(this.tickPainter);
+            paintables.push(this.tickPainter);
         },
 
         stopPainting: function() {
-            canvases.splice(canvases.indexOf(this.tickPainter), 1);
+            paintables.splice(paintables.indexOf(this.tickPainter), 1);
         },
 
-        tickPaint: function(now) {
-            var interval = 1000 / this.getFPS();
-            var lastRepaintTime = 0;
-            this.checkSizeCounter++;
-            if (this.checkSizeCounter < 3 || (this.checkSizeCounter % 45) === 0) {
-                this.checksize();
-            }
-            var delta = now - lastRepaintTime;
-            if (delta > interval && this.repaintNow) {
-                lastRepaintTime = now - (delta % interval);
-                this.paintNow();
-            }
+        beginResizing: function() {
+            var self = this;
+            this.tickResizer = function() {
+                self.checksize();
+            };
+            resizables.push(this.tickResizer);
+        },
+
+        stopResizing: function() {
+            resizables.splice(resizables.indexOf(this.tickResizer), 1);
         },
 
         /**
@@ -13921,7 +13970,7 @@ div.container {
         repaint: function() {
             var fps = this.getFPS();
             this.repaintNow = true;
-            if (fps === 0) {
+            if (!paintLoopRunning || fps === 0) {
                 this.paintNow();
             }
         },
@@ -19332,7 +19381,7 @@ var commands = {
             grid.scrollBy(xOffset, yOffset);
             this.handleMouseDragCellSelection(grid, this.lastDragCell, []); // update the selection
             grid.repaint();
-
+            console.log('scroll 25 ' + Date.now());
             setTimeout(this.scrollDrag.bind(this, grid), 25);
         },
 
@@ -23532,8 +23581,8 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          * @param {Object} mouse - event details
          */
         _fixedRowClicked: function(grid, mouse) {
-            var x = this.translateColumnIndex(mouse.gridCell.x - this.getFixedColumnCount());
-            var translatedPoint = this.grid.rectangles.point.create(this.scrollPositionX + x, mouse.gridCell.y);
+            var x = this.translateColumnIndex(this.scrollPositionX + mouse.gridCell.x - this.getFixedColumnCount());
+            var translatedPoint = this.grid.rectangles.point.create(x, mouse.gridCell.y);
             mouse.gridCell = translatedPoint;
             this.fixedRowClicked(grid, mouse);
         },
@@ -25539,8 +25588,8 @@ This is a very rough in memory data source example.  fin-hypergrid-behavior-in-m
                 fixedColumnIndexes: [],
                 hiddenColumns: [],
 
-                columnWidths: [50, 150, 80, 90, 80, 150, 100, 80, 80, 100],
-                fixedColumnWidths: [120],
+                columnWidths: [],
+                fixedColumnWidths: [],
                 fixedColumnAutosized: [],
 
                 rowHeights: {},
@@ -25548,12 +25597,12 @@ This is a very rough in memory data source example.  fin-hypergrid-behavior-in-m
                 columnProperties: [],
                 columnAutosized: [],
 
+                fixedColumnCount: 0,
+                fixedRowCount: 1,
+
                 sorts: [],
                 sortLookup: {},
                 sorted: {},
-
-                fixedColumnCount: 0,
-                fixedRowCount: 1,
             };
         },
         /**
@@ -31966,6 +32015,9 @@ fin-vampire-bar {
             this.fire('load');
             this.isScrollButtonClick = false;
 
+            setInterval(function() {
+                self.checkRepaint();
+            }, 16);
 
         },
 
@@ -32119,6 +32171,7 @@ fin-vampire-bar {
             var useBitBlit = this.resolveProperty('useBitBlit');
             this.canvas = this.shadowRoot.querySelector('fin-canvas');
             interval = interval === undefined ? 15 : interval;
+            console.log('refresh rate = ' + interval);
             this.canvas.setAttribute('fps', interval);
             this.canvas.setAttribute('bitblit', useBitBlit === true);
         },
@@ -32274,6 +32327,8 @@ fin-vampire-bar {
             }
             this.checkColumnAutosizing();
             this.fireSyntheticGridRenderedEvent();
+
+            this.repaintFlag = false;
         },
 
         /**
@@ -32590,6 +32645,19 @@ fin-vampire-bar {
             this.synchronizeScrollingBoundries();
         },
 
+        checkRepaint: function() {
+            if (this.repaintFlag) {
+                var now = this.resolveProperty('repaintImmediately');
+                var canvas = this.getCanvas();
+                if (canvas) {
+                    if (now === true) {
+                        canvas.paintNow();
+                    } else {
+                        canvas.repaint();
+                    }
+                }
+            }
+        },
         /**
          * @function
          * @instance
@@ -32598,15 +32666,7 @@ fin-vampire-bar {
          *
          */
         repaint: function() {
-            var now = this.resolveProperty('repaintImmediately');
-            var canvas = this.getCanvas();
-            if (canvas) {
-                if (now === true) {
-                    canvas.paintNow();
-                } else {
-                    canvas.repaint();
-                }
-            }
+            this.repaintFlag = true;
         },
 
         /**
@@ -34623,7 +34683,64 @@ fin-vampire-bar {
          */
         getVisibleRows: function() {
             return this.getRenderer().getVisibleRows();
-        }
+        },
+
+        /**
+         * @function
+         * @instance
+         * @description
+        update the size of the grid
+         *
+         * #### returns: integer
+         */
+        updateSize: function() {
+            this.canvas.checksize();
+        },
+
+
+        /**
+         * @function
+         * @instance
+         * @description
+        stop the global repainting flag thread
+         *
+         */
+        stopPaintThread: function() {
+            this.canvas.stopPaintThread();
+        },
+
+        /**
+         * @function
+         * @instance
+         * @description
+        stop the global resize check flag thread
+         *
+         */
+        stopResizeThread: function() {
+            this.canvas.stopResizeThread();
+        },
+
+        /**
+         * @function
+         * @instance
+         * @description
+        restart the global resize check flag thread
+         *
+         */
+        restartResizeThread: function() {
+            this.canvas.restartResizeThread();
+        },
+
+        /**
+         * @function
+         * @instance
+         * @description
+        restart the global repainting check flag thread
+         *
+         */
+        restartPaintThread: function() {
+            this.canvas.restartPaintThread();
+        },
     });
 
 })(); /* jslint ignore:line */

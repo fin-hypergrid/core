@@ -234,7 +234,7 @@
             grid.scrollBy(xOffset, yOffset);
             this.handleMouseDragCellSelection(grid, this.lastDragCell, []); // update the selection
             grid.repaint();
-
+            console.log('scroll 25 ' + Date.now());
             setTimeout(this.scrollDrag.bind(this, grid), 25);
         },
 
