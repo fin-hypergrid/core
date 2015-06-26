@@ -19,25 +19,5 @@
         "icon": "http://10.9.107.239:9000/fin-hypergrid/images/openfin.ico",
         "name": "Hypergrid-Demo",
         "force": true
-    },
-    "appAssets": [
-       {
-           "src": "https://developer.openfin.co/tests/swirts-hypergrid-assets/q.zip",
-           "alias": "qhypertree",
-           "version": "0.0.0.5",
-           "args": ""
-       },
-       {
-           "src": "http://10.9.107.239:9000/fin-hypergrid/starthypertree.zip",
-           "alias": "qhypertree",
-           "version": "0.0.0.5",
-           "args": ""
-       },
-       {
-           "src": "https://github.com/stevanapter/hypertree/archive/master.zip",
-           "alias": "qhypertree",
-           "version": "0.0.0.5",
-           "args": ""
-       }
-   ]
+    }
 }
