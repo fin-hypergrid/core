@@ -95,31 +95,30 @@
         }
         table.addGlobalProperties(lnfOverrides);
 
-        behavior.getColumnProperties = function(columnIndex) {
-            behavior.clearObjectProperties(behavior.columnProperties);
+        var props;
+        props = behavior.getColumnProperties(1);
+        props.bgColor = '#2565a2';
+        props.fgColor = 'white';
 
-            switch(columnIndex) {
-                case 1:
-                    behavior.columnProperties.bgColor = '#2565a2';
-                    behavior.columnProperties.fgColor = 'white';
-                    break;
-                case 2:
-                    behavior.columnProperties.bgColor = '#c1c1c1';
-                    behavior.columnProperties.fgColor = 'black';
-                    break;
-                case 3:
-                    behavior.columnProperties.bgColor = '#941e20';
-                    behavior.columnProperties.fgColor = 'white';
-                    break;
-            }
-            return behavior.columnProperties;
-        },
+        props = behavior.getColumnProperties(2);
+        props.bgColor = '#c1c1c1';
+        props.fgColor = 'black';
+
+        props = behavior.getColumnProperties(3);
+        props.bgColor = '#941e20';
+        props.fgColor = 'white';
+
+
         behavior.getColumnAlignment = function(columnIndex) {
             if (columnIndex === 3) {
                 return 'right';
             }
             return 'center';
-        }
+        };
+
+        setTimeout(function(){
+            h.stopPaintThread();
+        }, 1000);
     };
 
     window.addEventListener('polymer-ready', function() {
