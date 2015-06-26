@@ -19,24 +19,24 @@
         "icon": "http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/images/openfin.ico",
         "name": "Hypergrid-Demo"
     },
-    "appAssets": [
-       {
-           "src": "https://developer.openfin.co/tests/swirts-hypergrid-assets/q.zip",
-           "alias": "qhypertree",
-           "version": "0.0.0.3",
-           "args": ""
-       },
-       {
-           "src": "http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/starthypertree.zip",
-           "alias": "qhypertree",
-           "version": "0.0.0.3",
-           "args": ""
-       },
-       {
-           "src": "https://github.com/stevanapter/hypertree/archive/master.zip",
-           "alias": "qhypertree",
-           "version": "0.0.0.3",
-           "args": ""
-       }
+    // "appAssets": [
+    //    {
+    //        "src": "https://developer.openfin.co/tests/swirts-hypergrid-assets/q.zip",
+    //        "alias": "qhypertree",
+    //        "version": "0.0.0.3",
+    //        "args": ""
+    //    },
+    //    {
+    //        "src": "http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/starthypertree.zip",
+    //        "alias": "qhypertree",
+    //        "version": "0.0.0.3",
+    //        "args": ""
+    //    },
+    //    {
+    //        "src": "https://github.com/stevanapter/hypertree/archive/master.zip",
+    //        "alias": "qhypertree",
+    //        "version": "0.0.0.3",
+    //        "args": ""
+    //    }
    ]
 }
