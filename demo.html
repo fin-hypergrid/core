@@ -664,32 +664,32 @@
             // // initialize our custom cell renderer
             jsonGrid.initializeCellEditor('fin-hypergrid-cell-editor-prompt');
 
-            if (!window.fin) {
-                if (this.logging) {
-                    console.log('could not launch q because we are not running inside the OpenFin container');
-                }
-                return;
-            } else {
-              fin.desktop.main(function() {
+            // if (!window.fin) {
+            //     if (this.logging) {
+            //         console.log('could not launch q because we are not running inside the OpenFin container');
+            //     }
+            //     return;
+            // } else {
+            //   fin.desktop.main(function() {
 
-                  var qTreeGrid = document.querySelector('#qtree-example');
+            //       var qTreeGrid = document.querySelector('#qtree-example');
 
-                  //get it's table model
-                  var qTreeModel = qTreeGrid.getBehavior();
+            //       //get it's table model
+            //       var qTreeModel = qTreeGrid.getBehavior();
 
-                  fin.desktop.System.launchExternalProcess({
-                  alias: 'qhypertree',
-                  target: 'starthypertree.cmd',
-                  arguments: '',
-                  listener: function(event){
-                      console.log(event);
-                   }
-                });
-                  setTimeout(function(){
-                    qTreeModel.reconnect();
-                  }, 2000);
-              });
-            }
+            //       fin.desktop.System.launchExternalProcess({
+            //       alias: 'qhypertree',
+            //       target: 'starthypertree.cmd',
+            //       arguments: '',
+            //       listener: function(event){
+            //           console.log(event);
+            //        }
+            //     });
+            //       setTimeout(function(){
+            //         qTreeModel.reconnect();
+            //       }, 2000);
+            //   });
+            // }
 
         });
     })();
