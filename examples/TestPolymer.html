@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html ng-app="tradeQueryUpdateApp">
+<head>
+    <!-- 1. Load platform support before any code that touches the DOM. -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.4.1/angular.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/0.13.0/ui-bootstrap-tpls.min.js"></script>
+    <script src="http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/examples/excel-json-behavior-data.js"></script>
+
+    <!-- 2. Load the component using an HTML Import -->
+
+    <link rel="import" href="http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/fin-hypergrid.dev.html">
+
+    <polymer-element name="mynew-celleditor">
+        <template>
+            <input type=text list=browsers>
+            <datalist id=browsers>
+                <option>Auto
+                <option>Manual
+            </datalist>
+        </template>
+        <script>
+            Polymer({
+                alias: 'neweditor'
+            });
+        </script>
+    </polymer-element>
+
+    <script>
+        var myApp = angular.module('tradeQueryUpdateApp', ['ui.bootstrap']);
+        myApp.controller('testController', ['$scope', '$http', function ($scope, $http) {
+            //$scope.doQuery();
+            document.addEventListener('polymer-ready', function () {
+                console.log("Polymer Ready Event Fired");
+                initializeGrid();
+            });
+        }]);
+
+        function initializeGrid() {
+            var table = document.querySelector('#json-grid');
+            table.initializeCellEditor('mynew-celleditor');
+            table.getBehavior().setData(data); // data is from the file excel-json-behavior-data.js
+        }
+    </script>
+
+</head>
+<body>
+    <!-- 3. Declare the element by its tag. -->
+    <div ng-controller="testController" style="position:absolute;width:100%;height:100%">
+        <fin-hypergrid id="json-grid" style="position:absolute;width:100%;height:100%">
+            <fin-hypergrid-behavior-json></fin-hypergrid-behavior-json>
+        </fin-hypergrid>
+    </div>
+</body>
+</html>
+
