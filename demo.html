@@ -44,7 +44,15 @@
     table.qtreedescription td:nth-child(2n) {
       color: blue;
     }
-    table.qtreedescription {
+    #qtreebuttons {
+      background: #CFD3DD;
+    }
+    #qtreebuttons img {
+      margin-left: 8px;
+      margin-top: 3px;
+      cursor: pointer;
+    }
+    #qtreedescription {
       background: #CFD3DD;
     }
     .rotateHalf {
@@ -218,7 +226,9 @@
         </div>
           <core-splitter direction="up"></core-splitter>
           <div flex class="rel">
-              <div class="abs" style="bottom:24px" id="qtreedescription">
+              <div class="abs" style="width:220px;bottom:24px" id="qtreebuttons">
+              </div>
+              <div class="abs" style="left:220px;bottom:24px" id="qtreedescription">
               </div>
               <div class="abs" style="top:24px">
                 <fin-hypergrid class="abs" id="qtree-example">
@@ -382,12 +392,18 @@
             //     return renderer;
             // };
             var descriptionPanel = document.querySelector('#qtreedescription');
+
             var description = '';
+
             setInterval(function(){
                 description = qTreeModel.getTreeStateDescription();
                 descriptionPanel.innerHTML = description;
             }, 500);
 
+            setTimeout(function() {
+                var buttonPanel = document.querySelector('#qtreebuttons');
+                qTreeModel.setButtonBarHolder(buttonPanel);
+            },1000);
         });
 
     })();

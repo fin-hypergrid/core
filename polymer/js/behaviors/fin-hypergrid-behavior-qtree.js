@@ -323,12 +323,13 @@
                 //clone[0] = clone[0] + ' ' + sortIndicator;
                 return clone;
             } else {
-                if (this.isColumnReorderable()) {
-                    return [this.getImage('collapse-all'), this.getImage('reset'), this.getImage('expand-all')];
-                    //return [this.getImage('collapse-all'), '®', this.getImage('expand-all')];
-                } else {
-                    return [this.getImage('empty'), this.getImage('reset'), this.getImage('empty')];
-                }
+                // if (this.isColumnReorderable()) {
+                //     return [this.getImage('collapse-all'), this.getImage('reset'), this.getImage('expand-all')];
+                //     //return [this.getImage('collapse-all'), '®', this.getImage('expand-all')];
+                // } else {
+                //     return [this.getImage('empty'), this.getImage('reset'), this.getImage('empty')];
+                // }
+                return '';
             }
         },
 
@@ -1141,7 +1142,49 @@
             }
             result = result + '\n' + data + '</tr></table>';
             return result;
-        }
+        },
+        setButtonBarHolder: function(buttonBarHolder) {
+            this.buttonBarHolder = buttonBarHolder;
+            this.initButtonBar();
+        },
+        initButtonBar: function() {
+            var self = this;
+            var image;
+            var bbh = this.buttonBarHolder;
+            if (!bbh) {
+                return;
+            }
+            bbh.innerHTML = '';
+
+            var action = function(name) {
+                return function() {
+                    self.buttonBarIconClick(name);
+                };
+            };
+            var imageNames = Object.keys(this.block.buttons);
+
+            for (var i = 0; i < imageNames.length; i++) {
+                var name = imageNames[i];
+                image = this.getImage(name.toLowerCase()).cloneNode();
+                bbh.appendChild(image);
+                image.onclick = action(name);
+            }
+        },
+
+        /**
+         * @function
+         * @instance
+         * @description
+         button bar icon has been clicked
+         * @param {string} buttonLabel - button action alias to send to hypertree process
+          */
+        buttonBarIconClick: function(buttonLabel) {
+            var bbClick = {
+                id: this.getNextMessageId(),
+                fn: buttonLabel
+            };
+            this.sendMessage(bbClick);
+        },
 
     });
 
