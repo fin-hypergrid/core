@@ -1064,7 +1064,7 @@
                     } else {
                         self.handleMessage(d);
                     }
-
+                    self.initButtonBar();
                 };
                 this.ws.onerror = function(e) {
                     self.clearData();
@@ -1167,7 +1167,12 @@
                 var name = imageNames[i];
                 image = this.getImage(name.toLowerCase()).cloneNode();
                 bbh.appendChild(image);
-                image.onclick = action(name);
+                if (!this.block.buttons[name]) {
+                    image.style.opacity = 0.4;
+                    image.style.cursor = 'default';
+                } else {
+                    image.onclick = action(name);
+                }
                 image.setAttribute('title', name);
             }
         },
