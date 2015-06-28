@@ -1168,6 +1168,7 @@
                 image = this.getImage(name.toLowerCase()).cloneNode();
                 bbh.appendChild(image);
                 image.onclick = action(name);
+                image.setAttribute('title', name);
             }
         },
 
