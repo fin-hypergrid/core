@@ -26694,6 +26694,17 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         * @function
         * @instance
         * @description
+        getter for the data field
+        */
+        getData: function() {
+            return this.data;
+        },
+
+
+        /**
+        * @function
+        * @instance
+        * @description
         we've been notified the data has changed in some way, reinitialize our various meta data
         */
         dataModified: function() {
