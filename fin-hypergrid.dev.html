@@ -18050,6 +18050,19 @@ var config = {
         * @function
         * @instance
         * @description
+         toggle the column picker
+        */
+
+        toggleColumnPicker: function(grid) {
+            if (this.next) {
+                this.next.toggleColumnPicker(grid);
+            }
+        },
+
+        /**
+        * @function
+        * @instance
+        * @description
          handle this event down the feature chain of responsibility
          * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
          * @param {Object} event - the event details
@@ -18458,6 +18471,15 @@ var noop = function() {};
                 if (typeof val === 'object') { // must be an image
                     centerIcon = val;
                     val = null;
+                }
+                if (leftIcon && leftIcon.nodeName !== 'IMG') {
+                    leftIcon = null;
+                }
+                if (rightIcon && rightIcon.nodeName !== 'IMG') {
+                    rightIcon = null;
+                }
+                if (centerIcon && centerIcon.nodeName !== 'IMG') {
+                    centerIcon = null;
                 }
             }
 
@@ -22804,6 +22826,7 @@ it contains all code/data that's necessary for easily implementing a virtual dat
         ['reset', 'iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAYdEVYdFNvZnR3YXJlAHBhaW50Lm5ldCA0LjAuNWWFMmUAAAL8SURBVDhPbZLZTxNRFMbnDzD65BsurC2tSFlENiG4EARBguzIGkBDwKAsIqA+EAIE45JgogaCxrdqgiQmxhAVjWIEpEioChRKUGmZTpeZaSlQ6OedoVYxnOSXe893vnPvzcml/o+V4WGJrbOmgm+tVLJN+UqeYL1Zp+TbLpy1qz7ud9m2D+u9tjq+qYTmLmbZuUvZIOsmNTnCauOvlWuX77dHuux/wzQ6sIvrbOziKrPBlqa64ZsrwF8u26Jxl4pg7WppxuSbHa52iuJry9rZgtOwZCdsUpgKC8nXtRqsDQ2SxgxY8pPddZbU2drSarHZdqsjxXTqqNl8MhYCXEkO1j59AFeeD6fFDMcXFazkQseECmxBuugROZMwtXKrQ0KxRdl95mPRMMdFgi3KxYZuEWtjn2FJT4HTTA4YHwN7rgTr8/PkkHFYUhNFrzkhjryssIgyRkWOmYKDYAoLxUr/MziNRmI6DUFzmkxwjI6Ie0tWJpwMA+5KA0whwaJmSkrqpgwSuZqRyGAMjyY3q2BXPgEjkRNkZAZarL56Le4FbfXlAGw9vTAGKETNKA1QUkxolJX28IEhOAJr4xOwPeiBkAswMSfAhMe6c/vTPtgePgbtLRdzY0o6Tem85WrdHl/opYFYffeevGIc+n1+ELR/ETTHt+/gWjug85SKGq0IU1K/5CFvf+71gwDXcQNO+wrMDVfF/F+4ztvYIPMxZOS6taX45BZKn5Z1d8HLf32BCAv+Clifv8A6TYO9cxd0TiEMBaWwkadvsBzY7l4s+MgheH/Igux0Wk4ixdTXe8wdDBvS7JdCYE4WDH1tA5aHR+AwMHDo9eDJ8HTnqzArVYgeAW1QhJKpur5T/EyWnkfHZ8mwpkhBYNpLhpkDIdAoDovMyIIw5envrs8eIcN90BsuNv+JxZor6dOHorWTPnKnmgxpO776HnBoYuJVS7e7ol1tW2O++JxsNiOvcTIkYlBNbp7w8seEtwzfImKhDjzUr8nMq14srtrtspOgqN9wa0YvcwzUuQAAAABJRU5ErkJggg=='],
 
         ['rectangle-spacer', 'iVBORw0KGgoAAAANSUhEUgAAAAkAAAAECAYAAABcDxXOAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAOwQAADsEBuJFr7QAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC41ZYUyZQAAAA1JREFUGFdjGHSAgQEAAJQAAY8LvLEAAAAASUVORK5CYII='],
+        ['add-column', 'iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABN0lEQVQ4jY3TMUtcQRQF4C+yRbAWDCrYpJNIihBQLHy/wsYmEhBnm0CqZAiB4EMbi03x7K1s0ttNKg0khBTbhSTlbmGpIBIkxU7guex7emCYO/feOZyZOfMAYgp/8Egz9sqi+jCp0MnzAl6jn9c3tZ6I+SbmTi3+VhbV6XhDTOEFhvchaMIOrmMKj3FRFtUtsqm2nTEFeIkBfmIQU/gaU3g+TtBE9BY9zOAYP/AMKaaw3KogpjCDd7VUD59zPI092u9gFQ9xhDP8xqd8lC7WWxXU8BfXRk9bj92l4DQ3b+Wxgg28yvWTVgVlUZ1jv5bqYi3HV0YGu9MH73GJN9jMuT62y6L63qogq4CPmMUSFvGk7tj7OPEQv8qi2p1UrBM8jSlMuf2RbjBndJkT8Z9giIMWFV+aCv8A+AtPY+n/U1kAAAAASUVORK5CYII='],
 
         ['up-rectangle', 'iVBORw0KGgoAAAANSUhEUgAAAAkAAAAECAYAAABcDxXOAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAOwgAADsIBFShKgAAAABp0RVh0U29mdHdhcmUAUGFpbnQuTkVUIHYzLjUuMTFH80I3AAAAHklEQVQYV2PAAv5DaZwApACGsQJkBVgVYlMAxQwMABOrD/GvP+EWAAAAAElFTkSuQmCC'],
         ['down-rectangle', 'iVBORw0KGgoAAAANSUhEUgAAAAkAAAAECAYAAABcDxXOAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAadEVYdFNvZnR3YXJlAFBhaW50Lk5FVCB2My41LjExR/NCNwAAABpJREFUGFdjgIL/eDAKIKgABggqgAE0BQwMAPTlD/Fpi0JfAAAAAElFTkSuQmCC'],
@@ -23753,6 +23776,20 @@ it contains all code/data that's necessary for easily implementing a virtual dat
             if (this.featureChain) {
                 this.featureChain.handleHoldPulse(grid, event);
                 this.setCursor(grid);
+            }
+        },
+
+        /**
+         * @function
+         * @instance
+         * @description
+         delegate handling double click to the feature chain of responsibility
+         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+         * @param {Object} event - the event details
+         */
+        toggleColumnPicker: function() {
+            if (this.featureChain) {
+                this.featureChain.toggleColumnPicker(this.getGrid());
             }
         },
 
@@ -28658,9 +28695,9 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
             group.canDragItem = function(list, item, index, e) {
                 noop(item, index, e);
                 if (self.block.ungrouped) {
-                    return list.length > 1;
-                } else {
                     return true;
+                } else {
+                    return list.length > 1;
                 }
             };
             //only allow dropping of H fields
@@ -28955,8 +28992,10 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
                     self.buttonBarIconClick(name);
                 };
             };
-            var imageNames = Object.keys(this.block.buttons);
-
+            var imageNames = [];
+            if (this.block.buttons) {
+                imageNames = Object.keys(this.block.buttons);
+            }
             for (var i = 0; i < imageNames.length; i++) {
                 var name = imageNames[i];
                 image = this.getImage(name.toLowerCase()).cloneNode();
@@ -28968,6 +29007,16 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
                     image.onclick = action(name);
                 }
                 image.setAttribute('title', name);
+            }
+            image = this.getImage('add-column').cloneNode();
+            bbh.appendChild(image);
+            if (this.isColumnReorderable()) {
+                image.onclick = function() {
+                    self.toggleColumnPicker();
+                };
+            } else {
+                image.style.opacity = 0.4;
+                image.style.cursor = 'default';
             }
         },
 

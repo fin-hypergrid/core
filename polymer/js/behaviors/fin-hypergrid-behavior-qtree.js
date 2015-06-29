@@ -864,9 +864,9 @@
             group.canDragItem = function(list, item, index, e) {
                 noop(item, index, e);
                 if (self.block.ungrouped) {
-                    return list.length > 1;
-                } else {
                     return true;
+                } else {
+                    return list.length > 1;
                 }
             };
             //only allow dropping of H fields
@@ -1161,8 +1161,10 @@
                     self.buttonBarIconClick(name);
                 };
             };
-            var imageNames = Object.keys(this.block.buttons);
-
+            var imageNames = [];
+            if (this.block.buttons) {
+                imageNames = Object.keys(this.block.buttons);
+            }
             for (var i = 0; i < imageNames.length; i++) {
                 var name = imageNames[i];
                 image = this.getImage(name.toLowerCase()).cloneNode();
@@ -1174,6 +1176,16 @@
                     image.onclick = action(name);
                 }
                 image.setAttribute('title', name);
+            }
+            image = this.getImage('add-column').cloneNode();
+            bbh.appendChild(image);
+            if (this.isColumnReorderable()) {
+                image.onclick = function() {
+                    self.toggleColumnPicker();
+                };
+            } else {
+                image.style.opacity = 0.4;
+                image.style.cursor = 'default';
             }
         },
 

@@ -154,6 +154,15 @@ var noop = function() {};
                     centerIcon = val;
                     val = null;
                 }
+                if (leftIcon && leftIcon.nodeName !== 'IMG') {
+                    leftIcon = null;
+                }
+                if (rightIcon && rightIcon.nodeName !== 'IMG') {
+                    rightIcon = null;
+                }
+                if (centerIcon && centerIcon.nodeName !== 'IMG') {
+                    centerIcon = null;
+                }
             }
 
             if (gc.font !== this.config.font) {

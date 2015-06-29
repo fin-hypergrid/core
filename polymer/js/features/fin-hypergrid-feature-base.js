@@ -260,6 +260,19 @@
         * @function
         * @instance
         * @description
+         toggle the column picker
+        */
+
+        toggleColumnPicker: function(grid) {
+            if (this.next) {
+                this.next.toggleColumnPicker(grid);
+            }
+        },
+
+        /**
+        * @function
+        * @instance
+        * @description
          handle this event down the feature chain of responsibility
          * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
          * @param {Object} event - the event details
