@@ -24491,6 +24491,20 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          */
         enhanceDoubleClickEvent: function( /* event */ ) {},
 
+        /**
+         * @function
+         * @instance
+         * @description
+         force an autosizing of the column widths
+         */
+        autosizeColumns: function() {
+            var self = this;
+            setTimeout(function() {
+                var tableState = self.getState();
+                tableState.fixedColumnAutosized = [];
+                tableState.columnAutosized = [];
+            }, 40);
+        }
     });
 })();
 </script>
@@ -28837,26 +28851,6 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
             }
             //let's autosize the hierarchy column
             this.changed();
-            this.autosizeHierarchyColumn();
-        },
-
-        /**
-        * @function
-        * @instance
-        * @description
-        try autosizing the hierarchy column
-        */
-        autosizeHierarchyColumn: function() {
-            if (!this.grid) {
-                return false; //too early
-            }
-            if (this.grid.resolveProperty('columnAutosizing') === false) {
-                return;
-            }
-            var self = this;
-            setTimeout(function() {
-                self.grid.autosizeColumn(-1);
-            }, 40);
         },
 
         /**
@@ -28907,6 +28901,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
                         self.handleMessage(d);
                     }
                     self.initButtonBar();
+                    self.autosizeColumns();
                 };
                 this.ws.onerror = function(e) {
                     self.clearData();
@@ -29044,7 +29039,8 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
                 fn: buttonLabel
             };
             this.sendMessage(bbClick);
-        },
+            this.autosizeColumns();
+        }
 
     });
 

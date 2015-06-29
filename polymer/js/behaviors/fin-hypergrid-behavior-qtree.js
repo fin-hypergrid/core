@@ -995,26 +995,6 @@
             }
             //let's autosize the hierarchy column
             this.changed();
-            this.autosizeHierarchyColumn();
-        },
-
-        /**
-        * @function
-        * @instance
-        * @description
-        try autosizing the hierarchy column
-        */
-        autosizeHierarchyColumn: function() {
-            if (!this.grid) {
-                return false; //too early
-            }
-            if (this.grid.resolveProperty('columnAutosizing') === false) {
-                return;
-            }
-            var self = this;
-            setTimeout(function() {
-                self.grid.autosizeColumn(-1);
-            }, 40);
         },
 
         /**
@@ -1065,6 +1045,7 @@
                         self.handleMessage(d);
                     }
                     self.initButtonBar();
+                    self.autosizeColumns();
                 };
                 this.ws.onerror = function(e) {
                     self.clearData();
@@ -1202,7 +1183,8 @@
                 fn: buttonLabel
             };
             this.sendMessage(bbClick);
-        },
+            this.autosizeColumns();
+        }
 
     });
 

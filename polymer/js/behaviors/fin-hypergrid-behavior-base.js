@@ -1708,5 +1708,19 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          */
         enhanceDoubleClickEvent: function( /* event */ ) {},
 
+        /**
+         * @function
+         * @instance
+         * @description
+         force an autosizing of the column widths
+         */
+        autosizeColumns: function() {
+            var self = this;
+            setTimeout(function() {
+                var tableState = self.getState();
+                tableState.fixedColumnAutosized = [];
+                tableState.columnAutosized = [];
+            }, 40);
+        }
     });
 })();
