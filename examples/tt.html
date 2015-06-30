@@ -118,8 +118,18 @@
 
         setTimeout(function(){
             h.stopPaintThread();
+            h.stopResizeThread();
         }, 1000);
+
+        setInterval(function(){
+            for (var i = 0; i < data.length; i++) {
+                data[i].price = (Math.random() * 1000).toFixed(3);
+            }
+            behavior.changed(); // comment this out to see the data repaint ONLY when you move the cursor over the grid
+        }, 200);
     };
+
+
 
     window.addEventListener('polymer-ready', function() {
         initialize();
