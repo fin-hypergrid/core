@@ -243,7 +243,7 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          */
         initColumnIndexes: function(tableState) {
             var columnCount = this.getColumnCount();
-            var fixedColumnCount = this.getState().fixedColumnCount;
+            var fixedColumnCount = tableState.fixedColumnCount;
             var i;
             for (i = 0; i < columnCount; i++) {
                 tableState.columnIndexes[i] = i;

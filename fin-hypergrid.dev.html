@@ -23026,7 +23026,7 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          */
         initColumnIndexes: function(tableState) {
             var columnCount = this.getColumnCount();
-            var fixedColumnCount = this.getState().fixedColumnCount;
+            var fixedColumnCount = tableState.fixedColumnCount;
             var i;
             for (i = 0; i < columnCount; i++) {
                 tableState.columnIndexes[i] = i;
@@ -28814,7 +28814,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
                 for (var i = 0; i < colCount; i++) {
                     widths[i] = self._getColumnWidth(i);
                 }
-                self.initColumnIndexes();
+                self.initColumnIndexes(self.getState());
                 for (i = 0; i < colCount; i++) {
                     widths[i] = self._setColumnWidth(i, widths[i]);
                 }

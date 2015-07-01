@@ -958,7 +958,7 @@
                 for (var i = 0; i < colCount; i++) {
                     widths[i] = self._getColumnWidth(i);
                 }
-                self.initColumnIndexes();
+                self.initColumnIndexes(self.getState());
                 for (i = 0; i < colCount; i++) {
                     widths[i] = self._setColumnWidth(i, widths[i]);
                 }
