@@ -1160,6 +1160,8 @@
             }
             image = this.getImage('add-column').cloneNode();
             bbh.appendChild(image);
+            image.setAttribute('title', 'open/close column editor');
+
             if (this.isColumnReorderable()) {
                 image.onclick = function() {
                     self.toggleColumnPicker();
@@ -1183,7 +1185,7 @@
                 fn: buttonLabel
             };
             this.sendMessage(bbClick);
-            this.autosizeColumns();
+            //this.autosizeColumns();
         }
 
     });
