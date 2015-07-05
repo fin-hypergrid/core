@@ -29,7 +29,7 @@ The Hypergrid control is a [Google polymer](https://www.polymer-project.org/) [w
 * [Fixed Columns](https://github.com/openfin/fin-hypergrid#fixed-columns)
 * [Cell Renderers](https://github.com/openfin/fin-hypergrid#cell-renderers)
     * [Creating a custom cell renderer.](https://github.com/openfin/fin-hypergrid#creating-a-custom-cell-renderer)
-    * [The cell render config object](https://github.com/openfin/fin-hypergrid#The-cell-renderer-config-object)
+    * [The cell render config object](https://github.com/openfin/fin-hypergrid#the-cell-renderer-config-object)
 * [Column autosizing](https://github.com/openfin/fin-hypergrid#column-autosizing)
 * [Cell Editors](https://github.com/openfin/fin-hypergrid#cell-editors)
     * [Default cell editors](https://github.com/openfin/fin-hypergrid#default-cell-editors)
