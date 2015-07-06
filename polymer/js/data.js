@@ -297,6 +297,7 @@ var seed = 0;
 var firstNames = ['Olivia', 'Sophia', 'Ava', 'Isabella', 'Boy', 'Liam', 'Noah', 'Ethan', 'Mason', 'Logan', 'Moe', 'Larry', 'Curly', 'Shemp', 'Groucho', 'Harpo', 'Chico', 'Zeppo', 'Stanley', 'Hardy'];
 var lastNames = ['Wirts', 'Oneil', 'Smith', 'Barbarosa', 'Soprano', 'Gotti', 'Columbo', 'Luciano', 'Doerre', 'DePena'];
 var states = ['Alabama', 'Alaska', 'Arizona', 'Arkansas', 'California', 'Colorado', 'Connecticut', 'Delaware', 'Florida', 'Georgia', 'Hawaii', 'Idaho', 'Illinois', 'Indiana', 'Iowa', 'Kansas', 'Kentucky', 'Louisiana', 'Maine', 'Maryland', 'Massachusetts', 'Michigan', 'Minnesota', 'Mississippi', 'Missouri', 'Montana', 'Nebraska', 'Nevada', 'New Hampshire', 'New Jersey', 'New Mexico', 'New York', 'North Carolina', 'North Dakota', 'Ohio', 'Oklahoma', 'Oregon', 'Pennsylvania', 'Rhode Island', 'South Carolina', 'South Dakota', 'Tennessee', 'Texas', 'Utah', 'Vermont', 'Virginia', 'Washington', 'West Virginia', 'Wisconsin', 'Wyoming'];
+var rightNow = new Date().getTime();
 //var months = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12'];
 //var days = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '30'];
 
@@ -318,7 +319,7 @@ var randomPerson = function() {
         lastName: lastNames[lastName],
         firstName: firstNames[firstName],
         pets: pets,
-        birthDate: new Date(randomFunc() * 1000),
+        birthDate: new Date(rightNow + (randomFunc() * 100000)),
         randLabel: randomFunc() + '',
         birthState: states[birthstate],
         residenceState: states[residencestate],
@@ -345,7 +346,7 @@ var fields = [
 var buildIndex = function(/* data, index */) {
     self = this;
     this.items = new Array(this.enum.size);
-    i = 0;
+    var i = 0;
     this.enum.forEach(function(e) {
         self.items[i++] = e;
     }); /* jshint ignore:line */
@@ -358,20 +359,17 @@ var buildIndex = function(/* data, index */) {
 };
 
 var buildDateIndex = function(data, index) {
-    var self = this;
+    self = this;
+    this.items = new Array(this.enum.size);
+    var i = 0;
+    this.enum.forEach(function(e) {
+        self.items[i++] = e;
+    }); /* jshint ignore:line */
+    this.enumSort(this.items);
     this.enumMap = new Map();
-    var length = data[index].length;
-    var set = new Set();
-    var items = new Array();
-    for (var i = 0; i < length; i++) {
-        var date = data[index][i];
-        var time = date.getTime();
-        var beforeSize = set.size;
-        data[index][i] = time;
-        set.add(time);
-        if (beforeSize !== set.size) {
-            this.enumMap.set(time, date);
-        }
+    this.enum = this.items;
+    for (i = 0; i < this.items.length; i++) {
+        this.enumMap.set(this.items[i], i);
     }
 };
 
@@ -432,11 +430,11 @@ var finanalytics = function(data, fields) {
             };
         },
         Date: function(index, data, meta, value) {
-            data[index] = value;
-            meta.enum.add(value);
+            data[index] = value.getTime();
+            meta.enum.add(value.getTime());
             meta.types.add('Date');
             meta.enumSort = window.directFlashSort;
-            meta.buildIndex = buildIndex;
+            meta.buildIndex = buildDateIndex;
             meta.get = getValue;
             meta.init = initIndex;
         }

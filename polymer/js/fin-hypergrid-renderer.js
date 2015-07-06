@@ -99,7 +99,7 @@ var config = {
             result.descent = result.height - result.ascent;
 
         } finally {
-            div.remove();
+            document.body.removeChild(div);
         }
         if (result.height !== 0) {
             fontData[font] = result;
