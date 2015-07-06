@@ -29,6 +29,7 @@ The Hypergrid control is a [Google polymer](https://www.polymer-project.org/) [w
 * [Fixed Columns](https://github.com/openfin/fin-hypergrid#fixed-columns)
 * [Cell Renderers](https://github.com/openfin/fin-hypergrid#cell-renderers)
     * [Creating a custom cell renderer.](https://github.com/openfin/fin-hypergrid#creating-a-custom-cell-renderer)
+    * [The cell render config object](https://github.com/openfin/fin-hypergrid#the-cell-renderer-config-object)
 * [Column autosizing](https://github.com/openfin/fin-hypergrid#column-autosizing)
 * [Cell Editors](https://github.com/openfin/fin-hypergrid#cell-editors)
     * [Default cell editors](https://github.com/openfin/fin-hypergrid#default-cell-editors)
@@ -385,6 +386,33 @@ cellProvider.getCell = function(config) {
     return renderer;
 };
 ```
+##The cell renderer config object
+
+The config object bound to 'this' on a custom cell renderer has a lot of data that can be used or overridden.
+
+property|values/examles|description
+--------|------|-----------
+bgColor|'white'|the background color for this cell, leave blank to have the default color 
+bgSelColor|"rgb(244, 214, 79)"|the background color for this cell if it is selected
+columnId|"myColumnName"|the column header label/id
+fgColor|"rgb(0, 0, 0)"|the foreground color of the current cell
+fgSelColor|"rgb(0, 0, 0)"|the foreground color of the current cell if it is selected
+font|"12px Tahoma, Geneva, sans-serif"|the font for the current cell
+getTextHeight(font)|this.config.getTextHeight(this.config.font)|a function that efficiently computes the height for a font
+getTextWidth(gc, string)|this.config.getTextWidth(gc, 'any string')|this function efficiently computes the width for any string
+halign|"center" "left" "right"|the horizontal alignment for the current cell
+hoffset|integer|left side of the cell padding for the current cell
+isColumnHovered|true/false|is the pointer over the column of the current cell
+isRowHovered|true/false|is the pointer over the the row of the current cell
+isSelected|true/false|is the current cell selected
+minWidth|0|do not modify, this is used by hypergrid for the auto column width feature
+properties|Object|the hypergrid properties (for convenience)
+row|Object|with a json object, this is the underlying row object
+value|anything|this is the value to renderer for the current cell
+voffset|integer|top side of the cell padding for the current cell
+x|integer|the x model coordinate
+y|integer|the y model coordinate
+
 
 # Column autosizing
 
