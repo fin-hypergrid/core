@@ -392,8 +392,8 @@
          */
         onTap: function(grid, mouse) {
 
-            var mX = this.scrollPositionX + mouse.gridCell.x;
-            var mY = this.scrollPositionY + mouse.gridCell.y;
+            var mX = this.getScrollPositionX() + mouse.gridCell.x;
+            var mY = this.getScrollPositionY() + mouse.gridCell.y;
 
             var v = this._getValue(mX, mY)[0];
             this._setValue(mX, mY, [!v, 1]);

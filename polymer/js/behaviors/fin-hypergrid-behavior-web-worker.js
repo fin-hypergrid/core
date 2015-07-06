@@ -101,7 +101,7 @@
             this.postMessage({
                 cmd: 'fetchTableData',
                 data: {
-                    start: this.scrollPositionY || 0,
+                    start: this.getScrollPositionY() || 0,
                     num: 60
                 }
             });
@@ -123,7 +123,7 @@
             }
 
             var fields = this.getFields();
-            return this.block.data[y - this.scrollPositionY][fields[x]];
+            return this.block.data[y - this.getScrollPositionY()][fields[x]];
         },
 
         /**
@@ -175,7 +175,7 @@
             this.postMessage({
                 cmd: 'fetchTableData',
                 data: {
-                    start: this.scrollPositionY,
+                    start: this.getScrollPositionY(),
                     num: 60
                 }
             });
@@ -270,7 +270,7 @@
                     sortIndex: current === (stateCount - 1) ? -1 : columnIndex,
                     state: state,
                     //abs: state.indexOf('|') > 0,
-                    start: this.scrollPositionY,
+                    start: this.getScrollPositionY(),
                     num: 60
                 }
             };

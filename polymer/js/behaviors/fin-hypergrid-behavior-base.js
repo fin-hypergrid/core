@@ -90,6 +90,24 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          */
         featureChain: null,
 
+        dataModel: null,
+
+        getDataModel: function() {
+            if (this.dataModel === null) {
+                this.setDataModel(this.getDefaultDataModel());
+            }
+            return this.dataModel;
+        },
+
+        getDefaultDataModel: function() {
+            var model = document.createElement('fin-hypergrid-data-model-base');
+            return model;
+        },
+
+        setDataModel: function(newDataModel) {
+            this.dataModel = newDataModel;
+        },
+
         /**
          * @function
          * @instance
@@ -123,8 +141,6 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          */
         readyInit: function() {
             this.cellProvider = this.createCellProvider();
-            this.scrollPositionX = 0;
-            this.scrollPositionY = 0;
             this.renderedColumnCount = 30;
             this.renderedRowCount = 60;
             this.dataUpdates = {}; //for overriding with edit values;
@@ -829,7 +845,7 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          * @param {Object} mouse - event details
          */
         _fixedRowClicked: function(grid, mouse) {
-            var x = this.translateColumnIndex(this.scrollPositionX + mouse.gridCell.x - this.getFixedColumnCount());
+            var x = this.translateColumnIndex(this.getScrollPositionX() + mouse.gridCell.x - this.getFixedColumnCount());
             var translatedPoint = this.grid.rectangles.point.create(x, mouse.gridCell.y);
             mouse.gridCell = translatedPoint;
             this.fixedRowClicked(grid, mouse);
@@ -844,7 +860,7 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          * @param {Object} mouse - event details
         */
         _fixedColumnClicked: function(grid, mouse) {
-            var translatedPoint = this.grid.rectangles.point.create(mouse.gridCell.x, this.scrollPositionY + mouse.gridCell.y - this.getFixedRowCount());
+            var translatedPoint = this.grid.rectangles.point.create(mouse.gridCell.x, this.getScrollPositionY() + mouse.gridCell.y - this.getFixedRowCount());
             mouse.gridCell = translatedPoint;
             this.fixedColumnClicked(grid, mouse);
         },
@@ -1467,7 +1483,11 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          * @param {integer} x - the position in pixels
          */
         setScrollPositionX: function(x) {
-            this.scrollPositionX = x;
+            this.getDataModel().setScrollPositionX(x);
+        },
+
+        getScrollPositionX: function() {
+            return this.getDataModel().getScrollPositionX();
         },
 
         /**
@@ -1479,7 +1499,11 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          * @param {integer} y - the position in pixels
          */
         setScrollPositionY: function(y) {
-            this.scrollPositionY = y;
+            this.getDataModel().setScrollPositionY(y);
+        },
+
+        getScrollPositionY: function() {
+            return this.getDataModel().getScrollPositionY();
         },
 
         /**

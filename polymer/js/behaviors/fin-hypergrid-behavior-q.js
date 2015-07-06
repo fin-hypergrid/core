@@ -108,7 +108,7 @@
                 return;
             }
             this.connect();
-            this.scrollPositionY = 0;
+            this.setScrollPositionY(0);
             this.scrolled = false;
         },
 
@@ -127,7 +127,7 @@
                 return override;
             }
 
-            var normalized = Math.floor(y - this.scrollPositionY);
+            var normalized = Math.floor(y - this.getScrollPositionY());
             if (this.block && normalized < this.block.data.length) {
                 return this.block.data[normalized][x + 1];
             } else {
@@ -204,7 +204,7 @@
                 cmd: 'fetchTableData',
                 data: {
                     table: tableName,
-                    start: this.scrollPositionY,
+                    start: this.getScrollPositionY(),
                     num: 60
                 }
             }));
@@ -302,7 +302,7 @@
                     sort: current === (stateCount - 1) ? '' : this.block.headers[columnIndex][0],
                     asc: state.indexOf('^') > 0,
                     abs: state.indexOf('|') > 0,
-                    start: this.scrollPositionY,
+                    start: this.getScrollPositionY(),
                     num: 60
                 }
             };
@@ -351,7 +351,7 @@
                         cmd: 'fetchTableData',
                         data: {
                             table: tableName,
-                            start: this.scrollPositionY || 0,
+                            start: self.getScrollPositionY() || 0,
                             num: 60
                         }
                     }));

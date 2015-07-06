@@ -12205,6 +12205,7 @@ scope.importElements = importElements;
 
 
 
+
 <script>/*!
  * numeral.js
  * version : 1.5.3
@@ -22705,6 +22706,49 @@ var commands = {
 
 })(); /* jshint ignore:line */
 </script>
+</polymer-element>
+<polymer-element name="fin-hypergrid-data-model-base" attributes="" assetpath="/dev/fin-hypergrid/polymer/html/data-models/">
+  <template>
+    <style type="text/css">:host {
+    display: block;
+    position: relative;
+}
+</style>
+  </template>
+  <script>'use strict';
+
+(function() {
+
+    Polymer('fin-hypergrid-data-model-base', { /* jshint ignore:line  */
+
+        scrollPositionX: 0,
+        scrollPositionY: 0,
+
+        getValue: function() {
+
+        },
+        setValue: function() {
+
+        },
+
+        setScrollPositionX: function(x) {
+            this.scrollPositionX = x;
+        },
+
+        getScrollPositionX: function() {
+            return this.scrollPositionX;
+        },
+
+        setScrollPositionY: function(y) {
+            this.scrollPositionY = y;
+        },
+
+        getScrollPositionY: function() {
+            return this.scrollPositionY;
+        }
+    });
+})();
+</script>
 </polymer-element><polymer-element name="fin-hypergrid-behavior-base" attributes="" assetpath="/dev/fin-hypergrid/polymer/html/behaviors/">
   <template>
     <style type="text/css">:host {
@@ -22873,6 +22917,24 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          */
         featureChain: null,
 
+        dataModel: null,
+
+        getDataModel: function() {
+            if (this.dataModel === null) {
+                this.setDataModel(this.getDefaultDataModel());
+            }
+            return this.dataModel;
+        },
+
+        getDefaultDataModel: function() {
+            var model = document.createElement('fin-hypergrid-data-model-base');
+            return model;
+        },
+
+        setDataModel: function(newDataModel) {
+            this.dataModel = newDataModel;
+        },
+
         /**
          * @function
          * @instance
@@ -22906,8 +22968,6 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          */
         readyInit: function() {
             this.cellProvider = this.createCellProvider();
-            this.scrollPositionX = 0;
-            this.scrollPositionY = 0;
             this.renderedColumnCount = 30;
             this.renderedRowCount = 60;
             this.dataUpdates = {}; //for overriding with edit values;
@@ -23612,7 +23672,7 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          * @param {Object} mouse - event details
          */
         _fixedRowClicked: function(grid, mouse) {
-            var x = this.translateColumnIndex(this.scrollPositionX + mouse.gridCell.x - this.getFixedColumnCount());
+            var x = this.translateColumnIndex(this.getScrollPositionX() + mouse.gridCell.x - this.getFixedColumnCount());
             var translatedPoint = this.grid.rectangles.point.create(x, mouse.gridCell.y);
             mouse.gridCell = translatedPoint;
             this.fixedRowClicked(grid, mouse);
@@ -23627,7 +23687,7 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          * @param {Object} mouse - event details
         */
         _fixedColumnClicked: function(grid, mouse) {
-            var translatedPoint = this.grid.rectangles.point.create(mouse.gridCell.x, this.scrollPositionY + mouse.gridCell.y - this.getFixedRowCount());
+            var translatedPoint = this.grid.rectangles.point.create(mouse.gridCell.x, this.getScrollPositionY() + mouse.gridCell.y - this.getFixedRowCount());
             mouse.gridCell = translatedPoint;
             this.fixedColumnClicked(grid, mouse);
         },
@@ -24250,7 +24310,11 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          * @param {integer} x - the position in pixels
          */
         setScrollPositionX: function(x) {
-            this.scrollPositionX = x;
+            this.getDataModel().setScrollPositionX(x);
+        },
+
+        getScrollPositionX: function() {
+            return this.getDataModel().getScrollPositionX();
         },
 
         /**
@@ -24262,7 +24326,11 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          * @param {integer} y - the position in pixels
          */
         setScrollPositionY: function(y) {
-            this.scrollPositionY = y;
+            this.getDataModel().setScrollPositionY(y);
+        },
+
+        getScrollPositionY: function() {
+            return this.getDataModel().getScrollPositionY();
         },
 
         /**
@@ -25331,8 +25399,8 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          */
         onTap: function(grid, mouse) {
 
-            var mX = this.scrollPositionX + mouse.gridCell.x;
-            var mY = this.scrollPositionY + mouse.gridCell.y;
+            var mX = this.getScrollPositionX() + mouse.gridCell.x;
+            var mY = this.getScrollPositionY() + mouse.gridCell.y;
 
             var v = this._getValue(mX, mY)[0];
             this._setValue(mX, mY, [!v, 1]);
@@ -25745,12 +25813,14 @@ This is a very rough in memory data source example.  fin-hypergrid-behavior-in-m
         */
         permute: function() {
             var self = this;
+            var x = this.getScrollPositionX();
+            var y = this.getScrollPositionY();
             var config = {
-                xstart: this.scrollPositionX,
-                xstop: this.scrollPositionX + this.renderedColumnCount,
+                xstart: x,
+                xstop: x + this.renderedColumnCount,
                 xinc: 1,
-                ystart: this.scrollPositionY,
-                ystop: this.scrollPositionY + this.renderedRowCount,
+                ystart: y,
+                ystop: y + this.renderedRowCount,
                 yinc: 1,
                 cutoff: 0.05
             };
@@ -27389,7 +27459,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
                 return;
             }
             this.connect();
-            this.scrollPositionY = 0;
+            this.setScrollPositionY(0);
             this.scrolled = false;
         },
 
@@ -27408,7 +27478,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
                 return override;
             }
 
-            var normalized = Math.floor(y - this.scrollPositionY);
+            var normalized = Math.floor(y - this.getScrollPositionY());
             if (this.block && normalized < this.block.data.length) {
                 return this.block.data[normalized][x + 1];
             } else {
@@ -27485,7 +27555,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
                 cmd: 'fetchTableData',
                 data: {
                     table: tableName,
-                    start: this.scrollPositionY,
+                    start: this.getScrollPositionY(),
                     num: 60
                 }
             }));
@@ -27583,7 +27653,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
                     sort: current === (stateCount - 1) ? '' : this.block.headers[columnIndex][0],
                     asc: state.indexOf('^') > 0,
                     abs: state.indexOf('|') > 0,
-                    start: this.scrollPositionY,
+                    start: this.getScrollPositionY(),
                     num: 60
                 }
             };
@@ -27632,7 +27702,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
                         cmd: 'fetchTableData',
                         data: {
                             table: tableName,
-                            start: this.scrollPositionY || 0,
+                            start: self.getScrollPositionY() || 0,
                             num: 60
                         }
                     }));
@@ -28159,7 +28229,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
                 return;
             }
             this.connect();
-            this.scrollPositionY = 0;
+            this.setScrollPositionY(0);
             this.scrolled = false;
         },
 
@@ -28200,7 +28270,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
          */
         getValue: function(x, y) {
             var col = this.getColumnId(x);
-            var normalized = Math.floor(y - this.scrollPositionY);
+            var normalized = Math.floor(y - this.getScrollPositionY());
             if (this.block && (typeof col === 'string')) {
                 var val = this.block.hypertree[1][col][normalized];
                 if (val || val === 0) {
@@ -28259,7 +28329,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
             if (!this.isConnected()) {
                 return;
             }
-            var startY = this.scrollPositionY || 0;
+            var startY = this.getScrollPositionY() || 0;
             var stopY = startY + 60;
             this.sendMessage({
                 id: this.getNextMessageId(),
@@ -28351,7 +28421,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         getFixedColumnValue: function(x, y) {
             var indentPixels = 10;
             var blob = this.block.hypertree[1];
-            var transY = Math.max(0, y - this.scrollPositionY);
+            var transY = Math.max(0, y - this.getScrollPositionY());
             var data = blob.g_[transY];
             var level = blob.l_[transY];
             var indent = 5 + indentPixels + (level - 1) * indentPixels;
@@ -28581,7 +28651,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
          * @param {Object} mouse - event details
          */
         fixedColumnClicked: function(grid, mouse) {
-            var rowNum = mouse.gridCell.y - this.scrollPositionY;
+            var rowNum = mouse.gridCell.y - this.getScrollPositionY();
             var rows = this.block.hypertree[1].n_[rowNum];
             if (rows.length === this.block.groups.length + 1) {
                 //this is a leaf, don't send anything
@@ -28642,7 +28712,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
             if (cell.x <= this.getFixedColumnCount() || cell.y <= this.getFixedRowCount()) {
                 return; //no grey area double clicking alowed
             }
-            var rowNum = cell.y - this.scrollPositionY;
+            var rowNum = cell.y - this.getScrollPositionY();
             var rows = this.block.hypertree[1].n_[rowNum];
             var colId = this.getColumnId(cell.x);
             var colClick = {
@@ -28872,7 +28942,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
                 console.log('connecting...');
                 this.ws.onopen = function() {
                     self.setFixedColumnWidth(0, 160);
-                    var startY = this.scrollPositionY || 0;
+                    var startY = self.getScrollPositionY() || 0;
                     var stopY = startY + 60;
 
                     self.sendMessage({
@@ -29196,7 +29266,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
             this.postMessage({
                 cmd: 'fetchTableData',
                 data: {
-                    start: this.scrollPositionY || 0,
+                    start: this.getScrollPositionY() || 0,
                     num: 60
                 }
             });
@@ -29218,7 +29288,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
             }
 
             var fields = this.getFields();
-            return this.block.data[y - this.scrollPositionY][fields[x]];
+            return this.block.data[y - this.getScrollPositionY()][fields[x]];
         },
 
         /**
@@ -29270,7 +29340,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
             this.postMessage({
                 cmd: 'fetchTableData',
                 data: {
-                    start: this.scrollPositionY,
+                    start: this.getScrollPositionY(),
                     num: 60
                 }
             });
@@ -29365,7 +29435,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
                     sortIndex: current === (stateCount - 1) ? -1 : columnIndex,
                     state: state,
                     //abs: state.indexOf('|') > 0,
-                    start: this.scrollPositionY,
+                    start: this.getScrollPositionY(),
                     num: 60
                 }
             };

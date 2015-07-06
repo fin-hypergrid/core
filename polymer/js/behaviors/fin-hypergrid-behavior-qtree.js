@@ -303,7 +303,7 @@
                 return;
             }
             this.connect();
-            this.scrollPositionY = 0;
+            this.setScrollPositionY(0);
             this.scrolled = false;
         },
 
@@ -344,7 +344,7 @@
          */
         getValue: function(x, y) {
             var col = this.getColumnId(x);
-            var normalized = Math.floor(y - this.scrollPositionY);
+            var normalized = Math.floor(y - this.getScrollPositionY());
             if (this.block && (typeof col === 'string')) {
                 var val = this.block.hypertree[1][col][normalized];
                 if (val || val === 0) {
@@ -403,7 +403,7 @@
             if (!this.isConnected()) {
                 return;
             }
-            var startY = this.scrollPositionY || 0;
+            var startY = this.getScrollPositionY() || 0;
             var stopY = startY + 60;
             this.sendMessage({
                 id: this.getNextMessageId(),
@@ -495,7 +495,7 @@
         getFixedColumnValue: function(x, y) {
             var indentPixels = 10;
             var blob = this.block.hypertree[1];
-            var transY = Math.max(0, y - this.scrollPositionY);
+            var transY = Math.max(0, y - this.getScrollPositionY());
             var data = blob.g_[transY];
             var level = blob.l_[transY];
             var indent = 5 + indentPixels + (level - 1) * indentPixels;
@@ -725,7 +725,7 @@
          * @param {Object} mouse - event details
          */
         fixedColumnClicked: function(grid, mouse) {
-            var rowNum = mouse.gridCell.y - this.scrollPositionY;
+            var rowNum = mouse.gridCell.y - this.getScrollPositionY();
             var rows = this.block.hypertree[1].n_[rowNum];
             if (rows.length === this.block.groups.length + 1) {
                 //this is a leaf, don't send anything
@@ -786,7 +786,7 @@
             if (cell.x <= this.getFixedColumnCount() || cell.y <= this.getFixedRowCount()) {
                 return; //no grey area double clicking alowed
             }
-            var rowNum = cell.y - this.scrollPositionY;
+            var rowNum = cell.y - this.getScrollPositionY();
             var rows = this.block.hypertree[1].n_[rowNum];
             var colId = this.getColumnId(cell.x);
             var colClick = {
@@ -1016,7 +1016,7 @@
                 console.log('connecting...');
                 this.ws.onopen = function() {
                     self.setFixedColumnWidth(0, 160);
-                    var startY = this.scrollPositionY || 0;
+                    var startY = self.getScrollPositionY() || 0;
                     var stopY = startY + 60;
 
                     self.sendMessage({

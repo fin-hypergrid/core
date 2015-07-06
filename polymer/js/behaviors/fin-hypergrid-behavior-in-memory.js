@@ -176,12 +176,14 @@ This is a very rough in memory data source example.  fin-hypergrid-behavior-in-m
         */
         permute: function() {
             var self = this;
+            var x = this.getScrollPositionX();
+            var y = this.getScrollPositionY();
             var config = {
-                xstart: this.scrollPositionX,
-                xstop: this.scrollPositionX + this.renderedColumnCount,
+                xstart: x,
+                xstop: x + this.renderedColumnCount,
                 xinc: 1,
-                ystart: this.scrollPositionY,
-                ystop: this.scrollPositionY + this.renderedRowCount,
+                ystart: y,
+                ystop: y + this.renderedRowCount,
                 yinc: 1,
                 cutoff: 0.05
             };
