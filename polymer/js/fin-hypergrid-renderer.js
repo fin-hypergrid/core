@@ -185,6 +185,10 @@ var merge = function(target, source) {
             this.columnEdgesIndexMap = {};
             this.rowEdgesIndexMap = {};
 
+            this.insertionBounds = [];
+            var insertionBoundsCursor = 0;
+            var previousInsertionBoundsCursorValue = 0;
+
             x = 0;
             for (c = 0; c < numColumns; c++) {
                 vx = c;
@@ -199,6 +203,10 @@ var merge = function(target, source) {
                 this.columnEdges[c + 1] = Math.round(x);
                 this.viewableColumns[c] = vx;
                 this.columnEdgesIndexMap[vx] = c;
+
+                insertionBoundsCursor = insertionBoundsCursor + Math.round(width / 2) + previousInsertionBoundsCursorValue;
+                this.insertionBounds.push(insertionBoundsCursor);
+                previousInsertionBoundsCursorValue = Math.round(width / 2);
             }
 
             y = 0;
@@ -432,7 +440,6 @@ var merge = function(target, source) {
          * #### returns: integer
          */
         getColumnFromPixelX: function(pixelX) {
-            pixelX = pixelX - this.getBehavior().getFixedColumnsWidth();
             var width = 0;
             var c;
             for (c = 0; c < this.insertionBounds.length; c++) {
@@ -567,8 +574,8 @@ var merge = function(target, source) {
 
             this.paintCells(gc);
             this.paintGridlines(gc);
-            //this.blankOutOverflow(gc);
-            //this.renderOverrides(gc);
+            this.blankOutOverflow(gc);
+            this.renderOverrides(gc);
             gc.closePath();
         },
 
@@ -634,11 +641,9 @@ var merge = function(target, source) {
         */
         renderOverride: function(gc, override) {
             //lets blank out the drag row
-            var behavior = this.getBehavior();
             var columnStarts = this.getColumnEdges();
-            var fixedColCount = behavior.getFixedColumnCount();
             var hdpiRatio = override.hdpiratio;
-            var startX = hdpiRatio * columnStarts[override.columnIndex + fixedColCount];
+            var startX = hdpiRatio * columnStarts[override.columnIndex];
             var width = override.width;
             var height = override.height;
             var targetCTX = override.ctx;
@@ -646,7 +651,6 @@ var merge = function(target, source) {
             targetCTX.putImageData(imgData, 0, 0);
             gc.fillStyle = this.resolveProperty('backgroundColor2');
             gc.fillRect(Math.round(startX / hdpiRatio), 0, width, height);
-
         },
 
         /**

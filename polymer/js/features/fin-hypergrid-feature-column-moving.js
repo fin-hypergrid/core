@@ -116,13 +116,9 @@
             var gridCell = event.gridCell;
             var x, y;
 
-            if (this.isFixedColumn(grid, event)) {
-                return; //no rearranging fixed columns
-            }
-
             if (this.isFixedRow(grid, event) && this.dragArmed && !this.dragging) {
                 this.dragging = true;
-                this.dragCol = gridCell.x - grid.getFixedColumnCount();
+                this.dragCol = gridCell.x;
                 this.dragOffset = event.mousePoint.x;
                 this.detachChain();
                 x = event.primitiveEvent.detail.mouse.x - this.dragOffset;
@@ -214,6 +210,8 @@
         * @param {boolean} draggedToTheRight - are we moving to the right
         */
         floatColumnTo: function(grid, draggedToTheRight) {
+            var renderer = grid.getRenderer();
+            var columnEdges = renderer.getColumnEdges();
             this.floatingNow = true;
             var scrollLeft = grid.getHScrollValue();
             var floaterIndex = grid.renderOverridesCache.floater.columnIndex;
@@ -225,9 +223,9 @@
             var floaterStartX;
             var draggerWidth = grid.getColumnWidth(draggerIndex + scrollLeft);
             var floaterWidth = grid.getColumnWidth(floaterIndex + scrollLeft);
-            var max = grid.renderer.renderedColumnWidths.length - 1;
+            var max = columnEdges.length - 1;
             if (draggedToTheRight) {
-                draggerStartX = grid.renderer.renderedColumnWidths[Math.min(max, draggerIndex + numFixedColumns)];
+                draggerStartX = columnEdges[Math.min(max, draggerIndex + numFixedColumns)];
                 floaterStartX = draggerStartX + floaterWidth;
 
                 grid.renderOverridesCache.dragger.startX = floaterStartX * hdpiratio;
@@ -235,7 +233,7 @@
 
                 floaterStartX = draggerStartX + draggerWidth;
             } else {
-                floaterStartX = grid.renderer.renderedColumnWidths[Math.min(max, floaterIndex + numFixedColumns)];
+                floaterStartX = columnEdges[Math.min(max, floaterIndex + numFixedColumns)];
                 draggerStartX = floaterStartX + draggerWidth;
 
                 grid.renderOverridesCache.dragger.startX = floaterStartX * hdpiratio;
@@ -317,9 +315,10 @@
         * @param {integer} columnIndex - the index of the column that will be floating
         */
         createFloatColumn: function(grid, columnIndex) {
+            var renderer = grid.getRenderer();
+            var columnEdges = renderer.getColumnEdges();
             var scrollLeft = grid.getHScrollValue();
-            var numFixedColumns = grid.getFixedColumnCount();
-            var columnWidth = columnIndex < 0 ? grid.getFixedColumnWidth(numFixedColumns + columnIndex + scrollLeft) : grid.getColumnWidth(columnIndex + scrollLeft);
+            var columnWidth = grid.getColumnWidth(columnIndex + scrollLeft);
             var colHeight = grid.clientHeight;
             var d = floatColumn;
             var style = d.style;
@@ -336,10 +335,10 @@
             style.boxShadow = '0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23)';
             style.width = columnWidth + 'px'; //Math.round(columnWidth / hdpiRatio) + 'px';
             style.height = colHeight + 'px'; //Math.round(colHeight / hdpiRatio) + 'px';
-            style.borderTop = '1px solid ' + grid.renderer.resolveProperty('lineColor');
-            style.backgroundColor = grid.renderer.resolveProperty('backgroundColor');
+            style.borderTop = '1px solid ' + renderer.resolveProperty('lineColor');
+            style.backgroundColor = renderer.resolveProperty('backgroundColor');
 
-            var startX = grid.renderer.renderedColumnWidths[columnIndex + numFixedColumns];
+            var startX = columnEdges[columnIndex];
             startX = startX * hdpiRatio;
 
             floatColumnCTX.scale(hdpiRatio, hdpiRatio);
@@ -402,11 +401,14 @@
         * @param {integer} columnIndex - the index of the column that will be floating
         */
         createDragColumn: function(grid, x, columnIndex) {
+            var renderer = grid.getRenderer();
+            var columnEdges = renderer.getColumnEdges();
+
             var scrollLeft = grid.getHScrollValue();
-            var numFixedColumns = grid.getFixedColumnCount();
+
             var hdpiRatio = grid.getHiDPI(draggerCTX);
 
-            var columnWidth = columnIndex < 0 ? grid.getFixedColumnWidth(numFixedColumns + columnIndex + scrollLeft) : grid.getColumnWidth(columnIndex + scrollLeft);
+            var columnWidth = grid.getColumnWidth(columnIndex + scrollLeft);
             var colHeight = grid.clientHeight;
             var d = dragger;
 
@@ -419,7 +421,7 @@
             style.opacity = 0.85;
             style.boxShadow = '0 19px 38px rgba(0,0,0,0.30), 0 15px 12px rgba(0,0,0,0.22)';
             //style.zIndex = 100;
-            style.borderTop = '1px solid ' + grid.renderer.resolveProperty('lineColor');
+            style.borderTop = '1px solid ' + renderer.resolveProperty('lineColor');
             style.backgroundColor = grid.renderer.resolveProperty('backgroundColor');
 
             d.setAttribute('width', Math.round(columnWidth * hdpiRatio) + 'px');
@@ -428,7 +430,7 @@
             style.width = columnWidth + 'px'; //Math.round(columnWidth / hdpiRatio) + 'px';
             style.height = colHeight + 'px'; //Math.round(colHeight / hdpiRatio) + 'px';
 
-            var startX = grid.getRenderer().getColumnEdges()[columnIndex + numFixedColumns];
+            var startX = columnEdges[columnIndex];
             startX = startX * hdpiRatio;
 
             draggerCTX.scale(hdpiRatio, hdpiRatio);
@@ -461,6 +463,8 @@
 
             //TODO: this function is overly complex, refactor this in to something more reasonable
             var self = this;
+            var renderer = grid.getRenderer();
+            var columnEdges = renderer.getColumnEdges();
 
             var autoScrollingNow = this.columnDragAutoScrollingRight || this.columnDragAutoScrollingLeft;
 
@@ -468,7 +472,7 @@
 
             var dragColumnIndex = grid.renderOverridesCache.dragger.columnIndex;
             var columnWidth = grid.renderOverridesCache.dragger.width;
-            var minX = grid.getFixedColumnsWidth();
+            var minX = 0; //grid.getFixedColumnsWidth();
             var maxX = grid.renderer.getFinalVisableColumnBoundry() - columnWidth;
             x = Math.min(x, maxX + 15);
             x = Math.max(minX - 15, x);
@@ -493,7 +497,7 @@
                 overCol = 0;
             }
             if (atMax) {
-                overCol = grid.renderer.renderedColumns[grid.renderer.renderedColumns.length - 1];
+                overCol = columnEdges[columnEdges.length - 1];
             }
 
             var doAFloat = dragColumnIndex > overCol;
@@ -632,10 +636,11 @@
         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
         */
         endDragColumn: function(grid) {
+            var renderer = grid.getRenderer();
+            var columnEdges = renderer.getColumnEdges();
             var self = this;
-            var numFixedColumns = grid.getFixedColumnCount();
             var columnIndex = grid.renderOverridesCache.dragger.columnIndex;
-            var startX = grid.renderer.renderedColumnWidths[columnIndex + numFixedColumns];
+            var startX = columnEdges[columnIndex];
             var d = dragger;
 
             self.setCrossBrowserProperty(d, 'transition', (self.isWebkit ? '-webkit-' : '') + 'transform ' + columnAnimationTime + 'ms ease, box-shadow ' + columnAnimationTime + 'ms ease');
