@@ -92,6 +92,9 @@ it contains all code/data that's necessary for easily implementing a virtual dat
 
         dataModel: null,
 
+        scrollPositionX: 0,
+        scrollPositionY: 0,
+
         getDataModel: function() {
             if (this.dataModel === null) {
                 this.setDataModel(this.getDefaultDataModel());
@@ -182,19 +185,15 @@ it contains all code/data that's necessary for easily implementing a virtual dat
         getDefaultState: function() {
             return {
                 columnIndexes: [],
-                fixedColumnIndexes: [],
                 hiddenColumns: [],
 
                 columnWidths: [],
-                fixedColumnWidths: [],
-                fixedColumnAutosized: [],
 
                 rowHeights: {},
-                fixedRowHeights: {},
                 columnProperties: [],
                 columnAutosized: [],
 
-                fixedColumnCount: 0,
+                fixedColumnCount: 1,
                 fixedRowCount: 1,
             };
         },
@@ -259,13 +258,9 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          */
         initColumnIndexes: function(tableState) {
             var columnCount = this.getColumnCount();
-            var fixedColumnCount = tableState.fixedColumnCount;
             var i;
             for (i = 0; i < columnCount; i++) {
                 tableState.columnIndexes[i] = i;
-            }
-            for (i = 0; i < fixedColumnCount; i++) {
-                tableState.fixedColumnIndexes[i] = i;
             }
         },
 
@@ -310,12 +305,11 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          */
         translateColumnIndex: function(x) {
             var tableState = this.getState();
-            var fixedColumnCount = tableState.fixedColumnCount;
             var indexes = tableState.columnIndexes;
             if (indexes.length === 0) {
                 return x;
             }
-            return indexes[x + fixedColumnCount];
+            return indexes[x];
         },
 
         /**
@@ -452,11 +446,7 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          */
         _getValue: function(x, y) {
             x = this.translateColumnIndex(x);
-            var override = this.dataUpdates['p_' + x + '_' + y];
-            if (override) {
-                return override;
-            }
-            return this.getValue(x, y);
+            return this.getDataModel().getValue(x, y);
         },
 
         /**
@@ -471,7 +461,7 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          */
         _setValue: function(x, y, value) {
             x = this.translateColumnIndex(x);
-            this.setValue(x, y, value);
+            this.getDataModel().setValue(x, y, value);
         },
 
         /**
@@ -510,8 +500,7 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          * #### returns: integer
          */
         getRowCount: function() {
-            //jeepers batman a quadrillion rows!
-            return 1000000000000000;
+            return this.getDataModel().getRowCount();
         },
 
         /**
@@ -538,43 +527,9 @@ it contains all code/data that's necessary for easily implementing a virtual dat
             var count = this.getFixedRowCount();
             var total = 0;
             for (var i = 0; i < count; i++) {
-                total = total + this.getFixedRowHeight(i);
+                total = total + this.getRowHeight(i);
             }
             return total;
-        },
-
-        /**
-         * @function
-         * @instance
-         * @description
-         return the pixel height of a specific row in the fixed row area
-         * #### returns: integer
-         * @param {integer} rowNum - the row index of interest
-         */
-        getFixedRowHeight: function(rowNum) {
-            var tableState = this.getState();
-            if (tableState.fixedRowHeights) {
-                var override = tableState.fixedRowHeights[rowNum];
-                if (override) {
-                    return override;
-                }
-            }
-            return this.resolveProperty('defaultFixedRowHeight');
-        },
-
-        /**
-         * @function
-         * @instance
-         * @description
-         set the height of a specific row in the fixed row area
-         * @param {integer} rowNum - the row integer to affect
-         * @param {integer} height - the pixel height to set it to
-         */
-        setFixedRowHeight: function(rowNum, height) {
-            //console.log(rowNum + ' ' + height);
-            var tableState = this.getState();
-            tableState.fixedRowHeights[rowNum] = Math.max(5, height);
-            this.changed();
         },
 
         /**
@@ -621,7 +576,7 @@ it contains all code/data that's necessary for easily implementing a virtual dat
         setRowHeight: function(rowNum, height) {
             var tableState = this.getState();
             tableState.rowHeights[rowNum] = Math.max(5, height);
-            this.changed();
+            this.stateChanged();
         },
 
         /**
@@ -647,23 +602,9 @@ it contains all code/data that's necessary for easily implementing a virtual dat
             var count = this.getFixedColumnCount();
             var total = 0;
             for (var i = 0; i < count; i++) {
-                total = total + this.getFixedColumnWidth(i);
+                total = total + this.getColumnWidth(i);
             }
             return total;
-        },
-
-        /**
-         * @function
-         * @instance
-         * @description
-         set the width of a specific column in the fixed column area
-         * @param {integer} colNumber - the column index of interest
-         * @param {integer} width - the width in pixels
-         */
-        setFixedColumnWidth: function(colNumber, width) {
-            var tableState = this.getState();
-            tableState.fixedColumnWidths[colNumber] = Math.max(5, width);
-            this.changed();
         },
 
         /**
@@ -676,23 +617,6 @@ it contains all code/data that's necessary for easily implementing a virtual dat
         getFixedColumnsMaxWidth: function() {
             var width = this.getFixedColumnsWidth();
             return width;
-        },
-
-        /**
-         * @function
-         * @instance
-         * @description
-         return the width of a specific column in the fixed column area
-         * #### returns: integer
-         * @param {integer} colNumber - the column index of interest
-         */
-        getFixedColumnWidth: function(colNumber) {
-            var tableState = this.getState();
-            var override = tableState.fixedColumnWidths[colNumber];
-            if (override) {
-                return override;
-            }
-            return this.resolveProperty('defaultFixedColumnWidth');
         },
 
         /**
@@ -1407,7 +1331,7 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          * @param {integer} y - the y coordinate
          */
         getValue: function(x, y) {
-            return x + ', ' + y;
+            return this.getDataModel().getValue(x, y);
         },
 
         /**
@@ -1419,7 +1343,7 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          * @param {integer} y - the y coordinate
          */
         setValue: function(x, y, value) {
-            this.dataUpdates['p_' + x + '_' + y] = value;
+            this.dataModel().setValue(x, y, value);
         },
 
         /**
@@ -1430,7 +1354,7 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          * #### returns: integer
          */
         getColumnCount: function() {
-            return 300;
+            return this.getDataModel().getColumnCount();
         },
 
         /**
@@ -1461,6 +1385,7 @@ it contains all code/data that's necessary for easily implementing a virtual dat
         setColumnWidth: function(x, width) {
             var tableState = this.getState();
             tableState.columnWidths[x] = Math.max(5, width);
+            this.stateChanged();
         },
 
         /**
@@ -1483,11 +1408,11 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          * @param {integer} x - the position in pixels
          */
         setScrollPositionX: function(x) {
-            this.getDataModel().setScrollPositionX(x);
+            this.scrollPositionX = x;
         },
 
         getScrollPositionX: function() {
-            return this.getDataModel().getScrollPositionX();
+            return this.scrollPositionX;
         },
 
         /**
@@ -1499,11 +1424,11 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          * @param {integer} y - the position in pixels
          */
         setScrollPositionY: function(y) {
-            this.getDataModel().setScrollPositionY(y);
+            this.scrollPositionY = y;
         },
 
         getScrollPositionY: function() {
-            return this.getDataModel().getScrollPositionY();
+            return this.scrollPositionY;
         },
 
         /**

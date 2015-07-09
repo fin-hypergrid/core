@@ -32,18 +32,6 @@
         * @function
         * @instance
         * @description
-        return the count of fixed rows/columns
-        * #### returns: integer
-        * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
-        */
-        getFixedAreaCount: function(grid) {
-            return grid.getFixedColumnCount();
-        },
-
-        /**
-        * @function
-        * @instance
-        * @description
         get the mouse x,y coordinate
         * #### returns: integer
         * @param {MouseEvent} event - the mouse event to query
@@ -107,31 +95,6 @@
         * @function
         * @instance
         * @description
-        return the fixed area rows/columns count
-        * #### returns: integer
-        * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
-        */
-        getOtherFixedAreaCount: function(grid) {
-            return grid.getFixedRowCount();
-        },
-
-        /**
-        * @function
-        * @instance
-        * @description
-        return the fixed area rows/columns width/height
-        * #### returns: integer
-        * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
-        * @param {integer} index - the row/column index of interest
-        */
-        getFixedAreaSize: function(grid, index) {
-            return grid.getFixedColumnWidth(index);
-        },
-
-        /**
-        * @function
-        * @instance
-        * @description
         return the recently rendered area's width/height
         * #### returns: integer
         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
@@ -139,19 +102,6 @@
         */
         getPreviousAbsoluteSize: function(grid, index) {
             return grid.getRenderedWidth(index);
-        },
-
-        /**
-        * @function
-        * @instance
-        * @description
-        set the row/column width/height at index to value
-        * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
-        * @param {integer} index - the row/column index of interest
-        * @param {integer} value - the width/height to set to
-        */
-        setFixedAreaSize: function(grid, index, value) {
-            grid.setFixedColumnWidth(index, value);
         },
 
         /**
@@ -220,13 +170,8 @@
         * @param {integer} size - the width/height to set to
         */
         setSize: function(grid, areaIndex, size) {
-            var fixedAreaCount = this.getFixedAreaCount(grid);
             var scrollValue = this.getScrollValue(grid);
-            if (areaIndex < fixedAreaCount) {
-                this.setFixedAreaSize(grid, areaIndex, size);
-            } else {
-                this.setAreaSize(grid, areaIndex - fixedAreaCount + scrollValue, size);
-            }
+            this.setAreaSize(grid, areaIndex + scrollValue, size);
         },
 
         /**
@@ -238,12 +183,19 @@
         * @param {integer} areaIndex - the row/column index of interest
         */
         getSize: function(grid, areaIndex) {
-            var fixedAreaCount = this.getFixedAreaCount(grid);
-            if (areaIndex < 0) {
-                return this.getFixedAreaSize(grid, fixedAreaCount + areaIndex);
-            } else {
-                return this.getAreaSize(grid, areaIndex);
-            }
+            return this.getAreaSize(grid, areaIndex);
+        },
+
+        /**
+        * @function
+        * @instance
+        * @description
+        return the fixed area rows/columns count
+        * #### returns: integer
+        * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+        */
+        getOtherFixedAreaCount: function(grid) {
+            return grid.getFixedRowCount();
         },
 
         /**
@@ -259,13 +211,9 @@
             var overArea = this.overAreaDivider(grid, event);
             if (overArea > -1 && this.getGridCellValue(gridCell) < this.getOtherFixedAreaCount(grid)) {
                 var scrollValue = this.getScrollValue(grid);
-                var fixedAreaCount = this.getFixedAreaCount(grid);
                 this.dragIndex = overArea - 1;
                 this.dragStart = this.getMouseValue(event);
-                if (overArea < fixedAreaCount) {
-                    scrollValue = 0;
-                }
-                this.dragIndexStartingSize = this.getAreaSize(grid, overArea - fixedAreaCount + scrollValue);
+                this.dragIndexStartingSize = this.getAreaSize(grid, overArea + scrollValue);
                 this.detachChain();
             } else if (this.next) {
                 this.next.handleMouseDown(grid, event);

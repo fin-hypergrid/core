@@ -30,18 +30,6 @@
         * @function
         * @instance
         * @description
-        return the count of fixed rows/columns
-        * #### returns: integer
-        * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
-        */
-        getFixedAreaCount: function(grid) {
-            return grid.getFixedRowCount();
-        },
-
-        /**
-        * @function
-        * @instance
-        * @description
         get the mouse x,y coordinate
         * #### returns: integer
         * @param {MouseEvent} event - the mouse event to query
@@ -105,44 +93,6 @@
         * @function
         * @instance
         * @description
-        return the fixed area rows/columns count
-        * #### returns: integer
-        * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
-        */
-        getOtherFixedAreaCount: function(grid) {
-            return grid.getFixedColumnCount();
-        },
-
-        /**
-        * @function
-        * @instance
-        * @description
-        return the fixed area rows/columns width/height
-        * #### returns: integer
-        * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
-        * @param {integer} index - the row/column index of interest
-        */
-        getFixedAreaSize: function(grid, index) {
-            return grid.getFixedRowHeight(index);
-        },
-
-        /**
-        * @function
-        * @instance
-        * @description
-        set the row/column width/height at index to value
-        * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
-        * @param {integer} index - the row/column index of interest
-        * @param {integer} value - the width/height to set to
-        */
-        setFixedAreaSize: function(grid, index, value) {
-            grid.setFixedRowHeight(index, value);
-        },
-
-        /**
-        * @function
-        * @instance
-        * @description
         returns the index of which divider I'm over
         * #### returns: integer
         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
@@ -189,6 +139,17 @@
             return grid.getRenderedHeight(index);
         },
 
+        /**
+        * @function
+        * @instance
+        * @description
+        return the fixed area rows/columns count
+        * #### returns: integer
+        * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+        */
+        getOtherFixedAreaCount: function(grid) {
+            return grid.getFixedColumnCount();
+        },
     });
 
 })(); /* jshint ignore:line */

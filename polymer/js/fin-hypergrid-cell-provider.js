@@ -131,16 +131,20 @@ var noop = function() {};
          * @description
         This is the default cell rendering function for rendering a vanilla cell. Great care was taken in crafting this function as it needs to perform extremely fast. Reads on the gc object are expensive but not quite as expensive as writes to it. We do our best to avoid writes, then avoid reads. Clipping bounds are not set here as this is also an expensive operation. Instead, we truncate overflowing text and content by filling a rectangle with background color column by column instead of cell by cell.  This column by column fill happens higher up on the stack in a calling function from fin-hypergrid-renderer.  Take note we do not do cell by cell border renderering as that is expensive.  Instead we render many fewer gridlines after all cells are rendered.
         */
-        defaultCellPaint: function(gc, x, y, width, height, isLink) {
+        defaultCellPaint: function(gc, config) {
 
-            isLink = isLink || false;
-            var colHEdgeOffset = this.config.properties.cellPadding,
+            var isLink = isLink || false;
+            var colHEdgeOffset = config.cellPadding,
                 halignOffset = 0,
-                valignOffset = this.config.voffset,
-                halign = this.config.halign,
-                isColumnHovered = this.config.isColumnHovered,
-                isRowHovered = this.config.isRowHovered,
-                val = this.config.value;
+                valignOffset = config.voffset,
+                halign = config.halign,
+                isColumnHovered = config.isColumnHovered,
+                isRowHovered = config.isRowHovered,
+                val = config.value,
+                x = config.bounds.x,
+                y = config.bounds.y,
+                width = config.bounds.width,
+                height = config.bounds.height;
 
             var leftIcon, rightIcon, centerIcon, ixoffset, iyoffset;
 
@@ -165,8 +169,8 @@ var noop = function() {};
                 }
             }
 
-            if (gc.font !== this.config.font) {
-                gc.font = this.config.font;
+            if (gc.font !== config.font) {
+                gc.font = config.font;
             }
             if (gc.textAlign !== 'left') {
                 gc.textAlign = 'left';
@@ -175,19 +179,19 @@ var noop = function() {};
                 gc.textBaseline = 'middle';
             }
 
-            var fontMetrics = this.config.getTextHeight(this.config.font);
-            var textWidth = this.config.getTextWidth(gc, val);
+            var fontMetrics = config.getTextHeight(config.font);
+            var textWidth = config.getTextWidth(gc, val);
 
 
             //we must set this in order to compute the minimum width
             //for column autosizing purposes
-            this.config.minWidth = textWidth + (2 * colHEdgeOffset);
+            config.minWidth = textWidth + (2 * colHEdgeOffset);
 
             if (halign === 'right') {
-                //textWidth = this.config.getTextWidth(gc, this.config.value);
+                //textWidth = config.getTextWidth(gc, config.value);
                 halignOffset = width - colHEdgeOffset - textWidth;
             } else if (halign === 'center') {
-                //textWidth = this.config.getTextWidth(gc, this.config.value);
+                //textWidth = config.getTextWidth(gc, config.value);
                 halignOffset = (width - textWidth) / 2;
             } else if (halign === 'left') {
                 halignOffset = colHEdgeOffset;
@@ -197,13 +201,13 @@ var noop = function() {};
             valignOffset = valignOffset + Math.ceil(height / 2);
 
             //fill background only if our bgColor is populated or we are a selected cell
-            if (this.config.bgColor || this.config.isSelected) {
-                gc.fillStyle = this.config.isSelected ? this.config.bgSelColor : this.config.bgColor;
+            if (config.backgroundColor || config.isSelected) {
+                gc.fillStyle = config.isSelected ? config.backgroundSelColor : config.backgroundColor;
                 gc.fillRect(x, y, width, height);
             }
 
             //draw text
-            var theColor = this.config.isSelected ? this.config.fgSelColor : this.config.fgColor;
+            var theColor = config.isSelected ? config.foregroundSelColor : config.color;
             if (gc.fillStyle !== theColor) {
                 gc.fillStyle = theColor;
                 gc.strokeStyle = theColor;
@@ -214,11 +218,10 @@ var noop = function() {};
             if (isColumnHovered && isRowHovered) {
                 gc.beginPath();
                 if (isLink) {
-                    gc.beginPath();
-                    underline(this.config, gc, val, x + halignOffset, y + valignOffset + Math.floor(fontMetrics.height / 2), 1);
+                    underline(config, gc, val, x + halignOffset, y + valignOffset + Math.floor(fontMetrics.height / 2), 1);
                     gc.stroke();
-                    gc.closePath();
                 }
+                gc.closePath();
             }
             var iconWidth = 0;
             if (leftIcon) {
@@ -239,7 +242,7 @@ var noop = function() {};
                 gc.drawImage(centerIcon, x + width - ixoffset - centerIcon.width, y + iyoffset);
                 iconWidth = Math.max(centerIcon.width + 2);
             }
-            this.config.minWidth = this.config.minWidth + 2 * (iconWidth);
+            config.minWidth = config.minWidth + 2 * (iconWidth);
         },
 
         /**

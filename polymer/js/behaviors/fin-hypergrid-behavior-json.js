@@ -56,15 +56,11 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         getDefaultState: function() {
             return {
                 columnIndexes: [],
-                fixedColumnIndexes: [],
                 hiddenColumns: [],
 
                 columnWidths: [],
-                fixedColumnWidths: [],
-                fixedColumnAutosized: [],
 
                 rowHeights: {},
-                fixedRowHeights: {},
                 columnProperties: [],
                 columnAutosized: [],
 

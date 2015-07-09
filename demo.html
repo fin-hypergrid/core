@@ -133,7 +133,7 @@
             </paper-dropdown>
         </paper-menu-button>
 
-        <paper-tabs selected="0" flex>
+        <paper-tabs selected="1" flex>
             <paper-tab>In Memory</paper-tab>
             <paper-tab>Default</paper-tab>
             <paper-tab>JSON</paper-tab>
@@ -144,7 +144,7 @@
 
     </core-toolbar>
 
-  <core-pages selected="0">
+  <core-pages selected="1">
 
         <div vertical layout>
           <div class="description">
@@ -157,10 +157,10 @@
           </div>
           <core-splitter direction="up"></core-splitter>
           <div flex class="rel">
-            <fin-hypergrid class="abs" id="in-memory-example">
+<!--             <fin-hypergrid class="abs" id="in-memory-example">
                 <fin-hypergrid-behavior-in-memory></fin-hypergrid-behavior-in-memory>
                 <fin-hypergrid-excel></fin-hypergrid-excel>
-            </fin-hypergrid>
+            </fin-hypergrid> -->
           </div>
         </div>
 
@@ -187,9 +187,9 @@
           </div>
           <core-splitter direction="up"></core-splitter>
           <div flex class="rel">
-            <fin-hypergrid class="abs" id="json-example">
+<!--             <fin-hypergrid class="abs" id="json-example">
                 <fin-hypergrid-behavior-json></fin-hypergrid-behavior-json>
-            </fin-hypergrid>
+            </fin-hypergrid> -->
           </div>
         </div>
         <div vertical layout>
@@ -213,9 +213,9 @@
 
           <core-splitter direction="up"></core-splitter>
           <div flex class="rel">
-            <fin-hypergrid class="abs" id="q-example">
+<!--             <fin-hypergrid class="abs" id="q-example">
                 <fin-hypergrid-behavior-q url="ws://localhost:5000" table="trade"></fin-hypergrid-behavior-q>
-            </fin-hypergrid>
+            </fin-hypergrid> -->
           </div>
         </div>
 
@@ -231,9 +231,9 @@
               <div class="abs" style="left:240px;bottom:24px" id="qtreedescription">
               </div>
               <div class="abs" style="top:24px">
-                <fin-hypergrid class="abs" id="qtree-example">
+<!--                 <fin-hypergrid class="abs" id="qtree-example">
                     <fin-hypergrid-behavior-qtree url="ws://localhost:12345"></fin-hypergrid-behavior-qtree>
-                </fin-hypergrid>
+                </fin-hypergrid> -->
               </div>
           </div>
         </div>
@@ -248,9 +248,9 @@
           </div>
           <core-splitter direction="up"></core-splitter>
           <div flex class="rel">
-            <fin-hypergrid class="abs">
+<!--             <fin-hypergrid class="abs">
                 <fin-hypergrid-behavior-gol></fin-hypergrid-behavior-gol>
-            </fin-hypergrid>
+            </fin-hypergrid> -->
           </div>
         </div>
 
@@ -379,18 +379,7 @@
                 d: 'simpleCellRenderer'
             };
 
-            // cellProvider.getCell = function(config) {
-            //     var x = config.x;
-            //     var renderer = cellProvider.cellCache[typeRendererMap[qModel.block.headers[x + 1][1]]];
-            //     renderer = renderer || cellProvider.cellCache.simpleCellRenderer;
-            //     if (x === 11) {
-            //         renderer = cellProvider.cellCache.sliderCellRenderer;
-            //     } else if (x === 13) {
-            //         renderer = cellProvider.cellCache.sparkbarCellRenderer;
-            //     }
-            //     renderer.config = config;
-            //     return renderer;
-            // };
+
             var descriptionPanel = document.querySelector('#qtreedescription');
 
             var description = '';
@@ -406,7 +395,7 @@
             },1000);
         });
 
-    })();
+    });// ();
 
     //setup random data for the JSON tab example
     (function(){
@@ -708,7 +697,7 @@
             // }
 
         });
-    })();
+    });// ();
     //json-example stuff
     function toggleHiDPI() {
         var button = document.querySelector('#hidpi-button');

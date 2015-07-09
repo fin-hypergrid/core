@@ -428,7 +428,7 @@
             style.width = columnWidth + 'px'; //Math.round(columnWidth / hdpiRatio) + 'px';
             style.height = colHeight + 'px'; //Math.round(colHeight / hdpiRatio) + 'px';
 
-            var startX = grid.renderer.renderedColumnWidths[columnIndex + numFixedColumns];
+            var startX = grid.getRenderer().getColumnEdges()[columnIndex + numFixedColumns];
             startX = startX * hdpiRatio;
 
             draggerCTX.scale(hdpiRatio, hdpiRatio);

@@ -4,30 +4,21 @@
 
     Polymer('fin-hypergrid-data-model-base', { /* jshint ignore:line  */
 
-        scrollPositionX: 0,
-        scrollPositionY: 0,
-
-        getValue: function() {
-
-        },
-        setValue: function() {
-
+        getValue: function(x, y) {
+            return x + ', ' + y;
         },
 
-        setScrollPositionX: function(x) {
-            this.scrollPositionX = x;
+        setValue: function(x, y, value) {
+            console.log('setting (' + x + ', ' + 'y) = ' + value);
         },
 
-        getScrollPositionX: function() {
-            return this.scrollPositionX;
+        getColumnCount: function() {
+            return 20;
         },
 
-        setScrollPositionY: function(y) {
-            this.scrollPositionY = y;
-        },
-
-        getScrollPositionY: function() {
-            return this.scrollPositionY;
+        getRowCount: function() {
+            return 1000;
         }
     });
+
 })();

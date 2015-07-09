@@ -12206,6 +12206,7 @@ scope.importElements = importElements;
 
 
 
+
 <script>/*!
  * numeral.js
  * version : 1.5.3
@@ -15383,7 +15384,7 @@ Instances of this object have basically four main functions.
 
 'use strict';
 
-var noop = function() {};
+//var noop = function() {};
 
 /**
  *
@@ -15397,100 +15398,97 @@ var fontData = {};
  */
 var textWidthCache = new SimpleLRU(10000);
 
-/**
- *
- * @property {Object} config - the shared singleton cell renderering config object, this gets passed into the cell renderer on every cell paint
- */
-var config = {
-    getTextWidth: function(gc, string) {
-        if (string === null || string === undefined) {
-            return 0;
-        }
-        string = string + '';
-        if (string.length === 0) {
-            return 0;
-        }
-        var key = gc.font + string;
-        var width = textWidthCache.get(key);
-        if (!width) {
-            width = gc.measureText(string).width;
-            textWidthCache.set(key, width);
-        }
-        return width;
-    },
 
-    getTextHeight: function(font) {
+var getTextWidth = function(gc, string) {
+    if (string === null || string === undefined) {
+        return 0;
+    }
+    string = string + '';
+    if (string.length === 0) {
+        return 0;
+    }
+    var key = gc.font + string;
+    var width = textWidthCache.get(key);
+    if (!width) {
+        width = gc.measureText(string).width;
+        textWidthCache.set(key, width);
+    }
+    return width;
+};
 
-        var result = fontData[font];
-        if (result) {
-            return result;
-        }
-        result = {};
-        var text = document.createElement('span');
-        text.textContent = 'Hg';
-        text.style.font = font;
+var getTextHeight = function(font) {
 
-        var block = document.createElement('div');
-        block.style.display = 'inline-block';
-        block.style.width = '1px';
-        block.style.height = '0px';
-
-        var div = document.createElement('div');
-        div.appendChild(text);
-        div.appendChild(block);
-
-        div.style.position = 'absolute';
-        document.body.appendChild(div);
-
-        try {
-
-            block.style.verticalAlign = 'baseline';
-
-            var blockRect = block.getBoundingClientRect();
-            var textRect = text.getBoundingClientRect();
-
-            result.ascent = blockRect.top - textRect.top;
-
-            block.style.verticalAlign = 'bottom';
-            result.height = blockRect.top - textRect.top;
-
-            result.descent = result.height - result.ascent;
-
-        } finally {
-            document.body.removeChild(div);
-        }
-        if (result.height !== 0) {
-            fontData[font] = result;
-        }
+    var result = fontData[font];
+    if (result) {
         return result;
     }
+    result = {};
+    var text = document.createElement('span');
+    text.textContent = 'Hg';
+    text.style.font = font;
 
+    var block = document.createElement('div');
+    block.style.display = 'inline-block';
+    block.style.width = '1px';
+    block.style.height = '0px';
+
+    var div = document.createElement('div');
+    div.appendChild(text);
+    div.appendChild(block);
+
+    div.style.position = 'absolute';
+    document.body.appendChild(div);
+
+    try {
+
+        block.style.verticalAlign = 'baseline';
+
+        var blockRect = block.getBoundingClientRect();
+        var textRect = text.getBoundingClientRect();
+
+        result.ascent = blockRect.top - textRect.top;
+
+        block.style.verticalAlign = 'bottom';
+        result.height = blockRect.top - textRect.top;
+
+        result.descent = result.height - result.ascent;
+
+    } finally {
+        document.body.removeChild(div);
+    }
+    if (result.height !== 0) {
+        fontData[font] = result;
+    }
+    return result;
+};
+
+// var clearObjectProperties = function(obj) {
+//     for (var prop in obj) {
+//         if (obj.hasOwnProperty(prop)) {
+//             delete obj[prop];
+//         }
+//     }
+// };
+
+var merge = function(target, source) {
+    for (var key in source) {
+        if (source.hasOwnProperty(key)) {
+            target[key] = source[key];
+        }
+    }
 };
 
 (function() {
 
-    // we need a reusable cellconfig object
-    var cellConfig = function(x, y, value, fgColor, bgColor, fgSelColor, bgSelColor, font, isSelected, isColumnHovered, isRowHovered, halign, hoffset, voffset, properties) {
-        config.x = x;
-        config.y = y;
-        config.value = value;
-        config.fgColor = fgColor;
-        config.bgColor = undefined;
-        config.fgSelColor = fgSelColor;
-        config.bgSelColor = bgSelColor;
-        config.font = font;
-        config.isSelected = isSelected;
-        config.isColumnHovered = isColumnHovered || false;
-        config.isRowHovered = isRowHovered || false;
-        config.halign = halign || 'center';
-        config.hoffset = hoffset;
-        config.voffset = voffset;
-        config.properties = properties;
-        return config;
-    };
-
     Polymer('fin-hypergrid-renderer',{ /* jslint ignore:line */
 
+        //the shared single item "pooled" cell object for drawing each cell
+        cell: {
+            x: 0,
+            y: 0,
+            width: 0,
+            height: 0
+        },
 
         /**
          * @function
@@ -15501,14 +15499,87 @@ var config = {
          */
         attached: function() {
             this.readyInit();
-            this.renderedColumnWidths = [0];
+            this.columnEdges = [];
+            this.columnEdgesIndexMap = {};
             this.renderedColumnMinWidths = [];
-            this.renderedFixedColumnMinWidths = [];
             this.renderedHeight = 0;
-            this.renderedRowHeights = [0];
-            this.renderedColumns = [];
-            this.renderedRows = [];
-            this.insertionBounds = []; // this is the midpoint of each column, used
+            this.rowEdges = [];
+            this.rowEdgesIndexMap = {};
+            this.viewableColumns = [];
+            this.viewableRows = [];
+            this.insertionBounds = []; // this is the midpoint of each column, used for dnd
+        },
+
+
+        //this function computes the grid coordinates used for extremely fast iteration over
+        //painting the grid cells. this function is extremely fast, for thousand rows X columns
+        //on a modest machine taking usually 0ms and no more that 3 ms.
+        computeCellsBounds: function() {
+
+            //var startTime = Date.now();
+
+            var scrollTop = this.getScrollTop();
+            var scrollLeft = this.getScrollLeft();
+
+            var numColumns = this.getColumnCount();
+            var numFixedColumns = this.getFixedColumnCount();
+
+            var numRows = this.getRowCount();
+            var numFixedRows = this.getFixedRowCount();
+
+            var bounds = this.getGrid().getBoundingClientRect();
+            var viewWidth = bounds.width;
+            var viewHeight = bounds.height;
+
+            var x, y, c, r, vx, vy, width, height;
+
+            this.getColumnEdges().length = 0;
+            this.rowEdges.length = 0;
+
+            this.columnEdges[0] = 0;
+            this.rowEdges[0] = 0;
+
+            this.viewableColumns.length = 0;
+            this.viewableRows.length = 0;
+            this.columnEdgesIndexMap = {};
+            this.rowEdgesIndexMap = {};
+
+            x = 0;
+            for (c = 0; c < numColumns; c++) {
+                vx = c;
+                if (c >= numFixedColumns) {
+                    vx = vx + scrollLeft;
+                }
+                if (x > viewWidth || numColumns <= vx) {
+                    break;
+                }
+                width = this.getColumnWidth(vx);
+                x = x + width;
+                this.columnEdges[c + 1] = Math.round(x);
+                this.viewableColumns[c] = vx;
+                this.columnEdgesIndexMap[vx] = c;
+            }
+
+            y = 0;
+            for (r = 0; r < numRows; r++) {
+                vy = r;
+                if (r >= numFixedRows) {
+                    vy = vy + scrollTop;
+                }
+                if (y > viewHeight || numRows <= vy) {
+                    break;
+                }
+                height = this.getRowHeight(vy);
+                y = y + height;
+                this.rowEdges[r + 1] = Math.round(y);
+                this.viewableRows[r] = vy;
+                this.rowEdgesIndexMap[vy] = r;
+            }
+            // console.log('cols', this.getColumnEdges());
+            // console.log('rows', this.rowEdges);
+            // console.log('col#', this.viewableColumns);
+            // console.log('row#', this.viewableRows);
+            //console.log('ms', Date.now() - startTime);
         },
 
         /**
@@ -15519,21 +15590,8 @@ var config = {
          * #### returns: Object
          */
         resolveProperty: function(key) {
-            return this.grid.resolveProperty(key);
+            return this.getGrid().resolveProperty(key);
         },
-
-        /**
-         * @function
-         * @instance
-         * @description
-        this is a utility function for initializing the cellConfig
-         * #### returns: Object
-         */
-        cellConfig: function(x, y, value, fgColor, bgColor, fgSelColor, bgSelColor, font, isSelected, isColumnHovered, isRowHovered, halign, hoffset, voffset) {
-            var config = cellConfig(x, y, value, fgColor, bgColor, fgSelColor, bgSelColor, font, isSelected, isColumnHovered, isRowHovered, halign, hoffset, voffset, this.grid.lnfProperties);
-            return config;
-        },
-
 
         /**
          * @function
@@ -15555,7 +15613,19 @@ var config = {
          * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
          */
         setGrid: function(grid) {
+
             this.grid = grid;
+
+            //lets make use of prototype inheritance for cell properties
+            this.initializeProperties();
+        },
+
+        initializeProperties: function() {
+            var grid = this.getGrid();
+            this.columnProperties = Object.create(grid.lnfProperties);
+            this.cellProperties = Object.create(this.columnProperties);
+            this.cellProperties.getTextWidth = getTextWidth;
+            this.cellProperties.getTextHeight = getTextHeight;
         },
 
         /**
@@ -15581,8 +15651,8 @@ var config = {
         Answer how many rows we rendered
          * #### returns: integer
          */
-        getViewableRows: function() {
-            return this.renderedRows.length;
+        getVisibleRowsCount: function() {
+            return this.viewableRows.length;
         },
 
         /**
@@ -15593,7 +15663,7 @@ var config = {
          * #### returns: Array
          */
         getVisibleRows: function() {
-            return this.renderedRows;
+            return this.viewableRows;
         },
 
         /**
@@ -15603,8 +15673,8 @@ var config = {
         Answer how many columns we just rendered
          * #### returns: integer
          */
-        getViewableColumns: function() {
-            return this.renderedColumns.length;
+        getVisibleColumnsCount: function() {
+            return this.viewableColumns.length;
         },
 
         /**
@@ -15615,7 +15685,7 @@ var config = {
          * #### returns: Array
          */
         getVisibleColumns: function() {
-            return this.renderedColumns;
+            return this.viewableColumns;
         },
 
         /**
@@ -15627,18 +15697,18 @@ var config = {
          */
         overColumnDivider: function(x) {
             x = Math.round(x);
-            var whichCol = this.renderedColumnWidths.indexOf(x - 1);
+            var whichCol = this.getColumnEdges().indexOf(x - 1);
             if (whichCol < 0) {
-                whichCol = this.renderedColumnWidths.indexOf(x);
+                whichCol = this.getColumnEdges().indexOf(x);
             }
             if (whichCol < 0) {
-                whichCol = this.renderedColumnWidths.indexOf(x - 2);
+                whichCol = this.getColumnEdges().indexOf(x - 2);
             }
             if (whichCol < 0) {
-                whichCol = this.renderedColumnWidths.indexOf(x + 1);
+                whichCol = this.getColumnEdges().indexOf(x + 1);
             }
             if (whichCol < 0) {
-                whichCol = this.renderedColumnWidths.indexOf(x - 3);
+                whichCol = this.getColumnEdges().indexOf(x - 3);
             }
 
             return whichCol;
@@ -15653,12 +15723,12 @@ var config = {
          */
         overRowDivider: function(y) {
             y = Math.round(y);
-            var which = this.renderedRowHeights.indexOf(y + 1);
+            var which = this.rowEdges.indexOf(y + 1);
             if (which < 0) {
-                which = this.renderedRowHeights.indexOf(y);
+                which = this.rowEdges.indexOf(y);
             }
             if (which < 0) {
-                which = this.renderedRowHeights.indexOf(y - 1);
+                which = this.rowEdges.indexOf(y - 1);
             }
             return which;
         },
@@ -15689,17 +15759,25 @@ var config = {
          * @description
          * #### returns: [fin-rectangle](http://stevewirts.github.io/fin-rectangle/components/fin-rectangle/)
          */
-        _getBoundsOfCell: function(x, y) {
-            var ox = this.renderedColumnWidths[x],
-                oy = this.renderedRowHeights[y],
-                cx = this.renderedColumnWidths[x + 1],
-                cy = this.renderedRowHeights[y + 1],
+        _getBoundsOfCell: function(c, r) {
+            var columnEdges = this.getColumnEdges();
+            var x = this.columnEdgesIndexMap[c];
+            var y = this.rowEdgesIndexMap[r];
+            var ox = columnEdges[x],
+                oy = this.rowEdges[y],
+                cx = columnEdges[x + 1],
+                cy = this.rowEdges[y + 1],
                 ex = cx - ox,
                 ey = cy - oy;
 
-            var bounds = this.g.rectangle.create(ox, oy, ex, ey);
+            var cell = this.cell;
+            cell.x = ox;
+            cell.y = oy;
+            cell.width = ex;
+            cell.height = ey;
 
-            return bounds;
+            return cell;
+
         },
 
         /**
@@ -15742,8 +15820,8 @@ var config = {
             var x, y;
             var c, r;
             var previous = 0;
-            for (c = 1; c < this.renderedColumnWidths.length; c++) {
-                width = this.renderedColumnWidths[c];
+            for (c = 1; c < this.getColumnEdges().length; c++) {
+                width = this.getColumnEdges()[c];
                 if (point.x < width) {
                     x = Math.max(0, point.x - previous - 2);
                     break;
@@ -15752,8 +15830,8 @@ var config = {
             }
             c--;
             previous = 0;
-            for (r = 1; r < this.renderedRowHeights.length; r++) {
-                height = this.renderedRowHeights[r];
+            for (r = 1; r < this.rowEdges.length; r++) {
+                height = this.rowEdges[r];
                 if (point.y < height) {
                     y = Math.max(0, point.y - previous - 2);
                     break;
@@ -15784,7 +15862,7 @@ var config = {
          * #### returns: boolean
          */
         isColumnVisible: function(colIndex) {
-            var isVisible = this.renderedColumns.indexOf(colIndex) !== -1;
+            var isVisible = this.viewableColumns.indexOf(colIndex) !== -1;
             return isVisible;
         },
 
@@ -15798,7 +15876,7 @@ var config = {
         getFinalVisableColumnBoundry: function() {
             var isMaxX = this.isLastColumnVisible();
             var chop = isMaxX ? 2 : 1;
-            var colWall = this.renderedColumnWidths[this.renderedColumnWidths.length - chop];
+            var colWall = this.getColumnEdges()[this.getColumnEdges().length - chop];
             var result = Math.min(colWall, this.getBounds().width() - 200);
             return result;
         },
@@ -15815,7 +15893,7 @@ var config = {
          * #### returns: boolean
          */
         isRowVisible: function(rowIndex) {
-            var isVisible = this.renderedRows.indexOf(rowIndex) !== -1;
+            var isVisible = this.viewableRows.indexOf(rowIndex) !== -1;
             return isVisible;
         },
 
@@ -15844,16 +15922,12 @@ var config = {
          * @param {CanvasRenderingContext2D} gc - [CanvasRenderingContext2D](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D)
          */
         renderGrid: function(gc) {
-            var offsetX = this.getBehavior().getFixedColumnsWidth();
-            var offsetY = this.getBehavior().getFixedRowsHeight();
-
             gc.beginPath();
-            this.paintTopLeft(gc, offsetX, offsetY);
-            this.paintHeaders(gc, 0, 0);
-            this.paintCells(gc, offsetX, offsetY);
-            this.paintGridlines(gc, offsetX, offsetY);
-            this.blankOutOverflow(gc);
-            this.renderOverrides(gc);
+
+            this.paintCells(gc);
+            this.paintGridlines(gc);
+            //this.blankOutOverflow(gc);
+            //this.renderOverrides(gc);
             gc.closePath();
         },
 
@@ -15879,7 +15953,7 @@ var config = {
         blankOutOverflow: function(gc) {
             var isMaxX = this.isLastColumnVisible();
             var chop = isMaxX ? 2 : 1;
-            var x = this.renderedColumnWidths[this.renderedColumnWidths.length - chop];
+            var x = this.getColumnEdges()[this.getColumnEdges().length - chop];
             var bounds = this.getGrid().getBoundingClientRect();
             var width = bounds.width - x;
             var height = bounds.height;
@@ -15920,7 +15994,7 @@ var config = {
         renderOverride: function(gc, override) {
             //lets blank out the drag row
             var behavior = this.getBehavior();
-            var columnStarts = this.renderedColumnWidths;
+            var columnStarts = this.getColumnEdges();
             var fixedColCount = behavior.getFixedColumnCount();
             var hdpiRatio = override.hdpiratio;
             var startX = hdpiRatio * columnStarts[override.columnIndex + fixedColCount];
@@ -15938,164 +16012,6 @@ var config = {
          * @function
          * @instance
          * @description
-        We opted to not paint borders for each cell as that was extremely expensive.  Instead we draw gridlines here.  Also we record the widths and heights for later.
-         *
-         * @param {CanvasRenderingContext2D} gc - [CanvasRenderingContext2D](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D)
-         * @param {integer} offsetX - x coordinate to start at
-         * @param {integer} offsetY - y coordinate to start at
-        */
-        paintGridlines: function(gc, offsetX, offsetY) {
-
-            var drawThemH = this.resolveProperty('gridLinesH');
-            var drawThemV = this.resolveProperty('gridLinesV');
-
-            var behavior = this.getBehavior();
-            var lineColor = this.resolveProperty('lineColor');
-
-            var numColumns = this.getColumnCount();
-            var numRows = behavior.getRowCount();
-            var numFixedColumns = behavior.getFixedColumnCount();
-            var numFixedRows = behavior.getFixedRowCount();
-
-            var fixedColumnsWidth = behavior.getFixedColumnsWidth();
-            var fixedRowsHeight = behavior.getFixedRowsHeight();
-
-            this.renderedColumnWidths = [0];
-            this.renderedHeight = 0;
-            this.renderedRowHeights = [0];
-            this.renderedColumns = [];
-            this.renderedRows = [];
-            this.insertionBounds = [];
-            var insertionBoundsCursor = 0;
-
-            var scrollTop = this.getScrollTop();
-            var scrollLeft = this.getScrollLeft();
-            var viewWidth = this.getBounds().width() - 200; // look in fin-hypergrid and initializtion of fin-canvas
-            var viewHeight = this.getBounds().height();
-
-            gc.beginPath();
-            gc.strokeStyle = lineColor;
-            gc.lineWidth = 1;
-            var c, r, x, y, width, height;
-
-            //fixedrow horizontal grid lines
-            //gc.beginPath();
-            gc.moveTo(0, 0);
-            y = 0;
-            for (r = 0; r < numFixedRows; r++) {
-                height = this.getFixedRowHeight(r);
-                y = y + height;
-                this.renderedRowHeights.push(Math.round(y));
-                if (drawThemH) {
-                    gc.moveTo(fixedColumnsWidth, y + 0.5);
-                    gc.lineTo(viewWidth, y + 0.5);
-                    //gc.stroke();
-                }
-            }
-
-            //fixedcol vertical grid lines
-            //gc.beginPath();
-            gc.moveTo(0, 0);
-            x = 0;
-            for (c = 0; c < numFixedColumns; c++) {
-                width = this.getFixedColumnWidth(c);
-                x = x + width;
-                this.renderedColumnWidths.push(Math.round(x));
-                if (drawThemV) {
-                    gc.moveTo(x + 0.5, fixedRowsHeight);
-                    gc.lineTo(x + 0.5, viewHeight);
-                    //gc.stroke();
-                }
-            }
-
-            //main area vertical grid lines
-            //gc.beginPath();
-            gc.moveTo(0, 0);
-            x = offsetX;
-            var previousInsertionBoundsCursorValue = 0;
-            //render the final line with numColumns + 1
-            for (c = 0; c < numColumns + 1; c++) {
-                width = this.getColumnWidth(c + scrollLeft);
-
-                this.renderedColumns.push(c + scrollLeft);
-
-                if (x > viewWidth || numColumns < scrollLeft + c) {
-                    this.renderedColumns.length = Math.max(0, this.renderedColumns.length - 2);
-                    break;
-                }
-                if (drawThemV) {
-                    gc.moveTo(x + 0.5, 0);
-                    gc.lineTo(x + 0.5, viewHeight);
-                    //gc.stroke();
-                }
-                x = x + width;
-
-                this.renderedColumnWidths.push(Math.round(x));
-
-                insertionBoundsCursor = insertionBoundsCursor + Math.round(width / 2) + previousInsertionBoundsCursorValue;
-                this.insertionBounds.push(insertionBoundsCursor);
-                previousInsertionBoundsCursorValue = Math.round(width / 2);
-            }
-
-            //main area horizontal grid lines
-            //gc.beginPath();
-            gc.moveTo(0, 0);
-            y = offsetY;
-            for (r = 0; r < numRows; r++) {
-                height = this.getRowHeight(r + scrollTop);
-
-                this.renderedRows.push(r + scrollTop);
-
-                if (y > viewHeight || numRows < scrollTop + r) {
-                    this.renderedRows.length = Math.max(0, this.renderedRows.length - 2);
-                    break;
-                }
-
-                if (drawThemH) {
-                    gc.moveTo(0, y + 0.5);
-                    gc.lineTo(viewWidth, y + 0.5);
-                    //gc.stroke();
-                }
-                y = y + height;
-                this.renderedHeight = this.renderedHeight + height;
-                this.renderedRowHeights.push(Math.round(y));
-            }
-            gc.stroke();
-            gc.closePath();
-        },
-
-        /**
-         * @function
-         * @instance
-         * @description
-        paint the fixed rows and columns areas
-         *
-         * @param {CanvasRenderingContext2D} gc - [CanvasRenderingContext2D](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D)
-         * @param {integer} offsetX - x coordinate to start at
-         * @param {integer} offsetY - y coordinate to start at
-        */
-        paintHeaders: function(ctx, offsetX, offsetY) {
-
-            this.paintFixedRows(
-                ctx,
-                offsetX + this.getBehavior().getFixedColumnsWidth(),
-                offsetY,
-                this.getColumnCount(),
-                this.getBehavior().getFixedRowCount());
-
-            this.paintFixedColumns(
-                ctx,
-                offsetX,
-                offsetY + this.getBehavior().getFixedRowsHeight(),
-                this.getBehavior().getFixedColumnCount(),
-                this.getBehavior().getRowCount());
-
-        },
-
-        /**
-         * @function
-         * @instance
-         * @description
         answers if x, y is currently being hovered over
          * #### returns: boolean
          * @param {integer} offsetX - x coordinate
@@ -16103,7 +16019,7 @@ var config = {
          *
         */
         isHovered: function(x, y) {
-            return this.grid.isHovered(x, y);
+            return this.getGrid().isHovered(x, y);
         },
 
         /**
@@ -16116,7 +16032,7 @@ var config = {
          *
         */
         isRowHovered: function(y) {
-            return this.grid.isRowHovered(y);
+            return this.getGrid().isRowHovered(y);
         },
 
         /**
@@ -16129,161 +16045,7 @@ var config = {
          *
         */
         isColumnHovered: function(x) {
-            return this.grid.isColumnHovered(x);
-        },
-
-        /**
-         * @function
-         * @instance
-         * @description
-        Renderer the fixed header rows along the top
-         * @param {CanvasRenderingContext2D} gc - [CanvasRenderingContext2D](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D)
-         * @param {integer} offsetX - x coordinate to start at
-         * @param {integer} offsetY - y coordinate to start at
-         * @param {integer} numColumns - the max columns to iterate through
-         * @param {integer} numRows - the max rows to iterate through
-         *
-        */
-        paintFixedRows: function(gc, offsetX, offsetY, numColumns, numRows) {
-            var behavior = this.getBehavior();
-            var x = offsetX;
-            var scrollLeft = this.getScrollLeft();
-            var font = this.resolveProperty('fixedRowFont');
-
-            var voffset = this.resolveProperty('voffset');
-            var hoffset = this.resolveProperty('hoffset');
-
-            var fgColor = this.resolveProperty('fixedRowColor');
-            var bgColor = this.resolveProperty('fixedRowBackgroundColor');
-
-            var fgSelColor = this.resolveProperty('fixedRowFGSelColor');
-            var bgSelColor = this.resolveProperty('fixedRowBGSelColor');
-
-            var cellProvider = this.getGrid().getCellProvider();
-            var viewWidth = this.getBounds().width() - 200; // look in fin-hypergrid and initializtion of fin-canvas
-            var viewHeight = behavior.getFixedRowsHeight();
-
-            for (var c = 0; c < numColumns; c++) {
-                var width = this.getColumnWidth(c + scrollLeft);
-                if (x > viewWidth || numColumns <= scrollLeft + c) {
-                    return;
-                }
-                var isSelected = this.isFixedRowCellSelected(c + scrollLeft);
-                var y = offsetY;
-
-                gc.fillStyle = bgColor;
-                gc.fillRect(x, y, x + width, viewHeight - y);
-
-                //reset this for this pass..
-                this.renderedColumnMinWidths[c + scrollLeft] = 0;
-
-                for (var r = 0; r < numRows; r++) {
-
-                    var height = this.getFixedRowHeight(r);
-                    var align = behavior._getFixedRowAlignment(c + scrollLeft, r);
-                    var value = behavior._getFixedRowValue(c + scrollLeft, r);
-                    var isColumnHovered = this.isColumnHovered(c);
-                    var isRowHovered = false; //this.isHovered(c, r);
-                    //translatedX allows us to reorder columns
-                    var translatedX = behavior.translateColumnIndex(c + scrollLeft);
-                    var config = this.cellConfig(translatedX, r, value, fgColor, bgColor, fgSelColor, bgSelColor, font, isSelected, isColumnHovered, isRowHovered, align, hoffset, voffset);
-                    var cell = cellProvider.getFixedRowCell(config);
-                    config.minWidth = 0;
-
-                    behavior.cellFixedRowPrePaintNotification(cell);
-                    cell.paint(gc, x, y, width, height);
-
-                    //lets capture the col preferred widths for col autosizing
-                    this.renderedColumnMinWidths[c + scrollLeft] = Math.max(config.minWidth || 0, this.renderedColumnMinWidths[c + scrollLeft]);
-
-                    if (behavior.highlightCellOnHover(isColumnHovered, isRowHovered)) {
-                        gc.beginPath();
-                        var pre = gc.globalAlpha;
-                        gc.globalAlpha = 0.2;
-                        gc.fillRect(x + 2, y + 2, width - 3, height - 3);
-                        gc.globalAlpha = pre;
-                        gc.stroke();
-                        gc.closePath();
-                    }
-                    y = y + height;
-                }
-                x = x + width;
-            }
-        },
-
-        /**
-         * @function
-         * @instance
-         * @description
-        Render the fixed columns along the left side
-         * @param {CanvasRenderingContext2D} gc - [CanvasRenderingContext2D](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D)
-         * @param {integer} offsetX - x coordinate to start at
-         * @param {integer} offsetY - y coordinate to start at
-         * @param {integer} numColumns - the max columns to iterate through
-         * @param {integer} numRows - the max rows to iterate through
-         *
-        */
-        paintFixedColumns: function(gc, offsetX, offsetY, numColumns, numRows) {
-            var behavior = this.getBehavior();
-            var x = offsetX;
-
-            var font = this.resolveProperty('fixedColumnFont');
-
-            var voffset = this.resolveProperty('voffset');
-            var hoffset = this.resolveProperty('hoffset');
-
-            var fgColor = this.resolveProperty('fixedColumnColor');
-            var bgColor = this.resolveProperty('fixedColumnBackgroundColor');
-
-            var fgSelColor = this.resolveProperty('fixedColumnFGSelColor');
-            var bgSelColor = this.resolveProperty('fixedColumnBGSelColor');
-
-
-            var scrollTop = this.getScrollTop();
-            var cellProvider = this.getGrid().getCellProvider();
-            var viewHeight = this.getBounds().height();
-
-            for (var c = 0; c < numColumns; c++) {
-                var width = this.getFixedColumnWidth(c);
-                var align = behavior.getFixedColumnAlignment(c);
-                var y = offsetY;
-
-                gc.fillStyle = bgColor;
-                gc.fillRect(x, y, width, viewHeight - y);
-
-                for (var r = 0; r < numRows; r++) {
-                    var height = this.getRowHeight(r + scrollTop);
-                    var isSelected = this.isFixedColumnCellSelected(r + scrollTop);
-                    if (y > viewHeight || numRows <= scrollTop + r) {
-                        break;
-                    }
-                    var value = behavior.getFixedColumnValue(c, r + scrollTop);
-                    var isColumnHovered = false; //this.isHovered(c, r);
-                    var isRowHovered = this.isRowHovered(r);
-                    var config = this.cellConfig(c, r + scrollTop, value, fgColor, bgColor, fgSelColor, bgSelColor, font, isSelected, isColumnHovered, isRowHovered, align, hoffset, voffset);
-                    var cell = cellProvider.getFixedColumnCell(config);
-                    config.minWidth = 0;
-
-                    behavior.cellFixedColumnPrePaintNotification(cell);
-                    cell.paint(gc, x, y, width, height);
-
-                    this.renderedFixedColumnMinWidths[c] = Math.max(config.minWidth || 0, this.renderedFixedColumnMinWidths[c]);
-
-                    if (behavior.highlightCellOnHover(isColumnHovered, isRowHovered)) {
-                        gc.beginPath();
-                        var pre = gc.globalAlpha;
-                        gc.globalAlpha = 0.2;
-                        gc.fillRect(x + 2, y + 2, width - 3, height - 3);
-                        gc.globalAlpha = pre;
-                        gc.stroke();
-                        gc.closePath();
-                    }
-
-                    y = y + height;
-
-                }
-                x = x + width;
-            }
+            return this.getGrid().isColumnHovered(x);
         },
 
         /**
@@ -16296,221 +16058,14 @@ var config = {
          * @param {integer} offsetY - y coordinate to start at
          *
         */
-        paintCells: function(gc, offsetX, offsetY) {
+        paintCells: function(gc) {
             try {
                 gc.save();
-                this._paintCells(gc, offsetX, offsetY);
+                this._paintCells(gc);
             } catch (e) {
                 console.error(e);
             } finally {
                 gc.restore();
-            }
-        },
-
-        /**
-         * @function
-         * @instance
-         * @description
-        Unprotected rendering the fixed columns along the left side
-         * @param {CanvasRenderingContext2D} gc - [CanvasRenderingContext2D](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D)
-         * @param {integer} offsetX - x coordinate to start at
-         * @param {integer} offsetY - y coordinate to start at
-         * @param {integer} numColumns - the max columns to iterate through
-         * @param {integer} numRows - the max rows to iterate through
-         *
-        */
-        _paintCells: function(gc, offsetX, offsetY) {
-            var behavior = this.getBehavior();
-            var numColumns = this.getColumnCount();
-            var numRows = behavior.getRowCount();
-            var x = offsetX;
-            var startY = offsetY;
-            var scrollTop = this.getScrollTop();
-            var scrollLeft = this.getScrollLeft();
-            var cellProvider = this.getGrid().getCellProvider();
-            var font = this.resolveProperty('font');
-
-            var voffset = this.resolveProperty('voffset');
-            var hoffset = this.resolveProperty('hoffset');
-
-            var fgColor = this.resolveProperty('color');
-            var bgColor = this.resolveProperty('backgroundColor');
-
-            var fgSelColor = this.resolveProperty('foregroundSelColor');
-            var bgSelColor = this.resolveProperty('backgroundSelColor');
-
-            var viewWidth = this.getBounds().width() - 200; // look in fin-hypergrid and initializtion of fin-canvas
-            var viewHeight = this.getBounds().height();
-
-            for (var c = 0; c < numColumns; c++) {
-                var width = this.getColumnWidth(c + scrollLeft);
-                if (x > viewWidth || numColumns <= scrollLeft + c) {
-                    return;
-                }
-
-                var y = startY;
-                var translatedX = behavior.translateColumnIndex(c + scrollLeft);
-
-                var columnAlign = behavior._getColumnAlignment(c + scrollLeft);
-                var columnProperties = behavior.getColumnProperties(translatedX);
-                var overrideFGColor = columnProperties.fgColor || fgColor;
-                var overrideFont = columnProperties.font || font;
-                //fill background
-                gc.fillStyle = columnProperties.bgColor || bgColor;
-                gc.fillRect(x, y, x + width, viewHeight - y);
-
-                for (var r = 0; r < numRows; r++) {
-                    var isSelected = this.isSelected(c + scrollLeft, r + scrollTop);
-                    var height = this.getRowHeight(r + scrollTop);
-                    if (y > viewHeight || numRows <= scrollTop + r) {
-                        break;
-                    }
-
-                    var value = behavior._getValue(c + scrollLeft, r + scrollTop);
-                    // if (!value && value !== 0) { // edge condition if were scrolled all the way to the end
-                    //     break;
-                    // }
-
-                    //translatedX allows us to reorder columns
-
-                    var isColumnHovered = this.isColumnHovered(c);
-                    var isRowHovered = this.isRowHovered(r);
-
-                    var config = this.cellConfig(translatedX, r + scrollTop, value, overrideFGColor, bgColor, fgSelColor, bgSelColor, overrideFont, isSelected, isColumnHovered, isRowHovered, columnAlign, hoffset, voffset);
-                    var cell = cellProvider.getCell(config);
-
-                    config.minWidth = 0;
-
-                    behavior.cellPrePaintNotification(cell);
-                    cell.paint(gc, x, y, width, height);
-
-                    //lets capture the col preferred widths for col autosizing
-                    this.renderedColumnMinWidths[c + scrollLeft] = Math.max(config.minWidth || 0, this.renderedColumnMinWidths[c + scrollLeft]);
-
-                    if (behavior.highlightCellOnHover(isColumnHovered, isRowHovered)) {
-                        gc.beginPath();
-                        var pre = gc.globalAlpha;
-                        gc.globalAlpha = 0.2;
-                        gc.fillRect(x + 2, y + 2, width - 3, height - 3);
-                        gc.globalAlpha = pre;
-                        gc.stroke();
-                        gc.closePath();
-                    }
-
-                    y = y + height;
-                }
-
-                x = x + width;
-            }
-        },
-
-        /**
-         * @function
-         * @instance
-         * @description
-        This is the empty top left corner of the grid. protected execution
-         * @param {CanvasRenderingContext2D} gc - [CanvasRenderingContext2D](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D)
-         * @param {integer} offsetX - x coordinate to start at
-         * @param {integer} offsetY - y coordinate to start at
-         *
-        */
-        paintTopLeft: function(gc, offsetX, offsetY) {
-            noop(offsetX, offsetY);
-            // gc.beginPath();
-            // var fixedRowHeight = this.getBehavior().getFixedRowsHeight();
-            // var fixedColumnWidth = this.getBehavior().getFixedColumnsWidth();
-            // gc.fillStyle = this.resolveProperty('topLeftBackgroundColor');
-            // gc.fillRect(offsetX, offsetY, fixedColumnWidth, fixedRowHeight);
-            // gc.stroke();
-
-            try {
-                gc.save();
-                this._paintTopLeft(gc);
-            } finally {
-                gc.restore();
-            }
-
-
-        },
-
-        /**
-         * @function
-         * @instance
-         * @description
-        This is the empty top left corner of the grid. unprotected execution
-         * @param {CanvasRenderingContext2D} gc - [CanvasRenderingContext2D](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D)
-         * @param {integer} offsetX - x coordinate to start at
-         * @param {integer} offsetY - y coordinate to start at
-         *
-        */
-        _paintTopLeft: function(gc) {
-            var behavior = this.getBehavior();
-            var numColumns = behavior.getFixedColumnCount();
-            var numRows = behavior.getFixedRowCount();
-            var x = 0;
-            var startY = 0;
-            var cellProvider = this.getGrid().getCellProvider();
-
-            var font = this.resolveProperty('topLeftFont');
-
-            var voffset = this.resolveProperty('voffset');
-            var hoffset = this.resolveProperty('hoffset');
-
-            var fgColor = this.resolveProperty('topLeftColor');
-            var bgColor = this.resolveProperty('topLeftBackgroundColor');
-
-            var fgSelColor = this.resolveProperty('topLeftFGSelColor');
-            var bgSelColor = this.resolveProperty('topLeftBGSelColor');
-
-            var viewWidth = behavior.getFixedColumnsWidth(); // look in fin-hypergrid and initializtion of fin-canvas
-            var viewHeight = behavior.getFixedRowsHeight();
-
-            for (var c = 0; c < numColumns; c++) {
-                var width = this.getFixedColumnWidth(c);
-                if (x > viewWidth || numColumns <= c) {
-                    return;
-                }
-
-                var y = startY;
-                var r = 0;
-                var columnAlign = behavior.getTopLeftAlignment(c, r);
-                //fill background
-                gc.fillStyle = bgColor;
-                gc.fillRect(x, y, x + width, viewHeight - y);
-
-                this.renderedFixedColumnMinWidths[c] = 0;
-
-                for (; r < numRows; r++) {
-                    var height = this.getFixedRowHeight(r);
-                    if (y > viewHeight || numRows <= r) {
-                        break;
-                    }
-
-                    var value = behavior.getTopLeftValue(c, r);
-                    // if (!value && value !== 0) { // edge condition if were scrolled all the way to the end
-                    //     break;
-                    // }
-
-                    var isColumnHovered = this.isHovered(c);
-                    var isRowHovered = this.isHovered(r);
-
-                    var config = this.cellConfig(x, r, value, fgColor, bgColor, fgSelColor, bgSelColor, font, false, isColumnHovered, isRowHovered, columnAlign, hoffset, voffset);
-                    var cell = cellProvider.getTopLeftCell(config);
-
-                    config.minWidth = 0;
-
-                    //minWidth should be set inside this function call
-                    behavior.cellTopLeftPrePaintNotification(cell);
-                    cell.paint(gc, x, y, width, height);
-
-                    var minWidth = config.minWidth;
-                    this.renderedFixedColumnMinWidths[c] = Math.max(minWidth || 0, this.renderedFixedColumnMinWidths[c]);
-
-                    y = y + height;
-                }
-
-
-                x = x + width;
             }
         },
 
@@ -16573,17 +16128,8 @@ var config = {
             return this.getGrid().getBehavior();
         },
 
-        /**
-         * @function
-         * @instance
-         * @description
-        answers the row height of the fixed row at index rowIndex
-         * #### returns: integer
-         * @param {integer} rowIndex - the row index
-        */
-        getFixedRowHeight: function(rowIndex) {
-            var height = this.getBehavior().getFixedRowHeight(rowIndex);
-            return height;
+        getColumnEdges: function() {
+            return this.columnEdges;
         },
 
         /**
@@ -16616,38 +16162,13 @@ var config = {
          * @function
          * @instance
          * @description
-        answers the column width of the row in the fixedColumn area at index columnIndex
-         * #### returns: integer
-         * @param {integer} columnIndex - the column index
-        */
-        getFixedColumnWidth: function(columnIndex) {
-            var height = this.getBehavior().getFixedColumnWidth(columnIndex);
-            return height;
-        },
-
-        /**
-         * @function
-         * @instance
-         * @description
         answer true if the last col was rendered (is visible)
          * #### returns: boolean
         */
         isLastColumnVisible: function() {
             var lastColumnIndex = this.getColumnCount() - 1;
-            var isMax = this.renderedColumns.indexOf(lastColumnIndex) !== -1;
+            var isMax = this.viewableColumns.indexOf(lastColumnIndex) !== -1;
             return isMax;
-        },
-
-        /**
-         * @function
-         * @instance
-         * @description
-        answer the total number of columns
-         * #### returns: integer
-        */
-        getColumnCount: function() {
-            var count = this.getGrid().getColumnCount();
-            return count;
         },
 
         /**
@@ -16658,7 +16179,7 @@ var config = {
          * #### returns: integer
         */
         getRenderedWidth: function(index) {
-            return this.renderedColumnWidths[index];
+            return this.getColumnEdges()[index];
         },
 
         /**
@@ -16669,7 +16190,7 @@ var config = {
          * #### returns: integer
         */
         getRenderedHeight: function(index) {
-            return this.renderedRowHeights[index];
+            return this.rowEdges[index];
         },
 
         /**
@@ -16681,93 +16202,6 @@ var config = {
         */
         getCanvas: function() {
             return this.getGrid().getCanvas();
-        },
-
-        /**
-         * @function
-         * @instance
-         * @description
-        answer the row to goto for a page down
-         *
-         * @param {integer} x - the x cell coordinate
-         * @param {integer} y - the y cell coordinate
-         *
-        */
-        repaintCell: function(x, y) {
-            if (this.isDraggingColumn()) {
-                return;
-            }
-            var self = this;
-            var behavior = this.getBehavior();
-
-            var numFixedCols = behavior.getFixedColumnCount();
-            var numFixedRows = behavior.getFixedRowCount();
-
-            var scrollLeft = this.getScrollLeft();
-            var unTranslatedX = behavior.unTranslateColumnIndex(x + scrollLeft);
-
-            //it's not being viewed exit...
-            if (!this.isRowVisible(y) || !this.isColumnVisible(unTranslatedX)) {
-                return;
-            }
-            //var offsetX = behavior.getFixedColumnsWidth();
-            //var offsetY = behavior.getFixedRowsHeight();
-
-            var ox = this.renderedColumnWidths[numFixedCols + unTranslatedX],
-                oy = this.renderedRowHeights[numFixedRows + y],
-                cx = this.renderedColumnWidths[numFixedCols + unTranslatedX + 1],
-                cy = this.renderedRowHeights[numFixedRows + y + 1],
-                ex = cx - ox,
-                ey = cy - oy;
-
-            var func = function(gc) {
-                self._repaintCell(gc, x, unTranslatedX, y, ox, oy, ex, ey);
-            };
-
-            this.getCanvas().safePaintImmediately(func);
-
-        },
-        _repaintCell: function(ctx, translatedX, x, y, startX, startY, width, height) {
-            ctx.rect(startX + 1, startY + 1, width, height);
-            ctx.clip();
-            var behavior = this.getBehavior();
-            var scrollTop = this.getScrollTop();
-            var scrollLeft = this.getScrollLeft();
-            var cellProvider = this.getGrid().getCellProvider();
-            var font = this.resolveProperty('font');
-
-            var voffset = this.resolveProperty('voffset');
-            var hoffset = this.resolveProperty('hoffset');
-
-            var fgColor = this.resolveProperty('color');
-            var bgColor = this.resolveProperty('backgroundColor');
-
-            var fgSelColor = this.resolveProperty('foregroundSelColor');
-            var bgSelColor = this.resolveProperty('backgroundSelColor');
-
-            //        var viewWidth = this.getBounds().width() - 200; // look in fin-hypergrid and initializtion of fin-canvas
-            //        var viewHeight = this.getBounds().height();
-
-            var columnAlign = behavior._getColumnAlignment(translatedX);
-            var columnProperties = behavior.getColumnProperties(translatedX);
-            var overrideFGColor = columnProperties.fgColor || fgColor;
-            var overrideFont = columnProperties.font || font;
-            //fill background
-            ctx.fillStyle = columnProperties.bgColor || bgColor;
-            ctx.fillRect(startX, startY, width, height);
-
-            var isSelected = this.isSelected(x + scrollLeft, y + scrollTop);
-
-            var value = behavior._getValue(x + scrollLeft, y + scrollTop);
-
-            var isColumnHovered = this.isHovered(x, y);
-            var isRowHovered = this.isHovered(x, y);
-
-            var cell = cellProvider.getCell(this.cellConfig(translatedX, y + scrollTop, value, overrideFGColor, bgColor, fgSelColor, bgSelColor, overrideFont, isSelected, isColumnHovered, isRowHovered, columnAlign, hoffset, voffset));
-
-            behavior.cellPrePaintNotification(cell);
-            cell.paint(ctx, startX, startY, width, height);
-
         },
 
         /**
@@ -16789,12 +16223,12 @@ var config = {
          * #### returns: integer
         */
         getPageUpRow: function() {
-            if (this.renderedRowHeights.length === 0) {
+            if (this.rowEdges.length === 0) {
                 return;
             }
             var behavior = this.getBehavior();
             var h = this.renderedHeight;
-            var topRow = this.renderedRows[0];
+            var topRow = this.viewableRows[0];
             while (h > 0 && topRow >= 1) {
                 topRow--;
                 var eachHeight = behavior.getRowHeight(topRow);
@@ -16811,15 +16245,190 @@ var config = {
          * @function
          * @instance
          * @description
+        return the number of columns
+         *
+         * #### returns: integer
+         */
+        getColumnCount: function() {
+            return this.getGrid().getColumnCount();
+        },
+
+        /**
+         * @function
+         * @instance
+         * @description
+        return the number of rows
+         *
+         * #### returns: integer
+         */
+        getRowCount: function() {
+            return this.getGrid().getRowCount();
+        },
+
+        /**
+         * @function
+         * @instance
+         * @description
         answer the row to goto for a page down
          * #### returns: integer
         */
         getPageDownRow: function() {
-            if (this.renderedRowHeights.length === 0) {
+            if (this.rowEdges.length === 0) {
                 return;
             }
-            var row = this.renderedRows[this.renderedRows.length - 1] + 1;
+            var row = this.viewableRows[this.viewableRows.length - 1] + 1;
             return row;
+        },
+
+        /**
+         * @function
+         * @instance
+         * @description
+        return the number of fixed columns
+         *
+         * #### returns: integer
+         */
+        getFixedColumnCount: function() {
+            return this.getGrid().getFixedColumnCount();
+        },
+
+        /**
+         * @function
+         * @instance
+         * @description
+        return the number of fixed rows
+         *
+         * #### returns: integer
+         */
+        getFixedRowCount: function() {
+            return this.getGrid().getFixedRowCount();
+        },
+
+        /**
+         * @function
+         * @instance
+         * @description
+        Unprotected rendering the fixed columns along the left side
+         * @param {CanvasRenderingContext2D} gc - [CanvasRenderingContext2D](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D)
+         * @param {integer} offsetX - x coordinate to start at
+         * @param {integer} offsetY - y coordinate to start at
+         * @param {integer} numColumns - the max columns to iterate through
+         * @param {integer} numRows - the max rows to iterate through
+         *
+        */
+        _paintCells: function(gc) {
+            var x, y, c, r = 0;
+            var behavior = this.getBehavior();
+            var visibleCols = this.getVisibleColumns();
+            var visibleRows = this.getVisibleRows();
+            gc.moveTo(0, 0);
+            for (x = 0; x < visibleCols.length; x++) {
+                c = visibleCols[x];
+                var columnProperties = behavior.getColumnProperties(c);
+                this.resetColumnProperties(columnProperties);
+                for (y = 0; y < visibleRows.length; y++) {
+                    r = visibleRows[y];
+                    this._paintCell(gc, c, r);
+                }
+            }
+
+        },
+
+        /**
+         * @function
+         * @instance
+         * @description
+        We opted to not paint borders for each cell as that was extremely expensive.  Instead we draw gridlines here.  Also we record the widths and heights for later.
+         *
+         * @param {CanvasRenderingContext2D} gc - [CanvasRenderingContext2D](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D)
+         * @param {integer} offsetX - x coordinate to start at
+         * @param {integer} offsetY - y coordinate to start at
+        */
+        paintGridlines: function(gc) {
+            var x, y, c, r = 0;
+
+            var colWidths = this.getColumnEdges();
+            var rowHeights = this.rowEdges;
+
+            var viewWidth = colWidths[colWidths.length - 1];
+            var viewHeight = rowHeights[rowHeights.length - 1];
+
+            var drawThemH = this.resolveProperty('gridLinesH');
+            var drawThemV = this.resolveProperty('gridLinesV');
+            var lineColor = this.resolveProperty('lineColor');
+
+            gc.beginPath();
+            gc.strokeStyle = lineColor;
+            gc.lineWidth = 1;
+            gc.moveTo(0, 0);
+
+            if (drawThemV) {
+                for (c = 0; c < colWidths.length + 1; c++) {
+                    x = colWidths[c] + 0.5;
+                    gc.moveTo(x, 0);
+                    gc.lineTo(x, viewHeight);
+                }
+            }
+
+            if (drawThemH) {
+                for (r = 0; r < rowHeights.length; r++) {
+                    y = rowHeights[r] + 0.5;
+                    gc.moveTo(0, y);
+                    gc.lineTo(viewWidth, y);
+                }
+            }
+            gc.stroke();
+            gc.closePath();
+        },
+
+        //lets clear out and then repopulate the column properties
+        //with new values
+        resetColumnProperties: function(columnProperties) {
+            //clearObjectProperties(this.columnProperties);
+            merge(this.columnProperties, columnProperties);
+        },
+
+        //lets clear out and then repopulate the column properties
+        //with new values
+        resetCellProperties: function(cellProperties) {
+            //clearObjectProperties(this.cellProperties);
+            merge(this.cellProperties, cellProperties);
+        },
+
+        paintCell: function(gc, x, y) {
+            var c, r = 0;
+            var behavior = this.getBehavior();
+            var visibleCols = this.getVisibleColumns();
+            var visibleRows = this.getVisibleRows();
+            gc.moveTo(0, 0);
+            c = visibleCols[x];
+            r = visibleRows[y];
+            if (!c) {
+                return; // were not being viewed at at the moment, nothing to paint
+            }
+            var columnProperties = behavior.getColumnProperties(c);
+            this.resetColumnProperties(columnProperties);
+            this._paintCell(gc, c, r);
+        },
+
+        _paintCell: function(gc, c, r) {
+
+            var cellProperties = this.cellProperties;
+            var behavior = this.getBehavior();
+
+            var cellProvider = this.getGrid().getCellProvider();
+
+            cellProperties.value = behavior.getValue(c, r);
+            cellProperties.isSelected = this.isSelected(c, r);
+            cellProperties.halign = behavior.getColumnAlignment(c);
+            cellProperties.isColumnHovered = this.isHovered(c, r);
+            cellProperties.isRowHovered = this.isHovered(c, r);
+            cellProperties.bounds = this._getBoundsOfCell(c, r);
+
+            var cell = cellProvider.getCell(cellProperties);
+
+            behavior.cellPrePaintNotification(cell);
+            cell.paint(gc, cellProperties);
         }
     });
 
@@ -18450,16 +18059,20 @@ var noop = function() {};
          * @description
         This is the default cell rendering function for rendering a vanilla cell. Great care was taken in crafting this function as it needs to perform extremely fast. Reads on the gc object are expensive but not quite as expensive as writes to it. We do our best to avoid writes, then avoid reads. Clipping bounds are not set here as this is also an expensive operation. Instead, we truncate overflowing text and content by filling a rectangle with background color column by column instead of cell by cell.  This column by column fill happens higher up on the stack in a calling function from fin-hypergrid-renderer.  Take note we do not do cell by cell border renderering as that is expensive.  Instead we render many fewer gridlines after all cells are rendered.
         */
-        defaultCellPaint: function(gc, x, y, width, height, isLink) {
+        defaultCellPaint: function(gc, config) {
 
-            isLink = isLink || false;
-            var colHEdgeOffset = this.config.properties.cellPadding,
+            var isLink = isLink || false;
+            var colHEdgeOffset = config.cellPadding,
                 halignOffset = 0,
-                valignOffset = this.config.voffset,
-                halign = this.config.halign,
-                isColumnHovered = this.config.isColumnHovered,
-                isRowHovered = this.config.isRowHovered,
-                val = this.config.value;
+                valignOffset = config.voffset,
+                halign = config.halign,
+                isColumnHovered = config.isColumnHovered,
+                isRowHovered = config.isRowHovered,
+                val = config.value,
+                x = config.bounds.x,
+                y = config.bounds.y,
+                width = config.bounds.width,
+                height = config.bounds.height;
 
             var leftIcon, rightIcon, centerIcon, ixoffset, iyoffset;
 
@@ -18484,8 +18097,8 @@ var noop = function() {};
                 }
             }
 
-            if (gc.font !== this.config.font) {
-                gc.font = this.config.font;
+            if (gc.font !== config.font) {
+                gc.font = config.font;
             }
             if (gc.textAlign !== 'left') {
                 gc.textAlign = 'left';
@@ -18494,19 +18107,19 @@ var noop = function() {};
                 gc.textBaseline = 'middle';
             }
 
-            var fontMetrics = this.config.getTextHeight(this.config.font);
-            var textWidth = this.config.getTextWidth(gc, val);
+            var fontMetrics = config.getTextHeight(config.font);
+            var textWidth = config.getTextWidth(gc, val);
 
 
             //we must set this in order to compute the minimum width
             //for column autosizing purposes
-            this.config.minWidth = textWidth + (2 * colHEdgeOffset);
+            config.minWidth = textWidth + (2 * colHEdgeOffset);
 
             if (halign === 'right') {
-                //textWidth = this.config.getTextWidth(gc, this.config.value);
+                //textWidth = config.getTextWidth(gc, config.value);
                 halignOffset = width - colHEdgeOffset - textWidth;
             } else if (halign === 'center') {
-                //textWidth = this.config.getTextWidth(gc, this.config.value);
+                //textWidth = config.getTextWidth(gc, config.value);
                 halignOffset = (width - textWidth) / 2;
             } else if (halign === 'left') {
                 halignOffset = colHEdgeOffset;
@@ -18516,13 +18129,13 @@ var noop = function() {};
             valignOffset = valignOffset + Math.ceil(height / 2);
 
             //fill background only if our bgColor is populated or we are a selected cell
-            if (this.config.bgColor || this.config.isSelected) {
-                gc.fillStyle = this.config.isSelected ? this.config.bgSelColor : this.config.bgColor;
+            if (config.backgroundColor || config.isSelected) {
+                gc.fillStyle = config.isSelected ? config.backgroundSelColor : config.backgroundColor;
                 gc.fillRect(x, y, width, height);
             }
 
             //draw text
-            var theColor = this.config.isSelected ? this.config.fgSelColor : this.config.fgColor;
+            var theColor = config.isSelected ? config.foregroundSelColor : config.color;
             if (gc.fillStyle !== theColor) {
                 gc.fillStyle = theColor;
                 gc.strokeStyle = theColor;
@@ -18533,11 +18146,10 @@ var noop = function() {};
             if (isColumnHovered && isRowHovered) {
                 gc.beginPath();
                 if (isLink) {
-                    gc.beginPath();
-                    underline(this.config, gc, val, x + halignOffset, y + valignOffset + Math.floor(fontMetrics.height / 2), 1);
+                    underline(config, gc, val, x + halignOffset, y + valignOffset + Math.floor(fontMetrics.height / 2), 1);
                     gc.stroke();
-                    gc.closePath();
                 }
+                gc.closePath();
             }
             var iconWidth = 0;
             if (leftIcon) {
@@ -18558,7 +18170,7 @@ var noop = function() {};
                 gc.drawImage(centerIcon, x + width - ixoffset - centerIcon.width, y + iyoffset);
                 iconWidth = Math.max(centerIcon.width + 2);
             }
-            this.config.minWidth = this.config.minWidth + 2 * (iconWidth);
+            config.minWidth = config.minWidth + 2 * (iconWidth);
         },
 
         /**
@@ -20999,18 +20611,6 @@ var commands = {
         * @function
         * @instance
         * @description
-        return the count of fixed rows/columns
-        * #### returns: integer
-        * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
-        */
-        getFixedAreaCount: function(grid) {
-            return grid.getFixedColumnCount();
-        },
-
-        /**
-        * @function
-        * @instance
-        * @description
         get the mouse x,y coordinate
         * #### returns: integer
         * @param {MouseEvent} event - the mouse event to query
@@ -21074,31 +20674,6 @@ var commands = {
         * @function
         * @instance
         * @description
-        return the fixed area rows/columns count
-        * #### returns: integer
-        * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
-        */
-        getOtherFixedAreaCount: function(grid) {
-            return grid.getFixedRowCount();
-        },
-
-        /**
-        * @function
-        * @instance
-        * @description
-        return the fixed area rows/columns width/height
-        * #### returns: integer
-        * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
-        * @param {integer} index - the row/column index of interest
-        */
-        getFixedAreaSize: function(grid, index) {
-            return grid.getFixedColumnWidth(index);
-        },
-
-        /**
-        * @function
-        * @instance
-        * @description
         return the recently rendered area's width/height
         * #### returns: integer
         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
@@ -21106,19 +20681,6 @@ var commands = {
         */
         getPreviousAbsoluteSize: function(grid, index) {
             return grid.getRenderedWidth(index);
-        },
-
-        /**
-        * @function
-        * @instance
-        * @description
-        set the row/column width/height at index to value
-        * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
-        * @param {integer} index - the row/column index of interest
-        * @param {integer} value - the width/height to set to
-        */
-        setFixedAreaSize: function(grid, index, value) {
-            grid.setFixedColumnWidth(index, value);
         },
 
         /**
@@ -21187,13 +20749,8 @@ var commands = {
         * @param {integer} size - the width/height to set to
         */
         setSize: function(grid, areaIndex, size) {
-            var fixedAreaCount = this.getFixedAreaCount(grid);
             var scrollValue = this.getScrollValue(grid);
-            if (areaIndex < fixedAreaCount) {
-                this.setFixedAreaSize(grid, areaIndex, size);
-            } else {
-                this.setAreaSize(grid, areaIndex - fixedAreaCount + scrollValue, size);
-            }
+            this.setAreaSize(grid, areaIndex + scrollValue, size);
         },
 
         /**
@@ -21205,12 +20762,19 @@ var commands = {
         * @param {integer} areaIndex - the row/column index of interest
         */
         getSize: function(grid, areaIndex) {
-            var fixedAreaCount = this.getFixedAreaCount(grid);
-            if (areaIndex < 0) {
-                return this.getFixedAreaSize(grid, fixedAreaCount + areaIndex);
-            } else {
-                return this.getAreaSize(grid, areaIndex);
-            }
+            return this.getAreaSize(grid, areaIndex);
+        },
+
+        /**
+        * @function
+        * @instance
+        * @description
+        return the fixed area rows/columns count
+        * #### returns: integer
+        * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+        */
+        getOtherFixedAreaCount: function(grid) {
+            return grid.getFixedRowCount();
         },
 
         /**
@@ -21226,13 +20790,9 @@ var commands = {
             var overArea = this.overAreaDivider(grid, event);
             if (overArea > -1 && this.getGridCellValue(gridCell) < this.getOtherFixedAreaCount(grid)) {
                 var scrollValue = this.getScrollValue(grid);
-                var fixedAreaCount = this.getFixedAreaCount(grid);
                 this.dragIndex = overArea - 1;
                 this.dragStart = this.getMouseValue(event);
-                if (overArea < fixedAreaCount) {
-                    scrollValue = 0;
-                }
-                this.dragIndexStartingSize = this.getAreaSize(grid, overArea - fixedAreaCount + scrollValue);
+                this.dragIndexStartingSize = this.getAreaSize(grid, overArea + scrollValue);
                 this.detachChain();
             } else if (this.next) {
                 this.next.handleMouseDown(grid, event);
@@ -21916,7 +21476,7 @@ var commands = {
             style.width = columnWidth + 'px'; //Math.round(columnWidth / hdpiRatio) + 'px';
             style.height = colHeight + 'px'; //Math.round(colHeight / hdpiRatio) + 'px';
 
-            var startX = grid.renderer.renderedColumnWidths[columnIndex + numFixedColumns];
+            var startX = grid.getRenderer().getColumnEdges()[columnIndex + numFixedColumns];
             startX = startX * hdpiRatio;
 
             draggerCTX.scale(hdpiRatio, hdpiRatio);
@@ -22358,18 +21918,6 @@ var commands = {
         * @function
         * @instance
         * @description
-        return the count of fixed rows/columns
-        * #### returns: integer
-        * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
-        */
-        getFixedAreaCount: function(grid) {
-            return grid.getFixedRowCount();
-        },
-
-        /**
-        * @function
-        * @instance
-        * @description
         get the mouse x,y coordinate
         * #### returns: integer
         * @param {MouseEvent} event - the mouse event to query
@@ -22433,44 +21981,6 @@ var commands = {
         * @function
         * @instance
         * @description
-        return the fixed area rows/columns count
-        * #### returns: integer
-        * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
-        */
-        getOtherFixedAreaCount: function(grid) {
-            return grid.getFixedColumnCount();
-        },
-
-        /**
-        * @function
-        * @instance
-        * @description
-        return the fixed area rows/columns width/height
-        * #### returns: integer
-        * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
-        * @param {integer} index - the row/column index of interest
-        */
-        getFixedAreaSize: function(grid, index) {
-            return grid.getFixedRowHeight(index);
-        },
-
-        /**
-        * @function
-        * @instance
-        * @description
-        set the row/column width/height at index to value
-        * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
-        * @param {integer} index - the row/column index of interest
-        * @param {integer} value - the width/height to set to
-        */
-        setFixedAreaSize: function(grid, index, value) {
-            grid.setFixedRowHeight(index, value);
-        },
-
-        /**
-        * @function
-        * @instance
-        * @description
         returns the index of which divider I'm over
         * #### returns: integer
         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
@@ -22517,6 +22027,17 @@ var commands = {
             return grid.getRenderedHeight(index);
         },
 
+        /**
+        * @function
+        * @instance
+        * @description
+        return the fixed area rows/columns count
+        * #### returns: integer
+        * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+        */
+        getOtherFixedAreaCount: function(grid) {
+            return grid.getFixedColumnCount();
+        },
     });
 
 })(); /* jshint ignore:line */
@@ -22721,32 +22242,23 @@ var commands = {
 
     Polymer('fin-hypergrid-data-model-base', { /* jshint ignore:line  */
 
-        scrollPositionX: 0,
-        scrollPositionY: 0,
-
-        getValue: function() {
-
-        },
-        setValue: function() {
-
+        getValue: function(x, y) {
+            return x + ', ' + y;
         },
 
-        setScrollPositionX: function(x) {
-            this.scrollPositionX = x;
+        setValue: function(x, y, value) {
+            console.log('setting (' + x + ', ' + 'y) = ' + value);
         },
 
-        getScrollPositionX: function() {
-            return this.scrollPositionX;
+        getColumnCount: function() {
+            return 20;
         },
 
-        setScrollPositionY: function(y) {
-            this.scrollPositionY = y;
-        },
-
-        getScrollPositionY: function() {
-            return this.scrollPositionY;
+        getRowCount: function() {
+            return 1000;
         }
     });
+
 })();
 </script>
 </polymer-element><polymer-element name="fin-hypergrid-behavior-base" attributes="" assetpath="/dev/fin-hypergrid/polymer/html/behaviors/">
@@ -22919,6 +22431,9 @@ it contains all code/data that's necessary for easily implementing a virtual dat
 
         dataModel: null,
 
+        scrollPositionX: 0,
+        scrollPositionY: 0,
+
         getDataModel: function() {
             if (this.dataModel === null) {
                 this.setDataModel(this.getDefaultDataModel());
@@ -23009,19 +22524,15 @@ it contains all code/data that's necessary for easily implementing a virtual dat
         getDefaultState: function() {
             return {
                 columnIndexes: [],
-                fixedColumnIndexes: [],
                 hiddenColumns: [],
 
                 columnWidths: [],
-                fixedColumnWidths: [],
-                fixedColumnAutosized: [],
 
                 rowHeights: {},
-                fixedRowHeights: {},
                 columnProperties: [],
                 columnAutosized: [],
 
-                fixedColumnCount: 0,
+                fixedColumnCount: 1,
                 fixedRowCount: 1,
             };
         },
@@ -23086,13 +22597,9 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          */
         initColumnIndexes: function(tableState) {
             var columnCount = this.getColumnCount();
-            var fixedColumnCount = tableState.fixedColumnCount;
             var i;
             for (i = 0; i < columnCount; i++) {
                 tableState.columnIndexes[i] = i;
-            }
-            for (i = 0; i < fixedColumnCount; i++) {
-                tableState.fixedColumnIndexes[i] = i;
             }
         },
 
@@ -23137,12 +22644,11 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          */
         translateColumnIndex: function(x) {
             var tableState = this.getState();
-            var fixedColumnCount = tableState.fixedColumnCount;
             var indexes = tableState.columnIndexes;
             if (indexes.length === 0) {
                 return x;
             }
-            return indexes[x + fixedColumnCount];
+            return indexes[x];
         },
 
         /**
@@ -23279,11 +22785,7 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          */
         _getValue: function(x, y) {
             x = this.translateColumnIndex(x);
-            var override = this.dataUpdates['p_' + x + '_' + y];
-            if (override) {
-                return override;
-            }
-            return this.getValue(x, y);
+            return this.getDataModel().getValue(x, y);
         },
 
         /**
@@ -23298,7 +22800,7 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          */
         _setValue: function(x, y, value) {
             x = this.translateColumnIndex(x);
-            this.setValue(x, y, value);
+            this.getDataModel().setValue(x, y, value);
         },
 
         /**
@@ -23337,8 +22839,7 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          * #### returns: integer
          */
         getRowCount: function() {
-            //jeepers batman a quadrillion rows!
-            return 1000000000000000;
+            return this.getDataModel().getRowCount();
         },
 
         /**
@@ -23365,43 +22866,9 @@ it contains all code/data that's necessary for easily implementing a virtual dat
             var count = this.getFixedRowCount();
             var total = 0;
             for (var i = 0; i < count; i++) {
-                total = total + this.getFixedRowHeight(i);
+                total = total + this.getRowHeight(i);
             }
             return total;
-        },
-
-        /**
-         * @function
-         * @instance
-         * @description
-         return the pixel height of a specific row in the fixed row area
-         * #### returns: integer
-         * @param {integer} rowNum - the row index of interest
-         */
-        getFixedRowHeight: function(rowNum) {
-            var tableState = this.getState();
-            if (tableState.fixedRowHeights) {
-                var override = tableState.fixedRowHeights[rowNum];
-                if (override) {
-                    return override;
-                }
-            }
-            return this.resolveProperty('defaultFixedRowHeight');
-        },
-
-        /**
-         * @function
-         * @instance
-         * @description
-         set the height of a specific row in the fixed row area
-         * @param {integer} rowNum - the row integer to affect
-         * @param {integer} height - the pixel height to set it to
-         */
-        setFixedRowHeight: function(rowNum, height) {
-            //console.log(rowNum + ' ' + height);
-            var tableState = this.getState();
-            tableState.fixedRowHeights[rowNum] = Math.max(5, height);
-            this.changed();
         },
 
         /**
@@ -23448,7 +22915,7 @@ it contains all code/data that's necessary for easily implementing a virtual dat
         setRowHeight: function(rowNum, height) {
             var tableState = this.getState();
             tableState.rowHeights[rowNum] = Math.max(5, height);
-            this.changed();
+            this.stateChanged();
         },
 
         /**
@@ -23474,23 +22941,9 @@ it contains all code/data that's necessary for easily implementing a virtual dat
             var count = this.getFixedColumnCount();
             var total = 0;
             for (var i = 0; i < count; i++) {
-                total = total + this.getFixedColumnWidth(i);
+                total = total + this.getColumnWidth(i);
             }
             return total;
-        },
-
-        /**
-         * @function
-         * @instance
-         * @description
-         set the width of a specific column in the fixed column area
-         * @param {integer} colNumber - the column index of interest
-         * @param {integer} width - the width in pixels
-         */
-        setFixedColumnWidth: function(colNumber, width) {
-            var tableState = this.getState();
-            tableState.fixedColumnWidths[colNumber] = Math.max(5, width);
-            this.changed();
         },
 
         /**
@@ -23503,23 +22956,6 @@ it contains all code/data that's necessary for easily implementing a virtual dat
         getFixedColumnsMaxWidth: function() {
             var width = this.getFixedColumnsWidth();
             return width;
-        },
-
-        /**
-         * @function
-         * @instance
-         * @description
-         return the width of a specific column in the fixed column area
-         * #### returns: integer
-         * @param {integer} colNumber - the column index of interest
-         */
-        getFixedColumnWidth: function(colNumber) {
-            var tableState = this.getState();
-            var override = tableState.fixedColumnWidths[colNumber];
-            if (override) {
-                return override;
-            }
-            return this.resolveProperty('defaultFixedColumnWidth');
         },
 
         /**
@@ -24234,7 +23670,7 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          * @param {integer} y - the y coordinate
          */
         getValue: function(x, y) {
-            return x + ', ' + y;
+            return this.getDataModel().getValue(x, y);
         },
 
         /**
@@ -24246,7 +23682,7 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          * @param {integer} y - the y coordinate
          */
         setValue: function(x, y, value) {
-            this.dataUpdates['p_' + x + '_' + y] = value;
+            this.dataModel().setValue(x, y, value);
         },
 
         /**
@@ -24257,7 +23693,7 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          * #### returns: integer
          */
         getColumnCount: function() {
-            return 300;
+            return this.getDataModel().getColumnCount();
         },
 
         /**
@@ -24288,6 +23724,7 @@ it contains all code/data that's necessary for easily implementing a virtual dat
         setColumnWidth: function(x, width) {
             var tableState = this.getState();
             tableState.columnWidths[x] = Math.max(5, width);
+            this.stateChanged();
         },
 
         /**
@@ -24310,11 +23747,11 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          * @param {integer} x - the position in pixels
          */
         setScrollPositionX: function(x) {
-            this.getDataModel().setScrollPositionX(x);
+            this.scrollPositionX = x;
         },
 
         getScrollPositionX: function() {
-            return this.getDataModel().getScrollPositionX();
+            return this.scrollPositionX;
         },
 
         /**
@@ -24326,11 +23763,11 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          * @param {integer} y - the position in pixels
          */
         setScrollPositionY: function(y) {
-            this.getDataModel().setScrollPositionY(y);
+            this.scrollPositionY = y;
         },
 
         getScrollPositionY: function() {
-            return this.getDataModel().getScrollPositionY();
+            return this.scrollPositionY;
         },
 
         /**
@@ -24576,6 +24013,80 @@ it contains all code/data that's necessary for easily implementing a virtual dat
     });
 })();
 </script>
+</polymer-element>
+<polymer-element name="fin-hypergrid-data-model-default" attributes="" assetpath="/dev/fin-hypergrid/polymer/html/data-models/">
+  <template>
+    <style type="text/css">:host {
+    display: block;
+    position: relative;
+}
+</style>
+  </template>
+  <script>'use strict';
+
+(function() {
+    var alphaFor = function(i) {
+        // Name the column headers in A, .., AA, AB, AC, .., AZ format
+        // quotient/remainder
+        //var quo = Math.floor(col/27);
+        var quo = Math.floor((i) / 26);
+        var rem = (i) % 26;
+        var code = '';
+        if (quo > 0) {
+            code += String.fromCharCode('A'.charCodeAt(0) + quo - 1);
+        }
+        code += String.fromCharCode('A'.charCodeAt(0) + rem);
+        return code;
+    };
+    //var noop = function() {};
+    var a = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+
+    Polymer('fin-hypergrid-data-model-default', { /* jshint ignore:line  */
+
+        dataUpdates: {},
+
+        /**
+        * @function
+        * @instance
+        * @description
+        this is the most important behavior function it returns each data point at x,y coordinates
+        * #### returns: Object
+         * @param {integer} x - the x coordinate
+         * @param {integer} x - the y coordinate
+        */
+        getValue: function(x, y) {
+            var override = this.dataUpdates['p_' + x + '_' + y];
+            if (override) {
+                return override;
+            }
+            if (x === 0) {
+                if (y === 0) {
+                    return '';
+                }
+                return y;
+            }
+            if (y === 0) {
+                return alphaFor(x - 1);
+            }
+            return (x - 1) + ', ' + a[(y - 1) % 26];
+        },
+
+        setValue: function(x, y, value) {
+            this.dataUpdates['p_' + x + '_' + y] = value;
+        },
+
+        getColumnCount: function() {
+            return 300;
+        },
+
+        getRowCount: function() {
+            //jeepers batman a quadrillion rows!
+            return 100000;
+        }
+    });
+
+})();
+</script>
 </polymer-element><polymer-element name="fin-hypergrid-behavior-default" extends="fin-hypergrid-behavior-base" assetpath="/dev/fin-hypergrid/polymer/html/behaviors/">
   <template>
     <style type="text/css">:host {
@@ -24765,50 +24276,13 @@ it contains all code/data that's necessary for easily implementing a virtual dat
  *
  */
 (function() {
-    var alphaFor = function(i) {
-        // Name the column headers in A, .., AA, AB, AC, .., AZ format
-        // quotient/remainder
-        //var quo = Math.floor(col/27);
-        var quo = Math.floor((i) / 26);
-        var rem = (i) % 26;
-        var code = '';
-        if (quo > 0) {
-            code += String.fromCharCode('A'.charCodeAt(0) + quo - 1);
-        }
-        code += String.fromCharCode('A'.charCodeAt(0) + rem);
-        return code;
-    };
-    //var noop = function() {};
-    var a = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 
     Polymer('fin-hypergrid-behavior-default',{ /* jslint ignore:line */
 
-        /**
-        * @function
-        * @instance
-        * @description
-        this is the most important behavior function it returns each data point at x,y coordinates
-        * #### returns: Object
-         * @param {integer} x - the x coordinate
-         * @param {integer} x - the y coordinate
-        */
-        getValue: function(x, y) {
-            return x + ', ' + a[y % 26];
+        getDefaultDataModel: function() {
+            var model = document.createElement('fin-hypergrid-data-model-default');
+            return model;
         },
-
-        /**
-        * @function
-        * @instance
-        * @description
-        return data point at x,y coordinates in the fixed row area
-        * #### returns: object
-         * @param {integer} x - the x coordinate
-         * @param {integer} x - the y coordinate
-        */
-        getFixedRowValue: function(x /*, y*/ ) {
-            return alphaFor(x);
-        },
-
 
         /**
         * @function
@@ -24820,6 +24294,7 @@ it contains all code/data that's necessary for easily implementing a virtual dat
         getFixedColumnCount: function() {
             return 1;
         },
+
     });
 
 })(); /* jslint ignore:line */
@@ -25712,15 +25187,11 @@ This is a very rough in memory data source example.  fin-hypergrid-behavior-in-m
         getDefaultState: function() {
             return {
                 columnIndexes: [],
-                fixedColumnIndexes: [],
                 hiddenColumns: [],
 
                 columnWidths: [],
-                fixedColumnWidths: [],
-                fixedColumnAutosized: [],
 
                 rowHeights: {},
-                fixedRowHeights: {},
                 columnProperties: [],
                 columnAutosized: [],
 
@@ -26519,15 +25990,11 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         getDefaultState: function() {
             return {
                 columnIndexes: [],
-                fixedColumnIndexes: [],
                 hiddenColumns: [],
 
                 columnWidths: [],
-                fixedColumnWidths: [],
-                fixedColumnAutosized: [],
 
                 rowHeights: {},
-                fixedRowHeights: {},
                 columnProperties: [],
                 columnAutosized: [],
 
@@ -28941,7 +28408,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
                 }
                 console.log('connecting...');
                 this.ws.onopen = function() {
-                    self.setFixedColumnWidth(0, 160);
+                    self.setColumnWidth(0, 160);
                     var startY = self.getScrollPositionY() || 0;
                     var stopY = startY + 60;
 
@@ -29210,15 +28677,11 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         getDefaultState: function() {
             return {
                 columnIndexes: [],
-                fixedColumnIndexes: [],
                 hiddenColumns: [],
 
                 columnWidths: [],
-                fixedColumnWidths: [],
-                fixedColumnAutosized: [],
 
                 rowHeights: {},
-                fixedRowHeights: {},
                 columnProperties: [],
                 columnAutosized: [],
 
@@ -31844,10 +31307,10 @@ fin-vampire-bar {
             gridLinesH: true,
             gridLinesV: true,
 
-            defaultRowHeight: 20,
-            defaultFixedRowHeight: 20,
-            defaultColumnWidth: 100,
-            defaultFixedColumnWidth: 100,
+            defaultRowHeight: 15,
+            defaultFixedRowHeight: 15,
+            defaultColumnWidth: 36,
+            defaultFixedColumnWidth: 36,
 
             //for immediate painting, set these values to 0, true respectively
             repaintIntervalRate: 4,
@@ -31858,7 +31321,7 @@ fin-vampire-bar {
 
             useHiDPI: true,
             editorActivationKeys: ['alt', 'esc'],
-            columnAutosizing: true,
+            columnAutosizing: false,
             readOnly: false
 
         };
@@ -32200,10 +31663,11 @@ fin-vampire-bar {
             this.fire('load');
             this.isScrollButtonClick = false;
 
-            setInterval(function() {
-                self.checkRepaint();
-            }, 16);
+            this.computeCellBounds();
+        },
 
+        computeCellBounds: function() {
+            this.getRenderer().computeCellsBounds();
         },
 
         initializeCellEditor: function(cellEditorName) {
@@ -32512,8 +31976,6 @@ fin-vampire-bar {
             }
             this.checkColumnAutosizing();
             this.fireSyntheticGridRenderedEvent();
-
-            this.repaintFlag = false;
         },
 
         /**
@@ -32544,8 +32006,8 @@ fin-vampire-bar {
             var behavior = this.getBehavior();
             //add one to each of these values as we want also to include
             //the columns and rows that are partially visible
-            behavior.setRenderedColumnCount(this.getViewableColumns() + 1);
-            behavior.setRenderedRowCount(this.getViewableRows() + 1);
+            behavior.setRenderedColumnCount(this.getVisibleColumns() + 1);
+            behavior.setRenderedRowCount(this.getVisibleRows() + 1);
         },
 
         /**
@@ -32771,6 +32233,7 @@ fin-vampire-bar {
 
             this.behavior.changed = this.behaviorChanged.bind(this);
             this.behavior.shapeChanged = this.behaviorShapeChanged.bind(this);
+            this.behavior.stateChanged = this.behaviorStateChanged.bind(this);
         },
 
         /**
@@ -32830,28 +32293,28 @@ fin-vampire-bar {
             this.synchronizeScrollingBoundries();
         },
 
-        checkRepaint: function() {
-            if (this.repaintFlag) {
-                var now = this.resolveProperty('repaintImmediately');
-                var canvas = this.getCanvas();
-                if (canvas) {
-                    if (now === true) {
-                        canvas.paintNow();
-                    } else {
-                        canvas.repaint();
-                    }
-                }
-            }
-        },
         /**
          * @function
          * @instance
          * @description
-         tickle the repaint flag on the canvas, if ```repaintImmediately``` is true, paint immediately
+         the dimensions of the grid data have changed, you've been notified
          *
          */
+        behaviorStateChanged: function() {
+            this.getRenderer().computeCellsBounds();
+            this.repaint();
+        },
+
         repaint: function() {
-            this.repaintFlag = true;
+            var now = this.resolveProperty('repaintImmediately');
+            var canvas = this.getCanvas();
+            if (canvas) {
+                if (now === true) {
+                    canvas.paintNow();
+                } else {
+                    canvas.repaint();
+                }
+            }
         },
 
         /**
@@ -33435,13 +32898,13 @@ fin-vampire-bar {
          * @param {integer} colIndex - the column index in question
          * @param {integer} offsetX - the direction and magnitude to scroll if we need to
          */
-        insureModelColIsViewable: function(colIndex, offsetX) {
+        insureModelColIsVisible: function(colIndex, offsetX) {
             //-1 because we want only fully visible columns, don't include partially
-            //viewable columns
-            var viewableColumns = this.getViewableColumns() - 1;
+            //visible columns
+            var visibleColumns = this.getVisibleColumns() - 1;
             if (!this.isColumnVisible(colIndex)) {
                 //the scroll position is the leftmost column
-                var newSX = offsetX < 0 ? colIndex : colIndex - viewableColumns;
+                var newSX = offsetX < 0 ? colIndex : colIndex - visibleColumns;
                 this.setHScrollValue(newSX);
                 return true;
             }
@@ -33460,10 +32923,10 @@ fin-vampire-bar {
         insureModelRowIsViewable: function(rowIndex, offsetY) {
             //-1 because we want only fully visible rows, don't include partially
             //viewable rows
-            var viewableRows = this.getViewableRows() - 1;
+            var visibleRows = this.getVisibleRows() - 1;
             if (!this.isDataRowVisible(rowIndex)) {
                 //the scroll position is the topmost row
-                var newSY = offsetY < 0 ? rowIndex : rowIndex - viewableRows;
+                var newSY = offsetY < 0 ? rowIndex : rowIndex - visibleRows;
                 this.setVScrollValue(newSY);
                 return true;
             }
@@ -34121,6 +33584,8 @@ fin-vampire-bar {
             if (this.cellEditor) {
                 this.cellEditor.scrollValueChangedNotification();
             }
+
+            this.computeCellBounds();
         },
 
         /**
@@ -34201,6 +33666,7 @@ fin-vampire-bar {
             this.setVScrollValue(Math.min(this.getVScrollValue(), this.sbVScrollConfig.rangeStop));
             this.setHScrollValue(Math.min(this.getHScrollValue(), this.sbHScrollConfig.rangeStop));
 
+            this.computeCellBounds();
             this.repaint();
             //this.sbVScroller.tickle();
             //this.sbHScroller.tickle();
@@ -34214,8 +33680,8 @@ fin-vampire-bar {
          *
          * #### returns: integer
          */
-        getViewableRows: function() {
-            return this.getRenderer().getViewableRows();
+        getVisibleRows: function() {
+            return this.getRenderer().getVisibleRows();
         },
 
         /**
@@ -34226,8 +33692,8 @@ fin-vampire-bar {
          *
          * #### returns: integer
          */
-        getViewableColumns: function() {
-            return this.getRenderer().getViewableColumns();
+        getVisibleColumns: function() {
+            return this.getRenderer().getVisibleColumns();
         },
 
         /**
@@ -34393,7 +33859,7 @@ fin-vampire-bar {
          * #### returns: integer
          */
         getColumnCount: function() {
-            return this.getBehavior()._getColumnCount();
+            return this.getBehavior().getColumnCount();
         },
 
         /**
@@ -34703,7 +34169,7 @@ fin-vampire-bar {
             var behavior = this.getBehavior();
             var renderer = this.getRenderer();
             var colCount = this.getColumnCount();
-            var rowCount = renderer.getViewableRows();
+            var rowCount = renderer.getVisibleRows();
             var headers = [];
             var result = [];
             var r, c;
@@ -34854,8 +34320,8 @@ fin-vampire-bar {
          *
          * #### returns: integer
          */
-        getVisibleColumns: function() {
-            return this.getRenderer().getVisibleColumns();
+        getVisibleColumnsCount: function() {
+            return this.getRenderer().getVisibleColumnsCount();
         },
 
         /**
@@ -34866,8 +34332,8 @@ fin-vampire-bar {
          *
          * #### returns: integer
          */
-        getVisibleRows: function() {
-            return this.getRenderer().getVisibleRows();
+        getVisibleRowsCount: function() {
+            return this.getRenderer().getVisibleRowsCount();
         },
 
         /**

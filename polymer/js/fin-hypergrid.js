@@ -78,10 +78,10 @@
             gridLinesH: true,
             gridLinesV: true,
 
-            defaultRowHeight: 20,
-            defaultFixedRowHeight: 20,
-            defaultColumnWidth: 100,
-            defaultFixedColumnWidth: 100,
+            defaultRowHeight: 15,
+            defaultFixedRowHeight: 15,
+            defaultColumnWidth: 36,
+            defaultFixedColumnWidth: 36,
 
             //for immediate painting, set these values to 0, true respectively
             repaintIntervalRate: 4,
@@ -92,7 +92,7 @@
 
             useHiDPI: true,
             editorActivationKeys: ['alt', 'esc'],
-            columnAutosizing: true,
+            columnAutosizing: false,
             readOnly: false
 
         };
@@ -434,10 +434,11 @@
             this.fire('load');
             this.isScrollButtonClick = false;
 
-            setInterval(function() {
-                self.checkRepaint();
-            }, 16);
+            this.computeCellBounds();
+        },
 
+        computeCellBounds: function() {
+            this.getRenderer().computeCellsBounds();
         },
 
         initializeCellEditor: function(cellEditorName) {
@@ -746,8 +747,6 @@
             }
             this.checkColumnAutosizing();
             this.fireSyntheticGridRenderedEvent();
-
-            this.repaintFlag = false;
         },
 
         /**
@@ -778,8 +777,8 @@
             var behavior = this.getBehavior();
             //add one to each of these values as we want also to include
             //the columns and rows that are partially visible
-            behavior.setRenderedColumnCount(this.getViewableColumns() + 1);
-            behavior.setRenderedRowCount(this.getViewableRows() + 1);
+            behavior.setRenderedColumnCount(this.getVisibleColumns() + 1);
+            behavior.setRenderedRowCount(this.getVisibleRows() + 1);
         },
 
         /**
@@ -1005,6 +1004,7 @@
 
             this.behavior.changed = this.behaviorChanged.bind(this);
             this.behavior.shapeChanged = this.behaviorShapeChanged.bind(this);
+            this.behavior.stateChanged = this.behaviorStateChanged.bind(this);
         },
 
         /**
@@ -1064,28 +1064,28 @@
             this.synchronizeScrollingBoundries();
         },
 
-        checkRepaint: function() {
-            if (this.repaintFlag) {
-                var now = this.resolveProperty('repaintImmediately');
-                var canvas = this.getCanvas();
-                if (canvas) {
-                    if (now === true) {
-                        canvas.paintNow();
-                    } else {
-                        canvas.repaint();
-                    }
-                }
-            }
-        },
         /**
          * @function
          * @instance
          * @description
-         tickle the repaint flag on the canvas, if ```repaintImmediately``` is true, paint immediately
+         the dimensions of the grid data have changed, you've been notified
          *
          */
+        behaviorStateChanged: function() {
+            this.getRenderer().computeCellsBounds();
+            this.repaint();
+        },
+
         repaint: function() {
-            this.repaintFlag = true;
+            var now = this.resolveProperty('repaintImmediately');
+            var canvas = this.getCanvas();
+            if (canvas) {
+                if (now === true) {
+                    canvas.paintNow();
+                } else {
+                    canvas.repaint();
+                }
+            }
         },
 
         /**
@@ -1669,13 +1669,13 @@
          * @param {integer} colIndex - the column index in question
          * @param {integer} offsetX - the direction and magnitude to scroll if we need to
          */
-        insureModelColIsViewable: function(colIndex, offsetX) {
+        insureModelColIsVisible: function(colIndex, offsetX) {
             //-1 because we want only fully visible columns, don't include partially
-            //viewable columns
-            var viewableColumns = this.getViewableColumns() - 1;
+            //visible columns
+            var visibleColumns = this.getVisibleColumns() - 1;
             if (!this.isColumnVisible(colIndex)) {
                 //the scroll position is the leftmost column
-                var newSX = offsetX < 0 ? colIndex : colIndex - viewableColumns;
+                var newSX = offsetX < 0 ? colIndex : colIndex - visibleColumns;
                 this.setHScrollValue(newSX);
                 return true;
             }
@@ -1694,10 +1694,10 @@
         insureModelRowIsViewable: function(rowIndex, offsetY) {
             //-1 because we want only fully visible rows, don't include partially
             //viewable rows
-            var viewableRows = this.getViewableRows() - 1;
+            var visibleRows = this.getVisibleRows() - 1;
             if (!this.isDataRowVisible(rowIndex)) {
                 //the scroll position is the topmost row
-                var newSY = offsetY < 0 ? rowIndex : rowIndex - viewableRows;
+                var newSY = offsetY < 0 ? rowIndex : rowIndex - visibleRows;
                 this.setVScrollValue(newSY);
                 return true;
             }
@@ -2355,6 +2355,8 @@
             if (this.cellEditor) {
                 this.cellEditor.scrollValueChangedNotification();
             }
+
+            this.computeCellBounds();
         },
 
         /**
@@ -2435,6 +2437,7 @@
             this.setVScrollValue(Math.min(this.getVScrollValue(), this.sbVScrollConfig.rangeStop));
             this.setHScrollValue(Math.min(this.getHScrollValue(), this.sbHScrollConfig.rangeStop));
 
+            this.computeCellBounds();
             this.repaint();
             //this.sbVScroller.tickle();
             //this.sbHScroller.tickle();
@@ -2448,8 +2451,8 @@
          *
          * #### returns: integer
          */
-        getViewableRows: function() {
-            return this.getRenderer().getViewableRows();
+        getVisibleRows: function() {
+            return this.getRenderer().getVisibleRows();
         },
 
         /**
@@ -2460,8 +2463,8 @@
          *
          * #### returns: integer
          */
-        getViewableColumns: function() {
-            return this.getRenderer().getViewableColumns();
+        getVisibleColumns: function() {
+            return this.getRenderer().getVisibleColumns();
         },
 
         /**
@@ -2627,7 +2630,7 @@
          * #### returns: integer
          */
         getColumnCount: function() {
-            return this.getBehavior()._getColumnCount();
+            return this.getBehavior().getColumnCount();
         },
 
         /**
@@ -2937,7 +2940,7 @@
             var behavior = this.getBehavior();
             var renderer = this.getRenderer();
             var colCount = this.getColumnCount();
-            var rowCount = renderer.getViewableRows();
+            var rowCount = renderer.getVisibleRows();
             var headers = [];
             var result = [];
             var r, c;
@@ -3088,8 +3091,8 @@
          *
          * #### returns: integer
          */
-        getVisibleColumns: function() {
-            return this.getRenderer().getVisibleColumns();
+        getVisibleColumnsCount: function() {
+            return this.getRenderer().getVisibleColumnsCount();
         },
 
         /**
@@ -3100,8 +3103,8 @@
          *
          * #### returns: integer
          */
-        getVisibleRows: function() {
-            return this.getRenderer().getVisibleRows();
+        getVisibleRowsCount: function() {
+            return this.getRenderer().getVisibleRowsCount();
         },
 
         /**

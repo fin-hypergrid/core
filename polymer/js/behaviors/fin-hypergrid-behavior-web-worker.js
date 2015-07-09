@@ -45,15 +45,11 @@
         getDefaultState: function() {
             return {
                 columnIndexes: [],
-                fixedColumnIndexes: [],
                 hiddenColumns: [],
 
                 columnWidths: [],
-                fixedColumnWidths: [],
-                fixedColumnAutosized: [],
 
                 rowHeights: {},
-                fixedRowHeights: {},
                 columnProperties: [],
                 columnAutosized: [],
 

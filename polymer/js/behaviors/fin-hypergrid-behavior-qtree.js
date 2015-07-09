@@ -1015,7 +1015,7 @@
                 }
                 console.log('connecting...');
                 this.ws.onopen = function() {
-                    self.setFixedColumnWidth(0, 160);
+                    self.setColumnWidth(0, 160);
                     var startY = self.getScrollPositionY() || 0;
                     var stopY = startY + 60;
 
