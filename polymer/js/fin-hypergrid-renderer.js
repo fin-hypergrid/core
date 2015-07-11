@@ -641,13 +641,13 @@ var merge = function(target, source) {
         */
         renderOverride: function(gc, override) {
             //lets blank out the drag row
-            var columnStarts = this.getColumnEdges();
+            var grid = this.getGrid();
             var hdpiRatio = override.hdpiratio;
-            var startX = hdpiRatio * columnStarts[override.columnIndex];
+            var startX = hdpiRatio * grid.getColumnEdge(override.columnIndex);
             var width = override.width;
             var height = override.height;
             var targetCTX = override.ctx;
-            var imgData = gc.getImageData(startX, 0, width * hdpiRatio, height * hdpiRatio);
+            var imgData = gc.getImageData(startX, 0, Math.round(width * hdpiRatio), Math.round(height * hdpiRatio));
             targetCTX.putImageData(imgData, 0, 0);
             gc.fillStyle = this.resolveProperty('backgroundColor2');
             gc.fillRect(Math.round(startX / hdpiRatio), 0, width, height);
@@ -799,7 +799,7 @@ var merge = function(target, source) {
          * @param {integer} columnIndex - the row index
         */
         getColumnWidth: function(columnIndex) {
-            var width = this.getBehavior()._getColumnWidth(columnIndex);
+            var width = this.getGrid().getColumnWidth(columnIndex);
             return width;
         },
 
@@ -1059,13 +1059,14 @@ var merge = function(target, source) {
         _paintCell: function(gc, c, r) {
 
             var cellProperties = this.cellProperties;
+            var grid = this.getGrid();
             var behavior = this.getBehavior();
 
             var cellProvider = this.getGrid().getCellProvider();
 
-            cellProperties.value = behavior.getValue(c, r);
-            cellProperties.isSelected = this.isSelected(c, r);
-            cellProperties.halign = behavior.getColumnAlignment(c);
+            cellProperties.value = grid.getValue(c, r);
+            cellProperties.isSelected = grid.isSelected(c, r);
+            cellProperties.halign = grid.getColumnAlignment(c);
             cellProperties.isColumnHovered = this.isHovered(c, r);
             cellProperties.isRowHovered = this.isHovered(c, r);
             cellProperties.bounds = this._getBoundsOfCell(c, r);

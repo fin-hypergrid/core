@@ -855,7 +855,7 @@
             var ystop = last.origin.y + last.extent.y + 1;
             for (var y = ystart; y < ystop; y++) {
                 for (var x = xstart; x < xstop; x++) {
-                    var data = behavior._getValue(x, y);
+                    var data = behavior.getValue(x, y);
                     collector.push(data);
                     if (x !== xstop - 1) {
                         collector.push('\t');
@@ -1015,9 +1015,9 @@
          *
          */
         behaviorChanged: function() {
-            if (this.numColumns !== this.behavior._getColumnCount() || this.numRows !== this.behavior.getRowCount()) {
-                this.numColumns = this.behavior._getColumnCount();
-                this.numRows = this.behavior.getRowCount();
+            if (this.numColumns !== this.getColumnCount() || this.numRows !== this.getRowCount()) {
+                this.numColumns = this.getColumnCount();
+                this.numRows = this.getRowCount();
                 this.behaviorShapeChanged();
             }
             this.repaint();
@@ -2370,7 +2370,7 @@
          * returns: anything
          */
         getValue: function(x, y) {
-            return this.getBehavior()._getValue(x, y);
+            return this.translate().getValue(x, y);
         },
 
         /**
@@ -2384,7 +2384,11 @@
          * @param {anything} value
          */
         setValue: function(x, y, value) {
-            this.getBehavior()._setValue(x, y, value);
+            this.translate().setValue(x, y, value);
+        },
+
+        getColumnAlignment: function(c) {
+            return this.translate().getColumnAlignment(c);
         },
 
         /**
@@ -2397,23 +2401,19 @@
          */
         synchronizeScrollingBoundries: function() {
 
-            var behavior = this.getBehavior();
-            if (!behavior) {
-                return;
-            }
-            var numColumns = behavior._getColumnCount();
-            var numRows = behavior.getRowCount();
+            var numColumns = this.getColumnCount();
+            var numRows = this.getRowCount();
             var bounds = this.getBounds();
             if (!bounds) {
                 return;
             }
-            var scrollableHeight = bounds.height() - behavior.getFixedRowsHeight();
-            var scrollableWidth = bounds.width() - behavior.getFixedColumnsMaxWidth() - 200;
+            var scrollableHeight = bounds.height() - this.getFixedRowsHeight();
+            var scrollableWidth = bounds.width() - this.getFixedColumnsMaxWidth() - 200;
 
             var lastPageColumnCount = 0;
             var columnsWidth = 0;
             for (; lastPageColumnCount < numColumns; lastPageColumnCount++) {
-                var eachWidth = behavior._getColumnWidth(numColumns - lastPageColumnCount - 1);
+                var eachWidth = this.getColumnWidth(numColumns - lastPageColumnCount - 1);
                 columnsWidth = columnsWidth + eachWidth;
                 if (columnsWidth > scrollableWidth) {
                     break;
@@ -2423,16 +2423,16 @@
             var lastPageRowCount = 0;
             var rowsHeight = 0;
             for (; lastPageRowCount < numRows; lastPageRowCount++) {
-                var eachHeight = behavior.getRowHeight(numRows - lastPageRowCount - 1);
+                var eachHeight = this.getRowHeight(numRows - lastPageRowCount - 1);
                 rowsHeight = rowsHeight + eachHeight;
                 if (rowsHeight > scrollableHeight) {
                     break;
                 }
             }
 
-            this.sbVScrollConfig.rangeStop = behavior.getRowCount() - lastPageRowCount;
+            this.sbVScrollConfig.rangeStop = this.getRowCount() - lastPageRowCount;
 
-            this.sbHScrollConfig.rangeStop = behavior._getColumnCount() - lastPageColumnCount;
+            this.sbHScrollConfig.rangeStop = this.getColumnCount() - lastPageColumnCount;
 
             this.setVScrollValue(Math.min(this.getVScrollValue(), this.sbVScrollConfig.rangeStop));
             this.setHScrollValue(Math.min(this.getHScrollValue(), this.sbHScrollConfig.rangeStop));
@@ -2504,7 +2504,7 @@
          * @param {integer} columnIndex - the untranslated column index
          */
         getColumnWidth: function(columnIndex) {
-            return this.getBehavior()._getColumnWidth(columnIndex);
+            return this.translate().getColumnWidth(columnIndex);
         },
 
         /**
@@ -2517,20 +2517,11 @@
          * @param {integer} columnWidth - the width in pixels
          */
         setColumnWidth: function(columnIndex, columnWidth) {
-            this.getBehavior()._setColumnWidth(columnIndex, columnWidth);
+            this.translate().setColumnWidth(columnIndex, columnWidth);
         },
 
-        /**
-         * @function
-         * @instance
-         * @description
-        return the width of a specific fixed column
-         *
-         * #### returns: integer
-         * @param {integer} columnIndex - the untranslated fixed column index
-         */
-        getFixedColumnWidth: function(columnIndex) {
-            return this.getBehavior().getFixedColumnWidth(columnIndex);
+        getColumnEdge: function(c) {
+            return this.translate().getColumnEdge(c, this.getRenderer());
         },
 
         /**
@@ -2543,19 +2534,6 @@
          */
         getFixedColumnsWidth: function() {
             return this.getBehavior().getFixedColumnsWidth();
-        },
-
-        /**
-         * @function
-         * @instance
-         * @description
-        set the column width at a specific fixed column index
-         *
-         * @param {integer} columnIndex - the untranslated column index
-         * @param {integer} columnWidth - the width in pixels
-         */
-        setFixedColumnWidth: function(columnIndex, columnWidth) {
-            this.getBehavior().setFixedColumnWidth(columnIndex, columnWidth);
         },
 
         /**
@@ -2582,32 +2560,6 @@
          */
         setRowHeight: function(rowIndex, rowHeight) {
             this.getBehavior().setRowHeight(rowIndex, rowHeight);
-        },
-
-        /**
-         * @function
-         * @instance
-         * @description
-       return the height of a specific fixed row
-         *
-         * #### returns: integer
-         * @param {integer} rowIndex - the untranslated fixed row index
-         */
-        getFixedRowHeight: function(rowIndex) {
-            return this.getBehavior().getFixedRowHeight(rowIndex);
-        },
-
-        /**
-         * @function
-         * @instance
-         * @description
-       set the row height at a specific fixed for index
-         *
-         * @param {integer} rowIndex - the untranslated row index
-         * @param {integer} rowHeight - the height in pixels
-         */
-        setFixedRowHeight: function(rowIndex, rowHeight) {
-            this.getBehavior().setFixedRowHeight(rowIndex, rowHeight);
         },
 
         /**
@@ -2748,7 +2700,7 @@
          * @param {y} y - the y coordinate
          */
         getCellEditorAt: function(x, y) {
-            return this.getBehavior()._getCellEditorAt(x, y);
+            return this.translate().getCellEditorAt(x, y);
         },
 
         /**
@@ -2840,13 +2792,12 @@
          *
          */
         updateCursor: function() {
-            var behavior = this.getBehavior();
-            var cursor = behavior.getCursorAt(-1, -1);
+            var translate = this.translate();
+            var cursor = translate.getCursorAt(-1, -1);
             var hoverCell = this.getHoverCell();
             if (hoverCell && hoverCell.x > -1 && hoverCell.y > -1) {
                 var x = hoverCell.x + this.getHScrollValue();
-                x = behavior.translateColumnIndex(x);
-                cursor = behavior.getCursorAt(x, hoverCell.y + this.getVScrollValue());
+                cursor = translate.getCursorAt(x, hoverCell.y + this.getVScrollValue());
             }
             this.beCursor(cursor);
         },
@@ -2937,7 +2888,7 @@
          */
         getRenderedData: function() {
             // assumes one row of headers
-            var behavior = this.getBehavior();
+            var behavior = this.translate();
             var renderer = this.getRenderer();
             var colCount = this.getColumnCount();
             var rowCount = renderer.getVisibleRows();
@@ -3058,17 +3009,8 @@
          *
          */
         autosizeColumn: function(colIndex) {
-            var width, currentWidth;
-            if (colIndex < 0) {
-                var numFixedCols = this.getFixedColumnCount();
-                colIndex = colIndex + numFixedCols;
-                currentWidth = this.getFixedColumnWidth(colIndex);
-                width = this.getRenderer().renderedFixedColumnMinWidths[colIndex];
-                this.setFixedColumnWidth(colIndex, Math.max(width, currentWidth));
-            } else {
-                width = this.getRenderer().renderedColumnMinWidths[colIndex];
-                this.setColumnWidth(colIndex, width);
-            }
+            var width = this.getRenderer().renderedColumnMinWidths[colIndex];
+            this.setColumnWidth(colIndex, width);
         },
 
         /**
@@ -3163,6 +3105,25 @@
         restartPaintThread: function() {
             this.canvas.restartPaintThread();
         },
+
+        swapColumns: function(source, target) {
+            this.getBehavior().swapColumns(source, target);
+        },
+
+        endDragColumnNotification: function() {
+            this.getBehavior().endDragColumnNotification();
+        },
+
+        translate: function() {
+            var behavior = this.getBehavior();
+            var interfase = behavior.getTranslationInterface();
+            return interfase;
+        },
+
+        getFixedColumnsMaxWidth: function() {
+            return this.getBehavior().getFixedColumnsMaxWidth();
+        }
+
     });
 
 })(); /* jslint ignore:line */

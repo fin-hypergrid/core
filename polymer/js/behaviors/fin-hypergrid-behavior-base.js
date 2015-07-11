@@ -97,7 +97,8 @@ it contains all code/data that's necessary for easily implementing a virtual dat
 
         getDataModel: function() {
             if (this.dataModel === null) {
-                this.setDataModel(this.getDefaultDataModel());
+                var dataModel = this.getDefaultDataModel();
+                this.setDataModel(dataModel);
             }
             return this.dataModel;
         },
@@ -254,81 +255,6 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          * @function
          * @instance
          * @description
-         reset both fixed and normal column indexes, this is will cause columns to display in their true order
-         */
-        initColumnIndexes: function(tableState) {
-            var columnCount = this.getColumnCount();
-            var i;
-            for (i = 0; i < columnCount; i++) {
-                tableState.columnIndexes[i] = i;
-            }
-        },
-
-        /**
-         * @function
-         * @instance
-         * @description
-         make sure the column indexes are initialized
-         */
-        insureColumnIndexesAreInitialized: function() {
-            this.swapColumns(0, 0);
-        },
-
-        /**
-         * @function
-         * @instance
-         * @description
-         swap src and tar columns
-         * @param {integer} src - column index
-         * @param {integer} tar - column index
-         */
-        swapColumns: function(src, tar) {
-            var tableState = this.getState();
-            var fixedColumnCount = this.getState().fixedColumnCount;
-            var indexes = tableState.columnIndexes;
-            if (indexes.length === 0) {
-                this.initColumnIndexes(tableState);
-                indexes = tableState.columnIndexes;
-            }
-            var tmp = indexes[src + fixedColumnCount];
-            indexes[src + fixedColumnCount] = indexes[tar + fixedColumnCount];
-            indexes[tar + fixedColumnCount] = tmp;
-        },
-
-        /**
-         * @function
-         * @instance
-         * @description
-         translate the viewed index to the real index
-         * #### returns: integer
-         * @param {integer} x - viewed index
-         */
-        translateColumnIndex: function(x) {
-            var tableState = this.getState();
-            var indexes = tableState.columnIndexes;
-            if (indexes.length === 0) {
-                return x;
-            }
-            return indexes[x];
-        },
-
-        /**
-         * @function
-         * @instance
-         * @description
-         translate the real index to the viewed index
-         * #### returns: integer
-         * @param {integer} x - the real index
-         */
-        unTranslateColumnIndex: function(x) {
-            var tableState = this.getState();
-            return tableState.columnIndexes.indexOf(x);
-        },
-
-        /**
-         * @function
-         * @instance
-         * @description
          add nextFeature to me If I don't have a next node, otherwise pass it along
          * @param {fin-hypergrid-feature-base} nextFeature - [fin-hypergrid-feature-base](module-features_base.html)
          */
@@ -422,18 +348,6 @@ it contains all code/data that's necessary for easily implementing a virtual dat
             return provider;
         },
 
-        /**
-         * @function
-         * @instance
-         * @description
-         return the value at x,y for the top left section of the hypergrid
-         * #### returns: Object
-         * @param {integer} x - x coordinate
-         * @param {integer} y - y coordinate
-         */
-        getTopLeftValue: function( /* x, y */ ) {
-            return '';
-        },
 
         /**
          * @function
@@ -444,8 +358,7 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          * @param {integer} x - x coordinate
          * @param {integer} y - y coordinate
          */
-        _getValue: function(x, y) {
-            x = this.translateColumnIndex(x);
+        getValue: function(x, y) {
             return this.getDataModel().getValue(x, y);
         },
 
@@ -459,37 +372,8 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          * @param {integer} y - y coordinate
          * @param {Object} value - the value to use
          */
-        _setValue: function(x, y, value) {
-            x = this.translateColumnIndex(x);
+        setValue: function(x, y, value) {
             this.getDataModel().setValue(x, y, value);
-        },
-
-        /**
-         * @function
-         * @instance
-         * @description
-         return the view translated value at x,y for the fixed row area
-         * #### returns: Object
-         * @param {integer} x - x coordinate
-         * @param {integer} y - y coordinate
-         */
-        _getFixedRowValue: function(x, y) {
-            x = this.translateColumnIndex(x);
-            return this.getFixedRowValue(x, y);
-        },
-
-        /**
-         * @function
-         * @instance
-         * @description
-         return the value at x,y for the fixed row area
-         * #### returns: Object
-         * @param {integer} x - x coordinate
-         * @param {integer} y - y coordinate
-         */
-        getFixedColumnValue: function(x, y) {
-            //x = this.fixedtranslateColumnIndex(x);
-            return y + 1;
         },
 
         /**
@@ -501,19 +385,6 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          */
         getRowCount: function() {
             return this.getDataModel().getRowCount();
-        },
-
-        /**
-         * @function
-         * @instance
-         * @description
-         return the total number of columns adjusted for hidden columns
-         * #### returns: integer
-         */
-        _getColumnCount: function() {
-            var tableState = this.getState();
-            var fixedColumnCount = this.getState().fixedColumnCount;
-            return this.getColumnCount() - tableState.hiddenColumns.length - fixedColumnCount;
         },
 
         /**
@@ -623,33 +494,6 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          * @function
          * @instance
          * @description
-         return the behavior column width of specific column given a view column index
-         * #### returns: integer
-         * @param {integer} x - the view column index
-         */
-        _getColumnWidth: function(x) {
-            x = this.translateColumnIndex(x);
-            return this.getColumnWidth(x);
-        },
-
-        /**
-         * @function
-         * @instance
-         * @description
-         set the width of a specific column in the model given a view column index
-         * @param {integer} x - the view column index
-         * @param {integer} width - the width in pixels
-         */
-        _setColumnWidth: function(x, width) {
-            x = this.translateColumnIndex(x);
-            this.setColumnWidth(x, width);
-            this.changed();
-        },
-
-        /**
-         * @function
-         * @instance
-         * @description
          set the scroll position in vertical dimension and notifiy listeners
          * @param {integer} y - the new y value
          */
@@ -692,73 +536,6 @@ it contains all code/data that's necessary for easily implementing a virtual dat
             this.renderedRowCount = count;
         },
 
-        /**
-         * @function
-         * @instance
-         * @description
-         return the view translated alignment for column x
-         * #### returns: string ['left','center','right']
-         * @param {integer} x - the column index of interest
-         */
-        _getColumnAlignment: function(x) {
-            x = this.translateColumnIndex(x);
-            return this.getColumnAlignment(x);
-        },
-
-        /**
-         * @function
-         * @instance
-         * @description
-         return the alignment at x,y of the top left area
-         * #### returns: string ['left','center','right']
-         * @param {integer} x - the x coordinate
-         * @param {integer} x - the y coordinate
-         */
-        getTopLeftAlignment: function( /* x, y */ ) {
-            return 'center';
-        },
-
-        /**
-         * @function
-         * @instance
-         * @description
-         return the alignment at x for the fixed column area
-         * #### returns: string ['left','center','right']
-         * @param {integer} x - the fixed column index of interest
-         */
-        getFixedColumnAlignment: function( /* x */ ) {
-            return this.resolveProperty('fixedColumnAlign');
-        },
-
-        /**
-         * @function
-         * @instance
-         * @description
-         return the view translated alignment at x,y in the fixed row area
-         * #### returns: string ['left','center','right']
-         * @param {integer} x - the fixed column index of interest
-         * @param {integer} y - the fixed row index of interest
-         */
-        _getFixedRowAlignment: function(x, y) {
-            x = this.translateColumnIndex(x);
-            return this.getFixedRowAlignment(x, y);
-        },
-
-        /**
-         * @function
-         * @instance
-         * @description
-         the top left area has been clicked, you've been notified
-         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
-         * @param {Object} mouse - event details
-         */
-        topLeftClicked: function(grid, mouse) {
-            if (mouse.gridCell.x < this.getState().fixedColumnCount) {
-                this.fixedRowClicked(grid, mouse);
-            } else {
-                console.log('top Left clicked: ' + mouse.gridCell.x, mouse);
-            }
-        },
 
         /**
          * @function
@@ -984,21 +761,6 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          * @function
          * @instance
          * @description
-         return the cell editor for cell at x,y
-         * #### returns: [fin-hypergrid-cell-editor-base](module-cell-editors_base.html)
-         * @param {integer} x - x coordinate
-         * @param {integer} y - y coordinate
-         */
-        _getCellEditorAt: function(x, y) {
-            noop(y);
-            x = this.translateColumnIndex(x);
-            return this.getCellEditorAt(x);
-        },
-
-        /**
-         * @function
-         * @instance
-         * @description
          this function is replaced by the grid on initialization and serves as the callback
          */
         changed: function() {},
@@ -1101,7 +863,7 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          * @param {integer} colIndex - the column index of interest
          */
         getHeader: function(colIndex) {
-            return this.getFixedRowValue(colIndex, 0);
+            return this.getValue(colIndex, 0);
         },
 
         /**
@@ -1222,6 +984,9 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          * #### returns: integer
          */
         getFixedRowCount: function() {
+            if (!this.tableState) {
+                return 0;
+            }
             return this.tableState.fixedRowCount || 0;
         },
 
@@ -1325,31 +1090,6 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          * @function
          * @instance
          * @description
-         return the data value at coordinates x,y.  this is the main "model" function that allows for virtualization
-         * #### returns: Object
-         * @param {integer} x - the x coordinate
-         * @param {integer} y - the y coordinate
-         */
-        getValue: function(x, y) {
-            return this.getDataModel().getValue(x, y);
-        },
-
-        /**
-         * @function
-         * @instance
-         * @description
-         set the data value at coordinates x,y
-         * @param {integer} x - the x coordinate
-         * @param {integer} y - the y coordinate
-         */
-        setValue: function(x, y, value) {
-            this.dataModel().setValue(x, y, value);
-        },
-
-        /**
-         * @function
-         * @instance
-         * @description
          return the total number of columns
          * #### returns: integer
          */
@@ -1435,33 +1175,6 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          * @function
          * @instance
          * @description
-         get the view translated alignment at x,y in the fixed row area
-         * #### returns: string ['left','center','right']
-         * @param {integer} x - x coordinate
-         * @param {integer} y - y coordinate
-         */
-        getFixedRowAlignment: function(x, y) {
-            noop(x, y);
-            return this.resolveProperty('fixedRowAlign');
-        },
-
-        /**
-         * @function
-         * @instance
-         * @description
-         return the data value at point x,y
-         * #### returns: Object
-         * @param {integer} x - x coordinate
-         * @param {integer} y - y coordinate
-         */
-        getFixedRowValue: function(x /*, y*/ ) {
-            return x;
-        },
-
-        /**
-         * @function
-         * @instance
-         * @description
          return the cell editor for coordinate x,y
          * #### returns: [fin-hypergrid-cell-editor-base](module-cell-editors_base.html)
          * @param {integer} x - x coordinate
@@ -1530,7 +1243,6 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          * @param {integer} x - the view translated x index
          */
         getColumnId: function(x) {
-            x = this.translateColumnIndex(x);
             var col = this.getFixedRowValue(x, 0);
             return col;
         },
@@ -1572,20 +1284,9 @@ it contains all code/data that's necessary for easily implementing a virtual dat
         checkColumnAutosizing: function(fixedMinWidths, minWidths) {
             var self = this;
             var tableState = this.getState();
-            var myFixed = tableState.fixedColumnWidths;
             var myWidths = tableState.columnWidths;
             var repaint = false;
             var a, b, c, d = 0;
-            for (c = 0; c < fixedMinWidths.length; c++) {
-                a = myFixed[c];
-                b = fixedMinWidths[c];
-                d = tableState.fixedColumnAutosized[c];
-                if (a !== b || !d) {
-                    myFixed[c] = !d ? b : Math.max(a, b);
-                    tableState.fixedColumnAutosized[c] = true;
-                    repaint = true;
-                }
-            }
             for (c = 0; c < minWidths.length; c++) {
                 var ti = this.translateColumnIndex(c);
                 a = myWidths[ti];
@@ -1667,9 +1368,129 @@ it contains all code/data that's necessary for easily implementing a virtual dat
             var self = this;
             setTimeout(function() {
                 var tableState = self.getState();
-                tableState.fixedColumnAutosized = [];
                 tableState.columnAutosized = [];
             }, 40);
+        },
+
+        /**
+         * @function
+         * @instance
+         * @description
+         reset both fixed and normal column indexes, this is will cause columns to display in their true order
+         */
+        initColumnIndexes: function(tableState) {
+            var columnCount = this.getColumnCount();
+            var i;
+            for (i = 0; i < columnCount; i++) {
+                tableState.columnIndexes[i] = i;
+            }
+        },
+
+        /**
+         * @function
+         * @instance
+         * @description
+         make sure the column indexes are initialized
+         */
+        insureColumnIndexesAreInitialized: function() {
+            this.swapColumns(0, 0);
+        },
+
+        /**
+         * @function
+         * @instance
+         * @description
+         swap src and tar columns
+         * @param {integer} src - column index
+         * @param {integer} tar - column index
+         */
+        swapColumns: function(source, target) {
+            var tableState = this.getState();
+            var indexes = tableState.columnIndexes;
+            if (indexes.length === 0) {
+                this.initColumnIndexes(tableState);
+                indexes = tableState.columnIndexes;
+            }
+            var tmp = indexes[source];
+            indexes[source] = indexes[target];
+            indexes[target] = tmp;
+            this.stateChanged();
+        },
+
+        getTranslationInterface: function() {
+            if (!this.translationInterface) {
+                this.translationInterface = this.createTranslationInterface();
+            }
+            return this.translationInterface;
+        },
+
+        createTranslationInterface: function() {
+            var self = this;
+            var that = {
+                translateColumnIndex: function(x) {
+                    var tableState = self.getState();
+                    var indexes = tableState.columnIndexes;
+                    if (indexes.length === 0) {
+                        return x;
+                    }
+                    return indexes[x];
+                },
+
+                unTranslateColumnIndex: function(x) {
+                    var tableState = self.getState();
+                    return tableState.columnIndexes.indexOf(x);
+                },
+
+                getValue: function(x, y) {
+                    x = this.translateColumnIndex(x);
+                    return self.getValue(x, y);
+                },
+
+                setValue: function(x, y, value) {
+                    x = this.translateColumnIndex(x);
+                    self.setValue(x, y, value);
+                },
+
+                getColumnWidth: function(x) {
+                    x = this.translateColumnIndex(x);
+                    return self.getColumnWidth(x);
+                },
+
+                setColumnWidth: function(x, width) {
+                    x = this.translateColumnIndex(x);
+                    self.setColumnWidth(x, width);
+                    self.changed();
+                },
+
+                getColumnEdge: function(x, renderer) {
+                    //x = this.translateColumnIndex(x);
+                    return renderer.columnEdges[x];
+                },
+
+                getColumnAlignment: function(x) {
+                    x = this.translateColumnIndex(x);
+                    return self.getColumnAlignment(x);
+                },
+
+                getCellEditorAt: function(x, y) {
+                    noop(y);
+                    x = this.translateColumnIndex(x);
+                    return self.getCellEditorAt(x);
+                },
+
+                getColumnId: function(x) {
+                    x = this.translateColumnIndex(x);
+                    var col = self.getColumnId(x, 0);
+                    return col;
+                },
+
+                getCursorAt: function(x /*, y */ ) {
+                    x = this.translateColumnIndex(x);
+                    var cursor = self.getCursorAt(x, 0);
+                    return cursor;
+                },
+            };
+            return that;
         }
     });
 })();

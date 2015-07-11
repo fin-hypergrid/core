@@ -210,36 +210,35 @@
         * @param {boolean} draggedToTheRight - are we moving to the right
         */
         floatColumnTo: function(grid, draggedToTheRight) {
-            var renderer = grid.getRenderer();
-            var columnEdges = renderer.getColumnEdges();
             this.floatingNow = true;
+            //var behavior = grid.getBehavior();
             var scrollLeft = grid.getHScrollValue();
             var floaterIndex = grid.renderOverridesCache.floater.columnIndex;
             var draggerIndex = grid.renderOverridesCache.dragger.columnIndex;
             var hdpiratio = grid.renderOverridesCache.dragger.hdpiratio;
 
-            var numFixedColumns = grid.getFixedColumnCount();
             var draggerStartX;
             var floaterStartX;
             var draggerWidth = grid.getColumnWidth(draggerIndex + scrollLeft);
             var floaterWidth = grid.getColumnWidth(floaterIndex + scrollLeft);
-            var max = columnEdges.length - 1;
+
+            var max = grid.getVisibleColumnsCount();
             if (draggedToTheRight) {
-                draggerStartX = columnEdges[Math.min(max, draggerIndex + numFixedColumns)];
-                floaterStartX = draggerStartX + floaterWidth;
+                draggerStartX = grid.getColumnEdge(Math.min(max, draggerIndex));
+                floaterStartX = grid.getColumnEdge(Math.min(max, floaterIndex));
 
                 grid.renderOverridesCache.dragger.startX = floaterStartX * hdpiratio;
                 grid.renderOverridesCache.floater.startX = draggerStartX * hdpiratio;
 
                 floaterStartX = draggerStartX + draggerWidth;
             } else {
-                floaterStartX = columnEdges[Math.min(max, floaterIndex + numFixedColumns)];
+                floaterStartX = grid.getColumnEdge(Math.min(max, floaterIndex));
                 draggerStartX = floaterStartX + draggerWidth;
 
                 grid.renderOverridesCache.dragger.startX = floaterStartX * hdpiratio;
                 grid.renderOverridesCache.floater.startX = draggerStartX * hdpiratio;
             }
-            grid.getBehavior().swapColumns(draggerIndex + scrollLeft, floaterIndex + scrollLeft);
+            grid.swapColumns(draggerIndex + scrollLeft, floaterIndex + scrollLeft);
             grid.renderOverridesCache.dragger.columnIndex = floaterIndex;
             grid.renderOverridesCache.floater.columnIndex = draggerIndex;
 
@@ -553,7 +552,6 @@
             if (!this.columnDragAutoScrollingRight) {
                 return;
             }
-            var behavior = grid.getBehavior();
             var scrollLeft = grid.getHScrollValue();
             if (!grid.dragging || scrollLeft > (grid.sbHScrollConfig.rangeStop - 2)) {
                 return;
@@ -561,7 +559,7 @@
             var draggedIndex = grid.renderOverridesCache.dragger.columnIndex;
             grid.scrollBy(1, 0);
             var newIndex = draggedIndex + scrollLeft + 1;
-            behavior.swapColumns(newIndex, draggedIndex + scrollLeft);
+            grid.swapColumns(newIndex, draggedIndex + scrollLeft);
 
             setTimeout(this._checkAutoScrollToRight.bind(this, grid, x), 250);
         },
@@ -578,15 +576,15 @@
             noop(dragIndex);
             //we need to compute the new index of dragIndex if it's assumed to be on the far right and we scroll one cell to the right
             var scrollLeft = this.getHScrollValue();
-            var behavior = this.getBehavior();
+            var grid = this.getGrid();
             //var dragWidth = behavior.getColumnWidth(dragIndex + scrollLeft);
             var bounds = this.canvas.getBounds();
 
             //lets add the drag width in so we don't have to ignore it in the loop
-            var viewWidth = bounds.width() - behavior.getFixedColumnsWidth();
-            var max = behavior.getColumnCount();
+            var viewWidth = bounds.width() - grid.getFixedColumnsWidth();
+            var max = grid.getColumnCount();
             for (var c = 0; c < max; c++) {
-                var eachColumnWidth = behavior.getColumnWidth(scrollLeft + c);
+                var eachColumnWidth = grid.getColumnWidth(scrollLeft + c);
                 viewWidth = viewWidth - eachColumnWidth;
                 if (viewWidth < 0) {
                     return c - 2;
@@ -615,13 +613,13 @@
             if (!this.columnDragAutoScrollingLeft) {
                 return;
             }
-            var behavior = grid.getBehavior();
+
             var scrollLeft = grid.getHScrollValue();
             if (!grid.dragging || scrollLeft < 1) {
                 return;
             }
             var draggedIndex = grid.renderOverridesCache.dragger.columnIndex;
-            behavior.swapColumns(draggedIndex + scrollLeft, draggedIndex + scrollLeft - 1);
+            grid.swapColumns(draggedIndex + scrollLeft, draggedIndex + scrollLeft - 1);
             grid.scrollBy(-1, 0);
             setTimeout(this._checkAutoScrollToLeft.bind(this, grid, x), 250);
         },
@@ -652,7 +650,7 @@
                 grid.repaint();
                 requestAnimationFrame(function() {
                     d.style.display = 'none';
-                    grid.getBehavior().endDragColumnNotification();
+                    grid.endDragColumnNotification();
                 });
             }, columnAnimationTime + 50);
 

@@ -87,7 +87,8 @@ module.exports = function(grunt) {
             files: files.polymerjs,
             options: {
                 jshintrc: '.jshintrc',
-                reporter: require('jshint-stylish')
+                reporter: require('jshint-stylish'),
+                verbose: true
             }
         },
         csslint: {
