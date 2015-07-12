@@ -146,25 +146,18 @@
         * @param {Object} mouse - the event details
         * @param {Array} keys - array of the keys that are currently pressed down
         */
-        handleMouseDragCellSelection: function(grid, mouse /* ,keys */ ) {
+        handleMouseDragCellSelection: function(grid, gridCell /* ,keys */ ) {
 
-            var scrollTop = grid.getVScrollValue();
-            var scrollLeft = grid.getHScrollValue();
-
-            var numFixedColumns = grid.getFixedColumnCount();
-            var numFixedRows = grid.getFixedRowCount();
-
-            var x = mouse.x - numFixedColumns;
-            var y = mouse.y - numFixedRows;
-
+            var x = gridCell.x;
+            var y = gridCell.y;
             x = Math.max(0, x);
             y = Math.max(0, y);
 
             var previousDragExtent = grid.getDragExtent();
             var mouseDown = grid.getMouseDown();
 
-            var newX = x + scrollLeft - mouseDown.x;
-            var newY = y + scrollTop - mouseDown.y;
+            var newX = x - mouseDown.x;
+            var newY = y - mouseDown.y;
 
             if (previousDragExtent.x === newX && previousDragExtent.y === newY) {
                 return;
@@ -172,10 +165,10 @@
 
             grid.clearMostRecentSelection();
 
-            grid.select(mouseDown.x, mouseDown.y, newX, newY);
+            console.log(newX, newY);
 
-            var newDragExtent = this.rectangles.point.create(newX, newY);
-            grid.setDragExtent(newDragExtent);
+            grid.select(mouseDown.x, mouseDown.y, newX, newY);
+            grid.setDragExtent(this.rectangles.point.create(newX, newY));
 
             grid.repaint();
         },
@@ -249,15 +242,15 @@
         extendSelection: function(grid, gridCell, keys) {
             var hasCTRL = keys.indexOf('CTRL') !== -1;
             var hasSHIFT = keys.indexOf('SHIFT') !== -1;
-            var scrollTop = grid.getVScrollValue();
-            var scrollLeft = grid.getHScrollValue();
+            // var scrollTop = grid.getVScrollValue();
+            // var scrollLeft = grid.getHScrollValue();
 
-            var numFixedColumns = grid.getFixedColumnCount();
-            var numFixedRows = grid.getFixedRowCount();
+            // var numFixedColumns = 0;//grid.getFixedColumnCount();
+            // var numFixedRows = 0;//grid.getFixedRowCount();
 
             var mousePoint = grid.getMouseDown();
-            var x = gridCell.x - numFixedColumns + scrollLeft;
-            var y = gridCell.y - numFixedRows + scrollTop;
+            var x = gridCell.x; // - numFixedColumns + scrollLeft;
+            var y = gridCell.y; // - numFixedRows + scrollTop;
 
             //were outside of the grid do nothing
             if (x < 0 || y < 0) {

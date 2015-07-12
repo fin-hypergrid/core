@@ -126,7 +126,7 @@
         beginEditAt: function(point) {
             this.setEditorPoint(point);
             var model = this.getBehavior();
-            var value = model._getValue(point.x, point.y);
+            var value = model.getValue(point.x, point.y);
             var proceed = this.grid.fireBeforeCellEdit(point, value);
             if (!proceed) {
                 //we were cancelled

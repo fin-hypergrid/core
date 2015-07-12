@@ -465,11 +465,16 @@ var merge = function(target, source) {
 
             var width = 0;
             var height = 0;
-            var x, y;
-            var c, r;
+            var x, y, c, r;
             var previous = 0;
-            for (c = 1; c < this.getColumnEdges().length; c++) {
-                width = this.getColumnEdges()[c];
+            var columnEdges = this.getColumnEdges();
+            var fixedColumnCount = this.getFixedColumnCount();
+            var fixedRowCount = this.getFixedRowCount();
+            var scrollX = this.getScrollLeft();
+            var scrollY = this.getScrollTop();
+
+            for (c = 0; c < columnEdges.length; c++) {
+                width = columnEdges[c];
                 if (point.x < width) {
                     x = Math.max(0, point.x - previous - 2);
                     break;
@@ -478,7 +483,7 @@ var merge = function(target, source) {
             }
             c--;
             previous = 0;
-            for (r = 1; r < this.rowEdges.length; r++) {
+            for (r = 0; r < this.rowEdges.length; r++) {
                 height = this.rowEdges[r];
                 if (point.y < height) {
                     y = Math.max(0, point.y - previous - 2);
@@ -493,9 +498,21 @@ var merge = function(target, source) {
             if (point.y < 0) {
                 r = -1;
             }
+
+            var viewPoint = this.g.point.create(c, r);
+
+            //compensate if we are scrolled
+            if (c >= fixedColumnCount) {
+                c = c + scrollX;
+            }
+            if (r >= fixedRowCount) {
+                r = r + scrollY;
+            }
+
             return {
                 gridCell: this.g.point.create(c, r),
-                mousePoint: this.g.point.create(x, y)
+                mousePoint: this.g.point.create(x, y),
+                viewPoint: viewPoint
             };
         },
 

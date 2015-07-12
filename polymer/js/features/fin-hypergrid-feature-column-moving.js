@@ -220,7 +220,7 @@
             var draggerStartX;
             var floaterStartX;
             var draggerWidth = grid.getColumnWidth(draggerIndex + scrollLeft);
-            var floaterWidth = grid.getColumnWidth(floaterIndex + scrollLeft);
+            //var floaterWidth = grid.getColumnWidth(floaterIndex + scrollLeft);
 
             var max = grid.getVisibleColumnsCount();
             if (draggedToTheRight) {
