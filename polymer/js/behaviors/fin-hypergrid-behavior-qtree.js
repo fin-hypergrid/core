@@ -147,12 +147,12 @@
         D: '-abs-down',
     };
 
-    var sortStates = {
-        n: 'a',
-        a: 'd',
-        d: 'A',
-        A: 'D',
-    };
+    // var sortStates = {
+    //     n: 'a',
+    //     a: 'd',
+    //     d: 'A',
+    //     A: 'D',
+    // };
 
     var imageMap = {
         u: 'up-rectangle',
@@ -544,35 +544,35 @@
             if (!this.getCanSort()) {
                 return;
             }
-            var sortBlob = this.block.sorts;
-            var sortIndex = sortBlob.cols.indexOf(colId);
+            // var sortBlob = this.block.sorts;
+            // var sortIndex = sortBlob.cols.indexOf(colId);
 
-            //lets get the current state or 'n' if it doesn't exist yet
-            var currentState = sortBlob.sorts[sortIndex] || 'n';
+            // //lets get the current state or 'n' if it doesn't exist yet
+            // var currentState = sortBlob.sorts[sortIndex] || 'n';
 
-            //lets set to the next state or undefined
-            var newState = sortStates[currentState];
+            // //lets set to the next state or undefined
+            // var newState = sortStates[currentState];
 
-            //remove this column from it's current order position
-            if (sortIndex > -1) {
-                sortBlob.cols.splice(sortIndex, 1);
-                sortBlob.sorts.splice(sortIndex, 1);
-            }
+            // //remove this column from it's current order position
+            // if (sortIndex > -1) {
+            //     sortBlob.cols.splice(sortIndex, 1);
+            //     sortBlob.sorts.splice(sortIndex, 1);
+            // }
 
-            //push to the front the new state
-            if (newState) {
-                sortBlob.cols.unshift(colId);
-                sortBlob.sorts.unshift(newState);
-            }
+            // //push to the front the new state
+            // if (newState) {
+            //     sortBlob.cols.unshift(colId);
+            //     sortBlob.sorts.unshift(newState);
+            // }
 
-            //ony 3 nested sorts allowed for now
-            sortBlob.cols.length = sortBlob.sorts.length = Math.min(3, sortBlob.cols.length);
+            // //ony 3 nested sorts allowed for now
+            // sortBlob.cols.length = sortBlob.sorts.length = Math.min(3, sortBlob.cols.length);
 
-            //lets tell Q now
+            // //lets tell Q now
             var msg = {
                 id: this.getNextMessageId(),
                 fn: 'sorts',
-                col: sortBlob.cols[0],
+                col: colId,
             };
 
             this.sendMessage(msg);
