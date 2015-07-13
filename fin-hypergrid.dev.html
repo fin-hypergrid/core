@@ -28498,8 +28498,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
             var msg = {
                 id: this.getNextMessageId(),
                 fn: 'sorts',
-                cols: sortBlob.cols,
-                sorts: sortBlob.sorts
+                col: sortBlob.cols[0],
             };
 
             this.sendMessage(msg);

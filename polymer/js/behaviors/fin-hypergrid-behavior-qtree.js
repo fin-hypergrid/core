@@ -572,8 +572,7 @@
             var msg = {
                 id: this.getNextMessageId(),
                 fn: 'sorts',
-                cols: sortBlob.cols,
-                sorts: sortBlob.sorts
+                col: sortBlob.cols[0],
             };
 
             this.sendMessage(msg);
