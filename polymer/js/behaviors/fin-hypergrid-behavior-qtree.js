@@ -396,10 +396,10 @@
          * @param {integer} y - the position in pixels
          */
         setScrollPositionY: function(y) {
-            if (this.scrollPositionY === y) {
+            if (this.getScrollPositionY() === y) {
                 return;
             }
-            this.scrollPositionY = y;
+            this.getDataModel().setScrollPositionY(y);
             if (!this.isConnected()) {
                 return;
             }
