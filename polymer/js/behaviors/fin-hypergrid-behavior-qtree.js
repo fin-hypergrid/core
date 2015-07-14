@@ -782,7 +782,7 @@
             if (!this.isCellClickEnabled()) {
                 return;
             }
-            if (cell.x <= this.getFixedColumnCount() || cell.y <= this.getFixedRowCount()) {
+            if (cell.x < this.getFixedColumnCount() || cell.y < this.getFixedRowCount()) {
                 return; //no grey area double clicking alowed
             }
             var rowNum = cell.y - this.getScrollPositionY();
