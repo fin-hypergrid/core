@@ -52,7 +52,7 @@
         },
 
         getColumnCount: function() {
-            return 300;
+            return 30;
         },
 
         getRowCount: function() {

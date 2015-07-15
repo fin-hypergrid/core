@@ -146,8 +146,8 @@ var merge = function(target, source) {
             this.renderedHeight = 0;
             this.rowEdges = [];
             this.rowEdgesIndexMap = {};
-            this.viewableColumns = [];
-            this.viewableRows = [];
+            this.visibleColumns = [];
+            this.visibleRows = [];
             this.insertionBounds = []; // this is the midpoint of each column, used for dnd
         },
 
@@ -180,8 +180,8 @@ var merge = function(target, source) {
             this.columnEdges[0] = 0;
             this.rowEdges[0] = 0;
 
-            this.viewableColumns.length = 0;
-            this.viewableRows.length = 0;
+            this.visibleColumns.length = 0;
+            this.visibleRows.length = 0;
             this.columnEdgesIndexMap = {};
             this.rowEdgesIndexMap = {};
 
@@ -201,7 +201,7 @@ var merge = function(target, source) {
                 width = this.getColumnWidth(vx);
                 x = x + width;
                 this.columnEdges[c + 1] = Math.round(x);
-                this.viewableColumns[c] = vx;
+                this.visibleColumns[c] = vx;
                 this.columnEdgesIndexMap[vx] = c;
 
                 insertionBoundsCursor = insertionBoundsCursor + Math.round(width / 2) + previousInsertionBoundsCursorValue;
@@ -221,13 +221,13 @@ var merge = function(target, source) {
                 height = this.getRowHeight(vy);
                 y = y + height;
                 this.rowEdges[r + 1] = Math.round(y);
-                this.viewableRows[r] = vy;
+                this.visibleRows[r] = vy;
                 this.rowEdgesIndexMap[vy] = r;
             }
             // console.log('cols', this.getColumnEdges());
             // console.log('rows', this.rowEdges);
-            // console.log('col#', this.viewableColumns);
-            // console.log('row#', this.viewableRows);
+            // console.log('col#', this.visibleColumns);
+            // console.log('row#', this.visibleRows);
             //console.log('ms', Date.now() - startTime);
         },
 
@@ -301,7 +301,7 @@ var merge = function(target, source) {
          * #### returns: integer
          */
         getVisibleRowsCount: function() {
-            return this.viewableRows.length;
+            return this.visibleRows.length;
         },
 
         /**
@@ -312,7 +312,7 @@ var merge = function(target, source) {
          * #### returns: Array
          */
         getVisibleRows: function() {
-            return this.viewableRows;
+            return this.visibleRows;
         },
 
         /**
@@ -323,7 +323,7 @@ var merge = function(target, source) {
          * #### returns: integer
          */
         getVisibleColumnsCount: function() {
-            return this.viewableColumns.length;
+            return this.visibleColumns.length;
         },
 
         /**
@@ -334,7 +334,7 @@ var merge = function(target, source) {
          * #### returns: Array
          */
         getVisibleColumns: function() {
-            return this.viewableColumns;
+            return this.visibleColumns;
         },
 
         /**
@@ -527,7 +527,7 @@ var merge = function(target, source) {
          * #### returns: boolean
          */
         isColumnVisible: function(colIndex) {
-            var isVisible = this.viewableColumns.indexOf(colIndex) !== -1;
+            var isVisible = this.visibleColumns.indexOf(colIndex) !== -1;
             return isVisible;
         },
 
@@ -558,7 +558,7 @@ var merge = function(target, source) {
          * #### returns: boolean
          */
         isRowVisible: function(rowIndex) {
-            var isVisible = this.viewableRows.indexOf(rowIndex) !== -1;
+            var isVisible = this.visibleRows.indexOf(rowIndex) !== -1;
             return isVisible;
         },
 
@@ -829,7 +829,7 @@ var merge = function(target, source) {
         */
         isLastColumnVisible: function() {
             var lastColumnIndex = this.getColumnCount() - 1;
-            var isMax = this.viewableColumns.indexOf(lastColumnIndex) !== -1;
+            var isMax = this.visibleColumns.indexOf(lastColumnIndex) !== -1;
             return isMax;
         },
 
@@ -890,7 +890,7 @@ var merge = function(target, source) {
             }
             var behavior = this.getBehavior();
             var h = this.renderedHeight;
-            var topRow = this.viewableRows[0];
+            var topRow = this.visibleRows[0];
             while (h > 0 && topRow >= 1) {
                 topRow--;
                 var eachHeight = behavior.getRowHeight(topRow);
@@ -938,7 +938,7 @@ var merge = function(target, source) {
             if (this.rowEdges.length === 0) {
                 return;
             }
-            var row = this.viewableRows[this.viewableRows.length - 1] + 1;
+            var row = this.visibleRows[this.visibleRows.length - 1] + 1;
             return row;
         },
 

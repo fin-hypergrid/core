@@ -15505,8 +15505,8 @@ var merge = function(target, source) {
             this.renderedHeight = 0;
             this.rowEdges = [];
             this.rowEdgesIndexMap = {};
-            this.viewableColumns = [];
-            this.viewableRows = [];
+            this.visibleColumns = [];
+            this.visibleRows = [];
             this.insertionBounds = []; // this is the midpoint of each column, used for dnd
         },
 
@@ -15539,8 +15539,8 @@ var merge = function(target, source) {
             this.columnEdges[0] = 0;
             this.rowEdges[0] = 0;
 
-            this.viewableColumns.length = 0;
-            this.viewableRows.length = 0;
+            this.visibleColumns.length = 0;
+            this.visibleRows.length = 0;
             this.columnEdgesIndexMap = {};
             this.rowEdgesIndexMap = {};
 
@@ -15560,7 +15560,7 @@ var merge = function(target, source) {
                 width = this.getColumnWidth(vx);
                 x = x + width;
                 this.columnEdges[c + 1] = Math.round(x);
-                this.viewableColumns[c] = vx;
+                this.visibleColumns[c] = vx;
                 this.columnEdgesIndexMap[vx] = c;
 
                 insertionBoundsCursor = insertionBoundsCursor + Math.round(width / 2) + previousInsertionBoundsCursorValue;
@@ -15580,13 +15580,13 @@ var merge = function(target, source) {
                 height = this.getRowHeight(vy);
                 y = y + height;
                 this.rowEdges[r + 1] = Math.round(y);
-                this.viewableRows[r] = vy;
+                this.visibleRows[r] = vy;
                 this.rowEdgesIndexMap[vy] = r;
             }
             // console.log('cols', this.getColumnEdges());
             // console.log('rows', this.rowEdges);
-            // console.log('col#', this.viewableColumns);
-            // console.log('row#', this.viewableRows);
+            // console.log('col#', this.visibleColumns);
+            // console.log('row#', this.visibleRows);
             //console.log('ms', Date.now() - startTime);
         },
 
@@ -15660,7 +15660,7 @@ var merge = function(target, source) {
          * #### returns: integer
          */
         getVisibleRowsCount: function() {
-            return this.viewableRows.length;
+            return this.visibleRows.length;
         },
 
         /**
@@ -15671,7 +15671,7 @@ var merge = function(target, source) {
          * #### returns: Array
          */
         getVisibleRows: function() {
-            return this.viewableRows;
+            return this.visibleRows;
         },
 
         /**
@@ -15682,7 +15682,7 @@ var merge = function(target, source) {
          * #### returns: integer
          */
         getVisibleColumnsCount: function() {
-            return this.viewableColumns.length;
+            return this.visibleColumns.length;
         },
 
         /**
@@ -15693,7 +15693,7 @@ var merge = function(target, source) {
          * #### returns: Array
          */
         getVisibleColumns: function() {
-            return this.viewableColumns;
+            return this.visibleColumns;
         },
 
         /**
@@ -15886,7 +15886,7 @@ var merge = function(target, source) {
          * #### returns: boolean
          */
         isColumnVisible: function(colIndex) {
-            var isVisible = this.viewableColumns.indexOf(colIndex) !== -1;
+            var isVisible = this.visibleColumns.indexOf(colIndex) !== -1;
             return isVisible;
         },
 
@@ -15917,7 +15917,7 @@ var merge = function(target, source) {
          * #### returns: boolean
          */
         isRowVisible: function(rowIndex) {
-            var isVisible = this.viewableRows.indexOf(rowIndex) !== -1;
+            var isVisible = this.visibleRows.indexOf(rowIndex) !== -1;
             return isVisible;
         },
 
@@ -16188,7 +16188,7 @@ var merge = function(target, source) {
         */
         isLastColumnVisible: function() {
             var lastColumnIndex = this.getColumnCount() - 1;
-            var isMax = this.viewableColumns.indexOf(lastColumnIndex) !== -1;
+            var isMax = this.visibleColumns.indexOf(lastColumnIndex) !== -1;
             return isMax;
         },
 
@@ -16249,7 +16249,7 @@ var merge = function(target, source) {
             }
             var behavior = this.getBehavior();
             var h = this.renderedHeight;
-            var topRow = this.viewableRows[0];
+            var topRow = this.visibleRows[0];
             while (h > 0 && topRow >= 1) {
                 topRow--;
                 var eachHeight = behavior.getRowHeight(topRow);
@@ -16297,7 +16297,7 @@ var merge = function(target, source) {
             if (this.rowEdges.length === 0) {
                 return;
             }
-            var row = this.viewableRows[this.viewableRows.length - 1] + 1;
+            var row = this.visibleRows[this.visibleRows.length - 1] + 1;
             return row;
         },
 
@@ -22556,7 +22556,7 @@ it contains all code/data that's necessary for easily implementing a virtual dat
                 columnProperties: [],
                 columnAutosized: [],
 
-                fixedColumnCount: 1,
+                fixedColumnCount: 10,
                 fixedRowCount: 1,
             };
         },
@@ -23779,81 +23779,81 @@ it contains all code/data that's necessary for easily implementing a virtual dat
             this.stateChanged();
         },
 
-        getTranslationInterface: function() {
-            if (!this.translationInterface) {
-                this.translationInterface = this.createTranslationInterface();
-            }
-            return this.translationInterface;
-        },
+        // getTranslationInterface: function() {
+        //     if (!this.translationInterface) {
+        //         this.translationInterface = this.createTranslationInterface();
+        //     }
+        //     return this.translationInterface;
+        // },
 
-        createTranslationInterface: function() {
-            var self = this;
-            var that = {
-                translateColumnIndex: function(x) {
-                    var tableState = self.getState();
-                    var indexes = tableState.columnIndexes;
-                    if (indexes.length === 0) {
-                        return x;
-                    }
-                    return indexes[x];
-                },
+        // createTranslationInterface: function() {
+        //     var self = this;
+        //     var that = {
+        //         translateColumnIndex: function(x) {
+        //             var tableState = self.getState();
+        //             var indexes = tableState.columnIndexes;
+        //             if (indexes.length === 0) {
+        //                 return x;
+        //             }
+        //             return indexes[x];
+        //         },
 
-                unTranslateColumnIndex: function(x) {
-                    var tableState = self.getState();
-                    return tableState.columnIndexes.indexOf(x);
-                },
+        //         unTranslateColumnIndex: function(x) {
+        //             var tableState = self.getState();
+        //             return tableState.columnIndexes.indexOf(x);
+        //         },
 
-                getValue: function(x, y) {
-                    x = this.translateColumnIndex(x);
-                    return self.getValue(x, y);
-                },
+        //         getValue: function(x, y) {
+        //             x = this.translateColumnIndex(x);
+        //             return self.getValue(x, y);
+        //         },
 
-                setValue: function(x, y, value) {
-                    x = this.translateColumnIndex(x);
-                    self.setValue(x, y, value);
-                },
+        //         setValue: function(x, y, value) {
+        //             x = this.translateColumnIndex(x);
+        //             self.setValue(x, y, value);
+        //         },
 
-                getColumnWidth: function(x) {
-                    x = this.translateColumnIndex(x);
-                    return self.getColumnWidth(x);
-                },
+        //         getColumnWidth: function(x) {
+        //             x = this.translateColumnIndex(x);
+        //             return self.getColumnWidth(x);
+        //         },
 
-                setColumnWidth: function(x, width) {
-                    x = this.translateColumnIndex(x);
-                    self.setColumnWidth(x, width);
-                    self.changed();
-                },
+        //         setColumnWidth: function(x, width) {
+        //             x = this.translateColumnIndex(x);
+        //             self.setColumnWidth(x, width);
+        //             self.changed();
+        //         },
 
-                getColumnEdge: function(x, renderer) {
-                    //x = this.translateColumnIndex(x);
-                    return renderer.columnEdges[x];
-                },
+        //         getColumnEdge: function(x, renderer) {
+        //             //x = this.translateColumnIndex(x);
+        //             return renderer.columnEdges[x];
+        //         },
 
-                getColumnAlignment: function(x) {
-                    x = this.translateColumnIndex(x);
-                    return self.getColumnAlignment(x);
-                },
+        //         getColumnAlignment: function(x) {
+        //             x = this.translateColumnIndex(x);
+        //             return self.getColumnAlignment(x);
+        //         },
 
-                getCellEditorAt: function(x, y) {
-                    noop(y);
-                    x = this.translateColumnIndex(x);
-                    return self.getCellEditorAt(x);
-                },
+        //         getCellEditorAt: function(x, y) {
+        //             noop(y);
+        //             x = this.translateColumnIndex(x);
+        //             return self.getCellEditorAt(x);
+        //         },
 
-                getColumnId: function(x) {
-                    x = this.translateColumnIndex(x);
-                    var col = self.getColumnId(x, 0);
-                    return col;
-                },
+        //         getColumnId: function(x) {
+        //             x = this.translateColumnIndex(x);
+        //             var col = self.getColumnId(x, 0);
+        //             return col;
+        //         },
 
-                getCursorAt: function(x /*, y */ ) {
-                    x = this.translateColumnIndex(x);
-                    var cursor = self.getCursorAt(x, 0);
-                    return cursor;
-                },
-            };
-            return that;
-        }
+        //         getCursorAt: function(x /*, y */ ) {
+        //             x = this.translateColumnIndex(x);
+        //             var cursor = self.getCursorAt(x, 0);
+        //             return cursor;
+        //         },
+        //     };
+        //     return that;
+        // }
     });
 })();
 </script>
@@ -23920,7 +23920,7 @@ it contains all code/data that's necessary for easily implementing a virtual dat
         },
 
         getColumnCount: function() {
-            return 300;
+            return 30;
         },
 
         getRowCount: function() {
@@ -24139,6 +24139,9 @@ it contains all code/data that's necessary for easily implementing a virtual dat
             return 1;
         },
 
+        getFixedRowCount: function() {
+            return 1;
+        },
     });
 
 })(); /* jslint ignore:line */
@@ -32883,13 +32886,13 @@ fin-vampire-bar {
                 return;
             }
 
-            var behavior = this.getBehavior();
+            //var behavior = this.getBehavior();
             var hovered = this.getHoverCell();
             var sy = this.getVScrollValue();
             var x = hovered.x;
-            if (hovered.x > -1) {
-                x = behavior.translateColumnIndex(hovered.x + this.getHScrollValue());
-            }
+            // if (hovered.x > -1) {
+            //     x = behavior.translateColumnIndex(hovered.x + this.getHScrollValue());
+            // }
             if (hovered.y < 0) {
                 sy = 0;
             }
@@ -33443,7 +33446,7 @@ fin-vampire-bar {
          * returns: anything
          */
         getValue: function(x, y) {
-            return this.translate().getValue(x, y);
+            return this.getBehavior().getValue(x, y);
         },
 
         /**
@@ -33457,11 +33460,11 @@ fin-vampire-bar {
          * @param {anything} value
          */
         setValue: function(x, y, value) {
-            this.translate().setValue(x, y, value);
+            this.getBehavior().setValue(x, y, value);
         },
 
         getColumnAlignment: function(c) {
-            return this.translate().getColumnAlignment(c);
+            return this.getBehavior().getColumnAlignment(c);
         },
 
         /**
@@ -33473,15 +33476,21 @@ fin-vampire-bar {
          *
          */
         synchronizeScrollingBoundries: function() {
+            //327/664
+            var behavior = this.getBehavior();
 
             var numColumns = this.getColumnCount();
             var numRows = this.getRowCount();
+
+            var numFixedColumns = this.getFixedColumnCount();
+            var numFixedRows = this.getFixedRowCount();
+
             var bounds = this.getBounds();
             if (!bounds) {
                 return;
             }
-            var scrollableHeight = bounds.height() - this.getFixedRowsHeight();
-            var scrollableWidth = bounds.width() - this.getFixedColumnsMaxWidth() - 200;
+            var scrollableHeight = bounds.height() - behavior.getFixedRowsMaxHeight() - 5; //5px padding at bottom and right side
+            var scrollableWidth = (bounds.width() - 200) - behavior.getFixedColumnsMaxWidth() - 5;
 
             var lastPageColumnCount = 0;
             var columnsWidth = 0;
@@ -33503,9 +33512,9 @@ fin-vampire-bar {
                 }
             }
 
-            this.sbVScrollConfig.rangeStop = this.getRowCount() - lastPageRowCount;
+            this.sbHScrollConfig.rangeStop = Math.max(0, numColumns - numFixedColumns - lastPageColumnCount - 1);
 
-            this.sbHScrollConfig.rangeStop = this.getColumnCount() - lastPageColumnCount;
+            this.sbVScrollConfig.rangeStop = Math.max(0, numRows - numFixedRows - lastPageRowCount);
 
             this.setVScrollValue(Math.min(this.getVScrollValue(), this.sbVScrollConfig.rangeStop));
             this.setHScrollValue(Math.min(this.getHScrollValue(), this.sbHScrollConfig.rangeStop));
@@ -33577,7 +33586,7 @@ fin-vampire-bar {
          * @param {integer} columnIndex - the untranslated column index
          */
         getColumnWidth: function(columnIndex) {
-            return this.translate().getColumnWidth(columnIndex);
+            return this.getBehavior().getColumnWidth(columnIndex);
         },
 
         /**
@@ -33590,11 +33599,11 @@ fin-vampire-bar {
          * @param {integer} columnWidth - the width in pixels
          */
         setColumnWidth: function(columnIndex, columnWidth) {
-            this.translate().setColumnWidth(columnIndex, columnWidth);
+            this.getBehavior().setColumnWidth(columnIndex, columnWidth);
         },
 
         getColumnEdge: function(c) {
-            return this.translate().getColumnEdge(c, this.getRenderer());
+            return this.getBehavior().getColumnEdge(c, this.getRenderer());
         },
 
         /**
@@ -33773,7 +33782,7 @@ fin-vampire-bar {
          * @param {y} y - the y coordinate
          */
         getCellEditorAt: function(x, y) {
-            return this.translate().getCellEditorAt(x, y);
+            return this.getBehavior().getCellEditorAt(x, y);
         },
 
         /**
@@ -33865,7 +33874,7 @@ fin-vampire-bar {
          *
          */
         updateCursor: function() {
-            var translate = this.translate();
+            var translate = this.getBehavior();
             var cursor = translate.getCursorAt(-1, -1);
             var hoverCell = this.getHoverCell();
             if (hoverCell && hoverCell.x > -1 && hoverCell.y > -1) {
@@ -33961,7 +33970,7 @@ fin-vampire-bar {
          */
         getRenderedData: function() {
             // assumes one row of headers
-            var behavior = this.translate();
+            var behavior = this.getBehavior();
             var renderer = this.getRenderer();
             var colCount = this.getColumnCount();
             var rowCount = renderer.getVisibleRows();
@@ -34187,11 +34196,11 @@ fin-vampire-bar {
             this.getBehavior().endDragColumnNotification();
         },
 
-        translate: function() {
-            var behavior = this.getBehavior();
-            var interfase = behavior.getTranslationInterface();
-            return interfase;
-        },
+        // translate: function() {
+        //     var behavior = this.getBehavior();
+        //     var interfase = behavior.getTranslationInterface();
+        //     return interfase;
+        // },
 
         getFixedColumnsMaxWidth: function() {
             return this.getBehavior().getFixedColumnsMaxWidth();

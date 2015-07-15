@@ -194,7 +194,7 @@ it contains all code/data that's necessary for easily implementing a virtual dat
                 columnProperties: [],
                 columnAutosized: [],
 
-                fixedColumnCount: 1,
+                fixedColumnCount: 10,
                 fixedRowCount: 1,
             };
         },
@@ -1417,80 +1417,80 @@ it contains all code/data that's necessary for easily implementing a virtual dat
             this.stateChanged();
         },
 
-        getTranslationInterface: function() {
-            if (!this.translationInterface) {
-                this.translationInterface = this.createTranslationInterface();
-            }
-            return this.translationInterface;
-        },
+        // getTranslationInterface: function() {
+        //     if (!this.translationInterface) {
+        //         this.translationInterface = this.createTranslationInterface();
+        //     }
+        //     return this.translationInterface;
+        // },
 
-        createTranslationInterface: function() {
-            var self = this;
-            var that = {
-                translateColumnIndex: function(x) {
-                    var tableState = self.getState();
-                    var indexes = tableState.columnIndexes;
-                    if (indexes.length === 0) {
-                        return x;
-                    }
-                    return indexes[x];
-                },
+        // createTranslationInterface: function() {
+        //     var self = this;
+        //     var that = {
+        //         translateColumnIndex: function(x) {
+        //             var tableState = self.getState();
+        //             var indexes = tableState.columnIndexes;
+        //             if (indexes.length === 0) {
+        //                 return x;
+        //             }
+        //             return indexes[x];
+        //         },
 
-                unTranslateColumnIndex: function(x) {
-                    var tableState = self.getState();
-                    return tableState.columnIndexes.indexOf(x);
-                },
+        //         unTranslateColumnIndex: function(x) {
+        //             var tableState = self.getState();
+        //             return tableState.columnIndexes.indexOf(x);
+        //         },
 
-                getValue: function(x, y) {
-                    x = this.translateColumnIndex(x);
-                    return self.getValue(x, y);
-                },
+        //         getValue: function(x, y) {
+        //             x = this.translateColumnIndex(x);
+        //             return self.getValue(x, y);
+        //         },
 
-                setValue: function(x, y, value) {
-                    x = this.translateColumnIndex(x);
-                    self.setValue(x, y, value);
-                },
+        //         setValue: function(x, y, value) {
+        //             x = this.translateColumnIndex(x);
+        //             self.setValue(x, y, value);
+        //         },
 
-                getColumnWidth: function(x) {
-                    x = this.translateColumnIndex(x);
-                    return self.getColumnWidth(x);
-                },
+        //         getColumnWidth: function(x) {
+        //             x = this.translateColumnIndex(x);
+        //             return self.getColumnWidth(x);
+        //         },
 
-                setColumnWidth: function(x, width) {
-                    x = this.translateColumnIndex(x);
-                    self.setColumnWidth(x, width);
-                    self.changed();
-                },
+        //         setColumnWidth: function(x, width) {
+        //             x = this.translateColumnIndex(x);
+        //             self.setColumnWidth(x, width);
+        //             self.changed();
+        //         },
 
-                getColumnEdge: function(x, renderer) {
-                    //x = this.translateColumnIndex(x);
-                    return renderer.columnEdges[x];
-                },
+        //         getColumnEdge: function(x, renderer) {
+        //             //x = this.translateColumnIndex(x);
+        //             return renderer.columnEdges[x];
+        //         },
 
-                getColumnAlignment: function(x) {
-                    x = this.translateColumnIndex(x);
-                    return self.getColumnAlignment(x);
-                },
+        //         getColumnAlignment: function(x) {
+        //             x = this.translateColumnIndex(x);
+        //             return self.getColumnAlignment(x);
+        //         },
 
-                getCellEditorAt: function(x, y) {
-                    noop(y);
-                    x = this.translateColumnIndex(x);
-                    return self.getCellEditorAt(x);
-                },
+        //         getCellEditorAt: function(x, y) {
+        //             noop(y);
+        //             x = this.translateColumnIndex(x);
+        //             return self.getCellEditorAt(x);
+        //         },
 
-                getColumnId: function(x) {
-                    x = this.translateColumnIndex(x);
-                    var col = self.getColumnId(x, 0);
-                    return col;
-                },
+        //         getColumnId: function(x) {
+        //             x = this.translateColumnIndex(x);
+        //             var col = self.getColumnId(x, 0);
+        //             return col;
+        //         },
 
-                getCursorAt: function(x /*, y */ ) {
-                    x = this.translateColumnIndex(x);
-                    var cursor = self.getCursorAt(x, 0);
-                    return cursor;
-                },
-            };
-            return that;
-        }
+        //         getCursorAt: function(x /*, y */ ) {
+        //             x = this.translateColumnIndex(x);
+        //             var cursor = self.getCursorAt(x, 0);
+        //             return cursor;
+        //         },
+        //     };
+        //     return that;
+        // }
     });
 })();

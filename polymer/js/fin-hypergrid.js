@@ -1810,13 +1810,13 @@
                 return;
             }
 
-            var behavior = this.getBehavior();
+            //var behavior = this.getBehavior();
             var hovered = this.getHoverCell();
             var sy = this.getVScrollValue();
             var x = hovered.x;
-            if (hovered.x > -1) {
-                x = behavior.translateColumnIndex(hovered.x + this.getHScrollValue());
-            }
+            // if (hovered.x > -1) {
+            //     x = behavior.translateColumnIndex(hovered.x + this.getHScrollValue());
+            // }
             if (hovered.y < 0) {
                 sy = 0;
             }
@@ -2370,7 +2370,7 @@
          * returns: anything
          */
         getValue: function(x, y) {
-            return this.translate().getValue(x, y);
+            return this.getBehavior().getValue(x, y);
         },
 
         /**
@@ -2384,11 +2384,11 @@
          * @param {anything} value
          */
         setValue: function(x, y, value) {
-            this.translate().setValue(x, y, value);
+            this.getBehavior().setValue(x, y, value);
         },
 
         getColumnAlignment: function(c) {
-            return this.translate().getColumnAlignment(c);
+            return this.getBehavior().getColumnAlignment(c);
         },
 
         /**
@@ -2400,15 +2400,21 @@
          *
          */
         synchronizeScrollingBoundries: function() {
+            //327/664
+            var behavior = this.getBehavior();
 
             var numColumns = this.getColumnCount();
             var numRows = this.getRowCount();
+
+            var numFixedColumns = this.getFixedColumnCount();
+            var numFixedRows = this.getFixedRowCount();
+
             var bounds = this.getBounds();
             if (!bounds) {
                 return;
             }
-            var scrollableHeight = bounds.height() - this.getFixedRowsHeight();
-            var scrollableWidth = bounds.width() - this.getFixedColumnsMaxWidth() - 200;
+            var scrollableHeight = bounds.height() - behavior.getFixedRowsMaxHeight() - 5; //5px padding at bottom and right side
+            var scrollableWidth = (bounds.width() - 200) - behavior.getFixedColumnsMaxWidth() - 5;
 
             var lastPageColumnCount = 0;
             var columnsWidth = 0;
@@ -2430,9 +2436,9 @@
                 }
             }
 
-            this.sbVScrollConfig.rangeStop = this.getRowCount() - lastPageRowCount;
+            this.sbHScrollConfig.rangeStop = Math.max(0, numColumns - numFixedColumns - lastPageColumnCount - 1);
 
-            this.sbHScrollConfig.rangeStop = this.getColumnCount() - lastPageColumnCount;
+            this.sbVScrollConfig.rangeStop = Math.max(0, numRows - numFixedRows - lastPageRowCount);
 
             this.setVScrollValue(Math.min(this.getVScrollValue(), this.sbVScrollConfig.rangeStop));
             this.setHScrollValue(Math.min(this.getHScrollValue(), this.sbHScrollConfig.rangeStop));
@@ -2504,7 +2510,7 @@
          * @param {integer} columnIndex - the untranslated column index
          */
         getColumnWidth: function(columnIndex) {
-            return this.translate().getColumnWidth(columnIndex);
+            return this.getBehavior().getColumnWidth(columnIndex);
         },
 
         /**
@@ -2517,11 +2523,11 @@
          * @param {integer} columnWidth - the width in pixels
          */
         setColumnWidth: function(columnIndex, columnWidth) {
-            this.translate().setColumnWidth(columnIndex, columnWidth);
+            this.getBehavior().setColumnWidth(columnIndex, columnWidth);
         },
 
         getColumnEdge: function(c) {
-            return this.translate().getColumnEdge(c, this.getRenderer());
+            return this.getBehavior().getColumnEdge(c, this.getRenderer());
         },
 
         /**
@@ -2700,7 +2706,7 @@
          * @param {y} y - the y coordinate
          */
         getCellEditorAt: function(x, y) {
-            return this.translate().getCellEditorAt(x, y);
+            return this.getBehavior().getCellEditorAt(x, y);
         },
 
         /**
@@ -2792,7 +2798,7 @@
          *
          */
         updateCursor: function() {
-            var translate = this.translate();
+            var translate = this.getBehavior();
             var cursor = translate.getCursorAt(-1, -1);
             var hoverCell = this.getHoverCell();
             if (hoverCell && hoverCell.x > -1 && hoverCell.y > -1) {
@@ -2888,7 +2894,7 @@
          */
         getRenderedData: function() {
             // assumes one row of headers
-            var behavior = this.translate();
+            var behavior = this.getBehavior();
             var renderer = this.getRenderer();
             var colCount = this.getColumnCount();
             var rowCount = renderer.getVisibleRows();
@@ -3114,11 +3120,11 @@
             this.getBehavior().endDragColumnNotification();
         },
 
-        translate: function() {
-            var behavior = this.getBehavior();
-            var interfase = behavior.getTranslationInterface();
-            return interfase;
-        },
+        // translate: function() {
+        //     var behavior = this.getBehavior();
+        //     var interfase = behavior.getTranslationInterface();
+        //     return interfase;
+        // },
 
         getFixedColumnsMaxWidth: function() {
             return this.getBehavior().getFixedColumnsMaxWidth();

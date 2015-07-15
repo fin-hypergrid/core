@@ -26,6 +26,9 @@
             return 1;
         },
 
+        getFixedRowCount: function() {
+            return 1;
+        },
     });
 
 })(); /* jslint ignore:line */
