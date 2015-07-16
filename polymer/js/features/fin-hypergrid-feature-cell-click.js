@@ -16,11 +16,9 @@
          * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
          * @param {Object} event - the event details
         */
-        handleTap: function(grid, event) {
-            var gridCell = event.gridCell;
-            var mouse = event.primitiveEvent.detail.mouse;
-            console.log(gridCell.x, gridCell.y);
-            console.log(mouse.x, mouse.y);
+        handleTap: function( /* grid, event */ ) {
+            // var gridCell = event.gridCell;
+            // var mouse = event.primitiveEvent.detail.mouse;
             //console.dir(event);
             // var fixedRowsHeight = grid.getFixedRowsHeight();
             // var fixedColsWidth = grid.getFixedColumnsWidth();

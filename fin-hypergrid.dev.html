@@ -17717,7 +17717,7 @@ var merge = function(target, source) {
          * @param {Object} event - the event details
         */
         isFixedRow: function(grid, event) {
-            var gridCell = event.gridCell;
+            var gridCell = event.viewPoint;
             var isFixed = gridCell.y < grid.getFixedRowCount();
             return isFixed;
         },
@@ -17731,7 +17731,7 @@ var merge = function(target, source) {
          * @param {Object} event - the event details
         */
         isFixedColumn: function(grid, event) {
-            var gridCell = event.gridCell;
+            var gridCell = event.viewPoint;
             var isFixed = gridCell.x < grid.getFixedColumnCount();
             return isFixed;
         },
@@ -18624,11 +18624,9 @@ var commands = {
          * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
          * @param {Object} event - the event details
         */
-        handleTap: function(grid, event) {
-            var gridCell = event.gridCell;
-            var mouse = event.primitiveEvent.detail.mouse;
-            console.log(gridCell.x, gridCell.y);
-            console.log(mouse.x, mouse.y);
+        handleTap: function( /* grid, event */ ) {
+            // var gridCell = event.gridCell;
+            // var mouse = event.primitiveEvent.detail.mouse;
             //console.dir(event);
             // var fixedRowsHeight = grid.getFixedRowsHeight();
             // var fixedColsWidth = grid.getFixedColumnsWidth();
@@ -20788,7 +20786,11 @@ var commands = {
         */
         setSize: function(grid, areaIndex, size) {
             var scrollValue = this.getScrollValue(grid);
-            this.setAreaSize(grid, areaIndex + scrollValue, size);
+            var otherFixedAreaCount = this.getOtherFixedAreaCount(grid);
+            if (areaIndex >= otherFixedAreaCount) {
+                areaIndex = areaIndex + scrollValue;
+            }
+            this.setAreaSize(grid, areaIndex, size);
         },
 
         /**
@@ -20825,8 +20827,9 @@ var commands = {
         */
         handleMouseDown: function(grid, event) {
             var gridCell = event.gridCell;
+            var otherFixedAreaCount = this.getOtherFixedAreaCount(grid);
             var overArea = this.overAreaDivider(grid, event);
-            if (overArea > -1 && this.getGridCellValue(gridCell) < this.getOtherFixedAreaCount(grid)) {
+            if (overArea > 0 && this.getGridCellValue(gridCell) < otherFixedAreaCount) {
                 var scrollValue = this.getScrollValue(grid);
                 this.dragIndex = overArea - 1;
                 this.dragStart = this.getMouseValue(event);
@@ -20893,7 +20896,7 @@ var commands = {
 
             //var gridCell = event.gridCell;
 
-            if (this.isFixedOtherArea(grid, event) && this.overAreaDivider(grid, event) > -1) {
+            if (this.isFixedOtherArea(grid, event) && this.overAreaDivider(grid, event) > 0) {
                 this.cursor = this.getCursorName();
             } else {
                 this.cursor = null;
@@ -23506,6 +23509,7 @@ it contains all code/data that's necessary for easily implementing a virtual dat
         setColumnWidth: function(x, width) {
             var tableState = this.getState();
             tableState.columnWidths[x] = Math.max(5, width);
+            console.log(x, width);
             this.stateChanged();
         },
 
@@ -24155,11 +24159,11 @@ it contains all code/data that's necessary for easily implementing a virtual dat
         * #### returns: integer
         */
         getFixedColumnCount: function() {
-            return 1;
+            return 3;
         },
 
         getFixedRowCount: function() {
-            return 1;
+            return 3;
         },
     });
 

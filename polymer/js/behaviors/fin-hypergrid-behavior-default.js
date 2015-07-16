@@ -23,11 +23,11 @@
         * #### returns: integer
         */
         getFixedColumnCount: function() {
-            return 1;
+            return 3;
         },
 
         getFixedRowCount: function() {
-            return 1;
+            return 3;
         },
     });
 

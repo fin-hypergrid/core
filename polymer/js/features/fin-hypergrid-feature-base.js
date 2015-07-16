@@ -278,7 +278,7 @@
          * @param {Object} event - the event details
         */
         isFixedRow: function(grid, event) {
-            var gridCell = event.gridCell;
+            var gridCell = event.viewPoint;
             var isFixed = gridCell.y < grid.getFixedRowCount();
             return isFixed;
         },
@@ -292,7 +292,7 @@
          * @param {Object} event - the event details
         */
         isFixedColumn: function(grid, event) {
-            var gridCell = event.gridCell;
+            var gridCell = event.viewPoint;
             var isFixed = gridCell.x < grid.getFixedColumnCount();
             return isFixed;
         },

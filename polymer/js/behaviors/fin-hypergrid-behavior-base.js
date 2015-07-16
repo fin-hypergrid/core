@@ -1125,6 +1125,7 @@ it contains all code/data that's necessary for easily implementing a virtual dat
         setColumnWidth: function(x, width) {
             var tableState = this.getState();
             tableState.columnWidths[x] = Math.max(5, width);
+            console.log(x, width);
             this.stateChanged();
         },
 

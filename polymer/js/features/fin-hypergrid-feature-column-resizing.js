@@ -171,7 +171,11 @@
         */
         setSize: function(grid, areaIndex, size) {
             var scrollValue = this.getScrollValue(grid);
-            this.setAreaSize(grid, areaIndex + scrollValue, size);
+            var otherFixedAreaCount = this.getOtherFixedAreaCount(grid);
+            if (areaIndex >= otherFixedAreaCount) {
+                areaIndex = areaIndex + scrollValue;
+            }
+            this.setAreaSize(grid, areaIndex, size);
         },
 
         /**
@@ -208,8 +212,9 @@
         */
         handleMouseDown: function(grid, event) {
             var gridCell = event.gridCell;
+            var otherFixedAreaCount = this.getOtherFixedAreaCount(grid);
             var overArea = this.overAreaDivider(grid, event);
-            if (overArea > -1 && this.getGridCellValue(gridCell) < this.getOtherFixedAreaCount(grid)) {
+            if (overArea > 0 && this.getGridCellValue(gridCell) < otherFixedAreaCount) {
                 var scrollValue = this.getScrollValue(grid);
                 this.dragIndex = overArea - 1;
                 this.dragStart = this.getMouseValue(event);
@@ -276,7 +281,7 @@
 
             //var gridCell = event.gridCell;
 
-            if (this.isFixedOtherArea(grid, event) && this.overAreaDivider(grid, event) > -1) {
+            if (this.isFixedOtherArea(grid, event) && this.overAreaDivider(grid, event) > 0) {
                 this.cursor = this.getCursorName();
             } else {
                 this.cursor = null;
