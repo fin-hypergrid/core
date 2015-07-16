@@ -76,6 +76,10 @@
          * @param {integer} ey - extent y coordinate
          */
         select: function(ox, oy, ex, ey) {
+            if (ey < -3) {
+                console.log('halt');
+            }
+            console.log(ox, oy, ex, ey);
             var newSelection = this.rectangles.rectangle.create(ox, oy, ex, ey);
             this.selections.push(newSelection);
             this.flattenedX.push(newSelection.flattenXAt(0));

@@ -1691,7 +1691,7 @@
          * @param {integer} rowIndex - the column index in question
          * @param {integer} offsetX - the direction and magnitude to scroll if we need to
          */
-        insureModelRowIsViewable: function(rowIndex, offsetY) {
+        insureModelRowIsVisible: function(rowIndex, offsetY) {
             //-1 because we want only fully visible rows, don't include partially
             //viewable rows
             var visibleRows = this.getVisibleRows() - 1;
@@ -1777,8 +1777,11 @@
 
          */
         getBoundsOfCell: function(cell) {
-            var bounds = this.getRenderer().getBoundsOfCell(cell);
-            return bounds;
+            var b = this.getRenderer().getBoundsOfCell(cell);
+
+            //we need to convert this to a proper rectangle
+            var newBounds = rectangles.rectangle.create(b.x, b.y, b.width, b.height);
+            return newBounds;
         },
 
         /**
@@ -3128,6 +3131,13 @@
 
         getFixedColumnsMaxWidth: function() {
             return this.getBehavior().getFixedColumnsMaxWidth();
+        },
+
+        isMouseDownInFixedArea: function() {
+            var numFixedColumns = this.getFixedColumnCount();
+            var numFixedRows = this.getFixedRowCount();
+            var mouseDown = this.getMouseDown();
+            return mouseDown.x < numFixedColumns || mouseDown.y < numFixedRows;
         }
 
     });
