@@ -156,6 +156,8 @@
             var previousDragExtent = grid.getDragExtent();
             var mouseDown = grid.getMouseDown();
 
+            //var scrollingNow = grid.isScrollingNow();
+
             var newX = x - mouseDown.x;
             var newY = y - mouseDown.y;
 
@@ -164,8 +166,6 @@
             }
 
             grid.clearMostRecentSelection();
-
-            console.log(newX, newY);
 
             grid.select(mouseDown.x, mouseDown.y, newX, newY);
             grid.setDragExtent(this.rectangles.point.create(newX, newY));
@@ -224,6 +224,7 @@
                 yOffset = 1;
             }
 
+            this.lastDragCell = this.lastDragCell.plusXY(xOffset, yOffset);
             grid.scrollBy(xOffset, yOffset);
             this.handleMouseDragCellSelection(grid, this.lastDragCell, []); // update the selection
             grid.repaint();

@@ -236,6 +236,7 @@
                 event.primitiveEvent.stopPropagation();
                 //delay here to give other events a chance to be dropped
                 var self = this;
+                grid.synchronizeScrollingBoundries();
                 setTimeout(function() {
                     self.attachChain();
                 }, 200);

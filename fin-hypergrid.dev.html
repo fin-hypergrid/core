@@ -12310,10 +12310,23 @@ scope.importElements = importElements;
          * @returns {point} point object.
          */
         that.plus = function(point) {
-            var result = createPoint(this.x + point.x, y + point.y);
+            var result = createPoint(this.x + point.x, this.y + point.y);
             return result;
         };
 
+        /**
+         *                                                                      .
+         *                                                                      .
+         * returns an instance of point that is the sum of self and the argument.
+         *
+         * @method point.plus(point)
+         * @param {point} a point to add to self
+         * @returns {point} point object.
+         */
+        that.plusXY = function(newX, newY) {
+            var result = createPoint(this.x + newX, this.y + newY);
+            return result;
+        };
 
         /**
          *                                                                      .
@@ -12325,7 +12338,7 @@ scope.importElements = importElements;
          * @returns {point} point object.
          */
         that.minus = function(point) {
-            var result = createPoint(x - point.x, y - point.y);
+            var result = createPoint(this.x - point.x, this.y - point.y);
             return result;
         };
 
@@ -12340,7 +12353,7 @@ scope.importElements = importElements;
          * @returns {point} point object.
          */
         that.min = function(point) {
-            var result = createPoint(Math.min(x, point.x), Math.min(y, point.y));
+            var result = createPoint(Math.min(this.x, point.x), Math.min(this.y, point.y));
             return result;
         };
 
@@ -12355,7 +12368,7 @@ scope.importElements = importElements;
          * @returns {point} point object.
          */
         that.max = function(point) {
-            var result = createPoint(Math.max(x, point.x), Math.max(y, point.y));
+            var result = createPoint(Math.max(this.x, point.x), Math.max(this.y, point.y));
             return result;
         };
 
@@ -12369,8 +12382,8 @@ scope.importElements = importElements;
          * @returns {Number} number object.
          */
         that.distance = function(point) {
-            var dx = point.x - x,
-                dy = point.y - y,
+            var dx = point.x - this.x,
+                dy = point.y - this.y,
                 result = Math.sqrt((dx * dx) + (dy * dy));
             return result;
         };
@@ -12385,7 +12398,7 @@ scope.importElements = importElements;
          * @returns {boolean} boolean value.
          */
         that.greaterThan = function(point) {
-            var result = this.x > point.x && y > point.y;
+            var result = this.x > point.x && this.y > point.y;
             return result;
         };
 
@@ -12399,7 +12412,7 @@ scope.importElements = importElements;
          * @returns {boolean} boolean value.
          */
         that.lessThan = function(point) {
-            var result = this.x < point.x && y < point.y;
+            var result = this.x < point.x && this.y < point.y;
             return result;
         };
 
@@ -12413,7 +12426,7 @@ scope.importElements = importElements;
          * @returns {boolean} boolean value.
          */
         that.greaterThanEqualTo = function(point) {
-            var result = this.x >= point.x && y >= point.y;
+            var result = this.x >= point.x && this.y >= point.y;
             return result;
         };
 
@@ -12427,7 +12440,7 @@ scope.importElements = importElements;
          * @returns {boolean} boolean value.
          */
         that.lessThanEqualTo = function(point) {
-            var result = this.x <= point.x && y <= point.y;
+            var result = this.x <= point.x && this.y <= point.y;
             return result;
         };
         that.isContainedWithinRectangle = function(rect) {
@@ -15827,8 +15840,8 @@ var merge = function(target, source) {
             var x, y, c, r;
             var previous = 0;
             var columnEdges = this.getColumnEdges();
-            var fixedColumnCount = this.getFixedColumnCount();
-            var fixedRowCount = this.getFixedRowCount();
+            // var fixedColumnCount = this.getFixedColumnCount();
+            // var fixedRowCount = this.getFixedRowCount();
             var scrollX = this.getScrollLeft();
             var scrollY = this.getScrollTop();
 
@@ -15861,12 +15874,16 @@ var merge = function(target, source) {
             var viewPoint = this.g.point.create(c, r);
 
             //compensate if we are scrolled
-            if (c >= fixedColumnCount) {
-                c = c + scrollX;
-            }
-            if (r >= fixedRowCount) {
-                r = r + scrollY;
-            }
+            // if (c >= fixedColumnCount) {
+            //     c = c + scrollX;
+            // }
+            // if (r >= fixedRowCount) {
+            //     r = r + scrollY;
+            // }
+
+            c = c + scrollX;
+            r = r + scrollY;
+
 
             return {
                 gridCell: this.g.point.create(c, r),
@@ -18965,6 +18982,8 @@ var commands = {
             var previousDragExtent = grid.getDragExtent();
             var mouseDown = grid.getMouseDown();
 
+            //var scrollingNow = grid.isScrollingNow();
+
             var newX = x - mouseDown.x;
             var newY = y - mouseDown.y;
 
@@ -18973,8 +18992,6 @@ var commands = {
             }
 
             grid.clearMostRecentSelection();
-
-            console.log(newX, newY);
 
             grid.select(mouseDown.x, mouseDown.y, newX, newY);
             grid.setDragExtent(this.rectangles.point.create(newX, newY));
@@ -19033,6 +19050,7 @@ var commands = {
                 yOffset = 1;
             }
 
+            this.lastDragCell = this.lastDragCell.plusXY(xOffset, yOffset);
             grid.scrollBy(xOffset, yOffset);
             this.handleMouseDragCellSelection(grid, this.lastDragCell, []); // update the selection
             grid.repaint();
@@ -20835,6 +20853,7 @@ var commands = {
                 event.primitiveEvent.stopPropagation();
                 //delay here to give other events a chance to be dropped
                 var self = this;
+                grid.synchronizeScrollingBoundries();
                 setTimeout(function() {
                     self.attachChain();
                 }, 200);
