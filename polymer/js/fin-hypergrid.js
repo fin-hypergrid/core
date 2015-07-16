@@ -1672,8 +1672,8 @@
         insureModelColIsVisible: function(colIndex, offsetX) {
             //-1 because we want only fully visible columns, don't include partially
             //visible columns
-            var visibleColumns = this.getVisibleColumns() - 1;
-            if (!this.isColumnVisible(colIndex)) {
+            if (!this.isColumnVisible(colIndex + 1)) {
+                var visibleColumns = this.getVisibleColumnsCount() - 1;
                 //the scroll position is the leftmost column
                 var newSX = offsetX < 0 ? colIndex : colIndex - visibleColumns;
                 this.setHScrollValue(newSX);
@@ -1694,9 +1694,9 @@
         insureModelRowIsVisible: function(rowIndex, offsetY) {
             //-1 because we want only fully visible rows, don't include partially
             //viewable rows
-            var visibleRows = this.getVisibleRows() - 1;
-            if (!this.isDataRowVisible(rowIndex)) {
+            if (!this.isDataRowVisible(rowIndex + 1)) {
                 //the scroll position is the topmost row
+                var visibleRows = this.getVisibleRowsCount() - 1;
                 var newSY = offsetY < 0 ? rowIndex : rowIndex - visibleRows;
                 this.setVScrollValue(newSY);
                 return true;
@@ -2439,7 +2439,7 @@
                 }
             }
 
-            this.sbHScrollConfig.rangeStop = Math.max(0, numColumns - numFixedColumns - lastPageColumnCount - 1);
+            this.sbHScrollConfig.rangeStop = Math.max(0, numColumns - numFixedColumns - lastPageColumnCount);
 
             this.sbVScrollConfig.rangeStop = Math.max(0, numRows - numFixedRows - lastPageRowCount);
 

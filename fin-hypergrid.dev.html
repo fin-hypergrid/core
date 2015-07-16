@@ -15673,7 +15673,7 @@ var merge = function(target, source) {
          * #### returns: integer
          */
         getVisibleRowsCount: function() {
-            return this.visibleRows.length;
+            return this.visibleRows.length - 1;
         },
 
         /**
@@ -15695,7 +15695,7 @@ var merge = function(target, source) {
          * #### returns: integer
          */
         getVisibleColumnsCount: function() {
-            return this.visibleColumns.length;
+            return this.visibleColumns.length - 1;
         },
 
         /**
@@ -15967,7 +15967,7 @@ var merge = function(target, source) {
 
             this.paintCells(gc);
             this.paintGridlines(gc);
-            this.blankOutOverflow(gc);
+            //this.blankOutOverflow(gc); // no longer needed
             this.renderOverrides(gc);
             gc.closePath();
         },
@@ -15993,13 +15993,13 @@ var merge = function(target, source) {
         */
         blankOutOverflow: function(gc) {
             var isMaxX = this.isLastColumnVisible();
-            var chop = isMaxX ? 2 : 1;
+            var chop = isMaxX ? 1 : 0;
             var x = this.getColumnEdges()[this.getColumnEdges().length - chop];
             var bounds = this.getGrid().getBoundingClientRect();
             var width = bounds.width - x;
             var height = bounds.height;
             gc.fillStyle = this.resolveProperty('backgroundColor2');
-            gc.fillRect(x, 0, width, height);
+            gc.fillRect(x + 1, 0, width, height);
         },
 
         /**
@@ -16735,7 +16735,6 @@ var merge = function(target, source) {
             if (ey < -3) {
                 console.log('halt');
             }
-            console.log(ox, oy, ex, ey);
             var newSelection = this.rectangles.rectangle.create(ox, oy, ex, ey);
             this.selections.push(newSelection);
             this.flattenedX.push(newSelection.flattenXAt(0));
@@ -18917,7 +18916,6 @@ var commands = {
             var primEvent = event.primitiveEvent;
             var keys = primEvent.detail.keys;
             this.dragging = true;
-            console.log(cell.x, cell.y);
             this.extendSelection(grid, cell, keys);
         },
 
@@ -19363,8 +19361,8 @@ var commands = {
             var maxColumns = grid.getColumnCount() - 1;
             var maxRows = grid.getRowCount() - 1;
 
-            var maxViewableColumns = grid.getVisibleColumns() - 1;
-            var maxViewableRows = grid.getVisibleRows() - 1;
+            var maxViewableColumns = grid.getVisibleColumnsCount() - 1;
+            var maxViewableRows = grid.getVisibleRowsCount() - 1;
 
             if (!grid.resolveProperty('scrollingEnabled')) {
                 maxColumns = Math.min(maxColumns, maxViewableColumns);
@@ -23986,12 +23984,12 @@ it contains all code/data that's necessary for easily implementing a virtual dat
         },
 
         getColumnCount: function() {
-            return 30;
+            return 53;
         },
 
         getRowCount: function() {
             //jeepers batman a quadrillion rows!
-            return 100000;
+            return 53;
         }
     });
 
@@ -32814,8 +32812,8 @@ fin-vampire-bar {
         insureModelColIsVisible: function(colIndex, offsetX) {
             //-1 because we want only fully visible columns, don't include partially
             //visible columns
-            var visibleColumns = this.getVisibleColumns() - 1;
-            if (!this.isColumnVisible(colIndex)) {
+            if (!this.isColumnVisible(colIndex + 1)) {
+                var visibleColumns = this.getVisibleColumnsCount() - 1;
                 //the scroll position is the leftmost column
                 var newSX = offsetX < 0 ? colIndex : colIndex - visibleColumns;
                 this.setHScrollValue(newSX);
@@ -32836,9 +32834,9 @@ fin-vampire-bar {
         insureModelRowIsVisible: function(rowIndex, offsetY) {
             //-1 because we want only fully visible rows, don't include partially
             //viewable rows
-            var visibleRows = this.getVisibleRows() - 1;
-            if (!this.isDataRowVisible(rowIndex)) {
+            if (!this.isDataRowVisible(rowIndex + 1)) {
                 //the scroll position is the topmost row
+                var visibleRows = this.getVisibleRowsCount() - 1;
                 var newSY = offsetY < 0 ? rowIndex : rowIndex - visibleRows;
                 this.setVScrollValue(newSY);
                 return true;
@@ -33581,7 +33579,7 @@ fin-vampire-bar {
                 }
             }
 
-            this.sbHScrollConfig.rangeStop = Math.max(0, numColumns - numFixedColumns - lastPageColumnCount - 1);
+            this.sbHScrollConfig.rangeStop = Math.max(0, numColumns - numFixedColumns - lastPageColumnCount);
 
             this.sbVScrollConfig.rangeStop = Math.max(0, numRows - numFixedRows - lastPageRowCount);
 

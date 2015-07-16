@@ -52,12 +52,12 @@
         },
 
         getColumnCount: function() {
-            return 30;
+            return 53;
         },
 
         getRowCount: function() {
             //jeepers batman a quadrillion rows!
-            return 100000;
+            return 53;
         }
     });
 

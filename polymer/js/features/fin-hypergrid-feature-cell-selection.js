@@ -89,7 +89,6 @@
             var primEvent = event.primitiveEvent;
             var keys = primEvent.detail.keys;
             this.dragging = true;
-            console.log(cell.x, cell.y);
             this.extendSelection(grid, cell, keys);
         },
 
@@ -535,8 +534,8 @@
             var maxColumns = grid.getColumnCount() - 1;
             var maxRows = grid.getRowCount() - 1;
 
-            var maxViewableColumns = grid.getVisibleColumns() - 1;
-            var maxViewableRows = grid.getVisibleRows() - 1;
+            var maxViewableColumns = grid.getVisibleColumnsCount() - 1;
+            var maxViewableRows = grid.getVisibleRowsCount() - 1;
 
             if (!grid.resolveProperty('scrollingEnabled')) {
                 maxColumns = Math.min(maxColumns, maxViewableColumns);

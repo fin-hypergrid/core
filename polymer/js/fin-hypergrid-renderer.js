@@ -301,7 +301,7 @@ var merge = function(target, source) {
          * #### returns: integer
          */
         getVisibleRowsCount: function() {
-            return this.visibleRows.length;
+            return this.visibleRows.length - 1;
         },
 
         /**
@@ -323,7 +323,7 @@ var merge = function(target, source) {
          * #### returns: integer
          */
         getVisibleColumnsCount: function() {
-            return this.visibleColumns.length;
+            return this.visibleColumns.length - 1;
         },
 
         /**
@@ -595,7 +595,7 @@ var merge = function(target, source) {
 
             this.paintCells(gc);
             this.paintGridlines(gc);
-            this.blankOutOverflow(gc);
+            //this.blankOutOverflow(gc); // no longer needed
             this.renderOverrides(gc);
             gc.closePath();
         },
@@ -621,13 +621,13 @@ var merge = function(target, source) {
         */
         blankOutOverflow: function(gc) {
             var isMaxX = this.isLastColumnVisible();
-            var chop = isMaxX ? 2 : 1;
+            var chop = isMaxX ? 1 : 0;
             var x = this.getColumnEdges()[this.getColumnEdges().length - chop];
             var bounds = this.getGrid().getBoundingClientRect();
             var width = bounds.width - x;
             var height = bounds.height;
             gc.fillStyle = this.resolveProperty('backgroundColor2');
-            gc.fillRect(x, 0, width, height);
+            gc.fillRect(x + 1, 0, width, height);
         },
 
         /**
