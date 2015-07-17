@@ -1672,11 +1672,16 @@
         insureModelColIsVisible: function(colIndex, offsetX) {
             //-1 because we want only fully visible columns, don't include partially
             //visible columns
-            if (!this.isColumnVisible(colIndex + 1)) {
-                var visibleColumns = this.getVisibleColumnsCount() - 1;
-                //the scroll position is the leftmost column
-                var newSX = offsetX < 0 ? colIndex : colIndex - visibleColumns;
-                this.setHScrollValue(newSX);
+            var maxCols = this.getColumnCount() - 1;
+            var indexToCheck = colIndex;
+
+            if (offsetX > 0) {
+                indexToCheck++;
+            }
+
+            if (!this.isColumnVisible(indexToCheck) || colIndex === maxCols) {
+                //the scroll position is the leftmost column {
+                this.scrollBy(offsetX, 0);
                 return true;
             }
             return false;
@@ -1694,11 +1699,16 @@
         insureModelRowIsVisible: function(rowIndex, offsetY) {
             //-1 because we want only fully visible rows, don't include partially
             //viewable rows
-            if (!this.isDataRowVisible(rowIndex + 1)) {
+            var maxRows = this.getRowCount() - 1;
+            var indexToCheck = rowIndex;
+
+            if (offsetY > 0) {
+                indexToCheck++;
+            }
+
+            if (!this.isDataRowVisible(indexToCheck) || rowIndex === maxRows) {
                 //the scroll position is the topmost row
-                var visibleRows = this.getVisibleRowsCount() - 1;
-                var newSY = offsetY < 0 ? rowIndex : rowIndex - visibleRows;
-                this.setVScrollValue(newSY);
+                this.scrollBy(0, offsetY);
                 return true;
             }
             return false;

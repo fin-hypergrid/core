@@ -80,16 +80,25 @@
 
             var cell = event.gridCell;
             var viewCell = event.viewPoint;
+            var dx = cell.x;
+            var dy = cell.y;
 
             //if we are in the fixed area do not apply the scroll values
-            if (viewCell.x < numFixedColumns || viewCell.y < numFixedRows) {
-                cell = viewCell;
+            //check both x and y values independently
+            if (viewCell.x < numFixedColumns) {
+                dx = viewCell.x;
             }
+
+            if (viewCell.y < numFixedRows) {
+                dy = viewCell.y;
+            }
+
+            var dCell = grid.rectangles.point.create(dx, dy);
 
             var primEvent = event.primitiveEvent;
             var keys = primEvent.detail.keys;
             this.dragging = true;
-            this.extendSelection(grid, cell, keys);
+            this.extendSelection(grid, dCell, keys);
         },
 
         /**
