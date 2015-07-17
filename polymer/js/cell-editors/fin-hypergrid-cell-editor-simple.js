@@ -126,14 +126,14 @@
         */
         setBounds: function(cellBounds) {
             var originOffset = this.originOffset();
-            var translation = 'translate(' + (cellBounds.origin.x + originOffset[0]) + 'px,' + (cellBounds.origin.y + originOffset[1]) + 'px)';
+            var translation = 'translate(' + (cellBounds.x + originOffset[0]) + 'px,' + (cellBounds.y + originOffset[1]) + 'px)';
             this.input.style.webkitTransform = translation;
             this.input.style.MozTransform = translation;
             this.input.style.msTransform = translation;
             this.input.style.OTransform = translation;
 
-            this.input.style.width = cellBounds.extent.x + 'px';
-            this.input.style.height = cellBounds.extent.y + 'px';
+            this.input.style.width = cellBounds.width + 'px';
+            this.input.style.height = cellBounds.height + 'px';
         }
 
     });

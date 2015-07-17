@@ -215,7 +215,7 @@
             if (value === this.initialValue) {
                 return; //data didn't change do nothing
             }
-            this.getBehavior()._setValue(point.x, point.y, value);
+            this.getBehavior().setValue(point.x, point.y, value);
             this.grid.fireAfterCellEdit(point, this.initialValue, value);
         },
 
@@ -247,17 +247,8 @@
         move the editor to the current editor point
         */
         moveEditor: function() {
-            var model = this.getBehavior();
-            var numFixedColumns = model.getFixedColumnCount();
-            var numFixedRows = model.getFixedRowCount();
-            var vScroll = this.grid.getVScrollValue();
-            var hScroll = this.grid.getHScrollValue();
             var editorPoint = this.getEditorPoint();
-            var x = editorPoint.x + numFixedColumns - hScroll;
-            var y = editorPoint.y + numFixedRows - vScroll;
-            var eb = this.grid.getBoundsOfCell(this.rectangles.point.create(x, y));
-            var db = this.grid.getDataBounds();
-            var cellBounds = eb.intersect(db);
+            var cellBounds = this.getGrid().getBoundsOfCell(editorPoint.x, editorPoint.y);
             this.setBounds(cellBounds);
             this.takeFocus();
         },
@@ -295,6 +286,9 @@
             } else {
                 this.hideEditor();
             }
+        },
+        getGrid: function() {
+            return this.grid;
         }
 
     });

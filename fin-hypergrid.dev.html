@@ -15840,6 +15840,8 @@ var merge = function(target, source) {
             var x, y, c, r;
             var previous = 0;
             var columnEdges = this.getColumnEdges();
+            var fixedColumnCount = this.getFixedColumnCount();
+            var fixedRowCount = this.getFixedRowCount();
             // var fixedColumnCount = this.getFixedColumnCount();
             // var fixedRowCount = this.getFixedRowCount();
             var scrollX = this.getScrollLeft();
@@ -15874,15 +15876,15 @@ var merge = function(target, source) {
             var viewPoint = this.g.point.create(c, r);
 
             //compensate if we are scrolled
-            // if (c >= fixedColumnCount) {
-            //     c = c + scrollX;
-            // }
-            // if (r >= fixedRowCount) {
-            //     r = r + scrollY;
-            // }
+            if (c >= fixedColumnCount) {
+                c = c + scrollX;
+            }
+            if (r >= fixedRowCount) {
+                r = r + scrollY;
+            }
 
-            c = c + scrollX;
-            r = r + scrollY;
+            // c = c + scrollX;
+            // r = r + scrollY;
 
 
             return {
