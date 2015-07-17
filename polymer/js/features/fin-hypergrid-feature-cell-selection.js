@@ -250,15 +250,15 @@
                 if (this.currentDrag.x < b.origin.x) {
                     xOffset = -1;
                 }
-                if (this.currentDrag.x > b.origin.x + b.extent.x) {
-                    xOffset = 1;
-                }
                 if (this.currentDrag.y < b.origin.y) {
                     yOffset = -1;
                 }
-                if (this.currentDrag.y > b.origin.y + b.extent.y) {
-                    yOffset = 1;
-                }
+            }
+            if (this.currentDrag.x > b.origin.x + b.extent.x) {
+                xOffset = 1;
+            }
+            if (this.currentDrag.y > b.origin.y + b.extent.y) {
+                yOffset = 1;
             }
 
             var dragCellOffsetX = xOffset;

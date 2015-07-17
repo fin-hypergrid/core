@@ -374,6 +374,9 @@
          */
         isScrollButtonClick: false,
 
+
+        scrollingNow: false,
+
         /**
          * @function
          * @private
@@ -1561,13 +1564,13 @@
          */
         getDataBounds: function() {
             var colDNDHackWidth = 200; //this was a hack to help with column dnd, need to factor this into a shared variable
-            var behavior = this.getBehavior();
+            //var behavior = this.getBehavior();
             var b = this.canvas.bounds;
 
-            var x = behavior.getFixedColumnsWidth() + 2;
-            var y = behavior.getFixedRowsHeight() + 2;
+            // var x = behavior.getFixedColumnsWidth() + 2;
+            // var y = behavior.getFixedRowsHeight() + 2;
 
-            var result = rectangles.rectangle.create(x, y, b.origin.x + b.extent.x - x - colDNDHackWidth, b.origin.y + b.extent.y - y);
+            var result = rectangles.rectangle.create(0, 0, b.origin.x + b.extent.x - colDNDHackWidth, b.origin.y + b.extent.y);
             return result;
         },
 
