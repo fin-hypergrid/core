@@ -3152,7 +3152,7 @@
             var mouseDown = this.getMouseDown();
             return mouseDown.x < numFixedColumns || mouseDown.y < numFixedRows;
         },
-        getBoundsOfCell: function(x, y) {
+        _getBoundsOfCell: function(x, y) {
             var bounds = this.getRenderer()._getBoundsOfCell(x, y);
             return bounds;
         }

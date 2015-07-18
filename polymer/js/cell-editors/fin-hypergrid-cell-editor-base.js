@@ -248,7 +248,7 @@
         */
         moveEditor: function() {
             var editorPoint = this.getEditorPoint();
-            var cellBounds = this.getGrid().getBoundsOfCell(editorPoint.x, editorPoint.y);
+            var cellBounds = this.getGrid()._getBoundsOfCell(editorPoint.x, editorPoint.y);
             this.setBounds(cellBounds);
             this.takeFocus();
         },

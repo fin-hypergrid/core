@@ -126,8 +126,8 @@
         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
         * @param {Object} event - the event details
         */
-        isFixedOtherArea: function(grid, event) {
-            return this.isFixedRow(grid, event);
+        isFirstFixedOtherArea: function(grid, event) {
+            return this.isFirstFixedRow(grid, event);
         },
 
         /**
@@ -279,9 +279,7 @@
         */
         checkForAreaResizeCursorChange: function(grid, event) {
 
-            //var gridCell = event.gridCell;
-
-            if (this.isFixedOtherArea(grid, event) && this.overAreaDivider(grid, event) > 0) {
+            if (this.isFirstFixedOtherArea(grid, event) && this.overAreaDivider(grid, event) > 0) {
                 this.cursor = this.getCursorName();
             } else {
                 this.cursor = null;

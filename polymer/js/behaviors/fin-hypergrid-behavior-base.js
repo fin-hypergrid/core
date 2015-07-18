@@ -98,10 +98,19 @@ it contains all code/data that's necessary for easily implementing a virtual dat
         getDataModel: function() {
             if (this.dataModel === null) {
                 var dataModel = this.getDefaultDataModel();
-                this.setDataModel(dataModel);
+                var cellProviderDecorator = this.getDefaultCellProviderDecorator();
+                cellProviderDecorator.setComponent(dataModel);
+                cellProviderDecorator.setCellProvider(this.getCellProvider());
+                this.setDataModel(cellProviderDecorator);
             }
             return this.dataModel;
         },
+
+        getDefaultCellProviderDecorator: function() {
+            var model = document.createElement('fin-hypergrid-data-model-decorator-cell-provider');
+            return model;
+        },
+
 
         getDefaultDataModel: function() {
             var model = document.createElement('fin-hypergrid-data-model-base');

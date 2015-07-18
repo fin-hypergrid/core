@@ -12207,6 +12207,7 @@ scope.importElements = importElements;
 
 
 
+
 <script>/*!
  * numeral.js
  * version : 1.5.3
@@ -17732,9 +17733,37 @@ var merge = function(target, source) {
          * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
          * @param {Object} event - the event details
         */
+        isFirstFixedRow: function(grid, event) {
+            var gridCell = event.viewPoint;
+            var isFixed = gridCell.y < 1;
+            return isFixed;
+        },
+
+        /**
+        * @function
+        * @instance
+        * @description
+         handle this event down the feature chain of responsibility
+         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+         * @param {Object} event - the event details
+        */
         isFixedColumn: function(grid, event) {
             var gridCell = event.viewPoint;
             var isFixed = gridCell.x < grid.getFixedColumnCount();
+            return isFixed;
+        },
+
+        /**
+        * @function
+        * @instance
+        * @description
+         handle this event down the feature chain of responsibility
+         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+         * @param {Object} event - the event details
+        */
+        isFirstFixedColumn: function(grid, event) {
+            var gridCell = event.viewPoint;
+            var isFixed = gridCell.x < 1;
             return isFixed;
         },
 
@@ -20791,8 +20820,8 @@ var commands = {
         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
         * @param {Object} event - the event details
         */
-        isFixedOtherArea: function(grid, event) {
-            return this.isFixedRow(grid, event);
+        isFirstFixedOtherArea: function(grid, event) {
+            return this.isFirstFixedRow(grid, event);
         },
 
         /**
@@ -20944,9 +20973,7 @@ var commands = {
         */
         checkForAreaResizeCursorChange: function(grid, event) {
 
-            //var gridCell = event.gridCell;
-
-            if (this.isFixedOtherArea(grid, event) && this.overAreaDivider(grid, event) > 0) {
+            if (this.isFirstFixedOtherArea(grid, event) && this.overAreaDivider(grid, event) > 0) {
                 this.cursor = this.getCursorName();
             } else {
                 this.cursor = null;
@@ -22094,8 +22121,8 @@ var commands = {
         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
         * @param {Object} event - the event details
         */
-        isFixedOtherArea: function(grid, event) {
-            return this.isFixedColumn(grid, event);
+        isFirstFixedOtherArea: function(grid, event) {
+            return this.isFirstFixedColumn(grid, event);
         },
 
         /**
@@ -22323,7 +22350,7 @@ var commands = {
 })(); /* jshint ignore:line */
 </script>
 </polymer-element>
-<polymer-element name="fin-hypergrid-data-model-base" attributes="" assetpath="/dev/fin-hypergrid/polymer/html/data-models/">
+<polymer-element name="fin-hypergrid-data-model-base" assetpath="/dev/fin-hypergrid/polymer/html/data-models/">
   <template>
     <style type="text/css">:host {
     display: block;
@@ -22532,10 +22559,19 @@ it contains all code/data that's necessary for easily implementing a virtual dat
         getDataModel: function() {
             if (this.dataModel === null) {
                 var dataModel = this.getDefaultDataModel();
-                this.setDataModel(dataModel);
+                var cellProviderDecorator = this.getDefaultCellProviderDecorator();
+                cellProviderDecorator.setComponent(dataModel);
+                cellProviderDecorator.setCellProvider(this.getCellProvider());
+                this.setDataModel(cellProviderDecorator);
             }
             return this.dataModel;
         },
+
+        getDefaultCellProviderDecorator: function() {
+            var model = document.createElement('fin-hypergrid-data-model-decorator-cell-provider');
+            return model;
+        },
+
 
         getDefaultDataModel: function() {
             var model = document.createElement('fin-hypergrid-data-model-base');
@@ -23930,7 +23966,7 @@ it contains all code/data that's necessary for easily implementing a virtual dat
 })();
 </script>
 </polymer-element>
-<polymer-element name="fin-hypergrid-data-model-default" attributes="" assetpath="/dev/fin-hypergrid/polymer/html/data-models/">
+<polymer-element name="fin-hypergrid-data-model-default" extends="fin-hypergrid-data-model-base" assetpath="/dev/fin-hypergrid/polymer/html/data-models/">
   <template>
     <style type="text/css">:host {
     display: block;
@@ -29248,7 +29284,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
             if (value === this.initialValue) {
                 return; //data didn't change do nothing
             }
-            this.getBehavior()._setValue(point.x, point.y, value);
+            this.getBehavior().setValue(point.x, point.y, value);
             this.grid.fireAfterCellEdit(point, this.initialValue, value);
         },
 
@@ -29280,17 +29316,8 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         move the editor to the current editor point
         */
         moveEditor: function() {
-            var model = this.getBehavior();
-            var numFixedColumns = model.getFixedColumnCount();
-            var numFixedRows = model.getFixedRowCount();
-            var vScroll = this.grid.getVScrollValue();
-            var hScroll = this.grid.getHScrollValue();
             var editorPoint = this.getEditorPoint();
-            var x = editorPoint.x + numFixedColumns - hScroll;
-            var y = editorPoint.y + numFixedRows - vScroll;
-            var eb = this.grid.getBoundsOfCell(this.rectangles.point.create(x, y));
-            var db = this.grid.getDataBounds();
-            var cellBounds = eb.intersect(db);
+            var cellBounds = this.getGrid()._getBoundsOfCell(editorPoint.x, editorPoint.y);
             this.setBounds(cellBounds);
             this.takeFocus();
         },
@@ -29328,6 +29355,9 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
             } else {
                 this.hideEditor();
             }
+        },
+        getGrid: function() {
+            return this.grid;
         }
 
     });
@@ -29643,14 +29673,14 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         */
         setBounds: function(cellBounds) {
             var originOffset = this.originOffset();
-            var translation = 'translate(' + (cellBounds.origin.x + originOffset[0]) + 'px,' + (cellBounds.origin.y + originOffset[1]) + 'px)';
+            var translation = 'translate(' + (cellBounds.x + originOffset[0]) + 'px,' + (cellBounds.y + originOffset[1]) + 'px)';
             this.input.style.webkitTransform = translation;
             this.input.style.MozTransform = translation;
             this.input.style.msTransform = translation;
             this.input.style.OTransform = translation;
 
-            this.input.style.width = cellBounds.extent.x + 'px';
-            this.input.style.height = cellBounds.extent.y + 'px';
+            this.input.style.width = cellBounds.width + 'px';
+            this.input.style.height = cellBounds.height + 'px';
         }
 
     });
@@ -34299,6 +34329,10 @@ fin-vampire-bar {
             var numFixedRows = this.getFixedRowCount();
             var mouseDown = this.getMouseDown();
             return mouseDown.x < numFixedColumns || mouseDown.y < numFixedRows;
+        },
+        _getBoundsOfCell: function(x, y) {
+            var bounds = this.getRenderer()._getBoundsOfCell(x, y);
+            return bounds;
         }
 
     });

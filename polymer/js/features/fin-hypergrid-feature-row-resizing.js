@@ -111,8 +111,8 @@
         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
         * @param {Object} event - the event details
         */
-        isFixedOtherArea: function(grid, event) {
-            return this.isFixedColumn(grid, event);
+        isFirstFixedOtherArea: function(grid, event) {
+            return this.isFirstFixedColumn(grid, event);
         },
 
         /**

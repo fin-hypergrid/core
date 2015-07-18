@@ -291,9 +291,37 @@
          * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
          * @param {Object} event - the event details
         */
+        isFirstFixedRow: function(grid, event) {
+            var gridCell = event.viewPoint;
+            var isFixed = gridCell.y < 1;
+            return isFixed;
+        },
+
+        /**
+        * @function
+        * @instance
+        * @description
+         handle this event down the feature chain of responsibility
+         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+         * @param {Object} event - the event details
+        */
         isFixedColumn: function(grid, event) {
             var gridCell = event.viewPoint;
             var isFixed = gridCell.x < grid.getFixedColumnCount();
+            return isFixed;
+        },
+
+        /**
+        * @function
+        * @instance
+        * @description
+         handle this event down the feature chain of responsibility
+         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+         * @param {Object} event - the event details
+        */
+        isFirstFixedColumn: function(grid, event) {
+            var gridCell = event.viewPoint;
+            var isFixed = gridCell.x < 1;
             return isFixed;
         },
 
