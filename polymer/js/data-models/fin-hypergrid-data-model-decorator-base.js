@@ -30,8 +30,8 @@
             return this.getComponent().getRowCount();
         },
 
-        getCellRenderer: function(x, y, untranslatedX, untranslatedY) {
-            return this.getComponent().getCellRenderer(x, y, untranslatedX, untranslatedY);
+        getCellRenderer: function(config, x, y, untranslatedX, untranslatedY) {
+            return this.getComponent().getCellRenderer(config, x, y, untranslatedX, untranslatedY);
         },
 
         getColumnWidth: function(x) {

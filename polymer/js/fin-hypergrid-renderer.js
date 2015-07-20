@@ -1085,8 +1085,6 @@ var merge = function(target, source) {
             var grid = this.getGrid();
             var behavior = this.getBehavior();
 
-            var cellProvider = this.getGrid().getCellProvider();
-
             cellProperties.value = grid.getValue(c, r);
             cellProperties.isSelected = grid.isSelected(c, r);
             cellProperties.halign = grid.getColumnAlignment(c);
@@ -1094,7 +1092,7 @@ var merge = function(target, source) {
             cellProperties.isRowHovered = this.isHovered(c, r);
             cellProperties.bounds = this._getBoundsOfCell(c, r);
 
-            var cell = cellProvider.getCell(cellProperties);
+            var cell = behavior.getCellRenderer(cellProperties, c, r);
 
             behavior.cellPrePaintNotification(cell);
             cell.paint(gc, cellProperties);

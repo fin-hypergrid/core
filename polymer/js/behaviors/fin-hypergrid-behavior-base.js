@@ -106,11 +106,14 @@ it contains all code/data that's necessary for easily implementing a virtual dat
             return this.dataModel;
         },
 
+        getCellRenderer: function(config, x, y) {
+            return this.getDataModel().getCellRenderer(config, x, y);
+        },
+
         getDefaultCellProviderDecorator: function() {
             var model = document.createElement('fin-hypergrid-data-model-decorator-cell-provider');
             return model;
         },
-
 
         getDefaultDataModel: function() {
             var model = document.createElement('fin-hypergrid-data-model-base');

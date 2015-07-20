@@ -12208,6 +12208,9 @@ scope.importElements = importElements;
 
 
 
+
+
+
 <script>/*!
  * numeral.js
  * version : 1.5.3
@@ -16458,8 +16461,6 @@ var merge = function(target, source) {
             var grid = this.getGrid();
             var behavior = this.getBehavior();
 
-            var cellProvider = this.getGrid().getCellProvider();
-
             cellProperties.value = grid.getValue(c, r);
             cellProperties.isSelected = grid.isSelected(c, r);
             cellProperties.halign = grid.getColumnAlignment(c);
@@ -16467,7 +16468,7 @@ var merge = function(target, source) {
             cellProperties.isRowHovered = this.isHovered(c, r);
             cellProperties.bounds = this._getBoundsOfCell(c, r);
 
-            var cell = cellProvider.getCell(cellProperties);
+            var cell = behavior.getCellRenderer(c, r);
 
             behavior.cellPrePaintNotification(cell);
             cell.paint(gc, cellProperties);
@@ -22383,6 +22384,95 @@ var commands = {
 
 })();
 </script>
+</polymer-element>
+<polymer-element name="fin-hypergrid-data-model-decorator-base" extends="fin-hypergrid-data-model-base" assetpath="/dev/fin-hypergrid/polymer/html/data-models/">
+  <template>
+    <style type="text/css">:host {
+    display: block;
+    position: relative;
+}
+</style>
+  </template>
+  <script>'use strict';
+
+(function() {
+
+    Polymer('fin-hypergrid-data-model-decorator-base', { /* jshint ignore:line  */
+
+        component: null,
+
+        setComponent: function(newComponent) {
+            this.component = newComponent;
+        },
+
+        getComponent: function() {
+            return this.component;
+        },
+
+        getValue: function(x, y) {
+            return this.getComponent().getValue(x, y);
+        },
+
+        setValue: function(x, y, value) {
+            this.getComponent().setValue(x, y, value);
+        },
+
+        getColumnCount: function() {
+            return this.getComponent().getColumnCount();
+        },
+
+        getRowCount: function() {
+            return this.getComponent().getRowCount();
+        },
+
+        getCellRenderer: function(x, y, untranslatedX, untranslatedY) {
+            return this.getComponent().getCellRenderer(x, y, untranslatedX, untranslatedY);
+        },
+
+        getColumnWidth: function(x) {
+            return this.getComponent().getColumnWidth(x);
+        },
+
+        getRowHeight: function(y) {
+            return this.getComponent().getRowHeight(y);
+        }
+
+    });
+
+})();
+</script>
+</polymer-element><polymer-element name="fin-hypergrid-data-model-decorator-cell-provider" extends="fin-hypergrid-data-model-decorator-base" assetpath="/dev/fin-hypergrid/polymer/html/data-models/">
+  <template>
+    <style type="text/css">:host {
+    display: block;
+    position: relative;
+}
+</style>
+  </template>
+  <script>'use strict';
+
+(function() {
+
+    Polymer('fin-hypergrid-data-model-decorator-cell-provider', { /* jshint ignore:line  */
+
+        cellProvider: null,
+
+        setCellProvider: function(newCellProvider) {
+            this.cellProvider = newCellProvider;
+        },
+
+        getCellProvider: function() {
+            return this.cellProvider;
+        },
+
+        getCellRenderer: function(x, y, untranslatedX, untranslatedY) {
+            return this.getComponent().getCellRenderer(x, y, untranslatedX, untranslatedY);
+        },
+
+    });
+
+})();
+</script>
 </polymer-element><polymer-element name="fin-hypergrid-behavior-base" attributes="" assetpath="/dev/fin-hypergrid/polymer/html/behaviors/">
   <template>
     <style type="text/css">:host {
@@ -22565,6 +22655,10 @@ it contains all code/data that's necessary for easily implementing a virtual dat
                 this.setDataModel(cellProviderDecorator);
             }
             return this.dataModel;
+        },
+
+        getCellRenderer: function(x, y) {
+            this.getDataModel().getCellRenderer(x, y);
         },
 
         getDefaultCellProviderDecorator: function() {
@@ -34330,6 +34424,7 @@ fin-vampire-bar {
             var mouseDown = this.getMouseDown();
             return mouseDown.x < numFixedColumns || mouseDown.y < numFixedRows;
         },
+
         _getBoundsOfCell: function(x, y) {
             var bounds = this.getRenderer()._getBoundsOfCell(x, y);
             return bounds;
