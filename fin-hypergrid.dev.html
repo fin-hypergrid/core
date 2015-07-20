@@ -16056,6 +16056,7 @@ var merge = function(target, source) {
             //var edges = this.getColumnEdges();
             var startX = override.startX; //hdpiRatio * edges[override.columnIndex];
             var width = override.width;
+            console.log(override.name, startX, width);
             var height = override.height;
             var targetCTX = override.ctx;
             var imgData = gc.getImageData(startX, 0, Math.round(width * hdpiRatio), Math.round(height * hdpiRatio));
@@ -21403,11 +21404,12 @@ var commands = {
             var floaterStartX;
             var fixedColumnCount = grid.getFixedColumnCount();
             var draggerWidth = grid.getColumnWidth(draggerIndex + scrollLeft);
-            //var floaterWidth = grid.getColumnWidth(floaterIndex + scrollLeft);
+            var floaterWidth = grid.getColumnWidth(floaterIndex + scrollLeft);
 
             var max = grid.getVisibleColumnsCount();
 
-            var doffset, foffset = 0;
+            var doffset = 0;
+            var foffset = 0;
             if (draggerIndex >= fixedColumnCount) {
                 doffset = scrollLeft;
             }
@@ -21419,10 +21421,11 @@ var commands = {
                 draggerStartX = colEdges[Math.min(max, draggerIndex - doffset)];
                 floaterStartX = colEdges[Math.min(max, floaterIndex - foffset)];
 
-                grid.renderOverridesCache.dragger.startX = floaterStartX * hdpiratio;
+                grid.renderOverridesCache.dragger.startX = (draggerStartX + floaterWidth) * hdpiratio;
+                grid.renderOverridesCache.dragger.name = 'dragger';
                 grid.renderOverridesCache.floater.startX = draggerStartX * hdpiratio;
+                grid.renderOverridesCache.floater.name = 'floater';
 
-                floaterStartX = draggerStartX + draggerWidth;
             } else {
                 floaterStartX = colEdges[Math.min(max, floaterIndex - foffset)];
                 draggerStartX = floaterStartX + draggerWidth;
@@ -24170,7 +24173,6 @@ it contains all code/data that's necessary for easily implementing a virtual dat
             var tmp = indexes[source];
             indexes[source] = indexes[target];
             indexes[target] = tmp;
-            console.log(indexes);
             this.stateChanged();
         },
 
@@ -24249,7 +24251,7 @@ it contains all code/data that's necessary for easily implementing a virtual dat
 
         getRowCount: function() {
             //jeepers batman a quadrillion rows!
-            return 1;
+            return 53;
         }
     });
 

@@ -57,7 +57,7 @@
 
         getRowCount: function() {
             //jeepers batman a quadrillion rows!
-            return 1;
+            return 53;
         }
     });
 

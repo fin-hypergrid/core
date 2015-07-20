@@ -1433,7 +1433,6 @@ it contains all code/data that's necessary for easily implementing a virtual dat
             var tmp = indexes[source];
             indexes[source] = indexes[target];
             indexes[target] = tmp;
-            console.log(indexes);
             this.stateChanged();
         },
 
