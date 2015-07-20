@@ -18,7 +18,8 @@
 
         getRowCount: function() {
             return 1000;
-        }
+        },
+
     });
 
 })();

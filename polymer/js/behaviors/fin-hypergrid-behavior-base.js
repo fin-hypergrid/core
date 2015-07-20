@@ -99,9 +99,13 @@ it contains all code/data that's necessary for easily implementing a virtual dat
             if (this.dataModel === null) {
                 var dataModel = this.getDefaultDataModel();
                 var cellProviderDecorator = this.getDefaultCellProviderDecorator();
+                var reorderModel = this.getDefaultReorderDataModel();
+                reorderModel.setComponent(cellProviderDecorator);
+                reorderModel.setBehavior(this);
+                cellProviderDecorator.setGrid(this.getGrid());
                 cellProviderDecorator.setComponent(dataModel);
                 cellProviderDecorator.setCellProvider(this.getCellProvider());
-                this.setDataModel(cellProviderDecorator);
+                this.setDataModel(reorderModel);
             }
             return this.dataModel;
         },
@@ -117,6 +121,11 @@ it contains all code/data that's necessary for easily implementing a virtual dat
 
         getDefaultDataModel: function() {
             var model = document.createElement('fin-hypergrid-data-model-base');
+            return model;
+        },
+
+        getDefaultReorderDataModel: function() {
+            var model = document.createElement('fin-hypergrid-data-model-decorator-reorder');
             return model;
         },
 
@@ -303,11 +312,11 @@ it contains all code/data that's necessary for easily implementing a virtual dat
             this.setNextFeature(document.createElement('fin-hypergrid-feature-overlay'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-column-resizing'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-row-resizing'));
-            this.setNextFeature(document.createElement('fin-hypergrid-feature-cell-selection'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-column-moving'));
+            this.setNextFeature(document.createElement('fin-hypergrid-feature-cell-selection'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-thumbwheel-scrolling'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-cell-editing'));
-            //this.setNextFeature(document.createElement('fin-hypergrid-feature-column-sorting'));
+            this.setNextFeature(document.createElement('fin-hypergrid-feature-column-sorting'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-on-hover'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-column-autosizing'));
 
@@ -1429,80 +1438,9 @@ it contains all code/data that's necessary for easily implementing a virtual dat
             this.stateChanged();
         },
 
-        // getTranslationInterface: function() {
-        //     if (!this.translationInterface) {
-        //         this.translationInterface = this.createTranslationInterface();
-        //     }
-        //     return this.translationInterface;
-        // },
+        getColumnEdge: function(c, renderer) {
+            return this.getDataModel().getColumnEdge(c, renderer);
+        }
 
-        // createTranslationInterface: function() {
-        //     var self = this;
-        //     var that = {
-        //         translateColumnIndex: function(x) {
-        //             var tableState = self.getState();
-        //             var indexes = tableState.columnIndexes;
-        //             if (indexes.length === 0) {
-        //                 return x;
-        //             }
-        //             return indexes[x];
-        //         },
-
-        //         unTranslateColumnIndex: function(x) {
-        //             var tableState = self.getState();
-        //             return tableState.columnIndexes.indexOf(x);
-        //         },
-
-        //         getValue: function(x, y) {
-        //             x = this.translateColumnIndex(x);
-        //             return self.getValue(x, y);
-        //         },
-
-        //         setValue: function(x, y, value) {
-        //             x = this.translateColumnIndex(x);
-        //             self.setValue(x, y, value);
-        //         },
-
-        //         getColumnWidth: function(x) {
-        //             x = this.translateColumnIndex(x);
-        //             return self.getColumnWidth(x);
-        //         },
-
-        //         setColumnWidth: function(x, width) {
-        //             x = this.translateColumnIndex(x);
-        //             self.setColumnWidth(x, width);
-        //             self.changed();
-        //         },
-
-        //         getColumnEdge: function(x, renderer) {
-        //             //x = this.translateColumnIndex(x);
-        //             return renderer.columnEdges[x];
-        //         },
-
-        //         getColumnAlignment: function(x) {
-        //             x = this.translateColumnIndex(x);
-        //             return self.getColumnAlignment(x);
-        //         },
-
-        //         getCellEditorAt: function(x, y) {
-        //             noop(y);
-        //             x = this.translateColumnIndex(x);
-        //             return self.getCellEditorAt(x);
-        //         },
-
-        //         getColumnId: function(x) {
-        //             x = this.translateColumnIndex(x);
-        //             var col = self.getColumnId(x, 0);
-        //             return col;
-        //         },
-
-        //         getCursorAt: function(x /*, y */ ) {
-        //             x = this.translateColumnIndex(x);
-        //             var cursor = self.getCursorAt(x, 0);
-        //             return cursor;
-        //         },
-        //     };
-        //     return that;
-        // }
     });
 })();

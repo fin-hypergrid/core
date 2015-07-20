@@ -12211,6 +12211,8 @@ scope.importElements = importElements;
 
 
 
+
+
 <script>/*!
  * numeral.js
  * version : 1.5.3
@@ -15387,7 +15389,7 @@ It relies on two other external subprojects
 1. fin-canvas: a wrapper to provide a simpler interface to the HTML5 canvas component
 2. fin-rectangles: a small library providing Point and Rectangle objects
 
-The fin-ypergrid-renderer is in a unique position to provide critical functionality to the fin-hypergrid in a hightly performant manner.
+The fin-hypergrid-renderer is in a unique position to provide critical functionality to the fin-hypergrid in a hightly performant manner.
 Because it MUST iterate over all the visible cells it can store various bits of information that can be encapsulated as a service for consumption by the fin-hypergrid component.
 
 Instances of this object have basically four main functions.
@@ -15529,7 +15531,7 @@ var merge = function(target, source) {
 
 
         //this function computes the grid coordinates used for extremely fast iteration over
-        //painting the grid cells. this function is extremely fast, for thousand rows X columns
+        //painting the grid cells. this function is very fast, for thousand rows X 100 columns
         //on a modest machine taking usually 0ms and no more that 3 ms.
         computeCellsBounds: function() {
 
@@ -15722,18 +15724,19 @@ var merge = function(target, source) {
          */
         overColumnDivider: function(x) {
             x = Math.round(x);
-            var whichCol = this.getColumnEdges().indexOf(x - 1);
+            var edges = this.getColumnEdges();
+            var whichCol = edges.indexOf(x - 1);
             if (whichCol < 0) {
-                whichCol = this.getColumnEdges().indexOf(x);
+                whichCol = edges.indexOf(x);
             }
             if (whichCol < 0) {
-                whichCol = this.getColumnEdges().indexOf(x - 2);
+                whichCol = edges.indexOf(x - 2);
             }
             if (whichCol < 0) {
-                whichCol = this.getColumnEdges().indexOf(x + 1);
+                whichCol = edges.indexOf(x + 1);
             }
             if (whichCol < 0) {
-                whichCol = this.getColumnEdges().indexOf(x - 3);
+                whichCol = edges.indexOf(x - 3);
             }
 
             return whichCol;
@@ -16468,7 +16471,7 @@ var merge = function(target, source) {
             cellProperties.isRowHovered = this.isHovered(c, r);
             cellProperties.bounds = this._getBoundsOfCell(c, r);
 
-            var cell = behavior.getCellRenderer(c, r);
+            var cell = behavior.getCellRenderer(cellProperties, c, r);
 
             behavior.cellPrePaintNotification(cell);
             cell.paint(gc, cellProperties);
@@ -22379,7 +22382,8 @@ var commands = {
 
         getRowCount: function() {
             return 1000;
-        }
+        },
+
     });
 
 })();
@@ -22425,8 +22429,8 @@ var commands = {
             return this.getComponent().getRowCount();
         },
 
-        getCellRenderer: function(x, y, untranslatedX, untranslatedY) {
-            return this.getComponent().getCellRenderer(x, y, untranslatedX, untranslatedY);
+        getCellRenderer: function(config, x, y, untranslatedX, untranslatedY) {
+            return this.getComponent().getCellRenderer(config, x, y, untranslatedX, untranslatedY);
         },
 
         getColumnWidth: function(x) {
@@ -22435,7 +22439,11 @@ var commands = {
 
         getRowHeight: function(y) {
             return this.getComponent().getRowHeight(y);
-        }
+        },
+
+        getColumnEdge: function(x, renderer) {
+            return this.getComponent().getColumnEdge(x, renderer);
+        },
 
     });
 
@@ -22456,6 +22464,16 @@ var commands = {
     Polymer('fin-hypergrid-data-model-decorator-cell-provider', { /* jshint ignore:line  */
 
         cellProvider: null,
+        grid: null,
+
+
+        setGrid: function(newGrid) {
+            this.grid = newGrid;
+        },
+
+        getGrid: function() {
+            return this.grid;
+        },
 
         setCellProvider: function(newCellProvider) {
             this.cellProvider = newCellProvider;
@@ -22465,8 +22483,140 @@ var commands = {
             return this.cellProvider;
         },
 
-        getCellRenderer: function(x, y, untranslatedX, untranslatedY) {
-            return this.getComponent().getCellRenderer(x, y, untranslatedX, untranslatedY);
+        getCellRenderer: function(config, x, y /* , untranslatedX, untranslatedY */ ) {
+            //this needs to be rethought
+            var provider = this.getCellProvider();
+            var grid = this.getGrid();
+            if (x < 1) {
+                config.font = config.fixedColumnFont;
+                if (grid.isFixedColumnCellSelected(y)) {
+                    config.backgroundColor = config.fixedColumnBGSelColor;
+                    config.color = config.fixedColumnFGSelColor;
+                } else {
+                    config.color = config.fixedColumnColor;
+                    config.backgroundColor = config.fixedColumnBackgroundColor;
+                }
+                return provider.getFixedColumnCell(config);
+            } else if (y < 1) {
+                config.font = config.fixedRowFont;
+                if (grid.isFixedRowCellSelected(x)) {
+                    config.backgroundColor = config.fixedRowBGSelColor;
+                    config.color = config.fixedRowFGSelColor;
+                } else {
+                    config.color = config.fixedRowColor;
+                    config.backgroundColor = config.fixedRowBackgroundColor;
+                }
+                return provider.getFixedRowCell(config);
+            } else {
+                delete config.font;
+                delete config.color;
+                delete config.backgroundColor;
+                return provider.getCell(config);
+            }
+        },
+
+    });
+
+})();
+</script>
+</polymer-element>
+<polymer-element name="fin-hypergrid-data-model-decorator-reorder" extends="fin-hypergrid-data-model-decorator-base" assetpath="/dev/fin-hypergrid/polymer/html/data-models/">
+  <template>
+    <style type="text/css">:host {
+    display: block;
+    position: relative;
+}
+</style>
+  </template>
+  <script>'use strict';
+
+(function() {
+
+    var noop = function() {};
+
+    Polymer('fin-hypergrid-data-model-decorator-reorder', { /* jshint ignore:line  */
+
+        behavior: null,
+
+        setBehavior: function(newBehavior) {
+            this.behavior = newBehavior;
+        },
+
+        getBehavior: function() {
+            return this.behavior;
+        },
+
+        getState: function() {
+            var behavior = this.getBehavior();
+            var state = behavior.getState();
+            return state;
+        },
+
+        getCellRenderer: function(config, x, y, untranslatedX, untranslatedY) {
+            return this.getComponent().getCellRenderer(config, x, y, untranslatedX, untranslatedY);
+        },
+
+        translateColumnIndex: function(x) {
+            var tableState = this.getState();
+            var indexes = tableState.columnIndexes;
+            if (indexes.length === 0) {
+                return x;
+            }
+            return indexes[x];
+        },
+
+        unTranslateColumnIndex: function(x) {
+            var tableState = this.getState();
+            return tableState.columnIndexes.indexOf(x);
+        },
+
+        getValue: function(x, y) {
+            x = this.translateColumnIndex(x);
+            return this.getComponent().getValue(x, y);
+        },
+
+        setValue: function(x, y, value) {
+            x = this.translateColumnIndex(x);
+            this.getComponent().setValue(x, y, value);
+        },
+
+        getColumnWidth: function(x) {
+            x = this.translateColumnIndex(x);
+            return this.getComponent().getColumnWidth(x);
+        },
+
+        setColumnWidth: function(x, width) {
+            x = this.translateColumnIndex(x);
+            this.getComponent().setColumnWidth(x, width);
+            //this.changed();
+        },
+
+        getColumnEdge: function(x, renderer) {
+            x = this.translateColumnIndex(x);
+            return renderer.columnEdges[x];
+        },
+
+        getColumnAlignment: function(x) {
+            x = this.translateColumnIndex(x);
+            return this.getComponent().getColumnAlignment(x);
+        },
+
+        getCellEditorAt: function(x, y) {
+            noop(y);
+            x = this.translateColumnIndex(x);
+            return this.getComponent().getCellEditorAt(x);
+        },
+
+        getColumnId: function(x) {
+            x = this.translateColumnIndex(x);
+            var col = this.getComponent().getColumnId(x, 0);
+            return col;
+        },
+
+        getCursorAt: function(x /*, y */ ) {
+            x = this.translateColumnIndex(x);
+            var cursor = this.getComponent().getCursorAt(x, 0);
+            return cursor;
         },
 
     });
@@ -22650,15 +22800,19 @@ it contains all code/data that's necessary for easily implementing a virtual dat
             if (this.dataModel === null) {
                 var dataModel = this.getDefaultDataModel();
                 var cellProviderDecorator = this.getDefaultCellProviderDecorator();
+                var reorderModel = this.getDefaultReorderDataModel();
+                reorderModel.setComponent(cellProviderDecorator);
+                reorderModel.setBehavior(this);
+                cellProviderDecorator.setGrid(this.getGrid());
                 cellProviderDecorator.setComponent(dataModel);
                 cellProviderDecorator.setCellProvider(this.getCellProvider());
-                this.setDataModel(cellProviderDecorator);
+                this.setDataModel(reorderModel);
             }
             return this.dataModel;
         },
 
-        getCellRenderer: function(x, y) {
-            this.getDataModel().getCellRenderer(x, y);
+        getCellRenderer: function(config, x, y) {
+            return this.getDataModel().getCellRenderer(config, x, y);
         },
 
         getDefaultCellProviderDecorator: function() {
@@ -22666,9 +22820,13 @@ it contains all code/data that's necessary for easily implementing a virtual dat
             return model;
         },
 
-
         getDefaultDataModel: function() {
             var model = document.createElement('fin-hypergrid-data-model-base');
+            return model;
+        },
+
+        getDefaultReorderDataModel: function() {
+            var model = document.createElement('fin-hypergrid-data-model-decorator-reorder');
             return model;
         },
 
@@ -22855,11 +23013,11 @@ it contains all code/data that's necessary for easily implementing a virtual dat
             this.setNextFeature(document.createElement('fin-hypergrid-feature-overlay'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-column-resizing'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-row-resizing'));
-            this.setNextFeature(document.createElement('fin-hypergrid-feature-cell-selection'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-column-moving'));
+            this.setNextFeature(document.createElement('fin-hypergrid-feature-cell-selection'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-thumbwheel-scrolling'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-cell-editing'));
-            //this.setNextFeature(document.createElement('fin-hypergrid-feature-column-sorting'));
+            this.setNextFeature(document.createElement('fin-hypergrid-feature-column-sorting'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-on-hover'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-column-autosizing'));
 
@@ -23981,81 +24139,10 @@ it contains all code/data that's necessary for easily implementing a virtual dat
             this.stateChanged();
         },
 
-        // getTranslationInterface: function() {
-        //     if (!this.translationInterface) {
-        //         this.translationInterface = this.createTranslationInterface();
-        //     }
-        //     return this.translationInterface;
-        // },
+        getColumnEdge: function(c, renderer) {
+            return this.getDataModel().getColumnEdge(c, renderer);
+        }
 
-        // createTranslationInterface: function() {
-        //     var self = this;
-        //     var that = {
-        //         translateColumnIndex: function(x) {
-        //             var tableState = self.getState();
-        //             var indexes = tableState.columnIndexes;
-        //             if (indexes.length === 0) {
-        //                 return x;
-        //             }
-        //             return indexes[x];
-        //         },
-
-        //         unTranslateColumnIndex: function(x) {
-        //             var tableState = self.getState();
-        //             return tableState.columnIndexes.indexOf(x);
-        //         },
-
-        //         getValue: function(x, y) {
-        //             x = this.translateColumnIndex(x);
-        //             return self.getValue(x, y);
-        //         },
-
-        //         setValue: function(x, y, value) {
-        //             x = this.translateColumnIndex(x);
-        //             self.setValue(x, y, value);
-        //         },
-
-        //         getColumnWidth: function(x) {
-        //             x = this.translateColumnIndex(x);
-        //             return self.getColumnWidth(x);
-        //         },
-
-        //         setColumnWidth: function(x, width) {
-        //             x = this.translateColumnIndex(x);
-        //             self.setColumnWidth(x, width);
-        //             self.changed();
-        //         },
-
-        //         getColumnEdge: function(x, renderer) {
-        //             //x = this.translateColumnIndex(x);
-        //             return renderer.columnEdges[x];
-        //         },
-
-        //         getColumnAlignment: function(x) {
-        //             x = this.translateColumnIndex(x);
-        //             return self.getColumnAlignment(x);
-        //         },
-
-        //         getCellEditorAt: function(x, y) {
-        //             noop(y);
-        //             x = this.translateColumnIndex(x);
-        //             return self.getCellEditorAt(x);
-        //         },
-
-        //         getColumnId: function(x) {
-        //             x = this.translateColumnIndex(x);
-        //             var col = self.getColumnId(x, 0);
-        //             return col;
-        //         },
-
-        //         getCursorAt: function(x /*, y */ ) {
-        //             x = this.translateColumnIndex(x);
-        //             var cursor = self.getCursorAt(x, 0);
-        //             return cursor;
-        //         },
-        //     };
-        //     return that;
-        // }
     });
 })();
 </script>

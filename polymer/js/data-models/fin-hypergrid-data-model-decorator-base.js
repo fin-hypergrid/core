@@ -40,7 +40,11 @@
 
         getRowHeight: function(y) {
             return this.getComponent().getRowHeight(y);
-        }
+        },
+
+        getColumnEdge: function(x, renderer) {
+            return this.getComponent().getColumnEdge(x, renderer);
+        },
 
     });
 

@@ -11,7 +11,7 @@ It relies on two other external subprojects
 1. fin-canvas: a wrapper to provide a simpler interface to the HTML5 canvas component
 2. fin-rectangles: a small library providing Point and Rectangle objects
 
-The fin-ypergrid-renderer is in a unique position to provide critical functionality to the fin-hypergrid in a hightly performant manner.
+The fin-hypergrid-renderer is in a unique position to provide critical functionality to the fin-hypergrid in a hightly performant manner.
 Because it MUST iterate over all the visible cells it can store various bits of information that can be encapsulated as a service for consumption by the fin-hypergrid component.
 
 Instances of this object have basically four main functions.
@@ -153,7 +153,7 @@ var merge = function(target, source) {
 
 
         //this function computes the grid coordinates used for extremely fast iteration over
-        //painting the grid cells. this function is extremely fast, for thousand rows X columns
+        //painting the grid cells. this function is very fast, for thousand rows X 100 columns
         //on a modest machine taking usually 0ms and no more that 3 ms.
         computeCellsBounds: function() {
 
@@ -346,18 +346,19 @@ var merge = function(target, source) {
          */
         overColumnDivider: function(x) {
             x = Math.round(x);
-            var whichCol = this.getColumnEdges().indexOf(x - 1);
+            var edges = this.getColumnEdges();
+            var whichCol = edges.indexOf(x - 1);
             if (whichCol < 0) {
-                whichCol = this.getColumnEdges().indexOf(x);
+                whichCol = edges.indexOf(x);
             }
             if (whichCol < 0) {
-                whichCol = this.getColumnEdges().indexOf(x - 2);
+                whichCol = edges.indexOf(x - 2);
             }
             if (whichCol < 0) {
-                whichCol = this.getColumnEdges().indexOf(x + 1);
+                whichCol = edges.indexOf(x + 1);
             }
             if (whichCol < 0) {
-                whichCol = this.getColumnEdges().indexOf(x - 3);
+                whichCol = edges.indexOf(x - 3);
             }
 
             return whichCol;
