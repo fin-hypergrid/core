@@ -442,12 +442,21 @@ var merge = function(target, source) {
          */
         getColumnFromPixelX: function(pixelX) {
             var width = 0;
+            var grid = this.getGrid();
+            var fixedColumnCount = this.getFixedColumnCount();
+            var scrollLeft = grid.getHScrollValue();
             var c;
             for (c = 0; c < this.insertionBounds.length; c++) {
                 width = this.insertionBounds[c];
                 if (pixelX < width) {
+                    if (c >= fixedColumnCount) {
+                        c = c + scrollLeft;
+                    }
                     return c;
                 }
+            }
+            if (c >= fixedColumnCount) {
+                c = c + scrollLeft;
             }
             return c;
         },
@@ -665,9 +674,9 @@ var merge = function(target, source) {
         */
         renderOverride: function(gc, override) {
             //lets blank out the drag row
-            var grid = this.getGrid();
             var hdpiRatio = override.hdpiratio;
-            var startX = hdpiRatio * grid.getColumnEdge(override.columnIndex);
+            //var edges = this.getColumnEdges();
+            var startX = override.startX; //hdpiRatio * edges[override.columnIndex];
             var width = override.width;
             var height = override.height;
             var targetCTX = override.ctx;

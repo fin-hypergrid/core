@@ -52,12 +52,14 @@
 
         getColumnWidth: function(x) {
             x = this.translateColumnIndex(x);
-            return this.getComponent().getColumnWidth(x);
+            var tableState = this.getState();
+            return tableState.columnWidths[x];
         },
 
         setColumnWidth: function(x, width) {
             x = this.translateColumnIndex(x);
-            this.getComponent().setColumnWidth(x, width);
+            var tableState = this.getState();
+            tableState.columnWidths[x] = width;
             //this.changed();
         },
 

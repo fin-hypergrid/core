@@ -34,16 +34,20 @@
             return this.getComponent().getCellRenderer(config, x, y, untranslatedX, untranslatedY);
         },
 
-        getColumnWidth: function(x) {
-            return this.getComponent().getColumnWidth(x);
-        },
-
         getRowHeight: function(y) {
             return this.getComponent().getRowHeight(y);
         },
 
         getColumnEdge: function(x, renderer) {
             return this.getComponent().getColumnEdge(x, renderer);
+        },
+
+        getColumnWidth: function(x) {
+            return this.getComponent().getColumnWidth(x);
+        },
+
+        setColumnWidth: function(x, width) {
+            this.getComponent().setColumnWidth(x, width);
         },
 
     });

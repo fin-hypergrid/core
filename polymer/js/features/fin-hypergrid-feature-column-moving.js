@@ -211,6 +211,8 @@
         */
         floatColumnTo: function(grid, draggedToTheRight) {
             this.floatingNow = true;
+            var renderer = grid.getRenderer();
+            var colEdges = renderer.getColumnEdges();
             //var behavior = grid.getBehavior();
             var scrollLeft = grid.getHScrollValue();
             var floaterIndex = grid.renderOverridesCache.floater.columnIndex;
@@ -219,26 +221,36 @@
 
             var draggerStartX;
             var floaterStartX;
+            var fixedColumnCount = grid.getFixedColumnCount();
             var draggerWidth = grid.getColumnWidth(draggerIndex + scrollLeft);
             //var floaterWidth = grid.getColumnWidth(floaterIndex + scrollLeft);
 
             var max = grid.getVisibleColumnsCount();
+
+            var doffset, foffset = 0;
+            if (draggerIndex >= fixedColumnCount) {
+                doffset = scrollLeft;
+            }
+            if (floaterIndex >= fixedColumnCount) {
+                foffset = scrollLeft;
+            }
+
             if (draggedToTheRight) {
-                draggerStartX = grid.getColumnEdge(Math.min(max, draggerIndex));
-                floaterStartX = grid.getColumnEdge(Math.min(max, floaterIndex));
+                draggerStartX = colEdges[Math.min(max, draggerIndex - doffset)];
+                floaterStartX = colEdges[Math.min(max, floaterIndex - foffset)];
 
                 grid.renderOverridesCache.dragger.startX = floaterStartX * hdpiratio;
                 grid.renderOverridesCache.floater.startX = draggerStartX * hdpiratio;
 
                 floaterStartX = draggerStartX + draggerWidth;
             } else {
-                floaterStartX = grid.getColumnEdge(Math.min(max, floaterIndex));
+                floaterStartX = colEdges[Math.min(max, floaterIndex - foffset)];
                 draggerStartX = floaterStartX + draggerWidth;
 
                 grid.renderOverridesCache.dragger.startX = floaterStartX * hdpiratio;
                 grid.renderOverridesCache.floater.startX = draggerStartX * hdpiratio;
             }
-            grid.swapColumns(draggerIndex + scrollLeft, floaterIndex + scrollLeft);
+            grid.swapColumns(draggerIndex, floaterIndex);
             grid.renderOverridesCache.dragger.columnIndex = floaterIndex;
             grid.renderOverridesCache.floater.columnIndex = draggerIndex;
 
@@ -317,7 +329,7 @@
             var renderer = grid.getRenderer();
             var columnEdges = renderer.getColumnEdges();
             var scrollLeft = grid.getHScrollValue();
-            var columnWidth = grid.getColumnWidth(columnIndex + scrollLeft);
+            var columnWidth = grid.getColumnWidth(columnIndex);
             var colHeight = grid.clientHeight;
             var d = floatColumn;
             var style = d.style;
@@ -337,7 +349,7 @@
             style.borderTop = '1px solid ' + renderer.resolveProperty('lineColor');
             style.backgroundColor = renderer.resolveProperty('backgroundColor');
 
-            var startX = columnEdges[columnIndex];
+            var startX = columnEdges[columnIndex - scrollLeft];
             startX = startX * hdpiRatio;
 
             floatColumnCTX.scale(hdpiRatio, hdpiRatio);
@@ -407,7 +419,7 @@
 
             var hdpiRatio = grid.getHiDPI(draggerCTX);
 
-            var columnWidth = grid.getColumnWidth(columnIndex + scrollLeft);
+            var columnWidth = grid.getColumnWidth(columnIndex);
             var colHeight = grid.clientHeight;
             var d = dragger;
 
@@ -429,11 +441,13 @@
             style.width = columnWidth + 'px'; //Math.round(columnWidth / hdpiRatio) + 'px';
             style.height = colHeight + 'px'; //Math.round(colHeight / hdpiRatio) + 'px';
 
-            var startX = columnEdges[columnIndex];
+            var startX = columnEdges[columnIndex - scrollLeft];
             startX = startX * hdpiRatio;
 
             draggerCTX.scale(hdpiRatio, hdpiRatio);
 
+
+            console.log(columnIndex);
             grid.renderOverridesCache.dragger = {
                 columnIndex: columnIndex,
                 ctx: draggerCTX,
@@ -447,6 +461,7 @@
             style.zIndex = '5';
             style.cursor = 'none';
             grid.repaint();
+            console.log('halt');
 
         },
 
@@ -470,9 +485,9 @@
             var hdpiRatio = grid.getHiDPI(draggerCTX);
 
             var dragColumnIndex = grid.renderOverridesCache.dragger.columnIndex;
-            var columnWidth = grid.renderOverridesCache.dragger.width;
+            //var columnWidth = grid.renderOverridesCache.dragger.width;
             var minX = 0; //grid.getFixedColumnsWidth();
-            var maxX = grid.renderer.getFinalVisableColumnBoundry() - columnWidth;
+            var maxX = grid.renderer.getFinalVisableColumnBoundry();
             x = Math.min(x, maxX + 15);
             x = Math.max(minX - 15, x);
 
@@ -635,10 +650,16 @@
         */
         endDragColumn: function(grid) {
             var renderer = grid.getRenderer();
+            var scrollLeft = grid.getHScrollValue();
+            var fixedColumnCount = grid.getFixedColumnCount();
             var columnEdges = renderer.getColumnEdges();
             var self = this;
             var columnIndex = grid.renderOverridesCache.dragger.columnIndex;
-            var startX = columnEdges[columnIndex];
+            var doffset = 0;
+            if (columnIndex >= fixedColumnCount) {
+                doffset = scrollLeft;
+            }
+            var startX = columnEdges[columnIndex - doffset];
             var d = dragger;
 
             self.setCrossBrowserProperty(d, 'transition', (self.isWebkit ? '-webkit-' : '') + 'transform ' + columnAnimationTime + 'ms ease, box-shadow ' + columnAnimationTime + 'ms ease');

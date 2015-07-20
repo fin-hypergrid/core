@@ -15820,12 +15820,21 @@ var merge = function(target, source) {
          */
         getColumnFromPixelX: function(pixelX) {
             var width = 0;
+            var grid = this.getGrid();
+            var fixedColumnCount = this.getFixedColumnCount();
+            var scrollLeft = grid.getHScrollValue();
             var c;
             for (c = 0; c < this.insertionBounds.length; c++) {
                 width = this.insertionBounds[c];
                 if (pixelX < width) {
+                    if (c >= fixedColumnCount) {
+                        c = c + scrollLeft;
+                    }
                     return c;
                 }
+            }
+            if (c >= fixedColumnCount) {
+                c = c + scrollLeft;
             }
             return c;
         },
@@ -16043,9 +16052,9 @@ var merge = function(target, source) {
         */
         renderOverride: function(gc, override) {
             //lets blank out the drag row
-            var grid = this.getGrid();
             var hdpiRatio = override.hdpiratio;
-            var startX = hdpiRatio * grid.getColumnEdge(override.columnIndex);
+            //var edges = this.getColumnEdges();
+            var startX = override.startX; //hdpiRatio * edges[override.columnIndex];
             var width = override.width;
             var height = override.height;
             var targetCTX = override.ctx;
@@ -21382,6 +21391,8 @@ var commands = {
         */
         floatColumnTo: function(grid, draggedToTheRight) {
             this.floatingNow = true;
+            var renderer = grid.getRenderer();
+            var colEdges = renderer.getColumnEdges();
             //var behavior = grid.getBehavior();
             var scrollLeft = grid.getHScrollValue();
             var floaterIndex = grid.renderOverridesCache.floater.columnIndex;
@@ -21390,26 +21401,36 @@ var commands = {
 
             var draggerStartX;
             var floaterStartX;
+            var fixedColumnCount = grid.getFixedColumnCount();
             var draggerWidth = grid.getColumnWidth(draggerIndex + scrollLeft);
             //var floaterWidth = grid.getColumnWidth(floaterIndex + scrollLeft);
 
             var max = grid.getVisibleColumnsCount();
+
+            var doffset, foffset = 0;
+            if (draggerIndex >= fixedColumnCount) {
+                doffset = scrollLeft;
+            }
+            if (floaterIndex >= fixedColumnCount) {
+                foffset = scrollLeft;
+            }
+
             if (draggedToTheRight) {
-                draggerStartX = grid.getColumnEdge(Math.min(max, draggerIndex));
-                floaterStartX = grid.getColumnEdge(Math.min(max, floaterIndex));
+                draggerStartX = colEdges[Math.min(max, draggerIndex - doffset)];
+                floaterStartX = colEdges[Math.min(max, floaterIndex - foffset)];
 
                 grid.renderOverridesCache.dragger.startX = floaterStartX * hdpiratio;
                 grid.renderOverridesCache.floater.startX = draggerStartX * hdpiratio;
 
                 floaterStartX = draggerStartX + draggerWidth;
             } else {
-                floaterStartX = grid.getColumnEdge(Math.min(max, floaterIndex));
+                floaterStartX = colEdges[Math.min(max, floaterIndex - foffset)];
                 draggerStartX = floaterStartX + draggerWidth;
 
                 grid.renderOverridesCache.dragger.startX = floaterStartX * hdpiratio;
                 grid.renderOverridesCache.floater.startX = draggerStartX * hdpiratio;
             }
-            grid.swapColumns(draggerIndex + scrollLeft, floaterIndex + scrollLeft);
+            grid.swapColumns(draggerIndex, floaterIndex);
             grid.renderOverridesCache.dragger.columnIndex = floaterIndex;
             grid.renderOverridesCache.floater.columnIndex = draggerIndex;
 
@@ -21488,7 +21509,7 @@ var commands = {
             var renderer = grid.getRenderer();
             var columnEdges = renderer.getColumnEdges();
             var scrollLeft = grid.getHScrollValue();
-            var columnWidth = grid.getColumnWidth(columnIndex + scrollLeft);
+            var columnWidth = grid.getColumnWidth(columnIndex);
             var colHeight = grid.clientHeight;
             var d = floatColumn;
             var style = d.style;
@@ -21508,7 +21529,7 @@ var commands = {
             style.borderTop = '1px solid ' + renderer.resolveProperty('lineColor');
             style.backgroundColor = renderer.resolveProperty('backgroundColor');
 
-            var startX = columnEdges[columnIndex];
+            var startX = columnEdges[columnIndex - scrollLeft];
             startX = startX * hdpiRatio;
 
             floatColumnCTX.scale(hdpiRatio, hdpiRatio);
@@ -21578,7 +21599,7 @@ var commands = {
 
             var hdpiRatio = grid.getHiDPI(draggerCTX);
 
-            var columnWidth = grid.getColumnWidth(columnIndex + scrollLeft);
+            var columnWidth = grid.getColumnWidth(columnIndex);
             var colHeight = grid.clientHeight;
             var d = dragger;
 
@@ -21600,11 +21621,13 @@ var commands = {
             style.width = columnWidth + 'px'; //Math.round(columnWidth / hdpiRatio) + 'px';
             style.height = colHeight + 'px'; //Math.round(colHeight / hdpiRatio) + 'px';
 
-            var startX = columnEdges[columnIndex];
+            var startX = columnEdges[columnIndex - scrollLeft];
             startX = startX * hdpiRatio;
 
             draggerCTX.scale(hdpiRatio, hdpiRatio);
 
+
+            console.log(columnIndex);
             grid.renderOverridesCache.dragger = {
                 columnIndex: columnIndex,
                 ctx: draggerCTX,
@@ -21618,6 +21641,7 @@ var commands = {
             style.zIndex = '5';
             style.cursor = 'none';
             grid.repaint();
+            console.log('halt');
 
         },
 
@@ -21641,9 +21665,9 @@ var commands = {
             var hdpiRatio = grid.getHiDPI(draggerCTX);
 
             var dragColumnIndex = grid.renderOverridesCache.dragger.columnIndex;
-            var columnWidth = grid.renderOverridesCache.dragger.width;
+            //var columnWidth = grid.renderOverridesCache.dragger.width;
             var minX = 0; //grid.getFixedColumnsWidth();
-            var maxX = grid.renderer.getFinalVisableColumnBoundry() - columnWidth;
+            var maxX = grid.renderer.getFinalVisableColumnBoundry();
             x = Math.min(x, maxX + 15);
             x = Math.max(minX - 15, x);
 
@@ -21806,10 +21830,16 @@ var commands = {
         */
         endDragColumn: function(grid) {
             var renderer = grid.getRenderer();
+            var scrollLeft = grid.getHScrollValue();
+            var fixedColumnCount = grid.getFixedColumnCount();
             var columnEdges = renderer.getColumnEdges();
             var self = this;
             var columnIndex = grid.renderOverridesCache.dragger.columnIndex;
-            var startX = columnEdges[columnIndex];
+            var doffset = 0;
+            if (columnIndex >= fixedColumnCount) {
+                doffset = scrollLeft;
+            }
+            var startX = columnEdges[columnIndex - doffset];
             var d = dragger;
 
             self.setCrossBrowserProperty(d, 'transition', (self.isWebkit ? '-webkit-' : '') + 'transform ' + columnAnimationTime + 'ms ease, box-shadow ' + columnAnimationTime + 'ms ease');
@@ -22433,16 +22463,20 @@ var commands = {
             return this.getComponent().getCellRenderer(config, x, y, untranslatedX, untranslatedY);
         },
 
-        getColumnWidth: function(x) {
-            return this.getComponent().getColumnWidth(x);
-        },
-
         getRowHeight: function(y) {
             return this.getComponent().getRowHeight(y);
         },
 
         getColumnEdge: function(x, renderer) {
             return this.getComponent().getColumnEdge(x, renderer);
+        },
+
+        getColumnWidth: function(x) {
+            return this.getComponent().getColumnWidth(x);
+        },
+
+        setColumnWidth: function(x, width) {
+            this.getComponent().setColumnWidth(x, width);
         },
 
     });
@@ -22582,12 +22616,14 @@ var commands = {
 
         getColumnWidth: function(x) {
             x = this.translateColumnIndex(x);
-            return this.getComponent().getColumnWidth(x);
+            var tableState = this.getState();
+            return tableState.columnWidths[x];
         },
 
         setColumnWidth: function(x, width) {
             x = this.translateColumnIndex(x);
-            this.getComponent().setColumnWidth(x, width);
+            var tableState = this.getState();
+            tableState.columnWidths[x] = width;
             //this.changed();
         },
 
@@ -23016,7 +23052,7 @@ it contains all code/data that's necessary for easily implementing a virtual dat
             this.setNextFeature(document.createElement('fin-hypergrid-feature-column-moving'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-cell-selection'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-thumbwheel-scrolling'));
-            this.setNextFeature(document.createElement('fin-hypergrid-feature-cell-editing'));
+            //this.setNextFeature(document.createElement('fin-hypergrid-feature-cell-editing'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-column-sorting'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-on-hover'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-column-autosizing'));
@@ -23828,8 +23864,7 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          * @param {integer} x - the column index of interest
          */
         getColumnWidth: function(x) {
-            var tableState = this.getState();
-            var override = tableState.columnWidths[x];
+            var override = this.getDataModel().getColumnWidth(x);
             if (override) {
                 return override;
             }
@@ -23845,8 +23880,7 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          * @param {integer} width - the width in pixels
          */
         setColumnWidth: function(x, width) {
-            var tableState = this.getState();
-            tableState.columnWidths[x] = Math.max(5, width);
+            this.getDataModel().setColumnWidth(x, width);
             this.stateChanged();
         },
 
@@ -24136,6 +24170,7 @@ it contains all code/data that's necessary for easily implementing a virtual dat
             var tmp = indexes[source];
             indexes[source] = indexes[target];
             indexes[target] = tmp;
+            console.log(indexes);
             this.stateChanged();
         },
 
@@ -24209,12 +24244,12 @@ it contains all code/data that's necessary for easily implementing a virtual dat
         },
 
         getColumnCount: function() {
-            return 53;
+            return 10;
         },
 
         getRowCount: function() {
             //jeepers batman a quadrillion rows!
-            return 53;
+            return 1;
         }
     });
 
@@ -31439,8 +31474,8 @@ fin-vampire-bar {
 
             defaultRowHeight: 15,
             defaultFixedRowHeight: 15,
-            defaultColumnWidth: 36,
-            defaultFixedColumnWidth: 36,
+            defaultColumnWidth: 100,
+            defaultFixedColumnWidth: 100,
 
             //for immediate painting, set these values to 0, true respectively
             repaintIntervalRate: 4,
@@ -34494,12 +34529,6 @@ fin-vampire-bar {
         endDragColumnNotification: function() {
             this.getBehavior().endDragColumnNotification();
         },
-
-        // translate: function() {
-        //     var behavior = this.getBehavior();
-        //     var interfase = behavior.getTranslationInterface();
-        //     return interfase;
-        // },
 
         getFixedColumnsMaxWidth: function() {
             return this.getBehavior().getFixedColumnsMaxWidth();

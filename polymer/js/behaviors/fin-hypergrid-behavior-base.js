@@ -315,7 +315,7 @@ it contains all code/data that's necessary for easily implementing a virtual dat
             this.setNextFeature(document.createElement('fin-hypergrid-feature-column-moving'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-cell-selection'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-thumbwheel-scrolling'));
-            this.setNextFeature(document.createElement('fin-hypergrid-feature-cell-editing'));
+            //this.setNextFeature(document.createElement('fin-hypergrid-feature-cell-editing'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-column-sorting'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-on-hover'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-column-autosizing'));
@@ -1127,8 +1127,7 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          * @param {integer} x - the column index of interest
          */
         getColumnWidth: function(x) {
-            var tableState = this.getState();
-            var override = tableState.columnWidths[x];
+            var override = this.getDataModel().getColumnWidth(x);
             if (override) {
                 return override;
             }
@@ -1144,8 +1143,7 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          * @param {integer} width - the width in pixels
          */
         setColumnWidth: function(x, width) {
-            var tableState = this.getState();
-            tableState.columnWidths[x] = Math.max(5, width);
+            this.getDataModel().setColumnWidth(x, width);
             this.stateChanged();
         },
 
@@ -1435,6 +1433,7 @@ it contains all code/data that's necessary for easily implementing a virtual dat
             var tmp = indexes[source];
             indexes[source] = indexes[target];
             indexes[target] = tmp;
+            console.log(indexes);
             this.stateChanged();
         },
 

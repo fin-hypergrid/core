@@ -80,8 +80,8 @@
 
             defaultRowHeight: 15,
             defaultFixedRowHeight: 15,
-            defaultColumnWidth: 36,
-            defaultFixedColumnWidth: 36,
+            defaultColumnWidth: 100,
+            defaultFixedColumnWidth: 100,
 
             //for immediate painting, set these values to 0, true respectively
             repaintIntervalRate: 4,
@@ -3135,12 +3135,6 @@
         endDragColumnNotification: function() {
             this.getBehavior().endDragColumnNotification();
         },
-
-        // translate: function() {
-        //     var behavior = this.getBehavior();
-        //     var interfase = behavior.getTranslationInterface();
-        //     return interfase;
-        // },
 
         getFixedColumnsMaxWidth: function() {
             return this.getBehavior().getFixedColumnsMaxWidth();
