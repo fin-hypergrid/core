@@ -11,7 +11,7 @@
 
     var noop = function() {};
 
-    var columnAnimationTime = 1000;
+    var columnAnimationTime = 150;
     var dragger;
     var draggerCTX;
     var floatColumn;
@@ -499,9 +499,10 @@
             var hdpiRatio = grid.getHiDPI(draggerCTX);
 
             var dragColumnIndex = grid.renderOverridesCache.dragger.columnIndex;
-            //var columnWidth = grid.renderOverridesCache.dragger.width;
+            var columnWidth = grid.renderOverridesCache.dragger.width;
+
             var minX = 0; //grid.getFixedColumnsWidth();
-            var maxX = grid.renderer.getFinalVisableColumnBoundry();
+            var maxX = grid.renderer.getFinalVisableColumnBoundry() - columnWidth;
             x = Math.min(x, maxX + 15);
             x = Math.max(minX - 15, x);
 
@@ -527,15 +528,11 @@
             }
 
             if (atMax) {
-                overCol = columnEdges[columnEdges.length - 1];
+                overCol = grid.getColumnCount() - 1;
             }
 
             var doAFloat = dragColumnIndex > overCol;
             doAFloat = doAFloat || (overCol - dragColumnIndex >= 1);
-
-            if (x > 230) {
-                console.log('halt');
-            }
 
             if (doAFloat && !atMax && !autoScrollingNow) {
                 var draggedToTheRight = dragColumnIndex < overCol;
@@ -594,39 +591,12 @@
             }
             var draggedIndex = grid.renderOverridesCache.dragger.columnIndex;
             grid.scrollBy(1, 0);
-            var newIndex = draggedIndex + scrollLeft + 1;
-            grid.swapColumns(newIndex, draggedIndex + scrollLeft);
+            var newIndex = draggedIndex + 1;
+            console.log(newIndex, draggedIndex);
+            grid.swapColumns(newIndex, draggedIndex);
+            grid.renderOverridesCache.dragger.columnIndex = newIndex;
 
             setTimeout(this._checkAutoScrollToRight.bind(this, grid, x), 250);
-        },
-
-        /**
-        * @function
-        * @instance
-        * @description
-        return the new column index for where I'm currently dragged at
-        * #### returns: integer
-        * @param {integer} dragIndex - descripton
-        */
-        findNewPositionOnScrollRight: function(dragIndex) {
-            noop(dragIndex);
-            //we need to compute the new index of dragIndex if it's assumed to be on the far right and we scroll one cell to the right
-            var scrollLeft = this.getHScrollValue();
-            var grid = this.getGrid();
-            //var dragWidth = behavior.getColumnWidth(dragIndex + scrollLeft);
-            var bounds = this.canvas.getBounds();
-
-            //lets add the drag width in so we don't have to ignore it in the loop
-            var viewWidth = bounds.width() - grid.getFixedColumnsWidth();
-            var max = grid.getColumnCount();
-            for (var c = 0; c < max; c++) {
-                var eachColumnWidth = grid.getColumnWidth(scrollLeft + c);
-                viewWidth = viewWidth - eachColumnWidth;
-                if (viewWidth < 0) {
-                    return c - 2;
-                }
-            }
-            return max - 1;
         },
 
         /**

@@ -448,7 +448,7 @@ var merge = function(target, source) {
             var c;
             var edges = this.getColumnEdges();
             for (c = 1; c < edges.length - 1; c++) {
-                width = edges[c];
+                width = edges[c] - (edges[c] - edges[c - 1]) / 2;
                 if (pixelX < width) {
                     if (c > fixedColumnCount) {
                         c = c + scrollLeft;

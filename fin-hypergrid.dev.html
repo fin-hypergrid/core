@@ -15826,7 +15826,8 @@ var merge = function(target, source) {
             var c;
             var edges = this.getColumnEdges();
             for (c = 1; c < edges.length - 1; c++) {
-                width = edges[c];
+                width = edges[c] - (edges[c] - edges[c - 1]) / 2;
+                console.log(width);
                 if (pixelX < width) {
                     if (c > fixedColumnCount) {
                         c = c + scrollLeft;
@@ -21193,7 +21194,7 @@ var commands = {
 
     var noop = function() {};
 
-    var columnAnimationTime = 1000;
+    var columnAnimationTime = 150;
     var dragger;
     var draggerCTX;
     var floatColumn;
@@ -21681,9 +21682,10 @@ var commands = {
             var hdpiRatio = grid.getHiDPI(draggerCTX);
 
             var dragColumnIndex = grid.renderOverridesCache.dragger.columnIndex;
-            //var columnWidth = grid.renderOverridesCache.dragger.width;
+            var columnWidth = grid.renderOverridesCache.dragger.width;
+
             var minX = 0; //grid.getFixedColumnsWidth();
-            var maxX = grid.renderer.getFinalVisableColumnBoundry();
+            var maxX = grid.renderer.getFinalVisableColumnBoundry() - columnWidth;
             x = Math.min(x, maxX + 15);
             x = Math.max(minX - 15, x);
 
@@ -24277,7 +24279,7 @@ it contains all code/data that's necessary for easily implementing a virtual dat
         },
 
         getColumnCount: function() {
-            return 20;
+            return 27;
         },
 
         getRowCount: function() {
