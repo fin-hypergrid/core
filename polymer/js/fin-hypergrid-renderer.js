@@ -446,20 +446,22 @@ var merge = function(target, source) {
             var fixedColumnCount = this.getFixedColumnCount();
             var scrollLeft = grid.getHScrollValue();
             var c;
-            for (c = 0; c < this.insertionBounds.length; c++) {
-                width = this.insertionBounds[c];
+            var edges = this.getColumnEdges();
+            for (c = 1; c < edges.length - 1; c++) {
+                width = edges[c];
                 if (pixelX < width) {
-                    if (c >= fixedColumnCount) {
+                    if (c > fixedColumnCount) {
                         c = c + scrollLeft;
                     }
-                    return c;
+                    return c - 1;
                 }
             }
-            if (c >= fixedColumnCount) {
+            if (c > fixedColumnCount) {
                 c = c + scrollLeft;
             }
-            return c;
+            return c - 1;
         },
+
 
         /**
          * @function
@@ -678,7 +680,6 @@ var merge = function(target, source) {
             //var edges = this.getColumnEdges();
             var startX = override.startX; //hdpiRatio * edges[override.columnIndex];
             var width = override.width;
-            console.log(override.name, startX, width);
             var height = override.height;
             var targetCTX = override.ctx;
             var imgData = gc.getImageData(startX, 0, Math.round(width * hdpiRatio), Math.round(height * hdpiRatio));

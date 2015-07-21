@@ -4,13 +4,14 @@
  * @module features\column-moving
  * @description
  this feature is responsible for column drag and drop reordering
+ this object is a mess and desperately needs a complete rewrite.....
  *
  */
 (function() {
 
     var noop = function() {};
 
-    var columnAnimationTime = 150;
+    var columnAnimationTime = 1000;
     var dragger;
     var draggerCTX;
     var floatColumn;
@@ -211,6 +212,7 @@
         */
         floatColumnTo: function(grid, draggedToTheRight) {
             this.floatingNow = true;
+
             var renderer = grid.getRenderer();
             var colEdges = renderer.getColumnEdges();
             //var behavior = grid.getBehavior();
@@ -222,13 +224,14 @@
             var draggerStartX;
             var floaterStartX;
             var fixedColumnCount = grid.getFixedColumnCount();
-            var draggerWidth = grid.getColumnWidth(draggerIndex + scrollLeft);
-            var floaterWidth = grid.getColumnWidth(floaterIndex + scrollLeft);
+            var draggerWidth = grid.getColumnWidth(draggerIndex);
+            var floaterWidth = grid.getColumnWidth(floaterIndex);
 
             var max = grid.getVisibleColumnsCount();
 
             var doffset = 0;
             var foffset = 0;
+
             if (draggerIndex >= fixedColumnCount) {
                 doffset = scrollLeft;
             }
@@ -241,9 +244,7 @@
                 floaterStartX = colEdges[Math.min(max, floaterIndex - foffset)];
 
                 grid.renderOverridesCache.dragger.startX = (draggerStartX + floaterWidth) * hdpiratio;
-                grid.renderOverridesCache.dragger.name = 'dragger';
                 grid.renderOverridesCache.floater.startX = draggerStartX * hdpiratio;
-                grid.renderOverridesCache.floater.name = 'floater';
 
             } else {
                 floaterStartX = colEdges[Math.min(max, floaterIndex - foffset)];
@@ -328,9 +329,17 @@
         * @param {integer} columnIndex - the index of the column that will be floating
         */
         createFloatColumn: function(grid, columnIndex) {
+
+            var fixedColumnCount = grid.getFixedColumnCount();
+            var scrollLeft = grid.getHScrollValue();
+
+            if (columnIndex < fixedColumnCount) {
+                scrollLeft = 0;
+            }
+
             var renderer = grid.getRenderer();
             var columnEdges = renderer.getColumnEdges();
-            var scrollLeft = grid.getHScrollValue();
+
             var columnWidth = grid.getColumnWidth(columnIndex);
             var colHeight = grid.clientHeight;
             var d = floatColumn;
@@ -414,16 +423,23 @@
         * @param {integer} columnIndex - the index of the column that will be floating
         */
         createDragColumn: function(grid, x, columnIndex) {
-            var renderer = grid.getRenderer();
-            var columnEdges = renderer.getColumnEdges();
 
+            var fixedColumnCount = grid.getFixedColumnCount();
             var scrollLeft = grid.getHScrollValue();
 
-            var hdpiRatio = grid.getHiDPI(draggerCTX);
+            if (columnIndex < fixedColumnCount) {
+                scrollLeft = 0;
+            }
 
+            var renderer = grid.getRenderer();
+            var columnEdges = renderer.getColumnEdges();
+            var hdpiRatio = grid.getHiDPI(draggerCTX);
             var columnWidth = grid.getColumnWidth(columnIndex);
             var colHeight = grid.clientHeight;
             var d = dragger;
+
+
+
 
             var location = grid.getBoundingClientRect();
             var style = d.style;
@@ -448,8 +464,6 @@
 
             draggerCTX.scale(hdpiRatio, hdpiRatio);
 
-
-            console.log(columnIndex);
             grid.renderOverridesCache.dragger = {
                 columnIndex: columnIndex,
                 ctx: draggerCTX,
@@ -463,8 +477,6 @@
             style.zIndex = '5';
             style.cursor = 'none';
             grid.repaint();
-            console.log('halt');
-
         },
 
         /**
@@ -509,24 +521,31 @@
             });
 
             var overCol = grid.renderer.getColumnFromPixelX(x + (d.width / 2 / hdpiRatio));
+
             if (atMin) {
                 overCol = 0;
             }
+
             if (atMax) {
                 overCol = columnEdges[columnEdges.length - 1];
             }
 
             var doAFloat = dragColumnIndex > overCol;
-            doAFloat = doAFloat || (overCol - dragColumnIndex > 1);
+            doAFloat = doAFloat || (overCol - dragColumnIndex >= 1);
+
+            if (x > 230) {
+                console.log('halt');
+            }
 
             if (doAFloat && !atMax && !autoScrollingNow) {
                 var draggedToTheRight = dragColumnIndex < overCol;
-                if (draggedToTheRight) {
-                    overCol = overCol - 1;
-                }
+                // if (draggedToTheRight) {
+                //     overCol = overCol - 1;
+                // }
                 if (this.isFloatingNow) {
                     return;
                 }
+
                 this.isFloatingNow = true;
                 this.createFloatColumn(grid, overCol);
                 this.floatColumnTo(grid, draggedToTheRight);
@@ -651,17 +670,20 @@
         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
         */
         endDragColumn: function(grid) {
-            var renderer = grid.getRenderer();
-            var scrollLeft = grid.getHScrollValue();
+
             var fixedColumnCount = grid.getFixedColumnCount();
+            var scrollLeft = grid.getHScrollValue();
+
+            var columnIndex = grid.renderOverridesCache.dragger.columnIndex;
+
+            if (columnIndex < fixedColumnCount) {
+                scrollLeft = 0;
+            }
+
+            var renderer = grid.getRenderer();
             var columnEdges = renderer.getColumnEdges();
             var self = this;
-            var columnIndex = grid.renderOverridesCache.dragger.columnIndex;
-            var doffset = 0;
-            if (columnIndex >= fixedColumnCount) {
-                doffset = scrollLeft;
-            }
-            var startX = columnEdges[columnIndex - doffset];
+            var startX = columnEdges[columnIndex - scrollLeft];
             var d = dragger;
 
             self.setCrossBrowserProperty(d, 'transition', (self.isWebkit ? '-webkit-' : '') + 'transform ' + columnAnimationTime + 'ms ease, box-shadow ' + columnAnimationTime + 'ms ease');

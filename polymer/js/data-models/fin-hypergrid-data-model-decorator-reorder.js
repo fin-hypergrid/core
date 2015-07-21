@@ -10,6 +10,14 @@
 
         setBehavior: function(newBehavior) {
             this.behavior = newBehavior;
+            var self = this;
+            setTimeout(function() {
+                var numCols = newBehavior.getColumnCount();
+                for (var i = 0; i < numCols; i++) {
+                    self.setColumnWidth(i, i * 10);
+                }
+                newBehavior.stateChanged();
+            }, 500);
         },
 
         getBehavior: function() {

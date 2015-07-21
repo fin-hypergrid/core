@@ -15824,20 +15824,22 @@ var merge = function(target, source) {
             var fixedColumnCount = this.getFixedColumnCount();
             var scrollLeft = grid.getHScrollValue();
             var c;
-            for (c = 0; c < this.insertionBounds.length; c++) {
-                width = this.insertionBounds[c];
+            var edges = this.getColumnEdges();
+            for (c = 1; c < edges.length - 1; c++) {
+                width = edges[c];
                 if (pixelX < width) {
-                    if (c >= fixedColumnCount) {
+                    if (c > fixedColumnCount) {
                         c = c + scrollLeft;
                     }
-                    return c;
+                    return c - 1;
                 }
             }
-            if (c >= fixedColumnCount) {
+            if (c > fixedColumnCount) {
                 c = c + scrollLeft;
             }
-            return c;
+            return c - 1;
         },
+
 
         /**
          * @function
@@ -16056,7 +16058,6 @@ var merge = function(target, source) {
             //var edges = this.getColumnEdges();
             var startX = override.startX; //hdpiRatio * edges[override.columnIndex];
             var width = override.width;
-            console.log(override.name, startX, width);
             var height = override.height;
             var targetCTX = override.ctx;
             var imgData = gc.getImageData(startX, 0, Math.round(width * hdpiRatio), Math.round(height * hdpiRatio));
@@ -21185,13 +21186,14 @@ var commands = {
  * @module features\column-moving
  * @description
  this feature is responsible for column drag and drop reordering
+ this object is a mess and desperately needs a complete rewrite.....
  *
  */
 (function() {
 
     var noop = function() {};
 
-    var columnAnimationTime = 150;
+    var columnAnimationTime = 1000;
     var dragger;
     var draggerCTX;
     var floatColumn;
@@ -21392,6 +21394,7 @@ var commands = {
         */
         floatColumnTo: function(grid, draggedToTheRight) {
             this.floatingNow = true;
+
             var renderer = grid.getRenderer();
             var colEdges = renderer.getColumnEdges();
             //var behavior = grid.getBehavior();
@@ -21403,13 +21406,14 @@ var commands = {
             var draggerStartX;
             var floaterStartX;
             var fixedColumnCount = grid.getFixedColumnCount();
-            var draggerWidth = grid.getColumnWidth(draggerIndex + scrollLeft);
-            var floaterWidth = grid.getColumnWidth(floaterIndex + scrollLeft);
+            var draggerWidth = grid.getColumnWidth(draggerIndex);
+            var floaterWidth = grid.getColumnWidth(floaterIndex);
 
             var max = grid.getVisibleColumnsCount();
 
             var doffset = 0;
             var foffset = 0;
+
             if (draggerIndex >= fixedColumnCount) {
                 doffset = scrollLeft;
             }
@@ -21422,9 +21426,7 @@ var commands = {
                 floaterStartX = colEdges[Math.min(max, floaterIndex - foffset)];
 
                 grid.renderOverridesCache.dragger.startX = (draggerStartX + floaterWidth) * hdpiratio;
-                grid.renderOverridesCache.dragger.name = 'dragger';
                 grid.renderOverridesCache.floater.startX = draggerStartX * hdpiratio;
-                grid.renderOverridesCache.floater.name = 'floater';
 
             } else {
                 floaterStartX = colEdges[Math.min(max, floaterIndex - foffset)];
@@ -21509,9 +21511,17 @@ var commands = {
         * @param {integer} columnIndex - the index of the column that will be floating
         */
         createFloatColumn: function(grid, columnIndex) {
+
+            var fixedColumnCount = grid.getFixedColumnCount();
+            var scrollLeft = grid.getHScrollValue();
+
+            if (columnIndex < fixedColumnCount) {
+                scrollLeft = 0;
+            }
+
             var renderer = grid.getRenderer();
             var columnEdges = renderer.getColumnEdges();
-            var scrollLeft = grid.getHScrollValue();
+
             var columnWidth = grid.getColumnWidth(columnIndex);
             var colHeight = grid.clientHeight;
             var d = floatColumn;
@@ -21595,16 +21605,23 @@ var commands = {
         * @param {integer} columnIndex - the index of the column that will be floating
         */
         createDragColumn: function(grid, x, columnIndex) {
-            var renderer = grid.getRenderer();
-            var columnEdges = renderer.getColumnEdges();
 
+            var fixedColumnCount = grid.getFixedColumnCount();
             var scrollLeft = grid.getHScrollValue();
 
-            var hdpiRatio = grid.getHiDPI(draggerCTX);
+            if (columnIndex < fixedColumnCount) {
+                scrollLeft = 0;
+            }
 
+            var renderer = grid.getRenderer();
+            var columnEdges = renderer.getColumnEdges();
+            var hdpiRatio = grid.getHiDPI(draggerCTX);
             var columnWidth = grid.getColumnWidth(columnIndex);
             var colHeight = grid.clientHeight;
             var d = dragger;
+
+
+
 
             var location = grid.getBoundingClientRect();
             var style = d.style;
@@ -21629,8 +21646,6 @@ var commands = {
 
             draggerCTX.scale(hdpiRatio, hdpiRatio);
 
-
-            console.log(columnIndex);
             grid.renderOverridesCache.dragger = {
                 columnIndex: columnIndex,
                 ctx: draggerCTX,
@@ -21644,8 +21659,6 @@ var commands = {
             style.zIndex = '5';
             style.cursor = 'none';
             grid.repaint();
-            console.log('halt');
-
         },
 
         /**
@@ -21690,24 +21703,31 @@ var commands = {
             });
 
             var overCol = grid.renderer.getColumnFromPixelX(x + (d.width / 2 / hdpiRatio));
+
             if (atMin) {
                 overCol = 0;
             }
+
             if (atMax) {
                 overCol = columnEdges[columnEdges.length - 1];
             }
 
             var doAFloat = dragColumnIndex > overCol;
-            doAFloat = doAFloat || (overCol - dragColumnIndex > 1);
+            doAFloat = doAFloat || (overCol - dragColumnIndex >= 1);
+
+            if (x > 230) {
+                console.log('halt');
+            }
 
             if (doAFloat && !atMax && !autoScrollingNow) {
                 var draggedToTheRight = dragColumnIndex < overCol;
-                if (draggedToTheRight) {
-                    overCol = overCol - 1;
-                }
+                // if (draggedToTheRight) {
+                //     overCol = overCol - 1;
+                // }
                 if (this.isFloatingNow) {
                     return;
                 }
+
                 this.isFloatingNow = true;
                 this.createFloatColumn(grid, overCol);
                 this.floatColumnTo(grid, draggedToTheRight);
@@ -21832,17 +21852,20 @@ var commands = {
         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
         */
         endDragColumn: function(grid) {
-            var renderer = grid.getRenderer();
-            var scrollLeft = grid.getHScrollValue();
+
             var fixedColumnCount = grid.getFixedColumnCount();
+            var scrollLeft = grid.getHScrollValue();
+
+            var columnIndex = grid.renderOverridesCache.dragger.columnIndex;
+
+            if (columnIndex < fixedColumnCount) {
+                scrollLeft = 0;
+            }
+
+            var renderer = grid.getRenderer();
             var columnEdges = renderer.getColumnEdges();
             var self = this;
-            var columnIndex = grid.renderOverridesCache.dragger.columnIndex;
-            var doffset = 0;
-            if (columnIndex >= fixedColumnCount) {
-                doffset = scrollLeft;
-            }
-            var startX = columnEdges[columnIndex - doffset];
+            var startX = columnEdges[columnIndex - scrollLeft];
             var d = dragger;
 
             self.setCrossBrowserProperty(d, 'transition', (self.isWebkit ? '-webkit-' : '') + 'transform ' + columnAnimationTime + 'ms ease, box-shadow ' + columnAnimationTime + 'ms ease');
@@ -22577,6 +22600,14 @@ var commands = {
 
         setBehavior: function(newBehavior) {
             this.behavior = newBehavior;
+            var self = this;
+            setTimeout(function() {
+                var numCols = newBehavior.getColumnCount();
+                for (var i = 0; i < numCols; i++) {
+                    self.setColumnWidth(i, i * 10);
+                }
+                newBehavior.stateChanged();
+            }, 500);
         },
 
         getBehavior: function() {
@@ -24246,7 +24277,7 @@ it contains all code/data that's necessary for easily implementing a virtual dat
         },
 
         getColumnCount: function() {
-            return 10;
+            return 20;
         },
 
         getRowCount: function() {
