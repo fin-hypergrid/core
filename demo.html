@@ -133,7 +133,7 @@
             </paper-dropdown>
         </paper-menu-button>
 
-        <paper-tabs selected="1" flex>
+        <paper-tabs selected="2" flex>
             <paper-tab>In Memory</paper-tab>
             <paper-tab>Default</paper-tab>
             <paper-tab>JSON</paper-tab>
@@ -144,7 +144,7 @@
 
     </core-toolbar>
 
-  <core-pages selected="1">
+  <core-pages selected="2">
 
         <div vertical layout>
           <div class="description">
@@ -172,9 +172,9 @@
           </div>
           <core-splitter direction="up"></core-splitter>
           <div flex class="rel">
-            <fin-hypergrid class="abs">
+<!--             <fin-hypergrid class="abs">
                 <fin-hypergrid-behavior-default></fin-hypergrid-behavior-default>
-            </fin-hypergrid>
+            </fin-hypergrid> -->
           </div>
         </div>
 
@@ -187,9 +187,9 @@
           </div>
           <core-splitter direction="up"></core-splitter>
           <div flex class="rel">
-<!--             <fin-hypergrid class="abs" id="json-example">
+            <fin-hypergrid class="abs" id="json-example">
                 <fin-hypergrid-behavior-json></fin-hypergrid-behavior-json>
-            </fin-hypergrid> -->
+            </fin-hypergrid>
           </div>
         </div>
         <div vertical layout>
@@ -697,7 +697,7 @@
             // }
 
         });
-    });// ();
+    })();
     //json-example stuff
     function toggleHiDPI() {
         var button = document.querySelector('#hidpi-button');

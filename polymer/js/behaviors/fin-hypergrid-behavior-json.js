@@ -697,6 +697,13 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
             }
             this.toggleSort(mouse.gridCell.x);
         },
+
+
+        getDefaultDataModel: function() {
+            var model = document.createElement('fin-hypergrid-data-model-json');
+            return model;
+        },
+
     });
 
 })(); /* jslint ignore:line */

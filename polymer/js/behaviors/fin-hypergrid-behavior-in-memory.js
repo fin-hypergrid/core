@@ -152,7 +152,7 @@ This is a very rough in memory data source example.  fin-hypergrid-behavior-in-m
         initialize: function() {
             var config = {
                 xstart: 0,
-                xstop: this._getColumnCount(),
+                xstop: this.getColumnCount(),
                 xinc: 1,
                 ystart: 0,
                 ystop: this.getRowCount(),

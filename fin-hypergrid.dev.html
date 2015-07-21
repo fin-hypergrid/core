@@ -12213,6 +12213,10 @@ scope.importElements = importElements;
 
 
 
+
+
+
+
 <script>/*!
  * numeral.js
  * version : 1.5.3
@@ -12235,7 +12239,8 @@ scope.importElements = importElements;
 
 
 
- </head><body><div hidden="">
+
+</head><body><div hidden="">
 <polymer-element name="fin-rectangle" assetpath="/dev/fin-rectangle/">
   <script>
 
@@ -15827,7 +15832,6 @@ var merge = function(target, source) {
             var edges = this.getColumnEdges();
             for (c = 1; c < edges.length - 1; c++) {
                 width = edges[c] - (edges[c] - edges[c - 1]) / 2;
-                console.log(width);
                 if (pixelX < width) {
                     if (c > fixedColumnCount) {
                         c = c + scrollLeft;
@@ -21674,8 +21678,8 @@ var commands = {
 
             //TODO: this function is overly complex, refactor this in to something more reasonable
             var self = this;
-            var renderer = grid.getRenderer();
-            var columnEdges = renderer.getColumnEdges();
+            //var renderer = grid.getRenderer();
+            //var columnEdges = renderer.getColumnEdges();
 
             var autoScrollingNow = this.columnDragAutoScrollingRight || this.columnDragAutoScrollingLeft;
 
@@ -21711,15 +21715,11 @@ var commands = {
             }
 
             if (atMax) {
-                overCol = columnEdges[columnEdges.length - 1];
+                overCol = grid.getColumnCount() - 1;
             }
 
             var doAFloat = dragColumnIndex > overCol;
             doAFloat = doAFloat || (overCol - dragColumnIndex >= 1);
-
-            if (x > 230) {
-                console.log('halt');
-            }
 
             if (doAFloat && !atMax && !autoScrollingNow) {
                 var draggedToTheRight = dragColumnIndex < overCol;
@@ -21778,39 +21778,12 @@ var commands = {
             }
             var draggedIndex = grid.renderOverridesCache.dragger.columnIndex;
             grid.scrollBy(1, 0);
-            var newIndex = draggedIndex + scrollLeft + 1;
-            grid.swapColumns(newIndex, draggedIndex + scrollLeft);
+            var newIndex = draggedIndex + 1;
+            console.log(newIndex, draggedIndex);
+            grid.swapColumns(newIndex, draggedIndex);
+            grid.renderOverridesCache.dragger.columnIndex = newIndex;
 
             setTimeout(this._checkAutoScrollToRight.bind(this, grid, x), 250);
-        },
-
-        /**
-        * @function
-        * @instance
-        * @description
-        return the new column index for where I'm currently dragged at
-        * #### returns: integer
-        * @param {integer} dragIndex - descripton
-        */
-        findNewPositionOnScrollRight: function(dragIndex) {
-            noop(dragIndex);
-            //we need to compute the new index of dragIndex if it's assumed to be on the far right and we scroll one cell to the right
-            var scrollLeft = this.getHScrollValue();
-            var grid = this.getGrid();
-            //var dragWidth = behavior.getColumnWidth(dragIndex + scrollLeft);
-            var bounds = this.canvas.getBounds();
-
-            //lets add the drag width in so we don't have to ignore it in the loop
-            var viewWidth = bounds.width() - grid.getFixedColumnsWidth();
-            var max = grid.getColumnCount();
-            for (var c = 0; c < max; c++) {
-                var eachColumnWidth = grid.getColumnWidth(scrollLeft + c);
-                viewWidth = viewWidth - eachColumnWidth;
-                if (viewWidth < 0) {
-                    return c - 2;
-                }
-            }
-            return max - 1;
         },
 
         /**
@@ -22602,14 +22575,14 @@ var commands = {
 
         setBehavior: function(newBehavior) {
             this.behavior = newBehavior;
-            var self = this;
-            setTimeout(function() {
-                var numCols = newBehavior.getColumnCount();
-                for (var i = 0; i < numCols; i++) {
-                    self.setColumnWidth(i, i * 10);
-                }
-                newBehavior.stateChanged();
-            }, 500);
+            // var self = this;
+            // setTimeout(function() {
+            //     var numCols = newBehavior.getColumnCount();
+            //     for (var i = 0; i < numCols; i++) {
+            //         self.setColumnWidth(i, i * 10);
+            //     }
+            //     newBehavior.stateChanged();
+            // }, 500);
         },
 
         getBehavior: function() {
@@ -22692,6 +22665,97 @@ var commands = {
         },
 
     });
+
+})();
+</script>
+</polymer-element>
+<polymer-element name="fin-hypergrid-data-model-in-memory" extends="fin-hypergrid-data-model-base" assetpath="/dev/fin-hypergrid/polymer/html/data-models/">
+  <template>
+    <style type="text/css">:host {
+    display: block;
+    position: relative;
+}
+</style>
+  </template>
+  <script>'use strict';
+
+(function() {
+    var alphaFor = function(i) {
+        // Name the column headers in A, .., AA, AB, AC, .., AZ format
+        // quotient/remainder
+        //var quo = Math.floor(col/27);
+        var quo = Math.floor((i) / 26);
+        var rem = (i) % 26;
+        var code = '';
+        if (quo > 0) {
+            code += String.fromCharCode('A'.charCodeAt(0) + quo - 1);
+        }
+        code += String.fromCharCode('A'.charCodeAt(0) + rem);
+        return code;
+    };
+    //var noop = function() {};
+    var a = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+
+    Polymer('fin-hypergrid-data-model-in-memory', { /* jshint ignore:line  */
+
+        dataUpdates: {},
+
+        /**
+        * @function
+        * @instance
+        * @description
+        this is the most important behavior function it returns each data point at x,y coordinates
+        * #### returns: Object
+         * @param {integer} x - the x coordinate
+         * @param {integer} x - the y coordinate
+        */
+        getValue: function(x, y) {
+            var override = this.dataUpdates['p_' + x + '_' + y];
+            if (override) {
+                return override;
+            }
+            if (x === 0) {
+                if (y === 0) {
+                    return '';
+                }
+                return y;
+            }
+            if (y === 0) {
+                return alphaFor(x - 1);
+            }
+            return (x - 1) + ', ' + a[(y - 1) % 26];
+        },
+
+        setValue: function(x, y, value) {
+            this.dataUpdates['p_' + x + '_' + y] = value;
+        },
+
+        getColumnCount: function() {
+            return 27;
+        },
+
+        getRowCount: function() {
+            //jeepers batman a quadrillion rows!
+            return 53;
+        }
+    });
+
+})();
+</script>
+</polymer-element>
+<polymer-element name="fin-hypergrid-data-model-json" extends="fin-hypergrid-data-model-base" assetpath="/dev/fin-hypergrid/polymer/html/data-models/">
+  <template>
+    <style type="text/css">:host {
+    display: block;
+    position: relative;
+}
+</style>
+  </template>
+  <script>'use strict';
+
+(function() {
+
+    Polymer('fin-hypergrid-data-model-json', { /* jshint ignore:line  */ });
 
 })();
 </script>
@@ -25470,7 +25534,7 @@ This is a very rough in memory data source example.  fin-hypergrid-behavior-in-m
         initialize: function() {
             var config = {
                 xstart: 0,
-                xstop: this._getColumnCount(),
+                xstop: this.getColumnCount(),
                 xinc: 1,
                 ystart: 0,
                 ystop: this.getRowCount(),
@@ -26837,6 +26901,13 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
             }
             this.toggleSort(mouse.gridCell.x);
         },
+
+
+        getDefaultDataModel: function() {
+            var model = document.createElement('fin-hypergrid-data-model-json');
+            return model;
+        },
+
     });
 
 })(); /* jslint ignore:line */
@@ -31171,8 +31242,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
 
 })(); /* jshint ignore:line */
 </script>
-</polymer-element></div>--&gt;
-<polymer-element name="fin-hypergrid" assetpath="polymer/html/">
+</polymer-element></div><polymer-element name="fin-hypergrid" assetpath="polymer/html/">
   <template>
     <style type="text/css">:host {
     position: relative;

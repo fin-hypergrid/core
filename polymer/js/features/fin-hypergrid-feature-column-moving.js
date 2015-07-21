@@ -491,8 +491,8 @@
 
             //TODO: this function is overly complex, refactor this in to something more reasonable
             var self = this;
-            var renderer = grid.getRenderer();
-            var columnEdges = renderer.getColumnEdges();
+            //var renderer = grid.getRenderer();
+            //var columnEdges = renderer.getColumnEdges();
 
             var autoScrollingNow = this.columnDragAutoScrollingRight || this.columnDragAutoScrollingLeft;
 
