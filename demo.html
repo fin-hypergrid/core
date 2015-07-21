@@ -520,8 +520,8 @@
             jsonModel.setData(data);
 
             //make the first col fixed;
-            jsonModel.setFixedColumnCount(1);
-            jsonModel.setFixedRowCount(2);
+            jsonModel.setFixedColumnCount(3);
+            jsonModel.setFixedRowCount(3);
 
 
             //lets set 2 rows of totals
@@ -641,13 +641,13 @@
             if (tab) {
                 tabs.setAttribute('selected', tab);
             }
-            var qTree = document.querySelector('#qtree-example');
+//            var qTree = document.querySelector('#qtree-example');
             // qTree.addEventListener('fin-grid-rendered', function(e) {
             //   console.dir(qTree.getRenderedData());
             // });
-            qTree.addFinEventListener('fin-selection-changed', function(e) {
+ //           qTree.addFinEventListener('fin-selection-changed', function(e) {
                 //console.log('fin-selection-changed', qTree.getSelectedRow());
-            });
+ //           });
 
             jsonGrid.addFinEventListener('fin-before-cell-edit', function(e) {
                 console.log('fin-before-cell-edit', e);

@@ -91,23 +91,38 @@ it contains all code/data that's necessary for easily implementing a virtual dat
         featureChain: null,
 
         dataModel: null,
+        baseModel: null,
+        cellProviderDecorator: null,
 
         scrollPositionX: 0,
         scrollPositionY: 0,
 
         getDataModel: function() {
             if (this.dataModel === null) {
-                var dataModel = this.getDefaultDataModel();
-                var cellProviderDecorator = this.getDefaultCellProviderDecorator();
+                var dataModel = this.getBaseModel();
+                var cellProviderDecorator = this.getCellProviderDecorator();
                 var reorderModel = this.getDefaultReorderDataModel();
                 reorderModel.setComponent(cellProviderDecorator);
                 reorderModel.setBehavior(this);
                 cellProviderDecorator.setGrid(this.getGrid());
                 cellProviderDecorator.setComponent(dataModel);
-                cellProviderDecorator.setCellProvider(this.getCellProvider());
                 this.setDataModel(reorderModel);
             }
             return this.dataModel;
+        },
+
+        getBaseModel: function() {
+            if (this.baseModel === null) {
+                this.baseModel = this.getDefaultDataModel();
+            }
+            return this.baseModel;
+        },
+
+        getCellProviderDecorator: function() {
+            if (this.cellProviderDecorator === null) {
+                this.cellProviderDecorator = this.getDefaultCellProviderDecorator();
+            }
+            return this.cellProviderDecorator;
         },
 
         getCellRenderer: function(config, x, y) {
@@ -165,6 +180,7 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          the function to override for initialization
          */
         readyInit: function() {
+            this.getDataModel();
             this.cellProvider = this.createCellProvider();
             this.renderedColumnCount = 30;
             this.renderedRowCount = 60;
@@ -343,6 +359,8 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          */
         setGrid: function(finGrid) {
             this.grid = finGrid;
+            this.getCellProviderDecorator().setGrid(finGrid);
+            this.getCellProviderDecorator().setCellProvider(this.getCellProvider());
         },
 
         /**

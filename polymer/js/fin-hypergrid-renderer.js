@@ -1094,6 +1094,7 @@ var merge = function(target, source) {
         _paintCell: function(gc, c, r) {
 
             var cellProperties = this.cellProperties;
+
             var grid = this.getGrid();
             var behavior = this.getBehavior();
 
@@ -1105,6 +1106,9 @@ var merge = function(target, source) {
             cellProperties.bounds = this._getBoundsOfCell(c, r);
 
             var cell = behavior.getCellRenderer(cellProperties, c, r);
+
+            cell.config.x = c;
+            cell.config.y = r;
 
             behavior.cellPrePaintNotification(cell);
             cell.paint(gc, cellProperties);
