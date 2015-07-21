@@ -27,32 +27,32 @@ var noop = function() {};
         gc.lineTo(x + width + 0.5, y + 0.5);
     };
 
-    var roundRect = function(gc, x, y, width, height, radius, fill, stroke) {
-        if (!stroke) {
-            stroke = true;
-        }
-        if (!radius) {
-            radius = 5;
-        }
-        gc.beginPath();
-        gc.moveTo(x + radius, y);
-        gc.lineTo(x + width - radius, y);
-        gc.quadraticCurveTo(x + width, y, x + width, y + radius);
-        gc.lineTo(x + width, y + height - radius);
-        gc.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
-        gc.lineTo(x + radius, y + height);
-        gc.quadraticCurveTo(x, y + height, x, y + height - radius);
-        gc.lineTo(x, y + radius);
-        gc.quadraticCurveTo(x, y, x + radius, y);
-        gc.closePath();
-        if (stroke) {
-            gc.stroke();
-        }
-        if (fill) {
-            gc.fill();
-        }
-        gc.closePath();
-    };
+    // var roundRect = function(gc, x, y, width, height, radius, fill, stroke) {
+    //     if (!stroke) {
+    //         stroke = true;
+    //     }
+    //     if (!radius) {
+    //         radius = 5;
+    //     }
+    //     gc.beginPath();
+    //     gc.moveTo(x + radius, y);
+    //     gc.lineTo(x + width - radius, y);
+    //     gc.quadraticCurveTo(x + width, y, x + width, y + radius);
+    //     gc.lineTo(x + width, y + height - radius);
+    //     gc.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+    //     gc.lineTo(x + radius, y + height);
+    //     gc.quadraticCurveTo(x, y + height, x, y + height - radius);
+    //     gc.lineTo(x, y + radius);
+    //     gc.quadraticCurveTo(x, y, x + radius, y);
+    //     gc.closePath();
+    //     if (stroke) {
+    //         gc.stroke();
+    //     }
+    //     if (fill) {
+    //         gc.fill();
+    //     }
+    //     gc.closePath();
+    // };
 
 
     Polymer({ /* jslint ignore:line */
@@ -256,30 +256,30 @@ var noop = function() {};
          * @instance
          * @description emersons paint function for a slider button. currently the user cannot interact with it
          */
-        paintSlider: function(gc, x, y, width, height) {
-            gc.strokeStyle = 'white';
-            var val = this.config.value;
-            var radius = height / 2;
-            var offset = width * val;
-            var bgColor = this.config.isSelected ? this.config.bgSelColor : '#333333';
-            var btnGradient = gc.createLinearGradient(x, y, x, y + height);
-            btnGradient.addColorStop(0, bgColor);
-            btnGradient.addColorStop(1, '#666666');
-            var arcGradient = gc.createLinearGradient(x, y, x, y + height);
-            arcGradient.addColorStop(0, '#aaaaaa');
-            arcGradient.addColorStop(1, '#777777');
-            gc.fillStyle = btnGradient;
-            roundRect(gc, x, y, width, height, radius, btnGradient);
-            if (val < 1.0) {
-                gc.fillStyle = arcGradient;
-            } else {
-                gc.fillStyle = '#eeeeee';
-            }
-            gc.beginPath();
-            gc.arc(x + Math.max(offset - radius, radius), y + radius, radius, 0, 2 * Math.PI);
-            gc.fill();
-            gc.closePath();
-            this.config.minWidth = 100;
+        paintSlider: function( /* gc, x, y, width, height */ ) {
+            // gc.strokeStyle = 'white';
+            // var val = this.config.value;
+            // var radius = height / 2;
+            // var offset = width * val;
+            // var bgColor = this.config.isSelected ? this.config.bgSelColor : '#333333';
+            // var btnGradient = gc.createLinearGradient(x, y, x, y + height);
+            // btnGradient.addColorStop(0, bgColor);
+            // btnGradient.addColorStop(1, '#666666');
+            // var arcGradient = gc.createLinearGradient(x, y, x, y + height);
+            // arcGradient.addColorStop(0, '#aaaaaa');
+            // arcGradient.addColorStop(1, '#777777');
+            // gc.fillStyle = btnGradient;
+            // roundRect(gc, x, y, width, height, radius, btnGradient);
+            // if (val < 1.0) {
+            //     gc.fillStyle = arcGradient;
+            // } else {
+            //     gc.fillStyle = '#eeeeee';
+            // }
+            // gc.beginPath();
+            // gc.arc(x + Math.max(offset - radius, radius), y + radius, radius, 0, 2 * Math.PI);
+            // gc.fill();
+            // gc.closePath();
+            // this.config.minWidth = 100;
         },
 
         /**

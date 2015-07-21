@@ -669,7 +669,21 @@
                 });
             }, columnAnimationTime + 50);
 
-        }
+        },
+
+        /**
+        * @function
+        * @instance
+        * @description
+         handle this event down the feature chain of responsibility
+         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+         * @param {Object} event - the event details
+        */
+        isFixedRow: function(grid, event) {
+            var gridCell = event.viewPoint;
+            var isFixed = gridCell.y === 0;
+            return isFixed;
+        },
 
     });
 
