@@ -103,8 +103,6 @@ it contains all code/data that's necessary for easily implementing a virtual dat
                 var cellProviderDecorator = this.getCellProviderDecorator();
                 var reorderModel = this.getDefaultReorderDataModel();
                 reorderModel.setComponent(cellProviderDecorator);
-                reorderModel.setBehavior(this);
-                cellProviderDecorator.setGrid(this.getGrid());
                 cellProviderDecorator.setComponent(dataModel);
                 this.setDataModel(reorderModel);
             }
@@ -233,23 +231,35 @@ it contains all code/data that's necessary for easily implementing a virtual dat
 
                 fixedColumnCount: 10,
                 fixedRowCount: 1,
+
+                headerColumnCount: 3,
+                headerRowCount: 3,
+
+                sorted: []
             };
         },
 
+
         /**
-         * @function
-         * @instance
-         * @description
-         setter for a [Memento](http://c2.com/cgi/wiki?MementoPattern) Object
-         * @param {Object} state - [Memento](http://c2.com/cgi/wiki?MementoPattern) Object
-         */
-        setState: function(state) {
+        * @function
+        * @instance
+        * @description
+        return this table to a previous state. see the [memento pattern](http://c2.com/cgi/wiki?MementoPattern)
+        * @param {Object} memento - an encapulated representation of table state
+        */
+        setState: function(memento) {
             var tableState = this.getState();
-            for (var key in state) {
-                if (state.hasOwnProperty(key)) {
-                    tableState[key] = state[key];
+            for (var key in memento) {
+                if (memento.hasOwnProperty(key)) {
+                    tableState[key] = memento[key];
                 }
             }
+            this.applySorts();
+            this.changed();
+        },
+
+        applySorts: function() {
+            //if I have sorts, apply them now//
         },
 
         /**
@@ -359,8 +369,7 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          */
         setGrid: function(finGrid) {
             this.grid = finGrid;
-            this.getCellProviderDecorator().setGrid(finGrid);
-            this.getCellProviderDecorator().setCellProvider(this.getCellProvider());
+            this.getDataModel().setGrid(finGrid);
         },
 
         /**
@@ -386,7 +395,6 @@ it contains all code/data that's necessary for easily implementing a virtual dat
             var provider = document.createElement('fin-hypergrid-cell-provider');
             return provider;
         },
-
 
         /**
          * @function
@@ -1040,6 +1048,55 @@ it contains all code/data that's necessary for easily implementing a virtual dat
             this.tableState.fixedRowCount = numberOfFixedRows;
         },
 
+        /**
+         * @function
+         * @instance
+         * @description
+         return the count of fixed rows
+         * #### returns: integer
+         */
+        getHeaderRowCount: function() {
+            if (!this.tableState) {
+                return 0;
+            }
+            return this.tableState.headerRowCount || 0;
+        },
+
+        /**
+         * @function
+         * @instance
+         * @description
+         set the number of rows that are fixed
+         * @param {integer} numberOfFixedRows - the count of rows to be set fixed
+         */
+        setHeaderRowCount: function(numberOfHeaderRows) {
+            this.tableState.headerRowCount = numberOfHeaderRows;
+        },
+
+        /**
+         * @function
+         * @instance
+         * @description
+         return the count of fixed rows
+         * #### returns: integer
+         */
+        getHeaderColumnCount: function() {
+            if (!this.tableState) {
+                return 0;
+            }
+            return this.tableState.headerColumnCount || 0;
+        },
+
+        /**
+         * @function
+         * @instance
+         * @description
+         set the number of rows that are fixed
+         * @param {integer} numberOfFixedRows - the count of rows to be set fixed
+         */
+        setHeaderColumnCount: function(numberOfHeaderColumns) {
+            this.tableState.headerColumnCount = numberOfHeaderColumns;
+        },
         /**
          * @function
          * @instance

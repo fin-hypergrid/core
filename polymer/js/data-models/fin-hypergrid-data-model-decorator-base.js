@@ -50,6 +50,11 @@
             this.getComponent().setColumnWidth(x, width);
         },
 
+        setGrid: function(newGrid) {
+            this.grid = newGrid;
+            this.getComponent().setGrid(newGrid);
+        }
+
     });
 
 })();

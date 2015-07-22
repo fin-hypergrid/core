@@ -16,18 +16,16 @@
          * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
          * @param {Object} event - the event details
         */
-        handleTap: function( /* grid, event */ ) {
-            // var gridCell = event.gridCell;
-            // var mouse = event.primitiveEvent.detail.mouse;
-            //console.dir(event);
-            // var fixedRowsHeight = grid.getFixedRowsHeight();
-            // var fixedColsWidth = grid.getFixedColumnsWidth();
-            // if ((event.primitiveEvent.detail.mouse.y > fixedRowsHeight) &&
-            //     (event.primitiveEvent.detail.mouse.x > fixedColsWidth)) {
-            //     grid.cellClicked(event);
-            // } else if (this.next) {
-            //     this.next.handleTap(grid, event);
-            // }
+        handleTap: function(grid, event) {
+            var gridCell = event.gridCell;
+            var headerRowCount = grid.getHeaderRowCount();
+            var headerColumnCount = grid.getHeaderColumnCount();
+            if ((gridCell.y > headerRowCount) &&
+                (gridCell.x > headerColumnCount)) {
+                grid.cellClicked(event);
+            } else if (this.next) {
+                this.next.handleTap(grid, event);
+            }
         }
     });
 

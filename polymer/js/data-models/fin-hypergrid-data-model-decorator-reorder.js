@@ -6,30 +6,6 @@
 
     Polymer('fin-hypergrid-data-model-decorator-reorder', { /* jshint ignore:line  */
 
-        behavior: null,
-
-        setBehavior: function(newBehavior) {
-            this.behavior = newBehavior;
-            // var self = this;
-            // setTimeout(function() {
-            //     var numCols = newBehavior.getColumnCount();
-            //     for (var i = 0; i < numCols; i++) {
-            //         self.setColumnWidth(i, i * 10);
-            //     }
-            //     newBehavior.stateChanged();
-            // }, 500);
-        },
-
-        getBehavior: function() {
-            return this.behavior;
-        },
-
-        getState: function() {
-            var behavior = this.getBehavior();
-            var state = behavior.getState();
-            return state;
-        },
-
         getCellRenderer: function(config, x, y, untranslatedX, untranslatedY) {
             return this.getComponent().getCellRenderer(config, x, y, untranslatedX, untranslatedY);
         },
@@ -68,7 +44,7 @@
             x = this.translateColumnIndex(x);
             var tableState = this.getState();
             tableState.columnWidths[x] = width;
-            //this.changed();
+            this.changed();
         },
 
         getColumnEdge: function(x, renderer) {

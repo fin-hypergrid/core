@@ -4,25 +4,6 @@
 
     Polymer('fin-hypergrid-data-model-decorator-cell-provider', { /* jshint ignore:line  */
 
-        cellProvider: null,
-        grid: null,
-
-
-        setGrid: function(newGrid) {
-            this.grid = newGrid;
-        },
-
-        getGrid: function() {
-            return this.grid;
-        },
-
-        setCellProvider: function(newCellProvider) {
-            this.cellProvider = newCellProvider;
-        },
-
-        getCellProvider: function() {
-            return this.cellProvider;
-        },
 
         getCellRenderer: function(config, x, y /* , untranslatedX, untranslatedY */ ) {
             //this needs to be rethought
