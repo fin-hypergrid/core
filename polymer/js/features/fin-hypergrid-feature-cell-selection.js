@@ -75,30 +75,42 @@
         */
         handleMouseDown: function(grid, event) {
 
-            var numFixedColumns = grid.getFixedColumnCount();
-            var numFixedRows = grid.getFixedRowCount();
-
+            var behavior = grid.getBehavior();
             var cell = event.gridCell;
             var viewCell = event.viewPoint;
             var dx = cell.x;
             var dy = cell.y;
+            var headerRowCount = behavior.getHeaderRowCount();
+            var headerColumnCount = behavior.getHeaderColumnCount();
 
-            //if we are in the fixed area do not apply the scroll values
-            //check both x and y values independently
-            if (viewCell.x < numFixedColumns) {
-                dx = viewCell.x;
+            var isHeader = dy < headerRowCount || dx < headerColumnCount;
+
+            if (isHeader) {
+                if (this.next) {
+                    this.next.handleMouseDown(grid, event);
+                }
+            } else {
+
+                var numFixedColumns = grid.getFixedColumnCount();
+                var numFixedRows = grid.getFixedRowCount();
+
+                //if we are in the fixed area do not apply the scroll values
+                //check both x and y values independently
+                if (viewCell.x < numFixedColumns) {
+                    dx = viewCell.x;
+                }
+
+                if (viewCell.y < numFixedRows) {
+                    dy = viewCell.y;
+                }
+
+                var dCell = grid.rectangles.point.create(dx, dy);
+
+                var primEvent = event.primitiveEvent;
+                var keys = primEvent.detail.keys;
+                this.dragging = true;
+                this.extendSelection(grid, dCell, keys);
             }
-
-            if (viewCell.y < numFixedRows) {
-                dy = viewCell.y;
-            }
-
-            var dCell = grid.rectangles.point.create(dx, dy);
-
-            var primEvent = event.primitiveEvent;
-            var keys = primEvent.detail.keys;
-            this.dragging = true;
-            this.extendSelection(grid, dCell, keys);
         },
 
         /**
@@ -172,10 +184,15 @@
         */
         handleMouseDragCellSelection: function(grid, gridCell /* ,keys */ ) {
 
+            var behavior = grid.getBehavior();
+            var headerRowCount = behavior.getHeaderRowCount();
+            var headerColumnCount = behavior.getHeaderColumnCount();
             var x = gridCell.x;
             var y = gridCell.y;
-            x = Math.max(0, x);
-            y = Math.max(0, y);
+            x = Math.max(headerColumnCount, x);
+            y = Math.max(headerRowCount, y);
+
+
 
             var previousDragExtent = grid.getDragExtent();
             var mouseDown = grid.getMouseDown();

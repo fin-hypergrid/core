@@ -18681,8 +18681,9 @@ var commands = {
         */
         handleTap: function(grid, event) {
             var gridCell = event.gridCell;
-            var headerRowCount = grid.getHeaderRowCount();
-            var headerColumnCount = grid.getHeaderColumnCount();
+            var behavior = grid.getBehavior();
+            var headerRowCount = behavior.getHeaderRowCount();
+            var headerColumnCount = behavior.getHeaderColumnCount();
             if ((gridCell.y > headerRowCount) &&
                 (gridCell.x > headerColumnCount)) {
                 grid.cellClicked(event);
@@ -18952,30 +18953,42 @@ var commands = {
         */
         handleMouseDown: function(grid, event) {
 
-            var numFixedColumns = grid.getFixedColumnCount();
-            var numFixedRows = grid.getFixedRowCount();
-
+            var behavior = grid.getBehavior();
             var cell = event.gridCell;
             var viewCell = event.viewPoint;
             var dx = cell.x;
             var dy = cell.y;
+            var headerRowCount = behavior.getHeaderRowCount();
+            var headerColumnCount = behavior.getHeaderColumnCount();
 
-            //if we are in the fixed area do not apply the scroll values
-            //check both x and y values independently
-            if (viewCell.x < numFixedColumns) {
-                dx = viewCell.x;
+            var isHeader = dy < headerRowCount || dx < headerColumnCount;
+
+            if (isHeader) {
+                if (this.next) {
+                    this.next.handleMouseDown(grid, event);
+                }
+            } else {
+
+                var numFixedColumns = grid.getFixedColumnCount();
+                var numFixedRows = grid.getFixedRowCount();
+
+                //if we are in the fixed area do not apply the scroll values
+                //check both x and y values independently
+                if (viewCell.x < numFixedColumns) {
+                    dx = viewCell.x;
+                }
+
+                if (viewCell.y < numFixedRows) {
+                    dy = viewCell.y;
+                }
+
+                var dCell = grid.rectangles.point.create(dx, dy);
+
+                var primEvent = event.primitiveEvent;
+                var keys = primEvent.detail.keys;
+                this.dragging = true;
+                this.extendSelection(grid, dCell, keys);
             }
-
-            if (viewCell.y < numFixedRows) {
-                dy = viewCell.y;
-            }
-
-            var dCell = grid.rectangles.point.create(dx, dy);
-
-            var primEvent = event.primitiveEvent;
-            var keys = primEvent.detail.keys;
-            this.dragging = true;
-            this.extendSelection(grid, dCell, keys);
         },
 
         /**
@@ -19049,10 +19062,15 @@ var commands = {
         */
         handleMouseDragCellSelection: function(grid, gridCell /* ,keys */ ) {
 
+            var behavior = grid.getBehavior();
+            var headerRowCount = behavior.getHeaderRowCount();
+            var headerColumnCount = behavior.getHeaderColumnCount();
             var x = gridCell.x;
             var y = gridCell.y;
-            x = Math.max(0, x);
-            y = Math.max(0, y);
+            x = Math.max(headerColumnCount, x);
+            y = Math.max(headerRowCount, y);
+
+
 
             var previousDragExtent = grid.getDragExtent();
             var mouseDown = grid.getMouseDown();
@@ -20496,16 +20514,17 @@ var commands = {
          * @param {Object} event - the event details
         */
         handleTap: function(grid, event) {
+            var behavior = grid.getBehavior();
             var gridCell = event.gridCell;
-            var inFixedRowArea = gridCell.y < grid.getFixedRowCount();
-            var inFixedColumnArea = gridCell.x < grid.getFixedColumnCount();
+            var inHeaderRowArea = gridCell.y < behavior.getHeaderRowCount();
+            var inHeaderColumnArea = gridCell.x < behavior.getHeaderColumnCount();
 
-            if (inFixedRowArea && inFixedColumnArea) {
+            if (inHeaderRowArea && inHeaderColumnArea) {
                 grid.topLeftClicked(event);
-            } else if (inFixedRowArea) {
-                grid.fixedRowClicked(event);
-            } else if (inFixedColumnArea) {
-                grid.fixedColumnClicked(event);
+            } else if (inHeaderRowArea) {
+                grid.headerRowClicked(event);
+            } else if (inHeaderColumnArea) {
+                grid.headerColumnClicked(event);
             }
         },
 
@@ -22465,6 +22484,11 @@ var commands = {
             this.getBehavior().initColumnIndexes(state);
         },
 
+        toggleSort: function(x) {
+            console.log('toggle column ' + x);
+        },
+
+
     });
 
 })();
@@ -22533,7 +22557,12 @@ var commands = {
         setGrid: function(newGrid) {
             this.grid = newGrid;
             this.getComponent().setGrid(newGrid);
-        }
+        },
+
+        toggleSort: function(x) {
+            this.getComponent().toggleSort(x);
+        },
+
 
     });
 
@@ -22556,9 +22585,13 @@ var commands = {
 
         getCellRenderer: function(config, x, y /* , untranslatedX, untranslatedY */ ) {
             //this needs to be rethought
-            var provider = this.getCellProvider();
             var grid = this.getGrid();
-            if (x < 1) {
+            var provider = this.getCellProvider();
+            var behavior = grid.getBehavior();
+            var headerRowCount = behavior.getHeaderRowCount();
+            var headerColumnCount = behavior.getHeaderColumnCount();
+
+            if (x < headerColumnCount) {
                 config.font = config.fixedColumnFont;
                 if (grid.isFixedColumnCellSelected(y)) {
                     config.backgroundColor = config.fixedColumnBGSelColor;
@@ -22568,7 +22601,7 @@ var commands = {
                     config.backgroundColor = config.fixedColumnBackgroundColor;
                 }
                 return provider.getFixedColumnCell(config);
-            } else if (y < 1) {
+            } else if (y < headerRowCount) {
                 config.font = config.fixedRowFont;
                 if (grid.isFixedRowCellSelected(x)) {
                     config.backgroundColor = config.fixedRowBGSelColor;
@@ -22676,6 +22709,10 @@ var commands = {
             return cursor;
         },
 
+        toggleSort: function(x) {
+            x = this.translateColumnIndex(x);
+            this.getComponent().toggleSort(x);
+        },
     });
 
 })();
@@ -23543,8 +23580,8 @@ it contains all code/data that's necessary for easily implementing a virtual dat
                 fixedColumnCount: 10,
                 fixedRowCount: 1,
 
-                headerColumnCount: 3,
-                headerRowCount: 3,
+                headerColumnCount: 2,
+                headerRowCount: 2,
 
                 sorted: []
             };
@@ -23650,10 +23687,10 @@ it contains all code/data that's necessary for easily implementing a virtual dat
             this.setNextFeature(document.createElement('fin-hypergrid-feature-column-resizing'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-row-resizing'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-column-moving'));
+            this.setNextFeature(document.createElement('fin-hypergrid-feature-column-sorting'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-cell-selection'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-thumbwheel-scrolling'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-cell-editing'));
-            this.setNextFeature(document.createElement('fin-hypergrid-feature-column-sorting'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-on-hover'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-column-autosizing'));
 
@@ -24599,7 +24636,7 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
          * @param {Object} mouse - event details
          */
-        fixedRowClicked: function(grid, mouse) {
+        headerRowClicked: function(grid, mouse) {
             this.toggleSort(mouse.gridCell.x);
         },
 
@@ -24607,11 +24644,12 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          * @function
          * @instance
          * @description
-         toggle the sort at colIndex to it's next state
-         * @param {integer} colIndex - the column index of interest
+         fixed row has been clicked, you've been notified
+         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+         * @param {Object} mouse - event details
          */
-        toggleSort: function(colIndex) {
-            console.log('toggleSort(' + colIndex + ')');
+        toggleSort: function(x) {
+            this.getDataModel().toggleSort(x);
         },
 
         /**
@@ -24622,7 +24660,7 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
          * @param {Object} mouse - event details
          */
-        fixedColumnClicked: function(grid, mouse) {
+        headerColumnClicked: function(grid, mouse) {
             console.log('fixedColumnClicked(' + mouse.gridCell.x + ', ' + mouse.gridCell.y + ')');
         },
 
@@ -26924,21 +26962,6 @@ This is a very rough in memory data source example.  fin-hypergrid-behavior-in-m
          */
         enhanceDoubleClickEvent: function(event) {
             event.row = this.getRow(event.gridCell.y);
-        },
-
-        /**
-         * @function
-         * @instance
-         * @description
-         fixed row has been clicked, you've been notified
-         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
-         * @param {Object} mouse - event details
-         */
-        fixedRowClicked: function(grid, mouse) {
-            if (mouse.gridCell.y > 0) {
-                return; // don't allow clicking in the non-top header cell
-            }
-            this.toggleSort(mouse.gridCell.x);
         },
 
     });
@@ -34195,8 +34218,8 @@ fin-vampire-bar {
          *
          * @param {mouse} mouse - the event details
          */
-        fixedRowClicked: function(mouse) {
-            this.getBehavior()._fixedRowClicked(this, mouse);
+        headerRowClicked: function(mouse) {
+            this.getBehavior().headerRowClicked(this, mouse);
         },
 
         /**
@@ -34207,8 +34230,8 @@ fin-vampire-bar {
          *
          * @param {mouse} mouse - the event details
          */
-        fixedColumnClicked: function(mouse) {
-            this.getBehavior()._fixedColumnClicked(this, mouse);
+        headerColumnClicked: function(mouse) {
+            this.getBehavior().headerColumnClicked(this, mouse);
         },
 
         /**

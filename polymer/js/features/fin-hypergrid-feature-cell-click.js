@@ -18,8 +18,9 @@
         */
         handleTap: function(grid, event) {
             var gridCell = event.gridCell;
-            var headerRowCount = grid.getHeaderRowCount();
-            var headerColumnCount = grid.getHeaderColumnCount();
+            var behavior = grid.getBehavior();
+            var headerRowCount = behavior.getHeaderRowCount();
+            var headerColumnCount = behavior.getHeaderColumnCount();
             if ((gridCell.y > headerRowCount) &&
                 (gridCell.x > headerColumnCount)) {
                 grid.cellClicked(event);

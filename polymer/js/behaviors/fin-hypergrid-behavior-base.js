@@ -232,8 +232,8 @@ it contains all code/data that's necessary for easily implementing a virtual dat
                 fixedColumnCount: 10,
                 fixedRowCount: 1,
 
-                headerColumnCount: 3,
-                headerRowCount: 3,
+                headerColumnCount: 2,
+                headerRowCount: 2,
 
                 sorted: []
             };
@@ -339,10 +339,10 @@ it contains all code/data that's necessary for easily implementing a virtual dat
             this.setNextFeature(document.createElement('fin-hypergrid-feature-column-resizing'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-row-resizing'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-column-moving'));
+            this.setNextFeature(document.createElement('fin-hypergrid-feature-column-sorting'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-cell-selection'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-thumbwheel-scrolling'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-cell-editing'));
-            this.setNextFeature(document.createElement('fin-hypergrid-feature-column-sorting'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-on-hover'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-column-autosizing'));
 
@@ -1288,7 +1288,7 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
          * @param {Object} mouse - event details
          */
-        fixedRowClicked: function(grid, mouse) {
+        headerRowClicked: function(grid, mouse) {
             this.toggleSort(mouse.gridCell.x);
         },
 
@@ -1296,11 +1296,12 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          * @function
          * @instance
          * @description
-         toggle the sort at colIndex to it's next state
-         * @param {integer} colIndex - the column index of interest
+         fixed row has been clicked, you've been notified
+         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+         * @param {Object} mouse - event details
          */
-        toggleSort: function(colIndex) {
-            console.log('toggleSort(' + colIndex + ')');
+        toggleSort: function(x) {
+            this.getDataModel().toggleSort(x);
         },
 
         /**
@@ -1311,7 +1312,7 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
          * @param {Object} mouse - event details
          */
-        fixedColumnClicked: function(grid, mouse) {
+        headerColumnClicked: function(grid, mouse) {
             console.log('fixedColumnClicked(' + mouse.gridCell.x + ', ' + mouse.gridCell.y + ')');
         },
 

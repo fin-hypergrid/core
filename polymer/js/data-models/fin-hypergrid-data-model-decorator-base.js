@@ -53,7 +53,12 @@
         setGrid: function(newGrid) {
             this.grid = newGrid;
             this.getComponent().setGrid(newGrid);
-        }
+        },
+
+        toggleSort: function(x) {
+            this.getComponent().toggleSort(x);
+        },
+
 
     });
 

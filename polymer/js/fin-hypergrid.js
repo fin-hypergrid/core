@@ -2663,8 +2663,8 @@
          *
          * @param {mouse} mouse - the event details
          */
-        fixedRowClicked: function(mouse) {
-            this.getBehavior()._fixedRowClicked(this, mouse);
+        headerRowClicked: function(mouse) {
+            this.getBehavior().headerRowClicked(this, mouse);
         },
 
         /**
@@ -2675,8 +2675,8 @@
          *
          * @param {mouse} mouse - the event details
          */
-        fixedColumnClicked: function(mouse) {
-            this.getBehavior()._fixedColumnClicked(this, mouse);
+        headerColumnClicked: function(mouse) {
+            this.getBehavior().headerColumnClicked(this, mouse);
         },
 
         /**

@@ -54,6 +54,11 @@
             this.getBehavior().initColumnIndexes(state);
         },
 
+        toggleSort: function(x) {
+            console.log('toggle column ' + x);
+        },
+
+
     });
 
 })();

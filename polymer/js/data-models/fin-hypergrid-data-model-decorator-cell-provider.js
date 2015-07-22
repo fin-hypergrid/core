@@ -7,9 +7,13 @@
 
         getCellRenderer: function(config, x, y /* , untranslatedX, untranslatedY */ ) {
             //this needs to be rethought
-            var provider = this.getCellProvider();
             var grid = this.getGrid();
-            if (x < 1) {
+            var provider = this.getCellProvider();
+            var behavior = grid.getBehavior();
+            var headerRowCount = behavior.getHeaderRowCount();
+            var headerColumnCount = behavior.getHeaderColumnCount();
+
+            if (x < headerColumnCount) {
                 config.font = config.fixedColumnFont;
                 if (grid.isFixedColumnCellSelected(y)) {
                     config.backgroundColor = config.fixedColumnBGSelColor;
@@ -19,7 +23,7 @@
                     config.backgroundColor = config.fixedColumnBackgroundColor;
                 }
                 return provider.getFixedColumnCell(config);
-            } else if (y < 1) {
+            } else if (y < headerRowCount) {
                 config.font = config.fixedRowFont;
                 if (grid.isFixedRowCellSelected(x)) {
                     config.backgroundColor = config.fixedRowBGSelColor;

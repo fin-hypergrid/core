@@ -17,16 +17,17 @@
          * @param {Object} event - the event details
         */
         handleTap: function(grid, event) {
+            var behavior = grid.getBehavior();
             var gridCell = event.gridCell;
-            var inFixedRowArea = gridCell.y < grid.getFixedRowCount();
-            var inFixedColumnArea = gridCell.x < grid.getFixedColumnCount();
+            var inHeaderRowArea = gridCell.y < behavior.getHeaderRowCount();
+            var inHeaderColumnArea = gridCell.x < behavior.getHeaderColumnCount();
 
-            if (inFixedRowArea && inFixedColumnArea) {
+            if (inHeaderRowArea && inHeaderColumnArea) {
                 grid.topLeftClicked(event);
-            } else if (inFixedRowArea) {
-                grid.fixedRowClicked(event);
-            } else if (inFixedColumnArea) {
-                grid.fixedColumnClicked(event);
+            } else if (inHeaderRowArea) {
+                grid.headerRowClicked(event);
+            } else if (inHeaderColumnArea) {
+                grid.headerColumnClicked(event);
             }
         },
 
