@@ -78,7 +78,8 @@
         toggleSort: function(x) {
             x = this.translateColumnIndex(x);
             this.getComponent().toggleSort(x);
-        },
+        }
+
     });
 
 })();

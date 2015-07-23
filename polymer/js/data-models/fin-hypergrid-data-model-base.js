@@ -2,6 +2,8 @@
 
 (function() {
 
+    var noop = function() {};
+
     Polymer('fin-hypergrid-data-model-base', { /* jshint ignore:line  */
 
         grid: null,
@@ -58,6 +60,11 @@
             console.log('toggle column ' + x);
         },
 
+        getCellEditorAt: function(x, y) {
+            noop(x, y);
+            var cellEditor = this.getGrid().resolveCellEditor('textfield');
+            return cellEditor;
+        }
 
     });
 

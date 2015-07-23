@@ -17,13 +17,11 @@
          * @param {Object} event - the event details
         */
         handleDoubleClick: function(grid, event) {
-            var fixedColCount = grid.getFixedColumnCount();
-            var fixedRowCount = grid.getFixedRowCount();
+            var behavior = grid.getBehavior();
+            var headerRowCount = behavior.getHeaderRowCount();
+            var headerColumnCount = behavior.getHeaderColumnCount();
             var gridCell = event.gridCell;
-            if (gridCell.x >= fixedColCount && gridCell.y >= fixedRowCount) {
-                var x = grid.getHScrollValue() + gridCell.x - fixedColCount;
-                var y = grid.getVScrollValue() + gridCell.y - fixedRowCount;
-                event.gridCell = grid.rectangles.point.create(x, y);
+            if (gridCell.x >= headerColumnCount && gridCell.y >= headerRowCount) {
                 grid._activateEditor(event);
             } else if (this.next) {
                 this.next.handleDoubleClick(grid, event);
@@ -38,12 +36,16 @@
          * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
          * @param {Object} event - the event details
         */
-        handleHoldPulse: function(grid, mouseEvent) {
-            var primEvent = mouseEvent.primitiveEvent;
-            if (primEvent.detail.count < 2) {
-                return;
+        handleHoldPulse: function(grid, event) {
+            var behavior = grid.getBehavior();
+            var headerRowCount = behavior.getHeaderRowCount();
+            var headerColumnCount = behavior.getHeaderColumnCount();
+            var gridCell = event.gridCell;
+            if (gridCell.x >= headerColumnCount && gridCell.y >= headerRowCount) {
+                grid._activateEditor(event);
+            } else if (this.next) {
+                this.next.handleHoldPulse(grid, event);
             }
-            grid._activateEditor(mouseEvent);
         },
     });
 

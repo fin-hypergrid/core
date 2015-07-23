@@ -20282,13 +20282,11 @@ var commands = {
          * @param {Object} event - the event details
         */
         handleDoubleClick: function(grid, event) {
-            var fixedColCount = grid.getFixedColumnCount();
-            var fixedRowCount = grid.getFixedRowCount();
+            var behavior = grid.getBehavior();
+            var headerRowCount = behavior.getHeaderRowCount();
+            var headerColumnCount = behavior.getHeaderColumnCount();
             var gridCell = event.gridCell;
-            if (gridCell.x >= fixedColCount && gridCell.y >= fixedRowCount) {
-                var x = grid.getHScrollValue() + gridCell.x - fixedColCount;
-                var y = grid.getVScrollValue() + gridCell.y - fixedRowCount;
-                event.gridCell = grid.rectangles.point.create(x, y);
+            if (gridCell.x >= headerColumnCount && gridCell.y >= headerRowCount) {
                 grid._activateEditor(event);
             } else if (this.next) {
                 this.next.handleDoubleClick(grid, event);
@@ -20303,12 +20301,16 @@ var commands = {
          * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
          * @param {Object} event - the event details
         */
-        handleHoldPulse: function(grid, mouseEvent) {
-            var primEvent = mouseEvent.primitiveEvent;
-            if (primEvent.detail.count < 2) {
-                return;
+        handleHoldPulse: function(grid, event) {
+            var behavior = grid.getBehavior();
+            var headerRowCount = behavior.getHeaderRowCount();
+            var headerColumnCount = behavior.getHeaderColumnCount();
+            var gridCell = event.gridCell;
+            if (gridCell.x >= headerColumnCount && gridCell.y >= headerRowCount) {
+                grid._activateEditor(event);
+            } else if (this.next) {
+                this.next.handleHoldPulse(grid, event);
             }
-            grid._activateEditor(mouseEvent);
         },
     });
 
@@ -22432,6 +22434,8 @@ var commands = {
 
 (function() {
 
+    var noop = function() {};
+
     Polymer('fin-hypergrid-data-model-base', { /* jshint ignore:line  */
 
         grid: null,
@@ -22488,6 +22492,11 @@ var commands = {
             console.log('toggle column ' + x);
         },
 
+        getCellEditorAt: function(x, y) {
+            noop(x, y);
+            var cellEditor = this.getGrid().resolveCellEditor('textfield');
+            return cellEditor;
+        }
 
     });
 
@@ -22563,6 +22572,9 @@ var commands = {
             this.getComponent().toggleSort(x);
         },
 
+        getCellEditorAt: function(x, y) {
+            return this.getComponent().getCellEditorAt(x, y);
+        }
 
     });
 
@@ -22712,7 +22724,8 @@ var commands = {
         toggleSort: function(x) {
             x = this.translateColumnIndex(x);
             this.getComponent().toggleSort(x);
-        },
+        }
+
     });
 
 })();
@@ -23068,7 +23081,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
          */
         setValue: function(x, y, value) {
             var fields = this.getFields();
-            this.data[y][fields[x]] = value;
+            this.data[y - 1][fields[x]] = value;
         },
 
         /**
@@ -24623,9 +24636,7 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          * @param {integer} y - y coordinate
          */
         getCellEditorAt: function(x, y) {
-            noop(x, y);
-            var cellEditor = this.grid.resolveCellEditor('textfield');
-            return cellEditor;
+            return this.getDataModel().getCellEditorAt(x, y);
         },
 
         /**
@@ -30057,8 +30068,8 @@ This is a very rough in memory data source example.  fin-hypergrid-behavior-in-m
             this.input.style.msTransform = translation;
             this.input.style.OTransform = translation;
 
-            this.input.style.width = cellBounds.width + 'px';
-            this.input.style.height = cellBounds.height + 'px';
+            this.input.style.width = cellBounds.width - originOffset[0] + 'px';
+            this.input.style.height = cellBounds.height - originOffset[1] + 'px';
         }
 
     });
@@ -30481,15 +30492,7 @@ This is a very rough in memory data source example.  fin-hypergrid-behavior-in-m
          */
         items: [],
 
-        /**
-        * @function
-        * @instance
-        * @description
-        how much should I offset my bounds from 0,0
-        */
-        originOffset: function() {
-            return [-1, -1];
-        },
+
     });
 
 })(); /* jshint ignore:line */

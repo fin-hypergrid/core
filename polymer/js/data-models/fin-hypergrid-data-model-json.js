@@ -266,7 +266,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
          */
         setValue: function(x, y, value) {
             var fields = this.getFields();
-            this.data[y][fields[x]] = value;
+            this.data[y - 1][fields[x]] = value;
         },
 
         /**

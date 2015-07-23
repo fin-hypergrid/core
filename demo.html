@@ -577,7 +577,7 @@
             };
 
             //lets override the cell editors, and configure the drop down lists
-            jsonModel.getCellEditorAt = function(x, y) {
+            jsonModel.getBaseModel().getCellEditorAt = function(x, y) {
                 var type = editorTypes[x];
                 var cellEditor = this.grid.cellEditors[type];
                 if (x === 0) {

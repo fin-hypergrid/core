@@ -1275,9 +1275,7 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          * @param {integer} y - y coordinate
          */
         getCellEditorAt: function(x, y) {
-            noop(x, y);
-            var cellEditor = this.grid.resolveCellEditor('textfield');
-            return cellEditor;
+            return this.getDataModel().getCellEditorAt(x, y);
         },
 
         /**

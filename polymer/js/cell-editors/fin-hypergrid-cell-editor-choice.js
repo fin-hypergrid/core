@@ -20,15 +20,7 @@
          */
         items: [],
 
-        /**
-        * @function
-        * @instance
-        * @description
-        how much should I offset my bounds from 0,0
-        */
-        originOffset: function() {
-            return [-1, -1];
-        },
+
     });
 
 })(); /* jshint ignore:line */

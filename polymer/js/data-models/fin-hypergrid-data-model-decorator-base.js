@@ -59,6 +59,9 @@
             this.getComponent().toggleSort(x);
         },
 
+        getCellEditorAt: function(x, y) {
+            return this.getComponent().getCellEditorAt(x, y);
+        }
 
     });
 
