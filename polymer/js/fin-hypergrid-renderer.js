@@ -565,7 +565,7 @@ Instances of this object have basically four main functions.
             var hdpiRatio = override.hdpiratio;
             //var edges = this.getColumnEdges();
             var startX = override.startX; //hdpiRatio * edges[override.columnIndex];
-            var width = override.width;
+            var width = override.width + 1;
             var height = override.height;
             var targetCTX = override.ctx;
             var imgData = gc.getImageData(startX, 0, Math.round(width * hdpiRatio), Math.round(height * hdpiRatio));
@@ -643,8 +643,8 @@ Instances of this object have basically four main functions.
          * @param {integer} colIndex - column index
          *
         */
-        isFixedRowCellSelected: function(colIndex) {
-            return this.getGrid().isFixedRowCellSelected(colIndex);
+        isRowHeaderCellSelected: function(colIndex) {
+            return this.getGrid().isRowHeaderCellSelected(colIndex);
         },
 
         /**
@@ -655,8 +655,8 @@ Instances of this object have basically four main functions.
          * @param {integer} rowIndex - column index
          *
         */
-        isFixedColumnCellSelected: function(rowIndex) {
-            return this.getGrid().isFixedColumnCellSelected(rowIndex);
+        isColumnHeaderCellSelected: function(rowIndex) {
+            return this.getGrid().isColumnHeaderCellSelected(rowIndex);
         },
 
         /**
@@ -908,9 +908,21 @@ Instances of this object have basically four main functions.
         */
         _paintCells: function(gc) {
             var x, y, c, r = 0;
+
+            var columnEdges = this.getColumnEdges();
+            var rowEdges = this.rowEdges;
+
             var visibleCols = this.getVisibleColumns();
             var visibleRows = this.getVisibleRows();
+
+            var width = columnEdges[columnEdges.length-1];
+            var height = rowEdges[rowEdges.length-1];
+
             gc.moveTo(0, 0);
+            gc.rect(0, 0, width, height);
+            gc.stroke();
+            gc.clip();
+
             for (x = 0; x < visibleCols.length; x++) {
                 c = visibleCols[x];
                 for (y = 0; y < visibleRows.length; y++) {
@@ -989,17 +1001,26 @@ Instances of this object have basically four main functions.
             var headerRowCount = behavior.getHeaderRowCount();
             var headerColumnCount = behavior.getHeaderColumnCount();
 
-            if (r < headerRowCount) {
+            var isRowHeader = r < headerRowCount;
+            var isColumnHeader = c < headerColumnCount;
+
+            if (isRowHeader) {
                 columnProperties = columnProperties.columnHeader;
-            } else if (c < headerColumnCount) {
+            } else if (isColumnHeader) {
                 columnProperties = columnProperties.rowHeader;
             }
 
             var cellProperties = Object.create(columnProperties);
 
+            if (isRowHeader) {
+                cellProperties.isSelected = grid.isRowHeaderCellSelected(c);
+            } else if (isColumnHeader) {
+                cellProperties.isSelected = grid.isColumnHeaderCellSelected(r);
+            } else {
+                cellProperties.isSelected = grid.isSelected(c, r);
+            }
 
             cellProperties.value = grid.getValue(c, r);
-            cellProperties.isSelected = grid.isSelected(c, r);
             cellProperties.halign = grid.getColumnAlignment(c);
             cellProperties.isColumnHovered = this.isRowHovered(c, r);
             cellProperties.isRowHovered = this.isColumnHovered(c, r);

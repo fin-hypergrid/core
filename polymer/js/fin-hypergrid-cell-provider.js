@@ -202,12 +202,12 @@ var noop = function() {};
 
             //fill background only if our bgColor is populated or we are a selected cell
             if (config.backgroundColor || config.isSelected) {
-                gc.fillStyle = config.isSelected ? config.backgroundSelColor : config.backgroundColor;
+                gc.fillStyle = config.isSelected ? config.backgroundSelectionColor : config.backgroundColor;
                 gc.fillRect(x, y, width, height);
             }
 
             //draw text
-            var theColor = config.isSelected ? config.foregroundSelColor : config.color;
+            var theColor = config.isSelected ? config.foregroundSelectionColor : config.color;
             if (gc.fillStyle !== theColor) {
                 gc.fillStyle = theColor;
                 gc.strokeStyle = theColor;

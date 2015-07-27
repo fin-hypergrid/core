@@ -13,13 +13,13 @@ refactor-todo.txt
 
 header rows/columns function
     * selection ignoring
-    cell rendering
-    cell properties
+    * cell rendering
+    * cell properties
 
 cell events
 
 cellRenderer fixes
-    alignment
+    * alignment
 
 encapsulate tableState
 
@@ -51,9 +51,11 @@ col resize causes a sort
 
 cursor not correct for sorting of fixed cols
 
+fix link cell
 
+page/step up/down
 
-
+mouse over cell
 
 
 

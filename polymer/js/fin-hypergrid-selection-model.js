@@ -132,7 +132,7 @@
          * #### returns: boolean
          * @param {integer} col - column index
          */
-        isFixedRowCellSelected: function(col) {
+        isRowHeaderCellSelected: function(col) {
             return this._isSelected(this.flattenedY, col, 0);
         },
 
@@ -144,7 +144,7 @@
          * #### returns: boolean
          * @param {integer} row - row index
          */
-        isFixedColumnCellSelected: function(row) {
+        isColumnHeaderCellSelected: function(row) {
             return this._isSelected(this.flattenedX, 0, row);
         },
 

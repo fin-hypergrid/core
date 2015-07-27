@@ -212,8 +212,8 @@
         polymerTheme.topLeftColor = p.color;
 
 
-        polymerTheme.backgroundSelColor = p.backgroundColor;
-        polymerTheme.foregroundSelColor = p.color;
+        polymerTheme.backgroundSelectionColor = p.backgroundColor;
+        polymerTheme.foregroundSelectionColor = p.color;
 
         pb.setAttribute('secondary', false);
         pb.setAttribute('warning', true);
@@ -1033,9 +1033,9 @@
          * #### returns: boolean
          * @param {integer} col - column index
          */
-        isFixedRowCellSelected: function(col) {
+        isRowHeaderCellSelected: function(col) {
             var selectionModel = this.getSelectionModel();
-            var isSelected = selectionModel.isFixedRowCellSelected(col);
+            var isSelected = selectionModel.isRowHeaderCellSelected(col);
             return isSelected;
         },
 
@@ -1047,9 +1047,9 @@
          * #### returns: boolean
          * @param {integer} row - row index
          */
-        isFixedColumnCellSelected: function(row) {
+        isColumnHeaderCellSelected: function(row) {
             var selectionModel = this.getSelectionModel();
-            var isSelected = selectionModel.isFixedColumnCellSelected(row);
+            var isSelected = selectionModel.isColumnHeaderCellSelected(row);
             return isSelected;
         },
 

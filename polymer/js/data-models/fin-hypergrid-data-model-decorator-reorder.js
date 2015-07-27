@@ -7,7 +7,9 @@
     Polymer('fin-hypergrid-data-model-decorator-reorder', { /* jshint ignore:line  */
 
         getCellRenderer: function(config, x, y, untranslatedX, untranslatedY) {
-            return this.getComponent().getCellRenderer(config, x, y, untranslatedX, untranslatedY);
+            var translatedX = this.translateColumnIndex(x);
+            var translatedY = y;
+            return this.getComponent().getCellRenderer(config, translatedX, translatedY, x, y);
         },
 
         translateColumnIndex: function(x) {
