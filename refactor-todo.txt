@@ -14,6 +14,7 @@ refactor-todo.txt
 header rows/columns function
     * selection ignoring
     cell rendering
+    cell properties
 
 cell events
 
@@ -43,6 +44,23 @@ clean up changed/stateChanged/etc...
 column autosize
 
 getCursorAt on behavior needs to go through data model indirection
+
+top left cell
+
+col resize causes a sort
+
+cursor not correct for sorting of fixed cols
+
+
+
+
+
+
+
+
+
+
+
 
 
 

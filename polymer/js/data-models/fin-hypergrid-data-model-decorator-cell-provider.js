@@ -5,7 +5,12 @@
     Polymer('fin-hypergrid-data-model-decorator-cell-provider', { /* jshint ignore:line  */
 
 
-        getCellRenderer: function(config, x, y /* , untranslatedX, untranslatedY */ ) {
+        getCellRenderer: function(config /*, x, y, untranslatedX, untranslatedY */ ) {
+            var provider = this.getCellProvider();
+            return provider.getCell(config);
+        },
+
+        getCellRendererX: function(config, x, y /* , untranslatedX, untranslatedY */ ) {
             //this needs to be rethought
             var grid = this.getGrid();
             var provider = this.getCellProvider();
@@ -40,6 +45,7 @@
                 return provider.getCell(config);
             }
         },
+
 
     });
 

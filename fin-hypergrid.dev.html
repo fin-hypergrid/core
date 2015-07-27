@@ -15381,9 +15381,7 @@ div.container {
 
 </style>
   </template>
-  <script>/* global SimpleLRU */
-
-/**
+  <script>/**
  *
  * @module .\renderer
  * @description
@@ -15409,98 +15407,6 @@ Instances of this object have basically four main functions.
 'use strict';
 
 //var noop = function() {};
-
-/**
- *
- * @property {object} fontData - the cached font heights
- */
-var fontData = {};
-
-/**
- *
- * @property {SimpleLRU} textWidthCache - a LRU cache of 10000 of text widths
- */
-var textWidthCache = new SimpleLRU(10000);
-
-
-var getTextWidth = function(gc, string) {
-    if (string === null || string === undefined) {
-        return 0;
-    }
-    string = string + '';
-    if (string.length === 0) {
-        return 0;
-    }
-    var key = gc.font + string;
-    var width = textWidthCache.get(key);
-    if (!width) {
-        width = gc.measureText(string).width;
-        textWidthCache.set(key, width);
-    }
-    return width;
-};
-
-var getTextHeight = function(font) {
-
-    var result = fontData[font];
-    if (result) {
-        return result;
-    }
-    result = {};
-    var text = document.createElement('span');
-    text.textContent = 'Hg';
-    text.style.font = font;
-
-    var block = document.createElement('div');
-    block.style.display = 'inline-block';
-    block.style.width = '1px';
-    block.style.height = '0px';
-
-    var div = document.createElement('div');
-    div.appendChild(text);
-    div.appendChild(block);
-
-    div.style.position = 'absolute';
-    document.body.appendChild(div);
-
-    try {
-
-        block.style.verticalAlign = 'baseline';
-
-        var blockRect = block.getBoundingClientRect();
-        var textRect = text.getBoundingClientRect();
-
-        result.ascent = blockRect.top - textRect.top;
-
-        block.style.verticalAlign = 'bottom';
-        result.height = blockRect.top - textRect.top;
-
-        result.descent = result.height - result.ascent;
-
-    } finally {
-        document.body.removeChild(div);
-    }
-    if (result.height !== 0) {
-        fontData[font] = result;
-    }
-    return result;
-};
-
-// var clearObjectProperties = function(obj) {
-//     for (var prop in obj) {
-//         if (obj.hasOwnProperty(prop)) {
-//             delete obj[prop];
-//         }
-//     }
-// };
-
-var merge = function(target, source) {
-    for (var key in source) {
-        if (source.hasOwnProperty(key)) {
-            target[key] = source[key];
-        }
-    }
-};
 
 (function() {
 
@@ -15649,15 +15555,6 @@ var merge = function(target, source) {
             this.grid = grid;
 
             //lets make use of prototype inheritance for cell properties
-            this.initializeProperties();
-        },
-
-        initializeProperties: function() {
-            var grid = this.getGrid();
-            this.columnProperties = Object.create(grid.lnfProperties);
-            this.cellProperties = Object.create(this.columnProperties);
-            this.cellProperties.getTextWidth = getTextWidth;
-            this.cellProperties.getTextHeight = getTextHeight;
         },
 
         /**
@@ -15995,17 +15892,6 @@ var merge = function(target, source) {
             //this.blankOutOverflow(gc); // no longer needed
             this.renderOverrides(gc);
             gc.closePath();
-        },
-
-        /**
-         * @function
-         * @instance
-         * @description
-        clear out the LRU cache of text widths
-         *
-         */
-        resetTextWidthCache: function() {
-            textWidthCache = new SimpleLRU(10000);
         },
 
         /**
@@ -16371,6 +16257,30 @@ var merge = function(target, source) {
          * @function
          * @instance
          * @description
+        return the number of fixed rows
+         *
+         * #### returns: integer
+         */
+        getHeaderRowCount: function() {
+            return this.getGrid().getHeaderRowCount();
+        },
+
+        /**
+         * @function
+         * @instance
+         * @description
+        return the number of fixed rows
+         *
+         * #### returns: integer
+         */
+        getHeaderColumnCount: function() {
+            return this.getGrid().getHeaderColumnCount();
+        },
+
+        /**
+         * @function
+         * @instance
+         * @description
         Unprotected rendering the fixed columns along the left side
          * @param {CanvasRenderingContext2D} gc - [CanvasRenderingContext2D](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D)
          * @param {integer} offsetX - x coordinate to start at
@@ -16381,14 +16291,11 @@ var merge = function(target, source) {
         */
         _paintCells: function(gc) {
             var x, y, c, r = 0;
-            var behavior = this.getBehavior();
             var visibleCols = this.getVisibleColumns();
             var visibleRows = this.getVisibleRows();
             gc.moveTo(0, 0);
             for (x = 0; x < visibleCols.length; x++) {
                 c = visibleCols[x];
-                var columnProperties = behavior.getColumnProperties(c);
-                this.resetColumnProperties(columnProperties);
                 for (y = 0; y < visibleRows.length; y++) {
                     r = visibleRows[y];
                     this._paintCell(gc, c, r);
@@ -16444,23 +16351,8 @@ var merge = function(target, source) {
             gc.closePath();
         },
 
-        //lets clear out and then repopulate the column properties
-        //with new values
-        resetColumnProperties: function(columnProperties) {
-            //clearObjectProperties(this.columnProperties);
-            merge(this.columnProperties, columnProperties);
-        },
-
-        //lets clear out and then repopulate the column properties
-        //with new values
-        resetCellProperties: function(cellProperties) {
-            //clearObjectProperties(this.cellProperties);
-            merge(this.cellProperties, cellProperties);
-        },
-
         paintCell: function(gc, x, y) {
             var c, r = 0;
-            var behavior = this.getBehavior();
             var visibleCols = this.getVisibleColumns();
             var visibleRows = this.getVisibleRows();
             gc.moveTo(0, 0);
@@ -16469,29 +16361,37 @@ var merge = function(target, source) {
             if (!c) {
                 return; // were not being viewed at at the moment, nothing to paint
             }
-            var columnProperties = behavior.getColumnProperties(c);
-            this.resetColumnProperties(columnProperties);
             this._paintCell(gc, c, r);
         },
 
         _paintCell: function(gc, c, r) {
 
-            var cellProperties = this.cellProperties;
-
             var grid = this.getGrid();
             var behavior = this.getBehavior();
+            var columnProperties = behavior.getColumnProperties(c);
+            var headerRowCount = behavior.getHeaderRowCount();
+            var headerColumnCount = behavior.getHeaderColumnCount();
+
+            if (r < headerRowCount) {
+                columnProperties = columnProperties.columnHeader;
+            } else if (c < headerColumnCount) {
+                columnProperties = columnProperties.rowHeader;
+            }
+
+            var cellProperties = Object.create(columnProperties);
+
 
             cellProperties.value = grid.getValue(c, r);
             cellProperties.isSelected = grid.isSelected(c, r);
             cellProperties.halign = grid.getColumnAlignment(c);
-            cellProperties.isColumnHovered = this.isHovered(c, r);
-            cellProperties.isRowHovered = this.isHovered(c, r);
+            cellProperties.isColumnHovered = this.isRowHovered(c, r);
+            cellProperties.isRowHovered = this.isColumnHovered(c, r);
             cellProperties.bounds = this._getBoundsOfCell(c, r);
 
             var cell = behavior.getCellRenderer(cellProperties, c, r);
 
-            cell.config.x = c;
-            cell.config.y = r;
+            cellProperties.x = c;
+            cellProperties.y = r;
 
             behavior.cellPrePaintNotification(cell);
             cell.paint(gc, cellProperties);
@@ -22436,6 +22336,15 @@ var commands = {
 
     var noop = function() {};
 
+
+    var merge = function(target, source) {
+        for (var key in source) {
+            if (source.hasOwnProperty(key)) {
+                target[key] = source[key];
+            }
+        }
+    };
+
     Polymer('fin-hypergrid-data-model-base', { /* jshint ignore:line  */
 
         grid: null,
@@ -22496,7 +22405,121 @@ var commands = {
             noop(x, y);
             var cellEditor = this.getGrid().resolveCellEditor('textfield');
             return cellEditor;
-        }
+        },
+
+        getColumnProperties: function(columnIndex) {
+            var tableState = this.getState();
+            var properties = tableState.columnProperties[columnIndex];
+            if (!properties) {
+                var lnfProperties = this.getGrid().getProperties();
+                properties = Object.create(lnfProperties);
+                tableState.columnProperties[columnIndex] = properties;
+
+                properties.rowHeader = Object.create(properties, {
+                    font: {
+                        configurable: true,
+                        get: function() {
+                            return this.rowHeaderFont;
+                        },
+                        set: function(value) {
+                            this.rowHeaderFont = value;
+                        }
+                    },
+                    color: {
+                        configurable: true,
+                        get: function() {
+                            return this.rowHeaderColor;
+                        },
+                        set: function(value) {
+                            this.rowHeaderColor = value;
+                        }
+                    },
+                    backgroundColor: {
+                        configurable: true,
+                        get: function() {
+                            return this.rowHeaderBackgroundColor;
+                        },
+                        set: function(value) {
+                            this.rowHeaderBackgroundColor = value;
+                        }
+                    },
+                    foregroundSelectionColor: {
+                        configurable: true,
+                        get: function() {
+                            return this.rowHeaderForegroundSelectionColor;
+                        },
+                        set: function(value) {
+                            this.rowHeaderForegroundSelectionColor = value;
+                        }
+                    },
+                    backgroundSelectionColor: {
+                        configurable: true,
+                        get: function() {
+                            return this.rowHeaderBackgroundSelectionColor;
+                        },
+                        set: function(value) {
+                            this.rowHeaderBackgroundSelectionColor = value;
+                        }
+                    }
+                });
+
+                properties.columnHeader = Object.create(properties, {
+                    font: {
+                        configurable: true,
+                        get: function() {
+                            return this.columnHeaderFont;
+                        },
+                        set: function(value) {
+                            this.columnHeaderFont = value;
+                        }
+                    },
+                    color: {
+                        configurable: true,
+                        get: function() {
+                            return this.columnHeaderColor;
+                        },
+                        set: function(value) {
+                            this.columnHeaderColor = value;
+                        }
+                    },
+                    backgroundColor: {
+                        configurable: true,
+                        get: function() {
+                            return this.columnHeaderBackgroundColor;
+                        },
+                        set: function(value) {
+                            this.columnHeaderBackgroundColor = value;
+                        }
+                    },
+                    foregroundSelectionColor: {
+                        configurable: true,
+                        get: function() {
+                            return this.columnHeaderForegroundSelectionColor;
+                        },
+                        set: function(value) {
+                            this.columnHeaderForegroundSelectionColor = value;
+                        }
+                    },
+                    backgroundSelectionColor: {
+                        configurable: true,
+                        get: function() {
+                            return this.columnHeaderBackgroundSelectionColor;
+                        },
+                        set: function(value) {
+                            this.columnHeaderBackgroundSelectionColor = value;
+                        }
+                    }
+                });
+
+            }
+            return properties;
+        },
+
+        setColumnProperties: function(columnIndex, properties) {
+            var columnProperties = this.getColumnProperties(columnIndex);
+            merge(columnProperties, properties);
+            this.changed();
+        },
 
     });
 
@@ -22574,7 +22597,15 @@ var commands = {
 
         getCellEditorAt: function(x, y) {
             return this.getComponent().getCellEditorAt(x, y);
-        }
+        },
+
+        getColumnProperties: function(columnIndex) {
+            return this.getComponent().getColumnProperties(columnIndex);
+        },
+
+        setColumnProperties: function(columnIndex, properties) {
+            this.getComponent().setColumnProperties(columnIndex, properties);
+        },
 
     });
 
@@ -22595,7 +22626,12 @@ var commands = {
     Polymer('fin-hypergrid-data-model-decorator-cell-provider', { /* jshint ignore:line  */
 
 
-        getCellRenderer: function(config, x, y /* , untranslatedX, untranslatedY */ ) {
+        getCellRenderer: function(config /*, x, y, untranslatedX, untranslatedY */ ) {
+            var provider = this.getCellProvider();
+            return provider.getCell(config);
+        },
+
+        getCellRendererX: function(config, x, y /* , untranslatedX, untranslatedY */ ) {
             //this needs to be rethought
             var grid = this.getGrid();
             var provider = this.getCellProvider();
@@ -22630,6 +22666,7 @@ var commands = {
                 return provider.getCell(config);
             }
         },
+
 
     });
 
@@ -22724,7 +22761,17 @@ var commands = {
         toggleSort: function(x) {
             x = this.translateColumnIndex(x);
             this.getComponent().toggleSort(x);
-        }
+        },
+
+        getColumnProperties: function(x) {
+            x = this.translateColumnIndex(x);
+            return this.getComponent().getColumnProperties(x);
+        },
+
+        setColumnProperties: function(x, properties) {
+            x = this.translateColumnIndex(x);
+            this.getComponent().setColumnProperties(x, properties);
+        },
 
     });
 
@@ -24201,25 +24248,12 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          * @param {index} columnIndex - the column index of interest
          */
         getColumnProperties: function(columnIndex) {
-            //if no cell properties are supplied these properties are used
-            //this probably should be moved into it's own object
-            // this.clearObjectProperties(this.columnProperties);
-            // if (columnIndex === 4) {
-            //     this.columnProperties.bgColor = 'maroon';
-            //     this.columnProperties.fgColor = 'white';
-            // }
-            var tableState = this.getState();
-            var properties = tableState.columnProperties[columnIndex];
-            if (!properties) {
-                properties = {};
-                tableState.columnProperties[columnIndex] = properties;
-            }
+            var properties = this.getDataModel().getColumnProperties(columnIndex);
             return properties;
         },
 
-        setColumnProperty: function(columnIndex, key, value) {
-            var properties = this.getColumnProperties(columnIndex);
-            properties[key] = value;
+        setColumnProperties: function(columnIndex, properties) {
+            this.getDataModel().setColumnProperties(columnIndex, properties);
             this.changed();
         },
 
@@ -31556,7 +31590,8 @@ fin-vampire-bar {
     <input class="editor">
     <content></content>
   </template>
-  <script>/* global alert */
+  <script>/* global alert, SimpleLRU */
+
 'use strict';
 
 /**
@@ -31594,6 +31629,81 @@ fin-vampire-bar {
         var cellEditor = document.createElement(name);
         globalCellEditors[cellEditor.alias] = cellEditor;
     };
+    /**
+     *
+     * @property {object} fontData - the cached font heights
+     */
+    var fontData = {};
+
+    /**
+     *
+     * @property {SimpleLRU} textWidthCache - a LRU cache of 10000 of text widths
+     */
+    var textWidthCache = new SimpleLRU(10000);
+
+
+    var getTextWidth = function(gc, string) {
+        if (string === null || string === undefined) {
+            return 0;
+        }
+        string = string + '';
+        if (string.length === 0) {
+            return 0;
+        }
+        var key = gc.font + string;
+        var width = textWidthCache.get(key);
+        if (!width) {
+            width = gc.measureText(string).width;
+            textWidthCache.set(key, width);
+        }
+        return width;
+    };
+
+    var getTextHeight = function(font) {
+
+        var result = fontData[font];
+        if (result) {
+            return result;
+        }
+        result = {};
+        var text = document.createElement('span');
+        text.textContent = 'Hg';
+        text.style.font = font;
+
+        var block = document.createElement('div');
+        block.style.display = 'inline-block';
+        block.style.width = '1px';
+        block.style.height = '0px';
+
+        var div = document.createElement('div');
+        div.appendChild(text);
+        div.appendChild(block);
+
+        div.style.position = 'absolute';
+        document.body.appendChild(div);
+
+        try {
+
+            block.style.verticalAlign = 'baseline';
+
+            var blockRect = block.getBoundingClientRect();
+            var textRect = text.getBoundingClientRect();
+
+            result.ascent = blockRect.top - textRect.top;
+
+            block.style.verticalAlign = 'bottom';
+            result.height = blockRect.top - textRect.top;
+
+            result.descent = result.height - result.ascent;
+
+        } finally {
+            document.body.removeChild(div);
+        }
+        if (result.height !== 0) {
+            fontData[font] = result;
+        }
+        return result;
+    };
 
     var defaultProperties = function() {
         var properties = {
@@ -31601,26 +31711,20 @@ fin-vampire-bar {
             font: '13px Tahoma, Geneva, sans-serif',
             color: 'rgb(25, 25, 25)',
             backgroundColor: 'rgb(241, 241, 241)',
-            foregroundSelColor: 'rgb(25, 25, 25)',
-            backgroundSelColor: 'rgb(183, 219, 255)',
+            foregroundSelectionColor: 'rgb(25, 25, 25)',
+            backgroundSelectionColor: 'rgb(183, 219, 255)',
 
-            topLeftFont: '12px Tahoma, Geneva, sans-serif',
-            topLeftColor: 'rgb(25, 25, 25)',
-            topLeftBackgroundColor: 'rgb(223, 227, 232)',
-            topLeftFGSelColor: 'rgb(25, 25, 25)',
-            topLeftBGSelColor: 'rgb(255, 220, 97)',
+            columnHeaderFont: '12px Tahoma, Geneva, sans-serif',
+            columnHeaderColor: 'rgb(25, 25, 25)',
+            columnHeaderBackgroundColor: 'rgb(223, 227, 232)',
+            columnHeaderForegroundSelectionColor: 'rgb(25, 25, 25)',
+            columnHeaderBackgroundSelectionColor: 'rgb(255, 220, 97)',
 
-            fixedColumnFont: '12px Tahoma, Geneva, sans-serif',
-            fixedColumnColor: 'rgb(25, 25, 25)',
-            fixedColumnBackgroundColor: 'rgb(223, 227, 232)',
-            fixedColumnFGSelColor: 'rgb(25, 25, 25)',
-            fixedColumnBGSelColor: 'rgb(255, 220, 97)',
-
-            fixedRowFont: '12px Tahoma, Geneva, sans-serif',
-            fixedRowColor: 'rgb(25, 25, 25)',
-            fixedRowBackgroundColor: 'rgb(223, 227, 232)',
-            fixedRowFGSelColor: 'rgb(25, 25, 25)',
-            fixedRowBGSelColor: 'rgb(255, 220, 97)',
+            rowHeaderFont: '12px Tahoma, Geneva, sans-serif',
+            rowHeaderColor: 'rgb(25, 25, 25)',
+            rowHeaderBackgroundColor: 'rgb(223, 227, 232)',
+            rowHeaderForegroundSelectionColor: 'rgb(25, 25, 25)',
+            rowHeaderBackgroundSelectionColor: 'rgb(255, 220, 97)',
 
             backgroundColor2: 'rgb(201, 201, 201)',
             lineColor: 'rgb(199, 199, 199)',
@@ -31651,7 +31755,11 @@ fin-vampire-bar {
             useHiDPI: true,
             editorActivationKeys: ['alt', 'esc'],
             columnAutosizing: false,
-            readOnly: false
+            readOnly: false,
+
+            //inhertied by cell renderers
+            getTextWidth: getTextWidth,
+            getTextHeight: getTextHeight,
 
         };
         return properties;
@@ -31675,8 +31783,8 @@ fin-vampire-bar {
         var hb = window.getComputedStyle(document.querySelector('html, body'));
         var s = window.getComputedStyle(section);
 
-        polymerTheme.fixedRowBackgroundColor = p.color;
-        polymerTheme.fixedColumnBackgroundColor = p.color;
+        polymerTheme.columnHeaderBackgroundColor = p.color;
+        polymerTheme.rowHeaderBackgroundColor = p.color;
         polymerTheme.topLeftBackgroundColor = p.color;
         polymerTheme.lineColor = p.backgroundColor;
 
@@ -31691,8 +31799,8 @@ fin-vampire-bar {
         pb.setAttribute('raised', true);
         p = window.getComputedStyle(pb);
 
-        polymerTheme.fixedRowColor = p.color;
-        polymerTheme.fixedColumnColor = p.color;
+        polymerTheme.columnHeaderColor = p.color;
+        polymerTheme.rowHeaderColor = p.color;
         polymerTheme.topLeftColor = p.color;
 
 
@@ -31702,14 +31810,14 @@ fin-vampire-bar {
         pb.setAttribute('secondary', false);
         pb.setAttribute('warning', true);
 
-        polymerTheme.fixedRowFGSelColor = p.color;
-        polymerTheme.fixedRowBGSelColor = p.backgroundColor;
-        polymerTheme.fixedColumnFGSelColor = p.color;
-        polymerTheme.fixedColumnBGSelColor = p.backgroundColor;
+        polymerTheme.columnHeaderForegroundSelectionColor = p.color;
+        polymerTheme.columnHeaderBackgroundSelectionColor = p.backgroundColor;
+        polymerTheme.rowHeaderForegroundSelectionColor = p.color;
+        polymerTheme.fixedColumnBackgroundSelectionColor = p.backgroundColor;
 
         //check if there is actually a theme loaded if not, clear out all bogus values
         //from my cache
-        if (polymerTheme.fixedRowBGSelColor === 'rgba(0, 0, 0, 0)' ||
+        if (polymerTheme.columnHeaderBGSelColor === 'rgba(0, 0, 0, 0)' ||
             polymerTheme.lineColor === 'transparent') {
             clearObjectProperties(polymerTheme);
         }
@@ -31725,6 +31833,14 @@ fin-vampire-bar {
             }
         }
     };
+
+    // var clearObjectProperties = function(obj) {
+    //     for (var prop in obj) {
+    //         if (obj.hasOwnProperty(prop)) {
+    //             delete obj[prop];
+    //         }
+    //     }
+    // };
 
     var defaults, polymerTheme, globalProperties;
 
@@ -31996,6 +32112,21 @@ fin-vampire-bar {
             this.isScrollButtonClick = false;
 
             this.computeCellBounds();
+        },
+
+        /**
+         * @function
+         * @instance
+         * @description
+        clear out the LRU cache of text widths
+         *
+         */
+        resetTextWidthCache: function() {
+            textWidthCache = new SimpleLRU(10000);
+        },
+
+        getProperties: function() {
+            return this.lnfProperties;
         },
 
         computeCellBounds: function() {
@@ -32340,18 +32471,6 @@ fin-vampire-bar {
             //the columns and rows that are partially visible
             behavior.setRenderedColumnCount(this.getVisibleColumns() + 1);
             behavior.setRenderedRowCount(this.getVisibleRows() + 1);
-        },
-
-        /**
-         * @function
-         * @instance
-         * @description
-         Empty out the textWidthCache
-         *
-         * @param {event} event - the copy system event
-         */
-        resetTextWidthCache: function() {
-            this.getRenderer().resetTextWidthCache();
         },
 
         /**
@@ -34708,6 +34827,15 @@ fin-vampire-bar {
         _getBoundsOfCell: function(x, y) {
             var bounds = this.getRenderer()._getBoundsOfCell(x, y);
             return bounds;
+        },
+
+        getColumnProperties: function(columnIndex) {
+            var properties = this.getBehavior().getColumnProperties(columnIndex);
+            return properties;
+        },
+
+        setColumnProperties: function(columnIndex, properties) {
+            this.getBehavior().setColumnProperties(columnIndex, properties);
         }
 
     });

@@ -840,25 +840,12 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          * @param {index} columnIndex - the column index of interest
          */
         getColumnProperties: function(columnIndex) {
-            //if no cell properties are supplied these properties are used
-            //this probably should be moved into it's own object
-            // this.clearObjectProperties(this.columnProperties);
-            // if (columnIndex === 4) {
-            //     this.columnProperties.bgColor = 'maroon';
-            //     this.columnProperties.fgColor = 'white';
-            // }
-            var tableState = this.getState();
-            var properties = tableState.columnProperties[columnIndex];
-            if (!properties) {
-                properties = {};
-                tableState.columnProperties[columnIndex] = properties;
-            }
+            var properties = this.getDataModel().getColumnProperties(columnIndex);
             return properties;
         },
 
-        setColumnProperty: function(columnIndex, key, value) {
-            var properties = this.getColumnProperties(columnIndex);
-            properties[key] = value;
+        setColumnProperties: function(columnIndex, properties) {
+            this.getDataModel().setColumnProperties(columnIndex, properties);
             this.changed();
         },
 

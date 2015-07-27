@@ -487,6 +487,11 @@
             //get ahold of our json grid example
             var jsonGrid = document.querySelector('#json-example');
 
+            jsonGrid.setColumnProperties(2, {
+                backgroundColor: 'blue',
+                color: 'pink'
+            });
+
             //get it's table model
             var jsonModel = jsonGrid.getBehavior();
 

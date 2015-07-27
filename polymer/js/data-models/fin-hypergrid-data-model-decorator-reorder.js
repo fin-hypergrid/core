@@ -78,7 +78,17 @@
         toggleSort: function(x) {
             x = this.translateColumnIndex(x);
             this.getComponent().toggleSort(x);
-        }
+        },
+
+        getColumnProperties: function(x) {
+            x = this.translateColumnIndex(x);
+            return this.getComponent().getColumnProperties(x);
+        },
+
+        setColumnProperties: function(x, properties) {
+            x = this.translateColumnIndex(x);
+            this.getComponent().setColumnProperties(x, properties);
+        },
 
     });
 

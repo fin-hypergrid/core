@@ -61,7 +61,15 @@
 
         getCellEditorAt: function(x, y) {
             return this.getComponent().getCellEditorAt(x, y);
-        }
+        },
+
+        getColumnProperties: function(columnIndex) {
+            return this.getComponent().getColumnProperties(columnIndex);
+        },
+
+        setColumnProperties: function(columnIndex, properties) {
+            this.getComponent().setColumnProperties(columnIndex, properties);
+        },
 
     });
 

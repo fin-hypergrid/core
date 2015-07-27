@@ -1,4 +1,5 @@
-/* global alert */
+/* global alert, SimpleLRU */
+
 'use strict';
 
 /**
@@ -36,6 +37,81 @@
         var cellEditor = document.createElement(name);
         globalCellEditors[cellEditor.alias] = cellEditor;
     };
+    /**
+     *
+     * @property {object} fontData - the cached font heights
+     */
+    var fontData = {};
+
+    /**
+     *
+     * @property {SimpleLRU} textWidthCache - a LRU cache of 10000 of text widths
+     */
+    var textWidthCache = new SimpleLRU(10000);
+
+
+    var getTextWidth = function(gc, string) {
+        if (string === null || string === undefined) {
+            return 0;
+        }
+        string = string + '';
+        if (string.length === 0) {
+            return 0;
+        }
+        var key = gc.font + string;
+        var width = textWidthCache.get(key);
+        if (!width) {
+            width = gc.measureText(string).width;
+            textWidthCache.set(key, width);
+        }
+        return width;
+    };
+
+    var getTextHeight = function(font) {
+
+        var result = fontData[font];
+        if (result) {
+            return result;
+        }
+        result = {};
+        var text = document.createElement('span');
+        text.textContent = 'Hg';
+        text.style.font = font;
+
+        var block = document.createElement('div');
+        block.style.display = 'inline-block';
+        block.style.width = '1px';
+        block.style.height = '0px';
+
+        var div = document.createElement('div');
+        div.appendChild(text);
+        div.appendChild(block);
+
+        div.style.position = 'absolute';
+        document.body.appendChild(div);
+
+        try {
+
+            block.style.verticalAlign = 'baseline';
+
+            var blockRect = block.getBoundingClientRect();
+            var textRect = text.getBoundingClientRect();
+
+            result.ascent = blockRect.top - textRect.top;
+
+            block.style.verticalAlign = 'bottom';
+            result.height = blockRect.top - textRect.top;
+
+            result.descent = result.height - result.ascent;
+
+        } finally {
+            document.body.removeChild(div);
+        }
+        if (result.height !== 0) {
+            fontData[font] = result;
+        }
+        return result;
+    };
 
     var defaultProperties = function() {
         var properties = {
@@ -43,26 +119,20 @@
             font: '13px Tahoma, Geneva, sans-serif',
             color: 'rgb(25, 25, 25)',
             backgroundColor: 'rgb(241, 241, 241)',
-            foregroundSelColor: 'rgb(25, 25, 25)',
-            backgroundSelColor: 'rgb(183, 219, 255)',
+            foregroundSelectionColor: 'rgb(25, 25, 25)',
+            backgroundSelectionColor: 'rgb(183, 219, 255)',
 
-            topLeftFont: '12px Tahoma, Geneva, sans-serif',
-            topLeftColor: 'rgb(25, 25, 25)',
-            topLeftBackgroundColor: 'rgb(223, 227, 232)',
-            topLeftFGSelColor: 'rgb(25, 25, 25)',
-            topLeftBGSelColor: 'rgb(255, 220, 97)',
+            columnHeaderFont: '12px Tahoma, Geneva, sans-serif',
+            columnHeaderColor: 'rgb(25, 25, 25)',
+            columnHeaderBackgroundColor: 'rgb(223, 227, 232)',
+            columnHeaderForegroundSelectionColor: 'rgb(25, 25, 25)',
+            columnHeaderBackgroundSelectionColor: 'rgb(255, 220, 97)',
 
-            fixedColumnFont: '12px Tahoma, Geneva, sans-serif',
-            fixedColumnColor: 'rgb(25, 25, 25)',
-            fixedColumnBackgroundColor: 'rgb(223, 227, 232)',
-            fixedColumnFGSelColor: 'rgb(25, 25, 25)',
-            fixedColumnBGSelColor: 'rgb(255, 220, 97)',
-
-            fixedRowFont: '12px Tahoma, Geneva, sans-serif',
-            fixedRowColor: 'rgb(25, 25, 25)',
-            fixedRowBackgroundColor: 'rgb(223, 227, 232)',
-            fixedRowFGSelColor: 'rgb(25, 25, 25)',
-            fixedRowBGSelColor: 'rgb(255, 220, 97)',
+            rowHeaderFont: '12px Tahoma, Geneva, sans-serif',
+            rowHeaderColor: 'rgb(25, 25, 25)',
+            rowHeaderBackgroundColor: 'rgb(223, 227, 232)',
+            rowHeaderForegroundSelectionColor: 'rgb(25, 25, 25)',
+            rowHeaderBackgroundSelectionColor: 'rgb(255, 220, 97)',
 
             backgroundColor2: 'rgb(201, 201, 201)',
             lineColor: 'rgb(199, 199, 199)',
@@ -93,7 +163,11 @@
             useHiDPI: true,
             editorActivationKeys: ['alt', 'esc'],
             columnAutosizing: false,
-            readOnly: false
+            readOnly: false,
+
+            //inhertied by cell renderers
+            getTextWidth: getTextWidth,
+            getTextHeight: getTextHeight,
 
         };
         return properties;
@@ -117,8 +191,8 @@
         var hb = window.getComputedStyle(document.querySelector('html, body'));
         var s = window.getComputedStyle(section);
 
-        polymerTheme.fixedRowBackgroundColor = p.color;
-        polymerTheme.fixedColumnBackgroundColor = p.color;
+        polymerTheme.columnHeaderBackgroundColor = p.color;
+        polymerTheme.rowHeaderBackgroundColor = p.color;
         polymerTheme.topLeftBackgroundColor = p.color;
         polymerTheme.lineColor = p.backgroundColor;
 
@@ -133,8 +207,8 @@
         pb.setAttribute('raised', true);
         p = window.getComputedStyle(pb);
 
-        polymerTheme.fixedRowColor = p.color;
-        polymerTheme.fixedColumnColor = p.color;
+        polymerTheme.columnHeaderColor = p.color;
+        polymerTheme.rowHeaderColor = p.color;
         polymerTheme.topLeftColor = p.color;
 
 
@@ -144,14 +218,14 @@
         pb.setAttribute('secondary', false);
         pb.setAttribute('warning', true);
 
-        polymerTheme.fixedRowFGSelColor = p.color;
-        polymerTheme.fixedRowBGSelColor = p.backgroundColor;
-        polymerTheme.fixedColumnFGSelColor = p.color;
-        polymerTheme.fixedColumnBGSelColor = p.backgroundColor;
+        polymerTheme.columnHeaderForegroundSelectionColor = p.color;
+        polymerTheme.columnHeaderBackgroundSelectionColor = p.backgroundColor;
+        polymerTheme.rowHeaderForegroundSelectionColor = p.color;
+        polymerTheme.fixedColumnBackgroundSelectionColor = p.backgroundColor;
 
         //check if there is actually a theme loaded if not, clear out all bogus values
         //from my cache
-        if (polymerTheme.fixedRowBGSelColor === 'rgba(0, 0, 0, 0)' ||
+        if (polymerTheme.columnHeaderBGSelColor === 'rgba(0, 0, 0, 0)' ||
             polymerTheme.lineColor === 'transparent') {
             clearObjectProperties(polymerTheme);
         }
@@ -167,6 +241,14 @@
             }
         }
     };
+
+    // var clearObjectProperties = function(obj) {
+    //     for (var prop in obj) {
+    //         if (obj.hasOwnProperty(prop)) {
+    //             delete obj[prop];
+    //         }
+    //     }
+    // };
 
     var defaults, polymerTheme, globalProperties;
 
@@ -438,6 +520,21 @@
             this.isScrollButtonClick = false;
 
             this.computeCellBounds();
+        },
+
+        /**
+         * @function
+         * @instance
+         * @description
+        clear out the LRU cache of text widths
+         *
+         */
+        resetTextWidthCache: function() {
+            textWidthCache = new SimpleLRU(10000);
+        },
+
+        getProperties: function() {
+            return this.lnfProperties;
         },
 
         computeCellBounds: function() {
@@ -782,18 +879,6 @@
             //the columns and rows that are partially visible
             behavior.setRenderedColumnCount(this.getVisibleColumns() + 1);
             behavior.setRenderedRowCount(this.getVisibleRows() + 1);
-        },
-
-        /**
-         * @function
-         * @instance
-         * @description
-         Empty out the textWidthCache
-         *
-         * @param {event} event - the copy system event
-         */
-        resetTextWidthCache: function() {
-            this.getRenderer().resetTextWidthCache();
         },
 
         /**
@@ -3150,6 +3235,15 @@
         _getBoundsOfCell: function(x, y) {
             var bounds = this.getRenderer()._getBoundsOfCell(x, y);
             return bounds;
+        },
+
+        getColumnProperties: function(columnIndex) {
+            var properties = this.getBehavior().getColumnProperties(columnIndex);
+            return properties;
+        },
+
+        setColumnProperties: function(columnIndex, properties) {
+            this.getBehavior().setColumnProperties(columnIndex, properties);
         }
 
     });

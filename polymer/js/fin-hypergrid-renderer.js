@@ -1,5 +1,3 @@
-/* global SimpleLRU */
-
 /**
  *
  * @module .\renderer
@@ -26,98 +24,6 @@ Instances of this object have basically four main functions.
 'use strict';
 
 //var noop = function() {};
-
-/**
- *
- * @property {object} fontData - the cached font heights
- */
-var fontData = {};
-
-/**
- *
- * @property {SimpleLRU} textWidthCache - a LRU cache of 10000 of text widths
- */
-var textWidthCache = new SimpleLRU(10000);
-
-
-var getTextWidth = function(gc, string) {
-    if (string === null || string === undefined) {
-        return 0;
-    }
-    string = string + '';
-    if (string.length === 0) {
-        return 0;
-    }
-    var key = gc.font + string;
-    var width = textWidthCache.get(key);
-    if (!width) {
-        width = gc.measureText(string).width;
-        textWidthCache.set(key, width);
-    }
-    return width;
-};
-
-var getTextHeight = function(font) {
-
-    var result = fontData[font];
-    if (result) {
-        return result;
-    }
-    result = {};
-    var text = document.createElement('span');
-    text.textContent = 'Hg';
-    text.style.font = font;
-
-    var block = document.createElement('div');
-    block.style.display = 'inline-block';
-    block.style.width = '1px';
-    block.style.height = '0px';
-
-    var div = document.createElement('div');
-    div.appendChild(text);
-    div.appendChild(block);
-
-    div.style.position = 'absolute';
-    document.body.appendChild(div);
-
-    try {
-
-        block.style.verticalAlign = 'baseline';
-
-        var blockRect = block.getBoundingClientRect();
-        var textRect = text.getBoundingClientRect();
-
-        result.ascent = blockRect.top - textRect.top;
-
-        block.style.verticalAlign = 'bottom';
-        result.height = blockRect.top - textRect.top;
-
-        result.descent = result.height - result.ascent;
-
-    } finally {
-        document.body.removeChild(div);
-    }
-    if (result.height !== 0) {
-        fontData[font] = result;
-    }
-    return result;
-};
-
-// var clearObjectProperties = function(obj) {
-//     for (var prop in obj) {
-//         if (obj.hasOwnProperty(prop)) {
-//             delete obj[prop];
-//         }
-//     }
-// };
-
-var merge = function(target, source) {
-    for (var key in source) {
-        if (source.hasOwnProperty(key)) {
-            target[key] = source[key];
-        }
-    }
-};
 
 (function() {
 
@@ -266,15 +172,6 @@ var merge = function(target, source) {
             this.grid = grid;
 
             //lets make use of prototype inheritance for cell properties
-            this.initializeProperties();
-        },
-
-        initializeProperties: function() {
-            var grid = this.getGrid();
-            this.columnProperties = Object.create(grid.lnfProperties);
-            this.cellProperties = Object.create(this.columnProperties);
-            this.cellProperties.getTextWidth = getTextWidth;
-            this.cellProperties.getTextHeight = getTextHeight;
         },
 
         /**
@@ -612,17 +509,6 @@ var merge = function(target, source) {
             //this.blankOutOverflow(gc); // no longer needed
             this.renderOverrides(gc);
             gc.closePath();
-        },
-
-        /**
-         * @function
-         * @instance
-         * @description
-        clear out the LRU cache of text widths
-         *
-         */
-        resetTextWidthCache: function() {
-            textWidthCache = new SimpleLRU(10000);
         },
 
         /**
@@ -988,6 +874,30 @@ var merge = function(target, source) {
          * @function
          * @instance
          * @description
+        return the number of fixed rows
+         *
+         * #### returns: integer
+         */
+        getHeaderRowCount: function() {
+            return this.getGrid().getHeaderRowCount();
+        },
+
+        /**
+         * @function
+         * @instance
+         * @description
+        return the number of fixed rows
+         *
+         * #### returns: integer
+         */
+        getHeaderColumnCount: function() {
+            return this.getGrid().getHeaderColumnCount();
+        },
+
+        /**
+         * @function
+         * @instance
+         * @description
         Unprotected rendering the fixed columns along the left side
          * @param {CanvasRenderingContext2D} gc - [CanvasRenderingContext2D](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D)
          * @param {integer} offsetX - x coordinate to start at
@@ -998,14 +908,11 @@ var merge = function(target, source) {
         */
         _paintCells: function(gc) {
             var x, y, c, r = 0;
-            var behavior = this.getBehavior();
             var visibleCols = this.getVisibleColumns();
             var visibleRows = this.getVisibleRows();
             gc.moveTo(0, 0);
             for (x = 0; x < visibleCols.length; x++) {
                 c = visibleCols[x];
-                var columnProperties = behavior.getColumnProperties(c);
-                this.resetColumnProperties(columnProperties);
                 for (y = 0; y < visibleRows.length; y++) {
                     r = visibleRows[y];
                     this._paintCell(gc, c, r);
@@ -1061,23 +968,8 @@ var merge = function(target, source) {
             gc.closePath();
         },
 
-        //lets clear out and then repopulate the column properties
-        //with new values
-        resetColumnProperties: function(columnProperties) {
-            //clearObjectProperties(this.columnProperties);
-            merge(this.columnProperties, columnProperties);
-        },
-
-        //lets clear out and then repopulate the column properties
-        //with new values
-        resetCellProperties: function(cellProperties) {
-            //clearObjectProperties(this.cellProperties);
-            merge(this.cellProperties, cellProperties);
-        },
-
         paintCell: function(gc, x, y) {
             var c, r = 0;
-            var behavior = this.getBehavior();
             var visibleCols = this.getVisibleColumns();
             var visibleRows = this.getVisibleRows();
             gc.moveTo(0, 0);
@@ -1086,29 +978,37 @@ var merge = function(target, source) {
             if (!c) {
                 return; // were not being viewed at at the moment, nothing to paint
             }
-            var columnProperties = behavior.getColumnProperties(c);
-            this.resetColumnProperties(columnProperties);
             this._paintCell(gc, c, r);
         },
 
         _paintCell: function(gc, c, r) {
 
-            var cellProperties = this.cellProperties;
-
             var grid = this.getGrid();
             var behavior = this.getBehavior();
+            var columnProperties = behavior.getColumnProperties(c);
+            var headerRowCount = behavior.getHeaderRowCount();
+            var headerColumnCount = behavior.getHeaderColumnCount();
+
+            if (r < headerRowCount) {
+                columnProperties = columnProperties.columnHeader;
+            } else if (c < headerColumnCount) {
+                columnProperties = columnProperties.rowHeader;
+            }
+
+            var cellProperties = Object.create(columnProperties);
+
 
             cellProperties.value = grid.getValue(c, r);
             cellProperties.isSelected = grid.isSelected(c, r);
             cellProperties.halign = grid.getColumnAlignment(c);
-            cellProperties.isColumnHovered = this.isHovered(c, r);
-            cellProperties.isRowHovered = this.isHovered(c, r);
+            cellProperties.isColumnHovered = this.isRowHovered(c, r);
+            cellProperties.isRowHovered = this.isColumnHovered(c, r);
             cellProperties.bounds = this._getBoundsOfCell(c, r);
 
             var cell = behavior.getCellRenderer(cellProperties, c, r);
 
-            cell.config.x = c;
-            cell.config.y = r;
+            cellProperties.x = c;
+            cellProperties.y = r;
 
             behavior.cellPrePaintNotification(cell);
             cell.paint(gc, cellProperties);
