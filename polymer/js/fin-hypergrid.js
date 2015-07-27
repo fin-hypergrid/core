@@ -2748,7 +2748,7 @@
          *
          * @param {mouse} mouse - the event details
          */
-        headerRowClicked: function(mouse) {
+        rowHeaderClicked: function(mouse) {
             this.getBehavior().headerRowClicked(this, mouse);
         },
 
@@ -2760,8 +2760,8 @@
          *
          * @param {mouse} mouse - the event details
          */
-        headerColumnClicked: function(mouse) {
-            this.getBehavior().headerColumnClicked(this, mouse);
+        columnHeaderClicked: function(mouse) {
+            this.getBehavior().columnHeaderClicked(this, mouse);
         },
 
         /**
@@ -3244,6 +3244,12 @@
 
         setColumnProperties: function(columnIndex, properties) {
             this.getBehavior().setColumnProperties(columnIndex, properties);
+        },
+
+        selectColumn: function(x) {
+            var height = this.getRowCount();
+            this.getSelectionModel().toggleSelect(x, 0, 0, height);
+            this.repaint();
         }
 
     });

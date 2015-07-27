@@ -83,6 +83,25 @@
             this.getGrid().selectionChanged();
         },
 
+        toggleSelect: function(ox, oy, ex, ey) {
+
+            var selections = this.getSelections();
+
+            for (var i = 0; i < selections.length; i++) {
+                var each = selections[i];
+                if (each.origin.x === ox && each.origin.y === oy && each.extent.x === ex && each.extent.y === ey) {
+                    selections.splice(i, 1);
+                    this.flattenedX.splice(i, 1);
+                    this.flattenedY.splice(i, 1);
+                    this.getGrid().selectionChanged();
+                    return;
+                }
+            }
+
+            this.select(ox, oy, ex, ey);
+
+        },
+
         /**
          * @function
          * @instance
@@ -179,7 +198,7 @@
             this.selections.length = 0;
             this.flattenedX.length = 0;
             this.flattenedY.length = 0;
-        }
+        },
 
     });
 

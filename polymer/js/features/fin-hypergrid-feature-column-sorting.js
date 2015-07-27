@@ -19,15 +19,15 @@
         handleTap: function(grid, event) {
             var behavior = grid.getBehavior();
             var gridCell = event.gridCell;
-            var inHeaderRowArea = gridCell.y < behavior.getHeaderRowCount();
-            var inHeaderColumnArea = gridCell.x < behavior.getHeaderColumnCount();
+            var inColumnHeaderArea = gridCell.y < behavior.getHeaderRowCount();
+            var inRowHeaderArea = gridCell.x < behavior.getHeaderColumnCount();
 
-            if (inHeaderRowArea && inHeaderColumnArea) {
+            if (inRowHeaderArea && inColumnHeaderArea) {
                 grid.topLeftClicked(event);
-            } else if (inHeaderRowArea) {
-                grid.headerRowClicked(event);
-            } else if (inHeaderColumnArea) {
-                grid.headerColumnClicked(event);
+            } else if (inRowHeaderArea) {
+                grid.rowHeaderClicked(event);
+            } else if (inColumnHeaderArea) {
+                grid.columnHeaderClicked(event);
             }
         },
 
@@ -41,7 +41,7 @@
         */
         handleMouseMove: function(grid, event) {
             var y = event.gridCell.y;
-            if (this.isFixedRow(grid, event) && !this.isFixedColumn(grid, event) && y < 1) {
+            if (this.isFixedRow(grid, event) && y < 1) {
                 this.cursor = 'pointer';
             } else {
                 this.cursor = null;

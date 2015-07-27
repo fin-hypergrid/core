@@ -1273,8 +1273,26 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
          * @param {Object} mouse - event details
          */
-        headerRowClicked: function(grid, mouse) {
-            this.toggleSort(mouse.gridCell.x);
+        columnHeaderClicked: function(grid, mouse) {
+            if (mouse.gridCell.y < 1) {
+                this.toggleSort(mouse.gridCell.x);
+            } else {
+                this.getGrid().selectColumn(mouse.gridCell.x);
+            }
+        },
+
+        /**
+         * @function
+         * @instance
+         * @description
+         fixed row has been clicked, you've been notified
+         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+         * @param {Object} mouse - event details
+         */
+        topLeftClicked: function(grid, mouse) {
+            if (mouse.gridCell.y < 1) {
+                this.toggleSort(mouse.gridCell.x);
+            }
         },
 
         /**
@@ -1297,8 +1315,8 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
          * @param {Object} mouse - event details
          */
-        headerColumnClicked: function(grid, mouse) {
-            console.log('fixedColumnClicked(' + mouse.gridCell.x + ', ' + mouse.gridCell.y + ')');
+        rowHeaderClicked: function(grid, mouse) {
+            console.log('rowHeaderClicked(' + mouse.gridCell.x + ', ' + mouse.gridCell.y + ')');
         },
 
         /**
