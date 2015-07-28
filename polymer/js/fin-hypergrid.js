@@ -225,7 +225,7 @@
 
         //check if there is actually a theme loaded if not, clear out all bogus values
         //from my cache
-        if (polymerTheme.columnHeaderBGSelColor === 'rgba(0, 0, 0, 0)' ||
+        if (polymerTheme.columnHeaderBackgroundSelectionColor === 'rgba(0, 0, 0, 0)' ||
             polymerTheme.lineColor === 'transparent') {
             clearObjectProperties(polymerTheme);
         }
@@ -2749,7 +2749,7 @@
          * @param {mouse} mouse - the event details
          */
         rowHeaderClicked: function(mouse) {
-            this.getBehavior().headerRowClicked(this, mouse);
+            this.getBehavior().rowHeaderClicked(this, mouse);
         },
 
         /**
@@ -3246,9 +3246,15 @@
             this.getBehavior().setColumnProperties(columnIndex, properties);
         },
 
-        selectColumn: function(x) {
+        toggleSelectColumn: function(x) {
             var height = this.getRowCount();
             this.getSelectionModel().toggleSelect(x, 0, 0, height);
+            this.repaint();
+        },
+
+        toggleSelectRow: function(y) {
+            var width = this.getColumnCount();
+            this.getSelectionModel().toggleSelect(0, y, width, 0);
             this.repaint();
         }
 

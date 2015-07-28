@@ -915,8 +915,8 @@ Instances of this object have basically four main functions.
             var visibleCols = this.getVisibleColumns();
             var visibleRows = this.getVisibleRows();
 
-            var width = columnEdges[columnEdges.length-1];
-            var height = rowEdges[rowEdges.length-1];
+            var width = columnEdges[columnEdges.length - 1];
+            var height = rowEdges[rowEdges.length - 1];
 
             gc.moveTo(0, 0);
             gc.rect(0, 0, width, height);

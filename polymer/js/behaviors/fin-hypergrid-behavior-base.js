@@ -1277,7 +1277,7 @@ it contains all code/data that's necessary for easily implementing a virtual dat
             if (mouse.gridCell.y < 1) {
                 this.toggleSort(mouse.gridCell.x);
             } else {
-                this.getGrid().selectColumn(mouse.gridCell.x);
+                this.getGrid().toggleSelectColumn(mouse.gridCell.x);
             }
         },
 
@@ -1316,7 +1316,7 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          * @param {Object} mouse - event details
          */
         rowHeaderClicked: function(grid, mouse) {
-            console.log('rowHeaderClicked(' + mouse.gridCell.x + ', ' + mouse.gridCell.y + ')');
+            this.getGrid().toggleSelectRow(mouse.gridCell.y);
         },
 
         /**

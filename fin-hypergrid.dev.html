@@ -15948,7 +15948,7 @@ Instances of this object have basically four main functions.
             var hdpiRatio = override.hdpiratio;
             //var edges = this.getColumnEdges();
             var startX = override.startX; //hdpiRatio * edges[override.columnIndex];
-            var width = override.width;
+            var width = override.width + 1;
             var height = override.height;
             var targetCTX = override.ctx;
             var imgData = gc.getImageData(startX, 0, Math.round(width * hdpiRatio), Math.round(height * hdpiRatio));
@@ -16026,8 +16026,8 @@ Instances of this object have basically four main functions.
          * @param {integer} colIndex - column index
          *
         */
-        isFixedRowCellSelected: function(colIndex) {
-            return this.getGrid().isFixedRowCellSelected(colIndex);
+        isRowHeaderCellSelected: function(colIndex) {
+            return this.getGrid().isRowHeaderCellSelected(colIndex);
         },
 
         /**
@@ -16038,8 +16038,8 @@ Instances of this object have basically four main functions.
          * @param {integer} rowIndex - column index
          *
         */
-        isFixedColumnCellSelected: function(rowIndex) {
-            return this.getGrid().isFixedColumnCellSelected(rowIndex);
+        isColumnHeaderCellSelected: function(rowIndex) {
+            return this.getGrid().isColumnHeaderCellSelected(rowIndex);
         },
 
         /**
@@ -16291,9 +16291,21 @@ Instances of this object have basically four main functions.
         */
         _paintCells: function(gc) {
             var x, y, c, r = 0;
+
+            var columnEdges = this.getColumnEdges();
+            var rowEdges = this.rowEdges;
+
             var visibleCols = this.getVisibleColumns();
             var visibleRows = this.getVisibleRows();
+
+            var width = columnEdges[columnEdges.length - 1];
+            var height = rowEdges[rowEdges.length - 1];
+
             gc.moveTo(0, 0);
+            gc.rect(0, 0, width, height);
+            gc.stroke();
+            gc.clip();
+
             for (x = 0; x < visibleCols.length; x++) {
                 c = visibleCols[x];
                 for (y = 0; y < visibleRows.length; y++) {
@@ -16372,17 +16384,26 @@ Instances of this object have basically four main functions.
             var headerRowCount = behavior.getHeaderRowCount();
             var headerColumnCount = behavior.getHeaderColumnCount();
 
-            if (r < headerRowCount) {
+            var isRowHeader = r < headerRowCount;
+            var isColumnHeader = c < headerColumnCount;
+
+            if (isRowHeader) {
                 columnProperties = columnProperties.columnHeader;
-            } else if (c < headerColumnCount) {
+            } else if (isColumnHeader) {
                 columnProperties = columnProperties.rowHeader;
             }
 
             var cellProperties = Object.create(columnProperties);
 
+            if (isRowHeader) {
+                cellProperties.isSelected = grid.isRowHeaderCellSelected(c);
+            } else if (isColumnHeader) {
+                cellProperties.isSelected = grid.isColumnHeaderCellSelected(r);
+            } else {
+                cellProperties.isSelected = grid.isSelected(c, r);
+            }
 
             cellProperties.value = grid.getValue(c, r);
-            cellProperties.isSelected = grid.isSelected(c, r);
             cellProperties.halign = grid.getColumnAlignment(c);
             cellProperties.isColumnHovered = this.isRowHovered(c, r);
             cellProperties.isRowHovered = this.isColumnHovered(c, r);
@@ -16666,6 +16687,25 @@ Instances of this object have basically four main functions.
             this.getGrid().selectionChanged();
         },
 
+        toggleSelect: function(ox, oy, ex, ey) {
+
+            var selections = this.getSelections();
+
+            for (var i = 0; i < selections.length; i++) {
+                var each = selections[i];
+                if (each.origin.x === ox && each.origin.y === oy && each.extent.x === ex && each.extent.y === ey) {
+                    selections.splice(i, 1);
+                    this.flattenedX.splice(i, 1);
+                    this.flattenedY.splice(i, 1);
+                    this.getGrid().selectionChanged();
+                    return;
+                }
+            }
+
+            this.select(ox, oy, ex, ey);
+
+        },
+
         /**
          * @function
          * @instance
@@ -16715,7 +16755,7 @@ Instances of this object have basically four main functions.
          * #### returns: boolean
          * @param {integer} col - column index
          */
-        isFixedRowCellSelected: function(col) {
+        isRowHeaderCellSelected: function(col) {
             return this._isSelected(this.flattenedY, col, 0);
         },
 
@@ -16727,7 +16767,7 @@ Instances of this object have basically four main functions.
          * #### returns: boolean
          * @param {integer} row - row index
          */
-        isFixedColumnCellSelected: function(row) {
+        isColumnHeaderCellSelected: function(row) {
             return this._isSelected(this.flattenedX, 0, row);
         },
 
@@ -16762,7 +16802,7 @@ Instances of this object have basically four main functions.
             this.selections.length = 0;
             this.flattenedX.length = 0;
             this.flattenedY.length = 0;
-        }
+        },
 
     });
 
@@ -18124,12 +18164,12 @@ var noop = function() {};
 
             //fill background only if our bgColor is populated or we are a selected cell
             if (config.backgroundColor || config.isSelected) {
-                gc.fillStyle = config.isSelected ? config.backgroundSelColor : config.backgroundColor;
+                gc.fillStyle = config.isSelected ? config.backgroundSelectionColor : config.backgroundColor;
                 gc.fillRect(x, y, width, height);
             }
 
             //draw text
-            var theColor = config.isSelected ? config.foregroundSelColor : config.color;
+            var theColor = config.isSelected ? config.foregroundSelectionColor : config.color;
             if (gc.fillStyle !== theColor) {
                 gc.fillStyle = theColor;
                 gc.strokeStyle = theColor;
@@ -20418,15 +20458,15 @@ var commands = {
         handleTap: function(grid, event) {
             var behavior = grid.getBehavior();
             var gridCell = event.gridCell;
-            var inHeaderRowArea = gridCell.y < behavior.getHeaderRowCount();
-            var inHeaderColumnArea = gridCell.x < behavior.getHeaderColumnCount();
+            var inColumnHeaderArea = gridCell.y < behavior.getHeaderRowCount();
+            var inRowHeaderArea = gridCell.x < behavior.getHeaderColumnCount();
 
-            if (inHeaderRowArea && inHeaderColumnArea) {
+            if (inRowHeaderArea && inColumnHeaderArea) {
                 grid.topLeftClicked(event);
-            } else if (inHeaderRowArea) {
-                grid.headerRowClicked(event);
-            } else if (inHeaderColumnArea) {
-                grid.headerColumnClicked(event);
+            } else if (inRowHeaderArea) {
+                grid.rowHeaderClicked(event);
+            } else if (inColumnHeaderArea) {
+                grid.columnHeaderClicked(event);
             }
         },
 
@@ -20440,7 +20480,7 @@ var commands = {
         */
         handleMouseMove: function(grid, event) {
             var y = event.gridCell.y;
-            if (this.isFixedRow(grid, event) && !this.isFixedColumn(grid, event) && y < 1) {
+            if (this.isFixedRow(grid, event) && y < 1) {
                 this.cursor = 'pointer';
             } else {
                 this.cursor = null;
@@ -22625,48 +22665,21 @@ var commands = {
 
     Polymer('fin-hypergrid-data-model-decorator-cell-provider', { /* jshint ignore:line  */
 
-
-        getCellRenderer: function(config /*, x, y, untranslatedX, untranslatedY */ ) {
+        getCellRenderer: function(config, x, y, untranslatedX, untranslatedY) {
+            var renderer;
             var provider = this.getCellProvider();
-            return provider.getCell(config);
-        },
-
-        getCellRendererX: function(config, x, y /* , untranslatedX, untranslatedY */ ) {
-            //this needs to be rethought
-            var grid = this.getGrid();
-            var provider = this.getCellProvider();
-            var behavior = grid.getBehavior();
-            var headerRowCount = behavior.getHeaderRowCount();
-            var headerColumnCount = behavior.getHeaderColumnCount();
-
-            if (x < headerColumnCount) {
-                config.font = config.fixedColumnFont;
-                if (grid.isFixedColumnCellSelected(y)) {
-                    config.backgroundColor = config.fixedColumnBGSelColor;
-                    config.color = config.fixedColumnFGSelColor;
-                } else {
-                    config.color = config.fixedColumnColor;
-                    config.backgroundColor = config.fixedColumnBackgroundColor;
-                }
-                return provider.getFixedColumnCell(config);
-            } else if (y < headerRowCount) {
-                config.font = config.fixedRowFont;
-                if (grid.isFixedRowCellSelected(x)) {
-                    config.backgroundColor = config.fixedRowBGSelColor;
-                    config.color = config.fixedRowFGSelColor;
-                } else {
-                    config.color = config.fixedRowColor;
-                    config.backgroundColor = config.fixedRowBackgroundColor;
-                }
-                return provider.getFixedRowCell(config);
+            config.x = x;
+            config.y = y;
+            config.untranslatedX = untranslatedX;
+            config.untranslatedY = untranslatedY;
+            if (config.untranslatedX < 1 || config.untranslatedY < 2) {
+                renderer = provider.cellCache.simpleCellRenderer;
             } else {
-                delete config.font;
-                delete config.color;
-                delete config.backgroundColor;
-                return provider.getCell(config);
+                renderer = provider.getCell(config);
             }
+            renderer.config = config;
+            return renderer;
         },
-
 
     });
 
@@ -22690,7 +22703,9 @@ var commands = {
     Polymer('fin-hypergrid-data-model-decorator-reorder', { /* jshint ignore:line  */
 
         getCellRenderer: function(config, x, y, untranslatedX, untranslatedY) {
-            return this.getComponent().getCellRenderer(config, x, y, untranslatedX, untranslatedY);
+            var translatedX = this.translateColumnIndex(x);
+            var translatedY = y;
+            return this.getComponent().getCellRenderer(config, translatedX, translatedY, x, y);
         },
 
         translateColumnIndex: function(x) {
@@ -24681,8 +24696,26 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
          * @param {Object} mouse - event details
          */
-        headerRowClicked: function(grid, mouse) {
-            this.toggleSort(mouse.gridCell.x);
+        columnHeaderClicked: function(grid, mouse) {
+            if (mouse.gridCell.y < 1) {
+                this.toggleSort(mouse.gridCell.x);
+            } else {
+                this.getGrid().toggleSelectColumn(mouse.gridCell.x);
+            }
+        },
+
+        /**
+         * @function
+         * @instance
+         * @description
+         fixed row has been clicked, you've been notified
+         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+         * @param {Object} mouse - event details
+         */
+        topLeftClicked: function(grid, mouse) {
+            if (mouse.gridCell.y < 1) {
+                this.toggleSort(mouse.gridCell.x);
+            }
         },
 
         /**
@@ -24705,8 +24738,8 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
          * @param {Object} mouse - event details
          */
-        headerColumnClicked: function(grid, mouse) {
-            console.log('fixedColumnClicked(' + mouse.gridCell.x + ', ' + mouse.gridCell.y + ')');
+        rowHeaderClicked: function(grid, mouse) {
+            this.getGrid().toggleSelectRow(mouse.gridCell.y);
         },
 
         /**
@@ -31817,7 +31850,7 @@ fin-vampire-bar {
 
         //check if there is actually a theme loaded if not, clear out all bogus values
         //from my cache
-        if (polymerTheme.columnHeaderBGSelColor === 'rgba(0, 0, 0, 0)' ||
+        if (polymerTheme.columnHeaderBackgroundSelectionColor === 'rgba(0, 0, 0, 0)' ||
             polymerTheme.lineColor === 'transparent') {
             clearObjectProperties(polymerTheme);
         }
@@ -32625,9 +32658,9 @@ fin-vampire-bar {
          * #### returns: boolean
          * @param {integer} col - column index
          */
-        isFixedRowCellSelected: function(col) {
+        isRowHeaderCellSelected: function(col) {
             var selectionModel = this.getSelectionModel();
-            var isSelected = selectionModel.isFixedRowCellSelected(col);
+            var isSelected = selectionModel.isRowHeaderCellSelected(col);
             return isSelected;
         },
 
@@ -32639,9 +32672,9 @@ fin-vampire-bar {
          * #### returns: boolean
          * @param {integer} row - row index
          */
-        isFixedColumnCellSelected: function(row) {
+        isColumnHeaderCellSelected: function(row) {
             var selectionModel = this.getSelectionModel();
-            var isSelected = selectionModel.isFixedColumnCellSelected(row);
+            var isSelected = selectionModel.isColumnHeaderCellSelected(row);
             return isSelected;
         },
 
@@ -34340,8 +34373,8 @@ fin-vampire-bar {
          *
          * @param {mouse} mouse - the event details
          */
-        headerRowClicked: function(mouse) {
-            this.getBehavior().headerRowClicked(this, mouse);
+        rowHeaderClicked: function(mouse) {
+            this.getBehavior().rowHeaderClicked(this, mouse);
         },
 
         /**
@@ -34352,8 +34385,8 @@ fin-vampire-bar {
          *
          * @param {mouse} mouse - the event details
          */
-        headerColumnClicked: function(mouse) {
-            this.getBehavior().headerColumnClicked(this, mouse);
+        columnHeaderClicked: function(mouse) {
+            this.getBehavior().columnHeaderClicked(this, mouse);
         },
 
         /**
@@ -34836,6 +34869,18 @@ fin-vampire-bar {
 
         setColumnProperties: function(columnIndex, properties) {
             this.getBehavior().setColumnProperties(columnIndex, properties);
+        },
+
+        toggleSelectColumn: function(x) {
+            var height = this.getRowCount();
+            this.getSelectionModel().toggleSelect(x, 0, 0, height);
+            this.repaint();
+        },
+
+        toggleSelectRow: function(y) {
+            var width = this.getColumnCount();
+            this.getSelectionModel().toggleSelect(0, y, width, 0);
+            this.repaint();
         }
 
     });
