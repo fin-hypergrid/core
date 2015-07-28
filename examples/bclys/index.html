@@ -5,6 +5,7 @@
   <script src="accounting.min.js"></script>
   <script src="sampledata.js"></script>
   <link rel="import" href="fin-hypergrid.min.html">
+<!--   <link rel="import" href="../../polymer/html/fin-hypergrid.html"> -->
   <style>
     .abs {
         position: absolute;
@@ -134,10 +135,10 @@
         });
 
         jsonGrid.addFinEventListener('fin-click', function(e){
-            // var cell = e.detail.gridCell;
-            // if (cell.x === 2) {
-            //     jsonGrid.activateEditor(cell.x, cell.y);
-            // }
+            var cell = e.detail.gridCell;
+            if (cell.x === 2 && cell.y > 1) {
+                jsonGrid.activateEditor(cell.x, cell.y);
+            }
         });
 
         jsonGrid.addFinEventListener('fin-header-click', function(e){
@@ -175,7 +176,16 @@
         });
 
         jsonGrid.addFinEventListener('fin-keydown', function(e) {
-            console.log('fin-keydown', e);
+            var key = e.detail.char;
+            if (key === 'RETURN') {
+                //move the cursor one space to the right
+                jsonGrid.moveSingleSelect(1,0);
+            } else if (key === 'TAB') {
+                //select the bottom right most cell and scroll there
+                jsonGrid.selectCell(jsonGrid.getColumnCount()-1, jsonGrid.getRowCount()-1);
+                jsonGrid.scrollBy(jsonGrid.getColumnCount(), jsonGrid.getRowCount());
+            }
+            console.log(e);
         });
 
 
