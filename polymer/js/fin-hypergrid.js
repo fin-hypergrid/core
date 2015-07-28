@@ -2008,12 +2008,8 @@
          */
         fireSyntheticClickEvent: function(mouseEvent) {
             var cell = mouseEvent.gridCell;
-            var fixedColCount = this.getFixedColumnCount();
-            var fixedRowCount = this.getFixedRowCount();
-            var x = cell.x < fixedColCount ? cell.x - fixedColCount : cell.x + this.getHScrollValue() - fixedColCount;
-            var y = cell.y < fixedRowCount ? cell.y - fixedRowCount : cell.y + this.getVScrollValue() - fixedRowCount;
             var detail = {
-                gridCell: this.rectangles.point.create(x, y),
+                gridCell: cell,
                 mousePoint: mouseEvent.mousePoint,
                 primitiveEvent: mouseEvent,
                 time: Date.now(),
@@ -2038,12 +2034,8 @@
         fireSyntheticDoubleClickEvent: function(mouseEvent) {
             var cell = mouseEvent.gridCell;
             var behavior = this.getBehavior();
-            var fixedColCount = this.getFixedColumnCount();
-            var fixedRowCount = this.getFixedRowCount();
-            var x = cell.x < fixedColCount ? cell.x - fixedColCount : cell.x + this.getHScrollValue() - fixedColCount;
-            var y = cell.y < fixedRowCount ? cell.y - fixedRowCount : cell.y + this.getVScrollValue() - fixedRowCount;
             var detail = {
-                gridCell: this.rectangles.point.create(x, y),
+                gridCell: cell,
                 mousePoint: mouseEvent.mousePoint,
                 time: Date.now(),
                 grid: this
@@ -3256,6 +3248,15 @@
             var width = this.getColumnCount();
             this.getSelectionModel().toggleSelect(0, y, width, 0);
             this.repaint();
+        },
+
+        moveSingleSelect: function(x, y) {
+            this.getBehavior().moveSingleSelect(this, x, y);
+        },
+
+        selectCell: function(x, y) {
+            this.getSelectionModel().clear();
+            this.getSelectionModel().select(x, y, 0, 0);
         }
 
     });

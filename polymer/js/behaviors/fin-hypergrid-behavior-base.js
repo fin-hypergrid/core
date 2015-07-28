@@ -613,6 +613,13 @@ it contains all code/data that's necessary for easily implementing a virtual dat
             this.fixedColumnClicked(grid, mouse);
         },
 
+        moveSingleSelect: function(grid, x, y) {
+            if (this.featureChain) {
+                this.featureChain.moveSingleSelect(grid, x, y);
+                this.setCursor(grid);
+            }
+        },
+
         /**
          * @function
          * @instance

@@ -17675,6 +17675,20 @@ Instances of this object have basically four main functions.
             }
         },
 
+
+        /**
+        * @function
+        * @instance
+        * @description
+         toggle the column picker
+        */
+
+        moveSingleSelect: function(grid, x, y) {
+            if (this.next) {
+                this.next.moveSingleSelect(grid, x, y);
+            }
+        },
+
         /**
         * @function
         * @instance
@@ -24034,6 +24048,13 @@ it contains all code/data that's necessary for easily implementing a virtual dat
             var translatedPoint = this.grid.rectangles.point.create(mouse.gridCell.x, this.getScrollPositionY() + mouse.gridCell.y - this.getFixedRowCount());
             mouse.gridCell = translatedPoint;
             this.fixedColumnClicked(grid, mouse);
+        },
+
+        moveSingleSelect: function(grid, x, y) {
+            if (this.featureChain) {
+                this.featureChain.moveSingleSelect(grid, x, y);
+                this.setCursor(grid);
+            }
         },
 
         /**
@@ -33633,12 +33654,8 @@ fin-vampire-bar {
          */
         fireSyntheticClickEvent: function(mouseEvent) {
             var cell = mouseEvent.gridCell;
-            var fixedColCount = this.getFixedColumnCount();
-            var fixedRowCount = this.getFixedRowCount();
-            var x = cell.x < fixedColCount ? cell.x - fixedColCount : cell.x + this.getHScrollValue() - fixedColCount;
-            var y = cell.y < fixedRowCount ? cell.y - fixedRowCount : cell.y + this.getVScrollValue() - fixedRowCount;
             var detail = {
-                gridCell: this.rectangles.point.create(x, y),
+                gridCell: cell,
                 mousePoint: mouseEvent.mousePoint,
                 primitiveEvent: mouseEvent,
                 time: Date.now(),
@@ -33663,12 +33680,8 @@ fin-vampire-bar {
         fireSyntheticDoubleClickEvent: function(mouseEvent) {
             var cell = mouseEvent.gridCell;
             var behavior = this.getBehavior();
-            var fixedColCount = this.getFixedColumnCount();
-            var fixedRowCount = this.getFixedRowCount();
-            var x = cell.x < fixedColCount ? cell.x - fixedColCount : cell.x + this.getHScrollValue() - fixedColCount;
-            var y = cell.y < fixedRowCount ? cell.y - fixedRowCount : cell.y + this.getVScrollValue() - fixedRowCount;
             var detail = {
-                gridCell: this.rectangles.point.create(x, y),
+                gridCell: cell,
                 mousePoint: mouseEvent.mousePoint,
                 time: Date.now(),
                 grid: this
@@ -34881,6 +34894,15 @@ fin-vampire-bar {
             var width = this.getColumnCount();
             this.getSelectionModel().toggleSelect(0, y, width, 0);
             this.repaint();
+        },
+
+        moveSingleSelect: function(x, y) {
+            this.getBehavior().moveSingleSelect(this, x, y);
+        },
+
+        selectCell: function(x, y) {
+            this.getSelectionModel().clear();
+            this.getSelectionModel().select(x, y, 0, 0);
         }
 
     });

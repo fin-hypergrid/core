@@ -269,6 +269,20 @@
             }
         },
 
+
+        /**
+        * @function
+        * @instance
+        * @description
+         toggle the column picker
+        */
+
+        moveSingleSelect: function(grid, x, y) {
+            if (this.next) {
+                this.next.moveSingleSelect(grid, x, y);
+            }
+        },
+
         /**
         * @function
         * @instance

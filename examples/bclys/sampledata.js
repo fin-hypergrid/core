@@ -1,7 +1,7 @@
 'use strict';
 
 (function() {
-    var numRows = 100000;
+    var numRows = 10000;
 
     var firstNames = ['Olivia', 'Sophia', 'Ava', 'Isabella', 'Boy', 'Liam', 'Noah', 'Ethan', 'Mason', 'Logan', 'Moe', 'Larry', 'Curly', 'Shemp', 'Groucho', 'Harpo', 'Chico', 'Zeppo', 'Stanley', 'Hardy'];
     var lastNames = ['Wirts', 'Oneil', 'Smith', 'Barbarosa', 'Soprano', 'Gotti', 'Columbo', 'Luciano', 'Doerre', 'DePena'];
@@ -44,4 +44,7 @@
         data.push(randomPerson());
     }
     window.people = data;
+    window.states = states;
+    window.firstNames = firstNames;
+    window.lastNames = lastNames;
 })();
