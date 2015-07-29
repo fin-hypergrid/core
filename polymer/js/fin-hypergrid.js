@@ -519,7 +519,7 @@
             this.fire('load');
             this.isScrollButtonClick = false;
 
-            this.computeCellBounds();
+            this.computeCellsBounds();
         },
 
         /**
@@ -537,7 +537,7 @@
             return this.lnfProperties;
         },
 
-        computeCellBounds: function() {
+        computeCellsBounds: function() {
             this.getRenderer().computeCellsBounds();
         },
 
@@ -1108,6 +1108,7 @@
                 this.numRows = this.getRowCount();
                 this.behaviorShapeChanged();
             }
+            this.computeCellsBounds();
             this.repaint();
         },
 
@@ -2449,7 +2450,7 @@
                 this.cellEditor.scrollValueChangedNotification();
             }
 
-            this.computeCellBounds();
+            this.computeCellsBounds();
         },
 
         /**
@@ -2536,7 +2537,7 @@
             this.setVScrollValue(Math.min(this.getVScrollValue(), this.sbVScrollConfig.rangeStop));
             this.setHScrollValue(Math.min(this.getHScrollValue(), this.sbHScrollConfig.rangeStop));
 
-            this.computeCellBounds();
+            this.computeCellsBounds();
             this.repaint();
             //this.sbVScroller.tickle();
             //this.sbHScroller.tickle();
@@ -3257,6 +3258,10 @@
         selectCell: function(x, y) {
             this.getSelectionModel().clear();
             this.getSelectionModel().select(x, y, 0, 0);
+        },
+
+        isHiddenColumn: function(x) {
+            return this.getBehavior().isHiddenColumn(x);
         }
 
     });

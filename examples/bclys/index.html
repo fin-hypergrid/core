@@ -4,8 +4,8 @@
   <title>fin-hypergrid Demo</title>
   <script src="accounting.min.js"></script>
   <script src="sampledata.js"></script>
-  <link rel="import" href="fin-hypergrid.min.html">
-<!--   <link rel="import" href="../../polymer/html/fin-hypergrid.html"> -->
+<!--   <link rel="import" href="fin-hypergrid.min.html"> -->
+  <link rel="import" href="../../polymer/html/fin-hypergrid.html">
   <style>
     .abs {
         position: absolute;
@@ -188,8 +188,8 @@
             console.log(e);
         });
 
-
-
+        var state = jsonGrid.getState();
+        state.hiddenColumns = [2];
     });
 })();
 

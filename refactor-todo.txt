@@ -1,4 +1,5 @@
 refactor-todo.txt
+
 * cell selection in scrolled fixed areas
 * key cell selection scrolling
 * and populating with wrong data
@@ -11,22 +12,24 @@ refactor-todo.txt
     * editors not following data with column reorder
     * editor size adjustment (originOffset)
 
-header rows/columns function
+* header rows/columns function
     * selection ignoring
     * cell rendering
     * cell properties
+    * alignment fixed
+
+* final column clipping
+
+* json sorting
+    * shouldn't sort by clicking on non-top row
+    * cursor not correct for sorting of fixed cols
+    * col resize causes a sort
 
 cell events
 
-cellRenderer fixes
-    * alignment
-
-encapsulate tableState
+column autosize
 
 fixed row/column at bottom/left
-
-json sorting
-    shouldn't sort by clicking on non-top row
 
 rendering performance improvements
     LRU cell image cache
@@ -37,19 +40,11 @@ q/qtree port
 
 game of life port
 
-final column clipping
-
 clean up changed/stateChanged/etc...
-
-column autosize
 
 getCursorAt on behavior needs to go through data model indirection
 
-top left cell
-
-col resize causes a sort
-
-cursor not correct for sorting of fixed cols
+clean up top left cell
 
 fix link cell
 
@@ -57,6 +52,9 @@ page/step up/down
 
 mouse over cell
 
+encapsulate tableState
+
+13,14,15,17,24,29,30,31,32,36,38,43,47,54,58,61,62,67,68,69,70,71,72,73
 
 
 

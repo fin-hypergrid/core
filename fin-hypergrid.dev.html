@@ -22661,6 +22661,10 @@ var commands = {
             this.getComponent().setColumnProperties(columnIndex, properties);
         },
 
+        isHiddenColumn: function(x) {
+            return this.getComponent().isHiddenColumn(x);
+        }
+
     });
 
 })();
@@ -22801,6 +22805,12 @@ var commands = {
             x = this.translateColumnIndex(x);
             this.getComponent().setColumnProperties(x, properties);
         },
+
+        isHiddenColumn: function(x) {
+            x = this.translateColumnIndex(x);
+            var tableState = this.getState();
+            return tableState.hiddenColumns[x];
+        }
 
     });
 
@@ -24961,6 +24971,10 @@ it contains all code/data that's necessary for easily implementing a virtual dat
 
         getColumnEdge: function(c, renderer) {
             return this.getDataModel().getColumnEdge(c, renderer);
+        },
+
+        isHiddenColumn: function(x) {
+            return this.getDataModel().isHiddenColumn(x);
         }
 
     });
@@ -32165,7 +32179,7 @@ fin-vampire-bar {
             this.fire('load');
             this.isScrollButtonClick = false;
 
-            this.computeCellBounds();
+            this.computeCellsBounds();
         },
 
         /**
@@ -32183,7 +32197,7 @@ fin-vampire-bar {
             return this.lnfProperties;
         },
 
-        computeCellBounds: function() {
+        computeCellsBounds: function() {
             this.getRenderer().computeCellsBounds();
         },
 
@@ -32754,6 +32768,7 @@ fin-vampire-bar {
                 this.numRows = this.getRowCount();
                 this.behaviorShapeChanged();
             }
+            this.computeCellsBounds();
             this.repaint();
         },
 
@@ -34095,7 +34110,7 @@ fin-vampire-bar {
                 this.cellEditor.scrollValueChangedNotification();
             }
 
-            this.computeCellBounds();
+            this.computeCellsBounds();
         },
 
         /**
@@ -34182,7 +34197,7 @@ fin-vampire-bar {
             this.setVScrollValue(Math.min(this.getVScrollValue(), this.sbVScrollConfig.rangeStop));
             this.setHScrollValue(Math.min(this.getHScrollValue(), this.sbHScrollConfig.rangeStop));
 
-            this.computeCellBounds();
+            this.computeCellsBounds();
             this.repaint();
             //this.sbVScroller.tickle();
             //this.sbHScroller.tickle();
@@ -34903,6 +34918,10 @@ fin-vampire-bar {
         selectCell: function(x, y) {
             this.getSelectionModel().clear();
             this.getSelectionModel().select(x, y, 0, 0);
+        },
+
+        isHiddenColumn: function(x) {
+            return this.getBehavior().isHiddenColumn(x);
         }
 
     });

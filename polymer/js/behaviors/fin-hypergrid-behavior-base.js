@@ -1524,6 +1524,10 @@ it contains all code/data that's necessary for easily implementing a virtual dat
 
         getColumnEdge: function(c, renderer) {
             return this.getDataModel().getColumnEdge(c, renderer);
+        },
+
+        isHiddenColumn: function(x) {
+            return this.getDataModel().isHiddenColumn(x);
         }
 
     });

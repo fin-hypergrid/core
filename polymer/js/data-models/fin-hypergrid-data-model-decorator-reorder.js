@@ -92,6 +92,12 @@
             this.getComponent().setColumnProperties(x, properties);
         },
 
+        isHiddenColumn: function(x) {
+            x = this.translateColumnIndex(x);
+            var tableState = this.getState();
+            return tableState.hiddenColumns[x];
+        }
+
     });
 
 })();
