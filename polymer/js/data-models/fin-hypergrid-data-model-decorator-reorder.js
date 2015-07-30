@@ -37,15 +37,14 @@
         },
 
         getColumnWidth: function(x) {
-            x = this.translateColumnIndex(x);
-            var tableState = this.getState();
-            return tableState.columnWidths[x];
+            var columnProperties = this.getColumnProperties(x);
+            var width = columnProperties.width;
+            return width;
         },
 
         setColumnWidth: function(x, width) {
-            x = this.translateColumnIndex(x);
-            var tableState = this.getState();
-            tableState.columnWidths[x] = width;
+            var columnProperties = this.getColumnProperties(x);
+            columnProperties.width = width;
             this.changed();
         },
 
@@ -55,8 +54,9 @@
         },
 
         getColumnAlignment: function(x) {
-            x = this.translateColumnIndex(x);
-            return this.getComponent().getColumnAlignment(x);
+            var columnProperties = this.getColumnProperties(x);
+            var alignment = columnProperties.alignment;
+            return alignment
         },
 
         getCellEditorAt: function(x, y) {
@@ -92,10 +92,23 @@
             this.getComponent().setColumnProperties(x, properties);
         },
 
-        isHiddenColumn: function(x) {
-            x = this.translateColumnIndex(x);
+        checkColumnAutosizing: function(minWidths) {
+            var self = this;
             var tableState = this.getState();
-            return tableState.hiddenColumns[x];
+            var repaint = false;
+            var a, b, c, d = 0;
+            for (c = 0; c < minWidths.length; c++) {
+                var ti = this.translateColumnIndex(c);
+                var properties = tableState.columnProperties[ti];
+                a = properties.width;
+                b = minWidths[c];
+                d = properties.columnAutosized;
+                if (a !== b || !d) {
+                    properties.width = !d ? b : Math.max(a, b);
+                    properties.columnAutosized = true;
+                    repaint = true;
+                }
+            }
         }
 
     });

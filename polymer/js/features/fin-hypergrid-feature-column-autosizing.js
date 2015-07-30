@@ -17,12 +17,11 @@
          * @param {Object} event - the event details
         */
         handleDoubleClick: function(grid, event) {
-            var fixedRowCount = grid.getFixedRowCount();
-            var fixedColCount = grid.getFixedColumnCount();
+            var headerRowCount = grid.getHeaderRowCount();
+            var headerColCount = grid.getHeaderColumnCount();
             var gridCell = event.gridCell;
-            if (gridCell.y <= fixedRowCount) {
-                var col = grid.getHScrollValue() + gridCell.x - fixedColCount;
-                grid.autosizeColumn(col);
+            if (gridCell.y <= headerRowCount) {
+                grid.autosizeColumn(gridCell.x);
             } else if (this.next) {
                 this.next.handleDoubleClick(grid, event);
             }

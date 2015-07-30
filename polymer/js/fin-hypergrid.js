@@ -162,7 +162,7 @@
 
             useHiDPI: true,
             editorActivationKeys: ['alt', 'esc'],
-            columnAutosizing: false,
+            columnAutosizing: true,
             readOnly: false,
 
             //inhertied by cell renderers
@@ -861,9 +861,8 @@
                 return;
             }
             var renderer = this.getRenderer();
-            var fixedColSizes = renderer.renderedFixedColumnMinWidths;
             var colSizes = renderer.renderedColumnMinWidths;
-            this.getBehavior().checkColumnAutosizing(fixedColSizes, colSizes);
+            this.getBehavior().checkColumnAutosizing(colSizes);
         },
 
         /**
@@ -3260,8 +3259,12 @@
             this.getSelectionModel().select(x, y, 0, 0);
         },
 
-        isHiddenColumn: function(x) {
-            return this.getBehavior().isHiddenColumn(x);
+        getHeaderRowCount: function() {
+            return this.getBehavior().getHeaderRowCount();
+        },
+
+        getHeaderColumnCount: function() {
+            return this.getBehavior().getHeaderColumnCount();
         }
 
     });

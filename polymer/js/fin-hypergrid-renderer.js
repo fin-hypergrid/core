@@ -925,6 +925,7 @@ Instances of this object have basically four main functions.
 
             for (x = 0; x < visibleCols.length; x++) {
                 c = visibleCols[x];
+                this.renderedColumnMinWidths[c] = 0;
                 for (y = 0; y < visibleRows.length; y++) {
                     r = visibleRows[y];
                     this._paintCell(gc, c, r);
@@ -1033,6 +1034,9 @@ Instances of this object have basically four main functions.
 
             behavior.cellPrePaintNotification(cell);
             cell.paint(gc, cellProperties);
+
+            this.renderedColumnMinWidths[c] = Math.max(cellProperties.minWidth || 0, this.renderedColumnMinWidths[c]);
+
         }
     });
 

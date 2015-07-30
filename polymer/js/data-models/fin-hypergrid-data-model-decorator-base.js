@@ -71,8 +71,8 @@
             this.getComponent().setColumnProperties(columnIndex, properties);
         },
 
-        isHiddenColumn: function(x) {
-            return this.getComponent().isHiddenColumn(x);
+        checkColumnAutosizing: function(minWidths) {
+            return this.getComponent().checkColumnAutosizing(minWidths);
         }
 
     });

@@ -45,7 +45,6 @@
         getDefaultState: function() {
             return {
                 columnIndexes: [],
-                hiddenColumns: [],
 
                 columnWidths: [],
 

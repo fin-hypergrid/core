@@ -16308,6 +16308,7 @@ Instances of this object have basically four main functions.
 
             for (x = 0; x < visibleCols.length; x++) {
                 c = visibleCols[x];
+                this.renderedColumnMinWidths[c] = 0;
                 for (y = 0; y < visibleRows.length; y++) {
                     r = visibleRows[y];
                     this._paintCell(gc, c, r);
@@ -16416,6 +16417,9 @@ Instances of this object have basically four main functions.
 
             behavior.cellPrePaintNotification(cell);
             cell.paint(gc, cellProperties);
+
+            this.renderedColumnMinWidths[c] = Math.max(cellProperties.minWidth || 0, this.renderedColumnMinWidths[c]);
+
         }
     });
 
@@ -22361,12 +22365,11 @@ var commands = {
          * @param {Object} event - the event details
         */
         handleDoubleClick: function(grid, event) {
-            var fixedRowCount = grid.getFixedRowCount();
-            var fixedColCount = grid.getFixedColumnCount();
+            var headerRowCount = grid.getHeaderRowCount();
+            var headerColCount = grid.getHeaderColumnCount();
             var gridCell = event.gridCell;
-            if (gridCell.y <= fixedRowCount) {
-                var col = grid.getHScrollValue() + gridCell.x - fixedColCount;
-                grid.autosizeColumn(col);
+            if (gridCell.y <= headerRowCount) {
+                grid.autosizeColumn(gridCell.x);
             } else if (this.next) {
                 this.next.handleDoubleClick(grid, event);
             }
@@ -22661,8 +22664,8 @@ var commands = {
             this.getComponent().setColumnProperties(columnIndex, properties);
         },
 
-        isHiddenColumn: function(x) {
-            return this.getComponent().isHiddenColumn(x);
+        checkColumnAutosizing: function(minWidths) {
+            return this.getComponent().checkColumnAutosizing(minWidths);
         }
 
     });
@@ -22751,15 +22754,14 @@ var commands = {
         },
 
         getColumnWidth: function(x) {
-            x = this.translateColumnIndex(x);
-            var tableState = this.getState();
-            return tableState.columnWidths[x];
+            var columnProperties = this.getColumnProperties(x);
+            var width = columnProperties.width;
+            return width;
         },
 
         setColumnWidth: function(x, width) {
-            x = this.translateColumnIndex(x);
-            var tableState = this.getState();
-            tableState.columnWidths[x] = width;
+            var columnProperties = this.getColumnProperties(x);
+            columnProperties.width = width;
             this.changed();
         },
 
@@ -22769,8 +22771,9 @@ var commands = {
         },
 
         getColumnAlignment: function(x) {
-            x = this.translateColumnIndex(x);
-            return this.getComponent().getColumnAlignment(x);
+            var columnProperties = this.getColumnProperties(x);
+            var alignment = columnProperties.alignment;
+            return alignment
         },
 
         getCellEditorAt: function(x, y) {
@@ -22806,10 +22809,23 @@ var commands = {
             this.getComponent().setColumnProperties(x, properties);
         },
 
-        isHiddenColumn: function(x) {
-            x = this.translateColumnIndex(x);
+        checkColumnAutosizing: function(minWidths) {
+            var self = this;
             var tableState = this.getState();
-            return tableState.hiddenColumns[x];
+            var repaint = false;
+            var a, b, c, d = 0;
+            for (c = 0; c < minWidths.length; c++) {
+                var ti = this.translateColumnIndex(c);
+                var properties = tableState.columnProperties[ti];
+                a = properties.width;
+                b = minWidths[c];
+                d = properties.columnAutosized;
+                if (a !== b || !d) {
+                    properties.width = !d ? b : Math.max(a, b);
+                    properties.columnAutosized = true;
+                    repaint = true;
+                }
+            }
         }
 
     });
@@ -23142,7 +23158,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
             if (y === 0) {
                 tableState = this.getState();
                 headers = this.getHeaders();
-                sortIndex = tableState.sorted[x] || 0;
+                sortIndex = tableState.columnProperties[x].sorted || 0;
                 result = [undefined, headers[x], this.getImage(sortStates[sortIndex])];
             } else if (y === 1) {
                 result = this.getTotal(x, 0);
@@ -23257,14 +23273,15 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
             if (columnIndex >= fields.length) {
                 return;
             }
-            var current = tableState.sorted[columnIndex] || 0;
+            var columnProperties = tableState.columnProperties[columnIndex];
+            var current = columnProperties.sorted || 0;
             var stateCount = sortStates.length;
             var sortStateIndex = (current + incrementIt) % stateCount;
             var i = 0;
             for (; i < fields.length; i++) {
-                tableState.sorted[i] = 0;
+                columnProperties.sorted = 0;
             }
-            tableState.sorted[columnIndex] = sortStateIndex;
+            columnProperties.sorted = sortStateIndex;
             var colName = fields[columnIndex];
             if (sortStateIndex === 0) {
                 var newData = new Array(this.data.length);
@@ -23668,9 +23685,6 @@ it contains all code/data that's necessary for easily implementing a virtual dat
         getDefaultState: function() {
             return {
                 columnIndexes: [],
-                hiddenColumns: [],
-
-                columnWidths: [],
 
                 rowHeights: {},
                 columnProperties: [],
@@ -23680,9 +23694,7 @@ it contains all code/data that's necessary for easily implementing a virtual dat
                 fixedRowCount: 1,
 
                 headerColumnCount: 2,
-                headerRowCount: 2,
-
-                sorted: []
+                headerRowCount: 2
             };
         },
 
@@ -23703,6 +23715,7 @@ it contains all code/data that's necessary for easily implementing a virtual dat
             }
             this.applySorts();
             this.changed();
+            this.stateChanged();
         },
 
         applySorts: function() {
@@ -24315,17 +24328,14 @@ it contains all code/data that's necessary for easily implementing a virtual dat
             this.insureColumnIndexesAreInitialized();
             var tableState = this.getState();
             var columnCount = tableState.columnIndexes.length;
-            var fixedColumnCount = this.getState().fixedColumnCount;
             var labels = [];
             for (var i = 0; i < columnCount; i++) {
                 var id = tableState.columnIndexes[i];
-                if (id >= fixedColumnCount) {
-                    labels.push({
-                        id: id,
-                        label: this.getHeader(id),
-                        field: this.getField(id)
-                    });
-                }
+                labels.push({
+                    id: id,
+                    label: this.getHeader(id),
+                    field: this.getField(id)
+                });
             }
             return labels;
         },
@@ -24364,14 +24374,10 @@ it contains all code/data that's necessary for easily implementing a virtual dat
         setColumnDescriptors: function(list) {
             //assumes there is one row....
             var tableState = this.getState();
-            var fixedColumnCount = this.getState().fixedColumnCount;
 
             var columnCount = list.length;
             var indexes = [];
             var i;
-            for (i = 0; i < fixedColumnCount; i++) {
-                indexes.push(i);
-            }
             for (i = 0; i < columnCount; i++) {
                 indexes.push(list[i].id);
             }
@@ -24388,36 +24394,19 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          */
         getHiddenColumnDescriptors: function() {
             var tableState = this.getState();
-            var indexes = tableState.hiddenColumns;
-            var labels = new Array(indexes.length);
-            for (var i = 0; i < labels.length; i++) {
-                var id = indexes[i];
-                labels[i] = {
-                    id: id,
-                    label: this.getHeader(id),
-                    field: this.getField(id)
-                };
+            var indexes = tableState.columnIndexes;
+            var labels = [];
+            var columnCount = this.getDataModel().getColumnCount();
+            for (var i = 0; i < columnCount; i++) {
+                if (indexes.indexOf(i) === -1) {
+                    labels.push({
+                        id: i,
+                        label: this.getHeader(i),
+                        field: this.getField(i)
+                    });
+                }
             }
             return labels;
-        },
-
-        /**
-         * @function
-         * @instance
-         * @description
-         set which column are hidden post column editor close
-         * @param {Array} list - the list column descriptors
-         */
-        setHiddenColumnDescriptors: function(list) {
-            //assumes there is one row....
-            var columnCount = list.length;
-            var indexes = new Array(columnCount);
-            for (var i = 0; i < columnCount; i++) {
-                indexes[i] = list[i].id;
-            }
-            var tableState = this.getState();
-            tableState.hiddenColumns = indexes;
-            this.changed();
         },
 
         /**
@@ -24429,12 +24418,10 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          */
         hideColumns: function(arrayOfIndexes) {
             var tableState = this.getState();
-            var indexes = tableState.hiddenColumns;
             var order = tableState.columnIndexes;
             for (var i = 0; i < arrayOfIndexes.length; i++) {
                 var each = arrayOfIndexes[i];
-                if (indexes.indexOf(each) === -1) {
-                    indexes.push(each);
+                if (order.indexOf(each) !== -1) {
                     order.splice(order.indexOf(each), 1);
                 }
             }
@@ -24583,7 +24570,6 @@ it contains all code/data that's necessary for easily implementing a virtual dat
             noop(div);
             var lists = div.lists;
             this.setColumnDescriptors(lists.visible);
-            this.setHiddenColumnDescriptors(lists.hidden);
             return true;
         },
 
@@ -24631,7 +24617,10 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          * #### returns: integer
          */
         getColumnCount: function() {
-            return this.getDataModel().getColumnCount();
+            if (!this.tableState) {
+                return this.getDataModel().getColumnCount();
+            }
+            return this.tableState.columnIndexes.length;
         },
 
         /**
@@ -24833,28 +24822,8 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          * @param {Array} fixedMinWidths - the minimum sizes to fit all data for each column in the fixed area
          * @param {Array} minWidths - the minimum sizes to fit all data for each column in the data area
          */
-        checkColumnAutosizing: function(fixedMinWidths, minWidths) {
-            var self = this;
-            var tableState = this.getState();
-            var myWidths = tableState.columnWidths;
-            var repaint = false;
-            var a, b, c, d = 0;
-            for (c = 0; c < minWidths.length; c++) {
-                var ti = this.translateColumnIndex(c);
-                a = myWidths[ti];
-                b = minWidths[c];
-                d = tableState.columnAutosized[c];
-                if (a !== b || !d) {
-                    myWidths[ti] = !d ? b : Math.max(a, b);
-                    tableState.columnAutosized[c] = true;
-                    repaint = true;
-                }
-            }
-            if (repaint) {
-                setTimeout(function() {
-                    self.shapeChanged();
-                });
-            }
+        checkColumnAutosizing: function(minWidths) {
+            this.getDataModel().checkColumnAutosizing(minWidths);
         },
 
         /**
@@ -24931,7 +24900,7 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          reset both fixed and normal column indexes, this is will cause columns to display in their true order
          */
         initColumnIndexes: function(tableState) {
-            var columnCount = this.getColumnCount();
+            var columnCount = this.getDataModel().getColumnCount();
             var i;
             for (i = 0; i < columnCount; i++) {
                 tableState.columnIndexes[i] = i;
@@ -24971,10 +24940,6 @@ it contains all code/data that's necessary for easily implementing a virtual dat
 
         getColumnEdge: function(c, renderer) {
             return this.getDataModel().getColumnEdge(c, renderer);
-        },
-
-        isHiddenColumn: function(x) {
-            return this.getDataModel().isHiddenColumn(x);
         }
 
     });
@@ -26157,7 +26122,6 @@ This is a very rough in memory data source example.  fin-hypergrid-behavior-in-m
         getDefaultState: function() {
             return {
                 columnIndexes: [],
-                hiddenColumns: [],
 
                 columnWidths: [],
 
@@ -29123,7 +29087,6 @@ This is a very rough in memory data source example.  fin-hypergrid-behavior-in-m
         getDefaultState: function() {
             return {
                 columnIndexes: [],
-                hiddenColumns: [],
 
                 columnWidths: [],
 
@@ -31822,7 +31785,7 @@ fin-vampire-bar {
 
             useHiDPI: true,
             editorActivationKeys: ['alt', 'esc'],
-            columnAutosizing: false,
+            columnAutosizing: true,
             readOnly: false,
 
             //inhertied by cell renderers
@@ -32521,9 +32484,8 @@ fin-vampire-bar {
                 return;
             }
             var renderer = this.getRenderer();
-            var fixedColSizes = renderer.renderedFixedColumnMinWidths;
             var colSizes = renderer.renderedColumnMinWidths;
-            this.getBehavior().checkColumnAutosizing(fixedColSizes, colSizes);
+            this.getBehavior().checkColumnAutosizing(colSizes);
         },
 
         /**
@@ -34920,8 +34882,12 @@ fin-vampire-bar {
             this.getSelectionModel().select(x, y, 0, 0);
         },
 
-        isHiddenColumn: function(x) {
-            return this.getBehavior().isHiddenColumn(x);
+        getHeaderRowCount: function() {
+            return this.getBehavior().getHeaderRowCount();
+        },
+
+        getHeaderColumnCount: function() {
+            return this.getBehavior().getHeaderColumnCount();
         }
 
     });

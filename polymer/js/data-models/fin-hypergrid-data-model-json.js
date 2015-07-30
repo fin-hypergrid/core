@@ -241,7 +241,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
             if (y === 0) {
                 tableState = this.getState();
                 headers = this.getHeaders();
-                sortIndex = tableState.sorted[x] || 0;
+                sortIndex = tableState.columnProperties[x].sorted || 0;
                 result = [undefined, headers[x], this.getImage(sortStates[sortIndex])];
             } else if (y === 1) {
                 result = this.getTotal(x, 0);
@@ -356,14 +356,15 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
             if (columnIndex >= fields.length) {
                 return;
             }
-            var current = tableState.sorted[columnIndex] || 0;
+            var columnProperties = tableState.columnProperties[columnIndex];
+            var current = columnProperties.sorted || 0;
             var stateCount = sortStates.length;
             var sortStateIndex = (current + incrementIt) % stateCount;
             var i = 0;
             for (; i < fields.length; i++) {
-                tableState.sorted[i] = 0;
+                columnProperties.sorted = 0;
             }
-            tableState.sorted[columnIndex] = sortStateIndex;
+            columnProperties.sorted = sortStateIndex;
             var colName = fields[columnIndex];
             if (sortStateIndex === 0) {
                 var newData = new Array(this.data.length);

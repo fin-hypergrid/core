@@ -221,9 +221,6 @@ it contains all code/data that's necessary for easily implementing a virtual dat
         getDefaultState: function() {
             return {
                 columnIndexes: [],
-                hiddenColumns: [],
-
-                columnWidths: [],
 
                 rowHeights: {},
                 columnProperties: [],
@@ -233,9 +230,7 @@ it contains all code/data that's necessary for easily implementing a virtual dat
                 fixedRowCount: 1,
 
                 headerColumnCount: 2,
-                headerRowCount: 2,
-
-                sorted: []
+                headerRowCount: 2
             };
         },
 
@@ -256,6 +251,7 @@ it contains all code/data that's necessary for easily implementing a virtual dat
             }
             this.applySorts();
             this.changed();
+            this.stateChanged();
         },
 
         applySorts: function() {
@@ -868,17 +864,14 @@ it contains all code/data that's necessary for easily implementing a virtual dat
             this.insureColumnIndexesAreInitialized();
             var tableState = this.getState();
             var columnCount = tableState.columnIndexes.length;
-            var fixedColumnCount = this.getState().fixedColumnCount;
             var labels = [];
             for (var i = 0; i < columnCount; i++) {
                 var id = tableState.columnIndexes[i];
-                if (id >= fixedColumnCount) {
-                    labels.push({
-                        id: id,
-                        label: this.getHeader(id),
-                        field: this.getField(id)
-                    });
-                }
+                labels.push({
+                    id: id,
+                    label: this.getHeader(id),
+                    field: this.getField(id)
+                });
             }
             return labels;
         },
@@ -917,14 +910,10 @@ it contains all code/data that's necessary for easily implementing a virtual dat
         setColumnDescriptors: function(list) {
             //assumes there is one row....
             var tableState = this.getState();
-            var fixedColumnCount = this.getState().fixedColumnCount;
 
             var columnCount = list.length;
             var indexes = [];
             var i;
-            for (i = 0; i < fixedColumnCount; i++) {
-                indexes.push(i);
-            }
             for (i = 0; i < columnCount; i++) {
                 indexes.push(list[i].id);
             }
@@ -941,36 +930,19 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          */
         getHiddenColumnDescriptors: function() {
             var tableState = this.getState();
-            var indexes = tableState.hiddenColumns;
-            var labels = new Array(indexes.length);
-            for (var i = 0; i < labels.length; i++) {
-                var id = indexes[i];
-                labels[i] = {
-                    id: id,
-                    label: this.getHeader(id),
-                    field: this.getField(id)
-                };
+            var indexes = tableState.columnIndexes;
+            var labels = [];
+            var columnCount = this.getDataModel().getColumnCount();
+            for (var i = 0; i < columnCount; i++) {
+                if (indexes.indexOf(i) === -1) {
+                    labels.push({
+                        id: i,
+                        label: this.getHeader(i),
+                        field: this.getField(i)
+                    });
+                }
             }
             return labels;
-        },
-
-        /**
-         * @function
-         * @instance
-         * @description
-         set which column are hidden post column editor close
-         * @param {Array} list - the list column descriptors
-         */
-        setHiddenColumnDescriptors: function(list) {
-            //assumes there is one row....
-            var columnCount = list.length;
-            var indexes = new Array(columnCount);
-            for (var i = 0; i < columnCount; i++) {
-                indexes[i] = list[i].id;
-            }
-            var tableState = this.getState();
-            tableState.hiddenColumns = indexes;
-            this.changed();
         },
 
         /**
@@ -982,12 +954,10 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          */
         hideColumns: function(arrayOfIndexes) {
             var tableState = this.getState();
-            var indexes = tableState.hiddenColumns;
             var order = tableState.columnIndexes;
             for (var i = 0; i < arrayOfIndexes.length; i++) {
                 var each = arrayOfIndexes[i];
-                if (indexes.indexOf(each) === -1) {
-                    indexes.push(each);
+                if (order.indexOf(each) !== -1) {
                     order.splice(order.indexOf(each), 1);
                 }
             }
@@ -1136,7 +1106,6 @@ it contains all code/data that's necessary for easily implementing a virtual dat
             noop(div);
             var lists = div.lists;
             this.setColumnDescriptors(lists.visible);
-            this.setHiddenColumnDescriptors(lists.hidden);
             return true;
         },
 
@@ -1184,7 +1153,10 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          * #### returns: integer
          */
         getColumnCount: function() {
-            return this.getDataModel().getColumnCount();
+            if (!this.tableState) {
+                return this.getDataModel().getColumnCount();
+            }
+            return this.tableState.columnIndexes.length;
         },
 
         /**
@@ -1386,28 +1358,8 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          * @param {Array} fixedMinWidths - the minimum sizes to fit all data for each column in the fixed area
          * @param {Array} minWidths - the minimum sizes to fit all data for each column in the data area
          */
-        checkColumnAutosizing: function(fixedMinWidths, minWidths) {
-            var self = this;
-            var tableState = this.getState();
-            var myWidths = tableState.columnWidths;
-            var repaint = false;
-            var a, b, c, d = 0;
-            for (c = 0; c < minWidths.length; c++) {
-                var ti = this.translateColumnIndex(c);
-                a = myWidths[ti];
-                b = minWidths[c];
-                d = tableState.columnAutosized[c];
-                if (a !== b || !d) {
-                    myWidths[ti] = !d ? b : Math.max(a, b);
-                    tableState.columnAutosized[c] = true;
-                    repaint = true;
-                }
-            }
-            if (repaint) {
-                setTimeout(function() {
-                    self.shapeChanged();
-                });
-            }
+        checkColumnAutosizing: function(minWidths) {
+            this.getDataModel().checkColumnAutosizing(minWidths);
         },
 
         /**
@@ -1484,7 +1436,7 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          reset both fixed and normal column indexes, this is will cause columns to display in their true order
          */
         initColumnIndexes: function(tableState) {
-            var columnCount = this.getColumnCount();
+            var columnCount = this.getDataModel().getColumnCount();
             var i;
             for (i = 0; i < columnCount; i++) {
                 tableState.columnIndexes[i] = i;
@@ -1524,10 +1476,6 @@ it contains all code/data that's necessary for easily implementing a virtual dat
 
         getColumnEdge: function(c, renderer) {
             return this.getDataModel().getColumnEdge(c, renderer);
-        },
-
-        isHiddenColumn: function(x) {
-            return this.getDataModel().isHiddenColumn(x);
         }
 
     });

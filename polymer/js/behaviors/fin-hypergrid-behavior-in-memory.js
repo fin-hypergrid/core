@@ -75,7 +75,6 @@ This is a very rough in memory data source example.  fin-hypergrid-behavior-in-m
         getDefaultState: function() {
             return {
                 columnIndexes: [],
-                hiddenColumns: [],
 
                 columnWidths: [],
 
