@@ -59,7 +59,7 @@
         * @param {Array} fieldNames - an array of strings of the field names
         */
         setFields: function(fieldNames) {
-            this.getBaseModel().setFields(fieldNames);
+            this.getDataModel().setFields(fieldNames);
         },
 
         /**

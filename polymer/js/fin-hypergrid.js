@@ -162,7 +162,7 @@
 
             useHiDPI: true,
             editorActivationKeys: ['alt', 'esc'],
-            columnAutosizing: true,
+            columnAutosizing: false,
             readOnly: false,
 
             //inhertied by cell renderers
@@ -241,14 +241,6 @@
             }
         }
     };
-
-    // var clearObjectProperties = function(obj) {
-    //     for (var prop in obj) {
-    //         if (obj.hasOwnProperty(prop)) {
-    //             delete obj[prop];
-    //         }
-    //     }
-    // };
 
     var defaults, polymerTheme, globalProperties;
 
@@ -534,6 +526,10 @@
         },
 
         getProperties: function() {
+            return this.getState();
+        },
+
+        _getProperties: function() {
             return this.lnfProperties;
         },
 
@@ -669,10 +665,11 @@
          * @param {object} properties - an object of various key value pairs
          * @instance
          */
-        addProperties: function(properties) {
-            for (var key in properties) {
-                if (properties.hasOwnProperty(key)) {
-                    this.lnfProperties[key] = properties[key];
+        addProperties: function(moreProperties) {
+            var properties = this.getProperties();
+            for (var key in moreProperties) {
+                if (moreProperties.hasOwnProperty(key)) {
+                    properties[key] = moreProperties[key];
                 }
             }
             this.refreshProperties();
@@ -1138,7 +1135,7 @@
          * @param {string} key - a look and feel key
          */
         resolveProperty: function(key) {
-            return this.lnfProperties[key];
+            return this.getProperties()[key];
         },
 
         /**
@@ -3265,7 +3262,7 @@
 
         getHeaderColumnCount: function() {
             return this.getBehavior().getHeaderColumnCount();
-        }
+        },
 
     });
 

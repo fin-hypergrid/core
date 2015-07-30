@@ -46,13 +46,8 @@
             return {
                 columnIndexes: [],
 
-                columnWidths: [],
-
                 rowHeights: {},
                 columnProperties: [],
-                columnAutosized: [],
-
-                sorted: [],
 
                 fixedColumnCount: 1,
                 fixedRowCount: 1

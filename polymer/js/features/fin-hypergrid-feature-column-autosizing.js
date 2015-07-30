@@ -18,7 +18,7 @@
         */
         handleDoubleClick: function(grid, event) {
             var headerRowCount = grid.getHeaderRowCount();
-            var headerColCount = grid.getHeaderColumnCount();
+            //var headerColCount = grid.getHeaderColumnCount();
             var gridCell = event.gridCell;
             if (gridCell.y <= headerRowCount) {
                 grid.autosizeColumn(gridCell.x);

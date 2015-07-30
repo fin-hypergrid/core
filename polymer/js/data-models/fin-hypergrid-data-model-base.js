@@ -79,8 +79,7 @@
             var tableState = this.getState();
             var properties = tableState.columnProperties[columnIndex];
             if (!properties) {
-                var lnfProperties = this.getGrid().getProperties();
-                properties = Object.create(lnfProperties);
+                properties = Object.create(tableState);
                 tableState.columnProperties[columnIndex] = properties;
 
                 properties.rowHeader = Object.create(properties, {
@@ -188,6 +187,7 @@
             merge(columnProperties, properties);
             this.changed();
         },
+
 
     });
 

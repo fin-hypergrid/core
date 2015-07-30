@@ -4,9 +4,17 @@
 
     var noop = function() {};
 
+    var merge = function(target, source) {
+        for (var key in source) {
+            if (source.hasOwnProperty(key)) {
+                target[key] = source[key];
+            }
+        }
+    };
+
     Polymer('fin-hypergrid-data-model-decorator-reorder', { /* jshint ignore:line  */
 
-        getCellRenderer: function(config, x, y, untranslatedX, untranslatedY) {
+        getCellRenderer: function(config, x, y /*, untranslatedX, untranslatedY */ ) {
             var translatedX = this.translateColumnIndex(x);
             var translatedY = y;
             return this.getComponent().getCellRenderer(config, translatedX, translatedY, x, y);
@@ -44,7 +52,7 @@
 
         setColumnWidth: function(x, width) {
             var columnProperties = this.getColumnProperties(x);
-            columnProperties.width = width;
+            columnProperties.width = Math.max(5, width);
             this.changed();
         },
 
@@ -56,7 +64,7 @@
         getColumnAlignment: function(x) {
             var columnProperties = this.getColumnProperties(x);
             var alignment = columnProperties.alignment;
-            return alignment
+            return alignment;
         },
 
         getCellEditorAt: function(x, y) {
@@ -93,9 +101,7 @@
         },
 
         checkColumnAutosizing: function(minWidths) {
-            var self = this;
             var tableState = this.getState();
-            var repaint = false;
             var a, b, c, d = 0;
             for (c = 0; c < minWidths.length; c++) {
                 var ti = this.translateColumnIndex(c);
@@ -106,10 +112,23 @@
                 if (a !== b || !d) {
                     properties.width = !d ? b : Math.max(a, b);
                     properties.columnAutosized = true;
-                    repaint = true;
                 }
             }
-        }
+        },
+
+        setState: function(memento) {
+            //we need to re-attach our column and row properties
+            var colProperties = memento.columnProperties;
+            if (colProperties) {
+                for (var i = 0; i < colProperties.length; i++) {
+                    var each = colProperties[i];
+                    delete each.columnHeader;
+                    delete each.rowHeader;
+                    var meEach = this.getColumnProperties(i);
+                    merge(meEach, each);
+                }
+            }
+        },
 
     });
 

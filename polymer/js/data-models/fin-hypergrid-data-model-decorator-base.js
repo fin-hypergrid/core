@@ -73,8 +73,24 @@
 
         checkColumnAutosizing: function(minWidths) {
             return this.getComponent().checkColumnAutosizing(minWidths);
-        }
+        },
 
+        setState: function(memento) {
+            this.getComponent().setState(memento);
+        },
+
+        getHeaders: function() {
+            return this.getComponent().getHeaders();
+        },
+
+        getFields: function() {
+            return this.getComponent().getFields();
+        },
+
+        setFields: function(fields) {
+            this.getComponent().setFields(fields);
+            this.getBehavior().resetColumnIndexes();
+        }
     });
 
 })();

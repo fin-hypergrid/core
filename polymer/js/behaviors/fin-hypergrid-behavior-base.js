@@ -11,6 +11,14 @@ it contains all code/data that's necessary for easily implementing a virtual dat
 
     var noop = function() {};
 
+    var merge = function(target, source) {
+        for (var key in source) {
+            if (source.hasOwnProperty(key)) {
+                target[key] = source[key];
+            }
+        }
+    };
+
     var imageCache = {};
 
 
@@ -219,19 +227,23 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          * #### returns: Object
          */
         getDefaultState: function() {
-            return {
+            var tableProperties = this.getGrid()._getProperties();
+            var state = Object.create(tableProperties);
+
+            merge(state, {
                 columnIndexes: [],
 
                 rowHeights: {},
                 columnProperties: [],
-                columnAutosized: [],
 
                 fixedColumnCount: 10,
                 fixedRowCount: 1,
 
                 headerColumnCount: 2,
                 headerRowCount: 2
-            };
+            });
+
+            return state;
         },
 
 
@@ -243,12 +255,12 @@ it contains all code/data that's necessary for easily implementing a virtual dat
         * @param {Object} memento - an encapulated representation of table state
         */
         setState: function(memento) {
+            var colProperties = memento.columnProperties;
+            delete memento.columnProperties;
             var tableState = this.getState();
-            for (var key in memento) {
-                if (memento.hasOwnProperty(key)) {
-                    tableState[key] = memento[key];
-                }
-            }
+            merge(tableState, memento);
+            memento.columnProperties = colProperties;
+            this.getDataModel().setState(memento);
             this.applySorts();
             this.changed();
             this.stateChanged();
@@ -1419,25 +1431,12 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          * @function
          * @instance
          * @description
-         force an autosizing of the column widths
-         */
-        autosizeColumns: function() {
-            var self = this;
-            setTimeout(function() {
-                var tableState = self.getState();
-                tableState.columnAutosized = [];
-            }, 40);
-        },
-
-        /**
-         * @function
-         * @instance
-         * @description
          reset both fixed and normal column indexes, this is will cause columns to display in their true order
          */
         initColumnIndexes: function(tableState) {
             var columnCount = this.getDataModel().getColumnCount();
             var i;
+            tableState.columnIndexes = [];
             for (i = 0; i < columnCount; i++) {
                 tableState.columnIndexes[i] = i;
             }
@@ -1476,6 +1475,11 @@ it contains all code/data that's necessary for easily implementing a virtual dat
 
         getColumnEdge: function(c, renderer) {
             return this.getDataModel().getColumnEdge(c, renderer);
+        },
+
+        resetColumnIndexes: function() {
+            this.initColumnIndexes(this.tableState);
+            this.shapeChanged();
         }
 
     });

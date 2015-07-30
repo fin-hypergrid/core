@@ -76,16 +76,12 @@ This is a very rough in memory data source example.  fin-hypergrid-behavior-in-m
             return {
                 columnIndexes: [],
 
-                columnWidths: [],
-
                 rowHeights: {},
                 columnProperties: [],
-                columnAutosized: [],
 
                 fixedColumnCount: 0,
                 fixedRowCount: 1,
 
-                sorts: [],
                 sortLookup: {},
                 sorted: {},
             };

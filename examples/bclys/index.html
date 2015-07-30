@@ -188,63 +188,56 @@
             console.log(e);
         });
 
-        var state = {
-   "columnIndexes":[9,0,1,4,5],
-   "columnWidths":[],
-   "rowHeights":{},
-   "columnProperties":[
-      {
-         "rowHeader":{},
-         "columnHeader":{}
-      },
-      {
-         "rowHeader":{},
-         "columnHeader":{}
-      },
-      {
-         "rowHeader":{},
-         "columnHeader":{},
-         "backgroundColor":"maroon",
-         "color":"pink"
-      },
-      {
-         "rowHeader":{},
-         "columnHeader":{}
-      },
-      {
-         "rowHeader":{},
-         "columnHeader":{}
-      },
-      {
-         "rowHeader":{},
-         "columnHeader":{}
-      },
-      {
-         "rowHeader":{},
-         "columnHeader":{}
-      },
-      {
-         "rowHeader":{},
-         "columnHeader":{}
-      },
-      {
-         "rowHeader":{},
-         "columnHeader":{}
-      },
-      {
-         "rowHeader":{},
-         "columnHeader":{}
-      }
-   ],
-   "columnAutosized":[
-   ],
-   "fixedColumnCount":2,
-   "fixedRowCount":2,
-   "headerColumnCount":1,
-   "headerRowCount":2,
-   "sorted":[0,0,0,0,1,0,0,0,0,0]
-};
-        //jsonGrid.setState(state);
+        var fields = jsonModel.getFields();
+        var headers = jsonModel. getHeaders();
+
+        console.log(headers);
+        console.log(fields);
+
+        setTimeout(function() {
+
+            jsonModel.setFields(["employed", "income", "travel", "squareOfIncome"]);
+            jsonModel.setHeaders(["one", "two", "three", "four"]);
+
+            console.log(jsonModel.getHeaders());
+            console.log(jsonModel.getFields());
+
+            console.log('visible rows = ' + jsonGrid.getVisibleRows());
+            console.log('visible columns = ' + jsonGrid.getVisibleColumns());
+
+
+            setTimeout(function() {
+
+                jsonModel.setFields(fields);
+                jsonModel.setHeaders(headers);
+
+
+                // to hide columns, remove it's indexes
+                var state = {
+                        "columnIndexes":[0,1,3,4,5,6,7,8,9],
+                        "rowHeights":{ 0: 30 },
+                        "fixedColumnCount":2,
+                        "fixedRowCount":2,
+                        "headerColumnCount":1,
+                        "headerRowCount":2,
+                        "readOnly":false,
+                        "columnAutosizing":true};
+
+                jsonGrid.setState(state);
+
+                console.log(jsonModel.getHeaders());
+                console.log(jsonModel.getFields());
+
+                console.log('visible rows = ' + jsonGrid.getVisibleRows());
+                console.log('visible columns = ' + jsonGrid.getVisibleColumns());
+
+            }, 2000);
+
+
+
+        }, 2000);
+
+
     });
 })();
 
