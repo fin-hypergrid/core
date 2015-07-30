@@ -36,6 +36,9 @@
             income: income,
             travel: travel
         };
+        person.squareOfIncome = function() {
+            return Math.sqrt(this.income);
+        }
         return person;
     };
 
