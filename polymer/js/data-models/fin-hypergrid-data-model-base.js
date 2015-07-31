@@ -22,11 +22,19 @@
         },
 
         setValue: function(x, y, value) {
-            console.log('setting (' + x + ', ' + 'y) = ' + value);
+            console.log('setting (' + x + ', ' + y + ') = ' + value);
         },
 
         getColumnCount: function() {
             return 20;
+        },
+
+        getCellProperties: function( /* x, y */ ) {
+            return null;
+        },
+
+        setCellProperties: function(x, y, value) {
+            console.log('setting (' + x + ', ' + y + ') = ' + value);
         },
 
         getRowCount: function() {

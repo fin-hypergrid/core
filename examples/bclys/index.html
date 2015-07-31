@@ -114,6 +114,10 @@
                 cellEditor.items = states;
             } else if (x === 6) {
                 cellEditor.items = [true, false];
+            } else if (x === 2) {
+                cellEditor.input.setAttribute('min', 0);
+                cellEditor.input.setAttribute('max', 10);
+                cellEditor.input.setAttribute('step', 0.01);
             }
             return cellEditor;
         };
@@ -161,7 +165,6 @@
             readOnly: false
         });
 
-
         jsonGrid.addFinEventListener('fin-before-cell-edit', function(e) {
             console.log('fin-before-cell-edit', e);
         });
@@ -173,6 +176,7 @@
         jsonGrid.addFinEventListener('fin-cell-enter', function(e) {
             var cell = e.detail.gridCell;
             console.log('fin-cell-enter', cell.x, cell.y);
+            jsonGrid.setAttribute('title', 'fin-cell-enter(' + cell.x +', '+ cell.y+')');
         });
 
         jsonGrid.addFinEventListener('fin-keydown', function(e) {
@@ -194,6 +198,12 @@
         console.log(headers);
         console.log(fields);
 
+        jsonModel.setCellProperties(0, 0, {
+            font: '10pt Tahoma',
+            color: 'red',
+            backgroundColor: 'lightblue'
+        });
+
         setTimeout(function() {
 
             jsonModel.setFields(["employed", "income", "travel", "squareOfIncome"]);
@@ -208,22 +218,38 @@
 
             setTimeout(function() {
 
+                //add an unbound column
+                var data = jsonModel.getData();
+                for (var i = 0; i < data.length; i++) {
+                    data[i].rowNumber = i;
+                }
+
+                fields.push('rowNumber');
+                headers.push('#');
+                jsonModel.getTotals()[0].push('');
+
                 jsonModel.setFields(fields);
                 jsonModel.setHeaders(headers);
 
-
                 // to hide columns, remove it's indexes
                 var state = {
-                        "columnIndexes":[0,1,3,4,5,6,7,8,9],
-                        "rowHeights":{ 0: 30 },
-                        "fixedColumnCount":2,
-                        "fixedRowCount":2,
-                        "headerColumnCount":1,
-                        "headerRowCount":2,
-                        "readOnly":false,
-                        "columnAutosizing":true};
+                        columnIndexes:[10,0,2,1,3,4,5,6,7,8,9],
+                        rowHeights:{ 0: 30 },
+                        fixedColumnCount:0,
+                        fixedRowCount:2,
+                        headerColumnCount:0,
+                        headerRowCount:2,
+                        readOnly:false,
+                        columnAutosizing:true
+                    };
 
                 jsonGrid.setState(state);
+
+                jsonGrid.addProperties({
+                    scrollbarHoverOff: 'visible',
+                    scrollbarHoverOver: 'visible',
+                    editable: false
+                });
 
                 console.log(jsonModel.getHeaders());
                 console.log(jsonModel.getFields());

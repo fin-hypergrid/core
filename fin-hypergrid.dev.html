@@ -15410,6 +15410,14 @@ Instances of this object have basically four main functions.
 
 (function() {
 
+    var merge = function(target, source) {
+        for (var key in source) {
+            if (source.hasOwnProperty(key)) {
+                target[key] = source[key];
+            }
+        }
+    };
+
     Polymer('fin-hypergrid-renderer',{ /* jslint ignore:line */
 
         //the shared single item "pooled" cell object for drawing each cell
@@ -16414,6 +16422,13 @@ Instances of this object have basically four main functions.
 
             cellProperties.x = c;
             cellProperties.y = r;
+
+            var overrides = behavior.getCellProperties(c, r);
+
+            //declarative cell properties
+            if (overrides) {
+                merge(cellProperties, overrides);
+            }
 
             behavior.cellPrePaintNotification(cell);
             cell.paint(gc, cellProperties);
@@ -22411,11 +22426,19 @@ var commands = {
         },
 
         setValue: function(x, y, value) {
-            console.log('setting (' + x + ', ' + 'y) = ' + value);
+            console.log('setting (' + x + ', ' + y + ') = ' + value);
         },
 
         getColumnCount: function() {
             return 20;
+        },
+
+        getCellProperties: function( /* x, y */ ) {
+            return null;
+        },
+
+        setCellProperties: function(x, y, value) {
+            console.log('setting (' + x + ', ' + y + ') = ' + value);
         },
 
         getRowCount: function() {
@@ -22683,7 +22706,15 @@ var commands = {
         setFields: function(fields) {
             this.getComponent().setFields(fields);
             this.getBehavior().resetColumnIndexes();
-        }
+        },
+
+        getCellProperties: function(x, y) {
+            return this.getComponent().getCellProperties(x, y);
+        },
+
+        setCellProperties: function(x, y, value) {
+            this.getComponent().setCellProperties(x, y, value);
+        },
     });
 
 })();
@@ -22704,12 +22735,17 @@ var commands = {
 
         getCellRenderer: function(config, x, y, untranslatedX, untranslatedY) {
             var renderer;
+            var behavior = this.getBehavior();
             var provider = this.getCellProvider();
+            var rowHeaderCount = behavior.getHeaderColumnCount();
+            var colHeaderCount = behavior.getHeaderRowCount();
+
             config.x = x;
             config.y = y;
             config.untranslatedX = untranslatedX;
             config.untranslatedY = untranslatedY;
-            if (config.untranslatedX < 1 || config.untranslatedY < 2) {
+
+            if (config.untranslatedX < rowHeaderCount || config.untranslatedY < colHeaderCount) {
                 renderer = provider.cellCache.simpleCellRenderer;
             } else {
                 renderer = provider.getCell(config);
@@ -22777,6 +22813,16 @@ var commands = {
             this.getComponent().setValue(x, y, value);
         },
 
+        getCellProperties: function(x, y) {
+            x = this.translateColumnIndex(x);
+            return this.getComponent().getCellProperties(x, y);
+        },
+
+        setCellProperties: function(x, y, value) {
+            x = this.translateColumnIndex(x);
+            this.getComponent().setCellProperties(x, y, value);
+        },
+
         getColumnWidth: function(x) {
             var columnProperties = this.getColumnProperties(x);
             var width = columnProperties.width;
@@ -22839,12 +22885,14 @@ var commands = {
             for (c = 0; c < minWidths.length; c++) {
                 var ti = this.translateColumnIndex(c);
                 var properties = tableState.columnProperties[ti];
-                a = properties.width;
-                b = minWidths[c];
-                d = properties.columnAutosized;
-                if (a !== b || !d) {
-                    properties.width = !d ? b : Math.max(a, b);
-                    properties.columnAutosized = true;
+                if (properties) {
+                    a = properties.width;
+                    b = minWidths[c];
+                    d = properties.columnAutosized;
+                    if (a !== b || !d) {
+                        properties.width = !d ? b : Math.max(a, b);
+                        properties.columnAutosized = true;
+                    }
                 }
             }
         },
@@ -22861,6 +22909,7 @@ var commands = {
                     merge(meEach, each);
                 }
             }
+            this.getState().cellProperties = {};
         },
 
     });
@@ -23154,6 +23203,10 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
             this.changed();
         },
 
+        getTotals: function() {
+            return this.totals;
+        },
+
         /**
         * @function
         * @instance
@@ -23416,7 +23469,25 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
             this.setHeaders(headers);
         },
 
+        getCellProperties: function(x, y) {
+            var state = this.getState();
+            return state.cellProperties[x + ',' + y];
+        },
 
+        /**
+         * @function
+         * @instance
+         * @description
+         update the data at point x, y with value
+         * #### returns: type
+         * @param {integer} x - x coordinate
+         * @param {integer} y - y coordinate
+         * @param {Object} value - the value to use
+         */
+        setCellProperties: function(x, y, value) {
+            var state = this.getState();
+            state.cellProperties[x + ',' + y] = value;
+        },
 
     });
 })();
@@ -23739,7 +23810,9 @@ it contains all code/data that's necessary for easily implementing a virtual dat
                 fixedRowCount: 1,
 
                 headerColumnCount: 2,
-                headerRowCount: 2
+                headerRowCount: 2,
+
+                cellProperties: {}
             });
 
             return state;
@@ -23760,9 +23833,12 @@ it contains all code/data that's necessary for easily implementing a virtual dat
             merge(tableState, memento);
             memento.columnProperties = colProperties;
             this.getDataModel().setState(memento);
-            this.applySorts();
-            this.changed();
-            this.stateChanged();
+            var self = this;
+            requestAnimationFrame(function() {
+                self.applySorts();
+                self.changed();
+                self.stateChanged();
+            });
         },
 
         applySorts: function() {
@@ -23846,12 +23922,12 @@ it contains all code/data that's necessary for easily implementing a virtual dat
             this.setNextFeature(document.createElement('fin-hypergrid-feature-column-resizing'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-row-resizing'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-column-moving'));
-            this.setNextFeature(document.createElement('fin-hypergrid-feature-column-sorting'));
+            //this.setNextFeature(document.createElement('fin-hypergrid-feature-column-sorting'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-cell-selection'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-thumbwheel-scrolling'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-cell-editing'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-on-hover'));
-            this.setNextFeature(document.createElement('fin-hypergrid-feature-column-autosizing'));
+            //this.setNextFeature(document.createElement('fin-hypergrid-feature-column-autosizing'));
 
             this.featureChain.initializeOn(grid);
         },
@@ -23930,6 +24006,32 @@ it contains all code/data that's necessary for easily implementing a virtual dat
             this.getDataModel().setValue(x, y, value);
         },
 
+        /**
+         * @function
+         * @instance
+         * @description
+         return the value at x,y for the top left section of the hypergrid, first check to see if something was overridden
+         * #### returns: Object
+         * @param {integer} x - x coordinate
+         * @param {integer} y - y coordinate
+         */
+        getCellProperties: function(x, y) {
+            return this.getDataModel().getCellProperties(x, y);
+        },
+
+        /**
+         * @function
+         * @instance
+         * @description
+         update the data at point x, y with value
+         * #### returns: type
+         * @param {integer} x - x coordinate
+         * @param {integer} y - y coordinate
+         * @param {Object} value - the value to use
+         */
+        setCellProperties: function(x, y, value) {
+            this.getDataModel().setCellProperties(x, y, value);
+        },
         /**
          * @function
          * @instance
@@ -27019,6 +27121,10 @@ This is a very rough in memory data source example.  fin-hypergrid-behavior-in-m
         */
         setTotals: function(nestedArray) {
             this.getBaseModel().setTotals(nestedArray);
+        },
+
+        getTotals: function() {
+            return this.getBaseModel().getTotals();
         },
 
         /**
@@ -30163,8 +30269,8 @@ This is a very rough in memory data source example.  fin-hypergrid-behavior-in-m
             this.input.style.msTransform = translation;
             this.input.style.OTransform = translation;
 
-            this.input.style.width = cellBounds.width - originOffset[0] + 'px';
-            this.input.style.height = cellBounds.height - originOffset[1] + 'px';
+            this.input.style.width = cellBounds.width - (2 * originOffset[0]) + 'px';
+            this.input.style.height = cellBounds.height - (2 * originOffset[1]) + 'px';
         }
 
     });
@@ -32264,9 +32370,7 @@ fin-vampire-bar {
          */
         setHoverCell: function(point) {
             var me = this.hoverCell;
-            var fixedX = this.getFixedColumnCount();
-            var fixedY = this.getFixedRowCount();
-            var newPoint = rectangles.point.create(point.x - fixedX, point.y - fixedY);
+            var newPoint = rectangles.point.create(point.x, point.y);
             if (me && me.equals(newPoint)) {
                 return;
             }
@@ -33332,6 +33436,10 @@ fin-vampire-bar {
          */
         editAt: function(cellEditor, coordinates) {
 
+            if (this.resolveProperty('editable') === false) {
+                return;
+            }
+
             this.cellEditor = cellEditor;
 
             var cell = coordinates.gridCell;
@@ -33614,9 +33722,9 @@ fin-vampire-bar {
          * @param {MouseEvent} event - the system mouse event
          *
          */
-        fireSyntheticOnCellEnterEvent: function(mouseEvent) {
+        fireSyntheticOnCellEnterEvent: function(cell) {
             var detail = {
-                gridCell: this.rectangles.point.create(mouseEvent.x + this.getHScrollValue(), mouseEvent.y + this.getVScrollValue()),
+                gridCell: cell,
                 time: Date.now(),
                 grid: this
             };
@@ -33635,9 +33743,9 @@ fin-vampire-bar {
          * @param {MouseEvent} event - the system mouse event
          *
          */
-        fireSyntheticOnCellExitEvent: function(mouseEvent) {
+        fireSyntheticOnCellExitEvent: function(cell) {
             var detail = {
-                gridCell: this.rectangles.point.create(mouseEvent.x + this.getHScrollValue(), mouseEvent.y + this.getVScrollValue()),
+                gridCell: cell,
                 time: Date.now(),
                 grid: this
             };
@@ -34717,7 +34825,8 @@ fin-vampire-bar {
         fireBeforeCellEdit: function(cell, value) {
             var clickEvent = new CustomEvent('fin-before-cell-edit', {
                 detail: {
-                    value: value,
+                    oldValue: value,
+                    newValue: value,
                     gridCell: cell,
                     time: Date.now()
                 }

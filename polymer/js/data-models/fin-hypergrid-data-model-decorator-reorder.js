@@ -44,6 +44,16 @@
             this.getComponent().setValue(x, y, value);
         },
 
+        getCellProperties: function(x, y) {
+            x = this.translateColumnIndex(x);
+            return this.getComponent().getCellProperties(x, y);
+        },
+
+        setCellProperties: function(x, y, value) {
+            x = this.translateColumnIndex(x);
+            this.getComponent().setCellProperties(x, y, value);
+        },
+
         getColumnWidth: function(x) {
             var columnProperties = this.getColumnProperties(x);
             var width = columnProperties.width;
@@ -106,12 +116,14 @@
             for (c = 0; c < minWidths.length; c++) {
                 var ti = this.translateColumnIndex(c);
                 var properties = tableState.columnProperties[ti];
-                a = properties.width;
-                b = minWidths[c];
-                d = properties.columnAutosized;
-                if (a !== b || !d) {
-                    properties.width = !d ? b : Math.max(a, b);
-                    properties.columnAutosized = true;
+                if (properties) {
+                    a = properties.width;
+                    b = minWidths[c];
+                    d = properties.columnAutosized;
+                    if (a !== b || !d) {
+                        properties.width = !d ? b : Math.max(a, b);
+                        properties.columnAutosized = true;
+                    }
                 }
             }
         },
@@ -128,6 +140,7 @@
                     merge(meEach, each);
                 }
             }
+            this.getState().cellProperties = {};
         },
 
     });

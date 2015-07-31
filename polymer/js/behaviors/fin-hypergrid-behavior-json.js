@@ -118,6 +118,10 @@
             this.getBaseModel().setTotals(nestedArray);
         },
 
+        getTotals: function() {
+            return this.getBaseModel().getTotals();
+        },
+
         /**
         * @function
         * @instance

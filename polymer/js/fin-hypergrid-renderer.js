@@ -27,6 +27,14 @@ Instances of this object have basically four main functions.
 
 (function() {
 
+    var merge = function(target, source) {
+        for (var key in source) {
+            if (source.hasOwnProperty(key)) {
+                target[key] = source[key];
+            }
+        }
+    };
+
     Polymer({ /* jslint ignore:line */
 
         //the shared single item "pooled" cell object for drawing each cell
@@ -1031,6 +1039,13 @@ Instances of this object have basically four main functions.
 
             cellProperties.x = c;
             cellProperties.y = r;
+
+            var overrides = behavior.getCellProperties(c, r);
+
+            //declarative cell properties
+            if (overrides) {
+                merge(cellProperties, overrides);
+            }
 
             behavior.cellPrePaintNotification(cell);
             cell.paint(gc, cellProperties);

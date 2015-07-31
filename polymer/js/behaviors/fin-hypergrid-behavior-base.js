@@ -240,7 +240,9 @@ it contains all code/data that's necessary for easily implementing a virtual dat
                 fixedRowCount: 1,
 
                 headerColumnCount: 2,
-                headerRowCount: 2
+                headerRowCount: 2,
+
+                cellProperties: {}
             });
 
             return state;
@@ -261,9 +263,12 @@ it contains all code/data that's necessary for easily implementing a virtual dat
             merge(tableState, memento);
             memento.columnProperties = colProperties;
             this.getDataModel().setState(memento);
-            this.applySorts();
-            this.changed();
-            this.stateChanged();
+            var self = this;
+            requestAnimationFrame(function() {
+                self.applySorts();
+                self.changed();
+                self.stateChanged();
+            });
         },
 
         applySorts: function() {
@@ -347,12 +352,12 @@ it contains all code/data that's necessary for easily implementing a virtual dat
             this.setNextFeature(document.createElement('fin-hypergrid-feature-column-resizing'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-row-resizing'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-column-moving'));
-            this.setNextFeature(document.createElement('fin-hypergrid-feature-column-sorting'));
+            //this.setNextFeature(document.createElement('fin-hypergrid-feature-column-sorting'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-cell-selection'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-thumbwheel-scrolling'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-cell-editing'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-on-hover'));
-            this.setNextFeature(document.createElement('fin-hypergrid-feature-column-autosizing'));
+            //this.setNextFeature(document.createElement('fin-hypergrid-feature-column-autosizing'));
 
             this.featureChain.initializeOn(grid);
         },
@@ -431,6 +436,32 @@ it contains all code/data that's necessary for easily implementing a virtual dat
             this.getDataModel().setValue(x, y, value);
         },
 
+        /**
+         * @function
+         * @instance
+         * @description
+         return the value at x,y for the top left section of the hypergrid, first check to see if something was overridden
+         * #### returns: Object
+         * @param {integer} x - x coordinate
+         * @param {integer} y - y coordinate
+         */
+        getCellProperties: function(x, y) {
+            return this.getDataModel().getCellProperties(x, y);
+        },
+
+        /**
+         * @function
+         * @instance
+         * @description
+         update the data at point x, y with value
+         * #### returns: type
+         * @param {integer} x - x coordinate
+         * @param {integer} y - y coordinate
+         * @param {Object} value - the value to use
+         */
+        setCellProperties: function(x, y, value) {
+            this.getDataModel().setCellProperties(x, y, value);
+        },
         /**
          * @function
          * @instance

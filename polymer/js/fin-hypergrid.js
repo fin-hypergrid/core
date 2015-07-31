@@ -611,9 +611,7 @@
          */
         setHoverCell: function(point) {
             var me = this.hoverCell;
-            var fixedX = this.getFixedColumnCount();
-            var fixedY = this.getFixedRowCount();
-            var newPoint = rectangles.point.create(point.x - fixedX, point.y - fixedY);
+            var newPoint = rectangles.point.create(point.x, point.y);
             if (me && me.equals(newPoint)) {
                 return;
             }
@@ -1679,6 +1677,10 @@
          */
         editAt: function(cellEditor, coordinates) {
 
+            if (this.resolveProperty('editable') === false) {
+                return;
+            }
+
             this.cellEditor = cellEditor;
 
             var cell = coordinates.gridCell;
@@ -1961,9 +1963,9 @@
          * @param {MouseEvent} event - the system mouse event
          *
          */
-        fireSyntheticOnCellEnterEvent: function(mouseEvent) {
+        fireSyntheticOnCellEnterEvent: function(cell) {
             var detail = {
-                gridCell: this.rectangles.point.create(mouseEvent.x + this.getHScrollValue(), mouseEvent.y + this.getVScrollValue()),
+                gridCell: cell,
                 time: Date.now(),
                 grid: this
             };
@@ -1982,9 +1984,9 @@
          * @param {MouseEvent} event - the system mouse event
          *
          */
-        fireSyntheticOnCellExitEvent: function(mouseEvent) {
+        fireSyntheticOnCellExitEvent: function(cell) {
             var detail = {
-                gridCell: this.rectangles.point.create(mouseEvent.x + this.getHScrollValue(), mouseEvent.y + this.getVScrollValue()),
+                gridCell: cell,
                 time: Date.now(),
                 grid: this
             };
@@ -3064,7 +3066,8 @@
         fireBeforeCellEdit: function(cell, value) {
             var clickEvent = new CustomEvent('fin-before-cell-edit', {
                 detail: {
-                    value: value,
+                    oldValue: value,
+                    newValue: value,
                     gridCell: cell,
                     time: Date.now()
                 }

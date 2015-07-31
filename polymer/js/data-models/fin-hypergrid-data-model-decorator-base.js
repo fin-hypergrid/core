@@ -90,7 +90,15 @@
         setFields: function(fields) {
             this.getComponent().setFields(fields);
             this.getBehavior().resetColumnIndexes();
-        }
+        },
+
+        getCellProperties: function(x, y) {
+            return this.getComponent().getCellProperties(x, y);
+        },
+
+        setCellProperties: function(x, y, value) {
+            this.getComponent().setCellProperties(x, y, value);
+        },
     });
 
 })();

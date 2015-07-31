@@ -132,8 +132,8 @@
             this.input.style.msTransform = translation;
             this.input.style.OTransform = translation;
 
-            this.input.style.width = cellBounds.width - originOffset[0] + 'px';
-            this.input.style.height = cellBounds.height - originOffset[1] + 'px';
+            this.input.style.width = cellBounds.width - (2 * originOffset[0]) + 'px';
+            this.input.style.height = cellBounds.height - (2 * originOffset[1]) + 'px';
         }
 
     });

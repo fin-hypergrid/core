@@ -202,6 +202,10 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
             this.changed();
         },
 
+        getTotals: function() {
+            return this.totals;
+        },
+
         /**
         * @function
         * @instance
@@ -464,7 +468,25 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
             this.setHeaders(headers);
         },
 
+        getCellProperties: function(x, y) {
+            var state = this.getState();
+            return state.cellProperties[x + ',' + y];
+        },
 
+        /**
+         * @function
+         * @instance
+         * @description
+         update the data at point x, y with value
+         * #### returns: type
+         * @param {integer} x - x coordinate
+         * @param {integer} y - y coordinate
+         * @param {Object} value - the value to use
+         */
+        setCellProperties: function(x, y, value) {
+            var state = this.getState();
+            state.cellProperties[x + ',' + y] = value;
+        },
 
     });
 })();
