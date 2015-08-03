@@ -91,9 +91,6 @@
                 properties = Object.create(tableState);
                 tableState.columnProperties[columnIndex] = properties;
 
-                properties.header = behavior.getHeader(columnIndex);
-                properties.field = behavior.getField(columnIndex);
-
                 properties.rowHeader = Object.create(properties, {
                     font: {
                         configurable: true,
@@ -190,6 +187,10 @@
                     }
                 });
 
+            }
+            if (!properties.header) {
+                properties.header = behavior.getHeader(columnIndex);
+                properties.field = behavior.getField(columnIndex);
             }
             return properties;
         },
