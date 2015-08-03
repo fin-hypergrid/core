@@ -102,6 +102,38 @@
 
         },
 
+        getSelectedRows: function() {
+            var rows = [];
+            var ox = 0;
+            var ey = 0;
+            var ex = this.getGrid().getColumnCount();
+            var selections = this.getSelections();
+
+            for (var i = 0; i < selections.length; i++) {
+                var each = selections[i];
+                if (each.origin.x === ox && each.extent.x === ex && each.extent.y === ey) {
+                    rows.push(each.origin.y);
+                }
+            }
+            return rows;
+        },
+
+        getSelectedColumns: function() {
+            var columns = [];
+            var oy = 0;
+            var ex = 0;
+            var ey = this.getGrid().getRowCount();
+            var selections = this.getSelections();
+
+            for (var i = 0; i < selections.length; i++) {
+                var each = selections[i];
+                if (each.origin.y === oy && each.extent.x === ex && each.extent.y === ey) {
+                    columns.push(each.origin.x);
+                }
+            }
+            return columns;
+        },
+
         /**
          * @function
          * @instance
@@ -199,6 +231,27 @@
             this.flattenedX.length = 0;
             this.flattenedY.length = 0;
         },
+
+        isRectangleSelected: function(ox, oy, ex, ey) {
+            var selections = this.getSelections();
+            for (var i = 0; i < selections.length; i++) {
+                var each = selections[i];
+                if (each.origin.x === ox && each.origin.y === oy && each.extent.x === ex && each.extent.y === ey) {
+                    return true;
+                }
+            }
+            return false;
+        },
+
+        isColumnSelected: function(x) {
+            var size = this.getGrid().getRowCount();
+            return this.isRectangleSelected(x, 0, 0, size);
+        },
+
+        isRowSelected: function(y) {
+            var size = this.getGrid().getColumnCount();
+            return this.isRectangleSelected(0, y, size, 0);
+        }
 
     });
 

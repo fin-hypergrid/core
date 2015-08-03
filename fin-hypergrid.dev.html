@@ -16725,6 +16725,38 @@ Instances of this object have basically four main functions.
 
         },
 
+        getSelectedRows: function() {
+            var rows = [];
+            var ox = 0;
+            var ey = 0;
+            var ex = this.getGrid().getColumnCount();
+            var selections = this.getSelections();
+
+            for (var i = 0; i < selections.length; i++) {
+                var each = selections[i];
+                if (each.origin.x === ox && each.extent.x === ex && each.extent.y === ey) {
+                    rows.push(each.origin.y);
+                }
+            }
+            return rows;
+        },
+
+        getSelectedColumns: function() {
+            var columns = [];
+            var oy = 0;
+            var ex = 0;
+            var ey = this.getGrid().getRowCount();
+            var selections = this.getSelections();
+
+            for (var i = 0; i < selections.length; i++) {
+                var each = selections[i];
+                if (each.origin.y === oy && each.extent.x === ex && each.extent.y === ey) {
+                    columns.push(each.origin.x);
+                }
+            }
+            return columns;
+        },
+
         /**
          * @function
          * @instance
@@ -16822,6 +16854,27 @@ Instances of this object have basically four main functions.
             this.flattenedX.length = 0;
             this.flattenedY.length = 0;
         },
+
+        isRectangleSelected: function(ox, oy, ex, ey) {
+            var selections = this.getSelections();
+            for (var i = 0; i < selections.length; i++) {
+                var each = selections[i];
+                if (each.origin.x === ox && each.origin.y === oy && each.extent.x === ex && each.extent.y === ey) {
+                    return true;
+                }
+            }
+            return false;
+        },
+
+        isColumnSelected: function(x) {
+            var size = this.getGrid().getRowCount();
+            return this.isRectangleSelected(x, 0, 0, size);
+        },
+
+        isRowSelected: function(y) {
+            var size = this.getGrid().getColumnCount();
+            return this.isRectangleSelected(0, y, size, 0);
+        }
 
     });
 
@@ -22488,11 +22541,15 @@ var commands = {
         },
 
         getColumnProperties: function(columnIndex) {
+            var behavior = this.getBehavior();
             var tableState = this.getState();
             var properties = tableState.columnProperties[columnIndex];
             if (!properties) {
                 properties = Object.create(tableState);
                 tableState.columnProperties[columnIndex] = properties;
+
+                properties.header = behavior.getHeader(columnIndex);
+                properties.field = behavior.getField(columnIndex);
 
                 properties.rowHeader = Object.create(properties, {
                     font: {
@@ -33012,6 +33069,7 @@ fin-vampire-bar {
                 self.stopEditing();
                 var mouse = e.detail.mouse;
                 var mouseEvent = self.getGridCellFromMousePoint(mouse);
+                mouseEvent.keys = e.detail.keys;
                 mouseEvent.primitiveEvent = e;
                 self.delegateMouseDown(mouseEvent);
             });
@@ -33053,6 +33111,7 @@ fin-vampire-bar {
                 var mouse = e.detail.mouse;
                 var tapEvent = self.getGridCellFromMousePoint(mouse);
                 tapEvent.primitiveEvent = e;
+                tapEvent.keys = e.detail.keys;
                 self.fireSyntheticClickEvent(tapEvent);
                 self.delegateTap(tapEvent);
             });
@@ -33769,6 +33828,7 @@ fin-vampire-bar {
             var detail = {
                 gridCell: cell,
                 mousePoint: mouseEvent.mousePoint,
+                keys: mouseEvent.keys,
                 primitiveEvent: mouseEvent,
                 time: Date.now(),
                 grid: this
@@ -34777,7 +34837,8 @@ fin-vampire-bar {
         selectionChanged: function() {
             var event = new CustomEvent('fin-selection-changed', {
                 detail: {
-                    time: Date.now()
+                    time: Date.now(),
+                    grid: this
                 }
             });
             this.canvas.dispatchEvent(event);
@@ -34997,18 +35058,6 @@ fin-vampire-bar {
             this.getBehavior().setColumnProperties(columnIndex, properties);
         },
 
-        toggleSelectColumn: function(x) {
-            var height = this.getRowCount();
-            this.getSelectionModel().toggleSelect(x, 0, 0, height);
-            this.repaint();
-        },
-
-        toggleSelectRow: function(y) {
-            var width = this.getColumnCount();
-            this.getSelectionModel().toggleSelect(0, y, width, 0);
-            this.repaint();
-        },
-
         moveSingleSelect: function(x, y) {
             this.getBehavior().moveSingleSelect(this, x, y);
         },
@@ -35025,7 +35074,46 @@ fin-vampire-bar {
         getHeaderColumnCount: function() {
             return this.getBehavior().getHeaderColumnCount();
         },
+        toggleSort: function(x) {
+            this.getBehavior().toggleSort(x);
+        },
 
+        toggleSelectColumn: function(x, keys) {
+            var size = this.getRowCount();
+            this.toggleSelectedRectangle(x, 0, 0, size, keys);
+        },
+
+        toggleSelectRow: function(y, keys) {
+            var size = this.getColumnCount();
+            this.toggleSelectedRectangle(0, y, size, 0, keys);
+        },
+
+        toggleSelectedRectangle: function(ox, oy, ex, ey, keys) {
+            var model = this.getSelectionModel();
+            var size = this.getColumnCount();
+            var alreadySelected = model.isRectangleSelected(ox, oy, ex, ey);
+            var hasCTRL = keys.indexOf('CTRL') > -1;
+            var hasSHIFT = keys.indexOf('SHIFT') > -1;
+            if (!hasCTRL && !hasSHIFT) {
+                if (!alreadySelected) {
+                    model.clear();
+                }
+                model.toggleSelect(ox, oy, ex, ey);
+            } else {
+                if (hasCTRL || hasSHIFT) {
+                    model.toggleSelect(ox, oy, ex, ey);
+                }
+            }
+            this.repaint();
+        },
+
+        getSelectedRows: function() {
+            return this.getSelectionModel().getSelectedRows();
+        },
+
+        getSelectedColumns: function() {
+            return this.getSelectionModel().getSelectedColumns();
+        }
     });
 
 })(); /* jslint ignore:line */

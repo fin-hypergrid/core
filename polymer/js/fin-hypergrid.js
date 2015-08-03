@@ -1253,6 +1253,7 @@
                 self.stopEditing();
                 var mouse = e.detail.mouse;
                 var mouseEvent = self.getGridCellFromMousePoint(mouse);
+                mouseEvent.keys = e.detail.keys;
                 mouseEvent.primitiveEvent = e;
                 self.delegateMouseDown(mouseEvent);
             });
@@ -1294,6 +1295,7 @@
                 var mouse = e.detail.mouse;
                 var tapEvent = self.getGridCellFromMousePoint(mouse);
                 tapEvent.primitiveEvent = e;
+                tapEvent.keys = e.detail.keys;
                 self.fireSyntheticClickEvent(tapEvent);
                 self.delegateTap(tapEvent);
             });
@@ -2010,6 +2012,7 @@
             var detail = {
                 gridCell: cell,
                 mousePoint: mouseEvent.mousePoint,
+                keys: mouseEvent.keys,
                 primitiveEvent: mouseEvent,
                 time: Date.now(),
                 grid: this
@@ -3018,7 +3021,8 @@
         selectionChanged: function() {
             var event = new CustomEvent('fin-selection-changed', {
                 detail: {
-                    time: Date.now()
+                    time: Date.now(),
+                    grid: this
                 }
             });
             this.canvas.dispatchEvent(event);
@@ -3238,18 +3242,6 @@
             this.getBehavior().setColumnProperties(columnIndex, properties);
         },
 
-        toggleSelectColumn: function(x) {
-            var height = this.getRowCount();
-            this.getSelectionModel().toggleSelect(x, 0, 0, height);
-            this.repaint();
-        },
-
-        toggleSelectRow: function(y) {
-            var width = this.getColumnCount();
-            this.getSelectionModel().toggleSelect(0, y, width, 0);
-            this.repaint();
-        },
-
         moveSingleSelect: function(x, y) {
             this.getBehavior().moveSingleSelect(this, x, y);
         },
@@ -3266,7 +3258,46 @@
         getHeaderColumnCount: function() {
             return this.getBehavior().getHeaderColumnCount();
         },
+        toggleSort: function(x) {
+            this.getBehavior().toggleSort(x);
+        },
 
+        toggleSelectColumn: function(x, keys) {
+            var size = this.getRowCount();
+            this.toggleSelectedRectangle(x, 0, 0, size, keys);
+        },
+
+        toggleSelectRow: function(y, keys) {
+            var size = this.getColumnCount();
+            this.toggleSelectedRectangle(0, y, size, 0, keys);
+        },
+
+        toggleSelectedRectangle: function(ox, oy, ex, ey, keys) {
+            var model = this.getSelectionModel();
+            var size = this.getColumnCount();
+            var alreadySelected = model.isRectangleSelected(ox, oy, ex, ey);
+            var hasCTRL = keys.indexOf('CTRL') > -1;
+            var hasSHIFT = keys.indexOf('SHIFT') > -1;
+            if (!hasCTRL && !hasSHIFT) {
+                if (!alreadySelected) {
+                    model.clear();
+                }
+                model.toggleSelect(ox, oy, ex, ey);
+            } else {
+                if (hasCTRL || hasSHIFT) {
+                    model.toggleSelect(ox, oy, ex, ey);
+                }
+            }
+            this.repaint();
+        },
+
+        getSelectedRows: function() {
+            return this.getSelectionModel().getSelectedRows();
+        },
+
+        getSelectedColumns: function() {
+            return this.getSelectionModel().getSelectedColumns();
+        }
     });
 
 })(); /* jslint ignore:line */

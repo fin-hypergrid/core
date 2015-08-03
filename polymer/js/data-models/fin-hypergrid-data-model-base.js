@@ -84,11 +84,15 @@
         },
 
         getColumnProperties: function(columnIndex) {
+            var behavior = this.getBehavior();
             var tableState = this.getState();
             var properties = tableState.columnProperties[columnIndex];
             if (!properties) {
                 properties = Object.create(tableState);
                 tableState.columnProperties[columnIndex] = properties;
+
+                properties.header = behavior.getHeader(columnIndex);
+                properties.field = behavior.getField(columnIndex);
 
                 properties.rowHeader = Object.create(properties, {
                     font: {
