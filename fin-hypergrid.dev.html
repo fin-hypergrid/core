@@ -21353,6 +21353,15 @@ var commands = {
             var gridCell = event.gridCell;
             var x, y;
 
+            var distance = Math.abs(event.primitiveEvent.detail.dragstart.x - event.primitiveEvent.detail.mouse.x);
+            console.log(distance);
+            if (distance < 10) {
+                if (this.next) {
+                    this.next.handleMouseDrag(grid, event);
+                }
+                return;
+            }
+
             if (this.isFixedRow(grid, event) && this.dragArmed && !this.dragging) {
                 this.dragging = true;
                 this.dragCol = gridCell.x;
@@ -35098,6 +35107,7 @@ fin-vampire-bar {
             var alreadySelected = model.isRectangleSelected(ox, oy, ex, ey);
             var hasCTRL = keys.indexOf('CTRL') > -1;
             var hasSHIFT = keys.indexOf('SHIFT') > -1;
+            var so, se;
             if (!hasCTRL && !hasSHIFT) {
                 if (!alreadySelected) {
                     model.clear();
@@ -35110,14 +35120,14 @@ fin-vampire-bar {
                 if (hasSHIFT) {
                     if (ox === 0) {
                         //row
-                        var so = Math.min(this.lastEdgeSelection[1], oy);
-                        var se = Math.max(this.lastEdgeSelection[1], oy);
+                        so = Math.min(this.lastEdgeSelection[1], oy);
+                        se = Math.max(this.lastEdgeSelection[1], oy);
                         model.clear();
                         model.toggleSelect(0, so, ex, se - so);
                     } else {
                         //column
-                        var so = Math.min(this.lastEdgeSelection[0], ox);
-                        var se = Math.max(this.lastEdgeSelection[0], ox);
+                        so = Math.min(this.lastEdgeSelection[0], ox);
+                        se = Math.max(this.lastEdgeSelection[0], ox);
                         model.clear();
                         model.toggleSelect(so, 0, se - so, ey);
                     }

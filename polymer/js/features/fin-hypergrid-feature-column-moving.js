@@ -117,6 +117,15 @@
             var gridCell = event.gridCell;
             var x, y;
 
+            var distance = Math.abs(event.primitiveEvent.detail.dragstart.x - event.primitiveEvent.detail.mouse.x);
+            console.log(distance);
+            if (distance < 10) {
+                if (this.next) {
+                    this.next.handleMouseDrag(grid, event);
+                }
+                return;
+            }
+
             if (this.isFixedRow(grid, event) && this.dragArmed && !this.dragging) {
                 this.dragging = true;
                 this.dragCol = gridCell.x;

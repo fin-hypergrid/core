@@ -3281,6 +3281,7 @@
             var alreadySelected = model.isRectangleSelected(ox, oy, ex, ey);
             var hasCTRL = keys.indexOf('CTRL') > -1;
             var hasSHIFT = keys.indexOf('SHIFT') > -1;
+            var so, se;
             if (!hasCTRL && !hasSHIFT) {
                 if (!alreadySelected) {
                     model.clear();
@@ -3293,14 +3294,14 @@
                 if (hasSHIFT) {
                     if (ox === 0) {
                         //row
-                        var so = Math.min(this.lastEdgeSelection[1], oy);
-                        var se = Math.max(this.lastEdgeSelection[1], oy);
+                        so = Math.min(this.lastEdgeSelection[1], oy);
+                        se = Math.max(this.lastEdgeSelection[1], oy);
                         model.clear();
                         model.toggleSelect(0, so, ex, se - so);
                     } else {
                         //column
-                        var so = Math.min(this.lastEdgeSelection[0], ox);
-                        var se = Math.max(this.lastEdgeSelection[0], ox);
+                        so = Math.min(this.lastEdgeSelection[0], ox);
+                        se = Math.max(this.lastEdgeSelection[0], ox);
                         model.clear();
                         model.toggleSelect(so, 0, se - so, ey);
                     }
