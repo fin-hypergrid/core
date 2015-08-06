@@ -451,6 +451,8 @@
 
         scrollingNow: false,
 
+        lastEdgeSelection: null,
+
         /**
          * @function
          * @private
@@ -463,6 +465,8 @@
                 buildPolymerTheme();
                 initializeBasicCellEditors();
             }
+
+            this.lastEdgeSelection = [0, 0];
 
             var self = this;
             rectangles = rectangles || document.createElement('fin-rectangle');
@@ -3274,7 +3278,6 @@
 
         toggleSelectedRectangle: function(ox, oy, ex, ey, keys) {
             var model = this.getSelectionModel();
-            var size = this.getColumnCount();
             var alreadySelected = model.isRectangleSelected(ox, oy, ex, ey);
             var hasCTRL = keys.indexOf('CTRL') > -1;
             var hasSHIFT = keys.indexOf('SHIFT') > -1;
@@ -3284,9 +3287,28 @@
                 }
                 model.toggleSelect(ox, oy, ex, ey);
             } else {
-                if (hasCTRL || hasSHIFT) {
+                if (hasCTRL) {
                     model.toggleSelect(ox, oy, ex, ey);
                 }
+                if (hasSHIFT) {
+                    if (ox === 0) {
+                        //row
+                        var so = Math.min(this.lastEdgeSelection[1], oy);
+                        var se = Math.max(this.lastEdgeSelection[1], oy);
+                        model.clear();
+                        model.toggleSelect(0, so, ex, se - so);
+                    } else {
+                        //column
+                        var so = Math.min(this.lastEdgeSelection[0], ox);
+                        var se = Math.max(this.lastEdgeSelection[0], ox);
+                        model.clear();
+                        model.toggleSelect(so, 0, se - so, ey);
+                    }
+                }
+            }
+            if (!alreadySelected && !hasSHIFT) {
+                this.lastEdgeSelection = [ox, oy, ex, ey];
+                console.log(this.lastEdgeSelection);
             }
             this.repaint();
         },
