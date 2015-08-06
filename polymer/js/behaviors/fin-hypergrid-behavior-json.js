@@ -655,11 +655,11 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
          this function is a hook and is called just before the painting of a cell occurs
          * @param {rectangle.point} cell - [rectangle.point](http://stevewirts.github.io/fin-rectangle/components/fin-rectangle/)
          */
-        cellPrePaintNotification: function(cell) {
-            var row = this.getRow(cell.config.y);
-            var columnId = this.getHeader(cell.config.x);
-            cell.config.row = row;
-            cell.config.columnId = columnId;
+        cellPrePaintNotification: function(config) {
+            var row = this.getRow(config.y);
+            var columnId = this.getHeader(config.x);
+            config.row = row;
+            config.columnId = columnId;
         },
 
         /**
@@ -669,11 +669,11 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
          this function is a hook and is called just before the painting of a fixed column cell occurs
          * @param {rectangle.point} cell - [rectangle.point](http://stevewirts.github.io/fin-rectangle/components/fin-rectangle/)
         */
-        cellFixedColumnPrePaintNotification: function(cell) {
-            var row = this.getRow(cell.config.y);
-            var columnId = this.getHeader(cell.config.x);
-            cell.config.row = row;
-            cell.config.columnId = columnId;
+        cellFixedColumnPrePaintNotification: function(config) {
+            var row = this.getRow(config.y);
+            var columnId = this.getHeader(config.x);
+            config.row = row;
+            config.columnId = columnId;
         },
 
         /**

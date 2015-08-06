@@ -1019,11 +1019,11 @@ var config = {
                     var isRowHovered = this.isRowHovered(r);
 
                     var config = this.cellConfig(translatedX, r + scrollTop, value, overrideFGColor, bgColor, fgSelColor, bgSelColor, overrideFont, isSelected, isColumnHovered, isRowHovered, columnAlign, hoffset, voffset);
+                    behavior.cellPrePaintNotification(config);
                     var cell = cellProvider.getCell(config);
 
                     config.minWidth = 0;
 
-                    behavior.cellPrePaintNotification(cell);
                     cell.paint(gc, x, y, width, height);
 
                     //lets capture the col preferred widths for col autosizing
@@ -1405,9 +1405,10 @@ var config = {
             var isColumnHovered = this.isHovered(x, y);
             var isRowHovered = this.isHovered(x, y);
 
-            var cell = cellProvider.getCell(this.cellConfig(translatedX, y + scrollTop, value, overrideFGColor, bgColor, fgSelColor, bgSelColor, overrideFont, isSelected, isColumnHovered, isRowHovered, columnAlign, hoffset, voffset));
+            var config = this.cellConfig(translatedX, y + scrollTop, value, overrideFGColor, bgColor, fgSelColor, bgSelColor, overrideFont, isSelected, isColumnHovered, isRowHovered, columnAlign, hoffset, voffset);
+            behavior.cellPrePaintNotification(config);
+            var cell = cellProvider.getCell(config);
 
-            behavior.cellPrePaintNotification(cell);
             cell.paint(ctx, startX, startY, width, height);
 
         },
