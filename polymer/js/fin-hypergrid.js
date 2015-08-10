@@ -27,6 +27,7 @@
 
         initializeCellEditor('fin-hypergrid-cell-editor-textfield');
         initializeCellEditor('fin-hypergrid-cell-editor-choice');
+        initializeCellEditor('fin-hypergrid-cell-editor-combo');
         initializeCellEditor('fin-hypergrid-cell-editor-color');
         initializeCellEditor('fin-hypergrid-cell-editor-date');
         initializeCellEditor('fin-hypergrid-cell-editor-slider');
@@ -1928,6 +1929,21 @@
             }
             hovered = rectangles.point.create(x, hovered.y + sy);
             this.getBehavior().cellClicked(hovered, event);
+        },
+
+        setTotalsValueNotification: function(x, y, value) {
+            this.fireSyntheticSetTotalsValue(x, y, value);
+        },
+
+        fireSyntheticSetTotalsValue: function(x, y, value) {
+            var clickEvent = new CustomEvent('fin-set-totals-value', {
+                detail: {
+                    x: x,
+                    y: y,
+                    value: value
+                }
+            });
+            this.canvas.dispatchEvent(clickEvent);
         },
 
         /**

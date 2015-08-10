@@ -127,10 +127,14 @@
         setBounds: function(cellBounds) {
             var originOffset = this.originOffset();
             var translation = 'translate(' + (cellBounds.x + originOffset[0]) + 'px,' + (cellBounds.y + originOffset[1]) + 'px)';
+
             this.input.style.webkitTransform = translation;
             this.input.style.MozTransform = translation;
             this.input.style.msTransform = translation;
             this.input.style.OTransform = translation;
+
+            // this.input.style.left = cellBounds.x + originOffset[0] + 'px';
+            // this.input.style.top = cellBounds.y + originOffset[1] + 'px';
 
             this.input.style.width = cellBounds.width - (2 * originOffset[0]) + 'px';
             this.input.style.height = cellBounds.height - (2 * originOffset[1]) + 'px';

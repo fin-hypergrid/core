@@ -1511,7 +1511,11 @@ it contains all code/data that's necessary for easily implementing a virtual dat
         resetColumnIndexes: function() {
             this.initColumnIndexes(this.tableState);
             this.shapeChanged();
-        }
+        },
+
+        setTotalsValue: function(x, y, value) {
+            this.getGrid().setTotalsValueNotification(x, y, value);
+        },
 
     });
 })();

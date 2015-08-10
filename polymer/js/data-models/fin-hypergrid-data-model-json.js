@@ -242,16 +242,17 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
          */
         getValue: function(x, y) {
             var result, tableState, headers, sortIndex, fields, row;
-            if (y === 0) {
+            headers = this.getHeaders();
+            var headersSize = headers.length > 0 ? 1 : 0;
+            if (y < headersSize) {
                 tableState = this.getState();
-                headers = this.getHeaders();
                 sortIndex = tableState.columnProperties[x].sorted || 0;
                 result = [undefined, headers[x], this.getImage(sortStates[sortIndex])];
-            } else if (y === 1) {
-                result = this.getTotal(x, 0);
+            } else if (y < this.getTotals().length + headersSize) {
+                result = this.getTotal(x, y - headersSize);
             } else {
                 fields = this.getFields();
-                row = this.data[y - 1];
+                row = this.data[y - this.getTotals().length - headersSize];
                 result = row[fields[x]];
             }
             if (typeof result === 'function') {
@@ -269,8 +270,21 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
          * @param {integer} y - the y coordinate
          */
         setValue: function(x, y, value) {
-            var fields = this.getFields();
-            this.data[y - 1][fields[x]] = value;
+            var headers = this.getHeaders();
+            var totalsSize = this.getTotals().length;
+            var headersSize = headers.length > 0 ? 1 : 0;
+            var rowNumber = y - headersSize - totalsSize;
+            var behavior = this.getBehavior();
+            if (rowNumber < 0) {
+                if (y < headersSize) {
+                    behavior.setHeaderValue(x, y, value);
+                } else {
+                    behavior.setTotalsValue(x, y, value);
+                }
+            } else {
+                var fields = this.getFields();
+                this.data[rowNumber][fields[x]] = value;
+            }
         },
 
         /**
@@ -281,7 +295,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
          * #### returns: integer
          */
         getRowCount: function() {
-            return this.data.length;
+            return this.data.length + this.getTotals().length;
         },
 
         /**

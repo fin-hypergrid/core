@@ -80,7 +80,7 @@
         getCellEditorAt: function(x, y) {
             noop(y);
             x = this.translateColumnIndex(x);
-            return this.getComponent().getCellEditorAt(x);
+            return this.getComponent().getCellEditorAt(x, y);
         },
 
         getColumnId: function(x) {
