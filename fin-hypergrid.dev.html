@@ -12240,6 +12240,8 @@ scope.importElements = importElements;
 
 
 
+
+
 </head><body><div hidden="">
 <polymer-element name="fin-rectangle" assetpath="/dev/fin-rectangle/">
   <script>
@@ -22916,7 +22918,7 @@ var commands = {
         getCellEditorAt: function(x, y) {
             noop(y);
             x = this.translateColumnIndex(x);
-            return this.getComponent().getCellEditorAt(x);
+            return this.getComponent().getCellEditorAt(x, y);
         },
 
         getColumnId: function(x) {
@@ -23310,16 +23312,17 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
          */
         getValue: function(x, y) {
             var result, tableState, headers, sortIndex, fields, row;
-            if (y === 0) {
+            headers = this.getHeaders();
+            var headersSize = headers.length > 0 ? 1 : 0;
+            if (y < headersSize) {
                 tableState = this.getState();
-                headers = this.getHeaders();
                 sortIndex = tableState.columnProperties[x].sorted || 0;
                 result = [undefined, headers[x], this.getImage(sortStates[sortIndex])];
-            } else if (y === 1) {
-                result = this.getTotal(x, 0);
+            } else if (y < this.getTotals().length + headersSize) {
+                result = this.getTotal(x, y - headersSize);
             } else {
                 fields = this.getFields();
-                row = this.data[y - 1];
+                row = this.data[y - this.getTotals().length - headersSize];
                 result = row[fields[x]];
             }
             if (typeof result === 'function') {
@@ -23337,8 +23340,21 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
          * @param {integer} y - the y coordinate
          */
         setValue: function(x, y, value) {
-            var fields = this.getFields();
-            this.data[y - 1][fields[x]] = value;
+            var headers = this.getHeaders();
+            var totalsSize = this.getTotals().length;
+            var headersSize = headers.length > 0 ? 1 : 0;
+            var rowNumber = y - headersSize - totalsSize;
+            var behavior = this.getBehavior();
+            if (rowNumber < 0) {
+                if (y < headersSize) {
+                    behavior.setHeaderValue(x, y, value);
+                } else {
+                    behavior.setTotalsValue(x, y, value);
+                }
+            } else {
+                var fields = this.getFields();
+                this.data[rowNumber][fields[x]] = value;
+            }
         },
 
         /**
@@ -23349,7 +23365,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
          * #### returns: integer
          */
         getRowCount: function() {
-            return this.data.length;
+            return this.data.length + this.getTotals().length;
         },
 
         /**
@@ -25148,7 +25164,11 @@ it contains all code/data that's necessary for easily implementing a virtual dat
         resetColumnIndexes: function() {
             this.initColumnIndexes(this.tableState);
             this.shapeChanged();
-        }
+        },
+
+        setTotalsValue: function(x, y, value) {
+            this.getGrid().setTotalsValueNotification(x, y, value);
+        },
 
     });
 })();
@@ -30331,10 +30351,14 @@ This is a very rough in memory data source example.  fin-hypergrid-behavior-in-m
         setBounds: function(cellBounds) {
             var originOffset = this.originOffset();
             var translation = 'translate(' + (cellBounds.x + originOffset[0]) + 'px,' + (cellBounds.y + originOffset[1]) + 'px)';
+
             this.input.style.webkitTransform = translation;
             this.input.style.MozTransform = translation;
             this.input.style.msTransform = translation;
             this.input.style.OTransform = translation;
+
+            // this.input.style.left = cellBounds.x + originOffset[0] + 'px';
+            // this.input.style.top = cellBounds.y + originOffset[1] + 'px';
 
             this.input.style.width = cellBounds.width - (2 * originOffset[0]) + 'px';
             this.input.style.height = cellBounds.height - (2 * originOffset[1]) + 'px';
@@ -30761,6 +30785,62 @@ This is a very rough in memory data source example.  fin-hypergrid-behavior-in-m
         items: [],
 
 
+    });
+
+})(); /* jshint ignore:line */
+</script>
+</polymer-element>
+<polymer-element name="fin-hypergrid-cell-editor-combo" extends="fin-hypergrid-cell-editor-simple" assetpath="/dev/fin-hypergrid/polymer/html/cell-editors/">
+  <template>
+    <style type="text/css">:host {
+    display: block;
+    position: relative;
+}
+</style>
+    <form>
+      <input list="fin-datalist" id="editor">
+      <datalist id="fin-datalist">
+        <option repeat="{{item in items}}" value="{{item}}" template="">{{item}}</option>
+      </datalist>
+    </form>
+    <!--     <select id="editor">
+      <option template repeat="{{item in items}}" value="{{item}}">{{item}}</option>
+    </select> -->
+  </template>
+  <script>'use strict';
+
+(function() {
+
+    Polymer('fin-hypergrid-cell-editor-combo',{ /* jshint ignore:line */
+
+        /**
+         * @property {string} alias - my lookup alias
+         * @instance
+         */
+        alias: 'combo',
+
+        /**
+         * @property {Array} items - the list of items to pick from
+         * @instance
+         */
+        items: [],
+
+        /**
+        * @function
+        * @instance
+        * @description
+        request focus for my input control
+        */
+        takeFocus: function() {
+            var self = this;
+            setTimeout(function() {
+                //self.input.focus();
+                self.selectAll();
+            }, 300);
+        },
+        selectAll: function() {
+            this.input.setSelectionRange(0, this.input.value.length);
+        }
     });
 
 })(); /* jshint ignore:line */
@@ -31853,6 +31933,7 @@ fin-vampire-bar {
 
         initializeCellEditor('fin-hypergrid-cell-editor-textfield');
         initializeCellEditor('fin-hypergrid-cell-editor-choice');
+        initializeCellEditor('fin-hypergrid-cell-editor-combo');
         initializeCellEditor('fin-hypergrid-cell-editor-color');
         initializeCellEditor('fin-hypergrid-cell-editor-date');
         initializeCellEditor('fin-hypergrid-cell-editor-slider');
@@ -33754,6 +33835,21 @@ fin-vampire-bar {
             }
             hovered = rectangles.point.create(x, hovered.y + sy);
             this.getBehavior().cellClicked(hovered, event);
+        },
+
+        setTotalsValueNotification: function(x, y, value) {
+            this.fireSyntheticSetTotalsValue(x, y, value);
+        },
+
+        fireSyntheticSetTotalsValue: function(x, y, value) {
+            var clickEvent = new CustomEvent('fin-set-totals-value', {
+                detail: {
+                    x: x,
+                    y: y,
+                    value: value
+                }
+            });
+            this.canvas.dispatchEvent(clickEvent);
         },
 
         /**
