@@ -201,6 +201,11 @@
             this.changed();
         },
 
+        getRow: function(y) {
+            noop(y);
+            return null;
+        },
+
 
     });
 

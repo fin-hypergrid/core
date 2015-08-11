@@ -4,6 +4,7 @@
   <title>fin-hypergrid Demo</title>
   <script src="accounting.min.js"></script>
   <script src="sampledata.js"></script>
+  <script src="myThemes.js"></script>
 <!--   <link rel="import" href="fin-hypergrid.min.html"> -->
   <link rel="import" href="../../polymer/html/fin-hypergrid.html">
   <style>
@@ -26,7 +27,7 @@
 
 (function(){
 
-    var editorTypes = ['choice','textfield','spinner','date','choice','choice','choice','textfield','textfield','prompt'];
+    var editorTypes = ['choice','textfield','spinner','date','choice','choice','choice','textfield','textfield','textfield'];
     var filterTypes = ['choice','textfield','choice','textfield','choice','textfield','choice','textfield','choice','textfield'];
 
     document.addEventListener('polymer-ready', function() {
@@ -61,7 +62,6 @@
             ['','1st',251,'XXXX-XX-XX','1 of 50','1 of 50','T/F','$$$$$','£££££','computed col','']];
 
         jsonModel.setTotals(totals);
-
 
         //sort ascending on the first column (first name)
         //jsonModel.toggleSort(0);
@@ -111,8 +111,8 @@
             var type = editorTypes[x];
             var cellEditor = this.grid.cellEditors[type];
             if (y === 1) {
-                cellEditor = this.grid.cellEditors[type];
                 var type = filterTypes[x];
+                cellEditor = this.grid.cellEditors[type];
                 if (type === 'choice') {
                     cellEditor.items = ['one', 'two', 'three'];
                 }
@@ -150,6 +150,10 @@
                 jsonGrid.toggleSort(cell.x);
             } else if (cell.y === 1) { //filter row
                 jsonGrid.activateEditor(cell.x, cell.y);
+            } else {
+                alert('double clicked, rowContext is in console');
+                var rowContext = jsonModel.getRow(cell.y);
+                console.log(rowContext);
             }
         });
 
@@ -176,8 +180,14 @@
             readOnly: false
         });
 
+        jsonGrid.addFinEventListener('fin-request-cell-edit', function(e) {
+            console.log('fin-request-cell-edit', e);
+            //e.preventDefault(); //uncomment to cancel editor popping up
+        });
+
         jsonGrid.addFinEventListener('fin-before-cell-edit', function(e) {
             console.log('fin-before-cell-edit', e);
+            //e.preventDefault(); //uncomment to cancel editor popping up
         });
 
         jsonGrid.addFinEventListener('fin-after-cell-edit', function(e) {
@@ -211,6 +221,14 @@
                 jsonGrid.scrollBy(jsonGrid.getColumnCount(), jsonGrid.getRowCount());
             }
             console.log(e);
+        });
+
+        jsonGrid.addFinEventListener('fin-row-selection-changed', function(e) {
+            console.log('fin-row-selection-changed', e.detail);
+        });
+
+        jsonGrid.addFinEventListener('fin-column-selection-changed', function(e) {
+            console.log('fin-column-selection-changed', e.detail);
         });
 
         var fields = jsonModel.getFields();
@@ -252,9 +270,32 @@
                 jsonModel.setFields(fields);
                 jsonModel.setHeaders(headers);
 
-                // to hide columns, remove it's indexes
+                var fieldsMap = {};
+                for (var i = 0; i < fields.length; i++) {
+                    fieldsMap[fields[i]] = i;
+                }
+
+                var toI = function(fieldName){
+                    return fieldsMap[fieldName];
+                };
+
+                var toIs = function(arrayOfFieldNames) {
+                    return arrayOfFieldNames.map(toI);
+                };
+
                 var state = {
-                        columnIndexes:[10,0,2,1,3,4,5,6,7,8,9],
+                        columnIndexes: toIs([
+                            "rowNumber",
+                            "last_name",
+                            "pets",
+                            "first_name",
+                            "birthDate",
+                            "birthState",
+                            "residenceState",
+                            "employed",
+                            "income",
+                            "travel",
+                            "squareOfIncome"]),
                         rowHeights:{ 0: 30 },
                         fixedColumnCount:1,
                         fixedRowCount:3,
@@ -295,6 +336,12 @@
 
                 console.log('visible rows = ' + jsonGrid.getVisibleRows());
                 console.log('visible columns = ' + jsonGrid.getVisibleColumns());
+
+                //see myThemes.js file for how to create a theme
+                //jsonGrid.addProperties(myThemes.one);
+                //jsonGrid.addProperties(myThemes.two);
+                //jsonGrid.addProperties(myThemes.three);
+
 
             }, 2000);
 

@@ -9,6 +9,19 @@
     Polymer({ /* jshint ignore:line */
 
         /**
+         * @function
+         * @instance
+         * @description
+         polymer lifecycle event
+         */
+        ready: function() {
+            var self = this;
+            this.readyInit();
+            this.input.onchange = function() {
+                self.stopEditing();
+            };
+        },
+        /**
          * @property {string} alias - my lookup alias
          * @instance
          */

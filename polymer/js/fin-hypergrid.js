@@ -1946,6 +1946,45 @@
             this.canvas.dispatchEvent(clickEvent);
         },
 
+
+        /**
+         * @function
+         * @instance
+         * @description
+        Synthesize and fire a fin-keydown event
+         * @param {keyEvent} event - the canvas event
+         *
+         */
+        fireSyntheticRowSelectionChangedEvent: function() {
+            var selectionEvent = new CustomEvent('fin-row-selection-changed', {
+                detail: {
+                    rows: this.getSelectedRows(),
+                    columns: this.getSelectedColumns(),
+                    selections: this.getSelectionModel().getSelections()
+                }
+            });
+            this.canvas.dispatchEvent(selectionEvent);
+        },
+
+        /**
+         * @function
+         * @instance
+         * @description
+        Synthesize and fire a fin-keydown event
+         * @param {keyEvent} event - the canvas event
+         *
+         */
+        fireSyntheticColumnSelectionChangedEvent: function() {
+            var selectionEvent = new CustomEvent('fin-column-selection-changed', {
+                detail: {
+                    rows: this.getSelectedRows(),
+                    columns: this.getSelectedColumns(),
+                    selections: this.getSelectionModel().getSelections()
+                }
+            });
+            this.canvas.dispatchEvent(selectionEvent);
+        },
+
         /**
          * @function
          * @instance
@@ -3078,6 +3117,18 @@
             return row;
         },
 
+        fireRequestCellEdit: function(cell, value) {
+            var clickEvent = new CustomEvent('fin-request-cell-edit', {
+                cancelable: true,
+                detail: {
+                    value: value,
+                    gridCell: cell,
+                    time: Date.now()
+                }
+            });
+            var proceed = this.canvas.dispatchEvent(clickEvent);
+            return proceed; //I wasn't cancelled
+        },
         /**
          * @function
          * @instance
@@ -3087,11 +3138,12 @@
          * @param {rectangle.point} cell - the x,y coordinates
          * @param {Object} value - the current value
          */
-        fireBeforeCellEdit: function(cell, value) {
+        fireBeforeCellEdit: function(cell, oldValue, newValue) {
             var clickEvent = new CustomEvent('fin-before-cell-edit', {
+                cancelable: true,
                 detail: {
-                    oldValue: value,
-                    newValue: value,
+                    oldValue: oldValue,
+                    newValue: newValue,
                     gridCell: cell,
                     time: Date.now()
                 }
@@ -3278,6 +3330,7 @@
         getHeaderColumnCount: function() {
             return this.getBehavior().getHeaderColumnCount();
         },
+
         toggleSort: function(x) {
             this.getBehavior().toggleSort(x);
         },
@@ -3285,11 +3338,13 @@
         toggleSelectColumn: function(x, keys) {
             var size = this.getRowCount();
             this.toggleSelectedRectangle(x, 0, 0, size, keys);
+            this.fireSyntheticColumnSelectionChangedEvent();
         },
 
         toggleSelectRow: function(y, keys) {
             var size = this.getColumnCount();
             this.toggleSelectedRectangle(0, y, size, 0, keys);
+            this.fireSyntheticRowSelectionChangedEvent();
         },
 
         toggleSelectedRectangle: function(ox, oy, ex, ey, keys) {

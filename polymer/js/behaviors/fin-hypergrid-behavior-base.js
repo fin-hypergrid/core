@@ -1517,5 +1517,17 @@ it contains all code/data that's necessary for easily implementing a virtual dat
             this.getGrid().setTotalsValueNotification(x, y, value);
         },
 
+        /**
+        * @function
+        * @instance
+        * @description
+        return the object at y index
+        * #### returns: Object
+        * @param {integer} y - the row index of interest
+        */
+        getRow: function(y) {
+            return this.getDataModel().getRow(y);
+        },
+
     });
 })();

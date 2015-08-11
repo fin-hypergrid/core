@@ -118,7 +118,7 @@
             var x, y;
 
             var distance = Math.abs(event.primitiveEvent.detail.dragstart.x - event.primitiveEvent.detail.mouse.x);
-            console.log(distance);
+
             if (distance < 10) {
                 if (this.next) {
                     this.next.handleMouseDrag(grid, event);

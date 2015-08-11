@@ -21364,7 +21364,7 @@ var commands = {
             var x, y;
 
             var distance = Math.abs(event.primitiveEvent.detail.dragstart.x - event.primitiveEvent.detail.mouse.x);
-            console.log(distance);
+
             if (distance < 10) {
                 if (this.next) {
                     this.next.handleMouseDrag(grid, event);
@@ -22677,6 +22677,11 @@ var commands = {
             this.changed();
         },
 
+        getRow: function(y) {
+            noop(y);
+            return null;
+        },
+
 
     });
 
@@ -22791,6 +22796,10 @@ var commands = {
 
         setCellProperties: function(x, y, value) {
             this.getComponent().setCellProperties(x, y, value);
+        },
+
+        getRow: function(y) {
+            return this.getComponent().getRow(y);
         },
     });
 
@@ -23533,7 +23542,13 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         },
 
         getRow: function(y) {
-            return this.data[y];
+            var headerCount = this.getHeaders().length > 0 ? 1 : 0;
+            var totalsCount = this.getTotals().length;
+            var index = y - (headerCount + totalsCount);
+            if (index < 0) {
+                return null;
+            }
+            return this.data[index];
         },
 
         /**
@@ -23578,7 +23593,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         setCellProperties: function(x, y, value) {
             var state = this.getState();
             state.cellProperties[x + ',' + y] = value;
-        },
+        }
 
     });
 })();
@@ -25176,6 +25191,18 @@ it contains all code/data that's necessary for easily implementing a virtual dat
 
         setTotalsValue: function(x, y, value) {
             this.getGrid().setTotalsValueNotification(x, y, value);
+        },
+
+        /**
+        * @function
+        * @instance
+        * @description
+        return the object at y index
+        * #### returns: Object
+        * @param {integer} y - the row index of interest
+        */
+        getRow: function(y) {
+            return this.getDataModel().getRow(y);
         },
 
     });
@@ -27238,18 +27265,6 @@ This is a very rough in memory data source example.  fin-hypergrid-behavior-in-m
         */
         setColumns: function(columnDefinitions) {
             this.getBaseModel().setColumns(columnDefinitions);
-        },
-
-        /**
-        * @function
-        * @instance
-        * @description
-        return the object at y index
-        * #### returns: Object
-        * @param {integer} y - the row index of interest
-        */
-        getRow: function(y) {
-            return this.getBaseModel().getRow(y);
         },
 
         /**
@@ -29881,7 +29896,7 @@ This is a very rough in memory data source example.  fin-hypergrid-behavior-in-m
             this.setEditorPoint(point);
             var model = this.getBehavior();
             var value = model.getValue(point.x, point.y);
-            var proceed = this.grid.fireBeforeCellEdit(point, value);
+            var proceed = this.grid.fireRequestCellEdit(point, value);
             if (!proceed) {
                 //we were cancelled
                 return;
@@ -29957,6 +29972,14 @@ This is a very rough in memory data source example.  fin-hypergrid-behavior-in-m
             this.hideEditor();
         },
 
+        cancelEditing: function() {
+            if (!this.isEditing) {
+                return;
+            }
+            this.isEditing = false;
+            this.hideEditor();
+        },
+
         /**
         * @function
         * @instance
@@ -29968,6 +29991,10 @@ This is a very rough in memory data source example.  fin-hypergrid-behavior-in-m
             var value = this.getEditorValue();
             if (value === this.initialValue) {
                 return; //data didn't change do nothing
+            }
+            var continued = this.grid.fireBeforeCellEdit(point, this.initialValue, value);
+            if (!continued) {
+                return;
             }
             this.getBehavior().setValue(point.x, point.y, value);
             this.grid.fireAfterCellEdit(point, this.initialValue, value);
@@ -30257,10 +30284,14 @@ This is a very rough in memory data source example.  fin-hypergrid-behavior-in-m
             this.rectangles = document.createElement('fin-rectangle');
             this.editorPoint = this.rectangles.point.create(0, 0);
             this.input = this.shadowRoot.querySelector('#editor');
-            this.input.addEventListener('keypress', function(e) {
-                if (e && e.keyCode === 13) {
+            this.input.addEventListener('keyup', function(e) {
+                if (e && (e.keyCode === 13 || e.keyCode === 27)) {
                     e.preventDefault();
-                    self.stopEditing();
+                    if (e.keyCode === 27) {
+                        self.cancelEditing();
+                    } else {
+                        self.stopEditing();
+                    }
                     self.grid.repaint();
                     self.grid.takeFocus();
                 }
@@ -30780,6 +30811,19 @@ This is a very rough in memory data source example.  fin-hypergrid-behavior-in-m
 
     Polymer('fin-hypergrid-cell-editor-choice',{ /* jshint ignore:line */
 
+        /**
+         * @function
+         * @instance
+         * @description
+         polymer lifecycle event
+         */
+        ready: function() {
+            var self = this;
+            this.readyInit();
+            this.input.onchange = function() {
+                self.stopEditing();
+            };
+        },
         /**
          * @property {string} alias - my lookup alias
          * @instance
@@ -33860,6 +33904,45 @@ fin-vampire-bar {
             this.canvas.dispatchEvent(clickEvent);
         },
 
+
+        /**
+         * @function
+         * @instance
+         * @description
+        Synthesize and fire a fin-keydown event
+         * @param {keyEvent} event - the canvas event
+         *
+         */
+        fireSyntheticRowSelectionChangedEvent: function() {
+            var selectionEvent = new CustomEvent('fin-row-selection-changed', {
+                detail: {
+                    rows: this.getSelectedRows(),
+                    columns: this.getSelectedColumns(),
+                    selections: this.getSelectionModel().getSelections()
+                }
+            });
+            this.canvas.dispatchEvent(selectionEvent);
+        },
+
+        /**
+         * @function
+         * @instance
+         * @description
+        Synthesize and fire a fin-keydown event
+         * @param {keyEvent} event - the canvas event
+         *
+         */
+        fireSyntheticColumnSelectionChangedEvent: function() {
+            var selectionEvent = new CustomEvent('fin-column-selection-changed', {
+                detail: {
+                    rows: this.getSelectedRows(),
+                    columns: this.getSelectedColumns(),
+                    selections: this.getSelectionModel().getSelections()
+                }
+            });
+            this.canvas.dispatchEvent(selectionEvent);
+        },
+
         /**
          * @function
          * @instance
@@ -34992,6 +35075,18 @@ fin-vampire-bar {
             return row;
         },
 
+        fireRequestCellEdit: function(cell, value) {
+            var clickEvent = new CustomEvent('fin-request-cell-edit', {
+                cancelable: true,
+                detail: {
+                    value: value,
+                    gridCell: cell,
+                    time: Date.now()
+                }
+            });
+            var proceed = this.canvas.dispatchEvent(clickEvent);
+            return proceed; //I wasn't cancelled
+        },
         /**
          * @function
          * @instance
@@ -35001,11 +35096,12 @@ fin-vampire-bar {
          * @param {rectangle.point} cell - the x,y coordinates
          * @param {Object} value - the current value
          */
-        fireBeforeCellEdit: function(cell, value) {
+        fireBeforeCellEdit: function(cell, oldValue, newValue) {
             var clickEvent = new CustomEvent('fin-before-cell-edit', {
+                cancelable: true,
                 detail: {
-                    oldValue: value,
-                    newValue: value,
+                    oldValue: oldValue,
+                    newValue: newValue,
                     gridCell: cell,
                     time: Date.now()
                 }
@@ -35192,6 +35288,7 @@ fin-vampire-bar {
         getHeaderColumnCount: function() {
             return this.getBehavior().getHeaderColumnCount();
         },
+
         toggleSort: function(x) {
             this.getBehavior().toggleSort(x);
         },
@@ -35199,11 +35296,13 @@ fin-vampire-bar {
         toggleSelectColumn: function(x, keys) {
             var size = this.getRowCount();
             this.toggleSelectedRectangle(x, 0, 0, size, keys);
+            this.fireSyntheticColumnSelectionChangedEvent();
         },
 
         toggleSelectRow: function(y, keys) {
             var size = this.getColumnCount();
             this.toggleSelectedRectangle(0, y, size, 0, keys);
+            this.fireSyntheticRowSelectionChangedEvent();
         },
 
         toggleSelectedRectangle: function(ox, oy, ex, ey, keys) {

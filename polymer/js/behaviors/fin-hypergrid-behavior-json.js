@@ -141,18 +141,6 @@
         },
 
         /**
-        * @function
-        * @instance
-        * @description
-        return the object at y index
-        * #### returns: Object
-        * @param {integer} y - the row index of interest
-        */
-        getRow: function(y) {
-            return this.getBaseModel().getRow(y);
-        },
-
-        /**
          * @function
          * @instance
          * @description

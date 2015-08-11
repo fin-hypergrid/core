@@ -455,7 +455,13 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         },
 
         getRow: function(y) {
-            return this.data[y];
+            var headerCount = this.getHeaders().length > 0 ? 1 : 0;
+            var totalsCount = this.getTotals().length;
+            var index = y - (headerCount + totalsCount);
+            if (index < 0) {
+                return null;
+            }
+            return this.data[index];
         },
 
         /**
@@ -500,7 +506,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         setCellProperties: function(x, y, value) {
             var state = this.getState();
             state.cellProperties[x + ',' + y] = value;
-        },
+        }
 
     });
 })();

@@ -127,7 +127,7 @@
             this.setEditorPoint(point);
             var model = this.getBehavior();
             var value = model.getValue(point.x, point.y);
-            var proceed = this.grid.fireBeforeCellEdit(point, value);
+            var proceed = this.grid.fireRequestCellEdit(point, value);
             if (!proceed) {
                 //we were cancelled
                 return;
@@ -203,6 +203,14 @@
             this.hideEditor();
         },
 
+        cancelEditing: function() {
+            if (!this.isEditing) {
+                return;
+            }
+            this.isEditing = false;
+            this.hideEditor();
+        },
+
         /**
         * @function
         * @instance
@@ -214,6 +222,10 @@
             var value = this.getEditorValue();
             if (value === this.initialValue) {
                 return; //data didn't change do nothing
+            }
+            var continued = this.grid.fireBeforeCellEdit(point, this.initialValue, value);
+            if (!continued) {
+                return;
             }
             this.getBehavior().setValue(point.x, point.y, value);
             this.grid.fireAfterCellEdit(point, this.initialValue, value);

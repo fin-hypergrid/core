@@ -99,6 +99,10 @@
         setCellProperties: function(x, y, value) {
             this.getComponent().setCellProperties(x, y, value);
         },
+
+        getRow: function(y) {
+            return this.getComponent().getRow(y);
+        },
     });
 
 })();

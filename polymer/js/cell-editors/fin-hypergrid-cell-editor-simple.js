@@ -25,10 +25,14 @@
             this.rectangles = document.createElement('fin-rectangle');
             this.editorPoint = this.rectangles.point.create(0, 0);
             this.input = this.shadowRoot.querySelector('#editor');
-            this.input.addEventListener('keypress', function(e) {
-                if (e && e.keyCode === 13) {
+            this.input.addEventListener('keyup', function(e) {
+                if (e && (e.keyCode === 13 || e.keyCode === 27)) {
                     e.preventDefault();
-                    self.stopEditing();
+                    if (e.keyCode === 27) {
+                        self.cancelEditing();
+                    } else {
+                        self.stopEditing();
+                    }
                     self.grid.repaint();
                     self.grid.takeFocus();
                 }
