@@ -26,6 +26,7 @@
             this.editorPoint = this.rectangles.point.create(0, 0);
             this.input = this.shadowRoot.querySelector('#editor');
             this.input.addEventListener('keyup', function(e) {
+                self.getGrid().fireSyntheticEditorKeyUpEvent(self.input, e);
                 if (e && (e.keyCode === 13 || e.keyCode === 27)) {
                     e.preventDefault();
                     if (e.keyCode === 27) {
@@ -33,9 +34,15 @@
                     } else {
                         self.stopEditing();
                     }
-                    self.grid.repaint();
-                    self.grid.takeFocus();
+                    self.getGrid().repaint();
+                    self.getGrid().takeFocus();
                 }
+            });
+            this.input.addEventListener('keydown', function(e) {
+                self.getGrid().fireSyntheticEditorKeyDownEvent(self.input, e);
+            });
+            this.input.addEventListener('keypress', function(e) {
+                self.getGrid().fireSyntheticEditorKeyPressEvent(self.input, e);
             });
             this.input.style.position = 'absolute';
             this.input.style.display = 'none';

@@ -1946,6 +1946,50 @@
             this.canvas.dispatchEvent(clickEvent);
         },
 
+        fireSyntheticEditorKeyUpEvent: function(inputControl, keyEvent) {
+            var clickEvent = new CustomEvent('fin-editor-key-up', {
+                detail: {
+                    input: inputControl,
+                    keyEvent: keyEvent
+                },
+
+            });
+            this.canvas.dispatchEvent(clickEvent);
+        },
+
+        fireSyntheticEditorKeyDownEvent: function(inputControl, keyEvent) {
+            var clickEvent = new CustomEvent('fin-editor-key-down', {
+                detail: {
+                    input: inputControl,
+                    keyEvent: keyEvent
+                },
+
+            });
+            this.canvas.dispatchEvent(clickEvent);
+        },
+
+        fireSyntheticEditorKeyPressEvent: function(inputControl, keyEvent) {
+            var clickEvent = new CustomEvent('fin-editor-key-press', {
+                detail: {
+                    input: inputControl,
+                    keyEvent: keyEvent
+                },
+
+            });
+            this.canvas.dispatchEvent(clickEvent);
+        },
+
+        fireSyntheticEditorDataChangeEvent: function(inputControl, oldValue, newValue) {
+            var clickEvent = new CustomEvent('fin-editor-data-change', {
+                detail: {
+                    input: inputControl,
+                    oldValue: oldValue,
+                    newValue: newValue
+                },
+                cancelable: true
+            });
+            return this.canvas.dispatchEvent(clickEvent);
+        },
 
         /**
          * @function

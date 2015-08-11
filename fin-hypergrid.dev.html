@@ -18085,32 +18085,32 @@ var noop = function() {};
         gc.lineTo(x + width + 0.5, y + 0.5);
     };
 
-    // var roundRect = function(gc, x, y, width, height, radius, fill, stroke) {
-    //     if (!stroke) {
-    //         stroke = true;
-    //     }
-    //     if (!radius) {
-    //         radius = 5;
-    //     }
-    //     gc.beginPath();
-    //     gc.moveTo(x + radius, y);
-    //     gc.lineTo(x + width - radius, y);
-    //     gc.quadraticCurveTo(x + width, y, x + width, y + radius);
-    //     gc.lineTo(x + width, y + height - radius);
-    //     gc.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
-    //     gc.lineTo(x + radius, y + height);
-    //     gc.quadraticCurveTo(x, y + height, x, y + height - radius);
-    //     gc.lineTo(x, y + radius);
-    //     gc.quadraticCurveTo(x, y, x + radius, y);
-    //     gc.closePath();
-    //     if (stroke) {
-    //         gc.stroke();
-    //     }
-    //     if (fill) {
-    //         gc.fill();
-    //     }
-    //     gc.closePath();
-    // };
+    var roundRect = function(gc, x, y, width, height, radius, fill, stroke) {
+        if (!stroke) {
+            stroke = true;
+        }
+        if (!radius) {
+            radius = 5;
+        }
+        gc.beginPath();
+        gc.moveTo(x + radius, y);
+        gc.lineTo(x + width - radius, y);
+        gc.quadraticCurveTo(x + width, y, x + width, y + radius);
+        gc.lineTo(x + width, y + height - radius);
+        gc.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+        gc.lineTo(x + radius, y + height);
+        gc.quadraticCurveTo(x, y + height, x, y + height - radius);
+        gc.lineTo(x, y + radius);
+        gc.quadraticCurveTo(x, y, x + radius, y);
+        gc.closePath();
+        if (stroke) {
+            gc.stroke();
+        }
+        if (fill) {
+            gc.fill();
+        }
+        gc.closePath();
+    };
 
 
     Polymer('fin-hypergrid-cell-provider',{ /* jslint ignore:line */
@@ -18175,6 +18175,32 @@ var noop = function() {};
             var cell = this.cellCache.simpleCellRenderer;
             cell.config = config;
             return cell;
+        },
+
+        paintButton: function(gc, config) {
+            var val = config.value;
+            var bounds = config.bounds;
+            var x = bounds.x + 2;
+            var y = bounds.y + 2;
+            var width = bounds.width - 3;
+            var height = bounds.height - 3;
+            var radius = height / 2;
+            var arcGradient = gc.createLinearGradient(x, y, x, y + height);
+            arcGradient.addColorStop(0, '#ffffff');
+            arcGradient.addColorStop(1, '#aaaaaa');
+            gc.fillStyle = arcGradient;
+            gc.strokeStyle = '#000000';
+            roundRect(gc, x, y, width, height, radius, arcGradient, true);
+
+            var ox = (width - config.getTextWidth(gc, val)) / 2;
+            var oy = (height - config.getTextHeight(gc.font).descent) / 2;
+
+            if (gc.textBaseline !== 'middle') {
+                gc.textBaseline = 'middle';
+            }
+
+            gc.fillStyle = '#000000';
+            gc.fillText(val, x + ox, y + oy);
         },
 
         /**
@@ -18497,6 +18523,10 @@ var noop = function() {};
             };
             this.cellCache.emptyCellRenderer = {
                 paint: this.emptyCellRenderer
+            };
+            this.cellCache.buttonRenderer = {
+                paint: this.paintButton,
+                defaultCellPaint: this.defaultCellPaint
             };
             this.cellCache.linkCellRenderer = {
                 paint: function(gc, x, y, width, height) {
@@ -29967,6 +29997,10 @@ This is a very rough in memory data source example.  fin-hypergrid-behavior-in-m
             if (!this.isEditing) {
                 return;
             }
+            var proceed = this.getGrid().fireSyntheticEditorDataChangeEvent(this.input, this.initialValue, this.getEditorValue);
+            if (!proceed) {
+                return;
+            }
             this.saveEditorValue();
             this.isEditing = false;
             this.hideEditor();
@@ -29992,12 +30026,12 @@ This is a very rough in memory data source example.  fin-hypergrid-behavior-in-m
             if (value === this.initialValue) {
                 return; //data didn't change do nothing
             }
-            var continued = this.grid.fireBeforeCellEdit(point, this.initialValue, value);
+            var continued = this.getGrid().fireBeforeCellEdit(point, this.initialValue, value);
             if (!continued) {
                 return;
             }
             this.getBehavior().setValue(point.x, point.y, value);
-            this.grid.fireAfterCellEdit(point, this.initialValue, value);
+            this.getGrid().fireAfterCellEdit(point, this.initialValue, value);
         },
 
         /**
@@ -30285,6 +30319,7 @@ This is a very rough in memory data source example.  fin-hypergrid-behavior-in-m
             this.editorPoint = this.rectangles.point.create(0, 0);
             this.input = this.shadowRoot.querySelector('#editor');
             this.input.addEventListener('keyup', function(e) {
+                self.getGrid().fireSyntheticEditorKeyUpEvent(self.input, e);
                 if (e && (e.keyCode === 13 || e.keyCode === 27)) {
                     e.preventDefault();
                     if (e.keyCode === 27) {
@@ -30292,9 +30327,15 @@ This is a very rough in memory data source example.  fin-hypergrid-behavior-in-m
                     } else {
                         self.stopEditing();
                     }
-                    self.grid.repaint();
-                    self.grid.takeFocus();
+                    self.getGrid().repaint();
+                    self.getGrid().takeFocus();
                 }
+            });
+            this.input.addEventListener('keydown', function(e) {
+                self.getGrid().fireSyntheticEditorKeyDownEvent(self.input, e);
+            });
+            this.input.addEventListener('keypress', function(e) {
+                self.getGrid().fireSyntheticEditorKeyPressEvent(self.input, e);
             });
             this.input.style.position = 'absolute';
             this.input.style.display = 'none';
@@ -33904,6 +33945,50 @@ fin-vampire-bar {
             this.canvas.dispatchEvent(clickEvent);
         },
 
+        fireSyntheticEditorKeyUpEvent: function(inputControl, keyEvent) {
+            var clickEvent = new CustomEvent('fin-editor-key-up', {
+                detail: {
+                    input: inputControl,
+                    keyEvent: keyEvent
+                },
+
+            });
+            this.canvas.dispatchEvent(clickEvent);
+        },
+
+        fireSyntheticEditorKeyDownEvent: function(inputControl, keyEvent) {
+            var clickEvent = new CustomEvent('fin-editor-key-down', {
+                detail: {
+                    input: inputControl,
+                    keyEvent: keyEvent
+                },
+
+            });
+            this.canvas.dispatchEvent(clickEvent);
+        },
+
+        fireSyntheticEditorKeyPressEvent: function(inputControl, keyEvent) {
+            var clickEvent = new CustomEvent('fin-editor-key-press', {
+                detail: {
+                    input: inputControl,
+                    keyEvent: keyEvent
+                },
+
+            });
+            this.canvas.dispatchEvent(clickEvent);
+        },
+
+        fireSyntheticEditorDataChangeEvent: function(inputControl, oldValue, newValue) {
+            var clickEvent = new CustomEvent('fin-editor-data-change', {
+                detail: {
+                    input: inputControl,
+                    oldValue: oldValue,
+                    newValue: newValue
+                },
+                cancelable: true
+            });
+            return this.canvas.dispatchEvent(clickEvent);
+        },
 
         /**
          * @function

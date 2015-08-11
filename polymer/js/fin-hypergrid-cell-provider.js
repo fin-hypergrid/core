@@ -35,32 +35,32 @@ var noop = function() {};
         gc.lineTo(x + width + 0.5, y + 0.5);
     };
 
-    // var roundRect = function(gc, x, y, width, height, radius, fill, stroke) {
-    //     if (!stroke) {
-    //         stroke = true;
-    //     }
-    //     if (!radius) {
-    //         radius = 5;
-    //     }
-    //     gc.beginPath();
-    //     gc.moveTo(x + radius, y);
-    //     gc.lineTo(x + width - radius, y);
-    //     gc.quadraticCurveTo(x + width, y, x + width, y + radius);
-    //     gc.lineTo(x + width, y + height - radius);
-    //     gc.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
-    //     gc.lineTo(x + radius, y + height);
-    //     gc.quadraticCurveTo(x, y + height, x, y + height - radius);
-    //     gc.lineTo(x, y + radius);
-    //     gc.quadraticCurveTo(x, y, x + radius, y);
-    //     gc.closePath();
-    //     if (stroke) {
-    //         gc.stroke();
-    //     }
-    //     if (fill) {
-    //         gc.fill();
-    //     }
-    //     gc.closePath();
-    // };
+    var roundRect = function(gc, x, y, width, height, radius, fill, stroke) {
+        if (!stroke) {
+            stroke = true;
+        }
+        if (!radius) {
+            radius = 5;
+        }
+        gc.beginPath();
+        gc.moveTo(x + radius, y);
+        gc.lineTo(x + width - radius, y);
+        gc.quadraticCurveTo(x + width, y, x + width, y + radius);
+        gc.lineTo(x + width, y + height - radius);
+        gc.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+        gc.lineTo(x + radius, y + height);
+        gc.quadraticCurveTo(x, y + height, x, y + height - radius);
+        gc.lineTo(x, y + radius);
+        gc.quadraticCurveTo(x, y, x + radius, y);
+        gc.closePath();
+        if (stroke) {
+            gc.stroke();
+        }
+        if (fill) {
+            gc.fill();
+        }
+        gc.closePath();
+    };
 
 
     Polymer({ /* jslint ignore:line */
@@ -125,6 +125,32 @@ var noop = function() {};
             var cell = this.cellCache.simpleCellRenderer;
             cell.config = config;
             return cell;
+        },
+
+        paintButton: function(gc, config) {
+            var val = config.value;
+            var bounds = config.bounds;
+            var x = bounds.x + 2;
+            var y = bounds.y + 2;
+            var width = bounds.width - 3;
+            var height = bounds.height - 3;
+            var radius = height / 2;
+            var arcGradient = gc.createLinearGradient(x, y, x, y + height);
+            arcGradient.addColorStop(0, '#ffffff');
+            arcGradient.addColorStop(1, '#aaaaaa');
+            gc.fillStyle = arcGradient;
+            gc.strokeStyle = '#000000';
+            roundRect(gc, x, y, width, height, radius, arcGradient, true);
+
+            var ox = (width - config.getTextWidth(gc, val)) / 2;
+            var oy = (height - config.getTextHeight(gc.font).descent) / 2;
+
+            if (gc.textBaseline !== 'middle') {
+                gc.textBaseline = 'middle';
+            }
+
+            gc.fillStyle = '#000000';
+            gc.fillText(val, x + ox, y + oy);
         },
 
         /**
@@ -447,6 +473,10 @@ var noop = function() {};
             };
             this.cellCache.emptyCellRenderer = {
                 paint: this.emptyCellRenderer
+            };
+            this.cellCache.buttonRenderer = {
+                paint: this.paintButton,
+                defaultCellPaint: this.defaultCellPaint
             };
             this.cellCache.linkCellRenderer = {
                 paint: function(gc, x, y, width, height) {
