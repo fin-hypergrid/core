@@ -1022,7 +1022,6 @@ Instances of this object have basically four main functions.
             var columnProperties = behavior.getColumnProperties(c);
             var headerRowCount = behavior.getHeaderRowCount();
             var headerColumnCount = behavior.getHeaderColumnCount();
-            var fixedRowCount = behavior.getFixedRowCount();
 
             var isRowHeader = r < headerRowCount;
             var isColumnHeader = c < headerColumnCount;
@@ -1043,7 +1042,7 @@ Instances of this object have basically four main functions.
                 cellProperties.isSelected = grid.isSelected(c, r);
             }
 
-            var rowNum = r - fixedRowCount;
+            var rowNum = r - headerRowCount + 1;
             if (rowNum < 1) {
                 rowNum = '';
             }

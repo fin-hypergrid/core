@@ -244,9 +244,6 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
          * @param {integer} y - the y coordinate
          */
         getValue: function(x, y) {
-            if (x === -1) {
-                return y + this.getScrollPositionY();
-            }
             var result, tableState, headers, sortIndex, fields, row;
             headers = this.getHeaders();
             var headersSize = headers.length > 0 ? 1 : 0;
