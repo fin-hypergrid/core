@@ -114,7 +114,7 @@
                 var type = filterTypes[x];
                 cellEditor = this.grid.cellEditors[type];
                 if (type === 'choice') {
-                    cellEditor.items = ['one', 'two', 'three'];
+                    cellEditor.items = ['','one', 'two', 'three'];
                 }
                 return cellEditor;
             }
@@ -246,6 +246,10 @@
             console.log('fin-editor-key-down', e.detail);
         });
 
+        jsonGrid.addFinEventListener('fin-context-menu', function(e) {
+            var modelPoint = e.detail.gridCell;
+            console.log('fin-context-menu(' + modelPoint.x + ', ' + (modelPoint.y - 3) + ')');
+        });
 
         var fields = jsonModel.getFields();
         var headers = jsonModel. getHeaders();
@@ -253,7 +257,7 @@
         console.log(headers);
         console.log(fields);
 
-        jsonModel.setCellProperties(0, 0, {
+        jsonModel.setCellProperties(1, 0, {
             font: '10pt Tahoma',
             color: 'red',
             backgroundColor: 'lightblue'
@@ -272,16 +276,6 @@
 
 
             setTimeout(function() {
-
-                //add an unbound column
-                var data = jsonModel.getData();
-                for (var i = 0; i < data.length; i++) {
-                    data[i].rowNumber = i + 1;
-                }
-
-                fields.push('rowNumber');
-                headers.push('#');
-                jsonModel.getTotals()[0].push('');
 
                 jsonModel.setFields(fields);
                 jsonModel.setHeaders(headers);
@@ -303,7 +297,6 @@
 
                 var state = {
                         columnIndexes: toIs([
-                            "rowNumber",
                             "last_name",
                             "pets",
                             "first_name",
@@ -317,7 +310,7 @@
                         rowHeights:{ 0: 30 },
                         fixedColumnCount:1,
                         fixedRowCount:3,
-                        headerColumnCount:1,
+                        headerColumnCount:0,
                         headerRowCount:3,
                         columnAutosizing:true
                     };
@@ -330,13 +323,41 @@
                     editable: true
                 });
 
+                // properties that can be set
+                // use a function or a value
 
-                // jsonModel.setCellProperties(1,5,
-                //     {
-                //         backgroundColor: function(config) {
-                //             return 'purple';
-                //         }
-                //     });
+                // font
+                // color
+                // backgroundColor
+                // foregroundSelectionColor
+                // backgroundSelectionColor
+
+                // columnHeaderFont
+                // columnHeaderColor
+                // columnHeaderBackgroundColor
+                // columnHeaderForegroundSelectionColor
+                // columnHeaderBackgroundSelectionColor
+
+                // rowHeaderFont
+                // rowHeaderColor
+                // rowHeaderBackgroundColor
+                // rowHeaderForegroundSelectionColor
+                // rowHeaderBackgroundSelectionColor
+
+                var filterProperties = {
+                    backgroundColor: 'white'
+                };
+
+                for (var i = 0; i < headers.length; i++) {
+                    jsonModel.setCellProperties(i,1,filterProperties);
+                };
+
+                jsonModel.setCellProperties(2,0,
+                    {
+                        font: '10pt Tahoma',
+                        color: 'red',
+                        backgroundColor: 'lightblue'
+                    });
 
                 jsonModel.setColumnProperties(1,
                     {
@@ -346,7 +367,9 @@
                             } else {
                                 return config.backgroundColor;
                             }
-                        }
+                        },
+                        columnHeaderBackgroundColor: '#142B6F', //dark blue
+                        columnHeaderColor: 'white'
                     });
 
                 console.log(jsonModel.getHeaders());

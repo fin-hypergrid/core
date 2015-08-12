@@ -13213,6 +13213,9 @@ div.container {
             this.addEventListener('click', function(e) {
                 self.finclick(e);
             });
+            this.addEventListener('contextmenu', function(e) {
+                self.fincontextmenu(e);
+            });
             // this.addEventListener('dblclick', function(e) {
             //     self.findblclick(e);
             // });
@@ -13534,8 +13537,10 @@ div.container {
                 this.beDragging();
                 this.dispatchEvent(new CustomEvent('fin-dragstart', {
                     detail: {
+                        primitiveEvent: e,
                         mouse: this.mouseLocation,
-                        keys: this.currentKeys
+                        keys: this.currentKeys,
+                        isRightClick: this.isRightClick(e)
                     }
                 }));
                 this.dragstart = this.g.point.create(this.mouseLocation.x, this.mouseLocation.y);
@@ -13544,15 +13549,18 @@ div.container {
             if (this.isDragging()) {
                 this.dispatchEvent(new CustomEvent('fin-drag', {
                     detail: {
+                        primitiveEvent: e,
                         mouse: this.mouseLocation,
                         dragstart: this.dragstart,
-                        keys: this.currentKeys
+                        keys: this.currentKeys,
+                        isRightClick: this.isRightClick(e)
                     }
                 }));
             }
             if (this.bounds.contains(this.mouseLocation)) {
                 this.dispatchEvent(new CustomEvent('fin-mousemove', {
                     detail: {
+                        primitiveEvent: e,
                         mouse: this.mouseLocation,
                         keys: this.currentKeys
                     }
@@ -13574,8 +13582,10 @@ div.container {
 
             this.dispatchEvent(new CustomEvent('fin-mousedown', {
                 detail: {
+                    primitiveEvent: e,
                     mouse: this.mouseLocation,
-                    keys: this.currentKeys
+                    keys: this.currentKeys,
+                    isRightClick: this.isRightClick(e)
                 }
             }));
             this.takeFocus();
@@ -13589,13 +13599,15 @@ div.container {
          *
          * @method finmouseup(e)
          */
-        finmouseup: function() {
+        finmouseup: function(e) {
             if (this.isDragging()) {
                 this.dispatchEvent(new CustomEvent('fin-dragend', {
                     detail: {
+                        primitiveEvent: e,
                         mouse: this.mouseLocation,
                         dragstart: this.dragstart,
-                        keys: this.currentKeys
+                        keys: this.currentKeys,
+                        isRightClick: this.isRightClick(e)
                     }
                 }));
                 this.beNotDragging();
@@ -13605,8 +13617,10 @@ div.container {
             this.mouseLocation = this.g.point.create(-1, -1);
             this.dispatchEvent(new CustomEvent('fin-mouseup', {
                 detail: {
+                    primitiveEvent: e,
                     mouse: this.mouseLocation,
-                    keys: this.currentKeys
+                    keys: this.currentKeys,
+                    isRightClick: this.isRightClick(e)
                 }
             }));
         },
@@ -13618,12 +13632,13 @@ div.container {
          *
          * @method finmouseout(e)
          */
-        finmouseout: function() {
+        finmouseout: function(e) {
             if (!this.mousedown) {
                 this.mouseLocation = this.g.point.create(-1, -1);
             }
             this.dispatchEvent(new CustomEvent('fin-mouseout', {
                 detail: {
+                    primitiveEvent: e,
                     mouse: this.mouseLocation,
                     keys: this.currentKeys
                 }
@@ -13646,7 +13661,8 @@ div.container {
                 detail: {
                     mouse: this.mouseLocation,
                     keys: this.currentKeys,
-                    primitiveEvent: e
+                    primitiveEvent: e,
+                    isRightClick: this.isRightClick(e)
                 }
             }));
         },
@@ -13662,8 +13678,10 @@ div.container {
             this.mouseLocation = this.getLocal(e);
             this.dispatchEvent(new CustomEvent('fin-canvas-click', {
                 detail: {
+                    primitiveEvent: e,
                     mouse: this.mouseLocation,
-                    keys: this.currentKeys
+                    keys: this.currentKeys,
+                    isRightClick: this.isRightClick(e)
                 }
             }));
         },
@@ -13680,6 +13698,7 @@ div.container {
             this.mouseLocation = this.getLocal(e);
             this.dispatchEvent(new CustomEvent('fin-release', {
                 detail: {
+                    primitiveEvent: e,
                     mouse: this.mouseLocation,
                     keys: this.currentKeys
                 }
@@ -13700,8 +13719,10 @@ div.container {
             this.mouseLocation = this.getLocal(e);
             this.dispatchEvent(new CustomEvent('fin-flick', {
                 detail: {
+                    primitiveEvent: e,
                     mouse: this.mouseLocation,
-                    keys: this.currentKeys
+                    keys: this.currentKeys,
+                    isRightClick: this.isRightClick(e)
                 }
             }));
         },
@@ -13776,8 +13797,10 @@ div.container {
             this.mouseLocation = this.getLocal(e);
             this.dispatchEvent(new CustomEvent('fin-hold', {
                 detail: {
+                    primitiveEvent: e,
                     mouse: this.mouseLocation,
-                    keys: this.currentKeys
+                    keys: this.currentKeys,
+                    isRightClick: this.isRightClick(e)
                 }
             }));
         },
@@ -13793,6 +13816,7 @@ div.container {
             this.mouseLocation = this.getLocal(e);
             this.dispatchEvent(new CustomEvent('fin-holdpulse', {
                 detail: {
+                    primitiveEvent: e,
                     mouse: this.mouseLocation,
                     keys: this.currentKeys,
                     count: this.holdPulseCount++
@@ -13835,8 +13859,10 @@ div.container {
             this.mouseLocation = this.getLocal(e);
             this.dispatchEvent(new CustomEvent('fin-tap', {
                 detail: {
+                    primitiveEvent: e,
                     mouse: this.mouseLocation,
-                    keys: this.currentKeys
+                    keys: this.currentKeys,
+                    isRightClick: this.isRightClick(e)
                 }
             }));
         },
@@ -13852,8 +13878,10 @@ div.container {
             this.lastDoubleClickTime = Date.now();
             this.dispatchEvent(new CustomEvent('fin-dblclick', {
                 detail: {
+                    primitiveEvent: e,
                     mouse: this.mouseLocation,
-                    keys: this.currentKeys
+                    keys: this.currentKeys,
+                    isRightClick: this.isRightClick(e)
                 }
             }));
         },
@@ -13895,6 +13923,7 @@ div.container {
             //console.log(keyChar, e.keyCode);
             this.dispatchEvent(new CustomEvent('fin-canvas-keydown', {
                 detail: {
+                    primitiveEvent: e,
                     alt: e.altKey,
                     ctrl: e.ctrlKey,
                     char: keyChar,
@@ -13928,6 +13957,7 @@ div.container {
             this.repeatKeyStartTime = 0;
             this.dispatchEvent(new CustomEvent('fin-canvas-keyup', {
                 detail: {
+                    primitiveEvent: e,
                     alt: e.altKey,
                     ctrl: e.ctrlKey,
                     char: keyChar,
@@ -13953,7 +13983,7 @@ div.container {
             this.focused = true;
             this.dispatchEvent(new CustomEvent('fin-focus-gained', {
                 detail: {
-                    e: e
+                    primitiveEvent: e,
                 }
             }));
         },
@@ -13969,7 +13999,25 @@ div.container {
             this.focused = false;
             this.dispatchEvent(new CustomEvent('fin-focus-lost', {
                 detail: {
-                    e: e
+                    primitiveEvent: e,
+                }
+            }));
+        },
+
+        /**
+         *                                                                      .
+         *                                                                      .
+         * handle the contextmenu event
+         *
+         * @method finfocuslost(e)
+         */
+        fincontextmenu: function(e) {
+            this.dispatchEvent(new CustomEvent('fin-canvas-context-menu', {
+                detail: {
+                    primitiveEvent: e,
+                    mouse: this.mouseLocation,
+                    keys: this.currentKeys,
+                    isRightClick: this.isRightClick(e)
                 }
             }));
         },
@@ -14086,6 +14134,18 @@ div.container {
             }
 
         },
+
+        isRightClick: function(e) {
+            var isRightMB;
+            e = e || window.event;
+
+            if ('which' in e) { // Gecko (Firefox), WebKit (Safari/Chrome) & Opera
+                isRightMB = e.which === 3;
+            } else if ('button' in e) { // IE, Opera
+                isRightMB = e.button === 2;
+            }
+            return isRightMB;
+        }
 
     });
 
