@@ -206,6 +206,13 @@
             return null;
         },
 
+        isShowRowNumbers: function() {
+            return this.getGrid().isShowRowNumbers();
+        },
+
+        getScrollPositionY: function() {
+            return this.getBehavior().getScrollPositionY();
+        }
 
     });
 

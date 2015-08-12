@@ -170,6 +170,8 @@
             getTextWidth: getTextWidth,
             getTextHeight: getTextHeight,
 
+            showRowNumbers: true
+
         };
         return properties;
     };
@@ -1393,6 +1395,14 @@
                 self.delegateMouseExit(mouseEvent);
             });
 
+
+            this.addFinEventListener('fin-canvas-context-menu', function(e) {
+                var mouse = e.detail.mouse;
+                var mouseEvent = self.getGridCellFromMousePoint(mouse);
+                mouseEvent.primitiveEvent = e.detail.primitiveEvent;
+                self.delegateContextMenu(mouseEvent);
+            });
+
             this.canvas.removeAttribute('tabindex');
 
         },
@@ -1493,6 +1503,19 @@
         delegateMouseExit: function(event) {
             var behavior = this.getBehavior();
             behavior.handleMouseExit(this, event);
+        },
+
+        /**
+         * @function
+         * @instance
+         * @description
+        delegate MouseExit to the behavior (model)
+         *
+         * @param {Event} event - the pertinent event
+         */
+        delegateContextMenu: function(event) {
+            var behavior = this.getBehavior();
+            behavior.onContextMenu(this, event);
         },
 
         /**
@@ -2010,6 +2033,28 @@
             this.canvas.dispatchEvent(selectionEvent);
         },
 
+        /**
+         * @function
+         * @instance
+         * @description
+        Synthesize and fire a fin-context-menu event
+         * @param {keyEvent} event - the canvas event
+         *
+         */
+        fireSyntheticContextMenuEvent: function(e) {
+            var event = new CustomEvent('fin-context-menu', {
+                detail: {
+                    gridCell: e.gridCell,
+                    mousePoint: e.mousePoint,
+                    viewPoint: e.viewPoint,
+                    primitiveEvent: e.primitiveEvent,
+                    rows: this.getSelectedRows(),
+                    columns: this.getSelectedColumns(),
+                    selections: this.getSelectionModel().getSelections()
+                }
+            });
+            this.canvas.dispatchEvent(event);
+        },
         /**
          * @function
          * @instance
@@ -3435,6 +3480,12 @@
 
         getSelectedColumns: function() {
             return this.getSelectionModel().getSelectedColumns();
+        },
+        getSelections: function() {
+            return this.getSelectionModel().getSelections();
+        },
+        isShowRowNumbers: function() {
+            return this.resolveProperty('showRowNumbers');
         }
     });
 

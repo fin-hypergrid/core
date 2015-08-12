@@ -75,6 +75,8 @@
         */
         handleMouseDown: function(grid, event) {
 
+
+            var isRightClick = event.primitiveEvent.detail.isRightClick;
             var behavior = grid.getBehavior();
             var cell = event.gridCell;
             var viewCell = event.viewPoint;
@@ -85,7 +87,7 @@
 
             var isHeader = dy < headerRowCount || dx < headerColumnCount;
 
-            if (isHeader) {
+            if (isRightClick || isHeader) {
                 if (this.next) {
                     this.next.handleMouseDown(grid, event);
                 }
@@ -122,39 +124,41 @@
          * @param {Object} event - the event details
         */
         handleMouseDrag: function(grid, event) {
+            var isRightClick = event.primitiveEvent.detail.isRightClick;
 
-            if (!this.dragging) {
+            if (isRightClick || !this.dragging) {
                 if (this.next) {
                     this.next.handleMouseDrag(grid, event);
                 }
+            } else {
+
+                var numFixedColumns = grid.getFixedColumnCount();
+                var numFixedRows = grid.getFixedRowCount();
+
+                var cell = event.gridCell;
+                var viewCell = event.viewPoint;
+                var dx = cell.x;
+                var dy = cell.y;
+
+                //if we are in the fixed area do not apply the scroll values
+                //check both x and y values independently
+                if (viewCell.x < numFixedColumns) {
+                    dx = viewCell.x;
+                }
+
+                if (viewCell.y < numFixedRows) {
+                    dy = viewCell.y;
+                }
+
+                var dCell = grid.rectangles.point.create(dx, dy);
+
+                var primEvent = event.primitiveEvent;
+                this.currentDrag = primEvent.detail.mouse;
+                this.lastDragCell = dCell;
+
+                this.checkDragScroll(grid, this.currentDrag);
+                this.handleMouseDragCellSelection(grid, dCell, primEvent.detail.keys);
             }
-
-            var numFixedColumns = grid.getFixedColumnCount();
-            var numFixedRows = grid.getFixedRowCount();
-
-            var cell = event.gridCell;
-            var viewCell = event.viewPoint;
-            var dx = cell.x;
-            var dy = cell.y;
-
-            //if we are in the fixed area do not apply the scroll values
-            //check both x and y values independently
-            if (viewCell.x < numFixedColumns) {
-                dx = viewCell.x;
-            }
-
-            if (viewCell.y < numFixedRows) {
-                dy = viewCell.y;
-            }
-
-            var dCell = grid.rectangles.point.create(dx, dy);
-
-            var primEvent = event.primitiveEvent;
-            this.currentDrag = primEvent.detail.mouse;
-            this.lastDragCell = dCell;
-
-            this.checkDragScroll(grid, this.currentDrag);
-            this.handleMouseDragCellSelection(grid, dCell, primEvent.detail.keys);
         },
 
         /**

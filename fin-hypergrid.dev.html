@@ -13227,6 +13227,9 @@ div.container {
             this.addEventListener('click', function(e) {
                 self.finclick(e);
             });
+            this.addEventListener('contextmenu', function(e) {
+                self.fincontextmenu(e);
+            });
             // this.addEventListener('dblclick', function(e) {
             //     self.findblclick(e);
             // });
@@ -13548,8 +13551,10 @@ div.container {
                 this.beDragging();
                 this.dispatchEvent(new CustomEvent('fin-dragstart', {
                     detail: {
+                        primitiveEvent: e,
                         mouse: this.mouseLocation,
-                        keys: this.currentKeys
+                        keys: this.currentKeys,
+                        isRightClick: this.isRightClick(e)
                     }
                 }));
                 this.dragstart = this.g.point.create(this.mouseLocation.x, this.mouseLocation.y);
@@ -13558,15 +13563,18 @@ div.container {
             if (this.isDragging()) {
                 this.dispatchEvent(new CustomEvent('fin-drag', {
                     detail: {
+                        primitiveEvent: e,
                         mouse: this.mouseLocation,
                         dragstart: this.dragstart,
-                        keys: this.currentKeys
+                        keys: this.currentKeys,
+                        isRightClick: this.isRightClick(e)
                     }
                 }));
             }
             if (this.bounds.contains(this.mouseLocation)) {
                 this.dispatchEvent(new CustomEvent('fin-mousemove', {
                     detail: {
+                        primitiveEvent: e,
                         mouse: this.mouseLocation,
                         keys: this.currentKeys
                     }
@@ -13588,8 +13596,10 @@ div.container {
 
             this.dispatchEvent(new CustomEvent('fin-mousedown', {
                 detail: {
+                    primitiveEvent: e,
                     mouse: this.mouseLocation,
-                    keys: this.currentKeys
+                    keys: this.currentKeys,
+                    isRightClick: this.isRightClick(e)
                 }
             }));
             this.takeFocus();
@@ -13603,13 +13613,15 @@ div.container {
          *
          * @method finmouseup(e)
          */
-        finmouseup: function() {
+        finmouseup: function(e) {
             if (this.isDragging()) {
                 this.dispatchEvent(new CustomEvent('fin-dragend', {
                     detail: {
+                        primitiveEvent: e,
                         mouse: this.mouseLocation,
                         dragstart: this.dragstart,
-                        keys: this.currentKeys
+                        keys: this.currentKeys,
+                        isRightClick: this.isRightClick(e)
                     }
                 }));
                 this.beNotDragging();
@@ -13619,8 +13631,10 @@ div.container {
             this.mouseLocation = this.g.point.create(-1, -1);
             this.dispatchEvent(new CustomEvent('fin-mouseup', {
                 detail: {
+                    primitiveEvent: e,
                     mouse: this.mouseLocation,
-                    keys: this.currentKeys
+                    keys: this.currentKeys,
+                    isRightClick: this.isRightClick(e)
                 }
             }));
         },
@@ -13632,12 +13646,13 @@ div.container {
          *
          * @method finmouseout(e)
          */
-        finmouseout: function() {
+        finmouseout: function(e) {
             if (!this.mousedown) {
                 this.mouseLocation = this.g.point.create(-1, -1);
             }
             this.dispatchEvent(new CustomEvent('fin-mouseout', {
                 detail: {
+                    primitiveEvent: e,
                     mouse: this.mouseLocation,
                     keys: this.currentKeys
                 }
@@ -13660,7 +13675,8 @@ div.container {
                 detail: {
                     mouse: this.mouseLocation,
                     keys: this.currentKeys,
-                    primitiveEvent: e
+                    primitiveEvent: e,
+                    isRightClick: this.isRightClick(e)
                 }
             }));
         },
@@ -13676,8 +13692,10 @@ div.container {
             this.mouseLocation = this.getLocal(e);
             this.dispatchEvent(new CustomEvent('fin-canvas-click', {
                 detail: {
+                    primitiveEvent: e,
                     mouse: this.mouseLocation,
-                    keys: this.currentKeys
+                    keys: this.currentKeys,
+                    isRightClick: this.isRightClick(e)
                 }
             }));
         },
@@ -13694,6 +13712,7 @@ div.container {
             this.mouseLocation = this.getLocal(e);
             this.dispatchEvent(new CustomEvent('fin-release', {
                 detail: {
+                    primitiveEvent: e,
                     mouse: this.mouseLocation,
                     keys: this.currentKeys
                 }
@@ -13714,8 +13733,10 @@ div.container {
             this.mouseLocation = this.getLocal(e);
             this.dispatchEvent(new CustomEvent('fin-flick', {
                 detail: {
+                    primitiveEvent: e,
                     mouse: this.mouseLocation,
-                    keys: this.currentKeys
+                    keys: this.currentKeys,
+                    isRightClick: this.isRightClick(e)
                 }
             }));
         },
@@ -13790,8 +13811,10 @@ div.container {
             this.mouseLocation = this.getLocal(e);
             this.dispatchEvent(new CustomEvent('fin-hold', {
                 detail: {
+                    primitiveEvent: e,
                     mouse: this.mouseLocation,
-                    keys: this.currentKeys
+                    keys: this.currentKeys,
+                    isRightClick: this.isRightClick(e)
                 }
             }));
         },
@@ -13807,6 +13830,7 @@ div.container {
             this.mouseLocation = this.getLocal(e);
             this.dispatchEvent(new CustomEvent('fin-holdpulse', {
                 detail: {
+                    primitiveEvent: e,
                     mouse: this.mouseLocation,
                     keys: this.currentKeys,
                     count: this.holdPulseCount++
@@ -13849,8 +13873,10 @@ div.container {
             this.mouseLocation = this.getLocal(e);
             this.dispatchEvent(new CustomEvent('fin-tap', {
                 detail: {
+                    primitiveEvent: e,
                     mouse: this.mouseLocation,
-                    keys: this.currentKeys
+                    keys: this.currentKeys,
+                    isRightClick: this.isRightClick(e)
                 }
             }));
         },
@@ -13866,8 +13892,10 @@ div.container {
             this.lastDoubleClickTime = Date.now();
             this.dispatchEvent(new CustomEvent('fin-dblclick', {
                 detail: {
+                    primitiveEvent: e,
                     mouse: this.mouseLocation,
-                    keys: this.currentKeys
+                    keys: this.currentKeys,
+                    isRightClick: this.isRightClick(e)
                 }
             }));
         },
@@ -13909,6 +13937,7 @@ div.container {
             //console.log(keyChar, e.keyCode);
             this.dispatchEvent(new CustomEvent('fin-canvas-keydown', {
                 detail: {
+                    primitiveEvent: e,
                     alt: e.altKey,
                     ctrl: e.ctrlKey,
                     char: keyChar,
@@ -13942,6 +13971,7 @@ div.container {
             this.repeatKeyStartTime = 0;
             this.dispatchEvent(new CustomEvent('fin-canvas-keyup', {
                 detail: {
+                    primitiveEvent: e,
                     alt: e.altKey,
                     ctrl: e.ctrlKey,
                     char: keyChar,
@@ -13967,7 +13997,7 @@ div.container {
             this.focused = true;
             this.dispatchEvent(new CustomEvent('fin-focus-gained', {
                 detail: {
-                    e: e
+                    primitiveEvent: e,
                 }
             }));
         },
@@ -13983,7 +14013,25 @@ div.container {
             this.focused = false;
             this.dispatchEvent(new CustomEvent('fin-focus-lost', {
                 detail: {
-                    e: e
+                    primitiveEvent: e,
+                }
+            }));
+        },
+
+        /**
+         *                                                                      .
+         *                                                                      .
+         * handle the contextmenu event
+         *
+         * @method finfocuslost(e)
+         */
+        fincontextmenu: function(e) {
+            this.dispatchEvent(new CustomEvent('fin-canvas-context-menu', {
+                detail: {
+                    primitiveEvent: e,
+                    mouse: this.mouseLocation,
+                    keys: this.currentKeys,
+                    isRightClick: this.isRightClick(e)
                 }
             }));
         },
@@ -14100,6 +14148,18 @@ div.container {
             }
 
         },
+
+        isRightClick: function(e) {
+            var isRightMB;
+            e = e || window.event;
+
+            if ('which' in e) { // Gecko (Firefox), WebKit (Safari/Chrome) & Opera
+                isRightMB = e.which === 3;
+            } else if ('button' in e) { // IE, Opera
+                isRightMB = e.button === 2;
+            }
+            return isRightMB;
+        }
 
     });
 
@@ -16769,6 +16829,7 @@ Instances of this object have basically four main functions.
             this.selections.length = Math.max(0, this.selections.length - 1);
             this.flattenedX.length = Math.max(0, this.flattenedX.length - 1);
             this.flattenedY.length = Math.max(0, this.flattenedY.length - 1);
+            this.getGrid().selectionChanged();
         },
 
         getSelections: function() {
@@ -16855,6 +16916,7 @@ Instances of this object have basically four main functions.
             this.selections.length = 0;
             this.flattenedX.length = 0;
             this.flattenedY.length = 0;
+            this.getGrid().selectionChanged();
         },
 
         isRectangleSelected: function(ox, oy, ex, ey) {
@@ -17733,6 +17795,20 @@ Instances of this object have basically four main functions.
         handleMouseDrag: function(grid, event) {
             if (this.next) {
                 this.next.handleMouseDrag(grid, event);
+            }
+        },
+
+        /**
+        * @function
+        * @instance
+        * @description
+         handle this event down the feature chain of responsibility
+         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+         * @param {Object} event - the event details
+        */
+        handleContextMenu: function(grid, event) {
+            if (this.next) {
+                this.next.handleContextMenu(grid, event);
             }
         },
 
@@ -19019,6 +19095,8 @@ var commands = {
         */
         handleMouseDown: function(grid, event) {
 
+
+            var isRightClick = event.primitiveEvent.detail.isRightClick;
             var behavior = grid.getBehavior();
             var cell = event.gridCell;
             var viewCell = event.viewPoint;
@@ -19029,7 +19107,7 @@ var commands = {
 
             var isHeader = dy < headerRowCount || dx < headerColumnCount;
 
-            if (isHeader) {
+            if (isRightClick || isHeader) {
                 if (this.next) {
                     this.next.handleMouseDown(grid, event);
                 }
@@ -19066,39 +19144,41 @@ var commands = {
          * @param {Object} event - the event details
         */
         handleMouseDrag: function(grid, event) {
+            var isRightClick = event.primitiveEvent.detail.isRightClick;
 
-            if (!this.dragging) {
+            if (isRightClick || !this.dragging) {
                 if (this.next) {
                     this.next.handleMouseDrag(grid, event);
                 }
+            } else {
+
+                var numFixedColumns = grid.getFixedColumnCount();
+                var numFixedRows = grid.getFixedRowCount();
+
+                var cell = event.gridCell;
+                var viewCell = event.viewPoint;
+                var dx = cell.x;
+                var dy = cell.y;
+
+                //if we are in the fixed area do not apply the scroll values
+                //check both x and y values independently
+                if (viewCell.x < numFixedColumns) {
+                    dx = viewCell.x;
+                }
+
+                if (viewCell.y < numFixedRows) {
+                    dy = viewCell.y;
+                }
+
+                var dCell = grid.rectangles.point.create(dx, dy);
+
+                var primEvent = event.primitiveEvent;
+                this.currentDrag = primEvent.detail.mouse;
+                this.lastDragCell = dCell;
+
+                this.checkDragScroll(grid, this.currentDrag);
+                this.handleMouseDragCellSelection(grid, dCell, primEvent.detail.keys);
             }
-
-            var numFixedColumns = grid.getFixedColumnCount();
-            var numFixedRows = grid.getFixedRowCount();
-
-            var cell = event.gridCell;
-            var viewCell = event.viewPoint;
-            var dx = cell.x;
-            var dy = cell.y;
-
-            //if we are in the fixed area do not apply the scroll values
-            //check both x and y values independently
-            if (viewCell.x < numFixedColumns) {
-                dx = viewCell.x;
-            }
-
-            if (viewCell.y < numFixedRows) {
-                dy = viewCell.y;
-            }
-
-            var dCell = grid.rectangles.point.create(dx, dy);
-
-            var primEvent = event.primitiveEvent;
-            this.currentDrag = primEvent.detail.mouse;
-            this.lastDragCell = dCell;
-
-            this.checkDragScroll(grid, this.currentDrag);
-            this.handleMouseDragCellSelection(grid, dCell, primEvent.detail.keys);
         },
 
         /**
@@ -22712,6 +22792,13 @@ var commands = {
             return null;
         },
 
+        isShowRowNumbers: function() {
+            return this.getGrid().isShowRowNumbers();
+        },
+
+        getScrollPositionY: function() {
+            return this.getBehavior().getScrollPositionY();
+        }
 
     });
 
@@ -23402,6 +23489,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
                 var fields = this.getFields();
                 this.data[rowNumber][fields[x]] = value;
             }
+            this.changed();
         },
 
         /**
@@ -23412,7 +23500,8 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
          * #### returns: integer
          */
         getRowCount: function() {
-            return this.data.length + this.getTotals().length;
+            var headerCount = this.getHeaders().length > 0 ? 1 : 0;
+            return this.data.length + this.getTotals().length + headerCount;
         },
 
         /**
@@ -24403,6 +24492,22 @@ it contains all code/data that's necessary for easily implementing a virtual dat
         onTap: function(grid, event) {
             if (this.featureChain) {
                 this.featureChain.handleTap(grid, event);
+                this.setCursor(grid);
+            }
+        },
+
+        /**
+         * @function
+         * @instance
+         * @description
+         delegate handling tap to the feature chain of responsibility
+         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+         * @param {Object} event - the event details
+         */
+        onContextMenu: function(grid, event) {
+            var proceed = grid.fireSyntheticContextMenuEvent(event);
+            if (proceed && this.featureChain) {
+                this.featureChain.handleContextMenu(grid, event);
                 this.setCursor(grid);
             }
         },
@@ -32169,6 +32274,8 @@ fin-vampire-bar {
             getTextWidth: getTextWidth,
             getTextHeight: getTextHeight,
 
+            showRowNumbers: true
+
         };
         return properties;
     };
@@ -33392,6 +33499,14 @@ fin-vampire-bar {
                 self.delegateMouseExit(mouseEvent);
             });
 
+
+            this.addFinEventListener('fin-canvas-context-menu', function(e) {
+                var mouse = e.detail.mouse;
+                var mouseEvent = self.getGridCellFromMousePoint(mouse);
+                mouseEvent.primitiveEvent = e.detail.primitiveEvent;
+                self.delegateContextMenu(mouseEvent);
+            });
+
             this.canvas.removeAttribute('tabindex');
 
         },
@@ -33492,6 +33607,19 @@ fin-vampire-bar {
         delegateMouseExit: function(event) {
             var behavior = this.getBehavior();
             behavior.handleMouseExit(this, event);
+        },
+
+        /**
+         * @function
+         * @instance
+         * @description
+        delegate MouseExit to the behavior (model)
+         *
+         * @param {Event} event - the pertinent event
+         */
+        delegateContextMenu: function(event) {
+            var behavior = this.getBehavior();
+            behavior.onContextMenu(this, event);
         },
 
         /**
@@ -34009,6 +34137,28 @@ fin-vampire-bar {
             this.canvas.dispatchEvent(selectionEvent);
         },
 
+        /**
+         * @function
+         * @instance
+         * @description
+        Synthesize and fire a fin-context-menu event
+         * @param {keyEvent} event - the canvas event
+         *
+         */
+        fireSyntheticContextMenuEvent: function(e) {
+            var event = new CustomEvent('fin-context-menu', {
+                detail: {
+                    gridCell: e.gridCell,
+                    mousePoint: e.mousePoint,
+                    viewPoint: e.viewPoint,
+                    primitiveEvent: e.primitiveEvent,
+                    rows: this.getSelectedRows(),
+                    columns: this.getSelectedColumns(),
+                    selections: this.getSelectionModel().getSelections()
+                }
+            });
+            this.canvas.dispatchEvent(event);
+        },
         /**
          * @function
          * @instance
@@ -35434,6 +35584,12 @@ fin-vampire-bar {
 
         getSelectedColumns: function() {
             return this.getSelectionModel().getSelectedColumns();
+        },
+        getSelections: function() {
+            return this.getSelectionModel().getSelections();
+        },
+        isShowRowNumbers: function() {
+            return this.resolveProperty('showRowNumbers');
         }
     });
 

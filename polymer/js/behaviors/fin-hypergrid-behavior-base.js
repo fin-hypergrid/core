@@ -705,6 +705,22 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          * @function
          * @instance
          * @description
+         delegate handling tap to the feature chain of responsibility
+         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+         * @param {Object} event - the event details
+         */
+        onContextMenu: function(grid, event) {
+            var proceed = grid.fireSyntheticContextMenuEvent(event);
+            if (proceed && this.featureChain) {
+                this.featureChain.handleContextMenu(grid, event);
+                this.setCursor(grid);
+            }
+        },
+
+        /**
+         * @function
+         * @instance
+         * @description
          delegate handling wheel moved to the feature chain of responsibility
          * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
          * @param {Object} event - the event details

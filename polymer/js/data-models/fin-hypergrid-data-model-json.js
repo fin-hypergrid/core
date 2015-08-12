@@ -285,6 +285,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
                 var fields = this.getFields();
                 this.data[rowNumber][fields[x]] = value;
             }
+            this.changed();
         },
 
         /**
@@ -295,7 +296,8 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
          * #### returns: integer
          */
         getRowCount: function() {
-            return this.data.length + this.getTotals().length;
+            var headerCount = this.getHeaders().length > 0 ? 1 : 0;
+            return this.data.length + this.getTotals().length + headerCount;
         },
 
         /**

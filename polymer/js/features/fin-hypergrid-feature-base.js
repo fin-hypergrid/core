@@ -260,6 +260,20 @@
         * @function
         * @instance
         * @description
+         handle this event down the feature chain of responsibility
+         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+         * @param {Object} event - the event details
+        */
+        handleContextMenu: function(grid, event) {
+            if (this.next) {
+                this.next.handleContextMenu(grid, event);
+            }
+        },
+
+        /**
+        * @function
+        * @instance
+        * @description
          toggle the column picker
         */
 
