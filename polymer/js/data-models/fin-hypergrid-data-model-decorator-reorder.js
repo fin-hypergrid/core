@@ -21,6 +21,9 @@
         },
 
         translateColumnIndex: function(x) {
+            if (x === -1) {
+                return x;
+            }
             var tableState = this.getState();
             var indexes = tableState.columnIndexes;
             if (indexes.length === 0) {

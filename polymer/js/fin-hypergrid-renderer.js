@@ -104,7 +104,12 @@ Instances of this object have basically four main functions.
             var previousInsertionBoundsCursorValue = 0;
 
             x = 0;
-            for (c = 0; c < numColumns; c++) {
+            var start = 0;
+            if (this.getGrid().isShowRowNumbers()) {
+                start--;
+                this.columnEdges[-1] = -1;
+            }
+            for (c = start; c < numColumns; c++) {
                 vx = c;
                 if (c >= numFixedColumns) {
                     vx = vx + scrollLeft;
@@ -931,7 +936,15 @@ Instances of this object have basically four main functions.
             gc.stroke();
             gc.clip();
 
-            for (x = 0; x < visibleCols.length; x++) {
+            var loopLength = visibleCols.length;
+            var loopStart = 0;
+
+            if (this.getGrid().isShowRowNumbers()) {
+                loopLength++;
+                loopStart--;
+            }
+
+            for (x = loopStart; x < loopLength; x++) {
                 c = visibleCols[x];
                 this.renderedColumnMinWidths[c] = 0;
                 for (y = 0; y < visibleRows.length; y++) {
@@ -1009,6 +1022,7 @@ Instances of this object have basically four main functions.
             var columnProperties = behavior.getColumnProperties(c);
             var headerRowCount = behavior.getHeaderRowCount();
             var headerColumnCount = behavior.getHeaderColumnCount();
+            var fixedRowCount = behavior.getFixedRowCount();
 
             var isRowHeader = r < headerRowCount;
             var isColumnHeader = c < headerColumnCount;
@@ -1029,7 +1043,12 @@ Instances of this object have basically four main functions.
                 cellProperties.isSelected = grid.isSelected(c, r);
             }
 
-            cellProperties.value = grid.getValue(c, r);
+            var rowNum = r - fixedRowCount;
+            if (rowNum < 1) {
+                rowNum = '';
+            }
+
+            cellProperties.value = c === -1 ? rowNum : grid.getValue(c, r);
             cellProperties.halign = grid.getColumnAlignment(c);
             cellProperties.isColumnHovered = this.isRowHovered(c, r);
             cellProperties.isRowHovered = this.isColumnHovered(c, r);
