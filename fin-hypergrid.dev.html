@@ -13549,7 +13549,7 @@ div.container {
         finmousemove: function(e) {
             if (!this.isDragging() && this.mousedown) {
                 this.beDragging();
-                this.dispatchEvent(new CustomEvent('fin-dragstart', {
+                this.dispatchEvent(new CustomEvent('fin-canvas-dragstart', {
                     detail: {
                         primitiveEvent: e,
                         mouse: this.mouseLocation,
@@ -13561,7 +13561,7 @@ div.container {
             }
             this.mouseLocation = this.getLocal(e);
             if (this.isDragging()) {
-                this.dispatchEvent(new CustomEvent('fin-drag', {
+                this.dispatchEvent(new CustomEvent('fin-canvas-drag', {
                     detail: {
                         primitiveEvent: e,
                         mouse: this.mouseLocation,
@@ -13572,7 +13572,7 @@ div.container {
                 }));
             }
             if (this.bounds.contains(this.mouseLocation)) {
-                this.dispatchEvent(new CustomEvent('fin-mousemove', {
+                this.dispatchEvent(new CustomEvent('fin-canvas-mousemove', {
                     detail: {
                         primitiveEvent: e,
                         mouse: this.mouseLocation,
@@ -13594,7 +13594,7 @@ div.container {
             this.mouseLocation = this.getLocal(e);
             this.mousedown = true;
 
-            this.dispatchEvent(new CustomEvent('fin-mousedown', {
+            this.dispatchEvent(new CustomEvent('fin-canvas-mousedown', {
                 detail: {
                     primitiveEvent: e,
                     mouse: this.mouseLocation,
@@ -13615,7 +13615,7 @@ div.container {
          */
         finmouseup: function(e) {
             if (this.isDragging()) {
-                this.dispatchEvent(new CustomEvent('fin-dragend', {
+                this.dispatchEvent(new CustomEvent('fin-canvas-dragend', {
                     detail: {
                         primitiveEvent: e,
                         mouse: this.mouseLocation,
@@ -13628,8 +13628,7 @@ div.container {
                 this.dragEndtime = Date.now();
             }
             this.mousedown = false;
-            this.mouseLocation = this.g.point.create(-1, -1);
-            this.dispatchEvent(new CustomEvent('fin-mouseup', {
+            this.dispatchEvent(new CustomEvent('fin-canvas-mouseup', {
                 detail: {
                     primitiveEvent: e,
                     mouse: this.mouseLocation,
@@ -13637,6 +13636,7 @@ div.container {
                     isRightClick: this.isRightClick(e)
                 }
             }));
+            this.mouseLocation = this.g.point.create(-1, -1);
         },
 
         /**
@@ -13650,7 +13650,7 @@ div.container {
             if (!this.mousedown) {
                 this.mouseLocation = this.g.point.create(-1, -1);
             }
-            this.dispatchEvent(new CustomEvent('fin-mouseout', {
+            this.dispatchEvent(new CustomEvent('fin-canvas-mouseout', {
                 detail: {
                     primitiveEvent: e,
                     mouse: this.mouseLocation,
@@ -13671,7 +13671,7 @@ div.container {
                 return;
             }
             e.preventDefault();
-            this.dispatchEvent(new CustomEvent('fin-wheelmoved', {
+            this.dispatchEvent(new CustomEvent('fin-canvas-wheelmoved', {
                 detail: {
                     mouse: this.mouseLocation,
                     keys: this.currentKeys,
@@ -13710,7 +13710,7 @@ div.container {
         finrelease: function(e) {
             this.holdPulseCount = 0;
             this.mouseLocation = this.getLocal(e);
-            this.dispatchEvent(new CustomEvent('fin-release', {
+            this.dispatchEvent(new CustomEvent('fin-canvas-release', {
                 detail: {
                     primitiveEvent: e,
                     mouse: this.mouseLocation,
@@ -13731,7 +13731,7 @@ div.container {
                 return;
             }
             this.mouseLocation = this.getLocal(e);
-            this.dispatchEvent(new CustomEvent('fin-flick', {
+            this.dispatchEvent(new CustomEvent('fin-canvas-flick', {
                 detail: {
                     primitiveEvent: e,
                     mouse: this.mouseLocation,
@@ -13753,7 +13753,7 @@ div.container {
                 return;
             }
             this.mouseLocation = this.getLocal(e);
-            this.dispatchEvent(new CustomEvent('fin-trackstart', {
+            this.dispatchEvent(new CustomEvent('fin-canvas-trackstart', {
                 detail: {
                     mouse: this.mouseLocation,
                     keys: this.currentKeys,
@@ -13774,7 +13774,7 @@ div.container {
                 return;
             }
             this.mouseLocation = this.getLocal(e);
-            this.dispatchEvent(new CustomEvent('fin-track', {
+            this.dispatchEvent(new CustomEvent('fin-canvas-track', {
                 detail: {
                     mouse: this.mouseLocation,
                     keys: this.currentKeys,
@@ -13792,7 +13792,7 @@ div.container {
          */
         fintrackend: function(e) {
             this.mouseLocation = this.getLocal(e);
-            this.dispatchEvent(new CustomEvent('fin-trackend', {
+            this.dispatchEvent(new CustomEvent('fin-canvas-trackend', {
                 detail: {
                     mouse: this.mouseLocation,
                     keys: this.currentKeys,
@@ -13809,7 +13809,7 @@ div.container {
          */
         finhold: function(e) {
             this.mouseLocation = this.getLocal(e);
-            this.dispatchEvent(new CustomEvent('fin-hold', {
+            this.dispatchEvent(new CustomEvent('fin-canvas-hold', {
                 detail: {
                     primitiveEvent: e,
                     mouse: this.mouseLocation,
@@ -13828,7 +13828,7 @@ div.container {
          */
         finholdpulse: function(e) {
             this.mouseLocation = this.getLocal(e);
-            this.dispatchEvent(new CustomEvent('fin-holdpulse', {
+            this.dispatchEvent(new CustomEvent('fin-canvas-holdpulse', {
                 detail: {
                     primitiveEvent: e,
                     mouse: this.mouseLocation,
@@ -13871,7 +13871,7 @@ div.container {
                 return;
             }
             this.mouseLocation = this.getLocal(e);
-            this.dispatchEvent(new CustomEvent('fin-tap', {
+            this.dispatchEvent(new CustomEvent('fin-canvas-tap', {
                 detail: {
                     primitiveEvent: e,
                     mouse: this.mouseLocation,
@@ -13890,7 +13890,7 @@ div.container {
         findblclick: function(e) {
             this.mouseLocation = this.getLocal(e);
             this.lastDoubleClickTime = Date.now();
-            this.dispatchEvent(new CustomEvent('fin-dblclick', {
+            this.dispatchEvent(new CustomEvent('fin-canvas-dblclick', {
                 detail: {
                     primitiveEvent: e,
                     mouse: this.mouseLocation,
@@ -13995,7 +13995,7 @@ div.container {
          */
         finfocusgained: function(e) {
             this.focused = true;
-            this.dispatchEvent(new CustomEvent('fin-focus-gained', {
+            this.dispatchEvent(new CustomEvent('fin-canvas-focus-gained', {
                 detail: {
                     primitiveEvent: e,
                 }
@@ -14011,7 +14011,7 @@ div.container {
          */
         finfocuslost: function(e) {
             this.focused = false;
-            this.dispatchEvent(new CustomEvent('fin-focus-lost', {
+            this.dispatchEvent(new CustomEvent('fin-canvas-focus-lost', {
                 detail: {
                     primitiveEvent: e,
                 }
@@ -16369,7 +16369,7 @@ Instances of this object have basically four main functions.
 
             var columnEdges = this.getColumnEdges();
             var rowEdges = this.rowEdges;
-
+            this.buttonCells = {};
             var visibleCols = this.getVisibleColumns();
             var visibleRows = this.getVisibleRows();
 
@@ -16498,6 +16498,13 @@ Instances of this object have basically four main functions.
             cellProperties.isRowHovered = this.isColumnHovered(c, r);
             cellProperties.bounds = this._getBoundsOfCell(c, r);
 
+            var mouseDownState = grid.mouseDownState;
+            if (mouseDownState) {
+                var point = mouseDownState.gridCell;
+                cellProperties.mouseDown = point.x === c && point.y === r;
+            }
+
+
             var cell = behavior.getCellRenderer(cellProperties, c, r);
 
             cellProperties.x = c;
@@ -16511,10 +16518,18 @@ Instances of this object have basically four main functions.
             }
 
             behavior.cellPrePaintNotification(cell);
+
+            //allow the renderer to identify itself if it's a button
+            cellProperties.buttonCells = this.buttonCells;
+
             cell.paint(gc, cellProperties);
 
             this.renderedColumnMinWidths[c] = Math.max(cellProperties.minWidth || 0, this.renderedColumnMinWidths[c]);
 
+        },
+        isViewableButton: function(c, r) {
+            var key = c + ',' + r;
+            return this.buttonCells[key] === true;
         }
     });
 
@@ -18273,6 +18288,8 @@ var noop = function() {};
 
         paintButton: function(gc, config) {
             var val = config.value;
+            var c = config.x;
+            var r = config.y;
             var bounds = config.bounds;
             var x = bounds.x + 2;
             var y = bounds.y + 2;
@@ -18280,8 +18297,13 @@ var noop = function() {};
             var height = bounds.height - 3;
             var radius = height / 2;
             var arcGradient = gc.createLinearGradient(x, y, x, y + height);
-            arcGradient.addColorStop(0, '#ffffff');
-            arcGradient.addColorStop(1, '#aaaaaa');
+            if (config.mouseDown) {
+                arcGradient.addColorStop(0, '#B5CBED');
+                arcGradient.addColorStop(1, '#4d74ea');
+            } else {
+                arcGradient.addColorStop(0, '#ffffff');
+                arcGradient.addColorStop(1, '#aaaaaa');
+            }
             gc.fillStyle = arcGradient;
             gc.strokeStyle = '#000000';
             roundRect(gc, x, y, width, height, radius, arcGradient, true);
@@ -18295,6 +18317,9 @@ var noop = function() {};
 
             gc.fillStyle = '#000000';
             gc.fillText(val, x + ox, y + oy);
+
+            //identify that we are a button
+            config.buttonCells[c + ',' + r] = true;
         },
 
         /**
@@ -21500,7 +21525,7 @@ var commands = {
                 return;
             }
 
-            if (this.isFixedRow(grid, event) && this.dragArmed && !this.dragging) {
+            if (this.isHeaderRow(grid, event) && this.dragArmed && !this.dragging) {
                 this.dragging = true;
                 this.dragCol = gridCell.x;
                 this.dragOffset = event.mousePoint.x;
@@ -21528,7 +21553,7 @@ var commands = {
         */
         handleMouseDown: function(grid, event) {
             if (grid.getBehavior().isColumnReorderable()) {
-                if (this.isFixedRow(grid, event)) {
+                if (this.isHeaderRow(grid, event) && event.gridCell.x !== -1) {
                     this.dragArmed = true;
                 }
             }
@@ -21579,7 +21604,7 @@ var commands = {
             if (this.next) {
                 this.next.handleMouseMove(grid, event);
             }
-            if (this.isFixedRow(grid, event) && this.dragging) {
+            if (this.isHeaderRow(grid, event) && this.dragging) {
                 this.cursor = 'none'; //move';
             }
 
@@ -22062,7 +22087,7 @@ var commands = {
          * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
          * @param {Object} event - the event details
         */
-        isFixedRow: function(grid, event) {
+        isHeaderRow: function(grid, event) {
             var gridCell = event.viewPoint;
             var isFixed = gridCell.y === 0;
             return isFixed;
@@ -22936,6 +22961,10 @@ var commands = {
         getRow: function(y) {
             return this.getComponent().getRow(y);
         },
+
+        convertViewPointToDataPoint: function(viewPoint) {
+            return this.getComponent().convertViewPointToDataPoint(viewPoint);
+        },
     });
 
 })();
@@ -23104,9 +23133,17 @@ var commands = {
         },
 
         checkColumnAutosizing: function(minWidths) {
+            var grid = this.getGrid();
             var tableState = this.getState();
             var a, b, c, d = 0;
-            for (c = 0; c < minWidths.length; c++) {
+            var loopSize = minWidths.length;
+            var loopStart = 0;
+
+            if (grid.isShowRowNumbers()) {
+                loopStart--;
+            }
+
+            for (c = loopStart; c < loopSize; c++) {
                 var ti = this.translateColumnIndex(c);
                 var properties = tableState.columnProperties[ti];
                 if (properties) {
@@ -23134,6 +23171,14 @@ var commands = {
                 }
             }
             this.getState().cellProperties = {};
+        },
+
+        convertViewPointToDataPoint: function(viewPoint) {
+            var x = this.translateColumnIndex(viewPoint.x);
+            var y = viewPoint.y;
+            var grid = this.getGrid();
+            var result = grid.rectangles.point.create(x, y);
+            return result;
         },
 
     });
@@ -25362,6 +25407,10 @@ it contains all code/data that's necessary for easily implementing a virtual dat
         */
         getRow: function(y) {
             return this.getDataModel().getRow(y);
+        },
+
+        convertViewPointToDataPoint: function(viewPoint) {
+            return this.getDataModel().convertViewPointToDataPoint(viewPoint);
         },
 
     });
@@ -33371,7 +33420,7 @@ fin-vampire-bar {
                 self.resized();
             };
 
-            this.addFinEventListener('fin-mousemove', function(e) {
+            this.addFinEventListener('fin-canvas-mousemove', function(e) {
                 if (self.resolveProperty('readOnly')) {
                     return;
                 }
@@ -33381,7 +33430,7 @@ fin-vampire-bar {
                 self.delegateMouseMove(mouseEvent);
             });
 
-            this.addFinEventListener('fin-mousedown', function(e) {
+            this.addFinEventListener('fin-canvas-mousedown', function(e) {
                 if (self.resolveProperty('readOnly')) {
                     return;
                 }
@@ -33390,7 +33439,10 @@ fin-vampire-bar {
                 var mouseEvent = self.getGridCellFromMousePoint(mouse);
                 mouseEvent.keys = e.detail.keys;
                 mouseEvent.primitiveEvent = e;
+                self.mouseDownState = mouseEvent;
                 self.delegateMouseDown(mouseEvent);
+                self.fireSyntheticMouseDownEvent(mouseEvent);
+                self.repaint();
             });
 
             //
@@ -33405,7 +33457,7 @@ fin-vampire-bar {
             //     self.fireSyntheticClickEvent(mouseEvent);
             // });
 
-            this.addFinEventListener('fin-mouseup', function(e) {
+            this.addFinEventListener('fin-canvas-mouseup', function(e) {
                 if (self.resolveProperty('readOnly')) {
                     return;
                 }
@@ -33420,9 +33472,12 @@ fin-vampire-bar {
                 var mouseEvent = self.getGridCellFromMousePoint(mouse);
                 mouseEvent.primitiveEvent = e;
                 self.delegateMouseUp(mouseEvent);
+                self.fireSyntheticButtonPressedEvent(self.mouseDownState.gridCell);
+                self.mouseDownState = null;
+                self.fireSyntheticMouseUpEvent(mouseEvent);
             });
 
-            this.addFinEventListener('fin-tap', function(e) {
+            this.addFinEventListener('fin-canvas-tap', function(e) {
                 if (self.resolveProperty('readOnly')) {
                     return;
                 }
@@ -33435,7 +33490,7 @@ fin-vampire-bar {
                 self.delegateTap(tapEvent);
             });
 
-            this.addFinEventListener('fin-drag', function(e) {
+            this.addFinEventListener('fin-canvas-drag', function(e) {
                 if (self.resolveProperty('readOnly')) {
                     return;
                 }
@@ -33462,7 +33517,7 @@ fin-vampire-bar {
                 self.delegateKeyUp(e);
             });
 
-            this.addFinEventListener('fin-track', function(e) {
+            this.addFinEventListener('fin-canvas-track', function(e) {
                 if (self.resolveProperty('readOnly')) {
                     return;
                 }
@@ -33485,7 +33540,7 @@ fin-vampire-bar {
                 }
             });
 
-            this.addFinEventListener('fin-holdpulse', function(e) {
+            this.addFinEventListener('fin-canvas-holdpulse', function(e) {
                 if (self.resolveProperty('readOnly')) {
                     return;
                 }
@@ -33495,7 +33550,7 @@ fin-vampire-bar {
                 self.delegateHoldPulse(mouseEvent);
             });
 
-            this.addFinEventListener('fin-dblclick', function(e) {
+            this.addFinEventListener('fin-canvas-dblclick', function(e) {
                 if (self.resolveProperty('readOnly')) {
                     return;
                 }
@@ -33506,14 +33561,14 @@ fin-vampire-bar {
                 self.delegateDoubleClick(mouseEvent);
             });
 
-            this.addFinEventListener('fin-wheelmoved', function(e) {
+            this.addFinEventListener('fin-canvas-wheelmoved', function(e) {
                 var mouse = e.detail.mouse;
                 var mouseEvent = self.getGridCellFromMousePoint(mouse);
                 mouseEvent.primitiveEvent = e.detail.primitiveEvent;
                 self.delegateWheelMoved(mouseEvent);
             });
 
-            this.addFinEventListener('fin-mouseout', function(e) {
+            this.addFinEventListener('fin-canvas-mouseout', function(e) {
                 if (self.resolveProperty('readOnly')) {
                     return;
                 }
@@ -33533,6 +33588,10 @@ fin-vampire-bar {
 
             this.canvas.removeAttribute('tabindex');
 
+        },
+
+        convertViewPointToDataPoint: function(viewPoint) {
+            return this.getBehavior().convertViewPointToDataPoint(viewPoint);
         },
 
         /**
@@ -34017,6 +34076,7 @@ fin-vampire-bar {
          * #### returns: [fin-rectangle.point](http://stevewirts.github.io/fin-rectangle/components/fin-rectangle/)
          * @param {mousePoint} mouse - the mouse point to interogate
          */
+
         getGridCellFromMousePoint: function(mouse) {
             var cell = this.getRenderer().getGridCellFromMousePoint(mouse);
             return cell;
@@ -34170,6 +34230,7 @@ fin-vampire-bar {
          *
          */
         fireSyntheticContextMenuEvent: function(e) {
+            e.gridCell = this.convertViewPointToDataPoint(e.gridCell);
             var event = new CustomEvent('fin-context-menu', {
                 detail: {
                     gridCell: e.gridCell,
@@ -34179,6 +34240,52 @@ fin-vampire-bar {
                     rows: this.getSelectedRows(),
                     columns: this.getSelectedColumns(),
                     selections: this.getSelectionModel().getSelections()
+                }
+            });
+            this.canvas.dispatchEvent(event);
+        },
+
+        fireSyntheticMouseUpEvent: function(e) {
+            var event = new CustomEvent('fin-mouseup', {
+                detail: {
+                    gridCell: e.gridCell,
+                    mousePoint: e.mousePoint,
+                    viewPoint: e.viewPoint,
+                    primitiveEvent: e.primitiveEvent,
+                    rows: this.getSelectedRows(),
+                    columns: this.getSelectedColumns(),
+                    selections: this.getSelectionModel().getSelections()
+                }
+            });
+            this.canvas.dispatchEvent(event);
+        },
+
+        fireSyntheticMouseDownEvent: function(e) {
+            var event = new CustomEvent('fin-mousedown', {
+                detail: {
+                    gridCell: e.gridCell,
+                    mousePoint: e.mousePoint,
+                    viewPoint: e.viewPoint,
+                    primitiveEvent: e.primitiveEvent,
+                    rows: this.getSelectedRows(),
+                    columns: this.getSelectedColumns(),
+                    selections: this.getSelectionModel().getSelections()
+                }
+            });
+            this.canvas.dispatchEvent(event);
+        },
+
+        isViewableButton: function(c, r) {
+            return this.getRenderer().isViewableButton(c, r);
+        },
+
+        fireSyntheticButtonPressedEvent: function(gridCell) {
+            if (!this.isViewableButton(gridCell.x, gridCell.y)) {
+                return;
+            }
+            var event = new CustomEvent('fin-button-pressed', {
+                detail: {
+                    gridCell: gridCell
                 }
             });
             this.canvas.dispatchEvent(event);

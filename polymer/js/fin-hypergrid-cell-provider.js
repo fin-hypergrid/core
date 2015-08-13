@@ -129,6 +129,8 @@ var noop = function() {};
 
         paintButton: function(gc, config) {
             var val = config.value;
+            var c = config.x;
+            var r = config.y;
             var bounds = config.bounds;
             var x = bounds.x + 2;
             var y = bounds.y + 2;
@@ -136,8 +138,13 @@ var noop = function() {};
             var height = bounds.height - 3;
             var radius = height / 2;
             var arcGradient = gc.createLinearGradient(x, y, x, y + height);
-            arcGradient.addColorStop(0, '#ffffff');
-            arcGradient.addColorStop(1, '#aaaaaa');
+            if (config.mouseDown) {
+                arcGradient.addColorStop(0, '#B5CBED');
+                arcGradient.addColorStop(1, '#4d74ea');
+            } else {
+                arcGradient.addColorStop(0, '#ffffff');
+                arcGradient.addColorStop(1, '#aaaaaa');
+            }
             gc.fillStyle = arcGradient;
             gc.strokeStyle = '#000000';
             roundRect(gc, x, y, width, height, radius, arcGradient, true);
@@ -151,6 +158,9 @@ var noop = function() {};
 
             gc.fillStyle = '#000000';
             gc.fillText(val, x + ox, y + oy);
+
+            //identify that we are a button
+            config.buttonCells[c + ',' + r] = true;
         },
 
         /**

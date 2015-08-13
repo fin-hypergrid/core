@@ -1243,7 +1243,7 @@
                 self.resized();
             };
 
-            this.addFinEventListener('fin-mousemove', function(e) {
+            this.addFinEventListener('fin-canvas-mousemove', function(e) {
                 if (self.resolveProperty('readOnly')) {
                     return;
                 }
@@ -1253,7 +1253,7 @@
                 self.delegateMouseMove(mouseEvent);
             });
 
-            this.addFinEventListener('fin-mousedown', function(e) {
+            this.addFinEventListener('fin-canvas-mousedown', function(e) {
                 if (self.resolveProperty('readOnly')) {
                     return;
                 }
@@ -1262,7 +1262,10 @@
                 var mouseEvent = self.getGridCellFromMousePoint(mouse);
                 mouseEvent.keys = e.detail.keys;
                 mouseEvent.primitiveEvent = e;
+                self.mouseDownState = mouseEvent;
                 self.delegateMouseDown(mouseEvent);
+                self.fireSyntheticMouseDownEvent(mouseEvent);
+                self.repaint();
             });
 
             //
@@ -1277,7 +1280,7 @@
             //     self.fireSyntheticClickEvent(mouseEvent);
             // });
 
-            this.addFinEventListener('fin-mouseup', function(e) {
+            this.addFinEventListener('fin-canvas-mouseup', function(e) {
                 if (self.resolveProperty('readOnly')) {
                     return;
                 }
@@ -1292,9 +1295,12 @@
                 var mouseEvent = self.getGridCellFromMousePoint(mouse);
                 mouseEvent.primitiveEvent = e;
                 self.delegateMouseUp(mouseEvent);
+                self.fireSyntheticButtonPressedEvent(self.mouseDownState.gridCell);
+                self.mouseDownState = null;
+                self.fireSyntheticMouseUpEvent(mouseEvent);
             });
 
-            this.addFinEventListener('fin-tap', function(e) {
+            this.addFinEventListener('fin-canvas-tap', function(e) {
                 if (self.resolveProperty('readOnly')) {
                     return;
                 }
@@ -1307,7 +1313,7 @@
                 self.delegateTap(tapEvent);
             });
 
-            this.addFinEventListener('fin-drag', function(e) {
+            this.addFinEventListener('fin-canvas-drag', function(e) {
                 if (self.resolveProperty('readOnly')) {
                     return;
                 }
@@ -1334,7 +1340,7 @@
                 self.delegateKeyUp(e);
             });
 
-            this.addFinEventListener('fin-track', function(e) {
+            this.addFinEventListener('fin-canvas-track', function(e) {
                 if (self.resolveProperty('readOnly')) {
                     return;
                 }
@@ -1357,7 +1363,7 @@
                 }
             });
 
-            this.addFinEventListener('fin-holdpulse', function(e) {
+            this.addFinEventListener('fin-canvas-holdpulse', function(e) {
                 if (self.resolveProperty('readOnly')) {
                     return;
                 }
@@ -1367,7 +1373,7 @@
                 self.delegateHoldPulse(mouseEvent);
             });
 
-            this.addFinEventListener('fin-dblclick', function(e) {
+            this.addFinEventListener('fin-canvas-dblclick', function(e) {
                 if (self.resolveProperty('readOnly')) {
                     return;
                 }
@@ -1378,14 +1384,14 @@
                 self.delegateDoubleClick(mouseEvent);
             });
 
-            this.addFinEventListener('fin-wheelmoved', function(e) {
+            this.addFinEventListener('fin-canvas-wheelmoved', function(e) {
                 var mouse = e.detail.mouse;
                 var mouseEvent = self.getGridCellFromMousePoint(mouse);
                 mouseEvent.primitiveEvent = e.detail.primitiveEvent;
                 self.delegateWheelMoved(mouseEvent);
             });
 
-            this.addFinEventListener('fin-mouseout', function(e) {
+            this.addFinEventListener('fin-canvas-mouseout', function(e) {
                 if (self.resolveProperty('readOnly')) {
                     return;
                 }
@@ -1405,6 +1411,10 @@
 
             this.canvas.removeAttribute('tabindex');
 
+        },
+
+        convertViewPointToDataPoint: function(viewPoint) {
+            return this.getBehavior().convertViewPointToDataPoint(viewPoint);
         },
 
         /**
@@ -1889,6 +1899,7 @@
          * #### returns: [fin-rectangle.point](http://stevewirts.github.io/fin-rectangle/components/fin-rectangle/)
          * @param {mousePoint} mouse - the mouse point to interogate
          */
+
         getGridCellFromMousePoint: function(mouse) {
             var cell = this.getRenderer().getGridCellFromMousePoint(mouse);
             return cell;
@@ -2042,6 +2053,7 @@
          *
          */
         fireSyntheticContextMenuEvent: function(e) {
+            e.gridCell = this.convertViewPointToDataPoint(e.gridCell);
             var event = new CustomEvent('fin-context-menu', {
                 detail: {
                     gridCell: e.gridCell,
@@ -2051,6 +2063,52 @@
                     rows: this.getSelectedRows(),
                     columns: this.getSelectedColumns(),
                     selections: this.getSelectionModel().getSelections()
+                }
+            });
+            this.canvas.dispatchEvent(event);
+        },
+
+        fireSyntheticMouseUpEvent: function(e) {
+            var event = new CustomEvent('fin-mouseup', {
+                detail: {
+                    gridCell: e.gridCell,
+                    mousePoint: e.mousePoint,
+                    viewPoint: e.viewPoint,
+                    primitiveEvent: e.primitiveEvent,
+                    rows: this.getSelectedRows(),
+                    columns: this.getSelectedColumns(),
+                    selections: this.getSelectionModel().getSelections()
+                }
+            });
+            this.canvas.dispatchEvent(event);
+        },
+
+        fireSyntheticMouseDownEvent: function(e) {
+            var event = new CustomEvent('fin-mousedown', {
+                detail: {
+                    gridCell: e.gridCell,
+                    mousePoint: e.mousePoint,
+                    viewPoint: e.viewPoint,
+                    primitiveEvent: e.primitiveEvent,
+                    rows: this.getSelectedRows(),
+                    columns: this.getSelectedColumns(),
+                    selections: this.getSelectionModel().getSelections()
+                }
+            });
+            this.canvas.dispatchEvent(event);
+        },
+
+        isViewableButton: function(c, r) {
+            return this.getRenderer().isViewableButton(c, r);
+        },
+
+        fireSyntheticButtonPressedEvent: function(gridCell) {
+            if (!this.isViewableButton(gridCell.x, gridCell.y)) {
+                return;
+            }
+            var event = new CustomEvent('fin-button-pressed', {
+                detail: {
+                    gridCell: gridCell
                 }
             });
             this.canvas.dispatchEvent(event);

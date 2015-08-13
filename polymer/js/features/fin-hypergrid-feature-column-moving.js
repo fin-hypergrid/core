@@ -126,7 +126,7 @@
                 return;
             }
 
-            if (this.isFixedRow(grid, event) && this.dragArmed && !this.dragging) {
+            if (this.isHeaderRow(grid, event) && this.dragArmed && !this.dragging) {
                 this.dragging = true;
                 this.dragCol = gridCell.x;
                 this.dragOffset = event.mousePoint.x;
@@ -154,7 +154,7 @@
         */
         handleMouseDown: function(grid, event) {
             if (grid.getBehavior().isColumnReorderable()) {
-                if (this.isFixedRow(grid, event)) {
+                if (this.isHeaderRow(grid, event) && event.gridCell.x !== -1) {
                     this.dragArmed = true;
                 }
             }
@@ -205,7 +205,7 @@
             if (this.next) {
                 this.next.handleMouseMove(grid, event);
             }
-            if (this.isFixedRow(grid, event) && this.dragging) {
+            if (this.isHeaderRow(grid, event) && this.dragging) {
                 this.cursor = 'none'; //move';
             }
 
@@ -688,7 +688,7 @@
          * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
          * @param {Object} event - the event details
         */
-        isFixedRow: function(grid, event) {
+        isHeaderRow: function(grid, event) {
             var gridCell = event.viewPoint;
             var isFixed = gridCell.y === 0;
             return isFixed;

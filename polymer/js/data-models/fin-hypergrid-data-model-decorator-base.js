@@ -103,6 +103,10 @@
         getRow: function(y) {
             return this.getComponent().getRow(y);
         },
+
+        convertViewPointToDataPoint: function(viewPoint) {
+            return this.getComponent().convertViewPointToDataPoint(viewPoint);
+        },
     });
 
 })();

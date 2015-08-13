@@ -1545,5 +1545,9 @@ it contains all code/data that's necessary for easily implementing a virtual dat
             return this.getDataModel().getRow(y);
         },
 
+        convertViewPointToDataPoint: function(viewPoint) {
+            return this.getDataModel().convertViewPointToDataPoint(viewPoint);
+        },
+
     });
 })();

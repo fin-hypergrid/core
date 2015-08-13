@@ -924,7 +924,7 @@ Instances of this object have basically four main functions.
 
             var columnEdges = this.getColumnEdges();
             var rowEdges = this.rowEdges;
-
+            this.buttonCells = {};
             var visibleCols = this.getVisibleColumns();
             var visibleRows = this.getVisibleRows();
 
@@ -1053,6 +1053,13 @@ Instances of this object have basically four main functions.
             cellProperties.isRowHovered = this.isColumnHovered(c, r);
             cellProperties.bounds = this._getBoundsOfCell(c, r);
 
+            var mouseDownState = grid.mouseDownState;
+            if (mouseDownState) {
+                var point = mouseDownState.gridCell;
+                cellProperties.mouseDown = point.x === c && point.y === r;
+            }
+
+
             var cell = behavior.getCellRenderer(cellProperties, c, r);
 
             cellProperties.x = c;
@@ -1066,10 +1073,18 @@ Instances of this object have basically four main functions.
             }
 
             behavior.cellPrePaintNotification(cell);
+
+            //allow the renderer to identify itself if it's a button
+            cellProperties.buttonCells = this.buttonCells;
+
             cell.paint(gc, cellProperties);
 
             this.renderedColumnMinWidths[c] = Math.max(cellProperties.minWidth || 0, this.renderedColumnMinWidths[c]);
 
+        },
+        isViewableButton: function(c, r) {
+            var key = c + ',' + r;
+            return this.buttonCells[key] === true;
         }
     });
 

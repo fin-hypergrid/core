@@ -114,9 +114,17 @@
         },
 
         checkColumnAutosizing: function(minWidths) {
+            var grid = this.getGrid();
             var tableState = this.getState();
             var a, b, c, d = 0;
-            for (c = 0; c < minWidths.length; c++) {
+            var loopSize = minWidths.length;
+            var loopStart = 0;
+
+            if (grid.isShowRowNumbers()) {
+                loopStart--;
+            }
+
+            for (c = loopStart; c < loopSize; c++) {
                 var ti = this.translateColumnIndex(c);
                 var properties = tableState.columnProperties[ti];
                 if (properties) {
@@ -144,6 +152,14 @@
                 }
             }
             this.getState().cellProperties = {};
+        },
+
+        convertViewPointToDataPoint: function(viewPoint) {
+            var x = this.translateColumnIndex(viewPoint.x);
+            var y = viewPoint.y;
+            var grid = this.getGrid();
+            var result = grid.rectangles.point.create(x, y);
+            return result;
         },
 
     });
