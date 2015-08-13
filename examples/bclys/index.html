@@ -165,7 +165,8 @@
             var cell = e.detail.gridCell;
             if(cell.y === 0 && cell.x >= headerColCount) {
                 jsonGrid.toggleSelectColumn(cell.x, e.detail.keys);
-            } else if(cell.x === 0 && cell.y >= headerRowCount) {
+            } else if(cell.x === -1 && cell.y >= headerRowCount) {
+                // -1 is the row numbers column
                 jsonGrid.toggleSelectRow(cell.y, e.detail.keys);
             }
         });

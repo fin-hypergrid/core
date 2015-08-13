@@ -12217,6 +12217,7 @@ scope.importElements = importElements;
 
 
 
+
 <script>/*!
  * numeral.js
  * version : 1.5.3
@@ -16492,7 +16493,11 @@ Instances of this object have basically four main functions.
                 rowNum = '';
             }
 
-            cellProperties.value = c === -1 ? rowNum : grid.getValue(c, r);
+            if (c === -1) {
+                cellProperties.value = rowNum;
+            } else {
+                cellProperties.value = grid.getValue(c, r);
+            }
             cellProperties.halign = grid.getColumnAlignment(c);
             cellProperties.isColumnHovered = this.isRowHovered(c, r);
             cellProperties.isRowHovered = this.isColumnHovered(c, r);
@@ -20744,6 +20749,27 @@ var commands = {
 })(); /* jshint ignore:line */
 </script>
 </polymer-element>
+<polymer-element name="fin-hypergrid-feature-column-selection" extends="fin-hypergrid-feature-base" assetpath="/dev/fin-hypergrid/polymer/html/features/">
+  <template>
+    <style type="text/css">:host {
+    display: block;
+    position: relative;
+}
+</style>
+  </template>
+  <script>'use strict';
+
+(function() {
+
+    Polymer('fin-hypergrid-feature-column-selection', { /* jshint ignore:line  */
+
+
+    });
+
+
+})();
+</script>
+</polymer-element>
 <polymer-element name="fin-hypergrid-feature-column-resizing" extends="fin-hypergrid-feature-base" assetpath="/dev/fin-hypergrid/polymer/html/features/">
   <template>
     <style type="text/css">:host {
@@ -24215,8 +24241,9 @@ it contains all code/data that's necessary for easily implementing a virtual dat
             this.setNextFeature(document.createElement('fin-hypergrid-feature-overlay'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-column-resizing'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-row-resizing'));
-            this.setNextFeature(document.createElement('fin-hypergrid-feature-column-moving'));
+            //this.setNextFeature(document.createElement('fin-hypergrid-feature-column-moving'));
             //this.setNextFeature(document.createElement('fin-hypergrid-feature-column-sorting'));
+            this.setNextFeature(document.createElement('fin-hypergrid-feature-column-selection'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-cell-selection'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-thumbwheel-scrolling'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-cell-editing'));

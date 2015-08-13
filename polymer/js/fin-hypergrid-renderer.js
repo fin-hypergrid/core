@@ -1047,7 +1047,11 @@ Instances of this object have basically four main functions.
                 rowNum = '';
             }
 
-            cellProperties.value = c === -1 ? rowNum : grid.getValue(c, r);
+            if (c === -1) {
+                cellProperties.value = rowNum;
+            } else {
+                cellProperties.value = grid.getValue(c, r);
+            }
             cellProperties.halign = grid.getColumnAlignment(c);
             cellProperties.isColumnHovered = this.isRowHovered(c, r);
             cellProperties.isRowHovered = this.isColumnHovered(c, r);
