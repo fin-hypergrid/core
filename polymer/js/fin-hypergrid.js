@@ -1295,7 +1295,9 @@
                 var mouseEvent = self.getGridCellFromMousePoint(mouse);
                 mouseEvent.primitiveEvent = e;
                 self.delegateMouseUp(mouseEvent);
-                self.fireSyntheticButtonPressedEvent(self.mouseDownState.gridCell);
+                if (self.mouseDownState) {
+                    self.fireSyntheticButtonPressedEvent(self.mouseDownState.gridCell);
+                }
                 self.mouseDownState = null;
                 self.fireSyntheticMouseUpEvent(mouseEvent);
             });
