@@ -109,6 +109,9 @@
         //lets override the cell editors, and configure the drop down lists
         jsonModel.getBaseModel().getCellEditorAt = function(x, y) {
             var type = editorTypes[x];
+            if (!type) {
+                return; //no editor here
+            }
             var cellEditor = this.grid.cellEditors[type];
             if (y === 1) {
                 var type = filterTypes[x];
@@ -123,7 +126,7 @@
             } else if (x === 4 || x === 5) {
                 cellEditor.items = states;
             } else if (x === 6) {
-                cellEditor.items = [true, false];
+                return null; //editor here
             } else if (x === 2) {
                 cellEditor.input.setAttribute('min', 0);
                 cellEditor.input.setAttribute('max', 10);
@@ -165,6 +168,11 @@
             } else if(cell.x === 0 && cell.y >= headerRowCount) {
                 jsonGrid.toggleSelectRow(cell.y, e.detail.keys);
             }
+        });
+
+        jsonGrid.addFinEventListener('fin-button-pressed', function(e){
+            var p = e.detail.gridCell;
+            jsonModel.setValue(p.x, p.y, !jsonModel.getValue(p.x,p.y));
         });
 
         jsonGrid.addFinEventListener('fin-scroll-x', function(e){
@@ -365,7 +373,7 @@
                             if (config.value[0] === 'S') {
                                 return 'purple';
                             } else {
-                                return config.backgroundColor;
+                                return 'white';
                             }
                         },
                         columnHeaderBackgroundColor: '#142B6F', //dark blue
