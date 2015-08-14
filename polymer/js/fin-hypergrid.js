@@ -1153,7 +1153,7 @@
                 self.resized();
             };
 
-            this.addFinEventListener('fin-mousemove', function(e) {
+            this.addFinEventListener('fin-canvas-mousemove', function(e) {
                 if (self.resolveProperty('readOnly')) {
                     return;
                 }
@@ -1163,7 +1163,7 @@
                 self.delegateMouseMove(mouseEvent);
             });
 
-            this.addFinEventListener('fin-mousedown', function(e) {
+            this.addFinEventListener('fin-canvas-mousedown', function(e) {
                 if (self.resolveProperty('readOnly')) {
                     return;
                 }
@@ -1186,7 +1186,7 @@
             //     self.fireSyntheticClickEvent(mouseEvent);
             // });
 
-            this.addFinEventListener('fin-mouseup', function(e) {
+            this.addFinEventListener('fin-canvas-mouseup', function(e) {
                 if (self.resolveProperty('readOnly')) {
                     return;
                 }
@@ -1203,7 +1203,7 @@
                 self.delegateMouseUp(mouseEvent);
             });
 
-            this.addFinEventListener('fin-tap', function(e) {
+            this.addFinEventListener('fin-canvas-tap', function(e) {
                 if (self.resolveProperty('readOnly')) {
                     return;
                 }
@@ -1215,7 +1215,7 @@
                 self.delegateTap(tapEvent);
             });
 
-            this.addFinEventListener('fin-drag', function(e) {
+            this.addFinEventListener('fin-canvas-drag', function(e) {
                 if (self.resolveProperty('readOnly')) {
                     return;
                 }
@@ -1242,7 +1242,7 @@
                 self.delegateKeyUp(e);
             });
 
-            this.addFinEventListener('fin-track', function(e) {
+            this.addFinEventListener('fin-canvas-track', function(e) {
                 if (self.resolveProperty('readOnly')) {
                     return;
                 }
@@ -1265,7 +1265,7 @@
                 }
             });
 
-            this.addFinEventListener('fin-holdpulse', function(e) {
+            this.addFinEventListener('fin-canvas-holdpulse', function(e) {
                 if (self.resolveProperty('readOnly')) {
                     return;
                 }
@@ -1275,7 +1275,7 @@
                 self.delegateHoldPulse(mouseEvent);
             });
 
-            this.addFinEventListener('fin-dblclick', function(e) {
+            this.addFinEventListener('fin-canvas-dblclick', function(e) {
                 if (self.resolveProperty('readOnly')) {
                     return;
                 }
@@ -1286,14 +1286,14 @@
                 self.delegateDoubleClick(mouseEvent);
             });
 
-            this.addFinEventListener('fin-wheelmoved', function(e) {
+            this.addFinEventListener('fin-canvas-wheelmoved', function(e) {
                 var mouse = e.detail.mouse;
                 var mouseEvent = self.getGridCellFromMousePoint(mouse);
                 mouseEvent.primitiveEvent = e.detail.primitiveEvent;
                 self.delegateWheelMoved(mouseEvent);
             });
 
-            this.addFinEventListener('fin-mouseout', function(e) {
+            this.addFinEventListener('fin-canvas-mouseout', function(e) {
                 if (self.resolveProperty('readOnly')) {
                     return;
                 }
