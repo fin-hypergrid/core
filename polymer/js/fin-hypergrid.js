@@ -3505,6 +3505,7 @@
         },
 
         toggleSelectedRectangle: function(ox, oy, ex, ey, keys) {
+            keys = keys || [];
             var model = this.getSelectionModel();
             var alreadySelected = model.isRectangleSelected(ox, oy, ex, ey);
             var hasCTRL = keys.indexOf('CTRL') > -1;
