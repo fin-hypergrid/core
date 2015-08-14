@@ -1089,6 +1089,13 @@ Instances of this object have basically four main functions.
         isViewableButton: function(c, r) {
             var key = c + ',' + r;
             return this.buttonCells[key] === true;
+        },
+        getRowNumbersWidth: function() {
+            var colEdges = this.getColumnEdges();
+            if (colEdges.length === 0) {
+                return 0;
+            }
+            return colEdges[0];
         }
     });
 

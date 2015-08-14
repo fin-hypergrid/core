@@ -1689,11 +1689,19 @@
             //var behavior = this.getBehavior();
             var b = this.canvas.bounds;
 
-            // var x = behavior.getFixedColumnsWidth() + 2;
+            var x = this.getRowNumbersWidth();
             // var y = behavior.getFixedRowsHeight() + 2;
 
-            var result = rectangles.rectangle.create(0, 0, b.origin.x + b.extent.x - colDNDHackWidth, b.origin.y + b.extent.y);
+            var result = rectangles.rectangle.create(x, 0, b.origin.x + b.extent.x - colDNDHackWidth - x, b.origin.y + b.extent.y);
             return result;
+        },
+
+        getRowNumbersWidth: function() {
+            if (this.isShowRowNumbers()) {
+                return this.getRenderer().getRowNumbersWidth();
+            } else {
+                return 0;
+            }
         },
 
         /**
@@ -3442,11 +3450,11 @@
             return this.getBehavior().getFixedColumnsMaxWidth();
         },
 
-        isMouseDownInFixedArea: function() {
-            var numFixedColumns = this.getFixedColumnCount();
-            var numFixedRows = this.getFixedRowCount();
+        isMouseDownInHeaderArea: function() {
+            var numHeaderColumns = this.getHeaderColumnCount();
+            var numHeaderRows = this.getHeaderRowCount();
             var mouseDown = this.getMouseDown();
-            return mouseDown.x < numFixedColumns || mouseDown.y < numFixedRows;
+            return mouseDown.x < numHeaderColumns || mouseDown.y < numHeaderRows;
         },
 
         _getBoundsOfCell: function(x, y) {
@@ -3546,6 +3554,9 @@
         },
         isShowRowNumbers: function() {
             return this.resolveProperty('showRowNumbers');
+        },
+        isColumnOrRowSelectionMode: function() {
+            return this.getSelectionModel().isColumnOrRowSelectionMode();
         }
     });
 

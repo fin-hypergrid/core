@@ -73,7 +73,6 @@
 
 
             var isRightClick = event.primitiveEvent.detail.isRightClick;
-            var behavior = grid.getBehavior();
             var cell = event.gridCell;
             var viewCell = event.viewPoint;
             var dx = cell.x;
@@ -241,7 +240,6 @@
                 return;
             }
 
-            var dragStartedInFixedArea = grid.isMouseDownInFixedArea();
             var lastDragCell = this.lastDragCell;
             var b = grid.getDataBounds();
             var xOffset = 0;
@@ -253,19 +251,12 @@
             var dragEndInFixedAreaX = lastDragCell.x < numFixedColumns;
             var dragEndInFixedAreaY = lastDragCell.y < numFixedRows;
 
-            if (!dragStartedInFixedArea) {
-                if (this.currentDrag.x < b.origin.x) {
-                    xOffset = -1;
-                }
-                if (this.currentDrag.y < b.origin.y) {
-                    yOffset = -1;
-                }
+            if (this.currentDrag.x < b.origin.x) {
+                xOffset = -1;
             }
+
             if (this.currentDrag.x > b.origin.x + b.extent.x) {
                 xOffset = 1;
-            }
-            if (this.currentDrag.y > b.origin.y + b.extent.y) {
-                yOffset = 1;
             }
 
             var dragCellOffsetX = xOffset;
@@ -346,10 +337,7 @@
          handle this event
          * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
         */
-        handleDOWNSHIFT: function(grid) {
-            var count = this.getAutoScrollAcceleration();
-            this.moveShiftSelect(grid, 0, count);
-        },
+        handleDOWNSHIFT: function( /* grid */ ) {},
 
         /**
         * @function
@@ -359,10 +347,7 @@
          * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
          * @param {Object} event - the event details
         */
-        handleUPSHIFT: function(grid) {
-            var count = this.getAutoScrollAcceleration();
-            this.moveShiftSelect(grid, 0, -count);
-        },
+        handleUPSHIFT: function( /* grid */ ) {},
 
         /**
         * @function
@@ -373,7 +358,7 @@
          * @param {Object} event - the event details
         */
         handleLEFTSHIFT: function(grid) {
-            this.moveShiftSelect(grid, -1, 0);
+            this.moveShiftSelect(grid, -1);
         },
 
         /**
@@ -385,7 +370,7 @@
          * @param {Object} event - the event details
         */
         handleRIGHTSHIFT: function(grid) {
-            this.moveShiftSelect(grid, 1, 0);
+            this.moveShiftSelect(grid, 1);
         },
 
         /**
@@ -397,8 +382,21 @@
          * @param {Object} event - the event details
         */
         handleDOWN: function(grid) {
-            var count = this.getAutoScrollAcceleration();
-            this.moveSingleSelect(grid, 0, count);
+
+            var mouseCorner = grid.getMouseDown().plus(grid.getDragExtent());
+            var maxRows = grid.getRowCount() - 1;
+
+            var newX = mouseCorner.x;
+            var newY = grid.getHeaderRowCount() + grid.getVScrollValue();
+
+            newY = Math.min(maxRows, newY);
+
+            grid.clearSelections();
+            grid.select(newX, newY, 0, 0);
+            grid.setMouseDown(this.rectangles.point.create(newX, newY));
+            grid.setDragExtent(this.rectangles.point.create(0, 0));
+
+            grid.repaint();
         },
 
         /**
@@ -409,10 +407,7 @@
          * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
          * @param {Object} event - the event details
         */
-        handleUP: function(grid) {
-            var count = this.getAutoScrollAcceleration();
-            this.moveSingleSelect(grid, 0, -count);
-        },
+        handleUP: function( /* grid */ ) {},
 
         /**
         * @function
@@ -423,7 +418,7 @@
          * @param {Object} event - the event details
         */
         handleLEFT: function(grid) {
-            this.moveSingleSelect(grid, -1, 0);
+            this.moveSingleSelect(grid, -1);
         },
 
         /**
@@ -435,7 +430,7 @@
          * @param {Object} event - the event details
         */
         handleRIGHT: function(grid) {
-            this.moveSingleSelect(grid, 1, 0);
+            this.moveSingleSelect(grid, 1);
         },
 
         /**
@@ -499,37 +494,30 @@
          * @param {integer} offsetX - x coordinate to start at
          * @param {integer} offsetY - y coordinate to start at
         */
-        moveShiftSelect: function(grid, offsetX, offsetY) {
+        moveShiftSelect: function(grid, offsetX) {
 
             var maxColumns = grid.getColumnCount() - 1;
-            var maxRows = grid.getRowCount() - 1;
 
             var maxViewableColumns = grid.getVisibleColumns() - 1;
-            var maxViewableRows = grid.getVisibleRows() - 1;
 
             if (!grid.resolveProperty('scrollingEnabled')) {
                 maxColumns = Math.min(maxColumns, maxViewableColumns);
-                maxRows = Math.min(maxRows, maxViewableRows);
             }
 
             var origin = grid.getMouseDown();
             var extent = grid.getDragExtent();
 
             var newX = extent.x + offsetX;
-            var newY = extent.y + offsetY;
+            var newY = grid.getRowCount();
 
             newX = Math.min(maxColumns - origin.x, Math.max(-origin.x, newX));
-            newY = Math.min(maxRows - origin.y, Math.max(-origin.y, newY));
 
             grid.clearMostRecentSelection();
-            grid.select(origin.x, origin.y, newX, newY);
+            grid.select(origin.x, 0, newX, newY);
 
             grid.setDragExtent(this.rectangles.point.create(newX, newY));
 
             if (grid.insureModelColIsVisible(newX + origin.x, offsetX)) {
-                this.pingAutoScroll();
-            }
-            if (grid.insureModelRowIsVisible(newY + origin.y, offsetY)) {
                 this.pingAutoScroll();
             }
 
@@ -546,36 +534,29 @@
          * @param {integer} offsetX - x coordinate to start at
          * @param {integer} offsetY - y coordinate to start at
         */
-        moveSingleSelect: function(grid, offsetX, offsetY) {
+        moveSingleSelect: function(grid, offsetX) {
 
             var maxColumns = grid.getColumnCount() - 1;
-            var maxRows = grid.getRowCount() - 1;
 
             var maxViewableColumns = grid.getVisibleColumnsCount() - 1;
-            var maxViewableRows = grid.getVisibleRowsCount() - 1;
 
             if (!grid.resolveProperty('scrollingEnabled')) {
                 maxColumns = Math.min(maxColumns, maxViewableColumns);
-                maxRows = Math.min(maxRows, maxViewableRows);
             }
 
             var mouseCorner = grid.getMouseDown().plus(grid.getDragExtent());
 
             var newX = mouseCorner.x + offsetX;
-            var newY = mouseCorner.y + offsetY;
+            var newY = grid.getRowCount();
 
             newX = Math.min(maxColumns, Math.max(0, newX));
-            newY = Math.min(maxRows, Math.max(0, newY));
 
             grid.clearSelections();
-            grid.select(newX, newY, 0, 0);
-            grid.setMouseDown(this.rectangles.point.create(newX, newY));
-            grid.setDragExtent(this.rectangles.point.create(0, 0));
+            grid.select(newX, 0, 0, newY);
+            grid.setMouseDown(this.rectangles.point.create(newX, 0));
+            grid.setDragExtent(this.rectangles.point.create(0, newY));
 
             if (grid.insureModelColIsVisible(newX, offsetX)) {
-                this.pingAutoScroll();
-            }
-            if (grid.insureModelRowIsVisible(newY, offsetY)) {
                 this.pingAutoScroll();
             }
 

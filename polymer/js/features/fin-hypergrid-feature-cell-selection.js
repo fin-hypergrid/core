@@ -170,6 +170,12 @@
          * @param {Object} event - the event details
         */
         handleKeyDown: function(grid, event) {
+            if (grid.isColumnOrRowSelectionMode()) {
+                if (this.next) {
+                    this.next.handleKeyDown(grid, event);
+                    return;
+                }
+            }
             var command = 'handle' + event.detail.char;
             if (this[command]) {
                 this[command].call(this, grid, event.detail);
@@ -255,7 +261,7 @@
                 return;
             }
 
-            var dragStartedInFixedArea = grid.isMouseDownInFixedArea();
+            var dragStartedInHeaderArea = grid.isMouseDownInHeaderArea();
             var lastDragCell = this.lastDragCell;
             var b = grid.getDataBounds();
             var xOffset = 0;
@@ -267,7 +273,7 @@
             var dragEndInFixedAreaX = lastDragCell.x < numFixedColumns;
             var dragEndInFixedAreaY = lastDragCell.y < numFixedRows;
 
-            if (!dragStartedInFixedArea) {
+            if (!dragStartedInHeaderArea) {
                 if (this.currentDrag.x < b.origin.x) {
                     xOffset = -1;
                 }
@@ -359,9 +365,8 @@
          handle this event
          * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
         */
-        handleDOWNSHIFT: function(grid) {
-            var count = this.getAutoScrollAcceleration();
-            this.moveShiftSelect(grid, 0, count);
+        handleDOWNSHIFT: function( /* grid */ ) {
+
         },
 
         /**
@@ -372,9 +377,8 @@
          * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
          * @param {Object} event - the event details
         */
-        handleUPSHIFT: function(grid) {
-            var count = this.getAutoScrollAcceleration();
-            this.moveShiftSelect(grid, 0, -count);
+        handleUPSHIFT: function( /* grid */ ) {
+
         },
 
         /**
@@ -567,6 +571,9 @@
             var maxViewableColumns = grid.getVisibleColumnsCount() - 1;
             var maxViewableRows = grid.getVisibleRowsCount() - 1;
 
+            var minRows = grid.getHeaderRowCount();
+            var minCols = grid.getHeaderColumnCount();
+
             if (!grid.resolveProperty('scrollingEnabled')) {
                 maxColumns = Math.min(maxColumns, maxViewableColumns);
                 maxRows = Math.min(maxRows, maxViewableRows);
@@ -577,8 +584,8 @@
             var newX = mouseCorner.x + offsetX;
             var newY = mouseCorner.y + offsetY;
 
-            newX = Math.min(maxColumns, Math.max(0, newX));
-            newY = Math.min(maxRows, Math.max(0, newY));
+            newX = Math.min(maxColumns, Math.max(minCols, newX));
+            newY = Math.min(maxRows, Math.max(minRows, newY));
 
             grid.clearSelections();
             grid.select(newX, newY, 0, 0);

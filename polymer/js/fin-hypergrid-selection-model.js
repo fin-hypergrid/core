@@ -253,6 +253,40 @@
         isRowSelected: function(y) {
             var size = this.getGrid().getColumnCount();
             return this.isRectangleSelected(0, y, size, 0);
+        },
+
+        isColumnSelectionMode: function() {
+            var selections = this.getSelections();
+            if (selections.length === 0) {
+                return false;
+            }
+            var rowCount = this.getGrid().getRowCount();
+            var last = selections[selections.length - 1];
+            var origin = last.origin;
+            var extent = last.extent;
+            if (origin.y === 0 && extent.y === rowCount) {
+                return true;
+            }
+            return false;
+        },
+
+        isRowSelectionMode: function() {
+            var selections = this.getSelections();
+            if (selections.length === 0) {
+                return false;
+            }
+            var columnCount = this.getGrid().getColumnCount();
+            var last = selections[selections.length - 1];
+            var origin = last.origin;
+            var extent = last.extent;
+            if (origin.x === 0 && extent.x === columnCount) {
+                return true;
+            }
+            return false;
+        },
+
+        isColumnOrRowSelectionMode: function() {
+            return this.isColumnSelectionMode() || this.isRowSelectionMode();
         }
 
     });
