@@ -159,16 +159,11 @@
             }
         });
 
-        jsonGrid.addFinEventListener('fin-click', function(e){
-            // var headerColCount = jsonGrid.getHeaderColumnCount();
-            // var headerRowCount = jsonGrid.getHeaderRowCount();
-            // var cell = e.detail.gridCell;
-            // if(cell.y === 0 && cell.x >= headerColCount) {
-            //     jsonGrid.toggleSelectColumn(cell.x, e.detail.keys);
-            // } else if(cell.x === -1 && cell.y >= headerRowCount) {
-            //     // -1 is the row numbers column
-            //     jsonGrid.toggleSelectRow(cell.y, e.detail.keys);
-            // }
+        jsonGrid.addFinEventListener('fin-mousedown', function(e){
+            var cell = e.detail.gridCell;
+            if(cell.x === 7) {
+                jsonGrid.toggleSelectRow(cell.y, []);
+            }
         });
 
         jsonGrid.addFinEventListener('fin-button-pressed', function(e){
