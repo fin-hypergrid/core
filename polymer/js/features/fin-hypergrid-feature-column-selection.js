@@ -71,7 +71,6 @@
         */
         handleMouseDown: function(grid, event) {
 
-
             var isRightClick = event.primitiveEvent.detail.isRightClick;
             var cell = event.gridCell;
             var viewCell = event.viewPoint;

@@ -3557,6 +3557,12 @@
         },
         isColumnOrRowSelectionMode: function() {
             return this.getSelectionModel().isColumnOrRowSelectionMode();
+        },
+        isColumnSelectionMode: function() {
+            return this.getSelectionModel().isColumnSelectionMode();
+        },
+        isRowSelectionMode: function() {
+            return this.getSelectionModel().isRowSelectionMode();
         }
     });
 

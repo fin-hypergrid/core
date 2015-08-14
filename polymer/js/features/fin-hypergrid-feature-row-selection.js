@@ -71,13 +71,11 @@
         */
         handleMouseDown: function(grid, event) {
 
-
             var isRightClick = event.primitiveEvent.detail.isRightClick;
             var cell = event.gridCell;
             var viewCell = event.viewPoint;
             var dx = cell.x;
             var dy = cell.y;
-
 
             var isHeader = grid.isShowRowNumbers() && dx < 0;
 
@@ -154,6 +152,13 @@
          * @param {Object} event - the event details
         */
         handleKeyDown: function(grid, event) {
+
+            if (grid.isColumnSelectionMode()) {
+                if (this.next) {
+                    this.next.handleKeyDown(grid, event);
+                }
+                return;
+            }
             var command = 'handle' + event.detail.char;
             if (this[command]) {
                 this[command].call(this, grid, event.detail);
@@ -384,12 +389,12 @@
         handleRIGHT: function(grid) {
 
             var mouseCorner = grid.getMouseDown().plus(grid.getDragExtent());
-            var maxRows = grid.getRowCount() - 1;
+            var maxColumns = grid.getColumnCount() - 1;
 
-            var newX = mouseCorner.x;
-            var newY = grid.getHeaderRowCount() + grid.getVScrollValue();
+            var newX = grid.getHeaderColumnCount() + grid.getHScrollValue();
+            var newY = mouseCorner.y;
 
-            newY = Math.min(maxRows, newY);
+            newX = Math.min(maxColumns, newX);
 
             grid.clearSelections();
             grid.select(newX, newY, 0, 0);
@@ -538,7 +543,7 @@
 
             var maxRows = grid.getRowCount() - 1;
 
-            var maxViewableRows = grid.getVisibleRowCount() - 1;
+            var maxViewableRows = grid.getVisibleRowsCount() - 1;
 
             if (!grid.resolveProperty('scrollingEnabled')) {
                 maxRows = Math.min(maxRows, maxViewableRows);
@@ -546,10 +551,10 @@
 
             var mouseCorner = grid.getMouseDown().plus(grid.getDragExtent());
 
-            var newX = grid.getRowCount();
+            var newX = grid.getColumnCount();
             var newY = mouseCorner.y + offsetY;
 
-            newY = Math.min(maxRows, Math.max(0, newY));
+            newY = Math.min(maxRows, Math.max(grid.getHeaderRowCount(), newY));
 
             grid.clearSelections();
             grid.select(0, newY, newX, 0);

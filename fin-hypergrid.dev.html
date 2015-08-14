@@ -20879,7 +20879,6 @@ var commands = {
         */
         handleMouseDown: function(grid, event) {
 
-
             var isRightClick = event.primitiveEvent.detail.isRightClick;
             var cell = event.gridCell;
             var viewCell = event.viewPoint;
@@ -23151,13 +23150,11 @@ var commands = {
         */
         handleMouseDown: function(grid, event) {
 
-
             var isRightClick = event.primitiveEvent.detail.isRightClick;
             var cell = event.gridCell;
             var viewCell = event.viewPoint;
             var dx = cell.x;
             var dy = cell.y;
-
 
             var isHeader = grid.isShowRowNumbers() && dx < 0;
 
@@ -23234,6 +23231,13 @@ var commands = {
          * @param {Object} event - the event details
         */
         handleKeyDown: function(grid, event) {
+
+            if (grid.isColumnSelectionMode()) {
+                if (this.next) {
+                    this.next.handleKeyDown(grid, event);
+                }
+                return;
+            }
             var command = 'handle' + event.detail.char;
             if (this[command]) {
                 this[command].call(this, grid, event.detail);
@@ -23464,12 +23468,12 @@ var commands = {
         handleRIGHT: function(grid) {
 
             var mouseCorner = grid.getMouseDown().plus(grid.getDragExtent());
-            var maxRows = grid.getRowCount() - 1;
+            var maxColumns = grid.getColumnCount() - 1;
 
-            var newX = mouseCorner.x;
-            var newY = grid.getHeaderRowCount() + grid.getVScrollValue();
+            var newX = grid.getHeaderColumnCount() + grid.getHScrollValue();
+            var newY = mouseCorner.y;
 
-            newY = Math.min(maxRows, newY);
+            newX = Math.min(maxColumns, newX);
 
             grid.clearSelections();
             grid.select(newX, newY, 0, 0);
@@ -23618,7 +23622,7 @@ var commands = {
 
             var maxRows = grid.getRowCount() - 1;
 
-            var maxViewableRows = grid.getVisibleRowCount() - 1;
+            var maxViewableRows = grid.getVisibleRowsCount() - 1;
 
             if (!grid.resolveProperty('scrollingEnabled')) {
                 maxRows = Math.min(maxRows, maxViewableRows);
@@ -23626,10 +23630,10 @@ var commands = {
 
             var mouseCorner = grid.getMouseDown().plus(grid.getDragExtent());
 
-            var newX = grid.getRowCount();
+            var newX = grid.getColumnCount();
             var newY = mouseCorner.y + offsetY;
 
-            newY = Math.min(maxRows, Math.max(0, newY));
+            newY = Math.min(maxRows, Math.max(grid.getHeaderRowCount(), newY));
 
             grid.clearSelections();
             grid.select(0, newY, newX, 0);
@@ -25435,7 +25439,7 @@ it contains all code/data that's necessary for easily implementing a virtual dat
             //this.setNextFeature(document.createElement('fin-hypergrid-feature-column-sorting'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-cell-selection'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-row-selection'));
-            //this.setNextFeature(document.createElement('fin-hypergrid-feature-column-selection'));
+            this.setNextFeature(document.createElement('fin-hypergrid-feature-column-selection'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-thumbwheel-scrolling'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-cell-editing'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-on-hover'));
@@ -36952,6 +36956,12 @@ fin-vampire-bar {
         },
         isColumnOrRowSelectionMode: function() {
             return this.getSelectionModel().isColumnOrRowSelectionMode();
+        },
+        isColumnSelectionMode: function() {
+            return this.getSelectionModel().isColumnSelectionMode();
+        },
+        isRowSelectionMode: function() {
+            return this.getSelectionModel().isRowSelectionMode();
         }
     });
 
