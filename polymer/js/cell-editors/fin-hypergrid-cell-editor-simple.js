@@ -26,7 +26,6 @@
             this.editorPoint = this.rectangles.point.create(0, 0);
             this.input = this.shadowRoot.querySelector('#editor');
             this.input.addEventListener('keyup', function(e) {
-                self.getGrid().fireSyntheticEditorKeyUpEvent(self.input, e);
                 if (e && (e.keyCode === 13 || e.keyCode === 27)) {
                     e.preventDefault();
                     if (e.keyCode === 27) {
@@ -37,12 +36,13 @@
                     self.getGrid().repaint();
                     self.getGrid().takeFocus();
                 }
+                self.getGrid().fireSyntheticEditorKeyUpEvent(self, e);
             });
             this.input.addEventListener('keydown', function(e) {
-                self.getGrid().fireSyntheticEditorKeyDownEvent(self.input, e);
+                self.getGrid().fireSyntheticEditorKeyDownEvent(self, e);
             });
             this.input.addEventListener('keypress', function(e) {
-                self.getGrid().fireSyntheticEditorKeyPressEvent(self.input, e);
+                self.getGrid().fireSyntheticEditorKeyPressEvent(self, e);
             });
             this.input.style.position = 'absolute';
             this.input.style.display = 'none';
@@ -72,6 +72,15 @@
         */
         setEditorValue: function(value) {
             this.input.value = value + '';
+        },
+
+        cancelEditing: function() {
+            if (!this.isEditing) {
+                return;
+            }
+            this.input.value = null;
+            this.isEditing = false;
+            this.hideEditor();
         },
 
         /**

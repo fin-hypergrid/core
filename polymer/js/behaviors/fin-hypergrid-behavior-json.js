@@ -165,6 +165,10 @@
             event.row = this.getRow(event.gridCell.y);
         },
 
+        setDataProvider: function(dataProvider) {
+            this.getBaseModel().setDataProvider(dataProvider);
+        }
+
     });
 
 })(); /* jslint ignore:line */

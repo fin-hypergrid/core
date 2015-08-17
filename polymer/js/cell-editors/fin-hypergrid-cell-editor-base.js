@@ -170,6 +170,7 @@
         */
         setEditorPoint: function(point) {
             this.editorPoint = point;
+            this.modelPoint = this.getGrid().convertViewPointToDataPoint(point);
         },
 
         /**
@@ -198,7 +199,7 @@
             if (!this.isEditing) {
                 return;
             }
-            var proceed = this.getGrid().fireSyntheticEditorDataChangeEvent(this.input, this.initialValue, this.getEditorValue);
+            var proceed = this.getGrid().fireSyntheticEditorDataChangeEvent(this, this.initialValue, this.getEditorValue);
             if (!proceed) {
                 return;
             }
@@ -262,10 +263,14 @@
         * @description
         move the editor to the current editor point
         */
-        moveEditor: function() {
+        _moveEditor: function() {
             var editorPoint = this.getEditorPoint();
             var cellBounds = this.getGrid()._getBoundsOfCell(editorPoint.x, editorPoint.y);
             this.setBounds(cellBounds);
+        },
+
+        moveEditor: function() {
+            this._moveEditor();
             this.takeFocus();
         },
 

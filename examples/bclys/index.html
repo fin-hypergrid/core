@@ -5,6 +5,7 @@
   <script src="accounting.min.js"></script>
   <script src="sampledata.js"></script>
   <script src="myThemes.js"></script>
+  <script src="fin.data-browser.js"></script>
 <!--   <link rel="import" href="fin-hypergrid.min.html"> -->
   <link rel="import" href="../../polymer/html/fin-hypergrid.html">
   <style>
@@ -27,7 +28,7 @@
 
 (function(){
     //used by the cellProvider, return null for a column if you want no editor to pop up
-    var editorTypes = [null,'textfield','spinner','date','choice','choice','choice','textfield','textfield','textfield'];
+    var editorTypes = ['choice','textfield','spinner','date','choice','choice','choice','textfield','textfield','textfield'];
     var filterTypes = ['choice','textfield','choice','textfield','choice','textfield','choice','textfield','choice','textfield'];
 
     document.addEventListener('polymer-ready', function() {
@@ -47,7 +48,13 @@
         var cellProvider = jsonModel.getCellProvider();
 
         //set the actual json row objects
-        jsonModel.setData(people); //see sampledata.js for the random data
+        //jsonModel.setData(people); //see sampledata.js for the random data
+
+
+
+        //lets sew in haseeb's stuff here for now.....
+        var dataBrowser =  new com.DataBrowser(new com.dataProviders.JSDataProvider(["last_name", "first_name", "pets", "birthDate", "birthState", "residenceState", "employed", "income", "travel", "squareOfIncome"], people));
+        jsonModel.setDataProvider(dataBrowser);
 
         //make the first col fixed;
         jsonModel.setFixedColumnCount(2);
@@ -114,12 +121,23 @@
             }
             var cellEditor = this.grid.cellEditors[type];
             if (y === 1) {
-                var type = filterTypes[x];
-                cellEditor = this.grid.cellEditors[type];
-                if (type === 'choice') {
-                    cellEditor.items = ['','one', 'two', 'three'];
+                // var type = filterTypes[x];
+                // cellEditor = this.grid.cellEditors[type];
+                // if (type === 'choice') {
+                //     cellEditor.items = ['','one', 'two', 'three'];
+                // }
+                // return cellEditor;
+                if (x === 2) {
+                    return this.grid.cellEditors['textfield'];
+                } else if (x === 2) {
+                    return this.grid.cellEditors['textfield'];
+                } else if (x === 3) {
+                    return this.grid.cellEditors['textfield'];
+                } else if (x === 6) {
+                    cellEditor.items = ['', true, false]; //editor here
+                    return cellEditor;
                 }
-                return cellEditor;
+
             }
             if (x === 0) {
                 cellEditor.items = lastNames;
@@ -144,7 +162,7 @@
         };
 
         jsonGrid.addFinEventListener('fin-selection-changed', function(e){
-            console.log(jsonGrid.getSelectedRows(), jsonGrid.getSelectedColumns());
+            console.log(jsonGrid.getSelectedRows(), jsonGrid.getSelectedColumns(), jsonGrid.getSelections());
         });
 
         jsonGrid.addFinEventListener('fin-double-click', function(e){
@@ -161,7 +179,7 @@
 
         jsonGrid.addFinEventListener('fin-mousedown', function(e){
             var cell = e.detail.gridCell;
-            if(cell.x === 7) {
+            if(cell.y > 2 && cell.x === 7) {
                 jsonGrid.toggleSelectRow(cell.y, []);
             }
         });
@@ -236,10 +254,35 @@
 
         jsonGrid.addFinEventListener('fin-editor-data-change', function(e) {
             console.log('fin-editor-data-change', e.detail);
+            if (e.detail.input.editorPoint.y > 2) {
+                return;
+            }
+            var control = e.detail.input;
+            var col = control.modelPoint.x;
+            var value = control.input.value;
+            console.log(control, col, value);
+            var filters = {};
+            filters[col] = function(each) {
+                return (each + '').toLowerCase().startsWith(value.toLowerCase());
+            };
+            jsonModel.getData().setFilters(filters);
+            jsonModel.shapeChanged();
+            control._moveEditor(); //view may have resized....
         });
 
         jsonGrid.addFinEventListener('fin-editor-key-up', function(e) {
             console.log('fin-editor-key-up', e.detail);
+            var control = e.detail.input;
+            var col = control.modelPoint.x;
+            var value = control.input.value;
+            console.log(control, col, value);
+            var filters = {};
+            filters[col] = function(each) {
+                return (each + '').toLowerCase().startsWith(value.toLowerCase());
+            };
+            jsonModel.getData().setFilters(filters);
+            jsonModel.shapeChanged();
+            control._moveEditor(); //view may have resized....
         });
 
         jsonGrid.addFinEventListener('fin-editor-key-press', function(e) {
@@ -303,11 +346,11 @@
                         columnIndexes: toIs([
                             "last_name",
                             "pets",
-                            "first_name",
                             "birthDate",
                             "birthState",
                             "residenceState",
                             "employed",
+                            "first_name",
                             "income",
                             "travel",
                             "squareOfIncome"]),

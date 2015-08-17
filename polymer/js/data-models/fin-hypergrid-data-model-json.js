@@ -10,7 +10,24 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
          * @property {Array} data - main storage array
          * @instance
          */
-        data: [],
+        data: {
+            getValue: function( /* x, y */ ) {
+                return '';
+            },
+            setValue: function( /* x, y, value */ ) {},
+            getColumnCount: function() {
+                return 0;
+            },
+            getRowCount: function() {
+                return 0;
+            },
+            getPrototypeRow: function() {
+                return {};
+            },
+            getFields: function() {
+                return [];
+            }
+        },
 
         /**
          * @property {Array} headers - the list of header labels
@@ -161,12 +178,8 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         * #### returns: Array of strings
         */
         getDefaultFields: function() {
-            if (this.data && this.data.length === 0) {
-                return [];
-            }
-            var fields = [].concat(Object.getOwnPropertyNames(this.data[0]).filter(function(e) {
-                return e.substr(0, 2) !== '__';
-            }));
+            var data = this.getData();
+            var fields = data.getFields();
             return fields;
         },
 
@@ -178,7 +191,41 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         * @param {Array} arrayOfUniformObjects - an array of uniform objects, each being a row in the grid
         */
         setData: function(arrayOfUniformObjects) {
-            this.data = arrayOfUniformObjects;
+            var self = this;
+            var dataProvider = {
+                getValue: function(x, y) {
+                    var field = self.getFields()[x];
+                    return arrayOfUniformObjects[y][field];
+                },
+                setValue: function(x, y, value) {
+                    var field = self.getFields()[x];
+                    arrayOfUniformObjects[y][field] = value;
+                },
+                getColumnCount: function() {
+                    return this.getFields().length;
+                },
+                getRowCount: function() {
+                    return arrayOfUniformObjects.length;
+                },
+                getPrototypeRow: function() {
+                    return arrayOfUniformObjects[0];
+                },
+                getFields: function() {
+                    if (arrayOfUniformObjects.length === 0) {
+                        return [];
+                    }
+                    var first = arrayOfUniformObjects[0];
+                    var fields = [].concat(Object.getOwnPropertyNames(first).filter(function(e) {
+                        return e.substr(0, 2) !== '__';
+                    }));
+                    return fields;
+                }
+            };
+            this.setDataProvider(dataProvider);
+        },
+
+        setDataProvider: function(dataProvider) {
+            this.data = dataProvider;
             this.initColumnIndexes(this.getState());
             this.dataModified();
         },
@@ -228,9 +275,10 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         */
         initDataIndexes: function() {
             //initialize the indexe cache
-            for (var i = 0; i < this.data.length; i++) {
-                this.data[i].__si = i;
-                this.data[i].__i = i;
+            var data = this.getData();
+            for (var i = 0; i < data.length; i++) {
+                data[i].__si = i;
+                data[i].__i = i;
             }
         },
 
@@ -244,8 +292,9 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
          * @param {integer} y - the y coordinate
          */
         getValue: function(x, y) {
-            var result, tableState, headers, sortIndex, fields, row;
+            var result, tableState, headers, sortIndex;
             headers = this.getHeaders();
+            var data = this.getData();
             var headersSize = headers.length > 0 ? 1 : 0;
             if (y < headersSize) {
                 tableState = this.getState();
@@ -254,12 +303,10 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
             } else if (y < this.getTotals().length + headersSize) {
                 result = this.getTotal(x, y - headersSize);
             } else {
-                fields = this.getFields();
-                row = this.data[y - this.getTotals().length - headersSize];
-                result = row[fields[x]];
+                result = data.getValue(x, y - this.getTotals().length - headersSize);
             }
             if (typeof result === 'function') {
-                result = row[fields[x]]();
+                result = result();
             }
             return result;
         },
@@ -273,6 +320,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
          * @param {integer} y - the y coordinate
          */
         setValue: function(x, y, value) {
+            var data = this.getData();
             var headers = this.getHeaders();
             var totalsSize = this.getTotals().length;
             var headersSize = headers.length > 0 ? 1 : 0;
@@ -285,8 +333,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
                     behavior.setTotalsValue(x, y, value);
                 }
             } else {
-                var fields = this.getFields();
-                this.data[rowNumber][fields[x]] = value;
+                data.setValue(x, rowNumber, value);
             }
             this.changed();
         },
@@ -300,7 +347,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
          */
         getRowCount: function() {
             var headerCount = this.getHeaders().length > 0 ? 1 : 0;
-            return this.data.length + this.getTotals().length + headerCount;
+            return this.getData().getRowCount() + this.getTotals().length + headerCount;
         },
 
         /**
@@ -322,6 +369,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         reapply the sorts to our underlying dataset
         */
         applySorts: function() {
+            var data = this.getData();
             var state = this.getState();
             var sorts = state.sorted;
             //var colIndexes = state.columnIndexes;
@@ -329,13 +377,13 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
                 return;
             }
             //remove any sorts
-            var newData = new Array(this.data.length);
+            var newData = new Array(data.length);
             var i;
-            for (i = 0; i < this.data.length; i++) {
-                var each = this.data[i];
+            for (i = 0; i < data.length; i++) {
+                var each = data[i];
                 newData[each.__si] = each;
             }
-            this.data = newData;
+            data = newData;
 
             //apply the sort
             for (i = 0; i < sorts.length; i++) {
@@ -356,7 +404,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
          * @param {string} columnId
          */
         isComputedField: function(columnId) {
-            var row = this.data[0];
+            var row = this.getData()[0];
             var first = row[columnId];
             return (typeof first === 'function');
         },
@@ -370,6 +418,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
          * @param {integer} incrementIt - integer amount to advance the sort state (default 1)
          */
         toggleSort: function(columnIndex, incrementIt) {
+            var data = this.getData();
             var tableState = this.getState();
             if (incrementIt === undefined) {
                 incrementIt = 1;
@@ -390,12 +439,12 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
             columnProperties.sorted = sortStateIndex;
             var colName = fields[columnIndex];
             if (sortStateIndex === 0) {
-                var newData = new Array(this.data.length);
-                for (i = 0; i < this.data.length; i++) {
-                    var each = this.data[i];
+                var newData = new Array(data.length);
+                for (i = 0; i < data.length; i++) {
+                    var each = data[i];
                     newData[each.__si] = each;
                 }
-                this.data = newData;
+                data = newData;
             } else if (sortStateIndex > 0) {
                 var theSorter;
                 if (this.isValidIdentifer(colName)) {
@@ -420,7 +469,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
                             '  return 1;' +
                             '})');
                     }
-                    this.data.sort(theSorter);
+                    data.sort(theSorter);
                 } else {
                     if (this.isComputedField(colName)) {
                         theSorter = function(a, b) {
@@ -447,14 +496,14 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
                             return 1;
                         };
                     }
-                    this.data.sort();
+                    data.sort();
                 }
             }
             if (sortStateIndex === 2) {
-                this.data = this.data.reverse();
+                data = data.reverse();
             }
-            for (i = 0; i < this.data.length; i++) {
-                this.data[i].__i = i;
+            for (i = 0; i < data.length; i++) {
+                data[i].__i = i;
             }
             this.changed();
         },
@@ -466,7 +515,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
             if (index < 0) {
                 return null;
             }
-            return this.data[index];
+            return this.getData()[index];
         },
 
         /**
