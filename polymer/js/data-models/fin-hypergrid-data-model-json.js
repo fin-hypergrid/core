@@ -26,6 +26,9 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
             },
             getFields: function() {
                 return [];
+            },
+            sortOn: function( /* columnIndex */ ) {
+
             }
         },
 
@@ -219,6 +222,9 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
                         return e.substr(0, 2) !== '__';
                     }));
                     return fields;
+                },
+                sortOn: function(index) {
+                    self._toggleSort(index);
                 }
             };
             this.setDataProvider(dataProvider);
@@ -409,6 +415,60 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
             return (typeof first === 'function');
         },
 
+        toggleSort: function(index) {
+            this.incrementSortState(index);
+            var sorts = this.getState().sorts;
+            var dataProvider = this.getData();
+            for (var i = 0; i < sorts.length; i++) {
+                var colIndex = Math.abs(sorts[i]);
+                var type = sorts[i] < 0 ? -1 : 1;
+                dataProvider.sortOn(colIndex, type);
+            }
+            this.changed();
+        },
+
+        incrementSortState: function(colIndex) {
+            colIndex++; //hack to get around 0 index
+            var state = this.getState();
+            state.sorts = state.sorts || [];
+            var already = state.sorts.indexOf(colIndex);
+            if (already === -1) {
+                already = state.sorts.indexOf(-1 * colIndex);
+            }
+            if (already > -1) {
+                if (state.sorts[already] > 0) {
+                    state.sorts[already] = -1 * state.sorts[already];
+                } else {
+                    state.sorts.splice(already, 1);
+                }
+            } else {
+                state.sorts.unshift(colIndex);
+            }
+            if (state.sorts.length > 3) {
+                state.sorts.length = 3;
+            }
+        },
+
+        getSortImageForColumn: function(index) {
+            index++;
+            var up = true;
+            var sorts = this.getState().sorts;
+            if (!sorts) {
+                return null;
+            }
+            var position = sorts.indexOf(index);
+            if (position < 0) {
+                position = sorts.indexOf(-1 * index);
+                up = false;
+            }
+            if (position < 0) {
+                return null;
+            }
+            position++;
+            var name = position + (up ? '-up' : '-down');
+            return this.getBehavior().getImage(name);
+        },
+
         /**
          * @function
          * @instance
@@ -417,7 +477,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
          * @param {integer} columnIndex - the column index of interest
          * @param {integer} incrementIt - integer amount to advance the sort state (default 1)
          */
-        toggleSort: function(columnIndex, incrementIt) {
+        _toggleSort: function(columnIndex, incrementIt) {
             var data = this.getData();
             var tableState = this.getState();
             if (incrementIt === undefined) {
