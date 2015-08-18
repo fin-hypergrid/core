@@ -2,9 +2,9 @@
 
 <img src="images/gridshot04.gif" alt="screenshot">
 #Hypergrid
-The Hypergrid control is a [Google polymer](https://www.polymer-project.org/) [web component](http://webcomponents.org/presentations/), canvas based open source general purpose grid. The purpose of this project is to address the Finance/Big Data community's desire for a high performance, unlimited row data-grid. At the moment, it is in a beta stage and still has ongoing work to be completed. These include bug-fixes/features/automated testing/etc.  Please try it out and let us know what you think.
+The Hypergrid control is a [Google polymer](https://www.polymer-project.org/) [web component](http://webcomponents.org/presentations/), canvas-based open source general purpose grid. The purpose of this project is to address the Finance/Big Data community's desire for a high performance, unlimited row data-grid. At the moment, it is in a beta stage and still has ongoing work to be completed. These include bug-fixes/features/automated testing/etc.  Please try it out and let us know what you think.
 
-* See the [jsdocs page](http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/docs/module-._fin-hypergrid.html) for api documentation.
+* See the [jsdocs page](http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/docs/module-._fin-hypergrid.html) for API documentation.
 
 * Watch the [Pivotal Labs presentation](http://www.livestream.com/pivotallabs/video?clipId=pla_01ae6683-c5ee-4567-9278-91524d09550a&utm_source=lslibrary&utm_medium=ui-thumb) recorded on Jan 13th 2015.
 
@@ -50,17 +50,17 @@ The Hypergrid control is a [Google polymer](https://www.polymer-project.org/) [w
 * [Feature List](https://github.com/openfin/fin-hypergrid#feature-list)
 
 # Getting Started
-Use the [Hypergrid Openfin Installer](https://dl.openfin.co/services/download?fileName=hypergrid-demo-installer&config=http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/demo.json) to install an openfin startup link and see the demo running on your desktop.   You can also see a few demos..
+Use the [Hypergrid OpenFin Installer](https://dl.openfin.co/services/download?fileName=hypergrid-demo-installer&config=http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/demo.json) to install an openfin startup link and see the demo running on your desktop.   You can also see a few demos..
 
 * [main demo](http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/demo.html) - the main demo using some paper-elements, showing off all the current behaviors
-* [json standalone](http://openfin.github.io/example-fin-hypergrid-behavior-json/) - a side project demonstrating a fin-hypergrid use case of a standalone json behaviour
+* [JSON standalone](http://openfin.github.io/example-fin-hypergrid-behavior-json/) - a side project demonstrating a fin-hypergrid use case of a standalone JSON behavior
 * [simple standalone](http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/examples/standalone.html) - the simplest example of just a standalone fin-hypergrid with default behavior
-* [styled standalone](http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/examples/tt.html) - a slightly more sophisticated styled example of a standalone fin-hypergrid with a json behavior
+* [styled standalone](http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/examples/tt.html) - a slightly more sophisticated styled example of a standalone fin-hypergrid with a JSON behavior
 * [jquery partials](http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/examples/partialtest.html) - an example using jquery dynamic partial loading
 * [multi window snap and dock example](https://dl.openfin.co/services/download?fileName=hypergrid-snap-installer&config=http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/examples/hypergrid-snap.json) 
 
 # Recent 
-* [HiDPI](http://www.html5rocks.com/en/tutorials/canvas/hidpi/) mode is now enabled by default and is no longer an attribute but a json startup config property.  The performance issue witnessed in chrome browsers seems to have been fixed.
+* [HiDPI](http://www.html5rocks.com/en/tutorials/canvas/hidpi/) mode is now enabled by default and is no longer an attribute but a JSON startup config property.  The performance issue witnessed in chrome browsers seems to have been fixed.
  
 # Pluggable Grid Behaviors
 The design makes no assumptions about the data you wish to view which
@@ -70,27 +70,27 @@ can be achieved using external best of breed high-performant real time tools
 designed for such purposes.  Several grid behavior examples are provided including a [Kx](http://www.kx.com/) Q Kdb+ example.
 
 # The Super Easy Setup
-If you just want to see Hypergrid working you can run the [Hypergrid Openfin Installer](https://dl.openfin.co/services/download?fileName=hypergrid-demo-installer&config=http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/demo.json) or just go to the [demo](http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/demo.html).
+If you just want to see Hypergrid working you can run the [Hypergrid OpenFin Installer](https://dl.openfin.co/services/download?fileName=hypergrid-demo-installer&config=http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/demo.json) or just go to the [demo](http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/demo.html).
 
 # Local Setup
-The following instructions and project structure is based on the google polymer team best practices for developement of polymer/web-components applications and elements.  It is further documented [here](https://www.polymer-project.org/docs/start/reusableelements.html).
+The following instructions and project structure is based on the google polymer team best practices for development of polymer/web-components applications and elements.  It is further documented [here](https://www.polymer-project.org/docs/start/reusableelements.html).
 
 # Deploy your app with fin-hypergrid
-The only file that is necessary to deploy the hypergrid is the webcomponent html file, fin-hypergrid.min.html which is a [vulcanized](https://www.polymer-project.org/articles/concatenating-web-components.html) conglomeration of all code and dependencies required by fin-hypergrid.  This file must be imported according to the webcomponents specification.  If you are targeting non webcomponent compliant browsers you will also need the webcomponents.js polyfill found within the polymer project.  An example of this is found [here](https://github.com/openfin/example-fin-hypergrid-behavior-json).  The webcomponents.js file is not necessary if your target platform is a webcomponents compatible browser.  As chrome is currently the only one, we suggest you include this polyfil.  
+The only file that is necessary to deploy the hypergrid is the webcomponent html file, fin-hypergrid.min.html which is a [vulcanized](https://www.polymer-project.org/articles/concatenating-web-components.html) conglomeration of all code and dependencies required by fin-hypergrid.  This file must be imported according to the webcomponents specification.  If you are targeting non webcomponent compliant browsers you will also need the webcomponents.js polyfill found within the polymer project.  An example of this is found [here](https://github.com/openfin/example-fin-hypergrid-behavior-json).  The webcomponents.js file is not necessary if your target platform is a webcomponents compatible browser.  As chrome is currently the only one, we suggest you include this polyfill.  
 
 1. This setup has been tested and works, if you have problems you most likely have security restrictions or proxy issues.  You may need to use sudo for npm and bower installs. Make sure you have internet access, node/npm, grunt-cli, and bower installed and working properly on your machine.
     1. [node installation](http://nodejs.org/download/)
     2. [grunt/grunt-cli installation](http://gruntjs.com/getting-started)
     3. [bower](http://bower.io/)
-2. Create a directory 'developement' and cd into it
-3. Clone this repo ```git clone https://github.com/openfin/fin-hypergrid.git```
-4. cd into the cloned project ```cd fin-hypergrid```
-5. Install the npm dependencies ```(sudo) npm install```
-6. Install the bower dependencies ```bower install```
-7. Start the grunt process ```grunt serve```, after which your browser should automatically open
+2. Create a directory 'development' and cd into it
+3. Clone this repo `git clone https://github.com/openfin/fin-hypergrid.git`
+4. cd into the cloned project `cd fin-hypergrid`
+5. Install the npm dependencies `(sudo) npm install`
+6. Install the bower dependencies `bower install`
+7. Start the grunt process `grunt serve`, after which your browser should automatically open
 
 # Important notes about Polymer Development
-1. Notice that bower installs many dependencies a level up from the fin-hypegrid project directory, this is the polymer way of developing custom elements.  The actual project directory IS fin-hypergrid, everything is done relative to this, it just needs to live in it's own containing developement directory.
+1. Notice that bower installs many dependencies a level up from the fin-hypergrid project directory, this is the polymer way of developing custom elements.  The actual project directory *is* fin-hypergrid; everything is done relative to this; it just needs to live in its own containing development directory.
 
 
 # JSON behavior
@@ -99,8 +99,8 @@ By far the most common behavior to use will be the JSON behavior.  If you're not
 
 ## Populating a JSON behavior with data
 
-To populate the json behavior with data simply provide hypergrid with an array of same shaped objects.   
-```
+To populate the JSON behavior with data simply provide hypergrid with an array of same shaped objects.   
+```javascript
     var myJSONBehavior = document.querySelector('#myHypergrid').getBehavior();
     myJSONBehavior.setData([
         {   
@@ -124,18 +124,18 @@ To populate the json behavior with data simply provide hypergrid with an array o
 
 There are several ways to specify fields and headers with hypergrid.
 
-* Let hypergrid default them.  Hypergrid will inspect the first object in the data array and use all fields it finds.  It will create header labels by uppercasing and placing spaces between the words delimitted by camelcase, dashes, or underscores.
-    * moeLarryCurly -> Moe, Larry, Curly
-    * moe-larry-curly -> Moe, Larry, Curly
-    * moe_larry_curly -> Moe, Larry, Curly
+* Let hypergrid default them.  Hypergrid will inspect the first object in the data array and use all fields it finds.  It will create header labels by uppercasing and placing spaces between the words delimited by camelCase, dashes, or underscores.
+    * moeLarryCurly -> **Moe Larry Curly**
+    * moe-larry-curly -> **Moe Larry Curly**
+    * moe_larry_curly -> **Moe Larry Curly**
 * Specify fields and headers using setFields and setHeaders
-```
+```javascript
     myJSONBehavior.setData(myData);
     myJSONBehavior.setHeaders(['header one','header two','header three','header four']);
     myJSONBehavior.setFields(['one','two','three','four']);
 ```
 * Specify fields and headers using setColumns ala slickgrid API.
-```
+```javascript
     myJSONBehavior.setData(myData);
     myJSONBehavior.setColumns([
         {
@@ -157,7 +157,7 @@ There are several ways to specify fields and headers with hypergrid.
 
 adding totals rows just under the column headers with Hypergrid is extremely simple.  Call setTotals function on the JSON behavior and pass in an array of arrays of the content you want displayed.
 
-```
+```javascript
     var totals =
         [['','1st',251,'XXXX-XX-XX','1 of 50','1 of 50','T/F','$$$$$','£££££']];
 
@@ -179,9 +179,9 @@ Hypergrid allows you to snapshot the user configured state and then reapply it l
 to do this
 
 1. configure the table the way you would like
-2. call ```var state = myGrid.getState();```
+2. call `var state = myGrid.getState();`
 3. save the state object however you like, json/local storage/mongodb/etc...
-4. later on, call ```myGrid.setState(state);``` with the previous state object to return 
+4. later on, call `myGrid.setState(state);` with the previous state object to return 
 
 <img src="images/gridshot06.png" alt="screenshot">
 
@@ -205,10 +205,10 @@ state objects can be created programmatically or by hand and applied.  This is h
 
 It's really easy to see your data updates manifest in the hypergrid with the JSON behavior. You don't need to call setData again.
 
-1. Update the underlying javascript object field.
-2. Call the 'changed()' function on the json behavior object.
+1. Update the underlying JavaScript object field.
+2. Call the 'changed()' function on the JSON behavior object.
 3. If you have sorts in place that you want reapplied, call 'dataModified()' instead of calling 'changed()'
-```
+```javascript
     var myData = [
         {   
             first_name:'moe',
@@ -234,7 +234,7 @@ It's really easy to see your data updates manifest in the hypergrid with the JSO
     myData[0].first_name = 'Groucho';
     myData[0].last_name = 'Marx';
     
-    //tell the behavior it's underlying data has changed
+    //tell the behavior its underlying data has changed
     myJSONBehavior.changed();
     
     //call this insted of 'changed()' if you have sorts that you want reapplied
@@ -246,7 +246,7 @@ Cells as Links
 Hypergrid supports clickable link cells, to achieve this you need to...
 
 * register a listener to the table for 'fin-cell-click'
-```
+```javascript
 jsonGrid.addFinEventListener('fin-cell-click', function(e){
     var cell = e.detail.cell;
     if (cell.x !== 0) {
@@ -256,7 +256,7 @@ jsonGrid.addFinEventListener('fin-cell-click', function(e){
 });
 ```
 * override the getCursorAt method on behavior to be a function that returns the string of the name of the cursor for the column with the links
-```
+```javascript
 jsonModel.getCursorAt = function(x,y) {
     if (x === 0) {
         return 'pointer'
@@ -266,7 +266,7 @@ jsonModel.getCursorAt = function(x,y) {
 };
 ```
 * override the cell-provider to return the linkRenderer for the desired link columns
-```
+```javascript
 cellProvider.getCell = function(config) {
     var renderer = cellProvider.cellCache.simpleCellRenderer;
     config.halign = 'left';
@@ -277,6 +277,7 @@ cellProvider.getCell = function(config) {
     ...
     ...
     ...
+}
 ```
  
 see the 'Last Name' column of the JSON tab in the main example;
@@ -285,7 +286,7 @@ see the 'Last Name' column of the JSON tab in the main example;
 # Fixed Columns
 Hypergrid supports arbitrary numbers of fixed columns.  Simply call the setFixedColumnCount() function on YOUR behavior object. An example of this can be found on the [JSON tab](http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/demo.html?tab=2).
 
-```
+```javascript
 var jsonGrid = document.querySelector('#json-example');
 
 var jsonModel = jsonGrid.getBehavior();
@@ -303,7 +304,7 @@ There are four areas that have distinct cell renderering override capabilities.
 
 These areas coorespond to four functions on a [CellProvider](https://github.com/openfin/fin-hypergrid/blob/master/polymer/js/fin-hypergrid-cell-provider.js) found in [YOUR](https://github.com/openfin/fin-hypergrid/blob/master/polymer/js/behaviors/fin-hypergrid-behavior-base.js#L145) behavior object.
 
-```
+```javascript
         getCell: function(config) {
             var cell = this.cellCache.simpleCellRenderer;
             cell.config = config;
@@ -337,7 +338,7 @@ Creating a cell renderer and using it is very easy, ie:
 
 <img src="images/customrenderer.png">
 
-```
+```javascript
 var jsonModel = jsonGrid.getBehavior();
 
 //get the cell cellProvider for altering cell renderers
@@ -390,7 +391,7 @@ cellProvider.getCell = function(config) {
 
 The config object bound to 'this' on a custom cell renderer has a lot of data that can be used or overridden.
 
-property|values/examles|description
+property|values/examples|description
 --------|------|-----------
 bgColor|'white'|the background color for this cell, leave blank to have the default color 
 bgSelColor|"rgb(244, 214, 79)"|the background color for this cell if it is selected
@@ -407,7 +408,7 @@ isRowHovered|true/false|is the pointer over the the row of the current cell
 isSelected|true/false|is the current cell selected
 minWidth|0|do not modify, this is used by hypergrid for the auto column width feature
 properties|Object|the hypergrid properties (for convenience)
-row|Object|with a json object, this is the underlying row object
+row|Object|with a JSON object, this is the underlying row object
 value|anything|this is the value to renderer for the current cell
 voffset|integer|top side of the cell padding for the current cell
 x|integer|the x model coordinate
@@ -422,7 +423,7 @@ You can autosize a column to best fit size by double clicking on the column head
 
 # Cell Editors
 
-Hypergrid comes with several default cell editors you can easily select, and the ability to create your own. [The javascript code](https://github.com/openfin/fin-hypergrid/tree/master/polymer/js/cell-editors) for the cell editors is found here.
+Hypergrid comes with several default cell editors you can easily select, and the ability to create your own. [The JavaScript code](https://github.com/openfin/fin-hypergrid/tree/master/polymer/js/cell-editors) for the cell editors is found here.
 
 ## Default cell editors
 * [choice](http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/#fin-hypergrid-cell-editor-choice)
@@ -443,7 +444,7 @@ Hypergrid comes with several default cell editors you can easily select, and the
 You can easily create your own cell editors by subclassing any of the existing cell editors and registering your cell editor with Hypergrid.
 
 * Create a subclass of an existing cell editor.  See [creating polymer components](https://www.polymer-project.org/0.5/docs/polymer/polymer.html) for understanding more about the google best practices for building next generation web components.
-```
+```html
 <link rel="import" href="../fin-hypergrid/html/cell-editors/fin-hypergrid-cell-editor-simple.html">
 <polymer-element name="my-number-cell-editor" extends="fin-hypergrid-cell-editor-simple">
   <template>
@@ -461,12 +462,12 @@ You can easily create your own cell editors by subclassing any of the existing c
 ```
 
 * Register it with your hypergrid
-```
+```javascript
 myHypergrid.initializeCellEditor('my-number-cell-editor');
 ```
 
 * make use of your new new cell editor
-```
+```javascript
 var editorTypes = ['choice','numberfield','spinner','date','choice','numberfield','choice','textfield','numberfield'];
 myBehavior.getCellEditorAt = function(x, y) {
     var type = editorTypes[x];
@@ -480,7 +481,7 @@ myBehavior.getCellEditorAt = function(x, y) {
 
 ## Modifying various hypergrid features and property defaults
 Many of the hypergrid default values and properties can be set through property overriding functions
-```addGlobalProperties``` and ```addProperties```.  The current list is.
+`addGlobalProperties` and `addProperties`.  The current list is:
 
 property|values/examles|description
 --------|------|-----------
@@ -528,7 +529,7 @@ columnAutosizing|true/false|enable column autosizing
 
 ## Example usage
 
-```
+```javascript
     var lnfOverrides = {
         font: '13px Tahoma, Geneva, sans-serif',
         color: '#ffffff',
@@ -595,7 +596,7 @@ fin-cell-enter|this is fired when the mouse enters a new cell,
 fin-keydown|this is fired on a keydown event
 fin-keyup|this is fired on a keyup event
 
-```
+```javascript
     var jsonModel = document.querySelection('#json-grid');
     jsonModel.addFinEventListener('fin-cell-click', function(event) {
         console.log('fin-cell-click', event.detail);
@@ -611,7 +612,7 @@ press alt/option to open the column picker, you can press alt/option or esc to c
 
 # Hypergrid Excel Integration
 
-There is an example integration between the Hypergrid and Microsoft Excel over the OpenFin InterApplicationBus. The example only works when running Hypergrid in the OpenFin Runtime, which is installed from the [Hypergrid Openfin Installer](https://dl.openfin.co/services/download?fileName=hypergrid-demo-installer&config=http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/demo.json).
+There is an example integration between the Hypergrid and Microsoft Excel over the OpenFin InterApplicationBus. The example only works when running Hypergrid in the OpenFin Runtime, which is installed from the [Hypergrid OpenFin Installer](https://dl.openfin.co/services/download?fileName=hypergrid-demo-installer&config=http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/demo.json).
 
 Keep in mind the Excel integration is NOT a Hypergrid specific feature but is a feature that allows any OpenFin application to communicate with Excel via the InterApplicationBus.
 
@@ -644,7 +645,7 @@ Because so many folks have been asking for an example of JSON with Excel, we've 
 
 To enable excel messaging for your behavior, embed the fin-hypergrid-excel tag inside your grid tag
 
-```
+```html
 <fin-hypergrid>
     <fin-hypergrid-behavior-default></fin-hypergrid-behavior-default>
     <fin-hypergrid-excel
@@ -659,8 +660,8 @@ All the attributes listed above default to the values listed above.  These prope
 
 attribute|values/examles|description
 --------|------|-----------
-publish|any valid javascript identifier<br>onSelect<br>onJSONSelect|this is the topic used to [publish the cell data messages to the InterApplicationBus ](http://cdn.openfin.co/jsdocs/3.0.1.5/fin.desktop.module_InterApplicationBus.html#publish).  This value MUST be the same as the second argument in the Excel addin function <a class="hovertrigger">=FinDesktopSync("hypergrid-demo","onSelect","").</a><div class="hoverdiv"><img src="images/excel-integration01.png" alt="screenshot"></div>
-subscribe|any valid javascript identifier<br>onExcelChange<br>onJSONExcelChange|this is the topic used to [subscribe to cell data messages from the InterApplicationBus ](http://cdn.openfin.co/jsdocs/3.0.1.5/fin.desktop.module_InterApplicationBus.html#subscribe). This should be left to the default of "onExcelChange" unless you want to push the cell data to other InterApplicationBus endpoints. 
+publish|any valid JavaScript identifier<br>onSelect<br>onJSONSelect|this is the topic used to [publish the cell data messages to the InterApplicationBus ](http://cdn.openfin.co/jsdocs/3.0.1.5/fin.desktop.module_InterApplicationBus.html#publish).  This value MUST be the same as the second argument in the Excel addin function <a class="hovertrigger">=FinDesktopSync("hypergrid-demo","onSelect","").</a><div class="hoverdiv"><img src="images/excel-integration01.png" alt="screenshot"></div>
+subscribe|any valid JavaScript identifier<br>onExcelChange<br>onJSONExcelChange|this is the topic used to [subscribe to cell data messages from the InterApplicationBus ](http://cdn.openfin.co/jsdocs/3.0.1.5/fin.desktop.module_InterApplicationBus.html#subscribe). This should be left to the default of "onExcelChange" unless you want to push the cell data to other InterApplicationBus endpoints. 
 interval|integer value in milliseconds<br>500<br>1000|millisecond interval to [publish the cell data messages to the InterApplicationBus ](http://cdn.openfin.co/jsdocs/3.0.1.5/fin.desktop.module_InterApplicationBus.html#publish)
 logging|Boolean value<br>true<br>false|enable or disable logging of messages and errors to the console
 
@@ -687,7 +688,7 @@ This Hypertree + Hypergrid example allows you to define a on the fly custom dril
 
 1. The Q tabs will not be populated with data until you run a Q server script that is provided.
 2. Make sure q 32 bit free version is installed [Q free version](http://kx.com/software-download.php)
-3. Startup either ```q bigtable.q```, ```q sorttable.q```, or install and run the extremely powerfull [Hypertree server found in Stevan Apters github area](https://github.com/stevanapter/hypertree).
+3. Startup either `q bigtable.q`, `q sorttable.q`, or install and run the extremely powerfull [Hypertree server found in Stevan Apters github area](https://github.com/stevanapter/hypertree).
 4. Make sure grunt serve is running or your browser is pointed to the proper [demo](http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/demo.html?tab=4) tab.
 5. If you are running locally, the grunt serve process should automatically refresh your web browser with the q driven grid now populated with data
 
@@ -752,19 +753,19 @@ Hypergrid utilizes a custom scrollbar component so as to not be limited to table
 * Column autosizing
 * Hover event support
 * clickable hyperlink cells
-* polymer web component based
+* polymer Web component-based
 * material design compliant
-* high performant canvas based rendering
-* low cpu and memory usage
+* high performant canvas-based rendering
+* low CPU and memory usage
 * Arbitrary row/column sizes
 * Drag and Drop column resizing and animated reordering
 * Drag and Drop row resizing
-* Memento based table state retention
+* Memento-based table state retention
 * Data per cell can be anything (text, numerical, nested arrays, etc.)
 * Shape/size in both pixel and row/column count can change dynamically
 * Infinite scrolling row/col through external high performant data sources (see Q examples)
 * Copy to paste buffer selected cells
-* Multi-rectangle based selection model
+* Multi-rectangle-based selection model
 * Mouse driven dragging selections
 * Shift/control selection augmentation
 * Arbitrary fixed columns and/or rows
@@ -773,14 +774,14 @@ Hypergrid utilizes a custom scrollbar component so as to not be limited to table
 * Fast arrow key navigation
 * Non-linear accelerated vertical key navigation
 * Custom scrollbar implementation for infinite scroll of large data sets
-* Cell based scrolling (not pixel) 
-* Pluggable behavior based eventing
-* In place editing mechanism using html5 overlayed components
+* Cell-based scrolling (not pixel) 
+* Pluggable behavior-based eventing
+* In-place editing mechanism using HTML5 overlaid components
 * Q\kdb+ GridBehavior examples provided. 
     1. 100MM row example
     2. 1MM row sortable example
     3. 1MM row analytic tree/pivot table example
-* Simple in memory based GridBehavior example provided
+* Simple memory-based GridBehavior example provided
 * JSON example
 * Easily customizable and extensible cell rendering
 
@@ -794,7 +795,7 @@ autopersist layouts
 visual queue for nested sort
 
 
-json behavior enhancements
+JSON behavior enhancements
     cell.config.row is the underling object of the row
     cell.config.columnId is the current columnId
 
@@ -820,7 +821,7 @@ example of adding a column
 
 line numbers with row indicator clicking selects row
 select cells selects the row
-make frozen colums appear as normal columns
+make frozen columns appear as normal columns
 
 save data as csv 
 configurable tab/enter excel style cell editing
@@ -828,7 +829,7 @@ configurable tab/enter excel style cell editing
 double click event
 
 reasonable default cell editors based on datatype
-make example using rgb in custom cell renderers
+make example using RGB in custom cell renderers
 
 theme coloring is broken 
 single click cell editing
