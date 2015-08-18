@@ -197,6 +197,9 @@
             if(cell.y > 2 && cell.x === 7) {
                 jsonGrid.toggleSelectRow(cell.y, []);
             }
+            if (cell.y === 1 && cell.x !== -1) {
+                jsonGrid.activateEditor(cell.x, cell.y);
+            }
         });
 
         jsonGrid.addFinEventListener('fin-button-pressed', function(e){
