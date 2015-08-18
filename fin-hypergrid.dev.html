@@ -24891,7 +24891,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
             var sorts = this.getState().sorts;
             var dataProvider = this.getData();
             for (var i = 0; i < sorts.length; i++) {
-                var colIndex = Math.abs(sorts[i]);
+                var colIndex = Math.abs(sorts[i]) - 1;
                 var type = sorts[i] < 0 ? -1 : 1;
                 dataProvider.sortOn(colIndex, type);
             }
