@@ -95,20 +95,7 @@ var noop = function() {};
          * @param {object} config - an object with everything you might need for renderering a cell
          * @instance
          */
-        getTopLeftCell: function(config) {
-            var cell = this.cellCache.emptyCellRenderer;
-            cell.config = config;
-            return cell;
-        },
-
-        /**
-         * @function
-         * @description replace this function in on your instance of cellProvider
-         * @returns cell
-         * @param {object} config - an object with everything you might need for renderering a cell
-         * @instance
-         */
-        getFixedColumnCell: function(config) {
+        getColumnHeaderCell: function(config) {
             var cell = this.cellCache.simpleCellRenderer;
             cell.config = config;
             return cell;
@@ -121,7 +108,7 @@ var noop = function() {};
          * @param {object} config - an object with everything you might need for renderering a cell
          * @instance
          */
-        getFixedRowCell: function(config) {
+        getRowHeaderCell: function(config) {
             var cell = this.cellCache.simpleCellRenderer;
             cell.config = config;
             return cell;

@@ -3295,14 +3295,15 @@
          * @param {rectangle.point} cell - the x,y coordinates
          * @param {Object} value - the current value
          */
-        fireBeforeCellEdit: function(cell, oldValue, newValue) {
+        fireBeforeCellEdit: function(cell, oldValue, newValue, control) {
             var clickEvent = new CustomEvent('fin-before-cell-edit', {
                 cancelable: true,
                 detail: {
                     oldValue: oldValue,
                     newValue: newValue,
                     gridCell: cell,
-                    time: Date.now()
+                    time: Date.now(),
+                    input: control
                 }
             });
             var proceed = this.canvas.dispatchEvent(clickEvent);
@@ -3319,13 +3320,14 @@
          * @param {Object} oldValue - the old value
          * @param {Object} newValue - the new value
          */
-        fireAfterCellEdit: function(cell, oldValue, newValue) {
+        fireAfterCellEdit: function(cell, oldValue, newValue, control) {
             var clickEvent = new CustomEvent('fin-after-cell-edit', {
                 detail: {
                     newValue: newValue,
                     oldValue: oldValue,
                     gridCell: cell,
-                    time: Date.now()
+                    time: Date.now(),
+                    input: control
                 }
             });
             this.canvas.dispatchEvent(clickEvent);

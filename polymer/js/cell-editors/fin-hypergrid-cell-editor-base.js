@@ -199,7 +199,7 @@
             if (!this.isEditing) {
                 return;
             }
-            var proceed = this.getGrid().fireSyntheticEditorDataChangeEvent(this, this.initialValue, this.getEditorValue);
+            var proceed = this.getGrid().fireSyntheticEditorDataChangeEvent(this, this.initialValue, this.getEditorValue, this);
             if (!proceed) {
                 return;
             }
@@ -228,12 +228,12 @@
             if (value === this.initialValue) {
                 return; //data didn't change do nothing
             }
-            var continued = this.getGrid().fireBeforeCellEdit(point, this.initialValue, value);
+            var continued = this.getGrid().fireBeforeCellEdit(point, this.initialValue, value, this);
             if (!continued) {
                 return;
             }
             this.getBehavior().setValue(point.x, point.y, value);
-            this.getGrid().fireAfterCellEdit(point, this.initialValue, value);
+            this.getGrid().fireAfterCellEdit(point, this.initialValue, value, this);
         },
 
         /**
