@@ -1257,7 +1257,7 @@
                 if (self.resolveProperty('readOnly')) {
                     return;
                 }
-                self.stopEditing();
+                //self.stopEditing();
                 var mouse = e.detail.mouse;
                 var mouseEvent = self.getGridCellFromMousePoint(mouse);
                 mouseEvent.keys = e.detail.keys;
@@ -1268,12 +1268,12 @@
                 self.repaint();
             });
 
-            //
+
             // this.addFinEventListener('fin-canvas-click', function(e) {
             //     if (self.resolveProperty('readOnly')) {
             //         return;
             //     }
-            //     self.stopEditing();
+            //     //self.stopEditing();
             //     var mouse = e.detail.mouse;
             //     var mouseEvent = self.getGridCellFromMousePoint(mouse);
             //     mouseEvent.primitiveEvent = e;
@@ -1291,6 +1291,7 @@
                 if (self.columnDragAutoScrolling) {
                     self.columnDragAutoScrolling = false;
                 }
+                //self.stopEditing();
                 var mouse = e.detail.mouse;
                 var mouseEvent = self.getGridCellFromMousePoint(mouse);
                 mouseEvent.primitiveEvent = e;
@@ -1306,7 +1307,7 @@
                 if (self.resolveProperty('readOnly')) {
                     return;
                 }
-                self.stopEditing();
+                //self.stopEditing();
                 var mouse = e.detail.mouse;
                 var tapEvent = self.getGridCellFromMousePoint(mouse);
                 tapEvent.primitiveEvent = e;
@@ -1365,15 +1366,16 @@
                 }
             });
 
-            this.addFinEventListener('fin-canvas-holdpulse', function(e) {
-                if (self.resolveProperty('readOnly')) {
-                    return;
-                }
-                var mouse = e.detail.mouse;
-                var mouseEvent = self.getGridCellFromMousePoint(mouse);
-                mouseEvent.primitiveEvent = e;
-                self.delegateHoldPulse(mouseEvent);
-            });
+            // this.addFinEventListener('fin-canvas-holdpulse', function(e) {
+            //     console.log('holdpulse');
+            //     if (self.resolveProperty('readOnly')) {
+            //         return;
+            //     }
+            //     var mouse = e.detail.mouse;
+            //     var mouseEvent = self.getGridCellFromMousePoint(mouse);
+            //     mouseEvent.primitiveEvent = e;
+            //     self.delegateHoldPulse(mouseEvent);
+            // });
 
             this.addFinEventListener('fin-canvas-dblclick', function(e) {
                 if (self.resolveProperty('readOnly')) {
@@ -2999,6 +3001,9 @@
         activateEditor: function(x, y) {
             var editor = this.getCellEditorAt(x, y);
             if (editor) {
+                if (editor.isEditing) {
+                    return; //we're already open
+                }
                 event.gridCell = {
                     x: x,
                     y: y

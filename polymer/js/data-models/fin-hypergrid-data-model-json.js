@@ -575,7 +575,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
             if (index < 0) {
                 return null;
             }
-            return this.getData()[index];
+            return this.getData().dataProvider.getRow(index);
         },
 
         /**

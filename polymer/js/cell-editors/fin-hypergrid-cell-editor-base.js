@@ -308,8 +308,16 @@
                 this.hideEditor();
             }
         },
+
         getGrid: function() {
             return this.grid;
+        },
+
+        showDropdown: function(element) {
+            var event;
+            event = document.createEvent('MouseEvents');
+            event.initMouseEvent('mousedown', true, true, window);
+            element.dispatchEvent(event);
         }
 
     });

@@ -76,6 +76,9 @@
 
         var onFilterImage = jsonModel.getImage('filter-on');
         var offFilterImage = jsonModel.getImage('filter-off');
+        var upDown = jsonModel.getImage('up-down');
+        var upDownSpin = jsonModel.getImage('up-down-spin');
+        var downArrow = jsonModel.getImage('down-rectangle');
         //all formatting and rendering per cell can be overridden in here
         cellProvider.getCell = function(config) {
             var renderer = cellProvider.cellCache.simpleCellRenderer;
@@ -106,12 +109,18 @@
                 config.backgroundColor = '#aaaaff';
                 config.color = '#ffffff';
             }
+            if ([0,1,4,5].indexOf(x) > -1) {
+                //we are a dropdown, lets provide a visual queue
+                config.value = [null, config.value, upDown];
+            }
             if (x === 1) {
                 renderer = cellProvider.cellCache.linkCellRenderer;
             } else if (x === 2) {
-                config.halign = 'center';
+                config.halign = 'left';
+                config.value = [null, config.value, upDownSpin];
             } else if (x === 3) {
-                config.halign = 'center';
+                config.halign = 'left';
+                config.value = [null, config.value, downArrow];
             } else if (x === 6) {
                 renderer = cellProvider.cellCache.buttonRenderer;
             } else if (x === 7) {
@@ -196,14 +205,25 @@
             }
         });
 
-        jsonGrid.addFinEventListener('fin-mousedown', function(e){
+        jsonGrid.addFinEventListener('fin-click', function(e){
             var cell = e.detail.gridCell;
             if(cell.y > 2 && cell.x === 7) {
                 jsonGrid.toggleSelectRow(cell.y, []);
             }
             if (cell.y === 1 && cell.x !== -1) {
-                jsonGrid.activateEditor(cell.x, cell.y);
+                if (jsonGrid.isEditing()) {
+                    jsonGrid.stopEditing();
+                } else {
+                    jsonGrid.activateEditor(cell.x, cell.y);
+                }
+            } else if (cell.y > 2 && cell.x !== -1) {
+                if (jsonGrid.isEditing()) {
+                    jsonGrid.stopEditing();
+                } else {
+                    jsonGrid.activateEditor(cell.x, cell.y);
+                }
             }
+
         });
 
         jsonGrid.addFinEventListener('fin-button-pressed', function(e){

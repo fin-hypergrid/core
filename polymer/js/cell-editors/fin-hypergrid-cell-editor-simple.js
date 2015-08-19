@@ -44,6 +44,12 @@
             this.input.addEventListener('keypress', function(e) {
                 self.getGrid().fireSyntheticEditorKeyPressEvent(self, e);
             });
+            // this.input.addEventListener('focusout', function() {
+            //     self.stopEditing();
+            // });
+            // this.input.addEventListener('blur', function() {
+            //     self.stopEditing();
+            // });
             this.input.style.position = 'absolute';
             this.input.style.display = 'none';
             this.input.style.border = 'solid 2px black';

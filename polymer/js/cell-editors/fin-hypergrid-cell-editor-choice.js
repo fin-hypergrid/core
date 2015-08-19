@@ -33,7 +33,28 @@
          */
         items: [],
 
+        showEditor: function() {
+            var self = this;
+            this.input.style.display = 'inline';
+            setTimeout(function() {
+                self.showDropdown(self.input);
+            }, 50);
+        },
 
     });
 
 })(); /* jshint ignore:line */
+
+
+// showDropdown = function (element) {
+//     var event;
+//     event = document.createEvent('MouseEvents');
+//     event.initMouseEvent('mousedown', true, true, window);
+//     element.dispatchEvent(event);
+// };
+
+// // This isn't magic.
+// window.runThis = function () {
+//     var dropdown = document.getElementById('dropdown');
+//     showDropdown(dropdown);
+// };

@@ -96,6 +96,11 @@ com.dataProviders.JSDataProvider = (function (_super) {
         return typeof value === "function"?  value(): value;
     };
 
+    JSDataProvider.prototype.getRow = function(y){
+
+        return this.data[y];
+    };
+
     JSDataProvider.prototype.setValue = function(x, y, value){
 
         this.data[y][this.fields[x]] = value;
@@ -128,9 +133,9 @@ com.dataProviders.JSDataProvider = (function (_super) {
             return (a < b ? -1: 1) * type;
         });
     };
-
+    
     JSDataProvider.prototype.getFields = function(){
-
+        
         return this.fields;
     };
 
@@ -292,7 +297,7 @@ com.AggregationFunctions = {
 
     var AggregationFunctions = com.AggregationFunctions;
 
-
+    
     function DataGroup(name, dataProvider){
 
         this.name = name;
@@ -324,7 +329,7 @@ com.AggregationFunctions = {
         return this.dataProvider.totalColumns;
     };
 
-
+    
     DataGroup.prototype.getGroup = function(columnIndex){
 
         var groupsByName = {}, groups = [];
@@ -352,7 +357,7 @@ com.AggregationFunctions = {
         return groups;
     };
 
-
+    
     DataGroup.prototype.applyFunctionsToColumn = function(customFunctions){
 
         var length = this.getRowCount();
@@ -408,14 +413,14 @@ com.DataBrowser = (function(){
     }
 
     DataBrowser.prototype.getGroup = function(columnIndex){
-
+        
         var groupsByName = {}, groups = [];
         var dataProvider = this.dataProvider;
         var length = dataProvider.getRowCount();
         var group = null;
 
         for(var i = 0; i < length; i++){
-
+            
             var columnValue = dataProvider.getValue(columnIndex, i);
             if(!groupsByName[columnValue]){
 
@@ -448,7 +453,7 @@ com.DataBrowser = (function(){
 
         return this.dataProvider.getColumnCount();
     };
-
+    
     DataBrowser.prototype.getValue = function(x, y){
 
         if(this.groups){
@@ -470,7 +475,7 @@ com.DataBrowser = (function(){
 
         return this.dataProvider.getValue(x, y);
     };
-
+    
     DataBrowser.prototype.setValue = function(x, y, value){
 
        if(this.filteredData){
@@ -529,8 +534,31 @@ com.DataBrowser = (function(){
     };
 
         DataBrowser.prototype.setGroups = function(columnIndexes){
-
+        
         this.groups = this.getGroup(columnIndexes[0]);
+    };
+
+    DataBrowser.prototype.setGroups = function(){
+
+        var groups = this.getGroup(arguments.shift());
+        for(var i = 0; i < arguments.length; i++){
+
+
+        }
+    };
+
+    DataBrowser.prototype._applyGrouping = function(groups, indexes){
+
+        var currentGroupingIndex = indexes[0];
+        for(var i = 0 ; i < groups.length; i++){
+
+            var current = groups[i];
+            for(var j = 1; j < indexes.length; j++){
+
+                current.groups = current.getGroup(currentGroupingIndex);
+                this._applyGrouping(current.groups, indexes);
+            }
+        }
     };
 
     DataBrowser.prototype.getFields = function(){
@@ -546,4 +574,3 @@ com.DataBrowser;
 com.AggregationFunctions;
 com.dataProviders.CSVDataProvider;
 com.dataProviders.JSDataProvider;
-
