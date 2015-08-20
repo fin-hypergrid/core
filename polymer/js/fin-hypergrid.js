@@ -170,7 +170,14 @@
             getTextWidth: getTextWidth,
             getTextHeight: getTextHeight,
 
-            showRowNumbers: true
+            fixedColumnCount: 0,
+            fixedRowCount: 0,
+            headerColumnCount: 0,
+            headerRowCount: 0,
+
+            showRowNumbers: true,
+            showHeaderRow: false,
+            showFilterRow: false
 
         };
         return properties;
@@ -3571,6 +3578,12 @@
         },
         isRowSelectionMode: function() {
             return this.getSelectionModel().isRowSelectionMode();
+        },
+        isShowFilterRow: function() {
+            return this.resolveProperty('showFilterRow');
+        },
+        isShowHeaderRow: function() {
+            return this.resolveProperty('showHeaderRow');
         }
     });
 

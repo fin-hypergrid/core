@@ -29,7 +29,6 @@
 (function(){
     //used by the cellProvider, return null for a column if you want no editor to pop up
     var editorTypes = ['choice','textfield','spinner','date','choice','choice','choice','textfield','textfield','textfield'];
-    var filterTypes = ['choice','textfield','choice','textfield','choice','textfield','choice','textfield','choice','textfield'];
 
     document.addEventListener('polymer-ready', function() {
 
@@ -50,32 +49,22 @@
         //set the actual json row objects
         //jsonModel.setData(people); //see sampledata.js for the random data
 
-
-
         //lets sew in haseeb's stuff here for now.....
         var dataBrowser =  new com.DataBrowser(new com.dataProviders.JSDataProvider(["last_name", "first_name", "pets", "birthDate", "birthState", "residenceState", "employed", "income", "travel", "squareOfIncome"], people));
         jsonModel.setDataProvider(dataBrowser);
 
         //make the first col fixed;
-        jsonModel.setFixedColumnCount(2);
-        jsonModel.setFixedRowCount(2);
+        // jsonModel.setFixedColumnCount(2);
+        // jsonModel.setFixedRowCount(2);
 
-        jsonModel.setHeaderColumnCount(1);
-        jsonModel.setHeaderRowCount(2);
+        // jsonModel.setHeaderColumnCount(1);
+        // jsonModel.setHeaderRowCount(2);
 
         //lets set 2 rows of totals
-        var totals =
-            [['','','','','','','','','','',''],
-            ['','1st',251,'XXXX-XX-XX','1 of 50','1 of 50','T/F','$$$$$','£££££','computed col','']];
-
-        jsonModel.setTotals(totals);
 
         //sort ascending on the first column (first name)
         //jsonModel.toggleSort(0);
 
-
-        var onFilterImage = jsonModel.getImage('filter-on');
-        var offFilterImage = jsonModel.getImage('filter-off');
         var upDown = jsonModel.getImage('up-down');
         var upDownSpin = jsonModel.getImage('up-down-spin');
         var downArrow = jsonModel.getImage('down-rectangle');
@@ -84,28 +73,20 @@
             var renderer = cellProvider.cellCache.simpleCellRenderer;
             var x = config.x;
             var y = config.y;
-            var image = offFilterImage;
-            if (y < 3 || x === -1) {
-                if (y === 0) {
-                    image = jsonModel.getBaseModel().getSortImageForColumn(x);
-                    config.value[2] = image;
-                }
-                else if (y === 1) {
-                    if (x === -1) {
-                        return renderer;
-                    }
-                    if (config.value !== '') {
-                        image = onFilterImage;
-                    }
-                    config.value = [null, config.value, image];// filter icons
-                }
+            // if (y < 2 || x === -1) {
+            //     if (y === 0) {
+            //         config.value[2] = jsonModel.getBaseModel().getSortImageForColumn(x);
+            //     }
+            //     return renderer;
+            // }
+            if (x === -1) {
                 return renderer;
             }
             config.halign = 'left';
             if ((y % 3) === 0){
                 config.backgroundColor = '#E87200';
                 config.font = 'italic 15px Arial';
-            } else if (((y - 1) % 3) === 0){
+            } else if (((y + 1) % 3) === 0){
                 config.backgroundColor = '#aaaaff';
                 config.color = '#ffffff';
             }
@@ -345,7 +326,7 @@
         });
 
         var fields = jsonModel.getFields();
-        var headers = jsonModel. getHeaders();
+        var headers = jsonModel.getHeaders();
 
         console.log(headers);
         console.log(fields);
@@ -401,10 +382,9 @@
                             "travel",
                             "squareOfIncome"]),
                         rowHeights:{ 0: 30 },
-                        fixedColumnCount:1,
-                        fixedRowCount:3,
-                        headerColumnCount:0,
-                        headerRowCount:3,
+                        // fixedColumnCount:1,
+                        // fixedRowCount:2,
+                        // headerRowCount:2,
                         columnAutosizing:true
                     };
 
@@ -437,14 +417,6 @@
                 // rowHeaderForegroundSelectionColor
                 // rowHeaderBackgroundSelectionColor
 
-                var filterProperties = {
-                    backgroundColor: 'white'
-                };
-
-                for (var i = 0; i < headers.length; i++) {
-                    jsonModel.setCellProperties(i,1,filterProperties);
-                };
-
                 jsonModel.setCellProperties(2,0,
                     {
                         font: '10pt Tahoma',
@@ -462,7 +434,7 @@
                             }
                         },
                         columnHeaderBackgroundColor: '#142B6F', //dark blue
-                        columnHeaderColor: 'grey'
+                        columnHeaderColor: 'white'
                     });
 
                 console.log(jsonModel.getHeaders());
@@ -477,11 +449,11 @@
                 //jsonGrid.addProperties(myThemes.three);
 
 
-            }, 2000);
+            }, 500);
 
 
 
-        }, 2000);
+        }, 500);
 
 
     });

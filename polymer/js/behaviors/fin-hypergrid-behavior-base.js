@@ -240,12 +240,6 @@ it contains all code/data that's necessary for easily implementing a virtual dat
                 rowHeights: {},
                 columnProperties: [],
 
-                fixedColumnCount: 10,
-                fixedRowCount: 1,
-
-                headerColumnCount: 2,
-                headerRowCount: 2,
-
                 cellProperties: {}
             });
 
@@ -1085,10 +1079,16 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          * #### returns: integer
          */
         getHeaderRowCount: function() {
-            if (!this.tableState) {
-                return 0;
+            var grid = this.getGrid();
+            var count = 0;
+            if (grid.isShowFilterRow()) {
+                count++;
             }
-            return this.tableState.headerRowCount || 0;
+            if (grid.isShowHeaderRow()) {
+                count++;
+            }
+            count = count + this.getTotals().length;
+            return count;
         },
 
         /**
@@ -1110,10 +1110,12 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          * #### returns: integer
          */
         getHeaderColumnCount: function() {
-            if (!this.tableState) {
-                return 0;
+            var grid = this.getGrid();
+            var count = 0;
+            if (grid.isShowRowNumbers()) {
+                count++;
             }
-            return this.tableState.headerColumnCount || 0;
+            return count;
         },
 
         /**

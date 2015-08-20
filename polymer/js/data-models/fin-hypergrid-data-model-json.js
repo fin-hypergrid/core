@@ -298,24 +298,34 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
          * @param {integer} y - the y coordinate
          */
         getValue: function(x, y) {
-            var result, tableState, headers, sortIndex;
-            headers = this.getHeaders();
+            var grid = this.getGrid();
+            if (y === 0 && grid.isShowHeaderRow()) {
+                return this.getHeader(x);
+            }
             var data = this.getData();
-            var headersSize = headers.length > 0 ? 1 : 0;
-            if (y < headersSize) {
-                tableState = this.getState();
-                sortIndex = tableState.columnProperties[x].sorted || 0;
-                result = [undefined, headers[x], this.getImage(sortStates[sortIndex])];
-            } else if (y < this.getTotals().length + headersSize) {
-                result = this.getTotal(x, y - headersSize);
-            } else {
-                result = data.getValue(x, y - this.getTotals().length - headersSize);
-            }
-            if (typeof result === 'function') {
-                result = result();
-            }
-            return result;
+            return data.getValue(x, y);
         },
+
+
+        // var result, tableState, headers, sortIndex;
+        // var grid = this.getGrid();
+        // headers = this.getHeaders();
+        // var data = this.getData();
+        // var headersSize = headers.length > 0 ? 1 : 0;
+        // if (y < headersSize) {
+        //     tableState = this.getState();
+        //     sortIndex = tableState.columnProperties[x].sorted || 0;
+        //     result = [undefined, headers[x], this.getImage(sortStates[sortIndex])];
+        // } else if (y < this.getTotals().length + headersSize) {
+        //     result = this.getTotal(x, y - headersSize);
+        // } else {
+        //     result = data.getValue(x, y - this.getTotals().length - headersSize);
+        // }
+        // if (typeof result === 'function') {
+        //     result = result();
+        // }
+        // return result;
+
 
         /**
          * @function
@@ -352,8 +362,10 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
          * #### returns: integer
          */
         getRowCount: function() {
-            var headerCount = this.getHeaders().length > 0 ? 1 : 0;
-            return this.getData().getRowCount() + this.getTotals().length + headerCount;
+            var grid = this.getGrid();
+            var headerCount = grid.isShowHeaderRow() ? 1 : 0;
+            var filterCount = grid.isShowFilterRow() ? 1 : 0;
+            return this.getData().getRowCount() + this.getTotals().length + headerCount + filterCount;
         },
 
         /**

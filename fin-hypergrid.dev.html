@@ -24769,24 +24769,34 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
          * @param {integer} y - the y coordinate
          */
         getValue: function(x, y) {
-            var result, tableState, headers, sortIndex;
-            headers = this.getHeaders();
+            var grid = this.getGrid();
+            if (y === 0 && grid.isShowHeaderRow()) {
+                return this.getHeader(x);
+            }
             var data = this.getData();
-            var headersSize = headers.length > 0 ? 1 : 0;
-            if (y < headersSize) {
-                tableState = this.getState();
-                sortIndex = tableState.columnProperties[x].sorted || 0;
-                result = [undefined, headers[x], this.getImage(sortStates[sortIndex])];
-            } else if (y < this.getTotals().length + headersSize) {
-                result = this.getTotal(x, y - headersSize);
-            } else {
-                result = data.getValue(x, y - this.getTotals().length - headersSize);
-            }
-            if (typeof result === 'function') {
-                result = result();
-            }
-            return result;
+            return data.getValue(x, y);
         },
+
+
+        // var result, tableState, headers, sortIndex;
+        // var grid = this.getGrid();
+        // headers = this.getHeaders();
+        // var data = this.getData();
+        // var headersSize = headers.length > 0 ? 1 : 0;
+        // if (y < headersSize) {
+        //     tableState = this.getState();
+        //     sortIndex = tableState.columnProperties[x].sorted || 0;
+        //     result = [undefined, headers[x], this.getImage(sortStates[sortIndex])];
+        // } else if (y < this.getTotals().length + headersSize) {
+        //     result = this.getTotal(x, y - headersSize);
+        // } else {
+        //     result = data.getValue(x, y - this.getTotals().length - headersSize);
+        // }
+        // if (typeof result === 'function') {
+        //     result = result();
+        // }
+        // return result;
+
 
         /**
          * @function
@@ -24823,8 +24833,10 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
          * #### returns: integer
          */
         getRowCount: function() {
-            var headerCount = this.getHeaders().length > 0 ? 1 : 0;
-            return this.getData().getRowCount() + this.getTotals().length + headerCount;
+            var grid = this.getGrid();
+            var headerCount = grid.isShowHeaderRow() ? 1 : 0;
+            var filterCount = grid.isShowFilterRow() ? 1 : 0;
+            return this.getData().getRowCount() + this.getTotals().length + headerCount + filterCount;
         },
 
         /**
@@ -25413,12 +25425,6 @@ it contains all code/data that's necessary for easily implementing a virtual dat
 
                 rowHeights: {},
                 columnProperties: [],
-
-                fixedColumnCount: 10,
-                fixedRowCount: 1,
-
-                headerColumnCount: 2,
-                headerRowCount: 2,
 
                 cellProperties: {}
             });
@@ -26259,10 +26265,16 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          * #### returns: integer
          */
         getHeaderRowCount: function() {
-            if (!this.tableState) {
-                return 0;
+            var grid = this.getGrid();
+            var count = 0;
+            if (grid.isShowFilterRow()) {
+                count++;
             }
-            return this.tableState.headerRowCount || 0;
+            if (grid.isShowHeaderRow()) {
+                count++;
+            }
+            count = count + this.getTotals().length;
+            return count;
         },
 
         /**
@@ -26284,10 +26296,12 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          * #### returns: integer
          */
         getHeaderColumnCount: function() {
-            if (!this.tableState) {
-                return 0;
+            var grid = this.getGrid();
+            var count = 0;
+            if (grid.isShowRowNumbers()) {
+                count++;
             }
-            return this.tableState.headerColumnCount || 0;
+            return count;
         },
 
         /**
@@ -33716,7 +33730,14 @@ fin-vampire-bar {
             getTextWidth: getTextWidth,
             getTextHeight: getTextHeight,
 
-            showRowNumbers: true
+            fixedColumnCount: 0,
+            fixedRowCount: 0,
+            headerColumnCount: 0,
+            headerRowCount: 0,
+
+            showRowNumbers: true,
+            showHeaderRow: false,
+            showFilterRow: false
 
         };
         return properties;
@@ -37117,6 +37138,12 @@ fin-vampire-bar {
         },
         isRowSelectionMode: function() {
             return this.getSelectionModel().isRowSelectionMode();
+        },
+        isShowFilterRow: function() {
+            return this.resolveProperty('showFilterRow');
+        },
+        isShowHeaderRow: function() {
+            return this.resolveProperty('showHeaderRow');
         }
     });
 
