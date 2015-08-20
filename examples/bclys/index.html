@@ -282,7 +282,8 @@
 
         var filterFunction = function(value) {
             return function(each) {
-                return (each + '').toLowerCase().startsWith(value.toLowerCase());
+                var isMatch = (each + '').toLowerCase().indexOf(value.toLowerCase()) > -1;
+                return isMatch;
             };
         ;}
 
