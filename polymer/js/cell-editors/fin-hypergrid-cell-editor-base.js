@@ -127,6 +127,9 @@
             this.setEditorPoint(point);
             var model = this.getBehavior();
             var value = model.getValue(point.x, point.y);
+            if (value.constructor.name === 'Array') {
+                value = value[1]; //it's a nested object
+            }
             var proceed = this.grid.fireRequestCellEdit(point, value);
             if (!proceed) {
                 //we were cancelled
