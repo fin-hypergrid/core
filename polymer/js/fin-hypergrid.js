@@ -3591,12 +3591,11 @@
             return this.getBehavior().getHeaderRowCount();
         },
         isFilterRow: function(y) {
+            if (!this.isShowFilterRow()) {
+                return false;
+            }
             var showHeader = this.isShowHeaderRow();
-            var showFilter = this.isShowFilterRow();
-            var both = showHeader && showFilter;
-            if (both && y === 1) {
-                return true;
-            } else if (showFilter && y === 0) {
+            if (showHeader && y === 1) {
                 return true;
             } else {
                 return false;
