@@ -135,6 +135,12 @@
             rowHeaderForegroundSelectionColor: 'rgb(25, 25, 25)',
             rowHeaderBackgroundSelectionColor: 'rgb(255, 220, 97)',
 
+            filterFont: '12px Tahoma, Geneva, sans-serif',
+            filterColor: 'rgb(25, 25, 25)',
+            filterBackgroundColor: 'white',
+            filterForegroundSelectionColor: 'rgb(25, 25, 25)',
+            filterBackgroundSelectionColor: 'rgb(255, 220, 97)',
+
             backgroundColor2: 'rgb(201, 201, 201)',
             lineColor: 'rgb(199, 199, 199)',
             voffset: 0,
@@ -176,8 +182,8 @@
             headerRowCount: 0,
 
             showRowNumbers: true,
-            showHeaderRow: false,
-            showFilterRow: false
+            showHeaderRow: true,
+            showFilterRow: true
 
         };
         return properties;
@@ -2723,18 +2729,18 @@
             //327/664
             var behavior = this.getBehavior();
 
-            var numColumns = this.getColumnCount();
-            var numRows = this.getRowCount();
-
             var numFixedColumns = this.getFixedColumnCount();
             var numFixedRows = this.getFixedRowCount();
+
+            var numColumns = this.getColumnCount();
+            var numRows = this.getRowCount();
 
             var bounds = this.getBounds();
             if (!bounds) {
                 return;
             }
-            var scrollableHeight = bounds.height() - behavior.getFixedRowsMaxHeight() - 5; //5px padding at bottom and right side
-            var scrollableWidth = (bounds.width() - 200) - behavior.getFixedColumnsMaxWidth() - 5;
+            var scrollableHeight = bounds.height() - behavior.getFixedRowsMaxHeight() - 15; //5px padding at bottom and right side
+            var scrollableWidth = (bounds.width() - 200) - behavior.getFixedColumnsMaxWidth() - 15;
 
             var lastPageColumnCount = 0;
             var columnsWidth = 0;
@@ -3494,10 +3500,6 @@
             this.getSelectionModel().select(x, y, 0, 0);
         },
 
-        getHeaderRowCount: function() {
-            return this.getBehavior().getHeaderRowCount();
-        },
-
         getHeaderColumnCount: function() {
             return this.getBehavior().getHeaderColumnCount();
         },
@@ -3584,6 +3586,24 @@
         },
         isShowHeaderRow: function() {
             return this.resolveProperty('showHeaderRow');
+        },
+        getHeaderRowCount: function() {
+            return this.getBehavior().getHeaderRowCount();
+        },
+        isFilterRow: function(y) {
+            var showHeader = this.isShowHeaderRow();
+            var showFilter = this.isShowFilterRow();
+            var both = showHeader && showFilter;
+            if (both && y === 1) {
+                return true;
+            } else if (showFilter && y === 0) {
+                return true;
+            } else {
+                return false;
+            }
+        },
+        filterClicked: function(event) {
+            this.activateEditor(event.gridCell.x, event.gridCell.y);
         }
     });
 

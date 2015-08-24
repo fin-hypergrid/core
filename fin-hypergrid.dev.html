@@ -12219,6 +12219,7 @@ scope.importElements = importElements;
 
 
 
+
 <script>/*!
  * numeral.js
  * version : 1.5.3
@@ -16470,32 +16471,35 @@ Instances of this object have basically four main functions.
             var headerRowCount = behavior.getHeaderRowCount();
             var headerColumnCount = behavior.getHeaderColumnCount();
 
-            var isRowHeader = r < headerRowCount;
-            var isColumnHeader = c < headerColumnCount;
+            var isHeaderRow = r < headerRowCount;
+            var isHeaderColumn = c < headerColumnCount;
+            var isFilterRow = grid.isFilterRow(r);
 
-            if (isRowHeader) {
+            if (isFilterRow && c !== -1) {
+                columnProperties = columnProperties.filterProperties;
+            } else if (isHeaderRow) {
                 columnProperties = columnProperties.columnHeader;
-            } else if (isColumnHeader) {
+            } else if (isHeaderColumn) {
                 columnProperties = columnProperties.rowHeader;
             }
 
             var cellProperties = Object.create(columnProperties);
 
-            if (isRowHeader) {
+            if (isHeaderRow) {
                 cellProperties.isSelected = grid.isRowHeaderCellSelected(c);
-            } else if (isColumnHeader) {
+                cellProperties.isUserDataArea = false;
+            } else if (isHeaderColumn) {
                 cellProperties.isSelected = grid.isColumnHeaderCellSelected(r);
+                cellProperties.isUserDataArea = false;
             } else {
                 cellProperties.isSelected = grid.isSelected(c, r);
+                cellProperties.isUserDataArea = true;
             }
 
             var rowNum = r - headerRowCount + 1;
-            if (rowNum < 1) {
-                rowNum = '';
-            }
 
             if (c === -1) {
-                cellProperties.value = rowNum;
+                cellProperties.value = isHeaderRow ? '' : rowNum;
             } else {
                 cellProperties.value = grid.getValue(c, r);
             }
@@ -18350,6 +18354,8 @@ var noop = function() {};
             }
 
             gc.fillStyle = '#000000';
+
+            config.backgroundColor = 'rgba(0,0,0,0)';
             gc.fillText(val, x + ox, y + oy);
 
             //identify that we are a button
@@ -20873,7 +20879,7 @@ var commands = {
             var dy = cell.y;
 
 
-            var isHeader = dy < 1;
+            var isHeader = dy < 1 && grid.isShowHeaderRow();
 
             if (isRightClick || !isHeader) {
                 if (this.next) {
@@ -21361,6 +21367,34 @@ var commands = {
 
     });
 
+
+})();
+</script>
+</polymer-element>
+<polymer-element name="fin-hypergrid-feature-filters" extends="fin-hypergrid-feature-base" assetpath="/dev/fin-hypergrid/polymer/html/features/">
+  <template>
+    <style type="text/css">:host {
+    display: block;
+    position: relative;
+}
+</style>
+  </template>
+  <script>'use strict';
+
+(function() {
+
+    Polymer('fin-hypergrid-feature-filters', { /* jshint ignore:line  */
+
+        handleTap: function(grid, event) {
+            var gridCell = event.gridCell;
+            if (grid.isFilterRow(gridCell.y) && gridCell.x !== -1) {
+                grid.filterClicked(event);
+            } else if (this.next) {
+                this.next.handleTap(grid, event);
+            }
+        }
+
+    });
 
 })();
 </script>
@@ -24023,6 +24057,53 @@ var commands = {
                     }
                 });
 
+                properties.filterProperties = Object.create(properties, {
+                    font: {
+                        configurable: true,
+                        get: function() {
+                            return this.filterFont;
+                        },
+                        set: function(value) {
+                            this.filterFont = value;
+                        }
+                    },
+                    color: {
+                        configurable: true,
+                        get: function() {
+                            return this.filterColor;
+                        },
+                        set: function(value) {
+                            this.filterColor = value;
+                        }
+                    },
+                    backgroundColor: {
+                        configurable: true,
+                        get: function() {
+                            return this.filterBackgroundColor;
+                        },
+                        set: function(value) {
+                            this.filterBackgroundColor = value;
+                        }
+                    },
+                    foregroundSelectionColor: {
+                        configurable: true,
+                        get: function() {
+                            return this.filterForegroundSelectionColor;
+                        },
+                        set: function(value) {
+                            this.filterForegroundSelectionColor = value;
+                        }
+                    },
+                    backgroundSelectionColor: {
+                        configurable: true,
+                        get: function() {
+                            return this.filterBackgroundSelectionColor;
+                        },
+                        set: function(value) {
+                            this.filterBackgroundSelectionColor = value;
+                        }
+                    }
+                });
             }
             if (!properties.header) {
                 properties.header = behavior.getHeader(columnIndex);
@@ -24172,6 +24253,7 @@ var commands = {
         convertViewPointToDataPoint: function(viewPoint) {
             return this.getComponent().convertViewPointToDataPoint(viewPoint);
         },
+
     });
 
 })();
@@ -24557,6 +24639,13 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
             return this.headers;
         },
 
+        _getHeader: function(x) {
+            return this.getHeaders()[x];
+        },
+
+        _setHeader: function(x, value) {
+            this.getHeaders()[x] = value;
+        },
         /**
         * @function
         * @instance
@@ -24565,12 +24654,66 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         * #### returns: string
         * @param {integer} x - the column index of interest
         */
-        getHeader: function(x /*, y*/ ) {
-            if (x === -1) {
-                return '#';
+        getHeader: function(x, y) {
+            if (y === undefined) {
+                return this._getHeader(x);
             }
-            var headers = this.getHeaders();
-            return headers[x];
+            var grid = this.getGrid();
+            var behavior = grid.getBehavior();
+            var isFilterRow = grid.isShowFilterRow();
+            var isHeaderRow = grid.isShowHeaderRow();
+            var isBoth = isFilterRow && isHeaderRow;
+            var filter = this.getFilter(x);
+            var image = filter.length === 0 ? 'filter-off' : 'filter-on';
+            if (isBoth) {
+                if (y === 0) {
+                    return this._getHeader(x);
+                } else {
+                    return [null, filter, behavior.getImage(image)];
+                }
+            } else if (isFilterRow) {
+                return [null, filter, behavior.getImage(image)];
+            } else {
+                return this._getHeader(x);
+            }
+            return '';
+        },
+
+        setHeader: function(x, y, value) {
+            if (value === undefined) {
+                return this._setHeader(x, y); // y is really the value
+            }
+            var grid = this.getGrid();
+            var isFilterRow = grid.isShowFilterRow();
+            var isHeaderRow = grid.isShowHeaderRow();
+            var isBoth = isFilterRow && isHeaderRow;
+            if (x === -1) {
+                return; // can't change the row numbers
+            } else if (isBoth) {
+                if (y === 0) {
+                    return this._setHeader(x, value);
+                } else {
+                    this.setFilter(x, value);
+                }
+            } else if (isFilterRow) {
+                this.setFilter(x, value);
+            } else {
+                return this._setHeader(x, value);
+            }
+            return '';
+        },
+
+        getFilter: function(x) {
+            var columnProperties = this.getColumnProperties(x);
+            var filter = columnProperties.filter || '';
+            return filter;
+        },
+
+        setFilter: function(x, value) {
+            var columnProperties = this.getColumnProperties(x);
+            columnProperties.filter = value;
+            this.buildFilters();
+            this.changed();
         },
 
         /**
@@ -24770,11 +24913,12 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
          */
         getValue: function(x, y) {
             var grid = this.getGrid();
-            if (y === 0 && grid.isShowHeaderRow()) {
-                return this.getHeader(x);
+            var headerRowCount = grid.getHeaderRowCount();
+            if (y < headerRowCount) {
+                return this.getHeader(x, y);
             }
             var data = this.getData();
-            return data.getValue(x, y);
+            return data.getValue(x, y - headerRowCount);
         },
 
 
@@ -24807,21 +24951,13 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
          * @param {integer} y - the y coordinate
          */
         setValue: function(x, y, value) {
-            var data = this.getData();
-            var headers = this.getHeaders();
-            var totalsSize = this.getTotals().length;
-            var headersSize = headers.length > 0 ? 1 : 0;
-            var rowNumber = y - headersSize - totalsSize;
-            var behavior = this.getBehavior();
-            if (rowNumber < 0) {
-                if (y < headersSize) {
-                    behavior.setHeaderValue(x, y, value);
-                } else {
-                    behavior.setTotalsValue(x, y, value);
-                }
-            } else {
-                data.setValue(x, rowNumber, value);
+            var grid = this.getGrid();
+            var headerRowCount = grid.getHeaderRowCount();
+            if (y < headerRowCount) {
+                return this.setHeader(x, y, value);
             }
+            var data = this.getData();
+            data.setValue(x, y - headerRowCount, value);
             this.changed();
         },
 
@@ -24834,9 +24970,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
          */
         getRowCount: function() {
             var grid = this.getGrid();
-            var headerCount = grid.isShowHeaderRow() ? 1 : 0;
-            var filterCount = grid.isShowFilterRow() ? 1 : 0;
-            return this.getData().getRowCount() + this.getTotals().length + headerCount + filterCount;
+            return this.getData().getRowCount() + grid.getHeaderRowCount();
         },
 
         /**
@@ -25103,7 +25237,26 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         setCellProperties: function(x, y, value) {
             var state = this.getState();
             state.cellProperties[x + ',' + y] = value;
-        }
+        },
+
+        buildFilters: function() {
+            var filters = {};
+            var colCount = this.getColumnCount();
+            var filterFunction = function(value) {
+                return function(each) {
+                    var isMatch = (each + '').toLowerCase().indexOf(value.toLowerCase()) > -1;
+                    return isMatch;
+                };
+            };
+            for (var i = 0; i < colCount; i++) {
+                var filterText = this.getFilter(i);
+                if (filterText.length > 0) {
+                    filters[i] = filterFunction(filterText);
+                }
+            }
+            this.getData().setFilters(filters);
+            this.changed();
+        },
 
     });
 })();
@@ -25537,6 +25690,7 @@ it contains all code/data that's necessary for easily implementing a virtual dat
             this.setNextFeature(document.createElement('fin-hypergrid-feature-row-resizing'));
             //this.setNextFeature(document.createElement('fin-hypergrid-feature-column-moving'));
             //this.setNextFeature(document.createElement('fin-hypergrid-feature-column-sorting'));
+            this.setNextFeature(document.createElement('fin-hypergrid-feature-filters'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-cell-selection'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-row-selection'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-column-selection'));
@@ -26243,7 +26397,10 @@ it contains all code/data that's necessary for easily implementing a virtual dat
             if (!this.tableState) {
                 return 0;
             }
-            return this.tableState.fixedRowCount || 0;
+            var usersSize = this.tableState.fixedRowCount || 0;
+            var headers = this.getGrid().getHeaderRowCount();
+            var total = usersSize + headers;
+            return total;
         },
 
         /**
@@ -26266,14 +26423,10 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          */
         getHeaderRowCount: function() {
             var grid = this.getGrid();
-            var count = 0;
-            if (grid.isShowFilterRow()) {
-                count++;
-            }
-            if (grid.isShowHeaderRow()) {
-                count++;
-            }
-            count = count + this.getTotals().length;
+            var header = grid.isShowHeaderRow() ? 1 : 0;
+            var filter = grid.isShowFilterRow() ? 1 : 0;
+            var totals = this.getTotals().length;
+            var count = header + filter + totals;
             return count;
         },
 
@@ -26296,11 +26449,11 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          * #### returns: integer
          */
         getHeaderColumnCount: function() {
-            var grid = this.getGrid();
+            //var grid = this.getGrid();
             var count = 0;
-            if (grid.isShowRowNumbers()) {
-                count++;
-            }
+            // if (grid.isShowRowNumbers()) {
+            //     count++;
+            // }
             return count;
         },
 
@@ -33695,6 +33848,12 @@ fin-vampire-bar {
             rowHeaderForegroundSelectionColor: 'rgb(25, 25, 25)',
             rowHeaderBackgroundSelectionColor: 'rgb(255, 220, 97)',
 
+            filterFont: '12px Tahoma, Geneva, sans-serif',
+            filterColor: 'rgb(25, 25, 25)',
+            filterBackgroundColor: 'white',
+            filterForegroundSelectionColor: 'rgb(25, 25, 25)',
+            filterBackgroundSelectionColor: 'rgb(255, 220, 97)',
+
             backgroundColor2: 'rgb(201, 201, 201)',
             lineColor: 'rgb(199, 199, 199)',
             voffset: 0,
@@ -33736,8 +33895,8 @@ fin-vampire-bar {
             headerRowCount: 0,
 
             showRowNumbers: true,
-            showHeaderRow: false,
-            showFilterRow: false
+            showHeaderRow: true,
+            showFilterRow: true
 
         };
         return properties;
@@ -36283,18 +36442,18 @@ fin-vampire-bar {
             //327/664
             var behavior = this.getBehavior();
 
-            var numColumns = this.getColumnCount();
-            var numRows = this.getRowCount();
-
             var numFixedColumns = this.getFixedColumnCount();
             var numFixedRows = this.getFixedRowCount();
+
+            var numColumns = this.getColumnCount();
+            var numRows = this.getRowCount();
 
             var bounds = this.getBounds();
             if (!bounds) {
                 return;
             }
-            var scrollableHeight = bounds.height() - behavior.getFixedRowsMaxHeight() - 5; //5px padding at bottom and right side
-            var scrollableWidth = (bounds.width() - 200) - behavior.getFixedColumnsMaxWidth() - 5;
+            var scrollableHeight = bounds.height() - behavior.getFixedRowsMaxHeight() - 15; //5px padding at bottom and right side
+            var scrollableWidth = (bounds.width() - 200) - behavior.getFixedColumnsMaxWidth() - 15;
 
             var lastPageColumnCount = 0;
             var columnsWidth = 0;
@@ -37054,10 +37213,6 @@ fin-vampire-bar {
             this.getSelectionModel().select(x, y, 0, 0);
         },
 
-        getHeaderRowCount: function() {
-            return this.getBehavior().getHeaderRowCount();
-        },
-
         getHeaderColumnCount: function() {
             return this.getBehavior().getHeaderColumnCount();
         },
@@ -37144,6 +37299,24 @@ fin-vampire-bar {
         },
         isShowHeaderRow: function() {
             return this.resolveProperty('showHeaderRow');
+        },
+        getHeaderRowCount: function() {
+            return this.getBehavior().getHeaderRowCount();
+        },
+        isFilterRow: function(y) {
+            var showHeader = this.isShowHeaderRow();
+            var showFilter = this.isShowFilterRow();
+            var both = showHeader && showFilter;
+            if (both && y === 1) {
+                return true;
+            } else if (showFilter && y === 0) {
+                return true;
+            } else {
+                return false;
+            }
+        },
+        filterClicked: function(event) {
+            this.activateEditor(event.gridCell.x, event.gridCell.y);
         }
     });
 

@@ -187,6 +187,53 @@
                     }
                 });
 
+                properties.filterProperties = Object.create(properties, {
+                    font: {
+                        configurable: true,
+                        get: function() {
+                            return this.filterFont;
+                        },
+                        set: function(value) {
+                            this.filterFont = value;
+                        }
+                    },
+                    color: {
+                        configurable: true,
+                        get: function() {
+                            return this.filterColor;
+                        },
+                        set: function(value) {
+                            this.filterColor = value;
+                        }
+                    },
+                    backgroundColor: {
+                        configurable: true,
+                        get: function() {
+                            return this.filterBackgroundColor;
+                        },
+                        set: function(value) {
+                            this.filterBackgroundColor = value;
+                        }
+                    },
+                    foregroundSelectionColor: {
+                        configurable: true,
+                        get: function() {
+                            return this.filterForegroundSelectionColor;
+                        },
+                        set: function(value) {
+                            this.filterForegroundSelectionColor = value;
+                        }
+                    },
+                    backgroundSelectionColor: {
+                        configurable: true,
+                        get: function() {
+                            return this.filterBackgroundSelectionColor;
+                        },
+                        set: function(value) {
+                            this.filterBackgroundSelectionColor = value;
+                        }
+                    }
+                });
             }
             if (!properties.header) {
                 properties.header = behavior.getHeader(columnIndex);

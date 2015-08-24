@@ -144,6 +144,8 @@ var noop = function() {};
             }
 
             gc.fillStyle = '#000000';
+
+            config.backgroundColor = 'rgba(0,0,0,0)';
             gc.fillText(val, x + ox, y + oy);
 
             //identify that we are a button

@@ -71,6 +71,9 @@
         //all formatting and rendering per cell can be overridden in here
         cellProvider.getCell = function(config) {
             var renderer = cellProvider.cellCache.simpleCellRenderer;
+            if (!config.isUserDataArea) {
+                return renderer;
+            }
             var x = config.x;
             var y = config.y;
             // if (y < 2 || x === -1) {
@@ -79,9 +82,6 @@
             //     }
             //     return renderer;
             // }
-            if (x === -1) {
-                return renderer;
-            }
             config.halign = 'left';
             if ((y % 3) === 0){
                 config.backgroundColor = '#E87200';
@@ -261,22 +261,6 @@
             console.log('fin-column-selection-changed', e.detail);
         });
 
-        var filterFunction = function(value) {
-            return function(each) {
-                var isMatch = (each + '').toLowerCase().indexOf(value.toLowerCase()) > -1;
-                return isMatch;
-            };
-        ;}
-
-        var buildFilters = function() {
-            var filters = {};
-            for (var i = 0; i < totals[0].length; i++) {
-                filters[i] = filterFunction(totals[0][i]);
-            }
-            jsonModel.getData().setFilters(filters);
-            jsonModel.shapeChanged();
-        };
-
         jsonGrid.addFinEventListener('fin-editor-data-change', function(e) {
             console.log('fin-editor-data-change', e.detail);
 
@@ -294,22 +278,10 @@
 
         jsonGrid.addFinEventListener('fin-after-cell-edit', function(e) {
             console.log('fin-after-cell-edit', e);
-            if (e.detail.gridCell.y > 2) {
-                return;
-            }
-            var control = e.detail.input;
-            buildFilters();
-            control._moveEditor(); //view may have resized....
         });
 
         jsonGrid.addFinEventListener('fin-editor-key-up', function(e) {
             console.log('fin-editor-key-up', e.detail);
-            if (e.detail.input.editorPoint.y > 2) {
-                return;
-            }
-            var control = e.detail.input;
-            buildFilters();
-            control._moveEditor(); //view may have resized....
         });
 
         jsonGrid.addFinEventListener('fin-editor-key-press', function(e) {

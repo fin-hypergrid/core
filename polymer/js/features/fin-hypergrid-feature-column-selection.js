@@ -78,7 +78,7 @@
             var dy = cell.y;
 
 
-            var isHeader = dy < 1;
+            var isHeader = dy < 1 && grid.isShowHeaderRow();
 
             if (isRightClick || !isHeader) {
                 if (this.next) {

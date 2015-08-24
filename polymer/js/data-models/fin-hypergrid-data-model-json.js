@@ -86,6 +86,13 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
             return this.headers;
         },
 
+        _getHeader: function(x) {
+            return this.getHeaders()[x];
+        },
+
+        _setHeader: function(x, value) {
+            this.getHeaders()[x] = value;
+        },
         /**
         * @function
         * @instance
@@ -94,12 +101,66 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         * #### returns: string
         * @param {integer} x - the column index of interest
         */
-        getHeader: function(x /*, y*/ ) {
-            if (x === -1) {
-                return '#';
+        getHeader: function(x, y) {
+            if (y === undefined) {
+                return this._getHeader(x);
             }
-            var headers = this.getHeaders();
-            return headers[x];
+            var grid = this.getGrid();
+            var behavior = grid.getBehavior();
+            var isFilterRow = grid.isShowFilterRow();
+            var isHeaderRow = grid.isShowHeaderRow();
+            var isBoth = isFilterRow && isHeaderRow;
+            var filter = this.getFilter(x);
+            var image = filter.length === 0 ? 'filter-off' : 'filter-on';
+            if (isBoth) {
+                if (y === 0) {
+                    return this._getHeader(x);
+                } else {
+                    return [null, filter, behavior.getImage(image)];
+                }
+            } else if (isFilterRow) {
+                return [null, filter, behavior.getImage(image)];
+            } else {
+                return this._getHeader(x);
+            }
+            return '';
+        },
+
+        setHeader: function(x, y, value) {
+            if (value === undefined) {
+                return this._setHeader(x, y); // y is really the value
+            }
+            var grid = this.getGrid();
+            var isFilterRow = grid.isShowFilterRow();
+            var isHeaderRow = grid.isShowHeaderRow();
+            var isBoth = isFilterRow && isHeaderRow;
+            if (x === -1) {
+                return; // can't change the row numbers
+            } else if (isBoth) {
+                if (y === 0) {
+                    return this._setHeader(x, value);
+                } else {
+                    this.setFilter(x, value);
+                }
+            } else if (isFilterRow) {
+                this.setFilter(x, value);
+            } else {
+                return this._setHeader(x, value);
+            }
+            return '';
+        },
+
+        getFilter: function(x) {
+            var columnProperties = this.getColumnProperties(x);
+            var filter = columnProperties.filter || '';
+            return filter;
+        },
+
+        setFilter: function(x, value) {
+            var columnProperties = this.getColumnProperties(x);
+            columnProperties.filter = value;
+            this.buildFilters();
+            this.changed();
         },
 
         /**
@@ -299,11 +360,12 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
          */
         getValue: function(x, y) {
             var grid = this.getGrid();
-            if (y === 0 && grid.isShowHeaderRow()) {
-                return this.getHeader(x);
+            var headerRowCount = grid.getHeaderRowCount();
+            if (y < headerRowCount) {
+                return this.getHeader(x, y);
             }
             var data = this.getData();
-            return data.getValue(x, y);
+            return data.getValue(x, y - headerRowCount);
         },
 
 
@@ -336,21 +398,13 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
          * @param {integer} y - the y coordinate
          */
         setValue: function(x, y, value) {
-            var data = this.getData();
-            var headers = this.getHeaders();
-            var totalsSize = this.getTotals().length;
-            var headersSize = headers.length > 0 ? 1 : 0;
-            var rowNumber = y - headersSize - totalsSize;
-            var behavior = this.getBehavior();
-            if (rowNumber < 0) {
-                if (y < headersSize) {
-                    behavior.setHeaderValue(x, y, value);
-                } else {
-                    behavior.setTotalsValue(x, y, value);
-                }
-            } else {
-                data.setValue(x, rowNumber, value);
+            var grid = this.getGrid();
+            var headerRowCount = grid.getHeaderRowCount();
+            if (y < headerRowCount) {
+                return this.setHeader(x, y, value);
             }
+            var data = this.getData();
+            data.setValue(x, y - headerRowCount, value);
             this.changed();
         },
 
@@ -363,9 +417,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
          */
         getRowCount: function() {
             var grid = this.getGrid();
-            var headerCount = grid.isShowHeaderRow() ? 1 : 0;
-            var filterCount = grid.isShowFilterRow() ? 1 : 0;
-            return this.getData().getRowCount() + this.getTotals().length + headerCount + filterCount;
+            return this.getData().getRowCount() + grid.getHeaderRowCount();
         },
 
         /**
@@ -632,7 +684,26 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         setCellProperties: function(x, y, value) {
             var state = this.getState();
             state.cellProperties[x + ',' + y] = value;
-        }
+        },
+
+        buildFilters: function() {
+            var filters = {};
+            var colCount = this.getColumnCount();
+            var filterFunction = function(value) {
+                return function(each) {
+                    var isMatch = (each + '').toLowerCase().indexOf(value.toLowerCase()) > -1;
+                    return isMatch;
+                };
+            };
+            for (var i = 0; i < colCount; i++) {
+                var filterText = this.getFilter(i);
+                if (filterText.length > 0) {
+                    filters[i] = filterFunction(filterText);
+                }
+            }
+            this.getData().setFilters(filters);
+            this.changed();
+        },
 
     });
 })();

@@ -351,6 +351,7 @@ it contains all code/data that's necessary for easily implementing a virtual dat
             this.setNextFeature(document.createElement('fin-hypergrid-feature-row-resizing'));
             //this.setNextFeature(document.createElement('fin-hypergrid-feature-column-moving'));
             //this.setNextFeature(document.createElement('fin-hypergrid-feature-column-sorting'));
+            this.setNextFeature(document.createElement('fin-hypergrid-feature-filters'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-cell-selection'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-row-selection'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-column-selection'));
@@ -1057,7 +1058,10 @@ it contains all code/data that's necessary for easily implementing a virtual dat
             if (!this.tableState) {
                 return 0;
             }
-            return this.tableState.fixedRowCount || 0;
+            var usersSize = this.tableState.fixedRowCount || 0;
+            var headers = this.getGrid().getHeaderRowCount();
+            var total = usersSize + headers;
+            return total;
         },
 
         /**
@@ -1080,14 +1084,10 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          */
         getHeaderRowCount: function() {
             var grid = this.getGrid();
-            var count = 0;
-            if (grid.isShowFilterRow()) {
-                count++;
-            }
-            if (grid.isShowHeaderRow()) {
-                count++;
-            }
-            count = count + this.getTotals().length;
+            var header = grid.isShowHeaderRow() ? 1 : 0;
+            var filter = grid.isShowFilterRow() ? 1 : 0;
+            var totals = this.getTotals().length;
+            var count = header + filter + totals;
             return count;
         },
 
@@ -1110,11 +1110,11 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          * #### returns: integer
          */
         getHeaderColumnCount: function() {
-            var grid = this.getGrid();
+            //var grid = this.getGrid();
             var count = 0;
-            if (grid.isShowRowNumbers()) {
-                count++;
-            }
+            // if (grid.isShowRowNumbers()) {
+            //     count++;
+            // }
             return count;
         },
 

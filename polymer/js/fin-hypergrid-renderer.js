@@ -1023,32 +1023,35 @@ Instances of this object have basically four main functions.
             var headerRowCount = behavior.getHeaderRowCount();
             var headerColumnCount = behavior.getHeaderColumnCount();
 
-            var isRowHeader = r < headerRowCount;
-            var isColumnHeader = c < headerColumnCount;
+            var isHeaderRow = r < headerRowCount;
+            var isHeaderColumn = c < headerColumnCount;
+            var isFilterRow = grid.isFilterRow(r);
 
-            if (isRowHeader) {
+            if (isFilterRow && c !== -1) {
+                columnProperties = columnProperties.filterProperties;
+            } else if (isHeaderRow) {
                 columnProperties = columnProperties.columnHeader;
-            } else if (isColumnHeader) {
+            } else if (isHeaderColumn) {
                 columnProperties = columnProperties.rowHeader;
             }
 
             var cellProperties = Object.create(columnProperties);
 
-            if (isRowHeader) {
+            if (isHeaderRow) {
                 cellProperties.isSelected = grid.isRowHeaderCellSelected(c);
-            } else if (isColumnHeader) {
+                cellProperties.isUserDataArea = false;
+            } else if (isHeaderColumn) {
                 cellProperties.isSelected = grid.isColumnHeaderCellSelected(r);
+                cellProperties.isUserDataArea = false;
             } else {
                 cellProperties.isSelected = grid.isSelected(c, r);
+                cellProperties.isUserDataArea = true;
             }
 
             var rowNum = r - headerRowCount + 1;
-            if (rowNum < 1) {
-                rowNum = '';
-            }
 
             if (c === -1) {
-                cellProperties.value = rowNum;
+                cellProperties.value = isHeaderRow ? '' : rowNum;
             } else {
                 cellProperties.value = grid.getValue(c, r);
             }
