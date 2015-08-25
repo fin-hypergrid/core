@@ -389,9 +389,12 @@ Instances of this object have basically four main functions.
             var height = 0;
             var x, y, c, r;
             var previous = 0;
+            var grid = this.getGrid();
+            var gridSize = grid.isShowRowNumbers() ? 1 : 0;
             var columnEdges = this.getColumnEdges();
-            var fixedColumnCount = this.getFixedColumnCount();
+            var fixedColumnCount = this.getFixedColumnCount() + gridSize;
             var fixedRowCount = this.getFixedRowCount();
+
             // var fixedColumnCount = this.getFixedColumnCount();
             // var fixedRowCount = this.getFixedRowCount();
             var scrollX = this.getScrollLeft();
@@ -435,7 +438,6 @@ Instances of this object have basically four main functions.
 
             // c = c + scrollX;
             // r = r + scrollY;
-
 
             return {
                 gridCell: this.g.point.create(c, r),

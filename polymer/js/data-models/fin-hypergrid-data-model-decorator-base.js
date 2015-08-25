@@ -107,7 +107,9 @@
         convertViewPointToDataPoint: function(viewPoint) {
             return this.getComponent().convertViewPointToDataPoint(viewPoint);
         },
-
+        convertDataPointToViewPoint: function(dataPoint) {
+            return this.getComponent().convertDataPointToViewPoint(dataPoint);
+        },
     });
 
 })();

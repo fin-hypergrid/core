@@ -162,6 +162,15 @@
             return result;
         },
 
+        convertDataPointToViewPoint: function(dataPoint) {
+            var x = this.unTranslateColumnIndex(dataPoint.x);
+            var y = dataPoint.y;
+            var grid = this.getGrid();
+            var result = grid.rectangles.point.create(x, y);
+            return result;
+        },
+
+
     });
 
 })();

@@ -1,5 +1,323 @@
-com= {};com.dataProviders= {};
+com= {};com.groupingView= {};com.dataProviders= {};
+com.groupingView.ViewModel = (function (_super) {
 
+    function ViewModel(groups, visibleRows, visibleColumns) {
+
+        this.hScrollIndex = 0;
+        this.vScrollIndex = 0;
+        this.visibleColumns = visibleColumns;
+        this.visibleRows = visibleRows;
+        this.groups = groups;
+    }
+
+    return ViewModel;
+})();
+com.AggregationFunctions = {
+
+    sum: (function(){
+
+        function sum(){
+
+            this.value = 0;
+        }
+
+        sum.prototype.method = function(value){
+
+            this.value += Number(value);
+        };
+
+        sum.prototype.post = function(){
+
+            return this.value;
+        };
+
+        return sum;
+
+    })(),
+
+    avg: (function(){
+
+        function avg(){
+
+            this.value = 0;
+            this.count = 0;
+        }
+
+        avg.prototype.method = function(value){
+
+            this.value += Number(value);
+            ++ this.count;
+        };
+
+        avg.prototype.post = function(){
+
+            return this.value / this.count;
+        };
+
+        return avg;
+    })(),
+
+    min: (function(){
+
+        function min(){
+
+            this.value = null;
+        }
+
+        min.prototype.method = function(value){
+
+            value = Number(value);
+            if(this.value === null || value < this.value ) {
+
+                this.value = value;
+            }
+        };
+
+        min.prototype.post = function(){
+
+            return this.value;
+        };
+
+        return min;
+    })(),
+
+    max: (function(){
+
+        function max(){
+
+            this.value = null;
+        }
+
+        max.prototype.method = function(value){
+
+            value = Number(value);
+            if(this.value === null || value > this.value ) {
+
+                this.value = value;
+            }
+        };
+
+        max.prototype.post = function(){
+
+            return this.value;
+        };
+
+        return max;
+    })()
+};com.groupingView.RowView = (function (_super) {
+
+    var AggregationFunctions = com.AggregationFunctions;
+
+    function RowView(group, visibleColumns) {
+
+        this.group = group;
+        this.visibleColumns = visibleColumns;
+        this.groupNameColumn = null;
+        this.summaryColumn = null;
+        this.averageColumn = null;
+        this.maxColumn = null;
+        this.minColumn = null;
+        this.countColumn = null;
+        this.expanded = false;
+        this.contractedView = this.createContractedView();
+        this.expandedView = this.createExpandedView();
+        this.tr = this.createRow();
+        this.rows = [];
+    }
+
+   RowView.prototype.createRow = function(){
+
+       var row = document.createElement("tr");
+       row.appendChild(this.createColumn(this.createExpandButton()));
+       row.appendChild(this.createColumn(this.contractedView, this.expandedView));
+       return row;
+   };
+
+    RowView.prototype.createContractedView = function(){
+
+        var table = document.createElement("table");
+        var tr = document.createElement("tr");
+        tr.appendChild(this.groupNameColumn = this.createColumn());
+        tr.appendChild(this.summaryColumn = this.createColumn());
+        tr.appendChild(this.averageColumn = this.createColumn());
+        tr.appendChild(this.maxColumn = this.createColumn());
+        tr.appendChild(this.minColumn = this.createColumn());
+        tr.appendChild(this.countColumn = this.createColumn());
+        table.appendChild(tr);
+
+        return table;
+    };
+
+    RowView.prototype.createExpandedView = function(){
+
+        var table = document.createElement("table");
+        return table;
+    };
+
+    RowView.prototype.createColumn = function(){
+
+        var col = document.createElement("td");
+        col.style.verticalAlign = "top";
+        if(arguments.length) {
+            for(var i = 0; i < arguments.length; i++) {
+
+                col.appendChild(arguments[i]);
+            }
+        }
+        return col;
+    };
+
+    RowView.prototype.createExpandButton = function(){
+
+        var button = document.createElement("button");
+        button.innerHTML = "+";
+        button.onclick = this.onExpand.bind(this);
+        return button;
+    };
+
+    RowView.prototype.onExpand = function(event){
+
+        this.expanded = !this.expanded;
+        this.updateData(this.group);
+        event.target.innerHTML = this.expanded? "-" : "+";
+    };
+
+    RowView.prototype.updateData = function(group){
+
+        this.group = group;
+        var aggregations = group.applyFunctionsToColumn({sum: {function: AggregationFunctions.sum, column: 2}, avg: {function: AggregationFunctions.avg, column: 2}, max: {function: AggregationFunctions.max, column: 2}, min: {function: AggregationFunctions.min, column: 2} });
+        this.groupNameColumn.innerHTML = group.name;
+        this.summaryColumn.innerHTML = "Sum: " + aggregations.sum.toFixed(2);
+        this.averageColumn.innerHTML = "Avg: " + aggregations.avg.toFixed(2);
+        this.maxColumn.innerHTML = "Max: " + aggregations.max.toFixed(2);
+        this.minColumn.innerHTML = "Min: " + aggregations.min.toFixed(2);
+        this.countColumn.innerHTML = "Count: " + group.getRowCount();
+
+        if(this.expanded){
+
+            if(group.groups){
+
+                this.updateGroupsView(group.groups);
+            } else {
+
+                this.updateExpandedView(group);
+            }
+
+            this.expandedView.style.display = "block";
+        } else {
+
+            this.expandedView.style.display = "none";
+
+        }
+    };
+
+    RowView.prototype.updateGroupsView = function(groups){
+
+        var rows = this.rows;
+
+        for(var y = 0; y < groups.length; y++) {
+
+            var row = rows[y];
+            if(!row){
+
+                this.expandedView.appendChild(this.createGroupRow(groups[y]));
+                continue;
+
+            } else {
+
+                row.updateData(groups[y]);
+            }
+        }
+    };
+
+    RowView.prototype.updateExpandedView = function(group){
+
+        var rows = this.expandedView.getElementsByTagName("tr");
+
+        for(var y = 0; y < group.getRowCount(); y++) {
+
+            var tr = rows[y];
+            if(!tr){
+
+                tr = document.createElement("tr");
+                this.expandedView.appendChild(this.addDataRow(group, y));
+                continue;
+
+            } else {
+
+                var cols = tr.getElementsByTagName("td");
+                for (var x = 0; x < this.visibleColumns; x++) {
+
+                    cols[x].innerHTML = group.getValue(x, y);
+                }
+            }
+        }
+    };
+
+    RowView.prototype.createGroupRow = function(group){
+
+        var row =   new RowView(group, this.visibleColumns);
+        row.updateData(group);
+        this.rows.push(row);
+        return row.tr;
+    };
+
+    RowView.prototype.addDataRow = function(group, y){
+
+        console.log(this.visibleColumns);
+        var tr = document.createElement("tr");
+        for(var x = 0; x < this.visibleColumns; x++){
+
+            var td = this.createColumn();
+            td.innerHTML = group.getValue(x, y);
+            tr.appendChild(td);
+        }
+        return tr;
+    };
+
+    return RowView;
+})();com.groupingView.View = (function (_super) {
+
+    var ViewModel = com.groupingView.ViewModel;
+    var RowView = com.groupingView.RowView;
+
+    function View(dataBrowser, table, visibleRows, visibleColumns) {
+
+        this.viewModel = new ViewModel(dataBrowser, visibleRows, visibleColumns);
+        this.table = table;
+        this.rows = [];
+        this.createRows();
+        this.updateData();
+    }
+
+    View.prototype.createRows = function(){
+
+        var tbody = this.table.getElementsByTagName("tbody")[0];
+        var visibleRows = this.viewModel.visibleRows;
+
+        for(var i = 0; i < visibleRows; i++){
+
+            tbody.appendChild(this.createRow(this.viewModel.groups[i]));
+        }
+    };
+
+    View.prototype.createRow = function(group){
+
+        var row =   new RowView(group, this.viewModel.visibleColumns);
+        this.rows.push(row);
+        return row.tr;
+    };
+
+    View.prototype.updateData = function(){
+
+        for(var y = 0; y < this.viewModel.visibleRows; y++){
+
+            var row = this.rows[y].updateData(this.viewModel.groups[y + this.viewModel.vScrollIndex]);
+        }
+    };
+
+    return View;
+})();
 com.QuickSort = function sort(array, less) {
 
     function swap(items, firstIndex, secondIndex){
@@ -73,14 +391,23 @@ com.QuickSort = function sort(array, less) {
 
         for(var i = items.length - 1; i >= 0; --i){
 
-            items[i].__sortPosition = i;
+            var item = items[i];
+            if(!item.__originalPosition) {
+
+                item.__originalPosition = i + 1;
+            }
+            items.__sortPosition = i;
         }
     }
 
     addPositions(array);
     return quickSort(array);
 };
-com.dataProviders.JSDataProvider = (function (_super) {
+
+com.QuickSort.reset = function(array){
+
+    return com.QuickSort(array)
+};com.dataProviders.JSDataProvider = (function (_super) {
 
     function JSDataProvider(fields, data) {
 
@@ -133,9 +460,25 @@ com.dataProviders.JSDataProvider = (function (_super) {
             return (a < b ? -1: 1) * type;
         });
     };
-    
+
+    JSDataProvider.prototype.resetSort = function(){
+
+        com.QuickSort(this.data, function(a, b){
+
+            a = a.__originalPosition;
+            b = b.__originalPosition;
+
+            if (a === b){
+
+                return 0;
+            }
+
+            return a < b ? -1: 1;
+        });
+    };
+
     JSDataProvider.prototype.getFields = function(){
-        
+
         return this.fields;
     };
 
@@ -202,102 +545,11 @@ com.dataProviders.JSDataProvider = (function (_super) {
 
     return CSVDataProvider;
 })();
-
-com.AggregationFunctions = {
-
-    sum: (function(){
-
-        function sum(){
-
-            this.value = 0;
-        }
-
-        sum.prototype.method = function(value){
-
-            this.value += Number(value);
-        };
-
-        sum.prototype.post = function(){
-
-            return this.value;
-        };
-
-        return sum;
-
-    })(),
-
-    avg: (function(){
-
-        function avg(){
-
-            this.value = 0;
-            this.count = 0;
-        }
-
-        avg.prototype.method = function(value){
-
-            this.value += Number(value);
-            ++ this.count;
-        };
-
-        avg.prototype.post = function(){
-
-            return this.value / this.count;
-        };
-
-        return avg;
-    })(),
-
-    min: (function(){
-
-        function min(){
-
-            this.value = null;
-        }
-
-        min.prototype.method = function(value){
-
-            if(this.value === null || value < this.value ) {
-
-                this.value = value;
-            }
-        };
-
-        min.prototype.post = function(){
-
-            return this.value;
-        };
-
-        return min;
-    })(),
-
-    max: (function(){
-
-        function max(){
-
-            this.value = null;
-        }
-
-        max.prototype.method = function(value){
-
-            if(this.value === null || value > this.value ) {
-
-                this.value = value;
-            }
-        };
-
-        max.prototype.post = function(){
-
-            return this.value;
-        };
-
-        return max;
-    })()
-};com.DataGroup = (function(){
+com.DataGroup = (function(){
 
     var AggregationFunctions = com.AggregationFunctions;
 
-    
+
     function DataGroup(name, dataProvider){
 
         this.name = name;
@@ -329,7 +581,7 @@ com.AggregationFunctions = {
         return this.dataProvider.totalColumns;
     };
 
-    
+
     DataGroup.prototype.getGroup = function(columnIndex){
 
         var groupsByName = {}, groups = [];
@@ -357,7 +609,7 @@ com.AggregationFunctions = {
         return groups;
     };
 
-    
+
     DataGroup.prototype.applyFunctionsToColumn = function(customFunctions){
 
         var length = this.getRowCount();
@@ -413,14 +665,14 @@ com.DataBrowser = (function(){
     }
 
     DataBrowser.prototype.getGroup = function(columnIndex){
-        
+
         var groupsByName = {}, groups = [];
         var dataProvider = this.dataProvider;
         var length = dataProvider.getRowCount();
         var group = null;
 
         for(var i = 0; i < length; i++){
-            
+
             var columnValue = dataProvider.getValue(columnIndex, i);
             if(!groupsByName[columnValue]){
 
@@ -453,7 +705,7 @@ com.DataBrowser = (function(){
 
         return this.dataProvider.getColumnCount();
     };
-    
+
     DataBrowser.prototype.getValue = function(x, y){
 
         if(this.groups){
@@ -475,7 +727,7 @@ com.DataBrowser = (function(){
 
         return this.dataProvider.getValue(x, y);
     };
-    
+
     DataBrowser.prototype.setValue = function(x, y, value){
 
        if(this.filteredData){
@@ -533,31 +785,34 @@ com.DataBrowser = (function(){
         this.dataProvider.sortOn(columnIndex, type);
     };
 
+    DataBrowser.prototype.resetSort = function(){
+
+        this.dataProvider.resetSort();
+    };
+
         DataBrowser.prototype.setGroups = function(columnIndexes){
-        
+
         this.groups = this.getGroup(columnIndexes[0]);
     };
 
-    DataBrowser.prototype.setGroups = function(){
+        DataBrowser.prototype.setGroups = function(){
 
-        var groups = this.getGroup(arguments.shift());
-        for(var i = 0; i < arguments.length; i++){
-
-
-        }
+        var groups = this.getGroup(arguments[0]);
+        this._applyGrouping(groups, arguments, 1);
+        return groups;
     };
 
-    DataBrowser.prototype._applyGrouping = function(groups, indexes){
+    DataBrowser.prototype._applyGrouping = function(groups, groupingIndexes, currentIndex){
 
-        var currentGroupingIndex = indexes[0];
-        for(var i = 0 ; i < groups.length; i++){
+        if(currentIndex >= groupingIndexes.length) return;
 
-            var current = groups[i];
-            for(var j = 1; j < indexes.length; j++){
+        var index = groupingIndexes[currentIndex];
 
-                current.groups = current.getGroup(currentGroupingIndex);
-                this._applyGrouping(current.groups, indexes);
-            }
+        for(var i = 0; i < groups.length; i++){
+
+            var currentGroup = groups[i];
+            currentGroup.groups = currentGroup.getGroup(index);
+            this._applyGrouping(currentGroup.groups, groupingIndexes, currentIndex + 1);
         }
     };
 
@@ -574,3 +829,6 @@ com.DataBrowser;
 com.AggregationFunctions;
 com.dataProviders.CSVDataProvider;
 com.dataProviders.JSDataProvider;
+com.groupingView.View;
+com.groupingView.ViewModel;
+com.groupingView.RowView;

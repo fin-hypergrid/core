@@ -218,7 +218,7 @@
                 var scrollValue = this.getScrollValue(grid);
                 this.dragIndex = overArea - 1;
                 this.dragStart = this.getMouseValue(event);
-                this.dragIndexStartingSize = this.getAreaSize(grid, overArea + scrollValue);
+                this.dragIndexStartingSize = this.getAreaSize(grid, overArea - scrollValue);
                 this.detachChain();
             } else if (this.next) {
                 this.next.handleMouseDown(grid, event);

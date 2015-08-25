@@ -78,7 +78,7 @@
             var dy = cell.y;
 
 
-            var isHeader = dy < 1 && grid.isShowHeaderRow();
+            var isHeader = grid.isShowHeaderRow() && dy === 0 && dx !== -1;
 
             if (isRightClick || !isHeader) {
                 if (this.next) {
@@ -286,6 +286,7 @@
         * @param {Array} keys - array of the keys that are currently pressed down
         */
         extendSelection: function(grid, gridCell, keys) {
+            grid.stopEditing();
             var hasCTRL = keys.indexOf('CTRL') !== -1;
             var hasSHIFT = keys.indexOf('SHIFT') !== -1;
             var rowCount = grid.getRowCount();

@@ -33,6 +33,8 @@
          */
         items: [],
 
+        //no events are fired while the dropdown is open
+        //see http://jsfiddle.net/m4tndtu4/6/
         showEditor: function() {
             var self = this;
             this.input.style.display = 'inline';

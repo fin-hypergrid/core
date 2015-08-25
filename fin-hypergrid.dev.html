@@ -15837,9 +15837,12 @@ Instances of this object have basically four main functions.
             var height = 0;
             var x, y, c, r;
             var previous = 0;
+            var grid = this.getGrid();
+            var gridSize = grid.isShowRowNumbers() ? 1 : 0;
             var columnEdges = this.getColumnEdges();
-            var fixedColumnCount = this.getFixedColumnCount();
+            var fixedColumnCount = this.getFixedColumnCount() + gridSize;
             var fixedRowCount = this.getFixedRowCount();
+
             // var fixedColumnCount = this.getFixedColumnCount();
             // var fixedRowCount = this.getFixedRowCount();
             var scrollX = this.getScrollLeft();
@@ -15883,7 +15886,6 @@ Instances of this object have basically four main functions.
 
             // c = c + scrollX;
             // r = r + scrollY;
-
 
             return {
                 gridCell: this.g.point.create(c, r),
@@ -20751,18 +20753,13 @@ var commands = {
          * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
          * @param {Object} event - the event details
         */
-        handleTap: function(grid, event) {
-            var behavior = grid.getBehavior();
-            var gridCell = event.gridCell;
-            var inColumnHeaderArea = gridCell.y < behavior.getHeaderRowCount();
-            var inRowHeaderArea = gridCell.x < behavior.getHeaderColumnCount();
 
-            if (inRowHeaderArea && inColumnHeaderArea) {
-                grid.topLeftClicked(event);
-            } else if (inRowHeaderArea) {
-                grid.rowHeaderClicked(event);
-            } else if (inColumnHeaderArea) {
-                grid.columnHeaderClicked(event);
+        handleDoubleClick: function(grid, event) {
+            var gridCell = event.gridCell;
+            if (grid.isShowHeaderRow() && gridCell.y === 0 && gridCell.x !== -1) {
+                grid.toggleSort(gridCell.x);
+            } else if (this.next) {
+                this.next.handleDoubleClick(grid, event);
             }
         },
 
@@ -20879,7 +20876,7 @@ var commands = {
             var dy = cell.y;
 
 
-            var isHeader = dy < 1 && grid.isShowHeaderRow();
+            var isHeader = grid.isShowHeaderRow() && dy === 0 && dx !== -1;
 
             if (isRightClick || !isHeader) {
                 if (this.next) {
@@ -21087,6 +21084,7 @@ var commands = {
         * @param {Array} keys - array of the keys that are currently pressed down
         */
         extendSelection: function(grid, gridCell, keys) {
+            grid.stopEditing();
             var hasCTRL = keys.indexOf('CTRL') !== -1;
             var hasSHIFT = keys.indexOf('SHIFT') !== -1;
             var rowCount = grid.getRowCount();
@@ -21799,7 +21797,7 @@ var commands = {
                 var scrollValue = this.getScrollValue(grid);
                 this.dragIndex = overArea - 1;
                 this.dragStart = this.getMouseValue(event);
-                this.dragIndexStartingSize = this.getAreaSize(grid, overArea + scrollValue);
+                this.dragIndexStartingSize = this.getAreaSize(grid, overArea - scrollValue);
                 this.detachChain();
             } else if (this.next) {
                 this.next.handleMouseDown(grid, event);
@@ -24253,7 +24251,9 @@ var commands = {
         convertViewPointToDataPoint: function(viewPoint) {
             return this.getComponent().convertViewPointToDataPoint(viewPoint);
         },
-
+        convertDataPointToViewPoint: function(dataPoint) {
+            return this.getComponent().convertDataPointToViewPoint(dataPoint);
+        },
     });
 
 })();
@@ -24464,6 +24464,15 @@ var commands = {
             return result;
         },
 
+        convertDataPointToViewPoint: function(dataPoint) {
+            var x = this.unTranslateColumnIndex(dataPoint.x);
+            var y = dataPoint.y;
+            var grid = this.getGrid();
+            var result = grid.rectangles.point.create(x, y);
+            return result;
+        },
+
+
     });
 
 })();
@@ -24667,14 +24676,16 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
             var image = filter.length === 0 ? 'filter-off' : 'filter-on';
             if (isBoth) {
                 if (y === 0) {
-                    return this._getHeader(x);
+                    image = this.getSortImageForColumn(x);
+                    return [null, this._getHeader(x), image];
                 } else {
                     return [null, filter, behavior.getImage(image)];
                 }
             } else if (isFilterRow) {
                 return [null, filter, behavior.getImage(image)];
             } else {
-                return this._getHeader(x);
+                image = this.getSortImageForColumn(x);
+                return [null, this._getHeader(x), image];
             }
             return '';
         },
@@ -25034,12 +25045,16 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
 
         toggleSort: function(index) {
             this.incrementSortState(index);
-            var sorts = this.getState().sorts;
             var dataProvider = this.getData();
-            for (var i = 0; i < sorts.length; i++) {
-                var colIndex = Math.abs(sorts[i]) - 1;
-                var type = sorts[i] < 0 ? -1 : 1;
-                dataProvider.sortOn(colIndex, type);
+            var sorts = this.getState().sorts;
+            if (sorts.length === 0) {
+                dataProvider.resetSort();
+            } else {
+                for (var i = 0; i < sorts.length; i++) {
+                    var colIndex = Math.abs(sorts[i]) - 1;
+                    var type = sorts[i] < 0 ? -1 : 1;
+                    dataProvider.sortOn(colIndex, type);
+                }
             }
             this.changed();
         },
@@ -25082,7 +25097,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
                 return null;
             }
             position++;
-            var name = position + (up ? '-up' : '-down');
+            var name = (4 - position) + (up ? '-up' : '-down');
             return this.getBehavior().getImage(name);
         },
 
@@ -25689,7 +25704,7 @@ it contains all code/data that's necessary for easily implementing a virtual dat
             this.setNextFeature(document.createElement('fin-hypergrid-feature-column-resizing'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-row-resizing'));
             //this.setNextFeature(document.createElement('fin-hypergrid-feature-column-moving'));
-            //this.setNextFeature(document.createElement('fin-hypergrid-feature-column-sorting'));
+            this.setNextFeature(document.createElement('fin-hypergrid-feature-column-sorting'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-filters'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-cell-selection'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-row-selection'));
@@ -26894,6 +26909,9 @@ it contains all code/data that's necessary for easily implementing a virtual dat
 
         convertViewPointToDataPoint: function(viewPoint) {
             return this.getDataModel().convertViewPointToDataPoint(viewPoint);
+        },
+        convertDataPointToViewPoint: function(dataPoint) {
+            return this.getDataModel().convertDataPointToViewPoint(dataPoint);
         },
 
     });
@@ -32000,9 +32018,11 @@ This is a very rough in memory data source example.  fin-hypergrid-behavior-in-m
             this.editorPoint = this.rectangles.point.create(0, 0);
             this.input = this.shadowRoot.querySelector('#editor');
             this.input.addEventListener('keyup', function(e) {
-                if (e && (e.keyCode === 13 || e.keyCode === 27)) {
+                if (e && (e.keyCode === 13 || e.keyCode === 27 || e.keyCode === 8)) {
                     e.preventDefault();
-                    if (e.keyCode === 27) {
+                    if (e.keyCode === 8) {
+                        self.clearStopEditing();
+                    } else if (e.keyCode === 27) {
                         self.cancelEditing();
                     } else {
                         self.stopEditing();
@@ -32016,6 +32036,7 @@ This is a very rough in memory data source example.  fin-hypergrid-behavior-in-m
                 self.getGrid().fireSyntheticEditorKeyDownEvent(self, e);
             });
             this.input.addEventListener('keypress', function(e) {
+                console.log('keypress', e.keyCode);
                 self.getGrid().fireSyntheticEditorKeyPressEvent(self, e);
             });
             // this.input.addEventListener('focusout', function() {
@@ -32052,6 +32073,11 @@ This is a very rough in memory data source example.  fin-hypergrid-behavior-in-m
         */
         setEditorValue: function(value) {
             this.input.value = value + '';
+        },
+
+        clearStopEditing: function() {
+            this.setEditorValue('');
+            this.stopEditing();
         },
 
         cancelEditing: function() {
@@ -32573,6 +32599,8 @@ This is a very rough in memory data source example.  fin-hypergrid-behavior-in-m
          */
         items: [],
 
+        //no events are fired while the dropdown is open
+        //see http://jsfiddle.net/m4tndtu4/6/
         showEditor: function() {
             var self = this;
             this.input.style.display = 'inline';
@@ -33897,9 +33925,9 @@ fin-vampire-bar {
             headerColumnCount: 0,
             headerRowCount: 0,
 
-            showRowNumbers: true,
+            showRowNumbers: false,
             showHeaderRow: true,
-            showFilterRow: true
+            showFilterRow: true,
 
         };
         return properties;
@@ -35150,6 +35178,9 @@ fin-vampire-bar {
             return this.getBehavior().convertViewPointToDataPoint(viewPoint);
         },
 
+        convertDataPointToViewPoint: function(dataPoint) {
+            return this.getBehavior().convertDataPointToViewPoint(dataPoint);
+        },
         /**
          * @function
          * @instance
@@ -36729,9 +36760,12 @@ fin-vampire-bar {
          */
         activateEditor: function(x, y) {
             var editor = this.getCellEditorAt(x, y);
+            var point = editor.editorPoint;
             if (editor) {
-                if (editor.isEditing) {
-                    return; //we're already open
+                if (point.x === x && point.y === y && editor.isEditing) {
+                    return; //we're already open at this location
+                } else if (this.isEditing()) {
+                    this.stopEditing(); //other editor is open, close it first
                 }
                 event.gridCell = {
                     x: x,
@@ -37221,6 +37255,7 @@ fin-vampire-bar {
         },
 
         toggleSort: function(x) {
+            this.stopEditing();
             this.getBehavior().toggleSort(x);
         },
 
@@ -37312,6 +37347,8 @@ fin-vampire-bar {
             }
             var showHeader = this.isShowHeaderRow();
             if (showHeader && y === 1) {
+                return true;
+            } else if (!showHeader && y === 0) {
                 return true;
             } else {
                 return false;

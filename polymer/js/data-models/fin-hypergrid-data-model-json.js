@@ -114,14 +114,16 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
             var image = filter.length === 0 ? 'filter-off' : 'filter-on';
             if (isBoth) {
                 if (y === 0) {
-                    return this._getHeader(x);
+                    image = this.getSortImageForColumn(x);
+                    return [null, this._getHeader(x), image];
                 } else {
                     return [null, filter, behavior.getImage(image)];
                 }
             } else if (isFilterRow) {
                 return [null, filter, behavior.getImage(image)];
             } else {
-                return this._getHeader(x);
+                image = this.getSortImageForColumn(x);
+                return [null, this._getHeader(x), image];
             }
             return '';
         },
@@ -481,12 +483,16 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
 
         toggleSort: function(index) {
             this.incrementSortState(index);
-            var sorts = this.getState().sorts;
             var dataProvider = this.getData();
-            for (var i = 0; i < sorts.length; i++) {
-                var colIndex = Math.abs(sorts[i]) - 1;
-                var type = sorts[i] < 0 ? -1 : 1;
-                dataProvider.sortOn(colIndex, type);
+            var sorts = this.getState().sorts;
+            if (sorts.length === 0) {
+                dataProvider.resetSort();
+            } else {
+                for (var i = 0; i < sorts.length; i++) {
+                    var colIndex = Math.abs(sorts[i]) - 1;
+                    var type = sorts[i] < 0 ? -1 : 1;
+                    dataProvider.sortOn(colIndex, type);
+                }
             }
             this.changed();
         },
@@ -529,7 +535,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
                 return null;
             }
             position++;
-            var name = position + (up ? '-up' : '-down');
+            var name = (4 - position) + (up ? '-up' : '-down');
             return this.getBehavior().getImage(name);
         },
 

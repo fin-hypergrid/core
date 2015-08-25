@@ -55,7 +55,7 @@
 
         //make the first col fixed;
         // jsonModel.setFixedColumnCount(2);
-        // jsonModel.setFixedRowCount(2);
+        jsonModel.setFixedRowCount(2);
 
         // jsonModel.setHeaderColumnCount(1);
         // jsonModel.setHeaderRowCount(2);
@@ -76,12 +76,7 @@
             }
             var x = config.x;
             var y = config.y;
-            // if (y < 2 || x === -1) {
-            //     if (y === 0) {
-            //         config.value[2] = jsonModel.getBaseModel().getSortImageForColumn(x);
-            //     }
-            //     return renderer;
-            // }
+
             config.halign = 'left';
             if ((y % 3) === 0){
                 config.backgroundColor = '#E87200';
@@ -129,13 +124,7 @@
                 return; //no editor here
             }
             var cellEditor = this.grid.cellEditors[type];
-            if (y === 1) {
-                // var type = filterTypes[x];
-                // cellEditor = this.grid.cellEditors[type];
-                // if (type === 'choice') {
-                //     cellEditor.items = ['','one', 'two', 'three'];
-                // }
-                // return cellEditor;
+            if (jsonGrid.isFilterRow(y)) {
                 if (x === 2) {
                     return this.grid.cellEditors['textfield'];
                 } else if (x === 2) {
@@ -176,28 +165,21 @@
 
         jsonGrid.addFinEventListener('fin-double-click', function(e){
             var cell = e.detail.gridCell;
-            if(cell.y === 0) {
-                jsonGrid.toggleSort(cell.x);
-            } else if (cell.y === 1) { //filter row
-                jsonGrid.activateEditor(cell.x, cell.y);
-            } else {
+
                 var rowContext = jsonModel.getRow(cell.y);
                 console.log('fin-double-click row-context:',rowContext);
-            }
+
         });
 
         jsonGrid.addFinEventListener('fin-click', function(e){
             var cell = e.detail.gridCell;
-            if(cell.y > 2 && cell.x === 7) {
+            if (cell.y < jsonGrid.getHeaderRowCount()) {
+                return;
+            }
+            if(cell.x === 7) {
                 jsonGrid.toggleSelectRow(cell.y, []);
             }
-            if (cell.y === 1 && cell.x !== -1) {
-                if (jsonGrid.isEditing()) {
-                    jsonGrid.stopEditing();
-                } else {
-                    jsonGrid.activateEditor(cell.x, cell.y);
-                }
-            } else if (cell.y > 2 && cell.x !== -1) {
+            else if (cell.x !== -1) {
                 if (jsonGrid.isEditing()) {
                     jsonGrid.stopEditing();
                 } else {
@@ -226,7 +208,7 @@
 
         jsonGrid.addFinEventListener('fin-cell-enter', function(e) {
             var cell = e.detail.gridCell;
-            console.log('fin-cell-enter', cell.x, cell.y);
+            //console.log('fin-cell-enter', cell.x, cell.y);
             jsonGrid.setAttribute('title', 'fin-cell-enter(' + cell.x +', '+ cell.y+')');
         });
 
@@ -236,7 +218,6 @@
             var y = details.y;
             var value = details.value;
             jsonModel.getBaseModel().getTotals()[0][x] = value;
-            console.log('filter on ' + value + ' for column' + jsonModel.getBaseModel().getHeaders()[x]);
             jsonGrid.repaint();
         });
 

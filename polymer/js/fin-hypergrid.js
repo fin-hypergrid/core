@@ -181,9 +181,9 @@
             headerColumnCount: 0,
             headerRowCount: 0,
 
-            showRowNumbers: true,
+            showRowNumbers: false,
             showHeaderRow: true,
-            showFilterRow: true
+            showFilterRow: true,
 
         };
         return properties;
@@ -1434,6 +1434,9 @@
             return this.getBehavior().convertViewPointToDataPoint(viewPoint);
         },
 
+        convertDataPointToViewPoint: function(dataPoint) {
+            return this.getBehavior().convertDataPointToViewPoint(dataPoint);
+        },
         /**
          * @function
          * @instance
@@ -3013,9 +3016,12 @@
          */
         activateEditor: function(x, y) {
             var editor = this.getCellEditorAt(x, y);
+            var point = editor.editorPoint;
             if (editor) {
-                if (editor.isEditing) {
-                    return; //we're already open
+                if (point.x === x && point.y === y && editor.isEditing) {
+                    return; //we're already open at this location
+                } else if (this.isEditing()) {
+                    this.stopEditing(); //other editor is open, close it first
                 }
                 event.gridCell = {
                     x: x,
@@ -3505,6 +3511,7 @@
         },
 
         toggleSort: function(x) {
+            this.stopEditing();
             this.getBehavior().toggleSort(x);
         },
 
@@ -3596,6 +3603,8 @@
             }
             var showHeader = this.isShowHeaderRow();
             if (showHeader && y === 1) {
+                return true;
+            } else if (!showHeader && y === 0) {
                 return true;
             } else {
                 return false;
