@@ -14,7 +14,7 @@
          * @property {integer} dragIndex - the index of the column wall were currently dragging
          * @instance
          */
-        dragIndex: -1,
+        dragIndex: -2,
 
         /**
          * @property {integer} dragStart - the pixel location of the where the drag was initiated
@@ -150,32 +150,20 @@
         * @param {Object} event - the event details
         */
         handleMouseDrag: function(grid, event) {
-            if (this.dragIndex > -1) {
+            if (this.dragIndex > -2) {
                 //var fixedAreaCount = this.getFixedAreaCount(grid);
                 //var offset = this.getFixedAreaSize(grid, fixedAreaCount + areaIndex);
-                var distance = this.getMouseValue(event) - this.getPreviousAbsoluteSize(grid, this.dragIndex);
-                this.setSize(grid, this.dragIndex, distance);
+                var mouse = this.getMouseValue(event);
+                var scrollValue = this.getScrollValue(grid);
+                if (this.dragIndex < this.getFixedAreaCount(grid)) {
+                    scrollValue = 0;
+                }
+                var previous = this.getPreviousAbsoluteSize(grid, this.dragIndex - scrollValue);
+                var distance = mouse - previous;
+                this.setAreaSize(grid, this.dragIndex, distance);
             } else if (this.next) {
                 this.next.handleMouseDrag(grid, event);
             }
-        },
-
-        /**
-        * @function
-        * @instance
-        * @description
-        set the width/height of a specific row/column
-        * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
-        * @param {integer} areaIndex - the row/column index to affect
-        * @param {integer} size - the width/height to set to
-        */
-        setSize: function(grid, areaIndex, size) {
-            var scrollValue = this.getScrollValue(grid);
-            var otherFixedAreaCount = this.getOtherFixedAreaCount(grid);
-            if (areaIndex >= otherFixedAreaCount) {
-                areaIndex = areaIndex + scrollValue;
-            }
-            this.setAreaSize(grid, areaIndex, size);
         },
 
         /**
@@ -211,14 +199,15 @@
          * @param {Object} event - the event details
         */
         handleMouseDown: function(grid, event) {
-            var gridCell = event.gridCell;
-            var otherFixedAreaCount = this.getOtherFixedAreaCount(grid);
             var overArea = this.overAreaDivider(grid, event);
-            if (overArea > 0 && this.getGridCellValue(gridCell) < otherFixedAreaCount) {
+            if (overArea > -1 && this.isFirstFixedOtherArea(grid, event)) {
                 var scrollValue = this.getScrollValue(grid);
-                this.dragIndex = overArea - 1;
+                if (overArea < this.getFixedAreaCount(grid)) {
+                    scrollValue = 0;
+                }
+                this.dragIndex = overArea - 1 + scrollValue;
                 this.dragStart = this.getMouseValue(event);
-                this.dragIndexStartingSize = this.getAreaSize(grid, overArea - scrollValue);
+                this.dragIndexStartingSize = 0;
                 this.detachChain();
             } else if (this.next) {
                 this.next.handleMouseDown(grid, event);
@@ -234,9 +223,9 @@
          * @param {Object} event - the event details
         */
         handleMouseUp: function(grid, event) {
-            if (this.dragIndex > -1) {
+            if (this.dragIndex > -2) {
                 this.cursor = null;
-                this.dragIndex = -1;
+                this.dragIndex = -2;
 
                 event.primitiveEvent.stopPropagation();
                 //delay here to give other events a chance to be dropped
@@ -259,7 +248,7 @@
         * @param {Object} event - the event details
         */
         handleMouseMove: function(grid, event) {
-            if (this.dragIndex > -1) {
+            if (this.dragIndex > -2) {
                 return;
             }
             this.cursor = null;
@@ -278,14 +267,17 @@
         * @param {Object} event - the event details
         */
         checkForAreaResizeCursorChange: function(grid, event) {
-
-            if (this.isFirstFixedOtherArea(grid, event) && this.overAreaDivider(grid, event) > 0) {
+            if (this.overAreaDivider(grid, event) > -1 && this.isFirstFixedOtherArea(grid, event)) {
                 this.cursor = this.getCursorName();
             } else {
                 this.cursor = null;
             }
 
         },
+
+        getFixedAreaCount: function(grid) {
+            return grid.getFixedColumnCount() + grid.isShowRowNumbers() ? 1 : 0;
+        }
     });
 
 })(); /* jshint ignore:line */

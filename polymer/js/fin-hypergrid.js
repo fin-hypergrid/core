@@ -178,10 +178,8 @@
 
             fixedColumnCount: 0,
             fixedRowCount: 0,
-            headerColumnCount: 0,
-            headerRowCount: 0,
 
-            showRowNumbers: false,
+            showRowNumbers: true,
             showHeaderRow: true,
             showFilterRow: true,
 
@@ -3016,6 +3014,9 @@
          */
         activateEditor: function(x, y) {
             var editor = this.getCellEditorAt(x, y);
+            if (!editor) {
+                return;
+            }
             var point = editor.editorPoint;
             if (editor) {
                 if (point.x === x && point.y === y && editor.isEditing) {

@@ -535,7 +535,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
                 return null;
             }
             position++;
-            var name = (4 - position) + (up ? '-up' : '-down');
+            var name = (1 + sorts.length - position) + (up ? '-up' : '-down');
             return this.getBehavior().getImage(name);
         },
 

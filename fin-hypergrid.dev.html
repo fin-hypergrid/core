@@ -15837,10 +15837,8 @@ Instances of this object have basically four main functions.
             var height = 0;
             var x, y, c, r;
             var previous = 0;
-            var grid = this.getGrid();
-            var gridSize = grid.isShowRowNumbers() ? 1 : 0;
             var columnEdges = this.getColumnEdges();
-            var fixedColumnCount = this.getFixedColumnCount() + gridSize;
+            var fixedColumnCount = this.getFixedColumnCount(); // + gridSize;
             var fixedRowCount = this.getFixedRowCount();
 
             // var fixedColumnCount = this.getFixedColumnCount();
@@ -17977,7 +17975,8 @@ Instances of this object have basically four main functions.
         */
         isFirstFixedColumn: function(grid, event) {
             var gridCell = event.viewPoint;
-            var isFixed = gridCell.x < 1;
+            var edge = grid.isShowRowNumbers() ? 0 : 1;
+            var isFixed = gridCell.x < edge;
             return isFixed;
         },
 
@@ -21593,7 +21592,7 @@ var commands = {
          * @property {integer} dragIndex - the index of the column wall were currently dragging
          * @instance
          */
-        dragIndex: -1,
+        dragIndex: -2,
 
         /**
          * @property {integer} dragStart - the pixel location of the where the drag was initiated
@@ -21729,32 +21728,20 @@ var commands = {
         * @param {Object} event - the event details
         */
         handleMouseDrag: function(grid, event) {
-            if (this.dragIndex > -1) {
+            if (this.dragIndex > -2) {
                 //var fixedAreaCount = this.getFixedAreaCount(grid);
                 //var offset = this.getFixedAreaSize(grid, fixedAreaCount + areaIndex);
-                var distance = this.getMouseValue(event) - this.getPreviousAbsoluteSize(grid, this.dragIndex);
-                this.setSize(grid, this.dragIndex, distance);
+                var mouse = this.getMouseValue(event);
+                var scrollValue = this.getScrollValue(grid);
+                if (this.dragIndex < this.getFixedAreaCount(grid)) {
+                    scrollValue = 0;
+                }
+                var previous = this.getPreviousAbsoluteSize(grid, this.dragIndex - scrollValue);
+                var distance = mouse - previous;
+                this.setAreaSize(grid, this.dragIndex, distance);
             } else if (this.next) {
                 this.next.handleMouseDrag(grid, event);
             }
-        },
-
-        /**
-        * @function
-        * @instance
-        * @description
-        set the width/height of a specific row/column
-        * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
-        * @param {integer} areaIndex - the row/column index to affect
-        * @param {integer} size - the width/height to set to
-        */
-        setSize: function(grid, areaIndex, size) {
-            var scrollValue = this.getScrollValue(grid);
-            var otherFixedAreaCount = this.getOtherFixedAreaCount(grid);
-            if (areaIndex >= otherFixedAreaCount) {
-                areaIndex = areaIndex + scrollValue;
-            }
-            this.setAreaSize(grid, areaIndex, size);
         },
 
         /**
@@ -21790,14 +21777,15 @@ var commands = {
          * @param {Object} event - the event details
         */
         handleMouseDown: function(grid, event) {
-            var gridCell = event.gridCell;
-            var otherFixedAreaCount = this.getOtherFixedAreaCount(grid);
             var overArea = this.overAreaDivider(grid, event);
-            if (overArea > 0 && this.getGridCellValue(gridCell) < otherFixedAreaCount) {
+            if (overArea > -1 && this.isFirstFixedOtherArea(grid, event)) {
                 var scrollValue = this.getScrollValue(grid);
-                this.dragIndex = overArea - 1;
+                if (overArea < this.getFixedAreaCount(grid)) {
+                    scrollValue = 0;
+                }
+                this.dragIndex = overArea - 1 + scrollValue;
                 this.dragStart = this.getMouseValue(event);
-                this.dragIndexStartingSize = this.getAreaSize(grid, overArea - scrollValue);
+                this.dragIndexStartingSize = 0;
                 this.detachChain();
             } else if (this.next) {
                 this.next.handleMouseDown(grid, event);
@@ -21813,9 +21801,9 @@ var commands = {
          * @param {Object} event - the event details
         */
         handleMouseUp: function(grid, event) {
-            if (this.dragIndex > -1) {
+            if (this.dragIndex > -2) {
                 this.cursor = null;
-                this.dragIndex = -1;
+                this.dragIndex = -2;
 
                 event.primitiveEvent.stopPropagation();
                 //delay here to give other events a chance to be dropped
@@ -21838,7 +21826,7 @@ var commands = {
         * @param {Object} event - the event details
         */
         handleMouseMove: function(grid, event) {
-            if (this.dragIndex > -1) {
+            if (this.dragIndex > -2) {
                 return;
             }
             this.cursor = null;
@@ -21857,14 +21845,17 @@ var commands = {
         * @param {Object} event - the event details
         */
         checkForAreaResizeCursorChange: function(grid, event) {
-
-            if (this.isFirstFixedOtherArea(grid, event) && this.overAreaDivider(grid, event) > 0) {
+            if (this.overAreaDivider(grid, event) > -1 && this.isFirstFixedOtherArea(grid, event)) {
                 this.cursor = this.getCursorName();
             } else {
                 this.cursor = null;
             }
 
         },
+
+        getFixedAreaCount: function(grid) {
+            return grid.getFixedColumnCount() + grid.isShowRowNumbers() ? 1 : 0;
+        }
     });
 
 })(); /* jshint ignore:line */
@@ -23083,6 +23074,10 @@ var commands = {
         getOtherFixedAreaCount: function(grid) {
             return grid.getFixedColumnCount();
         },
+
+        getFixedAreaCount: function(grid) {
+            return grid.getFixedRowCount() + grid.getHeaderRowCount();
+        }
     });
 
 })(); /* jshint ignore:line */
@@ -25097,7 +25092,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
                 return null;
             }
             position++;
-            var name = (4 - position) + (up ? '-up' : '-down');
+            var name = (1 + sorts.length - position) + (up ? '-up' : '-down');
             return this.getBehavior().getImage(name);
         },
 
@@ -33922,10 +33917,8 @@ fin-vampire-bar {
 
             fixedColumnCount: 0,
             fixedRowCount: 0,
-            headerColumnCount: 0,
-            headerRowCount: 0,
 
-            showRowNumbers: false,
+            showRowNumbers: true,
             showHeaderRow: true,
             showFilterRow: true,
 
@@ -36760,6 +36753,9 @@ fin-vampire-bar {
          */
         activateEditor: function(x, y) {
             var editor = this.getCellEditorAt(x, y);
+            if (!editor) {
+                return;
+            }
             var point = editor.editorPoint;
             if (editor) {
                 if (point.x === x && point.y === y && editor.isEditing) {

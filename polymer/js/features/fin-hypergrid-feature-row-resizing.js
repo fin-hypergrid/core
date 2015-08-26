@@ -150,6 +150,10 @@
         getOtherFixedAreaCount: function(grid) {
             return grid.getFixedColumnCount();
         },
+
+        getFixedAreaCount: function(grid) {
+            return grid.getFixedRowCount() + grid.getHeaderRowCount();
+        }
     });
 
 })(); /* jshint ignore:line */

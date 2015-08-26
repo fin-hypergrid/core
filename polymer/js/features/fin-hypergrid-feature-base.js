@@ -349,7 +349,8 @@
         */
         isFirstFixedColumn: function(grid, event) {
             var gridCell = event.viewPoint;
-            var isFixed = gridCell.x < 1;
+            var edge = grid.isShowRowNumbers() ? 0 : 1;
+            var isFixed = gridCell.x < edge;
             return isFixed;
         },
 
