@@ -3613,6 +3613,9 @@
         },
         filterClicked: function(event) {
             this.activateEditor(event.gridCell.x, event.gridCell.y);
+        },
+        setGroups: function(arrayOfColumnIndexes) {
+            this.getBehavior().setGroups(arrayOfColumnIndexes);
         }
     });
 

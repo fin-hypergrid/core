@@ -50,8 +50,8 @@
         //jsonModel.setData(people); //see sampledata.js for the random data
 
         //lets sew in haseeb's stuff here for now.....
-        var dataBrowser =  new com.DataBrowser(new com.dataProviders.JSDataProvider(["last_name", "first_name", "pets", "birthDate", "birthState", "residenceState", "employed", "income", "travel", "squareOfIncome"], people));
-        jsonModel.setDataProvider(dataBrowser);
+        //var fields = ["last_name", "first_name", "pets", "birthDate", "birthState", "residenceState", "employed", "income", "travel", "squareOfIncome"];
+        jsonModel.setData(people);
 
         //make the first col fixed;
         // jsonModel.setFixedColumnCount(2);
@@ -401,6 +401,8 @@
                         columnHeaderColor: 'white'
                     });
 
+                jsonModel.setGroups([0,1,4,5]);
+
                 console.log(jsonModel.getHeaders());
                 console.log(jsonModel.getFields());
 
@@ -412,6 +414,10 @@
                 //jsonGrid.addProperties(myThemes.two);
                 //jsonGrid.addProperties(myThemes.three);
 
+                window.g = document.querySelector('#json-example');
+                window.b = g.getBehavior();
+                window.m = b.getBaseModel();
+                window.a = b.getData();
 
             }, 500);
 
