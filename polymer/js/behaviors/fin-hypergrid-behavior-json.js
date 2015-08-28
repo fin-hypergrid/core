@@ -114,12 +114,12 @@
         setter for the totals field
         * @param {array} nestedArray - array2D of totals data
         */
-        setTotals: function(nestedArray) {
-            this.getBaseModel().setTotals(nestedArray);
+        setTopTotals: function(nestedArray) {
+            this.getBaseModel().setTopTotals(nestedArray);
         },
 
-        getTotals: function() {
-            return this.getBaseModel().getTotals();
+        getTopTotals: function() {
+            return this.getBaseModel().getTopTotals();
         },
 
         /**

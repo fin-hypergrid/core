@@ -1086,7 +1086,7 @@ it contains all code/data that's necessary for easily implementing a virtual dat
             var grid = this.getGrid();
             var header = grid.isShowHeaderRow() ? 1 : 0;
             var filter = grid.isShowFilterRow() ? 1 : 0;
-            var totals = this.getTotals().length;
+            var totals = this.getTopTotals().length;
             var count = header + filter + totals;
             return count;
         },

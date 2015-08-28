@@ -48,7 +48,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
          * @property {Array} totals - the totals row values
          * @instance
          */
-        totals: [],
+        topTotals: [],
 
         /**
         * @function
@@ -112,21 +112,46 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
             var isBoth = isFilterRow && isHeaderRow;
             var filter = this.getFilter(x);
             var image = filter.length === 0 ? 'filter-off' : 'filter-on';
-            if (isBoth) {
-                if (y === 0) {
-                    image = this.getSortImageForColumn(x);
-                    return [null, this._getHeader(x), image];
-                } else {
+            if (y === 0) {
+                if (isHeaderRow) {
+                    return [null, this._getHeader(x), this.getSortImageForColumn(x)];
+                } else if (isFilterRow) {
                     return [null, filter, behavior.getImage(image)];
+                } else {
+                    return this.getTopTotals()[0][x];
                 }
-            } else if (isFilterRow) {
-                return [null, filter, behavior.getImage(image)];
-            } else {
-                image = this.getSortImageForColumn(x);
-                return [null, this._getHeader(x), image];
+            } else if (y === 1) {
+                if (isBoth) {
+                    return [null, filter, behavior.getImage(image)];
+                } else if (isHeaderRow || isFilterRow) {
+                    return this.getTopTotals()[0][x];
+                }
             }
             return '';
         },
+
+        // var grid = this.getGrid();
+        // var behavior = grid.getBehavior();
+        // var isFilterRow = grid.isShowFilterRow();
+        // var isHeaderRow = grid.isShowHeaderRow();
+        // var isBoth = isFilterRow && isHeaderRow;
+        // var filter = this.getFilter(x);
+        // var image = filter.length === 0 ? 'filter-off' : 'filter-on';
+        // if (isBoth) {
+        //     if (y === 0) {
+        //         image = this.getSortImageForColumn(x);
+        //         return [null, this._getHeader(x), image];
+        //     } else {
+        //         return [null, filter, behavior.getImage(image)];
+        //     }
+        // } else if (isFilterRow) {
+        //     return [null, filter, behavior.getImage(image)];
+        // } else {
+        //     image = this.getSortImageForColumn(x);
+        //     return [null, this._getHeader(x), image];
+        // }
+        // return '';
+
 
         setHeader: function(x, y, value) {
             if (value === undefined) {
@@ -316,13 +341,13 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         setter for the totals field
         * @param {array} nestedArray - array2D of totals data
         */
-        setTotals: function(nestedArray) {
-            this.totals = nestedArray;
+        setTopTotals: function(nestedArray) {
+            this.topTotals = nestedArray;
             this.changed();
         },
 
-        getTotals: function() {
-            return this.totals;
+        getTopTotals: function() {
+            return this.topTotals;
         },
 
         /**
@@ -333,7 +358,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         * @param {array} nestedArray - array2D of totals data
         */
         getTotal: function(x, y) {
-            return this.totals[y][x];
+            return this.topTotals[y][x];
         },
 
         /**
@@ -369,26 +394,6 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
             var data = this.getData();
             return data.getValue(x, y - headerRowCount);
         },
-
-
-        // var result, tableState, headers, sortIndex;
-        // var grid = this.getGrid();
-        // headers = this.getHeaders();
-        // var data = this.getData();
-        // var headersSize = headers.length > 0 ? 1 : 0;
-        // if (y < headersSize) {
-        //     tableState = this.getState();
-        //     sortIndex = tableState.columnProperties[x].sorted || 0;
-        //     result = [undefined, headers[x], this.getImage(sortStates[sortIndex])];
-        // } else if (y < this.getTotals().length + headersSize) {
-        //     result = this.getTotal(x, y - headersSize);
-        // } else {
-        //     result = data.getValue(x, y - this.getTotals().length - headersSize);
-        // }
-        // if (typeof result === 'function') {
-        //     result = result();
-        // }
-        // return result;
 
 
         /**
@@ -640,7 +645,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
 
         getRow: function(y) {
             var headerCount = this.getHeaders().length > 0 ? 1 : 0;
-            var totalsCount = this.getTotals().length;
+            var totalsCount = this.getTopTotals().length;
             var index = y - (headerCount + totalsCount);
             if (index < 0) {
                 return null;
