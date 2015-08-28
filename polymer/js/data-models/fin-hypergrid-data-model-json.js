@@ -110,48 +110,38 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
             var isFilterRow = grid.isShowFilterRow();
             var isHeaderRow = grid.isShowHeaderRow();
             var isBoth = isFilterRow && isHeaderRow;
+            var topTotalsOffset = (isFilterRow ? 1 : 0) + (isHeaderRow ? 1 : 0);
+            if (y >= topTotalsOffset) {
+                return this.getTopTotals()[y - topTotalsOffset][x];
+            }
             var filter = this.getFilter(x);
             var image = filter.length === 0 ? 'filter-off' : 'filter-on';
-            if (y === 0) {
-                if (isHeaderRow) {
-                    return [null, this._getHeader(x), this.getSortImageForColumn(x)];
-                } else if (isFilterRow) {
-                    return [null, filter, behavior.getImage(image)];
+            if (isBoth) {
+                if (y === 0) {
+                    image = this.getSortImageForColumn(x);
+                    return [null, this._getHeader(x), image];
                 } else {
-                    return this.getTopTotals()[0][x];
-                }
-            } else if (y === 1) {
-                if (isBoth) {
                     return [null, filter, behavior.getImage(image)];
-                } else if (isHeaderRow || isFilterRow) {
-                    return this.getTopTotals()[0][x];
                 }
+            } else if (isFilterRow) {
+                return [null, filter, behavior.getImage(image)];
+            } else {
+                image = this.getSortImageForColumn(x);
+                return [null, this._getHeader(x), image];
             }
             return '';
         },
 
-        // var grid = this.getGrid();
-        // var behavior = grid.getBehavior();
-        // var isFilterRow = grid.isShowFilterRow();
-        // var isHeaderRow = grid.isShowHeaderRow();
-        // var isBoth = isFilterRow && isHeaderRow;
-        // var filter = this.getFilter(x);
-        // var image = filter.length === 0 ? 'filter-off' : 'filter-on';
-        // if (isBoth) {
-        //     if (y === 0) {
-        //         image = this.getSortImageForColumn(x);
-        //         return [null, this._getHeader(x), image];
-        //     } else {
-        //         return [null, filter, behavior.getImage(image)];
-        //     }
-        // } else if (isFilterRow) {
-        //     return [null, filter, behavior.getImage(image)];
-        // } else {
-        //     image = this.getSortImageForColumn(x);
-        //     return [null, this._getHeader(x), image];
-        // }
-        // return '';
-
+        getHeaderRow: function(y) {
+            var grid = this.getGrid();
+            var isFilterRow = grid.isShowFilterRow();
+            var isHeaderRow = grid.isShowHeaderRow();
+            var topTotalsOffset = (isFilterRow ? 1 : 0) + (isHeaderRow ? 1 : 0);
+            if (y >= topTotalsOffset) {
+                return this.getTopTotals()[y - topTotalsOffset];
+            }
+            return null;
+        },
 
         setHeader: function(x, y, value) {
             if (value === undefined) {
@@ -161,7 +151,10 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
             var isFilterRow = grid.isShowFilterRow();
             var isHeaderRow = grid.isShowHeaderRow();
             var isBoth = isFilterRow && isHeaderRow;
-            if (x === -1) {
+            var topTotalsOffset = (isFilterRow ? 1 : 0) + (isHeaderRow ? 1 : 0);
+            if (y >= topTotalsOffset) {
+                this.getTopTotals()[y - topTotalsOffset][x] = value;
+            } else if (x === -1) {
                 return; // can't change the row numbers
             } else if (isBoth) {
                 if (y === 0) {
@@ -644,9 +637,13 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         },
 
         getRow: function(y) {
-            var headerCount = this.getHeaders().length > 0 ? 1 : 0;
-            var totalsCount = this.getTopTotals().length;
-            var index = y - (headerCount + totalsCount);
+
+            var grid = this.getGrid();
+            var headerRowCount = grid.getHeaderRowCount();
+            if (y < headerRowCount) {
+                return this.getHeaderRow(y);
+            }
+            var index = y - headerRowCount;
             if (index < 0) {
                 return null;
             }
