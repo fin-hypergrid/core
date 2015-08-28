@@ -59,6 +59,14 @@
 
         // jsonModel.setHeaderColumnCount(1);
         // jsonModel.setHeaderRowCount(2);
+        var topTotals = [['one','two','three','four','five','six','seven','eight','nine','ten'],
+                         ['ten','nine','eight','seven','six','five','four','three','two','one']];
+        jsonModel.setTopTotals(topTotals);
+
+        setInterval(function(){
+            topTotals[1][5] = Math.round(Math.random()*100);
+            jsonModel.changed();
+        },300)
 
         //lets set 2 rows of totals
 
@@ -335,10 +343,13 @@
                             "travel",
                             "squareOfIncome"]),
                         rowHeights:{ 0: 30 },
-                        // fixedColumnCount:1,
-                        // fixedRowCount:2,
-                        // headerRowCount:2,
-                        columnAutosizing:true
+                        fixedColumnCount: 3,
+                        fixedRowCount: 2,
+
+                        showRowNumbers: true,
+                        showHeaderRow: true,
+                        showFilterRow: true,
+                        columnAutosizing: true
                     };
 
                 jsonGrid.setState(state);
