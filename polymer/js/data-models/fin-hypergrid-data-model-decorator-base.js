@@ -110,6 +110,9 @@
         convertDataPointToViewPoint: function(dataPoint) {
             return this.getComponent().convertDataPointToViewPoint(dataPoint);
         },
+        hasHierarchyColumn: function() {
+            return this.getComponent().hasHierarchyColumn();
+        }
     });
 
 })();

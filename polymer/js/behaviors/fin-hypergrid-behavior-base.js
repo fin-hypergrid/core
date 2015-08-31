@@ -293,8 +293,8 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          * @param {rectangle.point} cell - point of cell coordinates
          * @param {Object} event - all event information
          */
-        cellClicked: function( /* cell, event */ ) {
-
+        cellClicked: function(cell, event) {
+            this.getBaseModel().cellClicked(cell, event);
         },
 
         /**
@@ -1220,10 +1220,12 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          * #### returns: integer
          */
         getColumnCount: function() {
-            if (!this.tableState) {
-                return this.getDataModel().getColumnCount();
-            }
-            return this.tableState.columnIndexes.length;
+            // if (!this.tableState) {
+            //     return this.getDataModel().getColumnCount();
+            // }
+            // return this.tableState.columnIndexes.length;
+
+            return this.getDataModel().getColumnCount();
         },
 
         /**
@@ -1559,8 +1561,11 @@ it contains all code/data that's necessary for easily implementing a virtual dat
         convertDataPointToViewPoint: function(dataPoint) {
             return this.getDataModel().convertDataPointToViewPoint(dataPoint);
         },
-        setGroups: function() {
-            this.getBaseModel().setGroups(arguments[0]);
+        setGroups: function(arrayOfColumnIndexes) {
+            this.getBaseModel().setGroups(arrayOfColumnIndexes);
+        },
+        hasHierarchyColumn: function() {
+            return false;
         }
     });
 })();

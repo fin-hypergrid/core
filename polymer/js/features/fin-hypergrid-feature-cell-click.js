@@ -21,8 +21,8 @@
             var behavior = grid.getBehavior();
             var headerRowCount = behavior.getHeaderRowCount();
             var headerColumnCount = behavior.getHeaderColumnCount();
-            if ((gridCell.y > headerRowCount) &&
-                (gridCell.x > headerColumnCount)) {
+            if ((gridCell.y >= headerRowCount) &&
+                (gridCell.x >= headerColumnCount)) {
                 grid.cellClicked(event);
             } else if (this.next) {
                 this.next.handleTap(grid, event);

@@ -22,7 +22,13 @@
 
         translateColumnIndex: function(x) {
             if (x === -1) {
-                return x;
+                return -1;
+            }
+            if (this.hasHierarchyColumn()) {
+                if (x === 0) {
+                    return -2;
+                }
+                x = x - 1;
             }
             var tableState = this.getState();
             var indexes = tableState.columnIndexes;

@@ -5,6 +5,32 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
 
 (function() {
 
+    var CustomColumnFunctions = {
+
+        first: (function() {
+
+            function first() {
+
+                this.value = null;
+            }
+
+            first.prototype.method = function(value) {
+
+                if (this.value === null) {
+
+                    this.value = value;
+                }
+            };
+
+            first.prototype.post = function() {
+
+                return this.value;
+            };
+
+            return first;
+        })()
+    };
+
     var computeFieldNames = function(object) {
         var fields = [].concat(Object.getOwnPropertyNames(object).filter(function(e) {
             return e.substr(0, 2) !== '__';
@@ -12,86 +38,169 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         return fields;
     };
 
-    function JSONAnalyticsRow(container, group) {
+    function JSONAnalyticsRow(analytics, group, depth, parent) {
         this.rows = [];
         this.group = group;
-        this.analytics = container;
-        this.expanded = false;
-        this.updateData();
+        this.depth = depth;
+        this.analytics = analytics;
+        this.parent = parent;
     }
 
-    JSONAnalyticsRow.prototype.createGroupRow = function(group) {
-        this.data = this.group.applyFunctionsToColumn(this.container.getAggregationFunctions());
+    var ExpandedMap = {
+        truetrue: '▾',
+        falsetrue: ' ',
+        falsefalse: ' ',
+        truefalse: '▸'
     };
 
-    JSONAnalyticsRow.prototype.createGroupRow = function(group) {
-        var row = new JSONAnalyticsRow(this.analytics, group);
-        row.updateData(group);
+    var TreeDepth = '                                               ';
+
+    JSONAnalyticsRow.prototype.getValue = function(x, y) {
+        if (x === -2) {
+            var hasChildren = (this.group.groups !== undefined) && this.group.groups.length > 0;
+            var isOpen = this.group.expanded || false;
+            return TreeDepth.substring(0, 2 * this.depth) + ExpandedMap[hasChildren + '' + isOpen] + ' ' + this.group.name;
+        }
+        var fields = this.analytics.getComputedColumnDefinitions().fields;
+        return this.data[fields[x]];
+    };
+
+    JSONAnalyticsRow.prototype.updateData = function() {
+        var groups = this.group.groups;
+        this.rows.length = 0;
+        if (groups && groups.length > 0) {
+            for (var i = 0; i < groups.length; i++) {
+                this.createGroupRow(groups[i]);
+            }
+        }
+        this.data = this.group.applyFunctionsToColumn(this.analytics.getComputedColumnDefinitions().cols);
+    };
+
+    JSONAnalyticsRow.prototype.addRow = function(row) {
+        if (this.group.expanded) {
+            this.parent.addRow(row);
+        }
         this.rows.push(row);
+        row.updateData();
     };
 
-    function JSONAnalytics(arrayOfUniformObjects, aggregationFunctions) {
-        this.aggregationFunctions = aggregationFunctions;
+    JSONAnalyticsRow.prototype.clicked = function() {
+        this.group.expanded = !this.group.expanded;
+    };
+
+    JSONAnalyticsRow.prototype.createGroupRow = function(group) {
+        var row = new JSONAnalyticsRow(this.analytics, group, this.depth + 1, this);
+        this.addRow(row);
+    };
+
+    function JSONAnalytics(arrayOfUniformObjects, container) {
+        this.container = container;
         var fields = computeFieldNames(arrayOfUniformObjects[0]);
         this.dataBrowser = new com.DataBrowser(new com.dataProviders.JSDataProvider(fields, arrayOfUniformObjects));
+        this.rows = [];
     }
 
+    JSONAnalytics.prototype.hasHierarchyColumn = function() {
+        return this.isGrouping();
+    };
+
     JSONAnalytics.prototype.getValue = function(x, y) {
-        if (this.dataBrowser.groups && y >= this.dataBrowser.groups.length) {
-            return '';
+        if (this.isGrouping()) {
+            if (y < this.rows.length) {
+                return this.rows[y].getValue(x, 0); /// hierarchy column
+            } else {
+                return '';
+            }
         }
         return this.dataBrowser.getValue(x, y);
     };
+
     JSONAnalytics.prototype.setValue = function(x, y, value) {
         this.dataBrowser.setValue(x, y, value);
     };
+
     JSONAnalytics.prototype.getColumnCount = function() {
+        if (this.isGrouping()) {
+            return this.dataBrowser.getColumnCount() + 1; //hierarchy column
+        }
         return this.dataBrowser.getColumnCount();
     };
+
     JSONAnalytics.prototype.getRowCount = function() {
-        if (this.dataBrowser.groups) {
-            return this.dataBrowser.groups.length;
+        if (this.isGrouping()) {
+            return this.rows.length;
         }
         return this.dataBrowser.getRowCount();
     };
+
     JSONAnalytics.prototype.getPrototypeRow = function() {
         return this.dataBrowser.getPrototypeRow();
     };
+
     JSONAnalytics.prototype.getFields = function() {
         return this.dataBrowser.getFields();
     };
+
     JSONAnalytics.prototype.sortOn = function(columnIndex, type) {
         this.dataBrowser.sortOn(columnIndex, type);
     };
+
     JSONAnalytics.prototype.getRow = function(y) {
         this.dataBrowser.dataProvider.getRow(y);
     };
+
     JSONAnalytics.prototype.setFields = function(fields) {
         this.dataBrowser.dataProvider.fields = fields;
     };
+
     JSONAnalytics.prototype.getFields = function() {
         return this.dataBrowser.dataProvider.fields;
     };
+
     JSONAnalytics.prototype.resetSort = function() {
         this.dataBrowser.resetSort();
     };
+
     JSONAnalytics.prototype.setFilters = function(filters) {
         this.dataBrowser.setFilters(filters);
     };
+
     JSONAnalytics.prototype.setGroups = function(arrayOfColumnIndexes) {
         this.groups = this.dataBrowser.setGroups.apply(this.dataBrowser, arrayOfColumnIndexes);
-        this.buildHierarchyColumn();
+        this.rebuildView();
     };
-    JSONAnalytics.prototype.buildHierarchyColumn = function() {
 
+    JSONAnalytics.prototype.rebuildView = function() {
+        var groups = this.groups;
+        var rows = this.rows;
+        rows.length = 0;
+        for (var i = 0; i < groups.length; i++) {
+            this.addRow(new JSONAnalyticsRow(this, groups[i], 0, this));
+        }
     };
+
+    JSONAnalytics.prototype.addRow = function(row) {
+        this.rows.push(row);
+        row.updateData();
+    };
+
     JSONAnalytics.prototype.isGrouping = function() {
         return this.groups && this.groups.length > 0;
     };
+
     JSONAnalytics.prototype.setAggregationFunctions = function(arrayOfFunctions) {
         this.aggregationFunctions = arrayOfFunctions;
+        this.rebuildView();
     };
 
+    JSONAnalytics.prototype.getComputedColumnDefinitions = function() {
+        return this.container.getComputedColumnDefinitions();
+    };
+
+    JSONAnalytics.prototype.rowClicked = function(y) {
+        this.rows[y].clicked();
+        this.rebuildView();
+    };
 
     Polymer('fin-hypergrid-data-model-json', { /* jshint ignore:line  */
         /**
@@ -117,6 +226,9 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
             },
             sortOn: function( /* columnIndex */ ) {
 
+            },
+            hasHierarchyColumn: function() {
+                return false;
             }
         },
 
@@ -189,7 +301,11 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         * #### returns: string
         * @param {integer} x - the column index of interest
         */
+
         getHeader: function(x, y) {
+            if (x === -2) {
+                return null; //hierarchy column
+            }
             if (y === undefined) {
                 return this._getHeader(x);
             }
@@ -346,7 +462,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         * @param {Array} arrayOfUniformObjects - an array of uniform objects, each being a row in the grid
         */
         setData: function(arrayOfUniformObjects) {
-            var dataProvider = new JSONAnalytics(arrayOfUniformObjects, this.getAggregationFunctions());
+            var dataProvider = new JSONAnalytics(arrayOfUniformObjects, this);
             this.setDataProvider(dataProvider);
         },
 
@@ -452,8 +568,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
          * #### returns: integer
          */
         getColumnCount: function() {
-            var fields = this.getFields();
-            return fields.length;
+            return this.getData().getColumnCount();
         },
 
         /**
@@ -630,25 +745,73 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
             this.changed();
         },
 
-        getAggregationFunctions: function() {
+        getComputedColumnDefinitions: function() {
             return {
-                sum: {
-                    function: com.AggregationFunctions.sum,
-                    column: 2
-                },
-                avg: {
-                    function: com.AggregationFunctions.avg,
-                    column: 2
-                },
-                max: {
-                    function: com.AggregationFunctions.max,
-                    column: 2
-                },
-                min: {
-                    function: com.AggregationFunctions.min,
-                    column: 2
+                fields: ['lastName', 'firstName', 'pets', 'birthDate', 'birthState', 'residenceState', 'employed', 'income', 'travel', 'squareOfIncome'],
+                cols: {
+                    lastName: {
+                        label: 'Last Name',
+                        function: CustomColumnFunctions.first,
+                        column: 0
+                    },
+                    firstName: {
+                        label: 'First Name',
+                        function: CustomColumnFunctions.first,
+                        column: 1
+                    },
+                    pets: {
+                        label: 'Pets',
+                        function: com.AggregationFunctions.avg,
+                        column: 2
+                    },
+                    birthDate: {
+                        label: 'Birth Date',
+                        function: CustomColumnFunctions.first,
+                        column: 3
+                    },
+                    birthState: {
+                        label: 'Birth State',
+                        function: CustomColumnFunctions.first,
+                        column: 4
+                    },
+                    residenceState: {
+                        label: 'Residence State',
+                        function: CustomColumnFunctions.first,
+                        column: 5
+                    },
+                    employed: {
+                        label: 'Employed',
+                        function: CustomColumnFunctions.first,
+                        column: 6
+                    },
+                    income: {
+                        label: 'Income',
+                        function: com.AggregationFunctions.min,
+                        column: 7
+                    },
+                    travel: {
+                        label: 'Travel',
+                        function: com.AggregationFunctions.max,
+                        column: 8
+                    },
+                    squareOfIncome: {
+                        label: 'Square Of Income',
+                        function: CustomColumnFunctions.first,
+                        column: 9
+                    }
                 }
             };
-        }
+        },
+        hasHierarchyColumn: function() {
+            return this.getData().hasHierarchyColumn();
+        },
+        cellClicked: function(cell, event) {
+            if (this.hasHierarchyColumn() && cell.x === 0) {
+                var grid = this.getGrid();
+                this.getData().rowClicked(cell.y - grid.getHeaderRowCount());
+                this.changed();
+            }
+        },
+
     });
 })();
