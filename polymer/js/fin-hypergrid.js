@@ -178,6 +178,7 @@
 
             fixedColumnCount: 0,
             fixedRowCount: 0,
+            headerColumnCount: 0,
 
             showRowNumbers: true,
             showHeaderRow: true,

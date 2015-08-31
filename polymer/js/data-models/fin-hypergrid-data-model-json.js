@@ -59,7 +59,8 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         if (x === -2) {
             var hasChildren = (this.group.groups !== undefined) && this.group.groups.length > 0;
             var isOpen = this.group.expanded || false;
-            return TreeDepth.substring(0, 2 * this.depth) + ExpandedMap[hasChildren + '' + isOpen] + ' ' + this.group.name;
+            var count = hasChildren ? '(' + this.group.groups.length + ')' : '';
+            return TreeDepth.substring(0, 2 * this.depth) + ExpandedMap[hasChildren + '' + isOpen] + ' ' + this.group.name + count;
         }
         var fields = this.analytics.getComputedColumnDefinitions().fields;
         return this.data[fields[x]];
@@ -806,9 +807,11 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
             return this.getData().hasHierarchyColumn();
         },
         cellClicked: function(cell, event) {
-            if (this.hasHierarchyColumn() && cell.x === 0) {
+            var location = event.gridCell;
+            if (this.hasHierarchyColumn() && location.x === 0) {
                 var grid = this.getGrid();
-                this.getData().rowClicked(cell.y - grid.getHeaderRowCount());
+                var index = location.y - grid.getHeaderRowCount();
+                this.getData().rowClicked(index);
                 this.changed();
             }
         },

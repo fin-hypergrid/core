@@ -1110,11 +1110,8 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          * #### returns: integer
          */
         getHeaderColumnCount: function() {
-            //var grid = this.getGrid();
-            var count = 0;
-            // if (grid.isShowRowNumbers()) {
-            //     count++;
-            // }
+            var grid = this.getGrid();
+            var count = grid.resolveProperty('headerColumnCount');
             return count;
         },
 
