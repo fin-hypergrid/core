@@ -6,6 +6,7 @@
   <script src="sampledata.js"></script>
   <script src="myThemes.js"></script>
   <script src="fin.data-browser.js"></script>
+  <script src="RangeSelectionModel.js"></script>
 <!--   <link rel="import" href="fin-hypergrid.min.html"> -->
   <link rel="import" href="../../polymer/html/fin-hypergrid.html">
   <style>
@@ -418,6 +419,7 @@
                 window.b = g.getBehavior();
                 window.m = b.getBaseModel();
                 window.a = b.getData();
+                window.r = new RangeSelectionModel();
 
             }, 500);
 
