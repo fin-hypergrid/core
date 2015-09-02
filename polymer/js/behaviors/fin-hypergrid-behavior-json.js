@@ -167,7 +167,19 @@
 
         setDataProvider: function(dataProvider) {
             this.getBaseModel().setDataProvider(dataProvider);
-        }
+        },
+
+        hasHierarchyColumn: function() {
+            return this.getBaseModel().hasHierarchyColumn();
+        },
+
+        getColumnAlignment: function(x) {
+            if (x === 0 && this.hasHierarchyColumn()) {
+                return 'left';
+            } else {
+                return 'center';
+            }
+        },
 
     });
 

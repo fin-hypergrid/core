@@ -16474,9 +16474,12 @@ Instances of this object have basically four main functions.
             var isHeaderRow = r < headerRowCount;
             var isHeaderColumn = c < headerColumnCount;
             var isFilterRow = grid.isFilterRow(r);
+            var isHierarchyColumn = grid.isHierarchyColumn(c);
 
             if (isFilterRow && c !== -1) {
                 columnProperties = columnProperties.filterProperties;
+            } else if (isHierarchyColumn) {
+                columnProperties = columnProperties.treeColumnProperties;
             } else if (isHeaderRow) {
                 columnProperties = columnProperties.columnHeader;
             } else if (isHeaderColumn) {
@@ -16488,7 +16491,7 @@ Instances of this object have basically four main functions.
             if (isHeaderRow) {
                 cellProperties.isSelected = grid.isRowHeaderCellSelected(c);
                 cellProperties.isUserDataArea = false;
-            } else if (isHeaderColumn) {
+            } else if (isHeaderColumn || isHierarchyColumn) {
                 cellProperties.isSelected = grid.isColumnHeaderCellSelected(r);
                 cellProperties.isUserDataArea = false;
             } else {
@@ -21854,7 +21857,8 @@ var commands = {
         },
 
         getFixedAreaCount: function(grid) {
-            return grid.getFixedColumnCount() + grid.isShowRowNumbers() ? 1 : 0;
+            var count = grid.getFixedColumnCount() + (grid.isShowRowNumbers() ? 1 : 0) + (grid.hasHierarchyColumn() ? 1 : 0);
+            return count;
         }
     });
 
@@ -24097,6 +24101,54 @@ var commands = {
                         }
                     }
                 });
+
+                properties.treeColumnProperties = Object.create(properties, {
+                    font: {
+                        configurable: true,
+                        get: function() {
+                            return this.treeColumnFont;
+                        },
+                        set: function(value) {
+                            this.treeColumnFont = value;
+                        }
+                    },
+                    color: {
+                        configurable: true,
+                        get: function() {
+                            return this.treeColumnColor;
+                        },
+                        set: function(value) {
+                            this.treeColumnColor = value;
+                        }
+                    },
+                    backgroundColor: {
+                        configurable: true,
+                        get: function() {
+                            return this.treeColumnBackgroundColor;
+                        },
+                        set: function(value) {
+                            this.treeColumnBackgroundColor = value;
+                        }
+                    },
+                    foregroundSelectionColor: {
+                        configurable: true,
+                        get: function() {
+                            return this.treeColumnForegroundSelectionColor;
+                        },
+                        set: function(value) {
+                            this.treeColumnForegroundSelectionColor = value;
+                        }
+                    },
+                    backgroundSelectionColor: {
+                        configurable: true,
+                        get: function() {
+                            return this.treeColumnBackgroundSelectionColor;
+                        },
+                        set: function(value) {
+                            this.treeColumnBackgroundSelectionColor = value;
+                        }
+                    }
+                });
             }
             if (!properties.header) {
                 properties.header = behavior.getHeader(columnIndex);
@@ -24577,7 +24629,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
 
             function first() {
 
-                this.value = null;
+                this.value = null; /* jshint ignore:line  */
             }
 
             first.prototype.method = function(value) {
@@ -24619,10 +24671,9 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         this.depth = depth;
         this.analytics = analytics;
         this.parent = parent;
-        console.log(TreeDepth.substring(0, 3 * this.depth) + group.name);
     }
 
-    JSONAnalyticsRow.prototype.getValue = function(x, y) {
+    JSONAnalyticsRow.prototype.getValue = function(x /*, y */ ) {
         if (x === -2) {
             var hasChildren = (this.group.groups !== undefined) && this.group.groups.length > 0;
             var isOpen = this.group.expanded || false;
@@ -24639,7 +24690,8 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         if (this.group.expanded) {
             if (groups && groups.length > 0) {
                 for (var i = 0; i < groups.length; i++) {
-                    this.createGroupRow(groups[i]);
+                    var group = groups[i];
+                    this.createGroupRow(group);
                 }
             }
         }
@@ -24745,9 +24797,9 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         var rows = this.rows;
         rows.length = 0;
         for (var i = 0; i < groups.length; i++) {
-            this.addRow(new JSONAnalyticsRow(this, groups[i], 0, this));
+            var group = groups[i];
+            this.addRow(new JSONAnalyticsRow(this, group, 0, this));
         }
-        console.log('visible rows ' + this.rows.length);
     };
 
     JSONAnalytics.prototype.addRow = function(row) {
@@ -25280,22 +25332,24 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
             state.cellProperties[x + ',' + y] = value;
         },
 
+        //these filters will be the pre-computation filters
+        //for now lets ignore them
         applyFilters: function() {
-            var filters = {};
-            var colCount = this.getColumnCount();
-            var filterFunction = function(value) {
-                return function(each) {
-                    var isMatch = (each + '').toLowerCase().indexOf(value.toLowerCase()) > -1;
-                    return isMatch;
-                };
-            };
-            for (var i = 0; i < colCount; i++) {
-                var filterText = this.getFilter(i);
-                if (filterText.length > 0) {
-                    filters[i] = filterFunction(filterText);
-                }
-            }
-            this.getData().setFilters(filters);
+            // var filters = {};
+            // var colCount = this.getColumnCount();
+            // var filterFunction = function(value) {
+            //     return function(each) {
+            //         var isMatch = (each + '').toLowerCase().indexOf(value.toLowerCase()) > -1;
+            //         return isMatch;
+            //     };
+            // };
+            // for (var i = 0; i < colCount; i++) {
+            //     var filterText = this.getFilter(i);
+            //     if (filterText.length > 0) {
+            //         filters[i] = filterFunction(filterText);
+            //     }
+            // }
+            // this.getData().setFilters(filters);
         },
 
         setGroups: function(arrayOfColumnIndexes) {
@@ -25381,7 +25435,6 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
             if (this.hasHierarchyColumn() && location.x === 0) {
                 var grid = this.getGrid();
                 var index = location.y - grid.getHeaderRowCount();
-                console.log('rowClicked ' + index + ', scrollV ' + grid.getVScrollValue());
                 this.getData().rowClicked(index);
                 this.changed();
             }
@@ -29121,7 +29174,19 @@ This is a very rough in memory data source example.  fin-hypergrid-behavior-in-m
 
         setDataProvider: function(dataProvider) {
             this.getBaseModel().setDataProvider(dataProvider);
-        }
+        },
+
+        hasHierarchyColumn: function() {
+            return this.getBaseModel().hasHierarchyColumn();
+        },
+
+        getColumnAlignment: function(x) {
+            if (x === 0 && this.hasHierarchyColumn()) {
+                return 'left';
+            } else {
+                return 'center';
+            }
+        },
 
     });
 
@@ -34003,6 +34068,12 @@ fin-vampire-bar {
             filterForegroundSelectionColor: 'rgb(25, 25, 25)',
             filterBackgroundSelectionColor: 'rgb(255, 220, 97)',
 
+            treeColumnFont: '12px Tahoma, Geneva, sans-serif',
+            treeColumnColor: 'rgb(25, 25, 25)',
+            treeColumnBackgroundColor: 'rgb(223, 227, 232)',
+            treeColumnForegroundSelectionColor: 'rgb(25, 25, 25)',
+            treeColumnBackgroundSelectionColor: 'rgb(255, 220, 97)',
+
             backgroundColor2: 'rgb(201, 201, 201)',
             lineColor: 'rgb(199, 199, 199)',
             voffset: 0,
@@ -37482,6 +37553,12 @@ fin-vampire-bar {
         },
         hasHierarchyColumn: function() {
             return this.getBehavior().hasHierarchyColumn();
+        },
+        isHierarchyColumn: function(x) {
+            if (!this.hasHierarchyColumn()) {
+                return false;
+            }
+            return x === 0;
         }
     });
 

@@ -141,6 +141,12 @@
             filterForegroundSelectionColor: 'rgb(25, 25, 25)',
             filterBackgroundSelectionColor: 'rgb(255, 220, 97)',
 
+            treeColumnFont: '12px Tahoma, Geneva, sans-serif',
+            treeColumnColor: 'rgb(25, 25, 25)',
+            treeColumnBackgroundColor: 'rgb(223, 227, 232)',
+            treeColumnForegroundSelectionColor: 'rgb(25, 25, 25)',
+            treeColumnBackgroundSelectionColor: 'rgb(255, 220, 97)',
+
             backgroundColor2: 'rgb(201, 201, 201)',
             lineColor: 'rgb(199, 199, 199)',
             voffset: 0,
@@ -3620,6 +3626,12 @@
         },
         hasHierarchyColumn: function() {
             return this.getBehavior().hasHierarchyColumn();
+        },
+        isHierarchyColumn: function(x) {
+            if (!this.hasHierarchyColumn()) {
+                return false;
+            }
+            return x === 0;
         }
     });
 

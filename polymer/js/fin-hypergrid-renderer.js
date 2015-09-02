@@ -1026,9 +1026,12 @@ Instances of this object have basically four main functions.
             var isHeaderRow = r < headerRowCount;
             var isHeaderColumn = c < headerColumnCount;
             var isFilterRow = grid.isFilterRow(r);
+            var isHierarchyColumn = grid.isHierarchyColumn(c);
 
             if (isFilterRow && c !== -1) {
                 columnProperties = columnProperties.filterProperties;
+            } else if (isHierarchyColumn) {
+                columnProperties = columnProperties.treeColumnProperties;
             } else if (isHeaderRow) {
                 columnProperties = columnProperties.columnHeader;
             } else if (isHeaderColumn) {
@@ -1040,7 +1043,7 @@ Instances of this object have basically four main functions.
             if (isHeaderRow) {
                 cellProperties.isSelected = grid.isRowHeaderCellSelected(c);
                 cellProperties.isUserDataArea = false;
-            } else if (isHeaderColumn) {
+            } else if (isHeaderColumn || isHierarchyColumn) {
                 cellProperties.isSelected = grid.isColumnHeaderCellSelected(r);
                 cellProperties.isUserDataArea = false;
             } else {

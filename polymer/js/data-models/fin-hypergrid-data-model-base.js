@@ -234,6 +234,54 @@
                         }
                     }
                 });
+
+                properties.treeColumnProperties = Object.create(properties, {
+                    font: {
+                        configurable: true,
+                        get: function() {
+                            return this.treeColumnFont;
+                        },
+                        set: function(value) {
+                            this.treeColumnFont = value;
+                        }
+                    },
+                    color: {
+                        configurable: true,
+                        get: function() {
+                            return this.treeColumnColor;
+                        },
+                        set: function(value) {
+                            this.treeColumnColor = value;
+                        }
+                    },
+                    backgroundColor: {
+                        configurable: true,
+                        get: function() {
+                            return this.treeColumnBackgroundColor;
+                        },
+                        set: function(value) {
+                            this.treeColumnBackgroundColor = value;
+                        }
+                    },
+                    foregroundSelectionColor: {
+                        configurable: true,
+                        get: function() {
+                            return this.treeColumnForegroundSelectionColor;
+                        },
+                        set: function(value) {
+                            this.treeColumnForegroundSelectionColor = value;
+                        }
+                    },
+                    backgroundSelectionColor: {
+                        configurable: true,
+                        get: function() {
+                            return this.treeColumnBackgroundSelectionColor;
+                        },
+                        set: function(value) {
+                            this.treeColumnBackgroundSelectionColor = value;
+                        }
+                    }
+                });
             }
             if (!properties.header) {
                 properties.header = behavior.getHeader(columnIndex);

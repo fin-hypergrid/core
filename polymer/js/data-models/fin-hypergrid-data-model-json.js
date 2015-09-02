@@ -11,7 +11,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
 
             function first() {
 
-                this.value = null;
+                this.value = null; /* jshint ignore:line  */
             }
 
             first.prototype.method = function(value) {
@@ -53,10 +53,9 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         this.depth = depth;
         this.analytics = analytics;
         this.parent = parent;
-        console.log(TreeDepth.substring(0, 3 * this.depth) + group.name);
     }
 
-    JSONAnalyticsRow.prototype.getValue = function(x, y) {
+    JSONAnalyticsRow.prototype.getValue = function(x /*, y */ ) {
         if (x === -2) {
             var hasChildren = (this.group.groups !== undefined) && this.group.groups.length > 0;
             var isOpen = this.group.expanded || false;
@@ -73,7 +72,8 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         if (this.group.expanded) {
             if (groups && groups.length > 0) {
                 for (var i = 0; i < groups.length; i++) {
-                    this.createGroupRow(groups[i]);
+                    var group = groups[i];
+                    this.createGroupRow(group);
                 }
             }
         }
@@ -179,9 +179,9 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         var rows = this.rows;
         rows.length = 0;
         for (var i = 0; i < groups.length; i++) {
-            this.addRow(new JSONAnalyticsRow(this, groups[i], 0, this));
+            var group = groups[i];
+            this.addRow(new JSONAnalyticsRow(this, group, 0, this));
         }
-        console.log('visible rows ' + this.rows.length);
     };
 
     JSONAnalytics.prototype.addRow = function(row) {
@@ -714,22 +714,24 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
             state.cellProperties[x + ',' + y] = value;
         },
 
+        //these filters will be the pre-computation filters
+        //for now lets ignore them
         applyFilters: function() {
-            var filters = {};
-            var colCount = this.getColumnCount();
-            var filterFunction = function(value) {
-                return function(each) {
-                    var isMatch = (each + '').toLowerCase().indexOf(value.toLowerCase()) > -1;
-                    return isMatch;
-                };
-            };
-            for (var i = 0; i < colCount; i++) {
-                var filterText = this.getFilter(i);
-                if (filterText.length > 0) {
-                    filters[i] = filterFunction(filterText);
-                }
-            }
-            this.getData().setFilters(filters);
+            // var filters = {};
+            // var colCount = this.getColumnCount();
+            // var filterFunction = function(value) {
+            //     return function(each) {
+            //         var isMatch = (each + '').toLowerCase().indexOf(value.toLowerCase()) > -1;
+            //         return isMatch;
+            //     };
+            // };
+            // for (var i = 0; i < colCount; i++) {
+            //     var filterText = this.getFilter(i);
+            //     if (filterText.length > 0) {
+            //         filters[i] = filterFunction(filterText);
+            //     }
+            // }
+            // this.getData().setFilters(filters);
         },
 
         setGroups: function(arrayOfColumnIndexes) {
@@ -815,7 +817,6 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
             if (this.hasHierarchyColumn() && location.x === 0) {
                 var grid = this.getGrid();
                 var index = location.y - grid.getHeaderRowCount();
-                console.log('rowClicked ' + index + ', scrollV ' + grid.getVScrollValue());
                 this.getData().rowClicked(index);
                 this.changed();
             }
