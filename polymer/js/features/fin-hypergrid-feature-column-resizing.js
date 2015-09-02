@@ -276,7 +276,8 @@
         },
 
         getFixedAreaCount: function(grid) {
-            return grid.getFixedColumnCount() + grid.isShowRowNumbers() ? 1 : 0;
+            var count = grid.getFixedColumnCount() + (grid.isShowRowNumbers() ? 1 : 0) + (grid.hasHierarchyColumn() ? 1 : 0);
+            return count;
         }
     });
 

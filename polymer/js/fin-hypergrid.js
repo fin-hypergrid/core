@@ -3617,6 +3617,9 @@
         },
         setGroups: function(arrayOfColumnIndexes) {
             this.getBehavior().setGroups(arrayOfColumnIndexes);
+        },
+        hasHierarchyColumn: function() {
+            return this.getBehavior().hasHierarchyColumn();
         }
     });
 

@@ -38,13 +38,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         return fields;
     };
 
-    function JSONAnalyticsRow(analytics, group, depth, parent) {
-        this.rows = [];
-        this.group = group;
-        this.depth = depth;
-        this.analytics = analytics;
-        this.parent = parent;
-    }
+    var TreeDepth = '                                               ';
 
     var ExpandedMap = {
         truetrue: '▾',
@@ -53,14 +47,21 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         truefalse: '▸'
     };
 
-    var TreeDepth = '                                               ';
+    function JSONAnalyticsRow(analytics, group, depth, parent) {
+        this.rows = [];
+        this.group = group;
+        this.depth = depth;
+        this.analytics = analytics;
+        this.parent = parent;
+        console.log(TreeDepth.substring(0, 3 * this.depth) + group.name);
+    }
 
     JSONAnalyticsRow.prototype.getValue = function(x, y) {
         if (x === -2) {
             var hasChildren = (this.group.groups !== undefined) && this.group.groups.length > 0;
             var isOpen = this.group.expanded || false;
             var count = hasChildren ? '(' + this.group.groups.length + ')' : '';
-            return TreeDepth.substring(0, 2 * this.depth) + ExpandedMap[hasChildren + '' + isOpen] + ' ' + this.group.name + count;
+            return TreeDepth.substring(0, 3 * this.depth) + ExpandedMap[hasChildren + '' + isOpen] + ' ' + this.group.name + count;
         }
         var fields = this.analytics.getComputedColumnDefinitions().fields;
         return this.data[fields[x]];
@@ -69,9 +70,11 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
     JSONAnalyticsRow.prototype.updateData = function() {
         var groups = this.group.groups;
         this.rows.length = 0;
-        if (groups && groups.length > 0) {
-            for (var i = 0; i < groups.length; i++) {
-                this.createGroupRow(groups[i]);
+        if (this.group.expanded) {
+            if (groups && groups.length > 0) {
+                for (var i = 0; i < groups.length; i++) {
+                    this.createGroupRow(groups[i]);
+                }
             }
         }
         this.data = this.group.applyFunctionsToColumn(this.analytics.getComputedColumnDefinitions().cols);
@@ -81,8 +84,8 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         if (this.group.expanded) {
             this.parent.addRow(row);
         }
-        this.rows.push(row);
-        row.updateData();
+        // this.rows.push(row);
+        // row.updateData();
     };
 
     JSONAnalyticsRow.prototype.clicked = function() {
@@ -178,6 +181,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
         for (var i = 0; i < groups.length; i++) {
             this.addRow(new JSONAnalyticsRow(this, groups[i], 0, this));
         }
+        console.log('visible rows ' + this.rows.length);
     };
 
     JSONAnalytics.prototype.addRow = function(row) {
@@ -762,7 +766,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
                     },
                     pets: {
                         label: 'Pets',
-                        function: com.AggregationFunctions.avg,
+                        function: com.AggregationFunctions.sum,
                         column: 2
                     },
                     birthDate: {
@@ -811,6 +815,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
             if (this.hasHierarchyColumn() && location.x === 0) {
                 var grid = this.getGrid();
                 var index = location.y - grid.getHeaderRowCount();
+                console.log('rowClicked ' + index + ', scrollV ' + grid.getVScrollValue());
                 this.getData().rowClicked(index);
                 this.changed();
             }
