@@ -42,19 +42,6 @@
         * @function
         * @instance
         * @description
-        return a specific header at column index x
-        * #### returns: string
-        * @param {integer} x - the column index of interest
-        */
-        getHeader: function(x, y) {
-            return this.getBaseModel().getHeader(x, y);
-        },
-
-
-        /**
-        * @function
-        * @instance
-        * @description
         setter for the fields array
         * @param {Array} fieldNames - an array of strings of the field names
         */
@@ -71,18 +58,6 @@
         */
         getFields: function() {
             return this.getBaseModel().getFields();
-        },
-
-        /**
-         * @function
-         * @instance
-         * @description
-         return the field at colIndex
-         * #### returns: string
-         * @param {integer} colIndex - the column index of interest
-         */
-        getField: function(colIndex) {
-            return this.getBaseModel().getField(colIndex);
         },
 
         /**

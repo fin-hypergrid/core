@@ -307,6 +307,9 @@
 
         getScrollPositionY: function() {
             return this.getBehavior().getScrollPositionY();
+        },
+        hasHierarchyColumn: function() {
+            return false;
         }
 
     });

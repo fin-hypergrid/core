@@ -34,7 +34,8 @@
             residenceState: states[residencestate],
             employed: employed === 1,
             income: income,
-            travel: travel
+            travel: travel,
+            squareOfIncome: 0,
         };
         person.squareOfIncome = function() {
             return Math.sqrt(person.income);

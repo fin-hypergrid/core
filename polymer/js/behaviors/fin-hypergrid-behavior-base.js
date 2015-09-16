@@ -945,9 +945,8 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          * @param {integer} colIndex - the column index of interest
          */
         getField: function(colIndex) {
-            return colIndex;
+            return this.getFields()[colIndex];
         },
-
         /**
          * @function
          * @instance
@@ -957,9 +956,8 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          * @param {integer} colIndex - the column index of interest
          */
         getHeader: function(colIndex) {
-            return this.getValue(colIndex, 0);
+            return this.getHeaders()[colIndex];
         },
-
         /**
          * @function
          * @instance

@@ -32,7 +32,7 @@
             }
             var tableState = this.getState();
             var indexes = tableState.columnIndexes;
-            if (indexes.length === 0) {
+            if (!indexes || indexes.length === 0) {
                 return x;
             }
             return indexes[x];

@@ -7,7 +7,8 @@ var files = {
         'test/**/*.js',
         'js/**/*.js',
         '!polymer/js/bitset.min.js',
-        '!polymer/js/data.js'
+        '!polymer/js/data.js',
+        '!polymer/js/fin.analytics.js'
     ],
 
     polymercss: [
@@ -196,12 +197,12 @@ module.exports = function(grunt) {
 
         },
         shell: {
-            options: {
-                stderr: false
-            },
-            jsdocs: {
-                command: './jsdoc.sh'
-            }
+            // options: {
+            //     stderr: false
+            // },
+            // jsdocs: {
+            //     command: './jsdoc.sh'
+            // }
         }
     };
 
