@@ -55,9 +55,14 @@
             var source = this.isGroupingOn() ? this.postfilter : this.prefilter;
             return source;
         },
+        getSortingSource: function() {
+            var source = this.isGroupingOn() ? this.postsorter : this.presorter;
+            return source;
+        },
         getValue: function(x, y) {
             if (y === 0) {
-                return this.getHeaders()[x];
+                var image = this.getSortImageForColumn(x);
+                return [null, this.getHeaders()[x], image];
             } else if (y === 1) { //filter row
                 var filter = this.getFilter(x);
                 var image = filter.length === 0 ? 'filter-off' : 'filter-on';
@@ -89,7 +94,7 @@
             return count;
         },
         getRowCount: function() {
-            var count = this.getDataSource().getRowCount();
+            var count = this.getSortingSource().getRowCount();
             if (!this.isGroupingOn()) {
                 count += 2;
             }
@@ -120,10 +125,10 @@
         setData: function(arrayOfUniformObjects) {
             this.source = new fin.analytics.JSDataSource(arrayOfUniformObjects); /* jshint ignore:line */
             this.prefilter = new fin.analytics.DataSourceFilter(this.source); /* jshint ignore:line */
-            this.presorter = new fin.analytics.DataSourceFilter(this.prefilter); /* jshint ignore:line */
+            this.presorter = new fin.analytics.DataSourceSorterComposite(this.prefilter); /* jshint ignore:line */
             this.analytics = new fin.analytics.DataSourceAggregator(this.presorter); /* jshint ignore:line */
             this.postfilter = new fin.analytics.DataSourceFilter(this.analytics); /* jshint ignore:line */
-            this.postsorter = new fin.analytics.DataSourceFilter(this.postfilter); /* jshint ignore:line */
+            this.postsorter = new fin.analytics.DataSourceSorterComposite(this.postfilter); /* jshint ignore:line */
             this.initColumnIndexes(this.getState());
         },
         getTopTotals: function() {
@@ -147,6 +152,7 @@
         },
         applyAnalytics: function() {
             this.applyFilters();
+            this.applySorts();
             this.changed();
         },
         applyFilters: function() {
@@ -160,6 +166,64 @@
                 }
             }
             filterSource.applyFilters();
+        },
+        toggleSort: function(index) {
+            this.incrementSortState(index);
+            this.applyAnalytics();
+        },
+        incrementSortState: function(colIndex) {
+            colIndex++; //hack to get around 0 index
+            var state = this.getState();
+            state.sorts = state.sorts || [];
+            var already = state.sorts.indexOf(colIndex);
+            if (already === -1) {
+                already = state.sorts.indexOf(-1 * colIndex);
+            }
+            if (already > -1) {
+                if (state.sorts[already] > 0) {
+                    state.sorts[already] = -1 * state.sorts[already];
+                } else {
+                    state.sorts.splice(already, 1);
+                }
+            } else {
+                state.sorts.unshift(colIndex);
+            }
+            if (state.sorts.length > 3) {
+                state.sorts.length = 3;
+            }
+        },
+        applySorts: function() {
+            var sortingSource = this.getDataSource();
+            var sorts = this.getState().sorts;
+            if (!sorts || sorts.length === 0) {
+                sortingSource.clearSorts();
+            } else {
+                for (var i = 0; i < sorts.length; i++) {
+                    var colIndex = Math.abs(sorts[i]) - 1;
+                    var type = sorts[i] < 0 ? -1 : 1;
+                    sortingSource.sortOn(colIndex, type);
+                }
+            }
+            sortingSource.applySorts();
+        },
+        getSortImageForColumn: function(index) {
+            index++;
+            var up = true;
+            var sorts = this.getState().sorts;
+            if (!sorts) {
+                return null;
+            }
+            var position = sorts.indexOf(index);
+            if (position < 0) {
+                position = sorts.indexOf(-1 * index);
+                up = false;
+            }
+            if (position < 0) {
+                return null;
+            }
+            position++;
+            var name = (1 + sorts.length - position) + (up ? '-up' : '-down');
+            return this.getBehavior().getImage(name);
         },
     });
 })();

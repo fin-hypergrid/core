@@ -41,8 +41,7 @@
             setTimeout(function() {
                 self.showDropdown(self.input);
             }, 50);
-        },
-
+        }
     });
 
 })(); /* jshint ignore:line */
