@@ -5,7 +5,7 @@
 
     var textMatchFilter = function(string) {
         return function(each) {
-            return each.startsWith(string);
+            return (each + '').toLowerCase().startsWith(string.toLowerCase());
         };
     }
 
@@ -43,6 +43,7 @@
         analytics: nullDataSource,
         postfilter: nullDataSource,
         postsorter: nullDataSource,
+        topTotals: [],
 
         isGroupingOn: function() {
             return false;
@@ -60,30 +61,86 @@
             return source;
         },
         getValue: function(x, y) {
-            if (y === 0) {
-                var image = this.getSortImageForColumn(x);
-                return [null, this.getHeaders()[x], image];
-            } else if (y === 1) { //filter row
-                var filter = this.getFilter(x);
-                var image = filter.length === 0 ? 'filter-off' : 'filter-on';
-                return [null, filter, this.getBehavior().getImage(image)];
+            var grid = this.getGrid();
+            var headerRowCount = grid.getHeaderRowCount();
+            if (y < headerRowCount) {
+                return this.getHeaderRowValue(x, y);
             }
-            var value = this.getDataSource().getValue(x, y - 2);
+            var value = this.getDataSource().getValue(x, y - headerRowCount);
             return value;
         },
+        getHeaderRowValue: function(x, y) {
+            if (x === -2) {
+                x = 0; //hierarchy column
+            }
+            if (y === undefined) {
+                return this.getHeaders()[Math.max(x, 0)];
+            }
+            var grid = this.getGrid();
+            var behavior = grid.getBehavior();
+            var isFilterRow = grid.isShowFilterRow();
+            var isHeaderRow = grid.isShowHeaderRow();
+            var isBoth = isFilterRow && isHeaderRow;
+            var topTotalsOffset = (isFilterRow ? 1 : 0) + (isHeaderRow ? 1 : 0);
+            if (y >= topTotalsOffset) {
+                return this.getTopTotals()[y - topTotalsOffset][x];
+            }
+            var filter = this.getFilter(x);
+            var image = filter.length === 0 ? 'filter-off' : 'filter-on';
+            if (isBoth) {
+                if (y === 0) {
+                    image = this.getSortImageForColumn(x);
+                    return [null, this.getHeaders()[x], image];
+                } else {
+                    return [null, filter, behavior.getImage(image)];
+                }
+            } else if (isFilterRow) {
+                return [null, filter, behavior.getImage(image)];
+            } else {
+                image = this.getSortImageForColumn(x);
+                return [null, this.getHeaders()[x], image];
+            }
+            return '';
+        },
         setValue: function(x, y, value) {
-            if (y === 1) { //filter row
+            var grid = this.getGrid();
+            var headerRowCount = grid.getHeaderRowCount();
+            if (y < headerRowCount) {
+                return this.setHeaderRowValue(x, y, value);
+            }
+            this.getDataSource().setValue(x, y - headerRowCount, value);
+        },
+        setHeaderRowValue: function(x, y, value) {
+            if (value === undefined) {
+                return this._setHeader(x, y); // y is really the value
+            }
+            var grid = this.getGrid();
+            var isFilterRow = grid.isShowFilterRow();
+            var isHeaderRow = grid.isShowHeaderRow();
+            var isBoth = isFilterRow && isHeaderRow;
+            var topTotalsOffset = (isFilterRow ? 1 : 0) + (isHeaderRow ? 1 : 0);
+            if (y >= topTotalsOffset) {
+                this.getTopTotals()[y - topTotalsOffset][x] = value;
+            } else if (x === -1) {
+                return; // can't change the row numbers
+            } else if (isBoth) {
+                if (y === 0) {
+                    return this._setHeader(x, value);
+                } else {
+                    this.setFilter(x, value);
+                }
+            } else if (isFilterRow) {
                 this.setFilter(x, value);
             } else {
-                this.getDataSource().setValue(x, y - 2, value);
+                return this._setHeader(x, value);
             }
+            return '';
         },
         getFilter: function(x) {
             var columnProperties = this.getColumnProperties(x);
             var filter = columnProperties.filter || '';
             return filter;
         },
-
         setFilter: function(x, value) {
             var columnProperties = this.getColumnProperties(x);
             columnProperties.filter = value;
@@ -94,10 +151,9 @@
             return count;
         },
         getRowCount: function() {
+            var grid = this.getGrid();
             var count = this.getSortingSource().getRowCount();
-            if (!this.isGroupingOn()) {
-                count += 2;
-            }
+            count += grid.getHeaderRowCount();
             return count;
         },
         getHeaders: function() {
@@ -132,14 +188,13 @@
             this.initColumnIndexes(this.getState());
         },
         getTopTotals: function() {
-            var totals = this.getDataSource().getGrandTotals();
-            if (!totals) {
-                return [];
+            if (!this.isGroupingOn()) {
+                return this.topTotals;
             }
-            return [totals];
+            return [this.getDataSource().getGrandTotals()];
         },
         setTopTotals: function(nestedArray) {
-
+            return this.topTotals = nestedArray;
         },
         setGroups: function() {
 
