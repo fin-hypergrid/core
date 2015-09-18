@@ -5,13 +5,13 @@
   <script src="accounting.min.js"></script>
   <script src="sampledata.js"></script>
   <script src="myThemes.js"></script>
-  <script src="fin.data-browser.js"></script>
+  <script src="RangeSelectionModel.js"></script>
   <link rel="import" href="fin-hypergrid.min.html">
 <!--   <link rel="import" href="../../polymer/html/fin-hypergrid.html"> -->
   <style>
     .abs {
         position: absolute;
-        top: 0;
+        top: 40px;
         right: 0;
         bottom: 0;
         left: 0;
@@ -19,12 +19,15 @@
   </style>
 </head>
 <body>
-
+<button onclick="toggleGroups()">toggle groups</button>
+<button onclick="toggleAggregates()">toggle aggregates</button>
 <fin-hypergrid class="abs" id="json-example">
     <fin-hypergrid-behavior-json></fin-hypergrid-behavior-json>
 </fin-hypergrid>
 
 <script>
+
+
 
 (function(){
     //used by the cellProvider, return null for a column if you want no editor to pop up
@@ -32,16 +35,43 @@
 
     document.addEventListener('polymer-ready', function() {
 
-        //get ahold of our json grid example
         var jsonGrid = document.querySelector('#json-example');
+        var jsonModel = jsonGrid.getBehavior();
+
+        //functions for showing the grouping/rollup capbilities
+        var rollups = fin.analytics.aggregations;
+
+        var doGrouping = false;
+        var groups = [4, 0, 2, 5];
+
+        window.toggleGroups = function() {
+            doGrouping = !doGrouping;
+            var arg = doGrouping? groups: [];
+            jsonModel.setGroups(arg);
+        }
+
+        var doAggregates = false;
+        var aggregates = {
+            totalPets: rollups.sum(2),
+            averagePets: rollups.avg(2),
+            maxPets: rollups.max(2),
+            minPets: rollups.min(2),
+            firstPet: rollups.first(2),
+            lastPet: rollups.last(2),
+            stdDevPets: rollups.stddev(2),
+        };
+
+        window.toggleAggregates = function() {
+            doAggregates = !doAggregates;
+            var arg = doAggregates? aggregates: [];
+            jsonModel.setAggregates(arg);
+        }
 
         jsonGrid.setColumnProperties(2, {
             backgroundColor: 'maroon',
             color: 'pink'
         });
 
-        //get it's table model
-        var jsonModel = jsonGrid.getBehavior();
 
         //get the cell cellProvider for altering cell renderers
         var cellProvider = jsonModel.getCellProvider();
@@ -343,7 +373,7 @@
                             "travel",
                             "squareOfIncome"]),
                         rowHeights:{ 0: 30 },
-                        fixedColumnCount: 3,
+                        fixedColumnCount: 1,
                         fixedRowCount: 2,
 
                         showRowNumbers: true,
@@ -401,8 +431,6 @@
                         columnHeaderColor: 'white'
                     });
 
-                jsonModel.setGroups([0,1,4,5]);
-
                 console.log(jsonModel.getHeaders());
                 console.log(jsonModel.getFields());
 
@@ -417,7 +445,6 @@
                 window.g = document.querySelector('#json-example');
                 window.b = g.getBehavior();
                 window.m = b.getBaseModel();
-                window.a = b.getData();
 
             }, 500);
 

@@ -1,7 +1,7 @@
 'use strict';
 
 (function() {
-    var numRows =10000;
+    var numRows = 10000;
 
     var firstNames = ['', 'Olivia', 'Sophia', 'Ava', 'Isabella', 'Boy', 'Liam', 'Noah', 'Ethan', 'Mason', 'Logan', 'Moe', 'Larry', 'Curly', 'Shemp', 'Groucho', 'Harpo', 'Chico', 'Zeppo', 'Stanley', 'Hardy'];
     var lastNames = ['', 'Wirts', 'Oneil', 'Smith', 'Barbarosa', 'Soprano', 'Gotti', 'Columbo', 'Luciano', 'Doerre', 'DePena'];
@@ -20,8 +20,8 @@
         var birthyear = 1900 + Math.round(randomFunc() * 114);
         var birthmonth = Math.round(randomFunc() * 11);
         var birthday = Math.round(randomFunc() * 29);
-        var birthstate = Math.round(randomFunc() * 49);
-        var residencestate = Math.round(randomFunc() * 49);
+        var birthstate = Math.round(randomFunc() * (states.length - 1));
+        var residencestate = Math.round(randomFunc() * (states.length - 1));
         var travel = randomFunc() * 1000;
         var income = randomFunc() * 100000;
         var employed = Math.round(randomFunc());
@@ -34,7 +34,8 @@
             residenceState: states[residencestate],
             employed: employed === 1,
             income: income,
-            travel: travel
+            travel: travel,
+            squareOfIncome: 0,
         };
         person.squareOfIncome = function() {
             return Math.sqrt(person.income);
