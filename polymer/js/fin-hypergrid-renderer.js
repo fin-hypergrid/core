@@ -940,7 +940,7 @@ Instances of this object have basically four main functions.
             var loopStart = 0;
 
             if (this.getGrid().isShowRowNumbers()) {
-                loopLength++;
+                //loopLength++;
                 loopStart--;
             }
 

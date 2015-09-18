@@ -1559,6 +1559,9 @@ it contains all code/data that's necessary for easily implementing a virtual dat
         setGroups: function(arrayOfColumnIndexes) {
             this.getBaseModel().setGroups(arrayOfColumnIndexes);
         },
+        setAggregates: function(mapOfKeysToFunctions) {
+            this.getBaseModel().setAggregates(mapOfKeysToFunctions);
+        },
         hasHierarchyColumn: function() {
             return false;
         }

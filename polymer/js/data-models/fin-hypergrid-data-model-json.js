@@ -1,4 +1,3 @@
-/* global com */
 'use strict';
 
 (function() {
@@ -7,7 +6,7 @@
         return function(each) {
             return (each + '').toLowerCase().startsWith(string.toLowerCase());
         };
-    }
+    };
 
     var headerify = function(string) {
         var pieces = string.replace(/[_-]/g, ' ').replace(/[A-Z]/g, ' $&').split(' ').map(function(s) {
@@ -31,6 +30,9 @@
         },
         getGrandTotals: function() {
             return [];
+        },
+        hasGroups: function() {
+            return false;
         }
     };
 
@@ -46,25 +48,36 @@
         topTotals: [],
 
         isGroupingOn: function() {
-            return false;
+            return this.analytics.hasGroups();
         },
         getDataSource: function() {
             var source = this.isGroupingOn() ? this.analytics : this.presorter;
             return source;
         },
         getFilterSource: function() {
-            var source = this.isGroupingOn() ? this.postfilter : this.prefilter;
+            var source = this.prefilter; //this.isGroupingOn() ? this.postfilter : this.prefilter;
             return source;
         },
         getSortingSource: function() {
-            var source = this.isGroupingOn() ? this.postsorter : this.presorter;
+            var source = this.presorter; //this.isGroupingOn() ? this.postsorter : this.presorter;
             return source;
         },
         getValue: function(x, y) {
+            var isGroupingOn = this.isGroupingOn();
             var grid = this.getGrid();
             var headerRowCount = grid.getHeaderRowCount();
+            if (isGroupingOn) {
+                if (x === -2) {
+                    x = 0;
+                } else {
+                    x += 1;
+                }
+            }
             if (y < headerRowCount) {
                 return this.getHeaderRowValue(x, y);
+            }
+            if (isGroupingOn) {
+                y += 1;
             }
             var value = this.getDataSource().getValue(x, y - headerRowCount);
             return value;
@@ -103,10 +116,21 @@
             return '';
         },
         setValue: function(x, y, value) {
+            var isGroupingOn = this.isGroupingOn();
             var grid = this.getGrid();
             var headerRowCount = grid.getHeaderRowCount();
+            if (isGroupingOn) {
+                if (x === -2) {
+                    return;
+                } else {
+                    x += 1;
+                }
+            }
             if (y < headerRowCount) {
                 return this.setHeaderRowValue(x, y, value);
+            }
+            if (isGroupingOn) {
+                y += 1;
             }
             this.getDataSource().setValue(x, y - headerRowCount, value);
         },
@@ -147,12 +171,13 @@
             this.applyAnalytics();
         },
         getColumnCount: function() {
+            //var groupingOffset = this.isGroupingOn() ? 1 : 0;
             var count = this.getDataSource().getColumnCount();
             return count;
         },
         getRowCount: function() {
             var grid = this.getGrid();
-            var count = this.getSortingSource().getRowCount();
+            var count = this.getDataSource().getRowCount();
             count += grid.getHeaderRowCount();
             return count;
         },
@@ -194,12 +219,37 @@
             return [this.getDataSource().getGrandTotals()];
         },
         setTopTotals: function(nestedArray) {
-            return this.topTotals = nestedArray;
+            this.topTotals = nestedArray;
         },
-        setGroups: function() {
-
+        setGroups: function(groups) {
+            this.analytics.clearGroups();
+            for (var i = 0; i < groups.length; i++) {
+                this.analytics.addGroupBy(groups[i]);
+            }
+            this.applyAnalytics();
         },
-        cellClicked: function(x, y) {
+        setAggregates: function(aggregations) {
+            this.quietlySetAggregates(aggregations);
+            this.applyAnalytics();
+        },
+        quietlySetAggregates: function(aggregations) {
+            var props = [];
+            var i;
+            this.analytics.clearAggregations();
+            for (var key in aggregations) {
+                props.push([key, aggregations[key]]);
+            }
+            if (props.length === 0) {
+                var fields = [].concat(this.getFields());
+                fields.shift();
+                for (i = 0; i < fields.length; i++) {
+                    props.push([fields[i], fin.analytics.aggregations.first(i)]); /* jshint ignore:line */
+                }
+            }
+            for (i = 0; i < props.length; i++) {
+                var agg = props[i];
+                this.analytics.addAggregate(agg[0], agg[1]);
+            }
 
         },
         hasHierarchyColumn: function() {
@@ -208,21 +258,33 @@
         applyAnalytics: function() {
             this.applyFilters();
             this.applySorts();
+            this.headers.length = 0;
+            this.applyGroupBysAndAggregations();
             this.changed();
+        },
+        applyGroupBysAndAggregations: function() {
+            if (this.analytics.aggregates.length === 0) {
+                this.quietlySetAggregates({});
+            }
+            this.analytics.apply();
         },
         applyFilters: function() {
             var colCount = this.getColumnCount();
             var filterSource = this.getFilterSource();
+            var groupOffset = this.isGroupingOn() ? 1 : 0;
             filterSource.clearFilters();
             for (var i = 0; i < colCount; i++) {
                 var filterText = this.getFilter(i);
                 if (filterText.length > 0) {
-                    filterSource.addFilter(i, textMatchFilter(filterText));
+                    filterSource.addFilter(i - groupOffset, textMatchFilter(filterText));
                 }
             }
             filterSource.applyFilters();
         },
         toggleSort: function(index) {
+            if (this.isGroupingOn()) {
+                index++;
+            }
             this.incrementSortState(index);
             this.applyAnalytics();
         },
@@ -248,15 +310,16 @@
             }
         },
         applySorts: function() {
-            var sortingSource = this.getDataSource();
+            var sortingSource = this.getSortingSource();
             var sorts = this.getState().sorts;
+            var groupOffset = this.isGroupingOn() ? 1 : 0;
             if (!sorts || sorts.length === 0) {
                 sortingSource.clearSorts();
             } else {
                 for (var i = 0; i < sorts.length; i++) {
                     var colIndex = Math.abs(sorts[i]) - 1;
                     var type = sorts[i] < 0 ? -1 : 1;
-                    sortingSource.sortOn(colIndex, type);
+                    sortingSource.sortOn(colIndex - groupOffset, type);
                 }
             }
             sortingSource.applySorts();
@@ -280,5 +343,11 @@
             var name = (1 + sorts.length - position) + (up ? '-up' : '-down');
             return this.getBehavior().getImage(name);
         },
+        cellClicked: function(cell, event) {
+            var grid = this.getGrid();
+            var headerRowCount = grid.getHeaderRowCount();
+            var y = event.gridCell.y - headerRowCount;
+            this.analytics.click(y);
+        }
     });
 })();

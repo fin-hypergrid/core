@@ -20,8 +20,8 @@
         var birthyear = 1900 + Math.round(randomFunc() * 114);
         var birthmonth = Math.round(randomFunc() * 11);
         var birthday = Math.round(randomFunc() * 29);
-        var birthstate = Math.round(randomFunc() * 49);
-        var residencestate = Math.round(randomFunc() * 49);
+        var birthstate = Math.round(randomFunc() * (states.length - 1));
+        var residencestate = Math.round(randomFunc() * (states.length - 1));
         var travel = randomFunc() * 1000;
         var income = randomFunc() * 100000;
         var employed = Math.round(randomFunc());
