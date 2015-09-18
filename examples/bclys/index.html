@@ -53,6 +53,12 @@
         var doAggregates = false;
         var aggregates = {
             totalPets: rollups.sum(2),
+            averagePets: rollups.avg(2),
+            maxPets: rollups.max(2),
+            minPets: rollups.min(2),
+            firstPet: rollups.first(2),
+            lastPet: rollups.last(2),
+            stdDevPets: rollups.stddev(2),
         };
 
         window.toggleAggregates = function() {

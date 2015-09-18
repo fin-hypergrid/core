@@ -144,7 +144,7 @@
             this.selections.length = Math.max(0, this.selections.length - 1);
             this.flattenedX.length = Math.max(0, this.flattenedX.length - 1);
             this.flattenedY.length = Math.max(0, this.flattenedY.length - 1);
-            this.getGrid().selectionChanged();
+            //this.getGrid().selectionChanged();
         },
 
         getSelections: function() {
@@ -231,7 +231,7 @@
             this.selections.length = 0;
             this.flattenedX.length = 0;
             this.flattenedY.length = 0;
-            this.getGrid().selectionChanged();
+            //this.getGrid().selectionChanged();
         },
 
         isRectangleSelected: function(ox, oy, ex, ey) {

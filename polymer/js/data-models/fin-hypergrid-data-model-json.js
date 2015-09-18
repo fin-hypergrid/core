@@ -348,6 +348,27 @@
             var headerRowCount = grid.getHeaderRowCount();
             var y = event.gridCell.y - headerRowCount;
             this.analytics.click(y);
-        }
+        },
+        getRow: function(y) {
+            if (this.isGroupingOn()) {
+                return null;
+            }
+            var grid = this.getGrid();
+            var headerRowCount = grid.getHeaderRowCount();
+            return this.getDataSource().getRow(y - headerRowCount);
+        },
+        buildRow: function(y) {
+            var colCount = this.getColumnCount();
+            var fields = [].concat(this.getFields());
+            var result = {};
+            if (this.isGroupingOn()) {
+                result.tree = this.getValue(-2, y);
+                fields.shift();
+            }
+            for (var i = 0; i < colCount; i++) {
+                result[fields[i]] = this.getValue(i, y);
+            }
+            return result;
+        },
     });
 })();

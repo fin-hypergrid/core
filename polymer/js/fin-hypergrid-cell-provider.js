@@ -10,11 +10,12 @@ var noop = function() {};
 (function() {
 
     var valueOrFunctionExecute = function(config, valueOrFunction) {
-        if ((typeof valueOrFunction)[0] === 'f') {
-            return valueOrFunction(config);
-        } else {
-            return valueOrFunction;
+        var isFunction = (((typeof valueOrFunction)[0]) === 'f');
+        var result = isFunction ? valueOrFunction(config) : valueOrFunction;
+        if (!result && result !== 0) {
+            return '';
         }
+        return result;
     };
 
     var underline = function(config, gc, text, x, y, thickness) {

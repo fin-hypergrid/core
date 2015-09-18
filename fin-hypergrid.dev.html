@@ -16883,7 +16883,7 @@ Instances of this object have basically four main functions.
             this.selections.length = Math.max(0, this.selections.length - 1);
             this.flattenedX.length = Math.max(0, this.flattenedX.length - 1);
             this.flattenedY.length = Math.max(0, this.flattenedY.length - 1);
-            this.getGrid().selectionChanged();
+            //this.getGrid().selectionChanged();
         },
 
         getSelections: function() {
@@ -16970,7 +16970,7 @@ Instances of this object have basically four main functions.
             this.selections.length = 0;
             this.flattenedX.length = 0;
             this.flattenedY.length = 0;
-            this.getGrid().selectionChanged();
+            //this.getGrid().selectionChanged();
         },
 
         isRectangleSelected: function(ox, oy, ex, ey) {
@@ -18225,11 +18225,12 @@ var noop = function() {};
 (function() {
 
     var valueOrFunctionExecute = function(config, valueOrFunction) {
-        if ((typeof valueOrFunction)[0] === 'f') {
-            return valueOrFunction(config);
-        } else {
-            return valueOrFunction;
+        var isFunction = (((typeof valueOrFunction)[0]) === 'f');
+        var result = isFunction ? valueOrFunction(config) : valueOrFunction;
+        if (!result && result !== 0) {
+            return '';
         }
+        return result;
     };
 
     var underline = function(config, gc, text, x, y, thickness) {
@@ -24970,7 +24971,28 @@ var commands = {
             var headerRowCount = grid.getHeaderRowCount();
             var y = event.gridCell.y - headerRowCount;
             this.analytics.click(y);
-        }
+        },
+        getRow: function(y) {
+            if (this.isGroupingOn()) {
+                return null;
+            }
+            var grid = this.getGrid();
+            var headerRowCount = grid.getHeaderRowCount();
+            return this.getDataSource().getRow(y - headerRowCount);
+        },
+        buildRow: function(y) {
+            var colCount = this.getColumnCount();
+            var fields = [].concat(this.getFields());
+            var result = {};
+            if (this.isGroupingOn()) {
+                result.tree = this.getValue(-2, y);
+                fields.shift();
+            }
+            for (var i = 0; i < colCount; i++) {
+                result[fields[i]] = this.getValue(i, y);
+            }
+            return result;
+        },
     });
 })();
 </script>
@@ -33961,6 +33983,7 @@ fin-vampire-bar {
             this.initRenderer();
             this.initScrollbars();
 
+            this.checkScrollbarVisibility();
             //Register a listener for the copy event so we can copy our selected region to the pastebuffer if conditions are right.
             document.body.addEventListener('copy', function(evt) {
                 self.checkClipboardCopy(evt);
@@ -34147,6 +34170,8 @@ fin-vampire-bar {
             console.log('refresh rate = ' + interval);
             this.canvas.setAttribute('fps', interval);
             this.canvas.setAttribute('bitblit', useBitBlit === true);
+            this.checkScrollbarVisibility();
+
         },
 
         /**
@@ -37065,6 +37090,17 @@ fin-vampire-bar {
                 return false;
             }
             return x === 0;
+        },
+        checkScrollbarVisibility: function() {
+            var hoverClassOver = this.resolveProperty('scrollbarHoverOver');
+            var hoverClassOff = this.resolveProperty('scrollbarHoverOff');
+
+            if (hoverClassOff === 'visible') {
+                this.sbHScroller.classList.remove(hoverClassOver);
+                this.sbVScroller.classList.remove(hoverClassOff);
+                this.sbHScroller.classList.add('visible');
+                this.sbVScroller.classList.add('visible');
+            }
         }
     });
 
