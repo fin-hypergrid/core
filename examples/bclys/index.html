@@ -21,6 +21,7 @@
 <body>
 <button onclick="toggleGroups()">toggle groups</button>
 <button onclick="toggleAggregates()">toggle aggregates</button>
+<button onclick="toggleAutosortGrouping()">toggle autosort groups</button>
 <fin-hypergrid class="abs" id="json-example">
     <fin-hypergrid-behavior-json></fin-hypergrid-behavior-json>
 </fin-hypergrid>
@@ -64,8 +65,19 @@
         window.toggleAggregates = function() {
             doAggregates = !doAggregates;
             var arg = doAggregates? aggregates: [];
+            jsonModel.setGroups(groups);
             jsonModel.setAggregates(arg);
         }
+
+        var doAutosortGrouping = false;
+
+        window.toggleAutosortGrouping = function() {
+            var aggregator = jsonModel.getBaseModel().getDataSource();
+            aggregator.presortGroups = !aggregator.presortGroups;
+            jsonModel.setAggregates(aggregates);
+            jsonModel.setGroups(groups);
+        }
+
 
         jsonGrid.setColumnProperties(2, {
             backgroundColor: 'maroon',

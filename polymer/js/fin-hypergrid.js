@@ -3096,18 +3096,6 @@
          * @function
          * @instance
          * @description
-        return the number of rows that were just rendered
-         *
-         * #### returns: integer
-         */
-        getVisibleRows: function() {
-            return this.getRenderer().getVisibleRows();
-        },
-
-        /**
-         * @function
-         * @instance
-         * @description
         update the size of the grid
          *
          * #### returns: integer
@@ -3116,6 +3104,17 @@
             this.canvas.checksize();
         },
 
+        /**
+         * @function
+         * @instance
+         * @description
+        return the number of rows that were just rendered
+         *
+         * #### returns: integer
+         */
+        getVisibleRows: function() {
+            return this.getRenderer().getVisibleRows();
+        },
 
         /**
          * @function
