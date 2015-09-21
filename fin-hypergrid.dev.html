@@ -15534,8 +15534,11 @@ Instances of this object have basically four main functions.
 
             var bounds = grid.getBoundingClientRect();
             var viewWidth = bounds.width;
+
+            //we must be in bootstrap
             if (viewWidth === 0) {
                 viewWidth = grid.sbHScroller.getClientRects()[0].width;
+
             }
             var viewHeight = bounds.height;
 
