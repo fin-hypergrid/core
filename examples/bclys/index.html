@@ -2,30 +2,47 @@
 <html>
 <head>
   <title>fin-hypergrid Demo</title>
+  <!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">
+
   <script src="accounting.min.js"></script>
   <script src="sampledata.js"></script>
   <script src="myThemes.js"></script>
   <script src="RangeSelectionModel.js"></script>
-<!--   <link rel="import" href="fin-hypergrid.min.html">-->
+   <!-- <link rel="import" href="fin-hypergrid.min.html"> -->
   <link rel="import" href="../../polymer/html/fin-hypergrid.html">
   <style>
     .abs {
-        position: absolute;
-        top: 40px;
-        right: 0;
-        bottom: 0;
-        left: 0;
+        position: static;
+        height: 400px;
     }
   </style>
 </head>
 <body>
-<button onclick="toggleGroups()">toggle groups</button>
-<button onclick="toggleAggregates()">toggle aggregates</button>
-<button onclick="toggleAutosortGrouping()">toggle autosort groups</button>
-<button onclick="toggleEmptyData()">toggle empty data</button>
-<fin-hypergrid class="abs" id="json-example">
-    <fin-hypergrid-behavior-json></fin-hypergrid-behavior-json>
-</fin-hypergrid>
+
+<div class="container" style="border-style: solid; border-color: red">
+    <div class="row" style="border-style: solid; border-color: blue">
+        <div class="col-md-12 col-lg-12" style="border-style: solid; border-color: grey">
+            <button onclick="toggleGroups()">toggle groups</button>
+            <button onclick="toggleAggregates()">toggle aggregates</button>
+            <button onclick="toggleAutosortGrouping()">toggle autosort groups</button>
+            <button onclick="toggleEmptyData()">toggle empty data</button>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12 col-lg-12" style="border-style: solid; border-color: green">
+            <fin-hypergrid class="abs" id="json-example">
+                <fin-hypergrid-behavior-json></fin-hypergrid-behavior-json>
+            </fin-hypergrid>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12 col-lg-12" style="border-style: solid; border-color: grey">
+            blah
+        </div>
+    </div>
+</div>
 
 <script>
 

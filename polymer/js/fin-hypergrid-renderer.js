@@ -73,6 +73,7 @@ Instances of this object have basically four main functions.
 
             //var startTime = Date.now();
 
+            var grid = this.getGrid();
             var scrollTop = this.getScrollTop();
             var scrollLeft = this.getScrollLeft();
 
@@ -82,8 +83,11 @@ Instances of this object have basically four main functions.
             var numRows = this.getRowCount();
             var numFixedRows = this.getFixedRowCount();
 
-            var bounds = this.getGrid().getBoundingClientRect();
+            var bounds = grid.getBoundingClientRect();
             var viewWidth = bounds.width;
+            if (viewWidth === 0) {
+                viewWidth = grid.sbHScroller.getClientRects()[0].width;
+            }
             var viewHeight = bounds.height;
 
             var x, y, c, r, vx, vy, width, height;
@@ -105,7 +109,7 @@ Instances of this object have basically four main functions.
 
             x = 0;
             var start = 0;
-            if (this.getGrid().isShowRowNumbers()) {
+            if (grid.isShowRowNumbers()) {
                 start--;
                 this.columnEdges[-1] = -1;
             }
