@@ -8,14 +8,10 @@
         };
     };
 
-    var headerify = function(string) {
-        var pieces = string.replace(/[_-]/g, ' ').replace(/[A-Z]/g, ' $&').split(' ').map(function(s) {
-            return s.charAt(0).toUpperCase() + s.slice(1);
-        });
-        return pieces.join(' ');
-    };
-
     var nullDataSource = {
+        isNullObject: function() {
+            return true;
+        },
         getFields: function() {
             return [];
         },
@@ -182,41 +178,38 @@
             return count;
         },
         getHeaders: function() {
-            if (!this.headers || this.headers.length === 0) {
-                this.headers = this.getDefaultHeaders().map(function(each) {
-                    return headerify(each);
-                });
-            }
-            return this.headers;
-        },
-        getDefaultHeaders: function() {
             var headers = this.getDataSource().getHeaders();
             return headers;
         },
+        getDefaultHeaders: function() {},
         setHeaders: function(headers) {
-            this.headers = headers;
+            this.getDataSource().setHeaders(headers);
         },
         setFields: function(fields) {
-            this.fields = fields;
+            this.getDataSource().setFields(fields);
         },
         getFields: function() {
             var fields = this.getDataSource().getFields();
             return fields;
         },
         setData: function(arrayOfUniformObjects) {
-            this.source = new fin.analytics.JSDataSource(arrayOfUniformObjects); /* jshint ignore:line */
-            this.prefilter = new fin.analytics.DataSourceFilter(this.source); /* jshint ignore:line */
-            this.presorter = new fin.analytics.DataSourceSorterComposite(this.prefilter); /* jshint ignore:line */
-            this.analytics = new fin.analytics.DataSourceAggregator(this.presorter); /* jshint ignore:line */
-            this.postfilter = new fin.analytics.DataSourceFilter(this.analytics); /* jshint ignore:line */
-            this.postsorter = new fin.analytics.DataSourceSorterComposite(this.postfilter); /* jshint ignore:line */
+            if (!this.analytics.isNullObject) {
+                this.analytics.setData(arrayOfUniformObjects);
+            } else {
+                this.source = new fin.analytics.JSDataSource(arrayOfUniformObjects); /* jshint ignore:line */
+                this.prefilter = new fin.analytics.DataSourceFilter(this.source); /* jshint ignore:line */
+                this.presorter = new fin.analytics.DataSourceSorterComposite(this.prefilter); /* jshint ignore:line */
+                this.analytics = new fin.analytics.DataSourceAggregator(this.presorter); /* jshint ignore:line */
+            }
+            //this.postfilter = new fin.analytics.DataSourceFilter(this.analytics); /* jshint ignore:line */
+            //this.postsorter = new fin.analytics.DataSourceSorterComposite(this.postfilter); /* jshint ignore:line */
             this.initColumnIndexes(this.getState());
         },
         getTopTotals: function() {
             if (!this.isGroupingOn()) {
                 return this.topTotals;
             }
-            return [this.getDataSource().getGrandTotals()];
+            return this.getDataSource().getGrandTotals();
         },
         setTopTotals: function(nestedArray) {
             this.topTotals = nestedArray;
@@ -258,7 +251,7 @@
         applyAnalytics: function() {
             this.applyFilters();
             this.applySorts();
-            this.headers.length = 0;
+            //this.setHeaders([]);
             this.applyGroupBysAndAggregations();
             this.changed();
         },

@@ -6,7 +6,7 @@
   <script src="sampledata.js"></script>
   <script src="myThemes.js"></script>
   <script src="RangeSelectionModel.js"></script>
-<!--   <link rel="import" href="fin-hypergrid.min.html"> -->
+<!--   <link rel="import" href="fin-hypergrid.min.html">-->
   <link rel="import" href="../../polymer/html/fin-hypergrid.html">
   <style>
     .abs {
@@ -22,6 +22,7 @@
 <button onclick="toggleGroups()">toggle groups</button>
 <button onclick="toggleAggregates()">toggle aggregates</button>
 <button onclick="toggleAutosortGrouping()">toggle autosort groups</button>
+<button onclick="toggleEmptyData()">toggle empty data</button>
 <fin-hypergrid class="abs" id="json-example">
     <fin-hypergrid-behavior-json></fin-hypergrid-behavior-json>
 </fin-hypergrid>
@@ -47,7 +48,7 @@
 
         window.toggleGroups = function() {
             doGrouping = !doGrouping;
-            var arg = doGrouping? groups: [];
+            var arg = doGrouping? groups : [];
             jsonModel.setGroups(arg);
         }
 
@@ -64,20 +65,45 @@
 
         window.toggleAggregates = function() {
             doAggregates = !doAggregates;
-            var arg = doAggregates? aggregates: [];
+            var arg = doAggregates? aggregates : [];
+            doGroups = true;
             jsonModel.setGroups(groups);
             jsonModel.setAggregates(arg);
         }
 
-        var doAutosortGrouping = false;
-
         window.toggleAutosortGrouping = function() {
             var aggregator = jsonModel.getBaseModel().getDataSource();
             aggregator.presortGroups = !aggregator.presortGroups;
+            aggregator.doAggregates = true;
             jsonModel.setAggregates(aggregates);
+            doGroups = true;
             jsonModel.setGroups(groups);
         }
 
+        var emptyData = false;
+
+        window.toggleEmptyData = function() {
+            emptyData = !emptyData;
+            if (!emptyData) {
+                jsonModel.setData(people);
+            } else {
+                jsonModel.setData([]);
+                jsonModel.setTopTotals([]);
+                jsonModel.setHeaders([
+                    'Last Name',
+                    'Pets',
+                    'Birth Date',
+                    'Birth State',
+                    'Residence State',
+                    'Employed',
+                    'First Name',
+                    'Income',
+                    'Travel',
+                    'Square Of Income'
+                ]);
+            }
+
+        }
 
         jsonGrid.setColumnProperties(2, {
             backgroundColor: 'maroon',
@@ -325,7 +351,8 @@
 
         jsonGrid.addFinEventListener('fin-context-menu', function(e) {
             var modelPoint = e.detail.gridCell;
-            console.log('fin-context-menu(' + modelPoint.x + ', ' + (modelPoint.y - 3) + ')');
+            var headerRowCount = jsonGrid.getHeaderRowCount();
+            console.log('fin-context-menu(' + modelPoint.x + ', ' + (modelPoint.y - headerRowCount) + ')');
         });
 
         var fields = jsonModel.getFields();

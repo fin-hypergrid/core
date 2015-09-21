@@ -3621,11 +3621,11 @@
                 return false;
             }
         },
-        filterClicked: function(event) {
-            this.activateEditor(event.gridCell.x, event.gridCell.y);
-        },
         setGroups: function(arrayOfColumnIndexes) {
             this.getBehavior().setGroups(arrayOfColumnIndexes);
+        },
+        filterClicked: function(event) {
+            this.activateEditor(event.gridCell.x, event.gridCell.y);
         },
         hasHierarchyColumn: function() {
             return this.getBehavior().hasHierarchyColumn();
