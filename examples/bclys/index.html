@@ -11,7 +11,7 @@
   <script src="myThemes.js"></script>
   <script src="RangeSelectionModel.js"></script>
    <link rel="import" href="fin-hypergrid.min.html">
-   <!-- <link rel="import" href="../../polymer/html/fin-hypergrid.html"> -->
+<!--   <link rel="import" href="../../polymer/html/fin-hypergrid.html"> -->
   <style>
     .abs {
         position: static;
@@ -435,7 +435,8 @@
                         showRowNumbers: true,
                         showHeaderRow: true,
                         showFilterRow: true,
-                        columnAutosizing: true
+                        columnAutosizing: true,
+                        editable: false
                     };
 
                 jsonGrid.setState(state);
@@ -443,7 +444,7 @@
                 jsonGrid.addProperties({
                     scrollbarHoverOff: 'visible',
                     scrollbarHoverOver: 'visible',
-                    editable: true
+                    editable: false
                 });
 
                 // properties that can be set
