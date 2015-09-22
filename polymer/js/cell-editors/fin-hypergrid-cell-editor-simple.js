@@ -172,6 +172,7 @@
 
             this.input.style.width = cellBounds.width - (2 * originOffset[0]) + 'px';
             this.input.style.height = cellBounds.height - (2 * originOffset[1]) + 'px';
+            var xOffset = this.grid.canvas.getBoundingClientRect().left;
         }
 
     });

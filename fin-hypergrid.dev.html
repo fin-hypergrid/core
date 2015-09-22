@@ -24689,6 +24689,9 @@ var commands = {
         },
         hasGroups: function() {
             return false;
+        },
+        getRow: function() {
+            return null;
         }
     };
 
@@ -24997,6 +25000,9 @@ var commands = {
             return this.getBehavior().getImage(name);
         },
         cellClicked: function(cell, event) {
+            if (!this.isGroupingOn()) {
+                return;
+            }
             var grid = this.getGrid();
             var headerRowCount = grid.getHeaderRowCount();
             var y = event.gridCell.y - headerRowCount;
@@ -25449,7 +25455,6 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          */
         initializeFeatureChain: function(grid) {
             this.setNextFeature(document.createElement('fin-hypergrid-feature-key-paging'));
-            this.setNextFeature(document.createElement('fin-hypergrid-feature-cell-click'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-overlay'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-column-resizing'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-row-resizing'));
@@ -25461,6 +25466,7 @@ it contains all code/data that's necessary for easily implementing a virtual dat
             this.setNextFeature(document.createElement('fin-hypergrid-feature-column-selection'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-thumbwheel-scrolling'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-cell-editing'));
+            this.setNextFeature(document.createElement('fin-hypergrid-feature-cell-click'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-on-hover'));
             //this.setNextFeature(document.createElement('fin-hypergrid-feature-column-autosizing'));
 
@@ -31046,7 +31052,7 @@ This is a very rough in memory data source example.  fin-hypergrid-behavior-in-m
   <template>
     <style type="text/css">:host {
     display: block;
-    position: relative;
+    position: absolute;
 }
 
 
@@ -31555,7 +31561,7 @@ This is a very rough in memory data source example.  fin-hypergrid-behavior-in-m
   <template>
     <style type="text/css">:host {
     display: block;
-    position: relative;
+    position: absolute;
 }
 
 
@@ -31906,6 +31912,8 @@ This is a very rough in memory data source example.  fin-hypergrid-behavior-in-m
 
             this.input.style.width = cellBounds.width - (2 * originOffset[0]) + 'px';
             this.input.style.height = cellBounds.height - (2 * originOffset[1]) + 'px';
+            var xOffset = this.grid.canvas.getBoundingClientRect().left;
+            this.input.style.marginLeft = -xOffset + 'px';
         }
 
     });
@@ -31916,7 +31924,7 @@ This is a very rough in memory data source example.  fin-hypergrid-behavior-in-m
   <template>
     <style type="text/css">:host {
     display: block;
-    position: relative;
+    position: absolute;
 }
 
 
@@ -32127,7 +32135,7 @@ This is a very rough in memory data source example.  fin-hypergrid-behavior-in-m
   <template>
     <style type="text/css">:host {
     display: block;
-    position: relative;
+    position: absolute;
 }
 
 
@@ -32373,7 +32381,7 @@ This is a very rough in memory data source example.  fin-hypergrid-behavior-in-m
   <template>
     <style type="text/css">:host {
     display: block;
-    position: relative;
+    position: absolute;
 }
 </style>
     <form>
@@ -32429,7 +32437,7 @@ This is a very rough in memory data source example.  fin-hypergrid-behavior-in-m
   <template>
     <style type="text/css">:host {
     display: block;
-    position: relative;
+    position: absolute;
 }
 
 
@@ -32630,7 +32638,7 @@ This is a very rough in memory data source example.  fin-hypergrid-behavior-in-m
   <template>
     <style type="text/css">:host {
     display: block;
-    position: relative;
+    position: absolute;
 }
 
 
@@ -32831,7 +32839,7 @@ This is a very rough in memory data source example.  fin-hypergrid-behavior-in-m
   <template>
     <style type="text/css">:host {
     display: block;
-    position: relative;
+    position: absolute;
 }
 
 
@@ -33032,7 +33040,7 @@ This is a very rough in memory data source example.  fin-hypergrid-behavior-in-m
   <template>
     <style type="text/css">:host {
     display: block;
-    position: relative;
+    position: absolute;
 }
 
 
@@ -36537,6 +36545,9 @@ fin-vampire-bar {
          * @param {y} y - the y coordinate
          */
         activateEditor: function(x, y) {
+            if (!this.isEditable() && !this.isFilterRow(y)) {
+                return;
+            }
             var editor = this.getCellEditorAt(x, y);
             if (!editor) {
                 return;
@@ -37115,6 +37126,9 @@ fin-vampire-bar {
         isShowRowNumbers: function() {
             return this.resolveProperty('showRowNumbers');
         },
+        isEditable: function() {
+            return this.resolveProperty('editable') === true;
+        },
         isShowFilterRow: function() {
             return this.resolveProperty('showFilterRow');
         },
@@ -37125,16 +37139,16 @@ fin-vampire-bar {
             return this.getBehavior().getHeaderRowCount();
         },
         isFilterRow: function(y) {
+            return y === this.getFilterRowIndex();
+        },
+        getFilterRowIndex: function() {
             if (!this.isShowFilterRow()) {
-                return false;
+                return -1;
             }
-            var showHeader = this.isShowHeaderRow();
-            if (showHeader && y === 1) {
-                return true;
-            } else if (!showHeader && y === 0) {
-                return true;
+            if (this.isShowHeaderRow()) {
+                return 1;
             } else {
-                return false;
+                return 0;
             }
         },
         setGroups: function(arrayOfColumnIndexes) {

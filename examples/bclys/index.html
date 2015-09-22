@@ -435,7 +435,8 @@
                         showRowNumbers: true,
                         showHeaderRow: true,
                         showFilterRow: true,
-                        columnAutosizing: true
+                        columnAutosizing: true,
+                        editable: false
                     };
 
                 jsonGrid.setState(state);
@@ -443,7 +444,7 @@
                 jsonGrid.addProperties({
                     scrollbarHoverOff: 'visible',
                     scrollbarHoverOver: 'visible',
-                    editable: true
+                    editable: false
                 });
 
                 // properties that can be set

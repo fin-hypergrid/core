@@ -29,6 +29,9 @@
         },
         hasGroups: function() {
             return false;
+        },
+        getRow: function() {
+            return null;
         }
     };
 
@@ -337,6 +340,9 @@
             return this.getBehavior().getImage(name);
         },
         cellClicked: function(cell, event) {
+            if (!this.isGroupingOn()) {
+                return;
+            }
             var grid = this.getGrid();
             var headerRowCount = grid.getHeaderRowCount();
             var y = event.gridCell.y - headerRowCount;

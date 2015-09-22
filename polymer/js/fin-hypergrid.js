@@ -1782,10 +1782,6 @@
          */
         editAt: function(cellEditor, coordinates) {
 
-            if (this.resolveProperty('editable') === false) {
-                return;
-            }
-
             this.cellEditor = cellEditor;
 
             var cell = coordinates.gridCell;
@@ -3052,6 +3048,9 @@
          * @param {y} y - the y coordinate
          */
         activateEditor: function(x, y) {
+            if (!this.isEditable() && !this.isFilterRow(y)) {
+                return;
+            }
             var editor = this.getCellEditorAt(x, y);
             if (!editor) {
                 return;
@@ -3630,6 +3629,9 @@
         isShowRowNumbers: function() {
             return this.resolveProperty('showRowNumbers');
         },
+        isEditable: function() {
+            return this.resolveProperty('editable') === true;
+        },
         isShowFilterRow: function() {
             return this.resolveProperty('showFilterRow');
         },
@@ -3640,16 +3642,16 @@
             return this.getBehavior().getHeaderRowCount();
         },
         isFilterRow: function(y) {
+            return y === this.getFilterRowIndex();
+        },
+        getFilterRowIndex: function() {
             if (!this.isShowFilterRow()) {
-                return false;
+                return -1;
             }
-            var showHeader = this.isShowHeaderRow();
-            if (showHeader && y === 1) {
-                return true;
-            } else if (!showHeader && y === 0) {
-                return true;
+            if (this.isShowHeaderRow()) {
+                return 1;
             } else {
-                return false;
+                return 0;
             }
         },
         setGroups: function(arrayOfColumnIndexes) {
