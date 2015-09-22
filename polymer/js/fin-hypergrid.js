@@ -3587,9 +3587,34 @@
         },
 
         toggleSelectRow: function(y, keys) {
-            var size = this.getColumnCount();
-            this.toggleSelectedRectangle(0, y, size, 0, keys);
-            this.fireSyntheticRowSelectionChangedEvent();
+            keys = keys || [];
+            var model = this.getSelectionModel();
+            var alreadySelected = model.isRowSelected(y);
+            var hasCTRL = keys.indexOf('CTRL') > -1;
+            var hasSHIFT = keys.indexOf('SHIFT') > -1;
+            if (!hasCTRL && !hasSHIFT) {
+                model.clear();
+                if (!alreadySelected) {
+                    model.selectRow(y);
+                }
+            } else {
+                if (hasCTRL) {
+                    if (alreadySelected) {
+                        model.deselectRow(y);
+                    } else {
+                        model.selectRow(y);
+                    }
+                }
+                if (hasSHIFT) {
+                    model.clear();
+                    model.selectRow(this.lastEdgeSelection[1], y);
+                }
+            }
+            if (!alreadySelected && !hasSHIFT) {
+                this.lastEdgeSelection[1] = y;
+            }
+            this.repaint();
+            this.fireSyntheticColumnSelectionChangedEvent();
         },
 
         getSelectedRows: function() {

@@ -1041,19 +1041,20 @@ Instances of this object have basically four main functions.
                 columnProperties = columnProperties.filterProperties;
             } else if (isHierarchyColumn) {
                 columnProperties = isColumnSelected ? columnProperties.treeColumnPropertiesColumnSelection : columnProperties.treeColumnProperties;
-            } else if (isHeaderRow) {
-                columnProperties = isColumnSelected ? columnProperties.columnHeaderColumnSelection : columnProperties.columnHeader;
             } else if (isHeaderColumn) {
                 columnProperties = isRowSelected ? columnProperties.rowHeaderRowSelection : columnProperties.rowHeader;
+            } else if (isHeaderRow) {
+                columnProperties = (isColumnSelected || isRowSelected) ? columnProperties.columnHeaderColumnSelection : columnProperties.columnHeader;
             }
 
             var cellProperties = Object.create(columnProperties);
 
-            if (isHeaderRow) {
-                cellProperties.isSelected = grid.isRowHeaderCellSelected(c);
+
+            if (isHeaderColumn || isHierarchyColumn) {
+                cellProperties.isSelected = isRowSelected || grid.isColumnHeaderCellSelected(r);
                 cellProperties.isUserDataArea = false;
-            } else if (isHeaderColumn || isHierarchyColumn) {
-                cellProperties.isSelected = grid.isColumnHeaderCellSelected(r);
+            } else if (isHeaderRow) {
+                cellProperties.isSelected = (isColumnSelected || isRowSelected) || grid.isRowHeaderCellSelected(c);
                 cellProperties.isUserDataArea = false;
             } else {
                 cellProperties.isSelected = grid.isSelected(c, r);

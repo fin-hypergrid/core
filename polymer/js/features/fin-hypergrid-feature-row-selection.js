@@ -77,6 +77,7 @@
             var dx = cell.x;
             var dy = cell.y;
 
+
             var isHeader = grid.isShowRowNumbers() && dx < 0;
 
             if (isRightClick || !isHeader) {
@@ -123,7 +124,7 @@
 
                 var cell = event.gridCell;
                 var viewCell = event.viewPoint;
-                var dx = cell.x;
+                //var dx = cell.x;
                 var dy = cell.y;
 
                 //if we are in the fixed area do not apply the scroll values
@@ -132,7 +133,7 @@
                     dy = viewCell.y;
                 }
 
-                var dCell = grid.rectangles.point.create(dx, dy);
+                var dCell = grid.rectangles.point.create(0, dy);
 
                 var primEvent = event.primitiveEvent;
                 this.currentDrag = primEvent.detail.mouse;
@@ -152,8 +153,7 @@
          * @param {Object} event - the event details
         */
         handleKeyDown: function(grid, event) {
-
-            if (grid.isColumnOrRowSelected()) {
+            if (!grid.isColumnOrRowSelected()) {
                 if (this.next) {
                     this.next.handleKeyDown(grid, event);
                 }
@@ -177,33 +177,22 @@
         */
         handleMouseDragCellSelection: function(grid, gridCell /* ,keys */ ) {
 
-            var behavior = grid.getBehavior();
-            var headerRowCount = behavior.getHeaderRowCount();
-            var headerColumnCount = behavior.getHeaderColumnCount();
-            var colCount = behavior.getColumnCount();
-            var x = gridCell.x;
+            //var behavior = grid.getBehavior();
             var y = gridCell.y;
-            x = Math.max(headerColumnCount, x);
-            y = Math.max(headerRowCount, y);
-
-
-
-            var previousDragExtent = grid.getDragExtent();
+            //            var previousDragExtent = grid.getDragExtent();
             var mouseDown = grid.getMouseDown();
 
-            //var scrollingNow = grid.isScrollingNow();
-
-            var newX = x - mouseDown.x;
             var newY = y - mouseDown.y;
+            //var newY = y - mouseDown.y;
 
-            if (previousDragExtent.x === newX && previousDragExtent.y === newY) {
-                return;
-            }
+            // if (previousDragExtent.x === newX && previousDragExtent.y === newY) {
+            //     return;
+            // }
 
-            grid.clearMostRecentSelection();
+            grid.clearMostRecentRowSelection();
 
-            grid.select(0, mouseDown.y, colCount, newY);
-            grid.setDragExtent(this.rectangles.point.create(colCount, newY));
+            grid.selectRow(mouseDown.y, y);
+            grid.setDragExtent(this.rectangles.point.create(0, newY));
 
             grid.repaint();
         },
@@ -256,12 +245,12 @@
             var dragEndInFixedAreaX = lastDragCell.x < numFixedColumns;
             var dragEndInFixedAreaY = lastDragCell.y < numFixedRows;
 
-            if (this.currentDrag.y < b.origin.y) {
-                yOffset = -1;
+            if (this.currentDrag.x < b.origin.x) {
+                xOffset = -1;
             }
 
-            if (this.currentDrag.y > b.origin.y + b.extent.y) {
-                yOffset = 1;
+            if (this.currentDrag.x > b.origin.x + b.extent.x) {
+                xOffset = 1;
             }
 
             var dragCellOffsetX = xOffset;
@@ -292,9 +281,10 @@
         * @param {Array} keys - array of the keys that are currently pressed down
         */
         extendSelection: function(grid, gridCell, keys) {
-            var hasCTRL = keys.indexOf('CTRL') !== -1;
+            grid.stopEditing();
+            //var hasCTRL = keys.indexOf('CTRL') !== -1;
             var hasSHIFT = keys.indexOf('SHIFT') !== -1;
-            var colCount = grid.getColumnCount();
+
             // var scrollTop = grid.getVScrollValue();
             // var scrollLeft = grid.getHScrollValue();
 
@@ -311,21 +301,21 @@
             }
 
             //we have repeated a click in the same spot deslect the value from last time
-            if (x === mousePoint.x && y === mousePoint.y) {
-                grid.clearMostRecentSelection();
-                grid.popMouseDown();
-                grid.repaint();
-                return;
-            }
+            // if (mousePoint && x === mousePoint.x && y === mousePoint.y) {
+            //     grid.clearSelections();
+            //     grid.popMouseDown();
+            //     grid.repaint();
+            //     return;
+            // }
 
-            if (!hasCTRL && !hasSHIFT) {
-                grid.clearSelections();
-            }
+            // if (!hasCTRL && !hasSHIFT) {
+            //     grid.clearSelections();
+            // }
 
             if (hasSHIFT) {
-                grid.clearMostRecentSelection();
-                grid.select(0, mousePoint.y, colCount, y - mousePoint.y);
-                grid.setDragExtent(this.rectangles.point.create(colCount, y - mousePoint.y));
+                grid.clearMostRecentRowSelection();
+                grid.selectRow(y, mousePoint.y);
+                grid.setDragExtent(this.rectangles.point.create(0, y - mousePoint.y));
             } else {
                 grid.toggleSelectRow(y, keys);
                 grid.setMouseDown(this.rectangles.point.create(x, y));
@@ -342,17 +332,9 @@
          handle this event
          * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
         */
-        handleRIGHTSHIFT: function( /* grid */ ) {},
-
-        /**
-        * @function
-        * @instance
-        * @description
-         handle this event
-         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
-         * @param {Object} event - the event details
-        */
-        handleLEFTSHIFT: function( /* grid */ ) {},
+        handleDOWNSHIFT: function(grid) {
+            this.moveShiftSelect(grid, 1);
+        },
 
         /**
         * @function
@@ -374,9 +356,51 @@
          * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
          * @param {Object} event - the event details
         */
-        handleDOWNSHIFT: function(grid) {
-            this.moveShiftSelect(grid, 1);
+        handleLEFTSHIFT: function( /* grid */ ) {},
+
+        /**
+        * @function
+        * @instance
+        * @description
+         handle this event
+         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+         * @param {Object} event - the event details
+        */
+        handleRIGHTSHIFT: function( /* grid */ ) {},
+
+        /**
+        * @function
+        * @instance
+        * @description
+         handle this event
+         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+         * @param {Object} event - the event details
+        */
+        handleDOWN: function(grid) {
+            this.moveSingleSelect(grid, 1);
         },
+
+        /**
+        * @function
+        * @instance
+        * @description
+         handle this event
+         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+         * @param {Object} event - the event details
+        */
+        handleUP: function(grid) {
+            this.moveSingleSelect(grid, -1);
+        },
+
+        /**
+        * @function
+        * @instance
+        * @description
+         handle this event
+         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+         * @param {Object} event - the event details
+        */
+        handleLEFT: function( /* grid */ ) {},
 
         /**
         * @function
@@ -402,40 +426,6 @@
             grid.setDragExtent(this.rectangles.point.create(0, 0));
 
             grid.repaint();
-        },
-
-        /**
-        * @function
-        * @instance
-        * @description
-         handle this event
-         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
-         * @param {Object} event - the event details
-        */
-        handleLEFT: function( /* grid */ ) {},
-
-        /**
-        * @function
-        * @instance
-        * @description
-         handle this event
-         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
-         * @param {Object} event - the event details
-        */
-        handleUP: function(grid) {
-            this.moveSingleSelect(grid, -1);
-        },
-
-        /**
-        * @function
-        * @instance
-        * @description
-         handle this event
-         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
-         * @param {Object} event - the event details
-        */
-        handleDOWN: function(grid) {
-            this.moveSingleSelect(grid, 1);
         },
 
         /**
@@ -512,15 +502,15 @@
             var origin = grid.getMouseDown();
             var extent = grid.getDragExtent();
 
-            var newX = grid.getColumnCount();
             var newY = extent.y + offsetY;
+            //var newY = grid.getRowCount();
 
             newY = Math.min(maxRows - origin.y, Math.max(-origin.y, newY));
 
-            grid.clearMostRecentSelection();
-            grid.select(0, origin.y, newX, newY);
+            grid.clearMostRecentRowSelection();
+            grid.selectRow(origin.y, origin.y + newY);
 
-            grid.setDragExtent(this.rectangles.point.create(newX, newY));
+            grid.setDragExtent(this.rectangles.point.create(0, newY));
 
             if (grid.insureModelRowIsVisible(newY + origin.y, offsetY)) {
                 this.pingAutoScroll();
@@ -551,15 +541,15 @@
 
             var mouseCorner = grid.getMouseDown().plus(grid.getDragExtent());
 
-            var newX = grid.getColumnCount();
             var newY = mouseCorner.y + offsetY;
+            //var newY = grid.getRowCount();
 
-            newY = Math.min(maxRows, Math.max(grid.getHeaderRowCount(), newY));
+            newY = Math.min(maxRows, Math.max(0, newY));
 
             grid.clearSelections();
-            grid.select(0, newY, newX, 0);
+            grid.selectRow(newY);
             grid.setMouseDown(this.rectangles.point.create(0, newY));
-            grid.setDragExtent(this.rectangles.point.create(newX, 0));
+            grid.setDragExtent(this.rectangles.point.create(0, 0));
 
             if (grid.insureModelRowIsVisible(newY, offsetY)) {
                 this.pingAutoScroll();
