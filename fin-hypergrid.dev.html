@@ -31912,8 +31912,7 @@ This is a very rough in memory data source example.  fin-hypergrid-behavior-in-m
 
             this.input.style.width = cellBounds.width - (2 * originOffset[0]) + 'px';
             this.input.style.height = cellBounds.height - (2 * originOffset[1]) + 'px';
-            var xOffset = this.grid.canvas.getBoundingClientRect().left;
-            this.input.style.marginLeft = -xOffset + 'px';
+            //var xOffset = this.grid.canvas.getBoundingClientRect().left;
         }
 
     });
@@ -35274,10 +35273,6 @@ fin-vampire-bar {
          * @param {fin-rectangle.point} coordinates - what cell to edit at
          */
         editAt: function(cellEditor, coordinates) {
-
-            if (this.resolveProperty('editable') === false) {
-                return;
-            }
 
             this.cellEditor = cellEditor;
 
