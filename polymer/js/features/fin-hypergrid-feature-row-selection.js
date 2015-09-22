@@ -153,7 +153,7 @@
         */
         handleKeyDown: function(grid, event) {
 
-            if (grid.isColumnSelectionMode()) {
+            if (grid.isColumnOrRowSelected()) {
                 if (this.next) {
                     this.next.handleKeyDown(grid, event);
                 }

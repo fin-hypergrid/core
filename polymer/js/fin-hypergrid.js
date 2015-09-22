@@ -128,12 +128,16 @@
             columnHeaderBackgroundColor: 'rgb(223, 227, 232)',
             columnHeaderForegroundSelectionColor: 'rgb(25, 25, 25)',
             columnHeaderBackgroundSelectionColor: 'rgb(255, 220, 97)',
+            columnHeaderForegroundColumnSelectionColor: 'rgb(25, 25, 25)',
+            columnHeaderBackgroundColumnSelectionColor: 'rgb(255, 180, 0)',
 
             rowHeaderFont: '12px Tahoma, Geneva, sans-serif',
             rowHeaderColor: 'rgb(25, 25, 25)',
             rowHeaderBackgroundColor: 'rgb(223, 227, 232)',
             rowHeaderForegroundSelectionColor: 'rgb(25, 25, 25)',
             rowHeaderBackgroundSelectionColor: 'rgb(255, 220, 97)',
+            rowHeaderForegroundRowSelectionColor: 'rgb(25, 25, 25)',
+            rowHeaderBackgroundRowSelectionColor: 'rgb(255, 180, 0)',
 
             filterFont: '12px Tahoma, Geneva, sans-serif',
             filterColor: 'rgb(25, 25, 25)',
@@ -146,6 +150,8 @@
             treeColumnBackgroundColor: 'rgb(223, 227, 232)',
             treeColumnForegroundSelectionColor: 'rgb(25, 25, 25)',
             treeColumnBackgroundSelectionColor: 'rgb(255, 220, 97)',
+            treeColumnForegroundColumnSelectionColor: 'rgb(25, 25, 25)',
+            treeColumnBackgroundColumnSelectionColor: 'rgb(255, 180, 0)',
 
             backgroundColor2: 'rgb(201, 201, 201)',
             lineColor: 'rgb(199, 199, 199)',
@@ -770,6 +776,7 @@
                 return;
             }
             this.mouseDown.length = this.mouseDown.length - 1;
+
         },
 
         /**
@@ -1012,6 +1019,28 @@
          */
         clearMostRecentSelection: function() {
             this.getSelectionModel().clearMostRecentSelection();
+        },
+
+        /**
+         * @function
+         * @instance
+         * @description
+         Clear just the most recent column selection
+         *
+         */
+        clearMostRecentColumnSelection: function() {
+            this.getSelectionModel().clearMostRecentColumnSelection();
+        },
+
+        /**
+         * @function
+         * @instance
+         * @description
+         Clear just the most recent column selection
+         *
+         */
+        clearMostRecentRowSelection: function() {
+            this.getSelectionModel().clearMostRecentRowSelection();
         },
 
         /**
@@ -3527,8 +3556,33 @@
         },
 
         toggleSelectColumn: function(x, keys) {
-            var size = this.getRowCount();
-            this.toggleSelectedRectangle(x, 0, 0, size, keys);
+            keys = keys || [];
+            var model = this.getSelectionModel();
+            var alreadySelected = model.isColumnSelected(x);
+            var hasCTRL = keys.indexOf('CTRL') > -1;
+            var hasSHIFT = keys.indexOf('SHIFT') > -1;
+            if (!hasCTRL && !hasSHIFT) {
+                model.clear();
+                if (!alreadySelected) {
+                    model.selectColumn(x);
+                }
+            } else {
+                if (hasCTRL) {
+                    if (alreadySelected) {
+                        model.deselectColumn(x);
+                    } else {
+                        model.selectColumn(x);
+                    }
+                }
+                if (hasSHIFT) {
+                    model.clear();
+                    model.selectColumn(this.lastEdgeSelection[0], x);
+                }
+            }
+            if (!alreadySelected && !hasSHIFT) {
+                this.lastEdgeSelection[0] = x;
+            }
+            this.repaint();
             this.fireSyntheticColumnSelectionChangedEvent();
         },
 
@@ -3536,45 +3590,6 @@
             var size = this.getColumnCount();
             this.toggleSelectedRectangle(0, y, size, 0, keys);
             this.fireSyntheticRowSelectionChangedEvent();
-        },
-
-        toggleSelectedRectangle: function(ox, oy, ex, ey, keys) {
-            keys = keys || [];
-            var model = this.getSelectionModel();
-            var alreadySelected = model.isRectangleSelected(ox, oy, ex, ey);
-            var hasCTRL = keys.indexOf('CTRL') > -1;
-            var hasSHIFT = keys.indexOf('SHIFT') > -1;
-            var so, se;
-            if (!hasCTRL && !hasSHIFT) {
-                if (!alreadySelected) {
-                    model.clear();
-                }
-                model.toggleSelect(ox, oy, ex, ey);
-            } else {
-                if (hasCTRL) {
-                    model.toggleSelect(ox, oy, ex, ey);
-                }
-                if (hasSHIFT) {
-                    if (ox === 0) {
-                        //row
-                        so = Math.min(this.lastEdgeSelection[1], oy);
-                        se = Math.max(this.lastEdgeSelection[1], oy);
-                        model.clear();
-                        model.toggleSelect(0, so, ex, se - so);
-                    } else {
-                        //column
-                        so = Math.min(this.lastEdgeSelection[0], ox);
-                        se = Math.max(this.lastEdgeSelection[0], ox);
-                        model.clear();
-                        model.toggleSelect(so, 0, se - so, ey);
-                    }
-                }
-            }
-            if (!alreadySelected && !hasSHIFT) {
-                this.lastEdgeSelection = [ox, oy, ex, ey];
-                console.log(this.lastEdgeSelection);
-            }
-            this.repaint();
         },
 
         getSelectedRows: function() {
@@ -3589,15 +3604,6 @@
         },
         isShowRowNumbers: function() {
             return this.resolveProperty('showRowNumbers');
-        },
-        isColumnOrRowSelectionMode: function() {
-            return this.getSelectionModel().isColumnOrRowSelectionMode();
-        },
-        isColumnSelectionMode: function() {
-            return this.getSelectionModel().isColumnSelectionMode();
-        },
-        isRowSelectionMode: function() {
-            return this.getSelectionModel().isRowSelectionMode();
         },
         isShowFilterRow: function() {
             return this.resolveProperty('showFilterRow');
@@ -3646,7 +3652,23 @@
                 this.sbHScroller.classList.add('visible');
                 this.sbVScroller.classList.add('visible');
             }
+        },
+        isColumnOrRowSelected: function() {
+            return this.getSelectionModel().isColumnOrRowSelected();
+        },
+        selectColumn: function(x1, x2) {
+            this.getSelectionModel().selectColumn(x1, x2);
+        },
+        selectRow: function(y1, y2) {
+            this.getSelectionModel().selectRow(y1, y2);
+        },
+        isRowSelected: function(r) {
+            return this.getSelectionModel().isRowSelected(r);
+        },
+        isColumnSelected: function(c) {
+            return this.getSelectionModel().isColumnSelected(c);
         }
+
     });
 
 })(); /* jslint ignore:line */

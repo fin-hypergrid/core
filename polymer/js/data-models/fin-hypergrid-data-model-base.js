@@ -187,6 +187,48 @@
                     }
                 });
 
+                properties.columnHeaderColumnSelection = Object.create(properties.columnHeader, {
+                    foregroundSelectionColor: {
+                        configurable: true,
+                        get: function() {
+                            return this.columnHeaderForegroundColumnSelectionColor;
+                        },
+                        set: function(value) {
+                            this.columnHeaderForegroundColumnSelectionColor = value;
+                        }
+                    },
+                    backgroundSelectionColor: {
+                        configurable: true,
+                        get: function() {
+                            return this.columnHeaderBackgroundColumnSelectionColor;
+                        },
+                        set: function(value) {
+                            this.columnHeaderBackgroundColumnSelectionColor = value;
+                        }
+                    }
+                });
+
+                properties.rowHeaderRowSelection = Object.create(properties.rowHeader, {
+                    foregroundSelectionColor: {
+                        configurable: true,
+                        get: function() {
+                            return this.rowHeaderForegroundRowSelectionColor;
+                        },
+                        set: function(value) {
+                            this.rowHeaderForegroundRowSelectionColor = value;
+                        }
+                    },
+                    backgroundSelectionColor: {
+                        configurable: true,
+                        get: function() {
+                            return this.rowHeaderBackgroundRowSelectionColor;
+                        },
+                        set: function(value) {
+                            this.rowHeaderBackgroundRowSelectionColor = value;
+                        }
+                    }
+                });
+
                 properties.filterProperties = Object.create(properties, {
                     font: {
                         configurable: true,
@@ -279,6 +321,27 @@
                         },
                         set: function(value) {
                             this.treeColumnBackgroundSelectionColor = value;
+                        }
+                    }
+                });
+
+                properties.treeColumnPropertiesColumnSelection = Object.create(properties.treeColumnProperties, {
+                    foregroundSelectionColor: {
+                        configurable: true,
+                        get: function() {
+                            return this.treeColumnForegroundColumnSelectionColor;
+                        },
+                        set: function(value) {
+                            this.treeColumnForegroundColumnSelectionColor = value;
+                        }
+                    },
+                    backgroundSelectionColor: {
+                        configurable: true,
+                        get: function() {
+                            return this.treeColumnBackgroundColumnSelectionColor;
+                        },
+                        set: function(value) {
+                            this.treeColumnBackgroundColumnSelectionColor = value;
                         }
                     }
                 });

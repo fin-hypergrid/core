@@ -1034,15 +1034,17 @@ Instances of this object have basically four main functions.
             var isHeaderColumn = c < headerColumnCount;
             var isFilterRow = grid.isFilterRow(r);
             var isHierarchyColumn = grid.isHierarchyColumn(c);
+            var isRowSelected = grid.isRowSelected(r);
+            var isColumnSelected = grid.isColumnSelected(c);
 
             if (isFilterRow && c !== -1) {
                 columnProperties = columnProperties.filterProperties;
             } else if (isHierarchyColumn) {
-                columnProperties = columnProperties.treeColumnProperties;
+                columnProperties = isColumnSelected ? columnProperties.treeColumnPropertiesColumnSelection : columnProperties.treeColumnProperties;
             } else if (isHeaderRow) {
-                columnProperties = columnProperties.columnHeader;
+                columnProperties = isColumnSelected ? columnProperties.columnHeaderColumnSelection : columnProperties.columnHeader;
             } else if (isHeaderColumn) {
-                columnProperties = columnProperties.rowHeader;
+                columnProperties = isRowSelected ? columnProperties.rowHeaderRowSelection : columnProperties.rowHeader;
             }
 
             var cellProperties = Object.create(columnProperties);
@@ -1069,6 +1071,9 @@ Instances of this object have basically four main functions.
             cellProperties.isColumnHovered = this.isRowHovered(c, r);
             cellProperties.isRowHovered = this.isColumnHovered(c, r);
             cellProperties.bounds = this._getBoundsOfCell(c, r);
+            cellProperties.isRowSelected = isRowSelected;
+            cellProperties.isColumnSelected = isColumnSelected;
+
 
             var mouseDownState = grid.mouseDownState;
             if (mouseDownState) {

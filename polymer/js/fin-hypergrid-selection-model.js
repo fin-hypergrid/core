@@ -1,3 +1,4 @@
+/* global fin */
 'use strict';
 
 /**
@@ -39,6 +40,10 @@
          */
         flattenedY: null,
 
+        rowSelectionModel: null,
+
+        columnSelectionModel: null,
+
         /**
          * @function
          * @instance
@@ -51,6 +56,8 @@
             this.selections = [];
             this.flattenedX = [];
             this.flattenedY = [];
+            this.rowSelectionModel = new fin.RangeSelectionModel();
+            this.columnSelectionModel = new fin.RangeSelectionModel();
         },
 
         /**
@@ -102,38 +109,6 @@
 
         },
 
-        getSelectedRows: function() {
-            var rows = [];
-            var ox = 0;
-            var ey = 0;
-            var ex = this.getGrid().getColumnCount();
-            var selections = this.getSelections();
-
-            for (var i = 0; i < selections.length; i++) {
-                var each = selections[i];
-                if (each.origin.x === ox && each.extent.x === ex && each.extent.y === ey) {
-                    rows.push(each.origin.y);
-                }
-            }
-            return rows;
-        },
-
-        getSelectedColumns: function() {
-            var columns = [];
-            var oy = 0;
-            var ex = 0;
-            var ey = this.getGrid().getRowCount();
-            var selections = this.getSelections();
-
-            for (var i = 0; i < selections.length; i++) {
-                var each = selections[i];
-                if (each.origin.y === oy && each.extent.x === ex && each.extent.y === ey) {
-                    columns.push(each.origin.x);
-                }
-            }
-            return columns;
-        },
-
         /**
          * @function
          * @instance
@@ -145,6 +120,14 @@
             this.flattenedX.length = Math.max(0, this.flattenedX.length - 1);
             this.flattenedY.length = Math.max(0, this.flattenedY.length - 1);
             //this.getGrid().selectionChanged();
+        },
+
+        clearMostRecentColumnSelection: function() {
+            this.columnSelectionModel.clearMostRecentSelection();
+        },
+
+        clearMostRecentRowSelection: function() {
+            this.rowSelectionModel.clearMostRecentSelection();
         },
 
         getSelections: function() {
@@ -211,6 +194,9 @@
          * @param {integer} y - y coordinate
          */
         _isSelected: function(selections, x, y) {
+            if (this.isColumnSelected(x) || this.isRowSelected(y)) {
+                return true;
+            }
             for (var i = 0; i < selections.length; i++) {
                 var each = selections[i];
                 if (this.rectangles.rectangle.contains(each, x, y)) {
@@ -231,6 +217,8 @@
             this.selections.length = 0;
             this.flattenedX.length = 0;
             this.flattenedY.length = 0;
+            this.rowSelectionModel.clear();
+            this.columnSelectionModel.clear();
             //this.getGrid().selectionChanged();
         },
 
@@ -246,48 +234,41 @@
         },
 
         isColumnSelected: function(x) {
-            var size = this.getGrid().getRowCount();
-            return this.isRectangleSelected(x, 0, 0, size);
+            return this.columnSelectionModel.isSelected(x);
         },
 
         isRowSelected: function(y) {
-            var size = this.getGrid().getColumnCount();
-            return this.isRectangleSelected(0, y, size, 0);
+            return this.rowSelectionModel.isSelected(y);
         },
 
-        isColumnSelectionMode: function() {
-            var selections = this.getSelections();
-            if (selections.length === 0) {
-                return false;
-            }
-            var rowCount = this.getGrid().getRowCount();
-            var last = selections[selections.length - 1];
-            var origin = last.origin;
-            var extent = last.extent;
-            if (origin.y === 0 && extent.y === rowCount) {
-                return true;
-            }
-            return false;
+        selectColumn: function(x1, x2) {
+            this.columnSelectionModel.select(x1, x2);
         },
 
-        isRowSelectionMode: function() {
-            var selections = this.getSelections();
-            if (selections.length === 0) {
-                return false;
-            }
-            var columnCount = this.getGrid().getColumnCount();
-            var last = selections[selections.length - 1];
-            var origin = last.origin;
-            var extent = last.extent;
-            if (origin.x === 0 && extent.x === columnCount) {
-                return true;
-            }
-            return false;
+        selectRow: function(y1, y2) {
+            this.rowSelectionModel.select(y1, y2);
         },
 
-        isColumnOrRowSelectionMode: function() {
-            return this.isColumnSelectionMode() || this.isRowSelectionMode();
-        }
+        deselectColumn: function(x1, x2) {
+            this.columnSelectionModel.deselect(x1, x2);
+        },
+
+        deselectRow: function(y1, y2) {
+            this.rowSelectionModel.deselect(y1, y2);
+        },
+
+        getSelectedRows: function() {
+            return this.rowSelectionModel.getSelections();
+        },
+
+        getSelectedColumns: function() {
+            return this.columnSelectionModel.getSelections();
+        },
+
+        isColumnOrRowSelected: function() {
+            return !this.columnSelectionModel.isEmpty() || !this.rowSelectionModel.isEmpty();
+        },
+
 
     });
 

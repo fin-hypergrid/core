@@ -171,33 +171,22 @@
         */
         handleMouseDragCellSelection: function(grid, gridCell /* ,keys */ ) {
 
-            var behavior = grid.getBehavior();
-            var headerRowCount = behavior.getHeaderRowCount();
-            var headerColumnCount = behavior.getHeaderColumnCount();
-            var rowCount = behavior.getRowCount();
+            //var behavior = grid.getBehavior();
             var x = gridCell.x;
-            var y = gridCell.y;
-            x = Math.max(headerColumnCount, x);
-            y = Math.max(headerRowCount, y);
-
-
-
-            var previousDragExtent = grid.getDragExtent();
+            //            var previousDragExtent = grid.getDragExtent();
             var mouseDown = grid.getMouseDown();
 
-            //var scrollingNow = grid.isScrollingNow();
-
             var newX = x - mouseDown.x;
-            var newY = y - mouseDown.y;
+            //var newY = y - mouseDown.y;
 
-            if (previousDragExtent.x === newX && previousDragExtent.y === newY) {
-                return;
-            }
+            // if (previousDragExtent.x === newX && previousDragExtent.y === newY) {
+            //     return;
+            // }
 
-            grid.clearMostRecentSelection();
+            grid.clearMostRecentColumnSelection();
 
-            grid.select(mouseDown.x, 0, newX, rowCount);
-            grid.setDragExtent(this.rectangles.point.create(newX, rowCount));
+            grid.selectColumn(mouseDown.x, x);
+            grid.setDragExtent(this.rectangles.point.create(newX, 0));
 
             grid.repaint();
         },
@@ -287,9 +276,9 @@
         */
         extendSelection: function(grid, gridCell, keys) {
             grid.stopEditing();
-            var hasCTRL = keys.indexOf('CTRL') !== -1;
+            //var hasCTRL = keys.indexOf('CTRL') !== -1;
             var hasSHIFT = keys.indexOf('SHIFT') !== -1;
-            var rowCount = grid.getRowCount();
+
             // var scrollTop = grid.getVScrollValue();
             // var scrollLeft = grid.getHScrollValue();
 
@@ -306,21 +295,21 @@
             }
 
             //we have repeated a click in the same spot deslect the value from last time
-            if (x === mousePoint.x && y === mousePoint.y) {
-                grid.clearMostRecentSelection();
-                grid.popMouseDown();
-                grid.repaint();
-                return;
-            }
+            // if (mousePoint && x === mousePoint.x && y === mousePoint.y) {
+            //     grid.clearSelections();
+            //     grid.popMouseDown();
+            //     grid.repaint();
+            //     return;
+            // }
 
-            if (!hasCTRL && !hasSHIFT) {
-                grid.clearSelections();
-            }
+            // if (!hasCTRL && !hasSHIFT) {
+            //     grid.clearSelections();
+            // }
 
             if (hasSHIFT) {
-                grid.clearMostRecentSelection();
-                grid.select(mousePoint.x, 0, x - mousePoint.x, rowCount);
-                grid.setDragExtent(this.rectangles.point.create(x - mousePoint.x, rowCount));
+                grid.clearMostRecentColumnSelection();
+                grid.selectColumn(x, mousePoint.x);
+                grid.setDragExtent(this.rectangles.point.create(x - mousePoint.x, 0));
             } else {
                 grid.toggleSelectColumn(x, keys);
                 grid.setMouseDown(this.rectangles.point.create(x, y));
@@ -381,22 +370,22 @@
          * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
          * @param {Object} event - the event details
         */
-        handleDOWN: function(grid) {
+        handleDOWN: function( /* grid */ ) {
 
-            var mouseCorner = grid.getMouseDown().plus(grid.getDragExtent());
-            var maxRows = grid.getRowCount() - 1;
+            // var mouseCorner = grid.getMouseDown().plus(grid.getDragExtent());
+            // var maxRows = grid.getRowCount() - 1;
 
-            var newX = mouseCorner.x;
-            var newY = grid.getHeaderRowCount() + grid.getVScrollValue();
+            // var newX = mouseCorner.x;
+            // var newY = grid.getHeaderRowCount() + grid.getVScrollValue();
 
-            newY = Math.min(maxRows, newY);
+            // newY = Math.min(maxRows, newY);
 
-            grid.clearSelections();
-            grid.select(newX, newY, 0, 0);
-            grid.setMouseDown(this.rectangles.point.create(newX, newY));
-            grid.setDragExtent(this.rectangles.point.create(0, 0));
+            // grid.clearSelections();
+            // grid.select(newX, newY, 0, 0);
+            // grid.setMouseDown(this.rectangles.point.create(newX, newY));
+            // grid.setDragExtent(this.rectangles.point.create(0, 0));
 
-            grid.repaint();
+            // grid.repaint();
         },
 
         /**
@@ -508,14 +497,14 @@
             var extent = grid.getDragExtent();
 
             var newX = extent.x + offsetX;
-            var newY = grid.getRowCount();
+            //var newY = grid.getRowCount();
 
             newX = Math.min(maxColumns - origin.x, Math.max(-origin.x, newX));
 
-            grid.clearMostRecentSelection();
-            grid.select(origin.x, 0, newX, newY);
+            grid.clearMostRecentColumnSelection();
+            grid.selectColumn(origin.x, origin.x + newX);
 
-            grid.setDragExtent(this.rectangles.point.create(newX, newY));
+            grid.setDragExtent(this.rectangles.point.create(newX, 0));
 
             if (grid.insureModelColIsVisible(newX + origin.x, offsetX)) {
                 this.pingAutoScroll();
@@ -547,14 +536,14 @@
             var mouseCorner = grid.getMouseDown().plus(grid.getDragExtent());
 
             var newX = mouseCorner.x + offsetX;
-            var newY = grid.getRowCount();
+            //var newY = grid.getRowCount();
 
             newX = Math.min(maxColumns, Math.max(0, newX));
 
             grid.clearSelections();
-            grid.select(newX, 0, 0, newY);
+            grid.selectColumn(newX);
             grid.setMouseDown(this.rectangles.point.create(newX, 0));
-            grid.setDragExtent(this.rectangles.point.create(0, newY));
+            grid.setDragExtent(this.rectangles.point.create(0, 0));
 
             if (grid.insureModelColIsVisible(newX, offsetX)) {
                 this.pingAutoScroll();

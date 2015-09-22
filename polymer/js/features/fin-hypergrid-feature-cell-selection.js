@@ -170,7 +170,7 @@
          * @param {Object} event - the event details
         */
         handleKeyDown: function(grid, event) {
-            if (grid.isColumnOrRowSelectionMode()) {
+            if (grid.isColumnOrRowSelected()) {
                 if (this.next) {
                     this.next.handleKeyDown(grid, event);
                     return;
