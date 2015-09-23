@@ -55,9 +55,12 @@
          * @param {Object} event - the event details
         */
         handleMouseUp: function(grid, event) {
-            this.dragging = false;
+            if (this.dragging) {
+                this.dragging = false;
+            }
             if (this.next) {
                 this.next.handleMouseUp(grid, event);
+                return;
             }
         },
 
@@ -71,12 +74,16 @@
         */
         handleMouseDown: function(grid, event) {
 
+            if (event.mousePoint.y < 5 && this.next) {
+                this.next.handleMouseDown(grid, event);
+                return;
+            }
+
             var isRightClick = event.primitiveEvent.detail.isRightClick;
             var cell = event.gridCell;
             var viewCell = event.viewPoint;
             var dx = cell.x;
             var dy = cell.y;
-
 
             var isHeader = grid.isShowHeaderRow() && dy === 0 && dx !== -1;
 
@@ -112,6 +119,12 @@
          * @param {Object} event - the event details
         */
         handleMouseDrag: function(grid, event) {
+
+            if (this.isColumnDragging(grid) && this.next) {
+                this.next.handleMouseDrag(grid, event);
+                return;
+            }
+
             var isRightClick = event.primitiveEvent.detail.isRightClick;
 
             if (isRightClick || !this.dragging) {
@@ -551,6 +564,12 @@
 
             grid.repaint();
 
+        },
+
+        isColumnDragging: function(grid) {
+            var dragger = grid.lookupFeature('fin-hypergrid-feature-column-moving');
+            var isActivated = dragger.dragging && !this.dragging;
+            return isActivated;
         }
 
 

@@ -3694,8 +3694,10 @@
         },
         isColumnSelected: function(c) {
             return this.getSelectionModel().isColumnSelected(c);
+        },
+        lookupFeature: function(key) {
+            return this.getBehavior().lookupFeature(key);
         }
-
     });
 
 })(); /* jslint ignore:line */

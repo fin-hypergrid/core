@@ -20852,9 +20852,12 @@ var commands = {
          * @param {Object} event - the event details
         */
         handleMouseUp: function(grid, event) {
-            this.dragging = false;
+            if (this.dragging) {
+                this.dragging = false;
+            }
             if (this.next) {
                 this.next.handleMouseUp(grid, event);
+                return;
             }
         },
 
@@ -20868,12 +20871,16 @@ var commands = {
         */
         handleMouseDown: function(grid, event) {
 
+            if (event.mousePoint.y < 5 && this.next) {
+                this.next.handleMouseDown(grid, event);
+                return;
+            }
+
             var isRightClick = event.primitiveEvent.detail.isRightClick;
             var cell = event.gridCell;
             var viewCell = event.viewPoint;
             var dx = cell.x;
             var dy = cell.y;
-
 
             var isHeader = grid.isShowHeaderRow() && dy === 0 && dx !== -1;
 
@@ -20909,6 +20916,12 @@ var commands = {
          * @param {Object} event - the event details
         */
         handleMouseDrag: function(grid, event) {
+
+            if (this.isColumnDragging(grid) && this.next) {
+                this.next.handleMouseDrag(grid, event);
+                return;
+            }
+
             var isRightClick = event.primitiveEvent.detail.isRightClick;
 
             if (isRightClick || !this.dragging) {
@@ -21348,6 +21361,12 @@ var commands = {
 
             grid.repaint();
 
+        },
+
+        isColumnDragging: function(grid) {
+            var dragger = grid.lookupFeature('fin-hypergrid-feature-column-moving');
+            var isActivated = dragger.dragging && !this.dragging;
+            return isActivated;
         }
 
 
@@ -22137,6 +22156,13 @@ var commands = {
 
         },
 
+        getDragCursorName: function() {
+            return '-webkit-grabbing';
+        },
+
+        getActivatedCursorName: function() {
+            return '-webkit-grab';
+        },
         /**
         * @function
         * @instance
@@ -22205,6 +22231,7 @@ var commands = {
          * @param {Object} event - the event details
         */
         handleMouseUp: function(grid, event) {
+            var col = event.gridCell.x;
             if (this.dragging) {
                 this.cursor = null;
                 //delay here to give other events a chance to be dropped
@@ -22218,6 +22245,11 @@ var commands = {
             this.dragging = false;
             this.dragArmed = false;
             grid.repaint();
+            if (grid.isColumnSelected(col)) {
+                this.cursor = this.getActivatedCursorName();
+            } else {
+                this.cursor = null;
+            }
             if (this.next) {
                 this.next.handleMouseUp(grid, event);
             }
@@ -22234,14 +22266,19 @@ var commands = {
         */
         handleMouseMove: function(grid, event) {
 
-            this.cursor = null;
+            if (!this.dragging && event.mousePoint.y < 5) {
+                this.cursor = this.getDragCursorName();
+            } else {
+                this.cursor = null;
+            }
+
             if (this.next) {
                 this.next.handleMouseMove(grid, event);
             }
-            if (this.isHeaderRow(grid, event) && this.dragging) {
-                this.cursor = 'none'; //move';
-            }
 
+            if (this.isHeaderRow(grid, event) && this.dragging) {
+                this.cursor = this.getActivatedCursorName(); //move';
+            }
         },
 
         /**
@@ -22418,7 +22455,7 @@ var commands = {
 
             style.zIndex = '4';
             this.setCrossBrowserProperty(d, 'transform', 'translate(' + startX + 'px, ' + -2 + 'px)');
-            style.cursor = 'none';
+            style.cursor = this.getDragCursorName();
             grid.repaint();
         },
 
@@ -22517,7 +22554,7 @@ var commands = {
 
             this.setCrossBrowserProperty(d, 'transform', 'translate(' + x + 'px, -5px)');
             style.zIndex = '5';
-            style.cursor = 'none';
+            style.cursor = this.getDragCursorName();
             grid.repaint();
         },
 
@@ -25219,6 +25256,8 @@ it contains all code/data that's necessary for easily implementing a virtual dat
         scrollPositionX: 0,
         scrollPositionY: 0,
 
+        featureMap: {},
+
         getDataModel: function() {
             if (this.dataModel === null) {
                 var dataModel = this.getBaseModel();
@@ -25427,11 +25466,16 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          * @param {fin-hypergrid-feature-base} nextFeature - [fin-hypergrid-feature-base](module-features_base.html)
          */
         setNextFeature: function(nextFeature) {
+            this.featureMap[nextFeature.element.name] = nextFeature;
             if (this.featureChain) {
                 this.featureChain.setNext(nextFeature);
             } else {
                 this.featureChain = nextFeature;
             }
+        },
+
+        lookupFeature: function(key) {
+            return this.featureMap[key];
         },
 
         /**
@@ -25458,12 +25502,12 @@ it contains all code/data that's necessary for easily implementing a virtual dat
             this.setNextFeature(document.createElement('fin-hypergrid-feature-overlay'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-column-resizing'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-row-resizing'));
-            //this.setNextFeature(document.createElement('fin-hypergrid-feature-column-moving'));
-            this.setNextFeature(document.createElement('fin-hypergrid-feature-column-sorting'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-filters'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-cell-selection'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-row-selection'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-column-selection'));
+            this.setNextFeature(document.createElement('fin-hypergrid-feature-column-moving'));
+            this.setNextFeature(document.createElement('fin-hypergrid-feature-column-sorting'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-thumbwheel-scrolling'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-cell-editing'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-cell-click'));
@@ -37186,8 +37230,10 @@ fin-vampire-bar {
         },
         isColumnSelected: function(c) {
             return this.getSelectionModel().isColumnSelected(c);
+        },
+        lookupFeature: function(key) {
+            return this.getBehavior().lookupFeature(key);
         }
-
     });
 
 })(); /* jslint ignore:line */

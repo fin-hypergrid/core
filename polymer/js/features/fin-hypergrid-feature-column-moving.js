@@ -104,6 +104,13 @@
 
         },
 
+        getCanDragCursorName: function() {
+            return '-webkit-grab';
+        },
+
+        getDraggingCursorName: function() {
+            return '-webkit-grabbing';
+        },
         /**
         * @function
         * @instance
@@ -156,6 +163,8 @@
             if (grid.getBehavior().isColumnReorderable()) {
                 if (this.isHeaderRow(grid, event) && event.gridCell.x !== -1) {
                     this.dragArmed = true;
+                    this.cursor = this.getDraggingCursorName();
+                    grid.clearSelections();
                 }
             }
             if (this.next) {
@@ -172,6 +181,7 @@
          * @param {Object} event - the event details
         */
         handleMouseUp: function(grid, event) {
+            var col = event.gridCell.x;
             if (this.dragging) {
                 this.cursor = null;
                 //delay here to give other events a chance to be dropped
@@ -184,7 +194,9 @@
             this.dragCol = -1;
             this.dragging = false;
             this.dragArmed = false;
+            this.cursor = null;
             grid.repaint();
+
             if (this.next) {
                 this.next.handleMouseUp(grid, event);
             }
@@ -201,14 +213,19 @@
         */
         handleMouseMove: function(grid, event) {
 
-            this.cursor = null;
+            if (!this.dragging && event.mousePoint.y < 5 && event.viewPoint.y === 0) {
+                this.cursor = this.getCanDragCursorName();
+            } else {
+                this.cursor = null;
+            }
+
             if (this.next) {
                 this.next.handleMouseMove(grid, event);
             }
-            if (this.isHeaderRow(grid, event) && this.dragging) {
-                this.cursor = 'none'; //move';
-            }
 
+            if (this.isHeaderRow(grid, event) && this.dragging) {
+                this.cursor = this.getDraggingCursorName(); //move';
+            }
         },
 
         /**
@@ -385,7 +402,7 @@
 
             style.zIndex = '4';
             this.setCrossBrowserProperty(d, 'transform', 'translate(' + startX + 'px, ' + -2 + 'px)');
-            style.cursor = 'none';
+            style.cursor = this.getDraggingCursorName();
             grid.repaint();
         },
 
@@ -484,7 +501,7 @@
 
             this.setCrossBrowserProperty(d, 'transform', 'translate(' + x + 'px, -5px)');
             style.zIndex = '5';
-            style.cursor = 'none';
+            style.cursor = this.getDraggingCursorName();
             grid.repaint();
         },
 

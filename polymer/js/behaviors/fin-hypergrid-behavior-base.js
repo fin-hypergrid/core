@@ -109,6 +109,8 @@ it contains all code/data that's necessary for easily implementing a virtual dat
         scrollPositionX: 0,
         scrollPositionY: 0,
 
+        featureMap: {},
+
         getDataModel: function() {
             if (this.dataModel === null) {
                 var dataModel = this.getBaseModel();
@@ -317,11 +319,16 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          * @param {fin-hypergrid-feature-base} nextFeature - [fin-hypergrid-feature-base](module-features_base.html)
          */
         setNextFeature: function(nextFeature) {
+            this.featureMap[nextFeature.element.name] = nextFeature;
             if (this.featureChain) {
                 this.featureChain.setNext(nextFeature);
             } else {
                 this.featureChain = nextFeature;
             }
+        },
+
+        lookupFeature: function(key) {
+            return this.featureMap[key];
         },
 
         /**
@@ -348,12 +355,12 @@ it contains all code/data that's necessary for easily implementing a virtual dat
             this.setNextFeature(document.createElement('fin-hypergrid-feature-overlay'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-column-resizing'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-row-resizing'));
-            //this.setNextFeature(document.createElement('fin-hypergrid-feature-column-moving'));
-            this.setNextFeature(document.createElement('fin-hypergrid-feature-column-sorting'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-filters'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-cell-selection'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-row-selection'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-column-selection'));
+            this.setNextFeature(document.createElement('fin-hypergrid-feature-column-moving'));
+            this.setNextFeature(document.createElement('fin-hypergrid-feature-column-sorting'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-thumbwheel-scrolling'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-cell-editing'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-cell-click'));
