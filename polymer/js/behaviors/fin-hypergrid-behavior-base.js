@@ -1571,6 +1571,11 @@ it contains all code/data that's necessary for easily implementing a virtual dat
         },
         hasHierarchyColumn: function() {
             return false;
+        },
+        getRowContextFunction: function( /* selectedRows */ ) {
+            return function() {
+                return null;
+            };
         }
     });
 })();

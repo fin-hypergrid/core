@@ -268,6 +268,27 @@
         isColumnOrRowSelected: function() {
             return !this.columnSelectionModel.isEmpty() || !this.rowSelectionModel.isEmpty();
         },
+        getFlattenedYs: function() {
+            var result = [];
+            var set = {};
+            for (var i = 0; i < this.selections.length; i++) {
+                var each = this.selections[i];
+                var top = each.origin.y;
+                var size = each.extent.y + 1;
+                for (var r = 0; r < size; r++) {
+                    var ti = r + top;
+                    if (!set[ti]) {
+                        result.push(ti);
+                        set[ti] = true;
+                    }
+                }
+
+            }
+            result.sort(function(x, y) {
+                return x - y;
+            });
+            return result;
+        }
 
 
     });

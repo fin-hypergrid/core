@@ -55,7 +55,10 @@
          * @param {Object} event - the event details
         */
         handleMouseUp: function(grid, event) {
-            this.dragging = false;
+            if (this.dragging) {
+                this.dragging = false;
+                grid.fireSyntheticRowSelectionChangedEvent();
+            }
             if (this.next) {
                 this.next.handleMouseUp(grid, event);
             }
@@ -516,6 +519,7 @@
                 this.pingAutoScroll();
             }
 
+            grid.fireSyntheticRowSelectionChangedEvent();
             grid.repaint();
 
         },
@@ -555,6 +559,7 @@
                 this.pingAutoScroll();
             }
 
+            grid.fireSyntheticRowSelectionChangedEvent();
             grid.repaint();
 
         }

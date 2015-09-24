@@ -2095,14 +2095,40 @@
          *
          */
         fireSyntheticRowSelectionChangedEvent: function() {
+            var selectedRows = this.getSelectedRows();
             var selectionEvent = new CustomEvent('fin-row-selection-changed', {
                 detail: {
+                    rowContext: this.getRowContextFunction(selectedRows),
+                    rows: selectedRows,
+                    columns: this.getSelectedColumns(),
+                    selections: this.getSelectionModel().getSelections()
+                }
+            });
+            this.canvas.dispatchEvent(selectionEvent);
+        },
+
+        /**
+         * @function
+         * @instance
+         * @description
+        synthesize and dispatch a fin-selection-changed event
+         *
+         */
+        selectionChanged: function() {
+            var selectedRows = this.getSelectionModel().getFlattenedYs();
+            var selectionEvent = new CustomEvent('fin-selection-changed', {
+                detail: {
+                    rowContext: this.getRowContextFunction(selectedRows),
                     rows: this.getSelectedRows(),
                     columns: this.getSelectedColumns(),
                     selections: this.getSelectionModel().getSelections()
                 }
             });
             this.canvas.dispatchEvent(selectionEvent);
+        },
+
+        getRowContextFunction: function(selectedRows) {
+            return this.getBehavior().getRowContextFunction(selectedRows);
         },
 
         /**
@@ -3294,23 +3320,6 @@
          * @function
          * @instance
          * @description
-        synthesize and dispatch a fin-selection-changed event
-         *
-         */
-        selectionChanged: function() {
-            var event = new CustomEvent('fin-selection-changed', {
-                detail: {
-                    time: Date.now(),
-                    grid: this
-                }
-            });
-            this.canvas.dispatchEvent(event);
-        },
-
-        /**
-         * @function
-         * @instance
-         * @description
         return an object that represets the currently selection row
          *
          * #### returns: Object
@@ -3613,7 +3622,6 @@
                 this.lastEdgeSelection[1] = y;
             }
             this.repaint();
-            this.fireSyntheticColumnSelectionChangedEvent();
         },
 
         getSelectedRows: function() {
@@ -3697,6 +3705,9 @@
         },
         lookupFeature: function(key) {
             return this.getBehavior().lookupFeature(key);
+        },
+        getRow: function(y) {
+            return this.getBehavior().getRow(y);
         }
     });
 

@@ -8,6 +8,12 @@
 
 (function() {
 
+    var valueOrFunctionExecute = function(valueOrFunction) {
+        var isFunction = (((typeof valueOrFunction)[0]) === 'f');
+        var result = isFunction ? valueOrFunction() : valueOrFunction;
+        return result;
+    };
+
     Polymer({ /* jslint ignore:line */
 
         getDefaultDataModel: function() {
@@ -155,6 +161,31 @@
                 return 'center';
             }
         },
+
+        getRowContextFunction: function(selectedRows) {
+            var self = this;
+            var val, i;
+            return function(index) {
+                var result = new Array(selectedRows.length);
+                if (isNaN(index)) {
+                    for (i = 0; i < selectedRows.length; i++) {
+                        val = valueOrFunctionExecute(self.getValueByField(index, selectedRows[i]));
+                        result[i] = val;
+                    }
+                } else {
+                    for (i = 0; i < selectedRows.length; i++) {
+                        val = valueOrFunctionExecute(self.getValue(index, selectedRows[i]));
+                        result[i] = val;
+                    }
+
+                }
+                return result;
+            };
+        },
+        getValueByField: function(fieldName, y) {
+            var index = this.getFields().indexOf(fieldName);
+            return this.getValue(index, y);
+        }
 
     });
 
