@@ -24646,6 +24646,14 @@ it contains all code/data that's necessary for easily implementing a virtual dat
                 tableState.fixedColumnAutosized = [];
                 tableState.columnAutosized = [];
             }, 40);
+        },
+
+        getFieldName: function(index) {
+            return this.getFields()[index];
+        },
+
+        getColumnIndex: function(fieldName) {
+            return this.getFields().indexOf(fieldName);
         }
     });
 })();
@@ -34998,6 +35006,15 @@ fin-vampire-bar {
         restartPaintThread: function() {
             this.canvas.restartPaintThread();
         },
+
+        getFieldName: function(index) {
+            return this.getBehavior().getFieldName(index);
+        },
+
+        getColumnIndex: function(fieldName) {
+            return this.getBehavior().getColumnIndex(fieldName);
+        }
+
     });
 
 })(); /* jslint ignore:line */
