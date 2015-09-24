@@ -207,6 +207,7 @@
             //this.postfilter = new fin.analytics.DataSourceFilter(this.analytics); /* jshint ignore:line */
             //this.postsorter = new fin.analytics.DataSourceSorterComposite(this.postfilter); /* jshint ignore:line */
             this.initColumnIndexes(this.getState());
+            this.changed();
         },
         getTopTotals: function() {
             if (!this.isGroupingOn()) {

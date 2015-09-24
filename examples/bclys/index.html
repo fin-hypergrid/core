@@ -28,6 +28,7 @@
             <button onclick="toggleAggregates()">toggle aggregates</button>
             <button onclick="toggleAutosortGrouping()">toggle autosort groups</button>
             <button onclick="toggleEmptyData()">toggle empty data</button>
+            <button onclick="toggleEmptyHeaders()">toggle empty headers</button>
         </div>
     </div>
     <div class="row" style="overflow: hidden">
@@ -98,29 +99,30 @@
         }
 
         var emptyData = false;
-
         window.toggleEmptyData = function() {
             emptyData = !emptyData;
             if (!emptyData) {
+                //important to set top totals first
+                jsonModel.setTopTotals(topTotals);
                 jsonModel.setData(people);
             } else {
-                jsonModel.setData([]);
+                //important to set top totals first
                 jsonModel.setTopTotals([]);
-                jsonModel.setHeaders([
-                    'Last Name',
-                    'Pets',
-                    'Birth Date',
-                    'Birth State',
-                    'Residence State',
-                    'Employed',
-                    'First Name',
-                    'Income',
-                    'Travel',
-                    'Square Of Income'
-                ]);
+                jsonModel.setData([]);
             }
 
         }
+
+        var emptyHeaders = true;
+        window.toggleEmptyHeaders = function() {
+            emptyHeaders = !emptyHeaders;
+            jsonGrid.addProperties({
+                showHeaderRow: emptyHeaders,
+                showFilterRow: emptyHeaders,
+            });
+            jsonGrid.behaviorChanged();
+        }
+
 
         jsonGrid.setColumnProperties(2, {
             backgroundColor: 'maroon',
@@ -347,7 +349,7 @@
 
         jsonGrid.addFinEventListener('fin-before-cell-edit', function(e) {
             console.log('fin-before-cell-edit', e);
-            //e.preventDefault(); //uncomment to cancel editor popping up
+            //e.preventDefault(); //uncomment to cancel updating the model with the new data
         });
 
         jsonGrid.addFinEventListener('fin-after-cell-edit', function(e) {
@@ -444,7 +446,7 @@
                 jsonGrid.addProperties({
                     scrollbarHoverOff: 'visible',
                     scrollbarHoverOver: 'visible',
-                    editable: false
+                    editable: true
                 });
 
                 // properties that can be set

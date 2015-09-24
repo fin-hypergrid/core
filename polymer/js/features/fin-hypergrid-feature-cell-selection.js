@@ -413,7 +413,10 @@
          * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
          * @param {Object} event - the event details
         */
-        handleDOWN: function(grid) {
+        handleDOWN: function(grid, event) {
+            //keep the browser viewport from auto scrolling on key event
+            event.primitiveEvent.preventDefault();
+
             var count = this.getAutoScrollAcceleration();
             this.moveSingleSelect(grid, 0, count);
         },
@@ -426,7 +429,10 @@
          * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
          * @param {Object} event - the event details
         */
-        handleUP: function(grid) {
+        handleUP: function(grid, event) {
+            //keep the browser viewport from auto scrolling on key event
+            event.primitiveEvent.preventDefault();
+
             var count = this.getAutoScrollAcceleration();
             this.moveSingleSelect(grid, 0, -count);
         },
