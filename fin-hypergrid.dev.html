@@ -22156,12 +22156,12 @@ var commands = {
 
         },
 
-        getDragCursorName: function() {
-            return '-webkit-grabbing';
+        getCanDragCursorName: function() {
+            return '-webkit-grab';
         },
 
-        getActivatedCursorName: function() {
-            return '-webkit-grab';
+        getDraggingCursorName: function() {
+            return '-webkit-grabbing';
         },
         /**
         * @function
@@ -22215,6 +22215,8 @@ var commands = {
             if (grid.getBehavior().isColumnReorderable()) {
                 if (this.isHeaderRow(grid, event) && event.gridCell.x !== -1) {
                     this.dragArmed = true;
+                    this.cursor = this.getDraggingCursorName();
+                    grid.clearSelections();
                 }
             }
             if (this.next) {
@@ -22231,7 +22233,7 @@ var commands = {
          * @param {Object} event - the event details
         */
         handleMouseUp: function(grid, event) {
-            var col = event.gridCell.x;
+            //var col = event.gridCell.x;
             if (this.dragging) {
                 this.cursor = null;
                 //delay here to give other events a chance to be dropped
@@ -22244,12 +22246,9 @@ var commands = {
             this.dragCol = -1;
             this.dragging = false;
             this.dragArmed = false;
+            this.cursor = null;
             grid.repaint();
-            if (grid.isColumnSelected(col)) {
-                this.cursor = this.getActivatedCursorName();
-            } else {
-                this.cursor = null;
-            }
+
             if (this.next) {
                 this.next.handleMouseUp(grid, event);
             }
@@ -22266,8 +22265,8 @@ var commands = {
         */
         handleMouseMove: function(grid, event) {
 
-            if (!this.dragging && event.mousePoint.y < 5) {
-                this.cursor = this.getDragCursorName();
+            if (!this.dragging && event.mousePoint.y < 5 && event.viewPoint.y === 0) {
+                this.cursor = this.getCanDragCursorName();
             } else {
                 this.cursor = null;
             }
@@ -22277,7 +22276,7 @@ var commands = {
             }
 
             if (this.isHeaderRow(grid, event) && this.dragging) {
-                this.cursor = this.getActivatedCursorName(); //move';
+                this.cursor = this.getDraggingCursorName(); //move';
             }
         },
 
@@ -22455,7 +22454,7 @@ var commands = {
 
             style.zIndex = '4';
             this.setCrossBrowserProperty(d, 'transform', 'translate(' + startX + 'px, ' + -2 + 'px)');
-            style.cursor = this.getDragCursorName();
+            style.cursor = this.getDraggingCursorName();
             grid.repaint();
         },
 
@@ -22554,7 +22553,7 @@ var commands = {
 
             this.setCrossBrowserProperty(d, 'transform', 'translate(' + x + 'px, -5px)');
             style.zIndex = '5';
-            style.cursor = this.getDragCursorName();
+            style.cursor = this.getDraggingCursorName();
             grid.repaint();
         },
 

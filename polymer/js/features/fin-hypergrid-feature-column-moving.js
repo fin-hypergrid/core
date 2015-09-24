@@ -181,7 +181,7 @@
          * @param {Object} event - the event details
         */
         handleMouseUp: function(grid, event) {
-            var col = event.gridCell.x;
+            //var col = event.gridCell.x;
             if (this.dragging) {
                 this.cursor = null;
                 //delay here to give other events a chance to be dropped
