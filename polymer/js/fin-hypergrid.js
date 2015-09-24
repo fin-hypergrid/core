@@ -196,6 +196,10 @@
             showHeaderRow: true,
             showFilterRow: true,
 
+            cellSelection: false,
+            columnSelection: true,
+            rowSelection: true,
+
         };
         return properties;
     };
@@ -3715,6 +3719,15 @@
 
         getColumnIndex: function(fieldName) {
             return this.getBehavior().getColumnIndex(fieldName);
+        },
+        isCellSelection: function() {
+            return this.resolveProperty('cellSelection') === true;
+        },
+        isRowSelection: function() {
+            return this.resolveProperty('rowSelection') === true;
+        },
+        isColumnSelection: function() {
+            return this.resolveProperty('columnSelection') === true;
         }
     });
 

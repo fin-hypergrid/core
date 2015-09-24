@@ -269,8 +269,10 @@
         checkForAreaResizeCursorChange: function(grid, event) {
             if (this.overAreaDivider(grid, event) > -1 && this.isFirstFixedOtherArea(grid, event)) {
                 this.cursor = this.getCursorName();
+                console.log('to ' + this.cursor + ' ' + this.element.name);
             } else {
                 this.cursor = null;
+                console.log('to null ' + this.element.name);
             }
 
         },
@@ -278,6 +280,18 @@
         getFixedAreaCount: function(grid) {
             var count = grid.getFixedColumnCount() + (grid.isShowRowNumbers() ? 1 : 0) + (grid.hasHierarchyColumn() ? 1 : 0);
             return count;
+        },
+
+        handleDoubleClick: function(grid, event) {
+            var hasCursor = this.overAreaDivider(grid, event) > -1; //this.cursor !== null;
+            var headerRowCount = grid.getHeaderRowCount();
+            //var headerColCount = grid.getHeaderColumnCount();
+            var gridCell = event.gridCell;
+            if (hasCursor && (gridCell.y <= headerRowCount)) {
+                grid.autosizeColumn(gridCell.x - 1);
+            } else if (this.next) {
+                this.next.handleDoubleClick(grid, event);
+            }
         }
     });
 

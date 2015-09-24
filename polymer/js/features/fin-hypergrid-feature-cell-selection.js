@@ -87,7 +87,7 @@
 
             var isHeader = dy < headerRowCount || dx < headerColumnCount;
 
-            if (isRightClick || isHeader) {
+            if (!grid.isCellSelection() || isRightClick || isHeader) {
                 if (this.next) {
                     this.next.handleMouseDown(grid, event);
                 }
@@ -126,7 +126,7 @@
         handleMouseDrag: function(grid, event) {
             var isRightClick = event.primitiveEvent.detail.isRightClick;
 
-            if (isRightClick || !this.dragging) {
+            if (!grid.isCellSelection() || isRightClick || !this.dragging) {
                 if (this.next) {
                     this.next.handleMouseDrag(grid, event);
                 }

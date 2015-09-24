@@ -19212,7 +19212,7 @@ var commands = {
 
             var isHeader = dy < headerRowCount || dx < headerColumnCount;
 
-            if (isRightClick || isHeader) {
+            if (!grid.isCellSelection() || isRightClick || isHeader) {
                 if (this.next) {
                     this.next.handleMouseDown(grid, event);
                 }
@@ -19251,7 +19251,7 @@ var commands = {
         handleMouseDrag: function(grid, event) {
             var isRightClick = event.primitiveEvent.detail.isRightClick;
 
-            if (isRightClick || !this.dragging) {
+            if (!grid.isCellSelection() || isRightClick || !this.dragging) {
                 if (this.next) {
                     this.next.handleMouseDrag(grid, event);
                 }
@@ -20898,7 +20898,7 @@ var commands = {
         */
         handleMouseDown: function(grid, event) {
 
-            if (event.mousePoint.y < 5 && this.next) {
+            if ((!grid.isColumnSelection() || event.mousePoint.y < 5) && this.next) {
                 this.next.handleMouseDown(grid, event);
                 return;
             }
@@ -20944,7 +20944,7 @@ var commands = {
         */
         handleMouseDrag: function(grid, event) {
 
-            if (this.isColumnDragging(grid) && this.next) {
+            if ((!grid.isColumnSelection() || this.isColumnDragging(grid)) && this.next) {
                 this.next.handleMouseDrag(grid, event);
                 return;
             }
@@ -21882,8 +21882,10 @@ var commands = {
         checkForAreaResizeCursorChange: function(grid, event) {
             if (this.overAreaDivider(grid, event) > -1 && this.isFirstFixedOtherArea(grid, event)) {
                 this.cursor = this.getCursorName();
+                console.log('to ' + this.cursor + ' ' + this.element.name);
             } else {
                 this.cursor = null;
+                console.log('to null ' + this.element.name);
             }
 
         },
@@ -21891,6 +21893,18 @@ var commands = {
         getFixedAreaCount: function(grid) {
             var count = grid.getFixedColumnCount() + (grid.isShowRowNumbers() ? 1 : 0) + (grid.hasHierarchyColumn() ? 1 : 0);
             return count;
+        },
+
+        handleDoubleClick: function(grid, event) {
+            var hasCursor = this.overAreaDivider(grid, event) > -1; //this.cursor !== null;
+            var headerRowCount = grid.getHeaderRowCount();
+            //var headerColCount = grid.getHeaderColumnCount();
+            var gridCell = event.gridCell;
+            if (hasCursor && (gridCell.y <= headerRowCount)) {
+                grid.autosizeColumn(gridCell.x - 1);
+            } else if (this.next) {
+                this.next.handleDoubleClick(grid, event);
+            }
         }
     });
 
@@ -23229,7 +23243,7 @@ var commands = {
 
             var isHeader = grid.isShowRowNumbers() && dx < 0;
 
-            if (isRightClick || !isHeader) {
+            if (!grid.isRowSelection() || isRightClick || !isHeader) {
                 if (this.next) {
                     this.next.handleMouseDown(grid, event);
                 }
@@ -23263,7 +23277,7 @@ var commands = {
         handleMouseDrag: function(grid, event) {
             var isRightClick = event.primitiveEvent.detail.isRightClick;
 
-            if (isRightClick || !this.dragging) {
+            if (!grid.isRowSelection() || isRightClick || !this.dragging) {
                 if (this.next) {
                     this.next.handleMouseDrag(grid, event);
                 }
@@ -33807,6 +33821,10 @@ fin-vampire-bar {
             showHeaderRow: true,
             showFilterRow: true,
 
+            cellSelection: false,
+            columnSelection: true,
+            rowSelection: true,
+
         };
         return properties;
     };
@@ -37326,6 +37344,15 @@ fin-vampire-bar {
 
         getColumnIndex: function(fieldName) {
             return this.getBehavior().getColumnIndex(fieldName);
+        },
+        isCellSelection: function() {
+            return this.resolveProperty('cellSelection') === true;
+        },
+        isRowSelection: function() {
+            return this.resolveProperty('rowSelection') === true;
+        },
+        isColumnSelection: function() {
+            return this.resolveProperty('columnSelection') === true;
         }
     });
 

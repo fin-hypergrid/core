@@ -74,7 +74,7 @@
         */
         handleMouseDown: function(grid, event) {
 
-            if (event.mousePoint.y < 5 && this.next) {
+            if ((!grid.isColumnSelection() || event.mousePoint.y < 5) && this.next) {
                 this.next.handleMouseDown(grid, event);
                 return;
             }
@@ -120,7 +120,7 @@
         */
         handleMouseDrag: function(grid, event) {
 
-            if (this.isColumnDragging(grid) && this.next) {
+            if ((!grid.isColumnSelection() || this.isColumnDragging(grid)) && this.next) {
                 this.next.handleMouseDrag(grid, event);
                 return;
             }
