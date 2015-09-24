@@ -28,6 +28,7 @@
             <button onclick="toggleAggregates()">toggle aggregates</button>
             <button onclick="toggleAutosortGrouping()">toggle autosort groups</button>
             <button onclick="toggleEmptyData()">toggle empty data</button>
+            <button onclick="toggleEmptyHeaders()">toggle empty headers</button>
         </div>
     </div>
     <div class="row" style="overflow: hidden">
@@ -98,29 +99,30 @@
         }
 
         var emptyData = false;
-
         window.toggleEmptyData = function() {
             emptyData = !emptyData;
             if (!emptyData) {
+                //important to set top totals first
+                jsonModel.setTopTotals(topTotals);
                 jsonModel.setData(people);
             } else {
-                jsonModel.setData([]);
+                //important to set top totals first
                 jsonModel.setTopTotals([]);
-                jsonModel.setHeaders([
-                    'Last Name',
-                    'Pets',
-                    'Birth Date',
-                    'Birth State',
-                    'Residence State',
-                    'Employed',
-                    'First Name',
-                    'Income',
-                    'Travel',
-                    'Square Of Income'
-                ]);
+                jsonModel.setData([]);
             }
 
         }
+
+        var emptyHeaders = true;
+        window.toggleEmptyHeaders = function() {
+            emptyHeaders = !emptyHeaders;
+            jsonGrid.addProperties({
+                showHeaderRow: emptyHeaders,
+                showFilterRow: emptyHeaders,
+            });
+            jsonGrid.behaviorChanged();
+        }
+
 
         jsonGrid.setColumnProperties(2, {
             backgroundColor: 'maroon',
@@ -253,7 +255,17 @@
         };
 
         jsonGrid.addFinEventListener('fin-selection-changed', function(e){
-            console.log(jsonGrid.getSelectedRows(), jsonGrid.getSelectedColumns(), jsonGrid.getSelections());
+            console.log('fin-selection-changed', jsonGrid.getSelectedRows(), jsonGrid.getSelectedColumns(), jsonGrid.getSelections());
+            var rowcontext = e.detail.rowContext;
+            var fields = jsonModel.getFields();
+            if (e.detail.selections.length === 0) {
+                console.log('no selections');
+                return;
+            }
+            for (var i = 0; i < fields.length; i++) {
+                var field = fields[i];
+                console.log(i + ' ' + field + ' = ' + rowcontext(i) + ', ' + rowcontext(field));
+            }
         });
 
         jsonGrid.addFinEventListener('fin-double-click', function(e){
@@ -329,6 +341,16 @@
 
         jsonGrid.addFinEventListener('fin-row-selection-changed', function(e) {
             console.log('fin-row-selection-changed', e.detail);
+            var rowcontext = e.detail.rowContext;
+            var fields = jsonModel.getFields();
+            if (e.detail.rows.length === 0) {
+                console.log('no rows selected');
+                return;
+            }
+            for (var i = 0; i < fields.length; i++) {
+                var field = fields[i];
+                console.log(i + ' ' + field + ' = ' + rowcontext(i) + ', ' + rowcontext(field));
+            }
         });
 
         jsonGrid.addFinEventListener('fin-column-selection-changed', function(e) {
@@ -347,7 +369,7 @@
 
         jsonGrid.addFinEventListener('fin-before-cell-edit', function(e) {
             console.log('fin-before-cell-edit', e);
-            //e.preventDefault(); //uncomment to cancel editor popping up
+            //e.preventDefault(); //uncomment to cancel updating the model with the new data
         });
 
         jsonGrid.addFinEventListener('fin-after-cell-edit', function(e) {
@@ -444,7 +466,6 @@
                 jsonGrid.addProperties({
                     scrollbarHoverOff: 'visible',
                     scrollbarHoverOver: 'visible',
-                    editable: false
                 });
 
                 // properties that can be set
