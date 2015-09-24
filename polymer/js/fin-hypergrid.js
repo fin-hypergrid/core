@@ -3708,6 +3708,13 @@
         },
         getRow: function(y) {
             return this.getBehavior().getRow(y);
+        },
+        getFieldName: function(index) {
+            return this.getBehavior().getFieldName(index);
+        },
+
+        getColumnIndex: function(fieldName) {
+            return this.getBehavior().getColumnIndex(fieldName);
         }
     });
 
