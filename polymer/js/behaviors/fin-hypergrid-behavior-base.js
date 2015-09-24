@@ -1745,6 +1745,14 @@ it contains all code/data that's necessary for easily implementing a virtual dat
                 tableState.fixedColumnAutosized = [];
                 tableState.columnAutosized = [];
             }, 40);
+        },
+
+        getFieldName: function(index) {
+            return this.getFields()[index];
+        },
+
+        getColumnIndex: function(fieldName) {
+            return this.getFields().indexOf(fieldName);
         }
     });
 })();

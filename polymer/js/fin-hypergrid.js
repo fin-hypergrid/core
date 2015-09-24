@@ -3159,6 +3159,15 @@
         restartPaintThread: function() {
             this.canvas.restartPaintThread();
         },
+
+        getFieldName: function(index) {
+            return this.getBehavior().getFieldName(index);
+        },
+
+        getColumnIndex: function(fieldName) {
+            return this.getBehavior().getColumnIndex(fieldName);
+        }
+
     });
 
 })(); /* jslint ignore:line */
