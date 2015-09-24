@@ -19469,8 +19469,8 @@ var commands = {
          handle this event
          * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
         */
-        handleDOWNSHIFT: function( /* grid */ ) {
-
+        handleDOWNSHIFT: function(grid) {
+            this.moveShiftSelect(grid, 0, 1);
         },
 
         /**
@@ -19481,8 +19481,8 @@ var commands = {
          * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
          * @param {Object} event - the event details
         */
-        handleUPSHIFT: function( /* grid */ ) {
-
+        handleUPSHIFT: function(grid) {
+            this.moveShiftSelect(grid, 0, -1);
         },
 
         /**
@@ -23364,12 +23364,12 @@ var commands = {
             var dragEndInFixedAreaX = lastDragCell.x < numFixedColumns;
             var dragEndInFixedAreaY = lastDragCell.y < numFixedRows;
 
-            if (this.currentDrag.x < b.origin.x) {
-                xOffset = -1;
+            if (this.currentDrag.y < b.origin.y) {
+                yOffset = -1;
             }
 
-            if (this.currentDrag.x > b.origin.x + b.extent.x) {
-                xOffset = 1;
+            if (this.currentDrag.y > b.origin.y + b.extent.y) {
+                yOffset = 1;
             }
 
             var dragCellOffsetX = xOffset;
@@ -35279,10 +35279,10 @@ fin-vampire-bar {
             //var behavior = this.getBehavior();
             var b = this.canvas.bounds;
 
-            var x = this.getRowNumbersWidth();
+            //var x = this.getRowNumbersWidth();
             // var y = behavior.getFixedRowsHeight() + 2;
 
-            var result = rectangles.rectangle.create(x, 0, b.origin.x + b.extent.x - colDNDHackWidth - x, b.origin.y + b.extent.y);
+            var result = rectangles.rectangle.create(0, 0, b.origin.x + b.extent.x - colDNDHackWidth, b.origin.y + b.extent.y);
             return result;
         },
 

@@ -1744,10 +1744,10 @@
             //var behavior = this.getBehavior();
             var b = this.canvas.bounds;
 
-            var x = this.getRowNumbersWidth();
+            //var x = this.getRowNumbersWidth();
             // var y = behavior.getFixedRowsHeight() + 2;
 
-            var result = rectangles.rectangle.create(x, 0, b.origin.x + b.extent.x - colDNDHackWidth - x, b.origin.y + b.extent.y);
+            var result = rectangles.rectangle.create(0, 0, b.origin.x + b.extent.x - colDNDHackWidth, b.origin.y + b.extent.y);
             return result;
         },
 

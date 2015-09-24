@@ -365,8 +365,8 @@
          handle this event
          * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
         */
-        handleDOWNSHIFT: function( /* grid */ ) {
-
+        handleDOWNSHIFT: function(grid) {
+            this.moveShiftSelect(grid, 0, 1);
         },
 
         /**
@@ -377,8 +377,8 @@
          * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
          * @param {Object} event - the event details
         */
-        handleUPSHIFT: function( /* grid */ ) {
-
+        handleUPSHIFT: function(grid) {
+            this.moveShiftSelect(grid, 0, -1);
         },
 
         /**
