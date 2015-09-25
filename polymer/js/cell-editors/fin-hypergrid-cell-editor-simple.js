@@ -148,7 +148,7 @@
         how much should I offset my bounds from 0,0
         */
         originOffset: function() {
-            return [-2, -2];
+            return [0, 0];
         },
 
         /**
@@ -170,8 +170,8 @@
             // this.input.style.left = cellBounds.x + originOffset[0] + 'px';
             // this.input.style.top = cellBounds.y + originOffset[1] + 'px';
 
-            this.input.style.width = cellBounds.width - (2 * originOffset[0]) + 'px';
-            this.input.style.height = cellBounds.height - (2 * originOffset[1]) + 'px';
+            this.input.style.width = (cellBounds.width - 2) + 'px';
+            this.input.style.height = (cellBounds.height - 2) + 'px';
             //var xOffset = this.grid.canvas.getBoundingClientRect().left;
         }
 

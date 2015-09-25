@@ -269,10 +269,8 @@
         checkForAreaResizeCursorChange: function(grid, event) {
             if (this.overAreaDivider(grid, event) > -1 && this.isFirstFixedOtherArea(grid, event)) {
                 this.cursor = this.getCursorName();
-                console.log('to ' + this.cursor + ' ' + this.element.name);
             } else {
                 this.cursor = null;
-                console.log('to null ' + this.element.name);
             }
 
         },

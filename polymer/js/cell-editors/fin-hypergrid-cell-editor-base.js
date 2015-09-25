@@ -267,8 +267,14 @@
         move the editor to the current editor point
         */
         _moveEditor: function() {
+            var grid = this.getGrid();
             var editorPoint = this.getEditorPoint();
-            var cellBounds = this.getGrid()._getBoundsOfCell(editorPoint.x, editorPoint.y);
+            var cellBounds = grid._getBoundsOfCell(editorPoint.x, editorPoint.y);
+
+            //hack to accomodate bootstrap margin issues...
+            var xOffset = grid.getBoundingClientRect().left - grid.canvas.getBoundingClientRect().left;
+            cellBounds.x = cellBounds.x - xOffset;
+
             this.setBounds(cellBounds);
         },
 

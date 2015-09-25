@@ -13641,7 +13641,7 @@ div.container {
                     isRightClick: this.isRightClick(e)
                 }
             }));
-            //this.mouseLocation = this.g.point.create(-1, -1);
+            this.mouseLocation = this.g.point.create(-1, -1);
         },
 
         /**
@@ -21882,10 +21882,8 @@ var commands = {
         checkForAreaResizeCursorChange: function(grid, event) {
             if (this.overAreaDivider(grid, event) > -1 && this.isFirstFixedOtherArea(grid, event)) {
                 this.cursor = this.getCursorName();
-                console.log('to ' + this.cursor + ' ' + this.element.name);
             } else {
                 this.cursor = null;
-                console.log('to null ' + this.element.name);
             }
 
         },
@@ -31630,8 +31628,14 @@ This is a very rough in memory data source example.  fin-hypergrid-behavior-in-m
         move the editor to the current editor point
         */
         _moveEditor: function() {
+            var grid = this.getGrid();
             var editorPoint = this.getEditorPoint();
-            var cellBounds = this.getGrid()._getBoundsOfCell(editorPoint.x, editorPoint.y);
+            var cellBounds = grid._getBoundsOfCell(editorPoint.x, editorPoint.y);
+
+            //hack to accomodate bootstrap margin issues...
+            var xOffset = grid.getBoundingClientRect().left - grid.canvas.getBoundingClientRect().left;
+            cellBounds.x = cellBounds.x - xOffset;
+
             this.setBounds(cellBounds);
         },
 
@@ -32021,7 +32025,7 @@ This is a very rough in memory data source example.  fin-hypergrid-behavior-in-m
         how much should I offset my bounds from 0,0
         */
         originOffset: function() {
-            return [-2, -2];
+            return [0, 0];
         },
 
         /**
@@ -32043,8 +32047,8 @@ This is a very rough in memory data source example.  fin-hypergrid-behavior-in-m
             // this.input.style.left = cellBounds.x + originOffset[0] + 'px';
             // this.input.style.top = cellBounds.y + originOffset[1] + 'px';
 
-            this.input.style.width = cellBounds.width - (2 * originOffset[0]) + 'px';
-            this.input.style.height = cellBounds.height - (2 * originOffset[1]) + 'px';
+            this.input.style.width = (cellBounds.width - 2) + 'px';
+            this.input.style.height = (cellBounds.height - 2) + 'px';
             //var xOffset = this.grid.canvas.getBoundingClientRect().left;
         }
 
