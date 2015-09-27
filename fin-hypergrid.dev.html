@@ -12872,7 +12872,7 @@ div.container {
 }
 </style>
     <button></button>
-    <canvas class="canvas" on-tap="{{fintap}}" on-hold="{{finhold}}" on-holdpulse="{{finholdpulse}}" on-flick="{{finflick}}" on-release="{{finrelease}}" on-dblclick="{{findblclick}}" on-trackstart="{{fintrackstart}}" on-track="{{fintrack}}" on-trackend="{{fintrackend}}"></canvas>
+    <canvas class="canvas" on-tap="{{fintap}}" on-hold="{{finhold}}" on-holdpulse="{{finholdpulse}}" on-flick="{{finflick}}" on-release="{{finrelease}}" on-trackstart="{{fintrackstart}}" on-track="{{fintrack}}" on-trackend="{{fintrackend}}"></canvas>
   </template>
   <script>
 
@@ -13641,7 +13641,7 @@ div.container {
                     isRightClick: this.isRightClick(e)
                 }
             }));
-            this.mouseLocation = this.g.point.create(-1, -1);
+            //this.mouseLocation = this.g.point.create(-1, -1);
         },
 
         /**
@@ -13694,6 +13694,11 @@ div.container {
          * @method finclick(e)
          */
         finclick: function(e) {
+            if (Date.now() - this.lastClickTime < 250) {
+                //this is a double click...
+                this.findblclick(e);
+                return;
+            }
             this.mouseLocation = this.getLocal(e);
             this.dispatchEvent(new CustomEvent('fin-canvas-click', {
                 detail: {
@@ -13703,6 +13708,7 @@ div.container {
                     isRightClick: this.isRightClick(e)
                 }
             }));
+            this.lastClickTime = Date.now();
         },
 
         /**
@@ -13903,6 +13909,7 @@ div.container {
                     isRightClick: this.isRightClick(e)
                 }
             }));
+            console.log('dblclick', this.currentKeys);
         },
 
         getCharMap: function() {
@@ -14031,6 +14038,14 @@ div.container {
          * @method finfocuslost(e)
          */
         fincontextmenu: function(e) {
+            if (e.ctrlKey && this.currentKeys.indexOf('CTRL') === -1) {
+                this.currentKeys.push('CTRL');
+            }
+            if (Date.now() - this.lastClickTime < 250) {
+                //this is a double click...
+                this.findblclick(e);
+                return;
+            }
             this.dispatchEvent(new CustomEvent('fin-canvas-context-menu', {
                 detail: {
                     primitiveEvent: e,
@@ -14039,6 +14054,7 @@ div.container {
                     isRightClick: this.isRightClick(e)
                 }
             }));
+            this.lastClickTime = Date.now();
         },
 
         /**
@@ -20783,7 +20799,8 @@ var commands = {
         handleDoubleClick: function(grid, event) {
             var gridCell = event.gridCell;
             if (grid.isShowHeaderRow() && gridCell.y === 0 && gridCell.x !== -1) {
-                grid.toggleSort(gridCell.x);
+                var keys = event.primitiveEvent.detail.keys;
+                grid.toggleSort(gridCell.x, keys);
             } else if (this.next) {
                 this.next.handleDoubleClick(grid, event);
             }
@@ -23996,8 +24013,8 @@ var commands = {
             this.getBehavior().initColumnIndexes(state);
         },
 
-        toggleSort: function(x) {
-            console.log('toggle column ' + x);
+        toggleSort: function(x, keys) {
+            console.log('toggle column ' + x, keys);
         },
 
         getCellEditorAt: function(x, y) {
@@ -24368,8 +24385,8 @@ var commands = {
             this.getComponent().setGrid(newGrid);
         },
 
-        toggleSort: function(x) {
-            this.getComponent().toggleSort(x);
+        toggleSort: function(x, keys) {
+            this.getComponent().toggleSort(x, keys);
         },
 
         getCellEditorAt: function(x, y) {
@@ -24578,9 +24595,9 @@ var commands = {
             return cursor;
         },
 
-        toggleSort: function(x) {
+        toggleSort: function(x, keys) {
             x = this.translateColumnIndex(x);
-            this.getComponent().toggleSort(x);
+            this.getComponent().toggleSort(x, keys);
         },
 
         getColumnProperties: function(x) {
@@ -25017,16 +25034,17 @@ var commands = {
             }
             filterSource.applyFilters();
         },
-        toggleSort: function(index) {
+        toggleSort: function(index, keys) {
             if (this.isGroupingOn()) {
-                index++;
+                index++; //hierarchy column;
             }
-            this.incrementSortState(index);
+            this.incrementSortState(index, keys);
             this.applyAnalytics();
         },
-        incrementSortState: function(colIndex) {
+        incrementSortState: function(colIndex, keys) {
             colIndex++; //hack to get around 0 index
             var state = this.getState();
+            var hasCTRL = keys.indexOf('CTRL') > -1;
             state.sorts = state.sorts || [];
             var already = state.sorts.indexOf(colIndex);
             if (already === -1) {
@@ -25038,7 +25056,10 @@ var commands = {
                 } else {
                     state.sorts.splice(already, 1);
                 }
+            } else if (hasCTRL || state.sorts.length === 0) {
+                state.sorts.unshift(colIndex);
             } else {
+                state.sorts.length = 0;
                 state.sorts.unshift(colIndex);
             }
             if (state.sorts.length > 3) {
@@ -26142,6 +26163,9 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          * @param {integer} colIndex - the column index of interest
          */
         getField: function(colIndex) {
+            if (colIndex === -1) {
+                return 'tree';
+            }
             return this.getFields()[colIndex];
         },
         /**
@@ -26153,6 +26177,9 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          * @param {integer} colIndex - the column index of interest
          */
         getHeader: function(colIndex) {
+            if (colIndex === -1) {
+                return 'Tree';
+            }
             return this.getHeaders()[colIndex];
         },
         /**
@@ -26513,50 +26540,8 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
          * @param {Object} mouse - event details
          */
-        columnHeaderClicked: function(grid, mouse) {
-            if (mouse.gridCell.y < 1) {
-                this.toggleSort(mouse.gridCell.x);
-            } else {
-                this.getGrid().toggleSelectColumn(mouse.gridCell.x);
-            }
-        },
-
-        /**
-         * @function
-         * @instance
-         * @description
-         fixed row has been clicked, you've been notified
-         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
-         * @param {Object} mouse - event details
-         */
-        topLeftClicked: function(grid, mouse) {
-            if (mouse.gridCell.y < 1) {
-                this.toggleSort(mouse.gridCell.x);
-            }
-        },
-
-        /**
-         * @function
-         * @instance
-         * @description
-         fixed row has been clicked, you've been notified
-         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
-         * @param {Object} mouse - event details
-         */
-        toggleSort: function(x) {
-            this.getDataModel().toggleSort(x);
-        },
-
-        /**
-         * @function
-         * @instance
-         * @description
-         fixed column has been clicked, you've been notified
-         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
-         * @param {Object} mouse - event details
-         */
-        rowHeaderClicked: function(grid, mouse) {
-            this.getGrid().toggleSelectRow(mouse.gridCell.y);
+        toggleSort: function(x, keys) {
+            this.getDataModel().toggleSort(x, keys);
         },
 
         /**
@@ -33629,6 +33614,25 @@ fin-vampire-bar {
   </template>
   <script>/* global alert, SimpleLRU */
 
+
+
+
+// #92 fixed, there is no longer a notion of defaultFixedRowHeight, only defaultRowHeight
+
+// Unable to set defaultRowHeight for the Grid using the following code:
+
+// Var lnfOverrides = {
+// defaultFixedRowHeight: 30,
+// defaultRowHeight: 50
+// };
+// grid.addProperties(lnfOverrides);
+
+
+// #98 fixed
+// config.field and config.header properties are undefined and null inside getCell() callback.
+
+
+
 'use strict';
 
 /**
@@ -33797,9 +33801,7 @@ fin-vampire-bar {
             gridLinesV: true,
 
             defaultRowHeight: 15,
-            defaultFixedRowHeight: 15,
             defaultColumnWidth: 100,
-            defaultFixedColumnWidth: 100,
 
             //for immediate painting, set these values to 0, true respectively
             repaintIntervalRate: 4,
@@ -34355,6 +34357,7 @@ fin-vampire-bar {
             this.canvas.setAttribute('fps', interval);
             this.canvas.setAttribute('bitblit', useBitBlit === true);
             this.checkScrollbarVisibility();
+            this.getBehavior().defaultRowHeight = null;
 
         },
 
@@ -37191,9 +37194,9 @@ fin-vampire-bar {
             return this.getBehavior().getHeaderColumnCount();
         },
 
-        toggleSort: function(x) {
+        toggleSort: function(x, keys) {
             this.stopEditing();
-            this.getBehavior().toggleSort(x);
+            this.getBehavior().toggleSort(x, keys);
         },
 
         toggleSelectColumn: function(x, keys) {

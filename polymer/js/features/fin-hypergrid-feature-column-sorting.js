@@ -20,7 +20,8 @@
         handleDoubleClick: function(grid, event) {
             var gridCell = event.gridCell;
             if (grid.isShowHeaderRow() && gridCell.y === 0 && gridCell.x !== -1) {
-                grid.toggleSort(gridCell.x);
+                var keys = event.primitiveEvent.detail.keys;
+                grid.toggleSort(gridCell.x, keys);
             } else if (this.next) {
                 this.next.handleDoubleClick(grid, event);
             }

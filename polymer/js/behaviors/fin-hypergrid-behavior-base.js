@@ -952,6 +952,9 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          * @param {integer} colIndex - the column index of interest
          */
         getField: function(colIndex) {
+            if (colIndex === -1) {
+                return 'tree';
+            }
             return this.getFields()[colIndex];
         },
         /**
@@ -963,6 +966,9 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          * @param {integer} colIndex - the column index of interest
          */
         getHeader: function(colIndex) {
+            if (colIndex === -1) {
+                return 'Tree';
+            }
             return this.getHeaders()[colIndex];
         },
         /**
@@ -1323,50 +1329,8 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
          * @param {Object} mouse - event details
          */
-        columnHeaderClicked: function(grid, mouse) {
-            if (mouse.gridCell.y < 1) {
-                this.toggleSort(mouse.gridCell.x);
-            } else {
-                this.getGrid().toggleSelectColumn(mouse.gridCell.x);
-            }
-        },
-
-        /**
-         * @function
-         * @instance
-         * @description
-         fixed row has been clicked, you've been notified
-         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
-         * @param {Object} mouse - event details
-         */
-        topLeftClicked: function(grid, mouse) {
-            if (mouse.gridCell.y < 1) {
-                this.toggleSort(mouse.gridCell.x);
-            }
-        },
-
-        /**
-         * @function
-         * @instance
-         * @description
-         fixed row has been clicked, you've been notified
-         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
-         * @param {Object} mouse - event details
-         */
-        toggleSort: function(x) {
-            this.getDataModel().toggleSort(x);
-        },
-
-        /**
-         * @function
-         * @instance
-         * @description
-         fixed column has been clicked, you've been notified
-         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
-         * @param {Object} mouse - event details
-         */
-        rowHeaderClicked: function(grid, mouse) {
-            this.getGrid().toggleSelectRow(mouse.gridCell.y);
+        toggleSort: function(x, keys) {
+            this.getDataModel().toggleSort(x, keys);
         },
 
         /**

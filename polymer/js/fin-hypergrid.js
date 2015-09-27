@@ -1,5 +1,24 @@
 /* global alert, SimpleLRU */
 
+
+
+
+// #92 fixed, there is no longer a notion of defaultFixedRowHeight, only defaultRowHeight
+
+// Unable to set defaultRowHeight for the Grid using the following code:
+
+// Var lnfOverrides = {
+// defaultFixedRowHeight: 30,
+// defaultRowHeight: 50
+// };
+// grid.addProperties(lnfOverrides);
+
+
+// #98 fixed
+// config.field and config.header properties are undefined and null inside getCell() callback.
+
+
+
 'use strict';
 
 /**
@@ -168,9 +187,7 @@
             gridLinesV: true,
 
             defaultRowHeight: 15,
-            defaultFixedRowHeight: 15,
             defaultColumnWidth: 100,
-            defaultFixedColumnWidth: 100,
 
             //for immediate painting, set these values to 0, true respectively
             repaintIntervalRate: 4,
@@ -726,6 +743,7 @@
             this.canvas.setAttribute('fps', interval);
             this.canvas.setAttribute('bitblit', useBitBlit === true);
             this.checkScrollbarVisibility();
+            this.getBehavior().defaultRowHeight = null;
 
         },
 
@@ -3562,9 +3580,9 @@
             return this.getBehavior().getHeaderColumnCount();
         },
 
-        toggleSort: function(x) {
+        toggleSort: function(x, keys) {
             this.stopEditing();
-            this.getBehavior().toggleSort(x);
+            this.getBehavior().toggleSort(x, keys);
         },
 
         toggleSelectColumn: function(x, keys) {

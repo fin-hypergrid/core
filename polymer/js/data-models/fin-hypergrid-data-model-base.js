@@ -73,8 +73,8 @@
             this.getBehavior().initColumnIndexes(state);
         },
 
-        toggleSort: function(x) {
-            console.log('toggle column ' + x);
+        toggleSort: function(x, keys) {
+            console.log('toggle column ' + x, keys);
         },
 
         getCellEditorAt: function(x, y) {

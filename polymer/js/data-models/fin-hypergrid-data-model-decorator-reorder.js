@@ -104,9 +104,9 @@
             return cursor;
         },
 
-        toggleSort: function(x) {
+        toggleSort: function(x, keys) {
             x = this.translateColumnIndex(x);
-            this.getComponent().toggleSort(x);
+            this.getComponent().toggleSort(x, keys);
         },
 
         getColumnProperties: function(x) {

@@ -277,16 +277,17 @@
             }
             filterSource.applyFilters();
         },
-        toggleSort: function(index) {
+        toggleSort: function(index, keys) {
             if (this.isGroupingOn()) {
-                index++;
+                index++; //hierarchy column;
             }
-            this.incrementSortState(index);
+            this.incrementSortState(index, keys);
             this.applyAnalytics();
         },
-        incrementSortState: function(colIndex) {
+        incrementSortState: function(colIndex, keys) {
             colIndex++; //hack to get around 0 index
             var state = this.getState();
+            var hasCTRL = keys.indexOf('CTRL') > -1;
             state.sorts = state.sorts || [];
             var already = state.sorts.indexOf(colIndex);
             if (already === -1) {
@@ -298,7 +299,10 @@
                 } else {
                     state.sorts.splice(already, 1);
                 }
+            } else if (hasCTRL || state.sorts.length === 0) {
+                state.sorts.unshift(colIndex);
             } else {
+                state.sorts.length = 0;
                 state.sorts.unshift(colIndex);
             }
             if (state.sorts.length > 3) {

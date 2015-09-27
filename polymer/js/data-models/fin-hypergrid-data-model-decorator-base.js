@@ -55,8 +55,8 @@
             this.getComponent().setGrid(newGrid);
         },
 
-        toggleSort: function(x) {
-            this.getComponent().toggleSort(x);
+        toggleSort: function(x, keys) {
+            this.getComponent().toggleSort(x, keys);
         },
 
         getCellEditorAt: function(x, y) {
