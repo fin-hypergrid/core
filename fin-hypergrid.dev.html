@@ -12853,7 +12853,7 @@ div.container {
 }
 </style>
     <button></button>
-    <canvas class="canvas" on-tap="{{fintap}}" on-hold="{{finhold}}" on-holdpulse="{{finholdpulse}}" on-flick="{{finflick}}" on-release="{{finrelease}}" on-dblclick="{{findblclick}}" on-trackstart="{{fintrackstart}}" on-track="{{fintrack}}" on-trackend="{{fintrackend}}"></canvas>
+    <canvas class="canvas" on-tap="{{fintap}}" on-hold="{{finhold}}" on-holdpulse="{{finholdpulse}}" on-flick="{{finflick}}" on-release="{{finrelease}}" on-trackstart="{{fintrackstart}}" on-track="{{fintrack}}" on-trackend="{{fintrackend}}"></canvas>
   </template>
   <script>
 
@@ -13622,7 +13622,7 @@ div.container {
                     isRightClick: this.isRightClick(e)
                 }
             }));
-            this.mouseLocation = this.g.point.create(-1, -1);
+            //this.mouseLocation = this.g.point.create(-1, -1);
         },
 
         /**
@@ -13675,6 +13675,11 @@ div.container {
          * @method finclick(e)
          */
         finclick: function(e) {
+            if (Date.now() - this.lastClickTime < 250) {
+                //this is a double click...
+                this.findblclick(e);
+                return;
+            }
             this.mouseLocation = this.getLocal(e);
             this.dispatchEvent(new CustomEvent('fin-canvas-click', {
                 detail: {
@@ -13684,6 +13689,7 @@ div.container {
                     isRightClick: this.isRightClick(e)
                 }
             }));
+            this.lastClickTime = Date.now();
         },
 
         /**
@@ -13884,6 +13890,7 @@ div.container {
                     isRightClick: this.isRightClick(e)
                 }
             }));
+            console.log('dblclick', this.currentKeys);
         },
 
         getCharMap: function() {
@@ -14012,6 +14019,14 @@ div.container {
          * @method finfocuslost(e)
          */
         fincontextmenu: function(e) {
+            if (e.ctrlKey && this.currentKeys.indexOf('CTRL') === -1) {
+                this.currentKeys.push('CTRL');
+            }
+            if (Date.now() - this.lastClickTime < 250) {
+                //this is a double click...
+                this.findblclick(e);
+                return;
+            }
             this.dispatchEvent(new CustomEvent('fin-canvas-context-menu', {
                 detail: {
                     primitiveEvent: e,
@@ -14020,6 +14035,7 @@ div.container {
                     isRightClick: this.isRightClick(e)
                 }
             }));
+            this.lastClickTime = Date.now();
         },
 
         /**
