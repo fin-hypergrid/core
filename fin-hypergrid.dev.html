@@ -25171,7 +25171,7 @@ var commands = {
         },
         getValueByField: function(fieldName, y) {
             var index = this.getFields().indexOf(fieldName);
-            if (this.isGroupingOn) {
+            if (this.isGroupingOn()) {
                 y += 1;
             }
             return this.getDataSource().getValue(index, y);
