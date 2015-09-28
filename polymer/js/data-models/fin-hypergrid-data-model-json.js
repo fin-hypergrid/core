@@ -392,8 +392,6 @@
         getRowContextFunction: function(selectedRows) {
             var self = this;
             var val, i;
-            var grid = this.getGrid();
-            var headerRowCount = grid.getHeaderRowCount();
             return function(index) {
                 var result = new Array(selectedRows.length);
                 if (isNaN(index)) {

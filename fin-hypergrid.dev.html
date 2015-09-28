@@ -25152,18 +25152,16 @@ var commands = {
         getRowContextFunction: function(selectedRows) {
             var self = this;
             var val, i;
-            var grid = this.getGrid();
-            var headerRowCount = grid.getHeaderRowCount();
             return function(index) {
                 var result = new Array(selectedRows.length);
                 if (isNaN(index)) {
                     for (i = 0; i < selectedRows.length; i++) {
-                        val = valueOrFunctionExecute(self.getValueByField(index, headerRowCount + selectedRows[i]));
+                        val = valueOrFunctionExecute(self.getValueByField(index, selectedRows[i]));
                         result[i] = val;
                     }
                 } else {
                     for (i = 0; i < selectedRows.length; i++) {
-                        val = valueOrFunctionExecute(self.getValue(index, headerRowCount + selectedRows[i]));
+                        val = valueOrFunctionExecute(self.getDataSource().getValue(index, selectedRows[i]));
                         result[i] = val;
                     }
 
@@ -25173,10 +25171,10 @@ var commands = {
         },
         getValueByField: function(fieldName, y) {
             var index = this.getFields().indexOf(fieldName);
-            if (fieldName === 'Tree') {
-                index = -1;
+            if (this.isGroupingOn) {
+                y += 1;
             }
-            return this.getValue(index, y);
+            return this.getDataSource().getValue(index, y);
         }
 
     });
