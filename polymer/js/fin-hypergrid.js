@@ -3629,6 +3629,14 @@
         },
 
         toggleSelectRow: function(y, keys) {
+
+            //we can select the totals rows if they exist,
+            //but not rows above that
+            var selectionEdge = this.getFilterRowIndex() + 1;
+            if (y < selectionEdge) {
+                return;
+            }
+
             keys = keys || [];
             var model = this.getSelectionModel();
             var alreadySelected = model.isRowSelected(y);
@@ -3729,7 +3737,13 @@
             this.getSelectionModel().selectColumn(x1, x2);
         },
         selectRow: function(y1, y2) {
-            this.getSelectionModel().selectRow(y1, y2);
+            var min = Math.min(y1, y2);
+            var max = Math.max(y1, y2);
+            var selectionEdge = this.getFilterRowIndex() + 1;
+            if (min < selectionEdge) {
+                return;
+            }
+            this.getSelectionModel().selectRow(min, max);
         },
         isRowSelected: function(r) {
             return this.getSelectionModel().isRowSelected(r);

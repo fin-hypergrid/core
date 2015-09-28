@@ -1037,7 +1037,9 @@ Instances of this object have basically four main functions.
             var isRowSelected = grid.isRowSelected(r);
             var isColumnSelected = grid.isColumnSelected(c);
 
-            if (isFilterRow && c !== -1) {
+            if (c === -1 && !isRowSelected) {
+                columnProperties = columnProperties.rowNumbersProperties;
+            } else if (isFilterRow && c !== -1) {
                 columnProperties = columnProperties.filterProperties;
             } else if (isHierarchyColumn) {
                 columnProperties = isColumnSelected ? columnProperties.treeColumnPropertiesColumnSelection : columnProperties.treeColumnProperties;

@@ -91,6 +91,27 @@
                 properties = Object.create(tableState);
                 tableState.columnProperties[columnIndex] = properties;
 
+                properties.rowNumbersProperties = Object.create(properties, {
+                    foregroundSelectionColor: {
+                        configurable: true,
+                        get: function() {
+                            return this.color;
+                        },
+                        set: function(value) {
+                            this.color = value;
+                        }
+                    },
+                    backgroundSelectionColor: {
+                        configurable: true,
+                        get: function() {
+                            return this.backgroundColor;
+                        },
+                        set: function(value) {
+                            this.backgroundColor = value;
+                        }
+                    }
+                });
+
                 properties.rowHeader = Object.create(properties, {
                     font: {
                         configurable: true,
