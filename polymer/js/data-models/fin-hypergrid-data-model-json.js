@@ -8,6 +8,12 @@
         };
     };
 
+    var valueOrFunctionExecute = function(valueOrFunction) {
+        var isFunction = (((typeof valueOrFunction)[0]) === 'f');
+        var result = isFunction ? valueOrFunction() : valueOrFunction;
+        return result;
+    };
+
     var nullDataSource = {
         isNullObject: function() {
             return true;
@@ -373,5 +379,45 @@
             }
             return result;
         },
+        getComputedRow: function(y) {
+            var rcf = this.getRowContextFunction([y]);
+            var fields = this.getFields();
+            var row = {};
+            for (var i = 0; i < fields.length; i++) {
+                var field = fields[i];
+                row[field] = rcf(field)[0];
+            }
+            return row;
+        },
+        getRowContextFunction: function(selectedRows) {
+            var self = this;
+            var val, i;
+            var grid = this.getGrid();
+            var headerRowCount = grid.getHeaderRowCount();
+            return function(index) {
+                var result = new Array(selectedRows.length);
+                if (isNaN(index)) {
+                    for (i = 0; i < selectedRows.length; i++) {
+                        val = valueOrFunctionExecute(self.getValueByField(index, selectedRows[i]));
+                        result[i] = val;
+                    }
+                } else {
+                    for (i = 0; i < selectedRows.length; i++) {
+                        val = valueOrFunctionExecute(self.getDataSource().getValue(index, selectedRows[i]));
+                        result[i] = val;
+                    }
+
+                }
+                return result;
+            };
+        },
+        getValueByField: function(fieldName, y) {
+            var index = this.getFields().indexOf(fieldName);
+            if (this.isGroupingOn) {
+                y += 1;
+            }
+            return this.getDataSource().getValue(index, y);
+        }
+
     });
 })();

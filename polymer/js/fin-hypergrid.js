@@ -3746,6 +3746,9 @@
         },
         isColumnSelection: function() {
             return this.resolveProperty('columnSelection') === true;
+        },
+        getComputedRow: function(y) {
+            return this.getBehavior().getComputedRow(y);
         }
     });
 

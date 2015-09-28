@@ -1548,6 +1548,9 @@ it contains all code/data that's necessary for easily implementing a virtual dat
 
         getColumnIndex: function(fieldName) {
             return this.getFields().indexOf(fieldName);
+        },
+        getComputedRow: function(y) {
+            return this.getBaseModel().getComputedRow(y);
         }
     });
 })();

@@ -112,6 +112,9 @@
         },
         hasHierarchyColumn: function() {
             return this.getComponent().hasHierarchyColumn();
+        },
+        getRowContextFunction: function(y) {
+            return this.getComponent().getRowContextFunction(y);
         }
     });
 
