@@ -1561,6 +1561,9 @@ it contains all code/data that's necessary for easily implementing a virtual dat
             setTimeout(function() {
                 self.getDataModel().autosizeAllColumns();
             }, 200);
+        },
+        setGlobalFilter: function(string) {
+            this.getBaseModel().setGlobalFilter(string);
         }
     });
 })();

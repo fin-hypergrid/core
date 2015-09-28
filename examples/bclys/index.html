@@ -29,6 +29,7 @@
             <button onclick="toggleAutosortGrouping()">toggle autosort groups</button>
             <button onclick="toggleEmptyData()">toggle empty data</button>
             <button onclick="toggleEmptyHeaders()">toggle empty headers</button>
+            <button onclick="toggleGlobalFilter()">toggle global filter</button>
         </div>
     </div>
     <div class="row" style="overflow: hidden">
@@ -123,6 +124,15 @@
             jsonGrid.behaviorChanged();
         }
 
+        var globalFilter = '';
+        window.toggleGlobalFilter = function() {
+            if (globalFilter.length > 0) {
+                globalFilter = '';
+            } else {
+                globalFilter = prompt('search?');
+            }
+            jsonGrid.setGlobalFilter(globalFilter);
+        }
 
         jsonGrid.setColumnProperties(2, {
             backgroundColor: 'maroon',

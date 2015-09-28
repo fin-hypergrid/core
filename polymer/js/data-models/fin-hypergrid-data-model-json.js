@@ -45,6 +45,7 @@
 
         //null object pattern for the source object
         source: nullDataSource,
+        preglobalfilter: nullDataSource,
         prefilter: nullDataSource,
         presorter: nullDataSource,
         analytics: nullDataSource,
@@ -206,7 +207,8 @@
                 this.analytics.setData(arrayOfUniformObjects);
             } else {
                 this.source = new fin.analytics.JSDataSource(arrayOfUniformObjects); /* jshint ignore:line */
-                this.prefilter = new fin.analytics.DataSourceFilter(this.source); /* jshint ignore:line */
+                this.preglobalfilter = new fin.analytics.DataSourceGlobalFilter(this.source); /* jshint ignore:line */
+                this.prefilter = new fin.analytics.DataSourceFilter(this.preglobalfilter); /* jshint ignore:line */
                 this.presorter = new fin.analytics.DataSourceSorterComposite(this.prefilter); /* jshint ignore:line */
                 this.analytics = new fin.analytics.DataSourceAggregator(this.presorter); /* jshint ignore:line */
             }
@@ -271,6 +273,7 @@
             this.analytics.apply();
         },
         applyFilters: function() {
+            this.preglobalfilter.applyFilters();
             var colCount = this.getColumnCount();
             var filterSource = this.getFilterSource();
             var groupOffset = this.isGroupingOn() ? 1 : 0;
@@ -415,6 +418,14 @@
                 y += 1;
             }
             return this.getDataSource().getValue(index, y);
+        },
+        setGlobalFilter: function(string) {
+            if (!string || string.length === 0) {
+                this.preglobalfilter.clearFilters();
+            } else {
+                this.preglobalfilter.setFilter(textMatchFilter(string));
+            }
+            this.applyAnalytics();
         }
 
     });

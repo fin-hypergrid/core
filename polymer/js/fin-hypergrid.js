@@ -3778,6 +3778,9 @@
         },
         getComputedRow: function(y) {
             return this.getBehavior().getComputedRow(y);
+        },
+        setGlobalFilter: function(string) {
+            this.getBehavior().setGlobalFilter(string);
         }
     });
 
