@@ -115,6 +115,9 @@
         },
         getRowContextFunction: function(y) {
             return this.getComponent().getRowContextFunction(y);
+        },
+        autosizeAllColumns: function() {
+            return this.getComponent().autosizeAllColumns();
         }
     });
 

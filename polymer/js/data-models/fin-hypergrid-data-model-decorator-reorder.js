@@ -118,8 +118,13 @@
             x = this.translateColumnIndex(x);
             this.getComponent().setColumnProperties(x, properties);
         },
-
-        checkColumnAutosizing: function(minWidths) {
+        autosizeAllColumns: function() {
+            var minWidths = this.getGrid().getRenderer().renderedColumnMinWidths;
+            this.checkColumnAutosizing(minWidths, true);
+            this.changed();
+        },
+        checkColumnAutosizing: function(minWidths, force) {
+            force = force === true;
             var grid = this.getGrid();
             var tableState = this.getState();
             var a, b, c, d = 0;
@@ -136,7 +141,7 @@
                 if (properties) {
                     a = properties.width;
                     b = minWidths[c];
-                    d = properties.columnAutosized;
+                    d = properties.columnAutosized && !force;
                     if (a !== b || !d) {
                         properties.width = !d ? b : Math.max(a, b);
                         properties.columnAutosized = true;

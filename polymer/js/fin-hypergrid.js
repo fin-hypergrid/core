@@ -217,6 +217,8 @@
             columnSelection: true,
             rowSelection: true,
 
+            autosizeColumns: true
+
         };
         return properties;
     };
@@ -744,7 +746,9 @@
             this.canvas.setAttribute('bitblit', useBitBlit === true);
             this.checkScrollbarVisibility();
             this.getBehavior().defaultRowHeight = null;
-
+            if (this.isColumnAutosizing()) {
+                this.getBehavior().autosizeAllColumns();
+            }
         },
 
         /**
@@ -898,6 +902,7 @@
                 this.cellEditor.gridRenderedNotification();
             }
             this.checkColumnAutosizing();
+            this.autoSizeRowNumberColumn();
             this.fireSyntheticGridRenderedEvent();
         },
 
@@ -909,12 +914,19 @@
          *
          */
         checkColumnAutosizing: function() {
-            if (this.resolveProperty('columnAutosizing') === false) {
+            if (!this.isColumnAutosizing()) {
                 return;
             }
             var renderer = this.getRenderer();
             var colSizes = renderer.renderedColumnMinWidths;
             this.getBehavior().checkColumnAutosizing(colSizes);
+        },
+
+        autoSizeRowNumberColumn: function() {
+            if (!this.isColumnAutosizing()) {
+                //always autosize the row numbers...
+                this.autosizeColumn(-1);
+            }
         },
 
         /**
@@ -3746,6 +3758,9 @@
         },
         isColumnSelection: function() {
             return this.resolveProperty('columnSelection') === true;
+        },
+        isColumnAutosizing: function() {
+            return this.resolveProperty('autosizeColumns') === true;
         },
         getComputedRow: function(y) {
             return this.getBehavior().getComputedRow(y);

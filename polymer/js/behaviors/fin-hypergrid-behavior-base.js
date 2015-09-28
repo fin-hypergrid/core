@@ -1551,6 +1551,16 @@ it contains all code/data that's necessary for easily implementing a virtual dat
         },
         getComputedRow: function(y) {
             return this.getBaseModel().getComputedRow(y);
+        },
+        autosizeAllColumns: function() {
+            var self = this;
+            self.getDataModel().autosizeAllColumns();
+            setTimeout(function() {
+                self.getDataModel().autosizeAllColumns();
+            }, 100);
+            setTimeout(function() {
+                self.getDataModel().autosizeAllColumns();
+            }, 200);
         }
     });
 })();

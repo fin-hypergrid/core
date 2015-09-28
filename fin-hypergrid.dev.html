@@ -24445,6 +24445,9 @@ var commands = {
         },
         getRowContextFunction: function(y) {
             return this.getComponent().getRowContextFunction(y);
+        },
+        autosizeAllColumns: function() {
+            return this.getComponent().autosizeAllColumns();
         }
     });
 
@@ -24612,8 +24615,13 @@ var commands = {
             x = this.translateColumnIndex(x);
             this.getComponent().setColumnProperties(x, properties);
         },
-
-        checkColumnAutosizing: function(minWidths) {
+        autosizeAllColumns: function() {
+            var minWidths = this.getGrid().getRenderer().renderedColumnMinWidths;
+            this.checkColumnAutosizing(minWidths, true);
+            this.changed();
+        },
+        checkColumnAutosizing: function(minWidths, force) {
+            force = force === true;
             var grid = this.getGrid();
             var tableState = this.getState();
             var a, b, c, d = 0;
@@ -24630,7 +24638,7 @@ var commands = {
                 if (properties) {
                     a = properties.width;
                     b = minWidths[c];
-                    d = properties.columnAutosized;
+                    d = properties.columnAutosized && !force;
                     if (a !== b || !d) {
                         properties.width = !d ? b : Math.max(a, b);
                         properties.columnAutosized = true;
@@ -26809,6 +26817,16 @@ it contains all code/data that's necessary for easily implementing a virtual dat
         },
         getComputedRow: function(y) {
             return this.getBaseModel().getComputedRow(y);
+        },
+        autosizeAllColumns: function() {
+            var self = this;
+            self.getDataModel().autosizeAllColumns();
+            setTimeout(function() {
+                self.getDataModel().autosizeAllColumns();
+            }, 100);
+            setTimeout(function() {
+                self.getDataModel().autosizeAllColumns();
+            }, 200);
         }
     });
 })();
@@ -33853,6 +33871,8 @@ fin-vampire-bar {
             columnSelection: true,
             rowSelection: true,
 
+            autosizeColumns: true
+
         };
         return properties;
     };
@@ -34380,7 +34400,9 @@ fin-vampire-bar {
             this.canvas.setAttribute('bitblit', useBitBlit === true);
             this.checkScrollbarVisibility();
             this.getBehavior().defaultRowHeight = null;
-
+            if (this.isColumnAutosizing()) {
+                this.getBehavior().autosizeAllColumns();
+            }
         },
 
         /**
@@ -34534,6 +34556,7 @@ fin-vampire-bar {
                 this.cellEditor.gridRenderedNotification();
             }
             this.checkColumnAutosizing();
+            this.autoSizeRowNumberColumn();
             this.fireSyntheticGridRenderedEvent();
         },
 
@@ -34545,12 +34568,19 @@ fin-vampire-bar {
          *
          */
         checkColumnAutosizing: function() {
-            if (this.resolveProperty('columnAutosizing') === false) {
+            if (!this.isColumnAutosizing()) {
                 return;
             }
             var renderer = this.getRenderer();
             var colSizes = renderer.renderedColumnMinWidths;
             this.getBehavior().checkColumnAutosizing(colSizes);
+        },
+
+        autoSizeRowNumberColumn: function() {
+            if (!this.isColumnAutosizing()) {
+                //always autosize the row numbers...
+                this.autosizeColumn(-1);
+            }
         },
 
         /**
@@ -37382,6 +37412,9 @@ fin-vampire-bar {
         },
         isColumnSelection: function() {
             return this.resolveProperty('columnSelection') === true;
+        },
+        isColumnAutosizing: function() {
+            return this.resolveProperty('autosizeColumns') === true;
         },
         getComputedRow: function(y) {
             return this.getBehavior().getComputedRow(y);
