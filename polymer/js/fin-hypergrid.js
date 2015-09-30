@@ -3773,15 +3773,15 @@
         isColumnSelection: function() {
             return this.resolveProperty('columnSelection') === true;
         },
-        isColumnAutosizing: function() {
-            return this.resolveProperty('autosizeColumns') === true;
-        },
         getComputedRow: function(y) {
             return this.getBehavior().getComputedRow(y);
         },
+        isColumnAutosizing: function() {
+            return this.resolveProperty('autosizeColumns') === true;
+        },
         setGlobalFilter: function(string) {
             this.getBehavior().setGlobalFilter(string);
-        }
+        },
     });
 
 })(); /* jslint ignore:line */

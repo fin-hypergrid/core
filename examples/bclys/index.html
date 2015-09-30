@@ -85,8 +85,6 @@
         window.toggleAggregates = function() {
             doAggregates = !doAggregates;
             var arg = doAggregates? aggregates : [];
-            doGroups = true;
-            jsonModel.setGroups(groups);
             jsonModel.setAggregates(arg);
         }
 
@@ -134,6 +132,8 @@
             jsonGrid.setGlobalFilter(globalFilter);
         }
 
+        jsonModel.setData(people);
+
         jsonGrid.setColumnProperties(2, {
             backgroundColor: 'maroon',
             color: 'pink'
@@ -145,10 +145,6 @@
 
         //set the actual json row objects
         //jsonModel.setData(people); //see sampledata.js for the random data
-
-        //lets sew in haseeb's stuff here for now.....
-        //var fields = ["last_name", "first_name", "pets", "birthDate", "birthState", "residenceState", "employed", "income", "travel", "squareOfIncome"];
-        jsonModel.setData(people);
 
         //make the first col fixed;
         // jsonModel.setFixedColumnCount(2);

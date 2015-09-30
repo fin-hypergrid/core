@@ -72,11 +72,11 @@
         },
 
         checkColumnAutosizing: function(minWidths) {
-            return this.getComponent().checkColumnAutosizing(minWidths);
+            //return this.getComponent().checkColumnAutosizing(minWidths);
         },
 
         setState: function(memento) {
-            this.getComponent().setState(memento);
+            //this.getComponent().setState(memento);
         },
 
         getHeaders: function() {
@@ -117,7 +117,7 @@
             return this.getComponent().getRowContextFunction(y);
         },
         autosizeAllColumns: function() {
-            return this.getComponent().autosizeAllColumns();
+            //return this.getComponent().autosizeAllColumns();
         }
     });
 

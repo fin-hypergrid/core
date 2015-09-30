@@ -14,8 +14,8 @@ The Hypergrid design makes no assumptions about the data you wish to view which 
 @group OpenFin hypergrid
 @element fin-hypergrid
 @homepage http://github.com/openfin/fin-hypergrid
---><html><head><script src="https://rawgit.com/openfin/sparse-boolean-array/master/src/js/RangeSelectionModel.js"></script>
-<script src="https://rawgit.com/openfin/finanalytics/master/build/main.js"></script>
+--><html><head><script src="https://rawgit.com/openfin/finanalytics/master/build/main.js"></script>
+<script src="https://rawgit.com/openfin/sparse-boolean-array/master/src/js/RangeSelectionModel.js"></script>
 <style shim-shadowdom="">
 /*******************************
           Flex Layout
@@ -20049,8 +20049,10 @@ var commands = {
             requestAnimationFrame(function() {
                 self.overlay.style.opacity = 0.95;
                 document.addEventListener('keydown', self._closer, false);
-                self.overlay.focus();
             });
+            setTimeout(function() {
+                self.overlay.focus();
+            }, 100);
         },
 
         /**
@@ -23946,15 +23948,6 @@ var commands = {
 
     var noop = function() {};
 
-
-    var merge = function(target, source) {
-        for (var key in source) {
-            if (source.hasOwnProperty(key)) {
-                target[key] = source[key];
-            }
-        }
-    };
-
     Polymer('fin-hypergrid-data-model-base', { /* jshint ignore:line  */
 
         grid: null,
@@ -24025,303 +24018,6 @@ var commands = {
             return cellEditor;
         },
 
-        getColumnProperties: function(columnIndex) {
-            var behavior = this.getBehavior();
-            var tableState = this.getState();
-            var properties = tableState.columnProperties[columnIndex];
-            if (!properties) {
-                properties = Object.create(tableState);
-                tableState.columnProperties[columnIndex] = properties;
-
-                properties.rowNumbersProperties = Object.create(properties, {
-                    foregroundSelectionColor: {
-                        configurable: true,
-                        get: function() {
-                            return this.color;
-                        },
-                        set: function(value) {
-                            this.color = value;
-                        }
-                    },
-                    backgroundSelectionColor: {
-                        configurable: true,
-                        get: function() {
-                            return this.backgroundColor;
-                        },
-                        set: function(value) {
-                            this.backgroundColor = value;
-                        }
-                    }
-                });
-
-                properties.rowHeader = Object.create(properties, {
-                    font: {
-                        configurable: true,
-                        get: function() {
-                            return this.rowHeaderFont;
-                        },
-                        set: function(value) {
-                            this.rowHeaderFont = value;
-                        }
-                    },
-                    color: {
-                        configurable: true,
-                        get: function() {
-                            return this.rowHeaderColor;
-                        },
-                        set: function(value) {
-                            this.rowHeaderColor = value;
-                        }
-                    },
-                    backgroundColor: {
-                        configurable: true,
-                        get: function() {
-                            return this.rowHeaderBackgroundColor;
-                        },
-                        set: function(value) {
-                            this.rowHeaderBackgroundColor = value;
-                        }
-                    },
-                    foregroundSelectionColor: {
-                        configurable: true,
-                        get: function() {
-                            return this.rowHeaderForegroundSelectionColor;
-                        },
-                        set: function(value) {
-                            this.rowHeaderForegroundSelectionColor = value;
-                        }
-                    },
-                    backgroundSelectionColor: {
-                        configurable: true,
-                        get: function() {
-                            return this.rowHeaderBackgroundSelectionColor;
-                        },
-                        set: function(value) {
-                            this.rowHeaderBackgroundSelectionColor = value;
-                        }
-                    }
-                });
-
-                properties.columnHeader = Object.create(properties, {
-                    font: {
-                        configurable: true,
-                        get: function() {
-                            return this.columnHeaderFont;
-                        },
-                        set: function(value) {
-                            this.columnHeaderFont = value;
-                        }
-                    },
-                    color: {
-                        configurable: true,
-                        get: function() {
-                            return this.columnHeaderColor;
-                        },
-                        set: function(value) {
-                            this.columnHeaderColor = value;
-                        }
-                    },
-                    backgroundColor: {
-                        configurable: true,
-                        get: function() {
-                            return this.columnHeaderBackgroundColor;
-                        },
-                        set: function(value) {
-                            this.columnHeaderBackgroundColor = value;
-                        }
-                    },
-                    foregroundSelectionColor: {
-                        configurable: true,
-                        get: function() {
-                            return this.columnHeaderForegroundSelectionColor;
-                        },
-                        set: function(value) {
-                            this.columnHeaderForegroundSelectionColor = value;
-                        }
-                    },
-                    backgroundSelectionColor: {
-                        configurable: true,
-                        get: function() {
-                            return this.columnHeaderBackgroundSelectionColor;
-                        },
-                        set: function(value) {
-                            this.columnHeaderBackgroundSelectionColor = value;
-                        }
-                    }
-                });
-
-                properties.columnHeaderColumnSelection = Object.create(properties.columnHeader, {
-                    foregroundSelectionColor: {
-                        configurable: true,
-                        get: function() {
-                            return this.columnHeaderForegroundColumnSelectionColor;
-                        },
-                        set: function(value) {
-                            this.columnHeaderForegroundColumnSelectionColor = value;
-                        }
-                    },
-                    backgroundSelectionColor: {
-                        configurable: true,
-                        get: function() {
-                            return this.columnHeaderBackgroundColumnSelectionColor;
-                        },
-                        set: function(value) {
-                            this.columnHeaderBackgroundColumnSelectionColor = value;
-                        }
-                    }
-                });
-
-                properties.rowHeaderRowSelection = Object.create(properties.rowHeader, {
-                    foregroundSelectionColor: {
-                        configurable: true,
-                        get: function() {
-                            return this.rowHeaderForegroundRowSelectionColor;
-                        },
-                        set: function(value) {
-                            this.rowHeaderForegroundRowSelectionColor = value;
-                        }
-                    },
-                    backgroundSelectionColor: {
-                        configurable: true,
-                        get: function() {
-                            return this.rowHeaderBackgroundRowSelectionColor;
-                        },
-                        set: function(value) {
-                            this.rowHeaderBackgroundRowSelectionColor = value;
-                        }
-                    }
-                });
-
-                properties.filterProperties = Object.create(properties, {
-                    font: {
-                        configurable: true,
-                        get: function() {
-                            return this.filterFont;
-                        },
-                        set: function(value) {
-                            this.filterFont = value;
-                        }
-                    },
-                    color: {
-                        configurable: true,
-                        get: function() {
-                            return this.filterColor;
-                        },
-                        set: function(value) {
-                            this.filterColor = value;
-                        }
-                    },
-                    backgroundColor: {
-                        configurable: true,
-                        get: function() {
-                            return this.filterBackgroundColor;
-                        },
-                        set: function(value) {
-                            this.filterBackgroundColor = value;
-                        }
-                    },
-                    foregroundSelectionColor: {
-                        configurable: true,
-                        get: function() {
-                            return this.filterForegroundSelectionColor;
-                        },
-                        set: function(value) {
-                            this.filterForegroundSelectionColor = value;
-                        }
-                    },
-                    backgroundSelectionColor: {
-                        configurable: true,
-                        get: function() {
-                            return this.filterBackgroundSelectionColor;
-                        },
-                        set: function(value) {
-                            this.filterBackgroundSelectionColor = value;
-                        }
-                    }
-                });
-
-                properties.treeColumnProperties = Object.create(properties, {
-                    font: {
-                        configurable: true,
-                        get: function() {
-                            return this.treeColumnFont;
-                        },
-                        set: function(value) {
-                            this.treeColumnFont = value;
-                        }
-                    },
-                    color: {
-                        configurable: true,
-                        get: function() {
-                            return this.treeColumnColor;
-                        },
-                        set: function(value) {
-                            this.treeColumnColor = value;
-                        }
-                    },
-                    backgroundColor: {
-                        configurable: true,
-                        get: function() {
-                            return this.treeColumnBackgroundColor;
-                        },
-                        set: function(value) {
-                            this.treeColumnBackgroundColor = value;
-                        }
-                    },
-                    foregroundSelectionColor: {
-                        configurable: true,
-                        get: function() {
-                            return this.treeColumnForegroundSelectionColor;
-                        },
-                        set: function(value) {
-                            this.treeColumnForegroundSelectionColor = value;
-                        }
-                    },
-                    backgroundSelectionColor: {
-                        configurable: true,
-                        get: function() {
-                            return this.treeColumnBackgroundSelectionColor;
-                        },
-                        set: function(value) {
-                            this.treeColumnBackgroundSelectionColor = value;
-                        }
-                    }
-                });
-
-                properties.treeColumnPropertiesColumnSelection = Object.create(properties.treeColumnProperties, {
-                    foregroundSelectionColor: {
-                        configurable: true,
-                        get: function() {
-                            return this.treeColumnForegroundColumnSelectionColor;
-                        },
-                        set: function(value) {
-                            this.treeColumnForegroundColumnSelectionColor = value;
-                        }
-                    },
-                    backgroundSelectionColor: {
-                        configurable: true,
-                        get: function() {
-                            return this.treeColumnBackgroundColumnSelectionColor;
-                        },
-                        set: function(value) {
-                            this.treeColumnBackgroundColumnSelectionColor = value;
-                        }
-                    }
-                });
-            }
-            if (!properties.header) {
-                properties.header = behavior.getHeader(columnIndex);
-                properties.field = behavior.getField(columnIndex);
-            }
-            return properties;
-        },
-
-        setColumnProperties: function(columnIndex, properties) {
-            var columnProperties = this.getColumnProperties(columnIndex);
-            merge(columnProperties, properties);
-            this.changed();
-        },
-
         getRow: function(y) {
             noop(y);
             return null;
@@ -24336,8 +24032,11 @@ var commands = {
         },
         hasHierarchyColumn: function() {
             return false;
+        },
+        getColumnProperties: function(x) {
+            //access directly because we want it ordered
+            return this.getBehavior().allColumns[x];
         }
-
     });
 
 })();
@@ -24425,11 +24124,11 @@ var commands = {
         },
 
         checkColumnAutosizing: function(minWidths) {
-            return this.getComponent().checkColumnAutosizing(minWidths);
+            //return this.getComponent().checkColumnAutosizing(minWidths);
         },
 
         setState: function(memento) {
-            this.getComponent().setState(memento);
+            //this.getComponent().setState(memento);
         },
 
         getHeaders: function() {
@@ -24470,7 +24169,7 @@ var commands = {
             return this.getComponent().getRowContextFunction(y);
         },
         autosizeAllColumns: function() {
-            return this.getComponent().autosizeAllColumns();
+            //return this.getComponent().autosizeAllColumns();
         }
     });
 
@@ -24541,21 +24240,22 @@ var commands = {
         },
 
         translateColumnIndex: function(x) {
-            if (x === -1) {
-                return -1;
-            }
-            if (this.hasHierarchyColumn()) {
-                if (x === 0) {
-                    return -2;
-                }
-                x = x - 1;
-            }
-            var tableState = this.getState();
-            var indexes = tableState.columnIndexes;
-            if (!indexes || indexes.length === 0) {
-                return x;
-            }
-            return indexes[x];
+            // if (x === -1) {
+            //     return -1;
+            // }
+            // if (this.hasHierarchyColumn()) {
+            //     if (x === 0) {
+            //         return -2;
+            //     }
+            //     x = x - 1;
+            // }
+            // var tableState = this.getState();
+            // var indexes = tableState.columnIndexes;
+            // if (!indexes || indexes.length === 0) {
+            //     return x;
+            // }
+            // return indexes[x];
+            return x;
         },
 
         unTranslateColumnIndex: function(x) {
@@ -24845,10 +24545,10 @@ var commands = {
         topTotals: [],
 
         isGroupingOn: function() {
-            return this.analytics.hasGroups();
+            return this.analytics.hasGroups() && this.analytics.hasAggregates();
         },
         getDataSource: function() {
-            var source = this.isGroupingOn() ? this.analytics : this.presorter;
+            var source = this.analytics; //this.isGroupingOn() ? this.analytics : this.presorter;
             return source;
         },
         getFilterSource: function() {
@@ -24863,12 +24563,8 @@ var commands = {
             var isGroupingOn = this.isGroupingOn();
             var grid = this.getGrid();
             var headerRowCount = grid.getHeaderRowCount();
-            if (isGroupingOn) {
-                if (x === -2) {
-                    x = 0;
-                } else {
-                    x += 1;
-                }
+            if (isGroupingOn && x === -2) {
+                x = 0;
             }
             if (y < headerRowCount) {
                 return this.getHeaderRowValue(x, y);
@@ -24880,9 +24576,6 @@ var commands = {
             return value;
         },
         getHeaderRowValue: function(x, y) {
-            if (x === -2) {
-                x = 0; //hierarchy column
-            }
             if (y === undefined) {
                 return this.getHeaders()[Math.max(x, 0)];
             }
@@ -24959,6 +24652,9 @@ var commands = {
         },
         getFilter: function(x) {
             var columnProperties = this.getColumnProperties(x);
+            if (!columnProperties) {
+                return '';
+            }
             var filter = columnProperties.filter || '';
             return filter;
         },
@@ -24968,8 +24664,7 @@ var commands = {
             this.applyAnalytics();
         },
         getColumnCount: function() {
-            //var groupingOffset = this.isGroupingOn() ? 1 : 0;
-            var count = this.getDataSource().getColumnCount();
+            var count = this.analytics.getColumnCount();
             return count;
         },
         getRowCount: function() {
@@ -24979,7 +24674,7 @@ var commands = {
             return count;
         },
         getHeaders: function() {
-            var headers = this.getDataSource().getHeaders();
+            var headers = this.analytics.getHeaders();
             return headers;
         },
         getDefaultHeaders: function() {},
@@ -25008,54 +24703,116 @@ var commands = {
             this.initColumnIndexes(this.getState());
         },
         getTopTotals: function() {
-            if (!this.isGroupingOn()) {
-                return this.topTotals;
-            }
+            // if (!this.isGroupingOn()) {
+            //     return this.topTotals;
+            // }
             return this.getDataSource().getGrandTotals();
         },
         setTopTotals: function(nestedArray) {
             this.topTotals = nestedArray;
         },
         setGroups: function(groups) {
-            this.analytics.clearGroups();
-            for (var i = 0; i < groups.length; i++) {
-                this.analytics.addGroupBy(groups[i]);
-            }
+            this.analytics.setGroupBys(groups);
             this.applyAnalytics();
         },
+        getGroups: function() {
+            var headers = this.source.getHeaders().slice(0);
+            var groupBys = this.analytics.groupBys;
+            var groups = [];
+            for (var i = 0; i < groupBys.length; i++) {
+                var field = headers[groupBys[i]];
+                groups.push({
+                    id: i,
+                    label: field,
+                    field: field
+                });
+            }
+            return groups;
+        },
+
+        getAvailableGroups: function() {
+            var headers = this.source.getHeaders().slice(0);
+            var groupBys = this.analytics.groupBys;
+            var groups = [];
+            for (var i = 0; i < headers.length; i++) {
+                if (groupBys.indexOf(i) === -1) {
+                    var field = headers[i];
+                    groups.push({
+                        id: i,
+                        label: field,
+                        field: field
+                    });
+                }
+            }
+            return groups;
+        },
+
+        getVisibleColumns: function() {
+            var tableState = this.getState();
+            var headers = this.getHeaders().slice(0);
+            if (this.isGroupingOn()) {
+                headers.shift();
+            }
+            var columnCount = this.getColumnCount();
+            var labels = [];
+            for (var i = 0; i < columnCount; i++) {
+                var id = tableState.columnIndexes[i];
+                labels.push({
+                    id: id,
+                    label: headers[id],
+                    field: headers[id]
+                });
+            }
+            return labels;
+        },
+        getHiddenColumns: function() {
+            var tableState = this.getState();
+            var headers = this.getHeaders().slice(0);
+            if (this.isGroupingOn()) {
+                headers.shift();
+            }
+            var columnCount = headers.length;
+            var labels = [];
+            for (var i = 0; i < columnCount; i++) {
+                var index = tableState.columnIndexes.indexOf(i);
+                if (index === -1) {
+                    labels.push({
+                        id: i,
+                        label: headers[i],
+                        field: headers[i]
+                    });
+                }
+            }
+            labels.sort(function(a, b) {
+                return a.label > b.label;
+            });
+            return labels;
+        },
+
         setAggregates: function(aggregations) {
             this.quietlySetAggregates(aggregations);
             this.applyAnalytics();
         },
         quietlySetAggregates: function(aggregations) {
-            var props = [];
-            var i;
-            this.analytics.clearAggregations();
-            for (var key in aggregations) {
-                props.push([key, aggregations[key]]);
-            }
-            if (props.length === 0) {
-                var fields = [].concat(this.getFields());
-                fields.shift();
-                for (i = 0; i < fields.length; i++) {
-                    props.push([fields[i], fin.analytics.aggregations.first(i)]); /* jshint ignore:line */
-                }
-            }
-            for (i = 0; i < props.length; i++) {
-                var agg = props[i];
-                this.analytics.addAggregate(agg[0], agg[1]);
-            }
-
+            this.analytics.setAggregates(aggregations);
         },
         hasHierarchyColumn: function() {
             return this.isGroupingOn();
         },
         applyAnalytics: function() {
+            this.adjustColumnProperties();
             this.applyFilters();
             this.applySorts();
             //this.setHeaders([]);
             this.applyGroupBysAndAggregations();
-            this.changed();
+        },
+        adjustColumnProperties: function() {
+            if (this.isGroupingOn()) {
+                this.getColumnProperties(-2);
+            }
+            if (this.getGrid().isShowRowNumbers()) {
+                this.getColumnProperties(-1);
+            }
         },
         applyGroupBysAndAggregations: function() {
             if (this.analytics.aggregates.length === 0) {
@@ -25156,9 +24913,9 @@ var commands = {
             if (this.isGroupingOn()) {
                 return null;
             }
-            var grid = this.getGrid();
-            var headerRowCount = grid.getHeaderRowCount();
-            return this.getDataSource().getRow(y - headerRowCount);
+            // var grid = this.getGrid();
+            // var headerRowCount = grid.getHeaderRowCount();
+            // return this.getDataSource().getRow(y - headerRowCount);
         },
         buildRow: function(y) {
             var colCount = this.getColumnCount();
@@ -25309,6 +25066,34 @@ it contains all code/data that's necessary for easily implementing a virtual dat
  */
 (function() {
 
+    function Column(behavior, index, label, properties) {
+        this.behavior = behavior;
+        this.dataModel = behavior.getBaseModel();
+        this.width = 120;
+        this.index = index;
+        this.label = label;
+        this.properties = properties;
+    }
+
+    Column.prototype = {
+        getValue: function(y) {
+            return this.dataModel.getValue(this.index, y);
+        },
+        setValue: function(y) {
+            return this.dataModel.setValue(this.index, y);
+        },
+        getWidth: function() {
+            var override = this.properties.width;
+            if (override) {
+                return override;
+            }
+            return this.behavior.resolveProperty('defaultColumnWidth');
+        },
+        setWidth: function(width) {
+            this.properties.width = Math.max(5, width);
+        }
+    };
+
     var noop = function() {};
 
     var merge = function(target, source) {
@@ -25410,15 +25195,338 @@ it contains all code/data that's necessary for easily implementing a virtual dat
         scrollPositionY: 0,
 
         featureMap: {},
+        allColumns: [],
+        columns: [],
 
+        clearColumns: function() {
+            this.columns = [];
+            this.allColumns = [];
+            this.columns[-1] = this.newColumn(-1, '');
+            this.columns[-2] = this.newColumn(-2, 'Tree');
+            this.allColumns[-1] = this.columns[-1];
+            this.allColumns[-2] = this.columns[-2];
+        },
+
+        getColumn: function(x) {
+            return this.columns[x];
+        },
+
+        newColumn: function(index, label) {
+            var properties = this.createColumnProperties();
+            return new Column(this, index, label, properties);
+        },
+
+        addColumn: function(index, label) {
+            var column = this.newColumn(index, label);
+            this.columns.push(column);
+            this.allColumns.push(column);
+            return column;
+        },
+
+        createColumns: function() {
+            //concrete implementation here
+        },
+
+        createColumnProperties: function() {
+            var tableState = this.getState();
+            var properties = Object.create(tableState);
+
+            properties.rowNumbersProperties = Object.create(properties, {
+                foregroundSelectionColor: {
+                    configurable: true,
+                    get: function() {
+                        return this.color;
+                    },
+                    set: function(value) {
+                        this.color = value;
+                    }
+                },
+                backgroundSelectionColor: {
+                    configurable: true,
+                    get: function() {
+                        return this.backgroundColor;
+                    },
+                    set: function(value) {
+                        this.backgroundColor = value;
+                    }
+                }
+            });
+
+            properties.rowHeader = Object.create(properties, {
+                font: {
+                    configurable: true,
+                    get: function() {
+                        return this.rowHeaderFont;
+                    },
+                    set: function(value) {
+                        this.rowHeaderFont = value;
+                    }
+                },
+                color: {
+                    configurable: true,
+                    get: function() {
+                        return this.rowHeaderColor;
+                    },
+                    set: function(value) {
+                        this.rowHeaderColor = value;
+                    }
+                },
+                backgroundColor: {
+                    configurable: true,
+                    get: function() {
+                        return this.rowHeaderBackgroundColor;
+                    },
+                    set: function(value) {
+                        this.rowHeaderBackgroundColor = value;
+                    }
+                },
+                foregroundSelectionColor: {
+                    configurable: true,
+                    get: function() {
+                        return this.rowHeaderForegroundSelectionColor;
+                    },
+                    set: function(value) {
+                        this.rowHeaderForegroundSelectionColor = value;
+                    }
+                },
+                backgroundSelectionColor: {
+                    configurable: true,
+                    get: function() {
+                        return this.rowHeaderBackgroundSelectionColor;
+                    },
+                    set: function(value) {
+                        this.rowHeaderBackgroundSelectionColor = value;
+                    }
+                }
+            });
+
+            properties.columnHeader = Object.create(properties, {
+                font: {
+                    configurable: true,
+                    get: function() {
+                        return this.columnHeaderFont;
+                    },
+                    set: function(value) {
+                        this.columnHeaderFont = value;
+                    }
+                },
+                color: {
+                    configurable: true,
+                    get: function() {
+                        return this.columnHeaderColor;
+                    },
+                    set: function(value) {
+                        this.columnHeaderColor = value;
+                    }
+                },
+                backgroundColor: {
+                    configurable: true,
+                    get: function() {
+                        return this.columnHeaderBackgroundColor;
+                    },
+                    set: function(value) {
+                        this.columnHeaderBackgroundColor = value;
+                    }
+                },
+                foregroundSelectionColor: {
+                    configurable: true,
+                    get: function() {
+                        return this.columnHeaderForegroundSelectionColor;
+                    },
+                    set: function(value) {
+                        this.columnHeaderForegroundSelectionColor = value;
+                    }
+                },
+                backgroundSelectionColor: {
+                    configurable: true,
+                    get: function() {
+                        return this.columnHeaderBackgroundSelectionColor;
+                    },
+                    set: function(value) {
+                        this.columnHeaderBackgroundSelectionColor = value;
+                    }
+                }
+            });
+
+            properties.columnHeaderColumnSelection = Object.create(properties.columnHeader, {
+                foregroundSelectionColor: {
+                    configurable: true,
+                    get: function() {
+                        return this.columnHeaderForegroundColumnSelectionColor;
+                    },
+                    set: function(value) {
+                        this.columnHeaderForegroundColumnSelectionColor = value;
+                    }
+                },
+                backgroundSelectionColor: {
+                    configurable: true,
+                    get: function() {
+                        return this.columnHeaderBackgroundColumnSelectionColor;
+                    },
+                    set: function(value) {
+                        this.columnHeaderBackgroundColumnSelectionColor = value;
+                    }
+                }
+            });
+
+            properties.rowHeaderRowSelection = Object.create(properties.rowHeader, {
+                foregroundSelectionColor: {
+                    configurable: true,
+                    get: function() {
+                        return this.rowHeaderForegroundRowSelectionColor;
+                    },
+                    set: function(value) {
+                        this.rowHeaderForegroundRowSelectionColor = value;
+                    }
+                },
+                backgroundSelectionColor: {
+                    configurable: true,
+                    get: function() {
+                        return this.rowHeaderBackgroundRowSelectionColor;
+                    },
+                    set: function(value) {
+                        this.rowHeaderBackgroundRowSelectionColor = value;
+                    }
+                }
+            });
+
+            properties.filterProperties = Object.create(properties, {
+                font: {
+                    configurable: true,
+                    get: function() {
+                        return this.filterFont;
+                    },
+                    set: function(value) {
+                        this.filterFont = value;
+                    }
+                },
+                color: {
+                    configurable: true,
+                    get: function() {
+                        return this.filterColor;
+                    },
+                    set: function(value) {
+                        this.filterColor = value;
+                    }
+                },
+                backgroundColor: {
+                    configurable: true,
+                    get: function() {
+                        return this.filterBackgroundColor;
+                    },
+                    set: function(value) {
+                        this.filterBackgroundColor = value;
+                    }
+                },
+                foregroundSelectionColor: {
+                    configurable: true,
+                    get: function() {
+                        return this.filterForegroundSelectionColor;
+                    },
+                    set: function(value) {
+                        this.filterForegroundSelectionColor = value;
+                    }
+                },
+                backgroundSelectionColor: {
+                    configurable: true,
+                    get: function() {
+                        return this.filterBackgroundSelectionColor;
+                    },
+                    set: function(value) {
+                        this.filterBackgroundSelectionColor = value;
+                    }
+                }
+            });
+
+            properties.treeColumnProperties = Object.create(properties, {
+                font: {
+                    configurable: true,
+                    get: function() {
+                        return this.treeColumnFont;
+                    },
+                    set: function(value) {
+                        this.treeColumnFont = value;
+                    }
+                },
+                color: {
+                    configurable: true,
+                    get: function() {
+                        return this.treeColumnColor;
+                    },
+                    set: function(value) {
+                        this.treeColumnColor = value;
+                    }
+                },
+                backgroundColor: {
+                    configurable: true,
+                    get: function() {
+                        return this.treeColumnBackgroundColor;
+                    },
+                    set: function(value) {
+                        this.treeColumnBackgroundColor = value;
+                    }
+                },
+                foregroundSelectionColor: {
+                    configurable: true,
+                    get: function() {
+                        return this.treeColumnForegroundSelectionColor;
+                    },
+                    set: function(value) {
+                        this.treeColumnForegroundSelectionColor = value;
+                    }
+                },
+                backgroundSelectionColor: {
+                    configurable: true,
+                    get: function() {
+                        return this.treeColumnBackgroundSelectionColor;
+                    },
+                    set: function(value) {
+                        this.treeColumnBackgroundSelectionColor = value;
+                    }
+                }
+            });
+
+            properties.treeColumnPropertiesColumnSelection = Object.create(properties.treeColumnProperties, {
+                foregroundSelectionColor: {
+                    configurable: true,
+                    get: function() {
+                        return this.treeColumnForegroundColumnSelectionColor;
+                    },
+                    set: function(value) {
+                        this.treeColumnForegroundColumnSelectionColor = value;
+                    }
+                },
+                backgroundSelectionColor: {
+                    configurable: true,
+                    get: function() {
+                        return this.treeColumnBackgroundColumnSelectionColor;
+                    },
+                    set: function(value) {
+                        this.treeColumnBackgroundColumnSelectionColor = value;
+                    }
+                }
+            });
+
+            return properties;
+        },
+
+        getColumnWidth: function(x) {
+            var width = this.getColumn(x).getWidth();
+            return width;
+        },
+
+        setColumnWidth: function(x, width) {
+            this.getColumn(x).setWidth(width);
+            this.stateChanged();
+        },
         getDataModel: function() {
             if (this.dataModel === null) {
                 var dataModel = this.getBaseModel();
                 var cellProviderDecorator = this.getCellProviderDecorator();
-                var reorderModel = this.getDefaultReorderDataModel();
-                reorderModel.setComponent(cellProviderDecorator);
+                //var reorderModel = this.getDefaultReorderDataModel();
+                //reorderModel.setComponent(cellProviderDecorator);
                 cellProviderDecorator.setComponent(dataModel);
-                this.setDataModel(reorderModel);
+                this.setDataModel(cellProviderDecorator);
             }
             return this.dataModel;
         },
@@ -25691,6 +25799,7 @@ it contains all code/data that's necessary for easily implementing a virtual dat
         setGrid: function(finGrid) {
             this.grid = finGrid;
             this.getDataModel().setGrid(finGrid);
+            this.clearColumns();
         },
 
         /**
@@ -25727,7 +25836,12 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          * @param {integer} y - y coordinate
          */
         getValue: function(x, y) {
-            return this.getDataModel().getValue(x, y);
+            var column = this.getColumn(x);
+            if (!column) {
+                return undefined;
+            }
+            var result = column.getValue(y);
+            return result;
         },
 
         /**
@@ -26210,12 +26324,12 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          * @param {index} columnIndex - the column index of interest
          */
         getColumnProperties: function(columnIndex) {
-            var properties = this.getDataModel().getColumnProperties(columnIndex);
+            var properties = this.columns[columnIndex].properties;
             return properties;
         },
-
         setColumnProperties: function(columnIndex, properties) {
-            this.getDataModel().setColumnProperties(columnIndex, properties);
+            var columnProperties = this.getColumnProperties(columnIndex);
+            merge(columnProperties, properties);
             this.changed();
         },
 
@@ -26278,15 +26392,16 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          this is called by the column editor post closing; rebuild the column order indexes
          * @param {Array} list - list of column objects from the column editor
          */
-        setColumnDescriptors: function(list) {
+        setColumnDescriptors: function(lists) {
             //assumes there is one row....
+            var visible = lists.visible;
             var tableState = this.getState();
 
-            var columnCount = list.length;
+            var columnCount = visible.length;
             var indexes = [];
             var i;
             for (i = 0; i < columnCount; i++) {
-                indexes.push(list[i].id);
+                indexes.push(visible[i].id);
             }
             tableState.columnIndexes = indexes;
             this.changed();
@@ -26480,7 +26595,7 @@ it contains all code/data that's necessary for easily implementing a virtual dat
         closeEditor: function(div) {
             noop(div);
             var lists = div.lists;
-            this.setColumnDescriptors(lists.visible);
+            this.setColumnDescriptors(lists);
             return true;
         },
 
@@ -26503,7 +26618,7 @@ it contains all code/data that's necessary for easily implementing a virtual dat
             style.top = '5%';
             style.position = 'absolute';
             style.width = '50%';
-            style.height = '99%';
+            style.height = '100%';
             style.whiteSpace = 'nowrap';
         },
 
@@ -26528,41 +26643,7 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          * #### returns: integer
          */
         getColumnCount: function() {
-            // if (!this.tableState) {
-            //     return this.getDataModel().getColumnCount();
-            // }
-            // return this.tableState.columnIndexes.length;
-
-            return this.getDataModel().getColumnCount();
-        },
-
-        /**
-         * @function
-         * @instance
-         * @description
-         return the column width at index x
-         * #### returns: integer
-         * @param {integer} x - the column index of interest
-         */
-        getColumnWidth: function(x) {
-            var override = this.getDataModel().getColumnWidth(x);
-            if (override) {
-                return override;
-            }
-            return this.resolveProperty('defaultColumnWidth');
-        },
-
-        /**
-         * @function
-         * @instance
-         * @description
-         set the column width at column x
-         * @param {integer} x - the column index of interest
-         * @param {integer} width - the width in pixels
-         */
-        setColumnWidth: function(x, width) {
-            this.getDataModel().setColumnWidth(x, width);
-            this.stateChanged();
+            return this.columns.length;
         },
 
         /**
@@ -26829,9 +26910,13 @@ it contains all code/data that's necessary for easily implementing a virtual dat
         },
         setGroups: function(arrayOfColumnIndexes) {
             this.getBaseModel().setGroups(arrayOfColumnIndexes);
+            this.createColumns();
+            this.changed();
         },
         setAggregates: function(mapOfKeysToFunctions) {
             this.getBaseModel().setAggregates(mapOfKeysToFunctions);
+            this.createColumns();
+            this.changed();
         },
         hasHierarchyColumn: function() {
             return false;
@@ -28797,6 +28882,21 @@ This is a very rough in memory data source example.  fin-hypergrid-behavior-in-m
 
     Polymer('fin-hypergrid-behavior-json',{ /* jslint ignore:line */
 
+        createColumns: function() {
+            var dataModel = this.getDataModel();
+            var columnCount = dataModel.getColumnCount();
+            var headers = dataModel.getHeaders();
+            var fields = dataModel.getFields();
+            this.clearColumns();
+            for (var i = 0; i < columnCount; i++) {
+                var header = headers[i];
+                var column = this.addColumn(i, header);
+                var properties = column.properties;
+                properties.field = fields[i];
+                properties.header = header;
+            }
+        },
+
         getDefaultDataModel: function() {
             var model = document.createElement('fin-hypergrid-data-model-json');
             this.baseModel = model;
@@ -28856,6 +28956,7 @@ This is a very rough in memory data source example.  fin-hypergrid-behavior-in-m
         */
         setData: function(arrayOfUniformObjects) {
             this.getBaseModel().setData(arrayOfUniformObjects);
+            this.createColumns();
         },
 
         /**
@@ -28944,7 +29045,113 @@ This is a very rough in memory data source example.  fin-hypergrid-behavior-in-m
         },
         getRowContextFunction: function(y) {
             return this.getDataModel().getRowContextFunction(y);
-        }
+        },
+        openEditor: function(div) {
+            if (!this.isColumnReorderable()) {
+                return false;
+            }
+            var container = document.createElement('div');
+
+            var group = document.createElement('fin-hypergrid-dnd-list');
+            var availableGroups = document.createElement('fin-hypergrid-dnd-list');
+            var hidden = document.createElement('fin-hypergrid-dnd-list');
+            var visible = document.createElement('fin-hypergrid-dnd-list');
+
+            container.appendChild(group);
+            container.appendChild(availableGroups);
+            container.appendChild(hidden);
+            container.appendChild(visible);
+
+            this.beColumnStyle(group.style);
+            group.style.left = '0%';
+            group.style.width = '24%';
+            group.title = 'groups';
+            group.list = this.getGroups();
+
+            this.beColumnStyle(availableGroups.style);
+            availableGroups.style.left = '25%';
+            availableGroups.style.width = '24%';
+            availableGroups.title = 'Available Groups';
+            availableGroups.list = this.getAvailableGroups();
+
+            //can't remove the last item
+            // group.canDragItem = function(list, item, index, e) {
+            //     noop(item, index, e);
+            //     if (self.block.ungrouped) {
+            //         return true;
+            //     } else {
+            //         return list.length > 1;
+            //     }
+            // };
+            //only allow dropping of H fields
+            // group.canDropItem = function(sourceList, myList, sourceIndex, item, e) {
+            //     noop(sourceList, myList, sourceIndex, e);
+            //     return self.block.groupable.indexOf(item) > -1;
+            // };
+
+            this.beColumnStyle(hidden.style);
+            hidden.style.left = '50%';
+            hidden.style.width = '24%';
+            hidden.title = 'hidden columns';
+            hidden.list = this.getHiddenColumns();
+
+            this.beColumnStyle(visible.style);
+            visible.style.left = '75%';
+            visible.style.width = '24%';
+            visible.title = 'visible columns';
+            visible.list = this.getVisibleColumns();
+            //can't remove the last item
+            // visible.canDragItem = function(list, item, index, e) {
+            //     noop(item, index, e);
+            //     return list.length > 1;
+            // };
+
+            //attach for later retrieval
+            div.lists = {
+                group: group.list,
+                availableGroups: availableGroups.list,
+                hidden: hidden.list,
+                visible: visible.list
+            };
+
+            div.appendChild(container);
+            return true;
+        },
+        getGroups: function() {
+            return this.getBaseModel().getGroups();
+        },
+        getAvailableGroups: function() {
+            return this.getBaseModel().getAvailableGroups();
+        },
+        getHiddenColumns: function() {
+            return this.getBaseModel().getHiddenColumns();
+        },
+        getVisibleColumns: function() {
+            return this.getBaseModel().getVisibleColumns();
+        },
+        setColumnDescriptors: function(lists) {
+            //assumes there is one row....
+            var visible = lists.visible;
+            var group = lists.group;
+            var tableState = this.getState();
+
+            var columnCount = visible.length;
+            var indexes = [];
+            var i;
+            for (i = 0; i < columnCount; i++) {
+                indexes.push(visible[i].id);
+            }
+            tableState.columnIndexes = indexes;
+
+            var groupBys = group.map(function(e) {
+                return e.id;
+            });
+
+            this.setGroups(groupBys);
+
+            this.changed();
+        },
+
 
     });
 
@@ -37464,15 +37671,15 @@ fin-vampire-bar {
         isColumnSelection: function() {
             return this.resolveProperty('columnSelection') === true;
         },
-        isColumnAutosizing: function() {
-            return this.resolveProperty('autosizeColumns') === true;
-        },
         getComputedRow: function(y) {
             return this.getBehavior().getComputedRow(y);
         },
+        isColumnAutosizing: function() {
+            return this.resolveProperty('autosizeColumns') === true;
+        },
         setGlobalFilter: function(string) {
             this.getBehavior().setGlobalFilter(string);
-        }
+        },
     });
 
 })(); /* jslint ignore:line */

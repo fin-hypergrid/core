@@ -21,21 +21,22 @@
         },
 
         translateColumnIndex: function(x) {
-            if (x === -1) {
-                return -1;
-            }
-            if (this.hasHierarchyColumn()) {
-                if (x === 0) {
-                    return -2;
-                }
-                x = x - 1;
-            }
-            var tableState = this.getState();
-            var indexes = tableState.columnIndexes;
-            if (!indexes || indexes.length === 0) {
-                return x;
-            }
-            return indexes[x];
+            // if (x === -1) {
+            //     return -1;
+            // }
+            // if (this.hasHierarchyColumn()) {
+            //     if (x === 0) {
+            //         return -2;
+            //     }
+            //     x = x - 1;
+            // }
+            // var tableState = this.getState();
+            // var indexes = tableState.columnIndexes;
+            // if (!indexes || indexes.length === 0) {
+            //     return x;
+            // }
+            // return indexes[x];
+            return x;
         },
 
         unTranslateColumnIndex: function(x) {

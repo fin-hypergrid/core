@@ -110,8 +110,10 @@
             requestAnimationFrame(function() {
                 self.overlay.style.opacity = 0.95;
                 document.addEventListener('keydown', self._closer, false);
-                self.overlay.focus();
             });
+            setTimeout(function() {
+                self.overlay.focus();
+            }, 100);
         },
 
         /**
