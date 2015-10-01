@@ -33,6 +33,9 @@
         getGrandTotals: function() {
             return [];
         },
+        hasAggregates: function() {
+            return false;
+        },
         hasGroups: function() {
             return false;
         },
@@ -53,32 +56,35 @@
         postsorter: nullDataSource,
         topTotals: [],
 
-        isGroupingOn: function() {
-            return this.analytics.hasGroups() && this.analytics.hasAggregates();
+        hasAggregates: function() {
+            return this.analytics.hasAggregates();
+        },
+        hasGroups: function() {
+            return this.analytics.hasGroups();
         },
         getDataSource: function() {
-            var source = this.analytics; //this.isGroupingOn() ? this.analytics : this.presorter;
+            var source = this.analytics; //this.hasAggregates() ? this.analytics : this.presorter;
             return source;
         },
         getFilterSource: function() {
-            var source = this.prefilter; //this.isGroupingOn() ? this.postfilter : this.prefilter;
+            var source = this.prefilter; //this.hasAggregates() ? this.postfilter : this.prefilter;
             return source;
         },
         getSortingSource: function() {
-            var source = this.presorter; //this.isGroupingOn() ? this.postsorter : this.presorter;
+            var source = this.presorter; //this.hasAggregates() ? this.postsorter : this.presorter;
             return source;
         },
         getValue: function(x, y) {
-            var isGroupingOn = this.isGroupingOn();
+            var hasHierarchyColumn = this.hasHierarchyColumn();
             var grid = this.getGrid();
             var headerRowCount = grid.getHeaderRowCount();
-            if (isGroupingOn && x === -2) {
+            if (hasHierarchyColumn && x === -2) {
                 x = 0;
             }
             if (y < headerRowCount) {
                 return this.getHeaderRowValue(x, y);
             }
-            if (isGroupingOn) {
+            if (hasHierarchyColumn) {
                 y += 1;
             }
             var value = this.getDataSource().getValue(x, y - headerRowCount);
@@ -115,10 +121,10 @@
             return '';
         },
         setValue: function(x, y, value) {
-            var isGroupingOn = this.isGroupingOn();
+            var hasHierarchyColumn = this.hasHierarchyColumn();
             var grid = this.getGrid();
             var headerRowCount = grid.getHeaderRowCount();
-            if (isGroupingOn) {
+            if (hasHierarchyColumn) {
                 if (x === -2) {
                     return;
                 } else {
@@ -128,7 +134,7 @@
             if (y < headerRowCount) {
                 return this.setHeaderRowValue(x, y, value);
             }
-            if (isGroupingOn) {
+            if (hasHierarchyColumn) {
                 y += 1;
             }
             this.getDataSource().setValue(x, y - headerRowCount, value);
@@ -212,9 +218,9 @@
             this.initColumnIndexes(this.getState());
         },
         getTopTotals: function() {
-            // if (!this.isGroupingOn()) {
-            //     return this.topTotals;
-            // }
+            if (!this.hasAggregates()) {
+                return this.topTotals;
+            }
             return this.getDataSource().getGrandTotals();
         },
         setTopTotals: function(nestedArray) {
@@ -259,7 +265,7 @@
         getVisibleColumns: function() {
             var tableState = this.getState();
             var headers = this.getHeaders().slice(0);
-            if (this.isGroupingOn()) {
+            if (this.hasAggregates()) {
                 headers.shift();
             }
             var columnCount = this.getColumnCount();
@@ -277,7 +283,7 @@
         getHiddenColumns: function() {
             var tableState = this.getState();
             var headers = this.getHeaders().slice(0);
-            if (this.isGroupingOn()) {
+            if (this.hasAggregates()) {
                 headers.shift();
             }
             var columnCount = headers.length;
@@ -306,7 +312,7 @@
             this.analytics.setAggregates(aggregations);
         },
         hasHierarchyColumn: function() {
-            return this.isGroupingOn();
+            return this.hasAggregates() && this.hasGroups();
         },
         applyAnalytics: function() {
             this.adjustColumnProperties();
@@ -316,7 +322,7 @@
             this.applyGroupBysAndAggregations();
         },
         adjustColumnProperties: function() {
-            if (this.isGroupingOn()) {
+            if (this.hasHierarchyColumn()) {
                 this.getColumnProperties(-2);
             }
             if (this.getGrid().isShowRowNumbers()) {
@@ -333,7 +339,7 @@
             this.preglobalfilter.applyFilters();
             var colCount = this.getColumnCount();
             var filterSource = this.getFilterSource();
-            var groupOffset = this.isGroupingOn() ? 1 : 0;
+            var groupOffset = this.hasAggregates() ? 1 : 0;
             filterSource.clearFilters();
             for (var i = 0; i < colCount; i++) {
                 var filterText = this.getFilter(i);
@@ -344,7 +350,7 @@
             filterSource.applyFilters();
         },
         toggleSort: function(index, keys) {
-            if (this.isGroupingOn()) {
+            if (this.hasHierarchyColumn()) {
                 index++; //hierarchy column;
             }
             this.incrementSortState(index, keys);
@@ -378,7 +384,7 @@
         applySorts: function() {
             var sortingSource = this.getSortingSource();
             var sorts = this.getState().sorts;
-            var groupOffset = this.isGroupingOn() ? 1 : 0;
+            var groupOffset = this.hasAggregates() ? 1 : 0;
             if (!sorts || sorts.length === 0) {
                 sortingSource.clearSorts();
             } else {
@@ -410,16 +416,16 @@
             return this.getBehavior().getImage(name);
         },
         cellClicked: function(cell, event) {
-            if (!this.isGroupingOn()) {
+            if (!this.hasAggregates()) {
                 return;
             }
             var grid = this.getGrid();
             var headerRowCount = grid.getHeaderRowCount();
-            var y = event.gridCell.y - headerRowCount;
+            var y = event.gridCell.y - headerRowCount + 1;
             this.analytics.click(y);
         },
         getRow: function(y) {
-            if (this.isGroupingOn()) {
+            if (this.hasAggregates()) {
                 return null;
             }
             // var grid = this.getGrid();
@@ -430,7 +436,7 @@
             var colCount = this.getColumnCount();
             var fields = [].concat(this.getFields());
             var result = {};
-            if (this.isGroupingOn()) {
+            if (this.hasAggregates()) {
                 result.tree = this.getValue(-2, y);
                 fields.shift();
             }
@@ -471,7 +477,7 @@
         },
         getValueByField: function(fieldName, y) {
             var index = this.getFields().indexOf(fieldName);
-            if (this.isGroupingOn()) {
+            if (this.hasAggregates()) {
                 y += 1;
             }
             return this.getDataSource().getValue(index, y);
