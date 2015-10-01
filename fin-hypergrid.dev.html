@@ -16492,7 +16492,8 @@ Instances of this object have basically four main functions.
 
             var grid = this.getGrid();
             var behavior = this.getBehavior();
-            var columnProperties = behavior.getColumnProperties(c);
+            var baseProperties = behavior.getColumnProperties(c);
+            var columnProperties = baseProperties;
             var headerRowCount = behavior.getHeaderRowCount();
             var headerColumnCount = behavior.getHeaderColumnCount();
 
@@ -16504,18 +16505,18 @@ Instances of this object have basically four main functions.
             var isColumnSelected = grid.isColumnSelected(c);
 
             if (c === -1 && !isRowSelected) {
-                columnProperties = columnProperties.rowNumbersProperties;
+                baseProperties = baseProperties.rowNumbersProperties;
             } else if (isFilterRow && c !== -1) {
-                columnProperties = columnProperties.filterProperties;
+                baseProperties = baseProperties.filterProperties;
             } else if (isHierarchyColumn) {
-                columnProperties = isColumnSelected ? columnProperties.treeColumnPropertiesColumnSelection : columnProperties.treeColumnProperties;
+                baseProperties = isColumnSelected ? baseProperties.treeColumnPropertiesColumnSelection : baseProperties.treeColumnProperties;
             } else if (isHeaderColumn) {
-                columnProperties = isRowSelected ? columnProperties.rowHeaderRowSelection : columnProperties.rowHeader;
+                baseProperties = isRowSelected ? baseProperties.rowHeaderRowSelection : baseProperties.rowHeader;
             } else if (isHeaderRow) {
-                columnProperties = (isColumnSelected || isRowSelected) ? columnProperties.columnHeaderColumnSelection : columnProperties.columnHeader;
+                baseProperties = (isColumnSelected || isRowSelected) ? baseProperties.columnHeaderColumnSelection : baseProperties.columnHeader;
             }
 
-            var cellProperties = Object.create(columnProperties);
+            var cellProperties = Object.create(baseProperties);
 
 
             if (isHeaderColumn || isHierarchyColumn) {
@@ -16550,7 +16551,6 @@ Instances of this object have basically four main functions.
                 cellProperties.mouseDown = point.x === c && point.y === r;
             }
 
-
             var cell = behavior.getCellRenderer(cellProperties, c, r);
 
             cellProperties.x = c;
@@ -16571,7 +16571,7 @@ Instances of this object have basically four main functions.
             cell.paint(gc, cellProperties);
 
             this.renderedColumnMinWidths[c] = Math.max(cellProperties.minWidth || 0, this.renderedColumnMinWidths[c]);
-
+            columnProperties.preferredWidth = this.renderedColumnMinWidths[c];
         },
         isViewableButton: function(c, r) {
             var key = c + ',' + r;
@@ -23952,91 +23952,27 @@ var commands = {
 
         grid: null,
 
-        getValue: function(x, y) {
-            return x + ', ' + y;
-        },
-
-        setValue: function(x, y, value) {
-            console.log('setting (' + x + ', ' + y + ') = ' + value);
-        },
-
-        getColumnCount: function() {
-            return 20;
-        },
-
-        getCellProperties: function( /* x, y */ ) {
-            return null;
-        },
-
-        setCellProperties: function(x, y, value) {
-            console.log('setting (' + x + ', ' + y + ') = ' + value);
-        },
-
-        getRowCount: function() {
-            return 1000;
-        },
-
         setGrid: function(newGrid) {
             this.grid = newGrid;
         },
-
         getGrid: function() {
             return this.grid;
         },
-
-        getState: function() {
-            return this.getGrid().getState();
-        },
-
         getBehavior: function() {
             return this.getGrid().getBehavior();
         },
-
         getCellProvider: function() {
             return this.getGrid().getCellProvider();
         },
-
-        getImage: function(alias) {
-            return this.getBehavior().getImage(alias);
-        },
-
         changed: function() {
             this.getBehavior().changed();
         },
+        getState: function() {
+            return this.getGrid().getState();
+        },
+        setState: function(state) {
 
-        initColumnIndexes: function(state) {
-            this.getBehavior().initColumnIndexes(state);
         },
-
-        toggleSort: function(x, keys) {
-            console.log('toggle column ' + x, keys);
-        },
-
-        getCellEditorAt: function(x, y) {
-            noop(x, y);
-            var cellEditor = this.getGrid().resolveCellEditor('textfield');
-            return cellEditor;
-        },
-
-        getRow: function(y) {
-            noop(y);
-            return null;
-        },
-
-        isShowRowNumbers: function() {
-            return this.getGrid().isShowRowNumbers();
-        },
-
-        getScrollPositionY: function() {
-            return this.getBehavior().getScrollPositionY();
-        },
-        hasHierarchyColumn: function() {
-            return false;
-        },
-        getColumnProperties: function(x) {
-            //access directly because we want it ordered
-            return this.getBehavior().allColumns[x];
-        }
     });
 
 })();
@@ -24189,20 +24125,6 @@ var commands = {
 
     Polymer('fin-hypergrid-data-model-decorator-cell-provider', { /* jshint ignore:line  */
 
-        getCellRenderer: function(config, x, y, untranslatedX, untranslatedY) {
-            var renderer;
-            var provider = this.getCellProvider();
-
-            config.x = x;
-            config.y = y;
-            config.untranslatedX = untranslatedX;
-            config.untranslatedY = untranslatedY;
-
-            renderer = provider.getCell(config);
-            renderer.config = config;
-
-            return renderer;
-        },
 
     });
 
@@ -24656,6 +24578,14 @@ var commands = {
             }
             return '';
         },
+        getColumnProperties: function(x) {
+            //access directly because we want it ordered
+            var columns = this.getBehavior().allColumns[x];
+            if (columns) {
+                return columns.properties;
+            }
+            return undefined;
+        },
         getFilter: function(x) {
             var columnProperties = this.getColumnProperties(x);
             if (!columnProperties) {
@@ -24706,7 +24636,6 @@ var commands = {
             }
             //this.postfilter = new fin.analytics.DataSourceFilter(this.analytics); /* jshint ignore:line */
             //this.postsorter = new fin.analytics.DataSourceSorterComposite(this.postfilter); /* jshint ignore:line */
-            this.initColumnIndexes(this.getState());
         },
         getTopTotals: function() {
             if (!this.hasAggregates()) {
@@ -24842,7 +24771,7 @@ var commands = {
         },
         toggleSort: function(index, keys) {
             if (this.hasHierarchyColumn()) {
-                index++; //hierarchy column;
+                //index++; //hierarchy column;
             }
             this.incrementSortState(index, keys);
             this.applyAnalytics();
@@ -24980,8 +24909,21 @@ var commands = {
                 this.preglobalfilter.setFilter(textMatchFilter(string));
             }
             this.applyAnalytics();
-        }
+        },
+        getCellRenderer: function(config, x, y, untranslatedX, untranslatedY) {
+            var renderer;
+            var provider = this.getCellProvider();
 
+            config.x = x;
+            config.y = y;
+            config.untranslatedX = untranslatedX;
+            config.untranslatedY = untranslatedY;
+
+            renderer = provider.getCell(config);
+            renderer.config = config;
+
+            return renderer;
+        },
     });
 })();
 </script>
@@ -25097,7 +25039,29 @@ it contains all code/data that's necessary for easily implementing a virtual dat
         },
         setWidth: function(width) {
             this.properties.width = Math.max(5, width);
-        }
+        },
+        getCellRenderer: function(config, y) {
+            return this.dataModel.getCellRenderer(config, this.index, y);
+        },
+        getCellProperties: function(y) {
+            return this.properties.cellProperties[this.index + ',' + y];
+        },
+        setCellProperties: function(x, y, value) {
+            this.properties.cellProperties[this.index + ',' + y] = value;
+        },
+        checkColumnAutosizing: function(force) {
+            var properties = this.properties;
+            var a, b, d;
+            if (properties) {
+                a = properties.width;
+                b = properties.preferredWidth || properties.width;
+                d = properties.columnAutosized && !force;
+                if (a !== b || !d) {
+                    properties.width = !d ? b : Math.max(a, b);
+                    properties.columnAutosized = true;
+                }
+            }
+        },
     };
 
     var noop = function() {};
@@ -25528,11 +25492,7 @@ it contains all code/data that's necessary for easily implementing a virtual dat
         getDataModel: function() {
             if (this.dataModel === null) {
                 var dataModel = this.getBaseModel();
-                var cellProviderDecorator = this.getCellProviderDecorator();
-                //var reorderModel = this.getDefaultReorderDataModel();
-                //reorderModel.setComponent(cellProviderDecorator);
-                cellProviderDecorator.setComponent(dataModel);
-                this.setDataModel(cellProviderDecorator);
+                this.setDataModel(dataModel);
             }
             return this.dataModel;
         },
@@ -25552,7 +25512,7 @@ it contains all code/data that's necessary for easily implementing a virtual dat
         },
 
         getCellRenderer: function(config, x, y) {
-            return this.getDataModel().getCellRenderer(config, x, y);
+            return this.getColumn(x).getCellRenderer(config, y);
         },
 
         getDefaultCellProviderDecorator: function() {
@@ -25611,7 +25571,6 @@ it contains all code/data that's necessary for easily implementing a virtual dat
             this.renderedColumnCount = 30;
             this.renderedRowCount = 60;
             this.dataUpdates = {}; //for overriding with edit values;
-            //this.initColumnIndexes();
         },
 
         /**
@@ -25624,7 +25583,6 @@ it contains all code/data that's necessary for easily implementing a virtual dat
         getState: function() {
             if (!this.tableState) {
                 this.tableState = this.getDefaultState();
-                this.initColumnIndexes(this.tableState);
             }
             return this.tableState;
         },
@@ -25651,11 +25609,8 @@ it contains all code/data that's necessary for easily implementing a virtual dat
             var state = Object.create(tableProperties);
 
             merge(state, {
-                columnIndexes: [],
-
                 rowHeights: {},
-                columnProperties: [],
-
+                columnProperties: {},
                 cellProperties: {}
             });
 
@@ -25874,7 +25829,7 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          * @param {integer} y - y coordinate
          */
         getCellProperties: function(x, y) {
-            return this.getDataModel().getCellProperties(x, y);
+            return this.getColumn(x).getCellProperties(y);
         },
 
         /**
@@ -25888,7 +25843,7 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          * @param {Object} value - the value to use
          */
         setCellProperties: function(x, y, value) {
-            this.getDataModel().setCellProperties(x, y, value);
+            this.getColumn(x).setCellProperties(y, value);
         },
         /**
          * @function
@@ -26424,7 +26379,7 @@ it contains all code/data that's necessary for easily implementing a virtual dat
             var tableState = this.getState();
             var indexes = tableState.columnIndexes;
             var labels = [];
-            var columnCount = this.getDataModel().getColumnCount();
+            var columnCount = this.getColumnCount();
             for (var i = 0; i < columnCount; i++) {
                 if (indexes.indexOf(i) === -1) {
                     labels.push({
@@ -26841,55 +26796,16 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          * @function
          * @instance
          * @description
-         reset both fixed and normal column indexes, this is will cause columns to display in their true order
-         */
-        initColumnIndexes: function(tableState) {
-            var columnCount = this.getDataModel().getColumnCount();
-            var i;
-            tableState.columnIndexes = [];
-            for (i = 0; i < columnCount; i++) {
-                tableState.columnIndexes[i] = i;
-            }
-        },
-
-        /**
-         * @function
-         * @instance
-         * @description
-         make sure the column indexes are initialized
-         */
-        insureColumnIndexesAreInitialized: function() {
-            this.swapColumns(0, 0);
-        },
-
-        /**
-         * @function
-         * @instance
-         * @description
          swap src and tar columns
          * @param {integer} src - column index
          * @param {integer} tar - column index
          */
         swapColumns: function(source, target) {
-            var tableState = this.getState();
-            var indexes = tableState.columnIndexes;
-            if (indexes.length === 0) {
-                this.initColumnIndexes(tableState);
-                indexes = tableState.columnIndexes;
-            }
-            var tmp = indexes[source];
-            indexes[source] = indexes[target];
-            indexes[target] = tmp;
-            this.stateChanged();
+
         },
 
         getColumnEdge: function(c, renderer) {
             return this.getDataModel().getColumnEdge(c, renderer);
-        },
-
-        resetColumnIndexes: function() {
-            this.initColumnIndexes(this.tableState);
-            this.shapeChanged();
         },
 
         setTotalsValue: function(x, y, value) {
@@ -26944,17 +26860,25 @@ it contains all code/data that's necessary for easily implementing a virtual dat
             return this.getBaseModel().getComputedRow(y);
         },
         autosizeAllColumns: function() {
-            var self = this;
-            self.getDataModel().autosizeAllColumns();
-            setTimeout(function() {
-                self.getDataModel().autosizeAllColumns();
-            }, 100);
-            setTimeout(function() {
-                self.getDataModel().autosizeAllColumns();
-            }, 200);
+            this.checkColumnAutosizing(true);
+            this.changed();
+        },
+        checkColumnAutosizing: function(force) {
+            force = force === true;
+            this.allColumns[-2].checkColumnAutosizing(force);
+            this.allColumns.forEach(function(column) {
+                column.checkColumnAutosizing(force);
+            });
+        },
+        autoSizeRowNumberColumn: function() {
+            this.allColumns[-1].checkColumnAutosizing(true);
         },
         setGlobalFilter: function(string) {
             this.getBaseModel().setGlobalFilter(string);
+        },
+        getColumnProperties: function(x) {
+            //access directly because we want it ordered
+            return this.getColumn(x).properties;
         }
     });
 })();
@@ -34806,7 +34730,6 @@ fin-vampire-bar {
                 this.cellEditor.gridRenderedNotification();
             }
             this.checkColumnAutosizing();
-            this.autoSizeRowNumberColumn();
             this.fireSyntheticGridRenderedEvent();
         },
 
@@ -34818,21 +34741,12 @@ fin-vampire-bar {
          *
          */
         checkColumnAutosizing: function() {
-            if (!this.isColumnAutosizing()) {
-                return;
-            }
-            var renderer = this.getRenderer();
-            var colSizes = renderer.renderedColumnMinWidths;
-            this.getBehavior().checkColumnAutosizing(colSizes);
-        },
-
-        autoSizeRowNumberColumn: function() {
-            if (!this.isColumnAutosizing()) {
-                //always autosize the row numbers...
-                this.autosizeColumn(-1);
+            var behavior = this.getBehavior();
+            behavior.autoSizeRowNumberColumn();
+            if (this.isColumnAutosizing()) {
+                this.getBehavior().checkColumnAutosizing(false);
             }
         },
-
         /**
          * @function
          * @instance
@@ -37353,8 +37267,8 @@ fin-vampire-bar {
          *
          */
         autosizeColumn: function(colIndex) {
-            var width = this.getRenderer().renderedColumnMinWidths[colIndex];
-            this.setColumnWidth(colIndex, width);
+            var column = this.getBehavior().getColumn(colIndex);
+            column.checkColumnAutosizing(true);
         },
 
         /**

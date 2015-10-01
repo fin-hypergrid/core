@@ -34,7 +34,29 @@ it contains all code/data that's necessary for easily implementing a virtual dat
         },
         setWidth: function(width) {
             this.properties.width = Math.max(5, width);
-        }
+        },
+        getCellRenderer: function(config, y) {
+            return this.dataModel.getCellRenderer(config, this.index, y);
+        },
+        getCellProperties: function(y) {
+            return this.properties.cellProperties[this.index + ',' + y];
+        },
+        setCellProperties: function(x, y, value) {
+            this.properties.cellProperties[this.index + ',' + y] = value;
+        },
+        checkColumnAutosizing: function(force) {
+            var properties = this.properties;
+            var a, b, d;
+            if (properties) {
+                a = properties.width;
+                b = properties.preferredWidth || properties.width;
+                d = properties.columnAutosized && !force;
+                if (a !== b || !d) {
+                    properties.width = !d ? b : Math.max(a, b);
+                    properties.columnAutosized = true;
+                }
+            }
+        },
     };
 
     var noop = function() {};
@@ -465,11 +487,7 @@ it contains all code/data that's necessary for easily implementing a virtual dat
         getDataModel: function() {
             if (this.dataModel === null) {
                 var dataModel = this.getBaseModel();
-                var cellProviderDecorator = this.getCellProviderDecorator();
-                //var reorderModel = this.getDefaultReorderDataModel();
-                //reorderModel.setComponent(cellProviderDecorator);
-                cellProviderDecorator.setComponent(dataModel);
-                this.setDataModel(cellProviderDecorator);
+                this.setDataModel(dataModel);
             }
             return this.dataModel;
         },
@@ -489,7 +507,7 @@ it contains all code/data that's necessary for easily implementing a virtual dat
         },
 
         getCellRenderer: function(config, x, y) {
-            return this.getDataModel().getCellRenderer(config, x, y);
+            return this.getColumn(x).getCellRenderer(config, y);
         },
 
         getDefaultCellProviderDecorator: function() {
@@ -548,7 +566,6 @@ it contains all code/data that's necessary for easily implementing a virtual dat
             this.renderedColumnCount = 30;
             this.renderedRowCount = 60;
             this.dataUpdates = {}; //for overriding with edit values;
-            //this.initColumnIndexes();
         },
 
         /**
@@ -561,7 +578,6 @@ it contains all code/data that's necessary for easily implementing a virtual dat
         getState: function() {
             if (!this.tableState) {
                 this.tableState = this.getDefaultState();
-                this.initColumnIndexes(this.tableState);
             }
             return this.tableState;
         },
@@ -588,11 +604,8 @@ it contains all code/data that's necessary for easily implementing a virtual dat
             var state = Object.create(tableProperties);
 
             merge(state, {
-                columnIndexes: [],
-
                 rowHeights: {},
-                columnProperties: [],
-
+                columnProperties: {},
                 cellProperties: {}
             });
 
@@ -811,7 +824,7 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          * @param {integer} y - y coordinate
          */
         getCellProperties: function(x, y) {
-            return this.getDataModel().getCellProperties(x, y);
+            return this.getColumn(x).getCellProperties(y);
         },
 
         /**
@@ -825,7 +838,7 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          * @param {Object} value - the value to use
          */
         setCellProperties: function(x, y, value) {
-            this.getDataModel().setCellProperties(x, y, value);
+            this.getColumn(x).setCellProperties(y, value);
         },
         /**
          * @function
@@ -1361,7 +1374,7 @@ it contains all code/data that's necessary for easily implementing a virtual dat
             var tableState = this.getState();
             var indexes = tableState.columnIndexes;
             var labels = [];
-            var columnCount = this.getDataModel().getColumnCount();
+            var columnCount = this.getColumnCount();
             for (var i = 0; i < columnCount; i++) {
                 if (indexes.indexOf(i) === -1) {
                     labels.push({
@@ -1778,55 +1791,16 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          * @function
          * @instance
          * @description
-         reset both fixed and normal column indexes, this is will cause columns to display in their true order
-         */
-        initColumnIndexes: function(tableState) {
-            var columnCount = this.getDataModel().getColumnCount();
-            var i;
-            tableState.columnIndexes = [];
-            for (i = 0; i < columnCount; i++) {
-                tableState.columnIndexes[i] = i;
-            }
-        },
-
-        /**
-         * @function
-         * @instance
-         * @description
-         make sure the column indexes are initialized
-         */
-        insureColumnIndexesAreInitialized: function() {
-            this.swapColumns(0, 0);
-        },
-
-        /**
-         * @function
-         * @instance
-         * @description
          swap src and tar columns
          * @param {integer} src - column index
          * @param {integer} tar - column index
          */
         swapColumns: function(source, target) {
-            var tableState = this.getState();
-            var indexes = tableState.columnIndexes;
-            if (indexes.length === 0) {
-                this.initColumnIndexes(tableState);
-                indexes = tableState.columnIndexes;
-            }
-            var tmp = indexes[source];
-            indexes[source] = indexes[target];
-            indexes[target] = tmp;
-            this.stateChanged();
+
         },
 
         getColumnEdge: function(c, renderer) {
             return this.getDataModel().getColumnEdge(c, renderer);
-        },
-
-        resetColumnIndexes: function() {
-            this.initColumnIndexes(this.tableState);
-            this.shapeChanged();
         },
 
         setTotalsValue: function(x, y, value) {
@@ -1881,17 +1855,25 @@ it contains all code/data that's necessary for easily implementing a virtual dat
             return this.getBaseModel().getComputedRow(y);
         },
         autosizeAllColumns: function() {
-            var self = this;
-            self.getDataModel().autosizeAllColumns();
-            setTimeout(function() {
-                self.getDataModel().autosizeAllColumns();
-            }, 100);
-            setTimeout(function() {
-                self.getDataModel().autosizeAllColumns();
-            }, 200);
+            this.checkColumnAutosizing(true);
+            this.changed();
+        },
+        checkColumnAutosizing: function(force) {
+            force = force === true;
+            this.allColumns[-2].checkColumnAutosizing(force);
+            this.allColumns.forEach(function(column) {
+                column.checkColumnAutosizing(force);
+            });
+        },
+        autoSizeRowNumberColumn: function() {
+            this.allColumns[-1].checkColumnAutosizing(true);
         },
         setGlobalFilter: function(string) {
             this.getBaseModel().setGlobalFilter(string);
+        },
+        getColumnProperties: function(x) {
+            //access directly because we want it ordered
+            return this.getColumn(x).properties;
         }
     });
 })();

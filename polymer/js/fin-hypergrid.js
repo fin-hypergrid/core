@@ -902,7 +902,6 @@
                 this.cellEditor.gridRenderedNotification();
             }
             this.checkColumnAutosizing();
-            this.autoSizeRowNumberColumn();
             this.fireSyntheticGridRenderedEvent();
         },
 
@@ -914,21 +913,12 @@
          *
          */
         checkColumnAutosizing: function() {
-            if (!this.isColumnAutosizing()) {
-                return;
-            }
-            var renderer = this.getRenderer();
-            var colSizes = renderer.renderedColumnMinWidths;
-            this.getBehavior().checkColumnAutosizing(colSizes);
-        },
-
-        autoSizeRowNumberColumn: function() {
-            if (!this.isColumnAutosizing()) {
-                //always autosize the row numbers...
-                this.autosizeColumn(-1);
+            var behavior = this.getBehavior();
+            behavior.autoSizeRowNumberColumn();
+            if (this.isColumnAutosizing()) {
+                this.getBehavior().checkColumnAutosizing(false);
             }
         },
-
         /**
          * @function
          * @instance
@@ -3449,8 +3439,8 @@
          *
          */
         autosizeColumn: function(colIndex) {
-            var width = this.getRenderer().renderedColumnMinWidths[colIndex];
-            this.setColumnWidth(colIndex, width);
+            var column = this.getBehavior().getColumn(colIndex);
+            column.checkColumnAutosizing(true);
         },
 
         /**

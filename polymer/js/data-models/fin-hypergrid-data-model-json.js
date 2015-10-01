@@ -165,6 +165,14 @@
             }
             return '';
         },
+        getColumnProperties: function(x) {
+            //access directly because we want it ordered
+            var columns = this.getBehavior().allColumns[x];
+            if (columns) {
+                return columns.properties;
+            }
+            return undefined;
+        },
         getFilter: function(x) {
             var columnProperties = this.getColumnProperties(x);
             if (!columnProperties) {
@@ -215,7 +223,6 @@
             }
             //this.postfilter = new fin.analytics.DataSourceFilter(this.analytics); /* jshint ignore:line */
             //this.postsorter = new fin.analytics.DataSourceSorterComposite(this.postfilter); /* jshint ignore:line */
-            this.initColumnIndexes(this.getState());
         },
         getTopTotals: function() {
             if (!this.hasAggregates()) {
@@ -351,7 +358,7 @@
         },
         toggleSort: function(index, keys) {
             if (this.hasHierarchyColumn()) {
-                index++; //hierarchy column;
+                //index++; //hierarchy column;
             }
             this.incrementSortState(index, keys);
             this.applyAnalytics();
@@ -489,7 +496,20 @@
                 this.preglobalfilter.setFilter(textMatchFilter(string));
             }
             this.applyAnalytics();
-        }
+        },
+        getCellRenderer: function(config, x, y, untranslatedX, untranslatedY) {
+            var renderer;
+            var provider = this.getCellProvider();
 
+            config.x = x;
+            config.y = y;
+            config.untranslatedX = untranslatedX;
+            config.untranslatedY = untranslatedY;
+
+            renderer = provider.getCell(config);
+            renderer.config = config;
+
+            return renderer;
+        },
     });
 })();

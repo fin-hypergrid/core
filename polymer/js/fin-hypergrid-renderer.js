@@ -1026,7 +1026,8 @@ Instances of this object have basically four main functions.
 
             var grid = this.getGrid();
             var behavior = this.getBehavior();
-            var columnProperties = behavior.getColumnProperties(c);
+            var baseProperties = behavior.getColumnProperties(c);
+            var columnProperties = baseProperties;
             var headerRowCount = behavior.getHeaderRowCount();
             var headerColumnCount = behavior.getHeaderColumnCount();
 
@@ -1038,18 +1039,18 @@ Instances of this object have basically four main functions.
             var isColumnSelected = grid.isColumnSelected(c);
 
             if (c === -1 && !isRowSelected) {
-                columnProperties = columnProperties.rowNumbersProperties;
+                baseProperties = baseProperties.rowNumbersProperties;
             } else if (isFilterRow && c !== -1) {
-                columnProperties = columnProperties.filterProperties;
+                baseProperties = baseProperties.filterProperties;
             } else if (isHierarchyColumn) {
-                columnProperties = isColumnSelected ? columnProperties.treeColumnPropertiesColumnSelection : columnProperties.treeColumnProperties;
+                baseProperties = isColumnSelected ? baseProperties.treeColumnPropertiesColumnSelection : baseProperties.treeColumnProperties;
             } else if (isHeaderColumn) {
-                columnProperties = isRowSelected ? columnProperties.rowHeaderRowSelection : columnProperties.rowHeader;
+                baseProperties = isRowSelected ? baseProperties.rowHeaderRowSelection : baseProperties.rowHeader;
             } else if (isHeaderRow) {
-                columnProperties = (isColumnSelected || isRowSelected) ? columnProperties.columnHeaderColumnSelection : columnProperties.columnHeader;
+                baseProperties = (isColumnSelected || isRowSelected) ? baseProperties.columnHeaderColumnSelection : baseProperties.columnHeader;
             }
 
-            var cellProperties = Object.create(columnProperties);
+            var cellProperties = Object.create(baseProperties);
 
 
             if (isHeaderColumn || isHierarchyColumn) {
@@ -1084,7 +1085,6 @@ Instances of this object have basically four main functions.
                 cellProperties.mouseDown = point.x === c && point.y === r;
             }
 
-
             var cell = behavior.getCellRenderer(cellProperties, c, r);
 
             cellProperties.x = c;
@@ -1105,7 +1105,7 @@ Instances of this object have basically four main functions.
             cell.paint(gc, cellProperties);
 
             this.renderedColumnMinWidths[c] = Math.max(cellProperties.minWidth || 0, this.renderedColumnMinWidths[c]);
-
+            columnProperties.preferredWidth = this.renderedColumnMinWidths[c];
         },
         isViewableButton: function(c, r) {
             var key = c + ',' + r;

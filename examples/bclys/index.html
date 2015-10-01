@@ -136,7 +136,7 @@
 
         jsonGrid.setColumnProperties(2, {
             backgroundColor: 'maroon',
-            color: 'pink'
+            color: 'green'
         });
 
 
@@ -436,26 +436,18 @@
                     console.log(i + ' <> ' + fields[i]);
                 }
 
-                var toI = function(fieldName){
-                    return fieldsMap[fieldName];
-                };
-
-                var toIs = function(arrayOfFieldNames) {
-                    return arrayOfFieldNames.map(toI);
-                };
-
                 var state = {
-                        columnIndexes: toIs([
-                            "last_name",
-                            "pets",
-                            "birthDate",
-                            "birthState",
-                            "residenceState",
-                            "employed",
-                            "first_name",
-                            "income",
-                            "travel",
-                            "squareOfIncome"]),
+                        columnIndexes: [
+                            fieldsMap.last_name,
+                            fieldsMap.pets,
+                            fieldsMap.birthDate,
+                            fieldsMap.birthState,
+                            fieldsMap.residenceState,
+                            fieldsMap.employed,
+                            fieldsMap.first_name,
+                            fieldsMap.income,
+                            fieldsMap.travel,
+                            fieldsMap.squareOfIncome],
                         rowHeights:{ 0: 30 },
                         fixedColumnCount: 1,
                         fixedRowCount: 2,
@@ -506,7 +498,8 @@
                 jsonModel.setColumnProperties(1,
                     {
                         backgroundColor: function(config) {
-                            if (config.value[0] === 'S') {
+                            var textValue = config.value[1];
+                            if (textValue[0] === 'S') { //does the data start with an 'S'?
                                 return 'purple';
                             } else {
                                 return 'white';
