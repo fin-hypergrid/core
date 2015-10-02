@@ -67,7 +67,7 @@ it contains all code/data that's necessary for easily implementing a virtual dat
             this.dataModel.toggleSort(this.index, keys);
         },
         getCellEditorAt: function(x, y) {
-            this.dataModel.getCellEditorAt(this.index, y);
+            return this.dataModel.getCellEditorAt(this.index, y);
         },
     };
 
@@ -1732,7 +1732,7 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          * @param {integer} y - y coordinate
          */
         getCellEditorAt: function(x, y) {
-            return this.getColumn(x).getCellEditorAt(y);
+            return this.getColumn(x).getCellEditorAt(x, y);
         },
 
         /**

@@ -169,7 +169,7 @@
             //access directly because we want it ordered
             var columns = this.getBehavior().allColumns[x];
             if (columns) {
-                return columns.properties;
+                return columns.getProperties();
             }
             return undefined;
         },
