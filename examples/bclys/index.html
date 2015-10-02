@@ -11,7 +11,7 @@
   <script src="myThemes.js"></script>
   <script src="RangeSelectionModel.js"></script>
    <link rel="import" href="fin-hypergrid.min.html">
-  <!-- <link rel="import" href="../../polymer/html/fin-hypergrid.html"> -->
+<!--   <link rel="import" href="../../polymer/html/fin-hypergrid.html"> -->
   <style>
     .abs {
         position: static;
@@ -85,8 +85,6 @@
         window.toggleAggregates = function() {
             doAggregates = !doAggregates;
             var arg = doAggregates? aggregates : [];
-            doGroups = true;
-            jsonModel.setGroups(groups);
             jsonModel.setAggregates(arg);
         }
 
@@ -134,9 +132,11 @@
             jsonGrid.setGlobalFilter(globalFilter);
         }
 
+        jsonModel.setData(people);
+
         jsonGrid.setColumnProperties(2, {
             backgroundColor: 'maroon',
-            color: 'pink'
+            color: 'green'
         });
 
 
@@ -145,10 +145,6 @@
 
         //set the actual json row objects
         //jsonModel.setData(people); //see sampledata.js for the random data
-
-        //lets sew in haseeb's stuff here for now.....
-        //var fields = ["last_name", "first_name", "pets", "birthDate", "birthState", "residenceState", "employed", "income", "travel", "squareOfIncome"];
-        jsonModel.setData(people);
 
         //make the first col fixed;
         // jsonModel.setFixedColumnCount(2);
@@ -412,8 +408,8 @@
 
         jsonModel.setCellProperties(1, 0, {
             font: '10pt Tahoma',
-            color: 'red',
-            backgroundColor: 'lightblue'
+            color: 'lightblue',
+            backgroundColor: 'red'
         });
 
         setTimeout(function() {
@@ -440,26 +436,18 @@
                     console.log(i + ' <> ' + fields[i]);
                 }
 
-                var toI = function(fieldName){
-                    return fieldsMap[fieldName];
-                };
-
-                var toIs = function(arrayOfFieldNames) {
-                    return arrayOfFieldNames.map(toI);
-                };
-
                 var state = {
-                        columnIndexes: toIs([
-                            "last_name",
-                            "pets",
-                            "birthDate",
-                            "birthState",
-                            "residenceState",
-                            "employed",
-                            "first_name",
-                            "income",
-                            "travel",
-                            "squareOfIncome"]),
+                        columnIndexes: [
+                            fieldsMap.last_name,
+                            fieldsMap.pets,
+                            fieldsMap.birthDate,
+                            fieldsMap.birthState,
+                            fieldsMap.residenceState,
+                            fieldsMap.employed,
+                            fieldsMap.first_name,
+                            fieldsMap.income,
+                            fieldsMap.travel,
+                            fieldsMap.squareOfIncome],
                         rowHeights:{ 0: 30 },
                         fixedColumnCount: 1,
                         fixedRowCount: 2,
@@ -510,7 +498,8 @@
                 jsonModel.setColumnProperties(1,
                     {
                         backgroundColor: function(config) {
-                            if (config.value[0] === 'S') {
+                            var textValue = config.value[1];
+                            if (textValue[0] === 'S') { //does the data start with an 'S'?
                                 return 'purple';
                             } else {
                                 return 'white';
