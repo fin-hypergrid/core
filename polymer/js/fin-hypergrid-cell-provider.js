@@ -174,7 +174,7 @@ var noop = function() {};
                 halign = config.halign,
                 isColumnHovered = config.isColumnHovered,
                 isRowHovered = config.isRowHovered,
-                val = valueOrFunctionExecute(config, config.value),
+                val = config.value,
                 x = config.bounds.x,
                 y = config.bounds.y,
                 width = config.bounds.width,
@@ -202,6 +202,8 @@ var noop = function() {};
                     centerIcon = null;
                 }
             }
+
+            val = valueOrFunctionExecute(config, val)
 
             if (gc.font !== config.font) {
                 gc.font = config.font;

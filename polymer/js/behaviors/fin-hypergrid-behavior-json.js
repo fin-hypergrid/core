@@ -19,7 +19,7 @@
             for (var i = 0; i < columnCount; i++) {
                 var header = headers[i];
                 var column = this.addColumn(i, header);
-                var properties = column.properties;
+                var properties = column.getProperties();
                 properties.field = fields[i];
                 properties.header = header;
             }
@@ -61,7 +61,10 @@
         * @param {Array} fieldNames - an array of strings of the field names
         */
         setFields: function(fieldNames) {
+            //were defining the columns based on field names....
+            //we must rebuild the column definitions
             this.getDataModel().setFields(fieldNames);
+            this.createColumns();
         },
 
         /**
@@ -261,7 +264,7 @@
             //assumes there is one row....
             var visible = lists.visible;
             var group = lists.group;
-            var tableState = this.getState();
+            var tableState = this.getPrivateState();
 
             var columnCount = visible.length;
             var indexes = [];

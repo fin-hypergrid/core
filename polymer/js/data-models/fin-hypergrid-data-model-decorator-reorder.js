@@ -30,7 +30,7 @@
             //     }
             //     x = x - 1;
             // }
-            // var tableState = this.getState();
+            // var tableState = this.getPrivateState();
             // var indexes = tableState.columnIndexes;
             // if (!indexes || indexes.length === 0) {
             //     return x;
@@ -40,7 +40,7 @@
         },
 
         unTranslateColumnIndex: function(x) {
-            var tableState = this.getState();
+            var tableState = this.getPrivateState();
             return tableState.columnIndexes.indexOf(x);
         },
 
@@ -127,7 +127,7 @@
         checkColumnAutosizing: function(minWidths, force) {
             force = force === true;
             var grid = this.getGrid();
-            var tableState = this.getState();
+            var tableState = this.getPrivateState();
             var a, b, c, d = 0;
             var loopSize = minWidths.length;
             var loopStart = 0;
@@ -163,7 +163,7 @@
                     merge(meEach, each);
                 }
             }
-            this.getState().cellProperties = {};
+            this.getPrivateState().cellProperties = {};
         },
 
         convertViewPointToDataPoint: function(viewPoint) {

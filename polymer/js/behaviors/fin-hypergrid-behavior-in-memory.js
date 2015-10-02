@@ -314,7 +314,7 @@ This is a very rough in memory data source example.  fin-hypergrid-behavior-in-m
         createSort: function(type, col) {
             var self = this;
             var that = {};
-            var tableState = this.getState();
+            var tableState = this.getPrivateState();
             that.type = type;
             that.col = col;
             that.value = function(array, index) {
@@ -385,7 +385,7 @@ This is a very rough in memory data source example.  fin-hypergrid-behavior-in-m
         */
         compare: function(array, first, last) {
             var comp = 0;
-            var tableState = this.getState();
+            var tableState = this.getPrivateState();
             for (var i = 0; i < tableState.sorts.length; ++i) {
                 var sort = tableState.sorts[i];
                 if (sort.type !== 0) {
@@ -425,7 +425,7 @@ This is a very rough in memory data source example.  fin-hypergrid-behavior-in-m
         * @param {type} depth - recursion depth
         */
         quicksort: function(array, first, last, depth) {
-            var tableState = this.getState();
+            var tableState = this.getPrivateState();
             // In place quickstort, stable.  We cant use the inbuilt Array.tableState.sort() since its a hybrid sort
             // potentially and may not be stable (non quicksort) on small sizes.
             if (depth > 1000) {
@@ -576,7 +576,7 @@ This is a very rough in memory data source example.  fin-hypergrid-behavior-in-m
          */
         getFixedRowValue: function(x /*, y*/ ) {
             var sortIndicator = '';
-            var tableState = this.getState();
+            var tableState = this.getPrivateState();
             if (tableState.sortLookup[x] && !tableState.sorted[x]) {
                 tableState.sorted[x] = 0;
                 sortIndicator = this.sortStates[tableState.sorted[x]];
@@ -610,7 +610,7 @@ This is a very rough in memory data source example.  fin-hypergrid-behavior-in-m
          * @param {integer} colIndex - the column index of interest
          */
         toggleSort: function(columnIndex) {
-            var tableState = this.getState();
+            var tableState = this.getPrivateState();
             var current = tableState.sorted[columnIndex];
             var stateCount = this.sortStates.length;
             var sortStateIndex = (current + 1) % stateCount;

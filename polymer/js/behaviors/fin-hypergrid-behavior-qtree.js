@@ -958,7 +958,7 @@
                 for (var i = 0; i < colCount; i++) {
                     widths[i] = self._getColumnWidth(i);
                 }
-                self.initColumnIndexes(self.getState());
+                self.initColumnIndexes(self.getPrivateState());
                 for (i = 0; i < colCount; i++) {
                     widths[i] = self._setColumnWidth(i, widths[i]);
                 }
@@ -984,7 +984,7 @@
         */
         handleMessage: function(d) {
             //insure certain things exist
-            var tableState = this.getState();
+            var tableState = this.getPrivateState();
             if (d.properties && !d.properties.columns) {
                 d.properties.columns = {};
             }

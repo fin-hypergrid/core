@@ -23,12 +23,15 @@
         changed: function() {
             this.getBehavior().changed();
         },
-        getState: function() {
-            return this.getGrid().getState();
+        getPrivateState: function() {
+            return this.getGrid().getPrivateState();
         },
         setState: function(state) {
 
         },
+        applyState: function() {
+
+        }
     });
 
 })();

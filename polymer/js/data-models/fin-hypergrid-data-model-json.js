@@ -270,7 +270,7 @@
         },
 
         getVisibleColumns: function() {
-            var tableState = this.getState();
+            var tableState = this.getPrivateState();
             var headers = this.getHeaders().slice(0);
             if (this.hasAggregates()) {
                 headers.shift();
@@ -288,7 +288,7 @@
             return labels;
         },
         getHiddenColumns: function() {
-            var tableState = this.getState();
+            var tableState = this.getPrivateState();
             var headers = this.getHeaders().slice(0);
             if (this.hasAggregates()) {
                 headers.shift();
@@ -365,7 +365,7 @@
         },
         incrementSortState: function(colIndex, keys) {
             colIndex++; //hack to get around 0 index
-            var state = this.getState();
+            var state = this.getPrivateState();
             var hasCTRL = keys.indexOf('CTRL') > -1;
             state.sorts = state.sorts || [];
             var already = state.sorts.indexOf(colIndex);
@@ -390,7 +390,7 @@
         },
         applySorts: function() {
             var sortingSource = this.getSortingSource();
-            var sorts = this.getState().sorts;
+            var sorts = this.getPrivateState().sorts;
             var groupOffset = this.hasAggregates() ? 1 : 0;
             if (!sorts || sorts.length === 0) {
                 sortingSource.clearSorts();
@@ -406,7 +406,7 @@
         getSortImageForColumn: function(index) {
             index++;
             var up = true;
-            var sorts = this.getState().sorts;
+            var sorts = this.getPrivateState().sorts;
             if (!sorts) {
                 return null;
             }
@@ -511,5 +511,8 @@
 
             return renderer;
         },
+        applyState: function() {
+            this.applyAnalytics();
+        }
     });
 })();

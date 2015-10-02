@@ -581,7 +581,7 @@
         },
 
         getProperties: function() {
-            return this.getState();
+            return this.getPrivateState();
         },
 
         _getProperties: function() {
@@ -758,8 +758,8 @@
          * #### returns: object
          * @instance
          */
-        getState: function() {
-            var state = this.getBehavior().getState();
+        getPrivateState: function() {
+            var state = this.getBehavior().getPrivateState();
             return state;
         },
 
