@@ -1873,7 +1873,10 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          * @param {integer} tar - column index
          */
         swapColumns: function(source, target) {
-
+            var columns = this.columns;
+            var tmp = columns[source];
+            columns[source] = columns[target];
+            columns[target] = tmp;
         },
 
         getColumnEdge: function(c, renderer) {
