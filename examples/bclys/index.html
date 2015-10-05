@@ -89,7 +89,7 @@
         }
 
         window.toggleAutosortGrouping = function() {
-            var aggregator = jsonModel.getBaseModel().getDataSource();
+            var aggregator = jsonModel.getDataModel().getDataSource();
             aggregator.presortGroups = !aggregator.presortGroups;
             aggregator.doAggregates = true;
             jsonModel.setAggregates(aggregates);
@@ -219,7 +219,7 @@
         };
 
         //lets override the cell editors, and configure the drop down lists
-        jsonModel.getBaseModel().getCellEditorAt = function(x, y) {
+        jsonModel.getDataModel().getCellEditorAt = function(x, y) {
             var type = editorTypes[x];
             if (!type) {
                 return; //no editor here
@@ -328,7 +328,7 @@
             var x = details.x;
             var y = details.y;
             var value = details.value;
-            jsonModel.getBaseModel().getTotals()[0][x] = value;
+            jsonModel.getDataModel().getTotals()[0][x] = value;
             jsonGrid.repaint();
         });
 
@@ -522,7 +522,7 @@
 
                 window.g = document.querySelector('#json-example');
                 window.b = g.getBehavior();
-                window.m = b.getBaseModel();
+                window.m = b.getDataModel();
 
             }, 500);
 
