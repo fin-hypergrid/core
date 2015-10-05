@@ -428,7 +428,7 @@
             }
             var grid = this.getGrid();
             var headerRowCount = grid.getHeaderRowCount();
-            var y = event.gridCell.y - headerRowCount + 1;
+            var y = event.gridCell.y - headerRowCount;
             this.analytics.click(y);
         },
         getRow: function(y) {
@@ -438,7 +438,6 @@
                 var topTotals = this.getTopTotals();
                 return topTotals[y - (headerRowCount - topTotals.length)];
             }
-            var headerRowCount = grid.getHeaderRowCount();
             return this.getDataSource().getRow(y - headerRowCount);
         },
         buildRow: function(y) {
