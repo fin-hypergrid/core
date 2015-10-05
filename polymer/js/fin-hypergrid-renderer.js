@@ -1085,19 +1085,18 @@ Instances of this object have basically four main functions.
                 cellProperties.mouseDown = point.x === c && point.y === r;
             }
 
-            var cell = behavior.getCellRenderer(cellProperties, c, r);
-
             cellProperties.x = c;
             cellProperties.y = r;
 
+            behavior.cellPropertiesPrePaintNotification(cellProperties);
+
+            var cell = behavior.getCellRenderer(cellProperties, c, r);
             var overrides = behavior.getCellProperties(c, r);
 
             //declarative cell properties
             if (overrides) {
                 merge(cellProperties, overrides);
             }
-
-            behavior.cellPrePaintNotification(cell);
 
             //allow the renderer to identify itself if it's a button
             cellProperties.buttonCells = this.buttonCells;

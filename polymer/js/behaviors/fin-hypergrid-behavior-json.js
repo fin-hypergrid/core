@@ -27,8 +27,9 @@
 
         getDefaultDataModel: function() {
             var model = document.createElement('fin-hypergrid-data-model-json');
-            this.baseModel = model;
-            return model;
+            var wrapper = new this.DataModelDecorator(this.getGrid(), model);
+            wrapper.setComponent(model);
+            return wrapper;
         },
 
         /**
@@ -39,7 +40,7 @@
         * @param {Array} headerLabels - an array of strings
         */
         setHeaders: function(headerLabels) {
-            this.getBaseModel().setHeaders(headerLabels);
+            this.getDataModel().setHeaders(headerLabels);
         },
 
         /**
@@ -50,7 +51,7 @@
         * #### returns: Array
         */
         getHeaders: function() {
-            return this.getBaseModel().getHeaders();
+            return this.getDataModel().getHeaders();
         },
 
         /**
@@ -75,7 +76,7 @@
         * #### returns: Array
         */
         getFields: function() {
-            return this.getBaseModel().getFields();
+            return this.getDataModel().getFields();
         },
 
         /**
@@ -86,7 +87,7 @@
         * @param {Array} arrayOfUniformObjects - an array of uniform objects, each being a row in the grid
         */
         setData: function(arrayOfUniformObjects) {
-            this.getBaseModel().setData(arrayOfUniformObjects);
+            this.getDataModel().setData(arrayOfUniformObjects);
             this.createColumns();
         },
 
@@ -97,7 +98,7 @@
         getter for the data field
         */
         getData: function() {
-            return this.getBaseModel().getData();
+            return this.getDataModel().getData();
         },
 
 
@@ -109,11 +110,11 @@
         * @param {array} nestedArray - array2D of totals data
         */
         setTopTotals: function(nestedArray) {
-            this.getBaseModel().setTopTotals(nestedArray);
+            this.getDataModel().setTopTotals(nestedArray);
         },
 
         getTopTotals: function() {
-            return this.getBaseModel().getTopTotals();
+            return this.getDataModel().getTopTotals();
         },
 
         /**
@@ -131,21 +132,7 @@
         * @param {Array} columnDefinitions - an array of objects with fields 'title', and 'field'
         */
         setColumns: function(columnDefinitions) {
-            this.getBaseModel().setColumns(columnDefinitions);
-        },
-
-        /**
-         * @function
-         * @instance
-         * @description
-         this function is a hook and is called just before the painting of a cell occurs
-         * @param {rectangle.point} cell - [rectangle.point](http://stevewirts.github.io/fin-rectangle/components/fin-rectangle/)
-         */
-        cellPrePaintNotification: function(cell) {
-            var row = this.getRow(cell.config.y);
-            var columnId = this.getHeader(cell.config.x);
-            cell.config.row = row;
-            cell.config.columnId = columnId;
+            this.getDataModel().setColumns(columnDefinitions);
         },
 
         /**
@@ -160,11 +147,11 @@
         },
 
         setDataProvider: function(dataProvider) {
-            this.getBaseModel().setDataProvider(dataProvider);
+            this.getDataModel().setDataProvider(dataProvider);
         },
 
         hasHierarchyColumn: function() {
-            return this.getBaseModel().hasHierarchyColumn();
+            return this.getDataModel().hasHierarchyColumn();
         },
 
         getColumnAlignment: function(x) {
@@ -249,16 +236,16 @@
             return true;
         },
         getGroups: function() {
-            return this.getBaseModel().getGroups();
+            return this.getDataModel().getGroups();
         },
         getAvailableGroups: function() {
-            return this.getBaseModel().getAvailableGroups();
+            return this.getDataModel().getAvailableGroups();
         },
         getHiddenColumns: function() {
-            return this.getBaseModel().getHiddenColumns();
+            return this.getDataModel().getHiddenColumns();
         },
         getVisibleColumns: function() {
-            return this.getBaseModel().getVisibleColumns();
+            return this.getDataModel().getVisibleColumns();
         },
         setColumnDescriptors: function(lists) {
             //assumes there is one row....

@@ -500,7 +500,7 @@
         },
         getCellRenderer: function(config, x, y, untranslatedX, untranslatedY) {
             var renderer;
-            var provider = this.getCellProvider();
+            var provider = this.getGrid().getCellProvider();
 
             config.x = x;
             config.y = y;

@@ -71,14 +71,6 @@
             this.getComponent().setColumnProperties(columnIndex, properties);
         },
 
-        checkColumnAutosizing: function( /* minWidths */ ) {
-            //return this.getComponent().checkColumnAutosizing(minWidths);
-        },
-
-        setState: function( /* memento */ ) {
-            //this.getComponent().setState(memento);
-        },
-
         getHeaders: function() {
             return this.getComponent().getHeaders();
         },
@@ -89,7 +81,6 @@
 
         setFields: function(fields) {
             this.getComponent().setFields(fields);
-            this.getBehavior().resetColumnIndexes();
         },
 
         getCellProperties: function(x, y) {
@@ -104,21 +95,33 @@
             return this.getComponent().getRow(y);
         },
 
-        convertViewPointToDataPoint: function(viewPoint) {
-            return this.getComponent().convertViewPointToDataPoint(viewPoint);
-        },
-        convertDataPointToViewPoint: function(dataPoint) {
-            return this.getComponent().convertDataPointToViewPoint(dataPoint);
-        },
-        hasHierarchyColumn: function() {
-            return this.getComponent().hasHierarchyColumn();
-        },
         getRowContextFunction: function(y) {
             return this.getComponent().getRowContextFunction(y);
         },
-        autosizeAllColumns: function() {
-            //return this.getComponent().autosizeAllColumns();
-        }
+
+        setTopTotals: function(nestedArray) {
+            this.getComponent().setTopTotals(nestedArray);
+        },
+
+        getTopTotals: function() {
+            return this.getComponent().getTopTotals();
+        },
+
+        setData: function(y) {
+            return this.getComponent().setData(y);
+        },
+
+        hasHierarchyColumn: function() {
+            return this.getComponent().hasHierarchyColumn();
+        },
+
+        setHeaders: function(headerLabels) {
+            return this.getComponent().setHeaders(headerLabels);
+        },
+
+        cellClicked: function(cell, event) {
+            return this.getComponent().cellClicked(cell, event);
+        },
     });
 
 })();

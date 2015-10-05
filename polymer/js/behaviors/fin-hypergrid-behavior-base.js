@@ -9,9 +9,157 @@ it contains all code/data that's necessary for easily implementing a virtual dat
  */
 (function() {
 
+    function DataModelDecorator(grid, component) {
+        this.setComponent(component);
+        this.setGrid(grid);
+    }
+
+    DataModelDecorator.prototype = {
+
+        component: null,
+        grid: null,
+
+        getGrid: function() {
+            return this.grid;
+        },
+
+        setGrid: function(newGrid) {
+            this.grid = newGrid;
+            this.getComponent().setGrid(newGrid);
+        },
+
+        getBehavior: function() {
+            return this.getGrid().getBehavior();
+        },
+
+        changed: function() {
+            this.getBehavior().changed();
+        },
+
+        getPrivateState: function() {
+            return this.getGrid().getPrivateState();
+        },
+
+        applyState: function() {
+
+        },
+
+        setComponent: function(newComponent) {
+            this.component = newComponent;
+        },
+
+        getComponent: function() {
+            return this.component;
+        },
+
+        getValue: function(x, y) {
+            return this.getComponent().getValue(x, y);
+        },
+
+        setValue: function(x, y, value) {
+            this.getComponent().setValue(x, y, value);
+        },
+
+        getColumnCount: function() {
+            return this.getComponent().getColumnCount();
+        },
+
+        getRowCount: function() {
+            return this.getComponent().getRowCount();
+        },
+
+        getCellRenderer: function(config, x, y, untranslatedX, untranslatedY) {
+            return this.getComponent().getCellRenderer(config, x, y, untranslatedX, untranslatedY);
+        },
+
+        getRowHeight: function(y) {
+            return this.getComponent().getRowHeight(y);
+        },
+
+        getColumnEdge: function(x, renderer) {
+            return this.getComponent().getColumnEdge(x, renderer);
+        },
+
+        getColumnWidth: function(x) {
+            return this.getComponent().getColumnWidth(x);
+        },
+
+        setColumnWidth: function(x, width) {
+            this.getComponent().setColumnWidth(x, width);
+        },
+
+        toggleSort: function(x, keys) {
+            this.getComponent().toggleSort(x, keys);
+        },
+
+        getCellEditorAt: function(x, y) {
+            return this.getComponent().getCellEditorAt(x, y);
+        },
+
+        getColumnProperties: function(columnIndex) {
+            return this.getComponent().getColumnProperties(columnIndex);
+        },
+
+        setColumnProperties: function(columnIndex, properties) {
+            this.getComponent().setColumnProperties(columnIndex, properties);
+        },
+
+        getHeaders: function() {
+            return this.getComponent().getHeaders();
+        },
+
+        getFields: function() {
+            return this.getComponent().getFields();
+        },
+
+        setFields: function(fields) {
+            this.getComponent().setFields(fields);
+        },
+
+        getCellProperties: function(x, y) {
+            return this.getComponent().getCellProperties(x, y);
+        },
+
+        setCellProperties: function(x, y, value) {
+            this.getComponent().setCellProperties(x, y, value);
+        },
+
+        getRow: function(y) {
+            return this.getComponent().getRow(y);
+        },
+
+        getRowContextFunction: function(y) {
+            return this.getComponent().getRowContextFunction(y);
+        },
+
+        setTopTotals: function(nestedArray) {
+            this.getComponent().setTopTotals(nestedArray);
+        },
+
+        getTopTotals: function() {
+            return this.getComponent().getTopTotals();
+        },
+
+        setData: function(y) {
+            return this.getComponent().setData(y);
+        },
+
+        hasHierarchyColumn: function() {
+            return this.getComponent().hasHierarchyColumn();
+        },
+
+        setHeaders: function(headerLabels) {
+            return this.getComponent().setHeaders(headerLabels);
+        },
+
+        cellClicked: function(cell, event) {
+            return this.getComponent().cellClicked(cell, event);
+        },
+    };
+
     function Column(behavior, index, label) {
         this.behavior = behavior;
-        this.dataModel = behavior.getBaseModel();
+        this.dataModel = behavior.getDataModel();
         this.index = index;
         this.label = label;
     }
@@ -193,6 +341,8 @@ it contains all code/data that's necessary for easily implementing a virtual dat
         featureMap: {},
         allColumns: [],
         columns: [],
+
+        DataModelDecorator: DataModelDecorator,
 
         clearColumns: function() {
             this.columns = [];
@@ -516,45 +666,17 @@ it contains all code/data that's necessary for easily implementing a virtual dat
             this.getColumn(x).setWidth(width);
             this.stateChanged();
         },
+
         getDataModel: function() {
             if (this.dataModel === null) {
-                var dataModel = this.getBaseModel();
+                var dataModel = this.getDefaultDataModel();
                 this.setDataModel(dataModel);
             }
             return this.dataModel;
         },
 
-        getBaseModel: function() {
-            if (this.baseModel === null) {
-                this.baseModel = this.getDefaultDataModel();
-            }
-            return this.baseModel;
-        },
-
-        getCellProviderDecorator: function() {
-            if (this.cellProviderDecorator === null) {
-                this.cellProviderDecorator = this.getDefaultCellProviderDecorator();
-            }
-            return this.cellProviderDecorator;
-        },
-
         getCellRenderer: function(config, x, y) {
             return this.getColumn(x).getCellRenderer(config, y);
-        },
-
-        getDefaultCellProviderDecorator: function() {
-            var model = document.createElement('fin-hypergrid-data-model-decorator-cell-provider');
-            return model;
-        },
-
-        getDefaultDataModel: function() {
-            var model = document.createElement('fin-hypergrid-data-model-base');
-            return model;
-        },
-
-        getDefaultReorderDataModel: function() {
-            var model = document.createElement('fin-hypergrid-data-model-decorator-reorder');
-            return model;
         },
 
         setDataModel: function(newDataModel) {
@@ -735,7 +857,7 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          * @param {Object} event - all event information
          */
         cellClicked: function(cell, event) {
-            this.getBaseModel().cellClicked(cell, event);
+            this.getDataModel().cellClicked(cell, event);
         },
 
         /**
@@ -1806,8 +1928,11 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          this function is a hook and is called just before the painting of a cell occurs
          * @param {rectangle.point} cell - [rectangle.point](http://stevewirts.github.io/fin-rectangle/components/fin-rectangle/)
          */
-        cellPrePaintNotification: function( /* cell */ ) {
-
+        cellPropertiesPrePaintNotification: function(cellProperties) {
+            var row = this.getRow(cellProperties.y);
+            var columnId = this.getHeader(cellProperties.x);
+            cellProperties.row = row;
+            cellProperties.columnId = columnId;
         },
 
         /**
@@ -1894,12 +2019,12 @@ it contains all code/data that's necessary for easily implementing a virtual dat
         },
 
         setGroups: function(arrayOfColumnIndexes) {
-            this.getBaseModel().setGroups(arrayOfColumnIndexes);
+            this.getDataModel().setGroups(arrayOfColumnIndexes);
             this.createColumns();
             this.changed();
         },
         setAggregates: function(mapOfKeysToFunctions) {
-            this.getBaseModel().setAggregates(mapOfKeysToFunctions);
+            this.getDataModel().setAggregates(mapOfKeysToFunctions);
             this.createColumns();
             this.changed();
         },
@@ -1920,7 +2045,7 @@ it contains all code/data that's necessary for easily implementing a virtual dat
             return this.getFields().indexOf(fieldName);
         },
         getComputedRow: function(y) {
-            return this.getBaseModel().getComputedRow(y);
+            return this.getDataModel().getComputedRow(y);
         },
         autosizeAllColumns: function() {
             this.checkColumnAutosizing(true);
@@ -1937,7 +2062,7 @@ it contains all code/data that's necessary for easily implementing a virtual dat
             this.allColumns[-1].checkColumnAutosizing(true);
         },
         setGlobalFilter: function(string) {
-            this.getBaseModel().setGlobalFilter(string);
+            this.getDataModel().setGlobalFilter(string);
         },
     });
 })();
