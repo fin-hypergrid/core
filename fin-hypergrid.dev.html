@@ -24435,7 +24435,7 @@ var commands = {
             this.applyAnalytics();
         },
         getGroups: function() {
-            var headers = this.source.getHeaders().slice(0);
+            var headers = this.getHeaders().slice(0);
             var groupBys = this.analytics.groupBys;
             var groups = [];
             for (var i = 0; i < groupBys.length; i++) {
@@ -24467,45 +24467,23 @@ var commands = {
         },
 
         getVisibleColumns: function() {
-            var tableState = this.getPrivateState();
-            var headers = this.getHeaders().slice(0);
-            if (this.hasAggregates()) {
-                headers.shift();
-            }
-            var columnCount = this.getColumnCount();
-            var labels = [];
-            for (var i = 0; i < columnCount; i++) {
-                var id = tableState.columnIndexes[i];
-                labels.push({
-                    id: id,
-                    label: headers[id],
-                    field: headers[id]
-                });
-            }
-            return labels;
+            var items = this.getBehavior().columns.slice(0);
+            return items;
+
         },
         getHiddenColumns: function() {
-            var tableState = this.getPrivateState();
-            var headers = this.getHeaders().slice(0);
-            if (this.hasAggregates()) {
-                headers.shift();
-            }
-            var columnCount = headers.length;
-            var labels = [];
-            for (var i = 0; i < columnCount; i++) {
-                var index = tableState.columnIndexes.indexOf(i);
-                if (index === -1) {
-                    labels.push({
-                        id: i,
-                        label: headers[i],
-                        field: headers[i]
-                    });
+            var visible = this.getBehavior().columns;
+            var all = this.getBehavior().allColumns;
+            var hidden = [];
+            for (var i = 0; i < all.length; i++) {
+                if (visible.indexOf(all[i]) === -1) {
+                    hidden.push(all[i]);
                 }
             }
-            labels.sort(function(a, b) {
-                return a.label > b.label;
+            hidden.sort(function(a, b) {
+                return a.label < b.label;
             });
-            return labels;
+            return hidden;
         },
 
         setAggregates: function(aggregations) {
@@ -24947,6 +24925,30 @@ it contains all code/data that's necessary for easily implementing a virtual dat
 
         cellClicked: function(cell, event) {
             return this.getComponent().cellClicked(cell, event);
+        },
+
+        getAvailableGroups: function() {
+            return this.getComponent().getAvailableGroups();
+        },
+
+        getGroups: function() {
+            return this.getComponent().getGroups();
+        },
+
+        setGroups: function(groups) {
+            this.getComponent().setGroups(groups);
+        },
+
+        getHiddenColumns: function() {
+            return this.getComponent().getHiddenColumns();
+        },
+
+        getVisibleColumns: function() {
+            return this.getComponent().getVisibleColumns();
+        },
+
+        setAggregates: function(aggregates) {
+            return this.getComponent().setAggregates(aggregates);
         },
     };
 
@@ -29028,23 +29030,15 @@ This is a very rough in memory data source example.  fin-hypergrid-behavior-in-m
         },
         setColumnDescriptors: function(lists) {
             //assumes there is one row....
-            var visible = lists.visible;
-            var group = lists.group;
-            var tableState = this.getPrivateState();
-
-            var columnCount = visible.length;
-            var indexes = [];
-            var i;
-            for (i = 0; i < columnCount; i++) {
-                indexes.push(visible[i].id);
+            this.columns.length = 0;
+            for (var i = 0; i < lists.visible.length; i++) {
+                this.columns.push(lists.visible[i]);
             }
-            tableState.columnIndexes = indexes;
 
-            var groupBys = group.map(function(e) {
+            var groupBys = lists.group.map(function(e) {
                 return e.id;
             });
-
-            this.setGroups(groupBys);
+            this.getDataModel().setGroups(groupBys);
 
             this.changed();
         },
@@ -34389,6 +34383,10 @@ fin-vampire-bar {
 
         initializeCellEditor: function(cellEditorName) {
             initializeCellEditor(cellEditorName);
+        },
+
+        toggleColumnPicker: function() {
+            this.getBehavior().toggleColumnPicker();
         },
 
         /**

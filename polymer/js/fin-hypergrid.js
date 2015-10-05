@@ -596,6 +596,10 @@
             initializeCellEditor(cellEditorName);
         },
 
+        toggleColumnPicker: function() {
+            this.getBehavior().toggleColumnPicker();
+        },
+
         /**
          * @function
          * @instance

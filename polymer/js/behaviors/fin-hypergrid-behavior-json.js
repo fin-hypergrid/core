@@ -249,23 +249,15 @@
         },
         setColumnDescriptors: function(lists) {
             //assumes there is one row....
-            var visible = lists.visible;
-            var group = lists.group;
-            var tableState = this.getPrivateState();
-
-            var columnCount = visible.length;
-            var indexes = [];
-            var i;
-            for (i = 0; i < columnCount; i++) {
-                indexes.push(visible[i].id);
+            this.columns.length = 0;
+            for (var i = 0; i < lists.visible.length; i++) {
+                this.columns.push(lists.visible[i]);
             }
-            tableState.columnIndexes = indexes;
 
-            var groupBys = group.map(function(e) {
+            var groupBys = lists.group.map(function(e) {
                 return e.id;
             });
-
-            this.setGroups(groupBys);
+            this.getDataModel().setGroups(groupBys);
 
             this.changed();
         },

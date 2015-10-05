@@ -155,6 +155,30 @@ it contains all code/data that's necessary for easily implementing a virtual dat
         cellClicked: function(cell, event) {
             return this.getComponent().cellClicked(cell, event);
         },
+
+        getAvailableGroups: function() {
+            return this.getComponent().getAvailableGroups();
+        },
+
+        getGroups: function() {
+            return this.getComponent().getGroups();
+        },
+
+        setGroups: function(groups) {
+            this.getComponent().setGroups(groups);
+        },
+
+        getHiddenColumns: function() {
+            return this.getComponent().getHiddenColumns();
+        },
+
+        getVisibleColumns: function() {
+            return this.getComponent().getVisibleColumns();
+        },
+
+        setAggregates: function(aggregates) {
+            return this.getComponent().setAggregates(aggregates);
+        },
     };
 
     function Column(behavior, index, label) {

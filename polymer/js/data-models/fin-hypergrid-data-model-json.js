@@ -238,7 +238,7 @@
             this.applyAnalytics();
         },
         getGroups: function() {
-            var headers = this.source.getHeaders().slice(0);
+            var headers = this.getHeaders().slice(0);
             var groupBys = this.analytics.groupBys;
             var groups = [];
             for (var i = 0; i < groupBys.length; i++) {
@@ -270,45 +270,23 @@
         },
 
         getVisibleColumns: function() {
-            var tableState = this.getPrivateState();
-            var headers = this.getHeaders().slice(0);
-            if (this.hasAggregates()) {
-                headers.shift();
-            }
-            var columnCount = this.getColumnCount();
-            var labels = [];
-            for (var i = 0; i < columnCount; i++) {
-                var id = tableState.columnIndexes[i];
-                labels.push({
-                    id: id,
-                    label: headers[id],
-                    field: headers[id]
-                });
-            }
-            return labels;
+            var items = this.getBehavior().columns.slice(0);
+            return items;
+
         },
         getHiddenColumns: function() {
-            var tableState = this.getPrivateState();
-            var headers = this.getHeaders().slice(0);
-            if (this.hasAggregates()) {
-                headers.shift();
-            }
-            var columnCount = headers.length;
-            var labels = [];
-            for (var i = 0; i < columnCount; i++) {
-                var index = tableState.columnIndexes.indexOf(i);
-                if (index === -1) {
-                    labels.push({
-                        id: i,
-                        label: headers[i],
-                        field: headers[i]
-                    });
+            var visible = this.getBehavior().columns;
+            var all = this.getBehavior().allColumns;
+            var hidden = [];
+            for (var i = 0; i < all.length; i++) {
+                if (visible.indexOf(all[i]) === -1) {
+                    hidden.push(all[i]);
                 }
             }
-            labels.sort(function(a, b) {
-                return a.label > b.label;
+            hidden.sort(function(a, b) {
+                return a.label < b.label;
             });
-            return labels;
+            return hidden;
         },
 
         setAggregates: function(aggregations) {

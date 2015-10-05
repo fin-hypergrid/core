@@ -24,7 +24,7 @@
 <div class="container" style="border-style: solid; border-color: red">
     <div class="row" style="border-style: solid; border-color: blue">
         <div class="col-md-12 col-lg-12" style="border-style: solid; border-color: grey">
-            <button onclick="toggleGroups()">toggle groups</button>
+            <button onclick="toggleColumnPicker()">toggle column picker</button>
             <button onclick="toggleAggregates()">toggle aggregates</button>
             <button onclick="toggleAutosortGrouping()">toggle autosort groups</button>
             <button onclick="toggleEmptyData()">toggle empty data</button>
@@ -62,13 +62,8 @@
         //functions for showing the grouping/rollup capbilities
         var rollups = fin.analytics.aggregations;
 
-        var doGrouping = false;
-        var groups = [4, 0, 2, 5];
-
-        window.toggleGroups = function() {
-            doGrouping = !doGrouping;
-            var arg = doGrouping? groups : [];
-            jsonModel.setGroups(arg);
+        window.toggleColumnPicker = function() {
+            jsonGrid.toggleColumnPicker();
         }
 
         var doAggregates = false;
