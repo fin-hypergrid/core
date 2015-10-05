@@ -203,7 +203,7 @@ var noop = function() {};
                 }
             }
 
-            val = valueOrFunctionExecute(config, val)
+            val = valueOrFunctionExecute(config, val);
 
             if (gc.font !== config.font) {
                 gc.font = config.font;

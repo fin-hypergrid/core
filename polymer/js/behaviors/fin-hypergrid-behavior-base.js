@@ -1803,18 +1803,6 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          * @function
          * @instance
          * @description
-         check to see that columns are at their minimum width to display all data
-         * @param {Array} fixedMinWidths - the minimum sizes to fit all data for each column in the fixed area
-         * @param {Array} minWidths - the minimum sizes to fit all data for each column in the data area
-         */
-        checkColumnAutosizing: function(minWidths) {
-            this.getDataModel().checkColumnAutosizing(minWidths);
-        },
-
-        /**
-         * @function
-         * @instance
-         * @description
          this function is a hook and is called just before the painting of a cell occurs
          * @param {rectangle.point} cell - [rectangle.point](http://stevewirts.github.io/fin-rectangle/components/fin-rectangle/)
          */

@@ -2,8 +2,6 @@
 
 (function() {
 
-    var noop = function() {};
-
     Polymer('fin-hypergrid-data-model-base', { /* jshint ignore:line  */
 
         grid: null,
@@ -26,7 +24,7 @@
         getPrivateState: function() {
             return this.getGrid().getPrivateState();
         },
-        setState: function(state) {
+        setState: function( /* state */ ) {
 
         },
         applyState: function() {

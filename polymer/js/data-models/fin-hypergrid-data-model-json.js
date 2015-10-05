@@ -85,7 +85,7 @@
                 return this.getHeaderRowValue(x, y);
             }
             if (hasHierarchyColumn) {
-                y += 1;
+                //y += 1;
             }
             var value = this.getDataSource().getValue(x, y - headerRowCount);
             return value;
@@ -432,12 +432,14 @@
             this.analytics.click(y);
         },
         getRow: function(y) {
-            if (this.hasAggregates()) {
-                return null;
+            var grid = this.getGrid();
+            var headerRowCount = grid.getHeaderRowCount();
+            if (y < headerRowCount && !this.hasAggregates()) {
+                var topTotals = this.getTopTotals();
+                return topTotals[y - (headerRowCount - topTotals.length)];
             }
-            // var grid = this.getGrid();
-            // var headerRowCount = grid.getHeaderRowCount();
-            // return this.getDataSource().getRow(y - headerRowCount);
+            var headerRowCount = grid.getHeaderRowCount();
+            return this.getDataSource().getRow(y - headerRowCount);
         },
         buildRow: function(y) {
             var colCount = this.getColumnCount();

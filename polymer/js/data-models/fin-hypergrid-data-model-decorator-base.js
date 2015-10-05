@@ -71,11 +71,11 @@
             this.getComponent().setColumnProperties(columnIndex, properties);
         },
 
-        checkColumnAutosizing: function(minWidths) {
+        checkColumnAutosizing: function( /* minWidths */ ) {
             //return this.getComponent().checkColumnAutosizing(minWidths);
         },
 
-        setState: function(memento) {
+        setState: function( /* memento */ ) {
             //this.getComponent().setState(memento);
         },
 

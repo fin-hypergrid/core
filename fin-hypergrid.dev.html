@@ -18452,7 +18452,7 @@ var noop = function() {};
                 }
             }
 
-            val = valueOrFunctionExecute(config, val)
+            val = valueOrFunctionExecute(config, val);
 
             if (gc.font !== config.font) {
                 gc.font = config.font;
@@ -23948,8 +23948,6 @@ var commands = {
 
 (function() {
 
-    var noop = function() {};
-
     Polymer('fin-hypergrid-data-model-base', { /* jshint ignore:line  */
 
         grid: null,
@@ -23972,7 +23970,7 @@ var commands = {
         getPrivateState: function() {
             return this.getGrid().getPrivateState();
         },
-        setState: function(state) {
+        setState: function( /* state */ ) {
 
         },
         applyState: function() {
@@ -24064,11 +24062,11 @@ var commands = {
             this.getComponent().setColumnProperties(columnIndex, properties);
         },
 
-        checkColumnAutosizing: function(minWidths) {
+        checkColumnAutosizing: function( /* minWidths */ ) {
             //return this.getComponent().checkColumnAutosizing(minWidths);
         },
 
-        setState: function(memento) {
+        setState: function( /* memento */ ) {
             //this.getComponent().setState(memento);
         },
 
@@ -24503,7 +24501,7 @@ var commands = {
                 return this.getHeaderRowValue(x, y);
             }
             if (hasHierarchyColumn) {
-                y += 1;
+                //y += 1;
             }
             var value = this.getDataSource().getValue(x, y - headerRowCount);
             return value;
@@ -24850,12 +24848,14 @@ var commands = {
             this.analytics.click(y);
         },
         getRow: function(y) {
-            if (this.hasAggregates()) {
-                return null;
+            var grid = this.getGrid();
+            var headerRowCount = grid.getHeaderRowCount();
+            if (y < headerRowCount && !this.hasAggregates()) {
+                var topTotals = this.getTopTotals();
+                return topTotals[y - (headerRowCount - topTotals.length)];
             }
-            // var grid = this.getGrid();
-            // var headerRowCount = grid.getHeaderRowCount();
-            // return this.getDataSource().getRow(y - headerRowCount);
+            var headerRowCount = grid.getHeaderRowCount();
+            return this.getDataSource().getRow(y - headerRowCount);
         },
         buildRow: function(y) {
             var colCount = this.getColumnCount();
@@ -26810,18 +26810,6 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          */
         setImage: function(key, image) {
             imageCache[key] = image;
-        },
-
-        /**
-         * @function
-         * @instance
-         * @description
-         check to see that columns are at their minimum width to display all data
-         * @param {Array} fixedMinWidths - the minimum sizes to fit all data for each column in the fixed area
-         * @param {Array} minWidths - the minimum sizes to fit all data for each column in the data area
-         */
-        checkColumnAutosizing: function(minWidths) {
-            this.getDataModel().checkColumnAutosizing(minWidths);
         },
 
         /**
