@@ -17055,8 +17055,29 @@ Instances of this object have basically four main functions.
                 return x - y;
             });
             return result;
-        }
+        },
 
+        selectRowsFromCells: function() {
+            var sm = this.rowSelectionModel;
+            sm.clear();
+            for (var i = 0; i < this.selections.length; i++) {
+                var each = this.selections[i];
+                var top = each.origin.y;
+                var size = each.extent.y;
+                sm.select(top, top + size);
+            }
+        },
+
+        selectColumnsFromCells: function() {
+            var sm = this.columnSelectionModel;
+            sm.clear();
+            for (var i = 0; i < this.selections.length; i++) {
+                var each = this.selections[i];
+                var top = each.origin.x;
+                var size = each.extent.x;
+                sm.select(top, top + size);
+            }
+        },
 
     });
 
@@ -34027,7 +34048,7 @@ fin-vampire-bar {
             showHeaderRow: true,
             showFilterRow: true,
 
-            cellSelection: false,
+            cellSelection: true,
             columnSelection: true,
             rowSelection: true,
 
@@ -36335,7 +36356,7 @@ fin-vampire-bar {
          */
         takeFocus: function() {
             if (this.isEditing()) {
-                this.editorTakeFocus();
+                this.stopEditing();
             } else {
                 this.getCanvas().takeFocus();
             }
@@ -37590,6 +37611,12 @@ fin-vampire-bar {
         setGlobalFilter: function(string) {
             this.getBehavior().setGlobalFilter(string);
         },
+        selectRowsFromCells: function() {
+            this.getSelectionModel().selectRowsFromCells();
+        },
+        selectColumnsFromCells: function() {
+            this.getSelectionModel().selectColumnsFromCells();
+        }
     });
 
 })(); /* jslint ignore:line */

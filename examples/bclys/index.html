@@ -173,6 +173,16 @@
             var x = config.x;
             var y = config.y;
 
+            var upDownIMG = upDown;
+            var upDownSpinIMG = upDownSpin;
+            var downArrowIMG = downArrow;
+
+            if (!jsonGrid.isEditable()) {
+                upDownIMG = null;
+                upDownSpinIMG = null;
+                downArrowIMG = null;
+            }
+
             config.halign = 'left';
             if ((y % 3) === 0){
                 config.backgroundColor = '#E87200';
@@ -183,16 +193,16 @@
             }
             if ([0,1,4,5].indexOf(x) > -1) {
                 //we are a dropdown, lets provide a visual queue
-                config.value = [null, config.value, upDown];
+                config.value = [null, config.value, upDownIMG];
             }
             if (x === 1) {
                 renderer = cellProvider.cellCache.linkCellRenderer;
             } else if (x === 2) {
                 config.halign = 'left';
-                config.value = [null, config.value, upDownSpin];
+                config.value = [null, config.value, upDownSpinIMG];
             } else if (x === 3) {
                 config.halign = 'left';
-                config.value = [null, config.value, downArrow];
+                config.value = [null, config.value, downArrowIMG];
             } else if (x === 6) {
                 renderer = cellProvider.cellCache.buttonRenderer;
             } else if (x === 7) {
@@ -214,7 +224,7 @@
         };
 
         //lets override the cell editors, and configure the drop down lists
-        jsonModel.getDataModel().getCellEditorAt = function(x, y) {
+        var myCellEditors = function(x, y) {
             var type = editorTypes[x];
             if (!type) {
                 return; //no editor here
@@ -247,26 +257,35 @@
             return cellEditor;
         };
 
-        jsonModel.getCursorAt = function(x,y) {
-            if (x === 1) {
-                return 'pointer'
-            } else {
-                return null;
-            }
-        };
+        jsonModel.getDataModel().getCellEditorAt = myCellEditors;
+
+        // jsonModel.getCursorAt = function(x,y) {
+        //     if (x === 1) {
+        //         return 'pointer'
+        //     } else {
+        //         return null;
+        //     }
+        // };
 
         jsonGrid.addFinEventListener('fin-selection-changed', function(e){
-            console.log('fin-selection-changed', jsonGrid.getSelectedRows(), jsonGrid.getSelectedColumns(), jsonGrid.getSelections());
-            var rowcontext = e.detail.rowContext;
-            var fields = jsonModel.getFields();
+
+            //lets mirror the cell selection into the rows and or columns
+            jsonGrid.selectRowsFromCells();
+            //jsonGrid.selectColumnsFromCells();
+
+            console.log('fin-selection-changed',{yOffset: jsonModel.getHeaderRowCount()}, jsonGrid.getSelectedRows(), jsonGrid.getSelectedColumns(), jsonGrid.getSelections());
+
             if (e.detail.selections.length === 0) {
                 console.log('no selections');
                 return;
             }
-            for (var i = 0; i < fields.length; i++) {
-                var field = fields[i];
-                console.log(i + ' ' + field + ' = ' + rowcontext(i) + ', ' + rowcontext(field));
-            }
+
+            // var fields = jsonModel.getFields();
+            // var rowcontext = e.detail.rowContext;
+            // for (var i = 0; i < fields.length; i++) {
+            //     var field = fields[i];
+            //     console.log(i + ' ' + field + ' = ' + rowcontext(i) + ', ' + rowcontext(field));
+            // }
         });
 
         jsonGrid.addFinEventListener('fin-double-click', function(e){
@@ -282,9 +301,9 @@
             if (cell.y < jsonGrid.getHeaderRowCount()) {
                 return;
             }
-            if(cell.x === 7) {
-                jsonGrid.toggleSelectRow(cell.y, []);
-            }
+            // if(cell.x === 7) {
+            //     jsonGrid.toggleSelectRow(cell.y, []);
+            // }
             else if (cell.x !== -1) {
                 if (jsonGrid.isEditing()) {
                     jsonGrid.stopEditing();
@@ -451,7 +470,11 @@
                         showHeaderRow: true,
                         showFilterRow: true,
                         columnAutosizing: true,
-                        editable: false
+                        editable: false,
+
+                        cellSelection: true,
+                        columnSelection: true,
+                        rowSelection: true,
                     };
 
                 jsonGrid.setState(state);

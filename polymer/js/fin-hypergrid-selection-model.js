@@ -288,8 +288,29 @@
                 return x - y;
             });
             return result;
-        }
+        },
 
+        selectRowsFromCells: function() {
+            var sm = this.rowSelectionModel;
+            sm.clear();
+            for (var i = 0; i < this.selections.length; i++) {
+                var each = this.selections[i];
+                var top = each.origin.y;
+                var size = each.extent.y;
+                sm.select(top, top + size);
+            }
+        },
+
+        selectColumnsFromCells: function() {
+            var sm = this.columnSelectionModel;
+            sm.clear();
+            for (var i = 0; i < this.selections.length; i++) {
+                var each = this.selections[i];
+                var top = each.origin.x;
+                var size = each.extent.x;
+                sm.select(top, top + size);
+            }
+        },
 
     });
 

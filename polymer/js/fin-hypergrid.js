@@ -213,7 +213,7 @@
             showHeaderRow: true,
             showFilterRow: true,
 
-            cellSelection: false,
+            cellSelection: true,
             columnSelection: true,
             rowSelection: true,
 
@@ -2521,7 +2521,7 @@
          */
         takeFocus: function() {
             if (this.isEditing()) {
-                this.editorTakeFocus();
+                this.stopEditing();
             } else {
                 this.getCanvas().takeFocus();
             }
@@ -3776,6 +3776,12 @@
         setGlobalFilter: function(string) {
             this.getBehavior().setGlobalFilter(string);
         },
+        selectRowsFromCells: function() {
+            this.getSelectionModel().selectRowsFromCells();
+        },
+        selectColumnsFromCells: function() {
+            this.getSelectionModel().selectColumnsFromCells();
+        }
     });
 
 })(); /* jslint ignore:line */
