@@ -8,6 +8,8 @@
 
 (function() {
 
+    var noop = function() {};
+
     Polymer({ /* jslint ignore:line */
 
         createColumns: function() {
@@ -185,12 +187,20 @@
             group.style.width = '24%';
             group.title = 'groups';
             group.list = this.getGroups();
+            group.canDropItem = function(sourceList, myList, sourceIndex, item, e) {
+                noop(sourceList, myList, sourceIndex, e);
+                return sourceList === group.list || sourceList === availableGroups.list;
+            };
 
             this.beColumnStyle(availableGroups.style);
             availableGroups.style.left = '25%';
             availableGroups.style.width = '24%';
             availableGroups.title = 'Available Groups';
             availableGroups.list = this.getAvailableGroups();
+            availableGroups.canDropItem = function(sourceList, myList, sourceIndex, item, e) {
+                noop(sourceList, myList, sourceIndex, e);
+                return sourceList === group.list || sourceList === availableGroups.list;
+            };
 
             //can't remove the last item
             // group.canDragItem = function(list, item, index, e) {
@@ -212,12 +222,21 @@
             hidden.style.width = '24%';
             hidden.title = 'hidden columns';
             hidden.list = this.getHiddenColumns();
+            hidden.canDropItem = function(sourceList, myList, sourceIndex, item, e) {
+                noop(sourceList, myList, sourceIndex, e);
+                return sourceList === hidden.list || sourceList === visible.list;
+            };
 
             this.beColumnStyle(visible.style);
             visible.style.left = '75%';
             visible.style.width = '24%';
             visible.title = 'visible columns';
             visible.list = this.getVisibleColumns();
+            visible.canDropItem = function(sourceList, myList, sourceIndex, item, e) {
+                noop(sourceList, myList, sourceIndex, e);
+                return sourceList === hidden.list || sourceList === visible.list;
+            };
+
             //can't remove the last item
             // visible.canDragItem = function(list, item, index, e) {
             //     noop(item, index, e);
@@ -249,7 +268,11 @@
         },
         setColumnDescriptors: function(lists) {
             //assumes there is one row....
+            var tree = this.columns[0];
             this.columns.length = 0;
+            if (tree && tree.label === 'Tree') {
+                this.columns.push(tree);
+            }
             for (var i = 0; i < lists.visible.length; i++) {
                 this.columns.push(lists.visible[i]);
             }

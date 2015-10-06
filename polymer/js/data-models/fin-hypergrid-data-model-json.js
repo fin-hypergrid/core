@@ -270,10 +270,13 @@
         },
 
         getVisibleColumns: function() {
-            var items = this.getBehavior().columns.slice(0);
+            var items = this.getBehavior().columns;
+            items = items.filter(function(each) {
+                return each.label !== 'Tree';
+            });
             return items;
-
         },
+
         getHiddenColumns: function() {
             var visible = this.getBehavior().columns;
             var all = this.getBehavior().allColumns;
@@ -303,16 +306,15 @@
             this.adjustColumnProperties();
             this.applyFilters();
             this.applySorts();
-            //this.setHeaders([]);
             this.applyGroupBysAndAggregations();
         },
         adjustColumnProperties: function() {
-            if (this.hasHierarchyColumn()) {
-                this.getColumnProperties(-2);
-            }
-            if (this.getGrid().isShowRowNumbers()) {
-                this.getColumnProperties(-1);
-            }
+            // if (this.hasHierarchyColumn()) {
+            //     this.getColumnProperties(-2);
+            // }
+            // if (this.getGrid().isShowRowNumbers()) {
+            //     this.getColumnProperties(-1);
+            // }
         },
         applyGroupBysAndAggregations: function() {
             if (this.analytics.aggregates.length === 0) {
@@ -335,9 +337,6 @@
             filterSource.applyFilters();
         },
         toggleSort: function(index, keys) {
-            if (this.hasHierarchyColumn()) {
-                //index++; //hierarchy column;
-            }
             this.incrementSortState(index, keys);
             this.applyAnalytics();
         },
@@ -403,6 +402,9 @@
         cellClicked: function(cell, event) {
             if (!this.hasAggregates()) {
                 return;
+            }
+            if (event.gridCell.x !== 0) {
+                return; // this wasn't a click on the hierarchy column
             }
             var grid = this.getGrid();
             var headerRowCount = grid.getHeaderRowCount();
