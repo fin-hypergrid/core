@@ -17055,8 +17055,29 @@ Instances of this object have basically four main functions.
                 return x - y;
             });
             return result;
-        }
+        },
 
+        selectRowsFromCells: function() {
+            var sm = this.rowSelectionModel;
+            sm.clear();
+            for (var i = 0; i < this.selections.length; i++) {
+                var each = this.selections[i];
+                var top = each.origin.y;
+                var size = each.extent.y;
+                sm.select(top, top + size);
+            }
+        },
+
+        selectColumnsFromCells: function() {
+            var sm = this.columnSelectionModel;
+            sm.clear();
+            for (var i = 0; i < this.selections.length; i++) {
+                var each = this.selections[i];
+                var top = each.origin.x;
+                var size = each.extent.x;
+                sm.select(top, top + size);
+            }
+        },
 
     });
 
@@ -24467,10 +24488,13 @@ var commands = {
         },
 
         getVisibleColumns: function() {
-            var items = this.getBehavior().columns.slice(0);
+            var items = this.getBehavior().columns;
+            items = items.filter(function(each) {
+                return each.label !== 'Tree';
+            });
             return items;
-
         },
+
         getHiddenColumns: function() {
             var visible = this.getBehavior().columns;
             var all = this.getBehavior().allColumns;
@@ -24500,16 +24524,15 @@ var commands = {
             this.adjustColumnProperties();
             this.applyFilters();
             this.applySorts();
-            //this.setHeaders([]);
             this.applyGroupBysAndAggregations();
         },
         adjustColumnProperties: function() {
-            if (this.hasHierarchyColumn()) {
-                this.getColumnProperties(-2);
-            }
-            if (this.getGrid().isShowRowNumbers()) {
-                this.getColumnProperties(-1);
-            }
+            // if (this.hasHierarchyColumn()) {
+            //     this.getColumnProperties(-2);
+            // }
+            // if (this.getGrid().isShowRowNumbers()) {
+            //     this.getColumnProperties(-1);
+            // }
         },
         applyGroupBysAndAggregations: function() {
             if (this.analytics.aggregates.length === 0) {
@@ -24532,9 +24555,6 @@ var commands = {
             filterSource.applyFilters();
         },
         toggleSort: function(index, keys) {
-            if (this.hasHierarchyColumn()) {
-                //index++; //hierarchy column;
-            }
             this.incrementSortState(index, keys);
             this.applyAnalytics();
         },
@@ -24600,6 +24620,9 @@ var commands = {
         cellClicked: function(cell, event) {
             if (!this.hasAggregates()) {
                 return;
+            }
+            if (event.gridCell.x !== 0) {
+                return; // this wasn't a click on the hierarchy column
             }
             var grid = this.getGrid();
             var headerRowCount = grid.getHeaderRowCount();
@@ -28789,6 +28812,8 @@ This is a very rough in memory data source example.  fin-hypergrid-behavior-in-m
 
 (function() {
 
+    var noop = function() {};
+
     Polymer('fin-hypergrid-behavior-json',{ /* jslint ignore:line */
 
         createColumns: function() {
@@ -28966,12 +28991,20 @@ This is a very rough in memory data source example.  fin-hypergrid-behavior-in-m
             group.style.width = '24%';
             group.title = 'groups';
             group.list = this.getGroups();
+            group.canDropItem = function(sourceList, myList, sourceIndex, item, e) {
+                noop(sourceList, myList, sourceIndex, e);
+                return sourceList === group.list || sourceList === availableGroups.list;
+            };
 
             this.beColumnStyle(availableGroups.style);
             availableGroups.style.left = '25%';
             availableGroups.style.width = '24%';
             availableGroups.title = 'Available Groups';
             availableGroups.list = this.getAvailableGroups();
+            availableGroups.canDropItem = function(sourceList, myList, sourceIndex, item, e) {
+                noop(sourceList, myList, sourceIndex, e);
+                return sourceList === group.list || sourceList === availableGroups.list;
+            };
 
             //can't remove the last item
             // group.canDragItem = function(list, item, index, e) {
@@ -28993,12 +29026,21 @@ This is a very rough in memory data source example.  fin-hypergrid-behavior-in-m
             hidden.style.width = '24%';
             hidden.title = 'hidden columns';
             hidden.list = this.getHiddenColumns();
+            hidden.canDropItem = function(sourceList, myList, sourceIndex, item, e) {
+                noop(sourceList, myList, sourceIndex, e);
+                return sourceList === hidden.list || sourceList === visible.list;
+            };
 
             this.beColumnStyle(visible.style);
             visible.style.left = '75%';
             visible.style.width = '24%';
             visible.title = 'visible columns';
             visible.list = this.getVisibleColumns();
+            visible.canDropItem = function(sourceList, myList, sourceIndex, item, e) {
+                noop(sourceList, myList, sourceIndex, e);
+                return sourceList === hidden.list || sourceList === visible.list;
+            };
+
             //can't remove the last item
             // visible.canDragItem = function(list, item, index, e) {
             //     noop(item, index, e);
@@ -29030,7 +29072,11 @@ This is a very rough in memory data source example.  fin-hypergrid-behavior-in-m
         },
         setColumnDescriptors: function(lists) {
             //assumes there is one row....
+            var tree = this.columns[0];
             this.columns.length = 0;
+            if (tree && tree.label === 'Tree') {
+                this.columns.push(tree);
+            }
             for (var i = 0; i < lists.visible.length; i++) {
                 this.columns.push(lists.visible[i]);
             }
@@ -34002,7 +34048,7 @@ fin-vampire-bar {
             showHeaderRow: true,
             showFilterRow: true,
 
-            cellSelection: false,
+            cellSelection: true,
             columnSelection: true,
             rowSelection: true,
 
@@ -36310,7 +36356,7 @@ fin-vampire-bar {
          */
         takeFocus: function() {
             if (this.isEditing()) {
-                this.editorTakeFocus();
+                this.stopEditing();
             } else {
                 this.getCanvas().takeFocus();
             }
@@ -37565,6 +37611,12 @@ fin-vampire-bar {
         setGlobalFilter: function(string) {
             this.getBehavior().setGlobalFilter(string);
         },
+        selectRowsFromCells: function() {
+            this.getSelectionModel().selectRowsFromCells();
+        },
+        selectColumnsFromCells: function() {
+            this.getSelectionModel().selectColumnsFromCells();
+        }
     });
 
 })(); /* jslint ignore:line */
