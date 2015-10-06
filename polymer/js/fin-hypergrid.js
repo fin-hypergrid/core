@@ -3660,16 +3660,7 @@
             this.repaint();
         },
 
-        getSelectedRows: function() {
-            return this.getSelectionModel().getSelectedRows();
-        },
 
-        getSelectedColumns: function() {
-            return this.getSelectionModel().getSelectedColumns();
-        },
-        getSelections: function() {
-            return this.getSelectionModel().getSelections();
-        },
         isShowRowNumbers: function() {
             return this.resolveProperty('showRowNumbers');
         },
@@ -3781,7 +3772,19 @@
         },
         selectColumnsFromCells: function() {
             this.getSelectionModel().selectColumnsFromCells();
-        }
+        },
+
+        getSelectedRows: function() {
+            return this.getBehavior().getSelectedRows();
+        },
+
+        getSelectedColumns: function() {
+            return this.getBehavior().getSelectedColumns();
+        },
+
+        getSelections: function() {
+            return this.getBehavior().getSelections();
+        },
     });
 
 })(); /* jslint ignore:line */

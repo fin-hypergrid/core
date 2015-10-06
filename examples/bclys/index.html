@@ -273,7 +273,7 @@
             jsonGrid.selectRowsFromCells();
             //jsonGrid.selectColumnsFromCells();
 
-            console.log('fin-selection-changed',{yOffset: jsonModel.getHeaderRowCount()}, jsonGrid.getSelectedRows(), jsonGrid.getSelectedColumns(), jsonGrid.getSelections());
+            console.log('fin-selection-changed', jsonGrid.getSelectedRows(), jsonGrid.getSelectedColumns(), jsonGrid.getSelections());
 
             if (e.detail.selections.length === 0) {
                 console.log('no selections');

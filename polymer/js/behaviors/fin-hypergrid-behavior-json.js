@@ -285,6 +285,22 @@
             this.changed();
         },
 
+        getSelectedRows: function() {
+            var offset = -this.getGrid().getHeaderRowCount();
+            var selections = this.getGrid().getSelectionModel().getSelectedRows();
+            var result = selections.map(function(each) {
+                return each + offset;
+            });
+            return result;
+        },
+
+        getSelectedColumns: function() {
+            return this.getGrid().getSelectionModel().getSelectedColumns();
+        },
+
+        getSelections: function() {
+            return this.getGrid().getSelectionModel().getSelections();
+        },
 
     });
 

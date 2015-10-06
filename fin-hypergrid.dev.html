@@ -17057,25 +17057,27 @@ Instances of this object have basically four main functions.
             return result;
         },
 
-        selectRowsFromCells: function() {
+        selectRowsFromCells: function(offset) {
+            offset = offset || 0;
             var sm = this.rowSelectionModel;
             sm.clear();
             for (var i = 0; i < this.selections.length; i++) {
                 var each = this.selections[i];
                 var top = each.origin.y;
                 var size = each.extent.y;
-                sm.select(top, top + size);
+                sm.select(top + offset, top + size + offset);
             }
         },
 
-        selectColumnsFromCells: function() {
+        selectColumnsFromCells: function(offset) {
+            offset = offset || 0;
             var sm = this.columnSelectionModel;
             sm.clear();
             for (var i = 0; i < this.selections.length; i++) {
                 var each = this.selections[i];
                 var top = each.origin.x;
                 var size = each.extent.x;
-                sm.select(top, top + size);
+                sm.select(top + offset, top + size + offset);
             }
         },
 
@@ -24663,17 +24665,20 @@ var commands = {
         },
         getRowContextFunction: function(selectedRows) {
             var self = this;
-            var val, i;
+            var val, i, rowIndex;
+            var headerRowCount = 0; //this.getGrid().getHeaderRowCount();
             return function(index) {
                 var result = new Array(selectedRows.length);
                 if (isNaN(index)) {
                     for (i = 0; i < selectedRows.length; i++) {
-                        val = valueOrFunctionExecute(self.getValueByField(index, selectedRows[i]));
+                        rowIndex = selectedRows[i] - headerRowCount;
+                        val = valueOrFunctionExecute(self.getValueByField(index, rowIndex));
                         result[i] = val;
                     }
                 } else {
                     for (i = 0; i < selectedRows.length; i++) {
-                        val = valueOrFunctionExecute(self.getDataSource().getValue(index, selectedRows[i]));
+                        rowIndex = selectedRows[i] - headerRowCount;
+                        val = valueOrFunctionExecute(self.getDataSource().getValue(index, rowIndex));
                         result[i] = val;
                     }
 
@@ -26882,6 +26887,18 @@ it contains all code/data that's necessary for easily implementing a virtual dat
         setGlobalFilter: function(string) {
             this.getDataModel().setGlobalFilter(string);
         },
+
+        getSelectedRows: function() {
+            return this.getGrid().getSelectionModel().getSelectedRows();
+        },
+
+        getSelectedColumns: function() {
+            return this.getGrid().getSelectionModel().getSelectedColumns();
+        },
+
+        getSelections: function() {
+            return this.getGrid().getSelectionModel().getSelections();
+        },
     });
 })();
 </script>
@@ -29089,6 +29106,22 @@ This is a very rough in memory data source example.  fin-hypergrid-behavior-in-m
             this.changed();
         },
 
+        getSelectedRows: function() {
+            var offset = -this.getGrid().getHeaderRowCount();
+            var selections = this.getGrid().getSelectionModel().getSelectedRows();
+            var result = selections.map(function(each) {
+                return each + offset;
+            });
+            return result;
+        },
+
+        getSelectedColumns: function() {
+            return this.getGrid().getSelectionModel().getSelectedColumns();
+        },
+
+        getSelections: function() {
+            return this.getGrid().getSelectionModel().getSelections();
+        },
 
     });
 
@@ -37495,16 +37528,7 @@ fin-vampire-bar {
             this.repaint();
         },
 
-        getSelectedRows: function() {
-            return this.getSelectionModel().getSelectedRows();
-        },
 
-        getSelectedColumns: function() {
-            return this.getSelectionModel().getSelectedColumns();
-        },
-        getSelections: function() {
-            return this.getSelectionModel().getSelections();
-        },
         isShowRowNumbers: function() {
             return this.resolveProperty('showRowNumbers');
         },
@@ -37616,7 +37640,19 @@ fin-vampire-bar {
         },
         selectColumnsFromCells: function() {
             this.getSelectionModel().selectColumnsFromCells();
-        }
+        },
+
+        getSelectedRows: function() {
+            return this.getBehavior().getSelectedRows();
+        },
+
+        getSelectedColumns: function() {
+            return this.getBehavior().getSelectedColumns();
+        },
+
+        getSelections: function() {
+            return this.getBehavior().getSelections();
+        },
     });
 
 })(); /* jslint ignore:line */

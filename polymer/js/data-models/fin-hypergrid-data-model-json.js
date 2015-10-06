@@ -445,17 +445,20 @@
         },
         getRowContextFunction: function(selectedRows) {
             var self = this;
-            var val, i;
+            var val, i, rowIndex;
+            var headerRowCount = 0; //this.getGrid().getHeaderRowCount();
             return function(index) {
                 var result = new Array(selectedRows.length);
                 if (isNaN(index)) {
                     for (i = 0; i < selectedRows.length; i++) {
-                        val = valueOrFunctionExecute(self.getValueByField(index, selectedRows[i]));
+                        rowIndex = selectedRows[i] - headerRowCount;
+                        val = valueOrFunctionExecute(self.getValueByField(index, rowIndex));
                         result[i] = val;
                     }
                 } else {
                     for (i = 0; i < selectedRows.length; i++) {
-                        val = valueOrFunctionExecute(self.getDataSource().getValue(index, selectedRows[i]));
+                        rowIndex = selectedRows[i] - headerRowCount;
+                        val = valueOrFunctionExecute(self.getDataSource().getValue(index, rowIndex));
                         result[i] = val;
                     }
 

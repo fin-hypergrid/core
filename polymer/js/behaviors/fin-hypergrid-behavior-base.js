@@ -2088,5 +2088,17 @@ it contains all code/data that's necessary for easily implementing a virtual dat
         setGlobalFilter: function(string) {
             this.getDataModel().setGlobalFilter(string);
         },
+
+        getSelectedRows: function() {
+            return this.getGrid().getSelectionModel().getSelectedRows();
+        },
+
+        getSelectedColumns: function() {
+            return this.getGrid().getSelectionModel().getSelectedColumns();
+        },
+
+        getSelections: function() {
+            return this.getGrid().getSelectionModel().getSelections();
+        },
     });
 })();
