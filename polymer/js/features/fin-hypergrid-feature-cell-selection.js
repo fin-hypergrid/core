@@ -59,7 +59,9 @@
          * @param {Object} event - the event details
         */
         handleMouseUp: function(grid, event) {
-            this.dragging = false;
+            if (this.dragging) {
+                this.dragging = false;
+            }
             if (this.next) {
                 this.next.handleMouseUp(grid, event);
             }
@@ -170,12 +172,6 @@
          * @param {Object} event - the event details
         */
         handleKeyDown: function(grid, event) {
-            if (grid.isColumnOrRowSelected()) {
-                if (this.next) {
-                    this.next.handleKeyDown(grid, event);
-                    return;
-                }
-            }
             var command = 'handle' + event.detail.char;
             if (this[command]) {
                 this[command].call(this, grid, event.detail);

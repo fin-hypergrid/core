@@ -166,6 +166,12 @@
          * @param {Object} event - the event details
         */
         handleKeyDown: function(grid, event) {
+            if (grid.getLastSelectionType() !== 'column') {
+                if (this.next) {
+                    this.next.handleKeyDown(grid, event);
+                }
+                return;
+            }
             var command = 'handle' + event.detail.char;
             if (this[command]) {
                 this[command].call(this, grid, event.detail);

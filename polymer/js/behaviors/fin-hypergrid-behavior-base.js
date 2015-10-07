@@ -52,6 +52,10 @@ it contains all code/data that's necessary for easily implementing a virtual dat
             return this.component;
         },
 
+        setGlobalFilter: function(string) {
+            return this.getComponent().setGlobalFilter(string);
+        },
+
         getValue: function(x, y) {
             return this.getComponent().getValue(x, y);
         },

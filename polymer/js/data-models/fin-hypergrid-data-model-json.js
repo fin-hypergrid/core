@@ -4,7 +4,7 @@
 
     var textMatchFilter = function(string) {
         return function(each) {
-            return (each + '').toLowerCase().startsWith(string.toLowerCase());
+            return (each + '').toLowerCase().search(string.toLowerCase()) === 0;
         };
     };
 
@@ -236,17 +236,19 @@
         setGroups: function(groups) {
             this.analytics.setGroupBys(groups);
             this.applyAnalytics();
+            this.getGrid().fireSyntheticGroupsChangedEvent(this.getGroups());
         },
         getGroups: function() {
             var headers = this.getHeaders().slice(0);
+            var fields = this.getFields().slice(0);
             var groupBys = this.analytics.groupBys;
             var groups = [];
             for (var i = 0; i < groupBys.length; i++) {
                 var field = headers[groupBys[i]];
                 groups.push({
-                    id: i,
+                    id: groupBys[i],
                     label: field,
-                    field: field
+                    field: fields
                 });
             }
             return groups;

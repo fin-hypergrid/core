@@ -250,6 +250,7 @@ var noop = function() {};
             }
             if (val !== null) {
                 gc.fillText(val, x + halignOffset, y + valignOffset);
+
             }
             if (isColumnHovered && isRowHovered) {
                 gc.beginPath();

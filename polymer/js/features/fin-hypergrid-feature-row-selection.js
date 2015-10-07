@@ -156,7 +156,7 @@
          * @param {Object} event - the event details
         */
         handleKeyDown: function(grid, event) {
-            if (!grid.isColumnOrRowSelected()) {
+            if (grid.getLastSelectionType() !== 'row') {
                 if (this.next) {
                     this.next.handleKeyDown(grid, event);
                 }

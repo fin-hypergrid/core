@@ -528,8 +528,60 @@ Instances of this object have basically four main functions.
             this.paintGridlines(gc);
             //this.blankOutOverflow(gc); // no longer needed
             this.renderOverrides(gc);
+            this.renderFocusCell(gc);
             gc.closePath();
         },
+
+        focusLineStep: [
+            [5, 5],
+            [0, 1, 5, 4],
+            [0, 2, 5, 3],
+            [0, 3, 5, 2],
+            [0, 4, 5, 1],
+            [0, 5, 5, 0],
+            [1, 5, 4, 0],
+            [2, 5, 3, 0],
+            [3, 5, 2, 0],
+            [4, 5, 1, 0]
+        ],
+
+        renderFocusCell: function(gc) {
+            var grid = this.getGrid();
+            var mouseDown = grid.getMouseDown();
+            var extent = grid.getDragExtent();
+            var o = this._getBoundsOfCell(mouseDown.x, mouseDown.y);
+            var ox = o.x;
+            var oy = o.y;
+            var ow = o.width;
+            var oh = o.height;
+            var e = this._getBoundsOfCell(mouseDown.x + extent.x, mouseDown.y + extent.y);
+            var ex = e.x;
+            var ey = e.y;
+            var ew = e.width;
+            var eh = e.height;
+            var x = Math.min(ox, ex);
+            var y = Math.min(oy, ey);
+            var width = 2 + ex + ew - ox;
+            var height = 2 + ey + eh - oy;
+            if (x === ex) {
+                width = ox + ow - ex;
+            }
+            if (y === ey) {
+                height = oy + oh - ey;
+            }
+            gc.beginPath();
+            gc.rect(x, y, width, height);
+            gc.fillStyle = 'rgba(0, 0, 0, 0.2)';
+            gc.fill();
+            gc.lineWidth = 1;
+            gc.strokeStyle = 'black';
+
+            // animate the dashed line a bit here for fun
+            gc.setLineDash(this.focusLineStep[Math.floor(10 * (Date.now() / 500 % 1)) % this.focusLineStep.length]);
+
+            gc.stroke();
+        },
+
 
         /**
          * @function
@@ -1077,7 +1129,6 @@ Instances of this object have basically four main functions.
             cellProperties.bounds = this._getBoundsOfCell(c, r);
             cellProperties.isRowSelected = isRowSelected;
             cellProperties.isColumnSelected = isColumnSelected;
-
 
             var mouseDownState = grid.mouseDownState;
             if (mouseDownState) {

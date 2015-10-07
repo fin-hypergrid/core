@@ -2123,16 +2123,17 @@
          *
          */
         fireSyntheticRowSelectionChangedEvent: function() {
-            var selectedRows = this.getSelectedRows();
-            var selectionEvent = new CustomEvent('fin-row-selection-changed', {
-                detail: {
-                    rowContext: this.getRowContextFunction(selectedRows),
-                    rows: selectedRows,
-                    columns: this.getSelectedColumns(),
-                    selections: this.getSelectionModel().getSelections()
-                }
-            });
-            this.canvas.dispatchEvent(selectionEvent);
+            this.selectionChanged();
+            // var selectedRows = this.getSelectedRows();
+            // var selectionEvent = new CustomEvent('fin-row-selection-changed', {
+            //     detail: {
+            //         rowContext: this.getRowContextFunction(selectedRows),
+            //         rows: selectedRows,
+            //         columns: this.getSelectedColumns(),
+            //         selections: this.getSelectionModel().getSelections()
+            //     }
+            // });
+            // this.canvas.dispatchEvent(selectionEvent);
         },
 
         /**
@@ -2293,6 +2294,18 @@
                 grid: this
             };
             var clickEvent = new CustomEvent('fin-cell-enter', {
+                detail: detail
+            });
+            this.canvas.dispatchEvent(clickEvent);
+        },
+
+        fireSyntheticGroupsChangedEvent: function(groups) {
+            var detail = {
+                groups: groups,
+                time: Date.now(),
+                grid: this
+            };
+            var clickEvent = new CustomEvent('fin-groups-changed', {
                 detail: detail
             });
             this.canvas.dispatchEvent(clickEvent);
@@ -3722,6 +3735,7 @@
             this.getSelectionModel().selectColumn(x1, x2);
         },
         selectRow: function(y1, y2) {
+            y2 = y2 || y1;
             var min = Math.min(y1, y2);
             var max = Math.max(y1, y2);
             var selectionEdge = this.getFilterRowIndex() + 1;
@@ -3785,6 +3799,10 @@
         getSelections: function() {
             return this.getBehavior().getSelections();
         },
+
+        getLastSelectionType: function() {
+            return this.getSelectionModel().getLastSelectionType();
+        }
     });
 
 })(); /* jslint ignore:line */

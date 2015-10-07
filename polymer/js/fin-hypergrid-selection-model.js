@@ -58,6 +58,7 @@
             this.flattenedY = [];
             this.rowSelectionModel = new fin.RangeSelectionModel();
             this.columnSelectionModel = new fin.RangeSelectionModel();
+            this.setLastSelectionType('');
         },
 
         /**
@@ -71,6 +72,13 @@
             return null;
         },
 
+        getLastSelectionType: function() {
+            return this.lastSelectionType;
+        },
+        setLastSelectionType: function(type) {
+            this.lastSelectionType = type;
+            console.log('selection type', type);
+        },
         /**
          * @function
          * @instance
@@ -87,6 +95,7 @@
             this.selections.push(newSelection);
             this.flattenedX.push(newSelection.flattenXAt(0));
             this.flattenedY.push(newSelection.flattenYAt(0));
+            this.setLastSelectionType('cell');
             this.getGrid().selectionChanged();
         },
 
@@ -124,10 +133,12 @@
 
         clearMostRecentColumnSelection: function() {
             this.columnSelectionModel.clearMostRecentSelection();
+            this.setLastSelectionType('column');
         },
 
         clearMostRecentRowSelection: function() {
             this.rowSelectionModel.clearMostRecentSelection();
+            this.setLastSelectionType('row');
         },
 
         getSelections: function() {
@@ -243,18 +254,22 @@
 
         selectColumn: function(x1, x2) {
             this.columnSelectionModel.select(x1, x2);
+            this.setLastSelectionType('column');
         },
 
         selectRow: function(y1, y2) {
             this.rowSelectionModel.select(y1, y2);
+            this.setLastSelectionType('row');
         },
 
         deselectColumn: function(x1, x2) {
             this.columnSelectionModel.deselect(x1, x2);
+            this.setLastSelectionType('column');
         },
 
         deselectRow: function(y1, y2) {
             this.rowSelectionModel.deselect(y1, y2);
+            this.setLastSelectionType('row');
         },
 
         getSelectedRows: function() {
