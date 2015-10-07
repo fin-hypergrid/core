@@ -154,7 +154,7 @@
         setInterval(function(){
             topTotals[1][5] = Math.round(Math.random()*100);
             jsonModel.changed();
-        },300)
+        },100)
 
         //lets set 2 rows of totals
 
@@ -406,6 +406,10 @@
 
         jsonGrid.addFinEventListener('fin-editor-key-down', function(e) {
             console.log('fin-editor-key-down', e.detail);
+        });
+
+        jsonGrid.addFinEventListener('fin-groups-changed', function(e) {
+            console.log('fin-groups-changed', e.detail);
         });
 
         jsonGrid.addFinEventListener('fin-context-menu', function(e) {

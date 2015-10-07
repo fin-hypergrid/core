@@ -15991,8 +15991,60 @@ Instances of this object have basically four main functions.
             this.paintGridlines(gc);
             //this.blankOutOverflow(gc); // no longer needed
             this.renderOverrides(gc);
+            this.renderFocusCell(gc);
             gc.closePath();
         },
+
+        focusLineStep: [
+            [5, 5],
+            [0, 1, 5, 4],
+            [0, 2, 5, 3],
+            [0, 3, 5, 2],
+            [0, 4, 5, 1],
+            [0, 5, 5, 0],
+            [1, 5, 4, 0],
+            [2, 5, 3, 0],
+            [3, 5, 2, 0],
+            [4, 5, 1, 0]
+        ],
+
+        renderFocusCell: function(gc) {
+            var grid = this.getGrid();
+            var mouseDown = grid.getMouseDown();
+            var extent = grid.getDragExtent();
+            var o = this._getBoundsOfCell(mouseDown.x, mouseDown.y);
+            var ox = o.x;
+            var oy = o.y;
+            var ow = o.width;
+            var oh = o.height;
+            var e = this._getBoundsOfCell(mouseDown.x + extent.x, mouseDown.y + extent.y);
+            var ex = e.x;
+            var ey = e.y;
+            var ew = e.width;
+            var eh = e.height;
+            var x = Math.min(ox, ex);
+            var y = Math.min(oy, ey);
+            var width = 2 + ex + ew - ox;
+            var height = 2 + ey + eh - oy;
+            if (x === ex) {
+                width = ox + ow - ex;
+            }
+            if (y === ey) {
+                height = oy + oh - ey;
+            }
+            gc.beginPath();
+            gc.rect(x, y, width, height);
+            gc.fillStyle = 'rgba(0, 0, 0, 0.2)';
+            gc.fill();
+            gc.lineWidth = 1;
+            gc.strokeStyle = 'black';
+
+            // animate the dashed line a bit here for fun
+            gc.setLineDash(this.focusLineStep[Math.floor(10 * (Date.now() / 500 % 1)) % this.focusLineStep.length]);
+
+            gc.stroke();
+        },
+
 
         /**
          * @function
@@ -16541,7 +16593,6 @@ Instances of this object have basically four main functions.
             cellProperties.isRowSelected = isRowSelected;
             cellProperties.isColumnSelected = isColumnSelected;
 
-
             var mouseDownState = grid.mouseDownState;
             if (mouseDownState) {
                 var point = mouseDownState.gridCell;
@@ -16825,6 +16876,7 @@ Instances of this object have basically four main functions.
             this.flattenedY = [];
             this.rowSelectionModel = new fin.RangeSelectionModel();
             this.columnSelectionModel = new fin.RangeSelectionModel();
+            this.setLastSelectionType('');
         },
 
         /**
@@ -16838,6 +16890,13 @@ Instances of this object have basically four main functions.
             return null;
         },
 
+        getLastSelectionType: function() {
+            return this.lastSelectionType;
+        },
+        setLastSelectionType: function(type) {
+            this.lastSelectionType = type;
+            console.log('selection type', type);
+        },
         /**
          * @function
          * @instance
@@ -16854,6 +16913,7 @@ Instances of this object have basically four main functions.
             this.selections.push(newSelection);
             this.flattenedX.push(newSelection.flattenXAt(0));
             this.flattenedY.push(newSelection.flattenYAt(0));
+            this.setLastSelectionType('cell');
             this.getGrid().selectionChanged();
         },
 
@@ -16891,10 +16951,12 @@ Instances of this object have basically four main functions.
 
         clearMostRecentColumnSelection: function() {
             this.columnSelectionModel.clearMostRecentSelection();
+            this.setLastSelectionType('column');
         },
 
         clearMostRecentRowSelection: function() {
             this.rowSelectionModel.clearMostRecentSelection();
+            this.setLastSelectionType('row');
         },
 
         getSelections: function() {
@@ -17010,18 +17072,22 @@ Instances of this object have basically four main functions.
 
         selectColumn: function(x1, x2) {
             this.columnSelectionModel.select(x1, x2);
+            this.setLastSelectionType('column');
         },
 
         selectRow: function(y1, y2) {
             this.rowSelectionModel.select(y1, y2);
+            this.setLastSelectionType('row');
         },
 
         deselectColumn: function(x1, x2) {
             this.columnSelectionModel.deselect(x1, x2);
+            this.setLastSelectionType('column');
         },
 
         deselectRow: function(y1, y2) {
             this.rowSelectionModel.deselect(y1, y2);
+            this.setLastSelectionType('row');
         },
 
         getSelectedRows: function() {
@@ -18518,6 +18584,7 @@ var noop = function() {};
             }
             if (val !== null) {
                 gc.fillText(val, x + halignOffset, y + valignOffset);
+
             }
             if (isColumnHovered && isRowHovered) {
                 gc.beginPath();
@@ -19223,7 +19290,9 @@ var commands = {
          * @param {Object} event - the event details
         */
         handleMouseUp: function(grid, event) {
-            this.dragging = false;
+            if (this.dragging) {
+                this.dragging = false;
+            }
             if (this.next) {
                 this.next.handleMouseUp(grid, event);
             }
@@ -19334,12 +19403,6 @@ var commands = {
          * @param {Object} event - the event details
         */
         handleKeyDown: function(grid, event) {
-            if (grid.isColumnOrRowSelected()) {
-                if (this.next) {
-                    this.next.handleKeyDown(grid, event);
-                    return;
-                }
-            }
             var command = 'handle' + event.detail.char;
             if (this[command]) {
                 this[command].call(this, grid, event.detail);
@@ -21032,6 +21095,12 @@ var commands = {
          * @param {Object} event - the event details
         */
         handleKeyDown: function(grid, event) {
+            if (grid.getLastSelectionType() !== 'column') {
+                if (this.next) {
+                    this.next.handleKeyDown(grid, event);
+                }
+                return;
+            }
             var command = 'handle' + event.detail.char;
             if (this[command]) {
                 this[command].call(this, grid, event.detail);
@@ -23356,7 +23425,7 @@ var commands = {
          * @param {Object} event - the event details
         */
         handleKeyDown: function(grid, event) {
-            if (!grid.isColumnOrRowSelected()) {
+            if (grid.getLastSelectionType() !== 'row') {
                 if (this.next) {
                     this.next.handleKeyDown(grid, event);
                 }
@@ -24224,7 +24293,7 @@ var commands = {
 
     var textMatchFilter = function(string) {
         return function(each) {
-            return (each + '').toLowerCase().startsWith(string.toLowerCase());
+            return (each + '').toLowerCase().search(string.toLowerCase()) === 0;
         };
     };
 
@@ -24456,17 +24525,19 @@ var commands = {
         setGroups: function(groups) {
             this.analytics.setGroupBys(groups);
             this.applyAnalytics();
+            this.getGrid().fireSyntheticGroupsChangedEvent(this.getGroups());
         },
         getGroups: function() {
             var headers = this.getHeaders().slice(0);
+            var fields = this.getFields().slice(0);
             var groupBys = this.analytics.groupBys;
             var groups = [];
             for (var i = 0; i < groupBys.length; i++) {
                 var field = headers[groupBys[i]];
                 groups.push({
-                    id: i,
+                    id: groupBys[i],
                     label: field,
-                    field: field
+                    field: fields
                 });
             }
             return groups;
@@ -24849,6 +24920,10 @@ it contains all code/data that's necessary for easily implementing a virtual dat
 
         getComponent: function() {
             return this.component;
+        },
+
+        setGlobalFilter: function(string) {
+            return this.getComponent().setGlobalFilter(string);
         },
 
         getValue: function(x, y) {
@@ -35991,16 +36066,17 @@ fin-vampire-bar {
          *
          */
         fireSyntheticRowSelectionChangedEvent: function() {
-            var selectedRows = this.getSelectedRows();
-            var selectionEvent = new CustomEvent('fin-row-selection-changed', {
-                detail: {
-                    rowContext: this.getRowContextFunction(selectedRows),
-                    rows: selectedRows,
-                    columns: this.getSelectedColumns(),
-                    selections: this.getSelectionModel().getSelections()
-                }
-            });
-            this.canvas.dispatchEvent(selectionEvent);
+            this.selectionChanged();
+            // var selectedRows = this.getSelectedRows();
+            // var selectionEvent = new CustomEvent('fin-row-selection-changed', {
+            //     detail: {
+            //         rowContext: this.getRowContextFunction(selectedRows),
+            //         rows: selectedRows,
+            //         columns: this.getSelectedColumns(),
+            //         selections: this.getSelectionModel().getSelections()
+            //     }
+            // });
+            // this.canvas.dispatchEvent(selectionEvent);
         },
 
         /**
@@ -36161,6 +36237,18 @@ fin-vampire-bar {
                 grid: this
             };
             var clickEvent = new CustomEvent('fin-cell-enter', {
+                detail: detail
+            });
+            this.canvas.dispatchEvent(clickEvent);
+        },
+
+        fireSyntheticGroupsChangedEvent: function(groups) {
+            var detail = {
+                groups: groups,
+                time: Date.now(),
+                grid: this
+            };
+            var clickEvent = new CustomEvent('fin-groups-changed', {
                 detail: detail
             });
             this.canvas.dispatchEvent(clickEvent);
@@ -37590,6 +37678,7 @@ fin-vampire-bar {
             this.getSelectionModel().selectColumn(x1, x2);
         },
         selectRow: function(y1, y2) {
+            y2 = y2 || y1;
             var min = Math.min(y1, y2);
             var max = Math.max(y1, y2);
             var selectionEdge = this.getFilterRowIndex() + 1;
@@ -37653,6 +37742,10 @@ fin-vampire-bar {
         getSelections: function() {
             return this.getBehavior().getSelections();
         },
+
+        getLastSelectionType: function() {
+            return this.getSelectionModel().getLastSelectionType();
+        }
     });
 
 })(); /* jslint ignore:line */
