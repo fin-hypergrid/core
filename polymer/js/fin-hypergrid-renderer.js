@@ -196,7 +196,7 @@ Instances of this object have basically four main functions.
         setGrid: function(grid) {
 
             this.grid = grid;
-
+            this.startAnimator();
             //lets make use of prototype inheritance for cell properties
         },
 
@@ -548,7 +548,7 @@ Instances of this object have basically four main functions.
             this.paintGridlines(gc);
             //this.blankOutOverflow(gc); // no longer needed
             this.renderOverrides(gc);
-            this.renderFocusCell(gc);
+            //this.renderFocusCell(gc);
             gc.closePath();
         },
 
@@ -614,8 +614,8 @@ Instances of this object have basically four main functions.
             // var eh = e.height;
             var x = Math.min(ox, ex);
             var y = Math.min(oy, ey);
-            var width = 2 + ex - ox;
-            var height = 2 + ey - oy;
+            var width = 1 + ex - ox;
+            var height = 1 + ey - oy;
             if (x === ex) {
                 width = ox - ex;
             }
@@ -626,15 +626,23 @@ Instances of this object have basically four main functions.
                 //if we are only a skinny line, don't render anything
                 return;
             }
-            gc.beginPath();
+
             gc.rect(x, y, width, height);
-            gc.fillStyle = 'rgba(0, 0, 0, 0.2)';
-            gc.fill();
+            //gc.fillStyle = 'rgba(0, 0, 0, 0.2)';
+            //gc.fill();
             gc.lineWidth = 1;
+            gc.strokeStyle = 'white';
+
+            // animate the dashed line a bit here for fun
+
+            gc.stroke();
+
+            gc.rect(x, y, width, height);
+
             gc.strokeStyle = 'black';
 
             // animate the dashed line a bit here for fun
-            gc.setLineDash(this.focusLineStep[Math.floor(10 * (Date.now() / 1500 % 1)) % this.focusLineStep.length]);
+            gc.setLineDash(this.focusLineStep[Math.floor(10 * (Date.now() / 300 % 1)) % this.focusLineStep.length]);
 
             gc.stroke();
         },
@@ -1149,6 +1157,7 @@ Instances of this object have basically four main functions.
             var isHierarchyColumn = grid.isHierarchyColumn(c);
             var isRowSelected = grid.isRowSelected(r);
             var isColumnSelected = grid.isColumnSelected(c);
+            var isCellSelected = grid.isCellSelected(c, r);
 
             if (c === -1 && !isRowSelected) {
                 baseProperties = baseProperties.rowNumbersProperties;
@@ -1187,6 +1196,7 @@ Instances of this object have basically four main functions.
             cellProperties.isColumnHovered = this.isRowHovered(c, r);
             cellProperties.isRowHovered = this.isColumnHovered(c, r);
             cellProperties.bounds = this._getBoundsOfCell(c, r);
+            cellProperties.isCellSelected = isCellSelected;
             cellProperties.isRowSelected = isRowSelected;
             cellProperties.isColumnSelected = isColumnSelected;
 
@@ -1227,6 +1237,23 @@ Instances of this object have basically four main functions.
                 return 0;
             }
             return colEdges[0];
+        },
+        startAnimator: function() {
+            var animate;
+            var self = this;
+            animate = function() {
+                self.animate();
+                requestAnimationFrame(animate);
+            };
+            requestAnimationFrame(animate);
+        },
+        animate: function() {
+            var ctx = this.getCanvas().canvasCTX;
+            ctx.beginPath();
+            ctx.save();
+            this.renderFocusCell(ctx);
+            ctx.restore();
+            ctx.closePath();
         }
     });
 

@@ -3803,6 +3803,9 @@
         getLastSelectionType: function() {
             return this.getSelectionModel().getLastSelectionType();
         },
+        isCellSelected: function(x, y) {
+            return this.getSelectionModel().isCellSelected(x, y);
+        }
     });
 
 })(); /* jslint ignore:line */

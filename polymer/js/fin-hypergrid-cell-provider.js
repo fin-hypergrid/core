@@ -260,6 +260,10 @@ var noop = function() {};
                 }
                 gc.closePath();
             }
+            if (config.isCellSelected) {
+                gc.fillStyle = 'rgba(0, 0, 0, 0.2)';
+                gc.fillRect(x, y, width, height);
+            }
             var iconWidth = 0;
             if (leftIcon) {
                 iyoffset = Math.round((height - leftIcon.height) / 2);

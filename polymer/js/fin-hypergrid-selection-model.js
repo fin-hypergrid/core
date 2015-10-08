@@ -208,6 +208,14 @@
             if (this.isColumnSelected(x) || this.isRowSelected(y)) {
                 return true;
             }
+            return this._isCellSelected(selections, x, y);
+        },
+
+        isCellSelected: function(x, y) {
+            return this._isCellSelected(this.getSelections(), x, y);
+        },
+
+        _isCellSelected: function(selections, x, y) {
             for (var i = 0; i < selections.length; i++) {
                 var each = selections[i];
                 if (this.rectangles.rectangle.contains(each, x, y)) {
@@ -216,7 +224,6 @@
             }
             return false;
         },
-
         /**
          * @function
          * @instance
