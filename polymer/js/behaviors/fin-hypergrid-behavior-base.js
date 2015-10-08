@@ -1163,6 +1163,9 @@ it contains all code/data that's necessary for easily implementing a virtual dat
         getFixedColumnsWidth: function() {
             var count = this.getFixedColumnCount();
             var total = 0;
+            if (this.getGrid().isShowRowNumbers()) {
+                total = this.getColumnWidth(-1);
+            }
             for (var i = 0; i < count; i++) {
                 total = total + this.getColumnWidth(i);
             }

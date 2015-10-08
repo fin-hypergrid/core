@@ -3802,7 +3802,7 @@
 
         getLastSelectionType: function() {
             return this.getSelectionModel().getLastSelectionType();
-        }
+        },
     });
 
 })(); /* jslint ignore:line */

@@ -112,6 +112,8 @@ Instances of this object have basically four main functions.
 
             x = 0;
             var start = 0;
+            var firstVX, lastVX;
+            var firstVY, lastVY;
             if (grid.isShowRowNumbers()) {
                 start--;
                 this.columnEdges[-1] = -1;
@@ -120,6 +122,10 @@ Instances of this object have basically four main functions.
                 vx = c;
                 if (c >= numFixedColumns) {
                     vx = vx + scrollLeft;
+                    if (firstVX === undefined) {
+                        firstVX = vx;
+                    }
+                    lastVX = vx;
                 }
                 if (x > viewWidth || numColumns <= vx) {
                     break;
@@ -140,6 +146,10 @@ Instances of this object have basically four main functions.
                 vy = r;
                 if (r >= numFixedRows) {
                     vy = vy + scrollTop;
+                    if (firstVY === undefined) {
+                        firstVY = vy;
+                    }
+                    lastVY = vy;
                 }
                 if (y > viewHeight || numRows <= vy) {
                     break;
@@ -150,11 +160,7 @@ Instances of this object have basically four main functions.
                 this.visibleRows[r] = vy;
                 this.rowEdgesIndexMap[vy] = r;
             }
-            // console.log('cols', this.getColumnEdges());
-            // console.log('rows', this.rowEdges);
-            // console.log('col#', this.visibleColumns);
-            // console.log('row#', this.visibleRows);
-            //console.log('ms', Date.now() - startTime);
+            this.dataWindow = grid.rectangles.rectangle.create(firstVX, firstVY, lastVX - firstVX, lastVY - firstVY);
         },
 
         /**
@@ -327,21 +333,35 @@ Instances of this object have basically four main functions.
          * #### returns: [fin-rectangle](http://stevewirts.github.io/fin-rectangle/components/fin-rectangle/)
          */
         _getBoundsOfCell: function(c, r) {
+            var xOutside = false;
+            var yOutside = false;
             var columnEdges = this.getColumnEdges();
+            var rowEdges = this.getRowEdges();
+
             var x = this.columnEdgesIndexMap[c];
             var y = this.rowEdgesIndexMap[r];
+            if (x === undefined) {
+                x = this.columnEdgesIndexMap[c - 1];
+                xOutside = true;
+            }
+
+            if (y === undefined) {
+                y = this.rowEdgesIndexMap[r - 1];
+                yOutside = true;
+            }
+
             var ox = columnEdges[x],
-                oy = this.rowEdges[y],
+                oy = rowEdges[y],
                 cx = columnEdges[x + 1],
-                cy = this.rowEdges[y + 1],
+                cy = rowEdges[y + 1],
                 ex = cx - ox,
                 ey = cy - oy;
 
             var cell = this.cell;
-            cell.x = ox;
-            cell.y = oy;
-            cell.width = ex;
-            cell.height = ey;
+            cell.x = xOutside ? cx : ox;
+            cell.y = yOutside ? cy : oy;
+            cell.width = xOutside ? 0 : ex;
+            cell.height = yOutside ? 0 : ey;
 
             return cell;
 
@@ -547,27 +567,64 @@ Instances of this object have basically four main functions.
 
         renderFocusCell: function(gc) {
             var grid = this.getGrid();
-            var mouseDown = grid.getMouseDown();
-            var extent = grid.getDragExtent();
-            var o = this._getBoundsOfCell(mouseDown.x, mouseDown.y);
-            var ox = o.x;
-            var oy = o.y;
-            var ow = o.width;
-            var oh = o.height;
-            var e = this._getBoundsOfCell(mouseDown.x + extent.x, mouseDown.y + extent.y);
-            var ex = e.x;
-            var ey = e.y;
-            var ew = e.width;
-            var eh = e.height;
+            var selections = grid.getSelectionModel().getSelections();
+            if (!selections || selections.length === 0) {
+                return;
+            }
+            var selection = selections[selections.length - 1];
+            var mouseDown = selection.origin;
+            if (mouseDown.x === -1) {
+                //no selected area, lets exit
+                return;
+            }
+
+            var visibleColumns = this.getVisibleColumns();
+            var visibleRows = this.getVisibleRows();
+            var lastVisibleColumn = visibleColumns[visibleColumns.length - 1];
+            var lastVisibleRow = this.visibleRows[this.visibleRows.length - 1];
+
+            var extent = selection.extent;
+
+            var dpOX = Math.min(mouseDown.x, mouseDown.x + extent.x);
+            var dpOY = Math.min(mouseDown.y, mouseDown.y + extent.y);
+
+            //lets check if our selection rectangle is scrolled outside of the visible area
+            if (dpOX > lastVisibleColumn) {
+                return; //the top of our rectangle is below visible
+            }
+            if (dpOY > lastVisibleRow) {
+                return; //the left of our rectangle is to the right of being visible
+            }
+
+            var dpEX = Math.max(mouseDown.x, mouseDown.x + extent.x) + 1;
+            dpEX = Math.min(dpEX, 1 + lastVisibleColumn);
+
+            var dpEY = Math.max(mouseDown.y, mouseDown.y + extent.y) + 1;
+            dpEY = Math.min(dpEY, 1 + lastVisibleRow);
+
+            var o = this._getBoundsOfCell(dpOX, dpOY);
+            var ox = Math.round((o.x === undefined) ? grid.getFixedColumnsWidth() : o.x);
+            var oy = Math.round((o.y === undefined) ? grid.getFixedRowsHeight() : o.y);
+            // var ow = o.width;
+            // var oh = o.height;
+            var e = this._getBoundsOfCell(dpEX, dpEY);
+            var ex = Math.round((e.x === undefined) ? grid.getFixedColumnsWidth() : e.x);
+            var ey = Math.round((e.y === undefined) ? grid.getFixedRowsHeight() : e.y);
+            // var ew = e.width;
+            // var eh = e.height;
             var x = Math.min(ox, ex);
             var y = Math.min(oy, ey);
-            var width = 2 + ex + ew - ox;
-            var height = 2 + ey + eh - oy;
+            var width = 2 + ex - ox;
+            var height = 2 + ey - oy;
             if (x === ex) {
-                width = ox + ow - ex;
+                width = ox - ex;
             }
             if (y === ey) {
-                height = oy + oh - ey;
+                height = oy - ey;
+            }
+            if (width * height < 1) {
+                //if we are only a skinny line, don't render anything
+                return;
             }
             gc.beginPath();
             gc.rect(x, y, width, height);
@@ -577,7 +634,7 @@ Instances of this object have basically four main functions.
             gc.strokeStyle = 'black';
 
             // animate the dashed line a bit here for fun
-            gc.setLineDash(this.focusLineStep[Math.floor(10 * (Date.now() / 500 % 1)) % this.focusLineStep.length]);
+            gc.setLineDash(this.focusLineStep[Math.floor(10 * (Date.now() / 1500 % 1)) % this.focusLineStep.length]);
 
             gc.stroke();
         },
@@ -770,6 +827,9 @@ Instances of this object have basically four main functions.
             return this.columnEdges;
         },
 
+        getRowEdges: function() {
+            return this.rowEdges;
+        },
         /**
          * @function
          * @instance
