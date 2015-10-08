@@ -581,7 +581,7 @@ Instances of this object have basically four main functions.
             var visibleColumns = this.getVisibleColumns();
             var visibleRows = this.getVisibleRows();
             var lastVisibleColumn = visibleColumns[visibleColumns.length - 1];
-            var lastVisibleRow = this.visibleRows[this.visibleRows.length - 1];
+            var lastVisibleRow = visibleRows[visibleRows.length - 1];
 
             var extent = selection.extent;
 

@@ -77,7 +77,6 @@
         },
         setLastSelectionType: function(type) {
             this.lastSelectionType = type;
-            console.log('selection type', type);
         },
         /**
          * @function

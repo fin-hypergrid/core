@@ -34,6 +34,7 @@
          */
         rectangles: {},
 
+        dragArmed: false,
         /**
          * @function
          * @instance
@@ -57,8 +58,9 @@
         handleMouseUp: function(grid, event) {
             if (this.dragging) {
                 this.dragging = false;
+                this.dragArmed = false;
                 grid.fireSyntheticRowSelectionChangedEvent();
-            }
+            } else
             if (this.next) {
                 this.next.handleMouseUp(grid, event);
             }
@@ -101,7 +103,7 @@
 
                 var primEvent = event.primitiveEvent;
                 var keys = primEvent.detail.keys;
-                this.dragging = true;
+                this.dragArmed = true;
                 this.extendSelection(grid, dCell, keys);
             }
         },
@@ -117,12 +119,12 @@
         handleMouseDrag: function(grid, event) {
             var isRightClick = event.primitiveEvent.detail.isRightClick;
 
-            if (!grid.isRowSelection() || isRightClick || !this.dragging) {
+            if (!this.dragArmed || !grid.isRowSelection() || isRightClick) {
                 if (this.next) {
                     this.next.handleMouseDrag(grid, event);
                 }
             } else {
-
+                this.dragging = true;
                 var numFixedRows = grid.getFixedRowCount();
 
                 var cell = event.gridCell;
