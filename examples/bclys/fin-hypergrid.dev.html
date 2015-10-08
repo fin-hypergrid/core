@@ -15575,6 +15575,8 @@ Instances of this object have basically four main functions.
 
             x = 0;
             var start = 0;
+            var firstVX, lastVX;
+            var firstVY, lastVY;
             if (grid.isShowRowNumbers()) {
                 start--;
                 this.columnEdges[-1] = -1;
@@ -15583,6 +15585,10 @@ Instances of this object have basically four main functions.
                 vx = c;
                 if (c >= numFixedColumns) {
                     vx = vx + scrollLeft;
+                    if (firstVX === undefined) {
+                        firstVX = vx;
+                    }
+                    lastVX = vx;
                 }
                 if (x > viewWidth || numColumns <= vx) {
                     break;
@@ -15603,6 +15609,10 @@ Instances of this object have basically four main functions.
                 vy = r;
                 if (r >= numFixedRows) {
                     vy = vy + scrollTop;
+                    if (firstVY === undefined) {
+                        firstVY = vy;
+                    }
+                    lastVY = vy;
                 }
                 if (y > viewHeight || numRows <= vy) {
                     break;
@@ -15613,11 +15623,7 @@ Instances of this object have basically four main functions.
                 this.visibleRows[r] = vy;
                 this.rowEdgesIndexMap[vy] = r;
             }
-            // console.log('cols', this.getColumnEdges());
-            // console.log('rows', this.rowEdges);
-            // console.log('col#', this.visibleColumns);
-            // console.log('row#', this.visibleRows);
-            //console.log('ms', Date.now() - startTime);
+            this.dataWindow = grid.rectangles.rectangle.create(firstVX, firstVY, lastVX - firstVX, lastVY - firstVY);
         },
 
         /**
@@ -15653,7 +15659,7 @@ Instances of this object have basically four main functions.
         setGrid: function(grid) {
 
             this.grid = grid;
-
+            this.startAnimator();
             //lets make use of prototype inheritance for cell properties
         },
 
@@ -15790,21 +15796,35 @@ Instances of this object have basically four main functions.
          * #### returns: [fin-rectangle](http://stevewirts.github.io/fin-rectangle/components/fin-rectangle/)
          */
         _getBoundsOfCell: function(c, r) {
+            var xOutside = false;
+            var yOutside = false;
             var columnEdges = this.getColumnEdges();
+            var rowEdges = this.getRowEdges();
+
             var x = this.columnEdgesIndexMap[c];
             var y = this.rowEdgesIndexMap[r];
+            if (x === undefined) {
+                x = this.columnEdgesIndexMap[c - 1];
+                xOutside = true;
+            }
+
+            if (y === undefined) {
+                y = this.rowEdgesIndexMap[r - 1];
+                yOutside = true;
+            }
+
             var ox = columnEdges[x],
-                oy = this.rowEdges[y],
+                oy = rowEdges[y],
                 cx = columnEdges[x + 1],
-                cy = this.rowEdges[y + 1],
+                cy = rowEdges[y + 1],
                 ex = cx - ox,
                 ey = cy - oy;
 
             var cell = this.cell;
-            cell.x = ox;
-            cell.y = oy;
-            cell.width = ex;
-            cell.height = ey;
+            cell.x = xOutside ? cx : ox;
+            cell.y = yOutside ? cy : oy;
+            cell.width = xOutside ? 0 : ex;
+            cell.height = yOutside ? 0 : ey;
 
             return cell;
 
@@ -15991,7 +16011,7 @@ Instances of this object have basically four main functions.
             this.paintGridlines(gc);
             //this.blankOutOverflow(gc); // no longer needed
             this.renderOverrides(gc);
-            this.renderFocusCell(gc);
+            //this.renderFocusCell(gc);
             gc.closePath();
         },
 
@@ -16010,37 +16030,82 @@ Instances of this object have basically four main functions.
 
         renderFocusCell: function(gc) {
             var grid = this.getGrid();
-            var mouseDown = grid.getMouseDown();
-            var extent = grid.getDragExtent();
-            var o = this._getBoundsOfCell(mouseDown.x, mouseDown.y);
-            var ox = o.x;
-            var oy = o.y;
-            var ow = o.width;
-            var oh = o.height;
-            var e = this._getBoundsOfCell(mouseDown.x + extent.x, mouseDown.y + extent.y);
-            var ex = e.x;
-            var ey = e.y;
-            var ew = e.width;
-            var eh = e.height;
+            var selections = grid.getSelectionModel().getSelections();
+            if (!selections || selections.length === 0) {
+                return;
+            }
+            var selection = selections[selections.length - 1];
+            var mouseDown = selection.origin;
+            if (mouseDown.x === -1) {
+                //no selected area, lets exit
+                return;
+            }
+
+            var visibleColumns = this.getVisibleColumns();
+            var visibleRows = this.getVisibleRows();
+            var lastVisibleColumn = visibleColumns[visibleColumns.length - 1];
+            var lastVisibleRow = this.visibleRows[this.visibleRows.length - 1];
+
+            var extent = selection.extent;
+
+            var dpOX = Math.min(mouseDown.x, mouseDown.x + extent.x);
+            var dpOY = Math.min(mouseDown.y, mouseDown.y + extent.y);
+
+            //lets check if our selection rectangle is scrolled outside of the visible area
+            if (dpOX > lastVisibleColumn) {
+                return; //the top of our rectangle is below visible
+            }
+            if (dpOY > lastVisibleRow) {
+                return; //the left of our rectangle is to the right of being visible
+            }
+
+            var dpEX = Math.max(mouseDown.x, mouseDown.x + extent.x) + 1;
+            dpEX = Math.min(dpEX, 1 + lastVisibleColumn);
+
+            var dpEY = Math.max(mouseDown.y, mouseDown.y + extent.y) + 1;
+            dpEY = Math.min(dpEY, 1 + lastVisibleRow);
+
+            var o = this._getBoundsOfCell(dpOX, dpOY);
+            var ox = Math.round((o.x === undefined) ? grid.getFixedColumnsWidth() : o.x);
+            var oy = Math.round((o.y === undefined) ? grid.getFixedRowsHeight() : o.y);
+            // var ow = o.width;
+            // var oh = o.height;
+            var e = this._getBoundsOfCell(dpEX, dpEY);
+            var ex = Math.round((e.x === undefined) ? grid.getFixedColumnsWidth() : e.x);
+            var ey = Math.round((e.y === undefined) ? grid.getFixedRowsHeight() : e.y);
+            // var ew = e.width;
+            // var eh = e.height;
             var x = Math.min(ox, ex);
             var y = Math.min(oy, ey);
-            var width = 2 + ex + ew - ox;
-            var height = 2 + ey + eh - oy;
+            var width = 1 + ex - ox;
+            var height = 1 + ey - oy;
             if (x === ex) {
-                width = ox + ow - ex;
+                width = ox - ex;
             }
             if (y === ey) {
-                height = oy + oh - ey;
+                height = oy - ey;
             }
-            gc.beginPath();
+            if (width * height < 1) {
+                //if we are only a skinny line, don't render anything
+                return;
+            }
+
             gc.rect(x, y, width, height);
-            gc.fillStyle = 'rgba(0, 0, 0, 0.2)';
-            gc.fill();
+            //gc.fillStyle = 'rgba(0, 0, 0, 0.2)';
+            //gc.fill();
             gc.lineWidth = 1;
+            gc.strokeStyle = 'white';
+
+            // animate the dashed line a bit here for fun
+
+            gc.stroke();
+
+            gc.rect(x, y, width, height);
+
             gc.strokeStyle = 'black';
 
             // animate the dashed line a bit here for fun
-            gc.setLineDash(this.focusLineStep[Math.floor(10 * (Date.now() / 500 % 1)) % this.focusLineStep.length]);
+            gc.setLineDash(this.focusLineStep[Math.floor(10 * (Date.now() / 300 % 1)) % this.focusLineStep.length]);
 
             gc.stroke();
         },
@@ -16233,6 +16298,9 @@ Instances of this object have basically four main functions.
             return this.columnEdges;
         },
 
+        getRowEdges: function() {
+            return this.rowEdges;
+        },
         /**
          * @function
          * @instance
@@ -16552,6 +16620,7 @@ Instances of this object have basically four main functions.
             var isHierarchyColumn = grid.isHierarchyColumn(c);
             var isRowSelected = grid.isRowSelected(r);
             var isColumnSelected = grid.isColumnSelected(c);
+            var isCellSelected = grid.isCellSelected(c, r);
 
             if (c === -1 && !isRowSelected) {
                 baseProperties = baseProperties.rowNumbersProperties;
@@ -16590,6 +16659,7 @@ Instances of this object have basically four main functions.
             cellProperties.isColumnHovered = this.isRowHovered(c, r);
             cellProperties.isRowHovered = this.isColumnHovered(c, r);
             cellProperties.bounds = this._getBoundsOfCell(c, r);
+            cellProperties.isCellSelected = isCellSelected;
             cellProperties.isRowSelected = isRowSelected;
             cellProperties.isColumnSelected = isColumnSelected;
 
@@ -16630,6 +16700,23 @@ Instances of this object have basically four main functions.
                 return 0;
             }
             return colEdges[0];
+        },
+        startAnimator: function() {
+            var animate;
+            var self = this;
+            animate = function() {
+                self.animate();
+                requestAnimationFrame(animate);
+            };
+            requestAnimationFrame(animate);
+        },
+        animate: function() {
+            var ctx = this.getCanvas().canvasCTX;
+            ctx.beginPath();
+            ctx.save();
+            this.renderFocusCell(ctx);
+            ctx.restore();
+            ctx.closePath();
         }
     });
 
@@ -17026,6 +17113,14 @@ Instances of this object have basically four main functions.
             if (this.isColumnSelected(x) || this.isRowSelected(y)) {
                 return true;
             }
+            return this._isCellSelected(selections, x, y);
+        },
+
+        isCellSelected: function(x, y) {
+            return this._isCellSelected(this.getSelections(), x, y);
+        },
+
+        _isCellSelected: function(selections, x, y) {
             for (var i = 0; i < selections.length; i++) {
                 var each = selections[i];
                 if (this.rectangles.rectangle.contains(each, x, y)) {
@@ -17034,7 +17129,6 @@ Instances of this object have basically four main functions.
             }
             return false;
         },
-
         /**
          * @function
          * @instance
@@ -18593,6 +18687,10 @@ var noop = function() {};
                     gc.stroke();
                 }
                 gc.closePath();
+            }
+            if (config.isCellSelected) {
+                gc.fillStyle = 'rgba(0, 0, 0, 0.2)';
+                gc.fillRect(x, y, width, height);
             }
             var iconWidth = 0;
             if (leftIcon) {
@@ -26033,6 +26131,9 @@ it contains all code/data that's necessary for easily implementing a virtual dat
         getFixedColumnsWidth: function() {
             var count = this.getFixedColumnCount();
             var total = 0;
+            if (this.getGrid().isShowRowNumbers()) {
+                total = this.getColumnWidth(-1);
+            }
             for (var i = 0; i < count; i++) {
                 total = total + this.getColumnWidth(i);
             }
@@ -37745,6 +37846,9 @@ fin-vampire-bar {
 
         getLastSelectionType: function() {
             return this.getSelectionModel().getLastSelectionType();
+        },
+        isCellSelected: function(x, y) {
+            return this.getSelectionModel().isCellSelected(x, y);
         }
     });
 
