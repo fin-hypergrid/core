@@ -15,6 +15,16 @@
         fileref.setAttribute("shim-shadowdom", ' ');
         fileref.setAttribute("href", 'themes/' + theme + '.css');
         document.getElementsByTagName("head")[0].appendChild(fileref);
+
+
+    var updatePermuteRate = function(slider) {
+        var output = document.querySelector('#permuteInterval');
+        var inMemoryGrid = document.querySelector('#in-memory-example');
+        output.innerHTML = slider.value;
+        inMemoryGrid.getBehavior().permuteInterval = parseInt(slider.value);
+    };
+
+
     </script>
   <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
   <title>fin-hypergrid Demo</title>
@@ -151,9 +161,9 @@
             <h3>fin-hypergrid-behavior-in-memory
 
 
-            </h3> This element is a custom Polymer web component that is a demonstration of a simple subclass of the fin-hypergrid-behavior-default.  It demonstrates live high frequency updating of data, variable width columns, alternate cell renderers, and alternate cell editors(double click in various cells of column 'J').  Press Alt/Option to toggle the column picker.  Also, Take note that hypergrid supports <a href="https://polymerthemes.com/">polymer themes</a> and one can be selected from the top left menu.
+            </h3> This element is a custom Polymer web component that is a demonstration of a simple subclass of the fin-hypergrid-behavior-default.  It demonstrates live high frequency updating of data, variable width columns, alternate cell renderers, and alternate cell editors(double click in various cells of column 'J').  Press Alt/Option to toggle the column picker.  Also, Take note that hypergrid supports <a href="https://polymerthemes.com/">polymer themes</a> and one can be selected from the top left menu.  The data permute interval is the rate that the data is being randomly changed. Keep in mind the CPU utilization is from this and NOT hypergrid overhead.<br>Data Permute Interval<input style="margin: 15px" oninput="updatePermuteRate(this)" id="slider" type="range" value="50" min="16" max="1000" step="1" /><span style="font-size: large" id="permuteInterval"></span>
             <br>
-            <br>
+
           </div>
           <core-splitter direction="up"></core-splitter>
           <div flex class="rel">
@@ -346,6 +356,9 @@
 
             //get ahold of our in memory example
             var inMemoryGrid = document.querySelector('#in-memory-example');
+
+            var output = document.querySelector('#permuteInterval');
+            output.innerHTML = inMemoryGrid.getBehavior().permuteInterval;
 
             //lets turn his scrollbars to always on....
             var lnfOverrides = {

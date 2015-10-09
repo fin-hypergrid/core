@@ -37,7 +37,7 @@ var fontData = {};
  *
  * @property {SimpleLRU} textWidthCache - a LRU cache of 10000 of text widths
  */
-var textWidthCache = new SimpleLRU(10000);
+var textWidthCache = new SimpleLRU(4000);
 
 /**
  *

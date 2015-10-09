@@ -434,9 +434,9 @@
             this.fire('load');
             this.isScrollButtonClick = false;
 
-            setInterval(function() {
-                self.checkRepaint();
-            }, 16);
+            // setInterval(function() {
+            //     self.checkRepaint();
+            // }, 16);
 
         },
 
@@ -1086,6 +1086,7 @@
          */
         repaint: function() {
             this.repaintFlag = true;
+            this.checkRepaint();
         },
 
         /**

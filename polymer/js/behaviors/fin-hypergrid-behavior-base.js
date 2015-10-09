@@ -1651,14 +1651,18 @@ it contains all code/data that's necessary for easily implementing a virtual dat
             var myWidths = tableState.columnWidths;
             var repaint = false;
             var a, b, c, d = 0;
+            var newVal;
             for (c = 0; c < fixedMinWidths.length; c++) {
                 a = myFixed[c];
                 b = fixedMinWidths[c];
                 d = tableState.fixedColumnAutosized[c];
                 if (a !== b || !d) {
-                    myFixed[c] = !d ? b : Math.max(a, b);
-                    tableState.fixedColumnAutosized[c] = true;
-                    repaint = true;
+                    newVal = !d ? b : Math.max(a, b);
+                    if (myFixed[c] !== newVal) {
+                        myFixed[c] = newVal;
+                        tableState.fixedColumnAutosized[c] = true;
+                        repaint = true;
+                    }
                 }
             }
             for (c = 0; c < minWidths.length; c++) {
@@ -1667,9 +1671,12 @@ it contains all code/data that's necessary for easily implementing a virtual dat
                 b = minWidths[c];
                 d = tableState.columnAutosized[c];
                 if (a !== b || !d) {
-                    myWidths[ti] = !d ? b : Math.max(a, b);
-                    tableState.columnAutosized[c] = true;
-                    repaint = true;
+                    newVal = !d ? b : Math.max(a, b);
+                    if (myWidths[ti] !== newVal) {
+                        myWidths[ti] = newVal;
+                        tableState.columnAutosized[c] = true;
+                        repaint = true;
+                    }
                 }
             }
             if (repaint) {
