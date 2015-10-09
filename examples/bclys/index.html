@@ -10,7 +10,7 @@
   <script src="sampledata.js"></script>
   <script src="myThemes.js"></script>
   <script src="RangeSelectionModel.js"></script>
-   <link rel="import" href="fin-hypergrid.min.html">
+   <link rel="import" href="fin-hypergrid.dev.html">
   <!-- <link rel="import" href="../../polymer/html/fin-hypergrid.html"> -->
   <style>
     .abs {
@@ -24,7 +24,7 @@
 <div class="container" style="border-style: solid; border-color: red">
     <div class="row" style="border-style: solid; border-color: blue">
         <div class="col-md-12 col-lg-12" style="border-style: solid; border-color: grey">
-            <button onclick="toggleGroups()">toggle groups</button>
+            <button onclick="toggleColumnPicker()">toggle column picker</button>
             <button onclick="toggleAggregates()">toggle aggregates</button>
             <button onclick="toggleAutosortGrouping()">toggle autosort groups</button>
             <button onclick="toggleEmptyData()">toggle empty data</button>
@@ -62,13 +62,8 @@
         //functions for showing the grouping/rollup capbilities
         var rollups = fin.analytics.aggregations;
 
-        var doGrouping = false;
-        var groups = [4, 0, 2, 5];
-
-        window.toggleGroups = function() {
-            doGrouping = !doGrouping;
-            var arg = doGrouping? groups : [];
-            jsonModel.setGroups(arg);
+        window.toggleColumnPicker = function() {
+            jsonGrid.toggleColumnPicker();
         }
 
         var doAggregates = false;
@@ -85,13 +80,11 @@
         window.toggleAggregates = function() {
             doAggregates = !doAggregates;
             var arg = doAggregates? aggregates : [];
-            doGroups = true;
-            jsonModel.setGroups(groups);
             jsonModel.setAggregates(arg);
         }
 
         window.toggleAutosortGrouping = function() {
-            var aggregator = jsonModel.getBaseModel().getDataSource();
+            var aggregator = jsonModel.getDataModel().getDataSource();
             aggregator.presortGroups = !aggregator.presortGroups;
             aggregator.doAggregates = true;
             jsonModel.setAggregates(aggregates);
@@ -134,9 +127,11 @@
             jsonGrid.setGlobalFilter(globalFilter);
         }
 
+        jsonModel.setData(people);
+
         jsonGrid.setColumnProperties(2, {
             backgroundColor: 'maroon',
-            color: 'pink'
+            color: 'green'
         });
 
 
@@ -145,10 +140,6 @@
 
         //set the actual json row objects
         //jsonModel.setData(people); //see sampledata.js for the random data
-
-        //lets sew in haseeb's stuff here for now.....
-        //var fields = ["last_name", "first_name", "pets", "birthDate", "birthState", "residenceState", "employed", "income", "travel", "squareOfIncome"];
-        jsonModel.setData(people);
 
         //make the first col fixed;
         // jsonModel.setFixedColumnCount(2);
@@ -163,7 +154,7 @@
         setInterval(function(){
             topTotals[1][5] = Math.round(Math.random()*100);
             jsonModel.changed();
-        },300)
+        }, 300);
 
         //lets set 2 rows of totals
 
@@ -182,6 +173,16 @@
             var x = config.x;
             var y = config.y;
 
+            var upDownIMG = upDown;
+            var upDownSpinIMG = upDownSpin;
+            var downArrowIMG = downArrow;
+
+            if (!jsonGrid.isEditable()) {
+                upDownIMG = null;
+                upDownSpinIMG = null;
+                downArrowIMG = null;
+            }
+
             config.halign = 'left';
             if ((y % 3) === 0){
                 config.backgroundColor = '#E87200';
@@ -192,16 +193,16 @@
             }
             if ([0,1,4,5].indexOf(x) > -1) {
                 //we are a dropdown, lets provide a visual queue
-                config.value = [null, config.value, upDown];
+                config.value = [null, config.value, upDownIMG];
             }
             if (x === 1) {
                 renderer = cellProvider.cellCache.linkCellRenderer;
             } else if (x === 2) {
                 config.halign = 'left';
-                config.value = [null, config.value, upDownSpin];
+                config.value = [null, config.value, upDownSpinIMG];
             } else if (x === 3) {
                 config.halign = 'left';
-                config.value = [null, config.value, downArrow];
+                config.value = [null, config.value, downArrowIMG];
             } else if (x === 6) {
                 renderer = cellProvider.cellCache.buttonRenderer;
             } else if (x === 7) {
@@ -223,7 +224,7 @@
         };
 
         //lets override the cell editors, and configure the drop down lists
-        jsonModel.getBaseModel().getCellEditorAt = function(x, y) {
+        var myCellEditors = function(x, y) {
             var type = editorTypes[x];
             if (!type) {
                 return; //no editor here
@@ -256,26 +257,35 @@
             return cellEditor;
         };
 
-        jsonModel.getCursorAt = function(x,y) {
-            if (x === 1) {
-                return 'pointer'
-            } else {
-                return null;
-            }
-        };
+        jsonModel.getDataModel().getCellEditorAt = myCellEditors;
+
+        // jsonModel.getCursorAt = function(x,y) {
+        //     if (x === 1) {
+        //         return 'pointer'
+        //     } else {
+        //         return null;
+        //     }
+        // };
 
         jsonGrid.addFinEventListener('fin-selection-changed', function(e){
+
+            //lets mirror the cell selection into the rows and or columns
+            jsonGrid.selectRowsFromCells();
+            //jsonGrid.selectColumnsFromCells();
+
             console.log('fin-selection-changed', jsonGrid.getSelectedRows(), jsonGrid.getSelectedColumns(), jsonGrid.getSelections());
-            var rowcontext = e.detail.rowContext;
-            var fields = jsonModel.getFields();
+
             if (e.detail.selections.length === 0) {
                 console.log('no selections');
                 return;
             }
-            for (var i = 0; i < fields.length; i++) {
-                var field = fields[i];
-                console.log(i + ' ' + field + ' = ' + rowcontext(i) + ', ' + rowcontext(field));
-            }
+
+            // var fields = jsonModel.getFields();
+            // var rowcontext = e.detail.rowContext;
+            // for (var i = 0; i < fields.length; i++) {
+            //     var field = fields[i];
+            //     console.log(i + ' ' + field + ' = ' + rowcontext(i) + ', ' + rowcontext(field));
+            // }
         });
 
         jsonGrid.addFinEventListener('fin-double-click', function(e){
@@ -291,9 +301,9 @@
             if (cell.y < jsonGrid.getHeaderRowCount()) {
                 return;
             }
-            if(cell.x === 7) {
-                jsonGrid.toggleSelectRow(cell.y, []);
-            }
+            // if(cell.x === 7) {
+            //     jsonGrid.toggleSelectRow(cell.y, []);
+            // }
             else if (cell.x !== -1) {
                 if (jsonGrid.isEditing()) {
                     jsonGrid.stopEditing();
@@ -332,7 +342,7 @@
             var x = details.x;
             var y = details.y;
             var value = details.value;
-            jsonModel.getBaseModel().getTotals()[0][x] = value;
+            jsonModel.getDataModel().getTotals()[0][x] = value;
             jsonGrid.repaint();
         });
 
@@ -398,6 +408,10 @@
             console.log('fin-editor-key-down', e.detail);
         });
 
+        jsonGrid.addFinEventListener('fin-groups-changed', function(e) {
+            console.log('fin-groups-changed', e.detail);
+        });
+
         jsonGrid.addFinEventListener('fin-context-menu', function(e) {
             var modelPoint = e.detail.gridCell;
             var headerRowCount = jsonGrid.getHeaderRowCount();
@@ -412,8 +426,8 @@
 
         jsonModel.setCellProperties(1, 0, {
             font: '10pt Tahoma',
-            color: 'red',
-            backgroundColor: 'lightblue'
+            color: 'lightblue',
+            backgroundColor: 'red'
         });
 
         setTimeout(function() {
@@ -440,26 +454,18 @@
                     console.log(i + ' <> ' + fields[i]);
                 }
 
-                var toI = function(fieldName){
-                    return fieldsMap[fieldName];
-                };
-
-                var toIs = function(arrayOfFieldNames) {
-                    return arrayOfFieldNames.map(toI);
-                };
-
                 var state = {
-                        columnIndexes: toIs([
-                            "last_name",
-                            "pets",
-                            "birthDate",
-                            "birthState",
-                            "residenceState",
-                            "employed",
-                            "first_name",
-                            "income",
-                            "travel",
-                            "squareOfIncome"]),
+                        columnIndexes: [
+                            fieldsMap.last_name,
+                            fieldsMap.pets,
+                            fieldsMap.birthDate,
+                            fieldsMap.birthState,
+                            fieldsMap.residenceState,
+                            fieldsMap.employed,
+                            fieldsMap.first_name,
+                            fieldsMap.income,
+                            fieldsMap.travel,
+                            fieldsMap.squareOfIncome],
                         rowHeights:{ 0: 30 },
                         fixedColumnCount: 1,
                         fixedRowCount: 2,
@@ -468,10 +474,16 @@
                         showHeaderRow: true,
                         showFilterRow: true,
                         columnAutosizing: true,
-                        editable: false
+                        editable: false,
+
+                        cellSelection: true,
+                        columnSelection: true,
+                        rowSelection: true,
                     };
 
                 jsonGrid.setState(state);
+
+                jsonGrid.setGroups([4, 0, 1]);
 
                 jsonGrid.addProperties({
                     scrollbarHoverOff: 'visible',
@@ -510,7 +522,8 @@
                 jsonModel.setColumnProperties(1,
                     {
                         backgroundColor: function(config) {
-                            if (config.value[0] === 'S') {
+                            var textValue = config.value[1];
+                            if (textValue[0] === 'S') { //does the data start with an 'S'?
                                 return 'purple';
                             } else {
                                 return 'white';
@@ -533,7 +546,7 @@
 
                 window.g = document.querySelector('#json-example');
                 window.b = g.getBehavior();
-                window.m = b.getBaseModel();
+                window.m = b.getDataModel();
 
             }, 500);
 
