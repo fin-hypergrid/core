@@ -945,9 +945,9 @@ it contains all code/data that's necessary for easily implementing a virtual dat
             this.setNextFeature(document.createElement('fin-hypergrid-feature-column-resizing'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-row-resizing'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-filters'));
-            this.setNextFeature(document.createElement('fin-hypergrid-feature-cell-selection'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-row-selection'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-column-selection'));
+            this.setNextFeature(document.createElement('fin-hypergrid-feature-cell-selection'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-column-moving'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-column-sorting'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-thumbwheel-scrolling'));

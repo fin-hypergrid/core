@@ -2123,17 +2123,17 @@
          *
          */
         fireSyntheticRowSelectionChangedEvent: function() {
-            this.selectionChanged();
-            // var selectedRows = this.getSelectedRows();
-            // var selectionEvent = new CustomEvent('fin-row-selection-changed', {
-            //     detail: {
-            //         rowContext: this.getRowContextFunction(selectedRows),
-            //         rows: selectedRows,
-            //         columns: this.getSelectedColumns(),
-            //         selections: this.getSelectionModel().getSelections()
-            //     }
-            // });
-            // this.canvas.dispatchEvent(selectionEvent);
+            // this.selectionChanged();
+            var selectedRows = this.getSelectedRows();
+            var selectionEvent = new CustomEvent('fin-row-selection-changed', {
+                detail: {
+                    rowContext: this.getRowContextFunction(selectedRows),
+                    rows: selectedRows,
+                    columns: this.getSelectedColumns(),
+                    selections: this.getSelectionModel().getSelections()
+                }
+            });
+            this.canvas.dispatchEvent(selectionEvent);
         },
 
         /**
