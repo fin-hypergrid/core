@@ -13906,7 +13906,7 @@ div.container {
                     isRightClick: this.isRightClick(e)
                 }
             }));
-            //console.log('dblclick', this.currentKeys);
+            console.log('dblclick', this.currentKeys);
         },
 
         getCharMap: function() {
@@ -16044,7 +16044,7 @@ Instances of this object have basically four main functions.
             var visibleColumns = this.getVisibleColumns();
             var visibleRows = this.getVisibleRows();
             var lastVisibleColumn = visibleColumns[visibleColumns.length - 1];
-            var lastVisibleRow = this.visibleRows[this.visibleRows.length - 1];
+            var lastVisibleRow = visibleRows[visibleRows.length - 1];
 
             var extent = selection.extent;
 
@@ -16982,7 +16982,6 @@ Instances of this object have basically four main functions.
         },
         setLastSelectionType: function(type) {
             this.lastSelectionType = type;
-            console.log('selection type', type);
         },
         /**
          * @function
@@ -23401,6 +23400,7 @@ var commands = {
          */
         rectangles: {},
 
+        dragArmed: false,
         /**
          * @function
          * @instance
@@ -23424,8 +23424,9 @@ var commands = {
         handleMouseUp: function(grid, event) {
             if (this.dragging) {
                 this.dragging = false;
+                this.dragArmed = false;
                 grid.fireSyntheticRowSelectionChangedEvent();
-            }
+            } else
             if (this.next) {
                 this.next.handleMouseUp(grid, event);
             }
@@ -23468,7 +23469,7 @@ var commands = {
 
                 var primEvent = event.primitiveEvent;
                 var keys = primEvent.detail.keys;
-                this.dragging = true;
+                this.dragArmed = true;
                 this.extendSelection(grid, dCell, keys);
             }
         },
@@ -23484,12 +23485,12 @@ var commands = {
         handleMouseDrag: function(grid, event) {
             var isRightClick = event.primitiveEvent.detail.isRightClick;
 
-            if (!grid.isRowSelection() || isRightClick || !this.dragging) {
+            if (!this.dragArmed || !grid.isRowSelection() || isRightClick) {
                 if (this.next) {
                     this.next.handleMouseDrag(grid, event);
                 }
             } else {
-
+                this.dragging = true;
                 var numFixedRows = grid.getFixedRowCount();
 
                 var cell = event.gridCell;
@@ -25913,9 +25914,9 @@ it contains all code/data that's necessary for easily implementing a virtual dat
             this.setNextFeature(document.createElement('fin-hypergrid-feature-column-resizing'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-row-resizing'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-filters'));
-            this.setNextFeature(document.createElement('fin-hypergrid-feature-cell-selection'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-row-selection'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-column-selection'));
+            this.setNextFeature(document.createElement('fin-hypergrid-feature-cell-selection'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-column-moving'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-column-sorting'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-thumbwheel-scrolling'));
@@ -36167,17 +36168,17 @@ fin-vampire-bar {
          *
          */
         fireSyntheticRowSelectionChangedEvent: function() {
-            this.selectionChanged();
-            // var selectedRows = this.getSelectedRows();
-            // var selectionEvent = new CustomEvent('fin-row-selection-changed', {
-            //     detail: {
-            //         rowContext: this.getRowContextFunction(selectedRows),
-            //         rows: selectedRows,
-            //         columns: this.getSelectedColumns(),
-            //         selections: this.getSelectionModel().getSelections()
-            //     }
-            // });
-            // this.canvas.dispatchEvent(selectionEvent);
+            // this.selectionChanged();
+            var selectedRows = this.getSelectedRows();
+            var selectionEvent = new CustomEvent('fin-row-selection-changed', {
+                detail: {
+                    rowContext: this.getRowContextFunction(selectedRows),
+                    rows: selectedRows,
+                    columns: this.getSelectedColumns(),
+                    selections: this.getSelectionModel().getSelections()
+                }
+            });
+            this.canvas.dispatchEvent(selectionEvent);
         },
 
         /**
