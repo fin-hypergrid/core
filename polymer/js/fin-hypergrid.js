@@ -1112,9 +1112,9 @@
          * #### returns: boolean
          * @param {integer} col - column index
          */
-        isRowHeaderCellSelected: function(col) {
+        isCellSelectedInRow: function(col) {
             var selectionModel = this.getSelectionModel();
-            var isSelected = selectionModel.isRowHeaderCellSelected(col);
+            var isSelected = selectionModel.isCellSelectedInRow(col);
             return isSelected;
         },
 
@@ -1126,9 +1126,9 @@
          * #### returns: boolean
          * @param {integer} row - row index
          */
-        isColumnHeaderCellSelected: function(row) {
+        isCellSelectedInColumn: function(row) {
             var selectionModel = this.getSelectionModel();
-            var isSelected = selectionModel.isColumnHeaderCellSelected(row);
+            var isSelected = selectionModel.isCellSelectedInColumn(row);
             return isSelected;
         },
 
@@ -2123,19 +2123,26 @@
          *
          */
         fireSyntheticRowSelectionChangedEvent: function() {
-            this.selectionChanged();
-            // var selectedRows = this.getSelectedRows();
-            // var selectionEvent = new CustomEvent('fin-row-selection-changed', {
-            //     detail: {
-            //         rowContext: this.getRowContextFunction(selectedRows),
-            //         rows: selectedRows,
-            //         columns: this.getSelectedColumns(),
-            //         selections: this.getSelectionModel().getSelections()
-            //     }
-            // });
-            // this.canvas.dispatchEvent(selectionEvent);
+            var selectionEvent = new CustomEvent('fin-row-selection-changed', {
+                detail: {
+                    rows: this.getSelectedRows(),
+                    columns: this.getSelectedColumns(),
+                    selections: this.getSelectionModel().getSelections(),
+                }
+            });
+            this.canvas.dispatchEvent(selectionEvent);
         },
 
+        fireSyntheticColumnSelectionChangedEvent: function() {
+            var selectionEvent = new CustomEvent('fin-column-selection-changed', {
+                detail: {
+                    rows: this.getSelectedRows(),
+                    columns: this.getSelectedColumns(),
+                    selections: this.getSelectionModel().getSelections()
+                }
+            });
+            this.canvas.dispatchEvent(selectionEvent);
+        },
         /**
          * @function
          * @instance
@@ -2144,22 +2151,46 @@
          *
          */
         selectionChanged: function() {
-            var selectedRows = this.getSelectionModel().getFlattenedYs();
+            var selectedRows = this.getSelectedRows();
             var selectionEvent = new CustomEvent('fin-selection-changed', {
                 detail: {
-                    rowContext: this.getRowContextFunction(selectedRows),
-                    rows: this.getSelectedRows(),
+                    rows: selectedRows,
                     columns: this.getSelectedColumns(),
-                    selections: this.getSelectionModel().getSelections()
+                    selections: this.getSelectionModel().getSelections(),
                 }
             });
             this.canvas.dispatchEvent(selectionEvent);
         },
 
-        getRowContextFunction: function(selectedRows) {
-            return this.getBehavior().getRowContextFunction(selectedRows);
+        getRowSelectionMatrix: function() {
+            var selectedRows = this.getSelectedRows();
+            return this.getBehavior().getRowSelectionMatrix(selectedRows);
         },
 
+        getColumnSelectionMatrix: function() {
+            var selectedColumns = this.getSelectedColumns();
+            return this.getBehavior().getColumnSelectionMatrix(selectedColumns);
+        },
+
+        getSelectionMatrix: function() {
+            var selections = this.getSelections();
+            return this.getBehavior().getSelectionMatrix(selections);
+        },
+
+        getRowSelection: function() {
+            var selectedRows = this.getSelectedRows();
+            return this.getBehavior().getRowSelection(selectedRows);
+        },
+
+        getColumnSelection: function() {
+            var selectedColumns = this.getSelectedColumns();
+            return this.getBehavior().getColumnSelection(selectedColumns);
+        },
+
+        getSelection: function() {
+            var selections = this.getSelections();
+            return this.getBehavior().getSelection(selections);
+        },
         /**
          * @function
          * @instance
@@ -2228,24 +2259,6 @@
                 }
             });
             this.canvas.dispatchEvent(event);
-        },
-        /**
-         * @function
-         * @instance
-         * @description
-        Synthesize and fire a fin-keydown event
-         * @param {keyEvent} event - the canvas event
-         *
-         */
-        fireSyntheticColumnSelectionChangedEvent: function() {
-            var selectionEvent = new CustomEvent('fin-column-selection-changed', {
-                detail: {
-                    rows: this.getSelectedRows(),
-                    columns: this.getSelectedColumns(),
-                    selections: this.getSelectionModel().getSelections()
-                }
-            });
-            this.canvas.dispatchEvent(selectionEvent);
         },
 
         /**
@@ -3805,6 +3818,9 @@
         },
         isCellSelected: function(x, y) {
             return this.getSelectionModel().isCellSelected(x, y);
+        },
+        isInCurrentSelectionRectangle: function(x, y) {
+            return this.getSelectionModel().isInCurrentSelectionRectangle(x, y);
         }
     });
 

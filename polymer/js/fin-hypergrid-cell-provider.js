@@ -260,7 +260,7 @@ var noop = function() {};
                 }
                 gc.closePath();
             }
-            if (config.isCellSelected) {
+            if (config.isInCurrentSelectionRectangle) {
                 gc.fillStyle = 'rgba(0, 0, 0, 0.2)';
                 gc.fillRect(x, y, width, height);
             }

@@ -163,9 +163,34 @@
                 return 'center';
             }
         },
-        getRowContextFunction: function(y) {
-            return this.getDataModel().getRowContextFunction(y);
+
+        getRowSelectionMatrix: function(selectedRows) {
+            return this.getDataModel().getRowSelectionMatrix(selectedRows);
         },
+
+        getColumnSelectionMatrix: function(selectedColumns) {
+            return this.getDataModel().getColumnSelectionMatrix(selectedColumns);
+        },
+
+        getSelectionMatrix: function(selections) {
+            return this.getDataModel().getSelectionMatrix(selections);
+        },
+
+        getRowSelection: function() {
+            var selectedRows = this.getSelectedRows();
+            return this.getDataModel().getRowSelection(selectedRows);
+        },
+
+        getColumnSelection: function() {
+            var selectedColumns = this.getSelectedColumns();
+            return this.getDataModel().getColumnSelection(selectedColumns);
+        },
+
+        getSelection: function() {
+            var selections = this.getSelections();
+            return this.getDataModel().getSelection(selections);
+        },
+
         openEditor: function(div) {
             if (!this.isColumnReorderable()) {
                 return false;

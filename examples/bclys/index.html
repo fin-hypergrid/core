@@ -270,7 +270,7 @@
         jsonGrid.addFinEventListener('fin-selection-changed', function(e){
 
             //lets mirror the cell selection into the rows and or columns
-            jsonGrid.selectRowsFromCells();
+            //jsonGrid.selectRowsFromCells();
             //jsonGrid.selectColumnsFromCells();
 
             console.log('fin-selection-changed', jsonGrid.getSelectedRows(), jsonGrid.getSelectedColumns(), jsonGrid.getSelections());
@@ -280,12 +280,8 @@
                 return;
             }
 
-            // var fields = jsonModel.getFields();
-            // var rowcontext = e.detail.rowContext;
-            // for (var i = 0; i < fields.length; i++) {
-            //     var field = fields[i];
-            //     console.log(i + ' ' + field + ' = ' + rowcontext(i) + ', ' + rowcontext(field));
-            // }
+            console.log(jsonGrid.getSelectionMatrix());
+            console.log(jsonGrid.getSelection());
         });
 
         jsonGrid.addFinEventListener('fin-double-click', function(e){
@@ -361,20 +357,29 @@
 
         jsonGrid.addFinEventListener('fin-row-selection-changed', function(e) {
             console.log('fin-row-selection-changed', e.detail);
-            var rowcontext = e.detail.rowContext;
-            var fields = jsonModel.getFields();
             if (e.detail.rows.length === 0) {
                 console.log('no rows selected');
                 return;
             }
-            for (var i = 0; i < fields.length; i++) {
-                var field = fields[i];
-                console.log(i + ' ' + field + ' = ' + rowcontext(i) + ', ' + rowcontext(field));
-            }
+            //we have a function call to create the selection matrix because
+            //we don't want to create alot of needless garbage if the user
+            //is just navigating around
+            console.log(jsonGrid.getRowSelectionMatrix());
+            console.log(jsonGrid.getRowSelection());
         });
 
         jsonGrid.addFinEventListener('fin-column-selection-changed', function(e) {
             console.log('fin-column-selection-changed', e.detail);
+
+            if (e.detail.columns.length === 0) {
+                console.log('no rows selected');
+                return;
+            }
+            //we have a function call to create the selection matrix because
+            //we don't want to create alot of needless garbage if the user
+            //is just navigating around
+            console.log(jsonGrid.getColumnSelectionMatrix());
+            console.log(jsonGrid.getColumnSelection());
         });
 
         jsonGrid.addFinEventListener('fin-editor-data-change', function(e) {
@@ -528,6 +533,7 @@
                             } else {
                                 return 'white';
                             }
+                            return 'cyan';
                         },
                         columnHeaderBackgroundColor: '#142B6F', //dark blue
                         columnHeaderColor: 'white'

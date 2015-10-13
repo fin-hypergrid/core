@@ -780,8 +780,8 @@ Instances of this object have basically four main functions.
          * @param {integer} colIndex - column index
          *
         */
-        isRowHeaderCellSelected: function(colIndex) {
-            return this.getGrid().isRowHeaderCellSelected(colIndex);
+        isCellSelectedInRow: function(colIndex) {
+            return this.getGrid().isCellSelectedInRow(colIndex);
         },
 
         /**
@@ -792,8 +792,8 @@ Instances of this object have basically four main functions.
          * @param {integer} rowIndex - column index
          *
         */
-        isColumnHeaderCellSelected: function(rowIndex) {
-            return this.getGrid().isColumnHeaderCellSelected(rowIndex);
+        isCellSelectedInColumn: function(rowIndex) {
+            return this.getGrid().isCellSelectedInColumn(rowIndex);
         },
 
         /**
@@ -1151,6 +1151,7 @@ Instances of this object have basically four main functions.
             var headerRowCount = behavior.getHeaderRowCount();
             var headerColumnCount = behavior.getHeaderColumnCount();
 
+            var isShowRowNumbers = grid.isShowRowNumbers();
             var isHeaderRow = r < headerRowCount;
             var isHeaderColumn = c < headerColumnCount;
             var isFilterRow = grid.isFilterRow(r);
@@ -1158,30 +1159,40 @@ Instances of this object have basically four main functions.
             var isRowSelected = grid.isRowSelected(r);
             var isColumnSelected = grid.isColumnSelected(c);
             var isCellSelected = grid.isCellSelected(c, r);
+            var isCellSelectedInColumn = grid.isCellSelectedInColumn(c);
+            var isCellSelectedInRow = grid.isCellSelectedInRow(r);
 
-            if (c === -1 && !isRowSelected) {
-                baseProperties = baseProperties.rowNumbersProperties;
-            } else if (isFilterRow && c !== -1) {
-                baseProperties = baseProperties.filterProperties;
-            } else if (isHierarchyColumn) {
-                baseProperties = isColumnSelected ? baseProperties.treeColumnPropertiesColumnSelection : baseProperties.treeColumnProperties;
-            } else if (isHeaderColumn) {
-                baseProperties = isRowSelected ? baseProperties.rowHeaderRowSelection : baseProperties.rowHeader;
-            } else if (isHeaderRow) {
-                baseProperties = (isColumnSelected || isRowSelected) ? baseProperties.columnHeaderColumnSelection : baseProperties.columnHeader;
-            }
+            var cellProperties;
 
-            var cellProperties = Object.create(baseProperties);
-
-
-            if (isHeaderColumn || isHierarchyColumn) {
-                cellProperties.isSelected = isRowSelected || grid.isColumnHeaderCellSelected(r);
+            if ((isShowRowNumbers && c === -1) || (!isShowRowNumbers && c === 0)) {
+                if (isRowSelected) {
+                    baseProperties = baseProperties.rowHeaderRowSelection;
+                    cellProperties = Object.create(baseProperties);
+                    cellProperties.isSelected = true;
+                } else {
+                    baseProperties = baseProperties.rowHeader;
+                    cellProperties = Object.create(baseProperties);
+                    cellProperties.isSelected = isCellSelectedInRow;
+                }
                 cellProperties.isUserDataArea = false;
             } else if (isHeaderRow) {
-                cellProperties.isSelected = (isColumnSelected || isRowSelected) || grid.isRowHeaderCellSelected(c);
+                if (isFilterRow) {
+                    baseProperties = baseProperties.filterProperties;
+                    cellProperties = Object.create(baseProperties);
+                    cellProperties.isSelected = false;
+                } else if (isColumnSelected) {
+                    baseProperties = baseProperties.columnHeaderColumnSelection;
+                    cellProperties = Object.create(baseProperties);
+                    cellProperties.isSelected = true;
+                } else {
+                    baseProperties = baseProperties.columnHeader;
+                    cellProperties = Object.create(baseProperties);
+                    cellProperties.isSelected = isCellSelectedInColumn;
+                }
                 cellProperties.isUserDataArea = false;
             } else {
-                cellProperties.isSelected = grid.isSelected(c, r);
+                cellProperties = Object.create(baseProperties);
+                cellProperties.isSelected = isCellSelected || isRowSelected || isColumnSelected;
                 cellProperties.isUserDataArea = true;
             }
 
@@ -1199,6 +1210,7 @@ Instances of this object have basically four main functions.
             cellProperties.isCellSelected = isCellSelected;
             cellProperties.isRowSelected = isRowSelected;
             cellProperties.isColumnSelected = isColumnSelected;
+            cellProperties.isInCurrentSelectionRectangle = grid.isInCurrentSelectionRectangle(c, r);
 
             var mouseDownState = grid.mouseDownState;
             if (mouseDownState) {

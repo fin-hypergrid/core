@@ -24856,6 +24856,23 @@ var commands = {
                 return result;
             };
         },
+
+        getSelectionMatrixFunction: function(selectedRows) {
+            var self = this;
+            return function() {
+                var numCols = self.getColumnCount();
+                var result = new Array(numCols);
+                for (var c = 0; c < numCols; c++) {
+                    result[c] = new Array(selectedRows.length);
+                    for (var r = 0; r < selectedRows.length; r++) {
+                        var rowIndex = selectedRows[r];
+                        result[c][r] = valueOrFunctionExecute(self.getDataSource().getValue(c, rowIndex));
+                    }
+                }
+                return result;
+            };
+        },
+
         getValueByField: function(fieldName, y) {
             var index = this.getFields().indexOf(fieldName);
             if (this.hasAggregates()) {
@@ -25103,6 +25120,10 @@ it contains all code/data that's necessary for easily implementing a virtual dat
 
         getRowContextFunction: function(y) {
             return this.getComponent().getRowContextFunction(y);
+        },
+
+        getSelectionMatrixFunction: function(selectedRows) {
+            return this.getComponent().getSelectionMatrixFunction(selectedRows);
         },
 
         setTopTotals: function(nestedArray) {
@@ -25914,9 +25935,9 @@ it contains all code/data that's necessary for easily implementing a virtual dat
             this.setNextFeature(document.createElement('fin-hypergrid-feature-column-resizing'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-row-resizing'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-filters'));
-            this.setNextFeature(document.createElement('fin-hypergrid-feature-cell-selection'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-row-selection'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-column-selection'));
+            this.setNextFeature(document.createElement('fin-hypergrid-feature-cell-selection'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-column-moving'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-column-sorting'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-thumbwheel-scrolling'));
@@ -27037,6 +27058,11 @@ it contains all code/data that's necessary for easily implementing a virtual dat
             };
         },
 
+        getSelectionMatrixFunction: function( /* selectedRows */ ) {
+            return function() {
+                return null;
+            };
+        },
         getFieldName: function(index) {
             return this.getFields()[index];
         },
@@ -29161,9 +29187,15 @@ This is a very rough in memory data source example.  fin-hypergrid-behavior-in-m
                 return 'center';
             }
         },
+
         getRowContextFunction: function(y) {
             return this.getDataModel().getRowContextFunction(y);
         },
+
+        getSelectionMatrixFunction: function(selectedRows) {
+            return this.getDataModel().getSelectionMatrixFunction(selectedRows);
+        },
+
         openEditor: function(div) {
             if (!this.isColumnReorderable()) {
                 return false;
@@ -36168,17 +36200,16 @@ fin-vampire-bar {
          *
          */
         fireSyntheticRowSelectionChangedEvent: function() {
-            this.selectionChanged();
-            // var selectedRows = this.getSelectedRows();
-            // var selectionEvent = new CustomEvent('fin-row-selection-changed', {
-            //     detail: {
-            //         rowContext: this.getRowContextFunction(selectedRows),
-            //         rows: selectedRows,
-            //         columns: this.getSelectedColumns(),
-            //         selections: this.getSelectionModel().getSelections()
-            //     }
-            // });
-            // this.canvas.dispatchEvent(selectionEvent);
+            var selectedRows = this.getSelectedRows();
+            var selectionEvent = new CustomEvent('fin-row-selection-changed', {
+                detail: {
+                    rowContext: this.getRowContextFunction(selectedRows),
+                    rows: selectedRows,
+                    columns: this.getSelectedColumns(),
+                    selections: this.getSelectionModel().getSelections(),
+                }
+            });
+            this.canvas.dispatchEvent(selectionEvent);
         },
 
         /**
@@ -36189,13 +36220,13 @@ fin-vampire-bar {
          *
          */
         selectionChanged: function() {
-            var selectedRows = this.getSelectionModel().getFlattenedYs();
+            var selectedRows = this.getSelectedRows();
             var selectionEvent = new CustomEvent('fin-selection-changed', {
                 detail: {
                     rowContext: this.getRowContextFunction(selectedRows),
                     rows: this.getSelectedRows(),
                     columns: this.getSelectedColumns(),
-                    selections: this.getSelectionModel().getSelections()
+                    selections: this.getSelectionModel().getSelections(),
                 }
             });
             this.canvas.dispatchEvent(selectionEvent);
@@ -36203,6 +36234,11 @@ fin-vampire-bar {
 
         getRowContextFunction: function(selectedRows) {
             return this.getBehavior().getRowContextFunction(selectedRows);
+        },
+
+        getSelectionMatrix: function() {
+            var selectedRows = this.getSelectedRows();
+            return this.getBehavior().getSelectionMatrix(selectedRows);
         },
 
         /**

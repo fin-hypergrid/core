@@ -177,8 +177,8 @@
          * #### returns: boolean
          * @param {integer} col - column index
          */
-        isRowHeaderCellSelected: function(col) {
-            return this._isSelected(this.flattenedY, col, 0);
+        isCellSelectedInRow: function(r) {
+            return this._isCellSelected(this.flattenedX, 0, r);
         },
 
         /**
@@ -189,8 +189,8 @@
          * #### returns: boolean
          * @param {integer} row - row index
          */
-        isColumnHeaderCellSelected: function(row) {
-            return this._isSelected(this.flattenedX, 0, row);
+        isCellSelectedInColumn: function(c) {
+            return this._isCellSelected(this.flattenedY, c, 0);
         },
 
         /**
@@ -334,6 +334,14 @@
                 sm.select(top + offset, top + size + offset);
             }
         },
+
+        isInCurrentSelectionRectangle: function(x, y) {
+            var last = this.selections[this.selections.length - 1];
+            if (last) {
+                return this.rectangles.rectangle.contains(last, x, y)
+            }
+            return false;
+        }
 
     });
 

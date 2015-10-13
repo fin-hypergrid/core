@@ -132,8 +132,28 @@ it contains all code/data that's necessary for easily implementing a virtual dat
             return this.getComponent().getRow(y);
         },
 
-        getRowContextFunction: function(y) {
-            return this.getComponent().getRowContextFunction(y);
+        getRowSelectionMatrix: function(selectedRows) {
+            return this.getComponent().getRowSelectionMatrix(selectedRows);
+        },
+
+        getColumnSelectionMatrix: function(selectedColumns) {
+            return this.getComponent().getColumnSelectionMatrix(selectedColumns);
+        },
+
+        getSelectionMatrix: function(selections) {
+            return this.getComponent().getSelectionMatrix(selections);
+        },
+
+        getRowSelection: function(selectedRows) {
+            return this.getComponent().getRowSelection(selectedRows);
+        },
+
+        getColumnSelection: function(selectedColumns) {
+            return this.getComponent().getColumnSelection(selectedColumns);
+        },
+
+        getSelection: function(selections) {
+            return this.getComponent().getSelection(selections);
         },
 
         setTopTotals: function(nestedArray) {
@@ -410,19 +430,19 @@ it contains all code/data that's necessary for easily implementing a virtual dat
                 foregroundSelectionColor: {
                     configurable: true,
                     get: function() {
-                        return this.color;
+                        return this.columnHeaderForegroundSelectionColor;
                     },
                     set: function(value) {
-                        this.color = value;
+                        this.columnHeaderForegroundSelectionColor = value;
                     }
                 },
                 backgroundSelectionColor: {
                     configurable: true,
                     get: function() {
-                        return this.backgroundColor;
+                        return this.columnHeaderBackgroundSelectionColor;
                     },
                     set: function(value) {
-                        this.backgroundColor = value;
+                        this.columnHeaderBackgroundSelectionColor = value;
                     }
                 }
             });
@@ -945,9 +965,9 @@ it contains all code/data that's necessary for easily implementing a virtual dat
             this.setNextFeature(document.createElement('fin-hypergrid-feature-column-resizing'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-row-resizing'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-filters'));
-            this.setNextFeature(document.createElement('fin-hypergrid-feature-cell-selection'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-row-selection'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-column-selection'));
+            this.setNextFeature(document.createElement('fin-hypergrid-feature-cell-selection'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-column-moving'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-column-sorting'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-thumbwheel-scrolling'));
@@ -2068,6 +2088,11 @@ it contains all code/data that's necessary for easily implementing a virtual dat
             };
         },
 
+        getSelectionMatrixFunction: function( /* selectedRows */ ) {
+            return function() {
+                return null;
+            };
+        },
         getFieldName: function(index) {
             return this.getFields()[index];
         },
