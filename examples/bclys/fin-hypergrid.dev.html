@@ -13906,7 +13906,7 @@ div.container {
                     isRightClick: this.isRightClick(e)
                 }
             }));
-            console.log('dblclick', this.currentKeys);
+            //console.log('dblclick', this.currentKeys);
         },
 
         getCharMap: function() {
@@ -16243,8 +16243,8 @@ Instances of this object have basically four main functions.
          * @param {integer} colIndex - column index
          *
         */
-        isRowHeaderCellSelected: function(colIndex) {
-            return this.getGrid().isRowHeaderCellSelected(colIndex);
+        isCellSelectedInRow: function(colIndex) {
+            return this.getGrid().isCellSelectedInRow(colIndex);
         },
 
         /**
@@ -16255,8 +16255,8 @@ Instances of this object have basically four main functions.
          * @param {integer} rowIndex - column index
          *
         */
-        isColumnHeaderCellSelected: function(rowIndex) {
-            return this.getGrid().isColumnHeaderCellSelected(rowIndex);
+        isCellSelectedInColumn: function(rowIndex) {
+            return this.getGrid().isCellSelectedInColumn(rowIndex);
         },
 
         /**
@@ -16612,39 +16612,54 @@ Instances of this object have basically four main functions.
             var baseProperties = behavior.getColumnProperties(c);
             var columnProperties = baseProperties;
             var headerRowCount = behavior.getHeaderRowCount();
-            var headerColumnCount = behavior.getHeaderColumnCount();
+            //var headerColumnCount = behavior.getHeaderColumnCount();
 
+            var isShowRowNumbers = grid.isShowRowNumbers();
             var isHeaderRow = r < headerRowCount;
-            var isHeaderColumn = c < headerColumnCount;
+            //var isHeaderColumn = c < headerColumnCount;
             var isFilterRow = grid.isFilterRow(r);
             var isHierarchyColumn = grid.isHierarchyColumn(c);
             var isRowSelected = grid.isRowSelected(r);
             var isColumnSelected = grid.isColumnSelected(c);
             var isCellSelected = grid.isCellSelected(c, r);
+            var isCellSelectedInColumn = grid.isCellSelectedInColumn(c);
+            var isCellSelectedInRow = grid.isCellSelectedInRow(r);
 
-            if (c === -1 && !isRowSelected) {
-                baseProperties = baseProperties.rowNumbersProperties;
-            } else if (isFilterRow && c !== -1) {
-                baseProperties = baseProperties.filterProperties;
+            var cellProperties;
+
+            if ((isShowRowNumbers && c === -1) || (!isShowRowNumbers && c === 0)) {
+                if (isRowSelected) {
+                    baseProperties = baseProperties.rowHeaderRowSelection;
+                    cellProperties = Object.create(baseProperties);
+                    cellProperties.isSelected = true;
+                } else {
+                    baseProperties = baseProperties.rowHeader;
+                    cellProperties = Object.create(baseProperties);
+                    cellProperties.isSelected = isCellSelectedInRow;
+                }
+                cellProperties.isUserDataArea = false;
+            } else if (isHeaderRow) {
+                if (isFilterRow) {
+                    baseProperties = baseProperties.filterProperties;
+                    cellProperties = Object.create(baseProperties);
+                    cellProperties.isSelected = false;
+                } else if (isColumnSelected) {
+                    baseProperties = baseProperties.columnHeaderColumnSelection;
+                    cellProperties = Object.create(baseProperties);
+                    cellProperties.isSelected = true;
+                } else {
+                    baseProperties = baseProperties.columnHeader;
+                    cellProperties = Object.create(baseProperties);
+                    cellProperties.isSelected = isCellSelectedInColumn;
+                }
+                cellProperties.isUserDataArea = false;
             } else if (isHierarchyColumn) {
-                baseProperties = isColumnSelected ? baseProperties.treeColumnPropertiesColumnSelection : baseProperties.treeColumnProperties;
-            } else if (isHeaderColumn) {
-                baseProperties = isRowSelected ? baseProperties.rowHeaderRowSelection : baseProperties.rowHeader;
-            } else if (isHeaderRow) {
-                baseProperties = (isColumnSelected || isRowSelected) ? baseProperties.columnHeaderColumnSelection : baseProperties.columnHeader;
-            }
-
-            var cellProperties = Object.create(baseProperties);
-
-
-            if (isHeaderColumn || isHierarchyColumn) {
-                cellProperties.isSelected = isRowSelected || grid.isColumnHeaderCellSelected(r);
-                cellProperties.isUserDataArea = false;
-            } else if (isHeaderRow) {
-                cellProperties.isSelected = (isColumnSelected || isRowSelected) || grid.isRowHeaderCellSelected(c);
-                cellProperties.isUserDataArea = false;
+                baseProperties = baseProperties.rowHeader;
+                cellProperties = Object.create(baseProperties);
+                cellProperties.isSelected = isCellSelectedInRow;
             } else {
-                cellProperties.isSelected = grid.isSelected(c, r);
+                cellProperties = Object.create(baseProperties);
+                cellProperties.isSelected = isCellSelected || isRowSelected || isColumnSelected;
                 cellProperties.isUserDataArea = true;
             }
 
@@ -16662,6 +16677,7 @@ Instances of this object have basically four main functions.
             cellProperties.isCellSelected = isCellSelected;
             cellProperties.isRowSelected = isRowSelected;
             cellProperties.isColumnSelected = isColumnSelected;
+            cellProperties.isInCurrentSelectionRectangle = grid.isInCurrentSelectionRectangle(c, r);
 
             var mouseDownState = grid.mouseDownState;
             if (mouseDownState) {
@@ -17082,8 +17098,8 @@ Instances of this object have basically four main functions.
          * #### returns: boolean
          * @param {integer} col - column index
          */
-        isRowHeaderCellSelected: function(col) {
-            return this._isSelected(this.flattenedY, col, 0);
+        isCellSelectedInRow: function(r) {
+            return this._isCellSelected(this.flattenedX, 0, r);
         },
 
         /**
@@ -17094,8 +17110,8 @@ Instances of this object have basically four main functions.
          * #### returns: boolean
          * @param {integer} row - row index
          */
-        isColumnHeaderCellSelected: function(row) {
-            return this._isSelected(this.flattenedX, 0, row);
+        isCellSelectedInColumn: function(c) {
+            return this._isCellSelected(this.flattenedY, c, 0);
         },
 
         /**
@@ -17239,6 +17255,14 @@ Instances of this object have basically four main functions.
                 sm.select(top + offset, top + size + offset);
             }
         },
+
+        isInCurrentSelectionRectangle: function(x, y) {
+            var last = this.selections[this.selections.length - 1];
+            if (last) {
+                return this.rectangles.rectangle.contains(last, x, y);
+            }
+            return false;
+        }
 
     });
 
@@ -18687,7 +18711,7 @@ var noop = function() {};
                 }
                 gc.closePath();
             }
-            if (config.isCellSelected) {
+            if (config.isInCurrentSelectionRectangle) {
                 gc.fillStyle = 'rgba(0, 0, 0, 0.2)';
                 gc.fillRect(x, y, width, height);
             }
@@ -24833,29 +24857,118 @@ var commands = {
             }
             return row;
         },
-        getRowContextFunction: function(selectedRows) {
-            var self = this;
-            var val, i, rowIndex;
-            var headerRowCount = 0; //this.getGrid().getHeaderRowCount();
-            return function(index) {
-                var result = new Array(selectedRows.length);
-                if (isNaN(index)) {
-                    for (i = 0; i < selectedRows.length; i++) {
-                        rowIndex = selectedRows[i] - headerRowCount;
-                        val = valueOrFunctionExecute(self.getValueByField(index, rowIndex));
-                        result[i] = val;
-                    }
-                } else {
-                    for (i = 0; i < selectedRows.length; i++) {
-                        rowIndex = selectedRows[i] - headerRowCount;
-                        val = valueOrFunctionExecute(self.getDataSource().getValue(index, rowIndex));
-                        result[i] = val;
-                    }
 
+        getRowSelection: function(selectedRows) {
+            var numCols = this.getColumnCount();
+            var result = {};
+            var fields = this.getFields();
+            for (var c = 0; c < numCols; c++) {
+                var column = new Array(selectedRows.length);
+                result[fields[c]] = column;
+                for (var r = 0; r < selectedRows.length; r++) {
+                    var rowIndex = selectedRows[r];
+                    column[r] = valueOrFunctionExecute(this.getDataSource().getValue(c, rowIndex));
                 }
-                return result;
-            };
+            }
+            return result;
         },
+        getRowSelectionMatrix: function(selectedRows) {
+            var numCols = this.getColumnCount();
+            var result = new Array(numCols);
+            for (var c = 0; c < numCols; c++) {
+                result[c] = new Array(selectedRows.length);
+                for (var r = 0; r < selectedRows.length; r++) {
+                    var rowIndex = selectedRows[r];
+                    result[c][r] = valueOrFunctionExecute(this.getDataSource().getValue(c, rowIndex));
+                }
+            }
+            return result;
+        },
+
+        getColumnSelectionMatrix: function(selectedColumns) {
+            var numRows = this.getRowCount();
+            var result = new Array(numRows);
+            for (var c = 0; c < selectedColumns.length; c++) {
+                result[c] = new Array(numRows);
+                var colIndex = selectedColumns[c];
+                for (var r = 0; r < numRows; r++) {
+                    result[c][r] = valueOrFunctionExecute(this.getDataSource().getValue(colIndex, r));
+                }
+            }
+            return result;
+        },
+
+        getColumnSelection: function(selectedColumns) {
+            var result = {};
+            var fields = this.getFields();
+            var rowCount = this.getRowCount();
+            for (var c = 0; c < selectedColumns.length; c++) {
+                var column = new Array(rowCount);
+                var columnIndex = selectedColumns[c];
+                result[fields[columnIndex]] = column;
+                for (var r = 0; r < rowCount; r++) {
+                    column[r] = valueOrFunctionExecute(this.getDataSource().getValue(columnIndex, r));
+                }
+            }
+            return result;
+        },
+
+        getSelection: function(selections) {
+            var result = new Array(selections.length);
+            for (var i = 0; i < selections.length; i++) {
+                var rect = selections[i];
+                result[i] = this._getSelection(rect);
+            }
+            return result;
+        },
+
+        _getSelection: function(rect) {
+            var grid = this.getGrid();
+            var headerRowCount = grid.getHeaderRowCount();
+            var colCount = rect.extent.x + 1;
+            var rowCount = rect.extent.y + 1;
+            var ox = rect.origin.x;
+            var oy = rect.origin.y - headerRowCount;
+            var fields = this.getFields();
+            var result = {};
+            var r;
+            for (var c = 0; c < colCount; c++) {
+                var column = new Array(rowCount);
+                result[fields[c]] = column;
+                for (r = 0; r < rowCount; r++) {
+                    column[r] = valueOrFunctionExecute(this.getDataSource().getValue(ox + c, oy + r));
+                }
+            }
+            return result;
+        },
+
+        getSelectionMatrix: function(selections) {
+            var result = new Array(selections.length);
+            for (var i = 0; i < selections.length; i++) {
+                var rect = selections[i];
+                result[i] = this._getSelectionMatrix(rect);
+            }
+            return result;
+        },
+
+        _getSelectionMatrix: function(rect) {
+            var grid = this.getGrid();
+            var headerRowCount = grid.getHeaderRowCount();
+            var colCount = rect.extent.x + 1;
+            var rowCount = rect.extent.y + 1;
+            var ox = rect.origin.x;
+            var oy = rect.origin.y - headerRowCount;
+            var result = [];
+            for (var c = 0; c < colCount; c++) {
+                var column = new Array(rowCount);
+                result[c] = column;
+                for (var r = 0; r < rowCount; r++) {
+                    column[r] = valueOrFunctionExecute(this.getDataSource().getValue(ox + c, oy + r));
+                }
+            }
+            return result;
+        },
+
         getValueByField: function(fieldName, y) {
             var index = this.getFields().indexOf(fieldName);
             if (this.hasAggregates()) {
@@ -25101,8 +25214,28 @@ it contains all code/data that's necessary for easily implementing a virtual dat
             return this.getComponent().getRow(y);
         },
 
-        getRowContextFunction: function(y) {
-            return this.getComponent().getRowContextFunction(y);
+        getRowSelectionMatrix: function(selectedRows) {
+            return this.getComponent().getRowSelectionMatrix(selectedRows);
+        },
+
+        getColumnSelectionMatrix: function(selectedColumns) {
+            return this.getComponent().getColumnSelectionMatrix(selectedColumns);
+        },
+
+        getSelectionMatrix: function(selections) {
+            return this.getComponent().getSelectionMatrix(selections);
+        },
+
+        getRowSelection: function(selectedRows) {
+            return this.getComponent().getRowSelection(selectedRows);
+        },
+
+        getColumnSelection: function(selectedColumns) {
+            return this.getComponent().getColumnSelection(selectedColumns);
+        },
+
+        getSelection: function(selections) {
+            return this.getComponent().getSelection(selections);
         },
 
         setTopTotals: function(nestedArray) {
@@ -25379,19 +25512,19 @@ it contains all code/data that's necessary for easily implementing a virtual dat
                 foregroundSelectionColor: {
                     configurable: true,
                     get: function() {
-                        return this.color;
+                        return this.columnHeaderForegroundSelectionColor;
                     },
                     set: function(value) {
-                        this.color = value;
+                        this.columnHeaderForegroundSelectionColor = value;
                     }
                 },
                 backgroundSelectionColor: {
                     configurable: true,
                     get: function() {
-                        return this.backgroundColor;
+                        return this.columnHeaderBackgroundSelectionColor;
                     },
                     set: function(value) {
-                        this.backgroundColor = value;
+                        this.columnHeaderBackgroundSelectionColor = value;
                     }
                 }
             });
@@ -27037,6 +27170,11 @@ it contains all code/data that's necessary for easily implementing a virtual dat
             };
         },
 
+        getSelectionMatrixFunction: function( /* selectedRows */ ) {
+            return function() {
+                return null;
+            };
+        },
         getFieldName: function(index) {
             return this.getFields()[index];
         },
@@ -29161,9 +29299,34 @@ This is a very rough in memory data source example.  fin-hypergrid-behavior-in-m
                 return 'center';
             }
         },
-        getRowContextFunction: function(y) {
-            return this.getDataModel().getRowContextFunction(y);
+
+        getRowSelectionMatrix: function(selectedRows) {
+            return this.getDataModel().getRowSelectionMatrix(selectedRows);
         },
+
+        getColumnSelectionMatrix: function(selectedColumns) {
+            return this.getDataModel().getColumnSelectionMatrix(selectedColumns);
+        },
+
+        getSelectionMatrix: function(selections) {
+            return this.getDataModel().getSelectionMatrix(selections);
+        },
+
+        getRowSelection: function() {
+            var selectedRows = this.getSelectedRows();
+            return this.getDataModel().getRowSelection(selectedRows);
+        },
+
+        getColumnSelection: function() {
+            var selectedColumns = this.getSelectedColumns();
+            return this.getDataModel().getColumnSelection(selectedColumns);
+        },
+
+        getSelection: function() {
+            var selections = this.getSelections();
+            return this.getDataModel().getSelection(selections);
+        },
+
         openEditor: function(div) {
             if (!this.isColumnReorderable()) {
                 return false;
@@ -34045,25 +34208,6 @@ fin-vampire-bar {
   </template>
   <script>/* global alert, SimpleLRU */
 
-
-
-
-// #92 fixed, there is no longer a notion of defaultFixedRowHeight, only defaultRowHeight
-
-// Unable to set defaultRowHeight for the Grid using the following code:
-
-// Var lnfOverrides = {
-// defaultFixedRowHeight: 30,
-// defaultRowHeight: 50
-// };
-// grid.addProperties(lnfOverrides);
-
-
-// #98 fixed
-// config.field and config.header properties are undefined and null inside getCell() callback.
-
-
-
 'use strict';
 
 /**
@@ -35157,9 +35301,9 @@ fin-vampire-bar {
          * #### returns: boolean
          * @param {integer} col - column index
          */
-        isRowHeaderCellSelected: function(col) {
+        isCellSelectedInRow: function(col) {
             var selectionModel = this.getSelectionModel();
-            var isSelected = selectionModel.isRowHeaderCellSelected(col);
+            var isSelected = selectionModel.isCellSelectedInRow(col);
             return isSelected;
         },
 
@@ -35171,9 +35315,9 @@ fin-vampire-bar {
          * #### returns: boolean
          * @param {integer} row - row index
          */
-        isColumnHeaderCellSelected: function(row) {
+        isCellSelectedInColumn: function(row) {
             var selectionModel = this.getSelectionModel();
-            var isSelected = selectionModel.isColumnHeaderCellSelected(row);
+            var isSelected = selectionModel.isCellSelectedInColumn(row);
             return isSelected;
         },
 
@@ -36168,19 +36312,26 @@ fin-vampire-bar {
          *
          */
         fireSyntheticRowSelectionChangedEvent: function() {
-            // this.selectionChanged();
-            var selectedRows = this.getSelectedRows();
             var selectionEvent = new CustomEvent('fin-row-selection-changed', {
                 detail: {
-                    rowContext: this.getRowContextFunction(selectedRows),
-                    rows: selectedRows,
+                    rows: this.getSelectedRows(),
+                    columns: this.getSelectedColumns(),
+                    selections: this.getSelectionModel().getSelections(),
+                }
+            });
+            this.canvas.dispatchEvent(selectionEvent);
+        },
+
+        fireSyntheticColumnSelectionChangedEvent: function() {
+            var selectionEvent = new CustomEvent('fin-column-selection-changed', {
+                detail: {
+                    rows: this.getSelectedRows(),
                     columns: this.getSelectedColumns(),
                     selections: this.getSelectionModel().getSelections()
                 }
             });
             this.canvas.dispatchEvent(selectionEvent);
         },
-
         /**
          * @function
          * @instance
@@ -36189,22 +36340,46 @@ fin-vampire-bar {
          *
          */
         selectionChanged: function() {
-            var selectedRows = this.getSelectionModel().getFlattenedYs();
+            var selectedRows = this.getSelectedRows();
             var selectionEvent = new CustomEvent('fin-selection-changed', {
                 detail: {
-                    rowContext: this.getRowContextFunction(selectedRows),
-                    rows: this.getSelectedRows(),
+                    rows: selectedRows,
                     columns: this.getSelectedColumns(),
-                    selections: this.getSelectionModel().getSelections()
+                    selections: this.getSelectionModel().getSelections(),
                 }
             });
             this.canvas.dispatchEvent(selectionEvent);
         },
 
-        getRowContextFunction: function(selectedRows) {
-            return this.getBehavior().getRowContextFunction(selectedRows);
+        getRowSelectionMatrix: function() {
+            var selectedRows = this.getSelectedRows();
+            return this.getBehavior().getRowSelectionMatrix(selectedRows);
         },
 
+        getColumnSelectionMatrix: function() {
+            var selectedColumns = this.getSelectedColumns();
+            return this.getBehavior().getColumnSelectionMatrix(selectedColumns);
+        },
+
+        getSelectionMatrix: function() {
+            var selections = this.getSelections();
+            return this.getBehavior().getSelectionMatrix(selections);
+        },
+
+        getRowSelection: function() {
+            var selectedRows = this.getSelectedRows();
+            return this.getBehavior().getRowSelection(selectedRows);
+        },
+
+        getColumnSelection: function() {
+            var selectedColumns = this.getSelectedColumns();
+            return this.getBehavior().getColumnSelection(selectedColumns);
+        },
+
+        getSelection: function() {
+            var selections = this.getSelections();
+            return this.getBehavior().getSelection(selections);
+        },
         /**
          * @function
          * @instance
@@ -36273,24 +36448,6 @@ fin-vampire-bar {
                 }
             });
             this.canvas.dispatchEvent(event);
-        },
-        /**
-         * @function
-         * @instance
-         * @description
-        Synthesize and fire a fin-keydown event
-         * @param {keyEvent} event - the canvas event
-         *
-         */
-        fireSyntheticColumnSelectionChangedEvent: function() {
-            var selectionEvent = new CustomEvent('fin-column-selection-changed', {
-                detail: {
-                    rows: this.getSelectedRows(),
-                    columns: this.getSelectedColumns(),
-                    selections: this.getSelectionModel().getSelections()
-                }
-            });
-            this.canvas.dispatchEvent(selectionEvent);
         },
 
         /**
@@ -37850,6 +38007,9 @@ fin-vampire-bar {
         },
         isCellSelected: function(x, y) {
             return this.getSelectionModel().isCellSelected(x, y);
+        },
+        isInCurrentSelectionRectangle: function(x, y) {
+            return this.getSelectionModel().isInCurrentSelectionRectangle(x, y);
         }
     });
 
