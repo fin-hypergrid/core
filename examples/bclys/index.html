@@ -62,11 +62,6 @@
         //functions for showing the grouping/rollup capbilities
         var rollups = fin.analytics.aggregations;
 
-        window.toggleColumnPicker = function() {
-            jsonGrid.toggleColumnPicker();
-        }
-
-        var doAggregates = false;
         var aggregates = {
             totalPets: rollups.sum(2),
             averagePets: rollups.avg(2),
@@ -77,6 +72,11 @@
             stdDevPets: rollups.stddev(2),
         };
 
+        window.toggleColumnPicker = function() {
+            jsonGrid.toggleColumnPicker();
+        }
+
+        var doAggregates = false;
         window.toggleAggregates = function() {
             doAggregates = !doAggregates;
             var arg = doAggregates? aggregates : [];

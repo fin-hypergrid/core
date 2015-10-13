@@ -487,7 +487,6 @@
         },
 
         getColumnSelection: function(selectedColumns) {
-            var numRows = this.getRowCount();
             var result = {};
             var fields = this.getFields();
             var rowCount = this.getRowCount();
@@ -511,19 +510,20 @@
             return result;
         },
 
-        _getSelection: function(r) {
+        _getSelection: function(rect) {
             var grid = this.getGrid();
             var headerRowCount = grid.getHeaderRowCount();
-            var colCount = r.extent.x + 1;
-            var rowCount = r.extent.y + 1;
-            var ox = r.origin.x;
-            var oy = r.origin.y - headerRowCount;
+            var colCount = rect.extent.x + 1;
+            var rowCount = rect.extent.y + 1;
+            var ox = rect.origin.x;
+            var oy = rect.origin.y - headerRowCount;
             var fields = this.getFields();
             var result = {};
+            var r;
             for (var c = 0; c < colCount; c++) {
-                var column = new Array(r.height);
-                result[fields[c]] = column
-                for (var r = 0; r < rowCount; r++) {
+                var column = new Array(rowCount);
+                result[fields[c]] = column;
+                for (r = 0; r < rowCount; r++) {
                     column[r] = valueOrFunctionExecute(this.getDataSource().getValue(ox + c, oy + r));
                 }
             }
@@ -539,17 +539,17 @@
             return result;
         },
 
-        _getSelectionMatrix: function(r) {
+        _getSelectionMatrix: function(rect) {
             var grid = this.getGrid();
             var headerRowCount = grid.getHeaderRowCount();
-            var colCount = r.extent.x + 1;
-            var rowCount = r.extent.y + 1;
-            var ox = r.origin.x;
-            var oy = r.origin.y - headerRowCount;
+            var colCount = rect.extent.x + 1;
+            var rowCount = rect.extent.y + 1;
+            var ox = rect.origin.x;
+            var oy = rect.origin.y - headerRowCount;
             var result = [];
             for (var c = 0; c < colCount; c++) {
-                var column = new Array(r.height);
-                result[c] = column
+                var column = new Array(rowCount);
+                result[c] = column;
                 for (var r = 0; r < rowCount; r++) {
                     column[r] = valueOrFunctionExecute(this.getDataSource().getValue(ox + c, oy + r));
                 }

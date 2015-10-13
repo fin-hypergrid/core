@@ -338,7 +338,7 @@
         isInCurrentSelectionRectangle: function(x, y) {
             var last = this.selections[this.selections.length - 1];
             if (last) {
-                return this.rectangles.rectangle.contains(last, x, y)
+                return this.rectangles.rectangle.contains(last, x, y);
             }
             return false;
         }

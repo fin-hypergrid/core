@@ -1,24 +1,5 @@
 /* global alert, SimpleLRU */
 
-
-
-
-// #92 fixed, there is no longer a notion of defaultFixedRowHeight, only defaultRowHeight
-
-// Unable to set defaultRowHeight for the Grid using the following code:
-
-// Var lnfOverrides = {
-// defaultFixedRowHeight: 30,
-// defaultRowHeight: 50
-// };
-// grid.addProperties(lnfOverrides);
-
-
-// #98 fixed
-// config.field and config.header properties are undefined and null inside getCell() callback.
-
-
-
 'use strict';
 
 /**

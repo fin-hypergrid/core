@@ -1149,11 +1149,11 @@ Instances of this object have basically four main functions.
             var baseProperties = behavior.getColumnProperties(c);
             var columnProperties = baseProperties;
             var headerRowCount = behavior.getHeaderRowCount();
-            var headerColumnCount = behavior.getHeaderColumnCount();
+            //var headerColumnCount = behavior.getHeaderColumnCount();
 
             var isShowRowNumbers = grid.isShowRowNumbers();
             var isHeaderRow = r < headerRowCount;
-            var isHeaderColumn = c < headerColumnCount;
+            //var isHeaderColumn = c < headerColumnCount;
             var isFilterRow = grid.isFilterRow(r);
             var isHierarchyColumn = grid.isHierarchyColumn(c);
             var isRowSelected = grid.isRowSelected(r);
@@ -1190,6 +1190,10 @@ Instances of this object have basically four main functions.
                     cellProperties.isSelected = isCellSelectedInColumn;
                 }
                 cellProperties.isUserDataArea = false;
+            } else if (isHierarchyColumn) {
+                baseProperties = baseProperties.rowHeader;
+                cellProperties = Object.create(baseProperties);
+                cellProperties.isSelected = isCellSelectedInRow;
             } else {
                 cellProperties = Object.create(baseProperties);
                 cellProperties.isSelected = isCellSelected || isRowSelected || isColumnSelected;
