@@ -270,7 +270,7 @@
         jsonGrid.addFinEventListener('fin-selection-changed', function(e){
 
             //lets mirror the cell selection into the rows and or columns
-            //jsonGrid.selectRowsFromCells();
+            jsonGrid.selectRowsFromCells();
             //jsonGrid.selectColumnsFromCells();
 
             console.log('fin-selection-changed', jsonGrid.getSelectedRows(), jsonGrid.getSelectedColumns(), jsonGrid.getSelections());
