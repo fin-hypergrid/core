@@ -960,34 +960,41 @@
          * #### returns: string
          */
         getSelectionAsTSV: function() {
+            var sm = this.getSelectionModel();
+            if (sm.hasRowSelections()) {
+                return this.getMatrixSelectionAsTSV(this.getRowSelectionMatrix());
+            } else if (sm.hasColumnSelections()) {
+                return this.getMatrixSelectionAsTSV(this.getColumnSelectionMatrix());
+            } else {
+                var selections = this.getSelectionMatrix();
+                selections = selections[selections.length - 1];
+                return this.getMatrixSelectionAsTSV(selections);
+            }
+        },
+
+        getMatrixSelectionAsTSV: function(selections) {
             //only use the data from the last selection
-            var selectionModel = this.getSelectionModel();
-            var selections = selectionModel.getSelections();
             if (selections.length === 0) {
                 return;
             }
-            var last = selections[selections.length - 1];
-            var area = last.area();
+            var width = selections.length;
+            var height = selections[0].length;
+            var area = width * height;
             //disallow if selection is too big
-            if (area > 10000) {
+            if (area > 20000) {
                 alert('selection size is too big to copy to the paste buffer');
                 return '';
             }
-            var behavior = this.getBehavior();
             var collector = [];
-            var xstart = last.origin.x;
-            var xstop = last.origin.x + last.extent.x + 1;
-            var ystart = last.origin.y;
-            var ystop = last.origin.y + last.extent.y + 1;
-            for (var y = ystart; y < ystop; y++) {
-                for (var x = xstart; x < xstop; x++) {
-                    var data = behavior.getValue(x, y);
+            for (var y = 0; y < height; y++) {
+                for (var x = 0; x < width; x++) {
+                    var data = selections[x][y];
                     collector.push(data);
-                    if (x !== xstop - 1) {
+                    if (x !== width - 1) {
                         collector.push('\t');
                     }
                 }
-                if (y !== ystop - 1) {
+                if (y !== height - 1) {
                     collector.push('\n');
                 }
             }

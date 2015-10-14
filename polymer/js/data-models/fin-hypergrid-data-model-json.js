@@ -305,18 +305,9 @@
             return this.hasAggregates() && this.hasGroups();
         },
         applyAnalytics: function() {
-            this.adjustColumnProperties();
             this.applyFilters();
             this.applySorts();
             this.applyGroupBysAndAggregations();
-        },
-        adjustColumnProperties: function() {
-            // if (this.hasHierarchyColumn()) {
-            //     this.getColumnProperties(-2);
-            // }
-            // if (this.getGrid().isShowRowNumbers()) {
-            //     this.getColumnProperties(-1);
-            // }
         },
         applyGroupBysAndAggregations: function() {
             if (this.analytics.aggregates.length === 0) {
@@ -475,7 +466,7 @@
 
         getColumnSelectionMatrix: function(selectedColumns) {
             var numRows = this.getRowCount();
-            var result = new Array(numRows);
+            var result = new Array(selectedColumns.length);
             for (var c = 0; c < selectedColumns.length; c++) {
                 result[c] = new Array(numRows);
                 var colIndex = selectedColumns[c];

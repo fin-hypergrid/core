@@ -15659,7 +15659,7 @@ Instances of this object have basically four main functions.
         setGrid: function(grid) {
 
             this.grid = grid;
-            this.startAnimator();
+            //this.startAnimator();
             //lets make use of prototype inheritance for cell properties
         },
 
@@ -16011,7 +16011,7 @@ Instances of this object have basically four main functions.
             this.paintGridlines(gc);
             //this.blankOutOverflow(gc); // no longer needed
             this.renderOverrides(gc);
-            //this.renderFocusCell(gc);
+            this.renderFocusCell(gc);
             gc.closePath();
         },
 
@@ -16029,6 +16029,12 @@ Instances of this object have basically four main functions.
         ],
 
         renderFocusCell: function(gc) {
+            gc.beginPath();
+            this._renderFocusCell(gc);
+            gc.closePath();
+        },
+
+        _renderFocusCell: function(gc) {
             var grid = this.getGrid();
             var selections = grid.getSelectionModel().getSelections();
             if (!selections || selections.length === 0) {
@@ -16091,21 +16097,21 @@ Instances of this object have basically four main functions.
             }
 
             gc.rect(x, y, width, height);
-            //gc.fillStyle = 'rgba(0, 0, 0, 0.2)';
-            //gc.fill();
+            gc.fillStyle = 'rgba(0, 0, 0, 0.2)';
+            gc.fill();
             gc.lineWidth = 1;
-            gc.strokeStyle = 'white';
+            gc.strokeStyle = 'black';
 
             // animate the dashed line a bit here for fun
 
             gc.stroke();
 
-            gc.rect(x, y, width, height);
+            //gc.rect(x, y, width, height);
 
-            gc.strokeStyle = 'black';
+            //gc.strokeStyle = 'white';
 
             // animate the dashed line a bit here for fun
-            gc.setLineDash(this.focusLineStep[Math.floor(10 * (Date.now() / 300 % 1)) % this.focusLineStep.length]);
+            //gc.setLineDash(this.focusLineStep[Math.floor(10 * (Date.now() / 300 % 1)) % this.focusLineStep.length]);
 
             gc.stroke();
         },
@@ -17075,6 +17081,14 @@ Instances of this object have basically four main functions.
          */
         hasSelections: function() {
             return this.selections.length !== 0;
+        },
+
+        hasRowSelections: function() {
+            return !this.rowSelectionModel.isEmpty();
+        },
+
+        hasColumnSelections: function() {
+            return !this.columnSelectionModel.isEmpty();
         },
 
         /**
@@ -24717,18 +24731,9 @@ var commands = {
             return this.hasAggregates() && this.hasGroups();
         },
         applyAnalytics: function() {
-            this.adjustColumnProperties();
             this.applyFilters();
             this.applySorts();
             this.applyGroupBysAndAggregations();
-        },
-        adjustColumnProperties: function() {
-            // if (this.hasHierarchyColumn()) {
-            //     this.getColumnProperties(-2);
-            // }
-            // if (this.getGrid().isShowRowNumbers()) {
-            //     this.getColumnProperties(-1);
-            // }
         },
         applyGroupBysAndAggregations: function() {
             if (this.analytics.aggregates.length === 0) {
@@ -24887,7 +24892,7 @@ var commands = {
 
         getColumnSelectionMatrix: function(selectedColumns) {
             var numRows = this.getRowCount();
-            var result = new Array(numRows);
+            var result = new Array(selectedColumns.length);
             for (var c = 0; c < selectedColumns.length; c++) {
                 result[c] = new Array(numRows);
                 var colIndex = selectedColumns[c];
@@ -35168,34 +35173,41 @@ fin-vampire-bar {
          * #### returns: string
          */
         getSelectionAsTSV: function() {
+            var sm = this.getSelectionModel();
+            if (sm.hasRowSelections()) {
+                return this.getMatrixSelectionAsTSV(this.getRowSelectionMatrix());
+            } else if (sm.hasColumnSelections()) {
+                return this.getMatrixSelectionAsTSV(this.getColumnSelectionMatrix());
+            } else {
+                var selections = this.getSelectionMatrix();
+                selections = selections[selections.length - 1];
+                return this.getMatrixSelectionAsTSV(selections);
+            }
+        },
+
+        getMatrixSelectionAsTSV: function(selections) {
             //only use the data from the last selection
-            var selectionModel = this.getSelectionModel();
-            var selections = selectionModel.getSelections();
             if (selections.length === 0) {
                 return;
             }
-            var last = selections[selections.length - 1];
-            var area = last.area();
+            var width = selections.length;
+            var height = selections[0].length;
+            var area = width * height;
             //disallow if selection is too big
-            if (area > 10000) {
+            if (area > 20000) {
                 alert('selection size is too big to copy to the paste buffer');
                 return '';
             }
-            var behavior = this.getBehavior();
             var collector = [];
-            var xstart = last.origin.x;
-            var xstop = last.origin.x + last.extent.x + 1;
-            var ystart = last.origin.y;
-            var ystop = last.origin.y + last.extent.y + 1;
-            for (var y = ystart; y < ystop; y++) {
-                for (var x = xstart; x < xstop; x++) {
-                    var data = behavior.getValue(x, y);
+            for (var y = 0; y < height; y++) {
+                for (var x = 0; x < width; x++) {
+                    var data = selections[x][y];
                     collector.push(data);
-                    if (x !== xstop - 1) {
+                    if (x !== width - 1) {
                         collector.push('\t');
                     }
                 }
-                if (y !== ystop - 1) {
+                if (y !== height - 1) {
                     collector.push('\n');
                 }
             }

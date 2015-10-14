@@ -156,6 +156,14 @@
             return this.selections.length !== 0;
         },
 
+        hasRowSelections: function() {
+            return !this.rowSelectionModel.isEmpty();
+        },
+
+        hasColumnSelections: function() {
+            return !this.columnSelectionModel.isEmpty();
+        },
+
         /**
          * @function
          * @instance
