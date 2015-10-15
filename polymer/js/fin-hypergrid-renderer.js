@@ -88,8 +88,8 @@ Instances of this object have basically four main functions.
 
             //we must be in bootstrap
             if (viewWidth === 0) {
-                viewWidth = grid.sbHScroller.getClientRects()[0].width;
-
+                //viewWidth = grid.sbHScroller.getClientRects()[0].width;
+                viewWidth = grid.canvas.width;
             }
             var viewHeight = bounds.height;
 

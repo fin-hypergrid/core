@@ -2472,8 +2472,8 @@
             this.vScrollValue = y;
             this.scrollValueChangedNotification();
             setTimeout(function() {
-                self.sbVRangeAdapter.subjectChanged();
-                self.fireScrollEvent('fin-scroll-y', oldY, y);
+                // self.sbVRangeAdapter.subjectChanged();
+                // self.fireScrollEvent('fin-scroll-y', oldY, y);
             });
         },
 
@@ -2508,10 +2508,10 @@
             var oldX = this.hScrollValue;
             this.hScrollValue = x;
             this.scrollValueChangedNotification();
-            setTimeout(function() {
-                self.sbHRangeAdapter.subjectChanged();
-                self.fireScrollEvent('fin-scroll-x', oldX, x);
-            });
+            // setTimeout(function() {
+            //     self.sbHRangeAdapter.subjectChanged();
+            //     self.fireScrollEvent('fin-scroll-x', oldX, x);
+            // });
         },
 
         /**
@@ -2580,187 +2580,222 @@
 
             var self = this;
 
-            var scrollbars = this.shadowRoot.querySelectorAll('fin-vampire-bar');
-            this.sbHScroller = scrollbars[0];
-            this.sbVScroller = scrollbars[1];
-
-            this.sbHScroller.onUpClick = function() {
-                self.scrollHBy(1);
-                self.isScrollButtonClick = true;
-            };
-
-            this.sbHScroller.onDownClick = function() {
-                self.scrollHBy(-1);
-                self.isScrollButtonClick = true;
-            };
-
-            this.sbHScroller.onUpHold = function(event) {
-                event.preventTap();
-                self.scrollHBy(1);
-                self.isScrollButtonClick = true;
-            };
-
-            this.sbHScroller.onDownHold = function(event) {
-                event.preventTap();
-                self.scrollHBy(-1);
-                self.isScrollButtonClick = true;
-            };
-
-            this.sbHScroller.onmouseover = function(event) {
-                noop(event);
-                self.isScrollButtonClick = false;
-                var hoverClassOver = self.resolveProperty('scrollbarHoverOver');
-                var hoverClassOff = self.resolveProperty('scrollbarHoverOff');
-                if (!self.resolveProperty('scrollingEnabled')) {
-                    hoverClassOver = 'hidden';
-                    hoverClassOff = 'hidden';
-                }
-                self.sbHScroller.classList.remove(hoverClassOff);
-                self.sbHScroller.classList.add(hoverClassOver);
-            };
-
-            this.sbHScroller.onmouseout = function(event) {
-                noop(event);
-                if (self.sbMouseIsDown) {
-                    return;
-                } else {
-                    var hoverClassOver = self.resolveProperty('scrollbarHoverOver');
-                    var hoverClassOff = self.resolveProperty('scrollbarHoverOff');
-                    if (!self.resolveProperty('scrollingEnabled')) {
-                        hoverClassOver = 'hidden';
-                        hoverClassOff = 'hidden';
-                    }
-                    self.sbHScroller.classList.remove(hoverClassOver);
-                    self.sbHScroller.classList.add(hoverClassOff);
-                }
-            };
-
-
-            this.sbVScroller.onmouseover = function(event) {
-                noop(event);
-                self.isScrollButtonClick = false;
-                var hoverClassOver = self.resolveProperty('scrollbarHoverOver');
-                var hoverClassOff = self.resolveProperty('scrollbarHoverOff');
-                if (!self.resolveProperty('scrollingEnabled')) {
-                    hoverClassOver = 'hidden';
-                    hoverClassOff = 'hidden';
-                }
-                self.sbVScroller.classList.remove(hoverClassOff);
-                self.sbVScroller.classList.add(hoverClassOver);
-            };
-
-            this.sbVScroller.onmouseout = function(event) {
-                noop(event);
-                if (self.sbMouseIsDown) {
-                    return;
-                } else {
-                    var hoverClassOver = self.resolveProperty('scrollbarHoverOver');
-                    var hoverClassOff = self.resolveProperty('scrollbarHoverOff');
-                    if (!self.resolveProperty('scrollingEnabled')) {
-                        hoverClassOver = 'hidden';
-                        hoverClassOff = 'hidden';
-                    }
-                    self.sbVScroller.classList.remove(hoverClassOver);
-                    self.sbVScroller.classList.add(hoverClassOff);
-                }
-            };
-
-            this.addEventListener('mousedown', function() {
-                self.sbMouseIsDown = true;
-            });
-
-
-            this.sbVScroller.onUpClick = function() {
-                self.scrollVBy(-1);
-                self.isScrollButtonClick = true;
-            };
-
-            this.sbVScroller.onDownClick = function() {
-                self.scrollVBy(1);
-                self.isScrollButtonClick = true;
-            };
-
-            this.sbVScroller.onUpHold = function(event) {
-                event.preventTap();
-                self.scrollVBy(-1);
-                self.isScrollButtonClick = true;
-            };
-
-            this.sbVScroller.onDownHold = function(event) {
-                event.preventTap();
-                self.scrollVBy(1);
-                self.isScrollButtonClick = true;
-            };
-
-            this.addEventListener('mousedown', function() {
-                self.sbMouseIsDown = true;
-            });
-
-            document.addEventListener('mouseup', function(e) {
-                noop(e);
-                if (!self.sbMouseIsDown) {
-                    return;
-                }
-                self.sbMouseIsDown = false;
-                self.takeFocus();
-                var x = e.x || e.clientX;
-                var y = e.y || e.clientY;
-                var elementAt = self.shadowRoot.elementFromPoint(x, y);
-                self.scrollBarHasMouse = (elementAt === self.sbVScroller || elementAt === self.sbHScroller);
-                if (!self.scrollBarHasMouse) {
-                    var hoverClassOver = self.resolveProperty('scrollbarHoverOver');
-                    var hoverClassOff = self.resolveProperty('scrollbarHoverOff');
-                    if (!self.resolveProperty('scrollingEnabled')) {
-                        hoverClassOver = 'hidden';
-                        hoverClassOff = 'hidden';
-                    }
-                    self.sbVScroller.classList.remove(hoverClassOver);
-                    self.sbHScroller.classList.remove(hoverClassOver);
-                    self.sbVScroller.classList.add(hoverClassOff);
-                    self.sbHScroller.classList.add(hoverClassOff);
-                }
-            });
-
-            this.sbHValueHolder = {
-                changed: false,
-                getValue: function() {
-                    return self.getHScrollValue();
+            var horzBar = new FooBar({
+                min: 1001,
+                max: 99999,
+                increment: 8,
+                orientation: 'horizontal',
+                classPrefix: 'virtual',
+                barStyles: {
+                    trailing: 11
                 },
-                setValue: function(v) {
-                    self.setHScrollValue(v);
-                }
-            };
+                onchange: function() {}
+            });
 
-            this.sbVValueHolder = {
-                changed: false,
-                getValue: function() {
-                    return self.getVScrollValue();
+            var vertBar = new FooBar({
+                min: 1001,
+                max: 99999,
+                increment: 8,
+                orientation: 'vertical',
+                classPrefix: 'virtual',
+                barStyles: {
+                    trailing: 11
                 },
-                setValue: function(v) {
-                    self.setVScrollValue(v);
-                }
-            };
+                onchange: function() {}
+            });
 
-            this.sbHScrollConfig = {
-                step: 1,
-                page: 40,
-                rangeStart: 0,
-                rangeStop: 0
+            this.sbHScroller = horzBar;
+            this.sbVScroller = vertBar;
 
-            };
+            this.shadowRoot.appendChild(horzBar.bar);
+            this.shadowRoot.appendChild(vertBar.bar);
 
-            this.sbVScrollConfig = {
-                step: 1,
-                page: 40,
-                rangeStart: 0,
-                rangeStop: 0
-            };
+            horzBar.bar.style.backgroundColor = 'grey';
+            vertBar.bar.style.backgroundColor = 'grey';
 
-            this.sbHRangeAdapter = this.sbHScroller.createRangeAdapter(this.sbHValueHolder, this.sbHScrollConfig);
-            this.sbVRangeAdapter = this.sbHScroller.createRangeAdapter(this.sbVValueHolder, this.sbVScrollConfig);
+            horzBar.thumb.backgroundColor = 'pink';
+            vertBar.thumb.backgroundColor = 'pink';
 
-            this.sbHScroller.setRangeAdapter(this.sbHRangeAdapter);
-            this.sbVScroller.setRangeAdapter(this.sbVRangeAdapter);
+            horzBar.resize();
+            vertBar.resize();
+
+            // this.sbHScroller.onUpClick = function() {
+            //     self.scrollHBy(1);
+            //     self.isScrollButtonClick = true;
+            // };
+
+            // this.sbHScroller.onDownClick = function() {
+            //     self.scrollHBy(-1);
+            //     self.isScrollButtonClick = true;
+            // };
+
+            // this.sbHScroller.onUpHold = function(event) {
+            //     event.preventTap();
+            //     self.scrollHBy(1);
+            //     self.isScrollButtonClick = true;
+            // };
+
+            // this.sbHScroller.onDownHold = function(event) {
+            //     event.preventTap();
+            //     self.scrollHBy(-1);
+            //     self.isScrollButtonClick = true;
+            // };
+
+            // this.sbHScroller.onmouseover = function(event) {
+            //     noop(event);
+            //     self.isScrollButtonClick = false;
+            //     var hoverClassOver = self.resolveProperty('scrollbarHoverOver');
+            //     var hoverClassOff = self.resolveProperty('scrollbarHoverOff');
+            //     if (!self.resolveProperty('scrollingEnabled')) {
+            //         hoverClassOver = 'hidden';
+            //         hoverClassOff = 'hidden';
+            //     }
+            //     self.sbHScroller.classList.remove(hoverClassOff);
+            //     self.sbHScroller.classList.add(hoverClassOver);
+            // };
+
+            // this.sbHScroller.onmouseout = function(event) {
+            //     noop(event);
+            //     if (self.sbMouseIsDown) {
+            //         return;
+            //     } else {
+            //         var hoverClassOver = self.resolveProperty('scrollbarHoverOver');
+            //         var hoverClassOff = self.resolveProperty('scrollbarHoverOff');
+            //         if (!self.resolveProperty('scrollingEnabled')) {
+            //             hoverClassOver = 'hidden';
+            //             hoverClassOff = 'hidden';
+            //         }
+            //         self.sbHScroller.classList.remove(hoverClassOver);
+            //         self.sbHScroller.classList.add(hoverClassOff);
+            //     }
+            // };
+
+
+            // this.sbVScroller.onmouseover = function(event) {
+            //     noop(event);
+            //     self.isScrollButtonClick = false;
+            //     var hoverClassOver = self.resolveProperty('scrollbarHoverOver');
+            //     var hoverClassOff = self.resolveProperty('scrollbarHoverOff');
+            //     if (!self.resolveProperty('scrollingEnabled')) {
+            //         hoverClassOver = 'hidden';
+            //         hoverClassOff = 'hidden';
+            //     }
+            //     self.sbVScroller.classList.remove(hoverClassOff);
+            //     self.sbVScroller.classList.add(hoverClassOver);
+            // };
+
+            // this.sbVScroller.onmouseout = function(event) {
+            //     noop(event);
+            //     if (self.sbMouseIsDown) {
+            //         return;
+            //     } else {
+            //         var hoverClassOver = self.resolveProperty('scrollbarHoverOver');
+            //         var hoverClassOff = self.resolveProperty('scrollbarHoverOff');
+            //         if (!self.resolveProperty('scrollingEnabled')) {
+            //             hoverClassOver = 'hidden';
+            //             hoverClassOff = 'hidden';
+            //         }
+            //         self.sbVScroller.classList.remove(hoverClassOver);
+            //         self.sbVScroller.classList.add(hoverClassOff);
+            //     }
+            // };
+
+            // this.addEventListener('mousedown', function() {
+            //     self.sbMouseIsDown = true;
+            // });
+
+
+            // this.sbVScroller.onUpClick = function() {
+            //     self.scrollVBy(-1);
+            //     self.isScrollButtonClick = true;
+            // };
+
+            // this.sbVScroller.onDownClick = function() {
+            //     self.scrollVBy(1);
+            //     self.isScrollButtonClick = true;
+            // };
+
+            // this.sbVScroller.onUpHold = function(event) {
+            //     event.preventTap();
+            //     self.scrollVBy(-1);
+            //     self.isScrollButtonClick = true;
+            // };
+
+            // this.sbVScroller.onDownHold = function(event) {
+            //     event.preventTap();
+            //     self.scrollVBy(1);
+            //     self.isScrollButtonClick = true;
+            // };
+
+            // this.addEventListener('mousedown', function() {
+            //     self.sbMouseIsDown = true;
+            // });
+
+            // document.addEventListener('mouseup', function(e) {
+            //     noop(e);
+            //     if (!self.sbMouseIsDown) {
+            //         return;
+            //     }
+            //     self.sbMouseIsDown = false;
+            //     self.takeFocus();
+            //     var x = e.x || e.clientX;
+            //     var y = e.y || e.clientY;
+            //     var elementAt = self.shadowRoot.elementFromPoint(x, y);
+            //     self.scrollBarHasMouse = (elementAt === self.sbVScroller || elementAt === self.sbHScroller);
+            //     if (!self.scrollBarHasMouse) {
+            //         var hoverClassOver = self.resolveProperty('scrollbarHoverOver');
+            //         var hoverClassOff = self.resolveProperty('scrollbarHoverOff');
+            //         if (!self.resolveProperty('scrollingEnabled')) {
+            //             hoverClassOver = 'hidden';
+            //             hoverClassOff = 'hidden';
+            //         }
+            //         self.sbVScroller.classList.remove(hoverClassOver);
+            //         self.sbHScroller.classList.remove(hoverClassOver);
+            //         self.sbVScroller.classList.add(hoverClassOff);
+            //         self.sbHScroller.classList.add(hoverClassOff);
+            //     }
+            // });
+
+            // this.sbHValueHolder = {
+            //     changed: false,
+            //     getValue: function() {
+            //         return self.getHScrollValue();
+            //     },
+            //     setValue: function(v) {
+            //         self.setHScrollValue(v);
+            //     }
+            // };
+
+            // this.sbVValueHolder = {
+            //     changed: false,
+            //     getValue: function() {
+            //         return self.getVScrollValue();
+            //     },
+            //     setValue: function(v) {
+            //         self.setVScrollValue(v);
+            //     }
+            // };
+
+            // this.sbHScrollConfig = {
+            //     step: 1,
+            //     page: 40,
+            //     rangeStart: 0,
+            //     rangeStop: 0
+
+            // };
+
+            // this.sbVScrollConfig = {
+            //     step: 1,
+            //     page: 40,
+            //     rangeStart: 0,
+            //     rangeStop: 0
+            // };
+
+            //this.sbHRangeAdapter = this.sbHScroller.createRangeAdapter(this.sbHValueHolder, this.sbHScrollConfig);
+            //this.sbVRangeAdapter = this.sbHScroller.createRangeAdapter(this.sbVValueHolder, this.sbVScrollConfig);
+
+            //this.sbHScroller.setRangeAdapter(this.sbHRangeAdapter);
+            //this.sbVScroller.setRangeAdapter(this.sbVRangeAdapter);
 
         },
 
@@ -3719,15 +3754,15 @@
             return x === 0;
         },
         checkScrollbarVisibility: function() {
-            var hoverClassOver = this.resolveProperty('scrollbarHoverOver');
-            var hoverClassOff = this.resolveProperty('scrollbarHoverOff');
+            // var hoverClassOver = this.resolveProperty('scrollbarHoverOver');
+            // var hoverClassOff = this.resolveProperty('scrollbarHoverOff');
 
-            if (hoverClassOff === 'visible') {
-                this.sbHScroller.classList.remove(hoverClassOver);
-                this.sbVScroller.classList.remove(hoverClassOff);
-                this.sbHScroller.classList.add('visible');
-                this.sbVScroller.classList.add('visible');
-            }
+            // if (hoverClassOff === 'visible') {
+            //     this.sbHScroller.classList.remove(hoverClassOver);
+            //     this.sbVScroller.classList.remove(hoverClassOff);
+            //     this.sbHScroller.classList.add('visible');
+            //     this.sbVScroller.classList.add('visible');
+            // }
         },
         isColumnOrRowSelected: function() {
             return this.getSelectionModel().isColumnOrRowSelected();
