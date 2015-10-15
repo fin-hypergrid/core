@@ -22963,12 +22963,13 @@ var commands = {
          * @param {Object} event - the event details
         */
         handleMouseUp: function(grid, event) {
-            if (this.dragging) {
-                this.dragging = false;
+            if (this.dragArmed) {
                 this.dragArmed = false;
                 grid.fireSyntheticRowSelectionChangedEvent();
-            } else
-            if (this.next) {
+            } else if (this.dragging) {
+                this.dragging = false;
+                grid.fireSyntheticRowSelectionChangedEvent();
+            } else if (this.next) {
                 this.next.handleMouseUp(grid, event);
             }
         },
@@ -34676,14 +34677,14 @@ fin-vampire-bar {
          */
         getSelectionAsTSV: function() {
             var sm = this.getSelectionModel();
-            if (sm.hasRowSelections()) {
-                return this.getMatrixSelectionAsTSV(this.getRowSelectionMatrix());
-            } else if (sm.hasColumnSelections()) {
-                return this.getMatrixSelectionAsTSV(this.getColumnSelectionMatrix());
-            } else {
+            if (sm.hasSelections()) {
                 var selections = this.getSelectionMatrix();
                 selections = selections[selections.length - 1];
                 return this.getMatrixSelectionAsTSV(selections);
+            } else if (sm.hasRowSelections()) {
+                return this.getMatrixSelectionAsTSV(this.getRowSelectionMatrix());
+            } else if (sm.hasColumnSelections()) {
+                return this.getMatrixSelectionAsTSV(this.getColumnSelectionMatrix());
             }
         },
 

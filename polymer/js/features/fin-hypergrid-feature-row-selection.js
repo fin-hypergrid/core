@@ -56,12 +56,13 @@
          * @param {Object} event - the event details
         */
         handleMouseUp: function(grid, event) {
-            if (this.dragging) {
-                this.dragging = false;
+            if (this.dragArmed) {
                 this.dragArmed = false;
                 grid.fireSyntheticRowSelectionChangedEvent();
-            } else
-            if (this.next) {
+            } else if (this.dragging) {
+                this.dragging = false;
+                grid.fireSyntheticRowSelectionChangedEvent();
+            } else if (this.next) {
                 this.next.handleMouseUp(grid, event);
             }
         },
