@@ -961,14 +961,14 @@
          */
         getSelectionAsTSV: function() {
             var sm = this.getSelectionModel();
-            if (sm.hasRowSelections()) {
-                return this.getMatrixSelectionAsTSV(this.getRowSelectionMatrix());
-            } else if (sm.hasColumnSelections()) {
-                return this.getMatrixSelectionAsTSV(this.getColumnSelectionMatrix());
-            } else {
+            if (sm.hasSelections()) {
                 var selections = this.getSelectionMatrix();
                 selections = selections[selections.length - 1];
                 return this.getMatrixSelectionAsTSV(selections);
+            } else if (sm.hasRowSelections()) {
+                return this.getMatrixSelectionAsTSV(this.getRowSelectionMatrix());
+            } else if (sm.hasColumnSelections()) {
+                return this.getMatrixSelectionAsTSV(this.getColumnSelectionMatrix());
             }
         },
 

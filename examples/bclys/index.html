@@ -10,8 +10,8 @@
   <script src="sampledata.js"></script>
   <script src="myThemes.js"></script>
   <script src="RangeSelectionModel.js"></script>
-   <link rel="import" href="fin-hypergrid.dev.html">
-  <!-- <link rel="import" href="../../polymer/html/fin-hypergrid.html"> -->
+<!--    <link rel="import" href="fin-hypergrid.dev.html"> -->
+  <link rel="import" href="../../polymer/html/fin-hypergrid.html">
   <style>
     .abs {
         position: static;
@@ -267,23 +267,6 @@
         //     }
         // };
 
-        jsonGrid.addFinEventListener('fin-selection-changed', function(e){
-
-            //lets mirror the cell selection into the rows and or columns
-            jsonGrid.selectRowsFromCells();
-            //jsonGrid.selectColumnsFromCells();
-
-            console.log('fin-selection-changed', jsonGrid.getSelectedRows(), jsonGrid.getSelectedColumns(), jsonGrid.getSelections());
-
-            if (e.detail.selections.length === 0) {
-                console.log('no selections');
-                return;
-            }
-
-            console.log(jsonGrid.getSelectionMatrix());
-            console.log(jsonGrid.getSelection());
-        });
-
         jsonGrid.addFinEventListener('fin-double-click', function(e){
             var cell = e.detail.gridCell;
 
@@ -353,6 +336,28 @@
                 jsonGrid.scrollBy(jsonGrid.getColumnCount(), jsonGrid.getRowCount());
             }
             console.log(e);
+        });
+
+        jsonGrid.addFinEventListener('fin-selection-changed', function(e){
+
+            //lets mirror the cell selection into the rows and or columns
+            jsonGrid.selectRowsFromCells();
+            //jsonGrid.selectColumnsFromCells();
+
+            console.log('fin-selection-changed', jsonGrid.getSelectedRows(), jsonGrid.getSelectedColumns(), jsonGrid.getSelections());
+
+            if (e.detail.selections.length === 0) {
+                console.log('no selections');
+                return;
+            }
+
+            console.log(jsonGrid.getSelectionMatrix());
+            console.log(jsonGrid.getSelection());
+
+            //to get the selected rows uncomment the below.....
+            // console.log(jsonGrid.getRowSelectionMatrix());
+            // console.log(jsonGrid.getRowSelection());
+
         });
 
         jsonGrid.addFinEventListener('fin-row-selection-changed', function(e) {
