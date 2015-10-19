@@ -33707,11 +33707,15 @@ fin-vampire-bar {
 </style>
     <fin-plugins>
     </fin-plugins>
-    <fin-canvas>
-      <fin-hypergrid-renderer></fin-hypergrid-renderer>
-    </fin-canvas>
-    <div style="top:0px;right:0px;bottom:0px;left:0px;position:absolute" id="scrollbars">
+    <div style="top:-2px;right:-5px;bottom:-2px;left:-2px;position:absolute" id="scrollbars">
       <style>
+      div.finbar-horizontal,
+      div.finbar-vertical {
+        z-index: 5;
+        background-color: rgba(255, 255, 255, 0.5);
+        box-shadow: 0 0 3px #000, 0 0 3px #000, 0 0 3px #000;
+      }
+      
       div.finbar-horizontal>.thumb,
       div.finbar-vertical>.thumb {
         opacity: .85;
@@ -33719,6 +33723,9 @@ fin-vampire-bar {
       }
       </style>
     </div>
+    <fin-canvas>
+      <fin-hypergrid-renderer></fin-hypergrid-renderer>
+    </fin-canvas>
     <input class="editor">
     <content></content>
   </template>
@@ -34480,7 +34487,11 @@ fin-vampire-bar {
          * @param {object} state - a memento object, see the [memento pattern](http://en.wikipedia.org/wiki/Memento_pattern)
          */
         setState: function(state) {
+            var self = this;
             this.getBehavior().setState(state);
+            setTimeout(function() {
+                self.behaviorChanged();
+            }, 100);
         },
 
         /**

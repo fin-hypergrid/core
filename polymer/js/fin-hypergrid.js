@@ -756,7 +756,11 @@
          * @param {object} state - a memento object, see the [memento pattern](http://en.wikipedia.org/wiki/Memento_pattern)
          */
         setState: function(state) {
+            var self = this;
             this.getBehavior().setState(state);
+            setTimeout(function() {
+                self.behaviorChanged();
+            }, 100);
         },
 
         /**
