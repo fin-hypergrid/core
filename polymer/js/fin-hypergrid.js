@@ -2580,41 +2580,34 @@
 
             var self = this;
 
-            var horzBar = new FooBar({
-                min: 1001,
-                max: 99999,
-                increment: 8,
+            var scrollbarHolder = this.shadowRoot.querySelector('#scrollbars');
+
+            var horzBar = new FinBar({
                 orientation: 'horizontal',
-                classPrefix: 'virtual',
                 barStyles: {
                     trailing: 11
                 },
-                onchange: function() {}
+                onchange: function(idx) {
+                    self.setHScrollValue(idx);
+                },
+                cssStylesheetReferenceElement: scrollbarHolder
             });
 
-            var vertBar = new FooBar({
-                min: 1001,
-                max: 99999,
-                increment: 8,
+            var vertBar = new FinBar({
                 orientation: 'vertical',
-                classPrefix: 'virtual',
                 barStyles: {
                     trailing: 11
                 },
-                onchange: function() {}
+                onchange: function(idx) {
+                    self.setVScrollValue(idx);
+                }
             });
 
             this.sbHScroller = horzBar;
             this.sbVScroller = vertBar;
 
-            this.shadowRoot.appendChild(horzBar.bar);
-            this.shadowRoot.appendChild(vertBar.bar);
-
-            horzBar.bar.style.backgroundColor = 'grey';
-            vertBar.bar.style.backgroundColor = 'grey';
-
-            horzBar.thumb.backgroundColor = 'pink';
-            vertBar.thumb.backgroundColor = 'pink';
+            scrollbarHolder.appendChild(horzBar.bar);
+            scrollbarHolder.appendChild(vertBar.bar);
 
             horzBar.resize();
             vertBar.resize();
@@ -2805,6 +2798,16 @@
          * @description
         scroll values have changed, we've been notified *
          */
+        setVScrollbarValues: function(max) {
+            this.sbVScroller.max = max;
+            this.sbVScroller.index = Math.min(this.sbVScroller.index, max);
+            this.sbVScroller.resize();
+        },
+        setHScrollbarValues: function(max) {
+            this.sbHScroller.max = max;
+            this.sbHScroller.index = Math.min(this.sbHScroller.index, max);
+            this.sbHScroller.resize();
+        },
         scrollValueChangedNotification: function() {
 
             if (this.hScrollValue === this.sbPrevHScrollValue && this.vScrollValue === this.sbPrevVScrollValue) {
@@ -2902,16 +2905,20 @@
             }
 
             this.sbHScrollConfig.rangeStop = Math.max(0, numColumns - numFixedColumns - lastPageColumnCount);
+            this.setHScrollbarValues(this.sbHScrollConfig.rangeStop);
 
             this.sbVScrollConfig.rangeStop = Math.max(0, numRows - numFixedRows - lastPageRowCount);
+            this.setVScrollbarValues(this.sbVScrollConfig.rangeStop);
 
             this.setVScrollValue(Math.min(this.getVScrollValue(), this.sbVScrollConfig.rangeStop));
             this.setHScrollValue(Math.min(this.getHScrollValue(), this.sbHScrollConfig.rangeStop));
 
             this.computeCellsBounds();
             this.repaint();
-            //this.sbVScroller.tickle();
-            //this.sbHScroller.tickle();
+
+            this.sbHScroller.resize();
+            this.sbVScroller.resize();
+
         },
 
         /**

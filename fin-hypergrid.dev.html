@@ -16,7 +16,7 @@ The Hypergrid design makes no assumptions about the data you wish to view which 
 @homepage http://github.com/openfin/fin-hypergrid
 --><html><head><script src="https://rawgit.com/openfin/finanalytics/master/build/main.js"></script>
 <script src="https://rawgit.com/openfin/sparse-boolean-array/master/src/js/RangeSelectionModel.js"></script>
-<script src="https://openfin.github.io/foobars/foobars.min.js"></script>
+<script src="https://openfin.github.io/finbars/finbars.js"></script>
 <style shim-shadowdom="">
 /*******************************
           Flex Layout
@@ -33705,12 +33705,20 @@ fin-vampire-bar {
 
 
 </style>
-    <link rel="stylesheet" type="text/css" href="https://raw.githubusercontent.com/openfin/foobars/master/src/css/foobars.css">
     <fin-plugins>
     </fin-plugins>
     <fin-canvas>
       <fin-hypergrid-renderer></fin-hypergrid-renderer>
     </fin-canvas>
+    <div style="top:0px;right:0px;bottom:0px;left:0px;position:absolute" id="scrollbars">
+      <style>
+      div.finbar-horizontal>.thumb,
+      div.finbar-vertical>.thumb {
+        opacity: .85;
+        box-shadow: 0 0 3px #000, 0 0 3px #000, 0 0 3px #000;
+      }
+      </style>
+    </div>
     <input class="editor">
     <content></content>
   </template>
@@ -36296,41 +36304,34 @@ fin-vampire-bar {
 
             var self = this;
 
-            var horzBar = new FooBar({
-                min: 1001,
-                max: 99999,
-                increment: 8,
+            var scrollbarHolder = this.shadowRoot.querySelector('#scrollbars');
+
+            var horzBar = new FinBar({
                 orientation: 'horizontal',
-                classPrefix: 'virtual',
                 barStyles: {
                     trailing: 11
                 },
-                onchange: function() {}
+                onchange: function(idx) {
+                    self.setHScrollValue(idx);
+                },
+                cssStylesheetReferenceElement: scrollbarHolder
             });
 
-            var vertBar = new FooBar({
-                min: 1001,
-                max: 99999,
-                increment: 8,
+            var vertBar = new FinBar({
                 orientation: 'vertical',
-                classPrefix: 'virtual',
                 barStyles: {
                     trailing: 11
                 },
-                onchange: function() {}
+                onchange: function(idx) {
+                    self.setVScrollValue(idx);
+                }
             });
 
             this.sbHScroller = horzBar;
             this.sbVScroller = vertBar;
 
-            this.shadowRoot.appendChild(horzBar.bar);
-            this.shadowRoot.appendChild(vertBar.bar);
-
-            horzBar.bar.style.backgroundColor = 'grey';
-            vertBar.bar.style.backgroundColor = 'grey';
-
-            horzBar.thumb.backgroundColor = 'pink';
-            vertBar.thumb.backgroundColor = 'pink';
+            scrollbarHolder.appendChild(horzBar.bar);
+            scrollbarHolder.appendChild(vertBar.bar);
 
             horzBar.resize();
             vertBar.resize();
@@ -36521,6 +36522,16 @@ fin-vampire-bar {
          * @description
         scroll values have changed, we've been notified *
          */
+        setVScrollbarValues: function(max) {
+            this.sbVScroller.max = max;
+            this.sbVScroller.index = Math.min(this.sbVScroller.index, max);
+            this.sbVScroller.resize();
+        },
+        setHScrollbarValues: function(max) {
+            this.sbHScroller.max = max;
+            this.sbHScroller.index = Math.min(this.sbHScroller.index, max);
+            this.sbHScroller.resize();
+        },
         scrollValueChangedNotification: function() {
 
             if (this.hScrollValue === this.sbPrevHScrollValue && this.vScrollValue === this.sbPrevVScrollValue) {
@@ -36618,16 +36629,20 @@ fin-vampire-bar {
             }
 
             this.sbHScrollConfig.rangeStop = Math.max(0, numColumns - numFixedColumns - lastPageColumnCount);
+            this.setHScrollbarValues(this.sbHScrollConfig.rangeStop);
 
             this.sbVScrollConfig.rangeStop = Math.max(0, numRows - numFixedRows - lastPageRowCount);
+            this.setVScrollbarValues(this.sbVScrollConfig.rangeStop);
 
             this.setVScrollValue(Math.min(this.getVScrollValue(), this.sbVScrollConfig.rangeStop));
             this.setHScrollValue(Math.min(this.getHScrollValue(), this.sbHScrollConfig.rangeStop));
 
             this.computeCellsBounds();
             this.repaint();
-            //this.sbVScroller.tickle();
-            //this.sbHScroller.tickle();
+
+            this.sbHScroller.resize();
+            this.sbVScroller.resize();
+
         },
 
         /**
