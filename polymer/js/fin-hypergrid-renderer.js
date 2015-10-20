@@ -36,7 +36,6 @@ Instances of this object have basically four main functions.
     };
 
     Polymer({ /* jslint ignore:line */
-
         //the shared single item "pooled" cell object for drawing each cell
         cell: {
             x: 0,
@@ -45,6 +44,8 @@ Instances of this object have basically four main functions.
             height: 0
         },
 
+        scrollHeight: 0,
+        viewHeight: 0,
         /**
          * @function
          * @instance
@@ -100,6 +101,7 @@ Instances of this object have basically four main functions.
 
             this.columnEdges[0] = 0;
             this.rowEdges[0] = 0;
+            this.scrollHeight = 0;
 
             this.visibleColumns.length = 0;
             this.visibleRows.length = 0;
@@ -160,6 +162,7 @@ Instances of this object have basically four main functions.
                 this.visibleRows[r] = vy;
                 this.rowEdgesIndexMap[vy] = r;
             }
+            this.viewHeight = viewHeight;
             this.dataWindow = grid.rectangles.rectangle.create(firstVX, firstVY, lastVX - firstVX, lastVY - firstVY);
         },
 
@@ -225,6 +228,13 @@ Instances of this object have basically four main functions.
          */
         getVisibleRowsCount: function() {
             return this.visibleRows.length - 1;
+        },
+
+        getVisibleScrollHeight: function() {
+            var grid = this.getGrid();
+            var frh = grid.getFixedRowsHeight();
+            var height = this.viewHeight - frh;
+            return height;
         },
 
         /**
@@ -935,22 +945,29 @@ Instances of this object have basically four main functions.
          * #### returns: integer
         */
         getPageUpRow: function() {
-            if (this.rowEdges.length === 0) {
-                return;
-            }
             var behavior = this.getBehavior();
-            var h = this.renderedHeight;
-            var topRow = this.visibleRows[0];
-            while (h > 0 && topRow >= 1) {
-                topRow--;
-                var eachHeight = behavior.getRowHeight(topRow);
-                h = h - eachHeight;
+            var scrollHeight = this.getVisibleScrollHeight();
+            var headerRows = this.getGrid().getFixedRowCount();
+            var top = this.dataWindow.origin.y - headerRows;
+            var scanHeight = 0;
+            while (scanHeight < scrollHeight && top > -1) {
+                scanHeight = scanHeight + behavior.getRowHeight(top);
+                top--;
             }
-            if (topRow === 0) {
-                return 0;
-            }
-            return topRow + 1;
+            return top + 1;
+        },
 
+        /**
+         * @function
+         * @instance
+         * @description
+        answer the row to goto for a page down
+         * #### returns: integer
+        */
+        getPageDownRow: function() {
+            var headerRows = this.getGrid().getFixedRowCount();
+            var rowNum = this.dataWindow.corner.y - headerRows - 1;
+            return rowNum;
         },
 
         /**
@@ -975,21 +992,6 @@ Instances of this object have basically four main functions.
          */
         getRowCount: function() {
             return this.getGrid().getRowCount();
-        },
-
-        /**
-         * @function
-         * @instance
-         * @description
-        answer the row to goto for a page down
-         * #### returns: integer
-        */
-        getPageDownRow: function() {
-            if (this.rowEdges.length === 0) {
-                return;
-            }
-            var row = this.visibleRows[this.visibleRows.length - 1] + 1;
-            return row;
         },
 
         /**

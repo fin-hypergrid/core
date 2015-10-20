@@ -1946,7 +1946,7 @@
          * @param {integer} offsetY - scroll in the y direction this much
          */
         scrollVBy: function(offsetY) {
-            var max = this.sbVScrollConfig.rangeStop;
+            var max = this.sbVScroller.range.max;
             var oldValue = this.getVScrollValue();
             var newValue = Math.min(max, Math.max(0, oldValue + offsetY));
             if (newValue === oldValue) {
@@ -1964,7 +1964,7 @@
          * @param {integer} offsetX - scroll in the x direction this much
          */
         scrollHBy: function(offsetX) {
-            var max = this.sbHScrollConfig.rangeStop;
+            var max = this.sbHScroller.range.max;
             var oldValue = this.getHScrollValue();
             var newValue = Math.min(max, Math.max(0, oldValue + offsetX));
             if (newValue === oldValue) {
@@ -2438,7 +2438,8 @@
          * @param {integer} newValue - the new value
          */
         setVScrollValue: function(y) {
-            var max = this.sbVScrollConfig.rangeStop;
+            y = Math.round(y);
+            var max = this.sbVScroller.range.max;
             y = Math.min(max, Math.max(0, y));
             var self = this;
             if (y === this.vScrollValue) {
@@ -2475,7 +2476,8 @@
          * @param {integer} newValue - the new value
          */
         setHScrollValue: function(x) {
-            var max = this.sbHScrollConfig.rangeStop;
+            x = Math.round(x);
+            var max = this.sbHScroller.range.max;
             x = Math.min(max, Math.max(0, x));
             var self = this;
             if (x === this.hScrollValue) {
@@ -2567,7 +2569,8 @@
                 onchange: function(idx) {
                     self.setHScrollValue(idx);
                 },
-                cssStylesheetReferenceElement: scrollbarHolder
+                cssStylesheetReferenceElement: scrollbarHolder,
+                content: this.canvas
             });
 
             var vertBar = new FinBar({
@@ -2577,7 +2580,16 @@
                 },
                 onchange: function(idx) {
                     self.setVScrollValue(idx);
-                }
+                },
+                paging: {
+                    up: function() {
+                        return self.pageUp();
+                    },
+                    down: function() {
+                        return self.pageDown();
+                    },
+                },
+                content: this.canvas
             });
 
             this.sbHScroller = horzBar;
@@ -2599,28 +2611,20 @@
          */
         setVScrollbarValues: function(max) {
             var self = this;
-            max++;
             this.sbVScroller.range = {
                 min: 0,
                 max: max
             };
-            this.sbVScroller.index = Math.min(this.sbVScroller.index, max);
-            // setTimeout(function() {
-            //     self.sbVScroller.resize();
-            // }, 100);
         },
+
         setHScrollbarValues: function(max) {
             var self = this;
-            max++;
             this.sbHScroller.range = {
                 min: 0,
                 max: max
             };
-            this.sbHScroller.index = Math.min(this.sbHScroller.index, max);
-            // setTimeout(function() {
-            //     self.sbHScroller.resize();
-            // }, 100);
         },
+
         scrollValueChangedNotification: function() {
 
             if (this.hScrollValue === this.sbPrevHScrollValue && this.vScrollValue === this.sbPrevVScrollValue) {
@@ -2717,14 +2721,14 @@
                 }
             }
 
-            this.sbHScrollConfig.rangeStop = Math.max(0, numColumns - numFixedColumns - lastPageColumnCount);
-            this.setHScrollbarValues(this.sbHScrollConfig.rangeStop);
+            var hMax = Math.max(0, numColumns - numFixedColumns - lastPageColumnCount);
+            this.setHScrollbarValues(hMax);
 
-            this.sbVScrollConfig.rangeStop = Math.max(0, numRows - numFixedRows - lastPageRowCount);
-            this.setVScrollbarValues(this.sbVScrollConfig.rangeStop);
+            var vMax = Math.max(0, numRows - numFixedRows - lastPageRowCount);
+            this.setVScrollbarValues(vMax);
 
-            this.setVScrollValue(Math.min(this.getVScrollValue(), this.sbVScrollConfig.rangeStop));
-            this.setHScrollValue(Math.min(this.getHScrollValue(), this.sbHScrollConfig.rangeStop));
+            this.setHScrollValue(Math.min(this.getHScrollValue(), hMax));
+            this.setVScrollValue(Math.min(this.getVScrollValue(), vMax));
 
             this.computeCellsBounds();
             this.repaint();
@@ -3144,6 +3148,7 @@
         pageUp: function() {
             var rowNum = this.getRenderer().getPageUpRow();
             this.setVScrollValue(rowNum);
+            return rowNum;
         },
 
         /**
@@ -3157,6 +3162,7 @@
         pageDown: function() {
             var rowNum = this.getRenderer().getPageDownRow();
             this.setVScrollValue(rowNum);
+            return rowNum;
         },
 
         /**
