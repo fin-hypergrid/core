@@ -13905,7 +13905,7 @@ div.container {
                     isRightClick: this.isRightClick(e)
                 }
             }));
-            console.log('dblclick', this.currentKeys);
+            //console.log('dblclick', this.currentKeys);
         },
 
         getCharMap: function() {
@@ -15002,7 +15002,6 @@ Instances of this object have basically four main functions.
     };
 
     Polymer('fin-hypergrid-renderer',{ /* jslint ignore:line */
-
         //the shared single item "pooled" cell object for drawing each cell
         cell: {
             x: 0,
@@ -15011,6 +15010,8 @@ Instances of this object have basically four main functions.
             height: 0
         },
 
+        scrollHeight: 0,
+        viewHeight: 0,
         /**
          * @function
          * @instance
@@ -15066,6 +15067,7 @@ Instances of this object have basically four main functions.
 
             this.columnEdges[0] = 0;
             this.rowEdges[0] = 0;
+            this.scrollHeight = 0;
 
             this.visibleColumns.length = 0;
             this.visibleRows.length = 0;
@@ -15126,6 +15128,7 @@ Instances of this object have basically four main functions.
                 this.visibleRows[r] = vy;
                 this.rowEdgesIndexMap[vy] = r;
             }
+            this.viewHeight = viewHeight;
             this.dataWindow = grid.rectangles.rectangle.create(firstVX, firstVY, lastVX - firstVX, lastVY - firstVY);
         },
 
@@ -15191,6 +15194,13 @@ Instances of this object have basically four main functions.
          */
         getVisibleRowsCount: function() {
             return this.visibleRows.length - 1;
+        },
+
+        getVisibleScrollHeight: function() {
+            var grid = this.getGrid();
+            var frh = grid.getFixedRowsHeight();
+            var height = this.viewHeight - frh;
+            return height;
         },
 
         /**
@@ -15901,22 +15911,29 @@ Instances of this object have basically four main functions.
          * #### returns: integer
         */
         getPageUpRow: function() {
-            if (this.rowEdges.length === 0) {
-                return;
-            }
             var behavior = this.getBehavior();
-            var h = this.renderedHeight;
-            var topRow = this.visibleRows[0];
-            while (h > 0 && topRow >= 1) {
-                topRow--;
-                var eachHeight = behavior.getRowHeight(topRow);
-                h = h - eachHeight;
+            var scrollHeight = this.getVisibleScrollHeight();
+            var headerRows = this.getGrid().getFixedRowCount();
+            var top = this.dataWindow.origin.y - headerRows;
+            var scanHeight = 0;
+            while (scanHeight < scrollHeight && top > -1) {
+                scanHeight = scanHeight + behavior.getRowHeight(top);
+                top--;
             }
-            if (topRow === 0) {
-                return 0;
-            }
-            return topRow + 1;
+            return top + 1;
+        },
 
+        /**
+         * @function
+         * @instance
+         * @description
+        answer the row to goto for a page down
+         * #### returns: integer
+        */
+        getPageDownRow: function() {
+            var headerRows = this.getGrid().getFixedRowCount();
+            var rowNum = this.dataWindow.corner.y - headerRows - 1;
+            return rowNum;
         },
 
         /**
@@ -15941,21 +15958,6 @@ Instances of this object have basically four main functions.
          */
         getRowCount: function() {
             return this.getGrid().getRowCount();
-        },
-
-        /**
-         * @function
-         * @instance
-         * @description
-        answer the row to goto for a page down
-         * #### returns: integer
-        */
-        getPageDownRow: function() {
-            if (this.rowEdges.length === 0) {
-                return;
-            }
-            var row = this.visibleRows[this.visibleRows.length - 1] + 1;
-            return row;
         },
 
         /**
@@ -35677,7 +35679,7 @@ fin-vampire-bar {
          * @param {integer} offsetY - scroll in the y direction this much
          */
         scrollVBy: function(offsetY) {
-            var max = this.sbVScrollConfig.rangeStop;
+            var max = this.sbVScroller.range.max;
             var oldValue = this.getVScrollValue();
             var newValue = Math.min(max, Math.max(0, oldValue + offsetY));
             if (newValue === oldValue) {
@@ -35695,7 +35697,7 @@ fin-vampire-bar {
          * @param {integer} offsetX - scroll in the x direction this much
          */
         scrollHBy: function(offsetX) {
-            var max = this.sbHScrollConfig.rangeStop;
+            var max = this.sbHScroller.range.max;
             var oldValue = this.getHScrollValue();
             var newValue = Math.min(max, Math.max(0, oldValue + offsetX));
             if (newValue === oldValue) {
@@ -36169,7 +36171,8 @@ fin-vampire-bar {
          * @param {integer} newValue - the new value
          */
         setVScrollValue: function(y) {
-            var max = this.sbVScrollConfig.rangeStop;
+            y = Math.round(y);
+            var max = this.sbVScroller.range.max;
             y = Math.min(max, Math.max(0, y));
             var self = this;
             if (y === this.vScrollValue) {
@@ -36206,7 +36209,8 @@ fin-vampire-bar {
          * @param {integer} newValue - the new value
          */
         setHScrollValue: function(x) {
-            var max = this.sbHScrollConfig.rangeStop;
+            x = Math.round(x);
+            var max = this.sbHScroller.range.max;
             x = Math.min(max, Math.max(0, x));
             var self = this;
             if (x === this.hScrollValue) {
@@ -36298,7 +36302,8 @@ fin-vampire-bar {
                 onchange: function(idx) {
                     self.setHScrollValue(idx);
                 },
-                cssStylesheetReferenceElement: scrollbarHolder
+                cssStylesheetReferenceElement: scrollbarHolder,
+                content: this.canvas
             });
 
             var vertBar = new FinBar({
@@ -36308,7 +36313,16 @@ fin-vampire-bar {
                 },
                 onchange: function(idx) {
                     self.setVScrollValue(idx);
-                }
+                },
+                paging: {
+                    up: function() {
+                        return self.pageUp();
+                    },
+                    down: function() {
+                        return self.pageDown();
+                    },
+                },
+                content: this.canvas
             });
 
             this.sbHScroller = horzBar;
@@ -36330,28 +36344,20 @@ fin-vampire-bar {
          */
         setVScrollbarValues: function(max) {
             var self = this;
-            max++;
             this.sbVScroller.range = {
                 min: 0,
                 max: max
             };
-            this.sbVScroller.index = Math.min(this.sbVScroller.index, max);
-            // setTimeout(function() {
-            //     self.sbVScroller.resize();
-            // }, 100);
         },
+
         setHScrollbarValues: function(max) {
             var self = this;
-            max++;
             this.sbHScroller.range = {
                 min: 0,
                 max: max
             };
-            this.sbHScroller.index = Math.min(this.sbHScroller.index, max);
-            // setTimeout(function() {
-            //     self.sbHScroller.resize();
-            // }, 100);
         },
+
         scrollValueChangedNotification: function() {
 
             if (this.hScrollValue === this.sbPrevHScrollValue && this.vScrollValue === this.sbPrevVScrollValue) {
@@ -36448,14 +36454,14 @@ fin-vampire-bar {
                 }
             }
 
-            this.sbHScrollConfig.rangeStop = Math.max(0, numColumns - numFixedColumns - lastPageColumnCount);
-            this.setHScrollbarValues(this.sbHScrollConfig.rangeStop);
+            var hMax = Math.max(0, numColumns - numFixedColumns - lastPageColumnCount);
+            this.setHScrollbarValues(hMax);
 
-            this.sbVScrollConfig.rangeStop = Math.max(0, numRows - numFixedRows - lastPageRowCount);
-            this.setVScrollbarValues(this.sbVScrollConfig.rangeStop);
+            var vMax = Math.max(0, numRows - numFixedRows - lastPageRowCount);
+            this.setVScrollbarValues(vMax);
 
-            this.setVScrollValue(Math.min(this.getVScrollValue(), this.sbVScrollConfig.rangeStop));
-            this.setHScrollValue(Math.min(this.getHScrollValue(), this.sbHScrollConfig.rangeStop));
+            this.setHScrollValue(Math.min(this.getHScrollValue(), hMax));
+            this.setVScrollValue(Math.min(this.getVScrollValue(), vMax));
 
             this.computeCellsBounds();
             this.repaint();
@@ -36875,6 +36881,7 @@ fin-vampire-bar {
         pageUp: function() {
             var rowNum = this.getRenderer().getPageUpRow();
             this.setVScrollValue(rowNum);
+            return rowNum;
         },
 
         /**
@@ -36888,6 +36895,7 @@ fin-vampire-bar {
         pageDown: function() {
             var rowNum = this.getRenderer().getPageDownRow();
             this.setVScrollValue(rowNum);
+            return rowNum;
         },
 
         /**

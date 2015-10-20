@@ -1,6 +1,7 @@
 /build
 /deploy
 /bower_components
+/docs
 src/scripts/templates.js
 node_modules
 .DS_Store
