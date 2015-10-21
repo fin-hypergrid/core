@@ -16064,7 +16064,7 @@ var config = {
 
             gc.beginPath();
             gc.strokeStyle = lineColor;
-            gc.lineWidth = 1;
+            gc.lineWidth = this.resolveProperty('lineWidth');
             var c, r, x, y, width, height;
 
             //fixedrow horizontal grid lines
@@ -31935,7 +31935,6 @@ fin-vampire-bar {
             fixedRowBGSelColor: 'rgb(255, 220, 97)',
 
             backgroundColor2: 'rgb(201, 201, 201)',
-            lineColor: 'rgb(199, 199, 199)',
             voffset: 0,
             scrollbarHoverOver: 'visible',
             scrollbarHoverOff: 'hidden',
@@ -31947,6 +31946,8 @@ fin-vampire-bar {
             cellPadding: 5,
             gridLinesH: true,
             gridLinesV: true,
+            lineColor: 'rgb(199, 199, 199)',
+            lineWidth: 0.4,
 
             defaultRowHeight: 20,
             defaultFixedRowHeight: 20,

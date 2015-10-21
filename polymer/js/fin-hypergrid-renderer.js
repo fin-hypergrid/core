@@ -617,7 +617,7 @@ var config = {
 
             gc.beginPath();
             gc.strokeStyle = lineColor;
-            gc.lineWidth = 1;
+            gc.lineWidth = this.resolveProperty('lineWidth');
             var c, r, x, y, width, height;
 
             //fixedrow horizontal grid lines

@@ -65,7 +65,6 @@
             fixedRowBGSelColor: 'rgb(255, 220, 97)',
 
             backgroundColor2: 'rgb(201, 201, 201)',
-            lineColor: 'rgb(199, 199, 199)',
             voffset: 0,
             scrollbarHoverOver: 'visible',
             scrollbarHoverOff: 'hidden',
@@ -77,6 +76,8 @@
             cellPadding: 5,
             gridLinesH: true,
             gridLinesV: true,
+            lineColor: 'rgb(199, 199, 199)',
+            lineWidth: 0.4,
 
             defaultRowHeight: 20,
             defaultFixedRowHeight: 20,
