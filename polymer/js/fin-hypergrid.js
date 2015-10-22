@@ -199,7 +199,8 @@
             columnSelection: true,
             rowSelection: true,
 
-            autosizeColumns: true
+            autosizeColumns: true,
+            rowResize: false
 
         };
         return properties;
@@ -622,6 +623,10 @@
                 return false;
             }
             return p.x === x;
+        },
+
+        isRowResizeable: function() {
+            return this.resolveProperty('rowResize');
         },
 
         /**

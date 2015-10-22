@@ -153,6 +153,10 @@
 
         getFixedAreaCount: function(grid) {
             return grid.getFixedRowCount() + grid.getHeaderRowCount();
+        },
+
+        isEnabled: function(grid) {
+            return grid.isRowResizeable();
         }
     });
 

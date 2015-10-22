@@ -199,8 +199,9 @@
          * @param {Object} event - the event details
         */
         handleMouseDown: function(grid, event) {
+            var isEnabled = this.isEnabled(grid);
             var overArea = this.overAreaDivider(grid, event);
-            if (overArea > -1 && this.isFirstFixedOtherArea(grid, event)) {
+            if (isEnabled && overArea > -1 && this.isFirstFixedOtherArea(grid, event)) {
                 var scrollValue = this.getScrollValue(grid);
                 if (overArea < this.getFixedAreaCount(grid)) {
                     scrollValue = 0;
@@ -223,7 +224,8 @@
          * @param {Object} event - the event details
         */
         handleMouseUp: function(grid, event) {
-            if (this.dragIndex > -2) {
+            var isEnabled = this.isEnabled(grid);
+            if (isEnabled && this.dragIndex > -2) {
                 this.cursor = null;
                 this.dragIndex = -2;
 
@@ -267,7 +269,8 @@
         * @param {Object} event - the event details
         */
         checkForAreaResizeCursorChange: function(grid, event) {
-            if (this.overAreaDivider(grid, event) > -1 && this.isFirstFixedOtherArea(grid, event)) {
+            var isEnabled = this.isEnabled(grid);
+            if (isEnabled && this.overAreaDivider(grid, event) > -1 && this.isFirstFixedOtherArea(grid, event)) {
                 this.cursor = this.getCursorName();
             } else {
                 this.cursor = null;
@@ -281,15 +284,19 @@
         },
 
         handleDoubleClick: function(grid, event) {
+            var isEnabled = this.isEnabled(grid);
             var hasCursor = this.overAreaDivider(grid, event) > -1; //this.cursor !== null;
             var headerRowCount = grid.getHeaderRowCount();
             //var headerColCount = grid.getHeaderColumnCount();
             var gridCell = event.gridCell;
-            if (hasCursor && (gridCell.y <= headerRowCount)) {
+            if (isEnabled && hasCursor && (gridCell.y <= headerRowCount)) {
                 grid.autosizeColumn(gridCell.x - 1);
             } else if (this.next) {
                 this.next.handleDoubleClick(grid, event);
             }
+        },
+        isEnabled: function(grid) {
+            return true;
         }
     });
 

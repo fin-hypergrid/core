@@ -26323,8 +26323,9 @@ var commands = {
          * @param {Object} event - the event details
         */
         handleMouseDown: function(grid, event) {
+            var isEnabled = this.isEnabled(grid);
             var overArea = this.overAreaDivider(grid, event);
-            if (overArea > -1 && this.isFirstFixedOtherArea(grid, event)) {
+            if (isEnabled && overArea > -1 && this.isFirstFixedOtherArea(grid, event)) {
                 var scrollValue = this.getScrollValue(grid);
                 if (overArea < this.getFixedAreaCount(grid)) {
                     scrollValue = 0;
@@ -26347,7 +26348,8 @@ var commands = {
          * @param {Object} event - the event details
         */
         handleMouseUp: function(grid, event) {
-            if (this.dragIndex > -2) {
+            var isEnabled = this.isEnabled(grid);
+            if (isEnabled && this.dragIndex > -2) {
                 this.cursor = null;
                 this.dragIndex = -2;
 
@@ -26391,7 +26393,8 @@ var commands = {
         * @param {Object} event - the event details
         */
         checkForAreaResizeCursorChange: function(grid, event) {
-            if (this.overAreaDivider(grid, event) > -1 && this.isFirstFixedOtherArea(grid, event)) {
+            var isEnabled = this.isEnabled(grid);
+            if (isEnabled && this.overAreaDivider(grid, event) > -1 && this.isFirstFixedOtherArea(grid, event)) {
                 this.cursor = this.getCursorName();
             } else {
                 this.cursor = null;
@@ -26405,15 +26408,19 @@ var commands = {
         },
 
         handleDoubleClick: function(grid, event) {
+            var isEnabled = this.isEnabled(grid);
             var hasCursor = this.overAreaDivider(grid, event) > -1; //this.cursor !== null;
             var headerRowCount = grid.getHeaderRowCount();
             //var headerColCount = grid.getHeaderColumnCount();
             var gridCell = event.gridCell;
-            if (hasCursor && (gridCell.y <= headerRowCount)) {
+            if (isEnabled && hasCursor && (gridCell.y <= headerRowCount)) {
                 grid.autosizeColumn(gridCell.x - 1);
             } else if (this.next) {
                 this.next.handleDoubleClick(grid, event);
             }
+        },
+        isEnabled: function(grid) {
+            return true;
         }
     });
 
@@ -27653,6 +27660,10 @@ var commands = {
 
         getFixedAreaCount: function(grid) {
             return grid.getFixedRowCount() + grid.getHeaderRowCount();
+        },
+
+        isEnabled: function(grid) {
+            return grid.isRowResizeable();
         }
     });
 
@@ -29132,117 +29143,6 @@ var commands = {
             return row;
         },
 
-        getRowSelection: function(selectedRows) {
-            var numCols = this.getColumnCount();
-            var result = {};
-            var fields = this.getFields();
-            for (var c = 0; c < numCols; c++) {
-                var column = new Array(selectedRows.length);
-                result[fields[c]] = column;
-                for (var r = 0; r < selectedRows.length; r++) {
-                    var rowIndex = selectedRows[r];
-                    column[r] = valueOrFunctionExecute(this.getDataSource().getValue(c, rowIndex));
-                }
-            }
-            return result;
-        },
-        getRowSelectionMatrix: function(selectedRows) {
-            var numCols = this.getColumnCount();
-            var result = new Array(numCols);
-            for (var c = 0; c < numCols; c++) {
-                result[c] = new Array(selectedRows.length);
-                for (var r = 0; r < selectedRows.length; r++) {
-                    var rowIndex = selectedRows[r];
-                    result[c][r] = valueOrFunctionExecute(this.getDataSource().getValue(c, rowIndex));
-                }
-            }
-            return result;
-        },
-
-        getColumnSelectionMatrix: function(selectedColumns) {
-            var numRows = this.getRowCount();
-            var result = new Array(selectedColumns.length);
-            for (var c = 0; c < selectedColumns.length; c++) {
-                result[c] = new Array(numRows);
-                var colIndex = selectedColumns[c];
-                for (var r = 0; r < numRows; r++) {
-                    result[c][r] = valueOrFunctionExecute(this.getDataSource().getValue(colIndex, r));
-                }
-            }
-            return result;
-        },
-
-        getColumnSelection: function(selectedColumns) {
-            var result = {};
-            var fields = this.getFields();
-            var rowCount = this.getRowCount();
-            for (var c = 0; c < selectedColumns.length; c++) {
-                var column = new Array(rowCount);
-                var columnIndex = selectedColumns[c];
-                result[fields[columnIndex]] = column;
-                for (var r = 0; r < rowCount; r++) {
-                    column[r] = valueOrFunctionExecute(this.getDataSource().getValue(columnIndex, r));
-                }
-            }
-            return result;
-        },
-
-        getSelection: function(selections) {
-            var result = new Array(selections.length);
-            for (var i = 0; i < selections.length; i++) {
-                var rect = selections[i];
-                result[i] = this._getSelection(rect);
-            }
-            return result;
-        },
-
-        _getSelection: function(rect) {
-            var grid = this.getGrid();
-            var headerRowCount = grid.getHeaderRowCount();
-            var colCount = rect.extent.x + 1;
-            var rowCount = rect.extent.y + 1;
-            var ox = rect.origin.x;
-            var oy = rect.origin.y - headerRowCount;
-            var fields = this.getFields();
-            var result = {};
-            var r;
-            for (var c = 0; c < colCount; c++) {
-                var column = new Array(rowCount);
-                result[fields[c + ox]] = column;
-                for (r = 0; r < rowCount; r++) {
-                    column[r] = valueOrFunctionExecute(this.getDataSource().getValue(ox + c, oy + r));
-                }
-            }
-            return result;
-        },
-
-        getSelectionMatrix: function(selections) {
-            var result = new Array(selections.length);
-            for (var i = 0; i < selections.length; i++) {
-                var rect = selections[i];
-                result[i] = this._getSelectionMatrix(rect);
-            }
-            return result;
-        },
-
-        _getSelectionMatrix: function(rect) {
-            var grid = this.getGrid();
-            var headerRowCount = grid.getHeaderRowCount();
-            var colCount = rect.extent.x + 1;
-            var rowCount = rect.extent.y + 1;
-            var ox = rect.origin.x;
-            var oy = rect.origin.y - headerRowCount;
-            var result = [];
-            for (var c = 0; c < colCount; c++) {
-                var column = new Array(rowCount);
-                result[c] = column;
-                for (var r = 0; r < rowCount; r++) {
-                    column[r] = valueOrFunctionExecute(this.getDataSource().getValue(ox + c, oy + r));
-                }
-            }
-            return result;
-        },
-
         getValueByField: function(fieldName, y) {
             var index = this.getFields().indexOf(fieldName);
             if (this.hasAggregates()) {
@@ -29250,6 +29150,7 @@ var commands = {
             }
             return this.getDataSource().getValue(index, y);
         },
+
         setGlobalFilter: function(string) {
             if (!string || string.length === 0) {
                 this.preglobalfilter.clearFilters();
@@ -30047,7 +29948,11 @@ it contains all code/data that's necessary for easily implementing a virtual dat
         },
 
         getColumnWidth: function(x) {
-            var width = this.getColumn(x).getWidth();
+            var col = this.getColumn(x);
+            if (!col) {
+                return this.resolveProperty('defaultColumnWidth');
+            }
+            var width = col.getWidth();
             return width;
         },
 
@@ -30214,6 +30119,10 @@ it contains all code/data that's necessary for easily implementing a virtual dat
         },
 
         setColumnOrder: function(indexes) {
+            if (!indexes) {
+                this.columns.length = 0;
+                return;
+            }
             this.columns.length = indexes.length;
             for (var i = 0; i < indexes.length; i++) {
                 this.columns[i] = this.allColumns[indexes[i]];
@@ -30430,7 +30339,9 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          */
         setCellProperties: function(x, y, value) {
             var col = this.getColumn(x);
-            return col.setCellProperties(y, value);
+            if (col) {
+                col.setCellProperties(y, value);
+            }
         },
         /**
          * @function
@@ -30881,7 +30792,11 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          * @param {index} columnIndex - the column index of interest
          */
         getColumnProperties: function(columnIndex) {
-            var properties = this.columns[columnIndex].getProperties();
+            var col = this.columns[columnIndex];
+            if (!col) {
+                return {};
+            }
+            var properties = col.getProperties();
             return properties;
         },
         setColumnProperties: function(columnIndex, properties) {
@@ -38692,7 +38607,8 @@ fin-vampire-bar {
             columnSelection: true,
             rowSelection: true,
 
-            autosizeColumns: true
+            autosizeColumns: true,
+            rowResize: false
 
         };
         return properties;
@@ -39115,6 +39031,10 @@ fin-vampire-bar {
                 return false;
             }
             return p.x === x;
+        },
+
+        isRowResizeable: function() {
+            return this.resolveProperty('rowResize');
         },
 
         /**

@@ -440,117 +440,6 @@
             return row;
         },
 
-        getRowSelection: function(selectedRows) {
-            var numCols = this.getColumnCount();
-            var result = {};
-            var fields = this.getFields();
-            for (var c = 0; c < numCols; c++) {
-                var column = new Array(selectedRows.length);
-                result[fields[c]] = column;
-                for (var r = 0; r < selectedRows.length; r++) {
-                    var rowIndex = selectedRows[r];
-                    column[r] = valueOrFunctionExecute(this.getDataSource().getValue(c, rowIndex));
-                }
-            }
-            return result;
-        },
-        getRowSelectionMatrix: function(selectedRows) {
-            var numCols = this.getColumnCount();
-            var result = new Array(numCols);
-            for (var c = 0; c < numCols; c++) {
-                result[c] = new Array(selectedRows.length);
-                for (var r = 0; r < selectedRows.length; r++) {
-                    var rowIndex = selectedRows[r];
-                    result[c][r] = valueOrFunctionExecute(this.getDataSource().getValue(c, rowIndex));
-                }
-            }
-            return result;
-        },
-
-        getColumnSelectionMatrix: function(selectedColumns) {
-            var numRows = this.getRowCount();
-            var result = new Array(selectedColumns.length);
-            for (var c = 0; c < selectedColumns.length; c++) {
-                result[c] = new Array(numRows);
-                var colIndex = selectedColumns[c];
-                for (var r = 0; r < numRows; r++) {
-                    result[c][r] = valueOrFunctionExecute(this.getDataSource().getValue(colIndex, r));
-                }
-            }
-            return result;
-        },
-
-        getColumnSelection: function(selectedColumns) {
-            var result = {};
-            var fields = this.getFields();
-            var rowCount = this.getRowCount();
-            for (var c = 0; c < selectedColumns.length; c++) {
-                var column = new Array(rowCount);
-                var columnIndex = selectedColumns[c];
-                result[fields[columnIndex]] = column;
-                for (var r = 0; r < rowCount; r++) {
-                    column[r] = valueOrFunctionExecute(this.getDataSource().getValue(columnIndex, r));
-                }
-            }
-            return result;
-        },
-
-        getSelection: function(selections) {
-            var result = new Array(selections.length);
-            for (var i = 0; i < selections.length; i++) {
-                var rect = selections[i];
-                result[i] = this._getSelection(rect);
-            }
-            return result;
-        },
-
-        _getSelection: function(rect) {
-            var grid = this.getGrid();
-            var headerRowCount = grid.getHeaderRowCount();
-            var colCount = rect.extent.x + 1;
-            var rowCount = rect.extent.y + 1;
-            var ox = rect.origin.x;
-            var oy = rect.origin.y - headerRowCount;
-            var fields = this.getFields();
-            var result = {};
-            var r;
-            for (var c = 0; c < colCount; c++) {
-                var column = new Array(rowCount);
-                result[fields[c + ox]] = column;
-                for (r = 0; r < rowCount; r++) {
-                    column[r] = valueOrFunctionExecute(this.getDataSource().getValue(ox + c, oy + r));
-                }
-            }
-            return result;
-        },
-
-        getSelectionMatrix: function(selections) {
-            var result = new Array(selections.length);
-            for (var i = 0; i < selections.length; i++) {
-                var rect = selections[i];
-                result[i] = this._getSelectionMatrix(rect);
-            }
-            return result;
-        },
-
-        _getSelectionMatrix: function(rect) {
-            var grid = this.getGrid();
-            var headerRowCount = grid.getHeaderRowCount();
-            var colCount = rect.extent.x + 1;
-            var rowCount = rect.extent.y + 1;
-            var ox = rect.origin.x;
-            var oy = rect.origin.y - headerRowCount;
-            var result = [];
-            for (var c = 0; c < colCount; c++) {
-                var column = new Array(rowCount);
-                result[c] = column;
-                for (var r = 0; r < rowCount; r++) {
-                    column[r] = valueOrFunctionExecute(this.getDataSource().getValue(ox + c, oy + r));
-                }
-            }
-            return result;
-        },
-
         getValueByField: function(fieldName, y) {
             var index = this.getFields().indexOf(fieldName);
             if (this.hasAggregates()) {
@@ -558,6 +447,7 @@
             }
             return this.getDataSource().getValue(index, y);
         },
+
         setGlobalFilter: function(string) {
             if (!string || string.length === 0) {
                 this.preglobalfilter.clearFilters();

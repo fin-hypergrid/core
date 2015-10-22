@@ -691,7 +691,11 @@ it contains all code/data that's necessary for easily implementing a virtual dat
         },
 
         getColumnWidth: function(x) {
-            var width = this.getColumn(x).getWidth();
+            var col = this.getColumn(x);
+            if (!col) {
+                return this.resolveProperty('defaultColumnWidth');
+            }
+            var width = col.getWidth();
             return width;
         },
 
@@ -858,6 +862,10 @@ it contains all code/data that's necessary for easily implementing a virtual dat
         },
 
         setColumnOrder: function(indexes) {
+            if (!indexes) {
+                this.columns.length = 0;
+                return;
+            }
             this.columns.length = indexes.length;
             for (var i = 0; i < indexes.length; i++) {
                 this.columns[i] = this.allColumns[indexes[i]];
@@ -1074,7 +1082,9 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          */
         setCellProperties: function(x, y, value) {
             var col = this.getColumn(x);
-            return col.setCellProperties(y, value);
+            if (col) {
+                col.setCellProperties(y, value);
+            }
         },
         /**
          * @function
@@ -1525,7 +1535,11 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          * @param {index} columnIndex - the column index of interest
          */
         getColumnProperties: function(columnIndex) {
-            var properties = this.columns[columnIndex].getProperties();
+            var col = this.columns[columnIndex];
+            if (!col) {
+                return {};
+            }
+            var properties = col.getProperties();
             return properties;
         },
         setColumnProperties: function(columnIndex, properties) {
