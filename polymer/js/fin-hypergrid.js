@@ -1,4 +1,4 @@
-/* global alert, SimpleLRU */
+/* global alert, SimpleLRU, FinBar */
 
 'use strict';
 
@@ -154,7 +154,6 @@
             treeColumnBackgroundColumnSelectionColor: 'rgb(255, 180, 0)',
 
             backgroundColor2: 'rgb(201, 201, 201)',
-            lineColor: 'rgb(199, 199, 199)',
             voffset: 0,
             scrollbarHoverOver: 'visible',
             scrollbarHoverOff: 'hidden',
@@ -166,6 +165,8 @@
             cellPadding: 5,
             gridLinesH: true,
             gridLinesV: true,
+            lineColor: 'rgb(199, 199, 199)',
+            lineWidth: 0.4,
 
             defaultRowHeight: 15,
             defaultColumnWidth: 100,
@@ -906,7 +907,7 @@
             var behavior = this.getBehavior();
             behavior.autoSizeRowNumberColumn();
             if (this.isColumnAutosizing()) {
-                this.getBehavior().checkColumnAutosizing(false);
+                behavior.checkColumnAutosizing(false);
             }
         },
         /**
@@ -2610,7 +2611,6 @@
         scroll values have changed, we've been notified *
          */
         setVScrollbarValues: function(max) {
-            var self = this;
             this.sbVScroller.range = {
                 min: 0,
                 max: max
@@ -2618,7 +2618,6 @@
         },
 
         setHScrollbarValues: function(max) {
-            var self = this;
             this.sbHScroller.range = {
                 min: 0,
                 max: max
@@ -3463,7 +3462,11 @@
 
         toggleSort: function(x, keys) {
             this.stopEditing();
-            this.getBehavior().toggleSort(x, keys);
+            var behavior = this.getBehavior();
+            behavior.toggleSort(x, keys);
+            if (this.isColumnAutosizing()) {
+                behavior.autosizeAllColumns();
+            }
         },
 
         toggleSelectColumn: function(x, keys) {

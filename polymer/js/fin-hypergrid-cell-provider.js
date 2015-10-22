@@ -273,7 +273,7 @@ var noop = function() {};
             }
             if (rightIcon) {
                 iyoffset = Math.round((height - rightIcon.height) / 2);
-                ixoffset = Math.round((halignOffset - rightIcon.width) / 2);
+                ixoffset = 0; //Math.round((halignOffset - rightIcon.width) / 2);
                 gc.drawImage(rightIcon, x + width - ixoffset - rightIcon.width, y + iyoffset);
                 iconWidth = Math.max(rightIcon.width + 2);
             }

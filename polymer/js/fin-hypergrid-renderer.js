@@ -197,7 +197,6 @@ Instances of this object have basically four main functions.
          * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
          */
         setGrid: function(grid) {
-
             this.grid = grid;
             //this.startAnimator();
             //lets make use of prototype inheritance for cell properties
@@ -1115,7 +1114,7 @@ Instances of this object have basically four main functions.
 
             gc.beginPath();
             gc.strokeStyle = lineColor;
-            gc.lineWidth = 1;
+            gc.lineWidth = this.resolveProperty('lineWidth');
             gc.moveTo(0, 0);
 
             if (drawThemV) {

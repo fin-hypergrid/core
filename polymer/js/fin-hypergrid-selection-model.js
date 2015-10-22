@@ -1,4 +1,4 @@
-/* global fin */
+/* global RangeSelectionModel */
 'use strict';
 
 /**
@@ -56,8 +56,8 @@
             this.selections = [];
             this.flattenedX = [];
             this.flattenedY = [];
-            this.rowSelectionModel = new fin.RangeSelectionModel();
-            this.columnSelectionModel = new fin.RangeSelectionModel();
+            this.rowSelectionModel = new RangeSelectionModel();
+            this.columnSelectionModel = new RangeSelectionModel();
             this.setLastSelectionType('');
         },
 

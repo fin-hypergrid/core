@@ -9,7 +9,6 @@
   <script src="accounting.min.js"></script>
   <script src="sampledata.js"></script>
   <script src="myThemes.js"></script>
-  <script src="RangeSelectionModel.js"></script>
    <!-- <link rel="import" href="fin-hypergrid.dev.html"> -->
   <link rel="import" href="../../polymer/html/fin-hypergrid.html">
   <style>
@@ -151,10 +150,10 @@
                          ['ten','nine','eight','seven','six','five','four','three','two','one']];
         jsonModel.setTopTotals(topTotals);
 
-        setInterval(function(){
-            topTotals[1][5] = Math.round(Math.random()*100);
-            jsonModel.changed();
-        }, 300);
+        // setInterval(function(){
+        //     topTotals[1][5] = Math.round(Math.random()*100);
+        //     jsonModel.changed();
+        // }, 300);
 
         //lets set 2 rows of totals
 
@@ -434,10 +433,11 @@
         console.log(headers);
         console.log(fields);
 
-        jsonModel.setCellProperties(1, 0, {
+        jsonModel.setCellProperties(0, 0, {
             font: '10pt Tahoma',
             color: 'lightblue',
-            backgroundColor: 'red'
+            backgroundColor: 'red',
+            halign: 'left'
         });
 
         setTimeout(function() {
@@ -526,7 +526,8 @@
                     {
                         font: '10pt Tahoma',
                         color: 'red',
-                        backgroundColor: 'lightblue'
+                        backgroundColor: 'lightblue',
+                        halign: 'left'
                     });
 
                 jsonModel.setColumnProperties(1,

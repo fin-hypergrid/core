@@ -6,6 +6,7 @@
     "test": "test"
   },
   "dependencies": {},
+
   "devDependencies": {
     "adm-zip": "^0.4.4",
     "any-db": "^2.1.0",
@@ -29,8 +30,10 @@
     "jshint-stylish": "^1.0.0",
     "load-grunt-tasks": "^1.0.0",
     "web-component-tester": "^2.0.1",
-    "websocket.io": "^0.2.1"
+    "finbars": "1.1.0",
+    "sparse-boolean-array": "^1.0.1"
   },
+
   "scripts": {
     "test": "grunt test"
   },
