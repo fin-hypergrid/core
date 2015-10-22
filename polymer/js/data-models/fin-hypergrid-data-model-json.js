@@ -2,16 +2,17 @@
 
 (function() {
 
-    var textMatchFilter = function(string) {
-        return function(each) {
-            return (each + '').toLowerCase().search(string.toLowerCase()) === 0;
-        };
-    };
-
     var valueOrFunctionExecute = function(valueOrFunction) {
         var isFunction = (((typeof valueOrFunction)[0]) === 'f');
         var result = isFunction ? valueOrFunction() : valueOrFunction;
         return result;
+    };
+
+    var textMatchFilter = function(string) {
+        return function(each) {
+            each = valueOrFunctionExecute(each);
+            return (each + '').toLowerCase().search(string.toLowerCase()) === 0;
+        };
     };
 
     var nullDataSource = {
@@ -82,10 +83,11 @@
                 x = 0;
             }
             if (y < headerRowCount) {
-                return this.getHeaderRowValue(x, y);
+                var value = this.getHeaderRowValue(x, y);
+                return value;
             }
             if (hasHierarchyColumn) {
-                //y += 1;
+                y += 1;
             }
             var value = this.getDataSource().getValue(x, y - headerRowCount);
             return value;
@@ -132,12 +134,13 @@
                 }
             }
             if (y < headerRowCount) {
-                return this.setHeaderRowValue(x, y, value);
-            }
-            if (hasHierarchyColumn) {
+                this.setHeaderRowValue(x, y, value);
+            } else if (hasHierarchyColumn) {
                 y += 1;
+            } else {
+                this.getDataSource().setValue(x, y - headerRowCount, value);
             }
-            this.getDataSource().setValue(x, y - headerRowCount, value);
+            this.changed();
         },
         setHeaderRowValue: function(x, y, value) {
             if (value === undefined) {
@@ -167,9 +170,9 @@
         },
         getColumnProperties: function(x) {
             //access directly because we want it ordered
-            var columns = this.getBehavior().allColumns[x];
-            if (columns) {
-                return columns.getProperties();
+            var column = this.getBehavior().allColumns[x];
+            if (column) {
+                return column.getProperties();
             }
             return undefined;
         },
@@ -513,7 +516,7 @@
             var r;
             for (var c = 0; c < colCount; c++) {
                 var column = new Array(rowCount);
-                result[fields[c]] = column;
+                result[fields[c + ox]] = column;
                 for (r = 0; r < rowCount; r++) {
                     column[r] = valueOrFunctionExecute(this.getDataSource().getValue(ox + c, oy + r));
                 }

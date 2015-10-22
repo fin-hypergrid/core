@@ -470,9 +470,9 @@
                             fieldsMap.pets,
                             fieldsMap.birthDate,
                             fieldsMap.birthState,
-                            fieldsMap.residenceState,
-                            fieldsMap.employed,
-                            fieldsMap.first_name,
+                            // fieldsMap.residenceState,
+                            // fieldsMap.employed,
+                            // fieldsMap.first_name,
                             fieldsMap.income,
                             fieldsMap.travel,
                             fieldsMap.squareOfIncome],
@@ -491,9 +491,9 @@
                         rowSelection: true,
                     };
 
-                jsonGrid.setState(state);
-
                 jsonGrid.setGroups([4, 0, 1]);
+
+                jsonGrid.setState(state);
 
                 jsonGrid.addProperties({
                     scrollbarHoverOff: 'visible',

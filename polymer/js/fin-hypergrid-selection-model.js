@@ -44,6 +44,7 @@
 
         columnSelectionModel: null,
 
+        allRowsSelected: false,
         /**
          * @function
          * @instance
@@ -59,6 +60,7 @@
             this.rowSelectionModel = new RangeSelectionModel();
             this.columnSelectionModel = new RangeSelectionModel();
             this.setLastSelectionType('');
+            this.allRowsSelected = false;
         },
 
         /**
@@ -124,6 +126,7 @@
         remove the last selection that was created
          */
         clearMostRecentSelection: function() {
+            this.allRowsSelected = false;
             this.selections.length = Math.max(0, this.selections.length - 1);
             this.flattenedX.length = Math.max(0, this.flattenedX.length - 1);
             this.flattenedY.length = Math.max(0, this.flattenedY.length - 1);
@@ -239,6 +242,7 @@
          *
          */
         clear: function() {
+            this.allRowsSelected = false;
             this.selections.length = 0;
             this.flattenedX.length = 0;
             this.flattenedY.length = 0;
@@ -263,12 +267,21 @@
         },
 
         isRowSelected: function(y) {
-            return this.rowSelectionModel.isSelected(y);
+            return this.allRowsSelected || this.rowSelectionModel.isSelected(y);
         },
 
         selectColumn: function(x1, x2) {
             this.columnSelectionModel.select(x1, x2);
             this.setLastSelectionType('column');
+        },
+
+        selectAllRows: function() {
+            this.clear();
+            this.allRowsSelected = true;
+        },
+
+        areAllRowsSelected: function() {
+            return this.allRowsSelected;
         },
 
         selectRow: function(y1, y2) {
@@ -320,6 +333,7 @@
         },
 
         selectRowsFromCells: function(offset) {
+            this.allRowsSelected = false;
             offset = offset || 0;
             var sm = this.rowSelectionModel;
             sm.clear();

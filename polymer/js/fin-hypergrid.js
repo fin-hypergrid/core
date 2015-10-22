@@ -274,6 +274,15 @@
         }
     };
 
+    var valueOrFunctionExecute = function(valueOrFunction) {
+        var isFunction = (((typeof valueOrFunction)[0]) === 'f');
+        var result = isFunction ? valueOrFunction() : valueOrFunction;
+        if (!result && result !== 0) {
+            return '';
+        }
+        return result;
+    };
+
     var defaults, polymerTheme, globalProperties;
 
     (function() {
@@ -2156,34 +2165,115 @@
             this.canvas.dispatchEvent(selectionEvent);
         },
 
-        getRowSelectionMatrix: function() {
+
+        getRowSelection: function(selectedRows) {
             var selectedRows = this.getSelectedRows();
-            return this.getBehavior().getRowSelectionMatrix(selectedRows);
+            var numCols = this.getColumnCount();
+            var result = {};
+            for (var c = 0; c < numCols; c++) {
+                var column = new Array(selectedRows.length);
+                result[this.getField(c)] = column;
+                for (var r = 0; r < selectedRows.length; r++) {
+                    var rowIndex = selectedRows[r];
+                    column[r] = valueOrFunctionExecute(this.getValue(c, rowIndex));
+                }
+            }
+            return result;
         },
-
-        getColumnSelectionMatrix: function() {
-            var selectedColumns = this.getSelectedColumns();
-            return this.getBehavior().getColumnSelectionMatrix(selectedColumns);
-        },
-
-        getSelectionMatrix: function() {
-            var selections = this.getSelections();
-            return this.getBehavior().getSelectionMatrix(selections);
-        },
-
-        getRowSelection: function() {
+        getRowSelectionMatrix: function(selectedRows) {
             var selectedRows = this.getSelectedRows();
-            return this.getBehavior().getRowSelection(selectedRows);
+            var numCols = this.getColumnCount();
+            var result = new Array(numCols);
+            for (var c = 0; c < numCols; c++) {
+                result[c] = new Array(selectedRows.length);
+                for (var r = 0; r < selectedRows.length; r++) {
+                    var rowIndex = selectedRows[r];
+                    result[c][r] = valueOrFunctionExecute(this.getValue(c, rowIndex));
+                }
+            }
+            return result;
         },
 
-        getColumnSelection: function() {
+        getColumnSelectionMatrix: function(selectedColumns) {
             var selectedColumns = this.getSelectedColumns();
-            return this.getBehavior().getColumnSelection(selectedColumns);
+            var numRows = this.getRowCount();
+            var result = new Array(selectedColumns.length);
+            for (var c = 0; c < selectedColumns.length; c++) {
+                result[c] = new Array(numRows);
+                var colIndex = selectedColumns[c];
+                for (var r = 0; r < numRows; r++) {
+                    result[c][r] = valueOrFunctionExecute(this.getValue(colIndex, r));
+                }
+            }
+            return result;
+        },
+
+        getColumnSelection: function(selectedColumns) {
+            var selectedColumns = this.getSelectedColumns();
+            var result = {};
+            var rowCount = this.getRowCount();
+            for (var c = 0; c < selectedColumns.length; c++) {
+                var column = new Array(rowCount);
+                var columnIndex = selectedColumns[c];
+                result[this.getField(columnIndex)] = column;
+                for (var r = 0; r < rowCount; r++) {
+                    column[r] = valueOrFunctionExecute(this.getValue(columnIndex, r));
+                }
+            }
+            return result;
         },
 
         getSelection: function() {
             var selections = this.getSelections();
-            return this.getBehavior().getSelection(selections);
+            var result = new Array(selections.length);
+            for (var i = 0; i < selections.length; i++) {
+                var rect = selections[i];
+                result[i] = this._getSelection(rect);
+            }
+            return result;
+        },
+
+        _getSelection: function(rect) {
+            var colCount = rect.extent.x + 1;
+            var rowCount = rect.extent.y + 1;
+            var ox = rect.origin.x;
+            var oy = rect.origin.y;
+            var result = {};
+            var r;
+            for (var c = 0; c < colCount; c++) {
+                var column = new Array(rowCount);
+                result[this.getField(c + ox)] = column;
+                for (r = 0; r < rowCount; r++) {
+                    column[r] = valueOrFunctionExecute(this.getValue(ox + c, oy + r));
+                }
+            }
+            return result;
+        },
+
+        getSelectionMatrix: function() {
+            var selections = this.getSelections();
+            var result = new Array(selections.length);
+            for (var i = 0; i < selections.length; i++) {
+                var rect = selections[i];
+                result[i] = this._getSelectionMatrix(rect);
+            }
+            return result;
+        },
+
+        _getSelectionMatrix: function(rect) {
+            var colCount = rect.extent.x + 1;
+            var rowCount = rect.extent.y + 1;
+            var ox = rect.origin.x;
+            var oy = rect.origin.y;
+            var result = [];
+            for (var c = 0; c < colCount; c++) {
+                var column = new Array(rowCount);
+                result[c] = column;
+                for (var r = 0; r < rowCount; r++) {
+                    column[r] = valueOrFunctionExecute(this.getValue(ox + c, oy + r));
+                }
+            }
+            return result;
         },
         /**
          * @function
@@ -3673,6 +3763,23 @@
         },
         isInCurrentSelectionRectangle: function(x, y) {
             return this.getSelectionModel().isInCurrentSelectionRectangle(x, y);
+        },
+        selectAllRows: function() {
+            this.getSelectionModel().selectAllRows();
+        },
+        areAllRowsSelected: function() {
+            return this.getSelectionModel().areAllRowsSelected();
+        },
+        toggleSelectAllRows: function() {
+            if (this.areAllRowsSelected()) {
+                this.getSelectionModel().clear();
+            } else {
+                this.selectAllRows();
+            }
+            this.repaint();
+        },
+        getField: function(x) {
+            return this.getBehavior().getField(x);
         }
     });
 

@@ -1168,6 +1168,7 @@ Instances of this object have basically four main functions.
             var isCellSelected = grid.isCellSelected(c, r);
             var isCellSelectedInColumn = grid.isCellSelectedInColumn(c);
             var isCellSelectedInRow = grid.isCellSelectedInRow(r);
+            var areAllRowsSelected = grid.areAllRowsSelected();
 
             var cellProperties;
 
@@ -1210,7 +1211,12 @@ Instances of this object have basically four main functions.
             var rowNum = r - headerRowCount + 1;
 
             if (c === -1) {
-                cellProperties.value = isHeaderRow ? '' : rowNum;
+                var checkedImage = isRowSelected ? 'checked' : 'unchecked';
+                cellProperties.value = isHeaderRow ? '' : [behavior.getImage(checkedImage), rowNum, null];
+                if (r === 0) {
+                    checkedImage = areAllRowsSelected ? 'checked' : 'unchecked';
+                    cellProperties.value = [behavior.getImage(checkedImage), '', null];
+                }
             } else {
                 cellProperties.value = grid.getValue(c, r);
             }
