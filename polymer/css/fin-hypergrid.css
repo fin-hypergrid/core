@@ -9,39 +9,12 @@
     overflow: hidden;
 }
 
-fin-vampire-bar {
-    opacity: 0.0;
-    -webkit-transition: opacity 500ms;
-    -moz-transition: opacity 500ms;
-    -ms-transition: opacity 500ms;
-    -o-transition: opacity 500ms;
-    transition: opacity 500ms;
-}
-
 .visible {
     opacity: 0.75;
 }
 
 .hidden {
     opacity: 0.0;
-}
-
-.verticalScroller {
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 100%;
-    margin: 0 15px 15px -15px;
-}
-
-.horizontalScroller {
-    position: absolute;
-    top: 100%;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    margin: -15px 15px 15px 0;
 }
 
 .editor {
@@ -65,10 +38,6 @@ fin-vampire-bar {
     position: absolute;
     display: none;
 }*/
-
-fin-vampire-bar {
-    z-index: 10;
-}
 
 
 

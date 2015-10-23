@@ -158,6 +158,8 @@
             scrollbarHoverOver: 'visible',
             scrollbarHoverOff: 'hidden',
             scrollingEnabled: true,
+            vScrollbarClassPrefix: 'fin-sb-user',
+            hScrollbarClassPrefix: 'fin-sb-user',
 
             //these used to be in the constants element
             fixedRowAlign: 'center',
@@ -2666,7 +2668,7 @@
                     self.setHScrollValue(idx);
                 },
                 cssStylesheetReferenceElement: scrollbarHolder,
-                content: this.canvas
+                container: this.canvas
             });
 
             var vertBar = new FinBar({
@@ -2685,11 +2687,14 @@
                         return self.pageDown();
                     },
                 },
-                content: this.canvas
+                container: this.canvas
             });
 
             this.sbHScroller = horzBar;
             this.sbVScroller = vertBar;
+
+            this.sbHScroller.classPrefix = this.resolveProperty('hScrollbarClassPrefix');
+            this.sbVScroller.classPrefix = this.resolveProperty('vScrollbarClassPrefix');
 
             scrollbarHolder.appendChild(horzBar.bar);
             scrollbarHolder.appendChild(vertBar.bar);

@@ -29321,7 +29321,7 @@ it contains all code/data that's necessary for easily implementing a virtual dat
             this.setNextFeature(document.createElement('fin-hypergrid-feature-cell-selection'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-column-moving'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-column-sorting'));
-            this.setNextFeature(document.createElement('fin-hypergrid-feature-thumbwheel-scrolling'));
+            // this.setNextFeature(document.createElement('fin-hypergrid-feature-thumbwheel-scrolling'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-cell-editing'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-cell-click'));
             this.setNextFeature(document.createElement('fin-hypergrid-feature-on-hover'));
@@ -37252,39 +37252,12 @@ This is a very rough in memory data source example.  fin-hypergrid-behavior-in-m
     overflow: hidden;
 }
 
-fin-vampire-bar {
-    opacity: 0.0;
-    -webkit-transition: opacity 500ms;
-    -moz-transition: opacity 500ms;
-    -ms-transition: opacity 500ms;
-    -o-transition: opacity 500ms;
-    transition: opacity 500ms;
-}
-
 .visible {
     opacity: 0.75;
 }
 
 .hidden {
     opacity: 0.0;
-}
-
-.verticalScroller {
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 100%;
-    margin: 0 15px 15px -15px;
-}
-
-.horizontalScroller {
-    position: absolute;
-    top: 100%;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    margin: -15px 15px 15px 0;
 }
 
 .editor {
@@ -37308,10 +37281,6 @@ fin-vampire-bar {
     position: absolute;
     display: none;
 }*/
-
-fin-vampire-bar {
-    z-index: 10;
-}
 
 
 
@@ -37486,7 +37455,7 @@ fin-vampire-bar {
 </style>
     <fin-plugins>
     </fin-plugins>
-    <div style="top:-2px;right:-5px;bottom:-2px;left:-2px;position:absolute" id="scrollbars">
+    <div style="top:0px;right:0px;bottom:0px;left:0px;position:absolute" id="scrollbars">
       <style>
       div.finbar-horizontal,
       div.finbar-vertical {
@@ -37668,6 +37637,8 @@ fin-vampire-bar {
             scrollbarHoverOver: 'visible',
             scrollbarHoverOff: 'hidden',
             scrollingEnabled: true,
+            vScrollbarClassPrefix: 'fin-sb-user',
+            hScrollbarClassPrefix: 'fin-sb-user',
 
             //these used to be in the constants element
             fixedRowAlign: 'center',
@@ -40176,7 +40147,7 @@ fin-vampire-bar {
                     self.setHScrollValue(idx);
                 },
                 cssStylesheetReferenceElement: scrollbarHolder,
-                content: this.canvas
+                container: this.canvas
             });
 
             var vertBar = new FinBar({
@@ -40195,11 +40166,14 @@ fin-vampire-bar {
                         return self.pageDown();
                     },
                 },
-                content: this.canvas
+                container: this.canvas
             });
 
             this.sbHScroller = horzBar;
             this.sbVScroller = vertBar;
+
+            this.sbHScroller.classPrefix = this.resolveProperty('hScrollbarClassPrefix');
+            this.sbVScroller.classPrefix = this.resolveProperty('vScrollbarClassPrefix');
 
             scrollbarHolder.appendChild(horzBar.bar);
             scrollbarHolder.appendChild(vertBar.bar);
