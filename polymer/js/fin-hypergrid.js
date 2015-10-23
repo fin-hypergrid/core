@@ -201,7 +201,7 @@
             columnSelection: true,
             rowSelection: true,
 
-            autosizeColumns: true,
+            columnAutosizing: true,
             rowResize: false
 
         };
@@ -3741,7 +3741,7 @@
             return this.getBehavior().getComputedRow(y);
         },
         isColumnAutosizing: function() {
-            return this.resolveProperty('autosizeColumns') === true;
+            return this.resolveProperty('columnAutosizing') === true;
         },
         setGlobalFilter: function(string) {
             this.getBehavior().setGlobalFilter(string);

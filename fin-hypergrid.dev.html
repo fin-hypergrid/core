@@ -28021,7 +28021,7 @@ var commands = {
         },
         setData: function(arrayOfUniformObjects) {
             if (!this.analytics.isNullObject) {
-                this.analytics.setData(arrayOfUniformObjects);
+                this.analytics.dataSource.setData(arrayOfUniformObjects);
             } else {
                 this.source = new fin.analytics.JSDataSource(arrayOfUniformObjects); /* jshint ignore:line */
                 this.preglobalfilter = new fin.analytics.DataSourceGlobalFilter(this.source); /* jshint ignore:line */
@@ -28029,6 +28029,7 @@ var commands = {
                 this.presorter = new fin.analytics.DataSourceSorterComposite(this.prefilter); /* jshint ignore:line */
                 this.analytics = new fin.analytics.DataSourceAggregator(this.presorter); /* jshint ignore:line */
             }
+            this.applyAnalytics();
             //this.postfilter = new fin.analytics.DataSourceFilter(this.analytics); /* jshint ignore:line */
             //this.postsorter = new fin.analytics.DataSourceSorterComposite(this.postfilter); /* jshint ignore:line */
         },
@@ -32515,6 +32516,14 @@ This is a very rough in memory data source example.  fin-hypergrid-behavior-in-m
         setData: function(arrayOfUniformObjects) {
             this.getDataModel().setData(arrayOfUniformObjects);
             this.createColumns();
+            var self = this;
+            if (this.getGrid().isColumnAutosizing()) {
+                setTimeout(function() {
+                    self.autosizeAllColumns();
+                }, 100);
+            } else {
+                this.changed();
+            }
         },
 
         /**
@@ -37680,7 +37689,7 @@ This is a very rough in memory data source example.  fin-hypergrid-behavior-in-m
             columnSelection: true,
             rowSelection: true,
 
-            autosizeColumns: true,
+            columnAutosizing: true,
             rowResize: false
 
         };
@@ -41220,7 +41229,7 @@ This is a very rough in memory data source example.  fin-hypergrid-behavior-in-m
             return this.getBehavior().getComputedRow(y);
         },
         isColumnAutosizing: function() {
-            return this.resolveProperty('autosizeColumns') === true;
+            return this.resolveProperty('columnAutosizing') === true;
         },
         setGlobalFilter: function(string) {
             this.getBehavior().setGlobalFilter(string);

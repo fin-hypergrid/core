@@ -216,7 +216,7 @@
         },
         setData: function(arrayOfUniformObjects) {
             if (!this.analytics.isNullObject) {
-                this.analytics.setData(arrayOfUniformObjects);
+                this.analytics.dataSource.setData(arrayOfUniformObjects);
             } else {
                 this.source = new fin.analytics.JSDataSource(arrayOfUniformObjects); /* jshint ignore:line */
                 this.preglobalfilter = new fin.analytics.DataSourceGlobalFilter(this.source); /* jshint ignore:line */
@@ -224,6 +224,7 @@
                 this.presorter = new fin.analytics.DataSourceSorterComposite(this.prefilter); /* jshint ignore:line */
                 this.analytics = new fin.analytics.DataSourceAggregator(this.presorter); /* jshint ignore:line */
             }
+            this.applyAnalytics();
             //this.postfilter = new fin.analytics.DataSourceFilter(this.analytics); /* jshint ignore:line */
             //this.postsorter = new fin.analytics.DataSourceSorterComposite(this.postfilter); /* jshint ignore:line */
         },

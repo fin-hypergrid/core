@@ -65,6 +65,8 @@
             <button onclick="toggleEmptyData()">toggle empty data</button>
             <button onclick="toggleEmptyHeaders()">toggle empty headers</button>
             <button onclick="toggleGlobalFilter()">toggle global filter</button>
+            <button onclick="setData1()">set data 1 (5000 rows)</button>
+            <button onclick="setData2()">set data 2 (10000 rows)</button>
         </div>
     </div>
     <div class="row" style="overflow: hidden">
@@ -162,7 +164,15 @@
             jsonGrid.setGlobalFilter(globalFilter);
         }
 
-        jsonModel.setData(people);
+        window.setData1 = function() {
+            jsonModel.setData(people1);
+        }
+
+        window.setData2 = function() {
+            jsonModel.setData(people2);
+        }
+
+        jsonModel.setData(people2);
 
         jsonGrid.setColumnProperties(2, {
             backgroundColor: 'maroon',

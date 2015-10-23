@@ -91,6 +91,14 @@
         setData: function(arrayOfUniformObjects) {
             this.getDataModel().setData(arrayOfUniformObjects);
             this.createColumns();
+            var self = this;
+            if (this.getGrid().isColumnAutosizing()) {
+                setTimeout(function() {
+                    self.autosizeAllColumns();
+                }, 100);
+            } else {
+                this.changed();
+            }
         },
 
         /**
