@@ -208,6 +208,21 @@
         return properties;
     };
 
+    var normalizeRect = function(rect) {
+        var o = rect.origin;
+        var c = rect.corner;
+
+        var ox = Math.min(o.x, c.x);
+        var oy = Math.min(o.y, c.y);
+
+        var cx = Math.max(o.x, c.x);
+        var cy = Math.max(o.y, c.y);
+
+        var result = rectangles.rectangle.create(ox, oy, cx - ox, cy - oy);
+
+        return result;
+    };
+
     var buildPolymerTheme = function() {
         clearObjectProperties(polymerTheme);
         var pb = document.createElement('paper-button');
@@ -2241,6 +2256,7 @@
         },
 
         _getSelection: function(rect) {
+            rect = normalizeRect(rect);
             var colCount = rect.extent.x + 1;
             var rowCount = rect.extent.y + 1;
             var ox = rect.origin.x;
@@ -2268,6 +2284,7 @@
         },
 
         _getSelectionMatrix: function(rect) {
+            rect = normalizeRect(rect);
             var colCount = rect.extent.x + 1;
             var rowCount = rect.extent.y + 1;
             var ox = rect.origin.x;
@@ -3614,6 +3631,7 @@
             var alreadySelected = model.isRowSelected(y);
             var hasCTRL = keys.indexOf('CTRL') > -1;
             var hasSHIFT = keys.indexOf('SHIFT') > -1;
+
             if (!hasCTRL && !hasSHIFT) {
                 model.clear();
                 if (!alreadySelected) {
@@ -3752,19 +3770,15 @@
         selectColumnsFromCells: function() {
             this.getSelectionModel().selectColumnsFromCells();
         },
-
         getSelectedRows: function() {
             return this.getBehavior().getSelectedRows();
         },
-
         getSelectedColumns: function() {
             return this.getBehavior().getSelectedColumns();
         },
-
         getSelections: function() {
             return this.getBehavior().getSelections();
         },
-
         getLastSelectionType: function() {
             return this.getSelectionModel().getLastSelectionType();
         },

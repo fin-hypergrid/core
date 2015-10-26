@@ -291,12 +291,6 @@
             //var hasCTRL = keys.indexOf('CTRL') !== -1;
             var hasSHIFT = keys.indexOf('SHIFT') !== -1;
 
-            // var scrollTop = grid.getVScrollValue();
-            // var scrollLeft = grid.getHScrollValue();
-
-            // var numFixedColumns = 0;//grid.getFixedColumnCount();
-            // var numFixedRows = 0;//grid.getFixedRowCount();
-
             var mousePoint = grid.getMouseDown();
             var x = gridCell.x; // - numFixedColumns + scrollLeft;
             var y = gridCell.y; // - numFixedRows + scrollTop;
@@ -305,18 +299,6 @@
             if (x < 0 || y < 0) {
                 return;
             }
-
-            //we have repeated a click in the same spot deslect the value from last time
-            // if (mousePoint && x === mousePoint.x && y === mousePoint.y) {
-            //     grid.clearSelections();
-            //     grid.popMouseDown();
-            //     grid.repaint();
-            //     return;
-            // }
-
-            // if (!hasCTRL && !hasSHIFT) {
-            //     grid.clearSelections();
-            // }
 
             if (hasSHIFT) {
                 grid.clearMostRecentRowSelection();
@@ -565,8 +547,11 @@
             grid.fireSyntheticRowSelectionChangedEvent();
             grid.repaint();
 
-        }
+        },
 
+        isSingleRowSelection: function() {
+            return true;
+        }
 
     });
 

@@ -285,6 +285,7 @@
         },
 
         selectRow: function(y1, y2) {
+            console.log(y1, y2);
             this.rowSelectionModel.select(y1, y2);
             this.setLastSelectionType('row');
         },
