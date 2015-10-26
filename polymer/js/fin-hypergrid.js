@@ -3581,10 +3581,17 @@
         toggleSort: function(x, keys) {
             this.stopEditing();
             var behavior = this.getBehavior();
+            var self = this;
             behavior.toggleSort(x, keys);
-            if (this.isColumnAutosizing()) {
-                behavior.autosizeAllColumns();
-            }
+
+            setTimeout(function() {
+                self.synchronizeScrollingBoundries();
+                //self.behaviorChanged();
+                if (self.isColumnAutosizing()) {
+                    behavior.autosizeAllColumns();
+                }
+                self.repaint();
+            }, 10);
         },
 
         toggleSelectColumn: function(x, keys) {
