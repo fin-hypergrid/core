@@ -26,51 +26,16 @@
         var income = randomFunc() * 100000;
         var employed = Math.round(randomFunc());
         var person = {
-            last_name0: lastNames[lastName], //jshint ignore:line
-            first_name0: firstNames[firstName], //jshint ignore:line
-            pets0: pets,
-            birthDate0: birthyear + '-' + months[birthmonth] + '-' + days[birthday],
-            birthState0: states[birthstate],
-            residenceState0: states[residencestate],
-            employed0: employed === 1,
-            income0: income,
-            travel0: travel,
-            last_name1: lastNames[lastName], //jshint ignore:line
-            first_name1: firstNames[firstName], //jshint ignore:line
-            pets1: pets,
-            birthDate1: birthyear + '-' + months[birthmonth] + '-' + days[birthday],
-            birthState1: states[birthstate],
-            residenceState1: states[residencestate],
-            employed1: employed === 1,
-            income1: income,
-            travel1: travel,
-            last_name2: lastNames[lastName], //jshint ignore:line
-            first_name2: firstNames[firstName], //jshint ignore:line
-            pets2: pets,
-            birthDate2: birthyear + '-' + months[birthmonth] + '-' + days[birthday],
-            birthState2: states[birthstate],
-            residenceState2: states[residencestate],
-            employed2: employed === 1,
-            income2: income,
-            travel2: travel,
-            last_name3: lastNames[lastName], //jshint ignore:line
-            first_name3: firstNames[firstName], //jshint ignore:line
-            pets3: pets,
-            birthDate3: birthyear + '-' + months[birthmonth] + '-' + days[birthday],
-            birthState3: states[birthstate],
-            residenceState3: states[residencestate],
-            employed3: employed === 1,
-            income3: income,
-            travel3: travel,
-            last_name4: lastNames[lastName], //jshint ignore:line
-            first_name4: firstNames[firstName], //jshint ignore:line
-            pets4: pets,
-            birthDate4: birthyear + '-' + months[birthmonth] + '-' + days[birthday],
-            birthState4: states[birthstate],
-            residenceState4: states[residencestate],
-            employed4: employed === 1,
-            income4: income,
-            travel4: travel
+            last_name: lastNames[lastName], //jshint ignore:line
+            first_name: firstNames[firstName], //jshint ignore:line
+            pets: pets,
+            birthDate: birthyear + '-' + months[birthmonth] + '-' + days[birthday],
+            birthState: states[birthstate],
+            residenceState: states[residencestate],
+            employed: employed === 1,
+            income: income,
+            travel: travel,
+
         };
         return person;
     };

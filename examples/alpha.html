@@ -1,0 +1,137 @@
+<!doctype html>
+<html>
+<head>
+  <title>fin-hypergrid Demo</title>
+
+  <script src="../js/sampledata.js"></script>
+   <!-- <link rel="import" href="fin-hypergrid.dev.html"> -->
+  <link rel="import" href="../polymer/html/fin-hypergrid.html">
+  <style>
+    .grid {
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+    }
+    .container {
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+    }
+    .button-bar {
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 90%;
+        left: 0;
+    }
+    .table {
+        position: absolute;
+        top: 10%;
+        right: 0;
+        bottom: 0%;
+        left: 0;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="button-bar">
+            <button onclick="addColumn()">add column</button>
+            <button onclick="addRow()">add row</button>
+
+    </div>
+    <div class="table" style="overflow: hidden">
+        <fin-hypergrid class="grid" id="json-example">
+            <fin-hypergrid-behavior-json></fin-hypergrid-behavior-json>
+        </fin-hypergrid>
+    </div>
+</div>
+
+<script>
+
+(function(){
+
+    document.addEventListener('polymer-ready', function() {
+
+        var jsonGrid = document.querySelector('#json-example');
+        var jsonModel = jsonGrid.getBehavior();
+        var renderer = jsonGrid.getRenderer();
+
+        jsonModel.setData(people);
+
+        window.addColumn = function() {
+            var data = jsonModel.getData();
+            var fieldName = prompt('new column name');
+            for (var i = 0; i < data.length; i++) {
+                data[i][fieldName] = i;
+            }
+            jsonModel.setFields([]);
+            jsonModel.setHeaders([]);
+            jsonModel.initColumnIndexes(jsonModel.getState());
+            jsonModel.changed();
+        }
+
+        window.addRow = function() {
+            var data = jsonModel.getData();
+            data.unshift({
+                last_name: 'Simpson', //jshint ignore:line
+                first_name: 'Homer', //jshint ignore:line
+                pets: 1,
+                birthDate: '1962-01-01',
+                birthState: 'Springfield',
+                residenceState: 'Springfield',
+                employed: true,
+                income: -10000,
+                travel: 5000,
+            });
+            jsonModel.changed();
+        }
+
+        //lets add a special selection area renderer
+        var img =  new Image;
+        var imageX = 3;
+        var imageY = 45;
+        img.src = 'http://img3.wikia.nocookie.net/__cb20130601171117/degrassi/images/5/5c/Wanted-bunny-rabbit_50154511.jpg';
+        renderer.addExtraRenderer(renderer._renderFocusCell);
+        renderer.addExtraRenderer(function(ctx) {
+            var scrollX = jsonGrid.getHScrollValue();
+            var scrollY = jsonGrid.getVScrollValue();
+
+            var x = imageX - scrollX;
+            var y = imageY - scrollY;
+
+            if (!renderer.isColumnVisible(imageX) || !renderer.isRowVisible(imageY)) {
+                return;
+            }
+
+            console.log(x, y);
+            var o = this._getBoundsOfCell(x, y).origin;
+            ctx.drawImage(img, o.x, o.y);
+
+        });
+        //start renderering animator
+        renderer.startAnimator();
+
+        //set the actual json row objects
+        //jsonModel.setData(people); //see sampledata.js for the random data
+
+        jsonGrid.addFinEventListener('fin-context-menu', function(e) {
+            var modelPoint = e.detail.gridCell;
+            var headerRowCount = jsonGrid.getHeaderRowCount();
+            console.log('fin-context-menu(' + modelPoint.x + ', ' + (modelPoint.y - headerRowCount) + ')');
+        });
+
+        window.g = document.querySelector('#json-example');
+
+    });
+})();
+
+</script>
+
+</body>
+</html>
