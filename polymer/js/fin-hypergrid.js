@@ -3168,6 +3168,25 @@
 
         getColumnIndex: function(fieldName) {
             return this.getBehavior().getColumnIndex(fieldName);
+        },
+
+        startAnimator: function() {
+            var animate;
+            var self = this;
+            animate = function() {
+                self.animate();
+                requestAnimationFrame(animate);
+            };
+            requestAnimationFrame(animate);
+        },
+
+        animate: function() {
+            var ctx = this.getCanvas().canvasCTX;
+            ctx.beginPath();
+            ctx.save();
+            this.renderFocusCell(ctx);
+            ctx.restore();
+            ctx.closePath();
         }
 
     });
