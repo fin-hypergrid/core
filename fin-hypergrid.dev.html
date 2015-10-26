@@ -20353,6 +20353,11 @@ Instances of this object have basically four main functions.
         getGrid: function() {
             return null;
         },
+        getLastSelection: function() {
+            var sels = this.getSelections();
+            var sel = sels[sels.length - 1];
+            return sel;
+        },
 
         getLastSelectionType: function() {
             return this.lastSelectionType;
@@ -20420,6 +20425,11 @@ Instances of this object have basically four main functions.
 
         clearMostRecentRowSelection: function() {
             this.rowSelectionModel.clearMostRecentSelection();
+            this.setLastSelectionType('row');
+        },
+
+        clearRowSelection: function() {
+            this.rowSelectionModel.clear();
             this.setLastSelectionType('row');
         },
 
@@ -20565,7 +20575,6 @@ Instances of this object have basically four main functions.
         },
 
         selectRow: function(y1, y2) {
-            console.log(y1, y2);
             this.rowSelectionModel.select(y1, y2);
             this.setLastSelectionType('row');
         },
@@ -37674,6 +37683,7 @@ This is a very rough in memory data source example.  fin-hypergrid-behavior-in-m
             cellSelection: true,
             columnSelection: true,
             rowSelection: true,
+            singleRowSelectionMode: true,
 
             columnAutosizing: true,
             rowResize: false
@@ -41101,6 +41111,8 @@ This is a very rough in memory data source example.  fin-hypergrid-behavior-in-m
             }
 
             keys = keys || [];
+
+            var isSingleRowSelection = this.isSingleRowSelectionMode();
             var model = this.getSelectionModel();
             var alreadySelected = model.isRowSelected(y);
             var hasCTRL = keys.indexOf('CTRL') > -1;
@@ -41116,6 +41128,9 @@ This is a very rough in memory data source example.  fin-hypergrid-behavior-in-m
                     if (alreadySelected) {
                         model.deselectRow(y);
                     } else {
+                        if (isSingleRowSelection) {
+                            model.clearRowSelection();
+                        }
                         model.selectRow(y);
                     }
                 }
@@ -41192,7 +41207,12 @@ This is a very rough in memory data source example.  fin-hypergrid-behavior-in-m
             this.getSelectionModel().selectColumn(x1, x2);
         },
         selectRow: function(y1, y2) {
-            y2 = y2 || y1;
+            if (this.isSingleRowSelectionMode()) {
+                this.getSelectionModel().clearRowSelection();
+                y1 = y2;
+            } else {
+                y2 = y2 || y1;
+            }
             var min = Math.min(y1, y2);
             var max = Math.max(y1, y2);
             var selectionEdge = this.getFilterRowIndex() + 1;
@@ -41239,7 +41259,17 @@ This is a very rough in memory data source example.  fin-hypergrid-behavior-in-m
             this.getBehavior().setGlobalFilter(string);
         },
         selectRowsFromCells: function() {
-            this.getSelectionModel().selectRowsFromCells();
+            var sm = this.getSelectionModel();
+            if (this.isSingleRowSelectionMode()) {
+                var last = sm.getLastSelection();
+                if (!last) {
+                    sm.clearRowSelection();
+                } else {
+                    this.selectRow(null, last.corner.y);
+                }
+            } else {
+                sm.selectRowsFromCells();
+            }
         },
         selectColumnsFromCells: function() {
             this.getSelectionModel().selectColumnsFromCells();
@@ -41278,6 +41308,9 @@ This is a very rough in memory data source example.  fin-hypergrid-behavior-in-m
         },
         getField: function(x) {
             return this.getBehavior().getField(x);
+        },
+        isSingleRowSelectionMode: function() {
+            return this.resolveProperty('singleRowSelectionMode');
         }
     });
 

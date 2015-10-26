@@ -200,6 +200,7 @@
             cellSelection: true,
             columnSelection: true,
             rowSelection: true,
+            singleRowSelectionMode: true,
 
             columnAutosizing: true,
             rowResize: false
@@ -3627,6 +3628,8 @@
             }
 
             keys = keys || [];
+
+            var isSingleRowSelection = this.isSingleRowSelectionMode();
             var model = this.getSelectionModel();
             var alreadySelected = model.isRowSelected(y);
             var hasCTRL = keys.indexOf('CTRL') > -1;
@@ -3642,6 +3645,9 @@
                     if (alreadySelected) {
                         model.deselectRow(y);
                     } else {
+                        if (isSingleRowSelection) {
+                            model.clearRowSelection();
+                        }
                         model.selectRow(y);
                     }
                 }
@@ -3718,7 +3724,12 @@
             this.getSelectionModel().selectColumn(x1, x2);
         },
         selectRow: function(y1, y2) {
-            y2 = y2 || y1;
+            if (this.isSingleRowSelectionMode()) {
+                this.getSelectionModel().clearRowSelection();
+                y1 = y2;
+            } else {
+                y2 = y2 || y1;
+            }
             var min = Math.min(y1, y2);
             var max = Math.max(y1, y2);
             var selectionEdge = this.getFilterRowIndex() + 1;
@@ -3765,7 +3776,17 @@
             this.getBehavior().setGlobalFilter(string);
         },
         selectRowsFromCells: function() {
-            this.getSelectionModel().selectRowsFromCells();
+            var sm = this.getSelectionModel();
+            if (this.isSingleRowSelectionMode()) {
+                var last = sm.getLastSelection();
+                if (!last) {
+                    sm.clearRowSelection();
+                } else {
+                    this.selectRow(null, last.corner.y);
+                }
+            } else {
+                sm.selectRowsFromCells();
+            }
         },
         selectColumnsFromCells: function() {
             this.getSelectionModel().selectColumnsFromCells();
@@ -3804,6 +3825,9 @@
         },
         getField: function(x) {
             return this.getBehavior().getField(x);
+        },
+        isSingleRowSelectionMode: function() {
+            return this.resolveProperty('singleRowSelectionMode');
         }
     });
 

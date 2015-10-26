@@ -73,6 +73,11 @@
         getGrid: function() {
             return null;
         },
+        getLastSelection: function() {
+            var sels = this.getSelections();
+            var sel = sels[sels.length - 1];
+            return sel;
+        },
 
         getLastSelectionType: function() {
             return this.lastSelectionType;
@@ -140,6 +145,11 @@
 
         clearMostRecentRowSelection: function() {
             this.rowSelectionModel.clearMostRecentSelection();
+            this.setLastSelectionType('row');
+        },
+
+        clearRowSelection: function() {
+            this.rowSelectionModel.clear();
             this.setLastSelectionType('row');
         },
 
@@ -285,7 +295,6 @@
         },
 
         selectRow: function(y1, y2) {
-            console.log(y1, y2);
             this.rowSelectionModel.select(y1, y2);
             this.setLastSelectionType('row');
         },
