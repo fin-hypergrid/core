@@ -3211,7 +3211,7 @@ module.exports = (function() {
              * @type {orientationHashType}
              * @memberOf FinBar.prototype
              */
-            this.oh = orientations[this._orientation];
+            this.oh = orientationHashes[this._orientation];
 
             if (!this.oh) {
                 error('Invalid value for `options._orientation.');
@@ -3306,15 +3306,74 @@ module.exports = (function() {
          * @summary Scrollbar styles to be applied by {@link FinBar#resize|resize()}.
          * @desc Set by the constructor. See the similarly named property in the {@link finbarOptions} object.
          *
-         *  Scrollbar styles to be applied to the scrollbar element upon calls to {@link FinBar#resize|resize()}. It is always preferable to specify styles via a stylesheet. Only specify a `barStyles` object when you need to specifically override (a) stylesheet value(s).
+         * This is a value to be assigned to {@link FinBar#styles|styles} on each call to {@link FinBar#resize|resize()}. That is, a hash of values to be copied to the scrollbar element's style object on resize; or `null` for none.
          *
-         * See type definition for details.
+         * @see {@link FinBar#style|style}
+         * @type {finbarStyles|null}
+         * @memberOf FinBar.prototype
+         */
+        barStyles: null,
+
+        /**
+         * @name style
+         * @summary Additional scrollbar styles.
+         * @desc See type definition for more details. These styles are applied directly to the scrollbar's `bar` element.
          *
-         * May be updated through calls to the {@link FinBar#resize|resize} method.
+         * Values are adjusted as follows before being applied to the element:
+         * 1. Included "pseudo-property" names from the scrollbar's orientation hash, {@link FinBar#oh|oh}, are translated to actual property names before being applied.
+         * 2. When there are margins, percentages are translated to absolute pixel values because CSS ignores margins in its percentage calculations.
+         * 3. If you give a value without a unit (a raw number), "px" unit is appended.
+         *
+         * General notes:
+         * 1. It is always preferable to specify styles via a stylesheet. Only set this property when you need to specifically override (a) stylesheet value(s).
+         * 2. Can be set directly or via calls to the {@link FinBar#resize|resize} method.
+         * 3. Should only be set after the scrollbar has been inserted into the DOM.
+         * 4. Before applying these new values to the element, _all_ in-line style values are reset (by removing the element's `style` attribute), exposing inherited values (from stylesheets).
+         * 5. Empty object has no effect.
+         * 6. Falsey value in place of object has no effect.
+         *
+         * > CAVEAT: Do not attempt to treat the object you assign to this property as if it were `this.bar.style`. Specifically, changing this object after assigning it will have no effect on the scrollbar. You must assign it again if you want it to have an effect.
+         *
+         * @see {@link FinBar#barStyles|barStyles}
          * @type {finbarStyles}
          * @memberOf FinBar.prototype
          */
-        barStyles: {},
+        set style(styles) {
+            var keys = Object.keys(styles = extend({}, styles, this._auxStyles));
+
+            if (keys.length) {
+                var bar = this.bar,
+                    barRect = bar.getBoundingClientRect(),
+                    container = this.container || bar.parentElement,
+                    containerRect = container.getBoundingClientRect(),
+                    oh = this.oh;
+
+                // Before applying new styles, revert all styles to values inherited from stylesheets
+                bar.removeAttribute('style');
+
+                keys.forEach(function (key) {
+                    var val = styles[key];
+
+                    if (key in oh) {
+                        key = oh[key];
+                    }
+
+                    if (!isNaN(Number(val))) {
+                        val = (val || 0) + 'px';
+                    } else if (/%$/.test(val)) {
+                        // When bar size given as percentage of container, if bar has margins, restate size in pixels less margins.
+                        // (If left as percentage, CSS's calculation will not exclude margins.)
+                        var oriented = axis[key],
+                            margins = barRect[oriented.marginLeading] + barRect[oriented.marginTrailing];
+                        if (margins) {
+                            val = parseInt(val, 10) / 100 * containerRect[oriented.size] - margins + 'px';
+                        }
+                    }
+
+                    bar.style[key] = val;
+                });
+            }
+        },
 
         /**
          * @readonly
@@ -3428,16 +3487,11 @@ module.exports = (function() {
          *
          * @param {number} [increment=this.increment] - Resets {@link FooBar#increment|increment} (see).
          *
-         * @param {finbarStyles} [barStyles=this.barStyles] - (See type definition for details.) Scrollbar styles to be applied to the bar element. Note that before applying these new values, _all_ the scrollbar's style values are reset, exposing inherited values.
+         * @param {finbarStyles} [barStyles=this.barStyles] - (See type definition for details.) Scrollbar styles to be applied to the bar element.
          *
          * Only specify a `barStyles` object when you need to override stylesheet values. If provided, becomes the new default (`this.barStyles`), for use as a default on subsequent calls.
          *
-         * It is generally the case that the scrollbar's new position is sufficiently described by the current styles. Therefore it is unusual to need to provide a `barStyles` object on every call to `resize`.
-         *
-         * Properties of this object are adjusted as follows before they are applied:
-         * 1. Included pseudo-property names (from {@link FinBar#prop|this.oh}) are translated to actual property names before being applied.
-         * 2. Percentages are recalculated as pixel units when there are margins because CSS does not exclude margins from the calculation and normally does not give you what you wanted.
-         * 3. The "px" unit is appended to raw numbers.
+         * It is generally the case that the scrollbar's new position is sufficiently described by the current styles. Therefore, it is unusual to need to provide a `barStyles` object on every call to `resize`.
          *
          * @returns {FinBar} Self for chaining.
          * @memberOf FinBar.prototype
@@ -3449,8 +3503,7 @@ module.exports = (function() {
                 return; // not in DOM yet so nothing to do
             }
 
-            var barRect = bar.getBoundingClientRect(),
-                container = this.container || bar.parentElement,
+            var container = this.container || bar.parentElement,
                 containerRect = container.getBoundingClientRect();
 
             // shift args if if 1st arg omitted
@@ -3458,6 +3511,8 @@ module.exports = (function() {
                 barStyles = increment;
                 increment = undefined;
             }
+
+            this.style = this.barStyles = barStyles || this.barStyles;
 
             // Bound to real content: Content was given but no onchange handler.
             // Set up .onchange, .containerSize, and .increment.
@@ -3475,36 +3530,7 @@ module.exports = (function() {
                 this.increment = this.containerSize / (this.contentSize - this.containerSize) * (this._max - this._min);
             } else {
                 this.containerSize = 1;
-            }
-
-
-            // revert all styles to values inherited from stylesheets by removing style attribute;
-            // then apply styles in `barStyles`
-            bar.removeAttribute('style');
-
-            barStyles = this.barStyles = barStyles || this.barStyles;
-            for (var key in barStyles) {
-                if (barStyles.hasOwnProperty(key)) {
-                    var val = barStyles[key];
-
-                    if (key in this.oh) {
-                        key = this.oh[key];
-                    }
-
-                    if (!isNaN(Number(val))) {
-                        val = (val || 0) + 'px';
-                    } else if (/%$/.test(val)) {
-                        // When bar size given as percentage of container, if bar has margins, restate size in pixels less margins.
-                        // (If left as percentage, CSS's calculation will not exclude margins.)
-                        var oriented = axis[key],
-                            margins = barRect[oriented.marginLeading] + barRect[oriented.marginTrailing];
-                        if (margins) {
-                            val = parseInt(val, 10) / 100 * containerRect[oriented.size] - margins + 'px';
-                        }
-                    }
-
-                    bar.style[key] = val;
-                }
+                this.increment = increment || this.increment;
             }
 
             var index = this.index;
@@ -3520,7 +3546,50 @@ module.exports = (function() {
         },
 
         /**
+         * @summary Shorten trailing end of scrollbar by thickness of some other scrollbar.
+         * @desc In the "classical" scenario where vertical scroll bar is on the right and horizontal scrollbar is on the bottom, you want to shorten the "trailing end" (bottom and right ends, respectively) of at least one of them so they don't overlay.
+         *
+         * This convenience function is an programmatic alternative to hardcoding the correct style with the correct value in your stylesheet; or setting the correct style with the correct value in the {@link FinBar#barStyles|barStyles} object.
+         *
+         * @see {@link FinBar#foreshortenBy|foreshortenBy}.
+         *
+         * @param {FinBar|null} otherFinBar - Other scrollbar to avoid by shortening this one; `null` removes the trailing space
+         * @returns {FinBar} For chaining
+         */
+        shortenBy: function (otherFinBar) { return this.shortenEndBy('trailing', otherFinBar); },
+
+        /**
+         * @summary Shorten leading end of scrollbar by thickness of some other scrollbar.
+         * @desc Supports non-classical scrollbar scenarios where vertical scroll bar may be on left and horizontal scrollbar may be on top, in which case you want to shorten the "leading end" rather than the trailing end.
+         * @see {@link FinBar#shortenBy|shortenBy}.
+         * @param {FinBar|null} otherFinBar - Other scrollbar to avoid by shortening this one; `null` removes the trailing space
+         * @returns {FinBar} For chaining
+         */
+        foreshortenBy: function (otherFinBar) { return this.shortenEndBy('leading', otherFinBar); },
+
+        /**
+         * @summary Generalized shortening function.
+         * @see {@link FinBar#shortenBy|shortenBy}.
+         * @see {@link FinBar#foreshortenBy|foreshortenBy}.
+         * @param {string} whichEnd - a CSS style property name or an orientation hash name that translates to a CSS style property name.
+         * @param {FinBar|null} otherFinBar - Other scrollbar to avoid by shortening this one; `null` removes the trailing space
+         * @returns {FinBar} For chaining
+         */
+        shortenEndBy: function (whichEnd, otherFinBar) {
+            if (!otherFinBar) {
+                delete this._auxStyles;
+            } else if (otherFinBar instanceof FinBar && otherFinBar.orientation !== this.orientation) {
+                var otherStyle = window.getComputedStyle(otherFinBar.bar),
+                    ooh = orientationHashes[otherFinBar.orientation];
+                this._auxStyles = {};
+                this._auxStyles[whichEnd] = otherStyle[ooh.thickness];
+            }
+            return this; // for chaining
+        },
+
+        /**
          * @private
+         * @summary Sets the proportional thumb size and hides thumb when 100%.
          * @desc The thumb size has an absolute minimum of 20 (pixels).
          * @memberOf FinBar.prototype
          */
@@ -3625,6 +3694,18 @@ module.exports = (function() {
             window.removeEventListener(evtName, this._bound['on' + evtName]);
         }
     };
+
+    function extend(obj) {
+        for (var i = 1; i < arguments.length; ++i) {
+            var objn = arguments[i];
+            if (objn) {
+                for (var key in objn) {
+                    obj[key] = objn[key];
+                }
+            }
+        }
+        return obj;
+    }
 
     function validRange(range) {
         var keys = Object.keys(range),
@@ -3734,7 +3815,7 @@ module.exports = (function() {
         }
     };
 
-    var orientations = {
+    var orientationHashes = {
         vertical: {
             coordinate:     'clientY',
             axis:           'pageY',
@@ -3847,17 +3928,13 @@ module.exports = (function() {
  * `module.exports = yourAPI` *or* a series of individual property assignments, `module.exports.property = property`.
  *
  * Before the IIFE runs, the actual parameter expressions are executed:
- * 1. If `window` object undefined, we're in NodeJs so assume there is a `module` object with an `exports` property
- * 2. If `window` object defined, we're in browser
- * 2.a. If `module` object predefined, use it
- * 2.b. If `module` object undefined, create a `FinBar` object
+ * 1. If `module` object defined, we're in NodeJs so assume there is a `module` object with an `exports` object
+ * 2. If `module` object undefined, we're in browser so define a `window.FinBar` object with an `exports` object
  *
  * After the IIFE returns:
- * Because it always returns undefined, the expression after the || will execute:
- * 1. If `window` object undefined, then we're in NodeJs so we're done
- * 2. If `window` object defined, then we're in browser
- * 2.a. If `module` object predefined, we're done; results are in `moudule.exports`
- * 2.b. If `module` object undefined, redefine`FinBar` to be the `FinBar.exports` object
+ * Because it always returns undefined, the expression after the || will always execute:
+ * 1. If `module` object defined, then we're in NodeJs so we're done
+ * 2. If `module` object undefined, then we're in browser so redefine`window.FinBar` as its `exports` object
  */
 </script>
 <style shim-shadowdom="">
@@ -40162,9 +40239,6 @@ This is a very rough in memory data source example.  fin-hypergrid-behavior-in-m
 
             var horzBar = new FinBar({
                 orientation: 'horizontal',
-                barStyles: {
-                    trailing: 11
-                },
                 onchange: function(idx) {
                     self.setHScrollValue(idx);
                 },
@@ -40174,9 +40248,6 @@ This is a very rough in memory data source example.  fin-hypergrid-behavior-in-m
 
             var vertBar = new FinBar({
                 orientation: 'vertical',
-                barStyles: {
-                    trailing: 11
-                },
                 onchange: function(idx) {
                     self.setVScrollValue(idx);
                 },
@@ -40200,9 +40271,13 @@ This is a very rough in memory data source example.  fin-hypergrid-behavior-in-m
             scrollbarHolder.appendChild(horzBar.bar);
             scrollbarHolder.appendChild(vertBar.bar);
 
-            horzBar.resize();
-            vertBar.resize();
+            this.resizeScrollbars();
 
+        },
+
+        resizeScrollbars: function() {
+            this.sbHScroller.shortenBy(this.sbVScroller).resize();
+            this.sbVScroller.shortenBy(this.sbHScroller).resize();
         },
 
         /**
@@ -40333,8 +40408,7 @@ This is a very rough in memory data source example.  fin-hypergrid-behavior-in-m
             this.computeCellsBounds();
             this.repaint();
 
-            this.sbHScroller.resize();
-            this.sbVScroller.resize();
+            this.resizeScrollbars();
 
         },
 

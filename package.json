@@ -12,7 +12,7 @@
     "any-db-postgres": "^2.1.3",
     "connect-livereload": "^0.5.3",
     "finanalytics": "0.1.2",
-    "finbars": "1.1.0",
+    "finbars": "1.2.0",
     "grunt": "^0.4.5",
     "grunt-cli": "^0.1.13",
     "grunt-contrib-csslint": "^0.4.0",

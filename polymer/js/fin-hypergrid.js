@@ -2679,9 +2679,6 @@
 
             var horzBar = new FinBar({
                 orientation: 'horizontal',
-                barStyles: {
-                    trailing: 11
-                },
                 onchange: function(idx) {
                     self.setHScrollValue(idx);
                 },
@@ -2691,9 +2688,6 @@
 
             var vertBar = new FinBar({
                 orientation: 'vertical',
-                barStyles: {
-                    trailing: 11
-                },
                 onchange: function(idx) {
                     self.setVScrollValue(idx);
                 },
@@ -2717,9 +2711,13 @@
             scrollbarHolder.appendChild(horzBar.bar);
             scrollbarHolder.appendChild(vertBar.bar);
 
-            horzBar.resize();
-            vertBar.resize();
+            this.resizeScrollbars();
 
+        },
+
+        resizeScrollbars: function() {
+            this.sbHScroller.shortenBy(this.sbVScroller).resize();
+            this.sbVScroller.shortenBy(this.sbHScroller).resize();
         },
 
         /**
@@ -2850,8 +2848,7 @@
             this.computeCellsBounds();
             this.repaint();
 
-            this.sbHScroller.resize();
-            this.sbVScroller.resize();
+            this.resizeScrollbars();
 
         },
 
