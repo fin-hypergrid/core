@@ -25622,7 +25622,7 @@ var commands = {
                 this.next.handleDoubleClick(grid, event);
             }
         },
-        isEnabled: function(grid) {
+        isEnabled: function( /* grid */ ) {
             return true;
         }
     });
@@ -27970,17 +27970,18 @@ var commands = {
             var hasHierarchyColumn = this.hasHierarchyColumn();
             var grid = this.getGrid();
             var headerRowCount = grid.getHeaderRowCount();
+            var value;
             if (hasHierarchyColumn && x === -2) {
                 x = 0;
             }
             if (y < headerRowCount) {
-                var value = this.getHeaderRowValue(x, y);
+                value = this.getHeaderRowValue(x, y);
                 return value;
             }
             if (hasHierarchyColumn) {
                 y += 1;
             }
-            var value = this.getDataSource().getValue(x, y - headerRowCount);
+            value = this.getDataSource().getValue(x, y - headerRowCount);
             return value;
         },
         getHeaderRowValue: function(x, y) {
@@ -37772,7 +37773,6 @@ This is a very rough in memory data source example.  fin-hypergrid-behavior-in-m
 
             useHiDPI: true,
             editorActivationKeys: ['alt', 'esc'],
-            columnAutosizing: false,
             readOnly: false,
 
             //inhertied by cell renderers
@@ -39779,7 +39779,7 @@ This is a very rough in memory data source example.  fin-hypergrid-behavior-in-m
         },
 
 
-        getRowSelection: function(selectedRows) {
+        getRowSelection: function() {
             var selectedRows = this.getSelectedRows();
             var numCols = this.getColumnCount();
             var result = {};
@@ -39793,7 +39793,7 @@ This is a very rough in memory data source example.  fin-hypergrid-behavior-in-m
             }
             return result;
         },
-        getRowSelectionMatrix: function(selectedRows) {
+        getRowSelectionMatrix: function() {
             var selectedRows = this.getSelectedRows();
             var numCols = this.getColumnCount();
             var result = new Array(numCols);
@@ -39807,7 +39807,7 @@ This is a very rough in memory data source example.  fin-hypergrid-behavior-in-m
             return result;
         },
 
-        getColumnSelectionMatrix: function(selectedColumns) {
+        getColumnSelectionMatrix: function() {
             var selectedColumns = this.getSelectedColumns();
             var numRows = this.getRowCount();
             var result = new Array(selectedColumns.length);
@@ -39821,7 +39821,7 @@ This is a very rough in memory data source example.  fin-hypergrid-behavior-in-m
             return result;
         },
 
-        getColumnSelection: function(selectedColumns) {
+        getColumnSelection: function() {
             var selectedColumns = this.getSelectedColumns();
             var result = {};
             var rowCount = this.getRowCount();

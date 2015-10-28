@@ -79,17 +79,18 @@
             var hasHierarchyColumn = this.hasHierarchyColumn();
             var grid = this.getGrid();
             var headerRowCount = grid.getHeaderRowCount();
+            var value;
             if (hasHierarchyColumn && x === -2) {
                 x = 0;
             }
             if (y < headerRowCount) {
-                var value = this.getHeaderRowValue(x, y);
+                value = this.getHeaderRowValue(x, y);
                 return value;
             }
             if (hasHierarchyColumn) {
                 y += 1;
             }
-            var value = this.getDataSource().getValue(x, y - headerRowCount);
+            value = this.getDataSource().getValue(x, y - headerRowCount);
             return value;
         },
         getHeaderRowValue: function(x, y) {

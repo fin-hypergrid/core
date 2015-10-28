@@ -295,7 +295,7 @@
                 this.next.handleDoubleClick(grid, event);
             }
         },
-        isEnabled: function(grid) {
+        isEnabled: function( /* grid */ ) {
             return true;
         }
     });

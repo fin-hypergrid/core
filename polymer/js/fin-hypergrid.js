@@ -184,7 +184,6 @@
 
             useHiDPI: true,
             editorActivationKeys: ['alt', 'esc'],
-            columnAutosizing: false,
             readOnly: false,
 
             //inhertied by cell renderers
@@ -2191,7 +2190,7 @@
         },
 
 
-        getRowSelection: function(selectedRows) {
+        getRowSelection: function() {
             var selectedRows = this.getSelectedRows();
             var numCols = this.getColumnCount();
             var result = {};
@@ -2205,7 +2204,7 @@
             }
             return result;
         },
-        getRowSelectionMatrix: function(selectedRows) {
+        getRowSelectionMatrix: function() {
             var selectedRows = this.getSelectedRows();
             var numCols = this.getColumnCount();
             var result = new Array(numCols);
@@ -2219,7 +2218,7 @@
             return result;
         },
 
-        getColumnSelectionMatrix: function(selectedColumns) {
+        getColumnSelectionMatrix: function() {
             var selectedColumns = this.getSelectedColumns();
             var numRows = this.getRowCount();
             var result = new Array(selectedColumns.length);
@@ -2233,7 +2232,7 @@
             return result;
         },
 
-        getColumnSelection: function(selectedColumns) {
+        getColumnSelection: function() {
             var selectedColumns = this.getSelectedColumns();
             var result = {};
             var rowCount = this.getRowCount();
