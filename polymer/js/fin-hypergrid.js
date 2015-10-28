@@ -144,6 +144,8 @@
             filterBackgroundColor: 'white',
             filterForegroundSelectionColor: 'rgb(25, 25, 25)',
             filterBackgroundSelectionColor: 'rgb(255, 220, 97)',
+            filterCellBorderStyle: 'rgba(0,0,0,0.8)',
+            filterCellBorderThickness: '0.4',
 
             treeColumnFont: '12px Tahoma, Geneva, sans-serif',
             treeColumnColor: 'rgb(25, 25, 25)',

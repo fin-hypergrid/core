@@ -283,6 +283,17 @@ var noop = function() {};
                 gc.drawImage(centerIcon, x + width - ixoffset - centerIcon.width, y + iyoffset);
                 iconWidth = Math.max(centerIcon.width + 2);
             }
+            if (config.cellBorderThickness) {
+                gc.beginPath();
+                gc.rect(x, y, width, height);
+                gc.lineWidth = config.cellBorderThickness;
+                gc.strokeStyle = config.cellBorderStyle;
+
+                // animate the dashed line a bit here for fun
+
+                gc.stroke();
+                gc.closePath();
+            }
             config.minWidth = config.minWidth + 2 * (iconWidth);
         },
 

@@ -1216,6 +1216,9 @@ Instances of this object have basically four main functions.
                 if (r === 0) {
                     checkedImage = areAllRowsSelected ? 'checked' : 'unchecked';
                     cellProperties.value = [behavior.getImage(checkedImage), '', null];
+                } else if (isFilterRow) {
+                    cellProperties.value = [null, behavior.getImage('filter-off'), null];
+
                 }
             } else {
                 cellProperties.value = grid.getValue(c, r);

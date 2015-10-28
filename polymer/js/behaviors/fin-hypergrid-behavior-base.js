@@ -96,10 +96,6 @@ it contains all code/data that's necessary for easily implementing a virtual dat
             this.getComponent().toggleSort(x, keys);
         },
 
-        getCellEditorAt: function(x, y) {
-            return this.getComponent().getCellEditorAt(x, y);
-        },
-
         getColumnProperties: function(columnIndex) {
             return this.getComponent().getColumnProperties(columnIndex);
         },
@@ -614,6 +610,24 @@ it contains all code/data that's necessary for easily implementing a virtual dat
                     },
                     set: function(value) {
                         this.filterBackgroundSelectionColor = value;
+                    }
+                },
+                cellBorderStyle: {
+                    configurable: true,
+                    get: function() {
+                        return this.filterCellBorderStyle;
+                    },
+                    set: function(value) {
+                        this.filterCellBorderStyle = value;
+                    }
+                },
+                cellBorderThickness: {
+                    configurable: true,
+                    get: function() {
+                        return this.filterCellBorderThickness;
+                    },
+                    set: function(value) {
+                        this.filterCellBorderThickness = value;
                     }
                 }
             });

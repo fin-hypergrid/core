@@ -20102,6 +20102,9 @@ Instances of this object have basically four main functions.
                 if (r === 0) {
                     checkedImage = areAllRowsSelected ? 'checked' : 'unchecked';
                     cellProperties.value = [behavior.getImage(checkedImage), '', null];
+                } else if (isFilterRow) {
+                    cellProperties.value = [null, behavior.getImage('filter-off'), null];
+
                 }
             } else {
                 cellProperties.value = grid.getValue(c, r);
@@ -22201,6 +22204,17 @@ var noop = function() {};
                 ixoffset = Math.round((width - centerIcon.width) / 2);
                 gc.drawImage(centerIcon, x + width - ixoffset - centerIcon.width, y + iyoffset);
                 iconWidth = Math.max(centerIcon.width + 2);
+            }
+            if (config.cellBorderThickness) {
+                gc.beginPath();
+                gc.rect(x, y, width, height);
+                gc.lineWidth = config.cellBorderThickness;
+                gc.strokeStyle = config.cellBorderStyle;
+
+                // animate the dashed line a bit here for fun
+
+                gc.stroke();
+                gc.closePath();
             }
             config.minWidth = config.minWidth + 2 * (iconWidth);
         },
@@ -28528,10 +28542,6 @@ it contains all code/data that's necessary for easily implementing a virtual dat
             this.getComponent().toggleSort(x, keys);
         },
 
-        getCellEditorAt: function(x, y) {
-            return this.getComponent().getCellEditorAt(x, y);
-        },
-
         getColumnProperties: function(columnIndex) {
             return this.getComponent().getColumnProperties(columnIndex);
         },
@@ -29046,6 +29056,24 @@ it contains all code/data that's necessary for easily implementing a virtual dat
                     },
                     set: function(value) {
                         this.filterBackgroundSelectionColor = value;
+                    }
+                },
+                cellBorderStyle: {
+                    configurable: true,
+                    get: function() {
+                        return this.filterCellBorderStyle;
+                    },
+                    set: function(value) {
+                        this.filterCellBorderStyle = value;
+                    }
+                },
+                cellBorderThickness: {
+                    configurable: true,
+                    get: function() {
+                        return this.filterCellBorderThickness;
+                    },
+                    set: function(value) {
+                        this.filterCellBorderThickness = value;
                     }
                 }
             });
@@ -37704,6 +37732,8 @@ This is a very rough in memory data source example.  fin-hypergrid-behavior-in-m
             filterBackgroundColor: 'white',
             filterForegroundSelectionColor: 'rgb(25, 25, 25)',
             filterBackgroundSelectionColor: 'rgb(255, 220, 97)',
+            filterCellBorderStyle: 'rgba(0,0,0,0.8)',
+            filterCellBorderThickness: '0.4',
 
             treeColumnFont: '12px Tahoma, Geneva, sans-serif',
             treeColumnColor: 'rgb(25, 25, 25)',
