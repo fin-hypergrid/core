@@ -1217,7 +1217,7 @@ Instances of this object have basically four main functions.
                     checkedImage = areAllRowsSelected ? 'checked' : 'unchecked';
                     cellProperties.value = [behavior.getImage(checkedImage), '', null];
                 } else if (isFilterRow) {
-                    cellProperties.value = [null, behavior.getImage('filter-off'), null];
+                    cellProperties.value = [behavior.getImage('filter-off'), '', null];
 
                 }
             } else {
