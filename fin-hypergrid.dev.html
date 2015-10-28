@@ -4334,6 +4334,7 @@ Base.prototype.initializeOn = function(grid) {
     }
 };
 
+
 module.exports = Base;
 
 },{}],5:[function(require,module,exports){
@@ -4484,24 +4485,6 @@ CellSelection.prototype.sbLastAuto = 0;
 CellSelection.prototype.sbAutoStart = 0;
 
 /**
- * @property {fin-rectangle.point} rectangles - the util rectangles factory [fin-rectangles](https://github.com/stevewirts/fin-rectangle)
- * @instance
- */
-CellSelection.prototype.rectangles = {};
-
-/**
- * @function
- * @instance
- * @description
- the function to override for initialization
- */
-CellSelection.prototype.createdInit = function() {
-
-    this.rectangles = document.createElement('fin-rectangle');
-
-};
-
-/**
 * @function
 * @instance
 * @description
@@ -4559,7 +4542,7 @@ CellSelection.prototype.handleMouseDown = function(grid, event) {
             dy = viewCell.y;
         }
 
-        var dCell = grid.rectangles.point.create(dx, dy);
+        var dCell = grid.newPoint(dx, dy);
 
         var primEvent = event.primitiveEvent;
         var keys = primEvent.detail.keys;
@@ -4603,7 +4586,7 @@ CellSelection.prototype.handleMouseDrag = function(grid, event) {
             dy = viewCell.y;
         }
 
-        var dCell = grid.rectangles.point.create(dx, dy);
+        var dCell = grid.newPoint(dx, dy);
 
         var primEvent = event.primitiveEvent;
         this.currentDrag = primEvent.detail.mouse;
@@ -4666,7 +4649,7 @@ CellSelection.prototype.handleMouseDragCellSelection = function(grid, gridCell /
     grid.clearMostRecentSelection();
 
     grid.select(mouseDown.x, mouseDown.y, newX, newY);
-    grid.setDragExtent(this.rectangles.point.create(newX, newY));
+    grid.setDragExtent(grid.newPoint(newX, newY));
 
     grid.repaint();
 };
@@ -4795,11 +4778,11 @@ CellSelection.prototype.extendSelection = function(grid, gridCell, keys) {
     if (hasSHIFT) {
         grid.clearMostRecentSelection();
         grid.select(mousePoint.x, mousePoint.y, x - mousePoint.x, y - mousePoint.y);
-        grid.setDragExtent(this.rectangles.point.create(x - mousePoint.x, y - mousePoint.y));
+        grid.setDragExtent(grid.newPoint(x - mousePoint.x, y - mousePoint.y));
     } else {
         grid.select(x, y, 0, 0);
-        grid.setMouseDown(this.rectangles.point.create(x, y));
-        grid.setDragExtent(this.rectangles.point.create(0, 0));
+        grid.setMouseDown(grid.newPoint(x, y));
+        grid.setDragExtent(grid.newPoint(0, 0));
     }
     grid.repaint();
 };
@@ -4994,7 +4977,7 @@ CellSelection.prototype.moveShiftSelect = function(grid, offsetX, offsetY) {
     grid.clearMostRecentSelection();
     grid.select(origin.x, origin.y, newX, newY);
 
-    grid.setDragExtent(this.rectangles.point.create(newX, newY));
+    grid.setDragExtent(grid.newPoint(newX, newY));
 
     if (grid.insureModelColIsVisible(newX + origin.x, offsetX)) {
         this.pingAutoScroll();
@@ -5042,8 +5025,8 @@ CellSelection.prototype.moveSingleSelect = function(grid, offsetX, offsetY) {
 
     grid.clearSelections();
     grid.select(newX, newY, 0, 0);
-    grid.setMouseDown(this.rectangles.point.create(newX, newY));
-    grid.setDragExtent(this.rectangles.point.create(0, 0));
+    grid.setMouseDown(grid.newPoint(newX, newY));
+    grid.setDragExtent(grid.newPoint(0, 0));
 
     if (grid.insureModelColIsVisible(newX, offsetX)) {
         this.pingAutoScroll();
@@ -5999,7 +5982,10 @@ ColumnSelection.prototype.moveSingleSelect = function(grid, offsetX) {
 };
 
 ColumnSelection.prototype.isColumnDragging = function(grid) {
-    var dragger = grid.lookupFeature('fin-hypergrid-feature-column-moving');
+    var dragger = grid.lookupFeature('ColumnMoving');
+    if (!dragger) {
+        return false;
+    }
     var isActivated = dragger.dragging && !this.dragging;
     return isActivated;
 };
@@ -6086,18 +6072,79 @@ function Filters() {
 
 Filters.prototype = Object.create(Base.prototype);
 
-        Filters.prototype.handleTap = function(grid, event) {
-            var gridCell = event.gridCell;
-            if (grid.isFilterRow(gridCell.y) && gridCell.x !== -1) {
-                grid.filterClicked(event);
-            } else if (this.next) {
-                this.next.handleTap(grid, event);
-            }
-        };
+Filters.prototype.handleTap = function(grid, event) {
+    var gridCell = event.gridCell;
+    if (grid.isFilterRow(gridCell.y) && gridCell.x !== -1) {
+        grid.filterClicked(event);
+    } else if (this.next) {
+        this.next.handleTap(grid, event);
+    }
+};
 
 module.exports = Filters;
 
 },{"./Base.js":4}],13:[function(require,module,exports){
+'use strict';
+/**
+ *
+ * @module features\key-paging
+ *
+ */
+var Base = require('./Base.js');
+
+var commands = {
+    PAGEDOWN: function(grid) {
+        grid.pageDown();
+    },
+    PAGEUP: function(grid) {
+        grid.pageUp();
+    },
+    PAGELEFT: function(grid) {
+        grid.pageLeft();
+    },
+    PAGERIGHT: function(grid) {
+        grid.pageRight();
+    }
+};
+
+/**
+ *
+ * @module features\base
+ * @description
+ instances of features are connected to one another to make a chain of responsibility for handling all the input to the hypergrid.
+ *
+ */
+
+var Base = require('./Base.js');
+
+function KeyPaging() {
+    Base.call(this);
+    this.alias = 'KeyPaging';
+};
+
+KeyPaging.prototype = Object.create(Base.prototype);
+
+/**
+* @function
+* @instance
+* @description
+ handle this event down the feature chain of responsibility
+ * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+ * @param {Object} event - the event details
+*/
+KeyPaging.prototype.handleKeyDown = function(grid, event) {
+    var detail = event.detail.char;
+    var func = commands[detail];
+    if (func) {
+        func(grid);
+    } else if (this.next) {
+        this.next.handleKeyDown(grid, event);
+    }
+}
+
+module.exports = KeyPaging;
+
+},{"./Base.js":4}],14:[function(require,module,exports){
 'use strict';
 /**
  *
@@ -6141,7 +6188,221 @@ OnHover.prototype.handleMouseMove = function(grid, event) {
 
 module.exports = OnHover;
 
-},{"./Base.js":4}],14:[function(require,module,exports){
+},{"./Base.js":4}],15:[function(require,module,exports){
+'use strict';
+/**
+ *
+ * @module features\overlay
+ *
+ */
+var Base = require('./Base.js');
+var noop = function() {};
+var ANIMATION_TIME = 200;
+
+
+function Overlay() {
+    Base.call(this);
+    this.alias = 'Overlay';
+};
+
+Overlay.prototype = Object.create(Base.prototype);
+
+/**
+ * @property {boolean} openEditor - is the editor open
+ * @instance
+ */
+Overlay.prototype.openEditor = false,
+
+/**
+* @function
+* @instance
+* @description
+ handle this event down the feature chain of responsibility
+ * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+ * @param {Object} event - the event details
+*/
+Overlay.prototype.handleKeyUp = function(grid, event) {
+    var key = event.detail.char.toLowerCase();
+    var keys = grid.resolveProperty('editorActivationKeys');
+    if (keys.indexOf(key) > -1) {
+        this.toggleColumnPicker(grid);
+    }
+};
+
+/**
+* @function
+* @instance
+* @description
+toggle the column picker on/off
+* @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+*/
+Overlay.prototype.toggleColumnPicker = function(grid) {
+    if (this.isColumnPickerOpen(grid)) {
+        this.closeColumnPicker(grid);
+    } else {
+        this.openColumnPicker(grid);
+    }
+};
+
+/**
+* @function
+* @instance
+* @description
+returns true if the column picker is open
+* #### returns: boolean
+* @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+*/
+Overlay.prototype.isColumnPickerOpen = function(grid) {
+    noop(grid);
+    return this.overlay.style.display !== 'none';
+};
+
+/**
+* @function
+* @instance
+* @description
+open the column picker
+* #### returns: type
+* @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+*/
+Overlay.prototype.openColumnPicker = function(grid) {
+    if (this.isColumnPickerOpen()) {
+        return;
+    }
+    this.openEditor = true;
+    if (grid.getBehavior().openEditor(this.overlay) === false) {
+        return;
+    }
+
+    var self = this;
+    this.overlay.style.backgroundColor = grid.resolveProperty('backgroundColor');
+
+    this.overlay.style.top = '0%';
+    this.overlay.style.right = '0%';
+    this.overlay.style.bottom = '0%';
+    this.overlay.style.left = '0%';
+
+    this.overlay.style.marginTop = '15px';
+    this.overlay.style.marginRight = '35px';
+    this.overlay.style.marginBottom = '35px';
+    this.overlay.style.marginLeft = '15px';
+
+    self.overlay.style.display = '';
+
+
+    if (!this._closer) {
+        this._closer = function(e) {
+            var key = self.getCharFor(grid, e.keyCode).toLowerCase();
+            var keys = grid.resolveProperty('editorActivationKeys');
+            if (keys.indexOf(key) > -1 || e.keyCode === 27) {
+                e.preventDefault();
+                self.closeColumnPicker(grid);
+            }
+        };
+    }
+
+    grid.setFocusable(false);
+    requestAnimationFrame(function() {
+        self.overlay.style.opacity = 0.95;
+        document.addEventListener('keydown', self._closer, false);
+    });
+    setTimeout(function() {
+        self.overlay.focus();
+    }, 100);
+};
+
+/**
+* @function
+* @instance
+* @description
+close the column picker
+* #### returns: type
+* @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+*/
+Overlay.prototype.closeColumnPicker = function(grid) {
+    grid.setFocusable(true);
+
+    if (!this.isColumnPickerOpen()) {
+        return;
+    }
+    if (this.openEditor) {
+        this.openEditor = false;
+    } else {
+        return;
+    }
+    if (grid.getBehavior().closeEditor(this.overlay) === false) {
+        return;
+    }
+
+    document.removeEventListener('keydown', this._closer, false);
+
+    var self = this;
+
+    requestAnimationFrame(function() {
+        self.overlay.style.opacity = 0;
+    });
+
+    setTimeout(function() {
+        self.overlay.innerHTML = '';
+        self.overlay.style.display = 'none';
+        grid.takeFocus();
+    }, ANIMATION_TIME);
+};
+
+/**
+* @function
+* @instance
+* @description
+initialize myself into the grid
+* #### returns: type
+* @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+*/
+Overlay.prototype.initializeOn = function(grid) {
+    this.initializeOverlaySurface(grid);
+    if (this.next) {
+        this.next.initializeOn(grid);
+    }
+};
+
+/**
+* @function
+* @instance
+* @description
+initialize the overlay surface into the grid
+* #### returns: type
+* @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+*/
+Overlay.prototype.initializeOverlaySurface = function(grid) {
+    this.overlay = document.createElement('div');
+    this.overlay.setAttribute('tabindex', 0);
+    this.overlay.style.outline = 'none';
+    this.overlay.style.boxShadow = '0 19px 38px rgba(0,0,0,0.30), 0 15px 12px rgba(0,0,0,0.22)';
+    this.overlay.style.position = 'absolute';
+    this.overlay.style.display = 'none';
+    this.overlay.style.transition = 'opacity ' + ANIMATION_TIME + 'ms ease-in';
+    this.overlay.style.opacity = 0;
+    grid.appendChild(this.overlay);
+    //document.body.appendChild(this.overlay);
+};
+
+/**
+* @function
+* @instance
+* @description
+get a human readable description of the key pressed from it's integer representation
+* #### returns: string
+* @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+* @param {integer} integer - the integer we want the char for
+*/
+Overlay.prototype.getCharFor = function(grid, integer) {
+    var charMap = grid.getCanvas().getCharMap();
+    return charMap[integer][0];
+};
+
+
+module.exports = Overlay;
+
+},{"./Base.js":4}],16:[function(require,module,exports){
 'use strict';
 /**
  *
@@ -6313,7 +6574,7 @@ RowResizing.prototype.isEnabled = function(grid) {
 
 module.exports = RowResizing;
 
-},{"./ColumnResizing.js":9}],15:[function(require,module,exports){
+},{"./ColumnResizing.js":9}],17:[function(require,module,exports){
 'use strict';
 /**
  *
@@ -6356,24 +6617,7 @@ RowSelection.prototype.sbLastAuto = 0,
  */
 RowSelection.prototype.sbAutoStart = 0,
 
-/**
- * @property {fin-rectangle.point} rectangles - the util rectangles factory [fin-rectangles](https://github.com/stevewirts/fin-rectangle)
- * @instance
- */
-RowSelection.prototype.rectangles = {};
-
 RowSelection.prototype.dragArmed = false,
-/**
- * @function
- * @instance
- * @description
- the function to override for initialization
- */
-RowSelection.prototype.createdInit = function() {
-
-    this.rectangles = document.createElement('fin-rectangle');
-
-};
 
 /**
 * @function
@@ -6428,7 +6672,7 @@ RowSelection.prototype.handleMouseDown = function(grid, event) {
             dy = viewCell.y;
         }
 
-        var dCell = grid.rectangles.point.create(0, dy);
+        var dCell = grid.newPoint(0, dy);
 
         var primEvent = event.primitiveEvent;
         var keys = primEvent.detail.keys;
@@ -6467,7 +6711,7 @@ RowSelection.prototype.handleMouseDrag = function(grid, event) {
             dy = viewCell.y;
         }
 
-        var dCell = grid.rectangles.point.create(0, dy);
+        var dCell = grid.newPoint(0, dy);
 
         var primEvent = event.primitiveEvent;
         this.currentDrag = primEvent.detail.mouse;
@@ -6526,7 +6770,7 @@ RowSelection.prototype.handleMouseDragCellSelection = function(grid, gridCell /*
     grid.clearMostRecentRowSelection();
 
     grid.selectRow(mouseDown.y, y);
-    grid.setDragExtent(this.rectangles.point.create(0, newY));
+    grid.setDragExtent(grid.newPoint(0, newY));
 
     grid.repaint();
 };
@@ -6631,11 +6875,11 @@ RowSelection.prototype.extendSelection = function(grid, gridCell, keys) {
     if (hasSHIFT) {
         grid.clearMostRecentRowSelection();
         grid.selectRow(y, mousePoint.y);
-        grid.setDragExtent(this.rectangles.point.create(0, y - mousePoint.y));
+        grid.setDragExtent(grid.newPoint(0, y - mousePoint.y));
     } else {
         grid.toggleSelectRow(y, keys);
-        grid.setMouseDown(this.rectangles.point.create(x, y));
-        grid.setDragExtent(this.rectangles.point.create(0, 0));
+        grid.setMouseDown(grid.newPoint(x, y));
+        grid.setDragExtent(grid.newPoint(0, 0));
     }
     grid.repaint();
 };
@@ -6738,8 +6982,8 @@ RowSelection.prototype.handleRIGHT = function(grid) {
 
     grid.clearSelections();
     grid.select(newX, newY, 0, 0);
-    grid.setMouseDown(this.rectangles.point.create(newX, newY));
-    grid.setDragExtent(this.rectangles.point.create(0, 0));
+    grid.setMouseDown(grid.newPoint(newX, newY));
+    grid.setDragExtent(grid.newPoint(0, 0));
 
     grid.repaint();
 };
@@ -6826,7 +7070,7 @@ RowSelection.prototype.moveShiftSelect = function(grid, offsetY) {
     grid.clearMostRecentRowSelection();
     grid.selectRow(origin.y, origin.y + newY);
 
-    grid.setDragExtent(this.rectangles.point.create(0, newY));
+    grid.setDragExtent(grid.newPoint(0, newY));
 
     if (grid.insureModelRowIsVisible(newY + origin.y, offsetY)) {
         this.pingAutoScroll();
@@ -6865,8 +7109,8 @@ RowSelection.prototype.moveSingleSelect = function(grid, offsetY) {
 
     grid.clearSelections();
     grid.selectRow(newY);
-    grid.setMouseDown(this.rectangles.point.create(0, newY));
-    grid.setDragExtent(this.rectangles.point.create(0, 0));
+    grid.setMouseDown(grid.newPoint(0, newY));
+    grid.setDragExtent(grid.newPoint(0, 0));
 
     if (grid.insureModelRowIsVisible(newY, offsetY)) {
         this.pingAutoScroll();
@@ -6883,7 +7127,7 @@ RowSelection.prototype.isSingleRowSelection = function() {
 
 module.exports = RowSelection;
 
-},{"./Base.js":4}],16:[function(require,module,exports){
+},{"./Base.js":4}],18:[function(require,module,exports){
 'use strict';
 /**
  *
@@ -6931,7 +7175,7 @@ ThumbwheelScrolling.handleWheelMoved = function(grid, e) {
 
 module.exports = ThumbwheelScrolling;
 
-},{"./Base.js":4}],17:[function(require,module,exports){
+},{"./Base.js":4}],19:[function(require,module,exports){
 'use strict';
 
 module.exports = {
@@ -6944,16 +7188,16 @@ module.exports = {
     ColumnSelection: require('./ColumnSelection.js'),
     ColumnSorting: require('./ColumnSorting.js'),
     Filters: require('./Filters.js'),
-    //KeyPaging: require('./KeyPaging.js'),
+    KeyPaging: require('./KeyPaging.js'),
     OnHover: require('./OnHover.js'),
-    //Overlay: require('./Overlay.js'),
+    Overlay: require('./Overlay.js'),
     RowResizing: require('./RowResizing.js'),
     RowSelection: require('./RowSelection.js'),
     ThumbwheelScrolling: require('./ThumbwheelScrolling.js')
 };
 
 
-},{"./CellClick.js":5,"./CellEditing.js":6,"./CellSelection.js":7,"./ColumnAutosizing.js":8,"./ColumnResizing.js":9,"./ColumnSelection.js":10,"./ColumnSorting.js":11,"./Filters.js":12,"./OnHover.js":13,"./RowResizing.js":14,"./RowSelection.js":15,"./ThumbwheelScrolling.js":16}],18:[function(require,module,exports){
+},{"./CellClick.js":5,"./CellEditing.js":6,"./CellSelection.js":7,"./ColumnAutosizing.js":8,"./ColumnResizing.js":9,"./ColumnSelection.js":10,"./ColumnSorting.js":11,"./Filters.js":12,"./KeyPaging.js":13,"./OnHover.js":14,"./Overlay.js":15,"./RowResizing.js":16,"./RowSelection.js":17,"./ThumbwheelScrolling.js":18}],20:[function(require,module,exports){
 /* eslint-env node, browser */
 'use strict';
 
@@ -6965,7 +7209,7 @@ ns.cellEditors = require('./cellEditors/cellEditors.js');
 ns.dataModels = require('./dataModels/dataModels.js');
 ns.features = require('./features/features.js');
 
-},{"./behaviors/behaviors.js":1,"./cellEditors/cellEditors.js":2,"./dataModels/dataModels.js":3,"./features/features.js":17}]},{},[18]);
+},{"./behaviors/behaviors.js":1,"./cellEditors/cellEditors.js":2,"./dataModels/dataModels.js":3,"./features/features.js":19}]},{},[20]);
 </script>
 <style shim-shadowdom="">
 /*******************************
@@ -26640,15 +26884,15 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
          */
         initializeFeatureChain: function(grid) {
-            //this.setNextFeature(new features.KeyPaging());
-            //this.setNextFeature(new features.Overlay());
+            this.setNextFeature(new features.KeyPaging());
+            this.setNextFeature(new features.Overlay());
             this.setNextFeature(new features.ColumnResizing());
             this.setNextFeature(new features.RowResizing());
             this.setNextFeature(new features.Filters());
             this.setNextFeature(new features.RowSelection());
             this.setNextFeature(new features.ColumnSelection());
             this.setNextFeature(new features.CellSelection());
-            //this.setNextFeature(new features.ColumnMoving());
+            this.setNextFeature(new features.ColumnMoving());
             this.setNextFeature(new features.ColumnSorting());
             // this.setNextFeature(new features.ThumbwheelScrolling());
             this.setNextFeature(new features.CellEditing());
@@ -38653,7 +38897,7 @@ This is a very rough in memory data source example.  fin-hypergrid-behavior-in-m
         newPoint: function(x, y) {
             return this.rectangles.point.create(x, y);
         },
-        newRectangle: function(x, y) {
+        newRectangle: function(x, y, width, height) {
             return this.rectangles.rectangle.create(x, y, width, height);
         }
     });

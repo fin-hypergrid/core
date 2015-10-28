@@ -21,27 +21,39 @@ var commands = {
     }
 };
 
-(function() {
+/**
+ *
+ * @module features\base
+ * @description
+ instances of features are connected to one another to make a chain of responsibility for handling all the input to the hypergrid.
+ *
+ */
 
-    Polymer('fin-hypergrid-feature-key-paging', { /* jshint ignore:line  */
+var Base = require('./Base.js');
 
-        /**
-        * @function
-        * @instance
-        * @description
-         handle this event down the feature chain of responsibility
-         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
-         * @param {Object} event - the event details
-        */
-        handleKeyDown: function(grid, event) {
-            var detail = event.detail.char;
-            var func = commands[detail];
-            if (func) {
-                func(grid);
-            } else if (this.next) {
-                this.next.handleKeyDown(grid, event);
-            }
-        }
+function KeyPaging() {
+    Base.call(this);
+    this.alias = 'KeyPaging';
+};
+
+KeyPaging.prototype = Object.create(Base.prototype);
+
+/**
+* @function
+* @instance
+* @description
+ handle this event down the feature chain of responsibility
+ * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+ * @param {Object} event - the event details
+*/
+KeyPaging.prototype.handleKeyDown = function(grid, event) {
+    var detail = event.detail.char;
+    var func = commands[detail];
+    if (func) {
+        func(grid);
+    } else if (this.next) {
+        this.next.handleKeyDown(grid, event);
+    }
 }
 
-module.exports = CellClick;
+module.exports = KeyPaging;

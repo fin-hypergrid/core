@@ -3837,7 +3837,7 @@
         newPoint: function(x, y) {
             return this.rectangles.point.create(x, y);
         },
-        newRectangle: function(x, y) {
+        newRectangle: function(x, y, width, height) {
             return this.rectangles.rectangle.create(x, y, width, height);
         }
     });

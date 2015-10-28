@@ -970,15 +970,15 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
          */
         initializeFeatureChain: function(grid) {
-            //this.setNextFeature(new features.KeyPaging());
-            //this.setNextFeature(new features.Overlay());
+            this.setNextFeature(new features.KeyPaging());
+            this.setNextFeature(new features.Overlay());
             this.setNextFeature(new features.ColumnResizing());
             this.setNextFeature(new features.RowResizing());
             this.setNextFeature(new features.Filters());
             this.setNextFeature(new features.RowSelection());
             this.setNextFeature(new features.ColumnSelection());
             this.setNextFeature(new features.CellSelection());
-            //this.setNextFeature(new features.ColumnMoving());
+            this.setNextFeature(new features.ColumnMoving());
             this.setNextFeature(new features.ColumnSorting());
             // this.setNextFeature(new features.ThumbwheelScrolling());
             this.setNextFeature(new features.CellEditing());

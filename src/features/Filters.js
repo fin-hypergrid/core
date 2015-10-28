@@ -16,13 +16,13 @@ function Filters() {
 
 Filters.prototype = Object.create(Base.prototype);
 
-        Filters.prototype.handleTap = function(grid, event) {
-            var gridCell = event.gridCell;
-            if (grid.isFilterRow(gridCell.y) && gridCell.x !== -1) {
-                grid.filterClicked(event);
-            } else if (this.next) {
-                this.next.handleTap(grid, event);
-            }
-        };
+Filters.prototype.handleTap = function(grid, event) {
+    var gridCell = event.gridCell;
+    if (grid.isFilterRow(gridCell.y) && gridCell.x !== -1) {
+        grid.filterClicked(event);
+    } else if (this.next) {
+        this.next.handleTap(grid, event);
+    }
+};
 
 module.exports = Filters;
