@@ -1,3 +1,5 @@
+/* globals fin */
+
 'use strict';
 /**
  *
@@ -8,6 +10,8 @@ it contains all code/data that's necessary for easily implementing a virtual dat
  *
  */
 (function() {
+
+    var features = fin.hypergrid.features;
 
     function DataModelDecorator(grid, component) {
         this.setComponent(component);
@@ -934,7 +938,7 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          * @param {fin-hypergrid-feature-base} nextFeature - [fin-hypergrid-feature-base](module-features_base.html)
          */
         setNextFeature: function(nextFeature) {
-            this.featureMap[nextFeature.element.name] = nextFeature;
+            this.featureMap[nextFeature.alias] = nextFeature;
             if (this.featureChain) {
                 this.featureChain.setNext(nextFeature);
             } else {
@@ -966,21 +970,21 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
          */
         initializeFeatureChain: function(grid) {
-            this.setNextFeature(document.createElement('fin-hypergrid-feature-key-paging'));
-            this.setNextFeature(document.createElement('fin-hypergrid-feature-overlay'));
-            this.setNextFeature(document.createElement('fin-hypergrid-feature-column-resizing'));
-            this.setNextFeature(document.createElement('fin-hypergrid-feature-row-resizing'));
-            this.setNextFeature(document.createElement('fin-hypergrid-feature-filters'));
-            this.setNextFeature(document.createElement('fin-hypergrid-feature-row-selection'));
-            this.setNextFeature(document.createElement('fin-hypergrid-feature-column-selection'));
-            this.setNextFeature(document.createElement('fin-hypergrid-feature-cell-selection'));
-            this.setNextFeature(document.createElement('fin-hypergrid-feature-column-moving'));
-            this.setNextFeature(document.createElement('fin-hypergrid-feature-column-sorting'));
-            // this.setNextFeature(document.createElement('fin-hypergrid-feature-thumbwheel-scrolling'));
-            this.setNextFeature(document.createElement('fin-hypergrid-feature-cell-editing'));
-            this.setNextFeature(document.createElement('fin-hypergrid-feature-cell-click'));
-            this.setNextFeature(document.createElement('fin-hypergrid-feature-on-hover'));
-            //this.setNextFeature(document.createElement('fin-hypergrid-feature-column-autosizing'));
+            //this.setNextFeature(new features.KeyPaging());
+            //this.setNextFeature(new features.Overlay());
+            this.setNextFeature(new features.ColumnResizing());
+            this.setNextFeature(new features.RowResizing());
+            this.setNextFeature(new features.Filters());
+            this.setNextFeature(new features.RowSelection());
+            this.setNextFeature(new features.ColumnSelection());
+            this.setNextFeature(new features.CellSelection());
+            //this.setNextFeature(new features.ColumnMoving());
+            this.setNextFeature(new features.ColumnSorting());
+            // this.setNextFeature(new features.ThumbwheelScrolling());
+            this.setNextFeature(new features.CellEditing());
+            this.setNextFeature(new features.CellClick());
+            this.setNextFeature(new features.OnHover());
+            //this.setNextFeature(new features.ColumnAutosizing());
 
             this.featureChain.initializeOn(grid);
         },

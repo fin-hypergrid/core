@@ -18,6 +18,9 @@ var files = {
     polymerhtml: [
         'polymer/html/**/*.html'
     ],
+    browserifyjs: [
+        'src/**/*.js'
+    ]
 
 };
 var testingDurationTimeout = 3; //this may need to be larger if your tests take more time
@@ -59,6 +62,10 @@ module.exports = function(grunt) {
             livereload: {
                 files: ['polymer/**/*.*', 'demo.html'],
                 tasks: ['http:livereload'],
+            },
+            browserify: {
+                files: files.browserifyjs,
+                tasks: ['browserify'],
             },
         },
         vulcanize: {
@@ -112,6 +119,13 @@ module.exports = function(grunt) {
                 },
                 src: files.polymerhtml,
             }
+        },
+
+        browserify: {
+          main: {
+            src: 'src/main.js',
+            dest: 'polymer/browserify-port.js'
+          }
         },
 
         'wct-test': {

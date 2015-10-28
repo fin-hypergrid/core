@@ -3833,6 +3833,12 @@
         },
         isSingleRowSelectionMode: function() {
             return this.resolveProperty('singleRowSelectionMode');
+        },
+        newPoint: function(x, y) {
+            return this.rectangles.point.create(x, y);
+        },
+        newRectangle: function(x, y) {
+            return this.rectangles.rectangle.create(x, y, width, height);
         }
     });
 

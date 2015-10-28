@@ -14,6 +14,7 @@
     "finanalytics": "0.1.2",
     "finbars": "1.2.0",
     "grunt": "^0.4.5",
+    "grunt-browserify": "^4.0.1",
     "grunt-cli": "^0.1.13",
     "grunt-contrib-csslint": "^0.4.0",
     "grunt-contrib-jshint": "^0.10.0",
