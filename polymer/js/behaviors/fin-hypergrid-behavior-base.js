@@ -12,6 +12,7 @@ it contains all code/data that's necessary for easily implementing a virtual dat
 (function() {
 
     var features = fin.hypergrid.features;
+    var hypergrid = fin.hypergrid;
 
     function DataModelDecorator(grid, component) {
         this.setComponent(component);
@@ -1033,7 +1034,7 @@ it contains all code/data that's necessary for easily implementing a virtual dat
          * #### returns: [fin-hypergrid-cell-provider](module-._cell-provider.html)
          */
         createCellProvider: function() {
-            var provider = document.createElement('fin-hypergrid-cell-provider');
+            var provider = new hypergrid.CellProvider();
             return provider;
         },
 

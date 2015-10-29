@@ -1,3 +1,4 @@
+/* globals fin */
 'use strict';
 /**
  *

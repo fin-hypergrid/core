@@ -1,4 +1,4 @@
-/* global alert, SimpleLRU, FinBar */
+/* global alert, FinBar, fin */
 
 'use strict';
 
@@ -17,6 +17,8 @@
  */
 
 (function() {
+
+    var hypergrid = fin.hypergrid;
     var rectangles;
     var globalCellEditors = {};
     var propertiesInitialized = false;
@@ -48,7 +50,7 @@
      *
      * @property {SimpleLRU} textWidthCache - a LRU cache of 10000 of text widths
      */
-    var textWidthCache = new SimpleLRU(2000);
+    var textWidthCache = new hypergrid.LRUCache(2000);
 
 
     var getTextWidth = function(gc, string) {
@@ -537,7 +539,7 @@
             this.lnfProperties = Object.create(globalProperties);
 
             this.isWebkit = navigator.userAgent.toLowerCase().indexOf('webkit') > -1;
-            this.selectionModel = document.createElement('fin-hypergrid-selection-model');
+            this.selectionModel = new hypergrid.SelectionModel();
             this.selectionModel.getGrid = function() {
                 return self;
             };
@@ -588,7 +590,7 @@
          *
          */
         resetTextWidthCache: function() {
-            textWidthCache = new SimpleLRU(10000);
+            textWidthCache = hypergrid.LRUCache(2000);
         },
 
         getProperties: function() {
@@ -2887,7 +2889,7 @@
          */
         initRenderer: function() {
 
-            this.renderer = this.shadowRoot.querySelector('fin-hypergrid-renderer');
+            this.renderer = new hypergrid.Renderer();
             this.renderer.setGrid(this);
 
         },

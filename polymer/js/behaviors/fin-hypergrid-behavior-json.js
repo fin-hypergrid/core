@@ -1,3 +1,4 @@
+/* globals fin */
 /*jshint  bitwise: false */
 'use strict';
 /**

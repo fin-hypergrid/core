@@ -1,13 +1,2491 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+;(function () { // closure for web browsers
+
+if (typeof module === 'object' && module.exports) {
+  module.exports = LRUCache
+} else {
+  // just set the global for non-node platforms.
+  this.LRUCache = LRUCache
+}
+
+function hOP (obj, key) {
+  return Object.prototype.hasOwnProperty.call(obj, key)
+}
+
+function naiveLength () { return 1 }
+
+function LRUCache (options) {
+  if (!(this instanceof LRUCache))
+    return new LRUCache(options)
+
+  if (typeof options === 'number')
+    options = { max: options }
+
+  if (!options)
+    options = {}
+
+  this._max = options.max
+  // Kind of weird to have a default max of Infinity, but oh well.
+  if (!this._max || !(typeof this._max === "number") || this._max <= 0 )
+    this._max = Infinity
+
+  this._lengthCalculator = options.length || naiveLength
+  if (typeof this._lengthCalculator !== "function")
+    this._lengthCalculator = naiveLength
+
+  this._allowStale = options.stale || false
+  this._maxAge = options.maxAge || null
+  this._dispose = options.dispose
+  this.reset()
+}
+
+// resize the cache when the max changes.
+Object.defineProperty(LRUCache.prototype, "max",
+  { set : function (mL) {
+      if (!mL || !(typeof mL === "number") || mL <= 0 ) mL = Infinity
+      this._max = mL
+      if (this._length > this._max) trim(this)
+    }
+  , get : function () { return this._max }
+  , enumerable : true
+  })
+
+// resize the cache when the lengthCalculator changes.
+Object.defineProperty(LRUCache.prototype, "lengthCalculator",
+  { set : function (lC) {
+      if (typeof lC !== "function") {
+        this._lengthCalculator = naiveLength
+        this._length = this._itemCount
+        for (var key in this._cache) {
+          this._cache[key].length = 1
+        }
+      } else {
+        this._lengthCalculator = lC
+        this._length = 0
+        for (var key in this._cache) {
+          this._cache[key].length = this._lengthCalculator(this._cache[key].value)
+          this._length += this._cache[key].length
+        }
+      }
+
+      if (this._length > this._max) trim(this)
+    }
+  , get : function () { return this._lengthCalculator }
+  , enumerable : true
+  })
+
+Object.defineProperty(LRUCache.prototype, "length",
+  { get : function () { return this._length }
+  , enumerable : true
+  })
+
+
+Object.defineProperty(LRUCache.prototype, "itemCount",
+  { get : function () { return this._itemCount }
+  , enumerable : true
+  })
+
+LRUCache.prototype.forEach = function (fn, thisp) {
+  thisp = thisp || this
+  var i = 0
+  var itemCount = this._itemCount
+
+  for (var k = this._mru - 1; k >= 0 && i < itemCount; k--) if (this._lruList[k]) {
+    i++
+    var hit = this._lruList[k]
+    if (isStale(this, hit)) {
+      del(this, hit)
+      if (!this._allowStale) hit = undefined
+    }
+    if (hit) {
+      fn.call(thisp, hit.value, hit.key, this)
+    }
+  }
+}
+
+LRUCache.prototype.keys = function () {
+  var keys = new Array(this._itemCount)
+  var i = 0
+  for (var k = this._mru - 1; k >= 0 && i < this._itemCount; k--) if (this._lruList[k]) {
+    var hit = this._lruList[k]
+    keys[i++] = hit.key
+  }
+  return keys
+}
+
+LRUCache.prototype.values = function () {
+  var values = new Array(this._itemCount)
+  var i = 0
+  for (var k = this._mru - 1; k >= 0 && i < this._itemCount; k--) if (this._lruList[k]) {
+    var hit = this._lruList[k]
+    values[i++] = hit.value
+  }
+  return values
+}
+
+LRUCache.prototype.reset = function () {
+  if (this._dispose && this._cache) {
+    for (var k in this._cache) {
+      this._dispose(k, this._cache[k].value)
+    }
+  }
+
+  this._cache = Object.create(null) // hash of items by key
+  this._lruList = Object.create(null) // list of items in order of use recency
+  this._mru = 0 // most recently used
+  this._lru = 0 // least recently used
+  this._length = 0 // number of items in the list
+  this._itemCount = 0
+}
+
+LRUCache.prototype.dump = function () {
+  var arr = []
+  var i = 0
+
+  for (var k = this._mru - 1; k >= 0 && i < this._itemCount; k--) if (this._lruList[k]) {
+    var hit = this._lruList[k]
+    if (!isStale(this, hit)) {
+      //Do not store staled hits
+      ++i
+      arr.push({
+        k: hit.key,
+        v: hit.value,
+        e: hit.now + (hit.maxAge || 0)
+      });
+    }
+  }
+  //arr has the most read first
+  return arr
+}
+
+LRUCache.prototype.dumpLru = function () {
+  return this._lruList
+}
+
+LRUCache.prototype.set = function (key, value, maxAge) {
+  maxAge = maxAge || this._maxAge
+  var now = maxAge ? Date.now() : 0
+  var len = this._lengthCalculator(value)
+
+  if (hOP(this._cache, key)) {
+    if (len > this._max) {
+      del(this, this._cache[key])
+      return false
+    }
+    // dispose of the old one before overwriting
+    if (this._dispose)
+      this._dispose(key, this._cache[key].value)
+
+    this._cache[key].now = now
+    this._cache[key].maxAge = maxAge
+    this._cache[key].value = value
+    this._length += (len - this._cache[key].length)
+    this._cache[key].length = len
+    this.get(key)
+
+    if (this._length > this._max)
+      trim(this)
+
+    return true
+  }
+
+  var hit = new Entry(key, value, this._mru++, len, now, maxAge)
+
+  // oversized objects fall out of cache automatically.
+  if (hit.length > this._max) {
+    if (this._dispose) this._dispose(key, value)
+    return false
+  }
+
+  this._length += hit.length
+  this._lruList[hit.lu] = this._cache[key] = hit
+  this._itemCount ++
+
+  if (this._length > this._max)
+    trim(this)
+
+  return true
+}
+
+LRUCache.prototype.has = function (key) {
+  if (!hOP(this._cache, key)) return false
+  var hit = this._cache[key]
+  if (isStale(this, hit)) {
+    return false
+  }
+  return true
+}
+
+LRUCache.prototype.get = function (key) {
+  return get(this, key, true)
+}
+
+LRUCache.prototype.peek = function (key) {
+  return get(this, key, false)
+}
+
+LRUCache.prototype.pop = function () {
+  var hit = this._lruList[this._lru]
+  del(this, hit)
+  return hit || null
+}
+
+LRUCache.prototype.del = function (key) {
+  del(this, this._cache[key])
+}
+
+LRUCache.prototype.load = function (arr) {
+  //reset the cache
+  this.reset();
+
+  var now = Date.now()
+  //A previous serialized cache has the most recent items first
+  for (var l = arr.length - 1; l >= 0; l-- ) {
+    var hit = arr[l]
+    var expiresAt = hit.e || 0
+    if (expiresAt === 0) {
+      //the item was created without expiration in a non aged cache
+      this.set(hit.k, hit.v)
+    } else {
+      var maxAge = expiresAt - now
+      //dont add already expired items
+      if (maxAge > 0) this.set(hit.k, hit.v, maxAge)
+    }
+  }
+}
+
+function get (self, key, doUse) {
+  var hit = self._cache[key]
+  if (hit) {
+    if (isStale(self, hit)) {
+      del(self, hit)
+      if (!self._allowStale) hit = undefined
+    } else {
+      if (doUse) use(self, hit)
+    }
+    if (hit) hit = hit.value
+  }
+  return hit
+}
+
+function isStale(self, hit) {
+  if (!hit || (!hit.maxAge && !self._maxAge)) return false
+  var stale = false;
+  var diff = Date.now() - hit.now
+  if (hit.maxAge) {
+    stale = diff > hit.maxAge
+  } else {
+    stale = self._maxAge && (diff > self._maxAge)
+  }
+  return stale;
+}
+
+function use (self, hit) {
+  shiftLU(self, hit)
+  hit.lu = self._mru ++
+  self._lruList[hit.lu] = hit
+}
+
+function trim (self) {
+  while (self._lru < self._mru && self._length > self._max)
+    del(self, self._lruList[self._lru])
+}
+
+function shiftLU (self, hit) {
+  delete self._lruList[ hit.lu ]
+  while (self._lru < self._mru && !self._lruList[self._lru]) self._lru ++
+}
+
+function del (self, hit) {
+  if (hit) {
+    if (self._dispose) self._dispose(hit.key, hit.value)
+    self._length -= hit.length
+    self._itemCount --
+    delete self._cache[ hit.key ]
+    shiftLU(self, hit)
+  }
+}
+
+// classy, since V8 prefers predictable objects.
+function Entry (key, value, lu, length, now, maxAge) {
+  this.key = key
+  this.value = value
+  this.lu = lu
+  this.length = length
+  this.now = now
+  if (maxAge) this.maxAge = maxAge
+}
+
+})()
+
+},{}],2:[function(require,module,exports){
+'use strict';
+/**
+ *
+ * @module features\base
+ * @description
+ instances of features are connected to one another to make a chain of responsibility for handling all the input to the hypergrid.
+ *
+ */
+
+function CellProvider() {
+    this.cellCache = {};
+    this.initializeCells();
+};
+
+CellProvider.prototype = {};
+
+var noop = function() {};
+
+var valueOrFunctionExecute = function(config, valueOrFunction) {
+    var isFunction = (((typeof valueOrFunction)[0]) === 'f');
+    var result = isFunction ? valueOrFunction(config) : valueOrFunction;
+    if (!result && result !== 0) {
+        return '';
+    }
+    return result;
+};
+
+var underline = function(config, gc, text, x, y, thickness) {
+    var width = config.getTextWidth(gc, text);
+
+    switch (gc.textAlign) {
+        case 'center':
+            x -= (width / 2);
+            break;
+        case 'right':
+            x -= width;
+            break;
+    }
+
+    //gc.beginPath();
+    gc.lineWidth = thickness;
+    gc.moveTo(x + 0.5, y + 0.5);
+    gc.lineTo(x + width + 0.5, y + 0.5);
+};
+
+var roundRect = function(gc, x, y, width, height, radius, fill, stroke) {
+    if (!stroke) {
+        stroke = true;
+    }
+    if (!radius) {
+        radius = 5;
+    }
+    gc.beginPath();
+    gc.moveTo(x + radius, y);
+    gc.lineTo(x + width - radius, y);
+    gc.quadraticCurveTo(x + width, y, x + width, y + radius);
+    gc.lineTo(x + width, y + height - radius);
+    gc.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+    gc.lineTo(x + radius, y + height);
+    gc.quadraticCurveTo(x, y + height, x, y + height - radius);
+    gc.lineTo(x, y + radius);
+    gc.quadraticCurveTo(x, y, x + radius, y);
+    gc.closePath();
+    if (stroke) {
+        gc.stroke();
+    }
+    if (fill) {
+        gc.fill();
+    }
+    gc.closePath();
+};
+
+/**
+ * @function
+ * @description replace this function in on your instance of cellProvider
+ * @returns cell
+ * @param {object} config - an object with everything you might need for renderering a cell
+ * @instance
+ */
+CellProvider.prototype.getCell = function(config) {
+    var cell = this.cellCache.simpleCellRenderer;
+    cell.config = config;
+    return cell;
+};
+
+/**
+ * @function
+ * @description replace this function in on your instance of cellProvider
+ * @returns cell
+ * @param {object} config - an object with everything you might need for renderering a cell
+ * @instance
+ */
+CellProvider.prototype.getColumnHeaderCell = function(config) {
+    var cell = this.cellCache.simpleCellRenderer;
+    cell.config = config;
+    return cell;
+};
+
+/**
+ * @function
+ * @description replace this function in on your instance of cellProvider
+ * @returns cell
+ * @param {object} config - an object with everything you might need for renderering a cell
+ * @instance
+ */
+CellProvider.prototype.getRowHeaderCell = function(config) {
+    var cell = this.cellCache.simpleCellRenderer;
+    cell.config = config;
+    return cell;
+};
+
+CellProvider.prototype.paintButton = function(gc, config) {
+    var val = config.value;
+    var c = config.x;
+    var r = config.y;
+    var bounds = config.bounds;
+    var x = bounds.x + 2;
+    var y = bounds.y + 2;
+    var width = bounds.width - 3;
+    var height = bounds.height - 3;
+    var radius = height / 2;
+    var arcGradient = gc.createLinearGradient(x, y, x, y + height);
+    if (config.mouseDown) {
+        arcGradient.addColorStop(0, '#B5CBED');
+        arcGradient.addColorStop(1, '#4d74ea');
+    } else {
+        arcGradient.addColorStop(0, '#ffffff');
+        arcGradient.addColorStop(1, '#aaaaaa');
+    }
+    gc.fillStyle = arcGradient;
+    gc.strokeStyle = '#000000';
+    roundRect(gc, x, y, width, height, radius, arcGradient, true);
+
+    var ox = (width - config.getTextWidth(gc, val)) / 2;
+    var oy = (height - config.getTextHeight(gc.font).descent) / 2;
+
+    if (gc.textBaseline !== 'middle') {
+        gc.textBaseline = 'middle';
+    }
+
+    gc.fillStyle = '#000000';
+
+    config.backgroundColor = 'rgba(0,0,0,0)';
+    gc.fillText(val, x + ox, y + oy);
+
+    //identify that we are a button
+    config.buttonCells[c + ',' + r] = true;
+};
+
+/**
+ * @function
+ * @param {CanvasGraphicsContext} gc - the "pen" in the mvc model, we issue drawing commands to
+ * @param {integer} x - the x screen coordinate of my origin
+ * @param {integer} y - the y screen coordinate of my origin
+ * @param {integer} width - the width I'm allowed to draw within
+ * @param {integer} height - the height I'm allowed to draw within
+ * @param {boolean} isLink - is this a hyperlink cell
+ * @instance
+ * @description
+This is the default cell rendering function for rendering a vanilla cell. Great care was taken in crafting this function as it needs to perform extremely fast. Reads on the gc object are expensive but not quite as expensive as writes to it. We do our best to avoid writes, then avoid reads. Clipping bounds are not set here as this is also an expensive operation. Instead, we truncate overflowing text and content by filling a rectangle with background color column by column instead of cell by cell.  This column by column fill happens higher up on the stack in a calling function from fin-hypergrid-renderer.  Take note we do not do cell by cell border renderering as that is expensive.  Instead we render many fewer gridlines after all cells are rendered.
+*/
+CellProvider.prototype.defaultCellPaint = function(gc, config) {
+
+    var isLink = isLink || false;
+    var colHEdgeOffset = config.cellPadding,
+        halignOffset = 0,
+        valignOffset = config.voffset,
+        halign = config.halign,
+        isColumnHovered = config.isColumnHovered,
+        isRowHovered = config.isRowHovered,
+        val = config.value,
+        x = config.bounds.x,
+        y = config.bounds.y,
+        width = config.bounds.width,
+        height = config.bounds.height;
+
+    var leftIcon, rightIcon, centerIcon, ixoffset, iyoffset;
+
+    //setting gc properties are expensive, lets not do it unnecessarily
+
+    if (val && val.constructor === Array) {
+        leftIcon = val[0];
+        rightIcon = val[2];
+        val = val[1];
+        if (typeof val === 'object') { // must be an image
+            centerIcon = val;
+            val = null;
+        }
+        if (leftIcon && leftIcon.nodeName !== 'IMG') {
+            leftIcon = null;
+        }
+        if (rightIcon && rightIcon.nodeName !== 'IMG') {
+            rightIcon = null;
+        }
+        if (centerIcon && centerIcon.nodeName !== 'IMG') {
+            centerIcon = null;
+        }
+    }
+
+    val = valueOrFunctionExecute(config, val);
+
+    if (gc.font !== config.font) {
+        gc.font = config.font;
+    }
+    if (gc.textAlign !== 'left') {
+        gc.textAlign = 'left';
+    }
+    if (gc.textBaseline !== 'middle') {
+        gc.textBaseline = 'middle';
+    }
+
+    var fontMetrics = config.getTextHeight(config.font);
+    var textWidth = config.getTextWidth(gc, val);
+
+
+    //we must set this in order to compute the minimum width
+    //for column autosizing purposes
+    config.minWidth = textWidth + (2 * colHEdgeOffset);
+
+    if (halign === 'right') {
+        //textWidth = config.getTextWidth(gc, config.value);
+        halignOffset = width - colHEdgeOffset - textWidth;
+    } else if (halign === 'center') {
+        //textWidth = config.getTextWidth(gc, config.value);
+        halignOffset = (width - textWidth) / 2;
+    } else if (halign === 'left') {
+        halignOffset = colHEdgeOffset;
+    }
+
+    halignOffset = Math.max(0, halignOffset);
+    valignOffset = valignOffset + Math.ceil(height / 2);
+
+    //fill background only if our bgColor is populated or we are a selected cell
+    if (config.backgroundColor || config.isSelected) {
+        gc.fillStyle = valueOrFunctionExecute(config, config.isSelected ? config.backgroundSelectionColor : config.backgroundColor);
+        gc.fillRect(x, y, width, height);
+    }
+
+    //draw text
+    var theColor = valueOrFunctionExecute(config, config.isSelected ? config.foregroundSelectionColor : config.color);
+    if (gc.fillStyle !== theColor) {
+        gc.fillStyle = theColor;
+        gc.strokeStyle = theColor;
+    }
+    if (val !== null) {
+        gc.fillText(val, x + halignOffset, y + valignOffset);
+
+    }
+    if (isColumnHovered && isRowHovered) {
+        gc.beginPath();
+        if (isLink) {
+            underline(config, gc, val, x + halignOffset, y + valignOffset + Math.floor(fontMetrics.height / 2), 1);
+            gc.stroke();
+        }
+        gc.closePath();
+    }
+    if (config.isInCurrentSelectionRectangle) {
+        gc.fillStyle = 'rgba(0, 0, 0, 0.2)';
+        gc.fillRect(x, y, width, height);
+    }
+    var iconWidth = 0;
+    if (leftIcon) {
+        iyoffset = Math.round((height - leftIcon.height) / 2);
+        ixoffset = Math.round((halignOffset - leftIcon.width) / 2);
+        gc.drawImage(leftIcon, x + ixoffset, y + iyoffset);
+        iconWidth = Math.max(leftIcon.width + 2);
+    }
+    if (rightIcon) {
+        iyoffset = Math.round((height - rightIcon.height) / 2);
+        ixoffset = 0; //Math.round((halignOffset - rightIcon.width) / 2);
+        gc.drawImage(rightIcon, x + width - ixoffset - rightIcon.width, y + iyoffset);
+        iconWidth = Math.max(rightIcon.width + 2);
+    }
+    if (centerIcon) {
+        iyoffset = Math.round((height - centerIcon.height) / 2);
+        ixoffset = Math.round((width - centerIcon.width) / 2);
+        gc.drawImage(centerIcon, x + width - ixoffset - centerIcon.width, y + iyoffset);
+        iconWidth = Math.max(centerIcon.width + 2);
+    }
+    if (config.cellBorderThickness) {
+        gc.beginPath();
+        gc.rect(x, y, width, height);
+        gc.lineWidth = config.cellBorderThickness;
+        gc.strokeStyle = config.cellBorderStyle;
+
+        // animate the dashed line a bit here for fun
+
+        gc.stroke();
+        gc.closePath();
+    }
+    config.minWidth = config.minWidth + 2 * (iconWidth);
+};
+
+/**
+ * @function
+ * @param {CanvasGraphicsContext} gc - the "pen" in the mvc model, we issue drawing commands to
+ * @param {integer} x - the x screen coordinate of my origin
+ * @param {integer} y - the y screen coordinate of my origin
+ * @param {integer} width - the width I'm allowed to draw within
+ * @param {integer} height - the height I'm allowed to draw within
+ * @param {boolean} isLink - is this a hyperlink cell
+ * @instance
+ * @description emersons paint function for a slider button. currently the user cannot interact with it
+ */
+CellProvider.prototype.paintSlider = function( /* gc, x, y, width, height */ ) {
+    // gc.strokeStyle = 'white';
+    // var val = this.config.value;
+    // var radius = height / 2;
+    // var offset = width * val;
+    // var bgColor = this.config.isSelected ? this.config.bgSelColor : '#333333';
+    // var btnGradient = gc.createLinearGradient(x, y, x, y + height);
+    // btnGradient.addColorStop(0, bgColor);
+    // btnGradient.addColorStop(1, '#666666');
+    // var arcGradient = gc.createLinearGradient(x, y, x, y + height);
+    // arcGradient.addColorStop(0, '#aaaaaa');
+    // arcGradient.addColorStop(1, '#777777');
+    // gc.fillStyle = btnGradient;
+    // roundRect(gc, x, y, width, height, radius, btnGradient);
+    // if (val < 1.0) {
+    //     gc.fillStyle = arcGradient;
+    // } else {
+    //     gc.fillStyle = '#eeeeee';
+    // }
+    // gc.beginPath();
+    // gc.arc(x + Math.max(offset - radius, radius), y + radius, radius, 0, 2 * Math.PI);
+    // gc.fill();
+    // gc.closePath();
+    // this.config.minWidth = 100;
+};
+
+/**
+ * @function
+ * @param {CanvasGraphicsContext} gc - the "pen" in the mvc model, we issue drawing commands to
+ * @param {integer} x - the x screen coordinate of my origin
+ * @param {integer} y - the y screen coordinate of my origin
+ * @param {integer} width - the width I'm allowed to draw within
+ * @param {integer} height - the height I'm allowed to draw within
+ * @param {boolean} isLink - is this a hyperlink cell
+ * @instance
+ * @description
+ simple implementation of a sparkline.  see [Edward Tufte sparkline](http://www.edwardtufte.com/bboard/q-and-a-fetch-msg?msg_id=0001OR)
+ */
+CellProvider.prototype.paintSparkbar = function(gc, x, y, width, height) {
+    gc.beginPath();
+    var val = this.config.value;
+    if (!val || !val.length) {
+        return;
+    }
+    var count = val.length;
+    var eWidth = width / count;
+    var fgColor = this.config.isSelected ? this.config.fgSelColor : this.config.fgColor;
+    if (this.config.bgColor || this.config.isSelected) {
+        gc.fillStyle = this.config.isSelected ? this.config.bgSelColor : this.config.bgColor;
+        gc.fillRect(x, y, width, height);
+    }
+    gc.fillStyle = fgColor;
+    for (var i = 0; i < val.length; i++) {
+        var barheight = val[i] / 110 * height;
+        gc.fillRect(x + 5, y + height - barheight, eWidth * 0.6666, barheight);
+        x = x + eWidth;
+    }
+    gc.closePath();
+    this.config.minWidth = count * 10;
+
+};
+
+
+/**
+ * @function
+ * @param {CanvasGraphicsContext} gc - the "pen" in the mvc model, we issue drawing commands to
+ * @param {integer} x - the x screen coordinate of my origin
+ * @param {integer} y - the y screen coordinate of my origin
+ * @param {integer} width - the width I'm allowed to draw within
+ * @param {integer} height - the height I'm allowed to draw within
+ * @param {boolean} isLink - is this a hyperlink cell
+ * @instance
+ * @description
+simple implementation of a sparkline, because it's a barchart we've changed the name ;).  see [Edward Tufte sparkline](http://www.edwardtufte.com/bboard/q-and-a-fetch-msg?msg_id=0001OR)
+*/
+CellProvider.prototype.paintSparkline = function(gc, x, y, width, height) {
+    gc.beginPath();
+    var val = this.config.value;
+    if (!val || !val.length) {
+        return;
+    }
+    var count = val.length;
+    var eWidth = width / count;
+
+    var fgColor = this.config.isSelected ? this.config.fgSelColor : this.config.fgColor;
+    if (this.config.bgColor || this.config.isSelected) {
+        gc.fillStyle = this.config.isSelected ? this.config.bgSelColor : this.config.bgColor;
+        gc.fillRect(x, y, width, height);
+    }
+    gc.strokeStyle = fgColor;
+    gc.fillStyle = fgColor;
+    gc.beginPath();
+    var prev;
+    for (var i = 0; i < val.length; i++) {
+        var barheight = val[i] / 110 * height;
+        if (!prev) {
+            prev = barheight;
+        }
+        gc.lineTo(x + 5, y + height - barheight);
+        gc.arc(x + 5, y + height - barheight, 1, 0, 2 * Math.PI, false);
+        x = x + eWidth;
+    }
+    this.config.minWidth = count * 10;
+    gc.stroke();
+    gc.closePath();
+};
+
+/**
+ * @function
+ * @param {CanvasGraphicsContext} gc - the "pen" in the mvc model, we issue drawing commands to
+ * @param {integer} x - the x screen coordinate of my origin
+ * @param {integer} y - the y screen coordinate of my origin
+ * @param {integer} width - the width I'm allowed to draw within
+ * @param {integer} height - the height I'm allowed to draw within
+ * @param {boolean} isLink - is this a hyperlink cell
+ * @instance
+ * @description
+ this is a simple implementation of a tree cell renderer for use mainly with the qtree
+ */
+CellProvider.prototype.treeCellRenderer = function(gc, x, y, width, height) {
+    var val = this.config.value.data;
+    var indent = this.config.value.indent;
+    var icon = this.config.value.icon;
+
+    //fill background only if our bgColor is populated or we are a selected cell
+    if (this.config.bgColor || this.config.isSelected) {
+        gc.fillStyle = this.config.isSelected ? this.config.bgSelColor : this.config.bgColor;
+        gc.fillRect(x, y, width, height);
+    }
+
+    if (!val || !val.length) {
+        return;
+    }
+    var valignOffset = Math.ceil(height / 2);
+
+    gc.fillStyle = this.config.isSelected ? this.config.fgSelColor : this.config.fgColor;
+    gc.fillText(icon + val, x + indent, y + valignOffset);
+
+    var textWidth = this.config.getTextWidth(gc, icon + val);
+    var minWidth = x + indent + textWidth + 10;
+    this.config.minWidth = minWidth;
+};
+
+/**
+ * @function
+ * @param {CanvasGraphicsContext} gc - the "pen" in the mvc model, we issue drawing commands to
+ * @param {integer} x - the x screen coordinate of my origin
+ * @param {integer} y - the y screen coordinate of my origin
+ * @param {integer} width - the width I'm allowed to draw within
+ * @param {integer} height - the height I'm allowed to draw within
+ * @instance
+ * @param {boolean} isLink - is this a hyperlink cell
+ * @description
+ this is an empty implementation of a cell renderer, see [the null object pattern](http://c2.com/cgi/wiki?NullObject)
+ */
+CellProvider.prototype.emptyCellRenderer = function(gc, x, y, width, height) {
+    noop(gc, x, y, width, height);
+};
+
+/**
+ * @function
+ * @instance
+ * @private
+ */
+CellProvider.prototype.initializeCells = function() {
+    var self = this;
+    this.cellCache.simpleCellRenderer = {
+        paint: this.defaultCellPaint
+    };
+    this.cellCache.sliderCellRenderer = {
+        paint: this.paintSlider
+    };
+    this.cellCache.sparkbarCellRenderer = {
+        paint: this.paintSparkbar
+    };
+    this.cellCache.sparklineCellRenderer = {
+        paint: this.paintSparkline
+    };
+    this.cellCache.treeCellRenderer = {
+        paint: this.treeCellRenderer
+    };
+    this.cellCache.emptyCellRenderer = {
+        paint: this.emptyCellRenderer
+    };
+    this.cellCache.buttonRenderer = {
+        paint: this.paintButton,
+        defaultCellPaint: this.defaultCellPaint
+    };
+    this.cellCache.linkCellRenderer = {
+        paint: function(gc, x, y, width, height) {
+            self.config = this.config;
+            self.defaultCellPaint(gc, x, y, width, height, true);
+        },
+    };
+};
+
+module.exports = CellProvider
+
+},{}],3:[function(require,module,exports){
+'use strict';
+/**
+ *
+ * @module .\renderer
+ * @description
+fin-hypergrid-renderer is the canvas enabled top level sub component that handles the renderering of the Grid.
+
+It relies on two other external subprojects
+
+1. fin-canvas: a wrapper to provide a simpler interface to the HTML5 canvas component
+2. fin-rectangles: a small library providing Point and Rectangle objects
+
+The fin-hypergrid-renderer is in a unique position to provide critical functionality to the fin-hypergrid in a hightly performant manner.
+Because it MUST iterate over all the visible cells it can store various bits of information that can be encapsulated as a service for consumption by the fin-hypergrid component.
+
+Instances of this object have basically four main functions.
+
+1. render fixed row headers
+2. render fixed col headers
+3. render main data cells
+4. render grid lines
+
+**/
+
+function Renderer() {
+    this.columnEdges = [];
+    this.columnEdgesIndexMap = {};
+    this.renderedColumnMinWidths = [];
+    this.renderedHeight = 0;
+    this.rowEdges = [];
+    this.rowEdgesIndexMap = {};
+    this.visibleColumns = [];
+    this.visibleRows = [];
+    this.insertionBounds = [];
+};
+
+Renderer.prototype = {};
+
+var noop = function() {};
+
+var merge = function(target, source) {
+    for (var key in source) {
+        if (source.hasOwnProperty(key)) {
+            target[key] = source[key];
+        }
+    }
+};
+
+
+//the shared single item "pooled" cell object for drawing each cell
+Renderer.prototype.cell = {
+    x: 0,
+    y: 0,
+    width: 0,
+    height: 0
+};
+
+Renderer.prototype.scrollHeight = 0,
+Renderer.prototype.viewHeight = 0,
+
+//this function computes the grid coordinates used for extremely fast iteration over
+//painting the grid cells. this function is very fast, for thousand rows X 100 columns
+//on a modest machine taking usually 0ms and no more that 3 ms.
+Renderer.prototype.computeCellsBounds = function() {
+
+    //var startTime = Date.now();
+
+    var grid = this.getGrid();
+    var scrollTop = this.getScrollTop();
+    var scrollLeft = this.getScrollLeft();
+
+    var numColumns = this.getColumnCount();
+    var numFixedColumns = this.getFixedColumnCount();
+
+    var numRows = this.getRowCount();
+    var numFixedRows = this.getFixedRowCount();
+
+    var bounds = grid.getBoundingClientRect();
+    var viewWidth = bounds.width;
+
+    //we must be in bootstrap
+    if (viewWidth === 0) {
+        //viewWidth = grid.sbHScroller.getClientRects()[0].width;
+        viewWidth = grid.canvas.width;
+    }
+    var viewHeight = bounds.height;
+
+    var x, y, c, r, vx, vy, width, height;
+
+    this.getColumnEdges().length = 0;
+    this.rowEdges.length = 0;
+
+    this.columnEdges[0] = 0;
+    this.rowEdges[0] = 0;
+    this.scrollHeight = 0;
+
+    this.visibleColumns.length = 0;
+    this.visibleRows.length = 0;
+    this.columnEdgesIndexMap = {};
+    this.rowEdgesIndexMap = {};
+
+    this.insertionBounds = [];
+    var insertionBoundsCursor = 0;
+    var previousInsertionBoundsCursorValue = 0;
+
+    x = 0;
+    var start = 0;
+    var firstVX, lastVX;
+    var firstVY, lastVY;
+    if (grid.isShowRowNumbers()) {
+        start--;
+        this.columnEdges[-1] = -1;
+    }
+    for (c = start; c < numColumns; c++) {
+        vx = c;
+        if (c >= numFixedColumns) {
+            vx = vx + scrollLeft;
+            if (firstVX === undefined) {
+                firstVX = vx;
+            }
+            lastVX = vx;
+        }
+        if (x > viewWidth || numColumns <= vx) {
+            break;
+        }
+        width = this.getColumnWidth(vx);
+        x = x + width;
+        this.columnEdges[c + 1] = Math.round(x);
+        this.visibleColumns[c] = vx;
+        this.columnEdgesIndexMap[vx] = c;
+
+        insertionBoundsCursor = insertionBoundsCursor + Math.round(width / 2) + previousInsertionBoundsCursorValue;
+        this.insertionBounds.push(insertionBoundsCursor);
+        previousInsertionBoundsCursorValue = Math.round(width / 2);
+    }
+
+    y = 0;
+    for (r = 0; r < numRows; r++) {
+        vy = r;
+        if (r >= numFixedRows) {
+            vy = vy + scrollTop;
+            if (firstVY === undefined) {
+                firstVY = vy;
+            }
+            lastVY = vy;
+        }
+        if (y > viewHeight || numRows <= vy) {
+            break;
+        }
+        height = this.getRowHeight(vy);
+        y = y + height;
+        this.rowEdges[r + 1] = Math.round(y);
+        this.visibleRows[r] = vy;
+        this.rowEdgesIndexMap[vy] = r;
+    }
+    this.viewHeight = viewHeight;
+    this.dataWindow = grid.rectangles.rectangle.create(firstVX, firstVY, lastVX - firstVX, lastVY - firstVY);
+};
+
+/**
+ * @function
+ * @instance
+ * @description
+returns a property value at a key, delegates to the grid
+ * #### returns: Object
+ */
+Renderer.prototype.resolveProperty = function(key) {
+    return this.getGrid().resolveProperty(key);
+};
+
+/**
+ * @function
+ * @instance
+ * @description
+getter for the [fin-hypergrid](module-._fin-hypergrid.html)
+ * #### returns: fin-hypergrid
+ */
+Renderer.prototype.getGrid = function() {
+    return this.grid;
+};
+
+/**
+ * @function
+ * @instance
+ * @description
+setter for the [fin-hypergrid](module-._fin-hypergrid.html)
+ *
+ * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+ */
+Renderer.prototype.setGrid = function(grid) {
+    var self = this;
+    this.grid = grid;
+    grid.canvas.getComponent = function() {
+        return self;
+    }
+    //this.startAnimator();
+    //lets make use of prototype inheritance for cell properties
+};
+
+/**
+ * @function
+ * @instance
+ * @description
+This is the entry point from fin-canvas.  Notify the fin-hypergrid everytime we've repainted.
+ *
+ * @param {CanvasRenderingContext2D} gc - [CanvasRenderingContext2D](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D)
+ */
+Renderer.prototype._paint = function(gc) {
+    if (!this.grid) {
+        return;
+    }
+    this.renderGrid(gc);
+    this.getGrid().gridRenderedNotification();
+};
+
+/**
+ * @function
+ * @instance
+ * @description
+Answer how many rows we rendered
+ * #### returns: integer
+ */
+Renderer.prototype.getVisibleRowsCount = function() {
+    return this.visibleRows.length - 1;
+};
+
+Renderer.prototype.getVisibleScrollHeight = function() {
+    var grid = this.getGrid();
+    var frh = grid.getFixedRowsHeight();
+    var height = this.viewHeight - frh;
+    return height;
+};
+
+/**
+ * @function
+ * @instance
+ * @description
+Answer what rows we just rendered as an Array of integers
+ * #### returns: Array
+ */
+Renderer.prototype.getVisibleRows = function() {
+    return this.visibleRows;
+};
+
+/**
+ * @function
+ * @instance
+ * @description
+Answer how many columns we just rendered
+ * #### returns: integer
+ */
+Renderer.prototype.getVisibleColumnsCount = function() {
+    return this.visibleColumns.length - 1;
+};
+
+/**
+ * @function
+ * @instance
+ * @description
+Answer what columns we just rendered as an Array of indexes
+ * #### returns: Array
+ */
+Renderer.prototype.getVisibleColumns = function() {
+    return this.visibleColumns;
+};
+
+/**
+ * @function
+ * @instance
+ * @description
+answer with the column index if the mouseEvent coordinates are over a column divider
+ * #### returns: integer
+ */
+Renderer.prototype.overColumnDivider = function(x) {
+    x = Math.round(x);
+    var edges = this.getColumnEdges();
+    var whichCol = edges.indexOf(x - 1);
+    if (whichCol < 0) {
+        whichCol = edges.indexOf(x);
+    }
+    if (whichCol < 0) {
+        whichCol = edges.indexOf(x - 2);
+    }
+    if (whichCol < 0) {
+        whichCol = edges.indexOf(x + 1);
+    }
+    if (whichCol < 0) {
+        whichCol = edges.indexOf(x - 3);
+    }
+
+    return whichCol;
+};
+
+/**
+ * @function
+ * @instance
+ * @description
+answer with the row index if the mouseEvent coordinates are over a row divider
+ * #### returns: integer
+ */
+Renderer.prototype.overRowDivider = function(y) {
+    y = Math.round(y);
+    var which = this.rowEdges.indexOf(y + 1);
+    if (which < 0) {
+        which = this.rowEdges.indexOf(y);
+    }
+    if (which < 0) {
+        which = this.rowEdges.indexOf(y - 1);
+    }
+    return which;
+};
+
+/**
+ * @function
+ * @instance
+ * @description
+answer with a rectangle the bounds of a specific cell
+ *
+ * @param {fin-rectangle.point} cell - [fin-rectangle.point](http://stevewirts.github.io/fin-rectangle/components/fin-rectangle/)
+ * @description
+ * #### returns: [fin-rectangle](http://stevewirts.github.io/fin-rectangle/components/fin-rectangle/)
+ */
+Renderer.prototype.getBoundsOfCell = function(cell) {
+    return this._getBoundsOfCell(cell.x, cell.y);
+};
+
+/**
+ * @function
+ * @instance
+ * @description
+answer with a rectangle the bounds of a specific cell
+ *
+ * @param {integer} x - x coordinate
+ * @param {integer} y - y coordinate
+ *
+ * @description
+ * #### returns: [fin-rectangle](http://stevewirts.github.io/fin-rectangle/components/fin-rectangle/)
+ */
+Renderer.prototype._getBoundsOfCell = function(c, r) {
+    var xOutside = false;
+    var yOutside = false;
+    var columnEdges = this.getColumnEdges();
+    var rowEdges = this.getRowEdges();
+
+    var x = this.columnEdgesIndexMap[c];
+    var y = this.rowEdgesIndexMap[r];
+    if (x === undefined) {
+        x = this.columnEdgesIndexMap[c - 1];
+        xOutside = true;
+    }
+
+    if (y === undefined) {
+        y = this.rowEdgesIndexMap[r - 1];
+        yOutside = true;
+    }
+
+    var ox = columnEdges[x],
+        oy = rowEdges[y],
+        cx = columnEdges[x + 1],
+        cy = rowEdges[y + 1],
+        ex = cx - ox,
+        ey = cy - oy;
+
+    var cell = this.cell;
+    cell.x = xOutside ? cx : ox;
+    cell.y = yOutside ? cy : oy;
+    cell.width = xOutside ? 0 : ex;
+    cell.height = yOutside ? 0 : ey;
+
+    return cell;
+
+};
+
+/**
+ * @function
+ * @instance
+ * @description
+answer the column index under the coordinate at pixelX
+ *
+ * @param {pixelX} x - x coordinate
+ * @description
+ * #### returns: integer
+ */
+Renderer.prototype.getColumnFromPixelX = function(pixelX) {
+    var width = 0;
+    var grid = this.getGrid();
+    var fixedColumnCount = this.getFixedColumnCount();
+    var scrollLeft = grid.getHScrollValue();
+    var c;
+    var edges = this.getColumnEdges();
+    for (c = 1; c < edges.length - 1; c++) {
+        width = edges[c] - (edges[c] - edges[c - 1]) / 2;
+        if (pixelX < width) {
+            if (c > fixedColumnCount) {
+                c = c + scrollLeft;
+            }
+            return c - 1;
+        }
+    }
+    if (c > fixedColumnCount) {
+        c = c + scrollLeft;
+    }
+    return c - 1;
+};
+
+
+/**
+ * @function
+ * @instance
+ * @description
+Answer specific data cell coordinates given mouse coordinates in pixels.
+ *
+ * @param {fin-rectangle.point} point - [fin-rectangle.point](http://stevewirts.github.io/fin-rectangle/components/fin-rectangle/)
+ * @description
+ * #### returns: Object
+ */
+Renderer.prototype.getGridCellFromMousePoint = function(point) {
+
+    var grid = this.getGrid();
+    var width = 0;
+    var height = 0;
+    var x, y, c, r;
+    var previous = 0;
+    var columnEdges = this.getColumnEdges();
+    var fixedColumnCount = this.getFixedColumnCount(); // + gridSize;
+    var fixedRowCount = this.getFixedRowCount();
+
+    // var fixedColumnCount = this.getFixedColumnCount();
+    // var fixedRowCount = this.getFixedRowCount();
+    var scrollX = this.getScrollLeft();
+    var scrollY = this.getScrollTop();
+
+    for (c = 0; c < columnEdges.length; c++) {
+        width = columnEdges[c];
+        if (point.x < width) {
+            x = Math.max(0, point.x - previous - 2);
+            break;
+        }
+        previous = width;
+    }
+    c--;
+    previous = 0;
+    for (r = 0; r < this.rowEdges.length; r++) {
+        height = this.rowEdges[r];
+        if (point.y < height) {
+            y = Math.max(0, point.y - previous - 2);
+            break;
+        }
+        previous = height;
+    }
+    r--;
+    if (point.x < 0) {
+        c = -1;
+    }
+    if (point.y < 0) {
+        r = -1;
+    }
+
+    var viewPoint = grid.newPoint(c, r);
+
+    //compensate if we are scrolled
+    if (c >= fixedColumnCount) {
+        c = c + scrollX;
+    }
+    if (r >= fixedRowCount) {
+        r = r + scrollY;
+    }
+
+    return {
+        gridCell: grid.newPoint(c, r),
+        mousePoint: grid.newPoint(x, y),
+        viewPoint: viewPoint
+    };
+};
+
+/**
+ * @function
+ * @instance
+ * @description
+Answer if a column is visible, must be fully visible
+ *
+ * @param {integer} colIndex - the column index
+ * @description
+ * #### returns: boolean
+ */
+Renderer.prototype.isColumnVisible = function(colIndex) {
+    var isVisible = this.visibleColumns.indexOf(colIndex) !== -1;
+    return isVisible;
+};
+
+/**
+ * @function
+ * @instance
+ * @description
+Answer the width x coordinate of the last rendered column
+ * #### returns: integer
+ */
+Renderer.prototype.getFinalVisableColumnBoundry = function() {
+    var isMaxX = this.isLastColumnVisible();
+    var chop = isMaxX ? 2 : 1;
+    var colWall = this.getColumnEdges()[this.getColumnEdges().length - chop];
+    var result = Math.min(colWall, this.getBounds().width() - 200);
+    return result;
+};
+
+/**
+ * @function
+ * @instance
+ * @description
+Answer if a row is visible, must be fully visible
+ *
+ * @param {integer} rowIndex - the row index
+ *
+ * @description
+ * #### returns: boolean
+ */
+Renderer.prototype.isRowVisible = function(rowIndex) {
+    var isVisible = this.visibleRows.indexOf(rowIndex) !== -1;
+    return isVisible;
+};
+
+/**
+ * @function
+ * @instance
+ * @description
+Answer if a data cell is selected.
+ *
+ * @param {integer} x - the x cell coordinate
+ * @param {integer} y - the y cell coordinate
+ *
+ * @description
+ * #### returns: boolean
+ */
+Renderer.prototype.isSelected = function(x, y) {
+    return this.getGrid().isSelected(x, y);
+};
+
+/**
+ * @function
+ * @instance
+ * @description
+This is the main forking of the renderering task.
+ *
+ * @param {CanvasRenderingContext2D} gc - [CanvasRenderingContext2D](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D)
+ */
+Renderer.prototype.renderGrid = function(gc) {
+    gc.beginPath();
+
+    this.paintCells(gc);
+    this.paintGridlines(gc);
+    //this.blankOutOverflow(gc); // no longer needed
+    this.renderOverrides(gc);
+    this.renderFocusCell(gc);
+    gc.closePath();
+};
+
+focusLineStep: [
+    [5, 5],
+    [0, 1, 5, 4],
+    [0, 2, 5, 3],
+    [0, 3, 5, 2],
+    [0, 4, 5, 1],
+    [0, 5, 5, 0],
+    [1, 5, 4, 0],
+    [2, 5, 3, 0],
+    [3, 5, 2, 0],
+    [4, 5, 1, 0]
+],
+
+Renderer.prototype.renderFocusCell = function(gc) {
+    gc.beginPath();
+    this._renderFocusCell(gc);
+    gc.closePath();
+};
+
+Renderer.prototype._renderFocusCell = function(gc) {
+    var grid = this.getGrid();
+    var selections = grid.getSelectionModel().getSelections();
+    if (!selections || selections.length === 0) {
+        return;
+    }
+    var selection = selections[selections.length - 1];
+    var mouseDown = selection.origin;
+    if (mouseDown.x === -1) {
+        //no selected area, lets exit
+        return;
+    }
+
+    var visibleColumns = this.getVisibleColumns();
+    var visibleRows = this.getVisibleRows();
+    var lastVisibleColumn = visibleColumns[visibleColumns.length - 1];
+    var lastVisibleRow = visibleRows[visibleRows.length - 1];
+
+    var extent = selection.extent;
+
+    var dpOX = Math.min(mouseDown.x, mouseDown.x + extent.x);
+    var dpOY = Math.min(mouseDown.y, mouseDown.y + extent.y);
+
+    //lets check if our selection rectangle is scrolled outside of the visible area
+    if (dpOX > lastVisibleColumn) {
+        return; //the top of our rectangle is below visible
+    }
+    if (dpOY > lastVisibleRow) {
+        return; //the left of our rectangle is to the right of being visible
+    }
+
+    var dpEX = Math.max(mouseDown.x, mouseDown.x + extent.x) + 1;
+    dpEX = Math.min(dpEX, 1 + lastVisibleColumn);
+
+    var dpEY = Math.max(mouseDown.y, mouseDown.y + extent.y) + 1;
+    dpEY = Math.min(dpEY, 1 + lastVisibleRow);
+
+    var o = this._getBoundsOfCell(dpOX, dpOY);
+    var ox = Math.round((o.x === undefined) ? grid.getFixedColumnsWidth() : o.x);
+    var oy = Math.round((o.y === undefined) ? grid.getFixedRowsHeight() : o.y);
+    // var ow = o.width;
+    // var oh = o.height;
+    var e = this._getBoundsOfCell(dpEX, dpEY);
+    var ex = Math.round((e.x === undefined) ? grid.getFixedColumnsWidth() : e.x);
+    var ey = Math.round((e.y === undefined) ? grid.getFixedRowsHeight() : e.y);
+    // var ew = e.width;
+    // var eh = e.height;
+    var x = Math.min(ox, ex);
+    var y = Math.min(oy, ey);
+    var width = 1 + ex - ox;
+    var height = 1 + ey - oy;
+    if (x === ex) {
+        width = ox - ex;
+    }
+    if (y === ey) {
+        height = oy - ey;
+    }
+    if (width * height < 1) {
+        //if we are only a skinny line, don't render anything
+        return;
+    }
+
+    gc.rect(x, y, width, height);
+    gc.fillStyle = 'rgba(0, 0, 0, 0.2)';
+    gc.fill();
+    gc.lineWidth = 1;
+    gc.strokeStyle = 'black';
+
+    // animate the dashed line a bit here for fun
+
+    gc.stroke();
+
+    //gc.rect(x, y, width, height);
+
+    //gc.strokeStyle = 'white';
+
+    // animate the dashed line a bit here for fun
+    //gc.setLineDash(this.focusLineStep[Math.floor(10 * (Date.now() / 300 % 1)) % this.focusLineStep.length]);
+
+    gc.stroke();
+};
+
+
+/**
+ * @function
+ * @instance
+ * @description
+Paint the background color over the overflow from the final column paint
+ *
+ * @param {CanvasRenderingContext2D} gc - [CanvasRenderingContext2D](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D)
+*/
+Renderer.prototype.blankOutOverflow = function(gc) {
+    var isMaxX = this.isLastColumnVisible();
+    var chop = isMaxX ? 1 : 0;
+    var x = this.getColumnEdges()[this.getColumnEdges().length - chop];
+    var bounds = this.getGrid().getBoundingClientRect();
+    var width = bounds.width - x;
+    var height = bounds.height;
+    gc.fillStyle = this.resolveProperty('backgroundColor2');
+    gc.fillRect(x + 1, 0, width, height);
+};
+
+/**
+ * @function
+ * @instance
+ * @description
+iterate the renderering overrides and manifest each
+ *
+ * @param {CanvasRenderingContext2D} gc - [CanvasRenderingContext2D](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D)
+*/
+Renderer.prototype.renderOverrides = function(gc) {
+    var grid = this.getGrid();
+    var cache = grid.renderOverridesCache;
+    for (var key in cache) {
+        if (cache.hasOwnProperty(key)) {
+            var override = cache[key];
+            if (override) {
+                this.renderOverride(gc, override);
+            }
+        }
+    }
+};
+
+/**
+ * @function
+ * @instance
+ * @description
+copy each overrides specified area to it's target and blank out the source area
+ *
+ * @param {CanvasRenderingContext2D} gc - [CanvasRenderingContext2D](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D)
+ * @param {OverrideObject} override - an object with details contain an area and a target context
+*/
+Renderer.prototype.renderOverride = function(gc, override) {
+    //lets blank out the drag row
+    var hdpiRatio = override.hdpiratio;
+    //var edges = this.getColumnEdges();
+    var startX = override.startX; //hdpiRatio * edges[override.columnIndex];
+    var width = override.width + 1;
+    var height = override.height;
+    var targetCTX = override.ctx;
+    var imgData = gc.getImageData(startX, 0, Math.round(width * hdpiRatio), Math.round(height * hdpiRatio));
+    targetCTX.putImageData(imgData, 0, 0);
+    gc.fillStyle = this.resolveProperty('backgroundColor2');
+    gc.fillRect(Math.round(startX / hdpiRatio), 0, width, height);
+};
+
+/**
+ * @function
+ * @instance
+ * @description
+answers if x, y is currently being hovered over
+ * #### returns: boolean
+ * @param {integer} offsetX - x coordinate
+ * @param {integer} offsetY - y coordinate
+ *
+*/
+Renderer.prototype.isHovered = function(x, y) {
+    return this.getGrid().isHovered(x, y);
+};
+
+/**
+ * @function
+ * @instance
+ * @description
+answers if row y is currently being hovered over
+ * #### returns: boolean
+ * @param {integer} offsetY - y coordinate
+ *
+*/
+Renderer.prototype.isRowHovered = function(y) {
+    return this.getGrid().isRowHovered(y);
+};
+
+/**
+ * @function
+ * @instance
+ * @description
+answers if column x is currently being hovered over
+ * #### returns: boolean
+ * @param {integer} offsetX - x coordinate
+ *
+*/
+Renderer.prototype.isColumnHovered = function(x) {
+    return this.getGrid().isColumnHovered(x);
+};
+
+/**
+ * @function
+ * @instance
+ * @description
+Protected render the main cells.  We snapshot the context to insure against its polution.
+ * @param {CanvasRenderingContext2D} gc - [CanvasRenderingContext2D](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D)
+ * @param {integer} offsetX - x coordinate to start at
+ * @param {integer} offsetY - y coordinate to start at
+ *
+*/
+Renderer.prototype.paintCells = function(gc) {
+    try {
+        gc.save();
+        this._paintCells(gc);
+    } catch (e) {
+        console.error(e);
+    } finally {
+        gc.restore();
+    }
+};
+
+/**
+ * @function
+ * @instance
+ * @description
+answers if a specfic column in the fixed row area is selected
+ * @param {integer} colIndex - column index
+ *
+*/
+Renderer.prototype.isCellSelectedInRow = function(colIndex) {
+    return this.getGrid().isCellSelectedInRow(colIndex);
+};
+
+/**
+ * @function
+ * @instance
+ * @description
+answers if a specfic row in the fixed column area is selected
+ * @param {integer} rowIndex - column index
+ *
+*/
+Renderer.prototype.isCellSelectedInColumn = function(rowIndex) {
+    return this.getGrid().isCellSelectedInColumn(rowIndex);
+};
+
+/**
+ * @function
+ * @instance
+ * @description
+answers current vertical scroll value
+ * #### returns: integer
+*/
+Renderer.prototype.getScrollTop = function() {
+    var st = this.getGrid().getVScrollValue();
+    return st;
+};
+
+/**
+ * @function
+ * @instance
+ * @description
+answers current horizontal scroll value
+ * #### returns: integer
+*/
+Renderer.prototype.getScrollLeft = function() {
+    var st = this.getGrid().getHScrollValue();
+    return st;
+};
+
+/**
+ * @function
+ * @instance
+ * @description
+getter for my behavior (model)
+ * #### returns: [fin-hypergrid-behavior-base](module-behaviors_base.html)
+*/
+Renderer.prototype.getBehavior = function() {
+    return this.getGrid().getBehavior();
+};
+
+Renderer.prototype.getColumnEdges = function() {
+    return this.columnEdges;
+};
+
+Renderer.prototype.getRowEdges = function() {
+    return this.rowEdges;
+};
+/**
+ * @function
+ * @instance
+ * @description
+answers the row height of the row at index rowIndex
+ * #### returns: integer
+ * @param {integer} rowIndex - the row index
+*/
+Renderer.prototype.getRowHeight = function(rowIndex) {
+    var height = this.getBehavior().getRowHeight(rowIndex);
+    return height;
+};
+
+/**
+ * @function
+ * @instance
+ * @description
+answers the columnWidth of the column at index columnIndex
+ * #### returns: integer
+ * @param {integer} columnIndex - the row index
+*/
+Renderer.prototype.getColumnWidth = function(columnIndex) {
+    var width = this.getGrid().getColumnWidth(columnIndex);
+    return width;
+};
+
+/**
+ * @function
+ * @instance
+ * @description
+answer true if the last col was rendered (is visible)
+ * #### returns: boolean
+*/
+Renderer.prototype.isLastColumnVisible = function() {
+    var lastColumnIndex = this.getColumnCount() - 1;
+    var isMax = this.visibleColumns.indexOf(lastColumnIndex) !== -1;
+    return isMax;
+};
+
+/**
+ * @function
+ * @instance
+ * @description
+answer the rendered column width at index
+ * #### returns: integer
+*/
+Renderer.prototype.getRenderedWidth = function(index) {
+    return this.getColumnEdges()[index];
+};
+
+/**
+ * @function
+ * @instance
+ * @description
+answer the rendered row height at index
+ * #### returns: integer
+*/
+Renderer.prototype.getRenderedHeight = function(index) {
+    return this.rowEdges[index];
+};
+
+/**
+ * @function
+ * @instance
+ * @description
+getter for my [fin-canvas](https://github.com/stevewirts/fin-canvas)
+ * #### returns: [fin-canvas](https://github.com/stevewirts/fin-canvas)
+*/
+Renderer.prototype.getCanvas = function() {
+    return this.getGrid().getCanvas();
+};
+
+/**
+ * @function
+ * @instance
+ * @description
+answer if the user is currently dragging a column for reordering
+ * #### returns: boolean
+*/
+Renderer.prototype.isDraggingColumn = function() {
+    return this.getGrid().isDraggingColumn();
+};
+
+/**
+ * @function
+ * @instance
+ * @description
+answer the row to goto for a page up
+ * #### returns: integer
+*/
+Renderer.prototype.getPageUpRow = function() {
+    var behavior = this.getBehavior();
+    var scrollHeight = this.getVisibleScrollHeight();
+    var headerRows = this.getGrid().getFixedRowCount();
+    var top = this.dataWindow.origin.y - headerRows;
+    var scanHeight = 0;
+    while (scanHeight < scrollHeight && top > -1) {
+        scanHeight = scanHeight + behavior.getRowHeight(top);
+        top--;
+    }
+    return top + 1;
+};
+
+/**
+ * @function
+ * @instance
+ * @description
+answer the row to goto for a page down
+ * #### returns: integer
+*/
+Renderer.prototype.getPageDownRow = function() {
+    var headerRows = this.getGrid().getFixedRowCount();
+    var rowNum = this.dataWindow.corner.y - headerRows - 1;
+    return rowNum;
+};
+
+/**
+ * @function
+ * @instance
+ * @description
+return the number of columns
+ *
+ * #### returns: integer
+ */
+Renderer.prototype.getColumnCount = function() {
+    return this.getGrid().getColumnCount();
+};
+
+/**
+ * @function
+ * @instance
+ * @description
+return the number of rows
+ *
+ * #### returns: integer
+ */
+Renderer.prototype.getRowCount = function() {
+    return this.getGrid().getRowCount();
+};
+
+/**
+ * @function
+ * @instance
+ * @description
+return the number of fixed columns
+ *
+ * #### returns: integer
+ */
+Renderer.prototype.getFixedColumnCount = function() {
+    return this.getGrid().getFixedColumnCount();
+};
+
+/**
+ * @function
+ * @instance
+ * @description
+return the number of fixed rows
+ *
+ * #### returns: integer
+ */
+Renderer.prototype.getFixedRowCount = function() {
+    return this.getGrid().getFixedRowCount();
+};
+
+/**
+ * @function
+ * @instance
+ * @description
+return the number of fixed rows
+ *
+ * #### returns: integer
+ */
+Renderer.prototype.getHeaderRowCount = function() {
+    return this.getGrid().getHeaderRowCount();
+};
+
+/**
+ * @function
+ * @instance
+ * @description
+return the number of fixed rows
+ *
+ * #### returns: integer
+ */
+Renderer.prototype.getHeaderColumnCount = function() {
+    return this.getGrid().getHeaderColumnCount();
+};
+
+/**
+ * @function
+ * @instance
+ * @description
+Unprotected rendering the fixed columns along the left side
+ * @param {CanvasRenderingContext2D} gc - [CanvasRenderingContext2D](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D)
+ * @param {integer} offsetX - x coordinate to start at
+ * @param {integer} offsetY - y coordinate to start at
+ * @param {integer} numColumns - the max columns to iterate through
+ * @param {integer} numRows - the max rows to iterate through
+ *
+*/
+Renderer.prototype._paintCells = function(gc) {
+    var x, y, c, r = 0;
+
+    var columnEdges = this.getColumnEdges();
+    var rowEdges = this.rowEdges;
+    this.buttonCells = {};
+    var visibleCols = this.getVisibleColumns();
+    var visibleRows = this.getVisibleRows();
+
+    var width = columnEdges[columnEdges.length - 1];
+    var height = rowEdges[rowEdges.length - 1];
+
+    gc.moveTo(0, 0);
+    gc.rect(0, 0, width, height);
+    gc.stroke();
+    gc.clip();
+
+    var loopLength = visibleCols.length;
+    var loopStart = 0;
+
+    if (this.getGrid().isShowRowNumbers()) {
+        //loopLength++;
+        loopStart--;
+    }
+
+    for (x = loopStart; x < loopLength; x++) {
+        c = visibleCols[x];
+        this.renderedColumnMinWidths[c] = 0;
+        for (y = 0; y < visibleRows.length; y++) {
+            r = visibleRows[y];
+            this._paintCell(gc, c, r);
+        }
+    }
+
+};
+
+/**
+ * @function
+ * @instance
+ * @description
+We opted to not paint borders for each cell as that was extremely expensive.  Instead we draw gridlines here.  Also we record the widths and heights for later.
+ *
+ * @param {CanvasRenderingContext2D} gc - [CanvasRenderingContext2D](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D)
+ * @param {integer} offsetX - x coordinate to start at
+ * @param {integer} offsetY - y coordinate to start at
+*/
+Renderer.prototype.paintGridlines = function(gc) {
+    var x, y, c, r = 0;
+
+    var colWidths = this.getColumnEdges();
+    var rowHeights = this.rowEdges;
+
+    var viewWidth = colWidths[colWidths.length - 1];
+    var viewHeight = rowHeights[rowHeights.length - 1];
+
+    var drawThemH = this.resolveProperty('gridLinesH');
+    var drawThemV = this.resolveProperty('gridLinesV');
+    var lineColor = this.resolveProperty('lineColor');
+
+    gc.beginPath();
+    gc.strokeStyle = lineColor;
+    gc.lineWidth = this.resolveProperty('lineWidth');
+    gc.moveTo(0, 0);
+
+    if (drawThemV) {
+        for (c = 0; c < colWidths.length + 1; c++) {
+            x = colWidths[c] + 0.5;
+            gc.moveTo(x, 0);
+            gc.lineTo(x, viewHeight);
+        }
+    }
+
+    if (drawThemH) {
+        for (r = 0; r < rowHeights.length; r++) {
+            y = rowHeights[r] + 0.5;
+            gc.moveTo(0, y);
+            gc.lineTo(viewWidth, y);
+        }
+    }
+    gc.stroke();
+    gc.closePath();
+};
+
+Renderer.prototype.paintCell = function(gc, x, y) {
+    var c, r = 0;
+    var visibleCols = this.getVisibleColumns();
+    var visibleRows = this.getVisibleRows();
+    gc.moveTo(0, 0);
+    c = visibleCols[x];
+    r = visibleRows[y];
+    if (!c) {
+        return; // were not being viewed at at the moment, nothing to paint
+    }
+    this._paintCell(gc, c, r);
+};
+
+Renderer.prototype._paintCell = function(gc, c, r) {
+
+    var grid = this.getGrid();
+    var behavior = this.getBehavior();
+    var baseProperties = behavior.getColumnProperties(c);
+    var columnProperties = baseProperties;
+    var headerRowCount = behavior.getHeaderRowCount();
+    //var headerColumnCount = behavior.getHeaderColumnCount();
+
+    var isShowRowNumbers = grid.isShowRowNumbers();
+    var isHeaderRow = r < headerRowCount;
+    //var isHeaderColumn = c < headerColumnCount;
+    var isFilterRow = grid.isFilterRow(r);
+    var isHierarchyColumn = grid.isHierarchyColumn(c);
+    var isRowSelected = grid.isRowSelected(r);
+    var isColumnSelected = grid.isColumnSelected(c);
+    var isCellSelected = grid.isCellSelected(c, r);
+    var isCellSelectedInColumn = grid.isCellSelectedInColumn(c);
+    var isCellSelectedInRow = grid.isCellSelectedInRow(r);
+    var areAllRowsSelected = grid.areAllRowsSelected();
+
+    var cellProperties;
+
+    if ((isShowRowNumbers && c === -1) || (!isShowRowNumbers && c === 0)) {
+        if (isRowSelected) {
+            baseProperties = baseProperties.rowHeaderRowSelection;
+            cellProperties = Object.create(baseProperties);
+            cellProperties.isSelected = true;
+        } else {
+            baseProperties = baseProperties.rowHeader;
+            cellProperties = Object.create(baseProperties);
+            cellProperties.isSelected = isCellSelectedInRow;
+        }
+        cellProperties.isUserDataArea = false;
+    } else if (isHeaderRow) {
+        if (isFilterRow) {
+            baseProperties = baseProperties.filterProperties;
+            cellProperties = Object.create(baseProperties);
+            cellProperties.isSelected = false;
+        } else if (isColumnSelected) {
+            baseProperties = baseProperties.columnHeaderColumnSelection;
+            cellProperties = Object.create(baseProperties);
+            cellProperties.isSelected = true;
+        } else {
+            baseProperties = baseProperties.columnHeader;
+            cellProperties = Object.create(baseProperties);
+            cellProperties.isSelected = isCellSelectedInColumn;
+        }
+        cellProperties.isUserDataArea = false;
+    } else if (isHierarchyColumn) {
+        baseProperties = baseProperties.rowHeader;
+        cellProperties = Object.create(baseProperties);
+        cellProperties.isSelected = isCellSelectedInRow;
+    } else {
+        cellProperties = Object.create(baseProperties);
+        cellProperties.isSelected = isCellSelected || isRowSelected || isColumnSelected;
+        cellProperties.isUserDataArea = true;
+    }
+
+    var rowNum = r - headerRowCount + 1;
+
+    if (c === -1) {
+        var checkedImage = isRowSelected ? 'checked' : 'unchecked';
+        cellProperties.value = isHeaderRow ? '' : [behavior.getImage(checkedImage), rowNum, null];
+        if (r === 0) {
+            checkedImage = areAllRowsSelected ? 'checked' : 'unchecked';
+            cellProperties.value = [behavior.getImage(checkedImage), '', null];
+        } else if (isFilterRow) {
+            cellProperties.value = [behavior.getImage('filter-off'), '', null];
+
+        }
+    } else {
+        cellProperties.value = grid.getValue(c, r);
+    }
+    cellProperties.halign = grid.getColumnAlignment(c);
+    cellProperties.isColumnHovered = this.isRowHovered(c, r);
+    cellProperties.isRowHovered = this.isColumnHovered(c, r);
+    cellProperties.bounds = this._getBoundsOfCell(c, r);
+    cellProperties.isCellSelected = isCellSelected;
+    cellProperties.isRowSelected = isRowSelected;
+    cellProperties.isColumnSelected = isColumnSelected;
+    cellProperties.isInCurrentSelectionRectangle = grid.isInCurrentSelectionRectangle(c, r);
+
+    var mouseDownState = grid.mouseDownState;
+    if (mouseDownState) {
+        var point = mouseDownState.gridCell;
+        cellProperties.mouseDown = point.x === c && point.y === r;
+    }
+
+    cellProperties.x = c;
+    cellProperties.y = r;
+
+    behavior.cellPropertiesPrePaintNotification(cellProperties);
+
+    var cell = behavior.getCellRenderer(cellProperties, c, r);
+    var overrides = behavior.getCellProperties(c, r);
+
+    //declarative cell properties
+    if (overrides) {
+        merge(cellProperties, overrides);
+    }
+
+    //allow the renderer to identify itself if it's a button
+    cellProperties.buttonCells = this.buttonCells;
+
+    cell.paint(gc, cellProperties);
+
+    this.renderedColumnMinWidths[c] = Math.max(cellProperties.minWidth || 0, this.renderedColumnMinWidths[c]);
+    columnProperties.preferredWidth = this.renderedColumnMinWidths[c];
+};
+Renderer.prototype.isViewableButton = function(c, r) {
+    var key = c + ',' + r;
+    return this.buttonCells[key] === true;
+};
+Renderer.prototype.getRowNumbersWidth = function() {
+    var colEdges = this.getColumnEdges();
+    if (colEdges.length === 0) {
+        return 0;
+    }
+    return colEdges[0];
+};
+Renderer.prototype.startAnimator = function() {
+    var animate;
+    var self = this;
+    animate = function() {
+        self.animate();
+        requestAnimationFrame(animate);
+    };
+    requestAnimationFrame(animate);
+};
+Renderer.prototype.animate = function() {
+    var ctx = this.getCanvas().canvasCTX;
+    ctx.beginPath();
+    ctx.save();
+    this.renderFocusCell(ctx);
+    ctx.restore();
+    ctx.closePath();
+};
+
+Renderer.prototype.setBounds = function(bounds) {
+    this.bounds = bounds;
+};
+
+module.exports = Renderer;
+
+},{}],4:[function(require,module,exports){
+/* global RangeSelectionModel */
+'use strict';
+
+/**
+ *
+ * @module .\selection-model
+ * @description
+ We represent selections as a list of rectangles because large areas can be represented and tested against quickly with a minimal amount of memory usage. Also we need to maintain the selection rectangles flattened counter parts so we can test for single dimension contains.  This is how we know to highlight the fixed regions on the edges of the grid.
+ */
+
+function SelectionModel() {
+    this.selections = [];
+    this.flattenedX = [];
+    this.flattenedY = [];
+    this.rowSelectionModel = new RangeSelectionModel();
+    this.columnSelectionModel = new RangeSelectionModel();
+    this.setLastSelectionType('');
+    this.allRowsSelected = false;
+};
+
+SelectionModel.prototype = {};
+
+/**
+ *
+ * @property {Array} selections - an array containing the selection rectangles
+ * @instance
+ */
+SelectionModel.prototype.selections = null;
+
+/**
+ *
+ * @property {Array} flattenedX - an array containing the selection rectangles flattend in the x dimension
+ * @instance
+ */
+SelectionModel.prototype.flattenedX = null;
+
+/**
+ *
+ * @property {Array} flattenedY - an array containing the selection rectangles flattend in the y dimension
+ * @instance
+ */
+SelectionModel.prototype.flattenedY = null;
+
+SelectionModel.prototype.rowSelectionModel = null;
+
+SelectionModel.prototype.columnSelectionModel = null;
+
+SelectionModel.prototype.allRowsSelected = false;
+
+
+/**
+ * @function
+ * @instance
+ * @description
+getter for the [fin-hypergrid](module-._fin-hypergrid.html)
+ * #### returns: fin-hypergrid
+ */
+SelectionModel.prototype.getGrid = function() {
+    return null;
+};
+SelectionModel.prototype.getLastSelection = function() {
+    var sels = this.getSelections();
+    var sel = sels[sels.length - 1];
+    return sel;
+};
+
+SelectionModel.prototype.getLastSelectionType = function() {
+    return this.lastSelectionType;
+};
+SelectionModel.prototype.setLastSelectionType = function(type) {
+    this.lastSelectionType = type;
+};
+/**
+ * @function
+ * @instance
+ * @description
+select a region given an origin x,y and extent x,y
+ *
+ * @param {integer} ox - origin x coordinate
+ * @param {integer} oy - origin y coordinate
+ * @param {integer} ex - extent x coordinate
+ * @param {integer} ey - extent y coordinate
+ */
+SelectionModel.prototype.select = function(ox, oy, ex, ey) {
+    var newSelection = this.getGrid().newRectangle(ox, oy, ex, ey);
+    this.selections.push(newSelection);
+    this.flattenedX.push(newSelection.flattenXAt(0));
+    this.flattenedY.push(newSelection.flattenYAt(0));
+    this.setLastSelectionType('cell');
+    this.getGrid().selectionChanged();
+};
+
+SelectionModel.prototype.toggleSelect = function(ox, oy, ex, ey) {
+
+    var selections = this.getSelections();
+
+    for (var i = 0; i < selections.length; i++) {
+        var each = selections[i];
+        if (each.origin.x === ox && each.origin.y === oy && each.extent.x === ex && each.extent.y === ey) {
+            selections.splice(i, 1);
+            this.flattenedX.splice(i, 1);
+            this.flattenedY.splice(i, 1);
+            this.getGrid().selectionChanged();
+            return;
+        }
+    }
+
+    this.select(ox, oy, ex, ey);
+
+};
+
+/**
+ * @function
+ * @instance
+ * @description
+remove the last selection that was created
+ */
+SelectionModel.prototype.clearMostRecentSelection = function() {
+    this.allRowsSelected = false;
+    this.selections.length = Math.max(0, this.selections.length - 1);
+    this.flattenedX.length = Math.max(0, this.flattenedX.length - 1);
+    this.flattenedY.length = Math.max(0, this.flattenedY.length - 1);
+    //this.getGrid().selectionChanged();
+};
+
+SelectionModel.prototype.clearMostRecentColumnSelection = function() {
+    this.columnSelectionModel.clearMostRecentSelection();
+    this.setLastSelectionType('column');
+};
+
+SelectionModel.prototype.clearMostRecentRowSelection = function() {
+    this.rowSelectionModel.clearMostRecentSelection();
+    this.setLastSelectionType('row');
+};
+
+SelectionModel.prototype.clearRowSelection = function() {
+    this.rowSelectionModel.clear();
+    this.setLastSelectionType('row');
+};
+
+SelectionModel.prototype.getSelections = function() {
+    return this.selections;
+};
+
+/**
+ * @function
+ * @instance
+ * @description
+answer if I have any selections
+ *
+ * #### returns: boolean
+ */
+SelectionModel.prototype.hasSelections = function() {
+    return this.selections.length !== 0;
+};
+
+SelectionModel.prototype.hasRowSelections = function() {
+    return !this.rowSelectionModel.isEmpty();
+};
+
+SelectionModel.prototype.hasColumnSelections = function() {
+    return !this.columnSelectionModel.isEmpty();
+};
+
+/**
+ * @function
+ * @instance
+ * @description
+answer coordinate x, y is selected
+ * #### returns: boolean
+ * @param {integer} x - column index
+ * @param {integer} y - row index
+ */
+SelectionModel.prototype.isSelected = function(x, y) {
+    return this._isSelected(this.selections, x, y);
+};
+
+/**
+ * @function
+ * @instance
+ * @description
+answer if we have a selection covering a specific column
+ * #### returns: boolean
+ * @param {integer} col - column index
+ */
+SelectionModel.prototype.isCellSelectedInRow = function(r) {
+    return this._isCellSelected(this.flattenedX, 0, r);
+};
+
+/**
+ * @function
+ * @instance
+ * @description
+answer if we have a selection covering a specific row
+ * #### returns: boolean
+ * @param {integer} row - row index
+ */
+SelectionModel.prototype.isCellSelectedInColumn = function(c) {
+    return this._isCellSelected(this.flattenedY, c, 0);
+};
+
+/**
+ * @function
+ * @instance
+ * @description
+general selection query function
+ *
+ * @param {Array} selections - array of selection rectangles to search through
+ * @param {integer} x - x coordinate
+ * @param {integer} y - y coordinate
+ */
+SelectionModel.prototype._isSelected = function(selections, x, y) {
+    if (this.isColumnSelected(x) || this.isRowSelected(y)) {
+        return true;
+    }
+    return this._isCellSelected(selections, x, y);
+};
+
+SelectionModel.prototype.isCellSelected = function(x, y) {
+    return this._isCellSelected(this.getSelections(), x, y);
+};
+
+SelectionModel.prototype._isCellSelected = function(selections, x, y) {
+    for (var i = 0; i < selections.length; i++) {
+        var each = selections[i];
+        if (this.getGrid().rectangles.rectangle.contains(each, x, y)) {
+            return true;
+        }
+    }
+    return false;
+};
+/**
+ * @function
+ * @instance
+ * @description
+empty out all our state
+ *
+ */
+SelectionModel.prototype.clear = function() {
+    this.allRowsSelected = false;
+    this.selections.length = 0;
+    this.flattenedX.length = 0;
+    this.flattenedY.length = 0;
+    this.rowSelectionModel.clear();
+    this.columnSelectionModel.clear();
+    //this.getGrid().selectionChanged();
+};
+
+SelectionModel.prototype.isRectangleSelected = function(ox, oy, ex, ey) {
+    var selections = this.getSelections();
+    for (var i = 0; i < selections.length; i++) {
+        var each = selections[i];
+        if (each.origin.x === ox && each.origin.y === oy && each.extent.x === ex && each.extent.y === ey) {
+            return true;
+        }
+    }
+    return false;
+};
+
+SelectionModel.prototype.isColumnSelected = function(x) {
+    return this.columnSelectionModel.isSelected(x);
+};
+
+SelectionModel.prototype.isRowSelected = function(y) {
+    return this.allRowsSelected || this.rowSelectionModel.isSelected(y);
+};
+
+SelectionModel.prototype.selectColumn = function(x1, x2) {
+    this.columnSelectionModel.select(x1, x2);
+    this.setLastSelectionType('column');
+};
+
+SelectionModel.prototype.selectAllRows = function() {
+    this.clear();
+    this.allRowsSelected = true;
+};
+
+SelectionModel.prototype.areAllRowsSelected = function() {
+    return this.allRowsSelected;
+};
+
+SelectionModel.prototype.selectRow = function(y1, y2) {
+    this.rowSelectionModel.select(y1, y2);
+    this.setLastSelectionType('row');
+};
+
+SelectionModel.prototype.deselectColumn = function(x1, x2) {
+    this.columnSelectionModel.deselect(x1, x2);
+    this.setLastSelectionType('column');
+};
+
+SelectionModel.prototype.deselectRow = function(y1, y2) {
+    this.rowSelectionModel.deselect(y1, y2);
+    this.setLastSelectionType('row');
+};
+
+SelectionModel.prototype.getSelectedRows = function() {
+    return this.rowSelectionModel.getSelections();
+};
+
+SelectionModel.prototype.getSelectedColumns = function() {
+    return this.columnSelectionModel.getSelections();
+};
+
+SelectionModel.prototype.isColumnOrRowSelected = function() {
+    return !this.columnSelectionModel.isEmpty() || !this.rowSelectionModel.isEmpty();
+};
+SelectionModel.prototype.getFlattenedYs = function() {
+    var result = [];
+    var set = {};
+    for (var i = 0; i < this.selections.length; i++) {
+        var each = this.selections[i];
+        var top = each.origin.y;
+        var size = each.extent.y + 1;
+        for (var r = 0; r < size; r++) {
+            var ti = r + top;
+            if (!set[ti]) {
+                result.push(ti);
+                set[ti] = true;
+            }
+        }
+
+    }
+    result.sort(function(x, y) {
+        return x - y;
+    });
+    return result;
+};
+
+SelectionModel.prototype.selectRowsFromCells = function(offset) {
+    this.allRowsSelected = false;
+    offset = offset || 0;
+    var sm = this.rowSelectionModel;
+    sm.clear();
+    for (var i = 0; i < this.selections.length; i++) {
+        var each = this.selections[i];
+        var top = each.origin.y;
+        var size = each.extent.y;
+        sm.select(top + offset, top + size + offset);
+    }
+};
+
+SelectionModel.prototype.selectColumnsFromCells = function(offset) {
+    offset = offset || 0;
+    var sm = this.columnSelectionModel;
+    sm.clear();
+    for (var i = 0; i < this.selections.length; i++) {
+        var each = this.selections[i];
+        var top = each.origin.x;
+        var size = each.extent.x;
+        sm.select(top + offset, top + size + offset);
+    }
+};
+
+SelectionModel.prototype.isInCurrentSelectionRectangle = function(x, y) {
+    var last = this.selections[this.selections.length - 1];
+    if (last) {
+        return this.getGrid().rectangles.rectangle.contains(last, x, y);
+    }
+    return false;
+};
+
+module.exports = SelectionModel;
+
+},{}],5:[function(require,module,exports){
 'use strict';
 
 module.exports = {
     //CellClick: require('./CellClick.js');
 };
 
-},{}],2:[function(require,module,exports){
-arguments[4][1][0].apply(exports,arguments)
-},{"dup":1}],3:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
+arguments[4][5][0].apply(exports,arguments)
+},{"dup":5}],7:[function(require,module,exports){
 'use strict';
 
 function Base() {
@@ -48,7 +2526,7 @@ module.exports = Base;
 
 
 
-},{}],4:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 'use strict';
 
 var Base = require('./Base.js');
@@ -118,7 +2596,7 @@ Default.prototype.getRowCount = function() {
 
 module.exports = Default;
 
-},{"./Base.js":3}],5:[function(require,module,exports){
+},{"./Base.js":7}],9:[function(require,module,exports){
 'use strict';
 
 var Base = require('./Base.js');
@@ -188,7 +2666,7 @@ InMemory.prototype.getRowCount = function() {
 
 module.exports = InMemory;
 
-},{"./Base.js":3}],6:[function(require,module,exports){
+},{"./Base.js":7}],10:[function(require,module,exports){
 'use strict';
 
 var Base = require('./Base.js');
@@ -690,7 +3168,7 @@ JSON.prototype.applyState = function() {
 
 module.exports = JSON;
 
-},{"./Base.js":3}],7:[function(require,module,exports){
+},{"./Base.js":7}],11:[function(require,module,exports){
 'use strict';
 
 module.exports = {
@@ -699,7 +3177,7 @@ module.exports = {
     JSON: require('./JSON.js')
 };
 
-},{"./Default.js":4,"./InMemory.js":5,"./JSON.js":6}],8:[function(require,module,exports){
+},{"./Default.js":8,"./InMemory.js":9,"./JSON.js":10}],12:[function(require,module,exports){
 'use strict';
 /**
  *
@@ -1088,7 +3566,7 @@ Base.prototype.initializeOn = function(grid) {
 
 module.exports = Base;
 
-},{}],9:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 'use strict';
 /**
  *
@@ -1130,7 +3608,7 @@ CellClick.prototype.handleTap = function(grid, event) {
 
 module.exports = CellClick;
 
-},{"./Base.js":8}],10:[function(require,module,exports){
+},{"./Base.js":12}],14:[function(require,module,exports){
 'use strict';
 
 /**
@@ -1192,7 +3670,7 @@ CellEditing.prototype.handleHoldPulse = function(grid, event) {
 
 module.exports = CellEditing;
 
-},{"./Base.js":8}],11:[function(require,module,exports){
+},{"./Base.js":12}],15:[function(require,module,exports){
 'use strict';
 /**
  *
@@ -1793,7 +4271,7 @@ CellSelection.prototype.moveSingleSelect = function(grid, offsetX, offsetY) {
 
 module.exports = CellSelection;
 
-},{"./Base.js":8}],12:[function(require,module,exports){
+},{"./Base.js":12}],16:[function(require,module,exports){
 'use strict';
 /**
  *
@@ -1834,7 +4312,7 @@ ColumnAutosizing.prototype.handleDoubleClick = function(grid, event) {
 
 module.exports = ColumnAutosizing;
 
-},{"./Base.js":8}],13:[function(require,module,exports){
+},{"./Base.js":12}],17:[function(require,module,exports){
 'use strict';
 /**
  *
@@ -2555,7 +5033,7 @@ ColumnMoving.prototype.isHeaderRow = function(grid, event) {
 
 module.exports = ColumnMoving;
 
-},{"./Base.js":8}],14:[function(require,module,exports){
+},{"./Base.js":12}],18:[function(require,module,exports){
 'use strict';
 /**
  *
@@ -2866,7 +5344,7 @@ ColumnResizing.prototype.isEnabled = function( /* grid */ ) {
 
 module.exports = ColumnResizing;
 
-},{"./Base.js":8}],15:[function(require,module,exports){
+},{"./Base.js":12}],19:[function(require,module,exports){
 'use strict';
 /**
  *
@@ -3464,7 +5942,7 @@ ColumnSelection.prototype.isColumnDragging = function(grid) {
 
 module.exports = ColumnSelection;
 
-},{"./Base.js":8}],16:[function(require,module,exports){
+},{"./Base.js":12}],20:[function(require,module,exports){
 'use strict';
 /**
  *
@@ -3525,7 +6003,7 @@ ColumnSorting.prototype.handleMouseMove = function(grid, event) {
 
 module.exports = ColumnSorting;
 
-},{"./Base.js":8}],17:[function(require,module,exports){
+},{"./Base.js":12}],21:[function(require,module,exports){
 'use strict';
 /**
  *
@@ -3555,7 +6033,7 @@ Filters.prototype.handleTap = function(grid, event) {
 
 module.exports = Filters;
 
-},{"./Base.js":8}],18:[function(require,module,exports){
+},{"./Base.js":12}],22:[function(require,module,exports){
 'use strict';
 /**
  *
@@ -3616,7 +6094,7 @@ KeyPaging.prototype.handleKeyDown = function(grid, event) {
 
 module.exports = KeyPaging;
 
-},{"./Base.js":8}],19:[function(require,module,exports){
+},{"./Base.js":12}],23:[function(require,module,exports){
 'use strict';
 /**
  *
@@ -3660,7 +6138,7 @@ OnHover.prototype.handleMouseMove = function(grid, event) {
 
 module.exports = OnHover;
 
-},{"./Base.js":8}],20:[function(require,module,exports){
+},{"./Base.js":12}],24:[function(require,module,exports){
 'use strict';
 /**
  *
@@ -3874,7 +6352,7 @@ Overlay.prototype.getCharFor = function(grid, integer) {
 
 module.exports = Overlay;
 
-},{"./Base.js":8}],21:[function(require,module,exports){
+},{"./Base.js":12}],25:[function(require,module,exports){
 'use strict';
 /**
  *
@@ -4046,7 +6524,7 @@ RowResizing.prototype.isEnabled = function(grid) {
 
 module.exports = RowResizing;
 
-},{"./ColumnResizing.js":14}],22:[function(require,module,exports){
+},{"./ColumnResizing.js":18}],26:[function(require,module,exports){
 'use strict';
 /**
  *
@@ -4599,7 +7077,7 @@ RowSelection.prototype.isSingleRowSelection = function() {
 
 module.exports = RowSelection;
 
-},{"./Base.js":8}],23:[function(require,module,exports){
+},{"./Base.js":12}],27:[function(require,module,exports){
 'use strict';
 /**
  *
@@ -4647,7 +7125,7 @@ ThumbwheelScrolling.handleWheelMoved = function(grid, e) {
 
 module.exports = ThumbwheelScrolling;
 
-},{"./Base.js":8}],24:[function(require,module,exports){
+},{"./Base.js":12}],28:[function(require,module,exports){
 'use strict';
 
 module.exports = {
@@ -4669,7 +7147,7 @@ module.exports = {
 };
 
 
-},{"./CellClick.js":9,"./CellEditing.js":10,"./CellSelection.js":11,"./ColumnAutosizing.js":12,"./ColumnMoving.js":13,"./ColumnResizing.js":14,"./ColumnSelection.js":15,"./ColumnSorting.js":16,"./Filters.js":17,"./KeyPaging.js":18,"./OnHover.js":19,"./Overlay.js":20,"./RowResizing.js":21,"./RowSelection.js":22,"./ThumbwheelScrolling.js":23}],25:[function(require,module,exports){
+},{"./CellClick.js":13,"./CellEditing.js":14,"./CellSelection.js":15,"./ColumnAutosizing.js":16,"./ColumnMoving.js":17,"./ColumnResizing.js":18,"./ColumnSelection.js":19,"./ColumnSorting.js":20,"./Filters.js":21,"./KeyPaging.js":22,"./OnHover.js":23,"./Overlay.js":24,"./RowResizing.js":25,"./RowSelection.js":26,"./ThumbwheelScrolling.js":27}],29:[function(require,module,exports){
 /* eslint-env node, browser */
 'use strict';
 
@@ -4680,5 +7158,9 @@ ns.behaviors = require('./behaviors/behaviors.js');
 ns.cellEditors = require('./cellEditors/cellEditors.js');
 ns.dataModels = require('./dataModels/dataModels.js');
 ns.features = require('./features/features.js');
+ns.CellProvider = require('./CellProvider');
+ns.Renderer = require('./Renderer');
+ns.SelectionModel = require('./SelectionModel');
+ns.LRUCache = require('lru-cache');
 
-},{"./behaviors/behaviors.js":1,"./cellEditors/cellEditors.js":2,"./dataModels/dataModels.js":7,"./features/features.js":24}]},{},[25]);
+},{"./CellProvider":2,"./Renderer":3,"./SelectionModel":4,"./behaviors/behaviors.js":5,"./cellEditors/cellEditors.js":6,"./dataModels/dataModels.js":11,"./features/features.js":28,"lru-cache":1}]},{},[29]);

@@ -1,4 +1,4 @@
-/* global numeral, SimpleLRU */
+/* global numeral, fin */
 'use strict';
 /**
  *
@@ -14,6 +14,7 @@
 
 (function() {
 
+    var hypergrid = fin.hypergrid;
     var noop = function() {};
     var logMessages = false;
     var hierarchyColumn = 'g_';
@@ -41,9 +42,9 @@
     //     f: 'simpleCellRenderer',
     //     d: 'simpleCellRenderer'
     // };
-    var iCache = new SimpleLRU(10000);
+    var iCache = new hypergrid.LRUCache(10000);
     iCache.set(0, '0');
-    var fCache = new SimpleLRU(10000);
+    var fCache = new hypergrid.LRUCache(10000);
     fCache.set(0, '0.00');
 
     var icommify = function(v) {
