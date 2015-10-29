@@ -8,10 +8,12 @@
  */
 (function() {
 
+    var dataModels = fin.hypergrid.dataModels;
+
     Polymer({ /* jslint ignore:line */
 
         getDefaultDataModel: function() {
-            var model = document.createElement('fin-hypergrid-data-model-default');
+            var model = new dataModels.Default();
             return model;
         },
 

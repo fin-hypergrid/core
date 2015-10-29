@@ -8,8 +8,698 @@ module.exports = {
 },{}],2:[function(require,module,exports){
 arguments[4][1][0].apply(exports,arguments)
 },{"dup":1}],3:[function(require,module,exports){
-arguments[4][1][0].apply(exports,arguments)
-},{"dup":1}],4:[function(require,module,exports){
+'use strict';
+
+function Base() {
+
+};
+
+Base.prototype = {};
+
+Base.prototype.next = null;
+
+Base.prototype.grid = null;
+
+Base.prototype.setGrid = function(newGrid) {
+    this.grid = newGrid;
+};
+
+Base.prototype.getGrid = function() {
+    return this.grid;
+};
+
+Base.prototype.getBehavior = function() {
+    return this.getGrid().getBehavior();
+};
+
+Base.prototype.changed = function() {
+    this.getBehavior().changed();
+};
+
+Base.prototype.getPrivateState = function() {
+    return this.getGrid().getPrivateState();
+};
+
+Base.prototype.applyState = function() {
+
+};
+
+module.exports = Base;
+
+
+
+},{}],4:[function(require,module,exports){
+'use strict';
+
+var Base = require('./Base.js');
+
+var alphaFor = function(i) {
+    // Name the column headers in A, .., AA, AB, AC, .., AZ format
+    // quotient/remainder
+    //var quo = Math.floor(col/27);
+    var quo = Math.floor((i) / 26);
+    var rem = (i) % 26;
+    var code = '';
+    if (quo > 0) {
+        code += String.fromCharCode('A'.charCodeAt(0) + quo - 1);
+    }
+    code += String.fromCharCode('A'.charCodeAt(0) + rem);
+    return code;
+};
+//var noop = function() {};
+var a = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+
+function Default() {
+    Base.call(this);
+};
+
+Default.prototype = Object.create(Base.prototype);
+
+Default.prototype.dataUpdates = {};
+
+/**
+* @function
+* @instance
+* @description
+this is the most important behavior function it returns each data point at x,y coordinates
+* #### returns: Object
+ * @param {integer} x - the x coordinate
+ * @param {integer} x - the y coordinate
+*/
+Default.prototype.getValue = function(x, y) {
+    var override = this.dataUpdates['p_' + x + '_' + y];
+    if (override) {
+        return override;
+    }
+    if (x === 0) {
+        if (y === 0) {
+            return '';
+        }
+        return y;
+    }
+    if (y === 0) {
+        return alphaFor(x - 1);
+    }
+    return (x - 1) + ', ' + a[(y - 1) % 26];
+};
+
+Default.prototype.setValue = function(x, y, value) {
+    this.dataUpdates['p_' + x + '_' + y] = value;
+};
+
+Default.prototype.getColumnCount = function() {
+    return 27;
+};
+
+Default.prototype.getRowCount = function() {
+    //jeepers batman a quadrillion rows!
+    return 53;
+};
+
+module.exports = Default;
+
+},{"./Base.js":3}],5:[function(require,module,exports){
+'use strict';
+
+var Base = require('./Base.js');
+
+var alphaFor = function(i) {
+    // Name the column headers in A, .., AA, AB, AC, .., AZ format
+    // quotient/remainder
+    //var quo = Math.floor(col/27);
+    var quo = Math.floor((i) / 26);
+    var rem = (i) % 26;
+    var code = '';
+    if (quo > 0) {
+        code += String.fromCharCode('A'.charCodeAt(0) + quo - 1);
+    }
+    code += String.fromCharCode('A'.charCodeAt(0) + rem);
+    return code;
+};
+//var noop = function() {};
+var a = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+
+function InMemory() {
+    Base.call(this);
+};
+
+InMemory.prototype = Object.create(Base.prototype);
+
+InMemory.prototype.dataUpdates = {};
+
+/**
+* @function
+* @instance
+* @description
+this is the most important behavior function it returns each data point at x,y coordinates
+* #### returns: Object
+ * @param {integer} x - the x coordinate
+ * @param {integer} x - the y coordinate
+*/
+InMemory.prototype.getValue = function(x, y) {
+    var override = this.dataUpdates['p_' + x + '_' + y];
+    if (override) {
+        return override;
+    }
+    if (x === 0) {
+        if (y === 0) {
+            return '';
+        }
+        return y;
+    }
+    if (y === 0) {
+        return alphaFor(x - 1);
+    }
+    return (x - 1) + ', ' + a[(y - 1) % 26];
+};
+
+InMemory.prototype.setValue = function(x, y, value) {
+    this.dataUpdates['p_' + x + '_' + y] = value;
+};
+
+InMemory.prototype.getColumnCount = function() {
+    return 27;
+};
+
+InMemory.prototype.getRowCount = function() {
+    //jeepers batman a quadrillion rows!
+    return 53;
+};
+
+module.exports = InMemory;
+
+},{"./Base.js":3}],6:[function(require,module,exports){
+'use strict';
+
+var Base = require('./Base.js');
+
+var alphaFor = function(i) {
+    // Name the column headers in A, .., AA, AB, AC, .., AZ format
+    // quotient/remainder
+    //var quo = Math.floor(col/27);
+    var quo = Math.floor((i) / 26);
+    var rem = (i) % 26;
+    var code = '';
+    if (quo > 0) {
+        code += String.fromCharCode('A'.charCodeAt(0) + quo - 1);
+    }
+    code += String.fromCharCode('A'.charCodeAt(0) + rem);
+    return code;
+};
+//var noop = function() {};
+var a = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+
+function JSON() {
+    Base.call(this);
+};
+
+JSON.prototype = Object.create(Base.prototype);
+
+var valueOrFunctionExecute = function(valueOrFunction) {
+    var isFunction = (((typeof valueOrFunction)[0]) === 'f');
+    var result = isFunction ? valueOrFunction() : valueOrFunction;
+    return result;
+};
+
+var textMatchFilter = function(string) {
+    return function(each) {
+        each = valueOrFunctionExecute(each);
+        return (each + '').toLowerCase().search(string.toLowerCase()) === 0;
+    };
+};
+
+var nullDataSource = {
+    isNullObject: function() {
+        return true;
+    },
+    getFields: function() {
+        return [];
+    },
+    getHeaders: function() {
+        return [];
+    },
+    getColumnCount: function() {
+        return 0;
+    },
+    getRowCount: function() {
+        return 0;
+    },
+    getGrandTotals: function() {
+        return [];
+    },
+    hasAggregates: function() {
+        return false;
+    },
+    hasGroups: function() {
+        return false;
+    },
+    getRow: function() {
+        return null;
+    }
+};
+
+
+//null object pattern for the source object
+JSON.prototype.source = nullDataSource,
+JSON.prototype.preglobalfilter = nullDataSource,
+JSON.prototype.prefilter = nullDataSource,
+JSON.prototype.presorter = nullDataSource,
+JSON.prototype.analytics = nullDataSource,
+JSON.prototype.postfilter = nullDataSource,
+JSON.prototype.postsorter = nullDataSource,
+JSON.prototype.topTotals = [],
+
+JSON.prototype.hasAggregates = function() {
+    return this.analytics.hasAggregates();
+};
+JSON.prototype.hasGroups = function() {
+    return this.analytics.hasGroups();
+};
+JSON.prototype.getDataSource = function() {
+    var source = this.analytics; //this.hasAggregates() ? this.analytics : this.presorter;
+    return source;
+};
+JSON.prototype.getFilterSource = function() {
+    var source = this.prefilter; //this.hasAggregates() ? this.postfilter : this.prefilter;
+    return source;
+};
+JSON.prototype.getSortingSource = function() {
+    var source = this.presorter; //this.hasAggregates() ? this.postsorter : this.presorter;
+    return source;
+};
+JSON.prototype.getValue = function(x, y) {
+    var hasHierarchyColumn = this.hasHierarchyColumn();
+    var grid = this.getGrid();
+    var headerRowCount = grid.getHeaderRowCount();
+    var value;
+    if (hasHierarchyColumn && x === -2) {
+        x = 0;
+    }
+    if (y < headerRowCount) {
+        value = this.getHeaderRowValue(x, y);
+        return value;
+    }
+    if (hasHierarchyColumn) {
+        y += 1;
+    }
+    value = this.getDataSource().getValue(x, y - headerRowCount);
+    return value;
+};
+JSON.prototype.getHeaderRowValue = function(x, y) {
+    if (y === undefined) {
+        return this.getHeaders()[Math.max(x, 0)];
+    }
+    var grid = this.getGrid();
+    var behavior = grid.getBehavior();
+    var isFilterRow = grid.isShowFilterRow();
+    var isHeaderRow = grid.isShowHeaderRow();
+    var isBoth = isFilterRow && isHeaderRow;
+    var topTotalsOffset = (isFilterRow ? 1 : 0) + (isHeaderRow ? 1 : 0);
+    if (y >= topTotalsOffset) {
+        return this.getTopTotals()[y - topTotalsOffset][x];
+    }
+    var filter = this.getFilter(x);
+    var image = filter.length === 0 ? 'filter-off' : 'filter-on';
+    if (isBoth) {
+        if (y === 0) {
+            image = this.getSortImageForColumn(x);
+            return [null, this.getHeaders()[x], image];
+        } else {
+            return [null, filter, behavior.getImage(image)];
+        }
+    } else if (isFilterRow) {
+        return [null, filter, behavior.getImage(image)];
+    } else {
+        image = this.getSortImageForColumn(x);
+        return [null, this.getHeaders()[x], image];
+    }
+    return '';
+};
+JSON.prototype.setValue = function(x, y, value) {
+    var hasHierarchyColumn = this.hasHierarchyColumn();
+    var grid = this.getGrid();
+    var headerRowCount = grid.getHeaderRowCount();
+    if (hasHierarchyColumn) {
+        if (x === -2) {
+            return;
+        } else {
+            x += 1;
+        }
+    }
+    if (y < headerRowCount) {
+        this.setHeaderRowValue(x, y, value);
+    } else if (hasHierarchyColumn) {
+        y += 1;
+    } else {
+        this.getDataSource().setValue(x, y - headerRowCount, value);
+    }
+    this.changed();
+};
+JSON.prototype.setHeaderRowValue = function(x, y, value) {
+    if (value === undefined) {
+        return this._setHeader(x, y); // y is really the value
+    }
+    var grid = this.getGrid();
+    var isFilterRow = grid.isShowFilterRow();
+    var isHeaderRow = grid.isShowHeaderRow();
+    var isBoth = isFilterRow && isHeaderRow;
+    var topTotalsOffset = (isFilterRow ? 1 : 0) + (isHeaderRow ? 1 : 0);
+    if (y >= topTotalsOffset) {
+        this.getTopTotals()[y - topTotalsOffset][x] = value;
+    } else if (x === -1) {
+        return; // can't change the row numbers
+    } else if (isBoth) {
+        if (y === 0) {
+            return this._setHeader(x, value);
+        } else {
+            this.setFilter(x, value);
+        }
+    } else if (isFilterRow) {
+        this.setFilter(x, value);
+    } else {
+        return this._setHeader(x, value);
+    }
+    return '';
+};
+JSON.prototype.getColumnProperties = function(x) {
+    //access directly because we want it ordered
+    var column = this.getBehavior().allColumns[x];
+    if (column) {
+        return column.getProperties();
+    }
+    return undefined;
+};
+JSON.prototype.getFilter = function(x) {
+    var columnProperties = this.getColumnProperties(x);
+    if (!columnProperties) {
+        return '';
+    }
+    var filter = columnProperties.filter || '';
+    return filter;
+};
+JSON.prototype.setFilter = function(x, value) {
+    var columnProperties = this.getColumnProperties(x);
+    columnProperties.filter = value;
+    this.applyAnalytics();
+};
+JSON.prototype.getColumnCount = function() {
+    var count = this.analytics.getColumnCount();
+    return count;
+};
+JSON.prototype.getRowCount = function() {
+    var grid = this.getGrid();
+    var count = this.getDataSource().getRowCount();
+    count += grid.getHeaderRowCount();
+    return count;
+};
+JSON.prototype.getHeaders = function() {
+    var headers = this.analytics.getHeaders();
+    return headers;
+};
+JSON.prototype.getDefaultHeaders = function() {};
+JSON.prototype.setHeaders = function(headers) {
+    this.getDataSource().setHeaders(headers);
+};
+JSON.prototype.setFields = function(fields) {
+    this.getDataSource().setFields(fields);
+};
+JSON.prototype.getFields = function() {
+    var fields = this.getDataSource().getFields();
+    return fields;
+};
+JSON.prototype.setData = function(arrayOfUniformObjects) {
+    if (!this.analytics.isNullObject) {
+        this.analytics.dataSource.setData(arrayOfUniformObjects);
+    } else {
+        this.source = new fin.analytics.JSDataSource(arrayOfUniformObjects); /* jshint ignore:line */
+        this.preglobalfilter = new fin.analytics.DataSourceGlobalFilter(this.source); /* jshint ignore:line */
+        this.prefilter = new fin.analytics.DataSourceFilter(this.preglobalfilter); /* jshint ignore:line */
+        this.presorter = new fin.analytics.DataSourceSorterComposite(this.prefilter); /* jshint ignore:line */
+        this.analytics = new fin.analytics.DataSourceAggregator(this.presorter); /* jshint ignore:line */
+    }
+    this.applyAnalytics();
+    //this.postfilter = new fin.analytics.DataSourceFilter(this.analytics); /* jshint ignore:line */
+    //this.postsorter = new fin.analytics.DataSourceSorterComposite(this.postfilter); /* jshint ignore:line */
+};
+JSON.prototype.getTopTotals = function() {
+    if (!this.hasAggregates()) {
+        return this.topTotals;
+    }
+    return this.getDataSource().getGrandTotals();
+};
+JSON.prototype.setTopTotals = function(nestedArray) {
+    this.topTotals = nestedArray;
+};
+JSON.prototype.setGroups = function(groups) {
+    this.analytics.setGroupBys(groups);
+    this.applyAnalytics();
+    this.getGrid().fireSyntheticGroupsChangedEvent(this.getGroups());
+};
+JSON.prototype.getGroups = function() {
+    var headers = this.getHeaders().slice(0);
+    var fields = this.getFields().slice(0);
+    var groupBys = this.analytics.groupBys;
+    var groups = [];
+    for (var i = 0; i < groupBys.length; i++) {
+        var field = headers[groupBys[i]];
+        groups.push({
+            id: groupBys[i],
+            label: field,
+            field: fields
+        });
+    }
+    return groups;
+};
+
+JSON.prototype.getAvailableGroups = function() {
+    var headers = this.source.getHeaders().slice(0);
+    var groupBys = this.analytics.groupBys;
+    var groups = [];
+    for (var i = 0; i < headers.length; i++) {
+        if (groupBys.indexOf(i) === -1) {
+            var field = headers[i];
+            groups.push({
+                id: i,
+                label: field,
+                field: field
+            });
+        }
+    }
+    return groups;
+};
+
+JSON.prototype.getVisibleColumns = function() {
+    var items = this.getBehavior().columns;
+    items = items.filter(function(each) {
+        return each.label !== 'Tree';
+    });
+    return items;
+};
+
+JSON.prototype.getHiddenColumns = function() {
+    var visible = this.getBehavior().columns;
+    var all = this.getBehavior().allColumns;
+    var hidden = [];
+    for (var i = 0; i < all.length; i++) {
+        if (visible.indexOf(all[i]) === -1) {
+            hidden.push(all[i]);
+        }
+    }
+    hidden.sort(function(a, b) {
+        return a.label < b.label;
+    });
+    return hidden;
+};
+
+JSON.prototype.setAggregates = function(aggregations) {
+    this.quietlySetAggregates(aggregations);
+    this.applyAnalytics();
+};
+JSON.prototype.quietlySetAggregates = function(aggregations) {
+    this.analytics.setAggregates(aggregations);
+};
+JSON.prototype.hasHierarchyColumn = function() {
+    return this.hasAggregates() && this.hasGroups();
+};
+JSON.prototype.applyAnalytics = function() {
+    this.applyFilters();
+    this.applySorts();
+    this.applyGroupBysAndAggregations();
+};
+JSON.prototype.applyGroupBysAndAggregations = function() {
+    if (this.analytics.aggregates.length === 0) {
+        this.quietlySetAggregates({});
+    }
+    this.analytics.apply();
+};
+JSON.prototype.applyFilters = function() {
+    this.preglobalfilter.applyFilters();
+    var colCount = this.getColumnCount();
+    var filterSource = this.getFilterSource();
+    var groupOffset = this.hasAggregates() ? 1 : 0;
+    filterSource.clearFilters();
+    for (var i = 0; i < colCount; i++) {
+        var filterText = this.getFilter(i);
+        if (filterText.length > 0) {
+            filterSource.addFilter(i - groupOffset, textMatchFilter(filterText));
+        }
+    }
+    filterSource.applyFilters();
+};
+JSON.prototype.toggleSort = function(index, keys) {
+    this.incrementSortState(index, keys);
+    this.applyAnalytics();
+};
+JSON.prototype.incrementSortState = function(colIndex, keys) {
+    colIndex++; //hack to get around 0 index
+    var state = this.getPrivateState();
+    var hasCTRL = keys.indexOf('CTRL') > -1;
+    state.sorts = state.sorts || [];
+    var already = state.sorts.indexOf(colIndex);
+    if (already === -1) {
+        already = state.sorts.indexOf(-1 * colIndex);
+    }
+    if (already > -1) {
+        if (state.sorts[already] > 0) {
+            state.sorts[already] = -1 * state.sorts[already];
+        } else {
+            state.sorts.splice(already, 1);
+        }
+    } else if (hasCTRL || state.sorts.length === 0) {
+        state.sorts.unshift(colIndex);
+    } else {
+        state.sorts.length = 0;
+        state.sorts.unshift(colIndex);
+    }
+    if (state.sorts.length > 3) {
+        state.sorts.length = 3;
+    }
+};
+JSON.prototype.applySorts = function() {
+    var sortingSource = this.getSortingSource();
+    var sorts = this.getPrivateState().sorts;
+    var groupOffset = this.hasAggregates() ? 1 : 0;
+    if (!sorts || sorts.length === 0) {
+        sortingSource.clearSorts();
+    } else {
+        for (var i = 0; i < sorts.length; i++) {
+            var colIndex = Math.abs(sorts[i]) - 1;
+            var type = sorts[i] < 0 ? -1 : 1;
+            sortingSource.sortOn(colIndex - groupOffset, type);
+        }
+    }
+    sortingSource.applySorts();
+};
+JSON.prototype.getSortImageForColumn = function(index) {
+    index++;
+    var up = true;
+    var sorts = this.getPrivateState().sorts;
+    if (!sorts) {
+        return null;
+    }
+    var position = sorts.indexOf(index);
+    if (position < 0) {
+        position = sorts.indexOf(-1 * index);
+        up = false;
+    }
+    if (position < 0) {
+        return null;
+    }
+    position++;
+    var name = (1 + sorts.length - position) + (up ? '-up' : '-down');
+    return this.getBehavior().getImage(name);
+};
+JSON.prototype.cellClicked = function(cell, event) {
+    if (!this.hasAggregates()) {
+        return;
+    }
+    if (event.gridCell.x !== 0) {
+        return; // this wasn't a click on the hierarchy column
+    }
+    var grid = this.getGrid();
+    var headerRowCount = grid.getHeaderRowCount();
+    var y = event.gridCell.y - headerRowCount;
+    this.analytics.click(y);
+};
+JSON.prototype.getRow = function(y) {
+    var grid = this.getGrid();
+    var headerRowCount = grid.getHeaderRowCount();
+    if (y < headerRowCount && !this.hasAggregates()) {
+        var topTotals = this.getTopTotals();
+        return topTotals[y - (headerRowCount - topTotals.length)];
+    }
+    return this.getDataSource().getRow(y - headerRowCount);
+};
+JSON.prototype.buildRow = function(y) {
+    var colCount = this.getColumnCount();
+    var fields = [].concat(this.getFields());
+    var result = {};
+    if (this.hasAggregates()) {
+        result.tree = this.getValue(-2, y);
+        fields.shift();
+    }
+    for (var i = 0; i < colCount; i++) {
+        result[fields[i]] = this.getValue(i, y);
+    }
+    return result;
+};
+JSON.prototype.getComputedRow = function(y) {
+    var rcf = this.getRowContextFunction([y]);
+    var fields = this.getFields();
+    var row = {};
+    for (var i = 0; i < fields.length; i++) {
+        var field = fields[i];
+        row[field] = rcf(field)[0];
+    }
+    return row;
+};
+
+JSON.prototype.getValueByField = function(fieldName, y) {
+    var index = this.getFields().indexOf(fieldName);
+    if (this.hasAggregates()) {
+        y += 1;
+    }
+    return this.getDataSource().getValue(index, y);
+};
+
+JSON.prototype.setGlobalFilter = function(string) {
+    if (!string || string.length === 0) {
+        this.preglobalfilter.clearFilters();
+    } else {
+        this.preglobalfilter.setFilter(textMatchFilter(string));
+    }
+    this.applyAnalytics();
+};
+JSON.prototype.getCellRenderer = function(config, x, y, untranslatedX, untranslatedY) {
+    var renderer;
+    var provider = this.getGrid().getCellProvider();
+
+    config.x = x;
+    config.y = y;
+    config.untranslatedX = untranslatedX;
+    config.untranslatedY = untranslatedY;
+
+    renderer = provider.getCell(config);
+    renderer.config = config;
+
+    return renderer;
+};
+JSON.prototype.applyState = function() {
+    this.applyAnalytics();
+};
+
+module.exports = JSON;
+
+},{"./Base.js":3}],7:[function(require,module,exports){
+'use strict';
+
+module.exports = {
+    Default: require('./Default.js'),
+    InMemory: require('./InMemory.js'),
+    JSON: require('./JSON.js')
+};
+
+},{"./Default.js":4,"./InMemory.js":5,"./JSON.js":6}],8:[function(require,module,exports){
 'use strict';
 /**
  *
@@ -398,7 +1088,7 @@ Base.prototype.initializeOn = function(grid) {
 
 module.exports = Base;
 
-},{}],5:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 'use strict';
 /**
  *
@@ -440,7 +1130,7 @@ CellClick.prototype.handleTap = function(grid, event) {
 
 module.exports = CellClick;
 
-},{"./Base.js":4}],6:[function(require,module,exports){
+},{"./Base.js":8}],10:[function(require,module,exports){
 'use strict';
 
 /**
@@ -502,7 +1192,7 @@ CellEditing.prototype.handleHoldPulse = function(grid, event) {
 
 module.exports = CellEditing;
 
-},{"./Base.js":4}],7:[function(require,module,exports){
+},{"./Base.js":8}],11:[function(require,module,exports){
 'use strict';
 /**
  *
@@ -1103,7 +1793,7 @@ CellSelection.prototype.moveSingleSelect = function(grid, offsetX, offsetY) {
 
 module.exports = CellSelection;
 
-},{"./Base.js":4}],8:[function(require,module,exports){
+},{"./Base.js":8}],12:[function(require,module,exports){
 'use strict';
 /**
  *
@@ -1144,7 +1834,7 @@ ColumnAutosizing.prototype.handleDoubleClick = function(grid, event) {
 
 module.exports = ColumnAutosizing;
 
-},{"./Base.js":4}],9:[function(require,module,exports){
+},{"./Base.js":8}],13:[function(require,module,exports){
 'use strict';
 /**
  *
@@ -1865,7 +2555,7 @@ ColumnMoving.prototype.isHeaderRow = function(grid, event) {
 
 module.exports = ColumnMoving;
 
-},{"./Base.js":4}],10:[function(require,module,exports){
+},{"./Base.js":8}],14:[function(require,module,exports){
 'use strict';
 /**
  *
@@ -2176,7 +2866,7 @@ ColumnResizing.prototype.isEnabled = function( /* grid */ ) {
 
 module.exports = ColumnResizing;
 
-},{"./Base.js":4}],11:[function(require,module,exports){
+},{"./Base.js":8}],15:[function(require,module,exports){
 'use strict';
 /**
  *
@@ -2774,7 +3464,7 @@ ColumnSelection.prototype.isColumnDragging = function(grid) {
 
 module.exports = ColumnSelection;
 
-},{"./Base.js":4}],12:[function(require,module,exports){
+},{"./Base.js":8}],16:[function(require,module,exports){
 'use strict';
 /**
  *
@@ -2835,7 +3525,7 @@ ColumnSorting.prototype.handleMouseMove = function(grid, event) {
 
 module.exports = ColumnSorting;
 
-},{"./Base.js":4}],13:[function(require,module,exports){
+},{"./Base.js":8}],17:[function(require,module,exports){
 'use strict';
 /**
  *
@@ -2865,7 +3555,7 @@ Filters.prototype.handleTap = function(grid, event) {
 
 module.exports = Filters;
 
-},{"./Base.js":4}],14:[function(require,module,exports){
+},{"./Base.js":8}],18:[function(require,module,exports){
 'use strict';
 /**
  *
@@ -2926,7 +3616,7 @@ KeyPaging.prototype.handleKeyDown = function(grid, event) {
 
 module.exports = KeyPaging;
 
-},{"./Base.js":4}],15:[function(require,module,exports){
+},{"./Base.js":8}],19:[function(require,module,exports){
 'use strict';
 /**
  *
@@ -2970,7 +3660,7 @@ OnHover.prototype.handleMouseMove = function(grid, event) {
 
 module.exports = OnHover;
 
-},{"./Base.js":4}],16:[function(require,module,exports){
+},{"./Base.js":8}],20:[function(require,module,exports){
 'use strict';
 /**
  *
@@ -3184,7 +3874,7 @@ Overlay.prototype.getCharFor = function(grid, integer) {
 
 module.exports = Overlay;
 
-},{"./Base.js":4}],17:[function(require,module,exports){
+},{"./Base.js":8}],21:[function(require,module,exports){
 'use strict';
 /**
  *
@@ -3356,7 +4046,7 @@ RowResizing.prototype.isEnabled = function(grid) {
 
 module.exports = RowResizing;
 
-},{"./ColumnResizing.js":10}],18:[function(require,module,exports){
+},{"./ColumnResizing.js":14}],22:[function(require,module,exports){
 'use strict';
 /**
  *
@@ -3909,7 +4599,7 @@ RowSelection.prototype.isSingleRowSelection = function() {
 
 module.exports = RowSelection;
 
-},{"./Base.js":4}],19:[function(require,module,exports){
+},{"./Base.js":8}],23:[function(require,module,exports){
 'use strict';
 /**
  *
@@ -3957,7 +4647,7 @@ ThumbwheelScrolling.handleWheelMoved = function(grid, e) {
 
 module.exports = ThumbwheelScrolling;
 
-},{"./Base.js":4}],20:[function(require,module,exports){
+},{"./Base.js":8}],24:[function(require,module,exports){
 'use strict';
 
 module.exports = {
@@ -3979,7 +4669,7 @@ module.exports = {
 };
 
 
-},{"./CellClick.js":5,"./CellEditing.js":6,"./CellSelection.js":7,"./ColumnAutosizing.js":8,"./ColumnMoving.js":9,"./ColumnResizing.js":10,"./ColumnSelection.js":11,"./ColumnSorting.js":12,"./Filters.js":13,"./KeyPaging.js":14,"./OnHover.js":15,"./Overlay.js":16,"./RowResizing.js":17,"./RowSelection.js":18,"./ThumbwheelScrolling.js":19}],21:[function(require,module,exports){
+},{"./CellClick.js":9,"./CellEditing.js":10,"./CellSelection.js":11,"./ColumnAutosizing.js":12,"./ColumnMoving.js":13,"./ColumnResizing.js":14,"./ColumnSelection.js":15,"./ColumnSorting.js":16,"./Filters.js":17,"./KeyPaging.js":18,"./OnHover.js":19,"./Overlay.js":20,"./RowResizing.js":21,"./RowSelection.js":22,"./ThumbwheelScrolling.js":23}],25:[function(require,module,exports){
 /* eslint-env node, browser */
 'use strict';
 
@@ -3991,4 +4681,4 @@ ns.cellEditors = require('./cellEditors/cellEditors.js');
 ns.dataModels = require('./dataModels/dataModels.js');
 ns.features = require('./features/features.js');
 
-},{"./behaviors/behaviors.js":1,"./cellEditors/cellEditors.js":2,"./dataModels/dataModels.js":3,"./features/features.js":20}]},{},[21]);
+},{"./behaviors/behaviors.js":1,"./cellEditors/cellEditors.js":2,"./dataModels/dataModels.js":7,"./features/features.js":24}]},{},[25]);

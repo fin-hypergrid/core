@@ -10,6 +10,8 @@
 
     var noop = function() {};
 
+    var dataModels = fin.hypergrid.dataModels;
+
     Polymer({ /* jslint ignore:line */
 
         createColumns: function() {
@@ -28,7 +30,7 @@
         },
 
         getDefaultDataModel: function() {
-            var model = document.createElement('fin-hypergrid-data-model-json');
+            var model = new dataModels.JSON();
             var wrapper = new this.DataModelDecorator(this.getGrid(), model);
             wrapper.setComponent(model);
             return wrapper;

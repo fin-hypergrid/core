@@ -1,5 +1,7 @@
 'use strict';
 
 module.exports = {
-    //CellClick: require('./CellClick.js');
+    Default: require('./Default.js'),
+    InMemory: require('./InMemory.js'),
+    JSON: require('./JSON.js')
 };
