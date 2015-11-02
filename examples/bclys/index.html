@@ -6,17 +6,51 @@
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">
 
-  <script src="accounting.min.js"></script>
-  <script src="sampledata.js"></script>
-  <script src="myThemes.js"></script>
-   <link rel="import" href="fin-hypergrid.dev.html">
-  <!-- <link rel="import" href="../../polymer/html/fin-hypergrid.html"> -->
-  <style>
+<script src="accounting.min.js"></script>
+<script src="sampledata.js"></script>
+<script src="myThemes.js"></script>
+<link rel="import" href="fin-hypergrid.dev.html">
+<!-- <link rel="import" href="../../polymer/html/fin-hypergrid.html"> -->
+<style>
     .abs {
         position: static;
         height: 400px;
     }
-  </style>
+    #json-example::shadow div.fin-sb-user-vertical {
+        margin: 0px;
+        width: 17px;
+        background-color: rgba(237, 237, 237, 1);
+        box-shadow: 0 0 0px #000, 0 0 0px #000, 0 0 0px #000;
+    }
+    #json-example::shadow div.fin-sb-user-vertical div.thumb {
+        margin: 0px;
+        width: 11px;
+        margin-top: 2px;
+        margin-bottom: 4px;
+        background-color: rgba(158, 158, 158, 1);
+        box-shadow: 0 0 0px #000, 0 0 0px #000, 0 0 0px #000;
+        border-radius: 0px;
+        border: 1px solid rgba(132, 132, 132, 1);
+        right: 2px;
+    }
+    #json-example::shadow div.fin-sb-user-horizontal {
+        margin: 0px;
+        height: 17px;
+        background-color: rgba(237, 237, 237, 1);
+        box-shadow: 0 0 0px #000, 0 0 0px #000, 0 0 0px #000;
+    }
+    #json-example::shadow div.fin-sb-user-horizontal div.thumb {
+        margin: 0px;
+        height: 11px;
+        margin-left: 2px;
+        margin-right: 4px;
+        background-color: rgba(158, 158, 158, 1);
+        box-shadow: 0 0 0px #000, 0 0 0px #000, 0 0 0px #000;
+        border-radius: 0px;
+        border: 1px solid rgba(132, 132, 132, 1);
+        bottom: 2px;
+    }
+</style>
 </head>
 <body>
 
@@ -29,10 +63,12 @@
             <button onclick="toggleEmptyData()">toggle empty data</button>
             <button onclick="toggleEmptyHeaders()">toggle empty headers</button>
             <button onclick="toggleGlobalFilter()">toggle global filter</button>
+            <button onclick="setData1()">set data 1 (5000 rows)</button>
+            <button onclick="setData2()">set data 2 (10000 rows)</button>
         </div>
     </div>
     <div class="row" style="overflow: hidden">
-        <div class="col-md-12 col-lg-12" style="border-style: solid; border-color: green">
+        <div class="col-md-12 col-lg-12" style="overflow:hidden;border-style: solid; border-color: green">
             <fin-hypergrid class="abs" id="json-example">
                 <fin-hypergrid-behavior-json></fin-hypergrid-behavior-json>
             </fin-hypergrid>
@@ -126,7 +162,15 @@
             jsonGrid.setGlobalFilter(globalFilter);
         }
 
-        jsonModel.setData(people);
+        window.setData1 = function() {
+            jsonModel.setData(people1);
+        }
+
+        window.setData2 = function() {
+            jsonModel.setData(people2);
+        }
+
+        jsonModel.setData(people2);
 
         jsonGrid.setColumnProperties(2, {
             backgroundColor: 'maroon',
@@ -150,10 +194,10 @@
                          ['ten','nine','eight','seven','six','five','four','three','two','one']];
         jsonModel.setTopTotals(topTotals);
 
-        setInterval(function(){
-            topTotals[1][5] = Math.round(Math.random()*100);
-            jsonModel.changed();
-        }, 300);
+        // setInterval(function(){
+        //     topTotals[1][5] = Math.round(Math.random()*100);
+        //     jsonModel.changed();
+        // }, 300);
 
         //lets set 2 rows of totals
 
@@ -237,21 +281,21 @@
                 } else if (x === 3) {
                     return this.grid.cellEditors['textfield'];
                 } else if (x === 6) {
-                    cellEditor.items = ['', true, false]; //editor here
+                    cellEditor.setItems(['', true, false]); //editor here
                     return cellEditor;
                 }
 
             }
             if (x === 0) {
-                cellEditor.items = lastNames;
+                cellEditor.setItems(lastNames);
             } else if (x === 4 || x === 5) {
-                cellEditor.items = states;
+                cellEditor.setItems(states);
             } else if (x === 6) {
                 return null; //editor here
             } else if (x === 2) {
-                cellEditor.input.setAttribute('min', 0);
-                cellEditor.input.setAttribute('max', 10);
-                cellEditor.input.setAttribute('step', 0.01);
+                cellEditor.getInput().setAttribute('min', 0);
+                cellEditor.getInput().setAttribute('max', 10);
+                cellEditor.getInput().setAttribute('step', 0.01);
             }
             return cellEditor;
         };
@@ -433,10 +477,11 @@
         console.log(headers);
         console.log(fields);
 
-        jsonModel.setCellProperties(1, 0, {
+        jsonModel.setCellProperties(0, 0, {
             font: '10pt Tahoma',
             color: 'lightblue',
-            backgroundColor: 'red'
+            backgroundColor: 'red',
+            halign: 'left'
         });
 
         setTimeout(function() {
@@ -469,9 +514,9 @@
                             fieldsMap.pets,
                             fieldsMap.birthDate,
                             fieldsMap.birthState,
-                            fieldsMap.residenceState,
-                            fieldsMap.employed,
-                            fieldsMap.first_name,
+                            // fieldsMap.residenceState,
+                            // fieldsMap.employed,
+                            // fieldsMap.first_name,
                             fieldsMap.income,
                             fieldsMap.travel,
                             fieldsMap.squareOfIncome],
@@ -488,11 +533,13 @@
                         cellSelection: true,
                         columnSelection: true,
                         rowSelection: true,
+                        singleRowSelectionMode: true,
+
                     };
 
-                jsonGrid.setState(state);
-
                 jsonGrid.setGroups([4, 0, 1]);
+
+                jsonGrid.setState(state);
 
                 jsonGrid.addProperties({
                     scrollbarHoverOff: 'visible',
@@ -525,7 +572,8 @@
                     {
                         font: '10pt Tahoma',
                         color: 'red',
-                        backgroundColor: 'lightblue'
+                        backgroundColor: 'lightblue',
+                        halign: 'left'
                     });
 
                 jsonModel.setColumnProperties(1,
