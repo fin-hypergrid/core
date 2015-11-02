@@ -36,18 +36,37 @@
             income: income,
             travel: travel,
             squareOfIncome: 0,
+
+            // last_name1: lastNames[lastName], //jshint ignore:line
+            // first_name1: firstNames[firstName], //jshint ignore:line
+            // pets1: pets,
+            // birthDate1: birthyear + '-' + months[birthmonth] + '-' + days[birthday],
+            // birthState1: states[birthstate],
+            // residenceState1: states[residencestate],
+            // employed1: employed === 1,
+            // income1: income,
+            // travel1: travel,
+            // squareOfIncome1: 0,
         };
         person.squareOfIncome = function() {
             return Math.sqrt(person.income);
         }
+        // person.squareOfIncome1 = function() {
+        //     return Math.sqrt(person.income);
+        // }
         return person;
     };
 
-    var data = [];
-    for (var i = 0; i < numRows; i++) {
-        data.push(randomPerson());
+    var data1 = [];
+    var data2 = [];
+    for (var i = 0; i < numRows/2; i++) {
+        data1.push(randomPerson());
     }
-    window.people = data;
+    for (var i = 0; i < numRows; i++) {
+        data2.push(randomPerson());
+    }
+    window.people1 = data1;
+    window.people2 = data2;
     window.states = states;
     window.firstNames = firstNames;
     window.lastNames = lastNames;
