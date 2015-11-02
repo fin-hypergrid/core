@@ -4258,6 +4258,635 @@ function Entry (key, value, lu, length, now, maxAge) {
 })()
 
 },{}],2:[function(require,module,exports){
+/*!
+ * mustache.js - Logic-less {{mustache}} templates with JavaScript
+ * http://github.com/janl/mustache.js
+ */
+
+/*global define: false Mustache: true*/
+
+(function defineMustache (global, factory) {
+  if (typeof exports === 'object' && exports && typeof exports.nodeName !== 'string') {
+    factory(exports); // CommonJS
+  } else if (typeof define === 'function' && define.amd) {
+    define(['exports'], factory); // AMD
+  } else {
+    global.Mustache = {};
+    factory(Mustache); // script, wsh, asp
+  }
+}(this, function mustacheFactory (mustache) {
+
+  var objectToString = Object.prototype.toString;
+  var isArray = Array.isArray || function isArrayPolyfill (object) {
+    return objectToString.call(object) === '[object Array]';
+  };
+
+  function isFunction (object) {
+    return typeof object === 'function';
+  }
+
+  /**
+   * More correct typeof string handling array
+   * which normally returns typeof 'object'
+   */
+  function typeStr (obj) {
+    return isArray(obj) ? 'array' : typeof obj;
+  }
+
+  function escapeRegExp (string) {
+    return string.replace(/[\-\[\]{}()*+?.,\\\^$|#\s]/g, '\\$&');
+  }
+
+  /**
+   * Null safe way of checking whether or not an object,
+   * including its prototype, has a given property
+   */
+  function hasProperty (obj, propName) {
+    return obj != null && typeof obj === 'object' && (propName in obj);
+  }
+
+  // Workaround for https://issues.apache.org/jira/browse/COUCHDB-577
+  // See https://github.com/janl/mustache.js/issues/189
+  var regExpTest = RegExp.prototype.test;
+  function testRegExp (re, string) {
+    return regExpTest.call(re, string);
+  }
+
+  var nonSpaceRe = /\S/;
+  function isWhitespace (string) {
+    return !testRegExp(nonSpaceRe, string);
+  }
+
+  var entityMap = {
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#39;',
+    '/': '&#x2F;'
+  };
+
+  function escapeHtml (string) {
+    return String(string).replace(/[&<>"'\/]/g, function fromEntityMap (s) {
+      return entityMap[s];
+    });
+  }
+
+  var whiteRe = /\s*/;
+  var spaceRe = /\s+/;
+  var equalsRe = /\s*=/;
+  var curlyRe = /\s*\}/;
+  var tagRe = /#|\^|\/|>|\{|&|=|!/;
+
+  /**
+   * Breaks up the given `template` string into a tree of tokens. If the `tags`
+   * argument is given here it must be an array with two string values: the
+   * opening and closing tags used in the template (e.g. [ "<%", "%>" ]). Of
+   * course, the default is to use mustaches (i.e. mustache.tags).
+   *
+   * A token is an array with at least 4 elements. The first element is the
+   * mustache symbol that was used inside the tag, e.g. "#" or "&". If the tag
+   * did not contain a symbol (i.e. {{myValue}}) this element is "name". For
+   * all text that appears outside a symbol this element is "text".
+   *
+   * The second element of a token is its "value". For mustache tags this is
+   * whatever else was inside the tag besides the opening symbol. For text tokens
+   * this is the text itself.
+   *
+   * The third and fourth elements of the token are the start and end indices,
+   * respectively, of the token in the original template.
+   *
+   * Tokens that are the root node of a subtree contain two more elements: 1) an
+   * array of tokens in the subtree and 2) the index in the original template at
+   * which the closing tag for that section begins.
+   */
+  function parseTemplate (template, tags) {
+    if (!template)
+      return [];
+
+    var sections = [];     // Stack to hold section tokens
+    var tokens = [];       // Buffer to hold the tokens
+    var spaces = [];       // Indices of whitespace tokens on the current line
+    var hasTag = false;    // Is there a {{tag}} on the current line?
+    var nonSpace = false;  // Is there a non-space char on the current line?
+
+    // Strips all whitespace tokens array for the current line
+    // if there was a {{#tag}} on it and otherwise only space.
+    function stripSpace () {
+      if (hasTag && !nonSpace) {
+        while (spaces.length)
+          delete tokens[spaces.pop()];
+      } else {
+        spaces = [];
+      }
+
+      hasTag = false;
+      nonSpace = false;
+    }
+
+    var openingTagRe, closingTagRe, closingCurlyRe;
+    function compileTags (tagsToCompile) {
+      if (typeof tagsToCompile === 'string')
+        tagsToCompile = tagsToCompile.split(spaceRe, 2);
+
+      if (!isArray(tagsToCompile) || tagsToCompile.length !== 2)
+        throw new Error('Invalid tags: ' + tagsToCompile);
+
+      openingTagRe = new RegExp(escapeRegExp(tagsToCompile[0]) + '\\s*');
+      closingTagRe = new RegExp('\\s*' + escapeRegExp(tagsToCompile[1]));
+      closingCurlyRe = new RegExp('\\s*' + escapeRegExp('}' + tagsToCompile[1]));
+    }
+
+    compileTags(tags || mustache.tags);
+
+    var scanner = new Scanner(template);
+
+    var start, type, value, chr, token, openSection;
+    while (!scanner.eos()) {
+      start = scanner.pos;
+
+      // Match any text between tags.
+      value = scanner.scanUntil(openingTagRe);
+
+      if (value) {
+        for (var i = 0, valueLength = value.length; i < valueLength; ++i) {
+          chr = value.charAt(i);
+
+          if (isWhitespace(chr)) {
+            spaces.push(tokens.length);
+          } else {
+            nonSpace = true;
+          }
+
+          tokens.push([ 'text', chr, start, start + 1 ]);
+          start += 1;
+
+          // Check for whitespace on the current line.
+          if (chr === '\n')
+            stripSpace();
+        }
+      }
+
+      // Match the opening tag.
+      if (!scanner.scan(openingTagRe))
+        break;
+
+      hasTag = true;
+
+      // Get the tag type.
+      type = scanner.scan(tagRe) || 'name';
+      scanner.scan(whiteRe);
+
+      // Get the tag value.
+      if (type === '=') {
+        value = scanner.scanUntil(equalsRe);
+        scanner.scan(equalsRe);
+        scanner.scanUntil(closingTagRe);
+      } else if (type === '{') {
+        value = scanner.scanUntil(closingCurlyRe);
+        scanner.scan(curlyRe);
+        scanner.scanUntil(closingTagRe);
+        type = '&';
+      } else {
+        value = scanner.scanUntil(closingTagRe);
+      }
+
+      // Match the closing tag.
+      if (!scanner.scan(closingTagRe))
+        throw new Error('Unclosed tag at ' + scanner.pos);
+
+      token = [ type, value, start, scanner.pos ];
+      tokens.push(token);
+
+      if (type === '#' || type === '^') {
+        sections.push(token);
+      } else if (type === '/') {
+        // Check section nesting.
+        openSection = sections.pop();
+
+        if (!openSection)
+          throw new Error('Unopened section "' + value + '" at ' + start);
+
+        if (openSection[1] !== value)
+          throw new Error('Unclosed section "' + openSection[1] + '" at ' + start);
+      } else if (type === 'name' || type === '{' || type === '&') {
+        nonSpace = true;
+      } else if (type === '=') {
+        // Set the tags for the next time around.
+        compileTags(value);
+      }
+    }
+
+    // Make sure there are no open sections when we're done.
+    openSection = sections.pop();
+
+    if (openSection)
+      throw new Error('Unclosed section "' + openSection[1] + '" at ' + scanner.pos);
+
+    return nestTokens(squashTokens(tokens));
+  }
+
+  /**
+   * Combines the values of consecutive text tokens in the given `tokens` array
+   * to a single token.
+   */
+  function squashTokens (tokens) {
+    var squashedTokens = [];
+
+    var token, lastToken;
+    for (var i = 0, numTokens = tokens.length; i < numTokens; ++i) {
+      token = tokens[i];
+
+      if (token) {
+        if (token[0] === 'text' && lastToken && lastToken[0] === 'text') {
+          lastToken[1] += token[1];
+          lastToken[3] = token[3];
+        } else {
+          squashedTokens.push(token);
+          lastToken = token;
+        }
+      }
+    }
+
+    return squashedTokens;
+  }
+
+  /**
+   * Forms the given array of `tokens` into a nested tree structure where
+   * tokens that represent a section have two additional items: 1) an array of
+   * all tokens that appear in that section and 2) the index in the original
+   * template that represents the end of that section.
+   */
+  function nestTokens (tokens) {
+    var nestedTokens = [];
+    var collector = nestedTokens;
+    var sections = [];
+
+    var token, section;
+    for (var i = 0, numTokens = tokens.length; i < numTokens; ++i) {
+      token = tokens[i];
+
+      switch (token[0]) {
+      case '#':
+      case '^':
+        collector.push(token);
+        sections.push(token);
+        collector = token[4] = [];
+        break;
+      case '/':
+        section = sections.pop();
+        section[5] = token[2];
+        collector = sections.length > 0 ? sections[sections.length - 1][4] : nestedTokens;
+        break;
+      default:
+        collector.push(token);
+      }
+    }
+
+    return nestedTokens;
+  }
+
+  /**
+   * A simple string scanner that is used by the template parser to find
+   * tokens in template strings.
+   */
+  function Scanner (string) {
+    this.string = string;
+    this.tail = string;
+    this.pos = 0;
+  }
+
+  /**
+   * Returns `true` if the tail is empty (end of string).
+   */
+  Scanner.prototype.eos = function eos () {
+    return this.tail === '';
+  };
+
+  /**
+   * Tries to match the given regular expression at the current position.
+   * Returns the matched text if it can match, the empty string otherwise.
+   */
+  Scanner.prototype.scan = function scan (re) {
+    var match = this.tail.match(re);
+
+    if (!match || match.index !== 0)
+      return '';
+
+    var string = match[0];
+
+    this.tail = this.tail.substring(string.length);
+    this.pos += string.length;
+
+    return string;
+  };
+
+  /**
+   * Skips all text until the given regular expression can be matched. Returns
+   * the skipped string, which is the entire tail if no match can be made.
+   */
+  Scanner.prototype.scanUntil = function scanUntil (re) {
+    var index = this.tail.search(re), match;
+
+    switch (index) {
+    case -1:
+      match = this.tail;
+      this.tail = '';
+      break;
+    case 0:
+      match = '';
+      break;
+    default:
+      match = this.tail.substring(0, index);
+      this.tail = this.tail.substring(index);
+    }
+
+    this.pos += match.length;
+
+    return match;
+  };
+
+  /**
+   * Represents a rendering context by wrapping a view object and
+   * maintaining a reference to the parent context.
+   */
+  function Context (view, parentContext) {
+    this.view = view;
+    this.cache = { '.': this.view };
+    this.parent = parentContext;
+  }
+
+  /**
+   * Creates a new context using the given view with this context
+   * as the parent.
+   */
+  Context.prototype.push = function push (view) {
+    return new Context(view, this);
+  };
+
+  /**
+   * Returns the value of the given name in this context, traversing
+   * up the context hierarchy if the value is absent in this context's view.
+   */
+  Context.prototype.lookup = function lookup (name) {
+    var cache = this.cache;
+
+    var value;
+    if (cache.hasOwnProperty(name)) {
+      value = cache[name];
+    } else {
+      var context = this, names, index, lookupHit = false;
+
+      while (context) {
+        if (name.indexOf('.') > 0) {
+          value = context.view;
+          names = name.split('.');
+          index = 0;
+
+          /**
+           * Using the dot notion path in `name`, we descend through the
+           * nested objects.
+           *
+           * To be certain that the lookup has been successful, we have to
+           * check if the last object in the path actually has the property
+           * we are looking for. We store the result in `lookupHit`.
+           *
+           * This is specially necessary for when the value has been set to
+           * `undefined` and we want to avoid looking up parent contexts.
+           **/
+          while (value != null && index < names.length) {
+            if (index === names.length - 1)
+              lookupHit = hasProperty(value, names[index]);
+
+            value = value[names[index++]];
+          }
+        } else {
+          value = context.view[name];
+          lookupHit = hasProperty(context.view, name);
+        }
+
+        if (lookupHit)
+          break;
+
+        context = context.parent;
+      }
+
+      cache[name] = value;
+    }
+
+    if (isFunction(value))
+      value = value.call(this.view);
+
+    return value;
+  };
+
+  /**
+   * A Writer knows how to take a stream of tokens and render them to a
+   * string, given a context. It also maintains a cache of templates to
+   * avoid the need to parse the same template twice.
+   */
+  function Writer () {
+    this.cache = {};
+  }
+
+  /**
+   * Clears all cached templates in this writer.
+   */
+  Writer.prototype.clearCache = function clearCache () {
+    this.cache = {};
+  };
+
+  /**
+   * Parses and caches the given `template` and returns the array of tokens
+   * that is generated from the parse.
+   */
+  Writer.prototype.parse = function parse (template, tags) {
+    var cache = this.cache;
+    var tokens = cache[template];
+
+    if (tokens == null)
+      tokens = cache[template] = parseTemplate(template, tags);
+
+    return tokens;
+  };
+
+  /**
+   * High-level method that is used to render the given `template` with
+   * the given `view`.
+   *
+   * The optional `partials` argument may be an object that contains the
+   * names and templates of partials that are used in the template. It may
+   * also be a function that is used to load partial templates on the fly
+   * that takes a single argument: the name of the partial.
+   */
+  Writer.prototype.render = function render (template, view, partials) {
+    var tokens = this.parse(template);
+    var context = (view instanceof Context) ? view : new Context(view);
+    return this.renderTokens(tokens, context, partials, template);
+  };
+
+  /**
+   * Low-level method that renders the given array of `tokens` using
+   * the given `context` and `partials`.
+   *
+   * Note: The `originalTemplate` is only ever used to extract the portion
+   * of the original template that was contained in a higher-order section.
+   * If the template doesn't use higher-order sections, this argument may
+   * be omitted.
+   */
+  Writer.prototype.renderTokens = function renderTokens (tokens, context, partials, originalTemplate) {
+    var buffer = '';
+
+    var token, symbol, value;
+    for (var i = 0, numTokens = tokens.length; i < numTokens; ++i) {
+      value = undefined;
+      token = tokens[i];
+      symbol = token[0];
+
+      if (symbol === '#') value = this.renderSection(token, context, partials, originalTemplate);
+      else if (symbol === '^') value = this.renderInverted(token, context, partials, originalTemplate);
+      else if (symbol === '>') value = this.renderPartial(token, context, partials, originalTemplate);
+      else if (symbol === '&') value = this.unescapedValue(token, context);
+      else if (symbol === 'name') value = this.escapedValue(token, context);
+      else if (symbol === 'text') value = this.rawValue(token);
+
+      if (value !== undefined)
+        buffer += value;
+    }
+
+    return buffer;
+  };
+
+  Writer.prototype.renderSection = function renderSection (token, context, partials, originalTemplate) {
+    var self = this;
+    var buffer = '';
+    var value = context.lookup(token[1]);
+
+    // This function is used to render an arbitrary template
+    // in the current context by higher-order sections.
+    function subRender (template) {
+      return self.render(template, context, partials);
+    }
+
+    if (!value) return;
+
+    if (isArray(value)) {
+      for (var j = 0, valueLength = value.length; j < valueLength; ++j) {
+        buffer += this.renderTokens(token[4], context.push(value[j]), partials, originalTemplate);
+      }
+    } else if (typeof value === 'object' || typeof value === 'string' || typeof value === 'number') {
+      buffer += this.renderTokens(token[4], context.push(value), partials, originalTemplate);
+    } else if (isFunction(value)) {
+      if (typeof originalTemplate !== 'string')
+        throw new Error('Cannot use higher-order sections without the original template');
+
+      // Extract the portion of the original template that the section contains.
+      value = value.call(context.view, originalTemplate.slice(token[3], token[5]), subRender);
+
+      if (value != null)
+        buffer += value;
+    } else {
+      buffer += this.renderTokens(token[4], context, partials, originalTemplate);
+    }
+    return buffer;
+  };
+
+  Writer.prototype.renderInverted = function renderInverted (token, context, partials, originalTemplate) {
+    var value = context.lookup(token[1]);
+
+    // Use JavaScript's definition of falsy. Include empty arrays.
+    // See https://github.com/janl/mustache.js/issues/186
+    if (!value || (isArray(value) && value.length === 0))
+      return this.renderTokens(token[4], context, partials, originalTemplate);
+  };
+
+  Writer.prototype.renderPartial = function renderPartial (token, context, partials) {
+    if (!partials) return;
+
+    var value = isFunction(partials) ? partials(token[1]) : partials[token[1]];
+    if (value != null)
+      return this.renderTokens(this.parse(value), context, partials, value);
+  };
+
+  Writer.prototype.unescapedValue = function unescapedValue (token, context) {
+    var value = context.lookup(token[1]);
+    if (value != null)
+      return value;
+  };
+
+  Writer.prototype.escapedValue = function escapedValue (token, context) {
+    var value = context.lookup(token[1]);
+    if (value != null)
+      return mustache.escape(value);
+  };
+
+  Writer.prototype.rawValue = function rawValue (token) {
+    return token[1];
+  };
+
+  mustache.name = 'mustache.js';
+  mustache.version = '2.2.0';
+  mustache.tags = [ '{{', '}}' ];
+
+  // All high-level mustache.* functions use this writer.
+  var defaultWriter = new Writer();
+
+  /**
+   * Clears all cached templates in the default writer.
+   */
+  mustache.clearCache = function clearCache () {
+    return defaultWriter.clearCache();
+  };
+
+  /**
+   * Parses and caches the given template in the default writer and returns the
+   * array of tokens it contains. Doing this ahead of time avoids the need to
+   * parse templates on the fly as they are rendered.
+   */
+  mustache.parse = function parse (template, tags) {
+    return defaultWriter.parse(template, tags);
+  };
+
+  /**
+   * Renders the `template` with the given `view` and `partials` using the
+   * default writer.
+   */
+  mustache.render = function render (template, view, partials) {
+    if (typeof template !== 'string') {
+      throw new TypeError('Invalid template! Template should be a "string" ' +
+                          'but "' + typeStr(template) + '" was given as the first ' +
+                          'argument for mustache#render(template, view, partials)');
+    }
+
+    return defaultWriter.render(template, view, partials);
+  };
+
+  // This is here for backwards compatibility with 0.4.x.,
+  /*eslint-disable */ // eslint wants camel cased function name
+  mustache.to_html = function to_html (template, view, partials, send) {
+    /*eslint-enable*/
+
+    var result = mustache.render(template, view, partials);
+
+    if (isFunction(send)) {
+      send(result);
+    } else {
+      return result;
+    }
+  };
+
+  // Export the escaping function so that the user may override it.
+  // See https://github.com/janl/mustache.js/issues/244
+  mustache.escape = escapeHtml;
+
+  // Export these mainly for testing, but also for advanced usage.
+  mustache.Scanner = Scanner;
+  mustache.Context = Context;
+  mustache.Writer = Writer;
+
+}));
+
+},{}],3:[function(require,module,exports){
 'use strict';
 /**
  *
@@ -4760,7 +5389,7 @@ CellProvider.prototype.initializeCells = function() {
 
 module.exports = CellProvider
 
-},{}],3:[function(require,module,exports){
+},{}],4:[function(require,module,exports){
 'use strict';
 /**
  *
@@ -6050,7 +6679,7 @@ Renderer.prototype.setBounds = function(bounds) {
 
 module.exports = Renderer;
 
-},{}],4:[function(require,module,exports){
+},{}],5:[function(require,module,exports){
 /* global RangeSelectionModel */
 'use strict';
 
@@ -6415,16 +7044,596 @@ SelectionModel.prototype.isInCurrentSelectionRectangle = function(x, y) {
 
 module.exports = SelectionModel;
 
-},{}],5:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
 'use strict';
 
 module.exports = {
     //CellClick: require('./CellClick.js');
 };
 
-},{}],6:[function(require,module,exports){
-arguments[4][5][0].apply(exports,arguments)
-},{"dup":5}],7:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
+'use strict';
+
+var mustache = require('mustache');
+
+function Base() {
+    Object.call(this);
+}
+
+Base.prototype = new Object();
+Base.prototype.constructor = Base;
+/**
+ * @property {boolean} isEditing - am I currently editing
+ * @instance
+ */
+Base.prototype.isEditing = false,
+
+/**
+ * @property {rectangle.point} editorPoint - the point that I am editing at right now
+ * @instance
+ */
+Base.prototype.editorPoint = null,
+
+/**
+ * @property {boolean} checkEditorPositionFlag - if true, check that the editor is in the right location
+ * @instance
+ */
+Base.prototype.checkEditorPositionFlag = false,
+
+/**
+ * @property {HTMLElement} input - my main input control
+ * @instance
+ */
+Base.prototype.input = null,
+
+/**
+ * @property {string} alias - my look up name
+ * @instance
+ */
+Base.prototype.alias = 'base',
+
+/**
+ * @property {fin-hypergrid} grid - my instance of hypergrid
+ * @instance
+ */
+Base.prototype.grid = null,
+
+/**
+ * @property {type} initialValue - the value before editing
+ * @instance
+ */
+Base.prototype.initialValue = null,
+
+
+/**
+ * @function
+ * @instance
+ * @description
+ return the behavior (model)
+ *
+ * #### returns:[fin-hypergrid-behavior-base](module-behaviors_base.html)
+ */
+Base.prototype.getBehavior = function() {
+    return this.grid.getBehavior();
+};
+
+/**
+ * @function
+ * @instance
+ * @description
+ This function is a callback from the fin-hypergrid.   It is called after each paint of the canvas.
+ *
+ */
+Base.prototype.gridRenderedNotification = function() {
+    this.checkEditor();
+};
+
+/**
+ * @function
+ * @instance
+ * @description
+scroll values have changed, we've been notified
+ */
+Base.prototype.scrollValueChangedNotification = function() {
+    this.setCheckEditorPositionFlag();
+};
+
+/**
+* @function
+* @instance
+* @description
+turn on checkEditorPositionFlag boolean field
+*/
+Base.prototype.setCheckEditorPositionFlag = function() {
+    this.checkEditorPositionFlag = true;
+};
+
+/**
+* @function
+* @instance
+* @description
+begin editing at location point
+* @param {rectangle.point} point - the location to start editing at
+*/
+Base.prototype.beginEditAt = function(point) {
+    this.setEditorPoint(point);
+    var model = this.getBehavior();
+    var value = model.getValue(point.x, point.y);
+    if (value.constructor.name === 'Array') {
+        value = value[1]; //it's a nested object
+    }
+    var proceed = this.grid.fireRequestCellEdit(point, value);
+    if (!proceed) {
+        //we were cancelled
+        return;
+    }
+    this.initialValue = value;
+    this.setEditorValue(value);
+    this.isEditing = true;
+    this.setCheckEditorPositionFlag();
+    this.checkEditor();
+};
+
+/**
+* @function
+* @instance
+* @description
+put value into our editor
+* @param {object} value - whatever value we want to edit
+*/
+Base.prototype.setEditorValue = function(value) {
+    noop(value);
+};
+
+/**
+* @function
+* @instance
+* @description
+returns the point at which we are currently editing
+* #### returns: rectangle.point
+*/
+Base.prototype.getEditorPoint = function() {
+    return this.editorPoint;
+};
+
+/**
+* @function
+* @instance
+* @description
+set the current editor location
+* @param {rectangle.point} point - the data location of the current editor
+*/
+Base.prototype.setEditorPoint = function(point) {
+    this.editorPoint = point;
+    this.modelPoint = this.getGrid().convertViewPointToDataPoint(point);
+};
+
+/**
+* @function
+* @instance
+* @description
+display the editor
+*/
+Base.prototype.showEditor = function() {};
+
+/**
+* @function
+* @instance
+* @description
+hide the editor
+*/
+Base.prototype.hideEditor = function() {};
+
+/**
+* @function
+* @instance
+* @description
+stop editing
+*/
+Base.prototype.stopEditing = function() {
+    if (!this.isEditing) {
+        return;
+    }
+    var proceed = this.getGrid().fireSyntheticEditorDataChangeEvent(this, this.initialValue, this.getEditorValue, this);
+    if (!proceed) {
+        return;
+    }
+    this.saveEditorValue();
+    this.isEditing = false;
+    this.hideEditor();
+};
+
+Base.prototype.cancelEditing = function() {
+    if (!this.isEditing) {
+        return;
+    }
+    this.isEditing = false;
+    this.hideEditor();
+};
+
+/**
+* @function
+* @instance
+* @description
+save the new value into the behavior(model)
+*/
+Base.prototype.saveEditorValue = function() {
+    var point = this.getEditorPoint();
+    var value = this.getEditorValue();
+    if (value === this.initialValue) {
+        return; //data didn't change do nothing
+    }
+    var continued = this.getGrid().fireBeforeCellEdit(point, this.initialValue, value, this);
+    if (!continued) {
+        return;
+    }
+    this.getBehavior().setValue(point.x, point.y, value);
+    this.getGrid().fireAfterCellEdit(point, this.initialValue, value, this);
+};
+
+/**
+* @function
+* @instance
+* @description
+return the current editor's value
+* #### returns: Object
+*/
+Base.prototype.getEditorValue = function() {
+
+};
+
+/**
+* @function
+* @instance
+* @description
+request focus for my input control
+*/
+Base.prototype.takeFocus = function() {
+
+};
+
+/**
+* @function
+* @instance
+* @description
+move the editor to the current editor point
+*/
+Base.prototype._moveEditor = function() {
+    var grid = this.getGrid();
+    var editorPoint = this.getEditorPoint();
+    var cellBounds = grid._getBoundsOfCell(editorPoint.x, editorPoint.y);
+
+    //hack to accomodate bootstrap margin issues...
+    var xOffset = grid.getBoundingClientRect().left - grid.canvas.getBoundingClientRect().left;
+    cellBounds.x = cellBounds.x - xOffset;
+
+    this.setBounds(cellBounds);
+};
+
+Base.prototype.moveEditor = function() {
+    this._moveEditor();
+    this.takeFocus();
+};
+
+/**
+* @function
+* @instance
+* @description
+set the bounds of my input control
+* @param {rectangle} rectangle - the bounds to move to
+*/
+Base.prototype.setBounds = function(rectangle) {
+    noop(rectangle);
+};
+
+/**
+* @function
+* @instance
+* @description
+check that the editor is in the correct location, and is showing/hidden appropriately
+*/
+Base.prototype.checkEditor = function() {
+    if (!this.checkEditorPositionFlag) {
+        return;
+    } else {
+        this.checkEditorPositionFlag = false;
+    }
+    if (!this.isEditing) {
+        return;
+    }
+    var editorPoint = this.getEditorPoint();
+    if (this.grid.isDataVisible(editorPoint.x, editorPoint.y)) {
+        this.moveEditor();
+        this.showEditor();
+    } else {
+        this.hideEditor();
+    }
+};
+
+Base.prototype.getGrid = function() {
+    return this.grid;
+};
+
+Base.prototype.template = function() {/*
+*/
+};
+
+Base.prototype.getHTML = function() {
+    var string = this.template.toString().split('\n');
+    string.shift();
+    string.length = string.length - 2;
+    string = string.join('\n').trim();
+    var html = mustache.render(string, this);
+    return html;
+};
+
+Base.prototype.showDropdown = function(element) {
+    var event;
+    event = document.createEvent('MouseEvents');
+    event.initMouseEvent('mousedown', true, true, window);
+    element.dispatchEvent(event);
+};
+
+module.exports = Base;
+
+},{"mustache":2}],8:[function(require,module,exports){
+'use strict';
+/**
+ *
+ * @module cell-editors\choice
+ *
+ */
+
+var Simple = require('./Simple.js');
+
+function Choice() {
+    Simple.call(this);
+}
+
+Choice.prototype = new Simple();
+
+Choice.prototype.constructor = Choice;
+/**
+ * @function
+ * @instance
+ * @description
+ polymer lifecycle event
+ */
+Choice.prototype.ready = function() {
+    var self = this;
+    this.readyInit();
+    this.input.onchange = function() {
+        self.stopEditing();
+    };
+};
+/**
+ * @property {string} alias - my lookup alias
+ * @instance
+ */
+Choice.prototype.alias = 'choice';
+
+/**
+ * @property {Array} items - the list of items to pick from
+ * @instance
+ */
+Choice.prototype.items = [];
+
+Choice.prototype.template = function() {/*
+    <form>
+      <input list="fin-datalist" id="editor">
+      <datalist id="fin-datalist">
+        <option repeat="{{item in items}}" value="{{item}}" template>{{item}}</option>
+      </datalist>
+    </form>
+*/
+};
+//no events are fired while the dropdown is open
+//see http://jsfiddle.net/m4tndtu4/6/
+Choice.prototype.showEditor = function() {
+    var self = this;
+    this.input.style.display = 'inline';
+    setTimeout(function() {
+        self.showDropdown(self.input);
+    }, 50);
+};
+
+module.exports = Choice;
+
+},{"./Simple.js":9}],9:[function(require,module,exports){
+'use strict';
+/**
+ *
+ * @module cell-editors\simple
+ *
+ */
+
+var Base = require('./Base.js');
+
+function Simple() {
+    Base.call(this);
+    this.editorPoint = {x:0, y:0};
+}
+
+Simple.prototype = new Base();
+
+Simple.prototype.constructor = Simple;
+/**
+ * @property {string} alias - my lookup alias
+ * @instance
+ */
+Simple.prototype.alias ='simple';
+
+/**
+ * @function
+ * @instance
+ * @description
+ the function to override for initialization
+ */
+Simple.prototype.readyInit = function() {
+    var self = this;
+    this.input = this.shadowRoot.querySelector('#editor');
+    this.input.addEventListener('keyup', function(e) {
+        if (e && (e.keyCode === 13 || e.keyCode === 27 || e.keyCode === 8)) {
+            e.preventDefault();
+            if (e.keyCode === 8) {
+                self.clearStopEditing();
+            } else if (e.keyCode === 27) {
+                self.cancelEditing();
+            } else {
+                self.stopEditing();
+            }
+            self.getGrid().repaint();
+            self.getGrid().takeFocus();
+        }
+        self.getGrid().fireSyntheticEditorKeyUpEvent(self, e);
+    });
+    this.input.addEventListener('keydown', function(e) {
+        self.getGrid().fireSyntheticEditorKeyDownEvent(self, e);
+    });
+    this.input.addEventListener('keypress', function(e) {
+        console.log('keypress', e.keyCode);
+        self.getGrid().fireSyntheticEditorKeyPressEvent(self, e);
+    });
+    // this.input.addEventListener('focusout', function() {
+    //     self.stopEditing();
+    // });
+    // this.input.addEventListener('blur', function() {
+    //     self.stopEditing();
+    // });
+    this.input.style.position = 'absolute';
+    this.input.style.display = 'none';
+    this.input.style.border = 'solid 2px black';
+    this.input.style.outline = 0;
+    this.input.style.padding = 0;
+    this.input.style.zIndex = 1000;
+};
+
+/**
+* @function
+* @instance
+* @description
+return the current editor's value
+* #### returns: Object
+*/
+Simple.prototype.getEditorValue = function() {
+    var value = this.input.value;
+    return value;
+};
+
+/**
+* @function
+* @instance
+* @description
+save the new value into the behavior(model)
+*/
+Simple.prototype.setEditorValue = function(value) {
+    this.input.value = value + '';
+};
+
+Simple.prototype.clearStopEditing = function() {
+    this.setEditorValue('');
+    this.stopEditing();
+};
+
+Simple.prototype.cancelEditing = function() {
+    if (!this.isEditing) {
+        return;
+    }
+    this.input.value = null;
+    this.isEditing = false;
+    this.hideEditor();
+};
+
+/**
+* @function
+* @instance
+* @description
+display the editor
+*/
+Simple.prototype.showEditor = function() {
+    this.input.style.display = 'inline';
+};
+
+/**
+* @function
+* @instance
+* @description
+hide the editor
+*/
+Simple.prototype.hideEditor = function() {
+    this.input.style.display = 'none';
+};
+
+/**
+* @function
+* @instance
+* @description
+request focus for my input control
+*/
+Simple.prototype.takeFocus = function() {
+    var self = this;
+    setTimeout(function() {
+        self.input.focus();
+        self.selectAll();
+    }, 300);
+};
+
+/**
+* @function
+* @instance
+* @description
+select everything
+*/
+Simple.prototype.selectAll = function() {
+
+};
+
+/**
+* @function
+* @instance
+* @description
+how much should I offset my bounds from 0,0
+*/
+Simple.prototype.originOffset = function() {
+    return [0, 0];
+};
+
+/**
+* @function
+* @instance
+* @description
+set the bounds of my input control
+* @param {rectangle} rectangle - the bounds to move to
+*/
+Simple.prototype.setBounds = function(cellBounds) {
+    var originOffset = this.originOffset();
+    var translation = 'translate(' + (cellBounds.x + originOffset[0]) + 'px,' + (cellBounds.y + originOffset[1]) + 'px)';
+
+    this.input.style.webkitTransform = translation;
+    this.input.style.MozTransform = translation;
+    this.input.style.msTransform = translation;
+    this.input.style.OTransform = translation;
+
+    // this.input.style.left = cellBounds.x + originOffset[0] + 'px';
+    // this.input.style.top = cellBounds.y + originOffset[1] + 'px';
+
+    this.input.style.width = (cellBounds.width - 2) + 'px';
+    this.input.style.height = (cellBounds.height - 2) + 'px';
+    //var xOffset = this.grid.canvas.getBoundingClientRect().left;
+};
+
+module.exports = Simple;
+
+},{"./Base.js":7}],10:[function(require,module,exports){
+'use strict';
+
+module.exports = {
+    Base: require('./Base.js'),
+    Simple: require('./Simple.js'),
+    Choice: require('./Choice.js'),
+};
+
+},{"./Base.js":7,"./Choice.js":8,"./Simple.js":9}],11:[function(require,module,exports){
 'use strict';
 
 function Base() {
@@ -6465,7 +7674,7 @@ module.exports = Base;
 
 
 
-},{}],8:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 'use strict';
 
 var Base = require('./Base.js');
@@ -6535,7 +7744,7 @@ Default.prototype.getRowCount = function() {
 
 module.exports = Default;
 
-},{"./Base.js":7}],9:[function(require,module,exports){
+},{"./Base.js":11}],13:[function(require,module,exports){
 'use strict';
 
 var Base = require('./Base.js');
@@ -6605,7 +7814,7 @@ InMemory.prototype.getRowCount = function() {
 
 module.exports = InMemory;
 
-},{"./Base.js":7}],10:[function(require,module,exports){
+},{"./Base.js":11}],14:[function(require,module,exports){
 'use strict';
 
 var Base = require('./Base.js');
@@ -7107,7 +8316,7 @@ JSON.prototype.applyState = function() {
 
 module.exports = JSON;
 
-},{"./Base.js":7}],11:[function(require,module,exports){
+},{"./Base.js":11}],15:[function(require,module,exports){
 'use strict';
 
 module.exports = {
@@ -7116,7 +8325,7 @@ module.exports = {
     JSON: require('./JSON.js')
 };
 
-},{"./Default.js":8,"./InMemory.js":9,"./JSON.js":10}],12:[function(require,module,exports){
+},{"./Default.js":12,"./InMemory.js":13,"./JSON.js":14}],16:[function(require,module,exports){
 'use strict';
 /**
  *
@@ -7505,7 +8714,7 @@ Base.prototype.initializeOn = function(grid) {
 
 module.exports = Base;
 
-},{}],13:[function(require,module,exports){
+},{}],17:[function(require,module,exports){
 'use strict';
 /**
  *
@@ -7547,7 +8756,7 @@ CellClick.prototype.handleTap = function(grid, event) {
 
 module.exports = CellClick;
 
-},{"./Base.js":12}],14:[function(require,module,exports){
+},{"./Base.js":16}],18:[function(require,module,exports){
 'use strict';
 
 /**
@@ -7609,7 +8818,7 @@ CellEditing.prototype.handleHoldPulse = function(grid, event) {
 
 module.exports = CellEditing;
 
-},{"./Base.js":12}],15:[function(require,module,exports){
+},{"./Base.js":16}],19:[function(require,module,exports){
 'use strict';
 /**
  *
@@ -8210,7 +9419,7 @@ CellSelection.prototype.moveSingleSelect = function(grid, offsetX, offsetY) {
 
 module.exports = CellSelection;
 
-},{"./Base.js":12}],16:[function(require,module,exports){
+},{"./Base.js":16}],20:[function(require,module,exports){
 'use strict';
 /**
  *
@@ -8251,7 +9460,7 @@ ColumnAutosizing.prototype.handleDoubleClick = function(grid, event) {
 
 module.exports = ColumnAutosizing;
 
-},{"./Base.js":12}],17:[function(require,module,exports){
+},{"./Base.js":16}],21:[function(require,module,exports){
 'use strict';
 /**
  *
@@ -8972,7 +10181,7 @@ ColumnMoving.prototype.isHeaderRow = function(grid, event) {
 
 module.exports = ColumnMoving;
 
-},{"./Base.js":12}],18:[function(require,module,exports){
+},{"./Base.js":16}],22:[function(require,module,exports){
 'use strict';
 /**
  *
@@ -9283,7 +10492,7 @@ ColumnResizing.prototype.isEnabled = function( /* grid */ ) {
 
 module.exports = ColumnResizing;
 
-},{"./Base.js":12}],19:[function(require,module,exports){
+},{"./Base.js":16}],23:[function(require,module,exports){
 'use strict';
 /**
  *
@@ -9881,7 +11090,7 @@ ColumnSelection.prototype.isColumnDragging = function(grid) {
 
 module.exports = ColumnSelection;
 
-},{"./Base.js":12}],20:[function(require,module,exports){
+},{"./Base.js":16}],24:[function(require,module,exports){
 'use strict';
 /**
  *
@@ -9942,7 +11151,7 @@ ColumnSorting.prototype.handleMouseMove = function(grid, event) {
 
 module.exports = ColumnSorting;
 
-},{"./Base.js":12}],21:[function(require,module,exports){
+},{"./Base.js":16}],25:[function(require,module,exports){
 'use strict';
 /**
  *
@@ -9972,7 +11181,7 @@ Filters.prototype.handleTap = function(grid, event) {
 
 module.exports = Filters;
 
-},{"./Base.js":12}],22:[function(require,module,exports){
+},{"./Base.js":16}],26:[function(require,module,exports){
 'use strict';
 /**
  *
@@ -10033,7 +11242,7 @@ KeyPaging.prototype.handleKeyDown = function(grid, event) {
 
 module.exports = KeyPaging;
 
-},{"./Base.js":12}],23:[function(require,module,exports){
+},{"./Base.js":16}],27:[function(require,module,exports){
 'use strict';
 /**
  *
@@ -10077,7 +11286,7 @@ OnHover.prototype.handleMouseMove = function(grid, event) {
 
 module.exports = OnHover;
 
-},{"./Base.js":12}],24:[function(require,module,exports){
+},{"./Base.js":16}],28:[function(require,module,exports){
 'use strict';
 /**
  *
@@ -10291,7 +11500,7 @@ Overlay.prototype.getCharFor = function(grid, integer) {
 
 module.exports = Overlay;
 
-},{"./Base.js":12}],25:[function(require,module,exports){
+},{"./Base.js":16}],29:[function(require,module,exports){
 'use strict';
 /**
  *
@@ -10463,7 +11672,7 @@ RowResizing.prototype.isEnabled = function(grid) {
 
 module.exports = RowResizing;
 
-},{"./ColumnResizing.js":18}],26:[function(require,module,exports){
+},{"./ColumnResizing.js":22}],30:[function(require,module,exports){
 'use strict';
 /**
  *
@@ -11016,7 +12225,7 @@ RowSelection.prototype.isSingleRowSelection = function() {
 
 module.exports = RowSelection;
 
-},{"./Base.js":12}],27:[function(require,module,exports){
+},{"./Base.js":16}],31:[function(require,module,exports){
 'use strict';
 /**
  *
@@ -11064,7 +12273,7 @@ ThumbwheelScrolling.handleWheelMoved = function(grid, e) {
 
 module.exports = ThumbwheelScrolling;
 
-},{"./Base.js":12}],28:[function(require,module,exports){
+},{"./Base.js":16}],32:[function(require,module,exports){
 'use strict';
 
 module.exports = {
@@ -11086,7 +12295,7 @@ module.exports = {
 };
 
 
-},{"./CellClick.js":13,"./CellEditing.js":14,"./CellSelection.js":15,"./ColumnAutosizing.js":16,"./ColumnMoving.js":17,"./ColumnResizing.js":18,"./ColumnSelection.js":19,"./ColumnSorting.js":20,"./Filters.js":21,"./KeyPaging.js":22,"./OnHover.js":23,"./Overlay.js":24,"./RowResizing.js":25,"./RowSelection.js":26,"./ThumbwheelScrolling.js":27}],29:[function(require,module,exports){
+},{"./CellClick.js":17,"./CellEditing.js":18,"./CellSelection.js":19,"./ColumnAutosizing.js":20,"./ColumnMoving.js":21,"./ColumnResizing.js":22,"./ColumnSelection.js":23,"./ColumnSorting.js":24,"./Filters.js":25,"./KeyPaging.js":26,"./OnHover.js":27,"./Overlay.js":28,"./RowResizing.js":29,"./RowSelection.js":30,"./ThumbwheelScrolling.js":31}],33:[function(require,module,exports){
 /* eslint-env node, browser */
 'use strict';
 
@@ -11102,7 +12311,7 @@ ns.Renderer = require('./Renderer');
 ns.SelectionModel = require('./SelectionModel');
 ns.LRUCache = require('lru-cache');
 
-},{"./CellProvider":2,"./Renderer":3,"./SelectionModel":4,"./behaviors/behaviors.js":5,"./cellEditors/cellEditors.js":6,"./dataModels/dataModels.js":11,"./features/features.js":28,"lru-cache":1}]},{},[29]);
+},{"./CellProvider":3,"./Renderer":4,"./SelectionModel":5,"./behaviors/behaviors.js":6,"./cellEditors/cellEditors.js":10,"./dataModels/dataModels.js":15,"./features/features.js":32,"lru-cache":1}]},{},[33]);
 </script>
 <style shim-shadowdom="">
 /*******************************
@@ -23288,7 +24497,7 @@ scope.importElements = importElements;
 
 
 </head><body><div hidden="">
-<polymer-element name="fin-rectangle" assetpath="/dev/fin-rectangle/">
+<polymer-element name="fin-rectangle" assetpath="/test/fin-rectangle/">
   <script>
 
 'use strict';
@@ -23882,7 +25091,7 @@ scope.importElements = importElements;
 
   </script>
 </polymer-element>
-<polymer-element name="fin-canvas" assetpath="/dev/fin-canvas/">
+<polymer-element name="fin-canvas" assetpath="/test/fin-canvas/">
   <template>
     <style>:host {
     overflow: hidden;
@@ -25229,7 +26438,7 @@ div.container {
   </script>
 </polymer-element>
 
-<polymer-element name="fin-hypergrid-dnd-list" attributes="label list" assetpath="/dev/fin-hypergrid-dnd-list/">
+<polymer-element name="fin-hypergrid-dnd-list" attributes="label list" assetpath="/test/fin-hypergrid-dnd-list/">
   <template>
     <!-- <link href='http://fonts.googleapis.com/css?family=Roboto:400,700' rel='stylesheet' type='text/css'> -->
     <style type="text/css">:host {
@@ -25747,7 +26956,7 @@ div.container {
 
   </script>
 </polymer-element>
-<polymer-element name="fin-hypergrid-behavior-base" attributes="" assetpath="/dev/fin-hypergrid/polymer/html/behaviors/">
+<polymer-element name="fin-hypergrid-behavior-base" attributes="" assetpath="/test/fin-hypergrid/polymer/html/behaviors/">
   <template>
     <style type="text/css">:host {
     display: block;
@@ -27990,7 +29199,7 @@ it contains all code/data that's necessary for easily implementing a virtual dat
     });
 })();
 </script>
-</polymer-element><polymer-element name="fin-hypergrid-behavior-default" extends="fin-hypergrid-behavior-base" assetpath="/dev/fin-hypergrid/polymer/html/behaviors/">
+</polymer-element><polymer-element name="fin-hypergrid-behavior-default" extends="fin-hypergrid-behavior-base" assetpath="/test/fin-hypergrid/polymer/html/behaviors/">
   <template>
     <style type="text/css">:host {
     display: block;
@@ -28209,7 +29418,7 @@ it contains all code/data that's necessary for easily implementing a virtual dat
 })(); /* jslint ignore:line */
 </script>
 </polymer-element>
-<polymer-element name="fin-hypergrid-behavior-gol" extends="fin-hypergrid-behavior-base" assetpath="/dev/fin-hypergrid/polymer/html/behaviors/">
+<polymer-element name="fin-hypergrid-behavior-gol" extends="fin-hypergrid-behavior-base" assetpath="/test/fin-hypergrid/polymer/html/behaviors/">
   <template>
     <style type="text/css">:host {
     display: block;
@@ -28839,7 +30048,7 @@ it contains all code/data that's necessary for easily implementing a virtual dat
 })(); /* jslint ignore:line */
 </script>
 </polymer-element>
-<polymer-element name="fin-hypergrid-behavior-in-memory" extends="fin-hypergrid-behavior-base" assetpath="/dev/fin-hypergrid/polymer/html/behaviors/">
+<polymer-element name="fin-hypergrid-behavior-in-memory" extends="fin-hypergrid-behavior-base" assetpath="/test/fin-hypergrid/polymer/html/behaviors/">
   <template>
     <style type="text/css">:host {
     display: block;
@@ -29656,7 +30865,7 @@ This is a very rough in memory data source example.  fin-hypergrid-behavior-in-m
 })(); /* jslint ignore:line */
 </script>
 </polymer-element>
-<polymer-element name="fin-hypergrid-behavior-json" extends="fin-hypergrid-behavior-base" assetpath="/dev/fin-hypergrid/polymer/html/behaviors/">
+<polymer-element name="fin-hypergrid-behavior-json" extends="fin-hypergrid-behavior-base" assetpath="/test/fin-hypergrid/polymer/html/behaviors/">
   <template>
     <style type="text/css">:host {
     display: block;
@@ -30181,7 +31390,7 @@ This is a very rough in memory data source example.  fin-hypergrid-behavior-in-m
 })(); /* jslint ignore:line */
 </script>
 </polymer-element>
-<polymer-element name="fin-hypergrid-behavior-q" extends="fin-hypergrid-behavior-base" attributes="url" assetpath="/dev/fin-hypergrid/polymer/html/behaviors/">
+<polymer-element name="fin-hypergrid-behavior-q" extends="fin-hypergrid-behavior-base" attributes="url" assetpath="/test/fin-hypergrid/polymer/html/behaviors/">
   <template>
     <style type="text/css">:host {
     display: block;
@@ -30756,7 +31965,7 @@ This is a very rough in memory data source example.  fin-hypergrid-behavior-in-m
 })(); /* jslint ignore:line */
 </script>
 </polymer-element>
-<polymer-element name="fin-hypergrid-behavior-qtree" extends="fin-hypergrid-behavior-base" attributes="url" assetpath="/dev/fin-hypergrid/polymer/html/behaviors/">
+<polymer-element name="fin-hypergrid-behavior-qtree" extends="fin-hypergrid-behavior-base" attributes="url" assetpath="/test/fin-hypergrid/polymer/html/behaviors/">
   <template>
     <style type="text/css">:host {
     display: block;
@@ -32132,7 +33341,7 @@ This is a very rough in memory data source example.  fin-hypergrid-behavior-in-m
 })(); /* jslint ignore:line */
 </script>
 </polymer-element>
-<polymer-element name="fin-hypergrid-behavior-web-worker" extends="fin-hypergrid-behavior-base" assetpath="/dev/fin-hypergrid/polymer/html/behaviors/">
+<polymer-element name="fin-hypergrid-behavior-web-worker" extends="fin-hypergrid-behavior-base" assetpath="/test/fin-hypergrid/polymer/html/behaviors/">
   <template>
     <style type="text/css">:host {
     display: block;
@@ -32472,7 +33681,7 @@ This is a very rough in memory data source example.  fin-hypergrid-behavior-in-m
 })();
 </script>
 </polymer-element>
-<polymer-element name="fin-hypergrid-cell-editor-base" assetpath="/dev/fin-hypergrid/polymer/html/cell-editors/">
+<polymer-element name="fin-hypergrid-cell-editor-base" assetpath="/test/fin-hypergrid/polymer/html/cell-editors/">
   <template>
     <style type="text/css">:host {
     display: block;
@@ -32987,7 +34196,7 @@ This is a very rough in memory data source example.  fin-hypergrid-behavior-in-m
 
 })(); /* jshint ignore:line */
 </script>
-</polymer-element><polymer-element name="fin-hypergrid-cell-editor-simple" extends="fin-hypergrid-cell-editor-base" assetpath="/dev/fin-hypergrid/polymer/html/cell-editors/">
+</polymer-element><polymer-element name="fin-hypergrid-cell-editor-simple" extends="fin-hypergrid-cell-editor-base" assetpath="/test/fin-hypergrid/polymer/html/cell-editors/">
   <template>
     <style type="text/css">:host {
     display: block;
@@ -33349,7 +34558,7 @@ This is a very rough in memory data source example.  fin-hypergrid-behavior-in-m
 
 })(); /* jshint ignore:line */
 </script>
-</polymer-element><polymer-element name="fin-hypergrid-cell-editor-textfield" extends="fin-hypergrid-cell-editor-simple" assetpath="/dev/fin-hypergrid/polymer/html/cell-editors/">
+</polymer-element><polymer-element name="fin-hypergrid-cell-editor-textfield" extends="fin-hypergrid-cell-editor-simple" assetpath="/test/fin-hypergrid/polymer/html/cell-editors/">
   <template>
     <style type="text/css">:host {
     display: block;
@@ -33560,7 +34769,7 @@ This is a very rough in memory data source example.  fin-hypergrid-behavior-in-m
 })(); /* jshint ignore:line */
 </script>
 </polymer-element>
-<polymer-element name="fin-hypergrid-cell-editor-choice" extends="fin-hypergrid-cell-editor-simple" assetpath="/dev/fin-hypergrid/polymer/html/cell-editors/">
+<polymer-element name="fin-hypergrid-cell-editor-choice" extends="fin-hypergrid-cell-editor-simple" assetpath="/test/fin-hypergrid/polymer/html/cell-editors/">
   <template>
     <style type="text/css">:host {
     display: block;
@@ -33806,7 +35015,7 @@ This is a very rough in memory data source example.  fin-hypergrid-behavior-in-m
 // };
 </script>
 </polymer-element>
-<polymer-element name="fin-hypergrid-cell-editor-combo" extends="fin-hypergrid-cell-editor-simple" assetpath="/dev/fin-hypergrid/polymer/html/cell-editors/">
+<polymer-element name="fin-hypergrid-cell-editor-combo" extends="fin-hypergrid-cell-editor-simple" assetpath="/test/fin-hypergrid/polymer/html/cell-editors/">
   <template>
     <style type="text/css">:host {
     display: block;
@@ -33862,7 +35071,7 @@ This is a very rough in memory data source example.  fin-hypergrid-behavior-in-m
 })(); /* jshint ignore:line */
 </script>
 </polymer-element>
-<polymer-element name="fin-hypergrid-cell-editor-color" extends="fin-hypergrid-cell-editor-simple" assetpath="/dev/fin-hypergrid/polymer/html/cell-editors/">
+<polymer-element name="fin-hypergrid-cell-editor-color" extends="fin-hypergrid-cell-editor-simple" assetpath="/test/fin-hypergrid/polymer/html/cell-editors/">
   <template>
     <style type="text/css">:host {
     display: block;
@@ -34063,7 +35272,7 @@ This is a very rough in memory data source example.  fin-hypergrid-behavior-in-m
 })(); /* jshint ignore:line */
 </script>
 </polymer-element>
-<polymer-element name="fin-hypergrid-cell-editor-date" extends="fin-hypergrid-cell-editor-simple" assetpath="/dev/fin-hypergrid/polymer/html/cell-editors/">
+<polymer-element name="fin-hypergrid-cell-editor-date" extends="fin-hypergrid-cell-editor-simple" assetpath="/test/fin-hypergrid/polymer/html/cell-editors/">
   <template>
     <style type="text/css">:host {
     display: block;
@@ -34264,7 +35473,7 @@ This is a very rough in memory data source example.  fin-hypergrid-behavior-in-m
 })(); /* jshint ignore:line */
 </script>
 </polymer-element>
-<polymer-element name="fin-hypergrid-cell-editor-slider" extends="fin-hypergrid-cell-editor-simple" assetpath="/dev/fin-hypergrid/polymer/html/cell-editors/">
+<polymer-element name="fin-hypergrid-cell-editor-slider" extends="fin-hypergrid-cell-editor-simple" assetpath="/test/fin-hypergrid/polymer/html/cell-editors/">
   <template>
     <style type="text/css">:host {
     display: block;
@@ -34465,7 +35674,7 @@ This is a very rough in memory data source example.  fin-hypergrid-behavior-in-m
 })(); /* jshint ignore:line */
 </script>
 </polymer-element>
-<polymer-element name="fin-hypergrid-cell-editor-spinner" extends="fin-hypergrid-cell-editor-simple" assetpath="/dev/fin-hypergrid/polymer/html/cell-editors/">
+<polymer-element name="fin-hypergrid-cell-editor-spinner" extends="fin-hypergrid-cell-editor-simple" assetpath="/test/fin-hypergrid/polymer/html/cell-editors/">
   <template>
     <style type="text/css">:host {
     display: block;
@@ -34931,18 +36140,23 @@ This is a very rough in memory data source example.  fin-hypergrid-behavior-in-m
 
     var initializeBasicCellEditors = function() {
 
-        initializeCellEditor('fin-hypergrid-cell-editor-textfield');
-        initializeCellEditor('fin-hypergrid-cell-editor-choice');
-        initializeCellEditor('fin-hypergrid-cell-editor-combo');
-        initializeCellEditor('fin-hypergrid-cell-editor-color');
-        initializeCellEditor('fin-hypergrid-cell-editor-date');
-        initializeCellEditor('fin-hypergrid-cell-editor-slider');
-        initializeCellEditor('fin-hypergrid-cell-editor-spinner');
+        // initializeCellEditor('fin-hypergrid-cell-editor-textfield');
+        initializeCellEditor(new fin.hypergrid.cellEditors.Choice());
+        // initializeCellEditor('fin-hypergrid-cell-editor-combo');
+        // initializeCellEditor('fin-hypergrid-cell-editor-color');
+        // initializeCellEditor('fin-hypergrid-cell-editor-date');
+        // initializeCellEditor('fin-hypergrid-cell-editor-slider');
+        // initializeCellEditor('fin-hypergrid-cell-editor-spinner');
     };
 
-    var initializeCellEditor = function(name) {
-        var cellEditor = document.createElement(name);
+    var initializeCellEditor = function(cellEditor) {
+        var div = document.createElement('DIV');
+        div.innerHTML = cellEditor.getHTML();
+        var input = div.firstChild;
+        cellEditor.input = input;
+        input.style.position = 'relative';
         globalCellEditors[cellEditor.alias] = cellEditor;
+
     };
     /**
      *
@@ -36760,7 +37974,7 @@ This is a very rough in memory data source example.  fin-hypergrid-behavior-in-m
 
             if (!cellEditor.isAdded) {
                 cellEditor.isAdded = true;
-                this.shadowRoot.appendChild(cellEditor);
+                this.shadowRoot.appendChild(cellEditor.input);
             }
             cellEditor.grid = this;
             cellEditor.beginEditAt(editPoint);

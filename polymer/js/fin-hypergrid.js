@@ -27,18 +27,23 @@
 
     var initializeBasicCellEditors = function() {
 
-        initializeCellEditor('fin-hypergrid-cell-editor-textfield');
-        initializeCellEditor('fin-hypergrid-cell-editor-choice');
-        initializeCellEditor('fin-hypergrid-cell-editor-combo');
-        initializeCellEditor('fin-hypergrid-cell-editor-color');
-        initializeCellEditor('fin-hypergrid-cell-editor-date');
-        initializeCellEditor('fin-hypergrid-cell-editor-slider');
-        initializeCellEditor('fin-hypergrid-cell-editor-spinner');
+        // initializeCellEditor('fin-hypergrid-cell-editor-textfield');
+        initializeCellEditor(new fin.hypergrid.cellEditors.Choice());
+        // initializeCellEditor('fin-hypergrid-cell-editor-combo');
+        // initializeCellEditor('fin-hypergrid-cell-editor-color');
+        // initializeCellEditor('fin-hypergrid-cell-editor-date');
+        // initializeCellEditor('fin-hypergrid-cell-editor-slider');
+        // initializeCellEditor('fin-hypergrid-cell-editor-spinner');
     };
 
-    var initializeCellEditor = function(name) {
-        var cellEditor = document.createElement(name);
+    var initializeCellEditor = function(cellEditor) {
+        var div = document.createElement('DIV');
+        div.innerHTML = cellEditor.getHTML();
+        var input = div.firstChild;
+        cellEditor.input = input;
+        input.style.position = 'relative';
         globalCellEditors[cellEditor.alias] = cellEditor;
+
     };
     /**
      *
@@ -1856,7 +1861,7 @@
 
             if (!cellEditor.isAdded) {
                 cellEditor.isAdded = true;
-                this.shadowRoot.appendChild(cellEditor);
+                this.shadowRoot.appendChild(cellEditor.input);
             }
             cellEditor.grid = this;
             cellEditor.beginEditAt(editPoint);

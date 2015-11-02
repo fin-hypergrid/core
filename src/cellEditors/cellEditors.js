@@ -1,5 +1,7 @@
 'use strict';
 
 module.exports = {
-    //CellClick: require('./CellClick.js');
+    Base: require('./Base.js'),
+    Simple: require('./Simple.js'),
+    Choice: require('./Choice.js'),
 };

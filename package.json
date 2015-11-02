@@ -11,8 +11,8 @@
     "any-db": "^2.1.0",
     "any-db-postgres": "^2.1.3",
     "connect-livereload": "^0.5.3",
-    "finanalytics": "0.1.2",
-    "finbars": "1.2.0",
+    "finanalytics": "^0.1.2",
+    "finbars": "^1.2.0",
     "grunt": "^0.4.5",
     "grunt-browserify": "^4.0.1",
     "grunt-cli": "^0.1.13",
@@ -33,7 +33,8 @@
     "jshint-stylish": "^1.0.0",
     "load-grunt-tasks": "^1.0.0",
     "lru-cache": "^2.7.0",
-    "sparse-boolean-array": "1.0.1",
+    "mustache": "^2.2.0",
+    "sparse-boolean-array": "^1.0.1",
     "web-component-tester": "^2.0.1"
   },
   "scripts": {
