@@ -29254,6 +29254,7 @@ it contains all code/data that's necessary for easily implementing a virtual dat
             var tmp = columns[source];
             columns[source] = columns[target];
             columns[target] = tmp;
+            this.changed();
         },
 
         getColumnEdge: function(c, renderer) {
