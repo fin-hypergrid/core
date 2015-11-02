@@ -2362,12 +2362,13 @@
 
         fireSyntheticButtonPressedEvent: function(event) {
             var dataCell = event.dataCell;
+            var gridCell = event.gridCell;
             if (!this.isViewableButton(dataCell.x, dataCell.y)) {
                 return;
             }
             var event = new CustomEvent('fin-button-pressed', {
                 detail: {
-                    dataCell: dataCell
+                    gridCell: gridCell
                 }
             });
             this.canvas.dispatchEvent(event);

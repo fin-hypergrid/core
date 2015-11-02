@@ -337,8 +337,8 @@
         });
 
         jsonGrid.addFinEventListener('fin-button-pressed', function(e){
-            var p = e.detail.dataCell;
-            jsonModel.setDataValue(p.x, p.y, !jsonModel.getDataValue(p.x,p.y));
+            var p = e.detail.gridCell;
+            jsonModel.setValue(p.x, p.y, !jsonModel.getValue(p.x,p.y));
         });
 
         jsonGrid.addFinEventListener('fin-scroll-x', function(e){
