@@ -40,23 +40,6 @@ ColumnSelection.prototype.sbLastAuto = 0,
  */
 ColumnSelection.prototype.sbAutoStart = 0,
 
-/**
- * @property {fin-rectangle.point} rectangles - the util rectangles factory [fin-rectangles](https://github.com/stevewirts/fin-rectangle)
- * @instance
- */
-ColumnSelection.prototype.rectangles = {};
-
-/**
- * @function
- * @instance
- * @description
- the function to override for initialization
- */
-ColumnSelection.prototype.createdInit = function() {
-
-    this.rectangles = document.createElement('fin-rectangle');
-
-};
 
 /**
 * @function
@@ -217,7 +200,7 @@ ColumnSelection.prototype.handleMouseDragCellSelection = function(grid, gridCell
     grid.clearMostRecentColumnSelection();
 
     grid.selectColumn(mouseDown.x, x);
-    grid.setDragExtent(this.rectangles.point.create(newX, 0));
+    grid.setDragExtent(grid.rectangles.point.create(newX, 0));
 
     grid.repaint();
 };
@@ -340,11 +323,11 @@ ColumnSelection.prototype.extendSelection = function(grid, gridCell, keys) {
     if (hasSHIFT) {
         grid.clearMostRecentColumnSelection();
         grid.selectColumn(x, mousePoint.x);
-        grid.setDragExtent(this.rectangles.point.create(x - mousePoint.x, 0));
+        grid.setDragExtent(grid.rectangles.point.create(x - mousePoint.x, 0));
     } else {
         grid.toggleSelectColumn(x, keys);
-        grid.setMouseDown(this.rectangles.point.create(x, y));
-        grid.setDragExtent(this.rectangles.point.create(0, 0));
+        grid.setMouseDown(grid.rectangles.point.create(x, y));
+        grid.setDragExtent(grid.rectangles.point.create(0, 0));
     }
     grid.repaint();
 };
@@ -413,8 +396,8 @@ ColumnSelection.prototype.handleDOWN = function( /* grid */ ) {
 
     // grid.clearSelections();
     // grid.select(newX, newY, 0, 0);
-    // grid.setMouseDown(this.rectangles.point.create(newX, newY));
-    // grid.setDragExtent(this.rectangles.point.create(0, 0));
+    // grid.setMouseDown(grid.rectangles.point.create(newX, newY));
+    // grid.setDragExtent(grid.rectangles.point.create(0, 0));
 
     // grid.repaint();
 };
@@ -535,7 +518,7 @@ ColumnSelection.prototype.moveShiftSelect = function(grid, offsetX) {
     grid.clearMostRecentColumnSelection();
     grid.selectColumn(origin.x, origin.x + newX);
 
-    grid.setDragExtent(this.rectangles.point.create(newX, 0));
+    grid.setDragExtent(grid.rectangles.point.create(newX, 0));
 
     if (grid.insureModelColIsVisible(newX + origin.x, offsetX)) {
         this.pingAutoScroll();
@@ -573,8 +556,8 @@ ColumnSelection.prototype.moveSingleSelect = function(grid, offsetX) {
 
     grid.clearSelections();
     grid.selectColumn(newX);
-    grid.setMouseDown(this.rectangles.point.create(newX, 0));
-    grid.setDragExtent(this.rectangles.point.create(0, 0));
+    grid.setMouseDown(grid.rectangles.point.create(newX, 0));
+    grid.setDragExtent(grid.rectangles.point.create(0, 0));
 
     if (grid.insureModelColIsVisible(newX, offsetX)) {
         this.pingAutoScroll();

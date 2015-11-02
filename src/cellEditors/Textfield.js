@@ -1,28 +1,31 @@
 'use strict';
 /**
  *
- * @module cell-editors\textfield
+ * @module cell-editors\Textfield
  *
  */
-(function() {
 
-    Polymer({ /* jshint ignore:line */
+var Simple = require('./Simple.js');
 
-        /**
-         * @property {string} alias - my lookup alias
-         * @instance
-         */
-        alias: 'textfield',
+function Textfield() {
+    Simple.call(this);
+}
 
-        /**
-        * @function
-        * @instance
-        * @description
-        select everything
-        */
-        selectAll: function() {
-            this.input.setSelectionRange(0, this.input.value.length);
-        }
-    });
+Textfield.prototype = new Simple();
 
-})(); /* jshint ignore:line */
+Textfield.prototype.constructor = Textfield;
+
+Textfield.prototype.alias = 'textfield';
+
+Textfield.prototype.template = function() {/*
+    <input id="editor">
+*/
+};
+
+Textfield.prototype.selectAll = function() {
+    this.input.setSelectionRange(0, this.input.value.length);
+};
+
+module.exports = Textfield;
+
+

@@ -313,6 +313,32 @@ Base.prototype.getHTML = function() {
     return html;
 };
 
+Base.prototype.getInput = function() {
+    if (!this.input) {
+        this.input = this.getDefaultInput();
+    }
+    return this.input;
+};
+
+Base.prototype.getDefaultInput = function() {
+    var div = document.createElement('DIV');
+    div.innerHTML = this.getHTML();
+    var input = div.firstChild;
+    this.initializeInput(input);
+    return input;
+};
+
+Base.prototype.updateView = function() {
+    var oldGuy = this.getInput();
+    var parent = oldGuy.parentNode;
+    var newGuy = this.getDefaultInput();
+    this.input = newGuy;
+    parent.replaceChild(newGuy, oldGuy);
+};
+
+Base.prototype.initializeInput = function(input) {
+};
+
 Base.prototype.showDropdown = function(element) {
     var event;
     event = document.createEvent('MouseEvents');

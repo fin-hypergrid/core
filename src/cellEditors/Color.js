@@ -1,18 +1,26 @@
 'use strict';
 /**
  *
- * @module cell-editors\color
+ * @module cell-editors\Color
  *
  */
-(function() {
 
-    Polymer({ /* jshint ignore:line */
+var Simple = require('./Simple.js');
 
-        /**
-         * @property {string} alias - my lookup alias
-         * @instance
-         */
-        alias: 'color'
-    });
+function Color() {
+    Simple.call(this);
+}
 
-})(); /* jshint ignore:line */
+Color.prototype = new Simple();
+
+Color.prototype.constructor = Color;
+
+Color.prototype.alias = 'color';
+
+Color.prototype.template = function() {/*
+    <input id="editor" type="color">
+*/
+};
+
+
+module.exports = Color;

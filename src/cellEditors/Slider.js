@@ -1,18 +1,26 @@
 'use strict';
 /**
  *
- * @module cell-editors\slider
+ * @module cell-editors\Slider
  *
  */
-(function() {
 
-    Polymer({ /* jshint ignore:line */
+var Simple = require('./Simple.js');
 
-        /**
-         * @property {string} alias - my lookup alias
-         * @instance
-         */
-        alias: 'slider'
-    });
+function Slider() {
+    Simple.call(this);
+}
 
-})(); /* jshint ignore:line */
+Slider.prototype = new Simple();
+
+Slider.prototype.constructor = Slider;
+
+Slider.prototype.alias = 'slider';
+
+Slider.prototype.template = function() {/*
+    <input id="editor" type="range">
+*/
+};
+
+
+module.exports = Slider;

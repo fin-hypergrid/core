@@ -27,23 +27,17 @@
 
     var initializeBasicCellEditors = function() {
 
-        // initializeCellEditor('fin-hypergrid-cell-editor-textfield');
+        initializeCellEditor(new fin.hypergrid.cellEditors.Textfield());
         initializeCellEditor(new fin.hypergrid.cellEditors.Choice());
-        // initializeCellEditor('fin-hypergrid-cell-editor-combo');
-        // initializeCellEditor('fin-hypergrid-cell-editor-color');
-        // initializeCellEditor('fin-hypergrid-cell-editor-date');
-        // initializeCellEditor('fin-hypergrid-cell-editor-slider');
-        // initializeCellEditor('fin-hypergrid-cell-editor-spinner');
+        //initializeCellEditor(new fin.hypergrid.cellEditors.Combo());
+        initializeCellEditor(new fin.hypergrid.cellEditors.Color());
+        initializeCellEditor(new fin.hypergrid.cellEditors.Date());
+        initializeCellEditor(new fin.hypergrid.cellEditors.Slider());
+        initializeCellEditor(new fin.hypergrid.cellEditors.Spinner());
     };
 
     var initializeCellEditor = function(cellEditor) {
-        var div = document.createElement('DIV');
-        div.innerHTML = cellEditor.getHTML();
-        var input = div.firstChild;
-        cellEditor.input = input;
-        input.style.position = 'relative';
         globalCellEditors[cellEditor.alias] = cellEditor;
-
     };
     /**
      *
@@ -580,11 +574,11 @@
             document.body.addEventListener('copy', function(evt) {
                 self.checkClipboardCopy(evt);
             });
-            this.resized();
+            this.getCanvas().resize();
             this.fire('load');
             this.isScrollButtonClick = false;
 
-            this.computeCellsBounds();
+            //this.computeCellsBounds();
         },
 
         /**
@@ -1861,7 +1855,7 @@
 
             if (!cellEditor.isAdded) {
                 cellEditor.isAdded = true;
-                this.shadowRoot.appendChild(cellEditor.input);
+                this.shadowRoot.appendChild(cellEditor.getInput());
             }
             cellEditor.grid = this;
             cellEditor.beginEditAt(editPoint);
@@ -2853,6 +2847,7 @@
             this.setHScrollValue(Math.min(this.getHScrollValue(), hMax));
             this.setVScrollValue(Math.min(this.getVScrollValue(), vMax));
 
+            //this.getCanvas().resize();
             this.computeCellsBounds();
             this.repaint();
 

@@ -75,15 +75,15 @@ Renderer.prototype.computeCellsBounds = function() {
     var numRows = this.getRowCount();
     var numFixedRows = this.getFixedRowCount();
 
-    var bounds = grid.getBoundingClientRect();
-    var viewWidth = bounds.width;
+    var bounds = this.getBounds();
+    var viewWidth = bounds.width();
 
     //we must be in bootstrap
     if (viewWidth === 0) {
         //viewWidth = grid.sbHScroller.getClientRects()[0].width;
         viewWidth = grid.canvas.width;
     }
-    var viewHeight = bounds.height;
+    var viewHeight = bounds.height();
 
     var x, y, c, r, vx, vy, width, height;
 
@@ -668,9 +668,9 @@ Renderer.prototype.blankOutOverflow = function(gc) {
     var isMaxX = this.isLastColumnVisible();
     var chop = isMaxX ? 1 : 0;
     var x = this.getColumnEdges()[this.getColumnEdges().length - chop];
-    var bounds = this.getGrid().getBoundingClientRect();
-    var width = bounds.width - x;
-    var height = bounds.height;
+    var bounds = this.getBounds();
+    var width = bounds.width() - 200 - x;
+    var height = bounds.height();
     gc.fillStyle = this.resolveProperty('backgroundColor2');
     gc.fillRect(x + 1, 0, width, height);
 };
@@ -1281,8 +1281,12 @@ Renderer.prototype.animate = function() {
     ctx.closePath();
 };
 
+Renderer.prototype.getBounds = function() {
+    return this.bounds;
+};
+
 Renderer.prototype.setBounds = function(bounds) {
-    this.bounds = bounds;
+    return this.bounds = bounds;
 };
 
 module.exports = Renderer;

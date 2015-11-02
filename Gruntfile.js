@@ -122,9 +122,15 @@ module.exports = function(grunt) {
         },
 
         browserify: {
-          main: {
-            src: 'src/main.js',
-            dest: 'polymer/browserify-port.js'
+          dist: {
+            files: {
+              'polymer/browserify-port.js': ['src/main.js']
+            },
+            options: {
+                browserifyOptions: {
+                 debug: true
+                }
+            }
           }
         },
 

@@ -281,21 +281,21 @@
                 } else if (x === 3) {
                     return this.grid.cellEditors['textfield'];
                 } else if (x === 6) {
-                    cellEditor.items = ['', true, false]; //editor here
+                    cellEditor.setItems(['', true, false]); //editor here
                     return cellEditor;
                 }
 
             }
             if (x === 0) {
-                cellEditor.items = lastNames;
+                cellEditor.setItems(lastNames);
             } else if (x === 4 || x === 5) {
-                cellEditor.items = states;
+                cellEditor.setItems(states);
             } else if (x === 6) {
                 return null; //editor here
             } else if (x === 2) {
-                cellEditor.input.setAttribute('min', 0);
-                cellEditor.input.setAttribute('max', 10);
-                cellEditor.input.setAttribute('step', 0.01);
+                cellEditor.getInput().setAttribute('min', 0);
+                cellEditor.getInput().setAttribute('max', 10);
+                cellEditor.getInput().setAttribute('step', 0.01);
             }
             return cellEditor;
         };
@@ -533,7 +533,7 @@
                         cellSelection: true,
                         columnSelection: true,
                         rowSelection: true,
-                        singleRowSelectionMode: false,
+                        singleRowSelectionMode: true,
 
                     };
 

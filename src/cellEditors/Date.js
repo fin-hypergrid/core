@@ -1,18 +1,26 @@
 'use strict';
 /**
  *
- * @module cell-editors\date
+ * @module cell-editors\Date
  *
  */
-(function() {
 
-    Polymer({ /* jshint ignore:line */
+var Simple = require('./Simple.js');
 
-        /**
-         * @property {string} alias - my lookup alias
-         * @instance
-         */
-        alias: 'date'
-    });
+function Date() {
+    Simple.call(this);
+}
 
-})(); /* jshint ignore:line */
+Date.prototype = new Simple();
+
+Date.prototype.constructor = Date;
+
+Date.prototype.alias = 'date';
+
+Date.prototype.template = function() {/*
+    <input id="editor" type="date">
+*/
+};
+
+
+module.exports = Date;

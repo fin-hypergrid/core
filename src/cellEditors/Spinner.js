@@ -1,18 +1,26 @@
 'use strict';
 /**
  *
- * @module cell-editors\spinner
+ * @module cell-editors\Spinner
  *
  */
-(function() {
 
-    Polymer({ /* jshint ignore:line */
+var Simple = require('./Simple.js');
 
-        /**
-         * @property {string} alias - my lookup alias
-         * @instance
-         */
-        alias: 'spinner'
-    });
+function Spinner() {
+    Simple.call(this);
+}
 
-})(); /* jshint ignore:line */
+Spinner.prototype = new Simple();
+
+Spinner.prototype.constructor = Spinner;
+
+Spinner.prototype.alias = 'spinner';
+
+Spinner.prototype.template = function() {/*
+    <input id="editor" type="number">
+*/
+};
+
+
+module.exports = Spinner;

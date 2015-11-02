@@ -14,19 +14,7 @@ function Choice() {
 Choice.prototype = new Simple();
 
 Choice.prototype.constructor = Choice;
-/**
- * @function
- * @instance
- * @description
- polymer lifecycle event
- */
-Choice.prototype.ready = function() {
-    var self = this;
-    this.readyInit();
-    this.input.onchange = function() {
-        self.stopEditing();
-    };
-};
+
 /**
  * @property {string} alias - my lookup alias
  * @instance
@@ -40,14 +28,11 @@ Choice.prototype.alias = 'choice';
 Choice.prototype.items = ['a','b','c'];
 
 Choice.prototype.template = function() {/*
-    <form>
-      <input list="fin-datalist" id="editor">
-      <datalist id="fin-datalist">
+    <select id="editor">
         {{#items}}
             <option value="{{.}}">{{.}}</option>
         {{/items}}
-      </datalist>
-    </form>
+    </select>
 */
 };
 //no events are fired while the dropdown is open
@@ -58,6 +43,19 @@ Choice.prototype.showEditor = function() {
     setTimeout(function() {
         self.showDropdown(self.input);
     }, 50);
+};
+
+Choice.prototype.setItems = function(items) {
+    this.items = items;
+    this.updateView();
+};
+
+Choice.prototype.initializeInput = function(input) {
+    var self = this;
+    Simple.prototype.initializeInput(input);
+    input.onchange = function() {
+        self.stopEditing();
+    };
 };
 
 module.exports = Choice;
