@@ -488,7 +488,7 @@ CellProvider.prototype.initializeCells = function() {
     };
     this.cellCache.buttonRenderer = {
         paint: this.paintButton,
-        defaultCellPaint: this.defaultCellPaint
+        //defaultCellPaint: this.defaultCellPaint
     };
     this.cellCache.linkCellRenderer = {
         paint: function(gc, x, y, width, height) {

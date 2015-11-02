@@ -427,8 +427,9 @@ JSON.prototype.cellClicked = function(cell, event) {
     }
     var grid = this.getGrid();
     var headerRowCount = grid.getHeaderRowCount();
-    var y = event.gridCell.y - headerRowCount;
+    var y = event.gridCell.y - headerRowCount + 1;
     this.analytics.click(y);
+    this.changed();
 };
 JSON.prototype.getRow = function(y) {
     var grid = this.getGrid();

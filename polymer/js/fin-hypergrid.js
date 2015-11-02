@@ -1403,7 +1403,7 @@
                 mouseEvent.primitiveEvent = e;
                 self.delegateMouseUp(mouseEvent);
                 if (self.mouseDownState) {
-                    self.fireSyntheticButtonPressedEvent(self.mouseDownState.gridCell);
+                    self.fireSyntheticButtonPressedEvent(self.mouseDownState);
                 }
                 self.mouseDownState = null;
                 self.fireSyntheticMouseUpEvent(mouseEvent);
@@ -2360,13 +2360,14 @@
             return this.getRenderer().isViewableButton(c, r);
         },
 
-        fireSyntheticButtonPressedEvent: function(gridCell) {
-            if (!this.isViewableButton(gridCell.x, gridCell.y)) {
+        fireSyntheticButtonPressedEvent: function(event) {
+            var dataCell = event.dataCell;
+            if (!this.isViewableButton(dataCell.x, dataCell.y)) {
                 return;
             }
             var event = new CustomEvent('fin-button-pressed', {
                 detail: {
-                    gridCell: gridCell
+                    dataCell: dataCell
                 }
             });
             this.canvas.dispatchEvent(event);

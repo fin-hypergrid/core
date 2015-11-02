@@ -417,6 +417,7 @@ Answer specific data cell coordinates given mouse coordinates in pixels.
 Renderer.prototype.getGridCellFromMousePoint = function(point) {
 
     var grid = this.getGrid();
+    var behavior = grid.getBehavior();
     var width = 0;
     var height = 0;
     var x, y, c, r;
@@ -466,10 +467,14 @@ Renderer.prototype.getGridCellFromMousePoint = function(point) {
         r = r + scrollY;
     }
 
+    var column = behavior.getColumn(c);
+    var translatedIndex = column.index;
+
     return {
         gridCell: grid.newPoint(c, r),
         mousePoint: grid.newPoint(x, y),
-        viewPoint: viewPoint
+        viewPoint: viewPoint,
+        dataCell: grid.newPoint(translatedIndex, r),
     };
 };
 

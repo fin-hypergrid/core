@@ -1075,6 +1075,13 @@ it contains all code/data that's necessary for easily implementing a virtual dat
             return result;
         },
 
+        getDataValue: function(x, y) {
+            return this.getDataModel().getValue(x, y);
+        },
+
+        setDataValue: function(x, y, value) {
+            this.getDataModel().setValue(x, y, value);
+        },
         /**
          * @function
          * @instance
@@ -2105,11 +2112,16 @@ it contains all code/data that's necessary for easily implementing a virtual dat
             this.createColumns();
             this.changed();
         },
+
         setAggregates: function(mapOfKeysToFunctions) {
+            var self = this;
             this.getDataModel().setAggregates(mapOfKeysToFunctions);
             this.createColumns();
-            this.changed();
+            setTimeout(function() {
+                self.changed();
+            }, 100);
         },
+
         hasHierarchyColumn: function() {
             return false;
         },
