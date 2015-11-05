@@ -449,6 +449,8 @@
 
             if (hoverClassOff === 'visible') {
                 this.sbHScroller.classList.remove(hoverClassOver);
+                this.sbVScroller.classList.remove(hoverClassOver);
+                this.sbHScroller.classList.remove(hoverClassOff);
                 this.sbVScroller.classList.remove(hoverClassOff);
                 this.sbHScroller.classList.remove('visible');
                 this.sbVScroller.classList.remove('visible');
