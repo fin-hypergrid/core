@@ -450,6 +450,10 @@
             if (hoverClassOff === 'visible') {
                 this.sbHScroller.classList.remove(hoverClassOver);
                 this.sbVScroller.classList.remove(hoverClassOff);
+                this.sbHScroller.classList.remove('visible');
+                this.sbVScroller.classList.remove('visible');
+                this.sbHScroller.classList.remove('hidden');
+                this.sbVScroller.classList.remove('hidden');
                 this.sbHScroller.classList.add('visible');
                 this.sbVScroller.classList.add('visible');
             }
