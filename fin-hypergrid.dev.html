@@ -26313,7 +26313,7 @@ div.container {
                     isRightClick: this.isRightClick(e)
                 }
             }));
-            //console.log('dblclick', this.currentKeys);
+            console.log('dblclick', this.currentKeys);
         },
 
         getCharMap: function() {
@@ -28036,6 +28036,13 @@ it contains all code/data that's necessary for easily implementing a virtual dat
         setState: function(memento) {
 
             //we don't want to clobber the column properties completely
+            if (!memento.columnIndexes) {
+                var fields = this.getFields();
+                memento.columnIndexes = [];
+                for (var i = 0; i < fields.length; i++) {
+                    memento.columnIndexes[i] = i;
+                }
+            }
             var colProperties = memento.columnProperties;
             delete memento.columnProperties;
             this.tableState = null;
@@ -36447,9 +36454,9 @@ This is a very rough in memory data source example.  fin-hypergrid-behavior-in-m
             return this.getRenderer().isViewableButton(c, r);
         },
 
-        fireSyntheticButtonPressedEvent: function(event) {
-            var dataCell = event.dataCell;
-            var gridCell = event.gridCell;
+        fireSyntheticButtonPressedEvent: function(evt) {
+            var dataCell = evt.dataCell;
+            var gridCell = evt.gridCell;
             if (!this.isViewableButton(dataCell.x, dataCell.y)) {
                 return;
             }

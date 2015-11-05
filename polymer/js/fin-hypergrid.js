@@ -2360,9 +2360,9 @@
             return this.getRenderer().isViewableButton(c, r);
         },
 
-        fireSyntheticButtonPressedEvent: function(event) {
-            var dataCell = event.dataCell;
-            var gridCell = event.gridCell;
+        fireSyntheticButtonPressedEvent: function(evt) {
+            var dataCell = evt.dataCell;
+            var gridCell = evt.gridCell;
             if (!this.isViewableButton(dataCell.x, dataCell.y)) {
                 return;
             }
