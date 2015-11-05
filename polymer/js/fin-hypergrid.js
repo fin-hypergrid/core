@@ -427,6 +427,8 @@
             this.initRenderer();
             this.initScrollbars();
 
+            this.checkScrollbarVisibility();
+
             //Register a listener for the copy event so we can copy our selected region to the pastebuffer if conditions are right.
             document.body.addEventListener('copy', function(evt) {
                 self.checkClipboardCopy(evt);
@@ -439,6 +441,18 @@
             //     self.checkRepaint();
             // }, 16);
 
+        },
+
+        checkScrollbarVisibility: function() {
+            var hoverClassOver = this.resolveProperty('scrollbarHoverOver');
+            var hoverClassOff = this.resolveProperty('scrollbarHoverOff');
+
+            if (hoverClassOff === 'visible') {
+                this.sbHScroller.classList.remove(hoverClassOver);
+                this.sbVScroller.classList.remove(hoverClassOff);
+                this.sbHScroller.classList.add('visible');
+                this.sbVScroller.classList.add('visible');
+            }
         },
 
         initializeCellEditor: function(cellEditorName) {
@@ -594,6 +608,7 @@
             console.log('refresh rate = ' + interval);
             this.canvas.setAttribute('fps', interval);
             this.canvas.setAttribute('bitblit', useBitBlit === true);
+            this.checkScrollbarVisibility();
         },
 
         /**
@@ -1146,7 +1161,7 @@
             this.canvas.style.right = '-200px';
             //leave room for the vertical scrollbar
             //this.canvas.style.marginRight = '15px';
-            this.canvas.style.bottom = 0;
+            this.canvas.style.bottom = '7px';
             //leave room for the horizontal scrollbar
             //this.canvas.style.marginBottom = '15px';
             this.canvas.style.left = 0;
