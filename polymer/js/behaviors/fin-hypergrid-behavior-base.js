@@ -847,6 +847,13 @@ it contains all code/data that's necessary for easily implementing a virtual dat
         setState: function(memento) {
 
             //we don't want to clobber the column properties completely
+            if (!memento.columnIndexes) {
+                var fields = this.getFields();
+                memento.columnIndexes = [];
+                for (var i = 0; i < fields.length; i++) {
+                    memento.columnIndexes[i] = i;
+                }
+            }
             var colProperties = memento.columnProperties;
             delete memento.columnProperties;
             this.tableState = null;
