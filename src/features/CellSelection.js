@@ -76,10 +76,12 @@ CellSelection.prototype.handleMouseDown = function(grid, event) {
     var dy = cell.y;
     var headerRowCount = behavior.getHeaderRowCount();
     var headerColumnCount = behavior.getHeaderColumnCount();
+    var columnCount = behavior.getColumnCount();
+    var isOutside = viewCell.x >= columnCount;
 
     var isHeader = dy < headerRowCount || dx < headerColumnCount;
 
-    if (!grid.isCellSelection() || isRightClick || isHeader) {
+    if (!grid.isCellSelection() || isRightClick || isHeader || isOutside) {
         if (this.next) {
             this.next.handleMouseDown(grid, event);
         }

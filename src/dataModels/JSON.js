@@ -33,7 +33,7 @@ var valueOrFunctionExecute = function(valueOrFunction) {
 var textMatchFilter = function(string) {
     return function(each) {
         each = valueOrFunctionExecute(each);
-        return (each + '').toLowerCase().search(string.toLowerCase()) === 0;
+        return (each + '').toLowerCase().search(string.toLowerCase()) > -1;
     };
 };
 

@@ -467,8 +467,12 @@ Renderer.prototype.getGridCellFromMousePoint = function(point) {
         r = r + scrollY;
     }
 
+    var translatedIndex = -1;
+
     var column = behavior.getColumn(c);
-    var translatedIndex = column.index;
+    if (column) {
+        translatedIndex = column.index;
+    }
 
     return {
         gridCell: grid.newPoint(c, r),

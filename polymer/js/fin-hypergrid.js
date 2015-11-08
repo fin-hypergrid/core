@@ -2192,7 +2192,7 @@
 
 
         getRowSelection: function() {
-            var selectedRows = this.getSelectedRows();
+            var selectedRows = this.getSelectionModel().getSelectedRows();
             var numCols = this.getColumnCount();
             var result = {};
             for (var c = 0; c < numCols; c++) {
@@ -2206,7 +2206,7 @@
             return result;
         },
         getRowSelectionMatrix: function() {
-            var selectedRows = this.getSelectedRows();
+            var selectedRows = this.getSelectionModel().getSelectedRows();
             var numCols = this.getColumnCount();
             var result = new Array(numCols);
             for (var c = 0; c < numCols; c++) {
@@ -3439,6 +3439,7 @@
         autosizeColumn: function(colIndex) {
             var column = this.getBehavior().getColumn(colIndex);
             column.checkColumnAutosizing(true);
+            this.computeCellsBounds();
         },
 
         /**
