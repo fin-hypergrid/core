@@ -509,17 +509,18 @@
                 }
 
                 var state = {
-                        // columnIndexes: [
-                        //     fieldsMap.last_name,
-                        //     fieldsMap.pets,
-                        //     fieldsMap.birthDate,
-                        //     fieldsMap.birthState,
-                        //     // fieldsMap.residenceState,
-                        //     // fieldsMap.employed,
-                        //     // fieldsMap.first_name,
-                        //     fieldsMap.income,
-                        //     fieldsMap.travel,
-                        //     fieldsMap.squareOfIncome],
+                        columnIndexes: [
+                            fieldsMap.last_name,
+                            fieldsMap.pets,
+                            fieldsMap.birthDate,
+                            fieldsMap.birthState,
+                            // fieldsMap.residenceState,
+                            // fieldsMap.employed,
+                            // fieldsMap.first_name,
+                            // fieldsMap.income,
+                            // fieldsMap.travel,
+                            // fieldsMap.squareOfIncome
+                            ],
                         rowHeights:{ 0: 30 },
                         fixedColumnCount: 1,
                         fixedRowCount: 2,
@@ -539,14 +540,21 @@
 
                 jsonGrid.setGroups([4, 0, 1]);
 
+
                 jsonGrid.setState(state);
+
 
                 jsonGrid.addProperties({
                     scrollbarHoverOff: 'visible',
                     scrollbarHoverOver: 'visible',
-                    columnHeaderBackgroundColor: 'pink'
+                    columnHeaderBackgroundColor: 'pink',
+                    repaintIntervalRate: 60
                 });
 
+                jsonGrid.addProperties({
+                    fixedRowCount: 4,
+                    showRowNumbers: true
+                });
                 // properties that can be set
                 // use a function or a value
 

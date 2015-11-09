@@ -13149,6 +13149,7 @@ div.container {
 
         lastDoubleClickTime: 0,
         dragEndTime: 0,
+        lastRepaintTime: 0,
 
         /**
          *                                                                      .
@@ -13312,11 +13313,10 @@ div.container {
                 return;
             }
             var interval = 1000 / fps;
-            var lastRepaintTime = 0;
 
-            var delta = now - lastRepaintTime;
-            if (delta > interval && this.repaintNow) {
-                lastRepaintTime = now - (delta % interval);
+            var elapsed = now - this.lastRepaintTime;
+            if (elapsed > interval && this.repaintNow) {
+                this.lastRepaintTime = now - (elapsed % interval);
                 this.paintNow();
             }
         },
@@ -13890,7 +13890,7 @@ div.container {
                     isRightClick: this.isRightClick(e)
                 }
             }));
-            console.log('dblclick', this.currentKeys);
+            //console.log('dblclick', this.currentKeys);
         },
 
         getCharMap: function() {
@@ -32088,7 +32088,7 @@ fin-vampire-bar {
             defaultFixedColumnWidth: 100,
 
             //for immediate painting, set these values to 0, true respectively
-            repaintIntervalRate: 4,
+            repaintIntervalRate: 60,
             repaintImmediately: false,
 
             //enable or disable double buffering
