@@ -1156,6 +1156,12 @@ Renderer.prototype._paintCell = function(gc, c, r) {
     var grid = this.getGrid();
     var behavior = this.getBehavior();
     var baseProperties = behavior.getColumnProperties(c);
+
+    var temp = baseProperties;
+    if (baseProperties.isNull) {
+        return;
+    }
+
     var columnProperties = baseProperties;
     var headerRowCount = behavior.getHeaderRowCount();
     //var headerColumnCount = behavior.getHeaderColumnCount();
@@ -1174,7 +1180,7 @@ Renderer.prototype._paintCell = function(gc, c, r) {
 
     var cellProperties;
 
-    if ((isShowRowNumbers && c === -1) || (!isShowRowNumbers && c === 0)) {
+    if ((isShowRowNumbers && c === -1) || isHierarchyColumn) {
         if (isRowSelected) {
             baseProperties = baseProperties.rowHeaderRowSelection;
             cellProperties = Object.create(baseProperties);

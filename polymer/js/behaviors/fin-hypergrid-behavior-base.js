@@ -1570,7 +1570,9 @@ it contains all code/data that's necessary for easily implementing a virtual dat
         getColumnProperties: function(columnIndex) {
             var col = this.columns[columnIndex];
             if (!col) {
-                return {};
+                return {
+                    isNull: true
+                };
             }
             var properties = col.getProperties();
             return properties;
