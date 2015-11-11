@@ -209,102 +209,28 @@
 
             addStylesheetToHead('dnd');
 
-            var container = document.createElement('div'),
-                groups = { models: this.getGroups(), title: 'Groups' },
+            var groups = { models: this.getGroups(), title: 'Groups' },
                 availableGroups = { models: this.getAvailableGroups(), title: 'Available Groups' },
-                hidden = { models: this.getHiddenColumns(), title: 'Hidden Ccolumns' },
-                visible = { models: this.getVisibleColumns(), title: 'Visible Columns'},
-                listSets = [
-                    new window.fin.hypergrid.ListDragon([groups, availableGroups]),
-                    new window.fin.hypergrid.ListDragon([hidden, visible])
-                ];
+                hiddenColumns = { models: this.getHiddenColumns(), title: 'Hidden Ccolumns' },
+                visibleColumns = { models: this.getVisibleColumns(), title: 'Visible Columns'},
+                groupLists = new window.fin.hypergrid.ListDragon([groups, availableGroups]),
+                columnLists = new window.fin.hypergrid.ListDragon([hiddenColumns, visibleColumns]),
+                listSets = [groupLists, columnLists];
 
             listSets.forEach(function(listSet) {
                 listSet.modelLists.forEach(function(list) {
-                    container.appendChild(list.container);
+                    div.appendChild(list.container);
                 });
             });
-/*
-            var group = document.createElement('fin-hypergrid-dnd-list');
-            var availableGroups = document.createElement('fin-hypergrid-dnd-list');
-            var hidden = document.createElement('fin-hypergrid-dnd-list');
-            var visible = document.createElement('fin-hypergrid-dnd-list');
-
-            container.appendChild(group);
-            container.appendChild(availableGroups);
-            container.appendChild(hidden);
-            container.appendChild(visible);
-
-            this.beColumnStyle(group.style);
-            group.style.left = '0%';
-            group.style.width = '24%';
-            group.title = 'groups';
-            group.list = this.getGroups();
-            group.canDropItem = function(sourceList, myList, sourceIndex, item, e) {
-                noop(sourceList, myList, sourceIndex, e);
-                return sourceList === group.list || sourceList === availableGroups.list;
-            };
-
-            this.beColumnStyle(availableGroups.style);
-            availableGroups.style.left = '25%';
-            availableGroups.style.width = '24%';
-            availableGroups.title = 'Available Groups';
-            availableGroups.list = this.getAvailableGroups();
-            availableGroups.canDropItem = function(sourceList, myList, sourceIndex, item, e) {
-                noop(sourceList, myList, sourceIndex, e);
-                return sourceList === group.list || sourceList === availableGroups.list;
-            };
-
-            //can't remove the last item
-            // group.canDragItem = function(list, item, index, e) {
-            //     noop(item, index, e);
-            //     if (self.block.ungrouped) {
-            //         return true;
-            //     } else {
-            //         return list.length > 1;
-            //     }
-            // };
-            //only allow dropping of H fields
-            // group.canDropItem = function(sourceList, myList, sourceIndex, item, e) {
-            //     noop(sourceList, myList, sourceIndex, e);
-            //     return self.block.groupable.indexOf(item) > -1;
-            // };
-
-            this.beColumnStyle(hidden.style);
-            hidden.style.left = '50%';
-            hidden.style.width = '24%';
-            hidden.title = 'hidden columns';
-            hidden.list = this.getHiddenColumns();
-            hidden.canDropItem = function(sourceList, myList, sourceIndex, item, e) {
-                noop(sourceList, myList, sourceIndex, e);
-                return sourceList === hidden.list || sourceList === visible.list;
-            };
-
-            this.beColumnStyle(visible.style);
-            visible.style.left = '75%';
-            visible.style.width = '24%';
-            visible.title = 'visible columns';
-            visible.list = this.getVisibleColumns();
-            visible.canDropItem = function(sourceList, myList, sourceIndex, item, e) {
-                noop(sourceList, myList, sourceIndex, e);
-                return sourceList === hidden.list || sourceList === visible.list;
-            };
-
-            //can't remove the last item
-            // visible.canDragItem = function(list, item, index, e) {
-            //     noop(item, index, e);
-            //     return list.length > 1;
-            // };
 
             //attach for later retrieval
             div.lists = {
-                group: group.list,
-                availableGroups: availableGroups.list,
-                hidden: hidden.list,
-                visible: visible.list
+                group: groups.models,
+                availableGroups: availableGroups.models,
+                hidden: hiddenColumns.models,
+                visible: visibleColumns.models
             };
-*/
-            div.appendChild(container);
+
             return true;
         },
         getGroups: function() {
@@ -358,9 +284,9 @@
     });
 
     function addStylesheetToHead(name) {
-        var sheet = addStylesheetToHead.sheets[name];
+        var sheet = styleSheets[name];
         if (sheet) {
-            delete addStylesheetToHead.sheets[name];
+            delete styleSheets[name];
 
             var elt = document.createElement('style'),
                 head = document.head || document.getElementsByTagName('head')[0];
@@ -378,7 +304,8 @@
             head.appendChild(elt);
         }
     }
-    addStylesheetToHead.sheets = {
+
+    var styleSheets = {
         'dnd': [
             'div.dragon-list, li.dragon-pop {',
             '    font-family: Roboto, sans-serif;',
@@ -389,23 +316,17 @@
             '    left: 4%;',
             '    height: 92%;',
             '    width: 20%; }',
-            'div.dragon-list:nth-child(2) {',
-            '    left: 28%; }',
-            'div.dragon-list:nth-child(3) {',
-            '    left: 52%; }',
-            'div.dragon-list:nth-child(4) {',
-            '    left: 76%; }',
-            'div.dragon-list > div, div.dragon-list > ul > li, li.dragon-pop {',
-            '    line-height: 46px; }',
-            'div.dragon-list > ul {',
-            '    top: 46px; }',
+            'div.dragon-list:nth-child(2) { left: 28%; }',
+            'div.dragon-list:nth-child(3) { left: 52%; }',
+            'div.dragon-list:nth-child(4) { left: 76%; }',
+            'div.dragon-list > div, div.dragon-list > ul > li, li.dragon-pop { line-height: 46px; }',
+            'div.dragon-list > ul { top: 46px; }',
             'div.dragon-list > ul > li:not(:last-child)::before, li.dragon-pop::before {',
             '    content: \'\\2b24\';', // BLACK LARGE CIRCLE
             '    color: #b6b6b6;',
             '    font-size: 30px;',
             '    margin: 8px 14px 8px 8px; }',
-            'li.dragon-pop {',
-            '    opacity:.8; }'
+            'li.dragon-pop { opacity:.8; }'
         ]
     };
 
