@@ -31,10 +31,12 @@
     "grunt-vulcanize": "^0.5.0",
     "jshint": "^2.5.0",
     "jshint-stylish": "^1.0.0",
+    "list-dragon": "^1.0.0",
     "load-grunt-tasks": "^1.0.0",
     "lru-cache": "^2.7.0",
     "mustache": "^2.2.0",
     "sparse-boolean-array": "^1.0.1",
+    "templex": "^1.2.0",
     "web-component-tester": "^2.0.1"
   },
   "scripts": {

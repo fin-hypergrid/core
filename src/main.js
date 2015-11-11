@@ -12,3 +12,4 @@ ns.CellProvider = require('./CellProvider');
 ns.Renderer = require('./Renderer');
 ns.SelectionModel = require('./SelectionModel');
 ns.LRUCache = require('lru-cache');
+ns.ListDragon = require('list-dragon');

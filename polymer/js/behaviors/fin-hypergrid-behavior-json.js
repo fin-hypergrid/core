@@ -206,8 +206,25 @@
             if (!this.isColumnReorderable()) {
                 return false;
             }
-            var container = document.createElement('div');
 
+            addStylesheetToHead('dnd');
+
+            var container = document.createElement('div'),
+                groups = { models: this.getGroups(), title: 'Groups' },
+                availableGroups = { models: this.getAvailableGroups(), title: 'Available Groups' },
+                hidden = { models: this.getHiddenColumns(), title: 'Hidden Ccolumns' },
+                visible = { models: this.getVisibleColumns(), title: 'Visible Columns'},
+                listSets = [
+                    new window.fin.hypergrid.ListDragon([groups, availableGroups]),
+                    new window.fin.hypergrid.ListDragon([hidden, visible])
+                ];
+
+            listSets.forEach(function(listSet) {
+                listSet.modelLists.forEach(function(list) {
+                    container.appendChild(list.container);
+                });
+            });
+/*
             var group = document.createElement('fin-hypergrid-dnd-list');
             var availableGroups = document.createElement('fin-hypergrid-dnd-list');
             var hidden = document.createElement('fin-hypergrid-dnd-list');
@@ -286,7 +303,7 @@
                 hidden: hidden.list,
                 visible: visible.list
             };
-
+*/
             div.appendChild(container);
             return true;
         },
@@ -339,5 +356,57 @@
         },
 
     });
+
+    function addStylesheetToHead(name) {
+        var sheet = addStylesheetToHead.sheets[name];
+        if (sheet) {
+            delete addStylesheetToHead.sheets[name];
+
+            var elt = document.createElement('style'),
+                head = document.head || document.getElementsByTagName('head')[0];
+
+            elt.type = 'text/css';
+
+            sheet = sheet.join('\n');
+
+            if (elt.styleSheet) {
+                elt.styleSheet.cssText = sheet;
+            } else {
+                elt.appendChild(document.createTextNode(sheet));
+            }
+
+            head.appendChild(elt);
+        }
+    }
+    addStylesheetToHead.sheets = {
+        'dnd': [
+            'div.dragon-list, li.dragon-pop {',
+            '    font-family: Roboto, sans-serif;',
+            '    text-transform: capitalize; }',
+            'div.dragon-list {',
+            '    position: absolute;',
+            '    top: 4%;',
+            '    left: 4%;',
+            '    height: 92%;',
+            '    width: 20%; }',
+            'div.dragon-list:nth-child(2) {',
+            '    left: 28%; }',
+            'div.dragon-list:nth-child(3) {',
+            '    left: 52%; }',
+            'div.dragon-list:nth-child(4) {',
+            '    left: 76%; }',
+            'div.dragon-list > div, div.dragon-list > ul > li, li.dragon-pop {',
+            '    line-height: 46px; }',
+            'div.dragon-list > ul {',
+            '    top: 46px; }',
+            'div.dragon-list > ul > li:not(:last-child)::before, li.dragon-pop::before {',
+            '    content: \'\\2b24\';', // BLACK LARGE CIRCLE
+            '    color: #b6b6b6;',
+            '    font-size: 30px;',
+            '    margin: 8px 14px 8px 8px; }',
+            'li.dragon-pop {',
+            '    opacity:.8; }'
+        ]
+    };
 
 })(); /* jslint ignore:line */
