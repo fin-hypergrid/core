@@ -1,31 +1,24 @@
 'use strict';
-/**
- *
- * @module cell-editors\Textfield
- *
- */
 
-var Simple = require('./Simple.js');
+var Simple = require('./Simple');
 
-function Textfield() {
-    Simple.call(this);
-}
+var Textfield = Simple.extend({
 
-Textfield.prototype = new Simple();
+    /**
+     * @property {string} alias - my lookup alias
+     * @instance
+     */
+    alias: 'textfield',
 
-Textfield.prototype.constructor = Textfield;
+    template: function() {
+        /*
+            <input id="editor">
+        */
+    },
 
-Textfield.prototype.alias = 'textfield';
-
-Textfield.prototype.template = function() {/*
-    <input id="editor">
-*/
-};
-
-Textfield.prototype.selectAll = function() {
-    this.input.setSelectionRange(0, this.input.value.length);
-};
+    selectAll: function() {
+        this.input.setSelectionRange(0, this.input.value.length);
+    }
+});
 
 module.exports = Textfield;
-
-

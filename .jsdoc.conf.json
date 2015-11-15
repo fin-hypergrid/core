@@ -1,0 +1,26 @@
+{
+    "tags": {
+        "allowUnknownTags": true,
+        "dictionaries": ["jsdoc","closure"]
+    },
+    "source": {
+        "include": "src"
+    },
+    "plugins": ["plugins/markdown"],
+    "markdown": {
+        "tags": ["summary"]
+    },
+    "templates": {
+        "cleverLinks": true,
+        "default": {
+            "outputSourceFiles": false
+        }
+    },
+    "opts": {
+        "template": "jsdoc-template-hypergrid",
+        "recurse": true,
+        "verbose": true,
+        "destination": "./doc/",
+        "private": false
+    }
+}

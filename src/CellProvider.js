@@ -2,15 +2,14 @@
 /**
  *
  * @module features\base
- * @description
- instances of features are connected to one another to make a chain of responsibility for handling all the input to the hypergrid.
+ * @desc instances of features are connected to one another to make a chain of responsibility for handling all the input to the hypergrid.
  *
  */
 
 function CellProvider() {
     this.cellCache = {};
     this.initializeCells();
-};
+}
 
 CellProvider.prototype = {};
 
@@ -150,10 +149,10 @@ CellProvider.prototype.paintButton = function(gc, config) {
 /**
  * @function
  * @param {CanvasGraphicsContext} gc - the "pen" in the mvc model, we issue drawing commands to
- * @param {integer} x - the x screen coordinate of my origin
- * @param {integer} y - the y screen coordinate of my origin
- * @param {integer} width - the width I'm allowed to draw within
- * @param {integer} height - the height I'm allowed to draw within
+ * @param {number} x - the x screen coordinate of my origin
+ * @param {number} y - the y screen coordinate of my origin
+ * @param {number} width - the width I'm allowed to draw within
+ * @param {number} height - the height I'm allowed to draw within
  * @param {boolean} isLink - is this a hyperlink cell
  * @instance
  * @description
@@ -294,15 +293,15 @@ CellProvider.prototype.defaultCellPaint = function(gc, config) {
 /**
  * @function
  * @param {CanvasGraphicsContext} gc - the "pen" in the mvc model, we issue drawing commands to
- * @param {integer} x - the x screen coordinate of my origin
- * @param {integer} y - the y screen coordinate of my origin
- * @param {integer} width - the width I'm allowed to draw within
- * @param {integer} height - the height I'm allowed to draw within
+ * @param {number} x - the x screen coordinate of my origin
+ * @param {number} y - the y screen coordinate of my origin
+ * @param {number} width - the width I'm allowed to draw within
+ * @param {number} height - the height I'm allowed to draw within
  * @param {boolean} isLink - is this a hyperlink cell
  * @instance
  * @description emersons paint function for a slider button. currently the user cannot interact with it
  */
-CellProvider.prototype.paintSlider = function( /* gc, x, y, width, height */ ) {
+CellProvider.prototype.paintSlider = function(gc, x, y, width, height) {
     // gc.strokeStyle = 'white';
     // var val = this.config.value;
     // var radius = height / 2;
@@ -331,14 +330,13 @@ CellProvider.prototype.paintSlider = function( /* gc, x, y, width, height */ ) {
 /**
  * @function
  * @param {CanvasGraphicsContext} gc - the "pen" in the mvc model, we issue drawing commands to
- * @param {integer} x - the x screen coordinate of my origin
- * @param {integer} y - the y screen coordinate of my origin
- * @param {integer} width - the width I'm allowed to draw within
- * @param {integer} height - the height I'm allowed to draw within
+ * @param {number} x - the x screen coordinate of my origin
+ * @param {number} y - the y screen coordinate of my origin
+ * @param {number} width - the width I'm allowed to draw within
+ * @param {number} height - the height I'm allowed to draw within
  * @param {boolean} isLink - is this a hyperlink cell
  * @instance
- * @description
- simple implementation of a sparkline.  see [Edward Tufte sparkline](http://www.edwardtufte.com/bboard/q-and-a-fetch-msg?msg_id=0001OR)
+ * @desc simple implementation of a sparkline.  see [Edward Tufte sparkline](http://www.edwardtufte.com/bboard/q-and-a-fetch-msg?msg_id=0001OR)
  */
 CellProvider.prototype.paintSparkbar = function(gc, x, y, width, height) {
     gc.beginPath();
@@ -368,10 +366,10 @@ CellProvider.prototype.paintSparkbar = function(gc, x, y, width, height) {
 /**
  * @function
  * @param {CanvasGraphicsContext} gc - the "pen" in the mvc model, we issue drawing commands to
- * @param {integer} x - the x screen coordinate of my origin
- * @param {integer} y - the y screen coordinate of my origin
- * @param {integer} width - the width I'm allowed to draw within
- * @param {integer} height - the height I'm allowed to draw within
+ * @param {number} x - the x screen coordinate of my origin
+ * @param {number} y - the y screen coordinate of my origin
+ * @param {number} width - the width I'm allowed to draw within
+ * @param {number} height - the height I'm allowed to draw within
  * @param {boolean} isLink - is this a hyperlink cell
  * @instance
  * @description
@@ -412,14 +410,13 @@ CellProvider.prototype.paintSparkline = function(gc, x, y, width, height) {
 /**
  * @function
  * @param {CanvasGraphicsContext} gc - the "pen" in the mvc model, we issue drawing commands to
- * @param {integer} x - the x screen coordinate of my origin
- * @param {integer} y - the y screen coordinate of my origin
- * @param {integer} width - the width I'm allowed to draw within
- * @param {integer} height - the height I'm allowed to draw within
+ * @param {number} x - the x screen coordinate of my origin
+ * @param {number} y - the y screen coordinate of my origin
+ * @param {number} width - the width I'm allowed to draw within
+ * @param {number} height - the height I'm allowed to draw within
  * @param {boolean} isLink - is this a hyperlink cell
  * @instance
- * @description
- this is a simple implementation of a tree cell renderer for use mainly with the qtree
+ * @desc this is a simple implementation of a tree cell renderer for use mainly with the qtree
  */
 CellProvider.prototype.treeCellRenderer = function(gc, x, y, width, height) {
     var val = this.config.value.data;
@@ -448,14 +445,13 @@ CellProvider.prototype.treeCellRenderer = function(gc, x, y, width, height) {
 /**
  * @function
  * @param {CanvasGraphicsContext} gc - the "pen" in the mvc model, we issue drawing commands to
- * @param {integer} x - the x screen coordinate of my origin
- * @param {integer} y - the y screen coordinate of my origin
- * @param {integer} width - the width I'm allowed to draw within
- * @param {integer} height - the height I'm allowed to draw within
+ * @param {number} x - the x screen coordinate of my origin
+ * @param {number} y - the y screen coordinate of my origin
+ * @param {number} width - the width I'm allowed to draw within
+ * @param {number} height - the height I'm allowed to draw within
  * @instance
  * @param {boolean} isLink - is this a hyperlink cell
- * @description
- this is an empty implementation of a cell renderer, see [the null object pattern](http://c2.com/cgi/wiki?NullObject)
+ * @desc this is an empty implementation of a cell renderer, see [the null object pattern](http://c2.com/cgi/wiki?NullObject)
  */
 CellProvider.prototype.emptyCellRenderer = function(gc, x, y, width, height) {
     noop(gc, x, y, width, height);
@@ -498,4 +494,4 @@ CellProvider.prototype.initializeCells = function() {
     };
 };
 
-module.exports = CellProvider
+module.exports = CellProvider;

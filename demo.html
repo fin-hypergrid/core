@@ -535,7 +535,7 @@
             var totals =
                 [['','1st',251,'XXXX-XX-XX','1 of 50','1 of 50','T/F','$$$$$','£££££','computed col']];
 
-            jsonModel.setTotals(totals);
+            jsonModel.setTopTotals(totals);
 
 
             //sort ascending on the first column (first name)
@@ -582,7 +582,7 @@
             };
 
             //lets override the cell editors, and configure the drop down lists
-            jsonModel.getBaseModel().getCellEditorAt = function(x, y) {
+            jsonModel.getDataModel().getCellEditorAt = function(x, y) {
                 var type = editorTypes[x];
                 var cellEditor = this.grid.cellEditors[type];
                 if (x === 0) {
@@ -708,7 +708,7 @@
         var button = document.querySelector('#hidpi-button');
         var jsonGrid = document.querySelector('#json-example');
         jsonGrid.toggleHiDPI();
-        if (jsonGrid.isHiDPI()) {
+        if (jsonGrid.useHiDPI()) {
             button.innerText = 'disable HiDPI';
         } else {
             button.innerText = 'enable HiDPI';

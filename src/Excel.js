@@ -1,4 +1,5 @@
-/* globals fin */
+/* eslint-env browser */
+/* global Polymer, fin */
 
 'use strict';
 
@@ -14,7 +15,7 @@
 
     var excelOriginOffset = 1;
 
-    Polymer({ /* jshint ignore:line */
+    Polymer({ // eslint-disable-line new-cap
 
         /**
          *
@@ -45,8 +46,7 @@
         /**
          * @function
          * @instance
-         * @description
-         this is called as the hook for the nested tag plugin pattern. this is how this excel component is installed into the hypergrid
+         * @desc this is called as the hook for the nested tag plugin pattern. this is how this excel component is installed into the hypergrid
          *
          * @param {fin-hypergrid} grid - see [fin-hypergrid](module-._fin-hypergrid.html)
          */
@@ -70,8 +70,7 @@
         /**
          * @function
          * @instance
-         * @description
-         start polling for pushes to excel
+         * @desc start polling for pushes to excel
          *
          */
         start: function() {
@@ -95,8 +94,7 @@
         /**
          * @function
          * @instance
-         * @description
-         stop polling for pushes to excel
+         * @desc stop polling for pushes to excel
          *
          */
         stop: function() {
@@ -107,8 +105,7 @@
         /**
          * @function
          * @instance
-         * @description
-         create a blob appropriate to send to excel
+         * @desc create a blob appropriate to send to excel
          *
          * #### returns: Object
          */
@@ -151,8 +148,7 @@
         /**
          * @function
          * @instance
-         * @description
-        create and send a blob of the current selection to excel
+         * @desc create and send a blob of the current selection to excel
          *
          */
         publishToBus: function() {
@@ -172,8 +168,7 @@
         /**
          * @function
          * @instance
-         * @description
-        subscribe to excel
+         * @desc subscribe to excel
          *
          */
         subscribeToBus: function() {
@@ -184,8 +179,7 @@
         /**
          * @function
          * @instance
-         * @description
-        unsubscribe to excel
+         * @desc unsubscribe to excel
          *
          */
         unSubscribeToBus: function() {
@@ -196,8 +190,7 @@
         /**
          * @function
          * @instance
-         * @description
-        handle the data that comes from excel
+         * @desc handle the data that comes from excel
          *
          */
         subscriptionCallback: function(data) {
@@ -218,8 +211,7 @@
         /**
          * @function
          * @instance
-         * @description
-        handle any errors excel might publish to the bus
+         * @desc handle any errors excel might publish to the bus
          *
          */
 
@@ -230,4 +222,4 @@
         }
     });
 
-})(); /* jshint ignore:line */
+})();

@@ -1,26 +1,21 @@
 'use strict';
-/**
- *
- * @module cell-editors\Slider
- *
- */
 
-var Simple = require('./Simple.js');
+var Simple = require('./Simple');
 
-function Slider() {
-    Simple.call(this);
-}
+var Slider = Simple.extend({
 
-Slider.prototype = new Simple();
+    /**
+     * @property {string} alias - my lookup alias
+     * @instance
+     */
+    alias: 'slider',
 
-Slider.prototype.constructor = Slider;
+    template: function() {
+        /*
+            <input id="editor" type="range">
+        */
+    }
 
-Slider.prototype.alias = 'slider';
-
-Slider.prototype.template = function() {/*
-    <input id="editor" type="range">
-*/
-};
-
+});
 
 module.exports = Slider;

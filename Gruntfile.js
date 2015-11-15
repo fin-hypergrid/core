@@ -19,7 +19,7 @@ var files = {
         'polymer/html/**/*.html'
     ],
     browserifyjs: [
-        'src/**/*.js'
+        'src/*.js', 'src/**/*.js'
     ]
 
 };
@@ -117,14 +117,14 @@ module.exports = function(grunt) {
                     'The “color” input type is not supported in all browsers. Please be sure to test, and consider using a polyfill.',
                     'The “date” input type is not supported in all browsers. Please be sure to test, and consider using a polyfill.']
                 },
-                src: files.polymerhtml,
+                src: files.polymerhtml
             }
         },
 
         browserify: {
           dist: {
             files: {
-              'polymer/browserify-port.js': ['src/main.js']
+              'index.js': ['src/main.js']
             },
             options: {
                 browserifyOptions: {
@@ -212,7 +212,8 @@ module.exports = function(grunt) {
                 path: 'http://localhost:<%= express.all.options.port%>' + delimeter + elementName + '/docs/module-._fin-hypergrid.html'
             },
             demo: {
-                path: 'http://localhost:<%= express.all.options.port%>' + delimeter + elementName + '/demo.html'
+                //path: 'http://localhost:<%= express.all.options.port%>' + delimeter + elementName + '/demo.html'
+                path: 'http://localhost:<%= express.all.options.port%>' + delimeter + elementName + '/src'
             }
 
         },
@@ -234,18 +235,18 @@ module.exports = function(grunt) {
 
     grunt.loadNpmTasks('web-component-tester');
     grunt.registerTask('test', ['build', 'wct-test']);
-    grunt.registerTask('vulcanize-both', ['vulcanize:min', 'vulcanize:dev']);
+    grunt.registerTask('vulcanize-both', [/*'vulcanize:min', 'vulcanize:dev'*/]);
     grunt.registerTask('default', ['build']);
     grunt.registerTask('build', [
-                'polymer-component-sync',
-                'jshint',
-                'jsbeautifier',
-                'csslint:default',
-                'cssbeautifier',
-                'htmllint',
-                'prettify',
-                'wct-test',
-                'vulcanize-both'
+        'polymer-component-sync',
+        'jshint',
+        'jsbeautifier',
+        'csslint:default',
+        'cssbeautifier',
+        'htmllint',
+        'prettify',
+        'wct-test',
+        'vulcanize-both'
     ]);
     grunt.registerTask('serve', function() {
         return grunt.task.run([

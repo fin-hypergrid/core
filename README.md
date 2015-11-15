@@ -155,13 +155,13 @@ There are several ways to specify fields and headers with hypergrid.
 
 ## JSON behavior totals rows
 
-adding totals rows just under the column headers with Hypergrid is extremely simple.  Call setTotals function on the JSON behavior and pass in an array of arrays of the content you want displayed.
+adding totals rows just under the column headers with Hypergrid is extremely simple.  Call `setTopTotals` function on the JSON behavior and pass in an array of arrays of the content you want displayed.
 
 ```
     var totals =
         [['','1st',251,'XXXX-XX-XX','1 of 50','1 of 50','T/F','$$$$$','£££££']];
 
-    myJSONBehavior.setTotals(totals);
+    myJSONBehavior.setTopTotals(totals);
 
     //update the totals and see the change
     totals[0][2] = 300;

@@ -1,28 +1,20 @@
 'use strict';
-/**
- *
- * @module features\base
- * @description
- instances of features are connected to one another to make a chain of responsibility for handling all the input to the hypergrid.
- *
- */
 
-var Base = require('./Base.js');
+var Feature = require('./Feature.js');
 
-function Filters() {
-    Base.call(this);
-    this.alias = 'Filters';
-};
+var Filters = Feature.extend({
 
-Filters.prototype = Object.create(Base.prototype);
+    alias: 'Filters',
 
-Filters.prototype.handleTap = function(grid, event) {
-    var gridCell = event.gridCell;
-    if (grid.isFilterRow(gridCell.y) && gridCell.x !== -1) {
-        grid.filterClicked(event);
-    } else if (this.next) {
-        this.next.handleTap(grid, event);
+    handleTap: function(grid, event) {
+        var gridCell = event.gridCell;
+        if (grid.isFilterRow(gridCell.y) && gridCell.x !== -1) {
+            grid.filterClicked(event);
+        } else if (this.next) {
+            this.next.handleTap(grid, event);
+        }
     }
-};
+
+});
 
 module.exports = Filters;

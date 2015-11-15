@@ -1,37 +1,38 @@
 'use strict';
 
-(function() {
+var Simple = require('./Simple');
 
-    Polymer({ /* jshint ignore:line */
+var Combo = Simple.extend({
 
-        /**
-         * @property {string} alias - my lookup alias
-         * @instance
-         */
-        alias: 'combo',
+    /**
+     * @property {string} alias - my lookup alias
+     * @instance
+     */
+    alias: 'combo',
 
-        /**
-         * @property {Array} items - the list of items to pick from
-         * @instance
-         */
-        items: [],
+    /**
+     * @property {Array} items - the list of items to pick from
+     * @instance
+     */
+    items: [],
 
-        /**
-        * @function
-        * @instance
-        * @description
-        request focus for my input control
-        */
-        takeFocus: function() {
-            var self = this;
-            setTimeout(function() {
-                //self.input.focus();
-                self.selectAll();
-            }, 300);
-        },
-        selectAll: function() {
-            this.input.setSelectionRange(0, this.input.value.length);
-        }
-    });
+    /**
+     * @function
+     * @instance
+     * @desc request focus for my input control
+     */
+    takeFocus: function() {
+        var self = this;
+        setTimeout(function() {
+            //self.input.focus();
+            self.selectAll();
+        }, 300);
+    },
 
-})(); /* jshint ignore:line */
+    selectAll: function() {
+        this.input.setSelectionRange(0, this.input.value.length);
+    }
+
+});
+
+module.exports = Combo;

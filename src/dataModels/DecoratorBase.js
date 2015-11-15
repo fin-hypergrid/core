@@ -1,130 +1,128 @@
 'use strict';
 
-var Base = require('./Base.js');
+var DataModel = require('./DataModel');
 
-function DecoratorBase() {
-    Base.call(this);
-};
+var DecoratorBase = DataModel.extend({
 
-DecoratorBase.prototype = Object.create(Base.prototype);
+    component: null,
 
-DecoratorBase.prototype.component = null,
+    setComponent: function(newComponent) {
+        this.component = newComponent;
+    },
 
-DecoratorBase.prototype.setComponent = function(newComponent) {
-    this.component = newComponent;
-};
+    getComponent: function() {
+        return this.component;
+    },
 
-DecoratorBase.prototype.getComponent = function() {
-    return this.component;
-};
+    getValue: function(x, y) {
+        return this.getComponent().getValue(x, y);
+    },
 
-DecoratorBase.prototype.getValue = function(x, y) {
-    return this.getComponent().getValue(x, y);
-};
+    setValue: function(x, y, value) {
+        this.getComponent().setValue(x, y, value);
+    },
 
-DecoratorBase.prototype.setValue = function(x, y, value) {
-    this.getComponent().setValue(x, y, value);
-};
+    getColumnCount: function() {
+        return this.getComponent().getColumnCount();
+    },
 
-DecoratorBase.prototype.getColumnCount = function() {
-    return this.getComponent().getColumnCount();
-};
+    getRowCount: function() {
+        return this.getComponent().getRowCount();
+    },
 
-DecoratorBase.prototype.getRowCount = function() {
-    return this.getComponent().getRowCount();
-};
+    getCellRenderer: function(config, x, y, untranslatedX, untranslatedY) {
+        return this.getComponent().getCellRenderer(config, x, y, untranslatedX, untranslatedY);
+    },
 
-DecoratorBase.prototype.getCellRenderer = function(config, x, y, untranslatedX, untranslatedY) {
-    return this.getComponent().getCellRenderer(config, x, y, untranslatedX, untranslatedY);
-};
+    getRowHeight: function(y) {
+        return this.getComponent().getRowHeight(y);
+    },
 
-DecoratorBase.prototype.getRowHeight = function(y) {
-    return this.getComponent().getRowHeight(y);
-};
+    getColumnEdge: function(x, renderer) {
+        return this.getComponent().getColumnEdge(x, renderer);
+    },
 
-DecoratorBase.prototype.getColumnEdge = function(x, renderer) {
-    return this.getComponent().getColumnEdge(x, renderer);
-};
+    getColumnWidth: function(x) {
+        return this.getComponent().getColumnWidth(x);
+    },
 
-DecoratorBase.prototype.getColumnWidth = function(x) {
-    return this.getComponent().getColumnWidth(x);
-};
+    setColumnWidth: function(x, width) {
+        this.getComponent().setColumnWidth(x, width);
+    },
 
-DecoratorBase.prototype.setColumnWidth = function(x, width) {
-    this.getComponent().setColumnWidth(x, width);
-};
+    setGrid: function(newGrid) {
+        this.grid = newGrid;
+        this.getComponent().setGrid(newGrid);
+    },
 
-DecoratorBase.prototype.setGrid = function(newGrid) {
-    this.grid = newGrid;
-    this.getComponent().setGrid(newGrid);
-};
+    toggleSort: function(x, keys) {
+        this.getComponent().toggleSort(x, keys);
+    },
 
-DecoratorBase.prototype.toggleSort = function(x, keys) {
-    this.getComponent().toggleSort(x, keys);
-};
+    getCellEditorAt: function(x, y) {
+        return this.getComponent().getCellEditorAt(x, y);
+    },
 
-DecoratorBase.prototype.getCellEditorAt = function(x, y) {
-    return this.getComponent().getCellEditorAt(x, y);
-};
+    getColumnProperties: function(columnIndex) {
+        return this.getComponent().getColumnProperties(columnIndex);
+    },
 
-DecoratorBase.prototype.getColumnProperties = function(columnIndex) {
-    return this.getComponent().getColumnProperties(columnIndex);
-};
+    setColumnProperties: function(columnIndex, properties) {
+        this.getComponent().setColumnProperties(columnIndex, properties);
+    },
 
-DecoratorBase.prototype.setColumnProperties = function(columnIndex, properties) {
-    this.getComponent().setColumnProperties(columnIndex, properties);
-};
+    getHeaders: function() {
+        return this.getComponent().getHeaders();
+    },
 
-DecoratorBase.prototype.getHeaders = function() {
-    return this.getComponent().getHeaders();
-};
+    getFields: function() {
+        return this.getComponent().getFields();
+    },
 
-DecoratorBase.prototype.getFields = function() {
-    return this.getComponent().getFields();
-};
+    setFields: function(fields) {
+        this.getComponent().setFields(fields);
+    },
 
-DecoratorBase.prototype.setFields = function(fields) {
-    this.getComponent().setFields(fields);
-};
+    getCellProperties: function(x, y) {
+        return this.getComponent().getCellProperties(x, y);
+    },
 
-DecoratorBase.prototype.getCellProperties = function(x, y) {
-    return this.getComponent().getCellProperties(x, y);
-};
+    setCellProperties: function(x, y, value) {
+        this.getComponent().setCellProperties(x, y, value);
+    },
 
-DecoratorBase.prototype.setCellProperties = function(x, y, value) {
-    this.getComponent().setCellProperties(x, y, value);
-};
+    getRow: function(y) {
+        return this.getComponent().getRow(y);
+    },
 
-DecoratorBase.prototype.getRow = function(y) {
-    return this.getComponent().getRow(y);
-};
+    getRowContextFunction: function(y) {
+        return this.getComponent().getRowContextFunction(y);
+    },
 
-DecoratorBase.prototype.getRowContextFunction = function(y) {
-    return this.getComponent().getRowContextFunction(y);
-};
+    setTopTotals: function(nestedArray) {
+        this.getComponent().setTopTotals(nestedArray);
+    },
 
-DecoratorBase.prototype.setTopTotals = function(nestedArray) {
-    this.getComponent().setTopTotals(nestedArray);
-};
+    getTopTotals: function() {
+        return this.getComponent().getTopTotals();
+    },
 
-DecoratorBase.prototype.getTopTotals = function() {
-    return this.getComponent().getTopTotals();
-};
+    setData: function(y) {
+        return this.getComponent().setData(y);
+    },
 
-DecoratorBase.prototype.setData = function(y) {
-    return this.getComponent().setData(y);
-};
+    hasHierarchyColumn: function() {
+        return this.getComponent().hasHierarchyColumn();
+    },
 
-DecoratorBase.prototype.hasHierarchyColumn = function() {
-    return this.getComponent().hasHierarchyColumn();
-};
+    setHeaders: function(headerLabels) {
+        return this.getComponent().setHeaders(headerLabels);
+    },
 
-DecoratorBase.prototype.setHeaders = function(headerLabels) {
-    return this.getComponent().setHeaders(headerLabels);
-};
+    cellClicked: function(cell, event) {
+        return this.getComponent().cellClicked(cell, event);
+    }
 
-DecoratorBase.prototype.cellClicked = function(cell, event) {
-    return this.getComponent().cellClicked(cell, event);
-};
+});
 
 module.exports = DecoratorBase;

@@ -1,32 +1,19 @@
-<!doctype html>
-<!--
-Copyright (c) 2014 The Polymer Project Authors. All rights reserved.
-This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE
-The complete set of authors may be found at http://polymer.github.io/AUTHORS
-The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS
-Code distributed by Google as part of the polymer project is also
-subject to an additional IP rights grant found at http://polymer.github.io/PATENTS
--->
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
-  <script src="../webcomponentsjs/webcomponents.js"></script>
-  <link rel="import" href="../core-component-page/core-component-page.html">
-
+    <meta charset="UTF-8">
+    <title>Hypergrid Test Harness</title>
+    <script src="../index.js"></script>
 </head>
-<body unresolved>
-
-  <core-component-page
-    sources="[
-      './polymer/html/behaviors/fin-hypergrid-behavior-base.html',
-      './polymer/html/behaviors/fin-hypergrid-behavior-default.html',
-      './polymer/html/behaviors/fin-hypergrid-behavior-gol.html',
-      './polymer/html/behaviors/fin-hypergrid-behavior-in-memory.html',
-      './polymer/html/behaviors/fin-hypergrid-behavior-json.html',
-      './polymer/html/behaviors/fin-hypergrid-behavior-q.html',
-      './polymer/html/behaviors/fin-hypergrid-behavior-qtree.html',
-      './polymer/html/behaviors/fin-hypergrid-behavior-web-worker.html',
-      './polymer/html/fin-hypergrid.html'
-      ]"></core-component-page>
+<body>
+<div></div>
+<script>
+    window.onload = function() {
+        var grid = undefined, // ???
+            component = {}, // ???
+            behaviorName = 'JSON',
+            hypergrid = new fin.Hypergrid('div', behaviorName);
+    }
+</script>
 </body>
 </html>
