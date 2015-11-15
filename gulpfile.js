@@ -33,7 +33,7 @@ gulp.task('build', function(callback) {
     runSequence(
         'lint',
         'test',
-        'doc',
+        //'doc',
         //'beautify',
         'browserify',
         callback

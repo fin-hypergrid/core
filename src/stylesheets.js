@@ -36,6 +36,26 @@ function add(name, insert) {
 }
 
 var styleSheets = {
+    grid: [
+        'div#grid-container {',
+        '    position: relative;',
+        '    display: inline-block;',
+        '    -webkit-user-select: none;',
+        '    -moz-user-select: none;',
+        '    -ms-user-select: none;',
+        '    -o-user-select: none;',
+        '    user-select: none;',
+        '    overflow: hidden; }',
+        'visible { opacity: 0.75; }',
+        'hidden { opacity: 0.0; }',
+        'editor {',
+        '    position: absolute;',
+        '    display: none;',
+        '    border: solid 2px black;',
+        '    outline: 0;',
+        '    padding: 0;',
+        '    z-index: 1000; }'
+    ],
     dnd: [
         'div.dragon-list, li.dragon-pop {',
         '    font-family: Roboto, sans-serif;',

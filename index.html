@@ -3,17 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <title>Hypergrid Test Harness</title>
-    <script src="../index.js"></script>
+    <script src="js/sampledata.js"></script>
+    <script src="index.js"></script>
 </head>
 <body>
-<div></div>
+<div id="grid-container"></div>
 <script>
     window.onload = function() {
-        var grid = undefined, // ???
-            component = {}, // ???
-            behaviorName = 'JSON',
-            hypergrid = new fin.Hypergrid('div', behaviorName);
-    }
+        new fin.Hypergrid('div#grid-container', function(grid) {
+            return new fin.Hypergrid.behaviors.JSON(grid, window.people);
+        });
+    };
 </script>
 </body>
 </html>

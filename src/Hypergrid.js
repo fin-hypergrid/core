@@ -11,6 +11,7 @@ var FinBar = require('finbars');
 var Renderer = require('./Renderer');
 var Canvas = require('./local_node_modules/fincanvas/Canvas');
 var SelectionModel = require('./SelectionModel');
+var addStylesheet = require('./stylesheets');
 
 /**
  *
@@ -18,35 +19,15 @@ var SelectionModel = require('./SelectionModel');
  * @param {string} behaviorName - name of a behavior consstructor from ./behaviors
  * @constructor
  */
-function Hypergrid(div, behaviorName) {
-
-    this.div = typeof div === 'string' ? document.querySelector(div) : div;
-
-    this.behavior = new Hypergrid.behaviors[behaviorName](this);
-
-    if (!propertiesInitialized) {
-        propertiesInitialized = true;
-
-        buildPolymerTheme();
-
-        var cellEditors = [
-            'Textfield',
-            'Choice',
-            //'Combo',
-            'Color',
-            'Date',
-            'Slider',
-            'Spinner'
-        ];
-
-        cellEditors.forEach(function(name) {
-            initializeCellEditor(new Hypergrid.cellEditors[name]);
-        });
-    }
-
-    this.lastEdgeSelection = [0, 0];
+function Hypergrid(div, getBehavior) {
 
     var self = this;
+
+    this.div = (typeof div === 'string') ? document.querySelector(div) : div;
+
+    addStylesheet('grid');
+
+    this.lastEdgeSelection = [0, 0];
 
     this.lnfProperties = Object.create(globalProperties);
 
@@ -57,6 +38,8 @@ function Hypergrid(div, behaviorName) {
     };
     this.cellEditors = Object.create(globalCellEditors);
     this.renderOverridesCache = {};
+
+    this.behavior = getBehavior(this);
 
     //prevent the default context menu for appearing
     this.oncontextmenu = function(event) {
@@ -78,10 +61,9 @@ function Hypergrid(div, behaviorName) {
     this.numColumns = 0;
     //initialize our various pieces
     this.initRenderer();
-
     this.initCanvas();
-
     this.initScrollbars();
+    this.initGlobalCellEditors();
 
     this.checkScrollbarVisibility();
     //Register a listener for the copy event so we can copy our selected region to the pastebuffer if conditions are right.
@@ -89,7 +71,7 @@ function Hypergrid(div, behaviorName) {
         self.checkClipboardCopy(evt);
     });
     this.getCanvas().resize();
-    this.fire('load');
+    //this.fire('load'); //TODO: Commented out on depolymerization... May need something else here!
     this.isScrollButtonClick = false;
 
     //this.computeCellsBounds();
@@ -261,7 +243,35 @@ Hypergrid.prototype = {
         this.getRenderer().computeCellsBounds();
     },
 
-    initializeCellEditor: initializeCellEditor,
+    initCellEditor: function(cellEditor) {
+        var divCellEditor = document.createElement('div');
+        this.div.appendChild(divCellEditor);
+
+        globalCellEditors[cellEditor.alias] = cellEditor;
+    },
+
+    initGlobalCellEditors: function() {
+        if (!propertiesInitialized) {
+            propertiesInitialized = true;
+
+            buildPolymerTheme();
+
+            var cellEditors = [
+                'Textfield',
+                'Choice',
+                //'Combo',
+                'Color',
+                'Date',
+                'Slider',
+                'Spinner'
+            ];
+
+            var self = this;
+            cellEditors.forEach(function(name) {
+                self.initCellEditor(new Hypergrid.cellEditors[name]);
+            });
+        }
+    },
 
     toggleColumnPicker: function() {
         this.getBehavior().toggleColumnPicker();
@@ -398,8 +408,7 @@ Hypergrid.prototype = {
 
     refreshProperties: function() {
         // this.canvas = this.shadowRoot.querySelector('fin-canvas');
-        var div = this.shadowRoot.querySelector('#fincanvas'); //TODO: can't be using document here!
-        this.canvas = new Canvas(div, this.renderer);
+        this.canvas = new Canvas(this.divCanvas, this.renderer); //TODO: Do we really need to be recreating it here?
         this.checkScrollbarVisibility();
         this.getBehavior().defaultRowHeight = null;
         if (this.isColumnAutosizing()) {
@@ -886,13 +895,11 @@ Hypergrid.prototype = {
 
         var self = this;
 
-        this.canvas = new Canvas(this.div, this.renderer);
+        var divCanvas = this.divCanvas = document.createElement('div');
+        this.div.appendChild(divCanvas);
+        this.canvas = new Canvas(divCanvas, this.renderer);
 
-        //this.shadowRoot.appendChild(domCanvas);
-
-        //this.canvas = this.shadowRoot.querySelector('fin-canvas');
-
-        var style = this.div.style;
+        var style = divCanvas.style;
         style.position = 'absolute';
         style.top = 0;
         style.right = '-200px';
@@ -1077,7 +1084,7 @@ Hypergrid.prototype = {
             self.delegateContextMenu(mouseEvent);
         });
 
-        this.removeAttribute('tabindex');
+        this.div.removeAttribute('tabindex');
 
     },
 
@@ -2136,14 +2143,22 @@ Hypergrid.prototype = {
 
         var self = this;
 
-        var scrollbarHolder = this.shadowRoot.querySelector('#scrollbars');
+        addStylesheet('finbars');
+
+        var divScrollbars = document.createElement('div');
+        divScrollbars.style.top = '0px';
+        divScrollbars.style.right = '0px';
+        divScrollbars.style.bottom = '0px';
+        divScrollbars.style.left = '0px';
+        divScrollbars.style.position = 'absolute';
+        this.div.appendChild(divScrollbars);
 
         var horzBar = new FinBar({
             orientation: 'horizontal',
             onchange: function(idx) {
                 self.setHScrollValue(idx);
             },
-            cssStylesheetReferenceElement: scrollbarHolder,
+            cssStylesheetReferenceElement: divScrollbars,
             container: this.canvas.div
         });
 
@@ -2169,8 +2184,8 @@ Hypergrid.prototype = {
         this.sbHScroller.classPrefix = this.resolveProperty('hScrollbarClassPrefix');
         this.sbVScroller.classPrefix = this.resolveProperty('vScrollbarClassPrefix');
 
-        scrollbarHolder.appendChild(horzBar.bar);
-        scrollbarHolder.appendChild(vertBar.bar);
+        divScrollbars.appendChild(horzBar.bar);
+        divScrollbars.appendChild(vertBar.bar);
 
         this.resizeScrollbars();
 
@@ -3452,9 +3467,5 @@ var valueOrFunctionExecute = function(valueOrFunction) {
 var defaults = defaultProperties(),
     polymerTheme = Object.create(defaults),
     globalProperties = Object.create(polymerTheme);
-
-function initializeCellEditor(cellEditor) {
-    globalCellEditors[cellEditor.alias] = cellEditor;
-}
 
 module.exports = Hypergrid;

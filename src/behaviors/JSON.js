@@ -9,7 +9,14 @@ var features = require('../features/index');
 
 var JSON = Behavior.extend({
 
-    //initalize: function(grid, component) {},
+    /**
+     * Called _after_ `Behavior.initialize()`.
+     * @param grid - the hypergrid
+     * @param {object[]} dataRows - array of uniform data objects
+     */
+    initialize: function(grid, dataRows) {
+        this.setData(dataRows);
+    },
 
     features: [
         features.KeyPaging,
@@ -97,8 +104,8 @@ var JSON = Behavior.extend({
      * @description Set the data field.
      * @param {object[]} objects - An array of uniform objects, each being a row in the grid.
      */
-    setData: function(objects) {
-        this.getDataModel().setData(objects);
+    setData: function(dataRows) {
+        this.getDataModel().setData(dataRows);
         this.createColumns();
         var self = this;
         if (this.getGrid().isColumnAutosizing()) {

@@ -3,7 +3,6 @@
 
 'use strict';
 
-var noop = function() {};
 var ANIMATION_TIME = 200;
 
 var Feature = require('./Feature.js');
@@ -55,7 +54,6 @@ var Overlay = Feature.extend({
      * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
      */
     isColumnPickerOpen: function(grid) {
-        noop(grid);
         return this.overlay.style.display !== 'none';
     },
 
@@ -179,7 +177,7 @@ var Overlay = Feature.extend({
         this.overlay.style.display = 'none';
         this.overlay.style.transition = 'opacity ' + ANIMATION_TIME + 'ms ease-in';
         this.overlay.style.opacity = 0;
-        grid.appendChild(this.overlay);
+        grid.div.appendChild(this.overlay);
         //document.body.appendChild(this.overlay);
     },
 

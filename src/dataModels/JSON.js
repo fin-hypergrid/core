@@ -1,6 +1,6 @@
 'use strict';
 
-var analytics = require('../local_node_modules/finanalytics/index');
+var analytics = require('../local_node_modules/finanalytics/analytics');
 var DataModel = require('./DataModel');
 
 var JSON = DataModel.extend({
@@ -189,17 +189,15 @@ var JSON = DataModel.extend({
         return fields;
     },
 
-    setData: function(arrayOfUniformObjects) {
-        if (!this.analytics.isNullObject) {
-            this.analytics.dataSource.setData(arrayOfUniformObjects);
-        } else {
-            this.source = new analytics.DataSource(arrayOfUniformObjects);
-            this.preglobalfilter = new analytics.DataSourceGlobalFilter(this.source);
-            this.prefilter = new analytics.DataSourceFilter(this.preglobalfilter);
-            this.presorter = new analytics.DataSourceSorterComposite(this.prefilter);
-            this.analytics = new analytics.DataSourceAggregator(this.presorter);
-        }
+    setData: function(dataRows) {
+        this.source = new analytics.JSDataSource(dataRows);
+        this.preglobalfilter = new analytics.DataSourceGlobalFilter(this.source);
+        this.prefilter = new analytics.DataSourceFilter(this.preglobalfilter);
+        this.presorter = new analytics.DataSourceSorterComposite(this.prefilter);
+        this.analytics = new analytics.DataSourceAggregator(this.presorter);
+
         this.applyAnalytics();
+
         //this.postfilter = new analytics.DataSourceFilter(this.analytics);
         //this.postsorter = new analytics.DataSourceSorterComposite(this.postfilter);
     },

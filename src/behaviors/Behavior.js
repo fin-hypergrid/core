@@ -33,6 +33,12 @@ Behavior.prototype = {
     initialize: function(grid) { //formerly installOn
         grid.setBehavior(this);
         this.initializeFeatureChain(grid);
+
+        this.getDataModel();
+        this.cellProvider = this.createCellProvider();
+        this.renderedColumnCount = 30;
+        this.renderedRowCount = 60;
+        this.dataUpdates = {}; //for overriding with edit values;
     },
 
     /**
@@ -42,8 +48,9 @@ Behavior.prototype = {
      * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
      */
     initializeFeatureChain: function(grid) {
+        var self = this;
         this.features.forEach(function(FeatureConstructor) {
-            this.setNextFeature(new FeatureConstructor);
+            self.setNextFeature(new FeatureConstructor);
         });
 
         this.featureChain.initializeOn(grid);
@@ -469,28 +476,6 @@ Behavior.prototype = {
                 delete obj[key];
             }
         }
-    },
-
-    /**
-     * @function
-     * @instance
-     * @desc polymer lifecycle event
-     */
-    ready: function() {
-        this.readyInit();
-    },
-
-    /**
-     * @function
-     * @instance
-     * @desc the function to override for initialization
-     */
-    readyInit: function() {
-        this.getDataModel();
-        this.cellProvider = this.createCellProvider();
-        this.renderedColumnCount = 30;
-        this.renderedRowCount = 60;
-        this.dataUpdates = {}; //for overriding with edit values;
     },
 
     /**
