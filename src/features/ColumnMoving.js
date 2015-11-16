@@ -361,10 +361,10 @@ var ColumnMoving = Feature.extend({
         var columnEdges = renderer.getColumnEdges();
 
         var columnWidth = grid.getColumnWidth(columnIndex);
-        var colHeight = grid.clientHeight;
+        var colHeight = grid.div.clientHeight;
         var d = floatColumn;
         var style = d.style;
-        var location = grid.getBoundingClientRect();
+        var location = grid.div.getBoundingClientRect();
 
         style.top = (location.top - 2) + 'px';
         style.left = location.left + 'px';
@@ -452,9 +452,9 @@ var ColumnMoving = Feature.extend({
         var columnEdges = renderer.getColumnEdges();
         var hdpiRatio = grid.getHiDPI(draggerCTX);
         var columnWidth = grid.getColumnWidth(columnIndex);
-        var colHeight = grid.clientHeight;
+        var colHeight = grid.div.clientHeight;
         var d = dragger;
-        var location = grid.getBoundingClientRect();
+        var location = grid.div.getBoundingClientRect();
         var style = d.style;
 
         style.top = location.top + 'px';

@@ -1,6 +1,5 @@
 'use strict';
 
-var Point = require('./local_node_modules/rectangular/rectangular').Point;
 var RangeSelectionModel = require('sparse-boolean-array');
 
 /**
@@ -229,9 +228,9 @@ SelectionModel.prototype = {
     },
 
     _isCellSelected: function(selections, x, y) {
-        var point = new Point(x, y);
+        var self = this;
         return !!selections.find(function(selection) {
-            return selection.contains(point);
+            return self.rectangleContains(selection, x, y);
         });
     },
     /**
@@ -356,9 +355,33 @@ SelectionModel.prototype = {
     },
 
     isInCurrentSelectionRectangle: function(x, y) {
-        var last = this.selections[this.selections.length - 1],
-            point = new Point(x, y);
-        return last && last.contains(point);
+        var last = this.selections[this.selections.length - 1];
+        return last && this.rectangleContains(last, x, y);
+    },
+
+    rectangleContains: function(rect, x, y) { //TODO: explore why this works and contains on rectanglular does not
+        var minX = rect.origin.x;
+        var minY = rect.origin.y;
+        var maxX = minX + rect.extent.x;
+        var maxY = minY + rect.extent.y;
+
+        if (rect.extent.x < 0) {
+            minX = maxX;
+            maxX = rect.origin.x;
+        }
+
+        if (rect.extent.y < 0) {
+            minY = maxY;
+            maxY = rect.origin.y;
+        }
+
+        var result =
+            x >= minX &&
+            y >= minY &&
+            x <= maxX &&
+            y <= maxY;
+
+        return result;
     }
 };
 

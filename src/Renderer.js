@@ -518,6 +518,7 @@ Renderer.prototype = {
     },
 
     _renderFocusCell: function(gc) {
+
         var grid = this.getGrid();
         var selections = grid.getSelectionModel().getSelections();
         if (!selections || selections.length === 0) {
