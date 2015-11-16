@@ -241,7 +241,7 @@ CellEditor.prototype = {
         var cellBounds = grid._getBoundsOfCell(editorPoint.x, editorPoint.y);
 
         //hack to accomodate bootstrap margin issues...
-        var xOffset = grid.getBoundingClientRect().left - grid.canvas.getBoundingClientRect().left;
+        var xOffset = grid.div.getBoundingClientRect().left - grid.divCanvas.getBoundingClientRect().left;
         cellBounds.x = cellBounds.x - xOffset;
 
         this.setBounds(cellBounds);
@@ -294,6 +294,7 @@ CellEditor.prototype = {
 
     getHTML: function() {
         var string = this.template.toString().split('\n');
+        string.shift();
         string.shift();
         string.length = string.length - 2;
         string = string.join('\n').trim();

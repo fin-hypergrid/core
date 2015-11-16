@@ -1381,7 +1381,7 @@ Hypergrid.prototype = {
 
         if (!cellEditor.isAdded) {
             cellEditor.isAdded = true;
-            this.shadowRoot.appendChild(cellEditor.getInput());
+            this.div.appendChild(cellEditor.getInput());
         }
         cellEditor.grid = this;
         cellEditor.beginEditAt(editPoint);
