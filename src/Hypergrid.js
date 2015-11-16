@@ -4,8 +4,8 @@
 
 var LRUCache = require('lru-cache');
 var _ = require('object-iterators');
-var Point = require('rectangular').Point;
-var Rectangle = require('rectangular').Rectangle;
+var Point = require('./local_node_modules/rectangular/rectangular').Point;
+var Rectangle = require('./local_node_modules/rectangular/rectangular').Rectangle;
 var FinBar = require('finbars');
 
 var Renderer = require('./Renderer');
@@ -1158,7 +1158,7 @@ Hypergrid.prototype = {
      * @see [cursor names](http://www.javascripter.net/faq/stylesc.htm)
      */
     beCursor: function(cursorName) {
-        this.style.cursor = cursorName;
+        this.div.style.cursor = cursorName;
     },
 
     /**
@@ -2143,39 +2143,29 @@ Hypergrid.prototype = {
 
         var self = this;
 
-        addStylesheet('finbars');
+        var stylesheet = addStylesheet('finbars');
 
-        var divScrollbars = document.createElement('div');
-        divScrollbars.style.top = '0px';
-        divScrollbars.style.right = '0px';
-        divScrollbars.style.bottom = '0px';
-        divScrollbars.style.left = '0px';
-        divScrollbars.style.position = 'absolute';
-        this.div.appendChild(divScrollbars);
+        //var divScrollbars = document.createElement('div');
+        //divScrollbars.style.top = '0px';
+        //divScrollbars.style.right = '0px';
+        //divScrollbars.style.bottom = '0px';
+        //divScrollbars.style.left = '0px';
+        //divScrollbars.style.position = 'absolute';
+        //this.div.appendChild(divScrollbars);
 
         var horzBar = new FinBar({
             orientation: 'horizontal',
-            onchange: function(idx) {
-                self.setHScrollValue(idx);
-            },
-            cssStylesheetReferenceElement: divScrollbars,
-            container: this.canvas.div
+            onchange: self.setHScrollValue.bind(self),
+            cssStylesheetReferenceElement: stylesheet
         });
 
         var vertBar = new FinBar({
             orientation: 'vertical',
-            onchange: function(idx) {
-                self.setVScrollValue(idx);
-            },
+            onchange: self.setVScrollValue.bind(self),
             paging: {
-                up: function() {
-                    return self.pageUp();
-                },
-                down: function() {
-                    return self.pageDown();
-                },
-            },
-            container: this.canvas.div
+                up: self.pageUp.bind(self),
+                down: self.pageDown.bind(self)
+            }
         });
 
         this.sbHScroller = horzBar;
@@ -2184,8 +2174,8 @@ Hypergrid.prototype = {
         this.sbHScroller.classPrefix = this.resolveProperty('hScrollbarClassPrefix');
         this.sbVScroller.classPrefix = this.resolveProperty('vScrollbarClassPrefix');
 
-        divScrollbars.appendChild(horzBar.bar);
-        divScrollbars.appendChild(vertBar.bar);
+        this.div.appendChild(horzBar.bar);
+        this.div.appendChild(vertBar.bar);
 
         this.resizeScrollbars();
 

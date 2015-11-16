@@ -9,10 +9,22 @@
 <body>
 <div id="grid-container"></div>
 <script>
+    var hg;
     window.onload = function() {
-        new fin.Hypergrid('div#grid-container', function(grid) {
+        var div = document.querySelector('div#grid-container'),
+            bodyStyle = window.getComputedStyle(document.body);
+
+        div.style.width = '100%';
+        div.style.height = window.innerHeight
+            - parseInt(bodyStyle.marginTop)
+            - parseInt(bodyStyle.marginBottom)
+            + 'px';
+
+        var getContainer = function(grid) {
             return new fin.Hypergrid.behaviors.JSON(grid, window.people);
-        });
+        };
+
+        hg = new fin.Hypergrid(div, getContainer);
     };
 </script>
 </body>

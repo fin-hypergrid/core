@@ -1,6 +1,6 @@
 'use strict';
 
-var Point = require('rectangular').Point;
+var Point = require('./local_node_modules/rectangular/rectangular').Point;
 var RangeSelectionModel = require('sparse-boolean-array');
 
 /**

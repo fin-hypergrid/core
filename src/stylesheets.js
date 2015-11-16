@@ -3,35 +3,52 @@
 'use strict';
 
 /**
- *
+ * @summary Inject stylesheet
+ * Creates a new `<style>...</style>` element from the named text strings and inserts it.
+ * @returns The new style element.
  * @param {string} name - Name of stylesheet to insert
- * @param {boolean} [insert=false] - Insert at beginning of `<head>...</head>` element rather than end.
+ * @param {Element|undefined|null} [referenceElement]
+ * * `undefined` type (or omitted): injects stylesheet at top of `<head...</head>` element
+ * * `null` value: injects stylesheet at bottom of `<head...</head>` element
+ * * `Element` type: injects stylesheet immediately before given element
  */
 
-function add(name, insert) {
-    var sheet = styleSheets[name];
+function add(key, referenceElement) {
+    var sheet = styleSheets[key];
     if (sheet) {
-        delete styleSheets[name];
+        delete styleSheets[key];
 
-        var elt = document.createElement('style'),
-            head = document.head || document.getElementsByTagName('head')[0];
+        var style = document.createElement('style');
 
-        elt.type = 'text/css';
-        elt.id = 'injected-stylesheet-' + name;
+        style.type = 'text/css';
+        style.id = 'injected-stylesheet-' + key;
 
         sheet = sheet.join('\n');
 
-        if (elt.styleSheet) {
-            elt.styleSheet.cssText = sheet;
+        if (style.styleSheet) {
+            style.styleSheet.cssText = sheet;
         } else {
-            elt.appendChild(document.createTextNode(sheet));
+            style.appendChild(document.createTextNode(sheet));
         }
 
-        if (insert) {
-            head.insertBefore(elt, head.firstElementChild);
-        } else {
-            head.appendChild(elt);
+        if (typeof referenceElement === 'string') {
+            referenceElement = document.querySelector(referenceElement);
+            if (!referenceElement) {
+                throw 'Cannot find reference element.';
+            }
+        } else if (referenceElement && !(referenceElement instanceof Element)) {
+            throw 'Not a reference element.';
         }
+
+        var container = referenceElement && referenceElement.parentNode || document.head || document.getElementsByTagName('head')[0];
+
+        if (referenceElement === undefined) {
+            referenceElement = container.firstChild;
+        }
+
+        container.insertBefore(style, referenceElement);
+
+        return style;
     }
 }
 
