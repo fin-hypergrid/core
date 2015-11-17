@@ -99,23 +99,23 @@
         var jsonModel = jsonGrid.getBehavior();
 
         //functions for showing the grouping/rollup capbilities
-        // var rollups = fin.analytics.aggregations;
+        var rollups = jsonModel.aggregations;
 
-        // var aggregates = {
-        //     totalPets: rollups.sum(2),
-        //     averagePets: rollups.avg(2),
-        //     maxPets: rollups.max(2),
-        //     minPets: rollups.min(2),
-        //     firstPet: rollups.first(2),
-        //     lastPet: rollups.last(2),
-        //     stdDevPets: rollups.stddev(2),
-        // };
-        // var doAggregates = false;
-        // window.toggleAggregates = function() {
-        //     doAggregates = !doAggregates;
-        //     var arg = doAggregates? aggregates : [];
-        //     jsonModel.setAggregates(arg);
-        // }
+        var aggregates = {
+            totalPets: rollups.sum(2),
+            averagePets: rollups.avg(2),
+            maxPets: rollups.max(2),
+            minPets: rollups.min(2),
+            firstPet: rollups.first(2),
+            lastPet: rollups.last(2),
+            stdDevPets: rollups.stddev(2),
+        };
+        var doAggregates = false;
+        window.toggleAggregates = function() {
+            doAggregates = !doAggregates;
+            var arg = doAggregates? aggregates : [];
+            jsonModel.setAggregates(arg);
+        }
 
         window.toggleColumnPicker = function() {
             jsonGrid.toggleColumnPicker();
