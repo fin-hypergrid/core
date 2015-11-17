@@ -361,6 +361,8 @@
         jsonGrid.addFinEventListener('fin-cell-enter', function(e) {
             var cell = e.detail.gridCell;
             //console.log('fin-cell-enter', cell.x, cell.y);
+
+            //how to set the tooltip....
             jsonGrid.setAttribute('title', 'fin-cell-enter(' + cell.x +', '+ cell.y+')');
         });
 
