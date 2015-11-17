@@ -234,6 +234,10 @@ Hypergrid.prototype = {
      * @instance
     clear out the LRU cache of text widths
      */
+    setAttribute: function(attribute, value) {
+        this.div.setAttribute(attribute, value);
+    },
+
     resetTextWidthCache: function() {
         textWidthCache = new LRUCache(2000);
     },
@@ -1165,6 +1169,9 @@ Hypergrid.prototype = {
      * @see [cursor names](http://www.javascripter.net/faq/stylesc.htm)
      */
     beCursor: function(cursorName) {
+        if (!cursorName) {
+            cursorName = 'default';
+        }
         this.div.style.cursor = cursorName;
     },
 
@@ -1757,10 +1764,11 @@ Hypergrid.prototype = {
     },
 
     getSelection: function() {
+        var self = this;
         var selections = this.getSelections();
         var result = new Array(selections.length);
         selections.forEach(function(selectionRect, i) {
-            result[i] = this._getSelection(selectionRect);
+            result[i] = self._getSelection(selectionRect);
         });
         return result;
     },
@@ -1784,10 +1792,11 @@ Hypergrid.prototype = {
     },
 
     getSelectionMatrix: function() {
+        var self = this;
         var selections = this.getSelections();
         var result = new Array(selections.length);
         selections.forEach(function(selectionRect, i) {
-            result[i] = this._getSelectionMatrix(selectionRect);
+            result[i] = self._getSelectionMatrix(selectionRect);
         });
         return result;
     },

@@ -8,7 +8,8 @@ var Behavior = require('./Behavior');
 var DataModelDecorator = require('./DataModelDecorator');
 var DataModelJSON = require('../dataModels/JSON');
 var features = require('../features/index');
-var addStylesheet = require('./stylesheets');
+var addStylesheet = require('../stylesheets');
+var aggregations = require('../local_node_modules/finanalytics/aggregations');
 
 
 var JSON = Behavior.extend({
@@ -37,6 +38,8 @@ var JSON = Behavior.extend({
         features.CellClick,
         features.OnHover
     ],
+
+    aggregations: aggregations,
 
     createColumns: function() {
         var dataModel = this.getDataModel();
@@ -220,14 +223,14 @@ var JSON = Behavior.extend({
             return false;
         }
 
-        addStylesheet('dnd');
+        addStylesheet('dnd', null);
 
         var groups = { models: this.getGroups(), title: 'Groups' },
             availableGroups = { models: this.getAvailableGroups(), title: 'Available Groups' },
             hiddenColumns = { models: this.getHiddenColumns(), title: 'Hidden Ccolumns' },
             visibleColumns = { models: this.getVisibleColumns(), title: 'Visible Columns'},
-            groupLists = new window.fin.hypergrid.ListDragon([groups, availableGroups]),
-            columnLists = new window.fin.hypergrid.ListDragon([hiddenColumns, visibleColumns]),
+            groupLists = new ListDragon([groups, availableGroups]),
+            columnLists = new ListDragon([hiddenColumns, visibleColumns]),
             listSets = [groupLists, columnLists];
 
         listSets.forEach(function(listSet) {
@@ -295,7 +298,5 @@ var JSON = Behavior.extend({
     }
 
 });
-
-function noop() {}
 
 module.exports = JSON;
