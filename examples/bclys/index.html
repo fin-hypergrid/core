@@ -620,6 +620,37 @@
 
         }, 500);
 
+        var eventNames = [
+            'dragstart',
+            'drag',
+            'mousemove',
+            'mousedown',
+            'dragend',
+            'mouseup',
+            'mouseout',
+            'wheelmoved',
+            'click',
+            'release',
+            'flick',
+            'trackstart',
+            'track',
+            'trackend',
+            'hold',
+            'holdpulse',
+            'tap',
+            'dblclick',
+            'keydown',
+            'keyup',
+            'focus-gained',
+            'focus-lost',
+            'context-menu'
+        ];
+
+        eventNames.forEach(function(name) {
+            jsonGrid.canvas.addEventListener('fin-canvas-' + name, function(e) {
+                console.log(e.type);
+            });
+        });
 
     });
 })();

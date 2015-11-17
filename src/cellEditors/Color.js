@@ -1,26 +1,21 @@
 'use strict';
-/**
- *
- * @module cell-editors\Color
- *
- */
 
-var Simple = require('./Simple.js');
+var Simple = require('./Simple');
 
-function Color() {
-    Simple.call(this);
-}
+var Color = Simple.extend({
 
-Color.prototype = new Simple();
+    /**
+     * @property {string} alias - my lookup alias
+     * @instance
+     */
+    alias: 'color',
 
-Color.prototype.constructor = Color;
+    template: function() {
+        /*
+            <input id="editor" type="color">
+        */
+    }
 
-Color.prototype.alias = 'color';
-
-Color.prototype.template = function() {/*
-    <input id="editor" type="color">
-*/
-};
-
+});
 
 module.exports = Color;

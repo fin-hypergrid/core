@@ -314,8 +314,8 @@
          * @description
          return the value at x,y for the top left section of the hypergrid
          * #### returns: Object
-         * @param {integer} x - x coordinate
-         * @param {integer} y - y coordinate
+         * @param {number} x - x coordinate
+         * @param {number} y - y coordinate
          */
         getTopLeftValue: function(x, y) {
             if (y === 0) {
@@ -340,8 +340,8 @@
          * @description
          return the data value at coordinates x,y.  this is the main "model" function that allows for virtualization
          * #### returns: Object
-         * @param {integer} x - the x coordinate
-         * @param {integer} y - the y coordinate
+         * @param {number} x - the x coordinate
+         * @param {number} y - the y coordinate
          */
         getValue: function(x, y) {
             var col = this.getColumnId(x);
@@ -394,7 +394,7 @@
          * @description
          quietly set the scroll position in the horizontal dimension
          * #### returns: type
-         * @param {integer} y - the position in pixels
+         * @param {number} y - the position in pixels
          */
         setScrollPositionY: function(y) {
             if (this.scrollPositionY === y) {
@@ -434,8 +434,8 @@
          * @description
          return the data value at point x,y in the fixed row area
          * #### returns: Object
-         * @param {integer} x - x coordinate
-         * @param {integer} y - y coordinate
+         * @param {number} x - x coordinate
+         * @param {number} y - y coordinate
          */
         getFixedRowValue: function(x, y) {
             var colId = this.getColumnId(x);
@@ -490,8 +490,8 @@
          * @description
          return the value at x,y for the fixed row area
          * #### returns: Object
-         * @param {integer} x - x coordinate
-         * @param {integer} y - y coordinate
+         * @param {number} x - x coordinate
+         * @param {number} y - y coordinate
          */
         getFixedColumnValue: function(x, y) {
             var indentPixels = 10;
@@ -527,7 +527,7 @@
          * @instance
          * @description
          toggle the sort at columnIndex to it's next state
-         * @param {integer} columnIndex - the column index of interest
+         * @param {number} columnIndex - the column index of interest
          */
         toggleSort: function(columnIndex) {
             var colId = this.getColumnId(columnIndex);
@@ -587,8 +587,8 @@
          * @description
          get the view translated alignment at x,y in the fixed row area
          * #### returns: string ['left','center','right']
-         * @param {integer} x - x coordinate
-         * @param {integer} y - y coordinate
+         * @param {number} x - x coordinate
+         * @param {number} y - y coordinate
          */
         getFixedRowAlignment: function(x, y) {
             if (y > 0) {
@@ -603,7 +603,7 @@
          * @description
          return the column alignment at column x
          * #### returns: string ['left','center','right']
-         * @param {integer} x - the column index of interest
+         * @param {number} x - the column index of interest
          */
         getColumnAlignment: function(x) {
             var colId = this.getColumnId(x);
@@ -623,7 +623,7 @@
          * @description
          return the columnId/label/fixedRowValue at x
          * #### returns: string
-         * @param {integer} x - the view translated x index
+         * @param {number} x - the view translated x index
          */
         getColumnId: function(x) {
             var headers = this.block.visible;
@@ -637,7 +637,7 @@
          * @description
          return the alignment at x for the fixed column area
          * #### returns: string ['left','center','right']
-         * @param {integer} x - the fixed column index of interest
+         * @param {number} x - the fixed column index of interest
          */
         getFixedColumnAlignment: function( /* x */ ) {
             return 'left';
@@ -777,7 +777,7 @@
          * @instance
          * @description
          a specific cell was double clicked, you've been notified
-         * @param {rectangle.point} cell - point of cell coordinates
+         * @param {Point} cell - point of cell coordinates
          * @param {Object} event - all event information
          */
         cellDoubleClicked: function(cell /*, event */ ) {
@@ -1094,8 +1094,8 @@
          * @description
          return the cell editor for coordinate x,y
          * #### returns: [fin-hypergrid-cell-editor-base](module-cell-editors_base.html)
-         * @param {integer} x - x coordinate
-         * @param {integer} y - y coordinate
+         * @param {number} x - x coordinate
+         * @param {number} y - y coordinate
          */
         getCellEditorAt: function(x, y) {
             noop(x, y);

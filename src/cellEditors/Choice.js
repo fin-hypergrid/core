@@ -1,61 +1,55 @@
 'use strict';
-/**
- *
- * @module cell-editors\choice
- *
- */
 
-var Simple = require('./Simple.js');
+var Simple = require('./Simple');
 
-function Choice() {
-    Simple.call(this);
-}
+var Choice = Simple.extend({
 
-Choice.prototype = new Simple();
+    /**
+     * @property {string} alias - my lookup alias
+     * @instance
+     */
+    alias: 'choice',
 
-Choice.prototype.constructor = Choice;
+    /**
+     * @property {Array} items - the list of items to pick from
+     * @instance
+     */
+    items: ['a', 'b', 'c'],
 
-/**
- * @property {string} alias - my lookup alias
- * @instance
- */
-Choice.prototype.alias = 'choice';
+    template: function() {
+        /*
+                <select id="editor">
+                    {{#items}}
+                        <option value="{{.}}">{{.}}</option>
+                    {{/items}}
+                </select>
+            */
+    },
 
-/**
- * @property {Array} items - the list of items to pick from
- * @instance
- */
-Choice.prototype.items = ['a','b','c'];
+    //no events are fired while the dropdown is open
+    //see http://jsfiddle.net/m4tndtu4/6/
 
-Choice.prototype.template = function() {/*
-    <select id="editor">
-        {{#items}}
-            <option value="{{.}}">{{.}}</option>
-        {{/items}}
-    </select>
-*/
-};
-//no events are fired while the dropdown is open
-//see http://jsfiddle.net/m4tndtu4/6/
-Choice.prototype.showEditor = function() {
-    var self = this;
-    this.input.style.display = 'inline';
-    setTimeout(function() {
-        self.showDropdown(self.input);
-    }, 50);
-};
+    showEditor: function() {
+        var self = this;
+        this.input.style.display = 'inline';
+        setTimeout(function() {
+            self.showDropdown(self.input);
+        }, 50);
+    },
 
-Choice.prototype.setItems = function(items) {
-    this.items = items;
-    this.updateView();
-};
+    setItems: function(items) {
+        this.items = items;
+        this.updateView();
+    },
 
-Choice.prototype.initializeInput = function(input) {
-    var self = this;
-    Simple.prototype.initializeInput(input);
-    input.onchange = function() {
-        self.stopEditing();
-    };
-};
+    initializeInput: function(input) {
+        var self = this;
+        Simple.prototype.initializeInput(input);
+        input.onchange = function() {
+            self.stopEditing();
+        };
+    }
+
+});
 
 module.exports = Choice;

@@ -190,8 +190,8 @@ This is a very rough in memory data source example.  fin-hypergrid-behavior-in-m
          * @description
          return the cell editor for cell at x,y
          * #### returns: [fin-hypergrid-cell-editor-base](module-cell-editors_base.html)
-         * @param {integer} x - x coordinate
-         * @param {integer} y - y coordinate
+         * @param {number} x - x coordinate
+         * @param {number} y - y coordinate
          */
         getCellEditorAt: function(x, y) {
             var type = x !== 9 ? 'textfield' : this.editorTypes[y % this.editorTypes.length];
@@ -295,8 +295,8 @@ This is a very rough in memory data source example.  fin-hypergrid-behavior-in-m
         * @description
         decode row,col into a straight index value; int vector indirection layer so sorting doesn't actually move items around
         * #### returns: integer
-        * @param {integer} col - x coordinate
-        * @param {integer} row - y coordinate
+        * @param {number} col - x coordinate
+        * @param {number} row - y coordinate
         */
         indexOf: function(row, col) {
             var index = (col * this.rows) + row;
@@ -308,8 +308,8 @@ This is a very rough in memory data source example.  fin-hypergrid-behavior-in-m
         * @instance
         * @description
         create a sort object per column we consider sortable
-        * @param {integer} type - sort type, 0/1 - up/down
-        * @param {integer} col - the column index of interest
+        * @param {number} type - sort type, 0/1 - up/down
+        * @param {number} col - the column index of interest
         */
         createSort: function(type, col) {
             var self = this;
@@ -364,8 +364,8 @@ This is a very rough in memory data source example.  fin-hypergrid-behavior-in-m
         * @description
         swap values in array at locations x, y
         * @param {Array} array - array of values
-        * @param {integer} x - integer index
-        * @param {integer} y - integer index
+        * @param {number} x - integer index
+        * @param {number} y - integer index
         */
         swap: function(array, x, y) {
             var tmp = this.order[x];
@@ -380,8 +380,8 @@ This is a very rough in memory data source example.  fin-hypergrid-behavior-in-m
         this is a compare function used by Emersons pivot sort algorithm
         * #### returns: integer
         * @param {Array} array - descripton
-        * @param {integer} first - pivot start
-        * @param {integer} last - pivot end
+        * @param {number} first - pivot start
+        * @param {number} last - pivot end
         */
         compare: function(array, first, last) {
             var comp = 0;
@@ -458,7 +458,7 @@ This is a very rough in memory data source example.  fin-hypergrid-behavior-in-m
             while (first < last) {
                 var right = last;
                 var left = first;
-                pivot = (first + last) >> 1; /* jshint ignore:line */
+                pivot = (first + last) >> 1;
                 if (pivot < 0 || pivot >= last) {
                     break;
                 }
@@ -514,7 +514,7 @@ This is a very rough in memory data source example.  fin-hypergrid-behavior-in-m
         * @description
         return the indirect sorted index of the data I'm looking for
         * #### returns: integer
-        * @param {integer} y - the natural y index
+        * @param {number} y - the natural y index
         */
         orderOf: function(y) {
             // Provide indirection of indexing for row/col so that we can use sort and or alternate between
@@ -531,8 +531,8 @@ This is a very rough in memory data source example.  fin-hypergrid-behavior-in-m
          * @instance
          * @description
          set the data value at coordinates x,y
-         * @param {integer} x - the x coordinate
-         * @param {integer} y - the y coordinate
+         * @param {number} x - the x coordinate
+         * @param {number} y - the y coordinate
          */
         setValue: function(x, y, value) {
             var row = this.orderOf(y);
@@ -546,8 +546,8 @@ This is a very rough in memory data source example.  fin-hypergrid-behavior-in-m
          * @description
          return the data value at coordinates x,y.  this is the main "model" function that allows for virtualization
          * #### returns: Object
-         * @param {integer} x - the x coordinate
-         * @param {integer} y - the y coordinate
+         * @param {number} x - the x coordinate
+         * @param {number} y - the y coordinate
          */
         getValue: function(x, y) {
             var row = this.orderOf(y);
@@ -572,7 +572,7 @@ This is a very rough in memory data source example.  fin-hypergrid-behavior-in-m
          * @description
          return the column heading at colIndex
          * #### returns: string
-         * @param {integer} colIndex - the column index of interest
+         * @param {number} colIndex - the column index of interest
          */
         getFixedRowValue: function(x /*, y*/ ) {
             var sortIndicator = '';
@@ -607,7 +607,7 @@ This is a very rough in memory data source example.  fin-hypergrid-behavior-in-m
          * @instance
          * @description
          toggle the sort at colIndex to it's next state
-         * @param {integer} colIndex - the column index of interest
+         * @param {number} colIndex - the column index of interest
          */
         toggleSort: function(columnIndex) {
             var tableState = this.getPrivateState();

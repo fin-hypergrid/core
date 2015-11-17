@@ -118,8 +118,8 @@
          * @description
          return the data value at coordinates x,y.  this is the main "model" function that allows for virtualization
          * #### returns: Object
-         * @param {integer} x - the x coordinate
-         * @param {integer} y - the y coordinate
+         * @param {number} x - the x coordinate
+         * @param {number} y - the y coordinate
          */
         getValue: function(x, y) {
             var override = this.dataUpdates['p_' + x + '_' + y];
@@ -185,7 +185,7 @@
          * @description
          quietly set the scroll position in the horizontal dimension
          * #### returns: type
-         * @param {integer} y - the position in pixels
+         * @param {number} y - the position in pixels
          */
         setScrollPositionY: function(y) {
             if (this.scrollPositionY === y) {
@@ -230,8 +230,8 @@
          * @description
          return the data value at point x,y in the fixed row area
          * #### returns: Object
-         * @param {integer} x - x coordinate
-         * @param {integer} y - y coordinate
+         * @param {number} x - x coordinate
+         * @param {number} y - y coordinate
          */
         getFixedRowValue: function(x) {
             if (!this.sorted[x + 1]) {
@@ -247,7 +247,7 @@
          * @description
          return the column heading at colIndex
          * #### returns: string
-         * @param {integer} colIndex - the column index of interest
+         * @param {number} colIndex - the column index of interest
          */
         getHeader: function(x) {
             return this.block.headers[x + 1][0];
@@ -259,8 +259,8 @@
          * @description
          return the value at x,y for the fixed row area
          * #### returns: Object
-         * @param {integer} x - x coordinate
-         * @param {integer} y - y coordinate
+         * @param {number} x - x coordinate
+         * @param {number} y - y coordinate
          */
         getFixedColumnValue: function(x, y) {
             return y;
@@ -283,7 +283,7 @@
          * @instance
          * @description
          toggle the sort at columnIndex to it's next state
-         * @param {integer} columnIndex - the column index of interest
+         * @param {number} columnIndex - the column index of interest
          */
         toggleSort: function(columnIndex) {
             if (!this.getCanSort()) {
@@ -315,7 +315,7 @@
          * @description
          return the column alignment at column x
          * #### returns: string ['left','center','right']
-         * @param {integer} x - the column index of interest
+         * @param {number} x - the column index of interest
          */
         getColumnAlignment: function(x) {
             var alignment = typeAlignmentMap[this.block.headers[x + 1][1]];

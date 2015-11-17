@@ -1,11 +1,9 @@
 /* globals fin */
 'use strict';
+
 /**
- *
  * @module behaviors\default
- * @description
- this is the simplest example of a behavior
- *
+ * @description This is the simplest example of a behavior.
  */
 (function() {
 
@@ -19,12 +17,10 @@
         },
 
         /**
-        * @function
-        * @instance
-        * @description
-        return the total number of fixed columns
-        * #### returns: integer
-        */
+         * @function
+         * @instance
+         * @returns {number} The total number of fixed columns.
+         */
         getFixedColumnCount: function() {
             return 3;
         },

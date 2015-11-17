@@ -25,13 +25,13 @@
     Polymer({ /* jslint ignore:line */
 
         /**
-         * @property {integer} rows - the number of rows
+         * @property {number} rows - the number of rows
          * @instance
          */
         rows: 45,
 
         /**
-         * @property {integer} columns - the number of columns
+         * @property {number} columns - the number of columns
          * @instance
          */
         columns: 75,
@@ -210,8 +210,8 @@
         * @description
         return the total weight around point x,y
         * #### returns: float
-        * @param {integer} x - x coordinate
-        * @param {integer} y - y coordinate
+        * @param {number} x - x coordinate
+        * @param {number} y - y coordinate
         */
         getNeighborCount: function(x, y) {
             var data = this.data;
@@ -252,8 +252,8 @@
          * @description
          return the data value at coordinates x,y.  this is the main "model" function that allows for virtualization
          * #### returns: Object
-         * @param {integer} x - the x coordinate
-         * @param {integer} y - the y coordinate
+         * @param {number} x - the x coordinate
+         * @param {number} y - the y coordinate
          */
         getValue: function(x, y) {
             return this.data[x][y];
@@ -264,8 +264,8 @@
          * @instance
          * @description
          set the data value at coordinates x,y
-         * @param {integer} x - the x coordinate
-         * @param {integer} y - the y coordinate
+         * @param {number} x - the x coordinate
+         * @param {number} y - the y coordinate
          */
         setValue: function(x, y, value) {
             this.data[x][y] = value;
@@ -277,8 +277,8 @@
          * @description
          return the value at x,y for the fixed row area
          * #### returns: Object
-         * @param {integer} x - x coordinate
-         * @param {integer} y - y coordinate
+         * @param {number} x - x coordinate
+         * @param {number} y - y coordinate
          */
         getFixedColumnValue: function(x, y) {
             return y;
@@ -290,8 +290,8 @@
         * @description
         return the data value at point x,y
         * #### returns: Object
-        * @param {integer} x - x coordinate
-        * @param {integer} y - y coordinate
+        * @param {number} x - x coordinate
+        * @param {number} y - y coordinate
         */
         getFixedRowValue: function(x, y) {
             noop(x, y);
@@ -348,7 +348,7 @@
          * @description
          get height in pixels of a specific row
          * #### returns: integer
-         * @param {integer} rowNum - row index of interest
+         * @param {number} rowNum - row index of interest
          */
         getRowHeight: function(y) {
             noop(y);
@@ -361,7 +361,7 @@
          * @description
          return the column width at index x
          * #### returns: integer
-         * @param {integer} x - the column index of interest
+         * @param {number} x - the column index of interest
          */
         getColumnWidth: function(x) {
             noop(x);
@@ -406,10 +406,10 @@
         * @description
         apply the gol well known template at x,y
         * @param {Array} array - an array2D gamegrid to modifiy
-        * @param {integer} c - column coordinate
-        * @param {integer} r - row coordinate
+        * @param {number} c - column coordinate
+        * @param {number} r - row coordinate
         * @param {Array} pattern - a 2d matrix of a well known gol template
-        * @param {integer} dir - direction to rotate the pattern
+        * @param {number} dir - direction to rotate the pattern
         */
         applyPatternAt: function(array, c, r, pattern, dir) {
             var w = pattern.length;

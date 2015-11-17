@@ -1,26 +1,21 @@
 'use strict';
-/**
- *
- * @module cell-editors\Spinner
- *
- */
 
-var Simple = require('./Simple.js');
+var Simple = require('./Simple');
 
-function Spinner() {
-    Simple.call(this);
-}
+var Spinner = Simple.extend({
 
-Spinner.prototype = new Simple();
+    /**
+     * @property {string} alias - my lookup alias
+     * @instance
+     */
+    alias: 'spinner',
 
-Spinner.prototype.constructor = Spinner;
+    template: function() {
+        /*
+            <input id="editor" type="number">
+        */
+    }
 
-Spinner.prototype.alias = 'spinner';
-
-Spinner.prototype.template = function() {/*
-    <input id="editor" type="number">
-*/
-};
-
+});
 
 module.exports = Spinner;

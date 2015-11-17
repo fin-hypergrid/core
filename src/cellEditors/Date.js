@@ -1,26 +1,21 @@
 'use strict';
-/**
- *
- * @module cell-editors\Date
- *
- */
 
-var Simple = require('./Simple.js');
+var Simple = require('./Simple');
 
-function Date() {
-    Simple.call(this);
-}
+var Date = Simple.extend({
 
-Date.prototype = new Simple();
+    /**
+     * @property {string} alias - my lookup alias
+     * @instance
+     */
+    alias: 'date',
 
-Date.prototype.constructor = Date;
+    template: function() {
+        /*
+            <input id="editor" type="date">
+        */
+    }
 
-Date.prototype.alias = 'date';
-
-Date.prototype.template = function() {/*
-    <input id="editor" type="date">
-*/
-};
-
+});
 
 module.exports = Date;
