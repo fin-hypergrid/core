@@ -2,10 +2,14 @@
 
 'use strict';
 
+var ListDragon = require('list-dragon');
+
 var Behavior = require('./Behavior');
 var DataModelDecorator = require('./DataModelDecorator');
 var DataModelJSON = require('../dataModels/JSON');
 var features = require('../features/index');
+var addStylesheet = require('./stylesheets');
+
 
 var JSON = Behavior.extend({
 
@@ -215,88 +219,31 @@ var JSON = Behavior.extend({
         if (!this.isColumnReorderable()) {
             return false;
         }
-        var container = document.createElement('div');
 
-        var group = document.createElement('fin-hypergrid-dnd-list');
-        var availableGroups = document.createElement('fin-hypergrid-dnd-list');
-        var hidden = document.createElement('fin-hypergrid-dnd-list');
-        var visible = document.createElement('fin-hypergrid-dnd-list');
+        addStylesheet('dnd');
 
-        container.appendChild(group);
-        container.appendChild(availableGroups);
-        container.appendChild(hidden);
-        container.appendChild(visible);
+        var groups = { models: this.getGroups(), title: 'Groups' },
+            availableGroups = { models: this.getAvailableGroups(), title: 'Available Groups' },
+            hiddenColumns = { models: this.getHiddenColumns(), title: 'Hidden Ccolumns' },
+            visibleColumns = { models: this.getVisibleColumns(), title: 'Visible Columns'},
+            groupLists = new window.fin.hypergrid.ListDragon([groups, availableGroups]),
+            columnLists = new window.fin.hypergrid.ListDragon([hiddenColumns, visibleColumns]),
+            listSets = [groupLists, columnLists];
 
-        this.beColumnStyle(group.style);
-        group.style.left = '0%';
-        group.style.width = '24%';
-        group.title = 'groups';
-        group.list = this.getGroups();
-        group.canDropItem = function(sourceList, myList, sourceIndex, item, e) {
-            noop(sourceList, myList, sourceIndex, e);
-            return sourceList === group.list || sourceList === availableGroups.list;
-        };
-
-        this.beColumnStyle(availableGroups.style);
-        availableGroups.style.left = '25%';
-        availableGroups.style.width = '24%';
-        availableGroups.title = 'Available Groups';
-        availableGroups.list = this.getAvailableGroups();
-        availableGroups.canDropItem = function(sourceList, myList, sourceIndex, item, e) {
-            noop(sourceList, myList, sourceIndex, e);
-            return sourceList === group.list || sourceList === availableGroups.list;
-        };
-
-        //can't remove the last item
-        // group.canDragItem = function(list, item, index, e) {
-        //     noop(item, index, e);
-        //     if (self.block.ungrouped) {
-        //         return true;
-        //     } else {
-        //         return list.length > 1;
-        //     }
-        // };
-        //only allow dropping of H fields
-        // group.canDropItem = function(sourceList, myList, sourceIndex, item, e) {
-        //     noop(sourceList, myList, sourceIndex, e);
-        //     return self.block.groupable.indexOf(item) > -1;
-        // };
-
-        this.beColumnStyle(hidden.style);
-        hidden.style.left = '50%';
-        hidden.style.width = '24%';
-        hidden.title = 'hidden columns';
-        hidden.list = this.getHiddenColumns();
-        hidden.canDropItem = function(sourceList, myList, sourceIndex, item, e) {
-            noop(sourceList, myList, sourceIndex, e);
-            return sourceList === hidden.list || sourceList === visible.list;
-        };
-
-        this.beColumnStyle(visible.style);
-        visible.style.left = '75%';
-        visible.style.width = '24%';
-        visible.title = 'visible columns';
-        visible.list = this.getVisibleColumns();
-        visible.canDropItem = function(sourceList, myList, sourceIndex, item, e) {
-            noop(sourceList, myList, sourceIndex, e);
-            return sourceList === hidden.list || sourceList === visible.list;
-        };
-
-        //can't remove the last item
-        // visible.canDragItem = function(list, item, index, e) {
-        //     noop(item, index, e);
-        //     return list.length > 1;
-        // };
+        listSets.forEach(function(listSet) {
+            listSet.modelLists.forEach(function(list) {
+                div.appendChild(list.container);
+            });
+        });
 
         //attach for later retrieval
         div.lists = {
-            group: group.list,
-            availableGroups: availableGroups.list,
-            hidden: hidden.list,
-            visible: visible.list
+            group: groups.models,
+            availableGroups: availableGroups.models,
+            hidden: hiddenColumns.models,
+            visible: visibleColumns.models
         };
 
-        div.appendChild(container);
         return true;
     },
     getGroups: function() {

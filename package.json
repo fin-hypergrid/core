@@ -19,6 +19,7 @@
     "gulp-mocha": "^2.2.0",
     "gulp-util": "^3.0.7",
     "gutil": "^1.6.4",
+    "list-dragon": "^1.0.0",
     "lru-cache": "^2.7.0",
     "mustache": "^2.2.0",
     "object-iterators": "^1.0.0",
