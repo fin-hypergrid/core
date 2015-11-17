@@ -13,6 +13,10 @@
       4
     ],
     "consistent-return": 0,
+    "no-use-before-define": [
+      2,
+      "nofunc"
+    ],
     "space-before-function-paren": [
       2,
       "never"
