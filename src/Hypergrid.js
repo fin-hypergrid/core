@@ -1169,6 +1169,9 @@ Hypergrid.prototype = {
      * @see [cursor names](http://www.javascripter.net/faq/stylesc.htm)
      */
     beCursor: function(cursorName) {
+        if (!cursorName) {
+            cursorName = 'default';
+        }
         this.div.style.cursor = cursorName;
     },
 
