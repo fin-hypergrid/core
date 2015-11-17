@@ -2,16 +2,23 @@
 
 'use strict';
 
+var FinBar = require('finbars');
 var LRUCache = require('lru-cache');
 var _ = require('object-iterators');
+
 var Point = require('./local_node_modules/rectangular/rectangular').Point;
 var Rectangle = require('./local_node_modules/rectangular/rectangular').Rectangle;
-var FinBar = require('finbars');
-
 var Renderer = require('./Renderer');
 var Canvas = require('./local_node_modules/fincanvas/Canvas');
 var SelectionModel = require('./SelectionModel');
 var addStylesheet = require('./stylesheets');
+
+var globalCellEditors = {},
+    propertiesInitialized = false,
+    textWidthCache = new LRUCache(2000),
+    defaults = defaultProperties(),
+    polymerTheme = Object.create(defaults),
+    globalProperties = Object.create(polymerTheme);
 
 /**
  *
@@ -3190,23 +3197,7 @@ Hypergrid.prototype = {
     }
 };
 
-var globalCellEditors = {};
-var propertiesInitialized = false;
-
-/**
- *
- * @property {object} fontData - The cached font heights.
- */
-var fontData = {};
-
-/**
- *
- * @property {SimpleLRU} textWidthCache - A LRU cache of 10000 of text widths.
- */
-var textWidthCache = new LRUCache(2000);
-
-
-var getTextWidth = function(gc, string) {
+function getTextWidth(gc, string) {
     if (string === null || string === undefined) {
         return 0;
     }
@@ -3221,11 +3212,11 @@ var getTextWidth = function(gc, string) {
         textWidthCache.set(key, width);
     }
     return width;
-};
+}
 
-var getTextHeight = function(font) {
+function getTextHeight(font) {
 
-    var result = fontData[font];
+    var result = getTextHeight.fontData[font];
     if (result) {
         return result;
     }
@@ -3264,12 +3255,13 @@ var getTextHeight = function(font) {
         document.body.removeChild(div);
     }
     if (result.height !== 0) {
-        fontData[font] = result;
+        getTextHeight.fontData[font] = result;
     }
     return result;
-};
+}
+getTextHeight.fontData = {};
 
-var defaultProperties = function() {
+function defaultProperties() {
     var properties = {
         //these are for the theme
         font: '13px Tahoma, Geneva, sans-serif',
@@ -3363,9 +3355,9 @@ var defaultProperties = function() {
 
     };
     return properties;
-};
+}
 
-var normalizeRect = function(rect) {
+function normalizeRect(rect) {
     var o = rect.origin;
     var c = rect.corner;
 
@@ -3378,9 +3370,9 @@ var normalizeRect = function(rect) {
     var result = new Rectangle(ox, oy, cx - ox, cy - oy);
 
     return result;
-};
+}
 
-var buildPolymerTheme = function() {
+function buildPolymerTheme() {
     clearObjectProperties(polymerTheme);
     var pb = document.createElement('paper-button');
 
@@ -3439,23 +3431,19 @@ var buildPolymerTheme = function() {
 
     document.body.removeChild(pb);
     document.body.removeChild(section);
-};
+}
 
-var clearObjectProperties = function(obj) {
+function clearObjectProperties(obj) {
     for (var prop in obj) {
         if (obj.hasOwnProperty(prop)) {
             delete obj[prop];
         }
     }
-};
+}
 
-var valueOrFunctionExecute = function(valueOrFunction) {
+function valueOrFunctionExecute(valueOrFunction) {
     var result = typeof valueOrFunction === 'function' ? valueOrFunction() : valueOrFunction;
     return result || result === 0 ? result : '';
-};
-
-var defaults = defaultProperties(),
-    polymerTheme = Object.create(defaults),
-    globalProperties = Object.create(polymerTheme);
+}
 
 module.exports = Hypergrid;

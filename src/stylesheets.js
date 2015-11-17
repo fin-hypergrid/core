@@ -1,58 +1,8 @@
-/* eslint-env browser */
-
 'use strict';
 
-/**
- * @summary Inject stylesheet
- * Creates a new `<style>...</style>` element from the named text strings and inserts it.
- * @returns The new style element.
- * @param {string} name - Name of stylesheet to insert
- * @param {Element|undefined|null} [referenceElement]
- * * `undefined` type (or omitted): injects stylesheet at top of `<head...</head>` element
- * * `null` value: injects stylesheet at bottom of `<head...</head>` element
- * * `Element` type: injects stylesheet immediately before given element
- */
+var cssInjector = require('css-injector');
 
-function add(key, referenceElement) {
-    var sheet = styleSheets[key];
-    if (sheet) {
-        delete styleSheets[key];
-
-        var style = document.createElement('style');
-
-        style.type = 'text/css';
-        style.id = 'injected-stylesheet-' + key;
-
-        sheet = sheet.join('\n');
-
-        if (style.styleSheet) {
-            style.styleSheet.cssText = sheet;
-        } else {
-            style.appendChild(document.createTextNode(sheet));
-        }
-
-        if (typeof referenceElement === 'string') {
-            referenceElement = document.querySelector(referenceElement);
-            if (!referenceElement) {
-                throw 'Cannot find reference element.';
-            }
-        } else if (referenceElement && !(referenceElement instanceof Element)) {
-            throw 'Not a reference element.';
-        }
-
-        var container = referenceElement && referenceElement.parentNode || document.head || document.getElementsByTagName('head')[0];
-
-        if (referenceElement === undefined) {
-            referenceElement = container.firstChild;
-        }
-
-        container.insertBefore(style, referenceElement);
-
-        return style;
-    }
-}
-
-var styleSheets = {
+var stylesheets = {
     grid: [
         'div#grid-container {',
         '    position: relative;',
@@ -106,4 +56,8 @@ var styleSheets = {
     ]
 };
 
-module.exports = add;
+function addStylesheet(key, referenceElement) {
+    cssInjector(stylesheets[key], key, referenceElement);
+}
+
+module.exports = addStylesheet;

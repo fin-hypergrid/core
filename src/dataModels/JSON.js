@@ -3,6 +3,36 @@
 var analytics = require('../local_node_modules/finanalytics/analytics');
 var DataModel = require('./DataModel');
 
+var nullDataSource = {
+    isNullObject: function() {
+        return true;
+    },
+    getFields: function() {
+        return [];
+    },
+    getHeaders: function() {
+        return [];
+    },
+    getColumnCount: function() {
+        return 0;
+    },
+    getRowCount: function() {
+        return 0;
+    },
+    getGrandTotals: function() {
+        return [];
+    },
+    hasAggregates: function() {
+        return false;
+    },
+    hasGroups: function() {
+        return false;
+    },
+    getRow: function() {
+        return null;
+    }
+};
+
 var JSON = DataModel.extend({
 
     //null object pattern for the source object
@@ -470,45 +500,15 @@ var JSON = DataModel.extend({
 
 });
 
-var valueOrFunctionExecute = function(valueOrFunction) {
+function valueOrFunctionExecute(valueOrFunction) {
     return typeof valueOrFunction === 'function' ? valueOrFunction() : valueOrFunction;
-};
+}
 
-var textMatchFilter = function(string) {
+function textMatchFilter(string) {
     return function(each) {
         each = valueOrFunctionExecute(each);
         return (each + '').toLowerCase().search(string.toLowerCase()) > -1;
     };
-};
-
-var nullDataSource = {
-    isNullObject: function() {
-        return true;
-    },
-    getFields: function() {
-        return [];
-    },
-    getHeaders: function() {
-        return [];
-    },
-    getColumnCount: function() {
-        return 0;
-    },
-    getRowCount: function() {
-        return 0;
-    },
-    getGrandTotals: function() {
-        return [];
-    },
-    hasAggregates: function() {
-        return false;
-    },
-    hasGroups: function() {
-        return false;
-    },
-    getRow: function() {
-        return null;
-    }
-};
+}
 
 module.exports = JSON;

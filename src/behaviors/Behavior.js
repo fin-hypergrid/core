@@ -9,6 +9,17 @@ var Column = require('./Column');
 var images = require('./images');
 var CellProvider = require('../CellProvider');
 
+var noExportProperties = [
+    'columnHeader',
+    'columnHeaderColumnSelection',
+    'filterProperties',
+    'rowHeader',
+    'rowHeaderRowSelection',
+    'rowNumbersProperties',
+    'treeColumnProperties',
+    'treeColumnPropertiesColumnSelection',
+];
+
 /**
  * @desc This is the base class for creating behaviors.  a behavior can be thought of as a model++.
 it contains all code/data that's necessary for easily implementing a virtual data source and it's manipulation/analytics
@@ -1760,16 +1771,5 @@ Behavior.prototype = {
 };
 
 function noop() {}
-
-var noExportProperties = [
-    'columnHeader',
-    'columnHeaderColumnSelection',
-    'filterProperties',
-    'rowHeader',
-    'rowHeaderRowSelection',
-    'rowNumbersProperties',
-    'treeColumnProperties',
-    'treeColumnPropertiesColumnSelection',
-];
 
 module.exports = Behavior;

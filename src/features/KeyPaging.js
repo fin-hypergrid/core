@@ -2,6 +2,13 @@
 
 var Feature = require('./Feature.js');
 
+var commands = {
+    PAGEDOWN: function(grid) { grid.pageDown(); },
+    PAGEUP: function(grid) { grid.pageUp(); },
+    PAGELEFT: function(grid) { grid.pageLeft(); },
+    PAGERIGHT: function(grid) { grid.pageRight(); }
+};
+
 var KeyPaging = Feature.extend({
 
     alias: 'KeyPaging',
@@ -24,20 +31,5 @@ var KeyPaging = Feature.extend({
     }
 
 });
-
-var commands = {
-    PAGEDOWN: function(grid) {
-        grid.pageDown();
-    },
-    PAGEUP: function(grid) {
-        grid.pageUp();
-    },
-    PAGELEFT: function(grid) {
-        grid.pageLeft();
-    },
-    PAGERIGHT: function(grid) {
-        grid.pageRight();
-    }
-};
 
 module.exports = KeyPaging;

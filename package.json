@@ -8,6 +8,7 @@
   "dependencies": {},
   "devDependencies": {
     "browser-sync": "^2.10.0",
+    "css-injector": "^1.0.2",
     "finbars": "^1.2.0",
     "gulp": "^3.9.0",
     "gulp-beautify": "^2.0.0",

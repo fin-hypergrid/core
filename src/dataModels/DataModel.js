@@ -2,6 +2,8 @@
 
 var extend = require('../local_node_modules/extend/index');
 
+var A = 'A'.charCodeAt(0);
+
 function DataModel() {
     // nothing to do here
 }
@@ -59,7 +61,5 @@ DataModel.prototype = {
     }
 
 };
-
-var A = 'A'.charCodeAt(0);
 
 module.exports = DataModel;
