@@ -177,6 +177,7 @@ var Overlay = Feature.extend({
         this.overlay.style.display = 'none';
         this.overlay.style.transition = 'opacity ' + ANIMATION_TIME + 'ms ease-in';
         this.overlay.style.opacity = 0;
+        this.overlay.style.zIndex = 10;
         grid.div.appendChild(this.overlay);
         //document.body.appendChild(this.overlay);
     },

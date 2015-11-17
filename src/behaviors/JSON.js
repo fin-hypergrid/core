@@ -223,7 +223,7 @@ var JSON = Behavior.extend({
             return false;
         }
 
-        addStylesheet('dnd');
+        addStylesheet('dnd', null);
 
         var groups = { models: this.getGroups(), title: 'Groups' },
             availableGroups = { models: this.getAvailableGroups(), title: 'Available Groups' },
