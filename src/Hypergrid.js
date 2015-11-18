@@ -2185,8 +2185,16 @@ Hypergrid.prototype = {
         this.sbHScroller = horzBar;
         this.sbVScroller = vertBar;
 
-        this.sbHScroller.classPrefix = this.resolveProperty('hScrollbarClassPrefix');
-        this.sbVScroller.classPrefix = this.resolveProperty('vScrollbarClassPrefix');
+        var hPrefix = this.resolveProperty('hScrollbarClassPrefix');
+        var vPrefix = this.resolveProperty('vScrollbarClassPrefix');
+
+        if (hPrefix && hPrefix !== '') {
+            this.sbHScroller.classPrefix = hPrefix;
+        }
+
+        if (vPrefix && vPrefix !== '') {
+            this.sbVScroller.classPrefix = vPrefix;
+        }
 
         this.div.appendChild(horzBar.bar);
         this.div.appendChild(vertBar.bar);
@@ -3311,8 +3319,8 @@ function defaultProperties() {
         scrollbarHoverOver: 'visible',
         scrollbarHoverOff: 'hidden',
         scrollingEnabled: true,
-        vScrollbarClassPrefix: 'fin-sb-user',
-        hScrollbarClassPrefix: 'fin-sb-user',
+        vScrollbarClassPrefix: '',
+        hScrollbarClassPrefix: '',
 
         //these used to be in the constants element
         fixedRowAlign: 'center',
