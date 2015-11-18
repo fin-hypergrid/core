@@ -2157,20 +2157,9 @@ Hypergrid.prototype = {
 
         var self = this;
 
-        var stylesheet = addStylesheet('finbars');
-
-        //var divScrollbars = document.createElement('div');
-        //divScrollbars.style.top = '0px';
-        //divScrollbars.style.right = '0px';
-        //divScrollbars.style.bottom = '0px';
-        //divScrollbars.style.left = '0px';
-        //divScrollbars.style.position = 'absolute';
-        //this.div.appendChild(divScrollbars);
-
         var horzBar = new FinBar({
             orientation: 'horizontal',
-            onchange: self.setHScrollValue.bind(self),
-            cssStylesheetReferenceElement: stylesheet
+            onchange: self.setHScrollValue.bind(self)
         });
 
         var vertBar = new FinBar({
@@ -2205,7 +2194,8 @@ Hypergrid.prototype = {
 
     resizeScrollbars: function() {
         this.sbHScroller.shortenBy(this.sbVScroller).resize();
-        this.sbVScroller.shortenBy(this.sbHScroller).resize();
+        //this.sbVScroller.shortenBy(this.sbHScroller);
+        this.sbVScroller.resize();
     },
 
     /**

@@ -11,7 +11,6 @@ var features = require('../features/index');
 var addStylesheet = require('../stylesheets');
 var aggregations = require('../local_node_modules/finanalytics/aggregations');
 
-
 var JSON = Behavior.extend({
 
     /**
