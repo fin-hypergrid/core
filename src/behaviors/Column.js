@@ -23,9 +23,12 @@ Column.prototype = {
     },
 
     getWidth: function() {
-        var override = this.getProperties().width;
-        if (override) {
-            return override;
+        var properties = this.getProperties();
+        if (properties) {
+            var override = properties.width;
+            if (override) {
+                return override;
+            }
         }
         return this.behavior.resolveProperty('defaultColumnWidth');
     },

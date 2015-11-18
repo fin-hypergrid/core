@@ -496,6 +496,9 @@ var JSON = DataModel.extend({
 
     applyState: function() {
         this.applyAnalytics();
+    },
+    reset: function() {
+        this.setData([]);
     }
 
 });

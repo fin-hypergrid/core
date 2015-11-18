@@ -65,6 +65,7 @@
             <button onclick="toggleGlobalFilter()">toggle global filter</button>
             <button onclick="setData1()">set data 1 (5000 rows)</button>
             <button onclick="setData2()">set data 2 (10000 rows)</button>
+            <button onclick="reset()">reset</button>
         </div>
     </div>
     <div class="row" style="overflow: hidden">
@@ -174,6 +175,11 @@
         window.setData2 = function() {
             jsonModel.setData(people2);
         }
+
+        window.reset = function() {
+            jsonGrid.reset();
+        };
+
 
         jsonModel.setData(people2);
 

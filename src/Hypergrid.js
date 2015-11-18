@@ -49,13 +49,15 @@ function Hypergrid(div, getBehavior) {
     this.behavior = getBehavior(this);
 
     //prevent the default context menu for appearing
-    this.oncontextmenu = function(event) {
+    this.div.oncontextmenu = function(event) {
         event.preventDefault();
         return false;
     };
 
     this.clearMouseDown();
     this.dragExtent = new Point(0, 0);
+    this.numRows = 0;
+    this.numColumns = 0;
 
     //install any plugins
     this.pluginsDo(function(each) {
@@ -64,8 +66,6 @@ function Hypergrid(div, getBehavior) {
         }
     });
 
-    this.numRows = 0;
-    this.numColumns = 0;
     //initialize our various pieces
     this.initRenderer();
     this.initCanvas();
@@ -78,8 +78,6 @@ function Hypergrid(div, getBehavior) {
         self.checkClipboardCopy(evt);
     });
     this.getCanvas().resize();
-    //this.fire('load'); //TODO: Commented out on depolymerization... May need something else here!
-    this.isScrollButtonClick = false;
 
     //this.computeCellsBounds();
 }
@@ -144,12 +142,6 @@ Hypergrid.prototype = {
     cellEditor: null,
 
     /**
-     * @property {boolean} sbMouseIsDown - true if the mouse button is currently down on the scrollbar, this is used to refocus the hypergrid canvas after a scrollbar scroll
-     * @instance
-     */
-    sbMouseIsDown: false,
-
-    /**
      * @property {fin-vampire-bar} sbHScroller - An instance of [fin-vampire-bar](http://datamadic.github.io/fin-vampire-bar/components/fin-vampire-bar/).
      * @instance
      */
@@ -162,18 +154,6 @@ Hypergrid.prototype = {
     sbVScroller: null,
 
     /**
-     * @property {object} sbHScrollConfig - A config object allow us to dynamically reconfigure the scrollbars, it's properties include rangeStart, rangeStop, step, and page.
-     * @instance
-     */
-    sbHScrollConfig: {},
-
-    /**
-     * @property {object} sbVScrollConfig - A config object to allow us to dynamically reconfigure the scrollbars, it's properties include rangeStart, rangeStop, step, and page.
-     * @instance
-     */
-    sbVScrollConfig: {},
-
-    /**
      * @property {number} sbPrevVScrollValue - The previous value of sbVScrollVal.
      * @instance
      */
@@ -184,19 +164,6 @@ Hypergrid.prototype = {
      * @instance
      */
     sbPrevHScrollValue: null,
-
-    /**
-     * @property {object} sbHValueHolder - The listenable scroll model we share with the horizontal scrollbar.
-     * @instance
-     */
-
-    sbHValueHolder: {},
-
-    /**
-     * @property {object} sbVValueHolder - The listenable scroll model we share with the vertical scrollbar.
-     * @instance
-     */
-    sbVValueHolder: {},
 
     /**
      * @property {object} cellEditors - The cache of singleton cellEditors.
@@ -217,14 +184,6 @@ Hypergrid.prototype = {
      */
     hoverCell: null,
 
-
-    /**
-     * @property {boolean} isScrollButtonClick - The scroll button was clicked.
-     * @instance
-     */
-    isScrollButtonClick: false,
-
-
     scrollingNow: false,
 
     lastEdgeSelection: null,
@@ -236,6 +195,45 @@ Hypergrid.prototype = {
      */
     setAttribute: function(attribute, value) {
         this.div.setAttribute(attribute, value);
+    },
+
+    /**
+     * @function
+     * @instance
+    clear out all state and data of the grid
+     */
+    reset: function() {
+        var self = this;
+        this.lastEdgeSelection = [0, 0];
+        this.lnfProperties = Object.create(globalProperties);
+        this.selectionModel = new SelectionModel();
+        this.selectionModel.getGrid = function() {
+            return self;
+        };
+        this.cellEditors = Object.create(globalCellEditors);
+        this.renderOverridesCache = {};
+        this.clearMouseDown();
+        this.dragExtent = new Point(0, 0);
+
+        this.numRows = 0;
+        this.numColumns = 0;
+
+        this.vScrollValue = 0;
+        this.hScrollValue = 0;
+
+        this.cellEditor = null;
+
+        this.sbPrevVScrollValue = null;
+        this.sbPrevHScrollValue = null;
+
+        this.hoverCell = null;
+        this.scrollingNow = false;
+        this.lastEdgeSelection = [0, 0];
+
+        this.getBehavior().reset();
+        this.getRenderer().reset();
+        this.getCanvas().resize();
+        this.behaviorChanged();
     },
 
     resetTextWidthCache: function() {
@@ -2226,9 +2224,6 @@ Hypergrid.prototype = {
         if (this.hScrollValue === this.sbPrevHScrollValue && this.vScrollValue === this.sbPrevVScrollValue) {
             return;
         }
-
-        this.sbHValueHolder.changed = !this.sbHValueHolder.changed;
-        this.sbVValueHolder.changed = !this.sbVValueHolder.changed;
 
         this.sbPrevHScrollValue = this.hScrollValue;
         this.sbPrevVScrollValue = this.vScrollValue;

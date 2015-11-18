@@ -27,15 +27,7 @@ Instances of this object have basically four main functions.
 
 function Renderer(grid) {
     this.grid = grid;
-    this.columnEdges = [];
-    this.columnEdgesIndexMap = {};
-    this.renderedColumnMinWidths = [];
-    this.renderedHeight = 0;
-    this.rowEdges = [];
-    this.rowEdgesIndexMap = {};
-    this.visibleColumns = [];
-    this.visibleRows = [];
-    this.insertionBounds = [];
+    this.reset();
 }
 
 var merge = function(target, source) {
@@ -58,6 +50,22 @@ Renderer.prototype = {
     scrollHeight: 0,
 
     viewHeight: 0,
+
+    reset: function() {
+        this.bounds = {
+            width:0,
+            height:0
+        };
+        this.columnEdges = [];
+        this.columnEdgesIndexMap = {};
+        this.renderedColumnMinWidths = [];
+        this.renderedHeight = 0;
+        this.rowEdges = [];
+        this.rowEdgesIndexMap = {};
+        this.visibleColumns = [];
+        this.visibleRows = [];
+        this.insertionBounds = [];
+    },
 
     //this function computes the grid coordinates used for extremely fast iteration over
     //painting the grid cells. this function is very fast, for thousand rows X 100 columns
