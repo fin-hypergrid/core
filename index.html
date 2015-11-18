@@ -201,8 +201,8 @@
 
         // jsonModel.setHeaderColumnCount(1);
         // jsonModel.setHeaderRowCount(2);
-        var topTotals = [['one','two','three','four','five','six','seven','eight','nine','ten'],
-                         ['ten','nine','eight','seven','six','five','four','three','two','one']];
+        var topTotals = [['one','two','3','four','five','six','seven','eight','nine','ten'],
+                         ['ten','nine','8','seven','six','five','four','three','two','one']];
         jsonModel.setTopTotals(topTotals);
 
         // setInterval(function(){
@@ -524,7 +524,7 @@
                 var state = {
                         columnIndexes: [
                             fieldsMap.last_name,
-                            fieldsMap.pets,
+                            fieldsMap.number_of_pets,
                             fieldsMap.birthDate,
                             fieldsMap.birthState,
                             // fieldsMap.residenceState,
@@ -534,7 +534,7 @@
                             // fieldsMap.travel,
                             // fieldsMap.squareOfIncome
                             ],
-                        rowHeights:{ 0: 30 },
+                        rowHeights:{ 0: 40 },
                         fixedColumnCount: 1,
                         fixedRowCount: 2,
 

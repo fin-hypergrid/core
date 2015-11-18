@@ -78,7 +78,6 @@ function Hypergrid(div, getBehavior) {
         self.checkClipboardCopy(evt);
     });
     this.getCanvas().resize();
-
     //this.computeCellsBounds();
 }
 
