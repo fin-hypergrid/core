@@ -44,15 +44,6 @@ var stylesheets = {
         '    font-size: 30px;',
         '    margin: 8px 14px 8px 8px; }',
         'li.dragon-pop { opacity:.8; }'
-    ],
-    finbars: [
-        'div.finbar-horizontal, div.finbar-vertical {',
-        'z-index: 5;',
-        '   background-color: rgba(255, 255, 255, 0.5);',
-        '   box-shadow: 0 0 3px #000, 0 0 3px #000, 0 0 3px #000; }',
-        'div.finbar-horizontal>.thumb, div.finbar-vertical>.thumb {',
-        'opacity: .85;',
-        'box-shadow: 0 0 3px #000, 0 0 3px #000, 0 0 3px #000; }'
     ]
 };
 

@@ -1,6 +1,6 @@
 #Hypergrid by OpenFin
 
-<img src="images/gridshot04.gif" alt="screenshot">
+<img src="images/README/gridshot04.gif" alt="screenshot">
 #Hypergrid
 The Hypergrid control is a [Google polymer](https://www.polymer-project.org/) [web component](http://webcomponents.org/presentations/), canvas based open source general purpose grid. The purpose of this project is to address the Finance/Big Data community's desire for a high performance, unlimited row data-grid. At the moment, it is in a beta stage and still has ongoing work to be completed. These include bug-fixes/features/automated testing/etc.  Please try it out and let us know what you think.
 
@@ -8,7 +8,7 @@ The Hypergrid control is a [Google polymer](https://www.polymer-project.org/) [w
 
 * Watch the [Pivotal Labs presentation](http://www.livestream.com/pivotallabs/video?clipId=pla_01ae6683-c5ee-4567-9278-91524d09550a&utm_source=lslibrary&utm_medium=ui-thumb) recorded on Jan 13th 2015.
 
-<img src="images/gridshot02.png" alt="screenshot">
+<img src="images/README/gridshot02.png" alt="screenshot">
 
 ## Shortcuts
 
@@ -183,7 +183,7 @@ to do this
 3. save the state object however you like, json/local storage/mongodb/etc...
 4. later on, call ```myGrid.setState(state);``` with the previous state object to return 
 
-<img src="images/gridshot06.png" alt="screenshot">
+<img src="images/README/gridshot06.png" alt="screenshot">
 
 the above table will produce the below state object 
 
@@ -299,7 +299,7 @@ Cell renderers are easy to create and the default method for generating highly c
 
 There are four areas that have distinct cell renderering override capabilities.  
 
-<img src="images/grid-regions.png" alt="screenshot">
+<img src="images/README/grid-regions.png" alt="screenshot">
 
 These areas coorespond to four functions on a [CellProvider](https://github.com/openfin/fin-hypergrid/blob/master/polymer/js/fin-hypergrid-cell-provider.js) found in [YOUR](https://github.com/openfin/fin-hypergrid/blob/master/polymer/js/behaviors/fin-hypergrid-behavior-base.js#L145) behavior object.
 
@@ -335,7 +335,7 @@ These areas coorespond to four functions on a [CellProvider](https://github.com/
 ## Creating a custom cell renderer.
 Creating a cell renderer and using it is very easy, ie:
 
-<img src="images/customrenderer.png">
+<img src="images/README/customrenderer.png">
 
 ```
 var jsonModel = jsonGrid.getBehavior();
@@ -418,7 +418,7 @@ y|integer|the y model coordinate
 
 You can autosize a column to best fit size by double clicking on the column header, or automagically always set all columns by setting the property columnAutosizing to true.
 
-<img src="images/gridshot09.png">
+<img src="images/README/gridshot09.png">
 
 # Cell Editors
 
@@ -426,17 +426,17 @@ Hypergrid comes with several default cell editors you can easily select, and the
 
 ## Default cell editors
 * [choice](http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/#fin-hypergrid-cell-editor-choice)
-<br><img src="images/choice.png" alt="screenshot">
+<br><img src="images/README/choice.png" alt="screenshot">
 * [color](http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/#fin-hypergrid-cell-editor-color)
-<br><img src="images/color.png" alt="screenshot">
+<br><img src="images/README/color.png" alt="screenshot">
 * [date](http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/#fin-hypergrid-cell-editor-date)
-<br><img src="images/date.png" alt="screenshot">
+<br><img src="images/README/date.png" alt="screenshot">
 * [slider](http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/#fin-hypergrid-cell-editor-slider)
-<br><img src="images/slider.png" alt="screenshot">
+<br><img src="images/README/slider.png" alt="screenshot">
 * [spinner](http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/#fin-hypergrid-cell-editor-spinner)
-<br><img src="images/spinner.png" alt="screenshot">
+<br><img src="images/README/spinner.png" alt="screenshot">
 * [textfield](http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/#fin-hypergrid-cell-editor-textfield)
-<br><img src="images/textfield.png" alt="screenshot">
+<br><img src="images/README/textfield.png" alt="screenshot">
 
 ## Creating your own cell editor <a name="creating-cell-editors"></a>
 
@@ -605,7 +605,7 @@ fin-keyup|this is fired on a keyup event
 # Column Picker
 Hypergrid has a column picker that allows you to drag and drop columns for configuring which are visible.  You can also reorder the columns here.
 press alt/option to open the column picker, you can press alt/option or esc to close it
-<img src="images/gridshot07.png" alt="screenshot">
+<img src="images/README/gridshot07.png" alt="screenshot">
 
 <a name="hypergrid-excel-integration"></a>
 
@@ -638,7 +638,7 @@ The excel-integration demo consists of an OpenFin app, and a C# XLL plugin built
  
 Because so many folks have been asking for an example of JSON with Excel, we've provided a bare bones example that should help you out understanding how it all works.  [Here is the link for the installer.](https://dl.openfin.co/services/download?fileName=hypergrid-json-demo-installer&config=http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/examples/excel-json-behavior.json)  The example uses the same FinDesktopAddin-packed and hypergrid.xls file from the above [Hypergrid Excel Integration](#hypergrid-excel-integration) above.  The html for the example is [here.](https://github.com/openfin/fin-hypergrid/blob/master/examples/excel-json-behavior.html)
 
-<img src="images/excel-integration04.png" alt="screenshot">
+<img src="images/README/excel-integration04.png" alt="screenshot">
 
 ## Fin-Hypergrid-Excel plugin element
 
@@ -659,16 +659,16 @@ All the attributes listed above default to the values listed above.  These prope
 
 attribute|values/examles|description
 --------|------|-----------
-publish|any valid javascript identifier<br>onSelect<br>onJSONSelect|this is the topic used to [publish the cell data messages to the InterApplicationBus ](http://cdn.openfin.co/jsdocs/3.0.1.5/fin.desktop.module_InterApplicationBus.html#publish).  This value MUST be the same as the second argument in the Excel addin function <a class="hovertrigger">=FinDesktopSync("hypergrid-demo","onSelect","").</a><div class="hoverdiv"><img src="images/excel-integration01.png" alt="screenshot"></div>
+publish|any valid javascript identifier<br>onSelect<br>onJSONSelect|this is the topic used to [publish the cell data messages to the InterApplicationBus ](http://cdn.openfin.co/jsdocs/3.0.1.5/fin.desktop.module_InterApplicationBus.html#publish).  This value MUST be the same as the second argument in the Excel addin function <a class="hovertrigger">=FinDesktopSync("hypergrid-demo","onSelect","").</a><div class="hoverdiv"><img src="images/README/excel-integration01.png" alt="screenshot"></div>
 subscribe|any valid javascript identifier<br>onExcelChange<br>onJSONExcelChange|this is the topic used to [subscribe to cell data messages from the InterApplicationBus ](http://cdn.openfin.co/jsdocs/3.0.1.5/fin.desktop.module_InterApplicationBus.html#subscribe). This should be left to the default of "onExcelChange" unless you want to push the cell data to other InterApplicationBus endpoints. 
 interval|integer value in milliseconds<br>500<br>1000|millisecond interval to [publish the cell data messages to the InterApplicationBus ](http://cdn.openfin.co/jsdocs/3.0.1.5/fin.desktop.module_InterApplicationBus.html#publish)
 logging|Boolean value<br>true<br>false|enable or disable logging of messages and errors to the console
 
 <a class="hovertrigger"></a><div class="hoverdiv"></div>
 Another important dependency to be aware of is the
-<a class="hovertrigger">OpenFin startup_app name in the configuration.json file</a><div class="hoverdiv"><img src="images/excel-integration03.png" alt="screenshot"></div>
+<a class="hovertrigger">OpenFin startup_app name in the configuration.json file</a><div class="hoverdiv"><img src="images/README/excel-integration03.png" alt="screenshot"></div>
 MUST be the same as the first argument to the Excel function
-<a class="hovertrigger">=FinDesktopSync("hypergrid-demo","onSelect","").</a><div class="hoverdiv"><img src="images/excel-integration02.png" alt="screenshot"></div>
+<a class="hovertrigger">=FinDesktopSync("hypergrid-demo","onSelect","").</a><div class="hoverdiv"><img src="images/README/excel-integration02.png" alt="screenshot"></div>
 
 
 ## Excel Integration Links
@@ -691,13 +691,13 @@ This Hypertree + Hypergrid example allows you to define a on the fly custom dril
 4. Make sure grunt serve is running or your browser is pointed to the proper [demo](http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/demo.html?tab=4) tab.
 5. If you are running locally, the grunt serve process should automatically refresh your web browser with the q driven grid now populated with data
 
-<img src="images/gridshot10.png" alt="screenshot">
+<img src="images/README/gridshot10.png" alt="screenshot">
 
 #Hypergrid example for displaying RDBMS data
 
 This is an example usage of the hypergrid control looking at the +1MM row postrgres db example from the [greenplum getting started tutorial](http://gpdb.docs.pivotal.io/gs/42/pdf/GP-Getting-Started.pdf).  
 
-<img src="images/gridshot05.png" alt="screenshot">
+<img src="images/README/gridshot05.png" alt="screenshot">
 
 For this example to work you'll need to 
 
@@ -713,7 +713,7 @@ Make sure to npm install the proper any-db-***** interface and edit the config.j
 # Custom Scrollbars
 Hypergrid utilizes a custom scrollbar component so as to not be limited to tables of 33MM pixels in width or height.   In addition to the custom scrollbar, The OpenFin hypergrid utilizes row and column cell scrolling, not pixel scrolling.  This has many benefits that become apparent over time.
 
-<img src="images/gridshot03.png" alt="screenshot">
+<img src="images/README/gridshot03.png" alt="screenshot">
 
 
 # Road Map
