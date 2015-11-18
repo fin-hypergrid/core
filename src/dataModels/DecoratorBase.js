@@ -121,6 +121,10 @@ var DecoratorBase = DataModel.extend({
 
     cellClicked: function(cell, event) {
         return this.getComponent().cellClicked(cell, event);
+    },
+
+    reset: function() {
+        this.getComponent().reset();
     }
 
 });

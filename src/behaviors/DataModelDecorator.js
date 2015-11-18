@@ -167,6 +167,10 @@ DataModelDecorator.prototype = {
     setAggregates: function(aggregates) {
         return this.getComponent().setAggregates(aggregates);
     },
+
+    reset: function() {
+        this.getComponent().reset();
+    }
 };
 
 module.exports = DataModelDecorator;

@@ -16,13 +16,13 @@
         position: static;
         height: 400px;
     }
-    #json-example::shadow div.fin-sb-user-vertical {
+    #json-example div.finbar-vertical {
         margin: 0px;
         width: 17px;
         background-color: rgba(237, 237, 237, 1);
         box-shadow: 0 0 0px #000, 0 0 0px #000, 0 0 0px #000;
     }
-    #json-example::shadow div.fin-sb-user-vertical div.thumb {
+    #json-example div.finbar-vertical div.thumb {
         margin: 0px;
         width: 11px;
         margin-top: 2px;
@@ -33,13 +33,13 @@
         border: 1px solid rgba(132, 132, 132, 1);
         right: 2px;
     }
-    #json-example::shadow div.fin-sb-user-horizontal {
+    #json-example div.finbar-horizontal {
         margin: 0px;
         height: 17px;
         background-color: rgba(237, 237, 237, 1);
         box-shadow: 0 0 0px #000, 0 0 0px #000, 0 0 0px #000;
     }
-    #json-example::shadow div.fin-sb-user-horizontal div.thumb {
+    #json-example div.finbar-horizontal div.thumb {
         margin: 0px;
         height: 11px;
         margin-left: 2px;
@@ -65,6 +65,7 @@
             <button onclick="toggleGlobalFilter()">toggle global filter</button>
             <button onclick="setData1()">set data 1 (5000 rows)</button>
             <button onclick="setData2()">set data 2 (10000 rows)</button>
+            <button onclick="reset()">reset</button>
         </div>
     </div>
     <div class="row" style="overflow: hidden">
@@ -174,6 +175,11 @@
         window.setData2 = function() {
             jsonModel.setData(people2);
         }
+
+        window.reset = function() {
+            jsonGrid.reset();
+        };
+
 
         jsonModel.setData(people2);
 

@@ -95,7 +95,6 @@ Behavior.prototype = {
 
     dataModel: null,
     baseModel: null,
-    cellProviderDecorator: null,
 
     scrollPositionX: 0,
     scrollPositionY: 0,
@@ -103,6 +102,18 @@ Behavior.prototype = {
     featureMap: {},
     allColumns: [],
     columns: [],
+
+    reset: function() {
+
+        this.cellProvider = this.createCellProvider();
+        this.renderedColumnCount = 30;
+        this.renderedRowCount = 60;
+        this.dataUpdates = {}; //for overriding with edit values;
+        this.clearColumns();
+        this.clearState();
+        this.getDataModel().reset();
+        this.createColumns();
+    },
 
     clearColumns: function() {
         this.columns = [];
@@ -1189,7 +1200,12 @@ Behavior.prototype = {
                 isNull: true
             };
         }
-        var properties = col.getProperties();
+        var properties = col.getProperties(); //TODO: fix this this returns null on Hypergrid.reset();
+        if (!properties) {
+            return {
+                isNull: true
+            };
+        }
         return properties;
     },
     setColumnProperties: function(columnIndex, properties) {
