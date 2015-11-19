@@ -4,7 +4,7 @@
 
 var _ = require('object-iterators');
 
-var extend = require('../local_node_modules/extend/index');
+var extend = require('extend-me');
 var Column = require('./Column');
 var images = require('./images');
 var CellProvider = require('../CellProvider');

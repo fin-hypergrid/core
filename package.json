@@ -5,7 +5,9 @@
   "directories": {
     "test": "test"
   },
-  "dependencies": {},
+  "dependencies": {
+    "extend-me": "^1.0.1"
+  },
   "devDependencies": {
     "browser-sync": "^2.10.0",
     "css-injector": "^1.0.2",
