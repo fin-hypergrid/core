@@ -29,7 +29,8 @@
     "object-iterators": "^1.0.0",
     "rectangular": "^1.0.0",
     "run-sequence": "^1.1.4",
-    "sparse-boolean-array": "^1.0.1"
+    "sparse-boolean-array": "^1.0.1",
+    "through2": "^2.0.0"
   },
   "scripts": {
     "test": "gulp test"
