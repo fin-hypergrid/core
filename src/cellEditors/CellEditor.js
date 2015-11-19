@@ -4,7 +4,7 @@
 
 var mustache = require('mustache');
 
-var extend = require('../local_node_modules/extend/index');
+var extend = require('extend-me');
 
 function CellEditor() {
     // nothing to do here

@@ -1,6 +1,6 @@
 'use strict';
 
-var extend = require('../local_node_modules/extend/index');
+var extend = require('extend-me');
 
 var A = 'A'.charCodeAt(0);
 
