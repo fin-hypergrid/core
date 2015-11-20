@@ -40,7 +40,39 @@ var underline = function(config, gc, text, x, y, thickness) {
     gc.lineTo(x + width + 0.5, y + 0.5);
 };
 
+var findLines = function(gc, config, arrayOfPieces, width) {
+
+    if (arrayOfPieces.length === 1) {
+        return arrayOfPieces;
+    }
+
+    var line = [arrayOfPieces.shift()];
+
+    var stillFits = true;
+
+    while ((stillFits = config.getTextWidth(gc, line.join(' ').trim()) < width) && (arrayOfPieces.length > 0)) {
+        line.push(arrayOfPieces.shift());
+    }
+
+    if (!stillFits) {
+        arrayOfPieces.unshift(line.pop());
+    }
+
+    var lineString = line.join(' ').trim();
+    if (arrayOfPieces.length > 0) {
+        return [lineString].concat(findLines(gc, config, arrayOfPieces, width));
+    }
+    return [lineString];
+
+};
+
+var fitText = function(gc, config, string, width) {
+    var theLines = findLines(gc, config, string.split(' '), width);
+    return theLines;
+};
+
 var roundRect = function(gc, x, y, width, height, radius, fill, stroke) {
+
     if (!stroke) {
         stroke = true;
     }
@@ -157,19 +189,14 @@ CellProvider.prototype.paintButton = function(gc, config) {
 This is the default cell rendering function for rendering a vanilla cell. Great care was taken in crafting this function as it needs to perform extremely fast. Reads on the gc object are expensive but not quite as expensive as writes to it. We do our best to avoid writes, then avoid reads. Clipping bounds are not set here as this is also an expensive operation. Instead, we truncate overflowing text and content by filling a rectangle with background color column by column instead of cell by cell.  This column by column fill happens higher up on the stack in a calling function from fin-hypergrid-renderer.  Take note we do not do cell by cell border renderering as that is expensive.  Instead we render many fewer gridlines after all cells are rendered.
 */
 CellProvider.prototype.defaultCellPaint = function(gc, config) {
-
-    var isLink = isLink || false;
-    var colHEdgeOffset = config.cellPadding,
-        halignOffset = 0,
-        valignOffset = config.voffset,
-        halign = config.halign,
-        isColumnHovered = config.isColumnHovered,
-        isRowHovered = config.isRowHovered,
-        val = config.value,
+    var val = config.value,
         x = config.bounds.x,
         y = config.bounds.y,
         width = config.bounds.width,
-        height = config.bounds.height;
+        height = config.bounds.height,
+        wrapHeaders = config.headerTextWrapping,
+        leftPadding = 2, //TODO: fix this
+        isHeader = config.y === 0;
 
     var leftIcon, rightIcon, centerIcon, ixoffset, iyoffset;
 
@@ -206,26 +233,6 @@ CellProvider.prototype.defaultCellPaint = function(gc, config) {
         gc.textBaseline = 'middle';
     }
 
-    var fontMetrics = config.getTextHeight(config.font);
-    var textWidth = config.getTextWidth(gc, val);
-
-
-    //we must set this in order to compute the minimum width
-    //for column autosizing purposes
-    config.minWidth = textWidth + (2 * colHEdgeOffset);
-
-    if (halign === 'right') {
-        //textWidth = config.getTextWidth(gc, config.value);
-        halignOffset = width - colHEdgeOffset - textWidth;
-    } else if (halign === 'center') {
-        //textWidth = config.getTextWidth(gc, config.value);
-        halignOffset = (width - textWidth) / 2;
-    } else if (halign === 'left') {
-        halignOffset = colHEdgeOffset;
-    }
-
-    halignOffset = Math.max(0, halignOffset);
-    valignOffset = valignOffset + Math.ceil(height / 2);
 
     //fill background only if our bgColor is populated or we are a selected cell
     if (config.backgroundColor || config.isSelected) {
@@ -239,18 +246,13 @@ CellProvider.prototype.defaultCellPaint = function(gc, config) {
         gc.fillStyle = theColor;
         gc.strokeStyle = theColor;
     }
-    if (val !== null) {
-        gc.fillText(val, x + halignOffset, y + valignOffset);
 
+    if (isHeader && wrapHeaders) {
+        this.renderMultiLineText(x, y, height, width, gc, config, val);
+    } else {
+        this.renderSingleLineText(x, y, height, width, gc, config, val);
     }
-    if (isColumnHovered && isRowHovered) {
-        gc.beginPath();
-        if (isLink) {
-            underline(config, gc, val, x + halignOffset, y + valignOffset + Math.floor(fontMetrics.height / 2), 1);
-            gc.stroke();
-        }
-        gc.closePath();
-    }
+
     if (config.isInCurrentSelectionRectangle) {
         gc.fillStyle = 'rgba(0, 0, 0, 0.2)';
         gc.fillRect(x, y, width, height);
@@ -258,8 +260,7 @@ CellProvider.prototype.defaultCellPaint = function(gc, config) {
     var iconWidth = 0;
     if (leftIcon) {
         iyoffset = Math.round((height - leftIcon.height) / 2);
-        ixoffset = Math.round((halignOffset - leftIcon.width) / 2);
-        gc.drawImage(leftIcon, x + ixoffset, y + iyoffset);
+        gc.drawImage(leftIcon, x + leftPadding, y + iyoffset);
         iconWidth = Math.max(leftIcon.width + 2);
     }
     if (rightIcon) {
@@ -286,6 +287,85 @@ CellProvider.prototype.defaultCellPaint = function(gc, config) {
         gc.closePath();
     }
     config.minWidth = config.minWidth + 2 * (iconWidth);
+};
+
+CellProvider.prototype.renderMultiLineText = function(x, y, height, width, gc, config, val) {
+    var lines = fitText(gc, config, val, width);
+    if (lines.length === 1) {
+        this.renderSingleLineText(x, y, height, width, gc, config, val);
+        return;
+    }
+    var colHEdgeOffset = config.cellPadding,
+        halignOffset = 0,
+        valignOffset = config.voffset,
+        halign = config.halign;
+
+    var textHeight = config.getTextHeight(config.font).height;
+    var textWidth = config.getTextWidth(gc, val);
+
+    //we must set this in order to compute the minimum width
+    //for column autosizing purposes
+    if (halign === 'right') {
+        //textWidth = config.getTextWidth(gc, config.value);
+        halignOffset = width - colHEdgeOffset - textWidth;
+    } else if (halign === 'center') {
+        //textWidth = config.getTextWidth(gc, config.value);
+        halignOffset = (width - textWidth) / 2;
+    } else if (halign === 'left') {
+        halignOffset = colHEdgeOffset;
+    }
+
+    halignOffset = Math.max(0, halignOffset);
+    valignOffset = valignOffset + Math.ceil(height / 2);
+
+    for (var i = 0; i < lines.length; i++) {
+        gc.fillText(lines[i], x + halignOffset, y + valignOffset + (i * textHeight));
+    }
+};
+
+CellProvider.prototype.renderSingleLineText = function(x, y, height, width, gc, config, val) {
+
+    var colHEdgeOffset = config.cellPadding,
+        halignOffset = 0,
+        valignOffset = config.voffset,
+        halign = config.halign,
+        isColumnHovered = config.isColumnHovered,
+        isRowHovered = config.isRowHovered,
+        isLink = isLink || false;
+
+    var fontMetrics = config.getTextHeight(config.font);
+    var textWidth = config.getTextWidth(gc, val);
+
+    //we must set this in order to compute the minimum width
+    //for column autosizing purposes
+    config.minWidth = textWidth + (2 * colHEdgeOffset);
+
+    if (halign === 'right') {
+        //textWidth = config.getTextWidth(gc, config.value);
+        halignOffset = width - colHEdgeOffset - textWidth;
+    } else if (halign === 'center') {
+        //textWidth = config.getTextWidth(gc, config.value);
+        halignOffset = (width - textWidth) / 2;
+    } else if (halign === 'left') {
+        halignOffset = colHEdgeOffset;
+    }
+
+    halignOffset = Math.max(0, halignOffset);
+    valignOffset = valignOffset + Math.ceil(height / 2);
+
+    if (val !== null) {
+        gc.fillText(val, x + halignOffset, y + valignOffset);
+    }
+
+    if (isColumnHovered && isRowHovered) {
+        gc.beginPath();
+        if (isLink) {
+            underline(config, gc, val, x + halignOffset, y + valignOffset + Math.floor(fontMetrics.height / 2), 1);
+            gc.stroke();
+        }
+        gc.closePath();
+    }
+
 };
 
 /**
@@ -461,7 +541,9 @@ CellProvider.prototype.emptyCellRenderer = function(gc, x, y, width, height) {};
 CellProvider.prototype.initializeCells = function() {
     var self = this;
     this.cellCache.simpleCellRenderer = {
-        paint: this.defaultCellPaint
+        paint: this.defaultCellPaint,
+        renderSingleLineText: this.renderSingleLineText,
+        renderMultiLineText: this.renderMultiLineText
     };
     this.cellCache.sliderCellRenderer = {
         paint: this.paintSlider
