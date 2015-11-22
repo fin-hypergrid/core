@@ -3,18 +3,9 @@
 'use strict';
 
 var mustache = require('mustache');
+var Base = require('extend-me').Base;
 
-var extend = require('extend-me');
-
-function CellEditor() {
-    // nothing to do here
-}
-
-CellEditor.extend = extend;
-
-CellEditor.prototype = {
-
-    constructor: CellEditor.prototype.constructor,
+var CellEditor = Base.extend('CellEditor', {
 
     /**
      * @property {boolean} isEditing - am I currently editing
@@ -334,6 +325,6 @@ CellEditor.prototype = {
         element.dispatchEvent(event);
     }
 
-};
+});
 
 module.exports = CellEditor;

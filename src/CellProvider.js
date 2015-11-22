@@ -13,8 +13,6 @@ function CellProvider() {
 
 CellProvider.prototype = {};
 
-var noop = function() {};
-
 var valueOrFunctionExecute = function(config, valueOrFunction) {
     var isFunction = (((typeof valueOrFunction)[0]) === 'f');
     var result = isFunction ? valueOrFunction(config) : valueOrFunction;
@@ -453,9 +451,7 @@ CellProvider.prototype.treeCellRenderer = function(gc, x, y, width, height) {
  * @param {boolean} isLink - is this a hyperlink cell
  * @desc this is an empty implementation of a cell renderer, see [the null object pattern](http://c2.com/cgi/wiki?NullObject)
  */
-CellProvider.prototype.emptyCellRenderer = function(gc, x, y, width, height) {
-    noop(gc, x, y, width, height);
-};
+CellProvider.prototype.emptyCellRenderer = function(gc, x, y, width, height) {};
 
 /**
  * @function

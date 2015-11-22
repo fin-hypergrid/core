@@ -3,8 +3,8 @@
 'use strict';
 
 var _ = require('object-iterators');
+var Base = require('extend-me').Base;
 
-var extend = require('extend-me');
 var Column = require('./Column');
 var images = require('./images');
 var CellProvider = require('../CellProvider');
@@ -25,15 +25,7 @@ var noExportProperties = [
 it contains all code/data that's necessary for easily implementing a virtual data source and it's manipulation/analytics
  */
 
-function Behavior(grid) {
-    // nothing to do here
-}
-
-Behavior.extend = extend;
-
-Behavior.prototype = {
-
-    constructor: Behavior.prototype.constructor,
+var Behavior = Base.extend('Behavior', {
 
     /**
      * @function
@@ -1460,7 +1452,6 @@ Behavior.prototype = {
      * @param {HTMLDivElement} div - the containing div element
      */
     closeEditor: function(div) {
-        noop(div);
         var lists = div.lists;
         this.setColumnDescriptors(lists);
         return true;
@@ -1784,8 +1775,6 @@ Behavior.prototype = {
         return this.getGrid().getSelectionModel().getSelections();
     }
 
-};
-
-function noop() {}
+});
 
 module.exports = Behavior;

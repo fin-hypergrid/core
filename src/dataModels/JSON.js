@@ -1,6 +1,8 @@
 'use strict';
 
-var analytics = require('../local_node_modules/finanalytics/analytics');
+var analytics = require('hyper-analytics');
+//var analytics = require('../local_node_modules/newanalytics');
+//var analytics = require('../local_node_modules/finanalytics');
 var DataModel = require('./DataModel');
 
 var nullDataSource = {
@@ -332,18 +334,18 @@ var JSON = DataModel.extend({
     },
 
     applyFilters: function() {
-        this.preglobalfilter.applyFilters();
+        this.preglobalfilter.apply();
         var colCount = this.getColumnCount();
         var filterSource = this.getFilterSource();
         var groupOffset = this.hasAggregates() ? 1 : 0;
-        filterSource.clearFilters();
+        filterSource.clearAll();
         for (var i = 0; i < colCount; i++) {
             var filterText = this.getFilter(i);
             if (filterText.length > 0) {
-                filterSource.addFilter(i - groupOffset, textMatchFilter(filterText));
+                filterSource.add(i - groupOffset, textMatchFilter(filterText));
             }
         }
-        filterSource.applyFilters();
+        filterSource.applyAll();
     },
 
     toggleSort: function(index, keys) {
@@ -472,9 +474,9 @@ var JSON = DataModel.extend({
 
     setGlobalFilter: function(string) {
         if (!string || string.length === 0) {
-            this.preglobalfilter.clearFilters();
+            this.preglobalfilter.clear();
         } else {
-            this.preglobalfilter.setFilter(textMatchFilter(string));
+            this.preglobalfilter.set(textMatchFilter(string));
         }
         this.applyAnalytics();
     },

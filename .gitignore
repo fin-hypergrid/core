@@ -2,5 +2,6 @@
 .idea
 doc
 node_modules
-/index.js
+/index.*
 /images/index.js
+/src/local_node_modules/newanalytics
