@@ -120,6 +120,10 @@ var Behavior = Base.extend('Behavior', {
         return this.columns[x];
     },
 
+    getColumnId: function(x) {
+        return this.getColumn(x).label;
+    },
+
     newColumn: function(index, label) {
         var properties = this.createColumnProperties();
         this.getPrivateState().columnProperties[index] = properties;
@@ -1573,18 +1577,6 @@ var Behavior = Base.extend('Behavior', {
      */
     highlightCellOnHover: function(isColumnHovered, isRowHovered) {
         return isColumnHovered && isRowHovered;
-    },
-
-    /**
-     * @function
-     * @instance
-     * @desc return the columnId/label/fixedRowValue at x
-     * #### returns: string
-     * @param {number} x - the view translated x index
-     */
-    getColumnId: function(x) {
-        var col = this.getFixedRowValue(x, 0);
-        return col;
     },
 
     /**

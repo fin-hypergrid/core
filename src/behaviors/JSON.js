@@ -23,6 +23,7 @@ var JSON = Behavior.extend({
     },
 
     features: [
+        features.CellSelection,
         features.KeyPaging,
         features.Overlay,
         features.ColumnResizing,
@@ -30,7 +31,6 @@ var JSON = Behavior.extend({
         features.Filters,
         features.RowSelection,
         features.ColumnSelection,
-        features.CellSelection,
         features.ColumnMoving,
         features.ColumnSorting,
         features.CellEditing,

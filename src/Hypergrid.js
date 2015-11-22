@@ -2740,7 +2740,7 @@ Hypergrid.prototype = {
                 colCount = this.getColumnCount(),
                 topRow = sels[0].origin.y,
                 row = {
-                    hierarchy: behavior.getFixedColumnValue(0, topRow)
+                    //hierarchy: behavior.getFixedColumnValue(0, topRow)
                 };
 
             for (var c = 0; c < colCount; c++) {
@@ -3030,6 +3030,47 @@ Hypergrid.prototype = {
         this.repaint();
     },
 
+    selectViewportCell: function(x, y) {
+        var headerRowCount = this.getHeaderRowCount();
+        var renderer = this.getRenderer();
+        var realX = renderer.getVisibleColumns()[x];
+        var realY = renderer.getVisibleRows()[y];
+        this.clearSelections();
+        this.select(realX, realY + headerRowCount, 0, 0);
+        this.setMouseDown(this.newPoint(realX, realY + headerRowCount));
+        this.setDragExtent(this.newPoint(0, 0));
+        this.repaint();
+    },
+
+    selectFinalCellOfCurrentRow: function() {
+        var x = this.getColumnCount() - 1;
+        var y = this.getSelectedRows()[0];
+        var headerRowCount = this.getHeaderRowCount();
+        this.clearSelections();
+        this.scrollBy(this.getColumnCount(), 0);
+        this.select(x, y + headerRowCount, 0, 0);
+        this.setMouseDown(this.newPoint(x, y + headerRowCount));
+        this.setDragExtent(this.newPoint(0, 0));
+        this.repaint();
+    },
+
+    selectFirstCellOfCurrentRow: function() {
+        var x = 0;
+        var y = this.getSelectedRows()[0];
+        var headerRowCount = this.getHeaderRowCount();
+        this.clearSelections();
+        this.setHScrollValue(0);
+        this.select(x, y + headerRowCount, 0, 0);
+        this.setMouseDown(this.newPoint(x, y + headerRowCount));
+        this.setDragExtent(this.newPoint(0, 0));
+        this.repaint();
+    },
+
+    selectFinalCell: function() {
+        this.selectCell(this.getColumnCount() - 1, this.getRowCount() - 1);
+        this.scrollBy(this.getColumnCount(), this.getRowCount());
+        this.repaint();
+    },
 
     isShowRowNumbers: function() {
         return this.resolveProperty('showRowNumbers');

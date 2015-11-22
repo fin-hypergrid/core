@@ -379,13 +379,23 @@
 
         jsonGrid.addFinEventListener('fin-keydown', function(e) {
             var key = e.detail.char;
+            var keys = e.detail.currentKeys;
             if (key === 'RETURN') {
                 //move the cursor one space to the right
                 jsonGrid.moveSingleSelect(1,0);
             } else if (key === 'TAB') {
                 //select the bottom right most cell and scroll there
-                jsonGrid.selectCell(jsonGrid.getColumnCount()-1, jsonGrid.getRowCount()-1);
-                jsonGrid.scrollBy(jsonGrid.getColumnCount(), jsonGrid.getRowCount());
+                    jsonGrid.selectFinalCell();
+            } else if (keys[0] === 'CTRL') {
+                if (keys[1] === 'a') {
+                    jsonGrid.selectViewportCell(0,0);
+                } else if (keys[1] === 's') {
+                    jsonGrid.selectFinalCell();
+                } else if (keys[1] === 'd') {
+                    jsonGrid.selectFinalCellOfCurrentRow();
+                } else if (keys[1] === 'f') {
+                    jsonGrid.selectFirstCellOfCurrentRow();
+                }
             }
             console.log(e);
         });
