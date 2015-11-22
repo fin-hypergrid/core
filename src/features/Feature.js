@@ -1,6 +1,6 @@
 'use strict';
 
-var extend = require('extend-me');
+var Base = require('extend-me').Base;
 
 /**
  *
@@ -9,15 +9,7 @@ var extend = require('extend-me');
  *
  */
 
-function Feature() {
-    // nothing to do here
-}
-
-Feature.extend = extend;
-
-Feature.prototype = {
-
-    Feature: Feature.prototype.constructor,
+var Feature = Base.extend('Feature', {
 
     /**
      * @property {fin-hypergrid-feature-base} next - the next feature to be given a chance to handle incoming events
@@ -364,6 +356,6 @@ Feature.prototype = {
         }
     }
 
-};
+});
 
 module.exports = Feature;

@@ -12,6 +12,7 @@ var Renderer = require('./Renderer');
 var Canvas = require('./local_node_modules/fincanvas/Canvas');
 var SelectionModel = require('./SelectionModel');
 var addStylesheet = require('./stylesheets');
+var extend = require('extend-me');
 
 var globalCellEditors = {},
     propertiesInitialized = false,
@@ -27,6 +28,10 @@ var globalCellEditors = {},
  * @constructor
  */
 function Hypergrid(div, getBehavior) {
+
+    extend.debug = true;
+
+    installPolyfills();
 
     var self = this;
 
@@ -1737,10 +1742,11 @@ Hypergrid.prototype = {
         var selectedColumnIndexes = this.getSelectedColumns();
         var numRows = this.getRowCount();
         var result = new Array(selectedColumnIndexes.length);
+        var self = this;
         selectedColumnIndexes.forEach(function(selectedColumnIndex, c) {
             result[c] = new Array(numRows);
             for (var r = 0; r < numRows; r++) {
-                result[c][r] = valueOrFunctionExecute(this.getValue(selectedColumnIndex, r));
+                result[c][r] = valueOrFunctionExecute(self.getValue(selectedColumnIndex, r));
             }
         });
         return result;
@@ -1750,11 +1756,12 @@ Hypergrid.prototype = {
         var selectedColumnIndexes = this.getSelectedColumns();
         var result = {};
         var rowCount = this.getRowCount();
+        var self = this;
         selectedColumnIndexes.forEach(function(selectedColumnIndex) {
             var column = new Array(rowCount);
-            result[this.getField(selectedColumnIndex)] = column;
+            result[self.getField(selectedColumnIndex)] = column;
             for (var r = 0; r < rowCount; r++) {
-                column[r] = valueOrFunctionExecute(this.getValue(selectedColumnIndex, r));
+                column[r] = valueOrFunctionExecute(self.getValue(selectedColumnIndex, r));
             }
         });
         return result;
@@ -3445,6 +3452,31 @@ function clearObjectProperties(obj) {
 function valueOrFunctionExecute(valueOrFunction) {
     var result = typeof valueOrFunction === 'function' ? valueOrFunction() : valueOrFunction;
     return result || result === 0 ? result : '';
+}
+
+function installPolyfills() {
+    if (!Array.prototype.find) {
+        Array.prototype.find = function(predicate) { // eslint-disable-line no-extend-native
+            if (this === null) {
+                throw new TypeError('Array.prototype.find called on null or undefined');
+            }
+            if (typeof predicate !== 'function') {
+                throw new TypeError('predicate must be a function');
+            }
+            var list = Object(this);
+            var length = list.length >>> 0;
+            var thisArg = arguments[1];
+            var value;
+
+            for (var i = 0; i < length; i++) {
+                value = list[i];
+                if (predicate.call(thisArg, value, i, list)) {
+                    return value;
+                }
+            }
+            return undefined;
+        };
+    }
 }
 
 module.exports = Hypergrid;

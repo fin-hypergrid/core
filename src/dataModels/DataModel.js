@@ -1,18 +1,10 @@
 'use strict';
 
-var extend = require('extend-me');
+var Base = require('extend-me').Base;
 
 var A = 'A'.charCodeAt(0);
 
-function DataModel() {
-    // nothing to do here
-}
-
-DataModel.extend = extend;
-
-DataModel.prototype = {
-
-    constructor: DataModel.prototype.constructor,
+var DataModel = Base.extend('DataModel', {
 
     next: null,
 
@@ -60,6 +52,6 @@ DataModel.prototype = {
         return String.fromCharCode(A + i);
     }
 
-};
+});
 
 module.exports = DataModel;

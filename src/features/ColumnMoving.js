@@ -8,8 +8,6 @@
 
 var Feature = require('./Feature.js');
 
-var noop = function() {};
-
 var columnAnimationTime = 150;
 var dragger;
 var draggerCTX;
@@ -83,7 +81,6 @@ var ColumnMoving = Feature.extend({
      * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
      */
     initializeAnimationSupport: function(grid) {
-        noop(grid);
         if (!dragger) {
             dragger = document.createElement('canvas');
             dragger.setAttribute('width', '0px');

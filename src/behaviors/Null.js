@@ -2,7 +2,8 @@
 
 var Behavior = require('./Behavior');
 
-var noop = function() {};
+var noop = function() {},
+    n00p = function() { return 0; };
 
 var Null = Behavior.extend({
 
@@ -10,36 +11,16 @@ var Null = Behavior.extend({
 
     setScrollPositionY: noop,
     setScrollPositionX: noop,
-    getColumnCount: function() {
-        return 0;
-    },
-    getFixedColumnCount: function() {
-        return 0;
-    },
-    getFixedColumnsWidth: function() {
-        return 0;
-    },
-    getFixedColumnsMaxWidth: function() {
-        return 0;
-    },
-    setRenderedWidth: function() {
-        return 0;
-    },
-    getRowCount: function() {
-        return 0;
-    },
-    getFixedRowCount: function() {
-        return 0;
-    },
-    getFixedRowsHeight: function() {
-        return 0;
-    },
-    getFixedRowsMaxHeight: function() {
-        return 0;
-    },
-    setRenderedHeight: function() {
-        return 0;
-    },
+    getColumnCount: n00p,
+    getFixedColumnCount: n00p,
+    getFixedColumnsWidth: n00p,
+    getFixedColumnsMaxWidth: n00p,
+    setRenderedWidth: n00p,
+    getRowCount: n00p,
+    getFixedRowCount: n00p,
+    getFixedRowsHeight: n00p,
+    getFixedRowsMaxHeight: n00p,
+    setRenderedHeight: n00p,
     getCellProvider: noop,
     click: noop,
     doubleClick: noop
