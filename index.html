@@ -387,7 +387,17 @@
                 //select the bottom right most cell and scroll there
                     jsonGrid.selectFinalCell();
             } else if (keys[0] === 'CTRL') {
-                if (keys[1] === 'a') {
+                if (keys[1] === 'SHIFT') {
+                    if (keys[2] === 'A') {
+                        jsonGrid.selectToViewportCell(0,0);
+                    } else if (keys[2] === 'S') {
+                        jsonGrid.selectToFinalCell();
+                    } else if (keys[2] === 'D') {
+                        jsonGrid.selectToFinalCellOfCurrentRow();
+                    } else if (keys[2] === 'F') {
+                        jsonGrid.selectToFirstCellOfCurrentRow();
+                    }
+                } else if (keys[1] === 'a') {
                     jsonGrid.selectViewportCell(0,0);
                 } else if (keys[1] === 's') {
                     jsonGrid.selectFinalCell();

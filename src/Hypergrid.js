@@ -3042,6 +3042,22 @@ Hypergrid.prototype = {
         this.repaint();
     },
 
+    selectToViewportCell: function(x, y) {
+        var selections = this.getSelections();
+        if (!selections || selections.length === 0) {
+            return;
+        }
+        var headerRowCount = this.getHeaderRowCount();
+        var renderer = this.getRenderer();
+        var realX = renderer.getVisibleColumns()[x];
+        var realY = renderer.getVisibleRows()[y] + headerRowCount;
+        var selection = selections[0];
+        var origin = selection.origin;
+        this.setDragExtent(this.newPoint(realX - origin.x, realY - origin.y));
+        this.select(origin.x, origin.y, realX - origin.x, realY - origin.y);
+        this.repaint();
+    },
+
     selectFinalCellOfCurrentRow: function() {
         var x = this.getColumnCount() - 1;
         var y = this.getSelectedRows()[0];
@@ -3051,6 +3067,23 @@ Hypergrid.prototype = {
         this.select(x, y + headerRowCount, 0, 0);
         this.setMouseDown(this.newPoint(x, y + headerRowCount));
         this.setDragExtent(this.newPoint(0, 0));
+        this.repaint();
+    },
+
+    selectToFinalCellOfCurrentRow: function() {
+        var selections = this.getSelections();
+        if (!selections || selections.length === 0) {
+            return;
+        }
+        var selection = selections[0];
+        var origin = selection.origin;
+        var extent = selection.extent;
+        var columnCount = this.getColumnCount();
+        this.scrollBy(columnCount, 0);
+
+        this.clearSelections();
+        this.select(origin.x, origin.y, columnCount - origin.x - 1, extent.y);
+
         this.repaint();
     },
 
@@ -3066,9 +3099,40 @@ Hypergrid.prototype = {
         this.repaint();
     },
 
+    selectToFirstCellOfCurrentRow: function() {
+        var selections = this.getSelections();
+        if (!selections || selections.length === 0) {
+            return;
+        }
+        var selection = selections[0];
+        var origin = selection.origin;
+        var extent = selection.extent;
+        this.clearSelections();
+        this.select(origin.x, origin.y, -origin.x, extent.y);
+        this.setHScrollValue(0);
+        this.repaint();
+    },
+
     selectFinalCell: function() {
         this.selectCell(this.getColumnCount() - 1, this.getRowCount() - 1);
         this.scrollBy(this.getColumnCount(), this.getRowCount());
+        this.repaint();
+    },
+
+    selectToFinalCell: function() {
+
+        var selections = this.getSelections();
+        if (!selections || selections.length === 0) {
+            return;
+        }
+        var selection = selections[0];
+        var origin = selection.origin;
+        var columnCount = this.getColumnCount();
+        var rowCount = this.getRowCount();
+
+        this.clearSelections();
+        this.select(origin.x, origin.y, columnCount - origin.x - 1, rowCount - origin.y - 1);
+        this.scrollBy(columnCount, rowCount);
         this.repaint();
     },
 
