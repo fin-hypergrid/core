@@ -40,35 +40,43 @@ var underline = function(config, gc, text, x, y, thickness) {
     gc.lineTo(x + width + 0.5, y + 0.5);
 };
 
-var findLines = function(gc, config, arrayOfPieces, width) {
+var findLines = function(gc, config, words, width) {
 
-    if (arrayOfPieces.length === 1) {
-        return arrayOfPieces;
+    if (words.length === 1) {
+        return words;
     }
 
-    var line = [arrayOfPieces.shift()];
-
-    var stillFits = true;
-
-    while ((stillFits = config.getTextWidth(gc, line.join(' ').trim()) < width) && (arrayOfPieces.length > 0)) {
-        line.push(arrayOfPieces.shift());
+    // starting with just the first word…
+    var stillFits, line = [words.shift()];
+    while (
+        // so lone as line still fits within current column…
+        (stillFits = config.getTextWidth(gc, line.join(' ')) < width)
+        // …AND there are more words available…
+        && words.length
+    ) {
+        // …add another word to end of line and retest
+        line.push(words.shift());
     }
 
-    if (!stillFits) {
-        arrayOfPieces.unshift(line.pop());
+    if (
+        !stillFits // if line is now too long…
+        && line.length > 1 // …AND is multiple words…
+    ) {
+        words.unshift(line.pop()); // …back off by (i.e., remove) one word
     }
 
-    var lineString = line.join(' ').trim();
-    if (arrayOfPieces.length > 0) {
-        return [lineString].concat(findLines(gc, config, arrayOfPieces, width));
-    }
-    return [lineString];
+    line = [line.join(' ')];
 
+    if (words.length) { // if there's anything left…
+        line = line.concat(findLines(gc, config, words, width)); // …break it up as well
+    }
+
+    return line;
 };
 
 var fitText = function(gc, config, string, width) {
-    var theLines = findLines(gc, config, string.split(' '), width);
-    return theLines;
+    string = string.trim().replace(/\s\s+/g, ' '); // trim; then reduce all runs of multiple spaces to single space
+    return findLines(gc, config, string.split(' '), width);
 };
 
 var roundRect = function(gc, x, y, width, height, radius, fill, stroke) {
@@ -298,10 +306,9 @@ CellProvider.prototype.renderMultiLineText = function(x, y, height, width, gc, c
     var colHEdgeOffset = config.cellPadding,
         halignOffset = 0,
         valignOffset = config.voffset,
-        halign = config.halign;
-
-    var textHeight = config.getTextHeight(config.font).height;
-    var textWidth = config.getTextWidth(gc, val);
+        halign = config.halign,
+        textWidth = config.getTextWidth(gc, val),
+        textHeight = config.getTextHeight(config.font).height;
 
     //we must set this in order to compute the minimum width
     //for column autosizing purposes
@@ -315,8 +322,14 @@ CellProvider.prototype.renderMultiLineText = function(x, y, height, width, gc, c
         halignOffset = colHEdgeOffset;
     }
 
-    halignOffset = Math.max(0, halignOffset);
-    valignOffset = valignOffset + Math.ceil(height / 2);
+    var hMin = 0, vMin = Math.ceil(textHeight / 2);
+
+    valignOffset += Math.ceil((height - (lines.length - 1) * textHeight) / 2);
+
+    halignOffset = Math.max(hMin, halignOffset);
+    valignOffset = Math.max(vMin, valignOffset);
+
+    if (x === 153 && y === 0) { console.log(valignOffset); }
 
     for (var i = 0; i < lines.length; i++) {
         gc.fillText(lines[i], x + halignOffset, y + valignOffset + (i * textHeight));
