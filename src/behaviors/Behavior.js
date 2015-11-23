@@ -993,11 +993,6 @@ var Behavior = Base.extend('Behavior', {
      */
     onTap: function(grid, event) {
 
-        //global row selection
-        if (event.gridCell.x === -1 && event.gridCell.y === 0) {
-            grid.toggleSelectAllRows();
-        }
-
         if (this.featureChain) {
             this.featureChain.handleTap(grid, event);
             this.setCursor(grid);

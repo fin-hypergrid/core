@@ -42,6 +42,10 @@ var RowSelection = Feature.extend({
     handleMouseUp: function(grid, event) {
         if (this.dragArmed) {
             this.dragArmed = false;
+            //global row selection
+            if (event.gridCell.x === -1 && event.gridCell.y === 0) {
+                grid.toggleSelectAllRows();
+            }
             grid.fireSyntheticRowSelectionChangedEvent();
         } else if (this.dragging) {
             this.dragging = false;
