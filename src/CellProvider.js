@@ -75,9 +75,13 @@ var findLines = function(gc, config, words, width) {
 };
 
 var fitText = function(gc, config, string, width) {
-    string = string.trim().replace(/\s\s+/g, ' '); // trim; then reduce all runs of multiple spaces to single space
-    return findLines(gc, config, string.split(' '), width);
+    return findLines(gc, config, squeeze(string).split(' '), width);
 };
+
+// trim string; then reduce all runs of multiple spaces to a single space
+var squeeze = function(string) {
+    return string.trim().replace(/\s\s+/g, ' ');
+}
 
 var roundRect = function(gc, x, y, width, height, radius, fill, stroke) {
 
@@ -302,6 +306,7 @@ CellProvider.prototype.renderMultiLineText = function(x, y, height, width, gc, c
     if (lines.length === 1) {
         return this.renderSingleLineText.apply(this, arguments);
     }
+
     var colHEdgeOffset = config.cellPadding,
         halignOffset = 0,
         valignOffset = config.voffset,
@@ -321,7 +326,6 @@ CellProvider.prototype.renderMultiLineText = function(x, y, height, width, gc, c
             break;
     }
 
-
     var hMin = 0, vMin = Math.ceil(textHeight / 2);
 
     valignOffset += Math.ceil((height - (lines.length - 1) * textHeight) / 2);
@@ -329,9 +333,6 @@ CellProvider.prototype.renderMultiLineText = function(x, y, height, width, gc, c
     halignOffset = Math.max(hMin, halignOffset);
     valignOffset = Math.max(vMin, valignOffset);
 
-    //if (x === 153 && y === 0) {
-    //    console.log(halign);
-    //}
     gc.save(); // define a clipping region for cell
     gc.moveTo(x, y);
     gc.lineTo(x + width, y);
@@ -351,6 +352,7 @@ CellProvider.prototype.renderMultiLineText = function(x, y, height, width, gc, c
 };
 
 CellProvider.prototype.renderSingleLineText = function(x, y, height, width, gc, config, val) {
+    val = squeeze(val);
 
     var colHEdgeOffset = config.cellPadding,
         halignOffset = 0,
@@ -396,7 +398,6 @@ CellProvider.prototype.renderSingleLineText = function(x, y, height, width, gc, 
         }
         gc.closePath();
     }
-
 };
 
 /**
