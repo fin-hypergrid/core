@@ -5,8 +5,8 @@ var analytics = require('hyper-analytics');
 //var analytics = require('../local_node_modules/finanalytics');
 var DataModel = require('./DataModel');
 
-var UPWARDS_ARROW_FROM_BAR = '\u21a5',
-    DOWNWARDS_ARROW_FROM_BAR = '\u21a7';
+var UPWARDS_BLACK_ARROW = '\u2b06',
+    DOWNWARDS_BLACK_ARROW = '\u2b07';
 
 var nullDataSource = {
     isNullObject: function() {
@@ -422,8 +422,8 @@ var JSON = DataModel.extend({
         var rank = sorts.length - position;
 
         if (returnAsString) {
-            var arrow = up ? UPWARDS_ARROW_FROM_BAR : DOWNWARDS_ARROW_FROM_BAR;
-            return arrow + rank + ': ';
+            var arrow = up ? UPWARDS_BLACK_ARROW : DOWNWARDS_BLACK_ARROW;
+            return rank + arrow + ' ';
         }
 
         var name = rank + (up ? '-up' : '-down');
