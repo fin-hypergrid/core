@@ -296,6 +296,16 @@ SelectionModel.prototype = {
     },
 
     getSelectedRows: function() {
+        if (this.areAllRowsSelected()) {
+            var grid = this.getGrid();
+            var headerRows = grid.getHeaderRowCount();
+            var rowCount = grid.getRowCount() - headerRows;
+            var result = new Array(rowCount);
+            for (var i = 0; i < rowCount; i++) {
+                result[i] = i + headerRows;
+            }
+            return result;
+        }
         return this.rowSelectionModel.getSelections();
     },
 
