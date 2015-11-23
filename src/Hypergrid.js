@@ -830,12 +830,7 @@ Hypergrid.prototype = {
      * @returns {Rectangle} My bounds.
      */
     getBounds: function() {
-        var canvas = this.getCanvas();
-        if (canvas) {
-            return canvas.getBounds();
-        } else {
-            return null;
-        }
+        return this.getRenderer().getBounds();
     },
 
     /**
@@ -2310,7 +2305,7 @@ Hypergrid.prototype = {
             }
         }
 
-        var hMax = Math.max(0, numColumns - numFixedColumns - lastPageColumnCount);
+        var hMax = 1 + Math.max(0, numColumns - numFixedColumns - lastPageColumnCount);
         this.setHScrollbarValues(hMax);
 
         var vMax = Math.max(0, numRows - numFixedRows - lastPageRowCount);
@@ -2912,6 +2907,10 @@ Hypergrid.prototype = {
         return mouseDown.x < numHeaderColumns || mouseDown.y < numHeaderRows;
     },
 
+    isHeaderWrapping: function() {
+        return this.resolveProperty('headerTextWrapping');
+    },
+
     _getBoundsOfCell: function(x, y) {
         var bounds = this.getRenderer()._getBoundsOfCell(x, y);
         return bounds;
@@ -3464,6 +3463,7 @@ function defaultProperties() {
         singleRowSelectionMode: true,
 
         columnAutosizing: true,
+        headerTextWrapping: false,
         rowResize: false
 
     };
