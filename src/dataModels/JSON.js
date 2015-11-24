@@ -5,6 +5,9 @@ var analytics = require('hyper-analytics');
 //var analytics = require('../local_node_modules/finanalytics');
 var DataModel = require('./DataModel');
 
+var UPWARDS_BLACK_ARROW = '\u2b06',
+    DOWNWARDS_BLACK_ARROW = '\u2b07';
+
 var nullDataSource = {
     isNullObject: function() {
         return true;
@@ -104,18 +107,23 @@ var JSON = DataModel.extend({
         }
         var filter = this.getFilter(x);
         var image = filter.length === 0 ? 'filter-off' : 'filter-on';
+        var header, sortString;
         if (isBoth) {
             if (y === 0) {
-                image = this.getSortImageForColumn(x);
-                return [null, this.getHeaders()[x], image];
+                header = this.getHeaders()[x];
+                sortString = this.getSortImageForColumn(x, true);
+                if (sortString) { header = sortString + header; }
+                return [null, header, null];
             } else {
                 return [null, filter, behavior.getImage(image)];
             }
         } else if (isFilterRow) {
             return [null, filter, behavior.getImage(image)];
         } else {
-            image = this.getSortImageForColumn(x);
-            return [null, this.getHeaders()[x], image];
+            header = this.getHeaders()[x];
+            sortString = this.getSortImageForColumn(x, true);
+            if (sortString) { header = sortString + header; }
+            return [null, header, null];
         }
         return '';
     },
@@ -395,7 +403,7 @@ var JSON = DataModel.extend({
         sortingSource.applySorts();
     },
 
-    getSortImageForColumn: function(index) {
+    getSortImageForColumn: function(index, returnAsString) {
         index++;
         var up = true;
         var sorts = this.getPrivateState().sorts;
@@ -410,8 +418,15 @@ var JSON = DataModel.extend({
         if (position < 0) {
             return null;
         }
-        position++;
-        var name = (1 + sorts.length - position) + (up ? '-up' : '-down');
+
+        var rank = sorts.length - position;
+
+        if (returnAsString) {
+            var arrow = up ? UPWARDS_BLACK_ARROW : DOWNWARDS_BLACK_ARROW;
+            return rank + arrow + ' ';
+        }
+
+        var name = rank + (up ? '-up' : '-down');
         return this.getBehavior().getImage(name);
     },
 
