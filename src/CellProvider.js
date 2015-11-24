@@ -11,105 +11,7 @@ function CellProvider() {
     this.initializeCells();
 }
 
-CellProvider.prototype = {};
-
-var valueOrFunctionExecute = function(config, valueOrFunction) {
-    var isFunction = (((typeof valueOrFunction)[0]) === 'f');
-    var result = isFunction ? valueOrFunction(config) : valueOrFunction;
-    if (!result && result !== 0) {
-        return '';
-    }
-    return result;
-};
-
-var underline = function(config, gc, text, x, y, thickness) {
-    var width = config.getTextWidth(gc, text);
-
-    switch (gc.textAlign) {
-        case 'center':
-            x -= (width / 2);
-            break;
-        case 'right':
-            x -= width;
-            break;
-    }
-
-    //gc.beginPath();
-    gc.lineWidth = thickness;
-    gc.moveTo(x + 0.5, y + 0.5);
-    gc.lineTo(x + width + 0.5, y + 0.5);
-};
-
-var findLines = function(gc, config, words, width) {
-
-    if (words.length === 1) {
-        return words;
-    }
-
-    // starting with just the first word…
-    var stillFits, line = [words.shift()];
-    while (
-        // so lone as line still fits within current column…
-        (stillFits = config.getTextWidth(gc, line.join(' ')) < width)
-        // …AND there are more words available…
-        && words.length
-    ) {
-        // …add another word to end of line and retest
-        line.push(words.shift());
-    }
-
-    if (
-        !stillFits // if line is now too long…
-        && line.length > 1 // …AND is multiple words…
-    ) {
-        words.unshift(line.pop()); // …back off by (i.e., remove) one word
-    }
-
-    line = [line.join(' ')];
-
-    if (words.length) { // if there's anything left…
-        line = line.concat(findLines(gc, config, words, width)); // …break it up as well
-    }
-
-    return line;
-};
-
-var fitText = function(gc, config, string, width) {
-    return findLines(gc, config, squeeze(string).split(' '), width);
-};
-
-// trim string; then reduce all runs of multiple spaces to a single space
-var squeeze = function(string) {
-    return string.trim().replace(/\s\s+/g, ' ');
-}
-
-var roundRect = function(gc, x, y, width, height, radius, fill, stroke) {
-
-    if (!stroke) {
-        stroke = true;
-    }
-    if (!radius) {
-        radius = 5;
-    }
-    gc.beginPath();
-    gc.moveTo(x + radius, y);
-    gc.lineTo(x + width - radius, y);
-    gc.quadraticCurveTo(x + width, y, x + width, y + radius);
-    gc.lineTo(x + width, y + height - radius);
-    gc.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
-    gc.lineTo(x + radius, y + height);
-    gc.quadraticCurveTo(x, y + height, x, y + height - radius);
-    gc.lineTo(x, y + radius);
-    gc.quadraticCurveTo(x, y, x + radius, y);
-    gc.closePath();
-    if (stroke) {
-        gc.stroke();
-    }
-    if (fill) {
-        gc.fill();
-    }
-    gc.closePath();
-};
+CellProvider.prototype = {}; // TODO: What purpose does this serve?
 
 /**
  * @function
@@ -603,5 +505,104 @@ CellProvider.prototype.initializeCells = function() {
         },
     };
 };
+
+
+function valueOrFunctionExecute(config, valueOrFunction) {
+    var isFunction = (((typeof valueOrFunction)[0]) === 'f');
+    var result = isFunction ? valueOrFunction(config) : valueOrFunction;
+    if (!result && result !== 0) {
+        return '';
+    }
+    return result;
+}
+
+function underline(config, gc, text, x, y, thickness) {
+    var width = config.getTextWidth(gc, text);
+
+    switch (gc.textAlign) {
+        case 'center':
+            x -= (width / 2);
+            break;
+        case 'right':
+            x -= width;
+            break;
+    }
+
+    //gc.beginPath();
+    gc.lineWidth = thickness;
+    gc.moveTo(x + 0.5, y + 0.5);
+    gc.lineTo(x + width + 0.5, y + 0.5);
+}
+
+function findLines(gc, config, words, width) {
+
+    if (words.length === 1) {
+        return words;
+    }
+
+    // starting with just the first word…
+    var stillFits, line = [words.shift()];
+    while (
+        // so lone as line still fits within current column…
+    (stillFits = config.getTextWidth(gc, line.join(' ')) < width)
+        // …AND there are more words available…
+    && words.length
+        ) {
+        // …add another word to end of line and retest
+        line.push(words.shift());
+    }
+
+    if (
+        !stillFits // if line is now too long…
+        && line.length > 1 // …AND is multiple words…
+    ) {
+        words.unshift(line.pop()); // …back off by (i.e., remove) one word
+    }
+
+    line = [line.join(' ')];
+
+    if (words.length) { // if there's anything left…
+        line = line.concat(findLines(gc, config, words, width)); // …break it up as well
+    }
+
+    return line;
+}
+
+function fitText(gc, config, string, width) {
+    return findLines(gc, config, squeeze(string).split(' '), width);
+}
+
+// trim string; then reduce all runs of multiple spaces to a single space
+function squeeze(string) {
+    return string.toString().trim().replace(/\s\s+/g, ' ');
+}
+
+function roundRect(gc, x, y, width, height, radius, fill, stroke) {
+
+    if (!stroke) {
+        stroke = true;
+    }
+    if (!radius) {
+        radius = 5;
+    }
+    gc.beginPath();
+    gc.moveTo(x + radius, y);
+    gc.lineTo(x + width - radius, y);
+    gc.quadraticCurveTo(x + width, y, x + width, y + radius);
+    gc.lineTo(x + width, y + height - radius);
+    gc.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+    gc.lineTo(x + radius, y + height);
+    gc.quadraticCurveTo(x, y + height, x, y + height - radius);
+    gc.lineTo(x, y + radius);
+    gc.quadraticCurveTo(x, y, x + radius, y);
+    gc.closePath();
+    if (stroke) {
+        gc.stroke();
+    }
+    if (fill) {
+        gc.fill();
+    }
+    gc.closePath();
+}
 
 module.exports = CellProvider;
