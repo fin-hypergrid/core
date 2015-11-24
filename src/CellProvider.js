@@ -75,9 +75,13 @@ var findLines = function(gc, config, words, width) {
 };
 
 var fitText = function(gc, config, string, width) {
-    string = string.trim().replace(/\s\s+/g, ' '); // trim; then reduce all runs of multiple spaces to single space
-    return findLines(gc, config, string.split(' '), width);
+    return findLines(gc, config, squeeze(string).split(' '), width);
 };
+
+// trim string; then reduce all runs of multiple spaces to a single space
+var squeeze = function(string) {
+    return string.trim().replace(/\s\s+/g, ' ');
+}
 
 var roundRect = function(gc, x, y, width, height, radius, fill, stroke) {
 
@@ -300,26 +304,26 @@ CellProvider.prototype.defaultCellPaint = function(gc, config) {
 CellProvider.prototype.renderMultiLineText = function(x, y, height, width, gc, config, val) {
     var lines = fitText(gc, config, val, width);
     if (lines.length === 1) {
-        this.renderSingleLineText(x, y, height, width, gc, config, val);
-        return;
+        return this.renderSingleLineText.apply(this, arguments);
     }
+
     var colHEdgeOffset = config.cellPadding,
         halignOffset = 0,
         valignOffset = config.voffset,
         halign = config.halign,
-        textWidth = config.getTextWidth(gc, val),
+        //textWidth = config.getTextWidth(gc, val),
         textHeight = config.getTextHeight(config.font).height;
 
-    //we must set this in order to compute the minimum width
-    //for column autosizing purposes
-    if (halign === 'right') {
-        //textWidth = config.getTextWidth(gc, config.value);
-        halignOffset = width - colHEdgeOffset - textWidth;
-    } else if (halign === 'center') {
-        //textWidth = config.getTextWidth(gc, config.value);
-        halignOffset = (width - textWidth) / 2;
-    } else if (halign === 'left') {
-        halignOffset = colHEdgeOffset;
+    switch (halign) {
+        case 'right':
+            halignOffset = width - colHEdgeOffset;
+            break;
+        case 'center':
+            halignOffset = width / 2;
+            break;
+        case 'left':
+            halignOffset = colHEdgeOffset;
+            break;
     }
 
     var hMin = 0, vMin = Math.ceil(textHeight / 2);
@@ -329,14 +333,26 @@ CellProvider.prototype.renderMultiLineText = function(x, y, height, width, gc, c
     halignOffset = Math.max(hMin, halignOffset);
     valignOffset = Math.max(vMin, valignOffset);
 
-    if (x === 153 && y === 0) { console.log(valignOffset); }
+    gc.save(); // define a clipping region for cell
+    gc.moveTo(x, y);
+    gc.lineTo(x + width, y);
+    gc.lineTo(x + width, y + height);
+    gc.lineTo(x, y + height);
+    gc.lineTo(x, y);
+    gc.closePath();
+    gc.clip();
+
+    gc.textAlign = halign;
 
     for (var i = 0; i < lines.length; i++) {
         gc.fillText(lines[i], x + halignOffset, y + valignOffset + (i * textHeight));
     }
+
+    gc.restore(); // discard clipping region
 };
 
 CellProvider.prototype.renderSingleLineText = function(x, y, height, width, gc, config, val) {
+    val = squeeze(val);
 
     var colHEdgeOffset = config.cellPadding,
         halignOffset = 0,
@@ -353,14 +369,18 @@ CellProvider.prototype.renderSingleLineText = function(x, y, height, width, gc, 
     //for column autosizing purposes
     config.minWidth = textWidth + (2 * colHEdgeOffset);
 
-    if (halign === 'right') {
-        //textWidth = config.getTextWidth(gc, config.value);
-        halignOffset = width - colHEdgeOffset - textWidth;
-    } else if (halign === 'center') {
-        //textWidth = config.getTextWidth(gc, config.value);
-        halignOffset = (width - textWidth) / 2;
-    } else if (halign === 'left') {
-        halignOffset = colHEdgeOffset;
+    switch (halign) {
+        case 'right':
+            //textWidth = config.getTextWidth(gc, config.value);
+            halignOffset = width - colHEdgeOffset - textWidth;
+            break;
+        case 'center':
+            //textWidth = config.getTextWidth(gc, config.value);
+            halignOffset = (width - textWidth) / 2;
+            break;
+        case 'left':
+            halignOffset = colHEdgeOffset;
+            break;
     }
 
     halignOffset = Math.max(0, halignOffset);
@@ -378,7 +398,6 @@ CellProvider.prototype.renderSingleLineText = function(x, y, height, width, gc, 
         }
         gc.closePath();
     }
-
 };
 
 /**
