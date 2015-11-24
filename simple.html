@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <title>simple hypergrid demo</title>
+        <script src="index.min.js"></script>
+
+        <script>
+            window.onload = function() {
+                getJSON('simpleData.json', function(data) {
+                    var div = document.querySelector('div#json-example'),
+                        jsonGrid = new fin.Hypergrid(div, getContainer),
+                        jsonModel = jsonGrid.getBehavior();
+
+                    jsonModel.setData(data);
+
+                    function getContainer(grid) {
+                        return new fin.Hypergrid.behaviors.JSON(grid, data);
+                    }
+                });
+            };
+
+            function getJSON(url, callback) {
+                var my_JSON_object;
+                var http_request = new XMLHttpRequest();
+                http_request.open("GET", url, true);
+                http_request.onreadystatechange = function () {
+                    var done = 4, ok = 200;
+                    if (http_request.readyState === done && http_request.status === ok) {
+                        callback(JSON.parse(http_request.responseText));
+                    }
+                };
+                http_request.send(null);
+            }
+        </script>
+    </head>
+    <body>
+        <p>JSON example. Put your JSON in <code>simple.json</code>.</p>
+        <div id="json-example" style="position:relative; width:250px; height:100px"></div>
+        <p><small><em>Note: Must be served. JSON does not work with file:// protocol.</em></samll></p>
+    </body>
+</html>

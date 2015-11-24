@@ -6,49 +6,46 @@
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">
 
-<script src="accounting.min.js"></script>
-<script src="sampledata.js"></script>
-<script src="myThemes.js"></script>
-<!-- <link rel="import" href="fin-hypergrid.dev.html"> -->
-<link rel="import" href="../../polymer/html/fin-hypergrid.html">
+<script src="js/accounting.min.js"></script>
+<script src="js/sampledata.js"></script>
+<!--<script src="js/widedata.js"></script>-->
+<script src="js/myThemes.js"></script>
+<script src="index.js"></script>
+
 <style>
     .abs {
         position: static;
         height: 400px;
     }
-    #json-example::shadow div.fin-sb-user-vertical {
+    #json-example div.finbar-vertical {
         margin: 0px;
         width: 17px;
         background-color: rgba(237, 237, 237, 1);
         box-shadow: 0 0 0px #000, 0 0 0px #000, 0 0 0px #000;
     }
-    #json-example::shadow div.fin-sb-user-vertical div.thumb {
-        margin: 0px;
+    #json-example div.finbar-vertical div.thumb {
+        margin: 2px 0px 17px 0px;
         width: 11px;
-        margin-top: 2px;
-        margin-bottom: 4px;
         background-color: rgba(158, 158, 158, 1);
         box-shadow: 0 0 0px #000, 0 0 0px #000, 0 0 0px #000;
         border-radius: 0px;
         border: 1px solid rgba(132, 132, 132, 1);
-        right: 2px;
+        right: 3px;
     }
-    #json-example::shadow div.fin-sb-user-horizontal {
+    #json-example div.finbar-horizontal {
         margin: 0px;
         height: 17px;
         background-color: rgba(237, 237, 237, 1);
         box-shadow: 0 0 0px #000, 0 0 0px #000, 0 0 0px #000;
     }
-    #json-example::shadow div.fin-sb-user-horizontal div.thumb {
-        margin: 0px;
+    #json-example div.finbar-horizontal div.thumb {
+        margin: 0px 2px;
         height: 11px;
-        margin-left: 2px;
-        margin-right: 4px;
         background-color: rgba(158, 158, 158, 1);
         box-shadow: 0 0 0px #000, 0 0 0px #000, 0 0 0px #000;
         border-radius: 0px;
         border: 1px solid rgba(132, 132, 132, 1);
-        bottom: 2px;
+        bottom: 3px;
     }
 </style>
 </head>
@@ -65,13 +62,12 @@
             <button onclick="toggleGlobalFilter()">toggle global filter</button>
             <button onclick="setData1()">set data 1 (5000 rows)</button>
             <button onclick="setData2()">set data 2 (10000 rows)</button>
+            <button onclick="reset()">reset</button>
         </div>
     </div>
     <div class="row" style="overflow: hidden">
         <div class="col-md-12 col-lg-12" style="overflow:hidden;border-style: solid; border-color: green">
-            <fin-hypergrid class="abs" id="json-example">
-                <fin-hypergrid-behavior-json></fin-hypergrid-behavior-json>
-            </fin-hypergrid>
+            <div class="abs" id="json-example"></div>
         </div>
     </div>
     <div class="row">
@@ -89,13 +85,19 @@
     //used by the cellProvider, return null for a column if you want no editor to pop up
     var editorTypes = ['choice','textfield','spinner','date','choice','choice','choice','textfield','textfield','textfield'];
 
-    document.addEventListener('polymer-ready', function() {
+    window.onload = function() {
+        var div = document.querySelector('div#json-example'),
+            bodyStyle = window.getComputedStyle(document.body);
 
-        var jsonGrid = document.querySelector('#json-example');
+        var getContainer = function(grid) {
+            return new fin.Hypergrid.behaviors.JSON(grid, window.people1);
+        };
+
+        jsonGrid = new fin.Hypergrid(div, getContainer);
         var jsonModel = jsonGrid.getBehavior();
 
         //functions for showing the grouping/rollup capbilities
-        var rollups = fin.analytics.aggregations;
+        var rollups = jsonModel.aggregations;
 
         var aggregates = {
             totalPets: rollups.sum(2),
@@ -106,17 +108,18 @@
             lastPet: rollups.last(2),
             stdDevPets: rollups.stddev(2),
         };
-
-        window.toggleColumnPicker = function() {
-            jsonGrid.toggleColumnPicker();
-        }
-
         var doAggregates = false;
         window.toggleAggregates = function() {
             doAggregates = !doAggregates;
             var arg = doAggregates? aggregates : [];
             jsonModel.setAggregates(arg);
         }
+
+        window.toggleColumnPicker = function() {
+            jsonGrid.toggleColumnPicker();
+        }
+
+
 
         window.toggleAutosortGrouping = function() {
             var aggregator = jsonModel.getDataModel().getDataSource();
@@ -170,6 +173,11 @@
             jsonModel.setData(people2);
         }
 
+        window.reset = function() {
+            jsonGrid.reset();
+        };
+
+
         jsonModel.setData(people2);
 
         jsonGrid.setColumnProperties(2, {
@@ -190,8 +198,8 @@
 
         // jsonModel.setHeaderColumnCount(1);
         // jsonModel.setHeaderRowCount(2);
-        var topTotals = [['one','two','three','four','five','six','seven','eight','nine','ten'],
-                         ['ten','nine','eight','seven','six','five','four','three','two','one']];
+        var topTotals = [['one','two','3','four','five','six','seven','eight','nine','ten'],
+                         ['ten','nine','8','seven','six','five','four','three','two','one']];
         jsonModel.setTopTotals(topTotals);
 
         // setInterval(function(){
@@ -356,6 +364,8 @@
         jsonGrid.addFinEventListener('fin-cell-enter', function(e) {
             var cell = e.detail.gridCell;
             //console.log('fin-cell-enter', cell.x, cell.y);
+
+            //how to set the tooltip....
             jsonGrid.setAttribute('title', 'fin-cell-enter(' + cell.x +', '+ cell.y+')');
         });
 
@@ -370,13 +380,33 @@
 
         jsonGrid.addFinEventListener('fin-keydown', function(e) {
             var key = e.detail.char;
+            var keys = e.detail.currentKeys;
             if (key === 'RETURN') {
                 //move the cursor one space to the right
                 jsonGrid.moveSingleSelect(1,0);
             } else if (key === 'TAB') {
                 //select the bottom right most cell and scroll there
-                jsonGrid.selectCell(jsonGrid.getColumnCount()-1, jsonGrid.getRowCount()-1);
-                jsonGrid.scrollBy(jsonGrid.getColumnCount(), jsonGrid.getRowCount());
+                    jsonGrid.selectFinalCell();
+            } else if (keys[0] === 'CTRL') {
+                if (keys[1] === 'SHIFT') {
+                    if (keys[2] === 'A') {
+                        jsonGrid.selectToViewportCell(0,0);
+                    } else if (keys[2] === 'S') {
+                        jsonGrid.selectToFinalCell();
+                    } else if (keys[2] === 'D') {
+                        jsonGrid.selectToFinalCellOfCurrentRow();
+                    } else if (keys[2] === 'F') {
+                        jsonGrid.selectToFirstCellOfCurrentRow();
+                    }
+                } else if (keys[1] === 'a') {
+                    jsonGrid.selectViewportCell(0,0);
+                } else if (keys[1] === 's') {
+                    jsonGrid.selectFinalCell();
+                } else if (keys[1] === 'd') {
+                    jsonGrid.selectFinalCellOfCurrentRow();
+                } else if (keys[1] === 'f') {
+                    jsonGrid.selectFirstCellOfCurrentRow();
+                }
             }
             console.log(e);
         });
@@ -521,14 +551,15 @@
                             // fieldsMap.travel,
                             // fieldsMap.squareOfIncome
                             ],
-                        rowHeights:{ 0: 30 },
+                        rowHeights:{ 0: 40 },
                         fixedColumnCount: 1,
                         fixedRowCount: 2,
 
                         showRowNumbers: true,
                         showHeaderRow: true,
                         showFilterRow: true,
-                        columnAutosizing: true,
+                        columnAutosizing: false,
+                        headerTextWrapping: true,
                         editable: false,
 
                         cellSelection: true,
@@ -610,8 +641,8 @@
                 //jsonGrid.addProperties(myThemes.two);
                 //jsonGrid.addProperties(myThemes.three);
 
-                window.g = document.querySelector('#json-example');
-                window.b = g.getBehavior();
+                window.g = jsonGrid;
+                window.b = jsonModel;
                 window.m = b.getDataModel();
 
             }, 500);
@@ -620,39 +651,39 @@
 
         }, 500);
 
-        var eventNames = [
-            'dragstart',
-            'drag',
-            'mousemove',
-            'mousedown',
-            'dragend',
-            'mouseup',
-            'mouseout',
-            'wheelmoved',
-            'click',
-            'release',
-            'flick',
-            'trackstart',
-            'track',
-            'trackend',
-            'hold',
-            'holdpulse',
-            'tap',
-            'dblclick',
-            'keydown',
-            'keyup',
-            'focus-gained',
-            'focus-lost',
-            'context-menu'
-        ];
+        // var eventNames = [
+        //     'dragstart',
+        //     'drag',
+        //     'mousemove',
+        //     'mousedown',
+        //     'dragend',
+        //     'mouseup',
+        //     'mouseout',
+        //     'wheelmoved',
+        //     'click',
+        //     'release',
+        //     'flick',
+        //     'trackstart',
+        //     'track',
+        //     'trackend',
+        //     'hold',
+        //     'holdpulse',
+        //     'tap',
+        //     'dblclick',
+        //     'keydown',
+        //     'keyup',
+        //     'focus-gained',
+        //     'focus-lost',
+        //     'context-menu'
+        // ];
 
-        eventNames.forEach(function(name) {
-            jsonGrid.canvas.addEventListener('fin-canvas-' + name, function(e) {
-                console.log(e.type);
-            });
-        });
+        // eventNames.forEach(function(name) {
+        //     jsonGrid.canvas.addEventListener('fin-canvas-' + name, function(e) {
+        //         console.log(e.type);
+        //     });
+        // });
 
-    });
+    };
 })();
 
 </script>
