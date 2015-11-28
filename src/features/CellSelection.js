@@ -2,38 +2,47 @@
 
 var Feature = require('./Feature.js');
 
-var CellSelection = Feature.extend({
+/**
+ * @constructor
+ */
+var CellSelection = Feature.extend('CellSelection', {
 
     alias: 'CellSelection',
 
     /**
-     * @property {window.fin.rectangular.Point} currentDrag - The pixel location of the mouse pointer during a drag operation.
-     * @instance
+     * The pixel location of the mouse pointer during a drag operation.
+     * @type {window.fin.rectangular.Point}
+     * @memberOf CellSelection.prototype
      */
     currentDrag: null,
 
     /**
-     * @property {Object} lastDragCell - lastDragCell is the cell coordinates of the where the mouse pointer is during a drag operation
-     * @instance
+     * the cell coordinates of the where the mouse pointer is during a drag operation
+     * @type {Object}
+     * @memberOf CellSelection.prototype
      */
     lastDragCell: null,
 
     /**
-     * @property {number} sbLastAuto - sbLastAuto is a millisecond value representing the previous time an autoscroll started
-     * @instance
+     * a millisecond value representing the previous time an autoscroll started
+     * @type {number}
+     * @default 0
+     * @memberOf CellSelection.prototype
      */
     sbLastAuto: 0,
+
     /**
-     * @property {number} sbAutoStart - sbAutoStart is a millisecond value representing the time the current autoscroll started
-     * @instance
+     * a millisecond value representing the time the current autoscroll started
+     * @type {number}
+     * @default 0
+     * @memberOf CellSelection.prototype
      */
     sbAutoStart: 0,
 
     /**
-     * @function
-     * @instance
+     * @memberOf CellSelection.prototype
      * @desc Handle this event down the feature chain of responsibility.
-     * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+     * @param {Hypergrid} grid
      * @param {Object} event - the event details
      */
     handleMouseUp: function(grid, event) {
@@ -46,10 +55,9 @@ var CellSelection = Feature.extend({
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf CellSelection.prototype
      * @desc Handle this event down the feature chain of responsibility.
-     * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+     * @param {Hypergrid} grid
      * @param {Object} event - the event details
      */
     handleMouseDown: function(grid, event) {
@@ -95,10 +103,9 @@ var CellSelection = Feature.extend({
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf CellSelection.prototype
      * @desc Handle this event down the feature chain of responsibility.
-     * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+     * @param {Hypergrid} grid
      * @param {Object} event - the event details
      */
     handleMouseDrag: function(grid, event) {
@@ -140,10 +147,9 @@ var CellSelection = Feature.extend({
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf CellSelection.prototype
      * @desc Handle this event down the feature chain of responsibility.
-     * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+     * @param {Hypergrid} grid
      * @param {Object} event - the event details
      */
     handleKeyDown: function(grid, event) {
@@ -154,11 +160,9 @@ var CellSelection = Feature.extend({
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf CellSelection.prototype
      * @desc Handle a mousedrag selection.
-     * #### returns: type
-     * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+     * @param {Hypergrid} grid
      * @param {Object} mouse - the event details
      * @param {Array} keys - array of the keys that are currently pressed down
      */
@@ -193,10 +197,9 @@ var CellSelection = Feature.extend({
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf CellSelection.prototype
      * @desc this checks while were dragging if we go outside the visible bounds, if so, kick off the external autoscroll check function (above)
-     * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+     * @param {Hypergrid} grid
      * @param {Object} mouse - the event details
      */
     checkDragScroll: function(grid, mouse) {
@@ -216,10 +219,9 @@ var CellSelection = Feature.extend({
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf CellSelection.prototype
      * @desc this function makes sure that while we are dragging outside of the grid visible bounds, we srcroll accordingly
-     * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+     * @param {Hypergrid} grid
      */
     scrollDrag: function(grid) {
 
@@ -273,10 +275,9 @@ var CellSelection = Feature.extend({
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf CellSelection.prototype
      * @desc extend a selection or create one if there isnt yet
-     * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+     * @param {Hypergrid} grid
      * @param {Object} gridCell - the event details
      * @param {Array} keys - array of the keys that are currently pressed down
      */
@@ -324,20 +325,18 @@ var CellSelection = Feature.extend({
 
 
     /**
-     * @function
-     * @instance
+     * @memberOf CellSelection.prototype
      * @desc handle this event
-     * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+     * @param {Hypergrid} grid
      */
     handleDOWNSHIFT: function(grid) {
         this.moveShiftSelect(grid, 0, 1);
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf CellSelection.prototype
      * @desc handle this event
-     * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+     * @param {Hypergrid} grid
      * @param {Object} event - the event details
      */
     handleUPSHIFT: function(grid) {
@@ -345,10 +344,9 @@ var CellSelection = Feature.extend({
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf CellSelection.prototype
      * @desc handle this event
-     * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+     * @param {Hypergrid} grid
      * @param {Object} event - the event details
      */
     handleLEFTSHIFT: function(grid) {
@@ -356,10 +354,9 @@ var CellSelection = Feature.extend({
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf CellSelection.prototype
      * @desc handle this event
-     * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+     * @param {Hypergrid} grid
      * @param {Object} event - the event details
      */
     handleRIGHTSHIFT: function(grid) {
@@ -367,10 +364,9 @@ var CellSelection = Feature.extend({
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf CellSelection.prototype
      * @desc handle this event
-     * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+     * @param {Hypergrid} grid
      * @param {Object} event - the event details
      */
     handleDOWN: function(grid, event) {
@@ -382,10 +378,9 @@ var CellSelection = Feature.extend({
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf CellSelection.prototype
      * @desc handle this event
-     * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+     * @param {Hypergrid} grid
      * @param {Object} event - the event details
      */
     handleUP: function(grid, event) {
@@ -397,10 +392,9 @@ var CellSelection = Feature.extend({
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf CellSelection.prototype
      * @desc handle this event
-     * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+     * @param {Hypergrid} grid
      * @param {Object} event - the event details
      */
     handleLEFT: function(grid) {
@@ -408,10 +402,9 @@ var CellSelection = Feature.extend({
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf CellSelection.prototype
      * @desc handle this event
-     * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+     * @param {Hypergrid} grid
      * @param {Object} event - the event details
      */
     handleRIGHT: function(grid) {
@@ -419,8 +412,7 @@ var CellSelection = Feature.extend({
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf CellSelection.prototype
      * @desc If we are holding down the same navigation key, accelerate the increment we scroll
      * #### returns: integer
      */
@@ -432,8 +424,7 @@ var CellSelection = Feature.extend({
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf CellSelection.prototype
      * @desc set the start time to right now when we initiate an auto scroll
      */
     setAutoScrollStartTime: function() {
@@ -441,8 +432,7 @@ var CellSelection = Feature.extend({
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf CellSelection.prototype
      * @desc update the autoscroll start time if we haven't autoscrolled within the last 500ms otherwise update the current autoscroll time
      */
     pingAutoScroll: function() {
@@ -454,8 +444,7 @@ var CellSelection = Feature.extend({
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf CellSelection.prototype
      * @desc answer how long we have been auto scrolling
      * #### returns: integer
      */
@@ -467,10 +456,9 @@ var CellSelection = Feature.extend({
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf CellSelection.prototype
      * @desc Augment the most recent selection extent by (offsetX,offsetY) and scroll if necessary.
-     * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+     * @param {Hypergrid} grid
      * @param {number} offsetX - x coordinate to start at
      * @param {number} offsetY - y coordinate to start at
      */
@@ -513,10 +501,9 @@ var CellSelection = Feature.extend({
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf CellSelection.prototype
      * @desc Replace the most recent selection with a single cell selection that is moved (offsetX,offsetY) from the previous selection extent.
-     * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+     * @param {Hypergrid} grid
      * @param {number} offsetX - x coordinate to start at
      * @param {number} offsetY - y coordinate to start at
      */

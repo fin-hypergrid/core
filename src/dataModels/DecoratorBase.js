@@ -2,7 +2,10 @@
 
 var DataModel = require('./DataModel');
 
-var DecoratorBase = DataModel.extend({
+/**
+ * @constructor
+ */
+var DecoratorBase = DataModel.extend('DecoratorBase', {
 
     component: null,
 

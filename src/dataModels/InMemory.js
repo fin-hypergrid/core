@@ -2,13 +2,15 @@
 
 var DataModel = require('./DataModel');
 
-var InMemory = DataModel.extend({
+/**
+ * @constructor
+ */
+var InMemory = DataModel.extend('InMemory', {
 
     dataUpdates: {},
 
     /**
-     * @function
-     * @instance
+     * @memberOf InMemory.prototype
      * @desc This is the most important behavior function.
      * @returns {object} Data point at the given coordinates.
      * @param {number} x - the x coordinate
@@ -31,14 +33,28 @@ var InMemory = DataModel.extend({
         return (x - 1) + ', ' + this.alpha((y - 1) % 26);
     },
 
+    /**
+     * @memberOf InMemory.prototype
+     * @param {number} x
+     * @param {number} y
+     * @param value
+     */
     setValue: function(x, y, value) {
         this.dataUpdates['p_' + x + '_' + y] = value;
     },
 
+    /**
+     * @memberOf InMemory.prototype
+     * @returns {number}
+     */
     getColumnCount: function() {
         return 27;
     },
 
+    /**
+     * @memberOf InMemory.prototype{number}
+     * @returns {number}
+     */
     getRowCount: function() {
         //jeepers batman a quadrillion rows!
         return 53;

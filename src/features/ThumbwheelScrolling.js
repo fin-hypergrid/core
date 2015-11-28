@@ -2,15 +2,17 @@
 
 var Feature = require('./Feature.js');
 
-var ThumbwheelScrolling = Feature.extend({
+/**
+ * @constructor
+ */
+var ThumbwheelScrolling = Feature.extend('ThumbwheelScrolling', {
 
     alias: 'ThumbwheelScrolling',
 
     /**
-     * @function
-     * @instance
+     * @memberOf ThumbwheelScrolling.prototype
      * @desc handle this event down the feature chain of responsibility
-     * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+     * @param {Hypergrid} grid
      * @param {Object} event - the event details
      */
     handleWheelMoved: function(grid, e) {

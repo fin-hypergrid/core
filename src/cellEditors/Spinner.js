@@ -2,11 +2,15 @@
 
 var Simple = require('./Simple');
 
-var Spinner = Simple.extend({
+/**
+ * @constructor
+ */
+var Spinner = Simple.extend('Spinner', {
 
     /**
-     * @property {string} alias - my lookup alias
-     * @instance
+     * my lookup alias
+     * @type {string}
+     * @memberOf Spinner.prototype
      */
     alias: 'spinner',
 

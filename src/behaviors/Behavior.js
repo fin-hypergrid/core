@@ -21,17 +21,16 @@ var noExportProperties = [
 ];
 
 /**
+ * @constructor
  * @desc This is the base class for creating behaviors.  a behavior can be thought of as a model++.
 it contains all code/data that's necessary for easily implementing a virtual data source and it's manipulation/analytics
  */
-
 var Behavior = Base.extend('Behavior', {
 
     /**
-     * @function
-     * @instance
      * @desc this is the callback for the plugin pattern of nested tags
-     * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+     * @param {Hypergrid} grid
+     * @memberOf Behavior.prototype
      */
     initialize: function(grid) { //formerly installOn
         grid.setBehavior(this);
@@ -45,10 +44,9 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
-     * @function
-     * @instance
      * @desc create the feature chain - this is the [chain of responsibility](http://c2.com/cgi/wiki?ChainOfResponsibilityPattern) pattern.
-     * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+     * @param {Hypergrid} grid
+     * @memberOf Behavior.prototype
      */
     initializeFeatureChain: function(grid) {
         var self = this;
@@ -62,26 +60,29 @@ var Behavior = Base.extend('Behavior', {
     features: [], // in case implementing class has no features (will this ever happen)
 
     /**
-     * @property {object} tableState - memento for the user configured visual properties of the table
-     * @instance
+     * memento for the user configured visual properties of the table
+     * @type {object}
+     * @memberOf Behavior.prototype
      */
     tableState: null,
 
     /**
-     * @property {fin-hypergrid} grid - my instance of hypergrid
-     * @instance
+     * @type {Hypergrid}
+     * @memberOf Behavior.prototype
      */
     grid: null,
 
     /**
-     * @property {array} editorTypes - list of default cell editor names
-     * @instance
+     * list of default cell editor names
+     * @type {string[]}
+     * @memberOf Behavior.prototype
      */
     editorTypes: ['choice', 'textfield', 'color', 'slider', 'spinner', 'date'],
 
     /**
-     * @property {object} featureChain - controller chain of command
-     * @instance
+     * controller chain of command
+     * @type {object}
+     * @memberOf Behavior.prototype
      */
     featureChain: null,
 
@@ -473,8 +474,7 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Behavior.prototype
      * @desc utility function to empty an object of its members
      * @param {object} obj - the object to empty
      * @param {boolean} [exportProps]
@@ -497,8 +497,7 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Behavior.prototype
      * @desc getter for a [Memento](http://c2.com/cgi/wiki?MementoPattern) Object
      * #### returns: Object
      */
@@ -516,8 +515,7 @@ var Behavior = Base.extend('Behavior', {
         return copy;
     },
     /**
-     * @function
-     * @instance
+     * @memberOf Behavior.prototype
      * @desc clear all table state
      */
     clearState: function() {
@@ -525,8 +523,7 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Behavior.prototype
      * @desc create a default empty tablestate
      * #### returns: Object
      */
@@ -544,8 +541,7 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Behavior.prototype
      * @desc return this table to a previous state. see the [memento pattern](http://c2.com/cgi/wiki?MementoPattern)
      * @param {Object} memento - an encapulated representation of table state
      */
@@ -608,8 +604,7 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Behavior.prototype
      * @desc fetch the value for a property key
      * #### returns: Object
      * @param {string} key - a property name
@@ -619,8 +614,7 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Behavior.prototype
      * @desc a specific cell was clicked, you've been notified
      * @param {Point} cell - point of cell coordinates
      * @param {Object} event - all event information
@@ -630,8 +624,7 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Behavior.prototype
      * @desc a specific cell was le doubclicked, you've been notified
      * @param {Point} cell - point of cell coordinates
      * @param {Object} event - all event information
@@ -641,8 +634,7 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Behavior.prototype
      * @desc add nextFeature to me If I don't have a next node, otherwise pass it along
      * @param {fin-hypergrid-feature-base} nextFeature - [fin-hypergrid-feature-base](module-features_base.html)
      */
@@ -660,8 +652,7 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Behavior.prototype
      * @desc getter for the cell provider
      * #### returns: [fin-hypergrid-cell-provider](module-._cell-provider.html)
      */
@@ -670,10 +661,9 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Behavior.prototype
      * @desc setter for the hypergrid
-     * @param {fin-hypergrid} finGrid - [fin-hypergrid](module-._fin-hypergrid.html)
+     * @param {Hypergrid} grid
      */
     setGrid: function(finGrid) {
         this.grid = finGrid;
@@ -682,8 +672,7 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Behavior.prototype
      * @desc getter for the hypergrid
      * #### returns: [fin-hypergrid](module-._fin-hypergrid.html)
      * @param {type} varname - descripton
@@ -693,8 +682,7 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Behavior.prototype
      * @desc you can override this function and substitute your own cell provider
      * #### returns: [fin-hypergrid-cell-provider](module-._cell-provider.html)
      */
@@ -704,8 +692,7 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Behavior.prototype
      * @desc return the value at x,y for the top left section of the hypergrid, first check to see if something was overridden
      * #### returns: Object
      * @param {number} x - x coordinate
@@ -721,8 +708,7 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Behavior.prototype
      * @desc update the data at point x, y with value
      * #### returns: type
      * @param {number} x - x coordinate
@@ -746,8 +732,7 @@ var Behavior = Base.extend('Behavior', {
         this.getDataModel().setValue(x, y, value);
     },
     /**
-     * @function
-     * @instance
+     * @memberOf Behavior.prototype
      * @desc return the value at x,y for the top left section of the hypergrid, first check to see if something was overridden
      * #### returns: Object
      * @param {number} x - x coordinate
@@ -759,8 +744,7 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Behavior.prototype
      * @desc update the data at point x, y with value
      * #### returns: type
      * @param {number} x - x coordinate
@@ -774,8 +758,7 @@ var Behavior = Base.extend('Behavior', {
         }
     },
     /**
-     * @function
-     * @instance
+     * @memberOf Behavior.prototype
      * @desc return the number of rows
      * #### returns: integer
      */
@@ -784,8 +767,7 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Behavior.prototype
      * @desc return the height in pixels of the fixed rows area
      * #### returns: integer
      */
@@ -799,8 +781,7 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Behavior.prototype
      * @desc get height in pixels of a specific row
      * #### returns: integer
      * @param {number} rowNum - row index of interest
@@ -817,8 +798,7 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Behavior.prototype
      * @desc returns a lazily initialized value from the properties mechanism for 'defaultRowHeight', should be ~20px
      * #### returns: integer
      */
@@ -830,8 +810,7 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Behavior.prototype
      * @desc set the pixel height of a specific row
      * @param {number} rowNum - the row index of interest
      * @param {number} height - pixel height
@@ -843,8 +822,7 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Behavior.prototype
      * @desc return the potential maximum height of the fixed rows areas, this will allow 'floating' fixed rows
      * #### returns: integer
      */
@@ -854,8 +832,7 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Behavior.prototype
      * @desc return the width of the fixed column area
      * #### returns: integer
      */
@@ -872,8 +849,7 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Behavior.prototype
      * @desc return the potential total width of the fixed columns area; this exists to support 'floating' columns
      * #### returns: integer
      */
@@ -883,8 +859,7 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Behavior.prototype
      * @desc set the scroll position in vertical dimension and notifiy listeners
      * @param {number} y - the new y value
      */
@@ -894,8 +869,7 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Behavior.prototype
      * @desc set the scroll position in horizontal dimension and notifiy listeners
      * @param {number} x - the new x value
      */
@@ -905,8 +879,7 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Behavior.prototype
      * @desc set the number of columns just rendered, includes partially rendered columns
      * @param {number} count - how many columns were just rendered
      */
@@ -915,8 +888,7 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Behavior.prototype
      * @desc set the number of rows just rendered, includes partially rendered rows
      * @param {number} count - how many rows were just rendered
      */
@@ -926,10 +898,9 @@ var Behavior = Base.extend('Behavior', {
 
 
     /**
-     * @function
-     * @instance
+     * @memberOf Behavior.prototype
      * @desc the fixed row area has been clicked, massage the details and call the real function
-     * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+     * @param {Hypergrid} grid
      * @param {Object} mouse - event details
      */
     _fixedRowClicked: function(grid, mouse) {
@@ -940,10 +911,9 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Behavior.prototype
      * @desc the fixed column area has been clicked, massage the details and call the real function
-     * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+     * @param {Hypergrid} grid
      * @param {Object} mouse - event details
      */
     _fixedColumnClicked: function(grid, mouse) {
@@ -960,10 +930,9 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Behavior.prototype
      * @desc delegate setting the cursor up the feature chain of responsibility
-     * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+     * @param {Hypergrid} grid
      */
     setCursor: function(grid) {
         grid.updateCursor();
@@ -971,10 +940,9 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Behavior.prototype
      * @desc delegate handling mouse move to the feature chain of responsibility
-     * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+     * @param {Hypergrid} grid
      * @param {Object} event - the event details
      */
     onMouseMove: function(grid, event) {
@@ -985,10 +953,9 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Behavior.prototype
      * @desc delegate handling tap to the feature chain of responsibility
-     * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+     * @param {Hypergrid} grid
      * @param {Object} event - the event details
      */
     onTap: function(grid, event) {
@@ -1000,10 +967,9 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Behavior.prototype
      * @desc delegate handling tap to the feature chain of responsibility
-     * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+     * @param {Hypergrid} grid
      * @param {Object} event - the event details
      */
     onContextMenu: function(grid, event) {
@@ -1015,10 +981,9 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Behavior.prototype
      * @desc delegate handling wheel moved to the feature chain of responsibility
-     * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+     * @param {Hypergrid} grid
      * @param {Object} event - the event details
      */
     onWheelMoved: function(grid, event) {
@@ -1029,10 +994,9 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Behavior.prototype
      * @desc delegate handling mouse up to the feature chain of responsibility
-     * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+     * @param {Hypergrid} grid
      * @param {Object} event - the event details
      */
     onMouseUp: function(grid, event) {
@@ -1043,10 +1007,9 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Behavior.prototype
      * @desc delegate handling mouse drag to the feature chain of responsibility
-     * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+     * @param {Hypergrid} grid
      * @param {Object} event - the event details
      */
     onMouseDrag: function(grid, event) {
@@ -1057,10 +1020,9 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Behavior.prototype
      * @desc delegate handling key down to the feature chain of responsibility
-     * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+     * @param {Hypergrid} grid
      * @param {Object} event - the event details
      */
     onKeyDown: function(grid, event) {
@@ -1071,10 +1033,9 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Behavior.prototype
      * @desc delegate handling key up to the feature chain of responsibility
-     * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+     * @param {Hypergrid} grid
      * @param {Object} event - the event details
      */
     onKeyUp: function(grid, event) {
@@ -1085,10 +1046,9 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Behavior.prototype
      * @desc delegate handling double click to the feature chain of responsibility
-     * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+     * @param {Hypergrid} grid
      * @param {Object} event - the event details
      */
     onDoubleClick: function(grid, event) {
@@ -1099,10 +1059,9 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Behavior.prototype
      * @desc delegate handling hold pulse to the feature chain of responsibility
-     * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+     * @param {Hypergrid} grid
      * @param {Object} event - the event details
      */
     onHoldPulse: function(grid, event) {
@@ -1113,10 +1072,9 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Behavior.prototype
      * @desc delegate handling double click to the feature chain of responsibility
-     * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+     * @param {Hypergrid} grid
      * @param {Object} event - the event details
      */
     toggleColumnPicker: function() {
@@ -1126,10 +1084,9 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Behavior.prototype
      * @desc delegate handling mouse down to the feature chain of responsibility
-     * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+     * @param {Hypergrid} grid
      * @param {Object} event - the event details
      */
     handleMouseDown: function(grid, event) {
@@ -1140,10 +1097,9 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Behavior.prototype
      * @desc delegate handling mouse exit to the feature chain of responsibility
-     * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+     * @param {Hypergrid} grid
      * @param {Object} event - the event details
      */
     handleMouseExit: function(grid, event) {
@@ -1154,22 +1110,19 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Behavior.prototype
      * @desc this function is replaced by the grid on initialization and serves as the callback
      */
     changed: function() {},
 
     /**
-     * @function
-     * @instance
+     * @memberOf Behavior.prototype
      * @desc this function is replaced by the grid on initialization and serves as the callback
      */
     shapeChanged: function() {},
 
     /**
-     * @function
-     * @instance
+     * @memberOf Behavior.prototype
      * @desc return true if we can re-order columns
      * #### returns: boolean
      */
@@ -1178,8 +1131,7 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Behavior.prototype
      * @desc return the properties for a specific column, these are used if no cell properties are specified
      * #### returns: Object
      * @param {index} columnIndex - the column index of interest
@@ -1206,8 +1158,7 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Behavior.prototype
      * @desc returns the list of labels to use for the column picker
      * #### returns: Array of strings
      */
@@ -1229,8 +1180,7 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Behavior.prototype
      * @desc return the field at colIndex
      * #### returns: string
      * @param {number} colIndex - the column index of interest
@@ -1243,8 +1193,7 @@ var Behavior = Base.extend('Behavior', {
         return col.getField();
     },
     /**
-     * @function
-     * @instance
+     * @memberOf Behavior.prototype
      * @desc return the column heading at colIndex
      * #### returns: string
      * @param {number} colIndex - the column index of interest
@@ -1257,8 +1206,7 @@ var Behavior = Base.extend('Behavior', {
         return col.getHeader();
     },
     /**
-     * @function
-     * @instance
+     * @memberOf Behavior.prototype
      * @desc this is called by the column editor post closing; rebuild the column order indexes
      * @param {Array} list - list of column objects from the column editor
      */
@@ -1278,8 +1226,7 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Behavior.prototype
      * @desc return an Array of strings of the column header labels that are currently hidden
      * #### returns: Array of strings
      */
@@ -1301,8 +1248,7 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Behavior.prototype
      * @desc hide columns that are specified by their indexes
      * @param {Array} arrayOfIndexes - an array of column indexes to hide
      */
@@ -1318,8 +1264,7 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Behavior.prototype
      * @desc return the number of fixed columns
      * #### returns: integer
      */
@@ -1329,8 +1274,7 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Behavior.prototype
      * @desc set the number of fixed columns
      * @param {number} numberOfFixedColumns - the integer count of how many columns to be fixed
      */
@@ -1340,8 +1284,7 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Behavior.prototype
      * @desc return the count of fixed rows
      * #### returns: integer
      */
@@ -1356,8 +1299,7 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Behavior.prototype
      * @desc set the number of rows that are fixed
      * @param {number} numberOfFixedRows - the count of rows to be set fixed
      */
@@ -1366,8 +1308,7 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Behavior.prototype
      * @desc return the count of fixed rows
      * #### returns: integer
      */
@@ -1381,8 +1322,7 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Behavior.prototype
      * @desc set the number of rows that are fixed
      * @param {number} numberOfFixedRows - the count of rows to be set fixed
      */
@@ -1391,8 +1331,7 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Behavior.prototype
      * @desc return the count of fixed rows
      * #### returns: integer
      */
@@ -1403,8 +1342,7 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Behavior.prototype
      * @desc set the number of rows that are fixed
      * @param {number} numberOfFixedRows - the count of rows to be set fixed
      */
@@ -1412,8 +1350,7 @@ var Behavior = Base.extend('Behavior', {
         this.tableState.headerColumnCount = numberOfHeaderColumns;
     },
     /**
-     * @function
-     * @instance
+     * @memberOf Behavior.prototype
      * @desc build and open the editor within the container div argument, this function should return false if we don't want the editor to open
      * #### returns: boolean
      * @param {HTMLDivElement} div - the containing div element
@@ -1445,8 +1382,7 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Behavior.prototype
      * @desc the editor is requesting close return true or false, and deal with the edits
      * @param {HTMLDivElement} div - the containing div element
      */
@@ -1457,15 +1393,13 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Behavior.prototype
      * @desc a dnd column has just been dropped, we've been notified
      */
     endDragColumnNotification: function() {},
 
     /**
-     * @function
-     * @instance
+     * @memberOf Behavior.prototype
      * @desc bind column editor appropriate css values to arg style
      * @param {HTMLStyleElement} style - the style object to enhance
      */
@@ -1478,8 +1412,7 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Behavior.prototype
      * @desc return the cursor at a specific x,y coordinate
      * #### returns: string
      * @param {number} x - the x coordinate
@@ -1490,8 +1423,7 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Behavior.prototype
      * @desc return the total number of columns
      * #### returns: integer
      */
@@ -1500,8 +1432,7 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Behavior.prototype
      * @desc return the column alignment at column x
      * #### returns: string ['left','center','right']
      * @param {number} x - the column index of interest
@@ -1511,8 +1442,7 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Behavior.prototype
      * @desc quietly set the scroll position in the horizontal dimension
      * @param {number} x - the position in pixels
      */
@@ -1525,8 +1455,7 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Behavior.prototype
      * @desc quietly set the scroll position in the horizontal dimension
      * #### returns: type
      * @param {number} y - the position in pixels
@@ -1540,8 +1469,7 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Behavior.prototype
      * @desc return the cell editor for coordinate x,y
      * #### returns: [fin-hypergrid-cell-editor-base](module-cell-editors_base.html)
      * @param {number} x - x coordinate
@@ -1552,10 +1480,9 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Behavior.prototype
      * @desc fixed row has been clicked, you've been notified
-     * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+     * @param {Hypergrid} grid
      * @param {Object} mouse - event details
      */
     toggleSort: function(x, keys) {
@@ -1563,8 +1490,7 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Behavior.prototype
      * @desc returns true if we should highlight on hover
      * #### returns: boolean
      * @param {boolean} isColumnHovered - the column is hovered or not
@@ -1575,8 +1501,7 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Behavior.prototype
      * @desc return an HTMLImageElement given it's alias
      * #### returns: HTMLImageElement
      * @param {string} key - an image alias
@@ -1586,8 +1511,7 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Behavior.prototype
      * @desc set the image for a specific alias
      * @param {string} key - an image alias
      * @param {HTMLImageElement} image - the image to cache
@@ -1597,8 +1521,7 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Behavior.prototype
      * @desc this function is a hook and is called just before the painting of a cell occurs
      * @param {window.fin.rectangular.Point} cell
      */
@@ -1610,8 +1533,7 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Behavior.prototype
      * @desc this function is a hook and is called just before the painting of a fixed row cell occurs
      * @param {window.fin.rectangular.Point} cell
      */
@@ -1620,8 +1542,7 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Behavior.prototype
      * @desc this function is a hook and is called just before the painting of a fixed column cell occurs
      * @param {window.fin.rectangular.Point} cell
      */
@@ -1630,8 +1551,7 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Behavior.prototype
      * @desc this function is a hook and is called just before the painting of a top left cell occurs
      * @param {window.fin.rectangular.Point} cell
      */
@@ -1640,16 +1560,14 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Behavior.prototype
      * @desc this function enhance the double click event just before it's broadcast to listeners
      * @param {Object} event - event to enhance
      */
     enhanceDoubleClickEvent: function(event) {},
 
     /**
-     * @function
-     * @instance
+     * @memberOf Behavior.prototype
      * @desc swap src and tar columns
      * @param {number} src - column index
      * @param {number} tar - column index
@@ -1671,8 +1589,7 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Behavior.prototype
      * @returns {object} The object at y index.
      * @param {number} y - the row index of interest
      */

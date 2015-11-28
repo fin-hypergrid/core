@@ -2,13 +2,19 @@
 
 var DataModel = require('./DataModel');
 
-var Default = DataModel.extend({
+/**
+ * @constructor
+ */
+var Default = DataModel.extend('Default', {
 
+    /**
+     * @type {object}
+     * @memberOf Default.prototype
+     */
     dataUpdates: {},
 
     /**
-     * @function
-     * @instance
+     * @memberOf Default.prototype
      * @desc This is the most important behavior function.
      * @returns {object} Data point at the given coordinates.
      * @param {number} x - the horizontal coordinate
@@ -31,14 +37,28 @@ var Default = DataModel.extend({
         return (x - 1) + ', ' + this.alpha((y - 1) % 26);
     },
 
+    /**
+     * @memberOf Default.prototype
+     * @param {number} x
+     * @param {number} y
+     * @param value
+     */
     setValue: function(x, y, value) {
         this.dataUpdates['p_' + x + '_' + y] = value;
     },
 
+    /**
+     * @memberOf Default.prototype
+     * @returns {number}
+     */
     getColumnCount: function() {
         return 27;
     },
 
+    /**
+     * @memberOf Default.prototype
+     * @returns {number}
+     */
     getRowCount: function() {
         //jeepers batman a quadrillion rows!
         return 53;

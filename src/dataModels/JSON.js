@@ -38,7 +38,11 @@ var nullDataSource = {
     }
 };
 
-var JSON = DataModel.extend({
+/**
+ * @name dataModels.JSON
+ * @constructor
+ */
+var JSON = DataModel.extend('dataModels.JSON', {
 
     //null object pattern for the source object
     source: nullDataSource,
@@ -53,10 +57,18 @@ var JSON = DataModel.extend({
 
     topTotals: [],
 
+    /**
+     * @memberOf dataModels.JSON.prototype
+     * @returns {boolean}
+     */
     hasAggregates: function() {
         return this.analytics.hasAggregates();
     },
 
+    /**
+     * @memberOf dataModels.JSON.prototype
+     * @returns {boolean}
+     */
     hasGroups: function() {
         return this.analytics.hasGroups();
     },
@@ -73,6 +85,12 @@ var JSON = DataModel.extend({
         return this.presorter; //this.hasAggregates() ? this.postsorter : this.presorter;
     },
 
+    /**
+     * @memberOf dataModels.JSON.prototype
+     * @param {number} x
+     * @param {number} y
+     * @returns {*}
+     */
     getValue: function(x, y) {
         var hasHierarchyColumn = this.hasHierarchyColumn();
         var grid = this.getGrid();
@@ -92,6 +110,12 @@ var JSON = DataModel.extend({
         return value;
     },
 
+    /**
+     * @memberOf dataModels.JSON.prototype
+     * @param {number} x
+     * @param {number} y
+     * @returns {*}
+     */
     getHeaderRowValue: function(x, y) {
         if (y === undefined) {
             return this.getHeaders()[Math.max(x, 0)];
@@ -128,6 +152,12 @@ var JSON = DataModel.extend({
         return '';
     },
 
+    /**
+     * @memberOf dataModels.JSON.prototype
+     * @param {number} x
+     * @param {number} y
+     * @param value
+     */
     setValue: function(x, y, value) {
         var hasHierarchyColumn = this.hasHierarchyColumn();
         var grid = this.getGrid();
@@ -149,6 +179,13 @@ var JSON = DataModel.extend({
         this.changed();
     },
 
+    /**
+     * @memberOf dataModels.JSON.prototype
+     * @param {number} x
+     * @param {number} y
+     * @param value
+     * @returns {*}
+     */
     setHeaderRowValue: function(x, y, value) {
         if (value === undefined) {
             return this._setHeader(x, y); // y is really the value
@@ -176,33 +213,56 @@ var JSON = DataModel.extend({
         return '';
     },
 
-    getColumnProperties: function(x) {
+    /**
+     * @memberOf dataModels.JSON.prototype
+     * @param {number} colIndex
+     * @returns {*}
+     */
+    getColumnProperties: function(colIndex) {
         //access directly because we want it ordered
-        var column = this.getBehavior().allColumns[x];
+        var column = this.getBehavior().allColumns[colIndex];
         if (column) {
             return column.getProperties();
         }
         return undefined;
     },
 
-    getFilter: function(x) {
-        var columnProperties = this.getColumnProperties(x);
+    /**
+     * @memberOf dataModels.JSON.prototype
+     * @param {number} colIndex
+     * @returns {*}
+     */
+    getFilter: function(colIndex) {
+        var columnProperties = this.getColumnProperties(colIndex);
         if (!columnProperties) {
             return '';
         }
         return columnProperties.filter || '';
     },
 
-    setFilter: function(x, value) {
-        var columnProperties = this.getColumnProperties(x);
+    /**
+     * @memberOf dataModels.JSON.prototype
+     * @param {number} colIndex
+     * @param value
+     */
+    setFilter: function(colIndex, value) {
+        var columnProperties = this.getColumnProperties(colIndex);
         columnProperties.filter = value;
         this.applyAnalytics();
     },
 
+    /**
+     * @memberOf dataModels.JSON.prototype
+     * @returns {number}
+     */
     getColumnCount: function() {
         return this.analytics.getColumnCount();
     },
 
+    /**
+     * @memberOf dataModels.JSON.prototype
+     * @returns {number}
+     */
     getRowCount: function() {
         var grid = this.getGrid();
         var count = this.getDataSource().getRowCount();
@@ -210,25 +270,42 @@ var JSON = DataModel.extend({
         return count;
     },
 
+    /**
+     * @memberOf dataModels.JSON.prototype
+     * @returns {string[]}
+     */
     getHeaders: function() {
         return this.analytics.getHeaders();
     },
 
-    getDefaultHeaders: function() {},
-
+    /**
+     * @memberOf dataModels.JSON.prototype
+     * @param {string[]} headers
+     */
     setHeaders: function(headers) {
         this.getDataSource().setHeaders(headers);
     },
 
+    /**
+     * @memberOf dataModels.JSON.prototype
+     * @param {string[]} fields
+     */
     setFields: function(fields) {
         this.getDataSource().setFields(fields);
     },
 
+    /**
+     * @memberOf dataModels.JSON.prototype
+     * @returns {string[]}
+     */
     getFields: function() {
-        var fields = this.getDataSource().getFields();
-        return fields;
+        return this.getDataSource().getFields();
     },
 
+    /**
+     * @memberOf dataModels.JSON.prototype
+     * @param {object[]} dataRows
+     */
     setData: function(dataRows) {
         this.source = new analytics.JSDataSource(dataRows);
         this.preglobalfilter = new analytics.DataSourceGlobalFilter(this.source);
@@ -242,6 +319,10 @@ var JSON = DataModel.extend({
         //this.postsorter = new analytics.DataSourceSorterComposite(this.postfilter);
     },
 
+    /**
+     * @memberOf dataModels.JSON.prototype
+     * @returns {*}
+     */
     getTopTotals: function() {
         if (!this.hasAggregates()) {
             return this.topTotals;
@@ -249,16 +330,28 @@ var JSON = DataModel.extend({
         return this.getDataSource().getGrandTotals();
     },
 
+    /**
+     * @memberOf dataModels.JSON.prototype
+     * @param nestedArray
+     */
     setTopTotals: function(nestedArray) {
         this.topTotals = nestedArray;
     },
 
+    /**
+     * @memberOf dataModels.JSON.prototype
+     * @param groups
+     */
     setGroups: function(groups) {
         this.analytics.setGroupBys(groups);
         this.applyAnalytics();
         this.getGrid().fireSyntheticGroupsChangedEvent(this.getGroups());
     },
 
+    /**
+     * @memberOf dataModels.JSON.prototype
+     * @returns {object[]}
+     */
     getGroups: function() {
         var headers = this.getHeaders().slice(0);
         var fields = this.getFields().slice(0);
@@ -275,6 +368,10 @@ var JSON = DataModel.extend({
         return groups;
     },
 
+    /**
+     * @memberOf dataModels.JSON.prototype
+     * @returns {object[]}
+     */
     getAvailableGroups: function() {
         var headers = this.source.getHeaders().slice(0);
         var groupBys = this.analytics.groupBys;
@@ -292,6 +389,10 @@ var JSON = DataModel.extend({
         return groups;
     },
 
+    /**
+     * @memberOf dataModels.JSON.prototype
+     * @returns {object[]}
+     */
     getVisibleColumns: function() {
         var items = this.getBehavior().columns;
         items = items.filter(function(each) {
@@ -300,6 +401,10 @@ var JSON = DataModel.extend({
         return items;
     },
 
+    /**
+     * @memberOf dataModels.JSON.prototype
+     * @returns {object[]}
+     */
     getHiddenColumns: function() {
         var visible = this.getBehavior().columns;
         var all = this.getBehavior().allColumns;
@@ -315,25 +420,43 @@ var JSON = DataModel.extend({
         return hidden;
     },
 
+    /**
+     * @memberOf dataModels.JSON.prototype
+     * @param aggregations
+     */
     setAggregates: function(aggregations) {
         this.quietlySetAggregates(aggregations);
         this.applyAnalytics();
     },
 
+    /**
+     * @memberOf dataModels.JSON.prototype
+     * @param aggregations
+     */
     quietlySetAggregates: function(aggregations) {
         this.analytics.setAggregates(aggregations);
     },
 
+    /**
+     * @memberOf dataModels.JSON.prototype
+     * @returns {boolean}
+     */
     hasHierarchyColumn: function() {
         return this.hasAggregates() && this.hasGroups();
     },
 
+    /**
+     * @memberOf dataModels.JSON.prototype
+     */
     applyAnalytics: function() {
         this.applyFilters();
         this.applySorts();
         this.applyGroupBysAndAggregations();
     },
 
+    /**
+     * @memberOf dataModels.JSON.prototype
+     */
     applyGroupBysAndAggregations: function() {
         if (this.analytics.aggregates.length === 0) {
             this.quietlySetAggregates({});
@@ -341,6 +464,9 @@ var JSON = DataModel.extend({
         this.analytics.apply();
     },
 
+    /**
+     * @memberOf dataModels.JSON.prototype
+     */
     applyFilters: function() {
         this.preglobalfilter.apply();
         var colCount = this.getColumnCount();
@@ -356,11 +482,21 @@ var JSON = DataModel.extend({
         filterSource.applyAll();
     },
 
-    toggleSort: function(index, keys) {
-        this.incrementSortState(index, keys);
+    /**
+     * @memberOf dataModels.JSON.prototype
+     * @param {number} colIndex
+     * @param keys
+     */
+    toggleSort: function(colIndex, keys) {
+        this.incrementSortState(colIndex, keys);
         this.applyAnalytics();
     },
 
+    /**
+     * @memberOf dataModels.JSON.prototype
+     * @param {number} colIndex
+     * @param {string[]} keys
+     */
     incrementSortState: function(colIndex, keys) {
         colIndex++; //hack to get around 0 index
         var state = this.getPrivateState();
@@ -387,6 +523,9 @@ var JSON = DataModel.extend({
         }
     },
 
+    /**
+     * @memberOf dataModels.JSON.prototype
+     */
     applySorts: function() {
         var sortingSource = this.getSortingSource();
         var sorts = this.getPrivateState().sorts;
@@ -403,6 +542,12 @@ var JSON = DataModel.extend({
         sortingSource.applySorts();
     },
 
+    /**
+     * @memberOf dataModels.JSON.prototype
+     * @param index
+     * @param returnAsString
+     * @returns {*}
+     */
     getSortImageForColumn: function(index, returnAsString) {
         index++;
         var up = true;
@@ -430,6 +575,11 @@ var JSON = DataModel.extend({
         return this.getBehavior().getImage(name);
     },
 
+    /**
+     * @memberOf dataModels.JSON.prototype
+     * @param cell
+     * @param event
+     */
     cellClicked: function(cell, event) {
         if (!this.hasAggregates()) {
             return;
@@ -444,6 +594,11 @@ var JSON = DataModel.extend({
         this.changed();
     },
 
+    /**
+     * @memberOf dataModels.JSON.prototype
+     * @param {number} y
+     * @returns {object}
+     */
     getRow: function(y) {
         var grid = this.getGrid();
         var headerRowCount = grid.getHeaderRowCount();
@@ -454,6 +609,11 @@ var JSON = DataModel.extend({
         return this.getDataSource().getRow(y - headerRowCount);
     },
 
+    /**
+     * @memberOf dataModels.JSON.prototype
+     * @param {number} y
+     * @returns {object}
+     */
     buildRow: function(y) {
         var colCount = this.getColumnCount();
         var fields = [].concat(this.getFields());
@@ -468,6 +628,11 @@ var JSON = DataModel.extend({
         return result;
     },
 
+    /**
+     * @memberOf dataModels.JSON.prototype
+     * @param {number} y
+     * @returns {object}
+     */
     getComputedRow: function(y) {
         var rcf = this.getRowContextFunction([y]);
         var fields = this.getFields();
@@ -479,6 +644,12 @@ var JSON = DataModel.extend({
         return row;
     },
 
+    /**
+     * @memberOf dataModels.JSON.prototype
+     * @param {string} fieldName
+     * @param {number} y
+     * @returns {*}
+     */
     getValueByField: function(fieldName, y) {
         var index = this.getFields().indexOf(fieldName);
         if (this.hasAggregates()) {
@@ -487,6 +658,10 @@ var JSON = DataModel.extend({
         return this.getDataSource().getValue(index, y);
     },
 
+    /**
+     * @memberOf dataModels.JSON.prototype
+     * @param {sring} string
+     */
     setGlobalFilter: function(string) {
         if (!string || string.length === 0) {
             this.preglobalfilter.clear();
@@ -496,6 +671,15 @@ var JSON = DataModel.extend({
         this.applyAnalytics();
     },
 
+    /**
+     * @memberOf dataModels.JSON.prototype
+     * @param {object} config
+     * @param {number} x
+     * @param {number} y
+     * @param {number} untranslatedX
+     * @param {number} untranslatedY
+     * @returns {object}
+     */
     getCellRenderer: function(config, x, y, untranslatedX, untranslatedY) {
         var renderer;
         var provider = this.getGrid().getCellProvider();
@@ -511,9 +695,16 @@ var JSON = DataModel.extend({
         return renderer;
     },
 
+    /**
+     * @memberOf dataModels.JSON.prototype
+     */
     applyState: function() {
         this.applyAnalytics();
     },
+
+    /**
+     * @memberOf dataModels.JSON.prototype
+     */
     reset: function() {
         this.setData([]);
     }

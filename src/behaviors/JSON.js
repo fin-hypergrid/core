@@ -11,12 +11,21 @@ var aggregations = require('hyper-analytics').util.aggregations;
 //var aggregations = require('../local_node_modules/newanalytics').util.aggregations;
 //var aggregations = require('../local_node_modules/finanalytics').aggregations;
 
-var JSON = Behavior.extend({
+/**
+ * @name behaviors.JSON
+ * @desc > Same parameters as {@link behaviors.JSON#initialize|initialize}, which is called by this constructor.
+ * @constructor
+ */
+var JSON = Behavior.extend('behaviors.JSON', {
 
     /**
-     * Called _after_ `Behavior.initialize()`.
+     * @summary Constructor logic, called _after_{@link Behavior#initialize|Behavior.initialize()}.
+     * @desc This method will be called upon instantiation of this class or of any class that extends from this class.
+     * > All `initialize()` methods in the inheritance chain are called, in turn, each with the same parameters that were passed to the constructor, beginning with that of the most "senior" class through that of the class of the new instance.
+     *
      * @param grid - the hypergrid
      * @param {object[]} dataRows - array of uniform data objects
+     * @memberOf behaviors.JSON.prototype
      */
     initialize: function(grid, dataRows) {
         this.setData(dataRows);
@@ -63,8 +72,7 @@ var JSON = Behavior.extend({
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf behaviors.JSON.prototype
      * @description Set the header labels.
      * @param {string[]} headerLabels - The header labels.
      */
@@ -73,8 +81,7 @@ var JSON = Behavior.extend({
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf behaviors.JSON.prototype
      * @desc * @returns {string[]} The header labels.
      */
     getHeaders: function() {
@@ -82,8 +89,7 @@ var JSON = Behavior.extend({
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf behaviors.JSON.prototype
      * @description Set the fields array.
      * @param {string[]} fieldNames - The field names.
      */
@@ -95,8 +101,7 @@ var JSON = Behavior.extend({
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf behaviors.JSON.prototype
      * @description Get the field names.
      * @returns {string[]}
      */
@@ -105,8 +110,7 @@ var JSON = Behavior.extend({
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf behaviors.JSON.prototype
      * @description Set the data field.
      * @param {object[]} objects - An array of uniform objects, each being a row in the grid.
      */
@@ -124,8 +128,7 @@ var JSON = Behavior.extend({
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf behaviors.JSON.prototype
      * @description Get the data field.
      */
     getData: function() {
@@ -134,8 +137,7 @@ var JSON = Behavior.extend({
 
 
     /**
-     * @function
-     * @instance
+     * @memberOf behaviors.JSON.prototype
      * @description Set the totals field.
      * @param {array} nestedArray - array2D of totals data
      */
@@ -148,8 +150,7 @@ var JSON = Behavior.extend({
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf behaviors.JSON.prototype
      * @description Build the fields and headers from the supplied column definitions.
      * ```javascript
      * myJsonBehavior.setColumns([
@@ -165,8 +166,7 @@ var JSON = Behavior.extend({
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf behaviors.JSON.prototype
      * @description Enhance the double-click event just before it's broadcast to listeners.
      * @param {Point} event
      */

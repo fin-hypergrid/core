@@ -648,7 +648,7 @@
          * @instance
          * @description
          the top left area has been clicked, you've been notified
-         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+         * @param {Hypergrid} grid
          * @param {Object} mouse - event details
          */
         topLeftClicked: function(grid, mouse) {
@@ -665,7 +665,7 @@
          * @instance
          * @description
          fixed column header has been clicked, you've been notified
-         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+         * @param {Hypergrid} grid
          * @param {Object} mouse - event details
          */
         hierarchyCellClicked: function(grid, mouse) {
@@ -694,7 +694,7 @@
          * @instance
          * @description
          control cell has been clicked, you've been notified
-         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+         * @param {Hypergrid} grid
          * @param {Object} mouse - event details
          */
         controlCellClick: function(grid, mouse) {
@@ -722,7 +722,7 @@
          * @instance
          * @description
          fixed column has been clicked, you've been notified
-         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+         * @param {Hypergrid} grid
          * @param {Object} mouse - event details
          */
         fixedColumnClicked: function(grid, mouse) {
@@ -745,7 +745,7 @@
          * @instance
          * @description
          fixed row has been clicked, you've been notified
-         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+         * @param {Hypergrid} grid
          * @param {Object} mouse - event details
          */
         fixedRowClicked: function(grid, mouse) {

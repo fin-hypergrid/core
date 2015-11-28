@@ -2,33 +2,41 @@
 
 var ColumnResizing = require('./ColumnResizing');
 
-var RowResizing = ColumnResizing.extend({
+/**
+ * @constructor
+ */
+var RowResizing = ColumnResizing.extend('RowResizing', {
 
     alias: 'RowResizing',
 
     /**
-     * @property {number} dragArea - the index of the row/column we are dragging
-     * @instance
+     * the index of the row/column we are dragging
+     * @type {number}
+     * @default -1
+     * @memberOf RowResizing.prototype
      */
     dragArea: -1,
 
     /**
-     * @property {number} dragStart - the pixel location of the where the drag was initiated
-     * @instance
+     * the pixel location of the where the drag was initiated
+     * @type {number}
+     * @default -1
+     * @memberOf RowResizing.prototype
      */
     dragStart: -1,
 
     /**
-     * @property {number} dragAreaStartingSize - the starting width/height of the row/column we are dragging
-     * @instance
+     * the starting width/height of the row/column we are dragging
+     * @type {number}
+     * @default -1
+     * @memberOf RowResizing.prototype
      */
     dragAreaStartingSize: -1,
 
     /**
-     * @function
-     * @instance
+     * @memberOf RowResizing.prototype
      * @desc get the mouse x,y coordinate
-     * #### returns: integer
+     * @returns {number}
      * @param {MouseEvent} event - the mouse event to query
      */
     getMouseValue: function(event) {
@@ -37,10 +45,10 @@ var RowResizing = ColumnResizing.extend({
 
     /**
      * @function
-     * @instance
+     * @memberOf RowResizing.prototype
      * @desc get the grid cell x,y coordinate
-     * #### returns: integer
-     * @param {window.fin.rectangular.Point} gridCell
+     * @returns {number}
+     * @param {Point} gridCell
      */
     getGridCellValue: function(gridCell) {
         return gridCell.x;
@@ -48,10 +56,10 @@ var RowResizing = ColumnResizing.extend({
 
     /**
      * @function
-     * @instance
+     * @memberOf RowResizing.prototype
      * @desc return the grids x,y scroll value
-     * #### returns: integer
-     * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+     * @returns {number}
+     * @param {Hypergrid} grid
      */
     getScrollValue: function(grid) {
         return grid.getVScrollValue();
@@ -59,10 +67,10 @@ var RowResizing = ColumnResizing.extend({
 
     /**
      * @function
-     * @instance
+     * @memberOf RowResizing.prototype
      * @desc return the width/height of the row/column of interest
-     * #### returns: integer
-     * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+     * @returns {number}
+     * @param {Hypergrid} grid
      * @param {number} index - the row/column index of interest
      */
     getAreaSize: function(grid, index) {
@@ -71,10 +79,10 @@ var RowResizing = ColumnResizing.extend({
 
     /**
      * @function
-     * @instance
+     * @memberOf RowResizing.prototype
      * @desc set the width/height of the row/column at index
-     * #### returns: integer
-     * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+     * @returns {number}
+     * @param {Hypergrid} grid
      * @param {number} index - the row/column index of interest
      * @param {number} value - the width/height to set to
      */
@@ -84,10 +92,10 @@ var RowResizing = ColumnResizing.extend({
 
     /**
      * @function
-     * @instance
+     * @memberOf RowResizing.prototype
      * @desc returns the index of which divider I'm over
-     * #### returns: integer
-     * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+     * @returns {number}
+     * @param {Hypergrid} grid
      * @param {Object} event - the event details
      */
     overAreaDivider: function(grid, event) {
@@ -96,10 +104,10 @@ var RowResizing = ColumnResizing.extend({
 
     /**
      * @function
-     * @instance
+     * @memberOf RowResizing.prototype
      * @desc am I over the column/row area
-     * #### returns: boolean
-     * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+     * @returns {boolean}
+     * @param {Hypergrid} grid
      * @param {Object} event - the event details
      */
     isFirstFixedOtherArea: function(grid, event) {
@@ -108,9 +116,9 @@ var RowResizing = ColumnResizing.extend({
 
     /**
      * @function
-     * @instance
+     * @memberOf RowResizing.prototype
      * @desc return the cursor name
-     * #### returns: string
+     * @returns {string}
      */
     getCursorName: function() {
         return 'row-resize';
@@ -118,10 +126,10 @@ var RowResizing = ColumnResizing.extend({
 
     /**
      * @function
-     * @instance
+     * @memberOf RowResizing.prototype
      * @desc return the recently rendered area's width/height
-     * #### returns: integer
-     * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+     * @returns {number}
+     * @param {Hypergrid} grid
      * @param {number} index - the row/column index of interest
      */
     getPreviousAbsoluteSize: function(grid, index) {
@@ -130,19 +138,33 @@ var RowResizing = ColumnResizing.extend({
 
     /**
      * @function
-     * @instance
+     * @memberOf RowResizing.prototype
      * @desc return the fixed area rows/columns count
-     * #### returns: integer
-     * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+     * @returns {number}
+     * @param {Hypergrid} grid
      */
     getOtherFixedAreaCount: function(grid) {
         return grid.getFixedColumnCount();
     },
 
+    /**
+     *
+     * @param {Hypergrid} grid
+     * @returns {number}
+     * @default -2
+     * @memberOf ColumnResizing.prototype
+     */
     getFixedAreaCount: function(grid) {
         return grid.getFixedRowCount() + grid.getHeaderRowCount();
     },
 
+    /**
+     *
+     * @param {Hypergrid} grid
+     * @returns {boolean}
+     * @default -2
+     * @memberOf ColumnResizing.prototype
+     */
     isEnabled: function(grid) {
         return grid.isRowResizeable();
     }

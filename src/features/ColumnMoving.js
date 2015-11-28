@@ -14,57 +14,66 @@ var draggerCTX;
 var floatColumn;
 var floatColumnCTX;
 
-var ColumnMoving = Feature.extend({
+/**
+ * @constructor
+ */
+var ColumnMoving = Feature.extend('ColumnMoving', {
 
     alias: 'ColumnMoving',
 
     /**
-     * @property {Array} floaterAnimationQueue - queue up the animations that need to play so they are done synchronously
-     * @instance
+     * queue up the animations that need to play so they are done synchronously
+     * @type {Array}
+     * @memberOf CellMoving.prototype
      */
     floaterAnimationQueue: [],
 
     /**
-     * @property {boolean} columnDragAutoScrollingRight - am I currently auto scrolling right
-     * @instance
+     * am I currently auto scrolling right
+     * @type {boolean}
+     * @memberOf CellMoving.prototype
      */
     columnDragAutoScrollingRight: false,
 
     /**
-     * @property {boolean} columnDragAutoScrollingLeft  - am I currently auto scrolling left
-     * @instance
+     * am I currently auto scrolling left
+     * @type {boolean}
+     * @memberOf CellMoving.prototype
      */
     columnDragAutoScrollingLeft: false,
 
     /**
-     * @property {boolean} dragArmed - is the drag mechanism currently enabled(armed)
-     * @instance
+     * is the drag mechanism currently enabled ("armed")
+     * @type {boolean}
+     * @memberOf CellMoving.prototype
      */
     dragArmed: false,
 
     /**
-     * @property {boolean} dragging - am I dragging right now
-     * @instance
+     * am I dragging right now
+     * @type {boolean}
+     * @memberOf CellMoving.prototype
      */
     dragging: false,
 
     /**
-     * @property {number} dragCol - return the column index of the currently dragged column
-     * @instance
+     * the column index of the currently dragged column
+     * @type {number}
+     * @memberOf CellMoving.prototype
      */
     dragCol: -1,
 
     /**
-     * @property {number} dragOffset - an offset to position the dragged item from the cursor
-     * @instance
+     * an offset to position the dragged item from the cursor
+     * @type {number}
+     * @memberOf CellMoving.prototype
      */
     dragOffset: 0,
 
     /**
-     * @function
-     * @instance
+     * @memberOf CellMoving.prototype
      * @desc give me an opportunity to initialize stuff on the grid
-     * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+     * @param {Hypergrid} grid
      */
     initializeOn: function(grid) {
         this.isFloatingNow = false;
@@ -75,10 +84,9 @@ var ColumnMoving = Feature.extend({
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf CellMoving.prototype
      * @desc initialize animation support on the grid
-     * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+     * @param {Hypergrid} grid
      */
     initializeAnimationSupport: function(grid) {
         if (!dragger) {
@@ -109,10 +117,9 @@ var ColumnMoving = Feature.extend({
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf CellMoving.prototype
      * @desc handle this event
-     * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+     * @param {Hypergrid} grid
      * @param {Object} event - the event details
      */
     handleMouseDrag: function(grid, event) {
@@ -150,10 +157,9 @@ var ColumnMoving = Feature.extend({
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf CellMoving.prototype
      * @desc handle this event
-     * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+     * @param {Hypergrid} grid
      * @param {Object} event - the event details
      */
     handleMouseDown: function(grid, event) {
@@ -170,10 +176,9 @@ var ColumnMoving = Feature.extend({
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf CellMoving.prototype
      * @desc handle this event
-     * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+     * @param {Hypergrid} grid
      * @param {Object} event - the event details
      */
     handleMouseUp: function(grid, event) {
@@ -200,10 +205,9 @@ var ColumnMoving = Feature.extend({
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf CellMoving.prototype
      * @desc handle this event
-     * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+     * @param {Hypergrid} grid
      * @param {Object} event - the event details
      */
     handleMouseMove: function(grid, event) {
@@ -224,10 +228,9 @@ var ColumnMoving = Feature.extend({
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf CellMoving.prototype
      * @desc this is the main event handler that manages the dragging of the column
-     * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+     * @param {Hypergrid} grid
      * @param {boolean} draggedToTheRight - are we moving to the right
      */
     floatColumnTo: function(grid, draggedToTheRight) {
@@ -285,10 +288,9 @@ var ColumnMoving = Feature.extend({
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf CellMoving.prototype
      * @desc manifest the column drag and drop animation
-     * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+     * @param {Hypergrid} grid
      * @param {number} floaterStartX - the x start coordinate of the column underneath that floats behind the dragged column
      * @param {number} draggerStartX - the x start coordinate of the dragged column
      */
@@ -323,10 +325,9 @@ var ColumnMoving = Feature.extend({
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf CellMoving.prototype
      * @desc manifest the floater animation
-     * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+     * @param {Hypergrid} grid
      */
     doFloaterAnimation: function(grid) {
         if (this.floaterAnimationQueue.length === 0) {
@@ -339,10 +340,9 @@ var ColumnMoving = Feature.extend({
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf CellMoving.prototype
      * @desc create the float column at columnIndex underneath the dragged column
-     * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+     * @param {Hypergrid} grid
      * @param {number} columnIndex - the index of the column that will be floating
      */
     createFloatColumn: function(grid, columnIndex) {
@@ -398,8 +398,7 @@ var ColumnMoving = Feature.extend({
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf CellMoving.prototype
      * @desc utility function for setting cross browser css properties
      * @param {HTMLElement} element - descripton
      * @param {string} property - the property
@@ -415,8 +414,7 @@ var ColumnMoving = Feature.extend({
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf CellMoving.prototype
      * @desc utility function for setting properties on HTMLElements
      * @param {HTMLElement} element - descripton
      * @param {string} property - the property
@@ -429,10 +427,9 @@ var ColumnMoving = Feature.extend({
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf CellMoving.prototype
      * @desc create the dragged column at columnIndex above the floated column
-     * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+     * @param {Hypergrid} grid
      * @param {number} x - the start position
      * @param {number} columnIndex - the index of the column that will be floating
      */
@@ -490,10 +487,9 @@ var ColumnMoving = Feature.extend({
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf CellMoving.prototype
      * @desc this function is the main dragging logic
-     * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+     * @param {Hypergrid} grid
      * @param {number} x - the start position
      */
     dragColumn: function(grid, x) {
@@ -575,10 +571,9 @@ var ColumnMoving = Feature.extend({
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf CellMoving.prototype
      * @desc autoscroll to the right if necessary
-     * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+     * @param {Hypergrid} grid
      * @param {number} x - the start position
      */
     checkAutoScrollToRight: function(grid, x) {
@@ -608,10 +603,9 @@ var ColumnMoving = Feature.extend({
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf CellMoving.prototype
      * @desc autoscroll to the left if necessary
-     * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+     * @param {Hypergrid} grid
      * @param {number} x - the start position
      */
     checkAutoScrollToLeft: function(grid, x) {
@@ -638,10 +632,9 @@ var ColumnMoving = Feature.extend({
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf CellMoving.prototype
      * @desc a column drag has completed, update data and cleanup
-     * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+     * @param {Hypergrid} grid
      */
     endDragColumn: function(grid) {
 
@@ -676,10 +669,9 @@ var ColumnMoving = Feature.extend({
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf CellMoving.prototype
      * @desc handle this event down the feature chain of responsibility
-     * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+     * @param {Hypergrid} grid
      * @param {Object} event - the event details
      */
     isHeaderRow: function(grid, event) {

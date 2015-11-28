@@ -2,15 +2,17 @@
 
 var Feature = require('./Feature.js');
 
-var CellEditing = Feature.extend({
+/**
+ * @constructor
+ */
+var CellEditing = Feature.extend('CellEditing', {
 
     alias: 'CellEditing',
 
     /**
-     * @function
-     * @instance
+     * @memberOf CellEditing.prototype
      * @desc handle this event down the feature chain of responsibility
-     * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+     * @param {Hypergrid} grid
      * @param {Object} event - the event details
      */
     handleDoubleClick: function(grid, event) {
@@ -26,10 +28,9 @@ var CellEditing = Feature.extend({
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf CellEditing.prototype
      * @desc handle this event down the feature chain of responsibility
-     * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+     * @param {Hypergrid} grid
      * @param {Object} event - the event details
      */
     handleHoldPulse: function(grid, event) {

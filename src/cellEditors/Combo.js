@@ -2,23 +2,27 @@
 
 var Simple = require('./Simple');
 
-var Combo = Simple.extend({
+/**
+ * @constructor
+ */
+var Combo = Simple.extend('Combo', {
 
     /**
-     * @property {string} alias - my lookup alias
-     * @instance
+     * my lookup alias
+     * @type {string}
+     * @memberOf Combo.prototype
      */
     alias: 'combo',
 
     /**
-     * @property {Array} items - the list of items to pick from
-     * @instance
+     * the list of items to pick from
+     * @type {Array}
+     * @memberOf Combo.prototype
      */
     items: [],
 
     /**
-     * @function
-     * @instance
+     * @memberOf Combo.prototype
      * @desc request focus for my input control
      */
     takeFocus: function() {
@@ -29,6 +33,9 @@ var Combo = Simple.extend({
         }, 300);
     },
 
+    /**
+     * @memberOf Combo.prototype
+     */
     selectAll: function() {
         this.input.setSelectionRange(0, this.input.value.length);
     }

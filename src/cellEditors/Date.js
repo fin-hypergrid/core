@@ -2,11 +2,15 @@
 
 var Simple = require('./Simple');
 
-var Date = Simple.extend({
+/**
+ * @constructor
+ */
+var Date = Simple.extend('Date', {
 
     /**
-     * @property {string} alias - my lookup alias
-     * @instance
+     * my lookup alias
+     * @type {string}
+     * @memberOf Date.prototype
      */
     alias: 'date',
 

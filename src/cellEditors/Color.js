@@ -2,11 +2,15 @@
 
 var Simple = require('./Simple');
 
-var Color = Simple.extend({
+/**
+ * @constructor
+ */
+var Color = Simple.extend('Color', {
 
     /**
-     * @property {string} alias - my lookup alias
-     * @instance
+     * my lookup alias
+     * @type {string}
+     * @memberOf Color.prototype
      */
     alias: 'color',
 

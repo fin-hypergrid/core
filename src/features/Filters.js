@@ -2,7 +2,10 @@
 
 var Feature = require('./Feature.js');
 
-var Filters = Feature.extend({
+/**
+ * @constructor
+ */
+var Filters = Feature.extend('Filters', {
 
     alias: 'Filters',
 

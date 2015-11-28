@@ -2,11 +2,15 @@
 
 var Simple = require('./Simple');
 
-var Slider = Simple.extend({
+/**
+ * @constructor
+ */
+var Slider = Simple.extend('Slider', {
 
     /**
-     * @property {string} alias - my lookup alias
-     * @instance
+     * my lookup alias
+     * @type {string}
+     * @memberOf Slider.prototype
      */
     alias: 'slider',
 

@@ -43,16 +43,16 @@ gulp.task('build', function(callback) {
         //'doc',
         //'beautify',
         'browserify',
-        //'reloadBrowsers',
+        'reloadBrowsers',
         callback
     );
 });
 
 gulp.task('watch', function () {
     gulp.watch([srcDir + '**', testDir + '**'], ['build'])
-        .on('change', function(event) {
-            browserSync.reload();
-        });
+        //.on('change', function(event) {
+        //    browserSync.reload();
+        //});
 });
 
 gulp.task('default', ['build', 'watch'], browserSyncLaunchServer);

@@ -1,23 +1,22 @@
 'use strict';
 
-/**
- *
- * @module cell-editors\simple
- *
- */
-
 var CellEditor = require('./CellEditor.js');
 
-var Simple = CellEditor.extend({
-
-    extendable: true, // makes Simpler itself extensible with .extend()
+/**
+ * @constructor
+ */
+var Simple = CellEditor.extend('Simple', {
 
     /**
-     * @property {string} alias - my lookup alias
-     * @instance
+     * my lookup alias
+     * @type {string}
+     * @memberOf Simple.prototype
      */
     alias: 'simple',
 
+    /**
+     * @memberOf Simple.prototype
+     */
     initialize: function() {
         this.editorPoint = {
             x: 0,
@@ -26,8 +25,7 @@ var Simple = CellEditor.extend({
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Simple.prototype
      * @desc  the function to override for initialization
      */
     initializeInput: function(input) {
@@ -69,8 +67,7 @@ var Simple = CellEditor.extend({
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Simple.prototype
      * @returns {object} the current editor's value
      */
     getEditorValue: function() {
@@ -79,8 +76,7 @@ var Simple = CellEditor.extend({
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Simple.prototype
      * @desc save the new value into the behavior(model)
      */
     setEditorValue: function(value) {
@@ -102,8 +98,7 @@ var Simple = CellEditor.extend({
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Simple.prototype
      * @desc display the editor
      */
     showEditor: function() {
@@ -111,8 +106,7 @@ var Simple = CellEditor.extend({
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Simple.prototype
      * @desc hide the editor
      */
     hideEditor: function() {
@@ -120,8 +114,7 @@ var Simple = CellEditor.extend({
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Simple.prototype
      * @desc request focus for my input control
      */
     takeFocus: function() {
@@ -133,8 +126,7 @@ var Simple = CellEditor.extend({
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Simple.prototype
      * @desc select everything
      */
     selectAll: function() {
@@ -142,8 +134,7 @@ var Simple = CellEditor.extend({
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Simple.prototype
      * @desc how much should I offset my bounds from 0,0
      */
     originOffset: function() {
@@ -151,8 +142,7 @@ var Simple = CellEditor.extend({
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Simple.prototype
      * @desc set the bounds of my input control
      * @param {rectangle} rectangle - the bounds to move to
      */

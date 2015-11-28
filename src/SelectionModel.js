@@ -4,7 +4,7 @@ var RangeSelectionModel = require('sparse-boolean-array');
 
 /**
  *
- * @module .\selection-model
+ * @constructor
  * @desc We represent selections as a list of rectangles because large areas can be represented and tested against quickly with a minimal amount of memory usage. Also we need to maintain the selection rectangles flattened counter parts so we can test for single dimension contains. This is how we know to highlight the fixed regions on the edges of the grid.
  */
 
@@ -67,8 +67,7 @@ SelectionModel.prototype = {
     allRowsSelected: false,
 
     /**
-     * @function
-     * @instance
+     * @memberOf SelectionModel.prototype
      * @desc getter for the [fin-hypergrid](module-._fin-hypergrid.html)
      * #### returns: fin-hypergrid
      */
@@ -76,12 +75,20 @@ SelectionModel.prototype = {
         return null;
     },
 
+    /**
+     * @memberOf SelectionModel.prototype
+     * @returns {*}
+     */
     getLastSelection: function() {
         var sels = this.selections;
         var sel = sels[sels.length - 1];
         return sel;
     },
 
+    /**
+     * @memberOf SelectionModel.prototype
+     * @returns {*}
+     */
     getLastSelectionType: function() {
         return this.lastSelectionType;
     },
@@ -95,8 +102,7 @@ SelectionModel.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf SelectionModel.prototype
      * @description Select the region described by the given coordinates.
      *
      * @param {number} ox - origin x coordinate
@@ -113,6 +119,13 @@ SelectionModel.prototype = {
         this.getGrid().selectionChanged();
     },
 
+    /**
+     * @memberOf SelectionModel.prototype
+     * @param {number} ox - origin x coordinate
+     * @param {number} oy - origin y coordinate
+     * @param {number} ex - extent x coordinate
+     * @param {number} ey - extent y coordinate
+     */
     toggleSelect: function(ox, oy, ex, ey) {
 
         var selected, index;
@@ -136,9 +149,8 @@ SelectionModel.prototype = {
     },
 
     /**
-     * @function
-     * @instance
-     * @desc remove the last selection that was created
+     * @memberOf SelectionModel.prototype
+     * @desc Remove the last selection that was created.
      */
     clearMostRecentSelection: function() {
         this.allRowsSelected = false;
@@ -148,47 +160,65 @@ SelectionModel.prototype = {
         //this.getGrid().selectionChanged();
     },
 
+    /**
+     * @memberOf SelectionModel.prototype
+     */
     clearMostRecentColumnSelection: function() {
         this.columnSelectionModel.clearMostRecentSelection();
         this.setLastSelectionType('column');
     },
 
+    /**
+     * @memberOf SelectionModel.prototype
+     */
     clearMostRecentRowSelection: function() {
         this.rowSelectionModel.clearMostRecentSelection();
         this.setLastSelectionType('row');
     },
 
+    /**
+     * @memberOf SelectionModel.prototype
+     */
     clearRowSelection: function() {
         this.rowSelectionModel.clear();
         this.setLastSelectionType('row');
     },
 
+    /**
+     * @memberOf SelectionModel.prototype
+     * @returns {*}
+     */
     getSelections: function() {
         return this.selections;
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf SelectionModel.prototype
      * @returns {boolean} There are active selection(s).
      */
     hasSelections: function() {
         return this.selections.length !== 0;
     },
 
+    /**
+     * @memberOf SelectionModel.prototype
+     * @returns {boolean}
+     */
     hasRowSelections: function() {
         return !this.rowSelectionModel.isEmpty();
     },
 
+    /**
+     * @memberOf SelectionModel.prototype
+     * @returns {boolean}
+     */
     hasColumnSelections: function() {
         return !this.columnSelectionModel.isEmpty();
     },
 
     /**
-     * @function
-     * @instance
-     * @desc answer if we have a selection covering a specific column
-     * #### returns: boolean
+     * @memberOf SelectionModel.prototype
+     * @return {boolean} Selection covers a specific column.
      * @param {number} y
      */
     isCellSelectedInRow: function(y) {
@@ -196,10 +226,8 @@ SelectionModel.prototype = {
     },
 
     /**
-     * @function
-     * @instance
-     * @desc answer if we have a selection covering a specific row
-     * #### returns: boolean
+     * @memberOf SelectionModel.prototype
+     * @returns Selection covers a specific row.
      * @param {number} x
      */
     isCellSelectedInColumn: function(x) {
@@ -207,8 +235,7 @@ SelectionModel.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf SelectionModel.prototype
      * @summary Selection query function.
      * @returns {boolean} The given cell is selected (part of an active selection).
      * @param {Rectangle[]} selections - Selection rectangles to search through.
@@ -223,19 +250,33 @@ SelectionModel.prototype = {
         );
     },
 
+    /**
+     * @memberOf SelectionModel.prototype
+     * @param x
+     * @param y
+     * @returns {*}
+     */
     isCellSelected: function(x, y) {
         return this._isCellSelected(this.selections, x, y);
     },
 
+    /**
+     * @memberOf SelectionModel.prototype
+     * @param selections
+     * @param x
+     * @param y
+     * @returns {boolean}
+     * @private
+     */
     _isCellSelected: function(selections, x, y) {
         var self = this;
         return !!selections.find(function(selection) {
             return self.rectangleContains(selection, x, y);
         });
     },
+
     /**
-     * @function
-     * @instance
+     * @memberOf SelectionModel.prototype
      * @desc empty out all our state
      *
      */
@@ -249,6 +290,14 @@ SelectionModel.prototype = {
         //this.getGrid().selectionChanged();
     },
 
+    /**
+     * @memberOf SelectionModel.prototype
+     * @param {number} ox - origin x coordinate
+     * @param {number} oy - origin y coordinate
+     * @param {number} ex - extent x coordinate
+     * @param {number} ey - extent y coordinate
+     * @returns {boolean}
+     */
     isRectangleSelected: function(ox, oy, ex, ey) {
         return !!this.selections.find(function(selection) {
             return (
@@ -258,43 +307,84 @@ SelectionModel.prototype = {
         });
     },
 
+    /**
+     * @memberOf SelectionModel.prototype
+     * @param x
+     * @returns {*}
+     */
     isColumnSelected: function(x) {
         return this.columnSelectionModel.isSelected(x);
     },
 
+    /**
+     * @memberOf SelectionModel.prototype
+     * @param y
+     * @returns {boolean|*}
+     */
     isRowSelected: function(y) {
         return this.allRowsSelected || this.rowSelectionModel.isSelected(y);
     },
 
+    /**
+     * @memberOf SelectionModel.prototype
+     * @param x1
+     * @param x2
+     */
     selectColumn: function(x1, x2) {
         this.columnSelectionModel.select(x1, x2);
         this.setLastSelectionType('column');
     },
 
+    /**
+     * @memberOf SelectionModel.prototype
+     */
     selectAllRows: function() {
         this.clear();
         this.allRowsSelected = true;
     },
 
+    /**
+     * @memberOf SelectionModel.prototype
+     * @returns {boolean}
+     */
     areAllRowsSelected: function() {
         return this.allRowsSelected;
     },
 
+    /**
+     * @memberOf SelectionModel.prototype
+     * @param y1
+     * @param y2
+     */
     selectRow: function(y1, y2) {
         this.rowSelectionModel.select(y1, y2);
         this.setLastSelectionType('row');
     },
 
+    /**
+     * @memberOf SelectionModel.prototype
+     * @param x1
+     * @param x2
+     */
     deselectColumn: function(x1, x2) {
         this.columnSelectionModel.deselect(x1, x2);
         this.setLastSelectionType('column');
     },
 
+    /**
+     * @memberOf SelectionModel.prototype
+     * @param y1
+     * @param y2
+     */
     deselectRow: function(y1, y2) {
         this.rowSelectionModel.deselect(y1, y2);
         this.setLastSelectionType('row');
     },
 
+    /**
+     * @memberOf SelectionModel.prototype
+     * @returns {*}
+     */
     getSelectedRows: function() {
         if (this.areAllRowsSelected()) {
             var grid = this.getGrid();
@@ -309,14 +399,26 @@ SelectionModel.prototype = {
         return this.rowSelectionModel.getSelections();
     },
 
+    /**
+     * @memberOf SelectionModel.prototype
+     * @returns {*|Array.Array.number}
+     */
     getSelectedColumns: function() {
         return this.columnSelectionModel.getSelections();
     },
 
-    isColumnOrRowSelected: function() {
+    /**
+     * @memberOf SelectionModel.prototype
+     * @returns {boolean}
+     */
+     isColumnOrRowSelected: function() {
         return !this.columnSelectionModel.isEmpty() || !this.rowSelectionModel.isEmpty();
     },
 
+    /**
+     * @memberOf SelectionModel.prototype
+     * @returns {Array}
+     */
     getFlattenedYs: function() {
         var result = [];
         var set = {};
@@ -337,6 +439,10 @@ SelectionModel.prototype = {
         return result;
     },
 
+    /**
+     * @memberOf SelectionModel.prototype
+     * @param offset
+     */
     selectRowsFromCells: function(offset) {
         offset = offset || 0;
 
@@ -351,6 +457,10 @@ SelectionModel.prototype = {
         });
     },
 
+    /**
+     * @memberOf SelectionModel.prototype
+     * @param offset
+     */
     selectColumnsFromCells: function(offset) {
         offset = offset || 0;
 
@@ -364,11 +474,24 @@ SelectionModel.prototype = {
         });
     },
 
+    /**
+     * @memberOf SelectionModel.prototype
+     * @param x
+     * @param y
+     * @returns {*}
+     */
     isInCurrentSelectionRectangle: function(x, y) {
         var last = this.selections[this.selections.length - 1];
         return last && this.rectangleContains(last, x, y);
     },
 
+    /**
+     * @memberOf SelectionModel.prototype
+     * @param rect
+     * @param x
+     * @param y
+     * @returns {boolean}
+     */
     rectangleContains: function(rect, x, y) { //TODO: explore why this works and contains on rectanglular does not
         var minX = rect.origin.x;
         var minY = rect.origin.y;

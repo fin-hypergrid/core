@@ -2,15 +2,17 @@
 
 var Feature = require('./Feature.js');
 
-var ColumnSorting = Feature.extend({
+/**
+ * @constructor
+ */
+var ColumnSorting = Feature.extend('ColumnSorting', {
 
     alias: 'ColumnSorting',
 
     /**
-     * @function
-     * @instance
+     * @memberOf ColumnSorting.prototype
      * @desc Handle this event down the feature chain of responsibility.
-     * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+     * @param {Hypergrid} grid
      * @param {Object} event - the event details
      */
 
@@ -25,10 +27,9 @@ var ColumnSorting = Feature.extend({
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf ColumnSorting.prototype
      * @desc * @desc Handle this event down the feature chain of responsibility.
-     * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+     * @param {Hypergrid} grid
      * @param {Object} event - the event details
      */
     handleMouseMove: function(grid, event) {
