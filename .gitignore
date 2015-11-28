@@ -4,4 +4,6 @@
 /node_modules
 /index.*
 /images/index.js
-/src/local_node_modules/not-in-use
+/src/local_node_modules/not-in-use/fincanvas
+/src/local_node_modules/not-in-use/newanalytics
+/src/local_node_modules/not-in-use/rectangular
