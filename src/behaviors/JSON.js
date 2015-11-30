@@ -123,7 +123,10 @@ var JSON = Behavior.extend('behaviors.JSON', {
                 self.autosizeAllColumns();
             }, 100);
         } else {
-            this.changed();
+            setTimeout(function() {
+                self.allColumns[-1].checkColumnAutosizing(true);
+                self.changed();
+            });
         }
     },
 

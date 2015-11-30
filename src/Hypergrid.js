@@ -2071,7 +2071,8 @@ Hypergrid.prototype = {
 
         var horzBar = new FinBar({
             orientation: 'horizontal',
-            onchange: self.setHScrollValue.bind(self)
+            onchange: self.setHScrollValue.bind(self),
+            cssStylesheetReferenceElement: this.div
         });
 
         var vertBar = new FinBar({
