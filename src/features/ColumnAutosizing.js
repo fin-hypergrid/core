@@ -2,16 +2,18 @@
 
 var Feature = require('./Feature.js');
 
-var ColumnAutosizing = Feature.extend({
+/**
+ * @constructor
+ */
+var ColumnAutosizing = Feature.extend('ColumnAutosizing', {
 
     alias: 'ColumnAutosizing',
 
     /**
-     * @function
-     * @instance
      * @desc handle this event down the feature chain of responsibility
-     * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+     * @param {Hypergrid} grid
      * @param {Object} event - the event details
+     * @memberOf ColumnAutosizing.prototype
      */
     handleDoubleClick: function(grid, event) {
         var headerRowCount = grid.getHeaderRowCount();

@@ -3,42 +3,33 @@
 
 'use strict';
 
+var _ = require('object-iterators');
+var Base = require('extend-me').Base;
+
 /**
- *
- * @module .\renderer
+ * @constructor
  * @desc fin-hypergrid-renderer is the canvas enabled top level sub component that handles the renderering of the Grid.
+ *
+ * It relies on two other external subprojects
+ *
+ * 1. fin-canvas: a wrapper to provide a simpler interface to the HTML5 canvas component
+ * 2. rectangular: a small npm module providing Point and Rectangle objects
+ *
+ * The fin-hypergrid-renderer is in a unique position to provide critical functionality to the fin-hypergrid in a hightly performant manner.
+ * Because it MUST iterate over all the visible cells it can store various bits of information that can be encapsulated as a service for consumption by the fin-hypergrid component.
+ *
+ * Instances of this object have basically four main functions.
+ *
+ * 1. render fixed row headers
+ * 2. render fixed col headers
+ * 3. render main data cells
+ * 4. render grid lines
+ *
+ * Same parameters as {@link Renderer#initialize|initialize}, which is called by this constructor.
+ *
+ */
+var Renderer = Base.extend('Renderer', {
 
-It relies on two other external subprojects
-
-1. fin-canvas: a wrapper to provide a simpler interface to the HTML5 canvas component
-2. rectangular: a small npm module providing Point and Rectangle objects
-
-The fin-hypergrid-renderer is in a unique position to provide critical functionality to the fin-hypergrid in a hightly performant manner.
-Because it MUST iterate over all the visible cells it can store various bits of information that can be encapsulated as a service for consumption by the fin-hypergrid component.
-
-Instances of this object have basically four main functions.
-
-1. render fixed row headers
-2. render fixed col headers
-3. render main data cells
-4. render grid lines
-
-**/
-
-function Renderer(grid) {
-    this.grid = grid;
-    this.reset();
-}
-
-var merge = function(target, source) {
-    for (var key in source) {
-        if (source.hasOwnProperty(key)) {
-            target[key] = source[key];
-        }
-    }
-};
-
-Renderer.prototype = {
     //the shared single item "pooled" cell object for drawing each cell
     cell: {
         x: 0,
@@ -51,7 +42,14 @@ Renderer.prototype = {
 
     viewHeight: 0,
 
-    reset: function() {
+    /**
+     * @summary Constructor logic
+     * @desc This method will be called upon instantiation of this class or of any class that extends from this class.
+     * > All `initialize()` methods in the inheritance chain are called, in turn, each with the same parameters that were passed to the constructor, beginning with that of the most "senior" class through that of the class of the new instance.
+     * @memberOf Renderer.prototype
+     */
+    initialize: function(grid) {
+        this.grid = grid;
         this.bounds = {
             width:0,
             height:0
@@ -167,8 +165,7 @@ Renderer.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Renderer.prototype
      * @returns {Object} a property value at a key, delegates to the grid
      */
     resolveProperty: function(key) {
@@ -176,17 +173,15 @@ Renderer.prototype = {
     },
 
     /**
-     * @function
-     * @instance
-     * @returns {fin-hypergrid} The [fin-hypergrid](module-._fin-hypergrid.html)
+     * @memberOf Renderer.prototype
+     * @returns {Hypergrid} grid
      */
     getGrid: function() {
         return this.grid;
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Renderer.prototype
      * @summary Notify the fin-hypergrid everytime we've repainted.
      * @desc This is the entry point from fin-canvas.
      * @param {CanvasRenderingContext2D} gc - [CanvasRenderingContext2D](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D)
@@ -199,8 +194,7 @@ Renderer.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Renderer.prototype
      * @returns {number} Answer how many rows we rendered
      */
     getVisibleRowsCount: function() {
@@ -215,8 +209,7 @@ Renderer.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Renderer.prototype
      * @returns {number[]} Rows we just rendered.
      */
     getVisibleRows: function() {
@@ -224,8 +217,7 @@ Renderer.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Renderer.prototype
      * @returns {number} Numer of columns we just rendered.
      */
     getVisibleColumnsCount: function() {
@@ -233,8 +225,7 @@ Renderer.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Renderer.prototype
      * @returns {number} Columns we just rendered.
      */
     getVisibleColumns: function() {
@@ -242,8 +233,7 @@ Renderer.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Renderer.prototype
      * @returns {number} The column index whne the mouseEvent coordinates are over a column divider.
      */
     overColumnDivider: function(x) {
@@ -267,8 +257,7 @@ Renderer.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Renderer.prototype
      * @returns {number} The row index when the mouseEvent coordinates are over a row divider.
      */
     overRowDivider: function(y) {
@@ -284,8 +273,7 @@ Renderer.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Renderer.prototype
      * @param {Point} cell
      * @returns {Rectangle} Bounding rect of the given `cell`.
      */
@@ -294,8 +282,7 @@ Renderer.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Renderer.prototype
      * @param {number} c - The horizontal coordinate.
      * @param {number} r - The vertical coordinate.
      * @returns {Rectangle} Bounding rect of cell with the given coordinates.
@@ -336,8 +323,7 @@ Renderer.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Renderer.prototype
      * @desc answer the column index under the coordinate at pixelX
      * @param {number} pixelX - The horizontal coordinate.
      * @returns {number} The column index under the coordinate at pixelX.
@@ -366,8 +352,7 @@ Renderer.prototype = {
 
 
     /**
-     * @function
-     * @instance
+     * @memberOf Renderer.prototype
      * @desc Answer specific data cell coordinates given mouse coordinates in pixels.
      * @param {Point} point
      * @returns {Point} Cell coordinates
@@ -441,8 +426,7 @@ Renderer.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Renderer.prototype
      * @summary Determines if a column is visible.
      * @param {number} colIndex - the column index*
      * @returns {boolean} The given column is fully visible.
@@ -453,8 +437,7 @@ Renderer.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Renderer.prototype
      * @returns {number} The width x coordinate of the last rendered column
      */
     getFinalVisableColumnBoundry: function() {
@@ -466,8 +449,7 @@ Renderer.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Renderer.prototype
      * @summary Determines visibility of a row.
      * @param {number} rowIndex - the row index
      * @returns {boolean} The given row is fully visible.
@@ -478,8 +460,7 @@ Renderer.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Renderer.prototype
      * @summary Determines if a cell is selected.
      * @param {number} x - the x cell coordinate
      * @param {number} y - the y cell coordinate*
@@ -490,8 +471,7 @@ Renderer.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Renderer.prototype
      * @desc This is the main forking of the renderering task.
      * @param {CanvasRenderingContext2D} gc - [CanvasRenderingContext2D](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D)
      */
@@ -610,8 +590,7 @@ Renderer.prototype = {
 
 
     /**
-     * @function
-     * @instance
+     * @memberOf Renderer.prototype
      * @desc Paint the background color over the overflow from the final column paint
      * @param {CanvasRenderingContext2D} gc - [CanvasRenderingContext2D](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D)
      */
@@ -627,8 +606,7 @@ Renderer.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Renderer.prototype
      * @desc iterate the renderering overrides and manifest each
      * @param {CanvasRenderingContext2D} gc - [CanvasRenderingContext2D](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D)
      */
@@ -646,8 +624,7 @@ Renderer.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Renderer.prototype
      * @desc copy each overrides specified area to it's target and blank out the source area
      * @param {CanvasRenderingContext2D} gc - [CanvasRenderingContext2D](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D)
      * @param {OverrideObject} override - an object with details contain an area and a target context
@@ -667,31 +644,26 @@ Renderer.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Renderer.prototype
      * @returns {boolean} mouse is currently over cell x, y
      * @param {number} offsetX - x coordinate
      * @param {number} offsetY - y coordinate
-     *
      */
     isHovered: function(x, y) {
         return this.getGrid().isHovered(x, y);
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Renderer.prototype
      * @returns {boolean} mouse is currently over row y
      * @param {number} offsetY - y coordinate
-     *
      */
     isRowHovered: function(y) {
         return this.getGrid().isRowHovered(y);
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Renderer.prototype
      * @returns {boolean} mouse is currently over column x
      * @param {number} offsetX - x coordinate
      */
@@ -700,8 +672,7 @@ Renderer.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Renderer.prototype
      * @summary Smart render the main cells.
      * @desc We snapshot the context to insure against its pollution.
      * @param {CanvasRenderingContext2D} gc - [CanvasRenderingContext2D](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D)
@@ -718,9 +689,8 @@ Renderer.prototype = {
     },
 
     /**
-     * @function
-     * @instance
-     * @param {number} colIndex - column index
+     * @memberOf Renderer.prototype
+     * @param {number} colIndex
      * @returns {boolean} The given column within the fixed row area is selected.
      */
     isCellSelectedInRow: function(colIndex) {
@@ -728,9 +698,8 @@ Renderer.prototype = {
     },
 
     /**
-     * @function
-     * @instance
-     * @param {number} rowIndex - column index
+     * @memberOf Renderer.prototype
+     * @param {number} rowIndex
      * @returns {boolean} The given row within the fixed column area is selected.
      */
     isCellSelectedInColumn: function(rowIndex) {
@@ -738,8 +707,7 @@ Renderer.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Renderer.prototype
      * @returns {number} Current vertical scroll value.
      */
     getScrollTop: function() {
@@ -748,8 +716,7 @@ Renderer.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Renderer.prototype
      * @returns {number} Current horizontal scroll value.
      */
     getScrollLeft: function() {
@@ -758,9 +725,8 @@ Renderer.prototype = {
     },
 
     /**
-     * @function
-     * @instance
-     * @returns {fin-hypergrid-behavior-base} my behavior (model) - [fin-hypergrid-behavior-base](module-behaviors_base.html)
+     * @memberOf Renderer.prototype
+     * @returns {Behavior}
      */
     getBehavior: function() {
         return this.getGrid().getBehavior();
@@ -774,10 +740,9 @@ Renderer.prototype = {
         return this.rowEdges;
     },
     /**
-     * @function
-     * @instance
-     * @returns {number} answers the row height of the row at index rowIndex
-     * @param {number} rowIndex - the row index
+     * @memberOf Renderer.prototype
+     * @returns {number} The row height of the row at index rowIndex
+     * @param {number} rowIndex
      */
     getRowHeight: function(rowIndex) {
         var height = this.getBehavior().getRowHeight(rowIndex);
@@ -785,10 +750,9 @@ Renderer.prototype = {
     },
 
     /**
-     * @function
-     * @instance
-     * @returns {number} answers the columnWidth of the column at index columnIndex
-     * @param {number} columnIndex - the row index
+     * @memberOf Renderer.prototype
+     * @returns {number} The columnWidth of the column at index columnIndex
+     * @param {number} columnIndex
      */
     getColumnWidth: function(columnIndex) {
         var width = this.getGrid().getColumnWidth(columnIndex);
@@ -796,8 +760,7 @@ Renderer.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Renderer.prototype
      * @returns {boolean} The last col was rendered (is visible)
      */
     isLastColumnVisible: function() {
@@ -807,8 +770,7 @@ Renderer.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Renderer.prototype
      * @returns {number} The rendered column width at index
      */
     getRenderedWidth: function(index) {
@@ -816,8 +778,7 @@ Renderer.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Renderer.prototype
      * @returns {number} The rendered row height at index
      */
     getRenderedHeight: function(index) {
@@ -825,8 +786,7 @@ Renderer.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Renderer.prototype
      * @returns {fin-canvas} my [fin-canvas](https://github.com/stevewirts/fin-canvas)
      */
     getCanvas: function() {
@@ -834,8 +794,7 @@ Renderer.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Renderer.prototype
      * @returns {boolean} User is currently dragging a column for reordering.
      */
     isDraggingColumn: function() {
@@ -843,8 +802,7 @@ Renderer.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Renderer.prototype
      * @returns {number} The row to goto for a page up.
      */
     getPageUpRow: function() {
@@ -861,8 +819,7 @@ Renderer.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Renderer.prototype
      * @returns {number} The row to goto for a page down.
      */
     getPageDownRow: function() {
@@ -872,8 +829,7 @@ Renderer.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Renderer.prototype
      * @returns {number} The number of columns.
      */
     getColumnCount: function() {
@@ -881,8 +837,7 @@ Renderer.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Renderer.prototype
      * @returns {number} The number of rows.
      */
     getRowCount: function() {
@@ -890,8 +845,7 @@ Renderer.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Renderer.prototype
      * @returns {number} The number of fixed columns.
      */
     getFixedColumnCount: function() {
@@ -899,8 +853,7 @@ Renderer.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Renderer.prototype
      * @returns {number} The number of fixed rows.
      */
     getFixedRowCount: function() {
@@ -908,26 +861,23 @@ Renderer.prototype = {
     },
 
     /**
-     * @function
-     * @instance
-     * @returns {number} The number of fixed rows.
+     * @memberOf Renderer.prototype
+     * @returns {number} The number of header rows.
      */
     getHeaderRowCount: function() {
         return this.getGrid().getHeaderRowCount();
     },
 
     /**
-     * @function
-     * @instance
-     * @returns {number} The number of fixed rows.
+     * @memberOf Renderer.prototype
+     * @returns {number} The number of header columns.
      */
     getHeaderColumnCount: function() {
         return this.getGrid().getHeaderColumnCount();
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Renderer.prototype
      * @desc Dumb render the fixed columns along the left side.
      * @param {CanvasRenderingContext2D} gc - [CanvasRenderingContext2D](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D)
      * @param {number} offsetX - x coordinate to start at
@@ -972,8 +922,7 @@ Renderer.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Renderer.prototype
      * @desc We opted to not paint borders for each cell as that was extremely expensive. Instead we draw gridlines here. Also we record the widths and heights for later.
      * @param {CanvasRenderingContext2D} gc - [CanvasRenderingContext2D](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D)
      * @param {number} offsetX - The horizontal coordinate to start at.
@@ -1016,6 +965,12 @@ Renderer.prototype = {
         gc.closePath();
     },
 
+    /**
+     * @memberOf Renderer.prototype
+     * @param {CanvasRenderingContext2D} gc
+     * @param x
+     * @param y
+     */
     paintCell: function(gc, x, y) {
         gc.moveTo(0, 0);
 
@@ -1130,9 +1085,7 @@ Renderer.prototype = {
         var overrides = behavior.getCellProperties(c, r);
 
         //declarative cell properties
-        if (overrides) {
-            merge(cellProperties, overrides);
-        }
+        _(cellProperties).extendOwn(overrides);
 
         //allow the renderer to identify itself if it's a button
         cellProperties.buttonCells = this.buttonCells;
@@ -1183,6 +1136,6 @@ Renderer.prototype = {
         return (this.bounds = bounds);
     }
 
-};
+});
 
 module.exports = Renderer;

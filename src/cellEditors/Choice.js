@@ -2,17 +2,22 @@
 
 var Simple = require('./Simple');
 
-var Choice = Simple.extend({
+/**
+ * @constructor
+ */
+var Choice = Simple.extend('Choice', {
 
     /**
-     * @property {string} alias - my lookup alias
-     * @instance
+     * my lookup alias
+     * @type {string}
+     * @memberOf Choice.prototype
      */
     alias: 'choice',
 
     /**
-     * @property {Array} items - the list of items to pick from
-     * @instance
+     * the list of items to pick from
+     * @type {Array}
+     * @memberOf Choice.prototype
      */
     items: ['a', 'b', 'c'],
 
@@ -29,6 +34,9 @@ var Choice = Simple.extend({
     //no events are fired while the dropdown is open
     //see http://jsfiddle.net/m4tndtu4/6/
 
+    /**
+     * @memberOf Choice.prototype
+     */
     showEditor: function() {
         var self = this;
         this.input.style.display = 'inline';
@@ -37,11 +45,19 @@ var Choice = Simple.extend({
         }, 50);
     },
 
+    /**
+     * @memberOf Choice.prototype
+     * @param items
+     */
     setItems: function(items) {
         this.items = items;
         this.updateView();
     },
 
+    /**
+     * @memberOf Choice.prototype
+     * @param input
+     */
     initializeInput: function(input) {
         var self = this;
         Simple.prototype.initializeInput(input);

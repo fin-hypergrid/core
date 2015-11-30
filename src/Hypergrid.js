@@ -2,17 +2,17 @@
 
 'use strict';
 
+var extend = require('extend-me');
 var FinBar = require('finbars');
+var Canvas = require('fincanvas');
+var Point = require('rectangular').Point;
+var Rectangle = require('rectangular').Rectangle;
 var LRUCache = require('lru-cache');
 var _ = require('object-iterators');
 
-var Point = require('./local_node_modules/rectangular/rectangular').Point;
-var Rectangle = require('./local_node_modules/rectangular/rectangular').Rectangle;
 var Renderer = require('./Renderer');
-var Canvas = require('./local_node_modules/fincanvas/Canvas');
 var SelectionModel = require('./SelectionModel');
 var addStylesheet = require('./stylesheets');
-var extend = require('extend-me');
 
 var globalCellEditors = {},
     propertiesInitialized = false,
@@ -22,10 +22,9 @@ var globalCellEditors = {},
     globalProperties = Object.create(polymerTheme);
 
 /**
- *
+ * @constructor
  * @param {string|Element} div - CSS selector or Element
  * @param {string} behaviorName - name of a behavior consstructor from ./behaviors
- * @constructor
  */
 function Hypergrid(div, getBehavior) {
 
@@ -91,100 +90,111 @@ Hypergrid.prototype = {
 
     /**
      *
-     * @property {object} behavior - A null object behavior serves as a place holder.
-     * @instance
+     * A null object behavior serves as a place holder.
+     * @type {object}
+     * @memberOf Hypergrid.prototype
      */
     behavior: null,
 
     /**
-     * @property {boolean} isWebkit - Cached result of if we are running in webkit.
-     * @instance
+     * Cached result of if we are running in webkit.
+     * @type {boolean}
+     * @memberOf Hypergrid.prototype
      */
     isWebkit: true,
 
     /**
-     * @property {Point} mouseDown - The pixel location of an initial mousedown click, either for editing a cell or for dragging a selection.
-     * @instance
+     * The pixel location of an initial mousedown click, either for editing a cell or for dragging a selection.
+     * @type {Point}
+     * @memberOf Hypergrid.prototype
      */
     mouseDown: [],
 
     /**
-     * @property {Point} dragExtent - The extent from the mousedown point during a drag operation.
-     * @instance
+     * The extent from the mousedown point during a drag operation.
+     * @type {Point}
+     * @memberOf Hypergrid.prototype
      */
 
     dragExtent: null,
 
     /**
-     * @property {number} vScrollValue - A float value between 0.0 - 1.0 of the vertical scroll position.
-     * @instance
+     * A float value between 0.0 - 1.0 of the vertical scroll position.
+     * @type {number}
+     * @memberOf Hypergrid.prototype
      */
     vScrollValue: 0,
 
     /**
-     * @property {number} hScrollValue - A float value between 0.0 - 1.0 of the horizontal scroll position.
-     * @instance
+     * A float value between 0.0 - 1.0 of the horizontal scroll position.
+     * @type {number}
+     * @memberOf Hypergrid.prototype
      */
     hScrollValue: 0,
 
     /**
      * @property {window.fin.rectangular} rectangular - Namespace for Point and Rectangle "classes" (constructors).
-     * @instance
+     * @memberOf Hypergrid.prototype
      */
     rectangular: null,
 
     /**
      * @property {fin-hypergrid-selection-model} selectionModel - A [fin-hypergrid-selection-model](module-._selection-model.html) instance.
-     * @instance
+     * @memberOf Hypergrid.prototype
      */
     selectionModel: null,
 
     /**
      * @property {fin-hypergrid-cell-editor} cellEditor - The current instance of [fin-hypergrid-cell-editor](module-cell-editors_base.html).
-     * @instance
+     * @memberOf Hypergrid.prototype
      */
     cellEditor: null,
 
     /**
      * @property {fin-vampire-bar} sbHScroller - An instance of [fin-vampire-bar](http://datamadic.github.io/fin-vampire-bar/components/fin-vampire-bar/).
-     * @instance
+     * @memberOf Hypergrid.prototype
      */
     sbHScroller: null,
 
     /**
      * @property {fin-vampire-bar} sbVScroller - An instance of [fin-vampire-bar](http://datamadic.github.io/fin-vampire-bar/components/fin-vampire-bar/).
-     * @instance
+     * @memberOf Hypergrid.prototype
      */
     sbVScroller: null,
 
     /**
-     * @property {number} sbPrevVScrollValue - The previous value of sbVScrollVal.
-     * @instance
+     * The previous value of sbVScrollVal.
+     * @type {number}
+     * @memberOf Hypergrid.prototype
      */
     sbPrevVScrollValue: null,
 
     /**
-     * @property {number} sbPrevHScrollValue - The previous value of sbHScrollValue.
-     * @instance
+     * The previous value of sbHScrollValue.
+     * @type {number}
+     * @memberOf Hypergrid.prototype
      */
     sbPrevHScrollValue: null,
 
     /**
-     * @property {object} cellEditors - The cache of singleton cellEditors.
-     * @instance
+     * The cache of singleton cellEditors.
+     * @type {object}
+     * @memberOf Hypergrid.prototype
      */
     cellEditors: null,
 
     /**
-     * @property {object} renderOverridesCache - is the short term memory of what column I might be dragging around
-     * @instance
+     * is the short term memory of what column I might be dragging around
+     * @type {object}
+     * @memberOf Hypergrid.prototype
      */
 
     renderOverridesCache: {},
 
     /**
-     * @property {Point} hoverCell - The pixel location of the current hovered cell.
-     * @instance
+     * The pixel location of the current hovered cell.
+     * @type {Point}
+     * @memberOf Hypergrid.prototype
      */
     hoverCell: null,
 
@@ -193,8 +203,7 @@ Hypergrid.prototype = {
     lastEdgeSelection: null,
 
     /**
-     * @function
-     * @instance
+     * @memberOf Hypergrid.prototype
     clear out the LRU cache of text widths
      */
     setAttribute: function(attribute, value) {
@@ -202,8 +211,7 @@ Hypergrid.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Hypergrid.prototype
     clear out all state and data of the grid
      */
     reset: function() {
@@ -291,8 +299,7 @@ Hypergrid.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Hypergrid.prototype
      * @returns {boolean} The pointer is over the given cell.
      * @param {number} x - The x cell coordinate.
      * @param {number} y - The y cell coordinate.
@@ -306,8 +313,7 @@ Hypergrid.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Hypergrid.prototype
      * @returns boolean} The pointer is hovering over the given column.
      * @param {number} x - The horizontal cell coordinate.
      */
@@ -326,8 +332,7 @@ Hypergrid.prototype = {
     /**
      *
      *
-     * @function
-     * @instance
+     * @memberOf Hypergrid.prototype
      * @returns {boolean} The pointer is hovering over the row `y`.
      * @param {number} y - The vertical cell coordinate.
      */
@@ -340,8 +345,7 @@ Hypergrid.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Hypergrid.prototype
      * @returns {Point} The cell over which the cursor is hovering.
      */
     getHoverCell: function() {
@@ -350,8 +354,7 @@ Hypergrid.prototype = {
 
 
     /**
-     * @function
-     * @instance
+     * @memberOf Hypergrid.prototype
      * @desc Set the cell under the cursor.
      * @param {Point} point
      */
@@ -367,8 +370,7 @@ Hypergrid.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Hypergrid.prototype
      * @desc Ammend properties for all hypergrids in this process.
      * @param {object} properties - A simple properties hash.
      */
@@ -386,8 +388,7 @@ Hypergrid.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Hypergrid.prototype
      * @desc Ammend properties for all hypergrids in this process.
      * @param {object} properties - A simple properties hash.
      * @private
@@ -399,8 +400,7 @@ Hypergrid.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Hypergrid.prototype
      * @desc Ammend properties for this hypergrid only.
      * @param {object} properties - A simple properties hash.
      */
@@ -413,8 +413,7 @@ Hypergrid.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Hypergrid.prototype
      * @desc Utility function to push out properties if we change them.
      * @param {object} properties - An object of various key value pairs.
      */
@@ -430,8 +429,7 @@ Hypergrid.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Hypergrid.prototype
      * @returns {object} The state object for remembering our state.
      * @see [Memento pattern](http://en.wikipedia.org/wiki/Memento_pattern)
      */
@@ -440,8 +438,7 @@ Hypergrid.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Hypergrid.prototype
      * @desc Set the state object to return to the given user configuration.
      * @param {object} state - A memento object.
      * @see [Memento pattern](http://en.wikipedia.org/wiki/Memento_pattern)
@@ -459,10 +456,9 @@ Hypergrid.prototype = {
         return this.getBehavior().getState();
     },
     /**
-     * @function
-     * @instance
+     * @memberOf Hypergrid.prototype
      * @returns {object} The initial mouse position on a mouse down event for cell editing or a drag operation.
-     * @instance
+     * @memberOf Hypergrid.prototype
      */
     getMouseDown: function() {
         var last = this.mouseDown.length - 1;
@@ -473,8 +469,7 @@ Hypergrid.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Hypergrid.prototype
      * @desc Remove the last item from the mouse down stack.
      */
     popMouseDown: function() {
@@ -485,8 +480,7 @@ Hypergrid.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Hypergrid.prototype
      * @desc Empty out the mouse down stack.
      */
     clearMouseDown: function() {
@@ -495,8 +489,7 @@ Hypergrid.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Hypergrid.prototype
      set the mouse point that initated a cell edit or drag operation
      *
      * @param {Point} point
@@ -506,8 +499,7 @@ Hypergrid.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Hypergrid.prototype
      * @returns {Point} The extent point of the current drag selection rectangle.
      */
     getDragExtent: function() {
@@ -515,8 +507,7 @@ Hypergrid.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Hypergrid.prototype
      * @summary Sets the extent point of the current drag selection operation.
      * @param {Point} point
      */
@@ -525,8 +516,9 @@ Hypergrid.prototype = {
     },
 
     /**
-     * @function
-     * @instance Iterate over the plugins invoking the given function with each.
+     * @memberOf Hypergrid.prototype
+     * @summary Iterate over the plugins invoking the given function with each.
+     * @todo We need a new plugin mechanism!
      * @param {function} func - The function to invoke on all the plugins.
      */
     pluginsDo: function(func) {
@@ -546,8 +538,7 @@ Hypergrid.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Hypergrid.prototype
      * @desc The CellProvider is accessed through Hypergrid because Hypergrid is the mediator and should have ultimate control on where it comes from. The default is to delegate through the behavior object.
      * @returns {fin-hypergrid-cell-provider}
      */
@@ -557,8 +548,7 @@ Hypergrid.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Hypergrid.prototype
      * @desc This function is a callback from the HypergridRenderer sub-component. It is called after each paint of the canvas.
      */
     gridRenderedNotification: function() {
@@ -571,8 +561,7 @@ Hypergrid.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Hypergrid.prototype
      * @desc The grid has just been rendered, make sure the column widths are optimal.
      */
     checkColumnAutosizing: function() {
@@ -583,8 +572,7 @@ Hypergrid.prototype = {
         }
     },
     /**
-     * @function
-     * @instance
+     * @memberOf Hypergrid.prototype
      * @desc Notify the GridBehavior how many rows and columns we just rendered.
      */
     updateRenderedSizes: function() {
@@ -596,8 +584,7 @@ Hypergrid.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Hypergrid.prototype
      * @summary Conditionally copy to clipboard.
      * @desc If we have focus, copy our current selection data to the system clipboard.
      * @param {event} event - The copy system event.
@@ -612,8 +599,7 @@ Hypergrid.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Hypergrid.prototype
      * @returns {boolean} We have any selections.
      */
     hasSelections: function() {
@@ -624,8 +610,7 @@ Hypergrid.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Hypergrid.prototype
      * @returns {string} Tab separated value string from the selection and our data.
      */
     getSelectionAsTSV: function() {
@@ -676,8 +661,7 @@ Hypergrid.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Hypergrid.prototype
      * @returns {boolean} We have focus.
      */
     hasFocus: function() {
@@ -685,8 +669,7 @@ Hypergrid.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Hypergrid.prototype
      * @desc Clear all the selections.
      */
     clearSelections: function() {
@@ -695,8 +678,7 @@ Hypergrid.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Hypergrid.prototype
      * @desc Clear the most recent selection.
      */
     clearMostRecentSelection: function() {
@@ -704,8 +686,7 @@ Hypergrid.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Hypergrid.prototype
      * @desc Clear the most recent column selection.
      */
     clearMostRecentColumnSelection: function() {
@@ -713,8 +694,7 @@ Hypergrid.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Hypergrid.prototype
      * @desc Clear the most recent row selection.
      */
     clearMostRecentRowSelection: function() {
@@ -722,8 +702,7 @@ Hypergrid.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Hypergrid.prototype
      * @summary Select given region.
      * @param {number} ox - origin x
      * @param {number} oy - origin y
@@ -740,8 +719,7 @@ Hypergrid.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Hypergrid.prototype
      * @returns {boolean} Given point is selected.
      * @param {number} x - The horizontal coordinate.
      * @param {number} y - The vertical coordinate.
@@ -751,8 +729,7 @@ Hypergrid.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Hypergrid.prototype
      * @returns {boolean} The given column is selected anywhere in the entire table.
      * @param {number} col - The column index.
      */
@@ -763,8 +740,7 @@ Hypergrid.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Hypergrid.prototype
      * @returns {boolean} The given row is selected anywhere in the entire table.
      * @param {number} row - The row index.
      */
@@ -775,8 +751,7 @@ Hypergrid.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Hypergrid.prototype
      * @returns {fin-hypergrid-selection-model} The selection model.
      */
     getSelectionModel: function() {
@@ -784,20 +759,18 @@ Hypergrid.prototype = {
     },
 
     /**
-     * @function
-     * @instance
-     * @returns {fin-hypergrid-behavior-base} The behavior (model).
+     * @memberOf Hypergrid.prototype
+     * @returns {Behavior} The behavior (model).
      */
     getBehavior: function() {
         return this.behavior;
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Hypergrid.prototype
      * @summary Set the Behavior (model) object for this grid control.
      * @desc This can be done dynamically.
-     * @param {fin-hypergrid-behavior-base} newBehavior - see [fin-hypergrid-behavior-base](module-behaviors_base.html)
+     * @param {Behavior} The behavior (model).
      */
     setBehavior: function(newBehavior) {
 
@@ -810,8 +783,7 @@ Hypergrid.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Hypergrid.prototype
      * @desc I've been notified that the behavior has changed.
      */
     behaviorChanged: function() {
@@ -825,8 +797,7 @@ Hypergrid.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Hypergrid.prototype
      * @returns {Rectangle} My bounds.
      */
     getBounds: function() {
@@ -834,8 +805,7 @@ Hypergrid.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Hypergrid.prototype
      * @returns {string} The value of a lnf property.
      * @param {string} key - A look-and-feel key.
      */
@@ -844,8 +814,7 @@ Hypergrid.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Hypergrid.prototype
      * @desc The dimensions of the grid data have changed. You've been notified.
      */
     behaviorShapeChanged: function() {
@@ -853,8 +822,7 @@ Hypergrid.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Hypergrid.prototype
      * @desc The dimensions of the grid data have changed. You've been notified.
      */
     behaviorStateChanged: function() {
@@ -875,8 +843,7 @@ Hypergrid.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Hypergrid.prototype
      * @desc Paint immediately in this microtask.
      */
     paintNow: function() {
@@ -885,8 +852,7 @@ Hypergrid.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Hypergrid.prototype
      * @returns {boolean} In HiDPI mode (has an attribute as such).
      */
     useHiDPI: function() {
@@ -894,8 +860,7 @@ Hypergrid.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Hypergrid.prototype
      * @summary Initialize drawing surface.
      * @private
      */
@@ -1105,8 +1070,7 @@ Hypergrid.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Hypergrid.prototype
      * @summary Add an event listener to me.
      * @param {string} eventName - The type of event we are interested in.
      * @param {function} callback - The event handler.
@@ -1116,8 +1080,7 @@ Hypergrid.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Hypergrid.prototype
      * @summary Set for `scrollingNow` field.
      * @param {boolean} isItNow - The type of event we are interested in.
      */
@@ -1126,8 +1089,7 @@ Hypergrid.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Hypergrid.prototype
      * @returns {boolean} The `scrollingNow` field.
      */
     isScrollingNow: function() {
@@ -1135,8 +1097,7 @@ Hypergrid.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Hypergrid.prototype
      * @returns {number} The index of the column divider under the mouse coordinates.
      * @param {MouseEvent} mouseEvent - The event to interogate.
      */
@@ -1147,8 +1108,7 @@ Hypergrid.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Hypergrid.prototype
      * @returns {number} The index of the row divider under the mouse coordinates.
      * @param {MouseEvent} mouseEvent - The event to interogate.
      */
@@ -1159,8 +1119,7 @@ Hypergrid.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Hypergrid.prototype
      * @desc Switch the cursor for the grid.
      * @param {string} cursorName - A well know cursor name.
      * @see [cursor names](http://www.javascripter.net/faq/stylesc.htm)
@@ -1173,8 +1132,7 @@ Hypergrid.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Hypergrid.prototype
      * @desc Delegate the wheel moved event to the behavior.
      * @param {Event} event - The pertinent event.
      */
@@ -1184,8 +1142,7 @@ Hypergrid.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Hypergrid.prototype
      * @desc Delegate MouseExit to the behavior (model).
      * @param {Event} event - The pertinent event.
      */
@@ -1195,8 +1152,7 @@ Hypergrid.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Hypergrid.prototype
      * @desc Delegate MouseExit to the behavior (model).
      * @param {Event} event - The pertinent event.
      */
@@ -1206,8 +1162,7 @@ Hypergrid.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Hypergrid.prototype
      * @desc Delegate MouseMove to the behavior (model).
      * @param {mouseDetails} mouseDetails - An enriched mouse event from fin-canvas.
      */
@@ -1217,8 +1172,7 @@ Hypergrid.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Hypergrid.prototype
      * @desc Delegate mousedown to the behavior (model).
      * @param {mouseDetails} mouseDetails - An enriched mouse event from fin-canvas.
      */
@@ -1228,8 +1182,7 @@ Hypergrid.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Hypergrid.prototype
      * @desc Delegate mouseup to the behavior (model).
      * @param {mouseDetails} mouseDetails - An enriched mouse event from fin-canvas.
      */
@@ -1239,8 +1192,7 @@ Hypergrid.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Hypergrid.prototype
      * @desc Delegate tap to the behavior (model).
      * @param {mouseDetails} mouseDetails - An enriched mouse event from fin-canvas.
      */
@@ -1250,8 +1202,7 @@ Hypergrid.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Hypergrid.prototype
      * @desc Delegate mouseDrag to the behavior (model).
      * @param {mouseDetails} mouseDetails - An enriched mouse event from fin-canvas.
      */
@@ -1261,8 +1212,7 @@ Hypergrid.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Hypergrid.prototype
      * @desc We've been doubleclicked on. Delegate through the behavior (model).
      * @param {mouseDetails} mouseDetails - An enriched mouse event from fin-canvas.
      */
@@ -1272,8 +1222,7 @@ Hypergrid.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Hypergrid.prototype
      * @desc Delegate holdpulse through the behavior (model).
      * @param {mouseDetails} mouseDetails - An enriched mouse event from fin-canvas.
      */
@@ -1283,8 +1232,7 @@ Hypergrid.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Hypergrid.prototype
      * @summary Generate a function name and call it on self.
      * @desc This should also be delegated through Behavior keeping the default implementation here though.
      * @param {event} event - The pertinent event.
@@ -1295,8 +1243,7 @@ Hypergrid.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Hypergrid.prototype
      * @summary Generate a function name and call it on self.
      * @desc This should also be delegated through Behavior keeping the default implementation here though.
      * @param {event} event - The pertinent event.
@@ -1307,8 +1254,7 @@ Hypergrid.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Hypergrid.prototype
      * @summary Shut down the current cell editor.
      */
     stopEditing: function() {
@@ -1321,8 +1267,7 @@ Hypergrid.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Hypergrid.prototype
      * @summary Register a cell editor.
      * @desc This is typically called from within a cell-editor's `installOn` method, when it is being initialized as a plugin.
      * @param {string} alias - The name/id of the cell editor.
@@ -1333,8 +1278,7 @@ Hypergrid.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Hypergrid.prototype
      * @returns {Rectangle} The pixel coordinates of just the center 'main" data area.
      */
     getDataBounds: function() {
@@ -1358,17 +1302,15 @@ Hypergrid.prototype = {
     },
 
     /**
-     * @function
-     * @instance
-     * @returns {fin-canvas} Our fin-canvas instance.
+     * @memberOf Hypergrid.prototype
+     * @returns {Canvas} Our fin-canvas instance.
      */
     getCanvas: function() {
         return this.canvas;
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Hypergrid.prototype
      * @summary Open the given cell-editor at the provided model coordinates.
      * @param {string} cellEditor - The specific cell editor to use.
      * @param {Point} coordinates - The pixel locaiton of the cell to edit at.
@@ -1399,8 +1341,7 @@ Hypergrid.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Hypergrid.prototype
      * @returns {boolean} The given column is fully visible.
      * @param {number} columnIndex - The column index in question.
      */
@@ -1410,8 +1351,7 @@ Hypergrid.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Hypergrid.prototype
      * @returns {boolean} The given row is fully visible.
      * @param {number} rowIndex - The row index in question.
      */
@@ -1421,8 +1361,7 @@ Hypergrid.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Hypergrid.prototype
      * @returns {boolean} The given cell is fully is visible.
      * @param {number} columnIndex - The column index in question.
      * @param {number} rowIndex - The row index in question.
@@ -1433,8 +1372,7 @@ Hypergrid.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Hypergrid.prototype
      * @summary Scroll in the `offsetX` direction if column index `colIndex` is not visible.
      * @param {number} colIndex - The column index in question.
      * @param {number} offsetX - The direction and magnitude to scroll if we need to.
@@ -1458,8 +1396,7 @@ Hypergrid.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Hypergrid.prototype
      * @summary Scroll in the offsetY direction if column index c is not visible.
      * @param {number} rowIndex - The column index in question.
      * @param {number} offsetX - The direction and magnitude to scroll if we need to.
@@ -1483,8 +1420,7 @@ Hypergrid.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Hypergrid.prototype
      * @summary Scroll horizontal and vertically by the provided offsets.
      * @param {number} offsetX - Scroll in the x direction this much.
      * @param {number} offsetY - Scroll in the y direction this much.
@@ -1495,8 +1431,7 @@ Hypergrid.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Hypergrid.prototype
      * @summary Scroll vertically by the provided offset.
      * @param {number} offsetY - Scroll in the y direction this much.
      */
@@ -1511,8 +1446,7 @@ Hypergrid.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Hypergrid.prototype
      * @summary Scroll horizontally by the provided offset.
      * @param {number} offsetX - Scroll in the x direction this much.
      */
@@ -1527,8 +1461,7 @@ Hypergrid.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Hypergrid.prototype
      * @summary Answer which data cell is under a pixel value mouse point.
      * @param {mousePoint} mouse - The mouse point to interrogate.
      */
@@ -1539,10 +1472,9 @@ Hypergrid.prototype = {
     },
 
     /**
-     * @function
      * @returns {Rectangle} The pixel based bounds rectangle given a data cell point.
      * @param {Point} cell - The pixel location of the mouse.
-     * @instance
+     * @memberOf Hypergrid.prototype
      */
     getBoundsOfCell: function(cell) {
         var b = this.getRenderer().getBoundsOfCell(cell);
@@ -1553,8 +1485,7 @@ Hypergrid.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Hypergrid.prototype
      * @desc This is called by the fin-canvas when a resize occurs.
      */
     resized: function() {
@@ -1562,11 +1493,10 @@ Hypergrid.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Hypergrid.prototype
      * @summary A click event occured.
      * @desc Determine the cell and delegate to the behavior (model).
-     * @param {MouseEvent} event - The mouse event to interogate.
+     * @param {MouseEvent} event - The mouse event to interrogate.
      */
     cellClicked: function(event) {
         var cell = event.gridCell;
@@ -1653,8 +1583,7 @@ Hypergrid.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Hypergrid.prototype
      * @desc Synthesize and fire a `fin-row-selection-changed` event.
      */
     fireSyntheticRowSelectionChangedEvent: function() {
@@ -1679,8 +1608,7 @@ Hypergrid.prototype = {
         this.canvas.dispatchEvent(selectionEvent);
     },
     /**
-     * @function
-     * @instance
+     * @memberOf Hypergrid.prototype
      * @desc Synthesize and dispatch a `fin-selection-changed` event.
      */
     selectionChanged: function() {
@@ -1817,8 +1745,7 @@ Hypergrid.prototype = {
         return result;
     },
     /**
-     * @function
-     * @instance
+     * @memberOf Hypergrid.prototype
      * @desc Synthesize and fire a `fin-context-menu` event
      * @param {keyEvent} event - The canvas event.
      */
@@ -1887,8 +1814,7 @@ Hypergrid.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Hypergrid.prototype
      * @desc Synthesize and fire a `fin-keydown` event.
      * @param {keyEvent} event - The canvas event.
      */
@@ -1900,8 +1826,7 @@ Hypergrid.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Hypergrid.prototype
      * @desc Synthesize and fire a `fin-keyup` event.
      * @param {keyEvent} event - The canvas event.
      */
@@ -1913,8 +1838,7 @@ Hypergrid.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Hypergrid.prototype
      * @desc Synthesize and fire a `fin-cell-enter` event
      * @param {Point} cell - The pixel location of the cell in which the click event occurred.
      * @param {MouseEvent} event - The system mouse event.
@@ -1944,8 +1868,7 @@ Hypergrid.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Hypergrid.prototype
      * @desc Synthesize and fire a `fin-cell-exit` event.
      * @param {Point} cell - The pixel location of the cell in which the click event occured.
      * @param {MouseEvent} event - The system mouse event.
@@ -1963,8 +1886,7 @@ Hypergrid.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Hypergrid.prototype
      * @desc Synthesize and fire a `fin-cell-click` event.
      * @param {Point} cell - The pixel location of the cell in which the click event occured.
      * @param {MouseEvent} event - The system mouse event.
@@ -1987,8 +1909,7 @@ Hypergrid.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Hypergrid.prototype
      * @desc Synthesize and fire a `fin-double-click` event.
      * @param {Point} cell - The pixel location of the cell in which the click event occured.
      * @param {MouseEvent} event - The system mouse event.
@@ -2011,8 +1932,7 @@ Hypergrid.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Hypergrid.prototype
      * @desc Synthesize and fire a rendered event.
      */
     fireSyntheticGridRenderedEvent: function() {
@@ -2028,8 +1948,7 @@ Hypergrid.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Hypergrid.prototype
      * @desc Synthesize and fire a scroll event.
      * @param {string} type - Should be either `fin-scroll-x` or `fin-scroll-y`.
      * @param {number} oldValue - The old scroll value.
@@ -2048,8 +1967,7 @@ Hypergrid.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Hypergrid.prototype
      * @desc Set the vertical scroll value.
      * @param {number} newValue - The new scroll value.
      */
@@ -2072,8 +1990,7 @@ Hypergrid.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Hypergrid.prototype
      * @return {number} The vertical scroll value.
      */
     getVScrollValue: function() {
@@ -2081,8 +1998,7 @@ Hypergrid.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Hypergrid.prototype
      * @desc Set the horizontal scroll value.
      * @param {number} newValue - The new scroll value.
      */
@@ -2105,8 +2021,7 @@ Hypergrid.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Hypergrid.prototype
      * @returns The vertical scroll value.
      */
     getHScrollValue: function() {
@@ -2114,8 +2029,7 @@ Hypergrid.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Hypergrid.prototype
      * @desc Request input focus.
      */
     takeFocus: function() {
@@ -2127,8 +2041,7 @@ Hypergrid.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Hypergrid.prototype
      * @desc Request focus for our cell editor.
      */
     editorTakeFocus: function() {
@@ -2138,8 +2051,7 @@ Hypergrid.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Hypergrid.prototype
      * @returns {boolean} We have a currently active cell editor.
      */
     isEditing: function() {
@@ -2150,8 +2062,7 @@ Hypergrid.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Hypergrid.prototype
      * @desc Initialize the scroll bars.
      */
     initScrollbars: function() {
@@ -2200,8 +2111,7 @@ Hypergrid.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Hypergrid.prototype
      * @desc Scroll values have changed, we've been notified.
      */
     setVScrollbarValues: function(max) {
@@ -2235,8 +2145,7 @@ Hypergrid.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Hypergrid.prototype
      * @summary Get data value at given cell.
      * @desc Delegates to the behavior.
      * @param {number} x - The horizontal coordinate.
@@ -2248,8 +2157,7 @@ Hypergrid.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Hypergrid.prototype
      * @desc Set a data value into the behavior (model) at the given point
      * @param {number} x - The horizontal coordinate.
      * @param {number} y - The vertical coordinate.
@@ -2263,8 +2171,7 @@ Hypergrid.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Hypergrid.prototype
      * @desc The data dimensions have changed, or our pixel boundries have changed.
      * Adjust the scrollbar properties as necessary.
      */
@@ -2323,8 +2230,7 @@ Hypergrid.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Hypergrid.prototype
      * @desc Note that "viewable rows" includes any partially viewable rows.
      * @returns {number} The number of viewable rows.
      */
@@ -2333,8 +2239,7 @@ Hypergrid.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Hypergrid.prototype
      * @desc Note that "viewable columns" includes any partially viewable columns.
      * @returns {number} The number of viewable columns.
      */
@@ -2343,8 +2248,7 @@ Hypergrid.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Hypergrid.prototype
      * @summary Initialize the renderer sub-component.
      */
     initRenderer: function() {
@@ -2352,17 +2256,15 @@ Hypergrid.prototype = {
     },
 
     /**
-     * @function
-     * @instance
-     * @returns {fin-hypergrid-renderer} sub-component
+     * @memberOf Hypergrid.prototype
+     * @returns {Renderer} sub-component
      */
     getRenderer: function() {
         return this.renderer;
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Hypergrid.prototype
      * @returns {number} The width of the given column.
      * @param {number} columnIndex - The untranslated column index.
      */
@@ -2371,8 +2273,7 @@ Hypergrid.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Hypergrid.prototype
      * @desc Set the width of the given column.
      * @param {number} columnIndex - The untranslated column index.
      * @param {number} columnWidth - The width in pixels.
@@ -2386,8 +2287,7 @@ Hypergrid.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Hypergrid.prototype
      * @returns {number} The total width of all the fixed columns.
      */
     getFixedColumnsWidth: function() {
@@ -2395,8 +2295,7 @@ Hypergrid.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Hypergrid.prototype
      * @returns {number} The height of the given row
      * @param {number} rowIndex - The untranslated fixed column index.
      */
@@ -2405,8 +2304,7 @@ Hypergrid.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Hypergrid.prototype
      * @desc Set the height of the given row.
      * @param {number} rowIndex - The row index.
      * @param {number} rowHeight - The width in pixels.
@@ -2416,8 +2314,7 @@ Hypergrid.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Hypergrid.prototype
      * @returns {number} The total fixed rows height
      */
     getFixedRowsHeight: function() {
@@ -2425,8 +2322,7 @@ Hypergrid.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Hypergrid.prototype
      * @returns {number} The number of columns.
      */
     getColumnCount: function() {
@@ -2434,8 +2330,7 @@ Hypergrid.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Hypergrid.prototype
      * @returns {number} The number of fixed rows.
      */
     getRowCount: function() {
@@ -2443,8 +2338,7 @@ Hypergrid.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Hypergrid.prototype
      * @returns {number} The number of fixed columns.
      */
     getFixedColumnCount: function() {
@@ -2452,8 +2346,7 @@ Hypergrid.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Hypergrid.prototype
      * @returns The number of fixed rows.
      */
     getFixedRowCount: function() {
@@ -2461,8 +2354,7 @@ Hypergrid.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Hypergrid.prototype
      * @summary The top left area has been clicked on
      * @desc Delegates to the behavior.
      * @param {event} event - The event details.
@@ -2472,8 +2364,7 @@ Hypergrid.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Hypergrid.prototype
      * @summary A fixed row has been clicked.
      * @desc Delegates to the behavior.
      * @param {event} event - The event details.
@@ -2483,8 +2374,7 @@ Hypergrid.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Hypergrid.prototype
      * @summary A fixed column has been clicked.
      * @desc Delegates to the behavior.
      * @param {event} event - The event details.
@@ -2494,8 +2384,7 @@ Hypergrid.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Hypergrid.prototype
      * @desc An edit event has occurred. Activate the editor.
      * @param {event} event - The event details.
      */
@@ -2505,8 +2394,7 @@ Hypergrid.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Hypergrid.prototype
      * @desc Activate the editor at the given coordinates.
      * @param {x} x - The horizontal coordinate.
      * @param {y} y - The vertical coordinate.
@@ -2535,8 +2423,7 @@ Hypergrid.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Hypergrid.prototype
      * @summary Get the cell editor.
      * @desc Delegates to the behavior.
      * @returns The cell editor at the given coordinates.
@@ -2548,8 +2435,7 @@ Hypergrid.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Hypergrid.prototype
      * @summary Toggle HiDPI support.
      * @desc HiDPI support is now *on* by default.
      * > There used to be a bug in Chrome that caused severe slow down on bit blit of large images, so this HiDPI needed to be optional.
@@ -2564,8 +2450,7 @@ Hypergrid.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Hypergrid.prototype
      * @returns {number} Te HiDPI ratio.
      */
     getHiDPI: function(ctx) {
@@ -2585,8 +2470,7 @@ Hypergrid.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Hypergrid.prototype
      * @returns {number} The width of the given (recently rendered) column.
      * @param {number} colIndex - The column index.
      */
@@ -2595,8 +2479,7 @@ Hypergrid.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Hypergrid.prototype
      * @returns {number} The height of the given (recently rendered) row.
      * @param {number} rowIndex - Tthe row index.
      */
@@ -2605,9 +2488,8 @@ Hypergrid.prototype = {
     },
 
     /**
-     * @function
-     * @instance
-     * @returns {fin-hypergrid-cell-editor} The cell editor at alias "name" (a sub-component).
+     * @memberOf Hypergrid.prototype
+     * @returns {CellEditor} The cell editor at alias "name" (a sub-component).
      * @param {string} name
      */
     resolveCellEditor: function(name) {
@@ -2615,8 +2497,7 @@ Hypergrid.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Hypergrid.prototype
     update the cursor under the hover cell
      */
     updateCursor: function() {
@@ -2631,8 +2512,7 @@ Hypergrid.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Hypergrid.prototype
      * @desc Repaint the given cell.
      * @param {x} x - The horizontal coordinate.
      * @param {y} y - The vertical coordinate.
@@ -2642,8 +2522,7 @@ Hypergrid.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Hypergrid.prototype
      * @returns {boolean} The user is currently dragging a column to reorder it.
      */
     isDraggingColumn: function() {
@@ -2651,8 +2530,7 @@ Hypergrid.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Hypergrid.prototype
      * @desc Scroll up one full page.
      * @returns {number}
      */
@@ -2663,8 +2541,7 @@ Hypergrid.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Hypergrid.prototype
      * @desc Scroll down one full page.
      * @returns {number}
      */
@@ -2675,8 +2552,7 @@ Hypergrid.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Hypergrid.prototype
      * @desc Not yet implemented.
      */
     pageLeft: function() {
@@ -2684,8 +2560,7 @@ Hypergrid.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Hypergrid.prototype
      * @desc Not yet implemented.
      */
     pageRight: function() {
@@ -2693,8 +2568,7 @@ Hypergrid.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Hypergrid.prototype
      * @returns {object[]} Objects with the values that were just rendered.
      */
     getRenderedData: function() {
@@ -2724,8 +2598,7 @@ Hypergrid.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Hypergrid.prototype
      * @returns {object} An object that represents the currently selection row.
      */
     getSelectedRow: function() {
@@ -2758,8 +2631,7 @@ Hypergrid.prototype = {
         return this.canvas.dispatchEvent(clickEvent); //I wasn't cancelled
     },
     /**
-     * @function
-     * @instance
+     * @memberOf Hypergrid.prototype
      * @desc Synthesize and fire a fin-before-cell-edit event.
      * @param {Point} cell - The x,y coordinates.
      * @param {Object} value - The current value.
@@ -2780,9 +2652,8 @@ Hypergrid.prototype = {
     },
 
     /**
-     * @function
-     * @instance
-     * @returns {fin-hypergrid-renderer} sub-component
+     * @memberOf Hypergrid.prototype
+     * @returns {Renderer} sub-component
      * @param {Point} cell - The x,y coordinates.
      * @param {Object} oldValue - The old value.
      * @param {Object} newValue - The new value.
@@ -2801,8 +2672,7 @@ Hypergrid.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Hypergrid.prototype
      * @desc Autosize the column at colIndex for best fit.
      * @param {number} colIndex - The column index to modify at
      */
@@ -2813,8 +2683,7 @@ Hypergrid.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Hypergrid.prototype
      * @desc Enable/disable if this component can receive the focus.
      * @param {boolean} - canReceiveFocus
      */
@@ -2823,8 +2692,7 @@ Hypergrid.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Hypergrid.prototype
      * @returns {number} The number of columns that were just rendered
      */
     getVisibleColumnsCount: function() {
@@ -2832,8 +2700,7 @@ Hypergrid.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Hypergrid.prototype
      * @returns {number} The number of rows that were just rendered
      */
     getVisibleRowsCount: function() {
@@ -2841,8 +2708,7 @@ Hypergrid.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Hypergrid.prototype
     update the size of the grid
      *
      * #### returns: integer
@@ -2853,8 +2719,7 @@ Hypergrid.prototype = {
 
 
     /**
-     * @function
-     * @instance
+     * @memberOf Hypergrid.prototype
      * @desc Stop the global repainting flag thread.
      */
     stopPaintThread: function() {
@@ -2862,8 +2727,7 @@ Hypergrid.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Hypergrid.prototype
      * @desc Stop the global resize check flag thread.
      */
     stopResizeThread: function() {
@@ -2871,8 +2735,7 @@ Hypergrid.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Hypergrid.prototype
      * @desc Restart the global resize check flag thread.
      */
     restartResizeThread: function() {
@@ -2880,8 +2743,7 @@ Hypergrid.prototype = {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Hypergrid.prototype
      * @desc Restart the global repainting check flag thread.
      */
     restartPaintThread: function() {

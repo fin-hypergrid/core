@@ -5,75 +5,80 @@
 var mustache = require('mustache');
 var Base = require('extend-me').Base;
 
+/**
+ * @constructor
+ */
 var CellEditor = Base.extend('CellEditor', {
 
+    alias: 'base',
+
     /**
-     * @property {boolean} isEditing - am I currently editing
-     * @instance
+     * am I currently editing (i.e., between calls to `beginEditAt` and either `stopEditing` or `cancelEditing`)
+     * @type {boolean}
+     * @default false
+     * @memberOf CellEditor.prototype
      */
     isEditing: false,
 
     /**
-     * @property {rectangle.point} editorPoint - the point that I am editing at right now
-     * @instance
+     * the point that I am editing at right now
+     * @type {Point}
+     * @default null
+     * @memberOf CellEditor.prototype
      */
     editorPoint: null,
 
     /**
-     * @property {boolean} checkEditorPositionFlag - if true, check that the editor is in the right location
-     * @instance
+     * if true, check that the editor is in the right location
+     * @type {boolean}
+     * @default false
+     * @memberOf CellEditor.prototype
      */
     checkEditorPositionFlag: false,
 
     /**
-     * @property {HTMLElement} input - my main input control
-     * @instance
+     * my main input control
+     * @type {Element}
+     * @default null
+     * @memberOf CellEditor.prototype
      */
     input: null,
 
     /**
-     * @property {string} alias - my look up name
-     * @instance
-     */
-    alias: 'base',
-
-    /**
-     * @property {fin-hypergrid} grid - my instance of hypergrid
-     * @instance
+     * my instance of hypergrid
+     * @type {Hypergrid}
+     * @default null
+     * @memberOf CellEditor.prototype
      */
     grid: null,
 
     /**
-     * @property {type} initialValue - the value before editing
-     * @instance
+     * the value before editing
+     * @type {type}
+     * @default null
+     * @memberOf CellEditor.prototype
      */
     initialValue: null,
 
-
     /**
-     * @function
-     * @instance
+     * @memberOf CellEditor.prototype
      * @desc return the behavior (model)
-     *
-     * #### returns:[fin-hypergrid-behavior-base](module-behaviors_base.html)
+     * @returns {Behavior} The behavior (model).
      */
     getBehavior: function() {
         return this.grid.getBehavior();
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf CellEditor.prototype
      * @desc This function is a callback from the fin-hypergrid.   It is called after each paint of the canvas.
-     *
      */
     gridRenderedNotification: function() {
         this.checkEditor();
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf CellEditor.prototype
      * @desc scroll values have changed, we've been notified
      */
     scrollValueChangedNotification: function() {
@@ -81,8 +86,7 @@ var CellEditor = Base.extend('CellEditor', {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf CellEditor.prototype
      * @desc turn on checkEditorPositionFlag boolean field
      */
     setCheckEditorPositionFlag: function() {
@@ -90,10 +94,9 @@ var CellEditor = Base.extend('CellEditor', {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf CellEditor.prototype
      * @desc begin editing at location point
-     * @param {rectangle.point} point - the location to start editing at
+     * @param {Point} point - the location to start editing at
      */
     beginEditAt: function(point) {
         this.setEditorPoint(point);
@@ -115,28 +118,25 @@ var CellEditor = Base.extend('CellEditor', {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf CellEditor.prototype
      * @desc put value into our editor
      * @param {object} value - whatever value we want to edit
      */
     setEditorValue: function(value) {},
 
     /**
-     * @function
-     * @instance
+     * @memberOf CellEditor.prototype
      * @desc returns the point at which we are currently editing
-     * #### returns: rectangle.point
+     * @returns {Point}
      */
     getEditorPoint: function() {
         return this.editorPoint;
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf CellEditor.prototype
      * @desc set the current editor location
-     * @param {rectangle.point} point - the data location of the current editor
+     * @param {Point} point - the data location of the current editor
      */
     setEditorPoint: function(point) {
         this.editorPoint = point;
@@ -144,22 +144,19 @@ var CellEditor = Base.extend('CellEditor', {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf CellEditor.prototype
      * @desc display the editor
      */
     showEditor: function() {},
 
     /**
-     * @function
-     * @instance
+     * @memberOf CellEditor.prototype
      * @desc hide the editor
      */
     hideEditor: function() {},
 
     /**
-     * @function
-     * @instance
+     * @memberOf CellEditor.prototype
      * @desc stop editing
      */
     stopEditing: function() {
@@ -184,8 +181,7 @@ var CellEditor = Base.extend('CellEditor', {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf CellEditor.prototype
      * @desc save the new value into the behavior(model)
      */
     saveEditorValue: function() {
@@ -203,27 +199,19 @@ var CellEditor = Base.extend('CellEditor', {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf CellEditor.prototype
      * @desc return the current editor's value
-     * #### returns: Object
      */
-    getEditorValue: function() {
-
-    },
+    getEditorValue: function() {},
 
     /**
-     * @function
-     * @instance
+     * @memberOf CellEditor.prototype
      * @desc request focus for my input control
      */
-    takeFocus: function() {
-
-    },
+    takeFocus: function() {},
 
     /**
-     * @function
-     * @instance
+     * @memberOf CellEditor.prototype
      * @desc move the editor to the current editor point
      */
     _moveEditor: function() {
@@ -244,16 +232,14 @@ var CellEditor = Base.extend('CellEditor', {
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf CellEditor.prototype
      * @desc set the bounds of my input control
-     * @param {rectangle} rectangle - the bounds to move to
+     * @param {Rectangle} the bounds to move to
      */
     setBounds: function(rectangle) {},
 
     /**
-     * @function
-     * @instance
+     * @memberOf CellEditor.prototype
      * @desc check that the editor is in the correct location, and is showing/hidden appropriately
      */
     checkEditor: function() {
@@ -280,6 +266,7 @@ var CellEditor = Base.extend('CellEditor', {
 
     template: function() {
         /*
+
          */
     },
 

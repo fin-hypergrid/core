@@ -2,11 +2,15 @@
 
 var Simple = require('./Simple');
 
-var Textfield = Simple.extend({
+/**
+ * @constructor
+ */
+var Textfield = Simple.extend('Textfield', {
 
     /**
-     * @property {string} alias - my lookup alias
-     * @instance
+     * my lookup alias
+     * @type {string}
+     * @memberOf Textfield.prototype
      */
     alias: 'textfield',
 

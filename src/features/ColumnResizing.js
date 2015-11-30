@@ -2,35 +2,41 @@
 
 var Feature = require('./Feature.js');
 
-var ColumnResizing = Feature.extend({
-
-    extendable: true, // makes ColumnResizing itself extensible with .extend() - used by RowResizing.js
+/**
+ * @constructor
+ */
+var ColumnResizing = Feature.extend('ColumnResizing', {
 
     alias: 'ColumnResizing',
 
     /**
-     * @property {number} dragIndex - the index of the column wall were currently dragging
-     * @instance
+     * the index of the column wall were currently dragging
+     * @type {number}
+     * @default -2
+     * @memberOf ColumnResizing.prototype
      */
     dragIndex: -2,
 
     /**
-     * @property {number} dragStart - the pixel location of the where the drag was initiated
-     * @instance
+     * the pixel location of the where the drag was initiated
+     * @type {number}
+     * @default -1
+     * @memberOf ColumnResizing.prototype
      */
     dragStart: -1,
 
     /**
-     * @property {number} dragIndexStartingSize - the starting width/height of the row/column we are dragging
-     * @instance
+     * the starting width/height of the row/column we are dragging
+     * @type {number}
+     * @default -1
+     * @memberOf ColumnResizing.prototype
      */
     dragIndexStartingSize: -1,
 
     /**
-     * @function
-     * @instance
+     * @memberOf ColumnResizing.prototype
      * @desc get the mouse x,y coordinate
-     * #### returns: integer
+     * @returns {number}
      * @param {MouseEvent} event - the mouse event to query
      */
     getMouseValue: function(event) {
@@ -38,10 +44,9 @@ var ColumnResizing = Feature.extend({
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf ColumnResizing.prototype
      * @desc get the grid cell x,y coordinate
-     * #### returns: integer
+     * @returns {number}
      * @param {window.fin.rectangular.Point} gridCell
      */
     getGridCellValue: function(gridCell) {
@@ -49,22 +54,20 @@ var ColumnResizing = Feature.extend({
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf ColumnResizing.prototype
      * @desc return the grids x,y scroll value
-     * #### returns: integer
-     * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+     * @returns {number}
+     * @param {Hypergrid} grid
      */
     getScrollValue: function(grid) {
         return grid.getHScrollValue();
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf ColumnResizing.prototype
      * @desc return the width/height of the row/column of interest
-     * #### returns: integer
-     * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+     * @returns {number}
+     * @param {Hypergrid} grid
      * @param {number} index - the row/column index of interest
      */
     getAreaSize: function(grid, index) {
@@ -72,11 +75,10 @@ var ColumnResizing = Feature.extend({
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf ColumnResizing.prototype
      * @desc set the width/height of the row/column at index
-     * #### returns: integer
-     * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+     * @returns {number}
+     * @param {Hypergrid} grid
      * @param {number} index - the row/column index of interest
      * @param {number} value - the width/height to set to
      */
@@ -85,11 +87,10 @@ var ColumnResizing = Feature.extend({
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf ColumnResizing.prototype
      * @desc return the recently rendered area's width/height
-     * #### returns: integer
-     * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+     * @returns {number}
+     * @param {Hypergrid} grid
      * @param {number} index - the row/column index of interest
      */
     getPreviousAbsoluteSize: function(grid, index) {
@@ -97,11 +98,10 @@ var ColumnResizing = Feature.extend({
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf ColumnResizing.prototype
      * @desc returns the index of which divider I'm over
-     * #### returns: integer
-     * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+     * @returns {number}
+     * @param {Hypergrid} grid
      * @param {Object} event - the event details
      */
     overAreaDivider: function(grid, event) {
@@ -109,11 +109,10 @@ var ColumnResizing = Feature.extend({
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf ColumnResizing.prototype
      * @desc am I over the column/row area
-     * #### returns: boolean
-     * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+     * @returns {boolean}
+     * @param {Hypergrid} grid
      * @param {Object} event - the event details
      */
     isFirstFixedOtherArea: function(grid, event) {
@@ -121,20 +120,18 @@ var ColumnResizing = Feature.extend({
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf ColumnResizing.prototype
      * @desc return the cursor name
-     * #### returns: string
+     * @returns {string}
      */
     getCursorName: function() {
         return 'col-resize';
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf ColumnResizing.prototype
      * @desc handle this event
-     * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+     * @param {Hypergrid} grid
      * @param {Object} event - the event details
      */
     handleMouseDrag: function(grid, event) {
@@ -155,10 +152,9 @@ var ColumnResizing = Feature.extend({
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf ColumnResizing.prototype
      * @desc get the width/height of a specific row/column
-     * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+     * @param {Hypergrid} grid
      * @param {number} areaIndex - the row/column index of interest
      */
     getSize: function(grid, areaIndex) {
@@ -166,21 +162,19 @@ var ColumnResizing = Feature.extend({
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf ColumnResizing.prototype
      * @desc return the fixed area rows/columns count
-     * #### returns: integer
-     * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+     * @returns {number}
+     * @param {Hypergrid} grid
      */
     getOtherFixedAreaCount: function(grid) {
         return grid.getFixedRowCount();
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf ColumnResizing.prototype
      * @desc handle this event down the feature chain of responsibility
-     * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+     * @param {Hypergrid} grid
      * @param {Object} event - the event details
      */
     handleMouseDown: function(grid, event) {
@@ -201,10 +195,9 @@ var ColumnResizing = Feature.extend({
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf ColumnResizing.prototype
      * @desc handle this event down the feature chain of responsibility
-     * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+     * @param {Hypergrid} grid
      * @param {Object} event - the event details
      */
     handleMouseUp: function(grid, event) {
@@ -226,10 +219,9 @@ var ColumnResizing = Feature.extend({
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf ColumnResizing.prototype
      * @desc handle this event down the feature chain of responsibility
-     * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+     * @param {Hypergrid} grid
      * @param {Object} event - the event details
      */
     handleMouseMove: function(grid, event) {
@@ -244,10 +236,9 @@ var ColumnResizing = Feature.extend({
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf ColumnResizing.prototype
      * @desc fill this in
-     * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+     * @param {Hypergrid} grid
      * @param {Object} event - the event details
      */
     checkForAreaResizeCursorChange: function(grid, event) {
@@ -260,11 +251,23 @@ var ColumnResizing = Feature.extend({
 
     },
 
+    /**
+     * @param {Hypergrid} grid
+     * @returns {number}
+     * @default -2
+     * @memberOf ColumnResizing.prototype
+     */
     getFixedAreaCount: function(grid) {
         var count = grid.getFixedColumnCount() + (grid.isShowRowNumbers() ? 1 : 0) + (grid.hasHierarchyColumn() ? 1 : 0);
         return count;
     },
 
+    /**
+     * @param {Hypergrid} grid
+     * @param event
+     * @default -2
+     * @memberOf ColumnResizing.prototype
+     */
     handleDoubleClick: function(grid, event) {
         var isEnabled = this.isEnabled(grid);
         var hasCursor = this.overAreaDivider(grid, event) > -1; //this.cursor !== null;
@@ -278,6 +281,12 @@ var ColumnResizing = Feature.extend({
         }
     },
 
+    /**
+     * @param {Hypergrid} grid
+     * @returns {boolean}
+     * @default -2
+     * @memberOf ColumnResizing.prototype
+     */
     isEnabled: function(grid) {
         return true;
     }

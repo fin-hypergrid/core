@@ -387,7 +387,7 @@
          * @instance
          * @description
          toggle the value at position specified by the mouse point
-         * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+         * @param {Hypergrid} grid
          * @param {Object} event - the event details
          */
         onTap: function(grid, mouse) {

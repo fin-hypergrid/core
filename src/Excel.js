@@ -48,7 +48,7 @@
          * @instance
          * @desc this is called as the hook for the nested tag plugin pattern. this is how this excel component is installed into the hypergrid
          *
-         * @param {fin-hypergrid} grid - see [fin-hypergrid](module-._fin-hypergrid.html)
+         * @param {Hypergrid} grid
          */
         installOn: function(grid) {
             var self = this;

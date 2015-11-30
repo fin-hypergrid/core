@@ -5,7 +5,10 @@ var Behavior = require('./Behavior');
 var noop = function() {},
     n00p = function() { return 0; };
 
-var Null = Behavior.extend({
+/**
+ * @constructor
+ */
+var Null = Behavior.extend('Null', {
 
     //initalize: function(grid, component) {},
 

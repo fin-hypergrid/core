@@ -9,16 +9,18 @@ var commands = {
     PAGERIGHT: function(grid) { grid.pageRight(); }
 };
 
-var KeyPaging = Feature.extend({
+/**
+ * @constructor
+ */
+var KeyPaging = Feature.extend('KeyPaging', {
 
     alias: 'KeyPaging',
 
     /**
-     * @function
-     * @instance
      * @desc Handle this event down the feature chain of responsibility.
-     * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+     * @param {Hypergrid} grid
      * @param {Object} event - the event details
+     * @memberOf KeyPaging.prototype
      */
     handleKeyDown: function(grid, event) {
         var detail = event.detail.char;

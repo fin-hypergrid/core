@@ -2,15 +2,17 @@
 
 var Feature = require('./Feature.js');
 
-var CellClick = Feature.extend({
+/**
+ * @constructor
+ */
+var CellClick = Feature.extend('CellClick', {
 
     alias: 'CellClick',
 
     /**
-     * @function
-     * @instance
+     * @memberOf CellClick.prototype
      * @desc Handle this event down the feature chain of responsibility
-     * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+     * @param {Hypergrid} grid
      * @param {Object} event - the event details
      */
     handleTap: function(grid, event) {

@@ -3,25 +3,28 @@
 
 'use strict';
 
-var ANIMATION_TIME = 200;
-
 var Feature = require('./Feature.js');
 
-var Overlay = Feature.extend({
+var ANIMATION_TIME = 200;
+
+/**
+ * @constructor
+ */
+var Overlay = Feature.extend('Overlay', {
 
     alias: 'Overlay',
 
     /**
-     * @property {boolean} openEditor - is the editor open
-     * @instance
+     * is the editor open
+     * @type {boolean}
+     * @memberOf Overlay.prototype
      */
     openEditor: false,
 
     /**
-     * @function
-     * @instance
+     * @memberOf Overlay.prototype
      * @desc handle this event down the feature chain of responsibility
-     * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+     * @param {Hypergrid} grid
      * @param {Object} event - the event details
      */
     handleKeyUp: function(grid, event) {
@@ -33,10 +36,9 @@ var Overlay = Feature.extend({
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Overlay.prototype
      * @desc toggle the column picker on/off
-     * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+     * @param {Hypergrid} grid
      */
     toggleColumnPicker: function(grid) {
         if (this.isColumnPickerOpen(grid)) {
@@ -47,22 +49,20 @@ var Overlay = Feature.extend({
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Overlay.prototype
      * @desc returns true if the column picker is open
-     * #### returns: boolean
-     * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+     * @returns {boolean}
+     * @param {Hypergrid} grid
      */
     isColumnPickerOpen: function(grid) {
         return this.overlay.style.display !== 'none';
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Overlay.prototype
      * @desc open the column picker
      * #### returns: type
-     * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+     * @param {Hypergrid} grid
      */
     openColumnPicker: function(grid) {
         if (this.isColumnPickerOpen()) {
@@ -111,11 +111,9 @@ var Overlay = Feature.extend({
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Overlay.prototype
      * @desc close the column picker
-     * #### returns: type
-     * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+     * @param {Hypergrid} grid
      */
     closeColumnPicker: function(grid) {
         //grid.setFocusable(true);
@@ -148,11 +146,10 @@ var Overlay = Feature.extend({
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Overlay.prototype
      * @desc initialize myself into the grid
      * #### returns: type
-     * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+     * @param {Hypergrid} grid
      */
     initializeOn: function(grid) {
         this.initializeOverlaySurface(grid);
@@ -162,11 +159,10 @@ var Overlay = Feature.extend({
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Overlay.prototype
      * @desc initialize the overlay surface into the grid
      * #### returns: type
-     * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+     * @param {Hypergrid} grid
      */
     initializeOverlaySurface: function(grid) {
         this.overlay = document.createElement('div');
@@ -183,11 +179,10 @@ var Overlay = Feature.extend({
     },
 
     /**
-     * @function
-     * @instance
+     * @memberOf Overlay.prototype
      * @desc get a human readable description of the key pressed from it's integer representation
-     * #### returns: string
-     * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
+     * @returns {string}
+     * @param {Hypergrid} grid
      * @param {number} integer - the integer we want the char for
      */
     getCharFor: function(grid, integer) {
