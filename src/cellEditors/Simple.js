@@ -64,6 +64,8 @@ var Simple = CellEditor.extend('Simple', {
         input.style.outline = 0;
         input.style.padding = 0;
         input.style.zIndex = 1000;
+        input.style.fontSize = '8pt';
+        input.style.boxShadow = 'white 0px 0px 1px 1px';
     },
 
     /**
@@ -148,7 +150,9 @@ var Simple = CellEditor.extend('Simple', {
      */
     setBounds: function(cellBounds) {
         var originOffset = this.originOffset();
-        var translation = 'translate(' + (cellBounds.x + originOffset[0]) + 'px,' + (cellBounds.y + originOffset[1]) + 'px)';
+        var translation = 'translate('
+            + (cellBounds.x - 1 + originOffset[0]) + 'px,'
+            + (cellBounds.y - 1 + originOffset[1]) + 'px)';
 
         this.getInput().style.webkitTransform = translation;
         this.getInput().style.MozTransform = translation;
@@ -158,8 +162,8 @@ var Simple = CellEditor.extend('Simple', {
         // this.getInput().style.left = cellBounds.x + originOffset[0] + 'px';
         // this.getInput().style.top = cellBounds.y + originOffset[1] + 'px';
 
-        this.getInput().style.width = (cellBounds.width) + 'px';
-        this.getInput().style.height = (cellBounds.height - 2) + 'px';
+        this.getInput().style.width = (cellBounds.width + 2) + 'px';
+        this.getInput().style.height = (cellBounds.height + 2) + 'px';
         //var xOffset = this.grid.canvas.getBoundingClientRect().left;
     }
 

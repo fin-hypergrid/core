@@ -880,10 +880,6 @@ var Renderer = Base.extend('Renderer', {
      * @memberOf Renderer.prototype
      * @desc Dumb render the fixed columns along the left side.
      * @param {CanvasRenderingContext2D} gc - [CanvasRenderingContext2D](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D)
-     * @param {number} offsetX - x coordinate to start at
-     * @param {number} offsetY - y coordinate to start at
-     * @param {number} numColumns - the max columns to iterate through
-     * @param {number} numRows - the max rows to iterate through
      */
     _paintCells: function(gc) {
         var x, y, c, r = 0;
@@ -919,14 +915,13 @@ var Renderer = Base.extend('Renderer', {
             }
         }
 
+        setNumberColumnWidth(gc, this.getBehavior(), this.getGrid().getRowCount());
     },
 
     /**
      * @memberOf Renderer.prototype
      * @desc We opted to not paint borders for each cell as that was extremely expensive. Instead we draw gridlines here. Also we record the widths and heights for later.
      * @param {CanvasRenderingContext2D} gc - [CanvasRenderingContext2D](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D)
-     * @param {number} offsetX - The horizontal coordinate to start at.
-     * @param {number} offsetY - The vertical coordinate to start at.
      */
     paintGridlines: function(gc) {
         var x, y, c, r = 0;
@@ -1056,12 +1051,12 @@ var Renderer = Base.extend('Renderer', {
                 cellProperties.value = [behavior.getImage(checkedImage), '', null];
             } else if (isFilterRow) {
                 cellProperties.value = [behavior.getImage('filter-off'), '', null];
-
             }
+            cellProperties.halign = 'right';
         } else {
             cellProperties.value = grid.getValue(c, r);
+            cellProperties.halign = grid.getColumnAlignment(c);
         }
-        cellProperties.halign = grid.getColumnAlignment(c);
         cellProperties.isColumnHovered = this.isRowHovered(c, r);
         cellProperties.isRowHovered = this.isColumnHovered(c, r);
         cellProperties.bounds = this._getBoundsOfCell(c, r);
@@ -1137,5 +1132,15 @@ var Renderer = Base.extend('Renderer', {
     }
 
 });
+
+function setNumberColumnWidth(gc, behavior, maxRow) {
+    var columnProperties = behavior.getColumnProperties(-1),
+        cellProperties = columnProperties.rowHeader,
+        icon = behavior.getImage('checked');
+
+    gc.font = cellProperties.font;
+
+    columnProperties.preferredWidth = icon.width + 7 + cellProperties.getTextWidth(gc, maxRow + 1);
+}
 
 module.exports = Renderer;

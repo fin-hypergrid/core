@@ -26,7 +26,7 @@ var globalCellEditors = {},
  * @param {string|Element} div - CSS selector or Element
  * @param {string} behaviorName - name of a behavior consstructor from ./behaviors
  */
-function Hypergrid(div, getBehavior) {
+function Hypergrid(div, behaviorFactory) {
 
     extend.debug = true;
 
@@ -50,7 +50,7 @@ function Hypergrid(div, getBehavior) {
     this.cellEditors = Object.create(globalCellEditors);
     this.renderOverridesCache = {};
 
-    this.behavior = getBehavior(this);
+    this.behavior = behaviorFactory(this);
 
     //prevent the default context menu for appearing
     this.div.oncontextmenu = function(event) {

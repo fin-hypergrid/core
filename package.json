@@ -10,7 +10,7 @@
     "css-injector": "^1.0.2",
     "extend-me": "^2.2.0",
     "finbars": "^1.4.0",
-    "fincanvas": "^0.9.1",
+    "fincanvas": "^0.9.9",
     "gulp": "^3.9.0",
     "gulp-beautify": "^2.0.0",
     "gulp-browserify": "^0.5.1",
