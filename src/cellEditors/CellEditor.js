@@ -276,8 +276,7 @@ var CellEditor = Base.extend('CellEditor', {
         string.shift();
         string.length = string.length - 2;
         string = string.join('\n').trim();
-        var html = mustache.render(string, this);
-        return html;
+        return mustache.render(string, this);
     },
 
     getInput: function() {

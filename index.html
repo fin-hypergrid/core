@@ -89,11 +89,10 @@
         var div = document.querySelector('div#json-example'),
             bodyStyle = window.getComputedStyle(document.body);
 
-        var getContainer = function(grid) {
+        jsonGrid = new fin.Hypergrid(div, function(grid) {
             return new fin.Hypergrid.behaviors.JSON(grid, window.people1);
-        };
+        });
 
-        jsonGrid = new fin.Hypergrid(div, getContainer);
         var jsonModel = jsonGrid.getBehavior();
 
         //functions for showing the grouping/rollup capbilities

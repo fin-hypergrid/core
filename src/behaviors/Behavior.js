@@ -57,7 +57,7 @@ var Behavior = Base.extend('Behavior', {
         this.featureChain.initializeOn(grid);
     },
 
-    features: [], // in case implementing class has no features (will this ever happen)
+    features: [], // in case implementing class has no features TODO: Will this ever happen?
 
     /**
      * memento for the user configured visual properties of the table
@@ -499,7 +499,7 @@ var Behavior = Base.extend('Behavior', {
     /**
      * @memberOf Behavior.prototype
      * @desc getter for a [Memento](http://c2.com/cgi/wiki?MementoPattern) Object
-     * #### returns: Object
+     * @returns {object}
      */
     getPrivateState: function() {
         if (!this.tableState) {
@@ -524,8 +524,7 @@ var Behavior = Base.extend('Behavior', {
 
     /**
      * @memberOf Behavior.prototype
-     * @desc create a default empty tablestate
-     * #### returns: Object
+     * @return {object} Newly created default empty tablestate.
      */
     getDefaultState: function() {
         var tableProperties = this.getGrid()._getProperties();
@@ -542,8 +541,9 @@ var Behavior = Base.extend('Behavior', {
 
     /**
      * @memberOf Behavior.prototype
-     * @desc return this table to a previous state. see the [memento pattern](http://c2.com/cgi/wiki?MementoPattern)
-     * @param {Object} memento - an encapulated representation of table state
+     * @desc Restore this table to a previous state.
+     * See the [memento pattern](http://c2.com/cgi/wiki?MementoPattern).
+     * @param {Object} memento - an encapsulated representation of table state
      */
     setState: function(memento) {
 
@@ -606,7 +606,7 @@ var Behavior = Base.extend('Behavior', {
     /**
      * @memberOf Behavior.prototype
      * @desc fetch the value for a property key
-     * #### returns: Object
+     * @returns {*} The value of the given property.
      * @param {string} key - a property name
      */
     resolveProperty: function(key) {
@@ -615,7 +615,7 @@ var Behavior = Base.extend('Behavior', {
 
     /**
      * @memberOf Behavior.prototype
-     * @desc a specific cell was clicked, you've been notified
+     * @desc A specific cell was clicked; you've been notified.
      * @param {Point} cell - point of cell coordinates
      * @param {Object} event - all event information
      */
@@ -625,7 +625,7 @@ var Behavior = Base.extend('Behavior', {
 
     /**
      * @memberOf Behavior.prototype
-     * @desc a specific cell was le doubclicked, you've been notified
+     * @desc A specific cell was le double-clicked; you've been notified.
      * @param {Point} cell - point of cell coordinates
      * @param {Object} event - all event information
      */
@@ -636,7 +636,7 @@ var Behavior = Base.extend('Behavior', {
     /**
      * @memberOf Behavior.prototype
      * @desc add nextFeature to me If I don't have a next node, otherwise pass it along
-     * @param {fin-hypergrid-feature-base} nextFeature - [fin-hypergrid-feature-base](module-features_base.html)
+     * @param {Feature}
      */
     setNextFeature: function(nextFeature) {
         this.featureMap[nextFeature.alias] = nextFeature;
@@ -654,7 +654,7 @@ var Behavior = Base.extend('Behavior', {
     /**
      * @memberOf Behavior.prototype
      * @desc getter for the cell provider
-     * #### returns: [fin-hypergrid-cell-provider](module-._cell-provider.html)
+     * @return {CellProvider}
      */
     getCellProvider: function() {
         return this.cellProvider;
@@ -673,8 +673,7 @@ var Behavior = Base.extend('Behavior', {
 
     /**
      * @memberOf Behavior.prototype
-     * @desc getter for the hypergrid
-     * #### returns: [fin-hypergrid](module-._fin-hypergrid.html)
+     * @returns: {Hypergrid} The hypergrid to which this behavior is attached.
      * @param {type} varname - descripton
      */
     getGrid: function() {
@@ -683,18 +682,17 @@ var Behavior = Base.extend('Behavior', {
 
     /**
      * @memberOf Behavior.prototype
-     * @desc you can override this function and substitute your own cell provider
-     * #### returns: [fin-hypergrid-cell-provider](module-._cell-provider.html)
+     * @desc You can override this function and substitute your own cell provider.
+     * @return {CellProvider}
      */
     createCellProvider: function() {
-        var provider = new CellProvider();
-        return provider;
+        return new CellProvider();
     },
 
     /**
      * @memberOf Behavior.prototype
-     * @desc return the value at x,y for the top left section of the hypergrid, first check to see if something was overridden
-     * #### returns: Object
+     * @desc First check to see if something was overridden.
+     * @return {*} The value at `x,y` for the top left section of the hypergrid.
      * @param {number} x - x coordinate
      * @param {number} y - y coordinate
      */
@@ -703,14 +701,13 @@ var Behavior = Base.extend('Behavior', {
         if (!column) {
             return undefined;
         }
-        var result = column.getValue(y);
-        return result;
+        return column.getValue(y);
     },
 
     /**
      * @memberOf Behavior.prototype
      * @desc update the data at point x, y with value
-     * #### returns: type
+     * @return The data.
      * @param {number} x - x coordinate
      * @param {number} y - y coordinate
      * @param {Object} value - the value to use
@@ -720,8 +717,7 @@ var Behavior = Base.extend('Behavior', {
         if (!column) {
             return;
         }
-        var result = column.setValue(y, value);
-        return result;
+        return column.setValue(y, value);
     },
 
     getDataValue: function(x, y) {
@@ -733,8 +729,8 @@ var Behavior = Base.extend('Behavior', {
     },
     /**
      * @memberOf Behavior.prototype
-     * @desc return the value at x,y for the top left section of the hypergrid, first check to see if something was overridden
-     * #### returns: Object
+     * @desc First checks to see if something was overridden.
+     * @return {*} The value at x,y for the top left section of the hypergrid.
      * @param {number} x - x coordinate
      * @param {number} y - y coordinate
      */
@@ -746,7 +742,6 @@ var Behavior = Base.extend('Behavior', {
     /**
      * @memberOf Behavior.prototype
      * @desc update the data at point x, y with value
-     * #### returns: type
      * @param {number} x - x coordinate
      * @param {number} y - y coordinate
      * @param {Object} value - the value to use
@@ -759,8 +754,7 @@ var Behavior = Base.extend('Behavior', {
     },
     /**
      * @memberOf Behavior.prototype
-     * @desc return the number of rows
-     * #### returns: integer
+     * @return {number} The number of rows in the hypergrid.
      */
     getRowCount: function() {
         return this.getDataModel().getRowCount();
@@ -768,8 +762,7 @@ var Behavior = Base.extend('Behavior', {
 
     /**
      * @memberOf Behavior.prototype
-     * @desc return the height in pixels of the fixed rows area
-     * #### returns: integer
+     * @return {number} The height in pixels of the fixed rows area  of the hypergrid.
      */
     getFixedRowsHeight: function() {
         var count = this.getFixedRowCount();
@@ -782,8 +775,7 @@ var Behavior = Base.extend('Behavior', {
 
     /**
      * @memberOf Behavior.prototype
-     * @desc get height in pixels of a specific row
-     * #### returns: integer
+     * @return {number} The height in pixels of a specific row in the hypergrid.
      * @param {number} rowNum - row index of interest
      */
     getRowHeight: function(rowNum) {
@@ -799,8 +791,8 @@ var Behavior = Base.extend('Behavior', {
 
     /**
      * @memberOf Behavior.prototype
-     * @desc returns a lazily initialized value from the properties mechanism for 'defaultRowHeight', should be ~20px
-     * #### returns: integer
+     * @desc The value is lazily initialized and comes from the properties mechanism for '`defaultRowHeight`', which should be ~20px.
+     * @returns {number} The row height in pixels.
      */
     getDefaultRowHeight: function() {
         if (!this.defaultRowHeight) {
@@ -823,18 +815,16 @@ var Behavior = Base.extend('Behavior', {
 
     /**
      * @memberOf Behavior.prototype
-     * @desc return the potential maximum height of the fixed rows areas, this will allow 'floating' fixed rows
-     * #### returns: integer
+     * @desc This will allow 'floating' fixed rows.
+     * @return {number} The maximum height of the fixed rows area in the hypergrid.
      */
     getFixedRowsMaxHeight: function() {
-        var height = this.getFixedRowsHeight();
-        return height;
+        return this.getFixedRowsHeight();
     },
 
     /**
      * @memberOf Behavior.prototype
-     * @desc return the width of the fixed column area
-     * #### returns: integer
+     * @return {number} The width of the fixed column area in the hypergrid.
      */
     getFixedColumnsWidth: function() {
         var count = this.getFixedColumnCount();
@@ -850,8 +840,8 @@ var Behavior = Base.extend('Behavior', {
 
     /**
      * @memberOf Behavior.prototype
-     * @desc return the potential total width of the fixed columns area; this exists to support 'floating' columns
-     * #### returns: integer
+     * @desc This exists to support "floating" columns.
+     * @return {number} The total width of the fixed columns area.
      */
     getFixedColumnsMaxWidth: function() {
         var width = this.getFixedColumnsWidth();
@@ -860,7 +850,7 @@ var Behavior = Base.extend('Behavior', {
 
     /**
      * @memberOf Behavior.prototype
-     * @desc set the scroll position in vertical dimension and notifiy listeners
+     * @desc Set the scroll position in vertical dimension and notify listeners.
      * @param {number} y - the new y value
      */
     _setScrollPositionY: function(y) {
@@ -870,7 +860,7 @@ var Behavior = Base.extend('Behavior', {
 
     /**
      * @memberOf Behavior.prototype
-     * @desc set the scroll position in horizontal dimension and notifiy listeners
+     * @desc Set the scroll position in horizontal dimension and notify listeners.
      * @param {number} x - the new x value
      */
     _setScrollPositionX: function(x) {
@@ -880,7 +870,7 @@ var Behavior = Base.extend('Behavior', {
 
     /**
      * @memberOf Behavior.prototype
-     * @desc set the number of columns just rendered, includes partially rendered columns
+     * @desc Set the number of columns just rendered, including partially rendered columns.
      * @param {number} count - how many columns were just rendered
      */
     setRenderedColumnCount: function(count) {
@@ -889,7 +879,7 @@ var Behavior = Base.extend('Behavior', {
 
     /**
      * @memberOf Behavior.prototype
-     * @desc set the number of rows just rendered, includes partially rendered rows
+     * @desc Set the number of rows just rendered, including partially rendered rows.
      * @param {number} count - how many rows were just rendered
      */
     setRenderedRowCount: function(count) {
@@ -899,7 +889,7 @@ var Behavior = Base.extend('Behavior', {
 
     /**
      * @memberOf Behavior.prototype
-     * @desc the fixed row area has been clicked, massage the details and call the real function
+     * @desc The fixed row area has been clicked, massage the details and call the real function.
      * @param {Hypergrid} grid
      * @param {Object} mouse - event details
      */
@@ -912,7 +902,7 @@ var Behavior = Base.extend('Behavior', {
 
     /**
      * @memberOf Behavior.prototype
-     * @desc the fixed column area has been clicked, massage the details and call the real function
+     * @desc The fixed column area has been clicked, massage the details and call the real function.
      * @param {Hypergrid} grid
      * @param {Object} mouse - event details
      */
@@ -1123,8 +1113,7 @@ var Behavior = Base.extend('Behavior', {
 
     /**
      * @memberOf Behavior.prototype
-     * @desc return true if we can re-order columns
-     * #### returns: boolean
+     * @return {boolean} Can re-order columns.
      */
     isColumnReorderable: function() {
         return true;
@@ -1132,8 +1121,7 @@ var Behavior = Base.extend('Behavior', {
 
     /**
      * @memberOf Behavior.prototype
-     * @desc return the properties for a specific column, these are used if no cell properties are specified
-     * #### returns: Object
+     * @return {Object} The properties for a specific column. These are used if no cell properties are specified.
      * @param {index} columnIndex - the column index of interest
      */
     getColumnProperties: function(columnIndex) {
@@ -1143,7 +1131,7 @@ var Behavior = Base.extend('Behavior', {
                 isNull: true
             };
         }
-        var properties = col.getProperties(); //TODO: fix this this returns null on Hypergrid.reset();
+        var properties = col.getProperties(); //TODO: returns `null` on Hypergrid.reset();
         if (!properties) {
             return {
                 isNull: true
@@ -1159,8 +1147,7 @@ var Behavior = Base.extend('Behavior', {
 
     /**
      * @memberOf Behavior.prototype
-     * @desc returns the list of labels to use for the column picker
-     * #### returns: Array of strings
+     * @return {strings[]} Labels to use for the column picker.
      */
     getColumnDescriptors: function() {
         //assumes there is one row....
@@ -1181,8 +1168,7 @@ var Behavior = Base.extend('Behavior', {
 
     /**
      * @memberOf Behavior.prototype
-     * @desc return the field at colIndex
-     * #### returns: string
+     * @return {string} The field at `colIndex`.
      * @param {number} colIndex - the column index of interest
      */
     getField: function(colIndex) {
@@ -1194,8 +1180,7 @@ var Behavior = Base.extend('Behavior', {
     },
     /**
      * @memberOf Behavior.prototype
-     * @desc return the column heading at colIndex
-     * #### returns: string
+     * @return {string} The column heading at `colIndex'.
      * @param {number} colIndex - the column index of interest
      */
     getHeader: function(colIndex) {
@@ -1227,8 +1212,7 @@ var Behavior = Base.extend('Behavior', {
 
     /**
      * @memberOf Behavior.prototype
-     * @desc return an Array of strings of the column header labels that are currently hidden
-     * #### returns: Array of strings
+     * @return {string[]} All the currently hidden column header labels.
      */
     getHiddenColumnDescriptors: function() {
         var tableState = this.getPrivateState();
@@ -1265,8 +1249,7 @@ var Behavior = Base.extend('Behavior', {
 
     /**
      * @memberOf Behavior.prototype
-     * @desc return the number of fixed columns
-     * #### returns: integer
+     * @return {integer} The number of fixed columns.
      */
     getFixedColumnCount: function() {
         var tableState = this.getPrivateState();
@@ -1285,8 +1268,7 @@ var Behavior = Base.extend('Behavior', {
 
     /**
      * @memberOf Behavior.prototype
-     * @desc return the count of fixed rows
-     * #### returns: integer
+     * @return {integer} The number of fixed rows.
      */
     getFixedRowCount: function() {
         if (!this.tableState) {
@@ -1309,8 +1291,7 @@ var Behavior = Base.extend('Behavior', {
 
     /**
      * @memberOf Behavior.prototype
-     * @desc return the count of fixed rows
-     * #### returns: integer
+     * @return {number} The number of fixed rows.
      */
     getHeaderRowCount: function() {
         var grid = this.getGrid();
@@ -1332,8 +1313,7 @@ var Behavior = Base.extend('Behavior', {
 
     /**
      * @memberOf Behavior.prototype
-     * @desc return the count of fixed rows
-     * #### returns: integer
+     * @return {number} The number of fixed rows.
      */
     getHeaderColumnCount: function() {
         var grid = this.getGrid();
@@ -1343,16 +1323,15 @@ var Behavior = Base.extend('Behavior', {
 
     /**
      * @memberOf Behavior.prototype
-     * @desc set the number of rows that are fixed
-     * @param {number} numberOfFixedRows - the count of rows to be set fixed
+     * @param {number} The number of fixed rows.
      */
     setHeaderColumnCount: function(numberOfHeaderColumns) {
         this.tableState.headerColumnCount = numberOfHeaderColumns;
     },
     /**
      * @memberOf Behavior.prototype
-     * @desc build and open the editor within the container div argument, this function should return false if we don't want the editor to open
-     * #### returns: boolean
+     * @desc build and open the editor within the container div argument
+     * @return {boolean} `false` prevents editor from opening
      * @param {HTMLDivElement} div - the containing div element
      */
     openEditor: function(div) {
@@ -1383,7 +1362,8 @@ var Behavior = Base.extend('Behavior', {
 
     /**
      * @memberOf Behavior.prototype
-     * @desc the editor is requesting close return true or false, and deal with the edits
+     * @desc the editor is requesting close; deal with the edits
+     * @return `true`
      * @param {HTMLDivElement} div - the containing div element
      */
     closeEditor: function(div) {
@@ -1413,8 +1393,7 @@ var Behavior = Base.extend('Behavior', {
 
     /**
      * @memberOf Behavior.prototype
-     * @desc return the cursor at a specific x,y coordinate
-     * #### returns: string
+     * @return {null} the cursor at a specific x,y coordinate
      * @param {number} x - the x coordinate
      * @param {number} y - the y coordinate
      */
@@ -1424,8 +1403,7 @@ var Behavior = Base.extend('Behavior', {
 
     /**
      * @memberOf Behavior.prototype
-     * @desc return the total number of columns
-     * #### returns: integer
+     * @return {number} The total number of columns.
      */
     getColumnCount: function() {
         return this.columns.length;
@@ -1433,8 +1411,7 @@ var Behavior = Base.extend('Behavior', {
 
     /**
      * @memberOf Behavior.prototype
-     * @desc return the column alignment at column x
-     * #### returns: string ['left','center','right']
+     * @return {string} - The column alignment at column `x`, which is one of `'left'`, `'center'` , or `'right'`.
      * @param {number} x - the column index of interest
      */
     getColumnAlignment: function(x) {
@@ -1457,7 +1434,6 @@ var Behavior = Base.extend('Behavior', {
     /**
      * @memberOf Behavior.prototype
      * @desc quietly set the scroll position in the horizontal dimension
-     * #### returns: type
      * @param {number} y - the position in pixels
      */
     setScrollPositionY: function(y) {
@@ -1470,8 +1446,7 @@ var Behavior = Base.extend('Behavior', {
 
     /**
      * @memberOf Behavior.prototype
-     * @desc return the cell editor for coordinate x,y
-     * #### returns: [fin-hypergrid-cell-editor-base](module-cell-editors_base.html)
+     * @return {cellEditor} Cell editor for coordinate `x,y`.
      * @param {number} x - x coordinate
      * @param {number} y - y coordinate
      */
@@ -1491,8 +1466,7 @@ var Behavior = Base.extend('Behavior', {
 
     /**
      * @memberOf Behavior.prototype
-     * @desc returns true if we should highlight on hover
-     * #### returns: boolean
+     * @return {boolean} `true` if we should highlight on hover
      * @param {boolean} isColumnHovered - the column is hovered or not
      * @param {boolean} isRowHovered - the row is hovered or not
      */
@@ -1502,8 +1476,7 @@ var Behavior = Base.extend('Behavior', {
 
     /**
      * @memberOf Behavior.prototype
-     * @desc return an HTMLImageElement given it's alias
-     * #### returns: HTMLImageElement
+     * @return {HTMLImageElement}
      * @param {string} key - an image alias
      */
     getImage: function(key) {
@@ -1590,7 +1563,7 @@ var Behavior = Base.extend('Behavior', {
 
     /**
      * @memberOf Behavior.prototype
-     * @returns {object} The object at y index.
+     * @return {object} The object at y index.
      * @param {number} y - the row index of interest
      */
     getRow: function(y) {
