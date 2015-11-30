@@ -54,7 +54,7 @@ pwd
 rm -rf components/$repo/.git
 
 # copy all dependencies while excluding this directory...
-rsync -r --exclude=temp --exclude=$repo ./components/
+rsync -r --exclude=temp --exclude=$repo ../../ ./components/
 
 # redirect by default to the component folder
 echo "<META http-equiv="refresh" content=\"0;URL=components/$repo/\">" >index.html
