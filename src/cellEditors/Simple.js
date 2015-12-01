@@ -154,16 +154,20 @@ var Simple = CellEditor.extend('Simple', {
             + (cellBounds.x - 1 + originOffset[0]) + 'px,'
             + (cellBounds.y - 1 + originOffset[1]) + 'px)';
 
-        this.getInput().style.webkitTransform = translation;
-        this.getInput().style.MozTransform = translation;
-        this.getInput().style.msTransform = translation;
-        this.getInput().style.OTransform = translation;
+        var input = this.getInput();
 
-        // this.getInput().style.left = cellBounds.x + originOffset[0] + 'px';
-        // this.getInput().style.top = cellBounds.y + originOffset[1] + 'px';
+        input.style.boxSizing = 'border-box';
 
-        this.getInput().style.width = (cellBounds.width + 2) + 'px';
-        this.getInput().style.height = (cellBounds.height + 2) + 'px';
+        input.style.webkitTransform = translation;
+        input.style.MozTransform = translation;
+        input.style.msTransform = translation;
+        input.style.OTransform = translation;
+
+        // input.style.left = cellBounds.x + originOffset[0] + 'px';
+        // input.style.top = cellBounds.y + originOffset[1] + 'px';
+
+        input.style.width = (cellBounds.width + 2) + 'px';
+        input.style.height = (cellBounds.height + 2) + 'px';
         //var xOffset = this.grid.canvas.getBoundingClientRect().left;
     }
 

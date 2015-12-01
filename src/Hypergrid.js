@@ -261,7 +261,11 @@ Hypergrid.prototype = {
     },
 
     computeCellsBounds: function() {
-        this.getRenderer().computeCellsBounds();
+        var renderer = this.getRenderer();
+        if (!renderer) {
+            return;
+        }
+        renderer.computeCellsBounds();
     },
 
     initCellEditor: function(cellEditor) {
@@ -801,7 +805,11 @@ Hypergrid.prototype = {
      * @returns {Rectangle} My bounds.
      */
     getBounds: function() {
-        return this.getRenderer().getBounds();
+        var renderer = this.getRenderer();
+        if (!renderer) {
+            return;
+        }
+        return renderer.getBounds();
     },
 
     /**
@@ -2280,6 +2288,7 @@ Hypergrid.prototype = {
      * @param {number} columnWidth - The width in pixels.
      */
     setColumnWidth: function(columnIndex, columnWidth) {
+        this.stopEditing();
         this.getBehavior().setColumnWidth(columnIndex, columnWidth);
     },
 
@@ -2311,6 +2320,7 @@ Hypergrid.prototype = {
      * @param {number} rowHeight - The width in pixels.
      */
     setRowHeight: function(rowIndex, rowHeight) {
+        this.stopEditing();
         this.getBehavior().setRowHeight(rowIndex, rowHeight);
     },
 

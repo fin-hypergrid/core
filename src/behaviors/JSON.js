@@ -122,6 +122,7 @@ var JSON = Behavior.extend('behaviors.JSON', {
             setTimeout(function() {
                 self.autosizeAllColumns();
             }, 100);
+            self.changed();
         } else {
             setTimeout(function() {
                 self.allColumns[-1].checkColumnAutosizing(true);
@@ -138,6 +139,12 @@ var JSON = Behavior.extend('behaviors.JSON', {
         return this.getDataModel().getData();
     },
 
+    getCellEditorAt: function(x, y) {
+        var grid = this.getGrid();
+        if (grid.isFilterRow(y)) {
+            return grid.cellEditors.textfield;
+        }
+    },
 
     /**
      * @memberOf behaviors.JSON.prototype

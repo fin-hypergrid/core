@@ -170,6 +170,10 @@ DataModelDecorator.prototype = {
 
     reset: function() {
         this.getComponent().reset();
+    },
+
+    getCellEditorAt: function(x, y) {
+        return this.getComponent().getCellEditorAt(x, y);
     }
 };
 

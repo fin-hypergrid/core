@@ -42,6 +42,22 @@ var Renderer = Base.extend('Renderer', {
 
     viewHeight: 0,
 
+    reset: function() {
+        this.bounds = {
+            width:0,
+            height:0
+        };
+        this.columnEdges = [];
+        this.columnEdgesIndexMap = {};
+        this.renderedColumnMinWidths = [];
+        this.renderedHeight = 0;
+        this.rowEdges = [];
+        this.rowEdgesIndexMap = {};
+        this.visibleColumns = [];
+        this.visibleRows = [];
+        this.insertionBounds = [];
+    },
+
     /**
      * @summary Constructor logic
      * @desc This method will be called upon instantiation of this class or of any class that extends from this class.
