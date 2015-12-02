@@ -1,6 +1,6 @@
 'use strict';
 
-var ListDragon = require('../local_node_modules/list-dragon');
+var ListDragon = require('list-dragon');
 
 var Behavior = require('./Behavior');
 var DataModelDecorator = require('./DataModelDecorator');
