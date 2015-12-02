@@ -23,7 +23,7 @@ var stylesheets = {
         '    padding: 0;',
         '    z-index: 1000; }'
     ],
-    dnd: [
+    'list-dragon': [
         'div.dragon-list, li.dragon-pop {',
         '    font-family: Roboto, sans-serif;',
         '    text-transform: capitalize; }',

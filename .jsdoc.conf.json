@@ -5,7 +5,7 @@
     },
     "source": {
         "include": ["src"],
-        "exclude": ["src/local_node_modules/not-in-use"]
+        "exclude": ["src/local_node_modules"]
     },
     "plugins": ["plugins/markdown"],
     "markdown": {
