@@ -644,24 +644,23 @@ Hypergrid.prototype = {
                 return '';
             }
 
-            var collectCells = function(selectionCell, x) {
-                collector.push(selectionCell);
-                if (x < width) {
-                    collector.push('\t');
+            for (var h = 0; h < height; h++) {
+                for (var w = 0; w < width; w++) {
+                    collector.push(selections[w][h]);
+                    if (w < width) {
+                        collector.push('\t');
+                    }
                 }
-            };
-
-            var collectRows = function(selectionRow, y) {
-                selectionRow.forEach(collectCells);
-                if (y < height) {
+                if (h < height) {
                     collector.push('\n');
                 }
-            };
+            }
 
-            selections.forEach(collectRows);
+            var result = collector.join('');
 
-            return collector.join('');
+            return result;
         }
+        return '';
     },
 
     /**
