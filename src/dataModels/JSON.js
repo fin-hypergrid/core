@@ -1,12 +1,12 @@
 'use strict';
 
 var analytics = require('hyper-analytics');
-//var analytics = require('../local_node_modules/newanalytics');
+//var analytics = require('../local_node_modules/hyper-analytics');
 //var analytics = require('../local_node_modules/finanalytics');
 var DataModel = require('./DataModel');
 
-var UPWARDS_BLACK_ARROW = '\u2b06',
-    DOWNWARDS_BLACK_ARROW = '\u2b07';
+var UPWARDS_BLACK_ARROW = '\u25b2', // aka '▲'
+    DOWNWARDS_BLACK_ARROW = '\u25bc'; // aka '▼'
 
 var nullDataSource = {
     isNullObject: function() {
@@ -468,12 +468,14 @@ var JSON = DataModel.extend('dataModels.JSON', {
      * @memberOf dataModels.JSON.prototype
      */
     applyFilters: function() {
-        this.preglobalfilter.apply();
-        var colCount = this.getColumnCount();
+        var visibleColumns = this.getVisibleColumns();
+        this.preglobalfilter.apply(visibleColumns);
+        var visColCount = visibleColumns.length;
         var filterSource = this.getFilterSource();
         var groupOffset = this.hasAggregates() ? 1 : 0;
         filterSource.clearAll();
-        for (var i = 0; i < colCount; i++) {
+        for (var v = 0; v < visColCount; v++) {
+            var i = visibleColumns[v].index;
             var filterText = this.getFilter(i);
             if (filterText.length > 0) {
                 filterSource.add(i - groupOffset, textMatchFilter(filterText));
