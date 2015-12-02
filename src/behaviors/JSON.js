@@ -234,12 +234,16 @@ var JSON = Behavior.extend('behaviors.JSON', {
 
         addStylesheet('dnd', null);
 
+        var listOptions = {
+            cssStylesheetReferenceElement: div
+        };
+
         var groups = { models: this.getGroups(), title: 'Groups' },
             availableGroups = { models: this.getAvailableGroups(), title: 'Available Groups' },
             hiddenColumns = { models: this.getHiddenColumns(), title: 'Hidden Columns' },
             visibleColumns = { models: this.getVisibleColumns(), title: 'Visible Columns'},
-            groupLists = new ListDragon([groups, availableGroups]),
-            columnLists = new ListDragon([hiddenColumns, visibleColumns]),
+            groupLists = new ListDragon([groups, availableGroups], listOptions),
+            columnLists = new ListDragon([hiddenColumns, visibleColumns], listOptions),
             listSets = [groupLists, columnLists];
 
         listSets.forEach(function(listSet) {
