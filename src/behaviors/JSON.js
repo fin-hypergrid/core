@@ -232,8 +232,6 @@ var JSON = Behavior.extend('behaviors.JSON', {
             return false;
         }
 
-        addStylesheet('dnd', null);
-
         var listOptions = {
             cssStylesheetReferenceElement: div
         };
@@ -245,6 +243,8 @@ var JSON = Behavior.extend('behaviors.JSON', {
             groupLists = new ListDragon([groups, availableGroups], listOptions),
             columnLists = new ListDragon([hiddenColumns, visibleColumns], listOptions),
             listSets = [groupLists, columnLists];
+
+        addStylesheet('list-dragon', div);
 
         listSets.forEach(function(listSet) {
             listSet.modelLists.forEach(function(list) {
