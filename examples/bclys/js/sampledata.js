@@ -16,7 +16,7 @@
         var firstName = Math.round((firstNames.length - 1) * randomFunc());
         //var lastName = 'a' + randomFunc() + 'b';
         var lastName = Math.round((lastNames.length - 1) * randomFunc());
-        var pets = Math.round(10 * randomFunc());
+        var number_of_pets = Math.round(10 * randomFunc());
         var birthyear = 1900 + Math.round(randomFunc() * 114);
         var birthmonth = Math.round(randomFunc() * 11);
         var birthday = Math.round(randomFunc() * 29);
@@ -28,7 +28,7 @@
         var person = {
             last_name: lastNames[lastName], //jshint ignore:line
             first_name: firstNames[firstName], //jshint ignore:line
-            pets: pets,
+            number_of_pets: number_of_pets,
             birthDate: birthyear + '-' + months[birthmonth] + '-' + days[birthday],
             birthState: states[birthstate],
             residenceState: states[residencestate],

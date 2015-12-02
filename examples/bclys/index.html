@@ -7,7 +7,7 @@
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">
 
 <script src="js/accounting.min.js"></script>
-<!--<script src="js/sampledata.js"></script>-->
+<!-- <script src="js/sampledata.js"></script> -->
 <script src="js/widedata.js"></script>
 <script src="js/myThemes.js"></script>
 <script src="index.js"></script>
@@ -89,11 +89,10 @@
         var div = document.querySelector('div#json-example'),
             bodyStyle = window.getComputedStyle(document.body);
 
-        var getContainer = function(grid) {
+        jsonGrid = new fin.Hypergrid(div, function(grid) {
             return new fin.Hypergrid.behaviors.JSON(grid, window.people1);
-        };
+        });
 
-        jsonGrid = new fin.Hypergrid(div, getContainer);
         var jsonModel = jsonGrid.getBehavior();
 
         //functions for showing the grouping/rollup capbilities
@@ -541,7 +540,7 @@
                 var state = {
                         columnIndexes: [
                             fieldsMap.last_name,
-                            fieldsMap.pets,
+                            fieldsMap.total_number_of_pets_owned,
                             fieldsMap.birthDate,
                             fieldsMap.birthState,
                             // fieldsMap.residenceState,
