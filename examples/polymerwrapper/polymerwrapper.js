@@ -174,6 +174,11 @@
             jsonGrid.hasFocus = function() {
                 return document.activeElement === self;
             }
+
+            //shadowDom holder will now represent focus
+            jsonGrid.canvas.hasFocus = function() {
+                return document.activeElement === self;
+            }
         },
 
 
