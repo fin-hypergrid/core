@@ -8,7 +8,7 @@ var DataModelJSON = require('../dataModels/JSON');
 var features = require('../features/index');
 var addStylesheet = require('../stylesheets');
 var aggregations = require('hyper-analytics').util.aggregations;
-//var aggregations = require('../local_node_modules/newanalytics').util.aggregations;
+//var aggregations = require('../local_node_modules/hyper-analytics').util.aggregations;
 //var aggregations = require('../local_node_modules/finanalytics').aggregations;
 
 /**
@@ -229,7 +229,7 @@ var JSON = Behavior.extend('behaviors.JSON', {
 
         var groups = { models: this.getGroups(), title: 'Groups' },
             availableGroups = { models: this.getAvailableGroups(), title: 'Available Groups' },
-            hiddenColumns = { models: this.getHiddenColumns(), title: 'Hidden Ccolumns' },
+            hiddenColumns = { models: this.getHiddenColumns(), title: 'Hidden Columns' },
             visibleColumns = { models: this.getVisibleColumns(), title: 'Visible Columns'},
             groupLists = new ListDragon([groups, availableGroups]),
             columnLists = new ListDragon([hiddenColumns, visibleColumns]),
