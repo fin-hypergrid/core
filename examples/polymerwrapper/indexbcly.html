@@ -1,0 +1,80 @@
+
+<!doctype html>
+<html>
+<head>
+  <title>fin-hypergrid Demo</title>
+  <!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">
+
+<script src="js/accounting.min.js"></script>
+<!--<script src="js/sampledata.js"></script>-->
+<script src="js/widedata.js"></script>
+<script src="js/myThemes.js"></script>
+<link rel="import" href="polymerwrapper.html" />
+
+</head>
+<body>
+
+<div class="container" style="border-style: solid; border-color: red">
+    <div class="row" style="border-style: solid; border-color: blue">
+        <div class="col-md-12 col-lg-12" style="border-style: solid; border-color: grey">
+<!--            <button onclick="toggleColumnPicker()">toggle column picker</button>
+            <button onclick="toggleAggregates()">toggle aggregates</button>
+            <button onclick="toggleAutosortGrouping()">toggle autosort groups</button>
+            <button onclick="toggleEmptyData()">toggle empty data</button>
+            <button onclick="toggleEmptyHeaders()">toggle empty headers</button>
+            <button onclick="toggleGlobalFilter()">toggle global filter</button>-->
+            <button onclick="setData1()">set data 1 (5000 rows)</button>
+<!--            <button onclick="setData2()">set data 2 (10000 rows)</button>
+            <button onclick="reset()">reset</button>-->
+        </div>
+    </div>
+    <div class="row" style="overflow: hidden">
+        <div class="col-md-12 col-lg-12" style="overflow:hidden;border-style: solid; border-color: green;height:400px">
+            <!--<div class="abs" id="json-example"></div>-->
+            <polymer-grid id="mypolymer-Grid" showfilterrow=true rowselectionmode=true rowindicatorstyle="number" showfiltericon=false></polymer-grid>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12 col-lg-12" style="border-style: solid; border-color: grey">
+            blah
+        </div>
+    </div>
+</div>
+
+<script>
+
+(function(){
+    //used by the cellProvider, return null for a column if you want no editor to pop up
+    var editorTypes = ['choice','textfield','spinner','date','choice','choice','choice','textfield','textfield','textfield'];
+
+    window.onload = function() {
+
+        var grid = document.querySelector('#mypolymer-Grid');
+        grid.render();
+        var jsonGrid = grid.getGridControl();
+
+        window.setData1 = function () {
+
+            grid.initializeGrid(null, people1);
+
+            setTimeout(function(){
+                jsonGrid.setColumnProperties(2, {
+                    width: 200
+                });
+            }, 100);
+
+        }
+
+        jsonGrid.addProperties({
+            columnAutosizing: true
+        });
+
+    };
+})();
+
+</script>
+
+</body>
+</html>

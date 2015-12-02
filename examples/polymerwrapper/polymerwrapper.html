@@ -1,0 +1,54 @@
+<!--<link rel="import" href="../../References/fin-hypergrid-final/fin-hypergrid.dev.html" />-->
+<link rel="import" href="./References/polymer.html">
+<polymer-element name="polymer-grid" attributes="ShowFilterRow RowSelectionMode RowIndicatorStyle ShowFilterIcon">
+    <template>
+        <style>
+            .finGrid {
+                /*min-height: 80%;*/
+                position: static;
+                overflow: hidden;
+                /*left: 0;
+                right: 0;
+                top: 0;
+                bottom: 0;*/
+            }
+
+            #jsongriddiv div.finbar-vertical {
+                margin: 0px;
+                width: 17px;
+                background-color: rgba(237, 237, 237, 1);
+                box-shadow: 0 0 0px #000, 0 0 0px #000, 0 0 0px #000;
+            }
+
+            #jsongriddiv div.finbar-vertical div.thumb {
+                margin: 2px 0px 17px 0px;
+                width: 11px;
+                background-color: rgba(158, 158, 158, 1);
+                box-shadow: 0 0 0px #000, 0 0 0px #000, 0 0 0px #000;
+                border-radius: 0px;
+                border: 1px solid rgba(132, 132, 132, 1);
+                right: 3px;
+            }
+
+            #jsongriddiv div.finbar-horizontal {
+                margin: 0px;
+                height: 17px;
+                background-color: rgba(237, 237, 237, 1);
+                box-shadow: 0 0 0px #000, 0 0 0px #000, 0 0 0px #000;
+            }
+
+            #jsongriddiv div.finbar-horizontal div.thumb {
+                margin: 0px 2px;
+                height: 11px;
+                background-color: rgba(158, 158, 158, 1);
+                box-shadow: 0 0 0px #000, 0 0 0px #000, 0 0 0px #000;
+                border-radius: 0px;
+                border: 1px solid rgba(132, 132, 132, 1);
+                bottom: 3px;
+            }
+        </style>
+        <div class="finGrid" id="jsongriddiv"></div>
+    </template>
+    <script src="index.js"></script>
+    <script src="polymerwrapper.js"></script>
+</polymer-element>
