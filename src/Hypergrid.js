@@ -3082,6 +3082,9 @@ Hypergrid.prototype = {
         }
         this.getSelectionModel().selectRow(min, max);
     },
+    isRowNumberAutosizing: function() {
+        return this.resolveProperty('rowNumberAutosizing');
+    },
     isRowSelected: function(r) {
         return this.getSelectionModel().isRowSelected(r);
     },
@@ -3335,6 +3338,7 @@ function defaultProperties() {
         singleRowSelectionMode: true,
 
         columnAutosizing: true,
+        rowNumberAutosizing: true,
         headerTextWrapping: false,
         rowResize: false
 

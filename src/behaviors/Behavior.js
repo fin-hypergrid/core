@@ -1626,7 +1626,7 @@ var Behavior = Base.extend('Behavior', {
 
     checkColumnAutosizing: function(force) {
         force = force === true;
-        this.allColumns[-1].checkColumnAutosizing(true);
+        this.autoSizeRowNumberColumn();
         this.allColumns[-2].checkColumnAutosizing(force);
         this.allColumns.forEach(function(column) {
             column.checkColumnAutosizing(force);
@@ -1634,7 +1634,9 @@ var Behavior = Base.extend('Behavior', {
     },
 
     autoSizeRowNumberColumn: function() {
-        this.allColumns[-1].checkColumnAutosizing(true);
+        if (this.getGrid().isRowNumberAutosizing()) {
+            this.allColumns[-1].checkColumnAutosizing(true);
+        }
     },
 
     setGlobalFilter: function(string) {
