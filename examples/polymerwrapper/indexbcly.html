@@ -61,14 +61,15 @@
 
             setTimeout(function(){
                 jsonGrid.setColumnProperties(2, {
-                    width: 200
+                    width: 200,
                 });
             }, 100);
 
         }
 
         jsonGrid.addProperties({
-            columnAutosizing: true
+            columnAutosizing: true,
+            rowNumberAutosizing: false,
         });
 
     };
