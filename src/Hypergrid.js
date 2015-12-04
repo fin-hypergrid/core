@@ -2024,6 +2024,7 @@ Hypergrid.prototype = {
         setTimeout(function() {
             //self.sbHRangeAdapter.subjectChanged();
             self.fireScrollEvent('fin-scroll-x', oldX, x);
+            self.synchronizeScrollingBoundries();
         });
     },
 
