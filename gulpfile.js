@@ -32,7 +32,7 @@ gulp.task('browserify', function(callback) {
     callback();
 });
 gulp.task('reloadBrowsers', reloadBrowsers);
-gulp.task('browserSyncLaunchServer', browserSyncLaunchServer);
+gulp.task('serve', browserSyncLaunchServer);
 
 gulp.task('build', function(callback) {
     clearBashScreen();
