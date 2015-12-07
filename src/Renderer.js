@@ -585,10 +585,10 @@ var Renderer = Base.extend('Renderer', {
         }
 
         gc.rect(x, y, width, height);
-        gc.fillStyle = 'rgba(0, 0, 0, 0.2)';
+        gc.fillStyle = this.resolveProperty('selectionRegionOverlayColor');
         gc.fill();
         gc.lineWidth = 1;
-        gc.strokeStyle = 'black';
+        gc.strokeStyle = this.resolveProperty('selectionRegionOutlineColor');
 
         // animate the dashed line a bit here for fun
 

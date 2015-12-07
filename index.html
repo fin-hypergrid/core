@@ -325,24 +325,6 @@
 
         });
 
-        jsonGrid.addFinEventListener('fin-click', function(e){
-            var cell = e.detail.gridCell;
-            if (cell.y < jsonGrid.getHeaderRowCount()) {
-                return;
-            }
-            // if(cell.x === 7) {
-            //     jsonGrid.toggleSelectRow(cell.y, []);
-            // }
-            else if (cell.x !== -1) {
-                if (jsonGrid.isEditing()) {
-                    jsonGrid.stopEditing();
-                } else {
-                    jsonGrid.activateEditor(cell.x, cell.y);
-                }
-            }
-
-        });
-
         jsonGrid.addFinEventListener('fin-button-pressed', function(e){
             var p = e.detail.gridCell;
             jsonModel.setValue(p.x, p.y, !jsonModel.getValue(p.x,p.y));
@@ -559,7 +541,6 @@
                         showFilterRow: true,
                         columnAutosizing: false,
                         headerTextWrapping: true,
-                        editable: false,
 
                         cellSelection: true,
                         columnSelection: true,

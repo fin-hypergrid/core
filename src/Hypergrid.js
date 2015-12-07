@@ -954,6 +954,17 @@ Hypergrid.prototype = {
             self.fireSyntheticMouseUpEvent(mouseEvent);
         });
 
+        this.addFinEventListener('fin-canvas-dblclick', function(e) {
+            if (self.resolveProperty('readOnly')) {
+                return;
+            }
+            var mouse = e.detail.mouse;
+            var mouseEvent = self.getGridCellFromMousePoint(mouse);
+            mouseEvent.primitiveEvent = e;
+            self.fireSyntheticDoubleClickEvent(mouseEvent, e);
+            self.delegateDoubleClick(mouseEvent);
+        });
+
         this.addFinEventListener('fin-canvas-tap', function(e) {
             if (self.resolveProperty('readOnly')) {
                 return;
@@ -1027,17 +1038,6 @@ Hypergrid.prototype = {
         //     mouseEvent.primitiveEvent = e;
         //     self.delegateHoldPulse(mouseEvent);
         // });
-
-        this.addFinEventListener('fin-canvas-dblclick', function(e) {
-            if (self.resolveProperty('readOnly')) {
-                return;
-            }
-            var mouse = e.detail.mouse;
-            var mouseEvent = self.getGridCellFromMousePoint(mouse);
-            mouseEvent.primitiveEvent = e;
-            self.fireSyntheticDoubleClickEvent(mouseEvent, e);
-            self.delegateDoubleClick(mouseEvent);
-        });
 
         this.addFinEventListener('fin-canvas-wheelmoved', function(e) {
             var mouse = e.detail.mouse;
@@ -1265,7 +1265,7 @@ Hypergrid.prototype = {
      * @summary Shut down the current cell editor.
      */
     stopEditing: function() {
-        if (this.cellEditor) {
+        if (this.cellEditor && this.isEditing()) {
             if (this.cellEditor.stopEditing) {
                 this.cellEditor.stopEditing();
             }
@@ -1899,6 +1899,7 @@ Hypergrid.prototype = {
      * @param {MouseEvent} event - The system mouse event.
      */
     fireSyntheticClickEvent: function(mouseEvent) {
+        this.stopEditing();
         var cell = mouseEvent.gridCell;
         var detail = {
             gridCell: cell,
@@ -1922,6 +1923,7 @@ Hypergrid.prototype = {
      * @param {MouseEvent} event - The system mouse event.
      */
     fireSyntheticDoubleClickEvent: function(mouseEvent) {
+        this.stopEditing();
         var cell = mouseEvent.gridCell;
         var behavior = this.getBehavior();
         var detail = {
@@ -2442,7 +2444,7 @@ Hypergrid.prototype = {
      * @param {y} y - The vertical coordinate.
      */
     getCellEditorAt: function(x, y) {
-        return this.getBehavior().getCellEditorAt(x, y);
+        return this.getBehavior()._getCellEditorAt(x, y);
     },
 
     /**
@@ -3337,11 +3339,16 @@ function defaultProperties() {
         columnSelection: true,
         rowSelection: true,
         singleRowSelectionMode: true,
+        selectionRegionOverlayColor: 'rgba(0, 0, 0, 0.2)',
+        selectionRegionOutlineColor: 'black',
 
         columnAutosizing: true,
         rowNumberAutosizing: true,
         headerTextWrapping: false,
-        rowResize: false
+        rowResize: false,
+
+        editable: true,
+        editOnDoubleClick: true
 
     };
     return properties;

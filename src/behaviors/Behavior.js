@@ -1450,8 +1450,17 @@ var Behavior = Base.extend('Behavior', {
      * @param {number} x - x coordinate
      * @param {number} y - y coordinate
      */
-    getCellEditorAt: function(x, y) {
+    _getCellEditorAt: function(x, y) {
         return this.getColumn(x).getCellEditorAt(x, y);
+    },
+
+    getCellEditorAt: function(x, y) {
+        var grid = this.getGrid();
+        if (grid.isFilterRow(y)) {
+            return grid.cellEditors.textfield;
+        }
+        var editor = this.getDataModel().getCellEditorAt(x, y);
+        return editor;
     },
 
     /**
