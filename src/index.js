@@ -2,13 +2,13 @@
 
 'use strict';
 
+require('object-iterators'); // Install the Array.find polyfill, as needed
+
 var Hypergrid = require('./Hypergrid');
 
 Hypergrid.behaviors = require('./behaviors/index');
 Hypergrid.cellEditors = require('./cellEditors/index');
 Hypergrid.features = require('./features/index');
-
-require('./polyfills');
 
 window.fin = {
     Hypergrid: Hypergrid
