@@ -1580,7 +1580,7 @@ var Behavior = Base.extend('Behavior', {
     },
 
     convertViewPointToDataPoint: function(viewPoint) {
-        var newX = this.getColumn(viewPoint.x);
+        var newX = this.getColumn(viewPoint.x).index;
         var newPoint = this.getGrid().newPoint(newX, viewPoint.y);
         return newPoint;
     },
