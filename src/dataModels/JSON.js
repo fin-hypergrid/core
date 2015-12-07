@@ -85,6 +85,10 @@ var JSON = DataModel.extend('dataModels.JSON', {
         return this.presorter; //this.hasAggregates() ? this.postsorter : this.presorter;
     },
 
+    getData: function() {
+        return this.source.data;
+    },
+
     /**
      * @memberOf dataModels.JSON.prototype
      * @param {number} x

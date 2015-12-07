@@ -2655,7 +2655,8 @@ Hypergrid.prototype = {
                 newValue: newValue,
                 gridCell: cell,
                 time: Date.now(),
-                input: control
+                input: control,
+                row: this.getRow(cell.y)
             }
         });
         var proceed = this.canvas.dispatchEvent(clickEvent);
@@ -2676,7 +2677,8 @@ Hypergrid.prototype = {
                 oldValue: oldValue,
                 gridCell: cell,
                 time: Date.now(),
-                input: control
+                input: control,
+                row: this.getRow(cell.y)
             }
         });
         this.canvas.dispatchEvent(clickEvent);

@@ -48,6 +48,10 @@ DataModelDecorator.prototype = {
         return this.getComponent().setGlobalFilter(string);
     },
 
+    getData: function() {
+        return this.getComponent().getData();
+    },
+
     getValue: function(x, y) {
         return this.getComponent().getValue(x, y);
     },

@@ -190,6 +190,9 @@ var CellEditor = Base.extend('CellEditor', {
         if (value === this.initialValue) {
             return; //data didn't change do nothing
         }
+        if (parseFloat(this.initialValue) === this.initialValue) { // I'm a number
+            value = parseFloat(value);
+        }
         var continued = this.getGrid().fireBeforeCellEdit(point, this.initialValue, value, this);
         if (!continued) {
             return;

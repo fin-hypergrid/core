@@ -17,6 +17,10 @@ var DecoratorBase = DataModel.extend('DecoratorBase', {
         return this.component;
     },
 
+    getData: function() {
+        return this.getComponent().getData();
+    },
+
     getValue: function(x, y) {
         return this.getComponent().getValue(x, y);
     },
