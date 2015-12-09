@@ -500,6 +500,19 @@ module.exports = {
      */
     singleRowSelectionMode: true,
 
+    /**
+     * @default 'rgba(0, 0, 0, 0.2)'
+     * @type {string}
+     * @instance
+     */
+    selectionRegionOverlayColor: 'rgba(0, 0, 0, 0.2)',
+
+    /**
+     * @default 'black'
+     * @type {string}
+     * @instance
+     */
+    selectionRegionOutlineColor: 'black',
 
     /**
      * @default true
@@ -527,7 +540,21 @@ module.exports = {
      * @type {boolean}
      * @instance
      */
-    rowResize: false
+    rowResize: false,
+
+    /**
+     * @default true
+     * @type {boolean}
+     * @instance
+     */
+    editable: true,
+
+    /**
+     * @default true
+     * @type {boolean}
+     * @instance
+     */
+    editOnDoubleClick: true
 
 };
 
