@@ -7,17 +7,15 @@ var FinBar = require('finbars');
 var Canvas = require('fincanvas');
 var Point = require('rectangular').Point;
 var Rectangle = require('rectangular').Rectangle;
-var LRUCache = require('lru-cache');
 var _ = require('object-iterators');
 
+var defaults = require('./defaults');
 var Renderer = require('./Renderer');
 var SelectionModel = require('./SelectionModel');
 var addStylesheet = require('./stylesheets');
 
 var globalCellEditors = {},
     propertiesInitialized = false,
-    textWidthCache = new LRUCache(2000),
-    defaults = defaultProperties(),
     polymerTheme = Object.create(defaults),
     globalProperties = Object.create(polymerTheme);
 
@@ -246,9 +244,9 @@ Hypergrid.prototype = {
         this.behaviorChanged();
     },
 
-    resetTextWidthCache: function() {
-        textWidthCache = new LRUCache(2000);
-    },
+    //resetTextWidthCache: function() {
+    //    textWidthCache = new LRUCache(2000);
+    //},
 
     getProperties: function() {
         return this.getPrivateState();
@@ -3186,173 +3184,6 @@ Hypergrid.prototype = {
         return new Rectangle(x, y, width, height);
     }
 };
-
-function getTextWidth(gc, string) {
-    if (string === null || string === undefined) {
-        return 0;
-    }
-    string = string + '';
-    if (string.length === 0) {
-        return 0;
-    }
-    var key = gc.font + string;
-    var width = textWidthCache.get(key);
-    if (!width) {
-        width = gc.measureText(string).width;
-        textWidthCache.set(key, width);
-    }
-    return width;
-}
-
-function getTextHeight(font) {
-
-    var result = getTextHeight.fontData[font];
-    if (result) {
-        return result;
-    }
-    result = {};
-    var text = document.createElement('span');
-    text.textContent = 'Hg';
-    text.style.font = font;
-
-    var block = document.createElement('div');
-    block.style.display = 'inline-block';
-    block.style.width = '1px';
-    block.style.height = '0px';
-
-    var div = document.createElement('div');
-    div.appendChild(text);
-    div.appendChild(block);
-
-    div.style.position = 'absolute';
-    document.body.appendChild(div);
-
-    try {
-
-        block.style.verticalAlign = 'baseline';
-
-        var blockRect = block.getBoundingClientRect();
-        var textRect = text.getBoundingClientRect();
-
-        result.ascent = blockRect.top - textRect.top;
-
-        block.style.verticalAlign = 'bottom';
-        result.height = blockRect.top - textRect.top;
-
-        result.descent = result.height - result.ascent;
-
-    } finally {
-        document.body.removeChild(div);
-    }
-    if (result.height !== 0) {
-        getTextHeight.fontData[font] = result;
-    }
-    return result;
-}
-getTextHeight.fontData = {};
-
-function defaultProperties() {
-    var properties = {
-        //these are for the theme
-        font: '13px Tahoma, Geneva, sans-serif',
-        color: 'rgb(25, 25, 25)',
-        backgroundColor: 'rgb(241, 241, 241)',
-        foregroundSelectionColor: 'rgb(25, 25, 25)',
-        backgroundSelectionColor: 'rgb(183, 219, 255)',
-
-        columnHeaderFont: '12px Tahoma, Geneva, sans-serif',
-        columnHeaderColor: 'rgb(25, 25, 25)',
-        columnHeaderBackgroundColor: 'rgb(223, 227, 232)',
-        columnHeaderForegroundSelectionColor: 'rgb(25, 25, 25)',
-        columnHeaderBackgroundSelectionColor: 'rgb(255, 220, 97)',
-        columnHeaderForegroundColumnSelectionColor: 'rgb(25, 25, 25)',
-        columnHeaderBackgroundColumnSelectionColor: 'rgb(255, 180, 0)',
-
-        rowHeaderFont: '12px Tahoma, Geneva, sans-serif',
-        rowHeaderColor: 'rgb(25, 25, 25)',
-        rowHeaderBackgroundColor: 'rgb(223, 227, 232)',
-        rowHeaderForegroundSelectionColor: 'rgb(25, 25, 25)',
-        rowHeaderBackgroundSelectionColor: 'rgb(255, 220, 97)',
-        rowHeaderForegroundRowSelectionColor: 'rgb(25, 25, 25)',
-        rowHeaderBackgroundRowSelectionColor: 'rgb(255, 180, 0)',
-
-        filterFont: '12px Tahoma, Geneva, sans-serif',
-        filterColor: 'rgb(25, 25, 25)',
-        filterBackgroundColor: 'white',
-        filterForegroundSelectionColor: 'rgb(25, 25, 25)',
-        filterBackgroundSelectionColor: 'rgb(255, 220, 97)',
-        filterCellBorderStyle: 'rgba(0,0,0,0.8)',
-        filterCellBorderThickness: '0.4',
-
-        treeColumnFont: '12px Tahoma, Geneva, sans-serif',
-        treeColumnColor: 'rgb(25, 25, 25)',
-        treeColumnBackgroundColor: 'rgb(223, 227, 232)',
-        treeColumnForegroundSelectionColor: 'rgb(25, 25, 25)',
-        treeColumnBackgroundSelectionColor: 'rgb(255, 220, 97)',
-        treeColumnForegroundColumnSelectionColor: 'rgb(25, 25, 25)',
-        treeColumnBackgroundColumnSelectionColor: 'rgb(255, 180, 0)',
-
-        backgroundColor2: 'rgb(201, 201, 201)',
-        voffset: 0,
-        scrollbarHoverOver: 'visible',
-        scrollbarHoverOff: 'hidden',
-        scrollingEnabled: true,
-        vScrollbarClassPrefix: '',
-        hScrollbarClassPrefix: '',
-
-        //these used to be in the constants element
-        fixedRowAlign: 'center',
-        fixedColAlign: 'center',
-        cellPadding: 5,
-        gridLinesH: true,
-        gridLinesV: true,
-        lineColor: 'rgb(199, 199, 199)',
-        lineWidth: 0.4,
-
-        defaultRowHeight: 15,
-        defaultColumnWidth: 100,
-
-        //for immediate painting, set these values to 0, true respectively
-        repaintIntervalRate: 60,
-        repaintImmediately: false,
-
-        //enable or disable double buffering
-        useBitBlit: false,
-
-        useHiDPI: true,
-        editorActivationKeys: ['alt', 'esc'],
-        readOnly: false,
-
-        //inhertied by cell renderers
-        getTextWidth: getTextWidth,
-        getTextHeight: getTextHeight,
-
-        fixedColumnCount: 0,
-        fixedRowCount: 0,
-        headerColumnCount: 0,
-
-        showRowNumbers: true,
-        showHeaderRow: true,
-        showFilterRow: true,
-
-        cellSelection: true,
-        columnSelection: true,
-        rowSelection: true,
-        singleRowSelectionMode: true,
-        selectionRegionOverlayColor: 'rgba(0, 0, 0, 0.2)',
-        selectionRegionOutlineColor: 'black',
-
-        columnAutosizing: true,
-        rowNumberAutosizing: true,
-        headerTextWrapping: false,
-        rowResize: false,
-
-        editable: true,
-        editOnDoubleClick: true
-
-    };
-    return properties;
-}
 
 function normalizeRect(rect) {
     var o = rect.origin;

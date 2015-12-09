@@ -1,14 +1,10 @@
 /* eslint-env browser */
 /* global Polymer, fin */
-
 'use strict';
 
 /**
- *
- * @module .\excel
-  * @description
-##### fin-hypergrid-excel is is a plugin for hypergrid that provides integration with excel.
- *
+ * A plugin for hypergrid that provides integration with excel.
+ * @module excel
  */
 
 (function() {
@@ -18,22 +14,19 @@
     Polymer({ // eslint-disable-line new-cap
 
         /**
-         *
-         * @property {object} grid - the [fin-hypergrid](module-._fin-hypergrid.html) I'm installed into
+         * @property {object} grid - The {@link Hypergrid} I'm installed into.
          * @instance
          */
         grid: {},
 
         /**
-         *
-         * @property {object} running - am I currently running (polling for changes to push to excel)
+         * @property {object} running - Am I currently running (polling for changes to push to excel).
          * @instance
          */
         running: false,
 
         /**
-         *
-         * @property {object} publish - default configuration values
+         * @property {object} publish - Default configuration values.
          * @instance
          */
         publish: {
@@ -44,10 +37,8 @@
         },
 
         /**
-         * @function
          * @instance
-         * @desc this is called as the hook for the nested tag plugin pattern. this is how this excel component is installed into the hypergrid
-         *
+         * @desc this is called as the hook for the nested tag plugin pattern. this is how this excel component is installed into the hypergrid.
          * @param {Hypergrid} grid
          */
         installOn: function(grid) {
@@ -68,10 +59,8 @@
 
 
         /**
-         * @function
          * @instance
-         * @desc start polling for pushes to excel
-         *
+         * @desc Start polling for pushes to excel.
          */
         start: function() {
             var self = this;
@@ -92,10 +81,8 @@
         },
 
         /**
-         * @function
          * @instance
-         * @desc stop polling for pushes to excel
-         *
+         * @desc Stop polling for pushes to excel.
          */
         stop: function() {
             this.running = false;
@@ -103,11 +90,9 @@
         },
 
         /**
-         * @function
          * @instance
-         * @desc create a blob appropriate to send to excel
-         *
-         * #### returns: Object
+         * @desc Create a blob appropriate to send to excel.
+         * @returns {undefined|object}
          */
         createExcelDataFromSelections: function() {
             //only use the data from the last selection
@@ -146,10 +131,8 @@
         },
 
         /**
-         * @function
          * @instance
-         * @desc create and send a blob of the current selection to excel
-         *
+         * @desc Create and send a blob of the current selection to excel.
          */
         publishToBus: function() {
 
@@ -166,10 +149,8 @@
         },
 
         /**
-         * @function
          * @instance
-         * @desc subscribe to excel
-         *
+         * @desc Subscribe to excel.
          */
         subscribeToBus: function() {
             fin.desktop.InterApplicationBus.subscribe('*', this.subscribe, this.subscriptionCallback.bind(this));
@@ -177,10 +158,8 @@
         },
 
         /**
-         * @function
          * @instance
-         * @desc unsubscribe to excel
-         *
+         * @desc Unsubscribe to excel.
          */
         unSubscribeToBus: function() {
             fin.desktop.InterApplicationBus.unsubscribe('*', this.subscribe, this.subscriptionCallback.bind(this));
@@ -188,10 +167,9 @@
         },
 
         /**
-         * @function
          * @instance
-         * @desc handle the data that comes from excel
-         *
+         * @desc Handle the data that comes from excel.
+         * @param {object} data
          */
         subscriptionCallback: function(data) {
             var self = this;
@@ -209,12 +187,10 @@
         },
 
         /**
-         * @function
          * @instance
-         * @desc handle any errors excel might publish to the bus
-         *
+         * @desc Handle any errors excel might publish to the bus.
+         * @param {object} data
          */
-
         errorCallback: function(data) {
             if (this.logging) {
                 console.error(JSON.stringify(data));
