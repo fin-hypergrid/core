@@ -601,7 +601,7 @@ var Renderer = Base.extend('Renderer', {
         // animate the dashed line a bit here for fun
         //gc.setLineDash(this.focusLineStep[Math.floor(10 * (Date.now() / 300 % 1)) % this.focusLineStep.length]);
 
-        gc.stroke();
+        //gc.stroke();
     },
 
 
@@ -685,23 +685,6 @@ var Renderer = Base.extend('Renderer', {
      */
     isColumnHovered: function(x) {
         return this.getGrid().isColumnHovered(x);
-    },
-
-    /**
-     * @memberOf Renderer.prototype
-     * @summary Smart render the main cells.
-     * @desc We snapshot the context to insure against its pollution.
-     * @param {CanvasRenderingContext2D} gc - [CanvasRenderingContext2D](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D)
-     */
-    paintCells: function(gc) {
-        try {
-            gc.save();
-            this._paintCells(gc);
-        } catch (e) {
-            console.error(e);
-        } finally {
-            gc.restore();
-        }
     },
 
     /**
@@ -892,46 +875,76 @@ var Renderer = Base.extend('Renderer', {
         return this.getGrid().getHeaderColumnCount();
     },
 
-    /**
+    /** @summary Smart render the main cells.
+     * @desc Paint all the cells of a grid, including the "fixed" columns and rows.
+     * We snapshot the context to insure against its pollution.
+     * try-catch surrounds cell paint in case a cell editor throws an error.
+     * The error message is error-logged to console AND displayed in cell.
      * @memberOf Renderer.prototype
-     * @desc Dumb render the fixed columns along the left side.
      * @param {CanvasRenderingContext2D} gc - [CanvasRenderingContext2D](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D)
      */
-    _paintCells: function(gc) {
-        var x, y, c, r = 0;
-
+    paintCells: function(gc) {
+        var x, y, c, r, renderCellError;
         var columnEdges = this.getColumnEdges();
         var rowEdges = this.rowEdges;
         this.buttonCells = {};
         var visibleCols = this.getVisibleColumns();
         var visibleRows = this.getVisibleRows();
+        var behavior = this.getBehavior();
 
-        var width = columnEdges[columnEdges.length - 1];
-        var height = rowEdges[rowEdges.length - 1];
-
-        gc.moveTo(0, 0);
-        gc.rect(0, 0, width, height);
-        gc.stroke();
-        gc.clip();
+        var clipX = 0,
+            clipY = 0,
+            clipWidth,
+            clipHeight = rowEdges[rowEdges.length - 1];
 
         var loopLength = visibleCols.length;
-        var loopStart = 0;
+        var loopStart = -this.getGrid().isShowRowNumbers(); // either 0 or -1
 
-        if (this.getGrid().isShowRowNumbers()) {
-            //loopLength++;
-            loopStart--;
-        }
+        if (loopLength) { // this if prevents painting the fixed columns when there are no visible columns
+            for (x = loopStart; x < loopLength; x++, clipX += clipWidth) {
+                c = visibleCols[x];
+                this.renderedColumnMinWidths[c] = 0;
+                renderCellError = behavior.getColumnProperties(c).renderCellError;
 
-        for (x = loopStart; x < loopLength; x++) {
-            c = visibleCols[x];
-            this.renderedColumnMinWidths[c] = 0;
-            for (y = 0; y < visibleRows.length; y++) {
-                r = visibleRows[y];
-                this._paintCell(gc, c, r);
+                gc.save();
+
+                // clip to column
+                clipWidth = columnEdges[c - loopStart] - clipX;
+                gc.beginPath();
+                gc.rect(clipX, clipY, clipWidth, clipHeight);
+                gc.clip();
+
+                for (y = 0; y < visibleRows.length; y++) {
+                    r = visibleRows[y];
+                    try {
+                        this._paintCell(gc, c, r);
+                        //if (r === 7 && c === 3) { throw Error('She sells sea shells by the sea shore.'); }
+                    } catch (e) {
+                        var message = e && (e.message || e) || 'Unknown error.';
+
+                        console.error(message);
+
+                        if (renderCellError) {
+                            var errY = rowEdges[r],
+                                errHeight = rowEdges[r + 1] - errY;
+
+                            gc.save();
+                            gc.beginPath();
+                            gc.rect(clipX, errY, clipWidth, errHeight);
+                            gc.clip();
+
+                            renderCellError(gc, message, clipX, errY, clipWidth, errHeight);
+
+                            gc.restore();
+                        }
+                    }
+                }
+
+                gc.restore(); // remove column's clip region
             }
         }
 
-        setNumberColumnWidth(gc, this.getBehavior(), this.getGrid().getRowCount());
+        setNumberColumnWidth(gc, behavior, this.getGrid().getRowCount());
     },
 
     /**
