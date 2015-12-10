@@ -34,7 +34,7 @@ var JSON = Behavior.extend('behaviors.JSON', {
     features: [
         features.CellSelection,
         features.KeyPaging,
-        features.Overlay,
+        features.ColumnPicker,
         features.ColumnResizing,
         features.RowResizing,
         features.Filters,
@@ -220,7 +220,7 @@ var JSON = Behavior.extend('behaviors.JSON', {
         return this.getDataModel().getSelection(selections);
     },
 
-    openEditor: function(div) {
+    buildColumnPicker: function(div) {
         if (!this.isColumnReorderable()) {
             return false;
         }

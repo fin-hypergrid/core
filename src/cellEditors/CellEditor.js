@@ -26,7 +26,10 @@ var CellEditor = Base.extend('CellEditor', {
      * @default null
      * @memberOf CellEditor.prototype
      */
-    editorPoint: null,
+    editorPoint: {
+        x: -1,
+        y: -1
+    },
 
     /**
      * if true, check that the editor is in the right location
@@ -35,14 +38,6 @@ var CellEditor = Base.extend('CellEditor', {
      * @memberOf CellEditor.prototype
      */
     checkEditorPositionFlag: false,
-
-    /**
-     * my main input control
-     * @type {Element}
-     * @default null
-     * @memberOf CellEditor.prototype
-     */
-    input: null,
 
     /**
      * my instance of hypergrid
@@ -99,22 +94,7 @@ var CellEditor = Base.extend('CellEditor', {
      * @param {Point} point - the location to start editing at
      */
     beginEditAt: function(point) {
-        this.setEditorPoint(point);
-        var model = this.getBehavior();
-        var value = model.getValue(point.x, point.y);
-        if (value.constructor.name === 'Array') {
-            value = value[1]; //it's a nested object
-        }
-        var proceed = this.grid.fireRequestCellEdit(point, value);
-        if (!proceed) {
-            //we were cancelled
-            return;
-        }
-        this.initialValue = value;
-        this.setEditorValue(value);
-        this.isEditing = true;
-        this.setCheckEditorPositionFlag();
-        this.checkEditor();
+        this.editorPoint = point;
     },
 
     /**
@@ -184,22 +164,7 @@ var CellEditor = Base.extend('CellEditor', {
      * @memberOf CellEditor.prototype
      * @desc save the new value into the behavior(model)
      */
-    saveEditorValue: function() {
-        var point = this.getEditorPoint();
-        var value = this.getEditorValue();
-        if (value === this.initialValue) {
-            return; //data didn't change do nothing
-        }
-        if (parseFloat(this.initialValue) === this.initialValue) { // I'm a number
-            value = parseFloat(value);
-        }
-        var continued = this.getGrid().fireBeforeCellEdit(point, this.initialValue, value, this);
-        if (!continued) {
-            return;
-        }
-        this.getBehavior().setValue(point.x, point.y, value);
-        this.getGrid().fireAfterCellEdit(point, this.initialValue, value, this);
-    },
+    saveEditorValue: function() {},
 
     /**
      * @memberOf CellEditor.prototype
@@ -209,58 +174,16 @@ var CellEditor = Base.extend('CellEditor', {
 
     /**
      * @memberOf CellEditor.prototype
-     * @desc request focus for my input control
+     * @desc request focus
      */
     takeFocus: function() {},
 
-    /**
-     * @memberOf CellEditor.prototype
-     * @desc move the editor to the current editor point
-     */
-    _moveEditor: function() {
-        var grid = this.getGrid();
-        var editorPoint = this.getEditorPoint();
-        var cellBounds = grid._getBoundsOfCell(editorPoint.x, editorPoint.y);
-
-        //hack to accomodate bootstrap margin issues...
-        var xOffset = grid.div.getBoundingClientRect().left - grid.divCanvas.getBoundingClientRect().left;
-        cellBounds.x = cellBounds.x - xOffset;
-
-        this.setBounds(cellBounds);
-    },
-
-    moveEditor: function() {
-        this._moveEditor();
-        this.takeFocus();
-    },
-
-    /**
-     * @memberOf CellEditor.prototype
-     * @desc set the bounds of my input control
-     * @param {Rectangle} the bounds to move to
-     */
-    setBounds: function(rectangle) {},
 
     /**
      * @memberOf CellEditor.prototype
      * @desc check that the editor is in the correct location, and is showing/hidden appropriately
      */
     checkEditor: function() {
-        if (!this.checkEditorPositionFlag) {
-            return;
-        } else {
-            this.checkEditorPositionFlag = false;
-        }
-        if (!this.isEditing) {
-            return;
-        }
-        var editorPoint = this.getEditorPoint();
-        if (this.grid.isDataVisible(editorPoint.x, editorPoint.y)) {
-            this.moveEditor();
-            this.showEditor();
-        } else {
-            this.hideEditor();
-        }
     },
 
     getGrid: function() {
@@ -281,38 +204,6 @@ var CellEditor = Base.extend('CellEditor', {
         string = string.join('\n').trim();
         return mustache.render(string, this);
     },
-
-    getInput: function() {
-        if (!this.input) {
-            this.input = this.getDefaultInput();
-        }
-        return this.input;
-    },
-
-    getDefaultInput: function() {
-        var div = document.createElement('DIV');
-        div.innerHTML = this.getHTML();
-        var input = div.firstChild;
-        this.initializeInput(input);
-        return input;
-    },
-
-    updateView: function() {
-        var oldGuy = this.getInput();
-        var parent = oldGuy.parentNode;
-        var newGuy = this.getDefaultInput();
-        this.input = newGuy;
-        parent.replaceChild(newGuy, oldGuy);
-    },
-
-    initializeInput: function(input) {},
-
-    showDropdown: function(element) {
-        var event;
-        event = document.createEvent('MouseEvents');
-        event.initMouseEvent('mousedown', true, true, window);
-        element.dispatchEvent(event);
-    }
 
 });
 

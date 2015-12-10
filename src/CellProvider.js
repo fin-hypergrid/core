@@ -123,9 +123,11 @@ var CellProvider = Base.extend('CellProvider', {
             leftIcon = val[0];
             rightIcon = val[2];
             val = val[1];
-            if (typeof val === 'object') { // must be an image
-                centerIcon = val;
-                val = null;
+            if (typeof val === 'object') {
+                if (val.constructor.name === 'HTMLImageElement') { // must be an image
+                    centerIcon = val;
+                    val = null;
+                }
             }
             if (leftIcon && leftIcon.nodeName !== 'IMG') {
                 leftIcon = null;

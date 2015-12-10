@@ -231,18 +231,6 @@ var Feature = Base.extend('Feature', {
      * @desc toggle the column picker
      */
 
-    toggleColumnPicker: function(grid) {
-        if (this.next) {
-            this.next.toggleColumnPicker(grid);
-        }
-    },
-
-
-    /**
-     * @memberOf Feature.prototype
-     * @desc toggle the column picker
-     */
-
     moveSingleSelect: function(grid, x, y) {
         if (this.next) {
             this.next.moveSingleSelect(grid, x, y);

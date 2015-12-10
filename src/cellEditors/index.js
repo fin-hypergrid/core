@@ -8,5 +8,6 @@ module.exports = {
     Color: require('./Color'),
     Date: require('./Date'),
     Slider: require('./Slider'),
-    Spinner: require('./Spinner')
+    Spinner: require('./Spinner'),
+    Filter: require('./Filter')
 };

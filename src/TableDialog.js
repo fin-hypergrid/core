@@ -1,80 +1,47 @@
 /* eslint-env browser */
-/* global requestAnimationFrame */
 
 'use strict';
 
-var Feature = require('./Feature.js');
+var Base = require('extend-me').Base;
+
 
 var ANIMATION_TIME = 200;
 
-/**
- * @constructor
+/** @constructor
+ * @desc Instances of features are connected to one another to make a chain of responsibility for handling all the input to the hypergrid.
+ *
+ * See {@link TableDialog#initialize|initialize} which is called by the constructor.
  */
-var Overlay = Feature.extend('Overlay', {
+var TableDialog = Base.extend('TableDialog', {
 
-    alias: 'Overlay',
-
-    /**
-     * is the editor open
-     * @type {boolean}
-     * @memberOf Overlay.prototype
-     */
-    openEditor: false,
-
-    /**
-     * @memberOf Overlay.prototype
-     * @desc handle this event down the feature chain of responsibility
-     * @param {Hypergrid} grid
-     * @param {Object} event - the event details
-     */
-    handleKeyUp: function(grid, event) {
-        var key = event.detail.char.toLowerCase();
-        var keys = grid.resolveProperty('editorActivationKeys');
-        if (keys.indexOf(key) > -1) {
-            this.toggleColumnPicker(grid);
-        }
+    initialize: function(grid) {
+        this.grid = grid;
+        this.initializeOverlaySurface();
     },
 
     /**
      * @memberOf Overlay.prototype
-     * @desc toggle the column picker on/off
-     * @param {Hypergrid} grid
-     */
-    toggleColumnPicker: function(grid) {
-        if (this.isColumnPickerOpen(grid)) {
-            this.closeColumnPicker(grid);
-        } else {
-            this.openColumnPicker(grid);
-        }
-    },
-
-    /**
-     * @memberOf Overlay.prototype
-     * @desc returns true if the column picker is open
+     * @desc returns true if the overlay is open
      * @returns {boolean}
      * @param {Hypergrid} grid
      */
-    isColumnPickerOpen: function(grid) {
+    isOpen: function() {
         return this.overlay.style.display !== 'none';
     },
 
     /**
      * @memberOf Overlay.prototype
-     * @desc open the column picker
+     * @desc open the overlay
      * #### returns: type
      * @param {Hypergrid} grid
      */
-    openColumnPicker: function(grid) {
-        if (this.isColumnPickerOpen()) {
-            return;
-        }
-        this.openEditor = true;
-        if (grid.getBehavior().openEditor(this.overlay) === false) {
+    open: function() {
+        if (this.isOpen()) {
             return;
         }
 
         var self = this;
-        this.overlay.style.backgroundColor = grid.resolveProperty('backgroundColor');
+        this.overlay.style.backgroundColor = this.grid.resolveProperty('backgroundColor');
 
         this.overlay.style.top = '0%';
         this.overlay.style.right = '0%';
@@ -91,11 +58,11 @@ var Overlay = Feature.extend('Overlay', {
 
         if (!this._closer) {
             this._closer = function(e) {
-                var key = self.getCharFor(grid, e.keyCode).toLowerCase();
-                var keys = grid.resolveProperty('editorActivationKeys');
+                var key = self.getCharFor(e.keyCode).toLowerCase();
+                var keys = self.grid.resolveProperty('editorActivationKeys');
                 if (keys.indexOf(key) > -1 || e.keyCode === 27) {
                     e.preventDefault();
-                    self.closeColumnPicker(grid);
+                    self.close();
                 }
             };
         }
@@ -112,21 +79,13 @@ var Overlay = Feature.extend('Overlay', {
 
     /**
      * @memberOf Overlay.prototype
-     * @desc close the column picker
+     * @desc close the overlay
      * @param {Hypergrid} grid
      */
-    closeColumnPicker: function(grid) {
+    close: function() {
         //grid.setFocusable(true);
 
-        if (!this.isColumnPickerOpen()) {
-            return;
-        }
-        if (this.openEditor) {
-            this.openEditor = false;
-        } else {
-            return;
-        }
-        if (grid.getBehavior().closeEditor(this.overlay) === false) {
+        if (!this.isOpen()) {
             return;
         }
 
@@ -141,21 +100,12 @@ var Overlay = Feature.extend('Overlay', {
         setTimeout(function() {
             self.overlay.innerHTML = '';
             self.overlay.style.display = 'none';
-            grid.takeFocus();
+            if (self.onClose) {
+                self.onClose();
+                self.onClose = undefined;
+            }
+            self.grid.takeFocus();
         }, ANIMATION_TIME);
-    },
-
-    /**
-     * @memberOf Overlay.prototype
-     * @desc initialize myself into the grid
-     * #### returns: type
-     * @param {Hypergrid} grid
-     */
-    initializeOn: function(grid) {
-        this.initializeOverlaySurface(grid);
-        if (this.next) {
-            this.next.initializeOn(grid);
-        }
     },
 
     /**
@@ -164,7 +114,7 @@ var Overlay = Feature.extend('Overlay', {
      * #### returns: type
      * @param {Hypergrid} grid
      */
-    initializeOverlaySurface: function(grid) {
+    initializeOverlaySurface: function() {
         this.overlay = document.createElement('div');
         this.overlay.setAttribute('tabindex', 0);
         this.overlay.style.outline = 'none';
@@ -174,7 +124,7 @@ var Overlay = Feature.extend('Overlay', {
         this.overlay.style.transition = 'opacity ' + ANIMATION_TIME + 'ms ease-in';
         this.overlay.style.opacity = 0;
         this.overlay.style.zIndex = 10;
-        grid.div.appendChild(this.overlay);
+        this.grid.div.appendChild(this.overlay);
         //document.body.appendChild(this.overlay);
     },
 
@@ -185,11 +135,14 @@ var Overlay = Feature.extend('Overlay', {
      * @param {Hypergrid} grid
      * @param {number} integer - the integer we want the char for
      */
-    getCharFor: function(grid, integer) {
-        var charMap = grid.getCanvas().getCharMap();
+    getCharFor: function(integer) {
+        var charMap = this.grid.getCanvas().getCharMap();
         return charMap[integer][0];
-    }
+    },
 
+    clear: function() {
+        this.overlay.innerHTML = '';
+    }
 });
 
-module.exports = Overlay;
+module.exports = TableDialog;

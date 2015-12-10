@@ -1068,8 +1068,17 @@ var Behavior = Base.extend('Behavior', {
      * @param {Object} event - the event details
      */
     toggleColumnPicker: function() {
-        if (this.featureChain) {
-            this.featureChain.toggleColumnPicker(this.getGrid());
+        var dialog = this.grid.dialog;
+        var self = this;
+        if (dialog.isOpen()) {
+            dialog.close();
+            dialog.clear();
+        } else {
+            this.buildColumnPicker(dialog.overlay);
+            dialog.onClose = function() {
+                self.updateFromColumnPicker(dialog.overlay);
+            };
+            dialog.open();
         }
     },
 
@@ -1143,27 +1152,6 @@ var Behavior = Base.extend('Behavior', {
         var columnProperties = this.getColumnProperties(columnIndex);
         _(columnProperties).extendOwn(properties);
         this.changed();
-    },
-
-    /**
-     * @memberOf Behavior.prototype
-     * @return {strings[]} Labels to use for the column picker.
-     */
-    getColumnDescriptors: function() {
-        //assumes there is one row....
-        this.insureColumnIndexesAreInitialized();
-        var tableState = this.getPrivateState();
-        var columnCount = tableState.columnIndexes.length;
-        var labels = [];
-        for (var i = 0; i < columnCount; i++) {
-            var id = tableState.columnIndexes[i];
-            labels.push({
-                id: id,
-                label: this.getHeader(id),
-                field: this.getField(id)
-            });
-        }
-        return labels;
     },
 
     /**
@@ -1334,7 +1322,7 @@ var Behavior = Base.extend('Behavior', {
      * @return {boolean} `false` prevents editor from opening
      * @param {HTMLDivElement} div - the containing div element
      */
-    openEditor: function(div) {
+    buildColumnPicker: function(div) {
         var container = document.createElement('div');
 
         var hidden = document.createElement('fin-hypergrid-dnd-list');
@@ -1366,7 +1354,7 @@ var Behavior = Base.extend('Behavior', {
      * @return `true`
      * @param {HTMLDivElement} div - the containing div element
      */
-    closeEditor: function(div) {
+    updateFromColumnPicker: function(div) {
         var lists = div.lists;
         this.setColumnDescriptors(lists);
         return true;
@@ -1451,7 +1439,11 @@ var Behavior = Base.extend('Behavior', {
      * @param {number} y - y coordinate
      */
     _getCellEditorAt: function(x, y) {
-        return this.getColumn(x).getCellEditorAt(x, y);
+        var grid = this.getGrid();
+        var column = this.getColumn(x);
+        var type = grid.isFilterRow(y) ? column.getFilterType() : column.getType();
+        var editor = grid.resolveCellEditor(type);
+        return editor;
     },
 
     getCellEditorAt: function(x, y) {

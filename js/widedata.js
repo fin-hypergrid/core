@@ -29,7 +29,7 @@
             last_name: lastNames[lastName], //jshint ignore:line
             first_name: firstNames[firstName], //jshint ignore:line
             total_number_of_pets_owned: pets,
-            birthDate: birthyear + '-' + months[birthmonth] + '-' + days[birthday],
+            birthDate: new Date(birthyear + '-' + months[birthmonth] + '-' + days[birthday]),
             birthState: states[birthstate],
             residenceState: states[residencestate],
             employed: employed === 1,

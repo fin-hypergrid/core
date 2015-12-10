@@ -13,7 +13,7 @@ module.exports = {
     Filters: require('./Filters'),
     KeyPaging: require('./KeyPaging'),
     OnHover: require('./OnHover'),
-    Overlay: require('./Overlay'),
+    ColumnPicker: require('./ColumnPicker'),
     RowResizing: require('./RowResizing'),
     RowSelection: require('./RowSelection'),
     ThumbwheelScrolling: require('./ThumbwheelScrolling')
