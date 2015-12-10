@@ -4,6 +4,8 @@
 
 var LRUCache = require('lru-cache');
 
+var renderCellError = require('./renderCellError');
+
 /**
  * This module lists the properties that can be set on a {@link Hypergrid} along with their default values.
  * Edit this file to override the defaults.
@@ -554,8 +556,13 @@ module.exports = {
      * @type {boolean}
      * @instance
      */
-    editOnDoubleClick: true
+    editOnDoubleClick: true,
 
+    /**
+     * @default renderCellError
+     * @type {function}
+     */
+    renderCellError: renderCellError
 };
 
 var textWidthCache = new LRUCache(2000);

@@ -151,8 +151,9 @@ var CellProvider = Base.extend('CellProvider', {
         }
 
         //fill background only if our bgColor is populated or we are a selected cell
+        var backgroundColor;
         if (config.backgroundColor || config.isSelected) {
-            gc.fillStyle = valueOrFunctionExecute(config, config.isSelected ? config.backgroundSelectionColor : config.backgroundColor);
+            gc.fillStyle = backgroundColor = valueOrFunctionExecute(config, config.isSelected ? config.backgroundSelectionColor : config.backgroundColor);
             gc.fillRect(x, y, width, height);
         }
 
@@ -169,20 +170,22 @@ var CellProvider = Base.extend('CellProvider', {
             this.renderSingleLineText(x, y, height, width, gc, config, val);
         }
 
-        if (config.isInCurrentSelectionRectangle) {
-            gc.fillStyle = 'rgba(0, 0, 0, 0.2)';
-            gc.fillRect(x, y, width, height);
-        }
         var iconWidth = 0;
         if (leftIcon) {
             iyoffset = Math.round((height - leftIcon.height) / 2);
             gc.drawImage(leftIcon, x + leftPadding, y + iyoffset);
             iconWidth = Math.max(leftIcon.width + 2);
         }
-        if (rightIcon) {
+        if (rightIcon && width > 1.75 * height) {
             iyoffset = Math.round((height - rightIcon.height) / 2);
-            ixoffset = 0; //Math.round((halignOffset - rightIcon.width) / 2);
-            gc.drawImage(rightIcon, x + width - ixoffset - rightIcon.width, y + iyoffset);
+            var rightX = x + width - rightIcon.width;
+            if (backgroundColor) {
+                gc.fillStyle = backgroundColor;
+                gc.fillRect(rightX, y, rightIcon.width, height);
+            } else {
+                gc.clearRect(rightX, y, rightIcon.width, height);
+            }
+            gc.drawImage(rightIcon, rightX, y + iyoffset);
             iconWidth = Math.max(rightIcon.width + 2);
         }
         if (centerIcon) {
