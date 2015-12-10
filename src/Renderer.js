@@ -884,23 +884,21 @@ var Renderer = Base.extend('Renderer', {
      * @param {CanvasRenderingContext2D} gc - [CanvasRenderingContext2D](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D)
      */
     paintCells: function(gc) {
-        var x, y, c, r, renderCellError;
-        var columnEdges = this.getColumnEdges();
-        var rowEdges = this.rowEdges;
+        var renderCellError,
+            message,
+            x, y,
+            c, r,
+            columnEdges = this.getColumnEdges(), rowEdges = this.rowEdges,
+            visibleCols = this.getVisibleColumns(), visibleRows = this.getVisibleRows(),
+            behavior = this.getBehavior(),
+            clipX = 0, clipY = 0,
+            clipWidth, clipHeight = rowEdges[rowEdges.length - 1],
+            loopStart = -this.getGrid().isShowRowNumbers(), // yields 0 or -1
+            loopLength = visibleCols.length; // regardless of loopStart (due to definition of .length)
+
         this.buttonCells = {};
-        var visibleCols = this.getVisibleColumns();
-        var visibleRows = this.getVisibleRows();
-        var behavior = this.getBehavior();
 
-        var clipX = 0,
-            clipY = 0,
-            clipWidth,
-            clipHeight = rowEdges[rowEdges.length - 1];
-
-        var loopLength = visibleCols.length;
-        var loopStart = -this.getGrid().isShowRowNumbers(); // either 0 or -1
-
-        if (loopLength) { // this if prevents painting the fixed columns when there are no visible columns
+        if (loopLength) { // this if prevents painting just the fixed columns when there are no visible columns
             for (x = loopStart; x < loopLength; x++, clipX += clipWidth) {
                 c = visibleCols[x];
                 this.renderedColumnMinWidths[c] = 0;
@@ -909,7 +907,7 @@ var Renderer = Base.extend('Renderer', {
                 gc.save();
 
                 // clip to column
-                clipWidth = columnEdges[c - loopStart] - clipX;
+                clipWidth = columnEdges[x - loopStart] - clipX;
                 gc.beginPath();
                 gc.rect(clipX, clipY, clipWidth, clipHeight);
                 gc.clip();
@@ -918,15 +916,15 @@ var Renderer = Base.extend('Renderer', {
                     r = visibleRows[y];
                     try {
                         this._paintCell(gc, c, r);
-                        //if (r === 7 && c === 3) { throw Error('She sells sea shells by the sea shore.'); }
+                        //if (r === 9 && c === 2) { throw Error('She sells sea shells by the sea shore.'); }
                     } catch (e) {
-                        var message = e && (e.message || e) || 'Unknown error.';
+                        message = e && (e.message || e) || 'Unknown error.';
 
                         console.error(message);
 
                         if (renderCellError) {
-                            var errY = rowEdges[r],
-                                errHeight = rowEdges[r + 1] - errY;
+                            var errY = rowEdges[y],
+                                errHeight = rowEdges[y + 1] - errY;
 
                             gc.save();
                             gc.beginPath();
