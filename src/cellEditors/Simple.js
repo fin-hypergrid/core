@@ -1,3 +1,5 @@
+/* eslint-env browser */
+
 'use strict';
 
 var CellEditor = require('./CellEditor.js');
@@ -6,6 +8,14 @@ var CellEditor = require('./CellEditor.js');
  * @constructor
  */
 var Simple = CellEditor.extend('Simple', {
+
+    /**
+     * my main input control
+     * @type {Element}
+     * @default null
+     * @memberOf CellEditor.prototype
+     */
+    input: null,
 
     /**
      * my lookup alias
@@ -169,8 +179,118 @@ var Simple = CellEditor.extend('Simple', {
         input.style.width = (cellBounds.width + 2) + 'px';
         input.style.height = (cellBounds.height + 2) + 'px';
         //var xOffset = this.grid.canvas.getBoundingClientRect().left;
-    }
+    },
 
+    saveEditorValue: function() {
+        var point = this.getEditorPoint();
+        var value = this.getEditorValue();
+        if (value === this.initialValue) {
+            return; //data didn't change do nothing
+        }
+        if (parseFloat(this.initialValue) === this.initialValue) { // I'm a number
+            value = parseFloat(value);
+        }
+        var continued = this.getGrid().fireBeforeCellEdit(point, this.initialValue, value, this);
+        if (!continued) {
+            return;
+        }
+        this.getBehavior().setValue(point.x, point.y, value);
+        this.getGrid().fireAfterCellEdit(point, this.initialValue, value, this);
+    },
+
+    /**
+     * @memberOf CellEditor.prototype
+     * @desc move the editor to the current editor point
+     */
+    _moveEditor: function() {
+        var grid = this.getGrid();
+        var editorPoint = this.getEditorPoint();
+        var cellBounds = grid._getBoundsOfCell(editorPoint.x, editorPoint.y);
+
+        //hack to accomodate bootstrap margin issues...
+        var xOffset = grid.div.getBoundingClientRect().left - grid.divCanvas.getBoundingClientRect().left;
+        cellBounds.x = cellBounds.x - xOffset;
+
+        this.setBounds(cellBounds);
+    },
+
+    moveEditor: function() {
+        this._moveEditor();
+        this.takeFocus();
+    },
+
+    beginEditAt: function(point) {
+
+        if (!this.isAdded) {
+            this.isAdded = true;
+            this.grid.div.appendChild(this.getInput());
+        }
+
+        this.setEditorPoint(point);
+        var model = this.getBehavior();
+        var value = model.getValue(point.x, point.y);
+        if (value.constructor.name === 'Array') {
+            value = value[1]; //it's a nested object
+        }
+        var proceed = this.grid.fireRequestCellEdit(point, value);
+        if (!proceed) {
+            //we were cancelled
+            return;
+        }
+        this.initialValue = value;
+        this.setEditorValue(value);
+        this.isEditing = true;
+        this.setCheckEditorPositionFlag();
+        this.checkEditor();
+    },
+
+    checkEditor: function() {
+        if (!this.checkEditorPositionFlag) {
+            return;
+        } else {
+            this.checkEditorPositionFlag = false;
+        }
+        if (!this.isEditing) {
+            return;
+        }
+        var editorPoint = this.getEditorPoint();
+        if (this.grid.isDataVisible(editorPoint.x, editorPoint.y)) {
+            this.moveEditor();
+            this.showEditor();
+        } else {
+            this.hideEditor();
+        }
+    },
+
+    getInput: function() {
+        if (!this.input) {
+            this.input = this.getDefaultInput();
+        }
+        return this.input;
+    },
+
+    getDefaultInput: function() {
+        var div = document.createElement('DIV');
+        div.innerHTML = this.getHTML();
+        var input = div.firstChild;
+        this.initializeInput(input);
+        return input;
+    },
+
+    updateView: function() {
+        var oldGuy = this.getInput();
+        var parent = oldGuy.parentNode;
+        var newGuy = this.getDefaultInput();
+        this.input = newGuy;
+        parent.replaceChild(newGuy, oldGuy);
+    },
+
+    showDropdown: function(element) {
+        var event;
+        event = document.createEvent('MouseEvents');
+        event.initMouseEvent('mousedown', true, true, window);
+        element.dispatchEvent(event);
+    }
 });
 
 module.exports = Simple;

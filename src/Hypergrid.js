@@ -13,11 +13,13 @@ var defaults = require('./defaults');
 var Renderer = require('./Renderer');
 var SelectionModel = require('./SelectionModel');
 var addStylesheet = require('./stylesheets');
+var TableDialog = require('./TableDialog');
 
 var globalCellEditors = {},
     propertiesInitialized = false,
     polymerTheme = Object.create(defaults),
-    globalProperties = Object.create(polymerTheme);
+    globalProperties = Object.create(polymerTheme),
+    customFilters = {};
 
 /**
  * @constructor
@@ -45,7 +47,6 @@ function Hypergrid(div, behaviorFactory) {
     };
     this.cellEditors = Object.create(globalCellEditors);
     this.renderOverridesCache = {};
-
     this.behavior = behaviorFactory(this);
 
     //prevent the default context menu for appearing
@@ -78,6 +79,8 @@ function Hypergrid(div, behaviorFactory) {
         self.checkClipboardCopy(evt);
     });
     this.getCanvas().resize();
+
+    this.dialog = new TableDialog(this);
     //this.computeCellsBounds();
 }
 
@@ -265,9 +268,6 @@ Hypergrid.prototype = {
     },
 
     initCellEditor: function(cellEditor) {
-        var divCellEditor = document.createElement('div');
-        this.div.appendChild(divCellEditor);
-
         globalCellEditors[cellEditor.alias] = cellEditor;
     },
 
@@ -284,13 +284,22 @@ Hypergrid.prototype = {
                 'Color',
                 'Date',
                 'Slider',
-                'Spinner'
+                'Spinner',
+                'Filter'
             ];
 
             var self = this;
             cellEditors.forEach(function(name) {
                 self.initCellEditor(new Hypergrid.cellEditors[name]);
             });
+
+            globalCellEditors.int = globalCellEditors.spinner;
+            globalCellEditors.float = globalCellEditors.spinner;
+            globalCellEditors.date = globalCellEditors.date;
+            globalCellEditors.string = globalCellEditors.extfield;
+
+            var divCellEditor = document.createElement('div');
+            this.div.appendChild(divCellEditor);
         }
     },
 
@@ -1335,10 +1344,6 @@ Hypergrid.prototype = {
         this.setMouseDown(editPoint);
         this.setDragExtent(new Point(0, 0));
 
-        if (!cellEditor.isAdded) {
-            cellEditor.isAdded = true;
-            this.div.appendChild(cellEditor.getInput());
-        }
         cellEditor.grid = this;
         cellEditor.beginEditAt(editPoint);
     },
@@ -2219,7 +2224,7 @@ Hypergrid.prototype = {
             }
         }
 
-        var hMax = 1 + Math.max(0, numColumns - numFixedColumns - lastPageColumnCount);
+        var hMax = Math.max(0, numColumns - numFixedColumns - lastPageColumnCount);
         this.setHScrollbarValues(hMax);
 
         var vMax = Math.max(0, numRows - numFixedRows - lastPageRowCount);
@@ -2416,7 +2421,7 @@ Hypergrid.prototype = {
         if (!editor) {
             return;
         }
-        var point = editor.editorPoint;
+        var point = editor.getEditorPoint();
         if (editor) {
             if (point.x === x && point.y === y && editor.isEditing) {
                 return; //we're already open at this location
@@ -3182,6 +3187,15 @@ Hypergrid.prototype = {
     },
     newRectangle: function(x, y, width, height) {
         return new Rectangle(x, y, width, height);
+    },
+    registerFilter: function(filter) {
+        customFilters[filter.alias] = filter;
+    },
+    getFilterFor: function(columnIndex) { //TODO: fix this
+        return customFilters.MyCustomFilter;
+    },
+    resolveFilter: function(alias) { //TODO: fix this
+        return customFilters[alias];
     }
 };
 

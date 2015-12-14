@@ -244,6 +244,25 @@ var JSON = DataModel.extend('dataModels.JSON', {
         return columnProperties.filter || '';
     },
 
+    getComplexFilter: function(colIndex) {
+        var columnProperties = this.getColumnProperties(colIndex);
+        if (!columnProperties) {
+            return '';
+        }
+        var filter = columnProperties.complexFilter;
+        if (filter) {
+            var filterObject = this.getGrid().resolveFilter(filter.type);
+            filterObject.setState(filter.state);
+            var newFilter = filterObject.create();
+            return function(data) {
+                var transformed = valueOrFunctionExecute(data);
+                return newFilter(transformed);
+            };
+        } else {
+            return;
+        }
+    },
+
     /**
      * @memberOf dataModels.JSON.prototype
      * @param {number} colIndex
@@ -481,7 +500,10 @@ var JSON = DataModel.extend('dataModels.JSON', {
         for (var v = 0; v < visColCount; v++) {
             var i = visibleColumns[v].index;
             var filterText = this.getFilter(i);
-            if (filterText.length > 0) {
+            var complexFilter = this.getComplexFilter(i);
+            if (complexFilter) {
+                filterSource.add(i - groupOffset, complexFilter);
+            } else if (filterText.length > 0) {
                 filterSource.add(i - groupOffset, textMatchFilter(filterText));
             }
         }

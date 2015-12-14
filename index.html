@@ -66,7 +66,7 @@
         </div>
     </div>
     <div class="row" style="overflow: hidden">
-        <div class="col-md-12 col-lg-12" style="overflow:hidden;border-style: solid; border-color: green">
+        <div class="col-md-12 col-lg-12" style="overflow:hidden;border-style: solid; border-color: green; padding:0">
             <div class="abs" id="json-example"></div>
         </div>
     </div>
@@ -210,6 +210,9 @@
 
         //sort ascending on the first column (first name)
         //jsonModel.toggleSort(0);
+        var leadingZeroIfNecessary = function(number) {
+            return number < 10 ? '0' + number : number + '';
+        };
 
         var upDown = jsonModel.getImage('up-down');
         var upDownSpin = jsonModel.getImage('up-down-spin');
@@ -252,7 +255,8 @@
                 config.value = [null, config.value, upDownSpinIMG];
             } else if (x === 3) {
                 config.halign = 'left';
-                config.value = [null, config.value, downArrowIMG];
+                var dateString = value = config.value.getFullYear() + '-' + leadingZeroIfNecessary(config.value.getMonth() + 1) + '-' + leadingZeroIfNecessary(config.value.getDay());
+                config.value = [null, dateString, downArrowIMG];
             } else if (x === 6) {
                 renderer = cellProvider.cellCache.buttonRenderer;
             } else if (x === 7) {
@@ -307,7 +311,7 @@
             return cellEditor;
         };
 
-        jsonModel.getDataModel().getCellEditorAt = myCellEditors;
+        //jsonModel.getDataModel().getCellEditorAt = myCellEditors;
 
         // jsonModel.getCursorAt = function(x,y) {
         //     if (x === 1) {
@@ -624,6 +628,53 @@
                 window.g = jsonGrid;
                 window.b = jsonModel;
                 window.m = b.getDataModel();
+
+                function MyCustomFilter() {
+                    var self = this;
+                    this.value = '';
+                    this.alias = 'MyCustomFilter';
+                    this.getDisplayString = function() {
+                        return '< ' + this.value;
+                    };
+
+                    this.template = function() {
+                        /*
+                            <div>cell value must be less than:<input id="value"></div>
+                        */
+                    };
+
+                    this.onShow = function(dialog) {
+                        var input = dialog.querySelector('#value');
+                        input.value = this.value;
+                    };
+
+                    this.onOk = function(dialog) {
+                        var limit = parseInt(dialog.querySelector('#value').value);
+                        this.value = limit;
+                    };
+
+                    this.onClear = function(dialog) {
+                        this.value = '';
+                    };
+
+                    this.create = function() {
+                         return function(data) {
+                            return data < self.value;
+                        };
+                    }
+
+                    this.getState = function() {
+                        return this.value;
+                    };
+
+                    this.setState = function(state) {
+                        this.value = state;
+                    };
+                };
+
+                jsonGrid.registerFilter(new MyCustomFilter());
+
+
 
             }, 500);
 
