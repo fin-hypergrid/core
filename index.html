@@ -629,6 +629,53 @@
                 window.b = jsonModel;
                 window.m = b.getDataModel();
 
+                function MyCustomFilter() {
+                    var self = this;
+                    this.value = '';
+                    this.alias = 'MyCustomFilter';
+                    this.getDisplayString = function() {
+                        return '< ' + this.value;
+                    };
+
+                    this.template = function() {
+                        /*
+                            <div>cell value must be less than:<input id="value"></div>
+                        */
+                    };
+
+                    this.onShow = function(dialog) {
+                        var input = dialog.querySelector('#value');
+                        input.value = this.value;
+                    };
+
+                    this.onOk = function(dialog) {
+                        var limit = parseInt(dialog.querySelector('#value').value);
+                        this.value = limit;
+                    };
+
+                    this.onClear = function(dialog) {
+                        this.value = '';
+                    };
+
+                    this.create = function() {
+                         return function(data) {
+                            return data < self.value;
+                        };
+                    }
+
+                    this.getState = function() {
+                        return this.value;
+                    };
+
+                    this.setState = function(state) {
+                        this.value = state;
+                    };
+                };
+
+                jsonGrid.registerFilter(new MyCustomFilter());
+
+
+
             }, 500);
 
 

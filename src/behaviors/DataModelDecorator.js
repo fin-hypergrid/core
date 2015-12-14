@@ -64,6 +64,10 @@ DataModelDecorator.prototype = {
         return this.getComponent().getColumnCount();
     },
 
+    applyFilters: function() {
+        return this.getComponent().applyFilters();
+    },
+
     getRowCount: function() {
         return this.getComponent().getRowCount();
     },

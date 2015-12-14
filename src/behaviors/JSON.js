@@ -61,6 +61,7 @@ var JSON = Behavior.extend('behaviors.JSON', {
             var properties = column.getProperties();
             properties.field = fields[i];
             properties.header = header;
+            properties.complexFilter = null;
         }
     },
 
@@ -69,6 +70,10 @@ var JSON = Behavior.extend('behaviors.JSON', {
         var wrapper = new DataModelDecorator(this.getGrid(), model);
         wrapper.setComponent(model);
         return wrapper;
+    },
+
+    applyFilters: function() {
+        this.dataModel.applyFilters();
     },
 
     /**

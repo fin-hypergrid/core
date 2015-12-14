@@ -49,6 +49,14 @@ Column.prototype = {
         this.behavior.getPrivateState().cellProperties[this.index + ',' + y] = value;
     },
 
+    setComplexFilter: function(data) {
+        this.getProperties().complexFilter = data;
+    },
+
+    getComplexFilter: function() {
+        return this.getProperties().complexFilter;
+    },
+
     checkColumnAutosizing: function(force) {
         var properties = this.getProperties();
         var a, b, d;

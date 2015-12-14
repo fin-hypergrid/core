@@ -473,6 +473,25 @@ var Behavior = Base.extend('Behavior', {
         this.dataModel = newDataModel;
     },
 
+    setComplexFilter: function(columnIndex, complexFilter) {
+        var col = this.getColumn(columnIndex);
+        if (col) {
+            col.setComplexFilter(complexFilter);
+        }
+    },
+
+    getComplexFilter: function(columnIndex) {
+        var col = this.getColumn(columnIndex);
+        if (col) {
+            return col.getComplexFilter();
+        }
+        return;
+    },
+
+    applyFilters: function() {
+
+    },
+
     /**
      * @memberOf Behavior.prototype
      * @desc utility function to empty an object of its members
@@ -1072,7 +1091,6 @@ var Behavior = Base.extend('Behavior', {
         var self = this;
         if (dialog.isOpen()) {
             dialog.close();
-            dialog.clear();
         } else {
             this.buildColumnPicker(dialog.overlay);
             dialog.onClose = function() {
