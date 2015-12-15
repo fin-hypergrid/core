@@ -1,4 +1,3 @@
-
 <!doctype html>
 <html>
 <head>
@@ -8,7 +7,7 @@
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">
 
 <script src="js/accounting.min.js"></script>
-<!--<script src="js/sampledata.js"></script>-->
+<!-- <script src="js/sampledata.js"></script> -->
 <script src="js/widedata.js"></script>
 <script src="js/myThemes.js"></script>
 <script src="index.js"></script>
@@ -17,10 +16,6 @@
     .abs {
         position: static;
         height: 400px;
-        /*left: 0;
-        right: 0;
-        top: 0;
-        bottom: 0;*/
     }
     #json-example div.finbar-vertical {
         margin: 0px;
@@ -71,7 +66,7 @@
         </div>
     </div>
     <div class="row" style="overflow: hidden">
-        <div class="col-md-12 col-lg-12" style="overflow:hidden;border-style: solid; border-color: green;height:400px">
+        <div class="col-md-12 col-lg-12" style="overflow:hidden;border-style: solid; border-color: green">
             <div class="abs" id="json-example"></div>
         </div>
     </div>
@@ -94,13 +89,10 @@
         var div = document.querySelector('div#json-example'),
             bodyStyle = window.getComputedStyle(document.body);
 
-        var getContainer = function (grid) {
-            return new fin.Hypergrid.behaviors.JSON(grid, []);
-            //return new fin.Hypergrid.behaviors.JSON(grid, window.people1);
-        };
+        jsonGrid = new fin.Hypergrid(div, function(grid) {
+            return new fin.Hypergrid.behaviors.JSON(grid, window.people1);
+        });
 
-
-        jsonGrid = new fin.Hypergrid(div, getContainer);
         var jsonModel = jsonGrid.getBehavior();
 
         //functions for showing the grouping/rollup capbilities
@@ -172,11 +164,7 @@
             jsonGrid.setGlobalFilter(globalFilter);
         }
 
-        window.setData1 = function () {
-
-            jsonGrid = new fin.Hypergrid(div, getContainer);
-            var jsonModel = jsonGrid.getBehavior();
-
+        window.setData1 = function() {
             jsonModel.setData(people1);
         }
 
@@ -189,7 +177,7 @@
         };
 
 
-        //jsonModel.setData(people2);
+        jsonModel.setData(people2);
 
         jsonGrid.setColumnProperties(2, {
             backgroundColor: 'maroon',
@@ -202,9 +190,6 @@
 
         //set the actual json row objects
         //jsonModel.setData(people); //see sampledata.js for the random data
-
-        //wiltest
-        jsonGrid.addProperties({ columnAutosizing: false });
 
         //make the first col fixed;
         // jsonModel.setFixedColumnCount(2);
@@ -528,11 +513,7 @@
             halign: 'left'
         });
 
-
-
-
-
-/*        setTimeout(function() {
+        setTimeout(function() {
 
             jsonModel.setFields(["employed", "income", "travel", "squareOfIncome"]);
             jsonModel.setHeaders(["one", "two", "three", "four"]);
@@ -559,7 +540,7 @@
                 var state = {
                         columnIndexes: [
                             fieldsMap.last_name,
-                            fieldsMap.pets,
+                            fieldsMap.total_number_of_pets_owned,
                             fieldsMap.birthDate,
                             fieldsMap.birthState,
                             // fieldsMap.residenceState,
@@ -667,7 +648,7 @@
 
 
 
-        }, 500);*/
+        }, 500);
 
         // var eventNames = [
         //     'dragstart',
