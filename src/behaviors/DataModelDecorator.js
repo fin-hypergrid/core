@@ -128,12 +128,20 @@ DataModelDecorator.prototype = {
         return this.getComponent().getRow(y);
     },
 
-    setTopTotals: function(nestedArray) {
-        this.getComponent().setTopTotals(nestedArray);
-    },
-
     getTopTotals: function() {
         return this.getComponent().getTopTotals();
+    },
+
+    setTopTotals: function(totalRows) {
+        this.getComponent().setTopTotals(totalRows);
+    },
+
+    getBottomTotals: function() {
+        return this.getComponent().getBottomTotals();
+    },
+
+    setBottomTotals: function(totalRows) {
+        this.getComponent().setBottomTotals(totalRows);
     },
 
     setData: function(y) {

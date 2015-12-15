@@ -6,6 +6,12 @@
 var _ = require('object-iterators');
 var Base = require('extend-me').Base;
 
+var images = require('../images');
+
+/** @typedef {object} CanvasRenderingContext2D
+ * @see [CanvasRenderingContext2D](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D)
+ */
+
 /**
  * @constructor
  * @desc fin-hypergrid-renderer is the canvas enabled top level sub component that handles the renderering of the Grid.
@@ -44,15 +50,14 @@ var Renderer = Base.extend('Renderer', {
 
     reset: function() {
         this.bounds = {
-            width:0,
-            height:0
+            width: 0,
+            height: 0
         };
         this.columnEdges = [];
-        this.columnEdgesIndexMap = {};
+        this.columnEdgesIndexMap = [];
         this.renderedColumnMinWidths = [];
-        this.renderedHeight = 0;
         this.rowEdges = [];
-        this.rowEdgesIndexMap = {};
+        this.rowEdgesIndexMap = [];
         this.visibleColumns = [];
         this.visibleRows = [];
         this.insertionBounds = [];
@@ -66,19 +71,7 @@ var Renderer = Base.extend('Renderer', {
      */
     initialize: function(grid) {
         this.grid = grid;
-        this.bounds = {
-            width:0,
-            height:0
-        };
-        this.columnEdges = [];
-        this.columnEdgesIndexMap = {};
-        this.renderedColumnMinWidths = [];
-        this.renderedHeight = 0;
-        this.rowEdges = [];
-        this.rowEdgesIndexMap = {};
-        this.visibleColumns = [];
-        this.visibleRows = [];
-        this.insertionBounds = [];
+        this.reset();
     },
 
     //this function computes the grid coordinates used for extremely fast iteration over
@@ -88,27 +81,32 @@ var Renderer = Base.extend('Renderer', {
 
         //var startTime = Date.now();
 
-        var grid = this.getGrid();
-        var scrollTop = this.getScrollTop();
-        var scrollLeft = this.getScrollLeft();
+        var grid = this.getGrid(),
+            scrollTop = this.getScrollTop(),
+            scrollLeft = this.getScrollLeft(),
 
-        var numColumns = this.getColumnCount();
-        var numFixedColumns = this.getFixedColumnCount();
+            numColumns = this.getColumnCount(),
+            numFixedColumns = this.getFixedColumnCount(),
 
-        var numRows = this.getRowCount();
-        var numFixedRows = this.getFixedRowCount();
+            numRows = this.getRowCount(),
+            numFixedRows = this.getFixedRowCount(),
 
-        var bounds = this.getBounds();
-        var viewWidth = bounds.width;
+            behavior = this.getBehavior(),
+            bounds = this.getBounds(),
+            numberOfBottomTotalsRows = behavior.getDataModel().getBottomTotals().length,
+            viewWidth = bounds.width || grid.canvas.width, // if 0, we must be in bootstrap
+            viewHeight = bounds.height - numberOfBottomTotalsRows * behavior.getDefaultRowHeight(),
 
-        //we must be in bootstrap
-        if (viewWidth === 0) {
-            //viewWidth = grid.sbHScroller.getClientRects()[0].width;
-            viewWidth = grid.canvas.width;
-        }
-        var viewHeight = bounds.height;
+            insertionBoundsCursor = 0,
+            previousInsertionBoundsCursorValue = 0,
 
-        var x, y, c, r, vx, vy, width, height;
+            start = 0,
+            x = 0, y = 0,
+            c, r,
+            vx, vy,
+            width, height,
+            firstVX, lastVX,
+            firstVY, lastVY;
 
         this.getColumnEdges().length = 0;
         this.rowEdges.length = 0;
@@ -119,21 +117,16 @@ var Renderer = Base.extend('Renderer', {
 
         this.visibleColumns.length = 0;
         this.visibleRows.length = 0;
-        this.columnEdgesIndexMap = {};
-        this.rowEdgesIndexMap = {};
+        this.columnEdgesIndexMap = [];
+        this.rowEdgesIndexMap = [];
 
         this.insertionBounds = [];
-        var insertionBoundsCursor = 0;
-        var previousInsertionBoundsCursorValue = 0;
 
-        x = 0;
-        var start = 0;
-        var firstVX, lastVX;
-        var firstVY, lastVY;
         if (grid.isShowRowNumbers()) {
             start--;
             this.columnEdges[-1] = -1;
         }
+
         for (c = start; c < numColumns; c++) {
             vx = c;
             if (c >= numFixedColumns) {
@@ -157,7 +150,6 @@ var Renderer = Base.extend('Renderer', {
             previousInsertionBoundsCursorValue = Math.round(width / 2);
         }
 
-        y = 0;
         for (r = 0; r < numRows; r++) {
             vy = r;
             if (r >= numFixedRows) {
@@ -200,7 +192,7 @@ var Renderer = Base.extend('Renderer', {
      * @memberOf Renderer.prototype
      * @summary Notify the fin-hypergrid everytime we've repainted.
      * @desc This is the entry point from fin-canvas.
-     * @param {CanvasRenderingContext2D} gc - [CanvasRenderingContext2D](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D)
+     * @param {CanvasRenderingContext2D} gc
      */
     _paint: function(gc) {
         if (this.grid) {
@@ -304,38 +296,47 @@ var Renderer = Base.extend('Renderer', {
      * @returns {Rectangle} Bounding rect of cell with the given coordinates.
      */
     _getBoundsOfCell: function(c, r) {
-        var xOutside = false;
-        var yOutside = false;
-        var columnEdges = this.getColumnEdges();
-        var rowEdges = this.getRowEdges();
+        var xOutside = false,
+            yOutside = false,
+            cell = this.cell;
 
-        var x = this.columnEdgesIndexMap[c];
-        var y = this.rowEdgesIndexMap[r];
+        var y, x = this.columnEdgesIndexMap[c];
         if (x === undefined) {
             x = this.columnEdgesIndexMap[c - 1];
             xOutside = true;
         }
 
-        if (y === undefined) {
-            y = this.rowEdgesIndexMap[r - 1];
-            yOutside = true;
+        var oy, ox = this.columnEdges[x],
+            cy, cx = this.columnEdges[x + 1],
+            ey, ex = cx - ox;
+
+        cell.x = xOutside ? cx : ox;
+        cell.width = xOutside ? 0 : ex;
+
+        if (r < 0) { // bottom totals rows
+            var grid = this.getGrid(),
+                behavior = grid.getBehavior(),
+                bounds = this.getBounds();
+
+            ey = behavior.getDefaultRowHeight();
+            oy = bounds.height + r * ey;
+            cy = oy + ey;
+        } else {
+            y = this.rowEdgesIndexMap[r];
+            if (y === undefined) {
+                y = this.rowEdgesIndexMap[r - 1];
+                yOutside = true;
+            }
+
+            oy = this.rowEdges[y];
+            cy = this.rowEdges[y + 1];
+            ey = cy - oy;
         }
 
-        var ox = columnEdges[x],
-            oy = rowEdges[y],
-            cx = columnEdges[x + 1],
-            cy = rowEdges[y + 1],
-            ex = cx - ox,
-            ey = cy - oy;
-
-        var cell = this.cell;
-        cell.x = xOutside ? cx : ox;
         cell.y = yOutside ? cy : oy;
-        cell.width = xOutside ? 0 : ex;
         cell.height = yOutside ? 0 : ey;
 
         return cell;
-
     },
 
     /**
@@ -345,13 +346,13 @@ var Renderer = Base.extend('Renderer', {
      * @returns {number} The column index under the coordinate at pixelX.
      */
     getColumnFromPixelX: function(pixelX) {
-        var width = 0;
-        var grid = this.getGrid();
-        var fixedColumnCount = this.getFixedColumnCount();
-        var scrollLeft = grid.getHScrollValue();
-        var c;
-        var edges = this.getColumnEdges();
-        for (c = 1; c < edges.length - 1; c++) {
+        var width = 0,
+            grid = this.getGrid(),
+            fixedColumnCount = this.getFixedColumnCount(),
+            scrollLeft = grid.getHScrollValue(),
+            edges = this.getColumnEdges();
+
+        for (var c = 1; c < edges.length - 1; c++) {
             width = edges[c] - (edges[c] - edges[c - 1]) / 2;
             if (pixelX < width) {
                 if (c > fixedColumnCount) {
@@ -456,7 +457,7 @@ var Renderer = Base.extend('Renderer', {
      * @memberOf Renderer.prototype
      * @returns {number} The width x coordinate of the last rendered column
      */
-    getFinalVisableColumnBoundry: function() {
+    getFinalVisableColumnBoundary: function() {
         var isMaxX = this.isLastColumnVisible();
         var chop = isMaxX ? 2 : 1;
         var colWall = this.getColumnEdges()[this.getColumnEdges().length - chop];
@@ -489,14 +490,13 @@ var Renderer = Base.extend('Renderer', {
     /**
      * @memberOf Renderer.prototype
      * @desc This is the main forking of the renderering task.
-     * @param {CanvasRenderingContext2D} gc - [CanvasRenderingContext2D](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D)
+     * @param {CanvasRenderingContext2D} gc
      */
     renderGrid: function(gc) {
         gc.beginPath();
 
         this.paintCells(gc);
         this.paintGridlines(gc);
-        //this.blankOutOverflow(gc); // no longer needed
         this.renderOverrides(gc);
         this.renderFocusCell(gc);
         gc.closePath();
@@ -604,27 +604,10 @@ var Renderer = Base.extend('Renderer', {
         //gc.stroke();
     },
 
-
-    /**
-     * @memberOf Renderer.prototype
-     * @desc Paint the background color over the overflow from the final column paint
-     * @param {CanvasRenderingContext2D} gc - [CanvasRenderingContext2D](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D)
-     */
-    blankOutOverflow: function(gc) {
-        var isMaxX = this.isLastColumnVisible();
-        var chop = isMaxX ? 1 : 0;
-        var x = this.getColumnEdges()[this.getColumnEdges().length - chop];
-        var bounds = this.getBounds();
-        var width = bounds.width - 200 - x;
-        var height = bounds.height;
-        gc.fillStyle = this.resolveProperty('backgroundColor2');
-        gc.fillRect(x + 1, 0, width, height);
-    },
-
     /**
      * @memberOf Renderer.prototype
      * @desc iterate the renderering overrides and manifest each
-     * @param {CanvasRenderingContext2D} gc - [CanvasRenderingContext2D](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D)
+     * @param {CanvasRenderingContext2D} gc
      */
     renderOverrides: function(gc) {
         var grid = this.getGrid();
@@ -642,7 +625,7 @@ var Renderer = Base.extend('Renderer', {
     /**
      * @memberOf Renderer.prototype
      * @desc copy each overrides specified area to it's target and blank out the source area
-     * @param {CanvasRenderingContext2D} gc - [CanvasRenderingContext2D](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D)
+     * @param {CanvasRenderingContext2D} gc
      * @param {OverrideObject} override - an object with details contain an area and a target context
      */
     renderOverride: function(gc, override) {
@@ -738,6 +721,7 @@ var Renderer = Base.extend('Renderer', {
     getRowEdges: function() {
         return this.rowEdges;
     },
+
     /**
      * @memberOf Renderer.prototype
      * @returns {number} The row height of the row at index rowIndex
@@ -875,70 +859,97 @@ var Renderer = Base.extend('Renderer', {
         return this.getGrid().getHeaderColumnCount();
     },
 
-    /** @summary Smart render the main cells.
-     * @desc Paint all the cells of a grid, including the "fixed" columns and rows.
+    /** @summary Smart render the grid.
+     * @desc Paint all the cells of a grid, including all "fixed" columns and rows.
      * We snapshot the context to insure against its pollution.
-     * try-catch surrounds cell paint in case a cell editor throws an error.
+     * `try...catch` surrounds each cell paint in case a cell editor throws an error.
      * The error message is error-logged to console AND displayed in cell.
      * @memberOf Renderer.prototype
-     * @param {CanvasRenderingContext2D} gc - [CanvasRenderingContext2D](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D)
+     * @param {CanvasRenderingContext2D} gc
      */
     paintCells: function(gc) {
         var renderCellError,
             message,
             x, y,
             c, r,
-            columnEdges = this.getColumnEdges(), rowEdges = this.rowEdges,
-            visibleCols = this.getVisibleColumns(), visibleRows = this.getVisibleRows(),
+
+            columnEdges = this.getColumnEdges(),
+            rowEdges = this.rowEdges,
+
+            visibleCols = this.getVisibleColumns(),
+            visibleRows = this.getVisibleRows(),
+
             behavior = this.getBehavior(),
-            clipX = 0, clipY = 0,
-            clipWidth, clipHeight = rowEdges[rowEdges.length - 1],
-            loopStart = -this.getGrid().isShowRowNumbers(), // yields 0 or -1
-            loopLength = visibleCols.length; // regardless of loopStart (due to definition of .length)
+
+            clipX = 0,
+            clipY = 0,
+            clipWidth,
+            clipHeight = this.getBounds().height,
+
+            loopStart = this.getGrid().isShowRowNumbers() ? -1 : 0,
+            loopLength = visibleCols.length; // regardless of loopStart, due to definition of .length
 
         this.buttonCells = {};
 
         if (loopLength) { // this if prevents painting just the fixed columns when there are no visible columns
+
+            // For each column...
             for (x = loopStart; x < loopLength; x++, clipX += clipWidth) {
+
                 c = visibleCols[x];
                 this.renderedColumnMinWidths[c] = 0;
                 renderCellError = behavior.getColumnProperties(c).renderCellError;
 
                 gc.save();
 
-                // clip to column
+                // Clip to visible portion of column to prevent overflow to right. Previously we clipped to entire visible grid and dealt with overflow by overpainting with next column. However, this strategy fails when transparent background (no background color).
+                // TODO: if extra clip() calls per column affect performance (not the clipping itself which was happening anyway, but the clip calls which set up the clipping), use previous strategy when there is a background color
                 clipWidth = columnEdges[x - loopStart] - clipX;
                 gc.beginPath();
                 gc.rect(clipX, clipY, clipWidth, clipHeight);
                 gc.clip();
 
+                // For each row (of each column)...
                 for (y = 0; y < visibleRows.length; y++) {
+
                     r = visibleRows[y];
+
                     try {
+
                         this._paintCell(gc, c, r);
+
                         //if (r === 9 && c === 2) { throw Error('She sells sea shells by the sea shore.'); }
+
                     } catch (e) {
+
                         message = e && (e.message || e) || 'Unknown error.';
 
                         console.error(message);
 
                         if (renderCellError) {
-                            var errY = rowEdges[y],
+                            var rawGc = gc.gc || gc, // Don't log these canvas calls
+                                errY = rowEdges[y],
                                 errHeight = rowEdges[y + 1] - errY;
 
-                            gc.save();
-                            gc.beginPath();
-                            gc.rect(clipX, errY, clipWidth, errHeight);
-                            gc.clip();
+                            rawGc.save(); // define clipping region
+                            rawGc.beginPath();
+                            rawGc.rect(clipX, errY, clipWidth, errHeight);
+                            rawGc.clip();
 
-                            renderCellError(gc, message, clipX, errY, clipWidth, errHeight);
+                            renderCellError(rawGc, message, clipX, errY, clipWidth, errHeight);
 
-                            gc.restore();
+                            rawGc.restore(); // discard clipping region
                         }
+
                     }
                 }
 
-                gc.restore(); // remove column's clip region
+                // Bottom totals rows...
+                for (y = -behavior.getDataModel().getBottomTotals().length; y; y++) {
+                    this._paintCell(gc, c, y);
+                }
+
+                gc.restore(); // Remove column's clip region (and anything else renderCellError() might have set)
             }
         }
 
@@ -948,7 +959,7 @@ var Renderer = Base.extend('Renderer', {
     /**
      * @memberOf Renderer.prototype
      * @desc We opted to not paint borders for each cell as that was extremely expensive. Instead we draw gridlines here. Also we record the widths and heights for later.
-     * @param {CanvasRenderingContext2D} gc - [CanvasRenderingContext2D](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D)
+     * @param {CanvasRenderingContext2D} gc
      */
     paintGridlines: function(gc) {
         var x, y, c, r = 0;
@@ -957,16 +968,13 @@ var Renderer = Base.extend('Renderer', {
         var rowHeights = this.rowEdges;
 
         var viewWidth = colWidths[colWidths.length - 1];
-        var viewHeight = rowHeights[rowHeights.length - 1];
+        var viewHeight = this.getBounds().height; //rowHeights[rowHeights.length - 1];
 
         var drawThemH = this.resolveProperty('gridLinesH');
         var drawThemV = this.resolveProperty('gridLinesV');
         var lineColor = this.resolveProperty('lineColor');
 
         gc.beginPath();
-        gc.strokeStyle = lineColor;
-        gc.lineWidth = this.resolveProperty('lineWidth');
-        gc.moveTo(0, 0);
 
         if (drawThemV) {
             for (c = 0; c < colWidths.length + 1; c++) {
@@ -977,14 +985,27 @@ var Renderer = Base.extend('Renderer', {
         }
 
         if (drawThemH) {
-            for (r = 0; r < rowHeights.length; r++) {
+            for (r = 0; r < rowHeights.length - 1; r++) {
                 y = rowHeights[r] + 0.5;
                 gc.moveTo(0, y);
                 gc.lineTo(viewWidth, y);
             }
+
+            // Bottom totals rows...
+            var behavior = this.getBehavior(),
+                rowHeight = behavior.getDefaultRowHeight();
+            for (r = -behavior.getDataModel().getBottomTotals().length, y = this.getBounds().height; r; r++) {
+                y -= rowHeight;
+                gc.moveTo(0, y);
+                gc.lineTo(viewWidth, y);
+            }
         }
-        gc.stroke();
+
         gc.closePath();
+
+        gc.strokeStyle = lineColor;
+        gc.lineWidth = this.resolveProperty('lineWidth');
+        gc.stroke();
     },
 
     /**
@@ -1006,31 +1027,28 @@ var Renderer = Base.extend('Renderer', {
 
     _paintCell: function(gc, c, r) {
 
-        var grid = this.getGrid();
-        var behavior = this.getBehavior();
-        var baseProperties = behavior.getColumnProperties(c);
+        var grid = this.getGrid(),
+            behavior = this.getBehavior(),
+            baseProperties = behavior.getColumnProperties(c);
 
         if (baseProperties.isNull) {
             return;
         }
 
-        var columnProperties = baseProperties;
-        var headerRowCount = behavior.getHeaderRowCount();
-        //var headerColumnCount = behavior.getHeaderColumnCount();
-
-        var isShowRowNumbers = grid.isShowRowNumbers();
-        var isHeaderRow = r < headerRowCount;
-        //var isHeaderColumn = c < headerColumnCount;
-        var isFilterRow = grid.isFilterRow(r);
-        var isHierarchyColumn = grid.isHierarchyColumn(c);
-        var isRowSelected = grid.isRowSelected(r);
-        var isColumnSelected = grid.isColumnSelected(c);
-        var isCellSelected = grid.isCellSelected(c, r);
-        var isCellSelectedInColumn = grid.isCellSelectedInColumn(c);
-        var isCellSelectedInRow = grid.isCellSelectedInRow(r);
-        var areAllRowsSelected = grid.areAllRowsSelected();
-
-        var cellProperties;
+        var columnProperties = baseProperties,
+            headerRowCount = behavior.getHeaderRowCount(),
+            isShowRowNumbers = grid.isShowRowNumbers(),
+            isHeaderRow = r >= 0 && r < headerRowCount,
+            isFooterRow = r < 0,
+            isFilterRow = grid.isFilterRow(r),
+            isHierarchyColumn = grid.isHierarchyColumn(c),
+            isRowSelected = grid.isRowSelected(r),
+            isColumnSelected = grid.isColumnSelected(c),
+            isCellSelected = grid.isCellSelected(c, r),
+            isCellSelectedInColumn = grid.isCellSelectedInColumn(c),
+            isCellSelectedInRow = grid.isCellSelectedInRow(r),
+            areAllRowsSelected = grid.areAllRowsSelected(),
+            cellProperties;
 
         if ((isShowRowNumbers && c === -1) || isHierarchyColumn) {
             if (isRowSelected) {
@@ -1043,7 +1061,7 @@ var Renderer = Base.extend('Renderer', {
                 cellProperties.isSelected = isCellSelectedInRow;
             }
             cellProperties.isUserDataArea = false;
-        } else if (isHeaderRow) {
+        } else if (isHeaderRow || isFooterRow) {
             if (isFilterRow) {
                 baseProperties = baseProperties.filterProperties;
                 cellProperties = Object.create(baseProperties);
@@ -1071,13 +1089,14 @@ var Renderer = Base.extend('Renderer', {
         var rowNum = r - headerRowCount + 1;
 
         if (c === -1) {
-            var checkedImage = isRowSelected ? 'checked' : 'unchecked';
-            cellProperties.value = isHeaderRow ? '' : [behavior.getImage(checkedImage), rowNum, null];
-            if (r === 0) {
-                checkedImage = areAllRowsSelected ? 'checked' : 'unchecked';
-                cellProperties.value = [behavior.getImage(checkedImage), '', null];
-            } else if (isFilterRow) {
-                cellProperties.value = [behavior.getImage('filter-off'), '', null];
+            if (r === 0) { // header label row gets "master" checkbox
+                cellProperties.value = [images.checkbox(areAllRowsSelected), '', null];
+            } else if (isFilterRow) { // no checkbox but show filter icon
+                cellProperties.value = [images.filter(false), '', null];
+            } else if (isHeaderRow || isFooterRow) { // no checkbox on "totals" rows
+                cellProperties.value = '';
+            } else {
+                cellProperties.value = [images.checkbox(isRowSelected), rowNum, null];
             }
             cellProperties.halign = 'right';
         } else {
@@ -1163,7 +1182,7 @@ var Renderer = Base.extend('Renderer', {
 function setNumberColumnWidth(gc, behavior, maxRow) {
     var columnProperties = behavior.getColumnProperties(-1),
         cellProperties = columnProperties.rowHeader,
-        icon = behavior.getImage('checked');
+        icon = images.checked;
 
     gc.font = cellProperties.font;
 

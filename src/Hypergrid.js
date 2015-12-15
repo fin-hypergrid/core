@@ -24,9 +24,14 @@ var globalCellEditors = {},
 /**
  * @constructor
  * @param {string|Element} div - CSS selector or Element
- * @param {string} behaviorName - name of a behavior consstructor from ./behaviors
+ * @param {string} behaviorName - name of a behavior constructor from ./behaviors
+ * @param {object} [margin] - optional canvas margins
+ * @param {string} [margin.top]
+ * @param {string} [margin.right='-200px']
+ * @param {string} [margin.bottom]
+ * @param {string} [margin.left]
  */
-function Hypergrid(div, behaviorFactory) {
+function Hypergrid(div, behaviorFactory, margin) {
 
     extend.debug = true;
 
@@ -67,9 +72,15 @@ function Hypergrid(div, behaviorFactory) {
         }
     });
 
+    margin = margin || {};
+    margin.top = margin.top || 0;
+    margin.right = margin.right || '-200px';
+    margin.bottom = margin.bottom || 0;
+    margin.left = margin.left || 0;
+
     //initialize our various pieces
     this.initRenderer();
-    this.initCanvas();
+    this.initCanvas(margin);
     this.initScrollbars();
     this.initGlobalCellEditors();
 
@@ -876,7 +887,7 @@ Hypergrid.prototype = {
      * @summary Initialize drawing surface.
      * @private
      */
-    initCanvas: function() {
+    initCanvas: function(margin) {
 
         var self = this;
 
@@ -886,14 +897,10 @@ Hypergrid.prototype = {
 
         var style = divCanvas.style;
         style.position = 'absolute';
-        style.top = 0;
-        style.right = '-200px';
-        //leave room for the vertical scrollbar
-        //style.marginRight = '15px';
-        style.bottom = 0;
-        //leave room for the horizontal scrollbar
-        //style.marginBottom = '15px';
-        style.left = 0;
+        style.top = margin.top;
+        style.right = margin.right;
+        style.bottom = margin.bottom;
+        style.left = margin.left;
 
         this.canvas.resizeNotification = function() {
             self.resized();
@@ -1530,16 +1537,31 @@ Hypergrid.prototype = {
         this.getBehavior().cellClicked(hovered, event);
     },
 
-    setTotalsValueNotification: function(x, y, value) {
-        this.fireSyntheticSetTotalsValue(x, y, value);
+    /**
+     * @memberOf Hypergrid.prototype
+     * @param {number} x - column index
+     * @param {number} y - totals row index local to the totals area
+     * @param value
+     * @param {boolean} atBottom - this value is in the "bottom" totals area
+     */
+    setTotalsValueNotification: function(x, y, value, atBottom) {
+        this.fireSyntheticSetTotalsValue(x, y, value, atBottom);
     },
 
-    fireSyntheticSetTotalsValue: function(x, y, value) {
+    /**
+     * @memberOf Hypergrid.prototype
+     * @param {number} x - column index
+     * @param {number} y - totals row index local to the totals area
+     * @param value
+     * @param {boolean} atBottom - this value is in the "bottom" totals area
+     */
+    fireSyntheticSetTotalsValue: function(x, y, value, atBottom) {
         var clickEvent = new CustomEvent('fin-set-totals-value', {
             detail: {
                 x: x,
                 y: y,
-                value: value
+                value: value,
+                area: atBottom ? 'bottom' : 'top'
             }
         });
         this.canvas.dispatchEvent(clickEvent);
@@ -1550,8 +1572,7 @@ Hypergrid.prototype = {
             detail: {
                 input: inputControl,
                 keyEvent: keyEvent
-            },
-
+            }
         });
         this.canvas.dispatchEvent(clickEvent);
     },

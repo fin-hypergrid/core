@@ -3,6 +3,6 @@
 /doc
 /node_modules
 /index.*
-/images/index.js
+/images/images.js
 /src/local_node_modules
 !/src/local_node_modules/finanalytics
