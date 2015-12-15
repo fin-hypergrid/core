@@ -53,7 +53,10 @@ var DataModel = Base.extend('DataModel', {
 
     alpha: function(i) {
         return String.fromCharCode(A + i);
-    }
+    },
+
+    getCellEditorAt: function(x, y) {
+    },
 
 });
 

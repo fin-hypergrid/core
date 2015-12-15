@@ -1473,10 +1473,14 @@ var Behavior = Base.extend('Behavior', {
      * @param {number} y - The vertical cell coordinate.
      */
     _getCellEditorAt: function(x, y) {
+        var editor = this.getColumn(x).getCellEditorAt(x, y);
+        if (editor) {
+            return editor;
+        }
         var grid = this.getGrid();
         var column = this.getColumn(x);
         var type = grid.isFilterRow(y) ? column.getFilterType() : column.getType();
-        var editor = grid.resolveCellEditor(type);
+        editor = grid.resolveCellEditor(type);
         return editor;
     },
 

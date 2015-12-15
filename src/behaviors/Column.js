@@ -153,7 +153,7 @@ Column.prototype = {
     },
 
     getCellEditorAt: function(x, y) {
-        return this.behavior.getCellEditorAt(this.index, y);
+        return this.dataModel.getCellEditorAt(this.index, y);
     },
 
     getHeader: function() {

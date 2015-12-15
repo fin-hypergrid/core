@@ -140,7 +140,7 @@ var DecoratorBase = DataModel.extend('DecoratorBase', {
 
     reset: function() {
         this.getComponent().reset();
-    }
+    },
 
 });
 
