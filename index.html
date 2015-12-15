@@ -6,6 +6,8 @@
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">
 
+<link rel="icon" type="image/x-icon" href="favicon.ico" />
+
 <script src="js/accounting.min.js"></script>
 <!-- <script src="js/sampledata.js"></script> -->
 <script src="js/widedata.js"></script>
@@ -14,8 +16,8 @@
 
 <style>
     .abs {
-        position: relative;
-        height: 400px;
+        position: static;
+        height: 402px; /* recommend: multiple of default row height, plus horizontal scroll bar height */
     }
     #json-example div.finbar-vertical {
         margin: 0px;
@@ -79,19 +81,19 @@
 
 <script>
 
-
-
 (function(){
     //used by the cellProvider, return null for a column if you want no editor to pop up
     var editorTypes = ['choice','textfield','spinner','date','choice','choice','choice','textfield','textfield','textfield'];
 
     window.onload = function() {
         var div = document.querySelector('div#json-example'),
-            bodyStyle = window.getComputedStyle(document.body);
+            marginForHorizontalScrollBar = { bottom: '17px' };
 
-        jsonGrid = new fin.Hypergrid(div, function(grid) {
+        function behaviorFactory(grid) {
             return new fin.Hypergrid.behaviors.JSON(grid, window.people1);
-        });
+        }
+
+        jsonGrid = new fin.Hypergrid(div, behaviorFactory, marginForHorizontalScrollBar);
 
         var jsonModel = jsonGrid.getBehavior();
 
@@ -112,13 +114,11 @@
             doAggregates = !doAggregates;
             var arg = doAggregates? aggregates : [];
             jsonModel.setAggregates(arg);
-        }
+        };
 
         window.toggleColumnPicker = function() {
             jsonGrid.toggleColumnPicker();
-        }
-
-
+        };
 
         window.toggleAutosortGrouping = function() {
             var aggregator = jsonModel.getDataModel().getDataSource();
@@ -127,7 +127,7 @@
             jsonModel.setAggregates(aggregates);
             doGroups = true;
             jsonModel.setGroups(groups);
-        }
+        };
 
         var emptyData = false;
         window.toggleEmptyData = function() {
@@ -136,13 +136,14 @@
                 //important to set top totals first
                 jsonModel.setTopTotals(topTotals);
                 jsonModel.setData(people1);
+                jsonModel.setBottomTotals(bottomTotals);
             } else {
                 //important to set top totals first
                 jsonModel.setTopTotals([]);
                 jsonModel.setData([]);
+                jsonModel.setBottomTotals([]);
             }
-
-        }
+        };
 
         var emptyHeaders = true;
         window.toggleEmptyHeaders = function() {
@@ -152,7 +153,7 @@
                 showFilterRow: emptyHeaders,
             });
             jsonGrid.behaviorChanged();
-        }
+        };
 
         var globalFilter = '';
         window.toggleGlobalFilter = function() {
@@ -162,15 +163,15 @@
                 globalFilter = prompt('search?');
             }
             jsonGrid.setGlobalFilter(globalFilter);
-        }
+        };
 
         window.setData1 = function() {
             jsonModel.setData(people1);
-        }
+        };
 
         window.setData2 = function() {
             jsonModel.setData(people2);
-        }
+        };
 
         window.reset = function() {
             jsonGrid.reset();
@@ -184,7 +185,6 @@
             color: 'green'
         });
 
-
         //get the cell cellProvider for altering cell renderers
         var cellProvider = jsonModel.getCellProvider();
 
@@ -197,9 +197,17 @@
 
         // jsonModel.setHeaderColumnCount(1);
         // jsonModel.setHeaderRowCount(2);
-        var topTotals = [['one','two','3','four','five','six','seven','eight','nine','ten'],
-                         ['ten','nine','8','seven','six','five','four','three','two','one']];
+        var topTotals = [
+            ['one','two','3','four','five','six','seven','eight','nine','ten'],
+            ['ten','nine','8','seven','six','five','four','three','two','one']
+        ];
         jsonModel.setTopTotals(topTotals);
+
+        var bottomTotals = [
+            ['ONE','TWO','3','FOUR','FIVE','SIX','SEVEN','EIGHT','NINE','TEN'],
+            ['TEN','NINE','8','SEVEN','SIX','FIVE','FOUR','THREE','TWO','ONE']
+        ];
+        jsonModel.setBottomTotals(bottomTotals);
 
         // setInterval(function(){
         //     topTotals[1][5] = Math.round(Math.random()*100);
@@ -214,9 +222,9 @@
             return number < 10 ? '0' + number : number + '';
         };
 
-        var upDown = jsonModel.getImage('up-down');
-        var upDownSpin = jsonModel.getImage('up-down-spin');
-        var downArrow = jsonModel.getImage('down-rectangle');
+        var upDown = fin.Hypergrid.images['up-down'];
+        var upDownSpin = fin.Hypergrid.images['up-down-spin'];
+        var downArrow = fin.Hypergrid.images['down-rectangle'];
         //all formatting and rendering per cell can be overridden in here
         cellProvider.getCell = function(config) {
             var renderer = cellProvider.cellCache.simpleCellRenderer;
@@ -524,40 +532,39 @@
                 }
 
                 var state = {
-                        columnIndexes: [
-                            fieldsMap.last_name,
-                            fieldsMap.total_number_of_pets_owned,
-                            fieldsMap.birthDate,
-                            fieldsMap.birthState,
-                            // fieldsMap.residenceState,
-                            // fieldsMap.employed,
-                            // fieldsMap.first_name,
-                            // fieldsMap.income,
-                            // fieldsMap.travel,
-                            // fieldsMap.squareOfIncome
-                            ],
-                        rowHeights:{ 0: 40 },
-                        fixedColumnCount: 1,
-                        fixedRowCount: 2,
+                    columnIndexes: [
+                        fieldsMap.last_name,
+                        fieldsMap.total_number_of_pets_owned,
+                        fieldsMap.birthDate,
+                        fieldsMap.birthState,
+                        // fieldsMap.residenceState,
+                        // fieldsMap.employed,
+                        // fieldsMap.first_name,
+                        // fieldsMap.income,
+                        // fieldsMap.travel,
+                        // fieldsMap.squareOfIncome
+                    ],
 
-                        showRowNumbers: true,
-                        showHeaderRow: true,
-                        showFilterRow: true,
-                        columnAutosizing: false,
-                        headerTextWrapping: true,
+                    rowHeights:{ 0: 40 },
+                    fixedColumnCount: 1,
+                    fixedRowCount: 2,
 
-                        cellSelection: true,
-                        columnSelection: true,
-                        rowSelection: true,
-                        singleRowSelectionMode: true,
+                    showRowNumbers: true,
+                    showHeaderRow: true,
+                    showFilterRow: true,
+                    columnAutosizing: false,
+                    headerTextWrapping: true,
 
-                    };
+                    cellSelection: true,
+                    columnSelection: true,
+                    rowSelection: true,
+                    singleRowSelectionMode: true,
+
+                };
 
                 jsonGrid.setGroups([4, 0, 1]);
 
-
                 jsonGrid.setState(state);
-
 
                 jsonGrid.addProperties({
                     scrollbarHoverOff: 'visible',
@@ -677,8 +684,6 @@
 
 
             }, 500);
-
-
 
         }, 500);
 

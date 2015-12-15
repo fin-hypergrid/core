@@ -6,7 +6,6 @@ var _ = require('object-iterators');
 var Base = require('extend-me').Base;
 
 var Column = require('./Column');
-var images = require('./images');
 var CellProvider = require('../CellProvider');
 
 var noExportProperties = [
@@ -1265,11 +1264,11 @@ var Behavior = Base.extend('Behavior', {
     /**
      * @memberOf Behavior.prototype
      * @desc set the number of fixed columns
-     * @param {number} numberOfFixedColumns - the integer count of how many columns to be fixed
+     * @param {number} n - the integer count of how many columns to be fixed
      */
-    setFixedColumnCount: function(numberOfFixedColumns) {
+    setFixedColumnCount: function(n) {
         var tableState = this.getPrivateState();
-        tableState.fixedColumnCount = numberOfFixedColumns;
+        tableState.fixedColumnCount = n;
     },
 
     /**
@@ -1280,41 +1279,58 @@ var Behavior = Base.extend('Behavior', {
         if (!this.tableState) {
             return 0;
         }
-        var usersSize = this.tableState.fixedRowCount || 0;
         var headers = this.getGrid().getHeaderRowCount();
-        var total = usersSize + headers;
-        return total;
+        var usersSize = this.tableState.fixedRowCount || 0;
+        return headers + usersSize;
     },
 
     /**
      * @memberOf Behavior.prototype
-     * @desc set the number of rows that are fixed
-     * @param {number} numberOfFixedRows - the count of rows to be set fixed
+     * @desc Set the number of fixed rows, which includes (top to bottom order):
+     * 1. The header rows
+     *    1. The header labels row (optional)
+     *    2. The filter row (optional)
+     *    3. The top total rows (0 or more)
+     * 2. The non-scrolling rows (externally called "the fixed rows")
+     *
+     * @returns {number} Sum of the above or 0 if none of the above are in use.
+     *
+     * @param {number} n - The number of rows.
      */
-    setFixedRowCount: function(numberOfFixedRows) {
-        this.tableState.fixedRowCount = numberOfFixedRows;
+    setFixedRowCount: function(n) {
+        this.tableState.fixedRowCount = n;
     },
 
     /**
      * @memberOf Behavior.prototype
-     * @return {number} The number of fixed rows.
+     * @return {number} The number of header rows.
+     * A portion of the number returned by {@link Behavior#getFixedRowCount()|getFixedRowCount()}.
+     * (The remaining _fixed rows_ are the _top totals_ rows.)
      */
     getHeaderRowCount: function() {
         var grid = this.getGrid();
         var header = grid.isShowHeaderRow() ? 1 : 0;
         var filter = grid.isShowFilterRow() ? 1 : 0;
         var totals = this.getTopTotals().length;
-        var count = header + filter + totals;
-        return count;
+        return header + filter + totals;
     },
 
     /**
      * @memberOf Behavior.prototype
-     * @desc set the number of rows that are fixed
-     * @param {number} numberOfFixedRows - the count of rows to be set fixed
+     * @return {number} The number of footer rows, consisting entirely of 0 or more _bottom totals_ rows.
      */
-    setHeaderRowCount: function(numberOfHeaderRows) {
-        this.tableState.headerRowCount = numberOfHeaderRows;
+    getFooterRowCount: function() {
+        return this.getBottomTotals().length;
+    },
+
+    /**
+     * @memberOf Behavior.prototype
+     * @summary Set the number of header rows.
+     * @param {number} n - The number of _fixed rows_ to reserve as header rows.
+     * (The remaining _fixed rows_ are the _top totals_ rows.)
+     */
+    setHeaderRowCount: function(n) {
+        this.tableState.headerRowCount = n;
     },
 
     /**
@@ -1417,8 +1433,8 @@ var Behavior = Base.extend('Behavior', {
 
     /**
      * @memberOf Behavior.prototype
-     * @return {string} - The column alignment at column `x`, which is one of `'left'`, `'center'` , or `'right'`.
-     * @param {number} x - the column index of interest
+     * @return {string} The column alignment at column `x`: `'left'`, `'center'` , or `'right'`
+     * @param {number} x - The column index of interest.
      */
     getColumnAlignment: function(x) {
         return 'center';
@@ -1426,8 +1442,8 @@ var Behavior = Base.extend('Behavior', {
 
     /**
      * @memberOf Behavior.prototype
-     * @desc quietly set the scroll position in the horizontal dimension
-     * @param {number} x - the position in pixels
+     * @desc Quietly set the horizontal scroll position.
+     * @param {number} x - The new position in pixels.
      */
     setScrollPositionX: function(x) {
         this.scrollPositionX = x;
@@ -1439,8 +1455,8 @@ var Behavior = Base.extend('Behavior', {
 
     /**
      * @memberOf Behavior.prototype
-     * @desc quietly set the scroll position in the horizontal dimension
-     * @param {number} y - the position in pixels
+     * @desc Quietly set the vertical scroll position.
+     * @param {number} y - The new position in pixels.
      */
     setScrollPositionY: function(y) {
         this.scrollPositionY = y;
@@ -1452,9 +1468,9 @@ var Behavior = Base.extend('Behavior', {
 
     /**
      * @memberOf Behavior.prototype
-     * @return {cellEditor} Cell editor for coordinate `x,y`.
-     * @param {number} x - x coordinate
-     * @param {number} y - y coordinate
+     * @return {cellEditor} The cell editor for the cell at cell coordinates `x,y`
+     * @param {number} x - The horizontal cell coordinate.
+     * @param {number} y - The vertical cell coordinate.
      */
     _getCellEditorAt: function(x, y) {
         var grid = this.getGrid();
@@ -1475,9 +1491,8 @@ var Behavior = Base.extend('Behavior', {
 
     /**
      * @memberOf Behavior.prototype
-     * @desc fixed row has been clicked, you've been notified
-     * @param {Hypergrid} grid
-     * @param {Object} mouse - event details
+     * @param {number} x - The column index.
+     * @param {string[]} keys
      */
     toggleSort: function(x, keys) {
         this.getColumn(x).toggleSort(keys);
@@ -1491,25 +1506,6 @@ var Behavior = Base.extend('Behavior', {
      */
     highlightCellOnHover: function(isColumnHovered, isRowHovered) {
         return isColumnHovered && isRowHovered;
-    },
-
-    /**
-     * @memberOf Behavior.prototype
-     * @return {HTMLImageElement}
-     * @param {string} key - an image alias
-     */
-    getImage: function(key) {
-        return images[key];
-    },
-
-    /**
-     * @memberOf Behavior.prototype
-     * @desc set the image for a specific alias
-     * @param {string} key - an image alias
-     * @param {HTMLImageElement} image - the image to cache
-     */
-    setImage: function(key, image) {
-        images[key] = image;
     },
 
     /**
@@ -1576,8 +1572,15 @@ var Behavior = Base.extend('Behavior', {
         return this.getDataModel().getColumnEdge(c, renderer);
     },
 
-    setTotalsValue: function(x, y, value) {
-        this.getGrid().setTotalsValueNotification(x, y, value);
+    /**
+     * @memberOf Behavior.prototype
+     * @param {number} x - column index
+     * @param {number} y - totals row index local to the totals area
+     * @param value
+     * @param {boolean} [atBottom=false] - this value is in the "bottom" totals area
+     */
+    setTotalsValue: function(x, y, value, atBottom) {
+        this.getGrid().setTotalsValueNotification(x, y, value, !!atBottom);
     },
 
     /**

@@ -145,16 +145,39 @@ var JSON = Behavior.extend('behaviors.JSON', {
     },
 
     /**
+     * @summary Set the top totals.
      * @memberOf behaviors.JSON.prototype
-     * @description Set the totals field.
-     * @param {array} nestedArray - array2D of totals data
+     * @param {Array<Array>} totalRows - array of rows (arrays) of totals
      */
-    setTopTotals: function(nestedArray) {
-        this.getDataModel().setTopTotals(nestedArray);
+    setTopTotals: function(totalRows) {
+        this.getDataModel().setTopTotals(totalRows);
     },
 
+    /**
+     * @summary Get the top totals.
+     * @memberOf behaviors.JSON.prototype
+     * @returns {Array<Array>}
+     */
     getTopTotals: function() {
         return this.getDataModel().getTopTotals();
+    },
+
+    /**
+     * @summary Set the bottom totals.
+     * @memberOf behaviors.JSON.prototype
+     * @param {Array<Array>} totalRows - array of rows (arrays) of totals
+     */
+    setBottomTotals: function(totalRows) {
+        this.getDataModel().setBottomTotals(totalRows);
+    },
+
+    /**
+     * @summary Get the bottom totals.
+     * @memberOf behaviors.JSON.prototype
+     * @returns {Array<Array>}
+     */
+    getBottomTotals: function() {
+        return this.getDataModel().getBottomTotals();
     },
 
     /**

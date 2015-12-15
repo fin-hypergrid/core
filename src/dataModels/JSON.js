@@ -4,6 +4,7 @@ var analytics = require('hyper-analytics');
 //var analytics = require('../local_node_modules/hyper-analytics');
 //var analytics = require('../local_node_modules/finanalytics');
 var DataModel = require('./DataModel');
+var images = require('../../images');
 
 var UPWARDS_BLACK_ARROW = '\u25b2', // aka '▲'
     DOWNWARDS_BLACK_ARROW = '\u25bc'; // aka '▼'
@@ -24,7 +25,7 @@ var nullDataSource = {
     getRowCount: function() {
         return 0;
     },
-    getGrandTotals: function() {
+    getAggregateTotals: function() {
         return [];
     },
     hasAggregates: function() {
@@ -56,6 +57,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
     postsorter: nullDataSource,
 
     topTotals: [],
+    bottomTotals: [],
 
     /**
      * @memberOf dataModels.JSON.prototype
@@ -117,43 +119,34 @@ var JSON = DataModel.extend('dataModels.JSON', {
     /**
      * @memberOf dataModels.JSON.prototype
      * @param {number} x
-     * @param {number} y
+     * @param {number} y - negative values refer to _bottom totals_ rows
      * @returns {*}
      */
     getHeaderRowValue: function(x, y) {
+        var value;
         if (y === undefined) {
-            return this.getHeaders()[Math.max(x, 0)];
-        }
-        var grid = this.getGrid();
-        var behavior = grid.getBehavior();
-        var isFilterRow = grid.isShowFilterRow();
-        var isHeaderRow = grid.isShowHeaderRow();
-        var isBoth = isFilterRow && isHeaderRow;
-        var topTotalsOffset = (isFilterRow ? 1 : 0) + (isHeaderRow ? 1 : 0);
-        if (y >= topTotalsOffset) {
-            return this.getTopTotals()[y - topTotalsOffset][x];
-        }
-        var filter = this.getFilter(x);
-        var image = filter.length === 0 ? 'filter-off' : 'filter-on';
-        var header, sortString;
-        if (isBoth) {
-            if (y === 0) {
-                header = this.getHeaders()[x];
-                sortString = this.getSortImageForColumn(x, true);
-                if (sortString) { header = sortString + header; }
-                return [null, header, null];
-            } else {
-                return [null, filter, behavior.getImage(image)];
-            }
-        } else if (isFilterRow) {
-            return [null, filter, behavior.getImage(image)];
+            value = this.getHeaders()[Math.max(x, 0)];
+        } else if (y < 0) { // bottom totals rows
+            var bottomTotals = this.getBottomTotals();
+            value = bottomTotals[bottomTotals.length + y][x];
         } else {
-            header = this.getHeaders()[x];
-            sortString = this.getSortImageForColumn(x, true);
-            if (sortString) { header = sortString + header; }
-            return [null, header, null];
+            var grid = this.getGrid(),
+                isFilterRow = grid.isShowFilterRow(),
+                isHeaderRow = grid.isShowHeaderRow(),
+                topTotalsOffset = (isFilterRow ? 1 : 0) + (isHeaderRow ? 1 : 0);
+            if (y >= topTotalsOffset) { // top totals rows
+                value = this.getTopTotals()[y - topTotalsOffset][x];
+            } else if (isHeaderRow && y === 0) {
+                value = this.getHeaders()[x];
+                var sortString = this.getSortImageForColumn(x);
+                if (sortString) { value = sortString + value; }
+            } else { // must be filter row
+                value = this.getFilter(x);
+                var icon = images.filter(value.length);
+                return [null, value, icon];
+            }
         }
-        return '';
+        return value;
     },
 
     /**
@@ -344,21 +337,40 @@ var JSON = DataModel.extend('dataModels.JSON', {
 
     /**
      * @memberOf dataModels.JSON.prototype
-     * @returns {*}
+     * @param {Array<Array>} totalRows
+     */
+    setTopTotals: function(totalRows) {
+        this.topTotals = totalRows;
+    },
+
+    /**
+     * @memberOf dataModels.JSON.prototype
+     * @returns {Array<Array>}
      */
     getTopTotals: function() {
         if (!this.hasAggregates()) {
             return this.topTotals;
         }
-        return this.getDataSource().getGrandTotals();
+        return this.getDataSource().getAggregateTotals();
     },
 
     /**
      * @memberOf dataModels.JSON.prototype
-     * @param nestedArray
+     * @param {Array<Array>} totalRows
      */
-    setTopTotals: function(nestedArray) {
-        this.topTotals = nestedArray;
+    setBottomTotals: function(totalRows) {
+        this.bottomTotals = totalRows;
+    },
+
+    /**
+     * @memberOf dataModels.JSON.prototype
+     * @returns {Array<Array>}
+     */
+    getBottomTotals: function() {
+        if (!this.hasAggregates()) {
+            return this.bottomTotals;
+        }
+        return this.getDataSource().getAggregateTotals();
     },
 
     /**
@@ -576,7 +588,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
      * @param returnAsString
      * @returns {*}
      */
-    getSortImageForColumn: function(index, returnAsString) {
+    getSortImageForColumn: function(index) {
         index++;
         var up = true;
         var sorts = this.getPrivateState().sorts;
@@ -591,16 +603,9 @@ var JSON = DataModel.extend('dataModels.JSON', {
         if (position < 0) {
             return null;
         }
-
         var rank = sorts.length - position;
-
-        if (returnAsString) {
-            var arrow = up ? UPWARDS_BLACK_ARROW : DOWNWARDS_BLACK_ARROW;
-            return rank + arrow + ' ';
-        }
-
-        var name = rank + (up ? '-up' : '-down');
-        return this.getBehavior().getImage(name);
+        var arrow = up ? UPWARDS_BLACK_ARROW : DOWNWARDS_BLACK_ARROW;
+        return rank + arrow + ' ';
     },
 
     /**

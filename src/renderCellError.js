@@ -5,7 +5,7 @@ var images = require('../images');
 /**
  * @summary Writes error message into cell.
  *
- * @desc Called as follows:
+ * @desc This funciton is guaranteed to be called as follows:
  *
  * ```javascript
  * gc.save();
@@ -28,6 +28,7 @@ var images = require('../images');
 function renderCellError(gc, message, x, y, width, height) {
 
     // clear the cell
+    // (this makes use of the rect path defined by the caller)
     gc.fillStyle = '#FFD500';
     gc.fill();
 

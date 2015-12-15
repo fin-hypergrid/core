@@ -507,7 +507,7 @@ var ColumnMoving = Feature.extend('ColumnMoving', {
         var columnWidth = grid.renderOverridesCache.dragger.width;
 
         var minX = 0; //grid.getFixedColumnsWidth();
-        var maxX = grid.renderer.getFinalVisableColumnBoundry() - columnWidth;
+        var maxX = grid.renderer.getFinalVisableColumnBoundary() - columnWidth;
         x = Math.min(x, maxX + 15);
         x = Math.max(minX - 15, x);
 

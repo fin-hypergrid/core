@@ -106,12 +106,20 @@ var DecoratorBase = DataModel.extend('DecoratorBase', {
         return this.getComponent().getRowContextFunction(y);
     },
 
-    setTopTotals: function(nestedArray) {
-        this.getComponent().setTopTotals(nestedArray);
+    setTopTotals: function(totalRows) {
+        this.getComponent().setTopTotals(totalRows);
     },
 
     getTopTotals: function() {
         return this.getComponent().getTopTotals();
+    },
+
+    setBottomTotals: function(totalRows) {
+        this.getComponent().setBottomTotals(totalRows);
+    },
+
+    getBottomTotals: function() {
+        return this.getComponent().getBottomTotals();
     },
 
     setData: function(y) {

@@ -97,12 +97,11 @@ var CellProvider = Base.extend('CellProvider', {
     /**
      * @summary The default cell rendering function for rendering a vanilla cell.
      * @desc Great care has been taken in crafting this function as it needs to perform extremely fast. Reads on the gc object are expensive but not quite as expensive as writes to it. We do our best to avoid writes, then avoid reads. Clipping bounds are not set here as this is also an expensive operation. Instead, we truncate overflowing text and content by filling a rectangle with background color column by column instead of cell by cell.  This column by column fill happens higher up on the stack in a calling function from fin-hypergrid-renderer.  Take note we do not do cell by cell border renderering as that is expensive.  Instead we render many fewer gridlines after all cells are rendered.
-     * @param {CanvasGraphicsContext} gc - the "pen" in the mvc model, we issue drawing commands to
-     * @param {number} x - the x screen coordinate of my origin
-     * @param {number} y - the y screen coordinate of my origin
-     * @param {number} width - the width I'm allowed to draw within
-     * @param {number} height - the height I'm allowed to draw within
-     * @param {boolean} isLink - is this a hyperlink cell
+     * @param {CanvasGraphicsContext} gc
+     * @param {number} config.bounds.x - the x screen coordinate of my origin
+     * @param {number} config.bounds.y - the y screen coordinate of my origin
+     * @param {number} config.bounds.width - the width I'm allowed to draw within
+     * @param {number} config.bounds.height - the height I'm allowed to draw within
      * @memberOf CellProvider.prototype
      */
     defaultCellPaint: function(gc, config) {
@@ -117,7 +116,7 @@ var CellProvider = Base.extend('CellProvider', {
 
         var leftIcon, rightIcon, centerIcon, ixoffset, iyoffset;
 
-        //setting gc properties are expensive, lets not do it unnecessarily
+        // setting gc properties are expensive, let's not do it needlessly
 
         if (val && val.constructor === Array) {
             leftIcon = val[0];
@@ -152,14 +151,14 @@ var CellProvider = Base.extend('CellProvider', {
             gc.textBaseline = 'middle';
         }
 
-        //fill background only if our bgColor is populated or we are a selected cell
+        // fill background only if our bgColor is populated or we are a selected cell
         var backgroundColor;
         if (config.backgroundColor || config.isSelected) {
             gc.fillStyle = backgroundColor = valueOrFunctionExecute(config, config.isSelected ? config.backgroundSelectionColor : config.backgroundColor);
             gc.fillRect(x, y, width, height);
         }
 
-        //draw text
+        // draw text
         var theColor = valueOrFunctionExecute(config, config.isSelected ? config.foregroundSelectionColor : config.color);
         if (gc.fillStyle !== theColor) {
             gc.fillStyle = theColor;
@@ -167,9 +166,9 @@ var CellProvider = Base.extend('CellProvider', {
         }
 
         if (isHeader && wrapHeaders) {
-            this.renderMultiLineText(x, y, height, width, gc, config, val);
+            this.renderMultiLineText(gc, x, y, height, width, config, val);
         } else {
-            this.renderSingleLineText(x, y, height, width, gc, config, val);
+            this.renderSingleLineText(gc, x, y, height, width, config, val);
         }
 
         var iconWidth = 0;
@@ -210,10 +209,10 @@ var CellProvider = Base.extend('CellProvider', {
         config.minWidth = config.minWidth + 2 * (iconWidth);
     },
 
-    renderMultiLineText: function(x, y, height, width, gc, config, val) {
+    renderMultiLineText: function(gc, x, y, height, width, config, val) {
         var lines = fitText(gc, config, val, width);
         if (lines.length === 1) {
-            return this.renderSingleLineText(x, y, height, width, gc, config, squeeze(val));
+            return this.renderSingleLineText(gc, x, y, height, width, config, squeeze(val));
         }
 
         var colHEdgeOffset = config.cellPadding,
@@ -242,12 +241,7 @@ var CellProvider = Base.extend('CellProvider', {
         valignOffset = Math.max(vMin, valignOffset);
 
         gc.save(); // define a clipping region for cell
-        gc.moveTo(x, y);
-        gc.lineTo(x + width, y);
-        gc.lineTo(x + width, y + height);
-        gc.lineTo(x, y + height);
-        gc.lineTo(x, y);
-        gc.closePath();
+        gc.rect(x, y, width, height);
         gc.clip();
 
         gc.textAlign = halign;
@@ -259,7 +253,7 @@ var CellProvider = Base.extend('CellProvider', {
         gc.restore(); // discard clipping region
     },
 
-    renderSingleLineText: function(x, y, height, width, gc, config, val) {
+    renderSingleLineText: function(gc, x, y, height, width, config, val) {
         var colHEdgeOffset = config.cellPadding,
             halignOffset = 0,
             valignOffset = config.voffset,
@@ -307,14 +301,13 @@ var CellProvider = Base.extend('CellProvider', {
     },
 
     /**
-     * @param {CanvasGraphicsContext} gc - the "pen" in the mvc model, we issue drawing commands to
+     * @param {CanvasGraphicsContext} gc
      * @param {number} x - the x screen coordinate of my origin
      * @param {number} y - the y screen coordinate of my origin
      * @param {number} width - the width I'm allowed to draw within
      * @param {number} height - the height I'm allowed to draw within
-     * @param {boolean} isLink - is this a hyperlink cell
      * @memberOf CellProvider.prototype
-     * @desc emersons paint function for a slider button. currently the user cannot interact with it
+     * @desc Emerson's paint function for a slider button. currently the user cannot interact with it
      */
     paintSlider: function(gc, x, y, width, height) {
         // gc.strokeStyle = 'white';
@@ -344,12 +337,11 @@ var CellProvider = Base.extend('CellProvider', {
 
     /**
      * @desc A simple implementation of a sparkline, because it's a barchart we've changed the name ;).
-     * @param {CanvasGraphicsContext} gc - the "pen" in the mvc model, we issue drawing commands to
+     * @param {CanvasGraphicsContext} gc
      * @param {number} x - the x screen coordinate of my origin
      * @param {number} y - the y screen coordinate of my origin
      * @param {number} width - the width I'm allowed to draw within
      * @param {number} height - the height I'm allowed to draw within
-     * @param {boolean} isLink - is this a hyperlink cell
      * @memberOf CellProvider.prototype
      */
     paintSparkbar: function(gc, x, y, width, height) {
@@ -378,12 +370,11 @@ var CellProvider = Base.extend('CellProvider', {
 
     /**
      * @desc A simple implementation of a sparkline.  see [Edward Tufte sparkline](http://www.edwardtufte.com/bboard/q-and-a-fetch-msg?msg_id=0001OR)
-     * @param {CanvasGraphicsContext} gc - the "pen" in the mvc model, we issue drawing commands to
+     * @param {CanvasGraphicsContext} gc
      * @param {number} x - the x screen coordinate of my origin
      * @param {number} y - the y screen coordinate of my origin
      * @param {number} width - the width I'm allowed to draw within
      * @param {number} height - the height I'm allowed to draw within
-     * @param {boolean} isLink - is this a hyperlink cell
      * @memberOf CellProvider.prototype
      */
     paintSparkline: function(gc, x, y, width, height) {
@@ -420,12 +411,11 @@ var CellProvider = Base.extend('CellProvider', {
 
     /**
      * @desc A simple implementation of a tree cell renderer for use mainly with the qtree.
-     * @param {CanvasGraphicsContext} gc - the "pen" in the mvc model, we issue drawing commands to
+     * @param {CanvasGraphicsContext} gc
      * @param {number} x - the x screen coordinate of my origin
      * @param {number} y - the y screen coordinate of my origin
      * @param {number} width - the width I'm allowed to draw within
      * @param {number} height - the height I'm allowed to draw within
-     * @param {boolean} isLink - is this a hyperlink cell
      * @memberOf CellProvider.prototype
      */
     treeCellRenderer: function(gc, x, y, width, height) {
@@ -454,13 +444,12 @@ var CellProvider = Base.extend('CellProvider', {
 
     /**
      * @desc An empty implementation of a cell renderer, see [the null object pattern](http://c2.com/cgi/wiki?NullObject).
-     * @param {CanvasGraphicsContext} gc - the "pen" in the mvc model, we issue drawing commands to
+     * @param {CanvasGraphicsContext} gc
      * @param {number} x - the x screen coordinate of my origin
      * @param {number} y - the y screen coordinate of my origin
      * @param {number} width - the width I'm allowed to draw within
      * @param {number} height - the height I'm allowed to draw within
      * @memberOf CellProvider.prototype
-     * @param {boolean} isLink - is this a hyperlink cell
      */
     emptyCellRenderer: function(gc, x, y, width, height) {},
 
