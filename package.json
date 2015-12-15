@@ -26,7 +26,7 @@
     "gulp-uglify": "^1.5.1",
     "gulp-util": "^3.0.7",
     "gutil": "^1.6.4",
-    "hyper-analytics": "^0.9.5",
+    "hyper-analytics": "^0.9.9",
     "list-dragon": "^1.2.4",
     "lru-cache": "^2.7.0",
     "mustache": "^2.2.0",
