@@ -351,7 +351,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
         if (!this.hasAggregates()) {
             return this.topTotals;
         }
-        return this.getDataSource().getAggregateTotals();
+        return this.getDataSource().getGrandTotals();
     },
 
     /**
@@ -370,7 +370,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
         if (!this.hasAggregates()) {
             return this.bottomTotals;
         }
-        return this.getDataSource().getAggregateTotals();
+        return this.getDataSource().getGrandTotals();
     },
 
     /**

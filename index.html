@@ -261,7 +261,7 @@
             } else if (x === 2) {
                 config.halign = 'left';
                 config.value = [null, config.value, upDownSpinIMG];
-            } else if (x === 3) {
+            } else if (x === 3 && !doAggregates) {
                 config.halign = 'left';
                 var dateString = value = config.value.getFullYear() + '-' + leadingZeroIfNecessary(config.value.getMonth() + 1) + '-' + leadingZeroIfNecessary(config.value.getDay());
                 config.value = [null, dateString, downArrowIMG];
