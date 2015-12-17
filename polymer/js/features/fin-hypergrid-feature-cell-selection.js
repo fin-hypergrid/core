@@ -297,7 +297,7 @@
          * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
         */
         handleDOWNSHIFT: function(grid) {
-            var count = this.getAutoScrollAcceleration();
+            var count = this.getAutoScrollAcceleration(grid);
             this.moveShiftSelect(grid, 0, count);
         },
 
@@ -310,7 +310,7 @@
          * @param {Object} event - the event details
         */
         handleUPSHIFT: function(grid) {
-            var count = this.getAutoScrollAcceleration();
+            var count = this.getAutoScrollAcceleration(grid);
             this.moveShiftSelect(grid, 0, -count);
         },
 
@@ -347,7 +347,7 @@
          * @param {Object} event - the event details
         */
         handleDOWN: function(grid) {
-            var count = this.getAutoScrollAcceleration();
+            var count = this.getAutoScrollAcceleration(grid);
             this.moveSingleSelect(grid, 0, count);
         },
 
@@ -360,7 +360,7 @@
          * @param {Object} event - the event details
         */
         handleUP: function(grid) {
-            var count = this.getAutoScrollAcceleration();
+            var count = this.getAutoScrollAcceleration(grid);
             this.moveSingleSelect(grid, 0, -count);
         },
 
@@ -395,7 +395,10 @@
         If we are holding down the same navigation key, accelerate the increment we scroll
         * #### returns: integer
         */
-        getAutoScrollAcceleration: function() {
+        getAutoScrollAcceleration: function(grid) {
+            if (!grid.isAutoScrollAcceleration()) {
+                return 1;
+            }
             var count = 1;
             var elapsed = this.getAutoScrollDuration() / 2000;
             count = Math.max(1, Math.floor(elapsed * elapsed * elapsed * elapsed));

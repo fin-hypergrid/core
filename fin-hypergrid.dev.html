@@ -15445,6 +15445,7 @@ div.container {
 
 
 
+
 </style>
   </template>
   <script>/* global SimpleLRU */
@@ -17231,6 +17232,7 @@ var config = {
 
 
 
+
 </style>
   </template>
   <script>'use strict';
@@ -17427,6 +17429,7 @@ var config = {
     display: block;
     position: relative;
 }
+
 
 
 
@@ -17844,6 +17847,7 @@ var config = {
     display: block;
     position: relative;
 }
+
 
 
 
@@ -18548,6 +18552,7 @@ var config = {
 
 
 
+
 </style>
   </template>
   <script>'use strict';
@@ -19048,6 +19053,7 @@ var noop = function() {};
 
 
 
+
 </style>
   </template>
   <script>'use strict';
@@ -19190,6 +19196,7 @@ var commands = {
 
 
 
+
 </style>
   </template>
   <script>'use strict';
@@ -19231,6 +19238,7 @@ var commands = {
     display: block;
     position: relative;
 }
+
 
 
 
@@ -19706,7 +19714,7 @@ var commands = {
          * @param {fin-hypergrid} grid - [fin-hypergrid](module-._fin-hypergrid.html)
         */
         handleDOWNSHIFT: function(grid) {
-            var count = this.getAutoScrollAcceleration();
+            var count = this.getAutoScrollAcceleration(grid);
             this.moveShiftSelect(grid, 0, count);
         },
 
@@ -19719,7 +19727,7 @@ var commands = {
          * @param {Object} event - the event details
         */
         handleUPSHIFT: function(grid) {
-            var count = this.getAutoScrollAcceleration();
+            var count = this.getAutoScrollAcceleration(grid);
             this.moveShiftSelect(grid, 0, -count);
         },
 
@@ -19756,7 +19764,7 @@ var commands = {
          * @param {Object} event - the event details
         */
         handleDOWN: function(grid) {
-            var count = this.getAutoScrollAcceleration();
+            var count = this.getAutoScrollAcceleration(grid);
             this.moveSingleSelect(grid, 0, count);
         },
 
@@ -19769,7 +19777,7 @@ var commands = {
          * @param {Object} event - the event details
         */
         handleUP: function(grid) {
-            var count = this.getAutoScrollAcceleration();
+            var count = this.getAutoScrollAcceleration(grid);
             this.moveSingleSelect(grid, 0, -count);
         },
 
@@ -19804,7 +19812,10 @@ var commands = {
         If we are holding down the same navigation key, accelerate the increment we scroll
         * #### returns: integer
         */
-        getAutoScrollAcceleration: function() {
+        getAutoScrollAcceleration: function(grid) {
+            if (!grid.isAutoScrollAcceleration()) {
+                return 1;
+            }
             var count = 1;
             var elapsed = this.getAutoScrollDuration() / 2000;
             count = Math.max(1, Math.floor(elapsed * elapsed * elapsed * elapsed));
@@ -19953,6 +19964,7 @@ var commands = {
     display: block;
     position: relative;
 }
+
 
 
 
@@ -20517,6 +20529,7 @@ var commands = {
 
 
 
+
 </style>
   </template>
   <script>'use strict';
@@ -20565,6 +20578,7 @@ var commands = {
     display: block;
     position: relative;
 }
+
 
 
 
@@ -20973,6 +20987,7 @@ var commands = {
 
 
 
+
 </style>
   </template>
   <script>'use strict';
@@ -21038,6 +21053,7 @@ var commands = {
     display: block;
     position: relative;
 }
+
 
 
 
@@ -21561,6 +21577,7 @@ var commands = {
     display: block;
     position: relative;
 }
+
 
 
 
@@ -22577,6 +22594,7 @@ var commands = {
 
 
 
+
 </style>
   </template>
   <script>'use strict';
@@ -22877,6 +22895,7 @@ var commands = {
 
 
 
+
 </style>
   </template>
   <script>'use strict';
@@ -22928,6 +22947,7 @@ var commands = {
 }
 
 
+
 </style>
   </template>
   <script>'use strict';
@@ -22972,6 +22992,7 @@ var commands = {
 }
 
 
+
 </style>
   </template>
   <script>'use strict';
@@ -23014,6 +23035,7 @@ var commands = {
     display: block;
     position: relative;
 }
+
 
 
 
@@ -25032,6 +25054,7 @@ it contains all code/data that's necessary for easily implementing a virtual dat
 
 
 
+
 </style>
   </template>
   <script>'use strict';
@@ -25109,6 +25132,7 @@ it contains all code/data that's necessary for easily implementing a virtual dat
     display: block;
     position: relative;
 }
+
 
 
 
@@ -25741,6 +25765,7 @@ it contains all code/data that's necessary for easily implementing a virtual dat
     display: block;
     position: relative;
 }
+
 
 
 
@@ -26569,6 +26594,7 @@ This is a very rough in memory data source example.  fin-hypergrid-behavior-in-m
     display: block;
     position: relative;
 }
+
 
 
 
@@ -27633,6 +27659,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
 
 
 
+
 </style>
   </template>
   <script>'use strict';
@@ -28036,6 +28063,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
     display: block;
     position: relative;
 }
+
 
 
 
@@ -29450,6 +29478,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
 
 
 
+
 </style>
   </template>
   <script>'use strict';
@@ -29764,6 +29793,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
     display: block;
     position: relative;
 }
+
 
 
 
@@ -30423,6 +30453,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
 
 
 
+
 </style>
     <div id="editor"></div>
   </template>
@@ -30748,6 +30779,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
 
 
 
+
 </style>
     <input id="editor">
   </template>
@@ -30787,6 +30819,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
     display: block;
     position: relative;
 }
+
 
 
 
@@ -31182,6 +31215,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
 
 
 
+
 </style>
     <input id="editor" type="color">
   </template>
@@ -31211,6 +31245,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
     display: block;
     position: relative;
 }
+
 
 
 
@@ -31588,6 +31623,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
 
 
 
+
 </style>
     <input id="editor" type="range">
   </template>
@@ -31617,6 +31653,7 @@ var validIdentifierMatch = /^(?!(?:abstract|boolean|break|byte|case|catch|char|c
     display: block;
     position: relative;
 }
+
 
 
 
@@ -32060,6 +32097,7 @@ fin-vampire-bar {
 
 
 
+
 </style>
     <fin-plugins>
     </fin-plugins>
@@ -32167,7 +32205,8 @@ fin-vampire-bar {
             useHiDPI: true,
             editorActivationKeys: ['alt', 'esc'],
             columnAutosizing: true,
-            readOnly: false
+            readOnly: false,
+            autoScrollAcceleration: true
 
         };
         return properties;
@@ -33208,6 +33247,9 @@ fin-vampire-bar {
             return this.resolveProperty('useHiDPI') !== false;
         },
 
+        isAutoScrollAcceleration: function() {
+            return this.resolveProperty('autoScrollAcceleration') !== false;
+        },
         /**
          * @function
          * @instance

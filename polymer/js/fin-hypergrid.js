@@ -94,7 +94,8 @@
             useHiDPI: true,
             editorActivationKeys: ['alt', 'esc'],
             columnAutosizing: true,
-            readOnly: false
+            readOnly: false,
+            autoScrollAcceleration: true
 
         };
         return properties;
@@ -1135,6 +1136,9 @@
             return this.resolveProperty('useHiDPI') !== false;
         },
 
+        isAutoScrollAcceleration: function() {
+            return this.resolveProperty('autoScrollAcceleration') !== false;
+        },
         /**
          * @function
          * @instance
