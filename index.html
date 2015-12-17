@@ -350,13 +350,8 @@
                     cellEditor.setItems(['', true, false]); //editor here
                     return cellEditor;
                 }
-            }
-            if (x === 0) {
-                cellEditor.setItems(lastNames);
-            } else if (x === 4 || x === 5) {
-                cellEditor.setItems(states);
             } else if (x === 6) {
-                return null; //editor here
+                return null;
             } else if (x === 2) {
                 cellEditor.getInput().setAttribute('min', 0);
                 cellEditor.getInput().setAttribute('max', 10);
@@ -666,6 +661,22 @@
                         columnHeaderBackgroundColor: '#142B6F', //dark blue
                         columnHeaderColor: 'white'
                     });
+
+                jsonModel.setColumnProperties(0,{
+                    autopopulateEditor: true
+                });
+
+                jsonModel.setColumnProperties(1,{
+                    autopopulateEditor: true
+                });
+
+                jsonModel.setColumnProperties(4,{
+                    autopopulateEditor: true
+                });
+
+                jsonModel.setColumnProperties(5,{
+                    autopopulateEditor: true
+                });
 
                 console.log(jsonModel.getHeaders());
                 console.log(jsonModel.getFields());

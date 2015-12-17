@@ -1166,7 +1166,7 @@ var Behavior = Base.extend('Behavior', {
         return properties;
     },
     setColumnProperties: function(columnIndex, properties) {
-        var columnProperties = this.getColumnProperties(columnIndex);
+        var columnProperties = this.allColumns[columnIndex].getProperties();
         _(columnProperties).extendOwn(properties);
         this.changed();
     },

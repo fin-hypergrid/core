@@ -280,6 +280,7 @@ Hypergrid.prototype = {
 
     initCellEditor: function(cellEditor) {
         globalCellEditors[cellEditor.alias] = cellEditor;
+        cellEditor.grid = this;
     },
 
     initGlobalCellEditors: function() {
@@ -1351,7 +1352,6 @@ Hypergrid.prototype = {
         this.setMouseDown(editPoint);
         this.setDragExtent(new Point(0, 0));
 
-        cellEditor.grid = this;
         cellEditor.beginEditAt(editPoint);
     },
 

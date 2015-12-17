@@ -1,6 +1,7 @@
 'use strict';
 
 var Simple = require('./Simple');
+var Map = require('../Mappy');
 
 /**
  * @constructor
@@ -31,6 +32,27 @@ var Choice = Simple.extend('Choice', {
             */
     },
 
+    autopopulate: function() {
+        var grid = this.getGrid();
+        var behavior = grid.getBehavior();
+        var point = this.getEditorPoint();
+        var colProps = grid.getColumnProperties(point.x);
+        if (!colProps.autopopulateEditor) {
+            return;
+        }
+        var headerCount = grid.getHeaderRowCount();
+        var rowCount = grid.getRowCount();
+        var column = point.x;
+        var map = new Map();
+        for (var r = headerCount; r < rowCount; r++) {
+            var each = behavior.getValue(column, r);
+            map.set(each, each);
+        }
+        var values = map.values;
+        values.sort();
+        this.setItems(values);
+    },
+
     //no events are fired while the dropdown is open
     //see http://jsfiddle.net/m4tndtu4/6/
 
@@ -43,6 +65,10 @@ var Choice = Simple.extend('Choice', {
         setTimeout(function() {
             self.showDropdown(self.input);
         }, 50);
+    },
+
+    preShowEditorNotification: function() {
+        this.autopopulate();
     },
 
     /**

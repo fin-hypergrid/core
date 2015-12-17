@@ -562,7 +562,7 @@ module.exports = {
      * @default renderCellError
      * @type {function}
      */
-    renderCellError: renderCellError
+    renderCellError: renderCellError,
 };
 
 var textWidthCache = new LRUCache(2000);

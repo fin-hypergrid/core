@@ -255,11 +255,15 @@ var Simple = CellEditor.extend('Simple', {
         }
         var editorPoint = this.getEditorPoint();
         if (this.grid.isDataVisible(editorPoint.x, editorPoint.y)) {
+            this.preShowEditorNotification();
             this.moveEditor();
             this.showEditor();
         } else {
             this.hideEditor();
         }
+    },
+
+    preShowEditorNotification: function() {
     },
 
     getInput: function() {
