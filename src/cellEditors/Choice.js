@@ -41,11 +41,11 @@ var Choice = Simple.extend('Choice', {
             return;
         }
         var headerCount = grid.getHeaderRowCount();
-        var rowCount = grid.getRowCount();
+        var rowCount = grid.getRowCount() - headerCount;
         var column = point.x;
         var map = new Map();
-        for (var r = headerCount; r < rowCount; r++) {
-            var each = behavior.getValue(column, r);
+        for (var r = 0; r < rowCount; r++) {
+            var each = behavior.getRawValue(column, r);
             map.set(each, each);
         }
         var values = map.values;

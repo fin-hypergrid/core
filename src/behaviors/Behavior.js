@@ -722,6 +722,14 @@ var Behavior = Base.extend('Behavior', {
         return column.getValue(y);
     },
 
+    getRawValue: function(x, y) {
+        var column = this.getColumn(x);
+        if (!column) {
+            return undefined;
+        }
+        return column.getRawValue(y);
+    },
+
     /**
      * @memberOf Behavior.prototype
      * @desc update the data at point x, y with value

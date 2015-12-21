@@ -56,6 +56,10 @@ DataModelDecorator.prototype = {
         return this.getComponent().getValue(x, y);
     },
 
+    getRawValue: function(x, y) {
+        return this.getComponent().getRawValue(x, y);
+    },
+
     setValue: function(x, y, value) {
         this.getComponent().setValue(x, y, value);
     },

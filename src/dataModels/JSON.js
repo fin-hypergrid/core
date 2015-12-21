@@ -740,6 +740,10 @@ var JSON = DataModel.extend('dataModels.JSON', {
      */
     reset: function() {
         this.setData([]);
+    },
+
+    getRawValue: function(x, y) {
+        return this.source.getValue(x, y);
     }
 
 });
