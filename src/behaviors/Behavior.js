@@ -215,6 +215,9 @@ var Behavior = Base.extend('Behavior', {
         });
 
         properties.columnHeader = Object.create(properties, {
+            format: {
+                value: 'default'
+            },
             font: {
                 configurable: true,
                 get: function() {
@@ -1687,8 +1690,15 @@ var Behavior = Base.extend('Behavior', {
 
     getSelections: function() {
         return this.getGrid().getSelectionModel().getSelections();
-    }
+    },
 
+    getData: function() {
+        return this.getDataModel().getData();
+    },
+
+    getFilteredData: function() {
+        return this.getDataModel().getFilteredData();
+    },
 });
 
 module.exports = Behavior;

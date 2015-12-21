@@ -50,6 +50,11 @@ var Choice = Simple.extend('Choice', {
         }
         var values = map.values;
         values.sort();
+
+        if (values.length > 0 && values[0].length > 0) {
+            values.unsshift('');
+        }
+
         this.setItems(values);
     },
 
@@ -87,7 +92,7 @@ var Choice = Simple.extend('Choice', {
      */
     initializeInput: function(input) {
         var self = this;
-        Simple.prototype.initializeInput(input);
+        Simple.prototype.initializeInput.apply(this, [input]);
         input.onchange = function() {
             self.stopEditing();
         };

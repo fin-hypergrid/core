@@ -563,6 +563,14 @@ module.exports = {
      * @type {function}
      */
     renderCellError: renderCellError,
+
+    /**
+     * @default false
+     * @type {boolean}
+     */
+    checkboxOnlyRowSelections: false,
+
+    format: 'default'
 };
 
 var textWidthCache = new LRUCache(2000);

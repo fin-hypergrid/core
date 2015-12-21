@@ -52,6 +52,10 @@ DataModelDecorator.prototype = {
         return this.getComponent().getData();
     },
 
+    getFilteredData: function() {
+        return this.getComponent().getFilteredData();
+    },
+
     getValue: function(x, y) {
         return this.getComponent().getValue(x, y);
     },

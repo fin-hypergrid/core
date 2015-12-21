@@ -141,6 +141,8 @@ var CellProvider = Base.extend('CellProvider', {
 
         val = valueOrFunctionExecute(config, val);
 
+        val = config.formatter(val);
+
         if (gc.font !== config.font) {
             gc.font = config.font;
         }

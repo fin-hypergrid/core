@@ -127,7 +127,12 @@
     for (var i = 0; i < numRows; i++) {
         data.push(randomPerson());
     }
-    window.people1 = window.people2 = data;
+    window.people2 = data;
+    data = [];
+    for (var i = 0; i < numRows/2; i++) {
+        data.push(randomPerson());
+    }
+    window.people1 = data;
     window.states = states;
     window.firstNames = firstNames;
     window.lastNames = lastNames;

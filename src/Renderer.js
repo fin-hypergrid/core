@@ -1130,7 +1130,8 @@ var Renderer = Base.extend('Renderer', {
 
         //allow the renderer to identify itself if it's a button
         cellProperties.buttonCells = this.buttonCells;
-
+        var formatType = cellProperties.isUserDataArea ? cellProperties.format : 'default';
+        cellProperties.formatter = this.getGrid().getFormatter(formatType);
         cell.paint(gc, cellProperties);
 
         this.renderedColumnMinWidths[c] = Math.max(cellProperties.minWidth || 0, this.renderedColumnMinWidths[c]);

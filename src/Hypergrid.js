@@ -14,6 +14,7 @@ var Renderer = require('./Renderer');
 var SelectionModel = require('./SelectionModel');
 var addStylesheet = require('./stylesheets');
 var TableDialog = require('./TableDialog');
+var Formatters = require('./Formatters');
 
 var globalCellEditors = {},
     propertiesInitialized = false,
@@ -333,6 +334,23 @@ Hypergrid.prototype = {
         return p.x === x && p.y === y;
     },
 
+    registerFormatter: function(name, func) {
+        Formatters[name] = func;
+    },
+
+    getFormatter: function(type) {
+        var formatter = Formatters[type];
+        if (formatter) {
+            return formatter;
+        }
+        return Formatters.default;
+    },
+
+    formatValue: function(type, value) {
+        var formatter = this.getFormatter(type);
+        return formatter(value);
+    },
+
     /**
      * @memberOf Hypergrid.prototype
      * @returns boolean} The pointer is hovering over the given column.
@@ -350,8 +368,11 @@ Hypergrid.prototype = {
         return this.resolveProperty('rowResize');
     },
 
+    isCheckboxOnlyRowSelections: function() {
+        return this.resolveProperty('checkboxOnlyRowSelections');
+    },
+
     /**
-     *
      *
      * @memberOf Hypergrid.prototype
      * @returns {boolean} The pointer is hovering over the row `y`.
@@ -693,7 +714,8 @@ Hypergrid.prototype = {
      * @desc Clear all the selections.
      */
     clearSelections: function() {
-        this.getSelectionModel().clear();
+        var dontClearRows = this.isCheckboxOnlyRowSelections();
+        this.getSelectionModel().clear(dontClearRows);
         this.clearMouseDown();
     },
 
@@ -702,7 +724,8 @@ Hypergrid.prototype = {
      * @desc Clear the most recent selection.
      */
     clearMostRecentSelection: function() {
-        this.getSelectionModel().clearMostRecentSelection();
+        var dontClearRows = this.isCheckboxOnlyRowSelections();
+        this.getSelectionModel().clearMostRecentSelection(dontClearRows);
     },
 
     /**
@@ -1003,6 +1026,14 @@ Hypergrid.prototype = {
         });
 
         this.addFinEventListener('fin-canvas-keydown', function(e) {
+            var key = e.detail.char;
+            if (['DELETE'].indexOf(key) !== -1) {
+                if (!self.isEditing()) {
+                    setTimeout(function() {
+                        self.takeFocus();
+                    }, 50);
+                }
+            }
             if (self.resolveProperty('readOnly')) {
                 return;
             }
@@ -1068,7 +1099,6 @@ Hypergrid.prototype = {
             mouseEvent.primitiveEvent = e.detail.primitiveEvent;
             self.delegateMouseExit(mouseEvent);
         });
-
 
         this.addFinEventListener('fin-canvas-context-menu', function(e) {
             var mouse = e.detail.mouse;
@@ -2902,8 +2932,10 @@ Hypergrid.prototype = {
         var hasSHIFT = keys.indexOf('SHIFT') > -1;
 
         if (!hasCTRL && !hasSHIFT) {
-            model.clear();
-            if (!alreadySelected) {
+            //model.clear();
+            if (alreadySelected) {
+                model.deselectRow(y);
+            } else {
                 model.selectRow(y);
             }
         } else {
@@ -3150,6 +3182,9 @@ Hypergrid.prototype = {
         this.getBehavior().setGlobalFilter(string);
     },
     selectRowsFromCells: function() {
+        if (this.isCheckboxOnlyRowSelections()) {
+            return;
+        }
         var sm = this.getSelectionModel();
         if (this.isSingleRowSelectionMode()) {
             var last = sm.getLastSelection();

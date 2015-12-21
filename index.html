@@ -209,6 +209,10 @@
         ];
         jsonModel.setBottomTotals(bottomTotals);
 
+        jsonGrid.registerFormatter('USD', accounting.formatMoney);
+        jsonGrid.registerFormatter('GBP', function(value) {
+            return accounting.formatMoney(value, "€", 2, ".", ",");
+        });
         // setInterval(function(){
         //     topTotals[1][5] = Math.round(Math.random()*100);
         //     jsonModel.changed();
@@ -218,9 +222,6 @@
 
         //sort ascending on the first column (first name)
         //jsonModel.toggleSort(0);
-        var leadingZeroIfNecessary = function(number) {
-            return number < 10 ? '0' + number : number + '';
-        };
 
         var upDown = fin.Hypergrid.images['up-down'];
         var upDownSpin = fin.Hypergrid.images['up-down-spin'];
@@ -263,8 +264,7 @@
                 config.value = [null, config.value, upDownSpinIMG];
             } else if (x === 3 && !doAggregates) {
                 config.halign = 'left';
-                var dateString = value = config.value.getFullYear() + '-' + leadingZeroIfNecessary(config.value.getMonth() + 1) + '-' + leadingZeroIfNecessary(config.value.getDay());
-                config.value = [null, dateString, downArrowIMG];
+                config.value = [null, config.value, downArrowIMG];
             } else if (x === 6) {
                 renderer = cellProvider.cellCache.buttonRenderer;
             } else if (x === 7) {
@@ -273,14 +273,12 @@
                 config.halign = 'right';
                 config.backgroundColor = '#00' + bcolor + '00';
                 config.color = '#FFFFFF';
-                config.value = accounting.formatMoney(config.value);
             } else if (x === 8) {
                 var travel = 105 + Math.round(config.value*150/1000);
                 var bcolor = travel.toString(16);
                 config.halign = 'right';
                 config.backgroundColor = '#' + bcolor+ '0000';
                 config.color = '#FFFFFF';
-                config.value = accounting.formatMoney(config.value, "€", 2, ".", ",");
             }
             return renderer;
         };
@@ -579,10 +577,10 @@
                         fieldsMap.birthDate,
                         fieldsMap.birthState,
                         // fieldsMap.residenceState,
-                        // fieldsMap.employed,
+                        fieldsMap.employed,
                         // fieldsMap.first_name,
-                        // fieldsMap.income,
-                        // fieldsMap.travel,
+                        fieldsMap.income,
+                        fieldsMap.travel,
                         // fieldsMap.squareOfIncome
                     ],
 
@@ -616,7 +614,9 @@
 
                 jsonGrid.addProperties({
                     fixedRowCount: 4,
-                    showRowNumbers: true
+                    showRowNumbers: true,
+                    singleRowSelectionMode: false,
+                    checkboxOnlyRowSelections: true
                 });
                 // properties that can be set
                 // use a function or a value
@@ -670,12 +670,24 @@
                     autopopulateEditor: true
                 });
 
+                jsonModel.setColumnProperties(3,{
+                    format: 'date'
+                });
+
                 jsonModel.setColumnProperties(4,{
                     autopopulateEditor: true
                 });
 
                 jsonModel.setColumnProperties(5,{
                     autopopulateEditor: true
+                });
+
+                jsonModel.setColumnProperties(7,{
+                    format: 'USD'
+                });
+
+                jsonModel.setColumnProperties(8,{
+                    format: 'GBP'
                 });
 
                 console.log(jsonModel.getHeaders());

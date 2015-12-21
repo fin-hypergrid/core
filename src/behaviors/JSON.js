@@ -137,14 +137,6 @@ var JSON = Behavior.extend('behaviors.JSON', {
     },
 
     /**
-     * @memberOf behaviors.JSON.prototype
-     * @description Get the data field.
-     */
-    getData: function() {
-        return this.getDataModel().getData();
-    },
-
-    /**
      * @summary Set the top totals.
      * @memberOf behaviors.JSON.prototype
      * @param {Array<Array>} totalRows - array of rows (arrays) of totals

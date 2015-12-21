@@ -91,6 +91,16 @@ var JSON = DataModel.extend('dataModels.JSON', {
         return this.source.data;
     },
 
+    getFilteredData: function() {
+        var ds = this.getDataSource();
+        var count = ds.getRowCount();
+        var result = new Array(count);
+        for (var y = 0; y < count; y++) {
+            result[y] = ds.getRow(y);
+        }
+        return result;
+    },
+
     /**
      * @memberOf dataModels.JSON.prototype
      * @param {number} x
@@ -503,6 +513,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
      * @memberOf dataModels.JSON.prototype
      */
     applyFilters: function() {
+        var grid = this.getGrid();
         var visibleColumns = this.getVisibleColumns();
         this.preglobalfilter.apply(visibleColumns);
         var visColCount = visibleColumns.length;
@@ -510,16 +521,25 @@ var JSON = DataModel.extend('dataModels.JSON', {
         var groupOffset = this.hasAggregates() ? 1 : 0;
         filterSource.clearAll();
         for (var v = 0; v < visColCount; v++) {
-            var i = visibleColumns[v].index;
+            var column = visibleColumns[v];
+            var i = column.index;
+            var formatter = grid.getFormatter(column.getProperties().format);
             var filterText = this.getFilter(i);
             var complexFilter = this.getComplexFilter(i);
             if (complexFilter) {
-                filterSource.add(i - groupOffset, complexFilter);
+                filterSource.add(i - groupOffset, this.createFormattedFilter(formatter, complexFilter));
             } else if (filterText.length > 0) {
-                filterSource.add(i - groupOffset, textMatchFilter(filterText));
+                filterSource.add(i - groupOffset, this.createFormattedFilter(formatter, textMatchFilter(filterText)));
             }
         }
         filterSource.applyAll();
+    },
+
+    createFormattedFilter: function(formatter, filter) {
+        return function(value) {
+            var formattedValue = formatter(value);
+            return filter(formattedValue);
+        };
     },
 
     /**
@@ -753,9 +773,10 @@ function valueOrFunctionExecute(valueOrFunction) {
 }
 
 function textMatchFilter(string) {
+    string = string.toLowerCase();
     return function(each) {
         each = valueOrFunctionExecute(each);
-        return (each + '').toLowerCase().search(string.toLowerCase()) > -1;
+        return (each + '').toLowerCase().search(string) > -1;
     };
 }
 

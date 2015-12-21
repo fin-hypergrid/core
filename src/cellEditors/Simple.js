@@ -59,7 +59,6 @@ var Simple = CellEditor.extend('Simple', {
             self.getGrid().fireSyntheticEditorKeyDownEvent(self, e);
         });
         input.addEventListener('keypress', function(e) {
-            console.log('keypress', e.keyCode);
             self.getGrid().fireSyntheticEditorKeyPressEvent(self, e);
         });
         // input.addEventListener('focusout', function() {
