@@ -69,6 +69,7 @@ var Choice = Simple.extend('Choice', {
 
     preShowEditorNotification: function() {
         this.autopopulate();
+        this.setEditorValue(this.initialValue);
     },
 
     /**

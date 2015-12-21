@@ -238,7 +238,6 @@ var Simple = CellEditor.extend('Simple', {
             return;
         }
         this.initialValue = value;
-        this.setEditorValue(value);
         this.isEditing = true;
         this.setCheckEditorPositionFlag();
         this.checkEditor();
@@ -264,6 +263,7 @@ var Simple = CellEditor.extend('Simple', {
     },
 
     preShowEditorNotification: function() {
+        this.setEditorValue(this.initialValue);
     },
 
     getInput: function() {
