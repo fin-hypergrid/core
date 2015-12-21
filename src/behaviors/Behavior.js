@@ -725,12 +725,12 @@ var Behavior = Base.extend('Behavior', {
         return column.getValue(y);
     },
 
-    getRawValue: function(x, y) {
+    getUnfilteredValue: function(x, y) {
         var column = this.getColumn(x);
         if (!column) {
             return undefined;
         }
-        return column.getRawValue(y);
+        return column.getUnfilteredValue(y);
     },
 
     /**
@@ -789,6 +789,9 @@ var Behavior = Base.extend('Behavior', {
         return this.getDataModel().getRowCount();
     },
 
+    getUnfilteredRowCount: function() {
+        return this.getDataModel().getUnfilteredRowCount();
+    },
     /**
      * @memberOf Behavior.prototype
      * @return {number} The height in pixels of the fixed rows area  of the hypergrid.

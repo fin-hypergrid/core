@@ -1896,6 +1896,15 @@ Hypergrid.prototype = {
         this.canvas.dispatchEvent(clickEvent);
     },
 
+    fireSyntheticFilterAppliedEvent: function(details) {
+        var event = new CustomEvent('fin-filter-applied', {
+            detail: details
+        });
+        if (this.canvas) {
+            this.canvas.dispatchEvent(event);
+        }
+    },
+
     /**
      * @memberOf Hypergrid.prototype
      * @desc Synthesize and fire a `fin-cell-enter` event
@@ -2400,6 +2409,14 @@ Hypergrid.prototype = {
      */
     getRowCount: function() {
         return this.getBehavior().getRowCount();
+    },
+
+    /**
+     * @memberOf Hypergrid.prototype
+     * @returns {number} The number of unfiltered rows.
+     */
+    getUnfilteredRowCount: function() {
+        return this.getBehavior().getUnfilteredRowCount();
     },
 
     /**

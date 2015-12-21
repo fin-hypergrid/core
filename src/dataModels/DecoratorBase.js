@@ -29,8 +29,12 @@ var DecoratorBase = DataModel.extend('DecoratorBase', {
         return this.getComponent().getValue(x, y);
     },
 
-    getRawValue: function(x, y) {
-        return this.getComponent().getRawValue(x, y);
+    getUnfilteredValue: function(x, y) {
+        return this.getComponent().getUnfilteredValue(x, y);
+    },
+
+    getUnfilteredRowCount: function() {
+        return this.getComponent().getUnfilteredRowCount();
     },
 
     setValue: function(x, y, value) {

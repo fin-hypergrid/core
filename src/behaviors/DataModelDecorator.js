@@ -60,8 +60,8 @@ DataModelDecorator.prototype = {
         return this.getComponent().getValue(x, y);
     },
 
-    getRawValue: function(x, y) {
-        return this.getComponent().getRawValue(x, y);
+    getUnfilteredValue: function(x, y) {
+        return this.getComponent().getUnfilteredValue(x, y);
     },
 
     setValue: function(x, y, value) {
@@ -198,6 +198,10 @@ DataModelDecorator.prototype = {
 
     getCellEditorAt: function(x, y) {
         return this.getComponent().getCellEditorAt(x, y);
+    },
+
+    getUnfilteredRowCount: function() {
+        return this.getComponent().getUnfilteredRowCount();
     }
 };
 

@@ -154,7 +154,9 @@ SelectionModel.prototype = {
      */
     clearMostRecentSelection: function(dontClearRows) {
         dontClearRows = dontClearRows === true;
-        this.setAllRowsSelected(dontClearRows);
+        if (!dontClearRows) {
+            this.setAllRowsSelected(false);
+        }
         this.selections.length = Math.max(0, this.selections.length - 1);
         this.flattenedX.length = Math.max(0, this.flattenedX.length - 1);
         this.flattenedY.length = Math.max(0, this.flattenedY.length - 1);

@@ -41,18 +41,18 @@ var Choice = Simple.extend('Choice', {
             return;
         }
         var headerCount = grid.getHeaderRowCount();
-        var rowCount = grid.getRowCount() - headerCount;
+        var rowCount = grid.getUnfilteredRowCount() - headerCount;
         var column = point.x;
         var map = new Map();
         for (var r = 0; r < rowCount; r++) {
-            var each = behavior.getRawValue(column, r);
+            var each = behavior.getUnfilteredValue(column, r);
             map.set(each, each);
         }
         var values = map.values;
         values.sort();
 
         if (values.length > 0 && values[0].length > 0) {
-            values.unsshift('');
+            values.unshift('');
         }
 
         this.setItems(values);

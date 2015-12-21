@@ -14,8 +14,8 @@ function Column(behavior, index, label) {
 Column.prototype = {
     constructor: Column.prototype.constructor,
 
-    getRawValue: function(y) {
-        return this.dataModel.getRawValue(this.index, y);
+    getUnfilteredValue: function(y) {
+        return this.dataModel.getUnfilteredValue(this.index, y);
     },
 
     getValue: function(y) {

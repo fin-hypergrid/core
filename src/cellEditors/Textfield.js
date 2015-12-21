@@ -38,8 +38,10 @@ var Textfield = Simple.extend('Textfield', {
                 self.getGrid().takeFocus();
             }
             if (self.getGrid().isFilterRow(self.getEditorPoint().y)) {
-                self.saveEditorValue();
-                self._moveEditor();
+                setTimeout(function() {
+                    self.saveEditorValue();
+                    self._moveEditor();
+                });
             }
             self.getGrid().fireSyntheticEditorKeyUpEvent(self, e);
         });

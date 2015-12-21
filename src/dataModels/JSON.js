@@ -520,19 +520,33 @@ var JSON = DataModel.extend('dataModels.JSON', {
         var filterSource = this.getFilterSource();
         var groupOffset = this.hasAggregates() ? 1 : 0;
         filterSource.clearAll();
+        var details = [];
         for (var v = 0; v < visColCount; v++) {
             var column = visibleColumns[v];
             var i = column.index;
-            var formatter = grid.getFormatter(column.getProperties().format);
+            var formatterType = column.getProperties().format;
+            var formatter = grid.getFormatter(formatterType);
             var filterText = this.getFilter(i);
             var complexFilter = this.getComplexFilter(i);
             if (complexFilter) {
                 filterSource.add(i - groupOffset, this.createFormattedFilter(formatter, complexFilter));
+                details.push({
+                    column: column.label,
+                    format: 'complex',
+                });
             } else if (filterText.length > 0) {
                 filterSource.add(i - groupOffset, this.createFormattedFilter(formatter, textMatchFilter(filterText)));
+                details.push({
+                    column: column.label,
+                    format: formatterType,
+                });
             }
+
         }
         filterSource.applyAll();
+        grid.fireSyntheticFilterAppliedEvent({
+            details: details
+        });
     },
 
     createFormattedFilter: function(formatter, filter) {
@@ -762,9 +776,13 @@ var JSON = DataModel.extend('dataModels.JSON', {
         this.setData([]);
     },
 
-    getRawValue: function(x, y) {
+    getUnfilteredValue: function(x, y) {
         return this.source.getValue(x, y);
-    }
+    },
+
+    getUnfilteredRowCount: function() {
+        return this.source.getRowCount();
+    },
 
 });
 

@@ -410,6 +410,11 @@
             jsonGrid.repaint();
         });
 
+
+        jsonGrid.addFinEventListener('fin-filter-applied', function(e) {
+            console.log('fin-filter-applied', e);
+        });
+
         jsonGrid.addFinEventListener('fin-keydown', function(e) {
             var key = e.detail.char;
             var keys = e.detail.currentKeys;
