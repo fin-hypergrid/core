@@ -128,6 +128,10 @@ DataModelDecorator.prototype = {
         return this.getComponent().getTopTotals();
     },
 
+    getData: function(y) {
+        return this.getComponent().getData();
+    },
+
     setData: function(y) {
         return this.getComponent().setData(y);
     },

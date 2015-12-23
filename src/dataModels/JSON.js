@@ -302,6 +302,11 @@ var JSON = DataModel.extend('dataModels.JSON', {
         return this.getDataSource().getFields();
     },
 
+
+    getData: function() {
+        return this.source;
+    },
+
     /**
      * @memberOf dataModels.JSON.prototype
      * @param {object[]} dataRows

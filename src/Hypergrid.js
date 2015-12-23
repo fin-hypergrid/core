@@ -3341,7 +3341,8 @@ function defaultProperties() {
         columnAutosizing: true,
         rowNumberAutosizing: true,
         headerTextWrapping: false,
-        rowResize: false
+        rowResize: false,
+        editOnDoubleClick: true
 
     };
     return properties;

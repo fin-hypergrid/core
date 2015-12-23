@@ -48,3 +48,4 @@ var CellEditing = Feature.extend('CellEditing', {
 });
 
 module.exports = CellEditing;
+

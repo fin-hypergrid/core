@@ -110,6 +110,10 @@ var DecoratorBase = DataModel.extend('DecoratorBase', {
         return this.getComponent().getTopTotals();
     },
 
+    getData: function() {
+        return this.getComponent().getData();
+    },
+
     setData: function(y) {
         return this.getComponent().setData(y);
     },
