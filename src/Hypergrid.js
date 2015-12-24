@@ -3,6 +3,8 @@
 'use strict';
 
 var extend = require('extend-me');
+extend.debug = true;
+
 var FinBar = require('finbars');
 var Canvas = require('fincanvas');
 var Point = require('rectangular').Point;
@@ -33,9 +35,6 @@ var globalCellEditors = {},
  * @param {string} [margin.left]
  */
 function Hypergrid(div, behaviorFactory, margin) {
-
-    extend.debug = true;
-
     var self = this;
 
     this.div = (typeof div === 'string') ? document.querySelector(div) : div;

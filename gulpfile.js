@@ -5,7 +5,8 @@ var gulp        = require('gulp'),
     runSequence = require('run-sequence'),
     browserSync = require('browser-sync').create(),
     exec        = require('child_process').exec,
-    path        = require('path');
+    path        = require('path'),
+    pipe        = require('multipipe');
 
 var srcDir   = './src/',
     testDir  = './test/',
@@ -26,11 +27,7 @@ gulp.task('test', test);
 gulp.task('doc', doc);
 gulp.task('beautify', beautify);
 gulp.task('images', swallowImages);
-gulp.task('browserify', function(callback) {
-    browserify();
-    browserifyMin();
-    callback();
-});
+gulp.task('browserify', browserify);
 gulp.task('reloadBrowsers', reloadBrowsers);
 gulp.task('serve', browserSyncLaunchServer);
 
@@ -92,14 +89,23 @@ function browserify() {
         .pipe(gulp.dest(buildDir));
 }
 
-function browserifyMin() {
+function browserify() {
     return gulp.src(js.dir + 'index.js')
-        .pipe($$.browserify())
-        //.pipe($$.sourcemaps.init({loadMaps: true}))
-        // Add transformation tasks to the pipeline here:
-        .pipe($$.uglify())
-        .on('error', $$.util.log)
-        .pipe($$.rename('index.min.js'))
+        .pipe(
+            $$.mirror(
+                pipe(
+                    $$.rename('index.js'),
+                    $$.browserify({ debug: true })
+                        .on('error', $$.util.log)
+                ),
+                pipe(
+                    $$.rename('index.min.js'),
+                    $$.browserify(),
+                    $$.uglify()
+                        .on('error', $$.util.log)
+                )
+            )
+        )
         .pipe(gulp.dest(buildDir));
 }
 
