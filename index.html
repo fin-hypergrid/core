@@ -286,46 +286,50 @@
         //custom column filter....
          function MyCustomFilter() {
             var self = this;
-            this.value = '';
             this.alias = 'MyCustomFilter';
             this.getDisplayString = function() {
                 return '< ' + this.value;
             };
 
-            this.template = function() {
-                /*
-                    <div>cell value must be less than:<input id="value"></div>
-                */
+            this.initialize = function(dialog) {
+                this.filterTree = new fin.FilterTree({
+                    fields: dialog.fields
+                });
             };
 
             this.onShow = function(dialog) {
-                var input = dialog.querySelector('#value');
-                input.value = this.value;
+                dialog.overlay.querySelector('td').appendChild(this.filterTree.el);
             };
 
             this.onOk = function(dialog) {
-                var limit = parseInt(dialog.querySelector('#value').value);
-                this.value = limit;
+
             };
 
             this.onClear = function(dialog) {
                 this.value = '';
             };
 
+<<<<<<< f1fe0ab22facd195dfa8ae571fb9f2ad70484739
             this.create = function(state) {
                  return function(data) {
                     return data < state;
                 };
             }
+=======
+            this.create = function() {
+                return this.filterTree.test.bind(this.filterTree);
+            };
+>>>>>>> initial filter-tree integration
 
             this.getState = function() {
-                return this.value;
+                return JSON.stringify(this.filterTree);
             };
 
             this.setState = function(state) {
-                this.value = state;
+                this.filterTree.fromJSON(JSON.parse(state));
             };
-        };
+        }
+
         var customFilter = new MyCustomFilter();
         jsonGrid.registerFilter(customFilter);
 

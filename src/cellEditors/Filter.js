@@ -67,7 +67,7 @@ var Filter = CellEditor.extend('Filter', {
         style.padding = '11px';
 
         style = this.content.style;
-        style.textAlign = 'center';
+        style.padding = '0 1em';
 
         style = this.buttons.style;
         style.top = '0%';
@@ -136,6 +136,10 @@ var Filter = CellEditor.extend('Filter', {
         var behavior = grid.getBehavior();
         var dialog = grid.dialog;
         var title = behavior.getColumnId(editorPoint.x);
+        dialog.fields = [{
+            value: behavior.getField(editorPoint.x),
+            text: title
+        }];
         this.title.innerHTML = 'filter for \'' + title + '\' column';
         var filter = grid.getFilterFor(editorPoint.x);
         //var self = this;
@@ -144,9 +148,7 @@ var Filter = CellEditor.extend('Filter', {
         } else {
             dialog.clear();
             dialog.overlay.appendChild(this.dialog);
-            this.template = filter.template + '';
-            var html = this.getHTML();
-            this.content.innerHTML = html;
+            filter.initialize(dialog);
 
             dialog.onOkPressed = function() {
                 filter.onOk(dialog);
