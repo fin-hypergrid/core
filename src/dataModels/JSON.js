@@ -255,8 +255,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
         var filter = columnProperties.complexFilter;
         if (filter) {
             var filterObject = this.getGrid().resolveFilter(filter.type);
-            filterObject.setState(filter.state);
-            var newFilter = filterObject.create();
+            var newFilter = filterObject.create(filter.state);
             return function(data) {
                 var transformed = valueOrFunctionExecute(data);
                 return newFilter(transformed);

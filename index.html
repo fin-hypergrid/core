@@ -312,9 +312,9 @@
                 this.value = '';
             };
 
-            this.create = function() {
+            this.create = function(state) {
                  return function(data) {
-                    return data < self.value;
+                    return data < state;
                 };
             }
 
