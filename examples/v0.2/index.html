@@ -209,6 +209,10 @@
         ];
         jsonModel.setBottomTotals(bottomTotals);
 
+        jsonGrid.registerFormatter('USD', accounting.formatMoney);
+        jsonGrid.registerFormatter('GBP', function(value) {
+            return accounting.formatMoney(value, "€", 2, ".", ",");
+        });
         // setInterval(function(){
         //     topTotals[1][5] = Math.round(Math.random()*100);
         //     jsonModel.changed();
@@ -218,13 +222,10 @@
 
         //sort ascending on the first column (first name)
         //jsonModel.toggleSort(0);
-        var leadingZeroIfNecessary = function(number) {
-            return number < 10 ? '0' + number : number + '';
-        };
 
-        var upDown = fin.Hypergrid.images['up-down'];
+        var upDown = fin.Hypergrid.images['down-rectangle'];
         var upDownSpin = fin.Hypergrid.images['up-down-spin'];
-        var downArrow = fin.Hypergrid.images['down-rectangle'];
+        var downArrow = fin.Hypergrid.images['calendar'];
         //all formatting and rendering per cell can be overridden in here
         cellProvider.getCell = function(config) {
             var renderer = cellProvider.cellCache.simpleCellRenderer;
@@ -263,8 +264,7 @@
                 config.value = [null, config.value, upDownSpinIMG];
             } else if (x === 3 && !doAggregates) {
                 config.halign = 'left';
-                var dateString = value = config.value.getFullYear() + '-' + leadingZeroIfNecessary(config.value.getMonth() + 1) + '-' + leadingZeroIfNecessary(config.value.getDay());
-                config.value = [null, dateString, downArrowIMG];
+                config.value = [null, config.value, downArrowIMG];
             } else if (x === 6) {
                 renderer = cellProvider.cellCache.buttonRenderer;
             } else if (x === 7) {
@@ -273,14 +273,12 @@
                 config.halign = 'right';
                 config.backgroundColor = '#00' + bcolor + '00';
                 config.color = '#FFFFFF';
-                config.value = accounting.formatMoney(config.value);
             } else if (x === 8) {
                 var travel = 105 + Math.round(config.value*150/1000);
                 var bcolor = travel.toString(16);
                 config.halign = 'right';
                 config.backgroundColor = '#' + bcolor+ '0000';
                 config.color = '#FFFFFF';
-                config.value = accounting.formatMoney(config.value, "€", 2, ".", ",");
             }
             return renderer;
         };
@@ -288,46 +286,62 @@
         //custom column filter....
          function MyCustomFilter() {
             var self = this;
-            this.value = '';
             this.alias = 'MyCustomFilter';
             this.getDisplayString = function() {
                 return '< ' + this.value;
             };
 
-            this.template = function() {
-                /*
-                    <div>cell value must be less than:<input id="value"></div>
-                */
+            this.initialize = function(dialog) {
+                this.filterTree = new fin.FilterTree({
+                    fields: dialog.fields
+                });
+                delete this.filter;
             };
 
-            this.onShow = function(dialog) {
-                var input = dialog.querySelector('#value');
-                input.value = this.value;
+            this.onShow = function(dialog, container) {
+                container.appendChild(this.filterTree.el);
             };
 
             this.onOk = function(dialog) {
-                var limit = parseInt(dialog.querySelector('#value').value);
-                this.value = limit;
+
             };
 
-            this.onClear = function(dialog) {
-                this.value = '';
+            this.onReset = function(dialog) {
+
             };
 
-            this.create = function() {
-                 return function(data) {
-                    return data < self.value;
-                };
-            }
+            this.onDelete = function(dialog) {
+                delete this.filter;
+                delete this.filterTree;
+            };
+
+            this.onCancel = function(dialog) {
+                delete this.filterTree;
+            };
+
+            this.create = function(state) {
+                if (!this.filter) {
+                    var filterTree = new fin.FilterTree({
+                        json: JSON.parse(state)
+                    });
+                    this.filter = filterTree.test.bind(filterTree); // called with 1 param: function(data)
+                }
+                return this.filter;
+            };
 
             this.getState = function() {
-                return this.value;
+                var jsonString = JSON.stringify(this.filterTree);
+                delete this.filterTree;
+                return jsonString;
             };
 
             this.setState = function(state) {
-                this.value = state;
+                this.filterTree = new fin.FilterTree({
+                    json: JSON.parse(state)
+                });
             };
-        };
+        }
+
         var customFilter = new MyCustomFilter();
         jsonGrid.registerFilter(customFilter);
 
@@ -350,13 +364,8 @@
                     cellEditor.setItems(['', true, false]); //editor here
                     return cellEditor;
                 }
-            }
-            if (x === 0) {
-                cellEditor.setItems(lastNames);
-            } else if (x === 4 || x === 5) {
-                cellEditor.setItems(states);
             } else if (x === 6) {
-                return null; //editor here
+                return null;
             } else if (x === 2) {
                 cellEditor.getInput().setAttribute('min', 0);
                 cellEditor.getInput().setAttribute('max', 10);
@@ -415,6 +424,11 @@
             var value = details.value;
             jsonModel.getDataModel().getTotals()[0][x] = value;
             jsonGrid.repaint();
+        });
+
+
+        jsonGrid.addFinEventListener('fin-filter-applied', function(e) {
+            console.log('fin-filter-applied', e);
         });
 
         jsonGrid.addFinEventListener('fin-keydown', function(e) {
@@ -584,10 +598,10 @@
                         fieldsMap.birthDate,
                         fieldsMap.birthState,
                         // fieldsMap.residenceState,
-                        // fieldsMap.employed,
+                        fieldsMap.employed,
                         // fieldsMap.first_name,
-                        // fieldsMap.income,
-                        // fieldsMap.travel,
+                        fieldsMap.income,
+                        fieldsMap.travel,
                         // fieldsMap.squareOfIncome
                     ],
 
@@ -621,7 +635,9 @@
 
                 jsonGrid.addProperties({
                     fixedRowCount: 4,
-                    showRowNumbers: true
+                    showRowNumbers: true,
+                    singleRowSelectionMode: false,
+                    checkboxOnlyRowSelections: true
                 });
                 // properties that can be set
                 // use a function or a value
@@ -666,6 +682,34 @@
                         columnHeaderBackgroundColor: '#142B6F', //dark blue
                         columnHeaderColor: 'white'
                     });
+
+                jsonModel.setColumnProperties(0,{
+                    autopopulateEditor: true
+                });
+
+                jsonModel.setColumnProperties(1,{
+                    autopopulateEditor: true
+                });
+
+                jsonModel.setColumnProperties(3,{
+                    format: 'date'
+                });
+
+                jsonModel.setColumnProperties(4,{
+                    autopopulateEditor: true
+                });
+
+                jsonModel.setColumnProperties(5,{
+                    autopopulateEditor: true
+                });
+
+                jsonModel.setColumnProperties(7,{
+                    format: 'USD'
+                });
+
+                jsonModel.setColumnProperties(8,{
+                    format: 'GBP'
+                });
 
                 console.log(jsonModel.getHeaders());
                 console.log(jsonModel.getFields());
