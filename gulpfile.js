@@ -37,7 +37,7 @@ gulp.task('build', function(callback) {
         'lint',
         'test',
         'images',
-        'doc',
+        //'doc',
         //'beautify',
         'browserify',
         'reloadBrowsers',

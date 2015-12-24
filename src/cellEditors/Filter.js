@@ -86,23 +86,33 @@ var Filter = CellEditor.extend('Filter', {
         this.dialog.appendChild(this.buttons);
 
         this.ok = document.createElement('button');
-        this.ok.style.borderRadius = '2px';
+        this.ok.style.borderRadius = '8px';
+        this.ok.style.width = '5.5em';
 
         this.cancel = document.createElement('button');
-        this.cancel.style.marginLeft = '5px';
-        this.cancel.style.borderRadius = '2px';
+        this.cancel.style.marginLeft = '2em';
+        this.cancel.style.borderRadius = '8px';
+        this.cancel.style.width = '5.5em';
 
-        this.clear = document.createElement('button');
-        this.clear.style.marginLeft = '5px';
-        this.clear.style.borderRadius = '2px';
+        this.delete = document.createElement('button');
+        this.delete.style.marginLeft = '2em';
+        this.delete.style.borderRadius = '8px';
+        this.delete.style.width = '5.5em';
+
+        this.reset = document.createElement('button');
+        this.reset.style.marginLeft = '2em';
+        this.reset.style.borderRadius = '8px';
+        this.reset.style.width = '5.5em';
 
         this.ok.innerHTML = 'ok';
         this.cancel.innerHTML = 'cancel';
-        this.clear.innerHTML = 'clear';
+        this.delete.innerHTML = 'delete';
+        this.reset.innerHTML = 'reset';
 
         this.buttons.appendChild(this.ok);
+        this.buttons.appendChild(this.reset);
+        this.buttons.appendChild(this.delete);
         this.buttons.appendChild(this.cancel);
-        this.buttons.appendChild(this.clear);
 
         var self = this;
         this.ok.onclick = function() {
@@ -111,9 +121,16 @@ var Filter = CellEditor.extend('Filter', {
         this.cancel.onclick = function() {
             self.cancelPressed();
         };
-        this.clear.onclick = function() {
-            self.clearPressed();
+        this.delete.onclick = function() {
+            self.deletePressed();
         };
+        this.reset.onclick = function() {
+            self.resetPressed();
+        };
+    },
+
+    tearDown: function() {
+        this.content.innerHTML = '';
     },
 
     okPressed: function() {
@@ -126,9 +143,14 @@ var Filter = CellEditor.extend('Filter', {
         dialog.onCancelPressed();
     },
 
-    clearPressed: function() {
+    deletePressed: function() {
         var dialog = this.getGrid().dialog;
-        dialog.onClearPressed();
+        dialog.onDeletePressed();
+    },
+
+    resetPressed: function() {
+        var dialog = this.getGrid().dialog;
+        dialog.onResetPressed();
     },
 
     beginEditAt: function(editorPoint) {
@@ -140,18 +162,22 @@ var Filter = CellEditor.extend('Filter', {
             value: behavior.getField(editorPoint.x),
             text: title
         }];
-        this.title.innerHTML = 'filter for \'' + title + '\' column';
+        this.title.innerHTML = 'filter for <strong>' + title + '</strong> column';
         var filter = grid.getFilterFor(editorPoint.x);
         //var self = this;
         if (dialog.isOpen()) {
             dialog.close();
         } else {
+            var self = this;
+
             dialog.clear();
             dialog.overlay.appendChild(this.dialog);
+
             filter.initialize(dialog);
 
             dialog.onOkPressed = function() {
                 filter.onOk(dialog);
+                self.tearDown();
                 behavior.setComplexFilter(editorPoint.x, {
                     type: filter.alias,
                     state: filter.getState()
@@ -162,21 +188,34 @@ var Filter = CellEditor.extend('Filter', {
             };
 
             dialog.onCancelPressed = function() {
-                if (filter.onCancel) {
-                    filter.onCancel(dialog);
+                if (filter.onCancel && filter.onCancel(dialog)) {
+                    return;
                 }
+                self.tearDown();
                 dialog.close();
                 filter = undefined;
             };
 
-            dialog.onClearPressed = function() {
-                if (filter.onClear) {
-                    filter.onClear(dialog);
+            dialog.onDeletePressed = function() {
+                if (filter.onDelete && filter.onDelete(dialog)) {
+                    return;
                 }
+                self.tearDown();
                 behavior.setComplexFilter(editorPoint.x, undefined);
                 dialog.close();
                 behavior.applyFilters();
                 behavior.changed();
+            };
+
+            dialog.onResetPressed = function() {
+                if (filter.onReset && filter.onReset(dialog)) {
+                    return;
+                }
+                self.tearDown();
+                filter.initialize(dialog);
+                if (filter.onShow) {
+                    filter.onShow(dialog, self.content);
+                }
             };
 
             var cellBounds = grid._getBoundsOfCell(editorPoint.x, editorPoint.y);
@@ -191,8 +230,7 @@ var Filter = CellEditor.extend('Filter', {
             }
             setTimeout(function() {
                 if (filter.onShow) {
-                    filter.onShow(dialog);
-
+                    filter.onShow(dialog, self.content);
                 }
             }, dialog.getAnimationTime() + 10);
         }

@@ -295,38 +295,50 @@
                 this.filterTree = new fin.FilterTree({
                     fields: dialog.fields
                 });
+                delete this.filter;
             };
 
-            this.onShow = function(dialog) {
-                dialog.overlay.querySelector('td').appendChild(this.filterTree.el);
+            this.onShow = function(dialog, container) {
+                container.appendChild(this.filterTree.el);
             };
 
             this.onOk = function(dialog) {
 
             };
 
-            this.onClear = function(dialog) {
-                this.value = '';
+            this.onReset = function(dialog) {
+
             };
 
-<<<<<<< f1fe0ab22facd195dfa8ae571fb9f2ad70484739
-            this.create = function(state) {
-                 return function(data) {
-                    return data < state;
-                };
-            }
-=======
-            this.create = function() {
-                return this.filterTree.test.bind(this.filterTree);
+            this.onDelete = function(dialog) {
+                delete this.filter;
+                delete this.filterTree;
             };
->>>>>>> initial filter-tree integration
+
+            this.onCancel = function(dialog) {
+                delete this.filterTree;
+            };
+
+            this.create = function(state) {
+                if (!this.filter) {
+                    var filterTree = new fin.FilterTree({
+                        json: JSON.parse(state)
+                    });
+                    this.filter = filterTree.test.bind(filterTree); // called with 1 param: function(data)
+                }
+                return this.filter;
+            };
 
             this.getState = function() {
-                return JSON.stringify(this.filterTree);
+                var jsonString = JSON.stringify(this.filterTree);
+                delete this.filterTree;
+                return jsonString;
             };
 
             this.setState = function(state) {
-                this.filterTree.fromJSON(JSON.parse(state));
+                this.filterTree = new fin.FilterTree({
+                    json: JSON.parse(state)
+                });
             };
         }
 
