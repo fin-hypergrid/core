@@ -19,25 +19,21 @@ var Filter = CellEditor.extend('Filter', {
         var data = document.createElement('div');
         var style = data.style;
         style.position = 'absolute';
-        style.top = 0;
-        style.left = 0;
-        style.right = 0;
-        style.bottom = 0;
-        style.marginTop = '44px';
-        style.marginBottom = '44px';
+        style.top = style.bottom = '44px';
+        style.right = style.left = '1em';
+        style.overflowY = 'scroll';
 
         var table = document.createElement('table');
         data.appendChild(table);
 
         style = table.style;
-        style.position = 'absolute';
-        style.width = '100%';
-        style.height = '100%';
+        style.width = style.height = '100%';
 
         var tr = document.createElement('tr');
         var td = document.createElement('td');
         table.appendChild(tr);
         tr.appendChild(td);
+
 
         this.title = document.createElement('div');
         this.title.innerHTML = 'Filter Editor';
@@ -49,34 +45,21 @@ var Filter = CellEditor.extend('Filter', {
 
         style = this.dialog.style;
         style.position = 'absolute';
-        style.top = 0;
-        style.left = 0;
-        style.right = 0;
-        style.bottom = 0;
+        style.top = style.left = style.right = style.bottom = 0;
         style.whiteSpace = 'nowrap';
 
         style = this.title.style;
         style.position = 'absolute';
-        style.top = 0;
-        style.left = 0;
-        style.right = 0;
-        style.bottom = '100%';
-        style.marginBottom = '-44px';
+        style.top = style.left = style.right = 0;
+        style.height = '44px';
         style.whiteSpace = 'nowrap';
         style.textAlign = 'center';
         style.padding = '11px';
 
-        style = this.content.style;
-        style.padding = '0 1em';
-
         style = this.buttons.style;
-        style.top = '0%';
         style.position = 'absolute';
-        style.top = '100%';
-        style.left = 0;
-        style.right = 0;
-        style.bottom = 0;
-        style.marginTop = '-44px';
+        style.left = style.right = style.bottom = 0;
+        style.height = '44px';
         style.whiteSpace = 'nowrap';
         style.textAlign = 'center';
         style.padding = '8px';
@@ -162,7 +145,7 @@ var Filter = CellEditor.extend('Filter', {
             value: behavior.getField(editorPoint.x),
             text: title
         }];
-        this.title.innerHTML = 'filter for <strong>' + title + '</strong> column';
+        this.title.innerHTML = 'filter for <strong><em>' + title + '</em></strong> column';
         var filter = grid.getFilterFor(editorPoint.x);
         //var self = this;
         if (dialog.isOpen()) {
