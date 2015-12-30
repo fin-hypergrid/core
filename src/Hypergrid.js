@@ -14,8 +14,7 @@ var Renderer = require('./Renderer');
 var SelectionModel = require('./SelectionModel');
 var addStylesheet = require('./stylesheets');
 
-var globalCellEditors = {},
-    propertiesInitialized = false,
+var propertiesInitialized = false,
     textWidthCache = new LRUCache(2000),
     defaults = defaultProperties(),
     polymerTheme = Object.create(defaults),
@@ -47,7 +46,9 @@ function Hypergrid(div, behaviorFactory) {
     this.selectionModel.getGrid = function() {
         return self;
     };
-    this.cellEditors = Object.create(globalCellEditors);
+
+    this.localCellEditors = {};
+    this.cellEditors = Object.create(this.localCellEditors);
     this.renderOverridesCache = {};
 
     this.behavior = behaviorFactory(this);
@@ -74,7 +75,11 @@ function Hypergrid(div, behaviorFactory) {
     this.initRenderer();
     this.initCanvas();
     this.initScrollbars();
-    this.initGlobalCellEditors();
+    if (!propertiesInitialized) {
+        propertiesInitialized = true;
+        buildPolymerTheme();
+    }
+    this.initLocalCellEditors();
 
     this.checkScrollbarVisibility();
     //Register a listener for the copy event so we can copy our selected region to the pastebuffer if conditions are right.
@@ -222,7 +227,7 @@ Hypergrid.prototype = {
         this.selectionModel.getGrid = function() {
             return self;
         };
-        this.cellEditors = Object.create(globalCellEditors);
+        this.cellEditors = Object.create(this.localCellEditors);
         this.renderOverridesCache = {};
         this.clearMouseDown();
         this.dragExtent = new Point(0, 0);
@@ -272,30 +277,24 @@ Hypergrid.prototype = {
         var divCellEditor = document.createElement('div');
         this.div.appendChild(divCellEditor);
 
-        globalCellEditors[cellEditor.alias] = cellEditor;
+        this.localCellEditors[cellEditor.alias] = cellEditor;
     },
 
-    initGlobalCellEditors: function() {
-        if (!propertiesInitialized) {
-            propertiesInitialized = true;
+    initLocalCellEditors: function() {
+        var cellEditors = [
+            'Textfield',
+            'Choice',
+            //'Combo',
+            'Color',
+            'Date',
+            'Slider',
+            'Spinner'
+        ];
 
-            buildPolymerTheme();
-
-            var cellEditors = [
-                'Textfield',
-                'Choice',
-                //'Combo',
-                'Color',
-                'Date',
-                'Slider',
-                'Spinner'
-            ];
-
-            var self = this;
-            cellEditors.forEach(function(name) {
-                self.initCellEditor(new Hypergrid.cellEditors[name]);
-            });
-        }
+        var self = this;
+        cellEditors.forEach(function(name) {
+            self.initCellEditor(new Hypergrid.cellEditors[name]);
+        });
     },
 
     toggleColumnPicker: function() {
