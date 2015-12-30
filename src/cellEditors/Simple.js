@@ -254,11 +254,17 @@ var Simple = CellEditor.extend('Simple', {
         var editorPoint = this.getEditorPoint();
         if (this.grid.isDataVisible(editorPoint.x, editorPoint.y)) {
             this.preShowEditorNotification();
+            this.attachEditor();
             this.moveEditor();
             this.showEditor();
         } else {
             this.hideEditor();
         }
+    },
+
+    attachEditor: function() {
+        var input = this.getInput();
+        this.grid.div.appendChild(input);
     },
 
     preShowEditorNotification: function() {

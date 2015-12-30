@@ -18,8 +18,7 @@ var addStylesheet = require('./stylesheets');
 var TableDialog = require('./TableDialog');
 var Formatters = require('./Formatters');
 
-var globalCellEditors = {},
-    propertiesInitialized = false,
+var themeInitialized = false,
     polymerTheme = Object.create(defaults),
     globalProperties = Object.create(polymerTheme),
     customFilters = {};
@@ -47,10 +46,11 @@ function Hypergrid(div, behaviorFactory, margin) {
 
     this.isWebkit = navigator.userAgent.toLowerCase().indexOf('webkit') > -1;
     this.selectionModel = new SelectionModel();
+    this.localCellEditors = {};
     this.selectionModel.getGrid = function() {
         return self;
     };
-    this.cellEditors = Object.create(globalCellEditors);
+    this.cellEditors = Object.create(this.localCellEditors);
     this.renderOverridesCache = {};
     this.behavior = behaviorFactory(this);
 
@@ -79,12 +79,15 @@ function Hypergrid(div, behaviorFactory, margin) {
     margin.left = margin.left || 0;
 
     //initialize our various pieces
+    if (!themeInitialized) {
+        themeInitialized = true;
+        buildPolymerTheme();
+    }
     this.initRenderer();
     this.initCanvas(margin);
     this.initScrollbars();
-    this.initGlobalCellEditors();
+    this.initLocalCellEditors();
 
-    this.checkScrollbarVisibility();
     //Register a listener for the copy event so we can copy our selected region to the pastebuffer if conditions are right.
     document.body.addEventListener('copy', function(evt) {
         self.checkClipboardCopy(evt);
@@ -107,8 +110,7 @@ Hypergrid.prototype = {
     behavior: null,
 
     /**
-     * Cached result of if we are running in webkit.
-     * @type {boolean}
+     * Cached resulan}
      * @memberOf Hypergrid.prototype
      */
     isWebkit: true,
@@ -232,7 +234,7 @@ Hypergrid.prototype = {
         this.selectionModel.getGrid = function() {
             return self;
         };
-        this.cellEditors = Object.create(globalCellEditors);
+        this.cellEditors = Object.create(this.localCellEditors);
         this.renderOverridesCache = {};
         this.clearMouseDown();
         this.dragExtent = new Point(0, 0);
@@ -279,40 +281,32 @@ Hypergrid.prototype = {
     },
 
     initCellEditor: function(cellEditor) {
-        globalCellEditors[cellEditor.alias] = cellEditor;
+        this.localCellEditors[cellEditor.alias] = cellEditor;
         cellEditor.grid = this;
     },
 
-    initGlobalCellEditors: function() {
-        if (!propertiesInitialized) {
-            propertiesInitialized = true;
+    initLocalCellEditors: function() {
 
-            buildPolymerTheme();
+        var cellEditors = [
+            'Textfield',
+            'Choice',
+            //'Combo',
+            'Color',
+            'Date',
+            'Slider',
+            'Spinner',
+            'Filter'
+        ];
 
-            var cellEditors = [
-                'Textfield',
-                'Choice',
-                //'Combo',
-                'Color',
-                'Date',
-                'Slider',
-                'Spinner',
-                'Filter'
-            ];
+        var self = this;
+        cellEditors.forEach(function(name) {
+            self.initCellEditor(new Hypergrid.cellEditors[name]);
+        });
 
-            var self = this;
-            cellEditors.forEach(function(name) {
-                self.initCellEditor(new Hypergrid.cellEditors[name]);
-            });
-
-            globalCellEditors.int = globalCellEditors.spinner;
-            globalCellEditors.float = globalCellEditors.spinner;
-            globalCellEditors.date = globalCellEditors.date;
-            globalCellEditors.string = globalCellEditors.extfield;
-
-            var divCellEditor = document.createElement('div');
-            this.div.appendChild(divCellEditor);
-        }
+        this.localCellEditors.int = this.localCellEditors.spinner;
+        this.localCellEditors.float = this.localCellEditors.spinner;
+        this.localCellEditors.date = this.localCellEditors.date;
+        this.localCellEditors.string = this.localCellEditors.extfield;
     },
 
     toggleColumnPicker: function() {
@@ -1380,7 +1374,6 @@ Hypergrid.prototype = {
         var editPoint = new Point(x, y);
         this.setMouseDown(editPoint);
         this.setDragExtent(new Point(0, 0));
-
         cellEditor.beginEditAt(editPoint);
     },
 

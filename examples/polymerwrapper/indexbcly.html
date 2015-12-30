@@ -1,81 +1,228 @@
-
 <!doctype html>
-<html>
+<html ng-app="tradeQueryUpdateApp">
 <head>
-  <title>fin-hypergrid Demo</title>
-  <!-- Latest compiled and minified CSS -->
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">
+    <title>fin-hypergrid Demo</title>
+    <!-- Latest compiled and minified CSS -->
+    <script src="references/jquery.js"></script>
+    <script src="references/angular.min.js"></script>
+    <script src="references/bootstrap.min.js"></script>
+    <link href="references/bootstrap.min.css" rel="stylesheet">
+    <link href="references/bootstrap-theme.min.css" rel="stylesheet">
 
-<script src="js/accounting.min.js"></script>
-<!--<script src="js/sampledata.js"></script>-->
-<script src="js/widedata.js"></script>
-<script src="js/myThemes.js"></script>
-<link rel="import" href="polymerwrapper.html" />
+    <script src="references/underscore.js"></script>
+    <script src="references/EventEmitter.js"></script>
+    <script src="references/jsdialtone.js"></script>
 
-</head>
-<body>
 
-<div class="container" style="border-style: solid; border-color: red">
-    <div class="row" style="border-style: solid; border-color: blue">
-        <div class="col-md-12 col-lg-12" style="border-style: solid; border-color: grey">
-<!--            <button onclick="toggleColumnPicker()">toggle column picker</button>
-            <button onclick="toggleAggregates()">toggle aggregates</button>
-            <button onclick="toggleAutosortGrouping()">toggle autosort groups</button>
-            <button onclick="toggleEmptyData()">toggle empty data</button>
-            <button onclick="toggleEmptyHeaders()">toggle empty headers</button>
-            <button onclick="toggleGlobalFilter()">toggle global filter</button>-->
-            <button onclick="setData1()">set data 1 (5000 rows)</button>
-<!--            <button onclick="setData2()">set data 2 (10000 rows)</button>
-            <button onclick="reset()">reset</button>-->
-        </div>
-    </div>
-    <div class="row" style="overflow: hidden">
-        <div class="col-md-12 col-lg-12" style="overflow:hidden;border-style: solid; border-color: green;height:400px">
-            <!--<div class="abs" id="json-example"></div>-->
-            <polymer-grid id="mypolymer-Grid" showfilterrow=true rowselectionmode=true rowindicatorstyle="number" showfiltericon=false></polymer-grid>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-md-12 col-lg-12" style="border-style: solid; border-color: grey">
-            blah
-        </div>
-    </div>
-</div>
+    <script src="references/sampleDataDecoder.js"></script>
 
-<script>
+    <script src="js/accounting.min.js"></script>
+    <!--<script src="js/sampledata.js"></script>-->
+    <script src="js/widedata.js"></script>
+    <script src="js/myThemes.js"></script>
+    <link rel="import" href="polymerwrapper.html" />
+<!--    <script src="indexbclyapp.js"></script> -->
+    <!--<script src="index.js"></script>-->
+    <!--<script src="panthergridIndex.js"></script>-->
 
-(function(){
-    //used by the cellProvider, return null for a column if you want no editor to pop up
-    var editorTypes = ['choice','textfield','spinner','date','choice','choice','choice','textfield','textfield','textfield'];
 
-    window.onload = function() {
-
-        var grid = document.querySelector('#mypolymer-Grid');
-        grid.render();
-        var jsonGrid = grid.getGridControl();
-
-        window.setData1 = function () {
-
-            grid.initializeGrid(null, people1);
-
-            setTimeout(function(){
-                jsonGrid.setColumnProperties(2, {
-                    width: 200,
-                });
-            }, 100);
-
+    <style>
+        #upRow {
+            height: 20%;
         }
 
-        jsonGrid.addProperties({
-            columnAutosizing: true,
-            rowNumberAutosizing: false,
-        });
+        #middleRow {
+            min-height: 60%;
+            height: 400px;
+        }
 
-    };
-})();
+        #bottomRow {
+            height: 10%;
+            /*height: calc(100% - 630px);*/
+        }
+    </style>
 
-</script>
+
+
+
+
+</head>
+<body style="height:100%">
+
+    <div ng-controller="TradeQueryController as sc" id="gridContainer" class="container" style="height: 100%;  min-height: 100%;border-style: solid;">
+        <div class="row" style="border-style: solid; border-color: blue">
+            <div class="col-md-12 col-lg-12" style="border-style: solid; border-color: grey">
+                <button onclick="setData1()">set data 1 (5000 rows)</button>
+                <button onclick="setDataGrid2()">Set Data Grid2</button>
+                <button onclick="clearData()">Clear Data</button>
+            </div>
+        </div>
+        <div class="row" style="overflow: hidden">
+            <div class="col-md-12 col-lg-12" style="overflow:hidden;border-style: solid; border-color: green;height:400px">
+                <!--<div class="abs" id="json-example"></div>-->
+                <polymer-grid id="mypolymer-Grid" showfilterrow=true rowselectionmode=true rowindicatorstyle="number" showfiltericon=false></polymer-grid>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12 col-lg-12" style="overflow:hidden;border-style: solid; border-color: green;height:400px">
+                <!--<div class="abs" id="json-example"></div>-->
+                <polymer-grid id="mypolymer-Grid2" showfilterrow=true rowselectionmode=true rowindicatorstyle="number" showfiltericon=false></polymer-grid>
+            </div>
+        </div>
+    </div>
+
+    <script>
+
+        (function () {
+            //used by the cellProvider, return null for a column if you want no editor to pop up
+            var editorTypes = ['choice', 'textfield', 'spinner', 'date', 'choice', 'choice', 'choice', 'textfield', 'textfield', 'textfield'];
+
+            // These are the default properties for panther grid on this page
+            var initialGridProperties = {
+                defaultRowHeight: 25,
+                backgroundColor: 'rgb(100,100,100)',
+                color: 'rgb(0,0,0)',
+                columnHeaderColor: 'red',
+                //columnHeaderBackgroundColor: 'rgb(192,192,192)',
+                columnHeaderBackgroundColor: 'yellow',
+                evenBackgroundColor: 'rgb(224, 224, 224)',
+                oddBackgroundColor: 'rgb(192, 192, 192)',
+                columnAutosizing: true
+                //backgroundSelectionColor: 'rgb(255,255,255)',
+            };
+
+            document.addEventListener('polymer-ready', function () {
+                console.log("Panther Grid Ready");
+                var grid = document.querySelector('#mypolymer-Grid');
+                grid.render("mypolymer-Grid");
+
+                var grid2 = document.querySelector('#mypolymer-Grid2');
+                grid2.render("mypolymer-Grid2");
+
+                //resetPage();
+                grid.getGridControl().addProperties(initialGridProperties);
+                //grid.initializeGrid(undefined, people1); // No User Setting
+
+                window.setData1 = function () {
+                    grid.getGridControl().getBehavior().setData(people1);
+                }
+
+                window.setDataGrid2 = function () {
+                    grid2.getGridControl().getBehavior().setData(people2);
+                }
+
+                window.clearData = function () {
+                    grid.getGridControl().getBehavior().setData([]);
+                    grid2.getGridControl().getBehavior().setData([]);
+                }
+
+        function MyCustomFilter() {
+            var self = this;
+            this.alias = 'MyCustomFilter';
+            this.getDisplayString = function() {
+                return '< ' + this.value;
+            };
+
+            this.initialize = function(dialog) {
+                this.filterTree = new fin.FilterTree({
+                    fields: dialog.fields
+                });
+                delete this.filter;
+            };
+
+            this.onShow = function(dialog, container) {
+                container.appendChild(this.filterTree.el);
+            };
+
+            this.onOk = function(dialog) {
+
+            };
+
+            this.onReset = function(dialog) {
+
+            };
+
+            this.onDelete = function(dialog) {
+                delete this.filter;
+                delete this.filterTree;
+            };
+
+            this.onCancel = function(dialog) {
+                delete this.filterTree;
+            };
+
+            this.create = function(state) {
+                if (!this.filter) {
+                    var filterTree = new fin.FilterTree({
+                        json: JSON.parse(state)
+                    });
+                    this.filter = filterTree.test.bind(filterTree); // called with 1 param: function(data)
+                }
+                return this.filter;
+            };
+
+            this.getState = function() {
+                var jsonString = JSON.stringify(this.filterTree);
+                delete this.filterTree;
+                return jsonString;
+            };
+
+            this.setState = function(state) {
+                this.filterTree = new fin.FilterTree({
+                    json: JSON.parse(state)
+                });
+            };
+        }
+
+
+        grid.getGridControl().registerFilter(new MyCustomFilter());
+        grid.getGridControl().aaa_grid = 'grid';
+
+        grid2.getGridControl().registerFilter(new MyCustomFilter());
+        grid2.getGridControl().aaa_grid2 = 'grid2';
+
+        var myCellEditors = function(x, y) {
+            var type = editorTypes[x % (editorTypes.length)];
+            if (!type) {
+                return; //no editor here
+            }
+            var cellEditor = this.grid.cellEditors[type];
+            if (this.grid.isFilterRow(y)) {
+                if (x === 2) {
+                    return null; // default filter here
+                } else if (x === 2) {
+                    return this.grid.cellEditors['textfield'];
+                } else if (x === 3) {
+                    return this.grid.cellEditors['textfield'];
+                } else if (x === 6) {
+                    cellEditor.setItems(['', true, false]); //editor here
+                    return cellEditor;
+                }
+            } else if (x === 6) {
+                return null;
+            } else if (x === 2) {
+                cellEditor.getInput().setAttribute('min', 0);
+                cellEditor.getInput().setAttribute('max', 10);
+                cellEditor.getInput().setAttribute('step', 0.01);
+            }
+            return cellEditor;
+        };
+
+        grid.getGridControl().getBehavior().getDataModel().getCellEditorAt = myCellEditors;
+        grid2.getGridControl().getBehavior().getDataModel().getCellEditorAt = myCellEditors;
+
+            });
+
+            window.onload = function () {
+                console.log("Window Onload Fired");
+
+
+
+            };
+        })();
+
+    </script>
 
 </body>
+
 </html>

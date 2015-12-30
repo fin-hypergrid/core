@@ -35,15 +35,13 @@
         return configCellFont + ", sans-serif";
     };
 
-    var jsonGrid;
-
     Polymer('polymer-grid', {// jshint ignore:line
 
         // Global Variables
         columnConfigurations: { columnDefinitions: [], columnProperties: [] },
         defaultHeaders: {},
         pendingEdits: [], //{rowKey: xxx, cellx: x, celly: y, oldvalue: oval, newvalue: nval}
-
+        jsonGrid: undefined,
         rowKeyIdentifier: "", // Primary Key of the data table
 
         privatePropertiesofPolymerGrid: {
@@ -155,7 +153,7 @@
         },
 
         getGridControl: function () {
-            return jsonGrid;
+            return this.jsonGrid;
         },
 
         render: function () {
@@ -168,15 +166,15 @@
                 return new fin.Hypergrid.behaviors.JSON(grid, []);
             };
 
-            jsonGrid = new fin.Hypergrid(div, getContainer);
+            this.jsonGrid = new fin.Hypergrid(div, getContainer);
 
             //shadowDom holder will now represent focus
-            jsonGrid.hasFocus = function() {
+            this.jsonGrid.hasFocus = function() {
                 return document.activeElement === self;
             }
 
             //shadowDom holder will now represent focus
-            jsonGrid.canvas.hasFocus = function() {
+            this.jsonGrid.canvas.hasFocus = function() {
                 return document.activeElement === self;
             }
         },
