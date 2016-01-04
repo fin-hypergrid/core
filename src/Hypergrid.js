@@ -3261,6 +3261,14 @@ Hypergrid.prototype = {
     },
     resolveFilter: function(alias) { //TODO: fix this
         return customFilters[alias];
+    },
+    getFormattedValue: function(x, y) {
+        y = y + this.getHeaderRowCount();
+        var formatType = this.getColumnProperties(x).format;
+        var value = this.getValue(x, y);
+        var formatter = this.getFormatter(formatType);
+        var string = formatter(value);
+        return string;
     }
 };
 
