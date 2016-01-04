@@ -570,7 +570,16 @@ module.exports = {
      */
     checkboxOnlyRowSelections: false,
 
-    format: 'default'
+    format: 'default',
+
+    hoverCellHighlight: true,
+    hoverRowHighlight: true,
+    hoverColumnHighlight: true,
+
+    hoverCellColor: 'lightgray',
+    hoverRowColor: 'gray',
+    hoverColumnColor: 'gray',
+
 };
 
 var textWidthCache = new LRUCache(2000);

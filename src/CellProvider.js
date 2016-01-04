@@ -155,8 +155,17 @@ var CellProvider = Base.extend('CellProvider', {
 
         // fill background only if our bgColor is populated or we are a selected cell
         var backgroundColor;
-        if (config.backgroundColor || config.isSelected) {
+        if (config.backgroundColor) {
             gc.fillStyle = backgroundColor = valueOrFunctionExecute(config, config.isSelected ? config.backgroundSelectionColor : config.backgroundColor);
+            if (config.isColumnHovered) {
+                gc.fillStyle = config.hoverColumnColor;
+            }
+            if (config.isRowHovered) {
+                gc.fillStyle = config.hoverRowColor;
+            }
+            if (config.isCellHovered) {
+                gc.fillStyle = config.hoverCellColor;
+            }
             gc.fillRect(x, y, width, height);
         }
 

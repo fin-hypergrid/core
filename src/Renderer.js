@@ -649,7 +649,8 @@ var Renderer = Base.extend('Renderer', {
      * @param {number} offsetY - y coordinate
      */
     isHovered: function(x, y) {
-        return this.getGrid().isHovered(x, y);
+        var grid = this.getGrid();
+        return grid.isHovered(x, y) && (grid.resolveProperty('hoverCellHighlight') === true);
     },
 
     /**
@@ -658,8 +659,9 @@ var Renderer = Base.extend('Renderer', {
      * @param {number} offsetY - y coordinate
      */
     isRowHovered: function(y) {
-        return this.getGrid().isRowHovered(y);
-    },
+        var grid = this.getGrid();
+        return grid.isRowHovered(y) && (grid.resolveProperty('hoverRowHighlight') === true);
+     },
 
     /**
      * @memberOf Renderer.prototype
@@ -667,7 +669,8 @@ var Renderer = Base.extend('Renderer', {
      * @param {number} offsetX - x coordinate
      */
     isColumnHovered: function(x) {
-        return this.getGrid().isColumnHovered(x);
+        var grid = this.getGrid();
+        return grid.isColumnHovered(x) && (grid.resolveProperty('hoverColumnHighlight') === true);
     },
 
     /**
@@ -1103,8 +1106,9 @@ var Renderer = Base.extend('Renderer', {
             cellProperties.value = grid.getValue(c, r);
             cellProperties.halign = grid.getColumnAlignment(c);
         }
-        cellProperties.isColumnHovered = this.isRowHovered(c, r);
-        cellProperties.isRowHovered = this.isColumnHovered(c, r);
+        cellProperties.isColumnHovered = this.isColumnHovered(c);
+        cellProperties.isRowHovered = this.isRowHovered(r);
+        cellProperties.isCellHovered = this.isHovered(c, r);
         cellProperties.bounds = this._getBoundsOfCell(c, r);
         cellProperties.isCellSelected = isCellSelected;
         cellProperties.isRowSelected = isRowSelected;
