@@ -112,8 +112,12 @@ var JSON = DataModel.extend('dataModels.JSON', {
         var grid = this.getGrid();
         var headerRowCount = grid.getHeaderRowCount();
         var value;
-        if (hasHierarchyColumn && x === -2) {
-            x = 0;
+        if (hasHierarchyColumn) {
+            if (x === -2) {
+                x = 0;
+            }
+        } else if (this.hasAggregates()) {
+            x += 1;
         }
         if (y < headerRowCount) {
             value = this.getHeaderRowValue(x, y);
@@ -171,10 +175,10 @@ var JSON = DataModel.extend('dataModels.JSON', {
         var headerRowCount = grid.getHeaderRowCount();
         if (hasHierarchyColumn) {
             if (x === -2) {
-                return;
-            } else {
-                x += 1;
+                x = 0;
             }
+        } else if (this.hasAggregates()) {
+            x += 1;
         }
         if (y < headerRowCount) {
             this.setHeaderRowValue(x, y, value);
@@ -281,7 +285,10 @@ var JSON = DataModel.extend('dataModels.JSON', {
      * @returns {number}
      */
     getColumnCount: function() {
-        return this.analytics.getColumnCount();
+        var showTree = this.getGrid().resolveProperty('showTreeColumn') === true;
+        var hasAggregates = this.hasAggregates();
+        var offset = (hasAggregates && !showTree) ? -1 : 0;
+        return this.analytics.getColumnCount() + offset;
     },
 
     /**
@@ -486,7 +493,8 @@ var JSON = DataModel.extend('dataModels.JSON', {
      * @returns {boolean}
      */
     hasHierarchyColumn: function() {
-        return this.hasAggregates() && this.hasGroups();
+        var showTree = this.getGrid().resolveProperty('showTreeColumn') === true;
+        return this.hasAggregates() && this.hasGroups() && showTree;
     },
 
     /**

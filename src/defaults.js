@@ -464,6 +464,13 @@ module.exports = {
      * @type {boolean}
      * @instance
      */
+    showTreeColumn: true,
+
+    /**
+     * @default true
+     * @type {boolean}
+     * @instance
+     */
     showHeaderRow: true,
 
     /**
@@ -579,6 +586,7 @@ module.exports = {
     hoverCellColor: 'lightgray',
     hoverRowColor: 'gray',
     hoverColumnColor: 'gray',
+
 
 };
 
