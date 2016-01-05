@@ -140,13 +140,21 @@ var Filter = CellEditor.extend('Filter', {
         var grid = this.getGrid();
         var behavior = grid.getBehavior();
         var dialog = grid.dialog;
-        var title = behavior.getColumnId(editorPoint.x);
-        dialog.fields = [{
-            value: behavior.getField(editorPoint.x),
-            text: title
-        }];
+
+        var columnIndex = editorPoint.x,
+            title = behavior.getColumnId(columnIndex),
+            field = behavior.getField(columnIndex),
+            type = behavior.getColumn(columnIndex).getType();
+
+        var fieldsProvider = function() {
+            return [{
+                name: field,
+                alias: title,
+                type: type
+            }];
+        };
         this.title.innerHTML = 'filter for <strong><em>' + title + '</em></strong> column';
-        var filter = grid.getFilterFor(editorPoint.x);
+        var filter = grid.getFilterFor(columnIndex);
         //var self = this;
         if (dialog.isOpen()) {
             dialog.close();
@@ -156,12 +164,14 @@ var Filter = CellEditor.extend('Filter', {
             dialog.clear();
             dialog.overlay.appendChild(this.dialog);
 
-            filter.initialize(dialog);
+            filter.initialize(fieldsProvider);
 
             dialog.onOkPressed = function() {
-                filter.onOk(dialog);
+                if (filter.onOk && filter.onOk()) { // onOK() truthy result means abort; falsy means proceed
+                    return;
+                }
                 self.tearDown();
-                behavior.setComplexFilter(editorPoint.x, {
+                behavior.setComplexFilter(columnIndex, {
                     type: filter.alias,
                     state: filter.getState()
                 });
@@ -171,7 +181,7 @@ var Filter = CellEditor.extend('Filter', {
             };
 
             dialog.onCancelPressed = function() {
-                if (filter.onCancel && filter.onCancel(dialog)) {
+                if (filter.onCancel && filter.onCancel()) {
                     return;
                 }
                 self.tearDown();
@@ -180,40 +190,40 @@ var Filter = CellEditor.extend('Filter', {
             };
 
             dialog.onDeletePressed = function() {
-                if (filter.onDelete && filter.onDelete(dialog)) {
+                if (filter.onDelete && filter.onDelete()) {
                     return;
                 }
                 self.tearDown();
-                behavior.setComplexFilter(editorPoint.x, undefined);
+                behavior.setComplexFilter(columnIndex, undefined);
                 dialog.close();
                 behavior.applyFilters();
                 behavior.changed();
             };
 
             dialog.onResetPressed = function() {
-                if (filter.onReset && filter.onReset(dialog)) {
+                if (filter.onReset && filter.onReset()) {
                     return;
                 }
                 self.tearDown();
                 filter.initialize(dialog);
                 if (filter.onShow) {
-                    filter.onShow(dialog, self.content);
+                    filter.onShow(self.content);
                 }
             };
 
-            var cellBounds = grid._getBoundsOfCell(editorPoint.x, editorPoint.y);
+            var cellBounds = grid._getBoundsOfCell(columnIndex, editorPoint.y);
 
             //hack to accomodate bootstrap margin issues...
             var xOffset = grid.div.getBoundingClientRect().left - grid.divCanvas.getBoundingClientRect().left;
             cellBounds.x = cellBounds.x - xOffset;
             dialog.openFrom(cellBounds);
-            var previousState = behavior.getComplexFilter(editorPoint.x);
+            var previousState = behavior.getComplexFilter(columnIndex);
             if (previousState) {
                 filter.setState(previousState.state);
             }
             setTimeout(function() {
                 if (filter.onShow) {
-                    filter.onShow(dialog, self.content);
+                    filter.onShow(self.content);
                 }
             }, dialog.getAnimationTime() + 10);
         }

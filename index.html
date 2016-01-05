@@ -284,60 +284,82 @@
         };
 
         //custom column filter....
-         function MyCustomFilter() {
-            var self = this;
+
+        /** @typedef {function} fieldsProviderFunc
+         * @returns {fieldOption[]} see jsdoc typedef in filter-tree/js/FillerLeaf.js
+         */
+
+        /** @constructor
+         */
+        function MyCustomFilter() {
             this.alias = 'MyCustomFilter';
             this.getDisplayString = function() {
                 return '< ' + this.value;
             };
 
-            this.initialize = function(dialog) {
+            // Following methods service dialog during which `this.filterTree` is valid
+            this.initialize = function(fieldsProvider) {
+                /** @type {fieldsProviderFunc}
+                 */
+                this.fieldsProvider = fieldsProvider;
                 this.filterTree = new fin.FilterTree({
-                    fields: dialog.fields
+                    fields: fieldsProvider()
                 });
-                delete this.filter;
+                delete this.filter; // forces this.create to recreate the filter function
             };
 
-            this.onShow = function(dialog, container) {
+            this.onShow = function(container) {
                 container.appendChild(this.filterTree.el);
             };
 
-            this.onOk = function(dialog) {
+            this.onOk = function() {
+                return this.filterTree.validate();
+            };
+
+            this.getState = function() {
+                var state = JSON.parse(JSON.stringify(this.filterTree)); // calls toJSON functions as needed
+                delete this.filterTree;
+                return state;
+            };
+
+            this.onReset = function() {
 
             };
 
-            this.onReset = function(dialog) {
-
-            };
-
-            this.onDelete = function(dialog) {
+            this.onDelete = function() {
                 delete this.filter;
                 delete this.filterTree;
             };
 
-            this.onCancel = function(dialog) {
+            this.onCancel = function() {
                 delete this.filterTree;
             };
 
+            // Following methods called with `state` are independent of dialog; `this.filterTree` is undefined
             this.create = function(state) {
                 if (!this.filter) {
                     var filterTree = new fin.FilterTree({
-                        json: JSON.parse(state)
+                        state: state,
+                        fields: this.fieldsProvider()
                     });
-                    this.filter = filterTree.test.bind(filterTree); // called with 1 param: function(data)
+                    var dataRow = {};
+                    var fieldOption = this.fieldsProvider()[0],
+                        fieldName = fieldOption.name || fieldOption;
+
+                    if (!filterTree.validate({ alert: false, focus: false })) { // returns error string if invalid or undefined if valid
+                        this.filter = function(data) {
+                            dataRow[fieldName] = data;
+                            return filterTree.test(dataRow);
+                        };
+                    }
                 }
                 return this.filter;
             };
 
-            this.getState = function() {
-                var jsonString = JSON.stringify(this.filterTree);
-                delete this.filterTree;
-                return jsonString;
-            };
-
             this.setState = function(state) {
                 this.filterTree = new fin.FilterTree({
-                    json: JSON.parse(state)
+                    state: state,
+                    fields: this.fieldsProvider()
                 });
             };
         }

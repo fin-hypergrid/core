@@ -532,7 +532,7 @@ var Behavior = Base.extend('Behavior', {
     //this is effectively a clone, with certain things removed....
     getState: function() {
         var copy = JSON.parse(JSON.stringify(this.getPrivateState()));
-        this.clearObjectProperties(copy.columnProperties, true);
+        this.clearObjectProperties(copy.columnProperties, false);
         return copy;
     },
     /**
