@@ -802,6 +802,8 @@ var Behavior = Base.extend('Behavior', {
         for (var i = 0; i < count; i++) {
             total = total + this.getRowHeight(i);
         }
+        //var footerHeight = this.getDefaultRowHeight();
+        //total = total + (footerHeight * this.getFooterRowCount());
         return total;
     },
 
@@ -1337,6 +1339,9 @@ var Behavior = Base.extend('Behavior', {
         return this.getBottomTotals().length;
     },
 
+    getTopTotals: function() {
+        return this.getDataModel().getTopTotals();
+    },
     /**
      * @memberOf Behavior.prototype
      * @summary Set the number of header rows.

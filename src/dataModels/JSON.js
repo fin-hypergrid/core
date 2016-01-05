@@ -1,8 +1,8 @@
 'use strict';
 
-var analytics = require('hyper-analytics');
+//var analytics = require('hyper-analytics');
 //var analytics = require('../local_node_modules/hyper-analytics');
-//var analytics = require('../local_node_modules/finanalytics');
+var analytics = require('../local_node_modules/finanalytics');
 var DataModel = require('./DataModel');
 var images = require('../../images');
 
@@ -53,6 +53,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
 
     presorter: nullDataSource,
     analytics: nullDataSource,
+    postglobalfilter: nullDataSource,
     postfilter: nullDataSource,
     postsorter: nullDataSource,
 
@@ -76,15 +77,19 @@ var JSON = DataModel.extend('dataModels.JSON', {
     },
 
     getDataSource: function() {
-        return this.analytics; //this.hasAggregates() ? this.analytics : this.presorter;
+        return this.postsorter; //this.hasAggregates() ? this.analytics : this.presorter;
     },
 
     getFilterSource: function() {
-        return this.prefilter; //this.hasAggregates() ? this.postfilter : this.prefilter;
+        return this.postfilter; //this.hasAggregates() ? this.postfilter : this.prefilter;
+    },
+
+    getGlobalFilterSource: function() {
+        return this.postglobalfilter; //this.hasAggregates() ? this.postfilter : this.prefilter;
     },
 
     getSortingSource: function() {
-        return this.presorter; //this.hasAggregates() ? this.postsorter : this.presorter;
+        return this.postsorter; //this.hasAggregates() ? this.postsorter : this.presorter;
     },
 
     getData: function() {
@@ -123,9 +128,9 @@ var JSON = DataModel.extend('dataModels.JSON', {
             value = this.getHeaderRowValue(x, y);
             return value;
         }
-        if (hasHierarchyColumn) {
-            y += 1;
-        }
+        // if (hasHierarchyColumn) {
+        //     y += 1;
+        // }
         value = this.getDataSource().getValue(x, y - headerRowCount);
         return value;
     },
@@ -182,8 +187,6 @@ var JSON = DataModel.extend('dataModels.JSON', {
         }
         if (y < headerRowCount) {
             this.setHeaderRowValue(x, y, value);
-        } else if (hasHierarchyColumn) {
-            y += 1;
         } else {
             this.getDataSource().setValue(x, y - headerRowCount, value);
         }
@@ -340,15 +343,18 @@ var JSON = DataModel.extend('dataModels.JSON', {
      */
     setData: function(dataRows) {
         this.source = new analytics.JSDataSource(dataRows);
-        this.preglobalfilter = new analytics.DataSourceGlobalFilter(this.source);
-        this.prefilter = new analytics.DataSourceFilter(this.preglobalfilter);
-        this.presorter = new analytics.DataSourceSorterComposite(this.prefilter);
-        this.analytics = new analytics.DataSourceAggregator(this.presorter);
+        //this.preglobalfilter = new analytics.DataSourceGlobalFilter(this.source);
+        //this.prefilter = new analytics.DataSourceFilter(this.preglobalfilter);
+        //this.presorter = new analytics.DataSourceSorterComposite(this.prefilter);
+
+        this.analytics = new analytics.DataSourceAggregator(this.source);
+
+        this.postglobalfilter = new analytics.DataSourceGlobalFilter(this.analytics);
+        this.postfilter = new analytics.DataSourceFilter(this.postglobalfilter);
+        this.postsorter = new analytics.DataSourceSorterComposite(this.postfilter);
 
         this.applyAnalytics();
 
-        //this.postfilter = new analytics.DataSourceFilter(this.analytics);
-        //this.postsorter = new analytics.DataSourceSorterComposite(this.postfilter);
     },
 
     /**
@@ -501,9 +507,9 @@ var JSON = DataModel.extend('dataModels.JSON', {
      * @memberOf dataModels.JSON.prototype
      */
     applyAnalytics: function() {
+        this.applyGroupBysAndAggregations();
         this.applyFilters();
         this.applySorts();
-        this.applyGroupBysAndAggregations();
     },
 
     /**
@@ -522,10 +528,10 @@ var JSON = DataModel.extend('dataModels.JSON', {
     applyFilters: function() {
         var grid = this.getGrid();
         var visibleColumns = this.getVisibleColumns();
-        this.preglobalfilter.apply(visibleColumns);
+        this.getGlobalFilterSource().apply(visibleColumns);
         var visColCount = visibleColumns.length;
         var filterSource = this.getFilterSource();
-        var groupOffset = this.hasAggregates() ? 1 : 0;
+        var groupOffset = 0;//this.hasHierarchyColumn() ? 0 : 1;
         filterSource.clearAll();
         var details = [];
         for (var v = 0; v < visColCount; v++) {
@@ -663,8 +669,10 @@ var JSON = DataModel.extend('dataModels.JSON', {
         }
         var grid = this.getGrid();
         var headerRowCount = grid.getHeaderRowCount();
-        var y = event.gridCell.y - headerRowCount + 1;
-        this.analytics.click(y);
+        var y = event.gridCell.y - headerRowCount;
+        this.getDataSource().click(y);
+        this.applyFilters();
+        this.applySorts();
         this.changed();
     },
 
