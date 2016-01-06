@@ -19,25 +19,21 @@ var Filter = CellEditor.extend('Filter', {
         var data = document.createElement('div');
         var style = data.style;
         style.position = 'absolute';
-        style.top = 0;
-        style.left = 0;
-        style.right = 0;
-        style.bottom = 0;
-        style.marginTop = '44px';
-        style.marginBottom = '44px';
+        style.top = style.bottom = '44px';
+        style.right = style.left = '1em';
+        style.overflowY = 'scroll';
 
         var table = document.createElement('table');
         data.appendChild(table);
 
         style = table.style;
-        style.position = 'absolute';
-        style.width = '100%';
-        style.height = '100%';
+        style.width = style.height = '100%';
 
         var tr = document.createElement('tr');
         var td = document.createElement('td');
         table.appendChild(tr);
         tr.appendChild(td);
+
 
         this.title = document.createElement('div');
         this.title.innerHTML = 'Filter Editor';
@@ -49,34 +45,21 @@ var Filter = CellEditor.extend('Filter', {
 
         style = this.dialog.style;
         style.position = 'absolute';
-        style.top = 0;
-        style.left = 0;
-        style.right = 0;
-        style.bottom = 0;
+        style.top = style.left = style.right = style.bottom = 0;
         style.whiteSpace = 'nowrap';
 
         style = this.title.style;
         style.position = 'absolute';
-        style.top = 0;
-        style.left = 0;
-        style.right = 0;
-        style.bottom = '100%';
-        style.marginBottom = '-44px';
+        style.top = style.left = style.right = 0;
+        style.height = '44px';
         style.whiteSpace = 'nowrap';
         style.textAlign = 'center';
         style.padding = '11px';
 
-        style = this.content.style;
-        style.padding = '0 1em';
-
         style = this.buttons.style;
-        style.top = '0%';
         style.position = 'absolute';
-        style.top = '100%';
-        style.left = 0;
-        style.right = 0;
-        style.bottom = 0;
-        style.marginTop = '-44px';
+        style.left = style.right = style.bottom = 0;
+        style.height = '44px';
         style.whiteSpace = 'nowrap';
         style.textAlign = 'center';
         style.padding = '8px';
@@ -157,13 +140,21 @@ var Filter = CellEditor.extend('Filter', {
         var grid = this.getGrid();
         var behavior = grid.getBehavior();
         var dialog = grid.dialog;
-        var title = behavior.getColumnId(editorPoint.x);
-        dialog.fields = [{
-            value: behavior.getField(editorPoint.x),
-            text: title
-        }];
-        this.title.innerHTML = 'filter for <strong>' + title + '</strong> column';
-        var filter = grid.getFilterFor(editorPoint.x);
+
+        var columnIndex = editorPoint.x,
+            title = behavior.getColumnId(columnIndex),
+            field = behavior.getField(columnIndex),
+            type = behavior.getColumn(columnIndex).getType();
+
+        var fieldsProvider = function() {
+            return [{
+                name: field,
+                alias: title,
+                type: type
+            }];
+        };
+        this.title.innerHTML = 'filter for <strong><em>' + title + '</em></strong> column';
+        var filter = grid.getFilterFor(columnIndex);
         //var self = this;
         if (dialog.isOpen()) {
             dialog.close();
@@ -173,12 +164,14 @@ var Filter = CellEditor.extend('Filter', {
             dialog.clear();
             dialog.overlay.appendChild(this.dialog);
 
-            filter.initialize(dialog);
+            filter.initialize(fieldsProvider);
 
             dialog.onOkPressed = function() {
-                filter.onOk(dialog);
+                if (filter.onOk && filter.onOk()) { // onOK() truthy result means abort; falsy means proceed
+                    return;
+                }
                 self.tearDown();
-                behavior.setComplexFilter(editorPoint.x, {
+                behavior.setComplexFilter(columnIndex, {
                     type: filter.alias,
                     state: filter.getState()
                 });
@@ -188,7 +181,7 @@ var Filter = CellEditor.extend('Filter', {
             };
 
             dialog.onCancelPressed = function() {
-                if (filter.onCancel && filter.onCancel(dialog)) {
+                if (filter.onCancel && filter.onCancel()) {
                     return;
                 }
                 self.tearDown();
@@ -197,40 +190,40 @@ var Filter = CellEditor.extend('Filter', {
             };
 
             dialog.onDeletePressed = function() {
-                if (filter.onDelete && filter.onDelete(dialog)) {
+                if (filter.onDelete && filter.onDelete()) {
                     return;
                 }
                 self.tearDown();
-                behavior.setComplexFilter(editorPoint.x, undefined);
+                behavior.setComplexFilter(columnIndex, undefined);
                 dialog.close();
                 behavior.applyFilters();
                 behavior.changed();
             };
 
             dialog.onResetPressed = function() {
-                if (filter.onReset && filter.onReset(dialog)) {
+                if (filter.onReset && filter.onReset()) {
                     return;
                 }
                 self.tearDown();
                 filter.initialize(dialog);
                 if (filter.onShow) {
-                    filter.onShow(dialog, self.content);
+                    filter.onShow(self.content);
                 }
             };
 
-            var cellBounds = grid._getBoundsOfCell(editorPoint.x, editorPoint.y);
+            var cellBounds = grid._getBoundsOfCell(columnIndex, editorPoint.y);
 
             //hack to accomodate bootstrap margin issues...
             var xOffset = grid.div.getBoundingClientRect().left - grid.divCanvas.getBoundingClientRect().left;
             cellBounds.x = cellBounds.x - xOffset;
             dialog.openFrom(cellBounds);
-            var previousState = behavior.getComplexFilter(editorPoint.x);
+            var previousState = behavior.getComplexFilter(columnIndex);
             if (previousState) {
                 filter.setState(previousState.state);
             }
             setTimeout(function() {
                 if (filter.onShow) {
-                    filter.onShow(dialog, self.content);
+                    filter.onShow(self.content);
                 }
             }, dialog.getAnimationTime() + 10);
         }

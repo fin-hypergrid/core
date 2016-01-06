@@ -529,34 +529,32 @@ var JSON = DataModel.extend('dataModels.JSON', {
         var grid = this.getGrid();
         var visibleColumns = this.getVisibleColumns();
         this.getGlobalFilterSource().apply(visibleColumns);
-        var visColCount = visibleColumns.length;
-        var filterSource = this.getFilterSource();
-        var groupOffset = 0;//this.hasHierarchyColumn() ? 0 : 1;
-        filterSource.clearAll();
         var details = [];
-        for (var v = 0; v < visColCount; v++) {
-            var column = visibleColumns[v];
-            var i = column.index;
-            var formatterType = column.getProperties().format;
-            var formatter = grid.getFormatter(formatterType);
-            var filterText = this.getFilter(i);
-            var complexFilter = this.getComplexFilter(i);
-            if (complexFilter) {
-                filterSource.add(i - groupOffset, this.createFormattedFilter(formatter, complexFilter));
+        var filterSource = this.getFilterSource();
+        var groupOffset = 0; //this.hasHierarchyColumn() ? 0 : 1;
+
+        // apply column filters
+        filterSource.clearAll();
+
+        visibleColumns.forEach(function(column) {
+            var columnIndex = column.index,
+                filterText = this.getFilter(columnIndex),
+                formatterType = column.getProperties().format,
+                formatter = grid.getFormatter(formatterType),
+                complexFilter = this.getComplexFilter(columnIndex),
+                filter = complexFilter || filterText.length > 0 && textMatchFilter(filterText);
+
+            if (filter) {
+                filterSource.add(columnIndex - groupOffset, this.createFormattedFilter(formatter, filter));
                 details.push({
                     column: column.label,
-                    format: 'complex',
-                });
-            } else if (filterText.length > 0) {
-                filterSource.add(i - groupOffset, this.createFormattedFilter(formatter, textMatchFilter(filterText)));
-                details.push({
-                    column: column.label,
-                    format: formatterType,
+                    format: complexFilter ? 'complex' : formatterType
                 });
             }
+        }.bind(this));
 
-        }
         filterSource.applyAll();
+
         grid.fireSyntheticFilterAppliedEvent({
             details: details
         });
@@ -809,7 +807,7 @@ function textMatchFilter(string) {
     string = string.toLowerCase();
     return function(each) {
         each = valueOrFunctionExecute(each);
-        return (each + '').toLowerCase().search(string) > -1;
+        return (each + '').toLowerCase().indexOf(string) > -1;
     };
 }
 

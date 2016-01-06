@@ -5,7 +5,8 @@
 var Base = require('extend-me').Base;
 
 
-var ANIMATION_TIME = 500;
+var ANIMATION_TIME = 500,
+    TRANSITION = ANIMATION_TIME + 'ms ease-in';
 
 /** @constructor
  * @desc Instances of features are connected to one another to make a chain of responsibility for handling all the input to the hypergrid.
@@ -39,17 +40,11 @@ var TableDialog = Base.extend('TableDialog', {
         var self = this;
         this.overlay.style.backgroundColor = this.grid.resolveProperty('backgroundColor');
 
-        this.overlay.style.top = '0%';
-        this.overlay.style.right = '0%';
-        this.overlay.style.bottom = '0%';
-        this.overlay.style.left = '0%';
+        this.overlay.style.top = this.overlay.style.bottom = this.overlay.style.right = this.overlay.style.left = 0;
 
         self.overlay.style.webkitTransition = '';
 
-        this.overlay.style.marginTop = '15px';
-        this.overlay.style.marginRight = '35px';
-        this.overlay.style.marginBottom = '35px';
-        this.overlay.style.marginLeft = '15px';
+        this.overlay.style.margin = '15px 35px 35px 15px';
         this.overlay.style.opacity = 0;
         this.overlay.style.zIndex = 100;
 
@@ -91,37 +86,25 @@ var TableDialog = Base.extend('TableDialog', {
         }
         this.openNow = true;
         var self = this;
-        this.overlay.style.backgroundColor = this.grid.resolveProperty('backgroundColor');
+        var style = this.overlay.style;
+        style.backgroundColor = this.grid.resolveProperty('backgroundColor');
 
-        var bounds = this.grid.div.getBoundingClientRect();
+        var bounds = this.grid.div.getBoundingClientRect(),
+            margins = rect.y + 'px ' +
+                (bounds.width - (rect.x + rect.width)) + 'px ' +
+                (bounds.height - (rect.y + rect.height)) + 'px ' +
+                rect.x + 'px';
 
-        self.overlay.style.webkitTransition = '';
+        style.webkitTransition = '';
 
-        this.overlay.style.top = '0%';
-        this.overlay.style.right = '0%';
-        this.overlay.style.bottom = '0%';
-        this.overlay.style.left = '0%';
+        style.top = style.right = style.bottom = style.left = 0;
 
-        var t = rect.y + 'px';
-        var r = (bounds.width - (rect.x + rect.width)) + 'px';
-        var b = (bounds.height - (rect.y + rect.height)) + 'px';
-        var l = rect.x + 'px';
-
-        this.overlay.style.marginTop = t;
-        this.overlay.style.marginRight = r;
-        this.overlay.style.marginBottom = b;
-        this.overlay.style.marginLeft = l;
-
-        this.overlay.style.zIndex = 100;
-        this.overlay.style.opacity = 1;
+        style.margin = margins;
+        style.zIndex = 100;
+        style.opacity = 1;
 
         this.closeTransition = function() {
-
-            self.overlay.style.marginTop = t;
-            self.overlay.style.marginRight = r;
-            self.overlay.style.marginBottom = b;
-            self.overlay.style.marginLeft = l;
-
+            style.margin = margins;
         };
 
         if (!this._closer) {
@@ -140,11 +123,8 @@ var TableDialog = Base.extend('TableDialog', {
             document.addEventListener('keydown', self._closer, false);
             requestAnimationFrame(function() {
                 requestAnimationFrame(function() {
-                    self.overlay.style.webkitTransition = 'margin-top ' + ANIMATION_TIME + 'ms ease-in, margin-right ' + ANIMATION_TIME + 'ms ease-in, margin-bottom ' + ANIMATION_TIME + 'ms ease-in, margin-left ' + ANIMATION_TIME + 'ms ease-in';
-                    self.overlay.style.marginTop = '15px';
-                    self.overlay.style.marginRight = '35px';
-                    self.overlay.style.marginBottom = '35px';
-                    self.overlay.style.marginLeft = '15px';
+                    style.webkitTransition = 'margin-top ' + TRANSITION + ', margin-right ' + TRANSITION + ', margin-bottom ' + TRANSITION + ', margin-left ' + TRANSITION;
+                    style.margin = '15px 35px 35px 15px';
                 });
             });
         });
@@ -189,22 +169,22 @@ var TableDialog = Base.extend('TableDialog', {
     initializeOverlaySurface: function() {
         this.overlay = document.createElement('div');
         this.overlay.setAttribute('tabindex', 0);
-        this.overlay.style.outline = 'none';
-        this.overlay.style.boxShadow = '0 19px 38px rgba(0,0,0,0.30), 0 15px 12px rgba(0,0,0,0.22)';
-        this.overlay.style.position = 'absolute';
+        this.overlay.addEventListener('wheel', function(evt) { evt.stopPropagation(); });
 
-        this.overlay.style.marginTop = '0px';
-        this.overlay.style.marginRight = '0px';
-        this.overlay.style.marginBottom = '0px';
-        this.overlay.style.marginLeft = '0px';
-        this.overlay.style.overflow = 'hidden';
+        var style = this.overlay.style;
+        style.outline = 'none';
+        style.boxShadow = '0 19px 38px rgba(0,0,0,0.30), 0 15px 12px rgba(0,0,0,0.22)';
+        style.position = 'absolute';
 
-        //this.overlay.style.display = 'none';
+        style.margin = 0;
+        style.overflow = 'hidden';
 
-        //this.overlay.style.webkitTransition = 'margin-top ' + ANIMATION_TIME + 'ms ease-in, margin-right ' + ANIMATION_TIME + 'ms ease-in, margin-bottom ' + ANIMATION_TIME + 'ms ease-in, margin-left ' + ANIMATION_TIME + 'ms ease-in';
+        //style.display = 'none';
 
-        this.overlay.style.opacity = 0;
-        this.overlay.style.zIndex = 10;
+        //style.webkitTransition = 'margin-top ' + TRANSITION + ', margin-right ' + TRANSITION + ', margin-bottom ' + TRANSITION + ', margin-left ' + TRANSITION;
+
+        style.opacity = 0;
+        style.zIndex = 10;
         this.grid.div.appendChild(this.overlay);
         //document.body.appendChild(this.overlay);
     },
