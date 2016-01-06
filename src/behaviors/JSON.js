@@ -9,7 +9,6 @@ var features = require('../features/index');
 var addStylesheet = require('../stylesheets');
 //var aggregations = require('hyper-analytics').util.aggregations;
 //var aggregations = require('../local_node_modules/hyper-analytics').util.aggregations;
-//var aggregations = require('../local_node_modules/hyper-analytics').util.aggregations;
 var aggregations = require('../local_node_modules/finanalytics').aggregations;
 
 /**
