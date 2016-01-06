@@ -743,10 +743,11 @@ var JSON = DataModel.extend('dataModels.JSON', {
      * @param {sring} string
      */
     setGlobalFilter: function(string) {
+        var globalFilterSource = this.getGlobalFilterSource();
         if (!string || string.length === 0) {
-            this.preglobalfilter.clear();
+            globalFilterSource.clear();
         } else {
-            this.preglobalfilter.set(textMatchFilter(string));
+            globalFilterSource.set(textMatchFilter(string));
         }
         this.applyAnalytics();
     },
