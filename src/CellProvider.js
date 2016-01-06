@@ -269,9 +269,8 @@ var CellProvider = Base.extend('CellProvider', {
             halignOffset = 0,
             valignOffset = config.voffset,
             halign = config.halign,
-            isColumnHovered = config.isColumnHovered,
-            isRowHovered = config.isRowHovered,
-            isLink = isLink || false;
+            isCellHovered = config.isCellHovered,
+            isLink = config.link;
 
         var fontMetrics = config.getTextHeight(config.font);
         var textWidth = config.getTextWidth(gc, val);
@@ -301,12 +300,18 @@ var CellProvider = Base.extend('CellProvider', {
             gc.fillText(val, x + halignOffset, y + valignOffset);
         }
 
-        if (isColumnHovered && isRowHovered) {
+        if (isCellHovered) {
             gc.beginPath();
             if (isLink) {
                 underline(config, gc, val, x + halignOffset, y + valignOffset + Math.floor(fontMetrics.height / 2), 1);
                 gc.stroke();
             }
+            gc.closePath();
+        }
+        if (config.strikeThrough === true) {
+            gc.beginPath();
+            strikeThrough(config, gc, val, x + halignOffset, y + valignOffset + Math.floor(fontMetrics.height / 2), 1);
+            gc.stroke();
             gc.closePath();
         }
     },
@@ -514,6 +519,26 @@ function valueOrFunctionExecute(config, valueOrFunction) {
 
 function underline(config, gc, text, x, y, thickness) {
     var width = config.getTextWidth(gc, text);
+
+    switch (gc.textAlign) {
+        case 'center':
+            x -= (width / 2);
+            break;
+        case 'right':
+            x -= width;
+            break;
+    }
+
+    //gc.beginPath();
+    gc.lineWidth = thickness;
+    gc.moveTo(x + 0.5, y + 0.5);
+    gc.lineTo(x + width + 0.5, y + 0.5);
+}
+
+function strikeThrough(config, gc, text, x, y, thickness) {
+    var fontMetrics = config.getTextHeight(config.font);
+    var width = config.getTextWidth(gc, text);
+    y = y - (fontMetrics.height * 0.4);
 
     switch (gc.textAlign) {
         case 'center':

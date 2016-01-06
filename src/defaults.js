@@ -587,6 +587,8 @@ module.exports = {
     hoverRowColor: 'gray',
     hoverColumnColor: 'gray',
 
+    link: false,
+    strikeThrough: false,
 
 };
 
