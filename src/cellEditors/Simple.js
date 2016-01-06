@@ -49,9 +49,11 @@ var Simple = CellEditor.extend('Simple', {
             self.getGrid().fireSyntheticEditorKeyDownEvent(self, e);
         });
         input.addEventListener('keypress', function(e) {
-            console.log('keypress', e.keyCode);
             self.getGrid().fireSyntheticEditorKeyPressEvent(self, e);
         });
+        input.onblur = function(e) {
+            self.cancelEditing();
+        };
         // input.addEventListener('focusout', function() {
         //     self.stopEditing();
         // });

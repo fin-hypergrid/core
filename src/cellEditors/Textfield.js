@@ -51,6 +51,9 @@ var Textfield = Simple.extend('Textfield', {
         input.addEventListener('keypress', function(e) {
             self.getGrid().fireSyntheticEditorKeyPressEvent(self, e);
         });
+        input.onblur = function(e) {
+            self.cancelEditing();
+        };
         // input.addEventListener('focusout', function() {
         //     self.stopEditing();
         // });
