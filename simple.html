@@ -7,7 +7,7 @@
 
         <script>
             window.onload = function() {
-                getJSON('simpleData.json', function(data) {
+                getJSON('simpledata.json', function(data) {
                     var div = document.querySelector('div#json-example'),
                         jsonGrid = new fin.Hypergrid(div, getContainer),
                         jsonModel = jsonGrid.getBehavior();
@@ -35,8 +35,8 @@
         </script>
     </head>
     <body>
-        <p>JSON example. Put your JSON in <code>simple.json</code>.</p>
+        <p>JSON example. Put your JSON in <code>simpledata.json</code>.</p>
         <div id="json-example" style="position:relative; width:250px; height:100px"></div>
-        <p><small><em>Note: Must be served. JSON does not work with file:// protocol.</em></samll></p>
+        <p><small><em>Note: Must be served; AJAX does not work with file:// protocol.</em></samll></p>
     </body>
 </html>
