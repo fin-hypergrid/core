@@ -34,27 +34,34 @@ var Simple = CellEditor.extend('Simple', {
         };
     },
 
+    specialKeyups: {
+        //0x08: 'clearStopEditing', // backspace
+        0x0d: 'stopEditing', // return/enter
+        0x1b: 'cancelEditing' // escape
+    },
+
+    keyup: function(e) {
+        if (e) {
+            var specialKeyup = this.specialKeyups[e.keyCode];
+
+            if (specialKeyup) {
+                e.preventDefault();
+                this[specialKeyup]();
+                this.getGrid().repaint();
+                this.getGrid().takeFocus();
+            }
+
+            this.getGrid().fireSyntheticEditorKeyUpEvent(this, e);
+        }
+    },
+
     /**
      * @memberOf Simple.prototype
      * @desc  the function to override for initialization
      */
     initializeInput: function(input) {
         var self = this;
-        input.addEventListener('keyup', function(e) {
-            if (e && (e.keyCode === 13 || e.keyCode === 27 || e.keyCode === 8)) {
-                e.preventDefault();
-                if (e.keyCode === 8) {
-                    self.clearStopEditing();
-                } else if (e.keyCode === 27) {
-                    self.cancelEditing();
-                } else {
-                    self.stopEditing();
-                }
-                self.getGrid().repaint();
-                self.getGrid().takeFocus();
-            }
-            self.getGrid().fireSyntheticEditorKeyUpEvent(self, e);
-        });
+        input.addEventListener('keyup', this.keyup.bind(this));
         input.addEventListener('keydown', function(e) {
             self.getGrid().fireSyntheticEditorKeyDownEvent(self, e);
         });

@@ -24,27 +24,27 @@ var Textfield = Simple.extend('Textfield', {
         this.input.setSelectionRange(0, this.input.value.length);
     },
 
-    initializeInput: function(input) {
-        var self = this;
-        input.addEventListener('keyup', function(e) {
-            if (e && (e.keyCode === 13 || e.keyCode === 27)) {
-                e.preventDefault();
-                if (e.keyCode === 27) {
-                    self.cancelEditing();
-                } else {
-                    self.stopEditing();
-                }
-                self.getGrid().repaint();
-                self.getGrid().takeFocus();
-            }
-            if (self.getGrid().isFilterRow(self.getEditorPoint().y)) {
+    specialKeyups: {
+        0x0d: 'stopEditing', // return/enter
+        0x1b: 'cancelEditing' // escape
+    },
+
+    keyup: function(e) {
+        if (e) {
+            Simple.prototype.keyup(e);
+
+            if (this.getGrid().isFilterRow(this.getEditorPoint().y)) {
                 setTimeout(function() {
-                    self.saveEditorValue();
-                    self._moveEditor();
+                    this.saveEditorValue();
+                    this._moveEditor();
                 });
             }
-            self.getGrid().fireSyntheticEditorKeyUpEvent(self, e);
-        });
+        }
+    },
+
+    initializeInput: function(input) {
+        var self = this;
+        input.addEventListener('keyup', this.keyup.bind(this));
         input.addEventListener('keydown', function(e) {
             self.getGrid().fireSyntheticEditorKeyDownEvent(self, e);
         });
