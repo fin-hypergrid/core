@@ -177,8 +177,17 @@
          *
          */
         subscribeToBus: function() {
-            fin.desktop.InterApplicationBus.subscribe('*', this.subscribe, this.subscriptionCallback.bind(this));
-            fin.desktop.InterApplicationBus.subscribe('*', 'ExcelError', this.errorCallback.bind(this));
+            this.unSubscribeToBus(); // automatically cancel existing subscription, if any
+
+            if (this.subscribe.toLowerCase() !== 'null') {
+                this.busHandlers ={
+                    subscription: this.subscriptionCallback.bind(this),
+                    error: this.errorCallback.bind(this)
+                };
+
+                fin.desktop.InterApplicationBus.subscribe('*', this.subscribe, this.busHandlers.subscription);
+                fin.desktop.InterApplicationBus.subscribe('*', 'ExcelError', this.busHandlers.error);
+            }
         },
 
         /**
@@ -189,8 +198,11 @@
          *
          */
         unSubscribeToBus: function() {
-            fin.desktop.InterApplicationBus.unsubscribe('*', this.subscribe, this.subscriptionCallback.bind(this));
-            fin.desktop.InterApplicationBus.unsubscribe('*', 'ExcelError', this.errorCallback.bind(this));
+            if (this.busHandlers) {
+                fin.desktop.InterApplicationBus.unsubscribe('*', this.subscribe, this.busHandlers.subscription);
+                fin.desktop.InterApplicationBus.unsubscribe('*', 'ExcelError', this.busHandlers.error);
+                delete this.busHandlers;
+            }
         },
 
         /**
