@@ -7,7 +7,7 @@
   },
   "dependencies": {
     "extend-me": "^2.2.1",
-    "filter-tree": "^0.3.0",
+    "filter-tree": "^0.3.3",
     "finbars": "^1.5.1",
     "fincanvas": "^1.0.0",
     "hyper-analytics": "^0.9.13",
