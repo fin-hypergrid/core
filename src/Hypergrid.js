@@ -1590,7 +1590,7 @@ Hypergrid.prototype = {
     },
 
     fireSyntheticEditorKeyUpEvent: function(inputControl, keyEvent) {
-        var clickEvent = new CustomEvent('fin-editor-key-up', {
+        var clickEvent = new CustomEvent('fin-editor-keyup', {
             detail: {
                 input: inputControl,
                 keyEvent: keyEvent
@@ -1600,7 +1600,7 @@ Hypergrid.prototype = {
     },
 
     fireSyntheticEditorKeyDownEvent: function(inputControl, keyEvent) {
-        var clickEvent = new CustomEvent('fin-editor-key-down', {
+        var clickEvent = new CustomEvent('fin-editor-keydown', {
             detail: {
                 input: inputControl,
                 keyEvent: keyEvent
@@ -1611,7 +1611,7 @@ Hypergrid.prototype = {
     },
 
     fireSyntheticEditorKeyPressEvent: function(inputControl, keyEvent) {
-        var clickEvent = new CustomEvent('fin-editor-key-press', {
+        var clickEvent = new CustomEvent('fin-editor-keypress', {
             detail: {
                 input: inputControl,
                 keyEvent: keyEvent

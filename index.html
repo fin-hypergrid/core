@@ -408,10 +408,8 @@
 
         jsonGrid.addFinEventListener('fin-double-click', function(e){
             var cell = e.detail.gridCell;
-
-                var rowContext = jsonModel.getRow(cell.y);
-                console.log('fin-double-click row-context:',rowContext);
-
+            var rowContext = jsonModel.getRow(cell.y);
+            console.log('fin-double-click row-context:', rowContext);
         });
 
         jsonGrid.addFinEventListener('fin-button-pressed', function(e){
@@ -453,38 +451,65 @@
             console.log('fin-filter-applied', e);
         });
 
-        jsonGrid.addFinEventListener('fin-keydown', function(e) {
-            var key = e.detail.char;
-            var keys = e.detail.currentKeys;
-            if (key === 'RETURN') {
-                //move the cursor one space to the right
-                jsonGrid.moveSingleSelect(1,0);
-            } else if (key === 'TAB') {
-                //select the bottom right most cell and scroll there
-                    jsonGrid.selectFinalCell();
-            } else if (keys[0] === 'CTRL') {
-                if (keys[1] === 'SHIFT') {
-                    if (keys[2] === 'A') {
-                        jsonGrid.selectToViewportCell(0,0);
-                    } else if (keys[2] === 'S') {
-                        jsonGrid.selectToFinalCell();
-                    } else if (keys[2] === 'D') {
-                        jsonGrid.selectToFinalCellOfCurrentRow();
-                    } else if (keys[2] === 'F') {
-                        jsonGrid.selectToFirstCellOfCurrentRow();
+
+        function handleCursorKey(e) {
+            var detail = e.detail,
+                key = String.fromCharCode(detail.key).toUpperCase();
+
+            if (detail.ctrl) {
+                if (detail.shift) {
+                    switch (key) {
+                        case 'A': jsonGrid.selectToViewportCell(0, 0); break;
+                        case 'S': jsonGrid.selectToFinalCell(); break;
+                        case 'D': jsonGrid.selectToFinalCellOfCurrentRow(); break;
+                        case 'F': jsonGrid.selectToFirstCellOfCurrentRow(); break;
                     }
-                } else if (keys[1] === 'a') {
-                    jsonGrid.selectViewportCell(0,0);
-                } else if (keys[1] === 's') {
-                    jsonGrid.selectFinalCell();
-                } else if (keys[1] === 'd') {
-                    jsonGrid.selectFinalCellOfCurrentRow();
-                } else if (keys[1] === 'f') {
-                    jsonGrid.selectFirstCellOfCurrentRow();
+                } else {
+                    switch (key) {
+                        case 'A': jsonGrid.selectViewportCell(0, 0); break;
+                        case 'S': jsonGrid.selectFinalCell(); break;
+                        case 'D': jsonGrid.selectFinalCellOfCurrentRow(); break;
+                        case 'F': jsonGrid.selectFirstCellOfCurrentRow(); break;
+                    }
+                }
+            } else {
+                if (detail.shift) {
+                    switch (key) {
+                        case '\t':
+                            jsonGrid.moveSingleSelect(-1, 0); // move LEFT one cell
+                            detail.primitiveEvent.preventDefault();
+                            break;
+                        case '\r':
+                        case '\n':
+                            jsonGrid.moveSingleSelect(0, -1); // move UP one cell
+                            break;
+                    }
+                } else {
+                    switch (key) {
+                        case '\t':
+                            detail.primitiveEvent.preventDefault();
+                            jsonGrid.moveSingleSelect(+1, 0); // move RIGHT one cell
+                            break;
+                        case '\r':
+                        case '\n':
+                            jsonGrid.moveSingleSelect(0, +1); // move DOWN one cell
+                            break;
+                    }
                 }
             }
-            console.log(e);
+        }
+
+        jsonGrid.addFinEventListener('fin-keydown', handleCursorKey);
+        jsonGrid.addFinEventListener('fin-editor-keydown', function(e) {
+            var ke = e.detail.keyEvent;
+            handleCursorKey({
+                detail: {
+                    key: ke.keyCode,
+                    shift: ke.shiftKey
+                }
+            });
         });
+
 
         jsonGrid.addFinEventListener('fin-selection-changed', function(e){
 
