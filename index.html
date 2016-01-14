@@ -483,29 +483,15 @@
                     }
                 }
             } else {
-                if (detail.shift) {
-                    switch (key) {
-                        case '\t':
-                            jsonGrid.moveSingleSelect(-1, 0); // move LEFT one cell
-                            detail.primitiveEvent.preventDefault();
-                            break;
-                        case '\r':
-                        case '\n':
-                            jsonGrid.moveSingleSelect(0, -1); // move UP one cell
-                            break;
-                    }
-                } else {
-                    switch (key) {
-                        case '\t':
-                            detail.primitiveEvent.preventDefault();
-                            jsonGrid.moveSingleSelect(+1, 0); // move RIGHT one cell
-                            break;
-                        case '\r':
-                        case '\n':
-                            jsonGrid.moveSingleSelect(0, +1); // move DOWN one cell
-                            break;
-                    }
+                var dir = detail.shift ? -1 : +1;
+                switch (key) {
+                    case '\t': jsonGrid.moveSingleSelect(dir, 0); break; // move LEFT one cell
+                    case '\r':
+                    case '\n': jsonGrid.moveSingleSelect(0, dir); break; // move UP one cell
+                    default: return;
                 }
+                // switch statement hit a break
+                detail.primitiveEvent.preventDefault();
             }
         }
 

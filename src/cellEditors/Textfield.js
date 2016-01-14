@@ -25,6 +25,7 @@ var Textfield = Simple.extend('Textfield', {
     },
 
     specialKeyups: {
+        0x09: 'stopEditing', // tab
         0x0d: 'stopEditing', // return/enter
         0x1b: 'cancelEditing' // escape
     },

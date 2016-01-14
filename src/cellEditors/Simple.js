@@ -36,6 +36,7 @@ var Simple = CellEditor.extend('Simple', {
 
     specialKeyups: {
         //0x08: 'clearStopEditing', // backspace
+        0x09: 'stopEditing', // tab
         0x0d: 'stopEditing', // return/enter
         0x1b: 'cancelEditing' // escape
     },
