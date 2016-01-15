@@ -13,13 +13,6 @@ var srcDir   = './src/',
     jsFiles  = '**/*.js',
     buildDir = './';
 
-//var isBuilding = false;
-
-var js = {
-    dir   : srcDir,
-    files : srcDir + jsFiles
-};
-
 //  //  //  //  //  //  //  //  //  //  //  //
 
 gulp.task('lint', lint);
@@ -57,7 +50,7 @@ gulp.task('default', ['build', 'watch'], browserSyncLaunchServer);
 //  //  //  //  //  //  //  //  //  //  //  //
 
 function lint() {
-    return gulp.src(js.files)
+    return gulp.src([srcDir + jsFiles, '!' + srcDir + '**/old/**/'])
         .pipe($$.excludeGitignore())
         .pipe($$.eslint())
         .pipe($$.eslint.format())
@@ -70,13 +63,13 @@ function test(cb) {
 }
 
 function beautify() {
-    return gulp.src(js.files)
+    return gulp.src(srcDir + jsFiles)
         .pipe($$.beautify()) //apparent bug: presence of a .jsbeautifyrc file seems to force all options to their defaults (except space_after_anon_function which is forced to true) so I deleted the file. Any needed options can be included here.
-        .pipe(gulp.dest(js.dir));
+        .pipe(gulp.dest(srcDir));
 }
 
 function browserify() {
-    return gulp.src(js.dir + 'index.js')
+    return gulp.src(srcDir + 'index.js')
         .pipe($$.browserify({
             //insertGlobals : true,
             debug : true
@@ -90,7 +83,7 @@ function browserify() {
 }
 
 function browserify() {
-    return gulp.src(js.dir + 'index.js')
+    return gulp.src(srcDir + 'index.js')
         .pipe(
             $$.mirror(
                 pipe(
