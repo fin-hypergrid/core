@@ -1832,6 +1832,7 @@ Hypergrid.prototype = {
     },
 
     fireSyntheticMouseDownEvent: function(e) {
+        this.stopEditing();
         var event = new CustomEvent('fin-mousedown', {
             detail: {
                 gridCell: e.gridCell,
@@ -1952,7 +1953,6 @@ Hypergrid.prototype = {
      * @param {MouseEvent} event - The system mouse event.
      */
     fireSyntheticClickEvent: function(mouseEvent) {
-        this.stopEditing();
         var cell = mouseEvent.gridCell;
         var detail = {
             gridCell: cell,
