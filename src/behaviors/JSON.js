@@ -2,7 +2,7 @@
 
 var ListDragon = require('list-dragon');
 
-var Behavior = require('./Behavior');
+var Local = require('./Local');
 var DataModelDecorator = require('./DataModelDecorator');
 var DataModelJSON = require('../dataModels/JSON');
 var features = require('../features/index');
@@ -13,10 +13,10 @@ var aggregations = require('../local_node_modules/finanalytics').aggregations;
 
 /**
  * @name behaviors.JSON
- * @desc > Same parameters as {@link behaviors.JSON#initialize|initialize}, which is called by this constructor.
+ * @desc > Same parameters as {@link behaviors.Behavior#initialize|initialize}, which is called by this constructor.
  * @constructor
  */
-var JSON = Behavior.extend('behaviors.JSON', {
+var JSON = Local.extend('behaviors.JSON', {
 
     /**
      * @summary Constructor logic, called _after_{@link Behavior#initialize|Behavior.initialize()}.
