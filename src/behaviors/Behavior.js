@@ -1,5 +1,4 @@
 /* eslint-env browser */
-
 'use strict';
 
 var _ = require('object-iterators');
