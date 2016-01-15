@@ -2934,35 +2934,30 @@ Hypergrid.prototype = {
 
         keys = keys || [];
 
-        var isSingleRowSelection = this.isSingleRowSelectionMode();
-        var model = this.getSelectionModel();
-        var alreadySelected = model.isRowSelected(y);
-        var hasCTRL = keys.indexOf('CTRL') > -1;
-        var hasSHIFT = keys.indexOf('SHIFT') > -1;
+        var isCheckboxOnlyRowSelections = this.isCheckboxOnlyRowSelections();
+        var isSingleRowSelectionMode = this.isSingleRowSelectionMode();
+        var sm = this.getSelectionModel();
+        var alreadySelected = sm.isRowSelected(y);
+        var hasCTRL = keys.indexOf('CTRL') >= 0;
+        var hasSHIFT = keys.indexOf('SHIFT') >= 0;
 
-        if (!hasCTRL && !hasSHIFT) {
-            //model.clear();
-            if (alreadySelected) {
-                model.deselectRow(y);
-            } else {
-                model.selectRow(y);
-            }
+        if (alreadySelected) {
+            sm.deselectRow(y);
         } else {
-            if (hasCTRL) {
-                if (alreadySelected) {
-                    model.deselectRow(y);
-                } else {
-                    if (isSingleRowSelection) {
-                        model.clearRowSelection();
-                    }
-                    model.selectRow(y);
-                }
+            if (
+                isCheckboxOnlyRowSelections && isSingleRowSelectionMode ||
+                !isCheckboxOnlyRowSelections && (!hasCTRL || isSingleRowSelectionMode)
+            ) {
+                sm.clearRowSelection();
             }
-            if (hasSHIFT) {
-                model.clear();
-                model.selectRow(this.lastEdgeSelection[1], y);
-            }
+            sm.selectRow(y);
         }
+
+        if (hasSHIFT) {
+            sm.clear();
+            sm.selectRow(this.lastEdgeSelection[1], y);
+        }
+
         if (!alreadySelected && !hasSHIFT) {
             this.lastEdgeSelection[1] = y;
         }
@@ -3136,19 +3131,28 @@ Hypergrid.prototype = {
         this.getSelectionModel().selectColumn(x1, x2);
     },
     selectRow: function(y1, y2) {
-        if (this.isSingleRowSelectionMode()) {
-            this.getSelectionModel().clearRowSelection();
+        console.log('>>>>> selectRow');
+        var sm = this.getSelectionModel();
+        var isCheckboxOnlyRowSelections = this.isCheckboxOnlyRowSelections();
+        var isSingleRowSelectionMode = this.isSingleRowSelectionMode();
+        var hasCTRL = this.mouseDownState.primitiveEvent.detail.primitiveEvent.ctrlKey;
+
+        if (
+            isCheckboxOnlyRowSelections && isSingleRowSelectionMode ||
+            !isCheckboxOnlyRowSelections && (!hasCTRL || isSingleRowSelectionMode)
+        ) {
+            sm.clearRowSelection();
             y1 = y2;
         } else {
+            // multiple row selection
             y2 = y2 || y1;
         }
         var min = Math.min(y1, y2);
-        var max = Math.max(y1, y2);
         var selectionEdge = this.getFilterRowIndex() + 1;
-        if (min < selectionEdge) {
-            return;
+        if (min >= selectionEdge) {
+            var max = Math.max(y1, y2);
+            sm.selectRow(min, max);
         }
-        this.getSelectionModel().selectRow(min, max);
     },
     isRowNumberAutosizing: function() {
         return this.resolveProperty('rowNumberAutosizing');
@@ -3191,19 +3195,19 @@ Hypergrid.prototype = {
         this.getBehavior().setGlobalFilter(string);
     },
     selectRowsFromCells: function() {
-        if (this.isCheckboxOnlyRowSelections()) {
-            return;
-        }
-        var sm = this.getSelectionModel();
-        if (this.isSingleRowSelectionMode()) {
-            var last = sm.getLastSelection();
-            if (!last) {
-                sm.clearRowSelection();
-            } else {
+        console.log('>>>>> selectRowsFromCells');
+        if (!this.isCheckboxOnlyRowSelections()) {
+            var sm = this.getSelectionModel(),
+                last,
+                hasCTRL = this.mouseDownState.primitiveEvent.detail.primitiveEvent.ctrlKey;
+
+            if (hasCTRL && !this.isSingleRowSelectionMode()) {
+                sm.selectRowsFromCells();
+            } else if ((last = sm.getLastSelection())) {
                 this.selectRow(null, last.corner.y);
+            } else {
+                sm.clearRowSelection();
             }
-        } else {
-            sm.selectRowsFromCells();
         }
     },
     selectColumnsFromCells: function() {

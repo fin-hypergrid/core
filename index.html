@@ -57,11 +57,11 @@
     <div class="row" style="border-style: solid; border-color: blue">
         <div class="col-md-12 col-lg-12" style="border-style: solid; border-color: grey">
 
-            <input type="checkbox" value="checkboxOnlyRowSelections" onclick="setPropFromCheckbox(this)"/>
+            <input type="checkbox" value="checkboxOnlyRowSelections" onclick="setSelectionPropFromCheckbox(this)"/>
             checkboxOnlyRowSelections
             &nbsp; &nbsp;
 
-            <input type="checkbox" value="singleRowSelectionMode" onclick="setPropFromCheckbox(this)"/>
+            <input type="checkbox" value="singleRowSelectionMode" onclick="setSelectionPropFromCheckbox(this)"/>
             singleRowSelectionMode
             <br/>
 
@@ -461,11 +461,14 @@
             console.log('fin-filter-applied', e);
         });
 
-
+        /**
+         * @summary Listen for certain key presses from grid or cell editor.
+         * @desc NOTE: fincanvas's internal char map yields mixed case while fin-editor-key* events do not.
+         * @return {boolean} Not handled.
+         */
         function handleCursorKey(e) {
-            var detail = e.detail,
-                key = String.fromCharCode(detail.key).toUpperCase();
-
+            var detail = e.detail;
+            var key = String.fromCharCode(detail.key).toUpperCase();
             if (detail.ctrl) {
                 if (detail.shift) {
                     switch (key) {
@@ -473,6 +476,7 @@
                         case 'S': jsonGrid.selectToFinalCell(); break;
                         case 'D': jsonGrid.selectToFinalCellOfCurrentRow(); break;
                         case 'F': jsonGrid.selectToFirstCellOfCurrentRow(); break;
+                        default: return true;
                     }
                 } else {
                     switch (key) {
@@ -480,31 +484,38 @@
                         case 'S': jsonGrid.selectFinalCell(); break;
                         case 'D': jsonGrid.selectFinalCellOfCurrentRow(); break;
                         case 'F': jsonGrid.selectFirstCellOfCurrentRow(); break;
+                        default: return true;
                     }
                 }
+                // break: switch statement handled it
+                return false;
             } else {
                 var dir = detail.shift ? -1 : +1;
                 switch (key) {
                     case '\t': jsonGrid.moveSingleSelect(dir, 0); break; // move LEFT one cell
                     case '\r':
                     case '\n': jsonGrid.moveSingleSelect(0, dir); break; // move UP one cell
-                    default: return;
+                        default: return true;
                 }
-                // switch statement hit a break
-                detail.primitiveEvent.preventDefault();
+                // break: switch statement handled it
+                detail.primitiveEvent.preventDefault();  // prevent TAB from moving focus off the canvas element
+                return false;
             }
+            return true;
         }
 
         jsonGrid.addFinEventListener('fin-keydown', handleCursorKey);
+
         jsonGrid.addFinEventListener('fin-editor-keydown', function(e) {
-            var ke = e.detail.keyEvent;
-            handleCursorKey({
-                detail: {
-                    primitiveEvent: ke,
-                    key: ke.keyCode,
-                    shift: ke.shiftKey
-                }
-            });
+            var detail = e.detail,
+                ke = detail.keyEvent;
+
+            // more detail, please
+            detail.primitiveEvent = ke;
+            detail.key = ke.keyCode;
+            detail.shift = ke.shiftKey;
+
+            handleCursorKey(e);
         });
 
 
@@ -817,6 +828,13 @@
 // DOM support
 // Besides the canvas, this test harness only has a handful of buttons and checkboxes.
 // The following functions service these controls.
+
+function setSelectionPropFromCheckbox(ctrl) {
+    jsonGrid.getSelectionModel().clear();
+    setPropFromCheckbox(ctrl);
+    jsonGrid.repaint();
+}
+
 
 /**
  * Sets a boolean grid property from a checkbox control.
