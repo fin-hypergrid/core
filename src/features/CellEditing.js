@@ -49,9 +49,8 @@ var CellEditing = Feature.extend('CellEditing', {
     },
 
     checkActivateEditor: function(grid, event, isDoubleClickEditorActivation) {
-        var behavior = grid.getBehavior();
-        var headerRowCount = behavior.getHeaderRowCount();
-        var headerColumnCount = behavior.getHeaderColumnCount();
+        var headerRowCount = grid.behavior.getHeaderRowCount();
+        var headerColumnCount = grid.behavior.getHeaderColumnCount();
         var gridCell = event.gridCell;
         var isFilterRow = grid.isFilterRow(gridCell.y);
         var activateEditor = isDoubleClickEditorActivation && gridCell.x >= headerColumnCount && (isFilterRow || gridCell.y >= headerRowCount);

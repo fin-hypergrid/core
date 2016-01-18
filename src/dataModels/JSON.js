@@ -230,7 +230,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
      */
     getColumnProperties: function(colIndex) {
         //access directly because we want it ordered
-        var column = this.getBehavior().allColumns[colIndex];
+        var column = this.grid.behavior.allColumns[colIndex];
         if (column) {
             return column.getProperties();
         }
@@ -446,7 +446,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
      * @returns {object[]}
      */
     getVisibleColumns: function() {
-        var items = this.getBehavior().columns;
+        var items = this.grid.behavior.columns;
         items = items.filter(function(each) {
             return each.label !== 'Tree';
         });
@@ -458,8 +458,8 @@ var JSON = DataModel.extend('dataModels.JSON', {
      * @returns {object[]}
      */
     getHiddenColumns: function() {
-        var visible = this.getBehavior().columns;
-        var all = this.getBehavior().allColumns;
+        var visible = this.grid.behavior.columns;
+        var all = this.grid.behavior.allColumns;
         var hidden = [];
         for (var i = 0; i < all.length; i++) {
             if (visible.indexOf(all[i]) === -1) {

@@ -57,15 +57,6 @@ var CellEditor = Base.extend('CellEditor', {
 
     /**
      * @memberOf CellEditor.prototype
-     * @desc return the behavior (model)
-     * @returns {Behavior} The behavior (model).
-     */
-    getBehavior: function() {
-        return this.grid.getBehavior();
-    },
-
-    /**
-     * @memberOf CellEditor.prototype
      * @desc This function is a callback from the fin-hypergrid.   It is called after each paint of the canvas.
      */
     gridRenderedNotification: function() {

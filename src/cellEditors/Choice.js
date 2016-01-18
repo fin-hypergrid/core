@@ -33,7 +33,7 @@ var Choice = Simple.extend('Choice', {
     },
 
     autopopulate: function() {
-        var behavior = this.grid.getBehavior();
+        var behavior = this.grid.behavior;
         var point = this.getEditorPoint();
         var colProps = this.grid.getColumnProperties(point.x);
         if (!colProps.autopopulateEditor) {

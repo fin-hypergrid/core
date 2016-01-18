@@ -247,7 +247,7 @@ Hypergrid.prototype = {
         this.scrollingNow = false;
         this.lastEdgeSelection = [0, 0];
 
-        this.getBehavior().reset();
+        this.behavior.reset();
         this.getRenderer().reset();
         this.getCanvas().resize();
         this.behaviorChanged();
@@ -303,7 +303,7 @@ Hypergrid.prototype = {
     },
 
     toggleColumnPicker: function() {
-        this.getBehavior().toggleColumnPicker();
+        this.behavior.toggleColumnPicker();
     },
 
     /**
@@ -450,9 +450,9 @@ Hypergrid.prototype = {
         // this.canvas = this.shadowRoot.querySelector('fin-canvas');
         //this.canvas = new Canvas(this.divCanvas, this.renderer); //TODO: Do we really need to be recreating it here?
         this.checkScrollbarVisibility();
-        this.getBehavior().defaultRowHeight = null;
+        this.behavior.defaultRowHeight = null;
         if (this.isColumnAutosizing()) {
-            this.getBehavior().autosizeAllColumns();
+            this.behavior.autosizeAllColumns();
         }
     },
 
@@ -462,7 +462,7 @@ Hypergrid.prototype = {
      * @see [Memento pattern](http://en.wikipedia.org/wiki/Memento_pattern)
      */
     getPrivateState: function() {
-        return this.getBehavior().getPrivateState();
+        return this.behavior.getPrivateState();
     },
 
     /**
@@ -473,7 +473,7 @@ Hypergrid.prototype = {
      */
     setState: function(state) {
         var self = this;
-        this.getBehavior().setState(state);
+        this.behavior.setState(state);
         setTimeout(function() {
             self.behaviorChanged();
             self.synchronizeScrollingBoundries();
@@ -481,7 +481,7 @@ Hypergrid.prototype = {
     },
 
     getState: function() {
-        return this.getBehavior().getState();
+        return this.behavior.getState();
     },
     /**
      * @memberOf Hypergrid.prototype
@@ -571,7 +571,7 @@ Hypergrid.prototype = {
      * @returns {fin-hypergrid-cell-provider}
      */
     getCellProvider: function() {
-        var provider = this.getBehavior().getCellProvider();
+        var provider = this.behavior.getCellProvider();
         return provider;
     },
 
@@ -593,7 +593,7 @@ Hypergrid.prototype = {
      * @desc The grid has just been rendered, make sure the column widths are optimal.
      */
     checkColumnAutosizing: function() {
-        var behavior = this.getBehavior();
+        var behavior = this.behavior;
         behavior.autoSizeRowNumberColumn();
         if (this.isColumnAutosizing()) {
             behavior.checkColumnAutosizing(false);
@@ -604,11 +604,10 @@ Hypergrid.prototype = {
      * @desc Notify the GridBehavior how many rows and columns we just rendered.
      */
     updateRenderedSizes: function() {
-        var behavior = this.getBehavior();
         //add one to each of these values as we want also to include
         //the columns and rows that are partially visible
-        behavior.setRenderedColumnCount(this.getVisibleColumns() + 1);
-        behavior.setRenderedRowCount(this.getVisibleRows() + 1);
+        this.behavior.setRenderedColumnCount(this.getVisibleColumns() + 1);
+        this.behavior.setRenderedRowCount(this.getVisibleRows() + 1);
     },
 
     /**
@@ -785,14 +784,6 @@ Hypergrid.prototype = {
      */
     getSelectionModel: function() {
         return this.selectionModel;
-    },
-
-    /**
-     * @memberOf Hypergrid.prototype
-     * @returns {Behavior} The behavior (model).
-     */
-    getBehavior: function() {
-        return this.behavior;
     },
 
     /**
@@ -1098,11 +1089,11 @@ Hypergrid.prototype = {
     },
 
     convertViewPointToDataPoint: function(viewPoint) {
-        return this.getBehavior().convertViewPointToDataPoint(viewPoint);
+        return this.behavior.convertViewPointToDataPoint(viewPoint);
     },
 
     convertDataPointToViewPoint: function(dataPoint) {
-        return this.getBehavior().convertDataPointToViewPoint(dataPoint);
+        return this.behavior.convertDataPointToViewPoint(dataPoint);
     },
 
     /**
@@ -1173,8 +1164,7 @@ Hypergrid.prototype = {
      * @param {Event} event - The pertinent event.
      */
     delegateWheelMoved: function(event) {
-        var behavior = this.getBehavior();
-        behavior.onWheelMoved(this, event);
+        this.behavior.onWheelMoved(this, event);
     },
 
     /**
@@ -1183,8 +1173,7 @@ Hypergrid.prototype = {
      * @param {Event} event - The pertinent event.
      */
     delegateMouseExit: function(event) {
-        var behavior = this.getBehavior();
-        behavior.handleMouseExit(this, event);
+        this.behavior.handleMouseExit(this, event);
     },
 
     /**
@@ -1193,8 +1182,7 @@ Hypergrid.prototype = {
      * @param {Event} event - The pertinent event.
      */
     delegateContextMenu: function(event) {
-        var behavior = this.getBehavior();
-        behavior.onContextMenu(this, event);
+       this. behavior.onContextMenu(this, event);
     },
 
     /**
@@ -1203,8 +1191,7 @@ Hypergrid.prototype = {
      * @param {mouseDetails} mouseDetails - An enriched mouse event from fin-canvas.
      */
     delegateMouseMove: function(mouseDetails) {
-        var behavior = this.getBehavior();
-        behavior.onMouseMove(this, mouseDetails);
+        this.behavior.onMouseMove(this, mouseDetails);
     },
 
     /**
@@ -1213,8 +1200,7 @@ Hypergrid.prototype = {
      * @param {mouseDetails} mouseDetails - An enriched mouse event from fin-canvas.
      */
     delegateMouseDown: function(mouseDetails) {
-        var behavior = this.getBehavior();
-        behavior.handleMouseDown(this, mouseDetails);
+        this.behavior.handleMouseDown(this, mouseDetails);
     },
 
     /**
@@ -1223,8 +1209,7 @@ Hypergrid.prototype = {
      * @param {mouseDetails} mouseDetails - An enriched mouse event from fin-canvas.
      */
     delegateMouseUp: function(mouseDetails) {
-        var behavior = this.getBehavior();
-        behavior.onMouseUp(this, mouseDetails);
+        this.behavior.onMouseUp(this, mouseDetails);
     },
 
     /**
@@ -1233,8 +1218,7 @@ Hypergrid.prototype = {
      * @param {mouseDetails} mouseDetails - An enriched mouse event from fin-canvas.
      */
     delegateTap: function(mouseDetails) {
-        var behavior = this.getBehavior();
-        behavior.onTap(this, mouseDetails);
+        this.behavior.onTap(this, mouseDetails);
     },
 
     /**
@@ -1243,8 +1227,7 @@ Hypergrid.prototype = {
      * @param {mouseDetails} mouseDetails - An enriched mouse event from fin-canvas.
      */
     delegateMouseDrag: function(mouseDetails) {
-        var behavior = this.getBehavior();
-        behavior.onMouseDrag(this, mouseDetails);
+        this.behavior.onMouseDrag(this, mouseDetails);
     },
 
     /**
@@ -1253,8 +1236,7 @@ Hypergrid.prototype = {
      * @param {mouseDetails} mouseDetails - An enriched mouse event from fin-canvas.
      */
     delegateDoubleClick: function(mouseDetails) {
-        var behavior = this.getBehavior();
-        behavior.onDoubleClick(this, mouseDetails);
+        this.behavior.onDoubleClick(this, mouseDetails);
     },
 
     /**
@@ -1263,8 +1245,7 @@ Hypergrid.prototype = {
      * @param {mouseDetails} mouseDetails - An enriched mouse event from fin-canvas.
      */
     delegateHoldPulse: function(mouseDetails) {
-        var behavior = this.getBehavior();
-        behavior.onHoldPulse(this, mouseDetails);
+        this.behavior.onHoldPulse(this, mouseDetails);
     },
 
     /**
@@ -1274,8 +1255,7 @@ Hypergrid.prototype = {
      * @param {event} event - The pertinent event.
      */
     delegateKeyDown: function(event) {
-        var behavior = this.getBehavior();
-        behavior.onKeyDown(this, event);
+        this.behavior.onKeyDown(this, event);
     },
 
     /**
@@ -1285,8 +1265,7 @@ Hypergrid.prototype = {
      * @param {event} event - The pertinent event.
      */
     delegateKeyUp: function(event) {
-        var behavior = this.getBehavior();
-        behavior.onKeyUp(this, event);
+        this.behavior.onKeyUp(this, event);
     },
 
     /**
@@ -1319,7 +1298,6 @@ Hypergrid.prototype = {
      */
     getDataBounds: function() {
         var colDNDHackWidth = 200; //this was a hack to help with column dnd, need to factor this into a shared variable
-        //var behavior = this.getBehavior();
         var b = this.canvas.bounds;
 
         //var x = this.getRowNumbersWidth();
@@ -1538,7 +1516,6 @@ Hypergrid.prototype = {
             return;
         }
 
-        //var behavior = this.getBehavior();
         var hovered = this.getHoverCell();
         var sy = this.getVScrollValue();
         var x = hovered.x;
@@ -1549,7 +1526,7 @@ Hypergrid.prototype = {
             sy = 0;
         }
         hovered = new Point(x, hovered.y + sy);
-        this.getBehavior().cellClicked(hovered, event);
+        this.behavior.cellClicked(hovered, event);
     },
 
     /**
@@ -1955,7 +1932,7 @@ Hypergrid.prototype = {
             time: Date.now(),
             grid: this
         };
-        this.getBehavior().enhanceDoubleClickEvent(detail);
+        this.behavior.enhanceDoubleClickEvent(detail);
         var clickEvent = new CustomEvent('fin-click', {
             detail: detail
         });
@@ -1971,18 +1948,17 @@ Hypergrid.prototype = {
     fireSyntheticDoubleClickEvent: function(mouseEvent) {
         this.stopEditing();
         var cell = mouseEvent.gridCell;
-        var behavior = this.getBehavior();
         var detail = {
             gridCell: cell,
             mousePoint: mouseEvent.mousePoint,
             time: Date.now(),
             grid: this
         };
-        behavior.enhanceDoubleClickEvent(mouseEvent);
+        this.behavior.enhanceDoubleClickEvent(mouseEvent);
         var clickEvent = new CustomEvent('fin-double-click', {
             detail: detail
         });
-        behavior.cellDoubleClicked(cell, mouseEvent);
+        this.behavior.cellDoubleClicked(cell, mouseEvent);
         this.canvas.dispatchEvent(clickEvent);
     },
 
@@ -2034,7 +2010,7 @@ Hypergrid.prototype = {
         if (y === this.vScrollValue) {
             return;
         }
-        this.getBehavior()._setScrollPositionY(y);
+        this.behavior._setScrollPositionY(y);
         var oldY = this.vScrollValue;
         this.vScrollValue = y;
         this.scrollValueChangedNotification();
@@ -2065,7 +2041,7 @@ Hypergrid.prototype = {
         if (x === this.hScrollValue) {
             return;
         }
-        this.getBehavior()._setScrollPositionX(x);
+        this.behavior._setScrollPositionX(x);
         var oldX = this.hScrollValue;
         this.hScrollValue = x;
         this.scrollValueChangedNotification();
@@ -2210,7 +2186,7 @@ Hypergrid.prototype = {
      * @param {*} value
      */
     getValue: function(x, y) {
-        return this.getBehavior().getValue(x, y);
+        return this.behavior.getValue(x, y);
     },
 
     /**
@@ -2220,11 +2196,11 @@ Hypergrid.prototype = {
      * @param {number} y - The vertical coordinate.
      */
     setValue: function(x, y, value) {
-        this.getBehavior().setValue(x, y, value);
+        this.behavior.setValue(x, y, value);
     },
 
     getColumnAlignment: function(c) {
-        return this.getBehavior().getColumnAlignment(c);
+        return this.behavior.getColumnAlignment(c);
     },
 
     /**
@@ -2233,9 +2209,6 @@ Hypergrid.prototype = {
      * Adjust the scrollbar properties as necessary.
      */
     synchronizeScrollingBoundries: function() {
-        //327/664
-        var behavior = this.getBehavior();
-
         var numFixedColumns = this.getFixedColumnCount();
         var numFixedRows = this.getFixedRowCount();
 
@@ -2246,8 +2219,8 @@ Hypergrid.prototype = {
         if (!bounds) {
             return;
         }
-        var scrollableHeight = bounds.height - behavior.getFixedRowsMaxHeight() - 15; //5px padding at bottom and right side
-        var scrollableWidth = (bounds.width - 200) - behavior.getFixedColumnsMaxWidth() - 15;
+        var scrollableHeight = bounds.height - this.behavior.getFixedRowsMaxHeight() - 15; //5px padding at bottom and right side
+        var scrollableWidth = (bounds.width - 200) - this.behavior.getFixedColumnsMaxWidth() - 15;
 
         var lastPageColumnCount = 0;
         var columnsWidth = 0;
@@ -2326,7 +2299,7 @@ Hypergrid.prototype = {
      * @param {number} columnIndex - The untranslated column index.
      */
     getColumnWidth: function(columnIndex) {
-        return this.getBehavior().getColumnWidth(columnIndex);
+        return this.behavior.getColumnWidth(columnIndex);
     },
 
     /**
@@ -2337,11 +2310,11 @@ Hypergrid.prototype = {
      */
     setColumnWidth: function(columnIndex, columnWidth) {
         this.stopEditing();
-        this.getBehavior().setColumnWidth(columnIndex, columnWidth);
+        this.behavior.setColumnWidth(columnIndex, columnWidth);
     },
 
     getColumnEdge: function(c) {
-        return this.getBehavior().getColumnEdge(c, this.getRenderer());
+        return this.behavior.getColumnEdge(c, this.getRenderer());
     },
 
     /**
@@ -2349,7 +2322,7 @@ Hypergrid.prototype = {
      * @returns {number} The total width of all the fixed columns.
      */
     getFixedColumnsWidth: function() {
-        return this.getBehavior().getFixedColumnsWidth();
+        return this.behavior.getFixedColumnsWidth();
     },
 
     /**
@@ -2358,7 +2331,7 @@ Hypergrid.prototype = {
      * @param {number} rowIndex - The untranslated fixed column index.
      */
     getRowHeight: function(rowIndex) {
-        return this.getBehavior().getRowHeight(rowIndex);
+        return this.behavior.getRowHeight(rowIndex);
     },
 
     /**
@@ -2369,7 +2342,7 @@ Hypergrid.prototype = {
      */
     setRowHeight: function(rowIndex, rowHeight) {
         this.stopEditing();
-        this.getBehavior().setRowHeight(rowIndex, rowHeight);
+        this.behavior.setRowHeight(rowIndex, rowHeight);
     },
 
     /**
@@ -2377,7 +2350,7 @@ Hypergrid.prototype = {
      * @returns {number} The total fixed rows height
      */
     getFixedRowsHeight: function() {
-        return this.getBehavior().getFixedRowsHeight();
+        return this.behavior.getFixedRowsHeight();
     },
 
     /**
@@ -2385,7 +2358,7 @@ Hypergrid.prototype = {
      * @returns {number} The number of columns.
      */
     getColumnCount: function() {
-        return this.getBehavior().getColumnCount();
+        return this.behavior.getColumnCount();
     },
 
     /**
@@ -2393,7 +2366,7 @@ Hypergrid.prototype = {
      * @returns {number} The number of fixed rows.
      */
     getRowCount: function() {
-        return this.getBehavior().getRowCount();
+        return this.behavior.getRowCount();
     },
 
     /**
@@ -2401,7 +2374,7 @@ Hypergrid.prototype = {
      * @returns {number} The number of unfiltered rows.
      */
     getUnfilteredRowCount: function() {
-        return this.getBehavior().getUnfilteredRowCount();
+        return this.behavior.getUnfilteredRowCount();
     },
 
     /**
@@ -2409,7 +2382,7 @@ Hypergrid.prototype = {
      * @returns {number} The number of fixed columns.
      */
     getFixedColumnCount: function() {
-        return this.getBehavior().getFixedColumnCount();
+        return this.behavior.getFixedColumnCount();
     },
 
     /**
@@ -2417,7 +2390,7 @@ Hypergrid.prototype = {
      * @returns The number of fixed rows.
      */
     getFixedRowCount: function() {
-        return this.getBehavior().getFixedRowCount();
+        return this.behavior.getFixedRowCount();
     },
 
     /**
@@ -2427,7 +2400,7 @@ Hypergrid.prototype = {
      * @param {event} event - The event details.
      */
     topLeftClicked: function(mouse) {
-        this.getBehavior().topLeftClicked(this, mouse);
+        this.behavior.topLeftClicked(this, mouse);
     },
 
     /**
@@ -2437,7 +2410,7 @@ Hypergrid.prototype = {
      * @param {event} event - The event details.
      */
     rowHeaderClicked: function(mouse) {
-        this.getBehavior().rowHeaderClicked(this, mouse);
+        this.behavior.rowHeaderClicked(this, mouse);
     },
 
     /**
@@ -2447,7 +2420,7 @@ Hypergrid.prototype = {
      * @param {event} event - The event details.
      */
     columnHeaderClicked: function(mouse) {
-        this.getBehavior().columnHeaderClicked(this, mouse);
+        this.behavior.columnHeaderClicked(this, mouse);
     },
 
     /**
@@ -2498,7 +2471,7 @@ Hypergrid.prototype = {
      * @param {y} y - The vertical coordinate.
      */
     getCellEditorAt: function(x, y) {
-        return this.getBehavior()._getCellEditorAt(x, y);
+        return this.behavior._getCellEditorAt(x, y);
     },
 
     /**
@@ -2568,12 +2541,11 @@ Hypergrid.prototype = {
     update the cursor under the hover cell
      */
     updateCursor: function() {
-        var translate = this.getBehavior();
-        var cursor = translate.getCursorAt(-1, -1);
+        var cursor = this.behavior.getCursorAt(-1, -1);
         var hoverCell = this.getHoverCell();
         if (hoverCell && hoverCell.x > -1 && hoverCell.y > -1) {
             var x = hoverCell.x + this.getHScrollValue();
-            cursor = translate.getCursorAt(x, hoverCell.y + this.getVScrollValue());
+            cursor = this.behavior.getCursorAt(x, hoverCell.y + this.getVScrollValue());
         }
         this.beCursor(cursor);
     },
@@ -2640,7 +2612,7 @@ Hypergrid.prototype = {
      */
     getRenderedData: function() {
         // assumes one row of headers
-        var behavior = this.getBehavior(),
+        var behavior = this.behavior,
             renderer = this.getRenderer(),
             colCount = this.getColumnCount(),
             rowCount = renderer.getVisibleRows(),
@@ -2671,7 +2643,7 @@ Hypergrid.prototype = {
     getSelectedRow: function() {
         var sels = this.selectionModel.selections;
         if (sels.length) {
-            var behavior = this.getBehavior(),
+            var behavior = this.behavior,
                 colCount = this.getColumnCount(),
                 topRow = sels[0].origin.y,
                 row = {
@@ -2746,7 +2718,7 @@ Hypergrid.prototype = {
      * @param {number} colIndex - The column index to modify at
      */
     autosizeColumn: function(colIndex) {
-        var column = this.getBehavior().getColumn(colIndex);
+        var column = this.behavior.getColumn(colIndex);
         column.checkColumnAutosizing(true);
         this.computeCellsBounds();
     },
@@ -2820,15 +2792,15 @@ Hypergrid.prototype = {
     },
 
     swapColumns: function(source, target) {
-        this.getBehavior().swapColumns(source, target);
+        this.behavior.swapColumns(source, target);
     },
 
     endDragColumnNotification: function() {
-        this.getBehavior().endDragColumnNotification();
+        this.behavior.endDragColumnNotification();
     },
 
     getFixedColumnsMaxWidth: function() {
-        return this.getBehavior().getFixedColumnsMaxWidth();
+        return this.behavior.getFixedColumnsMaxWidth();
     },
 
     isMouseDownInHeaderArea: function() {
@@ -2843,21 +2815,19 @@ Hypergrid.prototype = {
     },
 
     _getBoundsOfCell: function(x, y) {
-        var bounds = this.getRenderer()._getBoundsOfCell(x, y);
-        return bounds;
+        return this.getRenderer()._getBoundsOfCell(x, y);
     },
 
     getColumnProperties: function(columnIndex) {
-        var properties = this.getBehavior().getColumnProperties(columnIndex);
-        return properties;
+        return this.behavior.getColumnProperties(columnIndex);
     },
 
     setColumnProperties: function(columnIndex, properties) {
-        this.getBehavior().setColumnProperties(columnIndex, properties);
+        this.behavior.setColumnProperties(columnIndex, properties);
     },
 
     moveSingleSelect: function(x, y) {
-        this.getBehavior().moveSingleSelect(this, x, y);
+        this.behavior.moveSingleSelect(this, x, y);
     },
 
     selectCell: function(x, y) {
@@ -2866,12 +2836,12 @@ Hypergrid.prototype = {
     },
 
     getHeaderColumnCount: function() {
-        return this.getBehavior().getHeaderColumnCount();
+        return this.behavior.getHeaderColumnCount();
     },
 
     toggleSort: function(x, keys) {
         this.stopEditing();
-        var behavior = this.getBehavior();
+        var behavior = this.behavior;
         var self = this;
         behavior.toggleSort(x, keys);
 
@@ -3083,7 +3053,7 @@ Hypergrid.prototype = {
         return this.resolveProperty('showHeaderRow');
     },
     getHeaderRowCount: function() {
-        return this.getBehavior().getHeaderRowCount();
+        return this.behavior.getHeaderRowCount();
     },
     isFilterRow: function(y) {
         return y === this.getFilterRowIndex();
@@ -3099,13 +3069,13 @@ Hypergrid.prototype = {
         }
     },
     setGroups: function(arrayOfColumnIndexes) {
-        this.getBehavior().setGroups(arrayOfColumnIndexes);
+        this.behavior.setGroups(arrayOfColumnIndexes);
     },
     filterClicked: function(event) {
         this.activateEditor(event.gridCell.x, event.gridCell.y);
     },
     hasHierarchyColumn: function() {
-        return this.getBehavior().hasHierarchyColumn();
+        return this.behavior.hasHierarchyColumn();
     },
     isHierarchyColumn: function(x) {
         if (!this.hasHierarchyColumn()) {
@@ -3157,17 +3127,17 @@ Hypergrid.prototype = {
         return this.selectionModel.isColumnSelected(c);
     },
     lookupFeature: function(key) {
-        return this.getBehavior().lookupFeature(key);
+        return this.behavior.lookupFeature(key);
     },
     getRow: function(y) {
-        return this.getBehavior().getRow(y);
+        return this.behavior.getRow(y);
     },
     getFieldName: function(index) {
-        return this.getBehavior().getFieldName(index);
+        return this.behavior.getFieldName(index);
     },
 
     getColumnIndex: function(fieldName) {
-        return this.getBehavior().getColumnIndex(fieldName);
+        return this.behavior.getColumnIndex(fieldName);
     },
     isCellSelection: function() {
         return this.resolveProperty('cellSelection') === true;
@@ -3179,13 +3149,13 @@ Hypergrid.prototype = {
         return this.resolveProperty('columnSelection') === true;
     },
     getComputedRow: function(y) {
-        return this.getBehavior().getComputedRow(y);
+        return this.behavior.getComputedRow(y);
     },
     isColumnAutosizing: function() {
         return this.resolveProperty('columnAutosizing') === true;
     },
     setGlobalFilter: function(string) {
-        this.getBehavior().setGlobalFilter(string);
+        this.behavior.setGlobalFilter(string);
     },
     selectRowsFromCells: function() {
         if (!this.isCheckboxOnlyRowSelections()) {
@@ -3206,13 +3176,13 @@ Hypergrid.prototype = {
         this.selectionModel.selectColumnsFromCells();
     },
     getSelectedRows: function() {
-        return this.getBehavior().getSelectedRows();
+        return this.behavior.getSelectedRows();
     },
     getSelectedColumns: function() {
-        return this.getBehavior().getSelectedColumns();
+        return this.behavior.getSelectedColumns();
     },
     getSelections: function() {
-        return this.getBehavior().getSelections();
+        return this.behavior.getSelections();
     },
     getLastSelectionType: function() {
         return this.selectionModel.getLastSelectionType();
@@ -3238,7 +3208,7 @@ Hypergrid.prototype = {
         this.repaint();
     },
     getField: function(x) {
-        return this.getBehavior().getField(x);
+        return this.behavior.getField(x);
     },
     isSingleRowSelectionMode: function() {
         return this.resolveProperty('singleRowSelectionMode');

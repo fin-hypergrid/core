@@ -90,11 +90,10 @@ var Renderer = Base.extend('Renderer', {
             numRows = this.getRowCount(),
             numFixedRows = this.getFixedRowCount(),
 
-            behavior = this.getBehavior(),
             bounds = this.getBounds(),
-            numberOfBottomTotalsRows = behavior.getDataModel().getBottomTotals().length,
+            numberOfBottomTotalsRows = this.grid.behavior.getDataModel().getBottomTotals().length,
             viewWidth = bounds.width || this.grid.canvas.width, // if 0, we must be in bootstrap
-            viewHeight = bounds.height - numberOfBottomTotalsRows * behavior.getDefaultRowHeight(),
+            viewHeight = bounds.height - numberOfBottomTotalsRows * this.grid.behavior.getDefaultRowHeight(),
 
             insertionBoundsCursor = 0,
             previousInsertionBoundsCursorValue = 0,
@@ -302,7 +301,7 @@ var Renderer = Base.extend('Renderer', {
         cell.width = xOutside ? 0 : ex;
 
         if (r < 0) { // bottom totals rows
-            var behavior = this.grid.getBehavior(),
+            var behavior = this.grid.behavior,
                 bounds = this.getBounds();
 
             ey = behavior.getDefaultRowHeight();
@@ -362,7 +361,7 @@ var Renderer = Base.extend('Renderer', {
      */
     getGridCellFromMousePoint: function(point) {
 
-        var behavior = this.grid.getBehavior();
+        var behavior = this.grid.behavior;
         var width = 0;
         var height = 0;
         var x, y, c, r;
@@ -689,14 +688,6 @@ var Renderer = Base.extend('Renderer', {
         return st;
     },
 
-    /**
-     * @memberOf Renderer.prototype
-     * @returns {Behavior}
-     */
-    getBehavior: function() {
-        return this.grid.getBehavior();
-    },
-
     getColumnEdges: function() {
         return this.columnEdges;
     },
@@ -711,7 +702,7 @@ var Renderer = Base.extend('Renderer', {
      * @param {number} rowIndex
      */
     getRowHeight: function(rowIndex) {
-        var height = this.getBehavior().getRowHeight(rowIndex);
+        var height = this.grid.behavior.getRowHeight(rowIndex);
         return height;
     },
 
@@ -772,7 +763,7 @@ var Renderer = Base.extend('Renderer', {
      * @returns {number} The row to goto for a page up.
      */
     getPageUpRow: function() {
-        var behavior = this.getBehavior();
+        var behavior = this.grid.behavior;
         var scrollHeight = this.getVisibleScrollHeight();
         var headerRows = this.grid.getFixedRowCount();
         var top = this.dataWindow.origin.y - headerRows;
@@ -862,7 +853,7 @@ var Renderer = Base.extend('Renderer', {
             visibleCols = this.getVisibleColumns(),
             visibleRows = this.getVisibleRows(),
 
-            behavior = this.getBehavior(),
+            behavior = this.grid.behavior,
 
             clipX = 0,
             clipY = 0,
@@ -975,7 +966,7 @@ var Renderer = Base.extend('Renderer', {
             }
 
             // Bottom totals rows...
-            var behavior = this.getBehavior(),
+            var behavior = this.grid.behavior,
                 rowHeight = behavior.getDefaultRowHeight();
             for (r = -behavior.getDataModel().getBottomTotals().length, y = this.getBounds().height; r; r++) {
                 y -= rowHeight;
@@ -1011,14 +1002,14 @@ var Renderer = Base.extend('Renderer', {
     _paintCell: function(gc, c, r) {
 
         var grid = this.grid,
-            behavior = this.getBehavior(),
-            baseProperties = behavior.getColumnProperties(c);
+            baseProperties = this.grid.behavior.getColumnProperties(c);
 
         if (baseProperties.isNull) {
             return;
         }
 
         var columnProperties = baseProperties,
+            behavior = this.grid.behavior,
             headerRowCount = behavior.getHeaderRowCount(),
             isShowRowNumbers = grid.isShowRowNumbers(),
             isHeaderRow = r >= 0 && r < headerRowCount,

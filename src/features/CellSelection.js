@@ -62,14 +62,13 @@ var CellSelection = Feature.extend('CellSelection', {
      */
     handleMouseDown: function(grid, event) {
         var isRightClick = event.primitiveEvent.detail.isRightClick;
-        var behavior = grid.getBehavior();
         var cell = event.gridCell;
         var viewCell = event.viewPoint;
         var dx = cell.x;
         var dy = cell.y;
-        var headerRowCount = behavior.getHeaderRowCount();
-        var headerColumnCount = behavior.getHeaderColumnCount();
-        var columnCount = behavior.getColumnCount();
+        var headerRowCount = grid.behavior.getHeaderRowCount();
+        var headerColumnCount = grid.behavior.getHeaderColumnCount();
+        var columnCount = grid.behavior.getColumnCount();
         var isOutside = viewCell.x >= columnCount;
 
         var isHeader = dy < headerRowCount || dx < headerColumnCount;
@@ -168,9 +167,8 @@ var CellSelection = Feature.extend('CellSelection', {
      */
     handleMouseDragCellSelection: function(grid, gridCell, keys) {
 
-        var behavior = grid.getBehavior();
-        var headerRowCount = behavior.getHeaderRowCount();
-        var headerColumnCount = behavior.getHeaderColumnCount();
+        var headerRowCount = grid.behavior.getHeaderRowCount();
+        var headerColumnCount = grid.behavior.getHeaderColumnCount();
         var x = gridCell.x;
         var y = gridCell.y;
         x = Math.max(headerColumnCount, x);

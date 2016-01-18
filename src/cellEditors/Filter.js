@@ -137,7 +137,7 @@ var Filter = CellEditor.extend('Filter', {
     },
 
     beginEditAt: function(editorPoint) {
-        var behavior = this.grid.getBehavior();
+        var behavior = this.grid.behavior;
         var dialog = this.grid.dialog;
 
         var columnIndex = editorPoint.x,

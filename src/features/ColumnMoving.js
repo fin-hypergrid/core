@@ -163,7 +163,7 @@ var ColumnMoving = Feature.extend('ColumnMoving', {
      * @param {Object} event - the event details
      */
     handleMouseDown: function(grid, event) {
-        if (grid.getBehavior().isColumnReorderable()) {
+        if (grid.behavior.isColumnReorderable()) {
             if (this.isHeaderRow(grid, event) && event.gridCell.x !== -1) {
                 this.dragArmed = true;
                 this.cursor = this.getDraggingCursorName();
@@ -238,7 +238,6 @@ var ColumnMoving = Feature.extend('ColumnMoving', {
 
         var renderer = grid.getRenderer();
         var colEdges = renderer.getColumnEdges();
-        //var behavior = grid.getBehavior();
         var scrollLeft = grid.getHScrollValue();
         var floaterIndex = grid.renderOverridesCache.floater.columnIndex;
         var draggerIndex = grid.renderOverridesCache.dragger.columnIndex;

@@ -205,7 +205,7 @@ var Simple = CellEditor.extend('Simple', {
         if (!continued) {
             return;
         }
-        this.getBehavior().setValue(point.x, point.y, value);
+        this.grid.behavior.setValue(point.x, point.y, value);
         this.grid.fireAfterCellEdit(point, this.initialValue, value, this);
     },
 
@@ -239,8 +239,7 @@ var Simple = CellEditor.extend('Simple', {
         }
 
         this.setEditorPoint(point);
-        var model = this.getBehavior();
-        var value = model.getValue(point.x, point.y);
+        var value = this.grid.behavior.getValue(point.x, point.y);
         if (value.constructor.name === 'Array') {
             value = value[1]; //it's a nested object
         }

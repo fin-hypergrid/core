@@ -9,10 +9,9 @@
             window.onload = function() {
                 getJSON('simpledata.json', function(data) {
                     var div = document.querySelector('div#json-example'),
-                        jsonGrid = new fin.Hypergrid(div, getContainer),
-                        jsonModel = jsonGrid.getBehavior();
+                        jsonGrid = new fin.Hypergrid(div, getContainer);
 
-                    jsonModel.setData(data);
+                    jsonGrid.behavior.setData(data);
 
                     function getContainer(grid) {
                         return new fin.Hypergrid.behaviors.JSON(grid, data);
