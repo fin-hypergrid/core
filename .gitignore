@@ -1,8 +1,8 @@
 .DS_Store
 /.idea
 /doc
-/node_modules
+/node_modules*
 /index.*
-/images/index.js
+/images/*.js
 /src/local_node_modules
 !/src/local_node_modules/finanalytics
