@@ -33,15 +33,14 @@ var Choice = Simple.extend('Choice', {
     },
 
     autopopulate: function() {
-        var grid = this.getGrid();
-        var behavior = grid.getBehavior();
+        var behavior = this.grid.getBehavior();
         var point = this.getEditorPoint();
-        var colProps = grid.getColumnProperties(point.x);
+        var colProps = this.grid.getColumnProperties(point.x);
         if (!colProps.autopopulateEditor) {
             return;
         }
-        var headerCount = grid.getHeaderRowCount();
-        var rowCount = grid.getUnfilteredRowCount() - headerCount;
+        var headerCount = this.grid.getHeaderRowCount();
+        var rowCount = this.grid.getUnfilteredRowCount() - headerCount;
         var column = point.x;
         var map = new Map();
         for (var r = 0; r < rowCount; r++) {

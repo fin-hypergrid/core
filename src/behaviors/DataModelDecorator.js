@@ -11,17 +11,13 @@ DataModelDecorator.prototype = {
     component: null,
     grid: null,
 
-    getGrid: function() {
-        return this.grid;
-    },
-
     setGrid: function(newGrid) {
         this.grid = newGrid;
         this.getComponent().setGrid(newGrid);
     },
 
     getBehavior: function() {
-        return this.getGrid().getBehavior();
+        return this.grid.getBehavior();
     },
 
     changed: function() {
@@ -29,7 +25,7 @@ DataModelDecorator.prototype = {
     },
 
     getPrivateState: function() {
-        return this.getGrid().getPrivateState();
+        return this.grid.getPrivateState();
     },
 
     applyState: function() {

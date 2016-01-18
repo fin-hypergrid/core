@@ -48,11 +48,11 @@ var Simple = CellEditor.extend('Simple', {
             if (specialKeyup) {
                 e.preventDefault();
                 this[specialKeyup]();
-                this.getGrid().repaint();
-                this.getGrid().takeFocus();
+                this.grid.repaint();
+                this.grid.takeFocus();
             }
 
-            this.getGrid().fireSyntheticEditorKeyUpEvent(this, e);
+            this.grid.fireSyntheticEditorKeyUpEvent(this, e);
         }
     },
 
@@ -64,10 +64,10 @@ var Simple = CellEditor.extend('Simple', {
         var self = this;
         input.addEventListener('keyup', this.keyup.bind(this));
         input.addEventListener('keydown', function(e) {
-            self.getGrid().fireSyntheticEditorKeyDownEvent(self, e);
+            self.grid.fireSyntheticEditorKeyDownEvent(self, e);
         });
         input.addEventListener('keypress', function(e) {
-            self.getGrid().fireSyntheticEditorKeyPressEvent(self, e);
+            self.grid.fireSyntheticEditorKeyPressEvent(self, e);
         });
         input.onblur = function(e) {
             self.cancelEditing();
@@ -201,12 +201,12 @@ var Simple = CellEditor.extend('Simple', {
         if (parseFloat(this.initialValue) === this.initialValue) { // I'm a number
             value = parseFloat(value);
         }
-        var continued = this.getGrid().fireBeforeCellEdit(point, this.initialValue, value, this);
+        var continued = this.grid.fireBeforeCellEdit(point, this.initialValue, value, this);
         if (!continued) {
             return;
         }
         this.getBehavior().setValue(point.x, point.y, value);
-        this.getGrid().fireAfterCellEdit(point, this.initialValue, value, this);
+        this.grid.fireAfterCellEdit(point, this.initialValue, value, this);
     },
 
     /**
@@ -214,12 +214,13 @@ var Simple = CellEditor.extend('Simple', {
      * @desc move the editor to the current editor point
      */
     _moveEditor: function() {
-        var grid = this.getGrid();
         var editorPoint = this.getEditorPoint();
-        var cellBounds = grid._getBoundsOfCell(editorPoint.x, editorPoint.y);
+        var cellBounds = this.grid._getBoundsOfCell(editorPoint.x, editorPoint.y);
 
         //hack to accomodate bootstrap margin issues...
-        var xOffset = grid.div.getBoundingClientRect().left - grid.divCanvas.getBoundingClientRect().left;
+        var xOffset =
+            this.grid.div.getBoundingClientRect().left -
+            this.grid.divCanvas.getBoundingClientRect().left;
         cellBounds.x = cellBounds.x - xOffset;
 
         this.setBounds(cellBounds);

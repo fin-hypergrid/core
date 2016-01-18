@@ -830,7 +830,7 @@
 // The following functions service these controls.
 
 function setSelectionPropFromCheckbox(ctrl) {
-    jsonGrid.getSelectionModel().clear();
+    jsonGrid.selectionModel.clear();
     setPropFromCheckbox(ctrl);
     jsonGrid.repaint();
 }

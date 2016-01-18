@@ -547,7 +547,7 @@ var Behavior = Base.extend('Behavior', {
      * @return {object} Newly created default empty tablestate.
      */
     getDefaultState: function() {
-        var tableProperties = this.getGrid()._getProperties();
+        var tableProperties = this.grid._getProperties();
         var state = Object.create(tableProperties);
 
         _(state).extendOwn({
@@ -689,15 +689,6 @@ var Behavior = Base.extend('Behavior', {
         this.grid = finGrid;
         this.getDataModel().setGrid(finGrid);
         this.clearColumns();
-    },
-
-    /**
-     * @memberOf Behavior.prototype
-     * @returns: {Hypergrid} The hypergrid to which this behavior is attached.
-     * @param {type} varname - descripton
-     */
-    getGrid: function() {
-        return this.grid;
     },
 
     /**
@@ -862,7 +853,7 @@ var Behavior = Base.extend('Behavior', {
     getFixedColumnsWidth: function() {
         var count = this.getFixedColumnCount();
         var total = 0;
-        if (this.getGrid().isShowRowNumbers()) {
+        if (this.grid.isShowRowNumbers()) {
             total = this.getColumnWidth(-1);
         }
         for (var i = 0; i < count; i++) {
@@ -1294,7 +1285,7 @@ var Behavior = Base.extend('Behavior', {
         if (!this.tableState) {
             return 0;
         }
-        var headers = this.getGrid().getHeaderRowCount();
+        var headers = this.grid.getHeaderRowCount();
         var usersSize = this.tableState.fixedRowCount || 0;
         return headers + usersSize;
     },
@@ -1323,9 +1314,8 @@ var Behavior = Base.extend('Behavior', {
      * (The remaining _fixed rows_ are the _top totals_ rows.)
      */
     getHeaderRowCount: function() {
-        var grid = this.getGrid();
-        var header = grid.isShowHeaderRow() ? 1 : 0;
-        var filter = grid.isShowFilterRow() ? 1 : 0;
+        var header = this.grid.isShowHeaderRow() ? 1 : 0;
+        var filter = this.grid.isShowFilterRow() ? 1 : 0;
         var totals = this.getTopTotals().length;
         return header + filter + totals;
     },
@@ -1356,9 +1346,7 @@ var Behavior = Base.extend('Behavior', {
      * @return {number} The number of fixed rows.
      */
     getHeaderColumnCount: function() {
-        var grid = this.getGrid();
-        var count = grid.resolveProperty('headerColumnCount');
-        return count;
+        return this.grid.resolveProperty('headerColumnCount');
     },
 
     /**
@@ -1492,23 +1480,21 @@ var Behavior = Base.extend('Behavior', {
      */
     _getCellEditorAt: function(x, y) {
         var editor = this.getColumn(x).getCellEditorAt(x, y);
-        if (editor) {
-            return editor;
+
+        if (!editor) {
+            var column = this.getColumn(x);
+            var type = this.grid.isFilterRow(y) ? column.getFilterType() : column.getType();
+            editor = this.grid.resolveCellEditor(type);
         }
-        var grid = this.getGrid();
-        var column = this.getColumn(x);
-        var type = grid.isFilterRow(y) ? column.getFilterType() : column.getType();
-        editor = grid.resolveCellEditor(type);
+
         return editor;
     },
 
     getCellEditorAt: function(x, y) {
-        var grid = this.getGrid();
-        if (grid.isFilterRow(y)) {
-            return grid.cellEditors.textfield;
+        if (this.grid.isFilterRow(y)) {
+            return this.grid.cellEditors.textfield;
         }
-        var editor = this.getDataModel().getCellEditorAt(x, y);
-        return editor;
+        return this.getDataModel().getCellEditorAt(x, y);
     },
 
     /**
@@ -1602,7 +1588,7 @@ var Behavior = Base.extend('Behavior', {
      * @param {boolean} [atBottom=false] - this value is in the "bottom" totals area
      */
     setTotalsValue: function(x, y, value, atBottom) {
-        this.getGrid().setTotalsValueNotification(x, y, value, !!atBottom);
+        this.grid.setTotalsValueNotification(x, y, value, !!atBottom);
     },
 
     /**
@@ -1616,7 +1602,7 @@ var Behavior = Base.extend('Behavior', {
 
     convertViewPointToDataPoint: function(viewPoint) {
         var newX = this.getColumn(viewPoint.x).index;
-        var newPoint = this.getGrid().newPoint(newX, viewPoint.y);
+        var newPoint = this.grid.newPoint(newX, viewPoint.y);
         return newPoint;
     },
 
@@ -1678,7 +1664,7 @@ var Behavior = Base.extend('Behavior', {
     },
 
     autoSizeRowNumberColumn: function() {
-        if (this.getGrid().isRowNumberAutosizing()) {
+        if (this.grid.isRowNumberAutosizing()) {
             this.allColumns[-1].checkColumnAutosizing(true);
         }
     },
@@ -1688,15 +1674,15 @@ var Behavior = Base.extend('Behavior', {
     },
 
     getSelectedRows: function() {
-        return this.getGrid().getSelectionModel().getSelectedRows();
+        return this.grid.selectionModel.getSelectedRows();
     },
 
     getSelectedColumns: function() {
-        return this.getGrid().getSelectionModel().getSelectedColumns();
+        return this.grid.selectionModel.getSelectedColumns();
     },
 
     getSelections: function() {
-        return this.getGrid().getSelectionModel().getSelections();
+        return this.grid.selectionModel.selections;
     },
 
     getData: function() {

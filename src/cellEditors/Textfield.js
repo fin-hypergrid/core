@@ -34,7 +34,7 @@ var Textfield = Simple.extend('Textfield', {
         if (e) {
             Simple.prototype.keyup(e);
 
-            if (this.getGrid().isFilterRow(this.getEditorPoint().y)) {
+            if (this.grid.isFilterRow(this.getEditorPoint().y)) {
                 setTimeout(function() {
                     this.saveEditorValue();
                     this._moveEditor();
@@ -47,10 +47,10 @@ var Textfield = Simple.extend('Textfield', {
         var self = this;
         input.addEventListener('keyup', this.keyup.bind(this));
         input.addEventListener('keydown', function(e) {
-            self.getGrid().fireSyntheticEditorKeyDownEvent(self, e);
+            self.grid.fireSyntheticEditorKeyDownEvent(self, e);
         });
         input.addEventListener('keypress', function(e) {
-            self.getGrid().fireSyntheticEditorKeyPressEvent(self, e);
+            self.grid.fireSyntheticEditorKeyPressEvent(self, e);
         });
         input.onblur = function(e) {
             self.cancelEditing();

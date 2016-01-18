@@ -120,7 +120,7 @@ var CellEditor = Base.extend('CellEditor', {
      */
     setEditorPoint: function(point) {
         this.editorPoint = point;
-        this.modelPoint = this.getGrid().convertViewPointToDataPoint(point);
+        this.modelPoint = this.grid.convertViewPointToDataPoint(point);
     },
 
     /**
@@ -143,7 +143,7 @@ var CellEditor = Base.extend('CellEditor', {
         if (!this.isEditing) {
             return;
         }
-        var proceed = this.getGrid().fireSyntheticEditorDataChangeEvent(this, this.initialValue, this.getEditorValue, this);
+        var proceed = this.grid.fireSyntheticEditorDataChangeEvent(this, this.initialValue, this.getEditorValue, this);
         if (!proceed) {
             return;
         }
@@ -184,10 +184,6 @@ var CellEditor = Base.extend('CellEditor', {
      * @desc check that the editor is in the correct location, and is showing/hidden appropriately
      */
     checkEditor: function() {
-    },
-
-    getGrid: function() {
-        return this.grid;
     },
 
     template: function() {

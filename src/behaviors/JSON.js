@@ -67,7 +67,7 @@ var JSON = Local.extend('behaviors.JSON', {
 
     getDefaultDataModel: function() {
         var model = new DataModelJSON();
-        var wrapper = new DataModelDecorator(this.getGrid(), model);
+        var wrapper = new DataModelDecorator(this.grid, model);
         wrapper.setComponent(model);
         return wrapper;
     },
@@ -123,7 +123,7 @@ var JSON = Local.extend('behaviors.JSON', {
         this.getDataModel().setData(dataRows);
         this.createColumns();
         var self = this;
-        if (this.getGrid().isColumnAutosizing()) {
+        if (this.grid.isColumnAutosizing()) {
             setTimeout(function() {
                 self.autosizeAllColumns();
             }, 100);
@@ -307,8 +307,8 @@ var JSON = Local.extend('behaviors.JSON', {
     },
 
     getSelectedRows: function() {
-        var offset = -this.getGrid().getHeaderRowCount();
-        var selections = this.getGrid().getSelectionModel().getSelectedRows();
+        var offset = -this.grid.getHeaderRowCount();
+        var selections = this.grid.selectionModel.getSelectedRows();
         var result = selections.map(function(each) {
             return each + offset;
         });
@@ -316,11 +316,11 @@ var JSON = Local.extend('behaviors.JSON', {
     },
 
     getSelectedColumns: function() {
-        return this.getGrid().getSelectionModel().getSelectedColumns();
+        return this.grid.selectionModel.getSelectedColumns();
     },
 
     getSelections: function() {
-        return this.getGrid().getSelectionModel().getSelections();
+        return this.grid.selectionModel.selections;
     }
 
 });

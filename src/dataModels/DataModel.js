@@ -17,12 +17,8 @@ var DataModel = Base.extend('DataModel', {
         this.grid = newGrid;
     },
 
-    getGrid: function() {
-        return this.grid;
-    },
-
     getBehavior: function() {
-        return this.getGrid().getBehavior();
+        return this.grid.getBehavior();
     },
 
     changed: function() {
@@ -30,7 +26,7 @@ var DataModel = Base.extend('DataModel', {
     },
 
     getPrivateState: function() {
-        return this.getGrid().getPrivateState();
+        return this.grid.getPrivateState();
     },
 
     applyState: function() {

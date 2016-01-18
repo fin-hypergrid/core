@@ -117,29 +117,28 @@ var Filter = CellEditor.extend('Filter', {
     },
 
     okPressed: function() {
-        var dialog = this.getGrid().dialog;
+        var dialog = this.grid.dialog;
         dialog.onOkPressed();
     },
 
     cancelPressed: function() {
-        var dialog = this.getGrid().dialog;
+        var dialog = this.grid.dialog;
         dialog.onCancelPressed();
     },
 
     deletePressed: function() {
-        var dialog = this.getGrid().dialog;
+        var dialog = this.grid.dialog;
         dialog.onDeletePressed();
     },
 
     resetPressed: function() {
-        var dialog = this.getGrid().dialog;
+        var dialog = this.grid.dialog;
         dialog.onResetPressed();
     },
 
     beginEditAt: function(editorPoint) {
-        var grid = this.getGrid();
-        var behavior = grid.getBehavior();
-        var dialog = grid.dialog;
+        var behavior = this.grid.getBehavior();
+        var dialog = this.grid.dialog;
 
         var columnIndex = editorPoint.x,
             title = behavior.getColumnId(columnIndex),
@@ -154,7 +153,7 @@ var Filter = CellEditor.extend('Filter', {
             }];
         };
         this.title.innerHTML = 'filter for <strong><em>' + title + '</em></strong> column';
-        var filter = grid.getFilterFor(columnIndex);
+        var filter = this.grid.getFilterFor(columnIndex);
         //var self = this;
         if (dialog.isOpen()) {
             dialog.close();
@@ -211,10 +210,12 @@ var Filter = CellEditor.extend('Filter', {
                 }
             };
 
-            var cellBounds = grid._getBoundsOfCell(columnIndex, editorPoint.y);
+            var cellBounds = this.grid._getBoundsOfCell(columnIndex, editorPoint.y);
 
             //hack to accomodate bootstrap margin issues...
-            var xOffset = grid.div.getBoundingClientRect().left - grid.divCanvas.getBoundingClientRect().left;
+            var xOffset =
+                this.grid.div.getBoundingClientRect().left -
+                this.grid.divCanvas.getBoundingClientRect().left;
             cellBounds.x = cellBounds.x - xOffset;
             dialog.openFrom(cellBounds);
             var previousState = behavior.getComplexFilter(columnIndex);

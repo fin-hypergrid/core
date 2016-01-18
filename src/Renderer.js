@@ -81,8 +81,7 @@ var Renderer = Base.extend('Renderer', {
 
         //var startTime = Date.now();
 
-        var grid = this.getGrid(),
-            scrollTop = this.getScrollTop(),
+        var scrollTop = this.getScrollTop(),
             scrollLeft = this.getScrollLeft(),
 
             numColumns = this.getColumnCount(),
@@ -94,7 +93,7 @@ var Renderer = Base.extend('Renderer', {
             behavior = this.getBehavior(),
             bounds = this.getBounds(),
             numberOfBottomTotalsRows = behavior.getDataModel().getBottomTotals().length,
-            viewWidth = bounds.width || grid.canvas.width, // if 0, we must be in bootstrap
+            viewWidth = bounds.width || this.grid.canvas.width, // if 0, we must be in bootstrap
             viewHeight = bounds.height - numberOfBottomTotalsRows * behavior.getDefaultRowHeight(),
 
             insertionBoundsCursor = 0,
@@ -122,7 +121,7 @@ var Renderer = Base.extend('Renderer', {
 
         this.insertionBounds = [];
 
-        if (grid.isShowRowNumbers()) {
+        if (this.grid.isShowRowNumbers()) {
             start--;
             this.columnEdges[-1] = -1;
         }
@@ -169,7 +168,7 @@ var Renderer = Base.extend('Renderer', {
             this.rowEdgesIndexMap[vy] = r;
         }
         this.viewHeight = viewHeight;
-        this.dataWindow = grid.newRectangle(firstVX, firstVY, lastVX - firstVX, lastVY - firstVY);
+        this.dataWindow = this.grid.newRectangle(firstVX, firstVY, lastVX - firstVX, lastVY - firstVY);
     },
 
     /**
@@ -177,15 +176,7 @@ var Renderer = Base.extend('Renderer', {
      * @returns {Object} a property value at a key, delegates to the grid
      */
     resolveProperty: function(key) {
-        return this.getGrid().resolveProperty(key);
-    },
-
-    /**
-     * @memberOf Renderer.prototype
-     * @returns {Hypergrid} grid
-     */
-    getGrid: function() {
-        return this.grid;
+        return this.grid.resolveProperty(key);
     },
 
     /**
@@ -197,7 +188,7 @@ var Renderer = Base.extend('Renderer', {
     _paint: function(gc) {
         if (this.grid) {
             this.renderGrid(gc);
-            this.getGrid().gridRenderedNotification();
+            this.grid.gridRenderedNotification();
         }
     },
 
@@ -210,10 +201,7 @@ var Renderer = Base.extend('Renderer', {
     },
 
     getVisibleScrollHeight: function() {
-        var grid = this.getGrid(),
-            frh = grid.getFixedRowsHeight();
-
-        return this.viewHeight - frh;
+        return this.viewHeight - this.grid.getFixedRowsHeight();
     },
 
     /**
@@ -314,8 +302,7 @@ var Renderer = Base.extend('Renderer', {
         cell.width = xOutside ? 0 : ex;
 
         if (r < 0) { // bottom totals rows
-            var grid = this.getGrid(),
-                behavior = grid.getBehavior(),
+            var behavior = this.grid.getBehavior(),
                 bounds = this.getBounds();
 
             ey = behavior.getDefaultRowHeight();
@@ -347,9 +334,8 @@ var Renderer = Base.extend('Renderer', {
      */
     getColumnFromPixelX: function(pixelX) {
         var width = 0,
-            grid = this.getGrid(),
             fixedColumnCount = this.getFixedColumnCount(),
-            scrollLeft = grid.getHScrollValue(),
+            scrollLeft = this.grid.getHScrollValue(),
             edges = this.getColumnEdges();
 
         for (var c = 1; c < edges.length - 1; c++) {
@@ -376,8 +362,7 @@ var Renderer = Base.extend('Renderer', {
      */
     getGridCellFromMousePoint: function(point) {
 
-        var grid = this.getGrid();
-        var behavior = grid.getBehavior();
+        var behavior = this.grid.getBehavior();
         var width = 0;
         var height = 0;
         var x, y, c, r;
@@ -417,7 +402,7 @@ var Renderer = Base.extend('Renderer', {
             r = -1;
         }
 
-        var viewPoint = grid.newPoint(c, r);
+        var viewPoint = this.grid.newPoint(c, r);
 
         //compensate if we are scrolled
         if (c >= fixedColumnCount) {
@@ -435,10 +420,10 @@ var Renderer = Base.extend('Renderer', {
         }
 
         return {
-            gridCell: grid.newPoint(c, r),
-            mousePoint: grid.newPoint(x, y),
+            gridCell: this.grid.newPoint(c, r),
+            mousePoint: this.grid.newPoint(x, y),
             viewPoint: viewPoint,
-            dataCell: grid.newPoint(translatedIndex, r),
+            dataCell: this.grid.newPoint(translatedIndex, r),
         };
     },
 
@@ -484,7 +469,7 @@ var Renderer = Base.extend('Renderer', {
      * @returns {boolean} The given cell is fully visible.
      */
     isSelected: function(x, y) {
-        return this.getGrid().isSelected(x, y);
+        return this.grid.isSelected(x, y);
     },
 
     /**
@@ -523,8 +508,7 @@ var Renderer = Base.extend('Renderer', {
 
     _renderFocusCell: function(gc) {
 
-        var grid = this.getGrid();
-        var selections = grid.getSelectionModel().getSelections();
+        var selections = this.grid.selectionModel.selections;
         if (!selections || selections.length === 0) {
             return;
         }
@@ -560,13 +544,13 @@ var Renderer = Base.extend('Renderer', {
         dpEY = Math.min(dpEY, 1 + lastVisibleRow);
 
         var o = this._getBoundsOfCell(dpOX, dpOY);
-        var ox = Math.round((o.x === undefined) ? grid.getFixedColumnsWidth() : o.x);
-        var oy = Math.round((o.y === undefined) ? grid.getFixedRowsHeight() : o.y);
+        var ox = Math.round((o.x === undefined) ? this.grid.getFixedColumnsWidth() : o.x);
+        var oy = Math.round((o.y === undefined) ? this.grid.getFixedRowsHeight() : o.y);
         // var ow = o.width;
         // var oh = o.height;
         var e = this._getBoundsOfCell(dpEX, dpEY);
-        var ex = Math.round((e.x === undefined) ? grid.getFixedColumnsWidth() : e.x);
-        var ey = Math.round((e.y === undefined) ? grid.getFixedRowsHeight() : e.y);
+        var ex = Math.round((e.x === undefined) ? this.grid.getFixedColumnsWidth() : e.x);
+        var ey = Math.round((e.y === undefined) ? this.grid.getFixedRowsHeight() : e.y);
         // var ew = e.width;
         // var eh = e.height;
         var x = Math.min(ox, ex);
@@ -610,8 +594,7 @@ var Renderer = Base.extend('Renderer', {
      * @param {CanvasRenderingContext2D} gc
      */
     renderOverrides: function(gc) {
-        var grid = this.getGrid();
-        var cache = grid.renderOverridesCache;
+        var cache = this.grid.renderOverridesCache;
         for (var key in cache) {
             if (cache.hasOwnProperty(key)) {
                 var override = cache[key];
@@ -649,8 +632,7 @@ var Renderer = Base.extend('Renderer', {
      * @param {number} offsetY - y coordinate
      */
     isHovered: function(x, y) {
-        var grid = this.getGrid();
-        return grid.isHovered(x, y) && (grid.resolveProperty('hoverCellHighlight') === true);
+        return this.grid.isHovered(x, y) && (this.grid.resolveProperty('hoverCellHighlight') === true);
     },
 
     /**
@@ -659,8 +641,7 @@ var Renderer = Base.extend('Renderer', {
      * @param {number} offsetY - y coordinate
      */
     isRowHovered: function(y) {
-        var grid = this.getGrid();
-        return grid.isRowHovered(y) && (grid.resolveProperty('hoverRowHighlight') === true);
+        return this.grid.isRowHovered(y) && (this.grid.resolveProperty('hoverRowHighlight') === true);
      },
 
     /**
@@ -669,8 +650,7 @@ var Renderer = Base.extend('Renderer', {
      * @param {number} offsetX - x coordinate
      */
     isColumnHovered: function(x) {
-        var grid = this.getGrid();
-        return grid.isColumnHovered(x) && (grid.resolveProperty('hoverColumnHighlight') === true);
+        return this.grid.isColumnHovered(x) && (this.grid.resolveProperty('hoverColumnHighlight') === true);
     },
 
     /**
@@ -679,7 +659,7 @@ var Renderer = Base.extend('Renderer', {
      * @returns {boolean} The given column within the fixed row area is selected.
      */
     isCellSelectedInRow: function(colIndex) {
-        return this.getGrid().isCellSelectedInRow(colIndex);
+        return this.grid.isCellSelectedInRow(colIndex);
     },
 
     /**
@@ -688,7 +668,7 @@ var Renderer = Base.extend('Renderer', {
      * @returns {boolean} The given row within the fixed column area is selected.
      */
     isCellSelectedInColumn: function(rowIndex) {
-        return this.getGrid().isCellSelectedInColumn(rowIndex);
+        return this.grid.isCellSelectedInColumn(rowIndex);
     },
 
     /**
@@ -696,7 +676,7 @@ var Renderer = Base.extend('Renderer', {
      * @returns {number} Current vertical scroll value.
      */
     getScrollTop: function() {
-        var st = this.getGrid().getVScrollValue();
+        var st = this.grid.getVScrollValue();
         return st;
     },
 
@@ -705,7 +685,7 @@ var Renderer = Base.extend('Renderer', {
      * @returns {number} Current horizontal scroll value.
      */
     getScrollLeft: function() {
-        var st = this.getGrid().getHScrollValue();
+        var st = this.grid.getHScrollValue();
         return st;
     },
 
@@ -714,7 +694,7 @@ var Renderer = Base.extend('Renderer', {
      * @returns {Behavior}
      */
     getBehavior: function() {
-        return this.getGrid().getBehavior();
+        return this.grid.getBehavior();
     },
 
     getColumnEdges: function() {
@@ -741,7 +721,7 @@ var Renderer = Base.extend('Renderer', {
      * @param {number} columnIndex
      */
     getColumnWidth: function(columnIndex) {
-        var width = this.getGrid().getColumnWidth(columnIndex);
+        var width = this.grid.getColumnWidth(columnIndex);
         return width;
     },
 
@@ -776,7 +756,7 @@ var Renderer = Base.extend('Renderer', {
      * @returns {fin-canvas} my [fin-canvas](https://github.com/stevewirts/fin-canvas)
      */
     getCanvas: function() {
-        return this.getGrid().getCanvas();
+        return this.grid.getCanvas();
     },
 
     /**
@@ -784,7 +764,7 @@ var Renderer = Base.extend('Renderer', {
      * @returns {boolean} User is currently dragging a column for reordering.
      */
     isDraggingColumn: function() {
-        return this.getGrid().isDraggingColumn();
+        return this.grid.isDraggingColumn();
     },
 
     /**
@@ -794,7 +774,7 @@ var Renderer = Base.extend('Renderer', {
     getPageUpRow: function() {
         var behavior = this.getBehavior();
         var scrollHeight = this.getVisibleScrollHeight();
-        var headerRows = this.getGrid().getFixedRowCount();
+        var headerRows = this.grid.getFixedRowCount();
         var top = this.dataWindow.origin.y - headerRows;
         var scanHeight = 0;
         while (scanHeight < scrollHeight && top > -1) {
@@ -809,7 +789,7 @@ var Renderer = Base.extend('Renderer', {
      * @returns {number} The row to goto for a page down.
      */
     getPageDownRow: function() {
-        var headerRows = this.getGrid().getFixedRowCount();
+        var headerRows = this.grid.getFixedRowCount();
         var rowNum = this.dataWindow.corner.y - headerRows - 1;
         return rowNum;
     },
@@ -819,7 +799,7 @@ var Renderer = Base.extend('Renderer', {
      * @returns {number} The number of columns.
      */
     getColumnCount: function() {
-        return this.getGrid().getColumnCount();
+        return this.grid.getColumnCount();
     },
 
     /**
@@ -827,7 +807,7 @@ var Renderer = Base.extend('Renderer', {
      * @returns {number} The number of rows.
      */
     getRowCount: function() {
-        return this.getGrid().getRowCount();
+        return this.grid.getRowCount();
     },
 
     /**
@@ -835,7 +815,7 @@ var Renderer = Base.extend('Renderer', {
      * @returns {number} The number of fixed columns.
      */
     getFixedColumnCount: function() {
-        return this.getGrid().getFixedColumnCount();
+        return this.grid.getFixedColumnCount();
     },
 
     /**
@@ -843,7 +823,7 @@ var Renderer = Base.extend('Renderer', {
      * @returns {number} The number of fixed rows.
      */
     getFixedRowCount: function() {
-        return this.getGrid().getFixedRowCount();
+        return this.grid.getFixedRowCount();
     },
 
     /**
@@ -851,7 +831,7 @@ var Renderer = Base.extend('Renderer', {
      * @returns {number} The number of header rows.
      */
     getHeaderRowCount: function() {
-        return this.getGrid().getHeaderRowCount();
+        return this.grid.getHeaderRowCount();
     },
 
     /**
@@ -859,7 +839,7 @@ var Renderer = Base.extend('Renderer', {
      * @returns {number} The number of header columns.
      */
     getHeaderColumnCount: function() {
-        return this.getGrid().getHeaderColumnCount();
+        return this.grid.getHeaderColumnCount();
     },
 
     /** @summary Smart render the grid.
@@ -889,7 +869,7 @@ var Renderer = Base.extend('Renderer', {
             clipWidth,
             clipHeight = this.getBounds().height,
 
-            loopStart = this.getGrid().isShowRowNumbers() ? -1 : 0,
+            loopStart = this.grid.isShowRowNumbers() ? -1 : 0,
             loopLength = visibleCols.length; // regardless of loopStart, due to definition of .length
 
         this.buttonCells = {};
@@ -956,7 +936,7 @@ var Renderer = Base.extend('Renderer', {
             }
         }
 
-        setNumberColumnWidth(gc, behavior, this.getGrid().getRowCount());
+        setNumberColumnWidth(gc, behavior, this.grid.getRowCount());
     },
 
     /**
@@ -1030,7 +1010,7 @@ var Renderer = Base.extend('Renderer', {
 
     _paintCell: function(gc, c, r) {
 
-        var grid = this.getGrid(),
+        var grid = this.grid,
             behavior = this.getBehavior(),
             baseProperties = behavior.getColumnProperties(c);
 
@@ -1135,7 +1115,7 @@ var Renderer = Base.extend('Renderer', {
         //allow the renderer to identify itself if it's a button
         cellProperties.buttonCells = this.buttonCells;
         var formatType = cellProperties.isUserDataArea ? cellProperties.format : 'default';
-        cellProperties.formatter = this.getGrid().getFormatter(formatType);
+        cellProperties.formatter = this.grid.getFormatter(formatType);
         cell.paint(gc, cellProperties);
 
         this.renderedColumnMinWidths[c] = Math.max(cellProperties.minWidth || 0, this.renderedColumnMinWidths[c]);
