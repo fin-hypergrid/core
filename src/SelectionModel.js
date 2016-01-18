@@ -152,8 +152,11 @@ SelectionModel.prototype = {
      * @memberOf SelectionModel.prototype
      * @desc Remove the last selection that was created.
      */
-    clearMostRecentSelection: function() {
-        this.allRowsSelected = false;
+    clearMostRecentSelection: function(dontClearRows) {
+        dontClearRows = dontClearRows === true;
+        if (!dontClearRows) {
+            this.setAllRowsSelected(false);
+        }
         this.selections.length = Math.max(0, this.selections.length - 1);
         this.flattenedX.length = Math.max(0, this.flattenedX.length - 1);
         this.flattenedY.length = Math.max(0, this.flattenedY.length - 1);
@@ -280,13 +283,16 @@ SelectionModel.prototype = {
      * @desc empty out all our state
      *
      */
-    clear: function() {
-        this.allRowsSelected = false;
+    clear: function(dontClearRowSelections) {
+        dontClearRowSelections = dontClearRowSelections === true;
         this.selections.length = 0;
         this.flattenedX.length = 0;
         this.flattenedY.length = 0;
-        this.rowSelectionModel.clear();
         this.columnSelectionModel.clear();
+        if (!dontClearRowSelections) {
+            this.setAllRowsSelected(false);
+            this.rowSelectionModel.clear();
+        }
         //this.getGrid().selectionChanged();
     },
 
@@ -340,13 +346,18 @@ SelectionModel.prototype = {
      */
     selectAllRows: function() {
         this.clear();
-        this.allRowsSelected = true;
+        this.setAllRowsSelected(true);
     },
 
     /**
      * @memberOf SelectionModel.prototype
      * @returns {boolean}
      */
+
+    setAllRowsSelected: function(isIt) {
+        this.allRowsSelected = isIt;
+    },
+
     areAllRowsSelected: function() {
         return this.allRowsSelected;
     },
@@ -411,7 +422,7 @@ SelectionModel.prototype = {
      * @memberOf SelectionModel.prototype
      * @returns {boolean}
      */
-     isColumnOrRowSelected: function() {
+    isColumnOrRowSelected: function() {
         return !this.columnSelectionModel.isEmpty() || !this.rowSelectionModel.isEmpty();
     },
 
@@ -443,17 +454,22 @@ SelectionModel.prototype = {
      * @memberOf SelectionModel.prototype
      * @param offset
      */
-    selectRowsFromCells: function(offset) {
+    selectRowsFromCells: function(offset, dontClearRowSelections) {
         offset = offset || 0;
+        dontClearRowSelections = dontClearRowSelections === true;
 
         var sm = this.rowSelectionModel;
-        this.allRowsSelected = false;
-        sm.clear();
+
+        if (!dontClearRowSelections) {
+            this.setAllRowsSelected(false);
+            sm.clear();
+        }
 
         this.selections.forEach(function(selection) {
             var top = selection.origin.y,
-                size = selection.extent.y;
-            sm.select(top + offset, top + size + offset);
+                extent = selection.extent.y;
+            top += offset;
+            sm.select(top, top + extent);
         });
     },
 

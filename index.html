@@ -54,6 +54,15 @@
 <div class="container" style="border-style: solid; border-color: red">
     <div class="row" style="border-style: solid; border-color: blue">
         <div class="col-md-12 col-lg-12" style="border-style: solid; border-color: grey">
+
+            <input type="checkbox" value="checkboxOnlyRowSelections" onclick="setSelectionPropFromCheckbox(this)"/>
+            checkboxOnlyRowSelections
+            &nbsp; &nbsp;
+
+            <input type="checkbox" value="singleRowSelectionMode" onclick="setSelectionPropFromCheckbox(this)"/>
+            singleRowSelectionMode
+            <br/>
+
             <button onclick="toggleColumnPicker()">toggle column picker</button>
             <button onclick="toggleAggregates()">toggle aggregates</button>
             <button onclick="toggleAutosortGrouping()">toggle autosort groups</button>
@@ -564,7 +573,7 @@
                         cellSelection: true,
                         columnSelection: true,
                         rowSelection: true,
-                        singleRowSelectionMode: true,
+                        singleRowSelectionMode: false,
 
                     };
 
@@ -583,7 +592,9 @@
 
                 jsonGrid.addProperties({
                     fixedRowCount: 4,
-                    showRowNumbers: true
+                    showRowNumbers: true,
+                    singleRowSelectionMode: false,
+                    checkboxOnlyRowSelections: true
                 });
                 // properties that can be set
                 // use a function or a value
@@ -644,6 +655,9 @@
                 window.b = jsonModel;
                 window.m = b.getDataModel();
 
+                toggleCheckboxState('checkboxOnlyRowSelections', jsonGrid.isCheckboxOnlyRowSelections());
+                toggleCheckboxState('singleRowSelectionMode', jsonGrid.isSingleRowSelectionMode());
+
             }, 500);
 
 
@@ -684,6 +698,56 @@
 
     };
 })();
+
+// DOM support
+// Besides the canvas, this test harness only has a handful of buttons and checkboxes.
+// The following functions service these controls.
+
+function setSelectionPropFromCheckbox(ctrl) {
+    jsonGrid.getSelectionModel().clear();
+    setPropFromCheckbox(ctrl);
+    jsonGrid.repaint();
+}
+
+
+/**
+ * Sets a boolean grid property from a checkbox control.
+ * You supply either the checkbox *or* the name of the grid property.
+ * There should be a checkbox with the following configuration:
+ * * `value` attribute should be set to the name of the grid property
+ * * `onclick` event handler should be set to: `setPropFromCheckbox(this)`
+ * @param {Element|string} ctrl - Checkbox element or grid property name.
+ * @param {boolean} [checked] - New value for grid property *and* checkbox state.
+ * If omitted, sets grid property to checkbox's current state.
+ */
+function setPropFromCheckbox(ctrl, checked) {
+    var hash = {};
+    hash[getCheckbox(ctrl).value] = ctrl.checked = (checked !== undefined) ? checked : ctrl.checked;
+    jsonGrid.addProperties(hash);
+}
+
+/**
+ * Toggle or set checkbox state (checkbox's `checked` property)
+ * @param {Element|string} ctrl - Checkbox element or grid property name.
+ * @param {boolean} [checked] - New value for checkbox state.
+ * If omitted, toggles checkbox state.
+ */
+function toggleCheckboxState(ctrl, checked) {
+    ctrl = getCheckbox(ctrl);
+    ctrl.checked = (checked !== undefined) ? checked : !ctrl.checked;
+}
+
+/**
+ * Gets the checkbox if all you know is the grid property name it controls.
+ * @param {Element|string} ctrl - Checkbox element or grid property name.
+ * @returns {Element} The given checkbox control *or* the checkbox whose `vaule` attribute matches the grid property name.
+ */
+function getCheckbox(ctrl) {
+    if (!(ctrl instanceof Element)) {
+        ctrl = document.querySelector('input[type=checkbox][value=' + ctrl + ']');
+    }
+    return ctrl;
+}
 
 </script>
 

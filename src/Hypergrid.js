@@ -332,6 +332,10 @@ Hypergrid.prototype = {
         return this.resolveProperty('rowResize');
     },
 
+    isCheckboxOnlyRowSelections: function() {
+        return this.resolveProperty('checkboxOnlyRowSelections');
+    },
+
     /**
      *
      *
@@ -675,7 +679,8 @@ Hypergrid.prototype = {
      * @desc Clear all the selections.
      */
     clearSelections: function() {
-        this.getSelectionModel().clear();
+        var dontClearRows = this.isCheckboxOnlyRowSelections();
+        this.getSelectionModel().clear(dontClearRows);
         this.clearMouseDown();
     },
 
@@ -684,7 +689,8 @@ Hypergrid.prototype = {
      * @desc Clear the most recent selection.
      */
     clearMostRecentSelection: function() {
-        this.getSelectionModel().clearMostRecentSelection();
+        var dontClearRows = this.isCheckboxOnlyRowSelections();
+        this.getSelectionModel().clearMostRecentSelection(dontClearRows);
     },
 
     /**
@@ -2868,37 +2874,42 @@ Hypergrid.prototype = {
 
         keys = keys || [];
 
-        var isSingleRowSelection = this.isSingleRowSelectionMode();
-        var model = this.getSelectionModel();
-        var alreadySelected = model.isRowSelected(y);
-        var hasCTRL = keys.indexOf('CTRL') > -1;
-        var hasSHIFT = keys.indexOf('SHIFT') > -1;
+        var sm = this.getSelectionModel();
+        var alreadySelected = sm.isRowSelected(y);
+        var hasSHIFT = keys.indexOf('SHIFT') >= 0;
 
-        if (!hasCTRL && !hasSHIFT) {
-            model.clear();
-            if (!alreadySelected) {
-                model.selectRow(y);
-            }
+        if (alreadySelected) {
+            sm.deselectRow(y);
         } else {
-            if (hasCTRL) {
-                if (alreadySelected) {
-                    model.deselectRow(y);
-                } else {
-                    if (isSingleRowSelection) {
-                        model.clearRowSelection();
-                    }
-                    model.selectRow(y);
-                }
-            }
-            if (hasSHIFT) {
-                model.clear();
-                model.selectRow(this.lastEdgeSelection[1], y);
-            }
+            this.singleSelect();
+            sm.selectRow(y);
         }
+
+        if (hasSHIFT) {
+            sm.clear();
+            sm.selectRow(this.lastEdgeSelection[1], y);
+        }
+
         if (!alreadySelected && !hasSHIFT) {
             this.lastEdgeSelection[1] = y;
         }
         this.repaint();
+    },
+
+    singleSelect: function() {
+        var isCheckboxOnlyRowSelections = this.isCheckboxOnlyRowSelections(),
+            isSingleRowSelectionMode = this.isSingleRowSelectionMode(),
+            hasCTRL = this.mouseDownState.primitiveEvent.detail.primitiveEvent.ctrlKey,
+            result = (
+                isCheckboxOnlyRowSelections && isSingleRowSelectionMode ||
+                !isCheckboxOnlyRowSelections && (!hasCTRL || isSingleRowSelectionMode)
+            );
+
+        if (result) {
+            this.selectionModel.clearRowSelection();
+        }
+
+        return result;
     },
 
     selectViewportCell: function(x, y) {
@@ -3068,19 +3079,20 @@ Hypergrid.prototype = {
         this.getSelectionModel().selectColumn(x1, x2);
     },
     selectRow: function(y1, y2) {
-        if (this.isSingleRowSelectionMode()) {
-            this.getSelectionModel().clearRowSelection();
+        var sm = this.getSelectionModel();
+        var selectionEdge = this.getFilterRowIndex() + 1;
+
+        if (this.singleSelect()) {
             y1 = y2;
         } else {
+            // multiple row selection
             y2 = y2 || y1;
         }
         var min = Math.min(y1, y2);
-        var max = Math.max(y1, y2);
-        var selectionEdge = this.getFilterRowIndex() + 1;
-        if (min < selectionEdge) {
-            return;
+        if (min >= selectionEdge) {
+            var max = Math.max(y1, y2);
+            sm.selectRow(min, max);
         }
-        this.getSelectionModel().selectRow(min, max);
     },
     isRowNumberAutosizing: function() {
         return this.resolveProperty('rowNumberAutosizing');
@@ -3123,16 +3135,18 @@ Hypergrid.prototype = {
         this.getBehavior().setGlobalFilter(string);
     },
     selectRowsFromCells: function() {
-        var sm = this.getSelectionModel();
-        if (this.isSingleRowSelectionMode()) {
-            var last = sm.getLastSelection();
-            if (!last) {
-                sm.clearRowSelection();
-            } else {
+        if (!this.isCheckboxOnlyRowSelections()) {
+            var sm = this.getSelectionModel(),
+                last,
+                hasCTRL = this.mouseDownState.primitiveEvent.detail.primitiveEvent.ctrlKey;
+
+            if (hasCTRL && !this.isSingleRowSelectionMode()) {
+                sm.selectRowsFromCells(0, hasCTRL);
+            } else if ((last = sm.getLastSelection())) {
                 this.selectRow(null, last.corner.y);
+            } else {
+                sm.clearRowSelection();
             }
-        } else {
-            sm.selectRowsFromCells();
         }
     },
     selectColumnsFromCells: function() {
@@ -3336,6 +3350,7 @@ function defaultProperties() {
         columnSelection: true,
         rowSelection: true,
         singleRowSelectionMode: true,
+        checkboxOnlyRowSelections: true,
 
         columnAutosizing: true,
         rowNumberAutosizing: true,

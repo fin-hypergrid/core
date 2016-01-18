@@ -723,9 +723,10 @@ function valueOrFunctionExecute(valueOrFunction) {
 }
 
 function textMatchFilter(string) {
+    string = string.toLowerCase();
     return function(each) {
         each = valueOrFunctionExecute(each);
-        return (each + '').toLowerCase().search(string.toLowerCase()) > -1;
+        return (each + '').toLowerCase().indexOf(string) > -1;
     };
 }
 
