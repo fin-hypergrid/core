@@ -600,18 +600,6 @@ module.exports = {
 
     /********** HOVER COLORS **********/
 
-    /** On mouse hover, repaint the row background with `hoverRowColor`.
-     * @type {boolean}
-     * @default `true`
-     */
-    hoverRowHighlight: true,
-
-    /** Background color of row on mouse hover when `hoverRowHighlight`.
-     * @type {cssColor}
-     * @default `'gray'`
-     */
-    hoverRowColor: 'gray',
-
     /** On mouse hover, repaint the cell background with `hoverCellColor`.
      * @type {boolean}
      * @default `true`
@@ -623,6 +611,18 @@ module.exports = {
      * @default `'lightgray'`
      */
     hoverCellColor: 'lightgray',
+
+    /** On mouse hover, repaint the row background with `hoverRowColor`.
+     * @type {boolean}
+     * @default `true`
+     */
+    hoverRowHighlight: true,
+
+    /** Background color of row on mouse hover when `hoverRowHighlight`.
+     * @type {cssColor}
+     * @default `'gray'`
+     */
+    hoverRowColor: 'gray',
 
     /** On mouse hover, repaint the column background with `hoverColumnColor`.
      * @type {boolean}

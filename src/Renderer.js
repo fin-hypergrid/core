@@ -631,7 +631,7 @@ var Renderer = Base.extend('Renderer', {
      * @param {number} offsetY - y coordinate
      */
     isHovered: function(x, y) {
-        return this.grid.isHovered(x, y) && (this.grid.resolveProperty('hoverCellHighlight') === true);
+        return this.grid.isHovered(x, y) && this.grid.resolveProperty('hoverCellHighlight');
     },
 
     /**
@@ -640,7 +640,7 @@ var Renderer = Base.extend('Renderer', {
      * @param {number} offsetY - y coordinate
      */
     isRowHovered: function(y) {
-        return this.grid.isRowHovered(y) && (this.grid.resolveProperty('hoverRowHighlight') === true);
+        return this.grid.isRowHovered(y) && this.grid.resolveProperty('hoverRowHighlight');
      },
 
     /**
@@ -649,7 +649,7 @@ var Renderer = Base.extend('Renderer', {
      * @param {number} offsetX - x coordinate
      */
     isColumnHovered: function(x) {
-        return this.grid.isColumnHovered(x) && (this.grid.resolveProperty('hoverColumnHighlight') === true);
+        return this.grid.isColumnHovered(x) && this.grid.resolveProperty('hoverColumnHighlight');
     },
 
     /**
@@ -675,8 +675,7 @@ var Renderer = Base.extend('Renderer', {
      * @returns {number} Current vertical scroll value.
      */
     getScrollTop: function() {
-        var st = this.grid.getVScrollValue();
-        return st;
+        return this.grid.getVScrollValue();
     },
 
     /**
@@ -684,8 +683,7 @@ var Renderer = Base.extend('Renderer', {
      * @returns {number} Current horizontal scroll value.
      */
     getScrollLeft: function() {
-        var st = this.grid.getHScrollValue();
-        return st;
+        return this.grid.getHScrollValue();
     },
 
     getColumnEdges: function() {
@@ -1002,7 +1000,7 @@ var Renderer = Base.extend('Renderer', {
     _paintCell: function(gc, c, r) {
 
         var grid = this.grid,
-            behavior = this.grid.behavior,
+            behavior = grid.behavior,
             baseProperties = behavior.getColumnProperties(c);
 
         if (baseProperties.isNull) {
@@ -1010,12 +1008,15 @@ var Renderer = Base.extend('Renderer', {
         }
 
         var columnProperties = baseProperties,
+
             headerRowCount = behavior.getHeaderRowCount(),
-            isShowRowNumbers = grid.isShowRowNumbers(),
-            isHeaderRow = r >= 0 && r < headerRowCount,
             isFooterRow = r < 0,
+            isHeaderRow = r >= 0 && r < headerRowCount,
             isFilterRow = grid.isFilterRow(r),
+
+            isShowRowNumbers = grid.isShowRowNumbers(),
             isHierarchyColumn = grid.isHierarchyColumn(c),
+
             isRowSelected = grid.isRowSelected(r),
             isColumnSelected = grid.isColumnSelected(c),
             isCellSelected = grid.isCellSelected(c, r),
@@ -1026,33 +1027,27 @@ var Renderer = Base.extend('Renderer', {
 
         if ((isShowRowNumbers && c === -1) || isHierarchyColumn) {
             if (isRowSelected) {
-                baseProperties = baseProperties.rowHeaderRowSelection;
-                cellProperties = Object.create(baseProperties);
+                cellProperties = Object.create(baseProperties.rowHeaderRowSelection);
                 cellProperties.isSelected = true;
             } else {
-                baseProperties = baseProperties.rowHeader;
-                cellProperties = Object.create(baseProperties);
+                cellProperties = Object.create(baseProperties.rowHeader);
                 cellProperties.isSelected = isCellSelectedInRow;
             }
             cellProperties.isUserDataArea = false;
         } else if (isHeaderRow || isFooterRow) {
             if (isFilterRow) {
-                baseProperties = baseProperties.filterProperties;
-                cellProperties = Object.create(baseProperties);
+                cellProperties = Object.create(baseProperties.filterProperties);
                 cellProperties.isSelected = false;
             } else if (isColumnSelected) {
-                baseProperties = baseProperties.columnHeaderColumnSelection;
-                cellProperties = Object.create(baseProperties);
+                cellProperties = Object.create(baseProperties.columnHeaderColumnSelection);
                 cellProperties.isSelected = true;
             } else {
-                baseProperties = baseProperties.columnHeader;
-                cellProperties = Object.create(baseProperties);
+                cellProperties = Object.create(baseProperties.columnHeader);
                 cellProperties.isSelected = isCellSelectedInColumn;
             }
             cellProperties.isUserDataArea = false;
         } else if (isHierarchyColumn) {
-            baseProperties = baseProperties.rowHeader;
-            cellProperties = Object.create(baseProperties);
+            cellProperties = Object.create(baseProperties.rowHeader);
             cellProperties.isSelected = isCellSelectedInRow;
         } else {
             cellProperties = Object.create(baseProperties);
@@ -1077,6 +1072,7 @@ var Renderer = Base.extend('Renderer', {
             cellProperties.value = grid.getValue(c, r);
             cellProperties.halign = grid.getColumnAlignment(c);
         }
+
         cellProperties.isColumnHovered = this.isColumnHovered(c);
         cellProperties.isRowHovered = this.isRowHovered(r);
         cellProperties.isCellHovered = this.isHovered(c, r);
@@ -1086,9 +1082,8 @@ var Renderer = Base.extend('Renderer', {
         cellProperties.isColumnSelected = isColumnSelected;
         cellProperties.isInCurrentSelectionRectangle = grid.isInCurrentSelectionRectangle(c, r);
 
-        var mouseDownState = grid.mouseDownState;
-        if (mouseDownState) {
-            var point = mouseDownState.gridCell;
+        if (grid.mouseDownState) {
+            var point = grid.mouseDownState.gridCell;
             cellProperties.mouseDown = point.x === c && point.y === r;
         }
 
@@ -1106,7 +1101,7 @@ var Renderer = Base.extend('Renderer', {
         //allow the renderer to identify itself if it's a button
         cellProperties.buttonCells = this.buttonCells;
         var formatType = cellProperties.isUserDataArea ? cellProperties.format : 'default';
-        cellProperties.formatter = this.grid.getFormatter(formatType);
+        cellProperties.formatter = grid.getFormatter(formatType);
         cell.paint(gc, cellProperties);
 
         this.renderedColumnMinWidths[c] = Math.max(cellProperties.minWidth || 0, this.renderedColumnMinWidths[c]);

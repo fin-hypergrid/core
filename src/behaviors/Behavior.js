@@ -18,6 +18,10 @@ var noExportProperties = [
     'treeColumnPropertiesColumnSelection',
 ];
 
+var isNull = {
+    isNull: true
+};
+
 /**
  * @constructor
  * @desc This is the base class for creating behaviors.  a behavior can be thought of as a model++.
@@ -1146,15 +1150,11 @@ var Behavior = Base.extend('Behavior', {
     getColumnProperties: function(columnIndex) {
         var col = this.columns[columnIndex];
         if (!col) {
-            return {
-                isNull: true
-            };
+            return isNull;
         }
         var properties = col.getProperties(); //TODO: returns `null` on Hypergrid.reset();
         if (!properties) {
-            return {
-                isNull: true
-            };
+            return isNull;
         }
         return properties;
     },

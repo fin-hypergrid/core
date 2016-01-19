@@ -315,10 +315,7 @@ Hypergrid.prototype = {
      */
     isHovered: function(x, y) {
         var p = this.getHoverCell();
-        if (!p) {
-            return false;
-        }
-        return p.x === x && p.y === y;
+        return p && p.x === x && p.y === y;
     },
 
     registerFormatter: function(name, func) {
@@ -345,10 +342,7 @@ Hypergrid.prototype = {
      */
     isColumnHovered: function(x) {
         var p = this.getHoverCell();
-        if (!p) {
-            return false;
-        }
-        return p.x === x;
+        return p && p.x === x;
     },
 
     isRowResizeable: function() {
@@ -1331,34 +1325,32 @@ Hypergrid.prototype = {
         var x = cell.x;
         var y = cell.y;
 
-        if (x < 0 || y < 0) {
-            return;
+        if (x >= 0 && y >= 0) {
+            var editPoint = new Point(x, y);
+            this.setMouseDown(editPoint);
+            this.setDragExtent(new Point(0, 0));
+            cellEditor.beginEditAt(editPoint);
         }
-
-        var editPoint = new Point(x, y);
-        this.setMouseDown(editPoint);
-        this.setDragExtent(new Point(0, 0));
-        cellEditor.beginEditAt(editPoint);
     },
 
     /**
      * @memberOf Hypergrid.prototype
      * @returns {boolean} The given column is fully visible.
      * @param {number} columnIndex - The column index in question.
+     * @return {boolan} Visible.
      */
     isColumnVisible: function(columnIndex) {
-        var isVisible = this.getRenderer().isColumnVisible(columnIndex);
-        return isVisible;
+        return this.getRenderer().isColumnVisible(columnIndex);
     },
 
     /**
      * @memberOf Hypergrid.prototype
      * @returns {boolean} The given row is fully visible.
      * @param {number} rowIndex - The row index in question.
+     * @return {boolan} Visible.
      */
     isDataRowVisible: function(rowIndex) {
-        var isVisible = this.getRenderer().isRowVisible(rowIndex);
-        return isVisible;
+        return this.getRenderer().isRowVisible(rowIndex);
     },
 
     /**
@@ -1366,10 +1358,10 @@ Hypergrid.prototype = {
      * @returns {boolean} The given cell is fully is visible.
      * @param {number} columnIndex - The column index in question.
      * @param {number} rowIndex - The row index in question.
+     * @return {boolean} Data is visible.
      */
     isDataVisible: function(columnIndex, rowIndex) {
-        var isVisible = this.isDataRowVisible(rowIndex) && this.isColumnVisible(columnIndex);
-        return isVisible;
+        return this.isDataRowVisible(rowIndex) && this.isColumnVisible(columnIndex);
     },
 
     /**
@@ -1377,23 +1369,19 @@ Hypergrid.prototype = {
      * @summary Scroll in the `offsetX` direction if column index `colIndex` is not visible.
      * @param {number} colIndex - The column index in question.
      * @param {number} offsetX - The direction and magnitude to scroll if we need to.
+     * @return {boolean} Column is visible.
      */
     insureModelColIsVisible: function(colIndex, offsetX) {
-        //-1 because we want only fully visible columns, don't include partially
-        //visible columns
-        var maxCols = this.getColumnCount() - 1;
-        var indexToCheck = colIndex;
+        var maxCols = this.getColumnCount() - 1, // -1 excludes partially visible columns
+            indexToCheck = colIndex + (offsetX > 0),
+            visible = !this.isColumnVisible(indexToCheck) || colIndex === maxCols;
 
-        if (offsetX > 0) {
-            indexToCheck++;
-        }
-
-        if (!this.isColumnVisible(indexToCheck) || colIndex === maxCols) {
-            //the scroll position is the leftmost column {
+        if (visible) {
+            //the scroll position is the leftmost column
             this.scrollBy(offsetX, 0);
-            return true;
         }
-        return false;
+
+        return visible;
     },
 
     /**
@@ -1401,23 +1389,19 @@ Hypergrid.prototype = {
      * @summary Scroll in the offsetY direction if column index c is not visible.
      * @param {number} rowIndex - The column index in question.
      * @param {number} offsetX - The direction and magnitude to scroll if we need to.
+     * @return {boolean} Row is visible.
      */
     insureModelRowIsVisible: function(rowIndex, offsetY) {
-        //-1 because we want only fully visible rows, don't include partially
-        //viewable rows
-        var maxRows = this.getRowCount() - 1;
-        var indexToCheck = rowIndex;
+        var maxRows = this.getRowCount() - 1, // -1 excludes partially visible rows
+            indexToCheck = rowIndex + (offsetY > 0),
+            visible = !this.isDataRowVisible(indexToCheck) || rowIndex === maxRows;
 
-        if (offsetY > 0) {
-            indexToCheck++;
-        }
-
-        if (!this.isDataRowVisible(indexToCheck) || rowIndex === maxRows) {
+        if (visible) {
             //the scroll position is the topmost row
             this.scrollBy(0, offsetY);
-            return true;
         }
-        return false;
+
+        return visible;
     },
 
     /**
@@ -1503,21 +1487,19 @@ Hypergrid.prototype = {
         var rowCount = this.getRowCount();
 
         //click occured in background area
-        if (cell.x > colCount || cell.y > rowCount) {
-            return;
+        if (cell.x <= colCount && cell.y <= rowCount) {
+            var hovered = this.getHoverCell();
+            var sy = this.getVScrollValue();
+            var x = hovered.x;
+            // if (hovered.x > -1) {
+            //     x = behavior.translateColumnIndex(hovered.x + this.getHScrollValue());
+            // }
+            if (hovered.y < 0) {
+                sy = 0;
+            }
+            hovered = new Point(x, hovered.y + sy);
+            this.behavior.cellClicked(hovered, event);
         }
-
-        var hovered = this.getHoverCell();
-        var sy = this.getVScrollValue();
-        var x = hovered.x;
-        // if (hovered.x > -1) {
-        //     x = behavior.translateColumnIndex(hovered.x + this.getHScrollValue());
-        // }
-        if (hovered.y < 0) {
-            sy = 0;
-        }
-        hovered = new Point(x, hovered.y + sy);
-        this.behavior.cellClicked(hovered, event);
     },
 
     /**
@@ -1997,17 +1979,16 @@ Hypergrid.prototype = {
         var max = this.sbVScroller.range.max;
         y = Math.min(max, Math.max(0, y));
         var self = this;
-        if (y === this.vScrollValue) {
-            return;
+        if (y !== this.vScrollValue) {
+            this.behavior._setScrollPositionY(y);
+            var oldY = this.vScrollValue;
+            this.vScrollValue = y;
+            this.scrollValueChangedNotification();
+            setTimeout(function() {
+                // self.sbVRangeAdapter.subjectChanged();
+                self.fireScrollEvent('fin-scroll-y', oldY, y);
+            });
         }
-        this.behavior._setScrollPositionY(y);
-        var oldY = this.vScrollValue;
-        this.vScrollValue = y;
-        this.scrollValueChangedNotification();
-        setTimeout(function() {
-            // self.sbVRangeAdapter.subjectChanged();
-            self.fireScrollEvent('fin-scroll-y', oldY, y);
-        });
     },
 
     /**
@@ -2028,18 +2009,17 @@ Hypergrid.prototype = {
         var max = this.sbHScroller.range.max;
         x = Math.min(max, Math.max(0, x));
         var self = this;
-        if (x === this.hScrollValue) {
-            return;
+        if (x !== this.hScrollValue) {
+            this.behavior._setScrollPositionX(x);
+            var oldX = this.hScrollValue;
+            this.hScrollValue = x;
+            this.scrollValueChangedNotification();
+            setTimeout(function() {
+                //self.sbHRangeAdapter.subjectChanged();
+                self.fireScrollEvent('fin-scroll-x', oldX, x);
+                self.synchronizeScrollingBoundries();
+            });
         }
-        this.behavior._setScrollPositionX(x);
-        var oldX = this.hScrollValue;
-        this.hScrollValue = x;
-        this.scrollValueChangedNotification();
-        setTimeout(function() {
-            //self.sbHRangeAdapter.subjectChanged();
-            self.fireScrollEvent('fin-scroll-x', oldX, x);
-            self.synchronizeScrollingBoundries();
-        });
     },
 
     /**
@@ -2077,10 +2057,7 @@ Hypergrid.prototype = {
      * @returns {boolean} We have a currently active cell editor.
      */
     isEditing: function() {
-        if (this.cellEditor) {
-            return this.cellEditor.isEditing;
-        }
-        return false;
+        return this.cellEditor && this.cellEditor.isEditing;
     },
 
     /**
@@ -2879,36 +2856,31 @@ Hypergrid.prototype = {
     },
 
     toggleSelectRow: function(y, keys) {
+        //we can select the totals rows if they exist, but not rows above that
+        if (y > this.getFilterRowIndex()) {
+            keys = keys || [];
 
-        //we can select the totals rows if they exist,
-        //but not rows above that
-        var selectionEdge = this.getFilterRowIndex() + 1;
-        if (y < selectionEdge) {
-            return;
+            var sm = this.selectionModel;
+            var alreadySelected = sm.isRowSelected(y);
+            var hasSHIFT = keys.indexOf('SHIFT') >= 0;
+
+            if (alreadySelected) {
+                sm.deselectRow(y);
+            } else {
+                this.singleSelect();
+                sm.selectRow(y);
+            }
+
+            if (hasSHIFT) {
+                sm.clear();
+                sm.selectRow(this.lastEdgeSelection[1], y);
+            }
+
+            if (!alreadySelected && !hasSHIFT) {
+                this.lastEdgeSelection[1] = y;
+            }
+            this.repaint();
         }
-
-        keys = keys || [];
-
-        var sm = this.selectionModel;
-        var alreadySelected = sm.isRowSelected(y);
-        var hasSHIFT = keys.indexOf('SHIFT') >= 0;
-
-        if (alreadySelected) {
-            sm.deselectRow(y);
-        } else {
-            this.singleSelect();
-            sm.selectRow(y);
-        }
-
-        if (hasSHIFT) {
-            sm.clear();
-            sm.selectRow(this.lastEdgeSelection[1], y);
-        }
-
-        if (!alreadySelected && !hasSHIFT) {
-            this.lastEdgeSelection[1] = y;
-        }
-        this.repaint();
     },
 
     singleSelect: function() {
