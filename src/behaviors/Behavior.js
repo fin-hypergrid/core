@@ -75,7 +75,14 @@ var Behavior = Base.extend('Behavior', {
      * @type {string[]}
      * @memberOf Behavior.prototype
      */
-    editorTypes: ['choice', 'textfield', 'color', 'slider', 'spinner', 'date'],
+    editorTypes: [
+        'choice',
+        'textfield',
+        'color',
+        'slider',
+        'spinner',
+        'date'
+    ],
 
     /**
      * controller chain of command
@@ -803,14 +810,8 @@ var Behavior = Base.extend('Behavior', {
      * @param {number} rowNum - row index of interest
      */
     getRowHeight: function(rowNum) {
-        var tableState = this.getPrivateState();
-        if (tableState.rowHeights) {
-            var override = tableState.rowHeights[rowNum];
-            if (override) {
-                return override;
-            }
-        }
-        return this.getDefaultRowHeight();
+        var rowHeights = this.getPrivateState().rowHeights;
+        return rowHeights && rowHeights[rowNum] || this.getDefaultRowHeight();
     },
 
     /**
@@ -868,8 +869,7 @@ var Behavior = Base.extend('Behavior', {
      * @return {number} The total width of the fixed columns area.
      */
     getFixedColumnsMaxWidth: function() {
-        var width = this.getFixedColumnsWidth();
-        return width;
+        return this.getFixedColumnsWidth();
     },
 
     /**
@@ -1183,11 +1183,7 @@ var Behavior = Base.extend('Behavior', {
      * @param {number} colIndex - the column index of interest
      */
     getField: function(colIndex) {
-        if (colIndex === -1) {
-            return 'tree';
-        }
-        var col = this.getColumn(colIndex);
-        return col.getField();
+        return colIndex === -1 ? 'tree' : this.getColumn(colIndex).getField();
     },
     /**
      * @memberOf Behavior.prototype
@@ -1195,11 +1191,7 @@ var Behavior = Base.extend('Behavior', {
      * @param {number} colIndex - the column index of interest
      */
     getHeader: function(colIndex) {
-        if (colIndex === -1) {
-            return 'Tree';
-        }
-        var col = this.getColumn(colIndex);
-        return col.getHeader();
+        return colIndex === -1 ? 'Tree' : this.getColumn(colIndex).getHeader();
     },
     /**
      * @memberOf Behavior.prototype
@@ -1263,8 +1255,7 @@ var Behavior = Base.extend('Behavior', {
      * @return {integer} The number of fixed columns.
      */
     getFixedColumnCount: function() {
-        var tableState = this.getPrivateState();
-        return tableState.fixedColumnCount || 0;
+        return this.getPrivateState().fixedColumnCount || 0;
     },
 
     /**
@@ -1273,8 +1264,7 @@ var Behavior = Base.extend('Behavior', {
      * @param {number} n - the integer count of how many columns to be fixed
      */
     setFixedColumnCount: function(n) {
-        var tableState = this.getPrivateState();
-        tableState.fixedColumnCount = n;
+        this.getPrivateState().fixedColumnCount = n;
     },
 
     /**

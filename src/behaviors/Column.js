@@ -28,13 +28,7 @@ Column.prototype = {
 
     getWidth: function() {
         var properties = this.getProperties();
-        if (properties) {
-            var override = properties.width;
-            if (override) {
-                return override;
-            }
-        }
-        return this.behavior.resolveProperty('defaultColumnWidth');
+        return properties && properties.width || this.behavior.resolveProperty('defaultColumnWidth');
     },
 
     setWidth: function(width) {
@@ -66,7 +60,7 @@ Column.prototype = {
         var a, b, d;
         if (properties) {
             a = properties.width;
-            b = properties.preferredWidth || properties.width;
+            b = properties.preferredWidth || a;
             d = properties.columnAutosized && !force;
             if (a !== b || !d) {
                 properties.width = !d ? b : Math.max(a, b);

@@ -1002,14 +1002,14 @@ var Renderer = Base.extend('Renderer', {
     _paintCell: function(gc, c, r) {
 
         var grid = this.grid,
-            baseProperties = this.grid.behavior.getColumnProperties(c);
+            behavior = this.grid.behavior,
+            baseProperties = behavior.getColumnProperties(c);
 
         if (baseProperties.isNull) {
             return;
         }
 
         var columnProperties = baseProperties,
-            behavior = this.grid.behavior,
             headerRowCount = behavior.getHeaderRowCount(),
             isShowRowNumbers = grid.isShowRowNumbers(),
             isHeaderRow = r >= 0 && r < headerRowCount,
