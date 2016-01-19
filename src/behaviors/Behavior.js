@@ -490,10 +490,7 @@ var Behavior = Base.extend('Behavior', {
 
     getComplexFilter: function(columnIndex) {
         var col = this.getColumn(columnIndex);
-        if (col) {
-            return col.getComplexFilter();
-        }
-        return;
+        return col && col.getComplexFilter();
     },
 
     applyFilters: function() {
@@ -716,18 +713,12 @@ var Behavior = Base.extend('Behavior', {
      */
     getValue: function(x, y) {
         var column = this.getColumn(x);
-        if (!column) {
-            return undefined;
-        }
-        return column.getValue(y);
+        return column && column.getValue(y);
     },
 
     getUnfilteredValue: function(x, y) {
         var column = this.getColumn(x);
-        if (!column) {
-            return undefined;
-        }
-        return column.getUnfilteredValue(y);
+        return column && column.getUnfilteredValue(y);
     },
 
     /**
@@ -740,10 +731,7 @@ var Behavior = Base.extend('Behavior', {
      */
     setValue: function(x, y, value) {
         var column = this.getColumn(x);
-        if (!column) {
-            return;
-        }
-        return column.setValue(y, value);
+        return column && column.setValue(y, value);
     },
 
     getDataValue: function(x, y) {
@@ -761,8 +749,7 @@ var Behavior = Base.extend('Behavior', {
      * @param {number} y - y coordinate
      */
     getCellProperties: function(x, y) {
-        var col = this.getColumn(x);
-        return col.getCellProperties(y);
+        return this.getColumn(x).getCellProperties(y);
     },
 
     /**

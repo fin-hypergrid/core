@@ -17,11 +17,11 @@ var SelectionModel = require('./SelectionModel');
 var addStylesheet = require('./stylesheets');
 var TableDialog = require('./TableDialog');
 var Formatters = require('./Formatters');
+var CustomFilter = require('./CustomFilter');
 
 var themeInitialized = false,
     polymerTheme = Object.create(defaults),
-    globalProperties = Object.create(polymerTheme),
-    customFilters = {};
+    globalProperties = Object.create(polymerTheme);
 
 /**
  * @constructor
@@ -93,6 +93,8 @@ function Hypergrid(div, behaviorFactory, margin) {
 
     this.dialog = new TableDialog(this);
     //this.computeCellsBounds();
+
+    this.filter = new CustomFilter();
 }
 
 Hypergrid.prototype = {
@@ -267,10 +269,9 @@ Hypergrid.prototype = {
 
     computeCellsBounds: function() {
         var renderer = this.getRenderer();
-        if (!renderer) {
-            return;
+        if (renderer) {
+            renderer.computeCellsBounds();
         }
-        renderer.computeCellsBounds();
     },
 
     initCellEditor: function(cellEditor) {
@@ -366,10 +367,7 @@ Hypergrid.prototype = {
      */
     isRowHovered: function(y) {
         var p = this.getHoverCell();
-        if (!p) {
-            return false;
-        }
-        return p.y === y;
+        return p && p.y === y;
     },
 
     /**
@@ -501,10 +499,9 @@ Hypergrid.prototype = {
      * @desc Remove the last item from the mouse down stack.
      */
     popMouseDown: function() {
-        if (this.mouseDown.length === 0) {
-            return;
+        if (this.mouseDown.length !== 0) {
+            this.mouseDown.length = this.mouseDown.length - 1;
         }
-        this.mouseDown.length = this.mouseDown.length - 1;
     },
 
     /**
@@ -617,12 +614,11 @@ Hypergrid.prototype = {
      * @param {event} event - The copy system event.
      */
     checkClipboardCopy: function(event) {
-        if (!this.hasFocus()) {
-            return;
+        if (this.hasFocus()) {
+            event.preventDefault();
+            var csvData = this.getSelectionAsTSV();
+            event.clipboardData.setData('text/plain', csvData);
         }
-        event.preventDefault();
-        var csvData = this.getSelectionAsTSV();
-        event.clipboardData.setData('text/plain', csvData);
     },
 
     /**
@@ -822,10 +818,7 @@ Hypergrid.prototype = {
      */
     getBounds: function() {
         var renderer = this.getRenderer();
-        if (!renderer) {
-            return;
-        }
-        return renderer.getBounds();
+        return renderer && renderer.getBounds();
     },
 
     /**
@@ -1447,10 +1440,9 @@ Hypergrid.prototype = {
         var max = this.sbVScroller.range.max;
         var oldValue = this.getVScrollValue();
         var newValue = Math.min(max, Math.max(0, oldValue + offsetY));
-        if (newValue === oldValue) {
-            return;
+        if (newValue !== oldValue) {
+            this.setVScrollValue(newValue);
         }
-        this.setVScrollValue(newValue);
     },
 
     /**
@@ -1462,10 +1454,9 @@ Hypergrid.prototype = {
         var max = this.sbHScroller.range.max;
         var oldValue = this.getHScrollValue();
         var newValue = Math.min(max, Math.max(0, oldValue + offsetX));
-        if (newValue === oldValue) {
-            return;
+        if (newValue !== oldValue) {
+            this.setHScrollValue(newValue);
         }
-        this.setHScrollValue(newValue);
     },
 
     /**
@@ -1824,15 +1815,14 @@ Hypergrid.prototype = {
     fireSyntheticButtonPressedEvent: function(evt) {
         var dataCell = evt.dataCell;
         var gridCell = evt.gridCell;
-        if (!this.isViewableButton(dataCell.x, dataCell.y)) {
-            return;
+        if (this.isViewableButton(dataCell.x, dataCell.y)) {
+            var event = new CustomEvent('fin-button-pressed', {
+                detail: {
+                    gridCell: gridCell
+                }
+            });
+            this.canvas.dispatchEvent(event);
         }
-        var event = new CustomEvent('fin-button-pressed', {
-            detail: {
-                gridCell: gridCell
-            }
-        });
-        this.canvas.dispatchEvent(event);
     },
 
     /**
@@ -2451,7 +2441,9 @@ Hypergrid.prototype = {
         if (editor) {
             if (point.x === x && point.y === y && editor.isEditing) {
                 return; //we're already open at this location
-            } else if (this.isEditing()) {
+            }
+
+            if (this.isEditing()) {
                 this.stopEditing(); //other editor is open, close it first
             }
             event.gridCell = {
@@ -2538,7 +2530,7 @@ Hypergrid.prototype = {
 
     /**
      * @memberOf Hypergrid.prototype
-    update the cursor under the hover cell
+     * @desc Update the cursor under the hover cell.
      */
     updateCursor: function() {
         var cursor = this.behavior.getCursorAt(-1, -1);
@@ -2949,18 +2941,17 @@ Hypergrid.prototype = {
 
     selectToViewportCell: function(x, y) {
         var selections = this.getSelections();
-        if (!selections || selections.length === 0) {
-            return;
+        if (selections && selections.length) {
+            var headerRowCount = this.getHeaderRowCount();
+            var renderer = this.getRenderer();
+            var realX = renderer.getVisibleColumns()[x];
+            var realY = renderer.getVisibleRows()[y] + headerRowCount;
+            var selection = selections[0];
+            var origin = selection.origin;
+            this.setDragExtent(this.newPoint(realX - origin.x, realY - origin.y));
+            this.select(origin.x, origin.y, realX - origin.x, realY - origin.y);
+            this.repaint();
         }
-        var headerRowCount = this.getHeaderRowCount();
-        var renderer = this.getRenderer();
-        var realX = renderer.getVisibleColumns()[x];
-        var realY = renderer.getVisibleRows()[y] + headerRowCount;
-        var selection = selections[0];
-        var origin = selection.origin;
-        this.setDragExtent(this.newPoint(realX - origin.x, realY - origin.y));
-        this.select(origin.x, origin.y, realX - origin.x, realY - origin.y);
-        this.repaint();
     },
 
     selectFinalCellOfCurrentRow: function() {
@@ -2977,19 +2968,18 @@ Hypergrid.prototype = {
 
     selectToFinalCellOfCurrentRow: function() {
         var selections = this.getSelections();
-        if (!selections || selections.length === 0) {
-            return;
+        if (selections && selections.length) {
+            var selection = selections[0];
+            var origin = selection.origin;
+            var extent = selection.extent;
+            var columnCount = this.getColumnCount();
+            this.scrollBy(columnCount, 0);
+
+            this.clearSelections();
+            this.select(origin.x, origin.y, columnCount - origin.x - 1, extent.y);
+
+            this.repaint();
         }
-        var selection = selections[0];
-        var origin = selection.origin;
-        var extent = selection.extent;
-        var columnCount = this.getColumnCount();
-        this.scrollBy(columnCount, 0);
-
-        this.clearSelections();
-        this.select(origin.x, origin.y, columnCount - origin.x - 1, extent.y);
-
-        this.repaint();
     },
 
     selectFirstCellOfCurrentRow: function() {
@@ -3006,16 +2996,15 @@ Hypergrid.prototype = {
 
     selectToFirstCellOfCurrentRow: function() {
         var selections = this.getSelections();
-        if (!selections || selections.length === 0) {
-            return;
+        if (selections && selections.length) {
+            var selection = selections[0];
+            var origin = selection.origin;
+            var extent = selection.extent;
+            this.clearSelections();
+            this.select(origin.x, origin.y, -origin.x, extent.y);
+            this.setHScrollValue(0);
+            this.repaint();
         }
-        var selection = selections[0];
-        var origin = selection.origin;
-        var extent = selection.extent;
-        this.clearSelections();
-        this.select(origin.x, origin.y, -origin.x, extent.y);
-        this.setHScrollValue(0);
-        this.repaint();
     },
 
     selectFinalCell: function() {
@@ -3026,18 +3015,17 @@ Hypergrid.prototype = {
 
     selectToFinalCell: function() {
         var selections = this.getSelections();
-        if (!selections || selections.length === 0) {
-            return;
-        }
-        var selection = selections[0];
-        var origin = selection.origin;
-        var columnCount = this.getColumnCount();
-        var rowCount = this.getRowCount();
+        if (selections && selections.length) {
+            var selection = selections[0];
+            var origin = selection.origin;
+            var columnCount = this.getColumnCount();
+            var rowCount = this.getRowCount();
 
-        this.clearSelections();
-        this.select(origin.x, origin.y, columnCount - origin.x - 1, rowCount - origin.y - 1);
-        this.scrollBy(columnCount, rowCount);
-        this.repaint();
+            this.clearSelections();
+            this.select(origin.x, origin.y, columnCount - origin.x - 1, rowCount - origin.y - 1);
+            this.scrollBy(columnCount, rowCount);
+            this.repaint();
+        }
     },
 
     isShowRowNumbers: function() {
@@ -3059,14 +3047,7 @@ Hypergrid.prototype = {
         return y === this.getFilterRowIndex();
     },
     getFilterRowIndex: function() {
-        if (!this.isShowFilterRow()) {
-            return -1;
-        }
-        if (this.isShowHeaderRow()) {
-            return 1;
-        } else {
-            return 0;
-        }
+        return !this.isShowFilterRow() ? -1 : this.isShowHeaderRow() ? 1 : 0;
     },
     setGroups: function(arrayOfColumnIndexes) {
         this.behavior.setGroups(arrayOfColumnIndexes);
@@ -3078,10 +3059,7 @@ Hypergrid.prototype = {
         return this.behavior.hasHierarchyColumn();
     },
     isHierarchyColumn: function(x) {
-        if (!this.hasHierarchyColumn()) {
-            return false;
-        }
-        return x === 0;
+        return this.hasHierarchyColumn() && x === 0;
     },
     checkScrollbarVisibility: function() {
         // var hoverClassOver = this.resolveProperty('scrollbarHoverOver');
@@ -3218,15 +3196,6 @@ Hypergrid.prototype = {
     },
     newRectangle: function(x, y, width, height) {
         return new Rectangle(x, y, width, height);
-    },
-    registerFilter: function(filter) {
-        customFilters[filter.alias] = filter;
-    },
-    getFilterFor: function(columnIndex) { //TODO: fix this
-        return customFilters.MyCustomFilter;
-    },
-    resolveFilter: function(alias) { //TODO: fix this
-        return customFilters[alias];
     },
     getFormattedValue: function(x, y) {
         y = y + this.getHeaderRowCount();

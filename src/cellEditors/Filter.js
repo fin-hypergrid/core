@@ -152,8 +152,8 @@ var Filter = CellEditor.extend('Filter', {
                 type: type
             }];
         };
-        this.title.innerHTML = 'filter for <strong><em>' + title + '</em></strong> column';
-        var filter = this.grid.getFilterFor(columnIndex);
+        this.title.innerHTML = 'Manage Filters';
+        var filter = this.grid.filter;
         //var self = this;
         if (dialog.isOpen()) {
             dialog.close();
@@ -171,7 +171,7 @@ var Filter = CellEditor.extend('Filter', {
                 }
                 self.tearDown();
                 behavior.setComplexFilter(columnIndex, {
-                    type: filter.alias,
+                    //type: filter.alias,
                     state: filter.getState()
                 });
                 dialog.close();

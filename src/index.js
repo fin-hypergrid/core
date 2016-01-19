@@ -11,7 +11,4 @@ Hypergrid.behaviors = require('./behaviors/index');
 Hypergrid.cellEditors = require('./cellEditors/index');
 Hypergrid.features = require('./features/index');
 
-window.fin = {
-    Hypergrid: Hypergrid,
-    FilterTree: require('filter-tree')
-};
+(window.fin = window.fin || {}).Hypergrid = Hypergrid;

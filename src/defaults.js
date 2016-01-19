@@ -600,6 +600,12 @@ module.exports = {
 
     /********** HOVER COLORS **********/
 
+    /** On mouse hover, repaint the row background with `hoverRowColor`.
+     * @type {boolean}
+     * @default `true`
+     */
+    hoverRowHighlight: true,
+
     /** Background color of row on mouse hover when `hoverRowHighlight`.
      * @type {cssColor}
      * @default `'gray'`
@@ -618,23 +624,17 @@ module.exports = {
      */
     hoverCellColor: 'lightgray',
 
-    /** On mouse hover, repaint the row background with `hoverRowColor`.
+    /** On mouse hover, repaint the column background with `hoverColumnColor`.
      * @type {boolean}
      * @default `true`
      */
-    hoverRowHighlight: true,
+    hoverColumnHighlight: true,
 
     /** Background color of column on mouse hover when `hoverColumnHighlight`.
      * @type {cssColor}
      * @default `'gray'`
      */
     hoverColumnColor: 'gray',
-
-    /** On mouse hover, repaint the column background with `hoverColumnColor`.
-     * @type {boolean}
-     * @default `true`
-     */
-    hoverColumnHighlight: true,
 
     /** Display cell font with under-score line drawn over it.
      * > Implementation of links right now is not automatic; you must attach a 'fin-click' listener to the hypergrid object, etc.
