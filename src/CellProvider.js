@@ -158,10 +158,10 @@ var CellProvider = Base.extend('CellProvider', {
         if (config.backgroundColor) {
             gc.fillStyle = backgroundColor = valueOrFunctionExecute(config, config.isSelected ? config.backgroundSelectionColor : config.backgroundColor);
             if (config.isColumnHovered) {
-                gc.fillStyle = config.hoverColumnColor;
+                gc.fillStyle = config.isGridRow ? config.hoverColumnColor : config.hoverColumnHeaderColor;
             }
             if (config.isRowHovered) {
-                gc.fillStyle = config.hoverRowColor;
+                gc.fillStyle = config.isGridColumn ? config.hoverRowColor : config.hoverRowHeaderColor;
             }
             if (config.isCellHovered) {
                 gc.fillStyle = config.hoverCellColor;

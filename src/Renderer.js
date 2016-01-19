@@ -1010,10 +1010,13 @@ var Renderer = Base.extend('Renderer', {
         var columnProperties = baseProperties,
 
             headerRowCount = behavior.getHeaderRowCount(),
+            isGridRow = r >= headerRowCount,
             isFooterRow = r < 0,
-            isHeaderRow = r >= 0 && r < headerRowCount,
+            isHeaderRow = !isGridRow && !isFooterRow,
             isFilterRow = grid.isFilterRow(r),
 
+            headerColumnCount = behavior.getHeaderColumnCount(),
+            isGridColumn = c >= headerColumnCount,
             isShowRowNumbers = grid.isShowRowNumbers(),
             isHierarchyColumn = grid.isHierarchyColumn(c),
 
@@ -1073,9 +1076,11 @@ var Renderer = Base.extend('Renderer', {
             cellProperties.halign = grid.getColumnAlignment(c);
         }
 
-        cellProperties.isColumnHovered = this.isColumnHovered(c);
-        cellProperties.isRowHovered = this.isRowHovered(r);
-        cellProperties.isCellHovered = this.isHovered(c, r);
+        cellProperties.isGridColumn = isGridColumn;
+        cellProperties.isGridRow = isGridRow;
+        cellProperties.isColumnHovered = this.isColumnHovered(c) && isGridColumn;
+        cellProperties.isRowHovered = this.isRowHovered(r) && isGridRow;
+        cellProperties.isCellHovered = this.isHovered(c, r) && isGridColumn && isGridRow;
         cellProperties.bounds = this._getBoundsOfCell(c, r);
         cellProperties.isCellSelected = isCellSelected;
         cellProperties.isRowSelected = isRowSelected;
