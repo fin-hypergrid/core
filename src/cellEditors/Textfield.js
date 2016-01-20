@@ -41,35 +41,7 @@ var Textfield = Simple.extend('Textfield', {
                 });
             }
         }
-    },
-
-    initializeInput: function(input) {
-        var self = this;
-        input.addEventListener('keyup', this.keyup.bind(this));
-        input.addEventListener('keydown', function(e) {
-            self.grid.fireSyntheticEditorKeyDownEvent(self, e);
-        });
-        input.addEventListener('keypress', function(e) {
-            self.grid.fireSyntheticEditorKeyPressEvent(self, e);
-        });
-        input.onblur = function(e) {
-            self.cancelEditing();
-        };
-        // input.addEventListener('focusout', function() {
-        //     self.stopEditing();
-        // });
-        // input.addEventListener('blur', function() {
-        //     self.stopEditing();
-        // });
-        input.style.position = 'absolute';
-        input.style.display = 'none';
-        input.style.border = 'solid 2px black';
-        input.style.outline = 0;
-        input.style.padding = 0;
-        input.style.zIndex = 1000;
-        //input.style.fontSize = '8pt';
-        input.style.boxShadow = 'white 0px 0px 1px 1px';
-    },
+    }
 });
 
 module.exports = Textfield;

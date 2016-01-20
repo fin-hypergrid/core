@@ -79,13 +79,12 @@ var Simple = CellEditor.extend('Simple', {
         // input.addEventListener('blur', function() {
         //     self.stopEditing();
         // });
+
         input.style.position = 'absolute';
         input.style.display = 'none';
         input.style.border = 'solid 2px black';
         input.style.outline = 0;
         input.style.padding = 0;
-        input.style.zIndex = 1000;
-        //input.style.fontSize = '8pt';
         input.style.boxShadow = 'white 0px 0px 1px 1px';
     },
 
@@ -235,7 +234,7 @@ var Simple = CellEditor.extend('Simple', {
 
         if (!this.isAdded) {
             this.isAdded = true;
-            this.grid.div.appendChild(this.getInput());
+            this.attachEditor();
         }
 
         this.setEditorPoint(point);
@@ -275,8 +274,11 @@ var Simple = CellEditor.extend('Simple', {
     },
 
     attachEditor: function() {
-        var input = this.getInput();
-        this.grid.div.appendChild(input);
+        var input = this.getInput(),
+            div = this.grid.div,
+            referenceNode = div.querySelectorAll('.finbar-horizontal, .finbar-vertical');
+
+        div.insertBefore(input, referenceNode.length ? referenceNode[0] : null);
     },
 
     preShowEditorNotification: function() {
