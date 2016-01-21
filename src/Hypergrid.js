@@ -1483,22 +1483,25 @@ Hypergrid.prototype = {
      */
     cellClicked: function(event) {
         var cell = event.gridCell;
-        var colCount = this.getColumnCount();
-        var rowCount = this.getRowCount();
 
-        //click occured in background area
-        if (cell.x <= colCount && cell.y <= rowCount) {
-            var hovered = this.getHoverCell();
-            var sy = this.getVScrollValue();
-            var x = hovered.x;
-            // if (hovered.x > -1) {
-            //     x = behavior.translateColumnIndex(hovered.x + this.getHScrollValue());
+        //click occurred in background area
+        if (
+            cell.x <= this.getColumnCount() &&
+            cell.y <= this.getRowCount()
+        ) {
+            var hovered = this.getHoverCell(),
+                x = hovered.x,
+                y = hovered.y;
+
+            // if (x >= 0) {
+            //     x = behavior.translateColumnIndex(x + this.getHScrollValue());
             // }
-            if (hovered.y < 0) {
-                sy = 0;
+
+            if (y >= 0) {
+                y += this.getVScrollValue();
             }
-            hovered = new Point(x, hovered.y + sy);
-            this.behavior.cellClicked(hovered, event);
+
+            this.behavior.cellClicked(new Point(x, y), event);
         }
     },
 
@@ -2512,7 +2515,11 @@ Hypergrid.prototype = {
     updateCursor: function() {
         var cursor = this.behavior.getCursorAt(-1, -1);
         var hoverCell = this.getHoverCell();
-        if (hoverCell && hoverCell.x > -1 && hoverCell.y > -1) {
+        if (
+            hoverCell &&
+            hoverCell.x > -1 &&
+            hoverCell.y > -1
+        ) {
             var x = hoverCell.x + this.getHScrollValue();
             cursor = this.behavior.getCursorAt(x, hoverCell.y + this.getVScrollValue());
         }

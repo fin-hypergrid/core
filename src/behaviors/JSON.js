@@ -68,7 +68,7 @@ var JSON = Local.extend('behaviors.JSON', {
     getDefaultDataModel: function() {
         var model = new DataModelJSON();
         var wrapper = new DataModelDecorator(this.grid, model);
-        wrapper.setComponent(model);
+        wrapper.setComponent(model); // TODO: Redundant? Already performed in DataModelDecorator()?
         return wrapper;
     },
 
