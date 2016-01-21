@@ -78,7 +78,6 @@ var CellSelection = Feature.extend('CellSelection', {
                 this.next.handleMouseDown(grid, event);
             }
         } else {
-
             var numFixedColumns = grid.getFixedColumnCount();
             var numFixedRows = grid.getFixedRowCount();
 
@@ -280,8 +279,8 @@ var CellSelection = Feature.extend('CellSelection', {
      * @param {Array} keys - array of the keys that are currently pressed down
      */
     extendSelection: function(grid, gridCell, keys) {
-        var hasCTRL = keys.indexOf('CTRL') !== -1;
-        var hasSHIFT = keys.indexOf('SHIFT') !== -1;
+        var hasCTRL = keys.indexOf('CTRL') >= 0;
+        var hasSHIFT = keys.indexOf('SHIFT') >= 0;
         // var scrollTop = grid.getVScrollValue();
         // var scrollLeft = grid.getHScrollValue();
 
@@ -298,7 +297,11 @@ var CellSelection = Feature.extend('CellSelection', {
         }
 
         //we have repeated a click in the same spot deslect the value from last time
-        if (x === mousePoint.x && y === mousePoint.y) {
+        if (
+            hasCTRL &&
+            x === mousePoint.x &&
+            y === mousePoint.y
+        ) {
             grid.clearMostRecentSelection();
             grid.popMouseDown();
             grid.repaint();
