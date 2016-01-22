@@ -32,16 +32,18 @@ var Textfield = Simple.extend('Textfield', {
 
     keyup: function(e) {
         if (e) {
-            Simple.prototype.keyup(e);
+            Simple.prototype.keyup.call(this, e);
 
             if (this.grid.isFilterRow(this.getEditorPoint().y)) {
-                setTimeout(function() {
-                    this.saveEditorValue();
-                    this._moveEditor();
-                });
+                setTimeout(keyup.bind(this));
             }
         }
     }
 });
+
+function keyup() {
+    this.saveEditorValue();
+    this._moveEditor();
+}
 
 module.exports = Textfield;
