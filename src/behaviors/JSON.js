@@ -236,7 +236,7 @@ var JSON = Local.extend('behaviors.JSON', {
     },
 
     getSelection: function() {
-        var selections = this.grid.getSelections();
+        var selections = this.getSelections();
         return this.getDataModel().getSelection(selections);
     },
 
