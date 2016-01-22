@@ -3,6 +3,7 @@
 'use strict';
 
 var extend = require('extend-me');
+var deprecated = require('./deprecated');
 extend.debug = true;
 
 var FinBar = require('finbars');
@@ -99,6 +100,8 @@ function Hypergrid(div, behaviorFactory, margin) {
 
 Hypergrid.prototype = {
     constructor: Hypergrid.prototype.constructor,
+
+    deprecated: deprecated,
 
     /**
      *
@@ -768,12 +771,20 @@ Hypergrid.prototype = {
         return isSelected;
     },
 
-    /**
+    /** @deprecated Use `.selectionModel` property instead.
      * @memberOf Hypergrid.prototype
-     * @returns {fin-hypergrid-selection-model} The selection model.
+     * @returns {SelectionModel} The selection model.
      */
     getSelectionModel: function() {
-        return this.selectionModel;
+        return this.deprecated('selectionModel', { since: '0.2' });
+    },
+
+    /** @deprecated Use `.behavior` property instead.
+     * @memberOf Hypergrid.prototype
+     * @returns {Behavior} The behavior (model).
+     */
+    getBehavior: function() {
+        return this.deprecated('behavior', { since: '0.2' });
     },
 
     /**
@@ -1588,7 +1599,7 @@ Hypergrid.prototype = {
             detail: {
                 rows: this.getSelectedRows(),
                 columns: this.getSelectedColumns(),
-                selections: this.selectionModel.selections,
+                selections: this.getSelections(),
             }
         });
         this.canvas.dispatchEvent(selectionEvent);
@@ -1599,7 +1610,7 @@ Hypergrid.prototype = {
             detail: {
                 rows: this.getSelectedRows(),
                 columns: this.getSelectedColumns(),
-                selections: this.selectionModel.selections
+                selections: this.getSelections()
             }
         });
         this.canvas.dispatchEvent(selectionEvent);
@@ -1614,7 +1625,7 @@ Hypergrid.prototype = {
             detail: {
                 rows: selectedRows,
                 columns: this.getSelectedColumns(),
-                selections: this.selectionModel.selections,
+                selections: this.getSelections(),
             }
         });
         this.canvas.dispatchEvent(selectionEvent);
@@ -1756,7 +1767,7 @@ Hypergrid.prototype = {
                 primitiveEvent: e.primitiveEvent,
                 rows: this.getSelectedRows(),
                 columns: this.getSelectedColumns(),
-                selections: this.selectionModel.selections
+                selections: this.getSelections()
             }
         });
         this.canvas.dispatchEvent(event);
@@ -1771,7 +1782,7 @@ Hypergrid.prototype = {
                 primitiveEvent: e.primitiveEvent,
                 rows: this.getSelectedRows(),
                 columns: this.getSelectedColumns(),
-                selections: this.selectionModel.selections
+                selections: this.getSelections()
             }
         });
         this.canvas.dispatchEvent(event);
@@ -1787,7 +1798,7 @@ Hypergrid.prototype = {
                 primitiveEvent: e.primitiveEvent,
                 rows: this.getSelectedRows(),
                 columns: this.getSelectedColumns(),
-                selections: this.selectionModel.selections
+                selections: this.getSelections()
             }
         });
         this.canvas.dispatchEvent(event);
@@ -2617,7 +2628,7 @@ Hypergrid.prototype = {
      * @returns {object} An object that represents the currently selection row.
      */
     getSelectedRow: function() {
-        var sels = this.selectionModel.selections;
+        var sels = this.getSelections();
         if (sels.length) {
             var behavior = this.behavior,
                 colCount = this.getColumnCount(),
@@ -3139,7 +3150,7 @@ Hypergrid.prototype = {
         return this.behavior.getSelectedColumns();
     },
     getSelections: function() {
-        return this.behavior.getSelections();
+        return this.selectionModel.getSelections();
     },
     getLastSelectionType: function() {
         return this.selectionModel.getLastSelectionType();

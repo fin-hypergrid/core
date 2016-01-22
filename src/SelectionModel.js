@@ -62,6 +62,8 @@ function SelectionModel(grid) {
 
 SelectionModel.prototype = {
 
+    constructor: SelectionModel.prototype.constructor,
+
     /**
      * @type {boolean}
      * @memberOf SelectionModel.prototype

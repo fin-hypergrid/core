@@ -1,6 +1,6 @@
 'use strict';
 
-var Base = require('extend-me').Base;
+var Base = require('../Base');
 
 var A = 'A'.charCodeAt(0);
 
@@ -15,6 +15,16 @@ var DataModel = Base.extend('DataModel', {
 
     setGrid: function(newGrid) {
         this.grid = newGrid;
+    },
+
+    /** @deprecated Use `.grid` property instead. */
+    getGrid: function() {
+        return this.deprecated('grid', { since: '0.2' });
+    },
+
+    /** @deprecated Use `.grid.behavior` property instead. */
+    getBehavior: function() {
+        return this.deprecated('grid.behavior', { since: '0.2' });
     },
 
     changed: function() {

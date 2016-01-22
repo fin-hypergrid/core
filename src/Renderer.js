@@ -4,7 +4,7 @@
 'use strict';
 
 var _ = require('object-iterators');
-var Base = require('extend-me').Base;
+var Base = require('./Base');
 
 var images = require('../images');
 
@@ -176,6 +176,14 @@ var Renderer = Base.extend('Renderer', {
      */
     resolveProperty: function(key) {
         return this.grid.resolveProperty(key);
+    },
+
+    /** @deprecated Use `.grid` property instead.
+     * @memberOf Renderer.prototype
+     * @returns {Hypergrid} grid
+     */
+    getGrid: function() {
+        return this.deprecated('grid', { since: '0.2' });
     },
 
     /**
@@ -507,7 +515,7 @@ var Renderer = Base.extend('Renderer', {
 
     _renderFocusCell: function(gc) {
 
-        var selections = this.grid.selectionModel.selections;
+        var selections = this.grid.selectionModel.getSelections();
         if (!selections || selections.length === 0) {
             return;
         }
@@ -684,6 +692,14 @@ var Renderer = Base.extend('Renderer', {
      */
     getScrollLeft: function() {
         return this.grid.getHScrollValue();
+    },
+
+    /** @deprecated Use `.grid.behavior` property instead.
+     * @memberOf Renderer.prototype
+     * @returns {Behavior} The behavior (model).
+     */
+    getBehavior: function() {
+        return this.deprecated('grid.behavior', { since: '0.2' });
     },
 
     getColumnEdges: function() {

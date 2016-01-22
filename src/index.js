@@ -2,7 +2,7 @@
 
 'use strict';
 
-require('object-iterators'); // Install the Array.find polyfill, as needed
+require('object-iterators'); // Installs the Array.find polyfill, as needed
 
 var Hypergrid = require('./Hypergrid');
 

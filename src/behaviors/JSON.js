@@ -236,7 +236,7 @@ var JSON = Local.extend('behaviors.JSON', {
     },
 
     getSelection: function() {
-        var selections = this.getSelections();
+        var selections = this.grid.getSelections();
         return this.getDataModel().getSelection(selections);
     },
 
@@ -320,7 +320,7 @@ var JSON = Local.extend('behaviors.JSON', {
     },
 
     getSelections: function() {
-        return this.grid.selectionModel.selections;
+        return this.grid.selectionModel.getSelections();
     }
 
 });

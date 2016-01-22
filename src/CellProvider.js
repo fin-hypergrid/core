@@ -1,6 +1,6 @@
 'use strict';
 
-var Base = require('extend-me').Base;
+var Base = require('./Base');
 
 /** @constructor
  * @desc Instances of features are connected to one another to make a chain of responsibility for handling all the input to the hypergrid.

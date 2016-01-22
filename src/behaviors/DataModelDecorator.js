@@ -1,5 +1,7 @@
 'use strict';
 
+var deprecated = require('../deprecated');
+
 function DataModelDecorator(grid, component) {
     this.setComponent(component);
     this.setGrid(grid);
@@ -8,12 +10,24 @@ function DataModelDecorator(grid, component) {
 DataModelDecorator.prototype = {
     constructor: DataModelDecorator.prototype.constructor,
 
+    deprecated: deprecated,
+
     component: null,
     grid: null,
+
+    /** @deprecated Use `.grid` property instead. */
+    getGrid: function() {
+        return this.deprecated('grid', { since: '0.2' });
+    },
 
     setGrid: function(newGrid) {
         this.grid = newGrid;
         this.getComponent().setGrid(newGrid);
+    },
+
+    /** @deprecated Use `.grid.behavior` property instead. */
+    getBehavior: function() {
+        return this.deprecated('grid.behavior', { since: '0.2' });
     },
 
     changed: function() {

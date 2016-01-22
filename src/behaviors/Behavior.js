@@ -2,7 +2,7 @@
 'use strict';
 
 var _ = require('object-iterators');
-var Base = require('extend-me').Base;
+var Base = require('../Base');
 
 var Column = require('./Column');
 var CellProvider = require('../CellProvider');
@@ -697,6 +697,15 @@ var Behavior = Base.extend('Behavior', {
         this.grid = finGrid;
         this.getDataModel().setGrid(finGrid);
         this.clearColumns();
+    },
+
+    /** @deprecated Use `.grid` property instead.
+     * @memberOf Behavior.prototype
+     * @returns {Hypergrid} The hypergrid to which this behavior is attached.
+     * @param {type} varname - descripton
+     */
+    getGrid: function() {
+        return this.deprecated('grid', { since: '0.2' });
     },
 
     /**
@@ -1659,7 +1668,7 @@ var Behavior = Base.extend('Behavior', {
     },
 
     getSelections: function() {
-        return this.grid.selectionModel.selections;
+        return this.grid.selectionModel.getSelections();
     },
 
     getData: function() {

@@ -3,7 +3,7 @@
 'use strict';
 
 var mustache = require('mustache');
-var Base = require('extend-me').Base;
+var Base = require('../Base');
 
 /**
  * @constructor
@@ -54,6 +54,14 @@ var CellEditor = Base.extend('CellEditor', {
      * @memberOf CellEditor.prototype
      */
     initialValue: null,
+
+    /** @deprecated Use `.grid.behavior` property instead.
+     * @memberOf CellEditor.prototype
+     * @returns {Behavior} The behavior (model).
+     */
+    getBehavior: function() {
+        return this.deprecated('grid.behavior', { since: '0.2' });
+    },
 
     /**
      * @memberOf CellEditor.prototype
@@ -175,6 +183,11 @@ var CellEditor = Base.extend('CellEditor', {
      * @desc check that the editor is in the correct location, and is showing/hidden appropriately
      */
     checkEditor: function() {
+    },
+
+    /** @deprecated Use `.grid` property instead. */
+    getGrid: function() {
+        return this.deprecated('grid', { since: '0.2' });
     },
 
     template: function() {
