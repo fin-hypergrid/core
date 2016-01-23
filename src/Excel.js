@@ -96,7 +96,7 @@
          */
         createExcelDataFromSelections: function() {
             //only use the data from the last selection
-            var selectionModel = this.grid.getSelectionModel();
+            var selectionModel = this.grid.selectionModel;
             var selections = selectionModel.getSelections();
             if (selections.length === 0) {
                 return;
@@ -173,7 +173,7 @@
          */
         subscriptionCallback: function(data) {
             var self = this;
-            var sm = this.grid.getSelectionModel();
+            var sm = this.grid.selectionModel;
             if (this.logging) {
                 console.log(JSON.stringify(data));
             }

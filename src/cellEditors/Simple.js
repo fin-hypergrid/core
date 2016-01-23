@@ -34,32 +34,40 @@ var Simple = CellEditor.extend('Simple', {
         };
     },
 
+    specialKeyups: {
+        //0x08: 'clearStopEditing', // backspace
+        0x09: 'stopEditing', // tab
+        0x0d: 'stopEditing', // return/enter
+        0x1b: 'cancelEditing' // escape
+    },
+
+    keyup: function(e) {
+        if (e) {
+            var specialKeyup = this.specialKeyups[e.keyCode];
+
+            if (specialKeyup) {
+                e.preventDefault();
+                this[specialKeyup]();
+                this.grid.repaint();
+                this.grid.takeFocus();
+            }
+
+            this.grid.fireSyntheticEditorKeyUpEvent(this, e);
+        }
+    },
+
     /**
      * @memberOf Simple.prototype
      * @desc  the function to override for initialization
      */
     initializeInput: function(input) {
         var self = this;
-        input.addEventListener('keyup', function(e) {
-            if (e && (e.keyCode === 13 || e.keyCode === 27 || e.keyCode === 8)) {
-                e.preventDefault();
-                if (e.keyCode === 8) {
-                    self.clearStopEditing();
-                } else if (e.keyCode === 27) {
-                    self.cancelEditing();
-                } else {
-                    self.stopEditing();
-                }
-                self.getGrid().repaint();
-                self.getGrid().takeFocus();
-            }
-            self.getGrid().fireSyntheticEditorKeyUpEvent(self, e);
-        });
+        input.addEventListener('keyup', this.keyup.bind(this));
         input.addEventListener('keydown', function(e) {
-            self.getGrid().fireSyntheticEditorKeyDownEvent(self, e);
+            self.grid.fireSyntheticEditorKeyDownEvent(self, e);
         });
         input.addEventListener('keypress', function(e) {
-            self.getGrid().fireSyntheticEditorKeyPressEvent(self, e);
+            self.grid.fireSyntheticEditorKeyPressEvent(self, e);
         });
         input.onblur = function(e) {
             self.cancelEditing();
@@ -71,13 +79,12 @@ var Simple = CellEditor.extend('Simple', {
         // input.addEventListener('blur', function() {
         //     self.stopEditing();
         // });
+
         input.style.position = 'absolute';
         input.style.display = 'none';
         input.style.border = 'solid 2px black';
         input.style.outline = 0;
         input.style.padding = 0;
-        input.style.zIndex = 1000;
-        //input.style.fontSize = '8pt';
         input.style.boxShadow = 'white 0px 0px 1px 1px';
     },
 
@@ -129,14 +136,28 @@ var Simple = CellEditor.extend('Simple', {
     },
 
     /**
+     * @summary Request focus for my input control.
+     *
+     * @desc Regarding issue GRID-95 "Scrollbar moves inward":
+     *
+     * When the input element was positioned over a grid cell in the right-most grid column AND when that grid column overflowed off the right edge of the canvas, the input element was too wide to comfortably fit and overflowed the right edge of the div. This is permitted, but when given the focus, the entire contents of the containing div(including both the canvas and input elements) was shifted left for unknown reasons. In fact, this new positioning was not detectable from DOM inspection, so it's a bit of a mystery. We suspect it has something to do with bootstrap.com.
+     *
+     * Work-around: Temporarily position the input to upper left of div so it's fully inside. THen, after giving it the focus, we move it back to where it wants to be. The user doesn't see this happening and only sees the input in its final position.
+     *
+     * Another possibly better work-around might be to shorten the width of the input to match the visible portion of the cell.
+     *
      * @memberOf Simple.prototype
-     * @desc request focus for my input control
      */
     takeFocus: function() {
         var self = this;
         setTimeout(function() {
+            var transformWas = self.input.style.transform;
+            self.input.style.transform = 'translate(0,0)'; // work-around: move to upper left
+
             self.input.focus();
             self.selectAll();
+
+            self.input.style.transform = transformWas;
         }, 300);
     },
 
@@ -176,6 +197,8 @@ var Simple = CellEditor.extend('Simple', {
         input.style.msTransform = translation;
         input.style.OTransform = translation;
 
+        // TODO: Obviously this was changed at some point from left,top to trnasform:translation. Wondering why this was necessary...?
+
         // input.style.left = cellBounds.x + originOffset[0] + 'px';
         // input.style.top = cellBounds.y + originOffset[1] + 'px';
 
@@ -193,12 +216,12 @@ var Simple = CellEditor.extend('Simple', {
         if (parseFloat(this.initialValue) === this.initialValue) { // I'm a number
             value = parseFloat(value);
         }
-        var continued = this.getGrid().fireBeforeCellEdit(point, this.initialValue, value, this);
+        var continued = this.grid.fireBeforeCellEdit(point, this.initialValue, value, this);
         if (!continued) {
             return;
         }
-        this.getBehavior().setValue(point.x, point.y, value);
-        this.getGrid().fireAfterCellEdit(point, this.initialValue, value, this);
+        this.grid.behavior.setValue(point.x, point.y, value);
+        this.grid.fireAfterCellEdit(point, this.initialValue, value, this);
     },
 
     /**
@@ -206,12 +229,13 @@ var Simple = CellEditor.extend('Simple', {
      * @desc move the editor to the current editor point
      */
     _moveEditor: function() {
-        var grid = this.getGrid();
         var editorPoint = this.getEditorPoint();
-        var cellBounds = grid._getBoundsOfCell(editorPoint.x, editorPoint.y);
+        var cellBounds = this.grid._getBoundsOfCell(editorPoint.x, editorPoint.y);
 
         //hack to accomodate bootstrap margin issues...
-        var xOffset = grid.div.getBoundingClientRect().left - grid.divCanvas.getBoundingClientRect().left;
+        var xOffset =
+            this.grid.div.getBoundingClientRect().left -
+            this.grid.divCanvas.getBoundingClientRect().left;
         cellBounds.x = cellBounds.x - xOffset;
 
         this.setBounds(cellBounds);
@@ -226,12 +250,11 @@ var Simple = CellEditor.extend('Simple', {
 
         if (!this.isAdded) {
             this.isAdded = true;
-            this.grid.div.appendChild(this.getInput());
+            this.attachEditor();
         }
 
         this.setEditorPoint(point);
-        var model = this.getBehavior();
-        var value = model.getValue(point.x, point.y);
+        var value = this.grid.behavior.getValue(point.x, point.y);
         if (value.constructor.name === 'Array') {
             value = value[1]; //it's a nested object
         }
@@ -267,8 +290,11 @@ var Simple = CellEditor.extend('Simple', {
     },
 
     attachEditor: function() {
-        var input = this.getInput();
-        this.grid.div.appendChild(input);
+        var input = this.getInput(),
+            div = this.grid.div,
+            referenceNode = div.querySelectorAll('.finbar-horizontal, .finbar-vertical');
+
+        div.insertBefore(input, referenceNode.length ? referenceNode[0] : null);
     },
 
     preShowEditorNotification: function() {

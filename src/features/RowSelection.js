@@ -171,8 +171,6 @@ var RowSelection = Feature.extend('RowSelection', {
      * @param {Array} keys - array of the keys that are currently pressed down
      */
     handleMouseDragCellSelection: function(grid, gridCell, keys) {
-
-        //var behavior = grid.getBehavior();
         var y = gridCell.y;
         //            var previousDragExtent = grid.getDragExtent();
         var mouseDown = grid.getMouseDown();

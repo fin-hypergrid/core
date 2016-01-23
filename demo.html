@@ -321,8 +321,7 @@
             alias: 'prompt',
             beginEditAt: function(point) {
                 var grid = this.grid;
-                var model = grid.getBehavior();
-                initialValue = model._getValue(point.x, point.y);
+                initialValue = grid.behavior._getValue(point.x, point.y);
                 var proceed = grid.fireBeforeCellEdit(point, initialValue);
                 if (!proceed) {
                     //we were cancelled
@@ -333,7 +332,7 @@
                     return; //data didn't change do nothing
                 }
 
-                model._setValue(point.x, point.y, newValue);
+                grid.behavior._setValue(point.x, point.y, newValue);
                 grid.fireAfterCellEdit(point, initialValue, newValue);
             },
         });
@@ -362,8 +361,8 @@
             var qTreeGrid = document.querySelector('#qtree-example');
 
             //get it's table model
-            var qModel = qGrid.getBehavior();
-            var qTreeModel = qTreeGrid.getBehavior();
+            var qModel = qGrid.behavior;
+            var qTreeModel = qTreeGrid.behavior;
 
             //get the cell cellProvider for altering cell renderers
             var cellProvider = qModel.getCellProvider();
@@ -493,7 +492,7 @@
             });
 
             //get it's table model
-            var jsonModel = jsonGrid.getBehavior();
+            var jsonModel = jsonGrid.behavior;
 
             //get the cell cellProvider for altering cell renderers
             var cellProvider = jsonModel.getCellProvider();
@@ -638,7 +637,7 @@
             });
             // lets setup a cell update
             // var g = document.querySelector('#json-example');
-            // var model = g.getBehavior();row = model.data[0];
+            // var model = g.behavior, row = model.data[0];
             // setInterval(function() { row.pets = Date.now()}, 100);
             // setInterval(function() { g.repaintCell(2,0); }, 110);
             var tabs = document.getElementsByTagName('paper-tabs')[0];
@@ -685,7 +684,7 @@
             //       var qTreeGrid = document.querySelector('#qtree-example');
 
             //       //get it's table model
-            //       var qTreeModel = qTreeGrid.getBehavior();
+            //       var qTreeModel = qTreeGrid.behavior;
 
             //       fin.desktop.System.launchExternalProcess({
             //       alias: 'qhypertree',

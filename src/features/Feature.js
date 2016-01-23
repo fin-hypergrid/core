@@ -1,6 +1,6 @@
 'use strict';
 
-var Base = require('extend-me').Base;
+var Base = require('../Base');
 
 /**
  * @constructor

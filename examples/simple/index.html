@@ -3,16 +3,17 @@
 <html>
     <head>
         <title>simple hypergrid demo</title>
-        <script src="index.min.js"></script>
+        <script src="../../index.min.js"></script>
 
         <script>
             window.onload = function() {
-                getJSON('simpledata.json', function(data) {
+                getJSON('data.json', function(data) {
                     var div = document.querySelector('div#json-example'),
-                        jsonGrid = new fin.Hypergrid(div, getContainer),
-                        jsonModel = jsonGrid.getBehavior();
+                        jsonGrid = new fin.Hypergrid(div, getContainer);
 
-                    jsonModel.setData(data);
+                    jsonGrid.addProperties({ showFilterRow: false });
+
+                    jsonGrid.behavior.setData(data);
 
                     function getContainer(grid) {
                         return new fin.Hypergrid.behaviors.JSON(grid, data);
@@ -35,8 +36,10 @@
         </script>
     </head>
     <body>
-        <p>JSON example. Put your JSON in <code>simpledata.json</code>.</p>
+        <p> JSON example using AJAX.<br/>
+            Put your JSON in:<b><code> ./data.json</code></b>
+        </p>
         <div id="json-example" style="position:relative; width:250px; height:100px"></div>
-        <p><small><em>Note: Must be served; AJAX does not work with file:// protocol.</em></samll></p>
+        <p><small><em>Note: Must be served; AJAX does not work with the file:// protocol.</em></samll></p>
     </body>
 </html>

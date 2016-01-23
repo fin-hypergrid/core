@@ -3,7 +3,7 @@
 'use strict';
 
 var mustache = require('mustache');
-var Base = require('extend-me').Base;
+var Base = require('../Base');
 
 /**
  * @constructor
@@ -55,13 +55,12 @@ var CellEditor = Base.extend('CellEditor', {
      */
     initialValue: null,
 
-    /**
+    /** @deprecated Use `.grid.behavior` property instead.
      * @memberOf CellEditor.prototype
-     * @desc return the behavior (model)
      * @returns {Behavior} The behavior (model).
      */
     getBehavior: function() {
-        return this.grid.getBehavior();
+        return this.deprecated('grid.behavior', { since: '0.2' });
     },
 
     /**
@@ -120,7 +119,7 @@ var CellEditor = Base.extend('CellEditor', {
      */
     setEditorPoint: function(point) {
         this.editorPoint = point;
-        this.modelPoint = this.getGrid().convertViewPointToDataPoint(point);
+        this.modelPoint = this.grid.convertViewPointToDataPoint(point);
     },
 
     /**
@@ -143,7 +142,7 @@ var CellEditor = Base.extend('CellEditor', {
         if (!this.isEditing) {
             return;
         }
-        var proceed = this.getGrid().fireSyntheticEditorDataChangeEvent(this, this.initialValue, this.getEditorValue, this);
+        var proceed = this.grid.fireSyntheticEditorDataChangeEvent(this, this.initialValue, this.getEditorValue, this);
         if (!proceed) {
             return;
         }
@@ -186,8 +185,9 @@ var CellEditor = Base.extend('CellEditor', {
     checkEditor: function() {
     },
 
+    /** @deprecated Use `.grid` property instead. */
     getGrid: function() {
-        return this.grid;
+        return this.deprecated('grid', { since: '0.2' });
     },
 
     template: function() {

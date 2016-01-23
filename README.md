@@ -101,7 +101,7 @@ By far the most common behavior to use will be the JSON behavior.  If you're not
 
 To populate the json behavior with data simply provide hypergrid with an array of same shaped objects.   
 ```
-    var myJSONBehavior = document.querySelector('#myHypergrid').getBehavior();
+    var myJSONBehavior = document.querySelector('#myHypergrid').behavior;
     myJSONBehavior.setData([
         {   
             first_name:'moe',
@@ -227,7 +227,7 @@ It's really easy to see your data updates manifest in the hypergrid with the JSO
         },
     ];
 
-    var myJSONBehavior = document.querySelector('#myHypergrid').getBehavior();
+    var myJSONBehavior = document.querySelector('#myHypergrid').behavior;
     myJSONBehavior.setData(myData);
     
     //update my data
@@ -288,7 +288,7 @@ Hypergrid supports arbitrary numbers of fixed columns.  Simply call the setFixed
 ```
 var jsonGrid = document.querySelector('#json-example');
 
-var jsonModel = jsonGrid.getBehavior();
+var jsonModel = jsonGrid.behavior;
 
 jsonModel.setFixedColumnCount(1);
 
@@ -338,7 +338,7 @@ Creating a cell renderer and using it is very easy, ie:
 <img src="images/README/customrenderer.png">
 
 ```
-var jsonModel = jsonGrid.getBehavior();
+var jsonModel = jsonGrid.behavior;
 
 //get the cell cellProvider for altering cell renderers
 var cellProvider = jsonModel.getCellProvider();

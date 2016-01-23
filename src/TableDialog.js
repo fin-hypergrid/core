@@ -2,7 +2,7 @@
 
 'use strict';
 
-var Base = require('extend-me').Base;
+var Base = require('./Base');
 
 
 var ANIMATION_TIME = 500,

@@ -114,8 +114,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
      */
     getValue: function(x, y) {
         var hasHierarchyColumn = this.hasHierarchyColumn();
-        var grid = this.getGrid();
-        var headerRowCount = grid.getHeaderRowCount();
+        var headerRowCount = this.grid.getHeaderRowCount();
         var value;
         if (hasHierarchyColumn) {
             if (x === -2) {
@@ -149,9 +148,8 @@ var JSON = DataModel.extend('dataModels.JSON', {
             var bottomTotals = this.getBottomTotals();
             value = bottomTotals[bottomTotals.length + y][x];
         } else {
-            var grid = this.getGrid(),
-                isFilterRow = grid.isShowFilterRow(),
-                isHeaderRow = grid.isShowHeaderRow(),
+            var isFilterRow = this.grid.isShowFilterRow(),
+                isHeaderRow = this.grid.isShowHeaderRow(),
                 topTotalsOffset = (isFilterRow ? 1 : 0) + (isHeaderRow ? 1 : 0);
             if (y >= topTotalsOffset) { // top totals rows
                 value = this.getTopTotals()[y - topTotalsOffset][x];
@@ -176,8 +174,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
      */
     setValue: function(x, y, value) {
         var hasHierarchyColumn = this.hasHierarchyColumn();
-        var grid = this.getGrid();
-        var headerRowCount = grid.getHeaderRowCount();
+        var headerRowCount = this.grid.getHeaderRowCount();
         if (hasHierarchyColumn) {
             if (x === -2) {
                 x = 0;
@@ -204,9 +201,8 @@ var JSON = DataModel.extend('dataModels.JSON', {
         if (value === undefined) {
             return this._setHeader(x, y); // y is really the value
         }
-        var grid = this.getGrid();
-        var isFilterRow = grid.isShowFilterRow();
-        var isHeaderRow = grid.isShowHeaderRow();
+        var isFilterRow = this.grid.isShowFilterRow();
+        var isHeaderRow = this.grid.isShowHeaderRow();
         var isBoth = isFilterRow && isHeaderRow;
         var topTotalsOffset = (isFilterRow ? 1 : 0) + (isHeaderRow ? 1 : 0);
         if (y >= topTotalsOffset) {
@@ -234,7 +230,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
      */
     getColumnProperties: function(colIndex) {
         //access directly because we want it ordered
-        var column = this.getBehavior().allColumns[colIndex];
+        var column = this.grid.behavior.allColumns[colIndex];
         if (column) {
             return column.getProperties();
         }
@@ -261,7 +257,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
         }
         var filter = columnProperties.complexFilter;
         if (filter) {
-            var filterObject = this.getGrid().resolveFilter(filter.type);
+            var filterObject = this.grid.filter;
             var newFilter = filterObject.create(filter.state);
             return function(data) {
                 var transformed = valueOrFunctionExecute(data);
@@ -288,7 +284,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
      * @returns {number}
      */
     getColumnCount: function() {
-        var showTree = this.getGrid().resolveProperty('showTreeColumn') === true;
+        var showTree = this.grid.resolveProperty('showTreeColumn') === true;
         var hasAggregates = this.hasAggregates();
         var offset = (hasAggregates && !showTree) ? -1 : 0;
         return this.analytics.getColumnCount() + offset;
@@ -299,9 +295,8 @@ var JSON = DataModel.extend('dataModels.JSON', {
      * @returns {number}
      */
     getRowCount: function() {
-        var grid = this.getGrid();
         var count = this.getDataSource().getRowCount();
-        count += grid.getHeaderRowCount();
+        count += this.grid.getHeaderRowCount();
         return count;
     },
 
@@ -402,7 +397,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
     setGroups: function(groups) {
         this.analytics.setGroupBys(groups);
         this.applyAnalytics();
-        this.getGrid().fireSyntheticGroupsChangedEvent(this.getGroups());
+        this.grid.fireSyntheticGroupsChangedEvent(this.getGroups());
     },
 
     /**
@@ -451,7 +446,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
      * @returns {object[]}
      */
     getVisibleColumns: function() {
-        var items = this.getBehavior().columns;
+        var items = this.grid.behavior.columns;
         items = items.filter(function(each) {
             return each.label !== 'Tree';
         });
@@ -463,8 +458,8 @@ var JSON = DataModel.extend('dataModels.JSON', {
      * @returns {object[]}
      */
     getHiddenColumns: function() {
-        var visible = this.getBehavior().columns;
-        var all = this.getBehavior().allColumns;
+        var visible = this.grid.behavior.columns;
+        var all = this.grid.behavior.allColumns;
         var hidden = [];
         for (var i = 0; i < all.length; i++) {
             if (visible.indexOf(all[i]) === -1) {
@@ -499,7 +494,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
      * @returns {boolean}
      */
     hasHierarchyColumn: function() {
-        var showTree = this.getGrid().resolveProperty('showTreeColumn') === true;
+        var showTree = this.grid.resolveProperty('showTreeColumn') === true;
         return this.hasAggregates() && this.hasGroups() && showTree;
     },
 
@@ -526,7 +521,6 @@ var JSON = DataModel.extend('dataModels.JSON', {
      * @memberOf dataModels.JSON.prototype
      */
     applyFilters: function() {
-        var grid = this.getGrid();
         var visibleColumns = this.getVisibleColumns();
         this.getGlobalFilterSource().apply(visibleColumns);
         var details = [];
@@ -540,7 +534,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
             var columnIndex = column.index,
                 filterText = this.getFilter(columnIndex),
                 formatterType = column.getProperties().format,
-                formatter = grid.getFormatter(formatterType),
+                formatter = this.grid.getFormatter(formatterType),
                 complexFilter = this.getComplexFilter(columnIndex),
                 filter = complexFilter || filterText.length > 0 && textMatchFilter(filterText);
 
@@ -555,7 +549,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
 
         filterSource.applyAll();
 
-        grid.fireSyntheticFilterAppliedEvent({
+        this.grid.fireSyntheticFilterAppliedEvent({
             details: details
         });
     },
@@ -665,8 +659,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
         if (event.gridCell.x !== 0) {
             return; // this wasn't a click on the hierarchy column
         }
-        var grid = this.getGrid();
-        var headerRowCount = grid.getHeaderRowCount();
+        var headerRowCount = this.grid.getHeaderRowCount();
         var y = event.gridCell.y - headerRowCount;
         this.getDataSource().click(y);
         this.applyFilters();
@@ -680,8 +673,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
      * @returns {object}
      */
     getRow: function(y) {
-        var grid = this.getGrid();
-        var headerRowCount = grid.getHeaderRowCount();
+        var headerRowCount = this.grid.getHeaderRowCount();
         if (y < headerRowCount && !this.hasAggregates()) {
             var topTotals = this.getTopTotals();
             return topTotals[y - (headerRowCount - topTotals.length)];
@@ -763,7 +755,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
      */
     getCellRenderer: function(config, x, y, untranslatedX, untranslatedY) {
         var renderer;
-        var provider = this.getGrid().getCellProvider();
+        var provider = this.grid.getCellProvider();
 
         config.x = x;
         config.y = y;

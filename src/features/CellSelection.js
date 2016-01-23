@@ -62,14 +62,13 @@ var CellSelection = Feature.extend('CellSelection', {
      */
     handleMouseDown: function(grid, event) {
         var isRightClick = event.primitiveEvent.detail.isRightClick;
-        var behavior = grid.getBehavior();
         var cell = event.gridCell;
         var viewCell = event.viewPoint;
         var dx = cell.x;
         var dy = cell.y;
-        var headerRowCount = behavior.getHeaderRowCount();
-        var headerColumnCount = behavior.getHeaderColumnCount();
-        var columnCount = behavior.getColumnCount();
+        var headerRowCount = grid.behavior.getHeaderRowCount();
+        var headerColumnCount = grid.behavior.getHeaderColumnCount();
+        var columnCount = grid.behavior.getColumnCount();
         var isOutside = viewCell.x >= columnCount;
 
         var isHeader = dy < headerRowCount || dx < headerColumnCount;
@@ -79,7 +78,6 @@ var CellSelection = Feature.extend('CellSelection', {
                 this.next.handleMouseDown(grid, event);
             }
         } else {
-
             var numFixedColumns = grid.getFixedColumnCount();
             var numFixedRows = grid.getFixedRowCount();
 
@@ -168,9 +166,8 @@ var CellSelection = Feature.extend('CellSelection', {
      */
     handleMouseDragCellSelection: function(grid, gridCell, keys) {
 
-        var behavior = grid.getBehavior();
-        var headerRowCount = behavior.getHeaderRowCount();
-        var headerColumnCount = behavior.getHeaderColumnCount();
+        var headerRowCount = grid.behavior.getHeaderRowCount();
+        var headerColumnCount = grid.behavior.getHeaderColumnCount();
         var x = gridCell.x;
         var y = gridCell.y;
         x = Math.max(headerColumnCount, x);
@@ -282,8 +279,8 @@ var CellSelection = Feature.extend('CellSelection', {
      * @param {Array} keys - array of the keys that are currently pressed down
      */
     extendSelection: function(grid, gridCell, keys) {
-        var hasCTRL = keys.indexOf('CTRL') !== -1;
-        var hasSHIFT = keys.indexOf('SHIFT') !== -1;
+        var hasCTRL = keys.indexOf('CTRL') >= 0;
+        var hasSHIFT = keys.indexOf('SHIFT') >= 0;
         // var scrollTop = grid.getVScrollValue();
         // var scrollLeft = grid.getHScrollValue();
 
@@ -300,7 +297,11 @@ var CellSelection = Feature.extend('CellSelection', {
         }
 
         //we have repeated a click in the same spot deslect the value from last time
-        if (x === mousePoint.x && y === mousePoint.y) {
+        if (
+            hasCTRL &&
+            x === mousePoint.x &&
+            y === mousePoint.y
+        ) {
             grid.clearMostRecentSelection();
             grid.popMouseDown();
             grid.repaint();

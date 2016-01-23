@@ -16,12 +16,10 @@ var CellClick = Feature.extend('CellClick', {
      * @param {Object} event - the event details
      */
     handleTap: function(grid, event) {
-        var gridCell = event.gridCell;
-        var behavior = grid.getBehavior();
-        var headerRowCount = behavior.getHeaderRowCount();
-        var headerColumnCount = behavior.getHeaderColumnCount();
-        if ((gridCell.y >= headerRowCount) &&
-            (gridCell.x >= headerColumnCount)) {
+        if (
+            event.gridCell.y >= grid.behavior.getHeaderRowCount() &&
+            event.gridCell.x >= grid.behavior.getHeaderColumnCount()
+        ) {
             grid.cellClicked(event);
         } else if (this.next) {
             this.next.handleTap(grid, event);

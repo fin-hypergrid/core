@@ -8,7 +8,9 @@ var RangeSelectionModel = require('sparse-boolean-array');
  * @desc We represent selections as a list of rectangles because large areas can be represented and tested against quickly with a minimal amount of memory usage. Also we need to maintain the selection rectangles flattened counter parts so we can test for single dimension contains. This is how we know to highlight the fixed regions on the edges of the grid.
  */
 
-function SelectionModel() {
+function SelectionModel(grid) {
+
+    this.grid = grid;
 
     /**
      * @name selections
@@ -60,20 +62,13 @@ function SelectionModel() {
 
 SelectionModel.prototype = {
 
+    constructor: SelectionModel.prototype.constructor,
+
     /**
      * @type {boolean}
      * @memberOf SelectionModel.prototype
      */
     allRowsSelected: false,
-
-    /**
-     * @memberOf SelectionModel.prototype
-     * @desc getter for the [fin-hypergrid](module-._fin-hypergrid.html)
-     * #### returns: fin-hypergrid
-     */
-    getGrid: function() {
-        return null;
-    },
 
     /**
      * @memberOf SelectionModel.prototype
@@ -111,12 +106,12 @@ SelectionModel.prototype = {
      * @param {number} ey - extent y coordinate
      */
     select: function(ox, oy, ex, ey) {
-        var newSelection = this.getGrid().newRectangle(ox, oy, ex, ey);
+        var newSelection = this.grid.newRectangle(ox, oy, ex, ey);
         this.selections.push(newSelection);
         this.flattenedX.push(newSelection.flattenXAt(0));
         this.flattenedY.push(newSelection.flattenYAt(0));
         this.setLastSelectionType('cell');
-        this.getGrid().selectionChanged();
+        this.grid.selectionChanged();
     },
 
     /**
@@ -142,7 +137,7 @@ SelectionModel.prototype = {
             this.selections.splice(index, 1);
             this.flattenedX.splice(index, 1);
             this.flattenedY.splice(index, 1);
-            this.getGrid().selectionChanged();
+            this.grid.selectionChanged();
         } else {
             this.select(ox, oy, ex, ey);
         }
@@ -152,14 +147,14 @@ SelectionModel.prototype = {
      * @memberOf SelectionModel.prototype
      * @desc Remove the last selection that was created.
      */
-    clearMostRecentSelection: function(dontClearRows) {
-        dontClearRows = dontClearRows === true;
-        if (!dontClearRows) {
+    clearMostRecentSelection: function(dontClearRowSelections) {
+        dontClearRowSelections = dontClearRowSelections === true;
+        if (!dontClearRowSelections) {
             this.setAllRowsSelected(false);
         }
-        this.selections.length = Math.max(0, this.selections.length - 1);
-        this.flattenedX.length = Math.max(0, this.flattenedX.length - 1);
-        this.flattenedY.length = Math.max(0, this.flattenedY.length - 1);
+        if (this.selections.length) { --this.selections.length; }
+        if (this.flattenedX.length) { --this.flattenedX.length; }
+        if (this.flattenedY.length) { --this.flattenedY.length; }
         //this.getGrid().selectionChanged();
     },
 
@@ -398,9 +393,8 @@ SelectionModel.prototype = {
      */
     getSelectedRows: function() {
         if (this.areAllRowsSelected()) {
-            var grid = this.getGrid();
-            var headerRows = grid.getHeaderRowCount();
-            var rowCount = grid.getRowCount() - headerRows;
+            var headerRows = this.grid.getHeaderRowCount();
+            var rowCount = this.grid.getRowCount() - headerRows;
             var result = new Array(rowCount);
             for (var i = 0; i < rowCount; i++) {
                 result[i] = i + headerRows;
@@ -454,17 +448,22 @@ SelectionModel.prototype = {
      * @memberOf SelectionModel.prototype
      * @param offset
      */
-    selectRowsFromCells: function(offset) {
+    selectRowsFromCells: function(offset, dontClearRowSelections) {
         offset = offset || 0;
+        dontClearRowSelections = dontClearRowSelections === true;
 
         var sm = this.rowSelectionModel;
-        this.setAllRowsSelected(false);
-        sm.clear();
+
+        if (!dontClearRowSelections) {
+            this.setAllRowsSelected(false);
+            sm.clear();
+        }
 
         this.selections.forEach(function(selection) {
             var top = selection.origin.y,
-                size = selection.extent.y;
-            sm.select(top + offset, top + size + offset);
+                extent = selection.extent.y;
+            top += offset;
+            sm.select(top, top + extent);
         });
     },
 
@@ -479,9 +478,10 @@ SelectionModel.prototype = {
         sm.clear();
 
         this.selections.forEach(function(selection) {
-            var left = selection.origin.x;
-            var size = selection.extent.x;
-            sm.select(left + offset, left + size + offset);
+            var left = selection.origin.x,
+                extent = selection.extent.x;
+            left += offset;
+            sm.select(left, left + extent);
         });
     },
 

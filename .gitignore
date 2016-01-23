@@ -1,7 +1,7 @@
 .DS_Store
 /.idea
 /doc
-/node_modules
+/node_modules*
 /index.js
 /index.min.js
 /images/images.js

@@ -16,15 +16,17 @@ module.exports = {
 
     //these are for the theme
 
+
     /**
      * The font for data cells.
      * @default '13px Tahoma, Geneva, sans-serif'
-     * @type {string}
+     * @type {cssFont}
      * @instance
      */
     font: '13px Tahoma, Geneva, sans-serif',
 
     /**
+     * Font color for data cells.
      * @default 'rgb(25, 25, 25)'
      * @type {string}
      * @instance
@@ -32,6 +34,7 @@ module.exports = {
     color: 'rgb(25, 25, 25)',
 
     /**
+     * Background color for data cells.
      * @default 'rgb(241, 241, 241)'
      * @type {string}
      * @instance
@@ -39,6 +42,7 @@ module.exports = {
     backgroundColor: 'rgb(241, 241, 241)',
 
     /**
+     * Font color for selected cell(s).
      * @default 'rgb(25, 25, 25)'
      * @type {string}
      * @instance
@@ -46,6 +50,7 @@ module.exports = {
     foregroundSelectionColor: 'rgb(25, 25, 25)',
 
     /**
+     * Background color for selected cell(s).
      * @default 'rgb(183, 219, 255)'
      * @type {string}
      * @instance
@@ -53,144 +58,152 @@ module.exports = {
     backgroundSelectionColor: 'rgb(183, 219, 255)',
 
 
+    /********** SECTION: COLUMN HEADER COLORS **********/
+
+    // IMPORTANT CAVEAT: The code is inconsistent regarding the terminology. Is the "column header" section _the row_ of cells at the top (that act as headers for each column) or is it _the column_ of cells (that act as headers for each row)? Oh my.
+
     /**
      * @default '12px Tahoma, Geneva, sans-serif'
-     * @type {string}
+     * @type {cssFont}
      * @instance
      */
     columnHeaderFont: '12px Tahoma, Geneva, sans-serif',
 
     /**
      * @default 'rgb(25, 25, 25)'
-     * @type {string}
+     * @type {cssColor}
      * @instance
      */
     columnHeaderColor: 'rgb(25, 25, 25)',
 
     /**
      * @default 'rgb(223, 227, 232)'
-     * @type {string}
+     * @type {cssColor}
      * @instance
      */
     columnHeaderBackgroundColor: 'rgb(223, 227, 232)',
 
     /**
      * @default 'rgb(25, 25, 25)'
-     * @type {string}
+     * @type {cssColor}
      * @instance
      */
     columnHeaderForegroundSelectionColor: 'rgb(25, 25, 25)',
 
     /**
      * @default 'rgb(255, 220, 97)'
-     * @type {string}
+     * @type {cssColor}
      * @instance
      */
     columnHeaderBackgroundSelectionColor: 'rgb(255, 220, 97)',
 
     /**
      * @default 'rgb(25, 25, 25)'
-     * @type {string}
+     * @type {cssColor}
      * @instance
      */
     columnHeaderForegroundColumnSelectionColor: 'rgb(25, 25, 25)',
 
     /**
      * @default 'rgb(255, 180, 0)'
-     * @type {string}
+     * @type {cssColor}
      * @instance
      */
     columnHeaderBackgroundColumnSelectionColor: 'rgb(255, 180, 0)',
 
 
+    /********** SECTION: ROW HEADER COLORS **********/
+
     /**
      * @default '12px Tahoma, Geneva, sans-serif'
-     * @type {string}
+     * @type {cssFont}
      * @instance
      */
     rowHeaderFont: '12px Tahoma, Geneva, sans-serif',
 
     /**
      * @default 'rgb(25, 25, 25)'
-     * @type {string}
+     * @type {cssColor}
      * @instance
      */
     rowHeaderColor: 'rgb(25, 25, 25)',
 
     /**
      * @default 'rgb(223, 227, 232)'
-     * @type {string}
+     * @type {cssColor}
      * @instance
      */
     rowHeaderBackgroundColor: 'rgb(223, 227, 232)',
 
     /**
      * @default 'rgb(25, 25, 25)'
-     * @type {string}
+     * @type {cssColor}
      * @instance
      */
     rowHeaderForegroundSelectionColor: 'rgb(25, 25, 25)',
 
     /**
      * @default 'rgb(255, 220, 97)'
-     * @type {string}
+     * @type {cssColor}
      * @instance
      */
     rowHeaderBackgroundSelectionColor: 'rgb(255, 220, 97)',
 
     /**
      * @default 'rgb(25, 25, 25)'
-     * @type {string}
+     * @type {cssColor}
      * @instance
      */
     rowHeaderForegroundRowSelectionColor: 'rgb(25, 25, 25)',
 
     /**
      * @default 'rgb(255, 180, 0)'
-     * @type {string}
+     * @type {cssColor}
      * @instance
      */
     rowHeaderBackgroundRowSelectionColor: 'rgb(255, 180, 0)',
 
 
+    /********** SECTION: FILTER ROW COLORS **********/
+
     /**
      * @default '12px Tahoma, Geneva, sans-serif'
-     * @type {string}
+     * @type {cssFont}
      * @instance
      */
     filterFont: '12px Tahoma, Geneva, sans-serif',
 
     /**
      * @default 'rgb(25, 25, 25)'
-     * @type {string}
+     * @type {cssColor}
      * @instance
      */
     filterColor: 'rgb(25, 25, 25)',
 
     /**
      * @default 'white'
-     * @type {string}
+     * @type {cssColor}
      * @instance
      */
     filterBackgroundColor: 'white',
 
     /**
      * @default 'rgb(25, 25, 25)'
-     * @type {string}
+     * @type {cssColor}
      * @instance
      */
     filterForegroundSelectionColor: 'rgb(25, 25, 25)',
 
     /**
      * @default 'rgb(255, 220, 97)'
-     * @type {string}
+     * @type {cssColor}
      * @instance
      */
     filterBackgroundSelectionColor: 'rgb(255, 220, 97)',
 
     /**
      * @default 'rgba(0,0,0,0.8)'
-     * @type {string}
+     * @type {cssColor}
      * @instance
      */
     filterCellBorderStyle: 'rgba(0,0,0,0.8)',
@@ -203,58 +216,61 @@ module.exports = {
     filterCellBorderThickness: 0.4,
 
 
+    /********** SECTION: TREE COLUMN COLORS **********/
+    // The "tree column" contains the hierarchical drill-down controls.
+
     /**
      * @default '12px Tahoma, Geneva, sans-serif'
-     * @type {string}
+     * @type {cssFont}
      * @instance
      */
     treeColumnFont: '12px Tahoma, Geneva, sans-serif',
 
     /**
      * @default 'rgb(25, 25, 25)'
-     * @type {string}
+     * @type {cssColor}
      * @instance
      */
     treeColumnColor: 'rgb(25, 25, 25)',
 
     /**
      * @default 'rgb(223, 227, 232)'
-     * @type {string}
+     * @type {cssColor}
      * @instance
      */
     treeColumnBackgroundColor: 'rgb(223, 227, 232)',
 
     /**
      * @default 'rgb(25, 25, 25)'
-     * @type {string}
+     * @type {cssColor}
      * @instance
      */
     treeColumnForegroundSelectionColor: 'rgb(25, 25, 25)',
 
     /**
      * @default 'rgb(255, 220, 97)'
-     * @type {string}
+     * @type {cssColor}
      * @instance
      */
     treeColumnBackgroundSelectionColor: 'rgb(255, 220, 97)',
 
     /**
      * @default 'rgb(25, 25, 25)'
-     * @type {string}
+     * @type {cssColor}
      * @instance
      */
     treeColumnForegroundColumnSelectionColor: 'rgb(25, 25, 25)',
 
     /**
      * @default 'rgb(255, 180, 0)'
-     * @type {string}
+     * @type {cssColor}
      * @instance
      */
     treeColumnBackgroundColumnSelectionColor: 'rgb(255, 180, 0)',
 
     /**
      * @default 'rgb(201, 201, 201)'
-     * @type {string}
+     * @type {cssColor}
      * @instance
      */
     backgroundColor2: 'rgb(201, 201, 201)',
@@ -340,7 +356,7 @@ module.exports = {
 
     /**
      * @default 'rgb(199, 199 199)'
-     * @type {string}
+     * @type {cssColor}
      * @instance
      */
     lineColor: 'rgb(199, 199, 199)',
@@ -413,7 +429,7 @@ module.exports = {
      */
     readOnly: false,
 
-    //inhertied by cell renderers
+    // inherited by cell renderers
 
     /**
      * @default getTextWidth
@@ -481,21 +497,21 @@ module.exports = {
     showFilterRow: true,
 
 
-    /**
+    /** Clicking in a cell "selects" it; it is added to the select region and repainted with "cell selection" colors.
      * @default true
      * @type {boolean}
      * @instance
      */
     cellSelection: true,
 
-    /**
+    /** Clicking in a row header (leftmost column) "selects" the row; the entire row is added to the select region and repainted with "row selection" colors.
      * @default true
      * @type {boolean}
      * @instance
      */
     columnSelection: true,
 
-    /**
+    /** Clicking in a column header (top row) "selects" the column; the entire column is added to the select region and repainted with "column selection" colors.
      * @default true
      * @type {boolean}
      * @instance
@@ -511,7 +527,7 @@ module.exports = {
 
     /**
      * @default 'rgba(0, 0, 0, 0.2)'
-     * @type {string}
+     * @type {cssColor}
      * @instance
      */
     selectionRegionOverlayColor: 'rgba(0, 0, 0, 0.2)',
@@ -577,20 +593,72 @@ module.exports = {
      */
     checkboxOnlyRowSelections: false,
 
+    /** Name of a formatters for cell text.
+     * @see /src/Formatters.js
+     */
     format: 'default',
 
+    /********** HOVER COLORS **********/
+
+    /** On mouse hover, repaint the cell background with `hoverCellColor`.
+     * @type {boolean}
+     * @default `true`
+     */
     hoverCellHighlight: true,
+
+    /** Background color of cell on mouse hover when `hoverCellHighlight`.
+     * @type {cssColor}
+     * @default `'lightgray'`
+     */
+    hoverCellColor: 'lightgray',
+
+    /** On mouse hover, repaint the row background with `hoverRowColor` and `hoverRowHeaderColor`.
+     * @type {boolean}
+     * @default `true`
+     */
     hoverRowHighlight: true,
+
+    /** Background color of row on mouse hover when `hoverRowHighlight`.
+     * @type {cssColor}
+     * @default `'gray'`
+     */
+    hoverRowColor: 'gray',
+    hoverRowHeaderColor: 'lightgray',
+
+    /** On mouse hover, repaint the column background with `hoverColumnColor` and `hoverColumnHeaderColor`.
+     * @type {boolean}
+     * @default `true`
+     */
     hoverColumnHighlight: true,
 
-    hoverCellColor: 'lightgray',
-    hoverRowColor: 'gray',
+    /** Background color of column on mouse hover when `hoverColumnHighlight`.
+     * @type {cssColor}
+     * @default `'gray'`
+     */
     hoverColumnColor: 'gray',
+    hoverColumnHeaderColor: 'lightgray',
 
+    /** Display cell font with under-score line drawn over it.
+     * > Implementation of links right now is not automatic; you must attach a 'fin-click' listener to the hypergrid object, etc.
+     * @type {boolean}
+     * @default `false`
+     */
     link: false,
+
+    /** Display cell font with strike-through line drawn over it.
+     * @type {boolean}
+     * @default `false`
+     */
     strikeThrough: false,
 
 };
+
+/** @typedef {string} cssColor
+ * @see https://developer.mozilla.org/en-US/docs/Web/CSS/color_value
+ */
+/** @typedef {string} cssFont
+ * @see https://developer.mozilla.org/en-US/docs/Web/CSS/font
+ */
 
 var textWidthCache = new LRUCache(2000);
 
