@@ -136,14 +136,28 @@ var Simple = CellEditor.extend('Simple', {
     },
 
     /**
+     * @summary Request focus for my input control.
+     *
+     * @desc Regarding issue GRID-95 "Scrollbar moves inward":
+     *
+     * When the input element was positioned over a grid cell in the right-most grid column AND when that grid column overflowed off the right edge of the canvas, the input element was too wide to comfortably fit and overflowed the right edge of the div. This is permitted, but when given the focus, the entire contents of the containing div(including both the canvas and input elements) was shifted left for unknown reasons. In fact, this new positioning was not detectable from DOM inspection, so it's a bit of a mystery. We suspect it has something to do with bootstrap.com.
+     *
+     * Work-around: Temporarily position the input to upper left of div so it's fully inside. THen, after giving it the focus, we move it back to where it wants to be. The user doesn't see this happening and only sees the input in its final position.
+     *
+     * Another possibly better work-around might be to shorten the width of the input to match the visible portion of the cell.
+     *
      * @memberOf Simple.prototype
-     * @desc request focus for my input control
      */
     takeFocus: function() {
         var self = this;
         setTimeout(function() {
+            var transformWas = self.input.style.transform;
+            self.input.style.transform = 'translate(0,0)'; // work-around: move to upper left
+
             self.input.focus();
             self.selectAll();
+
+            self.input.style.transform = transformWas;
         }, 300);
     },
 
@@ -182,6 +196,8 @@ var Simple = CellEditor.extend('Simple', {
         input.style.MozTransform = translation;
         input.style.msTransform = translation;
         input.style.OTransform = translation;
+
+        // TODO: Obviously this was changed at some point from left,top to trnasform:translation. Wondering why this was necessary...?
 
         // input.style.left = cellBounds.x + originOffset[0] + 'px';
         // input.style.top = cellBounds.y + originOffset[1] + 'px';
