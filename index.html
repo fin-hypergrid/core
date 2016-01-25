@@ -111,11 +111,12 @@ var toggleProps = [
 
     'Editing cells',
     { value: 'editable' },
-    { value: 'editOnDoubleClick' },
+    { value: 'editOnDoubleClick', label: 'requires double-click' },
+    { value: 'editOnKeydown', label: 'type to edit' },
 
-    'Selecting',
-    { value: 'checkboxOnlyRowSelections', setter: setSelectionProp },
-    { value: 'singleRowSelectionMode', setter: setSelectionProp }
+    'Selecting rows',
+    { value: 'checkboxOnlyRowSelections', label: 'by row handles only', setter: setSelectionProp },
+    { value: 'singleRowSelectionMode', label: 'one row at a time', setter: setSelectionProp }
 ];
 
 //used by the cellProvider, return null for a column if you want no editor to pop up
@@ -732,6 +733,8 @@ setTimeout(function() {
         toggleProps.forEach(function(prop) { addToggle(prop); });
         applyAggregates = document.querySelector('input[type=checkbox][value="Apply aggregates"]');
 
+        jsonGrid.takeFocus();
+
     }, 500);
 
 }, 500);
@@ -806,6 +809,7 @@ function setProp() { // standard checkbox click handler
 
     hash[this.value] = this.checked;
 
+    jsonGrid.takeFocus();
     jsonGrid.addProperties(hash);
     jsonGrid.behaviorChanged();
     jsonGrid.repaint();

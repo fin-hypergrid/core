@@ -1001,16 +1001,34 @@ Hypergrid.prototype = {
         });
 
         this.addFinEventListener('fin-canvas-keydown', function(e) {
-            var key = e.detail.char;
-            if (['DELETE'].indexOf(key) !== -1) {
-                if (!self.isEditing()) {
-                    setTimeout(function() {
-                        self.takeFocus();
-                    }, 50);
-                }
-            }
             if (self.resolveProperty('readOnly')) {
                 return;
+            }
+            if (self.resolveProperty('editOnKeydown')) {
+                var char = e.detail.char,
+                    isVisibleChar, isDeleteChar, currentCell, editor;
+
+                if (
+                    !self.isEditing() &&
+                    (
+                        char === 'F2' ||
+                        (isVisibleChar = char.length === 1) ||
+                        (isDeleteChar = char === 'DELETE' || char === 'BACKSPACE')
+                    )
+                ) {
+                    currentCell = self.selectionModel.getLastSelection();
+                    if (currentCell) {
+                        editor = self.activateEditor(currentCell.origin.x, currentCell.origin.y);
+                        if (editor instanceof Hypergrid.cellEditors.Simple) {
+                            if (isVisibleChar) {
+                                editor.input.value = char;
+                            } else if (isDeleteChar) {
+                                editor.input.value = '';
+                            }
+                            e.detail.primitiveEvent.preventDefault();
+                        }
+                    }
+                }
             }
             self.fireSyntheticKeydownEvent(e);
             self.delegateKeyDown(e);
@@ -1561,8 +1579,7 @@ Hypergrid.prototype = {
             detail: {
                 input: inputControl,
                 keyEvent: keyEvent
-            },
-
+            }
         });
         this.canvas.dispatchEvent(clickEvent);
     },
@@ -1572,8 +1589,7 @@ Hypergrid.prototype = {
             detail: {
                 input: inputControl,
                 keyEvent: keyEvent
-            },
-
+            }
         });
         this.canvas.dispatchEvent(clickEvent);
     },
@@ -2419,30 +2435,34 @@ Hypergrid.prototype = {
      * @desc Activate the editor at the given coordinates.
      * @param {x} x - The horizontal coordinate.
      * @param {y} y - The vertical coordinate.
+     * @returns {CellEditor} (or objected extended from same) The editor object.
      */
     activateEditor: function(x, y) {
-        if (!this.isEditable() && !this.isFilterRow(y)) {
-            return;
-        }
-        var editor = this.getCellEditorAt(x, y);
-        if (!editor) {
-            return;
-        }
-        var point = editor.getEditorPoint();
-        if (editor) {
-            if (point.x === x && point.y === y && editor.isEditing) {
-                return; //we're already open at this location
-            }
+        var editor;
 
-            if (this.isEditing()) {
-                this.stopEditing(); //other editor is open, close it first
+        if (this.isEditable() || this.isFilterRow(y)) {
+            editor = this.getCellEditorAt(x, y);
+
+            if (editor) {
+                var point = editor.getEditorPoint();
+                if (editor) {
+                    if (point.x === x && point.y === y && editor.isEditing) {
+                        return; //we're already open at this location
+                    }
+
+                    if (this.isEditing()) {
+                        this.stopEditing(); //other editor is open, close it first
+                    }
+                    event.gridCell = {
+                        x: x,
+                        y: y
+                    };
+                    this.editAt(editor, event);
+                }
             }
-            event.gridCell = {
-                x: x,
-                y: y
-            };
-            this.editAt(editor, event);
         }
+
+        return editor;
     },
 
     /**

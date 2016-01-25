@@ -1,13 +1,16 @@
 'use strict';
 
-var leadingZeroIfNecessary = function(number) {
-    return number < 10 ? '0' + number : number + '';
-};
+function nn(number) {
+    return (number < 10 ? '-0' : '-') + number;
+}
 
 module.exports = {
     date: function(value) {
-        var dateString = value.getFullYear() + '-' + leadingZeroIfNecessary(value.getMonth() + 1) + '-' + leadingZeroIfNecessary(value.getDay());
-        return dateString;
+        return (
+            value.getFullYear() +
+            nn(value.getMonth() + 1) +
+            nn(value.getDate())
+        );
     },
     default: function(value) {
         return value + '';
