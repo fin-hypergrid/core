@@ -1,6 +1,6 @@
 'use strict';
 
-var deprecated = require('../deprecated');
+var deprecated = require('../lib/deprecated');
 
 function DataModelDecorator(grid, component) {
     this.setComponent(component);

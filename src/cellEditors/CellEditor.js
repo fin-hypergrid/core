@@ -3,7 +3,7 @@
 'use strict';
 
 var mustache = require('mustache');
-var Base = require('../Base');
+var Base = require('../lib/Base');
 
 var extract = /\/\*\s*([^]+?)\s+\*\//; // finds the string inside the /* ... */; the (group) excludes the whitespace
 

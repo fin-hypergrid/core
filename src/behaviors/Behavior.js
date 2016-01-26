@@ -2,10 +2,10 @@
 'use strict';
 
 var _ = require('object-iterators');
-var Base = require('../Base');
+var Base = require('../lib/Base');
 
 var Column = require('./Column');
-var CellProvider = require('../CellProvider');
+var CellProvider = require('../lib/CellProvider');
 
 var noExportProperties = [
     'columnHeader',

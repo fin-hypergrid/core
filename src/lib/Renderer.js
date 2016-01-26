@@ -6,7 +6,7 @@
 var _ = require('object-iterators');
 var Base = require('./Base');
 
-var images = require('../images');
+var images = require('../../images/index');
 
 /** @typedef {object} CanvasRenderingContext2D
  * @see [CanvasRenderingContext2D](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D)

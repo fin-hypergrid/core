@@ -3,7 +3,7 @@
 'use strict';
 
 var extend = require('extend-me');
-var deprecated = require('./deprecated');
+var deprecated = require('./lib/deprecated');
 extend.debug = true;
 
 var FinBar = require('finbars');
@@ -13,12 +13,12 @@ var Rectangle = require('rectangular').Rectangle;
 var _ = require('object-iterators');
 
 var defaults = require('./defaults');
-var Renderer = require('./Renderer');
-var SelectionModel = require('./SelectionModel');
-var addStylesheet = require('./stylesheets');
-var TableDialog = require('./TableDialog');
-var Formatters = require('./Formatters');
-var CustomFilter = require('./CustomFilter');
+var Renderer = require('./lib/Renderer');
+var SelectionModel = require('./lib/SelectionModel');
+var addStylesheet = require('../css/stylesheets');
+var TableDialog = require('./lib/TableDialog');
+var Formatters = require('./lib/Formatters');
+var CustomFilter = require('./lib/CustomFilter');
 
 var themeInitialized = false,
     polymerTheme = Object.create(defaults),

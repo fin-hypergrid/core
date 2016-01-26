@@ -3,7 +3,7 @@
 'use strict';
 
 var Simple = require('./Simple');
-var Formatters = require('../Formatters');
+var Formatters = require('../lib/Formatters');
 
 function parseDate(input) {
   var parts = input.match(/(\d+)/g);

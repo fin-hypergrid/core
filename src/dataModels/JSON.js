@@ -240,32 +240,42 @@ var JSON = DataModel.extend('dataModels.JSON', {
     /**
      * @memberOf dataModels.JSON.prototype
      * @param {number} colIndex
-     * @returns {*}
+     * @returns {string} The text to filter on for this column.
      */
     getFilter: function(colIndex) {
-        var columnProperties = this.getColumnProperties(colIndex);
-        if (!columnProperties) {
-            return '';
+        var filter, columnProperties;
+
+        if ((columnProperties = this.getColumnProperties(colIndex))) {
+            filter = columnProperties.filter;
         }
-        return columnProperties.filter || '';
+
+        return filter || '';
     },
 
+    /** @typedef {function} rowFilterFunction
+     * @param {function|*} data - Data to test (or function to call to get data to test) to see if it qualifies for the result set.
+     * @returns {boolean} Row qualifies for the result set (passes through filter).
+     */
+    /**
+     * @param {number} colIndex
+     * @returns {undefined|rowFilterFunction} row filtering function
+     */
     getComplexFilter: function(colIndex) {
-        var columnProperties = this.getColumnProperties(colIndex);
-        if (!columnProperties) {
-            return '';
-        }
-        var filter = columnProperties.complexFilter;
-        if (filter) {
-            var filterObject = this.grid.filter;
-            var newFilter = filterObject.create(filter.state);
-            return function(data) {
+        var rowFilter, columnProperties, filter, filterObject, newFilter;
+
+        if (
+            (columnProperties = this.getColumnProperties(colIndex)) &&
+            (filter = columnProperties.complexFilter) &&
+            (filterObject = this.grid.filter) &&
+            (newFilter = filterObject.create(filter.state))
+        ) {
+            rowFilter = function(data) {
                 var transformed = valueOrFunctionExecute(data);
                 return newFilter(transformed);
             };
-        } else {
-            return;
         }
+
+        return rowFilter;
     },
 
     /**
