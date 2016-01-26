@@ -73,7 +73,35 @@ var JSON = Local.extend('behaviors.JSON', {
     },
 
     applyFilters: function() {
+        var dataRows, selectedRows, selectedDataRows, offset, index,
+            sm = this.grid.selectionModel,
+            hasRowSelections = sm.hasRowSelections();
+
+        // Make note of the actual objects backing the currently selected rows.
+        if (hasRowSelections) {
+            dataRows = this.getDataModel().getFilteredData();
+            selectedRows = this.getSelectedRows();
+            selectedDataRows = [];
+            selectedRows.forEach(function(selectedRowIndex) {
+                selectedDataRows.push(dataRows[selectedRowIndex]);
+            });
+        }
+
+        // Filter the rows...
         this.dataModel.applyFilters();
+
+        // Re-establish grid row selections based on actual data row objects noted above.
+        if (hasRowSelections) {
+            sm.clearRowSelection();
+            offset = this.grid.getHeaderRowCount();
+            dataRows = this.getDataModel().getFilteredData();
+            selectedDataRows.forEach(function(dataRow) {
+                index = dataRows.indexOf(dataRow);
+                if (index >= 0) {
+                    sm.selectRow(offset + index);
+                }
+            });
+        }
     },
 
     /**
