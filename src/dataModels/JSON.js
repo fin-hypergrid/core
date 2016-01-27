@@ -473,6 +473,21 @@ var JSON = DataModel.extend('dataModels.JSON', {
      * @memberOf dataModels.JSON.prototype
      */
     applyFilters: function() {
+        var dataRows, selectedRows, selectedDataRows, offset, index,
+            sm = this.getGrid().selectionModel,
+            hasRowSelections = sm.hasRowSelections();
+
+        // Make note of the actual objects backing the currently selected rows.
+        if (hasRowSelections) {
+            dataRows = this.getFilteredData();
+            selectedRows = this.getSelectedRows();
+            selectedDataRows = [];
+            selectedRows.forEach(function(selectedRowIndex) {
+                selectedDataRows.push(dataRows[selectedRowIndex]);
+            });
+        }
+
+        // Filter the rows...
         var visibleColumns = this.getVisibleColumns();
         this.preglobalfilter.apply(visibleColumns);
         var visColCount = visibleColumns.length;
@@ -487,6 +502,38 @@ var JSON = DataModel.extend('dataModels.JSON', {
             }
         }
         filterSource.applyAll();
+
+        // Re-establish grid row selections based on actual data row objects noted above.
+        if (hasRowSelections) {
+            sm.clearRowSelection();
+            offset = this.getGrid().getHeaderRowCount();
+            dataRows = this.getFilteredData();
+            selectedDataRows.forEach(function(dataRow) {
+                index = dataRows.indexOf(dataRow);
+                if (index >= 0) {
+                    sm.selectRow(offset + index);
+                }
+            });
+        }
+    },
+
+    getFilteredData: function() {
+        var ds = this.getDataSource();
+        var count = ds.getRowCount();
+        var result = new Array(count);
+        for (var y = 0; y < count; y++) {
+            result[y] = ds.getRow(y);
+        }
+        return result;
+    },
+
+    getSelectedRows: function() {
+        var offset = -this.getGrid().getHeaderRowCount();
+        var selections = this.getGrid().getSelectionModel().getSelectedRows();
+        var result = selections.map(function(each) {
+            return each + offset;
+        });
+        return result;
     },
 
     /**
