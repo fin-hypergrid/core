@@ -706,7 +706,12 @@ Hypergrid.prototype = {
      * @desc Clear the most recent row selection.
      */
     clearMostRecentRowSelection: function() {
-        //this.getSelectionModel().clearMostRecentRowSelection();
+        //this.selectionModel.clearMostRecentRowSelection(); // commented off as per GRID-112
+    },
+
+    clearRowSelection: function() {
+        this.getSelectionModel().clearRowSelection();
+        this.getBehavior().getDataModel().getComponent().clearRecentlySelectedData();
     },
 
     /**
@@ -3145,7 +3150,7 @@ Hypergrid.prototype = {
             } else if ((last = sm.getLastSelection())) {
                 this.selectRow(null, last.corner.y);
             } else {
-                sm.clearRowSelection();
+                this.clearRowSelection();
             }
         }
     },

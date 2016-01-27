@@ -57,6 +57,10 @@ var JSON = DataModel.extend('dataModels.JSON', {
 
     topTotals: [],
 
+    initialize: function() {
+        this.recentlySelectedData = [];
+    },
+
     /**
      * @memberOf dataModels.JSON.prototype
      * @returns {boolean}
@@ -469,25 +473,41 @@ var JSON = DataModel.extend('dataModels.JSON', {
         this.analytics.apply();
     },
 
+    clearRecentlySelectedData: function() {
+        this.recentlySelectedData.length = 0;
+    },
+
     /**
      * @memberOf dataModels.JSON.prototype
      */
     applyFilters: function() {
-        var dataRows, selectedRows, selectedDataRows, offset, index,
+        var filteredData, selectedGridRows, recentlySelectedData, offset, index,
             sm = this.getGrid().selectionModel,
             hasRowSelections = sm.hasRowSelections();
 
         // Make note of the actual objects backing the currently selected rows.
         if (hasRowSelections) {
-            dataRows = this.getFilteredData();
-            selectedRows = this.getSelectedRows();
-            selectedDataRows = [];
-            selectedRows.forEach(function(selectedRowIndex) {
-                selectedDataRows.push(dataRows[selectedRowIndex]);
+            filteredData = this.getFilteredData();
+            selectedGridRows = this.getSelectedRows();
+            recentlySelectedData = this.recentlySelectedData;
+
+            // First remove any filtered data rows from the recently selected list
+            recentlySelectedData.forEach(function(dataRow, idx) {
+                if (filteredData.indexOf(dataRow) > 0) {
+                    delete recentlySelectedData[idx];
+                }
+            });
+
+            // Now push the data rows backing any currently selected grid rows
+            selectedGridRows.forEach(function(selectedRowIndex) {
+                var dataRow = filteredData[selectedRowIndex];
+                if (recentlySelectedData.indexOf(dataRow) < 0) {
+                    recentlySelectedData.push(dataRow);
+                }
             });
         }
 
-        // Filter the rows...
+        // Filter the rows (may narrow or widen)...
         var visibleColumns = this.getVisibleColumns();
         this.preglobalfilter.apply(visibleColumns);
         var visColCount = visibleColumns.length;
@@ -507,9 +527,9 @@ var JSON = DataModel.extend('dataModels.JSON', {
         if (hasRowSelections) {
             sm.clearRowSelection();
             offset = this.getGrid().getHeaderRowCount();
-            dataRows = this.getFilteredData();
-            selectedDataRows.forEach(function(dataRow) {
-                index = dataRows.indexOf(dataRow);
+            filteredData = this.getFilteredData();
+            recentlySelectedData.forEach(function(dataRow) {
+                index = filteredData.indexOf(dataRow);
                 if (index >= 0) {
                     sm.selectRow(offset + index);
                 }
