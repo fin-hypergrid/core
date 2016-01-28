@@ -3362,7 +3362,7 @@ function defaultProperties() {
         headerTextWrapping: false,
         rowResize: false,
         editOnDoubleClick: true,
-        doubleClickDelay: 250
+        doubleClickDelay: 325
 
     };
     return properties;

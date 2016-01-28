@@ -3,6 +3,15 @@
 var Feature = require('./Feature.js');
 
 /**
+ * Extra msecs to avoid race condition with fincanvas's double click timer.
+ * @type {number}
+ * @defaultvalue 50
+ * NOTE: 50 msecs seems to work well. 10 and even 25 proved insufficient in Chrome.
+ * @private
+ */
+var RACE_TIME = 50;
+
+/**
  * @constructor
  */
 var ColumnSelection = Feature.extend('ColumnSelection', {
@@ -99,7 +108,6 @@ var ColumnSelection = Feature.extend('ColumnSelection', {
             // DELAY FOR 1/4 SECOND WHILE WAITING FOR DOUBLE-CLICK
             this.doubleClickTimer = setTimeout(function() {
                 this.doubleClickTimer = undefined;
-
                 var numFixedColumns = grid.getFixedColumnCount();
 
                 //if we are in the fixed area do not apply the scroll values
@@ -114,7 +122,7 @@ var ColumnSelection = Feature.extend('ColumnSelection', {
                 var keys = primEvent.detail.keys;
                 this.dragging = true;
                 this.extendSelection(grid, dCell, keys);
-            }.bind(this), grid.resolveProperty('doubleClickDelay'));
+            }.bind(this), grid.resolveProperty('doubleClickDelay') + RACE_TIME);
         }
     },
 
