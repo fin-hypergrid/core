@@ -102,7 +102,7 @@ var ColumnSelection = Feature.extend('ColumnSelection', {
 
         if (isRightClick || !isHeader) {
             if (this.next) {
-                this.next.handleMouseDrag(grid, event);
+                this.next.handleMouseDown(grid, event);
             }
         } else {
             // DELAY FOR 1/4 SECOND WHILE WAITING FOR DOUBLE-CLICK
