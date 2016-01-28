@@ -458,9 +458,49 @@ var JSON = DataModel.extend('dataModels.JSON', {
      * @memberOf dataModels.JSON.prototype
      */
     applyAnalytics: function() {
+        var filteredData, selectedGridRows, recentlySelectedData, offset, index,
+            sm = this.getGrid().selectionModel,
+            hasRowSelections = sm.hasRowSelections();
+
+        // STEP 1: Make note of the actual objects backing the currently selected rows.
+        if (hasRowSelections) {
+            filteredData = this.getFilteredData();
+            selectedGridRows = this.getSelectedRows();
+            recentlySelectedData = this.recentlySelectedData;
+
+            // 1.a. Remove any filtered data rows from the recently selected list
+            recentlySelectedData.forEach(function(dataRow, idx) {
+                if (filteredData.indexOf(dataRow) > 0) {
+                    delete recentlySelectedData[idx];
+                }
+            });
+
+            // 1.b. Push the data rows backing any currently selected grid rows
+            selectedGridRows.forEach(function(selectedRowIndex) {
+                var dataRow = filteredData[selectedRowIndex];
+                if (recentlySelectedData.indexOf(dataRow) < 0) {
+                    recentlySelectedData.push(dataRow);
+                }
+            });
+        }
+
+        // STEP 2: Apply filtering, sorting, etc.
         this.applyFilters();
         this.applySorts();
         this.applyGroupBysAndAggregations();
+
+        // STEP 3: Re-establish grid row selections based on actual data row objects noted above.
+        if (hasRowSelections) {
+            sm.clearRowSelection();
+            offset = this.getGrid().getHeaderRowCount();
+            filteredData = this.getFilteredData();
+            recentlySelectedData.forEach(function(dataRow) {
+                index = filteredData.indexOf(dataRow);
+                if (index >= 0) {
+                    sm.selectRow(offset + index);
+                }
+            });
+        }
     },
 
     /**
@@ -481,33 +521,6 @@ var JSON = DataModel.extend('dataModels.JSON', {
      * @memberOf dataModels.JSON.prototype
      */
     applyFilters: function() {
-        var filteredData, selectedGridRows, recentlySelectedData, offset, index,
-            sm = this.getGrid().selectionModel,
-            hasRowSelections = sm.hasRowSelections();
-
-        // Make note of the actual objects backing the currently selected rows.
-        if (hasRowSelections) {
-            filteredData = this.getFilteredData();
-            selectedGridRows = this.getSelectedRows();
-            recentlySelectedData = this.recentlySelectedData;
-
-            // First remove any filtered data rows from the recently selected list
-            recentlySelectedData.forEach(function(dataRow, idx) {
-                if (filteredData.indexOf(dataRow) > 0) {
-                    delete recentlySelectedData[idx];
-                }
-            });
-
-            // Now push the data rows backing any currently selected grid rows
-            selectedGridRows.forEach(function(selectedRowIndex) {
-                var dataRow = filteredData[selectedRowIndex];
-                if (recentlySelectedData.indexOf(dataRow) < 0) {
-                    recentlySelectedData.push(dataRow);
-                }
-            });
-        }
-
-        // Filter the rows (may narrow or widen)...
         var visibleColumns = this.getVisibleColumns();
         this.preglobalfilter.apply(visibleColumns);
         var visColCount = visibleColumns.length;
@@ -522,19 +535,6 @@ var JSON = DataModel.extend('dataModels.JSON', {
             }
         }
         filterSource.applyAll();
-
-        // Re-establish grid row selections based on actual data row objects noted above.
-        if (hasRowSelections) {
-            sm.clearRowSelection();
-            offset = this.getGrid().getHeaderRowCount();
-            filteredData = this.getFilteredData();
-            recentlySelectedData.forEach(function(dataRow) {
-                index = filteredData.indexOf(dataRow);
-                if (index >= 0) {
-                    sm.selectRow(offset + index);
-                }
-            });
-        }
     },
 
     getFilteredData: function() {

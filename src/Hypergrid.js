@@ -3361,7 +3361,8 @@ function defaultProperties() {
         rowNumberAutosizing: true,
         headerTextWrapping: false,
         rowResize: false,
-        editOnDoubleClick: true
+        editOnDoubleClick: true,
+        doubleClickDelay: 250
 
     };
     return properties;
