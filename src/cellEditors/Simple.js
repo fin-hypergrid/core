@@ -65,8 +65,6 @@ var Simple = CellEditor.extend('Simple', {
         input.style.border = 'solid 2px black';
         input.style.outline = 0;
         input.style.padding = 0;
-        input.style.zIndex = 1000;
-        //input.style.fontSize = '8pt';
         input.style.boxShadow = 'white 0px 0px 1px 1px';
     },
 

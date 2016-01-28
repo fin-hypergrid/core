@@ -1350,8 +1350,12 @@ Hypergrid.prototype = {
         this.setDragExtent(new Point(0, 0));
 
         if (!cellEditor.isAdded) {
+            var input = cellEditor.getInput(),
+                referenceNode = this.div.querySelectorAll('.finbar-horizontal, .finbar-vertical');
+
+            this.div.insertBefore(input, referenceNode.length ? referenceNode[0] : null);
+
             cellEditor.isAdded = true;
-            this.div.appendChild(cellEditor.getInput());
         }
         cellEditor.grid = this;
         cellEditor.beginEditAt(editPoint);
