@@ -705,7 +705,7 @@
 
 function setSelectionPropFromCheckbox(ctrl) {
     jsonGrid.getSelectionModel().clear();
-    jsonGrid.getBehavior().getDataModel().getComponent().clearRecentlySelectedData();
+    jsonGrid.getBehavior().getDataModel().getComponent().clearSelectedData();
     setPropFromCheckbox(ctrl);
     jsonGrid.repaint();
 }
