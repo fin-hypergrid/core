@@ -711,7 +711,7 @@ Hypergrid.prototype = {
 
     clearRowSelection: function() {
         this.getSelectionModel().clearRowSelection();
-        this.getBehavior().getDataModel().getComponent().clearRecentlySelectedData();
+        this.getBehavior().getDataModel().getComponent().clearSelectedData();
     },
 
     /**

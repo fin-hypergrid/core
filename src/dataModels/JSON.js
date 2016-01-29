@@ -58,7 +58,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
     topTotals: [],
 
     initialize: function() {
-        this.recentlySelectedData = [];
+        this.selectedData = [];
     },
 
     /**
@@ -454,73 +454,102 @@ var JSON = DataModel.extend('dataModels.JSON', {
         return this.hasAggregates() && this.hasGroups();
     },
 
+
+    fixSelectedRows: 0,
+
     /**
+     * Add the actual data row objects backing any current grid row selections to `this.selectedData`.
      * @memberOf dataModels.JSON.prototype
      */
-    applyAnalytics: function() {
-        var filteredData, selectedGridRows, recentlySelectedData, offset, index,
-            sm = this.getGrid().selectionModel,
-            hasRowSelections = sm.hasRowSelections();
-
-        // STEP 1: Make note of the actual objects backing the currently selected rows.
-        if (hasRowSelections) {
-            filteredData = this.getFilteredData();
-            selectedGridRows = this.getSelectedRows();
-            recentlySelectedData = this.recentlySelectedData;
+    selectedDataRowsBackingSelectedGridRows: function() {
+        if (
+            !this.fixSelectedRows++ && // outer-most call?
+            this.grid.selectionModel.hasRowSelections() // any current grid row selections?
+        ) {
+            var filteredData = this.getFilteredData(),
+                selectedGridRows = this.grid.getSelectedRows(),
+                selectedData = this.selectedData;
 
             // 1.a. Remove any filtered data rows from the recently selected list
-            recentlySelectedData.forEach(function(dataRow, idx) {
+            selectedData.forEach(function(dataRow, idx) {
                 if (filteredData.indexOf(dataRow) > 0) {
-                    delete recentlySelectedData[idx];
+                    delete selectedData[idx];
                 }
             });
 
             // 1.b. Push the data rows backing any currently selected grid rows
             selectedGridRows.forEach(function(selectedRowIndex) {
                 var dataRow = filteredData[selectedRowIndex];
-                if (recentlySelectedData.indexOf(dataRow) < 0) {
-                    recentlySelectedData.push(dataRow);
+                if (selectedData.indexOf(dataRow) < 0) {
+                    selectedData.push(dataRow);
                 }
             });
         }
+    },
 
-        // STEP 2: Apply filtering, sorting, etc.
+    /**
+     * Re-establish grid row selections based on actual data row objects noted eariler in `this.selectedData` by {@link dataModels/JSON#addSelectedData()}.
+     * @memberOf dataModels.JSON.prototype
+     */
+    reselectGridRowsBackedBySelectedDataRows: function() {
+        var selectionModel = this.grid.selectionModel;
+
+        // STEP 3:
+        if (
+            !--this.fixSelectedRows && // outer-most call?
+            this.selectedData.length // any data row objects added from previous grid row selections?
+        ) {
+            var offset = this.grid.getHeaderRowCount(),
+                filteredData = this.getFilteredData();
+
+            selectionModel.clearRowSelection();
+
+            this.selectedData.forEach(function(dataRow) {
+                var index = filteredData.indexOf(dataRow);
+                if (index >= 0) {
+                    selectionModel.selectRow(offset + index);
+                }
+            });
+        }
+    },
+
+    /**
+     * @memberOf dataModels.JSON.prototype
+     */
+    applyAnalytics: function() {
+        this.selectedDataRowsBackingSelectedGridRows();
+
         this.applyFilters();
         this.applySorts();
         this.applyGroupBysAndAggregations();
 
-        // STEP 3: Re-establish grid row selections based on actual data row objects noted above.
-        if (hasRowSelections) {
-            sm.clearRowSelection();
-            offset = this.getGrid().getHeaderRowCount();
-            filteredData = this.getFilteredData();
-            recentlySelectedData.forEach(function(dataRow) {
-                index = filteredData.indexOf(dataRow);
-                if (index >= 0) {
-                    sm.selectRow(offset + index);
-                }
-            });
-        }
+        this.reselectGridRowsBackedBySelectedDataRows();
     },
 
     /**
      * @memberOf dataModels.JSON.prototype
      */
     applyGroupBysAndAggregations: function() {
+        this.selectedDataRowsBackingSelectedGridRows();
+
         if (this.analytics.aggregates.length === 0) {
             this.quietlySetAggregates({});
         }
         this.analytics.apply();
+
+        this.reselectGridRowsBackedBySelectedDataRows();
     },
 
-    clearRecentlySelectedData: function() {
-        this.recentlySelectedData.length = 0;
+    clearSelectedData: function() {
+        this.selectedData.length = 0;
     },
 
     /**
      * @memberOf dataModels.JSON.prototype
      */
     applyFilters: function() {
+        this.selectedDataRowsBackingSelectedGridRows();
+
         var visibleColumns = this.getVisibleColumns();
         this.preglobalfilter.apply(visibleColumns);
         var visColCount = visibleColumns.length;
@@ -535,6 +564,8 @@ var JSON = DataModel.extend('dataModels.JSON', {
             }
         }
         filterSource.applyAll();
+
+        this.reselectGridRowsBackedBySelectedDataRows();
     },
 
     getFilteredData: function() {
@@ -601,6 +632,8 @@ var JSON = DataModel.extend('dataModels.JSON', {
      * @memberOf dataModels.JSON.prototype
      */
     applySorts: function() {
+        this.selectedDataRowsBackingSelectedGridRows();
+
         var sortingSource = this.getSortingSource();
         var sorts = this.getPrivateState().sorts;
         var groupOffset = this.hasAggregates() ? 1 : 0;
@@ -614,6 +647,8 @@ var JSON = DataModel.extend('dataModels.JSON', {
             }
         }
         sortingSource.applySorts();
+
+        this.reselectGridRowsBackedBySelectedDataRows();
     },
 
     /**
