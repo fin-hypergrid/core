@@ -6,11 +6,9 @@ function nn(number) {
 
 module.exports = {
     date: function(value) {
-        return (
-            value.getFullYear() +
-            nn(value.getMonth() + 1) +
-            nn(value.getDate())
-        );
+        return value instanceof Date
+            ? value.getFullYear() + nn(value.getMonth() + 1) + nn(value.getDate())
+            : value + '';
     },
     default: function(value) {
         return value + '';

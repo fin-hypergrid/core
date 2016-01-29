@@ -722,6 +722,11 @@ Hypergrid.prototype = {
         //this.selectionModel.clearMostRecentRowSelection(); // commented off as per GRID-112
     },
 
+    clearRowSelection: function() {
+        this.selectionModel.clearRowSelection();
+        this.behavior.getDataModel().getComponent().clearSelectedData();
+    },
+
     /**
      * @memberOf Hypergrid.prototype
      * @summary Select given region.
@@ -3089,7 +3094,6 @@ Hypergrid.prototype = {
         this.selectionModel.selectColumn(x1, x2);
     },
     selectRow: function(y1, y2) {
-        console.log('>>>>> selectRow()');
         var sm = this.selectionModel;
         var selectionEdge = this.getFilterRowIndex() + 1;
 
@@ -3147,16 +3151,15 @@ Hypergrid.prototype = {
     },
     selectRowsFromCells: function() {
         if (!this.isCheckboxOnlyRowSelections()) {
-            var sm = this.selectionModel,
-                last,
+            var last,
                 hasCTRL = this.mouseDownState.primitiveEvent.detail.primitiveEvent.ctrlKey;
 
             if (hasCTRL && !this.isSingleRowSelectionMode()) {
-                sm.selectRowsFromCells(0, hasCTRL);
-            } else if ((last = sm.getLastSelection())) {
+                this.selectionModel.selectRowsFromCells(0, hasCTRL);
+            } else if ((last = this.selectionModel.getLastSelection())) {
                 this.selectRow(null, last.corner.y);
             } else {
-                sm.clearRowSelection();
+                this.clearRowSelection();
             }
         }
     },

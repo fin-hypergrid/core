@@ -497,7 +497,7 @@ var Behavior = Base.extend('Behavior', {
         return col && col.getComplexFilter();
     },
 
-    applyFilters: function() {
+    applyAnalytics: function() {
 
     },
 

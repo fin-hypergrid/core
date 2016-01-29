@@ -583,6 +583,13 @@ module.exports = {
     editOnDoubleClick: true,
 
     /**
+     * @default 325
+     * @type {number}
+     * @instance
+     */
+    doubleClickDelay: 325,
+
+    /**
      * Grid-level property.
      * When user presses a printable character key _or_ BACKSPACE _or_ DELETE:
      * 1. Activate cell editor on current cell (i.e., origin of most recent selection).

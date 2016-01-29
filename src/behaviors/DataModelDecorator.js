@@ -78,8 +78,8 @@ DataModelDecorator.prototype = {
         return this.getComponent().getColumnCount();
     },
 
-    applyFilters: function() {
-        return this.getComponent().applyFilters();
+    applyAnalytics: function() {
+        return this.getComponent().applyAnalytics();
     },
 
     getRowCount: function() {

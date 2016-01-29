@@ -60,6 +60,14 @@ var JSON = DataModel.extend('dataModels.JSON', {
     topTotals: [],
     bottomTotals: [],
 
+    initialize: function() {
+        this.selectedData = [];
+    },
+
+    clearSelectedData: function() {
+        this.selectedData.length = 0;
+    },
+
     /**
      * @memberOf dataModels.JSON.prototype
      * @returns {boolean}
@@ -511,57 +519,16 @@ var JSON = DataModel.extend('dataModels.JSON', {
     /**
      * @memberOf dataModels.JSON.prototype
      */
-    applyAnalytics: function() {
-        this.applyGroupBysAndAggregations();
-        this.applyFilters();
-        this.applySorts();
-    },
+    applyAnalytics: function(dontApplyGroupBysAndAggregations) {
+        selectedDataRowsBackingSelectedGridRows.call(this);
 
-    /**
-     * @memberOf dataModels.JSON.prototype
-     */
-    applyGroupBysAndAggregations: function() {
-        if (this.analytics.aggregates.length === 0) {
-            this.quietlySetAggregates({});
+        if (!dontApplyGroupBysAndAggregations) {
+            applyGroupBysAndAggregations.call(this);
         }
-        this.analytics.apply();
-    },
+        applyFilters.call(this);
+        applySorts.call(this);
 
-    /**
-     * @memberOf dataModels.JSON.prototype
-     */
-    applyFilters: function() {
-        var visibleColumns = this.getVisibleColumns();
-        this.getGlobalFilterSource().apply(visibleColumns);
-        var details = [];
-        var filterSource = this.getFilterSource();
-        var groupOffset = 0; //this.hasHierarchyColumn() ? 0 : 1;
-
-        // apply column filters
-        filterSource.clearAll();
-
-        visibleColumns.forEach(function(column) {
-            var columnIndex = column.index,
-                filterText = this.getFilter(columnIndex),
-                formatterType = column.getProperties().format,
-                formatter = this.grid.getFormatter(formatterType),
-                complexFilter = this.getComplexFilter(columnIndex),
-                filter = complexFilter || filterText.length > 0 && textMatchFilter(filterText);
-
-            if (filter) {
-                filterSource.add(columnIndex - groupOffset, this.createFormattedFilter(formatter, filter));
-                details.push({
-                    column: column.label,
-                    format: complexFilter ? 'complex' : formatterType
-                });
-            }
-        }.bind(this));
-
-        filterSource.applyAll();
-
-        this.grid.fireSyntheticFilterAppliedEvent({
-            details: details
-        });
+        reselectGridRowsBackedBySelectedDataRows.call(this);
     },
 
     createFormattedFilter: function(formatter, filter) {
@@ -614,25 +581,6 @@ var JSON = DataModel.extend('dataModels.JSON', {
 
     /**
      * @memberOf dataModels.JSON.prototype
-     */
-    applySorts: function() {
-        var sortingSource = this.getSortingSource();
-        var sorts = this.getPrivateState().sorts;
-        var groupOffset = this.hasAggregates() ? 1 : 0;
-        if (!sorts || sorts.length === 0) {
-            sortingSource.clearSorts();
-        } else {
-            for (var i = 0; i < sorts.length; i++) {
-                var colIndex = Math.abs(sorts[i]) - 1;
-                var type = sorts[i] < 0 ? -1 : 1;
-                sortingSource.sortOn(colIndex - groupOffset, type);
-            }
-        }
-        sortingSource.applySorts();
-    },
-
-    /**
-     * @memberOf dataModels.JSON.prototype
      * @param index
      * @param returnAsString
      * @returns {*}
@@ -672,8 +620,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
         var headerRowCount = this.grid.getHeaderRowCount();
         var y = event.gridCell.y - headerRowCount;
         this.getDataSource().click(y);
-        this.applyFilters();
-        this.applySorts();
+        this.applyAnalytics(true);
         this.changed();
     },
 
@@ -812,6 +759,129 @@ function textMatchFilter(string) {
         each = valueOrFunctionExecute(each);
         return (each + '').toLowerCase().indexOf(string) > -1;
     };
+}
+
+// LOCAL METHODS -- to be called with `.call(this`
+
+/**
+ * Accumulate actual data row objects backing current grid row selections.
+ * This call should be paired with a subsequent call to `reselectGridRowsBackedBySelectedDataRows`.
+ * @private
+ * @memberOf dataModels.JSON.prototype
+ */
+function selectedDataRowsBackingSelectedGridRows() {
+    //// STEP 1: Accumulate actual data row objects backing current grid row selections.
+    if (this.grid.selectionModel.hasRowSelections()) { // any current grid row selections?
+        var filteredData = this.getFilteredData(),
+            selectedGridRows = this.grid.getSelectedRows(),
+            selectedData = this.selectedData;
+
+        // 1.a. Remove any filtered data rows from the recently selected list.
+        selectedData.forEach(function(dataRow, idx) {
+            if (filteredData.indexOf(dataRow) > 0) {
+                delete selectedData[idx];
+            }
+        });
+
+        // 1.b. Accumulate the data rows backing any currently selected grid rows in `this.selectedData`.
+        selectedGridRows.forEach(function(selectedRowIndex) {
+            var dataRow = filteredData[selectedRowIndex];
+            if (selectedData.indexOf(dataRow) < 0) {
+                selectedData.push(dataRow);
+            }
+        });
+    }
+}
+
+/**
+ * Re-establish grid row selections based on actual data row objects accumulated by `selectedDataRowsBackingSelectedGridRows` which should be called first.
+ * @private
+ * @memberOf dataModels.JSON.prototype
+ */
+function reselectGridRowsBackedBySelectedDataRows() {
+    if (this.selectedData.length) { // any data row objects added from previous grid row selections?
+        var selectionModel = this.grid.selectionModel,
+            offset = this.grid.getHeaderRowCount(),
+            filteredData = this.getFilteredData();
+
+        selectionModel.clearRowSelection();
+
+        this.selectedData.forEach(function(dataRow) {
+            var index = filteredData.indexOf(dataRow);
+            if (index >= 0) {
+                selectionModel.selectRow(offset + index);
+            }
+        });
+    }
+}
+
+/**
+ * @private
+ * @memberOf dataModels.JSON.prototype
+ */
+function applyGroupBysAndAggregations() {
+    if (this.analytics.aggregates.length === 0) {
+        this.quietlySetAggregates({});
+    }
+    this.analytics.apply();
+}
+
+/**
+ * @private
+ * @memberOf dataModels.JSON.prototype
+ */
+function applyFilters() {
+    var visibleColumns = this.getVisibleColumns();
+    this.getGlobalFilterSource().apply(visibleColumns);
+    var details = [];
+    var filterSource = this.getFilterSource();
+    var groupOffset = 0; //this.hasHierarchyColumn() ? 0 : 1;
+
+    // apply column filters
+    filterSource.clearAll();
+
+    visibleColumns.forEach(function(column) {
+        var columnIndex = column.index,
+            filterText = this.getFilter(columnIndex),
+            formatterType = column.getProperties().format,
+            formatter = this.grid.getFormatter(formatterType),
+            complexFilter = this.getComplexFilter(columnIndex),
+            filter = complexFilter || filterText.length > 0 && textMatchFilter(filterText);
+
+        if (filter) {
+            filterSource.add(columnIndex - groupOffset, this.createFormattedFilter(formatter, filter));
+            details.push({
+                column: column.label,
+                format: complexFilter ? 'complex' : formatterType
+            });
+        }
+    }.bind(this));
+
+    filterSource.applyAll();
+
+    this.grid.fireSyntheticFilterAppliedEvent({
+        details: details
+    });
+}
+
+/**
+ * @private
+ * @memberOf dataModels.JSON.prototype
+ */
+function applySorts() {
+    var sortingSource = this.getSortingSource();
+    var sorts = this.getPrivateState().sorts;
+    var groupOffset = this.hasAggregates() ? 1 : 0;
+    if (!sorts || sorts.length === 0) {
+        sortingSource.clearSorts();
+    } else {
+        for (var i = 0; i < sorts.length; i++) {
+            var colIndex = Math.abs(sorts[i]) - 1;
+            var type = sorts[i] < 0 ? -1 : 1;
+            sortingSource.sortOn(colIndex - groupOffset, type);
+        }
+    }
+    sortingSource.applySorts();
 }
 
 module.exports = JSON;

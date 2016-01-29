@@ -158,10 +158,9 @@ var aggregates = {
 };
 var doAggregates = false;
 var applyAggregates;
-function toggleAggregates(ctrl) {
-    doAggregates = ctrl.checked;
-    jsonModel.setAggregates(doAggregates ? aggregates : []);
-};
+function toggleAggregates() {
+    jsonModel.setAggregates(this.checked ? aggregates : []);
+}
 
 window.toggleColumnPicker = function() {
     jsonGrid.toggleColumnPicker();
@@ -817,6 +816,7 @@ function setProp() { // standard checkbox click handler
 
 function setSelectionProp() { // alternate checkbox click handler
     jsonGrid.selectionModel.clear();
+    jsonGrid.behavior.getDataModel().getComponent().clearSelectedData();
     setProp.call(this);
 }
 
