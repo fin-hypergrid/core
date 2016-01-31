@@ -2,8 +2,6 @@
 
 var Base = require('./Base');
 
-var reRGBA = /^rgba\(/i;
-
 /** @constructor
  * @desc Instances of features are connected to one another to make a chain of responsibility for handling all the input to the hypergrid.
  *
@@ -156,7 +154,7 @@ var CellProvider = Base.extend('CellProvider', {
         }
 
         // fill background only if our bgColor is populated or we are a selected cell
-        var backgroundColor, hover, hoverColor;
+        var backgroundColor, hover, hoverColor, selectColor;
         if (config.isCellHovered && config.hoverCellHighlight.enabled) {
             hoverColor = config.hoverCellHighlight.backgroundColor;
         } else if (config.isRowHovered && (hover = config.hoverRowHighlight).enabled) {
@@ -164,14 +162,19 @@ var CellProvider = Base.extend('CellProvider', {
         } else if (config.isColumnHovered && (hover = config.hoverColumnHighlight).enabled) {
             hoverColor = config.isGridRow || !hover.header || hover.header.backgroundColor === undefined ? hover.backgroundColor : hover.header.backgroundColor;
         }
-        if (hoverColor === undefined || reRGBA.test(hoverColor)) {
+        if (alpha(hoverColor) < 1) {
             if (config.isSelected) {
-                backgroundColor = valueOrFunctionExecute(config, config.backgroundSelectionColor);
-            } else if (config.backgroundColor !== undefined) {
-                backgroundColor = valueOrFunctionExecute(config, config.backgroundColor);
+                selectColor = valueOrFunctionExecute(config, config.backgroundColor);
             }
-            if (backgroundColor !== undefined) {
-                gc.fillStyle = backgroundColor;
+            if (alpha(selectColor) < 1) {
+                backgroundColor = valueOrFunctionExecute(config, config.backgroundColor);
+                if (alpha(backgroundColor) > 0) {
+                    gc.fillStyle = backgroundColor;
+                    gc.fillRect(x, y, width, height);
+                }
+            }
+            if (selectColor !== undefined) {
+                gc.fillStyle = selectColor;
                 gc.fillRect(x, y, width, height);
             }
         }
@@ -636,5 +639,30 @@ function roundRect(gc, x, y, width, height, radius, fill, stroke) {
     }
     gc.closePath();
 }
+
+function alpha(cssColorSpec) {
+    if (cssColorSpec === undefined) {
+        // undefined so not visible; treat as transparent
+        return 0;
+    }
+
+    var matches = cssColorSpec.match(alpha.regex);
+
+    if (matches === null) {
+        // an opaque color (a color spec with no alpha channel)
+        return 1;
+    }
+
+    var A = matches[4];
+
+    if (A === undefined) {
+        // cssColorSpec must have been 'transparent'
+        return 0;
+    }
+
+    return Number(A);
+}
+
+alpha.regex = /^(transparent|((RGB|HSL)A\(.*,([\d\.]+)\)))$/i;
 
 module.exports = CellProvider;
