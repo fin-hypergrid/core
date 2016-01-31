@@ -2,6 +2,8 @@
 
 var Base = require('./Base');
 
+var reRGBA = /^rgba\(/i;
+
 /** @constructor
  * @desc Instances of features are connected to one another to make a chain of responsibility for handling all the input to the hypergrid.
  *
@@ -154,18 +156,27 @@ var CellProvider = Base.extend('CellProvider', {
         }
 
         // fill background only if our bgColor is populated or we are a selected cell
-        var backgroundColor;
-        if (config.backgroundColor) {
-            gc.fillStyle = backgroundColor = valueOrFunctionExecute(config, config.isSelected ? config.backgroundSelectionColor : config.backgroundColor);
-            if (config.isColumnHovered) {
-                gc.fillStyle = config.isGridRow ? config.hoverColumnColor : config.hoverColumnHeaderColor;
+        var backgroundColor, hover, hoverColor;
+        if (config.isCellHovered && config.hoverCellHighlight.enabled) {
+            hoverColor = config.hoverCellHighlight.backgroundColor;
+        } else if (config.isRowHovered && (hover = config.hoverRowHighlight).enabled) {
+            hoverColor = config.isGridColumn || !hover.header || hover.header.backgroundColor === undefined ? hover.backgroundColor : hover.header.backgroundColor;
+        } else if (config.isColumnHovered && (hover = config.hoverColumnHighlight).enabled) {
+            hoverColor = config.isGridRow || !hover.header || hover.header.backgroundColor === undefined ? hover.backgroundColor : hover.header.backgroundColor;
+        }
+        if (hoverColor === undefined || reRGBA.test(hoverColor)) {
+            if (config.isSelected) {
+                backgroundColor = valueOrFunctionExecute(config, config.backgroundSelectionColor);
+            } else if (config.backgroundColor !== undefined) {
+                backgroundColor = valueOrFunctionExecute(config, config.backgroundColor);
             }
-            if (config.isRowHovered) {
-                gc.fillStyle = config.isGridColumn ? config.hoverRowColor : config.hoverRowHeaderColor;
+            if (backgroundColor !== undefined) {
+                gc.fillStyle = backgroundColor;
+                gc.fillRect(x, y, width, height);
             }
-            if (config.isCellHovered) {
-                gc.fillStyle = config.hoverCellColor;
-            }
+        }
+        if (hoverColor !== undefined) {
+            gc.fillStyle = hoverColor;
             gc.fillRect(x, y, width, height);
         }
 
@@ -191,7 +202,7 @@ var CellProvider = Base.extend('CellProvider', {
         if (rightIcon && width > 1.75 * height) {
             iyoffset = Math.round((height - rightIcon.height) / 2);
             var rightX = x + width - rightIcon.width;
-            if (backgroundColor) {
+            if (backgroundColor !== undefined) {
                 gc.fillStyle = backgroundColor;
                 gc.fillRect(rightX, y, rightIcon.width, height);
             } else {

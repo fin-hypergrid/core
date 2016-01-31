@@ -105,9 +105,9 @@ var toggleProps = [
     { value: 'showFilterRow', label: 'filter' },
 
     'Hover highlights',
-    { value: 'hoverCellHighlight', label: 'cell' },
-    { value: 'hoverRowHighlight', label: 'row' },
-    { value: 'hoverColumnHighlight', label: 'column' },
+    { value: 'hoverCellHighlight.enabled', label: 'cell' },
+    { value: 'hoverRowHighlight.enabled', label: 'row' },
+    { value: 'hoverColumnHighlight.enabled', label: 'column' },
 
     'Editing cells',
     { value: 'editable' },
@@ -669,20 +669,19 @@ setTimeout(function() {
 //                        halign: 'left'
 //                    });
 
-        jsonModel.setColumnProperties(1,
-            {
-                backgroundColor: function(config) {
-                    var textValue = config.value[1];
-                    if (textValue[0] === 'S') { //does the data start with an 'S'?
-                        return 'purple';
-                    } else {
-                        return 'white';
-                    }
-                    return 'cyan';
-                },
-                columnHeaderBackgroundColor: '#142B6F', //dark blue
-                columnHeaderColor: 'white'
-            });
+        jsonModel.setColumnProperties(1, {
+            backgroundColor: function(config) {
+                var textValue = config.value[1];
+                if (textValue[0] === 'S') { //does the data start with an 'S'?
+                    return 'purple';
+                } else {
+                    return 'white';
+                }
+                return 'cyan';
+            },
+            columnHeaderBackgroundColor: '#142B6F', //dark blue
+            columnHeaderColor: 'white'
+        });
 
         jsonModel.setColumnProperties(0,{
             autopopulateEditor: true,
@@ -804,9 +803,11 @@ function addToggle(prop) {
 }
 
 function setProp() { // standard checkbox click handler
-    var hash = {};
+    var hash = {}, depth = hash;
+    var keys = this.value.split('.');
 
-    hash[this.value] = this.checked;
+    while (keys.length > 1) { depth = depth[keys.shift()] = {}; }
+    depth[keys.shift()] = this.checked;
 
     jsonGrid.takeFocus();
     jsonGrid.addProperties(hash);

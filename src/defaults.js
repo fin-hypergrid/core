@@ -624,43 +624,49 @@ module.exports = {
 
     /********** HOVER COLORS **********/
 
+    /** @typedef hoverColors
+     * @property {boolean} [enable=false] - `false` means not hilite on hover
+     * @property {cssColor} backgroundColor - cell, row, or colummn background color. Alpha channel will be respected and if given will be painted over the cells predetermined color.
+     * @property {cssColor} [header.backgroundColor=backgroundColor] - for columns and rows, this is the background color of the column or row "handle" (header rows or columns, respectively). (Not used for cells.)
+     */
+
     /** On mouse hover, repaint the cell background with `hoverCellColor`.
-     * @type {boolean}
+     * @type {hoverColors}
      * @default `true`
      */
-    hoverCellHighlight: true,
+    hoverCellHighlight: {
+        enabled: true,
+        backgroundColor: 'rgba(0,0,0,.30)'
+    },
 
     /** Background color of cell on mouse hover when `hoverCellHighlight`.
      * @type {cssColor}
      * @default `'lightgray'`
      */
-    hoverCellColor: 'lightgray',
 
-    /** On mouse hover, repaint the row background with `hoverRowColor` and `hoverRowHeaderColor`.
-     * @type {boolean}
+    /** On mouse hover, repaint the row background.
+     * @type {hoverColors}
      * @default `true`
      */
-    hoverRowHighlight: true,
+    hoverRowHighlight: {
+        enabled: true,
+        backgroundColor: 'rgba(0,0,0,.15)'
 
-    /** Background color of row on mouse hover when `hoverRowHighlight`.
-     * @type {cssColor}
-     * @default `'gray'`
-     */
-    hoverRowColor: 'gray',
-    hoverRowHeaderColor: 'lightgray',
+    },
 
-    /** On mouse hover, repaint the column background with `hoverColumnColor` and `hoverColumnHeaderColor`.
-     * @type {boolean}
+    /** On mouse hover, repaint the column background.
+     * @type {hoverColors}
      * @default `true`
      */
-    hoverColumnHighlight: true,
+    hoverColumnHighlight: {
+        enabled: true,
+        backgroundColor: 'rgba(0,0,0,.15)'
+    },
 
     /** Background color of column on mouse hover when `hoverColumnHighlight`.
      * @type {cssColor}
      * @default `'gray'`
      */
-    hoverColumnColor: 'gray',
-    hoverColumnHeaderColor: 'lightgray',
 
     /** Display cell font with under-score line drawn over it.
      * > Implementation of links right now is not automatic; you must attach a 'fin-click' listener to the hypergrid object, etc.

@@ -639,7 +639,7 @@ var Renderer = Base.extend('Renderer', {
      * @param {number} offsetY - y coordinate
      */
     isHovered: function(x, y) {
-        return this.grid.isHovered(x, y) && this.grid.resolveProperty('hoverCellHighlight');
+        return this.grid.isHovered(x, y);
     },
 
     /**
@@ -648,7 +648,7 @@ var Renderer = Base.extend('Renderer', {
      * @param {number} offsetY - y coordinate
      */
     isRowHovered: function(y) {
-        return this.grid.isRowHovered(y) && this.grid.resolveProperty('hoverRowHighlight');
+        return this.grid.isRowHovered(y);
      },
 
     /**
@@ -657,7 +657,7 @@ var Renderer = Base.extend('Renderer', {
      * @param {number} offsetX - x coordinate
      */
     isColumnHovered: function(x) {
-        return this.grid.isColumnHovered(x) && this.grid.resolveProperty('hoverColumnHighlight');
+        return this.grid.isColumnHovered(x);
     },
 
     /**
