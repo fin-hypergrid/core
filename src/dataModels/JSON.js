@@ -770,21 +770,24 @@ function textMatchFilter(string) {
  * @memberOf dataModels.JSON.prototype
  */
 function selectedDataRowsBackingSelectedGridRows() {
-    //// STEP 1: Accumulate actual data row objects backing current grid row selections.
-    if (this.grid.selectionModel.hasRowSelections()) { // any current grid row selections?
-        var filteredData = this.getFilteredData(),
-            selectedGridRows = this.grid.getSelectedRows(),
-            selectedData = this.selectedData;
+    var selectedData = this.selectedData,
+        hasRowSelections = this.grid.selectionModel.hasRowSelections(),
+        needFilteredDataList = selectedData.length || hasRowSelections;
 
-        // 1.a. Remove any filtered data rows from the recently selected list.
-        selectedData.forEach(function(dataRow, idx) {
-            if (filteredData.indexOf(dataRow) > 0) {
-                delete selectedData[idx];
-            }
-        });
+    if (needFilteredDataList) {
+        var filteredData = this.getFilteredData();
+    }
 
-        // 1.b. Accumulate the data rows backing any currently selected grid rows in `this.selectedData`.
-        selectedGridRows.forEach(function(selectedRowIndex) {
+    // STEP 1: Remove any filtered data rows from the recently selected list.
+    selectedData.forEach(function(dataRow, index) {
+        if (filteredData.indexOf(dataRow) >= 0) {
+            delete selectedData[index];
+        }
+    });
+
+    // STEP 2: Accumulate the data rows backing any currently selected grid rows in `this.selectedData`.
+    if (hasRowSelections) { // any current grid row selections?
+        this.grid.getSelectedRows().forEach(function(selectedRowIndex) {
             var dataRow = filteredData[selectedRowIndex];
             if (selectedData.indexOf(dataRow) < 0) {
                 selectedData.push(dataRow);
