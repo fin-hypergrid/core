@@ -1,6 +1,6 @@
 'use strict';
 
-var Base = require('../Base');
+var Base = require('../lib/Base');
 
 var A = 'A'.charCodeAt(0);
 

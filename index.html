@@ -105,17 +105,18 @@ var toggleProps = [
     { value: 'showFilterRow', label: 'filter' },
 
     'Hover highlights',
-    { value: 'hoverCellHighlight', label: 'cell' },
-    { value: 'hoverRowHighlight', label: 'row' },
-    { value: 'hoverColumnHighlight', label: 'column' },
+    { value: 'hoverCellHighlight.enabled', label: 'cell' },
+    { value: 'hoverRowHighlight.enabled', label: 'row' },
+    { value: 'hoverColumnHighlight.enabled', label: 'column' },
 
     'Editing cells',
     { value: 'editable' },
-    { value: 'editOnDoubleClick' },
+    { value: 'editOnDoubleClick', label: 'requires double-click' },
+    { value: 'editOnKeydown', label: 'type to edit' },
 
-    'Selecting',
-    { value: 'checkboxOnlyRowSelections', setter: setSelectionProp },
-    { value: 'singleRowSelectionMode', setter: setSelectionProp }
+    'Selecting rows',
+    { value: 'checkboxOnlyRowSelections', label: 'by row handles only', setter: setSelectionProp },
+    { value: 'singleRowSelectionMode', label: 'one row at a time', setter: setSelectionProp }
 ];
 
 //used by the cellProvider, return null for a column if you want no editor to pop up
@@ -157,10 +158,9 @@ var aggregates = {
 };
 var doAggregates = false;
 var applyAggregates;
-function toggleAggregates(ctrl) {
-    doAggregates = ctrl.checked;
-    jsonModel.setAggregates(doAggregates ? aggregates : []);
-};
+function toggleAggregates() {
+    jsonModel.setAggregates(this.checked ? aggregates : []);
+}
 
 window.toggleColumnPicker = function() {
     jsonGrid.toggleColumnPicker();
@@ -669,20 +669,19 @@ setTimeout(function() {
 //                        halign: 'left'
 //                    });
 
-        jsonModel.setColumnProperties(1,
-            {
-                backgroundColor: function(config) {
-                    var textValue = config.value[1];
-                    if (textValue[0] === 'S') { //does the data start with an 'S'?
-                        return 'purple';
-                    } else {
-                        return 'white';
-                    }
-                    return 'cyan';
-                },
-                columnHeaderBackgroundColor: '#142B6F', //dark blue
-                columnHeaderColor: 'white'
-            });
+        jsonModel.setColumnProperties(1, {
+            backgroundColor: function(config) {
+                var textValue = config.value[1];
+                if (textValue[0] === 'S') { //does the data start with an 'S'?
+                    return 'purple';
+                } else {
+                    return 'white';
+                }
+                return 'cyan';
+            },
+            columnHeaderBackgroundColor: '#142B6F', //dark blue
+            columnHeaderColor: 'white'
+        });
 
         jsonModel.setColumnProperties(0,{
             autopopulateEditor: true,
@@ -731,6 +730,8 @@ setTimeout(function() {
 
         toggleProps.forEach(function(prop) { addToggle(prop); });
         applyAggregates = document.querySelector('input[type=checkbox][value="Apply aggregates"]');
+
+        jsonGrid.takeFocus();
 
     }, 500);
 
@@ -802,10 +803,13 @@ function addToggle(prop) {
 }
 
 function setProp() { // standard checkbox click handler
-    var hash = {};
+    var hash = {}, depth = hash;
+    var keys = this.value.split('.');
 
-    hash[this.value] = this.checked;
+    while (keys.length > 1) { depth = depth[keys.shift()] = {}; }
+    depth[keys.shift()] = this.checked;
 
+    jsonGrid.takeFocus();
     jsonGrid.addProperties(hash);
     jsonGrid.behaviorChanged();
     jsonGrid.repaint();
@@ -813,6 +817,7 @@ function setProp() { // standard checkbox click handler
 
 function setSelectionProp() { // alternate checkbox click handler
     jsonGrid.selectionModel.clear();
+    jsonGrid.behavior.getDataModel().getComponent().clearSelectedData();
     setProp.call(this);
 }
 

@@ -3,16 +3,14 @@
 'use strict';
 
 var Simple = require('./Simple');
+var Formatters = require('../lib/Formatters');
 
-var parseDate = function(input) {
+function parseDate(input) {
   var parts = input.match(/(\d+)/g);
   // new Date(year, month [, date [, hours[, minutes[, seconds[, ms]]]]])
   return new window.Date(parts[0], parts[1] - 1, parts[2]); // months are 0-based
-};
+}
 
-var leadingZeroIfNecessary = function(number) {
-    return number < 10 ? '0' + number : number + '';
-};
 /**
  * @constructor
  */
@@ -32,8 +30,8 @@ var Date = Simple.extend('Date', {
     },
 
     setEditorValue: function(value) {
-        if (value && value.constructor.name === 'Date') {
-            value = value.getFullYear() + '-' + leadingZeroIfNecessary(value.getMonth() + 1) + '-' + leadingZeroIfNecessary(value.getDay());
+        if (value != null && value.constructor.name === 'Date') {
+            value = Formatters.date(value);
         }
         this.getInput().value = value + '';
     },

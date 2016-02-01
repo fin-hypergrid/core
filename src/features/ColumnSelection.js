@@ -3,6 +3,15 @@
 var Feature = require('./Feature.js');
 
 /**
+ * Extra msecs to avoid race condition with fincanvas's double click timer.
+ * @type {number}
+ * @defaultvalue 50
+ * NOTE: 50 msecs seems to work well. 10 and even 25 proved insufficient in Chrome.
+ * @private
+ */
+var RACE_TIME = 50;
+
+/**
  * @constructor
  */
 var ColumnSelection = Feature.extend('ColumnSelection', {
@@ -54,7 +63,16 @@ var ColumnSelection = Feature.extend('ColumnSelection', {
         }
         if (this.next) {
             this.next.handleMouseUp(grid, event);
-            return;
+        }
+    },
+
+    handleDoubleClick: function(grid, event) {
+        if (this.doubleClickTimer) {
+            clearTimeout(this.doubleClickTimer); // prevent mouseDown from continuing
+            this.doubleClickTimer = undefined;
+        }
+        if (this.next) {
+            this.next.handleDoubleClick(grid, event);
         }
     },
 
@@ -65,6 +83,9 @@ var ColumnSelection = Feature.extend('ColumnSelection', {
      * @param {Object} event - the event details
      */
     handleMouseDown: function(grid, event) {
+        if (this.doubleClickTimer) {
+            return;
+        }
 
         if ((!grid.isColumnSelection() || event.mousePoint.y < 5) && this.next) {
             this.next.handleMouseDown(grid, event);
@@ -84,21 +105,24 @@ var ColumnSelection = Feature.extend('ColumnSelection', {
                 this.next.handleMouseDown(grid, event);
             }
         } else {
+            // HOLD OFF WHILE WAITING FOR DOUBLE-CLICK
+            this.doubleClickTimer = setTimeout(function() {
+                this.doubleClickTimer = undefined;
+                var numFixedColumns = grid.getFixedColumnCount();
 
-            var numFixedColumns = grid.getFixedColumnCount();
+                //if we are in the fixed area do not apply the scroll values
+                //check both x and y values independently
+                if (viewCell.x < numFixedColumns) {
+                    dx = viewCell.x;
+                }
 
-            //if we are in the fixed area do not apply the scroll values
-            //check both x and y values independently
-            if (viewCell.x < numFixedColumns) {
-                dx = viewCell.x;
-            }
+                var dCell = grid.newPoint(dx, 0);
 
-            var dCell = grid.newPoint(dx, 0);
-
-            var primEvent = event.primitiveEvent;
-            var keys = primEvent.detail.keys;
-            this.dragging = true;
-            this.extendSelection(grid, dCell, keys);
+                var primEvent = event.primitiveEvent;
+                var keys = primEvent.detail.keys;
+                this.dragging = true;
+                this.extendSelection(grid, dCell, keys);
+            }.bind(this), grid.resolveProperty('doubleClickDelay') + RACE_TIME);
         }
     },
 

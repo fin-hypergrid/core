@@ -19,18 +19,13 @@ module.exports = (function() {
             case 'undefined':
                 return oidPrefix + 'undefined';
             case 'object':
-                /*eslint-disable */
-                if (key.___finhash) {
-                    return key.___finhash;
-                }
-                key.___finhash = oidPrefix + counter++;
-                return key.___finhash;
             case 'function':
-                if (key.___finhash) {
-                    return key.___finhash;
+                /*eslint-disable */
+                if (!key.___finhash) {
+                    key.___finhash = oidPrefix + counter++;
                 }
-                key.___finhash = oidPrefix + counter++;
-                return key.___finhash; /*eslint-enable */
+                return key.___finhash;
+                /*eslint-enable */
         }
     };
 

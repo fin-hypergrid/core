@@ -175,7 +175,7 @@ var Filter = CellEditor.extend('Filter', {
                     state: filter.getState()
                 });
                 dialog.close();
-                behavior.applyFilters();
+                behavior.applyAnalytics();
                 behavior.changed();
             };
 
@@ -195,7 +195,7 @@ var Filter = CellEditor.extend('Filter', {
                 self.tearDown();
                 behavior.setComplexFilter(columnIndex, undefined);
                 dialog.close();
-                behavior.applyFilters();
+                behavior.applyAnalytics();
                 behavior.changed();
             };
 

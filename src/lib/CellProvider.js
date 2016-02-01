@@ -154,18 +154,32 @@ var CellProvider = Base.extend('CellProvider', {
         }
 
         // fill background only if our bgColor is populated or we are a selected cell
-        var backgroundColor;
-        if (config.backgroundColor) {
-            gc.fillStyle = backgroundColor = valueOrFunctionExecute(config, config.isSelected ? config.backgroundSelectionColor : config.backgroundColor);
-            if (config.isColumnHovered) {
-                gc.fillStyle = config.isGridRow ? config.hoverColumnColor : config.hoverColumnHeaderColor;
+        var backgroundColor, hover, hoverColor, selectColor;
+        if (config.isCellHovered && config.hoverCellHighlight.enabled) {
+            hoverColor = config.hoverCellHighlight.backgroundColor;
+        } else if (config.isRowHovered && (hover = config.hoverRowHighlight).enabled) {
+            hoverColor = config.isGridColumn || !hover.header || hover.header.backgroundColor === undefined ? hover.backgroundColor : hover.header.backgroundColor;
+        } else if (config.isColumnHovered && (hover = config.hoverColumnHighlight).enabled) {
+            hoverColor = config.isGridRow || !hover.header || hover.header.backgroundColor === undefined ? hover.backgroundColor : hover.header.backgroundColor;
+        }
+        if (alpha(hoverColor) < 1) {
+            if (config.isSelected) {
+                selectColor = valueOrFunctionExecute(config, config.backgroundSelectionColor);
             }
-            if (config.isRowHovered) {
-                gc.fillStyle = config.isGridColumn ? config.hoverRowColor : config.hoverRowHeaderColor;
+            if (alpha(selectColor) < 1) {
+                backgroundColor = valueOrFunctionExecute(config, config.backgroundColor);
+                if (alpha(backgroundColor) > 0) {
+                    gc.fillStyle = backgroundColor;
+                    gc.fillRect(x, y, width, height);
+                }
             }
-            if (config.isCellHovered) {
-                gc.fillStyle = config.hoverCellColor;
+            if (selectColor !== undefined) {
+                gc.fillStyle = selectColor;
+                gc.fillRect(x, y, width, height);
             }
+        }
+        if (hoverColor !== undefined) {
+            gc.fillStyle = hoverColor;
             gc.fillRect(x, y, width, height);
         }
 
@@ -191,7 +205,7 @@ var CellProvider = Base.extend('CellProvider', {
         if (rightIcon && width > 1.75 * height) {
             iyoffset = Math.round((height - rightIcon.height) / 2);
             var rightX = x + width - rightIcon.width;
-            if (backgroundColor) {
+            if (backgroundColor !== undefined) {
                 gc.fillStyle = backgroundColor;
                 gc.fillRect(rightX, y, rightIcon.width, height);
             } else {
@@ -625,5 +639,30 @@ function roundRect(gc, x, y, width, height, radius, fill, stroke) {
     }
     gc.closePath();
 }
+
+function alpha(cssColorSpec) {
+    if (cssColorSpec === undefined) {
+        // undefined so not visible; treat as transparent
+        return 0;
+    }
+
+    var matches = cssColorSpec.match(alpha.regex);
+
+    if (matches === null) {
+        // an opaque color (a color spec with no alpha channel)
+        return 1;
+    }
+
+    var A = matches[4];
+
+    if (A === undefined) {
+        // cssColorSpec must have been 'transparent'
+        return 0;
+    }
+
+    return Number(A);
+}
+
+alpha.regex = /^(transparent|((RGB|HSL)A\(.*,\s*([\d\.]+)\)))$/i;
 
 module.exports = CellProvider;

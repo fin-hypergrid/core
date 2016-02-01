@@ -4,7 +4,7 @@
 
 var LRUCache = require('lru-cache');
 
-var renderCellError = require('./renderCellError');
+var renderCellError = require('./lib/renderCellError');
 
 /**
  * This module lists the properties that can be set on a {@link Hypergrid} along with their default values.
@@ -47,15 +47,15 @@ module.exports = {
      * @type {string}
      * @instance
      */
-    foregroundSelectionColor: 'rgb(25, 25, 25)',
+    foregroundSelectionColor: 'black',
 
     /**
      * Background color for selected cell(s).
-     * @default 'rgb(183, 219, 255)'
+     * @default 'rgba(147, 185, 255, 0.45)'
      * @type {string}
      * @instance
      */
-    backgroundSelectionColor: 'rgb(183, 219, 255)',
+    backgroundSelectionColor: 'rgba(147, 185, 255, 0.45)',
 
 
     /********** SECTION: COLUMN HEADER COLORS **********/
@@ -91,11 +91,11 @@ module.exports = {
     columnHeaderForegroundSelectionColor: 'rgb(25, 25, 25)',
 
     /**
-     * @default 'rgb(255, 220, 97)'
+     * @default 'rgba(255, 220, 97, 0.45)'
      * @type {cssColor}
      * @instance
      */
-    columnHeaderBackgroundSelectionColor: 'rgb(255, 220, 97)',
+    columnHeaderBackgroundSelectionColor: 'rgba(255, 220, 97, 0.45)',
 
     /**
      * @default 'rgb(25, 25, 25)'
@@ -143,11 +143,11 @@ module.exports = {
     rowHeaderForegroundSelectionColor: 'rgb(25, 25, 25)',
 
     /**
-     * @default 'rgb(255, 220, 97)'
+     * @default 'rgba(255, 220, 97, 0.45)'
      * @type {cssColor}
      * @instance
      */
-    rowHeaderBackgroundSelectionColor: 'rgb(255, 220, 97)',
+    rowHeaderBackgroundSelectionColor: 'rgba(255, 220, 97, 0.45)',
 
     /**
      * @default 'rgb(25, 25, 25)'
@@ -248,11 +248,11 @@ module.exports = {
     treeColumnForegroundSelectionColor: 'rgb(25, 25, 25)',
 
     /**
-     * @default 'rgb(255, 220, 97)'
+     * @default 'rgba(255, 220, 97, 0.45)'
      * @type {cssColor}
      * @instance
      */
-    treeColumnBackgroundSelectionColor: 'rgb(255, 220, 97)',
+    treeColumnBackgroundSelectionColor: 'rgba(255, 220, 97, 0.45)',
 
     /**
      * @default 'rgb(25, 25, 25)'
@@ -297,7 +297,7 @@ module.exports = {
     scrollbarHoverOff: 'hidden',
 
     /**
-     * @default true
+     * @default `true`
      * @type {boolean}
      * @instance
      */
@@ -341,14 +341,14 @@ module.exports = {
     cellPadding: 5,
 
     /**
-     * @default true
+     * @default `true`
      * @type {boolean}
      * @instance
      */
     gridLinesH: true,
 
     /**
-     * @default true
+     * @default `true`
      * @type {boolean}
      * @instance
      */
@@ -393,7 +393,8 @@ module.exports = {
     repaintIntervalRate: 60,
 
     /**
-     *
+     * @default `false`
+     * @type {boolean}
      * @instance
      */
     repaintImmediately: false,
@@ -401,7 +402,7 @@ module.exports = {
     //enable or disable double buffering
 
     /**
-     * @default false
+     * @default `false`
      * @type {boolean}
      * @instance
      */
@@ -409,7 +410,7 @@ module.exports = {
 
 
     /**
-     * @default true
+     * @default `true`
      * @type {boolean}
      * @instance
      */
@@ -423,7 +424,7 @@ module.exports = {
     editorActivationKeys: ['alt', 'esc'],
 
     /**
-     * @default false
+     * @default `false`
      * @type {boolean}
      * @instance
      */
@@ -469,28 +470,28 @@ module.exports = {
 
 
     /**
-     * @default true
+     * @default `true`
      * @type {boolean}
      * @instance
      */
     showRowNumbers: true,
 
     /**
-     * @default true
+     * @default `true`
      * @type {boolean}
      * @instance
      */
     showTreeColumn: true,
 
     /**
-     * @default true
+     * @default `true`
      * @type {boolean}
      * @instance
      */
     showHeaderRow: true,
 
     /**
-     * @default true
+     * @default `true`
      * @type {boolean}
      * @instance
      */
@@ -498,28 +499,28 @@ module.exports = {
 
 
     /** Clicking in a cell "selects" it; it is added to the select region and repainted with "cell selection" colors.
-     * @default true
+     * @default `true`
      * @type {boolean}
      * @instance
      */
     cellSelection: true,
 
     /** Clicking in a row header (leftmost column) "selects" the row; the entire row is added to the select region and repainted with "row selection" colors.
-     * @default true
+     * @default `true`
      * @type {boolean}
      * @instance
      */
     columnSelection: true,
 
     /** Clicking in a column header (top row) "selects" the column; the entire column is added to the select region and repainted with "column selection" colors.
-     * @default true
+     * @default `true`
      * @type {boolean}
      * @instance
      */
     rowSelection: true,
 
     /**
-     * @default true
+     * @default `true`
      * @type {boolean}
      * @instance
      */
@@ -540,46 +541,69 @@ module.exports = {
     selectionRegionOutlineColor: 'black',
 
     /**
-     * @default true
+     * @default `true`
      * @type {boolean}
      * @instance
      */
     columnAutosizing: true,
 
     /**
-     * @default true
+     * @default `true`
      * @type {boolean}
      * @instance
      */
     rowNumberAutosizing: true,
 
     /**
-     * @default false
+     * @default `false`
      * @type {boolean}
      * @instance
      */
     headerTextWrapping: false,
 
     /**
-     * @default false
+     * @default `false`
      * @type {boolean}
      * @instance
      */
     rowResize: false,
 
     /**
-     * @default true
+     * @default `true`
      * @type {boolean}
      * @instance
      */
     editable: true,
 
     /**
-     * @default true
+     * @default `true`
      * @type {boolean}
      * @instance
      */
     editOnDoubleClick: true,
+
+    /**
+     * @default 325
+     * @type {number}
+     * @instance
+     */
+    doubleClickDelay: 325,
+
+    /**
+     * Grid-level property.
+     * When user presses a printable character key _or_ BACKSPACE _or_ DELETE:
+     * 1. Activate cell editor on current cell (i.e., origin of most recent selection).
+     * 2. If cell editor is a text editor:
+     *    1. Replace current value with the character the user typed; or
+     *    2. Clear it on BACKSPACE, DELETE, or other invalid character (_e.g._ when user types a letter but the cell editor only accepts digits).
+     *
+     * > In invoked, user has the option to back out by pressing the ESCAPE key.
+     *
+     * @default `true`
+     * @type {boolean}
+     * @instance
+     */
+    editOnKeydown: true,
 
     /**
      * @default renderCellError
@@ -588,7 +612,7 @@ module.exports = {
     renderCellError: renderCellError,
 
     /**
-     * @default false
+     * @default `false`
      * @type {boolean}
      */
     checkboxOnlyRowSelections: false,
@@ -600,43 +624,40 @@ module.exports = {
 
     /********** HOVER COLORS **********/
 
-    /** On mouse hover, repaint the cell background with `hoverCellColor`.
-     * @type {boolean}
-     * @default `true`
+    /** @typedef hoverColors
+     * @property {boolean} [enable=false] - `false` means not hilite on hover
+     * @property {cssColor} backgroundColor - cell, row, or colummn background color. Alpha channel will be respected and if given will be painted over the cells predetermined color.
+     * @property {cssColor} [header.backgroundColor=backgroundColor] - for columns and rows, this is the background color of the column or row "handle" (header rows or columns, respectively). (Not used for cells.)
      */
-    hoverCellHighlight: true,
 
-    /** Background color of cell on mouse hover when `hoverCellHighlight`.
-     * @type {cssColor}
-     * @default `'lightgray'`
+    /** On mouse hover, whether to repaint the cell background and how.
+     * @type {hoverColors}
+     * @default '{ enabled: true, background: rgba(160, 160, 40, 0.30) }'
      */
-    hoverCellColor: 'lightgray',
+    hoverCellHighlight: {
+        enabled: true,
+        backgroundColor: 'rgba(160, 160, 40, 0.45)'
+    },
 
-    /** On mouse hover, repaint the row background with `hoverRowColor` and `hoverRowHeaderColor`.
-     * @type {boolean}
-     * @default `true`
+    /** On mouse hover, whether to repaint the row background and how.
+     * @type {hoverColors}
+     * @default '{ enabled: true, background: rgba(100, 100, 25, 0.15) }'
      */
-    hoverRowHighlight: true,
+    hoverRowHighlight: {
+        enabled: true,
+        backgroundColor: 'rgba(100, 100, 25, 0.30)'
 
-    /** Background color of row on mouse hover when `hoverRowHighlight`.
-     * @type {cssColor}
-     * @default `'gray'`
-     */
-    hoverRowColor: 'gray',
-    hoverRowHeaderColor: 'lightgray',
+    },
 
-    /** On mouse hover, repaint the column background with `hoverColumnColor` and `hoverColumnHeaderColor`.
-     * @type {boolean}
-     * @default `true`
+    /** On mouse hover, whether to repaint the column background and how.
+     * @type {hoverColors}
+     * @default '{ enabled: true, background: rgba(60, 60, 15, 0.15) }'
      */
-    hoverColumnHighlight: true,
+    hoverColumnHighlight: {
+        enabled: true,
+        backgroundColor: 'rgba(60, 60, 15, 0.15)'
+    },
 
-    /** Background color of column on mouse hover when `hoverColumnHighlight`.
-     * @type {cssColor}
-     * @default `'gray'`
-     */
-    hoverColumnColor: 'gray',
-    hoverColumnHeaderColor: 'lightgray',
 
     /** Display cell font with under-score line drawn over it.
      * > Implementation of links right now is not automatic; you must attach a 'fin-click' listener to the hypergrid object, etc.

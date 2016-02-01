@@ -1,7 +1,7 @@
 'use strict';
 
 var Simple = require('./Simple');
-var Map = require('../Mappy');
+var Map = require('../lib/Mappy');
 
 /**
  * @constructor

@@ -6,7 +6,7 @@ var Local = require('./Local');
 var DataModelDecorator = require('./DataModelDecorator');
 var DataModelJSON = require('../dataModels/JSON');
 var features = require('../features/index');
-var addStylesheet = require('../stylesheets');
+var addStylesheet = require('../../css/stylesheets');
 //var aggregations = require('hyper-analytics').util.aggregations;
 //var aggregations = require('../local_node_modules/hyper-analytics').util.aggregations;
 var aggregations = require('../local_node_modules/finanalytics').aggregations;
@@ -72,8 +72,8 @@ var JSON = Local.extend('behaviors.JSON', {
         return wrapper;
     },
 
-    applyFilters: function() {
-        this.dataModel.applyFilters();
+    applyAnalytics: function() {
+        this.dataModel.applyAnalytics();
     },
 
     /**

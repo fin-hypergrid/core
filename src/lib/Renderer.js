@@ -6,7 +6,7 @@
 var _ = require('object-iterators');
 var Base = require('./Base');
 
-var images = require('../images');
+var images = require('../../images/index');
 
 /** @typedef {object} CanvasRenderingContext2D
  * @see [CanvasRenderingContext2D](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D)
@@ -91,9 +91,10 @@ var Renderer = Base.extend('Renderer', {
             numFixedRows = this.getFixedRowCount(),
 
             bounds = this.getBounds(),
-            numberOfBottomTotalsRows = this.grid.behavior.getDataModel().getBottomTotals().length,
-            viewWidth = bounds.width || this.grid.canvas.width, // if 0, we must be in bootstrap
-            viewHeight = bounds.height - numberOfBottomTotalsRows * this.grid.behavior.getDefaultRowHeight(),
+            grid = this.grid,
+            numberOfBottomTotalsRows = grid.behavior.getDataModel().getBottomTotals().length,
+            viewWidth = bounds.width || grid.canvas.width, // if 0, we must be in bootstrap
+            viewHeight = bounds.height - numberOfBottomTotalsRows * grid.behavior.getDefaultRowHeight(),
 
             insertionBoundsCursor = 0,
             previousInsertionBoundsCursorValue = 0,
@@ -137,7 +138,7 @@ var Renderer = Base.extend('Renderer', {
             if (x > viewWidth || numColumns <= vx) {
                 break;
             }
-            width = this.getColumnWidth(vx);
+            width = grid.getColumnWidth(vx);
             x = x + width;
             this.columnEdges[c + 1] = Math.round(x);
             this.visibleColumns[c] = vx;
@@ -160,7 +161,7 @@ var Renderer = Base.extend('Renderer', {
             if (y > viewHeight || numRows <= vy) {
                 break;
             }
-            height = this.getRowHeight(vy);
+            height = grid.getRowHeight(vy);
             y = y + height;
             this.rowEdges[r + 1] = Math.round(y);
             this.visibleRows[r] = vy;
@@ -634,52 +635,6 @@ var Renderer = Base.extend('Renderer', {
 
     /**
      * @memberOf Renderer.prototype
-     * @returns {boolean} mouse is currently over cell x, y
-     * @param {number} offsetX - x coordinate
-     * @param {number} offsetY - y coordinate
-     */
-    isHovered: function(x, y) {
-        return this.grid.isHovered(x, y) && this.grid.resolveProperty('hoverCellHighlight');
-    },
-
-    /**
-     * @memberOf Renderer.prototype
-     * @returns {boolean} mouse is currently over row y
-     * @param {number} offsetY - y coordinate
-     */
-    isRowHovered: function(y) {
-        return this.grid.isRowHovered(y) && this.grid.resolveProperty('hoverRowHighlight');
-     },
-
-    /**
-     * @memberOf Renderer.prototype
-     * @returns {boolean} mouse is currently over column x
-     * @param {number} offsetX - x coordinate
-     */
-    isColumnHovered: function(x) {
-        return this.grid.isColumnHovered(x) && this.grid.resolveProperty('hoverColumnHighlight');
-    },
-
-    /**
-     * @memberOf Renderer.prototype
-     * @param {number} colIndex
-     * @returns {boolean} The given column within the fixed row area is selected.
-     */
-    isCellSelectedInRow: function(colIndex) {
-        return this.grid.isCellSelectedInRow(colIndex);
-    },
-
-    /**
-     * @memberOf Renderer.prototype
-     * @param {number} rowIndex
-     * @returns {boolean} The given row within the fixed column area is selected.
-     */
-    isCellSelectedInColumn: function(rowIndex) {
-        return this.grid.isCellSelectedInColumn(rowIndex);
-    },
-
-    /**
-     * @memberOf Renderer.prototype
      * @returns {number} Current vertical scroll value.
      */
     getScrollTop: function() {
@@ -712,32 +667,11 @@ var Renderer = Base.extend('Renderer', {
 
     /**
      * @memberOf Renderer.prototype
-     * @returns {number} The row height of the row at index rowIndex
-     * @param {number} rowIndex
-     */
-    getRowHeight: function(rowIndex) {
-        var height = this.grid.behavior.getRowHeight(rowIndex);
-        return height;
-    },
-
-    /**
-     * @memberOf Renderer.prototype
-     * @returns {number} The columnWidth of the column at index columnIndex
-     * @param {number} columnIndex
-     */
-    getColumnWidth: function(columnIndex) {
-        var width = this.grid.getColumnWidth(columnIndex);
-        return width;
-    },
-
-    /**
-     * @memberOf Renderer.prototype
      * @returns {boolean} The last col was rendered (is visible)
      */
     isLastColumnVisible: function() {
         var lastColumnIndex = this.getColumnCount() - 1;
-        var isMax = this.visibleColumns.indexOf(lastColumnIndex) !== -1;
-        return isMax;
+        return this.visibleColumns.indexOf(lastColumnIndex) !== -1;
     },
 
     /**
@@ -777,13 +711,13 @@ var Renderer = Base.extend('Renderer', {
      * @returns {number} The row to goto for a page up.
      */
     getPageUpRow: function() {
-        var behavior = this.grid.behavior;
-        var scrollHeight = this.getVisibleScrollHeight();
-        var headerRows = this.grid.getFixedRowCount();
-        var top = this.dataWindow.origin.y - headerRows;
-        var scanHeight = 0;
+        var grid = this.grid,
+            scrollHeight = this.getVisibleScrollHeight(),
+            headerRows = this.grid.getFixedRowCount(),
+            top = this.dataWindow.origin.y - headerRows,
+            scanHeight = 0;
         while (scanHeight < scrollHeight && top > -1) {
-            scanHeight = scanHeight + behavior.getRowHeight(top);
+            scanHeight = scanHeight + grid.getRowHeight(top);
             top--;
         }
         return top + 1;
@@ -1094,9 +1028,9 @@ var Renderer = Base.extend('Renderer', {
 
         cellProperties.isGridColumn = isGridColumn;
         cellProperties.isGridRow = isGridRow;
-        cellProperties.isColumnHovered = this.isColumnHovered(c) && isGridColumn;
-        cellProperties.isRowHovered = this.isRowHovered(r) && isGridRow;
-        cellProperties.isCellHovered = this.isHovered(c, r) && isGridColumn && isGridRow;
+        cellProperties.isColumnHovered = grid.isColumnHovered(c) && isGridColumn;
+        cellProperties.isRowHovered = grid.isRowHovered(r) && isGridRow;
+        cellProperties.isCellHovered = grid.isHovered(c, r) && isGridColumn && isGridRow;
         cellProperties.bounds = this._getBoundsOfCell(c, r);
         cellProperties.isCellSelected = isCellSelected;
         cellProperties.isRowSelected = isRowSelected;

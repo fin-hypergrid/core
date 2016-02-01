@@ -3,7 +3,9 @@
 'use strict';
 
 var mustache = require('mustache');
-var Base = require('../Base');
+var Base = require('../lib/Base');
+
+var extract = /\/\*\s*([^]+?)\s+\*\//; // finds the string inside the /* ... */; the (group) excludes the whitespace
 
 /**
  * @constructor
@@ -197,12 +199,8 @@ var CellEditor = Base.extend('CellEditor', {
     },
 
     getHTML: function() {
-        var string = this.template.toString().split('\n');
-        string.shift();
-        string.shift();
-        string.length = string.length - 2;
-        string = string.join('\n').trim();
-        return mustache.render(string, this);
+        var template = this.template.toString().match(extract)[1];
+        return mustache.render(template, this);
     },
 
 });

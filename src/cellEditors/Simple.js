@@ -102,7 +102,7 @@ var Simple = CellEditor.extend('Simple', {
      * @desc save the new value into the behavior(model)
      */
     setEditorValue: function(value) {
-        this.getInput().value = value + '';
+        this.getInput().value = value;
     },
 
     clearStopEditing: function() {
@@ -137,15 +137,7 @@ var Simple = CellEditor.extend('Simple', {
 
     /**
      * @summary Request focus for my input control.
-     *
-     * @desc Regarding issue GRID-95 "Scrollbar moves inward":
-     *
-     * When the input element was positioned over a grid cell in the right-most grid column AND when that grid column overflowed off the right edge of the canvas, the input element was too wide to comfortably fit and overflowed the right edge of the div. This is permitted, but when given the focus, the entire contents of the containing div(including both the canvas and input elements) was shifted left for unknown reasons. In fact, this new positioning was not detectable from DOM inspection, so it's a bit of a mystery. We suspect it has something to do with bootstrap.com.
-     *
-     * Work-around: Temporarily position the input to upper left of div so it's fully inside. THen, after giving it the focus, we move it back to where it wants to be. The user doesn't see this happening and only sees the input in its final position.
-     *
-     * Another possibly better work-around might be to shorten the width of the input to match the visible portion of the cell.
-     *
+     * @desc See GRID-95 "Scrollbar moves inward" for issue and work-around explanation.
      * @memberOf Simple.prototype
      */
     takeFocus: function() {
@@ -158,7 +150,7 @@ var Simple = CellEditor.extend('Simple', {
             self.selectAll();
 
             self.input.style.transform = transformWas;
-        }, 300);
+        });
     },
 
     /**
@@ -232,7 +224,7 @@ var Simple = CellEditor.extend('Simple', {
         var editorPoint = this.getEditorPoint();
         var cellBounds = this.grid._getBoundsOfCell(editorPoint.x, editorPoint.y);
 
-        //hack to accomodate bootstrap margin issues...
+        //hack to accommodate bootstrap margin issues...
         var xOffset =
             this.grid.div.getBoundingClientRect().left -
             this.grid.divCanvas.getBoundingClientRect().left;

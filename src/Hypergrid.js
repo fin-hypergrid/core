@@ -3,7 +3,7 @@
 'use strict';
 
 var extend = require('extend-me');
-var deprecated = require('./deprecated');
+var deprecated = require('./lib/deprecated');
 extend.debug = true;
 
 var FinBar = require('finbars');
@@ -13,12 +13,12 @@ var Rectangle = require('rectangular').Rectangle;
 var _ = require('object-iterators');
 
 var defaults = require('./defaults');
-var Renderer = require('./Renderer');
-var SelectionModel = require('./SelectionModel');
-var addStylesheet = require('./stylesheets');
-var TableDialog = require('./TableDialog');
-var Formatters = require('./Formatters');
-var CustomFilter = require('./CustomFilter');
+var Renderer = require('./lib/Renderer');
+var SelectionModel = require('./lib/SelectionModel');
+var addStylesheet = require('../css/stylesheets');
+var TableDialog = require('./lib/TableDialog');
+var Formatters = require('./lib/Formatters');
+var CustomFilter = require('./lib/CustomFilter');
 
 var themeInitialized = false,
     polymerTheme = Object.create(defaults),
@@ -424,19 +424,6 @@ Hypergrid.prototype = {
 
     /**
      * @memberOf Hypergrid.prototype
-     * @desc Ammend properties for this hypergrid only.
-     * @param {object} properties - A simple properties hash.
-     */
-    addProperties: function(moreProperties) {
-        var properties = this.getProperties();
-        _(moreProperties).each(function(property, key) {
-            properties[key] = moreProperties[key];
-        });
-        this.refreshProperties();
-    },
-
-    /**
-     * @memberOf Hypergrid.prototype
      * @desc Utility function to push out properties if we change them.
      * @param {object} properties - An object of various key value pairs.
      */
@@ -449,6 +436,17 @@ Hypergrid.prototype = {
         if (this.isColumnAutosizing()) {
             this.behavior.autosizeAllColumns();
         }
+    },
+
+    /**
+     * @memberOf Hypergrid.prototype
+     * @desc Ammend properties for this hypergrid only.
+     * @param {object} moreProperties - A simple properties hash.
+     */
+    addProperties: function(moreProperties) {
+        var properties = this.getProperties();
+        addDeepProperties(properties, moreProperties);
+        this.refreshProperties();
     },
 
     /**
@@ -722,6 +720,11 @@ Hypergrid.prototype = {
         //this.selectionModel.clearMostRecentRowSelection(); // commented off as per GRID-112
     },
 
+    clearRowSelection: function() {
+        this.selectionModel.clearRowSelection();
+        this.behavior.getDataModel().getComponent().clearSelectedData();
+    },
+
     /**
      * @memberOf Hypergrid.prototype
      * @summary Select given region.
@@ -832,7 +835,10 @@ Hypergrid.prototype = {
      * @param {string} key - A look-and-feel key.
      */
     resolveProperty: function(key) {
-        return this.getProperties()[key];
+        var keys = key.split('.');
+        var prop = this.getProperties();
+        while (keys.length) { prop = prop[keys.shift()]; }
+        return prop;
     },
 
     /**
@@ -1001,16 +1007,34 @@ Hypergrid.prototype = {
         });
 
         this.addFinEventListener('fin-canvas-keydown', function(e) {
-            var key = e.detail.char;
-            if (['DELETE'].indexOf(key) !== -1) {
-                if (!self.isEditing()) {
-                    setTimeout(function() {
-                        self.takeFocus();
-                    }, 50);
-                }
-            }
             if (self.resolveProperty('readOnly')) {
                 return;
+            }
+            if (self.resolveProperty('editOnKeydown')) {
+                var char = e.detail.char,
+                    isVisibleChar, isDeleteChar, currentCell, editor;
+
+                if (
+                    !self.isEditing() &&
+                    (
+                        char === 'F2' ||
+                        (isVisibleChar = char.length === 1) ||
+                        (isDeleteChar = char === 'DELETE' || char === 'BACKSPACE')
+                    )
+                ) {
+                    currentCell = self.selectionModel.getLastSelection();
+                    if (currentCell) {
+                        editor = self.activateEditor(currentCell.origin.x, currentCell.origin.y);
+                        if (editor instanceof Hypergrid.cellEditors.Simple) {
+                            if (isVisibleChar) {
+                                editor.input.value = char;
+                            } else if (isDeleteChar) {
+                                editor.input.value = '';
+                            }
+                            e.detail.primitiveEvent.preventDefault();
+                        }
+                    }
+                }
             }
             self.fireSyntheticKeydownEvent(e);
             self.delegateKeyDown(e);
@@ -1561,8 +1585,7 @@ Hypergrid.prototype = {
             detail: {
                 input: inputControl,
                 keyEvent: keyEvent
-            },
-
+            }
         });
         this.canvas.dispatchEvent(clickEvent);
     },
@@ -1572,8 +1595,7 @@ Hypergrid.prototype = {
             detail: {
                 input: inputControl,
                 keyEvent: keyEvent
-            },
-
+            }
         });
         this.canvas.dispatchEvent(clickEvent);
     },
@@ -2419,30 +2441,34 @@ Hypergrid.prototype = {
      * @desc Activate the editor at the given coordinates.
      * @param {x} x - The horizontal coordinate.
      * @param {y} y - The vertical coordinate.
+     * @returns {CellEditor} (or objected extended from same) The editor object.
      */
     activateEditor: function(x, y) {
-        if (!this.isEditable() && !this.isFilterRow(y)) {
-            return;
-        }
-        var editor = this.getCellEditorAt(x, y);
-        if (!editor) {
-            return;
-        }
-        var point = editor.getEditorPoint();
-        if (editor) {
-            if (point.x === x && point.y === y && editor.isEditing) {
-                return; //we're already open at this location
-            }
+        var editor;
 
-            if (this.isEditing()) {
-                this.stopEditing(); //other editor is open, close it first
+        if (this.isEditable() || this.isFilterRow(y)) {
+            editor = this.getCellEditorAt(x, y);
+
+            if (editor) {
+                var point = editor.getEditorPoint();
+                if (editor) {
+                    if (point.x === x && point.y === y && editor.isEditing) {
+                        return; //we're already open at this location
+                    }
+
+                    if (this.isEditing()) {
+                        this.stopEditing(); //other editor is open, close it first
+                    }
+                    event.gridCell = {
+                        x: x,
+                        y: y
+                    };
+                    this.editAt(editor, event);
+                }
             }
-            event.gridCell = {
-                x: x,
-                y: y
-            };
-            this.editAt(editor, event);
         }
+
+        return editor;
     },
 
     /**
@@ -3069,7 +3095,6 @@ Hypergrid.prototype = {
         this.selectionModel.selectColumn(x1, x2);
     },
     selectRow: function(y1, y2) {
-        console.log('>>>>> selectRow()');
         var sm = this.selectionModel;
         var selectionEdge = this.getFilterRowIndex() + 1;
 
@@ -3127,16 +3152,15 @@ Hypergrid.prototype = {
     },
     selectRowsFromCells: function() {
         if (!this.isCheckboxOnlyRowSelections()) {
-            var sm = this.selectionModel,
-                last,
+            var last,
                 hasCTRL = this.mouseDownState.primitiveEvent.detail.primitiveEvent.ctrlKey;
 
             if (hasCTRL && !this.isSingleRowSelectionMode()) {
-                sm.selectRowsFromCells(0, hasCTRL);
-            } else if ((last = sm.getLastSelection())) {
+                this.selectionModel.selectRowsFromCells(0, hasCTRL);
+            } else if ((last = this.selectionModel.getLastSelection())) {
                 this.selectRow(null, last.corner.y);
             } else {
-                sm.clearRowSelection();
+                this.clearRowSelection();
             }
         }
     },
@@ -3196,6 +3220,43 @@ Hypergrid.prototype = {
         return string;
     }
 };
+
+/**
+ * @summary Update deep properties with new values.
+ * @desc This function is a recursive property setter which updates a deep property in a destination object with the value of a congruent property in a source object.
+ *
+ * > Terminology: A deep property is a "terminal node" (primitive value) nested at some depth (i.e., depth > 1) inside a complex object (an object containing nested objects). A congruent property is a property in another object with the same name and at the same level of nesting.
+ *
+ * This function is simple and elegant. I recommend you study the code, which nonetheless implies all of the following:
+ *
+ * * If the deep property is _not_ found in `destination`, it will be created.
+ * * If the deep property is found in `destination` _and_ is a primitive type, it will be modified (overwritten with the value from `source`).
+ * * If the deep property is found in `destination` _but_ is not a primitive type (i.e., is a nested object), it will _also_ be overwritten with the (primitive) value from `source`.
+ * * If the nested object the deep property inhabits in `source` is not found in `destination`, it will be created.
+ * * If the nested object the deep property inhabits in `source` is found in `destination` but is not in fact an object (i.e., it is a primitive value), it will be overwritten with a reference to that object.
+ * * If the primitive value is `undefined`, the destination property is deleted.
+ * * `source` may contain multiple properties to update.
+ *
+ * That one rule is simply this: If both the source _and_ the destination properties are objects, then recurse; else overwrite the destination property with the source property.
+ *
+ * > Caveat: This is _not_ equivalent to a deep extend function. While both a deep extend and this function will recurse over a complex object, they are fundamentally different: A deep extend clones the nested objects as it finds them; this function merely updates them (or creates them where they don't exist).
+ *
+ * @param {object} destination - An object to update with new or modified property values
+ * @param {object} source - A congruent object continaly (only) the new or modified property values.
+ * @returns {object} Always returns `destination`.
+ */
+function addDeepProperties(destination, source) {
+    _(source).each(function(property, key) {
+        if (typeof destination[key] === 'object' && typeof property === 'object') {
+            addDeepProperties(destination[key], property);
+        } else if (property === undefined) {
+            delete destination[key];
+        } else {
+            destination[key] = property;
+        }
+    });
+    return destination;
+}
 
 function normalizeRect(rect) {
     var o = rect.origin;

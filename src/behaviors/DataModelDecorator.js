@@ -1,6 +1,6 @@
 'use strict';
 
-var deprecated = require('../deprecated');
+var deprecated = require('../lib/deprecated');
 
 function DataModelDecorator(grid, component) {
     this.setComponent(component);
@@ -78,8 +78,8 @@ DataModelDecorator.prototype = {
         return this.getComponent().getColumnCount();
     },
 
-    applyFilters: function() {
-        return this.getComponent().applyFilters();
+    applyAnalytics: function() {
+        return this.getComponent().applyAnalytics();
     },
 
     getRowCount: function() {
