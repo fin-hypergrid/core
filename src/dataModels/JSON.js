@@ -462,28 +462,28 @@ var JSON = DataModel.extend('dataModels.JSON', {
      * @memberOf dataModels.JSON.prototype
      */
     selectedDataRowsBackingSelectedGridRows: function() {
-        if (
-            !this.fixSelectedRows++ && // outer-most call?
-            this.grid.selectionModel.hasRowSelections() // any current grid row selections?
-        ) {
+        if (!this.fixSelectedRows++) { // outer-most call?
             var filteredData = this.getFilteredData(),
-                selectedGridRows = this.grid.getSelectedRows(),
                 selectedData = this.selectedData;
 
             // 1.a. Remove any filtered data rows from the recently selected list
             selectedData.forEach(function(dataRow, idx) {
-                if (filteredData.indexOf(dataRow) > 0) {
+                if (filteredData.indexOf(dataRow) >= 0) {
                     delete selectedData[idx];
                 }
             });
 
-            // 1.b. Push the data rows backing any currently selected grid rows
-            selectedGridRows.forEach(function(selectedRowIndex) {
-                var dataRow = filteredData[selectedRowIndex];
-                if (selectedData.indexOf(dataRow) < 0) {
-                    selectedData.push(dataRow);
-                }
-            });
+            if (this.grid.selectionModel.hasRowSelections()) { // any current grid row selections?
+                var selectedGridRows = this.grid.getSelectedRows();
+
+                // 1.b. Push the data rows backing any currently selected grid rows
+                selectedGridRows.forEach(function(selectedRowIndex) {
+                    var dataRow = filteredData[selectedRowIndex];
+                    if (selectedData.indexOf(dataRow) < 0) {
+                        selectedData.push(dataRow);
+                    }
+                });
+            }
         }
     },
 
