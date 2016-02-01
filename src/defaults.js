@@ -47,15 +47,15 @@ module.exports = {
      * @type {string}
      * @instance
      */
-    foregroundSelectionColor: 'rgb(25, 25, 25)',
+    foregroundSelectionColor: 'black',
 
     /**
      * Background color for selected cell(s).
-     * @default 'rgb(183, 219, 255)'
+     * @default 'rgba(147, 185, 255, 0.45)'
      * @type {string}
      * @instance
      */
-    backgroundSelectionColor: 'rgb(183, 219, 255)',
+    backgroundSelectionColor: 'rgba(147, 185, 255, 0.45)',
 
 
     /********** SECTION: COLUMN HEADER COLORS **********/
@@ -91,11 +91,11 @@ module.exports = {
     columnHeaderForegroundSelectionColor: 'rgb(25, 25, 25)',
 
     /**
-     * @default 'rgb(255, 220, 97)'
+     * @default 'rgba(255, 220, 97, 0.45)'
      * @type {cssColor}
      * @instance
      */
-    columnHeaderBackgroundSelectionColor: 'rgb(255, 220, 97)',
+    columnHeaderBackgroundSelectionColor: 'rgba(255, 220, 97, 0.45)',
 
     /**
      * @default 'rgb(25, 25, 25)'
@@ -143,11 +143,11 @@ module.exports = {
     rowHeaderForegroundSelectionColor: 'rgb(25, 25, 25)',
 
     /**
-     * @default 'rgb(255, 220, 97)'
+     * @default 'rgba(255, 220, 97, 0.45)'
      * @type {cssColor}
      * @instance
      */
-    rowHeaderBackgroundSelectionColor: 'rgb(255, 220, 97)',
+    rowHeaderBackgroundSelectionColor: 'rgba(255, 220, 97, 0.45)',
 
     /**
      * @default 'rgb(25, 25, 25)'
@@ -248,11 +248,11 @@ module.exports = {
     treeColumnForegroundSelectionColor: 'rgb(25, 25, 25)',
 
     /**
-     * @default 'rgb(255, 220, 97)'
+     * @default 'rgba(255, 220, 97, 0.45)'
      * @type {cssColor}
      * @instance
      */
-    treeColumnBackgroundSelectionColor: 'rgb(255, 220, 97)',
+    treeColumnBackgroundSelectionColor: 'rgba(255, 220, 97, 0.45)',
 
     /**
      * @default 'rgb(25, 25, 25)'
@@ -630,43 +630,34 @@ module.exports = {
      * @property {cssColor} [header.backgroundColor=backgroundColor] - for columns and rows, this is the background color of the column or row "handle" (header rows or columns, respectively). (Not used for cells.)
      */
 
-    /** On mouse hover, repaint the cell background with `hoverCellColor`.
+    /** On mouse hover, whether to repaint the cell background and how.
      * @type {hoverColors}
-     * @default `true`
+     * @default '{ enabled: true, background: rgba(160, 160, 40, 0.30) }'
      */
     hoverCellHighlight: {
         enabled: true,
-        backgroundColor: 'rgba(0,0,0,.30)'
+        backgroundColor: 'rgba(160, 160, 40, 0.45)'
     },
 
-    /** Background color of cell on mouse hover when `hoverCellHighlight`.
-     * @type {cssColor}
-     * @default `'lightgray'`
-     */
-
-    /** On mouse hover, repaint the row background.
+    /** On mouse hover, whether to repaint the row background and how.
      * @type {hoverColors}
-     * @default `true`
+     * @default '{ enabled: true, background: rgba(100, 100, 25, 0.15) }'
      */
     hoverRowHighlight: {
         enabled: true,
-        backgroundColor: 'rgba(0,0,0,.15)'
+        backgroundColor: 'rgba(100, 100, 25, 0.30)'
 
     },
 
-    /** On mouse hover, repaint the column background.
+    /** On mouse hover, whether to repaint the column background and how.
      * @type {hoverColors}
-     * @default `true`
+     * @default '{ enabled: true, background: rgba(60, 60, 15, 0.15) }'
      */
     hoverColumnHighlight: {
         enabled: true,
-        backgroundColor: 'rgba(0,0,0,.15)'
+        backgroundColor: 'rgba(60, 60, 15, 0.15)'
     },
 
-    /** Background color of column on mouse hover when `hoverColumnHighlight`.
-     * @type {cssColor}
-     * @default `'gray'`
-     */
 
     /** Display cell font with under-score line drawn over it.
      * > Implementation of links right now is not automatic; you must attach a 'fin-click' listener to the hypergrid object, etc.

@@ -164,7 +164,7 @@ var CellProvider = Base.extend('CellProvider', {
         }
         if (alpha(hoverColor) < 1) {
             if (config.isSelected) {
-                selectColor = valueOrFunctionExecute(config, config.backgroundColor);
+                selectColor = valueOrFunctionExecute(config, config.backgroundSelectionColor);
             }
             if (alpha(selectColor) < 1) {
                 backgroundColor = valueOrFunctionExecute(config, config.backgroundColor);
@@ -663,6 +663,6 @@ function alpha(cssColorSpec) {
     return Number(A);
 }
 
-alpha.regex = /^(transparent|((RGB|HSL)A\(.*,([\d\.]+)\)))$/i;
+alpha.regex = /^(transparent|((RGB|HSL)A\(.*,\s*([\d\.]+)\)))$/i;
 
 module.exports = CellProvider;
