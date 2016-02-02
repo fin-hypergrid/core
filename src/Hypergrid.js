@@ -904,7 +904,7 @@ Hypergrid.prototype = {
             self.resized();
         };
 
-        this.addFinEventListener('fin-canvas-mousemove', function(e) {
+        this.addEventListener('fin-canvas-mousemove', function(e) {
             if (self.resolveProperty('readOnly')) {
                 return;
             }
@@ -914,7 +914,7 @@ Hypergrid.prototype = {
             self.delegateMouseMove(mouseEvent);
         });
 
-        this.addFinEventListener('fin-canvas-mousedown', function(e) {
+        this.addEventListener('fin-canvas-mousedown', function(e) {
             if (self.resolveProperty('readOnly')) {
                 return;
             }
@@ -930,7 +930,7 @@ Hypergrid.prototype = {
         });
 
 
-        // this.addFinEventListener('fin-canvas-click', function(e) {
+        // this.addEventListener('fin-canvas-click', function(e) {
         //     if (self.resolveProperty('readOnly')) {
         //         return;
         //     }
@@ -941,7 +941,7 @@ Hypergrid.prototype = {
         //     self.fireSyntheticClickEvent(mouseEvent);
         // });
 
-        this.addFinEventListener('fin-canvas-mouseup', function(e) {
+        this.addEventListener('fin-canvas-mouseup', function(e) {
             if (self.resolveProperty('readOnly')) {
                 return;
             }
@@ -964,7 +964,7 @@ Hypergrid.prototype = {
             self.fireSyntheticMouseUpEvent(mouseEvent);
         });
 
-        this.addFinEventListener('fin-canvas-dblclick', function(e) {
+        this.addEventListener('fin-canvas-dblclick', function(e) {
             if (self.resolveProperty('readOnly')) {
                 return;
             }
@@ -975,7 +975,7 @@ Hypergrid.prototype = {
             self.delegateDoubleClick(mouseEvent);
         });
 
-        this.addFinEventListener('fin-canvas-tap', function(e) {
+        this.addEventListener('fin-canvas-tap', function(e) {
             if (self.resolveProperty('readOnly')) {
                 return;
             }
@@ -988,7 +988,7 @@ Hypergrid.prototype = {
             self.delegateTap(tapEvent);
         });
 
-        this.addFinEventListener('fin-canvas-drag', function(e) {
+        this.addEventListener('fin-canvas-drag', function(e) {
             if (self.resolveProperty('readOnly')) {
                 return;
             }
@@ -999,7 +999,7 @@ Hypergrid.prototype = {
             self.delegateMouseDrag(mouseEvent);
         });
 
-        this.addFinEventListener('fin-canvas-keydown', function(e) {
+        this.addEventListener('fin-canvas-keydown', function(e) {
             if (self.resolveProperty('readOnly')) {
                 return;
             }
@@ -1033,7 +1033,7 @@ Hypergrid.prototype = {
             self.delegateKeyDown(e);
         });
 
-        this.addFinEventListener('fin-canvas-keyup', function(e) {
+        this.addEventListener('fin-canvas-keyup', function(e) {
             if (self.resolveProperty('readOnly')) {
                 return;
             }
@@ -1041,7 +1041,7 @@ Hypergrid.prototype = {
             self.delegateKeyUp(e);
         });
 
-        this.addFinEventListener('fin-canvas-track', function(e) {
+        this.addEventListener('fin-canvas-track', function(e) {
             if (self.resolveProperty('readOnly')) {
                 return;
             }
@@ -1064,7 +1064,7 @@ Hypergrid.prototype = {
             }
         });
 
-        // this.addFinEventListener('fin-canvas-holdpulse', function(e) {
+        // this.addEventListener('fin-canvas-holdpulse', function(e) {
         //     console.log('holdpulse');
         //     if (self.resolveProperty('readOnly')) {
         //         return;
@@ -1075,14 +1075,14 @@ Hypergrid.prototype = {
         //     self.delegateHoldPulse(mouseEvent);
         // });
 
-        this.addFinEventListener('fin-canvas-wheelmoved', function(e) {
+        this.addEventListener('fin-canvas-wheelmoved', function(e) {
             var mouse = e.detail.mouse;
             var mouseEvent = self.getGridCellFromMousePoint(mouse);
             mouseEvent.primitiveEvent = e.detail.primitiveEvent;
             self.delegateWheelMoved(mouseEvent);
         });
 
-        this.addFinEventListener('fin-canvas-mouseout', function(e) {
+        this.addEventListener('fin-canvas-mouseout', function(e) {
             if (self.resolveProperty('readOnly')) {
                 return;
             }
@@ -1092,7 +1092,7 @@ Hypergrid.prototype = {
             self.delegateMouseExit(mouseEvent);
         });
 
-        this.addFinEventListener('fin-canvas-context-menu', function(e) {
+        this.addEventListener('fin-canvas-context-menu', function(e) {
             var mouse = e.detail.mouse;
             var mouseEvent = self.getGridCellFromMousePoint(mouse);
             mouseEvent.primitiveEvent = e.detail.primitiveEvent;
@@ -1117,8 +1117,13 @@ Hypergrid.prototype = {
      * @param {string} eventName - The type of event we are interested in.
      * @param {function} callback - The event handler.
      */
-    addFinEventListener: function(eventName, callback) {
+    addEventListener: function(eventName, callback) {
         this.canvas.addEventListener(eventName, callback);
+    },
+
+    addFinEventListener: function(eventName, callback) {
+        console.warn('.addEventListener() method is deprecated as of v0.2. Use .addEventListener() instead. (Will be removed in a future release.)');
+        this.addEventListener(eventName, callback);
     },
 
     /**

@@ -1077,13 +1077,11 @@ var Renderer = Base.extend('Renderer', {
     },
 
     startAnimator: function() {
-        var animate;
         var self = this;
-        animate = function() {
+        requestAnimationFrame(function animate() {
             self.animate();
             requestAnimationFrame(animate);
-        };
-        requestAnimationFrame(animate);
+        });
     },
 
     animate: function() {
