@@ -362,22 +362,22 @@ jsonModel.getDataModel().getCellEditorAt = myCellEditors;
 //     }
 // };
 
-jsonGrid.addFinEventListener('fin-double-click', function(e){
+jsonGrid.addEventListener('fin-double-click', function(e){
     var cell = e.detail.gridCell;
     var rowContext = jsonModel.getRow(cell.y);
     console.log('fin-double-click row-context:', rowContext);
 });
 
-jsonGrid.addFinEventListener('fin-button-pressed', function(e){
+jsonGrid.addEventListener('fin-button-pressed', function(e){
     var p = e.detail.gridCell;
     jsonModel.setValue(p.x, p.y, !jsonModel.getValue(p.x,p.y));
 });
 
-jsonGrid.addFinEventListener('fin-scroll-x', function(e){
+jsonGrid.addEventListener('fin-scroll-x', function(e){
     console.log('fin-scroll-x ', e.detail.value);
 });
 
-jsonGrid.addFinEventListener('fin-scroll-y', function(e){
+jsonGrid.addEventListener('fin-scroll-y', function(e){
     console.log('fin-scroll-y', e.detail.value);
 });
 
@@ -385,25 +385,29 @@ jsonGrid.addProperties({
     readOnly: false
 });
 
-jsonGrid.addFinEventListener('fin-cell-enter', function(e) {
+jsonGrid.addEventListener('fin-cell-enter', function(e) {
     var cell = e.detail.gridCell;
     //console.log('fin-cell-enter', cell.x, cell.y);
 
     //how to set the tooltip....
-    jsonGrid.setAttribute('title', 'fin-cell-enter(' + cell.x +', '+ cell.y+')');
+    jsonGrid.setAttribute('title', 'fin-cell-enter(' + cell.x + ', ' + cell.y+')');
 });
 
-jsonGrid.addFinEventListener('fin-set-totals-value', function(e) {
-    var details = e.detail;
-    var x = details.x;
-    var y = details.y;
-    var value = details.value;
-    jsonModel.getDataModel().getTotals()[0][x] = value;
+jsonGrid.addEventListener('fin-set-totals-value', function(e) {
+    var detail = e.detail,
+        areas = detail.areas || ['top', 'bottom'];
+
+    areas.forEach(function(area) {
+        var methodName = 'get' + area[0].toUpperCase() + area.substr(1) + 'Totals',
+            totalsRow = jsonModel.getDataModel().getComponent()[methodName]();
+
+        totalsRow[detail.y][detail.x] = detail.value;
+    });
+
     jsonGrid.repaint();
 });
 
-
-jsonGrid.addFinEventListener('fin-filter-applied', function(e) {
+jsonGrid.addEventListener('fin-filter-applied', function(e) {
     console.log('fin-filter-applied', e);
 });
 
@@ -450,9 +454,9 @@ function handleCursorKey(e) {
     return true;
 }
 
-jsonGrid.addFinEventListener('fin-keydown', handleCursorKey);
+jsonGrid.addEventListener('fin-keydown', handleCursorKey);
 
-jsonGrid.addFinEventListener('fin-editor-keydown', function(e) {
+jsonGrid.addEventListener('fin-editor-keydown', function(e) {
     var detail = e.detail,
         ke = detail.keyEvent;
 
@@ -465,7 +469,7 @@ jsonGrid.addFinEventListener('fin-editor-keydown', function(e) {
 });
 
 
-jsonGrid.addFinEventListener('fin-selection-changed', function(e){
+jsonGrid.addEventListener('fin-selection-changed', function(e){
 
     //lets mirror the cell selection into the rows and or columns
     jsonGrid.selectRowsFromCells();
@@ -487,7 +491,7 @@ jsonGrid.addFinEventListener('fin-selection-changed', function(e){
 
 });
 
-jsonGrid.addFinEventListener('fin-row-selection-changed', function(e) {
+jsonGrid.addEventListener('fin-row-selection-changed', function(e) {
     console.log('fin-row-selection-changed', e.detail);
     if (e.detail.rows.length === 0) {
         console.log('no rows selected');
@@ -500,7 +504,7 @@ jsonGrid.addFinEventListener('fin-row-selection-changed', function(e) {
     console.log(jsonGrid.getRowSelection());
 });
 
-jsonGrid.addFinEventListener('fin-column-selection-changed', function(e) {
+jsonGrid.addEventListener('fin-column-selection-changed', function(e) {
     console.log('fin-column-selection-changed', e.detail);
 
     if (e.detail.columns.length === 0) {
@@ -514,42 +518,42 @@ jsonGrid.addFinEventListener('fin-column-selection-changed', function(e) {
     console.log(jsonGrid.getColumnSelection());
 });
 
-jsonGrid.addFinEventListener('fin-editor-data-change', function(e) {
+jsonGrid.addEventListener('fin-editor-data-change', function(e) {
     console.log('fin-editor-data-change', e.detail);
 
 });
 
-jsonGrid.addFinEventListener('fin-request-cell-edit', function(e) {
+jsonGrid.addEventListener('fin-request-cell-edit', function(e) {
     console.log('fin-request-cell-edit', e);
     //e.preventDefault(); //uncomment to cancel editor popping up
 });
 
-jsonGrid.addFinEventListener('fin-before-cell-edit', function(e) {
+jsonGrid.addEventListener('fin-before-cell-edit', function(e) {
     console.log('fin-before-cell-edit', e);
     //e.preventDefault(); //uncomment to cancel updating the model with the new data
 });
 
-jsonGrid.addFinEventListener('fin-after-cell-edit', function(e) {
+jsonGrid.addEventListener('fin-after-cell-edit', function(e) {
     console.log('fin-after-cell-edit', e);
 });
 
-jsonGrid.addFinEventListener('fin-editor-keyup', function(e) {
+jsonGrid.addEventListener('fin-editor-keyup', function(e) {
     console.log('fin-editor-keyup', e.detail);
 });
 
-jsonGrid.addFinEventListener('fin-editor-keypress', function(e) {
+jsonGrid.addEventListener('fin-editor-keypress', function(e) {
     console.log('fin-editor-keypress', e.detail);
 });
 
-jsonGrid.addFinEventListener('fin-editor-keydown', function(e) {
+jsonGrid.addEventListener('fin-editor-keydown', function(e) {
     console.log('fin-editor-keydown', e.detail);
 });
 
-jsonGrid.addFinEventListener('fin-groups-changed', function(e) {
+jsonGrid.addEventListener('fin-groups-changed', function(e) {
     console.log('fin-groups-changed', e.detail);
 });
 
-jsonGrid.addFinEventListener('fin-context-menu', function(e) {
+jsonGrid.addEventListener('fin-context-menu', function(e) {
     var modelPoint = e.detail.gridCell;
     var headerRowCount = jsonGrid.getHeaderRowCount();
     console.log('fin-context-menu(' + modelPoint.x + ', ' + (modelPoint.y - headerRowCount) + ')');
