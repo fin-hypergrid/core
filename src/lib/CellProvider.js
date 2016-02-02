@@ -114,7 +114,7 @@ var CellProvider = Base.extend('CellProvider', {
             leftPadding = 2, //TODO: fix this
             isHeader = config.y === 0;
 
-        var leftIcon, rightIcon, centerIcon, ixoffset, iyoffset;
+        var leftIcon, rightIcon, centerIcon, ixoffset, iyoffset, font;
 
         // setting gc properties are expensive, let's not do it needlessly
 
@@ -140,11 +140,12 @@ var CellProvider = Base.extend('CellProvider', {
         }
 
         val = valueOrFunctionExecute(config, val);
-
         val = config.formatter(val);
 
-        if (gc.font !== config.font) {
-            gc.font = config.font;
+        font = config.isSelected ? config.foregroundSelectionFont : config.font;
+
+        if (gc.font !== font) {
+            gc.font = font;
         }
         if (gc.textAlign !== 'left') {
             gc.textAlign = 'left';
@@ -154,7 +155,9 @@ var CellProvider = Base.extend('CellProvider', {
         }
 
         // fill background only if our bgColor is populated or we are a selected cell
-        var backgroundColor, hover, hoverColor, selectColor;
+        var backgroundColor, hover, hoverColor, selectColor,
+            colors = [];
+
         if (config.isCellHovered && config.hoverCellHighlight.enabled) {
             hoverColor = config.hoverCellHighlight.backgroundColor;
         } else if (config.isRowHovered && (hover = config.hoverRowHighlight).enabled) {
@@ -169,19 +172,17 @@ var CellProvider = Base.extend('CellProvider', {
             if (alpha(selectColor) < 1) {
                 backgroundColor = valueOrFunctionExecute(config, config.backgroundColor);
                 if (alpha(backgroundColor) > 0) {
-                    gc.fillStyle = backgroundColor;
-                    gc.fillRect(x, y, width, height);
+                    colors.push(backgroundColor);
                 }
             }
             if (selectColor !== undefined) {
-                gc.fillStyle = selectColor;
-                gc.fillRect(x, y, width, height);
+                colors.push(selectColor);
             }
         }
         if (hoverColor !== undefined) {
-            gc.fillStyle = hoverColor;
-            gc.fillRect(x, y, width, height);
+            colors.push(hoverColor);
         }
+        layerColors(gc, colors, x, y, width, height);
 
         // draw text
         var theColor = valueOrFunctionExecute(config, config.isSelected ? config.foregroundSelectionColor : config.color);
@@ -206,8 +207,7 @@ var CellProvider = Base.extend('CellProvider', {
             iyoffset = Math.round((height - rightIcon.height) / 2);
             var rightX = x + width - rightIcon.width;
             if (backgroundColor !== undefined) {
-                gc.fillStyle = backgroundColor;
-                gc.fillRect(rightX, y, rightIcon.width, height);
+                layerColors(gc, colors, rightX, y, rightIcon.width, height);
             } else {
                 gc.clearRect(rightX, y, rightIcon.width, height);
             }
@@ -521,6 +521,13 @@ var CellProvider = Base.extend('CellProvider', {
         };
     }
 });
+
+function layerColors(gc, colors, x, y, width, height) {
+    colors.forEach(function(color) {
+        gc.fillStyle = color;
+        gc.fillRect(x, y, width, height);
+    });
+}
 
 function valueOrFunctionExecute(config, valueOrFunction) {
     var isFunction = (((typeof valueOrFunction)[0]) === 'f');

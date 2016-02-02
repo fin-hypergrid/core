@@ -204,6 +204,15 @@ var Behavior = Base.extend('Behavior', {
                     this.rowHeaderBackgroundColor = value;
                 }
             },
+            foregroundSelectionFont: {
+                configurable: true,
+                get: function() {
+                    return this.rowHeaderForegroundSelectionFont;
+                },
+                set: function(value) {
+                    this.rowHeaderForegroundSelectionFont = value;
+                }
+            },
             foregroundSelectionColor: {
                 configurable: true,
                 get: function() {
@@ -253,6 +262,15 @@ var Behavior = Base.extend('Behavior', {
                 },
                 set: function(value) {
                     this.columnHeaderBackgroundColor = value;
+                }
+            },
+            foregroundSelectionFont: {
+                configurable: true,
+                get: function() {
+                    return this.columnHeaderForegroundSelectionFont;
+                },
+                set: function(value) {
+                    this.columnHeaderForegroundSelectionFont = value;
                 }
             },
             foregroundSelectionColor: {

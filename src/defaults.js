@@ -42,12 +42,20 @@ module.exports = {
     backgroundColor: 'rgb(241, 241, 241)',
 
     /**
-     * Font color for selected cell(s).
-     * @default 'rgb(25, 25, 25)'
+     * Font style for selected cell(s).
+     * @default 'bold'
      * @type {string}
      * @instance
      */
-    foregroundSelectionColor: 'black',
+    foregroundSelectionFont: 'bold 13px Tahoma, Geneva, sans-serif',
+
+    /**
+     * Font color for selected cell(s).
+     * @default 'rgb(0, 0, 128)'
+     * @type {string}
+     * @instance
+     */
+    foregroundSelectionColor: 'rgb(0, 0, 128)',
 
     /**
      * Background color for selected cell(s).
@@ -55,7 +63,7 @@ module.exports = {
      * @type {string}
      * @instance
      */
-    backgroundSelectionColor: 'rgba(147, 185, 255, 0.45)',
+    backgroundSelectionColor: 'rgba(147, 185, 255, 0.625)',
 
 
     /********** SECTION: COLUMN HEADER COLORS **********/
@@ -77,6 +85,14 @@ module.exports = {
     columnHeaderColor: 'rgb(25, 25, 25)',
 
     /**
+     * Font style for selected columns' headers.
+     * @default 'bold'
+     * @type {string}
+     * @instance
+     */
+    columnHeaderForegroundSelectionFont: 'bold 12px Tahoma, Geneva, sans-serif',
+
+    /**
      * @default 'rgb(223, 227, 232)'
      * @type {cssColor}
      * @instance
@@ -84,11 +100,11 @@ module.exports = {
     columnHeaderBackgroundColor: 'rgb(223, 227, 232)',
 
     /**
-     * @default 'rgb(25, 25, 25)'
+     * @default 'rgb(80, 80, 80)'
      * @type {cssColor}
      * @instance
      */
-    columnHeaderForegroundSelectionColor: 'rgb(25, 25, 25)',
+    columnHeaderForegroundSelectionColor: 'rgb(80, 80, 80)',
 
     /**
      * @default 'rgba(255, 220, 97, 0.45)'
@@ -136,11 +152,19 @@ module.exports = {
     rowHeaderBackgroundColor: 'rgb(223, 227, 232)',
 
     /**
-     * @default 'rgb(25, 25, 25)'
+     * @default 'rgb(80, 80, 80)'
      * @type {cssColor}
      * @instance
      */
-    rowHeaderForegroundSelectionColor: 'rgb(25, 25, 25)',
+    rowHeaderForegroundSelectionColor: 'rgb(80, 80, 80)',
+
+    /**
+     * Font style for selected rows' headers.
+     * @default 'bold'
+     * @type {string}
+     * @instance
+     */
+    rowHeaderForegroundSelectionFont: 'bold 12px Tahoma, Geneva, sans-serif',
 
     /**
      * @default 'rgba(255, 220, 97, 0.45)'
@@ -527,11 +551,11 @@ module.exports = {
     singleRowSelectionMode: true,
 
     /**
-     * @default 'rgba(0, 0, 0, 0.2)'
+     * @default 'rgba(0, 0, 48, 0.2)'
      * @type {cssColor}
      * @instance
      */
-    selectionRegionOverlayColor: 'rgba(0, 0, 0, 0.2)',
+    selectionRegionOverlayColor: 'rgba(0, 0, 48, 0.2)',
 
     /**
      * @default 'black'
