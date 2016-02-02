@@ -383,10 +383,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
      * @returns {Array<Array>}
      */
     getTopTotals: function() {
-        if (!this.hasAggregates()) {
-            return this.topTotals;
-        }
-        return this.getDataSource().getGrandTotals();
+        return this.hasAggregates() ? this.getDataSource().getGrandTotals() : this.topTotals;
     },
 
     /**
@@ -402,10 +399,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
      * @returns {Array<Array>}
      */
     getBottomTotals: function() {
-        if (!this.hasAggregates()) {
-            return this.bottomTotals;
-        }
-        return this.getDataSource().getGrandTotals();
+        return this.hasAggregates() ? this.getDataSource().getGrandTotals() : this.bottomTotals;
     },
 
     /**

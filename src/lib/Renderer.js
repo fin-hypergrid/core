@@ -6,7 +6,7 @@
 var _ = require('object-iterators');
 var Base = require('./Base');
 
-var images = require('../../images/index');
+var images = require('../../images');
 
 /** @typedef {object} CanvasRenderingContext2D
  * @see [CanvasRenderingContext2D](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D)
@@ -193,7 +193,7 @@ var Renderer = Base.extend('Renderer', {
      * @desc This is the entry point from fin-canvas.
      * @param {CanvasRenderingContext2D} gc
      */
-    _paint: function(gc) {
+    paint: function(gc) {
         if (this.grid) {
             this.renderGrid(gc);
             this.grid.gridRenderedNotification();

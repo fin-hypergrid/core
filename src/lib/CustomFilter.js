@@ -75,13 +75,18 @@ function CustomFilter() {
         return this.filter;
     };
 
-    this.setState = function(state) {
-        return (
-            this.filterTree = new FilterTree({
-                state: state,
-                fields: this.fieldsProvider()
-            })
-        );
+    this.setState = function(stateObjectOrJsonString) {
+        var options = {
+            fields: this.fieldsProvider()
+        };
+
+        if (typeof stateObjectOrJsonString === 'string') {
+            options.state = stateObjectOrJsonString;
+        } else {
+            options.json = stateObjectOrJsonString;
+        }
+
+        return (this.filterTree = new FilterTree(options));
     };
 }
 

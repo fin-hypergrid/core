@@ -1571,10 +1571,10 @@ var Behavior = Base.extend('Behavior', {
      * @param {number} x - column index
      * @param {number} y - totals row index local to the totals area
      * @param value
-     * @param {boolean} [atBottom=false] - this value is in the "bottom" totals area
+     * @param {string[]} [areas=['top', 'bottom']] - may include `'top'` and/or `'bottom'`
      */
-    setTotalsValue: function(x, y, value, atBottom) {
-        this.grid.setTotalsValueNotification(x, y, value, !!atBottom);
+    setTotalsValue: function(x, y, value, areas) {
+        this.grid.setTotalsValueNotification(x, y, value, areas);
     },
 
     /**

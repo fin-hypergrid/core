@@ -645,12 +645,14 @@ Hypergrid.prototype = {
     },
 
     getMatrixSelectionAsTSV: function(selections) {
+        var result = '';
+
         //only use the data from the last selection
         if (selections.length) {
             var width = selections.length,
                 height = selections[0].length,
                 area = width * height,
-                collector = [];
+                last = width - 1;
 
             //disallow if selection is too big
             if (area > 20000) {
@@ -660,21 +662,12 @@ Hypergrid.prototype = {
 
             for (var h = 0; h < height; h++) {
                 for (var w = 0; w < width; w++) {
-                    collector.push(selections[w][h]);
-                    if (w < width) {
-                        collector.push('\t');
-                    }
-                }
-                if (h < height) {
-                    collector.push('\n');
+                    result += selections[w][h] + (w < last ? '\t' : '\n');
                 }
             }
-
-            var result = collector.join('');
-
-            return result;
         }
-        return '';
+
+        return result;
     },
 
     /**
@@ -1545,10 +1538,10 @@ Hypergrid.prototype = {
      * @param {number} x - column index
      * @param {number} y - totals row index local to the totals area
      * @param value
-     * @param {boolean} atBottom - this value is in the "bottom" totals area
+     * @param {string[]} [areas=['top', 'bottom']] - may include `'top'` and/or `'bottom'`
      */
-    setTotalsValueNotification: function(x, y, value, atBottom) {
-        this.fireSyntheticSetTotalsValue(x, y, value, atBottom);
+    setTotalsValueNotification: function(x, y, value, areas) {
+        this.fireSyntheticSetTotalsValue(x, y, value, areas);
     },
 
     /**
@@ -1556,15 +1549,15 @@ Hypergrid.prototype = {
      * @param {number} x - column index
      * @param {number} y - totals row index local to the totals area
      * @param value
-     * @param {boolean} atBottom - this value is in the "bottom" totals area
+     * @param {string[]} [areas=['top', 'bottom']] - may include `'top'` and/or `'bottom'`
      */
-    fireSyntheticSetTotalsValue: function(x, y, value, atBottom) {
+    fireSyntheticSetTotalsValue: function(x, y, value, areas) {
         var clickEvent = new CustomEvent('fin-set-totals-value', {
             detail: {
                 x: x,
                 y: y,
                 value: value,
-                area: atBottom ? 'bottom' : 'top'
+                areas: areas
             }
         });
         this.canvas.dispatchEvent(clickEvent);

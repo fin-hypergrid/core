@@ -1,6 +1,6 @@
 'use strict';
 
-var images = require('../../images/index');
+var images = require('../../images');
 
 /**
  * @summary Writes error message into cell.

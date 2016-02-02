@@ -5,7 +5,7 @@ var ListDragon = require('list-dragon');
 var Local = require('./Local');
 var DataModelDecorator = require('./DataModelDecorator');
 var DataModelJSON = require('../dataModels/JSON');
-var features = require('../features/index');
+var features = require('../features');
 var addStylesheet = require('../../css/stylesheets');
 //var aggregations = require('hyper-analytics').util.aggregations;
 //var aggregations = require('../local_node_modules/hyper-analytics').util.aggregations;
@@ -66,10 +66,7 @@ var JSON = Local.extend('behaviors.JSON', {
     },
 
     getDefaultDataModel: function() {
-        var model = new DataModelJSON();
-        var wrapper = new DataModelDecorator(this.grid, model);
-        wrapper.setComponent(model); // TODO: Redundant? Already performed in DataModelDecorator()?
-        return wrapper;
+        return new DataModelDecorator(this.grid, new DataModelJSON);
     },
 
     applyAnalytics: function() {

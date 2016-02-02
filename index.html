@@ -390,18 +390,22 @@ jsonGrid.addFinEventListener('fin-cell-enter', function(e) {
     //console.log('fin-cell-enter', cell.x, cell.y);
 
     //how to set the tooltip....
-    jsonGrid.setAttribute('title', 'fin-cell-enter(' + cell.x +', '+ cell.y+')');
+    jsonGrid.setAttribute('title', 'fin-cell-enter(' + cell.x + ', ' + cell.y+')');
 });
 
 jsonGrid.addFinEventListener('fin-set-totals-value', function(e) {
-    var details = e.detail;
-    var x = details.x;
-    var y = details.y;
-    var value = details.value;
-    jsonModel.getDataModel().getTotals()[0][x] = value;
+    var detail = e.detail,
+        areas = detail.areas || ['top', 'bottom'];
+
+    areas.forEach(function(area) {
+        var methodName = 'get' + area[0].toUpperCase() + area.substr(1) + 'Totals',
+            totalsRow = jsonModel.getDataModel().getComponent()[methodName]();
+
+        totalsRow[detail.y][detail.x] = detail.value;
+    });
+
     jsonGrid.repaint();
 });
-
 
 jsonGrid.addFinEventListener('fin-filter-applied', function(e) {
     console.log('fin-filter-applied', e);
