@@ -49,18 +49,26 @@
         border: 1px solid rgba(132, 132, 132, 1);
         bottom: 3px;
     }
-    div#dashboard > label {
-        font-weight: normal;
-    }
-    div#dashboard > button, .toggle-property {
+    div#dashboard > button {
         margin: .25em 1em .25em 0;
         display: inline-block;
         white-space: nowrap;
     }
-    div#dashboard > span.section {
-        margin-right: 1em;
+    div#dashboard > .ctrl-group {
+        display: inline-block;
+        background-color: #eee;
+        padding: 2px 6px;
+        border: 1px solid #ccc;
+        margin: .25em 1em .25em 0;
     }
-    div#dashboard > span.section:after {
+    div#dashboard > .ctrl-group > label {
+        font-weight: normal;
+        margin: 0 0 0 .7em;
+    }
+    div#dashboard > .ctrl-group > span {
+        font-style: italic;
+    }
+    div#dashboard > .ctrl-group > span:after {
         content: ':';
     }
 </style>
@@ -98,25 +106,36 @@ window.onload = function() {
 
 // List of properties to show as checkboxes in this demo's "dashboard"
 var toggleProps = [
-    { value: 'Apply aggregates', setter: toggleAggregates },
-
-    'Column header rows', // these are section labels (starts a new line)
-    { value: 'showHeaderRow', label: 'header' }, // default "setter" is `setProp`
-    { value: 'showFilterRow', label: 'filter' },
-
-    'Hover highlights',
-    { value: 'hoverCellHighlight.enabled', label: 'cell' },
-    { value: 'hoverRowHighlight.enabled', label: 'row' },
-    { value: 'hoverColumnHighlight.enabled', label: 'column' },
-
-    'Editing cells',
-    { value: 'editable' },
-    { value: 'editOnDoubleClick', label: 'requires double-click' },
-    { value: 'editOnKeydown', label: 'type to edit' },
-
-    'Selecting rows',
-    { value: 'checkboxOnlyRowSelections', label: 'by row handles only', setter: setSelectionProp },
-    { value: 'singleRowSelectionMode', label: 'one row at a time', setter: setSelectionProp }
+    {
+        label: 'Grouping',
+        ctrls: [{ value: 'aggregates', setter: toggleAggregates }]
+    }, {
+        label: 'Column header rows',
+        ctrls: [
+            { value: 'showHeaderRow', label: 'header' }, // default "setter" is `setProp`
+            { value: 'showFilterRow', label: 'filter' }
+        ]
+    }, {
+        label: 'Hover highlights',
+        ctrls: [
+            { value: 'hoverCellHighlight.enabled', label: 'cell' },
+            { value: 'hoverRowHighlight.enabled', label: 'row' },
+            { value: 'hoverColumnHighlight.enabled', label: 'column' }
+        ]
+    }, {
+        label: 'Cell editing',
+        ctrls: [
+            { value: 'editable' },
+            { value: 'editOnDoubleClick', label: 'requires double-click' },
+            { value: 'editOnKeydown', label: 'type to edit' }
+        ]
+    }, {
+        label: 'Row selection',
+        ctrls: [
+            { value: 'checkboxOnlyRowSelections', label: 'by row handles only', setter: setSelectionProp },
+            { value: 'singleRowSelectionMode', label: 'one row at a time', setter: setSelectionProp }
+        ]
+    }
 ];
 
 //used by the cellProvider, return null for a column if you want no editor to pop up
@@ -572,6 +591,9 @@ jsonModel.setCellProperties(0, 0, {
     halign: 'left'
 });
 
+toggleProps.forEach(function(prop) { addToggle(prop); });
+applyAggregates = document.querySelector('input[type=checkbox][value="Apply aggregates"]');
+
 setTimeout(function() {
 
     jsonModel.setFields(["employed", "income", "travel", "squareOfIncome"]);
@@ -732,9 +754,6 @@ setTimeout(function() {
         window.b = jsonModel;
         window.m = b.getDataModel();
 
-        toggleProps.forEach(function(prop) { addToggle(prop); });
-        applyAggregates = document.querySelector('input[type=checkbox][value="Apply aggregates"]');
-
         jsonGrid.takeFocus();
 
     }, 500);
@@ -777,33 +796,38 @@ setTimeout(function() {
 // Besides the canvas, this test harness only has a handful of buttons and checkboxes.
 // The following functions service these controls.
 
-function addToggle(prop) {
+function addToggle(ctrlGroup) {
     var input, label,
-        div = document.getElementById('dashboard');
+        dashboard = document.getElementById('dashboard'),
+        container = document.createElement('div');
 
-    if (typeof prop === 'object') {
-        input = document.createElement('input');
-        input.type = 'checkbox';
-        input.value = prop.value;
-        input.addEventListener('click', prop.setter || setProp);
+    container.className = 'ctrl-group';
 
-        label = document.createElement('label');
-        label.className = 'toggle-property';
-        label.title = 'property name: ' + prop.value;
-        label.appendChild(input);
-        label.appendChild(document.createTextNode(' ' + (prop.label || prop.value)));
-
-        if (/^[a-z]/.test(prop.value)) {
-            input.checked = jsonGrid.resolveProperty(prop.value);
-        }
-    } else {
-        div.appendChild(document.createElement('br'));
+    if (ctrlGroup.label) {
         label = document.createElement('span');
-        label.className = 'section';
-        label.innerHTML = prop;
+        label.innerHTML = ctrlGroup.label;
+        container.appendChild(label);
     }
 
-    div.appendChild(label);
+    ctrlGroup.ctrls.forEach(function(ctrl) {
+        input = document.createElement('input');
+        input.type = 'checkbox';
+        input.value = ctrl.value;
+        input.addEventListener('click', ctrl.setter || setProp);
+
+        if (/^[a-z]/.test(ctrl.value)) {
+            input.checked = jsonGrid.resolveProperty(ctrl.value);
+        }
+
+        label = document.createElement('label');
+        label.title = 'property name: ' + ctrl.value;
+        label.appendChild(input);
+        label.appendChild(document.createTextNode(' ' + (ctrl.label || ctrl.value)));
+
+        container.appendChild(label);
+    });
+
+    dashboard.appendChild(container);
 }
 
 function setProp() { // standard checkbox click handler
