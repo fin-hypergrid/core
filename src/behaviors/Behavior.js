@@ -24,8 +24,9 @@ var isNull = {
 
 /**
  * @constructor
- * @desc This is the base class for creating behaviors.  a behavior can be thought of as a model++.
-it contains all code/data that's necessary for easily implementing a virtual data source and it's manipulation/analytics
+ * @abstract
+ * @desc A sort of "model++." It contains all code/data that's necessary for easily implementing a virtual data source and its manipulation/analytics.
+ *
  */
 var Behavior = Base.extend('Behavior', {
 
@@ -35,10 +36,9 @@ var Behavior = Base.extend('Behavior', {
      * @memberOf Behavior.prototype
      */
     initialize: function(grid) { //formerly installOn
-        grid.setBehavior(this);
+        this.setGrid(grid);
         this.initializeFeatureChain(grid);
 
-        this.getDataModel();
         this.cellProvider = this.createCellProvider();
         this.renderedColumnCount = 30;
         this.renderedRowCount = 60;
@@ -106,14 +106,13 @@ var Behavior = Base.extend('Behavior', {
     columns: [],
 
     reset: function() {
-
         this.cellProvider = this.createCellProvider();
         this.renderedColumnCount = 30;
         this.renderedRowCount = 60;
         this.dataUpdates = {}; //for overriding with edit values;
         this.clearColumns();
         this.clearState();
-        this.getDataModel().reset();
+        this.dataModel.reset();
         this.createColumns();
     },
 
@@ -487,36 +486,20 @@ var Behavior = Base.extend('Behavior', {
         this.stateChanged();
     },
 
+    /** @deprecated Use `.dataModel` property instead.
+     * @memberOf Behavior.prototype
+     * @returns {Hypergrid} The hypergrid to which this behavior is attached.
+     */
     getDataModel: function() {
-        if (this.dataModel === null) {
-            var dataModel = this.getDefaultDataModel();
-            this.setDataModel(dataModel);
-        }
-        return this.dataModel;
+        return this.deprecated('dataModel', { since: '0.2.1' });
     },
 
     getCellRenderer: function(config, x, y) {
         return this.getColumn(x).getCellRenderer(config, y);
     },
 
-    setDataModel: function(newDataModel) {
-        this.dataModel = newDataModel;
-    },
-
-    setComplexFilter: function(columnIndex, complexFilter) {
-        var col = this.getColumn(columnIndex);
-        if (col) {
-            col.setComplexFilter(complexFilter);
-        }
-    },
-
-    getComplexFilter: function(columnIndex) {
-        var col = this.getColumn(columnIndex);
-        return col && col.getComplexFilter();
-    },
-
     applyAnalytics: function() {
-
+        this.dataModel.applyAnalytics();
     },
 
     /**
@@ -612,7 +595,7 @@ var Behavior = Base.extend('Behavior', {
         memento.columnProperties = colProperties;
         //memento.columnProperties = colProperties;
 
-        // this.getDataModel().setState(memento);
+        // this.dataModel.setState(memento);
         // var self = this;
         // requestAnimationFrame(function() {
         //     self.applySorts();
@@ -622,7 +605,7 @@ var Behavior = Base.extend('Behavior', {
 
         //just to be close/ it's easier on the eyes
         this.setColumnWidth(-1, 24.193359375);
-        this.getDataModel().applyState();
+        this.dataModel.applyState();
     },
 
     setAllColumnProperties: function(properties) {
@@ -666,7 +649,7 @@ var Behavior = Base.extend('Behavior', {
      * @param {Object} event - all event information
      */
     cellClicked: function(cell, event) {
-        this.getDataModel().cellClicked(cell, event);
+        this.dataModel.cellClicked(cell, event);
     },
 
     /**
@@ -711,9 +694,11 @@ var Behavior = Base.extend('Behavior', {
      * @desc setter for the hypergrid
      * @param {Hypergrid} grid
      */
-    setGrid: function(finGrid) {
-        this.grid = finGrid;
-        this.getDataModel().setGrid(finGrid);
+    setGrid: function(grid) {
+        this.grid = grid;
+        this.dataModel = this.dataModel || this.getDefaultDataModel();
+        this.dataModel.setGrid(grid);
+        grid.setBehavior(this);
         this.clearColumns();
     },
 
@@ -766,11 +751,11 @@ var Behavior = Base.extend('Behavior', {
     },
 
     getDataValue: function(x, y) {
-        return this.getDataModel().getValue(x, y);
+        return this.dataModel.getValue(x, y);
     },
 
     setDataValue: function(x, y, value) {
-        this.getDataModel().setValue(x, y, value);
+        this.dataModel.setValue(x, y, value);
     },
     /**
      * @memberOf Behavior.prototype
@@ -801,11 +786,11 @@ var Behavior = Base.extend('Behavior', {
      * @return {number} The number of rows in the hypergrid.
      */
     getRowCount: function() {
-        return this.getDataModel().getRowCount();
+        return this.dataModel.getRowCount();
     },
 
     getUnfilteredRowCount: function() {
-        return this.getDataModel().getUnfilteredRowCount();
+        return this.dataModel.getUnfilteredRowCount();
     },
     /**
      * @memberOf Behavior.prototype
@@ -1333,7 +1318,7 @@ var Behavior = Base.extend('Behavior', {
     },
 
     getTopTotals: function() {
-        return this.getDataModel().getTopTotals();
+        return this.dataModel.getTopTotals();
     },
     /**
      * @memberOf Behavior.prototype
@@ -1498,7 +1483,7 @@ var Behavior = Base.extend('Behavior', {
         if (this.grid.isFilterRow(y)) {
             return this.grid.cellEditors.textfield;
         }
-        return this.getDataModel().getCellEditorAt(x, y);
+        return this.dataModel.getCellEditorAt(x, y);
     },
 
     /**
@@ -1581,7 +1566,7 @@ var Behavior = Base.extend('Behavior', {
     },
 
     getColumnEdge: function(c, renderer) {
-        return this.getDataModel().getColumnEdge(c, renderer);
+        return this.dataModel.getColumnEdge(c, renderer);
     },
 
     /**
@@ -1601,7 +1586,7 @@ var Behavior = Base.extend('Behavior', {
      * @param {number} y - the row index of interest
      */
     getRow: function(y) {
-        return this.getDataModel().getRow(y);
+        return this.dataModel.getRow(y);
     },
 
     convertViewPointToDataPoint: function(viewPoint) {
@@ -1611,14 +1596,14 @@ var Behavior = Base.extend('Behavior', {
     },
 
     setGroups: function(arrayOfColumnIndexes) {
-        this.getDataModel().setGroups(arrayOfColumnIndexes);
+        this.dataModel.setGroups(arrayOfColumnIndexes);
         this.createColumns();
         this.changed();
     },
 
     setAggregates: function(mapOfKeysToFunctions) {
         var self = this;
-        this.getDataModel().setAggregates(mapOfKeysToFunctions);
+        this.dataModel.setAggregates(mapOfKeysToFunctions);
         this.createColumns();
         setTimeout(function() {
             self.changed();
@@ -1650,7 +1635,7 @@ var Behavior = Base.extend('Behavior', {
     },
 
     getComputedRow: function(y) {
-        return this.getDataModel().getComputedRow(y);
+        return this.dataModel.getComputedRow(y);
     },
 
     autosizeAllColumns: function() {
@@ -1673,8 +1658,8 @@ var Behavior = Base.extend('Behavior', {
         }
     },
 
-    setGlobalFilter: function(string) {
-        this.getDataModel().setGlobalFilter(string);
+    setGlobalFilter: function(filterOrOptions) {
+        this.dataModel.setGlobalFilter(filterOrOptions);
     },
 
     getSelectedRows: function() {
@@ -1690,11 +1675,11 @@ var Behavior = Base.extend('Behavior', {
     },
 
     getData: function() {
-        return this.getDataModel().getData();
+        return this.dataModel.getData();
     },
 
     getFilteredData: function() {
-        return this.getDataModel().getFilteredData();
+        return this.dataModel.getFilteredData();
     },
 });
 

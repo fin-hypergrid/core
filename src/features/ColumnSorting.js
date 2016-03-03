@@ -28,7 +28,7 @@ var ColumnSorting = Feature.extend('ColumnSorting', {
 
     /**
      * @memberOf ColumnSorting.prototype
-     * @desc * @desc Handle this event down the feature chain of responsibility.
+     * @desc Handle this event down the feature chain of responsibility.
      * @param {Hypergrid} grid
      * @param {Object} event - the event details
      */

@@ -1,10 +1,11 @@
 'use strict';
 
 //var analytics = require('hyper-analytics');
-//var analytics = require('../local_node_modules/hyper-analytics');
-var analytics = require('../local_node_modules/finanalytics');
+var analytics = require('../local_node_modules/hyper-analytics');
+//var analytics = require('../local_node_modules/finanalytics');
 var DataModel = require('./DataModel');
 var images = require('../../images');
+var CustomFilter = require('../lib/CustomFilter');
 
 var UPWARDS_BLACK_ARROW = '\u25b2', // aka '▲'
     DOWNWARDS_BLACK_ARROW = '\u25bc'; // aka '▼'
@@ -49,12 +50,10 @@ var JSON = DataModel.extend('dataModels.JSON', {
     source: nullDataSource,
 
     preglobalfilter: nullDataSource,
-    prefilter: nullDataSource,
 
     presorter: nullDataSource,
     analytics: nullDataSource,
     postglobalfilter: nullDataSource,
-    postfilter: nullDataSource,
     postsorter: nullDataSource,
 
     topTotals: [],
@@ -86,10 +85,6 @@ var JSON = DataModel.extend('dataModels.JSON', {
 
     getDataSource: function() {
         return this.postsorter; //this.hasAggregates() ? this.analytics : this.presorter;
-    },
-
-    getFilterSource: function() {
-        return this.postfilter; //this.hasAggregates() ? this.postfilter : this.prefilter;
     },
 
     getGlobalFilterSource: function() {
@@ -166,7 +161,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
                 var sortString = this.getSortImageForColumn(x);
                 if (sortString) { value = sortString + value; }
             } else { // must be filter row
-                value = this.getFilter(x);
+                value = ''; // TODO: FIX THIS!!! value = this.getFilter(x);
                 var icon = images.filter(value.length);
                 return [null, value, icon];
             }
@@ -247,58 +242,6 @@ var JSON = DataModel.extend('dataModels.JSON', {
 
     /**
      * @memberOf dataModels.JSON.prototype
-     * @param {number} colIndex
-     * @returns {string} The text to filter on for this column.
-     */
-    getFilter: function(colIndex) {
-        var filter, columnProperties;
-
-        if ((columnProperties = this.getColumnProperties(colIndex))) {
-            filter = columnProperties.filter;
-        }
-
-        return filter || '';
-    },
-
-    /** @typedef {function} rowFilterFunction
-     * @param {function|*} data - Data to test (or function to call to get data to test) to see if it qualifies for the result set.
-     * @returns {boolean} Row qualifies for the result set (passes through filter).
-     */
-    /**
-     * @param {number} colIndex
-     * @returns {undefined|rowFilterFunction} row filtering function
-     */
-    getComplexFilter: function(colIndex) {
-        var rowFilter, columnProperties, filter, filterObject, newFilter;
-
-        if (
-            (columnProperties = this.getColumnProperties(colIndex)) &&
-            (filter = columnProperties.complexFilter) &&
-            (filterObject = this.grid.filter) &&
-            (newFilter = filterObject.create(filter.state))
-        ) {
-            rowFilter = function(data) {
-                var transformed = valueOrFunctionExecute(data);
-                return newFilter(transformed);
-            };
-        }
-
-        return rowFilter;
-    },
-
-    /**
-     * @memberOf dataModels.JSON.prototype
-     * @param {number} colIndex
-     * @param value
-     */
-    setFilter: function(colIndex, value) {
-        var columnProperties = this.getColumnProperties(colIndex);
-        columnProperties.filter = value;
-        this.applyAnalytics();
-    },
-
-    /**
-     * @memberOf dataModels.JSON.prototype
      * @returns {number}
      */
     getColumnCount: function() {
@@ -357,14 +300,12 @@ var JSON = DataModel.extend('dataModels.JSON', {
     setData: function(dataRows) {
         this.source = new analytics.JSDataSource(dataRows);
         //this.preglobalfilter = new analytics.DataSourceGlobalFilter(this.source);
-        //this.prefilter = new analytics.DataSourceFilter(this.preglobalfilter);
         //this.presorter = new analytics.DataSourceSorterComposite(this.prefilter);
 
         this.analytics = new analytics.DataSourceAggregator(this.source);
 
         this.postglobalfilter = new analytics.DataSourceGlobalFilter(this.analytics);
-        this.postfilter = new analytics.DataSourceFilter(this.postglobalfilter);
-        this.postsorter = new analytics.DataSourceSorterComposite(this.postfilter);
+        this.postsorter = new analytics.DataSourceSorterComposite(this.postglobalfilter);
 
         this.applyAnalytics();
 
@@ -519,17 +460,12 @@ var JSON = DataModel.extend('dataModels.JSON', {
         if (!dontApplyGroupBysAndAggregations) {
             applyGroupBysAndAggregations.call(this);
         }
+
         applyFilters.call(this);
+
         applySorts.call(this);
 
         reselectGridRowsBackedBySelectedDataRows.call(this);
-    },
-
-    createFormattedFilter: function(formatter, filter) {
-        return function(value) {
-            var formattedValue = formatter(value);
-            return filter(formattedValue);
-        };
     },
 
     /**
@@ -683,15 +619,41 @@ var JSON = DataModel.extend('dataModels.JSON', {
 
     /**
      * @memberOf dataModels.JSON.prototype
-     * @param {sring} string
+     * @param {FilterTree|FilterTreeOptionsObject} [filterOrOptions] - One of:
+     * * `FilterTree` - an existing filter-tree
+     * * `FilterTreeOptionsObject` - an options object for the creation of a new filter-tree
+     * * falsy (omitted) - Turns off filtering.
      */
-    setGlobalFilter: function(string) {
+    setGlobalFilter: function(filterOrOptions) {
         var globalFilterSource = this.getGlobalFilterSource();
-        if (!string || string.length === 0) {
+
+        if (!filterOrOptions) {
             globalFilterSource.clear();
         } else {
-            globalFilterSource.set(textMatchFilter(string));
+            var filter, options;
+
+            if (filterOrOptions instanceof CustomFilter) {
+                filter = filterOrOptions;
+            } else {
+                options = { // TODO: Just for testing!!!
+                    schema: filterOrOptions.schema,
+                    state: {
+                        children: [
+                            {
+                                column: 'total_number_of_pets_owned',
+                                operator: '=',
+                                literal: '3'
+                            }
+                        ]
+                    }
+                };
+                filter = new CustomFilter(options);
+                filter.invalid();
+            }
+
+            globalFilterSource.set(filter);
         }
+
         this.applyAnalytics();
     },
 
@@ -742,18 +704,6 @@ var JSON = DataModel.extend('dataModels.JSON', {
     },
 
 });
-
-function valueOrFunctionExecute(valueOrFunction) {
-    return typeof valueOrFunction === 'function' ? valueOrFunction() : valueOrFunction;
-}
-
-function textMatchFilter(string) {
-    string = string.toLowerCase();
-    return function(each) {
-        each = valueOrFunctionExecute(each);
-        return (each + '').toLowerCase().indexOf(string) > -1;
-    };
-}
 
 // LOCAL METHODS -- to be called with `.call(this`
 
@@ -828,33 +778,14 @@ function applyGroupBysAndAggregations() {
  * @memberOf dataModels.JSON.prototype
  */
 function applyFilters() {
-    var visibleColumns = this.getVisibleColumns();
-    this.getGlobalFilterSource().apply(visibleColumns);
+    this.getGlobalFilterSource().apply();
+
     var details = [];
-    var filterSource = this.getFilterSource();
-    var groupOffset = 0; //this.hasHierarchyColumn() ? 0 : 1;
 
-    // apply column filters
-    filterSource.clearAll();
+    // TODO: return something useful...
+    // was previously returning, for each column in this.getVisibleColumns():
+    // [ { column: column.label, format: 'complex' or column.getProperties().format }, ... ]
 
-    visibleColumns.forEach(function(column) {
-        var columnIndex = column.index,
-            filterText = this.getFilter(columnIndex),
-            formatterType = column.getProperties().format,
-            formatter = this.grid.getFormatter(formatterType),
-            complexFilter = this.getComplexFilter(columnIndex),
-            filter = complexFilter || filterText.length > 0 && textMatchFilter(filterText);
-
-        if (filter) {
-            filterSource.add(columnIndex - groupOffset, this.createFormattedFilter(formatter, filter));
-            details.push({
-                column: column.label,
-                format: complexFilter ? 'complex' : formatterType
-            });
-        }
-    }.bind(this));
-
-    filterSource.applyAll();
 
     this.grid.fireSyntheticFilterAppliedEvent({
         details: details

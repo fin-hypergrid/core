@@ -50,8 +50,8 @@ DataModelDecorator.prototype = {
         return this.component;
     },
 
-    setGlobalFilter: function(string) {
-        return this.getComponent().setGlobalFilter(string);
+    setGlobalFilter: function(filterOrOptions) {
+        return this.getComponent().setGlobalFilter(filterOrOptions);
     },
 
     getData: function() {

@@ -18,7 +18,6 @@ var SelectionModel = require('./lib/SelectionModel');
 var addStylesheet = require('../css/stylesheets');
 var TableDialog = require('./lib/TableDialog');
 var Formatters = require('./lib/Formatters');
-var CustomFilter = require('./lib/CustomFilter');
 
 var themeInitialized = false,
     polymerTheme = Object.create(defaults),
@@ -94,8 +93,6 @@ function Hypergrid(div, behaviorFactory, margin) {
 
     this.dialog = new TableDialog(this);
     //this.computeCellsBounds();
-
-    this.filter = new CustomFilter();
 }
 
 Hypergrid.prototype = {
@@ -715,7 +712,7 @@ Hypergrid.prototype = {
 
     clearRowSelection: function() {
         this.selectionModel.clearRowSelection();
-        this.behavior.getDataModel().getComponent().clearSelectedData();
+        this.behavior.dataModel.getComponent().clearSelectedData();
     },
 
     /**
@@ -787,16 +784,13 @@ Hypergrid.prototype = {
      * @memberOf Hypergrid.prototype
      * @summary Set the Behavior (model) object for this grid control.
      * @desc This can be done dynamically.
-     * @param {Behavior} The behavior (model).
+     * @param {Behavior} behavior - The behavior (model).
      */
-    setBehavior: function(newBehavior) {
-
-        this.behavior = newBehavior;
-        this.behavior.setGrid(this);
-
-        this.behavior.changed = this.behaviorChanged.bind(this);
-        this.behavior.shapeChanged = this.behaviorShapeChanged.bind(this);
-        this.behavior.stateChanged = this.behaviorStateChanged.bind(this);
+    setBehavior: function(behavior) {
+        behavior.changed = this.behaviorChanged.bind(this);
+        behavior.shapeChanged = this.behaviorShapeChanged.bind(this);
+        behavior.stateChanged = this.behaviorStateChanged.bind(this);
+        this.behavior = behavior;
     },
 
     /**
@@ -1659,7 +1653,7 @@ Hypergrid.prototype = {
             result = {};
 
         function setValue(selectedRowIndex, r) {
-            column[r] = valueOrFunctionExecute(self.getValue(c, selectedRowIndex));
+            column[r] = valOrFunc(self.getValue(c, selectedRowIndex));
         }
 
         for (c = 0; c < numCols; c++) {
@@ -1678,7 +1672,7 @@ Hypergrid.prototype = {
             result = new Array(numCols);
 
         function getValue(selectedRowIndex, r) {
-            result[c][r] = valueOrFunctionExecute(self.getValue(c, selectedRowIndex));
+            result[c][r] = valOrFunc(self.getValue(c, selectedRowIndex));
         }
 
         for (c = 0; c < numCols; c++) {
@@ -1697,7 +1691,7 @@ Hypergrid.prototype = {
         selectedColumnIndexes.forEach(function(selectedColumnIndex, c) {
             result[c] = new Array(numRows);
             for (var r = 0; r < numRows; r++) {
-                result[c][r] = valueOrFunctionExecute(self.getValue(selectedColumnIndex, r));
+                result[c][r] = valOrFunc(self.getValue(selectedColumnIndex, r));
             }
         });
         return result;
@@ -1712,7 +1706,7 @@ Hypergrid.prototype = {
             var column = new Array(rowCount);
             result[self.getField(selectedColumnIndex)] = column;
             for (var r = 0; r < rowCount; r++) {
-                column[r] = valueOrFunctionExecute(self.getValue(selectedColumnIndex, r));
+                column[r] = valOrFunc(self.getValue(selectedColumnIndex, r));
             }
         });
         return result;
@@ -1740,7 +1734,7 @@ Hypergrid.prototype = {
             var column = new Array(rowCount);
             result[this.getField(c + ox)] = column;
             for (r = 0; r < rowCount; r++) {
-                column[r] = valueOrFunctionExecute(this.getValue(ox + c, oy + r));
+                column[r] = valOrFunc(this.getValue(ox + c, oy + r));
             }
         }
         return result;
@@ -1767,7 +1761,7 @@ Hypergrid.prototype = {
             var column = new Array(rowCount);
             result[c] = column;
             for (var r = 0; r < rowCount; r++) {
-                column[r] = valueOrFunctionExecute(this.getValue(ox + c, oy + r));
+                column[r] = valOrFunc(this.getValue(ox + c, oy + r));
             }
         }
         return result;
@@ -3145,8 +3139,8 @@ Hypergrid.prototype = {
     isColumnAutosizing: function() {
         return this.resolveProperty('columnAutosizing') === true;
     },
-    setGlobalFilter: function(string) {
-        this.behavior.setGlobalFilter(string);
+    setGlobalFilter: function(filter) {
+        this.behavior.setGlobalFilter(filter);
     },
     selectRowsFromCells: function() {
         if (!this.isCheckboxOnlyRowSelections()) {
@@ -3340,8 +3334,8 @@ function clearObjectProperties(obj) {
     }
 }
 
-function valueOrFunctionExecute(valueOrFunction) {
-    var result = typeof valueOrFunction === 'function' ? valueOrFunction() : valueOrFunction;
+function valOrFunc(vf) {
+    var result = (typeof vf)[0] === 'f' ? vf() : vf;
     return result || result === 0 ? result : '';
 }
 

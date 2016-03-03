@@ -2,8 +2,7 @@
 /.idea
 /doc
 /node_modules*
-/index.js
-/index.min.js
+/build
 /images/images.js
 /src/local_node_modules
 !/src/local_node_modules/finanalytics

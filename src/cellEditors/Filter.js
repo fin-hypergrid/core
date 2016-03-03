@@ -140,20 +140,13 @@ var Filter = CellEditor.extend('Filter', {
         var behavior = this.grid.behavior;
         var dialog = this.grid.dialog;
 
-        var columnIndex = editorPoint.x,
-            title = behavior.getColumnId(columnIndex),
-            field = behavior.getField(columnIndex),
-            type = behavior.getColumn(columnIndex).getType();
+        var columnIndex = editorPoint.x;
+        //var title = behavior.getColumnId(columnIndex);
+        //var field = behavior.getField(columnIndex);
+        //var type = behavior.getColumn(columnIndex).getType();
 
-        var fieldsProvider = function() {
-            return [{
-                name: field,
-                alias: title,
-                type: type
-            }];
-        };
         this.title.innerHTML = 'Manage Filters';
-        var filter = this.grid.filter;
+        var filter = behavior.dataModel.getComponent().getGlobalFilterSource().get();
         //var self = this;
         if (dialog.isOpen()) {
             dialog.close();
@@ -163,17 +156,17 @@ var Filter = CellEditor.extend('Filter', {
             dialog.clear();
             dialog.overlay.appendChild(this.dialog);
 
-            filter.initialize(fieldsProvider);
+            filter.initializeDialog();
 
             dialog.onOkPressed = function() {
                 if (filter.onOk && filter.onOk()) { // onOK() truthy result means abort; falsy means proceed
                     return;
                 }
                 self.tearDown();
-                behavior.setComplexFilter(columnIndex, {
-                    //type: filter.alias,
-                    state: filter.getState()
-                });
+                //behavior.setComplexFilter(columnIndex, {
+                //    //type: filter.alias,
+                //    state: filter.getState()
+                //});
                 dialog.close();
                 behavior.applyAnalytics();
                 behavior.changed();
@@ -193,7 +186,7 @@ var Filter = CellEditor.extend('Filter', {
                     return;
                 }
                 self.tearDown();
-                behavior.setComplexFilter(columnIndex, undefined);
+                //behavior.setComplexFilter(columnIndex, undefined);
                 dialog.close();
                 behavior.applyAnalytics();
                 behavior.changed();
@@ -204,7 +197,7 @@ var Filter = CellEditor.extend('Filter', {
                     return;
                 }
                 self.tearDown();
-                filter.initialize(dialog);
+                filter.initializeDialog(dialog);
                 if (filter.onShow) {
                     filter.onShow(self.content);
                 }
@@ -218,10 +211,7 @@ var Filter = CellEditor.extend('Filter', {
                 this.grid.divCanvas.getBoundingClientRect().left;
             cellBounds.x = cellBounds.x - xOffset;
             dialog.openFrom(cellBounds);
-            var previousState = behavior.getComplexFilter(columnIndex);
-            if (previousState) {
-                filter.setState(previousState.state);
-            }
+
             setTimeout(function() {
                 if (filter.onShow) {
                     filter.onShow(self.content);

@@ -6,7 +6,7 @@ var _ = require('object-iterators');
 
 function Column(behavior, index, label) {
     this.behavior = behavior;
-    this.dataModel = behavior.getDataModel();
+    this.dataModel = behavior.dataModel;
     this.index = index;
     this.label = label;
 }
@@ -47,14 +47,6 @@ Column.prototype = {
         this.behavior.getPrivateState().cellProperties[this.index + ',' + y] = value;
     },
 
-    setComplexFilter: function(data) {
-        this.getProperties().complexFilter = data;
-    },
-
-    getComplexFilter: function() {
-        return this.getProperties().complexFilter;
-    },
-
     checkColumnAutosizing: function(force) {
         var properties = this.getProperties();
         var a, b, d;
@@ -80,7 +72,7 @@ Column.prototype = {
         // var type = props.filterType;
         // if (!type) {
         //     type = this.getType();
-        //     if (type !== 'unkknown') {
+        //     if (type !== 'unknown') {
         //         props.type = type;
         //     }
         // }
@@ -93,7 +85,7 @@ Column.prototype = {
         var type = props.type;
         if (!type) {
             type = this.computeColumnType();
-            if (type !== 'unkknown') {
+            if (type !== 'unknown') {
                 props.type = type;
             }
         }

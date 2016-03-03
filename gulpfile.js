@@ -8,10 +8,12 @@ var gulp        = require('gulp'),
     path        = require('path'),
     pipe        = require('multipipe');
 
-var srcDir   = './src/',
+var name     = 'hypergrid',
+    srcDir   = './src/',
     testDir  = './test/',
     jsFiles  = '**/*.js',
-    buildDir = './';
+    buildDir = './build/',
+    demoDir  = './demo/';
 
 //  //  //  //  //  //  //  //  //  //  //  //
 
@@ -33,16 +35,24 @@ gulp.task('build', function(callback) {
         //'doc',
         //'beautify',
         'browserify',
-        'reloadBrowsers',
         callback
     );
 });
 
 gulp.task('watch', function () {
-    gulp.watch([srcDir + '**', testDir + '**'], ['build'])
-        //.on('change', function(event) {
-        //    browserSync.reload();
-        //});
+    gulp.watch([
+        srcDir + '**',
+        testDir + '**',
+        '../../filter-tree/src/**' // comment off this line and the one below when filter tree on npm
+    ], [
+        'build'
+    ]);
+
+    gulp.watch([
+        buildDir + '*'
+    ], [
+        'reloadBrowsers'
+    ]);
 });
 
 gulp.task('default', ['build', 'watch'], browserSyncLaunchServer);
@@ -50,7 +60,12 @@ gulp.task('default', ['build', 'watch'], browserSyncLaunchServer);
 //  //  //  //  //  //  //  //  //  //  //  //
 
 function lint() {
-    return gulp.src([srcDir + jsFiles, '!' + srcDir + '**/old/**/'])
+    return gulp.src([
+        srcDir + jsFiles,
+        '!' + srcDir + '**/old/**/',
+        demoDir + jsFiles,
+        '../../filter-tree/src/' + jsFiles // comment off this line and the one above when filter tree on npm
+    ])
         .pipe($$.excludeGitignore())
         .pipe($$.eslint())
         .pipe($$.eslint.format())
@@ -70,29 +85,15 @@ function beautify() {
 
 function browserify() {
     return gulp.src(srcDir + 'index.js')
-        .pipe($$.browserify({
-            //insertGlobals : true,
-            debug : true
-        }))
-        //.pipe($$.sourcemaps.init({loadMaps: true}))
-        // Add transformation tasks to the pipeline here:
-        //.pipe(uglify())
-        .on('error', $$.util.log)
-        //.pipe($$.sourcemaps.write('./'))
-        .pipe(gulp.dest(buildDir));
-}
-
-function browserify() {
-    return gulp.src(srcDir + 'index.js')
         .pipe(
             $$.mirror(
                 pipe(
-                    $$.rename('index.js'),
+                    $$.rename(name + '.js'),
                     $$.browserify({ debug: true })
                         .on('error', $$.util.log)
                 ),
                 pipe(
-                    $$.rename('index.min.js'),
+                    $$.rename(name + '.min.js'),
                     $$.browserify(),
                     $$.uglify()
                         .on('error', $$.util.log)
@@ -114,7 +115,12 @@ function browserSyncLaunchServer() {
     browserSync.init({
         server: {
             // Serve up our build folder
-            baseDir: buildDir
+            baseDir: demoDir,
+            index: 'demo.html',
+            routes: {
+                '/js': 'js',
+                '/lib': buildDir
+            }
         },
         port: 9000
     });

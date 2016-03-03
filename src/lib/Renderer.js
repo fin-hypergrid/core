@@ -92,7 +92,7 @@ var Renderer = Base.extend('Renderer', {
 
             bounds = this.getBounds(),
             grid = this.grid,
-            numberOfBottomTotalsRows = grid.behavior.getDataModel().getBottomTotals().length,
+            numberOfBottomTotalsRows = grid.behavior.dataModel.getBottomTotals().length,
             viewWidth = bounds.width || grid.canvas.width, // if 0, we must be in bootstrap
             viewHeight = bounds.height - numberOfBottomTotalsRows * grid.behavior.getDefaultRowHeight(),
 
@@ -867,7 +867,7 @@ var Renderer = Base.extend('Renderer', {
                 }
 
                 // Bottom totals rows...
-                for (y = -behavior.getDataModel().getBottomTotals().length; y; y++) {
+                for (y = -behavior.dataModel.getBottomTotals().length; y; y++) {
                     this._paintCell(gc, c, y);
                 }
 
@@ -916,7 +916,7 @@ var Renderer = Base.extend('Renderer', {
             // Bottom totals rows...
             var behavior = this.grid.behavior,
                 rowHeight = behavior.getDefaultRowHeight();
-            for (r = -behavior.getDataModel().getBottomTotals().length, y = this.getBounds().height; r; r++) {
+            for (r = -behavior.dataModel.getBottomTotals().length, y = this.getBounds().height; r; r++) {
                 y -= rowHeight;
                 gc.moveTo(0, y);
                 gc.lineTo(viewWidth, y);

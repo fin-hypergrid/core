@@ -19,17 +19,16 @@ var ThumbwheelScrolling = Feature.extend('ThumbwheelScrolling', {
         if (!grid.resolveProperty('scrollingEnabled')) {
             return;
         }
-        var primEvent = e.primitiveEvent;
-        var deltaY = primEvent.wheelDeltaY || -primEvent.deltaY;
-        var deltaX = primEvent.wheelDeltaX || -primEvent.deltaX;
-        if (deltaY > 0) {
-            grid.scrollBy(0, -1);
-        } else if (deltaY < -0) {
-            grid.scrollBy(0, 1);
-        } else if (deltaX > 0) {
-            grid.scrollBy(-1, 0);
-        } else if (deltaX < -0) {
-            grid.scrollBy(1, 0);
+
+        var primEvent = e.primitiveEvent,
+            deltaX = Math.sign(primEvent.wheelDeltaX || -primEvent.deltaX),
+            deltaY = Math.sign(primEvent.wheelDeltaY || -primEvent.deltaY);
+
+        if (deltaX || deltaY) {
+            grid.scrollBy(
+                -deltaX || 0, // 0 if NaN
+                -deltaY || 0
+            );
         }
     }
 

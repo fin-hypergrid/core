@@ -1,93 +1,91 @@
 'use strict';
 
-var FilterTree = require('filter-tree');
+//var FilterTree = require('filter-tree');
+var FilterTree = require('../../../../filter-tree/src/js/FilterTree');
 
 /** @typedef {function} fieldsProviderFunc
- * @returns {fieldOption[]} see jsdoc typedef in filter-tree/js/FillerLeaf.js
+ * @returns {menuOption[]} see jsdoc typedef in pop-menu.js
  */
 
-var validateQuietlyOptions = {
-    alert: false,
-    focus: false
-};
+//var validateQuietlyOptions = {
+//    alert: false,
+//    focus: false
+//};
 
 /** @constructor
+ * @param {FilterTreeOptionsObject} options - You must provide column schema, either for the whole filter tree through `options.schema` or `options.state.schema` or for the specific nodes that need to render column list drop-downs.
+ *
+ * > NOTE: If `options.state` is undefined, it is defined with a {@link getFilterStateScaffold|empty state scaffold) to hold new table filter and column filter expressions to be added through UI.
  */
-function CustomFilter() {
-    this.getDisplayString = function() { // TODO: What the heck is this? (not in use)
-        return '< ' + this.value;
+var CustomFilter = FilterTree.extend('CustomFilter', {
+
+    preInitialize: function(options) {
+        options.state = options.state || getFilterStateScaffold();
+    },
+
+    // Following co-routines service calls from grid.dialog (see cellEditors/Filter.js)
+    initializeDialog: function() {
+
+    },
+
+    onShow: function(container) {
+        container.appendChild(this.el);
+    },
+
+    onOk: function() {
+        return this.invalid();
+    },
+
+    onReset: function() {
+
+    },
+
+    onDelete: function() {
+
+    },
+
+    onCancel: function() {
+
+    },
+
+    create: function() {
+        return this.test.bind(this);
+    }
+});
+
+/**
+ * This default filter state scaffold describes the filter tree root used by Hypergrid, consisting of exactly two persisted child nodes:
+ *
+ * * children[0] represents the _table filter,_ a series of any number of filter expressions and/or subexpressions
+ * * children[1] represents the _column filters,_ a series of subexpressions, one per active column filter
+ *
+ * The `operator` properties for all subexpressions default to `'op-and'`, which means:
+ * * AND all table filter expressions and subexpressions together (may be changed from UI)
+ * * AND all column Filters subexpressions together (cannot be changed from UI)
+ * * AND table filters and column filters together (cannot be changed from UI)
+ */
+function getFilterStateScaffold() {
+
+    var tableFilter = {
+        persist: true,
+        children: [
+            // table filter expressions and subexpressions go here
+        ]
     };
 
-    // Following methods service dialog during which `this.filterTree` is valid
-    this.initialize = function(fieldsProvider) {
-        /** @type {fieldsProviderFunc}
-         */
-        this.fieldsProvider = fieldsProvider;
-        this.filterTree = new FilterTree({
-            fields: fieldsProvider()
-        });
-        delete this.filter; // forces this.create to recreate the filter function
+    var columnFilters = {
+        persist: true,
+        type: 'columnFilters',
+        children: [
+            // subexpressions with type 'columnFilter' go here, one for each active column filter
+        ]
     };
 
-    this.onShow = function(container) {
-        container.appendChild(this.filterTree.el);
+    var filter = {
+        children: [ tableFilter, columnFilters ]
     };
 
-    this.onOk = function() {
-        return this.filterTree.validate();
-    };
-
-    this.getState = function() {
-        var state = JSON.parse(JSON.stringify(this.filterTree)); // calls toJSON functions as needed
-        delete this.filterTree;
-        return state;
-    };
-
-    this.onReset = function() {
-
-    };
-
-    this.onDelete = function() {
-        delete this.filter;
-        delete this.filterTree;
-    };
-
-    this.onCancel = function() {
-        delete this.filterTree;
-    };
-
-    // Following methods called with `state` are independent of dialog; `this.filterTree` is undefined
-    this.create = function(state) {
-        if (!this.filter) {
-            var filterTree = this.setState(state);
-            var dataRow = {};
-            var fieldOption = this.fieldsProvider()[0],
-                fieldName = fieldOption.name || fieldOption;
-
-            if (!filterTree.validate(validateQuietlyOptions)) {
-                // `validate()` returned `undefined` meaning valid (returns error string when invalid)
-                this.filter = function(data) {
-                    dataRow[fieldName] = data;
-                    return filterTree.test(dataRow);
-                };
-            }
-        }
-        return this.filter;
-    };
-
-    this.setState = function(stateObjectOrJsonString) {
-        var options = {
-            fields: this.fieldsProvider()
-        };
-
-        if (typeof stateObjectOrJsonString === 'string') {
-            options.state = stateObjectOrJsonString;
-        } else {
-            options.json = stateObjectOrJsonString;
-        }
-
-        return (this.filterTree = new FilterTree(options));
-    };
+    return filter;
 }
 
 module.exports = CustomFilter;

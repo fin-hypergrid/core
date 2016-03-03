@@ -8,8 +8,8 @@ var DataModelJSON = require('../dataModels/JSON');
 var features = require('../features');
 var addStylesheet = require('../../css/stylesheets');
 //var aggregations = require('hyper-analytics').util.aggregations;
-//var aggregations = require('../local_node_modules/hyper-analytics').util.aggregations;
-var aggregations = require('../local_node_modules/finanalytics').aggregations;
+var aggregations = require('../local_node_modules/hyper-analytics').util.aggregations;
+//var aggregations = require('../local_node_modules/finanalytics').aggregations;
 
 /**
  * @name behaviors.JSON
@@ -50,7 +50,7 @@ var JSON = Local.extend('behaviors.JSON', {
     aggregations: aggregations,
 
     createColumns: function() {
-        var dataModel = this.getDataModel();
+        var dataModel = this.dataModel;
         var columnCount = dataModel.getColumnCount();
         var headers = dataModel.getHeaders();
         var fields = dataModel.getFields();
@@ -79,7 +79,7 @@ var JSON = Local.extend('behaviors.JSON', {
      * @param {string[]} headerLabels - The header labels.
      */
     setHeaders: function(headerLabels) {
-        this.getDataModel().setHeaders(headerLabels);
+        this.dataModel.setHeaders(headerLabels);
     },
 
     /**
@@ -87,7 +87,7 @@ var JSON = Local.extend('behaviors.JSON', {
      * @desc * @returns {string[]} The header labels.
      */
     getHeaders: function() {
-        return this.getDataModel().getHeaders();
+        return this.dataModel.getHeaders();
     },
 
     /**
@@ -98,7 +98,7 @@ var JSON = Local.extend('behaviors.JSON', {
     setFields: function(fieldNames) {
         //were defining the columns based on field names....
         //we must rebuild the column definitions
-        this.getDataModel().setFields(fieldNames);
+        this.dataModel.setFields(fieldNames);
         this.createColumns();
     },
 
@@ -108,7 +108,7 @@ var JSON = Local.extend('behaviors.JSON', {
      * @returns {string[]}
      */
     getFields: function() {
-        return this.getDataModel().getFields();
+        return this.dataModel.getFields();
     },
 
     /**
@@ -117,7 +117,7 @@ var JSON = Local.extend('behaviors.JSON', {
      * @param {object[]} objects - An array of uniform objects, each being a row in the grid.
      */
     setData: function(dataRows) {
-        this.getDataModel().setData(dataRows);
+        this.dataModel.setData(dataRows);
         this.createColumns();
         var self = this;
         if (this.grid.isColumnAutosizing()) {
@@ -139,7 +139,7 @@ var JSON = Local.extend('behaviors.JSON', {
      * @param {Array<Array>} totalRows - array of rows (arrays) of totals
      */
     setTopTotals: function(totalRows) {
-        this.getDataModel().setTopTotals(totalRows);
+        this.dataModel.setTopTotals(totalRows);
     },
 
     /**
@@ -148,7 +148,7 @@ var JSON = Local.extend('behaviors.JSON', {
      * @returns {Array<Array>}
      */
     getTopTotals: function() {
-        return this.getDataModel().getTopTotals();
+        return this.dataModel.getTopTotals();
     },
 
     /**
@@ -157,7 +157,7 @@ var JSON = Local.extend('behaviors.JSON', {
      * @param {Array<Array>} totalRows - array of rows (arrays) of totals
      */
     setBottomTotals: function(totalRows) {
-        this.getDataModel().setBottomTotals(totalRows);
+        this.dataModel.setBottomTotals(totalRows);
     },
 
     /**
@@ -166,7 +166,7 @@ var JSON = Local.extend('behaviors.JSON', {
      * @returns {Array<Array>}
      */
     getBottomTotals: function() {
-        return this.getDataModel().getBottomTotals();
+        return this.dataModel.getBottomTotals();
     },
 
     /**
@@ -182,7 +182,7 @@ var JSON = Local.extend('behaviors.JSON', {
      * @param {Array} columnDefinitions - an array of objects with fields 'title', and 'field'
      */
     setColumns: function(columnDefinitions) {
-        this.getDataModel().setColumns(columnDefinitions);
+        this.dataModel.setColumns(columnDefinitions);
     },
 
     /**
@@ -195,11 +195,11 @@ var JSON = Local.extend('behaviors.JSON', {
     },
 
     setDataProvider: function(dataProvider) {
-        this.getDataModel().setDataProvider(dataProvider);
+        this.dataModel.setDataProvider(dataProvider);
     },
 
     hasHierarchyColumn: function() {
-        return this.getDataModel().hasHierarchyColumn();
+        return this.dataModel.hasHierarchyColumn();
     },
 
     getColumnAlignment: function(x) {
@@ -211,30 +211,30 @@ var JSON = Local.extend('behaviors.JSON', {
     },
 
     getRowSelectionMatrix: function(selectedRows) {
-        return this.getDataModel().getRowSelectionMatrix(selectedRows);
+        return this.dataModel.getRowSelectionMatrix(selectedRows);
     },
 
     getColumnSelectionMatrix: function(selectedColumns) {
-        return this.getDataModel().getColumnSelectionMatrix(selectedColumns);
+        return this.dataModel.getColumnSelectionMatrix(selectedColumns);
     },
 
     getSelectionMatrix: function(selections) {
-        return this.getDataModel().getSelectionMatrix(selections);
+        return this.dataModel.getSelectionMatrix(selections);
     },
 
     getRowSelection: function() {
         var selectedRows = this.getSelectedRows();
-        return this.getDataModel().getRowSelection(selectedRows);
+        return this.dataModel.getRowSelection(selectedRows);
     },
 
     getColumnSelection: function() {
         var selectedColumns = this.getSelectedColumns();
-        return this.getDataModel().getColumnSelection(selectedColumns);
+        return this.dataModel.getColumnSelection(selectedColumns);
     },
 
     getSelection: function() {
         var selections = this.getSelections();
-        return this.getDataModel().getSelection(selections);
+        return this.dataModel.getSelection(selections);
     },
 
     buildColumnPicker: function(div) {
@@ -273,16 +273,16 @@ var JSON = Local.extend('behaviors.JSON', {
         return true;
     },
     getGroups: function() {
-        return this.getDataModel().getGroups();
+        return this.dataModel.getGroups();
     },
     getAvailableGroups: function() {
-        return this.getDataModel().getAvailableGroups();
+        return this.dataModel.getAvailableGroups();
     },
     getHiddenColumns: function() {
-        return this.getDataModel().getHiddenColumns();
+        return this.dataModel.getHiddenColumns();
     },
     getVisibleColumns: function() {
-        return this.getDataModel().getVisibleColumns();
+        return this.dataModel.getVisibleColumns();
     },
     setColumnDescriptors: function(lists) {
         //assumes there is one row....
@@ -298,7 +298,7 @@ var JSON = Local.extend('behaviors.JSON', {
         var groupBys = lists.group.map(function(e) {
             return e.id;
         });
-        this.getDataModel().setGroups(groupBys);
+        this.dataModel.setGroups(groupBys);
 
         this.changed();
     },
