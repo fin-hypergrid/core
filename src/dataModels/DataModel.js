@@ -13,8 +13,12 @@ var DataModel = Base.extend('DataModel', {
 
     grid: null,
 
-    setGrid: function(newGrid) {
-        this.grid = newGrid;
+    initialize: function(grid) {
+        this.setGrid(grid);
+    },
+
+    setGrid: function(grid) {
+        this.grid = grid;
     },
 
     /** @deprecated Use `.grid` property instead. */

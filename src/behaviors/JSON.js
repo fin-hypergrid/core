@@ -3,7 +3,6 @@
 var ListDragon = require('list-dragon');
 
 var Local = require('./Local');
-var DataModelDecorator = require('./DataModelDecorator');
 var DataModelJSON = require('../dataModels/JSON');
 var features = require('../features');
 var addStylesheet = require('../../css/stylesheets');
@@ -66,7 +65,7 @@ var JSON = Local.extend('behaviors.JSON', {
     },
 
     getDefaultDataModel: function() {
-        return new DataModelDecorator(this.grid, new DataModelJSON);
+        return new DataModelJSON(this.grid);
     },
 
     applyAnalytics: function() {
