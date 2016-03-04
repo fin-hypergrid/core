@@ -161,7 +161,8 @@ var JSON = DataModel.extend('dataModels.JSON', {
                 var sortString = this.getSortImageForColumn(x);
                 if (sortString) { value = sortString + value; }
             } else { // must be filter row
-                value = ''; // TODO: FIX THIS!!! value = this.getFilter(x);
+                var filter = this.getGlobalFilter();
+                value = filter ? filter.getColumnFilter(this.getFields()[x]) : '';
                 var icon = images.filter(value.length);
                 return [null, value, icon];
             }
@@ -617,6 +618,10 @@ var JSON = DataModel.extend('dataModels.JSON', {
         return this.getDataSource().getValue(index, y);
     },
 
+    getGlobalFilter: function() {
+        return this.getGlobalFilterSource().get();
+    },
+
     /**
      * @memberOf dataModels.JSON.prototype
      * @param {FilterTree|FilterTreeOptionsObject} [filterOrOptions] - One of:
@@ -635,19 +640,20 @@ var JSON = DataModel.extend('dataModels.JSON', {
             if (filterOrOptions instanceof CustomFilter) {
                 filter = filterOrOptions;
             } else {
-                options = { // TODO: Just for testing!!!
-                    schema: filterOrOptions.schema,
-                    state: {
-                        children: [
-                            {
-                                column: 'total_number_of_pets_owned',
-                                operator: '=',
-                                literal: '3'
-                            }
-                        ]
-                    }
+                options = {
+                    schema: filterOrOptions.schema
                 };
                 filter = new CustomFilter(options);
+
+                // TODO: Just for testing:
+                filter.children[1].add({
+                    children: [{
+                        column: 'total_number_of_pets_owned',
+                        operator: '=',
+                        literal: '3'
+                    }]
+                });
+
                 filter.invalid();
             }
 

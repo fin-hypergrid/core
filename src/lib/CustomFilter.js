@@ -3,6 +3,11 @@
 //var FilterTree = require('filter-tree');
 var FilterTree = require('../../../../filter-tree/src/js/FilterTree');
 
+
+//var tableFilterSubtree;
+var columnFiltersSubtree;
+
+
 /** @typedef {function} fieldsProviderFunc
  * @returns {menuOption[]} see jsdoc typedef in pop-menu.js
  */
@@ -21,6 +26,20 @@ var CustomFilter = FilterTree.extend('CustomFilter', {
 
     preInitialize: function(options) {
         options.state = options.state || getFilterStateScaffold();
+    },
+
+    initialize: function() {
+        extractSubtrees.call(this);
+    },
+
+    getColumnFilter: function(columnName) {
+        var columnFilterSubexpression = columnFiltersSubtree.children.find(function(columnFilter) {
+            return columnFilter.children.length && columnFilter.children[0].column === columnName;
+        });
+
+        return columnFilterSubexpression
+            ? columnFilterSubexpression.getState({ syntax: 'filter-cell' })
+            : '';
     },
 
     // Following co-routines service calls from grid.dialog (see cellEditors/Filter.js)
@@ -86,6 +105,12 @@ function getFilterStateScaffold() {
     };
 
     return filter;
+}
+
+
+function extractSubtrees() {
+    //tableFilterSubtree = this.children[0];
+    columnFiltersSubtree = this.children[1];
 }
 
 module.exports = CustomFilter;

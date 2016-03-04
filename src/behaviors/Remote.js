@@ -3,7 +3,6 @@
 //var ListDragon = require('list-dragon');
 
 var Behavior = require('./Behavior');
-//var DataModelDecorator = require('./DataModelDecorator');
 //var DataModelJSON = require('../dataModels/JSON');
 //var features = require('../features');
 //var addStylesheet = require('../stylesheets');

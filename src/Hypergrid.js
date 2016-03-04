@@ -3139,6 +3139,9 @@ Hypergrid.prototype = {
     isColumnAutosizing: function() {
         return this.resolveProperty('columnAutosizing') === true;
     },
+    getGlobalFilter: function() {
+        return this.behavior.getGlobalFilter();
+    },
     setGlobalFilter: function(filter) {
         this.behavior.setGlobalFilter(filter);
     },

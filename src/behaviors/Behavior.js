@@ -1658,6 +1658,10 @@ var Behavior = Base.extend('Behavior', {
         }
     },
 
+    getGlobalFilter: function() {
+        return this.dataModel.getGlobalFilter();
+    },
+
     setGlobalFilter: function(filterOrOptions) {
         this.dataModel.setGlobalFilter(filterOrOptions);
     },

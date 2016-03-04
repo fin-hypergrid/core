@@ -146,7 +146,7 @@ var Filter = CellEditor.extend('Filter', {
         //var type = behavior.getColumn(columnIndex).getType();
 
         this.title.innerHTML = 'Manage Filters';
-        var filter = behavior.dataModel.getComponent().getGlobalFilterSource().get();
+        var filter = behavior.getGlobalFilter();
         //var self = this;
         if (dialog.isOpen()) {
             dialog.close();
