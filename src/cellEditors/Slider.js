@@ -7,13 +7,6 @@ var Simple = require('./Simple');
  */
 var Slider = Simple.extend('Slider', {
 
-    /**
-     * my lookup alias
-     * @type {string}
-     * @memberOf Slider.prototype
-     */
-    alias: 'slider',
-
     template: function() {
         /*
             <input id="editor" type="range">

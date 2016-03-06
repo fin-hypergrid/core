@@ -7,8 +7,6 @@ var Feature = require('./Feature.js');
  */
 var CellSelection = Feature.extend('CellSelection', {
 
-    alias: 'CellSelection',
-
     /**
      * The pixel location of the mouse pointer during a drag operation.
      * @type {window.fin.rectangular.Point}

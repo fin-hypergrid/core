@@ -7,8 +7,6 @@ var Feature = require('./Feature.js');
  */
 var ThumbwheelScrolling = Feature.extend('ThumbwheelScrolling', {
 
-    alias: 'ThumbwheelScrolling',
-
     /**
      * @memberOf ThumbwheelScrolling.prototype
      * @desc handle this event down the feature chain of responsibility

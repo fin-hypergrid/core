@@ -16,13 +16,6 @@ function parseDate(input) {
  */
 var Date = Simple.extend('Date', {
 
-    /**
-     * my lookup alias
-     * @type {string}
-     * @memberOf Date.prototype
-     */
-    alias: 'date',
-
     template: function() {
         /*
             <input id="editor" type="date">

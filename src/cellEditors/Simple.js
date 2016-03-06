@@ -18,13 +18,6 @@ var Simple = CellEditor.extend('Simple', {
     input: null,
 
     /**
-     * my lookup alias
-     * @type {string}
-     * @memberOf Simple.prototype
-     */
-    alias: 'simple',
-
-    /**
      * @memberOf Simple.prototype
      */
     initialize: function() {

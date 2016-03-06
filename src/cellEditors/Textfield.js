@@ -7,13 +7,6 @@ var Simple = require('./Simple');
  */
 var Textfield = Simple.extend('Textfield', {
 
-    /**
-     * my lookup alias
-     * @type {string}
-     * @memberOf Textfield.prototype
-     */
-    alias: 'textfield',
-
     template: function() {
         /*
             <input id="editor">

@@ -668,7 +668,7 @@ var Behavior = Base.extend('Behavior', {
      * @param {Feature}
      */
     setNextFeature: function(nextFeature) {
-        this.featureMap[nextFeature.alias] = nextFeature;
+        this.featureMap[nextFeature.$$CLASS_NAME] = nextFeature;
         if (this.featureChain) {
             this.featureChain.setNext(nextFeature);
         } else {
@@ -1170,6 +1170,7 @@ var Behavior = Base.extend('Behavior', {
         }
         return properties;
     },
+
     setColumnProperties: function(columnIndex, properties) {
         var columnProperties = this.allColumns[columnIndex].getProperties();
         _(columnProperties).extendOwn(properties);
@@ -1184,6 +1185,7 @@ var Behavior = Base.extend('Behavior', {
     getField: function(colIndex) {
         return colIndex === -1 ? 'tree' : this.getColumn(colIndex).getField();
     },
+
     /**
      * @memberOf Behavior.prototype
      * @return {string} The column heading at `colIndex'.
@@ -1192,6 +1194,7 @@ var Behavior = Base.extend('Behavior', {
     getHeader: function(colIndex) {
         return colIndex === -1 ? 'Tree' : this.getColumn(colIndex).getHeader();
     },
+
     /**
      * @memberOf Behavior.prototype
      * @desc this is called by the column editor post closing; rebuild the column order indexes
@@ -1466,13 +1469,22 @@ var Behavior = Base.extend('Behavior', {
      * @return {cellEditor} The cell editor for the cell at cell coordinates `x,y`
      * @param {number} x - The horizontal cell coordinate.
      * @param {number} y - The vertical cell coordinate.
+     * @param {boolean} isDblClick - When called from `onEditorActivate`, indicates if event was a double-click.
      */
-    _getCellEditorAt: function(x, y) {
-        var editor = this.getColumn(x).getCellEditorAt(x, y);
+    _getCellEditorAt: function(x, y, isDblClick) {
+        var editor,
+            isFilterRow = this.grid.isFilterRow(y);
+
+        if (!isFilterRow) {
+            editor = this.getColumn(x).getCellEditorAt(x, y);
+        } else if (!isDblClick) {
+            // filter row single click just gets text editor
+            editor = this.grid.cellEditors.textfield;
+        }
 
         if (!editor) {
             var column = this.getColumn(x);
-            var type = this.grid.isFilterRow(y) ? column.getFilterType() : column.getType();
+            var type = isFilterRow ? column.getFilterType() : column.getType();
             editor = this.grid.resolveCellEditor(type);
         }
 

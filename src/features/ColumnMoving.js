@@ -19,8 +19,6 @@ var floatColumnCTX;
  */
 var ColumnMoving = Feature.extend('ColumnMoving', {
 
-    alias: 'ColumnMoving',
-
     /**
      * queue up the animations that need to play so they are done synchronously
      * @type {Array}

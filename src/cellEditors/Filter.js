@@ -8,13 +8,6 @@ var CellEditor = require('./CellEditor');
  */
 var Filter = CellEditor.extend('Filter', {
 
-    /**
-     * my lookup alias
-     * @type {string}
-     * @memberOf Textfield.prototype
-     */
-    alias: 'filter',
-
     initialize: function() {
         var data = document.createElement('div');
         var style = data.style;

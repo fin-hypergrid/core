@@ -275,7 +275,7 @@ Hypergrid.prototype = {
     },
 
     initCellEditor: function(cellEditor) {
-        this.localCellEditors[cellEditor.alias] = cellEditor;
+        this.localCellEditors[cellEditor.$$CLASS_NAME.toLowerCase()] = cellEditor;
         cellEditor.grid = this;
     },
 
@@ -712,7 +712,7 @@ Hypergrid.prototype = {
 
     clearRowSelection: function() {
         this.selectionModel.clearRowSelection();
-        this.behavior.dataModel.getComponent().clearSelectedData();
+        this.behavior.dataModel.clearSelectedData();
     },
 
     /**
@@ -923,7 +923,6 @@ Hypergrid.prototype = {
             self.repaint();
         });
 
-
         // this.addEventListener('fin-canvas-click', function(e) {
         //     if (self.resolveProperty('readOnly')) {
         //         return;
@@ -1011,7 +1010,13 @@ Hypergrid.prototype = {
                 ) {
                     currentCell = self.selectionModel.getLastSelection();
                     if (currentCell) {
-                        editor = self.activateEditor(currentCell.origin.x, currentCell.origin.y);
+                        var pseudoEvent = {
+                            gridCell: {
+                                x: currentCell.origin.x,
+                                y: currentCell.origin.y
+                            }
+                        };
+                        editor = self.onEditorActivate(pseudoEvent);
                         if (editor instanceof Hypergrid.cellEditors.Simple) {
                             if (isVisibleChar) {
                                 editor.input.value = char;
@@ -1343,17 +1348,11 @@ Hypergrid.prototype = {
      * @param {string} cellEditor - The specific cell editor to use.
      * @param {Point} coordinates - The pixel locaiton of the cell to edit at.
      */
-    editAt: function(cellEditor, coordinates) {
+    editAt: function(cellEditor, editPoint) {
 
         this.cellEditor = cellEditor;
 
-        var cell = coordinates.gridCell;
-
-        var x = cell.x;
-        var y = cell.y;
-
-        if (x >= 0 && y >= 0) {
-            var editPoint = new Point(x, y);
+        if (editPoint.x >= 0 && editPoint.y >= 0) {
             this.setMouseDown(editPoint);
             this.setDragExtent(new Point(0, 0));
             cellEditor.beginEditAt(editPoint);
@@ -1942,7 +1941,6 @@ Hypergrid.prototype = {
     /**
      * @memberOf Hypergrid.prototype
      * @desc Synthesize and fire a `fin-double-click` event.
-     * @param {Point} cell - The pixel location of the cell in which the click event occured.
      * @param {MouseEvent} event - The system mouse event.
      */
     fireSyntheticDoubleClickEvent: function(mouseEvent) {
@@ -2420,43 +2418,30 @@ Hypergrid.prototype = {
 
     /**
      * @memberOf Hypergrid.prototype
-     * @desc An edit event has occurred. Activate the editor.
-     * @param {event} event - The event details.
+     * @desc An edit event has occurred. Activate the editor at the given coordinates.
+     * @param {number} event.gridCell.x - The horizontal coordinate.
+     * @param {number} event.gridCell.y - The vertical coordinate.
+     * @param {boolean} [event.primitiveEvent.type]
+     * @returns {undefined|CellEditor} The editor object or `undefined` if no editor or editor already open.
      */
-    _activateEditor: function(event) {
-        var gridCell = event.gridCell;
-        this.activateEditor(gridCell.x, gridCell.y);
-    },
+    onEditorActivate: function(event) {
+        var point = event.gridCell;
 
-    /**
-     * @memberOf Hypergrid.prototype
-     * @desc Activate the editor at the given coordinates.
-     * @param {x} x - The horizontal coordinate.
-     * @param {y} y - The vertical coordinate.
-     * @returns {CellEditor} (or objected extended from same) The editor object.
-     */
-    activateEditor: function(x, y) {
-        var editor;
+        if (this.isEditable() || this.isFilterRow(point.y)) {
+            var primEvent = event.primitiveEvent,
+                isDblClick = primEvent && primEvent.type === 'fin-canvas-dblclick',
+                editor = this.getCellEditorAt(point.x, point.y, isDblClick),
+                editorPoint = editor.getEditorPoint(),
+                sameCell = point.equals(editorPoint),
+                editorAlreadyOpen = sameCell && editor.isEditing;
 
-        if (this.isEditable() || this.isFilterRow(y)) {
-            editor = this.getCellEditorAt(x, y);
-
-            if (editor) {
-                var point = editor.getEditorPoint();
-                if (editor) {
-                    if (point.x === x && point.y === y && editor.isEditing) {
-                        return; //we're already open at this location
-                    }
-
-                    if (this.isEditing()) {
-                        this.stopEditing(); //other editor is open, close it first
-                    }
-                    event.gridCell = {
-                        x: x,
-                        y: y
-                    };
-                    this.editAt(editor, event);
+            if (editorAlreadyOpen) {
+                editor = undefined;
+            } else {
+                if (this.isEditing()) {
+                    this.stopEditing(); //other editor is open, close it first
                 }
+                this.editAt(editor, point);
             }
         }
 
@@ -2470,9 +2455,10 @@ Hypergrid.prototype = {
      * @returns The cell editor at the given coordinates.
      * @param {x} x - The horizontal coordinate.
      * @param {y} y - The vertical coordinate.
+     * @param {boolean} isDblClick - When called from `onEditorActivate`, indicates if event was a double-click.
      */
-    getCellEditorAt: function(x, y) {
-        return this.behavior._getCellEditorAt(x, y);
+    getCellEditorAt: function(x, y, isDblClick) {
+        return this.behavior._getCellEditorAt(x, y, isDblClick);
     },
 
     /**
@@ -3059,9 +3045,6 @@ Hypergrid.prototype = {
     },
     setGroups: function(arrayOfColumnIndexes) {
         this.behavior.setGroups(arrayOfColumnIndexes);
-    },
-    filterClicked: function(event) {
-        this.activateEditor(event.gridCell.x, event.gridCell.y);
     },
     hasHierarchyColumn: function() {
         return this.behavior.hasHierarchyColumn();

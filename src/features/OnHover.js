@@ -7,8 +7,6 @@ var Feature = require('./Feature.js');
  */
 var OnHover = Feature.extend('OnHover', {
 
-    alias: 'OnHover',
-
     /**
      * @desc Hhandle this event down the feature chain of responsibility.
      * @param {Hypergrid} grid

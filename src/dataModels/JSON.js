@@ -227,6 +227,10 @@ var JSON = DataModel.extend('dataModels.JSON', {
         return '';
     },
 
+    setFilter: function() {
+        // TODO: Put filter state in cell.
+    },
+
     /**
      * @memberOf dataModels.JSON.prototype
      * @param {number} colIndex
@@ -645,13 +649,14 @@ var JSON = DataModel.extend('dataModels.JSON', {
                 };
                 filter = new CustomFilter(options);
 
-                // TODO: Just for testing:
+                // TODO: Remove this (just for testing):
                 filter.children[1].add({
                     children: [{
                         column: 'total_number_of_pets_owned',
                         operator: '=',
                         literal: '3'
-                    }]
+                    }],
+                    type: 'columnFilter'
                 });
 
                 filter.invalid();

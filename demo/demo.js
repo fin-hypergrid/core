@@ -40,7 +40,7 @@ window.onload = function() {
         }
     ];
 
-    //used by the cellProvider, return null for a column if you want no editor to pop up
+    //used by the cellProvider, `null` means column not editable (except filter row)
     var editorTypes = [
         'choice',
         'textfield',
@@ -198,73 +198,97 @@ window.onload = function() {
             downArrowIMG = null;
         }
 
-        var travel, bcolor;
+        var travel;
 
         config.halign = 'left';
-        if (y % 3 === 0) {
-            config.backgroundColor = '#E87200';
-            config.font = 'italic 15px Arial';
-        } else if ((y + 1) % 3 === 0) {
-            config.backgroundColor = '#aaaaff';
-            config.color = '#ffffff';
+
+        switch (y % 6) {
+            case 5:
+            case 0:
+            case 1:
+                config.backgroundColor = '#e8ffe8';
+                config.font = 'italic x-small verdana';
+                config.color = '#070';
+                break;
+
+            case 2:
+            case 3:
+            case 4:
+                config.backgroundColor = 'white';
+                config.font = 'normal small garamond';
+                break;
         }
-        if ([0, 1, 4, 5].indexOf(x) > -1) {
-            //we are a dropdown, lets provide a visual queue
-            config.value = [null, config.value, upDownIMG];
+
+        switch (x) {
+            case 0:
+            case 1:
+            case 4:
+            case 5:
+                //we are a dropdown, lets provide a visual queue
+                config.value = [null, config.value, upDownIMG];
         }
-        if (x === 1) {
-            renderer = cellProvider.cellCache.linkCellRenderer;
-        } else if (x === 2) {
-            config.halign = 'left';
-            config.value = [null, config.value, upDownSpinIMG];
-        } else if (x === 3 && !doAggregates) {
-            config.halign = 'left';
-            config.value = [null, config.value, downArrowIMG];
-        } else if (x === 6) {
-            renderer = cellProvider.cellCache.buttonRenderer;
-        } else if (x === 7) {
-            travel = 60 + Math.round(config.value * 150 / 100000);
-            bcolor = travel.toString(16);
-            config.halign = 'right';
-            config.backgroundColor = '#00' + bcolor + '00';
-            config.color = '#FFFFFF';
-        } else if (x === 8) {
-            travel = 105 + Math.round(config.value * 150 / 1000);
-            bcolor = travel.toString(16);
-            config.halign = 'right';
-            config.backgroundColor = '#' + bcolor + '0000';
-            config.color = '#FFFFFF';
+
+        switch (x) {
+            case 1:
+                renderer = cellProvider.cellCache.linkCellRenderer;
+                break;
+
+            case 2:
+                config.halign = 'left';
+                config.value = [null, config.value, upDownSpinIMG];
+                break;
+
+            case 3:
+                if (!doAggregates) {
+                    config.halign = 'left';
+                    config.value = [null, config.value, downArrowIMG];
+                }
+                break;
+
+            case 6:
+                renderer = cellProvider.cellCache.buttonRenderer;
+                break;
+
+            case 7:
+                travel = 60 + Math.round(config.value * 150 / 100000);
+                config.backgroundColor = '#00' + travel.toString(16) + '00';
+                config.color = '#FFFFFF';
+                config.halign = 'right';
+                break;
+
+            case 8:
+                travel = 105 + Math.round(config.value * 150 / 1000);
+                config.backgroundColor = '#' + travel.toString(16) + '0000';
+                config.color = '#FFFFFF';
+                config.halign = 'right';
+                break;
         }
         return renderer;
     };
 
     //lets override the cell editors, and configure the drop down lists
-    var myCellEditors = function(x, y) {
-        var type = editorTypes[x % (editorTypes.length)];
-        if (!type) {
-            return; //no editor here
-        }
-        var cellEditor = this.grid.cellEditors[type];
-        if (jsonGrid.isFilterRow(y)) {
-            if (x === 2) {
-                return null; // default filter here
-            } else if (x === 2) {
-                return this.grid.cellEditors.textfield;
-            } else if (x === 3) {
-                return this.grid.cellEditors.textfield;
-            } else if (x === 6) {
-                cellEditor.setItems(['', true, false]); //editor here
-                return cellEditor;
+    function myCellEditors(x) {
+        var editorType = editorTypes[x % editorTypes.length],
+            cellEditor;
+
+        if (editorType) {
+            cellEditor = this.grid.cellEditors[editorType];
+
+            switch (x) {
+                case 6:
+                    cellEditor = null;
+                    break;
+
+                case 2:
+                    cellEditor.getInput().setAttribute('min', 0);
+                    cellEditor.getInput().setAttribute('max', 10);
+                    cellEditor.getInput().setAttribute('step', 0.01);
+                    break;
             }
-        } else if (x === 6) {
-            return null;
-        } else if (x === 2) {
-            cellEditor.getInput().setAttribute('min', 0);
-            cellEditor.getInput().setAttribute('max', 10);
-            cellEditor.getInput().setAttribute('step', 0.01);
         }
+
         return cellEditor;
-    };
+    }
 
     dataModel.getCellEditorAt = myCellEditors;
 
@@ -275,6 +299,11 @@ window.onload = function() {
 //         return null;
 //     }
 // };
+
+    jsonGrid.addEventListener('fin-click', function(e) {
+        var cell = e.detail.gridCell;
+        console.log('fin-click cell:', cell);
+    });
 
     jsonGrid.addEventListener('fin-double-click', function(e) {
         var cell = e.detail.gridCell;
@@ -313,7 +342,7 @@ window.onload = function() {
 
         areas.forEach(function(area) {
             var methodName = 'get' + area[0].toUpperCase() + area.substr(1) + 'Totals',
-                totalsRow = dataModel.getComponent()[methodName]();
+                totalsRow = dataModel[methodName]();
 
             totalsRow[detail.y][detail.x] = detail.value;
         });
@@ -488,22 +517,22 @@ window.onload = function() {
 
     toggleProps.forEach(function(prop) { addToggle(prop); });
 
-    setTimeout(function() {
-
-        jsonModel.setFields(['employed', 'income', 'travel', 'squareOfIncome']);
-        jsonModel.setHeaders(['one', 'two', 'three', 'four']);
-
-        console.log(jsonModel.getHeaders());
-        console.log(jsonModel.getFields());
-
-        console.log('visible rows = ' + jsonGrid.getVisibleRows());
-        console.log('visible columns = ' + jsonGrid.getVisibleColumns());
+    //setTimeout(function() {
+    //
+    //    jsonModel.setFields(['employed', 'income', 'travel', 'squareOfIncome']);
+    //    jsonModel.setHeaders(['one', 'two', 'three', 'four']);
+    //
+    //    console.log(jsonModel.getHeaders());
+    //    console.log(jsonModel.getFields());
+    //
+    //    console.log('visible rows = ' + jsonGrid.getVisibleRows());
+    //    console.log('visible columns = ' + jsonGrid.getVisibleColumns());
 
 
         setTimeout(function() {
 
-            jsonModel.setFields(fields);
-            jsonModel.setHeaders(headers);
+            //jsonModel.setFields(fields);
+            //jsonModel.setHeaders(headers);
 
             console.log('mapping between indexes and column names');
             var fieldsMap = {};
@@ -646,9 +675,9 @@ window.onload = function() {
 
             jsonGrid.takeFocus();
 
-        }, 500);
+        }, 50);
 
-    }, 500);
+    //});
 
 // var eventNames = [
 //     'dragstart',
@@ -735,7 +764,7 @@ window.onload = function() {
 
     function setSelectionProp() { // alternate checkbox click handler
         jsonGrid.selectionModel.clear();
-        dataModel.getComponent().clearSelectedData();
+        dataModel.clearSelectedData();
         setProp.call(this);
     }
 

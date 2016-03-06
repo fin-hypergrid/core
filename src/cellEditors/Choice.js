@@ -9,13 +9,6 @@ var Map = require('../lib/Mappy');
 var Choice = Simple.extend('Choice', {
 
     /**
-     * my lookup alias
-     * @type {string}
-     * @memberOf Choice.prototype
-     */
-    alias: 'choice',
-
-    /**
      * the list of items to pick from
      * @type {Array}
      * @memberOf Choice.prototype

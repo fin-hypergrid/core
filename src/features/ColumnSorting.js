@@ -7,8 +7,6 @@ var Feature = require('./Feature.js');
  */
 var ColumnSorting = Feature.extend('ColumnSorting', {
 
-    alias: 'ColumnSorting',
-
     /**
      * @memberOf ColumnSorting.prototype
      * @desc Handle this event down the feature chain of responsibility.

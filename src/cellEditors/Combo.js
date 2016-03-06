@@ -8,13 +8,6 @@ var Simple = require('./Simple');
 var Combo = Simple.extend('Combo', {
 
     /**
-     * my lookup alias
-     * @type {string}
-     * @memberOf Combo.prototype
-     */
-    alias: 'combo',
-
-    /**
      * the list of items to pick from
      * @type {Array}
      * @memberOf Combo.prototype

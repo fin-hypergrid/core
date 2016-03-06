@@ -7,8 +7,6 @@ var Feature = require('./Feature.js');
  */
 var CellEditing = Feature.extend('CellEditing', {
 
-    alias: 'CellEditing',
-
     /**
      * @memberOf CellEditing.prototype
      * @desc handle this event down the feature chain of responsibility
@@ -18,7 +16,7 @@ var CellEditing = Feature.extend('CellEditing', {
     handleDoubleClick: function(grid, event) {
         var isDoubleClickEditorActivation = grid.resolveProperty('editOnDoubleClick');
         if (this.checkActivateEditor(grid, event, isDoubleClickEditorActivation)) {
-            grid._activateEditor(event);
+            grid.onEditorActivate(event);
         } else if (this.next) {
             this.next.handleDoubleClick(grid, event);
         }
@@ -27,7 +25,7 @@ var CellEditing = Feature.extend('CellEditing', {
     handleTap: function(grid, event) {
         var isDoubleClickEditorActivation = grid.resolveProperty('editOnDoubleClick');
         if (this.checkActivateEditor(grid, event, !isDoubleClickEditorActivation)) {
-            grid._activateEditor(event);
+            grid.onEditorActivate(event);
         } else if (this.next) {
             this.next.handleTap(grid, event);
         }
@@ -42,7 +40,7 @@ var CellEditing = Feature.extend('CellEditing', {
     handleHoldPulse: function(grid, event) {
         var isDoubleClickEditorActivation = grid.resolveProperty('editOnDoubleClick');
         if (this.checkActivateEditor(grid, event, !isDoubleClickEditorActivation)) {
-           grid._activateEditor(event);
+           grid.onEditorActivate(event);
         } else if (this.next) {
             this.next.handleHoldPulse(grid, event);
         }
@@ -53,8 +51,10 @@ var CellEditing = Feature.extend('CellEditing', {
         var headerColumnCount = grid.behavior.getHeaderColumnCount();
         var gridCell = event.gridCell;
         var isFilterRow = grid.isFilterRow(gridCell.y);
-        var activateEditor = isDoubleClickEditorActivation && gridCell.x >= headerColumnCount && (isFilterRow || gridCell.y >= headerRowCount);
-        return activateEditor;
+
+        return isDoubleClickEditorActivation &&
+            gridCell.x >= headerColumnCount &&
+            (isFilterRow || gridCell.y >= headerRowCount);
     }
 
 });
