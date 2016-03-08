@@ -8,7 +8,6 @@ var Feature = require('./Feature.js');
 var Filters = Feature.extend('Filters', {
 
     handleDoubleClick: function(grid, event) {
-        console.log('dbl');
         if (grid.isFilterRow(event.gridCell.y)) {
             grid.onEditorActivate(event);
         } else {
@@ -17,7 +16,6 @@ var Filters = Feature.extend('Filters', {
     },
 
     handleTap: function(grid, event) {
-        console.log('tap');
         if (grid.isFilterRow(event.gridCell.y)) {
             grid.onEditorActivate(event);
         } else {

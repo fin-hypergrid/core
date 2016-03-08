@@ -1,18 +1,41 @@
 'use strict';
 
-//var FilterTree = require('filter-tree');
-var FilterTree = require('../../../../filter-tree/src/js/FilterTree');
+var FilterTree = require('filter-tree');
+//var FilterTree = require('../../../../filter-tree/src/js/FilterTree');
 var popMenu = require('../../../../filter-tree/src/js/pop-menu');
 
+var ColumnQueryLanguage = require('./ColumnQueryLanguage');
+
+/*
+function ColumnQueryLanguage() {}
+
+ColumnQueryLanguage.prototype.parse = function(columnName, state) {
+    state =  {
+        type: 'columnFilter',
+        children: [ {
+            column: columnName,
+            operator: '>',
+            literal: '2'
+        }, {
+            column: columnName,
+            operator: '<',
+            literal: '8'
+        } ]
+    };
+    return state;
+};
+
+ColumnQueryLanguage.prototype.setOptions = function() {};
+*/
 
 /** @typedef {function} fieldsProviderFunc
  * @returns {menuOption[]} see jsdoc typedef in pop-menu.js
  */
 
-//var validateQuietlyOptions = {
-//    alert: false,
-//    focus: false
-//};
+var QUIET_VALIDATION = {
+    alert: false,
+    focus: false
+};
 
 /** @constructor
  *
@@ -56,7 +79,8 @@ var CustomFilter = FilterTree.extend('CustomFilter', {
     },
 
     /**
-     * This default filter state scaffold describes the filter tree root used by Hypergrid, consisting of exactly two persisted child nodes:
+     * @summary Make a new empty Hypergrid filter tree state object.
+     * @desc This function makes a new default state object as used by Hypergrid, a root with exactly two persisted child nodes:
      *
      * * children[0] represents the _table filter,_ a series of any number of filter expressions and/or subexpressions
      * * children[1] represents the _column filters,_ a series of subexpressions, one per active column filter
@@ -97,13 +121,77 @@ var CustomFilter = FilterTree.extend('CustomFilter', {
     },
 
     getColumnFilter: function(columnName) {
-        var columnFilterSubexpression = this.columnFilters.children.find(function(columnFilter) {
+        return this.columnFilters.children.find(function(columnFilter) {
             return columnFilter.children.length && columnFilter.children[0].column === columnName;
         });
+    },
 
-        return columnFilterSubexpression
-            ? columnFilterSubexpression.getState({ syntax: 'filter-cell' })
-            : '';
+    /**
+     *
+     * @param columnName
+     * @param {boolean} [options.syntax='CQL'] See detectState in FilterNode.js.
+     */
+    getColumnFilterState: function(columnName, options) {
+        var result,
+            subexpression = this.getColumnFilter(columnName);
+
+        if (subexpression) {
+            var syntax = options && options.syntax || 'CQL';
+            result = subexpression.getState({ syntax: syntax });
+        } else {
+            result = '';
+        }
+
+        return result;
+    },
+
+    /**
+     *
+     * @param columnName
+     * @param state
+     * @param {boolean} [options.syntax='CQL'] See detectState in FilterNode.js.
+     */
+    setColumnFilterState: function(columnName, state, options) {
+        var syntax = options && options.syntax,
+            isCql = syntax === undefined || syntax === 'CQL',
+            subexpression = this.getColumnFilter(columnName);
+
+        if (isCql) {
+            if (!this.CQL) {
+                // set up a new CQL instance for this column prior to first use
+                this.CQL = new ColumnQueryLanguage(this.root.schema);
+
+                // bind it to this column's properties
+                this.CQL.setOptions(resolveProperty.bind(this, columnName));
+            }
+
+            // convert some CQL state syntax into a filter tree state object
+            var message;
+            try {
+                state = this.CQL.parse(columnName, state);
+                message = this.CQL.orphanedOpMsg;
+            } catch (e) {
+                message = e.message;
+            }
+            if (message) {
+                console.warn(message);
+            }
+        }
+
+        if (state) {
+            if (subexpression) {
+                // replace subexpression representing this column
+                subexpression.setState(state);
+            } else {
+                // add a subexpression representing this column
+                subexpression = this.columnFilters.add(state);
+            }
+
+            subexpression.invalid(QUIET_VALIDATION);
+        } else /* !state */ {
+            // remove subexpression representing this column
+            subexpression.remove();
+        }
     },
 
     // All remaining methods are co-routines called from grid.dialog
@@ -137,5 +225,10 @@ var CustomFilter = FilterTree.extend('CustomFilter', {
         return this.test.bind(this);
     }
 });
+
+function resolveProperty(columnName, propertyName) {
+    //todo: finish this
+    //return column.resolveProperty('filterCql' + key[0].toUpperCase() + key.substr(1));
+}
 
 module.exports = CustomFilter;

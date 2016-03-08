@@ -1,6 +1,6 @@
 /* eslint-env browser */
 
-/* globals fin, people1, people2, accounting */
+/* globals fin, people1, people2, accounting, vent */
 
 'use strict';
 
@@ -64,6 +64,8 @@ window.onload = function() {
     var jsonGrid = window.g = new fin.Hypergrid(div, behaviorFactory, marginForHorizontalScrollBar),
         jsonModel = window.b = jsonGrid.behavior,
         dataModel = window.m = jsonModel.dataModel;
+
+    window.vent = false;
 
     //functions for showing the grouping/rollup capbilities
     var doAggregates = false,
@@ -302,13 +304,13 @@ window.onload = function() {
 
     jsonGrid.addEventListener('fin-click', function(e) {
         var cell = e.detail.gridCell;
-        console.log('fin-click cell:', cell);
+        if (vent) { console.log('fin-click cell:', cell); }
     });
 
     jsonGrid.addEventListener('fin-double-click', function(e) {
         var cell = e.detail.gridCell;
         var rowContext = jsonModel.getRow(cell.y);
-        console.log('fin-double-click row-context:', rowContext);
+        if (vent) { console.log('fin-double-click row-context:', rowContext); }
     });
 
     jsonGrid.addEventListener('fin-button-pressed', function(e) {
@@ -317,11 +319,11 @@ window.onload = function() {
     });
 
     jsonGrid.addEventListener('fin-scroll-x', function(e) {
-        console.log('fin-scroll-x ', e.detail.value);
+        if (vent) { console.log('fin-scroll-x ', e.detail.value); }
     });
 
     jsonGrid.addEventListener('fin-scroll-y', function(e) {
-        console.log('fin-scroll-y', e.detail.value);
+        if (vent) { console.log('fin-scroll-y', e.detail.value); }
     });
 
     jsonGrid.addProperties({
@@ -330,7 +332,7 @@ window.onload = function() {
 
     jsonGrid.addEventListener('fin-cell-enter', function(e) {
         var cell = e.detail.gridCell;
-        //console.log('fin-cell-enter', cell.x, cell.y);
+        //if (vent) { console.log('fin-cell-enter', cell.x, cell.y); }
 
         //how to set the tooltip....
         jsonGrid.setAttribute('title', 'fin-cell-enter(' + cell.x + ', ' + cell.y + ')');
@@ -351,7 +353,7 @@ window.onload = function() {
     });
 
     jsonGrid.addEventListener('fin-filter-applied', function(e) {
-        console.log('fin-filter-applied', e);
+        if (vent) { console.log('fin-filter-applied', e); }
     });
 
     /**
@@ -418,7 +420,7 @@ window.onload = function() {
         jsonGrid.selectRowsFromCells();
         //jsonGrid.selectColumnsFromCells();
 
-        console.log('fin-selection-changed', jsonGrid.getSelectedRows(), jsonGrid.getSelectedColumns(), jsonGrid.getSelections());
+        if (vent) { console.log('fin-selection-changed', jsonGrid.getSelectedRows(), jsonGrid.getSelectedColumns(), jsonGrid.getSelections()); }
 
         if (e.detail.selections.length === 0) {
             console.log('no selections');
@@ -435,7 +437,7 @@ window.onload = function() {
     });
 
     jsonGrid.addEventListener('fin-row-selection-changed', function(e) {
-        console.log('fin-row-selection-changed', e.detail);
+        if (vent) { console.log('fin-row-selection-changed', e.detail); }
         if (e.detail.rows.length === 0) {
             console.log('no rows selected');
             return;
@@ -448,7 +450,7 @@ window.onload = function() {
     });
 
     jsonGrid.addEventListener('fin-column-selection-changed', function(e) {
-        console.log('fin-column-selection-changed', e.detail);
+        if (vent) { console.log('fin-column-selection-changed', e.detail); }
 
         if (e.detail.columns.length === 0) {
             console.log('no rows selected');
@@ -462,44 +464,44 @@ window.onload = function() {
     });
 
     jsonGrid.addEventListener('fin-editor-data-change', function(e) {
-        console.log('fin-editor-data-change', e.detail);
+        if (vent) { console.log('fin-editor-data-change', e.detail); }
 
     });
 
     jsonGrid.addEventListener('fin-request-cell-edit', function(e) {
-        console.log('fin-request-cell-edit', e);
+        if (vent) { console.log('fin-request-cell-edit', e); }
         //e.preventDefault(); //uncomment to cancel editor popping up
     });
 
     jsonGrid.addEventListener('fin-before-cell-edit', function(e) {
-        console.log('fin-before-cell-edit', e);
+        if (vent) { console.log('fin-before-cell-edit', e); }
         //e.preventDefault(); //uncomment to cancel updating the model with the new data
     });
 
     jsonGrid.addEventListener('fin-after-cell-edit', function(e) {
-        console.log('fin-after-cell-edit', e);
+        if (vent) { console.log('fin-after-cell-edit', e); }
     });
 
     jsonGrid.addEventListener('fin-editor-keyup', function(e) {
-        console.log('fin-editor-keyup', e.detail);
+        if (vent) { console.log('fin-editor-keyup', e.detail); }
     });
 
     jsonGrid.addEventListener('fin-editor-keypress', function(e) {
-        console.log('fin-editor-keypress', e.detail);
+        if (vent) { console.log('fin-editor-keypress', e.detail); }
     });
 
     jsonGrid.addEventListener('fin-editor-keydown', function(e) {
-        console.log('fin-editor-keydown', e.detail);
+        if (vent) { console.log('fin-editor-keydown', e.detail); }
     });
 
     jsonGrid.addEventListener('fin-groups-changed', function(e) {
-        console.log('fin-groups-changed', e.detail);
+        if (vent) { console.log('fin-groups-changed', e.detail); }
     });
 
     jsonGrid.addEventListener('fin-context-menu', function(e) {
         var modelPoint = e.detail.gridCell;
         var headerRowCount = jsonGrid.getHeaderRowCount();
-        console.log('fin-context-menu(' + modelPoint.x + ', ' + (modelPoint.y - headerRowCount) + ')');
+        if (vent) { console.log('fin-context-menu(' + modelPoint.x + ', ' + (modelPoint.y - headerRowCount) + ')'); }
     });
 
     var fields = jsonModel.getFields();

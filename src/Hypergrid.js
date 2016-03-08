@@ -1010,12 +1010,7 @@ Hypergrid.prototype = {
                 ) {
                     currentCell = self.selectionModel.getLastSelection();
                     if (currentCell) {
-                        var pseudoEvent = {
-                            gridCell: {
-                                x: currentCell.origin.x,
-                                y: currentCell.origin.y
-                            }
-                        };
+                        var pseudoEvent = { gridCell: currentCell.origin };
                         editor = self.onEditorActivate(pseudoEvent);
                         if (editor instanceof Hypergrid.cellEditors.Simple) {
                             if (isVisibleChar) {
@@ -1121,7 +1116,7 @@ Hypergrid.prototype = {
     },
 
     addFinEventListener: function(eventName, callback) {
-        console.warn('.addEventListener() method is deprecated as of v0.2. Use .addEventListener() instead. (Will be removed in a future release.)');
+        console.warn('.addFinEventListener() method is deprecated as of v0.2. Use .addEventListener() instead. (Will be removed in a future release.)');
         this.addEventListener(eventName, callback);
     },
 

@@ -87,11 +87,11 @@ var JSON = DataModel.extend('dataModels.JSON', {
         return this.postsorter; //this.hasAggregates() ? this.analytics : this.presorter;
     },
 
-    getGlobalFilterSource: function() {
+    getGlobalFilterDataSource: function() {
         return this.postglobalfilter; //this.hasAggregates() ? this.postfilter : this.prefilter;
     },
 
-    getSortingSource: function() {
+    getSortDataSource: function() {
         return this.postsorter; //this.hasAggregates() ? this.postsorter : this.presorter;
     },
 
@@ -162,7 +162,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
                 if (sortString) { value = sortString + value; }
             } else { // must be filter row
                 var filter = this.getGlobalFilter();
-                value = filter ? filter.getColumnFilter(this.getFields()[x]) : '';
+                value = filter ? filter.getColumnFilterState(this.getFields()[x]) : '';
                 var icon = images.filter(value.length);
                 return [null, value, icon];
             }
@@ -227,8 +227,12 @@ var JSON = DataModel.extend('dataModels.JSON', {
         return '';
     },
 
-    setFilter: function() {
-        // TODO: Put filter state in cell.
+    setFilter: function(x, value) {
+        var filter = this.getGlobalFilter(),
+            columnName = this.getFields()[x];
+
+        filter.setColumnFilterState(columnName, value);
+        this.applyAnalytics();
     },
 
     /**
@@ -623,7 +627,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
     },
 
     getGlobalFilter: function() {
-        return this.getGlobalFilterSource().get();
+        return this.getGlobalFilterDataSource().get();
     },
 
     /**
@@ -634,10 +638,10 @@ var JSON = DataModel.extend('dataModels.JSON', {
      * * falsy (omitted) - Turns off filtering.
      */
     setGlobalFilter: function(filterOrOptions) {
-        var globalFilterSource = this.getGlobalFilterSource();
+        var dataSource = this.getGlobalFilterDataSource();
 
         if (!filterOrOptions) {
-            globalFilterSource.clear();
+            dataSource.clear();
         } else {
             var filter, options;
 
@@ -662,7 +666,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
                 filter.invalid();
             }
 
-            globalFilterSource.set(filter);
+            dataSource.set(filter);
         }
 
         this.applyAnalytics();
@@ -789,7 +793,7 @@ function applyGroupBysAndAggregations() {
  * @memberOf dataModels.JSON.prototype
  */
 function applyFilters() {
-    this.getGlobalFilterSource().apply();
+    this.getGlobalFilterDataSource().apply();
 
     var details = [];
 
@@ -808,7 +812,7 @@ function applyFilters() {
  * @memberOf dataModels.JSON.prototype
  */
 function applySorts() {
-    var sortingSource = this.getSortingSource();
+    var sortingSource = this.getSortDataSource();
     var sorts = this.getPrivateState().sorts;
     var groupOffset = this.hasAggregates() ? 1 : 0;
     if (!sorts || sorts.length === 0) {
