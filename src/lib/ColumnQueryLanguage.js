@@ -251,6 +251,9 @@ ColumnQueryLanguage.prototype = {
             }
         }
 
+        this.cql = cql;
+        this.state = state;
+
         return state;
     }
 };

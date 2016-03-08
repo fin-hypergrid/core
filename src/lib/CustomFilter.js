@@ -2,7 +2,7 @@
 
 var FilterTree = require('filter-tree');
 //var FilterTree = require('../../../../filter-tree/src/js/FilterTree');
-var popMenu = require('../../../../filter-tree/src/js/pop-menu');
+var popMenu = require('pop-menu');
 
 var ColumnQueryLanguage = require('./ColumnQueryLanguage');
 
@@ -64,6 +64,8 @@ var CustomFilter = FilterTree.extend('CustomFilter', {
     },
 
     initialize: function(options) {
+        this.cache = {};
+
         if (!options.parent) {
             this.extractSubtrees();
         }
@@ -132,14 +134,19 @@ var CustomFilter = FilterTree.extend('CustomFilter', {
      * @param {boolean} [options.syntax='CQL'] See detectState in FilterNode.js.
      */
     getColumnFilterState: function(columnName, options) {
-        var result,
-            subexpression = this.getColumnFilter(columnName);
+        var result = this.cache[columnName];
 
-        if (subexpression) {
-            var syntax = options && options.syntax || 'CQL';
-            result = subexpression.getState({ syntax: syntax });
-        } else {
-            result = '';
+        if (result === undefined) {
+            var subexpression = this.getColumnFilter(columnName);
+
+            if (subexpression) {
+                var syntax = options && options.syntax || 'CQL';
+                result = subexpression.getState({ syntax: syntax });
+            } else {
+                result = '';
+            }
+
+            this.cache[columnName] = result;
         }
 
         return result;
@@ -169,6 +176,7 @@ var CustomFilter = FilterTree.extend('CustomFilter', {
             var message;
             try {
                 state = this.CQL.parse(columnName, state);
+                this.cache[columnName] = this.CQL.cql;
                 message = this.CQL.orphanedOpMsg;
             } catch (e) {
                 message = e.message;

@@ -3120,8 +3120,8 @@ Hypergrid.prototype = {
     getGlobalFilter: function() {
         return this.behavior.getGlobalFilter();
     },
-    setGlobalFilter: function(filter) {
-        this.behavior.setGlobalFilter(filter);
+    setGlobalFilter: function(filterOrOptions) {
+        this.behavior.setGlobalFilter(filterOrOptions);
     },
     selectRowsFromCells: function() {
         if (!this.isCheckboxOnlyRowSelections()) {

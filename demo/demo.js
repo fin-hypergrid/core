@@ -136,10 +136,28 @@ window.onload = function() {
         jsonGrid.reset();
     };
 
-    jsonModel.setData(people2);
+    jsonModel.setData(people1);
 
+    var prefix = ['one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight'];
+    var menu = [];
+    dataModel.getFields().forEach(function(value) {
+        if (!prefix.find(function(group) {
+            return value.substr(0, group.length) === group;
+        })) {
+            menu.push(value);
+        }
+    });
+    prefix.forEach(function(group, index) {
+        var submenu = [];
+        dataModel.getFields().forEach(function(value) {
+            if (value.substr(0, group.length) === group) {
+                submenu.push(value);
+            }
+        });
+        menu.push({ label: group.toUpperCase(), submenu: submenu });
+    });
     jsonGrid.setGlobalFilter({
-        schema: dataModel.getFields()
+        schema: menu
     });
 
     jsonGrid.setColumnProperties(2, {

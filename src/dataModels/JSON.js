@@ -643,25 +643,24 @@ var JSON = DataModel.extend('dataModels.JSON', {
         if (!filterOrOptions) {
             dataSource.clear();
         } else {
-            var filter, options;
+            var filter;
 
             if (filterOrOptions instanceof CustomFilter) {
                 filter = filterOrOptions;
             } else {
-                options = {
-                    schema: filterOrOptions.schema
-                };
-                filter = new CustomFilter(options);
+                filter = new CustomFilter(filterOrOptions);
 
                 // TODO: Remove this (just for testing):
-                filter.children[1].add({
-                    children: [{
-                        column: 'total_number_of_pets_owned',
-                        operator: '=',
-                        literal: '3'
-                    }],
-                    type: 'columnFilter'
-                });
+                if (false) { // eslint-disable-line no-constant-condition
+                    filter.children[1].add({
+                        children: [{
+                            column: 'total_number_of_pets_owned',
+                            operator: '=',
+                            literal: '3'
+                        }],
+                        type: 'columnFilter'
+                    });
+                }
 
                 filter.invalid();
             }
