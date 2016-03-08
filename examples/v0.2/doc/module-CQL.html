@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Class: CellEditing</title>
+    <title>JSDoc: Module: CQL</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -20,7 +20,7 @@
 </nav>
 <div id="main">
 
-    <h1 class="page-title">Class: CellEditing</h1>
+    <h1 class="page-title">Module: CQL</h1>
 
     
 
@@ -31,9 +31,8 @@
 
 <header>
     
-        <h2>
-        CellEditing
-        </h2>
+        
+            
         
     
 </header>
@@ -42,21 +41,142 @@
     <div class="container-overview">
     
         
+            <div class="description"><p>This grammar came from the legacy system in use at Barclays where they enter syntax into <em>column filter cells.</em> As in Hypergrid, each column's filter cell is directly below the column header, above the data rows.</p>
+<p>The original grammar was simply:</p>
+<blockquote>
+<p><em>expression</em> ::= [ <em>op-symbol</em> ] <em>operand</em>
+<em>op-synmbol</em> ::= <code>=</code> | <code>&lt;&gt;</code> | <code>&lt;</code> | <code>&gt;</code> | <code>&lt;=</code> | <code>&gt;=</code>
+<em>operand</em> ::= <em>column-name</em> | <em>random-text</em></p>
+</blockquote>
+<p>We expanded this grammar as follows:</p>
+<blockquote>
+<p><em>expression</em> ::= <em>simple-expression</em> { <em>logic-op</em> <em>simple-expression</em> }
+<em>simple-expression</em> ::= [ <em>operator</em> ] <em>operand</em>
+<em>operator</em> ::= <em>op-symbol</em> | <em>op-phrase</em>
+<em>op-symbol</em> ::= <code>=</code> | <code>&lt;&gt;</code> | <code>&lt;</code> | <code>&gt;</code> | <code>&lt;=</code> | <code>&gt;=</code>
+<em>op-phrase</em> ::= [ <code>NOT</code> <em>white-space</em> ] <em>op-word</em> <em>white-space</em>
+<em>op-word</em> ::= <code>STARTS</code> | <code>ENDS</code> | <code>CONTAINS</code> | <code>LIKE</code> | <code>IN</code>
+<em>operand</em> ::= <em>column-name</em> | <em>column alias</em> | <em>random-text</em>
+<em>logic-op</em> ::=  <em>white-space</em> ( <code>AND</code> | <code>OR</code> | <code>NOR</code> ) <em>white-space</em></p>
+</blockquote>
+<p>Notes:</p>
+<ol>
+<li>The default <em>op-symbol</em> is &quot;equals&quot; when no operator is given.</li>
+<li>Order of operations in undefined.</li>
+<li>In particular, there is no precedence for logical operators and to resolve any ambiguity as to which binds more tightly, all such operators in an expression <em>must be the same.</em> If you need to group two expressions more tightly, put them in a subexpression.</li>
+<li>Words are shown in the grammar above in upper case. However, they may be any mixture of upper and lower case.</li>
+<li><em>white-space</em> is optional if following or preceding a non-alpha character, specifically,_ an <em>op-symbol</em>).</li>
+</ol>
+<p>The original grammar was deterministic (unambiguous), consisting entirely of a single operand (after the optional operator, that is). The one exception is when that operand is an exact (case-insensitive) match for the name (or alias) of a column, it would indirect to that named column's value. Thus, there is no way to use a column name as a literal.</p>
+<p>The extended grammar is definitely non-deterministic because, in addition to the above, the words <code>and</code>, <code>or</code>, and <code>nor</code> also cannot be part of a literal. In a future release, we plan to allow optional paired quotation marks or parentheses to solve this problem:</p>
+<blockquote>
+<p><em>quoted-operand</em> ::= ( <code>'</code> | <code>&quot;</code> | <code>(</code> ) <em>operand</em> ( <code>'</code> | <code>&quot;</code> | <code>)</code> )</p>
+</blockquote></div>
+        
+
+        
+            
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>schema</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">FilterTree</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last"><p>Column schema for column name recognition.</p></td>
+        </tr>
 
     
 
-    <h4 class="name" id="CellEditing"><span class="type-signature"></span>new CellEditing<span class="signature">()</span><span class="type-signature"></span></h4>
+        <tr>
+            
+                <td class="name"><code>options.propResolver</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
 
     
-
-
-
-
-
-
-
-
-
+    </tbody>
+</table>
 
 
 
@@ -81,6 +201,13 @@
 
     
 
+    
+    <dt class="tag-author">Author:</dt>
+    <dd class="tag-author">
+        <ul>
+            <li><a href="mailto:jonathan@openfin.com">Jonathan Eiten</a></li>
+        </ul>
+    </dd>
     
 
     
@@ -113,6 +240,7 @@
 
 
 
+        
     
     </div>
 
@@ -136,14 +264,17 @@
 
     
 
-    <h4 class="name" id="handleDoubleClick"><span class="type-signature"></span>handleDoubleClick<span class="signature">(grid, event)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id=".parse"><span class="type-signature">(static) </span>parse<span class="signature">(columnName, cql)</span><span class="type-signature"> &rarr; {undefined|Object}</span></h4>
 
+    
+    <p class="summary"><p>Make a &quot;locked&quot; subexpression definition object from an expression chain.</p></p>
     
 
 
 
 <div class="description">
-    <p>handle this event down the feature chain of responsibility</p>
+    <p><em>Locked</em> means it is locked to a single field.</p>
+<p>When there is only a single expression in the chain, the <code>operator</code> is omitted (defaults to <code>'op-and'</code>).</p>
 </div>
 
 
@@ -179,13 +310,13 @@
 
         <tr>
             
-                <td class="name"><code>grid</code></td>
+                <td class="name"><code>columnName</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type"><a href="Hypergrid.html">Hypergrid</a></span>
+<span class="param-type">string</span>
 
 
             
@@ -202,13 +333,13 @@
 
         <tr>
             
-                <td class="name"><code>event</code></td>
+                <td class="name"><code>cql</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">Object</span>
+<span class="param-type">string</span>
 
 
             
@@ -218,7 +349,7 @@
 
             
 
-            <td class="description last"><p>the event details</p></td>
+            <td class="description last"><p>A CQL expression (one or more simple expressions all separated by the same logical operator).</p></td>
         </tr>
 
     
@@ -277,304 +408,31 @@
 
 
 
-
-
+<h5>Returns:</h5>
 
         
-            
-
-    
-
-    <h4 class="name" id="handleHoldPulse"><span class="type-signature"></span>handleHoldPulse<span class="signature">(grid, event)</span><span class="type-signature"></span></h4>
-
-    
-
-
-
-<div class="description">
-    <p>handle this event down the feature chain of responsibility</p>
+<div class="param-desc">
+    <p><code>undefined</code> when there are no complete expressions</p>
 </div>
 
 
 
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
         
-        <th>Name</th>
-        
+<span class="param-type">undefined</span>
+|
 
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>grid</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type"><a href="Hypergrid.html">Hypergrid</a></span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>event</code></td>
-            
-
-            <td class="type">
-            
-                
 <span class="param-type">Object</span>
 
 
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>the event details</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
+    </dd>
 </dl>
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-            
-
     
-
-    <h4 class="name" id="handleHoldPulse"><span class="type-signature"></span>handleHoldPulse<span class="signature">(grid, event)</span><span class="type-signature"></span></h4>
-
-    
-
-
-
-<div class="description">
-    <p>handle this event down the feature chain of responsibility</p>
-</div>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>grid</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type"><a href="Hypergrid.html">Hypergrid</a></span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>event</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Object</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>the event details</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

@@ -1,0 +1,59 @@
+.abs {
+    position: static;
+    height: 402px; /* recommend: multiple of default row height, plus horizontal scroll bar height */
+}
+#json-example div.finbar-vertical {
+    margin: 0px;
+    width: 17px;
+    background-color: rgba(237, 237, 237, 1);
+    box-shadow: 0 0 0px #000, 0 0 0px #000, 0 0 0px #000;
+}
+#json-example div.finbar-vertical div.thumb {
+    margin: 2px 0px 17px 0px;
+    width: 11px;
+    background-color: rgba(158, 158, 158, 1);
+    box-shadow: 0 0 0px #000, 0 0 0px #000, 0 0 0px #000;
+    border-radius: 0px;
+    border: 1px solid rgba(132, 132, 132, 1);
+    right: 3px;
+}
+#json-example div.finbar-horizontal {
+    margin: 0px;
+    height: 17px;
+    background-color: rgba(237, 237, 237, 1);
+    box-shadow: 0 0 0px #000, 0 0 0px #000, 0 0 0px #000;
+}
+#json-example div.finbar-horizontal div.thumb {
+    margin: 0px 2px;
+    height: 11px;
+    background-color: rgba(158, 158, 158, 1);
+    box-shadow: 0 0 0px #000, 0 0 0px #000, 0 0 0px #000;
+    border-radius: 0px;
+    border: 1px solid rgba(132, 132, 132, 1);
+    bottom: 3px;
+}
+div#dashboard > button {
+    margin: .25em 1em .25em 0;
+    display: inline-block;
+    white-space: nowrap;
+}
+div#dashboard > .ctrl-group {
+    display: inline-block;
+    background-color: #eee;
+    padding: 2px 6px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: smaller;
+    box-shadow: 2px 2px 3px grey;
+    margin: .25em 1em .5em 0;
+}
+div#dashboard > .ctrl-group > label {
+    font-weight: normal;
+    margin: 0 0 0 .7em;
+}
+div#dashboard > .ctrl-group > span {
+    font-style: italic;
+}
+div#dashboard > .ctrl-group > span:after {
+    content: ':';
+}
