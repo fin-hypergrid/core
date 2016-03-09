@@ -36,6 +36,7 @@
             income: income,
             travel: travel,
             squareOfIncome: 0,
+
             onelast_name: lastNames[lastName], //jshint ignore:line
             onefirst_name: firstNames[firstName], //jshint ignore:line
             onepets: pets,
@@ -46,6 +47,7 @@
             oneincome: income,
             onetravel: travel,
             onesquareOfIncome: 0,
+
             twolast_name: lastNames[lastName], //jshint ignore:line
             twofirst_name: firstNames[firstName], //jshint ignore:line
             twopets: pets,
@@ -56,6 +58,7 @@
             twoincome: income,
             twotravel: travel,
             twosquareOfIncome: 0,
+
             threelast_name: lastNames[lastName], //jshint ignore:line
             threefirst_name: firstNames[firstName], //jshint ignore:line
             threepets: pets,
@@ -66,6 +69,7 @@
             threeincome: income,
             threetravel: travel,
             threesquareOfIncome: 0,
+
             fourlast_name: lastNames[lastName], //jshint ignore:line
             fourfirst_name: firstNames[firstName], //jshint ignore:line
             fourpets: pets,
@@ -76,6 +80,7 @@
             fourincome: income,
             fourtravel: travel,
             foursquareOfIncome: 0,
+
             fivelast_name: lastNames[lastName], //jshint ignore:line
             fivefirst_name: firstNames[firstName], //jshint ignore:line
             fivepets: pets,
@@ -86,6 +91,7 @@
             fiveincome: income,
             fivetravel: travel,
             fivesquareOfIncome: 0,
+
             sixlast_name: lastNames[lastName], //jshint ignore:line
             sixfirst_name: firstNames[firstName], //jshint ignore:line
             sixpets: pets,
@@ -96,6 +102,7 @@
             sixincome: income,
             sixtravel: travel,
             sixsquareOfIncome: 0,
+
             sevenlast_name: lastNames[lastName], //jshint ignore:line
             sevenfirst_name: firstNames[firstName], //jshint ignore:line
             sevenpets: pets,
@@ -106,6 +113,7 @@
             sevenincome: income,
             seventravel: travel,
             sevensquareOfIncome: 0,
+
             eightlast_name: lastNames[lastName], //jshint ignore:line
             eightfirst_name: firstNames[firstName], //jshint ignore:line
             eightpets: pets,
