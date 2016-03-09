@@ -2,7 +2,7 @@
 /.idea
 /doc
 /node_modules*
-/build
+/demo/build
 /images/images.js
 /src/local_node_modules
 !/src/local_node_modules/finanalytics
