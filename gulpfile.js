@@ -12,8 +12,8 @@ var name     = 'hypergrid',
     srcDir   = './src/',
     testDir  = './test/',
     jsFiles  = '**/*.js',
-    buildDir = './build/',
-    demoDir  = './demo/';
+    demoDir  = './demo/',
+    buildDir = demoDir + 'build/';
 
 //  //  //  //  //  //  //  //  //  //  //  //
 
@@ -49,7 +49,9 @@ gulp.task('watch', function () {
     ]);
 
     gulp.watch([
-        demoDir + jsFiles,
+        demoDir + 'index.html',
+        demoDir + 'js/demo.js',
+        demoDir + 'css/demo.css',
         buildDir + '*'
     ], [
         'reloadBrowsers'
@@ -64,7 +66,7 @@ function lint() {
     return gulp.src([
         srcDir + jsFiles,
         '!' + srcDir + '**/old/**/',
-        demoDir + jsFiles,
+        demoDir + 'js/demo.js',
         //'../../filter-tree/src/' + jsFiles // comment off this line and the one above when filter tree on npm
     ])
         .pipe($$.excludeGitignore())
@@ -116,12 +118,7 @@ function browserSyncLaunchServer() {
     browserSync.init({
         server: {
             // Serve up our build folder
-            baseDir: demoDir,
-            index: 'demo.html',
-            routes: {
-                '/js': 'js',
-                '/lib': buildDir
-            }
+            baseDir: demoDir
         },
         port: 9000
     });

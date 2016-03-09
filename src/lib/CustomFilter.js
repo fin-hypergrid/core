@@ -196,7 +196,7 @@ var CustomFilter = FilterTree.extend('CustomFilter', {
             }
 
             subexpression.invalid(QUIET_VALIDATION);
-        } else /* !state */ {
+        } else if (subexpression) {
             // remove subexpression representing this column
             subexpression.remove();
         }

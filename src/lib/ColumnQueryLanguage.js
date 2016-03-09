@@ -19,9 +19,9 @@ var optionsPrototype = {
 };
 
 /**
- * @module CQL
+ * @constructor
  *
- * @summary Column Query Language
+ * @summary Column Query Language parser
  *
  * @author Jonathan Eiten <jonathan@openfin.com>
  *
@@ -30,18 +30,27 @@ var optionsPrototype = {
  * The original grammar was simply:
  *
  * > _expression_ ::= [ _op-symbol_ ] _operand_
+ *
  * > _op-synmbol_ ::= `=` | `<>` | `<` | `>` | `<=` | `>=`
+ *
  * > _operand_ ::= _column-name_ | _random-text_
  *
  * We expanded this grammar as follows:
  *
  * > _expression_ ::= _simple-expression_ { _logic-op_ _simple-expression_ }
+ *
  * > _simple-expression_ ::= [ _operator_ ] _operand_
+ *
  * > _operator_ ::= _op-symbol_ | _op-phrase_
+ *
  * > _op-symbol_ ::= `=` | `<>` | `<` | `>` | `<=` | `>=`
+ *
  * > _op-phrase_ ::= [ `NOT` _white-space_ ] _op-word_ _white-space_
+ *
  * > _op-word_ ::= `STARTS` | `ENDS` | `CONTAINS` | `LIKE` | `IN`
+ *
  * > _operand_ ::= _column-name_ | _column alias_ | _random-text_
+ *
  * > _logic-op_ ::=  _white-space_ ( `AND` | `OR` | `NOR` ) _white-space_
  *
  * Notes:
