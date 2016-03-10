@@ -7,8 +7,6 @@ var Feature = require('./Feature.js');
  */
 var RowSelection = Feature.extend('RowSelection', {
 
-    alias: 'RowSelection',
-
     /**
      * The pixel location of the mouse pointer during a drag operation.
      * @type {Point}

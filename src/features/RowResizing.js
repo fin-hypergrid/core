@@ -7,8 +7,6 @@ var ColumnResizing = require('./ColumnResizing');
  */
 var RowResizing = ColumnResizing.extend('RowResizing', {
 
-    alias: 'RowResizing',
-
     /**
      * the index of the row/column we are dragging
      * @type {number}

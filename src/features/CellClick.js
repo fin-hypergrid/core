@@ -7,8 +7,6 @@ var Feature = require('./Feature.js');
  */
 var CellClick = Feature.extend('CellClick', {
 
-    alias: 'CellClick',
-
     /**
      * @memberOf CellClick.prototype
      * @desc Handle this event down the feature chain of responsibility

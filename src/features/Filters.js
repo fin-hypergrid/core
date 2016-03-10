@@ -7,23 +7,19 @@ var Feature = require('./Feature.js');
  */
 var Filters = Feature.extend('Filters', {
 
-    alias: 'Filters',
-
     handleDoubleClick: function(grid, event) {
-        var isDoubleClickEditorActivation = grid.resolveProperty('editOnDoubleClick');
-        if (this.checkActivateEditor(grid, event, isDoubleClickEditorActivation)) {
-            grid._activateEditor(event);
-        } else if (this.next) {
-            this.next.handleDoubleClick(grid, event);
+        if (grid.isFilterRow(event.gridCell.y)) {
+            grid.onEditorActivate(event);
+        } else {
+            Feature.prototype.handleDoubleClick.apply(this, arguments);
         }
     },
 
     handleTap: function(grid, event) {
-        var isDoubleClickEditorActivation = grid.resolveProperty('editOnDoubleClick');
-        if (this.checkActivateEditor(grid, event, !isDoubleClickEditorActivation)) {
-            grid._activateEditor(event);
-        } else if (this.next) {
-            this.next.handleTap(grid, event);
+        if (grid.isFilterRow(event.gridCell.y)) {
+            grid.onEditorActivate(event);
+        } else {
+            Feature.prototype.handleTap.apply(this, arguments);
         }
     },
 
@@ -36,16 +32,10 @@ var Filters = Feature.extend('Filters', {
     handleHoldPulse: function(grid, event) {
         var isDoubleClickEditorActivation = grid.resolveProperty('editOnDoubleClick');
         if (this.checkActivateEditor(grid, event, !isDoubleClickEditorActivation)) {
-           grid._activateEditor(event);
+           grid.onEditorActivate(event);
         } else if (this.next) {
             this.next.handleHoldPulse(grid, event);
         }
-    },
-
-    checkActivateEditor: function(grid, event, isDoubleClickEditorActivation) {
-        var isFilterRow = grid.isFilterRow(event.gridCell.y);
-        var activateEditor = isDoubleClickEditorActivation && isFilterRow;
-        return activateEditor;
     }
 
 });

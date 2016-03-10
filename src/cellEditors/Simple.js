@@ -18,13 +18,6 @@ var Simple = CellEditor.extend('Simple', {
     input: null,
 
     /**
-     * my lookup alias
-     * @type {string}
-     * @memberOf Simple.prototype
-     */
-    alias: 'simple',
-
-    /**
      * @memberOf Simple.prototype
      */
     initialize: function() {
@@ -201,8 +194,9 @@ var Simple = CellEditor.extend('Simple', {
 
     saveEditorValue: function() {
         var point = this.getEditorPoint();
-        var value = this.getEditorValue();
-        if (value === this.initialValue) {
+        var value = this.getEditorValue().trim();
+
+        if (value && value === this.initialValue) {
             return; //data didn't change do nothing
         }
         if (parseFloat(this.initialValue) === this.initialValue) { // I'm a number

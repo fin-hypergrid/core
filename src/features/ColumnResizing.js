@@ -7,8 +7,6 @@ var Feature = require('./Feature.js');
  */
 var ColumnResizing = Feature.extend('ColumnResizing', {
 
-    alias: 'ColumnResizing',
-
     /**
      * the index of the column wall were currently dragging
      * @type {number}

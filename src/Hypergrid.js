@@ -18,7 +18,6 @@ var SelectionModel = require('./lib/SelectionModel');
 var addStylesheet = require('../css/stylesheets');
 var TableDialog = require('./lib/TableDialog');
 var Formatters = require('./lib/Formatters');
-var CustomFilter = require('./lib/CustomFilter');
 
 var themeInitialized = false,
     polymerTheme = Object.create(defaults),
@@ -94,8 +93,6 @@ function Hypergrid(div, behaviorFactory, margin) {
 
     this.dialog = new TableDialog(this);
     //this.computeCellsBounds();
-
-    this.filter = new CustomFilter();
 }
 
 Hypergrid.prototype = {
@@ -278,7 +275,7 @@ Hypergrid.prototype = {
     },
 
     initCellEditor: function(cellEditor) {
-        this.localCellEditors[cellEditor.alias] = cellEditor;
+        this.localCellEditors[cellEditor.$$CLASS_NAME.toLowerCase()] = cellEditor;
         cellEditor.grid = this;
     },
 
@@ -715,7 +712,7 @@ Hypergrid.prototype = {
 
     clearRowSelection: function() {
         this.selectionModel.clearRowSelection();
-        this.behavior.getDataModel().getComponent().clearSelectedData();
+        this.behavior.dataModel.clearSelectedData();
     },
 
     /**
@@ -787,16 +784,13 @@ Hypergrid.prototype = {
      * @memberOf Hypergrid.prototype
      * @summary Set the Behavior (model) object for this grid control.
      * @desc This can be done dynamically.
-     * @param {Behavior} The behavior (model).
+     * @param {Behavior} behavior - The behavior (model).
      */
-    setBehavior: function(newBehavior) {
-
-        this.behavior = newBehavior;
-        this.behavior.setGrid(this);
-
-        this.behavior.changed = this.behaviorChanged.bind(this);
-        this.behavior.shapeChanged = this.behaviorShapeChanged.bind(this);
-        this.behavior.stateChanged = this.behaviorStateChanged.bind(this);
+    setBehavior: function(behavior) {
+        behavior.changed = this.behaviorChanged.bind(this);
+        behavior.shapeChanged = this.behaviorShapeChanged.bind(this);
+        behavior.stateChanged = this.behaviorStateChanged.bind(this);
+        this.behavior = behavior;
     },
 
     /**
@@ -929,7 +923,6 @@ Hypergrid.prototype = {
             self.repaint();
         });
 
-
         // this.addEventListener('fin-canvas-click', function(e) {
         //     if (self.resolveProperty('readOnly')) {
         //         return;
@@ -1017,7 +1010,8 @@ Hypergrid.prototype = {
                 ) {
                     currentCell = self.selectionModel.getLastSelection();
                     if (currentCell) {
-                        editor = self.activateEditor(currentCell.origin.x, currentCell.origin.y);
+                        var pseudoEvent = { gridCell: currentCell.origin };
+                        editor = self.onEditorActivate(pseudoEvent);
                         if (editor instanceof Hypergrid.cellEditors.Simple) {
                             if (isVisibleChar) {
                                 editor.input.value = char;
@@ -1122,7 +1116,7 @@ Hypergrid.prototype = {
     },
 
     addFinEventListener: function(eventName, callback) {
-        console.warn('.addEventListener() method is deprecated as of v0.2. Use .addEventListener() instead. (Will be removed in a future release.)');
+        console.warn('.addFinEventListener() method is deprecated as of v0.2. Use .addEventListener() instead. (Will be removed in a future release.)');
         this.addEventListener(eventName, callback);
     },
 
@@ -1349,17 +1343,11 @@ Hypergrid.prototype = {
      * @param {string} cellEditor - The specific cell editor to use.
      * @param {Point} coordinates - The pixel locaiton of the cell to edit at.
      */
-    editAt: function(cellEditor, coordinates) {
+    editAt: function(cellEditor, editPoint) {
 
         this.cellEditor = cellEditor;
 
-        var cell = coordinates.gridCell;
-
-        var x = cell.x;
-        var y = cell.y;
-
-        if (x >= 0 && y >= 0) {
-            var editPoint = new Point(x, y);
+        if (editPoint.x >= 0 && editPoint.y >= 0) {
             this.setMouseDown(editPoint);
             this.setDragExtent(new Point(0, 0));
             cellEditor.beginEditAt(editPoint);
@@ -1659,7 +1647,7 @@ Hypergrid.prototype = {
             result = {};
 
         function setValue(selectedRowIndex, r) {
-            column[r] = valueOrFunctionExecute(self.getValue(c, selectedRowIndex));
+            column[r] = valOrFunc(self.getValue(c, selectedRowIndex));
         }
 
         for (c = 0; c < numCols; c++) {
@@ -1678,7 +1666,7 @@ Hypergrid.prototype = {
             result = new Array(numCols);
 
         function getValue(selectedRowIndex, r) {
-            result[c][r] = valueOrFunctionExecute(self.getValue(c, selectedRowIndex));
+            result[c][r] = valOrFunc(self.getValue(c, selectedRowIndex));
         }
 
         for (c = 0; c < numCols; c++) {
@@ -1697,7 +1685,7 @@ Hypergrid.prototype = {
         selectedColumnIndexes.forEach(function(selectedColumnIndex, c) {
             result[c] = new Array(numRows);
             for (var r = 0; r < numRows; r++) {
-                result[c][r] = valueOrFunctionExecute(self.getValue(selectedColumnIndex, r));
+                result[c][r] = valOrFunc(self.getValue(selectedColumnIndex, r));
             }
         });
         return result;
@@ -1712,7 +1700,7 @@ Hypergrid.prototype = {
             var column = new Array(rowCount);
             result[self.getField(selectedColumnIndex)] = column;
             for (var r = 0; r < rowCount; r++) {
-                column[r] = valueOrFunctionExecute(self.getValue(selectedColumnIndex, r));
+                column[r] = valOrFunc(self.getValue(selectedColumnIndex, r));
             }
         });
         return result;
@@ -1740,7 +1728,7 @@ Hypergrid.prototype = {
             var column = new Array(rowCount);
             result[this.getField(c + ox)] = column;
             for (r = 0; r < rowCount; r++) {
-                column[r] = valueOrFunctionExecute(this.getValue(ox + c, oy + r));
+                column[r] = valOrFunc(this.getValue(ox + c, oy + r));
             }
         }
         return result;
@@ -1767,7 +1755,7 @@ Hypergrid.prototype = {
             var column = new Array(rowCount);
             result[c] = column;
             for (var r = 0; r < rowCount; r++) {
-                column[r] = valueOrFunctionExecute(this.getValue(ox + c, oy + r));
+                column[r] = valOrFunc(this.getValue(ox + c, oy + r));
             }
         }
         return result;
@@ -1948,7 +1936,6 @@ Hypergrid.prototype = {
     /**
      * @memberOf Hypergrid.prototype
      * @desc Synthesize and fire a `fin-double-click` event.
-     * @param {Point} cell - The pixel location of the cell in which the click event occured.
      * @param {MouseEvent} event - The system mouse event.
      */
     fireSyntheticDoubleClickEvent: function(mouseEvent) {
@@ -2426,43 +2413,30 @@ Hypergrid.prototype = {
 
     /**
      * @memberOf Hypergrid.prototype
-     * @desc An edit event has occurred. Activate the editor.
-     * @param {event} event - The event details.
+     * @desc An edit event has occurred. Activate the editor at the given coordinates.
+     * @param {number} event.gridCell.x - The horizontal coordinate.
+     * @param {number} event.gridCell.y - The vertical coordinate.
+     * @param {boolean} [event.primitiveEvent.type]
+     * @returns {undefined|CellEditor} The editor object or `undefined` if no editor or editor already open.
      */
-    _activateEditor: function(event) {
-        var gridCell = event.gridCell;
-        this.activateEditor(gridCell.x, gridCell.y);
-    },
+    onEditorActivate: function(event) {
+        var point = event.gridCell;
 
-    /**
-     * @memberOf Hypergrid.prototype
-     * @desc Activate the editor at the given coordinates.
-     * @param {x} x - The horizontal coordinate.
-     * @param {y} y - The vertical coordinate.
-     * @returns {CellEditor} (or objected extended from same) The editor object.
-     */
-    activateEditor: function(x, y) {
-        var editor;
+        if (this.isEditable() || this.isFilterRow(point.y)) {
+            var primEvent = event.primitiveEvent,
+                isDblClick = primEvent && primEvent.type === 'fin-canvas-dblclick',
+                editor = this.getCellEditorAt(point.x, point.y, isDblClick),
+                editorPoint = editor.getEditorPoint(),
+                sameCell = point.equals(editorPoint),
+                editorAlreadyOpen = sameCell && editor.isEditing;
 
-        if (this.isEditable() || this.isFilterRow(y)) {
-            editor = this.getCellEditorAt(x, y);
-
-            if (editor) {
-                var point = editor.getEditorPoint();
-                if (editor) {
-                    if (point.x === x && point.y === y && editor.isEditing) {
-                        return; //we're already open at this location
-                    }
-
-                    if (this.isEditing()) {
-                        this.stopEditing(); //other editor is open, close it first
-                    }
-                    event.gridCell = {
-                        x: x,
-                        y: y
-                    };
-                    this.editAt(editor, event);
+            if (editorAlreadyOpen) {
+                editor = undefined;
+            } else {
+                if (this.isEditing()) {
+                    this.stopEditing(); //other editor is open, close it first
                 }
+                this.editAt(editor, point);
             }
         }
 
@@ -2476,9 +2450,10 @@ Hypergrid.prototype = {
      * @returns The cell editor at the given coordinates.
      * @param {x} x - The horizontal coordinate.
      * @param {y} y - The vertical coordinate.
+     * @param {boolean} isDblClick - When called from `onEditorActivate`, indicates if event was a double-click.
      */
-    getCellEditorAt: function(x, y) {
-        return this.behavior._getCellEditorAt(x, y);
+    getCellEditorAt: function(x, y, isDblClick) {
+        return this.behavior._getCellEditorAt(x, y, isDblClick);
     },
 
     /**
@@ -3066,9 +3041,6 @@ Hypergrid.prototype = {
     setGroups: function(arrayOfColumnIndexes) {
         this.behavior.setGroups(arrayOfColumnIndexes);
     },
-    filterClicked: function(event) {
-        this.activateEditor(event.gridCell.x, event.gridCell.y);
-    },
     hasHierarchyColumn: function() {
         return this.behavior.hasHierarchyColumn();
     },
@@ -3145,8 +3117,11 @@ Hypergrid.prototype = {
     isColumnAutosizing: function() {
         return this.resolveProperty('columnAutosizing') === true;
     },
-    setGlobalFilter: function(string) {
-        this.behavior.setGlobalFilter(string);
+    getGlobalFilter: function() {
+        return this.behavior.getGlobalFilter();
+    },
+    setGlobalFilter: function(filterOrOptions) {
+        this.behavior.setGlobalFilter(filterOrOptions);
     },
     selectRowsFromCells: function() {
         if (!this.isCheckboxOnlyRowSelections()) {
@@ -3340,8 +3315,8 @@ function clearObjectProperties(obj) {
     }
 }
 
-function valueOrFunctionExecute(valueOrFunction) {
-    var result = typeof valueOrFunction === 'function' ? valueOrFunction() : valueOrFunction;
+function valOrFunc(vf) {
+    var result = (typeof vf)[0] === 'f' ? vf() : vf;
     return result || result === 0 ? result : '';
 }
 

@@ -10,8 +10,6 @@ var Feature = require('./Feature.js');
  */
 var ColumnPicker = Feature.extend('ColumnPicker', {
 
-    alias: 'ColumnPicker',
-
     /**
      * @memberOf ColumnPicker.prototype
      * @desc handle this event down the feature chain of responsibility

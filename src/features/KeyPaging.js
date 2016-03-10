@@ -14,8 +14,6 @@ var commands = {
  */
 var KeyPaging = Feature.extend('KeyPaging', {
 
-    alias: 'KeyPaging',
-
     /**
      * @desc Handle this event down the feature chain of responsibility.
      * @param {Hypergrid} grid

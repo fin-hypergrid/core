@@ -16,8 +16,6 @@ var RACE_TIME = 50;
  */
 var ColumnSelection = Feature.extend('ColumnSelection', {
 
-    alias: 'ColumnSelection',
-
     /**
      * The pixel location of the mouse pointer during a drag operation.
      * @type {window.fin.rectangular.Point}

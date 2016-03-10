@@ -139,7 +139,7 @@ var CellProvider = Base.extend('CellProvider', {
             }
         }
 
-        val = valueOrFunctionExecute(config, val);
+        val = valOrFunc(val, config);
         val = config.formatter(val);
 
         font = config.isSelected ? config.foregroundSelectionFont : config.font;
@@ -167,10 +167,10 @@ var CellProvider = Base.extend('CellProvider', {
         }
         if (alpha(hoverColor) < 1) {
             if (config.isSelected) {
-                selectColor = valueOrFunctionExecute(config, config.backgroundSelectionColor);
+                selectColor = valOrFunc(config.backgroundSelectionColor, config);
             }
             if (alpha(selectColor) < 1) {
-                backgroundColor = valueOrFunctionExecute(config, config.backgroundColor);
+                backgroundColor = valOrFunc(config.backgroundColor, config);
                 if (alpha(backgroundColor) > 0) {
                     colors.push(backgroundColor);
                 }
@@ -185,7 +185,7 @@ var CellProvider = Base.extend('CellProvider', {
         layerColors(gc, colors, x, y, width, height);
 
         // draw text
-        var theColor = valueOrFunctionExecute(config, config.isSelected ? config.foregroundSelectionColor : config.color);
+        var theColor = valOrFunc(config.isSelected ? config.foregroundSelectionColor : config.color, config);
         if (gc.fillStyle !== theColor) {
             gc.fillStyle = theColor;
             gc.strokeStyle = theColor;
@@ -529,13 +529,9 @@ function layerColors(gc, colors, x, y, width, height) {
     });
 }
 
-function valueOrFunctionExecute(config, valueOrFunction) {
-    var isFunction = (((typeof valueOrFunction)[0]) === 'f');
-    var result = isFunction ? valueOrFunction(config) : valueOrFunction;
-    if (!result && result !== 0) {
-        return '';
-    }
-    return result;
+function valOrFunc(vf, config) {
+    var result = (typeof vf)[0] === 'f' ? vf(config) : vf;
+    return result || result === 0 ? result : '';
 }
 
 function underline(config, gc, text, x, y, thickness) {
@@ -616,7 +612,7 @@ function fitText(gc, config, string, width) {
 
 // trim string; then reduce all runs of multiple spaces to a single space
 function squeeze(string) {
-    return string.toString().trim().replace(/\s\s+/g, ' ');
+    return (string + '').trim().replace(/\s\s+/g, ' ');
 }
 
 function roundRect(gc, x, y, width, height, radius, fill, stroke) {
