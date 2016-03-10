@@ -139,19 +139,21 @@ window.onload = function() {
     jsonModel.setData(people1);
 
     var prefix = ['one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight'];
-    var menu = [];
+    var menu = [], headerify = fin.Hypergrid.analytics.util.headerify;
     dataModel.getFields().forEach(function(value) {
         if (!prefix.find(function(group) {
             return value.substr(0, group.length) === group;
         })) {
-            menu.push(value);
+            var val = { name: value, alias: headerify(value) };
+            if (value === 'total_number_of_pets_owned') { val.type = 'number'; }
+            menu.push(val);
         }
     });
     prefix.forEach(function(group, index) {
         var submenu = [];
         dataModel.getFields().forEach(function(value) {
             if (value.substr(0, group.length) === group) {
-                submenu.push(value);
+                submenu.push({ name: value, alias: headerify(value) });
             }
         });
         menu.push({ label: group.toUpperCase(), submenu: submenu });

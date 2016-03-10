@@ -67,13 +67,12 @@ var optionsPrototype = {
  * > _quoted-operand_ ::= ( `'` | `"` | `(` ) _operand_ ( `'` | `"` | `)` )
  *
  * @param {FilterTree} schema - Column schema for column name recognition.
- * @param {function} [options.propResolver]
+ * @param {function} [propResolver]
  */
-function ColumnQueryLanguage(schema, options) {
+function ColumnQueryLanguage(schema, propResolver) {
     this.schema = schema;
     this.options = Object.create(optionsPrototype);
-
-    if (options) { this.setOptions(function(key) { return options[key]; }); }
+    this.setOptions(propResolver);
 }
 
 ColumnQueryLanguage.prototype = {
@@ -81,16 +80,18 @@ ColumnQueryLanguage.prototype = {
     constructor: ColumnQueryLanguage.prototype.constructor,
 
     /** Override default properties with properties defined by supplied property resolver.
-     * @param {function} propResolver
+     * @param {function} [propResolver]
      */
     setOptions: function(propResolver) {
-        for (var key in optionsPrototype) {
-            if (optionsPrototype.hasOwnProperty(key)) {
-                var prop = propResolver(key);
-                if (prop !== undefined) {
-                    this.options[key] = prop;
-                } else {
-                    delete this.options[key]; // reveals prototype (default) value
+        if (propResolver) {
+            for (var key in optionsPrototype) {
+                if (optionsPrototype.hasOwnProperty(key)) {
+                    var prop = propResolver(key);
+                    if (prop !== undefined) {
+                        this.options[key] = prop;
+                    } else {
+                        delete this.options[key]; // reveals prototype (default) value
+                    }
                 }
             }
         }
@@ -159,9 +160,17 @@ ColumnQueryLanguage.prototype = {
      * * `{column: string, operator: string, column2: string, editor: 'Columns'}`
      */
     makeChildren: function(columnName, expressions) {
-        var self = this,
+        var options = this.options,
+            schema = this.schema,
             children = [],
             orphanedOps = [];
+
+        function uniCase(name) {
+            if (!options.caseSensitiveColumnNames && typeof name === 'string') {
+                name = name.toLowerCase();
+            }
+            return name;
+        }
 
         expressions.forEach(function(expression) {
             if (expression) {
@@ -172,13 +181,15 @@ ColumnQueryLanguage.prototype = {
                 if (!literal) {
                     orphanedOps.push(op);
                 } else {
-                    var compareLiteral = self.comparable(literal);
-                    var fieldName = self.schema.find(function(column) {
-                        return (
-                            compareLiteral === (self.autoLookupByName && self.comparable(column.name || column)) ||
-                            compareLiteral === (self.autoLookupByAlias && self.comparable(column.alias))
-                        );
-                    });
+                    if (options.autoLookupByName || options.autoLookupByAlias) {
+                        var compareLiteral = uniCase(literal);
+                        var fieldName = schema.find(function(column) {
+                            return (
+                                compareLiteral === (options.autoLookupByName && uniCase(column.name || column)) ||
+                                compareLiteral === (options.autoLookupByAlias && uniCase(column.alias))
+                            );
+                        });
+                    }
 
                     var child = {
                         column: columnName,
@@ -217,14 +228,6 @@ ColumnQueryLanguage.prototype = {
         }
 
         return children;
-    },
-
-    comparable: function(name) {
-        if (!this.caseSensitiveColumnNames && typeof name === 'string') {
-            name = name.toLowerCase();
-        }
-
-        return name;
     },
 
     /**

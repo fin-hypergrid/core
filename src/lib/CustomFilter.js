@@ -1,7 +1,7 @@
 'use strict';
 
 var FilterTree = require('filter-tree');
-//var FilterTree = require('../../../../filter-tree/src/js/FilterTree');
+//var FilterTree = require('../../../../filter-tree/src');
 var popMenu = require('pop-menu');
 
 var ColumnQueryLanguage = require('./ColumnQueryLanguage');
@@ -36,6 +36,47 @@ var QUIET_VALIDATION = {
     alert: false,
     focus: false
 };
+
+/**
+ * @constructor
+ * @extends Operators
+ */
+var FilterCellOperators = FilterTree.conditionals.Operators.extend({
+    makeLIKE: function(beg, end, op, a, likePattern) {
+        var escaped = likePattern.replace(/([\[_%\]])/g, '[$1]'); // escape all LIKE reserved chars
+        return op.toLowerCase() + ' ' + beg + escaped + end;
+    },
+    makeIN: function(op, a, b) {
+        return op.toLowerCase() + ' ' + b.replace(/\s*,\s*/g, ',');
+    },
+    makeDiadic: function(op, a, b) {
+        return op + b;
+    }
+});
+
+var filterCellOperators = new FilterCellOperators();
+
+// replace the default filter tree terminal node constructor with an extension of same
+var CustomFilterLeaf = FilterTree.prototype.addEditor({
+    key: 'Default', // replace the default editor with this one
+    getState: function getState(options) {
+        var result,
+            syntax = options && options.syntax;
+
+        if (syntax === undefined || syntax === 'CQL') {
+            result = this.getSyntax(filterCellOperators);
+            if (result[0] === '=') {
+                result = result.substr(1);
+            }
+        } else {
+            result = this.super.getState.call(this, options);
+        }
+
+        return result;
+    }
+});
+
+FilterTree.prototype.addEditor('columns');
 
 /** @constructor
  *
@@ -73,6 +114,7 @@ var CustomFilter = FilterTree.extend('CustomFilter', {
 
     /**
      * Create convenience vars to reference the 2 root "Hyperfilter" nodes
+     * @memberOf CustomFilter.prototype
      */
     extractSubtrees: function() {
         var rootNodes = this.root.children;
@@ -93,7 +135,7 @@ var CustomFilter = FilterTree.extend('CustomFilter', {
      * * AND table filters and column filters together (cannot be changed from UI)
      *
      * @returns a new instance of a Hyperfilter root
-     * @memberOf Hyperfilter.prototype
+     * @memberOf CustomFilter.prototype
      */
     makeNewRoot: function() {
 
@@ -128,10 +170,20 @@ var CustomFilter = FilterTree.extend('CustomFilter', {
         });
     },
 
+    /** @typedef {object} filterTreeGetStateOptionsObject
+     * See filter-tree's {@link http://joneit.github.io/filter-tree/FilterTree.html#getState|getState} options object.
+     */
+
+    /** @typedef {object} filterTreeSetStateOptionsObject
+     * See filter-tree's {@link http://joneit.github.io/filter-tree/FilterNode.html#setState|setState} options object.
+     */
+
     /**
      *
      * @param columnName
-     * @param {boolean} [options.syntax='CQL'] See detectState in FilterNode.js.
+     * @param {filterTreeGetStateOptionsObject} [options]
+     * @param {boolean} [options.syntax='CQL']
+     * @memberOf CustomFilter.prototype
      */
     getColumnFilterState: function(columnName, options) {
         var result = this.cache[columnName];
@@ -156,7 +208,9 @@ var CustomFilter = FilterTree.extend('CustomFilter', {
      *
      * @param columnName
      * @param state
-     * @param {boolean} [options.syntax='CQL'] See detectState in FilterNode.js.
+     * @param {filterTreeSetStateOptionsObject} [options]
+     * @param {boolean} [options.syntax='CQL']
+     * @memberOf CustomFilter.prototype
      */
     setColumnFilterState: function(columnName, state, options) {
         var syntax = options && options.syntax,
@@ -200,6 +254,39 @@ var CustomFilter = FilterTree.extend('CustomFilter', {
             // remove subexpression representing this column
             subexpression.remove();
         }
+    },
+
+    /**
+     * @desc The CQL syntax should only be requested for a subtree containing homogeneous column names and no subexpressions.
+     *
+     * @param {string} [options.syntax='CQL'] - If omitted or `'CQL'`, walks the tree, returning a string suitable for a Hypergrid filter cell. All other values are forwarded to the prototype's `getState` method for further interpretation.
+     *
+     * @returns {FilterTreeStateObject}
+     */
+    getState: function getState(options) {
+        var result,
+            syntax = options && options.syntax;
+
+        if (syntax === undefined || syntax === 'CQL') {
+            var operator = this.operator.substr(3); // remove the 'op-' prefix
+            result = '';
+            this.children.forEach(function(child, idx) {
+                if (child) {
+                    if (child instanceof CustomFilterLeaf) {
+                        if (idx) {
+                            result += ' ' + operator + ' ';
+                        }
+                        result += child.getState(options);
+                    } else if (child.children.length) {
+                        throw new this.Error('Expected a conditional but found a subexpression. (Subexpressions are not supported in filter cell syntax.)');
+                    }
+                }
+            });
+        } else {
+            result = this.super.getState.call(this, options);
+        }
+
+        return result;
     },
 
     // All remaining methods are co-routines called from grid.dialog
