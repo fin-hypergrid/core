@@ -5,6 +5,7 @@ var FilterTree = require('filter-tree');
 var popMenu = require('pop-menu');
 
 var ColumnQueryLanguage = require('./ColumnQueryLanguage');
+var headerify = require('hyper-analytics').util.headerify;
 
 /*
 function ColumnQueryLanguage() {}
@@ -100,6 +101,18 @@ var CustomFilter = FilterTree.extend('CustomFilter', {
                 this.schema = [
                     popMenu.findItem(options.parent.root.schema, options.state.children[0].column)
                 ];
+            }
+
+            if (options.headerify) {
+                var schema = this.schema || options.schema || options.state && options.state.schema;
+                if (schema) {
+                    popMenu.walk(schema, function(item) {
+                        if (!item.alias) {
+                            item.alias = headerify(item.name);
+                            return item; // replace it
+                        }
+                    });
+                }
             }
         }
     },

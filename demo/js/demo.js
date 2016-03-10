@@ -139,27 +139,33 @@ window.onload = function() {
     jsonModel.setData(people1);
 
     var prefix = ['one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight'];
-    var menu = [], headerify = fin.Hypergrid.analytics.util.headerify;
-    dataModel.getFields().forEach(function(value) {
+    var menu = [];
+    dataModel.getFields().forEach(function(name) {
         if (!prefix.find(function(group) {
-            return value.substr(0, group.length) === group;
+            return name.substr(0, group.length) === group;
         })) {
-            var val = { name: value, alias: headerify(value) };
-            if (value === 'total_number_of_pets_owned') { val.type = 'number'; }
-            menu.push(val);
+            if (name === 'total_number_of_pets_owned') {
+                menu.push({
+                    name: name,
+                    type: 'number'
+                });
+            } else {
+                menu.push(name);
+            }
         }
     });
     prefix.forEach(function(group, index) {
         var submenu = [];
-        dataModel.getFields().forEach(function(value) {
-            if (value.substr(0, group.length) === group) {
-                submenu.push({ name: value, alias: headerify(value) });
+        dataModel.getFields().forEach(function(name) {
+            if (name.substr(0, group.length) === group) {
+                submenu.push(name);
             }
         });
         menu.push({ label: group.toUpperCase(), submenu: submenu });
     });
     jsonGrid.setGlobalFilter({
-        schema: menu
+        schema: menu,
+        headerify: true
     });
 
     jsonGrid.setColumnProperties(2, {
