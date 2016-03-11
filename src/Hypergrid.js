@@ -3129,6 +3129,10 @@ Hypergrid.prototype = {
     setGlobalFilter: function(filterOrOptions) {
         this.behavior.setGlobalFilter(filterOrOptions);
     },
+    setGlobalFilterCaseSensitivity: function(isSensitive) {
+        // this setting affects all grids
+        this.behavior.dataModel.setGlobalFilterCaseSensitivity(isSensitive);
+    },
     selectRowsFromCells: function() {
         if (!this.isCheckboxOnlyRowSelections()) {
             var last,

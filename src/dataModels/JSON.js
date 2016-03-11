@@ -671,6 +671,10 @@ var JSON = DataModel.extend('dataModels.JSON', {
         this.applyAnalytics();
     },
 
+    setGlobalFilterCaseSensitivity: function(isSensitive) {
+        this.getGlobalFilter().setCaseSensitivity(isSensitive);
+    },
+
     /**
      * @memberOf dataModels.JSON.prototype
      * @param {object} config

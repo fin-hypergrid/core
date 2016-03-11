@@ -15,7 +15,9 @@ window.onload = function() {
             ]
         }, {
             label: 'Grouping',
-            ctrls: [{ value: 'aggregates', setter: toggleAggregates }]
+            ctrls: [
+                { value: 'aggregates', setter: toggleAggregates }
+            ]
         }, {
             label: 'Column header rows',
             ctrls: [
@@ -41,6 +43,11 @@ window.onload = function() {
             ctrls: [
                 { value: 'checkboxOnlyRowSelections', label: 'by row handles only', setter: setSelectionProp },
                 { value: 'singleRowSelectionMode', label: 'one row at a time', setter: setSelectionProp }
+            ]
+        }, {
+            label: 'Filtering',
+            ctrls: [
+                { value: '(Global setting)', label: 'ignore case', setter: toggleCaseSensitivity }
             ]
         }
     ];
@@ -92,6 +99,11 @@ window.onload = function() {
     var styleRowsFromData;
     function toggleRowStylingMethod() {
         styleRowsFromData = !styleRowsFromData;
+    }
+
+    function toggleCaseSensitivity() {
+        jsonGrid.setGlobalFilterCaseSensitivity(!this.checked);
+        dataModel.applyAnalytics();
     }
 
     window.toggleColumnPicker = function() {
