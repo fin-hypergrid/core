@@ -1,3 +1,10 @@
+#*** NOTICE - PLEASE READ ***
+
+Hypergrid is in the midst of a major refactoring. This is scheduled to be merged into Master Branch by no later than the end of April. 
+
+If you are evaluating Hypergrid, please use the [big-refactor branch](https://github.com/openfin/fin-hypergrid/tree/feature/big-refactor). We anticipate this branch to have a new version [v0.2.x] available by March 18th.
+
+
 #Hypergrid by OpenFin
 
 <img src="images/README/gridshot04.gif" alt="screenshot">
