@@ -13,10 +13,10 @@ var Rectangle = require('rectangular').Rectangle;
 var _ = require('object-iterators');
 
 var defaults = require('./defaults');
+var cellEditors = require('./cellEditors');
 var Renderer = require('./lib/Renderer');
 var SelectionModel = require('./lib/SelectionModel');
 var addStylesheet = require('../css/stylesheets');
-var TableDialog = require('./lib/TableDialog');
 var Formatters = require('./lib/Formatters');
 
 var themeInitialized = false,
@@ -46,8 +46,7 @@ function Hypergrid(div, behaviorFactory, margin) {
 
     this.isWebkit = navigator.userAgent.toLowerCase().indexOf('webkit') > -1;
     this.selectionModel = new SelectionModel(this);
-    this.localCellEditors = {};
-    this.cellEditors = Object.create(this.localCellEditors);
+    this.makeCellEditors();
     this.renderOverridesCache = {};
     this.behavior = behaviorFactory(this);
 
@@ -83,16 +82,12 @@ function Hypergrid(div, behaviorFactory, margin) {
     this.initRenderer();
     this.initCanvas(margin);
     this.initScrollbars();
-    this.initLocalCellEditors();
 
     //Register a listener for the copy event so we can copy our selected region to the pastebuffer if conditions are right.
     document.body.addEventListener('copy', function(evt) {
         self.checkClipboardCopy(evt);
     });
     this.getCanvas().resize();
-
-    this.dialog = new TableDialog(this);
-    //this.computeCellsBounds();
 }
 
 Hypergrid.prototype = {
@@ -229,7 +224,7 @@ Hypergrid.prototype = {
         this.lastEdgeSelection = [0, 0];
         this.lnfProperties = Object.create(globalProperties);
         this.selectionModel = new SelectionModel(this);
-        this.cellEditors = Object.create(this.localCellEditors);
+        this.makeCellEditors();
         this.renderOverridesCache = {};
         this.clearMouseDown();
         this.dragExtent = new Point(0, 0);
@@ -272,35 +267,6 @@ Hypergrid.prototype = {
         if (renderer) {
             renderer.computeCellsBounds();
         }
-    },
-
-    initCellEditor: function(cellEditor) {
-        this.localCellEditors[cellEditor.$$CLASS_NAME.toLowerCase()] = cellEditor;
-        cellEditor.grid = this;
-    },
-
-    initLocalCellEditors: function() {
-
-        var cellEditors = [
-            'Textfield',
-            'Choice',
-            //'Combo',
-            'Color',
-            'Date',
-            'Slider',
-            'Spinner',
-            'Filter'
-        ];
-
-        var self = this;
-        cellEditors.forEach(function(name) {
-            self.initCellEditor(new Hypergrid.cellEditors[name]);
-        });
-
-        this.localCellEditors.int = this.localCellEditors.spinner;
-        this.localCellEditors.float = this.localCellEditors.spinner;
-        this.localCellEditors.date = this.localCellEditors.date;
-        this.localCellEditors.string = this.localCellEditors.extfield;
     },
 
     toggleColumnPicker: function() {
@@ -1271,15 +1237,47 @@ Hypergrid.prototype = {
         }
     },
 
+    makeCellEditors: function() {
+        var self = this;
+
+        this.cellEditors = {};
+
+        _(cellEditors).each(function(CellEditor) {
+            if (!CellEditor.abstract) {
+                self.registerCellEditor(CellEditor);
+            }
+        });
+
+        this.cellEditors.int = this.cellEditors.float = this.cellEditors.spinner;
+
+        // TODO: Commenting off the following which seem pointless
+        //this.cellEditors.date = this.cellEditors.date;
+        //this.cellEditors.string = this.cellEditors.extfield;
+    },
+
     /**
      * @memberOf Hypergrid.prototype
      * @summary Register a cell editor.
-     * @desc This is typically called from within a cell-editor's `installOn` method, when it is being initialized as a plugin.
-     * @param {string} alias - The name/id of the cell editor.
-     * @param {fin-hypergrid-cell-editor-base} cellEditor - see [fin-hypergrid-cell-editor-base](module-cell-editors_base.html)
+     * @desc Creates a new instance of the provided cell editor and adds it to the `cellEditors` hash using the class name (converted to all lower case).
+     *
+     * You can use this method to register an additional cell editor of your own creation.
+     *
+     * > All native cell editors have already been "preregistered" for you (by `makeCellEditors`).
+     *
+     * @param {CellEditor.prototype.constructor} CellEditorConstructor - A constructor created with `CellEditor.extend(alias, {...})` where:
+     * * `CellEditor` base class could also be some other class extended therefrom.
+     * * `alias` parameter, usually optional (see {@link https://www.npmjs.com/package/extend-me}), is in this case required because the class name it specifies is needed below to derive the hash key (property name) for this entry in `this.cellEditors`.
+     *
+     * @returns {CellEditor} The newly instantiated `CellEditor` object.
      */
-    registerCellEditor: function(alias, cellEditor) {
-        this.cellEditors[alias] = cellEditor;
+    registerCellEditor: function(CellEditorConstructor) {
+        var grid = this,
+            newCellEditor = new CellEditorConstructor(grid),
+            key = newCellEditor.$$CLASS_NAME.toLowerCase();
+
+        this.cellEditors[key] = newCellEditor;
+
+        return newCellEditor;
     },
 
     /**

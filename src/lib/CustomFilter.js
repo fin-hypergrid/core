@@ -305,27 +305,19 @@ var CustomFilter = FilterTree.extend('CustomFilter', {
     // All remaining methods are co-routines called from grid.dialog
     // See cellEditors/Filter.js
 
-    initializeDialog: function() {
+    onInitialize: function() {
 
     },
 
     onShow: function(container) {
-        container.appendChild(this.el);
+
     },
 
     onOk: function() {
         return this.invalid();
     },
 
-    onReset: function() {
-
-    },
-
-    onDelete: function() {
-
-    },
-
-    onCancel: function() {
+    onHide: function(container) {
 
     },
 

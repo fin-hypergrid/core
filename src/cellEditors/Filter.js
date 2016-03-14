@@ -1,7 +1,16 @@
 /* eslint-env browser */
+
 'use strict';
 
+var Tabz = require('tabz');
+var popMenu = require('pop-menu');
+var automat = require('automat');
+
 var CellEditor = require('./CellEditor');
+var markup = require('./Filter.html');
+
+var TAB_COLUMN_FITLERS_SQL = 'tabColumnFiltersSql',
+    TAB_COLUMN_FILTERS_CQL = 'tabColumnFiltersCql';
 
 /**
  * @constructor
@@ -9,210 +18,189 @@ var CellEditor = require('./CellEditor');
 var Filter = CellEditor.extend('Filter', {
 
     initialize: function() {
-        var data = document.createElement('div');
-        var style = data.style;
-        style.position = 'absolute';
-        style.top = style.bottom = '44px';
-        style.right = style.left = '1em';
-        style.overflowY = 'scroll';
-
-        var table = document.createElement('table');
-        data.appendChild(table);
-
-        style = table.style;
-        style.width = style.height = '100%';
-
-        var tr = document.createElement('tr');
-        var td = document.createElement('td');
-        table.appendChild(tr);
-        tr.appendChild(td);
-
-
-        this.title = document.createElement('div');
-        this.title.innerHTML = 'Filter Editor';
-
-        this.dialog = document.createElement('div');
-
-        this.content = td;
-        this.buttons = document.createElement('div');
-
-        style = this.dialog.style;
-        style.position = 'absolute';
-        style.top = style.left = style.right = style.bottom = 0;
-        style.whiteSpace = 'nowrap';
-
-        style = this.title.style;
-        style.position = 'absolute';
-        style.top = style.left = style.right = 0;
-        style.height = '44px';
-        style.whiteSpace = 'nowrap';
-        style.textAlign = 'center';
-        style.padding = '11px';
-
-        style = this.buttons.style;
-        style.position = 'absolute';
-        style.left = style.right = style.bottom = 0;
-        style.height = '44px';
-        style.whiteSpace = 'nowrap';
-        style.textAlign = 'center';
-        style.padding = '8px';
-
-        this.dialog.appendChild(this.title);
-        this.dialog.appendChild(data);
-        this.dialog.appendChild(this.buttons);
-
-        this.ok = document.createElement('button');
-        this.ok.style.borderRadius = '8px';
-        this.ok.style.width = '5.5em';
-
-        this.cancel = document.createElement('button');
-        this.cancel.style.marginLeft = '2em';
-        this.cancel.style.borderRadius = '8px';
-        this.cancel.style.width = '5.5em';
-
-        this.delete = document.createElement('button');
-        this.delete.style.marginLeft = '2em';
-        this.delete.style.borderRadius = '8px';
-        this.delete.style.width = '5.5em';
-
-        this.reset = document.createElement('button');
-        this.reset.style.marginLeft = '2em';
-        this.reset.style.borderRadius = '8px';
-        this.reset.style.width = '5.5em';
-
-        this.ok.innerHTML = 'ok';
-        this.cancel.innerHTML = 'cancel';
-        this.delete.innerHTML = 'delete';
-        this.reset.innerHTML = 'reset';
-
-        this.buttons.appendChild(this.ok);
-        this.buttons.appendChild(this.reset);
-        this.buttons.appendChild(this.delete);
-        this.buttons.appendChild(this.cancel);
-
-        var self = this;
-        this.ok.onclick = function() {
-            self.okPressed();
-        };
-        this.cancel.onclick = function() {
-            self.cancelPressed();
-        };
-        this.delete.onclick = function() {
-            self.deletePressed();
-        };
-        this.reset.onclick = function() {
-            self.resetPressed();
-        };
-    },
-
-    tearDown: function() {
-        this.content.innerHTML = '';
-    },
-
-    okPressed: function() {
-        var dialog = this.grid.dialog;
-        dialog.onOkPressed();
-    },
-
-    cancelPressed: function() {
-        var dialog = this.grid.dialog;
-        dialog.onCancelPressed();
-    },
-
-    deletePressed: function() {
-        var dialog = this.grid.dialog;
-        dialog.onDeletePressed();
-    },
-
-    resetPressed: function() {
-        var dialog = this.grid.dialog;
-        dialog.onResetPressed();
+        //this.on(filter, 'onInitialize');
     },
 
     beginEditAt: function(editorPoint) {
-        var behavior = this.grid.behavior;
-        var dialog = this.grid.dialog;
+        var el, tabz, newColumnSelector,
+            filter = this.filter = this.grid.behavior.getGlobalFilter();
 
-        var columnIndex = editorPoint.x;
-        //var title = behavior.getColumnId(columnIndex);
-        //var field = behavior.getField(columnIndex);
-        //var type = behavior.getColumn(columnIndex).getType();
+        if (this.on(filter, 'onShow')) {
+            el = this.el = automat.first(markup.dialog);
+            tabz = this.tabz = new Tabz({ root: el });
+            newColumnSelector = this.newColumnSelector = el.querySelector('#add-column-filter-subexpression');
 
-        this.title.innerHTML = 'Manage Filters';
-        var filter = behavior.getGlobalFilter();
-        //var self = this;
-        if (dialog.isOpen()) {
-            dialog.close();
-        } else {
-            var self = this;
+            el.addEventListener('click', moreinfo.bind(this));
+            el.querySelector('.filter-close-button').onclick = this.stopEditing.bind(this);
+            newColumnSelector.onmousedown = addColumnFilter.bind(this);
 
-            dialog.clear();
-            dialog.overlay.appendChild(this.dialog);
-
-            filter.initializeDialog();
-
-            dialog.onOkPressed = function() {
-                if (filter.onOk && filter.onOk()) { // onOK() truthy result means abort; falsy means proceed
-                    return;
-                }
-                self.tearDown();
-                //behavior.setComplexFilter(columnIndex, {
-                //    //type: filter.alias,
-                //    state: filter.getState()
-                //});
-                dialog.close();
-                behavior.applyAnalytics();
-                behavior.changed();
-            };
-
-            dialog.onCancelPressed = function() {
-                if (filter.onCancel && filter.onCancel()) {
-                    return;
-                }
-                self.tearDown();
-                dialog.close();
-                filter = undefined;
-            };
-
-            dialog.onDeletePressed = function() {
-                if (filter.onDelete && filter.onDelete()) {
-                    return;
-                }
-                self.tearDown();
-                //behavior.setComplexFilter(columnIndex, undefined);
-                dialog.close();
-                behavior.applyAnalytics();
-                behavior.changed();
-            };
-
-            dialog.onResetPressed = function() {
-                if (filter.onReset && filter.onReset()) {
-                    return;
-                }
-                self.tearDown();
-                filter.initializeDialog(dialog);
-                if (filter.onShow) {
-                    filter.onShow(self.content);
-                }
-            };
-
-            var cellBounds = this.grid._getBoundsOfCell(columnIndex, editorPoint.y);
-
-            //hack to accomodate bootstrap margin issues...
-            var xOffset =
-                this.grid.div.getBoundingClientRect().left -
-                this.grid.divCanvas.getBoundingClientRect().left;
-            cellBounds.x = cellBounds.x - xOffset;
-            dialog.openFrom(cellBounds);
-
-            setTimeout(function() {
-                if (filter.onShow) {
-                    filter.onShow(self.content);
-                }
-            }, dialog.getAnimationTime() + 10);
+            tabz.folder('#tabTableFilterQueryBuilder').appendChild(filter.tableFilter.el);
+            tabz.folder('#tabColumnFiltersQueryBuilder').appendChild(filter.columnFilters.el);
+            document.querySelector('body').appendChild(el);
+            newColumnSelector.selectedIndex = 0;
         }
     },
 
+    hideEditor: function() {
+        if (this.el) {
+            this.el.remove();
+            this.on('onHide');
+        }
+    },
+
+    stopEditing: function() {
+        if (this.on('onOk')) {
+            var behavior = this.grid.behavior;
+            this.hideEditor();
+            behavior.applyAnalytics();
+            behavior.changed();
+        }
+    },
+
+    /**
+     *
+     * @param methodName
+     * @returns {boolean} `true` if no handler to call _or_ called handler successfully falsy (success).
+     */
+    on: function(methodName) {
+        var method = this.filter[methodName],
+            abort;
+
+        if (method) {
+            var remainingArgs = Array.prototype.slice.call(arguments, 1);
+            abort = method.apply(this.filter, remainingArgs);
+        }
+
+        return !abort;
+    }
+
 });
+
+//function forEachEl(selector, iteratee, context) {
+//    return Array.prototype.forEach.call((context || document).querySelectorAll(selector), iteratee);
+//}
+
+function moreinfo(evt) {
+    var el = evt.target;
+    if (el.tagName === 'A' && el.classList.contains('more-info')) {
+        var els = Array.prototype.slice.call(this.el.querySelectorAll('.more-info'));
+        var i = els.indexOf(el);
+        if (i >= 0) {
+            el = els[i + 1];
+            el.style.display = window.getComputedStyle(el).display === 'none' ? 'block' : 'none';
+            evt.stopPropagation();
+        }
+        evt.preventDefault();
+    }
+}
+
+function addColumnFilter(evt) {
+    var tabz = this.tabz,
+        qbId = 'tabColumnFiltersQueryBuilder',
+        tabQueryBuilder = tabz.folder('#' + qbId),
+        tabPanel = tabQueryBuilder.parentElement,
+        tab = tabz.enabledTab(tabPanel),
+        folder = tabz.folder(tab),
+        visQueryBuilder = tab === tabQueryBuilder,
+        columnFilters = this.filter.columnFilters,
+        error = columnFilters.invalid({ focus: visQueryBuilder });
+
+    if (error) {
+        if (!visQueryBuilder) {
+            // We're in either the SQL tab or the Syntax tab.
+            // Figure out which text box control to focus on.
+            var errantQueryBuilderControlEl = error.node.el,
+                errantColumnName = errantQueryBuilderControlEl.parentElement.querySelector('input').value,
+                errantColumnInputControl = folder.querySelector('[name="' + errantColumnName + '"]');
+
+            errantColumnInputControl.classList.add('filter-tree-error');
+            errantColumnInputControl.focus();
+        }
+        evt.preventDefault(); // do not drop down
+        return;
+    }
+
+    var menu = columnFilters.root.schema,
+        blacklist = columnFilters.children.map(function(columnFilter) {
+            return columnFilter.children.length && columnFilter.children[0].column;
+        }),
+        options = {
+            prompt: this.newColumnSelector[0].text.replace('…', ''),
+            blacklist: blacklist
+        };
+
+    popMenu.build(this.newColumnSelector, menu, options);
+
+    this.newColumnSelector.onchange = function() {
+        columnFilters.add({
+            state: {
+                type: 'columnFilter',
+                children: [ { column: this.value } ]
+            },
+            focus: visQueryBuilder
+        });
+
+        if (tab.id === TAB_COLUMN_FITLERS_SQL || tab.id === TAB_COLUMN_FILTERS_CQL) {
+            renderFolder(tab, folder);
+        }
+
+        this.selectedIndex = 0;
+    };
+}
+
+function renderFolder(tab, folder) {
+    var queryLanguage = (
+        tab.id === TAB_COLUMN_FITLERS_SQL && 'SQL' ||
+        tab.id === TAB_COLUMN_FILTERS_CQL && 'CQL'
+    );
+
+    if (queryLanguage) {
+        var filters = this.filter.columnFilters.children,
+            el = folder.lastElementChild,
+            msgEl = el.querySelector('span'),
+            listEl = el.querySelector('ol'),
+            copyAllButtonEl = el.querySelector('button:first-of-type');
+
+        msgEl.innerHTML = activeFiltersMessage(filters.length);
+        listEl.innerHTML = '';
+
+        filters.forEach(function(filter) {
+            var conditional = filter.children[0],
+                formattedColumnName = popMenu.formatItem(conditional.schema[0]),
+                columnName = conditional.column,
+                expression = filter.getState({ syntax: queryLanguage }),
+                isNull = expression === '(NULL IS NULL)' || expression === '',
+                content = isNull ? '' : expression,
+                className = isNull ? 'filter-tree-error' : '',
+                li = automat.first(markup[queryLanguage], formattedColumnName, columnName, content, className);
+
+            listEl.appendChild(li);
+        });
+
+        if (copyAllButtonEl) {
+            copyAllButtonEl.style.display = filters.length > 1 ? 'block' : 'none';
+        }
+    } else if (tab.id === 'tabTableFilterSql') {
+        folder.querySelector('textarea').value = this.filter.tableFilter.getState({ syntax: 'SQL' });
+    }
+}
+
+function activeFiltersMessage(n) {
+    var result;
+
+    switch (n) {
+        case 0:
+            result = 'There are no active column filters.';
+            break;
+        case 1:
+            result = 'There is 1 active column filter:';
+            break;
+        default:
+            result = 'There are ' + n + ' active column filters:';
+    }
+
+    return result;
+}
+
 
 module.exports = Filter;

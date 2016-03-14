@@ -8,7 +8,6 @@ var CellEditor = require('./CellEditor.js');
  * @constructor
  */
 var Simple = CellEditor.extend('Simple', {
-
     /**
      * my main input control
      * @type {Element}
@@ -317,5 +316,9 @@ var Simple = CellEditor.extend('Simple', {
         element.dispatchEvent(event);
     }
 });
+
+
+Simple.abstract = true; // don't instantiate directly
+
 
 module.exports = Simple;

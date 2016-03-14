@@ -12,6 +12,10 @@ var extract = /\/\*\s*([^]+?)\s+\*\//; // finds the string inside the /* ... */;
  */
 var CellEditor = Base.extend('CellEditor', {
 
+    initialize: function(grid) {
+        this.grid = grid;
+    },
+
     /**
      * am I currently editing (i.e., between calls to `beginEditAt` and either `stopEditing` or `cancelEditing`)
      * @type {boolean}
@@ -202,5 +206,9 @@ var CellEditor = Base.extend('CellEditor', {
     },
 
 });
+
+
+CellEditor.abstract = true; // don't instantiate directly
+
 
 module.exports = CellEditor;

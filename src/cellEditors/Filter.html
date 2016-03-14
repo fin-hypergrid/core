@@ -1,0 +1,290 @@
+// NOTE: This file is a node module -- even with it's .html extension, which is purely for editor convenience.
+
+exports.CQL = function() {/*
+<li>
+    <button type="button" class="copy"></button>
+    <div class="filter-tree-remove-button" title="delete conditional"></div>
+    {1}:
+    <input name="{2}" class="{4}" value="{3:encode}">
+</li>
+*/};
+
+exports.SQL = function() {/*
+<li>
+    <button type="button" class="copy"></button>
+    <div class="filter-tree-remove-button" title="delete conditional"></div>
+    {1}:
+    <textarea name="{2}" rows="1" class="{4}">{3:encode}</textarea>
+</li>
+*/};
+
+exports.dialog = function() {/*
+<div id="hyperfilter">
+
+    <style>
+        #hyperfilter, #hyperfilter > div {
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+            background-color: white;
+            font: 10pt sans-serif;
+        }
+        #hyperfilter > div:first-of-type {
+            padding: 1em 0.5em 1em 1em;
+            margin-right: 50%;
+        }
+        #hyperfilter > div:last-of-type {
+            padding: 1em 1em 1em 0.5em;
+            margin-left: 50%;
+        }
+        #hyperfilter > div > p:first-child {
+            margin-top: 0;
+        }
+        #hyperfilter > div > p > span:first-child {
+            font-size: larger;
+            letter-spacing: 2px;
+            font-weight: bold;
+            color: #666;
+            margin-right: 1em;
+        }
+        #hyperfilter input, #hyperfilter textarea {
+            outline: 0;
+        }
+
+        .tabz { z-index: 0 }
+        .tabz > p:first-child, .tabz > section > p:first-child, .tabz > section > div > p:first-child { margin-top: 0 }
+
+        #hyperfilter a.more-info { font-size: smaller; }
+        #hyperfilter a.more-info::after { content: '(more info)'; }
+        #hyperfilter div.more-info {
+            border: 1px tan solid;
+            border-radius: 8px;
+            padding: 0 8px .2em;
+            display: none;
+            background-color: ivory;
+            box-shadow: 3px 3px 7px tan;
+            margin-bottom: 1em;
+        }
+        #hyperfilter div.more-info > p { margin: .5em 0; }
+
+        .tabz ul { padding-left: 1.5em; list-style-type: circle; font-weight: bold }
+        .tabz ul > li > ul { list-style-type: disc; font-weight: normal; }
+        .tabz li { margin:.3em 0; line-height: 1.35em }
+        .tabz li > code { background: #e0e0e0; margin: 0 .1em; padding: 0 5px; border-radius: 4px; }
+
+        .tabz > section.filter-expression-syntax > div:last-child ol {
+            padding-left: 1.6em;
+        }
+        .tabz > section.filter-expression-syntax > textarea,
+        .tabz > section.filter-expression-syntax > div:last-child textarea,
+        .tabz > section.filter-expression-syntax > div:last-child input {
+            display: block;
+            position: relative;
+            width: 100%;
+            box-sizing: border-box;
+            border: 1px solid black;
+            padding: .4em .7em;
+            font-family: monospace;
+            font-size: 9pt;
+        }
+        .tabz > section.filter-expression-syntax > textarea {
+            height: 96%;
+        }
+        .tabz button.copy {
+            font-size: smaller;
+            display: block;
+            float: right;
+            margin-right: 1em;
+        }
+        .tabz button.copy:before {
+            content: 'COPY';
+        }
+
+        #hyperfilter a.filter-close-button {
+            float: right;
+            color: grey;
+            text-decoration: none;
+            font-size: 33px;
+            margin: -12px 0 0 0;
+        }
+        #hyperfilter a.filter-close-button:after {
+            content: '\D7';
+        }
+        #hyperfilter a.filter-close-button:hover {
+            color: black;
+        }
+        #hyperfilter a.filter-close-button:active {
+            color: #c00;
+        }
+    </style>
+
+    <div>
+        <select id="add-column-filter-subexpression" style="float:right; margin-left: 1em;">
+            <option value="">New column filter&hellip;</option>
+        </select>
+
+        <p>
+            <span>Column Filters</span>
+            <a class="more-info"></a>
+        </p>
+        <div class="more-info">
+            <p>The table filter can be viewed in the Query Builder or as SQL WHERE clause syntax. Both interfaces manipulate the same underlying filter data structure.</p>
+            <p>All column filters are AND&rsquo;d together. Each grid row is first qualified by the table filter and then successively qualified by each column filter subexpression.</p>
+        </div>
+
+        <div class="tabz">
+
+            <header id="tabColumnFiltersQueryBuilder" class="default-tab">
+                Query Builder
+            </header>
+
+            <section>
+            </section>
+
+            <header id="tabColumnFiltersSql" class="tabz-bg2">
+                SQL syntax
+            </header>
+
+            <section class="filter-expression-syntax tabz-bg2">
+                <div>
+                    <p>
+                        <span></span>
+                        <button type="button" class="copy" title="The state of the column filters subtree expressed in SQL syntax (all the column filter subexpressions shown below AND&rsquo;d together).">
+                            ALL
+                        </button>
+                    </p>
+                    <ol></ol>
+                </div>
+            </section>
+
+            <header id="tabColumnFiltersCql" class="tabz-bg1">
+                Column Filter syntax
+            </header>
+
+            <section class="filter-expression-syntax tabz-bg1">
+                <p>
+                    <a class="more-info"></a>
+                </p>
+                <div class="more-info">
+                    <p>
+                        Column filter cells accept a simplified, compact syntax, intended to keep things short and simple and self-evident. The downside of course it is not as flexible or concise as using the Query Builder or SQL syntax.
+                    </p>
+                    <ul>
+                        <li>
+                            Simple expressions
+                            <ul>
+                                <li>All simple expressions take the form <i>operator-literal</i> or <i>operator-column2</i>. The (left side) column is always implied and is the same for all simple expressions in a compound expression. This is because column filters are always tied to a known column.</li>
+
+                                <li>If the operator is an equals sign (=), it may be omitted.</li>
+
+                                <li>Besides operators, no other punctuation is permitted, meaning that no quotation marks and no parentheses.</li>
+
+                                <li>If a literal exactly matches a column name or alias, the operand is not taken literally and instead refers to the value in that column. (There are properties to control what constitutes such a match: Column name, alias, or either; and the case-sensitivity of the match.)</li>
+
+                                <li>As literals are unquoted, any operator symbol or operator word (including logical operators for compound expressions) terminates a literal.</li>
+
+                                <li>An important corollary to the above features is that operators may not appear in literals.</li>
+                            </ul>
+                        </li>
+
+                        <li>
+                            Compound expressions
+                            <ul>
+                                <li>Compound expressions are formed by connecting simple expressions with the logical operators <code>AND</code>, <code>OR</code>, <code>NOR</code>, or <code>NAND</code> ("not and").</li>
+
+                                <li>However, all logical operators used in a compound column filter expression must be homogeneous. You may not mix the above logical operators in a single column. (If you need to do this, create a table filter expression instead.)</li>
+                            </ul>
+                        </li>
+
+                        <li>
+                            Hidden logic
+                            <ul>
+                                <li>If the column is also referenced in a table filter expression (on the left side of a simple expression), the column filter is flagged in its grid cell with a special star character. This is just a flag; it is not part of the syntax. <span style="color:red; font-style:italic">Not yet implemented.</span></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+
+                <div>
+                    <p><span></span></p>
+                    <ol></ol>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <div>
+        <a class="filter-close-button"></a>
+
+        <p>
+            <span>Table Filter</span>
+            <a class="more-info"></a>
+        </p>
+        <div class="more-info">
+            <p>The table filter can be viewed in the Query Builder or as SQL WHERE clause syntax. Both interfaces manipulate the same underlying filter data structure.</p>
+            <p>
+                These filter subexpressions are both required (<code>AND</code>&rsquo;d together), resulting in a subset of <em>qualified rows</em> which have passed through both filters.
+                It's called a <dfn>tree</dfn> because it contains both <dfn>branches</dfn> and <dfn>leaves</dfn>.
+                The leaves represent <dfn>conditional expressions</dfn> (or simply <dfn>conditionals</dfn>).
+                The branches, also known as <dfn>subtrees</dfn>, contain leaves and/or other branches and represent subexpressions that group conditionals together.
+                Grouped conditionals are evaluated together, before conditionals outside the group.
+            </p>
+        </div>
+
+        <div class="tabz">
+            <header id="tabTableFilterQueryBuilder">
+                Query Builder
+            </header>
+
+            <section>
+            </section>
+
+            <header id="tabTableFilterSql" class="tabz-bg2">
+                SQL syntax
+            </header>
+
+            <section class="filter-expression-syntax tabz-bg2">
+                <div>
+                    <p>
+                        SQL WHERE clause syntax with certain restrictions.
+                        <a class="more-info"></a>
+                    </p>
+                    <div class="more-info">
+                        <ul>
+                            <li>
+                                Simple expressions
+                                <ul>
+                                    <li>All simple expressions must be of the form <i>column-operator-literal</i> or <i>column1-operator-column2</i>. That is, the left side must refer to a column (may not be a literal).</li>
+
+                                    <li>Column names may be quoted with the currently set quote characters (typically double-quotes). If unquoted, they must consist of classic identifier syntax (alphanumerics and underscore, but not beginning with a numeral).</li>
+
+                                    <li>All literals must be quoted strings (using single quotes). (In a future release we expect to support unquoted numeric syntax for columns explicitly typed as numeric.)</li>
+                                </ul>
+                            </li>
+
+                            <li>
+                                Compound expressions
+                                <ul>
+                                    <li>Compound expressions are formed by connecting simple expressions with the logical operators <code>AND</code> or <code>OR</code>.</li>
+
+                                    <li>However, all logical operators at each level in a complex expression (each parenthesized subexpression) must be homogeneous, <i>i.e.,</i> either <code>AND</code> or <code>OR</code> but not a mixture of the two. In other words, there is no implicit operator precedence; grouping of expressions must always be explicitly stated with parentheses.</li>
+
+                                    <li>The unary logical operator <code>NOT</code> is supoorted before parentheses only. While the Query Builder and the Column Filter allow they syntax <code>&hellip; NOT <i>operator</i> &hellip;</code> (where <code><i>operator</i></code> is <code>IN</code>, <code>LIKE</code>, <i>etc.</i>), these must be expressed here with parenthethes: <code>NOT (&hellip; <i>operator</i> &hellip;)</code>.</li>
+
+                                    <li>While the Query Builder and Column Filter syntax support the pseudo-operators <code>NOR</code> and <code>NAND</code>, in SQL these must be expressed as <code>NOT (&hellip; OR &hellip;)</code> and <code>NOT (&hellip; AND &hellip;)</code>, respectively.</li>
+
+                                    <li>The Query Builder and Column Filter syntax also support the pseudo-operators <code>STARTS abc</code>, <code>ENDS xyz</code>, and <code>CONTAINS def</code>. These are expressed in SQL by <code>LIKE 'abc%'</code>, <code>LIKE '%xyz'</code>, and <code>LIKE '%def%'</code>, respectively.</li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <textarea></textarea>
+            </section>
+
+        </div>
+    </div>
+</div>
+*/};
