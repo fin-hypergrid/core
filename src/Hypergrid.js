@@ -649,7 +649,9 @@ Hypergrid.prototype = {
             var width = selections.length,
                 height = selections[0].length,
                 area = width * height,
-                last = width - 1;
+                lastCol = width - 1,
+                //Whitespace will only be added on non-singular rows, selections
+                whiteSpaceDelimiterForRow = (height > 1 ? '\n' : '');
 
             //disallow if selection is too big
             if (area > 20000) {
@@ -659,7 +661,7 @@ Hypergrid.prototype = {
 
             for (var h = 0; h < height; h++) {
                 for (var w = 0; w < width; w++) {
-                    result += selections[w][h] + (w < last ? '\t' : '\n');
+                    result += selections[w][h] + (w < lastCol ? '\t' : whiteSpaceDelimiterForRow);
                 }
             }
         }
