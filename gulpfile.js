@@ -52,7 +52,6 @@ gulp.task('watch', function () {
         demoDir + 'index.html',
         demoDir + 'js/demo.js',
         demoDir + 'css/demo.css',
-        srcDir + '**/*.html',
         buildDir + '*'
     ], [
         'reloadBrowsers'

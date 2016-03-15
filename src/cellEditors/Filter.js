@@ -6,8 +6,9 @@ var Tabz = require('tabz');
 var popMenu = require('pop-menu');
 var automat = require('automat');
 
+var Dialog = require('../lib/Dialog');
 var CellEditor = require('./CellEditor');
-var markup = require('./Filter.html');
+var markup = require('../html/templates.html');
 
 var TAB_COLUMN_FITLERS_SQL = 'tabColumnFiltersSql',
     TAB_COLUMN_FILTERS_CQL = 'tabColumnFiltersCql';
@@ -22,28 +23,43 @@ var Filter = CellEditor.extend('Filter', {
     },
 
     beginEditAt: function(editorPoint) {
-        var el, tabz, newColumnSelector,
+        var dialog, el, tabz, newColumnSelector,
             filter = this.filter = this.grid.behavior.getGlobalFilter();
 
         if (this.on(filter, 'onShow')) {
-            el = this.el = automat.first(markup.dialog);
-            tabz = this.tabz = new Tabz({ root: el });
-            newColumnSelector = this.newColumnSelector = el.querySelector('#add-column-filter-subexpression');
+            // create the dialog backdrop and insert the template
+            dialog = this.dialog = new Dialog(markup.filterTrees);
+            el = dialog.el;
 
+            // initialize the folder tabs
+            tabz = this.tabz = new Tabz({ root: el });
+
+            // wire-ups
             el.addEventListener('click', moreinfo.bind(this));
+
             el.querySelector('.filter-close-button').onclick = this.stopEditing.bind(this);
+
+            newColumnSelector = this.newColumnSelector = el.querySelector('#add-column-filter-subexpression');
             newColumnSelector.onmousedown = addColumnFilter.bind(this);
 
+            window.addEventListener('keyup', function(evt) {
+                this.hideEditor();
+            });
+
+            // put the two subtrees in the two panels
             tabz.folder('#tabTableFilterQueryBuilder').appendChild(filter.tableFilter.el);
             tabz.folder('#tabColumnFiltersQueryBuilder').appendChild(filter.columnFilters.el);
-            document.querySelector('body').appendChild(el);
+
+            // add it to the DOM
+            dialog.append();
             newColumnSelector.selectedIndex = 0;
         }
     },
 
     hideEditor: function() {
-        if (this.el) {
-            this.el.remove();
+        if (this.dialog.el) {
+            this.dialog.el.remove();
+            delete this.dialog;
             this.on('onHide');
         }
     },
@@ -83,7 +99,7 @@ var Filter = CellEditor.extend('Filter', {
 function moreinfo(evt) {
     var el = evt.target;
     if (el.tagName === 'A' && el.classList.contains('more-info')) {
-        var els = Array.prototype.slice.call(this.el.querySelectorAll('.more-info'));
+        var els = Array.prototype.slice.call(this.dialog.el.querySelectorAll('.more-info'));
         var i = els.indexOf(el);
         if (i >= 0) {
             el = els[i + 1];
