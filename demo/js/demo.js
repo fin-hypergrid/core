@@ -553,13 +553,6 @@ window.onload = function() {
     console.log(headers);
     console.log(fields);
 
-    jsonModel.setCellProperties(0, 0, {
-        font: '10pt Tahoma',
-        color: 'lightblue',
-        backgroundColor: 'red',
-        halign: 'left'
-    });
-
     toggleProps.forEach(function(prop) { addToggle(prop); });
 
     //setTimeout(function() {
@@ -620,6 +613,13 @@ window.onload = function() {
             jsonGrid.setGroups([4, 0, 1]);
 
             jsonGrid.setState(state);
+
+            jsonModel.setCellProperties(2, 16, {
+                font: '10pt Tahoma',
+                color: 'lightblue',
+                backgroundColor: 'red',
+                halign: 'left'
+            });
 
             jsonGrid.addProperties({
                 scrollbarHoverOff: 'visible',
