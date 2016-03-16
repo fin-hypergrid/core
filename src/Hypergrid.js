@@ -428,6 +428,7 @@ Hypergrid.prototype = {
     refreshProperties: function() {
         // this.canvas = this.shadowRoot.querySelector('fin-canvas');
         //this.canvas = new Canvas(this.divCanvas, this.renderer); //TODO: Do we really need to be recreating it here?
+        this.renderer.computeCellsBounds();
         this.checkScrollbarVisibility();
         this.behavior.defaultRowHeight = null;
         if (this.isColumnAutosizing()) {
