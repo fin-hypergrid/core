@@ -1005,7 +1005,7 @@ Hypergrid.prototype = {
                     !self.isEditing() &&
                     (
                         char === 'F2' ||
-                        (isVisibleChar = char.length === 1) ||
+                        (isVisibleChar = char.length === 1 && !(e.detail.meta || e.detail.ctrl)) ||
                         (isDeleteChar = char === 'DELETE' || char === 'BACKSPACE')
                     )
                 ) {
