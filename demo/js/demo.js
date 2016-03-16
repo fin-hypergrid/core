@@ -9,6 +9,11 @@ window.onload = function() {
     // List of properties to show as checkboxes in this demo's "dashboard"
     var toggleProps = [
         {
+            label: 'Row styling',
+            ctrls: [
+                { value: '(Global setting)', label: 'base on data', setter: toggleRowStylingMethod }
+            ]
+        }, {
             label: 'Grouping',
             ctrls: [{ value: 'aggregates', setter: toggleAggregates }]
         }, {
@@ -82,6 +87,11 @@ window.onload = function() {
 
     function toggleAggregates() {
         jsonModel.setAggregates(this.checked ? aggregates : []);
+    }
+
+    var styleRowsFromData;
+    function toggleRowStylingMethod() {
+        styleRowsFromData = !styleRowsFromData;
     }
 
     window.toggleColumnPicker = function() {
@@ -210,6 +220,7 @@ window.onload = function() {
     //all formatting and rendering per cell can be overridden in here
     cellProvider.getCell = function(config) {
         var renderer = cellProvider.cellCache.simpleCellRenderer;
+
         if (!config.isUserDataArea) {
             return renderer;
         }
@@ -230,21 +241,26 @@ window.onload = function() {
 
         config.halign = 'left';
 
-        switch (y % 6) {
-            case 5:
-            case 0:
-            case 1:
-                config.backgroundColor = '#e8ffe8';
-                config.font = 'italic x-small verdana';
-                config.color = '#070';
-                break;
+        if (styleRowsFromData) {
+            var hex = (155 + 10 * config.row.total_number_of_pets_owned).toString(16);
+            config.backgroundColor = '#' + hex + hex + hex;
+        } else {
+            switch (y % 6) {
+                case 5:
+                case 0:
+                case 1:
+                    config.backgroundColor = '#e8ffe8';
+                    config.font = 'italic x-small verdana';
+                    config.color = '#070';
+                    break;
 
-            case 2:
-            case 3:
-            case 4:
-                config.backgroundColor = 'white';
-                config.font = 'normal small garamond';
-                break;
+                case 2:
+                case 3:
+                case 4:
+                    config.backgroundColor = 'white';
+                    config.font = 'normal small garamond';
+                    break;
+            }
         }
 
         switch (x) {
@@ -291,6 +307,7 @@ window.onload = function() {
                 config.halign = 'right';
                 break;
         }
+
         return renderer;
     };
 
