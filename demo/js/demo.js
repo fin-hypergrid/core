@@ -663,15 +663,10 @@ window.onload = function() {
 //                        halign: 'left'
 //                    });
 
-            jsonModel.setColumnProperties(1, {
-                backgroundColor: function(config) {
-                    var textValue = config.value[1];
-                    if (textValue[0] === 'S') { //does the data start with an 'S'?
-                        return 'purple';
-                    } else {
-                        return 'white';
-                    }
-                    return 'cyan';
+            jsonModel.setColumnProperties(0, {
+                color: function(config) {
+                    //does the data start with an 'S'?
+                    return config.value[1][0] === 'S' ? 'red' : '#191919';
                 },
                 columnHeaderBackgroundColor: '#142B6F', //dark blue
                 columnHeaderColor: 'white'
