@@ -997,33 +997,6 @@ Hypergrid.prototype = {
             if (self.resolveProperty('readOnly')) {
                 return;
             }
-            if (self.resolveProperty('editOnKeydown')) {
-                var char = e.detail.char,
-                    isVisibleChar, isDeleteChar, currentCell, editor;
-
-                if (
-                    !self.isEditing() &&
-                    (
-                        char === 'F2' ||
-                        (isVisibleChar = char.length === 1 && !(e.detail.meta || e.detail.ctrl)) ||
-                        (isDeleteChar = char === 'DELETE' || char === 'BACKSPACE')
-                    )
-                ) {
-                    currentCell = self.selectionModel.getLastSelection();
-                    if (currentCell) {
-                        var pseudoEvent = { gridCell: currentCell.origin };
-                        editor = self.onEditorActivate(pseudoEvent);
-                        if (editor instanceof Hypergrid.cellEditors.Simple) {
-                            if (isVisibleChar) {
-                                editor.input.value = char;
-                            } else if (isDeleteChar) {
-                                editor.input.value = '';
-                            }
-                            e.detail.primitiveEvent.preventDefault();
-                        }
-                    }
-                }
-            }
             self.fireSyntheticKeydownEvent(e);
             self.delegateKeyDown(e);
         });
@@ -1408,7 +1381,7 @@ Hypergrid.prototype = {
 
     /**
      * @memberOf Hypergrid.prototype
-     * @summary Scroll in the offsetY direction if column index c is not visible.
+     * @summary Scroll in the `offsetY` direction if column index c is not visible.
      * @param {number} rowIndex - The column index in question.
      * @param {number} offsetX - The direction and magnitude to scroll if we need to.
      * @return {boolean} Row is visible.
@@ -1997,10 +1970,8 @@ Hypergrid.prototype = {
      * @param {number} newValue - The new scroll value.
      */
     setVScrollValue: function(y) {
-        y = Math.round(y);
-        var max = this.sbVScroller.range.max;
-        y = Math.min(max, Math.max(0, y));
         var self = this;
+        y = Math.min(this.sbVScroller.range.max, Math.max(0, Math.round(y)));
         if (y !== this.vScrollValue) {
             this.behavior._setScrollPositionY(y);
             var oldY = this.vScrollValue;
@@ -2027,10 +1998,8 @@ Hypergrid.prototype = {
      * @param {number} newValue - The new scroll value.
      */
     setHScrollValue: function(x) {
-        x = Math.round(x);
-        var max = this.sbHScroller.range.max;
-        x = Math.min(max, Math.max(0, x));
         var self = this;
+        x = Math.min(this.sbHScroller.range.max, Math.max(0, Math.round(x)));
         if (x !== this.hScrollValue) {
             this.behavior._setScrollPositionX(x);
             var oldX = this.hScrollValue;

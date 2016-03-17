@@ -251,7 +251,9 @@ window.onload = function() {
                 case 1:
                     config.backgroundColor = '#e8ffe8';
                     config.font = 'italic x-small verdana';
-                    config.color = '#070';
+                    if (config.color !== redIfStartsWithS) {
+                        config.color = '#070';
+                    }
                     break;
 
                 case 2:
@@ -664,10 +666,7 @@ window.onload = function() {
 //                    });
 
             jsonModel.setColumnProperties(0, {
-                color: function(config) {
-                    //does the data start with an 'S'?
-                    return config.value[1][0] === 'S' ? 'red' : '#191919';
-                },
+                color: redIfStartsWithS,
                 columnHeaderBackgroundColor: '#142B6F', //dark blue
                 columnHeaderColor: 'white'
             });
@@ -806,6 +805,11 @@ window.onload = function() {
         jsonGrid.selectionModel.clear();
         dataModel.clearSelectedData();
         setProp.call(this);
+    }
+
+    function redIfStartsWithS(config) {
+        //does the data start with an 'S'?
+        return config.value[1][0] === 'S' ? 'red' : '#191919';
     }
 
 };

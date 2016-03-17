@@ -10,16 +10,16 @@ var Filters = Feature.extend('Filters', {
     handleDoubleClick: function(grid, event) {
         if (grid.isFilterRow(event.gridCell.y)) {
             grid.onEditorActivate(event);
-        } else {
-            Feature.prototype.handleDoubleClick.apply(this, arguments);
+        } else if (this.next) {
+            this.next.handleDoubleClick(grid, event);
         }
     },
 
     handleTap: function(grid, event) {
         if (grid.isFilterRow(event.gridCell.y)) {
             grid.onEditorActivate(event);
-        } else {
-            Feature.prototype.handleTap.apply(this, arguments);
+        } else if (this.next) {
+            this.next.handleTap(grid, event);
         }
     },
 
