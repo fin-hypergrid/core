@@ -149,9 +149,11 @@ var CellSelection = Feature.extend('CellSelection', {
      * @param {Object} event - the event details
      */
     handleKeyDown: function(grid, event) {
-        var command = 'handle' + event.detail.char;
-        if (this[command]) {
-            this[command].call(this, grid, event.detail);
+        var handler;
+        if ((handler = this['handle' + event.detail.char])) {
+            handler.call(this, grid, event.detail);
+        } else if (this.next) {
+            this.next.handleKeyDown(grid, event);
         }
     },
 

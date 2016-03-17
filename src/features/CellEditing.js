@@ -1,6 +1,7 @@
 'use strict';
 
 var Feature = require('./Feature.js');
+var Simple = require('../cellEditors/Simple');
 
 /**
  * @constructor
@@ -55,6 +56,42 @@ var CellEditing = Feature.extend('CellEditing', {
         return isDoubleClickEditorActivation &&
             gridCell.x >= headerColumnCount &&
             (isFilterRow || gridCell.y >= headerRowCount);
+    },
+
+    /**
+     * @desc Handle this event down the feature chain of responsibility.
+     * @param {Hypergrid} grid
+     * @param {Object} event - the event details
+     * @memberOf KeyPaging.prototype
+     */
+    handleKeyDown: function(grid, event) {
+        var char, isVisibleChar, isDeleteChar, currentCell, editor;
+
+        if (
+            grid.resolveProperty('editOnKeydown') &&
+            !grid.isEditing() &&
+            (
+                (char = event.detail.char) === 'F2' ||
+                (isVisibleChar = char.length === 1 && !(event.detail.meta || event.detail.ctrl)) ||
+                (isDeleteChar = char === 'DELETE' || char === 'BACKSPACE')
+            )
+        ) {
+            currentCell = grid.selectionModel.getLastSelection();
+            if (currentCell) {
+                var pseudoEvent = { gridCell: currentCell.origin };
+                editor = grid.onEditorActivate(pseudoEvent);
+                if (editor instanceof Simple) {
+                    if (isVisibleChar) {
+                        editor.input.value = char;
+                    } else if (isDeleteChar) {
+                        editor.input.value = '';
+                    }
+                    event.detail.primitiveEvent.preventDefault();
+                }
+            }
+        } else if (this.next) {
+            this.next.handleKeyDown(grid, event);
+        }
     }
 
 });

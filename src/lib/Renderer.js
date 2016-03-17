@@ -826,7 +826,7 @@ var Renderer = Base.extend('Renderer', {
 
                 // Clip to visible portion of column to prevent overflow to right. Previously we clipped to entire visible grid and dealt with overflow by overpainting with next column. However, this strategy fails when transparent background (no background color).
                 // TODO: if extra clip() calls per column affect performance (not the clipping itself which was happening anyway, but the clip calls which set up the clipping), use previous strategy when there is a background color
-                clipWidth = columnEdges[x - loopStart] - clipX;
+                clipWidth = columnEdges[x + 1] - clipX;
                 gc.beginPath();
                 gc.rect(clipX, clipY, clipWidth, clipHeight);
                 gc.clip();

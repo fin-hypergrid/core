@@ -428,6 +428,7 @@ Hypergrid.prototype = {
     refreshProperties: function() {
         // this.canvas = this.shadowRoot.querySelector('fin-canvas');
         //this.canvas = new Canvas(this.divCanvas, this.renderer); //TODO: Do we really need to be recreating it here?
+        this.renderer.computeCellsBounds();
         this.checkScrollbarVisibility();
         this.behavior.defaultRowHeight = null;
         if (this.isColumnAutosizing()) {
@@ -996,33 +997,6 @@ Hypergrid.prototype = {
             if (self.resolveProperty('readOnly')) {
                 return;
             }
-            if (self.resolveProperty('editOnKeydown')) {
-                var char = e.detail.char,
-                    isVisibleChar, isDeleteChar, currentCell, editor;
-
-                if (
-                    !self.isEditing() &&
-                    (
-                        char === 'F2' ||
-                        (isVisibleChar = char.length === 1) ||
-                        (isDeleteChar = char === 'DELETE' || char === 'BACKSPACE')
-                    )
-                ) {
-                    currentCell = self.selectionModel.getLastSelection();
-                    if (currentCell) {
-                        var pseudoEvent = { gridCell: currentCell.origin };
-                        editor = self.onEditorActivate(pseudoEvent);
-                        if (editor instanceof Hypergrid.cellEditors.Simple) {
-                            if (isVisibleChar) {
-                                editor.input.value = char;
-                            } else if (isDeleteChar) {
-                                editor.input.value = '';
-                            }
-                            e.detail.primitiveEvent.preventDefault();
-                        }
-                    }
-                }
-            }
             self.fireSyntheticKeydownEvent(e);
             self.delegateKeyDown(e);
         });
@@ -1407,7 +1381,7 @@ Hypergrid.prototype = {
 
     /**
      * @memberOf Hypergrid.prototype
-     * @summary Scroll in the offsetY direction if column index c is not visible.
+     * @summary Scroll in the `offsetY` direction if column index c is not visible.
      * @param {number} rowIndex - The column index in question.
      * @param {number} offsetX - The direction and magnitude to scroll if we need to.
      * @return {boolean} Row is visible.
@@ -1462,6 +1436,31 @@ Hypergrid.prototype = {
         if (newValue !== oldValue) {
             this.setHScrollValue(newValue);
         }
+    },
+
+    scrollToMakeVisible: function(c, r) {
+        var leftColumn = this.renderer.getScrollLeft(),
+            topRow = this.renderer.getScrollTop(),
+            delta;
+
+        if (
+            (delta = c - (leftColumn + this.renderer.getFixedColumnCount())) < 0 ||
+            (delta = c - (leftColumn + this.renderer.columnEdges.length - 2)) > 0
+        ) {
+            this.sbHScroller.index += delta;
+        }
+
+        if (
+            (delta = r - (topRow + this.renderer.getFixedRowCount())) < 0 ||
+            (delta = r - (topRow + this.renderer.rowEdges.length - 3)) > 0
+        ) {
+            this.sbVScroller.index += delta;
+        }
+    },
+
+    selectCellAndScrollToMakeVisible: function(c, r) {
+        this.selectCell(c, r);
+        this.scrollToMakeVisible(c, r);
     },
 
     /**
@@ -1996,10 +1995,8 @@ Hypergrid.prototype = {
      * @param {number} newValue - The new scroll value.
      */
     setVScrollValue: function(y) {
-        y = Math.round(y);
-        var max = this.sbVScroller.range.max;
-        y = Math.min(max, Math.max(0, y));
         var self = this;
+        y = Math.min(this.sbVScroller.range.max, Math.max(0, Math.round(y)));
         if (y !== this.vScrollValue) {
             this.behavior._setScrollPositionY(y);
             var oldY = this.vScrollValue;
@@ -2026,10 +2023,8 @@ Hypergrid.prototype = {
      * @param {number} newValue - The new scroll value.
      */
     setHScrollValue: function(x) {
-        x = Math.round(x);
-        var max = this.sbHScroller.range.max;
-        x = Math.min(max, Math.max(0, x));
         var self = this;
+        x = Math.min(this.sbHScroller.range.max, Math.max(0, Math.round(x)));
         if (x !== this.hScrollValue) {
             this.behavior._setScrollPositionX(x);
             var oldX = this.hScrollValue;
@@ -2038,7 +2033,7 @@ Hypergrid.prototype = {
             setTimeout(function() {
                 //self.sbHRangeAdapter.subjectChanged();
                 self.fireScrollEvent('fin-scroll-x', oldX, x);
-                self.synchronizeScrollingBoundries();
+                //self.synchronizeScrollingBoundries(); // todo: Commented off to prevent the grid from bouncing back, but there may be repurcussions...
             });
         }
     },
@@ -2214,7 +2209,7 @@ Hypergrid.prototype = {
         var columnsWidth = 0;
         for (; lastPageColumnCount < numColumns; lastPageColumnCount++) {
             var eachWidth = this.getColumnWidth(numColumns - lastPageColumnCount - 1);
-            columnsWidth = columnsWidth + eachWidth;
+            columnsWidth += eachWidth;
             if (columnsWidth > scrollableWidth) {
                 break;
             }
@@ -2224,7 +2219,7 @@ Hypergrid.prototype = {
         var rowsHeight = 0;
         for (; lastPageRowCount < numRows; lastPageRowCount++) {
             var eachHeight = this.getRowHeight(numRows - lastPageRowCount - 1);
-            rowsHeight = rowsHeight + eachHeight;
+            rowsHeight += eachHeight;
             if (rowsHeight > scrollableHeight) {
                 break;
             }
@@ -2244,7 +2239,6 @@ Hypergrid.prototype = {
         this.repaint();
 
         this.resizeScrollbars();
-
     },
 
     /**
