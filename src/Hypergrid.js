@@ -1438,6 +1438,31 @@ Hypergrid.prototype = {
         }
     },
 
+    scrollToMakeVisible: function(c, r) {
+        var leftColumn = this.renderer.getScrollLeft(),
+            topRow = this.renderer.getScrollTop(),
+            delta;
+
+        if (
+            (delta = c - (leftColumn + this.renderer.getFixedColumnCount())) < 0 ||
+            (delta = c - (leftColumn + this.renderer.columnEdges.length - 1)) > 0
+        ) {
+            this.scrollHBy(delta);
+        }
+
+        if (
+            (delta = r - (topRow + this.renderer.getFixedRowCount())) < 0 ||
+            (delta = r - (topRow + this.renderer.rowEdges.length - 3)) > 0
+        ) {
+            this.scrollVBy(delta);
+        }
+    },
+
+    selectCellAndScrollToMakeVisible: function(c, r) {
+        this.selectCell(c, r);
+        this.scrollToMakeVisible(c, r);
+    },
+
     /**
      * @memberOf Hypergrid.prototype
      * @summary Answer which data cell is under a pixel value mouse point.
@@ -2008,7 +2033,7 @@ Hypergrid.prototype = {
             setTimeout(function() {
                 //self.sbHRangeAdapter.subjectChanged();
                 self.fireScrollEvent('fin-scroll-x', oldX, x);
-                self.synchronizeScrollingBoundries();
+                //self.synchronizeScrollingBoundries(); // todo: Commented off to prevent the grid from bouncing back, but there may be repurcussions...
             });
         }
     },
@@ -2184,7 +2209,7 @@ Hypergrid.prototype = {
         var columnsWidth = 0;
         for (; lastPageColumnCount < numColumns; lastPageColumnCount++) {
             var eachWidth = this.getColumnWidth(numColumns - lastPageColumnCount - 1);
-            columnsWidth = columnsWidth + eachWidth;
+            columnsWidth += eachWidth;
             if (columnsWidth > scrollableWidth) {
                 break;
             }
@@ -2194,7 +2219,7 @@ Hypergrid.prototype = {
         var rowsHeight = 0;
         for (; lastPageRowCount < numRows; lastPageRowCount++) {
             var eachHeight = this.getRowHeight(numRows - lastPageRowCount - 1);
-            rowsHeight = rowsHeight + eachHeight;
+            rowsHeight += eachHeight;
             if (rowsHeight > scrollableHeight) {
                 break;
             }
@@ -2214,7 +2239,6 @@ Hypergrid.prototype = {
         this.repaint();
 
         this.resizeScrollbars();
-
     },
 
     /**
