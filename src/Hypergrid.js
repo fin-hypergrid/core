@@ -1445,16 +1445,16 @@ Hypergrid.prototype = {
 
         if (
             (delta = c - (leftColumn + this.renderer.getFixedColumnCount())) < 0 ||
-            (delta = c - (leftColumn + this.renderer.columnEdges.length - 1)) > 0
+            (delta = c - (leftColumn + this.renderer.columnEdges.length - 2)) > 0
         ) {
-            this.scrollHBy(delta);
+            this.sbHScroller.index += delta;
         }
 
         if (
             (delta = r - (topRow + this.renderer.getFixedRowCount())) < 0 ||
             (delta = r - (topRow + this.renderer.rowEdges.length - 3)) > 0
         ) {
-            this.scrollVBy(delta);
+            this.sbVScroller.index += delta;
         }
     },
 
