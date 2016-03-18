@@ -537,12 +537,14 @@ var CellSelection = Feature.extend('CellSelection', {
         grid.setMouseDown(grid.newPoint(newX, newY));
         grid.setDragExtent(grid.newPoint(0, 0));
 
-        if (grid.insureModelColIsVisible(newX, offsetX)) {
-            this.pingAutoScroll();
-        }
-        if (grid.insureModelRowIsVisible(newY, offsetY)) {
-            this.pingAutoScroll();
-        }
+        grid.selectCellAndScrollToMakeVisible(newX, newY);
+
+        // if (grid.insureModelColIsVisible(newX, offsetX)) {
+        //     this.pingAutoScroll();
+        // }
+        // if (grid.insureModelRowIsVisible(newY, offsetY)) {
+        //     this.pingAutoScroll();
+        // }
 
         grid.repaint();
 
