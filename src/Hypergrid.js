@@ -855,6 +855,7 @@ Hypergrid.prototype = {
         var divCanvas = this.divCanvas = document.createElement('div');
         this.div.appendChild(divCanvas);
         this.canvas = new Canvas(divCanvas, this.renderer);
+        this.canvas.canvas.classList.add('hypergrid');
 
         var style = divCanvas.style;
         style.position = 'absolute';
@@ -1447,15 +1448,21 @@ Hypergrid.prototype = {
             adjustmentForPartiallyVisCols = -1;
 
         if (
-            (delta = c - (leftColumn + this.renderer.getFixedColumnCount())) < 0 || //move left
-            (delta = c - (leftColumn + this.getVisibleColumnsCount() - numOfGridCtrlCols + adjustmentForPartiallyVisCols)) > 0 //move right
+            // target is off to left; negative delta scrolls left
+            (delta = c - (leftColumn + this.renderer.getFixedColumnCount())) < 0 ||
+
+            // target is off to right; positive delta scrolls right
+            (delta = c - (leftColumn + this.getVisibleColumnsCount() - numOfGridCtrlCols + adjustmentForPartiallyVisCols)) > 0
         ) {
             this.sbHScroller.index += delta;
         }
 
         if (
-            (delta = r - (topRow + this.renderer.getFixedRowCount())) < 0 || //move up
-            (delta = r - (topRow + this.renderer.rowEdges.length - numofGridCtrlRows)) > 0  //move down
+            // target is above top; negative delta scrolls up
+            (delta = r - (topRow + this.renderer.getFixedRowCount())) < 0 ||
+
+            // target is below bottom; positive delta scrolls down
+            (delta = r - (topRow + this.renderer.rowEdges.length - numofGridCtrlRows)) > 0
         ) {
             this.sbVScroller.index += delta;
         }

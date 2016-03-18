@@ -30,27 +30,37 @@ exports.dialog = function() {/*
             right: 0;
             background-color: white;
             font: 10pt sans-serif;
+            opacity: 0;
+            transition: opacity 1s;
         }
-        #hypergrid-dialog a.filter-close-button {
+        #hypergrid-dialog.hypergrid-dialog-visible {
+            opacity: 1;
+            transition: opacity 1s;
+        }
+        #hypergrid-dialog a.hypergrid-dialog-close-button {
             position: absolute;
             top: 0px;
             right: 12px;
             color: #999;
             text-decoration: none;
             font-size: 33px;
+            transition: text-shadow .4s, color .4s;
         }
-        #hypergrid-dialog a.filter-close-button:after {
+        #hypergrid-dialog a.hypergrid-dialog-close-button:after {
             content: '\D7';
         }
-        #hypergrid-dialog a.filter-close-button:hover {
+        #hypergrid-dialog a.hypergrid-dialog-close-button:hover {
             color: black;
+            text-shadow: 0 0 6px orange;
+            transition: text-shadow .7s, color .7s;
         }
-        #hypergrid-dialog a.filter-close-button:active {
+        #hypergrid-dialog a.hypergrid-dialog-close-button:active {
             color: #d00;
+            transition: color 0s;
         }
     </style>
 
-    <a class="filter-close-button"></a>
+    <a class="hypergrid-dialog-close-button"></a>
 
 </div>
 */};
@@ -97,7 +107,7 @@ exports.filterTrees = function() {/*
         padding: 0 8px .2em;
         display: none;
         background-color: ivory;
-        box-shadow: 3px 3px 7px tan;
+        box-shadow: 3px 3px 7px #666;
         margin-bottom: 1em;
     }
     #hypergrid-dialog div.more-info > p { margin: .5em 0; }
@@ -181,12 +191,10 @@ exports.filterTrees = function() {/*
 
         <section class="filter-expression-syntax tabz-bg1">
             <p>
+                Column filter cells accept a simplified, compact syntax, intended to be self-evident. Not as flexible or concise as SQL syntax or using the Query Builder.
                 <a class="more-info"></a>
             </p>
             <div class="more-info">
-                <p>
-                    Column filter cells accept a simplified, compact syntax, intended to keep things short and simple and self-evident. The downside of course it is not as flexible or concise as using the Query Builder or SQL syntax.
-                </p>
                 <ul>
                     <li>
                         Simple expressions

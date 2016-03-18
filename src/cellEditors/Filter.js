@@ -6,7 +6,7 @@ var Tabz = require('tabz');
 var popMenu = require('pop-menu');
 var automat = require('automat');
 
-var Dialog = require('../lib/Dialog');
+var Curtain = require('../lib/Curtain');
 var CellEditor = require('./CellEditor');
 var markup = require('../html/templates.html');
 
@@ -28,16 +28,19 @@ var Filter = CellEditor.extend('Filter', {
 
         if (this.on(filter, 'onShow')) {
             // create the dialog backdrop and insert the template
-            dialog = this.dialog = new Dialog(markup.filterTrees);
+            dialog = this.dialog = new Curtain(markup.filterTrees);
             el = dialog.el;
 
             // initialize the folder tabs
-            tabz = this.tabz = new Tabz({ root: el });
+            tabz = this.tabz = new Tabz({
+                root: el,
+                onEnable: renderFolder
+            });
 
             // wire-ups
             el.addEventListener('click', moreinfo.bind(this));
 
-            el.querySelector('.filter-close-button').onclick = this.stopEditing.bind(this);
+            el.querySelector('.hypergrid-dialog-close-button').onclick = this.stopEditing.bind(this);
 
             newColumnSelector = this.newColumnSelector = el.querySelector('#add-column-filter-subexpression');
             newColumnSelector.onmousedown = addColumnFilter.bind(this);
@@ -58,7 +61,7 @@ var Filter = CellEditor.extend('Filter', {
 
     hideEditor: function() {
         if (this.dialog.el) {
-            this.dialog.el.remove();
+            this.dialog.remove();
             delete this.dialog;
             this.on('onHide');
         }
