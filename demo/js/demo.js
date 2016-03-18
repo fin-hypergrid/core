@@ -110,6 +110,80 @@ window.onload = function() {
         jsonGrid.toggleColumnPicker();
     };
 
+    function initializeGlobalFilter(grid, options) {
+        var newFilter = new fin.Hypergrid.CustomFilter(options || {
+            schema: makeHierarchicalColumnsMenu(),
+            headerify: true
+        });
+
+        // add a column filter subexpression containing a single condition purely for demo purposes
+        if (true) { // eslint-disable-line no-constant-condition
+            newFilter.children[1].add({
+                children: [{
+                    column: 'total_number_of_pets_owned',
+                    operator: '=',
+                    literal: '3'
+                }],
+                type: 'columnFilter'
+            });
+        }
+
+        var err = newFilter.invalid({
+            rethrow: false,
+            alert: false,
+            focus: false
+        });
+
+        if (err) {
+            var dataSourceGlobalFilter = grid.behavior.dataModel.getGlobalFilterDataSource();
+
+            err = 'Invalid filter; will be ignored.\n\n' + err;
+
+            if (!dataSourceGlobalFilter.get()) {
+                alert(err); // eslint-disable-line no-alert
+            } else {
+                err += '\n\nClick OK to keep current filter in place.\nClick CANCEL to clear current filter.';
+                if (!confirm(err)) { // eslint-disable-line no-alert
+                    dataSourceGlobalFilter.set();
+                }
+            }
+        } else {
+            grid.setGlobalFilter(newFilter);
+        }
+
+        function makeHierarchicalColumnsMenu() {
+            var menu = [],
+                prefix = ['one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight'];
+
+            dataModel.getFields().forEach(function(name) {
+                if (!prefix.find(function(group) {
+                        return name.substr(0, group.length) === group;
+                    })) {
+                    if (name === 'total_number_of_pets_owned') {
+                        menu.push({
+                            name: name,
+                            type: 'number'
+                        });
+                    } else {
+                        menu.push(name);
+                    }
+                }
+            });
+
+            prefix.forEach(function(group, index) {
+                var submenu = [];
+                dataModel.getFields().forEach(function(name) {
+                    if (name.substr(0, group.length) === group) {
+                        submenu.push(name);
+                    }
+                });
+                menu.push({ label: group.toUpperCase(), submenu: submenu });
+            });
+
+            return menu;
+        }
+    }
+
 /*
     var applyAggregates = document.querySelector('input[type=checkbox][value="Apply aggregates"]');
 
@@ -160,53 +234,25 @@ window.onload = function() {
 
     jsonModel.setData(people1);
 
-    var prefix = ['one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight'];
-    var menu = [];
-    dataModel.getFields().forEach(function(name) {
-        if (!prefix.find(function(group) {
-            return name.substr(0, group.length) === group;
-        })) {
-            if (name === 'total_number_of_pets_owned') {
-                menu.push({
-                    name: name,
-                    type: 'number'
-                });
-            } else {
-                menu.push(name);
-            }
-        }
-    });
-    prefix.forEach(function(group, index) {
-        var submenu = [];
-        dataModel.getFields().forEach(function(name) {
-            if (name.substr(0, group.length) === group) {
-                submenu.push(name);
-            }
-        });
-        menu.push({ label: group.toUpperCase(), submenu: submenu });
-    });
-    jsonGrid.setGlobalFilter({
-        schema: menu,
-        headerify: true
-    });
+    initializeGlobalFilter(jsonGrid);
 
     jsonGrid.setColumnProperties(2, {
         backgroundColor: 'maroon',
         color: 'green'
     });
 
-//get the cell cellProvider for altering cell renderers
+    //get the cell cellProvider for altering cell renderers
     var cellProvider = jsonModel.getCellProvider();
 
-//set the actual json row objects
-//jsonModel.setData(people); //see sampledata.js for the random data
+    //set the actual json row objects
+    //jsonModel.setData(people); //see sampledata.js for the random data
 
-//make the first col fixed;
-// jsonModel.setFixedColumnCount(2);
+    //make the first col fixed;
+    //jsonModel.setFixedColumnCount(2);
     jsonModel.setFixedRowCount(2);
 
-// jsonModel.setHeaderColumnCount(1);
-// jsonModel.setHeaderRowCount(2);
+    // jsonModel.setHeaderColumnCount(1);
+    // jsonModel.setHeaderRowCount(2);
 
     //jsonModel.setTopTotals(topTotals);
     //jsonModel.setBottomTotals(bottomTotals);
@@ -215,15 +261,16 @@ window.onload = function() {
     jsonGrid.registerFormatter('GBP', function(value) {
         return accounting.formatMoney(value, '€', 2, '.', ',');
     });
-// setInterval(function() {
-//     topTotals[1][5] = Math.round(Math.random()*100);
-//     jsonModel.changed();
-// }, 300);
 
-//lets set 2 rows of totals
+    // setInterval(function() {
+    //     topTotals[1][5] = Math.round(Math.random()*100);
+    //     jsonModel.changed();
+    // }, 300);
 
-//sort ascending on the first column (first name)
-//jsonModel.toggleSort(0);
+    //lets set 2 rows of totals
+
+    //sort ascending on the first column (first name)
+    //jsonModel.toggleSort(0);
 
     var upDown = fin.Hypergrid.images['down-rectangle'];
     var upDownSpin = fin.Hypergrid.images['up-down-spin'];

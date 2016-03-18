@@ -42,6 +42,7 @@ gulp.task('build', function(callback) {
 gulp.task('watch', function () {
     gulp.watch([
         srcDir + '**',
+        demoDir + 'js/demo.js',
         testDir + '**',
         //'../../filter-tree/src/**' // comment off this line and the one below when filter tree on npm
     ], [
@@ -50,7 +51,6 @@ gulp.task('watch', function () {
 
     gulp.watch([
         demoDir + 'index.html',
-        demoDir + 'js/demo.js',
         demoDir + 'css/demo.css',
         buildDir + '*'
     ], [

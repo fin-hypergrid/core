@@ -5,7 +5,6 @@ var analytics = require('hyper-analytics');
 //var analytics = require('../local_node_modules/finanalytics');
 var DataModel = require('./DataModel');
 var images = require('../../images');
-var CustomFilter = require('../lib/CustomFilter');
 
 var UPWARDS_BLACK_ARROW = '\u25b2', // aka '▲'
     DOWNWARDS_BLACK_ARROW = '\u25bc'; // aka '▼'
@@ -632,42 +631,10 @@ var JSON = DataModel.extend('dataModels.JSON', {
 
     /**
      * @memberOf dataModels.JSON.prototype
-     * @param {FilterTree|FilterTreeOptionsObject} [filterOrOptions] - One of:
-     * * `FilterTree` - an existing filter-tree
-     * * `FilterTreeOptionsObject` - an options object for the creation of a new filter-tree
-     * * falsy (omitted) - Turns off filtering.
+     * @param {FilterTree} [filter] - If undefined, removes (deletes) the filter (i.e., turns filtering OFF).
      */
-    setGlobalFilter: function(filterOrOptions) {
-        var dataSource = this.getGlobalFilterDataSource();
-
-        if (!filterOrOptions) {
-            dataSource.clear();
-        } else {
-            var filter;
-
-            if (filterOrOptions instanceof CustomFilter) {
-                filter = filterOrOptions;
-            } else {
-                filter = new CustomFilter(filterOrOptions);
-
-                // TODO: Remove this (just for testing):
-                if (false) { // eslint-disable-line no-constant-condition
-                    filter.children[1].add({
-                        children: [{
-                            column: 'total_number_of_pets_owned',
-                            operator: '=',
-                            literal: '3'
-                        }],
-                        type: 'columnFilter'
-                    });
-                }
-
-                filter.invalid();
-            }
-
-            dataSource.set(filter);
-        }
-
+    setGlobalFilter: function(filter) {
+        this.getGlobalFilterDataSource().set(filter);
         this.applyAnalytics();
     },
 
