@@ -18,7 +18,7 @@ var Curtain = Base.extend('Curtain', {
      */
     initialize: function(nodes) {
         // create the backdrop; it is absolute-positioned and stretched
-        this.el = automat.firstChild(markup.dialog);
+        this.el = automat.firstChild(markup.curtain);
 
         // add background image
         this.el.style.backgroundImage = 'url(\'' + images.wavey.src + '\')';
@@ -44,11 +44,11 @@ var Curtain = Base.extend('Curtain', {
     append: function(container) {
         var el = this.el;
 
-        // insert the new dialog curtain markup into the DOM
+        // insert the new curtain markup into the DOM
         (container || document.querySelector('body')).appendChild(el);
 
         // schedule it for a fade-in transition
-        setTimeout(function() { el.classList.add('hypergrid-dialog-visible'); });
+        setTimeout(function() { el.classList.add('hypergrid-curtain-visible'); });
 
         // when transition ends, hide all the hypergrids behind it to prevent any key/mouse events from getting to them
         // todo: pause all hypergrids so they don't spin uselessly
@@ -61,11 +61,11 @@ var Curtain = Base.extend('Curtain', {
     remove: function() {
         var el = this.el;
 
-        // unhide all the hpergrids behind the dialog curtain
+        // unhide all the hypergrids behind the curtain
         visAllHypergrids(true);
 
         // start fade-out of curtain revealing grids behind it
-        el.classList.remove('hypergrid-dialog-visible');
+        el.classList.remove('hypergrid-curtain-visible');
 
         // at end of fade out, remove curtain from the DOM
         el.addEventListener('transitionend', function self(evt) {

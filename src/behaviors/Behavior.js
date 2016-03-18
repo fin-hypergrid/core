@@ -1095,16 +1095,16 @@ var Behavior = Base.extend('Behavior', {
      * @param {Object} event - the event details
      */
     toggleColumnPicker: function() {
-        var dialog = this.grid.dialog;
+        var curtain = this.grid.curtain;
         var self = this;
-        if (dialog.isOpen()) {
-            dialog.close();
+        if (curtain.isOpen()) {
+            curtain.close();
         } else {
-            this.buildColumnPicker(dialog.overlay);
-            dialog.onClose = function() {
-                self.updateFromColumnPicker(dialog.overlay);
+            this.buildColumnPicker(curtain.overlay);
+            curtain.onClose = function() {
+                self.updateFromColumnPicker(curtain.overlay);
             };
-            dialog.open();
+            curtain.open();
         }
     },
 

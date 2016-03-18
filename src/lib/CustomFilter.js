@@ -302,7 +302,7 @@ var CustomFilter = FilterTree.extend('CustomFilter', {
         return result;
     },
 
-    // All remaining methods are co-routines called from grid.dialog
+    // All remaining methods are co-routines called from grid.curtain
     // See cellEditors/Filter.js
 
     onInitialize: function() {

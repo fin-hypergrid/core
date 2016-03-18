@@ -23,13 +23,13 @@ var Filter = CellEditor.extend('Filter', {
     },
 
     beginEditAt: function(editorPoint) {
-        var dialog, el, tabz, newColumnSelector,
+        var curtain, el, tabz, newColumnSelector,
             filter = this.filter = this.grid.behavior.getGlobalFilter();
 
         if (this.on(filter, 'onShow')) {
             // create the dialog backdrop and insert the template
-            dialog = this.dialog = new Curtain(markup.filterTrees);
-            el = dialog.el;
+            curtain = this.curtain = new Curtain(markup.filterTrees);
+            el = curtain.el;
 
             // initialize the folder tabs
             tabz = this.tabz = new Tabz({
@@ -40,7 +40,7 @@ var Filter = CellEditor.extend('Filter', {
             // wire-ups
             el.addEventListener('click', moreinfo.bind(this));
 
-            el.querySelector('.hypergrid-dialog-close-button').onclick = this.stopEditing.bind(this);
+            el.querySelector('.hypergrid-curtain-close-button').onclick = this.stopEditing.bind(this);
 
             newColumnSelector = this.newColumnSelector = el.querySelector('#add-column-filter-subexpression');
             newColumnSelector.onmousedown = addColumnFilter.bind(this);
@@ -54,15 +54,15 @@ var Filter = CellEditor.extend('Filter', {
             tabz.folder('#tabColumnFiltersQueryBuilder').appendChild(filter.columnFilters.el);
 
             // add it to the DOM
-            dialog.append();
+            curtain.append();
             newColumnSelector.selectedIndex = 0;
         }
     },
 
     hideEditor: function() {
-        if (this.dialog.el) {
-            this.dialog.remove();
-            delete this.dialog;
+        if (this.curtain.el) {
+            this.curtain.remove();
+            delete this.curtain;
             this.on('onHide');
         }
     },
@@ -102,7 +102,7 @@ var Filter = CellEditor.extend('Filter', {
 function moreinfo(evt) {
     var el = evt.target;
     if (el.tagName === 'A' && el.classList.contains('more-info')) {
-        var els = Array.prototype.slice.call(this.dialog.el.querySelectorAll('.more-info'));
+        var els = Array.prototype.slice.call(this.curtain.el.querySelectorAll('.more-info'));
         var i = els.indexOf(el);
         if (i >= 0) {
             el = els[i + 1];
