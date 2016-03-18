@@ -1443,18 +1443,21 @@ Hypergrid.prototype = {
     scrollToMakeVisible: function(c, r) {
         var leftColumn = this.renderer.getScrollLeft(),
             topRow = this.renderer.getScrollTop(),
-            delta;
+            delta,
+            numOfGridCtrlCols = 2, //TODO: Get rid of ALL magic and hardcoded numbers.
+            numofGridCtrlRows = 3,
+            adjustmentForPartiallyVisCols = -1;
 
         if (
-            (delta = c - (leftColumn + this.renderer.getFixedColumnCount())) < 0 ||
-            (delta = c - (leftColumn + this.renderer.columnEdges.length - 2)) > 0
+            (delta = c - (leftColumn + this.renderer.getFixedColumnCount())) < 0 || //move left
+            (delta = c - (leftColumn + this.getVisibleColumnsCount() - numOfGridCtrlCols + adjustmentForPartiallyVisCols)) > 0 //move right
         ) {
             this.sbHScroller.index += delta;
         }
 
         if (
-            (delta = r - (topRow + this.renderer.getFixedRowCount())) < 0 ||
-            (delta = r - (topRow + this.renderer.rowEdges.length - 3)) > 0
+            (delta = r - (topRow + this.renderer.getFixedRowCount())) < 0 || //move up
+            (delta = r - (topRow + this.renderer.rowEdges.length - numofGridCtrlRows)) > 0  //move down
         ) {
             this.sbVScroller.index += delta;
         }
