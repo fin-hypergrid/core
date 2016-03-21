@@ -2,19 +2,25 @@
 
 exports.CQL = function() {/*
 <li>
-    <button type="button" class="copy"></button>
-    <div class="filter-tree-remove-button" title="delete conditional"></div>
-    {1}:
-    <input name="{2}" class="{4}" value="{3:encode}">
+    <label title="${1}">
+        <a type="button" class="filter-copy"></a>
+        <div class="filter-tree-remove-button" title="delete conditional"></div>
+        <strong>%{0}:</strong>
+        <div class="filter-tree-warn"></div>
+        <input name="${1}" class="filter-text-box ${3}" value="%{2}">
+    </label>
 </li>
 */};
 
 exports.SQL = function() {/*
 <li>
-    <button type="button" class="copy"></button>
-    <div class="filter-tree-remove-button" title="delete conditional"></div>
-    {1}:
-    <textarea name="{2}" rows="1" class="{4}">{3:encode}</textarea>
+    <label title="${1}">
+        <a type="button" class="filter-copy"></a>
+        <div class="filter-tree-remove-button" title="delete conditional"></div>
+        <strong>%{0}:</strong>
+        <div class="filter-tree-warn"></div>
+        <textarea name="${1}" rows="1" class="filter-text-box ${3}">%{2}</textarea>
+    </label>
 </li>
 */};
 
@@ -37,30 +43,40 @@ exports.curtain = function() {/*
             opacity: 1;
             transition: opacity 1s;
         }
-        #hypergrid-curtain a.hypergrid-curtain-close-button {
+
+        .hypergrid-curtain-control-panel {
             position: absolute;
             top: 0px;
             right: 12px;
-            color: #999;
-            text-decoration: none;
-            font-size: 33px;
-            transition: text-shadow .4s, color .4s;
         }
-        #hypergrid-curtain a.hypergrid-curtain-close-button:after {
+        .hypergrid-curtain-control-panel a {
+            color: #999;
+            font-size: 33px;
+            transition: text-shadow .35s, color .35s;
+            text-decoration: none;
+        }
+        .hypergrid-curtain-close:after {
             content: '\D7';
         }
-        #hypergrid-curtain a.hypergrid-curtain-close-button:hover {
-            color: black;
-            text-shadow: 0 0 6px orange;
-            transition: text-shadow .7s, color .7s;
+        .hypergrid-curtain-settings:after {
+            font-family: Apple Symbols;
+            content: '\2699';
         }
-        #hypergrid-curtain a.hypergrid-curtain-close-button:active {
+        .hypergrid-curtain-control-panel a:hover {
+            color: black;
+            text-shadow: 0 0 6px #337ab7;
+            transition: text-shadow .35s, color .35s;
+        }
+        .hypergrid-curtain-control-panel a:active {
             color: #d00;
             transition: color 0s;
         }
     </style>
 
-    <a class="hypergrid-curtain-close-button"></a>
+    <span class="hypergrid-curtain-control-panel">
+        <a class="hypergrid-curtain-settings"></a>
+        <a class="hypergrid-curtain-close"></a>
+    </span>
 
 </div>
 */};
@@ -101,13 +117,15 @@ exports.filterTrees = function() {/*
 
     #hypergrid-curtain a.more-info { font-size: smaller; }
     #hypergrid-curtain a.more-info::after { content: '(more info)'; }
+    #hypergrid-curtain a.more-info.hide-info { color: red; }
+    #hypergrid-curtain a.more-info.hide-info::after { content: '(hide info)'; }
     #hypergrid-curtain div.more-info {
         border: 1px tan solid;
         border-radius: 8px;
         padding: 0 8px .2em;
         display: none;
         background-color: ivory;
-        box-shadow: 3px 3px 7px #666;
+        box-shadow: 3px 3px 5px #707070;
         margin-bottom: 1em;
     }
     #hypergrid-curtain div.more-info > p { margin: .5em 0; }
@@ -120,29 +138,46 @@ exports.filterTrees = function() {/*
     .tabz > section.filter-expression-syntax > div:last-child ol {
         padding-left: 1.6em;
     }
+    .tabz > section.filter-expression-syntax > div:last-child ol > li > label {
+        width: 100%;
+        font-weight: normal;
+    }
+    .tabz > section.filter-expression-syntax > div:last-child ol > li > label > div.filter-tree-warn {
+        color: darkred;
+        font-size: smaller;
+        font-style: italic;
+        line-height: initial;
+    }
     .tabz > section.filter-expression-syntax > textarea,
     .tabz > section.filter-expression-syntax > div:last-child textarea,
     .tabz > section.filter-expression-syntax > div:last-child input {
         display: block;
         position: relative;
-        width: 100%;
+        min-width: 100%;
+        max-width: 100%;
         box-sizing: border-box;
         border: 1px solid black;
         padding: .4em .7em;
         font-family: monospace;
         font-size: 9pt;
+        margin-top: 3px;
     }
     .tabz > section.filter-expression-syntax > textarea {
         height: 96%;
     }
-    .tabz button.copy {
-        font-size: smaller;
+    .tabz a.filter-copy {
         display: block;
         float: right;
-        margin-right: 1em;
+        font-size: smaller;
     }
-    .tabz button.copy:before {
-        content: 'COPY';
+    .tabz a.filter-copy:before {
+        content: '(copy';
+    }
+    .tabz a.filter-copy:after {
+        content: ')';
+    }
+    .tabz a.filter-copy:active {
+        color: red;
     }
 </style>
 
@@ -160,16 +195,16 @@ exports.filterTrees = function() {/*
         <p>All column filters are AND&rsquo;d together. Each grid row is first qualified by the table filter and then successively qualified by each column filter subexpression.</p>
     </div>
 
-    <div class="tabz">
+    <div class="tabz" id="columnFiltersPanel">
 
-        <header id="tabColumnFiltersQueryBuilder" class="default-tab">
+        <header id="columnsQB" class="default-tab">
             Query Builder
         </header>
 
         <section>
         </section>
 
-        <header id="tabColumnFiltersSql" class="tabz-bg2">
+        <header id="columnsSQL" class="tabz-bg2">
             SQL syntax
         </header>
 
@@ -177,22 +212,23 @@ exports.filterTrees = function() {/*
             <div>
                 <p>
                     <span></span>
-                    <button type="button" class="copy" title="The state of the column filters subtree expressed in SQL syntax (all the column filter subexpressions shown below AND&rsquo;d together).">
-                        ALL
-                    </button>
+                    <a type="button" class="filter-copy" title="The state of the column filters subtree expressed in SQL syntax (all the column filter subexpressions shown below AND&rsquo;d together).">
+                        all</a>
                 </p>
                 <ol></ol>
             </div>
         </section>
 
-        <header id="tabColumnFiltersCql" class="tabz-bg1">
+        <header id="columnsCQL" class="tabz-bg1">
             Column Filter syntax
         </header>
 
         <section class="filter-expression-syntax tabz-bg1">
             <p>
-                Column filter cells accept a simplified, compact syntax, intended to be self-evident. Not as flexible or concise as SQL syntax or using the Query Builder.
-                <a class="more-info"></a>
+                <em>
+                    <small>Column filter cells accept a simplified, compact, and intuitive syntax, which is however not as flexible or concise as SQL syntax or using the Query Builder.</small>
+                    <a class="more-info"></a>
+                </em>
             </p>
             <div class="more-info">
                 <ul>
@@ -256,14 +292,14 @@ exports.filterTrees = function() {/*
     </div>
 
     <div class="tabz">
-        <header id="tabTableFilterQueryBuilder">
+        <header id="tableQB">
             Query Builder
         </header>
 
         <section>
         </section>
 
-        <header id="tabTableFilterSql" class="tabz-bg2">
+        <header id="tableSQL" class="tabz-bg2">
             SQL syntax
         </header>
 

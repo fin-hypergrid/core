@@ -115,12 +115,7 @@ ColumnQueryLanguage.prototype = {
             });
 
             if (heterogeneousOperator) {
-                throw new Error([
-                    'Expected homogeneous boolean operators.',
-                    'You cannot mix <code>AND</code>, <code>OR</code>, and <code>NOR</code> operators here.',
-                    '(Everything after your <code style="color:red">' + heterogeneousOperator.toUpperCase() + '</code> was ignored.)',
-                    '<i>Tip: You can create more complex filters by using Manage Filters.</i>'
-                ].join('<br>'));
+                throw new Error('Expected homogeneous boolean operators. You cannot mix AND, OR, and NOR operators here because the order of operations is ambiguous. Everything after your ' + heterogeneousOperator.toUpperCase() + ' was ignored. Tip: You can group operations with subexpressions but only in the QueryBuilder or by using parentheses in SQL.');
             }
         }
 
@@ -162,8 +157,7 @@ ColumnQueryLanguage.prototype = {
     makeChildren: function(columnName, expressions) {
         var options = this.options,
             schema = this.schema,
-            children = [],
-            orphanedOps = [];
+            children = [];
 
         function uniCase(name) {
             if (!options.caseSensitiveColumnNames && typeof name === 'string') {
@@ -178,9 +172,7 @@ ColumnQueryLanguage.prototype = {
                     op = parts[1] && parts[1].trim().toUpperCase() || '=',
                     literal = parts[parts.length - 1];
 
-                if (!literal) {
-                    orphanedOps.push(op);
-                } else {
+                if (literal) {
                     if (options.autoLookupByName || options.autoLookupByAlias) {
                         var compareLiteral = uniCase(literal);
                         var fieldName = schema.find(function(column) {
@@ -207,25 +199,6 @@ ColumnQueryLanguage.prototype = {
                 }
             }
         });
-
-        if (children.length > 0 && orphanedOps.length > 0 || orphanedOps.length > 1) {
-            var RED = ' <code style="color:red">';
-            if (orphanedOps.length === 1) {
-                orphanedOps = [
-                    'Expected a value following' + RED + orphanedOps +
-                    '</code> to compare against the column.',
-                    'The incomplete expression was ignored.'
-                ];
-            } else {
-                orphanedOps = [
-                    'Expected values following' + RED + orphanedOps.join('</code> and' + RED) + '</code> to compare against the column.',
-                    'The incomplete expressions were ignored.'
-                ];
-            }
-            this.orphanedOpMsg = orphanedOps.join('<br>');
-        } else {
-            this.orphanedOpMsg = undefined;
-        }
 
         return children;
     },

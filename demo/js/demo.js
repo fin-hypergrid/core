@@ -128,27 +128,20 @@ window.onload = function() {
             });
         }
 
-        var err = newFilter.invalid({
-            rethrow: false,
-            alert: false,
-            focus: false
-        });
+        var err = newFilter.invalid();
 
-        if (err) {
-            var dataSourceGlobalFilter = grid.behavior.dataModel.getGlobalFilterDataSource();
-
+        if (!err) {
+            grid.setGlobalFilter(newFilter);
+        } else {
             err = 'Invalid filter; will be ignored.\n\n' + err;
-
-            if (!dataSourceGlobalFilter.get()) {
+            if (!grid.getGlobalFilter()) {
                 alert(err); // eslint-disable-line no-alert
             } else {
                 err += '\n\nClick OK to keep current filter in place.\nClick CANCEL to clear current filter.';
                 if (!confirm(err)) { // eslint-disable-line no-alert
-                    dataSourceGlobalFilter.set();
+                    grid.setGlobalFilter();
                 }
             }
-        } else {
-            grid.setGlobalFilter(newFilter);
         }
 
         function makeHierarchicalColumnsMenu() {

@@ -3,6 +3,7 @@
 var FilterTree = require('filter-tree');
 //var FilterTree = require('../../../../filter-tree/src');
 var popMenu = require('pop-menu');
+var _ = require('object-iterators');
 
 var ColumnQueryLanguage = require('./ColumnQueryLanguage');
 var headerify = require('hyper-analytics').util.headerify;
@@ -32,11 +33,6 @@ ColumnQueryLanguage.prototype.setOptions = function() {};
 /** @typedef {function} fieldsProviderFunc
  * @returns {menuOption[]} see jsdoc typedef in pop-menu.js
  */
-
-var QUIET_VALIDATION = {
-    alert: false,
-    focus: false
-};
 
 /**
  * @constructor
@@ -78,6 +74,34 @@ var CustomFilterLeaf = FilterTree.prototype.addEditor({
 });
 
 FilterTree.prototype.addEditor('columns');
+
+// Add some node templates by updating shared instance of FilterNode's templates. (OK to mutate shared instance; filter-tree not being used for anything else here. Alternatively, we could have instantiated a new Templates object for our CustomFilter prototype, although this would only affect tree nodes, not leaf nodes, but that would be ok in this case since the additions below are tree node templates.)
+_(Object.getPrototypeOf(FilterTree.prototype).templates).extendOwn({
+    columnFilter: function() {
+/*
+ <span class="filter-tree">
+     <strong><span>{2} </span></strong><br>
+     Match
+     <label><input type="radio" class="filter-tree-op-choice" name="treeOp{1}" value="op-or">any</label>
+     <label><input type="radio" class="filter-tree-op-choice" name="treeOp{1}" value="op-and">all</label>
+     <label><input type="radio" class="filter-tree-op-choice" name="treeOp{1}" value="op-nor">none</label>
+     of the following:
+     <select>
+        <option value="">New expression&hellip;</option>
+     </select>
+     <ol></ol>
+ </span>
+*/
+    },
+    columnFilters: function() {
+/*
+<span class="filter-tree filter-tree-type-column-filters">
+    Match <strong>all</strong> of the following column filter subexpressions:
+    <ol></ol>
+</span>
+*/
+    }
+});
 
 /** @constructor
  *
@@ -225,8 +249,9 @@ var CustomFilter = FilterTree.extend('CustomFilter', {
      * @param {boolean} [options.syntax='CQL']
      * @memberOf CustomFilter.prototype
      */
-    setColumnFilterState: function(columnName, state, options) {
-        var syntax = options && options.syntax,
+    setColumnFilterState: function(columnName, query, options) {
+        var error,
+            syntax = options && options.syntax,
             isCql = syntax === undefined || syntax === 'CQL',
             subexpression = this.getColumnFilter(columnName);
 
@@ -240,33 +265,33 @@ var CustomFilter = FilterTree.extend('CustomFilter', {
             }
 
             // convert some CQL state syntax into a filter tree state object
-            var message;
             try {
-                state = this.CQL.parse(columnName, state);
+                var state = this.CQL.parse(columnName, query);
                 this.cache[columnName] = this.CQL.cql;
-                message = this.CQL.orphanedOpMsg;
             } catch (e) {
-                message = e.message;
+                error = e.message || e;
             }
-            if (message) {
-                console.warn(message);
+            if (error) {
+                console.warn(error);
             }
         }
 
-        if (state) {
-            if (subexpression) {
+        if (state) { // parse successful
+            if (subexpression) { // subexpression already exists
                 // replace subexpression representing this column
                 subexpression.setState(state);
             } else {
-                // add a subexpression representing this column
+                // add a new subexpression representing this column
                 subexpression = this.columnFilters.add(state);
             }
 
-            subexpression.invalid(QUIET_VALIDATION);
-        } else if (subexpression) {
+            error = subexpression.invalid(options);
+        } else if (!query && subexpression) {
             // remove subexpression representing this column
             subexpression.remove();
         }
+
+        return error;
     },
 
     /**
@@ -291,7 +316,7 @@ var CustomFilter = FilterTree.extend('CustomFilter', {
                         }
                         result += child.getState(options);
                     } else if (child.children.length) {
-                        throw new this.Error('Expected a conditional but found a subexpression. (Subexpressions are not supported in filter cell syntax.)');
+                        throw new this.Error('Expected a conditional but found a subexpression. Subexpressions are not supported in (filter cell syntax).');
                     }
                 }
             });
@@ -314,7 +339,7 @@ var CustomFilter = FilterTree.extend('CustomFilter', {
     },
 
     onOk: function() {
-        return this.invalid();
+        return this.invalid({ alert: true, focus: true });
     },
 
     onHide: function(container) {
