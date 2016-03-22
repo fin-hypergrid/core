@@ -6,9 +6,9 @@ exports.CQL = function() {/*
         <a type="button" class="filter-copy"></a>
         <div class="filter-tree-remove-button" title="delete conditional"></div>
         <strong>%{0}:</strong>
-        <div class="filter-tree-warn"></div>
         <input name="${1}" class="filter-text-box ${3}" value="%{2}">
     </label>
+    <div class="filter-tree-warn"></div>
 </li>
 */};
 
@@ -18,9 +18,9 @@ exports.SQL = function() {/*
         <a type="button" class="filter-copy"></a>
         <div class="filter-tree-remove-button" title="delete conditional"></div>
         <strong>%{0}:</strong>
-        <div class="filter-tree-warn"></div>
         <textarea name="${1}" rows="1" class="filter-text-box ${3}">%{2}</textarea>
     </label>
+    <div class="filter-tree-warn"></div>
 </li>
 */};
 
@@ -142,7 +142,7 @@ exports.filterTrees = function() {/*
         width: 100%;
         font-weight: normal;
     }
-    .tabz > section.filter-expression-syntax > div:last-child ol > li > label > div.filter-tree-warn {
+    .tabz > section.filter-expression-syntax > div:last-child ol > li > div.filter-tree-warn {
         color: darkred;
         font-size: smaller;
         font-style: italic;
@@ -235,7 +235,7 @@ exports.filterTrees = function() {/*
                     <li>
                         Simple expressions
                         <ul>
-                            <li>All simple expressions take the form <i>operator-literal</i> or <i>operator-column2</i>. The (left side) column is always implied and is the same for all simple expressions in a compound expression. This is because column filters are always tied to a known column.</li>
+                            <li>All simple expressions take the form <i>operator literal</i> or <i>operator identifier</i>. The (left side) column is always implied and is the same for all simple expressions in a compound expression. This is because column filters are always tied to a known column.</li>
 
                             <li>If the operator is an equals sign (=), it may be omitted.</li>
 
@@ -314,7 +314,7 @@ exports.filterTrees = function() {/*
                         <li>
                             Simple expressions
                             <ul>
-                                <li>All simple expressions must be of the form <i>column-operator-literal</i> or <i>column1-operator-column2</i>. That is, the left side must refer to a column (may not be a literal).</li>
+                                <li>All simple expressions must be of the form <i>column operator literal</i> or <i>column operator identifier</i>. That is, the left side must refer to a column (may not be a literal); whereas the right side may be either.</li>
 
                                 <li>Column names may be quoted with the currently set quote characters (typically double-quotes). If unquoted, they must consist of classic identifier syntax (alphanumerics and underscore, but not beginning with a numeral).</li>
 

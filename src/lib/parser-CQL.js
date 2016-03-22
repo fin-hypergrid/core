@@ -10,18 +10,23 @@ var REGEXP_BOOLS = /\b(AND|OR|NOR)\b/gi,
         '>=': '≥',
         '<=': '≤',
         '<>': '≠'
+    },
+    optionsPrototype = {
+        autoLookupByName: true,
+        autoLookupByAlias: true,
+        caseSensitiveColumnNames: false
     };
 
-var optionsPrototype = {
-    autoLookupByName: true,
-    autoLookupByAlias: true,
-    caseSensitiveColumnNames: false
-};
+function ParserCqlError(message) {
+    this.message = message;
+}
+ParserCqlError.prototype = Object.create(Error.prototype);
+ParserCqlError.prototype.name = 'ParserCqlError';
 
 /**
  * @constructor
  *
- * @summary Column Query Language parser
+ * @summary Column Query Language (CQL) parser
  *
  * @author Jonathan Eiten <jonathan@openfin.com>
  *
@@ -69,15 +74,15 @@ var optionsPrototype = {
  * @param {FilterTree} schema - Column schema for column name recognition.
  * @param {function} [propResolver]
  */
-function ColumnQueryLanguage(schema, propResolver) {
+function ParserCQL(schema, propResolver) {
     this.schema = schema;
     this.options = Object.create(optionsPrototype);
     this.setOptions(propResolver);
 }
 
-ColumnQueryLanguage.prototype = {
+ParserCQL.prototype = {
 
-    constructor: ColumnQueryLanguage.prototype.constructor,
+    constructor: ParserCQL.prototype.constructor,
 
     /** Override default properties with properties defined by supplied property resolver.
      * @param {function} [propResolver]
@@ -115,7 +120,7 @@ ColumnQueryLanguage.prototype = {
             });
 
             if (heterogeneousOperator) {
-                throw new Error('Expected homogeneous boolean operators. You cannot mix AND, OR, and NOR operators here because the order of operations is ambiguous. Everything after your ' + heterogeneousOperator.toUpperCase() + ' was ignored. Tip: You can group operations with subexpressions but only in the QueryBuilder or by using parentheses in SQL.');
+                throw new ParserCqlError('Expected homogeneous boolean operators. You cannot mix AND, OR, and NOR operators here because the order of operations is ambiguous. Everything after your ' + heterogeneousOperator.toUpperCase() + ' was ignored. Tip: You can group operations with subexpressions but only in the QueryBuilder or by using parentheses in SQL.');
             }
         }
 
@@ -152,7 +157,7 @@ ColumnQueryLanguage.prototype = {
      *
      * @returns {expressionState[]} where `expressionState` is one of:
      * * `{column: string, operator: string, literal: string}`
-     * * `{column: string, operator: string, column2: string, editor: 'Columns'}`
+     * * `{column: string, operator: string, identifier: string, editor: 'Columns'}`
      */
     makeChildren: function(columnName, expressions) {
         var options = this.options,
@@ -189,7 +194,7 @@ ColumnQueryLanguage.prototype = {
                     };
 
                     if (fieldName) {
-                        child.column2 = fieldName.name || fieldName;
+                        child.identifier = fieldName.name || fieldName;
                         child.editor = 'Columns';
                     } else {
                         child.literal = literal;
@@ -208,14 +213,19 @@ ColumnQueryLanguage.prototype = {
      * @desc _Locked_ means it is locked to a single field.
      *
      * When there is only a single expression in the chain, the `operator` is omitted (defaults to `'op-and'`).
-     * @param {string} columnName
-     * @param {string} cql - A CQL expression (one or more simple expressions all separated by the same logical operator).
+     *
+     * @param {string} cql - A compound CQL expression, consisting of one or more simple expressions all separated by the same logical operator).
+     *
+     * @param {string} options.columnName - (Required.)
+
      * @returns {undefined|{operator: string, children: string[], schema: string[]}}
      * `undefined` when there are no complete expressions
      *
      * @memberOf module:CQL
      */
-    parse: function(columnName, cql) {
+    parse: function(cql, options) {
+        var columnName = options.columnName;
+
         // reduce all runs of white space to a single space; then trim
         cql = cql.replace(/\s\s+/g, ' ').trim();
 
@@ -236,11 +246,10 @@ ColumnQueryLanguage.prototype = {
             }
         }
 
-        this.cql = cql;
-        this.state = state;
+        //this.state = state;
 
         return state;
     }
 };
 
-module.exports = ColumnQueryLanguage;
+module.exports = ParserCQL;

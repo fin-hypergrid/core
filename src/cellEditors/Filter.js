@@ -182,7 +182,7 @@ function invalid(subtree) {
 
 function decorateTextbox(ctrl, error) {
     ctrl.classList.toggle('filter-tree-error', !!error);
-    ctrl.previousElementSibling.innerHTML = error || '';
+    ctrl.parentElement.parentElement.lastElementChild.innerHTML = error || '';
     ctrl.focus();
 }
 
@@ -205,7 +205,6 @@ function onNewColumnFilterMouseDown(evt) { // to be called with filter object as
 
         popMenu.build(this.newColumnSelector, this.filter.root.schema, options);
     }
-
 }
 
 function onNewColumnFilterChange(evt) {

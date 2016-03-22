@@ -5,8 +5,12 @@ var FilterTree = require('filter-tree');
 var popMenu = require('pop-menu');
 var _ = require('object-iterators');
 
-var ColumnQueryLanguage = require('./ColumnQueryLanguage');
 var headerify = require('hyper-analytics').util.headerify;
+
+var Parser = {
+    CQL: require('./parser-cql'),
+    SQL: require('./parser-sql')
+};
 
 /*
 function ColumnQueryLanguage() {}
@@ -38,42 +42,43 @@ ColumnQueryLanguage.prototype.setOptions = function() {};
  * @constructor
  * @extends Operators
  */
-var FilterCellOperators = FilterTree.conditionals.Operators.extend({
-    makeLIKE: function(beg, end, op, a, likePattern) {
-        var escaped = likePattern.replace(/([\[_%\]])/g, '[$1]'); // escape all LIKE reserved chars
+var ConditionalsCql = FilterTree.Conditionals.extend({
+    makeLIKE: function(beg, end, op, c) {
+        var escaped = c.literal.replace(/([\[_%\]])/g, '[$1]'); // escape all LIKE reserved chars
         return op.toLowerCase() + ' ' + beg + escaped + end;
     },
-    makeIN: function(op, a, b) {
-        return op.toLowerCase() + ' ' + b.replace(/\s*,\s*/g, ',');
+    makeIN: function(op, c) {
+        return op.toLowerCase() + ' ' + c.literal.replace(/\s*,\s*/g, ',');
     },
-    makeDiadic: function(op, a, b) {
-        return op + b;
+    make: function(op, c) {
+        return op + (c.literal || c.identifier);
     }
 });
 
-var filterCellOperators = new FilterCellOperators();
+var conditionals = new ConditionalsCql();
+
+var FilterLeafPrototype = FilterTree.prototype.editors.Default.prototype;
 
 // replace the default filter tree terminal node constructor with an extension of same
 var CustomFilterLeaf = FilterTree.prototype.addEditor({
-    key: 'Default', // replace the default editor with this one
     getState: function getState(options) {
         var result,
             syntax = options && options.syntax;
 
-        if (syntax === undefined || syntax === 'CQL') {
-            result = this.getSyntax(filterCellOperators);
+        if (syntax === 'CQL') {
+            result = this.getSyntax(conditionals);
             if (result[0] === '=') {
                 result = result.substr(1);
             }
         } else {
-            result = this.super.getState.call(this, options);
+            result = FilterLeafPrototype.getState.call(this, options);
         }
 
         return result;
     }
 });
 
-FilterTree.prototype.addEditor('columns');
+FilterTree.prototype.addEditor('Columns');
 
 // Add some node templates by updating shared instance of FilterNode's templates. (OK to mutate shared instance; filter-tree not being used for anything else here. Alternatively, we could have instantiated a new Templates object for our CustomFilter prototype, although this would only affect tree nodes, not leaf nodes, but that would be ok in this case since the additions below are tree node templates.)
 _(Object.getPrototypeOf(FilterTree.prototype).templates).extendOwn({
@@ -113,7 +118,6 @@ _(Object.getPrototypeOf(FilterTree.prototype).templates).extendOwn({
  * > NOTE: If `options.state` is undefined, it is defined here as a new {@link makeNewRoot|empty state scaffold) to hold new table filter and column filter expressions to be added through UI.
  */
 var CustomFilter = FilterTree.extend('CustomFilter', {
-
     preInitialize: function(options) {
         if (options) {
 
@@ -223,19 +227,14 @@ var CustomFilter = FilterTree.extend('CustomFilter', {
      * @memberOf CustomFilter.prototype
      */
     getColumnFilterState: function(columnName, options) {
-        var result = this.cache[columnName];
+        var result,
+            subexpression = this.getColumnFilter(columnName);
 
-        if (result === undefined) {
-            var subexpression = this.getColumnFilter(columnName);
-
-            if (subexpression) {
-                var syntax = options && options.syntax || 'CQL';
-                result = subexpression.getState({ syntax: syntax });
-            } else {
-                result = '';
-            }
-
-            this.cache[columnName] = result;
+        if (subexpression) {
+            var syntax = options && options.syntax || 'CQL';
+            result = subexpression.getState({ syntax: syntax });
+        } else {
+            result = '';
         }
 
         return result;
@@ -251,29 +250,19 @@ var CustomFilter = FilterTree.extend('CustomFilter', {
      */
     setColumnFilterState: function(columnName, query, options) {
         var error,
-            syntax = options && options.syntax,
-            isCql = syntax === undefined || syntax === 'CQL',
+            language = options && options.syntax || 'CQL',
             subexpression = this.getColumnFilter(columnName);
 
-        if (isCql) {
-            if (!this.CQL) {
-                // set up a new CQL instance for this column prior to first use
-                this.CQL = new ColumnQueryLanguage(this.root.schema);
+        // on first use, set up a new CQL instance for this column filter's subtree bound to column properties
+        var parser = this[language] = this[language] ||
+            new Parser[language](this.root.schema, resolveProperty.bind(this, columnName));
 
-                // bind it to this column's properties
-                this.CQL.setOptions(resolveProperty.bind(this, columnName));
-            }
-
-            // convert some CQL state syntax into a filter tree state object
-            try {
-                var state = this.CQL.parse(columnName, query);
-                this.cache[columnName] = this.CQL.cql;
-            } catch (e) {
-                error = e.message || e;
-            }
-            if (error) {
-                console.warn(error);
-            }
+        // convert some CQL state syntax into a filter tree state object
+        try {
+            var state = parser.parse(query, { columnName: columnName });
+        } catch (e) {
+            error = e.message || e;
+            console.warn(error);
         }
 
         if (state) { // parse successful
@@ -316,7 +305,7 @@ var CustomFilter = FilterTree.extend('CustomFilter', {
                         }
                         result += child.getState(options);
                     } else if (child.children.length) {
-                        throw new this.Error('Expected a conditional but found a subexpression. Subexpressions are not supported in (filter cell syntax).');
+                        throw new Error('CustomFilter: Expected a conditional but found a subexpression. Subexpressions are not supported in CQL ("column query language," the filter cell syntax).');
                     }
                 }
             });
