@@ -37,7 +37,8 @@ var tabProperties = {
  */
 var Filter = CellEditor.extend('Filter', {
 
-    initialize: function() {
+    initialize: function(grid) {
+        this.grid = grid;
         //this.on(filter, 'onInitialize');
     },
 
@@ -47,7 +48,7 @@ var Filter = CellEditor.extend('Filter', {
 
         if (this.on(filter, 'onShow')) {
             // create the dialog backdrop and insert the template
-            curtain = this.curtain = new Curtain(markup.filterTrees);
+            curtain = this.curtain = new Curtain(markup.filterTrees, this);
             el = curtain.el;
 
             // initialize the folder tabs
@@ -61,7 +62,6 @@ var Filter = CellEditor.extend('Filter', {
             var newColumnDropDown = el.querySelector('#add-column-filter-subexpression');
 
             // wire-ups
-            el.addEventListener('click', links.bind(this));
             newColumnDropDown.onmousedown = onNewColumnMouseDown.bind(this);
             newColumnDropDown.onchange = onNewColumnChange.bind(this);
 
@@ -75,7 +75,8 @@ var Filter = CellEditor.extend('Filter', {
             columnSqlEl.insertBefore(tableSqlEl.firstElementChild.cloneNode(true), columnSqlEl.firstChild);
 
             // add it to the DOM
-            curtain.append();
+            var container = this.grid.resolveProperty('filterManagerContainer'); // undefined means use body
+            curtain.append(container);
             newColumnDropDown.selectedIndex = 0;
         }
     },
@@ -100,9 +101,46 @@ var Filter = CellEditor.extend('Filter', {
     },
 
     /**
-     *
+     * Custom click handlers; called by curtain.onclick in context
+     * @param evt
+     * @returns {boolean}
+     */
+    onclick: function(evt) { // to be called with filter object as syntax
+        var ctrl = evt.target;
+
+        if (ctrl.classList.contains('more-info')) {
+            // find all more-info links and their adjacent blocks (blocks always follow links)
+            var els = this.curtain.el.querySelectorAll('.more-info');
+
+            // hide all more-info blocks except the one following this link (unless it's already visible in which case hide it too).
+            for (var i = 0; i < els.length; ++i) {
+                var el = els[i];
+                if (el.tagName === 'A') {
+                    var found = el === ctrl;
+                    el.classList[found ? 'toggle' : 'remove']('hide-info');
+                    el = els[i + 1];
+                    el.style.display = found && el.style.display !== 'block' ? 'block' : 'none';
+                }
+            }
+
+        } else if (ctrl.classList.contains('filter-copy')) {
+            var isCopyAll = ctrl.childNodes.length; // contains "All"
+            if (isCopyAll) {
+                ctrl = this.tabz.folder(ctrl).querySelector(copyInput.selectorTextControls);
+                copyInput(ctrl, this.filter.columnFilters.getState({ syntax: 'SQL' }));
+            } else {
+                copyInput(ctrl.parentElement.querySelector(copyInput.selectorTextControls));
+            }
+
+        } else {
+            return true; // means unhandled
+        }
+    },
+
+    /**
+     * Try to call a filter handler.
      * @param methodName
-     * @returns {boolean} `true` if no handler to call _or_ called handler successfully falsy (success).
+     * @returns {boolean} `true` if no handler to call _or_ called handler successful(falsy).
      */
     on: function(methodName) {
         var method = this.filter[methodName],
@@ -121,44 +159,6 @@ var Filter = CellEditor.extend('Filter', {
 //function forEachEl(selector, iteratee, context) {
 //    return Array.prototype.forEach.call((context || document).querySelectorAll(selector), iteratee);
 //}
-
-function links(evt) { // to be called with filter object as syntax
-    var a = evt.target;
-    if (a.tagName === 'A') {
-
-        if (a.classList.contains('more-info')) {
-
-            // find all more-info links and their adjacent blocks (blocks always follow links)
-            var els = this.curtain.el.querySelectorAll('.more-info');
-
-            // hide all more-info blocks except the one following this link (unless it's already visible in which case hide it too).
-            for (var i = 0; i < els.length; ++i) {
-                var el = els[i];
-                if (el.tagName === 'A') {
-                    var found = el === a;
-                    el.classList[found ? 'toggle' : 'remove']('hide-info');
-                    el = els[i + 1];
-                    el.style.display = found && el.style.display !== 'block' ? 'block' : 'none';
-                }
-            }
-            //evt.stopPropagation();
-            evt.preventDefault();
-
-        } else if (a.classList.contains('filter-copy')) {
-            var isCopyAll = (a.innerHTML !== '');
-            if (isCopyAll) {
-                while (a.tagName !== 'SECTION') { a = a.parentElement; }
-                a = a.querySelector(copyInput.selectorTextControls);
-                copyInput(a, this.filter.columnFilters.getState({ syntax: 'SQL' }));
-            } else {
-                copyInput(a.parentElement.querySelector(copyInput.selectorTextControls));
-            }
-
-        } else if (a.classList.contains('hypergrid-curtain-close')) {
-            this.stopEditing();
-        }
-    }
-}
 
 /**
  * If panel is defined, this is from click on a tab, so just save the one panel.

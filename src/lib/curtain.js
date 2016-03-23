@@ -15,8 +15,9 @@ var Curtain = Base.extend('Curtain', {
 
     /**
      * @param {string|function|Node|Node[]} nodes
+     * @param {CellEditor} [context] - Cell editor object possibly containing `stopEditing` and `beginSettings` methods for the close box and settings gear icons and `onclick` for custom handling.
      */
-    initialize: function(nodes) {
+    initialize: function(nodes, context, clickHandler) {
         // create the backdrop; it is absolute-positioned and stretched
         this.el = automat.firstChild(markup.curtain);
 
@@ -39,6 +40,8 @@ var Curtain = Base.extend('Curtain', {
         } else {
             throw new this.HypergridError('Unexpected dialog content.');
         }
+
+        this.el.addEventListener('click', onclick.bind(context));
     },
 
     append: function(container) {
@@ -74,6 +77,28 @@ var Curtain = Base.extend('Curtain', {
         });
     }
 });
+
+function onclick(evt) {
+    if (this) {
+        if (evt.target.classList.contains('hypergrid-curtain-close')) {
+            evt.preventDefault(); // ignore href
+            if (this.stopEditing) { this.stopEditing(); }
+
+        } else if (evt.target.classList.contains('hypergrid-curtain-settings')) {
+            evt.preventDefault(); // ignore href
+            if (this.beginSettings) { this.beginSettings(); }
+
+        } else if (this.onclick) {
+            var handled = !this.onclick.call(this, evt);
+            if (handled && evt.target.tagName === 'A') {
+                evt.preventDefault(); // ignore href of handled event
+            }
+        }
+    }
+
+    evt.stopPropagation(); // the click stops here, handled or not
+}
+
 
 function forEachEl(selector, iteratee, context) {
     return Array.prototype.forEach.call((context || document).querySelectorAll(selector), iteratee);

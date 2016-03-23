@@ -44,30 +44,30 @@ exports.curtain = function() {/*
             transition: opacity 1s;
         }
 
-        .hypergrid-curtain-control-panel {
+        #hypergrid-curtain .hypergrid-curtain-control-panel {
             position: absolute;
             top: 0px;
             right: 12px;
         }
-        .hypergrid-curtain-control-panel a {
+        #hypergrid-curtain .hypergrid-curtain-control-panel a {
             color: #999;
             font-size: 33px;
             transition: text-shadow .35s, color .35s;
             text-decoration: none;
         }
-        .hypergrid-curtain-close:after {
+        #hypergrid-curtain .hypergrid-curtain-close:after {
             content: '\D7';
         }
-        .hypergrid-curtain-settings:after {
+        #hypergrid-curtain .hypergrid-curtain-settings:after {
             font-family: Apple Symbols;
             content: '\2699';
         }
-        .hypergrid-curtain-control-panel a:hover {
+        #hypergrid-curtain .hypergrid-curtain-control-panel a:hover {
             color: black;
             text-shadow: 0 0 6px #337ab7;
             transition: text-shadow .35s, color .35s;
         }
-        .hypergrid-curtain-control-panel a:active {
+        #hypergrid-curtain .hypergrid-curtain-control-panel a:active {
             color: #d00;
             transition: color 0s;
         }
@@ -131,42 +131,42 @@ exports.filterTrees = function() {/*
     }
     #hypergrid-curtain div.more-info > p { margin: .5em 0; }
 
-    .tabz ul {
+    #hypergrid-curtain .tabz ul {
         padding-left: 1.5em;
         list-style-type: circle;
         font-weight: bold;
     }
-    .tabz ul > li > ul {
+    #hypergrid-curtain .tabz ul > li > ul {
         list-style-type: disc;
         font-weight: normal;
     }
-    .tabz li {
+    #hypergrid-curtain .tabz li {
         margin: .3em 0;
     }
-    .tabz li > code {
+    #hypergrid-curtain .tabz li > code {
         background: #e0e0e0;
         margin: 0 .1em;
         padding: 0 5px;
         border-radius: 4px;
     }
 
-    .tabz > section.filter-expression-syntax > div:last-child ol {
+    #hypergrid-curtain .tabz > section.filter-expression-syntax > div:last-child ol {
         padding-left: 1.6em;
     }
-    .tabz > section.filter-expression-syntax > div:last-child ol > li > label {
+    #hypergrid-curtain .tabz > section.filter-expression-syntax > div:last-child ol > li > label {
         width: 100%;
         font-weight: normal;
         display: inline;
     }
-    .tabz .filter-tree-warn {
+    #hypergrid-curtain .tabz .filter-tree-warn {
         color: darkred;
         font-size: smaller;
         font-style: italic;
         line-height: initial;
     }
-    .tabz > section.filter-expression-syntax > textarea,
-    .tabz > section.filter-expression-syntax > div:last-child textarea,
-    .tabz > section.filter-expression-syntax > div:last-child input {
+    #hypergrid-curtain .tabz > section.filter-expression-syntax > textarea,
+    #hypergrid-curtain .tabz > section.filter-expression-syntax > div:last-child textarea,
+    #hypergrid-curtain .tabz > section.filter-expression-syntax > div:last-child input {
         display: block;
         position: relative;
         min-width: 100%;
@@ -178,21 +178,21 @@ exports.filterTrees = function() {/*
         font-size: 9pt;
         margin-top: 3px;
     }
-    .tabz > section.filter-expression-syntax > textarea {
+    #hypergrid-curtain .tabz > section.filter-expression-syntax > textarea {
         height: 96%;
     }
-    .tabz a.filter-copy {
+    #hypergrid-curtain .tabz a.filter-copy {
         display: block;
         float: right;
         font-size: smaller;
     }
-    .tabz a.filter-copy:before {
+    #hypergrid-curtain .tabz a.filter-copy:before {
         content: '(copy';
     }
-    .tabz a.filter-copy:after {
+    #hypergrid-curtain .tabz a.filter-copy:after {
         content: ')';
     }
-    .tabz a.filter-copy:active {
+    #hypergrid-curtain .tabz a.filter-copy:active {
         color: red;
     }
 </style>

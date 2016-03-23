@@ -35,10 +35,10 @@ function copyAll(containingEl, prefix, separator, suffix, transformer) {
  * @returns {undefined|string} Trimmed text in element or undefined if unable to copy.
  */
 function copy(el, text) {
-    var result, lastText;
+    var result, textWas;
 
     if (text) {
-        lastText = el.value;
+        textWas = el.value;
         el.value = text;
     } else {
         text = el.value;
@@ -52,8 +52,8 @@ function copy(el, text) {
     } catch (err) {
         result = false;
     } finally {
-        if (lastText !== undefined) {
-            el.value = lastText;
+        if (textWas !== undefined) {
+            el.value = textWas;
         }
         el.blur();
     }
@@ -61,7 +61,7 @@ function copy(el, text) {
 }
 
 function multiLineTrim(s) {
-    return s.replace(/^\s* (.*?)\s*$/, '$1');
+    return s.replace(/^\s*(.*?)\s*$/, '$1');
 }
 
 copy.all = copyAll;
