@@ -2902,11 +2902,18 @@ Hypergrid.prototype = {
     singleSelect: function() {
         var isCheckboxOnlyRowSelections = this.isCheckboxOnlyRowSelections(),
             isSingleRowSelectionMode = this.isSingleRowSelectionMode(),
-            hasCTRL = this.mouseDownState.primitiveEvent.detail.primitiveEvent.ctrlKey,
-            result = (
-                isCheckboxOnlyRowSelections && isSingleRowSelectionMode ||
-                !isCheckboxOnlyRowSelections && (!hasCTRL || isSingleRowSelectionMode)
-            );
+            hasCTRL = false,
+            result;
+
+        if (this.mouseDownState){
+            //triggered programmatically
+            hasCTRL = this.mouseDownState.primitiveEvent.detail.primitiveEvent.ctrlKey;
+        }
+
+        result = (
+            isCheckboxOnlyRowSelections && isSingleRowSelectionMode ||
+            !isCheckboxOnlyRowSelections && (!hasCTRL || isSingleRowSelectionMode)
+        );
 
         if (result) {
             this.selectionModel.clearRowSelection();
