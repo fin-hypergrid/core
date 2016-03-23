@@ -249,17 +249,17 @@ var CustomFilter = FilterTree.extend('CustomFilter', {
      * @memberOf CustomFilter.prototype
      */
     setColumnFilterState: function(columnName, query, options) {
-        var error,
+        var error, state,
             language = options && options.syntax || 'CQL',
             subexpression = this.getColumnFilter(columnName);
 
         // on first use, set up a new CQL instance for this column filter's subtree bound to column properties
-        var parser = this[language] = this[language] ||
-            new Parser[language](this.root.schema, resolveProperty.bind(this, columnName));
+        this[language] = this[language] ||
+            new Parser[language](this.root.schema, resolveColumnProperty.bind(this, columnName));
 
         // convert some CQL state syntax into a filter tree state object
         try {
-            var state = parser.parse(query, { columnName: columnName });
+            state = this[language].parse(query, { columnName: columnName });
         } catch (e) {
             error = e.message || e;
             console.warn(error);
@@ -278,6 +278,32 @@ var CustomFilter = FilterTree.extend('CustomFilter', {
         } else if (!query && subexpression) {
             // remove subexpression representing this column
             subexpression.remove();
+        }
+
+        return error;
+    },
+
+    /**
+     * This is only intended to be called when this is the root node.
+     * @param query
+     */
+    setTableFilterState: function(query, options) {
+        var error, state;
+
+        // on first use, set up a new SQL instance the table filters subtree bound to grid properties
+        this.SQL = this.SQL || new Parser.SQL(this.root.schema, resolveTableProperty.bind(this));
+
+        // convert some SQL state syntax into a filter tree state object
+        try {
+            state = this.SQL.parse(query);
+        } catch (e) {
+            error = e.message || e;
+            console.warn(error);
+        }
+
+        if (state) {
+            this.tableFilter.setState(state);
+            error = this.tableFilter.invalid(options);
         }
 
         return error;
@@ -328,7 +354,7 @@ var CustomFilter = FilterTree.extend('CustomFilter', {
     },
 
     onOk: function() {
-        return this.invalid({ alert: true, focus: true });
+
     },
 
     onHide: function(container) {
@@ -340,9 +366,13 @@ var CustomFilter = FilterTree.extend('CustomFilter', {
     }
 });
 
-function resolveProperty(columnName, propertyName) {
+function resolveColumnProperty(columnName, propertyName) {
     //todo: finish this
-    //return column.resolveProperty('filterCql' + key[0].toUpperCase() + key.substr(1));
+    //return column.resolveColumnProperty('filterCql' + key[0].toUpperCase() + key.substr(1));
+}
+
+function resolveTableProperty(propertyName) {
+    //todo: finish this for sqlIdQts property
 }
 
 module.exports = CustomFilter;

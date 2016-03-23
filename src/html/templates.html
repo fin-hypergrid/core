@@ -91,12 +91,12 @@ exports.filterTrees = function() {/*
         right: 0;
     }
     #hypergrid-curtain > div:first-of-type {
-        padding: 1em 0.5em 1em 1em;
-        margin-right: 50%;
-    }
-    #hypergrid-curtain > div:last-of-type {
         padding: 1em 1em 1em 0.5em;
         margin-left: 50%;
+    }
+    #hypergrid-curtain > div:last-of-type {
+        padding: 1em 0.5em 1em 1em;
+        margin-right: 50%;
     }
     #hypergrid-curtain > div > p:first-child {
         margin-top: 0;
@@ -110,6 +110,7 @@ exports.filterTrees = function() {/*
     }
     #hypergrid-curtain input, #hypergrid-curtain textarea {
         outline: 0;
+        line-height: initial;
     }
 
     .tabz { z-index: 0 }
@@ -130,10 +131,24 @@ exports.filterTrees = function() {/*
     }
     #hypergrid-curtain div.more-info > p { margin: .5em 0; }
 
-    .tabz ul { padding-left: 1.5em; list-style-type: circle; font-weight: bold }
-    .tabz ul > li > ul { list-style-type: disc; font-weight: normal; }
-    .tabz li { margin:.3em 0; line-height: 1.35em }
-    .tabz li > code { background: #e0e0e0; margin: 0 .1em; padding: 0 5px; border-radius: 4px; }
+    .tabz ul {
+        padding-left: 1.5em;
+        list-style-type: circle;
+        font-weight: bold;
+    }
+    .tabz ul > li > ul {
+        list-style-type: disc;
+        font-weight: normal;
+    }
+    .tabz li {
+        margin: .3em 0;
+    }
+    .tabz li > code {
+        background: #e0e0e0;
+        margin: 0 .1em;
+        padding: 0 5px;
+        border-radius: 4px;
+    }
 
     .tabz > section.filter-expression-syntax > div:last-child ol {
         padding-left: 1.6em;
@@ -141,8 +156,9 @@ exports.filterTrees = function() {/*
     .tabz > section.filter-expression-syntax > div:last-child ol > li > label {
         width: 100%;
         font-weight: normal;
+        display: inline;
     }
-    .tabz > section.filter-expression-syntax > div:last-child ol > li > div.filter-tree-warn {
+    .tabz .filter-tree-warn {
         color: darkred;
         font-size: smaller;
         font-style: italic;
@@ -182,7 +198,7 @@ exports.filterTrees = function() {/*
 </style>
 
 <div>
-    <select id="add-column-filter-subexpression" style="float:right; margin-left: 1em;">
+    <select id="add-column-filter-subexpression" style="float:right; margin-left:1em; margin-right:4em;">
         <option value="">New column filter&hellip;</option>
     </select>
 
@@ -291,7 +307,7 @@ exports.filterTrees = function() {/*
         </p>
     </div>
 
-    <div class="tabz">
+    <div class="tabz" id="tableFilterPanel">
         <header id="tableQB">
             Query Builder
         </header>
@@ -339,6 +355,7 @@ exports.filterTrees = function() {/*
                     </ul>
                 </div>
             </div>
+            <div class="filter-tree-warn"></div>
             <textarea></textarea>
         </section>
 

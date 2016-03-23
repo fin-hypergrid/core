@@ -10,9 +10,10 @@ var reName,
 
 var SQT = '\'',
     optionsPrototype = {
-        autoLookupByName: true,
-        autoLookupByAlias: true,
-        caseSensitiveColumnNames: false
+        sqlIdQts: {
+            beg: '"',
+            end: '"'
+        }
     };
 
 function ParserSqlError(message) {
@@ -43,6 +44,7 @@ function ParserSQL(schema, propResolver) {
     this.schema = schema;
     this.options = Object.create(optionsPrototype);
     this.setOptions(propResolver);
+
     this.idQt = [];
     this.pushSqlIdQts({
         beg: '"',

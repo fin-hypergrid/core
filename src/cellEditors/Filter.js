@@ -54,15 +54,16 @@ var Filter = CellEditor.extend('Filter', {
             tabz = this.tabz = new Tabz({
                 root: el,
                 onEnable: renderFolder.bind(this),
-                onDisable: saveFolder.bind(this)
+                onDisable: saveFolders.bind(this, null) // null options
             });
+
+            // locate the new column drop-down
+            var newColumnDropDown = el.querySelector('#add-column-filter-subexpression');
 
             // wire-ups
             el.addEventListener('click', links.bind(this));
-
-            this.newColumnSelector = el.querySelector('#add-column-filter-subexpression');
-            this.newColumnSelector.onmousedown = onNewColumnFilterMouseDown.bind(this);
-            this.newColumnSelector.onchange = onNewColumnFilterChange.bind(this);
+            newColumnDropDown.onmousedown = onNewColumnMouseDown.bind(this);
+            newColumnDropDown.onchange = onNewColumnChange.bind(this);
 
             // put the two subtrees in the two panels
             tabz.folder('#tableQB').appendChild(filter.tableFilter.el);
@@ -75,7 +76,7 @@ var Filter = CellEditor.extend('Filter', {
 
             // add it to the DOM
             curtain.append();
-            this.newColumnSelector.selectedIndex = 0;
+            newColumnDropDown.selectedIndex = 0;
         }
     },
 
@@ -89,11 +90,12 @@ var Filter = CellEditor.extend('Filter', {
 
     stopEditing: function() {
         if (this.on('onOk')) {
-            var behavior = this.grid.behavior;
-            this.hideEditor();
-            saveFolder.call(this);
-            behavior.applyAnalytics();
-            behavior.changed();
+            if (!saveFolders.call(this)) {
+                var behavior = this.grid.behavior;
+                this.hideEditor();
+                behavior.applyAnalytics();
+                behavior.changed();
+            }
         }
     },
 
@@ -123,6 +125,7 @@ var Filter = CellEditor.extend('Filter', {
 function links(evt) { // to be called with filter object as syntax
     var a = evt.target;
     if (a.tagName === 'A') {
+
         if (a.classList.contains('more-info')) {
 
             // find all more-info links and their adjacent blocks (blocks always follow links)
@@ -140,6 +143,7 @@ function links(evt) { // to be called with filter object as syntax
             }
             //evt.stopPropagation();
             evt.preventDefault();
+
         } else if (a.classList.contains('filter-copy')) {
             var isCopyAll = (a.innerHTML !== '');
             if (isCopyAll) {
@@ -149,52 +153,97 @@ function links(evt) { // to be called with filter object as syntax
             } else {
                 copyInput(a.parentElement.querySelector(copyInput.selectorTextControls));
             }
+
         } else if (a.classList.contains('hypergrid-curtain-close')) {
             this.stopEditing();
         }
     }
 }
 
-function invalid(subtree) {
+/**
+ * If panel is defined, this is from click on a tab, so just save the one panel.
+ * If panel is undefined, this is from click on dialog close box, so save both panels.
+ * @param options
+ * @param tab
+ * @param folder
+ * @param panel
+ * @returns {boolean|undefined|string}
+ */
+function saveFolders(options, tab, folder, panel) {
+    return (
+        (!panel || panel.id === 'tableFilterPanel') && saveFolder.call(this, this.filter.tableFilter, options) ||
+        (!panel || panel.id === 'columnFiltersPanel') && saveFolder.call(this, this.filter.columnFilters, options)
+    );
+}
+
+/**
+ * @this Filter
+ * @param {CustomFilter} subtree
+ * @param {object} [options={alert:true,focus:true}] - Side effects as per `FilterTree.prototype.invalid`'s `options`' parameter.
+ * @returns {undefined|string} - Validation error text; falsy means valid (no error).
+ */
+function saveFolder(subtree, options) { // to be called with filter object as syntax
     var isColumnFilters = subtree === this.filter.columnFilters,
-        tabQueryBuilder = this.tabz.folder(isColumnFilters ? '#columnQB' : '#tableQB'),
-        tab = this.tabz.enabledTab(tabQueryBuilder.parentElement),
+        tabQueryBuilder = this.tabz.tab(isColumnFilters ? '#columnsQB' : '#tableQB'),
+        tab = this.tabz.enabledTab(tabQueryBuilder),
+        folder = this.tabz.folder(tab),
         isQueryBuilder = tab === tabQueryBuilder,
-        error = subtree.invalid({ alert: true, focus: isQueryBuilder });
+        defaultedOptions = options || {
+            alert: true,
+            focus: true
+        },
+        enhancedOptions = {
+            alert: defaultedOptions.alert,
+            focus: defaultedOptions.focus && isQueryBuilder
+        },
+        error, ctrl;
 
-    // If there was a validation error, make sure we're focused on the appropriate control.
-    if (error) {
-        if (!isQueryBuilder) {
-            if (isColumnFilters) {
-                // We're in SQL or CQL tab so find text box that goes with this subexpression and focus on it instead of QB control.
-                var folder = this.tabz.folder(tab),
-                    errantQueryBuilderControlEl = error.node.el,
-                    errantColumnName = errantQueryBuilderControlEl.parentElement.querySelector('input').value,
-                    errantColumnInputControl = folder.querySelector('[name="' + errantColumnName + '"]');
+    if (isColumnFilters || isQueryBuilder) {
+        error = subtree.invalid(enhancedOptions);
+    } else { // table filter SQL tab
+        ctrl = folder.querySelector('textarea');
+        error = this.filter.setTableFilterState(ctrl.value, options);
+    }
 
-                decorateTextbox(errantColumnInputControl, error);
-            }
+    if (error && !isQueryBuilder) {
+        // If there was a validation error, move the focus from the query builder control to the text box control.
+        if (isColumnFilters) {
+            // We're in SQL or CQL tab so find text box that goes with this subexpression and focus on it instead of QB control.
+            var errantColumnName = error.node.el.parentElement.querySelector('input').value;
+            ctrl = folder.querySelector('[name="' + errantColumnName + '"]');
         }
+    }
+
+    if (ctrl) {
+        decorateFilterInput(ctrl, error);
     }
 
     return error;
 }
 
-function decorateTextbox(ctrl, error) {
+function decorateFilterInput(ctrl, error) {
     ctrl.classList.toggle('filter-tree-error', !!error);
-    ctrl.parentElement.parentElement.lastElementChild.innerHTML = error || '';
+
     ctrl.focus();
+
+    // find the nearby warning element
+    var warningEl;
+    do {
+        ctrl = ctrl.parentElement;
+        warningEl = ctrl.querySelector('.filter-tree-warn');
+    } while (!warningEl);
+
+    // show or hide the error
+    warningEl.innerHTML = error || '';
 }
 
-function onNewColumnFilterMouseDown(evt) { // to be called with filter object as syntax
-    var error = invalid(this.filter.columnFilters);
-
-    // If there was a validation error, make sure we're focused on the appropriate control.
-    if (error) {
+function onNewColumnMouseDown(evt) { // to be called with filter object as syntax
+    if (saveFolder.call(this, this.filter.columnFilters)) {
         evt.preventDefault(); // do not drop down
     } else {
         // (re)build the drop-down contents, with same prompt, but excluding columns with active filter subexpressions
-        var prompt = this.newColumnSelector[0].text.replace('…', ''), // use original but w/o ellipsis as .build() appends one
+        var ctrl = evt.target,
+            prompt = ctrl.options[0].text.replace('…', ''), // use original but w/o ellipsis as .build() appends one
             blacklist = this.filter.columnFilters.children.map(function(columnFilter) {
                 return columnFilter.children.length && columnFilter.children[0].column;
             }),
@@ -203,11 +252,11 @@ function onNewColumnFilterMouseDown(evt) { // to be called with filter object as
                 blacklist: blacklist
             };
 
-        popMenu.build(this.newColumnSelector, this.filter.root.schema, options);
+        popMenu.build(ctrl, this.filter.root.schema, options);
     }
 }
 
-function onNewColumnFilterChange(evt) {
+function onNewColumnChange(evt) {
     var ctrl = evt.target,
         tabColumnQB = this.tabz.folder('#tableQB'),
         tab = this.tabz.enabledTab(tabColumnQB.parentElement),
@@ -226,7 +275,11 @@ function onNewColumnFilterChange(evt) {
         renderFolder.call(this, tab);
     }
 
+    // remove all but the prompt option (first child)
     ctrl.selectedIndex = 0;
+    while (ctrl.lastChild !== ctrl.firstChild) {
+        ctrl.removeChild(ctrl.lastChild);
+    }
 }
 
 function renderFolder(tab) { // to be called with filter object as syntax
@@ -268,7 +321,7 @@ function renderFolder(tab) { // to be called with filter object as syntax
                 listEl.appendChild(li);
             });
 
-            folder.onkeyup = onKeyUp.bind(this, queryLanguage);
+            folder.onkeyup = setColumnFilterState.bind(this, queryLanguage);
 
             if (copyAllLink) {
                 // if there's a "(copy all)" link, hide it if only 0 or 1 subexpressions
@@ -281,17 +334,13 @@ function renderFolder(tab) { // to be called with filter object as syntax
 
 //var RETURN_KEY = 0x0d, ESCAPE_KEY = 0x1b;
 /**
- * Event is triggered only for "language" tabs (tabs with text boxes for language syntax).
+ * Called from key-up events from `#columnSQL` and `#columnCQL` tabs.
  * @this Filter
  * @param {string} queryLanguage
  * @param {KeyboardEvent} evt
  */
-function onKeyUp(queryLanguage, evt) {
+function setColumnFilterState(queryLanguage, evt) {
     var ctrl = evt.target;
-        //folder = evt.currentTarget,
-        //tab = tabz.tab(folder),
-        //tabProps = tabProperties[tab.id],
-        //isQueryBuilder = !tabProps.language;
 
     // Only handle if key was pressed inside a text box.
     if (ctrl.classList.contains('filter-text-box')) {
@@ -304,37 +353,9 @@ function onKeyUp(queryLanguage, evt) {
         //    default:
         var options = { syntax: queryLanguage, alert: true };
         var error = this.filter.setColumnFilterState(ctrl.name, ctrl.value, options);
-
-        decorateTextbox(ctrl, error);
+        decorateFilterInput(ctrl, error);
         //}
     }
-}
-
-
-/**
- * Set filter object state to match the state of the user controls contained in this UI tab folder.
- *
- * This is called when switching tabs (so the tab you switch to reflects user changes); and on curtain up" (dialog exit).
- *
- * This pertains only to SQL/CQL "language" tabs; the user controls in the "query builder" tabs are bound directly to the filter object.
- */
-function saveFolder() {
-    //if (queryLanguage === 'CQL') {
-    //    var activeColumnFilters = this.columnFilters.children.reduce(function(hash, columnFilter) {
-    //        hash[columnFilter.children[0].column] = columnFilter;
-    //        return hash;
-    //    }, {});
-    //
-    //    popMenu.walk(this.filter.schema, function(column) {
-    //        var cell = document.querySelector('input[name=' + column.name + ']');
-    //        if (cell) {
-    //            var columnFilter = activeColumnFilters[column.name];
-    //            cell.value = columnFilter && !columnFilter.invalid()
-    //                ? columnFilter.getState({ syntax: 'CQL' })
-    //                : '';
-    //        }
-    //    });
-    //}
 }
 
 function activeFiltersMessage(n) {

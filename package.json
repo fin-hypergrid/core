@@ -8,7 +8,7 @@
   "dependencies": {
     "automat": "^0.1.1",
     "extend-me": "^2.2.2",
-    "filter-tree": "^0.3.11",
+    "filter-tree": "^0.3.13",
     "finbars": "^1.5.1",
     "fincanvas": "^1.2.1",
     "hyper-analytics": "^0.10.2",
@@ -18,7 +18,7 @@
     "pop-menu": "^0.1.3",
     "rectangular": "^1.0.1",
     "sparse-boolean-array": "^1.0.1",
-    "tabz": "^1.1.2"
+    "tabz": "^1.1.3"
   },
   "devDependencies": {
     "browser-sync": "^2.10.0",
