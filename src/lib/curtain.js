@@ -17,7 +17,7 @@ var Curtain = Base.extend('Curtain', {
      * @param {string|function|Node|Node[]} nodes
      * @param {CellEditor} [context] - Cell editor object possibly containing `stopEditing` and `beginSettings` methods for the close box and settings gear icons and `onclick` for custom handling.
      */
-    initialize: function(nodes, context, clickHandler) {
+    initialize: function(nodes, context) {
         // create the backdrop; it is absolute-positioned and stretched
         this.el = automat.firstChild(markup.curtain);
 
@@ -44,39 +44,70 @@ var Curtain = Base.extend('Curtain', {
         this.el.addEventListener('click', onclick.bind(context));
     },
 
+    /**
+     *
+     * @param {HTMLElement} [container] - If undefined, curtain is appended to body.
+     *
+     * If defined, curtain is appended to container. When container is not body, it will be:
+     * # made visible before append (it should initially be hidden)
+     * # made hidden after remove
+     */
     append: function(container) {
         var el = this.el;
 
+        container = container || document.querySelector('body');
+
+        if (container.tagName !== 'BODY') {
+            container.style.visibility = 'visible';
+        }
+
         // insert the new curtain markup into the DOM
-        (container || document.querySelector('body')).appendChild(el);
+        container.appendChild(el);
 
         // schedule it for a fade-in transition
         setTimeout(function() { el.classList.add('hypergrid-curtain-visible'); });
 
         // when transition ends, hide all the hypergrids behind it to prevent any key/mouse events from getting to them
         // todo: pause all hypergrids so they don't spin uselessly
-        el.addEventListener('transitionend', function self(evt) {
-            visAllHypergrids(false);
-            el.removeEventListener('transitionend', self);
-        });
+        el.addEventListener('transitionend', this.hideStageBound = hideStage.bind(this));
     },
 
     remove: function() {
         var el = this.el;
 
         // unhide all the hypergrids behind the curtain
-        visAllHypergrids(true);
+        this.stageVisible('visible');
 
         // start fade-out of curtain revealing grids behind it
         el.classList.remove('hypergrid-curtain-visible');
 
         // at end of fade out, remove curtain from the DOM
-        el.addEventListener('transitionend', function self(evt) {
-            el.remove();
-            el.removeEventListener('transitionend', self);
+        el.addEventListener('transitionend', this.removeCurtainBound = removeCurtain.bind(this));
+    },
+
+    stageSelector: 'canvas.hypergrid',
+    stageVisible: function(visibility) {
+        forEachEl(this.stageSelector, function(el) {
+            el.style.visibility = visibility;
         });
     }
 });
+
+function removeCurtain(evt) {
+    var el = this.el,
+        container = el.parentElement;
+
+    if (container.tagName !== 'BODY') {
+        container.style.visibility = 'hidden';
+    }
+    el.remove();
+    el.removeEventListener('transitionend', this.removeCurtainBound);
+}
+
+function hideStage(evt) {
+    this.stageVisible('hidden');
+    this.el.removeEventListener('transitionend', this.hideStageBound);
+}
 
 function onclick(evt) {
     if (this) {
@@ -102,17 +133,6 @@ function onclick(evt) {
 
 function forEachEl(selector, iteratee, context) {
     return Array.prototype.forEach.call((context || document).querySelectorAll(selector), iteratee);
-}
-
-var visibility = {
-    true: 'visible',
-    false: 'hidden'
-};
-
-function visAllHypergrids(visible) {
-    forEachEl('canvas.hypergrid', function(canvas) {
-        canvas.style.visibility = visibility[visible];
-    });
 }
 
 module.exports = Curtain;
