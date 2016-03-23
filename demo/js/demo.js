@@ -662,7 +662,7 @@ window.onload = function() {
                 rowSelection: true,
                 singleRowSelectionMode: true,
 
-                filterManagerContainer: document.querySelector('#xyz')
+                //filterManagerContainer: document.querySelector('#xyz')
             };
 
             jsonGrid.setGroups([4, 0, 1]);
