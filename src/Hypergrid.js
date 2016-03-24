@@ -2821,7 +2821,8 @@ Hypergrid.prototype = {
     },
 
     selectCell: function(x, y) {
-        this.selectionModel.clear();
+        var dontClearRows = this.isCheckboxOnlyRowSelections();
+        this.selectionModel.clear(dontClearRows);
         this.selectionModel.select(x, y, 0, 0);
     },
 
