@@ -1,11 +1,12 @@
 'use strict';
 
 var ListDragon = require('list-dragon');
+var automat = require('automat');
 
 var Local = require('./Local');
 var DataModelJSON = require('../dataModels/JSON');
 var features = require('../features');
-var addStylesheet = require('../../css/stylesheets');
+var stylesheets = require('../css/stylesheets.html');
 var aggregations = require('hyper-analytics').util.aggregations;
 //var aggregations = require('../local_node_modules/hyper-analytics').util.aggregations;
 //var aggregations = require('../local_node_modules/finanalytics').aggregations;
@@ -253,7 +254,7 @@ var JSON = Local.extend('behaviors.JSON', {
             columnLists = new ListDragon([hiddenColumns, visibleColumns], listOptions),
             listSets = [groupLists, columnLists];
 
-        addStylesheet('list-dragon', div);
+        automat(stylesheets['list-dragon'], div, div.firstChild);
 
         listSets.forEach(function(listSet) {
             listSet.modelLists.forEach(function(list) {

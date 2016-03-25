@@ -5,7 +5,7 @@
 var automat = require('automat');
 
 var Base = require('../lib/Base');
-var markup = require('../html/templates.html');
+var markup = require('../html/markup.html');
 var images = require('../../images');
 
 /**
@@ -14,10 +14,18 @@ var images = require('../../images');
 var Curtain = Base.extend('Curtain', {
 
     /**
-     * @param {string|function|Node|Node[]} nodes
      * @param {CellEditor} [context] - Cell editor object possibly containing `stopEditing` and `beginSettings` methods for the close box and settings gear icons and `onclick` for custom handling.
+     * @param {string|function|Node|Node[]} nodes
+     * @param {...*} [replacements] - Replacement values for numbered format patterns.
      */
-    initialize: function(nodes, context) {
+    initialize: function(context, nodes, replacements/*...*/) {
+        var contextOmitted = typeof context !== 'object' || context instanceof Node;
+
+        if (contextOmitted) {
+            nodes = context;
+            context = null;
+        }
+
         // create the backdrop; it is absolute-positioned and stretched
         this.el = automat.firstChild(markup.curtain);
 
@@ -28,8 +36,8 @@ var Curtain = Base.extend('Curtain', {
         var referenceElement = this.el.lastElementChild;
 
         if (typeof nodes === 'string' || typeof nodes === 'function') {
-            var args = [referenceElement, this.el];
-            args = args.concat(Array.prototype.slice.call(arguments));
+            replacements = Array.prototype.slice.call(arguments, contextOmitted ? 1 : 2);
+            var args = [nodes, this.el, referenceElement].concat(replacements);
             automat.append.apply(null, args);
         } else if (nodes instanceof Node) {
             this.el.insertBefore(nodes, referenceElement);
@@ -46,7 +54,7 @@ var Curtain = Base.extend('Curtain', {
 
     /**
      *
-     * @param {HTMLElement} [container] - If undefined, curtain is appended to body.
+     * @param {HTMLElement} [container]  - If undefined, curtain is appended to body.
      *
      * If defined, curtain is appended to container. When container is not body, it will be:
      * # made visible before append (it should initially be hidden)

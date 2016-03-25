@@ -66,14 +66,10 @@ window.onload = function() {
         'textfield'
     ];
 
-    var div = document.querySelector('div#json-example'),
-        marginForHorizontalScrollBar = { bottom: '17px' };
-
-    function behaviorFactory(grid) {
-        return new fin.Hypergrid.behaviors.JSON(grid, window.people1);
-    }
-
-    var jsonGrid = window.g = new fin.Hypergrid(div, behaviorFactory, marginForHorizontalScrollBar),
+    var jsonGrid = window.g = new fin.Hypergrid('div#json-example', {
+            data: people1,
+            margin: { bottom: '17px' }
+        }),
         jsonModel = window.b = jsonGrid.behavior,
         dataModel = window.m = jsonModel.dataModel;
 

@@ -11,12 +11,13 @@ var Canvas = require('fincanvas');
 var Point = require('rectangular').Point;
 var Rectangle = require('rectangular').Rectangle;
 var _ = require('object-iterators');
+var automat = require('automat');
 
 var defaults = require('./defaults');
 var cellEditors = require('./cellEditors');
 var Renderer = require('./lib/Renderer');
 var SelectionModel = require('./lib/SelectionModel');
-var addStylesheet = require('../css/stylesheets');
+var stylesheets = require('./css/stylesheets.html');
 var Formatters = require('./lib/Formatters');
 
 var themeInitialized = false,
@@ -26,19 +27,24 @@ var themeInitialized = false,
 /**
  * @constructor
  * @param {string|Element} div - CSS selector or Element
- * @param {string} behaviorName - name of a behavior constructor from ./behaviors
- * @param {object} [margin] - optional canvas margins
- * @param {string} [margin.top]
- * @param {string} [margin.right='-200px']
- * @param {string} [margin.bottom]
- * @param {string} [margin.left]
+ * @param {object} options - Required (despite its name) because you must provide a behavior one way or another.
+ * @param {string} [options.getBehavior] - A function(grid) that returns a new behavior object. Provide this or provide `options.data` (with or without `options.Behavior`)
+ * @param {object[]} [options.data] - An array of congruent raw data objects. Provide this (with or without `options.Behavior`) or provide `options.getBehavior`.
+ * @param {Behavior} [options.Behavior=JSON] - A grid behavior (descendant of Behavior "class"). Will be used if `getBehavior` omitted, in which case `options.data` (which has no default) *must* also be provided.
+ * @param {object} [options.margin] - optional canvas margins
+ * @param {string} [options.margin.top=0]
+ * @param {string} [options.margin.right='-200px']
+ * @param {string} [options.margin.bottom=0]
+ * @param {string} [options.margin.left=0]
  */
-function Hypergrid(div, behaviorFactory, margin) {
+function Hypergrid(div, options) {
     var self = this;
 
     this.div = (typeof div === 'string') ? document.querySelector(div) : div;
 
-    addStylesheet('grid');
+    automat.append(stylesheets.grid,
+        document.querySelector('head'),
+        document.querySelector('head>style'));
 
     this.lastEdgeSelection = [0, 0];
 
@@ -48,7 +54,10 @@ function Hypergrid(div, behaviorFactory, margin) {
     this.selectionModel = new SelectionModel(this);
     this.makeCellEditors();
     this.renderOverridesCache = {};
-    this.behavior = behaviorFactory(this);
+
+    this.behavior = options.getBehavior
+        ? options.getBehavior(this)
+        : new (options.Behavior || Hypergrid.behaviors.JSON)(this, options.data);
 
     //prevent the default context menu for appearing
     this.div.oncontextmenu = function(event) {
@@ -68,7 +77,7 @@ function Hypergrid(div, behaviorFactory, margin) {
         }
     });
 
-    margin = margin || {};
+    var margin = options.margin || {};
     margin.top = margin.top || 0;
     margin.right = margin.right || '-200px';
     margin.bottom = margin.bottom || 0;

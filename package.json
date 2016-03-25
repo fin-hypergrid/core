@@ -6,7 +6,7 @@
     "test": "test"
   },
   "dependencies": {
-    "automat": "^0.1.1",
+    "automat": "^1.0.0",
     "extend-me": "^2.2.2",
     "filter-tree": "^0.3.13",
     "finbars": "^1.5.1",

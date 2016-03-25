@@ -8,7 +8,7 @@ var automat = require('automat');
 
 var Curtain = require('../lib/Curtain');
 var CellEditor = require('./CellEditor');
-var markup = require('../html/templates.html');
+var markup = require('../html/markup.html');
 var copyInput = require('../lib/copy-input');
 
 var tabProperties = {
@@ -48,7 +48,7 @@ var Filter = CellEditor.extend('Filter', {
 
         if (this.on(filter, 'onShow')) {
             // create the dialog backdrop and insert the template
-            curtain = this.curtain = new Curtain(markup.filterTrees, this);
+            curtain = this.curtain = new Curtain(this, markup.filterTrees);
             el = curtain.el;
 
             // initialize the folder tabs
