@@ -9,6 +9,5 @@ module.exports = {
     Date: require('./Date'),
     Simple: require('./Simple'),
     Slider: require('./Slider'),
-    Spinner: require('./Spinner'),
-    Filter: require('./Filter')
+    Spinner: require('./Spinner')
 };

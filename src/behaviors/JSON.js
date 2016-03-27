@@ -237,13 +237,13 @@ var JSON = Local.extend('behaviors.JSON', {
         return this.dataModel.getSelection(selections);
     },
 
-    buildColumnPicker: function(div) {
+    buildColumnPicker: function(el, append) {
         if (!this.isColumnReorderable()) {
             return false;
         }
 
         var listOptions = {
-            cssStylesheetReferenceElement: div
+            cssStylesheetReferenceElement: el.lastElementChild
         };
 
         var groups = { models: this.getGroups(), title: 'Groups' },
@@ -254,23 +254,21 @@ var JSON = Local.extend('behaviors.JSON', {
             columnLists = new ListDragon([hiddenColumns, visibleColumns], listOptions),
             listSets = [groupLists, columnLists];
 
-        automat(stylesheets['list-dragon'], div, div.firstChild);
-
         listSets.forEach(function(listSet) {
             listSet.modelLists.forEach(function(list) {
-                div.appendChild(list.container);
+                append(list.container);
             });
         });
 
-        //attach for later retrieval
-        div.lists = {
+        automat.append(stylesheets['list-dragon'], el, el.lastElementChild);
+
+        //for later retrieval by `setColumnDescriptors`
+        return {
             group: groups.models,
             availableGroups: availableGroups.models,
             hidden: hiddenColumns.models,
             visible: visibleColumns.models
         };
-
-        return true;
     },
     getGroups: function() {
         return this.dataModel.getGroups();

@@ -3214,8 +3214,29 @@ Hypergrid.prototype = {
         var formatType = this.getColumnProperties(x).format;
         var value = this.getValue(x, y);
         var formatter = this.getFormatter(formatType);
-        var string = formatter(value);
-        return string;
+        return formatter(value);
+    },
+
+    openDialog: function(dialogName, options) {
+        this.dialog = this.behavior.openDialog(dialogName, options);
+    },
+
+    // although you can have multiple dialogs open at the same time, the following enforces one at time (for now)
+    toggleDialog: function(newDialogName, options) {
+        var dialog = this.dialog,
+            oldDialogName = dialog && dialog.$$CLASS_NAME;
+        if (!dialog || !this.dialog.close() && oldDialogName !== newDialogName) {
+            options.terminate = function() { // when about-to-be-opened dialog is eventually closed
+                delete this.dialog;
+            }.bind(this);
+            if (!dialog) {
+                // open new dialog now
+                this.openDialog(newDialogName, options);
+            } else {
+                // open new dialog when already-opened dialog finishes closing due to .closeDialog() above
+                dialog.terminate = this.openDialog.bind(this, newDialogName, options);
+            }
+        }
     }
 };
 

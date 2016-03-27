@@ -24,11 +24,11 @@ exports.SQL = function() {/*
 </li>
 */};
 
-exports.curtain = function() {/*
-<div id="hypergrid-curtain">
+exports.dialog = function() {/*
+<div id="hypergrid-dialog">
 
     <style>
-        #hypergrid-curtain {
+        #hypergrid-dialog {
             position: absolute;
             top: 0;
             left: 0;
@@ -38,44 +38,45 @@ exports.curtain = function() {/*
             font: 10pt sans-serif;
             opacity: 0;
             transition: opacity 1s;
+            box-shadow: rgba(0, 0, 0, 0.298039) 0px 19px 38px, rgba(0, 0, 0, 0.219608) 0px 15px 12px;
         }
-        #hypergrid-curtain.hypergrid-curtain-visible {
+        #hypergrid-dialog.hypergrid-dialog-visible {
             opacity: 1;
             transition: opacity 1s;
         }
 
-        #hypergrid-curtain .hypergrid-curtain-control-panel {
+        #hypergrid-dialog .hypergrid-dialog-control-panel {
             position: absolute;
             top: 0px;
             right: 12px;
         }
-        #hypergrid-curtain .hypergrid-curtain-control-panel a {
+        #hypergrid-dialog .hypergrid-dialog-control-panel a {
             color: #999;
             font-size: 33px;
             transition: text-shadow .35s, color .35s;
             text-decoration: none;
         }
-        #hypergrid-curtain .hypergrid-curtain-close:after {
+        #hypergrid-dialog .hypergrid-dialog-close:after {
             content: '\D7';
         }
-        #hypergrid-curtain .hypergrid-curtain-settings:after {
+        #hypergrid-dialog .hypergrid-dialog-settings:after {
             font-family: Apple Symbols;
             content: '\2699';
         }
-        #hypergrid-curtain .hypergrid-curtain-control-panel a:hover {
+        #hypergrid-dialog .hypergrid-dialog-control-panel a:hover {
             color: black;
             text-shadow: 0 0 6px #337ab7;
             transition: text-shadow .35s, color .35s;
         }
-        #hypergrid-curtain .hypergrid-curtain-control-panel a:active {
+        #hypergrid-dialog .hypergrid-dialog-control-panel a:active {
             color: #d00;
             transition: color 0s;
         }
     </style>
 
-    <span class="hypergrid-curtain-control-panel">
-        <a class="hypergrid-curtain-settings" title="(There are no settings for Manage Filters at this time.)"></a>
-        <a class="hypergrid-curtain-close"></a>
+    <span class="hypergrid-dialog-control-panel">
+        <a class="hypergrid-dialog-settings" title="(There are no settings for Manage Filters at this time.)"></a>
+        <a class="hypergrid-dialog-close"></a>
     </span>
 
 </div>
@@ -83,32 +84,32 @@ exports.curtain = function() {/*
 
 exports.filterTrees = function() {/*
 <style>
-    #hypergrid-curtain > div {
+    #hypergrid-dialog > div {
         position: absolute;
         top: 0;
         left: 0;
         bottom: 0;
         right: 0;
     }
-    #hypergrid-curtain > div:first-of-type {
+    #hypergrid-dialog > div:first-of-type {
         padding: 1em 1em 1em 0.5em;
         margin-left: 50%;
     }
-    #hypergrid-curtain > div:last-of-type {
+    #hypergrid-dialog > div:last-of-type {
         padding: 1em 0.5em 1em 1em;
         margin-right: 50%;
     }
-    #hypergrid-curtain > div > p:first-child {
+    #hypergrid-dialog > div > p:first-child {
         margin-top: 0;
     }
-    #hypergrid-curtain > div > p > span:first-child {
+    #hypergrid-dialog > div > p > span:first-child {
         font-size: larger;
         letter-spacing: 2px;
         font-weight: bold;
         color: #666;
         margin-right: 1em;
     }
-    #hypergrid-curtain input, #hypergrid-curtain textarea {
+    #hypergrid-dialog input, #hypergrid-dialog textarea {
         outline: 0;
         line-height: initial;
     }
@@ -116,11 +117,11 @@ exports.filterTrees = function() {/*
     .tabz { z-index: 0 }
     .tabz > p:first-child, .tabz > section > p:first-child, .tabz > section > div > p:first-child { margin-top: 0 }
 
-    #hypergrid-curtain a.more-info { font-size: smaller; }
-    #hypergrid-curtain a.more-info::after { content: '(more info)'; }
-    #hypergrid-curtain a.more-info.hide-info { color: red; }
-    #hypergrid-curtain a.more-info.hide-info::after { content: '(hide info)'; }
-    #hypergrid-curtain div.more-info {
+    #hypergrid-dialog a.more-info { font-size: smaller; }
+    #hypergrid-dialog a.more-info::after { content: '(more info)'; }
+    #hypergrid-dialog a.more-info.hide-info { color: red; }
+    #hypergrid-dialog a.more-info.hide-info::after { content: '(hide info)'; }
+    #hypergrid-dialog div.more-info {
         border: 1px tan solid;
         border-radius: 8px;
         padding: 0 8px .2em;
@@ -129,44 +130,44 @@ exports.filterTrees = function() {/*
         box-shadow: 3px 3px 5px #707070;
         margin-bottom: 1em;
     }
-    #hypergrid-curtain div.more-info > p { margin: .5em 0; }
+    #hypergrid-dialog div.more-info > p { margin: .5em 0; }
 
-    #hypergrid-curtain .tabz ul {
+    #hypergrid-dialog .tabz ul {
         padding-left: 1.5em;
         list-style-type: circle;
         font-weight: bold;
     }
-    #hypergrid-curtain .tabz ul > li > ul {
+    #hypergrid-dialog .tabz ul > li > ul {
         list-style-type: disc;
         font-weight: normal;
     }
-    #hypergrid-curtain .tabz li {
+    #hypergrid-dialog .tabz li {
         margin: .3em 0;
     }
-    #hypergrid-curtain .tabz li > code {
+    #hypergrid-dialog .tabz li > code {
         background: #e0e0e0;
         margin: 0 .1em;
         padding: 0 5px;
         border-radius: 4px;
     }
 
-    #hypergrid-curtain .tabz > section.filter-expression-syntax > div:last-child ol {
+    #hypergrid-dialog .tabz > section.filter-expression-syntax > div:last-child ol {
         padding-left: 1.6em;
     }
-    #hypergrid-curtain .tabz > section.filter-expression-syntax > div:last-child ol > li > label {
+    #hypergrid-dialog .tabz > section.filter-expression-syntax > div:last-child ol > li > label {
         width: 100%;
         font-weight: normal;
         display: inline;
     }
-    #hypergrid-curtain .tabz .filter-tree-warn {
+    #hypergrid-dialog .tabz .filter-tree-warn {
         color: darkred;
         font-size: smaller;
         font-style: italic;
         line-height: initial;
     }
-    #hypergrid-curtain .tabz > section.filter-expression-syntax > textarea,
-    #hypergrid-curtain .tabz > section.filter-expression-syntax > div:last-child textarea,
-    #hypergrid-curtain .tabz > section.filter-expression-syntax > div:last-child input {
+    #hypergrid-dialog .tabz > section.filter-expression-syntax > textarea,
+    #hypergrid-dialog .tabz > section.filter-expression-syntax > div:last-child textarea,
+    #hypergrid-dialog .tabz > section.filter-expression-syntax > div:last-child input {
         display: block;
         position: relative;
         min-width: 100%;
@@ -178,21 +179,21 @@ exports.filterTrees = function() {/*
         font-size: 9pt;
         margin-top: 3px;
     }
-    #hypergrid-curtain .tabz > section.filter-expression-syntax > textarea {
+    #hypergrid-dialog .tabz > section.filter-expression-syntax > textarea {
         height: 96%;
     }
-    #hypergrid-curtain .tabz a.filter-copy {
+    #hypergrid-dialog .tabz a.filter-copy {
         display: block;
         float: right;
         font-size: smaller;
     }
-    #hypergrid-curtain .tabz a.filter-copy:before {
+    #hypergrid-dialog .tabz a.filter-copy:before {
         content: '(copy';
     }
-    #hypergrid-curtain .tabz a.filter-copy:after {
+    #hypergrid-dialog .tabz a.filter-copy:after {
         content: ')';
     }
-    #hypergrid-curtain .tabz a.filter-copy:active {
+    #hypergrid-dialog .tabz a.filter-copy:active {
         color: red;
     }
 </style>

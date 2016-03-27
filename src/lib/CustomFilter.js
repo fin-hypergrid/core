@@ -340,29 +340,6 @@ var CustomFilter = FilterTree.extend('CustomFilter', {
         }
 
         return result;
-    },
-
-    // All remaining methods are co-routines called from grid.curtain
-    // See cellEditors/Filter.js
-
-    onInitialize: function() {
-
-    },
-
-    onShow: function(container) {
-
-    },
-
-    onOk: function() {
-
-    },
-
-    onHide: function(container) {
-
-    },
-
-    create: function() {
-        return this.test.bind(this);
     }
 });
 

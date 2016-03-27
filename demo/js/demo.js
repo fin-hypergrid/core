@@ -73,6 +73,21 @@ window.onload = function() {
         jsonModel = window.b = jsonGrid.behavior,
         dataModel = window.m = jsonModel.dataModel;
 
+    [
+        { label: 'Column Picker&hellip;', onclick: toggleDialog.bind(this, 'ColumnPicker') },
+        { label: 'Manage Filters&hellip;', onclick: toggleDialog.bind(this, 'ManageFilters') },
+        { label: 'toggle empty data', onclick: toggleEmptyData },
+        { label: 'set data 1 (5000 rows)', onclick: jsonModel.setData.bind(this, people1) },
+        { label: 'set data 2 (10000 rows)', onclick: jsonModel.setData.bind(this, people2) },
+        { label: 'reset', onclick: jsonGrid.reset },
+
+    ].forEach(function(item) {
+        var button = document.createElement('button');
+        button.innerHTML = item.label;
+        button.onclick = item.onclick;
+        document.getElementById('dashboard').appendChild(button);
+    });
+
     window.vent = false;
 
     //functions for showing the grouping/rollup capbilities
@@ -102,9 +117,14 @@ window.onload = function() {
         dataModel.applyAnalytics();
     }
 
-    window.toggleColumnPicker = function() {
-        jsonGrid.toggleColumnPicker();
-    };
+    function toggleDialog(dialogName, evt) {
+        var options = {
+            container: document.getElementById('dialog-container'),
+            settings: false
+        };
+        jsonGrid.toggleDialog(dialogName, options);
+        evt.stopPropagation(); // todo: without this other browsers get the event.... HOW?
+    }
 
     function initializeGlobalFilter(grid, options) {
         var newFilter = new fin.Hypergrid.CustomFilter(options || {
@@ -195,7 +215,7 @@ window.onload = function() {
         ];
 
     var emptyData = false;
-    window.toggleEmptyData = function() {
+    function toggleEmptyData() {
         if ((emptyData = !emptyData)) {
             //important to set top totals first
             jsonModel.setTopTotals([]);
@@ -207,19 +227,7 @@ window.onload = function() {
             jsonModel.setData(people1);
             jsonModel.setBottomTotals(bottomTotals);
         }
-    };
-
-    window.setData1 = function() {
-        jsonModel.setData(people1);
-    };
-
-    window.setData2 = function() {
-        jsonModel.setData(people2);
-    };
-
-    window.reset = function() {
-        jsonGrid.reset();
-    };
+    }
 
     jsonModel.setData(people1);
 

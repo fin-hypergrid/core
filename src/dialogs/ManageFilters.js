@@ -6,8 +6,7 @@ var Tabz = require('tabz');
 var popMenu = require('pop-menu');
 var automat = require('automat');
 
-var Curtain = require('../lib/Curtain');
-var CellEditor = require('./CellEditor');
+var Dialog = require('./Dialog');
 var markup = require('../html/markup.html');
 var copyInput = require('../lib/copy-input');
 
@@ -35,69 +34,54 @@ var tabProperties = {
 /**
  * @constructor
  */
-var Filter = CellEditor.extend('Filter', {
+var ManageFilters = Dialog.extend('ManageFilters', {
 
-    initialize: function(grid) {
-        this.grid = grid;
-        //this.on(filter, 'onInitialize');
+    /**
+     * @param {Hypergrid} grid
+     * @param {object} [options] - May include `Dialog` options.
+     * @param {HTMLElement} [options.container=document.body]
+     */
+    initialize: function(grid, options) {
+        this.filter = grid.behavior.getGlobalFilter();
+
+        this.append(markup.filterTrees);
+
+        // initialize the folder tabs
+        var tabz = this.tabz = new Tabz({
+            root: this.el,
+            onEnable: renderFolder.bind(this),
+            onDisable: saveFolders.bind(this, null) // null options
+        });
+
+        // wire-up the New Column drop-down
+        var newColumnDropDown = this.el.querySelector('#add-column-filter-subexpression');
+        newColumnDropDown.onmousedown = onNewColumnMouseDown.bind(this);
+        newColumnDropDown.onchange = onNewColumnChange.bind(this);
+
+        // put the two subtrees in the two panels
+        tabz.folder('#tableQB').appendChild(this.filter.tableFilter.el);
+        tabz.folder('#columnsQB').appendChild(this.filter.columnFilters.el);
+
+        // copy the SQL more-info block from the table to the columns tab
+        var columnSqlEl = tabz.folder('#columnsSQL');
+        var moreSqlInfo = tabz.folder('#tableSQL').firstElementChild.cloneNode(true);
+        columnSqlEl.insertBefore(moreSqlInfo, columnSqlEl.firstChild);
+
+        // add it to the DOM
+        this.open(options.container);
+
+        // following needed for unclear reasons to get drop-down to display correctly
+        newColumnDropDown.selectedIndex = 0;
     },
 
-    beginEditAt: function(editorPoint) {
-        var curtain, el, tabz,
-            filter = this.filter = this.grid.behavior.getGlobalFilter();
-
-        if (this.on(filter, 'onShow')) {
-            // create the dialog backdrop and insert the template
-            curtain = this.curtain = new Curtain(this, markup.filterTrees);
-            el = curtain.el;
-
-            // initialize the folder tabs
-            tabz = this.tabz = new Tabz({
-                root: el,
-                onEnable: renderFolder.bind(this),
-                onDisable: saveFolders.bind(this, null) // null options
-            });
-
-            // locate the new column drop-down
-            var newColumnDropDown = el.querySelector('#add-column-filter-subexpression');
-
-            // wire-ups
-            newColumnDropDown.onmousedown = onNewColumnMouseDown.bind(this);
-            newColumnDropDown.onchange = onNewColumnChange.bind(this);
-
-            // put the two subtrees in the two panels
-            tabz.folder('#tableQB').appendChild(filter.tableFilter.el);
-            tabz.folder('#columnsQB').appendChild(filter.columnFilters.el);
-
-            // copy the SQL more-info block from the table to the columns tab
-            var columnSqlEl = tabz.folder('#columnsSQL'),
-                tableSqlEl = tabz.folder('#tableSQL');
-            columnSqlEl.insertBefore(tableSqlEl.firstElementChild.cloneNode(true), columnSqlEl.firstChild);
-
-            // add it to the DOM
-            var container = this.grid.resolveProperty('filterManagerContainer'); // undefined means use body
-            curtain.append(container);
-            newColumnDropDown.selectedIndex = 0;
-        }
+    onClose: function() {
+        return saveFolders.call(this);
     },
 
-    hideEditor: function() {
-        if (this.curtain.el) {
-            this.curtain.remove();
-            delete this.curtain;
-            this.on('onHide');
-        }
-    },
-
-    stopEditing: function() {
-        if (this.on('onOk')) {
-            if (!saveFolders.call(this)) {
-                var behavior = this.grid.behavior;
-                this.hideEditor();
-                behavior.applyAnalytics();
-                behavior.changed();
-            }
-        }
+    onClosed: function() {
+        var behavior = this.grid.behavior;
+        behavior.applyAnalytics();
+        behavior.changed();
     },
 
     /**
@@ -105,12 +89,12 @@ var Filter = CellEditor.extend('Filter', {
      * @param evt
      * @returns {boolean}
      */
-    onclick: function(evt) { // to be called with filter object as syntax
+    onClick: function(evt) { // to be called with filter object as syntax
         var ctrl = evt.target;
 
         if (ctrl.classList.contains('more-info')) {
             // find all more-info links and their adjacent blocks (blocks always follow links)
-            var els = this.curtain.el.querySelectorAll('.more-info');
+            var els = this.el.querySelectorAll('.more-info');
 
             // hide all more-info blocks except the one following this link (unless it's already visible in which case hide it too).
             for (var i = 0; i < els.length; ++i) {
@@ -135,38 +119,14 @@ var Filter = CellEditor.extend('Filter', {
         } else {
             return true; // means unhandled
         }
-    },
-
-    /**
-     * Try to call a filter handler.
-     * @param methodName
-     * @returns {boolean} `true` if no handler to call _or_ called handler successful(falsy).
-     */
-    on: function(methodName) {
-        var method = this.filter[methodName],
-            abort;
-
-        if (method) {
-            var remainingArgs = Array.prototype.slice.call(arguments, 1);
-            abort = method.apply(this.filter, remainingArgs);
-        }
-
-        return !abort;
     }
-
 });
 
-//function forEachEl(selector, iteratee, context) {
-//    return Array.prototype.forEach.call((context || document).querySelectorAll(selector), iteratee);
-//}
-
 /**
- * If panel is defined, this is from click on a tab, so just save the one panel.
- * If panel is undefined, this is from click on dialog close box, so save both panels.
  * @param options
  * @param tab
  * @param folder
- * @param panel
+ * @param [panel] Panel to save (from tab click). If omitted, save both panels (from onclose).
  * @returns {boolean|undefined|string}
  */
 function saveFolders(options, tab, folder, panel) {
@@ -376,4 +336,4 @@ function activeFiltersMessage(n) {
 }
 
 
-module.exports = Filter;
+module.exports = ManageFilters;

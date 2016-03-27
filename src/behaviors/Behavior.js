@@ -5,6 +5,7 @@ var _ = require('object-iterators');
 var Base = require('../lib/Base');
 
 var Column = require('./Column');
+var dialogs = require('../dialogs');
 var CellProvider = require('../lib/CellProvider');
 
 var noExportProperties = [
@@ -1092,20 +1093,10 @@ var Behavior = Base.extend('Behavior', {
      * @memberOf Behavior.prototype
      * @desc delegate handling double click to the feature chain of responsibility
      * @param {Hypergrid} grid
-     * @param {Object} event - the event details
+     * @param {string[]} [options] - Forwarded to dialog constructor.
      */
-    toggleColumnPicker: function() {
-        var curtain = this.grid.curtain;
-        var self = this;
-        if (curtain.isOpen()) {
-            curtain.close();
-        } else {
-            this.buildColumnPicker(curtain.overlay);
-            curtain.onClose = function() {
-                self.updateFromColumnPicker(curtain.overlay);
-            };
-            curtain.open();
-        }
+    openDialog: function(dialogName, options) {
+        return new dialogs[dialogName](this.grid, options);
     },
 
     /**
@@ -1348,68 +1339,12 @@ var Behavior = Base.extend('Behavior', {
     setHeaderColumnCount: function(numberOfHeaderColumns) {
         this.tableState.headerColumnCount = numberOfHeaderColumns;
     },
-    /**
-     * @memberOf Behavior.prototype
-     * @desc build and open the editor within the container div argument
-     * @return {boolean} `false` prevents editor from opening
-     * @param {HTMLDivElement} div - the containing div element
-     */
-    buildColumnPicker: function(div) {
-        var container = document.createElement('div');
-
-        var hidden = document.createElement('fin-hypergrid-dnd-list');
-        var visible = document.createElement('fin-hypergrid-dnd-list');
-
-        container.appendChild(hidden);
-        container.appendChild(visible);
-
-        this.beColumnStyle(hidden.style);
-        hidden.title = 'hidden columns';
-        hidden.list = this.getHiddenColumnDescriptors();
-
-        this.beColumnStyle(visible.style);
-        visible.style.left = '50%';
-        visible.title = 'visible columns';
-        visible.list = this.getColumnDescriptors();
-
-        div.lists = {
-            hidden: hidden.list,
-            visible: visible.list
-        };
-        div.appendChild(container);
-        return true;
-    },
-
-    /**
-     * @memberOf Behavior.prototype
-     * @desc the editor is requesting close; deal with the edits
-     * @return `true`
-     * @param {HTMLDivElement} div - the containing div element
-     */
-    updateFromColumnPicker: function(div) {
-        var lists = div.lists;
-        this.setColumnDescriptors(lists);
-        return true;
-    },
 
     /**
      * @memberOf Behavior.prototype
      * @desc a dnd column has just been dropped, we've been notified
      */
     endDragColumnNotification: function() {},
-
-    /**
-     * @memberOf Behavior.prototype
-     * @desc bind column editor appropriate css values to arg style
-     * @param {HTMLStyleElement} style - the style object to enhance
-     */
-    beColumnStyle: function(style) {
-        style.top = '5%';
-        style.position = 'absolute';
-        style.width = '50%';
-        style.height = '100%';
-        style.whiteSpace = 'nowrap';
-    },
 
     /**
      * @memberOf Behavior.prototype
