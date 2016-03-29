@@ -3,10 +3,9 @@
 'use strict';
 
 var ListDragon = require('list-dragon');
-var automat = require('automat');
 
 var Dialog = require('./Dialog');
-var stylesheets = require('../css/stylesheets.html');
+var css = require('../css');
 
 /**
  * @constructor
@@ -66,7 +65,7 @@ var ColumnPicker = Dialog.extend('ColumnPicker', {
             });
 
             // parse and add the drag-and-drop stylesheet addendum to the dialog as well
-            automat.append(stylesheets['list-dragon'], this.el, this.el.lastElementChild);
+            css.inject('list-dragon');
 
             // add the dialog to the DOM
             this.open(options.container);

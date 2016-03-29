@@ -1,25 +1,27 @@
 // NOTE: This file is a node module; the .html extension makes IDEs properly color the syntax within `<style>....</style>`.
 
+'use strict';
+
 exports.grid = function() {/*
 <style>
-div#grid-container {
-    position: relative;
-    display: inline-block;
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    -o-user-select: none;
-    user-select: none;
-    overflow: hidden; }
-visible { opacity: 0.75; }
-hidden { opacity: 0.0; }
-editor {
+.hypergrid-combobox-icon {
     position: absolute;
     display: none;
-    border: solid 2px black;
-    outline: 0;
-    padding: 0;
-    z-index: 1000; }
+    left: 98px;
+    top: 39px;
+    width: 13px;
+    height: 13px;
+    background-color: lightyellow;
+    color: black;
+    border-top: 1px solid black;
+    border-bottom: 1px solid black;
+    border-right: 1px solid black;
+    font-size: 15px;
+    line-height: 11px;
+}
+.hypergrid-combobox-icon::after {
+    content: '\25BE';
+}
 </style>
 */};
 
@@ -46,4 +48,4 @@ div.dragon-list > ul > li:not(:last-child)::before, li.dragon-pop::before {
     margin: 8px 14px 8px 8px; }
 li.dragon-pop { opacity:.8; }
 </style>
-*/}
+*/};

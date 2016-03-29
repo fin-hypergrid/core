@@ -1409,7 +1409,7 @@ var Behavior = Base.extend('Behavior', {
     _getCellEditorAt: function(x, y, isDblClick) {
         var isFilterRow = this.grid.isFilterRow(y),
             editor = isFilterRow
-                ? this.grid.cellEditors.textfield
+                ? this.grid.cellEditors.textfield // todo: combobox
                 : this.getColumn(x).getCellEditorAt(x, y);
 
         if (!editor) {

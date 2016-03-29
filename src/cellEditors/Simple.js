@@ -169,8 +169,8 @@ var Simple = CellEditor.extend('Simple', {
     setBounds: function(cellBounds) {
         var originOffset = this.originOffset();
         var translation = 'translate('
-            + (cellBounds.x - 1 + originOffset[0]) + 'px,'
-            + (cellBounds.y - 1 + originOffset[1]) + 'px)';
+            + (cellBounds.x - 1 + originOffset[0] + 'px,')
+            + (cellBounds.y - 1 + originOffset[1] + 'px)');
 
         var input = this.getInput();
 
@@ -186,8 +186,8 @@ var Simple = CellEditor.extend('Simple', {
         // input.style.left = cellBounds.x + originOffset[0] + 'px';
         // input.style.top = cellBounds.y + originOffset[1] + 'px';
 
-        input.style.width = (cellBounds.width + 2) + 'px';
-        input.style.height = (cellBounds.height + 2) + 'px';
+        input.style.width = cellBounds.width + 2 + 'px';
+        input.style.height = cellBounds.height + 2 + 'px';
         //var xOffset = this.grid.canvas.getBoundingClientRect().left;
     },
 

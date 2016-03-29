@@ -11,13 +11,12 @@ var Canvas = require('fincanvas');
 var Point = require('rectangular').Point;
 var Rectangle = require('rectangular').Rectangle;
 var _ = require('object-iterators');
-var automat = require('automat');
 
 var defaults = require('./defaults');
 var cellEditors = require('./cellEditors');
 var Renderer = require('./lib/Renderer');
 var SelectionModel = require('./lib/SelectionModel');
-var stylesheets = require('./css/stylesheets.html');
+var css = require('./css');
 var Formatters = require('./lib/Formatters');
 
 var themeInitialized = false,
@@ -42,9 +41,7 @@ function Hypergrid(div, options) {
 
     this.div = (typeof div === 'string') ? document.querySelector(div) : div;
 
-    automat.append(stylesheets.grid,
-        document.querySelector('head'),
-        document.querySelector('head>style'));
+    css.inject('grid');
 
     this.lastEdgeSelection = [0, 0];
 

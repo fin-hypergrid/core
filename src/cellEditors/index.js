@@ -3,6 +3,7 @@
 module.exports = {
     CellEditor: require('./CellEditor'), // abstract base class
     Textfield: require('./Textfield'),
+    ComboBox: require('./ComboBox'),
     Choice: require('./Choice'),
     //Combo: require('./Combo'),
     Color: require('./Color'),
