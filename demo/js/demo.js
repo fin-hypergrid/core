@@ -106,7 +106,7 @@ window.onload = function() {
     });
 
     // add a column filter subexpression containing a single condition purely for demo purposes
-    if (true) { // eslint-disable-line no-constant-condition
+    if (false) { // eslint-disable-line no-constant-condition
         jsonGrid.getGlobalFilter().columnFilters.add({
             children: [{
                 column: 'total_number_of_pets_owned',
@@ -148,7 +148,7 @@ window.onload = function() {
 
     function toggleDialog(dialogName, evt) {
         var options = {
-            container: document.getElementById('dialog-container'),
+            //container: document.getElementById('dialog-container'),
             settings: false
         };
         jsonGrid.toggleDialog(dialogName, options);
