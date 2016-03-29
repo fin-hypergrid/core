@@ -13,6 +13,7 @@ Hypergrid.behaviors = require('./behaviors');
 Hypergrid.cellEditors = require('./cellEditors');
 Hypergrid.features = require('./features');
 Hypergrid.analytics = require('hyper-analytics');
-Hypergrid.CustomFilter = require('./lib/CustomFilter');
+Hypergrid.CustomFilter = require('./filter/CustomFilter');
+Hypergrid.CustomFilter.schema = require('./filter/schema');
 
 (window.fin = window.fin || {}).Hypergrid = Hypergrid;

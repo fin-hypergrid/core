@@ -1,15 +1,13 @@
 'use strict';
 
-var ListDragon = require('list-dragon');
-var automat = require('automat');
-
 var Local = require('./Local');
 var DataModelJSON = require('../dataModels/JSON');
 var features = require('../features');
-var stylesheets = require('../css/stylesheets.html');
 var aggregations = require('hyper-analytics').util.aggregations;
 //var aggregations = require('../local_node_modules/hyper-analytics').util.aggregations;
 //var aggregations = require('../local_node_modules/finanalytics').aggregations;
+var schema = require('../filter/schema');
+var CustomFilter = require('../filter/CustomFilter');
 
 /**
  * @name behaviors.JSON
@@ -119,6 +117,9 @@ var JSON = Local.extend('behaviors.JSON', {
     setData: function(dataRows) {
         this.dataModel.setData(dataRows);
         this.createColumns();
+
+        this.grid.setGlobalFilter(new CustomFilter({ schema: schema.getDefault(this) }));
+
         var self = this;
         if (this.grid.isColumnAutosizing()) {
             setTimeout(function() {
@@ -237,39 +238,6 @@ var JSON = Local.extend('behaviors.JSON', {
         return this.dataModel.getSelection(selections);
     },
 
-    buildColumnPicker: function(el, append) {
-        if (!this.isColumnReorderable()) {
-            return false;
-        }
-
-        var listOptions = {
-            cssStylesheetReferenceElement: el.lastElementChild
-        };
-
-        var groups = { models: this.getGroups(), title: 'Groups' },
-            availableGroups = { models: this.getAvailableGroups(), title: 'Available Groups' },
-            hiddenColumns = { models: this.getHiddenColumns(), title: 'Hidden Columns' },
-            visibleColumns = { models: this.getVisibleColumns(), title: 'Visible Columns'},
-            groupLists = new ListDragon([groups, availableGroups], listOptions),
-            columnLists = new ListDragon([hiddenColumns, visibleColumns], listOptions),
-            listSets = [groupLists, columnLists];
-
-        listSets.forEach(function(listSet) {
-            listSet.modelLists.forEach(function(list) {
-                append(list.container);
-            });
-        });
-
-        automat.append(stylesheets['list-dragon'], el, el.lastElementChild);
-
-        //for later retrieval by `setColumnDescriptors`
-        return {
-            group: groups.models,
-            availableGroups: availableGroups.models,
-            hidden: hiddenColumns.models,
-            visible: visibleColumns.models
-        };
-    },
     getGroups: function() {
         return this.dataModel.getGroups();
     },
@@ -281,24 +249,6 @@ var JSON = Local.extend('behaviors.JSON', {
     },
     getVisibleColumns: function() {
         return this.dataModel.getVisibleColumns();
-    },
-    setColumnDescriptors: function(lists) {
-        //assumes there is one row....
-        var tree = this.columns[0];
-        this.columns.length = 0;
-        if (tree && tree.label === 'Tree') {
-            this.columns.push(tree);
-        }
-        for (var i = 0; i < lists.visible.length; i++) {
-            this.columns.push(lists.visible[i]);
-        }
-
-        var groupBys = lists.group.map(function(e) {
-            return e.id;
-        });
-        this.dataModel.setGroups(groupBys);
-
-        this.changed();
     },
 
     getSelectedRows: function() {

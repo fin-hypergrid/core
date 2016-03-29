@@ -73,13 +73,30 @@ window.onload = function() {
         jsonModel = window.b = jsonGrid.behavior,
         dataModel = window.m = jsonModel.dataModel;
 
+    setFilter();
+
+    function setFilter() {
+        // recreate the filter but with hierarchical schema organized by alias
+        var CustomFilter = fin.Hypergrid.CustomFilter;
+        var newSchema = CustomFilter.schema.organizeByAlias(
+            CustomFilter.schema.getDefault(jsonModel),
+            /^(one|two|three|four|five|six|seven|eight)/i
+        );
+        jsonGrid.setGlobalFilter(new CustomFilter({ schema: newSchema }));
+    }
+
+    function setData(data) {
+        jsonModel.setData(data);
+        setFilter();
+    }
+
     [
         { label: 'Column Picker&hellip;', onclick: toggleDialog.bind(this, 'ColumnPicker') },
         { label: 'Manage Filters&hellip;', onclick: toggleDialog.bind(this, 'ManageFilters') },
         { label: 'toggle empty data', onclick: toggleEmptyData },
-        { label: 'set data 1 (5000 rows)', onclick: jsonModel.setData.bind(this, people1) },
-        { label: 'set data 2 (10000 rows)', onclick: jsonModel.setData.bind(this, people2) },
-        { label: 'reset', onclick: jsonGrid.reset },
+        { label: 'set data 1 (5000 rows)', onclick: setData.bind(this, people1) },
+        { label: 'set data 2 (10000 rows)', onclick: setData.bind(this, people2) },
+        { label: 'reset', onclick: jsonGrid.reset }
 
     ].forEach(function(item) {
         var button = document.createElement('button');
@@ -87,6 +104,18 @@ window.onload = function() {
         button.onclick = item.onclick;
         document.getElementById('dashboard').appendChild(button);
     });
+
+    // add a column filter subexpression containing a single condition purely for demo purposes
+    if (true) { // eslint-disable-line no-constant-condition
+        jsonGrid.getGlobalFilter().columnFilters.add({
+            children: [{
+                column: 'total_number_of_pets_owned',
+                operator: '=',
+                literal: '3'
+            }],
+            type: 'columnFilter'
+        });
+    }
 
     window.vent = false;
 
@@ -125,74 +154,6 @@ window.onload = function() {
         jsonGrid.toggleDialog(dialogName, options);
         evt.stopPropagation(); // todo: without this other browsers get the event.... HOW?
     }
-
-    function initializeGlobalFilter(grid, options) {
-        var newFilter = new fin.Hypergrid.CustomFilter(options || {
-            schema: makeHierarchicalColumnsMenu(),
-            headerify: true
-        });
-
-        // add a column filter subexpression containing a single condition purely for demo purposes
-        if (true) { // eslint-disable-line no-constant-condition
-            newFilter.children[1].add({
-                children: [{
-                    column: 'total_number_of_pets_owned',
-                    operator: '=',
-                    literal: '3'
-                }],
-                type: 'columnFilter'
-            });
-        }
-
-        var err = newFilter.invalid();
-
-        if (!err) {
-            grid.setGlobalFilter(newFilter);
-        } else {
-            err = 'Invalid filter; will be ignored.\n\n' + err;
-            if (!grid.getGlobalFilter()) {
-                alert(err); // eslint-disable-line no-alert
-            } else {
-                err += '\n\nClick OK to keep current filter in place.\nClick CANCEL to clear current filter.';
-                if (!confirm(err)) { // eslint-disable-line no-alert
-                    grid.setGlobalFilter();
-                }
-            }
-        }
-
-        function makeHierarchicalColumnsMenu() {
-            var menu = [],
-                prefix = ['one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight'];
-
-            dataModel.getFields().forEach(function(name) {
-                if (!prefix.find(function(group) {
-                        return name.substr(0, group.length) === group;
-                    })) {
-                    if (name === 'total_number_of_pets_owned') {
-                        menu.push({
-                            name: name,
-                            type: 'number'
-                        });
-                    } else {
-                        menu.push(name);
-                    }
-                }
-            });
-
-            prefix.forEach(function(group, index) {
-                var submenu = [];
-                dataModel.getFields().forEach(function(name) {
-                    if (name.substr(0, group.length) === group) {
-                        submenu.push(name);
-                    }
-                });
-                menu.push({ label: group.toUpperCase(), submenu: submenu });
-            });
-
-            return menu;
-        }
-    }
-
 /*
     var applyAggregates = document.querySelector('input[type=checkbox][value="Apply aggregates"]');
 
@@ -227,11 +188,10 @@ window.onload = function() {
             jsonModel.setData(people1);
             jsonModel.setBottomTotals(bottomTotals);
         }
+        setFilter();
     }
 
-    jsonModel.setData(people1);
-
-    initializeGlobalFilter(jsonGrid);
+    setData(people1);
 
     jsonGrid.setColumnProperties(2, {
         backgroundColor: 'maroon',
@@ -242,7 +202,7 @@ window.onload = function() {
     var cellProvider = jsonModel.getCellProvider();
 
     //set the actual json row objects
-    //jsonModel.setData(people); //see sampledata.js for the random data
+    //setData(people); //see sampledata.js for the random data
 
     //make the first col fixed;
     //jsonModel.setFixedColumnCount(2);
@@ -663,10 +623,7 @@ window.onload = function() {
 
                 cellSelection: true,
                 columnSelection: true,
-                rowSelection: true,
-                singleRowSelectionMode: true,
-
-                //filterManagerContainer: document.querySelector('#xyz')
+                rowSelection: true
             };
 
             jsonGrid.setGroups([4, 0, 1]);

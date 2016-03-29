@@ -2,37 +2,12 @@
 
 var FilterTree = require('filter-tree');
 //var FilterTree = require('../../../../filter-tree/src');
-var popMenu = require('pop-menu');
 var _ = require('object-iterators');
 
-var headerify = require('hyper-analytics').util.headerify;
-
 var Parser = {
-    CQL: require('./parser-cql'),
-    SQL: require('./parser-sql')
+    CQL: require('./parser-CQL'),
+    SQL: require('./parser-SQL')
 };
-
-/*
-function ColumnQueryLanguage() {}
-
-ColumnQueryLanguage.prototype.parse = function(columnName, state) {
-    state =  {
-        type: 'columnFilter',
-        children: [ {
-            column: columnName,
-            operator: '>',
-            literal: '2'
-        }, {
-            column: columnName,
-            operator: '<',
-            literal: '8'
-        } ]
-    };
-    return state;
-};
-
-ColumnQueryLanguage.prototype.setOptions = function() {};
-*/
 
 /** @typedef {function} fieldsProviderFunc
  * @returns {menuOption[]} see jsdoc typedef in pop-menu.js
@@ -117,6 +92,7 @@ _(Object.getPrototypeOf(FilterTree.prototype).templates).extendOwn({
  *
  * > NOTE: If `options.state` is undefined, it is defined here as a new {@link makeNewRoot|empty state scaffold) to hold new table filter and column filter expressions to be added through UI.
  */
+
 var CustomFilter = FilterTree.extend('CustomFilter', {
     preInitialize: function(options) {
         if (options) {
@@ -127,20 +103,8 @@ var CustomFilter = FilterTree.extend('CustomFilter', {
             // Upon creation of a 'columnFilter' node, force the schema to the one column
             if ((options.type || options.state && options.state.type) === 'columnFilter') {
                 this.schema = [
-                    popMenu.findItem(options.parent.root.schema, options.state.children[0].column)
+                    options.parent.root.schema.findItem(options.state.children[0].column)
                 ];
-            }
-
-            if (options.headerify) {
-                var schema = this.schema || options.schema || options.state && options.state.schema;
-                if (schema) {
-                    popMenu.walk(schema, function(item) {
-                        if (!item.alias) {
-                            item.alias = headerify(item.name);
-                            return item; // replace it
-                        }
-                    });
-                }
             }
         }
     },
@@ -148,7 +112,7 @@ var CustomFilter = FilterTree.extend('CustomFilter', {
     initialize: function(options) {
         this.cache = {};
 
-        if (!options.parent) {
+        if (!this.parent) {
             this.extractSubtrees();
         }
     },

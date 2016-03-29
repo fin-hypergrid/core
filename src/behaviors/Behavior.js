@@ -1404,18 +1404,13 @@ var Behavior = Base.extend('Behavior', {
      * @return {cellEditor} The cell editor for the cell at cell coordinates `x,y`
      * @param {number} x - The horizontal cell coordinate.
      * @param {number} y - The vertical cell coordinate.
-     * @param {boolean} isDblClick - When called from `onEditorActivate`, indicates if event was a double-click.
+     * @param {boolean} isDblClick - When called from `onEditorActivate`, indicates if event was a double-click. This allows different editors for single- vs. double-click
      */
     _getCellEditorAt: function(x, y, isDblClick) {
-        var editor,
-            isFilterRow = this.grid.isFilterRow(y);
-
-        if (!isFilterRow) {
-            editor = this.getColumn(x).getCellEditorAt(x, y);
-        } else if (!isDblClick) {
-            // filter row single click just gets text editor
-            editor = this.grid.cellEditors.textfield;
-        }
+        var isFilterRow = this.grid.isFilterRow(y),
+            editor = isFilterRow
+                ? this.grid.cellEditors.textfield
+                : this.getColumn(x).getCellEditorAt(x, y);
 
         if (!editor) {
             var column = this.getColumn(x);
