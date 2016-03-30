@@ -23,7 +23,7 @@ var themeInitialized = false,
     polymerTheme = Object.create(defaults),
     globalProperties = Object.create(polymerTheme);
 
-/**
+/**s
  * @constructor
  * @param {string|Element} div - CSS selector or Element
  * @param {object} options - Required (despite its name) because you must provide a behavior one way or another.
