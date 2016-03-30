@@ -9,34 +9,20 @@ var Textfield = Simple.extend('Textfield', {
 
     template: function() {
         /*
-            <input id="editor">
+            <input id="editor" class="hypergrid-input-textbox">
         */
     },
 
     selectAll: function() {
-        this.input.setSelectionRange(0, this.input.value.length);
+        var lastCharPlusOne = this.getEditorValue().length;
+        this.getInputControl().setSelectionRange(0, lastCharPlusOne);
     },
 
     specialKeyups: {
         0x09: 'stopEditing', // tab
         0x0d: 'stopEditing', // return/enter
         0x1b: 'cancelEditing' // escape
-    },
-
-    keyup: function(e) {
-        if (e) {
-            Simple.prototype.keyup.call(this, e);
-
-            if (this.grid.isFilterRow(this.getEditorPoint().y)) {
-                setTimeout(keyup.bind(this));
-            }
-        }
     }
 });
-
-function keyup() {
-    this.saveEditorValue();
-    this._moveEditor();
-}
 
 module.exports = Textfield;

@@ -82,9 +82,9 @@ var CellEditing = Feature.extend('CellEditing', {
                 editor = grid.onEditorActivate(pseudoEvent);
                 if (editor instanceof Simple) {
                     if (isVisibleChar) {
-                        editor.input.value = char;
+                        editor.setEditorValue(char);
                     } else if (isDeleteChar) {
-                        editor.input.value = '';
+                        editor.setEditorValue('');
                     }
                     event.detail.primitiveEvent.preventDefault();
                 }

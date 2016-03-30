@@ -58,9 +58,9 @@ var Choice = Simple.extend('Choice', {
      */
     showEditor: function() {
         var self = this;
-        this.input.style.display = 'inline';
+        this.getInputControl().style.display = 'inline';
         setTimeout(function() {
-            self.showDropdown(self.input);
+            self.showDropdown();
         }, 50);
     },
 

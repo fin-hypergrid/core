@@ -71,13 +71,6 @@ var Simple = CellEditor.extend('Simple', {
         // input.addEventListener('blur', function() {
         //     self.stopEditing();
         // });
-
-        input.style.position = 'absolute';
-        input.style.display = 'none';
-        input.style.border = 'solid 2px black';
-        input.style.outline = 0;
-        input.style.padding = 0;
-        input.style.boxShadow = 'white 0px 0px 1px 1px';
     },
 
     /**
@@ -85,7 +78,7 @@ var Simple = CellEditor.extend('Simple', {
      * @returns {object} the current editor's value
      */
     getEditorValue: function() {
-        var value = this.getInput().value;
+        var value = this.getInputControl().value;
         return value;
     },
 
@@ -94,7 +87,7 @@ var Simple = CellEditor.extend('Simple', {
      * @desc save the new value into the behavior(model)
      */
     setEditorValue: function(value) {
-        this.getInput().value = value;
+        this.getInputControl().value = value;
     },
 
     clearStopEditing: function() {
@@ -106,7 +99,7 @@ var Simple = CellEditor.extend('Simple', {
         if (!this.isEditing) {
             return;
         }
-        this.getInput().value = null;
+        this.setEditorValue(null);
         this.isEditing = false;
         this.hideEditor();
     },
@@ -135,13 +128,15 @@ var Simple = CellEditor.extend('Simple', {
     takeFocus: function() {
         var self = this;
         setTimeout(function() {
-            var transformWas = self.input.style.transform;
-            self.input.style.transform = 'translate(0,0)'; // work-around: move to upper left
+            var input = self.getInput(),
+                transformWas = input.style.transform;
 
-            self.input.focus();
+            input.style.transform = 'translate(0,0)'; // work-around: move to upper left
+
+            self.getInputControl().focus();
             self.selectAll();
 
-            self.input.style.transform = transformWas;
+            input.style.transform = transformWas;
         });
     },
 
@@ -167,28 +162,16 @@ var Simple = CellEditor.extend('Simple', {
      * @param {rectangle} rectangle - the bounds to move to
      */
     setBounds: function(cellBounds) {
-        var originOffset = this.originOffset();
-        var translation = 'translate('
-            + (cellBounds.x - 1 + originOffset[0] + 'px,')
-            + (cellBounds.y - 1 + originOffset[1] + 'px)');
-
         var input = this.getInput();
+        var originOffset = this.originOffset();
 
-        input.style.boxSizing = 'border-box';
+        input.style.transform = translate(
+            cellBounds.x - 1 + originOffset[0],
+            cellBounds.y - 1 + originOffset[1]
+        );
 
-        input.style.webkitTransform = translation;
-        input.style.MozTransform = translation;
-        input.style.msTransform = translation;
-        input.style.OTransform = translation;
-
-        // TODO: Obviously this was changed at some point from left,top to trnasform:translation. Wondering why this was necessary...?
-
-        // input.style.left = cellBounds.x + originOffset[0] + 'px';
-        // input.style.top = cellBounds.y + originOffset[1] + 'px';
-
-        input.style.width = cellBounds.width + 2 + 'px';
-        input.style.height = cellBounds.height + 2 + 'px';
-        //var xOffset = this.grid.canvas.getBoundingClientRect().left;
+        input.style.width = px(cellBounds.width + 2);
+        input.style.height = px(cellBounds.height + 2);
     },
 
     saveEditorValue: function() {
@@ -287,10 +270,10 @@ var Simple = CellEditor.extend('Simple', {
     },
 
     getInput: function() {
-        if (!this.input) {
-            this.input = this.getDefaultInput();
+        if (!this.element) {
+            this.element = this.getDefaultInput();
         }
-        return this.input;
+        return this.element;
     },
 
     getDefaultInput: function() {
@@ -305,17 +288,20 @@ var Simple = CellEditor.extend('Simple', {
         var oldGuy = this.getInput();
         var parent = oldGuy.parentNode;
         var newGuy = this.getDefaultInput();
-        this.input = newGuy;
+        this.element = newGuy;
         parent.replaceChild(newGuy, oldGuy);
     },
 
-    showDropdown: function(element) {
+    showDropdown: function() {
         var event;
         event = document.createEvent('MouseEvents');
         event.initMouseEvent('mousedown', true, true, window);
-        element.dispatchEvent(event);
+        this.getInputControl().dispatchEvent(event);
     }
 });
+
+function px(n) { return n + 'px'; }
+function translate(x, y) { return 'translate(' + px(x) + ',' + px(y) + ')'; }
 
 
 Simple.abstract = true; // don't instantiate directly

@@ -462,7 +462,8 @@ You can easily create your own cell editors by subclassing any of the existing c
     Polymer({
         alias: 'numberfield',
         selectAll: function() {
-            this.input.setSelectionRange(0, this.input.value.length);
+            var lastCharPlusOne = this.getEditorValue().length;
+            this.getInputControl().setSelectionRange(0, lastCharPlusOne);
         }
     });
   </script>

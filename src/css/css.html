@@ -4,48 +4,95 @@
 
 exports.grid = function() {/*
 <style>
-.hypergrid-combobox-icon {
-    position: absolute;
-    display: none;
-    left: 98px;
-    top: 39px;
-    width: 13px;
-    height: 13px;
-    background-color: lightyellow;
-    color: black;
-    border-top: 1px solid black;
-    border-bottom: 1px solid black;
-    border-right: 1px solid black;
-    font-size: 15px;
-    line-height: 11px;
-}
-.hypergrid-combobox-icon::after {
-    content: '\25BE';
-}
+    .hypergrid-input {
+        position: absolute;
+        display: none;
+        outline: 0;
+        padding: 0;
+        border: solid 2px black;
+        box-sizing: border-box;
+        box-shadow: white 0 0 1px 1px;
+        background-color: white;
+        color: black;
+        font-size: 12px;
+        line-height: 0;
+    }
+    div.hypergrid-input > input {
+        position: absolute;
+        height: 100%;
+        right: 20px;
+        left: 0;
+        width: 100%;
+        outline: 0;
+        padding: 0;
+
+        border: 5px solid transparent;
+        border-right-width: 20px;
+        border-bottom-width: 0;
+        border-top-width: 0;
+        box-sizing: border-box;
+
+        font-size: 12px;
+        line-height: 0;
+        color: black;
+        background-color: transparent;
+    }
+    div.hypergrid-input > div {
+        position: absolute;
+        box-sizing: border-box;
+        width: 20px;
+        height: 100%;
+        right: 0;
+        text-align: center;
+        color: grey;
+        font-size: 15px;
+        line-height: 11px;
+    }
+    div.hypergrid-input > div:hover {
+        color: black;
+    }
+    div.hypergrid-input > div:active {
+        color: red;
+    }
+    div.hypergrid-input > div::after {
+        content: '\25BE';
+        font-size: 20px;
+    }
+    div.hypergrid-input > select {
+        position: absolute;
+        left: -2px;
+        top: 13px;
+        height: 0;
+        transition: height .25s;
+        visibility: hidden;
+        min-width: 102px;
+        box-sizing: border-box;
+        border: 2px solid black;
+    }
 </style>
 */};
 
 exports['list-dragon'] = function() {/*
 <style>
-div.dragon-list, li.dragon-pop {
-    font-family: Roboto, sans-serif;
-    text-transform: capitalize; }
-div.dragon-list {
-    position: absolute;
-    top: 4%;
-    left: 4%;
-    height: 92%;
-    width: 20%; }
-div.dragon-list:nth-child(2) { left: 28%; }
-div.dragon-list:nth-child(3) { left: 52%; }
-div.dragon-list:nth-child(4) { left: 76%; }
-div.dragon-list > div, div.dragon-list > ul > li, li.dragon-pop { line-height: 46px; }
-div.dragon-list > ul { top: 46px; }
-div.dragon-list > ul > li:not(:last-child)::before, li.dragon-pop::before {
-    content: '\2b24';
-    color: #b6b6b6;
-    font-size: 30px;
-    margin: 8px 14px 8px 8px; }
-li.dragon-pop { opacity:.8; }
+    div.dragon-list, li.dragon-pop {
+        font-family: Roboto, sans-serif;
+        text-transform: capitalize; }
+    div.dragon-list {
+        position: absolute;
+        top: 4%;
+        left: 4%;
+        height: 92%;
+        width: 20%; }
+    div.dragon-list:nth-child(2) { left: 28%; }
+    div.dragon-list:nth-child(3) { left: 52%; }
+    div.dragon-list:nth-child(4) { left: 76%; }
+    div.dragon-list > div, div.dragon-list > ul > li, li.dragon-pop { line-height: 46px; }
+    div.dragon-list > ul { top: 46px; }
+    div.dragon-list > ul > li:not(:last-child)::before, li.dragon-pop::before {
+        content: '\2b24';
+        color: #b6b6b6;
+        font-size: 30px;
+        margin: 8px 14px 8px 8px; }
+    li.dragon-pop { opacity:.8; }
 </style>
 */};

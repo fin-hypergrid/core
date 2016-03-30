@@ -343,9 +343,9 @@ window.onload = function() {
                     break;
 
                 case 2:
-                    cellEditor.getInput().setAttribute('min', 0);
-                    cellEditor.getInput().setAttribute('max', 10);
-                    cellEditor.getInput().setAttribute('step', 0.01);
+                    cellEditor.getInputControl().setAttribute('min', 0);
+                    cellEditor.getInputControl().setAttribute('max', 10);
+                    cellEditor.getInputControl().setAttribute('step', 0.01);
                     break;
             }
         }
