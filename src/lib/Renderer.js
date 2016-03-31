@@ -195,9 +195,23 @@ var Renderer = Base.extend('Renderer', {
      */
     paint: function(gc) {
         if (this.grid) {
-            this.renderGrid(gc);
-            this.grid.gridRenderedNotification();
+            if (!this.hasData()) {
+                var message = this.grid.resolveProperty('noDataMessage');
+                gc.font = '20px Arial';
+                gc.fillText(message, 20, 30);
+            } else {
+                this.renderGrid(gc);
+                this.grid.gridRenderedNotification();
+            }
         }
+    },
+
+    hasData: function() {
+        var data = this.grid.behavior.getData();
+        if (data) {
+            return data.length > 0;
+        }
+        return false;
     },
 
     /**

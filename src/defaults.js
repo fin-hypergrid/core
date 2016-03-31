@@ -14,7 +14,13 @@ var renderCellError = require('./lib/renderCellError');
 
 module.exports = {
 
-    //these are for the theme
+    /**
+     * The font for data cells.
+     * @default '13px Tahoma, Geneva, sans-serif'
+     * @type {cssFont}
+     * @instance
+     */
+    noDataMessage: 'no data to display',
 
 
     /**
