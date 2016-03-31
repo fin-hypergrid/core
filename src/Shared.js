@@ -2,17 +2,12 @@
 
 'use strict';
 
-var paths = {
-	normal: {
-		analytics: require('hyper-analytics')
-	},
-	jonathan: {
-		analytics: require('hyper-analytics')
-	},
-	steve: {
-		analytics: require('../../hyper-analytics/src/index.js')
-	}
-};
+// only 1 choice from each block below should be left uncommented
+
 module.exports = {
-	analytics: paths.normal.analytics
+
+	//analytics: require('hyper-analytics'), // npm
+    //analytics: require('../../hyper-analytics/src'), // steve
+    analytics: require('../../../hyper-analytics/src'), // jonathan
+
 };

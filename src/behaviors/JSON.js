@@ -4,9 +4,7 @@ var Local = require('./Local');
 var DataModelJSON = require('../dataModels/JSON');
 var features = require('../features');
 var aggregations = require('../Shared.js').analytics.util.aggregations;
-//var aggregations = require('../local_node_modules/hyper-analytics').util.aggregations;
-//var aggregations = require('../local_node_modules/finanalytics').aggregations;
-var schema = require('../filter/schema');
+var filterUtil = require('../filter/filterUtil');
 var CustomFilter = require('../filter/CustomFilter');
 
 /**
@@ -118,7 +116,12 @@ var JSON = Local.extend('behaviors.JSON', {
         this.dataModel.setData(dataRows);
         this.createColumns();
 
-        this.grid.setGlobalFilter(new CustomFilter({ schema: schema.getDefault(this) }));
+        var newFilter;
+        if (this.columns.length) {
+            var newSchema = filterUtil.getDefault(this);
+            newFilter = new CustomFilter({ schema: newSchema });
+        }
+        this.grid.setGlobalFilter(newFilter);
 
         var self = this;
         if (this.grid.isColumnAutosizing()) {

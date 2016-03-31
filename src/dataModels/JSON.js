@@ -1,8 +1,6 @@
 'use strict';
 
 var analytics = require('../Shared.js').analytics;
-//var analytics = require('../local_node_modules/hyper-analytics');
-//var analytics = require('../local_node_modules/finanalytics');
 var DataModel = require('./DataModel');
 var images = require('../../images');
 

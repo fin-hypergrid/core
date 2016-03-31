@@ -5,7 +5,7 @@
 
 /**
  * @summary Build a default schema list from current columns.
- * @desc Actually, the string array returned by behavior.getFields() would work as is. This function returns an array of plain objects containing aliases ("headerified" column names) as well as  type information (typically inferred by inspection of the data). In stead of this, you could supply your own schema sent by your server.
+ * @desc Actually, the string array returned by behavior.getFields() would work as is. This function returns an array of plain objects containing aliases ("headerified" column names) as well as  type information (typically inferred by inspection of the data). Instead of this, you could supply your own schema fetched from your server.
  * @param {Behavior} behavior
  * @returns {object[]}
  */
