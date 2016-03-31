@@ -728,6 +728,12 @@ window.onload = function() {
 
             jsonGrid.takeFocus();
 
+            // turn on aggregates
+            document.querySelector('#aggregates').checked = true;
+            jsonModel.setAggregates(aggregates);
+
+            window.a = dataModel.analytics;
+
         }, 50);
 
     //});
@@ -785,6 +791,7 @@ window.onload = function() {
             input = document.createElement('input');
             input.type = 'checkbox';
             input.value = ctrl.value;
+            input.id = ctrl.value;
             input.addEventListener('click', ctrl.setter || setProp);
 
             if (/^[a-z]/.test(ctrl.value)) {

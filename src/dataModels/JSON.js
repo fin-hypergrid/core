@@ -1,6 +1,6 @@
 'use strict';
 
-var analytics = require('hyper-analytics');
+var analytics = require('../Shared.js').analytics;
 //var analytics = require('../local_node_modules/hyper-analytics');
 //var analytics = require('../local_node_modules/finanalytics');
 var DataModel = require('./DataModel');
@@ -82,6 +82,10 @@ var JSON = DataModel.extend('dataModels.JSON', {
         return this.analytics.hasGroups();
     },
 
+    viewMakesSense: function() {
+        return this.analytics.viewMakesSense();
+    },
+
     getDataSource: function() {
         return this.postsorter; //this.hasAggregates() ? this.analytics : this.presorter;
     },
@@ -91,7 +95,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
     },
 
     getSortDataSource: function() {
-        return this.postsorter; //this.hasAggregates() ? this.postsorter : this.presorter;
+        return this.viewMakesSense() ? this.groupsorter : this.postsorter;
     },
 
     getData: function() {
@@ -315,6 +319,8 @@ var JSON = DataModel.extend('dataModels.JSON', {
         this.postglobalfilter = new analytics.DataSourceGlobalFilter(this.analytics);
         this.postsorter = new analytics.DataSourceSorterComposite(this.postglobalfilter);
 
+        this.groupsorter = new analytics.DataNodeGroupSorter(this.analytics);
+
         this.applyAnalytics();
 
     },
@@ -483,7 +489,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
      */
     toggleSort: function(colIndex, keys) {
         this.incrementSortState(colIndex, keys);
-        this.applyAnalytics();
+        this.applyAnalytics(true);
     },
 
     /**
@@ -686,8 +692,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
 
     getUnfilteredRowCount: function() {
         return this.source.getRowCount();
-    },
-
+    }
 });
 
 // LOCAL METHODS -- to be called with `.call(this`
@@ -784,14 +789,12 @@ function applyFilters() {
 function applySorts() {
     var sortingSource = this.getSortDataSource();
     var sorts = this.getPrivateState().sorts;
-    var groupOffset = this.hasAggregates() ? 1 : 0;
-    if (!sorts || sorts.length === 0) {
-        sortingSource.clearSorts();
-    } else {
+    sortingSource.clearSorts();
+    if (sorts && sorts.length !== 0) {
         for (var i = 0; i < sorts.length; i++) {
             var colIndex = Math.abs(sorts[i]) - 1;
             var type = sorts[i] < 0 ? -1 : 1;
-            sortingSource.sortOn(colIndex - groupOffset, type);
+            sortingSource.sortOn(colIndex, type);
         }
     }
     sortingSource.applySorts();
