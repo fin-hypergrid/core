@@ -12,10 +12,10 @@ exports.grid = function() {/*
         border: solid 2px black;
         box-sizing: border-box;
         box-shadow: white 0 0 1px 1px;
-        background-color: white;
+        background-color: ivory;
         color: black;
-        font-size: 12px;
-        line-height: 0;
+        font-size: 7pt;
+        line--height: 0;
     }
     div.hypergrid-input > input {
         position: absolute;
@@ -32,42 +32,81 @@ exports.grid = function() {/*
         border-top-width: 0;
         box-sizing: border-box;
 
-        font-size: 12px;
-        line-height: 0;
+        font-size: 7pt;
+        line--height: 0;
         color: black;
         background-color: transparent;
     }
-    div.hypergrid-input > div {
+    div.hypergrid-input > span {
         position: absolute;
         box-sizing: border-box;
         width: 20px;
         height: 100%;
         right: 0;
         text-align: center;
-        color: grey;
         font-size: 15px;
         line-height: 11px;
     }
-    div.hypergrid-input > div:hover {
-        color: black;
+    div.hypergrid-input span {
+        color: lightgrey;
     }
-    div.hypergrid-input > div:active {
-        color: red;
+    div.hypergrid-input span:hover {
+        color: grey;
     }
-    div.hypergrid-input > div::after {
+    div.hypergrid-input span:active, div.hypergrid-input span.active {
+        color: blue;
+    }
+    div.hypergrid-input > span::after {
         content: '\25BE';
         font-size: 20px;
     }
-    div.hypergrid-input > select {
+    div.hypergrid-input > div {
         position: absolute;
+        height: 137px;
         left: -2px;
+        right: -2px;
         top: 13px;
         height: 0;
         transition: height .25s;
         visibility: hidden;
-        min-width: 102px;
+        box-shadow: white 0 0 1px 1px;
         box-sizing: border-box;
         border: 2px solid black;
+        background-color: ivory;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+    }
+    div.hypergrid-input > div > div {
+        position: absolute;
+        height: 13px;
+        width: 100%;
+        text-align: center;
+    }
+    div.hypergrid-input > div span {
+        font-weight: bold;
+        font-size: 10px;
+        font-family: verdana, geneva, sans-serif;
+        margin-left: 6px;
+        margin-right: 6px;
+    }
+    div.hypergrid-input > div span::after {
+        content: '#';
+    }
+    div.hypergrid-input > div span:first-child::after {
+        content: '<';
+    }
+    div.hypergrid-input > div span:last-of-type::after {
+        content: 'T';
+    }
+    div.hypergrid-input > div select {
+        position: absolute;
+        border: 0;
+        border-top: 2px solid black;
+        width: 100%;
+        bottom: 0;
+        top:14px;
+        background-color: transparent;
     }
 </style>
 */};

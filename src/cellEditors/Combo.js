@@ -31,7 +31,7 @@ var Combo = Simple.extend('Combo', {
      */
     selectAll: function() {
         var lastCharPlusOne = this.getEditorValue().length;
-        this.getInputControl().setSelectionRange(0, lastCharPlusOne);
+        this.input.setSelectionRange(0, lastCharPlusOne);
     }
 
 });

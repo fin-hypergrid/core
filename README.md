@@ -463,7 +463,7 @@ You can easily create your own cell editors by subclassing any of the existing c
         alias: 'numberfield',
         selectAll: function() {
             var lastCharPlusOne = this.getEditorValue().length;
-            this.getInputControl().setSelectionRange(0, lastCharPlusOne);
+            this.input.setSelectionRange(0, lastCharPlusOne);
         }
     });
   </script>

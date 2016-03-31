@@ -58,7 +58,7 @@ var Choice = Simple.extend('Choice', {
      */
     showEditor: function() {
         var self = this;
-        this.getInputControl().style.display = 'inline';
+        this.input.style.display = 'inline';
         setTimeout(function() {
             self.showDropdown();
         }, 50);
@@ -82,10 +82,11 @@ var Choice = Simple.extend('Choice', {
      * @memberOf Choice.prototype
      * @param input
      */
-    initializeInput: function(input) {
+    initializeInput: function(element) {
+        Simple.prototype.initializeInput.apply(this, element);
+
         var self = this;
-        Simple.prototype.initializeInput.apply(this, [input]);
-        input.onchange = function() {
+        element.onchange = function() {
             self.stopEditing();
         };
     }

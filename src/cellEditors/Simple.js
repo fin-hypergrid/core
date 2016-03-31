@@ -8,13 +8,7 @@ var CellEditor = require('./CellEditor.js');
  * @constructor
  */
 var Simple = CellEditor.extend('Simple', {
-    /**
-     * my main input control
-     * @type {Element}
-     * @default null
-     * @memberOf CellEditor.prototype
-     */
-    input: null,
+    element: null,
 
     /**
      * @memberOf Simple.prototype
@@ -52,25 +46,22 @@ var Simple = CellEditor.extend('Simple', {
      * @memberOf Simple.prototype
      * @desc  the function to override for initialization
      */
-    initializeInput: function(input) {
+    initializeInput: function(element) {
         var self = this;
-        input.addEventListener('keyup', this.keyup.bind(this));
-        input.addEventListener('keydown', function(e) {
+
+        element.addEventListener('keyup', this.keyup.bind(this));
+
+        element.addEventListener('keydown', function(e) {
             self.grid.fireSyntheticEditorKeyDownEvent(self, e);
         });
-        input.addEventListener('keypress', function(e) {
+
+        element.addEventListener('keypress', function(e) {
             self.grid.fireSyntheticEditorKeyPressEvent(self, e);
         });
-        input.onblur = function(e) {
+
+        element.onblur = function(e) {
             self.cancelEditing();
         };
-
-        // input.addEventListener('focusout', function() {
-        //     self.stopEditing();
-        // });
-        // input.addEventListener('blur', function() {
-        //     self.stopEditing();
-        // });
     },
 
     /**
@@ -78,7 +69,7 @@ var Simple = CellEditor.extend('Simple', {
      * @returns {object} the current editor's value
      */
     getEditorValue: function() {
-        var value = this.getInputControl().value;
+        var value = this.input.value;
         return value;
     },
 
@@ -87,7 +78,7 @@ var Simple = CellEditor.extend('Simple', {
      * @desc save the new value into the behavior(model)
      */
     setEditorValue: function(value) {
-        this.getInputControl().value = value;
+        this.input.value = value;
     },
 
     clearStopEditing: function() {
@@ -109,7 +100,7 @@ var Simple = CellEditor.extend('Simple', {
      * @desc display the editor
      */
     showEditor: function() {
-        this.getInput().style.display = 'inline';
+        this.el.style.display = 'inline';
     },
 
     /**
@@ -117,7 +108,7 @@ var Simple = CellEditor.extend('Simple', {
      * @desc hide the editor
      */
     hideEditor: function() {
-        this.getInput().style.display = 'none';
+        this.el.style.display = 'none';
     },
 
     /**
@@ -128,12 +119,12 @@ var Simple = CellEditor.extend('Simple', {
     takeFocus: function() {
         var self = this;
         setTimeout(function() {
-            var input = self.getInput(),
+            var input = self.el,
                 transformWas = input.style.transform;
 
             input.style.transform = 'translate(0,0)'; // work-around: move to upper left
 
-            self.getInputControl().focus();
+            self.input.focus();
             self.selectAll();
 
             input.style.transform = transformWas;
@@ -162,7 +153,7 @@ var Simple = CellEditor.extend('Simple', {
      * @param {rectangle} rectangle - the bounds to move to
      */
     setBounds: function(cellBounds) {
-        var input = this.getInput();
+        var input = this.el;
         var originOffset = this.originOffset();
 
         input.style.transform = translate(
@@ -258,7 +249,7 @@ var Simple = CellEditor.extend('Simple', {
     },
 
     attachEditor: function() {
-        var input = this.getInput(),
+        var input = this.el,
             div = this.grid.div,
             referenceNode = div.querySelectorAll('.finbar-horizontal, .finbar-vertical');
 
@@ -269,34 +260,69 @@ var Simple = CellEditor.extend('Simple', {
         this.setEditorValue(this.initialValue);
     },
 
-    getInput: function() {
+    /* following moved to bottom of file because extend-me does not properly accept getters yet :(
+
+    get el() {
         if (!this.element) {
             this.element = this.getDefaultInput();
         }
         return this.element;
     },
 
+    get input() {
+        return this.el;
+    },
+
+    */
+
     getDefaultInput: function() {
-        var div = document.createElement('DIV');
-        div.innerHTML = this.getHTML();
-        var input = div.firstChild;
-        this.initializeInput(input);
-        return input;
+        var container = document.createElement('DIV');
+        container.innerHTML = this.getHTML();
+        var el = container.firstChild;
+        this.initializeInput(el);
+        return el;
     },
 
     updateView: function() {
-        var oldGuy = this.getInput();
-        var parent = oldGuy.parentNode;
-        var newGuy = this.getDefaultInput();
-        this.element = newGuy;
-        parent.replaceChild(newGuy, oldGuy);
+        var oldEl = this.el;
+        this.element = this.getDefaultInput();
+        oldEl.parentNode.replaceChild(this.element, oldEl);
     },
 
     showDropdown: function() {
-        var event;
-        event = document.createEvent('MouseEvents');
+        var event = document.createEvent('MouseEvents');
         event.initMouseEvent('mousedown', true, true, window);
-        this.getInputControl().dispatchEvent(event);
+        this.input.dispatchEvent(event);
+    }
+});
+
+Object.defineProperty(Simple.prototype, 'el', {
+    get: function el() {
+        if (!this.element) {
+            /**
+             * This object's input control, one of:
+             * * *input element* - an `HTMLElement` that has a `value` attribute, such as `HTMLInputElement`, `HTMLButtonElement`, etc.
+             * * *container element* - an `HTMLElement` with an input element as a descendant
+             *
+             * > A container may contain more than one input element. However, only one contains the editor value; the others are there in a supporting role only.
+             *
+             * Access:
+             * * See `this.el`, the container (may or may not be the control itself)
+             * * See `this.input`, the input control itself (`this.el` or a descendant of it)
+             *
+             * @type {HTMLElement}
+             * @default null
+             * @memberOf CellEditor.prototype
+             */
+            this.element = this.getDefaultInput();
+        }
+        return this.element;
+    }
+});
+
+Object.defineProperty(Simple.prototype, 'input', {
+    get: function input() {
+        return this.element;
     }
 });
 

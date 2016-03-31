@@ -26,11 +26,11 @@ var Date = Simple.extend('Date', {
         if (value != null && value.constructor.name === 'Date') {
             value = Formatters.date(value);
         }
-        this.getInputControl().value = value + '';
+        this.input.value = value + '';
     },
 
     getEditorValue: function() {
-        var value = this.getInput().value;
+        var value = this.el.value;
         value = parseDate(value);
         return value;
     },

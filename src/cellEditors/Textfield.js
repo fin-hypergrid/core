@@ -15,7 +15,7 @@ var Textfield = Simple.extend('Textfield', {
 
     selectAll: function() {
         var lastCharPlusOne = this.getEditorValue().length;
-        this.getInputControl().setSelectionRange(0, lastCharPlusOne);
+        this.input.setSelectionRange(0, lastCharPlusOne);
     },
 
     specialKeyups: {

@@ -40,7 +40,7 @@ function onTransitionEnd(element, name, callback) {
             element.addEventListener('transitionend', function done() {
                 element.removeEventListener('transitionend', done);
                 if (mode === 'function') {
-                    callback.call(context);
+                    callback.call(context, element);
                 }
                 context[flagName] = false;
             });
