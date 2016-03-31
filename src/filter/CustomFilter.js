@@ -1,13 +1,17 @@
 'use strict';
 
-var FilterTree = require('filter-tree');
-//var FilterTree = require('../../../../filter-tree/src');
+//var FilterTree = require('filter-tree');
+var FilterTree = require('../../../../filter-tree/src');
 var _ = require('object-iterators');
 
 var Parser = {
     CQL: require('./parser-CQL'),
     SQL: require('./parser-SQL')
 };
+
+// Add a default menuModes to the tree, with operators as the only active mode
+var FilterNode = Object.getPrototypeOf(FilterTree.prototype).constructor;
+FilterNode.optionsSchema.menuModes = { default: { operators: 1 } };
 
 /** @typedef {function} fieldsProviderFunc
  * @returns {menuOption[]} see jsdoc typedef in pop-menu.js

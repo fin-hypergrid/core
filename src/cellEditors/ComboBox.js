@@ -16,6 +16,7 @@ var popMenu = require('pop-menu'); //temp
 /*********************************/
 
 var DISTINCT_VALUES = 'Distinct values';
+var TOGGLE_MODE_PREFIX = 'toggle-mode-';
 
 /**
  * @constructor
@@ -29,9 +30,9 @@ var ComboBox = Textfield.extend('ComboBox', {
         <span title="Click for options"></span>
         <div>
             <div>
-                <span title="Toggle operators"></span>
-                <span title="Toggle distinct values"></span>
-                <span title="Toggle column names"></span>
+                <span class="toggle-mode-operators" title="Toggle operators"></span>
+                <span class="toggle-mode-distinctValues" title="Toggle distinct values"></span>
+                <span class="toggle-mode-columnNames" title="Toggle column names"></span>
             </div>
             <select size="8"></select>
         </div>
@@ -40,19 +41,29 @@ var ComboBox = Textfield.extend('ComboBox', {
     },
 
     updateElement: function(element) {
-        var olddrop = this.dropdown,
-            columnName = this.columnName = this.grid.behavior.columns[this.editorPoint.x].getField(),
-            size = olddrop.size,
-            filter = this.grid.getGlobalFilter(),
-            column = filter.schema.findItem(columnName),
+        var filter = this.grid.getGlobalFilter(),
+            columnName = this.columnName = this.grid.behavior.columns[this.editorPoint.x].getField();
+
+        // look in the filter, under column filters, for a column filter for this column
+        var columnFilters = this.grid.getGlobalFilter().columnFilters,
+            columnFilterSubtree = columnFilters.children.find(function(subtree) {
+                return subtree.children[0].column === columnName;
+            });
+
+        // the column filter may not exist yet, so we pull its operator list from the root instead
+        var column = filter.schema.findItem(columnName),
             opMenu = column && column.opMenu ||
                 column && column.type && filter.typeOpMenu && filter.typeOpMenu[column.type] ||
-                filter.treeOpMenu,
+                filter.treeOpMenu;
+
+        // override the template's empty drop-down with a new one built from opMenu (the column's operator list)
+        var olddrop = this.dropdown,
             dropdown = this.dropdown = popMenu.build(olddrop, opMenu, {
                 //group: function(groupName) { return FilterTree.Conditionals.groups[groupName]; },
                 prompt: null
-            }),
-            optgroup = document.createElement('optgroup'),
+            });
+
+        var optgroup = document.createElement('optgroup'),
             option = new Option('Click to load', 'load');
 
         optgroup.label = 'Conjunctions';
@@ -67,19 +78,31 @@ var ComboBox = Textfield.extend('ComboBox', {
         optgroup.appendChild(option);
         dropdown.add(optgroup);
 
-        dropdown.size = size;
+        dropdown.size = olddrop.size;
+
+        // for menuModes object, refer to the column filter node when it exists yet; else the parent node
+        var menuModes = this.menuModes = (columnFilterSubtree || columnFilters).menuModes;
+
+        // set the initial state of the mode toggles
+        this.modesContainer = this.options.querySelector('div');
+        for (var modeName in menuModes) {
+            if (menuModes[modeName]) {
+                var className = '.' + TOGGLE_MODE_PREFIX + modeName;
+                this.modesContainer.querySelector(className).classList.add('active');
+            }
+        }
+
+        // wire-ups
+        this.modesContainer.addEventListener('click', toggleModes.bind(this));
 
         element.replaceChild(dropdown, olddrop);
     },
 
     initializeInput: function(element) {
         this.textbox = element.querySelector('input');
-        this.dropper = element.querySelector('span[title~="options"]');
+        this.dropper = element.querySelector('span');
         this.options = element.querySelector('div');
-        this.operators = element.querySelector('span[title~="operators"]');
-        this.distinctValues = element.querySelector('span[title~="distinct values"]');
-        this.columnNames = element.querySelector('span[title~="column names"]');
-        this.dropdown = element.querySelector('select');
+        this.dropdown = this.options.querySelector('select');
 
         if (this.updateElement) {
             this.updateElement.call(this, element);
@@ -130,6 +153,21 @@ var stateToActionMap = {
     hidden: slideDown,
     visible: slideUp
 };
+
+function toggleModes(e) {
+    var ctrl = e.target;
+
+    // extract the mode name from the toggle control's class name
+    var modeName = Array.prototype.find.call(ctrl.className, function(className) {
+        return className.substr(0, TOGGLE_MODE_PREFIX.length) === TOGGLE_MODE_PREFIX;
+    });
+
+    // toggle mode in the filter
+    var modeState = this.menuModes[modeName] ^= 1;
+
+    // color me toggled
+    ctrl.classList.toggle('active', modeState);
+}
 
 function toggleDropDown() {
     var transitionInProgress = this.transit();

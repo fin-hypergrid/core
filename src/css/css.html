@@ -90,13 +90,13 @@ exports.grid = function() {/*
         margin-left: 6px;
         margin-right: 6px;
     }
-    div.hypergrid-input > div span::after {
-        content: '#';
-    }
-    div.hypergrid-input > div span:first-child::after {
+    div.hypergrid-input > div span.toggle-mode-operators::after {
         content: '<';
     }
-    div.hypergrid-input > div span:last-of-type::after {
+    div.hypergrid-input > div span.toggle-mode-distinctValues::after {
+        content: '#';
+    }
+    div.hypergrid-input > div span.toggle-mode-columnNames::after {
         content: 'T';
     }
     div.hypergrid-input > div select {

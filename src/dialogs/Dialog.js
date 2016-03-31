@@ -7,6 +7,7 @@ var automat = require('automat');
 var Base = require('../lib/Base');
 var markup = require('../html/markup.html');
 var images = require('../../images');
+var elfor = require('../lib/elfor');
 
 /**
  * Creates and services a DOM element used as a cntainer for a dialog. The standard `markup.diaglog` is simply a div with a _control panel_ containing a close box and a settings gear icon.
@@ -153,7 +154,7 @@ var Dialog = Base.extend('Dialog', {
 
     appSelector: 'canvas.hypergrid',
     appVisible: function(visibility) {
-        forEachEl(this.appSelector, function(el) {
+        elfor.each(this.appSelector, function(el) {
             el.style.visibility = visibility;
         });
     },
@@ -204,11 +205,6 @@ function onClick(evt) {
     }
 
     evt.stopPropagation(); // the click stops here, handled or not
-}
-
-
-function forEachEl(selector, iteratee, context) {
-    return Array.prototype.forEach.call((context || document).querySelectorAll(selector), iteratee);
 }
 
 module.exports = Dialog;
