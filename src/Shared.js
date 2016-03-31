@@ -14,5 +14,5 @@ var paths = {
 	}
 };
 module.exports = {
-	analytics: paths.steve.analytics
+	analytics: paths.normal.analytics
 };
