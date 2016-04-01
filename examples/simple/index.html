@@ -3,21 +3,17 @@
 <html>
     <head>
         <title>simple hypergrid demo</title>
-        <script src="../../index.min.js"></script>
+        <script src="../../demo/build/hypergrid.js"></script>
 
         <script>
             window.onload = function() {
                 getJSON('data.json', function(data) {
                     var div = document.querySelector('div#json-example'),
-                        jsonGrid = new fin.Hypergrid(div, getContainer);
+                        jsonGrid = new fin.Hypergrid(div, { data: data });
 
                     jsonGrid.addProperties({ showFilterRow: false });
 
                     jsonGrid.behavior.setData(data);
-
-                    function getContainer(grid) {
-                        return new fin.Hypergrid.behaviors.JSON(grid, data);
-                    }
                 });
             };
 

@@ -19,10 +19,6 @@ var ColumnPicker = Dialog.extend('ColumnPicker', {
         var behavior = this.behavior = grid.behavior;
 
         if (behavior.isColumnReorderable()) {
-            var div = document.createElement('div');
-            div.innerHTML = 'Re-ordable columns may not be changed.';
-            this.append(div);
-        } else {
             // grab the lists from the behavior
             this.selectedGroups = {
                 title: 'Groups',
@@ -44,8 +40,14 @@ var ColumnPicker = Dialog.extend('ColumnPicker', {
                 models: behavior.getVisibleColumns()
             };
 
+            // parse & add the drag-and-drop stylesheet addendum
+            var stylesheetAddendum = css.inject('list-dragon-addendum');
+
             // create drag-and-drop sets from the lists
-            var listOptions = { cssStylesheetReferenceElement: this.el.lastElementChild },
+            var listOptions = {
+                // add the list-dragon-base stylesheet right before the addendum
+                cssStylesheetReferenceElement: stylesheetAddendum
+            },
                 listSets = [
                     new ListDragon([
                         this.selectedGroups,
@@ -58,38 +60,44 @@ var ColumnPicker = Dialog.extend('ColumnPicker', {
                 ];
 
             // add the drag-and-drop sets to the dialog
+            var self = this;
             listSets.forEach(function(listSet) {
                 listSet.modelLists.forEach(function(list) {
-                    this.append(list.container);
-                }.bind(this));
+                    self.append(list.container);
+                });
             });
-
-            // parse and add the drag-and-drop stylesheet addendum to the dialog as well
-            css.inject('list-dragon');
-
-            // add the dialog to the DOM
-            this.open(options.container);
+        } else {
+            var div = document.createElement('div');
+            div.style.textAlign = 'center';
+            div.style.marginTop = '2em';
+            div.innerHTML = 'The selection of visible columns in the grid may not be changed.';
+            this.append(div);
         }
+
+        // add the dialog to the DOM
+        this.open(options.container);
     },
 
     onClosed: function() {
-        var columns = this.behavior.columns,
-            tree = columns[0];
+        if (this.visibleColumns) {
+            var columns = this.behavior.columns,
+                tree = columns[0];
 
-        columns.length = 0;
-        if (tree && tree.label === 'Tree') {
-            columns.push(tree);
+            columns.length = 0;
+            if (tree && tree.label === 'Tree') {
+                columns.push(tree);
+            }
+            this.visibleColumns.models.forEach(function(column) {
+                columns.push(column);
+            });
+
+            var groupBys = this.selectedGroups.models.map(function(e) {
+                return e.id;
+            });
+            this.behavior.dataModel.setGroups(groupBys);
+
+            this.behavior.changed();
         }
-        this.visibleColumns.forEach(function(column) {
-            columns.push(column);
-        });
-
-        var groupBys = this.selectedGroups.map(function(e) {
-            return e.id;
-        });
-        this.behavior.dataModel.setGroups(groupBys);
-
-        this.behavior.changed();
     }
 });
 

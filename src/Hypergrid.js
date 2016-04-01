@@ -3218,7 +3218,7 @@ Hypergrid.prototype = {
         this.dialog = this.behavior.openDialog(dialogName, options);
     },
 
-    // although you can have multiple dialogs open at the same time, the following enforces one at time (for now)
+    // although you can have multiple dialogs open at the same time, the following enforces one at a time (for now)
     toggleDialog: function(newDialogName, options) {
         var dialog = this.dialog,
             oldDialogName = dialog && dialog.$$CLASS_NAME;

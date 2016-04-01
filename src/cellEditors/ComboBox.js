@@ -210,6 +210,14 @@ function slideUp() {
     this.transit(function(el) {
         el.style.visibility = 'hidden';
     });
+
+    //elfor.each('optgroup', function(group) {
+    //    var key = group.label.replace(' ', '').toLowerCase();
+    //    if (modeName === 'operators')
+    //        if (key.substr(0, modeName.length) === modeName) {
+    //            group.style.display = modeName === modeState ? 'display' : 'none';
+    //        }
+    //}, this.select)
 }
 
 function insertText(e) {

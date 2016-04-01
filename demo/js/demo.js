@@ -16,7 +16,7 @@ window.onload = function() {
         }, {
             label: 'Grouping',
             ctrls: [
-                { value: 'aggregates', setter: toggleAggregates }
+                { value: 'aggregates', checked: false, setter: toggleAggregates }
             ]
         }, {
             label: 'Column header rows',
@@ -728,9 +728,10 @@ window.onload = function() {
 
             jsonGrid.takeFocus();
 
-            // turn on aggregates
-            document.querySelector('#aggregates').checked = true;
-            jsonModel.setAggregates(aggregates);
+            // turn on aggregates as per checkbox default setting (see toggleProps[])
+            if (document.querySelector('#aggregates').checked) {
+                jsonModel.setAggregates(aggregates);
+            }
 
             window.a = dataModel.analytics;
 
@@ -794,7 +795,9 @@ window.onload = function() {
             input.id = ctrl.value;
             input.addEventListener('click', ctrl.setter || setProp);
 
-            if (/^[a-z]/.test(ctrl.value)) {
+            if ('checked' in ctrl) {
+                input.checked = ctrl.checked;
+            } else {
                 input.checked = jsonGrid.resolveProperty(ctrl.value);
             }
 
