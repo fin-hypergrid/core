@@ -7,6 +7,8 @@
 
 var onTransitionEnd = require('../lib/queueless');
 var prototype = require('./Simple').prototype;
+var elfor = require('../lib/elfor');
+
 var Textfield = require('./Textfield');
 
 var popMenu = require('pop-menu'); //temp
@@ -15,8 +17,57 @@ var popMenu = require('pop-menu'); //temp
 /* eslint-disable no-unused-vars */
 /*********************************/
 
-var DISTINCT_VALUES = 'Distinct values';
 var TOGGLE_MODE_PREFIX = 'toggle-mode-';
+
+var modes = {
+    operators: {
+        label: 'Conjunctions',
+        selector: 'optgroup:not([class])' // all optgroups with no value for class attribute
+    },
+
+    distinctValues: {
+        label: 'Distinct Values',
+        selector: 'optgroup.submenu-distinctValues',
+        appendOptions: function(optgroup) {
+            // get the distinct column values and sort them
+            var distinct = {},
+                d = [],
+                columnName = this.columnName;
+
+            this.grid.behavior.getFilteredData().forEach(function(dataRow) {
+                var val = dataRow[columnName];
+                distinct[val] = (distinct[val] || 0) + 1;
+            });
+
+            for (var key in distinct) {
+                d.push(key);
+            }
+
+            d.sort().forEach(function(val) {
+                var option = new Option(val + ' (' + distinct[val] + ')', val);
+                optgroup.appendChild(option);
+            });
+
+            return d.length;
+        }
+    },
+
+    columnNames: {
+        label: 'Column Names',
+        selector: 'optgroup.submenu-columnNames',
+        appendOptions: function(optgroup) {
+            var columns = this.grid.behavior.columns;
+            columns.forEach(function(column) {
+                var name = column.getField(),
+                    option = new Option(name);
+                option.title = '[' + name + ']\r"' + column.getHeader() + '"';
+                optgroup.appendChild(option);
+            });
+            return columns.length;
+        }
+    }
+};
+
 
 /**
  * @constructor
@@ -25,7 +76,7 @@ var ComboBox = Textfield.extend('ComboBox', {
 
     template: function() {
 /*
-    <div class="hypergrid-input">
+    <div class="hypergrid-input" title="">
         <input>
         <span title="Click for options"></span>
         <div>
@@ -63,38 +114,43 @@ var ComboBox = Textfield.extend('ComboBox', {
                 prompt: null
             });
 
-        var optgroup = document.createElement('optgroup'),
-            option = new Option('Click to load', 'load');
-
-        optgroup.label = 'Conjunctions';
-        ['and', 'or', 'nor'].forEach(function(op) {
-            optgroup.appendChild(new Option(op, ' ' + op + ' '));
-        });
-        dropdown.add(optgroup);
-
-        optgroup = document.createElement('optgroup');
-        optgroup.label = DISTINCT_VALUES;
-        option.innerHTML += '&hellip;';
-        optgroup.appendChild(option);
-        dropdown.add(optgroup);
-
-        dropdown.size = olddrop.size;
-
         // for menuModes object, refer to the column filter node when it exists yet; else the parent node
         var menuModes = this.menuModes = (columnFilterSubtree || columnFilters).menuModes;
 
+        // locate the mode icon container element
+        var modesContainer = this.options.querySelector('.toggle-mode-operators').parentElement;
+
         // set the initial state of the mode toggles
-        this.modesContainer = this.options.querySelector('div');
-        for (var modeName in menuModes) {
-            if (menuModes[modeName]) {
-                var className = '.' + TOGGLE_MODE_PREFIX + modeName;
-                this.modesContainer.querySelector(className).classList.add('active');
+
+        for (var modeName in modes) {
+            // create and label a new optgroup
+            var optgroup = document.createElement('optgroup');
+            optgroup.label = modes[modeName].label;
+
+            // wire-ups
+            modesContainer.addEventListener('click', onModeIconClick.bind(this));
+
+            // build the optgroup
+            if (modeName === 'operators') {
+                // Miscellaneous operator optgroups come along with the menu build above and vary per column.
+                // This list of conjunctions is an extra and is for all columns. All operator optgroups are classless.
+                optgroup.appendChild(new Option('and', ' and '));
+                optgroup.appendChild(new Option('or', ' or '));
+                optgroup.appendChild(new Option('nor', ' nor '));
+            } else {
+                optgroup.className = 'submenu-' + modeName;
             }
+
+            dropdown.add(optgroup);
+
+            var className = '.' + TOGGLE_MODE_PREFIX + modeName,
+                ctrl = modesContainer.querySelector(className),
+                modeState = menuModes[modeName];
+
+            setModeIconAndOptgroup.call(this, ctrl, modeName, modeState);
         }
 
-        // wire-ups
-        this.modesContainer.addEventListener('click', toggleModes.bind(this));
-
+        dropdown.size = olddrop.size;
         element.replaceChild(dropdown, olddrop);
     },
 
@@ -154,19 +210,58 @@ var stateToActionMap = {
     visible: slideUp
 };
 
-function toggleModes(e) {
+function onModeIconClick(e) {
     var ctrl = e.target;
 
     // extract the mode name from the toggle control's class name
-    var modeName = Array.prototype.find.call(ctrl.className, function(className) {
-        return className.substr(0, TOGGLE_MODE_PREFIX.length) === TOGGLE_MODE_PREFIX;
-    });
+    var modeClassName = Array.prototype.find.call(ctrl.classList, function(className) {
+            return className.indexOf(TOGGLE_MODE_PREFIX) === 0;
+        }),
+        modeName = modeClassName.substr(TOGGLE_MODE_PREFIX.length);
 
     // toggle mode in the filter
     var modeState = this.menuModes[modeName] ^= 1;
 
-    // color me toggled
-    ctrl.classList.toggle('active', modeState);
+    setModeIconAndOptgroup.call(this, ctrl, modeName, modeState);
+}
+
+function setModeIconAndOptgroup(ctrl, name, state) {
+    var mode = modes[name],
+        displayMode = state ? null : 'none';
+
+    // set icon state (color)
+    ctrl.classList.toggle('active', !!state);
+
+    // empty the optgroup if hiding; rebuild it if showing
+    if (mode.appendOptions) {
+        var optgroup = this.dropdown.querySelector(mode.selector);
+
+        if (state) { // rebuild it
+            // show progress cursor for (at least) 1/3 second
+            var style = this.el.style;
+            style.cursor = 'progress';
+            setTimeout(function() { style.cursor = null; }, 333);
+
+            var sum = mode.appendOptions.call(this, optgroup);
+
+            // update sum
+            optgroup.label = optgroup.label.replace(/ \(\d+\)$/, ''); // remove old sum
+            optgroup.label += ' (' + sum + ')';
+        } else { // empty it
+            while (optgroup.firstElementChild) {
+                optgroup.firstElementChild.remove();
+            }
+        }
+    }
+
+    // set optgroup state (hide/show)
+    elfor.each(
+        mode.selector,
+        function(el) { el.style.display = displayMode; },
+        this.dropdown
+    );
+
+    // TODO: Reset the width of this.options to the natural width of this.dropdown. To do this, we need to remove the latter's "width: 100%" from the CSS and then set an explicity this.options.style.width based on the computed with of this.dropdown. (There will be issues with this if we try to do it before it is in the DOM.)
 }
 
 function toggleDropDown() {
@@ -210,53 +305,15 @@ function slideUp() {
     this.transit(function(el) {
         el.style.visibility = 'hidden';
     });
-
-    //elfor.each('optgroup', function(group) {
-    //    var key = group.label.replace(' ', '').toLowerCase();
-    //    if (modeName === 'operators')
-    //        if (key.substr(0, modeName.length) === modeName) {
-    //            group.style.display = modeName === modeState ? 'display' : 'none';
-    //        }
-    //}, this.select)
 }
 
 function insertText(e) {
-    var dd = this.dropdown, ds = dd.style;
+    // insert the text at the insertion point or over the selected text
+    this.textbox.focus();
+    this.textbox.setRangeText(this.dropdown.value, this.selectionStart, this.selectionEnd, 'end');
 
-    if (dd.value === 'load') {
-        // make sure we show progress cursor for at least 1/3 second
-        ds.cursor = 'progress';
-        setTimeout(function() { ds.cursor = null; }, 333);
-
-        // find the "distinct values" option group
-        var optGroup = dd.querySelector('optgroup[label="' + DISTINCT_VALUES + '"]');
-
-        // remove the "click to load" option
-        optGroup.firstElementChild.remove();
-
-        // get the distinct column values and sort them
-        var distinct = {}, d = [], columnName = this.columnName;
-        this.grid.behavior.getFilteredData().forEach(function(dataRow) {
-            var val = dataRow[columnName];
-            distinct[val] = (distinct[val] || 0) + 1;
-        });
-        for (var key in distinct) {
-            d.push(key);
-        }
-        d.sort().forEach(function(val) {
-            optGroup.appendChild(new Option(val + ' (' + distinct[val] + ')', val));
-        });
-
-        // scroll down 6 lines so optgroup label moves to top
-        dd.scrollTop += 6 / dd.size * dd.getBoundingClientRect().height;
-    } else {
-        // insert the text at the insertion point or over the selected text
-        this.textbox.focus();
-        this.textbox.setRangeText(dd.value, this.selectionStart, this.selectionEnd, 'end');
-
-        // close the drop-down
-        toggleDropDown.call(this);
-    }
+    // close the drop-down
+    toggleDropDown.call(this);
 }
 
 

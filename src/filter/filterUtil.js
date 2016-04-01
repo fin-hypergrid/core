@@ -20,8 +20,8 @@ function getDefaultSchema(behavior) {
 }
 
 /**
- * Utility function  for organizing schema into submenus.
- * @param {RegExp} columnGroupsRegex - Schema names or aliases that match this are be put into a submenu.
+ * Utility function for organizing schema into submenus.
+ * @param {RegExp} columnGroupsRegex - Schema names or aliases that match this are put into a submenu.
  * @param {string} key - Must be either 'name' or 'alias'.
  * @returns {Array} new schema
  */
