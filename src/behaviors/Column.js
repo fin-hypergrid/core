@@ -117,6 +117,9 @@ Column.prototype = {
     },
 
     typeOf: function(something) {
+        if (something === null || something === undefined) {
+            return null;
+        }
         var typeOf = typeof something;
         switch (typeOf) {
             case 'object':

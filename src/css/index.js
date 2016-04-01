@@ -19,7 +19,7 @@ exports.inject = function(id, replacements) {
 
     if (!stylesheet) {
         var args = [css[id], head, refNode].concat(Array.prototype.slice.call(arguments, 1));
-        stylesheet = automat.append.apply(null, args);
+        stylesheet = automat.append.apply(null, args)[0];
         stylesheet.id = this.prefix + id;
     }
 
