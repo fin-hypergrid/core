@@ -91,7 +91,7 @@ var ComboBox = Textfield.extend('ComboBox', {
 */
     },
 
-    updateElement: function(element) {
+    updateElement: function() {
         var filter = this.grid.getGlobalFilter(),
             columnName = this.columnName = this.grid.behavior.columns[this.editorPoint.x].getField();
 
@@ -151,17 +151,19 @@ var ComboBox = Textfield.extend('ComboBox', {
         }
 
         dropdown.size = olddrop.size;
-        element.replaceChild(dropdown, olddrop);
+        this.el.replaceChild(dropdown, olddrop);
     },
 
-    initializeInput: function(element) {
-        this.textbox = element.querySelector('input');
-        this.dropper = element.querySelector('span');
-        this.options = element.querySelector('div');
+    intializeEl: function() {
+        var el = this.el;
+
+        this.input = el.querySelector('input');
+        this.dropper = el.querySelector('span');
+        this.options = el.querySelector('div');
         this.dropdown = this.options.querySelector('select');
 
         if (this.updateElement) {
-            this.updateElement.call(this, element);
+            this.updateElement.call(this, el);
         }
 
         this.transit = onTransitionEnd(this.options, 'options', this);
@@ -171,8 +173,8 @@ var ComboBox = Textfield.extend('ComboBox', {
         this.dropdown.addEventListener('change', insertText.bind(this));
 
         // default wire-ups for text box
-        prototype.initializeInput.call(this, element);
-        element.onblur = null; // but not this one
+        prototype.intializeEl.call(this, el);
+        el.onblur = null; // but not this one
     },
 
     /* following moved to bottom of file because extend-me does not properly accept getters yet :(
@@ -191,12 +193,6 @@ var ComboBox = Textfield.extend('ComboBox', {
                 setTimeout(keyup.bind(this));
             }
         }
-    }
-});
-
-Object.defineProperty(ComboBox.prototype, 'input', {
-    get: function input() {
-        return this.el.firstElementChild;
     }
 });
 
@@ -275,8 +271,8 @@ function toggleDropDown() {
 
 function slideDown() {
     // preserve the text box's current text selection, which is about to be lost
-    this.selectionStart = this.textbox.selectionStart;
-    this.selectionEnd = this.textbox.selectionEnd;
+    this.selectionStart = this.input.selectionStart;
+    this.selectionEnd = this.input.selectionEnd;
 
     // clean up the select list from last usage
     this.dropdown.style.selectedIndex = -1; // be kind (remove previous selection)
@@ -288,15 +284,15 @@ function slideDown() {
     this.options.style.height = 2 + 15 + dropDownHeight + 2 + 'px'; // starts the slide down effect
 
     // while in drop-down, listen for clicks in text box which means abprt
-    this.textbox.addEventListener('mousedown', this.slideUpBound = slideUp.bind(this));
+    this.input.addEventListener('mousedown', this.slideUpBound = slideUp.bind(this));
 
     // schedule the transition flag
     this.transit(null);
 }
 
 function slideUp() {
-    // stop listening to textbox clicks
-    this.textbox.removeEventListener('mousedown', this.slideUpBound);
+    // stop listening to input clicks
+    this.input.removeEventListener('mousedown', this.slideUpBound);
 
     // start the slide up effect
     this.options.style.height = 0;
@@ -309,8 +305,8 @@ function slideUp() {
 
 function insertText(e) {
     // insert the text at the insertion point or over the selected text
-    this.textbox.focus();
-    this.textbox.setRangeText(this.dropdown.value, this.selectionStart, this.selectionEnd, 'end');
+    this.input.focus();
+    this.input.setRangeText(this.dropdown.value, this.selectionStart, this.selectionEnd, 'end');
 
     // close the drop-down
     toggleDropDown.call(this);

@@ -480,7 +480,7 @@ myHypergrid.initializeCellEditor('my-number-cell-editor');
 var editorTypes = ['choice','numberfield','spinner','date','choice','numberfield','choice','textfield','numberfield'];
 myBehavior.getCellEditorAt = function(x, y) {
     var type = editorTypes[x];
-    var cellEditor = this.grid.cellEditors[type];
+    var cellEditor = this.grid.createCellEditor(type); // previously: this.grid.cellEditors[type];
     return cellEditor;
 };
 ```

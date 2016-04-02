@@ -1240,6 +1240,7 @@ Hypergrid.prototype = {
             if (this.cellEditor.stopEditing) {
                 this.cellEditor.stopEditing();
             }
+            this.cellEditor.el.remove();
             this.cellEditor = null;
         }
     },
@@ -1271,20 +1272,17 @@ Hypergrid.prototype = {
      *
      * > All native cell editors have already been "preregistered" for you (by `makeCellEditors`).
      *
-     * @param {CellEditor.prototype.constructor} CellEditorConstructor - A constructor created with `CellEditor.extend(alias, {...})` where:
-     * * `CellEditor` base class could also be some other class extended therefrom.
-     * * `alias` parameter, usually optional (see {@link https://www.npmjs.com/package/extend-me}), is in this case required because the class name it specifies is needed below to derive the hash key (property name) for this entry in `this.cellEditors`.
+     * @param {CellEditor.prototype.constructor} CellEditorConstructor - A constructor, typically extended from `CellEditor` (or a descendant therefrom).
+     *
+     * @param {string} [editorKey] - Case-insensitive editor key. If not given, `CellEditorConstructor.prototype.$$CLASS_NAME` is used.
+     *
+     * > Note: `$$CLASS_NAME` can be easily set up by providing a string as the (optional) first parameter in your {@link https://www.npmjs.com/package/extend-me|CellEditor.extend} call. (Formal parameter name: `alias`.)
      *
      * @returns {CellEditor} The newly instantiated `CellEditor` object.
      */
-    registerCellEditor: function(CellEditorConstructor) {
-        var grid = this,
-            newCellEditor = new CellEditorConstructor(grid),
-            key = newCellEditor.$$CLASS_NAME.toLowerCase();
-
-        this.cellEditors[key] = newCellEditor;
-
-        return newCellEditor;
+    registerCellEditor: function(CellEditorConstructor, editorKey) {
+        editorKey = (editorKey || CellEditorConstructor.prototype.$$CLASS_NAME).toLowerCase();
+        this.cellEditors[editorKey] = CellEditorConstructor;
     },
 
     /**
@@ -2521,11 +2519,12 @@ Hypergrid.prototype = {
 
     /**
      * @memberOf Hypergrid.prototype
-     * @returns {CellEditor} The cell editor at alias "name" (a sub-component).
-     * @param {string} name
+     * @returns {CellEditor} New instance of the named cell editor.
+     * @param {string} editorKey
      */
-    resolveCellEditor: function(name) {
-        return this.cellEditors[name];
+    createCellEditor: function(editorKey) {
+        var CellEditorConstructor = this.cellEditors[editorKey];
+        return new CellEditorConstructor(this);
     },
 
     /**

@@ -1407,18 +1407,11 @@ var Behavior = Base.extend('Behavior', {
      * @param {boolean} isDblClick - When called from `onEditorActivate`, indicates if event was a double-click. This allows different editors for single- vs. double-click
      */
     _getCellEditorAt: function(x, y, isDblClick) {
-        var isFilterRow = this.grid.isFilterRow(y),
-            editor = isFilterRow
-                ? this.grid.cellEditors.combobox
-                : this.getColumn(x).getCellEditorAt(x, y);
+        var column = this.getColumn(x);
 
-        if (!editor) {
-            var column = this.getColumn(x);
-            var type = isFilterRow ? column.getFilterType() : column.getType();
-            editor = this.grid.resolveCellEditor(type);
-        }
-
-        return editor;
+        return this.grid.isFilterRow(y)
+            ? this.grid.createCellEditor('combobox')
+            : column.getCellEditorAt(x, y) || this.grid.createCellEditor(column.getType());
     },
 
     getCellEditorAt: function(x, y) {

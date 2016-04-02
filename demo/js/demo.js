@@ -335,7 +335,8 @@ window.onload = function() {
             cellEditor;
 
         if (editorType) {
-            cellEditor = this.grid.cellEditors[editorType];
+            //cellEditor = this.grid.cellEditors[editorType];
+            cellEditor = this.grid.createCellEditor(editorType);
 
             switch (x) {
                 case 6:

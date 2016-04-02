@@ -67,19 +67,6 @@ Column.prototype = {
         return type;
     },
 
-    getFilterType: function() {
-        // var props = this.getProperties();
-        // var type = props.filterType;
-        // if (!type) {
-        //     type = this.getType();
-        //     if (type !== 'unknown') {
-        //         props.type = type;
-        //     }
-        // }
-        // return type;
-        return 'filter';
-    },
-
     getType: function() {
         var props = this.getProperties();
         var type = props.type;

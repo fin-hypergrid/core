@@ -18,6 +18,8 @@ var Simple = CellEditor.extend('Simple', {
             x: 0,
             y: 0
         };
+
+        this.reset();
     },
 
     specialKeyups: {
@@ -46,20 +48,20 @@ var Simple = CellEditor.extend('Simple', {
      * @memberOf Simple.prototype
      * @desc  the function to override for initialization
      */
-    initializeInput: function(element) {
+    intializeEl: function() {
         var self = this;
 
-        element.addEventListener('keyup', this.keyup.bind(this));
+        this.el.addEventListener('keyup', this.keyup.bind(this));
 
-        element.addEventListener('keydown', function(e) {
+        this.el.addEventListener('keydown', function(e) {
             self.grid.fireSyntheticEditorKeyDownEvent(self, e);
         });
 
-        element.addEventListener('keypress', function(e) {
+        this.el.addEventListener('keypress', function(e) {
             self.grid.fireSyntheticEditorKeyPressEvent(self, e);
         });
 
-        element.onblur = function(e) {
+        this.el.onblur = function(e) {
             self.cancelEditing();
         };
     },
@@ -262,67 +264,44 @@ var Simple = CellEditor.extend('Simple', {
 
     /* following moved to bottom of file because extend-me does not properly accept getters yet :(
 
-    get el() {
-        if (!this.element) {
-            this.element = this.getDefaultInput();
-        }
-        return this.element;
-    },
-
     get input() {
         return this.el;
     },
 
     */
 
-    getDefaultInput: function() {
+    reset: function() {
         var container = document.createElement('DIV');
         container.innerHTML = this.getHTML();
-        var el = container.firstChild;
-        this.initializeInput(el);
-        return el;
+
+        /**
+         * This object's input control, one of:
+         * * *input element* - an `HTMLElement` that has a `value` attribute, such as `HTMLInputElement`, `HTMLButtonElement`, etc.
+         * * *container element* - an `HTMLElement` containing one or more input elements, only one of which contains the editor value.
+         *
+         * For access to the input control itself (which may or may not be the same as `this.el`), see `this.input`.
+         *
+         * @type {HTMLElement}
+         * @default null
+         * @memberOf CellEditor.prototype
+         */
+        this.el = container.firstChild;
+
+        this.input = this.el;
+
+        this.intializeEl();
     },
 
     updateView: function() {
         var oldEl = this.el;
-        this.element = this.getDefaultInput();
-        oldEl.parentNode.replaceChild(this.element, oldEl);
+        this.reset();
+        oldEl.parentNode.replaceChild(this.el, oldEl);
     },
 
     showDropdown: function() {
         var event = document.createEvent('MouseEvents');
         event.initMouseEvent('mousedown', true, true, window);
         this.input.dispatchEvent(event);
-    }
-});
-
-Object.defineProperty(Simple.prototype, 'el', {
-    get: function el() {
-        if (!this.element) {
-            /**
-             * This object's input control, one of:
-             * * *input element* - an `HTMLElement` that has a `value` attribute, such as `HTMLInputElement`, `HTMLButtonElement`, etc.
-             * * *container element* - an `HTMLElement` with an input element as a descendant
-             *
-             * > A container may contain more than one input element. However, only one contains the editor value; the others are there in a supporting role only.
-             *
-             * Access:
-             * * See `this.el`, the container (may or may not be the control itself)
-             * * See `this.input`, the input control itself (`this.el` or a descendant of it)
-             *
-             * @type {HTMLElement}
-             * @default null
-             * @memberOf CellEditor.prototype
-             */
-            this.element = this.getDefaultInput();
-        }
-        return this.element;
-    }
-});
-
-Object.defineProperty(Simple.prototype, 'input', {
-    get: function input() {
-        return this.element;
     }
 });
 
