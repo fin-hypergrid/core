@@ -91,7 +91,7 @@ var ComboBox = Textfield.extend('ComboBox', {
 */
     },
 
-    updateElement: function() {
+    showEditor: function() {
         var filter = this.grid.getGlobalFilter(),
             columnName = this.columnName = this.grid.behavior.columns[this.editorPoint.x].getField();
 
@@ -152,9 +152,11 @@ var ComboBox = Textfield.extend('ComboBox', {
 
         dropdown.size = olddrop.size;
         this.el.replaceChild(dropdown, olddrop);
+
+        prototype.showEditor.call(this);
     },
 
-    intializeEl: function() {
+    initialize: function() {
         var el = this.el;
 
         this.input = el.querySelector('input');
@@ -162,19 +164,12 @@ var ComboBox = Textfield.extend('ComboBox', {
         this.options = el.querySelector('div');
         this.dropdown = this.options.querySelector('select');
 
-        if (this.updateElement) {
-            this.updateElement.call(this, el);
-        }
-
         this.transit = onTransitionEnd(this.options, 'options', this);
 
         // wire-ups
         this.dropper.addEventListener('mousedown', toggleDropDown.bind(this));
         this.dropdown.addEventListener('change', insertText.bind(this));
-
-        // default wire-ups for text box
-        prototype.intializeEl.call(this, el);
-        el.onblur = null; // but not this one
+        el.onblur = null; // void this one, set by super's initialize
     },
 
     /* following moved to bottom of file because extend-me does not properly accept getters yet :(

@@ -13,13 +13,19 @@ var Simple = CellEditor.extend('Simple', {
     /**
      * @memberOf Simple.prototype
      */
-    initialize: function() {
+    initialize: function(grid) {
         this.editorPoint = {
             x: 0,
             y: 0
         };
 
         this.reset();
+
+        var self = this;
+        this.el.addEventListener('keyup', this.keyup.bind(this));
+        this.el.addEventListener('keydown', function(e) { grid.fireSyntheticEditorKeyDownEvent(self, e); });
+        this.el.addEventListener('keypress', function(e) { grid.fireSyntheticEditorKeyPressEvent(self, e); });
+        this.el.onblur = function(e) { self.cancelEditing(); };
     },
 
     specialKeyups: {
@@ -42,28 +48,6 @@ var Simple = CellEditor.extend('Simple', {
 
             this.grid.fireSyntheticEditorKeyUpEvent(this, e);
         }
-    },
-
-    /**
-     * @memberOf Simple.prototype
-     * @desc  the function to override for initialization
-     */
-    intializeEl: function() {
-        var self = this;
-
-        this.el.addEventListener('keyup', this.keyup.bind(this));
-
-        this.el.addEventListener('keydown', function(e) {
-            self.grid.fireSyntheticEditorKeyDownEvent(self, e);
-        });
-
-        this.el.addEventListener('keypress', function(e) {
-            self.grid.fireSyntheticEditorKeyPressEvent(self, e);
-        });
-
-        this.el.onblur = function(e) {
-            self.cancelEditing();
-        };
     },
 
     /**
@@ -288,8 +272,6 @@ var Simple = CellEditor.extend('Simple', {
         this.el = container.firstChild;
 
         this.input = this.el;
-
-        this.intializeEl();
     },
 
     updateView: function() {

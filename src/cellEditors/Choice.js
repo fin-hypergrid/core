@@ -82,13 +82,9 @@ var Choice = Simple.extend('Choice', {
      * @memberOf Choice.prototype
      * @param input
      */
-    intializeEl: function() {
-        Simple.prototype.intializeEl.apply(this);
-
+    initialize: function() {
         var self = this;
-        this.el.onchange = function() {
-            self.stopEditing();
-        };
+        this.el.onchange = function() { self.stopEditing(); };
     }
 
 });
