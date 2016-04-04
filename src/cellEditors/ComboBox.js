@@ -56,12 +56,15 @@ var modes = {
         label: 'Column Names',
         selector: 'optgroup.submenu-columnNames',
         appendOptions: function(optgroup) {
-            var columns = this.grid.behavior.columns;
-            columns.forEach(function(column) {
-                var name = column.getField(),
-                    option = new Option(name);
-                option.title = '[' + name + ']\r"' + column.getHeader() + '"';
-                optgroup.appendChild(option);
+            var columns = this.grid.behavior.columns,
+                x = this.editorPoint.x;
+            columns.forEach(function(column, index) {
+                if (index !== x) {
+                    var name = column.getField(),
+                        option = new Option(name);
+                    option.title = '[' + name + ']\r"' + column.getHeader() + '"';
+                    optgroup.appendChild(option);
+                }
             });
             return columns.length;
         }
@@ -91,9 +94,26 @@ var ComboBox = Textfield.extend('ComboBox', {
 */
     },
 
+    /**
+     * A combo box is a text box that also has a drop-down containing options. THe drop-down consists of an actual drop-down list (a `<select>` list) and a _control area_ containing buttons.
+     *
+     * The select list consists of the following sets of drop-down items:
+     * * `operators` (icon *&lt;*) The particular selection of operators for this column. Comes from the filter tree.
+     * * `distinctValues` (icon *#*) List of distinct column values. Calculated from inspection of column values on _and_ on icon click.
+     * * `columnNames` (icon *T*) List other column names. Calculated from inspection of column values on _and_ on icon click.
+     *
+     * The control area reflects the `modes` array (above). It is modeled by a 'menuModes` object, a hash with boolean properties representing the state of each of the sets of menu items outlined above. Missing properties are falsy by implication. The state semantics are:
+     *   * `1` or `true` means adds CSS class `active` to icon _and_ shows set's items in drop-down.
+     *   * `0` or `false` means removes (CSS class `active` from icon _and_ hides set's items in drop-down.
+     *
+     * *Persisting changes:* The only change this UI supports (besides the filter text itself) is the menu mode states, which are expected to be "sticky." That is, they are "persisted" (written back) to the filter. However, there is a problem: When the column filter is blank it doesn't actually exist yet in the filter, so there is nowhere to save it. The solution is to read the `menuModes` hash _from_ the filter tree but don't modify it until end of editing. Reading it from the filter tree picks up previous setting if there was an extant column filter or the default if there was not. But then, rather than modifying this structure (because it might be the default and we don't want to overwrite that), we hang a proxy copy off the behavior's column object for this column. This will persist it for the duration of the app session. At end of editing, if and only if there is now a column filter (text is not blank), we copy it to the column filter's subtree node in the filter tree.
+     */
     showEditor: function() {
         var filter = this.grid.getGlobalFilter(),
-            columnName = this.columnName = this.grid.behavior.columns[this.editorPoint.x].getField();
+            column = this.column = this.grid.behavior.columns[this.editorPoint.x],
+            columnName = this.columnName = column.getField(),
+            modeNames = Object.keys(modes),
+            self = this;
 
         // look in the filter, under column filters, for a column filter for this column
         var columnFilters = this.grid.getGlobalFilter().columnFilters,
@@ -101,11 +121,31 @@ var ComboBox = Textfield.extend('ComboBox', {
                 return subtree.children[0].column === columnName;
             });
 
-        // the column filter may not exist yet, so we pull its operator list from the root instead
-        var column = filter.schema.findItem(columnName),
-            opMenu = column && column.opMenu ||
-                column && column.type && filter.typeOpMenu && filter.typeOpMenu[column.type] ||
-                filter.treeOpMenu;
+        // get the column filter's `operators` list
+        var columnSchema = filter.schema.findItem(columnName), // as column filter may not yet exist, refer to it's schema
+            opMenu = columnSchema && ( // schema should exist
+                columnSchema.opMenu || // pull operator list from column schema if it has one; IF it doesn't...
+                columnSchema.type &&  // BUT it has a type...
+                filter.typeOpMenu && // AND the filter has a defined type-operator map...
+                filter.typeOpMenu[columnSchema.type] // THEN use the operator list for the column's type if there is one
+            ) || // if both of above strategies fail...
+                filter.treeOpMenu; // use the default operator list (which itself defaults to `Conditionals.defaultOpMenu`)
+
+        // get the column filter's `menuModes` object -- contains the states of the drop-down option icons
+        var menuModesSource =
+            column.menuModes || // (1) use proxy from last time (editing ended without a column filter to put in the filter tree)
+            columnFilterSubtree && columnFilterSubtree.menuModes || // (2) use column filter's `menuModes` WHEN available
+            columnSchema && columnSchema.menuModes || // ELSE (3) use column schema's `menuModes` when defined
+            columnFilters.menuModes; // ELSE (4) use the filter default (which itself defaults to operators ON, others OFF; see definition at top of CustomFilter.js)
+
+        var menuModes = this.menuModes = column.menuModes = {};
+
+        // build the proxy
+        modeNames.forEach(function(modeName) {
+            if (modeName in menuModesSource) {
+                menuModes[modeName] = menuModesSource[modeName];
+            }
+        });
 
         // override the template's empty drop-down with a new one built from opMenu (the column's operator list)
         var olddrop = this.dropdown,
@@ -114,21 +154,18 @@ var ComboBox = Textfield.extend('ComboBox', {
                 prompt: null
             });
 
-        // for menuModes object, refer to the column filter node when it exists yet; else the parent node
-        var menuModes = this.menuModes = (columnFilterSubtree || columnFilters).menuModes;
-
         // locate the mode icon container element
         var modesContainer = this.options.querySelector('.toggle-mode-operators').parentElement;
 
         // set the initial state of the mode toggles
 
-        for (var modeName in modes) {
+        modeNames.forEach(function(modeName) {
             // create and label a new optgroup
             var optgroup = document.createElement('optgroup');
             optgroup.label = modes[modeName].label;
 
             // wire-ups
-            modesContainer.addEventListener('click', onModeIconClick.bind(this));
+            modesContainer.addEventListener('click', onModeIconClick.bind(self));
 
             // build the optgroup
             if (modeName === 'operators') {
@@ -147,13 +184,33 @@ var ComboBox = Textfield.extend('ComboBox', {
                 ctrl = modesContainer.querySelector(className),
                 modeState = menuModes[modeName];
 
-            setModeIconAndOptgroup.call(this, ctrl, modeName, modeState);
-        }
+            setModeIconAndOptgroup.call(self, ctrl, modeName, modeState);
+        });
 
         dropdown.size = olddrop.size;
         this.el.replaceChild(dropdown, olddrop);
 
         prototype.showEditor.call(this);
+    },
+
+    /**
+     * Write the `menuModes` proxy to the filter tree's column filter subtree node.
+     * We look up the node again here because it might be new; or may have been deleted & recreated during editing.
+     */
+    hideEditor: function() {
+        // look in the filter, under column filters, for a column filter for this column
+        var columnFilters = this.grid.getGlobalFilter().columnFilters,
+            columnName = this.columnName,
+            columnFilterSubtree = columnFilters.children.find(function(subtree) {
+                return subtree.children[0].column === columnName;
+            });
+
+        if (columnFilterSubtree) {
+            columnFilterSubtree.menuModes = this.column.menuModes;
+            delete this.column.menuModes;
+        }
+
+        prototype.hideEditor.call(this);
     },
 
     initialize: function() {

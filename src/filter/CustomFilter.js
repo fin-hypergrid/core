@@ -9,9 +9,13 @@ var Parser = {
     SQL: require('./parser-SQL')
 };
 
-// Add a default menuModes to the tree, with operators as the only active mode
+// Add a property `menuModes` to the tree, defaulting to `operators` as the only active mode
 var FilterNode = Object.getPrototypeOf(FilterTree.prototype).constructor;
-FilterNode.optionsSchema.menuModes = { default: { operators: 1 } };
+FilterNode.optionsSchema.menuModes = {
+    default: {
+        operators: 1
+    }
+};
 
 /** @typedef {function} fieldsProviderFunc
  * @returns {menuOption[]} see jsdoc typedef in pop-menu.js
