@@ -1,7 +1,7 @@
 'use strict';
 
-//var FilterTree = require('filter-tree');
-var FilterTree = require('../../../../filter-tree/src');
+var FilterTree = require('filter-tree');
+//var FilterTree = require('../../../../filter-tree/src');
 var _ = require('object-iterators');
 
 var Parser = {
