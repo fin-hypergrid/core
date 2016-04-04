@@ -561,7 +561,9 @@ var JSON = DataModel.extend('dataModels.JSON', {
         }
         var headerRowCount = this.grid.getHeaderRowCount();
         var y = event.gridCell.y - headerRowCount;
-        this.getDataSource().click(y);
+        //this.getDataSource().click(y); //this seems to failing siletly in devtools
+        this.getDataSource().dataSource.dataSource.click(y);
+        //this.analytics.click(y); // this works as well
         this.applyAnalytics(true);
         this.changed();
     },
