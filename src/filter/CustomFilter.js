@@ -1,8 +1,8 @@
 'use strict';
 
-var FilterTree = require('filter-tree');
-//var FilterTree = require('../../../../filter-tree/src');
 var _ = require('object-iterators');
+
+var FilterTree = require('../Shared').FilterTree;
 
 var Parser = {
     CQL: require('./parser-CQL'),
@@ -10,8 +10,7 @@ var Parser = {
 };
 
 // Add a property `menuModes` to the tree, defaulting to `operators` as the only active mode
-var FilterNode = Object.getPrototypeOf(FilterTree.prototype).constructor;
-FilterNode.optionsSchema.menuModes = {
+FilterTree.Node.optionsSchema.menuModes = {
     default: {
         operators: 1
     }
@@ -40,8 +39,6 @@ var ConditionalsCql = FilterTree.Conditionals.extend({
 
 var conditionals = new ConditionalsCql();
 
-var FilterLeafPrototype = FilterTree.prototype.editors.Default.prototype;
-
 // replace the default filter tree terminal node constructor with an extension of same
 var CustomFilterLeaf = FilterTree.prototype.addEditor({
     getState: function getState(options) {
@@ -54,7 +51,7 @@ var CustomFilterLeaf = FilterTree.prototype.addEditor({
                 result = result.substr(1);
             }
         } else {
-            result = FilterLeafPrototype.getState.call(this, options);
+            result = FilterTree.Leaf.prototype.getState.call(this, options);
         }
 
         return result;

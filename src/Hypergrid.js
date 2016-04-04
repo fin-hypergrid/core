@@ -3233,6 +3233,27 @@ Hypergrid.prototype = {
                 dialog.terminate = this.openDialog.bind(this, newDialogName, options);
             }
         }
+    },
+
+    /**
+     * @returns {string} One of:
+     * * `'active'` - There is at least one defined filter (leaf node) in the filter tree.
+     * * `'inactive'` - There are no defined filters (no leaf nodes) in the filter tree.
+     * * `'error'` - There is at least one partially defined filter.
+     */
+    getFilterStatus: function() {
+        var filter = this.getGlobalFilter(),
+            result;
+
+        if (filter.invalid()) {
+            result = 'error';
+        } else if (filter.filterCount()) {
+            result = 'active';
+        } else {
+            result = 'inactive';
+        }
+
+        return result;
     }
 };
 

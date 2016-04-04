@@ -153,6 +153,7 @@ var CellEditor = Base.extend('CellEditor', {
         this.saveEditorValue();
         this.isEditing = false;
         this.hideEditor();
+        this.grid.cellEditor = null;
     },
 
     cancelEditing: function() {

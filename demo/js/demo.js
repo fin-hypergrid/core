@@ -76,13 +76,15 @@ window.onload = function() {
     setFilter();
 
     function setFilter() {
-        // recreate the filter but with hierarchical schema organized by alias
-        var CustomFilter = fin.Hypergrid.CustomFilter;
-        var newSchema = CustomFilter.filterUtil.organizeByAlias(
-            CustomFilter.filterUtil.getDefault(jsonModel),
-            /^(one|two|three|four|five|six|seven|eight)/i
-        );
-        jsonGrid.setGlobalFilter(new CustomFilter({ schema: newSchema }));
+        if (jsonModel.columns.length) {
+            // recreate the filter but with hierarchical schema organized by alias
+            var CustomFilter = fin.Hypergrid.CustomFilter;
+            var newSchema = CustomFilter.filterUtil.organizeByAlias(
+                CustomFilter.filterUtil.getDefault(jsonModel),
+                /^(one|two|three|four|five|six|seven|eight)/i
+            );
+            jsonGrid.setGlobalFilter(new CustomFilter({ schema: newSchema }));
+        }
     }
 
     function setData(data) {
