@@ -25,15 +25,18 @@ FilterTree.Node.optionsSchema.menuModes = {
  * @extends Operators
  */
 var ConditionalsCql = FilterTree.Conditionals.extend({
-    makeLIKE: function(beg, end, op, c) {
-        var escaped = c.literal.replace(/([\[_%\]])/g, '[$1]'); // escape all LIKE reserved chars
-        return op.toLowerCase() + ' ' + beg + escaped + end;
+    makeLIKE: function(beg, end, op, c, originalOp) {
+        op = originalOp.toLowerCase();
+        return op + ' ' + c.literal;
     },
     makeIN: function(op, c) {
         return op.toLowerCase() + ' ' + c.literal.replace(/\s*,\s*/g, ',');
     },
     make: function(op, c) {
-        return op + (c.literal || c.identifier);
+        op = op.toLowerCase();
+        if (/\w/.test(op)) { op += ' '; }
+        op += c.literal || c.identifier;
+        return op;
     }
 });
 
@@ -61,7 +64,7 @@ var CustomFilterLeaf = FilterTree.prototype.addEditor({
 FilterTree.prototype.addEditor('Columns');
 
 // Add some node templates by updating shared instance of FilterNode's templates. (OK to mutate shared instance; filter-tree not being used for anything else here. Alternatively, we could have instantiated a new Templates object for our CustomFilter prototype, although this would only affect tree nodes, not leaf nodes, but that would be ok in this case since the additions below are tree node templates.)
-_(Object.getPrototypeOf(FilterTree.prototype).templates).extendOwn({
+_(FilterTree.Node.prototype.templates).extendOwn({
     columnFilter: function() {
 /*
  <span class="filter-tree">
@@ -281,7 +284,7 @@ var CustomFilter = FilterTree.extend('CustomFilter', {
     /**
      * @desc The CQL syntax should only be requested for a subtree containing homogeneous column names and no subexpressions.
      *
-     * @param {string} [options.syntax='CQL'] - If omitted or `'CQL'`, walks the tree, returning a string suitable for a Hypergrid filter cell. All other values are forwarded to the prototype's `getState` method for further interpretation.
+     * @param {string} [options.syntax='object'] - If `'CQL'`, walks the tree, returning a string suitable for a Hypergrid filter cell. All other values are forwarded to the prototype's `getState` method for further interpretation.
      *
      * @returns {FilterTreeStateObject}
      */
@@ -289,7 +292,7 @@ var CustomFilter = FilterTree.extend('CustomFilter', {
         var result,
             syntax = options && options.syntax;
 
-        if (syntax === undefined || syntax === 'CQL') {
+        if (syntax === 'CQL') {
             var operator = this.operator.substr(3); // remove the 'op-' prefix
             result = '';
             this.children.forEach(function(child, idx) {
@@ -305,7 +308,7 @@ var CustomFilter = FilterTree.extend('CustomFilter', {
                 }
             });
         } else {
-            result = this.super.getState.call(this, options);
+            result = FilterTree.prototype.getState.call(this, options);
         }
 
         return result;
