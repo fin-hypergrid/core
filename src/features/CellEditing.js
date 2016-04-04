@@ -69,7 +69,7 @@ var CellEditing = Feature.extend('CellEditing', {
 
         if (
             grid.resolveProperty('editOnKeydown') &&
-            !grid.isEditing() &&
+            !grid.cellEditor &&
             (
                 (char = event.detail.char) === 'F2' ||
                 (isVisibleChar = char.length === 1 && !(event.detail.meta || event.detail.ctrl)) ||

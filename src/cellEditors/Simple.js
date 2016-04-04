@@ -55,8 +55,7 @@ var Simple = CellEditor.extend('Simple', {
      * @returns {object} the current editor's value
      */
     getEditorValue: function() {
-        var value = this.input.value;
-        return value;
+        return this.input.value;
     },
 
     /**
@@ -73,11 +72,7 @@ var Simple = CellEditor.extend('Simple', {
     },
 
     cancelEditing: function() {
-        if (!this.isEditing) {
-            return;
-        }
         this.setEditorValue(null);
-        this.isEditing = false;
         this.hideEditor();
     },
 
@@ -192,7 +187,6 @@ var Simple = CellEditor.extend('Simple', {
     },
 
     beginEditAt: function(point) {
-
         if (!this.isAdded) {
             this.isAdded = true;
             this.attachEditor();
@@ -203,34 +197,26 @@ var Simple = CellEditor.extend('Simple', {
         if (value.constructor.name === 'Array') {
             value = value[1]; //it's a nested object
         }
-        var proceed = this.grid.fireRequestCellEdit(point, value);
-        if (!proceed) {
-            //we were cancelled
-            return;
+
+        if (this.grid.fireRequestCellEdit(point, value)) {
+            this.initialValue = value;
+            this.setCheckEditorPositionFlag();
+            this.checkEditor();
         }
-        this.initialValue = value;
-        this.isEditing = true;
-        this.setCheckEditorPositionFlag();
-        this.checkEditor();
     },
 
     checkEditor: function() {
-        if (!this.checkEditorPositionFlag) {
-            return;
-        } else {
+        if (this.checkEditorPositionFlag) {
             this.checkEditorPositionFlag = false;
-        }
-        if (!this.isEditing) {
-            return;
-        }
-        var editorPoint = this.getEditorPoint();
-        if (this.grid.isDataVisible(editorPoint.x, editorPoint.y)) {
-            this.preShowEditorNotification();
-            this.attachEditor();
-            this.moveEditor();
-            this.showEditor();
-        } else {
-            this.hideEditor();
+            var editorPoint = this.getEditorPoint();
+            if (this.grid.isDataVisible(editorPoint.x, editorPoint.y)) {
+                this.preShowEditorNotification();
+                this.attachEditor();
+                this.moveEditor();
+                this.showEditor();
+            } else {
+                this.hideEditor();
+            }
         }
     },
 

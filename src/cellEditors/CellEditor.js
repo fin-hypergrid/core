@@ -17,14 +17,6 @@ var CellEditor = Base.extend('CellEditor', {
     },
 
     /**
-     * am I currently editing (i.e., between calls to `beginEditAt` and either `stopEditing` or `cancelEditing`)
-     * @type {boolean}
-     * @default false
-     * @memberOf CellEditor.prototype
-     */
-    isEditing: false,
-
-    /**
      * the point that I am editing at right now
      * @type {Point}
      * @default null
@@ -130,57 +122,50 @@ var CellEditor = Base.extend('CellEditor', {
      * @memberOf CellEditor.prototype
      * @desc display the editor
      */
-    showEditor: function() {},
+    showEditor: nullPattern,
 
     /**
      * @memberOf CellEditor.prototype
      * @desc hide the editor
      */
-    hideEditor: function() {},
+    hideEditor: nullPattern,
 
     /**
      * @memberOf CellEditor.prototype
      * @desc stop editing
      */
     stopEditing: function() {
-        if (!this.isEditing) {
-            return;
+        if (this.grid.fireSyntheticEditorDataChangeEvent(this, this.initialValue, this.getEditorValue())) {
+            this.saveEditorValue();
+            this.hideEditor();
+            this.grid.cellEditor.el.remove();
+            this.grid.cellEditor = null;
         }
-        var proceed = this.grid.fireSyntheticEditorDataChangeEvent(this, this.initialValue, this.getEditorValue, this);
-        if (!proceed) {
-            return;
-        }
-        this.saveEditorValue();
-        this.isEditing = false;
-        this.hideEditor();
-        this.grid.cellEditor = null;
     },
 
     cancelEditing: function() {
-        if (!this.isEditing) {
-            return;
-        }
-        this.isEditing = false;
         this.hideEditor();
+        this.grid.cellEditor.el.remove();
+        this.grid.cellEditor = null;
     },
 
     /**
      * @memberOf CellEditor.prototype
      * @desc save the new value into the behavior(model)
      */
-    saveEditorValue: function() {},
+    saveEditorValue: nullPattern,
 
     /**
      * @memberOf CellEditor.prototype
      * @desc return the current editor's value
      */
-    getEditorValue: function() {},
+    getEditorValue: nullPattern,
 
     /**
      * @memberOf CellEditor.prototype
      * @desc request focus
      */
-    takeFocus: function() {},
+    takeFocus: nullPattern,
 
 
     /**
@@ -208,6 +193,7 @@ var CellEditor = Base.extend('CellEditor', {
 
 });
 
+function nullPattern() {}
 
 CellEditor.abstract = true; // don't instantiate directly
 

@@ -1234,15 +1234,14 @@ Hypergrid.prototype = {
     /**
      * @memberOf Hypergrid.prototype
      * @summary Shut down the current cell editor.
+     * @returns {boolean} `true` if we were editing; `false` if we were not.
      */
     stopEditing: function() {
-        if (this.cellEditor && this.isEditing()) {
-            if (this.cellEditor.stopEditing) {
-                this.cellEditor.stopEditing();
-            }
-            this.cellEditor.el.remove();
-            this.cellEditor = null;
+        var wasEditing = !!this.cellEditor;
+        if (wasEditing) {
+            this.cellEditor.stopEditing();
         }
+        return wasEditing;
     },
 
     makeCellEditors: function() {
@@ -2065,9 +2064,7 @@ Hypergrid.prototype = {
      * @desc Request input focus.
      */
     takeFocus: function() {
-        if (this.isEditing()) {
-            this.stopEditing();
-        } else {
+        if (!this.stopEditing()) {
             this.getCanvas().takeFocus();
         }
     },
@@ -2080,14 +2077,6 @@ Hypergrid.prototype = {
         if (this.cellEditor) {
             return this.cellEditor.takeFocus();
         }
-    },
-
-    /**
-     * @memberOf Hypergrid.prototype
-     * @returns {boolean} We have a currently active cell editor.
-     */
-    isEditing: function() {
-        return this.cellEditor && this.cellEditor.isEditing;
     },
 
     /**
@@ -2436,14 +2425,12 @@ Hypergrid.prototype = {
                 editor = this.getCellEditorAt(point.x, point.y, isDblClick),
                 editorPoint = editor.getEditorPoint(),
                 sameCell = point.equals(editorPoint),
-                editorAlreadyOpen = sameCell && editor.isEditing;
+                editorAlreadyOpen = this.cellEditor && sameCell;
 
             if (editorAlreadyOpen) {
                 editor = undefined;
             } else {
-                if (this.isEditing()) {
-                    this.stopEditing(); //other editor is open, close it first
-                }
+                this.stopEditing(); //other editor is open, close it first
                 this.editAt(editor, point);
             }
         }
@@ -3214,6 +3201,7 @@ Hypergrid.prototype = {
     },
 
     openDialog: function(dialogName, options) {
+        this.stopEditing();
         this.dialog = this.behavior.openDialog(dialogName, options);
     },
 
