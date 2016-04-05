@@ -225,6 +225,7 @@ var ComboBox = Textfield.extend('ComboBox', {
 
         // wire-ups
         this.dropper.addEventListener('mousedown', toggleDropDown.bind(this));
+        this.dropdown.addEventListener('mousewheel', function(e) { e.stopPropagation(); });
         this.dropdown.addEventListener('change', insertText.bind(this));
         el.onblur = null; // void this one, set by super's initialize
     },
