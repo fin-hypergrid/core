@@ -52,7 +52,7 @@ ParserCqlError.prototype.name = 'ParserCqlError';
  *
  * > _op-phrase_ ::= [ `NOT` _white-space_ ] _op-word_ _white-space_
  *
- * > _op-word_ ::= `STARTS` | `ENDS` | `CONTAINS` | `LIKE` | `IN`
+ * > _op-word_ ::= `BEGINS` | `ENDS` | `CONTAINS` | `LIKE` | `IN`
  *
  * > _operand_ ::= _column-name_ | _column alias_ | _random-text_
  *
