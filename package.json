@@ -1,10 +1,13 @@
 {
   "name": "fin-hypergrid",
-  "version": "0.3.0",
-  "description": "Virtual spreadsheet",
-  "directories": {
-    "test": "test"
-  },
+  "version": "0.2.4",
+  "description": "Canvas-based high-performance spreadsheet",
+  "main": "src/Hypergrid.js",
+  "author": "SWirts, JEiten, DJones",
+  "license": "MIT",
+  "readmeFilename": "README.md",
+  "gitHead": "",
+  "keywords": ["spreadsheet","grid"],
   "dependencies": {
     "automat": "^1.1.1",
     "extend-me": "^2.2.2",
@@ -44,17 +47,5 @@
     "mustache": "^2.2.0",
     "run-sequence": "^1.1.4",
     "through2": "^2.0.0"
-  },
-  "scripts": {
-    "test": "gulp test"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/openfin/fin-hypergrid.git"
-  },
-  "author": "SWirts, JEiten",
-  "license": "MIT",
-  "readmeFilename": "README.md",
-  "gitHead": "",
-  "keywords": []
+  }
 }

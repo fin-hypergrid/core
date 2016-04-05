@@ -18,6 +18,7 @@ var Renderer = require('./lib/Renderer');
 var SelectionModel = require('./lib/SelectionModel');
 var css = require('./css');
 var Formatters = require('./lib/Formatters');
+var behaviorJSON = require('./behaviors/JSON.js');
 
 var themeInitialized = false,
     polymerTheme = Object.create(defaults),
@@ -54,7 +55,7 @@ function Hypergrid(div, options) {
 
     this.behavior = options.getBehavior
         ? options.getBehavior(this)
-        : new (options.Behavior || Hypergrid.behaviors.JSON)(this, options.data);
+        : new (options.Behavior || behaviorJSON)(this, options.data);
 
     //prevent the default context menu for appearing
     this.div.oncontextmenu = function(event) {

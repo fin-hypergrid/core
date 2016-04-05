@@ -2,6 +2,21 @@
 
 'use strict';
 
+/* NOTE
+ *
+ * What this file is:
+ * * This file is browserify's entry point.
+ * * This file creates the window.fin.Hypergrid object.
+ *
+ * What this file is not:
+ * * This file is a node module.
+ * * This file has no reference to `module.exports`
+ * * This file cannot be "required" by any other file.
+ * * This file is blacklisted in .npmignore and is not published to npm.
+ *
+ * Note: The npm "main" entry point (as noted in package.json) is Hypergrid.js.
+ */
+
 require('./lib/polyfills');
 
 require('object-iterators'); // Installs the Array.find polyfill, as needed

@@ -88,7 +88,7 @@ var ComboBox = Textfield.extend('ComboBox', {
                 <span class="toggle-mode-distinctValues" title="Toggle distinct values"></span>
                 <span class="toggle-mode-columnNames" title="Toggle column names"></span>
             </div>
-            <select size="8"></select>
+            <select size="12"></select>
         </div>
     </div>
 */

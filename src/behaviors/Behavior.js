@@ -1155,7 +1155,7 @@ var Behavior = Base.extend('Behavior', {
         if (!col) {
             return isNull;
         }
-        var properties = col.getProperties(); //TODO: returns `null` on Hypergrid.reset();
+        var properties = col.getProperties(); //TODO: returns `null` on Hypergrid.prototype.reset();
         if (!properties) {
             return isNull;
         }
