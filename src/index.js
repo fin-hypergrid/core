@@ -17,18 +17,15 @@
  * Note: The npm "main" entry point (as noted in package.json) is Hypergrid.js.
  */
 
-require('./lib/polyfills');
-
-require('object-iterators'); // Installs the Array.find polyfill, as needed
-
 var Hypergrid = require('./Hypergrid');
 
 Hypergrid.images = require('../images');
-Hypergrid.behaviors = require('./behaviors');
+// Hypergrid.behaviors = require('./behaviors'); // this was moved to Hypergrid.js
 Hypergrid.cellEditors = require('./cellEditors');
 Hypergrid.features = require('./features');
 Hypergrid.analytics = require('./Shared.js').analytics;
 Hypergrid.CustomFilter = require('./filter/CustomFilter');
-Hypergrid.CustomFilter.filterUtil = require('./filter/filterUtil');
+Hypergrid.CustomFilter.util = require('./filter/util');
+Hypergrid.test = require('filter-tree/js/Conditionals');
 
 (window.fin = window.fin || {}).Hypergrid = Hypergrid;

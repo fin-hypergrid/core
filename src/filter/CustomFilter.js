@@ -27,15 +27,15 @@ FilterTree.Node.optionsSchema.menuModes = {
 var ConditionalsCql = FilterTree.Conditionals.extend({
     makeLIKE: function(beg, end, op, c, originalOp) {
         op = originalOp.toLowerCase();
-        return op + ' ' + c.literal;
+        return op + ' ' + c.operand;
     },
     makeIN: function(op, c) {
-        return op.toLowerCase() + ' ' + c.literal.replace(/\s*,\s*/g, ',');
+        return op.toLowerCase() + ' ' + c.operand.replace(/\s*,\s*/g, ',');
     },
     make: function(op, c) {
         op = op.toLowerCase();
         if (/\w/.test(op)) { op += ' '; }
-        op += c.literal || c.identifier;
+        op += c.operand;
         return op;
     }
 });
@@ -215,7 +215,9 @@ var CustomFilter = FilterTree.extend('CustomFilter', {
     /**
      *
      * @param columnName
-     * @param state
+     * @param {string|object} [query] - If undefined, removes column filter from the filter tree.
+     *
+     * Otherwise, column filter is replaced (if it already exists) or added (if new). Interpretation of this parameter is auto-detected as per {@link http://joneit.github.io/filter-tree/FilterNode.html#~parseStateString|parseStateString} unless overridden by `options.syntax` (as explained therein).
      * @param {filterTreeSetStateOptionsObject} [options]
      * @param {boolean} [options.syntax='CQL']
      * @memberOf CustomFilter.prototype

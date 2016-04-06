@@ -2,6 +2,8 @@
 
 'use strict';
 
+require('./lib/polyfills'); // Installs misc. polyfills into global objects, as needed
+
 var extend = require('extend-me');
 var deprecated = require('./lib/deprecated');
 extend.debug = true;
@@ -10,7 +12,7 @@ var FinBar = require('finbars');
 var Canvas = require('fincanvas');
 var Point = require('rectangular').Point;
 var Rectangle = require('rectangular').Rectangle;
-var _ = require('object-iterators');
+var _ = require('object-iterators'); // fyi: installs the Array.prototype.find polyfill, as needed
 
 var defaults = require('./defaults');
 var cellEditors = require('./cellEditors');
@@ -18,7 +20,7 @@ var Renderer = require('./lib/Renderer');
 var SelectionModel = require('./lib/SelectionModel');
 var css = require('./css');
 var Formatters = require('./lib/Formatters');
-var behaviorJSON = require('./behaviors/JSON.js');
+var behaviors = require('./behaviors');
 
 var themeInitialized = false,
     polymerTheme = Object.create(defaults),
@@ -55,7 +57,7 @@ function Hypergrid(div, options) {
 
     this.behavior = options.getBehavior
         ? options.getBehavior(this)
-        : new (options.Behavior || behaviorJSON)(this, options.data);
+        : new (options.Behavior || behaviors.JSON)(this, options.data);
 
     //prevent the default context menu for appearing
     this.div.oncontextmenu = function(event) {
@@ -3372,5 +3374,11 @@ function valOrFunc(vf) {
     var result = (typeof vf)[0] === 'f' ? vf() : vf;
     return result || result === 0 ? result : '';
 }
+
+// npm "public" interface
+Hypergrid.behaviors = behaviors;
+
+// NOTE: The reason I put "public" in quotes is that in reality all files are accessible with node's sub-folder syntax.
+// Example: var behaviorJSON = require('fin-hypergrid/src/behaviors/JSON');
 
 module.exports = Hypergrid;
