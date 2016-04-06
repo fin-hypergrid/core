@@ -141,7 +141,7 @@ ParserSQL.prototype = {
 };
 
 function walk(t) {
-    var m, name, op, arg, bool, token, tokens = [];
+    var m, name, op, operand, bool, token, tokens = [];
     var i = 0;
 
     t = t.trim();
@@ -199,25 +199,25 @@ function walk(t) {
                 if (!m) {
                     throw new ParserSqlError('Expected parenthesized list.');
                 }
-                arg = m[1];
-                i += arg.length + 2;
-                while ((m = arg.match(reLitAnywhere))) {
-                    arg = arg.replace(reLitAnywhere, this.literals[m[1]]);
+                operand = m[1];
+                i += operand.length + 2;
+                while ((m = operand.match(reLitAnywhere))) {
+                    operand = operand.replace(reLitAnywhere, this.literals[m[1]]);
                 }
             } else {
                 m = t.substr(i).match(reLit);
                 if (!m) {
                     throw new ParserSqlError('Expected string literal.');
                 }
-                arg = m[1];
-                i += arg.length + 2;
-                arg = this.literals[arg];
+                operand = m[1];
+                i += operand.length + 2;
+                operand = this.literals[operand];
             }
 
             token = {
                 column: name,
                 operator: op,
-                literal: arg
+                operand: operand
             };
         }
 
