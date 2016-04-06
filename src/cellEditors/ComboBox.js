@@ -117,9 +117,7 @@ var ComboBox = Textfield.extend('ComboBox', {
 
         // look in the filter, under column filters, for a column filter for this column
         var columnFilters = this.grid.getGlobalFilter().columnFilters,
-            columnFilterSubtree = columnFilters.children.find(function(subtree) {
-                return subtree.children[0].column === columnName;
-            });
+            columnFilterSubtree = filter.getColumnFilter(columnName);
 
         // get the column filter's `operators` list
         var columnSchema = filter.schema.findItem(columnName), // as column filter may not yet exist, refer to it's schema
@@ -199,11 +197,9 @@ var ComboBox = Textfield.extend('ComboBox', {
      */
     hideEditor: function() {
         // look in the filter, under column filters, for a column filter for this column
-        var columnFilters = this.grid.getGlobalFilter().columnFilters,
+        var filter = this.grid.getGlobalFilter(),
             columnName = this.columnName,
-            columnFilterSubtree = columnFilters.children.find(function(subtree) {
-                return subtree.children[0].column === columnName;
-            });
+            columnFilterSubtree = filter.getColumnFilter(columnName);
 
         if (columnFilterSubtree) {
             columnFilterSubtree.menuModes = this.column.menuModes;

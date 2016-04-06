@@ -156,8 +156,8 @@ ParserCQL.prototype = {
      * @param {string[]} expressions
      *
      * @returns {expressionState[]} where `expressionState` is one of:
-     * * `{column: string, operator: string, literal: string}`
-     * * `{column: string, operator: string, identifier: string, editor: 'Columns'}`
+     * * `{column: string, operator: string, operand: string}`
+     * * `{column: string, operator: string, operand: string, editor: 'Columns'}`
      */
     makeChildren: function(columnName, expressions) {
         var options = this.options,
@@ -194,10 +194,10 @@ ParserCQL.prototype = {
                     };
 
                     if (fieldName) {
-                        child.identifier = fieldName.name || fieldName;
+                        child.operand = fieldName.name || fieldName;
                         child.editor = 'Columns';
                     } else {
-                        child.literal = literal;
+                        child.operand = literal;
                     }
 
                     children.push(child);

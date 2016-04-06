@@ -4,7 +4,7 @@ var Local = require('./Local');
 var DataModelJSON = require('../dataModels/JSON');
 var features = require('../features');
 var aggregations = require('../Shared.js').analytics.util.aggregations;
-var filterUtil = require('../filter/filterUtil');
+var filterUtil = require('../filter/util');
 var CustomFilter = require('../filter/CustomFilter');
 
 /**

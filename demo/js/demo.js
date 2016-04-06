@@ -65,7 +65,7 @@ window.onload = function() {
         'textfield',
         'textfield'
     ];
-
+    console.log(fin.Hypergrid.test.groups.equality.label);
     var jsonGrid = window.g = new fin.Hypergrid('div#json-example', {
             data: people1,
             margin: { bottom: '17px' }
@@ -79,8 +79,8 @@ window.onload = function() {
         if (jsonModel.columns.length) {
             // recreate the filter but with hierarchical schema organized by alias
             var CustomFilter = fin.Hypergrid.CustomFilter;
-            var newSchema = CustomFilter.filterUtil.organizeByAlias(
-                CustomFilter.filterUtil.getDefault(jsonModel),
+            var newSchema = CustomFilter.util.organizeByAlias(
+                CustomFilter.util.getDefault(jsonModel),
                 /^(one|two|three|four|five|six|seven|eight)/i
             );
             jsonGrid.setGlobalFilter(new CustomFilter({ schema: newSchema }));
@@ -116,7 +116,7 @@ window.onload = function() {
             children: [{
                 column: 'total_number_of_pets_owned',
                 operator: '=',
-                literal: '3'
+                operand: '3'
             }],
             type: 'columnFilter'
         });
