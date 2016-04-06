@@ -89,6 +89,9 @@ window.onload = function() {
 
     function setData(data) {
         jsonModel.setData(data);
+        jsonModel.setColumnProperties(0, {
+            autopopulateEditor: true,
+        });
         setFilter();
     }
 
