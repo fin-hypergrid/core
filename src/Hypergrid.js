@@ -95,6 +95,7 @@ function Hypergrid(div, options) {
         self.checkClipboardCopy(evt);
     });
     this.getCanvas().resize();
+    this.getCanvas().stopPaintLoop(); // rely on explicit repaint calls
 }
 
 Hypergrid.prototype = {
