@@ -104,6 +104,7 @@ window.onload = function() {
         var button = document.createElement('button');
         button.innerHTML = item.label;
         button.onclick = item.onclick;
+        button.title = item.title;
         document.getElementById('dashboard').appendChild(button);
     });
 
