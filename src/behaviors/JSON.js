@@ -4,8 +4,6 @@ var Local = require('./Local');
 var DataModelJSON = require('../dataModels/JSON');
 var features = require('../features');
 var aggregations = require('../Shared.js').analytics.util.aggregations;
-var filterUtil = require('../filter/util');
-var CustomFilter = require('../filter/CustomFilter');
 
 /**
  * @name behaviors.JSON
@@ -111,17 +109,13 @@ var JSON = Local.extend('behaviors.JSON', {
      * @memberOf behaviors.JSON.prototype
      * @description Set the data field.
      * @param {object[]} objects - An array of uniform objects, each being a row in the grid.
+     * @param {FilterTree} [filter]
      */
-    setData: function(dataRows) {
+    setData: function(dataRows, filter) {
         this.dataModel.setData(dataRows);
         this.createColumns();
 
-        var newFilter;
-        if (this.columns.length) {
-            var newSchema = filterUtil.getDefault(this);
-            newFilter = new CustomFilter({ schema: newSchema });
-        }
-        this.grid.setGlobalFilter(newFilter);
+        this.setGlobalFilter(this.getDefaultFilter());
 
         var self = this;
         if (this.grid.isColumnAutosizing()) {

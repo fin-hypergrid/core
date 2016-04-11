@@ -10,11 +10,6 @@ var REGEXP_BOOLS = /\b(AND|OR|NOR)\b/gi,
         '>=': '≥',
         '<=': '≤',
         '<>': '≠'
-    },
-    optionsPrototype = {
-        autoLookupByName: true,
-        autoLookupByAlias: true,
-        caseSensitiveColumnNames: false
     };
 
 function ParserCqlError(message) {
@@ -71,36 +66,25 @@ ParserCqlError.prototype.name = 'ParserCqlError';
  *
  * > _quoted-operand_ ::= ( `'` | `"` | `(` ) _operand_ ( `'` | `"` | `)` )
  *
- * @param {FilterTree} schema - Column schema for column name recognition.
- * @param {function} [propResolver]
+ * @param {menuItem[]} [options.schema] - Column schema for column name/alias validation. Throws an error if name fails validation (but see `resolveAliases`). Omit to skip column name validation.
+ * @param {boolean} [options.resolveAliases] - Validate column aliases against schema and use the associated column name in the returned expression state object. Requires `options.schema`. Throws error if no such column found.
+ * @param {boolean} [options.caseSensitiveColumnNames] - Ignore case while validating column names and aliases.
  */
-function ParserCQL(schema, propResolver) {
-    this.schema = schema;
-    this.options = Object.create(optionsPrototype);
-    this.setOptions(propResolver);
+function ParserCQL(options) {
+    options = options || {};
+    this.schema = options.schema;
+    this.findOptions = {
+        caseInsensitive: options.caseInsensitive,
+        keys: ['name']
+    };
+    if (options.resolveAliases === undefined || options.resolveAliases) {
+        this.findOptions.keys.push('alias');
+    }
 }
 
 ParserCQL.prototype = {
 
     constructor: ParserCQL.prototype.constructor,
-
-    /** Override default properties with properties defined by supplied property resolver.
-     * @param {function} [propResolver]
-     */
-    setOptions: function(propResolver) {
-        if (propResolver) {
-            for (var key in optionsPrototype) {
-                if (optionsPrototype.hasOwnProperty(key)) {
-                    var prop = propResolver(key);
-                    if (prop !== undefined) {
-                        this.options[key] = prop;
-                    } else {
-                        delete this.options[key]; // reveals prototype (default) value
-                    }
-                }
-            }
-        }
-    },
 
     /**
      * @summary Extract the boolean operators from an expression chain.
@@ -160,16 +144,8 @@ ParserCQL.prototype = {
      * * `{column: string, operator: string, operand: string, editor: 'Columns'}`
      */
     makeChildren: function(columnName, expressions) {
-        var options = this.options,
-            schema = this.schema,
-            children = [];
-
-        function uniCase(name) {
-            if (!options.caseSensitiveColumnNames && typeof name === 'string') {
-                name = name.toLowerCase();
-            }
-            return name;
-        }
+        var children = [],
+            self = this;
 
         expressions.forEach(function(expression) {
             if (expression) {
@@ -178,21 +154,12 @@ ParserCQL.prototype = {
                     literal = parts[parts.length - 1];
 
                 if (literal) {
-                    if (options.autoLookupByName || options.autoLookupByAlias) {
-                        var compareLiteral = uniCase(literal);
-                        var fieldName = schema.find(function(column) {
-                            return (
-                                compareLiteral === (options.autoLookupByName && uniCase(column.name || column)) ||
-                                compareLiteral === (options.autoLookupByAlias && uniCase(column.alias))
-                            );
-                        });
-                    }
-
                     var child = {
                         column: columnName,
                         operator: opMap[op] || op
                     };
 
+                    var fieldName = self.schema && self.schema.findItem(literal, self.findOptions);
                     if (fieldName) {
                         child.operand = fieldName.name || fieldName;
                         child.editor = 'Columns';

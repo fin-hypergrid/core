@@ -24,8 +24,8 @@ Hypergrid.images = require('../images');
 Hypergrid.cellEditors = require('./cellEditors');
 Hypergrid.features = require('./features');
 Hypergrid.analytics = require('./Shared.js').analytics;
-Hypergrid.CustomFilter = require('./filter/CustomFilter');
-Hypergrid.CustomFilter.util = require('./filter/util');
+Hypergrid.DefaultFilter = require('./filter/DefaultFilter');
+Hypergrid.ColumnSchemaFactory = require('./filter/ColumnSchemaFactory');
 Hypergrid.test = require('filter-tree/js/Conditionals');
 
 (window.fin = window.fin || {}).Hypergrid = Hypergrid;

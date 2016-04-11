@@ -163,7 +163,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
                 if (sortString) { value = sortString + value; }
             } else { // must be filter row
                 var filter = this.getGlobalFilter();
-                value = filter ? filter.getColumnFilterState(this.getFields()[x]) : '';
+                value = filter && filter.getColumnFilterState(this.getFields()[x]) || '';
                 var icon = images.filter(value.length);
                 return [null, value, icon];
             }
@@ -208,13 +208,12 @@ var JSON = DataModel.extend('dataModels.JSON', {
         }
         var isFilterRow = this.grid.isShowFilterRow();
         var isHeaderRow = this.grid.isShowHeaderRow();
-        var isBoth = isFilterRow && isHeaderRow;
         var topTotalsOffset = (isFilterRow ? 1 : 0) + (isHeaderRow ? 1 : 0);
         if (y >= topTotalsOffset) {
             this.getTopTotals()[y - topTotalsOffset][x] = value;
         } else if (x === -1) {
             return; // can't change the row numbers
-        } else if (isBoth) {
+        } else if (isFilterRow && isHeaderRow) {
             if (y === 0) {
                 return this._setHeader(x, value);
             } else {
@@ -226,14 +225,6 @@ var JSON = DataModel.extend('dataModels.JSON', {
             return this._setHeader(x, value);
         }
         return '';
-    },
-
-    setFilter: function(x, value) {
-        var filter = this.getGlobalFilter(),
-            columnName = this.getFields()[x];
-
-        filter.setColumnFilterState(columnName, value);
-        this.applyAnalytics();
     },
 
     /**
@@ -644,6 +635,57 @@ var JSON = DataModel.extend('dataModels.JSON', {
 
     setGlobalFilterCaseSensitivity: function(isSensitive) {
         this.getGlobalFilter().setCaseSensitivity(isSensitive);
+        this.applyAnalytics();
+    },
+
+    /**
+     * @summary Get a particular column filter state.
+     * @param {number|string} columnIndexOrName - The _column filter_ to set.
+     * @param {string} [options.syntax='CQL'] - For other possible values, see {@link http://joneit.github.io/filter-tree/global.html#filterTreeSetStateOptionsObject|filterTreeSetStateOptionsObject}.
+     */
+    getFilter: function(columnIndexOrName, options) {
+        var isIndex = !isNaN(Number(columnIndexOrName)),
+            columnName = isIndex ? this.getFields()[columnIndexOrName] : columnIndexOrName;
+
+        return this.getGlobalFilter().getColumnFilterState(columnName, options);
+    },
+
+    /**
+     * @summary Set a particular column filter state.
+     * @desc After setting the new filter state, reapplies the filter to the data source.
+     * @param {number|string} columnIndexOrName - The _column filter_ to set.
+     * @param {string|object} [state] - If undefined, removes column filter from the filter tree.
+     *
+     * Otherwise, column filter is replaced (if it already exists) or added (if new).
+     * @param {filterTreeSetStateOptionsObject} [options]
+     * @param {string} [options.syntax='CQL'] - For other possible values, see {@link http://joneit.github.io/filter-tree/global.html#filterTreeSetStateOptionsObject|filterTreeSetStateOptionsObject}.
+     */
+    setFilter: function(columnIndexOrName, state, options) {
+        var isIndex = !isNaN(Number(columnIndexOrName)),
+            columnName = isIndex ? this.getFields()[columnIndexOrName] : columnIndexOrName;
+
+        this.getGlobalFilter().setColumnFilterState(columnName, state, options);
+        this.applyAnalytics();
+    },
+
+    /**
+     *
+     * @param options
+     * @returns {*|FilterTreeStateObject}
+     */
+    getTableFilter: function(options) {
+        return this.getGlobalFilter().getTableFilterState(options);
+    },
+
+    /**
+     * @summary Set a the table filter state.
+     * @param {string} state
+     * @param {filterTreeSetStateOptionsObject} [options]
+     * @param {string} [options.syntax='CQL']
+     */
+    setTableFilter: function(state, options) {
+        this.getGlobalFilter().setTableFilterState(state, options);
+        this.applyAnalytics();
     },
 
     /**

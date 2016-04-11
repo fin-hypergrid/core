@@ -134,7 +134,7 @@ var ComboBox = Textfield.extend('ComboBox', {
             column.menuModes || // (1) use proxy from last time (editing ended without a column filter to put in the filter tree)
             columnFilterSubtree && columnFilterSubtree.menuModes || // (2) use column filter's `menuModes` WHEN available
             columnSchema && columnSchema.menuModes || // ELSE (3) use column schema's `menuModes` when defined
-            columnFilters.menuModes; // ELSE (4) use the filter default (which itself defaults to operators ON, others OFF; see definition at top of CustomFilter.js)
+            columnFilters.menuModes; // ELSE (4) use the filter default (which itself defaults to operators ON, others OFF; see definition at top of DefaultFilter.js)
 
         var menuModes = this.menuModes = column.menuModes = {};
 

@@ -42,7 +42,7 @@ var ManageFilters = Dialog.extend('ManageFilters', {
      * @param {HTMLElement} [options.container=document.body]
      */
     initialize: function(grid, options) {
-        this.filter = grid.behavior.getGlobalFilter();
+        this.filter = grid.getGlobalFilter();
 
         this.append(markup.filterTrees);
 
@@ -138,7 +138,7 @@ function saveFolders(options, tab, folder, panel) {
 
 /**
  * @this Filter
- * @param {CustomFilter} subtree
+ * @param {DefaultFilter} subtree
  * @param {object} [options={alert:true,focus:true}] - Side effects as per `FilterTree.prototype.invalid`'s `options`' parameter.
  * @returns {undefined|string} - Validation error text; falsy means valid (no error).
  */

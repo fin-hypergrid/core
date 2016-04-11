@@ -7,6 +7,8 @@ var Base = require('../lib/Base');
 var Column = require('./Column');
 var dialogs = require('../dialogs');
 var CellProvider = require('../lib/CellProvider');
+var ColumnSchemaFactory = require('../filter/ColumnSchemaFactory');
+var DefaultFilter = require('../filter/DefaultFilter');
 
 var noExportProperties = [
     'columnHeader',
@@ -103,7 +105,15 @@ var Behavior = Base.extend('Behavior', {
     scrollPositionY: 0,
 
     featureMap: {},
+
+    /**
+     * @type {Column[]}
+     */
     allColumns: [],
+
+    /**
+     * @type {Column[]}
+     */
     columns: [],
 
     reset: function() {
@@ -1593,12 +1603,45 @@ var Behavior = Base.extend('Behavior', {
         }
     },
 
+    getDefaultFilter: function() {
+        var newFilter;
+        if (this.columns.length) {
+            var factory = new ColumnSchemaFactory(this.columns);
+            newFilter = new DefaultFilter({
+                schema: factory.schema,
+                caseSensitiveColumnNames: this.grid.resolveProperty('filterCaseSensitiveColumnNames'),
+                resolveAliases: this.grid.resolveProperty('filterResolveAliases')
+            });
+        }
+        return newFilter;
+    },
+
     getGlobalFilter: function() {
         return this.dataModel.getGlobalFilter();
     },
 
-    setGlobalFilter: function(filterOrOptions) {
-        this.dataModel.setGlobalFilter(filterOrOptions);
+    setGlobalFilter: function(filter) {
+        this.dataModel.setGlobalFilter(filter);
+    },
+
+    setGlobalFilterCaseSensitivity: function(isSensitive) {
+        this.dataModel.setGlobalFilterCaseSensitivity(isSensitive);
+    },
+
+    getFilter: function(columnIndexOrName, options) {
+        return this.dataModel.getFilter(columnIndexOrName, options);
+    },
+
+    setFilter: function(columnIndexOrName, state, options) {
+        this.dataModel.setFilter(columnIndexOrName, state, options);
+    },
+
+    getTableFilter: function(options) {
+        return this.dataModel.getTableFilter(options);
+    },
+
+    setTableFilter: function(state, options) {
+        this.dataModel.setTableFilter(state, options);
     },
 
     getSelectedRows: function() {

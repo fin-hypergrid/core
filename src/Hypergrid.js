@@ -278,10 +278,6 @@ Hypergrid.prototype = {
         }
     },
 
-    toggleColumnPicker: function() {
-        this.behavior.toggleColumnPicker();
-    },
-
     /**
      * @memberOf Hypergrid.prototype
      * @returns {boolean} The pointer is over the given cell.
@@ -3127,12 +3123,28 @@ Hypergrid.prototype = {
     getGlobalFilter: function() {
         return this.behavior.getGlobalFilter();
     },
-    setGlobalFilter: function(filterOrOptions) {
-        this.behavior.setGlobalFilter(filterOrOptions);
+    setGlobalFilter: function(filter) {
+        this.behavior.setGlobalFilter(filter);
+        this.repaint();
     },
     setGlobalFilterCaseSensitivity: function(isSensitive) {
         // this setting affects all grids
-        this.behavior.dataModel.setGlobalFilterCaseSensitivity(isSensitive);
+        this.behavior.setGlobalFilterCaseSensitivity(isSensitive);
+        this.repaint();
+    },
+    getFilter: function(columnIndexOrName, options) {
+        return this.behavior.getFilter(columnIndexOrName, options);
+    },
+    setFilter: function(columnIndexOrName, state, options) {
+        this.behavior.setFilter(columnIndexOrName, state, options);
+        this.repaint();
+    },
+    getTableFilter: function(options) {
+        return this.behavior.getTableFilter(options);
+    },
+    setTableFilter: function(state, options) {
+        this.behavior.setTableFilter(state, options);
+        this.repaint();
     },
     selectRowsFromCells: function() {
         if (!this.isCheckboxOnlyRowSelections()) {
@@ -3203,8 +3215,69 @@ Hypergrid.prototype = {
         return formatter(value);
     },
 
+    /**
+     * @summary Sticky hash of dialog options objects.
+     * @desc Each key is a dialog name; the value is the options object for that dialog.
+     * The default dialog options object has the key `'undefined'`, which is undefined by default; it is set by calling `setDialogOptions` with no `dialogName` parameter.
+     * @private
+     */
+    dialogOptions: {},
+
+    /**
+     * @summary Set and/or return a specific dialog options object *or* a default dialog options object.
+     *
+     * @desc If `options` defined:
+     * * If `dialogName` defined: Save the specific dialog's options object.
+     * * If `dialogName` undefined: Save the default dialog options object.
+     *
+     * If `options` is _not_ defined, no new dialog options object will be saved; but a previously saved preset will be returned (after mixing into the default preset if there is one).
+     *
+     * The default dialog options object is used in two ways:
+     * * when a dialog has no options object
+     * * as a mix-in base when a dialog does have an options object
+     *
+     * @param {string} [dialogName] If defined, `options` defines the default dialog options object.
+     *
+     * @param {object} [options] If defined, preset the named dialog options object or the default dialog options object if name is undefined.
+     *
+     * @returns {object} One of:
+     * * When `options` undefined, first of:
+     *   * previous preset
+     *   * default preset
+     *   * empty object
+     * * When `options` defined, first of:
+     *   * mix-in: default preset members + `options` members
+     *   * `options` verbatim when default preset undefined     *
+     */
+    setDialogOptions: function(dialogName, options) {
+        if (typeof dialogName === 'object') {
+            options = dialogName;
+            dialogName = undefined;
+        }
+        var defaultOptions = this.dialogOptions.undefined;
+        options = options || dialogName && this.dialogOptions[dialogName];
+        if (options) {
+            this.dialogOptions[dialogName] = options;
+            if (defaultOptions) {
+                options = _({}).extend(defaultOptions, options); // make a mix-in
+            }
+        } else {
+            options = defaultOptions || {};
+        }
+        return options;
+    },
+
+    /**
+     * Options objects are remembered for subsequent use. Alternatively, they can be preset by calling {@link Hypergrid#setDialogOptions|setDialogOptions}.
+     * @param {string} dialogName
+     * @param {object} [options] - If omitted, use the options object previously given here (or to {@link Hypergrid#setDialogOptions|setDialogOptions}), if any. In any case, the resultant options object, if any, is mixed into the default options object, if there is one.
+     */
     openDialog: function(dialogName, options) {
         this.stopEditing();
+        options = this.setDialogOptions(dialogName, options);
+        options.terminate = function() { // when about-to-be-opened dialog is eventually closed
+            delete this.dialog;
+        }.bind(this);
         this.dialog = this.behavior.openDialog(dialogName, options);
     },
 
@@ -3213,9 +3286,6 @@ Hypergrid.prototype = {
         var dialog = this.dialog,
             oldDialogName = dialog && dialog.$$CLASS_NAME;
         if (!dialog || !this.dialog.close() && oldDialogName !== newDialogName) {
-            options.terminate = function() { // when about-to-be-opened dialog is eventually closed
-                delete this.dialog;
-            }.bind(this);
             if (!dialog) {
                 // open new dialog now
                 this.openDialog(newDialogName, options);

@@ -4,6 +4,12 @@
 
 var _ = require('object-iterators');
 
+/**
+ * @constructor
+ * @param behavior
+ * @param index
+ * @param label
+ */
 function Column(behavior, index, label) {
     this.behavior = behavior;
     this.dataModel = behavior.dataModel;

@@ -3,11 +3,7 @@
 var _ = require('object-iterators');
 
 var FilterTree = require('../Shared').FilterTree;
-
-var Parser = {
-    CQL: require('./parser-CQL'),
-    SQL: require('./parser-SQL')
-};
+var ParserCQL = require('./parser-CQL');
 
 // Add a property `menuModes` to the tree, defaulting to `operators` as the only active mode
 FilterTree.Node.optionsSchema.menuModes = {
@@ -40,6 +36,38 @@ var ConditionalsCql = FilterTree.Conditionals.extend({
     }
 });
 
+var likeDresses = [
+    { regex: /^(NOT )?LIKE %(.+)%$/i, operator: 'contains' },
+    { regex: /^(NOT )?LIKE (.+)%$/i, operator: 'begins' },
+    { regex: /^(NOT )?LIKE %(.+)$/i, operator: 'ends' }
+];
+var regexEscapedLikePatternChars = /\[([_\[\]%])\]/g; // capture all _, [, ], and % chars enclosed in []
+var regexLikePatternChar = /[_\[\]%]/; // find any _, [, ], and % chars NOT enclosed in []
+
+// convert certain LIKE expressions to BEGINS, ENDS, CONTAINS
+function convertLikeToPseudoOp(result) {
+    likeDresses.find(function(dress) {
+        var match = result.match(dress.regex);
+
+        if (match) {
+            // unescape all LIKE pattern chars escaped with brackets
+            var not = (match[1] || '').toLowerCase(),
+                operator = dress.operator,
+                operand = match[2],
+                operandWithoutEscapedChars = operand.replace(regexEscapedLikePatternChars, '');
+
+            // if result has no actua remaining LIKE pattern chars, go with the conversion
+            if (!regexLikePatternChar.test(operandWithoutEscapedChars)) {
+                operand = operand.replace(regexEscapedLikePatternChars, '$1'); // unescape the escaped chars
+                result = not + operator + ' ' + operand;
+            }
+
+            return true; // break out of loop
+        }
+    });
+
+    return result;
+}
 var conditionals = new ConditionalsCql();
 
 // replace the default filter tree terminal node constructor with an extension of same
@@ -53,6 +81,7 @@ var CustomFilterLeaf = FilterTree.prototype.addEditor({
             if (result[0] === '=') {
                 result = result.substr(1);
             }
+            result = convertLikeToPseudoOp(result);
         } else {
             result = FilterTree.Leaf.prototype.getState.call(this, options);
         }
@@ -63,7 +92,7 @@ var CustomFilterLeaf = FilterTree.prototype.addEditor({
 
 FilterTree.prototype.addEditor('Columns');
 
-// Add some node templates by updating shared instance of FilterNode's templates. (OK to mutate shared instance; filter-tree not being used for anything else here. Alternatively, we could have instantiated a new Templates object for our CustomFilter prototype, although this would only affect tree nodes, not leaf nodes, but that would be ok in this case since the additions below are tree node templates.)
+// Add some node templates by updating shared instance of FilterNode's templates. (OK to mutate shared instance; filter-tree not being used for anything else here. Alternatively, we could have instantiated a new Templates object for our DefaultFilter prototype, although this would only affect tree nodes, not leaf nodes, but that would be ok in this case since the additions below are tree node templates.)
 _(FilterTree.Node.prototype.templates).extendOwn({
     columnFilter: function() {
 /*
@@ -101,7 +130,7 @@ _(FilterTree.Node.prototype.templates).extendOwn({
  * > NOTE: If `options.state` is undefined, it is defined here as a new {@link makeNewRoot|empty state scaffold) to hold new table filter and column filter expressions to be added through UI.
  */
 
-var CustomFilter = FilterTree.extend('CustomFilter', {
+var DefaultFilter = FilterTree.extend('DefaultFilter', {
     preInitialize: function(options) {
         if (options) {
 
@@ -125,9 +154,19 @@ var CustomFilter = FilterTree.extend('CustomFilter', {
         }
     },
 
+    postInitialize: function(options) {
+        if (this === this.root && !this.parserCQL) {
+            this.parserCQL = new ParserCQL({
+                schema: this.schema,
+                caseSensitiveColumnNames: options.caseSensitiveColumnNames,
+                resolveAliases: options.resolveAliases
+            });
+        }
+    },
+
     /**
      * Create convenience vars to reference the 2 root "Hyperfilter" nodes
-     * @memberOf CustomFilter.prototype
+     * @memberOf DefaultFilter.prototype
      */
     extractSubtrees: function() {
         var rootNodes = this.root.children;
@@ -148,19 +187,19 @@ var CustomFilter = FilterTree.extend('CustomFilter', {
      * * AND table filters and column filters together (cannot be changed from UI)
      *
      * @returns a new instance of a Hyperfilter root
-     * @memberOf CustomFilter.prototype
+     * @memberOf DefaultFilter.prototype
      */
     makeNewRoot: function() {
 
         this.tableFilter = {
-            persist: true,
+            keep: true,
             children: [
                 // table filter expressions and subexpressions go here
             ]
         };
 
         this.columnFilters = {
-            persist: true,
+            keep: true,
             type: 'columnFilters',
             children: [
                 // subexpressions with type 'columnFilter' go here, one for each active column filter
@@ -177,6 +216,13 @@ var CustomFilter = FilterTree.extend('CustomFilter', {
         return filter;
     },
 
+    /**
+     * @summary Get the column filter subexpression node.
+     * @desc The column filter subexpression nodes are child nodes of the `columnFitlers` branch of the Hypergrid filter tree.
+     * Each such node contains all the column filter expressions for the named column. It will never be empty; rather if there is no column filter for the named column, it won't exist in `columnFilters`.
+     * @param {string} columnName
+     * @returns {undefined|DefaultFilter} Returns `undefined` if the column filter does not exist.
+     */
     getColumnFilter: function(columnName) {
         return this.columnFilters.children.find(function(columnFilter) {
             return columnFilter.children.length && columnFilter.children[0].column === columnName;
@@ -194,17 +240,22 @@ var CustomFilter = FilterTree.extend('CustomFilter', {
     /**
      *
      * @param columnName
-     * @param {filterTreeGetStateOptionsObject} [options]
-     * @param {boolean} [options.syntax='CQL']
-     * @memberOf CustomFilter.prototype
+     * @param {FilterTreeGetStateOptionsObject} [options] - Passed to `getState`.
+     * @param {boolean} [options.syntax='CQL'] - The syntax to use to describe the filter state.
+     *
+     * NOTE: Not all available syntaxes include the meta-data.
+     * @memberOf DefaultFilter.prototype
      */
     getColumnFilterState: function(columnName, options) {
         var result,
             subexpression = this.getColumnFilter(columnName);
 
         if (subexpression) {
-            var syntax = options && options.syntax || 'CQL';
-            result = subexpression.getState({ syntax: syntax });
+            if (!(options && options.syntax)) {
+                options = options || {};
+                options.syntax = 'CQL';
+            }
+            result = subexpression.getState(options);
         } else {
             result = '';
         }
@@ -215,41 +266,55 @@ var CustomFilter = FilterTree.extend('CustomFilter', {
     /**
      *
      * @param columnName
-     * @param {string|object} [query] - If undefined, removes column filter from the filter tree.
+     * @param {string|object} [state] - If undefined, removes column filter from the filter tree.
      *
-     * Otherwise, column filter is replaced (if it already exists) or added (if new). Interpretation of this parameter is auto-detected as per {@link http://joneit.github.io/filter-tree/FilterNode.html#~parseStateString|parseStateString} unless overridden by `options.syntax` (as explained therein).
+     * Otherwise, column filter is replaced (if it already exists) or added (if new).
      * @param {filterTreeSetStateOptionsObject} [options]
-     * @param {boolean} [options.syntax='CQL']
-     * @memberOf CustomFilter.prototype
+     * @param {boolean} [options.syntax='CQL'] For other possible values, see {@link http://joneit.github.io/filter-tree/global.html#filterTreeSetStateOptionsObject|filterTreeSetStateOptionsObject}.
+     *
+     * @returns {undefined|Error|string} `undefined` indicates success.
+
+     * @memberOf DefaultFilter.prototype
      */
-    setColumnFilterState: function(columnName, query, options) {
-        var error, state,
-            language = options && options.syntax || 'CQL',
+    setColumnFilterState: function(columnName, state, options) {
+        var error,
             subexpression = this.getColumnFilter(columnName);
 
-        // on first use, set up a new CQL instance for this column filter's subtree bound to column properties
-        this[language] = this[language] ||
-            new Parser[language](this.root.schema, resolveColumnProperty.bind(this, columnName));
+        if (state) {
+            options = _({}).extend(options); // clone it because we may mutate it below
+            options.syntax = options.syntax || 'CQL';
 
-        // convert some CQL state syntax into a filter tree state object
-        try {
-            state = this[language].parse(query, { columnName: columnName });
-        } catch (e) {
-            error = e.message || e;
-            console.warn(error);
-        }
-
-        if (state) { // parse successful
-            if (subexpression) { // subexpression already exists
-                // replace subexpression representing this column
-                subexpression.setState(state);
-            } else {
-                // add a new subexpression representing this column
-                subexpression = this.columnFilters.add(state);
+            // on first use, set up a new CQL instance for this column filter's subtree bound to column properties
+            if (options.syntax === 'CQL') {
+                // Convert some CQL state syntax into a filter tree state object.
+                // There must be at least one complete expression or `state` will become undefined.
+                try {
+                    state = this.root.parserCQL.parse(state, { columnName: columnName });
+                    if (state) {
+                        options.syntax = 'object';
+                    } else {
+                        error = new Error('DefaultFilter: No complete expression.');
+                    }
+                } catch (e) {
+                    error = e.message || e;
+                    console.warn(error);
+                }
             }
 
-            error = subexpression.invalid(options);
-        } else if (!query && subexpression) {
+            if (!error) { // parse successful
+                if (subexpression) { // subexpression already exists
+                    // replace subexpression representing this column
+                    subexpression.setState(state, options);
+                } else {
+                    // add a new subexpression representing this column
+                    state = this.parseStateString(state, options); // because .add() only takes object syntax
+                    subexpression = this.columnFilters.add(state);
+                }
+                error = subexpression.invalid(options);
+            }
+        }
+
+        if (error && subexpression) {
             // remove subexpression representing this column
             subexpression.remove();
         }
@@ -258,29 +323,39 @@ var CustomFilter = FilterTree.extend('CustomFilter', {
     },
 
     /**
-     * This is only intended to be called when this is the root node.
-     * @param query
+     * @param {string} state
+     * @param {filterTreeSetStateOptionsObject} options
+     * @param {boolean} [options.syntax='auto'] For other possible values, see {@link http://joneit.github.io/filter-tree/global.html#filterTreeSetStateOptionsObject|filterTreeSetStateOptionsObject}.
+     *
+     * @returns {undefined|Error|string} `undefined` indicates success.
+     *
+     * @memberOf DefaultFilter.prototype
      */
-    setTableFilterState: function(query, options) {
-        var error, state;
-
-        // on first use, set up a new SQL instance the table filters subtree bound to grid properties
-        this.SQL = this.SQL || new Parser.SQL(this.root.schema, resolveTableProperty.bind(this));
-
-        // convert some SQL state syntax into a filter tree state object
-        try {
-            state = this.SQL.parse(query);
-        } catch (e) {
-            error = e.message || e;
-            console.warn(error);
-        }
+    setTableFilterState: function(state, options) {
+        var error;
 
         if (state) {
-            this.tableFilter.setState(state);
-            error = this.tableFilter.invalid(options);
+            this.root.tableFilter.setState(state);
+            error = this.root.tableFilter.invalid(options);
         }
 
         return error;
+    },
+
+    /**
+     *
+     * @param {string} [options.syntax='object'] - The syntax to use to describe the filter state.
+     *
+     * NOTE: Not all available syntaxes include the meta-data.
+     *
+     * NOTE: The `'CQL'` syntax is intended for column filters only. Do *not* use for table filter state! It does not support subexpressions and will throw an error if it encounters any subexpressions.
+     *
+     * @returns {*|FilterTreeStateObject}
+     *
+     * @memberOf DefaultFilter.prototype
+     */
+    getTableFilterState: function(options) {
+        return this.tableFilter.getState(options);
     },
 
     /**
@@ -289,6 +364,8 @@ var CustomFilter = FilterTree.extend('CustomFilter', {
      * @param {string} [options.syntax='object'] - If `'CQL'`, walks the tree, returning a string suitable for a Hypergrid filter cell. All other values are forwarded to the prototype's `getState` method for further interpretation.
      *
      * @returns {FilterTreeStateObject}
+     *
+     * @memberOf DefaultFilter.prototype
      */
     getState: function getState(options) {
         var result,
@@ -305,7 +382,7 @@ var CustomFilter = FilterTree.extend('CustomFilter', {
                         }
                         result += child.getState(options);
                     } else if (child.children.length) {
-                        throw new Error('CustomFilter: Expected a conditional but found a subexpression. Subexpressions are not supported in CQL ("column query language," the filter cell syntax).');
+                        throw new Error('DefaultFilter: Expected a conditional but found a subexpression. Subexpressions are not supported in CQL (Column Query Language, the filter cell syntax).');
                     }
                 }
             });
@@ -317,13 +394,4 @@ var CustomFilter = FilterTree.extend('CustomFilter', {
     }
 });
 
-function resolveColumnProperty(columnName, propertyName) {
-    //todo: finish this
-    //return column.resolveColumnProperty('filterCql' + key[0].toUpperCase() + key.substr(1));
-}
-
-function resolveTableProperty(propertyName) {
-    //todo: finish this for sqlIdQts property
-}
-
-module.exports = CustomFilter;
+module.exports = DefaultFilter;
