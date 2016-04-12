@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: cellEditors/Simple.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: cellEditors/Simple.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/* eslint-env browser */
+
+'use strict';
+
+var CellEditor = require('./CellEditor.js');
+
+/**
+ * @constructor
+ */
+var Simple = CellEditor.extend('Simple', {
+    element: null,
+
+    /**
+     * @memberOf Simple.prototype
+     */
+    initialize: function(grid) {
+        this.editorPoint = {
+            x: 0,
+            y: 0
+        };
+
+        this.reset();
+
+        var self = this;
+        this.el.addEventListener('keyup', this.keyup.bind(this));
+        this.el.addEventListener('keydown', function(e) { grid.fireSyntheticEditorKeyDownEvent(self, e); });
+        this.el.addEventListener('keypress', function(e) { grid.fireSyntheticEditorKeyPressEvent(self, e); });
+        this.el.onblur = function(e) { self.cancelEditing(); };
+    },
+
+    specialKeyups: {
+        //0x08: 'clearStopEditing', // backspace
+        0x09: 'stopEditing', // tab
+        0x0d: 'stopEditing', // return/enter
+        0x1b: 'cancelEditing' // escape
+    },
+
+    keyup: function(e) {
+        if (e) {
+            var specialKeyup = this.specialKeyups[e.keyCode];
+
+            if (specialKeyup) {
+                e.preventDefault();
+                this[specialKeyup]();
+                this.grid.repaint();
+                this.grid.takeFocus();
+            }
+
+            this.grid.fireSyntheticEditorKeyUpEvent(this, e);
+        }
+    },
+
+    /**
+     * @memberOf Simple.prototype
+     * @returns {object} the current editor's value
+     */
+    getEditorValue: function() {
+        return this.input.value;
+    },
+
+    /**
+     * @memberOf Simple.prototype
+     * @desc save the new value into the behavior(model)
+     */
+    setEditorValue: function(value) {
+        this.input.value = value;
+    },
+
+    clearStopEditing: function() {
+        this.setEditorValue('');
+        this.stopEditing();
+    },
+
+    cancelEditing: function() {
+        this.setEditorValue(null);
+        this.hideEditor();
+    },
+
+    /**
+     * @memberOf Simple.prototype
+     * @desc display the editor
+     */
+    showEditor: function() {
+        this.el.style.display = 'inline';
+    },
+
+    /**
+     * @memberOf Simple.prototype
+     * @desc hide the editor
+     */
+    hideEditor: function() {
+        this.el.style.display = 'none';
+    },
+
+    /**
+     * @summary Request focus for my input control.
+     * @desc See GRID-95 "Scrollbar moves inward" for issue and work-around explanation.
+     * @memberOf Simple.prototype
+     */
+    takeFocus: function() {
+        var self = this;
+        setTimeout(function() {
+            var input = self.el,
+                transformWas = input.style.transform;
+
+            input.style.transform = 'translate(0,0)'; // work-around: move to upper left
+
+            self.input.focus();
+            self.selectAll();
+
+            input.style.transform = transformWas;
+        });
+    },
+
+    /**
+     * @memberOf Simple.prototype
+     * @desc select everything
+     */
+    selectAll: function() {
+
+    },
+
+    /**
+     * @memberOf Simple.prototype
+     * @desc how much should I offset my bounds from 0,0
+     */
+    originOffset: function() {
+        return [0, 0];
+    },
+
+    /**
+     * @memberOf Simple.prototype
+     * @desc set the bounds of my input control
+     * @param {rectangle} rectangle - the bounds to move to
+     */
+    setBounds: function(cellBounds) {
+        var input = this.el;
+        var originOffset = this.originOffset();
+
+        input.style.transform = translate(
+            cellBounds.x - 1 + originOffset[0],
+            cellBounds.y - 1 + originOffset[1]
+        );
+
+        input.style.width = px(cellBounds.width + 2);
+        input.style.height = px(cellBounds.height + 2);
+    },
+
+    saveEditorValue: function() {
+        var point = this.getEditorPoint();
+        var value = this.getEditorValue().trim();
+
+        if (value &amp;&amp; value === this.initialValue) {
+            return; //data didn't change do nothing
+        }
+        if (parseFloat(this.initialValue) === this.initialValue) { // I'm a number
+            value = parseFloat(value);
+        }
+        var continued = this.grid.fireBeforeCellEdit(point, this.initialValue, value, this);
+        if (!continued) {
+            return;
+        }
+        this.grid.behavior.setValue(point.x, point.y, value);
+        this.grid.fireAfterCellEdit(point, this.initialValue, value, this);
+    },
+
+    /**
+     * @memberOf CellEditor.prototype
+     * @desc move the editor to the current editor point
+     */
+    _moveEditor: function() {
+        var editorPoint = this.getEditorPoint();
+        var cellBounds = this.grid._getBoundsOfCell(editorPoint.x, editorPoint.y);
+
+        //hack to accommodate bootstrap margin issues...
+        var xOffset =
+            this.grid.div.getBoundingClientRect().left -
+            this.grid.divCanvas.getBoundingClientRect().left;
+        cellBounds.x = cellBounds.x - xOffset;
+
+        this.setBounds(cellBounds);
+    },
+
+    moveEditor: function() {
+        this._moveEditor();
+        this.takeFocus();
+    },
+
+    beginEditAt: function(point) {
+        if (!this.isAdded) {
+            this.isAdded = true;
+            this.attachEditor();
+        }
+
+        this.setEditorPoint(point);
+        var value = this.grid.behavior.getValue(point.x, point.y);
+        if (value.constructor.name === 'Array') {
+            value = value[1]; //it's a nested object
+        }
+
+        if (this.grid.fireRequestCellEdit(point, value)) {
+            this.initialValue = value;
+            this.setCheckEditorPositionFlag();
+            this.checkEditor();
+        }
+    },
+
+    checkEditor: function() {
+        if (this.checkEditorPositionFlag) {
+            this.checkEditorPositionFlag = false;
+            var editorPoint = this.getEditorPoint();
+            if (this.grid.isDataVisible(editorPoint.x, editorPoint.y)) {
+                this.preShowEditorNotification();
+                this.attachEditor();
+                this.moveEditor();
+                this.showEditor();
+            } else {
+                this.hideEditor();
+            }
+        }
+    },
+
+    attachEditor: function() {
+        var input = this.el,
+            div = this.grid.div,
+            referenceNode = div.querySelectorAll('.finbar-horizontal, .finbar-vertical');
+
+        div.insertBefore(input, referenceNode.length ? referenceNode[0] : null);
+    },
+
+    preShowEditorNotification: function() {
+        this.setEditorValue(this.initialValue);
+    },
+
+    /* following moved to bottom of file because extend-me does not properly accept getters yet :(
+
+    get input() {
+        return this.el;
+    },
+
+    */
+
+    reset: function() {
+        var container = document.createElement('DIV');
+        container.innerHTML = this.getHTML();
+
+        /**
+         * This object's input control, one of:
+         * * *input element* - an `HTMLElement` that has a `value` attribute, such as `HTMLInputElement`, `HTMLButtonElement`, etc.
+         * * *container element* - an `HTMLElement` containing one or more input elements, only one of which contains the editor value.
+         *
+         * For access to the input control itself (which may or may not be the same as `this.el`), see `this.input`.
+         *
+         * @type {HTMLElement}
+         * @default null
+         * @memberOf CellEditor.prototype
+         */
+        this.el = container.firstChild;
+
+        this.input = this.el;
+    },
+
+    updateView: function() {
+        var oldEl = this.el;
+        this.reset();
+        oldEl.parentNode.replaceChild(this.el, oldEl);
+    },
+
+    showDropdown: function() {
+        var event = document.createEvent('MouseEvents');
+        event.initMouseEvent('mousedown', true, true, window);
+        this.input.dispatchEvent(event);
+    }
+});
+
+function px(n) { return n + 'px'; }
+function translate(x, y) { return 'translate(' + px(x) + ',' + px(y) + ')'; }
+
+
+Simple.abstract = true; // don't instantiate directly
+
+
+module.exports = Simple;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-behaviors_default.html">behaviors\default</a></li><li><a href="module-behaviors_gol.html">behaviors\gol</a></li><li><a href="module-behaviors_in-memory.html">behaviors\in-memory</a></li><li><a href="module-behaviors_q.html">behaviors\q</a></li><li><a href="module-behaviors_qtree.html">behaviors\qtree</a></li><li><a href="module-behaviors_web-worker.html">behaviors\web-worker</a></li><li><a href="module-defaults.html">defaults</a></li></ul><h3>Classes</h3><ul><li><a href="Behavior.html">Behavior</a></li><li><a href="behaviors.JSON.html">JSON</a></li><li><a href="behaviors.Local.html">Local</a></li><li><a href="CellClick.html">CellClick</a></li><li><a href="CellEditing.html">CellEditing</a></li><li><a href="CellEditor.html">CellEditor</a></li><li><a href="CellProvider.html">CellProvider</a></li><li><a href="CellSelection.html">CellSelection</a></li><li><a href="Choice.html">Choice</a></li><li><a href="Color.html">Color</a></li><li><a href="Column.html">Column</a></li><li><a href="ColumnAutosizing.html">ColumnAutosizing</a></li><li><a href="ColumnMoving.html">ColumnMoving</a></li><li><a href="ColumnPicker.html">ColumnPicker</a></li><li><a href="ColumnResizing.html">ColumnResizing</a></li><li><a href="ColumnSchemaFactory.html">ColumnSchemaFactory</a></li><li><a href="ColumnSelection.html">ColumnSelection</a></li><li><a href="ColumnSorting.html">ColumnSorting</a></li><li><a href="Combo.html">Combo</a></li><li><a href="ComboBox.html">ComboBox</a></li><li><a href="ConditionalsCql.html">ConditionalsCql</a></li><li><a href="DataModel.html">DataModel</a></li><li><a href="dataModels.JSON.html">JSON</a></li><li><a href="Date.html">Date</a></li><li><a href="DecoratorBase.html">DecoratorBase</a></li><li><a href="Default.html">Default</a></li><li><a href="DefaultFilter.html">DefaultFilter</a></li><li><a href="Dialog.html">Dialog</a></li><li><a href="Feature.html">Feature</a></li><li><a href="Filters.html">Filters</a></li><li><a href="Hypergrid.html">Hypergrid</a></li><li><a href="InMemory.html">InMemory</a></li><li><a href="KeyPaging.html">KeyPaging</a></li><li><a href="ManageFilters.html">ManageFilters</a></li><li><a href="Null.html">Null</a></li><li><a href="OnHover.html">OnHover</a></li><li><a href="ParserCQL.html">ParserCQL</a></li><li><a href="Renderer.html">Renderer</a></li><li><a href="RowResizing.html">RowResizing</a></li><li><a href="RowSelection.html">RowSelection</a></li><li><a href="SelectionModel.html">SelectionModel</a></li><li><a href="Simple.html">Simple</a></li><li><a href="Slider.html">Slider</a></li><li><a href="Spinner.html">Spinner</a></li><li><a href="Textfield.html">Textfield</a></li><li><a href="ThumbwheelScrolling.html">ThumbwheelScrolling</a></li></ul><h3>Tutorials</h3><ul><li><a href="tutorial-filter-api.html">filter-api</a></li></ul><h3>Global</h3><ul><li><a href="global.html#addDeepProperties">addDeepProperties</a></li><li><a href="global.html#allColumns">allColumns</a></li><li><a href="global.html#append">append</a></li><li><a href="global.html#close">close</a></li><li><a href="global.html#columns">columns</a></li><li><a href="global.html#copy">copy</a></li><li><a href="global.html#copyAll">copyAll</a></li><li><a href="global.html#getBehavior">getBehavior</a></li><li><a href="global.html#getColumnFilter">getColumnFilter</a></li><li><a href="global.html#getFilter">getFilter</a></li><li><a href="global.html#getGrid">getGrid</a></li><li><a href="global.html#getTableFilter">getTableFilter</a></li><li><a href="global.html#hideEditor">hideEditor</a></li><li><a href="global.html#initialize">initialize</a></li><li><a href="global.html#onClick">onClick</a></li><li><a href="global.html#onTransitionEnd">onTransitionEnd</a></li><li><a href="global.html#open">open</a></li><li><a href="global.html#renderCellError">renderCellError</a></li><li><a href="global.html#saveFolder">saveFolder</a></li><li><a href="global.html#saveFolders">saveFolders</a></li><li><a href="global.html#setColumnFilterState">setColumnFilterState</a></li><li><a href="global.html#setFilter">setFilter</a></li><li><a href="global.html#setTableFilter">setTableFilter</a></li><li><a href="global.html#showEditor">showEditor</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a> on Mon Apr 11 2016 14:58:32 GMT-0400 (EDT)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

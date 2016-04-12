@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: features/ColumnMoving.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: features/ColumnMoving.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/* eslint-env browser */
+/* global requestAnimationFrame */
+
+'use strict';
+
+// This feature is responsible for column drag and drop reordering.
+// This object is a mess and desperately needs a complete rewrite.....
+
+var Feature = require('./Feature.js');
+
+var columnAnimationTime = 150;
+var dragger;
+var draggerCTX;
+var floatColumn;
+var floatColumnCTX;
+
+/**
+ * @constructor
+ */
+var ColumnMoving = Feature.extend('ColumnMoving', {
+
+    /**
+     * queue up the animations that need to play so they are done synchronously
+     * @type {Array}
+     * @memberOf CellMoving.prototype
+     */
+    floaterAnimationQueue: [],
+
+    /**
+     * am I currently auto scrolling right
+     * @type {boolean}
+     * @memberOf CellMoving.prototype
+     */
+    columnDragAutoScrollingRight: false,
+
+    /**
+     * am I currently auto scrolling left
+     * @type {boolean}
+     * @memberOf CellMoving.prototype
+     */
+    columnDragAutoScrollingLeft: false,
+
+    /**
+     * is the drag mechanism currently enabled ("armed")
+     * @type {boolean}
+     * @memberOf CellMoving.prototype
+     */
+    dragArmed: false,
+
+    /**
+     * am I dragging right now
+     * @type {boolean}
+     * @memberOf CellMoving.prototype
+     */
+    dragging: false,
+
+    /**
+     * the column index of the currently dragged column
+     * @type {number}
+     * @memberOf CellMoving.prototype
+     */
+    dragCol: -1,
+
+    /**
+     * an offset to position the dragged item from the cursor
+     * @type {number}
+     * @memberOf CellMoving.prototype
+     */
+    dragOffset: 0,
+
+    /**
+     * @memberOf CellMoving.prototype
+     * @desc give me an opportunity to initialize stuff on the grid
+     * @param {Hypergrid} grid
+     */
+    initializeOn: function(grid) {
+        this.isFloatingNow = false;
+        this.initializeAnimationSupport(grid);
+        if (this.next) {
+            this.next.initializeOn(grid);
+        }
+    },
+
+    /**
+     * @memberOf CellMoving.prototype
+     * @desc initialize animation support on the grid
+     * @param {Hypergrid} grid
+     */
+    initializeAnimationSupport: function(grid) {
+        if (!dragger) {
+            dragger = document.createElement('canvas');
+            dragger.setAttribute('width', '0px');
+            dragger.setAttribute('height', '0px');
+
+            document.body.appendChild(dragger);
+            draggerCTX = dragger.getContext('2d');
+        }
+        if (!floatColumn) {
+            floatColumn = document.createElement('canvas');
+            floatColumn.setAttribute('width', '0px');
+            floatColumn.setAttribute('height', '0px');
+
+            document.body.appendChild(floatColumn);
+            floatColumnCTX = floatColumn.getContext('2d');
+        }
+
+    },
+
+    getCanDragCursorName: function() {
+        return '-webkit-grab';
+    },
+
+    getDraggingCursorName: function() {
+        return '-webkit-grabbing';
+    },
+
+    /**
+     * @memberOf CellMoving.prototype
+     * @desc handle this event
+     * @param {Hypergrid} grid
+     * @param {Object} event - the event details
+     */
+    handleMouseDrag: function(grid, event) {
+
+        var gridCell = event.gridCell;
+        var x;
+        //var y;
+
+        var distance = Math.abs(event.primitiveEvent.detail.dragstart.x - event.primitiveEvent.detail.mouse.x);
+
+        if (distance &lt; 10) {
+            if (this.next) {
+                this.next.handleMouseDrag(grid, event);
+            }
+            return;
+        }
+
+        if (this.isHeaderRow(grid, event) &amp;&amp; this.dragArmed &amp;&amp; !this.dragging) {
+            this.dragging = true;
+            this.dragCol = gridCell.x;
+            this.dragOffset = event.mousePoint.x;
+            this.detachChain();
+            x = event.primitiveEvent.detail.mouse.x - this.dragOffset;
+            //y = event.primitiveEvent.detail.mouse.y;
+            this.createDragColumn(grid, x, this.dragCol);
+        } else if (this.next) {
+            this.next.handleMouseDrag(grid, event);
+        }
+
+        if (this.dragging) {
+            x = event.primitiveEvent.detail.mouse.x - this.dragOffset;
+            //y = event.primitiveEvent.detail.mouse.y;
+            this.dragColumn(grid, x);
+        }
+    },
+
+    /**
+     * @memberOf CellMoving.prototype
+     * @desc handle this event
+     * @param {Hypergrid} grid
+     * @param {Object} event - the event details
+     */
+    handleMouseDown: function(grid, event) {
+        if (grid.behavior.isColumnReorderable()) {
+            if (this.isHeaderRow(grid, event) &amp;&amp; event.gridCell.x !== -1) {
+                this.dragArmed = true;
+                this.cursor = this.getDraggingCursorName();
+                grid.clearSelections();
+            }
+        }
+        if (this.next) {
+            this.next.handleMouseDown(grid, event);
+        }
+    },
+
+    /**
+     * @memberOf CellMoving.prototype
+     * @desc handle this event
+     * @param {Hypergrid} grid
+     * @param {Object} event - the event details
+     */
+    handleMouseUp: function(grid, event) {
+        //var col = event.gridCell.x;
+        if (this.dragging) {
+            this.cursor = null;
+            //delay here to give other events a chance to be dropped
+            var self = this;
+            this.endDragColumn(grid);
+            setTimeout(function() {
+                self.attachChain();
+            }, 200);
+        }
+        this.dragCol = -1;
+        this.dragging = false;
+        this.dragArmed = false;
+        this.cursor = null;
+        grid.repaint();
+
+        if (this.next) {
+            this.next.handleMouseUp(grid, event);
+        }
+
+    },
+
+    /**
+     * @memberOf CellMoving.prototype
+     * @desc handle this event
+     * @param {Hypergrid} grid
+     * @param {Object} event - the event details
+     */
+    handleMouseMove: function(grid, event) {
+
+        if (!this.dragging &amp;&amp; event.mousePoint.y &lt; 5 &amp;&amp; event.viewPoint.y === 0) {
+            this.cursor = this.getCanDragCursorName();
+        } else {
+            this.cursor = null;
+        }
+
+        if (this.next) {
+            this.next.handleMouseMove(grid, event);
+        }
+
+        if (this.isHeaderRow(grid, event) &amp;&amp; this.dragging) {
+            this.cursor = this.getDraggingCursorName(); //move';
+        }
+    },
+
+    /**
+     * @memberOf CellMoving.prototype
+     * @desc this is the main event handler that manages the dragging of the column
+     * @param {Hypergrid} grid
+     * @param {boolean} draggedToTheRight - are we moving to the right
+     */
+    floatColumnTo: function(grid, draggedToTheRight) {
+        this.floatingNow = true;
+
+        var renderer = grid.getRenderer();
+        var colEdges = renderer.getColumnEdges();
+        var scrollLeft = grid.getHScrollValue();
+        var floaterIndex = grid.renderOverridesCache.floater.columnIndex;
+        var draggerIndex = grid.renderOverridesCache.dragger.columnIndex;
+        var hdpiratio = grid.renderOverridesCache.dragger.hdpiratio;
+
+        var draggerStartX;
+        var floaterStartX;
+        var fixedColumnCount = grid.getFixedColumnCount();
+        var draggerWidth = grid.getColumnWidth(draggerIndex);
+        var floaterWidth = grid.getColumnWidth(floaterIndex);
+
+        var max = grid.getVisibleColumnsCount();
+
+        var doffset = 0;
+        var foffset = 0;
+
+        if (draggerIndex >= fixedColumnCount) {
+            doffset = scrollLeft;
+        }
+        if (floaterIndex >= fixedColumnCount) {
+            foffset = scrollLeft;
+        }
+
+        if (draggedToTheRight) {
+            draggerStartX = colEdges[Math.min(max, draggerIndex - doffset)];
+            floaterStartX = colEdges[Math.min(max, floaterIndex - foffset)];
+
+            grid.renderOverridesCache.dragger.startX = (draggerStartX + floaterWidth) * hdpiratio;
+            grid.renderOverridesCache.floater.startX = draggerStartX * hdpiratio;
+
+        } else {
+            floaterStartX = colEdges[Math.min(max, floaterIndex - foffset)];
+            draggerStartX = floaterStartX + draggerWidth;
+
+            grid.renderOverridesCache.dragger.startX = floaterStartX * hdpiratio;
+            grid.renderOverridesCache.floater.startX = draggerStartX * hdpiratio;
+        }
+        grid.swapColumns(draggerIndex, floaterIndex);
+        grid.renderOverridesCache.dragger.columnIndex = floaterIndex;
+        grid.renderOverridesCache.floater.columnIndex = draggerIndex;
+
+
+        this.floaterAnimationQueue.unshift(this.doColumnMoveAnimation(grid, floaterStartX, draggerStartX));
+
+        this.doFloaterAnimation(grid);
+
+    },
+
+    /**
+     * @memberOf CellMoving.prototype
+     * @desc manifest the column drag and drop animation
+     * @param {Hypergrid} grid
+     * @param {number} floaterStartX - the x start coordinate of the column underneath that floats behind the dragged column
+     * @param {number} draggerStartX - the x start coordinate of the dragged column
+     */
+    doColumnMoveAnimation: function(grid, floaterStartX, draggerStartX) {
+        var self = this;
+        return function() {
+            var d = floatColumn;
+            d.style.display = 'inline';
+            self.setCrossBrowserProperty(d, 'transform', 'translate(' + floaterStartX + 'px, ' + 0 + 'px)');
+
+            //d.style.webkit-webkit-Transform = 'translate(' + floaterStartX + 'px, ' + 0 + 'px)';
+            //d.style.webkit-webkit-Transform = 'translate(' + floaterStartX + 'px, ' + 0 + 'px)';
+
+            requestAnimationFrame(function() {
+                self.setCrossBrowserProperty(d, 'transition', (self.isWebkit ? '-webkit-' : '') + 'transform ' + columnAnimationTime + 'ms ease');
+                self.setCrossBrowserProperty(d, 'transform', 'translate(' + draggerStartX + 'px, ' + -2 + 'px)');
+            });
+            grid.repaint();
+            //need to change this to key frames
+
+            setTimeout(function() {
+                self.setCrossBrowserProperty(d, 'transition', '');
+                grid.renderOverridesCache.floater = null;
+                grid.repaint();
+                self.doFloaterAnimation(grid);
+                requestAnimationFrame(function() {
+                    d.style.display = 'none';
+                    self.isFloatingNow = false;
+                });
+            }, columnAnimationTime + 50);
+        };
+    },
+
+    /**
+     * @memberOf CellMoving.prototype
+     * @desc manifest the floater animation
+     * @param {Hypergrid} grid
+     */
+    doFloaterAnimation: function(grid) {
+        if (this.floaterAnimationQueue.length === 0) {
+            this.floatingNow = false;
+            grid.repaint();
+            return;
+        }
+        var animation = this.floaterAnimationQueue.pop();
+        animation();
+    },
+
+    /**
+     * @memberOf CellMoving.prototype
+     * @desc create the float column at columnIndex underneath the dragged column
+     * @param {Hypergrid} grid
+     * @param {number} columnIndex - the index of the column that will be floating
+     */
+    createFloatColumn: function(grid, columnIndex) {
+
+        var fixedColumnCount = grid.getFixedColumnCount();
+        var scrollLeft = grid.getHScrollValue();
+
+        if (columnIndex &lt; fixedColumnCount) {
+            scrollLeft = 0;
+        }
+
+        var renderer = grid.getRenderer();
+        var columnEdges = renderer.getColumnEdges();
+
+        var columnWidth = grid.getColumnWidth(columnIndex);
+        var colHeight = grid.div.clientHeight;
+        var d = floatColumn;
+        var style = d.style;
+        var location = grid.div.getBoundingClientRect();
+
+        style.top = (location.top - 2) + 'px';
+        style.left = location.left + 'px';
+        style.position = 'fixed';
+
+        var hdpiRatio = grid.getHiDPI(floatColumnCTX);
+
+        d.setAttribute('width', Math.round(columnWidth * hdpiRatio) + 'px');
+        d.setAttribute('height', Math.round(colHeight * hdpiRatio) + 'px');
+        style.boxShadow = '0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23)';
+        style.width = columnWidth + 'px'; //Math.round(columnWidth / hdpiRatio) + 'px';
+        style.height = colHeight + 'px'; //Math.round(colHeight / hdpiRatio) + 'px';
+        style.borderTop = '1px solid ' + renderer.resolveProperty('lineColor');
+        style.backgroundColor = renderer.resolveProperty('backgroundColor');
+
+        var startX = columnEdges[columnIndex - scrollLeft];
+        startX = startX * hdpiRatio;
+
+        floatColumnCTX.scale(hdpiRatio, hdpiRatio);
+
+        grid.renderOverridesCache.floater = {
+            columnIndex: columnIndex,
+            ctx: floatColumnCTX,
+            startX: startX,
+            width: columnWidth,
+            height: colHeight,
+            hdpiratio: hdpiRatio
+        };
+
+        style.zIndex = '4';
+        this.setCrossBrowserProperty(d, 'transform', 'translate(' + startX + 'px, ' + -2 + 'px)');
+        style.cursor = this.getDraggingCursorName();
+        grid.repaint();
+    },
+
+    /**
+     * @memberOf CellMoving.prototype
+     * @desc utility function for setting cross browser css properties
+     * @param {HTMLElement} element - descripton
+     * @param {string} property - the property
+     * @param {string} value - the value to assign
+     */
+    setCrossBrowserProperty: function(element, property, value) {
+        var uProperty = property[0].toUpperCase() + property.substr(1);
+        this.setProp(element, 'webkit' + uProperty, value);
+        this.setProp(element, 'Moz' + uProperty, value);
+        this.setProp(element, 'ms' + uProperty, value);
+        this.setProp(element, 'O' + uProperty, value);
+        this.setProp(element, property, value);
+    },
+
+    /**
+     * @memberOf CellMoving.prototype
+     * @desc utility function for setting properties on HTMLElements
+     * @param {HTMLElement} element - descripton
+     * @param {string} property - the property
+     * @param {string} value - the value to assign
+     */
+    setProp: function(element, property, value) {
+        if (property in element.style) {
+            element.style[property] = value;
+        }
+    },
+
+    /**
+     * @memberOf CellMoving.prototype
+     * @desc create the dragged column at columnIndex above the floated column
+     * @param {Hypergrid} grid
+     * @param {number} x - the start position
+     * @param {number} columnIndex - the index of the column that will be floating
+     */
+    createDragColumn: function(grid, x, columnIndex) {
+
+        var fixedColumnCount = grid.getFixedColumnCount();
+        var scrollLeft = grid.getHScrollValue();
+
+        if (columnIndex &lt; fixedColumnCount) {
+            scrollLeft = 0;
+        }
+
+        var renderer = grid.getRenderer();
+        var columnEdges = renderer.getColumnEdges();
+        var hdpiRatio = grid.getHiDPI(draggerCTX);
+        var columnWidth = grid.getColumnWidth(columnIndex);
+        var colHeight = grid.div.clientHeight;
+        var d = dragger;
+        var location = grid.div.getBoundingClientRect();
+        var style = d.style;
+
+        style.top = location.top + 'px';
+        style.left = location.left + 'px';
+        style.position = 'fixed';
+        style.opacity = 0.85;
+        style.boxShadow = '0 19px 38px rgba(0,0,0,0.30), 0 15px 12px rgba(0,0,0,0.22)';
+        //style.zIndex = 100;
+        style.borderTop = '1px solid ' + renderer.resolveProperty('lineColor');
+        style.backgroundColor = grid.renderer.resolveProperty('backgroundColor');
+
+        d.setAttribute('width', Math.round(columnWidth * hdpiRatio) + 'px');
+        d.setAttribute('height', Math.round(colHeight * hdpiRatio) + 'px');
+
+        style.width = columnWidth + 'px'; //Math.round(columnWidth / hdpiRatio) + 'px';
+        style.height = colHeight + 'px'; //Math.round(colHeight / hdpiRatio) + 'px';
+
+        var startX = columnEdges[columnIndex - scrollLeft];
+        startX = startX * hdpiRatio;
+
+        draggerCTX.scale(hdpiRatio, hdpiRatio);
+
+        grid.renderOverridesCache.dragger = {
+            columnIndex: columnIndex,
+            ctx: draggerCTX,
+            startX: startX,
+            width: columnWidth,
+            height: colHeight,
+            hdpiratio: hdpiRatio
+        };
+
+        this.setCrossBrowserProperty(d, 'transform', 'translate(' + x + 'px, -5px)');
+        style.zIndex = '5';
+        style.cursor = this.getDraggingCursorName();
+        grid.repaint();
+    },
+
+    /**
+     * @memberOf CellMoving.prototype
+     * @desc this function is the main dragging logic
+     * @param {Hypergrid} grid
+     * @param {number} x - the start position
+     */
+    dragColumn: function(grid, x) {
+
+        //TODO: this function is overly complex, refactor this in to something more reasonable
+        var self = this;
+        //var renderer = grid.getRenderer();
+        //var columnEdges = renderer.getColumnEdges();
+
+        var autoScrollingNow = this.columnDragAutoScrollingRight || this.columnDragAutoScrollingLeft;
+
+        var hdpiRatio = grid.getHiDPI(draggerCTX);
+
+        var dragColumnIndex = grid.renderOverridesCache.dragger.columnIndex;
+        var columnWidth = grid.renderOverridesCache.dragger.width;
+
+        var minX = 0; //grid.getFixedColumnsWidth();
+        var maxX = grid.renderer.getFinalVisableColumnBoundary() - columnWidth;
+        x = Math.min(x, maxX + 15);
+        x = Math.max(minX - 15, x);
+
+        //am I at my lower bound
+        var atMin = x &lt; minX &amp;&amp; dragColumnIndex !== 0;
+
+        //am I at my upper bound
+        var atMax = x > maxX;
+
+        var d = dragger;
+
+        this.setCrossBrowserProperty(d, 'transition', (self.isWebkit ? '-webkit-' : '') + 'transform ' + 0 + 'ms ease, box-shadow ' + columnAnimationTime + 'ms ease');
+
+        this.setCrossBrowserProperty(d, 'transform', 'translate(' + x + 'px, ' + -10 + 'px)');
+        requestAnimationFrame(function() {
+            d.style.display = 'inline';
+        });
+
+        var overCol = grid.renderer.getColumnFromPixelX(x + (d.width / 2 / hdpiRatio));
+
+        if (atMin) {
+            overCol = 0;
+        }
+
+        if (atMax) {
+            overCol = grid.getColumnCount() - 1;
+        }
+
+        var doAFloat = dragColumnIndex > overCol;
+        doAFloat = doAFloat || (overCol - dragColumnIndex >= 1);
+
+        if (doAFloat &amp;&amp; !atMax &amp;&amp; !autoScrollingNow) {
+            var draggedToTheRight = dragColumnIndex &lt; overCol;
+            // if (draggedToTheRight) {
+            //     overCol = overCol - 1;
+            // }
+            if (this.isFloatingNow) {
+                return;
+            }
+
+            this.isFloatingNow = true;
+            this.createFloatColumn(grid, overCol);
+            this.floatColumnTo(grid, draggedToTheRight);
+        } else {
+
+            if (x &lt; minX - 10) {
+                this.checkAutoScrollToLeft(grid, x);
+            }
+            if (x > minX - 10) {
+                this.columnDragAutoScrollingLeft = false;
+            }
+            //lets check for autoscroll to right if were up against it
+            if (atMax || x > maxX + 10) {
+                this.checkAutoScrollToRight(grid, x);
+                return;
+            }
+            if (x &lt; maxX + 10) {
+                this.columnDragAutoScrollingRight = false;
+            }
+        }
+    },
+
+    /**
+     * @memberOf CellMoving.prototype
+     * @desc autoscroll to the right if necessary
+     * @param {Hypergrid} grid
+     * @param {number} x - the start position
+     */
+    checkAutoScrollToRight: function(grid, x) {
+        if (this.columnDragAutoScrollingRight) {
+            return;
+        }
+        this.columnDragAutoScrollingRight = true;
+        this._checkAutoScrollToRight(grid, x);
+    },
+
+    _checkAutoScrollToRight: function(grid, x) {
+        if (!this.columnDragAutoScrollingRight) {
+            return;
+        }
+        var scrollLeft = grid.getHScrollValue();
+        if (!grid.dragging || scrollLeft > (grid.sbHScrollConfig.rangeStop - 2)) {
+            return;
+        }
+        var draggedIndex = grid.renderOverridesCache.dragger.columnIndex;
+        grid.scrollBy(1, 0);
+        var newIndex = draggedIndex + 1;
+        console.log(newIndex, draggedIndex);
+        grid.swapColumns(newIndex, draggedIndex);
+        grid.renderOverridesCache.dragger.columnIndex = newIndex;
+
+        setTimeout(this._checkAutoScrollToRight.bind(this, grid, x), 250);
+    },
+
+    /**
+     * @memberOf CellMoving.prototype
+     * @desc autoscroll to the left if necessary
+     * @param {Hypergrid} grid
+     * @param {number} x - the start position
+     */
+    checkAutoScrollToLeft: function(grid, x) {
+        if (this.columnDragAutoScrollingLeft) {
+            return;
+        }
+        this.columnDragAutoScrollingLeft = true;
+        this._checkAutoScrollToLeft(grid, x);
+    },
+
+    _checkAutoScrollToLeft: function(grid, x) {
+        if (!this.columnDragAutoScrollingLeft) {
+            return;
+        }
+
+        var scrollLeft = grid.getHScrollValue();
+        if (!grid.dragging || scrollLeft &lt; 1) {
+            return;
+        }
+        var draggedIndex = grid.renderOverridesCache.dragger.columnIndex;
+        grid.swapColumns(draggedIndex + scrollLeft, draggedIndex + scrollLeft - 1);
+        grid.scrollBy(-1, 0);
+        setTimeout(this._checkAutoScrollToLeft.bind(this, grid, x), 250);
+    },
+
+    /**
+     * @memberOf CellMoving.prototype
+     * @desc a column drag has completed, update data and cleanup
+     * @param {Hypergrid} grid
+     */
+    endDragColumn: function(grid) {
+
+        var fixedColumnCount = grid.getFixedColumnCount();
+        var scrollLeft = grid.getHScrollValue();
+
+        var columnIndex = grid.renderOverridesCache.dragger.columnIndex;
+
+        if (columnIndex &lt; fixedColumnCount) {
+            scrollLeft = 0;
+        }
+
+        var renderer = grid.getRenderer();
+        var columnEdges = renderer.getColumnEdges();
+        var self = this;
+        var startX = columnEdges[columnIndex - scrollLeft];
+        var d = dragger;
+
+        self.setCrossBrowserProperty(d, 'transition', (self.isWebkit ? '-webkit-' : '') + 'transform ' + columnAnimationTime + 'ms ease, box-shadow ' + columnAnimationTime + 'ms ease');
+        self.setCrossBrowserProperty(d, 'transform', 'translate(' + startX + 'px, ' + -1 + 'px)');
+        d.style.boxShadow = '0px 0px 0px #888888';
+
+        setTimeout(function() {
+            grid.renderOverridesCache.dragger = null;
+            grid.repaint();
+            requestAnimationFrame(function() {
+                d.style.display = 'none';
+                grid.endDragColumnNotification();
+            });
+        }, columnAnimationTime + 50);
+
+    },
+
+    /**
+     * @memberOf CellMoving.prototype
+     * @desc handle this event down the feature chain of responsibility
+     * @param {Hypergrid} grid
+     * @param {Object} event - the event details
+     */
+    isHeaderRow: function(grid, event) {
+        var gridCell = event.viewPoint;
+        var isFixed = gridCell.y === 0;
+        return isFixed;
+    }
+
+});
+
+module.exports = ColumnMoving;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-behaviors_default.html">behaviors\default</a></li><li><a href="module-behaviors_gol.html">behaviors\gol</a></li><li><a href="module-behaviors_in-memory.html">behaviors\in-memory</a></li><li><a href="module-behaviors_q.html">behaviors\q</a></li><li><a href="module-behaviors_qtree.html">behaviors\qtree</a></li><li><a href="module-behaviors_web-worker.html">behaviors\web-worker</a></li><li><a href="module-defaults.html">defaults</a></li></ul><h3>Classes</h3><ul><li><a href="Behavior.html">Behavior</a></li><li><a href="behaviors.JSON.html">JSON</a></li><li><a href="behaviors.Local.html">Local</a></li><li><a href="CellClick.html">CellClick</a></li><li><a href="CellEditing.html">CellEditing</a></li><li><a href="CellEditor.html">CellEditor</a></li><li><a href="CellProvider.html">CellProvider</a></li><li><a href="CellSelection.html">CellSelection</a></li><li><a href="Choice.html">Choice</a></li><li><a href="Color.html">Color</a></li><li><a href="Column.html">Column</a></li><li><a href="ColumnAutosizing.html">ColumnAutosizing</a></li><li><a href="ColumnMoving.html">ColumnMoving</a></li><li><a href="ColumnPicker.html">ColumnPicker</a></li><li><a href="ColumnResizing.html">ColumnResizing</a></li><li><a href="ColumnSchemaFactory.html">ColumnSchemaFactory</a></li><li><a href="ColumnSelection.html">ColumnSelection</a></li><li><a href="ColumnSorting.html">ColumnSorting</a></li><li><a href="Combo.html">Combo</a></li><li><a href="ComboBox.html">ComboBox</a></li><li><a href="ConditionalsCql.html">ConditionalsCql</a></li><li><a href="DataModel.html">DataModel</a></li><li><a href="dataModels.JSON.html">JSON</a></li><li><a href="Date.html">Date</a></li><li><a href="DecoratorBase.html">DecoratorBase</a></li><li><a href="Default.html">Default</a></li><li><a href="DefaultFilter.html">DefaultFilter</a></li><li><a href="Dialog.html">Dialog</a></li><li><a href="Feature.html">Feature</a></li><li><a href="Filters.html">Filters</a></li><li><a href="Hypergrid.html">Hypergrid</a></li><li><a href="InMemory.html">InMemory</a></li><li><a href="KeyPaging.html">KeyPaging</a></li><li><a href="ManageFilters.html">ManageFilters</a></li><li><a href="Null.html">Null</a></li><li><a href="OnHover.html">OnHover</a></li><li><a href="ParserCQL.html">ParserCQL</a></li><li><a href="Renderer.html">Renderer</a></li><li><a href="RowResizing.html">RowResizing</a></li><li><a href="RowSelection.html">RowSelection</a></li><li><a href="SelectionModel.html">SelectionModel</a></li><li><a href="Simple.html">Simple</a></li><li><a href="Slider.html">Slider</a></li><li><a href="Spinner.html">Spinner</a></li><li><a href="Textfield.html">Textfield</a></li><li><a href="ThumbwheelScrolling.html">ThumbwheelScrolling</a></li></ul><h3>Tutorials</h3><ul><li><a href="tutorial-filter-api.html">filter-api</a></li></ul><h3>Global</h3><ul><li><a href="global.html#addDeepProperties">addDeepProperties</a></li><li><a href="global.html#allColumns">allColumns</a></li><li><a href="global.html#append">append</a></li><li><a href="global.html#close">close</a></li><li><a href="global.html#columns">columns</a></li><li><a href="global.html#copy">copy</a></li><li><a href="global.html#copyAll">copyAll</a></li><li><a href="global.html#getBehavior">getBehavior</a></li><li><a href="global.html#getColumnFilter">getColumnFilter</a></li><li><a href="global.html#getFilter">getFilter</a></li><li><a href="global.html#getGrid">getGrid</a></li><li><a href="global.html#getTableFilter">getTableFilter</a></li><li><a href="global.html#hideEditor">hideEditor</a></li><li><a href="global.html#initialize">initialize</a></li><li><a href="global.html#onClick">onClick</a></li><li><a href="global.html#onTransitionEnd">onTransitionEnd</a></li><li><a href="global.html#open">open</a></li><li><a href="global.html#renderCellError">renderCellError</a></li><li><a href="global.html#saveFolder">saveFolder</a></li><li><a href="global.html#saveFolders">saveFolders</a></li><li><a href="global.html#setColumnFilterState">setColumnFilterState</a></li><li><a href="global.html#setFilter">setFilter</a></li><li><a href="global.html#setTableFilter">setTableFilter</a></li><li><a href="global.html#showEditor">showEditor</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a> on Mon Apr 11 2016 14:58:32 GMT-0400 (EDT)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

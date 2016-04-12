@@ -8,6 +8,5 @@ node_modules
 .idea
 /jsdoc-template/
 /src/
-/doc/
 /index.*
 /images/index.js

@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Tutorial: filter-api</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-behaviors_default.html">behaviors\default</a></li><li><a href="module-behaviors_gol.html">behaviors\gol</a></li><li><a href="module-behaviors_in-memory.html">behaviors\in-memory</a></li><li><a href="module-behaviors_q.html">behaviors\q</a></li><li><a href="module-behaviors_qtree.html">behaviors\qtree</a></li><li><a href="module-behaviors_web-worker.html">behaviors\web-worker</a></li><li><a href="module-defaults.html">defaults</a></li></ul><h3>Classes</h3><ul><li><a href="Behavior.html">Behavior</a></li><li><a href="behaviors.JSON.html">JSON</a></li><li><a href="behaviors.Local.html">Local</a></li><li><a href="CellClick.html">CellClick</a></li><li><a href="CellEditing.html">CellEditing</a></li><li><a href="CellEditor.html">CellEditor</a></li><li><a href="CellProvider.html">CellProvider</a></li><li><a href="CellSelection.html">CellSelection</a></li><li><a href="Choice.html">Choice</a></li><li><a href="Color.html">Color</a></li><li><a href="Column.html">Column</a></li><li><a href="ColumnAutosizing.html">ColumnAutosizing</a></li><li><a href="ColumnMoving.html">ColumnMoving</a></li><li><a href="ColumnPicker.html">ColumnPicker</a></li><li><a href="ColumnResizing.html">ColumnResizing</a></li><li><a href="ColumnSchemaFactory.html">ColumnSchemaFactory</a></li><li><a href="ColumnSelection.html">ColumnSelection</a></li><li><a href="ColumnSorting.html">ColumnSorting</a></li><li><a href="Combo.html">Combo</a></li><li><a href="ComboBox.html">ComboBox</a></li><li><a href="ConditionalsCql.html">ConditionalsCql</a></li><li><a href="DataModel.html">DataModel</a></li><li><a href="dataModels.JSON.html">JSON</a></li><li><a href="Date.html">Date</a></li><li><a href="DecoratorBase.html">DecoratorBase</a></li><li><a href="Default.html">Default</a></li><li><a href="DefaultFilter.html">DefaultFilter</a></li><li><a href="Dialog.html">Dialog</a></li><li><a href="Feature.html">Feature</a></li><li><a href="Filters.html">Filters</a></li><li><a href="Hypergrid.html">Hypergrid</a></li><li><a href="InMemory.html">InMemory</a></li><li><a href="KeyPaging.html">KeyPaging</a></li><li><a href="ManageFilters.html">ManageFilters</a></li><li><a href="Null.html">Null</a></li><li><a href="OnHover.html">OnHover</a></li><li><a href="ParserCQL.html">ParserCQL</a></li><li><a href="Renderer.html">Renderer</a></li><li><a href="RowResizing.html">RowResizing</a></li><li><a href="RowSelection.html">RowSelection</a></li><li><a href="SelectionModel.html">SelectionModel</a></li><li><a href="Simple.html">Simple</a></li><li><a href="Slider.html">Slider</a></li><li><a href="Spinner.html">Spinner</a></li><li><a href="Textfield.html">Textfield</a></li><li><a href="ThumbwheelScrolling.html">ThumbwheelScrolling</a></li></ul><h3>Global</h3><ul><li><a href="global.html#addDeepProperties">addDeepProperties</a></li><li><a href="global.html#allColumns">allColumns</a></li><li><a href="global.html#append">append</a></li><li><a href="global.html#close">close</a></li><li><a href="global.html#columns">columns</a></li><li><a href="global.html#copy">copy</a></li><li><a href="global.html#copyAll">copyAll</a></li><li><a href="global.html#getBehavior">getBehavior</a></li><li><a href="global.html#getColumnFilter">getColumnFilter</a></li><li><a href="global.html#getGrid">getGrid</a></li><li><a href="global.html#hideEditor">hideEditor</a></li><li><a href="global.html#initialize">initialize</a></li><li><a href="global.html#onClick">onClick</a></li><li><a href="global.html#onTransitionEnd">onTransitionEnd</a></li><li><a href="global.html#open">open</a></li><li><a href="global.html#renderCellError">renderCellError</a></li><li><a href="global.html#saveFolder">saveFolder</a></li><li><a href="global.html#saveFolders">saveFolders</a></li><li><a href="global.html#setColumnFilterState">setColumnFilterState</a></li><li><a href="global.html#showEditor">showEditor</a></li></ul>
+</nav>
+<div id="main">
+
+    <h1 class="page-title">Tutorial: filter-api</h1>
+
+    <section>
+
+<header>
+    
+
+    <h2>filter-api</h2>
+</header>
+
+<article>
+    <p>The essential Application Programming Interface for a filter module is:</p>
+<pre class="prettyprint source lang-javascript"><code>var filter = new DefaultFilter();
+filter.setState(state);
+state = filter.getState();
+filter.test(dataRow);</code></pre><p>When used with Hypergrid, setting filter state should always be followed by:</p>
+<ol>
+<li>Filter validation (<code>grid.getGlobalFilter().invalid()</code>).</li>
+<li>Filter execution (<code>grid.behavior.dataModel.applyAnalytics()</code>).</li>
+<li>Update the grid canvas (<code>grid.repaint()</code>).</li>
+</ol>
+<p>The following helper methods do these tasks for you. However, the convenience comes at the cost of running these follow-up tasks <em>whenever</em> you make a change to the global filter when in fact they should only be once, at the end of your event loop. Using the helper functions makes it easy to forget this.</p>
+<p><em>NOTE: The &quot;shy&quot; hyphens that may appear in the identifiers below should not be taken literally.</em></p>
+<table>
+<thead>
+<tr>
+<th>module</th>
+<th>Hypergrid</th>
+<th>behavior</th>
+<th>dataModel</th>
+<th>DefaultFilter</th>
+<th>hyper-analytics</th>
+<th>filter-tree</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><em>file</em></td>
+<td>Hypergrid.js</td>
+<td>Behavior.js</td>
+<td>dataModel/JSON.js</td>
+<td>DefaultFilter.js</td>
+<td>DataSource&shy;GlobalFilter.js</td>
+<td>&mdash;</td>
+</tr>
+<tr>
+<td><em>prefix</em></td>
+<td><code>grid.</code></td>
+<td><code>grid.behavior.</code></td>
+<td><code>grid.behavior.dataModel.</code></td>
+<td><code>grid.getGlobalFilter().</code></td>
+<td>&mdash;</td>
+<td><code>grid.getGlobalFilter().</code></td>
+</tr>
+<tr>
+<td><em>set up</em></td>
+<td><a href="Hypergrid.html#getGlobalFilter"><code>getGlobalFilter()</code></a></td>
+<td><a href="Behavior.html#getGlobalFilter"><code>getGlobalFilter()</code></a></td>
+<td><a href="dataModels.JSON.html#getGlobalFilter"><code>getGlobalFilter()</code></a></td>
+<td>&mdash;</td>
+<td><a href="http://openfin.github.io/hyper-analytics/DataSourceGlobalFilter.html#get">get(filter)</a></td>
+<td>&mdash;</td>
+</tr>
+<tr>
+<td></td>
+<td><a href="Hypergrid.html#setGlobalFilter"><code>setGlobalFilter(filter)</code></a><sup>1</sup></td>
+<td><a href="Behavior.html#setGlobalFilter"><code>setGlobalFilter(filter)</code></a></td>
+<td><a href="Hypergrid.html#setGlobalFilter"><code>setGlobalFilter(filter)</code></a><sup>2</sup></td>
+<td>&mdash;</td>
+<td><a href="http://openfin.github.io/hyper-analytics/DataSourceGlobalFilter.html#set">set(filter)</a></td>
+<td>&mdash;</td>
+</tr>
+<tr>
+<td><em>properties</em></td>
+<td><a href="Hypergrid.html#setGlobalFilterCaseSensitivity"><code>setGlobalFilter&shy;CaseSensitivity(&#x200b;isSensitive)</code></a><sup>1</sup></td>
+<td><a href="Behavior.html#setGlobalFilterCaseSensitivity"><code>setGlobalFilter&shy;CaseSensitivity(&#x200b;isSensitive)</code></a></td>
+<td><a href="dataModels.JSON.html#setGlobalFilterCaseSensitivity"><code>setGlobalFilter&shy;CaseSensitivity(&#x200b;isSensitive)</code></a></td>
+<td>&mdash;</td>
+<td>&mdash;</td>
+<td><a href="http://joneit.github.io/filter-tree/FilterTree.html#setCaseSensitivity">setCaseSensitivity(&#x200b;isSensitive)</a></td>
+</tr>
+<tr>
+<td><em>grid state</em></td>
+<td>&mdash;</td>
+<td>&mdash;</td>
+<td>&mdash;</td>
+<td>&mdash;</td>
+<td>&mdash;</td>
+<td><a href="http://joneit.github.io/filter-tree/FilterTree.html#getState">getState(options)</a><sup>8</sup></td>
+</tr>
+<tr>
+<td></td>
+<td>&mdash;</td>
+<td>&mdash;</td>
+<td>&mdash;</td>
+<td>&mdash;</td>
+<td>&mdash;</td>
+<td><a href="http://joneit.github.io/filter-tree/FilterTree.html#setState">setState(state, options)</a><sup>8</sup></td>
+</tr>
+<tr>
+<td><em>column</em></td>
+<td><a href="Hypergrid.html#getFilter"><code>getFilter(&#x200b;columnIndexOrName, options)</code></a></td>
+<td><a href="Behavior.html#getFilter"><code>getFilter(&#x200b;columnIndexOrName, options)</code></a></td>
+<td><a href="dataModels.JSON.html#getFilter"><code>getFilter(&#x200b;columnIndexOrName, options)</code></a><sup>3</sup></td>
+<td><a href="DefaultFilter.html#getColumnFilterState"><code>getColumnFilterState(&#x200b;columnIndexOrName, options)</code></a><sup><sup>4, 5</sup></sup></td>
+<td>&mdash;</td>
+<td><a href="http://joneit.github.io/filter-tree/FilterTree.html#getState">getState(options)</a><sup>8</sup></td>
+</tr>
+<tr>
+<td></td>
+<td><a href="Hypergrid.html#setFilter"><code>setFilter(&#x200b;columnIndexOrName, state, options)</code></a><sup>1</sup></td>
+<td><a href="Behavior.html#setFilter"><code>setFilter(&#x200b;columnIndexOrName, state, options)</code></a></td>
+<td><a href="dataModels.JSON.html#setFilter"><code>setFilter(&#x200b;columnIndexOrName, state, options)</code></a><sup><sup>2, 3</sup></sup></td>
+<td><a href="DefaultFilter.html#setColumnFilterState"><code>setColumnFilterState(&#x200b;columnIndexOrName, state, options)</code></a><sup><sup>4, 5, 7</sup></sup></td>
+<td>&mdash;</td>
+<td><a href="http://joneit.github.io/filter-tree/FilterTree.html#setState">setState(state, options)</a><sup>8</sup></td>
+</tr>
+<tr>
+<td><em>columns</em></td>
+<td><a href="Hypergrid.html#getFilters"><code>getFilters(options)</code></a></td>
+<td><a href="Behavior.html#getFilters"><code>getFilters(options)</code></a></td>
+<td><a href="dataModels.JSON.html#getFilters"><code>getFilters(options)</code></a></td>
+<td><a href="DefaultFilter.html#getColumnFiltersState"><code>getColumnFiltersState(&#x200b;options)</code></a></td>
+<td>&mdash;</td>
+<td><a href="http://joneit.github.io/filter-tree/FilterTree.html#getState">getState(options)</a><sup>8</sup></td>
+</tr>
+<tr>
+<td></td>
+<td><a href="Hypergrid.html#setFilters"><code>setFilters(options)</code></a><sup>1</sup></td>
+<td><a href="Behavior.html#setFilters"><code>setFilters(options)</code></a></td>
+<td><a href="dataModels.JSON.html#setFilters"><code>setFilters(options)</code></a><sup>3</sup></td>
+<td><a href="DefaultFilter.html#setColumnFiltersState"><code>setColumnFiltersState(&#x200b;state, options)</code></a><sup>7</sup></td>
+<td>&mdash;</td>
+<td><a href="http://joneit.github.io/filter-tree/FilterTree.html#setState">setState(state, options)</a><sup>8</sup></td>
+</tr>
+<tr>
+<td><em>table</em></td>
+<td><a href="Hypergrid.html#getTableFilter"><code>getTableFilter(options)</code></a></td>
+<td><a href="Behavior.html#getTableFilter"><code>getTableFilter(options)</code></a></td>
+<td><a href="dataModels.JSON.html#getTableFilter"><code>getTableFilter(options)</code></a></td>
+<td><a href="DefaultFilter.html#getTableFilterState"><code>getTableFilterState(options)</code></a><sup>6</sup></td>
+<td>&mdash;</td>
+<td><a href="http://joneit.github.io/filter-tree/FilterTree.html#getState">getState(options)</a><sup>8</sup></td>
+</tr>
+<tr>
+<td></td>
+<td><a href="Hypergrid.html#setTableFilter"><code>setTableFilter(state, options)</code></a><sup>1</sup></td>
+<td><a href="Behavior.html#setTableFilter"><code>setTableFilter(state, options)</code></a></td>
+<td><a href="dataModels.JSON.html#setTableFilter"><code>setTableFilter(state, options)</code></a><sup>2</sup></td>
+<td><a href="DefaultFilter.html#setTableFilterState"><code>setTableFilterState(state, options)</code></a><sup>6, 7</sup></td>
+<td>&mdash;</td>
+<td><a href="http://joneit.github.io/filter-tree/FilterTree.html#setState">setState(state, options)</a><sup>8</sup></td>
+</tr>
+<tr>
+<td><em>test</em></td>
+<td>&mdash;</td>
+<td>&mdash;</td>
+<td><a href="dataModels.JSON.html#applyAnalytics"><code>applyAnalytics()</code></a></td>
+<td>&mdash;</td>
+<td><a href="http://openfin.github.io/hyper-analytics/DataSourceGlobalFilter.html#apply">apply()</a></td>
+<td><a href="http://joneit.github.io/filter-tree/FilterTree.html#test">test(dataRow)</a></td>
+</tr>
+</tbody>
+</table>
+<p><sup>1</sup> Updates the grid canvas (calls <code>repaint()</code>) after the set call.<br>
+<sup>2</sup> Translates index to name before the set call.<br>
+<sup>3</sup> Runs the filter (calls <code>applyAnalytics()</code>) after the set call.<br>
+<sup>4</sup> <code>options.syntax</code> may also include <code>'CQL'</code> in addition to standard values.<sup>8</sup> <code>'CQL'</code> is the default syntax for these calls.<br>
+<sup>5</sup> Creates/maintains a &quot;flat&quot; subexpression for each column in the right &quot;trunk&quot; with left operand bound to that column specifically.<br>
+<sup>6</sup> Replaces left &quot;trunk&quot; with hierarchical subexpression.<br>
+<sup>7</sup> Validates <code>state</code>.<br>
+<sup>8</sup> <code>options.syntax</code> may be <code>'auto'</code>, <code>'object'</code>, <code>'JSON'</code>, or <code>'SQL'</code>.</p>
+</article>
+
+</section>
+
+</div>
+
+<br class="clear">
+
+<footer>
+    © 2016 <a href="http://www.openfin.co" target="_blank">OpenFin</a> All Rights Reserved.
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

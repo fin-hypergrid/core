@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: behaviors/old/fin-hypergrid-behavior-in-memory.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: behaviors/old/fin-hypergrid-behavior-in-memory.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>'use strict';
+/**
+ *
+ * @module behaviors\in-memory
+ * @description
+This is a very rough in memory data source example.  fin-hypergrid-behavior-in-memory is a more traditional gridmodel where all data and its analytics, sorting, aggregation happen in the same local process.
+ *
+ */
+(function() {
+
+    var alphaFor = function(i) {
+        // Name the column headers in A, .., AA, AB, AC, .., AZ format
+        // quotient/remainder
+        //var quo = Math.floor(col/27);
+        var quo = Math.floor((i) / 26);
+        var rem = (i) % 26;
+        var code = '';
+        if (quo > 0) {
+            code += String.fromCharCode('A'.charCodeAt(0) + quo - 1);
+        }
+        code += String.fromCharCode('A'.charCodeAt(0) + rem);
+        return code;
+    };
+
+    //helper function for randomizing data
+    function rnd(max) {
+        return Math.floor(Math.random() * max);
+    }
+
+    //helper data for efficient randomization of the data under the sparkline/bar charts
+    var barRandomOffsets = [];
+    for (var i = 0; i &lt; 20; i++) {
+        barRandomOffsets.push([]);
+        for (var r = 0; r &lt; 10; r++) {
+            barRandomOffsets[i].push(10 - rnd(20));
+        }
+    }
+
+    Polymer({ /* jslint ignore:line */
+
+        /**
+         * @function
+         * @instance
+         * @description
+         polymer lifecycle event
+         */
+        ready: function() {
+
+            this.rows = 5000;
+            this.columns = 100;
+
+            //milliseconds pause inbetween sweeps of random updates
+            this.readyInit();
+            this.sortStates = [' -', ' ↑', ' ↓'];
+
+            this.permuteInterval = 50;
+            this.values = new Array(this.rows * this.columns);
+            this.order = [];
+
+            this.createSort(0, 2);
+            this.createSort(0, 14);
+            this.createSort(0, 22);
+            this.initOrder();
+            this.initialize();
+            this.permute();
+            this.reorder();
+        },
+        /**
+         * @function
+         * @instance
+         * @description
+         create a default empty tablestate
+         * #### returns: Object
+         */
+        getDefaultState: function() {
+            return {
+                columnIndexes: [],
+
+                rowHeights: {},
+                columnProperties: [],
+
+                fixedColumnCount: 0,
+                fixedRowCount: 1,
+
+                sortLookup: {},
+                sorted: {},
+            };
+        },
+        /**
+         * @function
+         * @instance
+         * @description
+         you can override this function and substitute your own cell provider
+         * #### returns: [fin-hypergrid-cell-provider](module-._cell-provider.html)
+         */
+        createCellProvider: function() {
+            //var self = this;
+            var provider = document.createElement('fin-hypergrid-cell-provider');
+            provider.getCell = function(config) {
+                var renderer = provider.cellCache.simpleCellRenderer;
+                config.halign = 'left';
+                var x = config.x;
+                if (x === 41) {
+                    renderer = provider.cellCache.sliderCellRenderer;
+                } else if (x === 23) {
+                    renderer = provider.cellCache.sparkbarCellRenderer;
+                } else if (x === 3) {
+                    renderer = provider.cellCache.sparklineCellRenderer;
+                } else if (x === 2) {
+                    var hex = Math.floor(Math.max(config.value, 30) * 255 / 100).toString(16);
+                    if (hex.length &lt; 1) {
+                        hex = '0' + hex;
+                    }
+                    var bgColor = '#' + '00' + hex + '00';
+                    config.bgColor = bgColor;
+                }
+                renderer.config = config;
+                return renderer;
+            };
+            return provider;
+        },
+
+        /**
+        * @function
+        * @instance
+        * @description
+        set random values drivien by a config object c
+        * @param {Object} c - a config object
+        */
+        setValues: function(c) {
+            var self = this;
+            for (var x = c.xstart; x &lt; c.xstop; x = x + c.xinc) {
+                for (var y = c.ystart; y &lt; c.ystop; y = y + c.yinc) {
+                    this.setRandomValue(x, y, c.cutoff);
+                }
+            }
+            self.changed();
+        },
+
+        //fill in random data
+        /**
+        * @function
+        * @instance
+        * @description
+        initialize with random data
+        */
+        initialize: function() {
+            var config = {
+                xstart: 0,
+                xstop: this.getColumnCount(),
+                xinc: 1,
+                ystart: 0,
+                ystop: this.getRowCount(),
+                yinc: 1,
+                cutoff: 2
+            };
+            this.setValues(config);
+        },
+
+        //kick off randomizing data every 200ms,
+        //&lt;br>simulate data streaming in...
+        /**
+        * @function
+        * @instance
+        * @description
+        randomize a variable amount of data on a timeout
+        */
+        permute: function() {
+            var self = this;
+            var x = this.getScrollPositionX();
+            var y = this.getScrollPositionY();
+            var config = {
+                xstart: x,
+                xstop: x + this.renderedColumnCount,
+                xinc: 1,
+                ystart: y,
+                ystop: y + this.renderedRowCount,
+                yinc: 1,
+                cutoff: 0.05
+            };
+            this.setValues(config);
+            setTimeout(function() {
+                self.permute();
+            }, self.permuteInterval);
+        },
+
+        /**
+         * @function
+         * @instance
+         * @description
+         return the cell editor for cell at x,y
+         * #### returns: [fin-hypergrid-cell-editor-base](module-cell-editors_base.html)
+         * @param {number} x - x coordinate
+         * @param {number} y - y coordinate
+         */
+        getCellEditorAt: function(x, y) {
+            var type = x !== 9 ? 'textfield' : this.editorTypes[y % this.editorTypes.length];
+            var cellEditor = this.grid.resolveCellEditor(type);
+            return cellEditor;
+        },
+
+        /**
+         * @function
+         * @instance
+         * @description
+         return the total number of columns
+         * #### returns: integer
+         */
+        getColumnCount: function() {
+            return this.columns;
+        },
+
+        /**
+         * @function
+         * @instance
+         * @description
+         randomize the value at coordinate col, row
+         */
+        setRandomValue: function(col, row, cutoff) {
+            var rand = Math.random();
+            var val = this.getValue(col, row);
+            var rndV;
+            if (rand > cutoff) {
+                return;
+            }
+            if (col === 13) {
+                val = rand &lt; 0.1 ? true : false;
+                this.setValue(col, row, val);
+            } else if (col === 23) {
+                if (!val) {
+                    val = [rnd(100), rnd(100), rnd(100), rnd(100), rnd(100), rnd(100), rnd(100), rnd(100), rnd(100), rnd(100)];
+                } else {
+                    rndV = Math.floor(60 * rand);
+                    if (rndV > 19) {
+                        return;
+                    }
+                    var rndOffsets = barRandomOffsets[rndV];
+                    for (var i = 0; i &lt; rndOffsets.length; i++) {
+                        val[i] = Math.min(Math.max(0, val[i] + rndOffsets[i]), 100);
+                    }
+                }
+                this.setValue(col, row, val);
+            } else if (col === 3) {
+                if (!val) {
+                    val = [rnd(100), rnd(100), rnd(100), rnd(100), rnd(100), rnd(100), rnd(100), rnd(100), rnd(100), rnd(100)];
+                } else {
+                    rndV = Math.floor(8000 * rand);
+                    if (rndV > 99) {
+                        return;
+                    }
+                    if (val.shift) {
+                        val.shift();
+                        val.push(rndV);
+                    }
+                }
+                this.setValue(col, row, val);
+            } else if (col % 10 === 0) {
+                val = rand &lt; 0.1 ? false : true;
+                this.setValue(col, row, val);
+            } else if (col === 9) {
+                if (val) {
+                    return; // only set this onece
+                }
+                var hex = row.toString(16).toUpperCase();
+                while (hex.length &lt; 6) {
+                    hex = '0' + hex;
+                }
+                val = '0x' + hex;
+                this.setValue(col, row, val);
+            } else if (col % 6 === 0) {
+                if (val) {
+                    return; // only set this onece
+                }
+                var profound = 'Quidquid latine dictum sit, altum sonatur.';
+                this.setValue(col, row, profound);
+            } else if (col % 4 === 0) {
+                var ipsum = 'Lorem ipsum dolor sit amet, malis repudiare mei in. Cu munere expetendis mea, affert aliquid definiebas at nam. Te scripta delectus singulis mel, et vidit error legere eum, ea latine feugait ponderum vix. Ius ei electram patrioque, et eum propriae deseruisse necessitatibus. Epicurei adipisci ex duo. Quidam iudicabit ullamcorper ex vel, per quot ipsum ad, libris quaeque iudicabit et usu. Ut postea nominavi cum, id eius porro mundi qui. Nec ex altera dolorum definiebas, consul viderer ex est. ';
+                var index = Math.max(0, (rand * ipsum.length) - 20);
+                val = ipsum.slice(index, index + 20).toUpperCase();
+                this.setValue(col, row, val);
+            } else if (col === 2 || col === 14 || col === 22) {
+                var v = Math.min(Math.floor(rand * 2000), 100);
+                this.setValue(col, row, Math.max(v));
+            } else if (col === 41) {
+                this.setValue(col, row, Math.random());
+            } else {
+                this.setValue(col, row, rand);
+            }
+        },
+
+        //
+        /**
+        * @function
+        * @instance
+        * @description
+        decode row,col into a straight index value; int vector indirection layer so sorting doesn't actually move items around
+        * #### returns: integer
+        * @param {number} col - x coordinate
+        * @param {number} row - y coordinate
+        */
+        indexOf: function(row, col) {
+            var index = (col * this.rows) + row;
+            return index;
+        },
+
+        /**
+        * @function
+        * @instance
+        * @description
+        create a sort object per column we consider sortable
+        * @param {number} type - sort type, 0/1 - up/down
+        * @param {number} col - the column index of interest
+        */
+        createSort: function(type, col) {
+            var self = this;
+            var that = {};
+            var tableState = this.getPrivateState();
+            that.type = type;
+            that.col = col;
+            that.value = function(array, index) {
+                return array[self.indexOf(self.order[index], col)];
+            };
+
+            that.compare = function(array, first, last) {
+
+                var x = that.value(array, first),
+                    y = that.value(array, last);
+                if (typeof(x) === 'number') {
+                    // Numbers are compared by subtraction
+                    if (that.type === 1) {
+                        if (!y) {
+                            return -1;
+                        }
+                        return x - y;
+                    } else {
+                        if (!y) {
+                            return 1;
+                        }
+                        return y - x;
+                    }
+                } else {
+                    // Anything not a number gets compared using the relational operators
+                    if (that.type === 1) {
+                        if (!y) {
+                            return -1;
+                        }
+                        return x &lt; y ? -1 : 1;
+                    } else {
+                        if (!y) {
+                            return 1;
+                        }
+                        return y &lt; x ? -1 : 1;
+                    }
+                }
+                return 0;
+            };
+            tableState.sorts.push(that);
+            tableState.sortLookup[col] = that;
+        },
+
+        /**
+        * @function
+        * @instance
+        * @description
+        swap values in array at locations x, y
+        * @param {Array} array - array of values
+        * @param {number} x - integer index
+        * @param {number} y - integer index
+        */
+        swap: function(array, x, y) {
+            var tmp = this.order[x];
+            this.order[x] = this.order[y];
+            this.order[y] = tmp;
+        },
+
+        /**
+        * @function
+        * @instance
+        * @description
+        this is a compare function used by Emersons pivot sort algorithm
+        * #### returns: integer
+        * @param {Array} array - descripton
+        * @param {number} first - pivot start
+        * @param {number} last - pivot end
+        */
+        compare: function(array, first, last) {
+            var comp = 0;
+            var tableState = this.getPrivateState();
+            for (var i = 0; i &lt; tableState.sorts.length; ++i) {
+                var sort = tableState.sorts[i];
+                if (sort.type !== 0) {
+                    comp = sort.compare(array, first, last);
+                    if (comp === 0) {
+                        continue;
+                    }
+                    break;
+                }
+            }
+            return comp;
+        },
+
+        //initialize int vector indirection to ascending integers 0 through row count
+        /**
+        * @function
+        * @instance
+        * @description
+        initialize the row sort indirection layer
+        */
+        initOrder: function() {
+            this.order = [];
+            // Re-initialise the row order, as this is what we sort, not the actual data.
+            for (var i = 0; i &lt; this.rows; ++i) {
+                this.order[i] = i;
+            }
+        },
+
+        /**
+        * @function
+        * @instance
+        * @description
+        emersons stable quicksort algorithm, hacked up by me
+        * @param {Array} array - array of items to sort
+        * @param {type} first - index to start at
+        * @param {type} last - index to end at
+        * @param {type} depth - recursion depth
+        */
+        quicksort: function(array, first, last, depth) {
+            var tableState = this.getPrivateState();
+            // In place quickstort, stable.  We cant use the inbuilt Array.tableState.sort() since its a hybrid sort
+            // potentially and may not be stable (non quicksort) on small sizes.
+            if (depth > 1000) {
+                console.log('sort aborted!');
+                return;
+            }
+            var pivot = 0;
+            if (depth === 0) {
+                // Is there something to sort ??
+                if (tableState.sorts.length &lt;= 0) {
+                    return;
+                }
+                // Optimise for null trailing nulls.
+                var sort = tableState.sorts[0];
+                while (!sort.value(array, last) &amp;&amp; last > first) {
+                    --last;
+                }
+                // Test for worst case already sorted list...
+                var sorted = true;
+                for (pivot = first; pivot &lt; last; ++pivot) {
+                    if (this.compare(array, pivot, pivot + 1) > 0) {
+                        sorted = false;
+                        break;
+                    }
+                }
+                if (sorted) {
+                    return;
+                }
+            }
+            while (first &lt; last) {
+                var right = last;
+                var left = first;
+                pivot = (first + last) >> 1;
+                if (pivot &lt; 0 || pivot >= last) {
+                    break;
+                }
+                while (right >= left) {
+                    while (left &lt;= right &amp;&amp; this.compare(array, left, pivot) &lt;= 0) {
+                        ++left;
+                    }
+                    while (left &lt;= right &amp;&amp; this.compare(array, right, pivot) > 0) {
+                        --right;
+                    }
+                    if (left > right) {
+                        break;
+                    }
+                    this.swap(array, left, right);
+                    if (pivot === right) {
+                        pivot = left;
+                    }
+                    left++;
+                    right--;
+                }
+                this.swap(array, pivot, right);
+                right--;
+                // Use recursion to sort the smallest partition, this increases performance.
+                if (Math.abs(right - first) > Math.abs(last - left)) {
+                    if (left &lt; last) {
+                        this.quicksort(array, left, last, depth + 1);
+                    }
+                    last = right;
+                } else {
+                    if (first &lt; right) {
+                        this.quicksort(array, first, right, depth + 1);
+                    }
+                    first = left;
+                }
+            }
+        },
+
+        //invoke the sorting
+        /**
+        * @function
+        * @instance
+        * @description
+        apply the quicksort to our data
+        */
+        reorder: function() {
+            this.initOrder();
+            this.quicksort(this.values, 0, this.rows - 1, 0);
+        },
+
+        /**
+        * @function
+        * @instance
+        * @description
+        return the indirect sorted index of the data I'm looking for
+        * #### returns: integer
+        * @param {number} y - the natural y index
+        */
+        orderOf: function(y) {
+            // Provide indirection of indexing for row/col so that we can use sort and or alternate between
+            // coloumn and row oriented sotrage.  For example to maximise performance we currently paint by
+            // column then row, so it makes sense that the data is stored as column contiguous, but that could
+            // be changed if filters or some other feature required it.  Also at the moment sorting is faster
+            // if we can just copy a contigious section of the values array, and we sort on columns.
+            var row = this.order[y];
+            return row;
+        },
+
+        /**
+         * @function
+         * @instance
+         * @description
+         set the data value at coordinates x,y
+         * @param {number} x - the x coordinate
+         * @param {number} y - the y coordinate
+         */
+        setValue: function(x, y, value) {
+            var row = this.orderOf(y);
+            var index = this.indexOf(row, x);
+            this.values[index] = value;
+        },
+
+        /**
+         * @function
+         * @instance
+         * @description
+         return the data value at coordinates x,y.  this is the main "model" function that allows for virtualization
+         * #### returns: Object
+         * @param {number} x - the x coordinate
+         * @param {number} y - the y coordinate
+         */
+        getValue: function(x, y) {
+            var row = this.orderOf(y);
+            var index = this.indexOf(row, x);
+            return this.values[index];
+        },
+
+        /**
+         * @function
+         * @instance
+         * @description
+         return the number of rows
+         * #### returns: integer
+         */
+        getRowCount: function() {
+            return this.rows;
+        },
+
+        /**
+         * @function
+         * @instance
+         * @description
+         return the column heading at colIndex
+         * #### returns: string
+         * @param {number} colIndex - the column index of interest
+         */
+        getFixedRowValue: function(x /*, y*/ ) {
+            var sortIndicator = '';
+            var tableState = this.getPrivateState();
+            if (tableState.sortLookup[x] &amp;&amp; !tableState.sorted[x]) {
+                tableState.sorted[x] = 0;
+                sortIndicator = this.sortStates[tableState.sorted[x]];
+            }
+            if (tableState.sorted[x]) {
+                sortIndicator = this.sortStates[tableState.sorted[x]];
+            }
+            return alphaFor(x) + sortIndicator;
+        },
+
+        /**
+         * @function
+         * @instance
+         * @description
+         fixed row has been clicked, you've been notified
+         * @param {Hypergrid} grid
+         * @param {Object} mouse - event details
+         */
+        fixedRowClicked: function(grid, mouse) {
+            if ([2, 14, 22].indexOf(mouse.gridCell.x) === -1) {
+                return;
+            }
+            this.toggleSort(mouse.gridCell.x);
+        },
+
+        /**
+         * @function
+         * @instance
+         * @description
+         toggle the sort at colIndex to it's next state
+         * @param {number} colIndex - the column index of interest
+         */
+        toggleSort: function(columnIndex) {
+            var tableState = this.getPrivateState();
+            var current = tableState.sorted[columnIndex];
+            var stateCount = this.sortStates.length;
+            var sortStateIndex = (current + 1) % stateCount;
+            tableState.sorted[columnIndex] = sortStateIndex;
+            tableState.sortLookup[columnIndex].type = sortStateIndex;
+            this.reorder();
+            this.changed();
+        },
+
+        /**
+         * @function
+         * @instance
+         * @description
+         return the number of fixed columns
+         * #### returns: integer
+         */
+        getFixedColumnCount: function() {
+            return 1;
+        },
+    });
+
+})(); /* jslint ignore:line */
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-behaviors_default.html">behaviors\default</a></li><li><a href="module-behaviors_gol.html">behaviors\gol</a></li><li><a href="module-behaviors_in-memory.html">behaviors\in-memory</a></li><li><a href="module-behaviors_q.html">behaviors\q</a></li><li><a href="module-behaviors_qtree.html">behaviors\qtree</a></li><li><a href="module-behaviors_web-worker.html">behaviors\web-worker</a></li><li><a href="module-defaults.html">defaults</a></li></ul><h3>Classes</h3><ul><li><a href="Behavior.html">Behavior</a></li><li><a href="behaviors.JSON.html">JSON</a></li><li><a href="behaviors.Local.html">Local</a></li><li><a href="CellClick.html">CellClick</a></li><li><a href="CellEditing.html">CellEditing</a></li><li><a href="CellEditor.html">CellEditor</a></li><li><a href="CellProvider.html">CellProvider</a></li><li><a href="CellSelection.html">CellSelection</a></li><li><a href="Choice.html">Choice</a></li><li><a href="Color.html">Color</a></li><li><a href="Column.html">Column</a></li><li><a href="ColumnAutosizing.html">ColumnAutosizing</a></li><li><a href="ColumnMoving.html">ColumnMoving</a></li><li><a href="ColumnPicker.html">ColumnPicker</a></li><li><a href="ColumnResizing.html">ColumnResizing</a></li><li><a href="ColumnSchemaFactory.html">ColumnSchemaFactory</a></li><li><a href="ColumnSelection.html">ColumnSelection</a></li><li><a href="ColumnSorting.html">ColumnSorting</a></li><li><a href="Combo.html">Combo</a></li><li><a href="ComboBox.html">ComboBox</a></li><li><a href="ConditionalsCql.html">ConditionalsCql</a></li><li><a href="DataModel.html">DataModel</a></li><li><a href="dataModels.JSON.html">JSON</a></li><li><a href="Date.html">Date</a></li><li><a href="DecoratorBase.html">DecoratorBase</a></li><li><a href="Default.html">Default</a></li><li><a href="DefaultFilter.html">DefaultFilter</a></li><li><a href="Dialog.html">Dialog</a></li><li><a href="Feature.html">Feature</a></li><li><a href="Filters.html">Filters</a></li><li><a href="Hypergrid.html">Hypergrid</a></li><li><a href="InMemory.html">InMemory</a></li><li><a href="KeyPaging.html">KeyPaging</a></li><li><a href="ManageFilters.html">ManageFilters</a></li><li><a href="Null.html">Null</a></li><li><a href="OnHover.html">OnHover</a></li><li><a href="ParserCQL.html">ParserCQL</a></li><li><a href="Renderer.html">Renderer</a></li><li><a href="RowResizing.html">RowResizing</a></li><li><a href="RowSelection.html">RowSelection</a></li><li><a href="SelectionModel.html">SelectionModel</a></li><li><a href="Simple.html">Simple</a></li><li><a href="Slider.html">Slider</a></li><li><a href="Spinner.html">Spinner</a></li><li><a href="Textfield.html">Textfield</a></li><li><a href="ThumbwheelScrolling.html">ThumbwheelScrolling</a></li></ul><h3>Tutorials</h3><ul><li><a href="tutorial-filter-api.html">filter-api</a></li></ul><h3>Global</h3><ul><li><a href="global.html#addDeepProperties">addDeepProperties</a></li><li><a href="global.html#allColumns">allColumns</a></li><li><a href="global.html#append">append</a></li><li><a href="global.html#close">close</a></li><li><a href="global.html#columns">columns</a></li><li><a href="global.html#copy">copy</a></li><li><a href="global.html#copyAll">copyAll</a></li><li><a href="global.html#getBehavior">getBehavior</a></li><li><a href="global.html#getColumnFilter">getColumnFilter</a></li><li><a href="global.html#getFilter">getFilter</a></li><li><a href="global.html#getGrid">getGrid</a></li><li><a href="global.html#getTableFilter">getTableFilter</a></li><li><a href="global.html#hideEditor">hideEditor</a></li><li><a href="global.html#initialize">initialize</a></li><li><a href="global.html#onClick">onClick</a></li><li><a href="global.html#onTransitionEnd">onTransitionEnd</a></li><li><a href="global.html#open">open</a></li><li><a href="global.html#renderCellError">renderCellError</a></li><li><a href="global.html#saveFolder">saveFolder</a></li><li><a href="global.html#saveFolders">saveFolders</a></li><li><a href="global.html#setColumnFilterState">setColumnFilterState</a></li><li><a href="global.html#setFilter">setFilter</a></li><li><a href="global.html#setTableFilter">setTableFilter</a></li><li><a href="global.html#showEditor">showEditor</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a> on Mon Apr 11 2016 14:58:32 GMT-0400 (EDT)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
