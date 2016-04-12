@@ -1616,30 +1616,84 @@ var Behavior = Base.extend('Behavior', {
         return newFilter;
     },
 
+    /**
+     * @returns {FilterTree}
+     * @memberOf Behavior.prototype
+     */
     getGlobalFilter: function() {
         return this.dataModel.getGlobalFilter();
     },
 
+    /**
+     * @param {FilterTree} filter
+     * @memberOf Behavior.prototype
+     */
     setGlobalFilter: function(filter) {
         this.dataModel.setGlobalFilter(filter);
     },
 
+    /**
+     * @param {boolean} isSensitive
+     * @memberOf Behavior.prototype
+     */
     setGlobalFilterCaseSensitivity: function(isSensitive) {
         this.dataModel.setGlobalFilterCaseSensitivity(isSensitive);
     },
 
+    /**
+     * @param {number|string} columnIndexOrName
+     * @param {FilterTreeSetStateOptionsObject} [options]
+     * @param {string} [options.syntax='CQL']
+     * @returns {FilterTreeStateObject}
+     * @memberOf Behavior.prototype
+     */
     getFilter: function(columnIndexOrName, options) {
         return this.dataModel.getFilter(columnIndexOrName, options);
     },
 
+    /**
+     * @param {number|string} columnIndexOrName
+     * @param {FilterTreeStateObject} state
+     * @param {FilterTreeSetStateOptionsObject} [options]
+     * @param {string} [options.syntax='CQL']
+     * @memberOf Behavior.prototype
+     */
     setFilter: function(columnIndexOrName, state, options) {
         this.dataModel.setFilter(columnIndexOrName, state, options);
     },
 
+    /**
+     * @param {FilterTreeSetStateOptionsObject} [options]
+     * @returns {FilterTreeStateObject}
+     * @memberOf Behavior.prototype
+     */
+    getFilters: function(options) {
+        return this.dataModel.getFilters(options);
+    },
+
+    /**
+     * @param {FilterTreeStateObject} state
+     * @param {FilterTreeSetStateOptionsObject} [options]
+     * @memberOf Behavior.prototype
+     */
+    setFilters: function(state, options) {
+        this.dataModel.setFilters(state, options);
+    },
+
+    /**
+     * @param {FilterTreeSetStateOptionsObject} [options]
+     * @returns {FilterTreeStateObject}
+     * @memberOf Behavior.prototype
+     */
     getTableFilter: function(options) {
         return this.dataModel.getTableFilter(options);
     },
 
+    /**
+     * @param {FilterTreeStateObject} state
+     * @param {FilterTreeSetStateOptionsObject} [options]
+     * @memberOf Behavior.prototype
+     */
     setTableFilter: function(state, options) {
         this.dataModel.setTableFilter(state, options);
     },

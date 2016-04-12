@@ -3120,28 +3120,81 @@ Hypergrid.prototype = {
     isColumnAutosizing: function() {
         return this.resolveProperty('columnAutosizing') === true;
     },
+    /**
+     * @returns {FilterTree}
+     * @memberOf Hypergrid.prototype
+     */
     getGlobalFilter: function() {
         return this.behavior.getGlobalFilter();
     },
+    /**
+     * @param {FilterTree} filter
+     * @memberOf Hypergrid.prototype
+     */
     setGlobalFilter: function(filter) {
         this.behavior.setGlobalFilter(filter);
         this.repaint();
     },
+    /**
+     * @param {boolean} isSensitive
+     * @memberOf Hypergrid.prototype
+     */
     setGlobalFilterCaseSensitivity: function(isSensitive) {
         // this setting affects all grids
         this.behavior.setGlobalFilterCaseSensitivity(isSensitive);
         this.repaint();
     },
+    /**
+     * @param {number|string} columnIndexOrName
+     * @param {FilterTreeSetStateOptionsObject} [options]
+     * @param {string} [options.syntax='CQL']
+     * @returns {FilterTreeStateObject}
+     * @memberOf Hypergrid.prototype
+     */
     getFilter: function(columnIndexOrName, options) {
         return this.behavior.getFilter(columnIndexOrName, options);
     },
+    /**
+     * @param {number|string} columnIndexOrName
+     * @param {FilterTreeStateObject} state
+     * @param {FilterTreeSetStateOptionsObject} [options]
+     * @param {string} [options.syntax='CQL']
+     * @memberOf Hypergrid.prototype
+     */
     setFilter: function(columnIndexOrName, state, options) {
         this.behavior.setFilter(columnIndexOrName, state, options);
         this.repaint();
     },
+    /**
+     * @param {FilterTreeSetStateOptionsObject} [options]
+     * @returns {FilterTreeStateObject}
+     * @memberOf Hypergrid.prototype
+     */
+    getFilters: function(options) {
+        return this.behavior.getFilters(options);
+    },
+    /**
+     * @param {FilterTreeStateObject} state
+     * @param {FilterTreeSetStateOptionsObject} [options]
+     * @memberOf Hypergrid.prototype
+     */
+    setFilters: function(state, options) {
+        this.behavior.setFilters(state, options);
+        this.repaint();
+    },
+    /**
+     * @param {FilterTreeSetStateOptionsObject} [options]
+     * @returns {FilterTreeStateObject}
+     * @memberOf Hypergrid.prototype
+     */
     getTableFilter: function(options) {
         return this.behavior.getTableFilter(options);
     },
+    /**
+     * @param {FilterTreeStateObject} state
+     * @param {FilterTreeSetStateOptionsObject} [options]
+     * @memberOf Hypergrid.prototype
+     */
     setTableFilter: function(state, options) {
         this.behavior.setTableFilter(state, options);
         this.repaint();

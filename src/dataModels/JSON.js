@@ -620,19 +620,27 @@ var JSON = DataModel.extend('dataModels.JSON', {
         return this.getDataSource().getValue(index, y);
     },
 
+    /**
+     * @returns {FilterTree}
+     * @memberOf dataModels.JSON.prototype
+     */
     getGlobalFilter: function() {
         return this.getGlobalFilterDataSource().get();
     },
 
     /**
-     * @memberOf dataModels.JSON.prototype
      * @param {FilterTree} [filter] - If undefined, removes (deletes) the filter (i.e., turns filtering OFF).
+     * @memberOf dataModels.JSON.prototype
      */
     setGlobalFilter: function(filter) {
         this.getGlobalFilterDataSource().set(filter);
         this.applyAnalytics();
     },
 
+    /**
+     * @param {boolean} isSensitive
+     * @memberOf dataModels.JSON.prototype
+     */
     setGlobalFilterCaseSensitivity: function(isSensitive) {
         this.getGlobalFilter().setCaseSensitivity(isSensitive);
         this.applyAnalytics();
@@ -641,7 +649,9 @@ var JSON = DataModel.extend('dataModels.JSON', {
     /**
      * @summary Get a particular column filter state.
      * @param {number|string} columnIndexOrName - The _column filter_ to set.
+     * @param {FilterTreeSetStateOptionsObject} [options]
      * @param {string} [options.syntax='CQL'] - For other possible values, see {@link http://joneit.github.io/filter-tree/global.html#filterTreeSetStateOptionsObject|filterTreeSetStateOptionsObject}.
+     * @memberOf dataModels.JSON.prototype
      */
     getFilter: function(columnIndexOrName, options) {
         var isIndex = !isNaN(Number(columnIndexOrName)),
@@ -654,11 +664,12 @@ var JSON = DataModel.extend('dataModels.JSON', {
      * @summary Set a particular column filter state.
      * @desc After setting the new filter state, reapplies the filter to the data source.
      * @param {number|string} columnIndexOrName - The _column filter_ to set.
-     * @param {string|object} [state] - If undefined, removes column filter from the filter tree.
+     * @param {FilterTreeStateObject} [state] - If undefined, removes column filter from the filter tree.
      *
      * Otherwise, column filter is replaced (if it already exists) or added (if new).
-     * @param {filterTreeSetStateOptionsObject} [options]
+     * @param {FilterTreeSetStateOptionsObject} [options]
      * @param {string} [options.syntax='CQL'] - For other possible values, see {@link http://joneit.github.io/filter-tree/global.html#filterTreeSetStateOptionsObject|filterTreeSetStateOptionsObject}.
+     * @memberOf dataModels.JSON.prototype
      */
     setFilter: function(columnIndexOrName, state, options) {
         var isIndex = !isNaN(Number(columnIndexOrName)),
@@ -669,9 +680,28 @@ var JSON = DataModel.extend('dataModels.JSON', {
     },
 
     /**
-     *
+     * @param {FilterTreeSetStateOptionsObject} [options]
+     * @returns {FilterTreeStateObject}
+     * @memberOf dataModels.JSON.prototype
+     */
+    getFilters: function(options) {
+        return this.getGlobalFilter().getColumnFiltersState(options);
+    },
+
+    /**
+     * @param {FilterTreeStateObject} state
+     * @param {FilterTreeSetStateOptionsObject} [options]
+     * @memberOf dataModels.JSON.prototype
+     */
+    setFilters: function(state, options) {
+        this.getGlobalFilter().setColumnFiltersState(state, options);
+        this.applyAnalytics();
+    },
+
+    /**
      * @param options
-     * @returns {*|FilterTreeStateObject}
+     * @returns {FilterTreeStateObject}
+     * @memberOf dataModels.JSON.prototype
      */
     getTableFilter: function(options) {
         return this.getGlobalFilter().getTableFilterState(options);
@@ -679,9 +709,9 @@ var JSON = DataModel.extend('dataModels.JSON', {
 
     /**
      * @summary Set a the table filter state.
-     * @param {string} state
-     * @param {filterTreeSetStateOptionsObject} [options]
-     * @param {string} [options.syntax='CQL']
+     * @param {FilterTreeStateObject} state
+     * @param {FilterTreeSetStateOptionsObject} [options]
+     * @memberOf dataModels.JSON.prototype
      */
     setTableFilter: function(state, options) {
         this.getGlobalFilter().setTableFilterState(state, options);

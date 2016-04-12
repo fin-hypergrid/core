@@ -125,9 +125,13 @@ _(FilterTree.Node.prototype.templates).extendOwn({
  * @desc This extension of FilterTree forces a specific tree structure.
  * See {@link makeNewRoot} for a description.
  *
- * @param {FilterTreeOptionsObject} options - You must provide column schema, either for the whole filter tree through `options.schema` or `options.state.schema` or for the specific nodes that need to render column list drop-downs.
+ * See also {@tutorial filter-api}.
  *
- * > NOTE: If `options.state` is undefined, it is defined here as a new {@link makeNewRoot|empty state scaffold) to hold new table filter and column filter expressions to be added through UI.
+ * @param {FilterTreeOptionsObject} options - You hsould provide a column schema. The easiest approach is to provide a schema for the entire filter tree through `options.schema`.
+ *
+ * Although not recommended, the column schema can also be embedded in the state object, either at the root, `options.state.schema`, or for any descendant node. For example, a separate schema could be provided for each expression or subexpression that need to render column list drop-downs.
+ *
+ * NOTE: If `options.state` is undefined, it is defined in `preInitialize()` as a new empty state scaffold (see {@link makeNewRoot}) with the two trunks to hold a table filter and column filters. Expressions and subexpressions can be added to this empty scaffold either programmatically or through the Query Builder UI.
  */
 
 var DefaultFilter = FilterTree.extend('DefaultFilter', {
@@ -176,17 +180,22 @@ var DefaultFilter = FilterTree.extend('DefaultFilter', {
 
     /**
      * @summary Make a new empty Hypergrid filter tree state object.
-     * @desc This function makes a new default state object as used by Hypergrid, a root with exactly two persisted child nodes:
+     * @desc This function makes a new default state object as used by Hypergrid, a root with exactly two "trunks."
      *
-     * * children[0] represents the _table filter,_ a series of any number of filter expressions and/or subexpressions
-     * * children[1] represents the _column filters,_ a series of subexpressions, one per active column filter
+     * > **Definition:** A *trunk* is defined as a child node with a truthy `keep` property, making this node immune to the usual pruning that would occur when it has no child nodes of its own. To be a true trunk, all ancestor nodes to be trunks as well. Note that the root is a natural trunk; it does not require a `keep` property.
+     *
+     * The two trunks of the Hypergrid filter are:
+     * * The **Table Filter** (left trunk, or `children[0]`), a hierarchy of filter expressions and subexpressions.
+     * * The **Column Filters** (right trunk, or `children[1]`), a series of subexpressions, one per active column filter. Each subexpression contains any number of expressions bound to that column but no further subexpressions.
      *
      * The `operator` properties for all subexpressions default to `'op-and'`, which means:
-     * * AND all table filter expressions and subexpressions together (may be changed from UI)
-     * * AND all column Filters subexpressions together (cannot be changed from UI)
-     * * AND table filters and column filters together (cannot be changed from UI)
+     * * All table filter expressions and subexpressions are AND'd together. (This is just the default and may be changed from the UI.)
+     * * All expressions within a column filter subexpression are AND'd together. (This is just the default and may be changed from the UI.)
+     * * All column Filters subexpressions are AND'd together. (This may not be changed from UI.)
+     * * Finally, the table filter and column filters are AND'd together. (This may not be changed from UI.)
      *
-     * @returns a new instance of a Hyperfilter root
+     * @returns {object} A plain object to serve as a filter-tree state object representing a new Hypergrid filter.
+     *
      * @memberOf DefaultFilter.prototype
      */
     makeNewRoot: function() {
@@ -269,8 +278,8 @@ var DefaultFilter = FilterTree.extend('DefaultFilter', {
      * @param {string|object} [state] - If undefined, removes column filter from the filter tree.
      *
      * Otherwise, column filter is replaced (if it already exists) or added (if new).
-     * @param {filterTreeSetStateOptionsObject} [options]
-     * @param {boolean} [options.syntax='CQL'] For other possible values, see {@link http://joneit.github.io/filter-tree/global.html#filterTreeSetStateOptionsObject|filterTreeSetStateOptionsObject}.
+     * @param {filterTreeSetStateOptionsObject} [options] - You may mix in members of ValidationOptionsObject.
+     * @param {boolean} [options.syntax='CQL'] For other possible values, see `filterTreeSetStateOptionsObject`.
      *
      * @returns {undefined|Error|string} `undefined` indicates success.
 
@@ -323,20 +332,36 @@ var DefaultFilter = FilterTree.extend('DefaultFilter', {
     },
 
     /**
+     *
+     * @param {string} [options.syntax='object'] - The syntax to use to describe the filter state.
+     *
+     * NOTE: Not all available syntaxes include the meta-data.
+     *
+     * NOTE: The `'CQL'` syntax is intended for column filters only. Do *not* use for table filter state! It does not support subexpressions and will throw an error if it encounters any subexpressions.
+     *
+     * @returns {*|FilterTreeStateObject}
+     *
+     * @memberOf DefaultFilter.prototype
+     */
+    getColumnFiltersState: function(options) {
+        return this.root.columnFilters.getState(options);
+    },
+
+    /**
      * @param {string} state
-     * @param {filterTreeSetStateOptionsObject} options
-     * @param {boolean} [options.syntax='auto'] For other possible values, see {@link http://joneit.github.io/filter-tree/global.html#filterTreeSetStateOptionsObject|filterTreeSetStateOptionsObject}.
+     * @param {filterTreeSetStateOptionsObject} [options] - You may mix in members of ValidationOptionsObject.
+     * @param {boolean} [options.syntax='CQL'] For other possible values, see `filterTreeSetStateOptionsObject`.
      *
      * @returns {undefined|Error|string} `undefined` indicates success.
      *
      * @memberOf DefaultFilter.prototype
      */
-    setTableFilterState: function(state, options) {
+    setColumnFiltersState: function(state, options) {
         var error;
 
         if (state) {
-            this.root.tableFilter.setState(state);
-            error = this.root.tableFilter.invalid(options);
+            this.root.columnFilters.setState(state, options);
+            error = this.root.columnFilters.invalid(options);
         }
 
         return error;
@@ -355,7 +380,27 @@ var DefaultFilter = FilterTree.extend('DefaultFilter', {
      * @memberOf DefaultFilter.prototype
      */
     getTableFilterState: function(options) {
-        return this.tableFilter.getState(options);
+        return this.root.tableFilter.getState(options);
+    },
+
+    /**
+     * @param {string} state
+     * @param {filterTreeSetStateOptionsObject} [options] - You may mix in members of ValidationOptionsObject.
+     * @param {boolean} [options.syntax='auto'] For other possible values, see  `filterTreeSetStateOptionsObject`.
+     *
+     * @returns {undefined|Error|string} `undefined` indicates success.
+     *
+     * @memberOf DefaultFilter.prototype
+     */
+    setTableFilterState: function(state, options) {
+        var error;
+
+        if (state) {
+            this.root.tableFilter.setState(state, options);
+            error = this.root.tableFilter.invalid(options);
+        }
+
+        return error;
     },
 
     /**
