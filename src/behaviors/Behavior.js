@@ -1617,6 +1617,7 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
+     * @summary Get a reference to the filter attached to the Hypergrid.
      * @returns {FilterTree}
      * @memberOf Behavior.prototype
      */
@@ -1625,7 +1626,8 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
-     * @param {FilterTree} filter
+     * @summary Attach/detach a filter to a Hypergrid.
+     * @param {FilterTree} [filter] - The filter object. If undefined, any attached filter is removed, turning filtering OFF.
      * @memberOf Behavior.prototype
      */
     setGlobalFilter: function(filter) {
@@ -1633,6 +1635,10 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
+     * @summary Set the case sensitivity of filter tests against data.
+     * @desc Case sensitivity pertains to string compares only. This includes untyped columns, columns typed as strings, typed columns containing data that cannot be coerced to type or when the filter expression operand cannot be coerced.
+     *
+     * NOTE: This is a shared property and affects all grid managed by this instance of the app.
      * @param {boolean} isSensitive
      * @memberOf Behavior.prototype
      */
@@ -1641,9 +1647,9 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
-     * @param {number|string} columnIndexOrName
-     * @param {FilterTreeSetStateOptionsObject} [options]
-     * @param {string} [options.syntax='CQL']
+     * @param {number|string} columnIndexOrName - The _column filter_ to set.
+     * @param {FilterTreeGetStateOptionsObject} [options] - Passed to the filter's {@link DefaultFilter#getState|getState} method.
+     * @param {boolean} [options.syntax='CQL'] - The syntax to use to describe the filter state. Note that `getFilter`'s default syntax, `'CQL'`, differs from the other get state methods.
      * @returns {FilterTreeStateObject}
      * @memberOf Behavior.prototype
      */
@@ -1652,10 +1658,15 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
-     * @param {number|string} columnIndexOrName
-     * @param {FilterTreeStateObject} state
-     * @param {FilterTreeSetStateOptionsObject} [options]
-     * @param {string} [options.syntax='CQL']
+     * @summary Set a particular column filter's state.
+     * @desc After setting the new filter state, reapplies the filter to the data source.
+     * @param {number|string} columnIndexOrName - The _column filter_ to set.
+     * @param {string|object} [state] - A filter tree object or a JSON, SQL, or CQL subexpression string that describes the a new state for the named column filter. The existing column filter subexpression is replaced with a new node based on this state. If it does not exist, the new subexpression is added to the column filters subtree (`filter.columnFilters`).
+     *
+     * If undefined, removes the entire column filter subexpression from the column filters subtree.
+     * @param {FilterTreeSetStateOptionsObject} [options] - Passed to the filter's [setState]{@link http://joneit.github.io/filter-tree/FilterTree.html#setState} method. You may mix in members of the {@link http://joneit.github.io/filter-tree/global.html#FilterTreeValidationOptionsObject|FilterTreeValidationOptionsObject}
+     * @param {string} [options.syntax='CQL'] - The syntax to use to describe the filter state. Note that `setFilter`'s default syntax, `'CQL'`, differs from the other get state methods.
+     * @returns {undefined|Error|string} `undefined` indicates success.
      * @memberOf Behavior.prototype
      */
     setFilter: function(columnIndexOrName, state, options) {
@@ -1663,7 +1674,7 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
-     * @param {FilterTreeSetStateOptionsObject} [options]
+     * @param {FilterTreeGetStateOptionsObject} [options] - Passed to the filter's {@link DefaultFilter#getState|getState} method.
      * @returns {FilterTreeStateObject}
      * @memberOf Behavior.prototype
      */
@@ -1673,7 +1684,8 @@ var Behavior = Base.extend('Behavior', {
 
     /**
      * @param {FilterTreeStateObject} state
-     * @param {FilterTreeSetStateOptionsObject} [options]
+     * @param {FilterTreeSetStateOptionsObject} [options] - Passed to the filter's [setState]{@link http://joneit.github.io/filter-tree/FilterTree.html#setState} method. You may mix in members of the {@link http://joneit.github.io/filter-tree/global.html#FilterTreeValidationOptionsObject|FilterTreeValidationOptionsObject}
+     * @returns {undefined|Error|string} `undefined` indicates success.
      * @memberOf Behavior.prototype
      */
     setFilters: function(state, options) {
@@ -1681,7 +1693,7 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
-     * @param {FilterTreeSetStateOptionsObject} [options]
+     * @param {FilterTreeGetStateOptionsObject} [options] - Passed to the filter's {@link DefaultFilter#getState|getState} method.
      * @returns {FilterTreeStateObject}
      * @memberOf Behavior.prototype
      */
@@ -1691,7 +1703,8 @@ var Behavior = Base.extend('Behavior', {
 
     /**
      * @param {FilterTreeStateObject} state
-     * @param {FilterTreeSetStateOptionsObject} [options]
+     * @param {FilterTreeSetStateOptionsObject} [options] - Passed to the filter's [setState]{@link http://joneit.github.io/filter-tree/FilterTree.html#setState} method. You may mix in members of the {@link http://joneit.github.io/filter-tree/global.html#FilterTreeValidationOptionsObject|FilterTreeValidationOptionsObject}
+     * @returns {undefined|Error|string} `undefined` indicates success.
      * @memberOf Behavior.prototype
      */
     setTableFilter: function(state, options) {

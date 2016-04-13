@@ -621,6 +621,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
     },
 
     /**
+     * @summary Get a reference to the filter attached to the Hypergrid.
      * @returns {FilterTree}
      * @memberOf dataModels.JSON.prototype
      */
@@ -629,7 +630,8 @@ var JSON = DataModel.extend('dataModels.JSON', {
     },
 
     /**
-     * @param {FilterTree} [filter] - If undefined, removes (deletes) the filter (i.e., turns filtering OFF).
+     * @summary Attach/detach a filter to a Hypergrid.
+     * @param {FilterTree} [filter] - The filter object. If undefined, any attached filter is removed, turning filtering OFF.
      * @memberOf dataModels.JSON.prototype
      */
     setGlobalFilter: function(filter) {
@@ -638,6 +640,10 @@ var JSON = DataModel.extend('dataModels.JSON', {
     },
 
     /**
+     * @summary Set the case sensitivity of filter tests against data.
+     * @desc Case sensitivity pertains to string compares only. This includes untyped columns, columns typed as strings, typed columns containing data that cannot be coerced to type or when the filter expression operand cannot be coerced.
+     *
+     * NOTE: This is a shared property and affects all grid managed by this instance of the app.
      * @param {boolean} isSensitive
      * @memberOf dataModels.JSON.prototype
      */
@@ -647,10 +653,11 @@ var JSON = DataModel.extend('dataModels.JSON', {
     },
 
     /**
-     * @summary Get a particular column filter state.
-     * @param {number|string} columnIndexOrName - The _column filter_ to set.
-     * @param {FilterTreeSetStateOptionsObject} [options]
-     * @param {string} [options.syntax='CQL'] - For other possible values, see {@link http://joneit.github.io/filter-tree/global.html#filterTreeSetStateOptionsObject|filterTreeSetStateOptionsObject}.
+     * @summary Get a particular column filter's state.
+     * @param {string} columnName
+     * @param {FilterTreeGetStateOptionsObject} [options] - Passed to the filter's {@link DefaultFilter#getState|getState} method.
+     * @param {boolean} [options.syntax='CQL'] - The syntax to use to describe the filter state. Note that `getFilter`'s default syntax, `'CQL'`, differs from the other get state methods.
+     * @returns {FilterTreeStateObject}
      * @memberOf dataModels.JSON.prototype
      */
     getFilter: function(columnIndexOrName, options) {
@@ -661,14 +668,15 @@ var JSON = DataModel.extend('dataModels.JSON', {
     },
 
     /**
-     * @summary Set a particular column filter state.
+     * @summary Set a particular column filter's state.
      * @desc After setting the new filter state, reapplies the filter to the data source.
      * @param {number|string} columnIndexOrName - The _column filter_ to set.
-     * @param {FilterTreeStateObject} [state] - If undefined, removes column filter from the filter tree.
+     * @param {string|object} [state] - A filter tree object or a JSON, SQL, or CQL subexpression string that describes the a new state for the named column filter. The existing column filter subexpression is replaced with a new node based on this state. If it does not exist, the new subexpression is added to the column filters subtree (`filter.columnFilters`).
      *
-     * Otherwise, column filter is replaced (if it already exists) or added (if new).
-     * @param {FilterTreeSetStateOptionsObject} [options]
-     * @param {string} [options.syntax='CQL'] - For other possible values, see {@link http://joneit.github.io/filter-tree/global.html#filterTreeSetStateOptionsObject|filterTreeSetStateOptionsObject}.
+     * If undefined, removes the entire column filter subexpression from the column filters subtree.
+     * @param {FilterTreeSetStateOptionsObject} [options] - Passed to the filter's [setState]{@link http://joneit.github.io/filter-tree/FilterTree.html#setState} method. You may mix in members of the {@link http://joneit.github.io/filter-tree/global.html#FilterTreeValidationOptionsObject|FilterTreeValidationOptionsObject}
+     * @param {string} [options.syntax='CQL'] - The syntax to use to describe the filter state. Note that `setFilter`'s default syntax, `'CQL'`, differs from the other get state methods.
+     * @returns {undefined|Error|string} `undefined` indicates success.
      * @memberOf dataModels.JSON.prototype
      */
     setFilter: function(columnIndexOrName, state, options) {
@@ -680,7 +688,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
     },
 
     /**
-     * @param {FilterTreeSetStateOptionsObject} [options]
+     * @param {FilterTreeGetStateOptionsObject} [options] - Passed to the filter's {@link DefaultFilter#getState|getState} method.
      * @returns {FilterTreeStateObject}
      * @memberOf dataModels.JSON.prototype
      */
@@ -690,7 +698,8 @@ var JSON = DataModel.extend('dataModels.JSON', {
 
     /**
      * @param {FilterTreeStateObject} state
-     * @param {FilterTreeSetStateOptionsObject} [options]
+     * @param {FilterTreeSetStateOptionsObject} [options] - Passed to the filter's [setState]{@link http://joneit.github.io/filter-tree/FilterTree.html#setState} method. You may mix in members of the {@link http://joneit.github.io/filter-tree/global.html#FilterTreeValidationOptionsObject|FilterTreeValidationOptionsObject}
+     * @returns {undefined|Error|string} `undefined` indicates success.
      * @memberOf dataModels.JSON.prototype
      */
     setFilters: function(state, options) {
@@ -699,7 +708,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
     },
 
     /**
-     * @param options
+     * @param {FilterTreeGetStateOptionsObject} [options] - Passed to the filter's {@link DefaultFilter#getState|getState} method.
      * @returns {FilterTreeStateObject}
      * @memberOf dataModels.JSON.prototype
      */
@@ -710,7 +719,8 @@ var JSON = DataModel.extend('dataModels.JSON', {
     /**
      * @summary Set a the table filter state.
      * @param {FilterTreeStateObject} state
-     * @param {FilterTreeSetStateOptionsObject} [options]
+     * @param {FilterTreeSetStateOptionsObject} [options] - Passed to the filter's [setState]{@link http://joneit.github.io/filter-tree/FilterTree.html#setState} method. You may mix in members of the {@link http://joneit.github.io/filter-tree/global.html#FilterTreeValidationOptionsObject|FilterTreeValidationOptionsObject}
+     * @returns {undefined|Error|string} `undefined` indicates success.
      * @memberOf dataModels.JSON.prototype
      */
     setTableFilter: function(state, options) {

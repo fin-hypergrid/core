@@ -227,8 +227,10 @@ var DefaultFilter = FilterTree.extend('DefaultFilter', {
 
     /**
      * @summary Get the column filter subexpression node.
-     * @desc The column filter subexpression nodes are child nodes of the `columnFitlers` branch of the Hypergrid filter tree.
-     * Each such node contains all the column filter expressions for the named column. It will never be empty; rather if there is no column filter for the named column, it won't exist in `columnFilters`.
+     * @desc Each column filter subexpression node is a child node of the `columnFilters` trunk of the Hypergrid filter tree.
+     * Each such node contains all the column filter expressions for the named column. It will never be empty; if there is no column filter for the named column, it won't exist in `columnFilters`.
+     *
+     * CAUTION: This is the actual node object. Do not confuse it with the column filter _state_ object (for which see the {@link DefaultFilter#getColumnFilterState|getColumnFilterState()} method).
      * @param {string} columnName
      * @returns {undefined|DefaultFilter} Returns `undefined` if the column filter does not exist.
      */
@@ -238,21 +240,19 @@ var DefaultFilter = FilterTree.extend('DefaultFilter', {
         });
     },
 
-    /** @typedef {object} filterTreeGetStateOptionsObject
-     * See filter-tree's {@link http://joneit.github.io/filter-tree/FilterTree.html#getState|getState} options object.
+    /** @typedef {object} FilterTreeGetStateOptionsObject
+     * See the {@link http://joneit.github.io/filter-tree/global.html#FilterTreeGetStateOptionsObject|type definition} in the filter-tree documentation.
      */
 
-    /** @typedef {object} filterTreeSetStateOptionsObject
-     * See filter-tree's {@link http://joneit.github.io/filter-tree/FilterNode.html#setState|setState} options object.
+    /** @typedef {object} FilterTreeSetStateOptionsObject
+     * See the {@link http://joneit.github.io/filter-tree/global.html#FilterTreeSetStateOptionsObject|type definition} in the filter-tree documentation.
      */
 
     /**
-     *
-     * @param columnName
-     * @param {FilterTreeGetStateOptionsObject} [options] - Passed to `getState`.
-     * @param {boolean} [options.syntax='CQL'] - The syntax to use to describe the filter state.
-     *
-     * NOTE: Not all available syntaxes include the meta-data.
+     * @summary Get a particular column filter's state.
+     * @param {FilterTreeGetStateOptionsObject} [options] - Passed to the filter's {@link DefaultFilter#getState|getState} method.
+     * @param {boolean} [options.syntax='CQL'] - The syntax to use to describe the filter state. Note that `getFilter`'s default syntax, `'CQL'`, differs from the other get state methods.
+     * @returns {FilterTreeStateObject}
      * @memberOf DefaultFilter.prototype
      */
     getColumnFilterState: function(columnName, options) {
@@ -273,13 +273,13 @@ var DefaultFilter = FilterTree.extend('DefaultFilter', {
     },
 
     /**
+     * @summary Get a particular column filter's state.
+     * @param {string} columnName
+     * @param {string|object} [state] - A filter tree object or a JSON, SQL, or CQL subexpression string that describes the a new state for the named column filter. The existing column filter subexpression is replaced with a new node based on this state. If it does not exist, the new subexpression is added to the column filters subtree (`this.root.columnFilters`).
      *
-     * @param columnName
-     * @param {string|object} [state] - If undefined, removes column filter from the filter tree.
-     *
-     * Otherwise, column filter is replaced (if it already exists) or added (if new).
-     * @param {filterTreeSetStateOptionsObject} [options] - You may mix in members of ValidationOptionsObject.
-     * @param {boolean} [options.syntax='CQL'] For other possible values, see `filterTreeSetStateOptionsObject`.
+     * If undefined, removes the entire column filter subexpression from the column filters subtree.
+     * @param {FilterTreeSetStateOptionsObject} [options] - Passed to the filter's [setState]{@link http://joneit.github.io/filter-tree/FilterTree.html#setState} method. You may mix in members of the {@link http://joneit.github.io/filter-tree/global.html#FilterTreeValidationOptionsObject|FilterTreeValidationOptionsObject}
+     * @param {boolean} [options.syntax='CQL'] - The syntax to use to describe the filter state. Note that `setColumnFilterState`'s default syntax, `'CQL'`, differs from the other get state methods.
      *
      * @returns {undefined|Error|string} `undefined` indicates success.
 
@@ -332,25 +332,20 @@ var DefaultFilter = FilterTree.extend('DefaultFilter', {
     },
 
     /**
-     *
-     * @param {string} [options.syntax='object'] - The syntax to use to describe the filter state.
-     *
-     * NOTE: Not all available syntaxes include the meta-data.
-     *
-     * NOTE: The `'CQL'` syntax is intended for column filters only. Do *not* use for table filter state! It does not support subexpressions and will throw an error if it encounters any subexpressions.
-     *
-     * @returns {*|FilterTreeStateObject}
-     *
+     * @param {FilterTreeGetStateOptionsObject} [options] - Passed to the filter's {@link DefaultFilter#getState|getState} method.
+     * @returns {FilterTreeStateObject}
      * @memberOf DefaultFilter.prototype
      */
     getColumnFiltersState: function(options) {
+        if (options && options.syntax === 'CQL') {
+            throw 'The CQL syntax is intended for use on a single column filter only. It does not support multiple columns or subexpressions.';
+        }
         return this.root.columnFilters.getState(options);
     },
 
     /**
      * @param {string} state
-     * @param {filterTreeSetStateOptionsObject} [options] - You may mix in members of ValidationOptionsObject.
-     * @param {boolean} [options.syntax='CQL'] For other possible values, see `filterTreeSetStateOptionsObject`.
+     * @param {FilterTreeSetStateOptionsObject} [options] - Passed to the filter's [setState]{@link http://joneit.github.io/filter-tree/FilterTree.html#setState} method. You may mix in members of the {@link http://joneit.github.io/filter-tree/global.html#FilterTreeValidationOptionsObject|FilterTreeValidationOptionsObject}
      *
      * @returns {undefined|Error|string} `undefined` indicates success.
      *
@@ -368,28 +363,21 @@ var DefaultFilter = FilterTree.extend('DefaultFilter', {
     },
 
     /**
-     *
-     * @param {string} [options.syntax='object'] - The syntax to use to describe the filter state.
-     *
-     * NOTE: Not all available syntaxes include the meta-data.
-     *
-     * NOTE: The `'CQL'` syntax is intended for column filters only. Do *not* use for table filter state! It does not support subexpressions and will throw an error if it encounters any subexpressions.
-     *
-     * @returns {*|FilterTreeStateObject}
-     *
+     * @param {FilterTreeGetStateOptionsObject} [options] - Passed to the filter's {@link DefaultFilter#getState|getState} method.
+     * @returns {FilterTreeStateObject}
      * @memberOf DefaultFilter.prototype
      */
     getTableFilterState: function(options) {
+        if (options && options.syntax === 'CQL') {
+            throw 'The CQL syntax is intended for use on a single column filter only. It does not support multiple columns or subexpressions.';
+        }
         return this.root.tableFilter.getState(options);
     },
 
     /**
      * @param {string} state
-     * @param {filterTreeSetStateOptionsObject} [options] - You may mix in members of ValidationOptionsObject.
-     * @param {boolean} [options.syntax='auto'] For other possible values, see  `filterTreeSetStateOptionsObject`.
-     *
+     * @param {FilterTreeSetStateOptionsObject} [options] - Passed to the filter's [setState]{@link http://joneit.github.io/filter-tree/FilterTree.html#setState} method. You may mix in members of the {@link http://joneit.github.io/filter-tree/global.html#FilterTreeValidationOptionsObject|FilterTreeValidationOptionsObject}
      * @returns {undefined|Error|string} `undefined` indicates success.
-     *
      * @memberOf DefaultFilter.prototype
      */
     setTableFilterState: function(state, options) {
@@ -407,6 +395,8 @@ var DefaultFilter = FilterTree.extend('DefaultFilter', {
      * @desc The CQL syntax should only be requested for a subtree containing homogeneous column names and no subexpressions.
      *
      * @param {string} [options.syntax='object'] - If `'CQL'`, walks the tree, returning a string suitable for a Hypergrid filter cell. All other values are forwarded to the prototype's `getState` method for further interpretation.
+     *
+     * NOTE: CQL is not intended to be used outside the context of a `columnFilters` subexpression.
      *
      * @returns {FilterTreeStateObject}
      *

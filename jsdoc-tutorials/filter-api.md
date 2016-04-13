@@ -1,18 +1,65 @@
+### Background
+
+A filter module defines an object representing a filter expression. The object should be able to:
+* **Load state** for a complete expression, or modify state by adding, modifying, or deleting nodes in the expression tree.
+* **Save state** to persist it for reload in subsequent sessions.
+* **Filter local data** by supporting a `test()` method for testing data rows against the filter.
+* **Filter remote data** by extracting the filter state, which is then sent to the remote data server, which in turn re-runs the query, creating a new result set, which it then sends back to the client for display.
+
+#### What is an expression tree?
+
+An expressions tree is a hierarchical arrangement of nodes. There are two types of nodes, roots/branches and leaves. A tree consists of a root node which may contain as its child nodes either other expressions (branches, or subexpressions, or subtrees) and/or conditional expressions (terminal nodes, or leaves).
+
+The conditional expressions are terminal nodes, having no child nodes of their own. Each conditional expression node has a column name, relational operator, and a single operand. The operand may be either a literal value or another column name.
+
+It may be helpful to think of subtrees as the parenthesized subexpressions in boolean algebra, or in a SQL [search condition]{@link https://msdn.microsoft.com/en-us/library/ms173545.aspx}. In fact, a useful feature of a filter module would be to generate SQL search condition expressions which can be used by a remote server to run a query.
+
+### The API in a nutshell
+
+Hypergrid models its filter module interface on the [filter-tree]{@link https://github.com/joneit/filter-tree} project.
+(For more about filter-tree, a good place to start is its [Theory of Operation page]{@link http://joneit.github.io/filter-tree/doc/tutorial-TOP.html}).
+
 The essential Application Programming Interface for a filter module is:
 
 ```javascript
-var filter = new DefaultFilter();
+var filter = new FilterTree(options);
 filter.setState(state);
 state = filter.getState();
-filter.test(dataRow);
+filter.test(dataRow); // for local filtering
 ```
 
-When used with Hypergrid, setting filter state should always be followed by:
-1. Filter validation (`grid.getGlobalFilter().invalid()`).
-2. Filter execution (`grid.behavior.dataModel.applyAnalytics()`).
-3. Update the grid canvas (`grid.repaint()`).
+### Filter objects and filter modules
 
-The following helper methods do these tasks for you. However, the convenience comes at the cost of running these follow-up tasks _whenever_ you make a change to the global filter when in fact they should only be once, at the end of your event loop. Using the helper functions makes it easy to forget this.
+Instead of `FilterTree` in the above, you could use any object extended therefrom. You can also use another object entirely from any other filter module, so long as it supports the above essential API calls, instantiation, `setState`, `getState`, and the filter's main task, `test()`, which inspects each row in the result set, comparing it to the current filter expression (or "state") to determine if the row is to be included in the next grid render or not.
+
+Hypergrid includes a default filter object, called {@link DefaultFilter}, extended from [FilterTree]{@link http://joneit.github.io/filter-tree/FilterTree.html}. Whenever you point your grid at some new data (such as upon instantiation a new {@link Hypergrid} object or on a subsequent call to {@link behaviors.JSON#setData}), a call is made to the {@link Behavior#getDefaultFilter} method to instantiate a new default filter object for you.
+
+The application programmer has full control of the type of filter to use and how it is set up. You can override the `getDefaultFilter()` method to instantiate a `DefaultFilter` with your own specific options; or you may instantiate a different filter object entirely. Alternatively, you can instantiate a new filter at any time and hand it to the grid by way of the {@link Hypergrid#setGlobalFilter} method.
+
+### Hypergrid's filter
+
+The `DefaultFilter` extension supports Hypergrid's filter requirements. Hypergrid adds some additional semantics to the generic filter expression, maintaining two trunks (nodes that may be empty) off the root node:
+* **The left trunk** (`filter.children[0]` or `filter.columnFilters`) is for a general table filter that may contain arbitrarily complex hierarchy of subexpressions, referencing any columns.
+* **The right trunk** (`filter.children[1]` or `filter.tableFilter`) is for the subexpressions in the column filter cells at the top of each column, under the header. This trunk only contains subexpressions, one for each column with something in its filter cell, and is only ever one level deep. That is, column filters cannot have subexpressions themselves.
+
+### Filter schema
+
+Filters should be instantiated with a column schema, an array of {@link http://joneit.github.io/pop-menu/global.html#menuItem|menuItem} objects. A column schema informs the filter of the names of the available columns and can be a simple as an array of strings. Or it can be an array of objects, or a mixture of strings and objects. The objects can contain additional column information such as alias (header) and type. A schema item can also be a nested schema array. The purpose of this is merely to create hierarchical drop-downs of column names. (Although note that only one level of nesting is generally supported by browsers.)
+
+{@link Behavior#getDefaultFilter} crates a default column schema from the {@link Behavior#columns|columns} array.
+
+### Filter integration with Hypergrid
+
+In any case, after any call that sets state on the filter, all three of the following actions _must_ be performed before the next grid render or you will not see the results of the change of state:
+1. **Filter validation** (`grid.getGlobalFilter().invalid()`).<br> In addition to validating the filter state, this method also sets some internal state for efficient subsequent execution of the critical `test()` method.
+2. **Filter execution** (`grid.behavior.dataModel.applyAnalytics()`).<br> This is what calls the filter's `test()` method on every data row. This is expensive and should not be called more often than necessary!
+3. **Update the grid canvas** (`grid.repaint()`).<br> Must be called at least once before the next animation frame in order to see the results of the filtering.
+
+### Filter helper methods
+
+The following Hypergrid convenience methods do some of these tasks for you.
+
+This table is read from left to right. Each method calls the method to its right. The methods on the left represent the outer layer; they are higher level and do more than the methods on the right.
 
 _NOTE: The "shy" hyphens that may appear in the identifiers below should not be taken literally._
 
@@ -41,3 +88,10 @@ _test_ | &mdash; | &mdash; | [applyAnalytics()]{@link dataModels.JSON#applyAnaly
 <sup>6</sup> Replaces left "trunk" with hierarchical subexpression.<br>
 <sup>7</sup> Validates `state`.<br>
 <sup>8</sup> `options.syntax` may be `'auto'`, `'object'`, `'JSON'`, or `'SQL'`.
+ 
+#### Caveat
+
+The convenience that these helper methods give you come at a cost. Running these follow-up tasks _whenever_ you make a change to the global filter is not always called for. In the case of `applyAnalytics`, in particular, it should _not_ be called more than be once due to the expense in doing so. Ideally, they should just be called one time, at the end of your event loop. Using the helper functions makes it easy to forget this. Therefore, use them sparingly and intelligently, calling the underlying methods instead when it makes sense to do so.
+
+### Examples
+
