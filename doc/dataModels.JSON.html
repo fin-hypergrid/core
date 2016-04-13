@@ -1433,10 +1433,10 @@
 
     
 
-    <h4 class="name" id="getFilter"><span class="type-signature"></span>getFilter<span class="signature">(columnIndexOrName, options<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="getFilter"><span class="type-signature"></span>getFilter<span class="signature">(columnName, options<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {FilterTreeStateObject}</span></h4>
 
     
-    <p class="summary"><p>Get a particular column filter state.</p></p>
+    <p class="summary"><p>Get a particular column filter's state.</p></p>
     
 
 
@@ -1478,15 +1478,12 @@
 
         <tr>
             
-                <td class="name"><code>columnIndexOrName</code></td>
+                <td class="name"><code>columnName</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">number</span>
-|
-
 <span class="param-type">string</span>
 
 
@@ -1509,7 +1506,7 @@
                 </td>
             
 
-            <td class="description last"><p>The <em>column filter</em> to set.</p></td>
+            <td class="description last"></td>
         </tr>
 
     
@@ -1522,7 +1519,7 @@
             <td class="type">
             
                 
-<span class="param-type">FilterTreeSetStateOptionsObject</span>
+<span class="param-type"><a href="global.html#FilterTreeGetStateOptionsObject">FilterTreeGetStateOptionsObject</a></span>
 
 
             
@@ -1546,7 +1543,7 @@
                 </td>
             
 
-            <td class="description last"></td>
+            <td class="description last"><p>Passed to the filter's <a href="DefaultFilter.html#getState"><code>getState</code></a> method.</p></td>
         </tr>
 
     
@@ -1559,7 +1556,7 @@
             <td class="type">
             
                 
-<span class="param-type">string</span>
+<span class="param-type">boolean</span>
 
 
             
@@ -1585,7 +1582,7 @@
                 </td>
             
 
-            <td class="description last"><p>For other possible values, see <a href="http://joneit.github.io/filter-tree/global.html#filterTreeSetStateOptionsObject">filterTreeSetStateOptionsObject</a>.</p></td>
+            <td class="description last"><p>The syntax to use to describe the filter state. Note that <code>getFilter</code>'s default syntax, <code>'CQL'</code>, differs from the other get state methods.</p></td>
         </tr>
 
     
@@ -1644,6 +1641,24 @@
 
 
 
+<h5>Returns:</h5>
+
+        
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">FilterTreeStateObject</span>
+
+
+    </dd>
+</dl>
+
+    
 
 
 
@@ -1699,7 +1714,7 @@
             <td class="type">
             
                 
-<span class="param-type">FilterTreeSetStateOptionsObject</span>
+<span class="param-type"><a href="global.html#FilterTreeGetStateOptionsObject">FilterTreeGetStateOptionsObject</a></span>
 
 
             
@@ -1719,7 +1734,7 @@
 
             
 
-            <td class="description last"></td>
+            <td class="description last"><p>Passed to the filter's <a href="DefaultFilter.html#getState"><code>getState</code></a> method.</p></td>
         </tr>
 
     
@@ -1806,6 +1821,8 @@
 
     <h4 class="name" id="getGlobalFilter"><span class="type-signature"></span>getGlobalFilter<span class="signature">()</span><span class="type-signature"> &rarr; {FilterTree}</span></h4>
 
+    
+    <p class="summary"><p>Get a reference to the filter attached to the Hypergrid.</p></p>
     
 
 
@@ -2715,7 +2732,7 @@
 
     
 
-    <h4 class="name" id="getTableFilter"><span class="type-signature"></span>getTableFilter<span class="signature">(options)</span><span class="type-signature"> &rarr; {FilterTreeStateObject}</span></h4>
+    <h4 class="name" id="getTableFilter"><span class="type-signature"></span>getTableFilter<span class="signature">(options<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {FilterTreeStateObject}</span></h4>
 
     
 
@@ -2742,6 +2759,8 @@
         <th>Type</th>
 
         
+        <th>Attributes</th>
+        
 
         
 
@@ -2759,13 +2778,28 @@
 
             <td class="type">
             
+                
+<span class="param-type"><a href="global.html#FilterTreeGetStateOptionsObject">FilterTreeGetStateOptionsObject</a></span>
+
+
+            
             </td>
 
             
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
 
             
 
-            <td class="description last"></td>
+            <td class="description last"><p>Passed to the filter's <a href="DefaultFilter.html#getState"><code>getState</code></a> method.</p></td>
         </tr>
 
     
@@ -4449,10 +4483,10 @@
 
     
 
-    <h4 class="name" id="setFilter"><span class="type-signature"></span>setFilter<span class="signature">(columnIndexOrName, state<span class="signature-attributes">opt</span>, options<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="setFilter"><span class="type-signature"></span>setFilter<span class="signature">(columnIndexOrName, state<span class="signature-attributes">opt</span>, options<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {undefined|Error|string}</span></h4>
 
     
-    <p class="summary"><p>Set a particular column filter state.</p></p>
+    <p class="summary"><p>Set a particular column filter's state.</p></p>
     
 
 
@@ -4542,7 +4576,10 @@
             <td class="type">
             
                 
-<span class="param-type">FilterTreeStateObject</span>
+<span class="param-type">string</span>
+|
+
+<span class="param-type">object</span>
 
 
             
@@ -4566,8 +4603,8 @@
                 </td>
             
 
-            <td class="description last"><p>If undefined, removes column filter from the filter tree.</p>
-<p>Otherwise, column filter is replaced (if it already exists) or added (if new).</p></td>
+            <td class="description last"><p>A filter tree object or a JSON, SQL, or CQL subexpression string that describes the a new state for the named column filter. The existing column filter subexpression is replaced with a new node based on this state. If it does not exist, the new subexpression is added to the column filters subtree (<code>filter.columnFilters</code>).</p>
+<p>If undefined, removes the entire column filter subexpression from the column filters subtree.</p></td>
         </tr>
 
     
@@ -4580,7 +4617,7 @@
             <td class="type">
             
                 
-<span class="param-type">FilterTreeSetStateOptionsObject</span>
+<span class="param-type"><a href="global.html#FilterTreeSetStateOptionsObject">FilterTreeSetStateOptionsObject</a></span>
 
 
             
@@ -4604,7 +4641,7 @@
                 </td>
             
 
-            <td class="description last"></td>
+            <td class="description last"><p>Passed to the filter's <a href="http://joneit.github.io/filter-tree/FilterTree.html#setState">setState</a> method. You may mix in members of the <a href="http://joneit.github.io/filter-tree/global.html#FilterTreeValidationOptionsObject">FilterTreeValidationOptionsObject</a></p></td>
         </tr>
 
     
@@ -4643,7 +4680,7 @@
                 </td>
             
 
-            <td class="description last"><p>For other possible values, see <a href="http://joneit.github.io/filter-tree/global.html#filterTreeSetStateOptionsObject">filterTreeSetStateOptionsObject</a>.</p></td>
+            <td class="description last"><p>The syntax to use to describe the filter state. Note that <code>setFilter</code>'s default syntax, <code>'CQL'</code>, differs from the other get state methods.</p></td>
         </tr>
 
     
@@ -4702,6 +4739,34 @@
 
 
 
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    <p><code>undefined</code> indicates success.</p>
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">undefined</span>
+|
+
+<span class="param-type">Error</span>
+|
+
+<span class="param-type">string</span>
+
+
+    </dd>
+</dl>
+
+    
 
 
 
@@ -4710,7 +4775,7 @@
 
     
 
-    <h4 class="name" id="setFilters"><span class="type-signature"></span>setFilters<span class="signature">(state, options<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="setFilters"><span class="type-signature"></span>setFilters<span class="signature">(state, options<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {undefined|Error|string}</span></h4>
 
     
 
@@ -4788,7 +4853,7 @@
             <td class="type">
             
                 
-<span class="param-type">FilterTreeSetStateOptionsObject</span>
+<span class="param-type"><a href="global.html#FilterTreeSetStateOptionsObject">FilterTreeSetStateOptionsObject</a></span>
 
 
             
@@ -4808,7 +4873,7 @@
 
             
 
-            <td class="description last"></td>
+            <td class="description last"><p>Passed to the filter's <a href="http://joneit.github.io/filter-tree/FilterTree.html#setState">setState</a> method. You may mix in members of the <a href="http://joneit.github.io/filter-tree/global.html#FilterTreeValidationOptionsObject">FilterTreeValidationOptionsObject</a></p></td>
         </tr>
 
     
@@ -4867,6 +4932,34 @@
 
 
 
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    <p><code>undefined</code> indicates success.</p>
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">undefined</span>
+|
+
+<span class="param-type">Error</span>
+|
+
+<span class="param-type">string</span>
+
+
+    </dd>
+</dl>
+
+    
 
 
 
@@ -4877,6 +4970,8 @@
 
     <h4 class="name" id="setGlobalFilter"><span class="type-signature"></span>setGlobalFilter<span class="signature">(filter<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h4>
 
+    
+    <p class="summary"><p>Attach/detach a filter to a Hypergrid.</p></p>
     
 
 
@@ -4942,7 +5037,7 @@
 
             
 
-            <td class="description last"><p>If undefined, removes (deletes) the filter (i.e., turns filtering OFF).</p></td>
+            <td class="description last"><p>The filter object. If undefined, any attached filter is removed, turning filtering OFF.</p></td>
         </tr>
 
     
@@ -5012,8 +5107,15 @@
     <h4 class="name" id="setGlobalFilterCaseSensitivity"><span class="type-signature"></span>setGlobalFilterCaseSensitivity<span class="signature">(isSensitive)</span><span class="type-signature"></span></h4>
 
     
+    <p class="summary"><p>Set the case sensitivity of filter tests against data.</p></p>
+    
 
 
+
+<div class="description">
+    <p>Case sensitivity pertains to string compares only. This includes untyped columns, columns typed as strings, typed columns containing data that cannot be coerced to type or when the filter expression operand cannot be coerced.</p>
+<p>NOTE: This is a shared property and affects all grid managed by this instance of the app.</p>
+</div>
 
 
 
@@ -5551,7 +5653,7 @@
 
     
 
-    <h4 class="name" id="setTableFilter"><span class="type-signature"></span>setTableFilter<span class="signature">(state, options<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="setTableFilter"><span class="type-signature"></span>setTableFilter<span class="signature">(state, options<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {undefined|Error|string}</span></h4>
 
     
     <p class="summary"><p>Set a the table filter state.</p></p>
@@ -5631,7 +5733,7 @@
             <td class="type">
             
                 
-<span class="param-type">FilterTreeSetStateOptionsObject</span>
+<span class="param-type"><a href="global.html#FilterTreeSetStateOptionsObject">FilterTreeSetStateOptionsObject</a></span>
 
 
             
@@ -5651,7 +5753,7 @@
 
             
 
-            <td class="description last"></td>
+            <td class="description last"><p>Passed to the filter's <a href="http://joneit.github.io/filter-tree/FilterTree.html#setState">setState</a> method. You may mix in members of the <a href="http://joneit.github.io/filter-tree/global.html#FilterTreeValidationOptionsObject">FilterTreeValidationOptionsObject</a></p></td>
         </tr>
 
     
@@ -5710,6 +5812,34 @@
 
 
 
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    <p><code>undefined</code> indicates success.</p>
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">undefined</span>
+|
+
+<span class="param-type">Error</span>
+|
+
+<span class="param-type">string</span>
+
+
+    </dd>
+</dl>
+
+    
 
 
 

@@ -1282,8 +1282,9 @@
 
 
 <div class="description">
-    <p>The column filter subexpression nodes are child nodes of the <code>columnFitlers</code> branch of the Hypergrid filter tree.
-Each such node contains all the column filter expressions for the named column. It will never be empty; rather if there is no column filter for the named column, it won't exist in <code>columnFilters</code>.</p>
+    <p>Each column filter subexpression node is a child node of the <code>columnFilters</code> trunk of the Hypergrid filter tree.
+Each such node contains all the column filter expressions for the named column. It will never be empty; if there is no column filter for the named column, it won't exist in <code>columnFilters</code>.</p>
+<p>CAUTION: This is the actual node object. Do not confuse it with the column filter <em>state</em> object (for which see the <a href="DefaultFilter.html#getColumnFilterState"><code>getColumnFilterState()</code></a> method).</p>
 </div>
 
 
@@ -3956,13 +3957,13 @@ gc.restore();</code></pre><p>Before doing anything else, this function should cl
 
             
                 
-<h4 class="name" id="filterTreeGetStateOptionsObject">filterTreeGetStateOptionsObject</h4>
+<h4 class="name" id="FilterTreeGetStateOptionsObject">FilterTreeGetStateOptionsObject</h4>
 
 
 
 
 <div class="description">
-    <p>See filter-tree's <a href="http://joneit.github.io/filter-tree/FilterTree.html#getState">getState</a> options object.</p>
+    <p>See the <a href="http://joneit.github.io/filter-tree/global.html#FilterTreeGetStateOptionsObject">type definition</a> in the filter-tree documentation.</p>
 </div>
 
 
@@ -4023,13 +4024,13 @@ gc.restore();</code></pre><p>Before doing anything else, this function should cl
 
             
                 
-<h4 class="name" id="filterTreeSetStateOptionsObject">filterTreeSetStateOptionsObject</h4>
+<h4 class="name" id="FilterTreeSetStateOptionsObject">FilterTreeSetStateOptionsObject</h4>
 
 
 
 
 <div class="description">
-    <p>See filter-tree's <a href="http://joneit.github.io/filter-tree/FilterNode.html#setState">setState</a> options object.</p>
+    <p>See the <a href="http://joneit.github.io/filter-tree/global.html#FilterTreeSetStateOptionsObject">type definition</a> in the filter-tree documentation.</p>
 </div>
 
 
