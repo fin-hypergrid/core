@@ -832,6 +832,7 @@ window.onload = function() {
 
     function redIfStartsWithS(config) {
         //does the data start with an 'S'?
-        return config.value[1][0] === 'S' ? 'red' : '#191919';
+        var data = config.value[1];
+        return data && data[0] === 'S' ? 'red' : '#191919';
     }
 };

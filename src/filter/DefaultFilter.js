@@ -166,6 +166,10 @@ var DefaultFilter = FilterTree.extend('DefaultFilter', {
                 resolveAliases: options.resolveAliases
             });
         }
+
+        if (this.type === 'columnFilter') {
+            this.dontPersist.schema = true;
+        }
     },
 
     /**
@@ -273,12 +277,17 @@ var DefaultFilter = FilterTree.extend('DefaultFilter', {
     },
 
     /**
-     * @summary Get a particular column filter's state.
+     * @summary Set a particular column filter's state.
+     * @desc Adds CQL support to this.getState().
+     *
      * @param {string} columnName
+     *
      * @param {string|object} [state] - A filter tree object or a JSON, SQL, or CQL subexpression string that describes the a new state for the named column filter. The existing column filter subexpression is replaced with a new node based on this state. If it does not exist, the new subexpression is added to the column filters subtree (`this.root.columnFilters`).
      *
      * If undefined, removes the entire column filter subexpression from the column filters subtree.
+     *
      * @param {FilterTreeSetStateOptionsObject} [options] - Passed to the filter's [setState]{@link http://joneit.github.io/filter-tree/FilterTree.html#setState} method. You may mix in members of the {@link http://joneit.github.io/filter-tree/global.html#FilterTreeValidationOptionsObject|FilterTreeValidationOptionsObject}
+     *
      * @param {boolean} [options.syntax='CQL'] - The syntax to use to describe the filter state. Note that `setColumnFilterState`'s default syntax, `'CQL'`, differs from the other get state methods.
      *
      * @returns {undefined|Error|string} `undefined` indicates success.
@@ -332,6 +341,7 @@ var DefaultFilter = FilterTree.extend('DefaultFilter', {
     },
 
     /**
+     * @summary Get state of all column filters.
      * @param {FilterTreeGetStateOptionsObject} [options] - Passed to the filter's {@link DefaultFilter#getState|getState} method.
      * @returns {FilterTreeStateObject}
      * @memberOf DefaultFilter.prototype
@@ -344,6 +354,8 @@ var DefaultFilter = FilterTree.extend('DefaultFilter', {
     },
 
     /**
+     * @summary Set state of all column filters.
+     * @desc Note that the column filters implementation depends on the nodes having certain meta-data; you should not be calling this without these meta-data being in place. Specifically `type = 'columnFilters'` and  `keep = true` for the column filters subtree and`type = 'columnFilter'` for each individual column filter subexpression. In addition the subtree operators should always be `'op-and'`.
      * @param {string} state
      * @param {FilterTreeSetStateOptionsObject} [options] - Passed to the filter's [setState]{@link http://joneit.github.io/filter-tree/FilterTree.html#setState} method. You may mix in members of the {@link http://joneit.github.io/filter-tree/global.html#FilterTreeValidationOptionsObject|FilterTreeValidationOptionsObject}
      *
