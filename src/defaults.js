@@ -383,6 +383,12 @@ module.exports = {
      * @instance
      */
     gridLinesV: true,
+    /**
+     * @default `true`
+     * @type {boolean}
+     * @instance
+     */
+    gridLinesVOverflow: false,
 
     /**
      * @default 'rgb(199, 199 199)'

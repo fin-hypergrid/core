@@ -902,13 +902,17 @@ var Renderer = Base.extend('Renderer', {
 
         var colWidths = this.getColumnEdges();
         var rowHeights = this.rowEdges;
-
+        var viewHeight;
         var viewWidth = colWidths[colWidths.length - 1];
-        var viewHeight = this.getBounds().height; //rowHeights[rowHeights.length - 1];
-
         var drawThemH = this.resolveProperty('gridLinesH');
+        var drawThemVOverflow = this.resolveProperty('gridLinesVOverflow');
         var drawThemV = this.resolveProperty('gridLinesV');
         var lineColor = this.resolveProperty('lineColor');
+        if (drawThemVOverflow){
+            viewHeight = this.getBounds().height;
+        } else {
+            viewHeight = rowHeights[rowHeights.length - 1];
+        }
 
         gc.beginPath();
 
