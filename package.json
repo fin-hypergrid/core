@@ -1,6 +1,6 @@
 {
   "name": "fin-hypergrid",
-  "version": "0.2.6",
+  "version": "0.2.7",
   "description": "Canvas-based high-performance spreadsheet",
   "main": "src/Hypergrid.js",
   "author": "SWirts, JEiten, DJones",
@@ -14,7 +14,7 @@
   "dependencies": {
     "automat": "^1.1.1",
     "extend-me": "^2.2.2",
-    "filter-tree": "0.3.21",
+    "filter-tree": "^0.3.22",
     "finbars": "^1.5.1",
     "fincanvas": "^1.2.1",
     "hyper-analytics": "^0.10.4",

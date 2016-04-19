@@ -332,7 +332,7 @@ var DefaultFilter = FilterTree.extend('DefaultFilter', {
             }
         }
 
-        if (error && subexpression) {
+        if (subexpression && (!state || error)) {
             // remove subexpression representing this column
             subexpression.remove();
         }
