@@ -273,6 +273,8 @@ See <code>makeNewRoot</code> for a description.</p>
     <h4 class="name" id="getColumnFiltersState"><span class="type-signature"></span>getColumnFiltersState<span class="signature">(options<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {FilterTreeStateObject}</span></h4>
 
     
+    <p class="summary"><p>Get state of all column filters.</p></p>
+    
 
 
 
@@ -1081,8 +1083,14 @@ See <code>makeNewRoot</code> for a description.</p>
     <h4 class="name" id="setColumnFiltersState"><span class="type-signature"></span>setColumnFiltersState<span class="signature">(state, options<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {undefined|Error|string}</span></h4>
 
     
+    <p class="summary"><p>Set state of all column filters.</p></p>
+    
 
 
+
+<div class="description">
+    <p>Note that the column filters implementation depends on the nodes having certain meta-data; you should not be calling this without these meta-data being in place. Specifically <code>type = 'columnFilters'</code> and  <code>keep = true</code> for the column filters subtree and<code>type = 'columnFilter'</code> for each individual column filter subexpression. In addition the subtree operators should always be <code>'op-and'</code>.</p>
+</div>
 
 
 
@@ -1274,10 +1282,14 @@ See <code>makeNewRoot</code> for a description.</p>
     <h4 class="name" id="setColumnFilterState"><span class="type-signature"></span>setColumnFilterState<span class="signature">(columnName, state<span class="signature-attributes">opt</span>, options<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {undefined|Error|string}</span></h4>
 
     
-    <p class="summary"><p>Get a particular column filter's state.</p></p>
+    <p class="summary"><p>Set a particular column filter's state.</p></p>
     
 
 
+
+<div class="description">
+    <p>Adds CQL support to this.getState().</p>
+</div>
 
 
 
