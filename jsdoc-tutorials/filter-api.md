@@ -53,7 +53,7 @@ Filters should be instantiated with a column schema, an array of {@link http://j
 In any case, after any call that sets state on the filter, all three of the following actions _must_ be performed before the next grid render or you will not see the results of the change of state:
 1. **Filter validation** (`grid.getGlobalFilter().invalid()`).<br> In addition to validating the filter state, this method also sets some internal state for efficient subsequent execution of the critical `test()` method.
 2. **Filter execution** (`grid.behavior.dataModel.applyAnalytics()`).<br> This is what calls the filter's `test()` method on every data row. This is expensive and should not be called more often than necessary!
-3. **Update the grid canvas** (`grid.repaint()`).<br> Must be called at least once before the next animation frame in order to see the results of the filtering.
+3. **Update the grid canvas** (`grid.behaviorChanged()` which calls `.repaint()`).<br> Must be called at least once before the next animation frame in order to see the results of the filtering.
 
 ### Filter helper methods
 
@@ -80,7 +80,7 @@ _table_ | [getTableFilter(options)]{@link Hypergrid#getTableFilter} | [getTableF
  | [setTableFilter(state, options)]{@link Hypergrid#setTableFilter}<sup>1</sup> | [setTableFilter(state, options)]{@link Behavior#setTableFilter} | [setTableFilter(state, options)]{@link dataModels.JSON#setTableFilter}<sup>2</sup> | [setTableFilterState(state, options)]{@link DefaultFilter#setTableFilterState}<sup>6, 7</sup> | &mdash; | [setState(state, options)]{@link http://joneit.github.io/filter-tree/FilterTree.html#setState}<sup>8</sup>
 _test_ | &mdash; | &mdash; | [applyAnalytics()]{@link dataModels.JSON#applyAnalytics} | &mdash; | [apply()]{@link http://openfin.github.io/hyper-analytics/DataSourceGlobalFilter.html#apply} | [test(dataRow)]{@link http://joneit.github.io/filter-tree/FilterTree.html#test}
 
-<sup>1</sup> Updates the grid canvas (calls [repaint()]{@link Hypergrid#repaint}) after the set call.<br>
+<sup>1</sup> Updates the grid canvas (calls [behaviorChanged()]{@link Hypergrid#behaviorChanged}) after the set call.<br>
 <sup>2</sup> Translates index to name before the set call.<br>
 <sup>3</sup> Runs the filter (calls [applyAnalytics()]{@link Hypergrid#applyAnalytics}) after the set call.<br>
 <sup>4</sup> `options.syntax` may also include `'CQL'` in addition to standard values.<sup>8</sup> `'CQL'` is the default syntax for these calls.<br>

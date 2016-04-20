@@ -212,13 +212,9 @@ var JSON = DataModel.extend('dataModels.JSON', {
         if (y >= topTotalsOffset) {
             this.getTopTotals()[y - topTotalsOffset][x] = value;
         } else if (x === -1) {
-            return; // can't change the row numbers
-        } else if (isFilterRow && isHeaderRow) {
-            if (y === 0) {
-                return this._setHeader(x, value);
-            } else {
-                this.setFilter(x, value);
-            }
+            return; // can't change the row numbers header
+        } else if (isHeaderRow && y === 0) {
+            return this._setHeader(x, value);
         } else if (isFilterRow) {
             this.setFilter(x, value);
         } else {

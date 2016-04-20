@@ -3137,7 +3137,7 @@ Hypergrid.prototype = {
      */
     setGlobalFilter: function(filter) {
         this.behavior.setGlobalFilter(filter);
-        this.repaint();
+        this.behaviorChanged();
     },
 
     /**
@@ -3151,7 +3151,8 @@ Hypergrid.prototype = {
     setGlobalFilterCaseSensitivity: function(isSensitive) {
         // this setting affects all grids
         this.behavior.setGlobalFilterCaseSensitivity(isSensitive);
-        this.repaint();
+        this.computeCellsBounds();
+        this.behaviorChanged();
     },
 
     /**
@@ -3169,7 +3170,7 @@ Hypergrid.prototype = {
      * @summary Set a particular column filter's state.
      * @desc After setting the new filter state:
      * * Reapplies the filter to the data source.
-     * * Calls `repaint()` to update the grid canvas.
+     * * Calls `behaviorChanged()` to update the grid canvas.
      * @param {number|string} columnIndexOrName - The _column filter_ to set.
      * @param {string|object} [state] - A filter tree object or a JSON, SQL, or CQL subexpression string that describes the a new state for the named column filter. The existing column filter subexpression is replaced with a new node based on this state. If it does not exist, the new subexpression is added to the column filters subtree (`filter.columnFilters`).
      *
@@ -3181,7 +3182,7 @@ Hypergrid.prototype = {
      */
     setFilter: function(columnIndexOrName, state, options) {
         this.behavior.setFilter(columnIndexOrName, state, options);
-        this.repaint();
+        this.behaviorChanged();
     },
 
     /**
@@ -3201,7 +3202,7 @@ Hypergrid.prototype = {
      */
     setFilters: function(state, options) {
         this.behavior.setFilters(state, options);
-        this.repaint();
+        this.behaviorChanged();
     },
 
     /**
@@ -3221,7 +3222,7 @@ Hypergrid.prototype = {
      */
     setTableFilter: function(state, options) {
         this.behavior.setTableFilter(state, options);
-        this.repaint();
+        this.behaviorChanged();
     },
 
     selectRowsFromCells: function() {

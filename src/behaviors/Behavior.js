@@ -141,7 +141,7 @@ var Behavior = Base.extend('Behavior', {
     },
 
     getColumnId: function(x) {
-        return this.getColumn(x).label;
+        return this.getColumn(x).getHeader();
     },
 
     newColumn: function(index, label) {
