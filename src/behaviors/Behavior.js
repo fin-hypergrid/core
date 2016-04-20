@@ -1603,15 +1603,17 @@ var Behavior = Base.extend('Behavior', {
         }
     },
 
-    getDefaultFilter: function() {
+    getDefaultFilter: function(options) {
         var newFilter;
         if (this.columns.length) {
-            var factory = new ColumnSchemaFactory(this.columns);
-            newFilter = new DefaultFilter({
-                schema: factory.schema,
-                caseSensitiveColumnNames: this.grid.resolveProperty('filterCaseSensitiveColumnNames'),
-                resolveAliases: this.grid.resolveProperty('filterResolveAliases')
-            });
+            options = options || {};
+            if (!options.schema) {
+                var factory = new ColumnSchemaFactory(this.columns);
+                options.schema = factory.schema;
+            }
+            options.caseSensitiveColumnNames = this.grid.resolveProperty('filterCaseSensitiveColumnNames');
+            options.resolveAliases = this.grid.resolveProperty('filterResolveAliases');
+            newFilter = new DefaultFilter(options);
         }
         return newFilter;
     },

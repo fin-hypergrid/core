@@ -2,6 +2,8 @@
 
 /* globals fin, people1, people2, accounting, vent */
 
+/* eslint-disable no-alert */
+
 'use strict';
 
 window.onload = function() {
@@ -47,7 +49,25 @@ window.onload = function() {
         }, {
             label: 'Filtering',
             ctrls: [
-                { value: '(Global setting)', label: 'ignore case', setter: toggleCaseSensitivity }
+                {
+                    value: '(Global setting)',
+                    label: 'case-sensitive operand',
+                    checked: true,
+                    tooltip: 'Check to match case of operand and data in string comparisons. This is a shared property and instantly affects all grids.',
+                    setter: toggleCaseSensitivity
+                },
+                {
+                    value: 'filterCaseSensitiveColumnNames',
+                    label: 'case-sensitive schema',
+                    tooltip: 'Check to match case of filter column names. Resets filter.',
+                    setter: resetFilter
+                },
+                {
+                    value: 'filterResolveAliases',
+                    label: 'resolve aliases',
+                    tooltip: 'Check to allow column headers to be used in filters in addition to column names. Resets filter.',
+                    setter: resetFilter
+                },
             ]
         }
     ];
@@ -66,18 +86,26 @@ window.onload = function() {
         'textfield'
     ];
 
-    // All this does is override default filter with one that organizes the schema into heirarchical drop-downs.
-    // Normally you would provide your own cusotm schema and would not use the default schema at all.
-    fin.Hypergrid.behaviors.Behavior.prototype.getDefaultFilter = function() {
-        var newFilter;
-        if (this.columns.length) {
-            // recreate the filter but with hierarchical schema organized by alias
+    // Here we're just overriding the flat schema that getDefaultFilter uses with a hierarchical one.
+    // This is really purely for cosmetic reasons; the hierarchy is reflected in the UI drop-downs.
+    // (Normally you bring your own custom schema, in which case you wouldn't depend on getDefaultFilter
+    // at all -- but rather you would call `grid.setGlobalFilter` (after grid instantiation) to replace the
+    // default filter instantiation with your own instance that uses your own custom schema.
+    // Here we're calling the original getDefaultFilter which merely adds some options; you can
+    // do this too; or you can add the options yourself and instantiate directly using your own filter or
+    // the included filter's constructor, `fin.Hypergrid.DefaultFilter`.)
+    var protoGetDefaultFilter = fin.Hypergrid.behaviors.Behavior.prototype.getDefaultFilter;
+    var getDefaultFilter = function(options) {
+        // create a hierarchical schema organized by alias
+        if (!(options && options.schema)) {
             var factory = new fin.Hypergrid.ColumnSchemaFactory(this.columns);
             factory.organize(/^(one|two|three|four|five|six|seven|eight)/i, { key: 'alias' });
-            newFilter = new fin.Hypergrid.DefaultFilter({ schema: factory.schema });
+            options = options || {};
+            options.schema = factory.schema;
         }
-        return newFilter;
+        return protoGetDefaultFilter.call(this, options);
     };
+    fin.Hypergrid.behaviors.Behavior.prototype.getDefaultFilter = getDefaultFilter;
 
     var gridOptions = {
             data: people1,
@@ -146,7 +174,7 @@ window.onload = function() {
     }
 
     function toggleCaseSensitivity() {
-        grid.setGlobalFilterCaseSensitivity(!this.checked);
+        grid.setGlobalFilterCaseSensitivity(this.checked);
     }
 
     function toggleDialog(dialogName, evt) {
@@ -788,6 +816,9 @@ window.onload = function() {
         }
 
         ctrlGroup.ctrls.forEach(function(ctrl) {
+            var tooltip = 'Property name: ' + ctrl.value;
+            if (ctrl.tooltip) { tooltip += '\n\n' + ctrl.tooltip; }
+
             input = document.createElement('input');
             input.type = 'checkbox';
             input.value = ctrl.value;
@@ -801,7 +832,7 @@ window.onload = function() {
             }
 
             label = document.createElement('label');
-            label.title = 'property name: ' + ctrl.value;
+            label.title = tooltip;
             label.appendChild(input);
             label.appendChild(document.createTextNode(' ' + (ctrl.label || ctrl.value)));
 
@@ -828,6 +859,13 @@ window.onload = function() {
         grid.selectionModel.clear();
         dataModel.clearSelectedData();
         setProp.call(this);
+    }
+
+    function resetFilter() {
+        if (confirm('Filter reset required...')) {
+            setProp.call(this);
+            grid.setGlobalFilter(getDefaultFilter.call(grid.behavior));
+        }
     }
 
     function redIfStartsWithS(config) {

@@ -33,12 +33,15 @@ ParserCqlError.prototype.name = 'ParserCqlError';
  */
 function ParserCQL(options) {
     options = options || {};
+
     this.schema = options.schema;
+
     this.findOptions = {
-        caseInsensitive: options.caseInsensitive,
+        caseSensitive: options.caseSensitiveColumnNames,
         keys: ['name']
     };
-    if (options.resolveAliases === undefined || options.resolveAliases) {
+
+    if (options.resolveAliases) {
         this.findOptions.keys.push('alias');
     }
 }
