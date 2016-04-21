@@ -78,10 +78,11 @@ var CustomFilterLeaf = FilterTree.prototype.addEditor({
 
         if (syntax === 'CQL') {
             result = this.getSyntax(conditionals);
-            if (result[0] === '=') {
-                result = result.substr(1);
-            }
             result = convertLikeToPseudoOp(result);
+            var defaultOp = this.schema.lookup(this.column).defaultOp || '=';
+            if (result.toUpperCase().indexOf(defaultOp) === 0) {
+                result = result.substr(defaultOp.length);
+            }
         } else {
             result = FilterTree.Leaf.prototype.getState.call(this, options);
         }
@@ -417,6 +418,8 @@ var DefaultFilter = FilterTree.extend('DefaultFilter', {
         if (state) {
             this.root.tableFilter.setState(state, options);
             error = this.root.tableFilter.invalid(options);
+        } else {
+            this.root.tableFilter.children.length = 0;
         }
 
         return error;

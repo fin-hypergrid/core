@@ -1,5 +1,7 @@
 'use strict';
 
+var popMenu = require('pop-menu');
+
 /**
  * @constructor
  * @summary Build, organize, and sort a column schema list from a list of columns.
@@ -11,7 +13,7 @@
  *
  * @property {menuItem[]} schema - This is the output produced by the factory.
  */
-function ColumnSchemaFactory(columns) {
+function ColumnSchemaFactory(columns, findOptions) {
     this.schema = columns.map(function(column) {
         return {
             name: column.getField(),
@@ -57,6 +59,15 @@ ColumnSchemaFactory.prototype = {
         }
 
         this.schema = menu;
+    },
+
+    lookup: function(findOptions, value) {
+        var args = Array.prototype.slice.call(arguments);
+        return popMenu.lookup.apply(this.schema, args);
+    },
+
+    walk: function(iteratee) {
+        return popMenu.walk.call(this.schema, iteratee);
     },
 
     /**

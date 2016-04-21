@@ -9,7 +9,8 @@ var REGEXP_BOOLS = /\b(AND|OR|NOR)\b/gi,
     opMap = {
         '>=': '≥',
         '<=': '≤',
-        '<>': '≠'
+        '<>': '≠',
+        undefined: '='
     };
 
 function ParserCqlError(message) {
@@ -103,13 +104,18 @@ ParserCQL.prototype = {
         expressions.forEach(function(expression) {
             if (expression) {
                 var parts = expression.match(REGEXP_CELL_FILTER),
-                    op = parts[1] && parts[1].trim().toUpperCase() || '=',
                     literal = parts[parts.length - 1];
 
                 if (literal) {
+                    var op = parts[1] && parts[1] || // as specified by user
+                        self.schema && self.schema.lookup(columnName).defaultOp; // column's default operator from schema
+
+                    op = opMap[op] || op; // accommodate alternate spellings of operators
+                    op = op.trim().toUpperCase(); // clean up & normalize
+
                     var child = {
                         column: columnName,
-                        operator: opMap[op] || op
+                        operator: op
                     };
 
                     var fieldName = self.schema && self.schema.lookup(literal);

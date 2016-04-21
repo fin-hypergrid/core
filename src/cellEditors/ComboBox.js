@@ -34,7 +34,7 @@ var modes = {
                 d = [],
                 columnName = this.columnName;
 
-            this.grid.behavior.getFilteredData().forEach(function(dataRow) {
+            this.grid.behavior.getData().forEach(function(dataRow) {
                 var val = dataRow[columnName];
                 distinct[val] = (distinct[val] || 0) + 1;
             });
@@ -156,7 +156,6 @@ var ComboBox = Textfield.extend('ComboBox', {
         var modesContainer = this.options.querySelector('.toggle-mode-operators').parentElement;
 
         // set the initial state of the mode toggles
-
         modeNames.forEach(function(modeName) {
             // create and label a new optgroup
             var optgroup = document.createElement('optgroup');
@@ -239,16 +238,14 @@ var ComboBox = Textfield.extend('ComboBox', {
             prototype.keyup.call(this, e);
 
             if (this.grid.isFilterRow(this.getEditorPoint().y)) {
-                setTimeout(keyup.bind(this));
+                if (this.grid.resolveProperty('filteringMode') === 'immediate') {
+                    this.saveEditorValue();
+                    this._moveEditor();
+                }
             }
         }
     }
 });
-
-function keyup() {
-    this.saveEditorValue();
-    this._moveEditor();
-}
 
 var stateToActionMap = {
     hidden: slideDown,

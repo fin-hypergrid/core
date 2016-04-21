@@ -3181,6 +3181,9 @@ Hypergrid.prototype = {
      * @memberOf Hypergrid.prototype
      */
     setFilter: function(columnIndexOrName, state, options) {
+        if (this.cellEditor) {
+            this.cellEditor.hideEditor();
+        }
         this.behavior.setFilter(columnIndexOrName, state, options);
         this.behaviorChanged();
     },
@@ -3201,6 +3204,9 @@ Hypergrid.prototype = {
      * @memberOf Hypergrid.prototype
      */
     setFilters: function(state, options) {
+        if (this.cellEditor) {
+            this.cellEditor.hideEditor();
+        }
         this.behavior.setFilters(state, options);
         this.behaviorChanged();
     },

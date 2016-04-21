@@ -96,6 +96,7 @@ window.onload = function() {
         // create a hierarchical schema organized by alias
         var factory = new fin.Hypergrid.ColumnSchemaFactory(this.columns);
         factory.organize(/^(one|two|three|four|five|six|seven|eight)/i, { key: 'alias' });
+        factory.lookup('last_name').defaultOp = 'IN';
         var options = { schema: factory.schema };
         return protoGetDefaultFilter.call(this, options);
     };
@@ -640,6 +641,8 @@ window.onload = function() {
                 showFilterRow: true,
                 columnAutosizing: false,
                 headerTextWrapping: true,
+
+                filteringMode: 'onCommit', // vs. 'immediate' for every key press
 
                 cellSelection: true,
                 columnSelection: true,
