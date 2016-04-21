@@ -54,7 +54,7 @@
 <div class="description">
     <p>This extension of FilterTree forces a specific tree structure.
 See <code>makeNewRoot</code> for a description.</p>
-<p>See also <a href="tutorial-filter-api.html">filter-api</a>.</p>
+<p>See also <a href="tutorial-filter-api.html">The Hypergrid Filter API</a>.</p>
 </div>
 
 
@@ -424,7 +424,7 @@ See <code>makeNewRoot</code> for a description.</p>
 
     
 
-    <h4 class="name" id="getColumnFilterState"><span class="type-signature"></span>getColumnFilterState<span class="signature">(options<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {FilterTreeStateObject}</span></h4>
+    <h4 class="name" id="getColumnFilterState"><span class="type-signature"></span>getColumnFilterState<span class="signature">(rawColumnName, options<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {FilterTreeStateObject}</span></h4>
 
     
     <p class="summary"><p>Get a particular column filter's state.</p></p>
@@ -457,12 +457,49 @@ See <code>makeNewRoot</code> for a description.</p>
         
 
         
+        <th>Default</th>
+        
 
         <th class="last">Description</th>
     </tr>
     </thead>
 
     <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>rawColumnName</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                </td>
+            
+
+            <td class="description last"><p>Column name for case and alias lookup.</p></td>
+        </tr>
+
     
 
         <tr>
@@ -492,38 +529,19 @@ See <code>makeNewRoot</code> for a description.</p>
             
 
             
-
-            <td class="description last"><p>Passed to the filter's <a href="DefaultFilter.html#getState"><code>getState</code></a> method.</p>
-                <h6>Properties</h6>
+                <td class="default">
                 
+                </td>
+            
 
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
+            <td class="description last"><p>Passed to the filter's <a href="DefaultFilter.html#getState"><code>getState</code></a> method.</p></td>
+        </tr>
 
-        <th>Type</th>
-
-        
-        <th>Attributes</th>
-        
-
-        
-        <th>Default</th>
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
     
 
         <tr>
             
-                <td class="name"><code>syntax</code></td>
+                <td class="name"><code>options.syntax</code></td>
             
 
             <td class="type">
@@ -556,13 +574,6 @@ See <code>makeNewRoot</code> for a description.</p>
             
 
             <td class="description last"><p>The syntax to use to describe the filter state. Note that <code>getFilter</code>'s default syntax, <code>'CQL'</code>, differs from the other get state methods.</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-            </td>
         </tr>
 
     
@@ -1279,7 +1290,7 @@ See <code>makeNewRoot</code> for a description.</p>
 
     
 
-    <h4 class="name" id="setColumnFilterState"><span class="type-signature"></span>setColumnFilterState<span class="signature">(columnName, state<span class="signature-attributes">opt</span>, options<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {undefined|Error|string}</span></h4>
+    <h4 class="name" id="setColumnFilterState"><span class="type-signature"></span>setColumnFilterState<span class="signature">(columnName, state<span class="signature-attributes">opt</span>, rawColumnName, options<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {undefined|Error|string}</span></h4>
 
     
     <p class="summary"><p>Set a particular column filter's state.</p></p>
@@ -1398,6 +1409,41 @@ See <code>makeNewRoot</code> for a description.</p>
 
             <td class="description last"><p>A filter tree object or a JSON, SQL, or CQL subexpression string that describes the a new state for the named column filter. The existing column filter subexpression is replaced with a new node based on this state. If it does not exist, the new subexpression is added to the column filters subtree (<code>this.root.columnFilters</code>).</p>
 <p>If undefined, removes the entire column filter subexpression from the column filters subtree.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>rawColumnName</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                </td>
+            
+
+            <td class="description last"><p>Column name for case and alias lookup.</p></td>
         </tr>
 
     

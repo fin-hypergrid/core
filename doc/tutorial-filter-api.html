@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Tutorial: filter-api</title>
+    <title>JSDoc: Tutorial: The Hypergrid Filter API</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -20,14 +20,14 @@
 </nav>
 <div id="main">
 
-    <h1 class="page-title">Tutorial: filter-api</h1>
+    <h1 class="page-title">Tutorial: The Hypergrid Filter API</h1>
 
     <section>
 
 <header>
     
 
-    <h2>filter-api</h2>
+    <h2>The Hypergrid Filter API</h2>
 </header>
 
 <article>
@@ -48,20 +48,20 @@
 filter.setState(state);
 state = filter.getState();
 filter.test(dataRow); // for local filtering</code></pre><h3>Filter objects and filter modules</h3><p>Instead of <code>FilterTree</code> in the above, you could use any object extended therefrom. You can also use another object entirely from any other filter module, so long as it supports the above essential API calls, instantiation, <code>setState</code>, <code>getState</code>, and the filter's main task, <code>test()</code>, which inspects each row in the result set, comparing it to the current filter expression (or &quot;state&quot;) to determine if the row is to be included in the next grid render or not.</p>
-<p>Hypergrid includes a default filter object, called <a href="DefaultFilter.html"><code>DefaultFilter</code></a>, extended from <a href="http://joneit.github.io/filter-tree/FilterTree.html">FilterTree</a>. Whenever you point your grid at some new data (such as upon instantiation a new <a href="Hypergrid.html"><code>Hypergrid</code></a> object or on a subsequent call to <a href="behaviors.JSON.html#setData"><code>behaviors.JSON#setData</code></a>), a call is made to the <code>Behavior#getDefaultFilter</code> method to instantiate a new default filter object for you.</p>
-<p>The application programmer has full control of the type of filter to use and how it is set up. You can override the <code>getDefaultFilter()</code> method to instantiate a <code>DefaultFilter</code> with your own specific options; or you may instantiate a different filter object entirely. Alternatively, you can instantiate a new filter at any time and hand it to the grid by way of the <a href="Hypergrid.html#setGlobalFilter"><code>Hypergrid#setGlobalFilter</code></a> method.</p>
+<p>Hypergrid includes a default filter object, called <a href="DefaultFilter.html"><code>DefaultFilter</code></a>, extended from <a href="http://joneit.github.io/filter-tree/FilterTree.html">FilterTree</a>. Whenever you point your grid at some new data (such as upon instantiation a new <a href="Hypergrid.html"><code>Hypergrid</code></a> object or on a subsequent call to <a href="behaviors.JSON.html#setData"><code>behaviors.JSON#setData</code></a>), a call is made to the <code>Behavior#getNewFilter</code> method to instantiate a new default filter object for you.</p>
+<p>The application programmer has full control of the type of filter to use and how it is set up. You can override the <code>getNewFilter()</code> method to instantiate a <code>DefaultFilter</code> with your own specific options; or you may instantiate a different filter object entirely. Alternatively, you can instantiate a new filter at any time and hand it to the grid by way of the <a href="Hypergrid.html#setGlobalFilter"><code>Hypergrid#setGlobalFilter</code></a> method.</p>
 <h3>Hypergrid's filter</h3><p>The <code>DefaultFilter</code> extension supports Hypergrid's filter requirements. Hypergrid adds some additional semantics to the generic filter expression, maintaining two trunks (nodes that may be empty) off the root node:</p>
 <ul>
 <li><strong>The left trunk</strong> (<code>filter.children[0]</code> or <code>filter.columnFilters</code>) is for a general table filter that may contain arbitrarily complex hierarchy of subexpressions, referencing any columns.</li>
 <li><strong>The right trunk</strong> (<code>filter.children[1]</code> or <code>filter.tableFilter</code>) is for the subexpressions in the column filter cells at the top of each column, under the header. This trunk only contains subexpressions, one for each column with something in its filter cell, and is only ever one level deep. That is, column filters cannot have subexpressions themselves.</li>
 </ul>
 <h3>Filter schema</h3><p>Filters should be instantiated with a column schema, an array of <a href="http://joneit.github.io/pop-menu/global.html#menuItem">menuItem</a> objects. A column schema informs the filter of the names of the available columns and can be a simple as an array of strings. Or it can be an array of objects, or a mixture of strings and objects. The objects can contain additional column information such as alias (header) and type. A schema item can also be a nested schema array. The purpose of this is merely to create hierarchical drop-downs of column names. (Although note that only one level of nesting is generally supported by browsers.)</p>
-<p><code>Behavior#getDefaultFilter</code> crates a default column schema from the <code>columns</code> array.</p>
+<p><code>Behavior#getNewFilter</code> crates a default column schema from the <code>columns</code> array.</p>
 <h3>Filter integration with Hypergrid</h3><p>In any case, after any call that sets state on the filter, all three of the following actions <em>must</em> be performed before the next grid render or you will not see the results of the change of state:</p>
 <ol>
 <li><strong>Filter validation</strong> (<code>grid.getGlobalFilter().invalid()</code>).<br> In addition to validating the filter state, this method also sets some internal state for efficient subsequent execution of the critical <code>test()</code> method.</li>
 <li><strong>Filter execution</strong> (<code>grid.behavior.dataModel.applyAnalytics()</code>).<br> This is what calls the filter's <code>test()</code> method on every data row. This is expensive and should not be called more often than necessary!</li>
-<li><strong>Update the grid canvas</strong> (<code>grid.repaint()</code>).<br> Must be called at least once before the next animation frame in order to see the results of the filtering.</li>
+<li><strong>Update the grid canvas</strong> (<code>grid.behaviorChanged()</code> which calls <code>.repaint()</code>).<br> Must be called at least once before the next animation frame in order to see the results of the filtering.</li>
 </ol>
 <h3>Filter helper methods</h3><p>The following Hypergrid convenience methods do some of these tasks for you.</p>
 <p>This table is read from left to right. Each method calls the method to its right. The methods on the left represent the outer layer; they are higher level and do more than the methods on the right.</p>
@@ -153,7 +153,7 @@ filter.test(dataRow); // for local filtering</code></pre><h3>Filter objects and 
 </tr>
 <tr>
 <td></td>
-<td><a href="Hypergrid.html#setFilter"><code>setFilter(&#x200b;columnIndexOrName, state, options)</code></a><sup>1</sup></td>
+<td><a href="Hypergrid.html#setFilter"><code>setFilter(&#x200b;columnIndexOrName, state, options)</code></a><sup>1, 9</sup></td>
 <td><a href="Behavior.html#setFilter"><code>setFilter(&#x200b;columnIndexOrName, state, options)</code></a></td>
 <td><a href="dataModels.JSON.html#setFilter"><code>setFilter(&#x200b;columnIndexOrName, state, options)</code></a><sup><sup>2, 3</sup></sup></td>
 <td><a href="DefaultFilter.html#setColumnFilterState"><code>setColumnFilterState(&#x200b;columnIndexOrName, state, options)</code></a><sup><sup>4, 5, 7</sup></sup></td>
@@ -171,7 +171,7 @@ filter.test(dataRow); // for local filtering</code></pre><h3>Filter objects and 
 </tr>
 <tr>
 <td></td>
-<td><a href="Hypergrid.html#setFilters"><code>setFilters(options)</code></a><sup>1</sup></td>
+<td><a href="Hypergrid.html#setFilters"><code>setFilters(options)</code></a><sup>1, 9</sup></td>
 <td><a href="Behavior.html#setFilters"><code>setFilters(options)</code></a></td>
 <td><a href="dataModels.JSON.html#setFilters"><code>setFilters(options)</code></a><sup>3</sup></td>
 <td><a href="DefaultFilter.html#setColumnFiltersState"><code>setColumnFiltersState(&#x200b;state, options)</code></a><sup>7</sup></td>
@@ -207,14 +207,15 @@ filter.test(dataRow); // for local filtering</code></pre><h3>Filter objects and 
 </tr>
 </tbody>
 </table>
-<p><sup>1</sup> Updates the grid canvas (calls <code>repaint()</code>) after the set call.<br>
+<p><sup>1</sup> Updates the grid canvas (calls <a href="Hypergrid.html#behaviorChanged"><code>behaviorChanged()</code></a>) after the set call.<br>
 <sup>2</sup> Translates index to name before the set call.<br>
 <sup>3</sup> Runs the filter (calls <code>applyAnalytics()</code>) after the set call.<br>
 <sup>4</sup> <code>options.syntax</code> may also include <code>'CQL'</code> in addition to standard values.<sup>8</sup> <code>'CQL'</code> is the default syntax for these calls.<br>
 <sup>5</sup> Creates/maintains a &quot;flat&quot; subexpression for each column in the right &quot;trunk&quot; with left operand bound to that column specifically.<br>
 <sup>6</sup> Replaces left &quot;trunk&quot; with hierarchical subexpression.<br>
 <sup>7</sup> Validates <code>state</code>.<br>
-<sup>8</sup> <code>options.syntax</code> may be <code>'auto'</code>, <code>'object'</code>, <code>'JSON'</code>, or <code>'SQL'</code>.</p>
+<sup>8</sup> <code>options.syntax</code> may be <code>'auto'</code>, <code>'object'</code>, <code>'JSON'</code>, or <code>'SQL'</code>.<br>
+<sup>9</sup> Removes visible filter cell editor from the grid before proceeding.</p>
 <h4>Caveat</h4><p>The convenience that these helper methods give you come at a cost. Running these follow-up tasks <em>whenever</em> you make a change to the global filter is not always called for. In the case of <code>applyAnalytics</code>, in particular, it should <em>not</em> be called more than be once due to the expense in doing so. Ideally, they should just be called one time, at the end of your event loop. Using the helper functions makes it easy to forget this. Therefore, use them sparingly and intelligently, calling the underlying methods instead when it makes sense to do so.</p>
 <h3>Examples</h3>
 </article>

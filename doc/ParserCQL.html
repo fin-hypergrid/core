@@ -54,37 +54,7 @@
 
 
 <div class="description">
-    <p>This grammar came from the legacy system in use at Barclays where they enter syntax into <em>column filter cells.</em> As in Hypergrid, each column's filter cell is directly below the column header, above the data rows.</p>
-<p>The original grammar was simply:</p>
-<blockquote>
-<p><em>expression</em> ::= [ <em>op-symbol</em> ] <em>operand</em></p>
-<p><em>op-synmbol</em> ::= <code>=</code> | <code>&lt;&gt;</code> | <code>&lt;</code> | <code>&gt;</code> | <code>&lt;=</code> | <code>&gt;=</code></p>
-<p><em>operand</em> ::= <em>column-name</em> | <em>random-text</em></p>
-</blockquote>
-<p>We expanded this grammar as follows:</p>
-<blockquote>
-<p><em>expression</em> ::= <em>simple-expression</em> { <em>logic-op</em> <em>simple-expression</em> }</p>
-<p><em>simple-expression</em> ::= [ <em>operator</em> ] <em>operand</em></p>
-<p><em>operator</em> ::= <em>op-symbol</em> | <em>op-phrase</em></p>
-<p><em>op-symbol</em> ::= <code>=</code> | <code>&lt;&gt;</code> | <code>&lt;</code> | <code>&gt;</code> | <code>&lt;=</code> | <code>&gt;=</code></p>
-<p><em>op-phrase</em> ::= [ <code>NOT</code> <em>white-space</em> ] <em>op-word</em> <em>white-space</em></p>
-<p><em>op-word</em> ::= <code>BEGINS</code> | <code>ENDS</code> | <code>CONTAINS</code> | <code>LIKE</code> | <code>IN</code></p>
-<p><em>operand</em> ::= <em>column-name</em> | <em>column alias</em> | <em>random-text</em></p>
-<p><em>logic-op</em> ::=  <em>white-space</em> ( <code>AND</code> | <code>OR</code> | <code>NOR</code> ) <em>white-space</em></p>
-</blockquote>
-<p>Notes:</p>
-<ol>
-<li>The default <em>op-symbol</em> is &quot;equals&quot; when no operator is given.</li>
-<li>Order of operations in undefined.</li>
-<li>In particular, there is no precedence for logical operators and to resolve any ambiguity as to which binds more tightly, all such operators in an expression <em>must be the same.</em> If you need to group two expressions more tightly, put them in a subexpression.</li>
-<li>Words are shown in the grammar above in upper case. However, they may be any mixture of upper and lower case.</li>
-<li><em>white-space</em> is optional if following or preceding a non-alpha character, specifically,_ an <em>op-symbol</em>).</li>
-</ol>
-<p>The original grammar was deterministic (unambiguous), consisting entirely of a single operand (after the optional operator, that is). The one exception is when that operand is an exact (case-insensitive) match for the name (or alias) of a column, it would indirect to that named column's value. Thus, there is no way to use a column name as a literal.</p>
-<p>The extended grammar is definitely non-deterministic because, in addition to the above, the words <code>and</code>, <code>or</code>, and <code>nor</code> also cannot be part of a literal. In a future release, we plan to allow optional paired quotation marks or parentheses to solve this problem:</p>
-<blockquote>
-<p><em>quoted-operand</em> ::= ( <code>'</code> | <code>&quot;</code> | <code>(</code> ) <em>operand</em> ( <code>'</code> | <code>&quot;</code> | <code>)</code> )</p>
-</blockquote>
+    <p>See <a href="tutorial-CQL.html">CQL (Column Query Language) Grammar</a> for the grammar.</p>
 </div>
 
 
