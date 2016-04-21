@@ -120,7 +120,7 @@ var ComboBox = Textfield.extend('ComboBox', {
             columnFilterSubtree = filter.getColumnFilter(columnName);
 
         // get the column filter's `operators` list
-        var columnSchema = filter.schema.findItem(columnName), // as column filter may not yet exist, refer to it's schema
+        var columnSchema = filter.schema.lookup(columnName), // as column filter may not yet exist, refer to it's schema
             opMenu = columnSchema && ( // schema should exist
                 columnSchema.opMenu || // pull operator list from column schema if it has one; IF it doesn't...
                 columnSchema.type &&  // BUT it has a type...

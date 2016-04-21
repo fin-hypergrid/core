@@ -115,7 +115,7 @@ var JSON = Local.extend('behaviors.JSON', {
         this.dataModel.setData(dataRows);
         this.createColumns();
 
-        this.setGlobalFilter(this.getDefaultFilter());
+        this.setGlobalFilter(this.getNewFilter());
 
         var self = this;
         if (this.grid.isColumnAutosizing()) {

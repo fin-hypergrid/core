@@ -32,18 +32,7 @@ ParserCqlError.prototype.name = 'ParserCqlError';
  * @param {boolean} [options.caseSensitiveColumnNames] - Ignore case while validating column names and aliases.
  */
 function ParserCQL(options) {
-    options = options || {};
-
-    this.schema = options.schema;
-
-    this.findOptions = {
-        caseSensitive: options.caseSensitiveColumnNames,
-        keys: ['name']
-    };
-
-    if (options.resolveAliases) {
-        this.findOptions.keys.push('alias');
-    }
+    this.schema = options && options.schema;
 }
 
 ParserCQL.prototype = {
@@ -123,7 +112,7 @@ ParserCQL.prototype = {
                         operator: opMap[op] || op
                     };
 
-                    var fieldName = self.schema && self.schema.findItem(literal, self.findOptions);
+                    var fieldName = self.schema && self.schema.lookup(literal);
                     if (fieldName) {
                         child.operand = fieldName.name || fieldName;
                         child.editor = 'Columns';

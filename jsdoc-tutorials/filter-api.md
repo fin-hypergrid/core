@@ -32,9 +32,9 @@ filter.test(dataRow); // for local filtering
 
 Instead of `FilterTree` in the above, you could use any object extended therefrom. You can also use another object entirely from any other filter module, so long as it supports the above essential API calls, instantiation, `setState`, `getState`, and the filter's main task, `test()`, which inspects each row in the result set, comparing it to the current filter expression (or "state") to determine if the row is to be included in the next grid render or not.
 
-Hypergrid includes a default filter object, called {@link DefaultFilter}, extended from [FilterTree]{@link http://joneit.github.io/filter-tree/FilterTree.html}. Whenever you point your grid at some new data (such as upon instantiation a new {@link Hypergrid} object or on a subsequent call to {@link behaviors.JSON#setData}), a call is made to the {@link Behavior#getDefaultFilter} method to instantiate a new default filter object for you.
+Hypergrid includes a default filter object, called {@link DefaultFilter}, extended from [FilterTree]{@link http://joneit.github.io/filter-tree/FilterTree.html}. Whenever you point your grid at some new data (such as upon instantiation a new {@link Hypergrid} object or on a subsequent call to {@link behaviors.JSON#setData}), a call is made to the {@link Behavior#getNewFilter} method to instantiate a new default filter object for you.
 
-The application programmer has full control of the type of filter to use and how it is set up. You can override the `getDefaultFilter()` method to instantiate a `DefaultFilter` with your own specific options; or you may instantiate a different filter object entirely. Alternatively, you can instantiate a new filter at any time and hand it to the grid by way of the {@link Hypergrid#setGlobalFilter} method.
+The application programmer has full control of the type of filter to use and how it is set up. You can override the `getNewFilter()` method to instantiate a `DefaultFilter` with your own specific options; or you may instantiate a different filter object entirely. Alternatively, you can instantiate a new filter at any time and hand it to the grid by way of the {@link Hypergrid#setGlobalFilter} method.
 
 ### Hypergrid's filter
 
@@ -46,7 +46,7 @@ The `DefaultFilter` extension supports Hypergrid's filter requirements. Hypergri
 
 Filters should be instantiated with a column schema, an array of {@link http://joneit.github.io/pop-menu/global.html#menuItem|menuItem} objects. A column schema informs the filter of the names of the available columns and can be a simple as an array of strings. Or it can be an array of objects, or a mixture of strings and objects. The objects can contain additional column information such as alias (header) and type. A schema item can also be a nested schema array. The purpose of this is merely to create hierarchical drop-downs of column names. (Although note that only one level of nesting is generally supported by browsers.)
 
-{@link Behavior#getDefaultFilter} crates a default column schema from the {@link Behavior#columns|columns} array.
+{@link Behavior#getNewFilter} crates a default column schema from the {@link Behavior#columns|columns} array.
 
 ### Filter integration with Hypergrid
 

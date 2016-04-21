@@ -86,26 +86,19 @@ window.onload = function() {
         'textfield'
     ];
 
-    // Here we're just overriding the flat schema that getDefaultFilter uses with a hierarchical one.
-    // This is really purely for cosmetic reasons; the hierarchy is reflected in the UI drop-downs.
-    // (Normally you bring your own custom schema, in which case you wouldn't depend on getDefaultFilter
-    // at all -- but rather you would call `grid.setGlobalFilter` (after grid instantiation) to replace the
-    // default filter instantiation with your own instance that uses your own custom schema.
-    // Here we're calling the original getDefaultFilter which merely adds some options; you can
-    // do this too; or you can add the options yourself and instantiate directly using your own filter or
-    // the included filter's constructor, `fin.Hypergrid.DefaultFilter`.)
-    var protoGetDefaultFilter = fin.Hypergrid.behaviors.Behavior.prototype.getDefaultFilter;
-    var getDefaultFilter = function(options) {
+    /* You can redefine `getNewFilter` to return a new instance of another filter module.
+     * Here we're just overriding some options and proceeding with the original `getNewFilter`
+     * which adds some more options. Alternatively we could have instantiated the default filter
+     * directly using its constructor, `fin.Hypergrid.DefaultFilter`.
+     */
+    var protoGetDefaultFilter = fin.Hypergrid.behaviors.Behavior.prototype.getNewFilter;
+    fin.Hypergrid.behaviors.Behavior.prototype.getNewFilter = function() {
         // create a hierarchical schema organized by alias
-        if (!(options && options.schema)) {
-            var factory = new fin.Hypergrid.ColumnSchemaFactory(this.columns);
-            factory.organize(/^(one|two|three|four|five|six|seven|eight)/i, { key: 'alias' });
-            options = options || {};
-            options.schema = factory.schema;
-        }
+        var factory = new fin.Hypergrid.ColumnSchemaFactory(this.columns);
+        factory.organize(/^(one|two|three|four|five|six|seven|eight)/i, { key: 'alias' });
+        var options = { schema: factory.schema };
         return protoGetDefaultFilter.call(this, options);
     };
-    fin.Hypergrid.behaviors.Behavior.prototype.getDefaultFilter = getDefaultFilter;
 
     var gridOptions = {
             data: people1,
@@ -864,7 +857,9 @@ window.onload = function() {
     function resetFilter() {
         if (confirm('Filter reset required...')) {
             setProp.call(this);
-            grid.setGlobalFilter(getDefaultFilter.call(grid.behavior));
+            grid.setGlobalFilter(fin.Hypergrid.behaviors.Behavior.prototype.getNewFilter.call(grid.behavior));
+        } else {
+            this.checked = !this.checked; // user canceled so put checkbox back
         }
     }
 

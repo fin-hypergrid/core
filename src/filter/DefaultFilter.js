@@ -144,7 +144,7 @@ var DefaultFilter = FilterTree.extend('DefaultFilter', {
             // Upon creation of a 'columnFilter' node, force the schema to the one column
             if ((options.type || options.state && options.state.type) === 'columnFilter') {
                 this.schema = [
-                    options.parent.root.schema.findItem(options.state.children[0].column)
+                    options.parent.root.schema.lookup(options.state.children[0].column)
                 ];
             }
         }
@@ -254,14 +254,23 @@ var DefaultFilter = FilterTree.extend('DefaultFilter', {
 
     /**
      * @summary Get a particular column filter's state.
+     * @param {string} rawColumnName - Column name for case and alias lookup.
      * @param {FilterTreeGetStateOptionsObject} [options] - Passed to the filter's {@link DefaultFilter#getState|getState} method.
      * @param {boolean} [options.syntax='CQL'] - The syntax to use to describe the filter state. Note that `getFilter`'s default syntax, `'CQL'`, differs from the other get state methods.
      * @returns {FilterTreeStateObject}
      * @memberOf DefaultFilter.prototype
      */
-    getColumnFilterState: function(columnName, options) {
+    getColumnFilterState: function(rawColumnName, options) {
         var result,
-            subexpression = this.getColumnFilter(columnName);
+            subexpression;
+
+        var columnName = this.schema.lookup(rawColumnName).name;
+
+        if (!columnName) {
+            throw 'Unknown column name "' + rawColumnName + '"';
+        }
+
+        subexpression = this.getColumnFilter(columnName);
 
         if (subexpression) {
             if (!(options && options.syntax)) {
@@ -286,6 +295,8 @@ var DefaultFilter = FilterTree.extend('DefaultFilter', {
      *
      * If undefined, removes the entire column filter subexpression from the column filters subtree.
      *
+     * @param {string} rawColumnName - Column name for case and alias lookup.
+     *
      * @param {FilterTreeSetStateOptionsObject} [options] - Passed to the filter's [setState]{@link http://joneit.github.io/filter-tree/FilterTree.html#setState} method. You may mix in members of the {@link http://joneit.github.io/filter-tree/global.html#FilterTreeValidationOptionsObject|FilterTreeValidationOptionsObject}
      *
      * @param {boolean} [options.syntax='CQL'] - The syntax to use to describe the filter state. Note that `setColumnFilterState`'s default syntax, `'CQL'`, differs from the other get state methods.
@@ -294,9 +305,17 @@ var DefaultFilter = FilterTree.extend('DefaultFilter', {
 
      * @memberOf DefaultFilter.prototype
      */
-    setColumnFilterState: function(columnName, state, options) {
+    setColumnFilterState: function(rawColumnName, state, options) {
         var error,
-            subexpression = this.getColumnFilter(columnName);
+            subexpression;
+
+        var columnName = this.schema.lookup(rawColumnName).name;
+
+        if (!columnName) {
+            throw 'Unknown column name "' + rawColumnName + '"';
+        }
+
+        subexpression = this.getColumnFilter(columnName);
 
         if (state) {
             options = _({}).extend(options); // clone it because we may mutate it below

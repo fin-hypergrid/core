@@ -1603,7 +1603,7 @@ var Behavior = Base.extend('Behavior', {
         }
     },
 
-    getDefaultFilter: function(options) {
+    getNewFilter: function(options) {
         var newFilter;
         if (this.columns.length) {
             options = options || {};
