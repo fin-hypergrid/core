@@ -83,6 +83,14 @@ var JSON = Local.extend('behaviors.JSON', {
     getHeaders: function() {
         return this.dataModel.getHeaders();
     },
+    /**
+     * @memberOf behaviors.JSON.prototype
+     * @return {string} The field at `colIndex`.
+     * @param {number} colIndex - the column index of interest
+     */
+    getField: function(colIndex) {
+        return colIndex === -1 ? 'tree' : this.getColumnFromFullList(colIndex).getField();
+    },
 
     /**
      * @memberOf behaviors.JSON.prototype
@@ -207,6 +215,10 @@ var JSON = Local.extend('behaviors.JSON', {
             return 'center';
         }
     },
+    getColumnFromFullList: function(x) {
+        return this.allColumns[x];
+    },
+
 
     getRowSelectionMatrix: function(selectedRows) {
         return this.dataModel.getRowSelectionMatrix(selectedRows);

@@ -82,7 +82,8 @@ var ColumnPicker = Dialog.extend('ColumnPicker', {
         if (this.visibleColumns) {
             var columns = this.behavior.columns,
                 tree = columns[0];
-
+            //breaking encapsulation
+            //Should be using setters and getters on the behavior
             columns.length = 0;
             if (tree && tree.label === 'Tree') {
                 columns.push(tree);
