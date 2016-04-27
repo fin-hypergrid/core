@@ -8,6 +8,7 @@
 
 var Textfield = require('./Textfield');
 var prototype = require('./Simple').prototype;
+var Formatters = require('../lib/Formatters');
 var onTransitionEnd = require('../lib/queueless');
 var elfor = require('../lib/elfor');
 
@@ -54,11 +55,47 @@ var ComboBox = Textfield.extend('ComboBox', {
 */
     },
 
+    beginEditAt: function(point) {
+        this.column = this.grid.behavior.columns[point.x];
+        this.menuModesSource = this.column.menuModes || { distinctValues: true };
+        prototype.beginEditAt.call(this, point);
+    },
+
     /**
      * When there's only one mode defined here, the control area portion of the UI is hidden.
      */
     modes: [
+        {
+            name: 'distinctValues',
+            symbol: '#',
+            appendOptions: function(optgroup) {
+                // get the distinct column values and sort them
+                var distinct = {},
+                    d = [],
+                    columnName = this.column.getField(),
+                    formatter = Formatters[this.column.getProperties().format];
 
+                this.grid.behavior.getData().forEach(function(dataRow) {
+                    var val = formatter(dataRow[columnName]);
+                    distinct[val] = (distinct[val] || 0) + 1;
+                });
+
+                for (var key in distinct) {
+                    d.push(key);
+                }
+
+                while (optgroup.firstElementChild) {
+                    optgroup.firstElementChild.remove();
+                }
+
+                d.sort().forEach(function(val) {
+                    var option = new Option(val + ' (' + distinct[val] + ')', val);
+                    optgroup.appendChild(option);
+                });
+
+                return d.length;
+            }
+        }
     ],
 
     showEditor: function() {
@@ -86,7 +123,7 @@ var ComboBox = Textfield.extend('ComboBox', {
             this.controls.appendChild(toggle);
 
             // create and label a new optgroup
-            if (mode.label) {
+            if (mode.selector) {
                 var optgroup = document.createElement('optgroup');
                 optgroup.label = mode.label;
                 optgroup.className = 'submenu-' + mode.name;

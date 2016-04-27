@@ -30,7 +30,7 @@ var FilterBox = ComboBox.extend('FilterBox', {
         // look in the filter, under column filters, for a column filter for this column
         var filter = this.grid.getGlobalFilter(),
             column = this.column = this.grid.behavior.columns[point.x],
-            columnName = this.columnName = column.getField(),
+            columnName = column.getField(),
             columnFilters = this.grid.getGlobalFilter().columnFilters,
             columnFilterSubtree = filter.getColumnFilter(columnName),
             columnSchema = filter.schema.lookup(columnName);
@@ -90,36 +90,6 @@ var FilterBox = ComboBox.extend('FilterBox', {
                 }
             }
         }, {
-            name: 'distinctValues',
-            label: 'Distinct Values',
-            selector: 'optgroup.submenu-distinctValues',
-            symbol: '#',
-            backgroundColor: '#fef',
-            appendOptions: function(optgroup) {
-                // get the distinct column values and sort them
-                var distinct = {},
-                    d = [],
-                    columnName = this.columnName;
-
-                this.grid.behavior.getData().forEach(function(dataRow) {
-                    var val = dataRow[columnName];
-                    distinct[val] = (distinct[val] || 0) + 1;
-                });
-
-                for (var key in distinct) {
-                    d.push(key);
-                }
-
-                emptyElement(optgroup);
-
-                d.sort().forEach(function(val) {
-                    var option = new Option(val + ' (' + distinct[val] + ')', val);
-                    optgroup.appendChild(option);
-                });
-
-                return d.length;
-            }
-        }, {
             name: 'columnNames',
             label: 'Column Names',
             selector: 'optgroup.submenu-columnNames',
@@ -129,7 +99,9 @@ var FilterBox = ComboBox.extend('FilterBox', {
                 var columns = this.grid.behavior.columns,
                     x = this.editorPoint.x;
 
-                emptyElement(optgroup);
+                while (optgroup.firstElementChild) {
+                    optgroup.firstElementChild.remove();
+                }
 
                 columns.forEach(function(column, index) {
                     if (index !== x) {
@@ -141,6 +113,13 @@ var FilterBox = ComboBox.extend('FilterBox', {
                 });
                 return columns.length;
             }
+        }, {
+            name: 'distinctValues',
+            label: 'Distinct Values',
+            selector: 'optgroup.submenu-distinctValues',
+            symbol: '#',
+            backgroundColor: '#fef',
+            appendOptions: ComboBox.prototype.modes[0].appendOptions
         }
     ],
 
@@ -150,8 +129,8 @@ var FilterBox = ComboBox.extend('FilterBox', {
      */
     hideEditor: function() {
         // look in the filter, under column filters, for a column filter for this column
-        var columnName = this.columnName,
-            filter = this.grid.getGlobalFilter(),
+        var filter = this.grid.getGlobalFilter(),
+            columnName = this.column.getField(),
             columnFilterSubtree = filter.getColumnFilter(columnName);
 
         if (columnFilterSubtree) {
@@ -165,12 +144,6 @@ var FilterBox = ComboBox.extend('FilterBox', {
     }
 
 });
-
-function emptyElement(el) {
-    while (el.firstElementChild) {
-        el.firstElementChild.remove();
-    }
-}
 
 
 module.exports = FilterBox;
