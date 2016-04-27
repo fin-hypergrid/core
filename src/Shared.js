@@ -10,7 +10,7 @@ module.exports = {
     //analytics: require('../../hyper-analytics/src'), // steve & DJ
     //analytics: require('../../../hyper-analytics/src'), // jonathan
 
-    FilterTree: require('filter-tree'), // npm
-    //FilterTree: require('../../../filter-tree/src'), // jonathan
+    //FilterTree: require('filter-tree'), // npm
+    FilterTree: require('../../../filter-tree/src'), // jonathan
 
 };

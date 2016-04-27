@@ -13,61 +13,68 @@ window.onload = function() {
         {
             label: 'Row styling',
             ctrls: [
-                { value: '(Global setting)', label: 'base on data', setter: toggleRowStylingMethod }
+                { name: '(Global setting)', label: 'base on data', setter: toggleRowStylingMethod }
             ]
         }, {
             label: 'Grouping',
             ctrls: [
-                { value: 'aggregates', checked: false, setter: toggleAggregates }
+                { name: 'aggregates', checked: false, setter: toggleAggregates }
             ]
         }, {
             label: 'Column header rows',
             ctrls: [
-                { value: 'showHeaderRow', label: 'header' }, // default "setter" is `setProp`
-                { value: 'showFilterRow', label: 'filter' }
+                { name: 'showHeaderRow', label: 'header' }, // default "setter" is `setProp`
+                { name: 'showFilterRow', label: 'filter' }
             ]
         }, {
             label: 'Hover highlights',
             ctrls: [
-                { value: 'hoverCellHighlight.enabled', label: 'cell' },
-                { value: 'hoverRowHighlight.enabled', label: 'row' },
-                { value: 'hoverColumnHighlight.enabled', label: 'column' }
+                { name: 'hoverCellHighlight.enabled', label: 'cell' },
+                { name: 'hoverRowHighlight.enabled', label: 'row' },
+                { name: 'hoverColumnHighlight.enabled', label: 'column' }
             ]
         }, {
             label: 'Cell editing',
             ctrls: [
-                { value: 'editable' },
-                { value: 'editOnDoubleClick', label: 'requires double-click' },
-                { value: 'editOnKeydown', label: 'type to edit' }
+                { name: 'editable' },
+                { name: 'editOnDoubleClick', label: 'requires double-click' },
+                { name: 'editOnKeydown', label: 'type to edit' }
             ]
         }, {
             label: 'Row selection',
             ctrls: [
-                { value: 'checkboxOnlyRowSelections', label: 'by row handles only', setter: setSelectionProp },
-                { value: 'singleRowSelectionMode', label: 'one row at a time', setter: setSelectionProp }
+                { name: 'checkboxOnlyRowSelections', label: 'by row handles only', setter: setSelectionProp },
+                { name: 'singleRowSelectionMode', label: 'one row at a time', setter: setSelectionProp }
             ]
         }, {
             label: 'Filtering',
             ctrls: [
                 {
-                    value: '(Global setting)',
+                    name: '(Global setting)',
                     label: 'case-sensitive operand',
                     checked: true,
                     tooltip: 'Check to match case of operand and data in string comparisons. This is a shared property and instantly affects all grids.',
                     setter: toggleCaseSensitivity
                 },
                 {
-                    value: 'filterCaseSensitiveColumnNames',
+                    name: 'filterCaseSensitiveColumnNames',
                     label: 'case-sensitive schema',
                     tooltip: 'Check to match case of filter column names. Resets filter.',
-                    setter: resetFilter
+                    setter: resetFilterWithNewPropValue
                 },
                 {
-                    value: 'filterResolveAliases',
+                    name: 'filterResolveAliases',
                     label: 'resolve aliases',
                     tooltip: 'Check to allow column headers to be used in filters in addition to column names. Resets filter.',
-                    setter: resetFilter
+                    setter: resetFilterWithNewPropValue
                 },
+                {
+                    type: 'text',
+                    name: 'filterDefaultColumnFilterOperator',
+                    label: 'Default column filter operator:',
+                    tooltip: 'May be overridden by column schema\'s `defaultOp`. Blank means use the fall-back default ("=").',
+                    setter: resetFilterWithNewPropValue
+                }
             ]
         }
     ];
@@ -97,6 +104,7 @@ window.onload = function() {
         var factory = new fin.Hypergrid.ColumnSchemaFactory(this.columns);
         factory.organize(/^(one|two|three|four|five|six|seven|eight)/i, { key: 'alias' });
         factory.lookup('last_name').defaultOp = 'IN';
+        //factory.lookup('birthState').opMenu = ['>', '<'];
         var options = { schema: factory.schema };
         return protoGetDefaultFilter.call(this, options);
     };
@@ -643,6 +651,7 @@ window.onload = function() {
                 headerTextWrapping: true,
 
                 filteringMode: 'onCommit', // vs. 'immediate' for every key press
+                //filterDefaultColumnFilterOperator: '<>',
 
                 cellSelection: true,
                 columnSelection: true,
@@ -738,6 +747,8 @@ window.onload = function() {
                 format: 'GBP'
             });
 
+            resetFilter(); // re-instantiate filter using new property settings
+
             console.log(behavior.getHeaders());
             console.log(behavior.getFields());
 
@@ -799,7 +810,7 @@ window.onload = function() {
 // The following functions service these controls.
 
     function addToggle(ctrlGroup) {
-        var input, label,
+        var input, label, eventName,
             dashboard = document.getElementById('dashboard'),
             container = document.createElement('div');
 
@@ -812,25 +823,40 @@ window.onload = function() {
         }
 
         ctrlGroup.ctrls.forEach(function(ctrl) {
-            var tooltip = 'Property name: ' + ctrl.value;
-            if (ctrl.tooltip) { tooltip += '\n\n' + ctrl.tooltip; }
+            var type = ctrl.type || 'checkbox',
+                tooltip = 'Property name: ' + ctrl.name;
+            if (ctrl.tooltip) {
+                tooltip += '\n\n' + ctrl.tooltip;
+            }
 
             input = document.createElement('input');
-            input.type = 'checkbox';
-            input.value = ctrl.value;
-            input.id = ctrl.value;
-            input.addEventListener('click', ctrl.setter || setProp);
+            input.type = type;
+            input.id = ctrl.name;
 
-            if ('checked' in ctrl) {
-                input.checked = ctrl.checked;
-            } else {
-                input.checked = grid.resolveProperty(ctrl.value);
+            switch (type) {
+                case 'text':
+                    input.value = ctrl.value || '';
+                    eventName = 'change';
+                    input.style.width = '40px';
+                    input.style.marginLeft = '4px';
+                    break;
+                case 'checkbox':
+                    eventName = 'click';
+                    input.checked = 'checked' in ctrl
+                        ? ctrl.checked
+                        : grid.resolveProperty(ctrl.name);
+                    break;
             }
+
+            input.addEventListener(eventName, ctrl.setter || setProp);
 
             label = document.createElement('label');
             label.title = tooltip;
             label.appendChild(input);
-            label.appendChild(document.createTextNode(' ' + (ctrl.label || ctrl.value)));
+            label.insertBefore(
+                document.createTextNode(' ' + (ctrl.label || ctrl.name)),
+                type !== 'checkbox' ? input : null // label goes before : after input
+            );
 
             container.appendChild(label);
         });
@@ -840,10 +866,18 @@ window.onload = function() {
 
     function setProp() { // standard checkbox click handler
         var hash = {}, depth = hash;
-        var keys = this.value.split('.');
+        var keys = this.id.split('.');
 
         while (keys.length > 1) { depth = depth[keys.shift()] = {}; }
-        depth[keys.shift()] = this.checked;
+
+        switch (this.type) {
+            case 'text':
+                depth[keys.shift()] = this.value;
+                break;
+            case 'checkbox':
+                depth[keys.shift()] = this.checked;
+                break;
+        }
 
         grid.takeFocus();
         grid.addProperties(hash);
@@ -857,13 +891,25 @@ window.onload = function() {
         setProp.call(this);
     }
 
-    function resetFilter() {
+    function resetFilterWithNewPropValue() {
         if (confirm('Filter reset required...')) {
             setProp.call(this);
-            grid.setGlobalFilter(fin.Hypergrid.behaviors.Behavior.prototype.getNewFilter.call(grid.behavior));
+            resetFilter();
         } else {
-            this.checked = !this.checked; // user canceled so put checkbox back
+            switch (this.type) {
+                case 'text':
+                    this.value = this['data-was']; // user canceled so put data back
+                    this.blur();
+                    break;
+                case 'checkbox':
+                    this.checked = !this.checked; // user canceled so put checkbox back
+                    break;
+            }
         }
+    }
+
+    function resetFilter() {
+        grid.setGlobalFilter(fin.Hypergrid.behaviors.Behavior.prototype.getNewFilter.call(grid.behavior));
     }
 
     function redIfStartsWithS(config) {

@@ -216,7 +216,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
         } else if (isHeaderRow && y === 0) {
             return this._setHeader(x, value);
         } else if (isFilterRow) {
-            this.setFilter(x, value);
+            this.setFilter(x, value, { alert: true });
         } else {
             return this._setHeader(x, value);
         }

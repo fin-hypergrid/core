@@ -79,7 +79,7 @@ var CustomFilterLeaf = FilterTree.prototype.addEditor({
         if (syntax === 'CQL') {
             result = this.getSyntax(conditionals);
             result = convertLikeToPseudoOp(result);
-            var defaultOp = this.schema.lookup(this.column).defaultOp || '=';
+            var defaultOp = this.schema.lookup(this.column).defaultOp || this.root.parserCQL.defaultOp; // mimics logic in parser-CQL.js, line 110
             if (result.toUpperCase().indexOf(defaultOp) === 0) {
                 result = result.substr(defaultOp.length);
             }
@@ -137,18 +137,19 @@ _(FilterTree.Node.prototype.templates).extendOwn({
 
 var DefaultFilter = FilterTree.extend('DefaultFilter', {
     preInitialize: function(options) {
-        if (options) {
+        options = options || {};
 
-            // Set up the default "Hyperfilter" profile (see function comments)
-            options.state = options.state || this.makeNewRoot();
+        // Set up the default "Hyperfilter" profile (see function comments)
+        var state = options.state = options.state || this.makeNewRoot();
 
-            // Upon creation of a 'columnFilter' node, force the schema to the one column
-            if ((options.type || options.state && options.state.type) === 'columnFilter') {
-                this.schema = [
-                    options.parent.root.schema.lookup(options.state.children[0].column)
-                ];
-            }
+        // Upon creation of a 'columnFilter' node, force the schema to the one column
+        if ((options.type || state && state.type) === 'columnFilter') {
+            this.schema = [
+                options.parent.root.schema.lookup(state.children[0].column)
+            ];
         }
+
+        return [options];
     },
 
     initialize: function(options) {
@@ -163,8 +164,7 @@ var DefaultFilter = FilterTree.extend('DefaultFilter', {
         if (this === this.root && !this.parserCQL) {
             this.parserCQL = new ParserCQL({
                 schema: this.schema,
-                caseSensitiveColumnNames: options.caseSensitiveColumnNames,
-                resolveAliases: options.resolveAliases
+                defaultOp: options.defaultColumnFilterOperator
             });
         }
 
@@ -348,6 +348,7 @@ var DefaultFilter = FilterTree.extend('DefaultFilter', {
                     state = this.parseStateString(state, options); // because .add() only takes object syntax
                     subexpression = this.columnFilters.add(state);
                 }
+                options.throw = true;
                 error = subexpression.invalid(options);
             }
         }

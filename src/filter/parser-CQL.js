@@ -9,8 +9,7 @@ var REGEXP_BOOLS = /\b(AND|OR|NOR)\b/gi,
     opMap = {
         '>=': '≥',
         '<=': '≤',
-        '<>': '≠',
-        undefined: '='
+        '<>': '≠'
     };
 
 function ParserCqlError(message) {
@@ -29,11 +28,11 @@ ParserCqlError.prototype.name = 'ParserCqlError';
  * @desc See {@tutorial CQL} for the grammar.
  *
  * @param {menuItem[]} [options.schema] - Column schema for column name/alias validation. Throws an error if name fails validation (but see `resolveAliases`). Omit to skip column name validation.
- * @param {boolean} [options.resolveAliases] - Validate column aliases against schema and use the associated column name in the returned expression state object. Requires `options.schema`. Throws error if no such column found.
- * @param {boolean} [options.caseSensitiveColumnNames] - Ignore case while validating column names and aliases.
+ * @param {boolean} [options.defaultOp='='] - Default operator for column when not defined in column schema.
  */
 function ParserCQL(options) {
     this.schema = options && options.schema;
+    this.defaultOp = options && options.defaultOp || '=';
 }
 
 ParserCQL.prototype = {
@@ -108,7 +107,8 @@ ParserCQL.prototype = {
 
                 if (literal) {
                     var op = parts[1] && parts[1] || // as specified by user
-                        self.schema && self.schema.lookup(columnName).defaultOp; // column's default operator from schema
+                        self.schema && self.schema.lookup(columnName).defaultOp || // column's default operator from schema
+                        self.defaultOp; // grid's default operator
 
                     op = opMap[op] || op; // accommodate alternate spellings of operators
                     op = op.trim().toUpperCase(); // clean up & normalize
@@ -171,8 +171,6 @@ ParserCQL.prototype = {
                 state.operator = 'op-' + operator;
             }
         }
-
-        //this.state = state;
 
         return state;
     }
