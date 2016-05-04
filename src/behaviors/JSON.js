@@ -275,6 +275,33 @@ var JSON = Local.extend('behaviors.JSON', {
 
     getSelections: function() {
         return this.grid.selectionModel.getSelections();
+    },
+
+    getSortedColumnIndexes: function(){
+      return this.dataModel.getSortedColumnIndexes();
+    },
+
+    sortChanged: function(hiddenColumns){
+        var oldSorted = this.getSortedColumnIndexes(),
+            dirty = false;
+        hiddenColumns = hiddenColumns || this.getHiddenColumns();
+
+        function removeHiddenColumns(){
+            oldSorted.forEach(function(i) {
+                var j = 0;
+                while (j < hiddenColumns.length) {
+                    if (hiddenColumns[j].index === i) {
+                        hiddenColumns[j].unSort();
+                        dirty = true;
+                        break;
+                    }
+                }
+            });
+        }
+        removeHiddenColumns();
+        if (dirty){
+            this.applyAnalytics();
+        }
     }
 
 });

@@ -95,11 +95,8 @@ var ColumnPicker = Dialog.extend('ColumnPicker', {
             });
 
             if (!this.sortOnHiddenColumns) {
-                this.hiddenColumns.models.forEach(function(column) {
-                    column.unSort();
-                });
+                this.behavior.sortChanged(this.hiddenColumns.models);
             }
-
             var groupBys = this.selectedGroups.models.map(function(e) {
                 return e.id;
             });

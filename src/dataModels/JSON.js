@@ -480,14 +480,25 @@ var JSON = DataModel.extend('dataModels.JSON', {
     /**
      * @memberOf dataModels.JSON.prototype
      * @param {number} colIndex
+     * @param {boolean} deferred
      */
-    unSortColumn: function(colIndex) {
+    unSortColumn: function(colIndex, deferred) {
         colIndex++; //hack to get around 0 index
         var already = this.getColumnSortState(colIndex);
         if (already > -1) {
             this.removeColumnSortState(colIndex, already);
+            if (!deferred) {
+                this.applyAnalytics(true);
+            }
         }
-        this.applyAnalytics(true);
+    },
+
+    /**
+     * @memberOf dataModels.JSON.prototype
+     */
+    getSortedColumnIndexes: function() {
+        var state = this.getPrivateState();
+        return state.sort && state.sort.slice() || [];
     },
 
     /**
