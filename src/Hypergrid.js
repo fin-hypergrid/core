@@ -1651,10 +1651,13 @@ Hypergrid.prototype = {
     },
 
 
-    getRowSelection: function() {
+    getRowSelection: function(includeHidden) {
         var c, column, self = this,
             selectedRowIndexes = this.selectionModel.getSelectedRows(),
-            numCols = this.getColumnCount(),
+            numVisCols = this.getColumnCount(), //Would like to rename to getVisibleColumnCount but would break the examples
+            hiddenCols = this.getHiddenColumns(),
+            numHiddenCols = hiddenCols && hiddenCols.length,
+            numCols = (includeHidden) ? (numVisCols + numHiddenCols) : numVisCols,
             result = {};
 
         function setValue(selectedRowIndex, r) {
@@ -1668,6 +1671,11 @@ Hypergrid.prototype = {
         }
 
         return result;
+    },
+
+    getHiddenColumns: function(){
+        //A non in-memory behavior will be more troublesome
+      return this.behavior.getHiddenColumns();
     },
 
     getRowSelectionMatrix: function() {

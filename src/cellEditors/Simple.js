@@ -232,14 +232,6 @@ var Simple = CellEditor.extend('Simple', {
         this.setEditorValue(this.initialValue);
     },
 
-    /* following moved to bottom of file because extend-me does not properly accept getters yet :(
-
-    get input() {
-        return this.el;
-    },
-
-    */
-
     reset: function() {
         var container = document.createElement('DIV');
         container.innerHTML = this.getHTML();

@@ -1420,7 +1420,7 @@ var Behavior = Base.extend('Behavior', {
         var column = this.getColumn(x);
 
         return this.grid.isFilterRow(y)
-            ? this.grid.createCellEditor('combobox')
+            ? this.grid.createCellEditor('filterbox')
             : column.getCellEditorAt(x, y) || this.grid.createCellEditor(column.getType());
     },
 
@@ -1613,6 +1613,7 @@ var Behavior = Base.extend('Behavior', {
             }
             options.caseSensitiveColumnNames = this.grid.resolveProperty('filterCaseSensitiveColumnNames');
             options.resolveAliases = this.grid.resolveProperty('filterResolveAliases');
+            options.defaultColumnFilterOperator = this.grid.resolveProperty('filterDefaultColumnFilterOperator');
             newFilter = new DefaultFilter(options);
         }
         return newFilter;
