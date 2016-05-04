@@ -26,6 +26,12 @@ window.onload = function() {
                 { name: 'showHeaderRow', label: 'header' }, // default "setter" is `setProp`
                 { name: 'showFilterRow', label: 'filter' }
             ]
+        },
+        {
+            label: 'Sorting',
+            ctrls: [
+                { name: 'sortOnHiddenColumns', label: 'include hidden columns'}, // default "setter" is `setProp`
+            ]
         }, {
             label: 'Hover highlights',
             ctrls: [
