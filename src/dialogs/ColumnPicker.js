@@ -66,6 +66,8 @@ var ColumnPicker = Dialog.extend('ColumnPicker', {
                     self.append(list.container);
                 });
             });
+
+            this.sortOnHiddenColumns = this.grid.resolveProperty('sortOnHiddenColumns');
         } else {
             var div = document.createElement('div');
             div.style.textAlign = 'center';
@@ -90,6 +92,12 @@ var ColumnPicker = Dialog.extend('ColumnPicker', {
             this.visibleColumns.models.forEach(function(column) {
                 columns.push(column);
             });
+
+            if (!this.sortOnHiddenColumns) {
+                this.hiddenColumns.models.forEach(function(column) {
+                    column.unSort();
+                });
+            }
 
             var groupBys = this.selectedGroups.models.map(function(e) {
                 return e.id;

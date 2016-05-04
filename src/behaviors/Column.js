@@ -138,6 +138,10 @@ Column.prototype = {
         this.dataModel.toggleSort(this.index, keys);
     },
 
+    unSort: function() {
+        this.dataModel.unSortColumn(this.index);
+    },
+
     getCellEditorAt: function(x, y) {
         return this.dataModel.getCellEditorAt(this.index, y);
     },
