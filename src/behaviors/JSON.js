@@ -295,6 +295,7 @@ var JSON = Local.extend('behaviors.JSON', {
                         dirty = true;
                         break;
                     }
+                    j++;
                 }
             });
         }

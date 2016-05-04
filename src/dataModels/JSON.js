@@ -498,7 +498,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
      */
     getSortedColumnIndexes: function() {
         var state = this.getPrivateState();
-        return state.sort && state.sort.slice() || [];
+        return state.sorts && state.sorts.slice() || [];
     },
 
     /**
