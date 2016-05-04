@@ -93,16 +93,15 @@ var ColumnPicker = Dialog.extend('ColumnPicker', {
             this.visibleColumns.models.forEach(function(column) {
                 columns.push(column);
             });
-
-            if (!this.sortOnHiddenColumns) {
-                this.behavior.sortChanged(this.hiddenColumns.models);
-            }
             var groupBys = this.selectedGroups.models.map(function(e) {
                 return e.id;
             });
             this.behavior.dataModel.setGroups(groupBys);
 
             this.behavior.changed();
+            if (!this.sortOnHiddenColumns) {
+                this.behavior.sortChanged(this.hiddenColumns.models);
+            }
         }
     }
 });

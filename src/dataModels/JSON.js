@@ -513,7 +513,11 @@ var JSON = DataModel.extend('dataModels.JSON', {
         state.sorts = state.sorts || [];
         var already = this.getColumnSortState(colIndex);
         if (already > -1) {
-            this.removeColumnSortState(colIndex, already);
+            if (state.sorts[already] > 0) {
+                state.sorts[already] = -1 * state.sorts[already]; //descending
+            } else {
+                this.removeColumnSortState(colIndex, already);
+            }
         } else if (hasCTRL || state.sorts.length === 0) {
             state.sorts.unshift(colIndex);
         } else {
@@ -557,12 +561,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
         //assumption is that colIndex has been hacked to get around 0
         var state = this.getPrivateState();
         state.sorts = state.sorts || [];
-
-        if (state.sorts[sortPosition] > 0) {
-            state.sorts[sortPosition] = -1 * state.sorts[sortPosition];
-        } else {
-            state.sorts.splice(sortPosition, 1);
-        }
+        state.sorts.splice(sortPosition, 1);
     },
 
     /**

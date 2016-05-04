@@ -288,9 +288,11 @@ var JSON = Local.extend('behaviors.JSON', {
 
         function removeHiddenColumns(){
             oldSorted.forEach(function(i) {
-                var j = 0;
+                var j = 0,
+                    colIndex;
                 while (j < hiddenColumns.length) {
-                    if (hiddenColumns[j].index === i) {
+                    colIndex = hiddenColumns[j].index + 1; //hack to get around 0 index
+                    if (colIndex === i) {
                         hiddenColumns[j].unSort();
                         dirty = true;
                         break;
@@ -302,6 +304,7 @@ var JSON = Local.extend('behaviors.JSON', {
         removeHiddenColumns();
         if (dirty){
             this.applyAnalytics();
+            this.grid.repaint();
         }
     }
 
