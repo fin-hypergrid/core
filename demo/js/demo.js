@@ -203,11 +203,13 @@ window.onload = function() {
             behavior.setTopTotals([]);
             behavior.setData([]);
             behavior.setBottomTotals([]);
+            behavior.featureChain.pause();
         } else {
             //important to set top totals first
             behavior.setTopTotals(topTotals);
             behavior.setData(people1);
             behavior.setBottomTotals(bottomTotals);
+            behavior.featureChain.resume();
         }
     }
 
