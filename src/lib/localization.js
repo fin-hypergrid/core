@@ -1,10 +1,15 @@
 /* eslint-env browser */
 
+/**
+ * @module localization
+ */
+
 'use strict';
 
 /**
  * @summary Create a number localizer.
- * @desc Create a {@link localizerObject} for numbers, using {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/NumberFormat|Intl.NumberFormat}.
+ * @implements localizerInterface
+ * @desc Create an object conforming to the {@link localizerInterface} for numbers, using {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/NumberFormat|Intl.NumberFormat}.
  * @param [locale='en-US'] - Passed to the `Intl.NumberFormat` constructor.
  * @param [options] - Passed to `Intl.NumberFormat`.
  * @param [options.acceptStandardDigits=false] - Accept standard digits and decimal point interchangeably with localized digits and decimal point. (This option is interpreted here; it is not used by `Intl.NumberFormat`.)
@@ -17,10 +22,13 @@ function NumberFormatter(locale, options) {
         locale = undefined;
     }
 
+    /** @summary Locale passed to constructor.
+     * @type {string}
+     */
     this.locale = locale || 'en-US';
 
     /** @summary Transform a number primitive into human-friendly string representation.
-     * @type {function}
+     * @method
      */
     this.localize = new Intl.NumberFormat(this.locale, options).format;
 
@@ -32,7 +40,7 @@ function NumberFormatter(locale, options) {
     /**
      * @summary A string containing the valid characters.
      * @type {string}
-     * @memberOf NumberFormatter.prototype
+     * @private
      * @desc Localized digits and decimal point. Will also include standardized digits and decimal point if `options.acceptStandardDigits` is truthy.
      *
      * For internal use by the {@link NumberFormatter#standardize|standardize} method.
@@ -45,7 +53,7 @@ function NumberFormatter(locale, options) {
 
     /** @summary A regex that tests `true` on first invalid character.
      * @type {RegExp}
-     * @memberOf NumberFormatter.prototype
+     * @private
      * @desc Valid characters include:
      *
      * * Localized digits
@@ -56,7 +64,7 @@ function NumberFormatter(locale, options) {
      *
      * Any characters outside this set are considered invalid.
      *
-     * Set by the constructor; consumed by the {@link NumberFormatter#valid|valid} method.
+     * Set by the constructor; consumed by the {@link module:localization~NumberFormatter#isValid|isValid} method.
      *
      * Testing a string against this pattern yields `true` if at least one invalid character or `false` if all characters are valid.
      */
@@ -80,12 +88,12 @@ NumberFormatter.prototype = {
      *
      * Use this method to:
      * 1. Filter out invalid characters on a `onkeydown` event; or
-     * 2. Test an edited string prior to calling the {@link NumberFormatter#standardize|standardize}`.
+     * 2. Test an edited string prior to calling the {@link module:localization~NumberFormatter#standardize|standardize}.
      *
      * NOTE: This method does not check grammatical syntax; it only checks for invalid characters.
      *
      * @param number
-     * @returns {boolean}
+     * @returns {boolean} Contains only valid characters.
      */
     isValid: function(number) {
         return !this.invalids.test(number);
@@ -97,9 +105,9 @@ NumberFormatter.prototype = {
      * * "Clean" the string by ignoring all other characters.
      * * Coerce the string to a number primitive.
      *
-     * Since all other characters are simply ignored, it is not necessary to call {@link NumberFormatter#isValid|isValid} first; this method will succeed regardless. However, doing so will give you the opportunity to alert the user if you want to be strict and never accept strings with any invalid characters in them.
+     * Since all other characters are simply ignored, it is not necessary to call {@link module:localization~NumberFormatter#isValid|isValid} first; this method will succeed regardless. However, doing so will give you the opportunity to alert the user if you want to be strict and never accept strings with any invalid characters in them.
      * @param {string} formattedLocalizedNumber - May or may not be formatted.
-     * @returns {number}
+     * @returns {number} Number primitive.
      */
     standardize: function(formattedLocalizedNumber) {
         return Number(
@@ -114,6 +122,7 @@ function demap(c) {
 }
 
 /**
+ * @implements localizerInterface
  * @param [locale='en-US'] - Passed to {@link Intl.NumberFormat|https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/NumberFormat}
  * @param [options] - Passed to `Intl.NumberFormat`.
  * @constructor
@@ -124,11 +133,13 @@ function DateFormatter(locale, options) {
         locale = undefined;
     }
 
+    /** @summary Locale passed to constructor.
+     * @type {string}
+     */
     this.locale = locale || 'en-US';
 
     /** @summary Transform a date object into human-friendly string representation.
-     * @type {function}
-     * @memberOf DateFormatter.prototype
+     * @method
      */
     this.localize = new Intl.DateTimeFormat(this.locale, options).format;
 
@@ -163,7 +174,7 @@ function DateFormatter(locale, options) {
 
     /** @summary A regex that tests `true` on firstL invalid character.
      * @type {RegExp}
-     * @memberOf DateFormatter.prototype
+     * @private
      * @desc Valid characters include:
      *
      * * Localized digits
@@ -196,15 +207,14 @@ DateFormatter.prototype = {
      *
      * Use this method to:
      * 1. Filter out invalid characters on a `onkeydown` event; or
-     * 2. Test an edited string prior to calling the {@link NumberFormatter#standardize|standardize}`.
+     * 2. Test an edited string prior to calling the {@link module:localization~DateFormatter#standardize|standardize}.
      *
      * NOTE: The current implementation only supports date formats using all numerics (which is the default for `Intl.DateFormat`).
      *
      * NOTE: This method does not check grammatical syntax; it only checks for invalid characters.
      *
      * @param number
-     * @returns {boolean}
-     * @memberOf DateFormatter.prototype
+     * @returns {boolean} Contains only valid characters.
      */
     isValid: function(number) {
         return !this.invalids.test(number);
@@ -216,10 +226,9 @@ DateFormatter.prototype = {
      * * "Clean" the string by ignoring all other characters.
      * * Coerce the string to a number primitive.
      *
-     * Since all other characters are simply ignored, it is not necessary to call {@link NumberFormatter#isValid|isValid} first; this method will succeed regardless. However, doing so will give you the opportunity to alert the user if you want to be strict and never accept strings with any invalid characters in them.
+     * Since all other characters are simply ignored, it is not necessary to call {@link module:localization~DateFormatter#isValid|isValid} first; this method will succeed regardless. However, doing so will give you the opportunity to alert the user if you want to be strict and never accept strings with any invalid characters in them.
      * @param {string} localizedDate
      * @returns {null|Date} Will be `null` if mal-formed date string.
-     * @memberOf DateFormatter.prototype
      */
     standardize: function(localizedDate) {
         var date,
@@ -243,7 +252,7 @@ DateFormatter.prototype = {
      * @param {function} digitTransformer - A function bound to `this`.
      * @param {number} number
      * @returns {string}
-     * @memberOf DateFormatter.prototype
+     * @private
      */
     transformNumber: function(digitTransformer, number) {
         return number.toString().split('').map(digitTransformer).join('');
@@ -260,17 +269,11 @@ function standardizeDigit(c) {
     return d;
 }
 
-/** @typedef {NumberFormatter|DateFormatter|object} localizerObject
- * @property {function} localize - Transform a primitive value into a human-friendly string representation.
- * @property {function} standardize - Transform a formatted string representation back into a primitive typed value.
- * @property {function} [isValid] - Tests string representation for all valid characters.
- * @property {string} [locale='en-US']
- */
-
 /**
- * @summary Hash of {@link localizerObject}s.
+ * @summary Hash of objects conforming to the {@link localizerInterface}.
  * @desc Expandable with additional members.
  * @type {object}
+ * @memberOf module:localization
  */
 var localizers = {
 
@@ -318,6 +321,11 @@ var localizers = {
 
 };
 
+/**
+ * @param {string} localizerName
+ * @param {localizerInterface} localizer
+ * @memberOf module:localization
+ */
 function set(localizerName, localizer) {
     if (
         typeof localizer !== 'object' ||
@@ -331,6 +339,12 @@ function set(localizerName, localizer) {
     localizers[localizerName] = localizer;
 }
 
+/**
+ *
+ * @param localizerName
+ * @returns {localizerInterface}
+ * @memberOf module:localization
+ */
 function get(localizerName) {
     return localizers[localizerName] || localizers.null;
 }
@@ -339,6 +353,16 @@ module.exports = {
     localizers: localizers,
     set: set,
     get: get,
+
+    /**
+     * @see The {@link module:localization~NumberFormatter|NumberFormatter} class
+     * @memberOf module:localization
+     */
     NumberFormatter: NumberFormatter,
+
+    /**
+     * @see The {@link module:localization~DateFormatter|DateFormatter} class
+     * @memberOf module:localization
+     */
     DateFormatter: DateFormatter
 };

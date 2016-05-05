@@ -281,8 +281,8 @@ Hypergrid.prototype = {
     },
 
     /**
-     * @param {string} localizerName
-     * @param {localizerObject} localizerObjectOrLocalizeMethod
+     * @param {string} name
+     * @param {localizerInterface} localizer
      * @param {boolean} [createAndRegisterCellEditor=false] - Create and register a new cell editor to go with it.
      * Note that if you use this option, both the localizer and the cell editor will end up with the same name. This may make things simpler or may make them more confusing, depending on where you're coming from!
      */
@@ -318,7 +318,7 @@ Hypergrid.prototype = {
     /**
      * @memberOf Hypergrid.prototype
      * @summary Register a cell editor.
-     * @see {@link cellEditors.register}.
+     * @see {@link module:cellEditors.register|cellEditors.register}.
      */
     registerCellEditor: cellEditors.register,
 

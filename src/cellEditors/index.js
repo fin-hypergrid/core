@@ -1,3 +1,7 @@
+/**
+ * @module cellEditors
+ */
+
 'use strict';
 
 exports.register = register;
@@ -15,7 +19,6 @@ exports.int = exports.float = register(require('./Spinner'));
 register(require('./Textfield'));
 
 /**
- * @memberOf Hypergrid.prototype
  * @summary Register a cell editor.
  * @desc Adds a custom cell editor to the `cellEditors` hash using the provided name or the class name (converted to all lower case).
  *
@@ -26,6 +29,8 @@ register(require('./Textfield'));
  * @param {string} [editorKey] - Case-insensitive editor key. If not given, `YourCellEditor.prototype.$$CLASS_NAME` is used.
  *
  * > Note: `$$CLASS_NAME` can be easily set up by providing a string as the (optional) first parameter in your {@link https://www.npmjs.com/package/extend-me|CellEditor.extend} call. (Formal parameter name: `alias`.)
+ *
+ * @memberOf module:cellEditors
  */
 function register(Constructor, editorKey) {
     editorKey = editorKey || Constructor.prototype.$$CLASS_NAME;
