@@ -224,7 +224,7 @@ function slideDown() {
     this.selectionEnd = this.input.selectionEnd;
 
     // clean up the select list from last usage
-    this.dropdown.style.selectedIndex = -1; // be kind (remove previous selection)
+    this.dropdown.selectedIndex = -1; // be kind (remove previous selection)
     this.dropdown.style.scrollTop = 0; // rewind
 
     // show the drop-down slide down effect
