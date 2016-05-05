@@ -8,7 +8,7 @@
 
 var Textfield = require('./Textfield');
 var prototype = require('./Simple').prototype;
-var onTransitionEnd = require('../lib/queueless');
+var Queueless = require('../lib/queueless');
 var elfor = require('../lib/elfor');
 
 /*********************************/
@@ -34,7 +34,8 @@ var ComboBox = Textfield.extend('ComboBox', {
 
         this.controllable = this.modes.length > 1;
 
-        this.transit = onTransitionEnd(this.options, 'options', this);
+        // set up a transition end controller
+        this.optionsTransition = new Queueless(this.options, this);
 
         // wire-ups
         this.dropper.addEventListener('mousedown', toggleDropDown.bind(this));
@@ -210,9 +211,7 @@ function setModeIconAndOptgroup(ctrl, name, state) {
 }
 
 function toggleDropDown() {
-    var transitionInProgress = this.transit();
-
-    if (!transitionInProgress) {
+    if (!this.optionsTransition.state) {
         var state = window.getComputedStyle(this.dropdown).visibility;
         stateToActionMap[state].call(this);
     }
@@ -235,8 +234,8 @@ function slideDown() {
     // while in drop-down, listen for clicks in text box which means abprt
     this.input.addEventListener('mousedown', this.slideUpBound = slideUp.bind(this));
 
-    // schedule the transition flag
-    this.transit(null);
+    // wait for transition to end
+    this.optionsTransition.begin();
 }
 
 function slideUp() {
@@ -247,8 +246,8 @@ function slideUp() {
     this.options.style.height = 0;
 
     // schedule the hide to occur after the slide up effect
-    this.transit(function(el) {
-        el.style.visibility = 'hidden';
+    this.optionsTransition.begin(function(event) {
+        this.style.visibility = 'hidden';
     });
 }
 
