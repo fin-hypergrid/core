@@ -66,8 +66,6 @@ var ColumnPicker = Dialog.extend('ColumnPicker', {
                     self.append(list.container);
                 });
             });
-
-            this.sortOnHiddenColumns = this.grid.resolveProperty('sortOnHiddenColumns');
         } else {
             var div = document.createElement('div');
             div.style.textAlign = 'center';
@@ -78,6 +76,21 @@ var ColumnPicker = Dialog.extend('ColumnPicker', {
 
         // add the dialog to the DOM
         this.open(options.container);
+        //Add checkbox
+        this.sortOnHiddenColumns = this.grid.resolveProperty('sortOnHiddenColumns');
+        var panel = document.querySelector('.hypergrid-dialog-control-panel');
+        var checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.checked = this.sortOnHiddenColumns;
+        checkbox.addEventListener('click', function(e){
+            e.stopPropagation();
+            grid.addProperties({sortOnHiddenColumns: checkbox.checked});
+            self.sortOnHiddenColumns = checkbox.checked;
+        });
+        var label = document.createElement('label');
+        label.innerHTML = ' include hidden columns';
+        label.appendChild(checkbox);
+        panel.appendChild(label);
     },
 
     onClosed: function() {
@@ -98,10 +111,10 @@ var ColumnPicker = Dialog.extend('ColumnPicker', {
             });
             this.behavior.dataModel.setGroups(groupBys);
 
-            this.behavior.changed();
             if (!this.sortOnHiddenColumns) {
                 this.behavior.sortChanged(this.hiddenColumns.models);
             }
+            this.behavior.changed();
         }
     }
 });
