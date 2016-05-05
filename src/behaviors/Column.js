@@ -3,6 +3,7 @@
 'use strict';
 
 var _ = require('object-iterators');
+var localization = require('../lib/localization');
 
 /**
  * @constructor
@@ -152,6 +153,10 @@ Column.prototype = {
 
     getField: function() {
         return this.dataModel.getFields()[this.index];
+    },
+
+    getFormatter: function() {
+        return localization.get(this.getProperties().format).localize;
     }
 };
 

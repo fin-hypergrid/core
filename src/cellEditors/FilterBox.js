@@ -72,10 +72,10 @@ var FilterBox = ComboBox.extend('FilterBox', {
         {
             name: 'operators',
             symbol: '<',
-            appendOptions: function() {
-                if (!this.dropdown.length) {
+            appendOptions: function(dropdown) {
+                if (!dropdown.length) {
                     // Various  operator options and/or optgroups vary per column based on `opMenu`.
-                    popMenu.build(this.dropdown, this.opMenu, {
+                    popMenu.build(dropdown, this.opMenu, {
                         group: function(groupName) {
                             return Conditionals.groups[groupName];
                         },
@@ -141,6 +141,17 @@ var FilterBox = ComboBox.extend('FilterBox', {
         this.column.menuModes = this.menuModes;
 
         ComboBox.prototype.hideEditor.call(this);
+    },
+
+    keyup: function(e) {
+        if (e) {
+            prototype.keyup.call(this, e);
+
+            if (this.grid.resolveProperty('filteringMode') === 'immediate') {
+                this.saveEditorValue(this.getEditorValue());
+                this._moveEditor();
+            }
+        }
     }
 
 });

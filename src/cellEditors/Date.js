@@ -3,18 +3,44 @@
 'use strict';
 
 var Simple = require('./Simple');
-var Formatters = require('../lib/Formatters');
+var localization = require('../lib/localization');
 
-function parseDate(input) {
-  var parts = input.match(/(\d+)/g);
-  // new Date(year, month [, date [, hours[, minutes[, seconds[, ms]]]]])
-  return new window.Date(parts[0], parts[1] - 1, parts[2]); // months are 0-based
-}
+var isChromium = window.chrome,
+    winNav = window.navigator,
+    vendorName = winNav.vendor,
+    isOpera = winNav.userAgent.indexOf('OPR') > -1,
+    isIEedge = winNav.userAgent.indexOf('Edge') > -1,
+    isIOSChrome = winNav.userAgent.match('CriOS'),
+    isChrome = !isIOSChrome &&
+        isChromium !== null &&
+        isChromium !== undefined &&
+        vendorName === 'Google Inc.' &&
+        isOpera == false && isIEedge == false; // eslint-disable-line eqeqeq
 
-/**
+    /**
  * @constructor
  */
 var Date = Simple.extend('Date', {
+
+    initialize: function(grid, localizer) {
+
+        var usesDateInputControl = isChrome;
+
+        if (!usesDateInputControl) {
+            this.template = {
+                /*
+                 <input id="editor" type="text">
+                 */
+            };
+
+            this.selectAll = function() {
+                var lastCharPlusOne = this.getEditorValue().length;
+                this.input.setSelectionRange(0, lastCharPlusOne);
+            };
+
+            this.localizer = localization.get('date');
+        }
+    },
 
     template: function() {
         /*
@@ -22,19 +48,8 @@ var Date = Simple.extend('Date', {
         */
     },
 
-    setEditorValue: function(value) {
-        if (value != null && value.constructor.name === 'Date') {
-            value = Formatters.date(value);
-        }
-        this.input.value = value + '';
-    },
-
-    getEditorValue: function() {
-        var value = this.el.value;
-        value = parseDate(value);
-        return value;
-    },
-
+    localizer: localization.get('chromeDate')
 });
+
 
 module.exports = Date;

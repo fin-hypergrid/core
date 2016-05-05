@@ -19,7 +19,7 @@ var cellEditors = require('./cellEditors');
 var Renderer = require('./lib/Renderer');
 var SelectionModel = require('./lib/SelectionModel');
 var css = require('./css');
-var Formatters = require('./lib/Formatters');
+var localization = require('./lib/localization');
 var behaviors = require('./behaviors');
 
 var themeInitialized = false,
@@ -52,7 +52,6 @@ function Hypergrid(div, options) {
 
     this.isWebkit = navigator.userAgent.toLowerCase().indexOf('webkit') > -1;
     this.selectionModel = new SelectionModel(this);
-    this.makeCellEditors();
     this.renderOverridesCache = {};
 
     this.behavior = options.getBehavior
@@ -192,13 +191,6 @@ Hypergrid.prototype = {
     sbPrevHScrollValue: null,
 
     /**
-     * The cache of singleton cellEditors.
-     * @type {object}
-     * @memberOf Hypergrid.prototype
-     */
-    cellEditors: null,
-
-    /**
      * is the short term memory of what column I might be dragging around
      * @type {object}
      * @memberOf Hypergrid.prototype
@@ -233,7 +225,6 @@ Hypergrid.prototype = {
         this.lastEdgeSelection = [0, 0];
         this.lnfProperties = Object.create(globalProperties);
         this.selectionModel = new SelectionModel(this);
-        this.makeCellEditors();
         this.renderOverridesCache = {};
         this.clearMouseDown();
         this.dragExtent = new Point(0, 0);
@@ -289,21 +280,56 @@ Hypergrid.prototype = {
         return p && p.x === x && p.y === y;
     },
 
-    registerFormatter: function(name, func) {
-        Formatters[name] = func;
-    },
+    /**
+     * @param {string} localizerName
+     * @param {localizerObject} localizerObjectOrLocalizeMethod
+     * @param {boolean} [createAndRegisterCellEditor=false] - Create and register a new cell editor to go with it.
+     * Note that if you use this option, both the localizer and the cell editor will end up with the same name. This may make things simpler or may make them more confusing, depending on where you're coming from!
+     */
+    registerLocalizer: function(name, localizer, createAndRegisterCellEditor) {
+        localization.set(name, localizer);
 
-    getFormatter: function(type) {
-        var formatter = Formatters[type];
-        if (formatter) {
-            return formatter;
+        if (createAndRegisterCellEditor) {
+            this.registerCellEditor(this.extendAndLocalizeCellEditor(name));
         }
-        return Formatters.default;
     },
 
-    formatValue: function(type, value) {
-        var formatter = this.getFormatter(type);
+    getFormatter: function(localizerName) {
+        return localization.get(localizerName).localize;
+    },
+
+    formatValue: function(localizerName, value) {
+        var formatter = this.getFormatter(localizerName);
         return formatter(value);
+    },
+
+    /**
+     * @summary Create a new cell editor class with the given localizer.
+     * @desc Extemd the {@link Textfield} cell editor using the named localizer and name it after the localizer unless otherwise specified.
+     * @param {string} localizerName
+     * @param {string} [newClassName=localizerName]
+     */
+    extendAndLocalizeCellEditor: function(localizerName, newClassName) {
+        return cellEditors.textfield.extend(newClassName || localizerName, {
+            localizer: localization.get(localizerName)
+        });
+    },
+
+    /**
+     * @memberOf Hypergrid.prototype
+     * @summary Register a cell editor.
+     * @see {@link cellEditors.register}.
+     */
+    registerCellEditor: cellEditors.register,
+
+    /**
+     * @memberOf Hypergrid.prototype
+     * @returns {CellEditor} New instance of the named cell editor.
+     * @param {string} editorKey
+     */
+    createCellEditor: function(editorKey) {
+        var CellEditorConstructor = cellEditors[editorKey];
+        return new CellEditorConstructor(this);
     },
 
     /**
@@ -1241,46 +1267,6 @@ Hypergrid.prototype = {
             this.cellEditor.stopEditing();
         }
         return wasEditing;
-    },
-
-    makeCellEditors: function() {
-        var self = this;
-
-        this.cellEditors = {};
-
-        _(cellEditors).each(function(CellEditor) {
-            if (!CellEditor.abstract) {
-                self.registerCellEditor(CellEditor);
-            }
-        });
-
-        this.cellEditors.int = this.cellEditors.float = this.cellEditors.spinner;
-
-        // TODO: Commenting off the following which seem pointless
-        //this.cellEditors.date = this.cellEditors.date;
-        //this.cellEditors.string = this.cellEditors.extfield;
-    },
-
-    /**
-     * @memberOf Hypergrid.prototype
-     * @summary Register a cell editor.
-     * @desc Creates a new instance of the provided cell editor and adds it to the `cellEditors` hash using the class name (converted to all lower case).
-     *
-     * You can use this method to register an additional cell editor of your own creation.
-     *
-     * > All native cell editors have already been "preregistered" for you (by `makeCellEditors`).
-     *
-     * @param {CellEditor.prototype.constructor} CellEditorConstructor - A constructor, typically extended from `CellEditor` (or a descendant therefrom).
-     *
-     * @param {string} [editorKey] - Case-insensitive editor key. If not given, `CellEditorConstructor.prototype.$$CLASS_NAME` is used.
-     *
-     * > Note: `$$CLASS_NAME` can be easily set up by providing a string as the (optional) first parameter in your {@link https://www.npmjs.com/package/extend-me|CellEditor.extend} call. (Formal parameter name: `alias`.)
-     *
-     * @returns {CellEditor} The newly instantiated `CellEditor` object.
-     */
-    registerCellEditor: function(CellEditorConstructor, editorKey) {
-        editorKey = (editorKey || CellEditorConstructor.prototype.$$CLASS_NAME).toLowerCase();
-        this.cellEditors[editorKey] = CellEditorConstructor;
     },
 
     /**
@@ -2513,16 +2499,6 @@ Hypergrid.prototype = {
 
     /**
      * @memberOf Hypergrid.prototype
-     * @returns {CellEditor} New instance of the named cell editor.
-     * @param {string} editorKey
-     */
-    createCellEditor: function(editorKey) {
-        var CellEditorConstructor = this.cellEditors[editorKey];
-        return new CellEditorConstructor(this);
-    },
-
-    /**
-     * @memberOf Hypergrid.prototype
      * @desc Update the cursor under the hover cell.
      */
     updateCursor: function() {
@@ -3301,11 +3277,10 @@ Hypergrid.prototype = {
         return new Rectangle(x, y, width, height);
     },
     getFormattedValue: function(x, y) {
-        y = y + this.getHeaderRowCount();
-        var formatType = this.getColumnProperties(x).format;
-        var value = this.getValue(x, y);
-        var formatter = this.getFormatter(formatType);
-        return formatter(value);
+        return this.formatValue(
+            this.getColumnProperties(x).format,
+            this.getValue(x, y + this.getHeaderRowCount())
+        );
     },
 
     /**

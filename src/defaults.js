@@ -656,10 +656,13 @@ module.exports = {
      */
     checkboxOnlyRowSelections: false,
 
-    /** Name of a formatters for cell text.
-     * @see /src/Formatters.js
+    /** Name of a formatter for cell text.
+     * The default (`null`) does no formatting.
+     * @default undefined
+     * @type {undefined|string}
+     * @see /lib/localizers.js
      */
-    format: 'default',
+    format: null,
 
     /********** HOVER COLORS **********/
 

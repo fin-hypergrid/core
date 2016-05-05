@@ -14,10 +14,6 @@ var DataModel = Base.extend('DataModel', {
     grid: null,
 
     initialize: function(grid) {
-        this.setGrid(grid);
-    },
-
-    setGrid: function(grid) {
         this.grid = grid;
     },
 

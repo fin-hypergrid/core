@@ -9,6 +9,7 @@ var dialogs = require('../dialogs');
 var CellProvider = require('../lib/CellProvider');
 var ColumnSchemaFactory = require('../filter/ColumnSchemaFactory');
 var DefaultFilter = require('../filter/DefaultFilter');
+var cellEditors = require('../cellEditors');
 
 var noExportProperties = [
     'columnHeader',
@@ -38,14 +39,25 @@ var Behavior = Base.extend('Behavior', {
      * @param {Hypergrid} grid
      * @memberOf Behavior.prototype
      */
-    initialize: function(grid) { //formerly installOn
-        this.setGrid(grid);
-        this.initializeFeatureChain(grid);
+    initialize: function(grid) {
 
-        this.cellProvider = this.createCellProvider();
-        this.renderedColumnCount = 30;
-        this.renderedRowCount = 60;
-        this.dataUpdates = {}; //for overriding with edit values;
+        /**
+         * @type {Hypergrid}
+         * @memberOf Behavior.prototype
+         */
+        this.grid = grid;
+
+        /**
+         * @type {DataModel}
+         * @memberOf Behavior.prototype
+         */
+        this.dataModel = this.getDefaultDataModel();
+
+        grid.setBehavior(this);
+
+        this.reset();
+
+        this.initializeFeatureChain(grid);
     },
 
     /**
@@ -55,72 +67,43 @@ var Behavior = Base.extend('Behavior', {
      */
     initializeFeatureChain: function(grid) {
         var self = this;
-        this.features.forEach(function(FeatureConstructor) {
-            self.setNextFeature(new FeatureConstructor);
-        });
 
-        this.featureChain.initializeOn(grid);
+        /**
+         * @summary Hash of feature class names.
+         * @desc Built here but otherwise not in use.
+         * @type {object}
+         * @memberOf Behavior.prototype
+         */
+        this.featureMap = {};
+
+        this.features.forEach(function(FeatureConstructor) {
+            var newFeature = new FeatureConstructor;
+            self.featureMap[newFeature.$$CLASS_NAME] = newFeature;
+            if (self.featureChain) {
+                self.featureChain.setNext(newFeature);
+            } else {
+                /**
+                 * @summary Controller chain of command.
+                 * @desc Each feature is linked to the next feature.
+                 * @type {Feature}
+                 * @memberOf Behavior.prototype
+                 */
+                self.featureChain = newFeature;
+            }
+        });
+        if (this.featureChain) {
+            this.featureChain.initializeOn(grid);
+        }
     },
 
-    features: [], // in case implementing class has no features TODO: Will this ever happen?
-
-    /**
-     * memento for the user configured visual properties of the table
-     * @type {object}
-     * @memberOf Behavior.prototype
-     */
-    tableState: null,
-
-    /**
-     * @type {Hypergrid}
-     * @memberOf Behavior.prototype
-     */
-    grid: null,
-
-    /**
-     * list of default cell editor names
-     * @type {string[]}
-     * @memberOf Behavior.prototype
-     */
-    editorTypes: [
-        'choice',
-        'textfield',
-        'color',
-        'slider',
-        'spinner',
-        'date'
-    ],
-
-    /**
-     * controller chain of command
-     * @type {object}
-     * @memberOf Behavior.prototype
-     */
-    featureChain: null,
-
-    dataModel: null,
-    baseModel: null,
-
-    scrollPositionX: 0,
-    scrollPositionY: 0,
-
-    featureMap: {},
-
-    /**
-     * @type {Column[]}
-     */
-    allColumns: [],
-
-    /**
-     * @type {Column[]}
-     */
-    columns: [],
+    features: [], // override in implementing class unless no features
 
     reset: function() {
         this.cellProvider = this.createCellProvider();
         this.renderedColumnCount = 30;
         this.renderedRowCount = 60;
         this.dataUpdates = {}; //for overriding with edit values;
+        this.scrollPositionX = this.scrollPositionY = 0;
         this.clearColumns();
         this.clearState();
         this.dataModel.reset();
@@ -128,8 +111,18 @@ var Behavior = Base.extend('Behavior', {
     },
 
     clearColumns: function() {
+        /**
+         * @type {Column[]}
+         * @memberOf Behavior.prototype
+         */
         this.columns = [];
+
+        /**
+         * @type {Column[]}
+         * @memberOf Behavior.prototype
+         */
         this.allColumns = [];
+
         this.columns[-1] = this.newColumn(-1, '');
         this.columns[-2] = this.newColumn(-2, 'Tree');
         this.allColumns[-1] = this.columns[-1];
@@ -559,6 +552,11 @@ var Behavior = Base.extend('Behavior', {
      * @desc clear all table state
      */
     clearState: function() {
+        /**
+         * memento for the user configured visual properties of the table
+         * @type {object}
+         * @memberOf Behavior.prototype
+         */
         this.tableState = null;
     },
 
@@ -673,20 +671,6 @@ var Behavior = Base.extend('Behavior', {
 
     },
 
-    /**
-     * @memberOf Behavior.prototype
-     * @desc add nextFeature to me If I don't have a next node, otherwise pass it along
-     * @param {Feature}
-     */
-    setNextFeature: function(nextFeature) {
-        this.featureMap[nextFeature.$$CLASS_NAME] = nextFeature;
-        if (this.featureChain) {
-            this.featureChain.setNext(nextFeature);
-        } else {
-            this.featureChain = nextFeature;
-        }
-    },
-
     lookupFeature: function(key) {
         return this.featureMap[key];
     },
@@ -706,11 +690,6 @@ var Behavior = Base.extend('Behavior', {
      * @param {Hypergrid} grid
      */
     setGrid: function(grid) {
-        this.grid = grid;
-        this.dataModel = this.dataModel || this.getDefaultDataModel();
-        this.dataModel.setGrid(grid);
-        grid.setBehavior(this);
-        this.clearColumns();
     },
 
     /** @deprecated Use `.grid` property instead.
@@ -987,7 +966,6 @@ var Behavior = Base.extend('Behavior', {
      * @param {Object} event - the event details
      */
     onTap: function(grid, event) {
-
         if (this.featureChain) {
             this.featureChain.handleTap(grid, event);
             this.setCursor(grid);
@@ -1389,6 +1367,10 @@ var Behavior = Base.extend('Behavior', {
      * @param {number} x - The new position in pixels.
      */
     setScrollPositionX: function(x) {
+        /**
+         * @memberOf Behavior.prototype
+         * @type {number}
+         */
         this.scrollPositionX = x;
     },
 
@@ -1402,6 +1384,10 @@ var Behavior = Base.extend('Behavior', {
      * @param {number} y - The new position in pixels.
      */
     setScrollPositionY: function(y) {
+        /**
+         * @memberOf Behavior.prototype
+         * @type {number}
+         */
         this.scrollPositionY = y;
     },
 
@@ -1426,7 +1412,7 @@ var Behavior = Base.extend('Behavior', {
 
     getCellEditorAt: function(x, y) {
         if (this.grid.isFilterRow(y)) {
-            return this.grid.cellEditors.textfield;
+            return cellEditors.textfield;
         }
         return this.dataModel.getCellEditorAt(x, y);
     },

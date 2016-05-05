@@ -3,6 +3,7 @@
 'use strict';
 
 var CellEditor = require('./CellEditor.js');
+var localization = require('../lib/localization');
 
 /**
  * @constructor
@@ -13,7 +14,11 @@ var Simple = CellEditor.extend('Simple', {
     /**
      * @memberOf Simple.prototype
      */
-    initialize: function(grid) {
+    initialize: function(grid, localizer) {
+        if (localizer) {
+            this.localizer = localizer;
+        }
+
         this.editorPoint = {
             x: 0,
             y: 0
@@ -50,20 +55,22 @@ var Simple = CellEditor.extend('Simple', {
         }
     },
 
-    /**
-     * @memberOf Simple.prototype
-     * @returns {object} the current editor's value
-     */
-    getEditorValue: function() {
-        return this.input.value;
-    },
+    localizer: localization.get(null),
 
     /**
      * @memberOf Simple.prototype
      * @desc save the new value into the behavior(model)
      */
     setEditorValue: function(value) {
-        this.input.value = value;
+        this.input.value = this.localizer.localize(value);
+    },
+
+    /**
+     * @memberOf Simple.prototype
+     * @returns {object} the current editor's value
+     */
+    getEditorValue: function() {
+        return this.localizer.standardize(this.input.value);
     },
 
     clearStopEditing: function() {
@@ -72,7 +79,7 @@ var Simple = CellEditor.extend('Simple', {
     },
 
     cancelEditing: function() {
-        this.setEditorValue(null);
+        this.setEditorValue(this.initialValue);
         this.hideEditor();
     },
 
@@ -146,22 +153,16 @@ var Simple = CellEditor.extend('Simple', {
         input.style.height = px(cellBounds.height + 2);
     },
 
-    saveEditorValue: function() {
+    saveEditorValue: function(value) {
         var point = this.getEditorPoint();
-        var value = this.getEditorValue().trim();
 
-        if (value && value === this.initialValue) {
-            return; //data didn't change do nothing
+        if (
+            !(value && value === this.initialValue) && // data changed
+            this.grid.fireBeforeCellEdit(point, this.initialValue, value, this) // not aborting
+        ) {
+            this.grid.behavior.setValue(point.x, point.y, value);
+            this.grid.fireAfterCellEdit(point, this.initialValue, value, this);
         }
-        if (parseFloat(this.initialValue) === this.initialValue) { // I'm a number
-            value = parseFloat(value);
-        }
-        var continued = this.grid.fireBeforeCellEdit(point, this.initialValue, value, this);
-        if (!continued) {
-            return;
-        }
-        this.grid.behavior.setValue(point.x, point.y, value);
-        this.grid.fireAfterCellEdit(point, this.initialValue, value, this);
     },
 
     /**
@@ -192,9 +193,10 @@ var Simple = CellEditor.extend('Simple', {
             this.attachEditor();
         }
 
-        this.setEditorPoint(point);
+        CellEditor.prototype.beginEditAt.call(this, point);
+
         var value = this.grid.behavior.getValue(point.x, point.y);
-        if (value.constructor.name === 'Array') {
+        if (value instanceof Array) {
             value = value[1]; //it's a nested object
         }
 

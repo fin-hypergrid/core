@@ -17,6 +17,7 @@
         //var lastName = 'a' + randomFunc() + 'b';
         var lastName = Math.round((lastNames.length - 1) * randomFunc());
         var pets = Math.round(10 * randomFunc());
+        var height = 50 + Math.round(40 * randomFunc());
         var birthyear = 1900 + Math.round(randomFunc() * 114);
         var birthmonth = Math.round(randomFunc() * 11);
         var birthday = Math.round(randomFunc() * 29);
@@ -29,6 +30,7 @@
             last_name: lastNames[lastName], //jshint ignore:line
             first_name: firstNames[firstName], //jshint ignore:line
             total_number_of_pets_owned: pets,
+            height: height,
             birthDate: new Date(birthyear + '-' + months[birthmonth] + '-' + days[birthday]),
             birthState: states[birthstate],
             residenceState: states[residencestate],
@@ -40,6 +42,7 @@
             onelast_name: lastNames[lastName], //jshint ignore:line
             onefirst_name: firstNames[firstName], //jshint ignore:line
             onepets: pets,
+            oneheight: height,
             onebirthDate: birthyear + '-' + months[birthmonth] + '-' + days[birthday],
             onebirthState: states[birthstate],
             oneresidenceState: states[residencestate],
@@ -51,6 +54,7 @@
             twolast_name: lastNames[lastName], //jshint ignore:line
             twofirst_name: firstNames[firstName], //jshint ignore:line
             twopets: pets,
+            twoheight: height,
             twobirthDate: birthyear + '-' + months[birthmonth] + '-' + days[birthday],
             twobirthState: states[birthstate],
             tworesidenceState: states[residencestate],
@@ -62,6 +66,7 @@
             threelast_name: lastNames[lastName], //jshint ignore:line
             threefirst_name: firstNames[firstName], //jshint ignore:line
             threepets: pets,
+            threeheight: height,
             threebirthDate: birthyear + '-' + months[birthmonth] + '-' + days[birthday],
             threebirthState: states[birthstate],
             threeresidenceState: states[residencestate],
@@ -73,6 +78,7 @@
             fourlast_name: lastNames[lastName], //jshint ignore:line
             fourfirst_name: firstNames[firstName], //jshint ignore:line
             fourpets: pets,
+            fourheight: height,
             fourbirthDate: birthyear + '-' + months[birthmonth] + '-' + days[birthday],
             fourbirthState: states[birthstate],
             fourresidenceState: states[residencestate],
@@ -84,6 +90,7 @@
             fivelast_name: lastNames[lastName], //jshint ignore:line
             fivefirst_name: firstNames[firstName], //jshint ignore:line
             fivepets: pets,
+            fiveheight: height,
             fivebirthDate: birthyear + '-' + months[birthmonth] + '-' + days[birthday],
             fivebirthState: states[birthstate],
             fiveresidenceState: states[residencestate],
@@ -95,6 +102,7 @@
             sixlast_name: lastNames[lastName], //jshint ignore:line
             sixfirst_name: firstNames[firstName], //jshint ignore:line
             sixpets: pets,
+            sixheight: height,
             sixbirthDate: birthyear + '-' + months[birthmonth] + '-' + days[birthday],
             sixbirthState: states[birthstate],
             sixresidenceState: states[residencestate],
@@ -106,6 +114,7 @@
             sevenlast_name: lastNames[lastName], //jshint ignore:line
             sevenfirst_name: firstNames[firstName], //jshint ignore:line
             sevenpets: pets,
+            sevenheight: height,
             sevenbirthDate: birthyear + '-' + months[birthmonth] + '-' + days[birthday],
             sevenbirthState: states[birthstate],
             sevenresidenceState: states[residencestate],
@@ -117,6 +126,7 @@
             eightlast_name: lastNames[lastName], //jshint ignore:line
             eightfirst_name: firstNames[firstName], //jshint ignore:line
             eightpets: pets,
+            eightheight: height,
             eightbirthDate: birthyear + '-' + months[birthmonth] + '-' + days[birthday],
             eightbirthState: states[birthstate],
             eightresidenceState: states[residencestate],

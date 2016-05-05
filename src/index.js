@@ -25,5 +25,6 @@ Hypergrid.analytics = require('./Shared.js').analytics;
 Hypergrid.DefaultFilter = require('./filter/DefaultFilter');
 Hypergrid.ColumnSchemaFactory = require('./filter/ColumnSchemaFactory');
 Hypergrid.FilterTree = require('filter-tree');
+Hypergrid.localization = require('./lib/localization');
 
 (window.fin = window.fin || {}).Hypergrid = Hypergrid;

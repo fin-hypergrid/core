@@ -1,6 +1,6 @@
 /* eslint-env browser */
 
-/* globals fin, people1, people2, accounting, vent */
+/* globals fin, people1, people2, vent */
 
 /* eslint-disable no-alert */
 
@@ -83,20 +83,6 @@ window.onload = function() {
                 }
             ]
         }
-    ];
-
-    //used by the cellProvider, `null` means column not editable (except filter row)
-    var editorTypes = [
-        'choice',
-        'textfield',
-        'spinner',
-        'date',
-        'choice',
-        'choice',
-        'choice',
-        'textfield',
-        'textfield',
-        'textfield'
     ];
 
     /* You can redefine `getNewFilter` to return a new instance of another filter module.
@@ -248,11 +234,6 @@ window.onload = function() {
     //behavior.setTopTotals(topTotals);
     //behavior.setBottomTotals(bottomTotals);
 
-    grid.registerFormatter('USD', accounting.formatMoney);
-    grid.registerFormatter('GBP', function(value) {
-        return accounting.formatMoney(value, '€', 2, '.', ',');
-    });
-
     // setInterval(function() {
     //     topTotals[1][5] = Math.round(Math.random()*100);
     //     behavior.changed();
@@ -318,41 +299,45 @@ window.onload = function() {
         switch (x) {
             case 0:
             case 1:
-            case 4:
             case 5:
+            case 6:
                 //we are a dropdown, lets provide a visual queue
                 config.value = [null, config.value, upDownIMG];
         }
 
         switch (x) {
-            case 1:
+            case 0:
                 renderer = cellProvider.cellCache.linkCellRenderer;
                 break;
 
             case 2:
-                config.halign = 'left';
+                config.halign = 'center';
                 config.value = [null, config.value, upDownSpinIMG];
                 break;
 
             case 3:
+                config.halign = 'right';
+                break;
+
+            case 4:
                 if (!doAggregates) {
                     config.halign = 'left';
                     config.value = [null, config.value, downArrowIMG];
                 }
                 break;
 
-            case 6:
+            case 7:
                 renderer = cellProvider.cellCache.buttonRenderer;
                 break;
 
-            case 7:
+            case 8:
                 travel = 60 + Math.round(config.value * 150 / 100000);
                 config.backgroundColor = '#00' + travel.toString(16) + '00';
                 config.color = '#FFFFFF';
                 config.halign = 'right';
                 break;
 
-            case 8:
+            case 9:
                 travel = 105 + Math.round(config.value * 150 / 1000);
                 config.backgroundColor = '#' + travel.toString(16) + '0000';
                 config.color = '#FFFFFF';
@@ -362,6 +347,66 @@ window.onload = function() {
 
         return renderer;
     };
+
+    var footInchPattern = /^\s*((((\d+)')?\s*((\d+)")?)|\d+)\s*$/;
+    var footInchLocalizer = {
+        localize: function(value) {
+            if (value != null) {
+                var feet = Math.floor(value / 12);
+                value = (feet ? feet + '\'' : '') + ' ' + (value % 12) + '"';
+            } else {
+                value = null;
+            }
+            return value;
+        },
+        standardize: function(str) {
+            var inches, feet,
+                parts = str.match(footInchPattern);
+            if (parts) {
+                feet = parts[4];
+                inches = parts[6];
+                if (feet === undefined && inches === undefined) {
+                    inches = Number(parts[1]);
+                } else {
+                    feet = Number(feet || 0);
+                    inches = Number(inches || 0);
+                    inches = 12 * feet + inches;
+                }
+            } else {
+                inches = 0;
+            }
+            return inches;
+        }
+    };
+
+    grid.registerLocalizer('foot', footInchLocalizer, true);
+
+    grid.registerLocalizer('singdate', new fin.Hypergrid.localization.DateFormatter('zh-SG'), true);
+
+    grid.registerLocalizer('pounds', new fin.Hypergrid.localization.NumberFormatter('en-US', {
+        style: 'currency',
+        currency: 'USD'
+    }), true);
+
+    grid.registerLocalizer('francs', new fin.Hypergrid.localization.NumberFormatter('fr-FR', {
+        style: 'currency',
+        currency: 'EUR'
+    }), true);
+
+    //used by the cellProvider, `null` means column not editable (except filter row)
+    var editorTypes = [
+        'combobox',
+        'textfield',
+        'number',
+        'foot',
+        'singdate',
+        'choice',
+        'choice',
+        'choice',
+        'pounds',
+        'francs',
+        'textfield'
+    ];
 
     //lets override the cell editors, and configure the drop down lists
     function myCellEditors(x) {
@@ -373,7 +418,7 @@ window.onload = function() {
             cellEditor = this.grid.createCellEditor(editorType);
 
             switch (x) {
-                case 6:
+                case 7:
                     cellEditor = null;
                     break;
 
@@ -636,6 +681,7 @@ window.onload = function() {
                 columnIndexes: [
                     fieldsMap.last_name,
                     fieldsMap.total_number_of_pets_owned,
+                    fieldsMap.height,
                     fieldsMap.birthDate,
                     fieldsMap.birthState,
                     // fieldsMap.residenceState,
@@ -664,7 +710,7 @@ window.onload = function() {
                 rowSelection: true
             };
 
-            grid.setGroups([4, 0, 1]);
+            grid.setGroups([5, 0, 1]);
 
             grid.setState(state);
 
@@ -732,25 +778,33 @@ window.onload = function() {
                 autopopulateEditor: true
             });
 
+            behavior.setColumnProperties(2, {
+                format: 'number'
+            });
+
             behavior.setColumnProperties(3, {
-                format: 'date',
-                strikeThrough: true
+                format: 'foot'
             });
 
             behavior.setColumnProperties(4, {
-                autopopulateEditor: true
+                format: 'singdate',
+                //strikeThrough: true
             });
 
             behavior.setColumnProperties(5, {
                 autopopulateEditor: true
             });
 
-            behavior.setColumnProperties(7, {
-                format: 'USD'
+            behavior.setColumnProperties(6, {
+                autopopulateEditor: true
             });
 
             behavior.setColumnProperties(8, {
-                format: 'GBP'
+                format: 'pounds'
+            });
+
+            behavior.setColumnProperties(9, {
+                format: 'francs'
             });
 
             resetFilter(); // re-instantiate filter using new property settings

@@ -47,13 +47,14 @@ exports.grid = function() {/*
         font-size: 15px;
         line-height: 11px;
     }
-    div.hypergrid-input span {
+    div.hypergrid-input span[title] {
         color: lightgrey;
+        cursor: pointer;
     }
-    div.hypergrid-input span:hover {
+    div.hypergrid-input span[title]:hover {
         color: grey;
     }
-    div.hypergrid-input span:active, div.hypergrid-input span.active {
+    div.hypergrid-input span[title]:active, div.hypergrid-input span[title].active {
         color: blue;
     }
     div.hypergrid-input > span::after {
@@ -83,13 +84,16 @@ exports.grid = function() {/*
         width: 100%;
         text-align: center;
     }
-    div.hypergrid-input > div span {
+    div.hypergrid-input > div span[title] {
         font-weight: bold;
         font-size: 10px;
         font-family: verdana, geneva, sans-serif;
         margin-left: 6px;
         margin-right: 6px;
-        cursor: pointer;
+    }
+    div.hypergrid-input > div span:not([title]) {
+        font-style: italic;
+        padding-top: 1px;
     }
     div.hypergrid-input > div select {
         position: absolute;

@@ -89,7 +89,7 @@ var CellEditor = Base.extend('CellEditor', {
      * @param {Point} point - the location to start editing at
      */
     beginEditAt: function(point) {
-        this.editorPoint = point;
+        this.setEditorPoint(point);
     },
 
     /**
@@ -135,8 +135,9 @@ var CellEditor = Base.extend('CellEditor', {
      * @desc stop editing
      */
     stopEditing: function() {
-        if (this.grid.fireSyntheticEditorDataChangeEvent(this, this.initialValue, this.getEditorValue())) {
-            this.saveEditorValue();
+        var value = this.getEditorValue();
+        if (this.grid.fireSyntheticEditorDataChangeEvent(this, this.initialValue, value)) {
+            this.saveEditorValue(value);
             this.hideEditor();
             this.grid.cellEditor.el.remove();
             this.grid.cellEditor = null;

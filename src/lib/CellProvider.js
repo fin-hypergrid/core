@@ -140,7 +140,7 @@ var CellProvider = Base.extend('CellProvider', {
         }
 
         val = valOrFunc(val, config);
-        val = config.formatter(val);
+        val = config.formatValue(val);
 
         font = config.isSelected ? config.foregroundSelectionFont : config.font;
 

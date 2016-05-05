@@ -8,7 +8,6 @@
 
 var Textfield = require('./Textfield');
 var prototype = require('./Simple').prototype;
-var Formatters = require('../lib/Formatters');
 var onTransitionEnd = require('../lib/queueless');
 var elfor = require('../lib/elfor');
 
@@ -32,6 +31,8 @@ var ComboBox = Textfield.extend('ComboBox', {
         this.options = el.querySelector('div');
         this.controls = this.options.querySelector('div');
         this.dropdown = this.options.querySelector('select');
+
+        this.controllable = this.modes.length > 1;
 
         this.transit = onTransitionEnd(this.options, 'options', this);
 
@@ -61,19 +62,15 @@ var ComboBox = Textfield.extend('ComboBox', {
         prototype.beginEditAt.call(this, point);
     },
 
-    /**
-     * When there's only one mode defined here, the control area portion of the UI is hidden.
-     */
     modes: [
         {
             name: 'distinctValues',
-            symbol: '#',
             appendOptions: function(optgroup) {
                 // get the distinct column values and sort them
                 var distinct = {},
                     d = [],
                     columnName = this.column.getField(),
-                    formatter = Formatters[this.column.getProperties().format];
+                    formatter = this.column.getFormatter();
 
                 this.grid.behavior.getData().forEach(function(dataRow) {
                     var val = formatter(dataRow[columnName]);
@@ -111,15 +108,19 @@ var ComboBox = Textfield.extend('ComboBox', {
         });
 
         // wire-ups
-        this.controls.addEventListener('click', onModeIconClick.bind(this));
+        if (this.controllable) {
+            this.controls.addEventListener('click', onModeIconClick.bind(this));
+        }
 
         // set the initial state of the mode toggles
         this.modes.forEach(function(mode) {
             // create a toggle
             var toggle = document.createElement('span');
-            toggle.className = TOGGLE_MODE_PREFIX + mode.name;
-            toggle.title = 'Toggle ' + (mode.label || mode.name).toLowerCase();
-            toggle.textContent = mode.symbol;
+            if (this.controllable) {
+                toggle.className = TOGGLE_MODE_PREFIX + mode.name;
+                toggle.title = 'Toggle ' + (mode.label || mode.name).toLowerCase();
+                toggle.textContent = mode.symbol;
+            }
             this.controls.appendChild(toggle);
 
             // create and label a new optgroup
@@ -131,11 +132,7 @@ var ComboBox = Textfield.extend('ComboBox', {
                 this.dropdown.add(optgroup);
             }
 
-            var className = '.' + TOGGLE_MODE_PREFIX + mode.name,
-                ctrl = this.controls.querySelector(className),
-                modeState = menuModes[mode.name];
-
-            setModeIconAndOptgroup.call(this, ctrl, mode.name, modeState);
+            setModeIconAndOptgroup.call(this, toggle, mode.name, menuModes[mode.name]);
         }.bind(this));
 
         prototype.showEditor.call(this);
@@ -144,19 +141,6 @@ var ComboBox = Textfield.extend('ComboBox', {
     hideEditor: function() {
         // this is where you would persist this.menuModes
         prototype.hideEditor.call(this);
-    },
-
-    keyup: function(e) {
-        if (e) {
-            prototype.keyup.call(this, e);
-
-            if (this.grid.isFilterRow(this.getEditorPoint().y)) {
-                if (this.grid.resolveProperty('filteringMode') === 'immediate') {
-                    this.saveEditorValue();
-                    this._moveEditor();
-                }
-            }
-        }
     }
 });
 
@@ -169,7 +153,7 @@ function onModeIconClick(e) {
     var ctrl = e.target;
 
     if (ctrl.tagName === 'SPAN') {
-        // extract the mode name from the toggle control's class name
+        // extra ct the mode name from the toggle control's class name
         var modeClassName = Array.prototype.find.call(ctrl.classList, function(className) {
                 return className.indexOf(TOGGLE_MODE_PREFIX) === 0;
             }),
@@ -204,7 +188,10 @@ function setModeIconAndOptgroup(ctrl, name, state) {
             optgroup.label = optgroup.label.replace(/ \(\d+\)$/, ''); // remove old sum
             optgroup.label += ' (' + sum + ')';
         } else {
-            mode.appendOptions.call(this);
+            sum = mode.appendOptions.call(this, this.dropdown);
+            if (!this.controllable) {
+                ctrl.textContent = sum + ' values';
+            }
         }
 
         display = null;

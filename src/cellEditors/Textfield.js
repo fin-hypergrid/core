@@ -9,19 +9,13 @@ var Textfield = Simple.extend('Textfield', {
 
     template: function() {
         /*
-            <input id="editor" class="hypergrid-input-textbox">
+            <input id="editor" type="text">
         */
     },
 
     selectAll: function() {
         var lastCharPlusOne = this.getEditorValue().length;
         this.input.setSelectionRange(0, lastCharPlusOne);
-    },
-
-    specialKeyups: {
-        0x09: 'stopEditing', // tab
-        0x0d: 'stopEditing', // return/enter
-        0x1b: 'cancelEditing' // escape
     }
 });
 
