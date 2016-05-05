@@ -288,7 +288,6 @@ var JSON = Local.extend('behaviors.JSON', {
         );
         if (dirty){
             this.applyAnalytics();
-            this.grid.repaint();
         }
     }
 
