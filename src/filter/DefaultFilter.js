@@ -262,25 +262,19 @@ var DefaultFilter = FilterTree.extend('DefaultFilter', {
      * @memberOf DefaultFilter.prototype
      */
     getColumnFilterState: function(rawColumnName, options) {
-        var result,
-            subexpression;
+        var result = '',
+            columnSchema = this.schema.lookup(rawColumnName);
 
-        var columnName = this.schema.lookup(rawColumnName).name;
+        if (columnSchema) {
+            var subexpression = this.getColumnFilter(columnSchema.name);
 
-        if (!columnName) {
-            throw 'Unknown column name "' + rawColumnName + '"';
-        }
-
-        subexpression = this.getColumnFilter(columnName);
-
-        if (subexpression) {
-            if (!(options && options.syntax)) {
-                options = options || {};
-                options.syntax = 'CQL';
+            if (subexpression) {
+                if (!(options && options.syntax)) {
+                    options = options || {};
+                    options.syntax = 'CQL';
+                }
+                result = subexpression.getState(options);
             }
-            result = subexpression.getState(options);
-        } else {
-            result = '';
         }
 
         return result;
