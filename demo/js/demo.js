@@ -95,7 +95,10 @@ window.onload = function() {
         // create a hierarchical schema organized by alias
         var factory = new fin.Hypergrid.ColumnSchemaFactory(this.columns);
         factory.organize(/^(one|two|three|four|five|six|seven|eight)/i, { key: 'alias' });
-        factory.lookup('last_name').defaultOp = 'IN';
+        var column = factory.lookup('last_name');
+        if (column) {
+            column.defaultOp = 'IN';
+        }
         //factory.lookup('birthState').opMenu = ['>', '<'];
         var options = { schema: factory.schema };
         return protoGetDefaultFilter.call(this, options);
@@ -203,13 +206,13 @@ window.onload = function() {
             behavior.setTopTotals([]);
             behavior.setData([]);
             behavior.setBottomTotals([]);
-            behavior.featureChain.pause();
+            behavior.featureChain.detachChain();
         } else {
             //important to set top totals first
             behavior.setTopTotals(topTotals);
             behavior.setData(people1);
             behavior.setBottomTotals(bottomTotals);
-            behavior.featureChain.resume();
+            behavior.featureChain.attachChain();
         }
     }
 
