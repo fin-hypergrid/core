@@ -9,7 +9,6 @@ var dialogs = require('../dialogs');
 var CellProvider = require('../lib/CellProvider');
 var ColumnSchemaFactory = require('../filter/ColumnSchemaFactory');
 var DefaultFilter = require('../filter/DefaultFilter');
-var cellEditors = require('../cellEditors');
 
 var noExportProperties = [
     'columnHeader',
@@ -1402,19 +1401,10 @@ var Behavior = Base.extend('Behavior', {
      * @param {number} y - The vertical cell coordinate.
      * @param {boolean} isDblClick - When called from `onEditorActivate`, indicates if event was a double-click. This allows different editors for single- vs. double-click
      */
-    _getCellEditorAt: function(x, y, isDblClick) {
-        var column = this.getColumn(x);
-
+    getCellEditorAt: function(x, y) {
         return this.grid.isFilterRow(y)
             ? this.grid.createCellEditor('filterbox')
-            : column.getCellEditorAt(x, y) || this.grid.createCellEditor(column.getType());
-    },
-
-    getCellEditorAt: function(x, y) {
-        if (this.grid.isFilterRow(y)) {
-            return cellEditors.textfield;
-        }
-        return this.dataModel.getCellEditorAt(x, y);
+            : this.getColumn(x).getCellEditorAt(y);
     },
 
     /**

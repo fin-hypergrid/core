@@ -329,7 +329,7 @@ Hypergrid.prototype = {
      */
     createCellEditor: function(editorKey) {
         var CellEditorConstructor = cellEditors[editorKey];
-        return new CellEditorConstructor(this);
+        return CellEditorConstructor && new CellEditorConstructor(this);
     },
 
     /**
@@ -2410,21 +2410,26 @@ Hypergrid.prototype = {
      * @returns {undefined|CellEditor} The editor object or `undefined` if no editor or editor already open.
      */
     onEditorActivate: function(event) {
-        var point = event.gridCell;
+        var editor,
+            point = event.gridCell;
 
         if (this.isEditable() || this.isFilterRow(point.y)) {
             var primEvent = event.primitiveEvent,
-                isDblClick = primEvent && primEvent.type === 'fin-canvas-dblclick',
-                editor = this.getCellEditorAt(point.x, point.y, isDblClick),
-                editorPoint = editor.getEditorPoint(),
-                sameCell = point.equals(editorPoint),
-                editorAlreadyOpen = this.cellEditor && sameCell;
+                isDblClick = primEvent && primEvent.type === 'fin-canvas-dblclick';
 
-            if (editorAlreadyOpen) {
-                editor = undefined;
-            } else {
-                this.stopEditing(); //other editor is open, close it first
-                this.editAt(editor, point);
+            editor = this.getCellEditorAt(point.x, point.y, isDblClick);
+
+            if (editor) {
+                var editorPoint = editor.getEditorPoint(),
+                    sameCell = point.equals(editorPoint),
+                    editorAlreadyOpen = this.cellEditor && sameCell;
+
+                if (editorAlreadyOpen) {
+                    editor = undefined;
+                } else {
+                    this.stopEditing(); //other editor is open, close it first
+                    this.editAt(editor, point);
+                }
             }
         }
 
@@ -2441,7 +2446,7 @@ Hypergrid.prototype = {
      * @param {boolean} isDblClick - When called from `onEditorActivate`, indicates if event was a double-click.
      */
     getCellEditorAt: function(x, y, isDblClick) {
-        return this.behavior._getCellEditorAt(x, y, isDblClick);
+        return this.behavior.getCellEditorAt(x, y, isDblClick);
     },
 
     /**

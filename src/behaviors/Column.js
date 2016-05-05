@@ -143,7 +143,7 @@ Column.prototype = {
         this.dataModel.unSortColumn(this.index, deferred);
     },
 
-    getCellEditorAt: function(x, y) {
+    getCellEditorAt: function(y) {
         return this.dataModel.getCellEditorAt(this.index, y);
     },
 
