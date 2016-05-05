@@ -62,7 +62,12 @@ module.exports = {
      * @instance
      */
     foregroundSelectionColor: 'rgb(0, 0, 128)',
-
+    /**
+     * @default true
+     * @type {boolean}
+     * @instance
+     */
+    sortOnHiddenColumns: true,
     /**
      * Background color for selected cell(s).
      * @default 'rgba(147, 185, 255, 0.45)'
@@ -244,8 +249,6 @@ module.exports = {
      * @instance
      */
     filterCellBorderThickness: 0.4,
-
-
     /********** SECTION: TREE COLUMN COLORS **********/
     // The "tree column" contains the hierarchical drill-down controls.
 

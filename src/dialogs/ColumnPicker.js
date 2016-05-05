@@ -66,6 +66,8 @@ var ColumnPicker = Dialog.extend('ColumnPicker', {
                     self.append(list.container);
                 });
             });
+
+            this.sortOnHiddenColumns = this.grid.resolveProperty('sortOnHiddenColumns');
         } else {
             var div = document.createElement('div');
             div.style.textAlign = 'center';
@@ -91,13 +93,15 @@ var ColumnPicker = Dialog.extend('ColumnPicker', {
             this.visibleColumns.models.forEach(function(column) {
                 columns.push(column);
             });
-
             var groupBys = this.selectedGroups.models.map(function(e) {
                 return e.id;
             });
             this.behavior.dataModel.setGroups(groupBys);
 
             this.behavior.changed();
+            if (!this.sortOnHiddenColumns) {
+                this.behavior.sortChanged(this.hiddenColumns.models);
+            }
         }
     }
 });
