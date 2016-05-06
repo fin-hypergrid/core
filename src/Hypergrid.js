@@ -29,8 +29,8 @@ var themeInitialized = false,
 /**s
  * @constructor
  * @param {string|Element} div - CSS selector or Element
- * @param {object} options - Required (despite its name) because you must provide a behavior one way or another.
- * @param {string} [options.getBehavior] - A function(grid) that returns a new behavior object. Provide this or provide `options.data` (with or without `options.Behavior`)
+ * @param {object} options - Required (despite its name) because you must provide a behavior and/or  another.
+ * @param {string} [options.Behavior] - A function(grid) that returns a new behavior object. Provide this or provide `options.data` (with or without `options.Behavior`)
  * @param {object[]} [options.data] - An array of congruent raw data objects. Provide this (with or without `options.Behavior`) or provide `options.getBehavior`.
  * @param {Behavior} [options.Behavior=JSON] - A grid behavior (descendant of Behavior "class"). Will be used if `getBehavior` omitted, in which case `options.data` (which has no default) *must* also be provided.
  * @param {object} [options.margin] - optional canvas margins
@@ -54,9 +54,9 @@ function Hypergrid(div, options) {
     this.selectionModel = new SelectionModel(this);
     this.renderOverridesCache = {};
 
-    this.behavior = options.getBehavior
-        ? options.getBehavior(this)
-        : new (options.Behavior || behaviors.JSON)(this, options.data);
+    var data = options.data === 'function' ? options.data() : options.data;
+    var Behavior = options.Behavior || behaviors.JSON;
+    this.behavior = new Behavior(this, options.schema, data);
 
     //prevent the default context menu for appearing
     this.div.oncontextmenu = function(event) {

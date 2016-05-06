@@ -2,7 +2,7 @@
 
 /* globals fin, people1, people2, vent */
 
-/* eslint-disable no-alert */
+/* eslint-disable no-alert, no-unused-vars */
 
 'use strict';
 
@@ -85,28 +85,33 @@ window.onload = function() {
         }
     ];
 
-    /* You can redefine `getNewFilter` to return a new instance of another filter module.
-     * Here we're just overriding some options and proceeding with the original `getNewFilter`
-     * which adds some more options. Alternatively we could have instantiated the default filter
-     * directly using its constructor, `fin.Hypergrid.DefaultFilter`.
-     */
-    var protoGetDefaultFilter = fin.Hypergrid.behaviors.Behavior.prototype.getNewFilter;
-    fin.Hypergrid.behaviors.Behavior.prototype.getNewFilter = function() {
+    function derivedSchema() {
         // create a hierarchical schema organized by alias
         var factory = new fin.Hypergrid.ColumnSchemaFactory(this.columns);
         factory.organize(/^(one|two|three|four|five|six|seven|eight)/i, { key: 'alias' });
-        var column = factory.lookup('last_name');
-        if (column) {
-            column.defaultOp = 'IN';
+        var columnSchema = factory.lookup('last_name');
+        if (columnSchema) {
+            columnSchema.defaultOp = 'IN';
         }
         //factory.lookup('birthState').opMenu = ['>', '<'];
-        var options = { schema: factory.schema };
-        return protoGetDefaultFilter.call(this, options);
-    };
+        return factory.schema;
+    }
+
+    var schema = [
+        { name: 'last_name', type: 'number' },
+        'total_number_of_pets_owned',
+        'height',
+        'birthDate',
+        'birthState',
+        'employed',
+        'income',
+        'travel'
+    ];
 
     var gridOptions = {
             data: people1,
-            margin: { bottom: '17px' }
+            margin: { bottom: '17px' },
+            schema: schema
         },
         grid = window.g = new fin.Hypergrid('div#json-example', gridOptions),
         behavior = window.b = grid.behavior,

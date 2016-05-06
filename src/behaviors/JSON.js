@@ -18,10 +18,11 @@ var JSON = Local.extend('behaviors.JSON', {
      * > All `initialize()` methods in the inheritance chain are called, in turn, each with the same parameters that were passed to the constructor, beginning with that of the most "senior" class through that of the class of the new instance.
      *
      * @param grid - the hypergrid
+     * @param {function|menuItem[]} schema - Already consumed by Behavior's {@link Behavior#initialize|initialize}.
      * @param {object[]} dataRows - array of uniform data objects
      * @memberOf behaviors.JSON.prototype
      */
-    initialize: function(grid, dataRows) {
+    initialize: function(grid, schema, dataRows) {
         this.setData(dataRows);
     },
 

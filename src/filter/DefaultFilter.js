@@ -455,6 +455,16 @@ var DefaultFilter = FilterTree.extend('DefaultFilter', {
         }
 
         return result;
+    },
+
+    loadColumnPropertiesFromSchema: function(columns) {
+        this.root.schema.walk(function(columnSchema) {
+            var column = columns.find(function(thisColumn) {
+                return thisColumn.name === columnSchema.name || columnSchema;
+            });
+            column.type = columnSchema.type || column.type;
+            column.label = columnSchema.alias || column.label;
+        });
     }
 });
 

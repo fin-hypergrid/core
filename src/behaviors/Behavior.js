@@ -10,6 +10,10 @@ var CellProvider = require('../lib/CellProvider');
 var ColumnSchemaFactory = require('../filter/ColumnSchemaFactory');
 var DefaultFilter = require('../filter/DefaultFilter');
 
+function deriveSchema() {
+    return new ColumnSchemaFactory(this.columns).schema;
+}
+
 var noExportProperties = [
     'columnHeader',
     'columnHeaderColumnSelection',
@@ -36,15 +40,18 @@ var Behavior = Base.extend('Behavior', {
     /**
      * @desc this is the callback for the plugin pattern of nested tags
      * @param {Hypergrid} grid
+     * @param {function|menuItem[]} [schema] - Omit to generate a basic schema from `this.columns`.
      * @memberOf Behavior.prototype
      */
-    initialize: function(grid) {
+    initialize: function(grid, schema) {
 
         /**
          * @type {Hypergrid}
          * @memberOf Behavior.prototype
          */
         this.grid = grid;
+
+        this.schema = schema || deriveSchema;
 
         /**
          * @type {DataModel}
@@ -1578,18 +1585,17 @@ var Behavior = Base.extend('Behavior', {
         }
     },
 
-    getNewFilter: function(options) {
+    getNewFilter: function() {
         var newFilter;
         if (this.columns.length) {
-            options = options || {};
-            if (!options.schema) {
-                var factory = new ColumnSchemaFactory(this.columns);
-                options.schema = factory.schema;
-            }
-            options.caseSensitiveColumnNames = this.grid.resolveProperty('filterCaseSensitiveColumnNames');
-            options.resolveAliases = this.grid.resolveProperty('filterResolveAliases');
-            options.defaultColumnFilterOperator = this.grid.resolveProperty('filterDefaultColumnFilterOperator');
+            var options = {
+                schema: typeof this.schema === 'function' ? this.schema(this.columns) : this.schema,
+                caseSensitiveColumnNames: this.grid.resolveProperty('filterCaseSensitiveColumnNames'),
+                resolveAliases: this.grid.resolveProperty('filterResolveAliases'),
+                defaultColumnFilterOperator: this.grid.resolveProperty('filterDefaultColumnFilterOperator')
+            };
             newFilter = new DefaultFilter(options);
+            newFilter.loadColumnPropertiesFromSchema(this.columns);
         }
         return newFilter;
     },
