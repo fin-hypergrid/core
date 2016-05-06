@@ -61,7 +61,7 @@ function Hypergrid(div, options) {
     this.renderOverridesCache = {};
 
     options = options || {};
-    var data = options.data === 'function' ? options.data() : options.data;
+    var data = typeof options.data === 'function' ? options.data() : options.data;
     var Behavior = options.Behavior || behaviors.JSON;
     this.behavior = new Behavior(this, options.schema, data);
 
