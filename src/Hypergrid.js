@@ -29,9 +29,15 @@ var themeInitialized = false,
 /**s
  * @constructor
  * @param {string|Element} div - CSS selector or Element
- * @param {object} options - Required (despite its name) because you must provide a behavior and/or  another.
- * @param {string} [options.Behavior] - A function(grid) that returns a new behavior object. Provide this or provide `options.data` (with or without `options.Behavior`)
- * @param {object[]} [options.data] - An array of congruent raw data objects. Provide this (with or without `options.Behavior`) or provide `options.getBehavior`.
+ * @param {object} [options]
+ * @param {function} [options.Behavior=behaviors.JSON] - A behavior constructor.
+ * @param {function|object[]} [options.data] - Passed to behavior constructor. May be:
+ * * An array of congruent raw data objects
+ * * A function returning same
+ * @param {function|menuItem[]} [schema=derivedSchema] - Passed to behavior constructor. May be:
+ * * A schema array
+ * * A function returning a schema array. Called at filter reset time with behavior as context.
+ * * Omit to generate a basic schema from `this.behavior.columns`.
  * @param {Behavior} [options.Behavior=JSON] - A grid behavior (descendant of Behavior "class"). Will be used if `getBehavior` omitted, in which case `options.data` (which has no default) *must* also be provided.
  * @param {object} [options.margin] - optional canvas margins
  * @param {string} [options.margin.top=0]
@@ -54,6 +60,7 @@ function Hypergrid(div, options) {
     this.selectionModel = new SelectionModel(this);
     this.renderOverridesCache = {};
 
+    options = options || {};
     var data = options.data === 'function' ? options.data() : options.data;
     var Behavior = options.Behavior || behaviors.JSON;
     this.behavior = new Behavior(this, options.schema, data);
