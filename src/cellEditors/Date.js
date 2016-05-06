@@ -2,7 +2,7 @@
 
 'use strict';
 
-var Simple = require('./Simple');
+var CellEditor = require('./CellEditor');
 var localization = require('../lib/localization');
 
 var isChromium = window.chrome,
@@ -20,7 +20,7 @@ var isChromium = window.chrome,
     /**
  * @constructor
  */
-var Date = Simple.extend('Date', {
+var Date = CellEditor.extend('Date', {
 
     initialize: function(grid, localizer) {
 

@@ -7,7 +7,7 @@
 'use strict';
 
 var Textfield = require('./Textfield');
-var prototype = require('./Simple').prototype;
+var prototype = require('./CellEditor').prototype;
 var Queueless = require('../lib/queueless');
 var elfor = require('../lib/elfor');
 
@@ -211,7 +211,7 @@ function setModeIconAndOptgroup(ctrl, name, state) {
 }
 
 function toggleDropDown() {
-    if (!this.optionsTransition.state) {
+    if (!this.optionsTransition.transitioning) {
         var state = window.getComputedStyle(this.dropdown).visibility;
         stateToActionMap[state].call(this);
     }

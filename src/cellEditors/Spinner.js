@@ -1,11 +1,11 @@
 'use strict';
 
-var Simple = require('./Simple');
+var CellEditor = require('./CellEditor.js');
 
 /**
  * @constructor
  */
-var Spinner = Simple.extend('Spinner', {
+var Spinner = CellEditor.extend('Spinner', {
 
     template: function() {
         /*

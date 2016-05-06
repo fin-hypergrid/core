@@ -6,7 +6,7 @@ var popMenu = require('pop-menu');
 var Conditionals = require('filter-tree').Conditionals;
 
 var ComboBox = require('./ComboBox');
-var prototype = require('./Simple').prototype;
+var prototype = require('./CellEditor').prototype;
 
 
 /**
@@ -149,7 +149,7 @@ var FilterBox = ComboBox.extend('FilterBox', {
 
             if (this.grid.resolveProperty('filteringMode') === 'immediate') {
                 this.saveEditorValue(this.getEditorValue());
-                this._moveEditor();
+                this.moveEditor();
             }
         }
     }

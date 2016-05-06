@@ -1,11 +1,11 @@
 'use strict';
 
-var Simple = require('./Simple');
+var CellEditor = require('./CellEditor');
 
 /**
  * @constructor
  */
-var Slider = Simple.extend('Slider', {
+var Slider = CellEditor.extend('Slider', {
 
     template: function() {
         /*

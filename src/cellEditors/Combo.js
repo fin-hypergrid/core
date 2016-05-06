@@ -1,11 +1,11 @@
 'use strict';
 
-var Simple = require('./Simple');
+var CellEditor = require('./CellEditor');
 
 /**
  * @constructor
  */
-var Combo = Simple.extend('Combo', {
+var Combo = CellEditor.extend('Combo', {
 
     /**
      * the list of items to pick from

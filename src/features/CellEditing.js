@@ -1,7 +1,7 @@
 'use strict';
 
 var Feature = require('./Feature.js');
-var Simple = require('../cellEditors/Simple');
+var CellEditor = require('../cellEditors/CellEditor');
 
 /**
  * @constructor
@@ -80,7 +80,7 @@ var CellEditing = Feature.extend('CellEditing', {
             if (currentCell) {
                 var pseudoEvent = { gridCell: currentCell.origin };
                 editor = grid.onEditorActivate(pseudoEvent);
-                if (editor instanceof Simple) {
+                if (editor instanceof CellEditor) {
                     if (isVisibleChar) {
                         editor.setEditorValue(char);
                     } else if (isDeleteChar) {

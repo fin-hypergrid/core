@@ -23,11 +23,12 @@ var Dialog = Base.extend('Dialog', {
 
     /**
      * Creates a basic dialog box in `this.el`.
-     * @param {CellEditor} [context] - Cell editor object possibly containing `stopEditing` and `beginSettings` methods for the close box and settings gear icons and `onClick` for custom handling.
-     * @param {string|function|Node|Node[]} nodes
+     * @param {Hypergrid} grid
+     * @param {object} [options]
      * @param {string|function} [options.dialogTemplate] - An alternate dialog template. The last child element must be the "control panel."
      * @param {boolean} [options.settings=true] - Control box has settings icon. (Settings icon must be included in template. This option removes it. That is, if explicitly `false` _and_ there is a settings control, remove it.)
      * @param {string|boolean} [options.backgroundImage=images.dialog.src] - A URI for a background image. If explicitly `false`, background image is suppressed.
+     * @param {function} [terminate]
      */
     initialize: function(grid, options) {
         options = options || {};

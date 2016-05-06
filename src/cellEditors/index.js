@@ -13,7 +13,6 @@ register(require('./Color'));
 register(require('./Date'));
 register(require('./FilterBox'));
 register(require('./Number'));
-register(require('./Simple'));
 register(require('./Slider'));
 exports.int = exports.float = register(require('./Spinner'));
 register(require('./Textfield'));
