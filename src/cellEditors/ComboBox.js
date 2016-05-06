@@ -17,6 +17,11 @@ var elfor = require('../lib/elfor');
 
 var TOGGLE_MODE_PREFIX = 'toggle-mode-';
 
+var stateToActionMap = {
+    hidden: slideDown,
+    visible: slideUp
+};
+
 /**
  * A combo box is a text box that also has a drop-down containing options. The drop-down consists of an actual drop-down list (a `<select>` list) plus a _control area_ above it containing toggles. The toggles control the visibility of the various "mode lists."
  * @constructor
@@ -38,9 +43,9 @@ var ComboBox = Textfield.extend('ComboBox', {
         this.optionsTransition = new Queueless(this.options, this);
 
         // wire-ups
-        this.dropper.addEventListener('mousedown', toggleDropDown.bind(this));
+        this.dropper.addEventListener('mousedown', this.toggleDropDown.bind(this));
         this.dropdown.addEventListener('mousewheel', function(e) { e.stopPropagation(); });
-        this.dropdown.addEventListener('change', insertText.bind(this));
+        this.dropdown.addEventListener('change', this.insertText.bind(this));
         el.onblur = null; // void this one, set by super's initialize
     },
 
@@ -142,13 +147,25 @@ var ComboBox = Textfield.extend('ComboBox', {
     hideEditor: function() {
         // this is where you would persist this.menuModes
         prototype.hideEditor.call(this);
+    },
+
+    toggleDropDown: function() {
+        if (!this.optionsTransition.transitioning) {
+            var state = window.getComputedStyle(this.dropdown).visibility;
+            stateToActionMap[state].call(this);
+        }
+    },
+
+    insertText: function(e) {
+        // replace the input text with the drop-down text
+        this.input.focus();
+        this.input.value = this.dropdown.value;
+        this.input.setSelectionRange(0, this.input.value.length);
+
+        // close the drop-down
+        this.toggleDropDown();
     }
 });
-
-var stateToActionMap = {
-    hidden: slideDown,
-    visible: slideUp
-};
 
 function onModeIconClick(e) {
     var ctrl = e.target;
@@ -210,13 +227,6 @@ function setModeIconAndOptgroup(ctrl, name, state) {
     // TODO: Reset the width of this.options to the natural width of this.dropdown. To do this, we need to remove the latter's "width: 100%" from the CSS and then set an explicit this.options.style.width based on the computed width of this.dropdown. This is complicated by the fact that it cannot be done before it is in the DOM.
 }
 
-function toggleDropDown() {
-    if (!this.optionsTransition.transitioning) {
-        var state = window.getComputedStyle(this.dropdown).visibility;
-        stateToActionMap[state].call(this);
-    }
-}
-
 function slideDown() {
     // preserve the text box's current text selection, which is about to be lost
     this.selectionStart = this.input.selectionStart;
@@ -249,15 +259,6 @@ function slideUp() {
     this.optionsTransition.begin(function(event) {
         this.style.visibility = 'hidden';
     });
-}
-
-function insertText(e) {
-    // insert the text at the insertion point or over the selected text
-    this.input.focus();
-    this.input.setRangeText(this.dropdown.value, this.selectionStart, this.selectionEnd, 'end');
-
-    // close the drop-down
-    toggleDropDown.call(this);
 }
 
 

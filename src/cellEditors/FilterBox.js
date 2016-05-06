@@ -152,6 +152,15 @@ var FilterBox = ComboBox.extend('FilterBox', {
                 this.moveEditor();
             }
         }
+    },
+
+    insertText: function(e) {
+        // insert the drop-downb text at the insertion point or over the selected text
+        this.input.focus();
+        this.input.setRangeText(this.dropdown.value, this.selectionStart, this.selectionEnd, 'end');
+
+        // close the drop-down
+        this.toggleDropDown();
     }
 
 });
