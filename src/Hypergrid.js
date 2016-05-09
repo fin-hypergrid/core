@@ -68,6 +68,8 @@ function Hypergrid(div, options) {
     this.dragExtent = new Point(0, 0);
     this.numRows = 0;
     this.numColumns = 0;
+    this.hMax = 0; //horizontal scroll
+    this.vMax = 0; //vertical scroll
 
     //install any plugins
     this.pluginsDo(function(each) {
@@ -2270,14 +2272,14 @@ Hypergrid.prototype = {
             }
         }
 
-        var hMax = Math.max(0, numColumns - numFixedColumns - lastPageColumnCount);
-        this.setHScrollbarValues(hMax);
+        this.hMax = Math.max(0, numColumns - numFixedColumns - lastPageColumnCount);
+        this.setHScrollbarValues(this.hMax);
 
-        var vMax = 1 + Math.max(0, numRows - numFixedRows - lastPageRowCount);
-        this.setVScrollbarValues(vMax);
+        this.vMax = 1 + Math.max(0, numRows - numFixedRows - lastPageRowCount);
+        this.setVScrollbarValues(this.vMax);
 
-        this.setHScrollValue(Math.min(this.getHScrollValue(), hMax));
-        this.setVScrollValue(Math.min(this.getVScrollValue(), vMax));
+        this.setHScrollValue(Math.min(this.getHScrollValue(), this.hMax));
+        this.setVScrollValue(Math.min(this.getVScrollValue(), this.vMax));
 
         //this.getCanvas().resize();
         this.computeCellsBounds();
