@@ -68,8 +68,6 @@ function Hypergrid(div, options) {
     this.dragExtent = new Point(0, 0);
     this.numRows = 0;
     this.numColumns = 0;
-    this.hMax = 0; //horizontal scroll
-    this.vMax = 0; //vertical scroll
 
     //install any plugins
     this.pluginsDo(function(each) {
@@ -1835,7 +1833,21 @@ Hypergrid.prototype = {
             this.canvas.dispatchEvent(event);
         }
     },
-
+    /**
+     * @memberOf Hypergrid.prototype
+     * @desc Synthesize and fire a `fin-column-drag-start` event.
+     */
+    fireSyntheticOnColumnsChangedEvent: function() {
+        var detail = {
+                time: Date.now(),
+                grid: this
+        };
+        var cEvent = new CustomEvent('fin-column-changed-event', {
+                detail: detail
+        });
+        console.log('column changed');
+        this.canvas.dispatchEvent(cEvent);
+    },
     /**
      * @memberOf Hypergrid.prototype
      * @desc Synthesize and fire a `fin-keydown` event.
@@ -2764,6 +2776,8 @@ Hypergrid.prototype = {
     },
 
     swapColumns: function(source, target) {
+        //Turns out this is called during dragged 'i.e' when the floater column is reshuffled
+        //by the currently dragged column. The column positions are constantly reshuffled
         this.behavior.swapColumns(source, target);
     },
 

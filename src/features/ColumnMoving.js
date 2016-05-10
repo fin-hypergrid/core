@@ -470,6 +470,7 @@ var ColumnMoving = Feature.extend('ColumnMoving', {
 
         grid.renderOverridesCache.dragger = {
             columnIndex: columnIndex,
+            startIndex: columnIndex,
             ctx: draggerCTX,
             startX: startX,
             width: columnWidth,
@@ -649,7 +650,7 @@ var ColumnMoving = Feature.extend('ColumnMoving', {
         var self = this;
         var startX = columnEdges[columnIndex - scrollLeft];
         var d = dragger;
-
+        var changed = grid.renderOverridesCache.dragger.startIndex !== grid.renderOverridesCache.dragger.columnIndex;
         self.setCrossBrowserProperty(d, 'transition', (self.isWebkit ? '-webkit-' : '') + 'transform ' + columnAnimationTime + 'ms ease, box-shadow ' + columnAnimationTime + 'ms ease');
         self.setCrossBrowserProperty(d, 'transform', 'translate(' + startX + 'px, ' + -1 + 'px)');
         d.style.boxShadow = '0px 0px 0px #888888';
@@ -659,7 +660,10 @@ var ColumnMoving = Feature.extend('ColumnMoving', {
             grid.repaint();
             requestAnimationFrame(function() {
                 d.style.display = 'none';
-                grid.endDragColumnNotification();
+                grid.endDragColumnNotification(); //internal notification
+                if (changed){
+                    grid.fireSyntheticOnColumnsChangedEvent(); //public notification
+                }
             });
         }, columnAnimationTime + 50);
 
