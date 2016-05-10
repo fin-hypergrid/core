@@ -1180,6 +1180,7 @@ var Behavior = Base.extend('Behavior', {
      * @memberOf Behavior.prototype
      * @desc Rebuild the column order indexes
      * @param {Array} columnIndexes - list of column indexes
+     * @param {Boolean} [silent=false] - whether to trigger column changed event
      */
     setColumnIndexes: function(columnIndexes, silent) {
         var tableState = this.getPrivateState();
