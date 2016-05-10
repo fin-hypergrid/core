@@ -16,6 +16,7 @@ function Column(behavior, index, label) {
     this.dataModel = behavior.dataModel;
     this.index = index;
     this.label = label;
+    this.cellProperties = [];
 }
 
 Column.prototype = {
@@ -47,11 +48,15 @@ Column.prototype = {
     },
 
     getCellProperties: function(y) {
-        return this.behavior.getPrivateState().cellProperties[this.index + ',' + y];
+        return this.cellProperties[y];
     },
 
     setCellProperties: function(y, value) {
-        this.behavior.getPrivateState().cellProperties[this.index + ',' + y] = value;
+        this.cellProperties[y] = value;
+    },
+
+    clearAllCellProperties: function() {
+        this.cellProperties.length = 0;
     },
 
     checkColumnAutosizing: function(force) {
@@ -130,7 +135,7 @@ Column.prototype = {
     },
 
     setProperties: function(properties) {
-        var current = this.behavior.getPrivateState().columnProperties[this.index];
+        var current = this.getProperties();
         this.clearObjectProperties(current, false);
         _(current).extendOwn(properties);
     },

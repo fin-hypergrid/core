@@ -246,9 +246,6 @@ var Behavior = Base.extend('Behavior', {
         });
 
         properties.columnHeader = Object.create(properties, {
-            format: {
-                value: 'default'
-            },
             font: {
                 configurable: true,
                 get: function() {
@@ -486,11 +483,11 @@ var Behavior = Base.extend('Behavior', {
     },
 
     getColumnWidth: function(x) {
-        var col = this.getColumn(x);
-        if (!col) {
+        var column = this.getColumn(x);
+        if (!column) {
             return this.resolveProperty('defaultColumnWidth');
         }
-        var width = col.getWidth();
+        var width = column.getWidth();
         return width;
     },
 
@@ -579,7 +576,6 @@ var Behavior = Base.extend('Behavior', {
 
         _(state).extendOwn({
             rowHeights: {},
-            cellProperties: {},
             columnProperties: []
         });
 
@@ -611,15 +607,6 @@ var Behavior = Base.extend('Behavior', {
         _(state).extendOwn(memento);
         this.setAllColumnProperties(colProperties);
         memento.columnProperties = colProperties;
-        //memento.columnProperties = colProperties;
-
-        // this.dataModel.setState(memento);
-        // var self = this;
-        // requestAnimationFrame(function() {
-        //     self.applySorts();
-        //     self.changed();
-        //     self.stateChanged();
-        // });
 
         //just to be close/ it's easier on the eyes
         this.setColumnWidth(-1, 24.193359375);
@@ -647,10 +634,6 @@ var Behavior = Base.extend('Behavior', {
         for (var i = 0; i < indexes.length; i++) {
             this.columns[i] = this.allColumns[indexes[i]];
         }
-    },
-
-    applySorts: function() {
-        //if I have sorts, apply them now//
     },
 
     /**
@@ -767,7 +750,8 @@ var Behavior = Base.extend('Behavior', {
      * @param {number} y - y coordinate
      */
     getCellProperties: function(x, y) {
-        return this.getColumn(x).getCellProperties(y);
+        var column = this.allColumns[x];
+        return column && column.getCellProperties(y);
     },
 
     /**
@@ -778,9 +762,9 @@ var Behavior = Base.extend('Behavior', {
      * @param {Object} value - the value to use
      */
     setCellProperties: function(x, y, value) {
-        var col = this.getColumn(x);
-        if (col) {
-            col.setCellProperties(y, value);
+        var column = this.allColumns[x];
+        if (column) {
+            column.setCellProperties(y, value);
         }
     },
     /**
@@ -1151,11 +1135,11 @@ var Behavior = Base.extend('Behavior', {
      * @param {index} columnIndex - the column index of interest
      */
     getColumnProperties: function(columnIndex) {
-        var col = this.columns[columnIndex];
-        if (!col) {
+        var column = this.columns[columnIndex];
+        if (!column) {
             return isNull;
         }
-        var properties = col.getProperties(); //TODO: returns `null` on Hypergrid.prototype.reset();
+        var properties = column.getProperties(); //TODO: returns `null` on Hypergrid.prototype.reset();
         if (!properties) {
             return isNull;
         }
@@ -1163,9 +1147,27 @@ var Behavior = Base.extend('Behavior', {
     },
 
     setColumnProperties: function(columnIndex, properties) {
-        var columnProperties = this.allColumns[columnIndex].getProperties();
+        var column = this.allColumns[columnIndex];
+        var columnProperties = column.getProperties();
         _(columnProperties).extendOwn(properties);
         this.changed();
+    },
+
+    /**
+     * Clears all cell properties of given column or of all columns.
+     * @param {number} [columnIndex] - Omit for all columns.
+     */
+    clearAllCellProperties: function(columnIndex) {
+        if (columnIndex === undefined) {
+            for (var i = this.allColumns.length - 1; i >= 0; --i) {
+                this.allColumns[i].clearAllCellProperties();
+            }
+        } else {
+            var column = this.allColumns[i];
+            if (column) {
+                column.clearAllCellProperties();
+            }
+        }
     },
 
     /**
@@ -1440,11 +1442,8 @@ var Behavior = Base.extend('Behavior', {
      * @desc this function is a hook and is called just before the painting of a cell occurs
      * @param {window.fin.rectangular.Point} cell
      */
-    cellPropertiesPrePaintNotification: function(cellProperties) {
-        var row = this.getRow(cellProperties.y);
-        var columnId = this.getHeader(cellProperties.x);
-        cellProperties.row = row;
-        cellProperties.columnId = columnId;
+    cellPropertiesPrePaintNotification: function(cell) {
+
     },
 
     /**

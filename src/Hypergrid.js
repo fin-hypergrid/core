@@ -292,14 +292,19 @@ Hypergrid.prototype = {
     /**
      * @param {string} name
      * @param {localizerInterface} localizer
-     * @param {boolean} [createAndRegisterCellEditor=false] - Create and register a new cell editor to go with it.
-     * Note that if you use this option, both the localizer and the cell editor will end up with the same name. This may make things simpler or may make them more confusing, depending on where you're coming from!
+     * @param {boolean|string} [baseClassName=true] - A truthy value means create a new cell editor class that uses this localizer. If a string, extend from the base class so named; otherwise (_e.g.,_ `true`) extend from {@link Textfield}.
+     * @param {string} [newClassName=localizerName] - Provide a value here to name the cell editor differently from its localizer.
      */
-    registerLocalizer: function(name, localizer, createAndRegisterCellEditor) {
+    registerLocalizer: function(name, localizer, baseClassName, newClassName) {
         localization.set(name, localizer);
 
-        if (createAndRegisterCellEditor) {
-            this.registerCellEditor(this.extendAndLocalizeCellEditor(name));
+        if (baseClassName) {
+            if (typeof baseClassName !== 'string') {
+                baseClassName = undefined; // use `cellEditors.extend`'s default
+            }
+
+            var newCellEditorClass = cellEditors.extend(name, baseClassName, newClassName);
+            this.registerCellEditor(newCellEditorClass);
         }
     },
 
@@ -313,33 +318,16 @@ Hypergrid.prototype = {
     },
 
     /**
-     * @summary Create a new cell editor class with the given localizer.
-     * @desc Extemd the {@link Textfield} cell editor using the named localizer and name it after the localizer unless otherwise specified.
-     * @param {string} localizerName
-     * @param {string} [newClassName=localizerName]
-     */
-    extendAndLocalizeCellEditor: function(localizerName, newClassName) {
-        return cellEditors.textfield.extend(newClassName || localizerName, {
-            localizer: localization.get(localizerName)
-        });
-    },
-
-    /**
+     * @see {@link module:cellEditors.register|cellEditors.register}
      * @memberOf Hypergrid.prototype
-     * @summary Register a cell editor.
-     * @see {@link module:cellEditors.register|cellEditors.register}.
      */
     registerCellEditor: cellEditors.register,
 
     /**
+     * @see {@link module:cellEditors.instantiate|cellEditors.instantiate}
      * @memberOf Hypergrid.prototype
-     * @returns {CellEditor} New instance of the named cell editor.
-     * @param {string} editorKey
      */
-    createCellEditor: function(editorKey) {
-        var CellEditorConstructor = cellEditors[editorKey];
-        return CellEditorConstructor && new CellEditorConstructor(this);
-    },
+    createCellEditor: cellEditors.instantiate,
 
     /**
      * @memberOf Hypergrid.prototype

@@ -663,6 +663,7 @@ module.exports = {
      * @see /lib/localizers.js
      */
     format: null,
+    editor: null,
 
     /********** HOVER COLORS **********/
 

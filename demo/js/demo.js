@@ -408,7 +408,7 @@ window.onload = function() {
         'combobox',
         'textfield',
         'number',
-        null,
+        'foot',
         'singdate',
         'choice',
         'choice',
@@ -418,9 +418,11 @@ window.onload = function() {
         'textfield'
     ];
 
-    //lets override the cell editors, and configure the drop down lists
-    dataModel.getCellEditorAt = function(x) {
-        var cellEditor = this.grid.createCellEditor(editorTypes[x % editorTypes.length]);
+    // Override to assign the the cell editors.
+    var defaultGetCellEditorAt = dataModel.getCellEditorAt.bind(dataModel);
+    dataModel.getCellEditorAt = function(x, y) {
+        var cellEditor = defaultGetCellEditorAt(x, y) ||
+            this.grid.createCellEditor(editorTypes[x % editorTypes.length]);
 
         if (cellEditor) {
             switch (x) {
@@ -438,14 +440,6 @@ window.onload = function() {
 
         return cellEditor;
     };
-
-// behavior.getCursorAt = function(x,y) {
-//     if (x === 1) {
-//         return 'pointer'
-//     } else {
-//         return null;
-//     }
-// };
 
     grid.addEventListener('fin-click', function(e) {
         var cell = e.detail.gridCell;
@@ -718,7 +712,7 @@ window.onload = function() {
 
             grid.setState(state);
 
-            behavior.setCellProperties(2, 16, {
+            behavior.setCellProperties(3, 16, {
                 font: '10pt Tahoma',
                 color: 'lightblue',
                 backgroundColor: 'red',
