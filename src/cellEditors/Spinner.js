@@ -9,7 +9,7 @@ var Spinner = CellEditor.extend('Spinner', {
 
     template: function() {
         /*
-            <input id="editor" type="number">
+            <input type="number">
         */
     }
 

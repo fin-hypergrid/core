@@ -9,7 +9,7 @@ var Color = CellEditor.extend('Color', {
 
     template: function() {
         /*
-            <input id="editor" type="color">
+            <input type="color">
         */
     }
 

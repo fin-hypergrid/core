@@ -9,7 +9,7 @@ var Textfield = CellEditor.extend('Textfield', {
 
     template: function() {
         /*
-            <input id="editor" type="text">
+            <input type="text">
         */
     },
 

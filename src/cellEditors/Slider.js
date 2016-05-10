@@ -9,7 +9,7 @@ var Slider = CellEditor.extend('Slider', {
 
     template: function() {
         /*
-            <input id="editor" type="range">
+            <input type="range">
         */
     }
 

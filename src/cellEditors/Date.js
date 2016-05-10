@@ -29,7 +29,7 @@ var Date = CellEditor.extend('Date', {
         if (!usesDateInputControl) {
             this.template = {
                 /*
-                 <input id="editor" type="text">
+                 <input type="text">
                  */
             };
 
