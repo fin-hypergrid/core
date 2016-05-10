@@ -66,6 +66,10 @@ var ColumnPicker = Dialog.extend('ColumnPicker', {
                     self.append(list.container);
                 });
             });
+            //Listen to the visible column changes
+            listSets[1].modelLists[1].element.addEventListener('listchanged', function(e){
+                grid.fireSyntheticOnColumnsChangedEvent();
+            });
 
             this.sortOnHiddenColumns = this.grid.resolveProperty('sortOnHiddenColumns');
         } else {
