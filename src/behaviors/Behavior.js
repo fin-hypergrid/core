@@ -597,7 +597,7 @@ var Behavior = Base.extend('Behavior', {
         this.tableState = null;
         var state = this.getPrivateState();
         this.createColumns();
-        this.setColumnOrder(memento.columnIndexes);
+        this._setColumnOrder(memento.columnIndexes);
         _(state).extendOwn(memento);
         this.setAllColumnProperties(colProperties);
         memento.columnProperties = colProperties;
@@ -625,7 +625,10 @@ var Behavior = Base.extend('Behavior', {
         }
     },
 
-    setColumnOrder: function(indexes) {
+    _setColumnOrder: function(indexes) {
+        if (!Array.isArray(indexes)){
+            return;
+        }
         if (!indexes) {
             this.columns.length = 0;
             return;
@@ -1176,14 +1179,11 @@ var Behavior = Base.extend('Behavior', {
     /**
      * @memberOf Behavior.prototype
      * @desc Rebuild the column order indexes
-     * @param {Array} list - list of column objects from the column editor
+     * @param {Array} columnIndices - list of column indices
      */
     setColumnIndices: function(columnIndices) {
-        if (!Array.isArray(columnIndices) || columnIndices.length < 1){
-            return;
-        }
-
         var tableState = this.getPrivateState();
+        this._setColumnOrder(columnIndices);
         tableState.columnIndexes = columnIndices;
         this.changed();
         this.grid.fireSyntheticOnColumnsChangedEvent();
