@@ -28,11 +28,11 @@ window.onload = function() {
             ]
         },
         {
-            label: 'Sorting',
-            ctrls: [
-                { name: 'sortOnHiddenColumns', label: 'include hidden columns'}, // default "setter" is `setProp`
-            ]
-        }, {
+        //     label: 'Sorting',
+        //     ctrls: [
+        //         { name: 'sortOnHiddenColumns', label: 'include hidden columns'}, // default "setter" is `setProp`
+        //     ]
+        // }, {
             label: 'Hover highlights',
             ctrls: [
                 { name: 'hoverCellHighlight.enabled', label: 'cell' },
