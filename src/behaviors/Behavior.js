@@ -597,7 +597,7 @@ var Behavior = Base.extend('Behavior', {
         this.tableState = null;
         var state = this.getPrivateState();
         this.createColumns();
-        this.setColumnOrder(memento.columnIndexes);
+        this._setColumnOrder(memento.columnIndexes);
         _(state).extendOwn(memento);
         this.setAllColumnProperties(colProperties);
         memento.columnProperties = colProperties;
@@ -625,7 +625,10 @@ var Behavior = Base.extend('Behavior', {
         }
     },
 
-    setColumnOrder: function(indexes) {
+    _setColumnOrder: function(indexes) {
+        if (!Array.isArray(indexes)){
+            return;
+        }
         if (!indexes) {
             this.columns.length = 0;
             return;
@@ -1175,22 +1178,18 @@ var Behavior = Base.extend('Behavior', {
 
     /**
      * @memberOf Behavior.prototype
-     * @desc this is called by the column editor post closing; rebuild the column order indexes
-     * @param {Array} list - list of column objects from the column editor
+     * @desc Rebuild the column order indexes
+     * @param {Array} columnIndexes - list of column indexes
+     * @param {Boolean} [silent=false] - whether to trigger column changed event
      */
-    setColumnDescriptors: function(lists) {
-        //assumes there is one row....
-        var visible = lists.visible;
+    setColumnIndexes: function(columnIndexes, silent) {
         var tableState = this.getPrivateState();
-
-        var columnCount = visible.length;
-        var indexes = [];
-        var i;
-        for (i = 0; i < columnCount; i++) {
-            indexes.push(visible[i].id);
-        }
-        tableState.columnIndexes = indexes;
+        this._setColumnOrder(columnIndexes);
+        tableState.columnIndexes = columnIndexes;
         this.changed();
+        if (!silent) {
+            this.grid.fireSyntheticOnColumnsChangedEvent();
+        }
     },
 
     /**
