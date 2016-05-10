@@ -17,7 +17,6 @@ var ColumnPicker = Dialog.extend('ColumnPicker', {
      */
     initialize: function(grid, options) {
         var behavior = this.behavior = grid.behavior;
-        this.grid = grid;
 
         if (behavior.isColumnReorderable()) {
             // grab the lists from the behavior
@@ -67,6 +66,10 @@ var ColumnPicker = Dialog.extend('ColumnPicker', {
                     self.append(list.container);
                 });
             });
+            //Listen to the visible column changes
+            listSets[1].modelLists[1].element.addEventListener('listchanged', function(e){
+                grid.fireSyntheticOnColumnsChangedEvent();
+            });
 
             this.sortOnHiddenColumns = this.grid.resolveProperty('sortOnHiddenColumns');
         } else {
@@ -103,8 +106,6 @@ var ColumnPicker = Dialog.extend('ColumnPicker', {
             if (!this.sortOnHiddenColumns) {
                 this.behavior.sortChanged(this.hiddenColumns.models);
             }
-            //Needs to be more intelligent about when to fire this event
-            this.grid.fireSyntheticOnColumnsChangedEvent();
         }
     }
 });
