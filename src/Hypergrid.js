@@ -82,6 +82,8 @@ function Hypergrid(div, options) {
     margin.bottom = margin.bottom || 0;
     margin.left = margin.left || 0;
 
+    this.allowEventHandlers = true;
+
     //initialize our various pieces
     if (!themeInitialized) {
         themeInitialized = true;
@@ -1086,7 +1088,25 @@ Hypergrid.prototype = {
      * @param {function} callback - The event handler.
      */
     addEventListener: function(eventName, callback) {
-        this.canvas.addEventListener(eventName, callback);
+        var self = this;
+        var decorator = function(e) {
+            if (self.allowEventHandlers){
+                callback(e);
+            }
+        };
+        this.canvas.addEventListener(eventName, decorator);
+    },
+
+    allowEvents: function(allow){
+        if (!allow){
+            this.behavior.featureChain.detachChain();
+            console.log('events have been turned off');
+        } else {
+            this.behavior.featureChain.attachChain();
+        }
+
+        this.allowEventHandlers = allow;
+        this.behavior.changed();
     },
 
     addFinEventListener: function(eventName, callback) {
