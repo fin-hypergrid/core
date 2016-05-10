@@ -1823,55 +1823,6 @@ Hypergrid.prototype = {
         return this.getRenderer().isViewableButton(c, r);
     },
 
-    /**
-     * @memberOf Hypergrid.prototype
-     * @desc Synthesize and fire a `fin-column-drag-start` event.
-     */
-    fireSyntheticOnColumnDragStart: function(column) {
-        var detail = {
-            gridColumn: column,
-            time: Date.now(),
-            grid: this
-        };
-        var dragStartEvent = new CustomEvent('fin-column-drag-start', {
-            detail: detail
-        });
-        this.canvas.dispatchEvent(dragStartEvent);
-    },
-
-    /**
-     * @memberOf Hypergrid.prototype
-     * @desc Synthesize and fire a `fin-column-drag-end` event.
-     */
-    fireSyntheticOnColumnDragEnd: function(column) {
-        var detail = {
-            gridColumn: column,
-            time: Date.now(),
-            grid: this
-        };
-        var dragEndEvent = new CustomEvent('fin-column-drag-end', {
-            detail: detail
-        });
-        this.canvas.dispatchEvent(dragEndEvent);
-    },
-
-
-    /**
-     * @memberOf Hypergrid.prototype
-     * @desc Synthesize and fire a `fin-column-drop` event
-     */
-    fireSyntheticOnColumnDrop: function(column) {
-        var detail = {
-            gridColumn: column,
-            time: Date.now(),
-            grid: this
-        };
-        var dropEvent = new CustomEvent('fin-column-drop', {
-            detail: detail
-        });
-        this.canvas.dispatchEvent(dropEvent);
-    },
-
     fireSyntheticButtonPressedEvent: function(evt) {
         var dataCell = evt.dataCell;
         var gridCell = evt.gridCell;
