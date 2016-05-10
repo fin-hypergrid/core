@@ -3334,13 +3334,13 @@ Hypergrid.prototype = {
      * * If `dialogName` defined: Save the specific dialog's options object.
      * * If `dialogName` undefined: Save the default dialog options object.
      *
-     * If `options` is _not_ defined, no new dialog options object will be saved; but a previously saved preset will be returned (after mixing into the default preset if there is one).
+     * If `options` is _not_ defined, no new dialog options object will be saved; but a previously saved preset will be returned (after mixing in the default preset if there is one).
      *
      * The default dialog options object is used in two ways:
      * * when a dialog has no options object
      * * as a mix-in base when a dialog does have an options object
      *
-     * @param {string} [dialogName] If defined, `options` defines the default dialog options object.
+     * @param {string} [dialogName] If undefined, `options` defines the default dialog options object.
      *
      * @param {object} [options] If defined, preset the named dialog options object or the default dialog options object if name is undefined.
      *
@@ -3351,7 +3351,7 @@ Hypergrid.prototype = {
      *   * empty object
      * * When `options` defined, first of:
      *   * mix-in: default preset members + `options` members
-     *   * `options` verbatim when default preset undefined     *
+     *   * `options` verbatim when default preset undefined
      */
     setDialogOptions: function(dialogName, options) {
         if (typeof dialogName === 'object') {

@@ -60,7 +60,7 @@ var Behavior = Base.extend('Behavior', {
          * @type {DataModel}
          * @memberOf Behavior.prototype
          */
-        this.dataModel = this.getDefaultDataModel();
+        this.dataModel = this.getNewDataModel();
 
         grid.setBehavior(this);
 

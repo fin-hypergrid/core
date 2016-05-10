@@ -62,7 +62,7 @@ var JSON = Local.extend('behaviors.JSON', {
         }
     },
 
-    getDefaultDataModel: function() {
+    getNewDataModel: function() {
         return new DataModelJSON(this.grid);
     },
 

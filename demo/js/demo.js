@@ -115,7 +115,20 @@ window.onload = function() {
         },
         grid = window.g = new fin.Hypergrid('div#json-example', gridOptions),
         behavior = window.b = grid.behavior,
-        dataModel = window.m = behavior.dataModel;
+        dataModel = window.m = behavior.dataModel,
+        fields = behavior.getFields(),
+        headers = behavior.getHeaders();
+
+    //console.log(headers);
+    //console.log(fields);
+
+    console.log('mapping between indexes and column names');
+    var idx = {};
+    for (var i = 0; i < fields.length; i++) {
+        var ID = fields[i].replace(/([^_A-Z])([A-Z]+)/g, '$1_$2').toUpperCase();
+        idx[ID] = i;
+        console.log(ID, ':', i);
+    }
 
     // Preset a default dialog options object. Used by call to toggleDialog('ColumnPicker') from features/ColumnPicker.js and by toggleDialog() defined herein.
     grid.setDialogOptions({
@@ -307,47 +320,47 @@ window.onload = function() {
         }
 
         switch (x) {
-            case 0:
-            case 1:
-            case 5:
-            case 6:
+            case idx.LAST_NAME:
+            case idx.FIRST_NAME:
+            case idx.BIRTH_STATE:
+            case idx.RESIDENCE_STATE:
                 //we are a dropdown, lets provide a visual queue
                 config.value = [null, config.value, upDownIMG];
         }
 
         switch (x) {
-            case 0:
+            case idx.LAST_NAME:
                 renderer = cellProvider.cellCache.linkCellRenderer;
                 break;
 
-            case 2:
+            case idx.TOTAL_NUMBER_OF_PETS_OWNED:
                 config.halign = 'center';
-                config.value = [null, config.value, upDownSpinIMG];
+                //config.value = [null, config.value, upDownSpinIMG];
                 break;
 
-            case 3:
+            case idx.HEIGHT:
                 config.halign = 'right';
                 break;
 
-            case 4:
+            case idx.BIRTH_DATE:
                 if (!doAggregates) {
                     config.halign = 'left';
                     config.value = [null, config.value, downArrowIMG];
                 }
                 break;
 
-            case 7:
+            case idx.EMPLOYED:
                 renderer = cellProvider.cellCache.buttonRenderer;
                 break;
 
-            case 8:
+            case idx.INCOME:
                 travel = 60 + Math.round(config.value * 150 / 100000);
                 config.backgroundColor = '#00' + travel.toString(16) + '00';
                 config.color = '#FFFFFF';
                 config.halign = 'right';
                 break;
 
-            case 9:
+            case idx.TRAVEL:
                 travel = 105 + Math.round(config.value * 150 / 1000);
                 config.backgroundColor = '#' + travel.toString(16) + '0000';
                 config.color = '#FFFFFF';
@@ -426,11 +439,11 @@ window.onload = function() {
 
         if (cellEditor) {
             switch (x) {
-                case 7:
+                case idx.EMPLOYED:
                     cellEditor = null;
                     break;
 
-                case 2:
+                case idx.TOTAL_NUMBER_OF_PETS_OWNED:
                     cellEditor.input.setAttribute('min', 0);
                     cellEditor.input.setAttribute('max', 10);
                     cellEditor.input.setAttribute('step', 0.01);
@@ -643,12 +656,6 @@ window.onload = function() {
         if (vent) { console.log('fin-context-menu(' + modelPoint.x + ', ' + (modelPoint.y - headerRowCount) + ')'); }
     });
 
-    var fields = behavior.getFields();
-    var headers = behavior.getHeaders();
-
-    console.log(headers);
-    console.log(fields);
-
     toggleProps.forEach(function(prop) { addToggle(prop); });
 
     //setTimeout(function() {
@@ -667,14 +674,6 @@ window.onload = function() {
 
             //behavior.setFields(fields);
             //behavior.setHeaders(headers);
-
-            console.log('mapping between indexes and column names');
-            var idx = {};
-            for (var i = 0; i < fields.length; i++) {
-                var ID = fields[i].replace(/([^_A-Z])([A-Z]+)/g, '$1_$2').toUpperCase();
-                idx[ID] = i;
-                console.log(fields[i] + ': ' + i);
-            }
 
             var state = {
                 columnIndexes: [

@@ -42,7 +42,7 @@ gulp.task('build', function(callback) {
 gulp.task('watch', function () {
     gulp.watch([
         srcDir + '**',
-        demoDir + 'js/demo.js',
+        demoDir + '*.js',
         testDir + '**',
         //'../../filter-tree/src/**' // comment off this line and the one below when filter tree on npm
     ], [
