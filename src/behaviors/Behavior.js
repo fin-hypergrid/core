@@ -1181,12 +1181,14 @@ var Behavior = Base.extend('Behavior', {
      * @desc Rebuild the column order indexes
      * @param {Array} columnIndexes - list of column indexes
      */
-    setColumnIndexes: function(columnIndexes) {
+    setColumnIndexes: function(columnIndexes, silent) {
         var tableState = this.getPrivateState();
         this._setColumnOrder(columnIndexes);
         tableState.columnIndexes = columnIndexes;
         this.changed();
-        this.grid.fireSyntheticOnColumnsChangedEvent();
+        if (!silent) {
+            this.grid.fireSyntheticOnColumnsChangedEvent();
+        }
     },
 
     /**
