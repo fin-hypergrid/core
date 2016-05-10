@@ -206,15 +206,13 @@ window.onload = function() {
             behavior.setTopTotals([]);
             behavior.setData([]);
             behavior.setBottomTotals([]);
-            behavior.featureChain.detachChain();
-            behavior.changed();
+            grid.allowEvents(false);
         } else {
             //important to set top totals first
             behavior.setTopTotals(topTotals);
             behavior.setData(people1);
             behavior.setBottomTotals(bottomTotals);
-            behavior.featureChain.attachChain();
-            behavior.changed();
+            grid.allowEvents(true);
         }
     }
 
