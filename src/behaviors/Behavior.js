@@ -1175,22 +1175,18 @@ var Behavior = Base.extend('Behavior', {
 
     /**
      * @memberOf Behavior.prototype
-     * @desc this is called by the column editor post closing; rebuild the column order indexes
+     * @desc Rebuild the column order indexes
      * @param {Array} list - list of column objects from the column editor
      */
-    setColumnDescriptors: function(lists) {
-        //assumes there is one row....
-        var visible = lists.visible;
-        var tableState = this.getPrivateState();
-
-        var columnCount = visible.length;
-        var indexes = [];
-        var i;
-        for (i = 0; i < columnCount; i++) {
-            indexes.push(visible[i].id);
+    setColumnIndices: function(columnIndices) {
+        if (!Array.isArray(columnIndices) || columnIndices.length < 1){
+            return;
         }
-        tableState.columnIndexes = indexes;
+
+        var tableState = this.getPrivateState();
+        tableState.columnIndexes = columnIndices;
         this.changed();
+        this.grid.fireSyntheticOnColumnsChangedEvent();
     },
 
     /**
