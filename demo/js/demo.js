@@ -669,28 +669,29 @@ window.onload = function() {
             //behavior.setHeaders(headers);
 
             console.log('mapping between indexes and column names');
-            var fieldsMap = {};
+            var idx = {};
             for (var i = 0; i < fields.length; i++) {
-                fieldsMap[fields[i]] = i;
-                console.log(i + ' <> ' + fields[i]);
+                var ID = fields[i].replace(/([^_A-Z])([A-Z]+)/g, '$1_$2').toUpperCase();
+                idx[ID] = i;
+                console.log(fields[i] + ': ' + i);
             }
 
             var state = {
                 columnIndexes: [
-                    fieldsMap.last_name,
-                    fieldsMap.total_number_of_pets_owned,
-                    fieldsMap.height,
-                    fieldsMap.birthDate,
-                    fieldsMap.birthState,
-                    // fieldsMap.residenceState,
-                    fieldsMap.employed,
-                    // fieldsMap.first_name,
-                    fieldsMap.income,
-                    fieldsMap.travel,
-                    // fieldsMap.squareOfIncome
+                    idx.LAST_NAME,
+                    idx.TOTAL_NUMBER_OF_PETS_OWNED,
+                    idx.HEIGHT,
+                    idx.BIRTH_DATE,
+                    idx.BIRTH_STATE,
+                    // idx.RESIDENCE_STATE,
+                    idx.EMPLOYED,
+                    // idx.FIRST_NAME,
+                    idx.INCOME,
+                    idx.TRAVEL,
+                    // idx.SQUARE_OF_INCOME
                 ],
 
-                rowHeights:{ 0: 40 },
+                rowHeights: { 0: 40 },
                 fixedColumnCount: 1,
                 fixedRowCount: 2,
 
@@ -708,11 +709,11 @@ window.onload = function() {
                 rowSelection: true
             };
 
-            grid.setGroups([5, 0, 1]);
+            grid.setGroups([idx.BIRTH_STATE, idx.LAST_NAME, idx.FIRST_NAME]);
 
             grid.setState(state);
 
-            behavior.setCellProperties(3, 16, {
+            behavior.setCellProperties(idx.HEIGHT, 16, {
                 font: '10pt Tahoma',
                 color: 'lightblue',
                 backgroundColor: 'red',
@@ -753,7 +754,7 @@ window.onload = function() {
             // rowHeaderForegroundSelectionColor
             // rowHeaderBackgroundSelectionColor
 
-//                behavior.setCellProperties(2,0,
+//                behavior.setCellProperties(idx.TOTAL_NUMBER_OF_PETS_OWNED, 0,
 //                    {
 //                        font: '10pt Tahoma',
 //                        color: 'red',
@@ -761,47 +762,47 @@ window.onload = function() {
 //                        halign: 'left'
 //                    });
 
-            behavior.setColumnProperties(0, {
+            behavior.setColumnProperties(idx.LAST_NAME, {
                 color: redIfStartsWithS,
                 columnHeaderBackgroundColor: '#142B6F', //dark blue
                 columnHeaderColor: 'white'
             });
 
-            behavior.setColumnProperties(0, {
+            behavior.setColumnProperties(idx.LAST_NAME, {
                 autopopulateEditor: true,
                 link: true
             });
 
-            behavior.setColumnProperties(1, {
+            behavior.setColumnProperties(idx.FIRST_NAME, {
                 autopopulateEditor: true
             });
 
-            behavior.setColumnProperties(2, {
+            behavior.setColumnProperties(idx.TOTAL_NUMBER_OF_PETS_OWNED, {
                 format: 'number'
             });
 
-            behavior.setColumnProperties(3, {
+            behavior.setColumnProperties(idx.HEIGHT, {
                 format: 'foot'
             });
 
-            behavior.setColumnProperties(4, {
+            behavior.setColumnProperties(idx.BIRTH_DATE, {
                 format: 'singdate',
                 //strikeThrough: true
             });
 
-            behavior.setColumnProperties(5, {
+            behavior.setColumnProperties(idx.BIRTH_STATE, {
                 autopopulateEditor: true
             });
 
-            behavior.setColumnProperties(6, {
+            behavior.setColumnProperties(idx.EMPLOYED, {
                 autopopulateEditor: true
             });
 
-            behavior.setColumnProperties(8, {
+            behavior.setColumnProperties(idx.INCOME, {
                 format: 'pounds'
             });
 
-            behavior.setColumnProperties(9, {
+            behavior.setColumnProperties(idx.TRAVEL, {
                 format: 'francs'
             });
 
