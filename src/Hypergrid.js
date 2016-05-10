@@ -2223,14 +2223,14 @@ Hypergrid.prototype = {
             }
         }
 
-        this.hMax = Math.max(0, numColumns - numFixedColumns - lastPageColumnCount);
-        this.setHScrollbarValues(this.hMax);
+        var hMax = Math.max(0, numColumns - numFixedColumns - lastPageColumnCount);
+        this.setHScrollbarValues(hMax);
 
-        this.vMax = 1 + Math.max(0, numRows - numFixedRows - lastPageRowCount);
-        this.setVScrollbarValues(this.vMax);
+        var vMax = 1 + Math.max(0, numRows - numFixedRows - lastPageRowCount);
+        this.setVScrollbarValues(vMax);
 
-        this.setHScrollValue(Math.min(this.getHScrollValue(), this.hMax));
-        this.setVScrollValue(Math.min(this.getVScrollValue(), this.vMax));
+        this.setHScrollValue(Math.min(this.getHScrollValue(), hMax));
+        this.setVScrollValue(Math.min(this.getVScrollValue(), vMax));
 
         //this.getCanvas().resize();
         this.computeCellsBounds();

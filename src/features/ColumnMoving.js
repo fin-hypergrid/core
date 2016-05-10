@@ -586,7 +586,7 @@ var ColumnMoving = Feature.extend('ColumnMoving', {
             return;
         }
         var scrollLeft = grid.getHScrollValue();
-        if (!grid.dragging || scrollLeft > (grid.hMax - 2)) {
+        if (!grid.dragging || scrollLeft > (grid.sbHScroller.range.max - 2)) {
             return;
         }
         var draggedIndex = grid.renderOverridesCache.dragger.columnIndex;
