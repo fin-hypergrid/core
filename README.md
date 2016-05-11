@@ -2,9 +2,15 @@
 
 ### Release 1.0
 
-This version replaces last year's prototype, which was built around Polymer. It is now completely "de-polymerized" and is being made available as:
+This version replaces last year's [prototype version](https://github.com/openfin/fin-hypergrid/tree/polymer-prototype), which was built around Polymer. It is now completely "de-polymerized" and is being made available as:
 * An [npm module](https://www.npmjs.com/package/fin-hypergrid) on npmpjs.org for use with browserify.
 * JavaScript files ([dev](https://openfin.github.io/fin-hypergrid/build/fin-hypergrid.js), [min](https://openfin.github.io/fin-hypergrid/build/fin-hypergrid.min.js)) on github.io for reference in a `<script>` tag.
+
+### Demos
+
+See the version 1.0.0 demo [here](https://openfin.github.io/fin-hypergrid/demo/index.html).
+
+The prototype version's [demos](http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/demo.html) had some nice applications you may wish to look at for inspiration of what you can do with hypergrid and to give you some idea of the speed and responsiveness of the engine.
 
 ### Features
 
