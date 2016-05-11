@@ -1,7 +1,11 @@
 {
   "name": "fin-hypergrid",
-  "version": "0.2.8",
+  "version": "1.0.0",
   "description": "Canvas-based high-performance spreadsheet",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/openfin/fin-hypergrid.git"
+  },
   "main": "src/Hypergrid.js",
   "author": "SWirts, JEiten, DJones",
   "license": "MIT",
