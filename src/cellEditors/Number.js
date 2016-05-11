@@ -10,7 +10,7 @@ var Number = Textfield.extend('Number', {
 
     template: function() {
         /*
-         <input id="editor" type="text">
+         <input type="text">
          */
     },
 

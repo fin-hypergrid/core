@@ -1,15 +1,15 @@
 'use strict';
 
-var Simple = require('./Simple');
+var CellEditor = require('./CellEditor');
 
 /**
  * @constructor
  */
-var Color = Simple.extend('Color', {
+var Color = CellEditor.extend('Color', {
 
     template: function() {
         /*
-            <input id="editor" type="color">
+            <input type="color">
         */
     }
 

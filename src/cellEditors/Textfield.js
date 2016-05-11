@@ -1,15 +1,15 @@
 'use strict';
 
-var Simple = require('./Simple');
+var CellEditor = require('./CellEditor.js');
 
 /**
  * @constructor
  */
-var Textfield = Simple.extend('Textfield', {
+var Textfield = CellEditor.extend('Textfield', {
 
     template: function() {
         /*
-            <input id="editor" type="text">
+            <input type="text">
         */
     },
 

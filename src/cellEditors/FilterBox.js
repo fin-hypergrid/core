@@ -6,7 +6,7 @@ var popMenu = require('pop-menu');
 var Conditionals = require('filter-tree').Conditionals;
 
 var ComboBox = require('./ComboBox');
-var prototype = require('./Simple').prototype;
+var prototype = require('./CellEditor').prototype;
 
 
 /**
@@ -149,9 +149,18 @@ var FilterBox = ComboBox.extend('FilterBox', {
 
             if (this.grid.resolveProperty('filteringMode') === 'immediate') {
                 this.saveEditorValue(this.getEditorValue());
-                this._moveEditor();
+                this.moveEditor();
             }
         }
+    },
+
+    insertText: function(e) {
+        // insert the drop-downb text at the insertion point or over the selected text
+        this.input.focus();
+        this.input.setRangeText(this.dropdown.value, this.selectionStart, this.selectionEnd, 'end');
+
+        // close the drop-down
+        this.toggleDropDown();
     }
 
 });

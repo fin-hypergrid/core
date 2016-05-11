@@ -2,7 +2,7 @@
 
 /* globals fin, people1, people2, vent */
 
-/* eslint-disable no-alert */
+/* eslint-disable no-alert, no-unused-vars */
 
 'use strict';
 
@@ -28,11 +28,6 @@ window.onload = function() {
             ]
         },
         {
-        //     label: 'Sorting',
-        //     ctrls: [
-        //         { name: 'sortOnHiddenColumns', label: 'include hidden columns'}, // default "setter" is `setProp`
-        //     ]
-        // }, {
             label: 'Hover highlights',
             ctrls: [
                 { name: 'hoverCellHighlight.enabled', label: 'cell' },
@@ -85,32 +80,46 @@ window.onload = function() {
         }
     ];
 
-    /* You can redefine `getNewFilter` to return a new instance of another filter module.
-     * Here we're just overriding some options and proceeding with the original `getNewFilter`
-     * which adds some more options. Alternatively we could have instantiated the default filter
-     * directly using its constructor, `fin.Hypergrid.DefaultFilter`.
-     */
-    var protoGetDefaultFilter = fin.Hypergrid.behaviors.Behavior.prototype.getNewFilter;
-    fin.Hypergrid.behaviors.Behavior.prototype.getNewFilter = function() {
+    function derivedSchema() {
         // create a hierarchical schema organized by alias
         var factory = new fin.Hypergrid.ColumnSchemaFactory(this.columns);
         factory.organize(/^(one|two|three|four|five|six|seven|eight)/i, { key: 'alias' });
-        var column = factory.lookup('last_name');
-        if (column) {
-            column.defaultOp = 'IN';
+        var columnSchema = factory.lookup('last_name');
+        if (columnSchema) {
+            columnSchema.defaultOp = 'IN';
         }
         //factory.lookup('birthState').opMenu = ['>', '<'];
-        var options = { schema: factory.schema };
-        return protoGetDefaultFilter.call(this, options);
-    };
+        return factory.schema;
+    }
+
+    var schema = [
+        { name: 'last_name', type: 'number' },
+        'total_number_of_pets_owned',
+        'height',
+        'birthDate',
+        'birthState',
+        'employed',
+        'income',
+        'travel'
+    ];
 
     var gridOptions = {
             data: people1,
-            margin: { bottom: '17px' }
+            margin: { bottom: '17px' },
+            schema: schema
         },
         grid = window.g = new fin.Hypergrid('div#json-example', gridOptions),
         behavior = window.b = grid.behavior,
         dataModel = window.m = behavior.dataModel;
+
+    var idx = behavior.getFields().reduce(function(memo, field, index) {
+        var ID = field.replace(/([^_A-Z])([A-Z]+)/g, '$1_$2').toUpperCase();
+        memo[ID] = index;
+        return memo;
+    }, {});
+    console.log('Fields:');  console.dir(behavior.getFields());
+    console.log('Headers:'); console.dir(behavior.getHeaders());
+    console.log('Indexes:'); console.dir(idx);
 
     // Preset a default dialog options object. Used by call to toggleDialog('ColumnPicker') from features/ColumnPicker.js and by toggleDialog() defined herein.
     grid.setDialogOptions({
@@ -201,7 +210,8 @@ window.onload = function() {
 
     var emptyData = false;
     function toggleEmptyData() {
-        if ((emptyData = !emptyData)) {
+        emptyData = !emptyData;
+        if (emptyData) {
             //important to set top totals first
             behavior.setTopTotals([]);
             behavior.setData([]);
@@ -302,47 +312,47 @@ window.onload = function() {
         }
 
         switch (x) {
-            case 0:
-            case 1:
-            case 5:
-            case 6:
+            case idx.LAST_NAME:
+            case idx.FIRST_NAME:
+            case idx.BIRTH_STATE:
+            case idx.RESIDENCE_STATE:
                 //we are a dropdown, lets provide a visual queue
                 config.value = [null, config.value, upDownIMG];
         }
 
         switch (x) {
-            case 0:
+            case idx.LAST_NAME:
                 renderer = cellProvider.cellCache.linkCellRenderer;
                 break;
 
-            case 2:
+            case idx.TOTAL_NUMBER_OF_PETS_OWNED:
                 config.halign = 'center';
-                config.value = [null, config.value, upDownSpinIMG];
+                //config.value = [null, config.value, upDownSpinIMG];
                 break;
 
-            case 3:
+            case idx.HEIGHT:
                 config.halign = 'right';
                 break;
 
-            case 4:
+            case idx.BIRTH_DATE:
                 if (!doAggregates) {
                     config.halign = 'left';
                     config.value = [null, config.value, downArrowIMG];
                 }
                 break;
 
-            case 7:
+            case idx.EMPLOYED:
                 renderer = cellProvider.cellCache.buttonRenderer;
                 break;
 
-            case 8:
+            case idx.INCOME:
                 travel = 60 + Math.round(config.value * 150 / 100000);
                 config.backgroundColor = '#00' + travel.toString(16) + '00';
                 config.color = '#FFFFFF';
                 config.halign = 'right';
                 break;
 
-            case 9:
+            case idx.TRAVEL:
                 travel = 105 + Math.round(config.value * 150 / 1000);
                 config.backgroundColor = '#' + travel.toString(16) + '0000';
                 config.color = '#FFFFFF';
@@ -403,7 +413,7 @@ window.onload = function() {
         'combobox',
         'textfield',
         'number',
-        null,
+        'foot',
         'singdate',
         'choice',
         'choice',
@@ -413,17 +423,19 @@ window.onload = function() {
         'textfield'
     ];
 
-    //lets override the cell editors, and configure the drop down lists
-    dataModel.getCellEditorAt = function(x) {
-        var cellEditor = this.grid.createCellEditor(editorTypes[x % editorTypes.length]);
+    // Override to assign the the cell editors.
+    var defaultGetCellEditorAt = dataModel.getCellEditorAt.bind(dataModel);
+    dataModel.getCellEditorAt = function(x, y) {
+        var cellEditor = defaultGetCellEditorAt(x, y) ||
+            this.grid.createCellEditor(editorTypes[x % editorTypes.length]);
 
         if (cellEditor) {
             switch (x) {
-                case 7:
+                case idx.EMPLOYED:
                     cellEditor = null;
                     break;
 
-                case 2:
+                case idx.TOTAL_NUMBER_OF_PETS_OWNED:
                     cellEditor.input.setAttribute('min', 0);
                     cellEditor.input.setAttribute('max', 10);
                     cellEditor.input.setAttribute('step', 0.01);
@@ -433,14 +445,6 @@ window.onload = function() {
 
         return cellEditor;
     };
-
-// behavior.getCursorAt = function(x,y) {
-//     if (x === 1) {
-//         return 'pointer'
-//     } else {
-//         return null;
-//     }
-// };
 
     grid.addEventListener('fin-click', function(e) {
         var cell = e.detail.gridCell;
@@ -644,12 +648,6 @@ window.onload = function() {
         if (vent) { console.log('fin-context-menu(' + modelPoint.x + ', ' + (modelPoint.y - headerRowCount) + ')'); }
     });
 
-    var fields = behavior.getFields();
-    var headers = behavior.getHeaders();
-
-    console.log(headers);
-    console.log(fields);
-
     toggleProps.forEach(function(prop) { addToggle(prop); });
 
     //setTimeout(function() {
@@ -669,29 +667,22 @@ window.onload = function() {
             //behavior.setFields(fields);
             //behavior.setHeaders(headers);
 
-            console.log('mapping between indexes and column names');
-            var fieldsMap = {};
-            for (var i = 0; i < fields.length; i++) {
-                fieldsMap[fields[i]] = i;
-                console.log(i + ' <> ' + fields[i]);
-            }
-
             var state = {
                 columnIndexes: [
-                    fieldsMap.last_name,
-                    fieldsMap.total_number_of_pets_owned,
-                    fieldsMap.height,
-                    fieldsMap.birthDate,
-                    fieldsMap.birthState,
-                    // fieldsMap.residenceState,
-                    fieldsMap.employed,
-                    // fieldsMap.first_name,
-                    fieldsMap.income,
-                    fieldsMap.travel,
-                    // fieldsMap.squareOfIncome
+                    idx.LAST_NAME,
+                    idx.TOTAL_NUMBER_OF_PETS_OWNED,
+                    idx.HEIGHT,
+                    idx.BIRTH_DATE,
+                    idx.BIRTH_STATE,
+                    // idx.RESIDENCE_STATE,
+                    idx.EMPLOYED,
+                    // idx.FIRST_NAME,
+                    idx.INCOME,
+                    idx.TRAVEL,
+                    // idx.SQUARE_OF_INCOME
                 ],
 
-                rowHeights:{ 0: 40 },
+                rowHeights: { 0: 40 },
                 fixedColumnCount: 1,
                 fixedRowCount: 2,
 
@@ -709,11 +700,11 @@ window.onload = function() {
                 rowSelection: true
             };
 
-            grid.setGroups([5, 0, 1]);
+            grid.setGroups([idx.BIRTH_STATE, idx.LAST_NAME, idx.FIRST_NAME]);
 
             grid.setState(state);
 
-            behavior.setCellProperties(2, 16, {
+            behavior.setCellProperties(idx.HEIGHT, 16, {
                 font: '10pt Tahoma',
                 color: 'lightblue',
                 backgroundColor: 'red',
@@ -754,7 +745,7 @@ window.onload = function() {
             // rowHeaderForegroundSelectionColor
             // rowHeaderBackgroundSelectionColor
 
-//                behavior.setCellProperties(2,0,
+//                behavior.setCellProperties(idx.TOTAL_NUMBER_OF_PETS_OWNED, 0,
 //                    {
 //                        font: '10pt Tahoma',
 //                        color: 'red',
@@ -762,54 +753,51 @@ window.onload = function() {
 //                        halign: 'left'
 //                    });
 
-            behavior.setColumnProperties(0, {
+            behavior.setColumnProperties(idx.LAST_NAME, {
                 color: redIfStartsWithS,
                 columnHeaderBackgroundColor: '#142B6F', //dark blue
                 columnHeaderColor: 'white'
             });
 
-            behavior.setColumnProperties(0, {
+            behavior.setColumnProperties(idx.LAST_NAME, {
                 autopopulateEditor: true,
                 link: true
             });
 
-            behavior.setColumnProperties(1, {
+            behavior.setColumnProperties(idx.FIRST_NAME, {
                 autopopulateEditor: true
             });
 
-            behavior.setColumnProperties(2, {
+            behavior.setColumnProperties(idx.TOTAL_NUMBER_OF_PETS_OWNED, {
                 format: 'number'
             });
 
-            behavior.setColumnProperties(3, {
+            behavior.setColumnProperties(idx.HEIGHT, {
                 format: 'foot'
             });
 
-            behavior.setColumnProperties(4, {
+            behavior.setColumnProperties(idx.BIRTH_DATE, {
                 format: 'singdate',
                 //strikeThrough: true
             });
 
-            behavior.setColumnProperties(5, {
+            behavior.setColumnProperties(idx.BIRTH_STATE, {
                 autopopulateEditor: true
             });
 
-            behavior.setColumnProperties(6, {
+            behavior.setColumnProperties(idx.EMPLOYED, {
                 autopopulateEditor: true
             });
 
-            behavior.setColumnProperties(8, {
+            behavior.setColumnProperties(idx.INCOME, {
                 format: 'pounds'
             });
 
-            behavior.setColumnProperties(9, {
+            behavior.setColumnProperties(idx.TRAVEL, {
                 format: 'francs'
             });
 
             resetFilter(); // re-instantiate filter using new property settings
-
-            console.log(behavior.getHeaders());
-            console.log(behavior.getFields());
 
             console.log('visible rows = ' + grid.getVisibleRows());
             console.log('visible columns = ' + grid.getVisibleColumns());

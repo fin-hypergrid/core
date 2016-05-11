@@ -3,13 +3,13 @@
 function Queueless(element, context) {
     this.element = element;
     this.context = context;
-    this.state = false;
+    this.transitioning = false;
 }
 
 Queueless.prototype.begin = function(callback) {
     var self = this;
 
-    this.state = true;
+    this.transitioning = true;
 
     this.element.addEventListener('transitionend', function end(transEvent) {
         self.element.removeEventListener('transitionend', end);
@@ -18,7 +18,7 @@ Queueless.prototype.begin = function(callback) {
             callback.call(this, transEvent, self);
         }
 
-        self.state = false;
+        self.transitioning = false;
     });
 };
 

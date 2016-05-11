@@ -39,101 +39,101 @@
             travel: travel,
             squareOfIncome: 0,
 
-            onelast_name: lastNames[lastName], //jshint ignore:line
-            onefirst_name: firstNames[firstName], //jshint ignore:line
-            onepets: pets,
-            oneheight: height,
-            onebirthDate: birthyear + '-' + months[birthmonth] + '-' + days[birthday],
-            onebirthState: states[birthstate],
-            oneresidenceState: states[residencestate],
-            oneemployed: employed === 1,
-            oneincome: income,
-            onetravel: travel,
-            onesquareOfIncome: 0,
+            one_last_name: lastNames[lastName], //jshint ignore:line
+            one_first_name: firstNames[firstName], //jshint ignore:line
+            one_pets: pets,
+            one_height: height,
+            one_birthDate: birthyear + '-' + months[birthmonth] + '-' + days[birthday],
+            one_birthState: states[birthstate],
+            one_residenceState: states[residencestate],
+            one_employed: employed === 1,
+            one_income: income,
+            one_travel: travel,
+            one_squareOfIncome: 0,
 
-            twolast_name: lastNames[lastName], //jshint ignore:line
-            twofirst_name: firstNames[firstName], //jshint ignore:line
-            twopets: pets,
-            twoheight: height,
-            twobirthDate: birthyear + '-' + months[birthmonth] + '-' + days[birthday],
-            twobirthState: states[birthstate],
-            tworesidenceState: states[residencestate],
-            twoemployed: employed === 1,
-            twoincome: income,
-            twotravel: travel,
-            twosquareOfIncome: 0,
+            two_last_name: lastNames[lastName], //jshint ignore:line
+            two_first_name: firstNames[firstName], //jshint ignore:line
+            two_pets: pets,
+            two_height: height,
+            two_birthDate: birthyear + '-' + months[birthmonth] + '-' + days[birthday],
+            two_birthState: states[birthstate],
+            two_residenceState: states[residencestate],
+            two_employed: employed === 1,
+            two_income: income,
+            two_travel: travel,
+            two_squareOfIncome: 0,
 
-            threelast_name: lastNames[lastName], //jshint ignore:line
-            threefirst_name: firstNames[firstName], //jshint ignore:line
-            threepets: pets,
-            threeheight: height,
-            threebirthDate: birthyear + '-' + months[birthmonth] + '-' + days[birthday],
-            threebirthState: states[birthstate],
-            threeresidenceState: states[residencestate],
-            threeemployed: employed === 1,
-            threeincome: income,
-            threetravel: travel,
-            threesquareOfIncome: 0,
+            three_last_name: lastNames[lastName], //jshint ignore:line
+            three_first_name: firstNames[firstName], //jshint ignore:line
+            three_pets: pets,
+            three_height: height,
+            three_birthDate: birthyear + '-' + months[birthmonth] + '-' + days[birthday],
+            three_birthState: states[birthstate],
+            three_residenceState: states[residencestate],
+            three_employed: employed === 1,
+            three_income: income,
+            three_travel: travel,
+            three_squareOfIncome: 0,
 
-            fourlast_name: lastNames[lastName], //jshint ignore:line
-            fourfirst_name: firstNames[firstName], //jshint ignore:line
-            fourpets: pets,
-            fourheight: height,
-            fourbirthDate: birthyear + '-' + months[birthmonth] + '-' + days[birthday],
-            fourbirthState: states[birthstate],
-            fourresidenceState: states[residencestate],
-            fouremployed: employed === 1,
-            fourincome: income,
-            fourtravel: travel,
-            foursquareOfIncome: 0,
+            four_last_name: lastNames[lastName], //jshint ignore:line
+            four_first_name: firstNames[firstName], //jshint ignore:line
+            four_pets: pets,
+            four_height: height,
+            four_birthDate: birthyear + '-' + months[birthmonth] + '-' + days[birthday],
+            four_birthState: states[birthstate],
+            four_residenceState: states[residencestate],
+            four_employed: employed === 1,
+            four_income: income,
+            four_travel: travel,
+            four_squareOfIncome: 0,
 
-            fivelast_name: lastNames[lastName], //jshint ignore:line
-            fivefirst_name: firstNames[firstName], //jshint ignore:line
-            fivepets: pets,
-            fiveheight: height,
-            fivebirthDate: birthyear + '-' + months[birthmonth] + '-' + days[birthday],
-            fivebirthState: states[birthstate],
-            fiveresidenceState: states[residencestate],
-            fiveemployed: employed === 1,
-            fiveincome: income,
-            fivetravel: travel,
-            fivesquareOfIncome: 0,
+            five_last_name: lastNames[lastName], //jshint ignore:line
+            five_first_name: firstNames[firstName], //jshint ignore:line
+            five_pets: pets,
+            five_height: height,
+            five_birthDate: birthyear + '-' + months[birthmonth] + '-' + days[birthday],
+            five_birthState: states[birthstate],
+            five_residenceState: states[residencestate],
+            five_employed: employed === 1,
+            five_income: income,
+            five_travel: travel,
+            five_squareOfIncome: 0,
 
-            sixlast_name: lastNames[lastName], //jshint ignore:line
-            sixfirst_name: firstNames[firstName], //jshint ignore:line
-            sixpets: pets,
-            sixheight: height,
-            sixbirthDate: birthyear + '-' + months[birthmonth] + '-' + days[birthday],
-            sixbirthState: states[birthstate],
-            sixresidenceState: states[residencestate],
-            sixemployed: employed === 1,
-            sixincome: income,
-            sixtravel: travel,
-            sixsquareOfIncome: 0,
+            six_last_name: lastNames[lastName], //jshint ignore:line
+            six_first_name: firstNames[firstName], //jshint ignore:line
+            six_pets: pets,
+            six_height: height,
+            six_birthDate: birthyear + '-' + months[birthmonth] + '-' + days[birthday],
+            six_birthState: states[birthstate],
+            six_residenceState: states[residencestate],
+            six_employed: employed === 1,
+            six_income: income,
+            six_travel: travel,
+            six_squareOfIncome: 0,
 
-            sevenlast_name: lastNames[lastName], //jshint ignore:line
-            sevenfirst_name: firstNames[firstName], //jshint ignore:line
-            sevenpets: pets,
-            sevenheight: height,
-            sevenbirthDate: birthyear + '-' + months[birthmonth] + '-' + days[birthday],
-            sevenbirthState: states[birthstate],
-            sevenresidenceState: states[residencestate],
-            sevenemployed: employed === 1,
-            sevenincome: income,
-            seventravel: travel,
-            sevensquareOfIncome: 0,
+            seven_last_name: lastNames[lastName], //jshint ignore:line
+            seven_first_name: firstNames[firstName], //jshint ignore:line
+            seven_pets: pets,
+            seven_height: height,
+            seven_birthDate: birthyear + '-' + months[birthmonth] + '-' + days[birthday],
+            seven_birthState: states[birthstate],
+            seven_residenceState: states[residencestate],
+            seven_employed: employed === 1,
+            seven_income: income,
+            seven_travel: travel,
+            seven_squareOfIncome: 0,
 
-            eightlast_name: lastNames[lastName], //jshint ignore:line
-            eightfirst_name: firstNames[firstName], //jshint ignore:line
-            eightpets: pets,
-            eightheight: height,
-            eightbirthDate: birthyear + '-' + months[birthmonth] + '-' + days[birthday],
-            eightbirthState: states[birthstate],
-            eightresidenceState: states[residencestate],
-            eightemployed: employed === 1,
-            eightincome: income,
-            eighttravel: travel,
-            eightsquareOfIncome: 0,
+            eight_last_name: lastNames[lastName], //jshint ignore:line
+            eight_first_name: firstNames[firstName], //jshint ignore:line
+            eight_pets: pets,
+            eight_height: height,
+            eight_birthDate: birthyear + '-' + months[birthmonth] + '-' + days[birthday],
+            eight_birthState: states[birthstate],
+            eight_residenceState: states[residencestate],
+            eight_employed: employed === 1,
+            eight_income: income,
+            eight_travel: travel,
+            eight_squareOfIncome: 0,
         };
         person.squareOfIncome = function() {
             return Math.sqrt(person.income);

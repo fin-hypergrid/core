@@ -16,7 +16,9 @@ var ColumnPicker = Dialog.extend('ColumnPicker', {
      * @param {object} [options] - May include `Dialog` options.
      */
     initialize: function(grid, options) {
-        var behavior = this.behavior = grid.behavior;
+        var behavior = grid.behavior;
+
+        this.grid = grid;
 
         if (behavior.isColumnReorderable()) {
             // grab the lists from the behavior
@@ -39,6 +41,8 @@ var ColumnPicker = Dialog.extend('ColumnPicker', {
                 title: 'Visible Columns',
                 models: behavior.getVisibleColumns()
             };
+
+            this.sortOnHiddenColumns = this.wasSortOnHiddenColumns = grid.resolveProperty('sortOnHiddenColumns');
 
             // parse & add the drag-and-drop stylesheet addendum
             var stylesheetAddendum = css.inject('list-dragon-addendum');
@@ -80,31 +84,33 @@ var ColumnPicker = Dialog.extend('ColumnPicker', {
             this.append(div);
         }
 
-        // add the dialog to the DOM
-        this.open(options.container);
-        //Add checkbox
-        this.sortOnHiddenColumns = this.grid.resolveProperty('sortOnHiddenColumns');
-        var panel = document.querySelector('.hypergrid-dialog-control-panel');
-        var checkbox = document.createElement('input');
-        checkbox.type = 'checkbox';
+        // Add checkbox to control panel for sorting on hidden fields
+        var label = document.createElement('label');
+        label.innerHTML = '<input type="checkbox"> Allow sorting on hidden columns';
+        label.style.fontWeight = 'normal';
+        label.style.marginRight = '2em';
+
+        var checkbox = label.querySelector('input');
         checkbox.checked = this.sortOnHiddenColumns;
         checkbox.addEventListener('click', function(e){
-            e.stopPropagation();
-            grid.addProperties({sortOnHiddenColumns: checkbox.checked});
             self.sortOnHiddenColumns = checkbox.checked;
+            e.stopPropagation();
         });
-        var label = document.createElement('label');
-        label.innerHTML = ' include hidden columns';
-        label.appendChild(checkbox);
-        panel.appendChild(label);
+
+        var panel = this.el.querySelector('.hypergrid-dialog-control-panel');
+        panel.insertBefore(label, panel.firstChild);
+
+        // add the dialog to the DOM
+        this.open(options.container);
     },
 
     onClosed: function() {
         if (this.visibleColumns) {
-            var columns = this.behavior.columns,
+            var behavior = this.grid.behavior,
+                columns = behavior.columns,
                 tree = columns[0];
-            //breaking encapsulation
-            //Should be using setters and getters on the behavior
+
+            // TODO: breaking encapsulation; should be using setters and getters on the behavior
             columns.length = 0;
             if (tree && tree.label === 'Tree') {
                 columns.push(tree);
@@ -115,12 +121,14 @@ var ColumnPicker = Dialog.extend('ColumnPicker', {
             var groupBys = this.selectedGroups.models.map(function(e) {
                 return e.id;
             });
-            this.behavior.dataModel.setGroups(groupBys);
+            behavior.dataModel.setGroups(groupBys);
 
-            if (!this.sortOnHiddenColumns) {
-                this.behavior.sortChanged(this.hiddenColumns.models);
+            if (this.sortOnHiddenColumns !== this.wasSortOnHiddenColumns) {
+                this.grid.addProperties({ sortOnHiddenColumns: this.sortOnHiddenColumns });
+                behavior.sortChanged(this.hiddenColumns.models);
             }
-            this.behavior.changed();
+
+            behavior.changed();
         }
     }
 });

@@ -29,9 +29,15 @@ var themeInitialized = false,
 /**s
  * @constructor
  * @param {string|Element} div - CSS selector or Element
- * @param {object} options - Required (despite its name) because you must provide a behavior one way or another.
- * @param {string} [options.getBehavior] - A function(grid) that returns a new behavior object. Provide this or provide `options.data` (with or without `options.Behavior`)
- * @param {object[]} [options.data] - An array of congruent raw data objects. Provide this (with or without `options.Behavior`) or provide `options.getBehavior`.
+ * @param {object} [options]
+ * @param {function} [options.Behavior=behaviors.JSON] - A behavior constructor.
+ * @param {function|object[]} [options.data] - Passed to behavior constructor. May be:
+ * * An array of congruent raw data objects
+ * * A function returning same
+ * @param {function|menuItem[]} [schema=derivedSchema] - Passed to behavior constructor. May be:
+ * * A schema array
+ * * A function returning a schema array. Called at filter reset time with behavior as context.
+ * * Omit to generate a basic schema from `this.behavior.columns`.
  * @param {Behavior} [options.Behavior=JSON] - A grid behavior (descendant of Behavior "class"). Will be used if `getBehavior` omitted, in which case `options.data` (which has no default) *must* also be provided.
  * @param {object} [options.margin] - optional canvas margins
  * @param {string} [options.margin.top=0]
@@ -54,9 +60,10 @@ function Hypergrid(div, options) {
     this.selectionModel = new SelectionModel(this);
     this.renderOverridesCache = {};
 
-    this.behavior = options.getBehavior
-        ? options.getBehavior(this)
-        : new (options.Behavior || behaviors.JSON)(this, options.data);
+    options = options || {};
+    var data = typeof options.data === 'function' ? options.data() : options.data;
+    var Behavior = options.Behavior || behaviors.JSON;
+    this.behavior = new Behavior(this, options.schema, data);
 
     //prevent the default context menu for appearing
     this.div.oncontextmenu = function(event) {
@@ -167,13 +174,13 @@ Hypergrid.prototype = {
     cellEditor: null,
 
     /**
-     * @property {fin-vampire-bar} sbHScroller - An instance of [fin-vampire-bar](http://datamadic.github.io/fin-vampire-bar/components/fin-vampire-bar/).
+     * @property {fin-vampire-bar} sbHScroller - An instance of {@link https://github.com/openfin/finbars|FinBar}.
      * @memberOf Hypergrid.prototype
      */
     sbHScroller: null,
 
     /**
-     * @property {fin-vampire-bar} sbVScroller - An instance of [fin-vampire-bar](http://datamadic.github.io/fin-vampire-bar/components/fin-vampire-bar/).
+     * @property {fin-vampire-bar} sbVScroller - An instance of {@link https://github.com/openfin/finbars|FinBar}.
      * @memberOf Hypergrid.prototype
      */
     sbVScroller: null,
@@ -285,14 +292,19 @@ Hypergrid.prototype = {
     /**
      * @param {string} name
      * @param {localizerInterface} localizer
-     * @param {boolean} [createAndRegisterCellEditor=false] - Create and register a new cell editor to go with it.
-     * Note that if you use this option, both the localizer and the cell editor will end up with the same name. This may make things simpler or may make them more confusing, depending on where you're coming from!
+     * @param {boolean|string} [baseClassName=true] - A truthy value means create a new cell editor class that uses this localizer. If a string, extend from the base class so named; otherwise (_e.g.,_ `true`) extend from {@link Textfield}.
+     * @param {string} [newClassName=localizerName] - Provide a value here to name the cell editor differently from its localizer.
      */
-    registerLocalizer: function(name, localizer, createAndRegisterCellEditor) {
+    registerLocalizer: function(name, localizer, baseClassName, newClassName) {
         localization.set(name, localizer);
 
-        if (createAndRegisterCellEditor) {
-            this.registerCellEditor(this.extendAndLocalizeCellEditor(name));
+        if (baseClassName) {
+            if (typeof baseClassName !== 'string') {
+                baseClassName = undefined; // use `cellEditors.extend`'s default
+            }
+
+            var newCellEditorClass = cellEditors.extend(name, baseClassName, newClassName);
+            this.registerCellEditor(newCellEditorClass);
         }
     },
 
@@ -306,33 +318,16 @@ Hypergrid.prototype = {
     },
 
     /**
-     * @summary Create a new cell editor class with the given localizer.
-     * @desc Extemd the {@link Textfield} cell editor using the named localizer and name it after the localizer unless otherwise specified.
-     * @param {string} localizerName
-     * @param {string} [newClassName=localizerName]
-     */
-    extendAndLocalizeCellEditor: function(localizerName, newClassName) {
-        return cellEditors.textfield.extend(newClassName || localizerName, {
-            localizer: localization.get(localizerName)
-        });
-    },
-
-    /**
+     * @see {@link module:cellEditors.register|cellEditors.register}
      * @memberOf Hypergrid.prototype
-     * @summary Register a cell editor.
-     * @see {@link module:cellEditors.register|cellEditors.register}.
      */
     registerCellEditor: cellEditors.register,
 
     /**
+     * @see {@link module:cellEditors.instantiate|cellEditors.instantiate}
      * @memberOf Hypergrid.prototype
-     * @returns {CellEditor} New instance of the named cell editor.
-     * @param {string} editorKey
      */
-    createCellEditor: function(editorKey) {
-        var CellEditorConstructor = cellEditors[editorKey];
-        return CellEditorConstructor && new CellEditorConstructor(this);
-    },
+    createCellEditor: cellEditors.instantiate,
 
     /**
      * @memberOf Hypergrid.prototype
@@ -1859,11 +1854,11 @@ Hypergrid.prototype = {
      */
     fireSyntheticOnColumnsChangedEvent: function() {
         var detail = {
-                time: Date.now(),
-                grid: this
+            time: Date.now(),
+            grid: this
         };
         var cEvent = new CustomEvent('fin-column-changed-event', {
-                detail: detail
+            detail: detail
         });
         console.log('column changed');
         this.canvas.dispatchEvent(cEvent);
@@ -3339,13 +3334,13 @@ Hypergrid.prototype = {
      * * If `dialogName` defined: Save the specific dialog's options object.
      * * If `dialogName` undefined: Save the default dialog options object.
      *
-     * If `options` is _not_ defined, no new dialog options object will be saved; but a previously saved preset will be returned (after mixing into the default preset if there is one).
+     * If `options` is _not_ defined, no new dialog options object will be saved; but a previously saved preset will be returned (after mixing in the default preset if there is one).
      *
      * The default dialog options object is used in two ways:
      * * when a dialog has no options object
      * * as a mix-in base when a dialog does have an options object
      *
-     * @param {string} [dialogName] If defined, `options` defines the default dialog options object.
+     * @param {string} [dialogName] If undefined, `options` defines the default dialog options object.
      *
      * @param {object} [options] If defined, preset the named dialog options object or the default dialog options object if name is undefined.
      *
@@ -3356,7 +3351,7 @@ Hypergrid.prototype = {
      *   * empty object
      * * When `options` defined, first of:
      *   * mix-in: default preset members + `options` members
-     *   * `options` verbatim when default preset undefined     *
+     *   * `options` verbatim when default preset undefined
      */
     setDialogOptions: function(dialogName, options) {
         if (typeof dialogName === 'object') {

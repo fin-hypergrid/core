@@ -514,9 +514,10 @@ var CellProvider = Base.extend('CellProvider', {
             //defaultCellPaint: this.defaultCellPaint
         };
         this.cellCache.linkCellRenderer = {
-            paint: function(gc, x, y, width, height) {
+            paint: function(gc, config) {
                 self.config = this.config;
-                self.defaultCellPaint(gc, x, y, width, height, true);
+                //todo: needs config.link ??
+                self.defaultCellPaint(gc, config);
             }
         };
     }

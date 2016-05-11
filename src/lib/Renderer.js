@@ -1066,7 +1066,7 @@ var Renderer = Base.extend('Renderer', {
         behavior.cellPropertiesPrePaintNotification(cellProperties);
 
         var cell = behavior.getCellRenderer(cellProperties, c, r);
-        var overrides = behavior.getCellProperties(c, r);
+        var overrides = behavior.getCellProperties(behavior.getColumn(c).index, r);
 
         //declarative cell properties
         _(cellProperties).extendOwn(overrides);
