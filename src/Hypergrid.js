@@ -174,13 +174,13 @@ Hypergrid.prototype = {
     cellEditor: null,
 
     /**
-     * @property {fin-vampire-bar} sbHScroller - An instance of [fin-vampire-bar](http://datamadic.github.io/fin-vampire-bar/components/fin-vampire-bar/).
+     * @property {fin-vampire-bar} sbHScroller - An instance of {@link https://github.com/openfin/finbars|FinBar}.
      * @memberOf Hypergrid.prototype
      */
     sbHScroller: null,
 
     /**
-     * @property {fin-vampire-bar} sbVScroller - An instance of [fin-vampire-bar](http://datamadic.github.io/fin-vampire-bar/components/fin-vampire-bar/).
+     * @property {fin-vampire-bar} sbVScroller - An instance of {@link https://github.com/openfin/finbars|FinBar}.
      * @memberOf Hypergrid.prototype
      */
     sbVScroller: null,
@@ -1854,11 +1854,11 @@ Hypergrid.prototype = {
      */
     fireSyntheticOnColumnsChangedEvent: function() {
         var detail = {
-                time: Date.now(),
-                grid: this
+            time: Date.now(),
+            grid: this
         };
         var cEvent = new CustomEvent('fin-column-changed-event', {
-                detail: detail
+            detail: detail
         });
         console.log('column changed');
         this.canvas.dispatchEvent(cEvent);

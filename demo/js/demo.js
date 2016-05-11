@@ -28,11 +28,6 @@ window.onload = function() {
             ]
         },
         {
-        //     label: 'Sorting',
-        //     ctrls: [
-        //         { name: 'sortOnHiddenColumns', label: 'include hidden columns'}, // default "setter" is `setProp`
-        //     ]
-        // }, {
             label: 'Hover highlights',
             ctrls: [
                 { name: 'hoverCellHighlight.enabled', label: 'cell' },
@@ -115,20 +110,16 @@ window.onload = function() {
         },
         grid = window.g = new fin.Hypergrid('div#json-example', gridOptions),
         behavior = window.b = grid.behavior,
-        dataModel = window.m = behavior.dataModel,
-        fields = behavior.getFields(),
-        headers = behavior.getHeaders();
+        dataModel = window.m = behavior.dataModel;
 
-    //console.log(headers);
-    //console.log(fields);
-
-    console.log('mapping between indexes and column names');
-    var idx = {};
-    for (var i = 0; i < fields.length; i++) {
-        var ID = fields[i].replace(/([^_A-Z])([A-Z]+)/g, '$1_$2').toUpperCase();
-        idx[ID] = i;
-        console.log(ID, ':', i);
-    }
+    var idx = behavior.getFields().reduce(function(memo, field, index) {
+        var ID = field.replace(/([^_A-Z])([A-Z]+)/g, '$1_$2').toUpperCase();
+        memo[ID] = index;
+        return memo;
+    }, {});
+    console.log('Fields:');  console.dir(behavior.getFields());
+    console.log('Headers:'); console.dir(behavior.getHeaders());
+    console.log('Indexes:'); console.dir(idx);
 
     // Preset a default dialog options object. Used by call to toggleDialog('ColumnPicker') from features/ColumnPicker.js and by toggleDialog() defined herein.
     grid.setDialogOptions({
@@ -219,7 +210,8 @@ window.onload = function() {
 
     var emptyData = false;
     function toggleEmptyData() {
-        if ((emptyData = !emptyData)) {
+        emptyData = !emptyData;
+        if (emptyData) {
             //important to set top totals first
             behavior.setTopTotals([]);
             behavior.setData([]);
@@ -806,9 +798,6 @@ window.onload = function() {
             });
 
             resetFilter(); // re-instantiate filter using new property settings
-
-            console.log(behavior.getHeaders());
-            console.log(behavior.getFields());
 
             console.log('visible rows = ' + grid.getVisibleRows());
             console.log('visible columns = ' + grid.getVisibleColumns());
