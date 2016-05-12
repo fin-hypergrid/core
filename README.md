@@ -8,7 +8,7 @@ This version replaces last year's [prototype version](https://github.com/openfin
 
 ### Demos
 
-See the version 1.0.0 demo [here](https://openfin.github.io/fin-hypergrid/demo/index.html).
+See the version 1.0 demo [here](https://openfin.github.io/fin-hypergrid).
 
 The prototype version's [demos](http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/demo.html) had some nice applications you may wish to look at for inspiration of what you can do with hypergrid and to give you some idea of the speed and responsiveness of the engine.
 

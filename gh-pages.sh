@@ -10,8 +10,10 @@ mkdir ../temp
 pushd ../temp >/dev/null
 
 # clone it so it will be a branch of the repo
-git clone -q --single-branch http://github.com/$org/$repo.git
+git clone -q --single-branch --recurse-submodules http://github.com/$org/$repo.git
 cd $repo >/dev/null
+
+npm install >/dev/null
 
 # make sure the docs are built
 gulp build >/dev/null
@@ -26,22 +28,21 @@ git checkout -q --orphan gh-pages
 # remove all content from this new branch
 git rm -rf -q .
 
-# copy the doc directory from the stash
-cp -R ../../doc . >/dev/null
+git clean -fd
 
-# copy the contents of the demo directory (which includes index.html) from the stash
-cp -R ../../demo/* . >/dev/null
+# copy the doc directory from the stash
+mv ../doc ../demo/* . >/dev/null
 
 # send it up
 git add . >/dev/null
 git commit -q -m '(See gh-pages.sh on master branch.)'
-git push -ufq origin gh-pages >/dev/null
+git push -ufq origin gh-pages
 
 # back to workspace
 popd >/dev/null
 
 # remove temp directory
-# rm -rf ../temp >/dev/null
+rm -rf ../temp >/dev/null
 
 echo 'Opening page at http://$org.github.io/$repo/ ...'
 open http://$org.github.io/$repo/
