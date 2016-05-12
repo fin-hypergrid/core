@@ -75,7 +75,7 @@ var ComboBox = Textfield.extend('ComboBox', {
                 // get the distinct column values and sort them
                 var distinct = {},
                     d = [],
-                    columnName = this.column.getField(),
+                    columnName = this.column.name,
                     formatter = this.column.getFormatter();
 
                 this.grid.behavior.getData().forEach(function(dataRow) {

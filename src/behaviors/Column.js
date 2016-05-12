@@ -4,23 +4,96 @@
 
 var _ = require('object-iterators');
 var localization = require('../lib/localization');
+var deprecated = require('../lib/deprecated');
 
-/**
+var propertyNames = [
+    'index',
+    'name',
+    'header',
+    'type'
+];
+
+/** @summary Create a new `Column` object.
  * @constructor
  * @param behavior
- * @param index
- * @param label
+ * @param {number|object} indexOrOptions - If a number, shorthand for `options.index`.
+ *
+ * For positive values of `options.index`, see {@link Column#initialize|initialize}. Note that for new columns, you must supply either `index` or `name`. If you supply both, they must match the definitiion in data model's `fields` list.
+ *
+ * Negative values are special cases:
+ * `index` | Meaning
+ * :-----: | --------
+ *    -1   | Row header column
+ *    -2   | Tree (drill-down) column
+ *
+ *
  */
-function Column(behavior, index, label) {
+function Column(behavior, indexOrOptions) {
     this.behavior = behavior;
     this.dataModel = behavior.dataModel;
-    this.index = index;
-    this.label = label;
     this.cellProperties = [];
+
+    var options = typeof indexOrOptions === 'object' ? indexOrOptions : { index: indexOrOptions },
+        index = options.index;
+
+    switch (index) {
+
+        case -1:
+            this.index = index;
+            this.name = '';
+            this.header = '';
+            break;
+
+        case -2:
+            this.index = index;
+            this.name = 'tree';
+            this.header = 'Tree';
+            break;
+
+        default:
+            if (index < 0) {
+                throw '`index` out of range';
+            } else {
+                this.initialize(options);
+            }
+
+    }
 }
 
 Column.prototype = {
     constructor: Column.prototype.constructor,
+
+    /** @summary Initialize or reinitialize a column object.
+     * @desc When (re)initializing a column object, the object must end up with fully defined `index` and `name` properties. If one is missing it will be derived from the data model's `fields` list.
+     * @param {object} options - Required because you must supply at least `index` or `name`.
+     * @param {object} [options.index]
+     * @param {object} [options.name]
+     * @param {object} [options.header]
+     * @param {object} [options.type]
+     */
+    initialize: function(options) {
+        var column = this;
+        propertyNames.forEach(function(option) {
+            if (option in options) {
+                column[option] = options[option];
+            }
+        });
+
+        var fields = this.dataModel.getFields();
+        if (column.name === undefined) {
+            column.name = fields[column.index];
+        } else if (column.index === undefined) {
+            column.index = fields.indexOf(column.name);
+        }
+
+        if (column.index === undefined) {
+            throw 'column.index not defined';
+        } else if (column.name === undefined) {
+            throw 'column.name not defined';
+        } else if (fields[column.index] !== column.name) {
+            throw 'Expected to find `column.name` in position `column.index` in data model\'s fields list.';
+        }
+    },
 
     getUnfilteredValue: function(y) {
         return this.dataModel.getUnfilteredValue(this.index, y);
@@ -153,11 +226,13 @@ Column.prototype = {
     },
 
     getHeader: function() {
-        return this.label;
+        return deprecated.call(this, 'header', { since: '1.0' });
     },
 
-    getField: function() {
-        return this.dataModel.getFields()[this.index];
+    /** @deprecated Use `.name` property instead.
+     */
+    getColumnName: function() {
+        return deprecated.call(this, 'name', { since: '1.0', getterName: 'getColumnName' });
     },
 
     getFormatter: function() {

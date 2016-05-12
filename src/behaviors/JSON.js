@@ -52,11 +52,11 @@ var JSON = Local.extend('behaviors.JSON', {
         var headers = dataModel.getHeaders();
         var fields = dataModel.getFields();
         this.clearColumns();
-        for (var i = 0; i < columnCount; i++) {
-            var header = headers[i];
-            var column = this.addColumn(i, header);
+        for (var index = 0; index < columnCount; index++) {
+            var header = headers[index];
+            var column = this.addColumn({ index: index, header: header });
             var properties = column.getProperties();
-            properties.field = fields[i];
+            properties.field = fields[index];
             properties.header = header;
             properties.complexFilter = null;
         }
@@ -89,10 +89,10 @@ var JSON = Local.extend('behaviors.JSON', {
     /**
      * @memberOf behaviors.JSON.prototype
      * @return {string} The field at `colIndex`.
-     * @param {number} colIndex - the column index of interest
+     * @param {number} colIndex - the absolute column index of interest
      */
-    getField: function(colIndex) {
-        return colIndex === -1 ? 'tree' : this.getColumnFromFullList(colIndex).getField();
+    getColumnName: function(colIndex) {
+        return this.getColumn(colIndex).name;
     },
 
     /**
@@ -183,15 +183,15 @@ var JSON = Local.extend('behaviors.JSON', {
      * @description Build the fields and headers from the supplied column definitions.
      * ```javascript
      * myJsonBehavior.setColumns([
-     *     { title: 'Stock Name', field: 'short_description' },
-     *     { title: 'Status', field: 'trading_phase' },
-     *     { title: 'Reference Price', field: 'reference_price' }
+     *     { header: 'Stock Name', name: 'short_description' },
+     *     { header: 'Status', name: 'trading_phase' },
+     *     { header: 'Reference Price', name: 'reference_price' }
      * ]);
      * ```
      * @param {Array} columnDefinitions - an array of objects with fields 'title', and 'field'
      */
     setColumns: function(columnDefinitions) {
-        this.dataModel.setColumns(columnDefinitions);
+        this.dataModel.setColumns(columnDefinitions); // TODO: this method is missing
     },
 
     /**
@@ -217,9 +217,6 @@ var JSON = Local.extend('behaviors.JSON', {
         } else {
             return 'center';
         }
-    },
-    getColumnFromFullList: function(x) {
-        return this.allColumns[x];
     },
 
 
