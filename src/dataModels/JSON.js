@@ -230,7 +230,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
      */
     getColumnProperties: function(colIndex) {
         //access directly because we want it ordered
-        var column = this.grid.behavior.allColumns[colIndex];
+        var column = this.grid.behavior.getColumn(colIndex);
         if (column) {
             return column.getProperties();
         }

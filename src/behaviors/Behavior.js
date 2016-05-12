@@ -1177,7 +1177,7 @@ var Behavior = Base.extend('Behavior', {
      * @return {string} The field at `visibleColumnIndex`.
      * @param {number} visibleColumnIndex - the column index of interest
      */
-    getColumnName: function(visibleColumnIndex) {
+    getVisibleColumnName: function(visibleColumnIndex) {
         return this.getVisibleColumn(visibleColumnIndex).name;
     },
 
@@ -1220,7 +1220,7 @@ var Behavior = Base.extend('Behavior', {
                 labels.push({
                     id: i,
                     header: this.getHeader(i),
-                    field: this.getColumnName(i)
+                    field: this.getVisibleColumnName(i)
                 });
             }
         }

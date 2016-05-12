@@ -1724,7 +1724,7 @@ Hypergrid.prototype = {
         var self = this;
         selectedColumnIndexes.forEach(function(selectedColumnIndex) {
             var column = new Array(rowCount);
-            result[self.getColumnName(selectedColumnIndex)] = column;
+            result[self.getVisibleColumnName(selectedColumnIndex)] = column;
             for (var r = 0; r < rowCount; r++) {
                 column[r] = valOrFunc(self.getValue(selectedColumnIndex, r));
             }
@@ -1752,7 +1752,7 @@ Hypergrid.prototype = {
         var r;
         for (var c = 0; c < colCount; c++) {
             var column = new Array(rowCount);
-            result[this.getColumnName(c + ox)] = column;
+            result[this.getVisibleColumnName(c + ox)] = column;
             for (r = 0; r < rowCount; r++) {
                 column[r] = valOrFunc(this.getValue(ox + c, oy + r));
             }
@@ -3300,8 +3300,8 @@ Hypergrid.prototype = {
         }
         this.repaint();
     },
-    getColumnName: function(x) {
-        return this.behavior.getColumnName(x);
+    getVisibleColumnName: function(x) {
+        return this.behavior.getVisibleColumnName(x);
     },
     isSingleRowSelectionMode: function() {
         return this.resolveProperty('singleRowSelectionMode');

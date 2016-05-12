@@ -226,14 +226,16 @@ Column.prototype = {
         return this.dataModel.getCellEditorAt(this.index, y);
     },
 
+    /** @deprecated Use `.header` property instead.
+     */
     getHeader: function() {
         return deprecated.call(this, 'header', { since: '1.0' });
     },
 
     /** @deprecated Use `.name` property instead.
      */
-    getColumnName: function() {
-        return deprecated.call(this, 'name', { since: '1.0', getterName: 'getColumnName' });
+    getField: function() {
+        return deprecated.call(this, 'name', { since: '1.0', getterName: 'getField' });
     },
 
     getFormatter: function() {

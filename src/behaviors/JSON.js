@@ -81,15 +81,6 @@ var JSON = Local.extend('behaviors.JSON', {
 
     /**
      * @memberOf behaviors.JSON.prototype
-     * @return {string} The field at `colIndex`.
-     * @param {number} colIndex - the absolute column index of interest
-     */
-    getColumnName: function(colIndex) {
-        return this.getColumn(colIndex).name;
-    },
-
-    /**
-     * @memberOf behaviors.JSON.prototype
      * @description Set the fields array.
      * @param {string[]} fieldNames - The field names.
      */
@@ -103,10 +94,9 @@ var JSON = Local.extend('behaviors.JSON', {
     /**
      * @memberOf behaviors.JSON.prototype
      * @description Set the data field.
-     * @param {object[]} objects - An array of uniform objects, each being a row in the grid.
-     * @param {FilterTree} [filter]
+     * @param {object[]} dataRows - An array of uniform objects backing the rows in the grid.
      */
-    setData: function(dataRows, filter) {
+    setData: function(dataRows) {
         this.dataModel.setData(dataRows);
         this.createColumns();
 
@@ -120,7 +110,7 @@ var JSON = Local.extend('behaviors.JSON', {
             self.changed();
         } else {
             setTimeout(function() {
-                self.allColumns[-1].checkColumnAutosizing(true);
+                self.getColumn(-1).checkColumnAutosizing(true);
                 self.changed();
             });
         }
