@@ -436,7 +436,7 @@ var Renderer = Base.extend('Renderer', {
 
         var translatedIndex = -1;
 
-        var column = behavior.getColumn(c);
+        var column = behavior.getVisibleColumn(c);
         if (column) {
             translatedIndex = column.index;
         }
@@ -1029,7 +1029,7 @@ var Renderer = Base.extend('Renderer', {
         var rowNum = r - headerRowCount + 1;
 
         if (c === -1) {
-            if (r === 0) { // header label row gets "master" checkbox
+            if (r === 0) { // header row gets "master" checkbox
                 cellProperties.value = [images.checkbox(areAllRowsSelected), '', null];
             } else if (isFilterRow) { // no checkbox but show filter icon
                 cellProperties.value = [images.filter(false), '', null];
@@ -1066,7 +1066,7 @@ var Renderer = Base.extend('Renderer', {
         behavior.cellPropertiesPrePaintNotification(cellProperties);
 
         var cell = behavior.getCellRenderer(cellProperties, c, r);
-        var overrides = behavior.getCellProperties(behavior.getColumn(c).index, r);
+        var overrides = behavior.getCellProperties(behavior.getVisibleColumn(c).index, r);
 
         //declarative cell properties
         _(cellProperties).extendOwn(overrides);

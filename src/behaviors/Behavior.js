@@ -132,28 +132,30 @@ var Behavior = Base.extend('Behavior', {
          */
         this.allColumns = [];
 
-        this.columns[-1] = this.newColumn(-1, '');
-        this.columns[-2] = this.newColumn(-2, 'Tree');
-        this.allColumns[-1] = this.columns[-1];
-        this.allColumns[-2] = this.columns[-2];
+        this.allColumns[-1] = this.columns[-1] = this.newColumn(-1);
+        this.allColumns[-2] = this.columns[-2] = this.newColumn(-2);
     },
 
-    getColumn: function(x) {
+    getVisibleColumn: function(x) {
         return this.columns[x];
     },
 
+    getColumn: function(x) {
+        return this.allColumns[x];
+    },
+
     getColumnId: function(x) {
-        return this.getColumn(x).getHeader();
+        return this.getVisibleColumn(x).getHeader();
     },
 
-    newColumn: function(index, label) {
-        var properties = this.createColumnProperties();
-        this.getPrivateState().columnProperties[index] = properties;
-        return new Column(this, index, label);
+    newColumn: function(options) {
+        var column = new Column(this, options);
+        this.getPrivateState().columnProperties[column.index] = this.createColumnProperties();
+        return column;
     },
 
-    addColumn: function(index, label) {
-        var column = this.newColumn(index, label);
+    addColumn: function(options) {
+        var column = this.newColumn(options);
         this.columns.push(column);
         this.allColumns.push(column);
         return column;
@@ -483,7 +485,7 @@ var Behavior = Base.extend('Behavior', {
     },
 
     getColumnWidth: function(x) {
-        var column = this.getColumn(x);
+        var column = this.getVisibleColumn(x);
         if (!column) {
             return this.resolveProperty('defaultColumnWidth');
         }
@@ -492,7 +494,7 @@ var Behavior = Base.extend('Behavior', {
     },
 
     setColumnWidth: function(x, width) {
-        this.getColumn(x).setWidth(width);
+        this.getVisibleColumn(x).setWidth(width);
         this.stateChanged();
     },
 
@@ -505,7 +507,7 @@ var Behavior = Base.extend('Behavior', {
     },
 
     getCellRenderer: function(config, x, y) {
-        return this.getColumn(x).getCellRenderer(config, y);
+        return this.getVisibleColumn(x).getCellRenderer(config, y);
     },
 
     applyAnalytics: function() {
@@ -592,7 +594,7 @@ var Behavior = Base.extend('Behavior', {
 
         //we don't want to clobber the column properties completely
         if (!memento.columnIndexes) {
-            var fields = this.getFields();
+            var fields = this.dataModel.getFields();
             memento.columnIndexes = [];
             for (var i = 0; i < fields.length; i++) {
                 memento.columnIndexes[i] = i;
@@ -713,12 +715,12 @@ var Behavior = Base.extend('Behavior', {
      * @param {number} y - y coordinate
      */
     getValue: function(x, y) {
-        var column = this.getColumn(x);
+        var column = this.getVisibleColumn(x);
         return column && column.getValue(y);
     },
 
     getUnfilteredValue: function(x, y) {
-        var column = this.getColumn(x);
+        var column = this.getVisibleColumn(x);
         return column && column.getUnfilteredValue(y);
     },
 
@@ -731,7 +733,7 @@ var Behavior = Base.extend('Behavior', {
      * @param {Object} value - the value to use
      */
     setValue: function(x, y, value) {
-        var column = this.getColumn(x);
+        var column = this.getVisibleColumn(x);
         return column && column.setValue(y, value);
     },
 
@@ -1172,20 +1174,20 @@ var Behavior = Base.extend('Behavior', {
 
     /**
      * @memberOf Behavior.prototype
-     * @return {string} The field at `colIndex`.
-     * @param {number} colIndex - the column index of interest
+     * @return {string} The field at `visibleColumnIndex`.
+     * @param {number} visibleColumnIndex - the column index of interest
      */
-    getField: function(colIndex) {
-        return colIndex === -1 ? 'tree' : this.getColumn(colIndex).getField();
+    getVisibleColumnName: function(visibleColumnIndex) {
+        return this.getVisibleColumn(visibleColumnIndex).name;
     },
 
     /**
      * @memberOf Behavior.prototype
-     * @return {string} The column heading at `colIndex'.
-     * @param {number} colIndex - the column index of interest
+     * @return {string} The column heading at `visibleColumnIndex'.
+     * @param {number} visibleColumnIndex - the column index of interest
      */
-    getHeader: function(colIndex) {
-        return colIndex === -1 ? 'Tree' : this.getColumn(colIndex).getHeader();
+    getHeader: function(visibleColumnIndex) {
+        return this.getVisibleColumn(visibleColumnIndex).header;
     },
 
     /**
@@ -1217,8 +1219,8 @@ var Behavior = Base.extend('Behavior', {
             if (indexes.indexOf(i) === -1) {
                 labels.push({
                     id: i,
-                    label: this.getHeader(i),
-                    field: this.getField(i)
+                    header: this.getHeader(i),
+                    field: this.getVisibleColumnName(i)
                 });
             }
         }
@@ -1355,6 +1357,7 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
+     * Number of _visible_ columns.
      * @memberOf Behavior.prototype
      * @return {number} The total number of columns.
      */
@@ -1415,7 +1418,7 @@ var Behavior = Base.extend('Behavior', {
     getCellEditorAt: function(x, y) {
         return this.grid.isFilterRow(y)
             ? this.grid.createCellEditor('filterbox')
-            : this.getColumn(x).getCellEditorAt(y);
+            : this.getVisibleColumn(x).getCellEditorAt(y);
     },
 
     /**
@@ -1424,7 +1427,7 @@ var Behavior = Base.extend('Behavior', {
      * @param {string[]} keys
      */
     toggleSort: function(x, keys) {
-        this.getColumn(x).toggleSort(keys);
+        this.getVisibleColumn(x).toggleSort(keys);
     },
 
     /**
@@ -1519,7 +1522,7 @@ var Behavior = Base.extend('Behavior', {
     },
 
     convertViewPointToDataPoint: function(viewPoint) {
-        var newX = this.getColumn(viewPoint.x).index;
+        var newX = this.getVisibleColumn(viewPoint.x).index;
         var newPoint = this.grid.newPoint(newX, viewPoint.y);
         return newPoint;
     },
@@ -1553,14 +1556,6 @@ var Behavior = Base.extend('Behavior', {
         return function() {
             return null;
         };
-    },
-
-    getFieldName: function(index) {
-        return this.getFields()[index];
-    },
-
-    getColumnIndex: function(fieldName) {
-        return this.getFields().indexOf(fieldName);
     },
 
     getComputedRow: function(y) {
