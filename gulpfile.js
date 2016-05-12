@@ -94,13 +94,14 @@ function browserify() {
                     $$.rename(name + '.js'),
                     $$.browserify({ debug: true })
                         .on('error', $$.util.log)
-                ),
-                pipe(
-                    $$.rename(name + '.min.js'),
-                    $$.browserify(),
-                    $$.uglify()
-                        .on('error', $$.util.log)
                 )
+                // uncomment following lines to restore min file
+                //,pipe(
+                //    $$.rename(name + '.min.js'),
+                //    $$.browserify(),
+                //    $$.uglify()
+                //        .on('error', $$.util.log)
+                //)
             )
         )
         .pipe(gulp.dest(buildDir));
