@@ -30,7 +30,7 @@ var FilterBox = ComboBox.extend('FilterBox', {
         // look in the filter, under column filters, for a column filter for this column
         var filter = this.grid.getGlobalFilter(),
             column = this.column = this.grid.behavior.columns[point.x],
-            columnName = column.getField(),
+            columnName = column.name,
             columnFilters = this.grid.getGlobalFilter().columnFilters,
             columnFilterSubtree = filter.getColumnFilter(columnName),
             columnSchema = filter.schema.lookup(columnName);
@@ -105,7 +105,7 @@ var FilterBox = ComboBox.extend('FilterBox', {
 
                 columns.forEach(function(column, index) {
                     if (index !== x) {
-                        var name = column.getField(),
+                        var name = column.name,
                             option = new Option(name);
                         option.title = '[' + name + ']\r"' + column.getHeader() + '"';
                         optgroup.appendChild(option);
@@ -130,7 +130,7 @@ var FilterBox = ComboBox.extend('FilterBox', {
     hideEditor: function() {
         // look in the filter, under column filters, for a column filter for this column
         var filter = this.grid.getGlobalFilter(),
-            columnName = this.column.getField(),
+            columnName = this.column.name,
             columnFilterSubtree = filter.getColumnFilter(columnName);
 
         if (columnFilterSubtree) {

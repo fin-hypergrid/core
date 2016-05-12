@@ -88,9 +88,9 @@ register(require('./CellEditor'));
 register(require('./ComboBox'));
 //register(require('./Combo'));
 register(require('./Color'));
-register(require('./Date'));
+exports.date = register(require('./Date')); // `date` defined here for column.type fallback
 register(require('./FilterBox'));
-register(require('./Number'));
+exports.number = register(require('./Number')); // `number` defined here for column.type fallback
 register(require('./Slider'));
-exports.int = exports.float = register(require('./Spinner'));
-register(require('./Textfield'));
+register(require('./Spinner'));
+exports.string = register(require('./Textfield')); // `string` defined here for column.type fallback

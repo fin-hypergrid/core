@@ -8,6 +8,14 @@ if (!console.warn) {
     };
 }
 
+/**
+ *
+ * @param dotProps
+ * @param {object} [options]
+ * @param {object} [options.asOfVersion]
+ * @param {object} [options.getterName] - If omitted, final name in dotProps will be used prefixed with 'get'.
+ * @returns {deprecated}
+ */
 var deprecated = function(dotProps, options) {
     var chain = dotProps.split('.'),
         method = chain[chain.length - 1],
@@ -15,7 +23,7 @@ var deprecated = function(dotProps, options) {
         result = this,
         warning;
 
-    method = 'get' + method[0].toUpperCase() + method.substr(1);
+    method = options && options.getterName || 'get' + method[0].toUpperCase() + method.substr(1);
 
     warning = '.' + method + '() method is deprecated';
 

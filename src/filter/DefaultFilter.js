@@ -463,7 +463,7 @@ var DefaultFilter = FilterTree.extend('DefaultFilter', {
                 return thisColumn.name === columnSchema.name || columnSchema;
             });
             column.type = columnSchema.type || column.type;
-            column.label = columnSchema.alias || column.label;
+            column.header = columnSchema.alias || column.header;
         });
     }
 });
