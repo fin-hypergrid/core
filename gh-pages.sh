@@ -56,4 +56,5 @@ rm -rf ../temp >/dev/null
 
 echo 'Opening page at http://$org.github.io/$repo/ ...'
 open http://$org.github.io/$repo/
-echo 'CAVEAT: New pages may not be immediately available so wait a few minutes and refresh.'
+echo 'Note that new github.io pages may not be immediately available.'
+echo 'You may need to wait a few minutes and refresh.'
