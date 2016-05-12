@@ -594,7 +594,7 @@ var Behavior = Base.extend('Behavior', {
 
         //we don't want to clobber the column properties completely
         if (!memento.columnIndexes) {
-            var fields = this.getFields();
+            var fields = this.dataModel.getFields();
             memento.columnIndexes = [];
             for (var i = 0; i < fields.length; i++) {
                 memento.columnIndexes[i] = i;
@@ -1178,8 +1178,7 @@ var Behavior = Base.extend('Behavior', {
      * @param {number} visibleColumnIndex - the column index of interest
      */
     getColumnName: function(visibleColumnIndex) {
-        var column = visibleColumnIndex < 0 ? this.getColumn(visibleColumnIndex) : this.getVisibleColumn(visibleColumnIndex);
-        return column.name;
+        return this.getVisibleColumn(visibleColumnIndex).name;
     },
 
     /**
@@ -1188,8 +1187,7 @@ var Behavior = Base.extend('Behavior', {
      * @param {number} visibleColumnIndex - the column index of interest
      */
     getHeader: function(visibleColumnIndex) {
-        var column = visibleColumnIndex < 0 ? this.getColumn(visibleColumnIndex) : this.getVisibleColumn(visibleColumnIndex);
-        return column.getHeader();
+        return this.getVisibleColumn(visibleColumnIndex).header;
     },
 
     /**
@@ -1359,6 +1357,7 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
+     * Number of _visible_ columns.
      * @memberOf Behavior.prototype
      * @return {number} The total number of columns.
      */
@@ -1557,14 +1556,6 @@ var Behavior = Base.extend('Behavior', {
         return function() {
             return null;
         };
-    },
-
-    getFieldName: function(index) {
-        return this.getFields()[index];
-    },
-
-    getColumnIndex: function(fieldName) {
-        return this.getFields().indexOf(fieldName);
     },
 
     getComputedRow: function(y) {

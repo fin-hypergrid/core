@@ -54,7 +54,7 @@ function Column(behavior, indexOrOptions) {
             if (index < 0) {
                 throw '`index` out of range';
             } else {
-                this.initialize(options);
+                this.set(options);
             }
 
     }
@@ -63,15 +63,16 @@ function Column(behavior, indexOrOptions) {
 Column.prototype = {
     constructor: Column.prototype.constructor,
 
-    /** @summary Initialize or reinitialize a column object.
-     * @desc When (re)initializing a column object, the object must end up with fully defined `index` and `name` properties. If one is missing it will be derived from the data model's `fields` list.
+    /** @summary Set or reset the properties of a column object.
+     * @desc When (re)setting a column object, the object must end up with fully defined `index` and `name` properties. If one is missing it will be derived from the data model's `fields` list.
+     * Note: These properties of the column object should not be confused with the members of the columnProperties object which supports grid render and is something else entirely.
      * @param {object} options - Required because you must supply at least `index` or `name`.
      * @param {object} [options.index]
      * @param {object} [options.name]
      * @param {object} [options.header]
      * @param {object} [options.type]
      */
-    initialize: function(options) {
+    set: function(options) {
         var column = this;
         propertyNames.forEach(function(option) {
             if (option in options) {

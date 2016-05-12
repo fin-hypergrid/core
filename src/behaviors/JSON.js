@@ -81,13 +81,6 @@ var JSON = Local.extend('behaviors.JSON', {
 
     /**
      * @memberOf behaviors.JSON.prototype
-     * @desc * @returns {string[]} The header labels.
-     */
-    getHeaders: function() {
-        return this.dataModel.getHeaders();
-    },
-    /**
-     * @memberOf behaviors.JSON.prototype
      * @return {string} The field at `colIndex`.
      * @param {number} colIndex - the absolute column index of interest
      */
@@ -105,15 +98,6 @@ var JSON = Local.extend('behaviors.JSON', {
         //we must rebuild the column definitions
         this.dataModel.setFields(fieldNames);
         this.createColumns();
-    },
-
-    /**
-     * @memberOf behaviors.JSON.prototype
-     * @description Get the field names.
-     * @returns {string[]}
-     */
-    getFields: function() {
-        return this.dataModel.getFields();
     },
 
     /**

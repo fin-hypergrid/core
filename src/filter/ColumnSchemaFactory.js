@@ -5,7 +5,7 @@ var popMenu = require('pop-menu');
 /**
  * @constructor
  * @summary Build, organize, and sort a column schema list from a list of columns.
- * @desc FilterTree requires a column schema. As a fallback when you don't have a column schema of your own, the string array returned by behavior.getFields() would work as is. This factory object will do a little better than that, taking Hypergrid's column array and creating a more textured column schema, including column aliases and types.
+ * @desc FilterTree requires a column schema. As a fallback when you don't have a column schema of your own, the string array returned by behavior.dataModel.getFields() would work as is. This factory object will do a little better than that, taking Hypergrid's column array and creating a more textured column schema, including column aliases and types.
  *
  * CAVEAT: Set up the schema completely before instantiating your filter state. Filter-tree uses the schema (in part) to generate column selection drop-downs as part of its "query builder" UI. Note that the UI is *not* automatically updated if you change the schema later.
  *

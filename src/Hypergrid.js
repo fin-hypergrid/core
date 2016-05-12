@@ -1652,23 +1652,29 @@ Hypergrid.prototype = {
     },
 
 
-    getRowSelection: function(includeHidden) {
-        var c, column, self = this,
+    getRowSelection: function(includeHiddenColumns) {
+        var c, column, columnValues, getColumn,
             selectedRowIndexes = this.selectionModel.getSelectedRows(),
-            numVisCols = this.getColumnCount(), //Would like to rename to getVisibleColumnCount but would break the examples
-            hiddenCols = this.getHiddenColumns(),
-            numHiddenCols = hiddenCols && hiddenCols.length,
-            numCols = (includeHidden) ? (numVisCols + numHiddenCols) : numVisCols,
+            numColumns = this.getColumnCount(),
             result = {};
 
-        function setValue(selectedRowIndex, r) {
-            column[r] = valOrFunc(self.getValue(c, selectedRowIndex));
+        if (includeHiddenColumns) {
+            numColumns += this.getHiddenColumns().length;
+            getColumn = this.behavior.getColumn;
+        } else {
+            getColumn = this.behavior.getVisibleColumn;
+        }
+        getColumn = getColumn.bind(this.behavior);
+
+        for (c = 0; c < numColumns; c++) {
+            column = getColumn(c);
+            columnValues = new Array(selectedRowIndexes.length);
+            selectedRowIndexes.forEach(setColumnValue);
+            result[column.name] = columnValues;
         }
 
-        for (c = 0; c < numCols; c++) {
-            column = new Array(selectedRowIndexes.length);
-            result[this.getColumnName(c)] = column;
-            selectedRowIndexes.forEach(setValue);
+        function setColumnValue(selectedRowIndex, j) {
+            columnValues[j] = valOrFunc(column.getValue(selectedRowIndex));
         }
 
         return result;
@@ -2361,6 +2367,7 @@ Hypergrid.prototype = {
     },
 
     /**
+     * Number of _visible_ columns.
      * @memberOf Hypergrid.prototype
      * @returns {number} The number of columns.
      */
@@ -3117,13 +3124,6 @@ Hypergrid.prototype = {
     },
     getRow: function(y) {
         return this.behavior.getRow(y);
-    },
-    getFieldName: function(index) {
-        return this.behavior.getFieldName(index);
-    },
-
-    getColumnIndex: function(fieldName) {
-        return this.behavior.getColumnIndex(fieldName);
     },
     isCellSelection: function() {
         return this.resolveProperty('cellSelection') === true;
