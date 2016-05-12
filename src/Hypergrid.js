@@ -34,7 +34,7 @@ var themeInitialized = false,
  * @param {function|object[]} [options.data] - Passed to behavior constructor. May be:
  * * An array of congruent raw data objects
  * * A function returning same
- * @param {function|menuItem[]} [schema=derivedSchema] - Passed to behavior constructor. May be:
+ * @param {function|menuItem[]} [options.schema=derivedSchema] - Passed to behavior constructor. May be:
  * * A schema array
  * * A function returning a schema array. Called at filter reset time with behavior as context.
  * * Omit to generate a basic schema from `this.behavior.columns`.
@@ -1667,7 +1667,7 @@ Hypergrid.prototype = {
 
         for (c = 0; c < numCols; c++) {
             column = new Array(selectedRowIndexes.length);
-            result[this.getField(c)] = column;
+            result[this.getColumnName(c)] = column;
             selectedRowIndexes.forEach(setValue);
         }
 
@@ -1718,7 +1718,7 @@ Hypergrid.prototype = {
         var self = this;
         selectedColumnIndexes.forEach(function(selectedColumnIndex) {
             var column = new Array(rowCount);
-            result[self.getField(selectedColumnIndex)] = column;
+            result[self.getColumnName(selectedColumnIndex)] = column;
             for (var r = 0; r < rowCount; r++) {
                 column[r] = valOrFunc(self.getValue(selectedColumnIndex, r));
             }
@@ -1746,7 +1746,7 @@ Hypergrid.prototype = {
         var r;
         for (var c = 0; c < colCount; c++) {
             var column = new Array(rowCount);
-            result[this.getField(c + ox)] = column;
+            result[this.getColumnName(c + ox)] = column;
             for (r = 0; r < rowCount; r++) {
                 column[r] = valOrFunc(this.getValue(ox + c, oy + r));
             }
@@ -2717,7 +2717,7 @@ Hypergrid.prototype = {
      * @param {number} colIndex - The column index to modify at
      */
     autosizeColumn: function(colIndex) {
-        var column = this.behavior.getColumn(colIndex);
+        var column = this.behavior.getVisibleColumn(colIndex);
         column.checkColumnAutosizing(true);
         this.computeCellsBounds();
     },
@@ -3300,8 +3300,8 @@ Hypergrid.prototype = {
         }
         this.repaint();
     },
-    getField: function(x) {
-        return this.behavior.getField(x);
+    getColumnName: function(x) {
+        return this.behavior.getColumnName(x);
     },
     isSingleRowSelectionMode: function() {
         return this.resolveProperty('singleRowSelectionMode');

@@ -8,7 +8,7 @@ var gulp        = require('gulp'),
     path        = require('path'),
     pipe        = require('multipipe');
 
-var name     = 'hypergrid',
+var name     = 'fin-hypergrid',
     srcDir   = './src/',
     testDir  = './test/',
     jsFiles  = '**/*.js',

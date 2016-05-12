@@ -16,8 +16,8 @@ var popMenu = require('pop-menu');
 function ColumnSchemaFactory(columns, findOptions) {
     this.schema = columns.map(function(column) {
         return {
-            name: column.getField(),
-            alias: column.getHeader(),
+            name: column.name,
+            alias: column.header,
             type: column.getType()
         };
     });
