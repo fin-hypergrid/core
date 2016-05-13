@@ -93,7 +93,7 @@ window.onload = function() {
     }
 
     var schema = [
-        { name: 'last_name', type: 'number' },
+        { name: 'last_name', type: 'number', opMenu: ['=', '<', '>'] },
         'total_number_of_pets_owned',
         'height',
         'birthDate',

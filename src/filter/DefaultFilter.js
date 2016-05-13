@@ -316,7 +316,6 @@ var DefaultFilter = FilterTree.extend('DefaultFilter', {
             options = _({}).extend(options); // clone it because we may mutate it below
             options.syntax = options.syntax || 'CQL';
 
-            // on first use, set up a new CQL instance for this column filter's subtree bound to column properties
             if (options.syntax === 'CQL') {
                 // Convert some CQL state syntax into a filter tree state object.
                 // There must be at least one complete expression or `state` will become undefined.
