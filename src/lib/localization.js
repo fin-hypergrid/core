@@ -321,6 +321,8 @@ var localizers = {
 
 };
 
+localizers.int = localizers.float = localizers.number;
+
 /**
  * @param {string} localizerName
  * @param {localizerInterface} localizer

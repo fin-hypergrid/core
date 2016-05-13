@@ -16,10 +16,17 @@ var localization = require('../lib/localization');
 var constructors = {};
 
 /**
- * @summary Register a cell editor (class).
- * @desc Adds a custom cell editor to the `constructors` hash using the provided name (or the class name) converted to all lower case.
+ * @summary Register a cell editor (class) or a synonym of an already-registered cell editor.
+ * @desc Adds a custom cell editor to the `constructors` hash using the provided name (or the class name), converted to all lower case.
  *
- * > All native cell editors are "preregistered" by constructor. If you plan to instantiate a number of grids, rather than registering all your custom cell editor(s) on all your grids, if that's what you were going to do, you might instead let them "go native" by adding them to `cellEditors` hash _before_ instantiating your grids so the constructor will do the work for you on each grid.
+ * To register a syonym for an already-registered cell editor, use the following construct:
+ * ```
+ * var cellEditors = require('./cellEditors');
+ * cellEditors.register(cellEditors.get('spinner'), 'elevator');
+ * ```
+ * This makes a synonym "elevator" for the "spinner" cell editor.
+ *
+ * > All native cell editors are "preregistered" in cellEditors/index.js.
  *
  * @param {YourCellEditor.prototype.constructor} Constructor - A constructor, typically extended from `CellEditor` (or a descendant therefrom).
  *
@@ -38,6 +45,15 @@ function register(Constructor, editorName) {
 
 
 /**
+ * @param {string} editorName
+ * @returns {*}
+ */
+function get(editorName) {
+    return constructors[editorName && editorName.toLowerCase()];
+}
+
+
+/**
  * Must be called with YOUR Hypergrid object as context!
  * @returns {CellEditor} New instance of the named cell editor.
  * @param {string} editorName
@@ -45,8 +61,7 @@ function register(Constructor, editorName) {
  * @memberOf module:cellEditors
  */
 function instantiate(editorName) {
-    editorName = editorName && editorName.toLowerCase();
-    var CellEditorConstructor = constructors[editorName];
+    var CellEditorConstructor = get(editorName);
     return CellEditorConstructor && new CellEditorConstructor(this);
 }
 
@@ -76,21 +91,30 @@ function extend(localizerName, baseClassName, newClassName) {
 }
 
 
-module.exports = {
-    constructors: constructors,
-    register: register,
-    instantiate: instantiate,
-    extend: extend
-};
-
-
+// register standard cell editors
 register(require('./CellEditor'));
 register(require('./ComboBox'));
 //register(require('./Combo'));
 register(require('./Color'));
-exports.date = register(require('./Date')); // `date` defined here for column.type fallback
+register(require('./Date'));
 register(require('./FilterBox'));
-exports.number = register(require('./Number')); // `number` defined here for column.type fallback
+register(require('./Number'));
 register(require('./Slider'));
 register(require('./Spinner'));
-exports.string = register(require('./Textfield')); // `string` defined here for column.type fallback
+register(require('./Textfield'));
+
+
+// Register synonyms for standard type names.
+// It is unnecessary to set up synonyms for 'date' and 'number' because there are already suitable cell editor resitrations matching those names.
+register(constructors.number, 'int');
+register(constructors.number, 'float');
+register(constructors.textfield, 'string');
+
+
+module.exports = {
+    constructors: constructors,
+    register: register,
+    get: get,
+    instantiate: instantiate,
+    extend: extend
+};

@@ -42,29 +42,25 @@ The edit can be aborted by pressing the *_esc_* ("escape") key on the keyboard; 
 
 *Column filter cells* are automatically associated with the `FilterBox` cell editor, although this can be overridden. (The only practical override for a filter cell editor would probably be no editor at all, should you want to suppress filter cell editing on a column.)
  
-*Data cells* may be associated with cell editors _declaratively_ or _programmatically_. Both these methods are explained below. Note that a declaratively association can be overridden programmatically.
+*Data cells* may be associated with cell editors _declaratively_ or _programmatically_. Both these methods are explained below. Note that a declarative association can be overridden programmatically.
 
 Failure to associate a cell editor with a data cell means that the cell will not be editable.
  
 #### Declarative cell editor association
 
-*Definition.* By _declarative,_ we mean statements involving JavaScript object literals. Although technically such literals are executed at run-time, they mimic compile-time literal (constant) _declarations_ in other programming languages. These object literals supply property values to Hypergrid's various _set properties_ methods.
+*Definition.* By _declarative,_ we mean statements that (typically) use JavaScript object literals to supply property values to Hypergrid's various _set properties_ methods.
 
-*String referects.* Cell editor references in these declarations are always given in string form. That is, rather than a direct reference to a cell editor "class," we use a string containing the name of the constructor function. This facilitates persisting declarative data because such references are pre-_stringified._ It also allows format names to be used to reference cell editors (more on this below).
- 
-NOTE: Cell editor string references are _case insensitive._ For example, `'textfield'` and `'TextField'` both refer to the `Textfield` cell editor. While this may help simplify things for the application developer, the real reason for this relaxation in the naming rules is, again, to facilitate the use of format names to refer to cell editors.
+*Cell editor names.* Cell editor references in these declarations are always given in string form, a case-insensitive stringification of the cell editor's name (_i.e., the name of its constructor function). This facilitates persisting declarative data because such references are pre-_stringified._ It also allows format names and type names to be used to reference cell editors (more on this below).
 
-For declarative cell editor association, there are two such properties of interest, `format` and `editor`. A simple algorithm (in `DataModel.prototype.getCellEditorAt`) searches for a cell editor name as follows:
+When the user initiates cell editing on a data cell, the data model's `getCellEditorAt` method is invoked with the cell coordinates. Unless overridden, `DataModel.prototype.getCellEditorAt` looks for a cell editor name in the following places in the following priority order:
 
-1. Cell property `editor`; _if undefined, then..._
-2. Column property `editor`; _if undefined, then..._
-3. Grid property `editor`; _if undefined, then..._
-4. Cell property `format`; _if undefined, then..._
-5. Column property `format`; _if undefined, then..._
-6. Grid property `format`; _if undefined, then..._
-7. Cell editor is undefined.
- 
-If a cell editor value could not be determnined, it remains `undefined` and the cell will be _non-editable..._ Unless, that is, a cell editor is associated programmatically at run-time, as described in the next section.
+1. The `editor` cell property, if any
+2. The `format` cell property, if any
+3. The column's type name, if any
+
+If a cell editor name was found _and_ it was the name or synonym of a registered cell editor, the cell editor is associated with the cell. Otherwise, the cell will be _non-editable_ unless a cell editor is associated programmatically at run-time, as described in the next section.
+
+NOTE: Rule 3 works because there already are cell editors with names matching the type names "number" and "date"; and in addition the name "string" is registered as a synonym for the "textfield" cell editor. The implication here is that without specifying either of the cell properties in rules 1 and 2, 
 
 #### Programmatic cell editor association
 
