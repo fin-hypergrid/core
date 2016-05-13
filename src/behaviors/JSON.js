@@ -52,11 +52,11 @@ var JSON = Local.extend('behaviors.JSON', {
         var headers = dataModel.getHeaders();
         var fields = dataModel.getFields();
         this.clearColumns();
-        for (var i = 0; i < columnCount; i++) {
-            var header = headers[i];
-            var column = this.addColumn(i, header);
+        for (var index = 0; index < columnCount; index++) {
+            var header = headers[index];
+            var column = this.addColumn({ index: index, header: header });
             var properties = column.getProperties();
-            properties.field = fields[i];
+            properties.field = fields[index];
             properties.header = header;
             properties.complexFilter = null;
         }
@@ -81,22 +81,6 @@ var JSON = Local.extend('behaviors.JSON', {
 
     /**
      * @memberOf behaviors.JSON.prototype
-     * @desc * @returns {string[]} The header labels.
-     */
-    getHeaders: function() {
-        return this.dataModel.getHeaders();
-    },
-    /**
-     * @memberOf behaviors.JSON.prototype
-     * @return {string} The field at `colIndex`.
-     * @param {number} colIndex - the column index of interest
-     */
-    getField: function(colIndex) {
-        return colIndex === -1 ? 'tree' : this.getColumnFromFullList(colIndex).getField();
-    },
-
-    /**
-     * @memberOf behaviors.JSON.prototype
      * @description Set the fields array.
      * @param {string[]} fieldNames - The field names.
      */
@@ -109,20 +93,10 @@ var JSON = Local.extend('behaviors.JSON', {
 
     /**
      * @memberOf behaviors.JSON.prototype
-     * @description Get the field names.
-     * @returns {string[]}
-     */
-    getFields: function() {
-        return this.dataModel.getFields();
-    },
-
-    /**
-     * @memberOf behaviors.JSON.prototype
      * @description Set the data field.
-     * @param {object[]} objects - An array of uniform objects, each being a row in the grid.
-     * @param {FilterTree} [filter]
+     * @param {object[]} dataRows - An array of uniform objects backing the rows in the grid.
      */
-    setData: function(dataRows, filter) {
+    setData: function(dataRows) {
         this.dataModel.setData(dataRows);
         this.createColumns();
 
@@ -136,7 +110,7 @@ var JSON = Local.extend('behaviors.JSON', {
             self.changed();
         } else {
             setTimeout(function() {
-                self.allColumns[-1].checkColumnAutosizing(true);
+                self.getColumn(-1).checkColumnAutosizing(true);
                 self.changed();
             });
         }
@@ -183,15 +157,15 @@ var JSON = Local.extend('behaviors.JSON', {
      * @description Build the fields and headers from the supplied column definitions.
      * ```javascript
      * myJsonBehavior.setColumns([
-     *     { title: 'Stock Name', field: 'short_description' },
-     *     { title: 'Status', field: 'trading_phase' },
-     *     { title: 'Reference Price', field: 'reference_price' }
+     *     { header: 'Stock Name', name: 'short_description' },
+     *     { header: 'Status', name: 'trading_phase' },
+     *     { header: 'Reference Price', name: 'reference_price' }
      * ]);
      * ```
      * @param {Array} columnDefinitions - an array of objects with fields 'title', and 'field'
      */
     setColumns: function(columnDefinitions) {
-        this.dataModel.setColumns(columnDefinitions);
+        this.dataModel.setColumns(columnDefinitions); // TODO: this method is missing
     },
 
     /**
@@ -217,9 +191,6 @@ var JSON = Local.extend('behaviors.JSON', {
         } else {
             return 'center';
         }
-    },
-    getColumnFromFullList: function(x) {
-        return this.allColumns[x];
     },
 
 

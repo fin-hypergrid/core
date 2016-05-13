@@ -230,7 +230,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
      */
     getColumnProperties: function(colIndex) {
         //access directly because we want it ordered
-        var column = this.grid.behavior.allColumns[colIndex];
+        var column = this.grid.behavior.getColumn(colIndex);
         if (column) {
             return column.getProperties();
         }
@@ -398,11 +398,9 @@ var JSON = DataModel.extend('dataModels.JSON', {
      * @returns {object[]}
      */
     getVisibleColumns: function() {
-        var items = this.grid.behavior.columns;
-        items = items.filter(function(each) {
-            return each.label !== 'Tree';
+        return this.grid.behavior.columns.filter(function(column) {
+            return column.name !== 'tree';
         });
-        return items;
     },
 
     /**
@@ -419,7 +417,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
             }
         }
         hidden.sort(function(a, b) {
-            return a.label < b.label;
+            return a.header < b.header;
         });
         return hidden;
     },
@@ -906,7 +904,7 @@ function applyFilters() {
 
     // TODO: return something useful...
     // was previously returning, for each column in this.getVisibleColumns():
-    // [ { column: column.label, format: 'complex' or column.getProperties().format }, ... ]
+    // [ { column: column.header, format: 'complex' or column.getProperties().format }, ... ]
 
 
     this.grid.fireSyntheticFilterAppliedEvent({

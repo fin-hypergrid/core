@@ -1,21 +1,112 @@
-This document describes the Cell Editor interface. This information allows the application developer to create custom cell editors.
+# P R E L I M I N A R Y &nbsp; D O C U M E N T A T I O N 
+
+*THIS DOCUMENT IS INCOMPLETE BUT OFFERED AS IS IN LIEU OF NOTHING.<br>NEXT UPDATE PLANNED FOR EOD 5/16/2016.*
+
+This document describes the Cell Editor interface. This information is useful to the application developer to better understand what cell editors are, how to use them, and how to create custom cell editors.
 
 ### What is a cell editor?
 
-Certain cells in the grid can be edited while others cannot. Specifically, filter cells (the cells below the column headers) and data cells are editable; column and row headers, drill-downs, and top and bottom column total cellss cannot.
+A cell editor is graphical user interface overlaid on top of the grid that permits the user to edit the value in a particular grid cell.
+
+Cell editors can take any form. The basic cell editors are simple text input boxes. Cell editors know how to format the raw datum similar to the way it is presented in the grid; they also know how to "de-format" the data back into it's "raw" (primitive) form before storing it back into the data model.
+
+Certain kinds of grid cells can be made _editable_ (can make use of a cell editor), while others cannot:
  
-#### Starting editing
+Kind of cell       | Can use a<br>cell editor
+------------------ | :---:
+Column header      | no
+*Column filter*    | *yes*
+Row handle         | no
+Tree (drill-down)  | no
+*Data*             | *yes*
+Top & bottom total | no
+ 
+Furthermore, to actually be editable by the user, the cell must have a cell editor associated with it. (See _Associating a cell editor,_ below.)
 
-The user initiates cell editing on a filter cell with a single (or double) mouse click; or on a data cell with a double mouse click. An input control appears positioned precisely over the cell. The user interacts with the control to change the data in the cell.
+#### Beginning editing
 
-#### Ending editing
+The user initiates cell editing on a filter cell with a single (or double) mouse click; or on a data cell with a double mouse click.
 
-The new value is accepted by pressing the Enter (aka Return) key, the Tab key, or any of the four arrow keys on the keyboard; or by "clicking away" (clicking outside of) the control (including initiating editing on another cell).
+Providing the cell has a cell editor associated with it, an input control appears positioned precisely over the cell. The user interacts with the control to change the data in the cell.
+
+#### Concluding editing
+
+The new value is accepted by pressing the *_enter_* (aka *_return_*) key, the *_tab_* key, or any of the four arrow keys on the keyboard; or by "clicking away" (clicking outside of) the control (including initiating editing on another cell).
 
 #### Aborting editing
 
-The edit can be aborted by pressing the ESC (aka "escape") key on the keyboard; or by scrolling the grid via the mouse-wheel (or equivalent trackpad gesture).
+The edit can be aborted by pressing the *_esc_* ("escape") key on the keyboard; or by scrolling the grid via the mouse-wheel or trackpad gesture.
 
+
+### Associating a cell editor with a cell
+
+*Column filter cells* are automatically associated with the `FilterBox` cell editor, although this can be overridden. (The only practical override for a filter cell editor would probably be no editor at all, should you want to suppress filter cell editing on a column.)
+ 
+*Data cells* may be associated with cell editors _declaratively_ or _programmatically_. Both these methods are explained below. Note that a declarative association can be overridden programmatically.
+
+Failure to associate a cell editor with a data cell means that the cell will not be editable.
+ 
+#### Declarative cell editor association
+
+*Definition.* By _declarative,_ we mean statements that (typically) use JavaScript object literals to supply property values to Hypergrid's various _set properties_ methods.
+
+*Cell editor names.* Cell editor references in these declarations are always given in string form, a case-insensitive stringification of the cell editor's name (_i.e., the name of its constructor function). This facilitates persisting declarative data because such references are pre-_stringified._ It also allows format names and type names to be used to reference cell editors (more on this below).
+
+When the user initiates cell editing on a data cell, the data model's `getCellEditorAt` method is invoked with the cell coordinates. Unless overridden, `DataModel.prototype.getCellEditorAt` looks for a cell editor name in the following places in the following priority order:
+
+1. The `editor` cell property, if any
+2. The `format` cell property, if any
+3. The column's type name, if any
+
+If a cell editor name was found _and_ it was the name or synonym of a registered cell editor, the cell editor is associated with the cell. Otherwise, the cell will be _non-editable_ unless a cell editor is associated programmatically at run-time, as described in the next section.
+
+NOTE: Rule 3 works because there already are cell editors with names matching the type names "number" and "date"; and in addition the name "string" is registered as a synonym for the "textfield" cell editor. The implication here is that without specifying either of the cell properties in rules 1 and 2, 
+
+#### Programmatic cell editor association
+
+This data model's `getCellEditorAt` method is called when the user attempts to open a cell editor. For programmatic cell editor association, override it:
+ 
+```javascript
+yourGrid.behavior.dataModel.getCellEditorAt = function(x, y) {
+    // required: decide which cell editor to use
+    var Constructor;
+    switch (x) {
+        case idx.BIRTH_WEIGHT:
+            Constructor = metricWeightCellEditor;
+            
+        default:
+    }
+    
+    // required: instantiate a new cell editor
+    var cellEditor = new cellEditors(this.grid);
+    
+    // optional: set properties
+    cellEditor.property = value;                      
+
+    // optional: set container element's attributes
+    if (new Date().getMonth() === 12 - 1) {
+        cellEditor.el.classList.add('candycane'); 
+    }
+
+    // optional: set input element's attributes
+    cellEditor.input.setAttribute('maxlength', '5');  
+    
+    return cellEditor; // reaquired
+};
+```
+
+As you can see, the requirements for any implementation of this method is to decide upon a cell editor, instantiate it, and return the new instance.
+
+`getCellEditorAt` is called with the cell coordinates:
+Parameter | Description
+`x` | The _untranslated_ column index. The _translated" means that this does not refer to the column currently visible in the grid at this position. Columns can be hidden or re-ordered via the UI or programmatically. which is its position in `yourGrid.behavior.columns` (built from `yourGrid.behavior.dataSource.source.fields`). This means that  which means that the column coordinate 
+
+__________________
+<sup>*</sup> Alternatively, you can create a custom class extended from `DataModel` with your your implementation of `getCellEditorAt` in its prototype; but you will have to overload `yourGrid.behavior.getNewDataModel` in order to use it.
+
+
+
+ 
 ### What's in the box?
 
 Hypergrid comes with several _standard_ cell editors, each represented by a file in the cellEditors folder (./src/cellEditors/).
@@ -43,9 +134,9 @@ Textfield.js | Textfield | `<input type="text">`   | +  | +  | +  | +  | Simple 
 
 The following are the remaining standard cell editors. These do _not_ simply reflect HTML `<input>` controls; they are complex controls comprised of multiple HTML elements. (Sort of like .Net _user controls_.)
 
-File | Object | Description
----- | ------ | -----------
-ComboBox.js | ComboBox | Combines a text box (`<input type="text">` UI control) with a drop-down (`<select>...</select>` UI control) which appears when the user clicks an arrow icon (`▾`). The user may type into the text box and/or select an item from the drop-down.
+File | Object | Markup | Description
+---- | ------ | ------ | -----------
+ComboBox.js | ComboBox | `<div>`...`</div>` | Combines a text box (`<input type="text">` UI control) with a drop-down (`<select>...</select>` UI control) which appears when the user clicks an arrow icon (`▾`). The user may type into the text box and/or select an item from the drop-down.
 
 ### Setting cell editor attributes
 

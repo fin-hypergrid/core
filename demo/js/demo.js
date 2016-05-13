@@ -112,13 +112,13 @@ window.onload = function() {
         behavior = window.b = grid.behavior,
         dataModel = window.m = behavior.dataModel;
 
-    var idx = behavior.getFields().reduce(function(memo, field, index) {
-        var ID = field.replace(/([^_A-Z])([A-Z]+)/g, '$1_$2').toUpperCase();
+    var idx = behavior.columns.reduce(function(memo, column, index) {
+        var ID = column.name.replace(/([^_A-Z])([A-Z]+)/g, '$1_$2').toUpperCase();
         memo[ID] = index;
         return memo;
     }, {});
-    console.log('Fields:');  console.dir(behavior.getFields());
-    console.log('Headers:'); console.dir(behavior.getHeaders());
+    console.log('Fields:');  console.dir(behavior.dataModel.getFields());
+    console.log('Headers:'); console.dir(behavior.dataModel.getHeaders());
     console.log('Indexes:'); console.dir(idx);
 
     // Preset a default dialog options object. Used by call to toggleDialog('ColumnPicker') from features/ColumnPicker.js and by toggleDialog() defined herein.

@@ -34,7 +34,7 @@ var themeInitialized = false,
  * @param {function|object[]} [options.data] - Passed to behavior constructor. May be:
  * * An array of congruent raw data objects
  * * A function returning same
- * @param {function|menuItem[]} [schema=derivedSchema] - Passed to behavior constructor. May be:
+ * @param {function|menuItem[]} [options.schema=derivedSchema] - Passed to behavior constructor. May be:
  * * A schema array
  * * A function returning a schema array. Called at filter reset time with behavior as context.
  * * Omit to generate a basic schema from `this.behavior.columns`.
@@ -1652,23 +1652,29 @@ Hypergrid.prototype = {
     },
 
 
-    getRowSelection: function(includeHidden) {
-        var c, column, self = this,
+    getRowSelection: function(includeHiddenColumns) {
+        var c, column, columnValues, getColumn,
             selectedRowIndexes = this.selectionModel.getSelectedRows(),
-            numVisCols = this.getColumnCount(), //Would like to rename to getVisibleColumnCount but would break the examples
-            hiddenCols = this.getHiddenColumns(),
-            numHiddenCols = hiddenCols && hiddenCols.length,
-            numCols = (includeHidden) ? (numVisCols + numHiddenCols) : numVisCols,
+            numColumns = this.getColumnCount(),
             result = {};
 
-        function setValue(selectedRowIndex, r) {
-            column[r] = valOrFunc(self.getValue(c, selectedRowIndex));
+        if (includeHiddenColumns) {
+            numColumns += this.getHiddenColumns().length;
+            getColumn = this.behavior.getColumn;
+        } else {
+            getColumn = this.behavior.getVisibleColumn;
+        }
+        getColumn = getColumn.bind(this.behavior);
+
+        for (c = 0; c < numColumns; c++) {
+            column = getColumn(c);
+            columnValues = new Array(selectedRowIndexes.length);
+            selectedRowIndexes.forEach(setColumnValue);
+            result[column.name] = columnValues;
         }
 
-        for (c = 0; c < numCols; c++) {
-            column = new Array(selectedRowIndexes.length);
-            result[this.getField(c)] = column;
-            selectedRowIndexes.forEach(setValue);
+        function setColumnValue(selectedRowIndex, j) {
+            columnValues[j] = valOrFunc(column.getValue(selectedRowIndex));
         }
 
         return result;
@@ -1718,7 +1724,7 @@ Hypergrid.prototype = {
         var self = this;
         selectedColumnIndexes.forEach(function(selectedColumnIndex) {
             var column = new Array(rowCount);
-            result[self.getField(selectedColumnIndex)] = column;
+            result[self.getVisibleColumnName(selectedColumnIndex)] = column;
             for (var r = 0; r < rowCount; r++) {
                 column[r] = valOrFunc(self.getValue(selectedColumnIndex, r));
             }
@@ -1746,7 +1752,7 @@ Hypergrid.prototype = {
         var r;
         for (var c = 0; c < colCount; c++) {
             var column = new Array(rowCount);
-            result[this.getField(c + ox)] = column;
+            result[this.getVisibleColumnName(c + ox)] = column;
             for (r = 0; r < rowCount; r++) {
                 column[r] = valOrFunc(this.getValue(ox + c, oy + r));
             }
@@ -2361,6 +2367,7 @@ Hypergrid.prototype = {
     },
 
     /**
+     * Number of _visible_ columns.
      * @memberOf Hypergrid.prototype
      * @returns {number} The number of columns.
      */
@@ -2717,7 +2724,7 @@ Hypergrid.prototype = {
      * @param {number} colIndex - The column index to modify at
      */
     autosizeColumn: function(colIndex) {
-        var column = this.behavior.getColumn(colIndex);
+        var column = this.behavior.getVisibleColumn(colIndex);
         column.checkColumnAutosizing(true);
         this.computeCellsBounds();
     },
@@ -3118,13 +3125,6 @@ Hypergrid.prototype = {
     getRow: function(y) {
         return this.behavior.getRow(y);
     },
-    getFieldName: function(index) {
-        return this.behavior.getFieldName(index);
-    },
-
-    getColumnIndex: function(fieldName) {
-        return this.behavior.getColumnIndex(fieldName);
-    },
     isCellSelection: function() {
         return this.resolveProperty('cellSelection') === true;
     },
@@ -3300,8 +3300,8 @@ Hypergrid.prototype = {
         }
         this.repaint();
     },
-    getField: function(x) {
-        return this.behavior.getField(x);
+    getVisibleColumnName: function(x) {
+        return this.behavior.getVisibleColumnName(x);
     },
     isSingleRowSelectionMode: function() {
         return this.resolveProperty('singleRowSelectionMode');
