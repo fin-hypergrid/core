@@ -74,13 +74,18 @@ var DataModel = Base.extend('DataModel', {
             columnProperties,
             column = this.grid.behavior.getColumn(x);
 
-        return this.grid.createCellEditor(
-            (cellProperties = column.getCellProperties(y) || {}).editor ||
-            (columnProperties = column.getProperties()).editor ||
-            cellProperties.format ||
-            columnProperties.format ||
-            column.getType()
-        );
+        var editorName = (cellProperties = column.getCellProperties(y) || {}).editor ||
+            (columnProperties = column.getProperties()).editor;
+
+        if (!editorName && editorName !== null) { // null means don't fallback to format
+            editorName = cellProperties.format || columnProperties.format;
+        }
+
+        if (!editorName && editorName !== null) { // null means don't fallback to type
+            editorName = column.getType();
+        }
+
+        return this.grid.createCellEditor(editorName);
     }
 
 });

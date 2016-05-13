@@ -657,13 +657,22 @@ module.exports = {
     checkboxOnlyRowSelections: false,
 
     /** Name of a formatter for cell text.
-     * The default (`null`) does no formatting.
+     * The default (`undefined`) falls back to `column.type`.
+     * The value `null` does no formatting.
      * @default undefined
-     * @type {undefined|string}
+     * @type {undefined|null|string}
      * @see /lib/localizers.js
      */
-    format: null,
-    editor: null,
+    format: undefined,
+
+    /** Name of a cell formatter for cell text.
+     * The default (`undefined`) falls back to `format`.
+     * The value `null` does no formatting.
+     * @default undefined
+     * @type {undefined|null|string}
+     * @see /lib/localizers.js
+     */
+    editor: undefined,
 
     /********** HOVER COLORS **********/
 
