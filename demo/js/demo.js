@@ -365,7 +365,7 @@ window.onload = function() {
 
     var footInchPattern = /^\s*((((\d+)')?\s*((\d+)")?)|\d+)\s*$/;
     var footInchLocalizer = {
-        localize: function(value) {
+        format: function(value) {
             if (value != null) {
                 var feet = Math.floor(value / 12);
                 value = (feet ? feet + '\'' : '') + ' ' + (value % 12) + '"';
@@ -374,7 +374,7 @@ window.onload = function() {
             }
             return value;
         },
-        standardize: function(str) {
+        parse: function(str) {
             var inches, feet,
                 parts = str.match(footInchPattern);
             if (parts) {

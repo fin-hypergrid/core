@@ -185,7 +185,7 @@ var CellEditor = Base.extend('CellEditor', {
      * @memberOf CellEditor.prototype
      */
     setEditorValue: function(value) {
-        this.input.value = this.localizer.localize(value);
+        this.input.value = this.localizer.format(value);
     },
 
     /**
@@ -268,7 +268,7 @@ var CellEditor = Base.extend('CellEditor', {
      * @memberOf CellEditor.prototype
      */
     getEditorValue: function() {
-        return this.localizer.standardize(this.input.value);
+        return this.localizer.parse(this.input.value);
     },
 
     /**

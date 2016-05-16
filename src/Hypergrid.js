@@ -309,7 +309,7 @@ Hypergrid.prototype = {
     },
 
     getFormatter: function(localizerName) {
-        return localization.get(localizerName).localize;
+        return localization.get(localizerName).format;
     },
 
     formatValue: function(localizerName, value) {

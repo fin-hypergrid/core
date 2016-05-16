@@ -30,7 +30,7 @@ function NumberFormatter(locale, options) {
     /** @summary Transform a number primitive into human-friendly string representation.
      * @method
      */
-    this.localize = new Intl.NumberFormat(this.locale, options).format;
+    this.format = new Intl.NumberFormat(this.locale, options).format;
 
     var mapperOptions = { useGrouping: false, style: 'decimal' },
         mapper = new Intl.NumberFormat(this.locale, mapperOptions).format;
@@ -70,7 +70,7 @@ function NumberFormatter(locale, options) {
      */
     this.invalids = new RegExp(
         '[^' +
-        this.localize(123467890.5) +
+        this.format(123467890.5) +
         (options && options.acceptStandardDigits ? '0123456789.' : '') +
         ']'
     );
@@ -109,7 +109,7 @@ NumberFormatter.prototype = {
      * @param {string} formattedLocalizedNumber - May or may not be formatted.
      * @returns {number} Number primitive.
      */
-    standardize: function(formattedLocalizedNumber) {
+    parse: function(formattedLocalizedNumber) {
         return Number(
             formattedLocalizedNumber.split('').map(this.demapper).join('')
         );
@@ -141,7 +141,7 @@ function DateFormatter(locale, options) {
     /** @summary Transform a date object into human-friendly string representation.
      * @method
      */
-    this.localize = new Intl.DateTimeFormat(this.locale, options).format;
+    this.format = new Intl.DateTimeFormat(this.locale, options).format;
 
     // Get digits because may be chinese or "real Arabic" numerals.
     var testOptions = { useGrouping: false, style: 'decimal' },
@@ -230,7 +230,7 @@ DateFormatter.prototype = {
      * @param {string} localizedDate
      * @returns {null|Date} Will be `null` if mal-formed date string.
      */
-    standardize: function(localizedDate) {
+    parse: function(localizedDate) {
         var date,
             parts = localizedDate.match(this.localizedNumberPattern);
 
@@ -282,7 +282,7 @@ var localizers = {
     date: new DateFormatter(),
 
     chromeDate: { // Special localizer for use by Chrome's date input control.
-        localize: function(date) {
+        format: function(date) {
             if (date != null) {
                 if (typeof date !== 'object') {
                     date = new Date(date);
@@ -298,7 +298,7 @@ var localizers = {
             }
             return date;
         },
-        standardize: function(str) {
+        parse: function(str) {
             var date,
                 parts = str.split('-');
             if (parts && parts.length === 3) {
@@ -311,10 +311,10 @@ var localizers = {
     },
 
     null: {
-        localize: function(value) {
+        format: function(value) {
             return value + '';
         },
-        standardize: function(str) {
+        parse: function(str) {
             return str + '';
         }
     }
@@ -331,8 +331,8 @@ localizers.int = localizers.float = localizers.number;
 function set(localizerName, localizer) {
     if (
         typeof localizer !== 'object' ||
-        typeof localizer.localize !== 'function' ||
-        typeof localizer.standardize !== 'function' ||
+        typeof localizer.format !== 'function' ||
+        typeof localizer.parse !== 'function' ||
         localizer.isValid && typeof localizer.isValid !== 'function'
     ) {
         throw 'Expected localizer object to conform to interface.';
