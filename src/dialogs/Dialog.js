@@ -200,7 +200,7 @@ function onClick(evt) {
             evt.preventDefault(); // ignore href
             if (this.settings) { this.settings(); }
 
-        } else if (!this.onClick.call(this, evt) && evt.target.tagName === 'A') {
+        } else if (this.onClick && !this.onClick.call(this, evt) && evt.target.tagName === 'A') {
             evt.preventDefault(); // ignore href of handled event
         }
     }
