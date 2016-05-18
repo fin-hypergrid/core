@@ -20,7 +20,8 @@
  */
 exports.shaker = function(options) {
     options = options || {};
-    var el = options.el || this.el,
+    var context = this,
+        el = options.el || context.el,
         duration = options.duration || '0.065s',
         computedStyle = window.getComputedStyle(el),
         transitions = computedStyle.transition.split(','),
@@ -42,7 +43,7 @@ exports.shaker = function(options) {
                 el.style.transition = transitions.join(',');
                 el.style.position = position;
                 if (options.callback) {
-                    options.callback();
+                    options.callback.call(context, options);
                 }
             }
             dx = shakes ? -dx : 0;
@@ -62,7 +63,8 @@ var defaultGlowerStyles = {
  */
 exports.glower = function(options) {
     options = options || {};
-    var el = options.el || this.el,
+    var context = this,
+        el = options.el || context.el,
         duration = options.duration || '0.25s',
         styles = options.styles || defaultGlowerStyles,
         values = styles.length,
@@ -94,7 +96,7 @@ exports.glower = function(options) {
             el.removeEventListener('transitionend', glower);
             el.style.transition = transition;
             if (options.callback) {
-                options.callback();
+                options.callback.call(context, options);
             }
         }
     }

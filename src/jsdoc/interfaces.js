@@ -40,12 +40,11 @@
  * Overridden by `options.expectation` passed to constructor.
  *
  * @type {string}
- * @name localizerInterface#locale
+ * @name localizerInterface#expectation
  */
 
 /**
- * Locale passed to constructor.
- * @default 'en-US'
+ * Locale provided to constructor. Required.
  * @type {string}
  * @name localizerInterface#locale
  */

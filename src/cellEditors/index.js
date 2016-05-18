@@ -62,6 +62,9 @@ function get(editorName) {
  */
 function instantiate(editorName) {
     var CellEditorConstructor = get(editorName);
+    if (CellEditorConstructor.abstract) {
+        throw 'Attempt to instantiate an "abstract" cell editor.';
+    }
     return CellEditorConstructor && new CellEditorConstructor(this);
 }
 

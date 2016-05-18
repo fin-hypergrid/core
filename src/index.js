@@ -12,7 +12,7 @@
  * * This file is not a node module; it has no reference to `module.exports` or `exports`; it cannot be "required" by any other file.
  * * This file is blacklisted in .npmignore and is not published to npm.
  *
- * Note: The npm "main" entry point (as noted in package.json) is Hypergrid.js.
+ * Note: The npm "main" entry point (as noted in package.json) is src/Hypergrid.js.
  */
 
 var Hypergrid = require('./Hypergrid');

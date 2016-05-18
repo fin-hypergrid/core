@@ -78,7 +78,7 @@ var CellEditor = Base.extend('CellEditor', {
 
             if (specialKeyup) {
                 e.preventDefault();
-                if (this[specialKeyup]()) {
+                if (this[specialKeyup](3)) {
                     this.grid.repaint();
                     this.grid.takeFocus();
                 }
@@ -228,20 +228,26 @@ var CellEditor = Base.extend('CellEditor', {
         this.el.style.display = 'none';
     },
 
-    /**
-     * Saves the edited value by calling the {@link CellEditor#saveEditorValue|saveEditorValue} method.
-     *
-     * Before saving, performs a validity check which consists of:
-     * 1. Call `editorValueIsValid`, which calls the localizer's `isValid()` function, if available.
+    /** @summary Stops editing.
+     * @desc Before saving, validates the edited value as follows:
+     * 1. Call `editorValueIsValid` (which calls the localizer's `isValid()` function, if available).
      * 2. Catch any errors thrown by the {@link CellEditor#getEditorValue|getEditorValue} method.
-     * 3. Check return value for `NaN`.
+     * 3. Check returned value for `NaN`.
      *
-     * If the validity check fails, the effect indicated in the {@link CellEditor#errorEffect|errorEffect} property is called. After three such calls in a cell editor function, an instructional alert is displayed.
+     * **If the edited value passes validation:** Saves the edited value by calling the {@link CellEditor#saveEditorValue|saveEditorValue} method.
+     *
+     * **On validation failure:**
+     * 1. If `feedback` was omitted, cancels editing, discarding the edited value.
+     * 2. If `feedback` was provided, gives the user some feedback (see `feedback`, below).
+     *
+     * @param {number} [feedback] What to do on validation failure:
+     * * If omitted, simply cancels editing without saving edited value.
+     * * If 0, shows the error feedback effect (see the {@link CellEditor#errorEffect|errorEffect} property).
+     * * If > 0, shows the error feedback effect _and_ calls the {@link CellEditor#errorEffectEnd|errorEffectEnd} method) every `feedback` call(s) to `stopEditing`.
      * @returns {boolean} Truthy means successful stop. Falsy means syntax error prevented stop.
      * @memberOf CellEditor.prototype
-     * @desc stop editing
      */
-    stopEditing: function() {
+    stopEditing: function(feedback) {
         var valid = this.editorValueIsValid();
 
         if (valid) {
@@ -254,23 +260,12 @@ var CellEditor = Base.extend('CellEditor', {
 
         valid = valid && !isNaN(value);
 
-        if (!valid) {
+        if (!valid && feedback >= 0) { // never true when `feedback` undefined
             var point = this.getEditorPoint();
             this.grid.selectViewportCell(point.x, point.y - this.grid.getHeaderRowCount());
-            this.triggerErrorEffect(function() {
-                if (++this.errors === 3) {
-                    this.errors = 0;
-                    var msg =
-                        'Invalid value. To resolve, do one of the following:\n\n' +
-                        '   * Correct the error and try again.\n' +
-                        '         - or -\n' +
-                        '   * Cancel editing by pressing the "esc" (escape) key.';
-                    if (this.localizer.expectation) {
-                        msg += '\n\n' + this.localizer.expectation;
-                    }
-                    alert(msg); // eslint-disable-line no-alert
-                }
-            }.bind(this));
+            this.errorEffectBegin(++this.errors === feedback);
+        } else if (!valid) { // no feedback
+            return this.cancelEditing();
         } else if (this.grid.fireSyntheticEditorDataChangeEvent(this, this.initialValue, value)) {
             this.saveEditorValue(value);
             this.hideEditor();
@@ -280,6 +275,9 @@ var CellEditor = Base.extend('CellEditor', {
         }
     },
 
+    /** @summary Cancels editing.
+     * @returns {boolean} Successful. (Cancel is always successful.)
+     */
     cancelEditing: function() {
         if (this.grid.cellEditor) { // because stopEditing's .remove triggers blur which comes here
             this.setEditorValue(this.initialValue);
@@ -287,15 +285,16 @@ var CellEditor = Base.extend('CellEditor', {
             this.grid.cellEditor = null;
             this.el.remove();
         }
+        return true;
     },
 
     /**
-     * Calls the effect function indicated in the {@link CellEditor#errorEffect|errorEffect} property.
-     * @param {function} [callback] - An optional function to call at the conclusion of all the effect transitions.
+     * Calls the effect function indicated in the {@link CellEditor#errorEffect|errorEffect} property which triggers a series of CSS transitions.
+     * @param {boolean} [callErrorEffectEnd=false] - Call the {@link CellEditor#errorEffectEnd|errorEffectEnd} method at the end of the last effect transition.
      * @memberOf CellEditor.prototype
      */
-    triggerErrorEffect: function(callback) {
-        var options = { callback: callback },
+    errorEffectBegin: function(callErrorEffectEnd) {
+        var options = { callback: callErrorEffectEnd && this.errorEffectEnd },
             effect = this.errorEffect;
 
         if (typeof effect === 'string') {
@@ -313,6 +312,23 @@ var CellEditor = Base.extend('CellEditor', {
             throw 'Expected `this.errorEffect` to resolve to an error effect function.';
         }
     },
+
+    errorEffectEnd: function() {
+        var msg =
+            'Invalid value. To resolve, do one of the following:\n\n' +
+            '   * Correct the error and try again.\n' +
+            '         - or -\n' +
+            '   * Cancel editing by pressing the "esc" (escape) key.';
+
+        if (this.localizer.expectation) {
+            msg += '\n\n' + this.localizer.expectation;
+        }
+
+        alert(msg); // eslint-disable-line no-alert
+
+        this.errors = 0; // reset error counter
+    },
+
     /** @typedef effectObject
      * @property {function} effector - Reference to an {@link effectFunction}.
      * @property {object} [options] - An options object with which to call the function.

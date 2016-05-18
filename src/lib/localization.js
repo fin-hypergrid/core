@@ -6,82 +6,85 @@
 
 'use strict';
 
+var Base = require('./Base');
+
+var Formatter = Base.extend({
+    initialize: function(locale, options) {
+        this.locale = locale;
+
+        if (options) {
+            if (typeof options.isValid === 'function') {
+                this.isValid = options.isValid;
+            }
+
+            if (options.expectation) {
+                this.expectation = options.expectation;
+            }
+        }
+    }
+});
+
 /**
  * @summary Create a number localizer.
  * @implements localizerInterface
  * @desc Create an object conforming to the {@link localizerInterface} for numbers, using {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/NumberFormat|Intl.NumberFormat}.
- * @param [locale='en-US'] - Passed to the `Intl.NumberFormat` constructor.
+ * @param locale - Passed to the `Intl.NumberFormat` constructor.
  * @param [options] - Passed to `Intl.NumberFormat`.
  * @param [options.acceptStandardDigits=false] - Accept standard digits and decimal point interchangeably with localized digits and decimal point. (This option is interpreted here; it is not used by `Intl.NumberFormat`.)
  * @constructor
  * @tutorial localization
  */
-function NumberFormatter(locale, options) {
-    if (typeof locale === 'object') {
-        options = locale;
-        locale = undefined;
-    }
+var NumberFormatter = Formatter.extend('NumberFormatter', {
+    initialize: function(locale, options) {
+        options = options || {};
 
-    options = options || {};
+        this.format = new Intl.NumberFormat(this.locale, options).format;
 
-    /** @summary Locale passed to constructor.
-     * @type {string}
-     */
-    this.locale = locale || 'en-US';
+        var mapperOptions = { useGrouping: false, style: 'decimal' },
+            mapper = new Intl.NumberFormat(this.locale, mapperOptions).format;
 
-    /** @summary Transform a number primitive into human-friendly string representation.
-     * @method
-     */
-    this.format = new Intl.NumberFormat(this.locale, options).format;
+        this.demapper = demap.bind(this);
 
-    var mapperOptions = { useGrouping: false, style: 'decimal' },
-        mapper = new Intl.NumberFormat(this.locale, mapperOptions).format;
+        /**
+         * @summary A string containing the valid characters.
+         * @type {string}
+         * @private
+         * @desc Localized digits and decimal point. Will also include standardized digits and decimal point if `options.acceptStandardDigits` is truthy.
+         *
+         * For internal use by the {@link NumberFormatter#standardize|standardize} method.
+         * @memberOf NumberFormatter.prototype
+         */
+        this.map = mapper(10123456789.5).substr(1, 11); // localized '0123456789.'
 
-    this.demapper = demap.bind(this);
+        if (options.acceptStandardDigits) {
+            this.map += '0123456789.';  // standard '0123456789.'
+        }
 
-    /**
-     * @summary A string containing the valid characters.
-     * @type {string}
-     * @private
-     * @desc Localized digits and decimal point. Will also include standardized digits and decimal point if `options.acceptStandardDigits` is truthy.
-     *
-     * For internal use by the {@link NumberFormatter#standardize|standardize} method.
-     */
-    this.map = mapper(10123456789.5).substr(1, 11); // localized '0123456789.'
-
-    if (options.acceptStandardDigits) {
-        this.map += '0123456789.';  // standard '0123456789.'
-    }
-
-    /** @summary A regex that tests `true` on first invalid character.
-     * @type {RegExp}
-     * @private
-     * @desc Valid characters include:
-     *
-     * * Localized digits
-     * * Localized decimal point
-     * * Standard digits (when `options.acceptStandardDigits` is truthy)
-     * * Standard decimal point (when `options.acceptStandardDigits` is truthy)
-     * * Cosmetic characters added by formatter as per `options` (for human-friendly readability).
-     *
-     * Any characters outside this set are considered invalid.
-     *
-     * Set by the constructor; consumed by the {@link module:localization~NumberFormatter#isValid|isValid} method.
-     *
-     * Testing a string against this pattern yields `true` if at least one invalid character or `false` if all characters are valid.
-     */
-    this.invalids = new RegExp(
-        '[^' +
-        this.format(123467890.5) +
-        (options.acceptStandardDigits ? '0123456789.' : '') +
-        ']'
-    );
-
-    consumeOptions.call(this, options);
-}
-
-NumberFormatter.prototype = {
-    constructor: NumberFormatter.prototype.constructor,
+        /** @summary A regex that tests `true` on first invalid character.
+         * @type {RegExp}
+         * @private
+         * @desc Valid characters include:
+         *
+         * * Localized digits
+         * * Localized decimal point
+         * * Standard digits (when `options.acceptStandardDigits` is truthy)
+         * * Standard decimal point (when `options.acceptStandardDigits` is truthy)
+         * * Cosmetic characters added by formatter as per `options` (for human-friendly readability).
+         *
+         * Any characters outside this set are considered invalid.
+         *
+         * Set by the constructor; consumed by the {@link module:localization~NumberFormatter#isValid|isValid} method.
+         *
+         * Testing a string against this pattern yields `true` if at least one invalid character or `false` if all characters are valid.
+         * @memberOf NumberFormatter.prototype
+         */
+        this.invalids = new RegExp(
+            '[^' +
+            this.format(123467890.5) +
+            (options.acceptStandardDigits ? '0123456789.' : '') +
+            ']'
+        );
+    },
 
     /** @summary Tests for valid characters.
      * @desc Tests a localized string representation of a number that it consists entirely of valid characters.
@@ -98,6 +101,7 @@ NumberFormatter.prototype = {
      *
      * @param number
      * @returns {boolean} Contains only valid characters.
+     * @memberOf NumberFormatter.prototype
      */
     isValid: function(number) {
         return !this.invalids.test(number);
@@ -116,13 +120,14 @@ NumberFormatter.prototype = {
      * Since all other characters are simply ignored, it is not necessary to call {@link module:localization~NumberFormatter#isValid|isValid} first; this method will succeed regardless. However, doing so will give you the opportunity to alert the user if you want to be strict and never accept strings with any invalid characters in them.
      * @param {string} formattedLocalizedNumber - May or may not be formatted.
      * @returns {number} Number primitive.
+     * @memberOf NumberFormatter.prototype
      */
     parse: function(formattedLocalizedNumber) {
         return Number(
             formattedLocalizedNumber.split('').map(this.demapper).join('')
         );
     }
-};
+});
 
 function demap(c) {
     var d = this.map.indexOf(c) % 11;
@@ -131,84 +136,71 @@ function demap(c) {
 
 /**
  * @implements localizerInterface
- * @param [locale='en-US'] - Passed to {@link Intl.NumberFormat|https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/NumberFormat}
+ * @param locale - Passed to {@link Intl.NumberFormat|https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/NumberFormat}
  * @param [options] - Passed to `Intl.NumberFormat`.
  * @constructor
  */
-function DateFormatter(locale, options) {
-    if (typeof locale === 'object') {
-        options = locale;
-        locale = undefined;
-    }
+var DateFormatter = Formatter.extend('DateFormatter', {
+    initialize: function(locale, options) {
+        options = options || {};
 
-    options = options || {};
+        /** @summary Transform a date object into human-friendly string representation.
+         * @method
+         */
+        this.format = new Intl.DateTimeFormat(this.locale, options).format;
 
-    /** @summary Locale passed to constructor.
-     * @type {string}
-     */
-    this.locale = locale || 'en-US';
+        // Get digits because may be chinese or "real Arabic" numerals.
+        var testOptions = { useGrouping: false, style: 'decimal' },
+            localizeNumber = new Intl.NumberFormat(this.locale, testOptions).format,
+            localizedDigits = this.localizedDigits = localizeNumber(10123456789).substr(1, 10); // all localized digits in numerical order
 
-    /** @summary Transform a date object into human-friendly string representation.
-     * @method
-     */
-    this.format = new Intl.DateTimeFormat(this.locale, options).format;
+        this.digitLocalizer = localizeDigit.bind(this);
+        this.digitStandardizer = standardizeDigit.bind(this);
 
-    // Get digits because may be chinese or "real Arabic" numerals.
-    var testOptions = { useGrouping: false, style: 'decimal' },
-        localizeNumber = new Intl.NumberFormat(this.locale, testOptions).format,
-        localizedDigits = this.localizedDigits = localizeNumber(10123456789).substr(1, 10); // all localized digits in numerical order
+        // Localize a test date with the default numeric parts to find out the resulting order of these parts.
+        var yy = 1987,
+            mm = 12,
+            dd = 30,
+            h = 4,
+            m = 56,
+            YY = this.transformNumber(this.digitLocalizer, yy),
+            MM = this.transformNumber(this.digitLocalizer, mm),
+            DD = this.transformNumber(this.digitLocalizer, dd),
+            testDate = new Date(yy, mm - 1, dd, h, m),
+            localizeDate = new Intl.DateTimeFormat(locale).format,
+            localizedDate = localizeDate(testDate), // all localized digits + localized punctuation
+            localizedNumberPattern = this.localizedNumberPattern = new RegExp('[' + localizedDigits + ']+', 'g'),
+            parts = localizedDate.match(localizedNumberPattern);
 
-    this.digitLocalizer = localizeDigit.bind(this);
-    this.digitStandardizer = standardizeDigit.bind(this);
+        this.partsMap = {
+            yy: parts.indexOf(YY),
+            mm: parts.indexOf(MM),
+            dd: parts.indexOf(DD)
+        };
 
-    // Localize a test date with the default numeric parts to find out the resulting order of these parts.
-    var yy = 1987,
-        mm = 12,
-        dd = 30,
-        h = 4,
-        m = 56,
-        YY = this.transformNumber(this.digitLocalizer, yy),
-        MM = this.transformNumber(this.digitLocalizer, mm),
-        DD = this.transformNumber(this.digitLocalizer, dd),
-        testDate = new Date(yy, mm - 1, dd, h, m),
-        localizeDate = new Intl.DateTimeFormat(locale).format,
-        localizedDate = localizeDate(testDate), // all localized digits + localized punctuation
-        localizedNumberPattern = this.localizedNumberPattern = new RegExp('[' + localizedDigits + ']+', 'g'),
-        parts = localizedDate.match(localizedNumberPattern);
-
-    this.partsMap = {
-        yy: parts.indexOf(YY),
-        mm: parts.indexOf(MM),
-        dd: parts.indexOf(DD)
-    };
-
-    /** @summary A regex that tests `true` on firstL invalid character.
-     * @type {RegExp}
-     * @private
-     * @desc Valid characters include:
-     *
-     * * Localized digits
-     * * Standard digits (when `options.acceptStandardDigits` is truthy)
-     * * Localized punctuation to delimit date parts
-     *
-     * Any characters outside this set are considered invalid. Note that this only currently implemented when all three date parts are numeric
-     *
-     * Set by the constructor; consumed by the {@link NumberFormatter#valid|valid} method.
-     *
-     * Testing a string against this pattern yields `true` if at least one invalid character or `false` if all characters are valid.
-     */
-    this.invalids = new RegExp(
-        '[^' +
-        localizedDate +
-        (options.acceptStandardDigits ? '0123456789' : '') +
-        ']'
-    );
-
-    consumeOptions.call(this, options);
-}
-
-DateFormatter.prototype = {
-    constructor: DateFormatter.prototype.constructor,
+        /** @summary A regex that tests `true` on firstL invalid character.
+         * @type {RegExp}
+         * @private
+         * @desc Valid characters include:
+         *
+         * * Localized digits
+         * * Standard digits (when `options.acceptStandardDigits` is truthy)
+         * * Localized punctuation to delimit date parts
+         *
+         * Any characters outside this set are considered invalid. Note that this only currently implemented when all three date parts are numeric
+         *
+         * Set by the constructor; consumed by the {@link NumberFormatter#valid|valid} method.
+         *
+         * Testing a string against this pattern yields `true` if at least one invalid character or `false` if all characters are valid.
+         * @memberOf DateFormatter.prototype
+         */
+        this.invalids = new RegExp(
+            '[^' +
+            localizedDate +
+            (options.acceptStandardDigits ? '0123456789' : '') +
+            ']'
+        );
+    },
 
     /** @summary Tests for valid characters.
      * @desc Tests a localized string representation of a number that it consists entirely of valid characters.
@@ -227,6 +219,7 @@ DateFormatter.prototype = {
      *
      * @param number
      * @returns {boolean} Contains only valid characters.
+     * @memberOf DateFormatter.prototype
      */
     isValid: function(number) {
         return !this.invalids.test(number);
@@ -241,6 +234,7 @@ DateFormatter.prototype = {
      * Since all other characters are simply ignored, it is not necessary to call {@link module:localization~DateFormatter#isValid|isValid} first; this method will succeed regardless. However, doing so will give you the opportunity to alert the user if you want to be strict and never accept strings with any invalid characters in them.
      * @param {string} localizedDate
      * @returns {null|Date} Will be `null` if mal-formed date string.
+     * @memberOf DateFormatter.prototype
      */
     parse: function(localizedDate) {
         var date,
@@ -265,21 +259,12 @@ DateFormatter.prototype = {
      * @param {number} number
      * @returns {string}
      * @private
+     * @memberOf DateFormatter.prototype
      */
     transformNumber: function(digitTransformer, number) {
         return number.toString().split('').map(digitTransformer).join('');
     }
-};
-
-function consumeOptions(options) {
-    if (typeof options.isValid === 'function') {
-        this.isValid = options.isValid;
-    }
-
-    if (options.expectation) {
-        this.expectation = options.expectation;
-    }
-}
+});
 
 function localizeDigit(d) {
     return this.localizedDigits[d];

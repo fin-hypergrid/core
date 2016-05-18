@@ -398,7 +398,7 @@ window.onload = function() {
 
     grid.registerLocalizer('singdate', new fin.Hypergrid.localization.DateFormatter('zh-SG'), true);
 
-    grid.registerLocalizer('pounds', new fin.Hypergrid.localization.NumberFormatter('en-US', {
+    grid.registerLocalizer('pounds', new fin.Hypergrid.localization.NumberFormatter(grid.resolveProperty('locale'), {
         style: 'currency',
         currency: 'USD'
     }), true);
