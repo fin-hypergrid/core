@@ -3,9 +3,11 @@
 'use strict';
 
 var mustache = require('mustache');
+var _ = require('object-iterators');
 
 var Base = require('../lib/Base');
 var localization = require('../lib/localization');
+var effects = require('../lib/effects');
 
 var extract = /\/\*\s*([^]+?)\s+\*\//; // finds the string inside the /* ... */; the (group) excludes the whitespace
 
@@ -59,6 +61,8 @@ var CellEditor = Base.extend('CellEditor', {
         this.el = container.firstChild;
 
         this.input = this.el;
+
+        this.errors = 0;
     },
 
     specialKeyups: {
@@ -74,9 +78,10 @@ var CellEditor = Base.extend('CellEditor', {
 
             if (specialKeyup) {
                 e.preventDefault();
-                this[specialKeyup]();
-                this.grid.repaint();
-                this.grid.takeFocus();
+                if (this[specialKeyup]()) {
+                    this.grid.repaint();
+                    this.grid.takeFocus();
+                }
             }
 
             this.grid.fireSyntheticEditorKeyUpEvent(this, e);
@@ -224,16 +229,54 @@ var CellEditor = Base.extend('CellEditor', {
     },
 
     /**
+     * Saves the edited value by calling the {@link CellEditor#saveEditorValue|saveEditorValue} method.
+     *
+     * Before saving, performs a validity check which consists of:
+     * 1. Call `editorValueIsValid`, which calls the localizer's `isValid()` function, if available.
+     * 2. Catch any errors thrown by the {@link CellEditor#getEditorValue|getEditorValue} method.
+     * 3. Check return value for `NaN`.
+     *
+     * If the validity check fails, the effect indicated in the {@link CellEditor#errorEffect|errorEffect} property is called. After three such calls in a cell editor function, an instructional alert is displayed.
+     * @returns {boolean} Truthy means successful stop. Falsy means syntax error prevented stop.
      * @memberOf CellEditor.prototype
      * @desc stop editing
      */
     stopEditing: function() {
-        var value = this.getEditorValue();
-        if (this.grid.fireSyntheticEditorDataChangeEvent(this, this.initialValue, value)) {
+        var valid = this.editorValueIsValid();
+
+        if (valid) {
+            try {
+                var value = this.getEditorValue();
+            } catch (err) {
+                valid = false;
+            }
+        }
+
+        valid = valid && !isNaN(value);
+
+        if (!valid) {
+            var point = this.getEditorPoint();
+            this.grid.selectViewportCell(point.x, point.y - this.grid.getHeaderRowCount());
+            this.triggerErrorEffect(function() {
+                if (++this.errors === 3) {
+                    this.errors = 0;
+                    var msg =
+                        'Invalid value. To resolve, do one of the following:\n\n' +
+                        '   * Correct the error and try again.\n' +
+                        '         - or -\n' +
+                        '   * Cancel editing by pressing the "esc" (escape) key.';
+                    if (this.localizer.expectation) {
+                        msg += '\n\n' + this.localizer.expectation;
+                    }
+                    alert(msg); // eslint-disable-line no-alert
+                }
+            }.bind(this));
+        } else if (this.grid.fireSyntheticEditorDataChangeEvent(this, this.initialValue, value)) {
             this.saveEditorValue(value);
             this.hideEditor();
             this.grid.cellEditor = null;
             this.el.remove();
+            return true;
         }
     },
 
@@ -244,6 +287,52 @@ var CellEditor = Base.extend('CellEditor', {
             this.grid.cellEditor = null;
             this.el.remove();
         }
+    },
+
+    /**
+     * Calls the effect function indicated in the {@link CellEditor#errorEffect|errorEffect} property.
+     * @param {function} [callback] - An optional function to call at the conclusion of all the effect transitions.
+     * @memberOf CellEditor.prototype
+     */
+    triggerErrorEffect: function(callback) {
+        var options = { callback: callback },
+            effect = this.errorEffect;
+
+        if (typeof effect === 'string') {
+            effect = this.errorEffects[effect];
+        }
+
+        if (typeof effect === 'object') {
+            _(options).extendOwn(effect.options);
+            effect = effect.effector;
+        }
+
+        if (typeof effect === 'function') {
+            effect.call(this, options);
+        } else {
+            throw 'Expected `this.errorEffect` to resolve to an error effect function.';
+        }
+    },
+    /** @typedef effectObject
+     * @property {function} effector - Reference to an {@link effectFunction}.
+     * @property {object} [options] - An options object with which to call the function.
+     */
+    /**
+     * May be one of:
+     * * **string** - Name of registered error effect.
+     * * **effectFunction** - Reference to an effect function.
+     * * **effectObject** - Reference to an effectObject containing an {@link effectFunction} and an `options` object with which to call the function.
+     * @type {string|effectFunction|effectObject}
+     * @memberOf CellEditor.prototype
+     */
+    errorEffect: 'shaker',
+    /**
+     * Hash of registered {@link effectFunction}s or {@link effectObject}s.
+     * @memberOf CellEditor.prototype
+     */
+    errorEffects: {
+        shaker: effects.shaker,
+        glower: effects.glower
     },
 
     /**
@@ -271,6 +360,10 @@ var CellEditor = Base.extend('CellEditor', {
         return this.localizer.parse(this.input.value);
     },
 
+    editorValueIsValid: function() {
+        return !this.localizer.isValid || this.localizer.isValid(this.input.value);
+    },
+
     /**
      * @summary Request focus for my input control.
      * @desc See GRID-95 "Scrollbar moves inward" for issue and work-around explanation.
@@ -280,14 +373,16 @@ var CellEditor = Base.extend('CellEditor', {
         var self = this;
         setTimeout(function() {
             var input = self.el,
-                transformWas = input.style.transform;
+                leftWas = input.style.left,
+                topWas = input.style.top;
 
-            input.style.transform = 'translate(0,0)'; // work-around: move to upper left
+            input.style.left = input.style.top = 0; // work-around: move to upper left
 
             self.input.focus();
             self.selectAll();
 
-            input.style.transform = transformWas;
+            input.style.left = leftWas;
+            input.style.top = topWas;
         });
     },
 
@@ -305,11 +400,9 @@ var CellEditor = Base.extend('CellEditor', {
     setBounds: function(cellBounds) {
         var input = this.el;
 
-        input.style.transform = translate(
-            cellBounds.x - 1,
-            cellBounds.y - 1
-        );
-
+        input.style.position = 'absolute';
+        input.style.left = px(cellBounds.x - 1);
+        input.style.top = px(cellBounds.y - 1);
         input.style.width = px(cellBounds.width + 2);
         input.style.height = px(cellBounds.height + 2);
     },
@@ -358,7 +451,6 @@ var CellEditor = Base.extend('CellEditor', {
 
 function nullPattern() {}
 function px(n) { return n + 'px'; }
-function translate(x, y) { return 'translate(' + px(x) + ',' + px(y) + ')'; }
 
 
 CellEditor.abstract = true; // don't instantiate directly

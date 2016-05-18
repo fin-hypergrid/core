@@ -128,7 +128,7 @@ _(FilterTree.Node.prototype.templates).extendOwn({
  *
  * See also {@tutorial filter-api}.
  *
- * @param {FilterTreeOptionsObject} options - You hsould provide a column schema. The easiest approach is to provide a schema for the entire filter tree through `options.schema`.
+ * @param {FilterTreeOptionsObject} options - You should provide a column schema. The easiest approach is to provide a schema for the entire filter tree through `options.schema`.
  *
  * Although not recommended, the column schema can also be embedded in the state object, either at the root, `options.state.schema`, or for any descendant node. For example, a separate schema could be provided for each expression or subexpression that need to render column list drop-downs.
  *

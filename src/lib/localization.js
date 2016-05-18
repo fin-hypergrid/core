@@ -22,6 +22,8 @@ function NumberFormatter(locale, options) {
         locale = undefined;
     }
 
+    options = options || {};
+
     /** @summary Locale passed to constructor.
      * @type {string}
      */
@@ -47,7 +49,7 @@ function NumberFormatter(locale, options) {
      */
     this.map = mapper(10123456789.5).substr(1, 11); // localized '0123456789.'
 
-    if (options && options.acceptStandardDigits) {
+    if (options.acceptStandardDigits) {
         this.map += '0123456789.';  // standard '0123456789.'
     }
 
@@ -71,9 +73,11 @@ function NumberFormatter(locale, options) {
     this.invalids = new RegExp(
         '[^' +
         this.format(123467890.5) +
-        (options && options.acceptStandardDigits ? '0123456789.' : '') +
+        (options.acceptStandardDigits ? '0123456789.' : '') +
         ']'
     );
+
+    consumeOptions.call(this, options);
 }
 
 NumberFormatter.prototype = {
@@ -98,6 +102,10 @@ NumberFormatter.prototype = {
     isValid: function(number) {
         return !this.invalids.test(number);
     },
+
+    expectation:
+        'Expected a number with optional commas (thousands grouping separator), optional decimal point, and an optional fractional part.\n\n' +
+        'Note that the comma separators are part of the format and will always be displayed for values > 999. However, although saved in its entirety, the formatted representation never includes the decimal point or the fractional part, rounding instead to the nearest integer.',
 
     /**
      * This method will:
@@ -132,6 +140,8 @@ function DateFormatter(locale, options) {
         options = locale;
         locale = undefined;
     }
+
+    options = options || {};
 
     /** @summary Locale passed to constructor.
      * @type {string}
@@ -190,9 +200,11 @@ function DateFormatter(locale, options) {
     this.invalids = new RegExp(
         '[^' +
         localizedDate +
-        (options && options.acceptStandardDigits ? '0123456789' : '') +
+        (options.acceptStandardDigits ? '0123456789' : '') +
         ']'
     );
+
+    consumeOptions.call(this, options);
 }
 
 DateFormatter.prototype = {
@@ -258,6 +270,16 @@ DateFormatter.prototype = {
         return number.toString().split('').map(digitTransformer).join('');
     }
 };
+
+function consumeOptions(options) {
+    if (typeof options.isValid === 'function') {
+        this.isValid = options.isValid;
+    }
+
+    if (options.expectation) {
+        this.expectation = options.expectation;
+    }
+}
 
 function localizeDigit(d) {
     return this.localizedDigits[d];
