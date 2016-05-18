@@ -18,7 +18,7 @@
     },
     "opts": {
         "template": "jsdoc-template",
-        "tutorials": "jsdoc-tutorials",
+        "tutorials": "./src/jsdoc/tutorials",
         "recurse": true,
         "verbose": true,
         "destination": "./doc/",

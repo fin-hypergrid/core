@@ -239,7 +239,7 @@ Column.prototype = {
     },
 
     getFormatter: function() {
-        return localization.get(this.getProperties().format).localize;
+        return localization.get(this.getProperties().format).format;
     }
 };
 

@@ -156,12 +156,6 @@ Hypergrid.prototype = {
     hScrollValue: 0,
 
     /**
-     * @property {window.fin.rectangular} rectangular - Namespace for Point and Rectangle "classes" (constructors).
-     * @memberOf Hypergrid.prototype
-     */
-    rectangular: null,
-
-    /**
      * @property {fin-hypergrid-selection-model} selectionModel - A [fin-hypergrid-selection-model](module-._selection-model.html) instance.
      * @memberOf Hypergrid.prototype
      */
@@ -309,7 +303,7 @@ Hypergrid.prototype = {
     },
 
     getFormatter: function(localizerName) {
-        return localization.get(localizerName).localize;
+        return localization.get(localizerName).format;
     },
 
     formatValue: function(localizerName, value) {
@@ -1273,13 +1267,26 @@ Hypergrid.prototype = {
 
     /**
      * @memberOf Hypergrid.prototype
-     * @summary Shut down the current cell editor.
+     * @summary Shut down the current cell editor and save the edited value.
      * @returns {boolean} `true` if we were editing; `false` if we were not.
      */
     stopEditing: function() {
         var wasEditing = !!this.cellEditor;
         if (wasEditing) {
             this.cellEditor.stopEditing();
+        }
+        return wasEditing;
+    },
+
+    /**
+     * @memberOf Hypergrid.prototype
+     * @summary Shut down the current cell editor without saving the edited value.
+     * @returns {boolean} `true` if we were editing; `false` if we were not.
+     */
+    cancelEditing: function() {
+        var wasEditing = !!this.cellEditor;
+        if (wasEditing) {
+            this.cellEditor.cancelEditing();
         }
         return wasEditing;
     },
@@ -3547,11 +3554,5 @@ function valOrFunc(vf) {
     var result = (typeof vf)[0] === 'f' ? vf() : vf;
     return result || result === 0 ? result : '';
 }
-
-// npm "public" interface
-Hypergrid.behaviors = behaviors;
-
-// NOTE: The reason I put "public" in quotes is that in reality all files are accessible with node's sub-folder syntax.
-// Example: var behaviorJSON = require('fin-hypergrid/src/behaviors/JSON');
 
 module.exports = Hypergrid;

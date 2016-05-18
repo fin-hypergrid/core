@@ -28,37 +28,42 @@ var FilterBox = ComboBox.extend('FilterBox', {
     beginEditAt: function(point) {
 
         // look in the filter, under column filters, for a column filter for this column
-        var filter = this.grid.getGlobalFilter(),
+        var root = this.grid.getGlobalFilter(),
             column = this.column = this.grid.behavior.columns[point.x],
             columnName = column.name,
             columnFilters = this.grid.getGlobalFilter().columnFilters,
-            columnFilterSubtree = filter.getColumnFilter(columnName),
-            columnSchema = filter.schema.lookup(columnName);
+            columnFilterSubtree = root.getColumnFilter(columnName) || {},
+            columnSchema = root.schema.lookup(columnName) || {};
 
 
-        this.opMenu = // get the operator list from the node, schema, typeOpMap, or root:
+        // get the operator list from the node, schema, typeOpMap, or root:
+        // (This mimics the code in FilterLeaf.js's `getOpMenu` function becauase the node may not exist yet.)
+        this.opMenu =
 
-            columnFilterSubtree && columnFilterSubtree.opMenu || // first try column filter node's `operator` list, if any
+            // pull operator list from column schema if available
+            columnSchema.opMenu ||
 
-            columnSchema && ( // ELSE as column filter may not yet exist, try it's schema for `opMenu` or `type`
-                columnSchema.opMenu || // pull operator list from column schema if it has one; IF it doesn't...
-                columnSchema.type &&  // BUT it has a type...
-                filter.typeOpMap && // AND the filter has a defined type-operator map...
-                filter.typeOpMap[columnSchema.type] // THEN use the operator list for the column's type if there is one
-            ) ||
+            // operator list for the column's type if available
+            root.typeOpMap && root.typeOpMap[columnSchema.type || columnFilterSubtree.type] ||
 
-            filter.opMenu; // ELSE try the default operator list (which itself defaults to `Conditionals.defaultOpMenu`)
+            // default operator list (which itself defaults to `Conditionals.defaultOpMenu`)
+            root.opMenu;
 
 
-        this.menuModesSource = // get the column filter's `menuModes` object -- contains the states of the drop-down option icons:
+        // get the column filter's `menuModes` object -- contains the states of the drop-down option icons:
+        this.menuModesSource =
 
-            column.menuModes || // first try proxy from last time (because editing may have ended without a column filter to put in the filter tree)
+            // first try proxy from last time (because editing may have ended without a column filter to put in the filter tree)
+            column.menuModes ||
 
-            columnFilterSubtree && columnFilterSubtree.menuModes || // ELSE try column filter's `menuModes` WHEN available
+            // ELSE try column filter's `menuModes` WHEN available
+            columnFilterSubtree.menuModes ||
 
-            columnSchema && columnSchema.menuModes || // try use column schema's `menuModes` when defined
+            // try use column schema's `menuModes` when defined
+            columnSchema.menuModes ||
 
-            columnFilters.menuModes; // ELSE try the filter default (which itself defaults to operators ON, others OFF; see definition at top of DefaultFilter.js)
+            // ELSE try the filter default (which itself defaults to operators ON, others OFF; see definition at top of DefaultFilter.js)
+            columnFilters.menuModes;
 
 
         prototype.beginEditAt.call(this, point);
