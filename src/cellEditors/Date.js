@@ -3,7 +3,6 @@
 'use strict';
 
 var CellEditor = require('./CellEditor');
-var localization = require('../lib/localization');
 
 var isChromium = window.chrome,
     winNav = window.navigator,
@@ -22,11 +21,22 @@ var isChromium = window.chrome,
  */
 var Date = CellEditor.extend('Date', {
 
-    initialize: function(grid, localizer) {
+    initialize: function(grid) {
 
-        var usesDateInputControl = isChrome;
+        var localizerName,
+            usesDateInputControl = isChrome;
 
-        if (!usesDateInputControl) {
+        if (usesDateInputControl) {
+            localizerName = 'chromeDate';
+
+            this.template = function() {
+                /*
+                 <input id="editor" type="date">
+                 */
+            };
+        } else {
+            localizerName = 'date';
+
             this.template = {
                 /*
                  <input type="text">
@@ -38,17 +48,10 @@ var Date = CellEditor.extend('Date', {
                 this.input.setSelectionRange(0, lastCharPlusOne);
             };
 
-            this.localizer = localization.get('date');
         }
-    },
 
-    template: function() {
-        /*
-            <input id="editor" type="date">
-        */
-    },
-
-    localizer: localization.get('chromeDate')
+        this.localizer = grid.localization.get(localizerName);
+    }
 });
 
 

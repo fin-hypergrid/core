@@ -1,7 +1,6 @@
 'use strict';
 
 var Textfield = require('./Textfield');
-var localization = require('../lib/localization');
 
 /**
  * @constructor
@@ -14,7 +13,9 @@ var Number = Textfield.extend('Number', {
          */
     },
 
-    localizer: localization.get('number')
+    initialize: function(grid) {
+        this.localizer = grid.localization.get('number');
+    }
 
 });
 

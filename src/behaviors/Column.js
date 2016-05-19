@@ -3,7 +3,6 @@
 'use strict';
 
 var _ = require('object-iterators');
-var localization = require('../lib/localization');
 var deprecated = require('../lib/deprecated');
 
 var propertyNames = [
@@ -239,7 +238,7 @@ Column.prototype = {
     },
 
     getFormatter: function() {
-        return localization.get(this.getProperties().format).format;
+        return this.behavior.grid.localization.get(this.getProperties().format).format;
     }
 };
 

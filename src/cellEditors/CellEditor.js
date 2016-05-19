@@ -6,7 +6,6 @@ var mustache = require('mustache');
 var _ = require('object-iterators');
 
 var Base = require('../lib/Base');
-var localization = require('../lib/localization');
 var effects = require('../lib/effects');
 
 var extract = /\/\*\s*([^]+?)\s+\*\//; // finds the string inside the /* ... */; the (group) excludes the whitespace
@@ -25,9 +24,7 @@ var CellEditor = Base.extend('CellEditor', {
          */
         this.grid = grid;
 
-        if (localizer) {
-            this.localizer = localizer;
-        }
+        this.localizer = localizer ? localizer : grid.localization.get(null);
 
         this.editorPoint = {
             x: 0,
@@ -87,8 +84,6 @@ var CellEditor = Base.extend('CellEditor', {
             this.grid.fireSyntheticEditorKeyUpEvent(this, e);
         }
     },
-
-    localizer: localization.get(null),
 
     /**
      * the point that I am editing at right now

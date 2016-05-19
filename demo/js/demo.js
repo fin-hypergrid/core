@@ -396,14 +396,14 @@ window.onload = function() {
 
     grid.registerLocalizer('foot', footInchLocalizer, true);
 
-    grid.registerLocalizer('singdate', new fin.Hypergrid.localization.DateFormatter('zh-SG'), true);
+    grid.registerLocalizer('singdate', new grid.localization.DateFormatter('zh-SG'), true);
 
-    grid.registerLocalizer('pounds', new fin.Hypergrid.localization.NumberFormatter(grid.resolveProperty('locale'), {
+    grid.registerLocalizer('pounds', new grid.localization.NumberFormatter('en-US', {
         style: 'currency',
         currency: 'USD'
     }), true);
 
-    grid.registerLocalizer('francs', new fin.Hypergrid.localization.NumberFormatter('fr-FR', {
+    grid.registerLocalizer('francs', new grid.localization.NumberFormatter('fr-FR', {
         style: 'currency',
         currency: 'EUR'
     }), true);

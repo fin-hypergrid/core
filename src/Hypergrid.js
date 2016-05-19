@@ -19,7 +19,7 @@ var cellEditors = require('./cellEditors');
 var Renderer = require('./lib/Renderer');
 var SelectionModel = require('./lib/SelectionModel');
 var css = require('./css');
-var localization = require('./lib/localization');
+var Localization = require('./lib/localization');
 var behaviors = require('./behaviors');
 
 var themeInitialized = false,
@@ -39,6 +39,7 @@ var themeInitialized = false,
  * * A function returning a schema array. Called at filter reset time with behavior as context.
  * * Omit to generate a basic schema from `this.behavior.columns`.
  * @param {Behavior} [options.Behavior=JSON] - A grid behavior (descendant of Behavior "class"). Will be used if `getBehavior` omitted, in which case `options.data` (which has no default) *must* also be provided.
+ * @param {string} [options.locale=Hypergrid.defaultDefaultLocale] - The default locale for localizers. Used primarily when the `locale` parameters is omitted from localizer constructor calls.
  * @param {object} [options.margin] - optional canvas margins
  * @param {string} [options.margin.top=0]
  * @param {string} [options.margin.right='-200px']
@@ -64,6 +65,8 @@ function Hypergrid(div, options) {
     var data = typeof options.data === 'function' ? options.data() : options.data;
     var Behavior = options.Behavior || behaviors.JSON;
     this.behavior = new Behavior(this, options.schema, data);
+
+    this.localization = new Localization(options.locale || Hypergrid.defaultDefaultLocale);
 
     //prevent the default context menu for appearing
     this.div.oncontextmenu = function(event) {
@@ -286,24 +289,27 @@ Hypergrid.prototype = {
     /**
      * @param {string} name
      * @param {localizerInterface} localizer
-     * @param {boolean|string} [baseClassName=true] - A truthy value means create a new cell editor class that uses this localizer. If a string, extend from the base class so named; otherwise (_e.g.,_ `true`) extend from {@link Textfield}.
-     * @param {string} [newClassName=localizerName] - Provide a value here to name the cell editor differently from its localizer.
+     * @param {boolean|string} [cellEditorBaseClassName=true] - Truthy value means create a new cell editor class by extending from the provided registered cell editor. If not an explicit string (e.g., `true`), defaults to 'textfield'. Extend from this cell editor base class. Omit this to skip creating a new cell editor class.
+     * @param {string} [newCellEditorClassName=localizerName] - Provide a value here to name the cell editor differently from its localizer. (Only useful if base class name also proviced.)
      */
-    registerLocalizer: function(name, localizer, baseClassName, newClassName) {
-        localization.set(name, localizer);
+    registerLocalizer: function(name, localizer, cellEditorBaseClassName, newCellEditorClassName) {
+        this.localization.add(name, localizer);
 
-        if (baseClassName) {
-            if (typeof baseClassName !== 'string') {
-                baseClassName = undefined; // use `cellEditors.extend`'s default
+        if (cellEditorBaseClassName) {
+            if (typeof ellEditorBaseClassName !== 'string') {
+                cellEditorBaseClassName = 'textfield';
             }
-
-            var newCellEditorClass = cellEditors.extend(name, baseClassName, newClassName);
+            newCellEditorClassName = newCellEditorClassName || name;
+            var CellEditorConstructor = cellEditors.constructors[cellEditorBaseClassName];
+            var newCellEditorClass = CellEditorConstructor.extend(newCellEditorClassName, {
+                localizer: localizer
+            });
             this.registerCellEditor(newCellEditorClass);
         }
     },
 
     getFormatter: function(localizerName) {
-        return localization.get(localizerName).format;
+        return this.localization.get(localizerName).format;
     },
 
     formatValue: function(localizerName, value) {
@@ -3554,5 +3560,7 @@ function valOrFunc(vf) {
     var result = (typeof vf)[0] === 'f' ? vf() : vf;
     return result || result === 0 ? result : '';
 }
+
+Hypergrid.defaultDefaultLocale = 'en-US';
 
 module.exports = Hypergrid;
