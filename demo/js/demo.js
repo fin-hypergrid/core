@@ -93,7 +93,7 @@ window.onload = function() {
     }
 
     var schema = [
-        { name: 'last_name', type: 'number' },
+        { name: 'last_name', type: 'number', opMenu: ['=', '<', '>'] },
         'total_number_of_pets_owned',
         'height',
         'birthDate',
@@ -365,7 +365,7 @@ window.onload = function() {
 
     var footInchPattern = /^\s*((((\d+)')?\s*((\d+)")?)|\d+)\s*$/;
     var footInchLocalizer = {
-        localize: function(value) {
+        format: function(value) {
             if (value != null) {
                 var feet = Math.floor(value / 12);
                 value = (feet ? feet + '\'' : '') + ' ' + (value % 12) + '"';
@@ -374,7 +374,7 @@ window.onload = function() {
             }
             return value;
         },
-        standardize: function(str) {
+        parse: function(str) {
             var inches, feet,
                 parts = str.match(footInchPattern);
             if (parts) {
@@ -396,14 +396,14 @@ window.onload = function() {
 
     grid.registerLocalizer('foot', footInchLocalizer, true);
 
-    grid.registerLocalizer('singdate', new fin.Hypergrid.localization.DateFormatter('zh-SG'), true);
+    grid.registerLocalizer('singdate', new grid.localization.DateFormatter('zh-SG'), true);
 
-    grid.registerLocalizer('pounds', new fin.Hypergrid.localization.NumberFormatter('en-US', {
+    grid.registerLocalizer('pounds', new grid.localization.NumberFormatter('en-US', {
         style: 'currency',
         currency: 'USD'
     }), true);
 
-    grid.registerLocalizer('francs', new fin.Hypergrid.localization.NumberFormatter('fr-FR', {
+    grid.registerLocalizer('francs', new grid.localization.NumberFormatter('fr-FR', {
         style: 'currency',
         currency: 'EUR'
     }), true);

@@ -5,9 +5,6 @@
 'use strict';
 
 
-var localization = require('../lib/localization');
-
-
 /**
  * @summary Hash of cell editor object constructors.
  * @desc This hash's only purpose is to support the convenience methods defined herein: {@link cellEditors.extend|extend}, {@link cellEditors.register|register}, and {@link cellEditors.instantiate|instantiate}. If you do not need these methods' functionality, you do not need to register your cell editors.
@@ -62,32 +59,10 @@ function get(editorName) {
  */
 function instantiate(editorName) {
     var CellEditorConstructor = get(editorName);
+    if (CellEditorConstructor.abstract) {
+        throw 'Attempt to instantiate an "abstract" cell editor.';
+    }
     return CellEditorConstructor && new CellEditorConstructor(this);
-}
-
-
-/**
- * @summary Create a new localized cell editor class.
- *
- * @desc Extend the provided cell editor ('baseClassName') using the named localizer (`localizerName`), naming it after the localizer unless otherwise specified (in `newClassName`)
- *
- * @param {string} localizerName
- *
- * @param {string} [baseClassName='textfield'] - The base class must have been previously registered.
- *
- * @param {string} [newClassName=localizerName] - Provide a value here to name the cell editor differently from its localizer.
- *
- * @returns {function} The new cell editor constructor.
- *
- * @memberOf module:cellEditors
- */
-function extend(localizerName, baseClassName, newClassName) {
-    baseClassName = baseClassName || 'textfield';
-    newClassName = newClassName || localizerName;
-
-    return constructors[baseClassName].extend(newClassName, {
-        localizer: localization.get(localizerName)
-    });
 }
 
 
@@ -115,6 +90,5 @@ module.exports = {
     constructors: constructors,
     register: register,
     get: get,
-    instantiate: instantiate,
-    extend: extend
+    instantiate: instantiate
 };

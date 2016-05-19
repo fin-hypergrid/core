@@ -660,8 +660,8 @@ module.exports = {
      * The default (`undefined`) falls back to `column.type`.
      * The value `null` does no formatting.
      * @default undefined
-     * @type {undefined|null|string}
-     * @see /lib/localizers.js
+     * @type {undefined|null|string}}
+     * @tutorial localization
      */
     format: undefined,
 
@@ -669,8 +669,8 @@ module.exports = {
      * The default (`undefined`) falls back to `format`.
      * The value `null` does no formatting.
      * @default undefined
-     * @type {undefined|null|string}
-     * @see /lib/localizers.js
+     * @type {undefined|null|string}}
+     * @tutorial localization
      */
     editor: undefined,
 
@@ -678,7 +678,7 @@ module.exports = {
 
     /** @typedef hoverColors
      * @property {boolean} [enable=false] - `false` means not hilite on hover
-     * @property {cssColor} backgroundColor - cell, row, or colummn background color. Alpha channel will be respected and if given will be painted over the cells predetermined color.
+     * @property {cssColor} backgroundColor - cell, row, or column background color. Alpha channel will be respected and if given will be painted over the cells predetermined color.
      * @property {cssColor} [header.backgroundColor=backgroundColor] - for columns and rows, this is the background color of the column or row "handle" (header rows or columns, respectively). (Not used for cells.)
      */
 

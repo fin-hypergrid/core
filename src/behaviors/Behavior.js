@@ -1583,17 +1583,13 @@ var Behavior = Base.extend('Behavior', {
     },
 
     getNewFilter: function() {
-        var newFilter;
-        if (this.columns.length) {
-            var options = {
-                schema: typeof this.schema === 'function' ? this.schema(this.columns) : this.schema,
-                caseSensitiveColumnNames: this.grid.resolveProperty('filterCaseSensitiveColumnNames'),
-                resolveAliases: this.grid.resolveProperty('filterResolveAliases'),
-                defaultColumnFilterOperator: this.grid.resolveProperty('filterDefaultColumnFilterOperator')
-            };
-            newFilter = new DefaultFilter(options);
-            newFilter.loadColumnPropertiesFromSchema(this.columns);
-        }
+        var newFilter = new DefaultFilter({
+            schema: typeof this.schema === 'function' ? this.schema(this.columns) : this.schema,
+            caseSensitiveColumnNames: this.grid.resolveProperty('filterCaseSensitiveColumnNames'),
+            resolveAliases: this.grid.resolveProperty('filterResolveAliases'),
+            defaultColumnFilterOperator: this.grid.resolveProperty('filterDefaultColumnFilterOperator')
+        });
+        newFilter.loadColumnPropertiesFromSchema(this.columns);
         return newFilter;
     },
 
