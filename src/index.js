@@ -12,19 +12,24 @@
  * * This file is not a node module; it has no reference to `module.exports` or `exports`; it cannot be "required" by any other file.
  * * This file is blacklisted in .npmignore and is not published to npm.
  *
- * Note: The npm "main" entry point (as noted in package.json) is Hypergrid.js.
+ * Note: The npm "main" entry point (as noted in package.json) is src/Hypergrid.js.
  */
 
 var Hypergrid = require('./Hypergrid');
 
+// Expose some namespaces to users of the hypergrid.js file through `fin.Hypergrid`:
 Hypergrid.images = require('../images');
-// Hypergrid.behaviors = require('./behaviors'); // this was moved to Hypergrid.js
+Hypergrid.behaviors = require('./behaviors');
 Hypergrid.cellEditors = require('./cellEditors');
 Hypergrid.features = require('./features');
 Hypergrid.analytics = require('./Shared.js').analytics;
 Hypergrid.DefaultFilter = require('./filter/DefaultFilter');
 Hypergrid.ColumnSchemaFactory = require('./filter/ColumnSchemaFactory');
 Hypergrid.FilterTree = require('filter-tree');
-Hypergrid.localization = require('./lib/localization');
+Hypergrid.rectangular = require('rectangular');
 
+// Create the `fin` and in particular the `fin.Hypergrid` objects:
 (window.fin = window.fin || {}).Hypergrid = Hypergrid;
+
+// Note that while users of the npm module can also access the above namespaces through the Hypergrid object, in reality they also have access to any namespace through `require`, for example:
+// var behaviorJSON = require('fin-hypergrid/src/behaviors/JSON');

@@ -8,28 +8,43 @@
 /**
  * Transform a primitive value into a human-friendly string representation.
  * @method
- * @name localizerInterface#localize
+ * @name localizerInterface#format
  * @returns {string}
  */
 
 /**
  * Transform a formatted string representation back into a primitive typed value.
  * @method
- * @name localizerInterface#standardize
+ * @name localizerInterface#parse
  * @returns {string} Primitive typed value.
  */
 
 /**
  * Tests string representation for all valid characters.
- * (Implementation optional.)
+ *
+ * Implementation of this method is optional.
+ *
+ * Overridden by `options.isValid` passed to constructor.
  * @method
  * @name localizerInterface#isValid
  * @returns {boolean} `true` means valid; `false` means invalid character found.
  */
 
 /**
- * Locale passed to constructor.
- * (Implementation optional.)
+ * An optional string to be displayed in the syntax error alert following the words "Invalid value." (This alert comes upon the third attempt to save an invalid edit.)
+ *
+ * The string should describe the syntax and semantics of the expected value. Typically it begins with "Expected ..."
+ *
+ * The implementation of this value is optional. Should you choose to supply a value in the prototype, it should reflect the default syntax.
+ *
+ * Overridden by `options.expectation` passed to constructor.
+ *
+ * @type {string}
+ * @name localizerInterface#expectation
+ */
+
+/**
+ * Locale provided to constructor. Required.
  * @type {string}
  * @name localizerInterface#locale
  */

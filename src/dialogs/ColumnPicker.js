@@ -48,20 +48,22 @@ var ColumnPicker = Dialog.extend('ColumnPicker', {
             var stylesheetAddendum = css.inject('list-dragon-addendum');
 
             // create drag-and-drop sets from the lists
-            var listOptions = {
-                // add the list-dragon-base stylesheet right before the addendum
-                cssStylesheetReferenceElement: stylesheetAddendum
-            },
-                listSets = [
-                    new ListDragon([
-                        this.selectedGroups,
-                        this.availableGroups
-                    ], listOptions),
-                    new ListDragon([
-                        this.hiddenColumns,
-                        this.visibleColumns
-                    ], listOptions)
-                ];
+            var listSets = [
+                new ListDragon([
+                    this.selectedGroups,
+                    this.availableGroups
+                ], {
+                    // add the list-dragon-base stylesheet right before the addendum
+                    cssStylesheetReferenceElement: stylesheetAddendum
+                }),
+                new ListDragon([
+                    this.hiddenColumns,
+                    this.visibleColumns
+                ], {
+                    // these models have a header property as their labels
+                    label: '{header}'
+                })
+            ];
 
             // add the drag-and-drop sets to the dialog
             var self = this;
