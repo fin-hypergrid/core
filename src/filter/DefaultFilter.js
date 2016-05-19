@@ -461,8 +461,10 @@ var DefaultFilter = FilterTree.extend('DefaultFilter', {
             var column = columns.find(function(thisColumn) {
                 return thisColumn.name === columnSchema.name || columnSchema;
             });
-            column.type = columnSchema.type || column.type;
-            column.header = columnSchema.alias || column.header;
+            if (column) {
+                column.type = columnSchema.type || column.type;
+                column.header = columnSchema.alias || column.header;
+            }
         });
     }
 });
