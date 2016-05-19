@@ -502,10 +502,9 @@ var ColumnMoving = Feature.extend('ColumnMoving', {
         var hdpiRatio = grid.getHiDPI(draggerCTX);
 
         var dragColumnIndex = grid.renderOverridesCache.dragger.columnIndex;
-        //var columnWidth = grid.renderOverridesCache.dragger.width;
 
         var minX = 0; //grid.getFixedColumnsWidth();
-        var maxX = grid.renderer.getFinalVisableColumnBoundary(); //- columnWidth;
+        var maxX = grid.renderer.getFinalVisableColumnBoundary();
         x = Math.min(x, maxX + 15);
         x = Math.max(minX - 15, x);
 
