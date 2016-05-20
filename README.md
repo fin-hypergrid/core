@@ -31,7 +31,7 @@ The prototype version's [demos](http://openfin.github.io/fin-hypergrid/component
 
 * We are currently working on expanding the API to enable application developers to easily provide their own functionality
  * Hypergrid will have no opinion on how the underlying data should be pivoted, but will remain capable of presenting pivoted data
-* The current filterig and analtyics modules will become separate npm modules/JavaScript files that can be forked and further developed
+* The current filtering and analytics modules will become separate npm modules/JavaScript files that can be forked and further developed
 
 ### Documentation
 
