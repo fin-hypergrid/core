@@ -27,10 +27,11 @@ The prototype version's [demos](http://openfin.github.io/fin-hypergrid/component
 
 * Tree-view presentation for remotely aggregated data
 
-###### With regards to the Filtering & Analytics (sorting && aggregation a.k.a pivoting) modules provided
+###### The Filtering & Analytics (sorting && aggregation) modules provided will be broken out of Hypergrid
 
-* We are currently working on expanding the API to enable application developers to easily provide their own functionality.
- * At which point these default modules will be broken out into separate npm modules/JavaScript files that can be forked and further developed
+* We are currently working on expanding the API to enable application developers to easily provide their own functionality
+ * Hypergrid will have no opinion on how the underlying data should be pivoted, but will remain capable of presenting pivoted data
+* The current filterig and analtyics modules will become separate npm modules/JavaScript files that can be forked and further developed
 
 ### Documentation
 
