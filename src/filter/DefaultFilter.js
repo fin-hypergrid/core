@@ -95,30 +95,30 @@ FilterTree.prototype.addEditor('Columns');
 
 // Add some node templates by updating shared instance of FilterNode's templates. (OK to mutate shared instance; filter-tree not being used for anything else here. Alternatively, we could have instantiated a new Templates object for our DefaultFilter prototype, although this would only affect tree nodes, not leaf nodes, but that would be ok in this case since the additions below are tree node templates.)
 _(FilterTree.Node.prototype.templates).extendOwn({
-    columnFilter: function() {
-/*
- <span class="filter-tree">
-     <strong><span>{2} </span></strong><br>
-     Match
-     <label><input type="radio" class="filter-tree-op-choice" name="treeOp{1}" value="op-or">any</label>
-     <label><input type="radio" class="filter-tree-op-choice" name="treeOp{1}" value="op-and">all</label>
-     <label><input type="radio" class="filter-tree-op-choice" name="treeOp{1}" value="op-nor">none</label>
-     of the following:
-     <select>
-        <option value="">New expression&hellip;</option>
-     </select>
-     <ol></ol>
- </span>
-*/
-    },
-    columnFilters: function() {
-/*
-<span class="filter-tree filter-tree-type-column-filters">
-    Match <strong>all</strong> of the following column filter subexpressions:
-    <ol></ol>
-</span>
-*/
-    }
+    columnFilter: [
+        '<span class="filter-tree">',
+        '   <strong><span>{2} </span></strong><br>',
+        '   Match',
+        '   <label><input type="radio" class="filter-tree-op-choice" name="treeOp{1}" value="op-or">any</label>',
+        '   <label><input type="radio" class="filter-tree-op-choice" name="treeOp{1}" value="op-and">all</label>',
+        '   <label><input type="radio" class="filter-tree-op-choice" name="treeOp{1}" value="op-nor">none</label>',
+        '   of the following:',
+        '   <select>',
+        '       <option value="">New expression&hellip;</option>',
+        '   </select>',
+        '   <ol></ol>',
+        '</span>'
+    ]
+        .join('\n'),
+
+    columnFilters: [
+        '<span class="filter-tree filter-tree-type-column-filters">',
+        '   Match <strong>all</strong> of the following column filter subexpressions:',
+        '   <ol></ol>',
+        '</span>'
+    ]
+        .join('\n')
+
 });
 
 /** @constructor

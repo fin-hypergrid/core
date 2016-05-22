@@ -8,8 +8,6 @@ var _ = require('object-iterators');
 var Base = require('../lib/Base');
 var effects = require('../lib/effects');
 
-var extract = /\/\*\s*([^]+?)\s+\*\//; // finds the string inside the /* ... */; the (group) excludes the whitespace
-
 /**
  * @constructor
  */
@@ -451,11 +449,10 @@ var CellEditor = Base.extend('CellEditor', {
         return this.deprecated('grid', { since: '0.2' });
     },
 
-    template: function() {/**/},
+    template: '',
 
     getHTML: function() {
-        var template = this.template.toString().match(extract)[1];
-        return mustache.render(template, this);
+        return mustache.render(this.template, this);
     },
 
 });

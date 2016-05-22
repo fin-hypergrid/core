@@ -7,7 +7,7 @@ var popMenu = require('pop-menu');
 var automat = require('automat');
 
 var Dialog = require('./Dialog');
-var markup = require('../html/markup.html');
+var markup = require('../../html');
 var copyInput = require('../lib/copy-input');
 
 var tabProperties = {

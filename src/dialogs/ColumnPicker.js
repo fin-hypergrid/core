@@ -5,7 +5,7 @@
 var ListDragon = require('list-dragon');
 
 var Dialog = require('./Dialog');
-var css = require('../css');
+var stylesheet = require('../lib/stylesheet');
 
 /**
  * @constructor
@@ -45,7 +45,7 @@ var ColumnPicker = Dialog.extend('ColumnPicker', {
             this.sortOnHiddenColumns = this.wasSortOnHiddenColumns = grid.resolveProperty('sortOnHiddenColumns');
 
             // parse & add the drag-and-drop stylesheet addendum
-            var stylesheetAddendum = css.inject('list-dragon-addendum');
+            var stylesheetAddendum = stylesheet.inject('list-dragon-addendum');
 
             // create drag-and-drop sets from the lists
             var listSets = [

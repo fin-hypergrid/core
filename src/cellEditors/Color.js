@@ -7,11 +7,7 @@ var CellEditor = require('./CellEditor');
  */
 var Color = CellEditor.extend('Color', {
 
-    template: function() {
-        /*
-            <input type="color">
-        */
-    }
+    template: '<input type="color">'
 
 });
 

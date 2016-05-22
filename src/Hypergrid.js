@@ -18,7 +18,7 @@ var defaults = require('./defaults');
 var cellEditors = require('./cellEditors');
 var Renderer = require('./lib/Renderer');
 var SelectionModel = require('./lib/SelectionModel');
-var css = require('./css');
+var stylesheet = require('./lib/stylesheet');
 var Localization = require('./lib/localization');
 var behaviors = require('./behaviors');
 
@@ -51,7 +51,7 @@ function Hypergrid(div, options) {
 
     this.div = (typeof div === 'string') ? document.querySelector(div) : div;
 
-    css.inject('grid');
+    stylesheet.inject('grid');
 
     this.lastEdgeSelection = [0, 0];
 

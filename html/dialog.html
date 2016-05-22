@@ -1,0 +1,55 @@
+<div id="hypergrid-dialog">
+
+    <style>
+        #hypergrid-dialog {
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+            background-color: white;
+            font: 10pt sans-serif;
+            opacity: 0;
+            transition: opacity 1s;
+            box-shadow: rgba(0, 0, 0, 0.298039) 0px 19px 38px, rgba(0, 0, 0, 0.219608) 0px 15px 12px;
+        }
+        #hypergrid-dialog.hypergrid-dialog-visible {
+            opacity: 1;
+            transition: opacity 1s;
+        }
+
+        #hypergrid-dialog .hypergrid-dialog-control-panel {
+            position: absolute;
+            top: 0px;
+            right: 12px;
+        }
+        #hypergrid-dialog .hypergrid-dialog-control-panel a {
+            color: #999;
+            font-size: 33px;
+            transition: text-shadow .35s, color .35s;
+            text-decoration: none;
+        }
+        #hypergrid-dialog .hypergrid-dialog-close:after {
+            content: '\D7';
+        }
+        #hypergrid-dialog .hypergrid-dialog-settings:after {
+            font-family: Apple Symbols;
+            content: '\2699';
+        }
+        #hypergrid-dialog .hypergrid-dialog-control-panel a:hover {
+            color: black;
+            text-shadow: 0 0 6px #337ab7;
+            transition: text-shadow .35s, color .35s;
+        }
+        #hypergrid-dialog .hypergrid-dialog-control-panel a:active {
+            color: #d00;
+            transition: color 0s;
+        }
+    </style>
+
+    <span class="hypergrid-dialog-control-panel">
+        <a class="hypergrid-dialog-settings" title="(There are no settings for Manage Filters at this time.)"></a>
+        <a class="hypergrid-dialog-close"></a>
+    </span>
+
+</div>
