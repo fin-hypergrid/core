@@ -4,7 +4,7 @@
 
 This version replaces last year's [prototype version](https://github.com/openfin/fin-hypergrid/tree/polymer-prototype), which was built around Polymer. It is now completely "de-polymerized" and is being made available as:
 * An [npm module](https://www.npmjs.com/package/fin-hypergrid) for use with browserify.
-* A single JavaScript file [fin-hypergrid.js](https://openfin.github.io/fin-hypergrid/build/fin-hypergrid.js) you can reference in a `<script>` tag.
+* A single JavaScript file ([dev](https://openfin.github.io/fin-hypergrid/build/fin-hypergrid.js) at 2.7 MB or [min](https://openfin.github.io/fin-hypergrid/build/fin-hypergrid.min.js) at 325 KB) you can reference in a `<script>` tag.
 
 ### Demos
 
