@@ -225,7 +225,6 @@ var CellEditor = Base.extend('CellEditor', {
      * @desc Before saving, validates the edited value as follows:
      * 1. Call `editorValueIsValid` (which calls the localizer's `isValid()` function, if available).
      * 2. Catch any errors thrown by the {@link CellEditor#getEditorValue|getEditorValue} method.
-     * 3. Check returned value for `NaN`.
      *
      * **If the edited value passes validation:** Saves the edited value by calling the {@link CellEditor#saveEditorValue|saveEditorValue} method.
      *
@@ -250,8 +249,6 @@ var CellEditor = Base.extend('CellEditor', {
                 valid = false;
             }
         }
-
-        valid = valid && !isNaN(value);
 
         if (!valid && feedback >= 0) { // never true when `feedback` undefined
             var point = this.getEditorPoint();

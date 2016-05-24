@@ -1,16 +1,12 @@
 'use strict';
 
+var _ = require('object-iterators');
+
 var REGEXP_BOOLS = /\b(AND|OR|NOR)\b/gi,
-    REGEXP_CELL_FILTER = /^\s*(<=|>=|<>|[<≤≠≥>=]|(NOT )?(IN|CONTAINS|BEGINS|ENDS|LIKE) )?(.*?)\s*$/i,
     EXP = '(.*?)', BR = '\\b',
     PREFIX = '^' + EXP + BR,
     INFIX = BR + EXP + BR,
-    POSTFIX = BR + EXP + '$',
-    opMap = {
-        '>=': '≥',
-        '<=': '≤',
-        '<>': '≠'
-    };
+    POSTFIX = BR + EXP + '$';
 
 function ParserCqlError(message) {
     this.message = message;
@@ -27,12 +23,58 @@ ParserCqlError.prototype.name = 'ParserCqlError';
  *
  * @desc See {@tutorial CQL} for the grammar.
  *
+ * @param {object} operators - Hash of valid operators. Each is an object, the only property of interest being `complex` which if truthy means operand may be a list of multiple operands.
  * @param {menuItem[]} [options.schema] - Column schema for column name/alias validation. Throws an error if name fails validation (but see `resolveAliases`). Omit to skip column name validation.
  * @param {boolean} [options.defaultOp='='] - Default operator for column when not defined in column schema.
  */
-function ParserCQL(options) {
+function ParserCQL(operators, options) {
     this.schema = options && options.schema;
-    this.defaultOp = options && options.defaultOp || '=';
+    this.defaultOp = (options && options.defaultOp || '=').toUpperCase();
+
+    var scalarOperands = [],
+        listOperands = [];
+
+    _(operators).each(function(props, op) {
+        if (op !== 'undefined') {
+            (props.complex ? listOperands : scalarOperands).push(op);
+        }
+    });
+
+    scalarOperands = toRegexGroup.call(this, scalarOperands);
+    listOperands = toRegexGroup.call(this, listOperands);
+
+    /** @summary regex to match all operators that take a scalar operand
+     * @desc Match list:
+     * 0. _input string_
+     * 1. operator
+     * 2. _operand fully dressed with parentheses and quotes_
+     * 3. untrimmed operand extracted from within single quotes
+     * 4. untrimmed operand extracted from within double quotes
+     * 5. untrimmed operand extracted from within parenthesized single quotes
+     * 6. untrimmed operand extracted from within parenthesized double quotes
+     * 7. trimmed operand extracted from within parentheses
+     * 8. trimmed undressed operand
+     * @type {RegExp}
+     * @private
+     * @memberOf ParserCQL.prototype
+     */
+    this.REGEX_CQL_EXP_WITH_SCALAR_OPERAND = new RegExp('^\\s*' + scalarOperands + '\\s*(\'(.*)\'|"(.*)"|\\(\\s*\'(.*)\'\\s*\\)|\\(\\s*"(.*)"\\s*\\)|\\(\\s*(.+?)\\s*\\)|(.+?))\\s*$', 'i');
+
+    /** @summary regex to match all operators that take an operand list
+     * @desc Match list:
+     * 0. _input string_
+     * 1. operator
+     * 7. parenthesized trimmed & operand extracted
+     * 8. undressed operand trimmed & extracted
+     * 2. _operand fully dressed with parentheses and quotes_
+     * 3. trimmed operand extracted from within parentheses
+     * 4. trimmed undressed operand
+     * @type {RegExp}
+     * @private
+     * @memberOf ParserCQL.prototype
+     */
+    this.REGEX_CQL_EXP_WITH_OPERAND_LIST = new RegExp('^\\s*' + listOperands + '\\s*(\\(\\s*(.+?)\\s*\\)|(.+?))\\s*$', 'i');
+
 }
 
 ParserCQL.prototype = {
@@ -65,7 +107,7 @@ ParserCQL.prototype = {
     },
 
     /**
-     * Break an expression chain into a list of expressions.
+     * @summary Break an expression chain into a list of expressions.
      * @param {string} cql
      * @returns {string[]}
      */
@@ -97,21 +139,21 @@ ParserCQL.prototype = {
      * * `{column: string, operator: string, operand: string, editor: 'Columns'}`
      */
     makeChildren: function(columnName, expressions) {
-        var children = [],
-            self = this;
+        var self = this;
+        return expressions.reduce(function(children, exp) {
+            if (exp) {
+                var parts = exp.match(self.REGEX_CQL_EXP_WITH_OPERAND_LIST) ||
+                    exp.match(self.REGEX_CQL_EXP_WITH_SCALAR_OPERAND); // the regex with the default operator should be last
 
-        expressions.forEach(function(expression) {
-            if (expression) {
-                var parts = expression.match(REGEXP_CELL_FILTER),
-                    literal = parts[parts.length - 1];
-
-                if (literal) {
-                    var op = parts[1] && parts[1] || // as specified by user
-                        self.schema && self.schema.lookup(columnName).defaultOp || // column's default operator from schema
-                        self.defaultOp; // grid's default operator
-
-                    op = opMap[op] || op; // accommodate alternate spellings of operators
-                    op = op.trim().toUpperCase(); // clean up & normalize
+                if (parts) {
+                    var literal = parts.slice(3).find(function(part) { return part !== undefined; }),
+                        op = (
+                            parts[1] ||
+                            self.schema && self.schema.lookup(columnName).defaultOp || // column's default operator from schema
+                            self.defaultOp // grid's default operator,
+                        )
+                            .replace(/\s+/g, ' ')
+                            .toUpperCase();
 
                     var child = {
                         column: columnName,
@@ -128,10 +170,10 @@ ParserCQL.prototype = {
 
                     children.push(child);
                 }
-            }
-        });
 
-        return children;
+                return children;
+            }
+        }, []);
     },
 
     /**
@@ -149,9 +191,7 @@ ParserCQL.prototype = {
      *
      * @memberOf module:CQL
      */
-    parse: function(cql, options) {
-        var columnName = options.columnName;
-
+    parse: function(cql, columnName) {
         // reduce all runs of white space to a single space; then trim
         cql = cql.replace(/\s\s+/g, ' ').trim();
 
@@ -175,5 +215,24 @@ ParserCQL.prototype = {
         return state;
     }
 };
+
+function toRegexGroup(list) {
+    var g = list
+        .sort(descendingByLength)// put larger ones first so that in case a smaller one is a substring of a larger one (such as '<' is to '<='), larger one will be matched first
+        .join('|')
+        .replace(/\s+/g, '\\s+'); // spaces to whitespace matcher
+
+    g = '(' + g + ')';
+
+    if (list.indexOf(this.defaultOp) >= 0) {
+        g += '?';
+    }
+
+    return g;
+}
+
+function descendingByLength(a, b) {
+    return b.length - a.length;
+}
 
 module.exports = ParserCQL;

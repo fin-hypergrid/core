@@ -1,6 +1,8 @@
 .*
+/css/*.css
 /demo
 /doc
+/html/*.html
 /images/**
 !/images/index.js
 !/images/images.js

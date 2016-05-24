@@ -94,7 +94,7 @@ window.onload = function() {
 
     var schema = [
         { name: 'last_name', type: 'number', opMenu: ['=', '<', '>'] },
-        'total_number_of_pets_owned',
+        { name: 'total_number_of_pets_owned', type: 'number' },
         'height',
         'birthDate',
         'birthState',
