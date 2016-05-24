@@ -295,8 +295,6 @@ var DefaultFilter = FilterTree.extend('DefaultFilter', {
      *
      * @param {boolean} [options.syntax='CQL'] - The syntax to use to describe the filter state. Note that `setColumnFilterState`'s default syntax, `'CQL'`, differs from the other get state methods.
      *
-     * @returns {undefined|Error|string} `undefined` indicates success.
-
      * @memberOf DefaultFilter.prototype
      */
     setColumnFilterState: function(rawColumnName, state, options) {
@@ -326,8 +324,7 @@ var DefaultFilter = FilterTree.extend('DefaultFilter', {
                         error = new Error('DefaultFilter: No complete expression.');
                     }
                 } catch (e) {
-                    error = e.message || e;
-                    console.warn(error);
+                    error = e;
                 }
             }
 
@@ -350,7 +347,9 @@ var DefaultFilter = FilterTree.extend('DefaultFilter', {
             subexpression.remove();
         }
 
-        return error;
+        if (error) {
+            throw error;
+        }
     },
 
     /**
