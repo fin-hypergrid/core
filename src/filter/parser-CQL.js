@@ -19,7 +19,7 @@ ParserCqlError.prototype.name = 'ParserCqlError';
  *
  * @summary Column Query Language (CQL) parser
  *
- * @author Jonathan Eiten <jonathan@openfin.com>
+ * @author Jonathan Eiten jonathan@openfin.com
  *
  * @desc See {@tutorial CQL} for the grammar.
  *
@@ -28,52 +28,41 @@ ParserCqlError.prototype.name = 'ParserCqlError';
  * @param {boolean} [options.defaultOp='='] - Default operator for column when not defined in column schema.
  */
 function ParserCQL(operators, options) {
+    var operands = [];
+
+    this.qt = options && options.quote || '"';
     this.schema = options && options.schema;
     this.defaultOp = (options && options.defaultOp || '=').toUpperCase();
 
-    var scalarOperands = [],
-        listOperands = [];
+    if (this.qt.length !== 1) {
+        throw 'Expected CQL quotation mark to be a single character.';
+    }
 
     _(operators).each(function(props, op) {
         if (op !== 'undefined') {
-            (props.complex ? listOperands : scalarOperands).push(op);
+            operands.push(op);
         }
     });
 
-    scalarOperands = toRegexGroup.call(this, scalarOperands);
-    listOperands = toRegexGroup.call(this, listOperands);
-
-    /** @summary regex to match all operators that take a scalar operand
-     * @desc Match list:
-     * 0. _input string_
-     * 1. operator
-     * 2. _operand fully dressed with parentheses and quotes_
-     * 3. untrimmed operand extracted from within single quotes
-     * 4. untrimmed operand extracted from within double quotes
-     * 5. untrimmed operand extracted from within parenthesized single quotes
-     * 6. untrimmed operand extracted from within parenthesized double quotes
-     * 7. trimmed operand extracted from within parentheses
-     * 8. trimmed undressed operand
-     * @type {RegExp}
-     * @private
-     * @memberOf ParserCQL.prototype
-     */
-    this.REGEX_CQL_EXP_WITH_SCALAR_OPERAND = new RegExp('^\\s*' + scalarOperands + '\\s*(\'(.*)\'|"(.*)"|\\(\\s*\'(.*)\'\\s*\\)|\\(\\s*"(.*)"\\s*\\)|\\(\\s*(.+?)\\s*\\)|(.+?))\\s*$', 'i');
+    operands = operands
+        .sort(descendingByLength)// put larger ones first so that in case a smaller one is a substring of a larger one (such as '<' is to '<='), larger one will be matched first
+        .join('|')
+        .replace(/\s+/g, '\\s+'); // arbitrary string of whitespace chars -> whitespace regex matcher
 
     /** @summary regex to match all operators that take an operand list
      * @desc Match list:
      * 0. _input string_
      * 1. operator
-     * 7. parenthesized trimmed & operand extracted
-     * 8. undressed operand trimmed & extracted
      * 2. _operand fully dressed with parentheses and quotes_
-     * 3. trimmed operand extracted from within parentheses
-     * 4. trimmed undressed operand
+     * 3. parenthesized operand trimmed & extracted
+     * 4. unparenthesized operand trimmed & extracted
      * @type {RegExp}
      * @private
      * @memberOf ParserCQL.prototype
      */
-    this.REGEX_CQL_EXP_WITH_OPERAND_LIST = new RegExp('^\\s*' + listOperands + '\\s*(\\(\\s*(.+?)\\s*\\)|(.+?))\\s*$', 'i');
+    this.REGEX_EXPRESSION = new RegExp('^\\s*(' + operands + ')?\\s*(\\(\\s*(.+?)\\s*\\)|(.+?))\\s*$', 'i');
+
+    this.REGEX_LITERAL_TOKENS = new RegExp('\\' + this.qt + '(\\d+)' + '\\' + this.qt, 'g');
 
 }
 
@@ -138,13 +127,11 @@ ParserCQL.prototype = {
      * * `{column: string, operator: string, operand: string}`
      * * `{column: string, operator: string, operand: string, editor: 'Columns'}`
      */
-    makeChildren: function(columnName, expressions) {
+    makeChildren: function(columnName, expressions, literals) {
         var self = this;
         return expressions.reduce(function(children, exp) {
             if (exp) {
-                var parts = exp.match(self.REGEX_CQL_EXP_WITH_OPERAND_LIST) ||
-                    exp.match(self.REGEX_CQL_EXP_WITH_SCALAR_OPERAND); // the regex with the default operator should be last
-
+                var parts = exp.match(self.REGEX_EXPRESSION);
                 if (parts) {
                     var literal = parts.slice(3).find(function(part) { return part !== undefined; }),
                         op = (
@@ -165,7 +152,10 @@ ParserCQL.prototype = {
                         child.operand = fieldName.name || fieldName;
                         child.editor = 'Columns';
                     } else {
-                        child.operand = literal;
+                        // Find and expand all collapsed literals.
+                        child.operand = literal.replace(self.REGEX_LITERAL_TOKENS, function(match, index) {
+                            return literals[index];
+                        });
                     }
 
                     children.push(child);
@@ -195,9 +185,12 @@ ParserCQL.prototype = {
         // reduce all runs of white space to a single space; then trim
         cql = cql.replace(/\s\s+/g, ' ').trim();
 
+        var literals = [];
+        cql = tokenizeLiterals(cql, this.qt, literals);
+
         var booleans = this.captureBooleans(cql),
             expressions = this.captureExpressions(cql, booleans),
-            children = this.makeChildren(columnName, expressions),
+            children = this.makeChildren(columnName, expressions, literals),
             operator = booleans && booleans[0],
             state;
 
@@ -216,23 +209,44 @@ ParserCQL.prototype = {
     }
 };
 
-function toRegexGroup(list) {
-    var g = list
-        .sort(descendingByLength)// put larger ones first so that in case a smaller one is a substring of a larger one (such as '<' is to '<='), larger one will be matched first
-        .join('|')
-        .replace(/\s+/g, '\\s+'); // spaces to whitespace matcher
-
-    g = '(' + g + ')';
-
-    if (list.indexOf(this.defaultOp) >= 0) {
-        g += '?';
-    }
-
-    return g;
-}
-
 function descendingByLength(a, b) {
     return b.length - a.length;
+}
+
+/**
+ * @summary Collapse literals.
+ * @desc Allows reserved words to exist inside a quoted string.
+ * Literals are collapsed to a quoted numerical index into the `literals` array.
+ * @param {string} text
+ * @param {string} qt
+ * @returns {string}
+ */
+function tokenizeLiterals(text, qt, literals) {
+    literals.length = 0;
+
+    for (
+        var i = 0, j = 0, k, innerLiteral;
+        (j = text.indexOf(qt, j)) >= 0;
+        j = j + 1 + (i + '').length + 1, i++
+    ) {
+        k = j;
+        do {
+            k = text.indexOf(qt, k + 1);
+            if (k < 0) {
+                throw new ParserCqlError('Quotation marks must be paired; nested quotation marks must be doubled.');
+            }
+        } while (text[++k] === qt);
+
+        innerLiteral = text
+            .slice(++j, --k) // extract
+            .replace(new RegExp(qt + qt, 'g'), qt); // unescape escaped quotation marks
+
+        literals.push(innerLiteral);
+
+        text = text.substr(0, j) + i + text.substr(k); // collapse
+    }
+
+    return text;
 }
 
 module.exports = ParserCQL;

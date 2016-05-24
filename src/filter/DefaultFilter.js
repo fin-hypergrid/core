@@ -136,27 +136,35 @@ var DefaultFilter = FilterTree.extend('DefaultFilter', {
 
     postInitialize: function(options) {
         if (this === this.root) {
-            // override some methods
-            this.conditionals.makeLIKE = function(beg, end, op, c, originalOp) {
-                op = originalOp.toLowerCase();
-                return op + ' ' + c.operand;
-            };
-            this.conditionals.makeIN = function(op, c) {
-                return op.toLowerCase() + ' ' + c.operand.replace(/\s*,\s*/g, ',');
-            };
-            this.conditionals.make = function(op, c) {
-                op = op.toLowerCase();
-                if (/\w/.test(op)) { op += ' '; }
-                op += c.operand;
-                return op;
-            };
-
             if (!this.parserCQL) {
                 this.parserCQL = new ParserCQL(this.conditionals.ops, {
                     schema: this.schema,
                     defaultOp: options.defaultColumnFilterOperator
                 });
             }
+
+            var quote = quotify.bind(null, this.parserCQL.qt);
+
+            // override some methods:
+
+            this.conditionals.makeLIKE = function(beg, end, op, originalOp, c) {
+                op = originalOp.toLowerCase();
+                return op + ' ' + quote(c.operand);
+            };
+
+            this.conditionals.makeIN = function(op, c) {
+                return op.toLowerCase() + ' ' + c.operand.replace(/\s*,\s*/g, ',');
+            };
+
+            this.conditionals.make = function(op, c) {
+                var numericOperand;
+                op = op.toLowerCase();
+                if (/\w/.test(op)) { op += ' '; }
+                op += c.getType() === 'number' && !isNaN(numericOperand = Number(c.operand))
+                    ? numericOperand
+                    : quote(c.operand);
+                return op;
+            };
         }
 
         if (this.type === 'columnFilter') {
@@ -459,5 +467,10 @@ var DefaultFilter = FilterTree.extend('DefaultFilter', {
         });
     }
 });
+
+function quotify(qt, text) {
+    return qt + text.replace(new RegExp(qt, 'g'), qt + qt) + qt;
+}
+
 
 module.exports = DefaultFilter;
