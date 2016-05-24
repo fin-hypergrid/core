@@ -1,4 +1,6 @@
 .DS_Store
+/css/index.js
+/html/index.js
 /.idea
 /doc
 /node_modules*

@@ -7,11 +7,7 @@ var CellEditor = require('./CellEditor.js');
  */
 var Textfield = CellEditor.extend('Textfield', {
 
-    template: function() {
-        /*
-            <input type="text">
-        */
-    },
+    template: '<input type="text">',
 
     selectAll: function() {
         var lastCharPlusOne = this.getEditorValue().length;

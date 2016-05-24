@@ -49,18 +49,16 @@ var ComboBox = Textfield.extend('ComboBox', {
         el.onblur = null; // void this one, set by super's initialize
     },
 
-    template: function() {
-/*
-    <div class="hypergrid-input" title="">
-        <input>
-        <span title="Click for options"></span>
-        <div>
-            <div></div>
-            <select size="12"></select>
-        </div>
-    </div>
-*/
-    },
+    template: [
+'<div class="hypergrid-input" title="">',
+'    <input>',
+'    <span title="Click for options"></span>',
+'    <div>',
+'        <div></div>',
+'        <select size="12"></select>',
+'    </div>',
+'</div>'
+    ].join('\n'),
 
     beginEditAt: function(point) {
         this.column = this.grid.behavior.columns[point.x];

@@ -7,11 +7,7 @@ var Textfield = require('./Textfield');
  */
 var Number = Textfield.extend('Number', {
 
-    template: function() {
-        /*
-         <input type="text">
-         */
-    },
+    template: '<input type="text">',
 
     initialize: function(grid) {
         this.localizer = grid.localization.get('number');

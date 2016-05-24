@@ -7,11 +7,7 @@ var CellEditor = require('./CellEditor.js');
  */
 var Spinner = CellEditor.extend('Spinner', {
 
-    template: function() {
-        /*
-            <input type="number">
-        */
-    }
+    template: '<input type="number">'
 
 });
 

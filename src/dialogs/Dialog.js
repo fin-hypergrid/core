@@ -5,12 +5,12 @@
 var automat = require('automat');
 
 var Base = require('../lib/Base');
-var markup = require('../html/markup.html');
+var markup = require('../../html');
 var images = require('../../images');
 var elfor = require('../lib/elfor');
 
 /**
- * Creates and services a DOM element used as a cntainer for a dialog. The standard `markup.diaglog` is simply a div with a _control panel_ containing a close box and a settings gear icon.
+ * Creates and services a DOM element used as a cntainer for a dialog. The standard `markup.dialog` is simply a div with a _control panel_ containing a close box and a settings gear icon.
  *
  * You can supply an alternative dialog template. The interface is:
  * * Class name `hypergrid-dialog`.

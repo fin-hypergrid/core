@@ -28,26 +28,15 @@ var Date = CellEditor.extend('Date', {
 
         if (usesDateInputControl) {
             localizerName = 'chromeDate';
-
-            this.template = function() {
-                /*
-                 <input id="editor" type="date">
-                 */
-            };
+            this.template = '<input id="editor" type="date">';
         } else {
             localizerName = 'date';
-
-            this.template = {
-                /*
-                 <input type="text">
-                 */
-            };
+            this.template = '<input type="text">';
 
             this.selectAll = function() {
                 var lastCharPlusOne = this.getEditorValue().length;
                 this.input.setSelectionRange(0, lastCharPlusOne);
             };
-
         }
 
         this.localizer = grid.localization.get(localizerName);
