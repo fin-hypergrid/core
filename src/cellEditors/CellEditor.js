@@ -330,7 +330,7 @@ var CellEditor = Base.extend('CellEditor', {
     },
 
     /** @typedef effectObject
-     * @property {function} effector - Reference to an {@link effectFunction}.
+     * @property {effectFunction} effector
      * @property {object} [options] - An options object with which to call the function.
      */
     /**

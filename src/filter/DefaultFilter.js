@@ -153,7 +153,7 @@ var DefaultFilter = FilterTree.extend('DefaultFilter', {
             };
 
             this.conditionals.makeIN = function(op, c) {
-                return op.toLowerCase() + ' ' + c.operand.replace(/\s*,\s*/g, ',');
+                return op.toLowerCase() + ' (' + c.operand.replace(/\s*,\s*/g, ', ') + ')';
             };
 
             this.conditionals.make = function(op, c) {
@@ -281,7 +281,7 @@ var DefaultFilter = FilterTree.extend('DefaultFilter', {
 
     /**
      * @summary Set a particular column filter's state.
-     * @desc Adds CQL support to this.getState().
+     * @desc Adds CQL support to this.getState(). This function throws parser errors.
      *
      * @param {string} columnName
      *
