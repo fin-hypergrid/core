@@ -13,6 +13,7 @@ pushd ../temp >/dev/null
 
 # clone it so it will be a branch of the repo
 git clone -q --single-branch --recurse-submodules http://github.com/$org/$repo.git
+# git clone --single-branch --recurse-submodules http://github.com/$org/$repo.git --branch RC-1.0.5-beta-1
 cd $repo >/dev/null
 
 npm install >/dev/null
@@ -34,14 +35,6 @@ git clean -fd
 
 # copy the doc directory from the stash
 mv ../doc ../demo/* . >/dev/null
-
-# make the forward to the old demo
-mkdir components
-mkdir components/fin-hypergrid
-echo '<html>' > components/fin-hypergrid/demo.html
-echo '<head><meta http-equiv="Refresh" content="0; url=https://openfin.github.io/fin-hypergrid-polymer-demo/components/fin-hypergrid/demo.html/" /></head>' >> components/fin-hypergrid/demo.html
-echo '<body>The Hypergrid Polymer prototype demo has been moved to <a href="http://openfin.github.io/fin-hypergrid-polymer-demo/components/fin-hypergrid/demo.html">here</a>.</body>' >> components/fin-hypergrid/demo.html
-echo '</html>' >> components/fin-hypergrid/demo.html
 
 # send it all up
 git add . >/dev/null
