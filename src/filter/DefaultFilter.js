@@ -12,30 +12,6 @@ FilterTree.Node.optionsSchema.menuModes = {
     }
 };
 
-/** @typedef {function} fieldsProviderFunc
- * @returns {menuOption[]} see jsdoc typedef in pop-menu.js
- */
-
-/**
- * @constructor
- * @extends Operators
- */
-var ConditionalsCql = FilterTree.Conditionals.extend({
-    makeLIKE: function(beg, end, op, c, originalOp) {
-        op = originalOp.toLowerCase();
-        return op + ' ' + c.operand;
-    },
-    makeIN: function(op, c) {
-        return op.toLowerCase() + ' ' + c.operand.replace(/\s*,\s*/g, ',');
-    },
-    make: function(op, c) {
-        op = op.toLowerCase();
-        if (/\w/.test(op)) { op += ' '; }
-        op += c.operand;
-        return op;
-    }
-});
-
 var likeDresses = [
     { regex: /^(NOT )?LIKE %(.+)%$/i, operator: 'contains' },
     { regex: /^(NOT )?LIKE (.+)%$/i, operator: 'begins' },
@@ -68,7 +44,6 @@ function convertLikeToPseudoOp(result) {
 
     return result;
 }
-var conditionals = new ConditionalsCql();
 
 // replace the default filter tree terminal node constructor with an extension of same
 var CustomFilterLeaf = FilterTree.prototype.addEditor({
@@ -77,7 +52,7 @@ var CustomFilterLeaf = FilterTree.prototype.addEditor({
             syntax = options && options.syntax;
 
         if (syntax === 'CQL') {
-            result = this.getSyntax(conditionals);
+            result = this.getSyntax();
             result = convertLikeToPseudoOp(result);
             var defaultOp = this.schema.lookup(this.column).defaultOp || this.root.parserCQL.defaultOp; // mimics logic in parser-CQL.js, line 110
             if (result.toUpperCase().indexOf(defaultOp) === 0) {
@@ -118,7 +93,6 @@ _(FilterTree.Node.prototype.templates).extendOwn({
         '</span>'
     ]
         .join('\n')
-
 });
 
 /** @constructor
@@ -161,11 +135,36 @@ var DefaultFilter = FilterTree.extend('DefaultFilter', {
     },
 
     postInitialize: function(options) {
-        if (this === this.root && !this.parserCQL) {
-            this.parserCQL = new ParserCQL({
-                schema: this.schema,
-                defaultOp: options.defaultColumnFilterOperator
-            });
+        if (this === this.root) {
+            if (!this.parserCQL) {
+                this.parserCQL = new ParserCQL(this.conditionals.ops, {
+                    schema: this.schema,
+                    defaultOp: options.defaultColumnFilterOperator
+                });
+            }
+
+            var quote = quotify.bind(null, this.parserCQL.qt);
+
+            // override some methods:
+
+            this.conditionals.makeLIKE = function(beg, end, op, originalOp, c) {
+                op = originalOp.toLowerCase();
+                return op + ' ' + quote(c.operand);
+            };
+
+            this.conditionals.makeIN = function(op, c) {
+                return op.toLowerCase() + ' (' + c.operand.replace(/\s*,\s*/g, ', ') + ')';
+            };
+
+            this.conditionals.make = function(op, c) {
+                var numericOperand;
+                op = op.toLowerCase();
+                if (/\w/.test(op)) { op += ' '; }
+                op += c.getType() === 'number' && !isNaN(numericOperand = Number(c.operand))
+                    ? numericOperand
+                    : quote(c.operand);
+                return op;
+            };
         }
 
         if (this.type === 'columnFilter') {
@@ -282,7 +281,7 @@ var DefaultFilter = FilterTree.extend('DefaultFilter', {
 
     /**
      * @summary Set a particular column filter's state.
-     * @desc Adds CQL support to this.getState().
+     * @desc Adds CQL support to this.getState(). This function throws parser errors.
      *
      * @param {string} columnName
      *
@@ -296,8 +295,6 @@ var DefaultFilter = FilterTree.extend('DefaultFilter', {
      *
      * @param {boolean} [options.syntax='CQL'] - The syntax to use to describe the filter state. Note that `setColumnFilterState`'s default syntax, `'CQL'`, differs from the other get state methods.
      *
-     * @returns {undefined|Error|string} `undefined` indicates success.
-
      * @memberOf DefaultFilter.prototype
      */
     setColumnFilterState: function(rawColumnName, state, options) {
@@ -320,15 +317,14 @@ var DefaultFilter = FilterTree.extend('DefaultFilter', {
                 // Convert some CQL state syntax into a filter tree state object.
                 // There must be at least one complete expression or `state` will become undefined.
                 try {
-                    state = this.root.parserCQL.parse(state, { columnName: columnName });
+                    state = this.root.parserCQL.parse(state, columnName);
                     if (state) {
                         options.syntax = 'object';
                     } else {
                         error = new Error('DefaultFilter: No complete expression.');
                     }
                 } catch (e) {
-                    error = e.message || e;
-                    console.warn(error);
+                    error = e;
                 }
             }
 
@@ -351,7 +347,9 @@ var DefaultFilter = FilterTree.extend('DefaultFilter', {
             subexpression.remove();
         }
 
-        return error;
+        if (error) {
+            throw error;
+        }
     },
 
     /**
@@ -468,5 +466,10 @@ var DefaultFilter = FilterTree.extend('DefaultFilter', {
         });
     }
 });
+
+function quotify(qt, text) {
+    return qt + text.replace(new RegExp(qt, 'g'), qt + qt) + qt;
+}
+
 
 module.exports = DefaultFilter;

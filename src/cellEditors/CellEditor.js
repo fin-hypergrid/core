@@ -225,7 +225,6 @@ var CellEditor = Base.extend('CellEditor', {
      * @desc Before saving, validates the edited value as follows:
      * 1. Call `editorValueIsValid` (which calls the localizer's `isValid()` function, if available).
      * 2. Catch any errors thrown by the {@link CellEditor#getEditorValue|getEditorValue} method.
-     * 3. Check returned value for `NaN`.
      *
      * **If the edited value passes validation:** Saves the edited value by calling the {@link CellEditor#saveEditorValue|saveEditorValue} method.
      *
@@ -237,35 +236,41 @@ var CellEditor = Base.extend('CellEditor', {
      * * If omitted, simply cancels editing without saving edited value.
      * * If 0, shows the error feedback effect (see the {@link CellEditor#errorEffect|errorEffect} property).
      * * If > 0, shows the error feedback effect _and_ calls the {@link CellEditor#errorEffectEnd|errorEffectEnd} method) every `feedback` call(s) to `stopEditing`.
-     * @returns {boolean} Truthy means successful stop. Falsy means syntax error prevented stop.
+     * @returns {boolean} Truthy means successful stop. Falsy means syntax error prevented stop. Note that editing is canceled when no feedback requested and successful stop includes (successful) cancel.
      * @memberOf CellEditor.prototype
      */
     stopEditing: function(feedback) {
-        var valid = this.editorValueIsValid();
+        var error = !this.editorValueIsValid();
 
-        if (valid) {
+        if (!error) {
             try {
                 var value = this.getEditorValue();
             } catch (err) {
-                valid = false;
+                error = err;
             }
         }
 
-        valid = valid && !isNaN(value);
+        if (!error && this.grid.fireSyntheticEditorDataChangeEvent(this, this.initialValue, value)) {
+            try {
+                this.saveEditorValue(value);
+            } catch (err) {
+                error = err;
+            }
+        }
 
-        if (!valid && feedback >= 0) { // never true when `feedback` undefined
-            var point = this.getEditorPoint();
-            this.grid.selectViewportCell(point.x, point.y - this.grid.getHeaderRowCount());
-            this.errorEffectBegin(++this.errors === feedback);
-        } else if (!valid) { // no feedback
-            return this.cancelEditing();
-        } else if (this.grid.fireSyntheticEditorDataChangeEvent(this, this.initialValue, value)) {
-            this.saveEditorValue(value);
+        if (!error) {
             this.hideEditor();
             this.grid.cellEditor = null;
             this.el.remove();
-            return true;
+        } else if (feedback >= 0) { // never true when `feedback` undefined
+            var point = this.getEditorPoint();
+            this.grid.selectViewportCell(point.x, point.y - this.grid.getHeaderRowCount());
+            this.errorEffectBegin(++this.errors === feedback && error);
+        } else { // invalid but no feedback
+            return this.cancelEditing();
         }
+
+        return !error;
     },
 
     /** @summary Cancels editing.
@@ -283,11 +288,11 @@ var CellEditor = Base.extend('CellEditor', {
 
     /**
      * Calls the effect function indicated in the {@link CellEditor#errorEffect|errorEffect} property which triggers a series of CSS transitions.
-     * @param {boolean} [callErrorEffectEnd=false] - Call the {@link CellEditor#errorEffectEnd|errorEffectEnd} method at the end of the last effect transition.
+     * @param {Error} [error] - Call the {@link CellEditor#errorEffectEnd|errorEffectEnd} method at the end of the last effect transition with this error.
      * @memberOf CellEditor.prototype
      */
-    errorEffectBegin: function(callErrorEffectEnd) {
-        var options = { callback: callErrorEffectEnd && this.errorEffectEnd },
+    errorEffectBegin: function(error) {
+        var options = { callback: error && this.errorEffectEnd.bind(null, error) },
             effect = this.errorEffect;
 
         if (typeof effect === 'string') {
@@ -306,15 +311,17 @@ var CellEditor = Base.extend('CellEditor', {
         }
     },
 
-    errorEffectEnd: function() {
+    errorEffectEnd: function(error) {
         var msg =
             'Invalid value. To resolve, do one of the following:\n\n' +
             '   * Correct the error and try again.\n' +
             '         - or -\n' +
             '   * Cancel editing by pressing the "esc" (escape) key.';
 
-        if (this.localizer.expectation) {
-            msg += '\n\n' + this.localizer.expectation;
+        error = error || this.localizer.expectation;
+
+        if (error) {
+            msg += '\n\nAdditional information about this error: ' + (error.message || error);
         }
 
         alert(msg); // eslint-disable-line no-alert
@@ -323,7 +330,7 @@ var CellEditor = Base.extend('CellEditor', {
     },
 
     /** @typedef effectObject
-     * @property {function} effector - Reference to an {@link effectFunction}.
+     * @property {effectFunction} effector
      * @property {object} [options] - An options object with which to call the function.
      */
     /**
