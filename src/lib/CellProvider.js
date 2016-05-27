@@ -1,6 +1,7 @@
 'use strict';
 
 var Base = require('./Base');
+var images = require('../../images');
 
 /** @constructor
  * @desc Instances of features are connected to one another to make a chain of responsibility for handling all the input to the hypergrid.
@@ -399,6 +400,61 @@ var CellProvider = Base.extend('CellProvider', {
     },
 
     /**
+     * @summary Writes error message into cell.
+     *
+     * @desc This function is guaranteed to be called as follows:
+     *
+     * ```javascript
+     * gc.save();
+     * gc.beginPath();
+     * gc.rect(x, y, width, height);
+     * gc.clip();
+     * behavior.getCellProvider().renderCellError(gc, message, x, y, width, height);
+     * gc.restore();
+     * ```
+     *
+     * Before doing anything else, this function should clear the cell by setting `gc.fillStyle` and calling `gc.fill()`.
+     *
+     * @param {CanvasRenderingContext2D} gc
+     * @param {string} message
+     * @param {number} x
+     * @param {number} y
+     * @param {number} width
+     * @param {number} height
+     */
+    renderCellError: function(gc, message, x, y, width, height) {
+    
+        // clear the cell
+        // (this makes use of the rect path defined by the caller)
+        gc.fillStyle = '#FFD500';
+        gc.fill();
+    
+        // render cell border
+        gc.strokeStyle = gc.createPattern(images.caution, 'repeat');
+        gc.lineWidth = 5;
+        gc.beginPath();
+        gc.moveTo(x, y); // caution: do not use rect() here because Chrome does not clip its stroke properly
+        gc.lineTo(x + width, y);
+        gc.lineTo(x + width, y + height);
+        gc.lineTo(x, y + height);
+        gc.lineTo(x, y);
+        gc.stroke();
+    
+        // adjust clip region to prevent text from rendering over right border should it overflow
+        gc.beginPath();
+        gc.rect(x, y, width - 2, height);
+        gc.clip();
+    
+        // render message text
+        gc.fillStyle = '#A00';
+        gc.textAlign = 'start';
+        gc.textBaseline = 'middle';
+        gc.font = 'bold 6pt "arial narrow", verdana, geneva';
+        gc.fillText(message, x + 4, y + height / 2 + 0.5);
+    
+    },
+
+    /**
      * @desc A simple implementation of a sparkline.  see [Edward Tufte sparkline](http://www.edwardtufte.com/bboard/q-and-a-fetch-msg?msg_id=0001OR)
      * @param {CanvasGraphicsContext} gc
      * @param {number} x - the x screen coordinate of my origin
@@ -493,6 +549,9 @@ var CellProvider = Base.extend('CellProvider', {
             paint: this.defaultCellPaint,
             renderSingleLineText: this.renderSingleLineText,
             renderMultiLineText: this.renderMultiLineText
+        };
+        this.cellCache.renderCellRenderer = {
+            paint: this.renderCellError
         };
         this.cellCache.sliderCellRenderer = {
             paint: this.paintSlider

@@ -834,7 +834,7 @@ var Renderer = Base.extend('Renderer', {
 
                 c = visibleCols[x];
                 this.renderedColumnMinWidths[c] = 0;
-                renderCellError = behavior.getColumnProperties(c).renderCellError;
+                renderCellError = behavior.getCellRenderer().cellCache.renderCellError;
 
                 gc.save();
 
