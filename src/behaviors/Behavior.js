@@ -6,7 +6,7 @@ var Base = require('../lib/Base');
 
 var Column = require('./Column');
 var dialogs = require('../dialogs');
-var CellProvider = require('../lib/CellProvider');
+var CellProvider = require('../cellRenderers/CellProvider');
 var ColumnSchemaFactory = require('../filter/ColumnSchemaFactory');
 var DefaultFilter = require('../filter/DefaultFilter');
 

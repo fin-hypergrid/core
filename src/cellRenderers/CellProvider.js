@@ -1,7 +1,7 @@
 'use strict';
 
-var Base = require('./Base');
-var images = require('../../images');
+var Base = require('./../lib/Base');
+var images = require('../../images/index');
 
 /** @constructor
  * @desc Instances of features are connected to one another to make a chain of responsibility for handling all the input to the hypergrid.
