@@ -3,7 +3,7 @@
 'use strict';
 
 var popMenu = require('pop-menu');
-var Conditionals = require('filter-tree').Conditionals;
+var Conditionals = require('../Shared').FilterTree.Conditionals;
 
 var ComboBox = require('./ComboBox');
 var prototype = require('./CellEditor').prototype;
