@@ -288,7 +288,8 @@ window.onload = function() {
         config.halign = 'left';
 
         if (styleRowsFromData) {
-            var hex = (155 + 10 * config.row.total_number_of_pets_owned).toString(16);
+            var pets = behavior.getColumn(idx.TOTAL_NUMBER_OF_PETS_OWNED).getValue(y),
+                hex = (155 + 10 * (pets % 11)).toString(16);
             config.backgroundColor = '#' + hex + hex + hex;
         } else {
             switch (y % 6) {
