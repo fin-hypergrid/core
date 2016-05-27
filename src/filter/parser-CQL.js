@@ -23,48 +23,68 @@ ParserCqlError.prototype.name = 'ParserCqlError';
  *
  * @desc See {@tutorial CQL} for the grammar.
  *
- * @param {object} operators - Hash of valid operators. Each is an object, the only property of interest being `complex` which if truthy means operand may be a list of multiple operands.
+ * @param {object} operatorsHash - Hash of valid operators. Each is an object, the only property of interest being `complex` which if truthy means operand may be a list of multiple operands.
+ * @param {object} [options]
  * @param {menuItem[]} [options.schema] - Column schema for column name/alias validation. Throws an error if name fails validation (but see `resolveAliases`). Omit to skip column name validation.
  * @param {boolean} [options.defaultOp='='] - Default operator for column when not defined in column schema.
  */
-function ParserCQL(operators, options) {
-    var operands = [];
+function ParserCQL(operatorsHash, options) {
+    var operators = [];
 
-    this.qt = options && options.quote || '"';
     this.schema = options && options.schema;
     this.defaultOp = (options && options.defaultOp || '=').toUpperCase();
 
-    if (this.qt.length !== 1) {
-        throw 'Expected CQL quotation mark to be a single character.';
-    }
-
-    _(operators).each(function(props, op) {
+    _(operatorsHash).each(function(props, op) {
         if (op !== 'undefined') {
-            operands.push(op);
+            operators.push(op);
         }
     });
 
-    operands = operands
-        .sort(descendingByLength)// put larger ones first so that in case a smaller one is a substring of a larger one (such as '<' is to '<='), larger one will be matched first
-        .join('|')
+    // Put larger ones first so that in case a smaller one is a substring of a larger one (such as '<' is to '<='), larger one will be matched first.
+    operators = operators.sort(descendingByLength);
+
+    // Escape all symbolic (non alpha) operators.
+    operators = operators.map(function(op) { return /[^\w]/.test(op) ? '\\' + op.split('').join('\\') : op; });
+
+    var symbolicOperators = operators.filter(function(op) { return op[0] === '\\'; }),
+        alphaOperators = operators.filter(function(op) { return op[0] !== '\\'; }).join('|');
+
+    if (alphaOperators) {
+        alphaOperators = '\\b(' + alphaOperators + ')\\b';
+    }
+    /** @summary Regex to match any operator.
+     * @desc Matches symbolic operators (made up of non-alpha characters) or identifier operators (word-boundary-isolated runs of alphanumeric characters).
+     * @type {RegExp}
+     */
+    this.REGEX_OPERATOR = new RegExp(symbolicOperators.concat(alphaOperators).join('|'), 'ig');
+
+    operators = operators.join('|') // pipe them
         .replace(/\s+/g, '\\s+'); // arbitrary string of whitespace chars -> whitespace regex matcher
 
-    /** @summary regex to match all operators that take an operand list
+    /** @summary Regex to match an operator + optional operator
+     * @desc THe operator is optional. The operand may (or may not) be enclosed in parentheses.
      * @desc Match list:
      * 0. _input string_
      * 1. operator
-     * 2. _operand fully dressed with parentheses and quotes_
-     * 3. parenthesized operand trimmed & extracted
-     * 4. unparenthesized operand trimmed & extracted
+     * 2. outer operand (may include parentheses)
+     * 3. inner operand without parentheses (when an operand was given with parentheses)
+     * 4. inner operand (when an operand was given without parentheses)
      * @type {RegExp}
      * @private
      * @memberOf ParserCQL.prototype
      */
-    this.REGEX_EXPRESSION = new RegExp('^\\s*(' + operands + ')?\\s*(\\(\\s*(.+?)\\s*\\)|(.+?))\\s*$', 'i');
+    this.REGEX_EXPRESSION = new RegExp('^\\s*(' + operators + ')?\\s*(\\(\\s*(.+?)\\s*\\)|(.+?))\\s*$', 'i');
 
-    this.REGEX_LITERAL_TOKENS = new RegExp('\\' + this.qt + '(\\d+)' + '\\' + this.qt, 'g');
+    this.REGEX_LITERAL_TOKENS = new RegExp('\\' + ParserCQL.qt + '(\\d+)' + '\\' + ParserCQL.qt, 'g');
 
 }
+
+/** @summary Operand quotation mark character.
+ * @desc Should be a single character (length === 1).
+ * @default '"'
+ * @type {string}
+ */
+ParserCQL.qt = '"';
 
 ParserCQL.prototype = {
 
@@ -98,6 +118,7 @@ ParserCQL.prototype = {
     /**
      * @summary Break an expression chain into a list of expressions.
      * @param {string} cql
+     * @param {string[]} booleans
      * @returns {string[]}
      */
     captureExpressions: function(cql, booleans) {
@@ -122,6 +143,7 @@ ParserCQL.prototype = {
      *
      * @param {string} columnName
      * @param {string[]} expressions
+     * @param {string[]} literals - list of literals indexed by token
      *
      * @returns {expressionState[]} where `expressionState` is one of:
      * * `{column: string, operator: string, operand: string}`
@@ -133,27 +155,49 @@ ParserCQL.prototype = {
             if (exp) {
                 var parts = exp.match(self.REGEX_EXPRESSION);
                 if (parts) {
-                    var literal = parts.slice(3).find(function(part) { return part !== undefined; }),
-                        op = (
-                            parts[1] ||
-                            self.schema && self.schema.lookup(columnName).defaultOp || // column's default operator from schema
-                            self.defaultOp // grid's default operator,
-                        )
-                            .replace(/\s+/g, ' ')
-                            .toUpperCase();
+                    var op = parts[1],
+                        outerLiteral = parts[2],
+                        innerLiteral = parts.slice(3).find(function(part) {
+                            return part !== undefined;
+                        });
+
+                    op = (op || '').replace(/\s+/g, ' ').trim().toUpperCase();
+
+                    var parenthesized = /^\(.*\)$/.test(outerLiteral),
+                        innerOperators = innerLiteral.match(self.REGEX_OPERATOR);
+
+                    if (!parenthesized && innerOperators) {
+                        if (op === '' && outerLiteral === innerOperators[0]) {
+                            throw new ParserCqlError('Expected an operand.');
+                        }
+
+                        throw new ParserCqlError(
+                            'Expected operand but found additional operator(s): ' +
+                            innerOperators
+                                .toString() // convert to comma-separated list
+                                .toUpperCase()
+                                .replace(/,/g, ', ') // add spaces after the commas
+                                .replace(/^([^,]+), ([^,]+)$/, '$1 and $2') // replace only comma with "and"
+                                .replace(/(.+,.+), ([^,]+)$/, '$1, and $2') // add "and" after last of several commas
+                        );
+                    }
+
+                    op = op ||
+                        self.schema && self.schema.lookup(columnName).defaultOp || // column's default operator from schema
+                        self.defaultOp; // grid's default operator
 
                     var child = {
                         column: columnName,
                         operator: op
                     };
 
-                    var fieldName = self.schema && self.schema.lookup(literal);
+                    var fieldName = self.schema && self.schema.lookup(innerLiteral);
                     if (fieldName) {
                         child.operand = fieldName.name || fieldName;
                         child.editor = 'Columns';
                     } else {
                         // Find and expand all collapsed literals.
-                        child.operand = literal.replace(self.REGEX_LITERAL_TOKENS, function(match, index) {
+                        child.operand = innerLiteral.replace(self.REGEX_LITERAL_TOKENS, function(match, index) {
                             return literals[index];
                         });
                     }
@@ -174,7 +218,7 @@ ParserCQL.prototype = {
      *
      * @param {string} cql - A compound CQL expression, consisting of one or more simple expressions all separated by the same logical operator).
      *
-     * @param {string} options.columnName - (Required.)
+     * @param {string} columnName
 
      * @returns {undefined|{operator: string, children: string[], schema: string[]}}
      * `undefined` when there are no complete expressions
@@ -186,7 +230,7 @@ ParserCQL.prototype = {
         cql = cql.replace(/\s\s+/g, ' ').trim();
 
         var literals = [];
-        cql = tokenizeLiterals(cql, this.qt, literals);
+        cql = tokenizeLiterals(cql, ParserCQL.qt, literals);
 
         var booleans = this.captureBooleans(cql),
             expressions = this.captureExpressions(cql, booleans),
@@ -219,6 +263,7 @@ function descendingByLength(a, b) {
  * Literals are collapsed to a quoted numerical index into the `literals` array.
  * @param {string} text
  * @param {string} qt
+ * @param {string[]} literals - Empty array in which to return extracted literals.
  * @returns {string}
  */
 function tokenizeLiterals(text, qt, literals) {

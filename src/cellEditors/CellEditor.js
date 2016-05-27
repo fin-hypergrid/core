@@ -265,7 +265,7 @@ var CellEditor = Base.extend('CellEditor', {
         } else if (feedback >= 0) { // never true when `feedback` undefined
             var point = this.getEditorPoint();
             this.grid.selectViewportCell(point.x, point.y - this.grid.getHeaderRowCount());
-            this.errorEffectBegin(++this.errors === feedback && error);
+            this.errorEffectBegin(++this.errors % feedback === 0 && error);
         } else { // invalid but no feedback
             return this.cancelEditing();
         }
@@ -321,12 +321,10 @@ var CellEditor = Base.extend('CellEditor', {
         error = error || this.localizer.expectation;
 
         if (error) {
-            msg += '\n\nAdditional information about this error: ' + (error.message || error);
+            msg += '\n\nAdditional information about this error:\n   * ' + (error.message || error);
         }
 
         alert(msg); // eslint-disable-line no-alert
-
-        this.errors = 0; // reset error counter
     },
 
     /** @typedef effectObject
