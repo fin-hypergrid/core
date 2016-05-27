@@ -16,9 +16,10 @@ var CellProvider = Base.extend('CellProvider', {
      * > All `initialize()` methods in the inheritance chain are called, in turn, each with the same parameters that were passed to the constructor, beginning with that of the most "senior" class through that of the class of the new instance.
      * @memberOf CellProvider.prototype
      */
-    initialize: function() {
+    initialize: function(grid) {
         this.cellCache = {};
         this.initializeCells();
+        this.grid = grid;
     },
 
     /**
@@ -366,6 +367,50 @@ var CellProvider = Base.extend('CellProvider', {
         // this.config.minWidth = 100;
     },
 
+
+    /**
+     * @desc A rendering of the last Selection Model
+     * @param {CanvasGraphicsContext} gc
+     * @param {number} x - the x screen coordinate of my origin
+     * @param {number} y - the y screen coordinate of my origin
+     * @param {number} width - the width I'm allowed to draw within
+     * @param {number} height - the height I'm allowed to draw within
+     * @memberOf CellProvider.prototype
+     */
+    paintLastSelection: function(gc, x, y, width, height) {
+
+        var focusLineStep =  [
+            [5, 5],
+            [0, 1, 5, 4],
+            [0, 2, 5, 3],
+            [0, 3, 5, 2],
+            [0, 4, 5, 1],
+            [0, 5, 5, 0],
+            [1, 5, 4, 0],
+            [2, 5, 3, 0],
+            [3, 5, 2, 0],
+            [4, 5, 1, 0]
+        ];
+        gc.rect(x, y, width, height);
+        gc.fillStyle = this.grid.resolveProperty('selectionRegionOverlayColor');
+        gc.fill();
+        gc.lineWidth = 1;
+        gc.strokeStyle = this.grid.resolveProperty('selectionRegionOutlineColor');
+
+        // animate the dashed line a bit here for fun
+
+        gc.stroke();
+
+        gc.rect(x, y, width, height);
+
+        gc.strokeStyle = 'white';
+
+        //animate the dashed line a bit here for fun
+        gc.setLineDash(focusLineStep[Math.floor(10 * (Date.now() / 300 % 1)) % focusLineStep.length]);
+
+        gc.stroke();
+    },
+
     /**
      * @desc A simple implementation of a sparkline, because it's a barchart we've changed the name ;).
      * @param {CanvasGraphicsContext} gc
@@ -423,12 +468,10 @@ var CellProvider = Base.extend('CellProvider', {
      * @param {number} height
      */
     renderCellError: function(gc, message, x, y, width, height) {
-    
         // clear the cell
         // (this makes use of the rect path defined by the caller)
         gc.fillStyle = '#FFD500';
         gc.fill();
-    
         // render cell border
         gc.strokeStyle = gc.createPattern(images.caution, 'repeat');
         gc.lineWidth = 5;
@@ -439,19 +482,16 @@ var CellProvider = Base.extend('CellProvider', {
         gc.lineTo(x, y + height);
         gc.lineTo(x, y);
         gc.stroke();
-    
         // adjust clip region to prevent text from rendering over right border should it overflow
         gc.beginPath();
         gc.rect(x, y, width - 2, height);
         gc.clip();
-    
         // render message text
         gc.fillStyle = '#A00';
         gc.textAlign = 'start';
         gc.textBaseline = 'middle';
         gc.font = 'bold 6pt "arial narrow", verdana, geneva';
         gc.fillText(message, x + 4, y + height / 2 + 0.5);
-    
     },
 
     /**
@@ -550,7 +590,7 @@ var CellProvider = Base.extend('CellProvider', {
             renderSingleLineText: this.renderSingleLineText,
             renderMultiLineText: this.renderMultiLineText
         };
-        this.cellCache.renderCellRenderer = {
+        this.cellCache.cellErrorRenderer = {
             paint: this.renderCellError
         };
         this.cellCache.sliderCellRenderer = {

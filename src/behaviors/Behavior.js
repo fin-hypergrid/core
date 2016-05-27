@@ -704,7 +704,7 @@ var Behavior = Base.extend('Behavior', {
      * @return {CellProvider}
      */
     createCellProvider: function() {
-        return new CellProvider();
+        return new CellProvider(this.grid);
     },
 
     /**

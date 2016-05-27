@@ -505,36 +505,29 @@ var Renderer = Base.extend('Renderer', {
         this.paintCells(gc);
         this.paintGridlines(gc);
         this.renderOverrides(gc);
-        this.renderFocusCell(gc);
+        this.renderLastSelection(gc);
         gc.closePath();
     },
 
-    focusLineStep: [
-        [5, 5],
-        [0, 1, 5, 4],
-        [0, 2, 5, 3],
-        [0, 3, 5, 2],
-        [0, 4, 5, 1],
-        [0, 5, 5, 0],
-        [1, 5, 4, 0],
-        [2, 5, 3, 0],
-        [3, 5, 2, 0],
-        [4, 5, 1, 0]
-    ],
-
-    renderFocusCell: function(gc) {
+    renderLastSelection: function(gc) {
         gc.beginPath();
-        this._renderFocusCell(gc);
+        this._renderLastSelection(gc);
         gc.closePath();
     },
 
-    _renderFocusCell: function(gc) {
+    _renderLastSelection: function(gc) {
+
+        /*
+
+            Compute the Bounds of the Last Selection that is visible
+
+         */
 
         var selections = this.grid.selectionModel.getSelections();
         if (!selections || selections.length === 0) {
             return;
         }
-        var selection = selections[selections.length - 1];
+        var selection = this.grid.selectionModel.getLastSelection();
         var mouseDown = selection.origin;
         if (mouseDown.x === -1) {
             //no selected area, lets exit
@@ -590,24 +583,7 @@ var Renderer = Base.extend('Renderer', {
             return;
         }
 
-        gc.rect(x, y, width, height);
-        gc.fillStyle = this.resolveProperty('selectionRegionOverlayColor');
-        gc.fill();
-        gc.lineWidth = 1;
-        gc.strokeStyle = this.resolveProperty('selectionRegionOutlineColor');
-
-        // animate the dashed line a bit here for fun
-
-        gc.stroke();
-
-        //gc.rect(x, y, width, height);
-
-        //gc.strokeStyle = 'white';
-
-        // animate the dashed line a bit here for fun
-        //gc.setLineDash(this.focusLineStep[Math.floor(10 * (Date.now() / 300 % 1)) % this.focusLineStep.length]);
-
-        //gc.stroke();
+        this.grid.behavior.getCellProvider().paintLastSelection(gc, x, y, width, height);
     },
 
     /**
@@ -834,7 +810,7 @@ var Renderer = Base.extend('Renderer', {
 
                 c = visibleCols[x];
                 this.renderedColumnMinWidths[c] = 0;
-                renderCellError = behavior.getCellRenderer().cellCache.renderCellError;
+                renderCellError = behavior.getCellProvider().cellCache.cellErrorRenderer;
 
                 gc.save();
 
@@ -1112,7 +1088,7 @@ var Renderer = Base.extend('Renderer', {
         var ctx = this.getCanvas().canvasCTX;
         ctx.beginPath();
         ctx.save();
-        this.renderFocusCell(ctx);
+        this.renderLastSelection(ctx);
         ctx.restore();
         ctx.closePath();
     },

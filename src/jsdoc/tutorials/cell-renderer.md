@@ -6,7 +6,6 @@ A cell renderer is custom rendering logic meant to be confined to the bounding r
 
 Cell renderer have access to the 2D graphics context of the Hypergrid and can be used to draw anything the user can imagine (with considerations for speed)
 
-There is also the notion of a renderCellError which has a default renderer for *any* cell considered to be in an error state. RenderCellError is further explained below
 
 ### Which cells can have a renderer?
 
@@ -33,7 +32,10 @@ It comes with defaults
     Paints a blank cell
     
  #### treeCellRenderer
-    Paints a tree cell 
+    Paints a tree cell
+     
+ #### errorCellRenderer
+    Renderer for *any* cell considered to be in an error state 
     
  #### buttonRenderer
     Paints a button dependent on mousedown state
