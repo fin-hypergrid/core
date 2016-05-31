@@ -363,10 +363,15 @@ window.onload = function() {
 
         //Testing
         if (x === 3){
-            //return cellProvider.cellCache.sparklineCellRenderer; Blank
-            //return cellProvider.cellCache.sparkbarCellRenderer; Blank
-            //return cellProvider.cellCache.sliderCellRenderer; Blank
-            //return cellProvider.cellCache.cellErrorRenderer; Yellow and Blank
+            //return cellProvider.cellCache.simpleCellRenderer; //WORKS
+            //return cellProvider.cellCache.sparklineCellRenderer; //FAILS: Blank
+            //return cellProvider.cellCache.sparkbarCellRenderer; //FAILS: Blank
+            //return cellProvider.cellCache.sliderCellRenderer; //FAILS: Blank
+            //return cellProvider.cellCache.cellErrorRenderer; //FAILS??: Yellow and Blank
+            //return cellProvider.cellCache.treeCellRenderer; //FAILS: Blank
+            //return cellProvider.cellCache.emptyCellRenderer; //WORKS: By Default
+            //return cellProvider.cellCache.buttonRenderer; //WORKS
+            return cellProvider.cellCache.linkCellRenderer; //FAILS: Doesn't Link
         }
 
         return renderer;
