@@ -360,6 +360,15 @@ window.onload = function() {
                 break;
         }
 
+
+        //Testing
+        if (x === 3){
+            //return cellProvider.cellCache.sparklineCellRenderer; Blank
+            //return cellProvider.cellCache.sparkbarCellRenderer; Blank
+            //return cellProvider.cellCache.sliderCellRenderer; Blank
+            //return cellProvider.cellCache.cellErrorRenderer; Yellow and Blank
+        }
+
         return renderer;
     };
 

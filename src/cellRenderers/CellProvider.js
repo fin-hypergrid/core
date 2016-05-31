@@ -1,7 +1,6 @@
 'use strict';
 
 var Base = require('./../lib/Base');
-var images = require('../../images/index');
 
 /** @constructor
  * @desc Instances of features are connected to one another to make a chain of responsibility for handling all the input to the hypergrid.
@@ -516,6 +515,7 @@ var CellProvider = Base.extend('CellProvider', {
      * @memberOf CellProvider.prototype
      */
     renderCellError: function(gc, config, message) {
+        //var images = require('../../images/index');
         var x = config.bounds.x,
             y = config.bounds.y,
             width = config.bounds.width,
@@ -526,7 +526,7 @@ var CellProvider = Base.extend('CellProvider', {
         gc.fillStyle = '#FFD500';
         gc.fill();
         // render cell border
-        gc.strokeStyle = gc.createPattern(images.caution, 'repeat');
+        //gc.strokeStyle = gc.createPattern(images.caution, 'repeat');
         gc.lineWidth = 5;
         gc.beginPath();
         gc.moveTo(x, y); // caution: do not use rect() here because Chrome does not clip its stroke properly
