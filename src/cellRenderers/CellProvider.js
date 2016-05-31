@@ -255,8 +255,7 @@ var CellProvider = Base.extend('CellProvider', {
      * @memberOf CellProvider.prototype
      */
     renderMultiLineText: function(gc, config, val) {
-        var val = val || config.value, /*eslint no-redeclare: 0*/
-            x = config.bounds.x,
+        var x = config.bounds.x,
             y = config.bounds.y,
             width = config.bounds.width,
             height = config.bounds.height;
