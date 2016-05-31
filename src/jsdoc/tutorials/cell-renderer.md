@@ -149,71 +149,10 @@ Parameter | Description
 __________________
 
  
-### What's in the box?
+### Rendering in HyperGrid
 
-Hypergrid comes with several _standard_ cell editors, each represented by a file in the cellEditors folder (./src/cellEditors/).
-
-Note however the two files in that folder which do _not_ represent actual cell editors: *CellEditor.js* is the abstract base class (`CellEditor`) from which all cell editors _extend_ (or _inherit); and *index.js* bundles all the cell editors into a single local npm module.
-
-### Cell editors for HTML5 `<input>` controls
-
-Most of the standard cell editors simply generate one of the HTML `<input>` type UI controls. See the {@link https://www.w3.org/TR/html5/forms.html|W3C Recommendation} or the {@link https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input|Mozilla pae} for more information.
-
-> *Note:* The implementation of these controls across browsers is uneven at best; and none are localizable as they should be. Presumably, these features (including full localization) will come in time to all browsers. But for now, the decision to use these controls should be made carefully, considering how it is implemented on the browsers your users are likely to be using.
-
-File         | Object    | Markup                  | Cr | Sf | FF | IE | Description
------------- | --------- |------------------------ | -- | -- | -- | -- | -----------
-Color.js     | Color     | `<input type="color">`  | +  | -  | +  | ?  | Color picker.
-Date.js      | Date      | `<input type="date">`   | +  | -  | -  | -  | Calendar control.
-Spinner.js   | Spinner   | `<input type="number">` | +  | +  | +  | -  | Number input with elevator buttons for incrementing/decrementing. With optional clamping (`min`, `max`) and `step` precision attributes.<sup>1,&nbsp;2</sup>
-Slider.js    | Slider    | `<input type="range">`  | +  | +  | +  | +  | Sliding range control with optional `min` and `max` attributes.<sup>2</sup>
-Textfield.js | Textfield | `<input type="text">`   | +  | +  | +  | +  | Simple text box.
-
-<sup>1</sup> Chrome accepts only characters valid in standard numbers, making this control unusable for fancy formatted numbers (e.g., with thousands separators because commas are not valid characters in standard JavaScript numbers) or for localized numbers (because Chinese numerals for example are not valid characters in standard JavaScript numbers).
-<sup>2</sup> See HTML5 documentation for more information on the various attributes of the `input` tag. Values for these attributes can be set in various ways; see section below. 
-
-### Other standard cell editors
-
-The following are the remaining standard cell editors. These do _not_ simply reflect HTML `<input>` controls; they are complex controls comprised of multiple HTML elements. (Sort of like .Net _user controls_.)
-
-File | Object | Markup | Description
----- | ------ | ------ | -----------
-ComboBox.js | ComboBox | `<div>`...`</div>` | Combines a text box (`<input type="text">` UI control) with a drop-down (`<select>...</select>` UI control) which appears when the user clicks an arrow icon (`▾`). The user may type into the text box and/or select an item from the drop-down.
-
-### Setting cell editor attributes
-
-To set cell editor attributes (such as `min` and `max` mentioned above), you must override the `myGrid.behavior.dataModel.getCellEditorAt(x, y)` method. The formal parameters `x` and `y` are the cell coordinates.
- 
-Cell editor attributes may be actual HTML element attributes; or they may be attributes on the cell editor object.
- 
-#### HTML element attributes
-
-If you know what kind of HTML control you are dealing with, you can set attributes directly on the HTML element using the cell editor's `input` property which references the element:
-
-```javascript
-myGrid.behavior.dataModel.getCellEditorAt = function(x, y) {
-    if (x === 5) {
-        myCellEditor.input.min = -5;
-        myCellEditor.input.max = +5;
-    }
-};
-```
-
-You can also 
-For styling, you can set the `class` and/or `style` attributes (keeping in mind that the latter overrides any style attributes set by the former). Here's an example that sets both:
-
-```javascript
-myGrid.behavior.dataModel.getCellEditorAt = function(x, y) {
-    if (x === 5) {
-        myCellEditor.input.classList.add('birth-date');
-        myCellEditor.input.style.color = 'red';
-    }
-};
-
-For the above example to work, you would add a CSS stylesheet with a `birth-date` selector:
-
-```css
-input.birth-date { font-weight: bold }
-```
+Note that Hypergrid is lazy in regards to rendering. It relies on explicit calls to `YourGrid.repaint()` (which is sometimes called on your behalf), to redraw the canvas. Also note that multiple calls to `repaint`
+get throttled to 60 FPS. Additionally, Hypergrid and canvas that powers it, does not enable partial re-rendering in the 2D context. Every re-render is a complete re-render.
+Keep this under consideration when wanting to do an animation within a cell renderer as you will need to set your animation interval for calling  `repaint`
 
 

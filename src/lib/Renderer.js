@@ -583,6 +583,12 @@ var Renderer = Base.extend('Renderer', {
             return;
         }
 
+        /*
+
+          Render the selection model around the bounds
+
+         */
+
         this.grid.behavior.getCellProvider().paintLastSelection(gc, x, y, width, height);
     },
 
