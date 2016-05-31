@@ -364,14 +364,14 @@ window.onload = function() {
         //Testing
         if (x === 3){
             //return cellProvider.cellCache.simpleCellRenderer; //WORKS
-            //return cellProvider.cellCache.sparklineCellRenderer; //FAILS: Blank
-            //return cellProvider.cellCache.sparkbarCellRenderer; //FAILS: Blank
-            //return cellProvider.cellCache.sliderCellRenderer; //FAILS: Blank
-            //return cellProvider.cellCache.cellErrorRenderer; //FAILS??: Yellow and Blank
-            //return cellProvider.cellCache.treeCellRenderer; //FAILS: Blank
+            //return cellProvider.cellCache.sparklineCellRenderer; //First Test was a misconfigured: Blank; Actually I need to create a cell with array of values
+            //return cellProvider.cellCache.sparkbarCellRenderer; //First Test was a misconfigured: Blank; Actually I need to create a cell with array of values
+            //return cellProvider.cellCache.sliderCellRenderer; //First Test was a misconfigured Blank; Code was commented out. :)
+            //return cellProvider.cellCache.cellErrorRenderer; //FAILS: Yellow and Blank
+            //return cellProvider.cellCache.treeCellRenderer; //First Test was a misconfigured: Blank; Actually I tested incorrectly with wrong data shape
             //return cellProvider.cellCache.emptyCellRenderer; //WORKS: By Default
             //return cellProvider.cellCache.buttonRenderer; //WORKS
-            return cellProvider.cellCache.linkCellRenderer; //FAILS: Doesn't Link
+            return cellProvider.cellCache.linkCellRenderer; //FAILS: Not Implemented
         }
 
         return renderer;
