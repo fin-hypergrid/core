@@ -50,8 +50,8 @@ It comes with defaults
 #### Programmatic cell editor association
 
 The Cell Provider's `getCell` method is called when the cell is selected to get rendered needs a renderer. For programmatic cell renderer association, override it:
-Here is where you decide which renderer object to use for that cell.
-You can set  fields on config which includes internal properties about the cell in question. This will get passed to your renderer paint function later
+It needs to return an object with a `paint` method that expects a `2D graphics context` and config object described below
+You can optionally set additional fields on config which includes internal properties about the cell in question. This will get passed to your renderer paint function later
 ```javascript
 yourGrid.behavior.cellProvider.getCell = function(config) {
     //A renderer should always be provided that has a paint function
@@ -161,5 +161,155 @@ You can additionally check for grid repaint events by listening on the `fin-grid
     YourGrid.addEventListener('fin-grid-rendered', function(e) {
        //Do something 
     });
+```
+
+
+### Further Examples
+The following examples are not apart of the HyperGrid defaults but as exploratory pieces. Note the main emphasis is that the renderers would be used by the Cell Provider's `getCell`. Reminder that all renderers
+are expected to have a `paint`
+
+#### Star Rating Renderer Sample Implementation
+
+```javascript
+var REGEXP_CSS_HEX6 = /^#(..)(..)(..)$/,
+  REGEXP_CSS_RGB = /^rgba\((\d+),(\d+),(\d+),\d+\)$/;
+
+
+var config = {
+  // these are the important star rating parameters:
+  domain: 100, // default is 100
+  sizeFactor: 0.65, // default is 0.65; size of stars as fraction of height of cell
+  darkenFactor: 0.75, // default is 0.75; star stroke color as fraction of star fill color
+  color: 'gold', // default is 'gold'; star fill color
+  bounds: {
+    x: 50,
+    y: 50,
+    width: 100,
+    height: 24
+  },
+  // these are generally inherited:
+  fgColor: 'grey', // default is 'transparent' (not rendered); text color
+  fgSelColor: 'yellow', // default is 'transparent' (not rendered); text selection color
+  bgColor: '#404040', // default is 'transparent' (not rendered); background color
+  bgSelColor: 'grey', // default is 'transparent' (not rendered); background selection color
+  shadowColor: 'transparent' // default is 'transparent'
+}
+
+var sparkStarRatingRenderer = {
+  paint: paintSparkRating,
+};
+
+
+function paintSparkRating(gc, config) {
+  var x = config.bounds.x,
+    y = config.bounds.y,
+    width = config.bounds.width,
+    height = config.bounds.height,
+    options = config.value,
+    domain = options.domain || config.domain || 100,
+    sizeFactor = options.sizeFactor || config.sizeFactor || 0.65,
+    darkenFactor = options.darkenFactor || config.darkenFactor || 0.75,
+    color = options.color || config.color || 'gold',
+    stroke = this.stroke = color === this.color ? this.stroke : getDarkenedColor(this.color = color, darkenFactor),
+    bgColor = config.isSelected ? (options.bgSelColor || config.bgSelColor) : (options.bgColor || config.bgColor),
+    fgColor = config.isSelected ? (options.fgSelColor || config.fgSelColor) : (options.fgColor || config.fgColor),
+    shadowColor = options.shadowColor || config.shadowColor || 'transparent',
+    font = options.font || config.font || '11px verdana',
+    middle = height / 2,
+    diameter = sizeFactor * height,
+    outerRadius = sizeFactor * middle,
+    val = Number(options.val),
+    points = this.points;
+
+  if (!points) {
+    var innerRadius = 3 / 7 * outerRadius;
+    points = this.points = [];
+    for (var i = 5, θ = Math.PI / 2, incr = Math.PI / 5; i; --i, θ += incr) {
+      points.push({
+        x: outerRadius * Math.cos(θ),
+        y: middle - outerRadius * Math.sin(θ)
+      });
+      θ += incr;
+      points.push({
+        x: innerRadius * Math.cos(θ),
+        y: middle - innerRadius * Math.sin(θ)
+      });
+    }
+    points.push(points[0]); // close the path
+  }
+
+  gc.shadowColor = 'transparent';
+
+  gc.lineJoin = 'round';
+  gc.beginPath();
+  for (var i = 5, sx = x + 5 + outerRadius; i; --i, sx += diameter) {
+    points.forEach(function(point, index) {
+      gc[index ? 'lineTo' : 'moveTo'](sx + point.x, y + point.y);
+    });
+  }
+  gc.closePath();
+
+  val = val / domain * 5;
+
+  gc.fillStyle = color;
+  gc.save();
+  gc.clip();
+  gc.fillRect(x + 5, y,
+    (Math.floor(val) + 0.25 + val % 1 * 0.5) * diameter, // adjust width to skip over star outlines and just meter their interiors
+    height);
+  gc.restore(); // remove clipping region
+
+  gc.strokeStyle = stroke;
+  gc.lineWidth = 1;
+  gc.stroke();
+
+  if (fgColor && fgColor !== 'transparent') {
+    gc.fillStyle = fgColor;
+    gc.font = '11px verdana';
+    gc.textAlign = 'right';
+    gc.textBaseline = 'middle';
+    gc.shadowColor = shadowColor;
+    gc.shadowOffsetX = gc.shadowOffsetY = 1;
+    gc.fillText(val.toFixed(1), x + width + 10, y + height / 2);
+  }
+}
+
+function getDarkenedColor(color, factor) {
+  var rgba = getRGBA(color);
+  return 'rgba(' + Math.round(factor * rgba[0]) + ',' + Math.round(factor * rgba[1]) + ',' + Math.round(factor * rgba[2]) + ',' + (rgba[3] || 1) + ')';
+}
+
+function getRGBA(colorSpec) {
+  // Normalize variety of CSS color spec syntaxes to one of two
+  gc.fillStyle = colorSpec, colorSpec = gc.fillStyle;
+
+  var rgba = colorSpec.match(REGEXP_CSS_HEX6);
+  if (rgba) {
+    rgba.shift(); // remove whole match
+    rgba.forEach(function(val, idx) {
+      rgba[idx] = parseInt(val, 16);
+    });
+  } else {
+    rgba = colorSpec.match(REGEXP_CSS_RGB);
+    if (!rgba) {
+      throw 'Unexpected format getting CanvasRenderingContext2D.fillStyle';
+    }
+    rgba.shift(); // remove whole match
+  }
+
+  return rgba;
+}
+
+
+
+for (var index = 0; index < 10; ++index) {
+  config.value = {
+    val: Math.floor(Math.random() * 100 + 0.5)
+  };
+  config.bounds.y = config.bounds.y + index * 25;
+  sparkStarRatingRenderer.paint(gc, config);
+}
+
+
 ```
 
