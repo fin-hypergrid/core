@@ -203,9 +203,9 @@ var CellProvider = Base.extend('CellProvider', {
         }
 
         if (isHeader && wrapHeaders) {
-            this.renderMultiLineText(gc, x, y, height, width, config, val);
+            this.renderMultiLineText(gc, config, val);
         } else {
-            this.renderSingleLineText(gc, x, y, height, width, config, val);
+            this.renderSingleLineText(gc, config, val);
         }
 
         var iconWidth = 0;
@@ -245,10 +245,24 @@ var CellProvider = Base.extend('CellProvider', {
         config.minWidth = config.minWidth + 2 * (iconWidth);
     },
 
-    renderMultiLineText: function(gc, x, y, height, width, config, val) {
+    /**
+     * @summary Renders multiline text
+     * @param {CanvasGraphicsContext} gc
+     * @param {number} config.bounds.x - the x screen coordinate of my origin
+     * @param {number} config.bounds.y - the y screen coordinate of my origin
+     * @param {number} config.bounds.width - the width I'm allowed to draw within
+     * @param {number} config.bounds.height - the height I'm allowed to draw within
+     * @memberOf CellProvider.prototype
+     */
+    renderMultiLineText: function(gc, config, val) {
+        var val = val || config.value, /*eslint no-redeclare: 0*/
+            x = config.bounds.x,
+            y = config.bounds.y,
+            width = config.bounds.width,
+            height = config.bounds.height;
         var lines = fitText(gc, config, val, width);
         if (lines.length === 1) {
-            return this.renderSingleLineText(gc, x, y, height, width, config, squeeze(val));
+            return this.renderSingleLineText(gc, config, squeeze(val));
         }
 
         var colHEdgeOffset = config.cellPadding,
@@ -289,7 +303,20 @@ var CellProvider = Base.extend('CellProvider', {
         gc.restore(); // discard clipping region
     },
 
-    renderSingleLineText: function(gc, x, y, height, width, config, val) {
+    /**
+     * @summary Renders single line text.
+     * @param {CanvasGraphicsContext} gc
+     * @param {number} config.bounds.x - the x screen coordinate of my origin
+     * @param {number} config.bounds.y - the y screen coordinate of my origin
+     * @param {number} config.bounds.width - the width I'm allowed to draw within
+     * @param {number} config.bounds.height - the height I'm allowed to draw within
+     * @memberOf CellProvider.prototype
+     */
+    renderSingleLineText: function(gc, config, val) {
+        var x = config.bounds.x,
+            y = config.bounds.y,
+            width = config.bounds.width,
+            height = config.bounds.height;
         var colHEdgeOffset = config.cellPadding,
             halignOffset = 0,
             valignOffset = config.voffset,

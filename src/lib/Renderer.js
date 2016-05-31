@@ -862,11 +862,14 @@ var Renderer = Base.extend('Renderer', {
                             rawGc.beginPath();
                             rawGc.rect(clipX, errY, clipWidth, errHeight);
                             rawGc.clip();
-                            config.x = clipX;
-                            config.y = errY;
-                            config.bounds = {};
-                            config.bounds.width = clipWidth;
-                            config.bounds.height = errHeight;
+                            config = {
+                                bounds: {
+                                    y: errY,
+                                    x: clipX,
+                                    height: errHeight,
+                                    width: clipWidth
+                                }
+                            };
                             renderCellError(rawGc, config, message);
 
                             rawGc.restore(); // discard clipping region
