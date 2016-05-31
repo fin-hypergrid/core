@@ -589,7 +589,15 @@ var Renderer = Base.extend('Renderer', {
 
          */
 
-        this.grid.behavior.getCellProvider().paintLastSelection(gc, x, y, width, height);
+        var config = {
+            bounds: {
+                x: x,
+                y: y,
+                width: width,
+                height: height
+            }
+        };
+        this.grid.behavior.getCellProvider().paintLastSelection(gc, config);
     },
 
     /**
@@ -788,6 +796,7 @@ var Renderer = Base.extend('Renderer', {
     paintCells: function(gc) {
         var renderCellError,
             message,
+            config = {},
             x, y,
             c, r,
 
@@ -853,8 +862,12 @@ var Renderer = Base.extend('Renderer', {
                             rawGc.beginPath();
                             rawGc.rect(clipX, errY, clipWidth, errHeight);
                             rawGc.clip();
-
-                            renderCellError(rawGc, message, clipX, errY, clipWidth, errHeight);
+                            config.x = clipX;
+                            config.y = errY;
+                            config.bounds = {};
+                            config.bounds.width = clipWidth;
+                            config.bounds.height = errHeight;
+                            renderCellError(rawGc, config, message);
 
                             rawGc.restore(); // discard clipping region
                         }

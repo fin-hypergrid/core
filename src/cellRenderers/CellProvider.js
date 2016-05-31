@@ -58,6 +58,15 @@ var CellProvider = Base.extend('CellProvider', {
         return cell;
     },
 
+    /**
+     * @summary The default cell rendering function for a button cell.
+     * @param {CanvasGraphicsContext} gc
+     * @param {number} config.x - the x screen coordinate of my origin
+     * @param {number} config.y - the y screen coordinate of my origin
+     * @param {number} config.bounds.width - the width I'm allowed to draw within
+     * @param {number} config.bounds.height - the height I'm allowed to draw within
+     * @memberOf CellProvider.prototype
+     */
     paintButton: function(gc, config) {
         var val = config.value;
         var c = config.x;
@@ -334,14 +343,18 @@ var CellProvider = Base.extend('CellProvider', {
 
     /**
      * @param {CanvasGraphicsContext} gc
-     * @param {number} x - the x screen coordinate of my origin
-     * @param {number} y - the y screen coordinate of my origin
-     * @param {number} width - the width I'm allowed to draw within
-     * @param {number} height - the height I'm allowed to draw within
+     * @param {number} config.bounds.x - the x screen coordinate of my origin
+     * @param {number} config.bounds.y - the y screen coordinate of my origin
+     * @param {number} config.bounds.width - the width I'm allowed to draw within
+     * @param {number} config.bounds.height - the height I'm allowed to draw within
      * @memberOf CellProvider.prototype
      * @desc Emerson's paint function for a slider button. currently the user cannot interact with it
      */
-    paintSlider: function(gc, x, y, width, height) {
+    paintSlider: function(gc, config) {
+        // var x = config.bounds.x,
+        //     y = config.bounds.y,
+        //     width = config.bounds.width,
+        //     height = config.bounds.height;
         // gc.strokeStyle = 'white';
         // var val = this.config.value;
         // var radius = height / 2;
@@ -371,13 +384,17 @@ var CellProvider = Base.extend('CellProvider', {
     /**
      * @desc A rendering of the last Selection Model
      * @param {CanvasGraphicsContext} gc
-     * @param {number} x - the x screen coordinate of my origin
-     * @param {number} y - the y screen coordinate of my origin
-     * @param {number} width - the width I'm allowed to draw within
-     * @param {number} height - the height I'm allowed to draw within
+     * @param {number} config.bounds.x - the x screen coordinate of my origin
+     * @param {number} config.bounds.y - the y screen coordinate of my origin
+     * @param {number} config.bounds.width - the width I'm allowed to draw within
+     * @param {number} config.bounds.height - the height I'm allowed to draw within
      * @memberOf CellProvider.prototype
      */
-    paintLastSelection: function(gc, x, y, width, height) {
+    paintLastSelection: function(gc, config) {
+        var x = config.bounds.x,
+            y = config.bounds.y,
+            width = config.bounds.width,
+            height = config.bounds.height;
 
         var focusLineStep =  [
             [5, 5],
@@ -414,13 +431,18 @@ var CellProvider = Base.extend('CellProvider', {
     /**
      * @desc A simple implementation of a sparkline, because it's a barchart we've changed the name ;).
      * @param {CanvasGraphicsContext} gc
-     * @param {number} x - the x screen coordinate of my origin
-     * @param {number} y - the y screen coordinate of my origin
-     * @param {number} width - the width I'm allowed to draw within
-     * @param {number} height - the height I'm allowed to draw within
+     * @param {number} config.bounds.x - the x screen coordinate of my origin
+     * @param {number} config.bounds.y - the y screen coordinate of my origin
+     * @param {number} config.bounds.width - the width I'm allowed to draw within
+     * @param {number} config.bounds.height - the height I'm allowed to draw within
      * @memberOf CellProvider.prototype
      */
-    paintSparkbar: function(gc, x, y, width, height) {
+    paintSparkbar: function(gc, config) {
+        var x = config.bounds.x,
+            y = config.bounds.y,
+            width = config.bounds.width,
+            height = config.bounds.height;
+
         gc.beginPath();
         var val = this.config.value;
         if (!val || !val.length) {
@@ -460,14 +482,19 @@ var CellProvider = Base.extend('CellProvider', {
      *
      * Before doing anything else, this function should clear the cell by setting `gc.fillStyle` and calling `gc.fill()`.
      *
-     * @param {CanvasRenderingContext2D} gc
-     * @param {string} message
-     * @param {number} x
-     * @param {number} y
-     * @param {number} width
-     * @param {number} height
+     * @param {CanvasGraphicsContext} gc
+     * @param {number} config.bounds.x - the x screen coordinate of my origin
+     * @param {number} config.bounds.y - the y screen coordinate of my origin
+     * @param {number} config.bounds.width - the width I'm allowed to draw within
+     * @param {number} config.bounds.height - the height I'm allowed to draw within
+     * @memberOf CellProvider.prototype
      */
-    renderCellError: function(gc, message, x, y, width, height) {
+    renderCellError: function(gc, config, message) {
+        var x = config.bounds.x,
+            y = config.bounds.y,
+            width = config.bounds.width,
+            height = config.bounds.height;
+
         // clear the cell
         // (this makes use of the rect path defined by the caller)
         gc.fillStyle = '#FFD500';
@@ -497,13 +524,18 @@ var CellProvider = Base.extend('CellProvider', {
     /**
      * @desc A simple implementation of a sparkline.  see [Edward Tufte sparkline](http://www.edwardtufte.com/bboard/q-and-a-fetch-msg?msg_id=0001OR)
      * @param {CanvasGraphicsContext} gc
-     * @param {number} x - the x screen coordinate of my origin
-     * @param {number} y - the y screen coordinate of my origin
-     * @param {number} width - the width I'm allowed to draw within
-     * @param {number} height - the height I'm allowed to draw within
+     * @param {number} config.bounds.x - the x screen coordinate of my origin
+     * @param {number} config.bounds.y - the y screen coordinate of my origin
+     * @param {number} config.bounds.width - the width I'm allowed to draw within
+     * @param {number} config.bounds.height - the height I'm allowed to draw within
      * @memberOf CellProvider.prototype
      */
-    paintSparkline: function(gc, x, y, width, height) {
+    paintSparkline: function(gc, config) {
+        var x = config.bounds.x,
+            y = config.bounds.y,
+            width = config.bounds.width,
+            height = config.bounds.height;
+
         gc.beginPath();
         var val = this.config.value;
         if (!val || !val.length) {
@@ -538,13 +570,18 @@ var CellProvider = Base.extend('CellProvider', {
     /**
      * @desc A simple implementation of a tree cell renderer for use mainly with the qtree.
      * @param {CanvasGraphicsContext} gc
-     * @param {number} x - the x screen coordinate of my origin
-     * @param {number} y - the y screen coordinate of my origin
-     * @param {number} width - the width I'm allowed to draw within
-     * @param {number} height - the height I'm allowed to draw within
+     * @param {number} config.bounds.x - the x screen coordinate of my origin
+     * @param {number} config.bounds.y - the y screen coordinate of my origin
+     * @param {number} config.bounds.width - the width I'm allowed to draw within
+     * @param {number} config.bounds.height - the height I'm allowed to draw within
      * @memberOf CellProvider.prototype
      */
-    treeCellRenderer: function(gc, x, y, width, height) {
+    treeCellRenderer: function(gc, config) {
+        var x = config.bounds.x,
+            y = config.bounds.y,
+            width = config.bounds.width,
+            height = config.bounds.height;
+
         var val = this.config.value.data;
         var indent = this.config.value.indent;
         var icon = this.config.value.icon;
@@ -571,13 +608,13 @@ var CellProvider = Base.extend('CellProvider', {
     /**
      * @desc An empty implementation of a cell renderer, see [the null object pattern](http://c2.com/cgi/wiki?NullObject).
      * @param {CanvasGraphicsContext} gc
-     * @param {number} x - the x screen coordinate of my origin
-     * @param {number} y - the y screen coordinate of my origin
-     * @param {number} width - the width I'm allowed to draw within
-     * @param {number} height - the height I'm allowed to draw within
+     * @param {number} config.bounds.x - the x screen coordinate of my origin
+     * @param {number} config.bounds.y - the y screen coordinate of my origin
+     * @param {number} config.bounds.width - the width I'm allowed to draw within
+     * @param {number} config.bounds.height - the height I'm allowed to draw within
      * @memberOf CellProvider.prototype
      */
-    emptyCellRenderer: function(gc, x, y, width, height) {},
+    emptyCellRenderer: function(gc, config) {},
 
     /**
      * @memberOf CellProvider.prototype
