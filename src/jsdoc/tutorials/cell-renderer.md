@@ -151,8 +151,15 @@ __________________
  
 ### Rendering in HyperGrid
 
-Note that Hypergrid is lazy in regards to rendering. It relies on explicit calls to `YourGrid.repaint()` (which is sometimes called on your behalf), to redraw the canvas. Also note that multiple calls to `repaint`
-get throttled to 60 FPS. Additionally, Hypergrid and canvas that powers it, does not enable partial re-rendering in the 2D context. Every re-render is a complete re-render.
-Keep this under consideration when wanting to do an animation within a cell renderer as you will need to set your animation interval for calling  `repaint`
+Note that HyperGrid is lazy in regards to rendering. It relies on explicit calls to `YourGrid.repaint()` (which is sometimes called on your behalf), to redraw the canvas. Also note that multiple calls to `repaint`
+get throttled to 60 FPS. Additionally, HyperGrid and canvas does not enable partial re-rendering in the 2D context. Every re-render is a complete re-render. Lastly, the gridlines that divide cells and establish their 
+boundaries and painted separately and not apart of an individual cell render.
 
+Keep these under consideration when wanting to do an animation within a cell renderer as you will need to set your own animation interval for calling  `repaint`
+You can additionally check for grid repaint events by listening on the `fin-grid-rendered` event like so 
+```javascript
+    YourGrid.addEventListener('fin-grid-rendered', function(e) {
+       //Do something 
+    });
+```
 
