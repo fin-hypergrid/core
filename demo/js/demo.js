@@ -133,7 +133,7 @@ window.onload = function() {
         { label: 'toggle empty data', onclick: toggleEmptyData },
         { label: 'set data 1 (5000 rows)', onclick: behavior.setData.bind(behavior, people1) },
         { label: 'set data 2 (10000 rows)', onclick: behavior.setData.bind(behavior, people2) },
-        { label: 'reset', onclick: grid.reset }
+        { label: 'reset', onclick: grid.reset.bind(grid)}
 
     ].forEach(function(item) {
         var button = document.createElement('button');
