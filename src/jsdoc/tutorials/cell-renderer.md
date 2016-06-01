@@ -174,6 +174,46 @@ You can additionally check for grid repaint events by listening on the `fin-grid
        //Do something 
     });
 ```
+### Cells as Links
+Hypergrid supports clickable link cells, to achieve this you need to...
+
+* register a listener to the table for 'fin-cell-click'
+```javascript
+jsonGrid.addFinEventListener('fin-cell-click', function(e){
+    var cell = e.detail.cell;
+    if (cell.x !== 0) {
+        return;
+    }
+    alert('fin-cell-click at (' + cell.x + ', ' + cell.y + ')');
+});
+```
+* override the getCursorAt method on behavior to be a function that returns the string of the name of the cursor for the column with the links
+```javascript
+behavior.getCursorAt = function(x,y) {
+    if (x === 0) {
+        return 'pointer'
+    } else {
+        return null;
+    }
+};
+```
+* override the cell-provider to return the linkRenderer for the desired link columns and set `config.link = true`
+```javascript
+cellProvider.getCell = function(config) {
+    config.link = true;
+    var renderer = cellProvider.cellCache.simpleCellRenderer;
+    config.halign = 'left';
+    var x = config.x;
+    if (x === 0) {
+        renderer = cellProvider.cellCache.linkCellRenderer;
+    } else if (x === 2) {
+    ...
+    ...
+    ...
+}
+```
+
+
 
 
 ### Further Examples
