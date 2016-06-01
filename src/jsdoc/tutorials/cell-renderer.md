@@ -222,6 +222,7 @@ The following examples are not apart of the HyperGrid defaults but as explorator
 are expected to have a `paint`
 
 #### Star Rating Renderer Sample Implementation
+[Reference](https://en.wikipedia.org/wiki/Star_(classification))
 
 ```javascript
 var REGEXP_CSS_HEX6 = /^#(..)(..)(..)$/,
