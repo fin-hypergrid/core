@@ -363,17 +363,20 @@ window.onload = function() {
 
 
         //Testing
-        if (x === 3){
+        if (x === idx.TOTAL_NUMBER_OF_PETS_OWNED){
+            /*
+            * Be sure to adjust the dataset to the appropriate type and shape in widedata.js
+            */
+
             //return cellProvider.cellCache.simpleCellRenderer; //WORKS
             //return cellProvider.cellCache.emptyCellRenderer; //WORKS: By Default
             //return cellProvider.cellCache.buttonRenderer; //WORKS
             //return cellProvider.cellCache.linkCellRenderer; //WORKS: Need to set config.link = true;
-            //return cellProvider.cellCache.cellErrorRenderer; //FAILS: Yellow and Blank
-
-            //return cellProvider.cellCache.sparklineCellRenderer; //First Test was a misconfigured: Blank; Actually I need to create a cell with array of values
-            //return cellProvider.cellCache.sparkbarCellRenderer; //First Test was a misconfigured: Blank; Actually I need to create a cell with array of values
-            //return cellProvider.cellCache.sliderCellRenderer; //First Test was a misconfigured Blank; Code was commented out. :)
-            //return cellProvider.cellCache.treeCellRenderer; //First Test was a misconfigured: Blank; Actually I tested incorrectly with wrong data shape
+            //return cellProvider.cellCache.cellErrorRenderer; //WORKS: Noted that any error in this function steals the main thread by recursion
+            //return cellProvider.cellCache.sparklineCellRenderer; // WORKS
+            //return cellProvider.cellCache.sparkbarCellRenderer; //WORKS
+            //return cellProvider.cellCache.sliderCellRenderer; //WORKS
+            //return cellProvider.cellCache.treeCellRenderer; //Need to figure out data shape to test
         }
 
         return renderer;

@@ -385,7 +385,7 @@ var CellProvider = Base.extend('CellProvider', {
         var val = this.config.value;
         var radius = height / 2;
         var offset = width * val;
-        var bgColor = this.config.isSelected ? this.config.bgSelColor : '#333333';
+        var bgColor = this.config.isSelected ? this.config.backgroundColor : '#333333';
         var btnGradient = gc.createLinearGradient(x, y, x, y + height);
         btnGradient.addColorStop(0, bgColor);
         btnGradient.addColorStop(1, '#666666');
@@ -476,9 +476,11 @@ var CellProvider = Base.extend('CellProvider', {
         }
         var count = val.length;
         var eWidth = width / count;
-        var fgColor = this.config.isSelected ? this.config.fgSelColor : this.config.fgColor;
-        if (this.config.bgColor || this.config.isSelected) {
-            gc.fillStyle = this.config.isSelected ? this.config.bgSelColor : this.config.bgColor;
+        //var selColor = this.grid.resolveProperty('selectionRegionOverlayColor')
+
+        var fgColor = this.config.isSelected ? 'blue' : 'red';
+        if (this.config.backgroundColor || this.config.isSelected) {
+            gc.fillStyle = this.config.isSelected ? 'blue' : this.config.backgroundColor;
             gc.fillRect(x, y, width, height);
         }
         gc.fillStyle = fgColor;
@@ -527,7 +529,7 @@ var CellProvider = Base.extend('CellProvider', {
         gc.fillStyle = '#FFD500';
         gc.fill();
         // render cell border
-        //gc.strokeStyle = gc.createPattern(images.caution, 'repeat');
+        //gc.strokeStyle = gc.createPattern(images.caution, 'repeat'); // Causes Error
         gc.lineWidth = 5;
         gc.beginPath();
         gc.moveTo(x, y); // caution: do not use rect() here because Chrome does not clip its stroke properly
@@ -571,9 +573,11 @@ var CellProvider = Base.extend('CellProvider', {
         var count = val.length;
         var eWidth = width / count;
 
-        var fgColor = this.config.isSelected ? this.config.fgSelColor : this.config.fgColor;
-        if (this.config.bgColor || this.config.isSelected) {
-            gc.fillStyle = this.config.isSelected ? this.config.bgSelColor : this.config.bgColor;
+        //var selColor = this.grid.resolveProperty('selectionRegionOverlayColor')
+
+        var fgColor = this.config.isSelected ? 'blue' : 'red';
+        if (this.config.backgroundColor || this.config.isSelected) {
+            gc.fillStyle = this.config.isSelected ? 'blue' : this.config.backgroundColor;
             gc.fillRect(x, y, width, height);
         }
         gc.strokeStyle = fgColor;
@@ -614,8 +618,8 @@ var CellProvider = Base.extend('CellProvider', {
         var icon = this.config.value.icon;
 
         //fill background only if our bgColor is populated or we are a selected cell
-        if (this.config.bgColor || this.config.isSelected) {
-            gc.fillStyle = this.config.isSelected ? this.config.bgSelColor : this.config.bgColor;
+        if (this.config.backgroundColor || this.config.isSelected) {
+            gc.fillStyle = this.config.isSelected ? this.config.backgroundColor : this.config.backgroundColor;
             gc.fillRect(x, y, width, height);
         }
 
@@ -624,7 +628,7 @@ var CellProvider = Base.extend('CellProvider', {
         }
         var valignOffset = Math.ceil(height / 2);
 
-        gc.fillStyle = this.config.isSelected ? this.config.fgSelColor : this.config.fgColor;
+        gc.fillStyle = this.config.isSelected ? this.config.backgroundColor : this.config.backgroundColor;
         gc.fillText(icon + val, x + indent, y + valignOffset);
 
         var textWidth = this.config.getTextWidth(gc, icon + val);
@@ -661,10 +665,10 @@ var CellProvider = Base.extend('CellProvider', {
             paint: this.paintSlider
         };
         this.cellCache.sparkbarCellRenderer = {
-            paint: this.paintSparkbar
+            paint: this.paintSparkbar,
         };
         this.cellCache.sparklineCellRenderer = {
-            paint: this.paintSparkline
+            paint: this.paintSparkline,
         };
         this.cellCache.treeCellRenderer = {
             paint: this.treeCellRenderer

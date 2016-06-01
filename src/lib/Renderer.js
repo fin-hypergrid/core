@@ -870,7 +870,7 @@ var Renderer = Base.extend('Renderer', {
                                     width: clipWidth
                                 }
                             };
-                            renderCellError(rawGc, config, message);
+                            renderCellError.paint(rawGc, config, message);
 
                             rawGc.restore(); // discard clipping region
                         }
