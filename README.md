@@ -1,4 +1,6 @@
-**fin-hypergrid** is an ultra-fast HTML5 grid presentation layer, achieving its speed by rendering (in a canvas tag) only the currently visible portion of your (virtual) grid, thus avoiding the latency and life-cycle issues of building, walking, and maintaining a complex DOM structure.
+#fin-hypergrid
+is an ultra-fast HTML5 grid presentation layer, achieving its speed by rendering (in a canvas tag) only the currently visible portion of your (virtual) grid, thus avoiding the latency and life-cycle issues of building, walking, and maintaining a complex DOM structure.
+
 <img src="images/README/gridshot04.gif">
 
 ### Release 1.0
@@ -47,8 +49,10 @@ We are also maintaining [online API documentation](http://openfin.github.io/fin-
 * Cell Editors information can be found [here](http://openfin.github.io/fin-hypergrid/doc/tutorial-cell-editors.html)
 
 * Cell Rendering information can be found [here](http://openfin.github.io/fin-hypergrid/doc/tutorial-cell-renderer.html)
-    * There are four areas that have distinct cell renderering override capabilities.  <img src="images/README/grid-regions.png" alt="screenshot">
-    * Here is an example of of using a custom renderer: <img src="images/README/customrenderer.png" alt="screenshot">
+    * There are four areas that have distinct cell renderering override capabilities.  
+    <img src="images/README/grid-regions.png" alt="screenshot">
+    * Here is an example of of using a custom renderer: 
+    <img src="images/README/customrenderer.png" alt="screenshot">
 
 * Hypergrid configuration can be found [here](http://openfin.github.io/fin-hypergrid/doc/module-defaults.html)
     * Modifying various hypergrid features and property defaults
