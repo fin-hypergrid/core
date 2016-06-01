@@ -6,6 +6,7 @@ var Base = require('./../lib/Base');
  * @desc Instances of features are connected to one another to make a chain of responsibility for handling all the input to the hypergrid.
  *
  * See {@link CellProvider#initialize|initialize} which is called by the constructor.
+ * See also {@tutorial cell-renderer}.
  */
 var CellProvider = Base.extend('CellProvider', {
 
@@ -33,29 +34,29 @@ var CellProvider = Base.extend('CellProvider', {
         return cell;
     },
 
-    /**
-     * @desc replace this function in on your instance of cellProvider
-     * @returns cell
-     * @param {object} config - an object with everything you might need for renderering a cell
-     * @memberOf CellProvider.prototype
-     */
-    getColumnHeaderCell: function(config) {
-        var cell = this.cellCache.simpleCellRenderer;
-        cell.config = config;
-        return cell;
-    },
-
-    /**
-     * @desc replace this function in on your instance of cellProvider
-     * @returns cell
-     * @param {object} config - an object with everything you might need for renderering a cell
-     * @memberOf CellProvider.prototype
-     */
-    getRowHeaderCell: function(config) {
-        var cell = this.cellCache.simpleCellRenderer;
-        cell.config = config;
-        return cell;
-    },
+    // /**
+    //  * @desc replace this function in on your instance of cellProvider
+    //  * @returns cell
+    //  * @param {object} config - an object with everything you might need for renderering a cell
+    //  * @memberOf CellProvider.prototype
+    //  */
+    // getColumnHeaderCell: function(config) {
+    //     var cell = this.cellCache.simpleCellRenderer;
+    //     cell.config = config;
+    //     return cell;
+    // },
+    //
+    // /**
+    //  * @desc replace this function in on your instance of cellProvider
+    //  * @returns cell
+    //  * @param {object} config - an object with everything you might need for renderering a cell
+    //  * @memberOf CellProvider.prototype
+    //  */
+    // getRowHeaderCell: function(config) {
+    //     var cell = this.cellCache.simpleCellRenderer;
+    //     cell.config = config;
+    //     return cell;
+    // },
 
     /**
      * @summary The default cell rendering function for a button cell.
