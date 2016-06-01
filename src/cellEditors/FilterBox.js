@@ -3,7 +3,7 @@
 'use strict';
 
 var popMenu = require('pop-menu');
-var Conditionals = require('filter-tree').Conditionals;
+var Conditionals = require('../Shared').FilterTree.Conditionals;
 
 var ComboBox = require('./ComboBox');
 var prototype = require('./CellEditor').prototype;
@@ -112,7 +112,7 @@ var FilterBox = ComboBox.extend('FilterBox', {
                     if (index !== x) {
                         var name = column.name,
                             option = new Option(name);
-                        option.title = '[' + name + ']\r"' + column.getHeader() + '"';
+                        option.title = '[' + name + ']\r"' + column.header + '"';
                         optgroup.appendChild(option);
                     }
                 });

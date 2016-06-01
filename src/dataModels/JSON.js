@@ -397,7 +397,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
      * @memberOf dataModels.JSON.prototype
      * @returns {object[]}
      */
-    getVisibleColumns: function() {
+    getActiveColumns: function() {
         return this.grid.behavior.columns.filter(function(column) {
             return column.name !== 'tree';
         });

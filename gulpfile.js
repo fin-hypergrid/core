@@ -186,7 +186,7 @@ function templates(folder) {
             // convert (groups of) 4 space chars at start of lines to tab(s)
             do {
                 var len = content.length;
-                content = content.replace(/\n(    )*    (.*)/, "\n$1\t$2");
+                content = content.replace(/\n((    )*)    (.*)/, "\n$1\t$3");
             } while (content.length < len);
 
             // quote each line and join them into a single string

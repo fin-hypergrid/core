@@ -14,7 +14,7 @@ var Null = Behavior.extend('Null', {
 
     setScrollPositionY: noop,
     setScrollPositionX: noop,
-    getColumnCount: n00p,
+    getActiveColumnCount: n00p,
     getFixedColumnCount: n00p,
     getFixedColumnsWidth: n00p,
     getFixedColumnsMaxWidth: n00p,
