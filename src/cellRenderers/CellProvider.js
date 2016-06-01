@@ -34,29 +34,29 @@ var CellProvider = Base.extend('CellProvider', {
         return cell;
     },
 
-    // /**
-    //  * @desc replace this function in on your instance of cellProvider
-    //  * @returns cell
-    //  * @param {object} config - an object with everything you might need for renderering a cell
-    //  * @memberOf CellProvider.prototype
-    //  */
-    // getColumnHeaderCell: function(config) {
-    //     var cell = this.cellCache.simpleCellRenderer;
-    //     cell.config = config;
-    //     return cell;
-    // },
-    //
-    // /**
-    //  * @desc replace this function in on your instance of cellProvider
-    //  * @returns cell
-    //  * @param {object} config - an object with everything you might need for renderering a cell
-    //  * @memberOf CellProvider.prototype
-    //  */
-    // getRowHeaderCell: function(config) {
-    //     var cell = this.cellCache.simpleCellRenderer;
-    //     cell.config = config;
-    //     return cell;
-    // },
+    /**
+     * @desc replace this function in on your instance of cellProvider
+     * @returns cell
+     * @param {object} config - an object with everything you might need for renderering a cell
+     * @memberOf CellProvider.prototype
+     */
+    getColumnHeaderCell: function(config) {
+        var cell = this.cellCache.simpleCellRenderer;
+        cell.config = config;
+        return cell;
+    },
+
+    /**
+     * @desc replace this function in on your instance of cellProvider
+     * @returns cell
+     * @param {object} config - an object with everything you might need for renderering a cell
+     * @memberOf CellProvider.prototype
+     */
+    getRowHeaderCell: function(config) {
+        var cell = this.cellCache.simpleCellRenderer;
+        cell.config = config;
+        return cell;
+    },
 
     /**
      * @summary The default cell rendering function for a button cell.

@@ -50,7 +50,8 @@ It comes with the following defaults that you can use declaratively.
 
 #### Programmatic cell editor association
 
-The Cell Provider's `getCell` method is called when HyperGrid will check which renderer to provide the selected cell. 
+The Cell Provider's `getCell` method is called when HyperGrid will check which renderer to provide the selected *data* cell. 
+The process is the same for `getColumnHeaderCell` for the fixed columns and `getRowHeaderCell` for the fixed rows
 For programmatic cell renderer association, you can override it:
 `getCell` needs to return an object with a `paint` method that expects a `2D graphics context` and a config object (described below).
 

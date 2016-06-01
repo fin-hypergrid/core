@@ -1,4 +1,5 @@
 **fin-hypergrid** is an ultra-fast HTML5 grid presentation layer, achieving its speed by rendering (in a canvas tag) only the currently visible portion of your (virtual) grid, thus avoiding the latency and life-cycle issues of building, walking, and maintaining a complex DOM structure.
+<img src="images/gridshot04.gif">
 
 ### Release 1.0
 
@@ -18,10 +19,14 @@ The prototype version's [demos](http://openfin.github.io/fin-hypergrid-polymer-d
 * Grid, column, row, and cell styling
 * User-resizeable columns, column-dragging, column picking
 * Plug-in-able cell formatters and editors
-* Smooth scrolling on both axes
+* Smooth scrolling on both axes with the use of custom scrollbars
+    * Hypergrid utilizes a custom scrollbar component so as to not be limited to tables of 33MM pixels in width or height.   In addition to the custom scrollbar, The OpenFin hypergrid utilizes row and column cell scrolling, not pixel scrolling.  This has many benefits that become apparent over time.
+    <img src="images/README/gridshot03.png" alt="screenshot">
+
 * Supports local (client-side) as well as remote (server-side) data hosting
 * Events for all UI manipulations including mouse, keyboard, and programmatic UI changes
 * Tree-view (drill-downs) presentation for pre-aggregated local data
+
 
 ##### Future development
 
@@ -35,8 +40,16 @@ The prototype version's [demos](http://openfin.github.io/fin-hypergrid-polymer-d
 
 ### Documentation
 
-Essential documenation and examples will be added to this page in the near future.
+Essential documentation and examples will be added to this page in the near future.
 
 We are also maintaining [online API documentation](http://openfin.github.io/fin-hypergrid/doc/Hypergrid.html) for all public objects and modules. This documentation is necessarily a on-going work-in-progress.
 
-(Cell editor information can be found [here](http://openfin.github.io/fin-hypergrid/doc/tutorial-cell-editors.html).)
+* Cell Editors information can be found [here](http://openfin.github.io/fin-hypergrid/doc/tutorial-cell-editors.html)
+
+* Cell Rendering information can be found [here](http://openfin.github.io/fin-hypergrid/doc/tutorial-cell-renderer.html)
+    * There are four areas that have distinct cell renderering override capabilities.  <img src="images/grid-regions.png" alt="screenshot">
+    * Here is an example of of using a custom renderer: <img src="images/README/customrenderer.png" alt="screenshot">
+
+* Hypergrid configuration can be found [here](http://openfin.github.io/fin-hypergrid/doc/module-defaults.html)
+    * Modifying various hypergrid features and property defaults
+    * Many of the hypergrid default values and properties can be set through property overriding functions `addGlobalProperties` and `addProperties`.  The current list is:
