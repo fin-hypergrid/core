@@ -20,14 +20,18 @@ The prototype version's [demos](http://openfin.github.io/fin-hypergrid-polymer-d
 * Plug-in-able cell formatters and editors
 * Smooth scrolling on both axes
 * Supports local (client-side) as well as remote (server-side) data hosting
-* Comes with default "analytics" modules (sorting, filtering, aggregation)
 * Events for all UI manipulations including mouse, keyboard, and programmatic UI changes
-* Tree-view (drill-downs) support for aggregated local data
+* Tree-view (drill-downs) presentation for pre-aggregated local data
 
 ##### Future development
 
-* The analytics modules will be plug-in-replaceable in a future release (at which point the default modules will be broken out into separate npm modules/JavaScript files)
-* Tree-view support for remotely aggregated data
+* Tree-view presentation for remotely aggregated data
+
+###### The Filtering & Analytics (sorting & aggregation) modules provided will be broken out of Hypergrid
+
+* We are currently working on expanding the API to enable application developers to easily provide their own functionality
+ * Hypergrid will have no opinion on how the underlying data should be pivoted, but will remain capable of presenting pivoted data
+* The current filtering and analytics modules will become separate npm modules/JavaScript files that can be forked and further developed
 
 ### Documentation
 
