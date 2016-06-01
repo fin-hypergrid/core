@@ -54,6 +54,5 @@ We are also maintaining [online API documentation](http://openfin.github.io/fin-
     * Here is an example of of using a custom renderer: 
     <img src="images/README/customrenderer.png" alt="screenshot">
 
-* Hypergrid configuration can be found [here](http://openfin.github.io/fin-hypergrid/doc/module-defaults.html)
-    * Modifying various hypergrid features and property defaults
-    * Many of the hypergrid default values and properties can be set through property overriding functions `addGlobalProperties` and `addProperties`.  The current list is:
+* Hypergrid global configurations can be found [here](http://openfin.github.io/fin-hypergrid/doc/module-defaults.html)
+    * Use it for modifying various hypergrid features and property defaults
