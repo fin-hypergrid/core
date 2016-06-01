@@ -25,7 +25,7 @@ Hypergrid.features = require('./features');
 Hypergrid.analytics = require('./Shared.js').analytics;
 Hypergrid.DefaultFilter = require('./filter/DefaultFilter');
 Hypergrid.ColumnSchemaFactory = require('./filter/ColumnSchemaFactory');
-Hypergrid.FilterTree = require('filter-tree');
+Hypergrid.FilterTree = require('./Shared').FilterTree;
 Hypergrid.rectangular = require('rectangular');
 
 // Create the `fin` and in particular the `fin.Hypergrid` objects:

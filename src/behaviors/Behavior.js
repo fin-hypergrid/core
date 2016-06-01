@@ -136,16 +136,12 @@ var Behavior = Base.extend('Behavior', {
         this.allColumns[-2] = this.columns[-2] = this.newColumn(-2);
     },
 
-    getVisibleColumn: function(x) {
+    getActiveColumn: function(x) {
         return this.columns[x];
     },
 
     getColumn: function(x) {
         return this.allColumns[x];
-    },
-
-    getColumnId: function(x) {
-        return this.getVisibleColumn(x).getHeader();
     },
 
     newColumn: function(options) {
@@ -485,7 +481,7 @@ var Behavior = Base.extend('Behavior', {
     },
 
     getColumnWidth: function(x) {
-        var column = this.getVisibleColumn(x);
+        var column = this.getActiveColumn(x);
         if (!column) {
             return this.resolveProperty('defaultColumnWidth');
         }
@@ -494,7 +490,7 @@ var Behavior = Base.extend('Behavior', {
     },
 
     setColumnWidth: function(x, width) {
-        this.getVisibleColumn(x).setWidth(width);
+        this.getActiveColumn(x).setWidth(width);
         this.stateChanged();
     },
 
@@ -507,7 +503,7 @@ var Behavior = Base.extend('Behavior', {
     },
 
     getCellRenderer: function(config, x, y) {
-        return this.getVisibleColumn(x).getCellRenderer(config, y);
+        return this.getActiveColumn(x).getCellRenderer(config, y);
     },
 
     applyAnalytics: function() {
@@ -715,12 +711,12 @@ var Behavior = Base.extend('Behavior', {
      * @param {number} y - y coordinate
      */
     getValue: function(x, y) {
-        var column = this.getVisibleColumn(x);
+        var column = this.getActiveColumn(x);
         return column && column.getValue(y);
     },
 
     getUnfilteredValue: function(x, y) {
-        var column = this.getVisibleColumn(x);
+        var column = this.getActiveColumn(x);
         return column && column.getUnfilteredValue(y);
     },
 
@@ -733,7 +729,7 @@ var Behavior = Base.extend('Behavior', {
      * @param {Object} value - the value to use
      */
     setValue: function(x, y, value) {
-        var column = this.getVisibleColumn(x);
+        var column = this.getActiveColumn(x);
         return column && column.setValue(y, value);
     },
 
@@ -1174,24 +1170,6 @@ var Behavior = Base.extend('Behavior', {
 
     /**
      * @memberOf Behavior.prototype
-     * @return {string} The field at `visibleColumnIndex`.
-     * @param {number} visibleColumnIndex - the column index of interest
-     */
-    getVisibleColumnName: function(visibleColumnIndex) {
-        return this.getVisibleColumn(visibleColumnIndex).name;
-    },
-
-    /**
-     * @memberOf Behavior.prototype
-     * @return {string} The column heading at `visibleColumnIndex'.
-     * @param {number} visibleColumnIndex - the column index of interest
-     */
-    getHeader: function(visibleColumnIndex) {
-        return this.getVisibleColumn(visibleColumnIndex).header;
-    },
-
-    /**
-     * @memberOf Behavior.prototype
      * @desc Rebuild the column order indexes
      * @param {Array} columnIndexes - list of column indexes
      * @param {Boolean} [silent=false] - whether to trigger column changed event
@@ -1214,13 +1192,14 @@ var Behavior = Base.extend('Behavior', {
         var tableState = this.getPrivateState();
         var indexes = tableState.columnIndexes;
         var labels = [];
-        var columnCount = this.getColumnCount();
+        var columnCount = this.getActiveColumnCount();
         for (var i = 0; i < columnCount; i++) {
             if (indexes.indexOf(i) === -1) {
+                var column = this.getActiveColumn(i);
                 labels.push({
                     id: i,
-                    header: this.getHeader(i),
-                    field: this.getVisibleColumnName(i)
+                    header: column.header,
+                    field: column.name
                 });
             }
         }
@@ -1361,7 +1340,7 @@ var Behavior = Base.extend('Behavior', {
      * @memberOf Behavior.prototype
      * @return {number} The total number of columns.
      */
-    getColumnCount: function() {
+    getActiveColumnCount: function() {
         return this.columns.length;
     },
 
@@ -1418,7 +1397,7 @@ var Behavior = Base.extend('Behavior', {
     getCellEditorAt: function(x, y) {
         return this.grid.isFilterRow(y)
             ? this.grid.createCellEditor('filterbox')
-            : this.getVisibleColumn(x).getCellEditorAt(y);
+            : this.getActiveColumn(x).getCellEditorAt(y);
     },
 
     /**
@@ -1427,7 +1406,7 @@ var Behavior = Base.extend('Behavior', {
      * @param {string[]} keys
      */
     toggleSort: function(x, keys) {
-        this.getVisibleColumn(x).toggleSort(keys);
+        this.getActiveColumn(x).toggleSort(keys);
     },
 
     /**
@@ -1522,7 +1501,7 @@ var Behavior = Base.extend('Behavior', {
     },
 
     convertViewPointToDataPoint: function(viewPoint) {
-        var newX = this.getVisibleColumn(viewPoint.x).index;
+        var newX = this.getActiveColumn(viewPoint.x).index;
         var newPoint = this.grid.newPoint(newX, viewPoint.y);
         return newPoint;
     },

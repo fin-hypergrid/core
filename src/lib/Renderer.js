@@ -436,7 +436,7 @@ var Renderer = Base.extend('Renderer', {
 
         var translatedIndex = -1;
 
-        var column = behavior.getVisibleColumn(c);
+        var column = behavior.getActiveColumn(c);
         if (column) {
             translatedIndex = column.index;
         }
@@ -1064,7 +1064,7 @@ var Renderer = Base.extend('Renderer', {
         behavior.cellPropertiesPrePaintNotification(cellProperties);
 
         var cell = behavior.getCellRenderer(cellProperties, c, r);
-        var column = behavior.getVisibleColumn(c);
+        var column = behavior.getActiveColumn(c);
         var overrides = behavior.getCellProperties(column.index, r);
 
         //declarative cell properties

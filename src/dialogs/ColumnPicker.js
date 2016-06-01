@@ -32,14 +32,14 @@ var ColumnPicker = Dialog.extend('ColumnPicker', {
                 models: behavior.getAvailableGroups()
             };
 
-            this.hiddenColumns = {
-                title: 'Hidden Columns',
-                models: behavior.getHiddenColumns()
+            this.inactiveColumns = {
+                title: 'Inactive Columns',
+                models: behavior.getHiddenColumns().sort(compareByName)
             };
 
-            this.visibleColumns = {
-                title: 'Visible Columns',
-                models: behavior.getVisibleColumns()
+            this.activeColumns = {
+                title: 'Active Columns',
+                models: behavior.getActiveColumns()
             };
 
             this.sortOnHiddenColumns = this.wasSortOnHiddenColumns = grid.resolveProperty('sortOnHiddenColumns');
@@ -57,8 +57,8 @@ var ColumnPicker = Dialog.extend('ColumnPicker', {
                     cssStylesheetReferenceElement: stylesheetAddendum
                 }),
                 new ListDragon([
-                    this.hiddenColumns,
-                    this.visibleColumns
+                    this.inactiveColumns,
+                    this.activeColumns
                 ], {
                     // these models have a header property as their labels
                     label: '{header}'
@@ -107,7 +107,7 @@ var ColumnPicker = Dialog.extend('ColumnPicker', {
     },
 
     onClosed: function() {
-        if (this.visibleColumns) {
+        if (this.activeColumns) {
             var behavior = this.grid.behavior,
                 columns = behavior.columns,
                 tree = columns[0];
@@ -117,7 +117,7 @@ var ColumnPicker = Dialog.extend('ColumnPicker', {
             if (tree && tree.label === 'Tree') {
                 columns.push(tree);
             }
-            this.visibleColumns.models.forEach(function(column) {
+            this.activeColumns.models.forEach(function(column) {
                 columns.push(column);
             });
             var groupBys = this.selectedGroups.models.map(function(e) {
@@ -127,13 +127,19 @@ var ColumnPicker = Dialog.extend('ColumnPicker', {
 
             if (this.sortOnHiddenColumns !== this.wasSortOnHiddenColumns) {
                 this.grid.addProperties({ sortOnHiddenColumns: this.sortOnHiddenColumns });
-                behavior.sortChanged(this.hiddenColumns.models);
+                behavior.sortChanged(this.inactiveColumns.models);
             }
 
             behavior.changed();
         }
     }
 });
+
+function compareByName(a, b) {
+    a = a.header.toString().toUpperCase();
+    b = b.header.toString().toUpperCase();
+    return a < b ? -1 : a > b ? +1 : 0;
+}
 
 
 module.exports = ColumnPicker;
