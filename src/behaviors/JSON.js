@@ -230,8 +230,8 @@ var JSON = Local.extend('behaviors.JSON', {
     getHiddenColumns: function() {
         return this.dataModel.getHiddenColumns();
     },
-    getVisibleColumns: function() {
-        return this.dataModel.getVisibleColumns();
+    getActiveColumns: function() {
+        return this.dataModel.getActiveColumns();
     },
 
     getSelectedRows: function() {

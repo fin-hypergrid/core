@@ -170,24 +170,28 @@ var Dialog = Base.extend('Dialog', {
 function nullPattern() {}
 
 function removeDialog(evt) {
-    if (this.el.parentElement.tagName !== 'BODY') {
-        this.el.parentElement.style.visibility = 'hidden';
-    }
-    this.el.remove();
-    delete this.el;
+    if (evt.target === this.el && evt.propertyName === 'opacity') {
+        if (this.el.parentElement.tagName !== 'BODY') {
+            this.el.parentElement.style.visibility = 'hidden';
+        }
+        this.el.remove();
+        delete this.el;
 
-    this.onClosed();
-    this.terminate();
-    this.closing = false;
-    this.closed = true;
+        this.onClosed();
+        this.terminate();
+        this.closing = false;
+        this.closed = true;
+    }
 }
 
 function hideApp(evt) {
-    this.appVisible('hidden');
-    this.el.removeEventListener('transitionend', this.hideAppBound);
-    this.onOpened();
-    this.opening = false;
-    this.opened = true;
+    if (evt.target === this.el && evt.propertyName === 'opacity') {
+        this.appVisible('hidden');
+        this.el.removeEventListener('transitionend', this.hideAppBound);
+        this.onOpened();
+        this.opening = false;
+        this.opened = true;
+    }
 }
 
 function onClick(evt) {

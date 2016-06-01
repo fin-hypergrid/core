@@ -563,7 +563,7 @@ window.onload = function() {
 
         //lets mirror the cell selection into the rows and or columns
         grid.selectRowsFromCells();
-        //jsonGrid.selectColumnsFromCells();
+        //grid.selectColumnsFromCells();
 
         if (vent) { console.log('fin-selection-changed', grid.getSelectedRows(), grid.getSelectedColumns(), grid.getSelections()); }
 
@@ -576,8 +576,8 @@ window.onload = function() {
         console.log(grid.getSelection());
 
         //to get the selected rows uncomment the below.....
-        // console.log(jsonGrid.getRowSelectionMatrix());
-        // console.log(jsonGrid.getRowSelection());
+        // console.log(grid.getRowSelectionMatrix());
+        // console.log(grid.getRowSelection());
 
     });
 
@@ -659,8 +659,8 @@ window.onload = function() {
     //    console.log(behavior.getHeaders());
     //    console.log(behavior.getFields());
     //
-    //    console.log('visible rows = ' + jsonGrid.getVisibleRows());
-    //    console.log('visible columns = ' + jsonGrid.getVisibleColumns());
+    //    console.log('visible rows = ' + grid.getVisibleRows());
+    //    console.log('visible columns = ' + grid.getVisibleColumns());
 
 
         setTimeout(function() {
@@ -804,9 +804,9 @@ window.onload = function() {
             console.log('visible columns = ' + grid.getVisibleColumns());
 
             //see myThemes.js file for how to create a theme
-            //jsonGrid.addProperties(myThemes.one);
-            //jsonGrid.addProperties(myThemes.two);
-            //jsonGrid.addProperties(myThemes.three);
+            //grid.addProperties(myThemes.one);
+            //grid.addProperties(myThemes.two);
+            //grid.addProperties(myThemes.three);
 
             grid.takeFocus();
 
@@ -848,7 +848,7 @@ window.onload = function() {
 // ];
 
 // eventNames.forEach(function(name) {
-//     jsonGrid.canvas.addEventListener('fin-canvas-' + name, function(e) {
+//     grid.canvas.addEventListener('fin-canvas-' + name, function(e) {
 //         console.log(e.type);
 //     });
 // });

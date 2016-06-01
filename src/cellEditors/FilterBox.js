@@ -112,7 +112,7 @@ var FilterBox = ComboBox.extend('FilterBox', {
                     if (index !== x) {
                         var name = column.name,
                             option = new Option(name);
-                        option.title = '[' + name + ']\r"' + column.getHeader() + '"';
+                        option.title = '[' + name + ']\r"' + column.header + '"';
                         optgroup.appendChild(option);
                     }
                 });
