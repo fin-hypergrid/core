@@ -72,27 +72,36 @@ Column.prototype = {
      * @param {object} [options.type]
      */
     set: function(options) {
+        var fields = this.dataModel.getFields();
         var column = this;
         propertyNames.forEach(function(option) {
             if (option in options) {
                 column[option] = options[option];
             }
+
+            if (option === 'name') {
+                if (column.name === undefined) {
+                    column.name = fields[column.index];
+                } else if (column.index === undefined) {
+                    column.index = fields.indexOf(column.name);
+                }
+
+                if (column.index === undefined || column.name === undefined) {
+                    throw 'Expected column name or index.';
+                } else if (fields[column.index] !== column.name) {
+                    throw 'Expected to find `column.name` in position `column.index` in data model\'s fields list.';
+                }
+            }
         });
+    },
 
-        var fields = this.dataModel.getFields();
-        if (column.name === undefined) {
-            column.name = fields[column.index];
-        } else if (column.index === undefined) {
-            column.index = fields.indexOf(column.name);
-        }
+    set header(value) {
+        this._header = value;
+        this.dataModel.getHeaders()[this.index] = value;
+    },
 
-        if (column.index === undefined) {
-            throw 'column.index not defined';
-        } else if (column.name === undefined) {
-            throw 'column.name not defined';
-        } else if (fields[column.index] !== column.name) {
-            throw 'Expected to find `column.name` in position `column.index` in data model\'s fields list.';
-        }
+    get header() {
+        return this._header;
     },
 
     getUnfilteredValue: function(y) {
