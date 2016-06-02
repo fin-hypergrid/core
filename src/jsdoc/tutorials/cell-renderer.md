@@ -2,50 +2,32 @@ This document describes the Cell Renderer interface. This information is useful 
 
 ### What is a cell renderer?
 
-A cell renderer is custom rendering logic meant to be confined to the bounding region of a cell. It should be noted that special care should be taken to ensure good performance of any custom cell renderer as it is called during any repaint where said cell is visible.
+A cell renderer is custom rendering logic meant to be confined to the bounding region of a cell. Special care should be taken when creating a custom cell renderer to ensure good performance. On every grid repaint, this code will be called repeatedly for all cells that reference it.
 
-Cell renderers have access to the 2D graphics context of the Hypergrid and can be used to draw anything the user can imagine (with considerations for speed).
+Cell renderers have access to the 2D graphics context of the Hypergrid canvas element and can be used to draw anything the user can imagine (again, with considerations for speed).
 
 
 ### Which cells can have a renderer?
 
-Kind of cell       | Can use a<br>cell renderer
------------------- | :---:
-Column header      | Yes
-*Column filter*    | Yes
-Row handle         | Yes
-Tree (drill-down)  | Yes
-*Data*             | Yes
-Top & bottom total | Yes
- 
+All cells in the grid from headers to data, etc., require cell renderers.
 
 ### Default Renderers Available
 
 The [CellProvider Singleton](http://openfin.github.io/fin-hypergrid/doc/CellProvider.html) is the default object that provides cell rendering capability.
 It can be replaced by overriding [behavior](http://openfin.github.io/fin-hypergrid/doc/Behavior.html) `createCellProvider`.
-It comes with the following defaults that you can use declaratively.
+It comes with the following cell renderers that you can use declaratively.
  
- #### simpleCellRenderer
-    Is the normal cell renderer operation which accomodates for images/fonts/text.
-    They will be centered vertical and be placed on horizontally aligned left, right or middle
-
- #### emptyCellRenderer
-    Paints a blank cell
-    
- #### treeCellRenderer
-    Paints a tree cell that accomodates nested data
+Cell Renderer | Description
+------------- | -----------
+`simpleCellRenderer` | Is the normal cell renderer operation which accomodates for images/fonts/text.They will be centered vertical and be placed on horizontally aligned left, right or middle
+`emptyCellRenderer` | Paints a blank cell
+`treeCellRenderer` | Paints a tree cell that accomodates nested data
+`errorCellRenderer` | Renderer for *any* cell considered to be in an error state 
+`buttonRenderer` | Paints a button dependent on mousedown state
+`linkCellRenderer` | Paint text in a cell that is underline
+`sparklineCellRenderer` | Paints an implementation of https://en.wikipedia.org/wiki/Sparkline. Requires a list of values to be useful.
+`sparkbarCellRenderer` | A tiny bar chart. Requires a list of values to be useful.
      
- #### errorCellRenderer
-    Renderer for *any* cell considered to be in an error state 
-    
- #### buttonRenderer
-    Paints a button dependent on mousedown state
-    
- #### linkCellRenderer
-    Paint text in a cell that is underline
-    
- #### sparkBarRenderer
-    Paints an implementation of https://en.wikipedia.org/wiki/Sparkline
     
 
 #### Programmatic cell editor association
@@ -55,7 +37,9 @@ The process is the same for `getColumnHeaderCell` for the fixed columns and `get
 For programmatic cell renderer association, you can override it:
 `getCell` needs to return an object with a `paint` method that expects a `2D graphics context` and a config object (described below).
 
-You can optionally set additional fields on config which includes internal properties about the cell in question. This will get passed to your renderer paint function later
+The `getCell` method should first set a default, such as `simpleCellRenderer`, to be returned if not otherwise overridden by your custom logic.
+
+You can optionally set additional properties on config which includes internal properties about the cell in question. This will get passed to your renderer paint function later.
 
 ```javascript
 yourGrid.behavior.cellProvider.getCell = function(config) {
@@ -135,7 +119,7 @@ yourGrid.behavior.cellProvider.getCell = function(config) {
 
 Parameter                       | Description
 ------------------------------  | :---:
-`x`                             | The _untranslated_ column index. The _translated" means that this does not refer to the column currently visible in the grid at this position. Columns can be hidden or re-ordered via the UI or programmatically. which is its position in `yourGrid.behavior.columns` (built from `yourGrid.behavior.dataSource.source.fields`). This means that  which means that the column coordinate 
+`x`                             | The _absolute_ column index. 
 `y`                             | The row index.
 `value`                         | an untyped field that represents contextual information for the cell to present. I.e. for a text cell value you may used this represent stringified data
 `halign`                        | whether to horizontally align 'left', 'right', or 'center'
@@ -155,15 +139,15 @@ Parameter                       | Description
 `Defaults`                      | Based on whether its a Header, Filter or tree cell. The appropriate fields will be loaded from [defaults.js](http://openfin.github.io/fin-hypergrid/doc/module-defaults.html)
 
 __________________
-
++This _absolute_ column index is the column's index into the full column list (both `grid.behavior.allColumns[]` and the data source's `fields[]` array upon which it is based). By comparison, the _active_ column index refers to the list of columns current active in the grid (`grid.behavior.columns[]`), representing the position of the column in the grid. This list is a subset of of the full list because "hidden" columns are excluded and the remaining columns can be re-ordered at any time via the UI or programmatically.
  
 ### Rendering in HyperGrid
 
 Note that HyperGrid...
- - is lazy in regards to rendering. It relies on explicit calls to `YourGrid.repaint()` (which is sometimes called on your behalf), to redraw the canvas. 
- - that multiple calls to `repaint`get throttled to 60 FPS.
- - HyperGrid and canvas does not enable partial re-rendering in the 2D context. Every re-render is a complete re-render.
- - The Gridlines that divide cells and establish their boundaries and painted separately and not apart of an individual cell render.
+- is lazy in regards to rendering. It relies on explicit calls to `YourGrid.repaint()` (sometimes made on your behalf), to request a redraw of the canvas. 
+- throttles multiple calls to `repaint` to 60 FPS.
+- every re-render is a complete re-render; there is no partial re-rendering.
+- for efficiency reasons, the grid lines that divide cells and establish their boundaries and painted separately and not part of the individual cell renders.
 
 
 ### Animating Renderers
