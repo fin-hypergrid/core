@@ -263,6 +263,123 @@ window.onload = function() {
     var upDownSpin = fin.Hypergrid.images['up-down-spin'];
     var downArrow = fin.Hypergrid.images.calendar;
 
+    // CUSTOM CELL RENDERER
+    var REGEXP_CSS_HEX6 = /^#(..)(..)(..)$/,
+        REGEXP_CSS_RGB = /^rgba\((\d+),(\d+),(\d+),\d+\)$/;
+
+    function paintSparkRating(gc, config) {
+        var x = config.bounds.x,
+            y = config.bounds.y,
+            width = config.bounds.width,
+            height = config.bounds.height,
+            options = config.value,
+            domain = options.domain || config.domain || 100,
+            sizeFactor = options.sizeFactor || config.sizeFactor || 0.65,
+            darkenFactor = options.darkenFactor || config.darkenFactor || 0.75,
+            color = options.color || config.color || 'gold',
+            stroke = this.stroke = color === this.color ? this.stroke : getDarkenedColor(gc, this.color = color, darkenFactor),
+            bgColor = config.isSelected ? (options.bgSelColor || config.bgSelColor) : (options.bgColor || config.bgColor),
+            fgColor = config.isSelected ? (options.fgSelColor || config.fgSelColor) : (options.fgColor || config.fgColor),
+            shadowColor = options.shadowColor || config.shadowColor || 'transparent',
+            font = options.font || config.font || '11px verdana',
+            middle = height / 2,
+            diameter = sizeFactor * height,
+            outerRadius = sizeFactor * middle,
+            val = Number(options.val),
+            points = this.points;
+
+        if (!points) {
+            var innerRadius = 3 / 7 * outerRadius;
+            points = this.points = [];
+            for (var i = 5, pi = Math.PI / 2, incr = Math.PI / 5; i; --i, pi += incr) {
+                points.push({
+                    x: outerRadius * Math.cos(pi),
+                    y: middle - outerRadius * Math.sin(pi)
+                });
+                pi += incr;
+                points.push({
+                    x: innerRadius * Math.cos(pi),
+                    y: middle - innerRadius * Math.sin(pi)
+                });
+            }
+            points.push(points[0]); // close the path
+        }
+
+        gc.shadowColor = 'transparent';
+
+        gc.lineJoin = 'round';
+        gc.beginPath();
+        for (var j = 5, sx = x + 5 + outerRadius; j; --j, sx += diameter) {
+            points.forEach(function(point, index) { // eslint-disable-line
+                gc[index ? 'lineTo' : 'moveTo'](sx + point.x, y + point.y); // eslint-disable-line
+            }); // eslint-disable-line
+        }
+        gc.closePath();
+
+        val = val / domain * 5;
+
+        gc.fillStyle = color;
+        gc.save();
+        gc.clip();
+        gc.fillRect(x + 5, y,
+            (Math.floor(val) + 0.25 + val % 1 * 0.5) * diameter, // adjust width to skip over star outlines and just meter their interiors
+            height);
+        gc.restore(); // remove clipping region
+
+        gc.strokeStyle = stroke;
+        gc.lineWidth = 1;
+        gc.stroke();
+
+        if (fgColor && fgColor !== 'transparent') {
+            gc.fillStyle = fgColor;
+            gc.font = '11px verdana';
+            gc.textAlign = 'right';
+            gc.textBaseline = 'middle';
+            gc.shadowColor = shadowColor;
+            gc.shadowOffsetX = gc.shadowOffsetY = 1;
+            gc.fillText(val.toFixed(1), x + width + 10, y + height / 2);
+        }
+    }
+
+    function getDarkenedColor(gc, color, factor) {
+        var rgba = getRGBA(gc, color);
+        return 'rgba(' + Math.round(factor * rgba[0]) + ',' + Math.round(factor * rgba[1]) + ',' + Math.round(factor * rgba[2]) + ',' + (rgba[3] || 1) + ')';
+    }
+
+    function getRGBA(gc, colorSpec) {
+        // Normalize variety of CSS color spec syntaxes to one of two
+        gc.fillStyle = colorSpec;
+        colorSpec = gc.fillStyle;
+
+        var rgba = colorSpec.match(REGEXP_CSS_HEX6);
+        if (rgba) {
+            rgba.shift(); // remove whole match
+            rgba.forEach(function(val, index) {
+                rgba[index] = parseInt(val, 16);
+            });
+        } else {
+            rgba = colorSpec.match(REGEXP_CSS_RGB);
+            if (!rgba) {
+                throw 'Unexpected format getting CanvasRenderingContext2D.fillStyle';
+            }
+            rgba.shift(); // remove whole match
+        }
+
+        return rgba;
+    }
+
+
+    //Extend HyperGrid's base Renderer
+    var sparkStarRatingRenderer = grid.cellRendererBase.extend({
+        paint: paintSparkRating
+    });
+
+    //Register your renderer
+    grid.registerCellRenderer(sparkStarRatingRenderer, 'Starry');
+
+    // END OF CUSTOM CELL RENDERER
+
+
     //all formatting and rendering per cell can be overridden in here
     cellRenderers.getRendererForCell = function(config) {
         var emptyCell = cellRenderers.get('EmptyCell'),
@@ -273,6 +390,7 @@ window.onload = function() {
             treeCell = cellRenderers.get('TreeCell'),
             sparkBarCell = cellRenderers.get('SparkBar'),
             sparkLineCell = cellRenderers.get('SparkLine'),
+            starry = behavior.cellRenderers.get('Starry'),
             renderer = simpleCell;
 
         if (!config.isUserDataArea) {
@@ -384,6 +502,19 @@ window.onload = function() {
             //return sparkBarCell; //WORKS
             //return sliderCell; //WORKS
             //return treeCell; //Need to figure out data shape to test
+
+
+            /*
+             * Test of Customized Renderer
+             */
+            if (starry){
+                config.domain = 5; // default is 100
+                config.sizeFactor =  0.65; // default is 0.65; size of stars as fraction of height of cell
+                config.darkenFactor = 0.75; // default is 0.75; star stroke color as fraction of star fill color
+                config.color = 'gold'; // default is 'gold'; star fill color
+                return starry;
+            }
+
         }
 
         return renderer;
@@ -771,13 +902,13 @@ window.onload = function() {
             // rowHeaderForegroundSelectionColor
             // rowHeaderBackgroundSelectionColor
 
-//                behavior.setCellProperties(idx.TOTAL_NUMBER_OF_PETS_OWNED, 0,
-//                    {
-//                        font: '10pt Tahoma',
-//                        color: 'red',
-//                        backgroundColor: 'lightblue',
-//                        halign: 'left'
-//                    });
+            //                behavior.setCellProperties(idx.TOTAL_NUMBER_OF_PETS_OWNED, 0,
+            //                    {
+            //                        font: '10pt Tahoma',
+            //                        color: 'red',
+            //                        backgroundColor: 'lightblue',
+            //                        halign: 'left'
+            //                    });
 
             behavior.setColumnProperties(idx.LAST_NAME, {
                 color: redIfStartsWithS,
@@ -846,41 +977,41 @@ window.onload = function() {
 
     //});
 
-// var eventNames = [
-//     'dragstart',
-//     'drag',
-//     'mousemove',
-//     'mousedown',
-//     'dragend',
-//     'mouseup',
-//     'mouseout',
-//     'wheelmoved',
-//     'click',
-//     'release',
-//     'flick',
-//     'trackstart',
-//     'track',
-//     'trackend',
-//     'hold',
-//     'holdpulse',
-//     'tap',
-//     'dblclick',
-//     'keydown',
-//     'keyup',
-//     'focus-gained',
-//     'focus-lost',
-//     'context-menu'
-// ];
+    // var eventNames = [
+    //     'dragstart',
+    //     'drag',
+    //     'mousemove',
+    //     'mousedown',
+    //     'dragend',
+    //     'mouseup',
+    //     'mouseout',
+    //     'wheelmoved',
+    //     'click',
+    //     'release',
+    //     'flick',
+    //     'trackstart',
+    //     'track',
+    //     'trackend',
+    //     'hold',
+    //     'holdpulse',
+    //     'tap',
+    //     'dblclick',
+    //     'keydown',
+    //     'keyup',
+    //     'focus-gained',
+    //     'focus-lost',
+    //     'context-menu'
+    // ];
 
-// eventNames.forEach(function(name) {
-//     grid.canvas.addEventListener('fin-canvas-' + name, function(e) {
-//         console.log(e.type);
-//     });
-// });
+    // eventNames.forEach(function(name) {
+    //     grid.canvas.addEventListener('fin-canvas-' + name, function(e) {
+    //         console.log(e.type);
+    //     });
+    // });
 
-// Some DOM support functions...
-// Besides the canvas, this test harness only has a handful of buttons and checkboxes.
-// The following functions service these controls.
+    // Some DOM support functions...
+    // Besides the canvas, this test harness only has a handful of buttons and checkboxes.
+    // The following functions service these controls.
 
     function addToggle(ctrlGroup) {
         var input, label, eventName,

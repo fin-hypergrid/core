@@ -338,6 +338,11 @@ Hypergrid.prototype = {
     registerCellRenderer: cellRenderers.register,
 
     /**
+     * @memberOf Hypergrid.prototype
+     */
+    cellRendererBase: require('./CellRenderers/CellRenderer'),
+
+    /**
      * @see {@link module:cellEditors.register|cellEditors.register}
      * @memberOf Hypergrid.prototype
      */

@@ -13,38 +13,35 @@ All cells in the grid from headers to data, etc., require cell renderers.
 
 ### Default Renderers Available
 
-The [CellProvider Singleton](http://openfin.github.io/fin-hypergrid/doc/CellProvider.html) is the default object that provides cell rendering capability.
-It can be replaced by overriding [behavior](http://openfin.github.io/fin-hypergrid/doc/Behavior.html) `createCellProvider`.
-It comes with the following cell renderers that you can use declaratively.
+The [CellRenderer Base Class](http://openfin.github.io/fin-hypergrid/doc/CellRenderer.html) is the object that provides a empty cell.
+The following cell renderers are available for you to use declaratively. They have been extended from the CellRenderer base.
  
 Cell Renderer | Description
 ------------- | -----------
-`simpleCellRenderer` | Is the normal cell renderer operation which accomodates for images/fonts/text.They will be centered vertical and be placed on horizontally aligned left, right or middle
-`emptyCellRenderer` | Paints a blank cell
-`treeCellRenderer` | Paints a tree cell that accomodates nested data
-`errorCellRenderer` | Renderer for *any* cell considered to be in an error state 
-`buttonRenderer` | Paints a button dependent on mousedown state
-`linkCellRenderer` | Paint text in a cell that is underline
-`sparklineCellRenderer` | Paints an implementation of https://en.wikipedia.org/wiki/Sparkline. Requires a list of values to be useful.
-`sparkbarCellRenderer` | A tiny bar chart. Requires a list of values to be useful.
+`simpleCell` | Is the normal cell renderer operation which accommodates for images/fonts/text.They will be centered vertical and be placed on horizontally aligned left, right or middle
+`emptyCell` | Paints a blank cell. Provided with the base CellRenderer class
+`treeCell` | Paints a tree cell that accommodates nested data
+`errorCell` | Renderer for *any* cell considered to be in an error state 
+`button` | Paints a button dependent on mousedown state
+`lastSeletion` | Renderer for painting a selection rectangle on top of cells 
+`linkCellRenderer` | Simple Cell with the link option set. Paint text in a cell that is underline
+`sparklineCell` | Paints an implementation of https://en.wikipedia.org/wiki/Sparkline. Requires a list of values to be useful.
+`sparkbarCell` | A tiny bar chart. Requires a list of values to be useful.
      
-    
 
 #### Programmatic cell editor association
 
-The Cell Provider's `getCell` method is called when HyperGrid will check which renderer to provide the selected *data* cell. 
-The process is the same for `getColumnHeaderCell` for the fixed columns and `getRowHeaderCell` for the fixed rows
-For programmatic cell renderer association, you can override it:
-`getCell` needs to return an object with a `paint` method that expects a `2D graphics context` and a config object (described below).
+`behavior.cellRenderers` (the collection of cell renderers) `getRendererForCell` method is called when HyperGrid will check which renderer to provide the selected *data* cell. 
+For programmatic cell renderer association, you can override it, keep in mind that `getRendererForCell` needs to always return a CellRenderer.
 
-The `getCell` method should first set a default, such as `simpleCellRenderer`, to be returned if not otherwise overridden by your custom logic.
+It is recommended to first set a default, such as `simpleCell`, to be returned if not otherwise overridden by your custom logic.
 
 You can optionally set additional properties on config which includes internal properties about the cell in question. This will get passed to your renderer paint function later.
 
 ```javascript
-yourGrid.behavior.cellProvider.getCell = function(config) {
+yourGrid.behavior.cellRenderers.getRendererForCell = function(config) {
     //A renderer should always be provided that has a paint function
-    var renderer = cellProvider.cellCache.simpleCellRenderer;
+    var renderer = behavior.cellRenderers.get('SimpleCell');
 
     var x = config.x;
     var y = config.y;
@@ -83,13 +80,15 @@ yourGrid.behavior.cellProvider.getCell = function(config) {
 
     switch (x) {
         case 3:
-            renderer = cellProvider.cellCache.linkCellRenderer;
+            //Turn Simple Cell into a link
+            config.link = true;
             break;
 
         case 4: 
             config.halign = 'center';
-            //config.value = [null, config.value, upDownSpinIMG];
+            renderer = behavior.cellRenderers.get('TreeCell')
             break;
+            
 
         case 5:
             config.halign = 'right';
@@ -100,6 +99,7 @@ yourGrid.behavior.cellProvider.getCell = function(config) {
             config.backgroundColor = '#00' + travel.toString(16) + '00';
             config.color = '#FFFFFF';
             config.halign = 'right';
+            renderer = behavior.cellRenderers.get('SparkBar')
             break;
 
         case 7:
@@ -114,7 +114,7 @@ yourGrid.behavior.cellProvider.getCell = function(config) {
 ```
 
 
-`getCell` is called with the config object providing stateful information about the cell:
+`getRendererForCell` is called with the config object providing stateful information about the cell:
 
 
 Parameter                       | Description
@@ -141,102 +141,29 @@ Parameter                       | Description
 __________________
 +This _absolute_ column index is the column's index into the full column list (both `grid.behavior.allColumns[]` and the data source's `fields[]` array upon which it is based). By comparison, the _active_ column index refers to the list of columns current active in the grid (`grid.behavior.columns[]`), representing the position of the column in the grid. This list is a subset of of the full list because "hidden" columns are excluded and the remaining columns can be re-ordered at any time via the UI or programmatically.
  
-### Rendering in HyperGrid
-
-Note that HyperGrid...
-- is lazy in regards to rendering. It relies on explicit calls to `YourGrid.repaint()` (sometimes made on your behalf), to request a redraw of the canvas. 
-- throttles multiple calls to `repaint` to 60 FPS.
-- every re-render is a complete re-render; there is no partial re-rendering.
-- for efficiency reasons, the grid lines that divide cells and establish their boundaries and painted separately and not part of the individual cell renders.
-
-
-### Animating Renderers
-When wanting to do an animation within a cell renderer, you will need to set your own animation interval for calling  `repaint`
-You can additionally check for grid repaint events by listening on the `fin-grid-rendered` event like so 
-
-```javascript
-    YourGrid.addEventListener('fin-grid-rendered', function(e) {
-       //Do something 
-    });
-```
-### Cells as Links
-Hypergrid supports clickable link cells, to achieve this you need to...
-
-* register a listener to the table for 'fin-cell-click'
-```javascript
-jsonGrid.addFinEventListener('fin-cell-click', function(e){
-    var cell = e.detail.cell;
-    if (cell.x !== 0) {
-        return;
-    }
-    alert('fin-cell-click at (' + cell.x + ', ' + cell.y + ')');
-});
-```
-* override the getCursorAt method on behavior to be a function that returns the string of the name of the cursor for the column with the links
-```javascript
-behavior.getCursorAt = function(x,y) {
-    if (x === 0) {
-        return 'pointer'
-    } else {
-        return null;
-    }
-};
-```
-* override the cell-provider to return the linkRenderer for the desired link columns and set `config.link = true`
-```javascript
-cellProvider.getCell = function(config) {
-    config.link = true;
-    var renderer = cellProvider.cellCache.simpleCellRenderer;
-    config.halign = 'left';
-    var x = config.x;
-    if (x === 0) {
-        renderer = cellProvider.cellCache.linkCellRenderer;
-    } else if (x === 2) {
-    ...
-    ...
-    ...
-}
-```
+All renderers will have access to the context of your [HyperGrid](http://openfin.github.io/fin-hypergrid/doc/Hypergrid.html) object as `this.grid`and hence can make use of function calls like `YourGrid.resolveProperty` to read your defaults.
 
 
 
+### Creating your own renderer
+You can create your own renderer by extending [CellRenderer Base Class](http://openfin.github.io/fin-hypergrid/doc/CellRenderer.html)  
+and overriding the `paint` method that expects a `2D graphics context` and a config object (described above).
 
-### Further Examples
-The following examples are not apart of the HyperGrid defaults but as exploratory pieces. Note the main emphasis is that the renderers would be used by the Cell Provider's `getCell`. Reminder that all renderers
-are expected to have a `paint`
+You would then need to register your new cell renderer on the grid with `YourGrid.registerCellRenderer`
 
-#### Star Rating Renderer Sample Implementation
+#### Here's an example use the Star Rating as the inspiration 
 [Reference](https://openclipart.org/image/2400px/svg_to_png/117079/5-Star-Rating-System-20110205103828.png)
 
+
 ```javascript
+
+
+/*
+   Define your rendering logic
+*/
+
 var REGEXP_CSS_HEX6 = /^#(..)(..)(..)$/,
   REGEXP_CSS_RGB = /^rgba\((\d+),(\d+),(\d+),\d+\)$/;
-
-
-var config = {
-  // these are the important star rating parameters:
-  domain: 100, // default is 100
-  sizeFactor: 0.65, // default is 0.65; size of stars as fraction of height of cell
-  darkenFactor: 0.75, // default is 0.75; star stroke color as fraction of star fill color
-  color: 'gold', // default is 'gold'; star fill color
-  bounds: {
-    x: 50,
-    y: 50,
-    width: 100,
-    height: 24
-  },
-  // these are generally inherited:
-  fgColor: 'grey', // default is 'transparent' (not rendered); text color
-  fgSelColor: 'yellow', // default is 'transparent' (not rendered); text selection color
-  bgColor: '#404040', // default is 'transparent' (not rendered); background color
-  bgSelColor: 'grey', // default is 'transparent' (not rendered); background selection color
-  shadowColor: 'transparent' // default is 'transparent'
-}
-
-var sparkStarRatingRenderer = {
-  paint: paintSparkRating,
-};
-
 
 function paintSparkRating(gc, config) {
   var x = config.bounds.x,
@@ -339,15 +266,100 @@ function getRGBA(colorSpec) {
 }
 
 
+//Extend HyperGrid's base Renderer
+var sparkStarRatingRenderer = YourGrid.cellRendererBase.extend({
+    paint: paintSparkRating
+});
 
-for (var index = 0; index < 10; ++index) {
-  config.value = {
-    val: Math.floor(Math.random() * 100 + 0.5)
-  };
-  config.bounds.y = config.bounds.y + index * 25;
-  sparkStarRatingRenderer.paint(gc, config);
-}
+//Register your renderer
+YourGrid.registerCellRenderer(sparkStarRatingRenderer, "Starry");
+
+//Retrieve the Singleton
+var starry = behavior.cellRenderers.get('Starry');
 
 
+// Using your new render
+yourGrid.behavior.cellRenderers.getRendererForCell = function(config) {
+  var defaultRenderer = behavior.cellRenderers.get('SimpleCell'),
+    idxOfStarColumn = 5;
+
+  if (config.x === idxOfStarColumn){
+    config.domain= 100; // default is 100
+    config.sizeFactor =  0.65; // default is 0.65; size of stars as fraction of height of cell
+    config.darkenFactor = 0.75; // default is 0.75; star stroke color as fraction of star fill color
+    config.color = 'gold'; // default is 'gold'; star fill color
+            // these are generally inherited:
+    config.fgColor: 'grey', // default is 'transparent' (not rendered); text color
+    config.fgSelColor: 'yellow', // default is 'transparent' (not rendered); text selection color
+    config.bgColor: '#404040', // default is 'transparent' (not rendered); background color
+    config.bgSelColor: 'grey', // default is 'transparent' (not rendered); background selection color
+    config.shadowColor: 'transparent' // default is 'transparent'//config.bounds.y = config.bounds.y + index * 25;
+    return starry;
+  } 
+  
+  return defaultRenderer;
+};
 ```
+
+
+### Rendering in HyperGrid
+
+Note that HyperGrid...
+- is lazy in regards to rendering. It relies on explicit calls to `YourGrid.repaint()` (sometimes made on your behalf), to request a redraw of the canvas. 
+- throttles multiple calls to `repaint` to 60 FPS.
+- every re-render is a complete re-render; there is no partial re-rendering.
+- for efficiency reasons, the grid lines that divide cells and establish their boundaries and painted separately and not part of the individual cell renders.
+
+
+### Animating Renderers
+When wanting to do an animation within a cell renderer, you will need to set your own animation interval for calling  `repaint`
+You can additionally check for grid repaint events by listening on the `fin-grid-rendered` event like so 
+
+```javascript
+    YourGrid.addEventListener('fin-grid-rendered', function(e) {
+       //Do something 
+    });
+```
+
+
+### Cells as Links
+Hypergrid supports clickable link cells, to achieve this you need to...
+
+* register a listener to the table for 'fin-cell-click'
+```javascript
+jsonGrid.addFinEventListener('fin-cell-click', function(e){
+    var cell = e.detail.cell;
+    if (cell.x !== 0) {
+        return;
+    }
+    alert('fin-cell-click at (' + cell.x + ', ' + cell.y + ')');
+});
+```
+* override the getCursorAt method on behavior to be a function that returns the string of the name of the cursor for the column with the links
+```javascript
+behavior.getCursorAt = function(x,y) {
+    if (x === 0) {
+        return 'pointer'
+    } else {
+        return null;
+    }
+};
+```
+* override the cell-provider to return the linkRenderer for the desired link columns and set `config.link = true`
+```javascript
+behavior.cellRenderers.getRendererForCell = function(config) {
+    config.link = true;
+    var renderer = behavior.cellRenderers.get('SimpleCell');
+    config.halign = 'left';
+    var x = config.x;
+    if (x === 0) {
+        config.link = true;
+    } else if (x === 2) {
+    ...
+    ...
+    ...
+}
+```
+
+
 
