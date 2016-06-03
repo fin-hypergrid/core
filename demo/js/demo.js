@@ -497,7 +497,7 @@ window.onload = function() {
             //return emptyCell; //WORKS
             //return buttonCell; //WORKS
             //return errorCell; //WORKS: Noted that any error in this function steals the main thread by recursion
-            // return sparkLineCell; // WORKS
+            //return sparkLineCell; // WORKS
             //return sparkBarCell; //WORKS
             //return sliderCell; //WORKS
             //return treeCell; //Need to figure out data shape to test

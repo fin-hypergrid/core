@@ -47,7 +47,7 @@
         var person = {
             last_name: lastNames[lastName], //jshint ignore:line
             first_name: firstNames[firstName], //jshint ignore:line
-            total_number_of_pets_owned: sparkData,
+            total_number_of_pets_owned: pets,
             height: height,
             birthDate: new Date(birthyear + '-' + months[birthmonth] + '-' + days[birthday]),
             birthState: states[birthstate],
