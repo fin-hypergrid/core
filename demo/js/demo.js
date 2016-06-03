@@ -497,7 +497,7 @@ window.onload = function() {
             //return emptyCell; //WORKS
             //return buttonCell; //WORKS
             //return errorCell; //WORKS: Noted that any error in this function steals the main thread by recursion
-            //return sparkLineCell; // WORKS
+            // return sparkLineCell; // WORKS
             //return sparkBarCell; //WORKS
             //return sliderCell; //WORKS
             //return treeCell; //Need to figure out data shape to test
@@ -506,18 +506,18 @@ window.onload = function() {
             /*
              * Test of Customized Renderer
              */
-            if (starry){
-                config.domain = 5; // default is 100
-                config.sizeFactor =  0.65; // default is 0.65; size of stars as fraction of height of cell
-                config.darkenFactor = 0.75; // default is 0.75; star stroke color as fraction of star fill color
-                config.color = 'gold'; // default is 'gold'; star fill color
-                config.fgColor =  'grey'; // default is 'transparent' (not rendered); text color
-                config.fgSelColor = 'yellow'; // default is 'transparent' (not rendered); text selection color
-                config.bgColor = '#404040'; // default is 'transparent' (not rendered); background color
-                config.bgSelColor = 'grey'; // default is 'transparent' (not rendered); background selection color
-                config.shadowColor = 'transparent'; // default is 'transparent'
-                return starry;
-            }
+            // if (starry){
+            //     config.domain = 5; // default is 100
+            //     config.sizeFactor =  0.65; // default is 0.65; size of stars as fraction of height of cell
+            //     config.darkenFactor = 0.75; // default is 0.75; star stroke color as fraction of star fill color
+            //     config.color = 'gold'; // default is 'gold'; star fill color
+            //     config.fgColor =  'grey'; // default is 'transparent' (not rendered); text color
+            //     config.fgSelColor = 'yellow'; // default is 'transparent' (not rendered); text selection color
+            //     config.bgColor = '#404040'; // default is 'transparent' (not rendered); background color
+            //     config.bgSelColor = 'grey'; // default is 'transparent' (not rendered); background selection color
+            //     config.shadowColor = 'transparent'; // default is 'transparent'
+            //     return starry;
+            // }
 
         }
 

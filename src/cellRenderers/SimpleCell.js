@@ -11,10 +11,11 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
      * @summary The default cell rendering function for rendering a vanilla cell.
      * @desc Great care has been taken in crafting this function as it needs to perform extremely fast. Reads on the gc object are expensive but not quite as expensive as writes to it. We do our best to avoid writes, then avoid reads. Clipping bounds are not set here as this is also an expensive operation. Instead, we truncate overflowing text and content by filling a rectangle with background color column by column instead of cell by cell.  This column by column fill happens higher up on the stack in a calling function from fin-hypergrid-renderer.  Take note we do not do cell by cell border renderering as that is expensive.  Instead we render many fewer gridlines after all cells are rendered.
      * @param {CanvasGraphicsContext} gc
-     * @param {number} config.bounds.x - the x screen coordinate of my origin
-     * @param {number} config.bounds.y - the y screen coordinate of my origin
-     * @param {number} config.bounds.width - the width I'm allowed to draw within
-     * @param {number} config.bounds.height - the height I'm allowed to draw within
+     * @param {object} config
+     * @param {Rectangle} config.bounds - The bounding rect of the cell to be rendered.
+     * @param config.x - The cell column position
+     * @param config.y - The cell row position
+     * @memberOf SimpleCell.prototype
      */
     paint: function(gc, config) {
         var val = config.value,
@@ -147,12 +148,12 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
     },
 
     /**
-     * @summary Renders multiline text
+     * @summary Renders single line text.
      * @param {CanvasGraphicsContext} gc
-     * @param {number} config.bounds.x - the x screen coordinate of my origin
-     * @param {number} config.bounds.y - the y screen coordinate of my origin
-     * @param {number} config.bounds.width - the width I'm allowed to draw within
-     * @param {number} config.bounds.height - the height I'm allowed to draw within
+     * @param {object} config
+     * @param {Rectangle} config.bounds - The bounding rect of the cell to be rendered.
+     * @param {*} val - The text to render in the cell.
+     * @memberOf SimpleCell.prototype
      */
     renderMultiLineText: function(gc, config, val) {
         var x = config.bounds.x,
@@ -205,10 +206,10 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
     /**
      * @summary Renders single line text.
      * @param {CanvasGraphicsContext} gc
-     * @param {number} config.bounds.x - the x screen coordinate of my origin
-     * @param {number} config.bounds.y - the y screen coordinate of my origin
-     * @param {number} config.bounds.width - the width I'm allowed to draw within
-     * @param {number} config.bounds.height - the height I'm allowed to draw within
+     * @param {object} config
+     * @param {Rectangle} config.bounds - The bounding rect of the cell to be rendered.
+     * @param {*} val - The text to render in the cell.
+     * @memberOf SimpleCell.prototype
      */
     renderSingleLineText: function(gc, config, val) {
         var x = config.bounds.x,

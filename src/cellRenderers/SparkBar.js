@@ -5,15 +5,16 @@ var CellRenderer = require('./CellRenderer');
 /**
  * @constructor
  */
-var Sparkbar = CellRenderer.extend('Sparkbar', {
+var SparkBar = CellRenderer.extend('SparkBar', {
 
     /**
      * @desc A simple implementation of a sparkline, because it's a barchart we've changed the name ;).
      * @param {CanvasGraphicsContext} gc
-     * @param {number} config.bounds.x - the x screen coordinate of my origin
-     * @param {number} config.bounds.y - the y screen coordinate of my origin
-     * @param {number} config.bounds.width - the width I'm allowed to draw within
-     * @param {number} config.bounds.height - the height I'm allowed to draw within
+     * @param {object} config
+     * @param {Rectangle} config.bounds - The bounding rect of the cell to be rendered.
+     * @param config.x - The cell column position
+     * @param config.y - The cell row position
+     * @memberOf SparkBar.prototype
      */
     paint: function(gc, config) {
         var x = config.bounds.x,
@@ -47,4 +48,4 @@ var Sparkbar = CellRenderer.extend('Sparkbar', {
     },
 });
 
-module.exports = Sparkbar;
+module.exports = SparkBar;
