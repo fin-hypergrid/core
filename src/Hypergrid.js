@@ -16,6 +16,7 @@ var _ = require('object-iterators'); // fyi: installs the Array.prototype.find p
 
 var defaults = require('./defaults');
 var cellEditors = require('./cellEditors');
+var cellRenderers = require('./cellRenderers');
 var Renderer = require('./lib/Renderer');
 var SelectionModel = require('./lib/SelectionModel');
 var stylesheet = require('./lib/stylesheet');
@@ -102,6 +103,7 @@ function Hypergrid(div, options) {
     this.initRenderer();
     this.initCanvas(margin);
     this.initScrollbars();
+    this.registerStandardRenderers();
 
     //Register a listener for the copy event so we can copy our selected region to the pastebuffer if conditions are right.
     document.body.addEventListener('copy', function(evt) {
@@ -316,6 +318,24 @@ Hypergrid.prototype = {
         var formatter = this.getFormatter(localizerName);
         return formatter(value);
     },
+
+    registerStandardRenderers: function(){
+        this.registerCellRenderer(require('./CellRenderers/CellRenderer'), 'EmptyCell');
+        this.registerCellRenderer(require('./CellRenderers/Button'));
+        this.registerCellRenderer(require('./CellRenderers/SimpleCell'));
+        this.registerCellRenderer(require('./CellRenderers/SliderCell'));
+        this.registerCellRenderer(require('./CellRenderers/SparkBar'));
+        this.registerCellRenderer(require('./CellRenderers/LastSelection'));
+        this.registerCellRenderer(require('./CellRenderers/SparkLine'));
+        this.registerCellRenderer(require('./CellRenderers/ErrorCell'));
+        this.registerCellRenderer(require('./CellRenderers/TreeCell'));
+    },
+
+    /**
+     * @see {@link module:cellRenderers.register|cellEditors.register}
+     * @memberOf Hypergrid.prototype
+     */
+    registerCellRenderer: cellRenderers.register,
 
     /**
      * @see {@link module:cellEditors.register|cellEditors.register}
@@ -551,12 +571,11 @@ Hypergrid.prototype = {
 
     /**
      * @memberOf Hypergrid.prototype
-     * @desc The CellProvider is accessed through Hypergrid because Hypergrid is the mediator and should have ultimate control on where it comes from. The default is to delegate through the behavior object.
+     * @desc The CellRenderer is accessed through Hypergrid because Hypergrid is the mediator and should have ultimate control on where it comes from. The default is to delegate through the behavior object.
      * @returns {fin-hypergrid-cell-provider}
      */
-    getCellProvider: function() {
-        var provider = this.behavior.getCellProvider();
-        return provider;
+    getCellRenderers: function() {
+        return this.behavior.getCellRenderers();
     },
 
     /**

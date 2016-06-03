@@ -597,7 +597,7 @@ var Renderer = Base.extend('Renderer', {
                 height: height
             }
         };
-        this.grid.behavior.getCellProvider().paintLastSelection(gc, config);
+        this.grid.behavior.getCellRenderers().get('LastSelection').paint(gc, config);
     },
 
     /**
@@ -794,7 +794,7 @@ var Renderer = Base.extend('Renderer', {
      * @param {CanvasRenderingContext2D} gc
      */
     paintCells: function(gc) {
-        var renderCellError,
+        var errorCellRenderer,
             message,
             config = {},
             x, y,
@@ -825,7 +825,7 @@ var Renderer = Base.extend('Renderer', {
 
                 c = visibleCols[x];
                 this.renderedColumnMinWidths[c] = 0;
-                renderCellError = behavior.getCellProvider().cellCache.cellErrorRenderer;
+                errorCellRenderer = behavior.getCellRenderers().get('ErrorCell');
 
                 gc.save();
 
@@ -853,7 +853,7 @@ var Renderer = Base.extend('Renderer', {
 
                         console.error(message);
 
-                        if (renderCellError) {
+                        if (errorCellRenderer) {
                             var rawGc = gc.gc || gc, // Don't log these canvas calls
                                 errY = rowEdges[y],
                                 errHeight = rowEdges[y + 1] - errY;
@@ -870,7 +870,7 @@ var Renderer = Base.extend('Renderer', {
                                     width: clipWidth
                                 }
                             };
-                            renderCellError.paint(rawGc, config, message);
+                            errorCellRenderer.paint(rawGc, config, message);
 
                             rawGc.restore(); // discard clipping region
                         }

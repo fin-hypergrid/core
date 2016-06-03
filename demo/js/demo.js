@@ -233,8 +233,8 @@ window.onload = function() {
         color: 'green'
     });
 
-    //get the cell cellProvider for altering cell renderers
-    var cellProvider = behavior.getCellProvider();
+    //get the cell renderers
+    var cellRenderers = behavior.getCellRenderers();
 
     //set the actual json row objects
     //setData(people); //see sampledata.js for the random data
@@ -264,8 +264,16 @@ window.onload = function() {
     var downArrow = fin.Hypergrid.images.calendar;
 
     //all formatting and rendering per cell can be overridden in here
-    cellProvider.getCell = function(config) {
-        var renderer = cellProvider.cellCache.simpleCellRenderer;
+    cellRenderers.getRendererForCell = function(config) {
+        var emptyCell = cellRenderers.get('EmptyCell'),
+            simpleCell = cellRenderers.get('SimpleCell'),
+            errorCell = cellRenderers.get('ErrorCell'),
+            buttonCell = cellRenderers.get('Button'),
+            sliderCell = cellRenderers.get('SliderCell'),
+            treeCell = cellRenderers.get('TreeCell'),
+            sparkBarCell = cellRenderers.get('SparkBar'),
+            sparkLineCell = cellRenderers.get('SparkLine'),
+            renderer = simpleCell;
 
         if (!config.isUserDataArea) {
             return renderer;
@@ -286,6 +294,7 @@ window.onload = function() {
         var travel;
 
         config.halign = 'left';
+
 
         if (styleRowsFromData) {
             var pets = behavior.getColumn(idx.TOTAL_NUMBER_OF_PETS_OWNED).getValue(y),
@@ -323,7 +332,7 @@ window.onload = function() {
 
         switch (x) {
             case idx.LAST_NAME:
-                renderer = cellProvider.cellCache.linkCellRenderer;
+                config.link = true;
                 break;
 
             case idx.TOTAL_NUMBER_OF_PETS_OWNED:
@@ -343,7 +352,7 @@ window.onload = function() {
                 break;
 
             case idx.EMPLOYED:
-                renderer = cellProvider.cellCache.buttonRenderer;
+                renderer = buttonCell;
                 break;
 
             case idx.INCOME:
@@ -361,22 +370,20 @@ window.onload = function() {
                 break;
         }
 
-
         //Testing
         if (x === idx.TOTAL_NUMBER_OF_PETS_OWNED){
             /*
-            * Be sure to adjust the dataset to the appropriate type and shape in widedata.js
-            */
+             * Be sure to adjust the dataset to the appropriate type and shape in widedata.js
+             */
 
-            //return cellProvider.cellCache.simpleCellRenderer; //WORKS
-            //return cellProvider.cellCache.emptyCellRenderer; //WORKS: By Default
-            //return cellProvider.cellCache.buttonRenderer; //WORKS
-            //return cellProvider.cellCache.linkCellRenderer; //WORKS: Need to set config.link = true;
-            //return cellProvider.cellCache.cellErrorRenderer; //WORKS: Noted that any error in this function steals the main thread by recursion
-            //return cellProvider.cellCache.sparklineCellRenderer; // WORKS
-            //return cellProvider.cellCache.sparkbarCellRenderer; //WORKS
-            //return cellProvider.cellCache.sliderCellRenderer; //WORKS
-            //return cellProvider.cellCache.treeCellRenderer; //Need to figure out data shape to test
+            //return simpleCell; //WORKS
+            //return emptyCell; //WORKS
+            //return buttonCell; //WORKS
+            //return errorCell; //WORKS: Noted that any error in this function steals the main thread by recursion
+            //return sparkLineCell; // WORKS
+            //return sparkBarCell; //WORKS
+            //return sliderCell; //WORKS
+            //return treeCell; //Need to figure out data shape to test
         }
 
         return renderer;
@@ -427,7 +434,7 @@ window.onload = function() {
         currency: 'EUR'
     }), true);
 
-    //used by the cellProvider, `null` means column not editable (except filter row)
+    //used by the cellEditors, `null` means column not editable (except filter row)
     var editorTypes = [
         'combobox',
         'textfield',
