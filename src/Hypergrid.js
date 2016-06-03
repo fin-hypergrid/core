@@ -40,7 +40,7 @@ var themeInitialized = false,
  * * Omit to generate a basic schema from `this.behavior.columns`.
  * @param {Behavior} [options.Behavior=JSON] - A grid behavior (descendant of Behavior "class"). Will be used if `getBehavior` omitted, in which case `options.data` (which has no default) *must* also be provided.
  * @param {string} [options.localization=Hypergrid.localization]
- * @param {string} [options.localization.locale=Hypergrid.localization.locale] - The default locale to use when an explicit `locale` is omitted from localizer constructor calls.
+ * @param {string|string[]} [options.localization.locale=Hypergrid.localization.locale] - The default locale to use when an explicit `locale` is omitted from localizer constructor calls. Passed to Intl.NumberFomrat` and `Intl.DateFomrat`. See {@ https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl#Locale_identification_and_negotiation|Locale identification and negotiation} for more information.
  * @param {string} [options.localization.numberOptions=Hypergrid.localization.numberOptions] - Options passed to `Intl.NumberFomrat` for creating the basic "number" localizer.
  * @param {string} [options.localization.dateOptions=Hypergrid.localization.dateOptions] - Options passed to `Intl.DateFomrat` for creating the basic "date" localizer.
  * @param {object} [options.margin] - optional canvas margins
@@ -3569,7 +3569,7 @@ function valOrFunc(vf) {
 /**
  * @summary Shared localization defaults for all grid instances.
  * @desc These property values are overridden by those supplied in the `Hypergrid` constructor's `options.localization`.
- * @property {string} [options.localization.defaultLocale] - The default locale to use when an explicit `locale` is omitted from localizer constructor calls. Omitting will use the client's local language and region.
+ * @property {string|string[]} [options.localization.defaultLocale] - The default locale to use when an explicit `locale` is omitted from localizer constructor calls. Passed to Intl.NumberFomrat` and `Intl.DateFomrat`. See {@ https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl#Locale_identification_and_negotiation|Locale identification and negotiation} for more information. Omitting will use the runtime's local language and region.
  * @property {object} [options.localization.numberOptions] - Options passed to `Intl.NumberFomrat` for creating the basic "number" localizer.
  * @property {object} [options.localization.dateOptions] - Options passed to `Intl.DateFomrat` for creating the basic "date" localizer.
  */
