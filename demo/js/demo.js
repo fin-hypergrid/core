@@ -349,7 +349,6 @@ window.onload = function() {
     function getRGBA(gc, colorSpec) {
         // Normalize variety of CSS color spec syntaxes to one of two
         gc.fillStyle = colorSpec;
-        colorSpec = gc.fillStyle;
 
         var rgba = colorSpec.match(REGEXP_CSS_HEX6);
         if (rgba) {
@@ -512,6 +511,11 @@ window.onload = function() {
                 config.sizeFactor =  0.65; // default is 0.65; size of stars as fraction of height of cell
                 config.darkenFactor = 0.75; // default is 0.75; star stroke color as fraction of star fill color
                 config.color = 'gold'; // default is 'gold'; star fill color
+                config.fgColor =  'grey'; // default is 'transparent' (not rendered); text color
+                config.fgSelColor = 'yellow'; // default is 'transparent' (not rendered); text selection color
+                config.bgColor = '#404040'; // default is 'transparent' (not rendered); background color
+                config.bgSelColor = 'grey'; // default is 'transparent' (not rendered); background selection color
+                config.shadowColor = 'transparent'; // default is 'transparent'
                 return starry;
             }
 
