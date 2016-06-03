@@ -119,24 +119,34 @@ yourGrid.behavior.cellRenderers.getCell = function(config) {
 
 Parameter                       | Description
 ------------------------------  | :---:
-`x`                             | The _absolute_ column index. 
-`y`                             | The row index.
-`value`                         | an untyped field that represents contextual information for the cell to present. I.e. for a text cell value you may used this represent stringified data
-`halign`                        | whether to horizontally align 'left', 'right', or 'center'
+`backgroundColor`               | Color of the background
+`backgroundSelectionColor`      | Color of the background when its selected
 `bounds`                        | The region which the renderer's paint function should confine itself to
+`buttonCells`                   | Allowing button cells to identify themselves
+`color`                         | 
+`Defaults`                      | Based on whether its a Header, Filter or tree cell. The appropriate fields will be loaded from [defaults.js](http://openfin.github.io/fin-hypergrid/doc/module-defaults.html)
+`font`                          | Font
+`foregroundSelectionColor`      | Color of foreground when its selected
+`foregroundSelectionFont`       | Color of the font when selected
+`formatValue`                   | Allow a localization of data
+`halign`                        | Whether to horizontally align 'left', 'right', or 'center'
+`isCellHovered`                 | If the cell is hovered by mouse
 `isCellSelected`                | If the cell was selected specifically
-`isCellHovered`                 |  If the cell is hovered by mouse
-`isColumnSelected`              | If the column the cell is in is selected
 `isColumnHovered`               | If the column the cell is is in is hovered
+`isColumnSelected`              | If the column the cell is in is selected
+`isGridColumn`                  | If its a header Column
+`isGridRow`                     | If its a header row
+`isInCurrentSelectionRectangle` | If the cell is in the current selection matrix
 `isRowHovered`                  | If the row the cell is is in is hovered
 `isRowSelected`                 | If the row the cell is is in is selected
-`isInCurrentSelectionRectangle` | If the cell is in the current selection matrix
-`mouseDown`                     | If the mouse is down on the cell
-`buttonCells`                   | Allowing button cells to identify themselves
 `isUserDataArea`                | If the cell holds actual user data
-`formatValue`                   | Allow a localization of data
+`mouseDown`                     | If the mouse is down on the cell
 `preferredWidth`                | Minimum recommended width for the cell's containing column
-`Defaults`                      | Based on whether its a Header, Filter or tree cell. The appropriate fields will be loaded from [defaults.js](http://openfin.github.io/fin-hypergrid/doc/module-defaults.html)
+`untranslatedX`                 | 
+`untranslatedY`                 |
+`value`                         | an untyped field that represents contextual information for the cell to present. I.e. for a text cell value you may used this represent stringified data
+`x`                             | The _absolute_ column index. 
+`y`                             | The row index.
 
 __________________
 +This _absolute_ column index is the column's index into the full column list (both `grid.behavior.allColumns[]` and the data source's `fields[]` array upon which it is based). By comparison, the _active_ column index refers to the list of columns current active in the grid (`grid.behavior.columns[]`), representing the position of the column in the grid. This list is a subset of of the full list because "hidden" columns are excluded and the remaining columns can be re-ordered at any time via the UI or programmatically.
