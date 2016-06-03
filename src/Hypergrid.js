@@ -39,7 +39,10 @@ var themeInitialized = false,
  * * A function returning a schema array. Called at filter reset time with behavior as context.
  * * Omit to generate a basic schema from `this.behavior.columns`.
  * @param {Behavior} [options.Behavior=JSON] - A grid behavior (descendant of Behavior "class"). Will be used if `getBehavior` omitted, in which case `options.data` (which has no default) *must* also be provided.
- * @param {string} [options.locale=Hypergrid.defaultDefaultLocale] - The default locale for localizers. Used primarily when the `locale` parameters is omitted from localizer constructor calls.
+ * @param {string} [options.localization=Hypergrid.localization]
+ * @param {string} [options.localization.locale=Hypergrid.localization.locale] - The default locale to use when an explicit `locale` is omitted from localizer constructor calls.
+ * @param {string} [options.localization.numberOptions=Hypergrid.localization.numberOptions] - Options passed to `Intl.NumberFomrat` for creating the basic "number" localizer.
+ * @param {string} [options.localization.dateOptions=Hypergrid.localization.dateOptions] - Options passed to `Intl.DateFomrat` for creating the basic "date" localizer.
  * @param {object} [options.margin] - optional canvas margins
  * @param {string} [options.margin.top=0]
  * @param {string} [options.margin.right='-200px']
@@ -66,7 +69,12 @@ function Hypergrid(div, options) {
     var Behavior = options.Behavior || behaviors.JSON;
     this.behavior = new Behavior(this, options.schema, data);
 
-    this.localization = new Localization(options.locale || Hypergrid.defaultDefaultLocale);
+    var loc = options.localization || {};
+    this.localization = new Localization(
+        loc.locale || Hypergrid.localization.locale,
+        loc.numberOptions || Hypergrid.localization.numberOptions,
+        loc.dateOptions || Hypergrid.localization.dateOptions
+    );
 
     //prevent the default context menu for appearing
     this.div.oncontextmenu = function(event) {
@@ -3558,6 +3566,17 @@ function valOrFunc(vf) {
     return result || result === 0 ? result : '';
 }
 
-Hypergrid.defaultDefaultLocale = 'en-US';
+/**
+ * @summary Shared localization defaults for all grid instances.
+ * @desc These property values are overridden by those supplied in the `Hypergrid` constructor's `options.localization`.
+ * @property {string} [options.localization.defaultLocale] - The default locale to use when an explicit `locale` is omitted from localizer constructor calls. Omitting will use the client's local language and region.
+ * @property {object} [options.localization.numberOptions] - Options passed to `Intl.NumberFomrat` for creating the basic "number" localizer.
+ * @property {object} [options.localization.dateOptions] - Options passed to `Intl.DateFomrat` for creating the basic "date" localizer.
+ */
+
+Hypergrid.localization = {
+    locale: 'en-US',
+    numberOptions: { maximumFractionDigits: 0 }
+};
 
 module.exports = Hypergrid;

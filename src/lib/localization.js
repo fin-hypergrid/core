@@ -63,6 +63,8 @@ var NumberFormatter = Formatter.extend('NumberFormatter', {
 
         /**
          * @summary A string containing the valid characters.
+         * @desc Contains all localized digits + localized decimal point.
+         * If we're accepting standard digits, will also contain all the standard digits + standard decimal point (if different than localized versions).
          * @type {string}
          * @private
          * @desc Localized digits and decimal point. Will also include standardized digits and decimal point if `options.acceptStandardDigits` is truthy.
@@ -72,7 +74,7 @@ var NumberFormatter = Formatter.extend('NumberFormatter', {
          */
         this.map = mapper(10123456789.5).substr(1, 11); // localized '0123456789.'
 
-        if (options.acceptStandardDigits) {
+        if (options.acceptStandardDigits && this.map !== '0123456789.') {
             this.map += '0123456789.';  // standard '0123456789.'
         }
 
@@ -96,8 +98,8 @@ var NumberFormatter = Formatter.extend('NumberFormatter', {
          */
         this.invalids = new RegExp(
             '[^' +
-            this.format(123467890.5) +
-            (options.acceptStandardDigits ? '0123456789.' : '') +
+            this.format(11111).replace(this.map[1], '') + // thousands separator if in use
+            this.map + // digits + decimal point
             ']'
         );
     },
@@ -302,9 +304,11 @@ function parseDigit(c) {
  *
  * The application developer is free to add localizers and localizer factory methods. See the {@link Localization#construct|construct} convenience method which may be helpful in this regard.
  * @param locale
+ * @param {object} [numberOptions]
+ * @param {object} [dateOptions]
  * @constructor
  */
-function Localization(locale) {
+function Localization(locale, numberOptions, dateOptions) {
     this.locale = locale;
 
     /**
@@ -312,21 +316,13 @@ function Localization(locale) {
      * @see The {@link NumberFormatter|NumberFormatter} class
      * @memberOf Localization.prototype
      */
-    this.int = this.float = this.construct('number', NumberFormatter);
+    this.int = this.float = this.construct('number', NumberFormatter, numberOptions);
 
     /**
      * @see The {@link DateFormatter|DateFormatter} class
      * @memberOf Localization.prototype
      */
-    this.construct('date', DateFormatter);
-
-
-    /**
-     * @summary Hash of objects conforming to the .
-     * @desc Expandable with additional members.
-     * @type {object}
-     * @memberOf Localization.prototype
-     */
+    this.construct('date', DateFormatter, dateOptions);
 }
 
 Localization.prototype = {

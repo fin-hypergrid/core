@@ -74,7 +74,8 @@ var DataModel = Base.extend('DataModel', {
             columnProperties,
             column = this.grid.behavior.getColumn(x);
 
-        var editorName = (cellProperties = column.getCellProperties(y) || {}).editor ||
+        var editorName =
+            (cellProperties = column.getCellProperties(y)).editor ||
             (columnProperties = column.getProperties()).editor;
 
         if (!editorName && editorName !== null) { // null means don't fallback to format
