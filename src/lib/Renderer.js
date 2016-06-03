@@ -1052,6 +1052,8 @@ var Renderer = Base.extend('Renderer', {
         cellProperties.isRowSelected = isRowSelected;
         cellProperties.isColumnSelected = isColumnSelected;
         cellProperties.isInCurrentSelectionRectangle = grid.isInCurrentSelectionRectangle(c, r);
+        cellProperties.selectionRegionOverlayColor = grid.resolveProperty('selectionRegionOverlayColor');
+        cellProperties.selectionRegionOutlineColor = grid.resolveProperty('selectionRegionOutlineColor');
 
         if (grid.mouseDownState) {
             var point = grid.mouseDownState.gridCell;

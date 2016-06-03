@@ -35,10 +35,10 @@ var LastSelection = CellRenderer.extend('LastSelection', {
             [4, 5, 1, 0]
         ];
         gc.rect(x, y, width, height);
-        gc.fillStyle = this.grid.resolveProperty('selectionRegionOverlayColor');
+        gc.fillStyle = config.selectionRegionOverlayColor;
         gc.fill();
         gc.lineWidth = 1;
-        gc.strokeStyle = this.grid.resolveProperty('selectionRegionOutlineColor');
+        gc.strokeStyle = config.selectionRegionOutlineColor;
 
         // animate the dashed line a bit here for fun
 

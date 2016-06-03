@@ -122,13 +122,15 @@ Parameter                       | Description
 `backgroundColor`               | Color of the background
 `backgroundSelectionColor`      | Color of the background when its selected
 `bounds`                        | The region which the renderer's paint function should confine itself to
-`buttonCells`                   | Allowing button cells to identify themselves
-`color`                         | 
+`buttonCells`                   | Array of cells that are buttons
+`color`                         | Font Color
 `Defaults`                      | Based on whether its a Header, Filter or tree cell. The appropriate fields will be loaded from [defaults.js](http://openfin.github.io/fin-hypergrid/doc/module-defaults.html)
 `font`                          | Font
 `foregroundSelectionColor`      | Color of foreground when its selected
 `foregroundSelectionFont`       | Color of the font when selected
 `formatValue`                   | Allow a localization of data
+`getTextHeight`                 | Function. Returns height of text
+`getTextWidth`                 | Function. Returns width of text
 `halign`                        | Whether to horizontally align 'left', 'right', or 'center'
 `isCellHovered`                 | If the cell is hovered by mouse
 `isCellSelected`                | If the cell was selected specifically
@@ -140,6 +142,8 @@ Parameter                       | Description
 `isRowHovered`                  | If the row the cell is is in is hovered
 `isRowSelected`                 | If the row the cell is is in is selected
 `isUserDataArea`                | If the cell holds actual user data
+`selectionRegionOutlineColor`   | Borders of selected cells
+`selectionRegionOverlayColor`   | Color of selected cells
 `mouseDown`                     | If the mouse is down on the cell
 `preferredWidth`                | Minimum recommended width for the cell's containing column
 `untranslatedX`                 | 

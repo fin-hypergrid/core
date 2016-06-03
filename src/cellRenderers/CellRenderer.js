@@ -6,21 +6,9 @@ var Base = require('./../lib/Base');
  * @desc Instances of CellRenderers are used to render the 2D graphics context within the bound of a cell. Extend this base class to implement your own cell renderer
  *
  *
- * See {@link CellRenderer#initialize|initialize} which is called by the constructor.
  * See also {@tutorial cell-renderer}.
  */
 var CellRenderer = Base.extend('CellRenderer', {
-
-    /**
-     * @summary Constructor logic
-     * @desc This method will be called upon instantiation of this class or of any class that extends from this class.
-     * > All `initialize()` methods in the inheritance chain are called, in turn, each with the same parameters that were passed to the constructor, beginning with that of the most "senior" class through that of the class of the new instance.
-     * @memberOf CellRenderer.prototype
-     */
-    initialize: function(grid) {
-        this.grid = grid;
-    },
-
     /**
      * @desc An empty implementation of a cell renderer, see [the null object pattern](http://c2.com/cgi/wiki?NullObject).
      * @param {CanvasGraphicsContext} gc

@@ -30,11 +30,9 @@ var SparkLine = CellRenderer.extend('SparkLine', {
         var count = val.length;
         var eWidth = width / count;
 
-        //var selColor = this.grid.resolveProperty('selectionRegionOverlayColor')
-
-        var fgColor = this.config.isSelected ? 'blue' : 'red';
+        var fgColor = this.config.isSelected ? this.config.foregroundSelectionColor : this.config.color;
         if (this.config.backgroundColor || this.config.isSelected) {
-            gc.fillStyle = this.config.isSelected ? 'blue' : this.config.backgroundColor;
+            gc.fillStyle = this.config.isSelected ? this.config.backgroundSelectionColor : this.config.backgroundColor;
             gc.fillRect(x, y, width, height);
         }
         gc.strokeStyle = fgColor;
