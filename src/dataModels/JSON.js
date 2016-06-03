@@ -796,7 +796,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
         config.untranslatedX = untranslatedX;
         config.untranslatedY = untranslatedY;
 
-        renderer = renderers.getRendererForCell(config);
+        renderer = renderers.getCell(config);
         renderer.config = config;
 
         return renderer;

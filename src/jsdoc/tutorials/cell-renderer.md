@@ -31,15 +31,15 @@ Cell Renderer | Description
 
 #### Programmatic cell editor association
 
-`behavior.cellRenderers` (the collection of cell renderers) `getRendererForCell` method is called when HyperGrid will check which renderer to provide the selected *data* cell. 
-For programmatic cell renderer association, you can override it, keep in mind that `getRendererForCell` needs to always return a CellRenderer.
+`behavior.cellRenderers` (the collection of cell renderers) `getCell` method is called when HyperGrid will check which renderer to provide the selected *data* cell. 
+For programmatic cell renderer association, you can override it, keep in mind that `getCell` needs to always return a CellRenderer.
 
 It is recommended to first set a default, such as `simpleCell`, to be returned if not otherwise overridden by your custom logic.
 
 You can optionally set additional properties on config which includes internal properties about the cell in question. This will get passed to your renderer paint function later.
 
 ```javascript
-yourGrid.behavior.cellRenderers.getRendererForCell = function(config) {
+yourGrid.behavior.cellRenderers.getCell = function(config) {
     //A renderer should always be provided that has a paint function
     var renderer = behavior.cellRenderers.get('SimpleCell');
 
@@ -114,7 +114,7 @@ yourGrid.behavior.cellRenderers.getRendererForCell = function(config) {
 ```
 
 
-`getRendererForCell` is called with the config object providing stateful information about the cell:
+`getCell` is called with the config object providing stateful information about the cell:
 
 
 Parameter                       | Description
@@ -279,7 +279,7 @@ var starry = behavior.cellRenderers.get('Starry');
 
 
 // Using your new render
-yourGrid.behavior.cellRenderers.getRendererForCell = function(config) {
+yourGrid.behavior.cellRenderers.getCell = function(config) {
   var defaultRenderer = behavior.cellRenderers.get('SimpleCell'),
     idxOfStarColumn = 5;
 
@@ -341,7 +341,7 @@ behavior.getCursorAt = function(x,y) {
 ```
 * override the cell-provider to return the linkRenderer for the desired link columns and set `config.link = true`
 ```javascript
-behavior.cellRenderers.getRendererForCell = function(config) {
+behavior.cellRenderers.getCell = function(config) {
     config.link = true;
     var renderer = behavior.cellRenderers.get('SimpleCell');
     config.halign = 'left';

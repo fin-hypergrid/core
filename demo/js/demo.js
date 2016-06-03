@@ -380,7 +380,7 @@ window.onload = function() {
 
 
     //all formatting and rendering per cell can be overridden in here
-    cellRenderers.getRendererForCell = function(config) {
+    cellRenderers.getCell = function(config) {
         var emptyCell = cellRenderers.get('EmptyCell'),
             simpleCell = cellRenderers.get('SimpleCell'),
             errorCell = cellRenderers.get('ErrorCell'),

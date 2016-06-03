@@ -54,7 +54,7 @@ function get(rendererName) {
  * @param {object} config - an object with everything you might need for rendering a cell
  * @memberOf module:cellRenderers
  */
-function getRendererForCell(config) {
+function getCell(config) {
     var renderer = get('SimpleCell');
     renderer.config = config;
     return renderer;
@@ -94,7 +94,7 @@ module.exports = {
     strategies: strategies,
     register: register,
     get: get,
-    getRendererForCell: getRendererForCell,
+    getCell: getCell
     // getRendererColumnHeaderCell: getRendererColumnHeaderCell,
     // getRendererRowHeaderCell: getRendererRowHeaderCell,
     //instantiate: instantiate
