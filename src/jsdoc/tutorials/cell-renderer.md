@@ -154,9 +154,6 @@ Parameter                       | Description
 
 __________________
 +This _absolute_ column index is the column's index into the full column list (both `grid.behavior.allColumns[]` and the data source's `fields[]` array upon which it is based). By comparison, the _active_ column index refers to the list of columns current active in the grid (`grid.behavior.columns[]`), representing the position of the column in the grid. This list is a subset of of the full list because "hidden" columns are excluded and the remaining columns can be re-ordered at any time via the UI or programmatically.
- 
-All renderers will have access to the context of your [HyperGrid](http://openfin.github.io/fin-hypergrid/doc/Hypergrid.html) object as `this.grid`and hence can make use of function calls like `YourGrid.resolveProperty` to read your defaults.
-
 
 
 ### Creating your own renderer
@@ -170,7 +167,6 @@ You would then need to register your new cell renderer on the grid with `YourGri
 
 
 ```javascript
-
 
 /*
    Define your rendering logic
