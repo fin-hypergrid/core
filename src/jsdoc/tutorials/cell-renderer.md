@@ -142,8 +142,6 @@ Parameter                       | Description
 `isRowHovered`                  | If the row the cell is is in is hovered
 `isRowSelected`                 | If the row the cell is is in is selected
 `isUserDataArea`                | If the cell holds actual user data
-`selectionRegionOutlineColor`   | Borders of selected cells
-`selectionRegionOverlayColor`   | Color of selected cells
 `mouseDown`                     | If the mouse is down on the cell
 `preferredWidth`                | Minimum recommended width for the cell's containing column
 `untranslatedX`                 | 
@@ -155,6 +153,14 @@ Parameter                       | Description
 __________________
 +This _absolute_ column index is the column's index into the full column list (both `grid.behavior.allColumns[]` and the data source's `fields[]` array upon which it is based). By comparison, the _active_ column index refers to the list of columns current active in the grid (`grid.behavior.columns[]`), representing the position of the column in the grid. This list is a subset of of the full list because "hidden" columns are excluded and the remaining columns can be re-ordered at any time via the UI or programmatically.
 
+### Note about the LastSelection renderer
+
+The `config` object only has access to `bounds` and the following 
+
+Parameter                       | Description
+------------------------------  | :---:
+`selectionRegionOutlineColor`   | Borders of selected cells
+`selectionRegionOverlayColor`   | Color of selected cells
 
 ### Creating your own renderer
 You can create your own renderer by extending [CellRenderer Base Class](http://openfin.github.io/fin-hypergrid/doc/CellRenderer.html)  
