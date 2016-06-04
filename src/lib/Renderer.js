@@ -595,7 +595,9 @@ var Renderer = Base.extend('Renderer', {
                 y: y,
                 width: width,
                 height: height
-            }
+            },
+            selectionRegionOverlayColor: this.grid.resolveProperty('selectionRegionOverlayColor'),
+            selectionRegionOutlineColor: this.grid.resolveProperty('selectionRegionOutlineColor')
         };
         this.grid.behavior.getCellRenderers().get('LastSelection').paint(gc, config);
     },
