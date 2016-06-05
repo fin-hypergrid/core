@@ -4,7 +4,6 @@
 
 var LRUCache = require('lru-cache');
 
-var renderCellError = require('./lib/renderCellError');
 
 /**
  * This module lists the properties that can be set on a {@link Hypergrid} along with their default values.
@@ -643,12 +642,6 @@ module.exports = {
      * @instance
      */
     editOnKeydown: true,
-
-    /**
-     * @default renderCellError
-     * @type {function}
-     */
-    renderCellError: renderCellError,
 
     /**
      * @default `false`

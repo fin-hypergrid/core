@@ -788,15 +788,15 @@ var JSON = DataModel.extend('dataModels.JSON', {
      * @returns {object}
      */
     getCellRenderer: function(config, x, y, untranslatedX, untranslatedY) {
-        var renderer;
-        var provider = this.grid.getCellProvider();
+        var renderer,
+            renderers = this.grid.getCellRenderers();
 
         config.x = x;
         config.y = y;
         config.untranslatedX = untranslatedX;
         config.untranslatedY = untranslatedY;
 
-        renderer = provider.getCell(config);
+        renderer = renderers.getCell(config);
         renderer.config = config;
 
         return renderer;

@@ -5,5 +5,9 @@
 
     "CQL": {
         "title": "CQL (Column Query Language) Grammar"
+    },
+
+    "cell-renderer": {
+        "title": "The Cell Rendering Documentation"
     }
 }

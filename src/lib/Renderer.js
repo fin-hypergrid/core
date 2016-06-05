@@ -505,36 +505,29 @@ var Renderer = Base.extend('Renderer', {
         this.paintCells(gc);
         this.paintGridlines(gc);
         this.renderOverrides(gc);
-        this.renderFocusCell(gc);
+        this.renderLastSelection(gc);
         gc.closePath();
     },
 
-    focusLineStep: [
-        [5, 5],
-        [0, 1, 5, 4],
-        [0, 2, 5, 3],
-        [0, 3, 5, 2],
-        [0, 4, 5, 1],
-        [0, 5, 5, 0],
-        [1, 5, 4, 0],
-        [2, 5, 3, 0],
-        [3, 5, 2, 0],
-        [4, 5, 1, 0]
-    ],
-
-    renderFocusCell: function(gc) {
+    renderLastSelection: function(gc) {
         gc.beginPath();
-        this._renderFocusCell(gc);
+        this._renderLastSelection(gc);
         gc.closePath();
     },
 
-    _renderFocusCell: function(gc) {
+    _renderLastSelection: function(gc) {
+
+        /*
+
+            Compute the Bounds of the Last Selection that is visible
+
+         */
 
         var selections = this.grid.selectionModel.getSelections();
         if (!selections || selections.length === 0) {
             return;
         }
-        var selection = selections[selections.length - 1];
+        var selection = this.grid.selectionModel.getLastSelection();
         var mouseDown = selection.origin;
         if (mouseDown.x === -1) {
             //no selected area, lets exit
@@ -590,24 +583,21 @@ var Renderer = Base.extend('Renderer', {
             return;
         }
 
-        gc.rect(x, y, width, height);
-        gc.fillStyle = this.resolveProperty('selectionRegionOverlayColor');
-        gc.fill();
-        gc.lineWidth = 1;
-        gc.strokeStyle = this.resolveProperty('selectionRegionOutlineColor');
+        /*
 
-        // animate the dashed line a bit here for fun
+          Render the selection model around the bounds
 
-        gc.stroke();
+         */
 
-        //gc.rect(x, y, width, height);
-
-        //gc.strokeStyle = 'white';
-
-        // animate the dashed line a bit here for fun
-        //gc.setLineDash(this.focusLineStep[Math.floor(10 * (Date.now() / 300 % 1)) % this.focusLineStep.length]);
-
-        //gc.stroke();
+        var config = {
+            bounds: {
+                x: x,
+                y: y,
+                width: width,
+                height: height
+            }
+        };
+        this.grid.behavior.getCellRenderers().get('LastSelection').paint(gc, config);
     },
 
     /**
@@ -804,8 +794,9 @@ var Renderer = Base.extend('Renderer', {
      * @param {CanvasRenderingContext2D} gc
      */
     paintCells: function(gc) {
-        var renderCellError,
+        var errorCellRenderer,
             message,
+            config = {},
             x, y,
             c, r,
 
@@ -834,7 +825,7 @@ var Renderer = Base.extend('Renderer', {
 
                 c = visibleCols[x];
                 this.renderedColumnMinWidths[c] = 0;
-                renderCellError = behavior.getColumnProperties(c).renderCellError;
+                errorCellRenderer = behavior.getCellRenderers().get('ErrorCell');
 
                 gc.save();
 
@@ -862,7 +853,7 @@ var Renderer = Base.extend('Renderer', {
 
                         console.error(message);
 
-                        if (renderCellError) {
+                        if (errorCellRenderer) {
                             var rawGc = gc.gc || gc, // Don't log these canvas calls
                                 errY = rowEdges[y],
                                 errHeight = rowEdges[y + 1] - errY;
@@ -871,8 +862,15 @@ var Renderer = Base.extend('Renderer', {
                             rawGc.beginPath();
                             rawGc.rect(clipX, errY, clipWidth, errHeight);
                             rawGc.clip();
-
-                            renderCellError(rawGc, message, clipX, errY, clipWidth, errHeight);
+                            config = {
+                                bounds: {
+                                    y: errY,
+                                    x: clipX,
+                                    height: errHeight,
+                                    width: clipWidth
+                                }
+                            };
+                            errorCellRenderer.paint(rawGc, config, message);
 
                             rawGc.restore(); // discard clipping region
                         }
@@ -1054,6 +1052,8 @@ var Renderer = Base.extend('Renderer', {
         cellProperties.isRowSelected = isRowSelected;
         cellProperties.isColumnSelected = isColumnSelected;
         cellProperties.isInCurrentSelectionRectangle = grid.isInCurrentSelectionRectangle(c, r);
+        cellProperties.selectionRegionOverlayColor = grid.resolveProperty('selectionRegionOverlayColor');
+        cellProperties.selectionRegionOutlineColor = grid.resolveProperty('selectionRegionOutlineColor');
 
         if (grid.mouseDownState) {
             var point = grid.mouseDownState.gridCell;
@@ -1112,7 +1112,7 @@ var Renderer = Base.extend('Renderer', {
         var ctx = this.getCanvas().canvasCTX;
         ctx.beginPath();
         ctx.save();
-        this.renderFocusCell(ctx);
+        this.renderLastSelection(ctx);
         ctx.restore();
         ctx.closePath();
     },

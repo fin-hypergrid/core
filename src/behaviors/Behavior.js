@@ -6,7 +6,7 @@ var Base = require('../lib/Base');
 
 var Column = require('./Column');
 var dialogs = require('../dialogs');
-var CellProvider = require('../lib/CellProvider');
+var CellRenderers = require('../cellRenderers');
 var ColumnSchemaFactory = require('../filter/ColumnSchemaFactory');
 var DefaultFilter = require('../filter/DefaultFilter');
 
@@ -108,7 +108,7 @@ var Behavior = Base.extend('Behavior', {
     features: [], // override in implementing class unless no features
 
     reset: function() {
-        this.cellProvider = this.createCellProvider();
+        this.cellRenderers = CellRenderers;
         this.renderedColumnCount = 30;
         this.renderedRowCount = 60;
         this.dataUpdates = {}; //for overriding with edit values;
@@ -671,10 +671,10 @@ var Behavior = Base.extend('Behavior', {
     /**
      * @memberOf Behavior.prototype
      * @desc getter for the cell provider
-     * @return {CellProvider}
+     * @return {CellRenderer}
      */
-    getCellProvider: function() {
-        return this.cellProvider;
+    getCellRenderers: function() {
+        return this.cellRenderers;
     },
 
     /**
@@ -692,15 +692,6 @@ var Behavior = Base.extend('Behavior', {
      */
     getGrid: function() {
         return this.deprecated('grid', { since: '0.2' });
-    },
-
-    /**
-     * @memberOf Behavior.prototype
-     * @desc You can override this function and substitute your own cell provider.
-     * @return {CellProvider}
-     */
-    createCellProvider: function() {
-        return new CellProvider();
     },
 
     /**
