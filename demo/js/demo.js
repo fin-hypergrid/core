@@ -555,21 +555,32 @@ window.onload = function() {
         }
     };
 
-    grid.registerLocalizer('foot', footInchLocalizer, true);
+    registerLocalizerAndCellEditor('foot', footInchLocalizer);
 
-    grid.registerLocalizer('singdate', new grid.localization.DateFormatter('zh-SG'), true);
+    registerLocalizerAndCellEditor('singdate', new grid.localization.DateFormatter('zh-SG'), 'combobox');
 
-    grid.registerLocalizer('pounds', new grid.localization.NumberFormatter('en-US', {
+    registerLocalizerAndCellEditor('pounds', new grid.localization.NumberFormatter('en-US', {
         style: 'currency',
         currency: 'USD'
-    }), true);
+    }));
 
-    grid.registerLocalizer('francs', new grid.localization.NumberFormatter('fr-FR', {
+    registerLocalizerAndCellEditor('francs', new grid.localization.NumberFormatter('fr-FR', {
         style: 'currency',
         currency: 'EUR'
-    }), true);
+    }));
 
-    //used by the cellEditors, `null` means column not editable (except filter row)
+    // Register a localizer and create a new cell editor class of the same name.
+    // New cell editor is based on `Textfield` but references `localizer`.
+    function registerLocalizerAndCellEditor(name, localizer, cellEditorBaseClassName) {
+        var Constructor = fin.Hypergrid.cellEditors.get(cellEditorBaseClassName || 'textfield'),
+            newCellEditorClass = Constructor.extend(name, { localizer: localizer });
+
+        grid.registerLocalizer(name, localizer);
+        grid.registerCellEditor(newCellEditorClass);
+    }
+
+    // Used by the cellProvider.
+    // `null` means column's data cells are not editable.
     var editorTypes = [
         'combobox',
         'textfield',
@@ -585,10 +596,11 @@ window.onload = function() {
     ];
 
     // Override to assign the the cell editors.
-    var defaultGetCellEditorAt = dataModel.getCellEditorAt.bind(dataModel);
-    dataModel.getCellEditorAt = function(x, y) {
-        var cellEditor = defaultGetCellEditorAt(x, y) ||
-            this.grid.createCellEditor(editorTypes[x % editorTypes.length]);
+    dataModel.getCellEditorAt = function(x, y, declaredEditorName) {
+        var cellEditor = this.grid.createCellEditor(
+            declaredEditorName ||
+            editorTypes[x % editorTypes.length]
+        );
 
         if (cellEditor) {
             switch (x) {
@@ -921,12 +933,12 @@ window.onload = function() {
             });
 
             behavior.setColumnProperties(idx.LAST_NAME, {
-                autopopulateEditor: true,
+                format: 'combobox',
                 link: true
             });
 
             behavior.setColumnProperties(idx.FIRST_NAME, {
-                autopopulateEditor: true
+
             });
 
             behavior.setColumnProperties(idx.TOTAL_NUMBER_OF_PETS_OWNED, {
@@ -943,11 +955,11 @@ window.onload = function() {
             });
 
             behavior.setColumnProperties(idx.BIRTH_STATE, {
-                autopopulateEditor: true
+
             });
 
             behavior.setColumnProperties(idx.EMPLOYED, {
-                autopopulateEditor: true
+
             });
 
             behavior.setColumnProperties(idx.INCOME, {

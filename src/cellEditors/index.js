@@ -1,22 +1,21 @@
 /**
+ * @summary API of cell editor object constructors, plus some access methods.
  * @module cellEditors
  */
 
 'use strict';
 
-
-/**
- * @summary Hash of cell editor object constructors.
- * @desc This hash's only purpose is to support the convenience methods defined herein: {@link cellEditors.extend|extend}, {@link cellEditors.register|register}, and {@link cellEditors.instantiate|instantiate}. If you do not need these methods' functionality, you do not need to register your cell editors.
- * @type {object}
- */
-var constructors = {};
+var cellEditors = {
+    register: register,
+    get: get,
+    instantiate: instantiate
+};
 
 /**
  * @summary Register a cell editor (class) or a synonym of an already-registered cell editor.
- * @desc Adds a custom cell editor to the `constructors` hash using the provided name (or the class name), converted to all lower case.
+ * @desc Adds a custom cell editor to the API using the provided name (or the class name), converted to all lower case.
  *
- * To register a syonym for an already-registered cell editor, use the following construct:
+ * To register a synonym for an already-registered cell editor, use the following construct:
  * ```
  * var cellEditors = require('./cellEditors');
  * cellEditors.register(cellEditors.get('spinner'), 'elevator');
@@ -29,26 +28,25 @@ var constructors = {};
  *
  * @param {string} [editorName] - Case-insensitive editor key. If not given, `YourCellEditor.prototype.$$CLASS_NAME` is used.
  *
- * > Note: `$$CLASS_NAME` can be easily set up by providing a string as the (optional) first parameter in your {@link https://www.npmjs.com/package/extend-me|CellEditor.extend} call. (Formal parameter name: `alias`.)
+ * > Note: `$$CLASS_NAME` can be easily set up by providing a string as the (optional) first parameter (`alias`) in your {@link https://www.npmjs.com/package/extend-me|CellEditor.extend} call.
  *
  * @memberOf module:cellEditors
  */
 function register(Constructor, editorName) {
     editorName = editorName || Constructor.prototype.$$CLASS_NAME;
     editorName = editorName && editorName.toLowerCase();
-    constructors[editorName] = Constructor;
+    cellEditors[editorName] = Constructor;
     return Constructor;
 }
-
 
 /**
  * @param {string} editorName
  * @returns {*}
+ * @memberOf module:cellEditors
  */
 function get(editorName) {
-    return constructors[editorName && editorName.toLowerCase()];
+    return cellEditors[editorName && editorName.toLowerCase()];
 }
-
 
 /**
  * Must be called with YOUR Hypergrid object as context!
@@ -60,35 +58,102 @@ function get(editorName) {
 function instantiate(editorName) {
     var CellEditorConstructor = get(editorName);
     if (CellEditorConstructor.abstract) {
-        throw 'Attempt to instantiate an "abstract" cell editor.';
+        throw 'Attempt to instantiate an "abstract" cell editor class.';
     }
     return CellEditorConstructor && new CellEditorConstructor(this);
 }
 
 
-// register standard cell editors
+// Register standard cell editors.
+
+/** @name celleditor
+ * @see CellEditor
+ * @constructor
+ * @memberOf module:cellEditors
+ */
 register(require('./CellEditor'));
+
+/** @name combobox
+ * @see ComboBox
+ * @constructor
+ * @memberOf module:cellEditors
+ */
 register(require('./ComboBox'));
 //register(require('./Combo'));
+
+/** @name color
+ * @see Color
+ * @constructor
+ * @memberOf module:cellEditors
+ */
 register(require('./Color'));
+
+/** @name date
+ * @see Date
+ * @constructor
+ * @memberOf module:cellEditors
+ */
 register(require('./Date'));
+
+/** @name filterbox
+ * @see FilterBox
+ * @constructor
+ * @memberOf module:cellEditors
+ */
 register(require('./FilterBox'));
+
+/** @name number
+ * @see Number
+ * @constructor
+ * @memberOf module:cellEditors
+ */
 register(require('./Number'));
+
+/** @name slider
+ * @see Slider
+ * @constructor
+ * @memberOf module:cellEditors
+ */
 register(require('./Slider'));
+
+/** @name spinner
+ * @see Spinner
+ * @constructor
+ * @memberOf module:cellEditors
+ */
 register(require('./Spinner'));
+
+/** @name textfield
+ * @see Textfield
+ * @constructor
+ * @memberOf module:cellEditors
+ */
 register(require('./Textfield'));
 
 
 // Register synonyms for standard type names.
-// It is unnecessary to set up synonyms for 'date' and 'number' because there are already suitable cell editor resitrations matching those names.
-register(constructors.number, 'int');
-register(constructors.number, 'float');
-register(constructors.textfield, 'string');
+// Note that 'date' and 'number' are already registered above.
+
+/** @name int
+ * @see module:cellEditors~number
+ * @constructor
+ * @memberOf module:cellEditors
+ */
+register(cellEditors.number, 'int');
+
+/** @name float
+ * @see module:cellEditors~number
+ * @constructor
+ * @memberOf module:cellEditors
+ */
+register(cellEditors.number, 'float');
+
+/** @name string
+ * @see module:cellEditors~textfield
+ * @constructor
+ * @memberOf module:cellEditors
+ */
+register(cellEditors.textfield, 'string');
 
 
-module.exports = {
-    constructors: constructors,
-    register: register,
-    get: get,
-    instantiate: instantiate
-};
+module.exports = cellEditors;

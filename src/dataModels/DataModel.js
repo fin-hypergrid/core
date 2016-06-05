@@ -58,35 +58,18 @@ var DataModel = Base.extend('DataModel', {
     },
 
     /**
-     * This method as written returns the `cellEditor` property (containing the cell editor class name) from the cell properties hash or, failing that, the column properties hash. The name is then used to instantiate a cell editor of that name found in the list of registered cel editors. If neither hash has such a property, or if no such editor is registered, returns `undefined` &mdash; which has the effect of making the cell editor non-editable.
+     * The application developer may override this method to instantiate and return a `CellEditor` to be determined programmatically at run-time and/or to set attributes on the cell editor after instantiation but before it is rendered.
      *
      * An easy way of making all cell editors non-editable regardless of the property settings (either temporarily or permanently) is to override this method with a null method (that returns `undefined`).
      *
-     * The application developer may also wish to override this method to instantiate and return a `CellEditor` to be determined more precisely at run-time. This selection is usually based on column (`x`) but may in fact vary by row as well. Besides putting off the decision of which cell editor to use, this approach also has the advantage of being able to set attributes on the cell editor after instantiation but before it is rendered.
-     *
      * @param {number} x - Absolute column index.
      * @param {number} y - Row index in `dataRows` (raw `dataSource.data`) array.
+     * @param {string} [declaredEditorName] - The proposed cell editor name (from the render properties).
      *
-     * @returns {undefined|CellEditor} An object instantiated from a constructor extended from CellEditor. If return value is `undefined` (or otherwise falsy), the cell will not be editable.
+     * @returns {undefined|CellEditor} An object instantiated from a the registered cell editor constructor named in `declaredEditorName`. A falsy return means the cell is not editable because the `declaredEditorName` was `null` or not registered. But note that `undefined` is registered as the default `Textfield` cell editor.
      */
-    getCellEditorAt: function(x, y) {
-        var cellProperties,
-            columnProperties,
-            column = this.grid.behavior.getColumn(x);
-
-        var editorName =
-            (cellProperties = column.getCellProperties(y)).editor ||
-            (columnProperties = column.getProperties()).editor;
-
-        if (!editorName && editorName !== null) { // null means don't fallback to format
-            editorName = cellProperties.format || columnProperties.format;
-        }
-
-        if (!editorName && editorName !== null) { // null means don't fallback to type
-            editorName = column.getType();
-        }
-
-        return this.grid.createCellEditor(editorName);
+    getCellEditorAt: function(x, y, declaredEditorName) {
+        return this.grid.createCellEditor(declaredEditorName);
     }
 
 });

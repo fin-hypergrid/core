@@ -296,26 +296,12 @@ Hypergrid.prototype = {
         return p && p.x === x && p.y === y;
     },
 
-    /**
-     * @param {string} name
+    /** @summary Register localizer and create and register a cell editor class that uses it.
+     * @param {string} name - The new localizer's name, converted to all lower case.
      * @param {localizerInterface} localizer
-     * @param {boolean|string} [cellEditorBaseClassName=true] - Truthy value means create a new cell editor class by extending from the provided registered cell editor. If not an explicit string (e.g., `true`), defaults to 'textfield'. Extend from this cell editor base class. Omit this to skip creating a new cell editor class.
-     * @param {string} [newCellEditorClassName=localizerName] - Provide a value here to name the cell editor differently from its localizer. (Only useful if base class name also proviced.)
      */
-    registerLocalizer: function(name, localizer, cellEditorBaseClassName, newCellEditorClassName) {
+    registerLocalizer: function(name, localizer) {
         this.localization.add(name, localizer);
-
-        if (cellEditorBaseClassName) {
-            if (typeof ellEditorBaseClassName !== 'string') {
-                cellEditorBaseClassName = 'textfield';
-            }
-            newCellEditorClassName = newCellEditorClassName || name;
-            var CellEditorConstructor = cellEditors.constructors[cellEditorBaseClassName];
-            var newCellEditorClass = CellEditorConstructor.extend(newCellEditorClassName, {
-                localizer: localizer
-            });
-            this.registerCellEditor(newCellEditorClass);
-        }
     },
 
     getFormatter: function(localizerName) {
