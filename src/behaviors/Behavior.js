@@ -6,7 +6,6 @@ var Base = require('../lib/Base');
 
 var Column = require('./Column');
 var dialogs = require('../dialogs');
-var CellRenderers = require('../cellRenderers');
 var ColumnSchemaFactory = require('../filter/ColumnSchemaFactory');
 var DefaultFilter = require('../filter/DefaultFilter');
 
@@ -108,7 +107,6 @@ var Behavior = Base.extend('Behavior', {
     features: [], // override in implementing class unless no features
 
     reset: function() {
-        this.cellRenderers = CellRenderers;
         this.renderedColumnCount = 30;
         this.renderedRowCount = 60;
         this.dataUpdates = {}; //for overriding with edit values;
@@ -666,15 +664,6 @@ var Behavior = Base.extend('Behavior', {
 
     lookupFeature: function(key) {
         return this.featureMap[key];
-    },
-
-    /**
-     * @memberOf Behavior.prototype
-     * @desc getter for the cell provider
-     * @return {CellRenderer}
-     */
-    getCellRenderers: function() {
-        return this.cellRenderers;
     },
 
     /**

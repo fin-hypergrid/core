@@ -4,8 +4,9 @@
 'use strict';
 
 var _ = require('object-iterators');
-var Base = require('./Base');
 
+var Base = require('./Base');
+var cellRenderers = require('../cellRenderers');
 var images = require('../../images');
 
 /** @typedef {object} CanvasRenderingContext2D
@@ -599,7 +600,7 @@ var Renderer = Base.extend('Renderer', {
             selectionRegionOverlayColor: this.grid.resolveProperty('selectionRegionOverlayColor'),
             selectionRegionOutlineColor: this.grid.resolveProperty('selectionRegionOutlineColor')
         };
-        this.grid.behavior.getCellRenderers().get('LastSelection').paint(gc, config);
+        cellRenderers.lastselection.paint(gc, config);
     },
 
     /**
@@ -796,8 +797,7 @@ var Renderer = Base.extend('Renderer', {
      * @param {CanvasRenderingContext2D} gc
      */
     paintCells: function(gc) {
-        var errorCellRenderer,
-            message,
+        var message,
             config = {},
             x, y,
             c, r,
@@ -827,7 +827,6 @@ var Renderer = Base.extend('Renderer', {
 
                 c = visibleCols[x];
                 this.renderedColumnMinWidths[c] = 0;
-                errorCellRenderer = behavior.getCellRenderers().get('ErrorCell');
 
                 gc.save();
 
@@ -855,27 +854,26 @@ var Renderer = Base.extend('Renderer', {
 
                         console.error(message);
 
-                        if (errorCellRenderer) {
-                            var rawGc = gc.gc || gc, // Don't log these canvas calls
-                                errY = rowEdges[y],
-                                errHeight = rowEdges[y + 1] - errY;
+                        var rawGc = gc.gc || gc, // Don't log these canvas calls
+                            errY = rowEdges[y],
+                            errHeight = rowEdges[y + 1] - errY;
 
-                            rawGc.save(); // define clipping region
-                            rawGc.beginPath();
-                            rawGc.rect(clipX, errY, clipWidth, errHeight);
-                            rawGc.clip();
-                            config = {
-                                bounds: {
-                                    y: errY,
-                                    x: clipX,
-                                    height: errHeight,
-                                    width: clipWidth
-                                }
-                            };
-                            errorCellRenderer.paint(rawGc, config, message);
+                        rawGc.save(); // define clipping region
+                        rawGc.beginPath();
+                        rawGc.rect(clipX, errY, clipWidth, errHeight);
+                        rawGc.clip();
+                        config = {
+                            bounds: {
+                                y: errY,
+                                x: clipX,
+                                height: errHeight,
+                                width: clipWidth
+                            }
+                        };
 
-                            rawGc.restore(); // discard clipping region
-                        }
+                        cellRenderers.errorcell.paint(rawGc, config, message);
+
+                        rawGc.restore(); // discard clipping region
 
                     }
                 }

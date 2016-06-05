@@ -780,30 +780,6 @@ var JSON = DataModel.extend('dataModels.JSON', {
 
     /**
      * @memberOf dataModels.JSON.prototype
-     * @param {object} config
-     * @param {number} x
-     * @param {number} y
-     * @param {number} untranslatedX
-     * @param {number} untranslatedY
-     * @returns {object}
-     */
-    getCellRenderer: function(config, x, y, untranslatedX, untranslatedY) {
-        var renderer,
-            renderers = this.grid.getCellRenderers();
-
-        config.x = x;
-        config.y = y;
-        config.untranslatedX = untranslatedX;
-        config.untranslatedY = untranslatedY;
-
-        renderer = renderers.getCell(config);
-        renderer.config = config;
-
-        return renderer;
-    },
-
-    /**
-     * @memberOf dataModels.JSON.prototype
      */
     applyState: function() {
         this.applyAnalytics();

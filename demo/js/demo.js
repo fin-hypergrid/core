@@ -233,9 +233,6 @@ window.onload = function() {
         color: 'green'
     });
 
-    //get the cell renderers
-    var cellRenderers = behavior.getCellRenderers();
-
     //set the actual json row objects
     //setData(people); //see sampledata.js for the random data
 
@@ -369,7 +366,7 @@ window.onload = function() {
 
 
     //Extend HyperGrid's base Renderer
-    var sparkStarRatingRenderer = grid.cellRendererBase.extend({
+    var sparkStarRatingRenderer = fin.Hypergrid.cellRenderers.emptycell.constructor.extend({
         paint: paintSparkRating
     });
 
@@ -380,148 +377,136 @@ window.onload = function() {
 
 
     //all formatting and rendering per cell can be overridden in here
-    cellRenderers.getCell = function(config) {
-        var emptyCell = cellRenderers.get('EmptyCell'),
-            simpleCell = cellRenderers.get('SimpleCell'),
-            errorCell = cellRenderers.get('ErrorCell'),
-            buttonCell = cellRenderers.get('Button'),
-            sliderCell = cellRenderers.get('SliderCell'),
-            treeCell = cellRenderers.get('TreeCell'),
-            sparkBarCell = cellRenderers.get('SparkBar'),
-            sparkLineCell = cellRenderers.get('SparkLine'),
-            starry = behavior.cellRenderers.get('Starry'),
-            renderer = simpleCell;
+    dataModel.getCell = function(config, rendererName) {
+        if (config.isUserDataArea) {
+            var x = config.x;
+            var y = config.y;
 
-        if (!config.isUserDataArea) {
-            return renderer;
-        }
-        var x = config.x;
-        var y = config.y;
+            var upDownIMG = upDown;
+            var upDownSpinIMG = upDownSpin;
+            var downArrowIMG = downArrow;
 
-        var upDownIMG = upDown;
-        var upDownSpinIMG = upDownSpin;
-        var downArrowIMG = downArrow;
+            if (!grid.isEditable()) {
+                upDownIMG = null;
+                upDownSpinIMG = null;
+                downArrowIMG = null;
+            }
 
-        if (!grid.isEditable()) {
-            upDownIMG = null;
-            upDownSpinIMG = null;
-            downArrowIMG = null;
-        }
+            var travel;
 
-        var travel;
-
-        config.halign = 'left';
+            config.halign = 'left';
 
 
-        if (styleRowsFromData) {
-            var pets = behavior.getColumn(idx.TOTAL_NUMBER_OF_PETS_OWNED).getValue(y),
-                hex = (155 + 10 * (pets % 11)).toString(16);
-            config.backgroundColor = '#' + hex + hex + hex;
-        } else {
-            switch (y % 6) {
-                case 5:
-                case 0:
-                case 1:
-                    config.backgroundColor = '#e8ffe8';
-                    config.font = 'italic x-small verdana';
-                    if (config.color !== redIfStartsWithS) {
-                        config.color = '#070';
+            if (styleRowsFromData) {
+                var pets = behavior.getColumn(idx.TOTAL_NUMBER_OF_PETS_OWNED).getValue(y),
+                    hex = (155 + 10 * (pets % 11)).toString(16);
+                config.backgroundColor = '#' + hex + hex + hex;
+            } else {
+                switch (y % 6) {
+                    case 5:
+                    case 0:
+                    case 1:
+                        config.backgroundColor = '#e8ffe8';
+                        config.font = 'italic x-small verdana';
+                        if (config.color !== redIfStartsWithS) {
+                            config.color = '#070';
+                        }
+                        break;
+
+                    case 2:
+                    case 3:
+                    case 4:
+                        config.backgroundColor = 'white';
+                        config.font = 'normal small garamond';
+                        break;
+                }
+            }
+
+            switch (x) {
+                case idx.LAST_NAME:
+                case idx.FIRST_NAME:
+                case idx.BIRTH_STATE:
+                case idx.RESIDENCE_STATE:
+                    //we are a dropdown, lets provide a visual queue
+                    config.value = [null, config.value, upDownIMG];
+            }
+
+            switch (x) {
+                case idx.LAST_NAME:
+                    config.link = true;
+                    break;
+
+                case idx.TOTAL_NUMBER_OF_PETS_OWNED:
+                    config.halign = 'center';
+                    //config.value = [null, config.value, upDownSpinIMG];
+                    break;
+
+                case idx.HEIGHT:
+                    config.halign = 'right';
+                    break;
+
+                case idx.BIRTH_DATE:
+                    if (!doAggregates) {
+                        config.halign = 'left';
+                        config.value = [null, config.value, downArrowIMG];
                     }
                     break;
 
-                case 2:
-                case 3:
-                case 4:
-                    config.backgroundColor = 'white';
-                    config.font = 'normal small garamond';
+                case idx.EMPLOYED:
+                    rendererName = 'button';
                     break;
+
+                case idx.INCOME:
+                    travel = 60 + Math.round(config.value * 150 / 100000);
+                    config.backgroundColor = '#00' + travel.toString(16) + '00';
+                    config.color = '#FFFFFF';
+                    config.halign = 'right';
+                    break;
+
+                case idx.TRAVEL:
+                    travel = 105 + Math.round(config.value * 150 / 1000);
+                    config.backgroundColor = '#' + travel.toString(16) + '0000';
+                    config.color = '#FFFFFF';
+                    config.halign = 'right';
+                    break;
+            }
+
+            //Testing
+            if (x === idx.TOTAL_NUMBER_OF_PETS_OWNED) {
+                /*
+                 * Be sure to adjust the dataset to the appropriate type and shape in widedata.js
+                 */
+
+                //return simpleCell; //WORKS
+                //return emptyCell; //WORKS
+                //return buttonCell; //WORKS
+                //return errorCell; //WORKS: Noted that any error in this function steals the main thread by recursion
+                //return sparkLineCell; // WORKS
+                //return sparkBarCell; //WORKS
+                //return sliderCell; //WORKS
+                //return treeCell; //Need to figure out data shape to test
+
+
+                /*
+                 * Test of Customized Renderer
+                 */
+                // if (starry){
+                //     config.domain = 5; // default is 100
+                //     config.sizeFactor =  0.65; // default is 0.65; size of stars as fraction of height of cell
+                //     config.darkenFactor = 0.75; // default is 0.75; star stroke color as fraction of star fill color
+                //     config.color = 'gold'; // default is 'gold'; star fill color
+                //     config.fgColor =  'grey'; // default is 'transparent' (not rendered); text color
+                //     config.fgSelColor = 'yellow'; // default is 'transparent' (not rendered); text selection color
+                //     config.bgColor = '#404040'; // default is 'transparent' (not rendered); background color
+                //     config.bgSelColor = 'grey'; // default is 'transparent' (not rendered); background selection color
+                //     config.shadowColor = 'transparent'; // default is 'transparent'
+                //     return starry;
+                // }
+
             }
         }
 
-        switch (x) {
-            case idx.LAST_NAME:
-            case idx.FIRST_NAME:
-            case idx.BIRTH_STATE:
-            case idx.RESIDENCE_STATE:
-                //we are a dropdown, lets provide a visual queue
-                config.value = [null, config.value, upDownIMG];
-        }
-
-        switch (x) {
-            case idx.LAST_NAME:
-                config.link = true;
-                break;
-
-            case idx.TOTAL_NUMBER_OF_PETS_OWNED:
-                config.halign = 'center';
-                //config.value = [null, config.value, upDownSpinIMG];
-                break;
-
-            case idx.HEIGHT:
-                config.halign = 'right';
-                break;
-
-            case idx.BIRTH_DATE:
-                if (!doAggregates) {
-                    config.halign = 'left';
-                    config.value = [null, config.value, downArrowIMG];
-                }
-                break;
-
-            case idx.EMPLOYED:
-                renderer = buttonCell;
-                break;
-
-            case idx.INCOME:
-                travel = 60 + Math.round(config.value * 150 / 100000);
-                config.backgroundColor = '#00' + travel.toString(16) + '00';
-                config.color = '#FFFFFF';
-                config.halign = 'right';
-                break;
-
-            case idx.TRAVEL:
-                travel = 105 + Math.round(config.value * 150 / 1000);
-                config.backgroundColor = '#' + travel.toString(16) + '0000';
-                config.color = '#FFFFFF';
-                config.halign = 'right';
-                break;
-        }
-
-        //Testing
-        if (x === idx.TOTAL_NUMBER_OF_PETS_OWNED){
-            /*
-             * Be sure to adjust the dataset to the appropriate type and shape in widedata.js
-             */
-
-            //return simpleCell; //WORKS
-            //return emptyCell; //WORKS
-            //return buttonCell; //WORKS
-            //return errorCell; //WORKS: Noted that any error in this function steals the main thread by recursion
-            //return sparkLineCell; // WORKS
-            //return sparkBarCell; //WORKS
-            //return sliderCell; //WORKS
-            //return treeCell; //Need to figure out data shape to test
-
-
-            /*
-             * Test of Customized Renderer
-             */
-            // if (starry){
-            //     config.domain = 5; // default is 100
-            //     config.sizeFactor =  0.65; // default is 0.65; size of stars as fraction of height of cell
-            //     config.darkenFactor = 0.75; // default is 0.75; star stroke color as fraction of star fill color
-            //     config.color = 'gold'; // default is 'gold'; star fill color
-            //     config.fgColor =  'grey'; // default is 'transparent' (not rendered); text color
-            //     config.fgSelColor = 'yellow'; // default is 'transparent' (not rendered); text selection color
-            //     config.bgColor = '#404040'; // default is 'transparent' (not rendered); background color
-            //     config.bgSelColor = 'grey'; // default is 'transparent' (not rendered); background selection color
-            //     config.shadowColor = 'transparent'; // default is 'transparent'
-            //     return starry;
-            // }
-
-        }
-
-        return renderer;
+        return grid.getCellRenderer(rendererName);
     };
 
     var footInchPattern = /^\s*((((\d+)')?\s*((\d+)")?)|\d+)\s*$/;

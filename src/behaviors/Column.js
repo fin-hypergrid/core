@@ -126,7 +126,16 @@ Column.prototype = {
     },
 
     getCellRenderer: function(config, y) {
-        return this.dataModel.getCellRenderer(config, this.index, y);
+        config.x = this.index;
+        config.y = y;
+
+        var declaredRendererName =
+            this.getCellProperties(y).renderer ||
+            this.getProperties().renderer;
+
+        var renderer = this.dataModel.getCell(config, declaredRendererName);
+        renderer.config = config;
+        return renderer;
     },
 
     getCellProperties: function(y) {
@@ -246,7 +255,7 @@ Column.prototype = {
             columnProperties;
 
         var editorName =
-            (cellProperties = this.getCellProperties(y) || {}).editor ||
+            (cellProperties = this.getCellProperties(y)).editor ||
             (columnProperties = this.getProperties()).editor;
 
         if (!editorName && editorName !== null) { // null means don't fallback to format

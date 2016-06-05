@@ -58,6 +58,16 @@ var DataModel = Base.extend('DataModel', {
     },
 
     /**
+     * @param {object} config
+     * @param {string} declaredRendererName - The proposed cell renderer name (formthe render properties).
+     * @returns {CellRenderer}
+     * @memberOf DataModel.prototype
+     */
+    getCell: function(config, declaredRendererName) {
+        return this.grid.getCellRenderer(declaredRendererName);
+    },
+
+    /**
      * The application developer may override this method to instantiate and return a `CellEditor` to be determined programmatically at run-time and/or to set attributes on the cell editor after instantiation but before it is rendered.
      *
      * An easy way of making all cell editors non-editable regardless of the property settings (either temporarily or permanently) is to override this method with a null method (that returns `undefined`).
@@ -67,6 +77,8 @@ var DataModel = Base.extend('DataModel', {
      * @param {string} [declaredEditorName] - The proposed cell editor name (from the render properties).
      *
      * @returns {undefined|CellEditor} An object instantiated from a the registered cell editor constructor named in `declaredEditorName`. A falsy return means the cell is not editable because the `declaredEditorName` was `null` or not registered. But note that `undefined` is registered as the default `Textfield` cell editor.
+     *
+     * @memberOf DataModel.prototype
      */
     getCellEditorAt: function(x, y, declaredEditorName) {
         return this.grid.createCellEditor(declaredEditorName);

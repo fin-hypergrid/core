@@ -667,6 +667,8 @@ module.exports = {
      */
     editor: undefined,
 
+    renderer: 'SimpleCell',
+
     /********** HOVER COLORS **********/
 
     /** @typedef hoverColors

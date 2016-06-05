@@ -1,4 +1,5 @@
 /**
+ * @summary API of cell renderer object constructors, plus some access methods.
  * @module cellRenderers
  */
 
@@ -9,7 +10,10 @@
  * @desc This hash's only purpose is to support the convenience methods defined herein: {@link cellRenderers.extend|extend}, {@link cellRenderers.register|register}, and {@link cellRenderers.instantiate|instantiate}. If you do not need these methods' functionality, you do not need to register your cell renderers.
  * @type {object}
  */
-var strategies = {};
+var cellRenderers = {
+    register: register,
+    get: get
+};
 
 /**
  * Must be called with YOUR Hypergrid object as context!
@@ -29,15 +33,14 @@ var strategies = {};
  *
  * @param {string} [rendererName] - Case-insensitive renderer key. If not given, `YourCellRenderer.prototype.$$CLASS_NAME` is used.
  *
- * > Note: `$$CLASS_NAME` can be easily set up by providing a string as the (optional) first parameter in your {@link https://www.npmjs.com/package/extend-me|CellRenderer.extend} call. (Formal parameter name: `alias`.)
- * @this {Hypergrid}
+ * > Note: `$$CLASS_NAME` can be easily set up by providing a string as the (optional) first parameter (`alias`) in your {@link https://www.npmjs.com/package/extend-me|CellEditor.extend} call.
+ *
  * @memberOf module:cellRenderers
  */
 function register(Constructor, rendererName) {
     rendererName = rendererName || Constructor.prototype.$$CLASS_NAME;
     rendererName = rendererName && rendererName.toLowerCase();
-    strategies[rendererName] = instantiate.call(this, Constructor);
-    return  strategies[rendererName];
+    return (cellRenderers[rendererName] = instantiate(Constructor));
 }
 
 /**
@@ -45,19 +48,7 @@ function register(Constructor, rendererName) {
  * @returns {*}
  */
 function get(rendererName) {
-    return strategies[rendererName && rendererName.toLowerCase()];
-}
-
-/**
- * @desc replace this function with your own implementation
- * @returns a cell renderer
- * @param {object} config - an object with everything you might need for rendering a cell
- * @memberOf module:cellRenderers
- */
-function getCell(config) {
-    var renderer = get('SimpleCell');
-    renderer.config = config;
-    return renderer;
+    return cellRenderers[rendererName && rendererName.toLowerCase()];
 }
 
 // /**
@@ -76,26 +67,29 @@ function getCell(config) {
 // function getRowHeaderCell(config) {
 // }
 
-// /**
-//  * Must be called with YOUR Hypergrid object as context!
-//  * @returns {CellRenderer} New instance of the named cell renderer.
-//  * @param {string} rendererName
-//  * @this {Hypergrid}
-//  * @memberOf module:cellRenderers
-//  */
+ /**
+  * Must be called with YOUR Hypergrid object as context!
+  * @returns {CellRenderer} New instance of the named cell renderer.
+  * @param {string} rendererName
+  * @private
+  */
 function instantiate(CellRendererConstructor) {
     if (CellRendererConstructor.abstract) {
         throw 'Attempt to instantiate an "abstract" cell renderer.';
     }
-    return CellRendererConstructor && new CellRendererConstructor(this);
+    return CellRendererConstructor && new CellRendererConstructor;
 }
 
-module.exports = {
-    strategies: strategies,
-    register: register,
-    get: get,
-    getCell: getCell
-    // getRendererColumnHeaderCell: getRendererColumnHeaderCell,
-    // getRendererRowHeaderCell: getRendererRowHeaderCell,
-    //instantiate: instantiate
-};
+
+register(require('./CellRenderer'), 'EmptyCell');
+register(require('./Button'));
+register(require('./SimpleCell'));
+register(require('./SliderCell'));
+register(require('./SparkBar'));
+register(require('./LastSelection'));
+register(require('./SparkLine'));
+register(require('./ErrorCell'));
+register(require('./TreeCell'));
+
+
+module.exports = cellRenderers;
