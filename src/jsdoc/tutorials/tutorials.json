@@ -8,6 +8,23 @@
     },
 
     "cell-renderer": {
-        "title": "The Cell Rendering Documentation"
+        "title": "Cell Renderers"
+    },
+
+    "columns": {
+        "title": "Column objects and column schema"
+    },
+
+    "cell-editors": {
+        "title": "Cell Editors"
+    },
+
+    "localization": {
+        "title": "Localizers (formatters and deformatters)"
+    },
+
+    "column-schema": {
+        "title": "Column objects and column schema"
     }
+
 }

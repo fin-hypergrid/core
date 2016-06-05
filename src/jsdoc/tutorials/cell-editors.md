@@ -1,70 +1,194 @@
-# P R E L I M I N A R Y &nbsp; D O C U M E N T A T I O N 
-
-*THIS DOCUMENT IS INCOMPLETE BUT OFFERED AS IS IN LIEU OF NOTHING.<br>NEXT UPDATE PLANNED FOR EOD 5/16/2016.*
-
 This document describes the Cell Editor interface. This information is useful to the application developer to better understand what cell editors are, how to use them, and how to create custom cell editors.
 
-### What is a cell editor?
+#### Definition
 
-A cell editor is graphical user interface overlaid on top of the grid that permits the user to edit the value in a particular grid cell.
+A **cell editor** is a JavaScript object, descended from `CellEditor`, which serves as a basic _view-controller_, placing DOM elements over a cell to allow the user to edit the cell's value.
 
-Cell editors can take any form. The basic cell editors are simple text input boxes. Cell editors know how to format the raw datum similar to the way it is presented in the grid; they also know how to "de-format" the data back into it's "raw" (primitive) form before storing it back into the data model.
+Each grid has an `editor` property which holds a reference to its open cell editor. Only one cell editor object will exist for each grid at any one time, and only while in actual use (instantiated "late"; disposed of "early"). The grid's `editor` property is `undefined` at all other times. Therefore this property can be tested to determine if a grid's editor is open. At the end of an editing session, the object disposes of itself by setting the grid's `editor` property to `undefined`.
 
-Certain kinds of grid cells can be made _editable_ (can make use of a cell editor), while others cannot:
+#### Data modalities
+
+Some data is best presented in text form while other data is better presented in graphical form. Any kind of data can be edited with the proper cell editor. Typically, cell editors will want to edit the data in the same form in which it is rendered in the cells. For example, straight numbers are usually edited as text, whereas data representing something visual such as a color or a star rating is usually better edited in a graphical interface that lets the user click on a color or a star.
  
-Kind of cell       | Can use a<br>cell editor
------------------- | :---:
-Column header      | no
-*Column filter*    | *yes*
-Row handle         | no
-Tree (drill-down)  | no
-*Data*             | *yes*
-Top & bottom total | no
+On the other hand, cell editors do not have to match the modality of the data. For example, a color could be shown as a swatch but edited as a number; or _vice versa:_ A color could be shown in text (as a hexidecimal number) but edited with a color picker. A similar example is a date on a calendar.
+
+A cell editor might combine a graphical interface and a text box. Hypergrid includes a "combobox" cell editor that has a text box just like a regular text editor but also slides open a graphical interface. The user has the choice of which interface to use. Ideally, edits in one interface are instantaneiously reflected in the other.
  
-Furthermore, to actually be editable by the user, the cell must have a cell editor associated with it. (See _Associating a cell editor,_ below.)
+#### Text cell editors
 
-#### Beginning editing
+There are many types of text data: Numbers, currency, dates, coordinates, measurements with variable units (m, cm, mm), or single measurements broken down into combinations of units (hours and minutes). Basically this comes down to formatting. Rather than create separate cell editor classes for each kind of formatting, Hypergrid supports formatters. All of the above could use the same "textfield" cell editor but with different formatters.
 
-The user initiates cell editing on a filter cell with a single (or double) mouse click; or on a data cell with a double mouse click.
+#### Which cells are editable?
 
-Providing the cell has a cell editor associated with it, an input control appears positioned precisely over the cell. The user interacts with the control to change the data in the cell.
+Only _filter cells_ and _data cells_ can use cell editors. Column headers and row handles are also cells but these cannot be edited. In addition, cells in summary rows, and cells in drill-down columns are not editable.
 
-#### Concluding editing
+Filter cells are automatically assigned to the `filterbox` cell editor. For a data cell to be editable however, it must have a cell editor _assigned_ to it. In most cases default assignments are made automatically. (See _Assigning a cell editor,_ below.)
 
-The new value is accepted by pressing the *_enter_* (aka *_return_*) key, the *_tab_* key, or any of the four arrow keys on the keyboard; or by "clicking away" (clicking outside of) the control (including initiating editing on another cell).
+### Lifecycle of a cell editor
 
-#### Aborting editing
+All cell editors go through the following steps (step 6 is skipped when the editing session is abandoned):
+
+1. **Generate a _view,_** a graphical user interface consisting of either:
+   * A single interactive DOM element that holds the control's value, typically in its `value` attribute. Referenced by both the view's `el` and `input` properties.
+   * A containing element (`el`) with nested sub-elements, one of which (`input`) is designated to hold the control's value.
+2. **Fetch the cell value** from the data store and incorporate it into the view.
+3. **Insert the view** into the DOM at the start of a cell editing session.
+4. **Control the view** by listening for events and responding by manipulating the view.
+5. **Remove the view** from the DOM at the conclusion (or abandonment) of the cell editing session.
+6. **Save the new value:**
+   a. **Extract the edited value** from the `input` element.
+   b. **Parse the edited value** from its presentational (formatted) form back into its data form.
+   c. **Convert the parsed value** to type as needed.
+   d. **Store the new value** into the underlying data store.
+7. **Dispose of the view.**
+
+#### Instantiation
+
+As noted, the cell's assigned cell editor object is instantiated one at a time and only as needed. The new object is assigned to your grid's `editor` property; and this property is undefined when the object is disposed of.
+
+#### Standard cell editors
+
+Hypergrid comes with a set of standard cell editors. (See _What's in the box?_ below.) Most of these are simple implementations of various types of the HTML `<input>` element (text, date, color, etc.). However, like cell renderers, cell editors can take any form and are not restricted to the use of the `<input>` element.
+
+#### Invoking a cell editor
+
+Cell editors are typically invoked through user interaction, although they may also be invoked programmatically.
+
+##### Beginning editing
+   
+The user initiates a cell editing session:
+* *On a filter cell* with a single (or double) mouse click; or
+* *On a data cell* with a double mouse click.
+
+The application developer can begin a session programmatically on a particular cell as follows:
+```javascript
+var Point = require('rectangular').Point;
+yourGrid.onEditorActivate({ gridCell: new Point(columnIndex, rowIndex) };
+```
+
+If the cell has no cell editor class assigned to it, nothing will happen. But if there is a cell editor, the following happens:
+1. A cell editor object is instantiated from the assigned class. This object serves as a view controller.
+2. The cell editor is used to create a view, consisting of DOM `Node`s and event handlers.
+3. The view is inserted into the DOM on top of the grid's `<canvas>` element, positioned precisely over the cell's image in the canvas.
+4. During this time, canvas scrolling is suppressed.
+
+The user can now interact with the control to "edit" the data in the cell. Eventually, the user either saves or cancels the editing session.
+
+##### Concluding editing (save)
+
+The new value is accepted by pressing the *_enter_* (aka *_return_*) key or the *_tab_* key; or by "clicking away" from (clicking or double-clicking outside of) the control (including a click that would initiate editing of another cell).
+
+Or programmatically:
+```javascript
+yourGrid.stopEditing();
+```
+
+The DOM element(s) are removed from the DOM; and the cell editor (view controller object) is disposed of.
+
+##### Aborting editing (cancel)
 
 The edit can be aborted by pressing the *_esc_* ("escape") key on the keyboard; or by scrolling the grid via the mouse-wheel or trackpad gesture.
 
+Or programmatically:
+```javascript
+yourGrid.cancelEditing();
+```
 
-### Associating a cell editor with a cell
+The DOM element(s) are removed from the DOM; and the cell editor (view controller object) is disposed of.
 
-*Column filter cells* are automatically associated with the `FilterBox` cell editor, although this can be overridden. (The only practical override for a filter cell editor would probably be no editor at all, should you want to suppress filter cell editing on a column.)
+### Assigning a cell editor
+
+As described above, a cell editor class must be assigned to the grid cell in order for an editing session to begin. This assignment may be made _declaratively_ and/or _programmatically_ (see below). If both methods are applied to a cell, the programmatic assignment can inspect and override the declarative assignment. If no assignment is established by either method, the cell will not be editable. However, read the declarative assignment rules carefully, and there are several fallback strategies before the the declaration will truly yield no assignment.
+
+Note that column filter cells are automatically assigned to the `FilterBox` cell editor. This assignment can however be overridden programmatically. (The only practical override for a filter cell editor would presumably be no editor at all, should you want to suppress filter cell editing on a column.)
  
-*Data cells* may be associated with cell editors _declaratively_ or _programmatically_. Both these methods are explained below. Note that a declarative association can be overridden programmatically.
+#### Declarative cell editor assignment
 
-Failure to associate a cell editor with a data cell means that the cell will not be editable.
+By _declarative,_ we mean statements that (typically) use JavaScript object literals to supply _render property_ values to Hypergrid's various _set properties_ methods. These values are necessarily static; they won't change frequently or at all.
+
+Assign a cell editor to a cell explicitly in a declarative statement by referencing them by name:
+
+```javascript
+behavior.setColumnProperties(COLUMN_INDEX_SALARY, {
+    editor: 'number',
+    format: 'number'
+});
+```
+              
+This declaration assigns assigns the `'number'` cell editor as the editor to use for all the cells in a particular column; and the `'number'` localizer as the localizer to use to format all the column's cells for display.
+
+Declarations refer to objects by name. In order for the above declaration to work, the name of the cell editor ("number") must have been previously registered in the `cellEditors` API; and the name of the localizer must have been previously registered in the `localization` API.
+
+It is typical to declare a cell editor for all the cells in a column. It would be rare a specific cell (_i.e.,_ in a specific row) to have a cell editor assignment that differs from the other cells in its column.
+
+In the above, the column is referenced by its _absolute_ index, its position within the data model's `fields[]` array. (See the {@tutorial columns} tutorial for more information.)
+
+#### Render properties
+
+Hypergrid maintains special _render property objects_ for the grid, for each column, and optionally for individual cells. The term _render property_ refers to properties of these special objects. The resolution of a render property cascades through these objects from most specific to most general. For example, the resolution of the `editor` render property looks like this:
+1. Check for an `editor` cell render property; if undefined then...
+2. Check for an `editor` column render property; if still undefined then...
+3. Check for an `editor` grid render property.
+
+By "undefined" in the above we mean not either not defined at all (missing from the object), or defined with the `undefined` value. Any other value is considered to be "defined" and will halt the cascade. This includes other falsy values such as `null`. Therefore, `null` can be used to stop the cascade with a falsy value which the code generally interprets as "do not apply the property" (although for certain properties the code may take other default actions).
+
+#### Name resolution
+
+Both localizers and cell editors have defaults. That is, the declarative strategies for both assignments has been extended beyond the usual cascade of a single render property (as listed above) to include the following fallback strategies: 
+1. If `format` fails to resolve to a localizer name, the algorithm will look for a formatter with a name that matches the column's `type` name (unless `format` as `null`). That is, if the application developer fails to specify a formatter, but the column has a defined type, we (usually) want to use the default formatter for that type. To avoid this, we can specify `null` for `format`.
+2. If `editor` fails to resolve to a cell editor name, the algorithm will look for a cell editor with a name that matches the format as resolved in strategy #1 above. That is, at the beginning of a cell editing session we (usually) want to apply the same formatting to the value initially loaded into the cell editor as was applied when the value was rendered into the grid cell. To avoid this, we can specify `null` for `editor`.
+
+As you can see, the two are interrelated: The localizer strategy is applied first. The cell editor strategy as applied depends on the results of the localizer strategy. The end result being that the cell editor name falls back first to the format name and then to the type name.
+
+In practical terms, when the cell editor name and the formatter name are the same, as in the above example, the `editor` render property can be omitted. As this is usually the case (we usually want the the cell editor session to begin with a value formatted in exactly the same way as the value was rendered into the grid cell), the `editor` render property can be omitted most of the time. Only when we want to use a different cell editor do we need to specify it's name (or `null`).
+
+This scheme requires some clarification because cell editor names, localizer names, and type names belong to entirely separate and unrelated namespaces. Nevertheless, by strategically naming our localizers and cell editors (as they are registered), including creating synonyms, we create a deliberate convergence between the two namespaces. This allows the cascading effect to work for us most of the time.
+
+Note that the `type` property is not a render property that can exist at the cell, column, and grid levels. Rather, it is a regular property on the column object. Therefore, only the column is checked for `type`.
+
+In summary, the full strategy for cell editor resolution cascades as follows:
+1. `editor` cell render property
+2. `editor` column render property
+3. `editor` grid render property
+4. `format` cell render property
+5. `format` column render property
+6. `format` grid render property
+7. `type` column object property
  
-#### Declarative cell editor association
+##### Reference by name
 
-*Definition.* By _declarative,_ we mean statements that (typically) use JavaScript object literals to supply property values to Hypergrid's various _set properties_ methods.
+Hypergrid's cell editors are "classes" extended from `CellEditor`. When the user begins cell editing, a cell editor object is automatically instantiated from one of these classes. This is the "active" cell editor. When the user closes the cell editor, the instance is destroyed. Since you can only edit one grid cell at a time, at most only a single cell editor is ever active at any given time. For declarative purposes, each cell editor has a name, generally the name of the object's constructor, although any name can be used.
+ 
+ Internally, the name is stored in all lower case. This supports case-insensitivity in that references to the names are converted to all lower case before dereferencing is attempted. It does mean however that distinct cell editor names must differ by more than case alone.
 
-*Cell editor names.* Cell editor references in these declarations are always given in string form, a case-insensitive stringification of the cell editor's name (_i.e., the name of its constructor function). This facilitates persisting declarative data because such references are pre-_stringified._ It also allows format names and type names to be used to reference cell editors (more on this below).
+##### Assignments
 
-When the user initiates cell editing on a data cell, the data model's `getCellEditorAt` method is invoked with the cell coordinates. Unless overridden, `DataModel.prototype.getCellEditorAt` looks for a cell editor name in the following places in the following priority order:
+The default method assigns cell editors based on the following declarations:
 
-1. The `editor` cell property, if any
-2. The `format` cell property, if any
-3. The column's type name, if any
+1. The cell's `editor` property is an explicit reference-by-name to a registered cell editor. (Stop.)
+2. The cell's `format` property is an explicit reference-by-name to a registered localizer. If the cell's `editor` property is undefined, this name will be used to attempt to resolve the cell editor. (Stop.)
+3. The column object's `type` property is the (name of the) primitive data type of all the cells in the column. If the cell's `format` property is undefined, this name will be used to attempt to resolve the cell localizer; and if the cell's `editor` property is also undefined, this name will in turn be used to attempt to resolve the cell editor as well. (Stop.)
+4. If the column is untyped, the cell will have to declared localizer nor cell editor.
 
-If a cell editor name was found _and_ it was the name or synonym of a registered cell editor, the cell editor is associated with the cell. Otherwise, the cell will be _non-editable_ unless a cell editor is associated programmatically at run-time, as described in the next section.
+Specifically, when the user initiates cell editing on a data cell, the data model's `getCellEditorAt` method is invoked with the cell coordinates. Unless overridden, `DataModel.prototype.getCellEditorAt` looks for a cell editor name as described above. If found _and_ it was the name (or synonym) of a registered cell editor, the cell editor is assigned to the cell. Otherwise, the cell will be _non-editable_ unless a cell editor is assigned programmatically at run-time, as described in the following section.
+ 
+##### The `format` property
 
-NOTE: Rule 3 works because there already are cell editors with names matching the type names "number" and "date"; and in addition the name "string" is registered as a synonym for the "textfield" cell editor. The implication here is that without specifying either of the cell properties in rules 1 and 2, 
+For data to be presented as text, cells and cell editors both use _localizers_ to format the data primitives into human-readable form. (See the {@tutorial Localizers} tutorial for more information.)
 
-#### Programmatic cell editor association
+The application developer can specify a cell's format by declaring a localizer name using the `format` cell property. This can be specified at the cell level, the column level, or the grid label. Note that the default value for the `format` property (as defined in ./defaults.js) is `undefined` (meaning non-editable).
 
-This data model's `getCellEditorAt` method is called when the user attempts to open a cell editor. For programmatic cell editor association, override it:
+A cell editor also declares a localizer, but internally, in its prototype's `localizer` property; and rather than using a registered localizer name, this declaraction consists of a direct references to a {@link localizerInterface|localizer object}. The default value for the `localizer` property (as defined in ./cellEditors/CellEditor.js) is a reference to the "null" localizer (essentially `toString()` function).
+
+Cell editors also use localizers to parse a formatted value back into a data primitive after editing is complete (`cellEditor.localizer.standardize()`).
+ 
+The cell and its editor will generally use the same localizer (although they don't have to). This is why the above cascading assignment rules are often useful: Usually, you only need to specify `editor` if it differs from `format`; and you only really need to specify `format` if the format differs from the column type (or if the column is untyped)
+
+To support this mechanism, localizer synonyms may be registered for for type names; and cell editor synonyms may be registered for localizer names. In this sense, the namespaces overlap. 
+
+#### Programmatic cell editor assignment
+
+This data model's `getCellEditorAt` method is called when the user attempts to open a cell editor. For programmatic cell editor assignment, override it:
  
 ```javascript
 yourGrid.behavior.dataModel.getCellEditorAt = function(x, y) {
@@ -117,7 +241,7 @@ Note however the two files in that folder which do _not_ represent actual cell e
 
 Most of the standard cell editors simply generate one of the HTML `<input>` type UI controls. See the {@link https://www.w3.org/TR/html5/forms.html|W3C Recommendation} or the {@link https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input|Mozilla pae} for more information.
 
-> *Note:* The implementation of these controls across browsers is uneven at best; and none are localizable as they should be. Presumably, these features (including full localization) will come in time to all browsers. But for now, the decision to use these controls should be made carefully, considering how it is implemented on the browsers your users are likely to be using.
+> *Note:* The implementation of these controls across browsers is uneven at best; and none are localizable as they should be. Presumably, these features (including full localization) will come in time to all browsers. But for now, the decision to use these controls should be made carefully, considering how it is implemented on each of the browsers your users are likely to use.
 
 File         | Object    | Markup                  | Cr | Sf | FF | IE | Description
 ------------ | --------- |------------------------ | -- | -- | -- | -- | -----------
@@ -194,3 +318,4 @@ Custom controls are complex controls made up several HTML input controls. Specif
 
 
 Values for the  attributes can be set directly on the cell editor objects. 
+``
