@@ -130,7 +130,7 @@ Column.prototype = {
     },
 
     getCellProperties: function(y) {
-        return this.cellProperties[y];
+        return this.cellProperties[y] || {};
     },
 
     setCellProperties: function(y, value) {
