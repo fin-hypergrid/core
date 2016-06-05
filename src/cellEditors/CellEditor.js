@@ -7,13 +7,14 @@ var _ = require('object-iterators');
 
 var Base = require('../lib/Base');
 var effects = require('../lib/effects');
+var localization = require('../lib/localization');
 
 /**
  * @constructor
  */
 var CellEditor = Base.extend('CellEditor', {
 
-    initialize: function(grid, localizer) {
+    initialize: function(grid) {
 
         /**
          * my instance of hypergrid
@@ -21,8 +22,6 @@ var CellEditor = Base.extend('CellEditor', {
          * @memberOf CellEditor.prototype
          */
         this.grid = grid;
-
-        this.localizer = localizer ? localizer : grid.localization.get(null);
 
         this.editorPoint = {
             x: 0,
@@ -37,6 +36,8 @@ var CellEditor = Base.extend('CellEditor', {
         this.el.addEventListener('keypress', function(e) { grid.fireSyntheticEditorKeyPressEvent(self, e); });
         this.el.onblur = function(e) { self.cancelEditing(); };
     },
+
+    localizer: localization.prototype.null,
 
     reset: function() {
         var container = document.createElement('DIV');

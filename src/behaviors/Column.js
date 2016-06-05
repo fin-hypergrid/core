@@ -230,8 +230,36 @@ Column.prototype = {
         this.dataModel.unSortColumn(this.index, deferred);
     },
 
+    /**
+     * This method determines the proposed cell editor name from the render properties. The algorithm is:
+     * 1. `editor` render property (cell editor name)
+     * 2. `format` render property (localizer name)
+     * 3. `type` column property (type name)
+     *
+     * Note that "render property" means in each case the first defined property found on the cell, column, or grid.
+     *
+     * @param {number} y - The original untranslated row index.
+     * @returns {sring} Falsy value means either `null` cell editor _or_ no declared cell editor for this cell.
+     */
     getCellEditorAt: function(y) {
-        return this.dataModel.getCellEditorAt(this.index, y);
+        var cellProperties,
+            columnProperties;
+
+        var editorName =
+            (cellProperties = this.getCellProperties(y) || {}).editor ||
+            (columnProperties = this.getProperties()).editor;
+
+        if (!editorName && editorName !== null) { // null means don't fallback to format
+            editorName =
+                cellProperties.format ||
+                columnProperties.format;
+        }
+
+        if (!editorName && editorName !== null) { // null means don't fallback to type
+            editorName = this.getType();
+        }
+
+        return this.dataModel.getCellEditorAt(this.index, y, editorName);
     },
 
     /** @deprecated Use `.header` property instead.
