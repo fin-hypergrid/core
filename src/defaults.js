@@ -653,7 +653,7 @@ module.exports = {
      * The default (`undefined`) falls back to `column.type`.
      * The value `null` does no formatting.
      * @default undefined
-     * @type {undefined|null|string}}
+     * @type {undefined|null|string}
      * @tutorial localization
      */
     format: undefined,
@@ -662,7 +662,7 @@ module.exports = {
      * The default (`undefined`) falls back to `format`.
      * The value `null` does no formatting.
      * @default undefined
-     * @type {undefined|null|string}}
+     * @type {undefined|null|string}
      * @tutorial localization
      */
     editor: undefined,

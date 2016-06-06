@@ -37,8 +37,6 @@ var CellEditor = Base.extend('CellEditor', {
         this.el.onblur = function(e) { self.cancelEditing(); };
     },
 
-    localizer: localization.prototype.null,
-
     reset: function() {
         var container = document.createElement('DIV');
         container.innerHTML = this.getHTML();
