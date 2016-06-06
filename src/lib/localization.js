@@ -56,7 +56,7 @@ var NumberFormatter = Formatter.extend('NumberFormatter', {
 
         this.format = new Intl.NumberFormat(this.locale, options).format;
 
-        var mapperOptions = { useGrouping: false, style: 'decimal' },
+        var mapperOptions = { useGrouping: false },
             mapper = new Intl.NumberFormat(this.locale, mapperOptions).format;
 
         this.demapper = demap.bind(this);
@@ -184,14 +184,13 @@ var DateFormatter = Formatter.extend('DateFormatter', {
         var yy = 1987,
             mm = 12,
             dd = 30,
-            h = 4,
-            m = 56,
             YY = this.transformNumber(this.digitFormatter, yy),
             MM = this.transformNumber(this.digitFormatter, mm),
             DD = this.transformNumber(this.digitFormatter, dd),
-            testDate = new Date(yy, mm - 1, dd, h, m),
-            localizeDate = new Intl.DateTimeFormat(locale).format,
+            testDate = new Date(yy, mm - 1, dd),
+            localizeDate = new Intl.DateTimeFormat(this.locale).format,
             localizedDate = localizeDate(testDate), // all localized digits + localized punctuation
+            missingDigits = new Intl.NumberFormat(this.locale).format(456),
             localizedNumberPattern = this.localizedNumberPattern = new RegExp('[' + localizedDigits + ']+', 'g'),
             parts = localizedDate.match(localizedNumberPattern);
 
@@ -200,6 +199,10 @@ var DateFormatter = Formatter.extend('DateFormatter', {
             mm: parts.indexOf(MM),
             dd: parts.indexOf(DD)
         };
+
+        if (options.acceptStandardDigits) {
+            missingDigits += '1234567890';
+        }
 
         /** @summary A regex that tests `true` on firstL invalid character.
          * @type {RegExp}
@@ -220,7 +223,7 @@ var DateFormatter = Formatter.extend('DateFormatter', {
         this.invalids = new RegExp(
             '[^' +
             localizedDate +
-            (options.acceptStandardDigits ? '0123456789' : '') +
+            missingDigits +
             ']'
         );
     },
