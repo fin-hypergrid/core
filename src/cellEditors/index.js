@@ -67,7 +67,7 @@ function instantiate(editorName, options) {
         }
         cellEditor = new CellEditorConstructor(this, options);
     }
-    
+
     return cellEditor;
 }
 
