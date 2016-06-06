@@ -1,5 +1,4 @@
 /**
- * @summary API of cell editor object constructors, plus some access methods.
  * @module cellEditors
  */
 
@@ -29,6 +28,8 @@ var cellEditors = {
  * @param {string} [editorName] - Case-insensitive editor key. If not given, `YourCellEditor.prototype.$$CLASS_NAME` is used.
  *
  * > Note: `$$CLASS_NAME` can be easily set up by providing a string as the (optional) first parameter (`alias`) in your {@link https://www.npmjs.com/package/extend-me|CellEditor.extend} call.
+ *
+ * @returns {CellEditor} An class extended from {@link CellEditor}.
  *
  * @memberOf module:cellEditors
  */

@@ -12,7 +12,6 @@ var CellRenderer = Base.extend('CellRenderer', {
     /**
      * @desc An empty implementation of a cell renderer, see [the null object pattern](http://c2.com/cgi/wiki?NullObject).
      * @param {CanvasGraphicsContext} gc
-     * @param {CanvasGraphicsContext} gc
      * @param {object} config
      * @param {Rectangle} config.bounds - The bounding rect of the cell to be rendered.
      * @param config.x - The cell column position
