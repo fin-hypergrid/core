@@ -554,6 +554,12 @@ window.onload = function() {
         currency: 'EUR'
     }));
 
+    var colorText = fin.Hypergrid.cellEditors.get('textfield').extend('colorText', {
+        template: '<input type="text" style="color:{{textColor}}">'
+    });
+
+    grid.registerCellEditor(colorText);
+
     // Register a localizer and create a new cell editor class of the same name.
     // New cell editor is based on `Textfield` but references `localizer`.
     function registerLocalizerAndCellEditor(name, localizer, cellEditorBaseClassName) {
@@ -582,10 +588,16 @@ window.onload = function() {
 
     // Override to assign the the cell editors.
     dataModel.getCellEditorAt = function(x, y, declaredEditorName) {
-        var cellEditor = this.grid.createCellEditor(
-            declaredEditorName ||
-            editorTypes[x % editorTypes.length]
-        );
+        var editorName = declaredEditorName || editorTypes[x % editorTypes.length],
+            options = {};
+
+        switch (x) {
+            case idx.BIRTH_STATE:
+                options.textColor = 'red';
+                break;
+        }
+
+        var cellEditor = this.grid.createCellEditor(editorName, options);
 
         if (cellEditor) {
             switch (x) {
@@ -940,7 +952,7 @@ window.onload = function() {
             });
 
             behavior.setColumnProperties(idx.BIRTH_STATE, {
-
+                editor: 'colortext'
             });
 
             behavior.setColumnProperties(idx.EMPLOYED, {
