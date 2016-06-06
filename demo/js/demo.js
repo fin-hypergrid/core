@@ -918,7 +918,7 @@ window.onload = function() {
             });
 
             behavior.setColumnProperties(idx.LAST_NAME, {
-                format: 'combobox',
+                editor: 'combobox',
                 link: true
             });
 
@@ -935,6 +935,7 @@ window.onload = function() {
             });
 
             behavior.setColumnProperties(idx.BIRTH_DATE, {
+                editor: 'singdate',
                 format: 'singdate',
                 //strikeThrough: true
             });

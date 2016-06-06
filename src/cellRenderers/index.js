@@ -7,7 +7,7 @@
 
 /**
  * @summary Hash of cell renderer object constructors.
- * @desc This hash's only purpose is to support the convenience methods defined herein: {@link cellRenderers.extend|extend}, {@link cellRenderers.register|register}, and {@link cellRenderers.instantiate|instantiate}. If you do not need these methods' functionality, you do not need to register your cell renderers.
+ * @desc This hash's only purpose is to support the convenience methods defined herein: {@link module:cellRenderers~extend|extend}, {@link module:cellRenderers~register|register}, and {@link module:cellRenderers~instantiate|instantiate}. If you do not need these methods' functionality, you do not need to register your cell renderers.
  * @type {object}
  */
 var cellRenderers = {

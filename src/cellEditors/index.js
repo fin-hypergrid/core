@@ -57,11 +57,17 @@ function get(editorName) {
  * @memberOf module:cellEditors
  */
 function instantiate(editorName) {
-    var CellEditorConstructor = get(editorName);
-    if (CellEditorConstructor.abstract) {
-        throw 'Attempt to instantiate an "abstract" cell editor class.';
+    var cellEditor,
+        CellEditorConstructor = get(editorName);
+
+    if (CellEditorConstructor) {
+        if (CellEditorConstructor.abstract) {
+            throw 'Attempt to instantiate an "abstract" cell editor class.';
+        }
+        cellEditor = new CellEditorConstructor(this);
     }
-    return CellEditorConstructor && new CellEditorConstructor(this);
+
+    return cellEditor;
 }
 
 

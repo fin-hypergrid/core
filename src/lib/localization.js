@@ -383,7 +383,7 @@ Localization.prototype = {
      * @memberOf Localization.prototype
      */
     get: function(localizerName) {
-        return this[localizerName] || this.null;
+        return this[localizerName] || this.string;
     },
 
     ///  ///  ///  ///  ///    LOCALIZERS    ///  ///  ///  ///  ///
@@ -419,6 +419,15 @@ Localization.prototype = {
     },
 
     null: {
+        format: function(value) {
+            return value;
+        },
+        parse: function(str) {
+            return str;
+        }
+    },
+
+    string: {
         format: function(value) {
             return value + '';
         },

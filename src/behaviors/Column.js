@@ -207,7 +207,7 @@ Column.prototype = {
     },
 
     typeOf: function(something) {
-        if (something === null || something === undefined) {
+        if (something == null) {
             return null;
         }
         var typeOf = typeof something;
@@ -251,22 +251,9 @@ Column.prototype = {
      * @returns {sring} Falsy value means either `null` cell editor _or_ no declared cell editor for this cell.
      */
     getCellEditorAt: function(y) {
-        var cellProperties,
-            columnProperties;
-
         var editorName =
-            (cellProperties = this.getCellProperties(y)).editor ||
-            (columnProperties = this.getProperties()).editor;
-
-        if (!editorName && editorName !== null) { // null means don't fallback to format
-            editorName =
-                cellProperties.format ||
-                columnProperties.format;
-        }
-
-        if (!editorName && editorName !== null) { // null means don't fallback to type
-            editorName = this.getType();
-        }
+            this.getCellProperties(y).editor ||
+            this.getProperties().editor;
 
         return this.dataModel.getCellEditorAt(this.index, y, editorName);
     },
@@ -284,7 +271,8 @@ Column.prototype = {
     },
 
     getFormatter: function() {
-        return this.behavior.grid.localization.get(this.getProperties().format).format;
+        var localizerName = this.getProperties().format;
+        return this.behavior.grid.localization.get(localizerName).format;
     }
 };
 
