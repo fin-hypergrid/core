@@ -2,21 +2,71 @@ This document describes the Cell Editor interface. This information is useful to
 
 #### Definition
 
-A **cell editor** is a JavaScript object, descended from `CellEditor`, which serves as a basic _view-controller_, placing DOM elements over a cell to allow the user to edit the cell's value.
+A **cell editor** is a JavaScript object, descended from `CellEditor`, which serves as a basic _view-controller_, placing DOM elements on top of the Hypergrid `<canvas>` element, positioned precisely over the particular grid cell the user wants to edit.
 
-Each grid has an `editor` property which holds a reference to its open cell editor. Only one cell editor object will exist for each grid at any one time, and only while in actual use (instantiated "late"; disposed of "early"). The grid's `editor` property is `undefined` at all other times. Therefore this property can be tested to determine if a grid's editor is open. At the end of an editing session, the object disposes of itself by setting the grid's `editor` property to `undefined`.
+#### Hypergrid
 
-#### Data modalities
+The reader should be familiar with Hypergrid basics. In particular, that the Hypergrid runtime defines an object (or "class") called a `Hypergrid`. The application developer instantiates one or more of these grids, each of which inserts itself into the DOM as a single `<canvas>` element + two `<div>` elements for the horizontal and vertical scrollbars.
 
-Some data is best presented in text form while other data is better presented in graphical form. Any kind of data can be edited with the proper cell editor. Typically, cell editors will want to edit the data in the same form in which it is rendered in the cells. For example, straight numbers are usually edited as text, whereas data representing something visual such as a color or a star rating is usually better edited in a graphical interface that lets the user click on a color or a star.
+For the purposes of this tutorial, we shall define a variable `grid` refer to a single instance of a Hypergrid object:
+
+Hypergrid is available as an npm module:
+```javascript
+var Hypergrid = require('fin-hypergrid');
+var grid = new Hypergrid();
+```
+
+Hypergrid is also available as an include file:
+
+```html
+<script src="openfin.github.io/fin-hypergrid/build/hypergrid.min.js">
+```
+
+```javascript
+var grid = new fin.Hypergrid();
+```
+
+#### `grid.editor` property
+
+Each grid instance has an `editor` property which holds a reference to its open cell editor. Only one cell editor object will exist for each grid at any one time, and only while in actual use (instantiated late; disposed of early). This `editor` property is `undefined` at all other times. Therefore this property can be tested to determine if a grid's editor is open. At the end of an editing session, the object disposes of itself by setting this property to `undefined`.
+
+#### Cell rendering
+
+Hypergrid's basic function is to render data in rows and columns. Each cell is a visualization of a chunk of data.
+
+Currently, Hypergrid operates on an array of uniform data objects. Each object represents rows in the grid; the properties of each object represent each cell (column) in the row. How the data gets into this array is up to the application developer. Typically, it will come from a database as serialized text data (JSON, XML). This will be parsed into JavaScript primitive values (string, number, boolean, null). The application developer may further process the data into more exotic types (objects such as Date).
+
+Because Hypergrid renders the data into a `<canvas>` element, the various primitives and objects can be presented in any form that can be projected onto a two dimensional surface. A lot of data is typically presented simply as text, which requires serializing the data back into text form. Other data, however, may better be presented in graphical form.
+
+#### Cell editing
+
+How cell editors display and edit data is independent from how the same data is rendered into the canvas before and after editing. For text data, the editor may offer a text editor, typically utilizing an HTML `<input>` element. For example, simple numeric data are often best edited as numbers in text form.
+
+On the other hand, cell editors do not have to match the modality of the data. Even if rendered into the grid as text, some data is better edited in a non-text graphical user interface. For example, a date might be rendered as text but its cell editor might show a calendar picker control.
  
-On the other hand, cell editors do not have to match the modality of the data. For example, a color could be shown as a swatch but edited as a number; or _vice versa:_ A color could be shown in text (as a hexidecimal number) but edited with a color picker. A similar example is a date on a calendar.
+Or vice-versa: A cell might render its data in non-text form, but the cell editor might edit it in text form. For example, a cell might render as an analog clock face but its cell editor might just ask the user to edit the time in the familiar text form of number of hours and number of minutes.
 
-A cell editor might combine a graphical interface and a text box. Hypergrid includes a "combobox" cell editor that has a text box just like a regular text editor but also slides open a graphical interface. The user has the choice of which interface to use. Ideally, edits in one interface are instantaneiously reflected in the other.
+For dates, times, and other data familiarly represented by a number or a set of numbers (_e.g.,_ colors), _hybrid_ "picker" controls are popular alternatives. Such controls have a text entry section _and_ a GUI section. Editing one instantaneously updates the other. (Hypergrid includes a `ComboBox` cell editor object that sports a text box like a regular text editor but also slides open a GUI. Developers can extend this object to create their own custom hypbrid controls.)
  
 #### Text cell editors
 
-There are many types of text data: Numbers, currency, dates, coordinates, measurements with variable units (m, cm, mm), or single measurements broken down into combinations of units (hours and minutes). Basically this comes down to formatting. Rather than create separate cell editor classes for each kind of formatting, Hypergrid supports formatters. All of the above could use the same "textfield" cell editor but with different formatters.
+It is typical to see grids with a lot of text cells. This is because there are many types of text data: Numbers, dates, currency, dates, coordinates, measurements, not to mention string data. Basically this comes down to formatting. All text cell editors extend from the `Textfield` cell editor, with the only difference being which formatter they reference. Actually, cell editors reference an object called a _localizer_. A localizer includes both a formatter (`format`) as well as a de-formatter (`parse`). Cell editors need to know how to do both these operations.
+
+For example, the `Number` cell editor (not to be confused with the `window.Number` global object) extends textfield, overriding the localizer:
+
+```javascript
+var Number = Textfield.extend('Number', {
+    initialize: function(grid) {
+        this.localizer = grid.localization.get('number');
+    }
+});
+```
+
+A _localizer_ includes both a formatter (`format`) as well as a de-formatter (`parse`). Cell editors need to know how to do both these operations.
+
+(In the above example it would have been simpler to declare an override of the superclass's localizer definition. In this case, however, the `'number'` localizer was not available at extend time. It is only added to the localizer singleton when the grid is instantiated because its definition requires a locale and options which isn't known till then.)
+
+
 
 #### Which cells are editable?
 
