@@ -40,7 +40,7 @@ var cellRenderers = {
 function register(Constructor, rendererName) {
     rendererName = rendererName || Constructor.prototype.$$CLASS_NAME;
     rendererName = rendererName && rendererName.toLowerCase();
-    return (cellRenderers[rendererName] = instantiate(Constructor));
+    return (cellRenderers[rendererName] = create(Constructor));
 }
 
 /**
@@ -73,11 +73,17 @@ function get(rendererName) {
   * @param {string} rendererName
   * @private
   */
-function instantiate(CellRendererConstructor) {
-    if (CellRendererConstructor.abstract) {
-        throw 'Attempt to instantiate an "abstract" cell renderer.';
+function create(CellRendererConstructor) {
+    var cellRenderer;
+
+    if (CellRendererConstructor) {
+        if (CellRendererConstructor.abstract) {
+            throw 'Attempt to instantiate an "abstract" cell renderer.';
+        }
+        cellRenderer = new CellRendererConstructor;
     }
-    return CellRendererConstructor && new CellRendererConstructor;
+
+    return cellRenderer;
 }
 
 

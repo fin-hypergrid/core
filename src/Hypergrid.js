@@ -15,8 +15,6 @@ var Rectangle = require('rectangular').Rectangle;
 var _ = require('object-iterators'); // fyi: installs the Array.prototype.find polyfill, as needed
 
 var defaults = require('./defaults');
-var cellEditors = require('./cellEditors');
-var cellRenderers = require('./cellRenderers');
 var Renderer = require('./lib/Renderer');
 var SelectionModel = require('./lib/SelectionModel');
 var stylesheet = require('./lib/stylesheet');
@@ -311,30 +309,6 @@ Hypergrid.prototype = {
         var formatter = this.getFormatter(localizerName);
         return formatter(value);
     },
-
-    /**
-     * @see {@link module:cellRenderers.register|cellRenderers.register}
-     * @memberOf Hypergrid.prototype
-     */
-    registerCellRenderer: cellRenderers.register,
-
-    /**
-     * @see {@link module:cellRenderers.get|cellRenderers.get}
-     * @memberOf Hypergrid.prototype
-     */
-    getCellRenderer: cellRenderers.get,
-
-    /**
-     * @see {@link module:cellEditors.register|cellEditors.register}
-     * @memberOf Hypergrid.prototype
-     */
-    registerCellEditor: cellEditors.register,
-
-    /**
-     * @see {@link module:cellEditors.instantiate|cellEditors.instantiate}
-     * @memberOf Hypergrid.prototype
-     */
-    createCellEditor: cellEditors.instantiate,
 
     /**
      * @memberOf Hypergrid.prototype

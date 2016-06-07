@@ -7,7 +7,7 @@
 var cellEditors = {
     register: register,
     get: get,
-    instantiate: instantiate
+    create: create
 };
 
 /**
@@ -57,7 +57,7 @@ function get(editorName) {
  * @this {Hypergrid}
  * @memberOf module:cellEditors
  */
-function instantiate(editorName, options) {
+function create(grid, editorName, options) {
     var cellEditor,
         CellEditorConstructor = get(editorName);
 
@@ -65,7 +65,7 @@ function instantiate(editorName, options) {
         if (CellEditorConstructor.abstract) {
             throw 'Attempt to instantiate an "abstract" cell editor class.';
         }
-        cellEditor = new CellEditorConstructor(this, options);
+        cellEditor = new CellEditorConstructor(grid, options);
     }
 
     return cellEditor;

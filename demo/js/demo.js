@@ -371,7 +371,7 @@ window.onload = function() {
     });
 
     //Register your renderer
-    grid.registerCellRenderer(sparkStarRatingRenderer, 'Starry');
+    fin.Hypergrid.cellRenderers.register(sparkStarRatingRenderer, 'Starry');
 
     // END OF CUSTOM CELL RENDERER
 
@@ -506,7 +506,7 @@ window.onload = function() {
             }
         }
 
-        return grid.getCellRenderer(rendererName);
+        return fin.Hypergrid.cellRenderers.get(rendererName);
     };
 
     var footInchPattern = /^\s*((((\d+)')?\s*((\d+)")?)|\d+)\s*$/;
@@ -567,7 +567,7 @@ window.onload = function() {
             newCellEditorClass = Constructor.extend(name, { localizer: localizer });
 
         grid.registerLocalizer(name, localizer);
-        grid.registerCellEditor(newCellEditorClass);
+        fin.Hypergrid.cellEditors.register(newCellEditorClass);
     }
 
     // Used by the cellProvider.
@@ -597,7 +597,7 @@ window.onload = function() {
                 break;
         }
 
-        var cellEditor = this.grid.createCellEditor(editorName, options);
+        var cellEditor = fin.Hypergrid.cellEditors.create(grid, editorName, options);
 
         if (cellEditor) {
             switch (x) {

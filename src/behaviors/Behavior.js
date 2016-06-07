@@ -8,6 +8,7 @@ var Column = require('./Column');
 var dialogs = require('../dialogs');
 var ColumnSchemaFactory = require('../filter/ColumnSchemaFactory');
 var DefaultFilter = require('../filter/DefaultFilter');
+var cellEditors = require('../cellEditors');
 
 function deriveSchema() {
     return new ColumnSchemaFactory(this.columns).schema;
@@ -1376,7 +1377,7 @@ var Behavior = Base.extend('Behavior', {
      */
     getCellEditorAt: function(x, y) {
         return this.grid.isFilterRow(y)
-            ? this.grid.createCellEditor('filterbox')
+            ? cellEditors.create(this.grid, 'filterbox')
             : this.getActiveColumn(x).getCellEditorAt(y);
     },
 
