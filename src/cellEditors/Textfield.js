@@ -1,7 +1,7 @@
 'use strict';
 
 var CellEditor = require('./CellEditor.js');
-var localization = require('../lib/localization');
+var Localization = require('../lib/Localization');
 
 
 /**
@@ -11,7 +11,7 @@ var Textfield = CellEditor.extend('Textfield', {
 
     template: '<input type="text">',
 
-    localizer: localization.prototype.string,
+    localizer: Localization.prototype.string,
 
     selectAll: function() {
         var lastCharPlusOne = this.getEditorValue().length;

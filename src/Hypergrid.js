@@ -20,7 +20,7 @@ var cellRenderers = require('./cellRenderers');
 var Renderer = require('./lib/Renderer');
 var SelectionModel = require('./lib/SelectionModel');
 var stylesheet = require('./lib/stylesheet');
-var Localization = require('./lib/localization');
+var Localization = require('./lib/Localization');
 var behaviors = require('./behaviors');
 
 var themeInitialized = false,

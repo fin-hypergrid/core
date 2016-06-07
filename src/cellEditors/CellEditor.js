@@ -7,7 +7,7 @@ var _ = require('object-iterators');
 
 var Base = require('../lib/Base');
 var effects = require('../lib/effects');
-var localization = require('../lib/localization');
+var Localization = require('../lib/Localization');
 
 /**
  * @constructor
@@ -43,7 +43,7 @@ var CellEditor = Base.extend('CellEditor', {
         this.el.onblur = function(e) { self.cancelEditing(); };
     },
 
-    localizer: localization.prototype.null,
+    localizer: Localization.prototype.null,
 
     reset: function() {
         var container = document.createElement('DIV');
