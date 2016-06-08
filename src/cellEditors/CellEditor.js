@@ -14,7 +14,11 @@ var localization = require('../lib/localization');
  */
 var CellEditor = Base.extend('CellEditor', {
 
-    initialize: function(grid) {
+    /**
+     * @param grid
+     * @param {string} [options] - Properties to add to the instantiated editor primarily for mustache's use.
+     */
+    initialize: function(grid, options) {
 
         /**
          * my instance of hypergrid
@@ -22,6 +26,8 @@ var CellEditor = Base.extend('CellEditor', {
          * @memberOf CellEditor.prototype
          */
         this.grid = grid;
+
+        _(this).extend(options);
 
         this.editorPoint = {
             x: 0,
