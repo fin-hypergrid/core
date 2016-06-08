@@ -1,7 +1,5 @@
 'use strict';
 
-var cellEditors = require('../cellEditors');
-var cellRenderers = require('../cellRenderers');
 var Base = require('../lib/Base');
 
 var A = 'A'.charCodeAt(0);
@@ -66,7 +64,7 @@ var DataModel = Base.extend('DataModel', {
      * @memberOf DataModel.prototype
      */
     getCell: function(config, declaredRendererName) {
-        return cellRenderers.get(declaredRendererName);
+        return this.grid.cellRenderers.get(declaredRendererName);
     },
 
     /**
@@ -83,7 +81,7 @@ var DataModel = Base.extend('DataModel', {
      * @memberOf DataModel.prototype
      */
     getCellEditorAt: function(x, y, declaredEditorName) {
-        return cellEditors.create(this.grid, declaredEditorName);
+        return this.grid.cellEditors.create(this.grid, declaredEditorName);
     }
 
 });

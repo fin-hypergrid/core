@@ -6,7 +6,6 @@
 var _ = require('object-iterators');
 
 var Base = require('./Base');
-var cellRenderers = require('../cellRenderers');
 var images = require('../../images');
 
 /** @typedef {object} CanvasRenderingContext2D
@@ -600,7 +599,7 @@ var Renderer = Base.extend('Renderer', {
             selectionRegionOverlayColor: this.grid.resolveProperty('selectionRegionOverlayColor'),
             selectionRegionOutlineColor: this.grid.resolveProperty('selectionRegionOutlineColor')
         };
-        cellRenderers.lastselection.paint(gc, config);
+        this.grid.cellRenderers.lastselection.paint(gc, config);
     },
 
     /**
@@ -871,7 +870,7 @@ var Renderer = Base.extend('Renderer', {
                             }
                         };
 
-                        cellRenderers.errorcell.paint(rawGc, config, message);
+                        this.grid.cellRenderers.errorcell.paint(rawGc, config, message);
 
                         rawGc.restore(); // discard clipping region
 

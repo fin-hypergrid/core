@@ -366,12 +366,12 @@ window.onload = function() {
 
 
     //Extend HyperGrid's base Renderer
-    var sparkStarRatingRenderer = fin.Hypergrid.cellRenderers.emptycell.constructor.extend({
+    var sparkStarRatingRenderer = grid.cellRenderers.emptycell.constructor.extend({
         paint: paintSparkRating
     });
 
     //Register your renderer
-    fin.Hypergrid.cellRenderers.register(sparkStarRatingRenderer, 'Starry');
+    grid.cellRenderers.add(sparkStarRatingRenderer, 'Starry');
 
     // END OF CUSTOM CELL RENDERER
 
@@ -506,7 +506,7 @@ window.onload = function() {
             }
         }
 
-        return fin.Hypergrid.cellRenderers.get(rendererName);
+        return grid.cellRenderers.get(rendererName);
     };
 
     var footInchPattern = /^\s*((((\d+)')?\s*((\d+)")?)|\d+)\s*$/;
@@ -554,20 +554,20 @@ window.onload = function() {
         currency: 'EUR'
     }));
 
-    var colorText = fin.Hypergrid.cellEditors.get('textfield').extend('colorText', {
+    var colorText = grid.cellEditors.get('textfield').extend('colorText', {
         template: '<input type="text" style="color:{{textColor}}">'
     });
 
-    grid.registerCellEditor(colorText);
+    grid.cellEditors.add(colorText);
 
     // Register a localizer and create a new cell editor class of the same name.
     // New cell editor is based on `Textfield` but references `localizer`.
     function registerLocalizerAndCellEditor(name, localizer, cellEditorBaseClassName) {
-        var Constructor = fin.Hypergrid.cellEditors.get(cellEditorBaseClassName || 'textfield'),
+        var Constructor = grid.cellEditors.get(cellEditorBaseClassName || 'textfield'),
             newCellEditorClass = Constructor.extend(name, { localizer: localizer });
 
         grid.registerLocalizer(name, localizer);
-        fin.Hypergrid.cellEditors.register(newCellEditorClass);
+        grid.cellEditors.add(newCellEditorClass);
     }
 
     // Used by the cellProvider.
@@ -597,7 +597,7 @@ window.onload = function() {
                 break;
         }
 
-        var cellEditor = fin.Hypergrid.cellEditors.create(grid, editorName, options);
+        var cellEditor = grid.cellEditors.create(grid, editorName, options);
 
         if (cellEditor) {
             switch (x) {

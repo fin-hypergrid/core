@@ -20,6 +20,8 @@ var SelectionModel = require('./lib/SelectionModel');
 var stylesheet = require('./lib/stylesheet');
 var Localization = require('./lib/Localization');
 var behaviors = require('./behaviors');
+var cellRenderers = require('./cellRenderers');
+var cellEditors = require('./cellEditors');
 
 var themeInitialized = false,
     polymerTheme = Object.create(defaults),
@@ -309,6 +311,16 @@ Hypergrid.prototype = {
         var formatter = this.getFormatter(localizerName);
         return formatter(value);
     },
+
+    /**
+     * All references to this shared API should go through your grid instance in case we decide to make it an object later and instance it for each grid.
+     */
+    cellRenderers: cellRenderers,
+
+    /**
+     * All references to this shared API should go through your grid instance in case we decide to make it an object later and instance it for each grid.
+     */
+    cellEditors: cellEditors,
 
     /**
      * @memberOf Hypergrid.prototype

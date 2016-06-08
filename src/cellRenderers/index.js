@@ -11,7 +11,7 @@
  * @type {object}
  */
 var cellRenderers = {
-    register: register,
+    add: add,
     get: get
 };
 
@@ -37,7 +37,7 @@ var cellRenderers = {
  *
  * @memberOf module:cellRenderers
  */
-function register(Constructor, rendererName) {
+function add(Constructor, rendererName) {
     rendererName = rendererName || Constructor.prototype.$$CLASS_NAME;
     rendererName = rendererName && rendererName.toLowerCase();
     return (cellRenderers[rendererName] = create(Constructor));
@@ -87,15 +87,15 @@ function create(CellRendererConstructor) {
 }
 
 
-register(require('./CellRenderer'), 'EmptyCell');
-register(require('./Button'));
-register(require('./SimpleCell'));
-register(require('./SliderCell'));
-register(require('./SparkBar'));
-register(require('./LastSelection'));
-register(require('./SparkLine'));
-register(require('./ErrorCell'));
-register(require('./TreeCell'));
+add(require('./CellRenderer'), 'EmptyCell');
+add(require('./Button'));
+add(require('./SimpleCell'));
+add(require('./SliderCell'));
+add(require('./SparkBar'));
+add(require('./LastSelection'));
+add(require('./SparkLine'));
+add(require('./ErrorCell'));
+add(require('./TreeCell'));
 
 
 module.exports = cellRenderers;

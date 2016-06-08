@@ -5,7 +5,7 @@
 'use strict';
 
 var cellEditors = {
-    register: register,
+    add: add,
     get: get,
     create: create
 };
@@ -33,7 +33,7 @@ var cellEditors = {
  *
  * @memberOf module:cellEditors
  */
-function register(Constructor, editorName) {
+function add(Constructor, editorName) {
     editorName = editorName || Constructor.prototype.$$CLASS_NAME;
     editorName = editorName && editorName.toLowerCase();
     cellEditors[editorName] = Constructor;
@@ -79,14 +79,14 @@ function create(grid, editorName, options) {
  * @constructor
  * @memberOf module:cellEditors
  */
-register(require('./CellEditor'));
+add(require('./CellEditor'));
 
 /** @name combobox
  * @see ComboBox
  * @constructor
  * @memberOf module:cellEditors
  */
-register(require('./ComboBox'));
+add(require('./ComboBox'));
 //register(require('./Combo'));
 
 /** @name color
@@ -94,49 +94,49 @@ register(require('./ComboBox'));
  * @constructor
  * @memberOf module:cellEditors
  */
-register(require('./Color'));
+add(require('./Color'));
 
 /** @name date
  * @see Date
  * @constructor
  * @memberOf module:cellEditors
  */
-register(require('./Date'));
+add(require('./Date'));
 
 /** @name filterbox
  * @see FilterBox
  * @constructor
  * @memberOf module:cellEditors
  */
-register(require('./FilterBox'));
+add(require('./FilterBox'));
 
 /** @name number
  * @see Number
  * @constructor
  * @memberOf module:cellEditors
  */
-register(require('./Number'));
+add(require('./Number'));
 
 /** @name slider
  * @see Slider
  * @constructor
  * @memberOf module:cellEditors
  */
-register(require('./Slider'));
+add(require('./Slider'));
 
 /** @name spinner
  * @see Spinner
  * @constructor
  * @memberOf module:cellEditors
  */
-register(require('./Spinner'));
+add(require('./Spinner'));
 
 /** @name textfield
  * @see Textfield
  * @constructor
  * @memberOf module:cellEditors
  */
-register(require('./Textfield'));
+add(require('./Textfield'));
 
 
 // Register synonyms for standard type names.
@@ -147,21 +147,21 @@ register(require('./Textfield'));
  * @constructor
  * @memberOf module:cellEditors
  */
-register(cellEditors.number, 'int');
+add(cellEditors.number, 'int');
 
 /** @name float
  * @see module:cellEditors~number
  * @constructor
  * @memberOf module:cellEditors
  */
-register(cellEditors.number, 'float');
+add(cellEditors.number, 'float');
 
 /** @name string
  * @see module:cellEditors~textfield
  * @constructor
  * @memberOf module:cellEditors
  */
-register(cellEditors.textfield, 'string');
+add(cellEditors.textfield, 'string');
 
 
 module.exports = cellEditors;
