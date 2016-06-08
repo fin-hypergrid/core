@@ -52,21 +52,84 @@ For dates, times, and other data familiarly represented by a number or a set of 
 
 It is typical to see grids with a lot of text cells. This is because there are many types of text data: Numbers, dates, currency, dates, coordinates, measurements, not to mention string data. Basically this comes down to formatting. All text cell editors extend from the `Textfield` cell editor, with the only difference being which formatter they reference. Actually, cell editors reference an object called a _localizer_. A localizer includes both a formatter (`format`) as well as a de-formatter (`parse`). Cell editors need to know how to do both these operations.
 
-For example, the `Number` cell editor (not to be confused with the `window.Number` global object) extends textfield, overriding the localizer:
+For example, if the cell data is number of minutes and we want to edit in the form _hh:mm_, we'll need a formatter to format the data for editing, and a de-formatter to remove the formatting after editing. We wrap these in a _localizer_ API as `format` and `parse`:
 
 ```javascript
-var Number = Textfield.extend('Number', {
-    initialize: function(grid) {
-        this.localizer = grid.localization.get('number');
-    }
-});
+var hhmm = {
+    format: function(mins) { return ...; }, // returns formatted string from number
+    parse: function(syntax) { return ...; } // returns number from formatted string
+}
 ```
 
-A _localizer_ includes both a formatter (`format`) as well as a de-formatter (`parse`). Cell editors need to know how to do both these operations.
+For a cell editor we will also need a de-formatter:
 
-(In the above example it would have been simpler to declare an override of the superclass's localizer definition. In this case, however, the `'number'` localizer was not available at extend time. It is only added to the localizer singleton when the grid is instantiated because its definition requires a locale and options which isn't known till then.)
+```javascript
+var regexHHMM = /^(\d+):([0-5]\d)$/;
+function hhmm_deformatter(hhmm) {
+    var parts = hhmm.match(regexHHMM);
+    return Number(parts[1]) * 60 + Number(parts[2]);
+}
+```
+```javascript
+function hhmm_formatter(mins) {
+    return Math.floor(mins / 60)+ ':' + (mins % 60 + 100 + '').substr(1, 2);
+}
+```
 
+We can use this localizer to create a new text cell editor:
 
+```javascript
+var cellEditors = require('fin-hypergrid/src/cellEditors');
+var Textfield = cellEditors.get('textfield'),
+    HoursMinutes = TextField.extend({ localizer: localizer });
+cellEditors.register(HoursMinutes, 'hhmm');
+```
+
+#### Syntax errors and error feedback
+
+What happens when the user enters a value with an invalid syntax?
+
+The short answer is: The value is ignored; the user looses his edit. This will quickly prove frustrating for the user.
+
+The long answer: Better would be to provide some sort of error alert and let the user correct the edit before losing it.
+
+If you define an `invalid()` method on your localizer, your text cell editor will automatically provide feedback to the user on a syntax error:
+
+```javascript
+hhmm.isValid = function(hoursAndMinutes) { return ...; } // returns true for valid
+```
+
+When the edited text is invalid, an error effect is triggered. Every third time the effect is triggered is followed by an alert message explaining the situation:
+
+<pre style="font-family:monospace;margin:0 3em;padding:1em;border:1px solid grey;background:#DDD">
+Invalid value. To resolve, do one of the following:
+
+    * Correct the error and try again.
+        - or -
+    * Cancel editing by pressing the "esc" (escape) key.
+</pre>
+
+You can add a custom message by also defining an `expectation` property:
+
+```javascript
+hhmm.expectation = 'Expected a time signature in the format hh:mm.'
+```
+
+This will expand the alert message:
+
+<pre style="font-family:monospace;margin:0 3em;padding:1em;border:1px solid grey;background:#DDD">
+Invalid value. To resolve, do one of the following:
+
+    * Correct the error and try again.
+        - or -
+    * Cancel editing by pressing the "esc" (escape) key.
+    
+Additional information about this error:
+
+    * Expected a time signature in the format hh:mm.
+</pre>
+
+You can control which effect is used to signal the negative feedback and when to show the alert message:
 
 #### Which cells are editable?
 
