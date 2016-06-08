@@ -39,9 +39,9 @@ It is recommended to first set a default, such as `simpleCell`, to be returned i
 You can optionally set additional properties on config which includes internal properties about the cell in question. This will get passed to your renderer paint function later.
 
 ```javascript
-yourGrid.behavior.cellRenderers.getCell = function(config) {
+yourGrid.behavior.cellRenderers.getCell = function(config, rendererName) {
     //A renderer should always be provided that has a paint function
-    var renderer = behavior.cellRenderers.get('SimpleCell');
+    //rendererName defaults to 'SimpleCell'
 
     var x = config.x;
     var y = config.y;
@@ -86,7 +86,7 @@ yourGrid.behavior.cellRenderers.getCell = function(config) {
 
         case 4: 
             config.halign = 'center';
-            renderer = behavior.cellRenderers.get('TreeCell')
+            rendererName = 'TreeCell';
             break;
             
 
@@ -99,7 +99,7 @@ yourGrid.behavior.cellRenderers.getCell = function(config) {
             config.backgroundColor = '#00' + travel.toString(16) + '00';
             config.color = '#FFFFFF';
             config.halign = 'right';
-            renderer = behavior.cellRenderers.get('SparkBar')
+            rendererName = 'SparkBar';
             break;
 
         case 7:
@@ -110,11 +110,11 @@ yourGrid.behavior.cellRenderers.getCell = function(config) {
             break;
     }
 
-    return renderer;
+    return grid.getCellRenderer(rendererName);
 ```
 
 
-`getCell` is called with the config object providing stateful information about the cell:
+`getCell` is called with the rendererName and the config object providing stateful information about the cell:
 
 
 Parameter                       | Description
@@ -290,13 +290,11 @@ var sparkStarRatingRenderer = YourGrid.cellRendererBase.extend({
 //Register your renderer
 YourGrid.registerCellRenderer(sparkStarRatingRenderer, "Starry");
 
-//Retrieve the Singleton
-var starry = behavior.cellRenderers.get('Starry');
-
 
 // Using your new render
-yourGrid.behavior.cellRenderers.getCell = function(config) {
-  var defaultRenderer = behavior.cellRenderers.get('SimpleCell'),
+yourGrid.behavior.cellRenderers.getCell = function(config, rendererName) {
+  //Retrieve the Singleton
+  var starryRenderer = grid.getCellRenderer('Starry');
     idxOfStarColumn = 5;
 
   if (config.x === idxOfStarColumn){
@@ -307,7 +305,7 @@ yourGrid.behavior.cellRenderers.getCell = function(config) {
     return starry;
   } 
   
-  return defaultRenderer;
+  return starryRenderer;
 };
 ```
 
@@ -357,9 +355,9 @@ behavior.getCursorAt = function(x,y) {
 ```
 * override the cell-provider to return the linkRenderer for the desired link columns and set `config.link = true`
 ```javascript
-behavior.cellRenderers.getCell = function(config) {
+behavior.cellRenderers.getCell = function(config, renderName) {
     config.link = true;
-    var renderer = behavior.cellRenderers.get('SimpleCell');
+    var defaultRenderer = grid.getCellRenderer(rendererName);
     config.halign = 'left';
     var x = config.x;
     if (x === 0) {
