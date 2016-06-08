@@ -6,7 +6,6 @@
 var _ = require('object-iterators');
 
 var Base = require('./Base');
-var cellRenderers = require('../cellRenderers');
 var images = require('../../images');
 
 /** @typedef {object} CanvasRenderingContext2D
@@ -600,7 +599,7 @@ var Renderer = Base.extend('Renderer', {
             selectionRegionOverlayColor: this.grid.resolveProperty('selectionRegionOverlayColor'),
             selectionRegionOutlineColor: this.grid.resolveProperty('selectionRegionOutlineColor')
         };
-        cellRenderers.lastselection.paint(gc, config);
+        this.grid.cellRenderers.lastselection.paint(gc, config);
     },
 
     /**
@@ -871,7 +870,7 @@ var Renderer = Base.extend('Renderer', {
                             }
                         };
 
-                        cellRenderers.errorcell.paint(rawGc, config, message);
+                        this.grid.cellRenderers.errorcell.paint(rawGc, config, message);
 
                         rawGc.restore(); // discard clipping region
 
@@ -1072,13 +1071,8 @@ var Renderer = Base.extend('Renderer', {
 
         //allow the renderer to identify itself if it's a button
         cellProperties.buttonCells = this.buttonCells;
-        if (cellProperties.isUserDataArea) {
-            var formatName = cellProperties.format;
-            if (!formatName && formatName !== null) { // null means don't fallback to type
-                formatName = column.getType();
-            }
-        }
-        cellProperties.formatValue = grid.getFormatter(formatName);
+
+        cellProperties.formatValue = grid.getFormatter(cellProperties.isUserDataArea && cellProperties.format);
         cell.paint(gc, cellProperties);
 
         this.renderedColumnMinWidths[c] = Math.max(cellProperties.minWidth || 0, this.renderedColumnMinWidths[c]);

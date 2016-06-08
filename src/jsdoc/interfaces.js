@@ -6,36 +6,44 @@
  */
 
 /**
- * Transform a primitive value into a human-friendly string representation.
+ * @summary Transform a primitive value into a human-friendly string representation.
+ * @desc Implementation of this method is required.
  * @method
  * @name localizerInterface#format
+ * @param {*} value
  * @returns {string}
  */
 
 /**
- * Transform a formatted string representation back into a primitive typed value.
+ * @summary Transform a formatted string representation back into a primitive typed value.
+ * @desc Implementation of this method is required.
  * @method
  * @name localizerInterface#parse
- * @returns {string} Primitive typed value.
+ * @param {string} editedValue
+ * @returns {null|*} Primitive typed value.
+ * @throws {boolean|string|Error} Parser error.
  */
 
 /**
- * Tests string representation for all valid characters.
+ * @summary Tests string representation for invalidity.
  *
- * Implementation of this method is optional.
+ * @desc Implementation of this method is optional.
  *
- * Overridden by `options.isValid` passed to constructor.
+ * The method may be strict or loose but caller has no way of knowing and must assume loose. Loose means it may return a false negative. This means that while a truthy return means invalid, falsy merely means "not invalid." In other words, you cannot assume that a falsy value means valid. The parser is the final arbiter and should be designed to throw an error on parser jam. For example, a number parser should not simply return NaN but should throw an error.
+ *
+ * Overridden by `options.invalid` passed to constructor.
  * @method
- * @name localizerInterface#isValid
- * @returns {boolean} `true` means valid; `false` means invalid character found.
+ * @name localizerInterface#invalid
+ * @returns {boolean|string} Truthy value means invalid. If a string, this will be an error message. If not a string, it merely indicates a generic invalid result.
  */
 
 /**
- * An optional string to be displayed in the syntax error alert following the words "Invalid value." (This alert comes upon the third attempt to save an invalid edit.)
+ * @summary A string to use when no validation error message is available.
+ * @desc Implementation of this property is optional.
  *
- * The string should describe the syntax and semantics of the expected value. Typically it begins with "Expected ..."
+ * This string should describe the syntax and semantics of the expected value. Typically it begins with "Expected ..."
  *
- * The implementation of this value is optional. Should you choose to supply a value in the prototype, it should reflect the default syntax.
+ * If undefined and in the absence of an error message, the user will know only that the value is invalid but nothing else.
  *
  * Overridden by `options.expectation` passed to constructor.
  *

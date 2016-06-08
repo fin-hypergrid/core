@@ -15,13 +15,13 @@ var Rectangle = require('rectangular').Rectangle;
 var _ = require('object-iterators'); // fyi: installs the Array.prototype.find polyfill, as needed
 
 var defaults = require('./defaults');
-var cellEditors = require('./cellEditors');
-var cellRenderers = require('./cellRenderers');
 var Renderer = require('./lib/Renderer');
 var SelectionModel = require('./lib/SelectionModel');
 var stylesheet = require('./lib/stylesheet');
-var Localization = require('./lib/localization');
+var Localization = require('./lib/Localization');
 var behaviors = require('./behaviors');
+var cellRenderers = require('./cellRenderers');
+var cellEditors = require('./cellEditors');
 
 var themeInitialized = false,
     polymerTheme = Object.create(defaults),
@@ -313,28 +313,14 @@ Hypergrid.prototype = {
     },
 
     /**
-     * @see {@link module:cellRenderers.register|cellRenderers.register}
-     * @memberOf Hypergrid.prototype
+     * All references to this shared API should go through your grid instance in case we decide to make it an object later and instance it for each grid.
      */
-    registerCellRenderer: cellRenderers.register,
+    cellRenderers: cellRenderers,
 
     /**
-     * @see {@link module:cellRenderers.get|cellRenderers.get}
-     * @memberOf Hypergrid.prototype
+     * All references to this shared API should go through your grid instance in case we decide to make it an object later and instance it for each grid.
      */
-    getCellRenderer: cellRenderers.get,
-
-    /**
-     * @see {@link module:cellEditors.register|cellEditors.register}
-     * @memberOf Hypergrid.prototype
-     */
-    registerCellEditor: cellEditors.register,
-
-    /**
-     * @see {@link module:cellEditors.instantiate|cellEditors.instantiate}
-     * @memberOf Hypergrid.prototype
-     */
-    createCellEditor: cellEditors.instantiate,
+    cellEditors: cellEditors,
 
     /**
      * @memberOf Hypergrid.prototype

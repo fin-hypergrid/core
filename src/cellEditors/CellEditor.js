@@ -7,7 +7,7 @@ var _ = require('object-iterators');
 
 var Base = require('../lib/Base');
 var effects = require('../lib/effects');
-var localization = require('../lib/localization');
+var Localization = require('../lib/Localization');
 
 /**
  * @constructor
@@ -43,7 +43,7 @@ var CellEditor = Base.extend('CellEditor', {
         this.el.onblur = function(e) { self.cancelEditing(); };
     },
 
-    localizer: localization.prototype.null,
+    localizer: Localization.prototype.null,
 
     reset: function() {
         var container = document.createElement('DIV');
@@ -229,11 +229,12 @@ var CellEditor = Base.extend('CellEditor', {
     },
 
     /** @summary Stops editing.
-     * @desc Before saving, validates the edited value as follows:
-     * 1. Call `editorValueIsValid` (which calls the localizer's `isValid()` function, if available).
+     * @desc Before saving, validates the edited value in two phases as follows:
+     * 1. Call `validateEditorValue`. (Calls the localizer's `invalid()` function, if available.)
      * 2. Catch any errors thrown by the {@link CellEditor#getEditorValue|getEditorValue} method.
      *
-     * **If the edited value passes validation:** Saves the edited value by calling the {@link CellEditor#saveEditorValue|saveEditorValue} method.
+     * **If the edited value passes both phases of the validation:**
+     * Saves the edited value by calling the {@link CellEditor#saveEditorValue|saveEditorValue} method.
      *
      * **On validation failure:**
      * 1. If `feedback` was omitted, cancels editing, discarding the edited value.
@@ -247,7 +248,10 @@ var CellEditor = Base.extend('CellEditor', {
      * @memberOf CellEditor.prototype
      */
     stopEditing: function(feedback) {
-        var error = !this.editorValueIsValid();
+        /**
+         * @type {boolean|string|Error}
+         */
+        var error = this.validateEditorValue();
 
         if (!error) {
             try {
@@ -295,11 +299,11 @@ var CellEditor = Base.extend('CellEditor', {
 
     /**
      * Calls the effect function indicated in the {@link CellEditor#errorEffect|errorEffect} property which triggers a series of CSS transitions.
-     * @param {Error} [error] - Call the {@link CellEditor#errorEffectEnd|errorEffectEnd} method at the end of the last effect transition with this error.
+     * @param {boolean|string|Error} [error] - If defined, call the {@link CellEditor#errorEffectEnd|errorEffectEnd} method at the end of the last effect transition with this error.
      * @memberOf CellEditor.prototype
      */
     errorEffectBegin: function(error) {
-        var options = { callback: error && this.errorEffectEnd.bind(null, error) },
+        var options = { callback: error && this.errorEffectEnd.bind(this, error) },
             effect = this.errorEffect;
 
         if (typeof effect === 'string') {
@@ -318,20 +322,32 @@ var CellEditor = Base.extend('CellEditor', {
         }
     },
 
+    /**
+     * This function expects to be passed an error. There is no point in calling this function if there is no error. Nevertheless, if called with a falsy `error`, returns without doing anything.
+     * @this {CellEditor}
+     * @param {boolean|string|Error} [error]
+     */
     errorEffectEnd: function(error) {
-        var msg =
-            'Invalid value. To resolve, do one of the following:\n\n' +
-            '   * Correct the error and try again.\n' +
-            '         - or -\n' +
-            '   * Cancel editing by pressing the "esc" (escape) key.';
-
-        error = error || this.localizer.expectation;
-
         if (error) {
-            msg += '\n\nAdditional information about this error:\n   * ' + (error.message || error);
-        }
+            var msg =
+                'Invalid value. To resolve, do one of the following:\n\n' +
+                '   * Correct the error and try again.\n' +
+                '         - or -\n' +
+                '   * Cancel editing by pressing the "esc" (escape) key.';
 
-        alert(msg); // eslint-disable-line no-alert
+            error = error.message || error;
+            if (typeof error !== 'string') {
+                error = this.localizer.expectation;
+            }
+
+            if (typeof error === 'string') {
+                error = '\n' + error;
+                error = error.replace(/[\n\r]+/g, '\n\n   * ');
+                msg += '\n\nAdditional information about this error:' + error;
+            }
+
+            alert(msg); // eslint-disable-line no-alert
+        }
     },
 
     /** @typedef effectObject
@@ -381,8 +397,12 @@ var CellEditor = Base.extend('CellEditor', {
         return this.localizer.parse(this.input.value);
     },
 
-    editorValueIsValid: function() {
-        return !this.localizer.isValid || this.localizer.isValid(this.input.value);
+    /**
+     * If there is no validator on the localizer, returns falsy (not invalid; possibly valid).
+     * @returns {boolean|string} Truthy value means invalid. If a string, this will be an error message. If not a string, it merely indicates a generic invalid result.
+     */
+    validateEditorValue: function() {
+        return this.localizer.invalid && this.localizer.invalid(this.input.value);
     },
 
     /**

@@ -24,8 +24,8 @@ var Formatter = Base.extend({
         this.locale = locale;
 
         if (options) {
-            if (typeof options.isValid === 'function') {
-                this.isValid = options.isValid;
+            if (typeof options.invalid === 'function') {
+                this.invalid = options.invalid;
             }
 
             if (options.expectation) {
@@ -91,7 +91,7 @@ var NumberFormatter = Formatter.extend('NumberFormatter', {
          *
          * Any characters outside this set are considered invalid.
          *
-         * Set by the constructor; consumed by the {@link module:localization~NumberFormatter#isValid|isValid} method.
+         * Set by the constructor; consumed by the {@link module:localization~NumberFormatter#invalid|invalid} method.
          *
          * Testing a string against this pattern yields `true` if at least one invalid character or `false` if all characters are valid.
          * @memberOf NumberFormatter.prototype
@@ -104,8 +104,8 @@ var NumberFormatter = Formatter.extend('NumberFormatter', {
         );
     },
 
-    /** @summary Tests for valid characters.
-     * @desc Tests a localized string representation of a number that it consists entirely of valid characters.
+    /** @summary Tests for invalid characters.
+     * @desc Tests a localized string representation of a number that it contains any invalid characters.
      *
      * The number may be unformatted or it may be formatted with any of the permitted formatting characters, as implied by the constructor's `options` (passed to `Intl.NumberFormat`). Any other characters are considered invalid.
      *
@@ -118,32 +118,38 @@ var NumberFormatter = Formatter.extend('NumberFormatter', {
      * NOTE: This method does not check grammatical syntax; it only checks for invalid characters.
      *
      * @param number
-     * @returns {boolean} Contains only valid characters.
+     * @returns {boolean|string} Falsy means valid which in this case means contains only valid characters.
      * @memberOf NumberFormatter.prototype
      */
-    isValid: function(number) {
-        return !this.invalids.test(number);
+    invalid: function(number) {
+        return this.invalids.test(number);
     },
 
     expectation:
-        'Expected a number with optional commas (thousands grouping separator), optional decimal point, and an optional fractional part.\n\n' +
-        'Note that the comma separators are part of the format and will always be displayed for values > 999. However, although saved in its entirety, the formatted representation never includes the decimal point or the fractional part, rounding instead to the nearest integer.',
+        'Expected a number with optional commas (thousands grouping separator), optional decimal point, and an optional fractional part.\n' +
+        'Comma separators are part of the format and will always be displayed for values >= 1000.\n' +
+        'Edited values are always saved in their entirety even though the formatted value is rounded to the specified number of decimal places.',
 
     /**
      * This method will:
      * * Convert localized digits and decimal point characters to standard digits and decimal point characters.
      * * "Clean" the string by ignoring all other characters.
      * * Coerce the string to a number primitive.
-     *
-     * Since all other characters are simply ignored, it is not necessary to call {@link module:localization~NumberFormatter#isValid|isValid} first; this method will succeed regardless. However, doing so will give you the opportunity to alert the user if you want to be strict and never accept strings with any invalid characters in them.
      * @param {string} formattedLocalizedNumber - May or may not be formatted.
      * @returns {number} Number primitive.
+     * @throws {string} Invalid number.
      * @memberOf NumberFormatter.prototype
      */
     parse: function(formattedLocalizedNumber) {
-        return Number(
+        var number = Number(
             formattedLocalizedNumber.split('').map(this.demapper).join('')
         );
+
+        if (isNaN(number)) {
+            throw 'Invalid Number';
+        }
+
+        return number;
     }
 });
 
@@ -204,7 +210,7 @@ var DateFormatter = Formatter.extend('DateFormatter', {
             missingDigits += '1234567890';
         }
 
-        /** @summary A regex that tests `true` on firstL invalid character.
+        /** @summary A regex that tests `true` on first invalid character.
          * @type {RegExp}
          * @private
          * @desc Valid characters include:
@@ -228,8 +234,8 @@ var DateFormatter = Formatter.extend('DateFormatter', {
         );
     },
 
-    /** @summary Tests for valid characters.
-     * @desc Tests a localized string representation of a number that it consists entirely of valid characters.
+    /** @summary Tests for invalid characters.
+     * @desc Tests a localized string representation of a number that it contains any invalid characters.
      *
      * The date is assumed to contain localized digits and punctuation as would be returned by `Intl.DateFormat` with the given `locale` and `options`. Any other characters are considered invalid.
      *
@@ -247,8 +253,8 @@ var DateFormatter = Formatter.extend('DateFormatter', {
      * @returns {boolean} Contains only valid characters.
      * @memberOf DateFormatter.prototype
      */
-    isValid: function(number) {
-        return !this.invalids.test(number);
+    invalid: function(number) {
+        return this.invalids.test(number);
     },
 
     /**
@@ -256,10 +262,9 @@ var DateFormatter = Formatter.extend('DateFormatter', {
      * * Convert localized date to Date object.
      * * "Clean" the string by ignoring all other characters.
      * * Coerce the string to a number primitive.
-     *
-     * Since all other characters are simply ignored, it is not necessary to call {@link module:localization~DateFormatter#isValid|isValid} first; this method will succeed regardless. However, doing so will give you the opportunity to alert the user if you want to be strict and never accept strings with any invalid characters in them.
      * @param {string} localizedDate
-     * @returns {null|Date} Will be `null` if mal-formed date string.
+     * @returns {Date}
+     * @throws {string} Invalid date.
      * @memberOf DateFormatter.prototype
      */
     parse: function(localizedDate) {
@@ -273,7 +278,7 @@ var DateFormatter = Formatter.extend('DateFormatter', {
 
             date = new Date(y, m, d);
         } else {
-            date = null;
+            throw 'Invalid Date';
         }
 
         return date;
@@ -366,7 +371,8 @@ Localization.prototype = {
             typeof localizer !== 'object' ||
             typeof localizer.format !== 'function' ||
             typeof localizer.parse !== 'function' ||
-            localizer.isValid && typeof localizer.isValid !== 'function'
+            localizer.invalid && typeof localizer.invalid !== 'function' ||
+            localizer.expectation && typeof localizer.expectation !== 'string'
         ) {
             throw 'Expected localizer object to conform to interface.';
         }
@@ -383,7 +389,7 @@ Localization.prototype = {
      * @memberOf Localization.prototype
      */
     get: function(localizerName) {
-        return this[localizerName] || this.null;
+        return this[localizerName] || this.string;
     },
 
     ///  ///  ///  ///  ///    LOCALIZERS    ///  ///  ///  ///  ///
@@ -419,6 +425,15 @@ Localization.prototype = {
     },
 
     null: {
+        format: function(value) {
+            return value;
+        },
+        parse: function(str) {
+            return str;
+        }
+    },
+
+    string: {
         format: function(value) {
             return value + '';
         },

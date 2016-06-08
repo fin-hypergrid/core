@@ -7,11 +7,11 @@
 
 /**
  * @summary Hash of cell renderer object constructors.
- * @desc This hash's only purpose is to support the convenience methods defined herein: {@link cellRenderers.extend|extend}, {@link cellRenderers.register|register}, and {@link cellRenderers.instantiate|instantiate}. If you do not need these methods' functionality, you do not need to register your cell renderers.
+ * @desc This hash's only purpose is to support the convenience methods defined herein: {@link module:cellRenderers~extend|extend}, {@link module:cellRenderers~register|register}, and {@link module:cellRenderers~instantiate|instantiate}. If you do not need these methods' functionality, you do not need to register your cell renderers.
  * @type {object}
  */
 var cellRenderers = {
-    register: register,
+    add: add,
     get: get
 };
 
@@ -37,10 +37,10 @@ var cellRenderers = {
  *
  * @memberOf module:cellRenderers
  */
-function register(Constructor, rendererName) {
+function add(Constructor, rendererName) {
     rendererName = rendererName || Constructor.prototype.$$CLASS_NAME;
     rendererName = rendererName && rendererName.toLowerCase();
-    return (cellRenderers[rendererName] = instantiate(Constructor));
+    return (cellRenderers[rendererName] = create(Constructor));
 }
 
 /**
@@ -73,23 +73,29 @@ function get(rendererName) {
   * @param {string} rendererName
   * @private
   */
-function instantiate(CellRendererConstructor) {
-    if (CellRendererConstructor.abstract) {
-        throw 'Attempt to instantiate an "abstract" cell renderer.';
+function create(CellRendererConstructor) {
+    var cellRenderer;
+
+    if (CellRendererConstructor) {
+        if (CellRendererConstructor.abstract) {
+            throw 'Attempt to instantiate an "abstract" cell renderer.';
+        }
+        cellRenderer = new CellRendererConstructor;
     }
-    return CellRendererConstructor && new CellRendererConstructor;
+
+    return cellRenderer;
 }
 
 
-register(require('./CellRenderer'), 'EmptyCell');
-register(require('./Button'));
-register(require('./SimpleCell'));
-register(require('./SliderCell'));
-register(require('./SparkBar'));
-register(require('./LastSelection'));
-register(require('./SparkLine'));
-register(require('./ErrorCell'));
-register(require('./TreeCell'));
+add(require('./CellRenderer'), 'EmptyCell');
+add(require('./Button'));
+add(require('./SimpleCell'));
+add(require('./SliderCell'));
+add(require('./SparkBar'));
+add(require('./LastSelection'));
+add(require('./SparkLine'));
+add(require('./ErrorCell'));
+add(require('./TreeCell'));
 
 
 module.exports = cellRenderers;

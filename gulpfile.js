@@ -52,6 +52,7 @@ gulp.task('build', function(callback) {
 gulp.task('watch', function () {
     gulp.watch([
         srcDir + '**',
+        '!' + srcDir + 'jsdoc/**',
         './css/*.css',
         './html/*.html',
         demoDir + 'js/*.js',
