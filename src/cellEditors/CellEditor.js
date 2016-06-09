@@ -27,7 +27,15 @@ var CellEditor = Base.extend('CellEditor', {
          */
         this.grid = grid;
 
-        _(this).extend(options);
+        if (options) {
+            for (var key in options) {
+                if (options.hasOwnProperty(key)) {
+                    if (!(key === 'format' && this.format === null)) {
+                        this[key] = options[key];
+                    }
+                }
+            }
+        }
 
         this.editorPoint = {
             x: 0,
@@ -173,7 +181,7 @@ var CellEditor = Base.extend('CellEditor', {
         this.setEditorPoint(point);
 
         // override native localizer with localizer named in format if defined (from instantiation options)
-        if (this.format && !this.lockLocalizer) {
+        if (this.format) {
             this.localizer = this.grid.localization.get(this.format);
         }
 
