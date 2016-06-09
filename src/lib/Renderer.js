@@ -1064,10 +1064,12 @@ var Renderer = Base.extend('Renderer', {
 
         var cell = behavior.getCellRenderer(cellProperties, c, r);
         var column = behavior.getActiveColumn(c);
-        var overrides = behavior.getCellProperties(column.index, r);
 
         //declarative cell properties
-        _(cellProperties).extendOwn(overrides);
+        if (isGridRow) {
+            var overrides = behavior.getCellProperties(column.index, r);
+            _(cellProperties).extendOwn(overrides);
+        }
 
         //allow the renderer to identify itself if it's a button
         cellProperties.buttonCells = this.buttonCells;
