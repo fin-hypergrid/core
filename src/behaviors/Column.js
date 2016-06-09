@@ -251,11 +251,17 @@ Column.prototype = {
      * @returns {sring} Falsy value means either `null` cell editor _or_ no declared cell editor for this cell.
      */
     getCellEditorAt: function(y) {
-        var editorName =
-            this.getCellProperties(y).editor ||
-            this.getProperties().editor;
+        var cellProps = this.getCellProperties(y),
+            columnProps,
+            editorName = cellProps.editor || (columnProps = this.getProperties()).editor,
+            format = cellProps.format || (columnProps || this.getProperties()).format,
+            options = {};
 
-        return this.dataModel.getCellEditorAt(this.index, y, editorName);
+        if (format) {
+            options.format = format;
+        }
+
+        return this.dataModel.getCellEditorAt(this.index, y, editorName, options);
     },
 
     /** @deprecated Use `.header` property instead.

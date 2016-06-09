@@ -50,14 +50,15 @@ function get(editorName) {
 }
 
 /**
- * Must be called with YOUR Hypergrid object as context!
+ * @summary Lookup registered cell editor and return a new instance thereof.
+ * @desc Note: Must be called with the Hypergrid object as context!
  * @returns {CellEditor} New instance of the named cell editor.
  * @param {string} editorName
  * @param {string} [options] - Properties to add to the instantiated editor primarily for mustache's use.
  * @this {Hypergrid}
  * @memberOf module:cellEditors
  */
-function create(grid, editorName, options) {
+function create(editorName, options) {
     var cellEditor,
         CellEditorConstructor = get(editorName);
 
@@ -65,7 +66,7 @@ function create(grid, editorName, options) {
         if (CellEditorConstructor.abstract) {
             throw 'Attempt to instantiate an "abstract" cell editor class.';
         }
-        cellEditor = new CellEditorConstructor(grid, options);
+        cellEditor = new CellEditorConstructor(this, options);
     }
 
     return cellEditor;

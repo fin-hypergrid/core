@@ -1376,7 +1376,7 @@ var Behavior = Base.extend('Behavior', {
      */
     getCellEditorAt: function(x, y) {
         return this.grid.isFilterRow(y)
-            ? this.grid.cellEditors.create(this.grid, 'filterbox')
+            ? this.grid.createCellEditor('filterbox')
             : this.getActiveColumn(x).getCellEditorAt(y);
     },
 

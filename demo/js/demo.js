@@ -540,16 +540,16 @@ window.onload = function() {
         }
     };
 
-    registerLocalizerAndCellEditor('foot', footInchLocalizer);
+    grid.registerLocalizer('foot', footInchLocalizer);
 
-    registerLocalizerAndCellEditor('singdate', new grid.localization.DateFormatter('zh-SG'), 'combobox');
+    grid.registerLocalizer('singdate', new grid.localization.DateFormatter('zh-SG'));
 
-    registerLocalizerAndCellEditor('pounds', new grid.localization.NumberFormatter('en-US', {
+    grid.registerLocalizer('pounds', new grid.localization.NumberFormatter('en-US', {
         style: 'currency',
         currency: 'USD'
     }));
 
-    registerLocalizerAndCellEditor('francs', new grid.localization.NumberFormatter('fr-FR', {
+    grid.registerLocalizer('francs', new grid.localization.NumberFormatter('fr-FR', {
         style: 'currency',
         currency: 'EUR'
     }));
@@ -560,36 +560,25 @@ window.onload = function() {
 
     grid.cellEditors.add(colorText);
 
-    // Register a localizer and create a new cell editor class of the same name.
-    // New cell editor is based on `Textfield` but references `localizer`.
-    function registerLocalizerAndCellEditor(name, localizer, cellEditorBaseClassName) {
-        var Constructor = grid.cellEditors.get(cellEditorBaseClassName || 'textfield'),
-            newCellEditorClass = Constructor.extend(name, { localizer: localizer });
-
-        grid.registerLocalizer(name, localizer);
-        grid.cellEditors.add(newCellEditorClass);
-    }
-
     // Used by the cellProvider.
     // `null` means column's data cells are not editable.
     var editorTypes = [
         'combobox',
         'textfield',
-        'number',
-        'foot',
-        'singdate',
+        'textfield',
+        'textfield',
+        'combobox',
         'choice',
         'choice',
         'choice',
-        'pounds',
-        'francs',
+        'textfield',
+        'textfield',
         'textfield'
     ];
 
     // Override to assign the the cell editors.
-    dataModel.getCellEditorAt = function(x, y, declaredEditorName) {
-        var editorName = declaredEditorName || editorTypes[x % editorTypes.length],
-            options = {};
+    dataModel.getCellEditorAt = function(x, y, declaredEditorName, options) {
+        var editorName = declaredEditorName || editorTypes[x % editorTypes.length];
 
         switch (x) {
             case idx.BIRTH_STATE:
@@ -597,7 +586,7 @@ window.onload = function() {
                 break;
         }
 
-        var cellEditor = grid.cellEditors.create(grid, editorName, options);
+        var cellEditor = grid.createCellEditor(editorName, options);
 
         if (cellEditor) {
             switch (x) {
@@ -930,7 +919,6 @@ window.onload = function() {
             });
 
             behavior.setColumnProperties(idx.LAST_NAME, {
-                editor: 'combobox',
                 link: true
             });
 
@@ -947,7 +935,6 @@ window.onload = function() {
             });
 
             behavior.setColumnProperties(idx.BIRTH_DATE, {
-                editor: 'singdate',
                 format: 'singdate',
                 //strikeThrough: true
             });
