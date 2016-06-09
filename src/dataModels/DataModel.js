@@ -74,14 +74,16 @@ var DataModel = Base.extend('DataModel', {
      *
      * @param {number} x - Absolute column index.
      * @param {number} y - Row index in `dataRows` (raw `dataSource.data`) array.
-     * @param {string} [declaredEditorName] - The proposed cell editor name (from the render properties).
+     * @param {string} declaredEditorName - The proposed cell editor name (from the render properties).
+     * @param {object} options - Properties to copy to the new cell editor primarily for mustache's use.
+     * @param {object} [options.format] - The value of the `format` render prop. Only included if defined.
      *
-     * @returns {undefined|CellEditor} An object instantiated from a the registered cell editor constructor named in `declaredEditorName`. A falsy return means the cell is not editable because the `declaredEditorName` was `null` or not registered. But note that `undefined` is registered as the default `Textfield` cell editor.
+     * @returns {undefined|CellEditor} An object instantiated from the registered cell editor constructor named in `declaredEditorName`. A falsy return means the cell is not editable because the `declaredEditorName` was not registered.
      *
      * @memberOf DataModel.prototype
      */
-    getCellEditorAt: function(x, y, declaredEditorName) {
-        return this.grid.cellEditors.create(this.grid, declaredEditorName);
+    getCellEditorAt: function(x, y, declaredEditorName, options) {
+        return this.grid.createCellEditor(declaredEditorName, options);
     }
 
 });

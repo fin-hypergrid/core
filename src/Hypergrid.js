@@ -322,6 +322,12 @@ Hypergrid.prototype = {
      */
     cellEditors: cellEditors,
 
+
+    /**
+     * This mix-in is purely for calling convenience, automatically setting the context to grid as required by cellEditors.create.
+     */
+    createCellEditor: cellEditors.create,
+
     /**
      * @memberOf Hypergrid.prototype
      * @returns boolean} The pointer is hovering over the given column.

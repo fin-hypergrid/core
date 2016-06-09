@@ -16,7 +16,7 @@ var CellEditor = Base.extend('CellEditor', {
 
     /**
      * @param grid
-     * @param {string} [options] - Properties to add to the instantiated editor primarily for mustache's use.
+     * @param {string} [options] - Properties to copy to the new cell editor primarily for mustache's use.
      */
     initialize: function(grid, options) {
 
@@ -171,6 +171,11 @@ var CellEditor = Base.extend('CellEditor', {
         }
 
         this.setEditorPoint(point);
+
+        // override native localizer with localizer named in format if defined (from instantiation options)
+        if (this.format) {
+            this.localizer = this.grid.localization.get(this.format);
+        }
 
         var value = this.grid.behavior.getValue(point.x, point.y);
         if (value instanceof Array) {
