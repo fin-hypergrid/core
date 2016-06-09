@@ -139,8 +139,8 @@ var JSON = DataModel.extend('dataModels.JSON', {
         return value;
     },
 
-    getIndex: function(y) {
-        return this.getDataSource().getIndex(y - this.grid.getHeaderRowCount());
+    getDataIndex: function(y) {
+        return this.getDataSource().getDataIndex(y - this.grid.getHeaderRowCount());
     },
 
     /**

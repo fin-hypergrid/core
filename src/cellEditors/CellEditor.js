@@ -173,7 +173,7 @@ var CellEditor = Base.extend('CellEditor', {
         this.setEditorPoint(point);
 
         // override native localizer with localizer named in format if defined (from instantiation options)
-        if (this.format) {
+        if (this.format && !this.lockLocalizer) {
             this.localizer = this.grid.localization.get(this.format);
         }
 
