@@ -120,6 +120,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
         var hasHierarchyColumn = this.hasHierarchyColumn();
         var headerRowCount = this.grid.getHeaderRowCount();
         var value;
+
         if (hasHierarchyColumn) {
             if (x === -2) {
                 x = 0;
@@ -129,13 +130,17 @@ var JSON = DataModel.extend('dataModels.JSON', {
         }
         if (y < headerRowCount) {
             value = this.getHeaderRowValue(x, y);
-            return value;
+        } else {
+            // if (hasHierarchyColumn) {
+            //     y += 1;
+            // }
+            value = this.getDataSource().getValue(x, y - headerRowCount);
         }
-        // if (hasHierarchyColumn) {
-        //     y += 1;
-        // }
-        value = this.getDataSource().getValue(x, y - headerRowCount);
         return value;
+    },
+
+    getIndex: function(y) {
+        return this.getDataSource().getIndex(y - this.grid.getHeaderRowCount());
     },
 
     /**

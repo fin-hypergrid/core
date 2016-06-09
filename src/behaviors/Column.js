@@ -139,6 +139,7 @@ Column.prototype = {
     },
 
     getCellProperties: function(y) {
+        y = this.dataModel.getIndex(y);
         return this.cellProperties[y] || {};
     },
 
