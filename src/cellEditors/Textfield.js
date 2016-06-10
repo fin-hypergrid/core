@@ -5,11 +5,13 @@ var Localization = require('../lib/Localization');
 
 
 /**
+ * As of spring 2016:
+ * Functions well in Chrome, Safari, Firefox, and Internet Explorer.
  * @constructor
  */
 var Textfield = CellEditor.extend('Textfield', {
 
-    template: '<input type="text">',
+    template: '<input type="text" lang="{{locale}}" style="{{style}}">',
 
     localizer: Localization.prototype.string,
 

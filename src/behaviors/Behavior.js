@@ -132,6 +132,8 @@ var Behavior = Base.extend('Behavior', {
 
         this.allColumns[-1] = this.columns[-1] = this.newColumn(-1);
         this.allColumns[-2] = this.columns[-2] = this.newColumn(-2);
+
+        this.columnEnum = {};
     },
 
     getActiveColumn: function(x) {

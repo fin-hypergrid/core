@@ -110,13 +110,9 @@ window.onload = function() {
         },
         grid = window.g = new fin.Hypergrid('div#json-example', gridOptions),
         behavior = window.b = grid.behavior,
-        dataModel = window.m = behavior.dataModel;
+        dataModel = window.m = behavior.dataModel,
+        idx = behavior.columnEnum;
 
-    var idx = behavior.columns.reduce(function(memo, column, index) {
-        var ID = column.name.replace(/([^_A-Z])([A-Z]+)/g, '$1_$2').toUpperCase();
-        memo[ID] = index;
-        return memo;
-    }, {});
     console.log('Fields:');  console.dir(behavior.dataModel.getFields());
     console.log('Headers:'); console.dir(behavior.dataModel.getHeaders());
     console.log('Indexes:'); console.dir(idx);
@@ -131,8 +127,8 @@ window.onload = function() {
         { label: 'Column Picker&hellip;', onclick: toggleDialog.bind(this, 'ColumnPicker') },
         { label: 'Manage Filters&hellip;', onclick: toggleDialog.bind(this, 'ManageFilters') },
         { label: 'toggle empty data', onclick: toggleEmptyData },
-        { label: 'set data 1 (5000 rows)', onclick: behavior.setData.bind(behavior, people1) },
-        { label: 'set data 2 (10000 rows)', onclick: behavior.setData.bind(behavior, people2) },
+        { label: 'set data 1 (5000 rows)', onclick: setData.bind(null, people1) },
+        { label: 'set data 2 (10000 rows)', onclick: setData.bind(null, people2) },
         { label: 'reset', onclick: grid.reset.bind(grid)}
 
     ].forEach(function(item) {
@@ -199,6 +195,11 @@ window.onload = function() {
     };
 */
 
+    function setData(data) {
+        behavior.setData(data);
+        idx = behavior.columnEnum;
+    }
+
     var topTotals = [
             ['one', 'two', '3', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten'],
             ['ten', 'nine', '8', 'seven', 'six', 'five', 'four', 'three', 'two', 'one']
@@ -214,19 +215,19 @@ window.onload = function() {
         if (emptyData) {
             //important to set top totals first
             behavior.setTopTotals([]);
-            behavior.setData([]);
+            setData([]);
             behavior.setBottomTotals([]);
             grid.allowEvents(false);
         } else {
             //important to set top totals first
             behavior.setTopTotals(topTotals);
-            behavior.setData(people1);
+            setData(people1);
             behavior.setBottomTotals(bottomTotals);
             grid.allowEvents(true);
         }
     }
 
-    behavior.setData(people1);
+    setData(people1);
 
     grid.setColumnProperties(2, {
         backgroundColor: 'maroon',

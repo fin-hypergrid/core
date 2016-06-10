@@ -20,6 +20,14 @@ var CellEditor = Base.extend('CellEditor', {
      */
     initialize: function(grid, options) {
 
+        if (options) {
+            for (var key in options) {
+                if (options.hasOwnProperty(key) && this[key] !== null) {
+                    this[key] = options[key];
+                }
+            }
+        }
+
         /**
          * my instance of hypergrid
          * @type {Hypergrid}
@@ -27,15 +35,7 @@ var CellEditor = Base.extend('CellEditor', {
          */
         this.grid = grid;
 
-        if (options) {
-            for (var key in options) {
-                if (options.hasOwnProperty(key)) {
-                    if (!(key === 'format' && this.format === null)) {
-                        this[key] = options[key];
-                    }
-                }
-            }
-        }
+        this.locale = grid.localization.locale;
 
         this.editorPoint = {
             x: 0,

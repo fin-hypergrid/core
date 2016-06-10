@@ -256,7 +256,7 @@ Column.prototype = {
             columnProps,
             editorName = cellProps.editor || (columnProps = this.getProperties()).editor,
             format = cellProps.format || (columnProps || this.getProperties()).format,
-            options = {};
+            options = { column: this };
 
         if (format) {
             options.format = format;

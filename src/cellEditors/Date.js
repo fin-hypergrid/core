@@ -16,7 +16,13 @@ var isChromium = window.chrome,
         vendorName === 'Google Inc.' &&
         isOpera == false && isIEedge == false; // eslint-disable-line eqeqeq
 
-    /**
+/**
+ * As of spring 2016:
+ * Functions well in Chrome except no localization (day, month names; date format).
+ * Unimplemented in Safari, Firefox, Internet Explorer.
+ * This is a "snmart" control. It detects Chrome:
+ * * If Chrome, uses chromeDate overrides format to that required by the value attribute, yyyy-mm-dd. (Note that this is not the format displayed in the control, which is always mm/dd/yyyy.)
+ * * Otherwise uses localized date format _but_ falls back to a regular text box.
  * @constructor
  */
 var Date = CellEditor.extend('Date', {
@@ -28,7 +34,7 @@ var Date = CellEditor.extend('Date', {
 
         if (usesDateInputControl) {
             localizerName = 'chromeDate';
-            this.template = '<input id="editor" type="date">';
+            this.template = '<input type="date">';
         } else {
             localizerName = 'date';
             this.template = '<input type="text">';

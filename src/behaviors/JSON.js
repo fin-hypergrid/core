@@ -51,10 +51,12 @@ var JSON = Local.extend('behaviors.JSON', {
         var columnCount = dataModel.getColumnCount();
         var headers = dataModel.getHeaders();
         var fields = dataModel.getFields();
+        var REGEX_CAMEL_CASE = /([^_A-Z])([A-Z]+)/g;
         this.clearColumns();
         for (var index = 0; index < columnCount; index++) {
             var header = headers[index];
             var column = this.addColumn({ index: index, header: header });
+            this.columnEnum[column.name.replace(REGEX_CAMEL_CASE, '$1_$2').toUpperCase()] = index;
             var properties = column.getProperties();
             properties.field = fields[index];
             properties.header = header;
