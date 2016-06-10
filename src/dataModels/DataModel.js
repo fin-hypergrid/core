@@ -77,6 +77,7 @@ var DataModel = Base.extend('DataModel', {
      * @param {string} declaredEditorName - The proposed cell editor name (from the render properties).
      * @param {object} options - Properties to copy to the new cell editor primarily for mustache's use.
      * @param {object} [options.format] - The value of the `format` render prop. Only included if defined.
+     * @param {object} [options.column] - The column object to which `x` refers.
      *
      * @returns {undefined|CellEditor} An object instantiated from the registered cell editor constructor named in `declaredEditorName`. A falsy return means the cell is not editable because the `declaredEditorName` was not registered.
      *

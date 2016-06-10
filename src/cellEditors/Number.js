@@ -3,11 +3,10 @@
 var Textfield = require('./Textfield');
 
 /**
+ * Functions well in Chrome, Safari, Firefox, and Internet Explorer.
  * @constructor
  */
 var Number = Textfield.extend('Number', {
-
-    template: '<input type="text">',
 
     initialize: function(grid) {
         this.localizer = grid.localization.get('number');

@@ -24,6 +24,8 @@ var stateToActionMap = {
 
 /**
  * A combo box is a text box that also has a drop-down containing options. The drop-down consists of an actual drop-down list (a `<select>` list) plus a _control area_ above it containing toggles. The toggles control the visibility of the various "mode lists."
+ *
+ * Functions well in Chrome, Safari, Firefox, and Internet Explorer.
  * @constructor
  */
 var ComboBox = Textfield.extend('ComboBox', {
@@ -51,11 +53,11 @@ var ComboBox = Textfield.extend('ComboBox', {
 
     template: [
 '<div class="hypergrid-input" title="">',
-'    <input>',
+'    <input type="text" lang="{{locale}}" style="{{style}}">',
 '    <span title="Click for options"></span>',
 '    <div>',
 '        <div></div>',
-'        <select size="12"></select>',
+'        <select size="12" lang="{{locale}}"></select>',
 '    </div>',
 '</div>'
     ].join('\n'),

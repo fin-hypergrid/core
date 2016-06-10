@@ -7,7 +7,7 @@ var CellEditor = require('./CellEditor');
  */
 var Slider = CellEditor.extend('Slider', {
 
-    template: '<input type="range">'
+    template: '<input type="range" lang="{{locale}}" style="{{style}}">'
 
 });
 
