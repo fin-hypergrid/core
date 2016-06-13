@@ -80,9 +80,9 @@ window.onload = function() {
         }
     ];
 
-    function derivedSchema() {
+    function derivedSchema(columns) {
         // create a hierarchical schema organized by alias
-        var factory = new fin.Hypergrid.ColumnSchemaFactory(this.columns);
+        var factory = new fin.Hypergrid.ColumnSchemaFactory(columns);
         factory.organize(/^(one|two|three|four|five|six|seven|eight)/i, { key: 'alias' });
         var columnSchema = factory.lookup('last_name');
         if (columnSchema) {
@@ -372,7 +372,7 @@ window.onload = function() {
     });
 
     //Register your renderer
-    grid.cellRenderers.add(sparkStarRatingRenderer, 'Starry');
+    grid.cellRenderers.add('Starry', sparkStarRatingRenderer);
 
     // END OF CUSTOM CELL RENDERER
 
@@ -442,6 +442,7 @@ window.onload = function() {
                     //config.value = [null, config.value, upDownSpinIMG];
                     break;
 
+                case idx.BIRTH_TIME:
                 case idx.HEIGHT:
                     config.halign = 'right';
                     break;
@@ -541,25 +542,101 @@ window.onload = function() {
         }
     };
 
-    grid.registerLocalizer('foot', footInchLocalizer);
+    grid.localization.add('foot', footInchLocalizer);
 
-    grid.registerLocalizer('singdate', new grid.localization.DateFormatter('zh-SG'));
+    grid.localization.add('singdate', new grid.localization.DateFormatter('zh-SG'));
 
-    grid.registerLocalizer('pounds', new grid.localization.NumberFormatter('en-US', {
+    grid.localization.add('pounds', new grid.localization.NumberFormatter('en-US', {
         style: 'currency',
         currency: 'USD'
     }));
 
-    grid.registerLocalizer('francs', new grid.localization.NumberFormatter('fr-FR', {
+    grid.localization.add('francs', new grid.localization.NumberFormatter('fr-FR', {
         style: 'currency',
         currency: 'EUR'
     }));
 
-    var colorText = grid.cellEditors.get('textfield').extend('colorText', {
+    var CellEditor = grid.cellEditors.get('celleditor');
+    var Textfield = grid.cellEditors.get('textfield');
+
+    var ColorText = Textfield.extend('colorText', {
         template: '<input type="text" style="color:{{textColor}}">'
     });
 
-    grid.cellEditors.add(colorText);
+    grid.cellEditors.add(ColorText);
+
+    var NOON = 12 * 60;
+
+    var Time = Textfield.extend('Time', {
+        template: [
+'<div style="background-color:white; text-align:right; font-size:10px; padding-right:4px; font-weight:bold; border:1px solid black">',
+'    <input type="text" lang="{{locale}}" style="background-color:transparent; width:80%; height:100%; float:left; border:0; padding:0; font-family:monospace; font-size:11px; text-align:right; ' +
+'{{style}}">',
+'    <span>AM</span>',
+'</div>'
+        ].join('\n'),
+
+        initialize: function() {
+            this.input = this.el.querySelector('input');
+            this.meridian = this.el.querySelector('span');
+
+            // Flip AM/PM on any click
+            this.el.onclick = function() {
+                this.meridian.textContent = this.meridian.textContent === 'AM' ? 'PM' : 'AM';
+            }.bind(this);
+            this.input.onclick = function(e) {
+                e.stopPropagation(); // ignore clicks in the text field
+            };
+            this.input.onfocus = function(e) {
+                var target = e.target;
+                this.el.style.outline = this.outline = this.outline || window.getComputedStyle(target).outline;
+                target.style.outline = 0;
+            }.bind(this);
+            this.input.onblur = function(e) {
+                this.el.style.outline = 0;
+            }.bind(this);
+        },
+
+        setEditorValue: function(value) {
+            CellEditor.prototype.setEditorValue.call(this, value);
+            var parts = this.input.value.split(' ');
+            this.input.value = parts[0];
+            this.meridian.textContent = parts[1];
+        },
+
+        getEditorValue: function(value) {
+            value = CellEditor.prototype.getEditorValue.call(this, value);
+            if (this.meridian.textContent === 'PM') {
+                value += NOON;
+            }
+            return value;
+        }
+    });
+
+    grid.cellEditors.add(Time);
+
+    grid.localization.add({
+        name: 'hhmm', // alternative to having to hame localizer in `grid.localization.add`
+
+        // returns formatted string from number
+        format: function(mins) {
+            var hh = Math.floor(mins / 60) % 12 || 12, // modulo 12 hrs with 0 becoming 12
+                mm = (mins % 60 + 100 + '').substr(1, 2),
+                AmPm = mins < NOON ? 'AM' : 'PM';
+            return hh + ':' + mm + ' ' + AmPm;
+        },
+
+        invalid: function(hhmm) {
+            return !/^(0?[1-9]|1[0-2]):[0-5]\d$/.test(hhmm); // 12:59 max
+        },
+
+        // returns number from formatted string
+        parse: function(hhmm) {
+            var parts = hhmm.match(/^(\d+):(\d{2})$/);
+            return Number(parts[1]) * 60 + Number(parts[2]);
+        }
+    });
+
 
     // Used by the cellProvider.
     // `null` means column's data cells are not editable.
@@ -569,6 +646,7 @@ window.onload = function() {
         'textfield',
         'textfield',
         'combobox',
+        'time',
         'choice',
         'choice',
         'choice',
@@ -587,7 +665,7 @@ window.onload = function() {
                 break;
         }
 
-        var cellEditor = grid.createCellEditor(editorName, options);
+        var cellEditor = grid.cellEditors.create(editorName, options);
 
         if (cellEditor) {
             switch (x) {
@@ -833,6 +911,7 @@ window.onload = function() {
                     idx.TOTAL_NUMBER_OF_PETS_OWNED,
                     idx.HEIGHT,
                     idx.BIRTH_DATE,
+                    idx.BIRTH_TIME,
                     idx.BIRTH_STATE,
                     // idx.RESIDENCE_STATE,
                     idx.EMPLOYED,
@@ -938,6 +1017,11 @@ window.onload = function() {
             behavior.setColumnProperties(idx.BIRTH_DATE, {
                 format: 'singdate',
                 //strikeThrough: true
+            });
+
+            behavior.setColumnProperties(idx.BIRTH_TIME, {
+                editor: 'time',
+                format: 'hhmm'
             });
 
             behavior.setColumnProperties(idx.BIRTH_STATE, {

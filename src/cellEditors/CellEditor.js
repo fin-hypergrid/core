@@ -35,7 +35,7 @@ var CellEditor = Base.extend('CellEditor', {
          */
         this.grid = grid;
 
-        this.locale = grid.localization.locale;
+        this.locale = grid.localization.locale; // for template's `lang` attribute
 
         this.editorPoint = {
             x: 0,
@@ -349,11 +349,16 @@ var CellEditor = Base.extend('CellEditor', {
                 '   * Cancel editing by pressing the "esc" (escape) key.';
 
             error = error.message || error;
+
             if (typeof error !== 'string') {
-                error = this.localizer.expectation;
+                error = '';
             }
 
-            if (typeof error === 'string') {
+            if (this.localizer.expectation) {
+                error = error ? error + '\n' + this.localizer.expectation : this.localizer.expectation;
+            }
+
+            if (error) {
                 error = '\n' + error;
                 error = error.replace(/[\n\r]+/g, '\n\n   * ');
                 msg += '\n\nAdditional information about this error:' + error;
@@ -376,6 +381,7 @@ var CellEditor = Base.extend('CellEditor', {
      * @memberOf CellEditor.prototype
      */
     errorEffect: 'shaker',
+
     /**
      * Hash of registered {@link effectFunction}s or {@link effectObject}s.
      * @memberOf CellEditor.prototype

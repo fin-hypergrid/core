@@ -29,26 +29,31 @@ var cellRenderers = {
  *
  * > All native cell renderers are "preregistered" in cellRenderers/index.js.
  *
- * @param {YourCellRenderer.prototype.constructor} Constructor - A constructor, typically extended from `CellRenderer` (or a descendant therefrom).
+ * @param {string} [name] - Case-insensitive renderer key. If not given, `YourCellRenderer.prototype.$$CLASS_NAME` is used.
  *
- * @param {string} [rendererName] - Case-insensitive renderer key. If not given, `YourCellRenderer.prototype.$$CLASS_NAME` is used.
+ * @param {CellRenderer} Constructor - A constructor, typically extended from `CellRenderer` (or a descendant therefrom).
  *
  * > Note: `$$CLASS_NAME` can be easily set up by providing a string as the (optional) first parameter (`alias`) in your {@link https://www.npmjs.com/package/extend-me|CellEditor.extend} call.
  *
  * @memberOf module:cellRenderers
  */
-function add(Constructor, rendererName) {
-    rendererName = rendererName || Constructor.prototype.$$CLASS_NAME;
-    rendererName = rendererName && rendererName.toLowerCase();
-    return (cellRenderers[rendererName] = create(Constructor));
+function add(name, Constructor) {
+    if (typeof name === 'function') {
+        Constructor = name;
+        name = undefined;
+    }
+
+    name = name || Constructor.prototype.$$CLASS_NAME;
+    name = name && name.toLowerCase();
+    return (cellRenderers[name] = new Constructor);
 }
 
 /**
- * @param {string} rendererName
+ * @param {string} name
  * @returns {*}
  */
-function get(rendererName) {
-    return cellRenderers[rendererName && rendererName.toLowerCase()];
+function get(name) {
+    return cellRenderers[name && name.toLowerCase()];
 }
 
 // /**
@@ -67,27 +72,8 @@ function get(rendererName) {
 // function getRowHeaderCell(config) {
 // }
 
- /**
-  * Must be called with YOUR Hypergrid object as context!
-  * @returns {CellRenderer} New instance of the named cell renderer.
-  * @param {string} rendererName
-  * @private
-  */
-function create(CellRendererConstructor) {
-    var cellRenderer;
 
-    if (CellRendererConstructor) {
-        if (CellRendererConstructor.abstract) {
-            throw 'Attempt to instantiate an "abstract" cell renderer.';
-        }
-        cellRenderer = new CellRendererConstructor;
-    }
-
-    return cellRenderer;
-}
-
-
-add(require('./CellRenderer'), 'EmptyCell');
+add('EmptyCell', require('./CellRenderer'));
 add(require('./Button'));
 add(require('./SimpleCell'));
 add(require('./SliderCell'));

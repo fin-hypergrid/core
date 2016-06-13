@@ -4,165 +4,91 @@
 
 'use strict';
 
-var cellEditors = {
-    add: add,
-    get: get,
-    create: create
+function CellEditors(grid) {
+    this.grid = grid;
+}
+
+CellEditors.prototype = {
+    constructor: CellEditors.prototype.constructor, // preserve constructor
+
+    /**
+     * @summary Register a cell editor (class) or a synonym of an already-registered cell editor.
+     * @desc Adds a custom cell editor to the API using the provided name (or the class name), converted to all lower case.
+     *
+     * To register a synonym for an already-registered cell editor, use the following construct:
+     * ```
+     * var cellEditors = require('./cellEditors');
+     * cellEditors.register(cellEditors.get('spinner'), 'elevator');
+     * ```
+     * This makes a synonym "elevator" for the "spinner" cell editor.
+     *
+     * > All native cell editors are "preregistered" in cellEditors/index.js.
+     *
+     * @param {string} [name] - Case-insensitive editor key. If not given, `YourCellEditor.prototype.$$CLASS_NAME` is used.
+     *
+     * @param {YourCellEditor.prototype.constructor} Constructor - A constructor, typically extended from `CellEditor` (or a descendant therefrom).
+     *
+     * > Note: `$$CLASS_NAME` can be easily set up by providing a string as the (optional) first parameter (`alias`) in your {@link https://www.npmjs.com/package/extend-me|CellEditor.extend} call.
+     *
+     * @returns {CellEditor} A newly registered constructor extended from {@link CellEditor}.
+     *
+     * @memberOf module:cellEditors
+     */
+    add: function(name, Constructor) {
+        if (typeof name === 'function') {
+            Constructor = name;
+            name = undefined;
+        }
+
+        name = name || Constructor.prototype.$$CLASS_NAME;
+        name = name && name.toLowerCase();
+        this.editors[name] = Constructor;
+        return Constructor;
+    },
+
+    /**
+     * @param {string} name - Name of a registered editor.
+     * @returns {CellEditor} A registered constructor extended from {@link CellEditor}.
+     * @memberOf CellEditors.prototype
+     */
+    get: function(name) {
+        return this.editors[name && name.toLowerCase()];
+    },
+
+    /**
+     * @summary Lookup registered cell editor and return a new instance thereof.
+     * @desc Note: Must be called with the Hypergrid object as context!
+     * @returns {CellEditor} New instance of the named cell editor.
+     * @param {string} name - Name of a registered editor.
+     * @param {string} [options] - Properties to add to the instantiated editor primarily for mustache's use.
+     * @memberOf CellEditors.prototype
+     */
+    create: function(name, options) {
+        var cellEditor,
+            Constructor = this.get(name);
+
+        if (Constructor) {
+            if (Constructor.abstract) {
+                throw 'Attempt to instantiate an "abstract" cell editor class.';
+            }
+            cellEditor = new Constructor(this.grid, options);
+        }
+
+        return cellEditor;
+    },
+
+    // Pre-register standard cell editors:
+    editors: {
+        celleditor: require('./CellEditor'),
+        combobox: require('./ComboBox'),
+        color: require('./Color'),
+        date: require('./Date'),
+        filterbox: require('./FilterBox'),
+        number: require('./Number'),
+        slider: require('./Slider'),
+        spinner: require('./Spinner'),
+        textfield: require('./Textfield')
+    }
 };
 
-/**
- * @summary Register a cell editor (class) or a synonym of an already-registered cell editor.
- * @desc Adds a custom cell editor to the API using the provided name (or the class name), converted to all lower case.
- *
- * To register a synonym for an already-registered cell editor, use the following construct:
- * ```
- * var cellEditors = require('./cellEditors');
- * cellEditors.register(cellEditors.get('spinner'), 'elevator');
- * ```
- * This makes a synonym "elevator" for the "spinner" cell editor.
- *
- * > All native cell editors are "preregistered" in cellEditors/index.js.
- *
- * @param {YourCellEditor.prototype.constructor} Constructor - A constructor, typically extended from `CellEditor` (or a descendant therefrom).
- *
- * @param {string} [editorName] - Case-insensitive editor key. If not given, `YourCellEditor.prototype.$$CLASS_NAME` is used.
- *
- * > Note: `$$CLASS_NAME` can be easily set up by providing a string as the (optional) first parameter (`alias`) in your {@link https://www.npmjs.com/package/extend-me|CellEditor.extend} call.
- *
- * @returns {CellEditor} An class extended from {@link CellEditor}.
- *
- * @memberOf module:cellEditors
- */
-function add(Constructor, editorName) {
-    editorName = editorName || Constructor.prototype.$$CLASS_NAME;
-    editorName = editorName && editorName.toLowerCase();
-    cellEditors[editorName] = Constructor;
-    return Constructor;
-}
-
-/**
- * @param {string} editorName
- * @returns {*}
- * @memberOf module:cellEditors
- */
-function get(editorName) {
-    return cellEditors[editorName && editorName.toLowerCase()];
-}
-
-/**
- * @summary Lookup registered cell editor and return a new instance thereof.
- * @desc Note: Must be called with the Hypergrid object as context!
- * @returns {CellEditor} New instance of the named cell editor.
- * @param {string} editorName
- * @param {string} [options] - Properties to add to the instantiated editor primarily for mustache's use.
- * @this {Hypergrid}
- * @memberOf module:cellEditors
- */
-function create(editorName, options) {
-    var cellEditor,
-        CellEditorConstructor = get(editorName);
-
-    if (CellEditorConstructor) {
-        if (CellEditorConstructor.abstract) {
-            throw 'Attempt to instantiate an "abstract" cell editor class.';
-        }
-        cellEditor = new CellEditorConstructor(this, options);
-    }
-
-    return cellEditor;
-}
-
-
-// Register standard cell editors.
-
-/** @name celleditor
- * @see CellEditor
- * @constructor
- * @memberOf module:cellEditors
- */
-add(require('./CellEditor'));
-
-/** @name combobox
- * @see ComboBox
- * @constructor
- * @memberOf module:cellEditors
- */
-add(require('./ComboBox'));
-//register(require('./Combo'));
-
-/** @name color
- * @see Color
- * @constructor
- * @memberOf module:cellEditors
- */
-add(require('./Color'));
-
-/** @name date
- * @see Date
- * @constructor
- * @memberOf module:cellEditors
- */
-add(require('./Date'));
-
-/** @name filterbox
- * @see FilterBox
- * @constructor
- * @memberOf module:cellEditors
- */
-add(require('./FilterBox'));
-
-/** @name number
- * @see Number
- * @constructor
- * @memberOf module:cellEditors
- */
-add(require('./Number'));
-
-/** @name slider
- * @see Slider
- * @constructor
- * @memberOf module:cellEditors
- */
-add(require('./Slider'));
-
-/** @name spinner
- * @see Spinner
- * @constructor
- * @memberOf module:cellEditors
- */
-add(require('./Spinner'));
-
-/** @name textfield
- * @see Textfield
- * @constructor
- * @memberOf module:cellEditors
- */
-add(require('./Textfield'));
-
-
-// Register synonyms for standard type names.
-// Note that 'date' and 'number' are already registered above.
-
-/** @name int
- * @see module:cellEditors~number
- * @constructor
- * @memberOf module:cellEditors
- */
-add(cellEditors.number, 'int');
-
-/** @name float
- * @see module:cellEditors~number
- * @constructor
- * @memberOf module:cellEditors
- */
-add(cellEditors.number, 'float');
-
-/** @name string
- * @see module:cellEditors~textfield
- * @constructor
- * @memberOf module:cellEditors
- */
-add(cellEditors.textfield, 'string');
-
-
-module.exports = cellEditors;
+module.exports = CellEditors;
