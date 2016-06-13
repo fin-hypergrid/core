@@ -84,7 +84,7 @@ var DataModel = Base.extend('DataModel', {
      * @memberOf DataModel.prototype
      */
     getCellEditorAt: function(x, y, declaredEditorName, options) {
-        return this.grid.createCellEditor(declaredEditorName, options);
+        return this.grid.cellEditors.create(declaredEditorName, options);
     }
 
 });

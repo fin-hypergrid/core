@@ -361,12 +361,17 @@ Localization.prototype = {
     /** @summary Register a localizer.
      * @desc Checks the provided localizer that it conforms to {@link localizerInterface}
      * and adds it to the object using localizerName all lower case as the key.
-     * @param {string} localizerName
+     * @param {string} name
      * @param {localizerInterface} localizer
      * @memberOf Localization.prototype
      * @returns {localizeInerface} The provided localizer.
      */
-    add: function(localizerName, localizer) {
+    add: function(name, localizer) {
+        if (typeof name === 'object') {
+            localizer = name;
+            name = undefined;
+        }
+
         if (
             typeof localizer !== 'object' ||
             typeof localizer.format !== 'function' ||
@@ -377,7 +382,9 @@ Localization.prototype = {
             throw 'Expected localizer object to conform to interface.';
         }
 
-        this[localizerName.toLowerCase()] = localizer;
+        name = name || localizer.name;
+        name = name && name.toLowerCase();
+        this[name] = localizer;
 
         return localizer;
     },
@@ -388,8 +395,8 @@ Localization.prototype = {
      * @returns {localizerInterface}
      * @memberOf Localization.prototype
      */
-    get: function(localizerName) {
-        return this[localizerName] || this.string;
+    get: function(name) {
+        return this[name && name.toLowerCase()] || this.string;
     },
 
     ///  ///  ///  ///  ///    LOCALIZERS    ///  ///  ///  ///  ///

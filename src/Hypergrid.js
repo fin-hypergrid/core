@@ -21,7 +21,7 @@ var stylesheet = require('./lib/stylesheet');
 var Localization = require('./lib/Localization');
 var behaviors = require('./behaviors');
 var cellRenderers = require('./cellRenderers');
-var cellEditors = require('./cellEditors');
+var CellEditors = require('./cellEditors');
 
 var themeInitialized = false,
     polymerTheme = Object.create(defaults),
@@ -100,6 +100,12 @@ function Hypergrid(div, options) {
     margin.right = margin.right || '-200px';
     margin.bottom = margin.bottom || 0;
     margin.left = margin.left || 0;
+
+    /**
+     * @type {CellEditors}
+     * @memberOf Hypergrid.prototype
+     */
+    this.cellEditors = new CellEditors(this);
 
     this.allowEventHandlers = true;
 
@@ -295,14 +301,6 @@ Hypergrid.prototype = {
         return p && p.x === x && p.y === y;
     },
 
-    /** @summary Register localizer and create and register a cell editor class that uses it.
-     * @param {string} name - The new localizer's name, converted to all lower case.
-     * @param {localizerInterface} localizer
-     */
-    registerLocalizer: function(name, localizer) {
-        this.localization.add(name, localizer);
-    },
-
     getFormatter: function(localizerName) {
         return this.localization.get(localizerName).format;
     },
@@ -314,19 +312,10 @@ Hypergrid.prototype = {
 
     /**
      * All references to this shared API should go through your grid instance in case we decide to make it an object later and instance it for each grid.
+     * @type {object}
+     * @memberOf Hypergrid.prototype
      */
     cellRenderers: cellRenderers,
-
-    /**
-     * All references to this shared API should go through your grid instance in case we decide to make it an object later and instance it for each grid.
-     */
-    cellEditors: cellEditors,
-
-
-    /**
-     * This mix-in is purely for calling convenience, automatically setting the context to grid as required by cellEditors.create.
-     */
-    createCellEditor: cellEditors.create,
 
     /**
      * @memberOf Hypergrid.prototype
