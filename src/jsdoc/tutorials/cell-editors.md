@@ -255,7 +255,13 @@ There are two design paradigms for a complex cell editor with a text box differ 
 * **Dynamic Paradigm:** User interactions with the graphical elements during editing instantaneously update the text being edited. On save, the text element can be editable or it can be read-only. As the text element contains all the information, it is validated and parsed as usual.
 * **Delayed Paradigm:** User interactions with the graphical elements during editing do not affect the text. On save, the information from the state of the graphical elements is combined with the text data before parsing or transforms the primitive data after parsing.
 
-We shall further develop our `Time` cell editor by keeping the text input element but adding an AM/PM indicator that toggles on a mouse click. This example shall use the second design strategy mentioned above: The text input element is for the time in 12-hour mode, and the AM/PM indicator has no effect on the text.
+We shall now further develop our `Time` cell editor example:
+* We're going to show the time as 12-hour time with AM and PM rather than as 24-hour time.
+* Rather than typing AM or PM, user will click on it to toggle it.
+
+_NOTE: This is just an example for illustrative purposes. I'm not suggesting it's a practical user interface._
+
+We keep the text input element and add an AM/PM indicator to it's right that toggles on a mouse click. This example uses the _Delayed Paradigm_ outlined above: The text input element holds just the time in 12-hour mode; the AM/PM indicator is not part of the text and clicking it has no effect on the text.
 
 The following markup for a complex cell editor consists of a `<div>` containing an `<input>` element along with some text: 
 
@@ -410,7 +416,40 @@ respectively.
 
 #### Saving GUI state: Dynamic Paradigm
 
-Using event listeners, ... _-- to be continued --_
+The _Dynamic Paradigm_ as outlined above means that the GUI elements hold state that is always reflected in the contents of the text element.
+
+For our `Time` cell editor, this means that the AM or PM would be inside the text element. The user can edit it as text, or he could click the control to toggle it.
+ 
+_NOTE: On a practical level, the GUI should no longer be a piece of text because the AM or PM would appear doubled (once in the text box and again to its right). Perhaps a checkbox to indicate afternoon/evening instead._
+
+For this to work correctly requires _two-way binding_ between the GUI elements and text, meaning that:
+1. User's changes to the GUI state instantaneously affect the text; and
+2. User's edits to the text instantaneously affect the GUI state.
+ 
+This requires adding logic as needed to your GUI element event handlers or listeners to express the element's state in the text. For example, we could add the following line to the end of the GUI handler developed above:
+
+```javascript
+this.input.value.replace(/(AM|PM)$/i, this.meridian.textContent);
+```
+
+You could obviously get much more elaborate than this, maintaining models and view-controllers for each GUI element, _etc.;_ if it were anything more complex than this, that might be a good idea.
+ 
+The base class is already listening for `keyup` events on the text element. To bind the text edit events to the GUI state, we could just add our code there. For example, we could say:
+
+```javascript
+Time.prototype.keyup = function(e) {
+    CellEditor.prototype.keyup.call(this, e);
+    
+    var meridian = this.input.value.match(/(AM|PM)$/i);
+    if (meridian) {
+        this.meridian = meridian[0].toUpperCase();
+    }
+}
+```
+
+This would also require changing `hhmm.invalid` and `hhmm.parse` to accept AM or PM.
+
+Finally, for some good news: We can discard the `setEditorValue` and `getEditorValue` overrides.
 
 #### Intercepting keyboard input
 

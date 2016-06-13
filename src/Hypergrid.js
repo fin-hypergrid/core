@@ -101,6 +101,10 @@ function Hypergrid(div, options) {
     margin.bottom = margin.bottom || 0;
     margin.left = margin.left || 0;
 
+    /**
+     * @type {CellEditors}
+     * @memberOf Hypergrid.prototype
+     */
     this.cellEditors = new CellEditors(this);
 
     this.allowEventHandlers = true;
@@ -308,6 +312,8 @@ Hypergrid.prototype = {
 
     /**
      * All references to this shared API should go through your grid instance in case we decide to make it an object later and instance it for each grid.
+     * @type {object}
+     * @memberOf Hypergrid.prototype
      */
     cellRenderers: cellRenderers,
 
