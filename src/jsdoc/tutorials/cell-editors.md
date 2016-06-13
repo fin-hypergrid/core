@@ -146,7 +146,7 @@ var Time = Textfield.extend('Time', { // optional class name aids debugging
 });
 ```
 
-(See {@link http://github.com/joneit/extend-me} for details on the `extend` method.)
+_NOTE: See {@link http://github.com/joneit/extend-me} for details on the `extend` method. The important point to understand here is that `initialize` is called on construction on every ancestor prototype first, from oldest to newest, before it is called on ours._
 
 #### Registration
 
@@ -164,7 +164,7 @@ Formatters are contained within localizers which are objects that are languistic
  * De-format (parse) edited values back into primitive types.
  * Optional: Validate edits that they conform to the format.
 
-Localizers are APIs (not instantiated objects) with both `format` and `parse` methods. Cell editors use both these methods. (Cell renderers also usew localizers but only use the `format` method.)
+Localizers are APIs (not instantiated objects) with both `format` and `parse` methods. Cell editors use both these methods. (Cell renderers also use localizers, but only the `format` method.)
 
 To load and edit the data in the _hh:mm_ format, we will use the `hhmm` localizer. (See the example in the full _{@tutorial localization}_ tutorial.) First make sure to register it (so it can be referenced by name):
 
@@ -451,17 +451,13 @@ This would also require changing `hhmm.invalid` and `hhmm.parse` to accept AM or
 
 Finally, for some good news: We can discard the `setEditorValue` and `getEditorValue` overrides.
 
-#### Intercepting keyboard input
-
-The _Dynamic Paradigm_ also requires that edits made to the text box be reflected in the GUI state.... _-- to be continued --_
-
-....
-
 ### Graphical editors
 
 Purely graphical editors (with no text box) would descend directly from `CellEditor`.
 
 One thing to keep in mind about these is that while the dimensions of the container element are automatically constrained to those of the cell, the child GUI elements can nonetheless be rendered by the browser _outside_ the div. This is useful when your GUI cannot all fit inside the cell boundaries. Just make sure the {@link https://developer.mozilla.org/en-US/docs/Web/CSS/overflow|overflow} CSS property is set to `visible` (which is the default).
 
+### API
 
-_-- to be continued --_
+For detailed functional descriptions of overrideable methods, see {@link CellEditor}.
+ 

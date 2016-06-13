@@ -19,7 +19,6 @@ var CellEditor = Base.extend('CellEditor', {
      * @param {string} [options] - Properties to copy to the new cell editor primarily for mustache's use.
      */
     initialize: function(grid, options) {
-
         if (options) {
             for (var key in options) {
                 if (options.hasOwnProperty(key) && this[key] !== null) {
@@ -198,8 +197,13 @@ var CellEditor = Base.extend('CellEditor', {
     },
 
     /**
-     * @desc put value into our editor
-     * @param {object} value - whatever value we want to edit
+     * @summary Put the value into our editor.
+     * @desc Formats the value and displays it.
+     * The localizer's {@link localizerInterface#format|format} method will be called.
+     *
+     * Override this method if your editor has additional or alternative GUI elements.
+     *
+     * @param {object} value - The raw unformatted value from the data source that we want to edit.
      * @memberOf CellEditor.prototype
      */
     setEditorValue: function(value) {
@@ -408,7 +412,12 @@ var CellEditor = Base.extend('CellEditor', {
     },
 
     /**
-     * @desc return the current editor's value
+     * @summary Extract the edited value from the editor.
+     * @desc De-format the edited string back into a primitive value.
+     *
+     * The localizer's {@link localizerInterface#parse|parse} method will be called on the text box contents.
+     *
+     * Override this method if your editor has additional or alternative GUI elements. The GUI elements will influence the primitive value, either by altering the edited string before it is parsed, or by transforming the parsed value before returning it.
      * @returns {object} the current editor's value
      * @memberOf CellEditor.prototype
      */
