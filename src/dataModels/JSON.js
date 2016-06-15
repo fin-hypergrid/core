@@ -299,15 +299,23 @@ var JSON = DataModel.extend('dataModels.JSON', {
      * @memberOf dataModels.JSON.prototype
      * @param {object[]} dataRows
      */
-    setData: function(dataRows) {
-        this.source = new analytics.JSDataSource(dataRows);
+    setData: function(dataRows, options) {
+        var dataSource = this.source = new analytics.JSDataSource(dataRows);
         //this.preglobalfilter = new analytics.DataSourceGlobalFilter(this.source);
         //this.presorter = new analytics.DataSourceSorterComposite(this.prefilter);
 
-        this.analytics = new analytics.DataSourceAggregator(this.source);
+        dataSource = this.analytics = new analytics.DataSourceAggregator(dataSource);
 
-        this.postglobalfilter = new analytics.DataSourceGlobalFilter(this.analytics);
-        this.postsorter = new analytics.DataSourceSorterComposite(this.postglobalfilter);
+        if (options && options.treeview) {
+            this.treeviewOptions = {};
+            if (typeof options.treeview === 'string') {
+                this.treeviewOptions.treeColumnName = options.treeview;
+            }
+            dataSource = this.treeview = new analytics.DataSourceTreeview(dataSource, this.treeviewOptions);
+        }
+
+        dataSource = this.postglobalfilter = new analytics.DataSourceGlobalFilter(dataSource);
+        this.postsorter = new analytics.DataSourceSorterComposite(dataSource);
 
         this.groupsorter = new analytics.DataNodeGroupSorter(this.analytics);
 
@@ -463,6 +471,10 @@ var JSON = DataModel.extend('dataModels.JSON', {
             applyGroupBysAndAggregations.call(this);
         }
 
+        if (this.treeview) {
+            this.treeview.apply();
+        }
+
         applyFilters.call(this);
 
         applySorts.call(this);
@@ -594,22 +606,19 @@ var JSON = DataModel.extend('dataModels.JSON', {
     },
 
     /**
-     * @memberOf dataModels.JSON.prototype
+     * @memberOf dataModels.JSON.prototypedrilldown
      * @param cell
      * @param event
      */
     cellClicked: function(cell, event) {
-        if (!this.hasAggregates()) {
-            return;
+        if (
+            this.treeviewOptions && event.dataCell.x === this.treeviewOptions.treeColumnIndex ||
+            this.hasAggregates() && event.gridCell.x === 0
+        ) {
+            this.getDataSource().click(event.gridCell.y - this.grid.getHeaderRowCount());
+            this.applyAnalytics(true);
+            this.changed();
         }
-        if (event.gridCell.x !== 0) {
-            return; // this wasn't a click on the hierarchy column
-        }
-        var headerRowCount = this.grid.getHeaderRowCount();
-        var y = event.gridCell.y - headerRowCount;
-        this.getDataSource().click(y);
-        this.applyAnalytics(true);
-        this.changed();
     },
 
     /**
