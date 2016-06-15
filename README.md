@@ -8,9 +8,17 @@ This version replaces last year's [prototype version](https://github.com/openfin
 
 ### Demos
 
-See the version 1.0 [demo](https://openfin.github.io/fin-hypergrid).
+##### Developer Tutorial
 
-The prototype version's [demos](http://openfin.github.io/fin-hypergrid-polymer-demo/components/fin-hypergrid/demo.html) had some nice applications you may wish to look at for inspiration of what you can do with hypergrid and to give you some idea of the speed and responsiveness of the engine.
+This [tutorial](https://openfin.github.io/fin-hypergrid) is a tool that shows developers how to use Hypergrid and implement its features.
+
+##### Hyperblotter
+
+Hyperblotter is a demo app that shows the capabilities of both OpenFin and Hypergrid.
+
+Check out the Table view on Hyperblotter on a Windows machine via [this installer](https://dl.openfin.co/services/download?fileName=Hyperblotter&config=http://cdn.openfin.co/demos/hyperblotter/app.json).
+
+![](https://github.com/openfin/fin-hypergrid/blob/master/images/Hyperblotter%20Tabled%20Reduced%20Rows.png)
 
 ### Features
 
