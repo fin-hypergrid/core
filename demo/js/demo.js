@@ -130,7 +130,7 @@ window.onload = function() {
         { label: 'Manage Filters&hellip;', onclick: toggleDialog.bind(this, 'ManageFilters') },
         { label: 'toggle empty data', onclick: toggleEmptyData },
         { label: 'set data 1 (5000 rows)', onclick: setData.bind(null, people1) },
-        { label: 'set data 2 (5000 rows)', onclick: setData.bind(null, people2) },
+        { label: 'set data 2 (10000 rows)', onclick: setData.bind(null, people2) },
         { label: 'set data 3 (tree view)', onclick: function() {
             setData(people3, { treeview: true });
             grid.setState({ columnIndexes: [ idx.NAME, idx.LATITUDE, idx.LONGITUDE ], checkboxOnlyRowSelections: true });
