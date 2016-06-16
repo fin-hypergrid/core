@@ -107,6 +107,7 @@ SelectionModel.prototype = {
      */
     select: function(ox, oy, ex, ey) {
         var newSelection = this.grid.newRectangle(ox, oy, ex, ey);
+        newSelection.firstSelectedCell = this.grid.newPoint(ox, oy); //Cache the first selected cell before it gets normalized to top-left origin
         this.selections.push(newSelection);
         this.flattenedX.push(newSelection.flattenXAt(0));
         this.flattenedY.push(newSelection.flattenYAt(0));
