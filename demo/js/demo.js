@@ -133,9 +133,13 @@ window.onload = function() {
         { label: 'set data 1 (5000 rows)', onclick: setData.bind(null, people1) },
         { label: 'set data 2 (10000 rows)', onclick: setData.bind(null, people2) },
         { label: 'set data 3 (treedata)', onclick: function() {
+            // Optional: Clone the default pipeline. If you don't do this, the mutated pipeline will be shared among all grid instances.
             dataModel.dataPipeline = Object.getPrototypeOf(dataModel).dataPipeline.slice();
+            // Insert the treeview layer.
             dataModel.addPipelineLayerAfter({ name: 'treeview', constructor: 'DataSourceTreeview' }, 'source');
+            // Reset the pipeline, pointing at some tree (self-joined) data.
             setData(treedata);
+            // Only show the data columns; don't show the ID and parentID columns.
             grid.setState({ columnIndexes: [ idx.NAME, idx.LATITUDE, idx.LONGITUDE ], checkboxOnlyRowSelections: true });
         } },
         { label: 'reset', onclick: grid.reset.bind(grid)}

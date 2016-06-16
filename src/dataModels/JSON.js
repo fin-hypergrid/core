@@ -295,14 +295,33 @@ var JSON = DataModel.extend('dataModels.JSON', {
         return this.getDataSource().getFields();
     },
 
+    /** @typedef {object} dataPipelineObject
+     * @property {string} name - Name of the new layer; becomes a property of this dataModel.
+     * @property {function} constructor - A `hyper-analytics`-style  "data source".
+     * @property {*} [options] - When defined, passed as 2nd argument to constructor.
+     * @property {string} [branch] - Defines a branch off the main sequence.
+     */
+
+    /**
+     * Creates a datasource pipeline. Each new layer is created using the supplied constructor. A reference to each new layer is added to `this` dataModel as a property using the layer's `name`.
+     *
+     * The first layer should be named ``source``. Hence, the start of the pipeline is `this.source`. The last layer is assigned the synonym `this.datasource`.
+     *
+     * Branches are created when a layer specifies a name in `branch`.
+     * @param dataSource
+     * @memberOf dataModels.JSON.prototype
+     */
     setData: function(dataSource) {
         this.dataSource = undefined;
+        if (this.dataPipeline.length === 0 || this.dataPipeline[0].name !== 'source') {
+            throw 'Irregular pipeline spec.';
+        }
         this.dataPipeline.forEach(function(layer) {
             var Constructor = analytics[layer.constructor];
 
-            if (layer.source) {
+            if (layer.branch) {
                 this.dataSource = this.dataSource || dataSource; // note tip of main branch on first branch
-                dataSource = this[layer.source];
+                dataSource = this[layer.branch];
             }
 
             dataSource = layer.options === undefined
@@ -317,6 +336,10 @@ var JSON = DataModel.extend('dataModels.JSON', {
         this.applyAnalytics();
     },
 
+    /**
+     * @type {dataPipelineObject[]}
+     * @memberOf dataModels.JSON.prototype
+     */
     dataPipeline: [
         { name: 'source', constructor: 'JSDataSource' },
         //{ name: 'preglobalfilter', constructor: 'DataSourceGlobalFilter' },
@@ -324,12 +347,25 @@ var JSON = DataModel.extend('dataModels.JSON', {
         { name: 'analytics', constructor: 'DataSourceAggregator' },
         { name: 'postglobalfilter', constructor: 'DataSourceGlobalFilter' },
         { name: 'postsorter', constructor: 'DataSourceSorterComposite' },
-        { name: 'groupsorter', constructor: 'DataNodeGroupSorter', source: 'analytics' }
+        { name: 'groupsorter', constructor: 'DataNodeGroupSorter', branch: 'analytics' }
     ],
 
-    addPipelineLayerAfter: function(newLayer, afterLayerName) {
-        var afterLayer = this.dataPipeline.find(function(layer) { return layer.name === afterLayerName; });
-        var afterLayerIndex = this.dataPipeline.indexOf(afterLayer);
+    /**
+     * Add a layer to the data source pipeline.
+     * @param {dataPipelineObject} newLayer - The new pipeline layer.
+     * @param {string} [referenceElement] - Name of an existing pipeline layer after which the new layer will be added. If not found (such as `null`), inserts at beginning. If `undefined` or omitted, adds to end.
+     * @memberOf dataModels.JSON.prototype
+     */
+    addPipelineLayerAfter: function(newLayer, referenceElement) {
+        var afterLayer, afterLayerIndex;
+        if (referenceElement === undefined) {
+            afterLayerIndex = this.dataPipeline.length;
+        } else {
+            afterLayer = this.dataPipeline.find(function(layer) {
+                return layer.name === referenceElement;
+            });
+            afterLayerIndex = this.dataPipeline.indexOf(afterLayer);
+        }
         this.dataPipeline.splice(afterLayerIndex + 1, 0, newLayer);
     },
 
