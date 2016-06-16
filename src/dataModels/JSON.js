@@ -85,11 +85,11 @@ var JSON = DataModel.extend('dataModels.JSON', {
     },
 
     getDataSource: function() {
-        return this.postsorter; //this.hasAggregates() ? this.analytics : this.presorter;
+        return this.dataSource; //this.hasAggregates() ? this.analytics : this.presorter;
     },
 
     getGlobalFilterDataSource: function() {
-        return this.postglobalfilter; //this.hasAggregates() ? this.postfilter : this.prefilter;
+        return this.postglobalfilter; //this.hasAggregates() ? this.postfilter : this.preglobalfilter;
     },
 
     getSortDataSource: function() {
@@ -295,32 +295,42 @@ var JSON = DataModel.extend('dataModels.JSON', {
         return this.getDataSource().getFields();
     },
 
-    /**
-     * @memberOf dataModels.JSON.prototype
-     * @param {object[]} dataRows
-     */
-    setData: function(dataRows, options) {
-        var dataSource = this.source = new analytics.JSDataSource(dataRows);
-        //this.preglobalfilter = new analytics.DataSourceGlobalFilter(this.source);
-        //this.presorter = new analytics.DataSourceSorterComposite(this.prefilter);
+    setData: function(dataSource) {
+        this.dataSource = undefined;
+        this.dataPipeline.forEach(function(layer) {
+            var Constructor = analytics[layer.constructor];
 
-        dataSource = this.analytics = new analytics.DataSourceAggregator(dataSource);
-
-        if (options && options.treeview) {
-            this.treeviewOptions = {};
-            if (typeof options.treeview === 'string') {
-                this.treeviewOptions.treeColumnName = options.treeview;
+            if (layer.source) {
+                this.dataSource = this.dataSource || dataSource; // note tip of main branch on first branch
+                dataSource = this[layer.source];
             }
-            dataSource = this.treeview = new analytics.DataSourceTreeview(dataSource, this.treeviewOptions);
-        }
 
-        dataSource = this.postglobalfilter = new analytics.DataSourceGlobalFilter(dataSource);
-        this.postsorter = new analytics.DataSourceSorterComposite(dataSource);
+            dataSource = layer.options === undefined
+                ? new Constructor(dataSource)
+                : new Constructor(dataSource, layer.options);
 
-        this.groupsorter = new analytics.DataNodeGroupSorter(this.analytics);
+            this[layer.name] = dataSource;
+        }.bind(this));
+
+        this.dataSource = this.dataSource || dataSource; // note tip of main branch if never branched
 
         this.applyAnalytics();
+    },
 
+    dataPipeline: [
+        { name: 'source', constructor: 'JSDataSource' },
+        //{ name: 'preglobalfilter', constructor: 'DataSourceGlobalFilter' },
+        //{ name: 'presorter', constructor: 'DataSourceSorterComposite' },
+        { name: 'analytics', constructor: 'DataSourceAggregator' },
+        { name: 'postglobalfilter', constructor: 'DataSourceGlobalFilter' },
+        { name: 'postsorter', constructor: 'DataSourceSorterComposite' },
+        { name: 'groupsorter', constructor: 'DataNodeGroupSorter', source: 'analytics' }
+    ],
+
+    addPipelineLayerAfter: function(newLayer, afterLayerName) {
+        var afterLayer = this.dataPipeline.find(function(layer) { return layer.name === afterLayerName; });
+        var afterLayerIndex = this.dataPipeline.indexOf(afterLayer);
+        this.dataPipeline.splice(afterLayerIndex + 1, 0, newLayer);
     },
 
     /**
@@ -459,6 +469,11 @@ var JSON = DataModel.extend('dataModels.JSON', {
     hasHierarchyColumn: function() {
         var showTree = this.grid.resolveProperty('showTreeColumn') === true;
         return this.hasAggregates() && this.hasGroups() && showTree;
+    },
+
+    setRelation: function(options) {
+        this.treeview.setRelation(options);
+        this.applyAnalytics();
     },
 
     /**
@@ -612,12 +627,13 @@ var JSON = DataModel.extend('dataModels.JSON', {
      */
     cellClicked: function(cell, event) {
         if (
-            this.treeviewOptions && event.dataCell.x === this.treeviewOptions.treeColumnIndex ||
+            this.treeview && event.dataCell.x === this.treeview.treeColumnIndex ||
             this.hasAggregates() && event.gridCell.x === 0
         ) {
-            this.getDataSource().click(event.gridCell.y - this.grid.getHeaderRowCount());
-            this.applyAnalytics(true);
-            this.changed();
+            if (!this.getDataSource().click(event.gridCell.y - this.grid.getHeaderRowCount())) {
+                this.applyAnalytics(true);
+                this.changed();
+            }
         }
     },
 

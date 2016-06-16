@@ -1,6 +1,6 @@
 /* eslint-env browser */
 
-/* globals fin, people1, people2, vent */
+/* globals fin, people1, people2, people3, vent */
 
 /* eslint-disable no-alert, no-unused-vars */
 
@@ -18,6 +18,7 @@ window.onload = function() {
         }, {
             label: 'Grouping',
             ctrls: [
+                { name: 'treeview', checked: false, setter: toggleTreeview },
                 { name: 'aggregates', checked: false, setter: toggleAggregates }
             ]
         }, {
@@ -132,7 +133,9 @@ window.onload = function() {
         { label: 'set data 1 (5000 rows)', onclick: setData.bind(null, people1) },
         { label: 'set data 2 (10000 rows)', onclick: setData.bind(null, people2) },
         { label: 'set data 3 (tree view)', onclick: function() {
-            setData(people3, { treeview: true });
+            dataModel.dataPipeline = Object.getPrototypeOf(dataModel).dataPipeline.slice();
+            dataModel.addPipelineLayerAfter({ name: 'treeview', constructor: 'DataSourceTreeview' }, 'source');
+            setData(people3);
             grid.setState({ columnIndexes: [ idx.NAME, idx.LATITUDE, idx.LONGITUDE ], checkboxOnlyRowSelections: true });
         } },
         { label: 'reset', onclick: grid.reset.bind(grid)}
@@ -159,7 +162,7 @@ window.onload = function() {
 
     window.vent = false;
 
-    //functions for showing the grouping/rollup capbilities
+    //functions for showing the grouping/rollup capabilities
     var doAggregates = false,
         rollups = behavior.aggregations,
         aggregates = {
@@ -171,6 +174,10 @@ window.onload = function() {
             lastPet: rollups.last(2),
             stdDevPets: rollups.stddev(2)
         };
+
+    function toggleTreeview() {
+        behavior.setRelation(this.checked);
+    }
 
     function toggleAggregates() {
         behavior.setAggregates(this.checked ? aggregates : []);
@@ -391,10 +398,7 @@ window.onload = function() {
         if (config.isUserDataArea) {
             config.halign = 'left';
 
-            var x = config.x;
-            var y = config.y;
-
-            var value = dataModel.getValue(this.index, y);
+            var value = dataModel.getValue(config.x, config.y);
 
             if (value === '') {
                 config.backgroundColor = '#e8ffe8';

@@ -1489,6 +1489,11 @@ var Behavior = Base.extend('Behavior', {
         return false;
     },
 
+    setRelation: function(options) {
+        this.dataModel.setRelation(options);
+        this.shapeChanged();
+    },
+
     getRowContextFunction: function(selectedRows) {
         return function() {
             return null;
