@@ -104,14 +104,15 @@ SelectionModel.prototype = {
      * @param {number} oy - origin y coordinate
      * @param {number} ex - extent x coordinate
      * @param {number} ey - extent y coordinate
+     * @param {boolean} silent - whether to fire selection changed event
      */
-    select: function(ox, oy, ex, ey) {
+    select: function(ox, oy, ex, ey, silent) {
         var newSelection = this.grid.newRectangle(ox, oy, ex, ey);
         this.selections.push(newSelection);
         this.flattenedX.push(newSelection.flattenXAt(0));
         this.flattenedY.push(newSelection.flattenYAt(0));
         this.setLastSelectionType('cell');
-        this.grid.selectionChanged();
+        if (!silent) {this.grid.selectionChanged();}
     },
 
     /**
