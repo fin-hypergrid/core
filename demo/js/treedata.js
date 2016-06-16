@@ -15,5 +15,5 @@
         { ID: 10, parentID: null, name: 'France', latitude: 46.1274793, longitude: -2.288454 },
         { ID: 11, parentID: 10, name: 'Paris', latitude: 48.8588376, longitude: 2.2773459 },
     ];
-    window.people3 = data;
+    window.treedata = data;
 })();
