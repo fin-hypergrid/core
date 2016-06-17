@@ -941,9 +941,9 @@ var Behavior = Base.extend('Behavior', {
      * @param {Hypergrid} grid
      * @param {Object} event - the event details
      */
-    onTap: function(grid, event) {
+    onClick: function(grid, event) {
         if (this.featureChain) {
-            this.featureChain.handleTap(grid, event);
+            this.featureChain.handleClick(grid, event);
             this.setCursor(grid);
         }
     },
@@ -1036,19 +1036,6 @@ var Behavior = Base.extend('Behavior', {
     onDoubleClick: function(grid, event) {
         if (this.featureChain) {
             this.featureChain.handleDoubleClick(grid, event);
-            this.setCursor(grid);
-        }
-    },
-
-    /**
-     * @memberOf Behavior.prototype
-     * @desc delegate handling hold pulse to the feature chain of responsibility
-     * @param {Hypergrid} grid
-     * @param {Object} event - the event details
-     */
-    onHoldPulse: function(grid, event) {
-        if (this.featureChain) {
-            this.featureChain.handleHoldPulse(grid, event);
             this.setCursor(grid);
         }
     },
