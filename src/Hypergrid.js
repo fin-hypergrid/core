@@ -1837,13 +1837,9 @@ Hypergrid.prototype = {
         this.canvas.dispatchEvent(clickEvent);
     },
 
-    fireSyntheticFilterAppliedEvent: function(details) {
-        var event = new CustomEvent('fin-filter-applied', {
-            detail: details
-        });
-        if (this.canvas) {
-            this.canvas.dispatchEvent(event);
-        }
+    fireSyntheticFilterAppliedEvent: function() {
+        var filterEvent = new CustomEvent('fin-filter-applied');
+        this.canvas.dispatchEvent(filterEvent);
     },
 
     /**
