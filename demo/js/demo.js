@@ -81,6 +81,10 @@ window.onload = function() {
         }
     ];
 
+    // restore previous "opinionated" headerify behavior
+    var headerify = fin.Hypergrid.analytics.util.headerify;
+    headerify.transform = headerify.capitalize;
+
     function derivedSchema(columns) {
         // create a hierarchical schema organized by alias
         var factory = new fin.Hypergrid.ColumnSchemaFactory(columns);
