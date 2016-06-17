@@ -39,7 +39,7 @@ var nullDataSource = {
     viewMakesSense: function() {
         return false;
     },
-    setAgregates: function() {},
+    setAggregates: function() {},
     setGroupBys: function() {},
     groupBys: [],
 
@@ -52,19 +52,21 @@ var nullDataSource = {
 var JSON = DataModel.extend('dataModels.JSON', {
 
     //null object pattern for the source object
-    source: nullDataSource,
-
-    preglobalfilter: nullDataSource,
-
-    presorter: nullDataSource,
-    aggregator: nullDataSource,
-    globalfilter: nullDataSource,
-    sortercomposite: nullDataSource,
+    resetSources: function() {
+        this.sources = {
+            source: nullDataSource,
+            aggregator: nullDataSource,
+            globalfilter: nullDataSource,
+            sortercomposite: nullDataSource
+        };
+        this.dataSource = undefined;
+    },
 
     topTotals: [],
     bottomTotals: [],
 
     initialize: function() {
+        this.resetSources();
         this.selectedData = [];
     },
 
@@ -77,7 +79,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
      * @returns {boolean}
      */
     hasAggregates: function() {
-        return this.aggregator.hasAggregates();
+        return this.sources.aggregator.hasAggregates();
     },
 
     /**
@@ -85,7 +87,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
      * @returns {boolean}
      */
     hasGroups: function() {
-        return this.aggregator.hasGroups();
+        return this.sources.aggregator.hasGroups();
     },
 
     getDataSource: function() {
@@ -93,11 +95,11 @@ var JSON = DataModel.extend('dataModels.JSON', {
     },
 
     getGlobalFilterDataSource: function() {
-        return this.globalfilter;
+        return this.sources.globalfilter;
     },
 
     getData: function() {
-        return this.source.data;
+        return this.sources.source.data;
     },
 
     getFilteredData: function() {
@@ -250,7 +252,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
         var showTree = this.grid.resolveProperty('showTreeColumn') === true;
         var hasAggregates = this.hasAggregates();
         var offset = (hasAggregates && !showTree) ? -1 : 0;
-        return this.aggregator.getColumnCount() + offset;
+        return this.sources.aggregator.getColumnCount() + offset;
     },
 
     /**
@@ -268,7 +270,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
      * @returns {string[]}
      */
     getHeaders: function() {
-        return this.aggregator.getHeaders();
+        return this.sources.aggregator.getHeaders();
     },
 
     /**
@@ -317,16 +319,16 @@ var JSON = DataModel.extend('dataModels.JSON', {
      * @summary Instantiates the data source pipeline.
      * @desc Each new layer is created using the supplied constructor and a reference to the previous data source in the pipeline. A reference to each new layer is added to `this` dataModel as a property using the layer's `name`.
      *
-     * The first layer must be named `'source'`. Hence, the start of the pipeline is `this.source`. The last layer is assigned the synonym `this.dataSource`.
+     * The first layer must have a `@@CLASS_NAME` of `'DataSource'`. Hence, the start of the pipeline is `this.source`. The last layer is assigned the synonym `this.dataSource`.
      *
-     * Branches are created when a layer specifies a name in `branch`.
-     * @param dataSource
+     * Branches are created when a layer specifies a name in `parent`.
+     * @param {object[]} dataSource - Array of uniform objects containing the grid data.
      * @memberOf dataModels.JSON.prototype
      */
     setData: function(dataSource) {
-        this.dataSource = undefined;
+        this.resetSources();
 
-        this.pipeline.forEach(function(layer, index) {
+        this.pipeline.forEach(function(sources, layer, index) {
             var DataSource = analytics[layer.type];
 
             layer.name = layer.name || getDataSourceName(layer.type);
@@ -337,7 +339,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
 
             if (layer.parent) {
                 this.dataSource = this.dataSource || dataSource; // tip of main trunk on first diversion
-                dataSource = this[getDataSourceName(layer.parent)];
+                dataSource = sources[getDataSourceName(layer.parent)];
                 if (!dataSource) {
                     throw 'Parent data source not in pipeline.';
                 }
@@ -347,8 +349,8 @@ var JSON = DataModel.extend('dataModels.JSON', {
                 ? new DataSource(dataSource)
                 : new DataSource(dataSource, layer.options);
 
-            this[layer.name] = dataSource;
-        }.bind(this));
+            sources[layer.name] = dataSource;
+        }.bind(this, this.sources));
 
         this.dataSource = this.dataSource || dataSource; // tip of main trunk if never branched
 
@@ -413,7 +415,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
      * @param groups
      */
     setGroups: function(groups) {
-        this.aggregator.setGroupBys(groups);
+        this.sources.aggregator.setGroupBys(groups);
         this.applyAnalytics();
         this.grid.fireSyntheticGroupsChangedEvent(this.getGroups());
     },
@@ -425,7 +427,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
     getGroups: function() {
         var headers = this.getHeaders().slice(0);
         var fields = this.getFields().slice(0);
-        var groupBys = this.aggregator.groupBys;
+        var groupBys = this.sources.aggregator.groupBys;
         var groups = [];
         for (var i = 0; i < groupBys.length; i++) {
             var field = headers[groupBys[i]];
@@ -443,8 +445,8 @@ var JSON = DataModel.extend('dataModels.JSON', {
      * @returns {object[]}
      */
     getAvailableGroups: function() {
-        var headers = this.source.getHeaders().slice(0);
-        var groupBys = this.aggregator.groupBys;
+        var headers = this.sources.source.getHeaders().slice(0);
+        var groupBys = this.sources.aggregator.groupBys;
         var groups = [];
         for (var i = 0; i < headers.length; i++) {
             if (groupBys.indexOf(i) === -1) {
@@ -493,7 +495,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
      * @param aggregations
      */
     setAggregates: function(aggregations) {
-        this.aggregator.setAggregates(aggregations);
+        this.sources.aggregator.setAggregates(aggregations);
         this.applyAnalytics();
     },
 
@@ -507,7 +509,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
     },
 
     setRelation: function(options) {
-        this.treeview.setRelation(options);
+        this.sources.treeview.setRelation(options);
         this.applyAnalytics();
     },
 
@@ -517,8 +519,8 @@ var JSON = DataModel.extend('dataModels.JSON', {
     applyAnalytics: function(dontApplyAggregator) {
         selectedDataRowsBackingSelectedGridRows.call(this);
 
-        this.pipeline.forEach(function(layer) {
-            var dataSource = this[layer.name];
+        this.pipeline.forEach(function(sources, layer) {
+            var dataSource = sources[layer.name];
 
             switch (layer.type) {
                 case 'DataSourceAggregator':
@@ -528,8 +530,8 @@ var JSON = DataModel.extend('dataModels.JSON', {
                     break;
 
                 case 'DataSourceSorterComposite':
-                    if (this.aggregator && this.aggregator.viewMakesSense()) {
-                        dataSource = this.groupsorter;
+                    if (sources.aggregator && sources.aggregator.viewMakesSense()) {
+                        dataSource = sources.groupsorter;
                     }
                     dataSource.clearSorts();
                     (this.getPrivateState().sorts || []).forEach(function(sort) {
@@ -541,7 +543,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
             if (dataSource && dataSource.apply) {
                 dataSource.apply();
             }
-        }.bind(this));
+        }.bind(this, this.sources));
 
         reselectGridRowsBackedBySelectedDataRows.call(this);
     },
@@ -676,7 +678,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
      */
     cellClicked: function(cell, event) {
         if (
-            this.treeview && event.dataCell.x === this.treeview.treeColumnIndex ||
+            this.sources.treeview && event.dataCell.x === this.sources.treeview.treeColumnIndex ||
             this.hasAggregates() && event.gridCell.x === 0
         ) {
             var expandable = this.getDataSource().click(event.gridCell.y - this.grid.getHeaderRowCount());
@@ -876,11 +878,11 @@ var JSON = DataModel.extend('dataModels.JSON', {
     },
 
     getUnfilteredValue: function(x, y) {
-        return this.source.getValue(x, y);
+        return this.sources.source.getValue(x, y);
     },
 
     getUnfilteredRowCount: function() {
-        return this.source.getRowCount();
+        return this.sources.source.getRowCount();
     }
 });
 
