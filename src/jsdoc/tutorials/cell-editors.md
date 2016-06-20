@@ -36,8 +36,6 @@ dataModel.getCellEditorAt = function(columnIndex, rowIndex, declaredEditorName, 
 }
 ```
 
-See the full {@link DataModel#getCellEditorAt|getCellEditorAt} API.
-
 #### Text Format
 
 Cell editors that present data in text form will respect the cell's `format` render property (used primarily by the cell renderer):
@@ -49,12 +47,13 @@ behavior.setColumnProperties(columnIndex, {
 });
 ```
 
-To override or ignore the declared format (`options.format`) at render time:
+At render time, override _or_ ignore the declared format (available in `options.format`):
 
 ```javascript
 dataModel.getCellEditorAt = function(columnIndex, rowIndex, declaredEditorName, options) {
     if (...) {
-        options.format = 'number';  // override
+        options.format = 'number'; // override
+        // or:
         options.format = undefined; // ignore (falsy defers to cell editor's localizer)
     }
     return grid.cellEditors.create(declaredEditorName, options);
@@ -75,42 +74,47 @@ dataModel.getCellEditorAt = function(columnIndex, rowIndex, declaredEditorName, 
 }
 ```
 
+Overridig the template here is also possible (`options.template`) &mdash; but be careful!
+
 #### Object access
 
-After instantiation, object and its generated DOM elements are accessible as shown below. Useful if template doesn't provide enough flexibility through variable merge.
+When template doesn't provide enough flexibility through variable merge, instantiated cell editor object and its generated DOM elements are accessible after instantiation as shown below.
 
 ```javascript
 dataModel.getCellEditorAt = function(columnIndex, rowIndex, declaredEditorName, options) {
     var cellEditor = grid.cellEditors.create(declaredEditorName, options);
+    
     if (cellEditor && columnIndex === behavior.columnEnum.BIRTH_DATE) { // defined cell editors only!
         cellEditor.input.setAttribute('style', '...'); // actual input control
-        cellEditor.el.setAttribute('title', '...'); // container (input control if no container)
+        cellEditor.el.setAttribute('title', '...'); // container (or input if no container)
     }
     return cellEditor;
 }
 ```
 
-**NOTE:** Always check the return value from `cellEditors.create` in case the editor name was unregistered.
+**NOTE:** `cellEditors.create` returns `undefined` when the editor name was unregistered.
 
 #### Data coordinates in `getCellEditorAt`
 
-`columnIndex` is the position of the column in the `fields` array, which is derived from the data source. As such its order is undefined. Compare against members of the `behavior.columnEnum` map as illustrated above. Keys in this enum are all upper case with underscores inserted between camelCase words ("CAMEL_CASE"). (Although syntactically convenient and efficient, be aware that `columnEnum` is recreated on every call to `behavior.createColumns()` which is called by `behavior.setData()`. Local references will need to be updated at that time.)
+`columnIndex` is the position of the column in the `fields` array. As this array is typically derived from the data source, its order is undefined. The `behavior.columnEnum` hash maps column names to indeces. Keys are all upper case with underscores inserted between camelCase words ("CAMEL_CASE"). Although syntactically convenient and efficient, be aware that `columnEnum` is recreated on every call to `behavior.createColumns()` (called by `behavior.setData()`) and local references to the hash must be updated at that time.
 
 As an alternative to dealing with `columnIndex` at all, `options.column.name` contains the actual column name.
  
 `rowIndex` is the position in the data row, offset by the number of header rows (all the rows above the first data row, including the filter row).
 
+See the full {@link DataModel#getCellEditorAt|getCellEditorAt} API.
+
 ### Preregistered Cell Editors
 
 The following cell editors are preregistered in `grid.cellEditors`. See each for its template and notes on browser limitations.
 
-* {@link http://openfin.github.io/fin-hypergrid/doc/Color.html|Color},
-* {@link http://openfin.github.io/fin-hypergrid/doc/ComboBox.html|ComboBox},
-* {@link http://openfin.github.io/fin-hypergrid/doc/Date.html|Date},
-* {@link http://openfin.github.io/fin-hypergrid/doc/Number.html|Number},
-* {@link http://openfin.github.io/fin-hypergrid/doc/Slider.html|Slider},
-* {@link http://openfin.github.io/fin-hypergrid/doc/Spinner.html|Spinner},
-* {@link http://openfin.github.io/fin-hypergrid/doc/Textfield.html|Textfield}.
+* {@link http://openfin.github.io/fin-hypergrid/doc/Color.html|Color}
+* {@link http://openfin.github.io/fin-hypergrid/doc/ComboBox.html|ComboBox}
+* {@link http://openfin.github.io/fin-hypergrid/doc/Date.html|Date}
+* {@link http://openfin.github.io/fin-hypergrid/doc/Number.html|Number}
+* {@link http://openfin.github.io/fin-hypergrid/doc/Slider.html|Slider}
+* {@link http://openfin.github.io/fin-hypergrid/doc/Spinner.html|Spinner}
+* {@link http://openfin.github.io/fin-hypergrid/doc/Textfield.html|Textfield}
 
 ### Development
 
