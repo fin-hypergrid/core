@@ -3,6 +3,7 @@
 'use strict';
 
 var _ = require('object-iterators');
+
 var deprecated = require('../lib/deprecated');
 
 var propertyNames = [
@@ -249,20 +250,26 @@ Column.prototype = {
      * Note that "render property" means in each case the first defined property found on the cell, column, or grid.
      *
      * @param {number} y - The original untranslated row index.
-     * @returns {sring} Falsy value means either `null` cell editor _or_ no declared cell editor for this cell.
+     * @param {object} options - Will be decorated with `format` and `column`.
+     * @param {Point} options.editPoint
+     * @returns {undefined|CellEditor} Falsy value means either no declared cell editor _or_ instantiation aborted by falsy return return from fireRequestCellEdit.
      */
-    getCellEditorAt: function(y) {
-        var cellProps = this.getCellProperties(y),
-            columnProps,
-            editorName = cellProps.editor || (columnProps = this.getProperties()).editor,
-            format = cellProps.format || (columnProps || this.getProperties()).format,
-            options = { column: this };
+    getCellEditorAt: function(y, options) {
+        var cellEditor,
+            cellProps = this.getCellProperties(y),
+            columnProps = this.getProperties(),
+            editorName = cellProps.editor || columnProps.editor;
 
-        if (format) {
-            options.format = format;
+        options.format = cellProps.format || columnProps.format;
+
+        cellEditor = this.dataModel.getCellEditorAt(this.index, y, editorName, options);
+
+        if (cellEditor && !cellEditor.grid) {
+            // cell editor returned but not fully instantiated (aborted by falsy return from fireRequestCellEdit)
+            cellEditor = undefined;
         }
 
-        return this.dataModel.getCellEditorAt(this.index, y, editorName, options);
+        return cellEditor;
     },
 
     /** @deprecated Use `.header` property instead.

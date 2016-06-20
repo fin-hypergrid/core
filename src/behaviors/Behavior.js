@@ -1371,15 +1371,18 @@ var Behavior = Base.extend('Behavior', {
 
     /**
      * @memberOf Behavior.prototype
-     * @return {cellEditor} The cell editor for the cell at cell coordinates `x,y`
-     * @param {number} x - The horizontal cell coordinate.
-     * @param {number} y - The vertical cell coordinate.
-     * @param {boolean} isDblClick - When called from `onEditorActivate`, indicates if event was a double-click. This allows different editors for single- vs. double-click
+     * @return {cellEditor} The cell editor for the cell at the given coordinates.
+     * @param {Point} editPoint - The grid cell coordinates.
      */
-    getCellEditorAt: function(x, y) {
-        return this.grid.isFilterRow(y)
-            ? this.grid.cellEditors.create('filterbox')
-            : this.getActiveColumn(x).getCellEditorAt(y);
+    getCellEditorAt: function(editPoint) {
+        var column = this.getActiveColumn(editPoint.x),
+            options = {
+                column: column,
+                editPoint: editPoint
+            };
+        return this.grid.isFilterRow(editPoint.y)
+            ? this.grid.cellEditors.create('filterbox', options)
+            : column.getCellEditorAt(editPoint.y, options);
     },
 
     /**
