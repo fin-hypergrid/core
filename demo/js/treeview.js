@@ -31,8 +31,8 @@ window.onload = function() {
     });
 
     document.querySelector('input[type=checkbox]').onclick = function() {
-        var treeview = this.checked && { treeColumnName: 'State'};
-        behavior.setRelation(treeview);
+        var treeviewOptions = this.checked && { treeColumnName: 'State'};
+        behavior.setRelation(treeviewOptions);
         if (treeview) {
             dataModel.getCell = getCell;
         } else {
