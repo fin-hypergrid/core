@@ -14,7 +14,7 @@ window.onload = function() {
 
     var idx = behavior.columnEnum;
 
-    // Optional: Clone the default pipeline. If you don't do this, the mutated pipeline will be shared among all grid instances
+    // Optional: Clone the default  pipeline. If you don't do this, the mutated pipeline will be shared among all grid instances
     dataModel.pipeline = Object.getPrototypeOf(dataModel).pipeline.slice();
 
     // Insert the treeview after source
@@ -33,7 +33,7 @@ window.onload = function() {
     document.querySelector('input[type=checkbox]').onclick = function() {
         var treeviewOptions = this.checked && { treeColumnName: 'State'};
         behavior.setRelation(treeviewOptions);
-        if (treeview) {
+        if (treeviewOptions) {
             dataModel.getCell = getCell;
         } else {
             delete dataModel.getCell;
