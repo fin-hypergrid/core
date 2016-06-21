@@ -18,6 +18,7 @@
 var Hypergrid = require('./Hypergrid');
 
 // Expose some namespaces to users of the hypergrid.js file through `fin.Hypergrid`:
+Hypergrid.JSON = require('./lib/json');
 Hypergrid.images = require('../images');
 Hypergrid.behaviors = require('./behaviors');
 Hypergrid.features = require('./features');

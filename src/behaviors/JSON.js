@@ -99,11 +99,11 @@ var JSON = Local.extend('behaviors.JSON', {
      * @description Set the data field.
      * @param {object[]} dataRows - An array of uniform objects backing the rows in the grid.
      */
-    setData: function(dataRows, schema) {
-        this.dataModel.setData(dataRows);
+    setData: function(dataRows, options) {
+        this.dataModel.setData(dataRows, options);
         this.createColumns();
 
-        this.schema = schema || deriveSchema;
+        this.schema = options && options.schema || deriveSchema;
         this.setGlobalFilter(this.getNewFilter());
 
         var self = this;
