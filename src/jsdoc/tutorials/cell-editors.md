@@ -12,11 +12,11 @@ var dataModel = behavior.dataModel;
 
 #### Assignment
 
-Cells are only editable when assigned a cell editor. There are two ways of making such an assignment:
+Cells are only editable when assigned (associated with) a cell editor. There are two ways of making such an assignment:
 * **Declaratively** at setup time
 * **Programmatically** at render time
 
-Declaratively, by defining the `editor` render property at setup time:
+**Declarative cell editor assignment.** Define the `editor` render property at setup time:
   
 ```javascript
 behavior.setColumnProperties(columnIndex, {
@@ -24,9 +24,9 @@ behavior.setColumnProperties(columnIndex, {
 });
 ```
 
-**NOTE:** There is no preset grid default for `editor`.
+**NOTE:** There is no preset grid default for `editor` so if you make an explicit declaration (above) and you don't make a programmatic assignment (below), the cell will not be editable.
 
-Programmatically, by overriding the declared assignment at render time:
+**Programmatic cell editor assignment.** Override the declared assignment at render time by overriding `dataModel.getCellEditorAt`:
 
 ```javascript
 dataModel.getCellEditorAt = function(columnIndex, rowIndex, declaredEditorName, options) {
@@ -37,6 +37,11 @@ dataModel.getCellEditorAt = function(columnIndex, rowIndex, declaredEditorName, 
     return grid.cellEditors.create(editorName, options);
 }
 ```
+
+Notes:
+1. See {@link DataModel#getCellEditorAt|getCellEditorAt) for parameter details.
+2. The method override above pertains to this grid instance. To affect all instances, override the prototype's definition.
+3. The ellipsis (...) in the sample code above selects a specific cell (or column). Otherwise the assignment would affect all cells in the grid which is usually not what we want to do.
 
 #### Text Format
 
@@ -64,13 +69,13 @@ dataModel.getCellEditorAt = function(columnIndex, rowIndex, declaredEditorName, 
 
 #### Templates
 
-All cell editors (textual or graphical) create their DOM node from a template. This template is part of the cell editor's prototype. We will learn more about creating custom cell editors later on. For now, just consider the the template of a hypothetical cell editor called `Checkbox`:
+All cell editors (textual or graphical) create their DOM node from a template. This template typically comes from the cell editor's prototype. We will learn more about creating custom cell editors later on. For now, just consider this template of a hypothetical cell editor called `Checkbox`:
 
 ```javascript
 Checkbox.prototype.template = '<input type="checkbox" {{checked}}>';
 ```
 
-`{{checked}}` is a {@link https://mustache.github.io|Mustache} variable which can be defined on the instantiation `options` object at grid render time:
+`{{checked}}` is a {@link https://mustache.github.io|Mustache} variable which loads the cell editor's state. It can be defined on the instantiation `options` object at grid render time:
 
 ```javascript
 dataModel.getCellEditorAt = function(columnIndex, rowIndex, declaredEditorName, options) {
@@ -82,16 +87,20 @@ dataModel.getCellEditorAt = function(columnIndex, rowIndex, declaredEditorName, 
 }
 ```
 
-Members of `options` will add or override instance members. On instantiation, the template is processed by Mustache to merge in the `checked` object property and the template will be rendered like this:
+Members of `options` will add (or override) instance members. On instantiation, the template is processed by Mustache to merge in the `checked` object property and the template will be rendered like this:
 
 ```html
 <input type="checkbox" checked="checked">
 ```
 
-A slightly different approach puts the logic in the cell editor prototype itself (rather than the `getCellEditorAt` override) where arguably it better belongs, by defining a getter:
+A slightly different approach puts the logic in the cell editor prototype itself (rather than the `getCellEditorAt` override), where it arguably better belongs, by defining a getter:
 
 ```javascript
-Object.defineProperty(Checkbox.prototype, "checked", { get: function () { return this.initialValue ? 'checked="checked"' : ''; } });
+Object.defineProperty(Checkbox.prototype, "checked", {
+    get: function () { 
+        return this.initialValue ? 'checked="checked"' : ''; 
+    } 
+});
 ```
 
 Note that while `options` _could_ be used to set the cell editor's instance properties in general, it is generally cleaner to create a custom cell editor with your overrides. See _Create a custom cell editor_ below for more information.
@@ -120,11 +129,11 @@ _**NOTE:**_ The `create` call will return `undefined` if the named editor was un
 
 #### Data coordinates in `getCellEditorAt`
 
-`columnIndex` is the position of the column in the `fields` array. As this array is typically derived from the data source, its order is undefined. The `behavior.columnEnum` hash maps column names to indeces. Keys are all upper case with underscores inserted between camelCase words ("CAMEL_CASE"). Although syntactically convenient and efficient, be aware that `columnEnum` is recreated on every call to `behavior.createColumns()` (called by `behavior.setData()`) and local references to the hash must be updated at that time.
+`columnIndex` is the position of the column in the `fields` array. As this array is typically derived from the data source, its order is undefined. The `behavior.columnEnum` hash maps column names to indices. Keys are all upper case with underscores inserted between "camelCase" words ("CAMEL_CASE"). Although syntactically convenient and efficient, be aware that `columnEnum` is recreated on every call to `behavior.createColumns()` (called by `behavior.setData()`) so any local references to the hash must be updated at that time.
 
 As an alternative to dealing with `columnIndex` at all, `options.column.name` contains the actual column name.
  
-`rowIndex` is the position in the data row, offset by the number of header rows (all the rows above the first data row, including the filter row).
+`rowIndex` is the position in the data row, offset by the number of header rows -- which is all the rows above the first data row, including the filter row.
 
 See the full {@link DataModel#getCellEditorAt|getCellEditorAt} API.
 
@@ -150,13 +159,13 @@ Development of **text-based cell editors** is relatively simple because they con
 
 #### Get the {@link Textfield} base class
 
-All custom text cell editors extend from the {@link Textfield} constructor. Since {@link Textfield} is preregistered in `grid.cellEditors`, it is easily accessible via `get`:
+All custom text cell editors extend from the {@link Textfield} constructor. {@link Textfield} is preregistered in `grid.cellEditors`, making it is accessible via `get`:
 
 ```javascript
 var Textfield = grid.cellEditors.get('textfield');
 ```
 
-If your using the npm module with Browserify, you can also do:
+You don't have to use `get`; it merely looks in the registry and returns a reference to the constructor. Registering modules by name allows string references which are easy to persist. If you're not interesting in persisting these mappings, you can reference your cell editor constructors directly. For example, if you're using the npm module with Browserify, you can also do:
 
 ```javascript
 var Textfield = require('fin-hypergrid/src/cellEditors/Textfield');
