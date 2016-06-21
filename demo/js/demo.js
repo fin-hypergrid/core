@@ -92,7 +92,7 @@ window.onload = function() {
         return factory.schema;
     }
 
-    var schema = [
+    var customSchema = [
         { name: 'last_name', type: 'number', opMenu: ['=', '<', '>'] },
         { name: 'total_number_of_pets_owned', type: 'number' },
         'height',
@@ -102,6 +102,8 @@ window.onload = function() {
         'income',
         'travel'
     ];
+
+    var schema = customSchema;
 
     var gridOptions = {
             data: people1,
@@ -196,7 +198,11 @@ window.onload = function() {
 */
 
     function setData(data) {
-        behavior.setData(data);
+        var newSchema;
+        if (data === people1 || data === people2) {
+            newSchema = schema;
+        }
+        behavior.setData(data, newSchema);
         idx = behavior.columnEnum;
     }
 
