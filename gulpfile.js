@@ -63,7 +63,7 @@ gulp.task('watch', function () {
     ]);
 
     gulp.watch([
-        demoDir + 'index.html',
+        demoDir + '*.html',
         demoDir + 'css/demo.css',
         buildDir + '*'
     ], [
