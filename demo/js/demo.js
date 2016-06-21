@@ -148,7 +148,7 @@ window.onload = function() {
             setData(treedata);
 
             // Only show the data columns; don't show the ID and parentID columns
-            grid.setState({ columnIndexes: [ idx.NAME, idx.LATITUDE, idx.LONGITUDE ], checkboxOnlyRowSelections: true });
+            grid.setState({ columnIndexes: [ idx.STATE, idx.LATITUDE, idx.LONGITUDE ], checkboxOnlyRowSelections: true });
         } },
         { label: 'reset', onclick: grid.reset.bind(grid)}
 
@@ -188,7 +188,8 @@ window.onload = function() {
         };
 
     function toggleTreeview() {
-        behavior.setRelation(this.checked);
+        var treeViewOptions = this.checked && { treeColumnName: 'State'};
+        behavior.setRelation(treeViewOptions);
     }
 
     function toggleAggregates() {
