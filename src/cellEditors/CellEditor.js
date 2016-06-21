@@ -390,20 +390,17 @@ var CellEditor = Base.extend('CellEditor', {
      * @memberOf CellEditor.prototype
      */
     takeFocus: function() {
-        var self = this;
-        setTimeout(function() {
-            var input = self.el,
-                leftWas = input.style.left,
-                topWas = input.style.top;
+        var el = this.el,
+            leftWas = el.style.left,
+            topWas = el.style.top;
 
-            input.style.left = input.style.top = 0; // work-around: move to upper left
+        el.style.left = el.style.top = 0; // work-around: move to upper left
 
-            self.input.focus();
-            self.selectAll();
+        this.input.focus();
+        this.selectAll();
 
-            input.style.left = leftWas;
-            input.style.top = topWas;
-        });
+        el.style.left = leftWas;
+        el.style.top = topWas;
     },
 
     /**
@@ -438,8 +435,8 @@ var CellEditor = Base.extend('CellEditor', {
                 this.setEditorValue(this.initialValue);
                 this.attachEditor();
                 this.moveEditor();
-                this.takeFocus();
                 this.showEditor();
+                this.takeFocus();
             } else {
                 this.hideEditor();
             }

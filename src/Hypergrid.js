@@ -1307,9 +1307,9 @@ Hypergrid.prototype = {
 
     /**
      * @memberOf Hypergrid.prototype
-     * @summary Open the given cell-editor at the provided model coordinates.
-     * @param {Point} coordinates - The pixel locaiton of the cell to edit at.
-     * @return {undefined|CellEditor}
+     * @summary Open the cell-editor at the provided model coordinates.
+     * @param {Point} editPoint - The model coordinates of the cell to edit. This is the grid coordinates regardless of scroll position.
+     * @return {undefined|CellEditor} The cellEditor determined from the cell's render properties, which may be modified by logic added by overriding {@link DataModel#getCellEditorAt|getCellEditorAt}.
      */
     editAt: function(editPoint) {
         var cellEditor;
