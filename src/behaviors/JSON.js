@@ -118,6 +118,10 @@ var JSON = Local.extend('behaviors.JSON', {
                 self.changed();
             });
         }
+
+        if (this.grid.cellEditor) {
+            this.grid.cellEditor.cancelEditing();
+        }
     },
 
     /**

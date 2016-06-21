@@ -1516,7 +1516,8 @@ Hypergrid.prototype = {
         var clickEvent = new CustomEvent('fin-editor-keyup', {
             detail: {
                 input: inputControl,
-                keyEvent: keyEvent
+                keyEvent: keyEvent,
+                char: this.canvas.getCharMap()[keyEvent.keyCode][keyEvent.shiftKey ? 1 : 0]
             }
         });
         this.canvas.dispatchEvent(clickEvent);
@@ -1526,7 +1527,8 @@ Hypergrid.prototype = {
         var clickEvent = new CustomEvent('fin-editor-keydown', {
             detail: {
                 input: inputControl,
-                keyEvent: keyEvent
+                keyEvent: keyEvent,
+                char: this.canvas.getCharMap()[keyEvent.keyCode][keyEvent.shiftKey ? 1 : 0]
             }
         });
         this.canvas.dispatchEvent(clickEvent);
@@ -1536,7 +1538,8 @@ Hypergrid.prototype = {
         var clickEvent = new CustomEvent('fin-editor-keypress', {
             detail: {
                 input: inputControl,
-                keyEvent: keyEvent
+                keyEvent: keyEvent,
+                char: this.canvas.getCharMap()[keyEvent.keyCode][keyEvent.shiftKey ? 1 : 0]
             }
         });
         this.canvas.dispatchEvent(clickEvent);

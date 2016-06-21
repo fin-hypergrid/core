@@ -696,9 +696,9 @@ window.onload = function() {
     var lastEditPoint;
 
     grid.addEventListener('fin-editor-keyup', function(e) {
-        switch (e.detail.keyEvent.code) {
-            case 'ArrowUp': grid.editAt(lastEditPoint.plusXY(0, -1)); break;
-            case 'ArrowDown': grid.editAt(lastEditPoint.plusXY(0, +1)); break;
+        switch (e.detail.char) {
+            case 'UP': grid.editAt(lastEditPoint.plusXY(0, -1)); break;
+            case 'DOWN': grid.editAt(lastEditPoint.plusXY(0, +1)); break;
         }
     });
 

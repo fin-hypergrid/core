@@ -18,7 +18,7 @@
   "dependencies": {
     "automat": "1.2.0",
     "extend-me": "2.2.2",
-    "filter-tree": "0.3.31",
+    "filter-tree": "0.3.32",
     "finbars": "1.5.1",
     "fincanvas": "1.2.1",
     "hyper-analytics": "0.11.0",
