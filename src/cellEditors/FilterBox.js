@@ -25,12 +25,11 @@ var prototype = require('./CellEditor').prototype;
  */
 var FilterBox = ComboBox.extend('FilterBox', {
 
-    beginEditAt: function(point) {
+    initialize: function() {
 
         // look in the filter, under column filters, for a column filter for this column
         var root = this.grid.getGlobalFilter(),
-            column = this.column = this.grid.behavior.columns[point.x],
-            columnName = column.name,
+            columnName = this.column.name,
             columnFilters = this.grid.getGlobalFilter().columnFilters,
             columnFilterSubtree = root.getColumnFilter(columnName) || {},
             columnSchema = root.schema.lookup(columnName) || {};
@@ -54,9 +53,10 @@ var FilterBox = ComboBox.extend('FilterBox', {
         this.menuModesSource =
 
             // first try proxy from last time (because editing may have ended without a column filter to put in the filter tree)
-            column.menuModes ||
+            this.column.menuModes ||
 
             // ELSE try column filter's `menuModes` WHEN available
+            columnFilterSubtree.menuModes ||
             columnFilterSubtree.menuModes ||
 
             // try use column schema's `menuModes` when defined
@@ -65,8 +65,6 @@ var FilterBox = ComboBox.extend('FilterBox', {
             // ELSE try the filter default (which itself defaults to operators ON, others OFF; see definition at top of DefaultFilter.js)
             columnFilters.menuModes;
 
-
-        prototype.beginEditAt.call(this, point);
     },
 
 
@@ -102,7 +100,7 @@ var FilterBox = ComboBox.extend('FilterBox', {
             backgroundColor: '#eff',
             appendOptions: function(optgroup) {
                 var columns = this.grid.behavior.columns,
-                    x = this.editorPoint.x;
+                    x = this.editPoint.x;
 
                 while (optgroup.firstElementChild) {
                     optgroup.firstElementChild.remove();

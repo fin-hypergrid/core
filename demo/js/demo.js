@@ -655,9 +655,20 @@ window.onload = function() {
         'textfield'
     ];
 
+    var lastEditPoint;
+
+    grid.addEventListener('fin-editor-keyup', function(e) {
+        switch (e.detail.keyEvent.code) {
+            case 'ArrowUp': grid.editAt(lastEditPoint.plusXY(0, -1)); break;
+            case 'ArrowDown': grid.editAt(lastEditPoint.plusXY(0, +1)); break;
+        }
+    });
+
     // Override to assign the the cell editors.
     dataModel.getCellEditorAt = function(x, y, declaredEditorName, options) {
         var editorName = declaredEditorName || editorTypes[x % editorTypes.length];
+
+        lastEditPoint = options.editPoint;
 
         switch (x) {
             case idx.BIRTH_STATE:

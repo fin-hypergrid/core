@@ -16,15 +16,22 @@ var CellEditor = Base.extend('CellEditor', {
 
     /**
      * @param grid
-     * @param {string} [options] - Properties to copy to the new cell editor primarily for mustache's use.
+     * @param {string} options - Properties listed below + arbitrary mustache "variables" for merging into template.
+     * @param {Point} options.editPoint
+     * @param {string} [options.format] - Name of a localizer with which to override prototype's `localizer` property.
      */
     initialize: function(grid, options) {
-        if (options) {
-            for (var key in options) {
-                if (options.hasOwnProperty(key) && this[key] !== null) {
-                    this[key] = options[key];
-                }
+
+        // Establish `this.editPoint` and possibly `this.format`; plus other arbitrary properties for mustache use.
+        for (var key in options) {
+            if (options.hasOwnProperty(key) && this[key] !== null) {
+                this[key] = options[key];
             }
+        }
+
+        var value = grid.behavior.getValue(this.editPoint.x, this.editPoint.y);
+        if (value instanceof Array) {
+            value = value[1]; //it's a nested object
         }
 
         /**
@@ -34,27 +41,19 @@ var CellEditor = Base.extend('CellEditor', {
          */
         this.grid = grid;
 
+        this.grid.cellEditor = this;
+
         this.locale = grid.localization.locale; // for template's `lang` attribute
 
-        this.editorPoint = {
-            x: 0,
-            y: 0
-        };
+        // override native localizer with localizer named in format if defined (from instantiation options)
+        if (this.format) {
+            this.localizer = this.grid.localization.get(this.format);
+        }
 
-        this.reset();
+        this.initialValue = value;
 
-        var self = this;
-        this.el.addEventListener('keyup', this.keyup.bind(this));
-        this.el.addEventListener('keydown', function(e) { grid.fireSyntheticEditorKeyDownEvent(self, e); });
-        this.el.addEventListener('keypress', function(e) { grid.fireSyntheticEditorKeyPressEvent(self, e); });
-        this.el.onblur = function(e) { self.cancelEditing(); };
-    },
-
-    localizer: Localization.prototype.null,
-
-    reset: function() {
         var container = document.createElement('DIV');
-        container.innerHTML = this.getHTML();
+        container.innerHTML = mustache.render(this.template, this);
 
         /**
          * This object's input control, one of:
@@ -72,7 +71,21 @@ var CellEditor = Base.extend('CellEditor', {
         this.input = this.el;
 
         this.errors = 0;
+
+        var self = this;
+        this.el.addEventListener('keyup', this.keyup.bind(this));
+        this.el.addEventListener('keydown', function(e) {
+            grid.fireSyntheticEditorKeyDownEvent(self, e);
+        });
+        this.el.addEventListener('keypress', function(e) {
+            grid.fireSyntheticEditorKeyPressEvent(self, e);
+        });
+        this.el.onblur = function(e) {
+            self.cancelEditing();
+        };
     },
+
+    localizer: Localization.prototype.null,
 
     specialKeyups: {
         //0x08: 'clearStopEditing', // backspace
@@ -95,17 +108,6 @@ var CellEditor = Base.extend('CellEditor', {
 
             this.grid.fireSyntheticEditorKeyUpEvent(this, e);
         }
-    },
-
-    /**
-     * the point that I am editing at right now
-     * @type {Point}
-     * @default null
-     * @memberOf CellEditor.prototype
-     */
-    editorPoint: {
-        x: -1,
-        y: -1
     },
 
     /**
@@ -137,14 +139,6 @@ var CellEditor = Base.extend('CellEditor', {
      * @desc scroll values have changed, we've been notified
      */
     scrollValueChangedNotification: function() {
-        this.setCheckEditorPositionFlag();
-    },
-
-    /**
-     * @desc turn on checkEditorPositionFlag boolean field
-     * @memberOf CellEditor.prototype
-     */
-    setCheckEditorPositionFlag: function() {
         this.checkEditorPositionFlag = true;
     },
 
@@ -153,8 +147,7 @@ var CellEditor = Base.extend('CellEditor', {
      * @desc move the editor to the current editor point
      */
     moveEditor: function() {
-        var editorPoint = this.getEditorPoint();
-        var cellBounds = this.grid._getBoundsOfCell(editorPoint.x, editorPoint.y);
+        var cellBounds = this.grid._getBoundsOfCell(this.editPoint.x, this.editPoint.y);
 
         //hack to accommodate bootstrap margin issues...
         var xOffset =
@@ -166,32 +159,9 @@ var CellEditor = Base.extend('CellEditor', {
         this.setBounds(cellBounds);
     },
 
-    /**
-     * @desc begin editing at location point
-     * @param {Point} point - the location to start editing at
-     * @memberOf CellEditor.prototype
-     */
-    beginEditAt: function(point) {
-        if (!this.isAdded) {
-            this.isAdded = true;
-            this.attachEditor();
-        }
-
-        this.setEditorPoint(point);
-
-        // override native localizer with localizer named in format if defined (from instantiation options)
-        if (this.format) {
-            this.localizer = this.grid.localization.get(this.format);
-        }
-
-        var value = this.grid.behavior.getValue(point.x, point.y);
-        if (value instanceof Array) {
-            value = value[1]; //it's a nested object
-        }
-
-        if (this.grid.fireRequestCellEdit(point, value)) {
-            this.initialValue = value;
-            this.setCheckEditorPositionFlag();
+    beginEditing: function() {
+        if (this.grid.fireRequestCellEdit(this.editPoint, this.initialValue)) {
+            this.checkEditorPositionFlag = true;
             this.checkEditor();
         }
     },
@@ -208,25 +178,6 @@ var CellEditor = Base.extend('CellEditor', {
      */
     setEditorValue: function(value) {
         this.input.value = this.localizer.format(value);
-    },
-
-    /**
-     * @memberOf CellEditor.prototype
-     * @desc returns the point at which we are currently editing
-     * @returns {Point}
-     */
-    getEditorPoint: function() {
-        return this.editorPoint;
-    },
-
-    /**
-     * @memberOf CellEditor.prototype
-     * @desc set the current editor location
-     * @param {Point} point - the data location of the current editor
-     */
-    setEditorPoint: function(point) {
-        this.editorPoint = point;
-        this.modelPoint = this.grid.convertViewPointToDataPoint(point);
     },
 
     /**
@@ -291,7 +242,7 @@ var CellEditor = Base.extend('CellEditor', {
             this.grid.cellEditor = null;
             this.el.remove();
         } else if (feedback >= 0) { // never true when `feedback` undefined
-            var point = this.getEditorPoint();
+            var point = this.editPoint;
             this.grid.selectViewportCell(point.x, point.y - this.grid.getHeaderRowCount());
             this.errorEffectBegin(++this.errors % feedback === 0 && error);
         } else { // invalid but no feedback
@@ -400,7 +351,7 @@ var CellEditor = Base.extend('CellEditor', {
      * @memberOf CellEditor.prototype
      */
     saveEditorValue: function(value) {
-        var point = this.getEditorPoint();
+        var point = this.editPoint;
 
         if (
             !(value && value === this.initialValue) && // data changed
@@ -439,20 +390,17 @@ var CellEditor = Base.extend('CellEditor', {
      * @memberOf CellEditor.prototype
      */
     takeFocus: function() {
-        var self = this;
-        setTimeout(function() {
-            var input = self.el,
-                leftWas = input.style.left,
-                topWas = input.style.top;
+        var el = this.el,
+            leftWas = el.style.left,
+            topWas = el.style.top;
 
-            input.style.left = input.style.top = 0; // work-around: move to upper left
+        el.style.left = el.style.top = 0; // work-around: move to upper left
 
-            self.input.focus();
-            self.selectAll();
+        this.input.focus();
+        this.selectAll();
 
-            input.style.left = leftWas;
-            input.style.top = topWas;
-        });
+        el.style.left = leftWas;
+        el.style.top = topWas;
     },
 
     /**
@@ -483,13 +431,12 @@ var CellEditor = Base.extend('CellEditor', {
     checkEditor: function() {
         if (this.checkEditorPositionFlag) {
             this.checkEditorPositionFlag = false;
-            var editorPoint = this.getEditorPoint();
-            if (this.grid.isDataVisible(editorPoint.x, editorPoint.y)) {
+            if (this.grid.isDataVisible(this.editPoint.x, this.editPoint.y)) {
                 this.setEditorValue(this.initialValue);
                 this.attachEditor();
                 this.moveEditor();
-                this.takeFocus();
                 this.showEditor();
+                this.takeFocus();
             } else {
                 this.hideEditor();
             }
@@ -509,11 +456,7 @@ var CellEditor = Base.extend('CellEditor', {
         return this.deprecated('grid', { since: '0.2' });
     },
 
-    template: '',
-
-    getHTML: function() {
-        return mustache.render(this.template, this);
-    },
+    template: ''
 
 });
 

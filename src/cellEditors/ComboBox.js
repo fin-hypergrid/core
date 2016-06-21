@@ -44,6 +44,8 @@ var ComboBox = Textfield.extend('ComboBox', {
         // set up a transition end controller
         this.optionsTransition = new Queueless(this.options, this);
 
+        this.menuModesSource = this.column.menuModes || { distinctValues: true };
+
         // wire-ups
         this.dropper.addEventListener('mousedown', this.toggleDropDown.bind(this));
         this.dropdown.addEventListener('mousewheel', function(e) { e.stopPropagation(); });
@@ -61,12 +63,6 @@ var ComboBox = Textfield.extend('ComboBox', {
 '    </div>',
 '</div>'
     ].join('\n'),
-
-    beginEditAt: function(point) {
-        this.column = this.grid.behavior.columns[point.x];
-        this.menuModesSource = this.column.menuModes || { distinctValues: true };
-        prototype.beginEditAt.call(this, point);
-    },
 
     modes: [
         {

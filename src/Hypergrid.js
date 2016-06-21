@@ -489,10 +489,9 @@ Hypergrid.prototype = {
     },
 
     /**
-     * @memberOf Hypergrid.prototype
-     set the mouse point that initated a cell edit or drag operation
-     *
+     * Set the mouse point that initiated a cell edit or drag operation.
      * @param {Point} point
+     * @memberOf Hypergrid.prototype
      */
     setMouseDown: function(point) {
         this.mouseDown.push(point);
@@ -508,7 +507,7 @@ Hypergrid.prototype = {
 
     /**
      * @memberOf Hypergrid.prototype
-     * @summary Sets the extent point of the current drag selection operation.
+     * @summary Set the extent point of the current drag selection operation.
      * @param {Point} point
      */
     setDragExtent: function(point) {
@@ -1308,19 +1307,27 @@ Hypergrid.prototype = {
 
     /**
      * @memberOf Hypergrid.prototype
-     * @summary Open the given cell-editor at the provided model coordinates.
-     * @param {string} cellEditor - The specific cell editor to use.
-     * @param {Point} coordinates - The pixel locaiton of the cell to edit at.
+     * @summary Open the cell-editor at the provided model coordinates.
+     * @param {Point} editPoint - The model coordinates of the cell to edit. This is the grid coordinates regardless of scroll position.
+     * @return {undefined|CellEditor} The cellEditor determined from the cell's render properties, which may be modified by logic added by overriding {@link DataModel#getCellEditorAt|getCellEditorAt}.
      */
-    editAt: function(cellEditor, editPoint) {
+    editAt: function(editPoint) {
+        var cellEditor;
 
-        this.cellEditor = cellEditor;
+        this.stopEditing(); //other editor is open, close it first
 
         if (editPoint.x >= 0 && editPoint.y >= 0) {
-            this.setMouseDown(editPoint);
-            this.setDragExtent(new Point(0, 0));
-            cellEditor.beginEditAt(editPoint);
+            if (this.isEditable() || this.isFilterRow(editPoint.y)) {
+                this.setMouseDown(editPoint);
+                this.setDragExtent(new Point(0, 0));
+                cellEditor = this.getCellEditorAt(editPoint);
+                if (cellEditor) {
+                    cellEditor.beginEditing();
+                }
+            }
         }
+
+        return cellEditor;
     },
 
     /**
@@ -2437,30 +2444,8 @@ Hypergrid.prototype = {
      * @returns {undefined|CellEditor} The editor object or `undefined` if no editor or editor already open.
      */
     onEditorActivate: function(event) {
-        var editor,
-            point = event.gridCell;
-
-        if (this.isEditable() || this.isFilterRow(point.y)) {
-            var primEvent = event.primitiveEvent,
-                isDblClick = primEvent && primEvent.type === 'fin-canvas-dblclick';
-
-            editor = this.getCellEditorAt(point.x, point.y, isDblClick);
-
-            if (editor) {
-                var editorPoint = editor.getEditorPoint(),
-                    sameCell = point.equals(editorPoint),
-                    editorAlreadyOpen = this.cellEditor && sameCell;
-
-                if (editorAlreadyOpen) {
-                    editor = undefined;
-                } else {
-                    this.stopEditing(); //other editor is open, close it first
-                    this.editAt(editor, point);
-                }
-            }
-        }
-
-        return editor;
+        var point = event.gridCell;
+        return this.editAt(point);
     },
 
     /**
@@ -2468,12 +2453,10 @@ Hypergrid.prototype = {
      * @summary Get the cell editor.
      * @desc Delegates to the behavior.
      * @returns The cell editor at the given coordinates.
-     * @param {x} x - The horizontal coordinate.
-     * @param {y} y - The vertical coordinate.
-     * @param {boolean} isDblClick - When called from `onEditorActivate`, indicates if event was a double-click.
+     * @param {Point} editPoint - The grid cell coordinates.
      */
-    getCellEditorAt: function(x, y, isDblClick) {
-        return this.behavior.getCellEditorAt(x, y, isDblClick);
+    getCellEditorAt: function(editPoint) {
+        return this.behavior.getCellEditorAt(editPoint);
     },
 
     /**
