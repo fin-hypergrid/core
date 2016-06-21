@@ -898,16 +898,18 @@ Hypergrid.prototype = {
             self.repaint();
         });
 
-        // this.addEventListener('fin-canvas-click', function(e) {
-        //     if (self.resolveProperty('readOnly')) {
-        //         return;
-        //     }
-        //     //self.stopEditing();
-        //     var mouse = e.detail.mouse;
-        //     var mouseEvent = self.getGridCellFromMousePoint(mouse);
-        //     mouseEvent.primitiveEvent = e;
-        //     self.fireSyntheticClickEvent(mouseEvent);
-        // });
+        this.addEventListener('fin-canvas-click', function(e) {
+            if (self.resolveProperty('readOnly')) {
+                return;
+            }
+            //self.stopEditing();
+            var mouse = e.detail.mouse;
+            var mouseEvent = self.getGridCellFromMousePoint(mouse);
+            mouseEvent.primitiveEvent = e;
+            mouseEvent.keys = e.detail.keys; // todo: this was in fin-tap but wasn't here
+            self.fireSyntheticClickEvent(mouseEvent);
+            self.delegateClick(mouseEvent);
+        });
 
         this.addEventListener('fin-canvas-mouseup', function(e) {
             if (self.resolveProperty('readOnly')) {
@@ -943,19 +945,6 @@ Hypergrid.prototype = {
             self.delegateDoubleClick(mouseEvent);
         });
 
-        this.addEventListener('fin-canvas-tap', function(e) {
-            if (self.resolveProperty('readOnly')) {
-                return;
-            }
-            //self.stopEditing();
-            var mouse = e.detail.mouse;
-            var tapEvent = self.getGridCellFromMousePoint(mouse);
-            tapEvent.primitiveEvent = e;
-            tapEvent.keys = e.detail.keys;
-            self.fireSyntheticClickEvent(tapEvent);
-            self.delegateTap(tapEvent);
-        });
-
         this.addEventListener('fin-canvas-drag', function(e) {
             if (self.resolveProperty('readOnly')) {
                 return;
@@ -982,40 +971,6 @@ Hypergrid.prototype = {
             self.fireSyntheticKeyupEvent(e);
             self.delegateKeyUp(e);
         });
-
-        this.addEventListener('fin-canvas-track', function(e) {
-            if (self.resolveProperty('readOnly')) {
-                return;
-            }
-            if (self.dragging) {
-                return;
-            }
-            var primEvent = e.detail.primitiveEvent;
-            if (Math.abs(primEvent.dy) > Math.abs(primEvent.dx)) {
-                if (primEvent.yDirection > 0) {
-                    self.scrollVBy(-2);
-                } else if (primEvent.yDirection < -0) {
-                    self.scrollVBy(2);
-                }
-            } else {
-                if (primEvent.xDirection > 0) {
-                    self.scrollHBy(-1);
-                } else if (primEvent.xDirection < -0) {
-                    self.scrollHBy(1);
-                }
-            }
-        });
-
-        // this.addEventListener('fin-canvas-holdpulse', function(e) {
-        //     console.log('holdpulse');
-        //     if (self.resolveProperty('readOnly')) {
-        //         return;
-        //     }
-        //     var mouse = e.detail.mouse;
-        //     var mouseEvent = self.getGridCellFromMousePoint(mouse);
-        //     mouseEvent.primitiveEvent = e;
-        //     self.delegateHoldPulse(mouseEvent);
-        // });
 
         this.addEventListener('fin-canvas-wheelmoved', function(e) {
             var mouse = e.detail.mouse;
@@ -1194,11 +1149,11 @@ Hypergrid.prototype = {
 
     /**
      * @memberOf Hypergrid.prototype
-     * @desc Delegate tap to the behavior (model).
+     * @desc Delegate click to the behavior (model).
      * @param {mouseDetails} mouseDetails - An enriched mouse event from fin-canvas.
      */
-    delegateTap: function(mouseDetails) {
-        this.behavior.onTap(this, mouseDetails);
+    delegateClick: function(mouseDetails) {
+        this.behavior.onClick(this, mouseDetails);
     },
 
     /**
@@ -1217,15 +1172,6 @@ Hypergrid.prototype = {
      */
     delegateDoubleClick: function(mouseDetails) {
         this.behavior.onDoubleClick(this, mouseDetails);
-    },
-
-    /**
-     * @memberOf Hypergrid.prototype
-     * @desc Delegate holdpulse through the behavior (model).
-     * @param {mouseDetails} mouseDetails - An enriched mouse event from fin-canvas.
-     */
-    delegateHoldPulse: function(mouseDetails) {
-        this.behavior.onHoldPulse(this, mouseDetails);
     },
 
     /**
