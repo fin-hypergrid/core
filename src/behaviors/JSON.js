@@ -2,6 +2,7 @@
 
 var Local = require('./Local');
 var DataModelJSON = require('../dataModels/JSON');
+var ColumnSchemaFactory = require('../filter/ColumnSchemaFactory');
 var features = require('../features');
 var aggregations = require('../Shared.js').analytics.util.aggregations;
 
@@ -25,7 +26,7 @@ var JSON = Local.extend('behaviors.JSON', {
      * @memberOf behaviors.JSON.prototype
      */
     initialize: function(grid, schema, dataRows) {
-        this.setData(dataRows);
+        this.setData(dataRows, schema);
     },
 
     features: [
@@ -98,10 +99,11 @@ var JSON = Local.extend('behaviors.JSON', {
      * @description Set the data field.
      * @param {object[]} dataRows - An array of uniform objects backing the rows in the grid.
      */
-    setData: function(dataRows) {
+    setData: function(dataRows, schema) {
         this.dataModel.setData(dataRows);
         this.createColumns();
 
+        this.schema = schema || deriveSchema;
         this.setGlobalFilter(this.getNewFilter());
 
         var self = this;
@@ -120,7 +122,7 @@ var JSON = Local.extend('behaviors.JSON', {
 
     /**
      * @summary Set the top totals.
-     * @memberOf behaviors.JSON.prototype
+     * @memberOf behaviors.JSON.p rototype
      * @param {Array<Array>} totalRows - array of rows (arrays) of totals
      */
     setTopTotals: function(totalRows) {
@@ -268,6 +270,12 @@ var JSON = Local.extend('behaviors.JSON', {
     }
 
 });
+
+
+function deriveSchema() {
+    return new ColumnSchemaFactory(this.columns).schema;
+}
+
 
 //Logic to moved to adapter layer outside of Hypergrid Core
 function removeHiddenColumns(oldSorted, hiddenColumns){

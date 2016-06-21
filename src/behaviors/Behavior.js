@@ -6,12 +6,7 @@ var Base = require('../lib/Base');
 
 var Column = require('./Column');
 var dialogs = require('../dialogs');
-var ColumnSchemaFactory = require('../filter/ColumnSchemaFactory');
 var DefaultFilter = require('../filter/DefaultFilter');
-
-function deriveSchema() {
-    return new ColumnSchemaFactory(this.columns).schema;
-}
 
 var noExportProperties = [
     'columnHeader',
@@ -45,15 +40,12 @@ var Behavior = Base.extend('Behavior', {
      * * Omit to generate a basic schema from `this.columns`.
      * @memberOf Behavior.prototype
      */
-    initialize: function(grid, schema) {
-
+    initialize: function(grid, schema, dataRows) {
         /**
          * @type {Hypergrid}
          * @memberOf Behavior.prototype
          */
         this.grid = grid;
-
-        this.schema = schema || deriveSchema;
 
         /**
          * @type {DataModel}
