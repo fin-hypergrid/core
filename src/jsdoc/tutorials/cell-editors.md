@@ -12,7 +12,9 @@ var dataModel = behavior.dataModel;
 
 #### Assignment
 
-Cells are only editable when assigned a cell editor.
+Cells are only editable when assigned a cell editor. There are two ways of making such an assignment:
+* **Declaratively** at setup time
+* **Programmatically** at render time
 
 Declaratively, by defining the `editor` render property at setup time:
   
@@ -47,7 +49,7 @@ behavior.setColumnProperties(columnIndex, {
 });
 ```
 
-At render time, override _or_ ignore the declared format (available in `options.format`):
+<a id="getCellEditorAt-1"></a>At render time, override _or_ ignore the declared format (available in `options.format`):
 
 ```javascript
 dataModel.getCellEditorAt = function(columnIndex, rowIndex, declaredEditorName, options) {
@@ -62,37 +64,59 @@ dataModel.getCellEditorAt = function(columnIndex, rowIndex, declaredEditorName, 
 
 #### Templates
 
-Cell editors create their DOM node from a template which uses {@link https://mustache.github.io|mustache} to merge in variables defined at render time:
+All cell editors (textual or graphical) create their DOM node from a template. This template is part of the cell editor's prototype. We will learn more about creating custom cell editors later on. For now, just consider the the template of a hypothetical cell editor called `Checkbox`:
+
+```javascript
+Checkbox.prototype.template = '<input type="checkbox" {{checked}}>';
+```
+
+`{{checked}}` is a {@link https://mustache.github.io|Mustache} variable which can be defined on the instantiation `options` object at grid render time:
 
 ```javascript
 dataModel.getCellEditorAt = function(columnIndex, rowIndex, declaredEditorName, options) {
-    if (...) {
-        options.variable1 = 'yada';
-        options.vairable2 = 'blah';
+    if (columnIndex === behavior.columnEnum.CITIZEN ) {
+        options.checked = this.getValue(columnIndex, rowIndex) ? 'checked="checked"' : '';
     }
+    
     return grid.cellEditors.create(declaredEditorName, options);
 }
 ```
 
-Overridig the template here is also possible (`options.template`) &mdash; but be careful!
+Members of `options` will add or override instance members. On instantiation, the template is processed by Mustache to merge in the `checked` object property and the template will be rendered like this:
+
+```html
+<input type="checkbox" checked="checked">
+```
+
+A slightly different approach puts the logic in the cell editor prototype itself (rather than the `getCellEditorAt` override) where arguably it better belongs, by defining a getter:
+
+```javascript
+Object.defineProperty(Checkbox.prototype, "checked", { get: function () { return this.initialValue ? 'checked="checked"' : ''; } });
+```
+
+Note that while `options` _could_ be used to set the cell editor's instance properties in general, it is generally cleaner to create a custom cell editor with your overrides. See _Create a custom cell editor_ below for more information.
 
 #### Object access
 
-When template doesn't provide enough flexibility through variable merge, instantiated cell editor object and its generated DOM elements are accessible after instantiation as shown below.
+Sometimes templates do not provide enough flexibility. Or some developers simply prefer the programmatic over the declarative approach. (Both approaches have their pros and cons.) In these cases, the cell editor object and its generated DOM elements can be manipulated _after_ instantiation:
 
 ```javascript
-dataModel.getCellEditorAt = function(columnIndex, rowIndex, declaredEditorName, options) {
+<a id="getCellEditorAt-2"/>></a>dataModel.getCellEditorAt = function(columnIndex, rowIndex, declaredEditorName, options) {
     var cellEditor = grid.cellEditors.create(declaredEditorName, options);
     
-    if (cellEditor && columnIndex === behavior.columnEnum.BIRTH_DATE) { // defined cell editors only!
-        cellEditor.input.setAttribute('style', '...'); // actual input control
-        cellEditor.el.setAttribute('title', '...'); // container (or input if no container)
+    if (columnIndex === behavior.columnEnum.CITIZEN && this.getValue(columnIndex, rowIndex)) {
+        cellEditor.input.setAttribute('checked', 'checked');
     }
+    
     return cellEditor;
 }
 ```
 
-**NOTE:** `cellEditors.create` returns `undefined` when the editor name was unregistered.
+_**NOTE:**_ The `create` call will return `undefined` if the named editor was unregistered. This would throw an error in the above example. To ignore such an error (and simply make the cell uneditable), check `cellEditor` before trying to access it:
+
+```javascript
+    if (cellEditor && ...) { ... }
+```
 
 #### Data coordinates in `getCellEditorAt`
 
@@ -138,19 +162,22 @@ If your using the npm module with Browserify, you can also do:
 var Textfield = require('fin-hypergrid/src/cellEditors/Textfield');
 ```
 
-#### Create a new cell editor constructor
+#### Create a custom cell editor
 
-Here's a simple extension of {@link Textfield} that limits input to 5 chars (for _hh:mm_) by modifying the template:
+Cell editors are "classes" that extend from `CellEditor` (or a descendant thereof). Here's a simple extension of {@link Textfield} that limits input to 5 chars (for _hh:mm_) by modifying the template:
 
 ```javascript
 var template = Textfield.prototype.template.replace(' ', ' maxlength="5" ');
 
-var Time = Textfield.extend('Time', { // optional class name aids debugging
+var Time = Textfield.extend('Time', {
     template: template
 });
 ```
 
-_NOTE: See {@link http://github.com/joneit/extend-me} for details on the `extend` method. The important point to understand here is that `initialize` is called on construction on every ancestor prototype first, from oldest to newest, before it is called on ours._
+The above creates a custom "class" `Time` using _prototypal inheritance_ to extend (inherit from) `Textfield` (which itself was extended from `CellEditor`). See {@link http://github.com/joneit/extend-me} for details on this `extend` function. In a nutshell:
+* The object literal contains the new constructor's prototype members (which may include overrides of members on the base class's prototype).
+* On instantiation, the `initialize` method is called on every ancestor prototype first, from most senior to most recent, before our prototype's version is called._
+* The optional class name (`'Time'`, in this case) aids in debugging.
 
 #### Registration
 
