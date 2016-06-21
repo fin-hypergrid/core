@@ -1416,7 +1416,7 @@ Hypergrid.prototype = {
     },
 
     selectCellAndScrollToMakeVisible: function(c, r) {
-        this.selectCell(c, r);
+        this.selectCell(c, r, true);
         this.scrollToMakeVisible(c, r);
     },
 
@@ -2758,10 +2758,10 @@ Hypergrid.prototype = {
         this.behavior.moveSingleSelect(this, x, y);
     },
 
-    selectCell: function(x, y) {
+    selectCell: function(x, y, silent) {
         var dontClearRows = this.isCheckboxOnlyRowSelections();
         this.selectionModel.clear(dontClearRows);
-        this.selectionModel.select(x, y, 0, 0);
+        this.selectionModel.select(x, y, 0, 0, silent);
     },
 
     getHeaderColumnCount: function() {
