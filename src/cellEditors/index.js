@@ -4,25 +4,41 @@
 
 'use strict';
 
-function CellEditors(grid) {
+/**
+ *
+ * @param {Hypergrid} grid
+ * @param {boolean} [privateRegistry=false] - This instance will use a private registry.
+ * @constructor
+ */
+function CellEditors(grid, privateRegistry) {
     this.grid = grid;
+
+    if (privateRegistry) {
+        this.editors = {};
+    }
+
+    // preregister the standard cell editors
+    if (privateRegistry || !this.get('celleditor')) {
+        this.add(require('./CellEditor'));
+        this.add(require('./ComboBox'));
+        this.add(require('./Color'));
+        this.add(require('./Date'));
+        this.add(require('./FilterBox'));
+        this.add(require('./Number'));
+        this.add(require('./Slider'));
+        this.add(require('./Spinner'));
+        this.add(require('./Textfield'));
+    }
 }
 
 CellEditors.prototype = {
     constructor: CellEditors.prototype.constructor, // preserve constructor
 
     /**
-     * @summary Register a cell editor (class) or a synonym of an already-registered cell editor.
-     * @desc Adds a custom cell editor to the API using the provided name (or the class name), converted to all lower case.
+     * @summary Register a cell editor constructor.
+     * @desc Adds a custom cell editor constructor to the `editors` hash using the provided name (or the class name), converted to all lower case.
      *
-     * To register a synonym for an already-registered cell editor, use the following construct:
-     * ```
-     * var cellEditors = require('./cellEditors');
-     * cellEditors.register(cellEditors.get('spinner'), 'elevator');
-     * ```
-     * This makes a synonym "elevator" for the "spinner" cell editor.
-     *
-     * > All native cell editors are "preregistered" in cellEditors/index.js.
+     * > All native cell editors are "preregistered" in `editors`..
      *
      * @param {string} [name] - Case-insensitive editor key. If not given, `YourCellEditor.prototype.$$CLASS_NAME` is used.
      *
@@ -44,6 +60,18 @@ CellEditors.prototype = {
         name = name && name.toLowerCase();
         this.editors[name] = Constructor;
         return Constructor;
+    },
+
+    /**
+     * @summary Register a synonym for an existing cell editor constructor.
+     * @param {string} synonymName
+     * @param {string} existingName
+     * @returns {CellEditor} The previously registered constructor this new synonym points to.
+     * @memberOf CellEditors.prototype
+     */
+    addSynonym: function(synonymName, existingName) {
+        var cellEditor = this.get(existingName);
+        return (this.editors[synonymName] = cellEditor);
     },
 
     /**
@@ -77,18 +105,12 @@ CellEditors.prototype = {
         return cellEditor;
     },
 
-    // Pre-register standard cell editors:
-    editors: {
-        celleditor: require('./CellEditor'),
-        combobox: require('./ComboBox'),
-        color: require('./Color'),
-        date: require('./Date'),
-        filterbox: require('./FilterBox'),
-        number: require('./Number'),
-        slider: require('./Slider'),
-        spinner: require('./Spinner'),
-        textfield: require('./Textfield')
-    }
+    /**
+     * The cell editor registry containing all the "preregistered" cell editor constructors.
+     * @private
+     * @memberOf CellEditors.prototype
+     */
+    editors: {}
 };
 
 module.exports = CellEditors;

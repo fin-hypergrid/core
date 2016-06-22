@@ -599,7 +599,7 @@ var Renderer = Base.extend('Renderer', {
             selectionRegionOverlayColor: this.grid.resolveProperty('selectionRegionOverlayColor'),
             selectionRegionOutlineColor: this.grid.resolveProperty('selectionRegionOutlineColor')
         };
-        this.grid.cellRenderers.lastselection.paint(gc, config);
+        this.grid.cellRenderers.get('lastselection').paint(gc, config);
     },
 
     /**
@@ -870,7 +870,7 @@ var Renderer = Base.extend('Renderer', {
                             }
                         };
 
-                        this.grid.cellRenderers.errorcell.paint(rawGc, config, message);
+                        this.grid.cellRenderers.get('errorcell').paint(rawGc, config, message);
 
                         rawGc.restore(); // discard clipping region
 

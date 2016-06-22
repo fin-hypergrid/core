@@ -3,7 +3,7 @@
 var Base = require('./../lib/Base');
 
 /** @constructor
- * @desc Instances of CellRenderers are used to render the 2D graphics context within the bound of a cell. Extend this base class to implement your own cell renderer
+ * @desc Instances of `CellRenderer` are used to render the 2D graphics context within the bound of a cell. Extend this base class to implement your own cell renderer
  *
  *
  * See also {@tutorial cell-renderer}.

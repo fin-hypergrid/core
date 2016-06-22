@@ -400,7 +400,7 @@ window.onload = function() {
 
 
     //Extend HyperGrid's base Renderer
-    var sparkStarRatingRenderer = grid.cellRenderers.emptycell.constructor.extend({
+    var sparkStarRatingRenderer = grid.cellRenderers.get('emptycell').constructor.extend({
         paint: paintSparkRating
     });
 
