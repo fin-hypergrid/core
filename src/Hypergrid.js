@@ -1024,14 +1024,12 @@ Hypergrid.prototype = {
     },
 
     allowEvents: function(allow){
-        if (!allow){
-            this.behavior.featureChain.detachChain();
-            console.log('events have been turned off');
-        } else {
+        if ((this.allowEventHandlers = !!allow)){
             this.behavior.featureChain.attachChain();
+        } else {
+            this.behavior.featureChain.detachChain();
         }
 
-        this.allowEventHandlers = allow;
         this.behavior.changed();
     },
 
