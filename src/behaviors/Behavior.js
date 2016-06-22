@@ -1354,14 +1354,21 @@ var Behavior = Base.extend('Behavior', {
      * @param {Point} editPoint - The grid cell coordinates.
      */
     getCellEditorAt: function(editPoint) {
-        var column = this.getActiveColumn(editPoint.x),
+        var cellEditor, options,
+            column = this.getActiveColumn(editPoint.x);
+
+        if (column) {
             options = {
                 column: column,
                 editPoint: editPoint
             };
-        return this.grid.isFilterRow(editPoint.y)
-            ? this.grid.cellEditors.create('filterbox', options)
-            : column.getCellEditorAt(editPoint.y, options);
+
+            cellEditor = this.grid.isFilterRow(editPoint.y)
+                ? this.grid.cellEditors.create('filterbox', options)
+                : column.getCellEditorAt(editPoint.y, options);
+        }
+
+        return cellEditor;
     },
 
     /**

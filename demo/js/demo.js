@@ -85,7 +85,7 @@ window.onload = function() {
     var headerify = fin.Hypergrid.analytics.util.headerify;
     headerify.transform = headerify.capitalize;
 
-    function derivedSchema(columns) {
+    function derivedPeopleSchema(columns) {
         // create a hierarchical schema organized by alias
         var factory = new fin.Hypergrid.ColumnSchemaFactory(columns);
         factory.organize(/^(one|two|three|four|five|six|seven|eight)/i, { key: 'alias' });
@@ -108,12 +108,12 @@ window.onload = function() {
         'travel'
     ];
 
-    var schema = customSchema;
+    var peopleSchema = customSchema;  // or try setting to derivedPeopleSchema
 
     var gridOptions = {
             data: people1,
-            margin: { bottom: '17px' },
-            schema: schema
+            schema: peopleSchema,
+            margin: { bottom: '17px' }
         },
         grid = window.g = new fin.Hypergrid('div#json-example', gridOptions),
         behavior = window.b = grid.behavior,
@@ -226,7 +226,7 @@ window.onload = function() {
     function setData(data, options) {
         options = options || {};
         if (data === people1 || data === people2) {
-            options.schema = schema;
+            options.schema = peopleSchema;
         }
         dataset = data;
         behavior.setData(data, options);
@@ -250,13 +250,11 @@ window.onload = function() {
             behavior.setTopTotals([]);
             setData([]);
             behavior.setBottomTotals([]);
-            grid.allowEvents(false);
         } else {
             //important to set top totals first
             behavior.setTopTotals(topTotals);
             setData(people1);
             behavior.setBottomTotals(bottomTotals);
-            grid.allowEvents(true);
         }
     }
 
@@ -400,7 +398,7 @@ window.onload = function() {
 
 
     //Extend HyperGrid's base Renderer
-    var sparkStarRatingRenderer = grid.cellRenderers.emptycell.constructor.extend({
+    var sparkStarRatingRenderer = grid.cellRenderers.get('emptycell').constructor.extend({
         paint: paintSparkRating
     });
 
@@ -858,10 +856,7 @@ window.onload = function() {
             return;
         }
 
-        console.log(grid.getSelectionMatrix());
-        console.log(grid.getSelection());
-
-        //to get the selected rows uncomment the below.....
+        // to get the selected rows uncomment the below.....
         // console.log(grid.getRowSelectionMatrix());
         // console.log(grid.getRowSelection());
 

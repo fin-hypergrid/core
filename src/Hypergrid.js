@@ -20,7 +20,7 @@ var SelectionModel = require('./lib/SelectionModel');
 var stylesheet = require('./lib/stylesheet');
 var Localization = require('./lib/Localization');
 var behaviors = require('./behaviors');
-var cellRenderers = require('./cellRenderers');
+var CellRenderers = require('./cellRenderers');
 var CellEditors = require('./cellEditors');
 
 var themeInitialized = false,
@@ -100,6 +100,12 @@ function Hypergrid(div, options) {
     margin.right = margin.right || '-200px';
     margin.bottom = margin.bottom || 0;
     margin.left = margin.left || 0;
+
+    /**
+     * @type {CellRenderers}
+     * @memberOf Hypergrid.prototype
+     */
+    this.cellRenderers = new CellRenderers();
 
     /**
      * @type {CellEditors}
@@ -309,13 +315,6 @@ Hypergrid.prototype = {
         var formatter = this.getFormatter(localizerName);
         return formatter(value);
     },
-
-    /**
-     * All references to this shared API should go through your grid instance in case we decide to make it an object later and instance it for each grid.
-     * @type {object}
-     * @memberOf Hypergrid.prototype
-     */
-    cellRenderers: cellRenderers,
 
     /**
      * @memberOf Hypergrid.prototype
@@ -1025,14 +1024,12 @@ Hypergrid.prototype = {
     },
 
     allowEvents: function(allow){
-        if (!allow){
-            this.behavior.featureChain.detachChain();
-            console.log('events have been turned off');
-        } else {
+        if ((this.allowEventHandlers = !!allow)){
             this.behavior.featureChain.attachChain();
+        } else {
+            this.behavior.featureChain.detachChain();
         }
 
-        this.allowEventHandlers = allow;
         this.behavior.changed();
     },
 

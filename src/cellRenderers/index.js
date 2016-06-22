@@ -6,82 +6,87 @@
 'use strict';
 
 /**
- * @summary Hash of cell renderer object constructors.
- * @desc This hash's only purpose is to support the convenience methods defined herein: {@link module:cellRenderers~extend|extend}, {@link module:cellRenderers~register|register}, and {@link module:cellRenderers~instantiate|instantiate}. If you do not need these methods' functionality, you do not need to register your cell renderers.
- * @type {object}
+ * @param {boolean} [privateRegistry=false] - This instance will use a private registry.
+ * @constructor
  */
-var cellRenderers = {
-    add: add,
-    get: get
-};
-
-/**
- * Must be called with YOUR Hypergrid object as context!
- * @summary Register a cell renderer (class) or a synonym of an already-registered cell renderer.
- * @desc Adds a custom cell renderer to the `constructors` hash using the provided name (or the class name), converted to all lower case.
- *
- * To register a synonym for an already-registered cell renderer, use the following construct:
- * ```
- * var cellRenderers = require('./cellRenderers');
- * cellRenderers.register(cellRenderers.get('sparkline'), 'spark');
- * ```
- * This makes a synonym "sparkline" for the "spark" cell renderer.
- *
- * > All native cell renderers are "preregistered" in cellRenderers/index.js.
- *
- * @param {string} [name] - Case-insensitive renderer key. If not given, `YourCellRenderer.prototype.$$CLASS_NAME` is used.
- *
- * @param {CellRenderer} Constructor - A constructor, typically extended from `CellRenderer` (or a descendant therefrom).
- *
- * > Note: `$$CLASS_NAME` can be easily set up by providing a string as the (optional) first parameter (`alias`) in your {@link https://www.npmjs.com/package/extend-me|CellEditor.extend} call.
- *
- * @memberOf module:cellRenderers
- */
-function add(name, Constructor) {
-    if (typeof name === 'function') {
-        Constructor = name;
-        name = undefined;
+function CellRenderers(privateRegistry) {
+    if (privateRegistry) {
+        this.singletons = {};
     }
 
-    name = name || Constructor.prototype.$$CLASS_NAME;
-    name = name && name.toLowerCase();
-    return (cellRenderers[name] = new Constructor);
+    // preregister the standard cell renderers
+    if (privateRegistry || !this.get('emptycell')) {
+        this.add('EmptyCell', require('./CellRenderer'));
+        this.add(require('./Button'));
+        this.add(require('./SimpleCell'));
+        this.add(require('./SliderCell'));
+        this.add(require('./SparkBar'));
+        this.add(require('./LastSelection'));
+        this.add(require('./SparkLine'));
+        this.add(require('./ErrorCell'));
+        this.add(require('./TreeCell'));
+    }
 }
 
-/**
- * @param {string} name
- * @returns {*}
- */
-function get(name) {
-    return cellRenderers[name && name.toLowerCase()];
-}
+CellRenderers.prototype = {
+    constructor: CellRenderers.prototype.constructor, // preserve constructor
 
-// /**
-//  * @desc replace this function with your own implementation
-//  * @returns cell
-//  * @param {object} config - an object with everything you might need for renderering a cell
-//  */
-// function getRendererColumnHeaderCell(config) {
-// }
-//
-// /**
-//  * @desc replace this function with your own implementation
-//  * @returns cell
-//  * @param {object} config - an object with everything you might need for renderering a cell
-//  */
-// function getRowHeaderCell(config) {
-// }
+    /**
+     * @summary Register and instantiate a cell renderer singleton.
+     * @desc Adds a custom cell renderer to the `singletons` hash using the provided name (or the class name), converted to all lower case.
+     *
+     * > All native cell renderers are "preregistered" in `singletons`. Add more by calling `get`.
+     *
+     * @param {string} [name] - Case-insensitive renderer key. If not given, `YourCellRenderer.prototype.$$CLASS_NAME` is used.
+     *
+     * @param {CellRenderer} Constructor - A constructor, typically extended from `CellRenderer` (or a descendant therefrom).
+     *
+     * > Note: `$$CLASS_NAME` can be easily set up by providing a string as the (optional) first parameter (`alias`) in your {@link https://www.npmjs.com/package/extend-me|CellEditor.extend} call.
+     *
+     * @returns {CellRenderers} A newly registered constructor extended from {@link CellRenderers}.
+     *
+     * @memberOf CellRenderers.prototype
+     */
+    add: function(name, Constructor) {
+        if (typeof name === 'function') {
+            Constructor = name;
+            name = undefined;
+        }
+
+        name = name || Constructor.prototype.$$CLASS_NAME;
+        name = name && name.toLowerCase();
+        return (this.singletons[name] = new Constructor);
+    },
+
+    /**
+     * @summary Register a synonym for an existing cell renderer singleton.
+     * @param {string} synonymName
+     * @param {string} existingName
+     * @returns {CellRenderers} The previously registered constructor this new synonym points to.
+     * @memberOf CellRenderers.prototype
+     */
+    addSynonym: function(synonymName, existingName) {
+        var cellRenderer = this.get(existingName);
+        return (this.singletons[synonymName] = cellRenderer);
+    },
+
+    /**
+     * Fetch a registered cell renderer singleton.
+     * @param {string} name
+     * @returns {CellRenderers} A registered constructor extended from {@link CellRenderers}.
+     * @memberOf CellRenderers.prototype
+     */
+    get: function(name) {
+        return this.singletons[name && name.toLowerCase()];
+    },
+
+    /**
+     * The cell editor registry containing all the "preregistered" cell renderer singletons.
+     * @private
+     * @memberOf CellRenderers.prototype
+     */
+    singletons: {}
+};
 
 
-add('EmptyCell', require('./CellRenderer'));
-add(require('./Button'));
-add(require('./SimpleCell'));
-add(require('./SliderCell'));
-add(require('./SparkBar'));
-add(require('./LastSelection'));
-add(require('./SparkLine'));
-add(require('./ErrorCell'));
-add(require('./TreeCell'));
-
-
-module.exports = cellRenderers;
+module.exports = CellRenderers;

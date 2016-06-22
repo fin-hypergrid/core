@@ -100,27 +100,29 @@ var JSON = Local.extend('behaviors.JSON', {
      * @param {object[]} dataRows - An array of uniform objects backing the rows in the grid.
      */
     setData: function(dataRows, options) {
+        var self = this,
+            grid = this.grid;
+
         this.dataModel.setData(dataRows, options);
         this.createColumns();
 
         this.schema = options && options.schema || deriveSchema;
         this.setGlobalFilter(this.getNewFilter());
 
-        var self = this;
-        if (this.grid.isColumnAutosizing()) {
+        if (grid.cellEditor) {
+            grid.cellEditor.cancelEditing();
+        }
+
+        if (grid.isColumnAutosizing()) {
             setTimeout(function() {
                 self.autosizeAllColumns();
             }, 100);
-            self.changed();
+            grid.allowEvents(dataRows.length);
         } else {
             setTimeout(function() {
                 self.getColumn(-1).checkColumnAutosizing(true);
-                self.changed();
+                grid.allowEvents(dataRows.length);
             });
-        }
-
-        if (this.grid.cellEditor) {
-            this.grid.cellEditor.cancelEditing();
         }
     },
 
