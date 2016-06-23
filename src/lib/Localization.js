@@ -7,6 +7,8 @@
 'use strict';
 
 var Base = require('./Base');
+var deprecated = require('./deprecated');
+
 
 /**
  * @param {string} defaultLocale
@@ -387,6 +389,10 @@ Localization.prototype = {
         this[name] = localizer;
 
         return localizer;
+    },
+    deprecated: deprecated,
+    set: function(name) {
+        this.deprecated('set(name, localizer)', 'add(name, localizer)', '1.0.6', arguments);
     },
 
     /**

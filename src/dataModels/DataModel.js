@@ -17,16 +17,6 @@ var DataModel = Base.extend('DataModel', {
         this.grid = grid;
     },
 
-    /** @deprecated Use `.grid` property instead. */
-    getGrid: function() {
-        return this.deprecated('grid', { since: '0.2' });
-    },
-
-    /** @deprecated Use `.grid.behavior` property instead. */
-    getBehavior: function() {
-        return this.deprecated('grid.behavior', { since: '0.2' });
-    },
-
     changed: function() {
         this.grid.behavior.changed();
     },

@@ -131,6 +131,18 @@ var Behavior = Base.extend('Behavior', {
     getActiveColumn: function(x) {
         return this.columns[x];
     },
+    getVisibleColumn: function() {
+        this.deprecated('getVisibleColumn(x)', 'getActiveColumn(x)', '1.0.6', arguments);
+    },
+    getVisibleColumnName: function() {
+        this.deprecated('getVisibleColumnName(x)', 'getActiveColumn(x).name', '1.0.6', arguments);
+    },
+    getColumnId: function() {
+        this.deprecated('getColumnId(x)', 'getActiveColumn(x).header', '1.0.6', arguments);
+    },
+    getHeader: function() {
+        this.deprecated('getHeader(x)', 'getActiveColumn(x).header', '1.0.6', arguments);
+    },
 
     getColumn: function(x) {
         return this.allColumns[x];
@@ -486,16 +498,14 @@ var Behavior = Base.extend('Behavior', {
         this.stateChanged();
     },
 
-    /** @deprecated Use `.dataModel` property instead.
-     * @memberOf Behavior.prototype
-     * @returns {Hypergrid} The hypergrid to which this behavior is attached.
-     */
-    getDataModel: function() {
-        return this.deprecated('dataModel', { since: '0.2.1' });
-    },
-
     getCellRenderer: function(config, x, y) {
         return this.getActiveColumn(x).getCellRenderer(config, y);
+    },
+    getCellProvider: function(name) {
+        this.deprecated('getCellProvider()', 'grid.cellRenderers', '1.0.6', arguments);
+    },
+    createCellProvider: function(name) {
+        console.error('getCellProvider() is deprecated as of v1.0.6. No replacement; do not call. Previously called by `Behavior` constructor; `new CellRenderers()` is now called by `Hypergrid` constructor instead.', arguments);
     },
 
     applyAnalytics: function() {
@@ -666,15 +676,6 @@ var Behavior = Base.extend('Behavior', {
      * @param {Hypergrid} grid
      */
     setGrid: function(grid) {
-    },
-
-    /** @deprecated Use `.grid` property instead.
-     * @memberOf Behavior.prototype
-     * @returns {Hypergrid} The hypergrid to which this behavior is attached.
-     * @param {type} varname - descripton
-     */
-    getGrid: function() {
-        return this.deprecated('grid', { since: '0.2' });
     },
 
     /**
@@ -1303,6 +1304,9 @@ var Behavior = Base.extend('Behavior', {
      */
     getActiveColumnCount: function() {
         return this.columns.length;
+    },
+    getColumnCount: function() {
+        this.deprecated('getColumnCount()', 'getActiveColumnCount()', '1.0.6', arguments);
     },
 
     /**

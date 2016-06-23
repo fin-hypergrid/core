@@ -179,14 +179,6 @@ var Renderer = Base.extend('Renderer', {
         return this.grid.resolveProperty(key);
     },
 
-    /** @deprecated Use `.grid` property instead.
-     * @memberOf Renderer.prototype
-     * @returns {Hypergrid} grid
-     */
-    getGrid: function() {
-        return this.deprecated('grid', { since: '0.2' });
-    },
-
     /**
      * @memberOf Renderer.prototype
      * @summary Notify the fin-hypergrid everytime we've repainted.
@@ -653,14 +645,6 @@ var Renderer = Base.extend('Renderer', {
      */
     getScrollLeft: function() {
         return this.grid.getHScrollValue();
-    },
-
-    /** @deprecated Use `.grid.behavior` property instead.
-     * @memberOf Renderer.prototype
-     * @returns {Behavior} The behavior (model).
-     */
-    getBehavior: function() {
-        return this.deprecated('grid.behavior', { since: '0.2' });
     },
 
     getColumnEdges: function() {

@@ -5,7 +5,6 @@
 require('./lib/polyfills'); // Installs misc. polyfills into global objects, as needed
 
 var extend = require('extend-me');
-var deprecated = require('./lib/deprecated');
 extend.debug = true;
 
 var FinBar = require('finbars');
@@ -14,6 +13,7 @@ var Point = require('rectangular').Point;
 var Rectangle = require('rectangular').Rectangle;
 var _ = require('object-iterators'); // fyi: installs the Array.prototype.find polyfill, as needed
 
+var deprecated = require('./lib/deprecated');
 var defaults = require('./defaults');
 var Renderer = require('./lib/Renderer');
 var SelectionModel = require('./lib/SelectionModel');
@@ -135,6 +135,19 @@ Hypergrid.prototype = {
     constructor: Hypergrid.prototype.constructor,
 
     deprecated: deprecated,
+    registerCellEditor: function(Constructor, name) {
+        this.deprecated('registerCellEditor(Constructor, name)', 'cellEditors.add(name, Constructor)', '1.0.6', arguments);
+    },
+    createCellEditor: function(name) {
+        this.deprecated('createCellEditor(name)', 'cellEditors.create(name)', '1.0.6', arguments);
+    },
+    getCellProvider: function(name) {
+        this.deprecated('getCellProvider()', 'cellRenderers', '1.0.6', arguments);
+    },
+    registerLocalizer: function(name, localizer, baseClassName, newClassName) {
+        this.deprecated('registerLocalizer(name, localizer, baseClassName, newClassName)', 'localization.add(name, localizer)', '1.0.6', arguments,
+            'STRUCTURAL CHANGE: No longer supports deriving and registering a new cell editor class. Use .cellEditors.get(baseClassName).extend(newClassName || name, {...}) for that.');
+    },
 
     /**
      *
@@ -735,22 +748,6 @@ Hypergrid.prototype = {
         var selectionModel = this.selectionModel;
         var isSelected = selectionModel.isCellSelectedInColumn(row);
         return isSelected;
-    },
-
-    /** @deprecated Use `.selectionModel` property instead.
-     * @memberOf Hypergrid.prototype
-     * @returns {SelectionModel} The selection model.
-     */
-    getSelectionModel: function() {
-        return this.deprecated('selectionModel', { since: '0.2' });
-    },
-
-    /** @deprecated Use `.behavior` property instead.
-     * @memberOf Hypergrid.prototype
-     * @returns {Behavior} The behavior (model).
-     */
-    getBehavior: function() {
-        return this.deprecated('behavior', { since: '0.2' });
     },
 
     /**

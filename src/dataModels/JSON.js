@@ -470,6 +470,9 @@ var JSON = DataModel.extend('dataModels.JSON', {
             return column.name !== 'tree';
         });
     },
+    getVisibleColumns: function() {
+        this.deprecated('getVisibleColumns()', 'getActiveColumns()', '1.0.6', arguments);
+    },
 
     /**
      * @memberOf dataModels.JSON.prototype
