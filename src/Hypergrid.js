@@ -1254,6 +1254,10 @@ Hypergrid.prototype = {
     editAt: function(editPoint) {
         var cellEditor;
 
+        if (arguments.length === 2) {
+            return this.deprecated('editAt(cellEditor, editPoint)', 'editAt(editPoint)', '1.0.6', arguments);
+        }
+
         this.stopEditing(); //other editor is open, close it first
 
         if (editPoint.x >= 0 && editPoint.y >= 0) {

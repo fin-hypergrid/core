@@ -157,6 +157,9 @@ var CellEditor = Base.extend('CellEditor', {
             this.checkEditor();
         }
     },
+    beginEditAt: function(Constructor, name) {
+        this.deprecated('beginEditAt(point)', 'beginEditing()', '1.0.6');
+    },
 
     /**
      * @summary Put the value into our editor.
