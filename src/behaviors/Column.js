@@ -4,8 +4,6 @@
 
 var _ = require('object-iterators');
 
-var deprecated = require('../lib/deprecated');
-
 var propertyNames = [
     'index',
     'name',
@@ -270,18 +268,6 @@ Column.prototype = {
         }
 
         return cellEditor;
-    },
-
-    /** @deprecated Use `.header` property instead.
-     */
-    getHeader: function() {
-        return deprecated.call(this, 'header', { since: '1.0' });
-    },
-
-    /** @deprecated Use `.name` property instead.
-     */
-    getField: function() {
-        return deprecated.call(this, 'name', { since: '1.0', getterName: 'getField' });
     },
 
     getFormatter: function() {

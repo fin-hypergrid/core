@@ -118,14 +118,6 @@ var CellEditor = Base.extend('CellEditor', {
      */
     checkEditorPositionFlag: false,
 
-    /** @deprecated Use `.grid.behavior` property instead.
-     * @memberOf CellEditor.prototype
-     * @returns {Behavior} The behavior (model).
-     */
-    getBehavior: function() {
-        return this.deprecated('grid.behavior', { since: '0.2' });
-    },
-
     /**
      * @memberOf CellEditor.prototype
      * @desc This function is a callback from the fin-hypergrid.   It is called after each paint of the canvas.
@@ -449,11 +441,6 @@ var CellEditor = Base.extend('CellEditor', {
             referenceNode = div.querySelectorAll('.finbar-horizontal, .finbar-vertical');
 
         div.insertBefore(input, referenceNode.length ? referenceNode[0] : null);
-    },
-
-    /** @deprecated Use `.grid` property instead. */
-    getGrid: function() {
-        return this.deprecated('grid', { since: '0.2' });
     },
 
     template: ''

@@ -3,18 +3,23 @@
 * Added [fin-hypergrid.min.js](https://openfin.github.io/fin-hypergrid/build/fin-hypergrid.min.js) - omitted from version original release due to a technical issue.
 * Updated all "dependencies" in package.json to exact version numbers. Specifically, npm's default version numbers use the semver "^" operator. This operator has been removed in favor of the (implied) "=" operator.
 * Fixed cell editor's error feedback count; error explanation now appears after every third failed attempt to save.
-* Active column interface methods have been renamed to more accurately describe their function ("VisibleColumns" was already in use in Renderer.js to mean something different):
+* Active column interface methods have been renamed to more accurately describe their function ("VisibleColumns" was already in use in Renderer.js to mean something different) (old methods retained for now with deprecation warnings):
     * `behavior.getVisibleColumn(index)` &#x2192; `behavior.getActiveColumn(index)`
     * `behavior.getColumnCount(index)` &#x2192; `behavior.getActiveColumnCount(index)`
-    * `behavior.getVisibleColumns()` &#x2192; `behavior. getActiveColumns()`
+    * `behavior.getVisibleColumns()` &#x2192; `behavior.getActiveColumns()`
     * `dataModel.getVisibleColumns()` &#x2192; `dataModel.getActiveColumns()`
 * Added 
-* Some extraneous methods have been removed:
-    * Removed `behavior.getVisibleColumnName(index)`<br>_instead use:_ `behavior.getVisibleColumn(index).name`
-    * Removed `behavior.getColumnID(index)` and `behavior.getHeader(index)`<br>_instead use:_ `behavior.getVisibleColumn(index).header`
-    * Removed `grid.registerCellEditor()` and `grid.createCellEditor()`<br>_instead use:_ `grid.cellEditors.add()` and `grid.cellEditors.create()`
-    * Removed `grid.getCellProvider()`, `behavior.getCellProvider()`, and `behavior.createCellProvider()`<br>_instead use:_ `grid.cellRenderers.add()` and `grid.cellRenderers.get()`
-    * Removed `grid.registerLocalizer`<br>_instead use:_ `grid.localization.add(name, localizer)`
+* Some extraneous methods have been removed (old methods have generally retained for now with deprecation warnings):
+    * Removed `behavior.getVisibleColumnName(index)` &#x2192; `behavior.getActiveColumn(index).name`
+    * Removed `behavior.getColumnId(index)` &#x2192; `behavior.getActiveColumn(index).header`
+    * Removed `behavior.getHeader(index)` &#x2192; `behavior.getActiveColumn(index).header`
+    * Removed `grid.registerCellEditor(Constructor, name)` &#x2192; `grid.cellEditors.add(name, Constructor)`
+    * Removed `grid.createCellEditor(name)` &#x2192; `grid.cellEditors.create(name)`
+    * Removed `grid.getCellProvider().xxxx` &#x2192; `grid.cellRenderers.get('xxxx')`
+    * Removed `behavior.getCellProvider().xxxx` &#x2192; `grid.cellRenderers.get('xxxx')`
+    * Removed `behavior.getCellProvider().xxxx` &#x2192; `grid.cellRenderers.get('xxxx')`
+    * Removed `behavior.createCellProvider()`. No replacement; do not call. Previously called by `Behavior` constructor; `new CellRenderers()` is now called by `Hypergrid` constructor instead.
+    * Removed `grid.registerLocalizer` &#x2192; `grid.localization.add(name, localizer)`
     * However note that first parameter `name` for `cellEditors.add`, `cellRenderers.add`, `localization.add` is not _optional_. If not supplied, class name is used.
 * Changed some labels in Column Picker to reflect our actual terminology:
     * Hidden Columns &#x2192; Inactive Columns
@@ -43,9 +48,10 @@
 * The overrideable `dataModel.getCell()` (formerly `dataModel.getCellEditorAt()`) method for programmatically selecting cell renderers is now called with an additional parameter, `declaredRendererName`. The method may choose to respect or update this name. It then is expected to use it to fetch and return a cell renderer singleton from the cell renderer registry.
 
 Localizers:
-* Localization API now available as a "shared" instance property (on the prototype) rather than a shared property of the constructor:
-    * `Hypergrid.localization` &#x2192; `grid.localization` 
-* Renamed localization interface methods so they are more descriptive of their actual functions:
+* New: `grid.localization` &#x2192; a grid-specific instance of `Localization`
+* Renamed (old method retained for now with deprecation warning): `localization.set` &#x2192; `localization.add`
+* New: `Hypergrid.localization` &#x2192; a shared defaults for `locale`, `numberOptions`, and `dateOptions` if constructor's `options.localization` object is missing or is missing any of those individual properties.
+* Renamed [localizer](http://openfin.github.io/fin-hypergrid/doc/localizerInterface.html) methods so they are more descriptive of their actual functions:
     * `.localize(value)` &#x2192; `.format(value)`
     * `.standardize(value)` &#x2192; `.parse(value)`
 * A cell editor's localizer is no longer overridden with 'null' on instantiation, allowing the inherited localizer to be seen. There is now a default localizer 'null' for text cell editors in Textfield.prototype.localizer which simply invokes `toString()` for both `.format()` and `.parse()`.)

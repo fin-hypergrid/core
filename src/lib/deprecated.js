@@ -8,44 +8,81 @@ if (!console.warn) {
     };
 }
 
+var warned = {};
+
+var regexIsMethod = /\)$/;
+
 /**
- *
- * @param dotProps
- * @param {object} [options]
- * @param {object} [options.asOfVersion]
- * @param {object} [options.getterName] - If omitted, final name in dotProps will be used prefixed with 'get'.
- * @returns {deprecated}
+ * User is warned and new property is returned or new method is called and the result is returned.
+ * @param {string} methodName - Deprecated method name with parentheses (required) containing argument list (optional).
+ * @param {string} dotProps - Dot-separated new property name to invoke or method name to call. Method names are indicated by including parentheses with optional argument list. The arguments in each list are drawn from the arguments presented in the `methodName` parameter.
+ * @param {string} since - Version in which the name was deprecated.
+ * @param {Arguments|Array} [args] - Actual arguments. Only needed when arguments are listed in `methodName`. The order of the arguments must match.
+ * @param {string} [notes] - Notes to add to message.
+ * @returns {*} Return value of new property or method call.
  */
-var deprecated = function(dotProps, options) {
+var deprecated = function(methodName, dotProps, since, args, notes) {
+    if (!regexIsMethod.test(methodName)) {
+        throw 'Expected method name to have parentheses.';
+    }
+
+    if (typeof args === 'string') {
+        // `args` omitted
+        notes = args;
+        args = undefined;
+    }
+
     var chain = dotProps.split('.'),
-        method = chain[chain.length - 1],
-        asOfVersion = options && options.asOfVersion,
-        result = this,
-        warning;
+        formalArgList = argList(methodName),
+        result = this;
 
-    method = options && options.getterName || 'get' + method[0].toUpperCase() + method.substr(1);
+    if (!(methodName in warned)) {
+        warned[methodName] = deprecated.warnings;
+    }
+    if (warned[methodName]) {
+        var memberType = regexIsMethod.test(dotProps) ? 'method' : 'property';
+        var warning = 'The .' + methodName + '() method is deprecated as of v' + since +
+            ' in favor of the .' + chain.join('.') + ' ' + memberType + '.' +
+            ' (Will be removed in a future release.)';
 
-    warning = '.' + method + '() method is deprecated';
+        if (notes) {
+            warning += ' ' + notes;
+        }
 
-    if (asOfVersion) {
-        warning += ' as of v' + options.asOfVersion;
+        console.warn(warning);
+
+        --warned[methodName];
     }
 
-    warning += '. Use .' + dotProps;
-
-    if (dotProps[dotProps.length - 1] !== ')') {
-        warning += ' property';
+    function mapToFormalArg(argName) {
+        var index = formalArgList.indexOf(argName);
+        if (index === -1) {
+            throw 'Actual arg "' + argName + '" not found in formal arg list ' + formalArgList;
+        }
+        return args[index];
     }
 
-    warning += ' instead. (Will be removed in a future release.)';
+    for (var i = 0, last = chain.length - 1; i <= last; ++i) {
+        var link = chain[i],
+            actualArgList = regexIsMethod.test(link) ? argList(link) : undefined,
+            actualArgs = [];
 
-    console.warn(warning);
-
-    chain.forEach(function(link) {
-        result = result[link];
-    });
+        if (actualArgList) {
+            actualArgs = actualArgList.map(mapToFormalArg);
+            link = link.match(/(\w+)/)[1];
+            result = result[link].apply(result, actualArgs);
+        } else {
+            result = result[link];
+        }
+    }
 
     return result;
 };
+
+deprecated.warnings = 5; // just enough to be annoying
+
+function argList(s) {
+    return s.match(/^\w+\((.*)\)$/)[1].match(/(\w+)/g);
+}
 
 module.exports = deprecated;
