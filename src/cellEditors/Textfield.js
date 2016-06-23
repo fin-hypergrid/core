@@ -1,17 +1,19 @@
 'use strict';
 
 var CellEditor = require('./CellEditor.js');
+var Localization = require('../lib/Localization');
+
 
 /**
+ * As of spring 2016:
+ * Functions well in Chrome, Safari, Firefox, and Internet Explorer.
  * @constructor
  */
 var Textfield = CellEditor.extend('Textfield', {
 
-    template: function() {
-        /*
-            <input type="text">
-        */
-    },
+    template: '<input type="text" lang="{{locale}}" style="{{style}}">',
+
+    localizer: Localization.prototype.string,
 
     selectAll: function() {
         var lastCharPlusOne = this.getEditorValue().length;

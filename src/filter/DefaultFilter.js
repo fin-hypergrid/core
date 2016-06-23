@@ -12,29 +12,10 @@ FilterTree.Node.optionsSchema.menuModes = {
     }
 };
 
-/** @typedef {function} fieldsProviderFunc
- * @returns {menuOption[]} see jsdoc typedef in pop-menu.js
- */
-
-/**
- * @constructor
- * @extends Operators
- */
-var ConditionalsCql = FilterTree.Conditionals.extend({
-    makeLIKE: function(beg, end, op, c, originalOp) {
-        op = originalOp.toLowerCase();
-        return op + ' ' + c.operand;
-    },
-    makeIN: function(op, c) {
-        return op.toLowerCase() + ' ' + c.operand.replace(/\s*,\s*/g, ',');
-    },
-    make: function(op, c) {
-        op = op.toLowerCase();
-        if (/\w/.test(op)) { op += ' '; }
-        op += c.operand;
-        return op;
-    }
-});
+function quote(text) {
+    var qt = ParserCQL.qt;
+    return qt + text.replace(new RegExp(qt, 'g'), qt + qt) + qt;
+}
 
 var likeDresses = [
     { regex: /^(NOT )?LIKE %(.+)%$/i, operator: 'contains' },
@@ -68,7 +49,24 @@ function convertLikeToPseudoOp(result) {
 
     return result;
 }
-var conditionals = new ConditionalsCql();
+
+var conditionalsCQL = new FilterTree.Conditionals();
+conditionalsCQL.makeLIKE = function(beg, end, op, originalOp, c) {
+    op = originalOp.toLowerCase();
+    return op + ' ' + quote(c.operand);
+};
+conditionalsCQL.makeIN = function(op, c) {
+    return op.toLowerCase() + ' (' + c.operand.replace(/\s*,\s*/g, ', ') + ')';
+};
+conditionalsCQL.make = function(op, c) {
+    var numericOperand;
+    op = op.toLowerCase();
+    if (/\w/.test(op)) { op += ' '; }
+    op += c.getType() === 'number' && !isNaN(numericOperand = Number(c.operand))
+        ? numericOperand
+        : quote(c.operand);
+    return op;
+};
 
 // replace the default filter tree terminal node constructor with an extension of same
 var CustomFilterLeaf = FilterTree.prototype.addEditor({
@@ -77,7 +75,7 @@ var CustomFilterLeaf = FilterTree.prototype.addEditor({
             syntax = options && options.syntax;
 
         if (syntax === 'CQL') {
-            result = this.getSyntax(conditionals);
+            result = this.getSyntax(conditionalsCQL);
             result = convertLikeToPseudoOp(result);
             var defaultOp = this.schema.lookup(this.column).defaultOp || this.root.parserCQL.defaultOp; // mimics logic in parser-CQL.js, line 110
             if (result.toUpperCase().indexOf(defaultOp) === 0) {
@@ -95,30 +93,29 @@ FilterTree.prototype.addEditor('Columns');
 
 // Add some node templates by updating shared instance of FilterNode's templates. (OK to mutate shared instance; filter-tree not being used for anything else here. Alternatively, we could have instantiated a new Templates object for our DefaultFilter prototype, although this would only affect tree nodes, not leaf nodes, but that would be ok in this case since the additions below are tree node templates.)
 _(FilterTree.Node.prototype.templates).extendOwn({
-    columnFilter: function() {
-/*
- <span class="filter-tree">
-     <strong><span>{2} </span></strong><br>
-     Match
-     <label><input type="radio" class="filter-tree-op-choice" name="treeOp{1}" value="op-or">any</label>
-     <label><input type="radio" class="filter-tree-op-choice" name="treeOp{1}" value="op-and">all</label>
-     <label><input type="radio" class="filter-tree-op-choice" name="treeOp{1}" value="op-nor">none</label>
-     of the following:
-     <select>
-        <option value="">New expression&hellip;</option>
-     </select>
-     <ol></ol>
- </span>
-*/
-    },
-    columnFilters: function() {
-/*
-<span class="filter-tree filter-tree-type-column-filters">
-    Match <strong>all</strong> of the following column filter subexpressions:
-    <ol></ol>
-</span>
-*/
-    }
+    columnFilter: [
+        '<span class="filter-tree">',
+        '   <strong><span>{2} </span></strong><br>',
+        '   Match',
+        '   <label><input type="radio" class="filter-tree-op-choice" name="treeOp{1}" value="op-or">any</label>',
+        '   <label><input type="radio" class="filter-tree-op-choice" name="treeOp{1}" value="op-and">all</label>',
+        '   <label><input type="radio" class="filter-tree-op-choice" name="treeOp{1}" value="op-nor">none</label>',
+        '   of the following:',
+        '   <select>',
+        '       <option value="">New expression&hellip;</option>',
+        '   </select>',
+        '   <ol></ol>',
+        '</span>'
+    ]
+        .join('\n'),
+
+    columnFilters: [
+        '<span class="filter-tree filter-tree-type-column-filters">',
+        '   Match <strong>all</strong> of the following column filter subexpressions:',
+        '   <ol></ol>',
+        '</span>'
+    ]
+        .join('\n')
 });
 
 /** @constructor
@@ -128,7 +125,7 @@ _(FilterTree.Node.prototype.templates).extendOwn({
  *
  * See also {@tutorial filter-api}.
  *
- * @param {FilterTreeOptionsObject} options - You hsould provide a column schema. The easiest approach is to provide a schema for the entire filter tree through `options.schema`.
+ * @param {FilterTreeOptionsObject} options - You should provide a column schema. The easiest approach is to provide a schema for the entire filter tree through `options.schema`.
  *
  * Although not recommended, the column schema can also be embedded in the state object, either at the root, `options.state.schema`, or for any descendant node. For example, a separate schema could be provided for each expression or subexpression that need to render column list drop-downs.
  *
@@ -162,7 +159,7 @@ var DefaultFilter = FilterTree.extend('DefaultFilter', {
 
     postInitialize: function(options) {
         if (this === this.root && !this.parserCQL) {
-            this.parserCQL = new ParserCQL({
+            this.parserCQL = new ParserCQL(this.conditionals.ops, {
                 schema: this.schema,
                 defaultOp: options.defaultColumnFilterOperator
             });
@@ -282,7 +279,7 @@ var DefaultFilter = FilterTree.extend('DefaultFilter', {
 
     /**
      * @summary Set a particular column filter's state.
-     * @desc Adds CQL support to this.getState().
+     * @desc Adds CQL support to this.getState(). This function throws parser errors.
      *
      * @param {string} columnName
      *
@@ -296,8 +293,6 @@ var DefaultFilter = FilterTree.extend('DefaultFilter', {
      *
      * @param {boolean} [options.syntax='CQL'] - The syntax to use to describe the filter state. Note that `setColumnFilterState`'s default syntax, `'CQL'`, differs from the other get state methods.
      *
-     * @returns {undefined|Error|string} `undefined` indicates success.
-
      * @memberOf DefaultFilter.prototype
      */
     setColumnFilterState: function(rawColumnName, state, options) {
@@ -316,20 +311,18 @@ var DefaultFilter = FilterTree.extend('DefaultFilter', {
             options = _({}).extend(options); // clone it because we may mutate it below
             options.syntax = options.syntax || 'CQL';
 
-            // on first use, set up a new CQL instance for this column filter's subtree bound to column properties
             if (options.syntax === 'CQL') {
                 // Convert some CQL state syntax into a filter tree state object.
                 // There must be at least one complete expression or `state` will become undefined.
                 try {
-                    state = this.root.parserCQL.parse(state, { columnName: columnName });
+                    state = this.root.parserCQL.parse(state, columnName);
                     if (state) {
                         options.syntax = 'object';
                     } else {
                         error = new Error('DefaultFilter: No complete expression.');
                     }
                 } catch (e) {
-                    error = e.message || e;
-                    console.warn(error);
+                    error = e;
                 }
             }
 
@@ -352,7 +345,9 @@ var DefaultFilter = FilterTree.extend('DefaultFilter', {
             subexpression.remove();
         }
 
-        return error;
+        if (error) {
+            throw error;
+        }
     },
 
     /**
@@ -462,10 +457,13 @@ var DefaultFilter = FilterTree.extend('DefaultFilter', {
             var column = columns.find(function(thisColumn) {
                 return thisColumn.name === columnSchema.name || columnSchema;
             });
-            column.type = columnSchema.type || column.type;
-            column.header = columnSchema.alias || column.header;
+            if (column) {
+                column.type = columnSchema.type || column.type;
+                column.header = columnSchema.alias || column.header;
+            }
         });
     }
 });
+
 
 module.exports = DefaultFilter;

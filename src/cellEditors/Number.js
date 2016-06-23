@@ -1,20 +1,16 @@
 'use strict';
 
 var Textfield = require('./Textfield');
-var localization = require('../lib/localization');
 
 /**
+ * Functions well in Chrome, Safari, Firefox, and Internet Explorer.
  * @constructor
  */
 var Number = Textfield.extend('Number', {
 
-    template: function() {
-        /*
-         <input type="text">
-         */
-    },
-
-    localizer: localization.get('number')
+    initialize: function(grid) {
+        this.localizer = grid.localization.get('number');
+    }
 
 });
 

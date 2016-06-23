@@ -1,6 +1,6 @@
 /* eslint-env browser */
 
-/* globals fin, people1, people2, vent */
+/* globals fin, people1, people2, treedata, vent */
 
 /* eslint-disable no-alert, no-unused-vars */
 
@@ -18,6 +18,7 @@ window.onload = function() {
         }, {
             label: 'Grouping',
             ctrls: [
+                { name: 'treeview', checked: false, setter: toggleTreeview },
                 { name: 'aggregates', checked: false, setter: toggleAggregates }
             ]
         }, {
@@ -80,9 +81,13 @@ window.onload = function() {
         }
     ];
 
-    function derivedSchema() {
+    // restore previous "opinionated" headerify behavior
+    var headerify = fin.Hypergrid.analytics.util.headerify;
+    headerify.transform = headerify.capitalize;
+
+    function derivedPeopleSchema(columns) {
         // create a hierarchical schema organized by alias
-        var factory = new fin.Hypergrid.ColumnSchemaFactory(this.columns);
+        var factory = new fin.Hypergrid.ColumnSchemaFactory(columns);
         factory.organize(/^(one|two|three|four|five|six|seven|eight)/i, { key: 'alias' });
         var columnSchema = factory.lookup('last_name');
         if (columnSchema) {
@@ -92,9 +97,9 @@ window.onload = function() {
         return factory.schema;
     }
 
-    var schema = [
-        { name: 'last_name', type: 'number' },
-        'total_number_of_pets_owned',
+    var customSchema = [
+        { name: 'last_name', type: 'number', opMenu: ['=', '<', '>'] },
+        { name: 'total_number_of_pets_owned', type: 'number' },
         'height',
         'birthDate',
         'birthState',
@@ -103,20 +108,18 @@ window.onload = function() {
         'travel'
     ];
 
+    var peopleSchema = customSchema;  // or try setting to derivedPeopleSchema
+
     var gridOptions = {
             data: people1,
-            margin: { bottom: '17px' },
-            schema: schema
+            schema: peopleSchema,
+            margin: { bottom: '17px' }
         },
         grid = window.g = new fin.Hypergrid('div#json-example', gridOptions),
         behavior = window.b = grid.behavior,
-        dataModel = window.m = behavior.dataModel;
+        dataModel = window.m = behavior.dataModel,
+        idx = behavior.columnEnum;
 
-    var idx = behavior.columns.reduce(function(memo, column, index) {
-        var ID = column.name.replace(/([^_A-Z])([A-Z]+)/g, '$1_$2').toUpperCase();
-        memo[ID] = index;
-        return memo;
-    }, {});
     console.log('Fields:');  console.dir(behavior.dataModel.getFields());
     console.log('Headers:'); console.dir(behavior.dataModel.getHeaders());
     console.log('Indexes:'); console.dir(idx);
@@ -131,9 +134,23 @@ window.onload = function() {
         { label: 'Column Picker&hellip;', onclick: toggleDialog.bind(this, 'ColumnPicker') },
         { label: 'Manage Filters&hellip;', onclick: toggleDialog.bind(this, 'ManageFilters') },
         { label: 'toggle empty data', onclick: toggleEmptyData },
-        { label: 'set data 1 (5000 rows)', onclick: behavior.setData.bind(behavior, people1) },
-        { label: 'set data 2 (10000 rows)', onclick: behavior.setData.bind(behavior, people2) },
-        { label: 'reset', onclick: grid.reset }
+        { label: 'set data 1 (5000 rows)', onclick: setData.bind(null, people1) },
+        { label: 'set data 2 (10000 rows)', onclick: setData.bind(null, people2) },
+        { label: 'set data 3 (treedata)', onclick: function() {
+            // Optional: Clone the default pipeline. If you don't do this, the mutated pipeline will be shared among all grid instances
+            dataModel.pipeline = Object.getPrototypeOf(dataModel).pipeline.slice();
+
+            // Insert the treeview after source
+            var pipe = { type: 'DataSourceTreeview' };
+            dataModel.addPipe(pipe, 'JSDataSource');
+
+            // Reset the pipeline, pointing at some tree (self-joined) data
+            setData(treedata);
+
+            // Only show the data columns; don't show the ID and parentID columns
+            grid.setState({ columnIndexes: [ idx.STATE, idx.LATITUDE, idx.LONGITUDE ], checkboxOnlyRowSelections: true });
+        } },
+        { label: 'reset', onclick: grid.reset.bind(grid)}
 
     ].forEach(function(item) {
         var button = document.createElement('button');
@@ -157,7 +174,7 @@ window.onload = function() {
 
     window.vent = false;
 
-    //functions for showing the grouping/rollup capbilities
+    //functions for showing the grouping/rollup capabilities
     var doAggregates = false,
         rollups = behavior.aggregations,
         aggregates = {
@@ -169,6 +186,11 @@ window.onload = function() {
             lastPet: rollups.last(2),
             stdDevPets: rollups.stddev(2)
         };
+
+    function toggleTreeview() {
+        var treeViewOptions = this.checked && { treeColumnName: 'State'};
+        behavior.setRelation(treeViewOptions);
+    }
 
     function toggleAggregates() {
         behavior.setAggregates(this.checked ? aggregates : []);
@@ -199,6 +221,18 @@ window.onload = function() {
     };
 */
 
+    var dataset;
+
+    function setData(data, options) {
+        options = options || {};
+        if (data === people1 || data === people2) {
+            options.schema = peopleSchema;
+        }
+        dataset = data;
+        behavior.setData(data, options);
+        idx = behavior.columnEnum;
+    }
+
     var topTotals = [
             ['one', 'two', '3', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten'],
             ['ten', 'nine', '8', 'seven', 'six', 'five', 'four', 'three', 'two', 'one']
@@ -214,27 +248,22 @@ window.onload = function() {
         if (emptyData) {
             //important to set top totals first
             behavior.setTopTotals([]);
-            behavior.setData([]);
+            setData([]);
             behavior.setBottomTotals([]);
-            grid.allowEvents(false);
         } else {
             //important to set top totals first
             behavior.setTopTotals(topTotals);
-            behavior.setData(people1);
+            setData(people1);
             behavior.setBottomTotals(bottomTotals);
-            grid.allowEvents(true);
         }
     }
 
-    behavior.setData(people1);
+    setData(people1);
 
     grid.setColumnProperties(2, {
         backgroundColor: 'maroon',
         color: 'green'
     });
-
-    //get the cell cellProvider for altering cell renderers
-    var cellProvider = behavior.getCellProvider();
 
     //set the actual json row objects
     //setData(people); //see sampledata.js for the random data
@@ -263,109 +292,264 @@ window.onload = function() {
     var upDownSpin = fin.Hypergrid.images['up-down-spin'];
     var downArrow = fin.Hypergrid.images.calendar;
 
-    //all formatting and rendering per cell can be overridden in here
-    cellProvider.getCell = function(config) {
-        var renderer = cellProvider.cellCache.simpleCellRenderer;
+    // CUSTOM CELL RENDERER
+    var REGEXP_CSS_HEX6 = /^#(..)(..)(..)$/,
+        REGEXP_CSS_RGB = /^rgba\((\d+),(\d+),(\d+),\d+\)$/;
 
-        if (!config.isUserDataArea) {
-            return renderer;
+    function paintSparkRating(gc, config) {
+        var x = config.bounds.x,
+            y = config.bounds.y,
+            width = config.bounds.width,
+            height = config.bounds.height,
+            options = config.value,
+            domain = options.domain || config.domain || 100,
+            sizeFactor = options.sizeFactor || config.sizeFactor || 0.65,
+            darkenFactor = options.darkenFactor || config.darkenFactor || 0.75,
+            color = options.color || config.color || 'gold',
+            stroke = this.stroke = color === this.color ? this.stroke : getDarkenedColor(gc, this.color = color, darkenFactor),
+            bgColor = config.isSelected ? (options.bgSelColor || config.bgSelColor) : (options.bgColor || config.bgColor),
+            fgColor = config.isSelected ? (options.fgSelColor || config.fgSelColor) : (options.fgColor || config.fgColor),
+            shadowColor = options.shadowColor || config.shadowColor || 'transparent',
+            font = options.font || config.font || '11px verdana',
+            middle = height / 2,
+            diameter = sizeFactor * height,
+            outerRadius = sizeFactor * middle,
+            val = Number(options.val),
+            points = this.points;
+
+        if (!points) {
+            var innerRadius = 3 / 7 * outerRadius;
+            points = this.points = [];
+            for (var i = 5, pi = Math.PI / 2, incr = Math.PI / 5; i; --i, pi += incr) {
+                points.push({
+                    x: outerRadius * Math.cos(pi),
+                    y: middle - outerRadius * Math.sin(pi)
+                });
+                pi += incr;
+                points.push({
+                    x: innerRadius * Math.cos(pi),
+                    y: middle - innerRadius * Math.sin(pi)
+                });
+            }
+            points.push(points[0]); // close the path
         }
-        var x = config.x;
-        var y = config.y;
 
-        var upDownIMG = upDown;
-        var upDownSpinIMG = upDownSpin;
-        var downArrowIMG = downArrow;
+        gc.shadowColor = 'transparent';
 
-        if (!grid.isEditable()) {
-            upDownIMG = null;
-            upDownSpinIMG = null;
-            downArrowIMG = null;
+        gc.lineJoin = 'round';
+        gc.beginPath();
+        for (var j = 5, sx = x + 5 + outerRadius; j; --j, sx += diameter) {
+            points.forEach(function(point, index) { // eslint-disable-line
+                gc[index ? 'lineTo' : 'moveTo'](sx + point.x, y + point.y); // eslint-disable-line
+            }); // eslint-disable-line
         }
+        gc.closePath();
 
-        var travel;
+        val = val / domain * 5;
 
-        config.halign = 'left';
+        gc.fillStyle = color;
+        gc.save();
+        gc.clip();
+        gc.fillRect(x + 5, y,
+            (Math.floor(val) + 0.25 + val % 1 * 0.5) * diameter, // adjust width to skip over star outlines and just meter their interiors
+            height);
+        gc.restore(); // remove clipping region
 
-        if (styleRowsFromData) {
-            var hex = (155 + 10 * config.row.total_number_of_pets_owned).toString(16);
-            config.backgroundColor = '#' + hex + hex + hex;
+        gc.strokeStyle = stroke;
+        gc.lineWidth = 1;
+        gc.stroke();
+
+        if (fgColor && fgColor !== 'transparent') {
+            gc.fillStyle = fgColor;
+            gc.font = '11px verdana';
+            gc.textAlign = 'right';
+            gc.textBaseline = 'middle';
+            gc.shadowColor = shadowColor;
+            gc.shadowOffsetX = gc.shadowOffsetY = 1;
+            gc.fillText(val.toFixed(1), x + width + 10, y + height / 2);
+        }
+    }
+
+    function getDarkenedColor(gc, color, factor) {
+        var rgba = getRGBA(gc, color);
+        return 'rgba(' + Math.round(factor * rgba[0]) + ',' + Math.round(factor * rgba[1]) + ',' + Math.round(factor * rgba[2]) + ',' + (rgba[3] || 1) + ')';
+    }
+
+    function getRGBA(gc, colorSpec) {
+        // Normalize variety of CSS color spec syntaxes to one of two
+        gc.fillStyle = colorSpec;
+
+        var rgba = colorSpec.match(REGEXP_CSS_HEX6);
+        if (rgba) {
+            rgba.shift(); // remove whole match
+            rgba.forEach(function(val, index) {
+                rgba[index] = parseInt(val, 16);
+            });
         } else {
-            switch (y % 6) {
-                case 5:
-                case 0:
-                case 1:
-                    config.backgroundColor = '#e8ffe8';
-                    config.font = 'italic x-small verdana';
-                    if (config.color !== redIfStartsWithS) {
-                        config.color = '#070';
-                    }
-                    break;
+            rgba = colorSpec.match(REGEXP_CSS_RGB);
+            if (!rgba) {
+                throw 'Unexpected format getting CanvasRenderingContext2D.fillStyle';
+            }
+            rgba.shift(); // remove whole match
+        }
 
-                case 2:
-                case 3:
-                case 4:
-                    config.backgroundColor = 'white';
-                    config.font = 'normal small garamond';
-                    break;
+        return rgba;
+    }
+
+
+    //Extend HyperGrid's base Renderer
+    var sparkStarRatingRenderer = grid.cellRenderers.get('emptycell').constructor.extend({
+        paint: paintSparkRating
+    });
+
+    //Register your renderer
+    grid.cellRenderers.add('Starry', sparkStarRatingRenderer);
+
+    // END OF CUSTOM CELL RENDERER
+
+    //all formatting and rendering per cell can be overridden in here
+    dataModel.getCell = function(config, rendererName) {
+        if (config.isUserDataArea) {
+            var n, hex;
+            var x = config.x;
+            var y = config.y;
+
+            config.halign = 'left';
+
+            if (dataset === treedata) {
+                n = behavior.getRow(y).__DEPTH;
+                hex = n ? (105 + 75 * n).toString(16) : '00';
+                config.backgroundColor = '#' + hex + hex + hex;
+                config.color = n ? 'black' : 'white';
+            } else {
+                var upDownIMG = upDown;
+                var upDownSpinIMG = upDownSpin;
+                var downArrowIMG = downArrow;
+
+                if (!grid.isEditable()) {
+                    upDownIMG = null;
+                    upDownSpinIMG = null;
+                    downArrowIMG = null;
+                }
+
+                var travel;
+
+                if (styleRowsFromData) {
+                    n = behavior.getColumn(idx.TOTAL_NUMBER_OF_PETS_OWNED).getValue(y);
+                    hex = (155 + 10 * (n % 11)).toString(16);
+                    config.backgroundColor = '#' + hex + hex + hex;
+                } else {
+                    switch (y % 6) {
+                        case 5:
+                        case 0:
+                        case 1:
+                            config.backgroundColor = '#e8ffe8';
+                            config.font = 'italic x-small verdana';
+                            if (config.color !== redIfStartsWithS) {
+                                config.color = '#070';
+                            }
+                            break;
+
+                        case 2:
+                        case 3:
+                        case 4:
+                            config.backgroundColor = 'white';
+                            config.font = 'normal small garamond';
+                            break;
+                    }
+                }
+
+                switch (x) {
+                    case idx.LAST_NAME:
+                    case idx.FIRST_NAME:
+                    case idx.BIRTH_STATE:
+                    case idx.RESIDENCE_STATE:
+                        //we are a dropdown, lets provide a visual queue
+                        config.value = [null, config.value, upDownIMG];
+                }
+
+                switch (x) {
+                    case idx.LAST_NAME:
+                        config.link = true;
+                        break;
+
+                    case idx.TOTAL_NUMBER_OF_PETS_OWNED:
+                        config.halign = 'center';
+                        //config.value = [null, config.value, upDownSpinIMG];
+                        break;
+
+                    case idx.BIRTH_TIME:
+                    case idx.HEIGHT:
+                        config.halign = 'right';
+                        break;
+
+                    case idx.BIRTH_DATE:
+                        if (!doAggregates) {
+                            config.halign = 'left';
+                            config.value = [null, config.value, downArrowIMG];
+                        }
+                        break;
+
+                    case idx.EMPLOYED:
+                        rendererName = 'button';
+                        break;
+
+                    case idx.INCOME:
+                        travel = 60 + Math.round(config.value * 150 / 100000);
+                        config.backgroundColor = '#00' + travel.toString(16) + '00';
+                        config.color = '#FFFFFF';
+                        config.halign = 'right';
+                        break;
+
+                    case idx.TRAVEL:
+                        travel = 105 + Math.round(config.value * 150 / 1000);
+                        config.backgroundColor = '#' + travel.toString(16) + '0000';
+                        config.color = '#FFFFFF';
+                        config.halign = 'right';
+                        break;
+                }
+
+                //Testing
+                if (x === idx.TOTAL_NUMBER_OF_PETS_OWNED) {
+                    /*
+                     * Be sure to adjust the dataset to the appropriate type and shape in widedata.js
+                     */
+
+                    //return simpleCell; //WORKS
+                    //return emptyCell; //WORKS
+                    //return buttonCell; //WORKS
+                    //return errorCell; //WORKS: Noted that any error in this function steals the main thread by recursion
+                    //return sparkLineCell; // WORKS
+                    //return sparkBarCell; //WORKS
+                    //return sliderCell; //WORKS
+                    //return treeCell; //Need to figure out data shape to test
+
+
+                    /*
+                     * Test of Customized Renderer
+                     */
+                    // if (starry){
+                    //     config.domain = 5; // default is 100
+                    //     config.sizeFactor =  0.65; // default is 0.65; size of stars as fraction of height of cell
+                    //     config.darkenFactor = 0.75; // default is 0.75; star stroke color as fraction of star fill color
+                    //     config.color = 'gold'; // default is 'gold'; star fill color
+                    //     config.fgColor =  'grey'; // default is 'transparent' (not rendered); text color
+                    //     config.fgSelColor = 'yellow'; // default is 'transparent' (not rendered); text selection color
+                    //     config.bgColor = '#404040'; // default is 'transparent' (not rendered); background color
+                    //     config.bgSelColor = 'grey'; // default is 'transparent' (not rendered); background selection color
+                    //     config.shadowColor = 'transparent'; // default is 'transparent'
+                    //     return starry;
+                    // }
+                }
             }
         }
 
-        switch (x) {
-            case idx.LAST_NAME:
-            case idx.FIRST_NAME:
-            case idx.BIRTH_STATE:
-            case idx.RESIDENCE_STATE:
-                //we are a dropdown, lets provide a visual queue
-                config.value = [null, config.value, upDownIMG];
-        }
-
-        switch (x) {
-            case idx.LAST_NAME:
-                renderer = cellProvider.cellCache.linkCellRenderer;
-                break;
-
-            case idx.TOTAL_NUMBER_OF_PETS_OWNED:
-                config.halign = 'center';
-                //config.value = [null, config.value, upDownSpinIMG];
-                break;
-
-            case idx.HEIGHT:
-                config.halign = 'right';
-                break;
-
-            case idx.BIRTH_DATE:
-                if (!doAggregates) {
-                    config.halign = 'left';
-                    config.value = [null, config.value, downArrowIMG];
-                }
-                break;
-
-            case idx.EMPLOYED:
-                renderer = cellProvider.cellCache.buttonRenderer;
-                break;
-
-            case idx.INCOME:
-                travel = 60 + Math.round(config.value * 150 / 100000);
-                config.backgroundColor = '#00' + travel.toString(16) + '00';
-                config.color = '#FFFFFF';
-                config.halign = 'right';
-                break;
-
-            case idx.TRAVEL:
-                travel = 105 + Math.round(config.value * 150 / 1000);
-                config.backgroundColor = '#' + travel.toString(16) + '0000';
-                config.color = '#FFFFFF';
-                config.halign = 'right';
-                break;
-        }
-
-        return renderer;
+        return grid.cellRenderers.get(rendererName);
     };
 
     var footInchPattern = /^\s*((((\d+)')?\s*((\d+)")?)|\d+)\s*$/;
     var footInchLocalizer = {
-        localize: function(value) {
+        format: function(value) {
             if (value != null) {
                 var feet = Math.floor(value / 12);
                 value = (feet ? feet + '\'' : '') + ' ' + (value % 12) + '"';
@@ -374,7 +558,7 @@ window.onload = function() {
             }
             return value;
         },
-        standardize: function(str) {
+        parse: function(str) {
             var inches, feet,
                 parts = str.match(footInchPattern);
             if (parts) {
@@ -394,40 +578,141 @@ window.onload = function() {
         }
     };
 
-    grid.registerLocalizer('foot', footInchLocalizer, true);
+    grid.localization.add('foot', footInchLocalizer);
 
-    grid.registerLocalizer('singdate', new fin.Hypergrid.localization.DateFormatter('zh-SG'), true);
+    grid.localization.add('singdate', new grid.localization.DateFormatter('zh-SG'));
 
-    grid.registerLocalizer('pounds', new fin.Hypergrid.localization.NumberFormatter('en-US', {
+    grid.localization.add('pounds', new grid.localization.NumberFormatter('en-US', {
         style: 'currency',
         currency: 'USD'
-    }), true);
+    }));
 
-    grid.registerLocalizer('francs', new fin.Hypergrid.localization.NumberFormatter('fr-FR', {
+    grid.localization.add('francs', new grid.localization.NumberFormatter('fr-FR', {
         style: 'currency',
         currency: 'EUR'
-    }), true);
+    }));
 
-    //used by the cellProvider, `null` means column not editable (except filter row)
+    var CellEditor = grid.cellEditors.get('celleditor');
+    var Textfield = grid.cellEditors.get('textfield');
+
+    var ColorText = Textfield.extend('colorText', {
+        template: '<input type="text" style="color:{{textColor}}">'
+    });
+
+    grid.cellEditors.add(ColorText);
+
+    var NOON = 12 * 60;
+
+    var Time = Textfield.extend('Time', {
+        template: [
+'<div style="background-color:white; text-align:right; font-size:10px; padding-right:4px; font-weight:bold; border:1px solid black">',
+'    <input type="text" lang="{{locale}}" style="background-color:transparent; width:80%; height:100%; float:left; border:0; padding:0; font-family:monospace; font-size:11px; text-align:right; ' +
+'{{style}}">',
+'    <span>AM</span>',
+'</div>'
+        ].join('\n'),
+
+        initialize: function() {
+            this.input = this.el.querySelector('input');
+            this.meridian = this.el.querySelector('span');
+
+            // Flip AM/PM on any click
+            this.el.onclick = function() {
+                this.meridian.textContent = this.meridian.textContent === 'AM' ? 'PM' : 'AM';
+            }.bind(this);
+            this.input.onclick = function(e) {
+                e.stopPropagation(); // ignore clicks in the text field
+            };
+            this.input.onfocus = function(e) {
+                var target = e.target;
+                this.el.style.outline = this.outline = this.outline || window.getComputedStyle(target).outline;
+                target.style.outline = 0;
+            }.bind(this);
+            this.input.onblur = function(e) {
+                this.el.style.outline = 0;
+            }.bind(this);
+        },
+
+        setEditorValue: function(value) {
+            CellEditor.prototype.setEditorValue.call(this, value);
+            var parts = this.input.value.split(' ');
+            this.input.value = parts[0];
+            this.meridian.textContent = parts[1];
+        },
+
+        getEditorValue: function(value) {
+            value = CellEditor.prototype.getEditorValue.call(this, value);
+            if (this.meridian.textContent === 'PM') {
+                value += NOON;
+            }
+            return value;
+        }
+    });
+
+    grid.cellEditors.add(Time);
+
+    grid.localization.add({
+        name: 'hhmm', // alternative to having to hame localizer in `grid.localization.add`
+
+        // returns formatted string from number
+        format: function(mins) {
+            var hh = Math.floor(mins / 60) % 12 || 12, // modulo 12 hrs with 0 becoming 12
+                mm = (mins % 60 + 100 + '').substr(1, 2),
+                AmPm = mins < NOON ? 'AM' : 'PM';
+            return hh + ':' + mm + ' ' + AmPm;
+        },
+
+        invalid: function(hhmm) {
+            return !/^(0?[1-9]|1[0-2]):[0-5]\d$/.test(hhmm); // 12:59 max
+        },
+
+        // returns number from formatted string
+        parse: function(hhmm) {
+            var parts = hhmm.match(/^(\d+):(\d{2})$/);
+            return Number(parts[1]) * 60 + Number(parts[2]);
+        }
+    });
+
+
+    // Used by the cellProvider.
+    // `null` means column's data cells are not editable.
     var editorTypes = [
         'combobox',
         'textfield',
-        'number',
-        'foot',
-        'singdate',
+        'textfield',
+        'textfield',
+        'combobox',
+        'time',
         'choice',
         'choice',
         'choice',
-        'pounds',
-        'francs',
+        'textfield',
+        'textfield',
         'textfield'
     ];
 
+    var lastEditPoint;
+
+    grid.addEventListener('fin-editor-keyup', function(e) {
+        switch (e.detail.char) {
+            case 'UP': grid.editAt(lastEditPoint.plusXY(0, -1)); break;
+            case 'DOWN': grid.editAt(lastEditPoint.plusXY(0, +1)); break;
+        }
+    });
+
     // Override to assign the the cell editors.
-    var defaultGetCellEditorAt = dataModel.getCellEditorAt.bind(dataModel);
-    dataModel.getCellEditorAt = function(x, y) {
-        var cellEditor = defaultGetCellEditorAt(x, y) ||
-            this.grid.createCellEditor(editorTypes[x % editorTypes.length]);
+    dataModel.getCellEditorAt = function(x, y, declaredEditorName, options) {
+        var editorName = declaredEditorName || editorTypes[x % editorTypes.length];
+
+        lastEditPoint = options.editPoint;
+
+        switch (x) {
+            case idx.BIRTH_STATE:
+                options.textColor = 'red';
+                break;
+        }
+
+        var cellEditor = grid.cellEditors.create(editorName, options);
 
         if (cellEditor) {
             switch (x) {
@@ -562,7 +847,7 @@ window.onload = function() {
 
         //lets mirror the cell selection into the rows and or columns
         grid.selectRowsFromCells();
-        //jsonGrid.selectColumnsFromCells();
+        //grid.selectColumnsFromCells();
 
         if (vent) { console.log('fin-selection-changed', grid.getSelectedRows(), grid.getSelectedColumns(), grid.getSelections()); }
 
@@ -571,12 +856,9 @@ window.onload = function() {
             return;
         }
 
-        console.log(grid.getSelectionMatrix());
-        console.log(grid.getSelection());
-
-        //to get the selected rows uncomment the below.....
-        // console.log(jsonGrid.getRowSelectionMatrix());
-        // console.log(jsonGrid.getRowSelection());
+        // to get the selected rows uncomment the below.....
+        // console.log(grid.getRowSelectionMatrix());
+        // console.log(grid.getRowSelection());
 
     });
 
@@ -658,8 +940,8 @@ window.onload = function() {
     //    console.log(behavior.getHeaders());
     //    console.log(behavior.getFields());
     //
-    //    console.log('visible rows = ' + jsonGrid.getVisibleRows());
-    //    console.log('visible columns = ' + jsonGrid.getVisibleColumns());
+    //    console.log('visible rows = ' + grid.getVisibleRows());
+    //    console.log('visible columns = ' + grid.getVisibleColumns());
 
 
         setTimeout(function() {
@@ -673,6 +955,7 @@ window.onload = function() {
                     idx.TOTAL_NUMBER_OF_PETS_OWNED,
                     idx.HEIGHT,
                     idx.BIRTH_DATE,
+                    idx.BIRTH_TIME,
                     idx.BIRTH_STATE,
                     // idx.RESIDENCE_STATE,
                     idx.EMPLOYED,
@@ -745,13 +1028,13 @@ window.onload = function() {
             // rowHeaderForegroundSelectionColor
             // rowHeaderBackgroundSelectionColor
 
-//                behavior.setCellProperties(idx.TOTAL_NUMBER_OF_PETS_OWNED, 0,
-//                    {
-//                        font: '10pt Tahoma',
-//                        color: 'red',
-//                        backgroundColor: 'lightblue',
-//                        halign: 'left'
-//                    });
+            //                behavior.setCellProperties(idx.TOTAL_NUMBER_OF_PETS_OWNED, 0,
+            //                    {
+            //                        font: '10pt Tahoma',
+            //                        color: 'red',
+            //                        backgroundColor: 'lightblue',
+            //                        halign: 'left'
+            //                    });
 
             behavior.setColumnProperties(idx.LAST_NAME, {
                 color: redIfStartsWithS,
@@ -760,12 +1043,11 @@ window.onload = function() {
             });
 
             behavior.setColumnProperties(idx.LAST_NAME, {
-                autopopulateEditor: true,
                 link: true
             });
 
             behavior.setColumnProperties(idx.FIRST_NAME, {
-                autopopulateEditor: true
+
             });
 
             behavior.setColumnProperties(idx.TOTAL_NUMBER_OF_PETS_OWNED, {
@@ -781,12 +1063,17 @@ window.onload = function() {
                 //strikeThrough: true
             });
 
+            behavior.setColumnProperties(idx.BIRTH_TIME, {
+                editor: 'time',
+                format: 'hhmm'
+            });
+
             behavior.setColumnProperties(idx.BIRTH_STATE, {
-                autopopulateEditor: true
+                editor: 'colortext'
             });
 
             behavior.setColumnProperties(idx.EMPLOYED, {
-                autopopulateEditor: true
+
             });
 
             behavior.setColumnProperties(idx.INCOME, {
@@ -803,9 +1090,9 @@ window.onload = function() {
             console.log('visible columns = ' + grid.getVisibleColumns());
 
             //see myThemes.js file for how to create a theme
-            //jsonGrid.addProperties(myThemes.one);
-            //jsonGrid.addProperties(myThemes.two);
-            //jsonGrid.addProperties(myThemes.three);
+            //grid.addProperties(myThemes.one);
+            //grid.addProperties(myThemes.two);
+            //grid.addProperties(myThemes.three);
 
             grid.takeFocus();
 
@@ -820,41 +1107,33 @@ window.onload = function() {
 
     //});
 
-// var eventNames = [
-//     'dragstart',
-//     'drag',
-//     'mousemove',
-//     'mousedown',
-//     'dragend',
-//     'mouseup',
-//     'mouseout',
-//     'wheelmoved',
-//     'click',
-//     'release',
-//     'flick',
-//     'trackstart',
-//     'track',
-//     'trackend',
-//     'hold',
-//     'holdpulse',
-//     'tap',
-//     'dblclick',
-//     'keydown',
-//     'keyup',
-//     'focus-gained',
-//     'focus-lost',
-//     'context-menu'
-// ];
+    // var eventNames = [
+    //     'dragstart',
+    //     'drag',
+    //     'mousemove',
+    //     'mousedown',
+    //     'dragend',
+    //     'mouseup',
+    //     'mouseout',
+    //     'wheelmoved',
+    //     'click',
+    //     'dblclick',
+    //     'keydown',
+    //     'keyup',
+    //     'focus-gained',
+    //     'focus-lost',
+    //     'context-menu'
+    // ];
 
-// eventNames.forEach(function(name) {
-//     jsonGrid.canvas.addEventListener('fin-canvas-' + name, function(e) {
-//         console.log(e.type);
-//     });
-// });
+    // eventNames.forEach(function(name) {
+    //     grid.canvas.addEventListener('fin-canvas-' + name, function(e) {
+    //         console.log(e.type);
+    //     });
+    // });
 
-// Some DOM support functions...
-// Besides the canvas, this test harness only has a handful of buttons and checkboxes.
-// The following functions service these controls.
+    // Some DOM support functions...
+    // Besides the canvas, this test harness only has a handful of buttons and checkboxes.
+    // The following functions service these controls.
 
     function addToggle(ctrlGroup) {
         var input, label, eventName,

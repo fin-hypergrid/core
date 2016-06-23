@@ -5,7 +5,7 @@
 var ListDragon = require('list-dragon');
 
 var Dialog = require('./Dialog');
-var css = require('../css');
+var stylesheet = require('../lib/stylesheet');
 
 /**
  * @constructor
@@ -32,36 +32,38 @@ var ColumnPicker = Dialog.extend('ColumnPicker', {
                 models: behavior.getAvailableGroups()
             };
 
-            this.hiddenColumns = {
-                title: 'Hidden Columns',
-                models: behavior.getHiddenColumns()
+            this.inactiveColumns = {
+                title: 'Inactive Columns',
+                models: behavior.getHiddenColumns().sort(compareByName)
             };
 
-            this.visibleColumns = {
-                title: 'Visible Columns',
-                models: behavior.getVisibleColumns()
+            this.activeColumns = {
+                title: 'Active Columns',
+                models: behavior.getActiveColumns()
             };
 
             this.sortOnHiddenColumns = this.wasSortOnHiddenColumns = grid.resolveProperty('sortOnHiddenColumns');
 
             // parse & add the drag-and-drop stylesheet addendum
-            var stylesheetAddendum = css.inject('list-dragon-addendum');
+            var stylesheetAddendum = stylesheet.inject('list-dragon-addendum');
 
             // create drag-and-drop sets from the lists
-            var listOptions = {
-                // add the list-dragon-base stylesheet right before the addendum
-                cssStylesheetReferenceElement: stylesheetAddendum
-            },
-                listSets = [
-                    new ListDragon([
-                        this.selectedGroups,
-                        this.availableGroups
-                    ], listOptions),
-                    new ListDragon([
-                        this.hiddenColumns,
-                        this.visibleColumns
-                    ], listOptions)
-                ];
+            var listSets = [
+                new ListDragon([
+                    this.selectedGroups,
+                    this.availableGroups
+                ], {
+                    // add the list-dragon-base stylesheet right before the addendum
+                    cssStylesheetReferenceElement: stylesheetAddendum
+                }),
+                new ListDragon([
+                    this.inactiveColumns,
+                    this.activeColumns
+                ], {
+                    // these models have a header property as their labels
+                    label: '{header}'
+                })
+            ];
 
             // add the drag-and-drop sets to the dialog
             var self = this;
@@ -105,7 +107,7 @@ var ColumnPicker = Dialog.extend('ColumnPicker', {
     },
 
     onClosed: function() {
-        if (this.visibleColumns) {
+        if (this.activeColumns) {
             var behavior = this.grid.behavior,
                 columns = behavior.columns,
                 tree = columns[0];
@@ -115,7 +117,7 @@ var ColumnPicker = Dialog.extend('ColumnPicker', {
             if (tree && tree.label === 'Tree') {
                 columns.push(tree);
             }
-            this.visibleColumns.models.forEach(function(column) {
+            this.activeColumns.models.forEach(function(column) {
                 columns.push(column);
             });
             var groupBys = this.selectedGroups.models.map(function(e) {
@@ -125,13 +127,19 @@ var ColumnPicker = Dialog.extend('ColumnPicker', {
 
             if (this.sortOnHiddenColumns !== this.wasSortOnHiddenColumns) {
                 this.grid.addProperties({ sortOnHiddenColumns: this.sortOnHiddenColumns });
-                behavior.sortChanged(this.hiddenColumns.models);
+                behavior.sortChanged(this.inactiveColumns.models);
             }
 
             behavior.changed();
         }
     }
 });
+
+function compareByName(a, b) {
+    a = a.header.toString().toUpperCase();
+    b = b.header.toString().toUpperCase();
+    return a < b ? -1 : a > b ? +1 : 0;
+}
 
 
 module.exports = ColumnPicker;

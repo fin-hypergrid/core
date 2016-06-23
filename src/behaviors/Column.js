@@ -3,8 +3,6 @@
 'use strict';
 
 var _ = require('object-iterators');
-var localization = require('../lib/localization');
-var deprecated = require('../lib/deprecated');
 
 var propertyNames = [
     'index',
@@ -73,27 +71,36 @@ Column.prototype = {
      * @param {object} [options.type]
      */
     set: function(options) {
+        var fields = this.dataModel.getFields();
         var column = this;
         propertyNames.forEach(function(option) {
             if (option in options) {
                 column[option] = options[option];
             }
+
+            if (option === 'name') {
+                if (column.name === undefined) {
+                    column.name = fields[column.index];
+                } else if (column.index === undefined) {
+                    column.index = fields.indexOf(column.name);
+                }
+
+                if (column.index === undefined || column.name === undefined) {
+                    throw 'Expected column name or index.';
+                } else if (fields[column.index] !== column.name) {
+                    throw 'Expected to find `column.name` in position `column.index` in data model\'s fields list.';
+                }
+            }
         });
+    },
 
-        var fields = this.dataModel.getFields();
-        if (column.name === undefined) {
-            column.name = fields[column.index];
-        } else if (column.index === undefined) {
-            column.index = fields.indexOf(column.name);
-        }
+    set header(value) {
+        this._header = value;
+        this.dataModel.getHeaders()[this.index] = value;
+    },
 
-        if (column.index === undefined) {
-            throw 'column.index not defined';
-        } else if (column.name === undefined) {
-            throw 'column.name not defined';
-        } else if (fields[column.index] !== column.name) {
-            throw 'Expected to find `column.name` in position `column.index` in data model\'s fields list.';
-        }
+    get header() {
+        return this._header;
     },
 
     getUnfilteredValue: function(y) {
@@ -118,11 +125,21 @@ Column.prototype = {
     },
 
     getCellRenderer: function(config, y) {
-        return this.dataModel.getCellRenderer(config, this.index, y);
+        config.x = this.index;
+        config.y = y;
+
+        var declaredRendererName =
+            this.getCellProperties(y).renderer ||
+            this.getProperties().renderer;
+
+        var renderer = this.dataModel.getCell(config, declaredRendererName);
+        renderer.config = config;
+        return renderer;
     },
 
     getCellProperties: function(y) {
-        return this.cellProperties[y];
+        y = this.dataModel.getDataIndex(y);
+        return this.cellProperties[y] || {};
     },
 
     setCellProperties: function(y, value) {
@@ -190,7 +207,7 @@ Column.prototype = {
     },
 
     typeOf: function(something) {
-        if (something === null || something === undefined) {
+        if (something == null) {
             return null;
         }
         var typeOf = typeof something;
@@ -222,24 +239,40 @@ Column.prototype = {
         this.dataModel.unSortColumn(this.index, deferred);
     },
 
-    getCellEditorAt: function(y) {
-        return this.dataModel.getCellEditorAt(this.index, y);
-    },
-
-    /** @deprecated Use `.header` property instead.
+    /**
+     * This method determines the proposed cell editor name from the render properties. The algorithm is:
+     * 1. `editor` render property (cell editor name)
+     * 2. `format` render property (localizer name)
+     * 3. `type` column property (type name)
+     *
+     * Note that "render property" means in each case the first defined property found on the cell, column, or grid.
+     *
+     * @param {number} y - The original untranslated row index.
+     * @param {object} options - Will be decorated with `format` and `column`.
+     * @param {Point} options.editPoint
+     * @returns {undefined|CellEditor} Falsy value means either no declared cell editor _or_ instantiation aborted by falsy return return from fireRequestCellEdit.
      */
-    getHeader: function() {
-        return deprecated.call(this, 'header', { since: '1.0' });
-    },
+    getCellEditorAt: function(y, options) {
+        var cellEditor,
+            cellProps = this.getCellProperties(y),
+            columnProps = this.getProperties(),
+            editorName = cellProps.editor || columnProps.editor;
 
-    /** @deprecated Use `.name` property instead.
-     */
-    getField: function() {
-        return deprecated.call(this, 'name', { since: '1.0', getterName: 'getField' });
+        options.format = cellProps.format || columnProps.format;
+
+        cellEditor = this.dataModel.getCellEditorAt(this.index, y, editorName, options);
+
+        if (cellEditor && !cellEditor.grid) {
+            // cell editor returned but not fully instantiated (aborted by falsy return from fireRequestCellEdit)
+            cellEditor = undefined;
+        }
+
+        return cellEditor;
     },
 
     getFormatter: function() {
-        return localization.get(this.getProperties().format).localize;
+        var localizerName = this.getProperties().format;
+        return this.behavior.grid.localization.get(localizerName).format;
     }
 };
 

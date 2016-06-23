@@ -66,7 +66,7 @@ var CellSelection = Feature.extend('CellSelection', {
         var dy = cell.y;
         var headerRowCount = grid.behavior.getHeaderRowCount();
         var headerColumnCount = grid.behavior.getHeaderColumnCount();
-        var columnCount = grid.behavior.getColumnCount();
+        var columnCount = grid.getColumnCount();
         var isOutside = viewCell.x >= columnCount;
 
         var isHeader = dy < headerRowCount || dx < headerColumnCount;

@@ -12,6 +12,10 @@
     var randomFunc = Math.random;
     //var randomFunc = rnd;
 
+    var rnd = function (max) {
+        return Math.floor(randomFunc() * max);
+    }
+
     var randomPerson = function() {
         var firstName = Math.round((firstNames.length - 1) * randomFunc());
         //var lastName = 'a' + randomFunc() + 'b';
@@ -21,17 +25,33 @@
         var birthyear = 1900 + Math.round(randomFunc() * 114);
         var birthmonth = Math.round(randomFunc() * 11);
         var birthday = Math.round(randomFunc() * 29);
+        var birthTime = Math.round(randomFunc() * 60 * 24);
         var birthstate = Math.round(randomFunc() * (states.length - 1));
         var residencestate = Math.round(randomFunc() * (states.length - 1));
         var travel = randomFunc() * 1000;
         var income = randomFunc() * 100000;
         var employed = Math.round(randomFunc());
+
+        //Use this to test Sparkline or Sparkbar
+        var sparkData =  (function () {
+            var barRandomOffsets = [];
+            //for (var i = 0; i < 20; i++) {
+            //    barRandomOffsets.push([]);
+
+                for (var r = 0; r < 10; r++) {
+                    barRandomOffsets.push(10 - rnd(20));
+                }
+            //}
+            return barRandomOffsets
+        })()
+        var sliderData = Math.round(randomFunc() * 11);
         var person = {
             last_name: lastNames[lastName], //jshint ignore:line
             first_name: firstNames[firstName], //jshint ignore:line
             total_number_of_pets_owned: pets,
             height: height,
             birthDate: new Date(birthyear + '-' + months[birthmonth] + '-' + days[birthday]),
+            birthTime: birthTime,
             birthState: states[birthstate],
             residenceState: states[residencestate],
             employed: employed === 1,
@@ -45,6 +65,7 @@
             one_height: height,
             one_birthDate: birthyear + '-' + months[birthmonth] + '-' + days[birthday],
             one_birthState: states[birthstate],
+            one_birthTime: birthTime,
             one_residenceState: states[residencestate],
             one_employed: employed === 1,
             one_income: income,
@@ -57,6 +78,7 @@
             two_height: height,
             two_birthDate: birthyear + '-' + months[birthmonth] + '-' + days[birthday],
             two_birthState: states[birthstate],
+            two_birthTime: birthTime,
             two_residenceState: states[residencestate],
             two_employed: employed === 1,
             two_income: income,
@@ -69,6 +91,7 @@
             three_height: height,
             three_birthDate: birthyear + '-' + months[birthmonth] + '-' + days[birthday],
             three_birthState: states[birthstate],
+            three_birthTime: birthTime,
             three_residenceState: states[residencestate],
             three_employed: employed === 1,
             three_income: income,
@@ -81,6 +104,7 @@
             four_height: height,
             four_birthDate: birthyear + '-' + months[birthmonth] + '-' + days[birthday],
             four_birthState: states[birthstate],
+            four_birthTime: birthTime,
             four_residenceState: states[residencestate],
             four_employed: employed === 1,
             four_income: income,
@@ -93,6 +117,7 @@
             five_height: height,
             five_birthDate: birthyear + '-' + months[birthmonth] + '-' + days[birthday],
             five_birthState: states[birthstate],
+            five_birthTime: birthTime,
             five_residenceState: states[residencestate],
             five_employed: employed === 1,
             five_income: income,
@@ -105,6 +130,7 @@
             six_height: height,
             six_birthDate: birthyear + '-' + months[birthmonth] + '-' + days[birthday],
             six_birthState: states[birthstate],
+            six_birthTime: birthTime,
             six_residenceState: states[residencestate],
             six_employed: employed === 1,
             six_income: income,
@@ -117,6 +143,7 @@
             seven_height: height,
             seven_birthDate: birthyear + '-' + months[birthmonth] + '-' + days[birthday],
             seven_birthState: states[birthstate],
+            seven_birthTime: birthTime,
             seven_residenceState: states[residencestate],
             seven_employed: employed === 1,
             seven_income: income,
@@ -129,6 +156,7 @@
             eight_height: height,
             eight_birthDate: birthyear + '-' + months[birthmonth] + '-' + days[birthday],
             eight_birthState: states[birthstate],
+            eight_birthTime: birthTime,
             eight_residenceState: states[residencestate],
             eight_employed: employed === 1,
             eight_income: income,

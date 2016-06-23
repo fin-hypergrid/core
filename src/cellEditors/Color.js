@@ -3,15 +3,13 @@
 var CellEditor = require('./CellEditor');
 
 /**
+ * As of spring 2016:
+ * Functions well in Chrome and Firefox; unimplemented in Safari.
  * @constructor
  */
 var Color = CellEditor.extend('Color', {
 
-    template: function() {
-        /*
-            <input type="color">
-        */
-    }
+    template: '<input type="color" lang="{{locale}}" style="{{style}}">'
 
 });
 

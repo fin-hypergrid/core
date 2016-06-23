@@ -4,7 +4,6 @@
 
 var LRUCache = require('lru-cache');
 
-var renderCellError = require('./lib/renderCellError');
 
 /**
  * This module lists the properties that can be set on a {@link Hypergrid} along with their default values.
@@ -16,7 +15,7 @@ module.exports = {
 
     /**
      * The font for data cells.
-     * @default '13px Tahoma, Geneva, sans-serif'
+     * @default
      * @type {cssFont}
      * @instance
      */
@@ -25,7 +24,7 @@ module.exports = {
 
     /**
      * The font for data cells.
-     * @default '13px Tahoma, Geneva, sans-serif'
+     * @default
      * @type {cssFont}
      * @instance
      */
@@ -33,7 +32,7 @@ module.exports = {
 
     /**
      * Font color for data cells.
-     * @default 'rgb(25, 25, 25)'
+     * @default
      * @type {string}
      * @instance
      */
@@ -41,7 +40,7 @@ module.exports = {
 
     /**
      * Background color for data cells.
-     * @default 'rgb(241, 241, 241)'
+     * @default
      * @type {string}
      * @instance
      */
@@ -49,7 +48,7 @@ module.exports = {
 
     /**
      * Font style for selected cell(s).
-     * @default 'bold'
+     * @default
      * @type {string}
      * @instance
      */
@@ -57,20 +56,20 @@ module.exports = {
 
     /**
      * Font color for selected cell(s).
-     * @default 'rgb(0, 0, 128)'
+     * @default
      * @type {string}
      * @instance
      */
     foregroundSelectionColor: 'rgb(0, 0, 128)',
     /**
-     * @default true
+     * @default
      * @type {boolean}
      * @instance
      */
     sortOnHiddenColumns: true,
     /**
      * Background color for selected cell(s).
-     * @default 'rgba(147, 185, 255, 0.45)'
+     * @default
      * @type {string}
      * @instance
      */
@@ -82,14 +81,14 @@ module.exports = {
     // IMPORTANT CAVEAT: The code is inconsistent regarding the terminology. Is the "column header" section _the row_ of cells at the top (that act as headers for each column) or is it _the column_ of cells (that act as headers for each row)? Oh my.
 
     /**
-     * @default '12px Tahoma, Geneva, sans-serif'
+     * @default
      * @type {cssFont}
      * @instance
      */
     columnHeaderFont: '12px Tahoma, Geneva, sans-serif',
 
     /**
-     * @default 'rgb(25, 25, 25)'
+     * @default
      * @type {cssColor}
      * @instance
      */
@@ -97,42 +96,42 @@ module.exports = {
 
     /**
      * Font style for selected columns' headers.
-     * @default 'bold'
+     * @default
      * @type {string}
      * @instance
      */
     columnHeaderForegroundSelectionFont: 'bold 12px Tahoma, Geneva, sans-serif',
 
     /**
-     * @default 'rgb(223, 227, 232)'
+     * @default
      * @type {cssColor}
      * @instance
      */
     columnHeaderBackgroundColor: 'rgb(223, 227, 232)',
 
     /**
-     * @default 'rgb(80, 80, 80)'
+     * @default
      * @type {cssColor}
      * @instance
      */
     columnHeaderForegroundSelectionColor: 'rgb(80, 80, 80)',
 
     /**
-     * @default 'rgba(255, 220, 97, 0.45)'
+     * @default
      * @type {cssColor}
      * @instance
      */
     columnHeaderBackgroundSelectionColor: 'rgba(255, 220, 97, 0.45)',
 
     /**
-     * @default 'rgb(25, 25, 25)'
+     * @default
      * @type {cssColor}
      * @instance
      */
     columnHeaderForegroundColumnSelectionColor: 'rgb(25, 25, 25)',
 
     /**
-     * @default 'rgb(255, 180, 0)'
+     * @default
      * @type {cssColor}
      * @instance
      */
@@ -142,28 +141,28 @@ module.exports = {
     /********** SECTION: ROW HEADER COLORS **********/
 
     /**
-     * @default '12px Tahoma, Geneva, sans-serif'
+     * @default
      * @type {cssFont}
      * @instance
      */
     rowHeaderFont: '12px Tahoma, Geneva, sans-serif',
 
     /**
-     * @default 'rgb(25, 25, 25)'
+     * @default
      * @type {cssColor}
      * @instance
      */
     rowHeaderColor: 'rgb(25, 25, 25)',
 
     /**
-     * @default 'rgb(223, 227, 232)'
+     * @default
      * @type {cssColor}
      * @instance
      */
     rowHeaderBackgroundColor: 'rgb(223, 227, 232)',
 
     /**
-     * @default 'rgb(80, 80, 80)'
+     * @default
      * @type {cssColor}
      * @instance
      */
@@ -171,28 +170,28 @@ module.exports = {
 
     /**
      * Font style for selected rows' headers.
-     * @default 'bold'
+     * @default
      * @type {string}
      * @instance
      */
     rowHeaderForegroundSelectionFont: 'bold 12px Tahoma, Geneva, sans-serif',
 
     /**
-     * @default 'rgba(255, 220, 97, 0.45)'
+     * @default
      * @type {cssColor}
      * @instance
      */
     rowHeaderBackgroundSelectionColor: 'rgba(255, 220, 97, 0.45)',
 
     /**
-     * @default 'rgb(25, 25, 25)'
+     * @default
      * @type {cssColor}
      * @instance
      */
     rowHeaderForegroundRowSelectionColor: 'rgb(25, 25, 25)',
 
     /**
-     * @default 'rgb(255, 180, 0)'
+     * @default
      * @type {cssColor}
      * @instance
      */
@@ -202,49 +201,49 @@ module.exports = {
     /********** SECTION: FILTER ROW COLORS **********/
 
     /**
-     * @default '12px Tahoma, Geneva, sans-serif'
+     * @default
      * @type {cssFont}
      * @instance
      */
     filterFont: '12px Tahoma, Geneva, sans-serif',
 
     /**
-     * @default 'rgb(25, 25, 25)'
+     * @default
      * @type {cssColor}
      * @instance
      */
     filterColor: 'rgb(25, 25, 25)',
 
     /**
-     * @default 'white'
+     * @default
      * @type {cssColor}
      * @instance
      */
     filterBackgroundColor: 'white',
 
     /**
-     * @default 'rgb(25, 25, 25)'
+     * @default
      * @type {cssColor}
      * @instance
      */
     filterForegroundSelectionColor: 'rgb(25, 25, 25)',
 
     /**
-     * @default 'rgb(255, 220, 97)'
+     * @default
      * @type {cssColor}
      * @instance
      */
     filterBackgroundSelectionColor: 'rgb(255, 220, 97)',
 
     /**
-     * @default 'rgba(0,0,0,0.8)'
+     * @default
      * @type {cssColor}
      * @instance
      */
     filterCellBorderStyle: 'rgba(0,0,0,0.8)',
 
     /**
-     * @default 0.4
+     * @default
      * @type {number}
      * @instance
      */
@@ -253,98 +252,98 @@ module.exports = {
     // The "tree column" contains the hierarchical drill-down controls.
 
     /**
-     * @default '12px Tahoma, Geneva, sans-serif'
+     * @default
      * @type {cssFont}
      * @instance
      */
     treeColumnFont: '12px Tahoma, Geneva, sans-serif',
 
     /**
-     * @default 'rgb(25, 25, 25)'
+     * @default
      * @type {cssColor}
      * @instance
      */
     treeColumnColor: 'rgb(25, 25, 25)',
 
     /**
-     * @default 'rgb(223, 227, 232)'
+     * @default
      * @type {cssColor}
      * @instance
      */
     treeColumnBackgroundColor: 'rgb(223, 227, 232)',
 
     /**
-     * @default 'rgb(25, 25, 25)'
+     * @default
      * @type {cssColor}
      * @instance
      */
     treeColumnForegroundSelectionColor: 'rgb(25, 25, 25)',
 
     /**
-     * @default 'rgba(255, 220, 97, 0.45)'
+     * @default
      * @type {cssColor}
      * @instance
      */
     treeColumnBackgroundSelectionColor: 'rgba(255, 220, 97, 0.45)',
 
     /**
-     * @default 'rgb(25, 25, 25)'
+     * @default
      * @type {cssColor}
      * @instance
      */
     treeColumnForegroundColumnSelectionColor: 'rgb(25, 25, 25)',
 
     /**
-     * @default 'rgb(255, 180, 0)'
+     * @default
      * @type {cssColor}
      * @instance
      */
     treeColumnBackgroundColumnSelectionColor: 'rgb(255, 180, 0)',
 
     /**
-     * @default 'rgb(201, 201, 201)'
+     * @default
      * @type {cssColor}
      * @instance
      */
     backgroundColor2: 'rgb(201, 201, 201)',
 
     /**
-     * @default 0
+     * @default
      * @type {number}
      * @instance
      */
     voffset: 0,
 
     /**
-     * @default 'visible'
+     * @default
      * @type {string}
      * @instance
      */
     scrollbarHoverOver: 'visible',
 
     /**
-     * @default 'hidden'
+     * @default
      * @type {string}
      * @instance
      */
     scrollbarHoverOff: 'hidden',
 
     /**
-     * @default `true`
+     * @default
      * @type {boolean}
      * @instance
      */
     scrollingEnabled: true,
 
     /**
-     * @default ''
+     * @default
      * @type {string}
      * @instance
      */
     vScrollbarClassPrefix: '',
 
     /**
-     * @default ''
+     * @default
      * @type {string}
      * @instance
      */
@@ -353,55 +352,55 @@ module.exports = {
     //these used to be in the constants element
 
     /**
-     * @default 'center'
+     * @default
      * @type {string}
      * @instance
      */
     fixedRowAlign: 'center',
 
     /**
-     * @default 'center'
+     * @default
      * @type {string}
      * @instance
      */
     fixedColAlign: 'center',
 
     /**
-     * @default 5
+     * @default
      * @type {number}
      * @instance
      */
     cellPadding: 5,
 
     /**
-     * @default `true`
+     * @default
      * @type {boolean}
      * @instance
      */
     gridLinesH: true,
 
     /**
-     * @default `true`
+     * @default
      * @type {boolean}
      * @instance
      */
     gridLinesV: true,
     /**
-     * @default `true`
+     * @default
      * @type {boolean}
      * @instance
      */
     gridLinesVOverflow: false,
 
     /**
-     * @default 'rgb(199, 199 199)'
+     * @default
      * @type {cssColor}
      * @instance
      */
     lineColor: 'rgb(199, 199, 199)',
 
     /**
-     * @default 0.4
+     * @default
      * @type {number}
      * @instance
      */
@@ -409,14 +408,14 @@ module.exports = {
 
 
     /**
-     * @default 15
+     * @default
      * @type {number}
      * @instance
      */
     defaultRowHeight: 15,
 
     /**
-     * @default 100
+     * @default
      * @type {number}
      * @instance
      */
@@ -425,14 +424,14 @@ module.exports = {
     //for immediate painting, set these values to 0, true respectively
 
     /**
-     * @default 60
+     * @default
      * @type {number}
      * @instance
      */
     repaintIntervalRate: 60,
 
     /**
-     * @default `false`
+     * @default
      * @type {boolean}
      * @instance
      */
@@ -441,7 +440,7 @@ module.exports = {
     //enable or disable double buffering
 
     /**
-     * @default `false`
+     * @default
      * @type {boolean}
      * @instance
      */
@@ -449,7 +448,7 @@ module.exports = {
 
 
     /**
-     * @default `true`
+     * @default
      * @type {boolean}
      * @instance
      */
@@ -463,7 +462,7 @@ module.exports = {
     editorActivationKeys: ['alt', 'esc'],
 
     /**
-     * @default `false`
+     * @default
      * @type {boolean}
      * @instance
      */
@@ -472,14 +471,14 @@ module.exports = {
     // inherited by cell renderers
 
     /**
-     * @default getTextWidth
+     * @default `getTextWidth`
      * @type {function}
      * @instance
      */
     getTextWidth: getTextWidth,
 
     /**
-     * @default getTextHeight
+     * @default `getTextHeight`
      * @type {function}
      * @instance
      */
@@ -487,21 +486,21 @@ module.exports = {
 
 
     /**
-     * @default 0
+     * @default
      * @type {number}
      * @instance
      */
     fixedColumnCount: 0,
 
     /**
-     * @default 0
+     * @default
      * @type {number}
      * @instance
      */
     fixedRowCount: 0,
 
     /**
-     * @default 0
+     * @default
      * @type {number}
      * @instance
      */
@@ -509,28 +508,28 @@ module.exports = {
 
 
     /**
-     * @default `true`
+     * @default
      * @type {boolean}
      * @instance
      */
     showRowNumbers: true,
 
     /**
-     * @default `true`
+     * @default
      * @type {boolean}
      * @instance
      */
     showTreeColumn: true,
 
     /**
-     * @default `true`
+     * @default
      * @type {boolean}
      * @instance
      */
     showHeaderRow: true,
 
     /**
-     * @default `true`
+     * @default
      * @type {boolean}
      * @instance
      */
@@ -538,91 +537,91 @@ module.exports = {
 
 
     /** Clicking in a cell "selects" it; it is added to the select region and repainted with "cell selection" colors.
-     * @default `true`
+     * @default
      * @type {boolean}
      * @instance
      */
     cellSelection: true,
 
     /** Clicking in a row header (leftmost column) "selects" the row; the entire row is added to the select region and repainted with "row selection" colors.
-     * @default `true`
+     * @default
      * @type {boolean}
      * @instance
      */
     columnSelection: true,
 
     /** Clicking in a column header (top row) "selects" the column; the entire column is added to the select region and repainted with "column selection" colors.
-     * @default `true`
+     * @default
      * @type {boolean}
      * @instance
      */
     rowSelection: true,
 
     /**
-     * @default `true`
+     * @default
      * @type {boolean}
      * @instance
      */
     singleRowSelectionMode: true,
 
     /**
-     * @default 'rgba(0, 0, 48, 0.2)'
+     * @default
      * @type {cssColor}
      * @instance
      */
     selectionRegionOverlayColor: 'rgba(0, 0, 48, 0.2)',
 
     /**
-     * @default 'black'
+     * @default
      * @type {string}
      * @instance
      */
     selectionRegionOutlineColor: 'black',
 
     /**
-     * @default `true`
+     * @default
      * @type {boolean}
      * @instance
      */
     columnAutosizing: true,
 
     /**
-     * @default `true`
+     * @default
      * @type {boolean}
      * @instance
      */
     rowNumberAutosizing: true,
 
     /**
-     * @default `false`
+     * @default
      * @type {boolean}
      * @instance
      */
     headerTextWrapping: false,
 
     /**
-     * @default `false`
+     * @default
      * @type {boolean}
      * @instance
      */
     rowResize: false,
 
     /**
-     * @default `true`
+     * @default
      * @type {boolean}
      * @instance
      */
     editable: true,
 
     /**
-     * @default `true`
+     * @default
      * @type {boolean}
      * @instance
      */
     editOnDoubleClick: true,
 
     /**
-     * @default 325
+     * @default
      * @type {number}
      * @instance
      */
@@ -638,47 +637,47 @@ module.exports = {
      *
      * > In invoked, user has the option to back out by pressing the ESCAPE key.
      *
-     * @default `true`
+     * @default
      * @type {boolean}
      * @instance
      */
     editOnKeydown: true,
 
     /**
-     * @default renderCellError
-     * @type {function}
-     */
-    renderCellError: renderCellError,
-
-    /**
-     * @default `false`
+     * @default
      * @type {boolean}
      */
     checkboxOnlyRowSelections: false,
 
-    /** Name of a formatter for cell text.
+    /** @summary Name of a formatter for cell text.
      * The default (`undefined`) falls back to `column.type`.
      * The value `null` does no formatting.
      * @default undefined
      * @type {undefined|null|string}
-     * @see /lib/localizers.js
+     * @tutorial localization
      */
     format: undefined,
 
-    /** Name of a cell formatter for cell text.
-     * The default (`undefined`) falls back to `format`.
-     * The value `null` does no formatting.
+    /** @summary Name of a cell editor from the {@link module:cellEditors|cellEditors API}..
+     * @desc Not editable if named editor is does not exist.
      * @default undefined
      * @type {undefined|null|string}
-     * @see /lib/localizers.js
+     * @tutorial cell-editors
      */
     editor: undefined,
+
+    /**
+     * Name of cell renderer from the {@link module:cellRenderers|cellRenderers API}.
+     * @default
+     * @type {string}
+     */
+    renderer: 'SimpleCell',
 
     /********** HOVER COLORS **********/
 
     /** @typedef hoverColors
      * @property {boolean} [enable=false] - `false` means not hilite on hover
-     * @property {cssColor} backgroundColor - cell, row, or colummn background color. Alpha channel will be respected and if given will be painted over the cells predetermined color.
+     * @property {cssColor} backgroundColor - cell, row, or column background color. Alpha channel will be respected and if given will be painted over the cells predetermined color.
      * @property {cssColor} [header.backgroundColor=backgroundColor] - for columns and rows, this is the background color of the column or row "handle" (header rows or columns, respectively). (Not used for cells.)
      */
 
@@ -714,13 +713,13 @@ module.exports = {
     /** Display cell font with under-score line drawn over it.
      * > Implementation of links right now is not automatic; you must attach a 'fin-click' listener to the hypergrid object, etc.
      * @type {boolean}
-     * @default `false`
+     * @default
      */
     link: false,
 
     /** Display cell font with strike-through line drawn over it.
      * @type {boolean}
-     * @default `false`
+     * @default
      */
     strikeThrough: false,
 

@@ -24,6 +24,8 @@ var stateToActionMap = {
 
 /**
  * A combo box is a text box that also has a drop-down containing options. The drop-down consists of an actual drop-down list (a `<select>` list) plus a _control area_ above it containing toggles. The toggles control the visibility of the various "mode lists."
+ *
+ * Functions well in Chrome, Safari, Firefox, and Internet Explorer.
  * @constructor
  */
 var ComboBox = Textfield.extend('ComboBox', {
@@ -42,6 +44,8 @@ var ComboBox = Textfield.extend('ComboBox', {
         // set up a transition end controller
         this.optionsTransition = new Queueless(this.options, this);
 
+        this.menuModesSource = this.column.menuModes || { distinctValues: true };
+
         // wire-ups
         this.dropper.addEventListener('mousedown', this.toggleDropDown.bind(this));
         this.dropdown.addEventListener('mousewheel', function(e) { e.stopPropagation(); });
@@ -49,24 +53,16 @@ var ComboBox = Textfield.extend('ComboBox', {
         el.onblur = null; // void this one, set by super's initialize
     },
 
-    template: function() {
-/*
-    <div class="hypergrid-input" title="">
-        <input>
-        <span title="Click for options"></span>
-        <div>
-            <div></div>
-            <select size="12"></select>
-        </div>
-    </div>
-*/
-    },
-
-    beginEditAt: function(point) {
-        this.column = this.grid.behavior.columns[point.x];
-        this.menuModesSource = this.column.menuModes || { distinctValues: true };
-        prototype.beginEditAt.call(this, point);
-    },
+    template: [
+'<div class="hypergrid-input" title="">',
+'    <input type="text" lang="{{locale}}" style="{{style}}">',
+'    <span title="Click for options"></span>',
+'    <div>',
+'        <div></div>',
+'        <select size="12" lang="{{locale}}"></select>',
+'    </div>',
+'</div>'
+    ].join('\n'),
 
     modes: [
         {

@@ -4,8 +4,8 @@
 'use strict';
 
 var _ = require('object-iterators');
-var Base = require('./Base');
 
+var Base = require('./Base');
 var images = require('../../images');
 
 /** @typedef {object} CanvasRenderingContext2D
@@ -177,14 +177,6 @@ var Renderer = Base.extend('Renderer', {
      */
     resolveProperty: function(key) {
         return this.grid.resolveProperty(key);
-    },
-
-    /** @deprecated Use `.grid` property instead.
-     * @memberOf Renderer.prototype
-     * @returns {Hypergrid} grid
-     */
-    getGrid: function() {
-        return this.deprecated('grid', { since: '0.2' });
     },
 
     /**
@@ -436,7 +428,7 @@ var Renderer = Base.extend('Renderer', {
 
         var translatedIndex = -1;
 
-        var column = behavior.getVisibleColumn(c);
+        var column = behavior.getActiveColumn(c);
         if (column) {
             translatedIndex = column.index;
         }
@@ -505,36 +497,29 @@ var Renderer = Base.extend('Renderer', {
         this.paintCells(gc);
         this.paintGridlines(gc);
         this.renderOverrides(gc);
-        this.renderFocusCell(gc);
+        this.renderLastSelection(gc);
         gc.closePath();
     },
 
-    focusLineStep: [
-        [5, 5],
-        [0, 1, 5, 4],
-        [0, 2, 5, 3],
-        [0, 3, 5, 2],
-        [0, 4, 5, 1],
-        [0, 5, 5, 0],
-        [1, 5, 4, 0],
-        [2, 5, 3, 0],
-        [3, 5, 2, 0],
-        [4, 5, 1, 0]
-    ],
-
-    renderFocusCell: function(gc) {
+    renderLastSelection: function(gc) {
         gc.beginPath();
-        this._renderFocusCell(gc);
+        this._renderLastSelection(gc);
         gc.closePath();
     },
 
-    _renderFocusCell: function(gc) {
+    _renderLastSelection: function(gc) {
+
+        /*
+
+            Compute the Bounds of the Last Selection that is visible
+
+         */
 
         var selections = this.grid.selectionModel.getSelections();
         if (!selections || selections.length === 0) {
             return;
         }
-        var selection = selections[selections.length - 1];
+        var selection = this.grid.selectionModel.getLastSelection();
         var mouseDown = selection.origin;
         if (mouseDown.x === -1) {
             //no selected area, lets exit
@@ -590,24 +575,23 @@ var Renderer = Base.extend('Renderer', {
             return;
         }
 
-        gc.rect(x, y, width, height);
-        gc.fillStyle = this.resolveProperty('selectionRegionOverlayColor');
-        gc.fill();
-        gc.lineWidth = 1;
-        gc.strokeStyle = this.resolveProperty('selectionRegionOutlineColor');
+        /*
 
-        // animate the dashed line a bit here for fun
+          Render the selection model around the bounds
 
-        gc.stroke();
+         */
 
-        //gc.rect(x, y, width, height);
-
-        //gc.strokeStyle = 'white';
-
-        // animate the dashed line a bit here for fun
-        //gc.setLineDash(this.focusLineStep[Math.floor(10 * (Date.now() / 300 % 1)) % this.focusLineStep.length]);
-
-        //gc.stroke();
+        var config = {
+            bounds: {
+                x: x,
+                y: y,
+                width: width,
+                height: height
+            },
+            selectionRegionOverlayColor: this.grid.resolveProperty('selectionRegionOverlayColor'),
+            selectionRegionOutlineColor: this.grid.resolveProperty('selectionRegionOutlineColor')
+        };
+        this.grid.cellRenderers.get('lastselection').paint(gc, config);
     },
 
     /**
@@ -661,14 +645,6 @@ var Renderer = Base.extend('Renderer', {
      */
     getScrollLeft: function() {
         return this.grid.getHScrollValue();
-    },
-
-    /** @deprecated Use `.grid.behavior` property instead.
-     * @memberOf Renderer.prototype
-     * @returns {Behavior} The behavior (model).
-     */
-    getBehavior: function() {
-        return this.deprecated('grid.behavior', { since: '0.2' });
     },
 
     getColumnEdges: function() {
@@ -804,8 +780,8 @@ var Renderer = Base.extend('Renderer', {
      * @param {CanvasRenderingContext2D} gc
      */
     paintCells: function(gc) {
-        var renderCellError,
-            message,
+        var message,
+            config = {},
             x, y,
             c, r,
 
@@ -834,7 +810,6 @@ var Renderer = Base.extend('Renderer', {
 
                 c = visibleCols[x];
                 this.renderedColumnMinWidths[c] = 0;
-                renderCellError = behavior.getColumnProperties(c).renderCellError;
 
                 gc.save();
 
@@ -862,20 +837,26 @@ var Renderer = Base.extend('Renderer', {
 
                         console.error(message);
 
-                        if (renderCellError) {
-                            var rawGc = gc.gc || gc, // Don't log these canvas calls
-                                errY = rowEdges[y],
-                                errHeight = rowEdges[y + 1] - errY;
+                        var rawGc = gc.gc || gc, // Don't log these canvas calls
+                            errY = rowEdges[y],
+                            errHeight = rowEdges[y + 1] - errY;
 
-                            rawGc.save(); // define clipping region
-                            rawGc.beginPath();
-                            rawGc.rect(clipX, errY, clipWidth, errHeight);
-                            rawGc.clip();
+                        rawGc.save(); // define clipping region
+                        rawGc.beginPath();
+                        rawGc.rect(clipX, errY, clipWidth, errHeight);
+                        rawGc.clip();
+                        config = {
+                            bounds: {
+                                y: errY,
+                                x: clipX,
+                                height: errHeight,
+                                width: clipWidth
+                            }
+                        };
 
-                            renderCellError(rawGc, message, clipX, errY, clipWidth, errHeight);
+                        this.grid.cellRenderers.get('errorcell').paint(rawGc, config, message);
 
-                            rawGc.restore(); // discard clipping region
-                        }
+                        rawGc.restore(); // discard clipping region
 
                     }
                 }
@@ -1066,21 +1047,18 @@ var Renderer = Base.extend('Renderer', {
         behavior.cellPropertiesPrePaintNotification(cellProperties);
 
         var cell = behavior.getCellRenderer(cellProperties, c, r);
-        var column = behavior.getVisibleColumn(c);
-        var overrides = behavior.getCellProperties(column.index, r);
+        var column = behavior.getActiveColumn(c);
 
         //declarative cell properties
-        _(cellProperties).extendOwn(overrides);
+        if (isGridRow) {
+            var overrides = behavior.getCellProperties(column.index, r);
+            _(cellProperties).extendOwn(overrides);
+        }
 
         //allow the renderer to identify itself if it's a button
         cellProperties.buttonCells = this.buttonCells;
-        if (cellProperties.isUserDataArea) {
-            var formatName = cellProperties.format;
-            if (!formatName && formatName !== null) { // null means don't fallback to type
-                formatName = column.getType();
-            }
-        }
-        cellProperties.formatValue = grid.getFormatter(formatName);
+
+        cellProperties.formatValue = grid.getFormatter(cellProperties.isUserDataArea && cellProperties.format);
         cell.paint(gc, cellProperties);
 
         this.renderedColumnMinWidths[c] = Math.max(cellProperties.minWidth || 0, this.renderedColumnMinWidths[c]);
@@ -1112,7 +1090,7 @@ var Renderer = Base.extend('Renderer', {
         var ctx = this.getCanvas().canvasCTX;
         ctx.beginPath();
         ctx.save();
-        this.renderFocusCell(ctx);
+        this.renderLastSelection(ctx);
         ctx.restore();
         ctx.closePath();
     },

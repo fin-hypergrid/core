@@ -128,7 +128,7 @@ var ColumnMoving = Feature.extend('ColumnMoving', {
 
         var distance = Math.abs(event.primitiveEvent.detail.dragstart.x - event.primitiveEvent.detail.mouse.x);
 
-        if (distance < 10) {
+        if (distance < 10 || this.isFixedColumn(grid, event)) {
             if (this.next) {
                 this.next.handleMouseDrag(grid, event);
             }
@@ -161,7 +161,7 @@ var ColumnMoving = Feature.extend('ColumnMoving', {
      * @param {Object} event - the event details
      */
     handleMouseDown: function(grid, event) {
-        if (grid.behavior.isColumnReorderable()) {
+        if (grid.behavior.isColumnReorderable() && !this.isFixedColumn(grid, event)) {
             if (this.isHeaderRow(grid, event) && event.gridCell.x !== -1) {
                 this.dragArmed = true;
                 this.cursor = this.getDraggingCursorName();
@@ -210,7 +210,7 @@ var ColumnMoving = Feature.extend('ColumnMoving', {
      */
     handleMouseMove: function(grid, event) {
 
-        if (!this.dragging && event.mousePoint.y < 5 && event.viewPoint.y === 0) {
+        if (!this.dragging && event.mousePoint.y < 5 && event.viewPoint.y === 0 && !this.isFixedColumn(grid, event)) {
             this.cursor = this.getCanDragCursorName();
         } else {
             this.cursor = null;
@@ -502,10 +502,9 @@ var ColumnMoving = Feature.extend('ColumnMoving', {
         var hdpiRatio = grid.getHiDPI(draggerCTX);
 
         var dragColumnIndex = grid.renderOverridesCache.dragger.columnIndex;
-        var columnWidth = grid.renderOverridesCache.dragger.width;
 
-        var minX = 0; //grid.getFixedColumnsWidth();
-        var maxX = grid.renderer.getFinalVisableColumnBoundary() - columnWidth;
+        var minX = 0;
+        var maxX = grid.renderer.getFinalVisableColumnBoundary();
         x = Math.min(x, maxX + 15);
         x = Math.max(minX - 15, x);
 

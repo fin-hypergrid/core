@@ -2,6 +2,7 @@
 
 var Local = require('./Local');
 var DataModelJSON = require('../dataModels/JSON');
+var ColumnSchemaFactory = require('../filter/ColumnSchemaFactory');
 var features = require('../features');
 var aggregations = require('../Shared.js').analytics.util.aggregations;
 
@@ -25,7 +26,7 @@ var JSON = Local.extend('behaviors.JSON', {
      * @memberOf behaviors.JSON.prototype
      */
     initialize: function(grid, schema, dataRows) {
-        this.setData(dataRows);
+        this.setData(dataRows, schema);
     },
 
     features: [
@@ -51,10 +52,12 @@ var JSON = Local.extend('behaviors.JSON', {
         var columnCount = dataModel.getColumnCount();
         var headers = dataModel.getHeaders();
         var fields = dataModel.getFields();
+        var REGEX_CAMEL_CASE = /([^_A-Z])([A-Z]+)/g;
         this.clearColumns();
         for (var index = 0; index < columnCount; index++) {
             var header = headers[index];
             var column = this.addColumn({ index: index, header: header });
+            this.columnEnum[column.name.replace(REGEX_CAMEL_CASE, '$1_$2').toUpperCase()] = index;
             var properties = column.getProperties();
             properties.field = fields[index];
             properties.header = header;
@@ -96,29 +99,36 @@ var JSON = Local.extend('behaviors.JSON', {
      * @description Set the data field.
      * @param {object[]} dataRows - An array of uniform objects backing the rows in the grid.
      */
-    setData: function(dataRows) {
-        this.dataModel.setData(dataRows);
+    setData: function(dataRows, options) {
+        var self = this,
+            grid = this.grid;
+
+        this.dataModel.setData(dataRows, options);
         this.createColumns();
 
+        this.schema = options && options.schema || deriveSchema;
         this.setGlobalFilter(this.getNewFilter());
 
-        var self = this;
-        if (this.grid.isColumnAutosizing()) {
+        if (grid.cellEditor) {
+            grid.cellEditor.cancelEditing();
+        }
+
+        if (grid.isColumnAutosizing()) {
             setTimeout(function() {
                 self.autosizeAllColumns();
             }, 100);
-            self.changed();
+            grid.allowEvents(dataRows.length);
         } else {
             setTimeout(function() {
                 self.getColumn(-1).checkColumnAutosizing(true);
-                self.changed();
+                grid.allowEvents(dataRows.length);
             });
         }
     },
 
     /**
      * @summary Set the top totals.
-     * @memberOf behaviors.JSON.prototype
+     * @memberOf behaviors.JSON.p rototype
      * @param {Array<Array>} totalRows - array of rows (arrays) of totals
      */
     setTopTotals: function(totalRows) {
@@ -230,8 +240,12 @@ var JSON = Local.extend('behaviors.JSON', {
     getHiddenColumns: function() {
         return this.dataModel.getHiddenColumns();
     },
+
+    getActiveColumns: function() {
+        return this.dataModel.getActiveColumns();
+    },
     getVisibleColumns: function() {
-        return this.dataModel.getVisibleColumns();
+        this.deprecated('getVisibleColumns()', 'getActiveColumns()', '1.0.6', arguments);
     },
 
     getSelectedRows: function() {
@@ -266,6 +280,12 @@ var JSON = Local.extend('behaviors.JSON', {
     }
 
 });
+
+
+function deriveSchema() {
+    return new ColumnSchemaFactory(this.columns).schema;
+}
+
 
 //Logic to moved to adapter layer outside of Hypergrid Core
 function removeHiddenColumns(oldSorted, hiddenColumns){

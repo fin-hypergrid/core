@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+    <title>simple hypergrid demo</title>
+    <script src="build/fin-hypergrid.js"></script>
+    <script>
+        window.onload = function() {
+            fin.Hypergrid.JSON.get('data/basic.json', function(data) {
+                var div = document.querySelector('div#json-example'),
+                    jsonGrid = new fin.Hypergrid(div, { data: data });
+
+                jsonGrid.addProperties({ showFilterRow: false });
+
+                jsonGrid.behavior.setData(data);
+            });
+        };
+    </script>
+</head>
+<body>
+<p> JSON example using AJAX.<br/>
+        Put your JSON in:<b><code> ./data/simple.json</code></b>
+    </p>
+    <div id="json-example" style="position:relative; width:600px; height:100px"></div>
+    <p><small><em>Note: AJAX does not work with the <b><code>file://</code></b> protocol. To serve locally, try <a href="https://www.npmjs.com/package/http-server">http-server</a>.</em></samll></p>
+</body>
+</html>

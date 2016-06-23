@@ -6,13 +6,7 @@ var Base = require('../lib/Base');
 
 var Column = require('./Column');
 var dialogs = require('../dialogs');
-var CellProvider = require('../lib/CellProvider');
-var ColumnSchemaFactory = require('../filter/ColumnSchemaFactory');
 var DefaultFilter = require('../filter/DefaultFilter');
-
-function deriveSchema() {
-    return new ColumnSchemaFactory(this.columns).schema;
-}
 
 var noExportProperties = [
     'columnHeader',
@@ -46,15 +40,12 @@ var Behavior = Base.extend('Behavior', {
      * * Omit to generate a basic schema from `this.columns`.
      * @memberOf Behavior.prototype
      */
-    initialize: function(grid, schema) {
-
+    initialize: function(grid, schema, dataRows) {
         /**
          * @type {Hypergrid}
          * @memberOf Behavior.prototype
          */
         this.grid = grid;
-
-        this.schema = schema || deriveSchema;
 
         /**
          * @type {DataModel}
@@ -108,7 +99,6 @@ var Behavior = Base.extend('Behavior', {
     features: [], // override in implementing class unless no features
 
     reset: function() {
-        this.cellProvider = this.createCellProvider();
         this.renderedColumnCount = 30;
         this.renderedRowCount = 60;
         this.dataUpdates = {}; //for overriding with edit values;
@@ -134,18 +124,28 @@ var Behavior = Base.extend('Behavior', {
 
         this.allColumns[-1] = this.columns[-1] = this.newColumn(-1);
         this.allColumns[-2] = this.columns[-2] = this.newColumn(-2);
+
+        this.columnEnum = {};
     },
 
-    getVisibleColumn: function(x) {
+    getActiveColumn: function(x) {
         return this.columns[x];
+    },
+    getVisibleColumn: function() {
+        this.deprecated('getVisibleColumn(x)', 'getActiveColumn(x)', '1.0.6', arguments);
+    },
+    getVisibleColumnName: function() {
+        this.deprecated('getVisibleColumnName(x)', 'getActiveColumn(x).name', '1.0.6', arguments);
+    },
+    getColumnId: function() {
+        this.deprecated('getColumnId(x)', 'getActiveColumn(x).header', '1.0.6', arguments);
+    },
+    getHeader: function() {
+        this.deprecated('getHeader(x)', 'getActiveColumn(x).header', '1.0.6', arguments);
     },
 
     getColumn: function(x) {
         return this.allColumns[x];
-    },
-
-    getColumnId: function(x) {
-        return this.getVisibleColumn(x).getHeader();
     },
 
     newColumn: function(options) {
@@ -485,7 +485,7 @@ var Behavior = Base.extend('Behavior', {
     },
 
     getColumnWidth: function(x) {
-        var column = this.getVisibleColumn(x);
+        var column = this.getActiveColumn(x);
         if (!column) {
             return this.resolveProperty('defaultColumnWidth');
         }
@@ -494,20 +494,18 @@ var Behavior = Base.extend('Behavior', {
     },
 
     setColumnWidth: function(x, width) {
-        this.getVisibleColumn(x).setWidth(width);
+        this.getActiveColumn(x).setWidth(width);
         this.stateChanged();
     },
 
-    /** @deprecated Use `.dataModel` property instead.
-     * @memberOf Behavior.prototype
-     * @returns {Hypergrid} The hypergrid to which this behavior is attached.
-     */
-    getDataModel: function() {
-        return this.deprecated('dataModel', { since: '0.2.1' });
-    },
-
     getCellRenderer: function(config, x, y) {
-        return this.getVisibleColumn(x).getCellRenderer(config, y);
+        return this.getActiveColumn(x).getCellRenderer(config, y);
+    },
+    getCellProvider: function(name) {
+        this.deprecated('getCellProvider()', 'grid.cellRenderers', '1.0.6', arguments);
+    },
+    createCellProvider: function(name) {
+        console.error('getCellProvider() is deprecated as of v1.0.6. No replacement; do not call. Previously called by `Behavior` constructor; `new CellRenderers()` is now called by `Hypergrid` constructor instead.', arguments);
     },
 
     applyAnalytics: function() {
@@ -674,37 +672,10 @@ var Behavior = Base.extend('Behavior', {
 
     /**
      * @memberOf Behavior.prototype
-     * @desc getter for the cell provider
-     * @return {CellProvider}
-     */
-    getCellProvider: function() {
-        return this.cellProvider;
-    },
-
-    /**
-     * @memberOf Behavior.prototype
      * @desc setter for the hypergrid
      * @param {Hypergrid} grid
      */
     setGrid: function(grid) {
-    },
-
-    /** @deprecated Use `.grid` property instead.
-     * @memberOf Behavior.prototype
-     * @returns {Hypergrid} The hypergrid to which this behavior is attached.
-     * @param {type} varname - descripton
-     */
-    getGrid: function() {
-        return this.deprecated('grid', { since: '0.2' });
-    },
-
-    /**
-     * @memberOf Behavior.prototype
-     * @desc You can override this function and substitute your own cell provider.
-     * @return {CellProvider}
-     */
-    createCellProvider: function() {
-        return new CellProvider();
     },
 
     /**
@@ -715,12 +686,12 @@ var Behavior = Base.extend('Behavior', {
      * @param {number} y - y coordinate
      */
     getValue: function(x, y) {
-        var column = this.getVisibleColumn(x);
+        var column = this.getActiveColumn(x);
         return column && column.getValue(y);
     },
 
     getUnfilteredValue: function(x, y) {
-        var column = this.getVisibleColumn(x);
+        var column = this.getActiveColumn(x);
         return column && column.getUnfilteredValue(y);
     },
 
@@ -733,7 +704,7 @@ var Behavior = Base.extend('Behavior', {
      * @param {Object} value - the value to use
      */
     setValue: function(x, y, value) {
-        var column = this.getVisibleColumn(x);
+        var column = this.getActiveColumn(x);
         return column && column.setValue(y, value);
     },
 
@@ -963,9 +934,9 @@ var Behavior = Base.extend('Behavior', {
      * @param {Hypergrid} grid
      * @param {Object} event - the event details
      */
-    onTap: function(grid, event) {
+    onClick: function(grid, event) {
         if (this.featureChain) {
-            this.featureChain.handleTap(grid, event);
+            this.featureChain.handleClick(grid, event);
             this.setCursor(grid);
         }
     },
@@ -1058,19 +1029,6 @@ var Behavior = Base.extend('Behavior', {
     onDoubleClick: function(grid, event) {
         if (this.featureChain) {
             this.featureChain.handleDoubleClick(grid, event);
-            this.setCursor(grid);
-        }
-    },
-
-    /**
-     * @memberOf Behavior.prototype
-     * @desc delegate handling hold pulse to the feature chain of responsibility
-     * @param {Hypergrid} grid
-     * @param {Object} event - the event details
-     */
-    onHoldPulse: function(grid, event) {
-        if (this.featureChain) {
-            this.featureChain.handleHoldPulse(grid, event);
             this.setCursor(grid);
         }
     },
@@ -1174,24 +1132,6 @@ var Behavior = Base.extend('Behavior', {
 
     /**
      * @memberOf Behavior.prototype
-     * @return {string} The field at `visibleColumnIndex`.
-     * @param {number} visibleColumnIndex - the column index of interest
-     */
-    getVisibleColumnName: function(visibleColumnIndex) {
-        return this.getVisibleColumn(visibleColumnIndex).name;
-    },
-
-    /**
-     * @memberOf Behavior.prototype
-     * @return {string} The column heading at `visibleColumnIndex'.
-     * @param {number} visibleColumnIndex - the column index of interest
-     */
-    getHeader: function(visibleColumnIndex) {
-        return this.getVisibleColumn(visibleColumnIndex).header;
-    },
-
-    /**
-     * @memberOf Behavior.prototype
      * @desc Rebuild the column order indexes
      * @param {Array} columnIndexes - list of column indexes
      * @param {Boolean} [silent=false] - whether to trigger column changed event
@@ -1214,13 +1154,14 @@ var Behavior = Base.extend('Behavior', {
         var tableState = this.getPrivateState();
         var indexes = tableState.columnIndexes;
         var labels = [];
-        var columnCount = this.getColumnCount();
+        var columnCount = this.getActiveColumnCount();
         for (var i = 0; i < columnCount; i++) {
             if (indexes.indexOf(i) === -1) {
+                var column = this.getActiveColumn(i);
                 labels.push({
                     id: i,
-                    header: this.getHeader(i),
-                    field: this.getVisibleColumnName(i)
+                    header: column.header,
+                    field: column.name
                 });
             }
         }
@@ -1361,8 +1302,11 @@ var Behavior = Base.extend('Behavior', {
      * @memberOf Behavior.prototype
      * @return {number} The total number of columns.
      */
-    getColumnCount: function() {
+    getActiveColumnCount: function() {
         return this.columns.length;
+    },
+    getColumnCount: function() {
+        this.deprecated('getColumnCount()', 'getActiveColumnCount()', '1.0.6', arguments);
     },
 
     /**
@@ -1410,15 +1354,25 @@ var Behavior = Base.extend('Behavior', {
 
     /**
      * @memberOf Behavior.prototype
-     * @return {cellEditor} The cell editor for the cell at cell coordinates `x,y`
-     * @param {number} x - The horizontal cell coordinate.
-     * @param {number} y - The vertical cell coordinate.
-     * @param {boolean} isDblClick - When called from `onEditorActivate`, indicates if event was a double-click. This allows different editors for single- vs. double-click
+     * @return {cellEditor} The cell editor for the cell at the given coordinates.
+     * @param {Point} editPoint - The grid cell coordinates.
      */
-    getCellEditorAt: function(x, y) {
-        return this.grid.isFilterRow(y)
-            ? this.grid.createCellEditor('filterbox')
-            : this.getVisibleColumn(x).getCellEditorAt(y);
+    getCellEditorAt: function(editPoint) {
+        var cellEditor, options,
+            column = this.getActiveColumn(editPoint.x);
+
+        if (column) {
+            options = {
+                column: column,
+                editPoint: editPoint
+            };
+
+            cellEditor = this.grid.isFilterRow(editPoint.y)
+                ? this.grid.cellEditors.create('filterbox', options)
+                : column.getCellEditorAt(editPoint.y, options);
+        }
+
+        return cellEditor;
     },
 
     /**
@@ -1427,7 +1381,7 @@ var Behavior = Base.extend('Behavior', {
      * @param {string[]} keys
      */
     toggleSort: function(x, keys) {
-        this.getVisibleColumn(x).toggleSort(keys);
+        this.getActiveColumn(x).toggleSort(keys);
     },
 
     /**
@@ -1522,7 +1476,7 @@ var Behavior = Base.extend('Behavior', {
     },
 
     convertViewPointToDataPoint: function(viewPoint) {
-        var newX = this.getVisibleColumn(viewPoint.x).index;
+        var newX = this.getActiveColumn(viewPoint.x).index;
         var newPoint = this.grid.newPoint(newX, viewPoint.y);
         return newPoint;
     },
@@ -1544,6 +1498,11 @@ var Behavior = Base.extend('Behavior', {
 
     hasHierarchyColumn: function() {
         return false;
+    },
+
+    setRelation: function(options) {
+        this.dataModel.setRelation(options);
+        this.shapeChanged();
     },
 
     getRowContextFunction: function(selectedRows) {
@@ -1583,17 +1542,13 @@ var Behavior = Base.extend('Behavior', {
     },
 
     getNewFilter: function() {
-        var newFilter;
-        if (this.columns.length) {
-            var options = {
-                schema: typeof this.schema === 'function' ? this.schema(this.columns) : this.schema,
-                caseSensitiveColumnNames: this.grid.resolveProperty('filterCaseSensitiveColumnNames'),
-                resolveAliases: this.grid.resolveProperty('filterResolveAliases'),
-                defaultColumnFilterOperator: this.grid.resolveProperty('filterDefaultColumnFilterOperator')
-            };
-            newFilter = new DefaultFilter(options);
-            newFilter.loadColumnPropertiesFromSchema(this.columns);
-        }
+        var newFilter = new DefaultFilter({
+            schema: typeof this.schema === 'function' ? this.schema(this.columns) : this.schema,
+            caseSensitiveColumnNames: this.grid.resolveProperty('filterCaseSensitiveColumnNames'),
+            resolveAliases: this.grid.resolveProperty('filterResolveAliases'),
+            defaultColumnFilterOperator: this.grid.resolveProperty('filterDefaultColumnFilterOperator')
+        });
+        newFilter.loadColumnPropertiesFromSchema(this.columns);
         return newFilter;
     },
 

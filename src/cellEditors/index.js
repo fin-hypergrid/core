@@ -4,117 +4,113 @@
 
 'use strict';
 
-
-var localization = require('../lib/localization');
-
-
 /**
- * @summary Hash of cell editor object constructors.
- * @desc This hash's only purpose is to support the convenience methods defined herein: {@link cellEditors.extend|extend}, {@link cellEditors.register|register}, and {@link cellEditors.instantiate|instantiate}. If you do not need these methods' functionality, you do not need to register your cell editors.
- * @type {object}
+ *
+ * @param {Hypergrid} grid
+ * @param {boolean} [privateRegistry=false] - This instance will use a private registry.
+ * @constructor
  */
-var constructors = {};
+function CellEditors(grid, privateRegistry) {
+    this.grid = grid;
 
-/**
- * @summary Register a cell editor (class) or a synonym of an already-registered cell editor.
- * @desc Adds a custom cell editor to the `constructors` hash using the provided name (or the class name), converted to all lower case.
- *
- * To register a syonym for an already-registered cell editor, use the following construct:
- * ```
- * var cellEditors = require('./cellEditors');
- * cellEditors.register(cellEditors.get('spinner'), 'elevator');
- * ```
- * This makes a synonym "elevator" for the "spinner" cell editor.
- *
- * > All native cell editors are "preregistered" in cellEditors/index.js.
- *
- * @param {YourCellEditor.prototype.constructor} Constructor - A constructor, typically extended from `CellEditor` (or a descendant therefrom).
- *
- * @param {string} [editorName] - Case-insensitive editor key. If not given, `YourCellEditor.prototype.$$CLASS_NAME` is used.
- *
- * > Note: `$$CLASS_NAME` can be easily set up by providing a string as the (optional) first parameter in your {@link https://www.npmjs.com/package/extend-me|CellEditor.extend} call. (Formal parameter name: `alias`.)
- *
- * @memberOf module:cellEditors
- */
-function register(Constructor, editorName) {
-    editorName = editorName || Constructor.prototype.$$CLASS_NAME;
-    editorName = editorName && editorName.toLowerCase();
-    constructors[editorName] = Constructor;
-    return Constructor;
+    if (privateRegistry) {
+        this.editors = {};
+    }
+
+    // preregister the standard cell editors
+    if (privateRegistry || !this.get('celleditor')) {
+        this.add(require('./CellEditor'));
+        this.add(require('./ComboBox'));
+        this.add(require('./Color'));
+        this.add(require('./Date'));
+        this.add(require('./FilterBox'));
+        this.add(require('./Number'));
+        this.add(require('./Slider'));
+        this.add(require('./Spinner'));
+        this.add(require('./Textfield'));
+    }
 }
 
+CellEditors.prototype = {
+    constructor: CellEditors.prototype.constructor, // preserve constructor
 
-/**
- * @param {string} editorName
- * @returns {*}
- */
-function get(editorName) {
-    return constructors[editorName && editorName.toLowerCase()];
-}
+    /**
+     * @summary Register a cell editor constructor.
+     * @desc Adds a custom cell editor constructor to the `editors` hash using the provided name (or the class name), converted to all lower case.
+     *
+     * > All native cell editors are "preregistered" in `editors`..
+     *
+     * @param {string} [name] - Case-insensitive editor key. If not given, `YourCellEditor.prototype.$$CLASS_NAME` is used.
+     *
+     * @param {YourCellEditor.prototype.constructor} Constructor - A constructor, typically extended from `CellEditor` (or a descendant therefrom).
+     *
+     * > Note: `$$CLASS_NAME` can be easily set up by providing a string as the (optional) first parameter (`alias`) in your {@link https://www.npmjs.com/package/extend-me|CellEditor.extend} call.
+     *
+     * @returns {CellEditor} A newly registered constructor extended from {@link CellEditor}.
+     *
+     * @memberOf module:cellEditors
+     */
+    add: function(name, Constructor) {
+        if (typeof name === 'function') {
+            Constructor = name;
+            name = undefined;
+        }
 
+        name = name || Constructor.prototype.$$CLASS_NAME;
+        name = name && name.toLowerCase();
+        this.editors[name] = Constructor;
+        return Constructor;
+    },
 
-/**
- * Must be called with YOUR Hypergrid object as context!
- * @returns {CellEditor} New instance of the named cell editor.
- * @param {string} editorName
- * @this {Hypergrid}
- * @memberOf module:cellEditors
- */
-function instantiate(editorName) {
-    var CellEditorConstructor = get(editorName);
-    return CellEditorConstructor && new CellEditorConstructor(this);
-}
+    /**
+     * @summary Register a synonym for an existing cell editor constructor.
+     * @param {string} synonymName
+     * @param {string} existingName
+     * @returns {CellEditor} The previously registered constructor this new synonym points to.
+     * @memberOf CellEditors.prototype
+     */
+    addSynonym: function(synonymName, existingName) {
+        var cellEditor = this.get(existingName);
+        return (this.editors[synonymName] = cellEditor);
+    },
 
+    /**
+     * @param {string} name - Name of a registered editor.
+     * @returns {CellEditor} A registered constructor extended from {@link CellEditor}.
+     * @memberOf CellEditors.prototype
+     */
+    get: function(name) {
+        return this.editors[name && name.toLowerCase()];
+    },
 
-/**
- * @summary Create a new localized cell editor class.
- *
- * @desc Extend the provided cell editor ('baseClassName') using the named localizer (`localizerName`), naming it after the localizer unless otherwise specified (in `newClassName`)
- *
- * @param {string} localizerName
- *
- * @param {string} [baseClassName='textfield'] - The base class must have been previously registered.
- *
- * @param {string} [newClassName=localizerName] - Provide a value here to name the cell editor differently from its localizer.
- *
- * @returns {function} The new cell editor constructor.
- *
- * @memberOf module:cellEditors
- */
-function extend(localizerName, baseClassName, newClassName) {
-    baseClassName = baseClassName || 'textfield';
-    newClassName = newClassName || localizerName;
+    /**
+     * @summary Lookup registered cell editor and return a new instance thereof.
+     * @desc Note: Must be called with the Hypergrid object as context!
+     * @returns {CellEditor} New instance of the named cell editor.
+     * @param {string} name - Name of a registered editor.
+     * @param {string} [options] - Properties to add to the instantiated editor primarily for mustache's use.
+     * @memberOf CellEditors.prototype
+     */
+    create: function(name, options) {
+        var cellEditor,
+            Constructor = this.get(name);
 
-    return constructors[baseClassName].extend(newClassName, {
-        localizer: localization.get(localizerName)
-    });
-}
+        if (Constructor) {
+            if (Constructor.abstract) {
+                throw 'Attempt to instantiate an "abstract" cell editor class.';
+            }
+            cellEditor = new Constructor(this.grid, options);
+        }
 
+        return cellEditor;
+    },
 
-// register standard cell editors
-register(require('./CellEditor'));
-register(require('./ComboBox'));
-//register(require('./Combo'));
-register(require('./Color'));
-register(require('./Date'));
-register(require('./FilterBox'));
-register(require('./Number'));
-register(require('./Slider'));
-register(require('./Spinner'));
-register(require('./Textfield'));
-
-
-// Register synonyms for standard type names.
-// It is unnecessary to set up synonyms for 'date' and 'number' because there are already suitable cell editor resitrations matching those names.
-register(constructors.number, 'int');
-register(constructors.number, 'float');
-register(constructors.textfield, 'string');
-
-
-module.exports = {
-    constructors: constructors,
-    register: register,
-    get: get,
-    instantiate: instantiate,
-    extend: extend
+    /**
+     * The cell editor registry containing all the "preregistered" cell editor constructors.
+     * @private
+     * @memberOf CellEditors.prototype
+     */
+    editors: {}
 };
+
+module.exports = CellEditors;

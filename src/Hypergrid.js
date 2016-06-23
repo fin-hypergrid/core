@@ -5,7 +5,6 @@
 require('./lib/polyfills'); // Installs misc. polyfills into global objects, as needed
 
 var extend = require('extend-me');
-var deprecated = require('./lib/deprecated');
 extend.debug = true;
 
 var FinBar = require('finbars');
@@ -14,13 +13,15 @@ var Point = require('rectangular').Point;
 var Rectangle = require('rectangular').Rectangle;
 var _ = require('object-iterators'); // fyi: installs the Array.prototype.find polyfill, as needed
 
+var deprecated = require('./lib/deprecated');
 var defaults = require('./defaults');
-var cellEditors = require('./cellEditors');
 var Renderer = require('./lib/Renderer');
 var SelectionModel = require('./lib/SelectionModel');
-var css = require('./css');
-var localization = require('./lib/localization');
+var stylesheet = require('./lib/stylesheet');
+var Localization = require('./lib/Localization');
 var behaviors = require('./behaviors');
+var CellRenderers = require('./cellRenderers');
+var CellEditors = require('./cellEditors');
 
 var themeInitialized = false,
     polymerTheme = Object.create(defaults),
@@ -39,6 +40,10 @@ var themeInitialized = false,
  * * A function returning a schema array. Called at filter reset time with behavior as context.
  * * Omit to generate a basic schema from `this.behavior.columns`.
  * @param {Behavior} [options.Behavior=JSON] - A grid behavior (descendant of Behavior "class"). Will be used if `getBehavior` omitted, in which case `options.data` (which has no default) *must* also be provided.
+ * @param {string} [options.localization=Hypergrid.localization]
+ * @param {string|string[]} [options.localization.locale=Hypergrid.localization.locale] - The default locale to use when an explicit `locale` is omitted from localizer constructor calls. Passed to Intl.NumberFomrat` and `Intl.DateFomrat`. See {@ https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl#Locale_identification_and_negotiation|Locale identification and negotiation} for more information.
+ * @param {string} [options.localization.numberOptions=Hypergrid.localization.numberOptions] - Options passed to `Intl.NumberFomrat` for creating the basic "number" localizer.
+ * @param {string} [options.localization.dateOptions=Hypergrid.localization.dateOptions] - Options passed to `Intl.DateFomrat` for creating the basic "date" localizer.
  * @param {object} [options.margin] - optional canvas margins
  * @param {string} [options.margin.top=0]
  * @param {string} [options.margin.right='-200px']
@@ -50,7 +55,7 @@ function Hypergrid(div, options) {
 
     this.div = (typeof div === 'string') ? document.querySelector(div) : div;
 
-    css.inject('grid');
+    stylesheet.inject('grid');
 
     this.lastEdgeSelection = [0, 0];
 
@@ -64,6 +69,13 @@ function Hypergrid(div, options) {
     var data = typeof options.data === 'function' ? options.data() : options.data;
     var Behavior = options.Behavior || behaviors.JSON;
     this.behavior = new Behavior(this, options.schema, data);
+
+    var loc = options.localization || {};
+    this.localization = new Localization(
+        loc.locale || Hypergrid.localization.locale,
+        loc.numberOptions || Hypergrid.localization.numberOptions,
+        loc.dateOptions || Hypergrid.localization.dateOptions
+    );
 
     //prevent the default context menu for appearing
     this.div.oncontextmenu = function(event) {
@@ -89,6 +101,18 @@ function Hypergrid(div, options) {
     margin.bottom = margin.bottom || 0;
     margin.left = margin.left || 0;
 
+    /**
+     * @type {CellRenderers}
+     * @memberOf Hypergrid.prototype
+     */
+    this.cellRenderers = new CellRenderers();
+
+    /**
+     * @type {CellEditors}
+     * @memberOf Hypergrid.prototype
+     */
+    this.cellEditors = new CellEditors(this);
+
     this.allowEventHandlers = true;
 
     //initialize our various pieces
@@ -111,6 +135,19 @@ Hypergrid.prototype = {
     constructor: Hypergrid.prototype.constructor,
 
     deprecated: deprecated,
+    registerCellEditor: function(Constructor, name) {
+        this.deprecated('registerCellEditor(Constructor, name)', 'cellEditors.add(name, Constructor)', '1.0.6', arguments);
+    },
+    createCellEditor: function(name) {
+        this.deprecated('createCellEditor(name)', 'cellEditors.create(name)', '1.0.6', arguments);
+    },
+    getCellProvider: function(name) {
+        this.deprecated('getCellProvider()', 'cellRenderers', '1.0.6', arguments);
+    },
+    registerLocalizer: function(name, localizer, baseClassName, newClassName) {
+        this.deprecated('registerLocalizer(name, localizer, baseClassName, newClassName)', 'localization.add(name, localizer)', '1.0.6', arguments,
+            'STRUCTURAL CHANGE: No longer supports deriving and registering a new cell editor class. Use .cellEditors.get(baseClassName).extend(newClassName || name, {...}) for that.');
+    },
 
     /**
      *
@@ -154,12 +191,6 @@ Hypergrid.prototype = {
      * @memberOf Hypergrid.prototype
      */
     hScrollValue: 0,
-
-    /**
-     * @property {window.fin.rectangular} rectangular - Namespace for Point and Rectangle "classes" (constructors).
-     * @memberOf Hypergrid.prototype
-     */
-    rectangular: null,
 
     /**
      * @property {fin-hypergrid-selection-model} selectionModel - A [fin-hypergrid-selection-model](module-._selection-model.html) instance.
@@ -289,45 +320,14 @@ Hypergrid.prototype = {
         return p && p.x === x && p.y === y;
     },
 
-    /**
-     * @param {string} name
-     * @param {localizerInterface} localizer
-     * @param {boolean|string} [baseClassName=true] - A truthy value means create a new cell editor class that uses this localizer. If a string, extend from the base class so named; otherwise (_e.g.,_ `true`) extend from {@link Textfield}.
-     * @param {string} [newClassName=localizerName] - Provide a value here to name the cell editor differently from its localizer.
-     */
-    registerLocalizer: function(name, localizer, baseClassName, newClassName) {
-        localization.set(name, localizer);
-
-        if (baseClassName) {
-            if (typeof baseClassName !== 'string') {
-                baseClassName = undefined; // use `cellEditors.extend`'s default
-            }
-
-            var newCellEditorClass = cellEditors.extend(name, baseClassName, newClassName);
-            this.registerCellEditor(newCellEditorClass);
-        }
-    },
-
     getFormatter: function(localizerName) {
-        return localization.get(localizerName).localize;
+        return this.localization.get(localizerName).format;
     },
 
     formatValue: function(localizerName, value) {
         var formatter = this.getFormatter(localizerName);
         return formatter(value);
     },
-
-    /**
-     * @see {@link module:cellEditors.register|cellEditors.register}
-     * @memberOf Hypergrid.prototype
-     */
-    registerCellEditor: cellEditors.register,
-
-    /**
-     * @see {@link module:cellEditors.instantiate|cellEditors.instantiate}
-     * @memberOf Hypergrid.prototype
-     */
-    createCellEditor: cellEditors.instantiate,
 
     /**
      * @memberOf Hypergrid.prototype
@@ -501,10 +501,9 @@ Hypergrid.prototype = {
     },
 
     /**
-     * @memberOf Hypergrid.prototype
-     set the mouse point that initated a cell edit or drag operation
-     *
+     * Set the mouse point that initiated a cell edit or drag operation.
      * @param {Point} point
+     * @memberOf Hypergrid.prototype
      */
     setMouseDown: function(point) {
         this.mouseDown.push(point);
@@ -520,7 +519,7 @@ Hypergrid.prototype = {
 
     /**
      * @memberOf Hypergrid.prototype
-     * @summary Sets the extent point of the current drag selection operation.
+     * @summary Set the extent point of the current drag selection operation.
      * @param {Point} point
      */
     setDragExtent: function(point) {
@@ -547,16 +546,6 @@ Hypergrid.prototype = {
         //plugins.forEach(function(plugin) {
         //    func(plugin);
         //});
-    },
-
-    /**
-     * @memberOf Hypergrid.prototype
-     * @desc The CellProvider is accessed through Hypergrid because Hypergrid is the mediator and should have ultimate control on where it comes from. The default is to delegate through the behavior object.
-     * @returns {fin-hypergrid-cell-provider}
-     */
-    getCellProvider: function() {
-        var provider = this.behavior.getCellProvider();
-        return provider;
     },
 
     /**
@@ -761,22 +750,6 @@ Hypergrid.prototype = {
         return isSelected;
     },
 
-    /** @deprecated Use `.selectionModel` property instead.
-     * @memberOf Hypergrid.prototype
-     * @returns {SelectionModel} The selection model.
-     */
-    getSelectionModel: function() {
-        return this.deprecated('selectionModel', { since: '0.2' });
-    },
-
-    /** @deprecated Use `.behavior` property instead.
-     * @memberOf Hypergrid.prototype
-     * @returns {Behavior} The behavior (model).
-     */
-    getBehavior: function() {
-        return this.deprecated('behavior', { since: '0.2' });
-    },
-
     /**
      * @memberOf Hypergrid.prototype
      * @summary Set the Behavior (model) object for this grid control.
@@ -921,16 +894,18 @@ Hypergrid.prototype = {
             self.repaint();
         });
 
-        // this.addEventListener('fin-canvas-click', function(e) {
-        //     if (self.resolveProperty('readOnly')) {
-        //         return;
-        //     }
-        //     //self.stopEditing();
-        //     var mouse = e.detail.mouse;
-        //     var mouseEvent = self.getGridCellFromMousePoint(mouse);
-        //     mouseEvent.primitiveEvent = e;
-        //     self.fireSyntheticClickEvent(mouseEvent);
-        // });
+        this.addEventListener('fin-canvas-click', function(e) {
+            if (self.resolveProperty('readOnly')) {
+                return;
+            }
+            //self.stopEditing();
+            var mouse = e.detail.mouse;
+            var mouseEvent = self.getGridCellFromMousePoint(mouse);
+            mouseEvent.primitiveEvent = e;
+            mouseEvent.keys = e.detail.keys; // todo: this was in fin-tap but wasn't here
+            self.fireSyntheticClickEvent(mouseEvent);
+            self.delegateClick(mouseEvent);
+        });
 
         this.addEventListener('fin-canvas-mouseup', function(e) {
             if (self.resolveProperty('readOnly')) {
@@ -966,19 +941,6 @@ Hypergrid.prototype = {
             self.delegateDoubleClick(mouseEvent);
         });
 
-        this.addEventListener('fin-canvas-tap', function(e) {
-            if (self.resolveProperty('readOnly')) {
-                return;
-            }
-            //self.stopEditing();
-            var mouse = e.detail.mouse;
-            var tapEvent = self.getGridCellFromMousePoint(mouse);
-            tapEvent.primitiveEvent = e;
-            tapEvent.keys = e.detail.keys;
-            self.fireSyntheticClickEvent(tapEvent);
-            self.delegateTap(tapEvent);
-        });
-
         this.addEventListener('fin-canvas-drag', function(e) {
             if (self.resolveProperty('readOnly')) {
                 return;
@@ -1005,40 +967,6 @@ Hypergrid.prototype = {
             self.fireSyntheticKeyupEvent(e);
             self.delegateKeyUp(e);
         });
-
-        this.addEventListener('fin-canvas-track', function(e) {
-            if (self.resolveProperty('readOnly')) {
-                return;
-            }
-            if (self.dragging) {
-                return;
-            }
-            var primEvent = e.detail.primitiveEvent;
-            if (Math.abs(primEvent.dy) > Math.abs(primEvent.dx)) {
-                if (primEvent.yDirection > 0) {
-                    self.scrollVBy(-2);
-                } else if (primEvent.yDirection < -0) {
-                    self.scrollVBy(2);
-                }
-            } else {
-                if (primEvent.xDirection > 0) {
-                    self.scrollHBy(-1);
-                } else if (primEvent.xDirection < -0) {
-                    self.scrollHBy(1);
-                }
-            }
-        });
-
-        // this.addEventListener('fin-canvas-holdpulse', function(e) {
-        //     console.log('holdpulse');
-        //     if (self.resolveProperty('readOnly')) {
-        //         return;
-        //     }
-        //     var mouse = e.detail.mouse;
-        //     var mouseEvent = self.getGridCellFromMousePoint(mouse);
-        //     mouseEvent.primitiveEvent = e;
-        //     self.delegateHoldPulse(mouseEvent);
-        // });
 
         this.addEventListener('fin-canvas-wheelmoved', function(e) {
             var mouse = e.detail.mouse;
@@ -1093,14 +1021,12 @@ Hypergrid.prototype = {
     },
 
     allowEvents: function(allow){
-        if (!allow){
-            this.behavior.featureChain.detachChain();
-            console.log('events have been turned off');
-        } else {
+        if ((this.allowEventHandlers = !!allow)){
             this.behavior.featureChain.attachChain();
+        } else {
+            this.behavior.featureChain.detachChain();
         }
 
-        this.allowEventHandlers = allow;
         this.behavior.changed();
     },
 
@@ -1217,11 +1143,11 @@ Hypergrid.prototype = {
 
     /**
      * @memberOf Hypergrid.prototype
-     * @desc Delegate tap to the behavior (model).
+     * @desc Delegate click to the behavior (model).
      * @param {mouseDetails} mouseDetails - An enriched mouse event from fin-canvas.
      */
-    delegateTap: function(mouseDetails) {
-        this.behavior.onTap(this, mouseDetails);
+    delegateClick: function(mouseDetails) {
+        this.behavior.onClick(this, mouseDetails);
     },
 
     /**
@@ -1240,15 +1166,6 @@ Hypergrid.prototype = {
      */
     delegateDoubleClick: function(mouseDetails) {
         this.behavior.onDoubleClick(this, mouseDetails);
-    },
-
-    /**
-     * @memberOf Hypergrid.prototype
-     * @desc Delegate holdpulse through the behavior (model).
-     * @param {mouseDetails} mouseDetails - An enriched mouse event from fin-canvas.
-     */
-    delegateHoldPulse: function(mouseDetails) {
-        this.behavior.onHoldPulse(this, mouseDetails);
     },
 
     /**
@@ -1273,13 +1190,26 @@ Hypergrid.prototype = {
 
     /**
      * @memberOf Hypergrid.prototype
-     * @summary Shut down the current cell editor.
+     * @summary Shut down the current cell editor and save the edited value.
      * @returns {boolean} `true` if we were editing; `false` if we were not.
      */
     stopEditing: function() {
         var wasEditing = !!this.cellEditor;
         if (wasEditing) {
             this.cellEditor.stopEditing();
+        }
+        return wasEditing;
+    },
+
+    /**
+     * @memberOf Hypergrid.prototype
+     * @summary Shut down the current cell editor without saving the edited value.
+     * @returns {boolean} `true` if we were editing; `false` if we were not.
+     */
+    cancelEditing: function() {
+        var wasEditing = !!this.cellEditor;
+        if (wasEditing) {
+            this.cellEditor.cancelEditing();
         }
         return wasEditing;
     },
@@ -1317,19 +1247,31 @@ Hypergrid.prototype = {
 
     /**
      * @memberOf Hypergrid.prototype
-     * @summary Open the given cell-editor at the provided model coordinates.
-     * @param {string} cellEditor - The specific cell editor to use.
-     * @param {Point} coordinates - The pixel locaiton of the cell to edit at.
+     * @summary Open the cell-editor at the provided model coordinates.
+     * @param {Point} editPoint - The model coordinates of the cell to edit. This is the grid coordinates regardless of scroll position.
+     * @return {undefined|CellEditor} The cellEditor determined from the cell's render properties, which may be modified by logic added by overriding {@link DataModel#getCellEditorAt|getCellEditorAt}.
      */
-    editAt: function(cellEditor, editPoint) {
+    editAt: function(editPoint) {
+        var cellEditor;
 
-        this.cellEditor = cellEditor;
+        if (arguments.length === 2) {
+            return this.deprecated('editAt(cellEditor, editPoint)', 'editAt(editPoint)', '1.0.6', arguments);
+        }
+
+        this.stopEditing(); //other editor is open, close it first
 
         if (editPoint.x >= 0 && editPoint.y >= 0) {
-            this.setMouseDown(editPoint);
-            this.setDragExtent(new Point(0, 0));
-            cellEditor.beginEditAt(editPoint);
+            if (this.isEditable() || this.isFilterRow(editPoint.y)) {
+                this.setMouseDown(editPoint);
+                this.setDragExtent(new Point(0, 0));
+                cellEditor = this.getCellEditorAt(editPoint);
+                if (cellEditor) {
+                    cellEditor.beginEditing();
+                }
+            }
         }
+
+        return cellEditor;
     },
 
     /**
@@ -1472,7 +1414,7 @@ Hypergrid.prototype = {
     },
 
     selectCellAndScrollToMakeVisible: function(c, r) {
-        this.selectCell(c, r);
+        this.selectCell(c, r, true);
         this.scrollToMakeVisible(c, r);
     },
 
@@ -1572,7 +1514,8 @@ Hypergrid.prototype = {
         var clickEvent = new CustomEvent('fin-editor-keyup', {
             detail: {
                 input: inputControl,
-                keyEvent: keyEvent
+                keyEvent: keyEvent,
+                char: this.canvas.getCharMap()[keyEvent.keyCode][keyEvent.shiftKey ? 1 : 0]
             }
         });
         this.canvas.dispatchEvent(clickEvent);
@@ -1582,7 +1525,8 @@ Hypergrid.prototype = {
         var clickEvent = new CustomEvent('fin-editor-keydown', {
             detail: {
                 input: inputControl,
-                keyEvent: keyEvent
+                keyEvent: keyEvent,
+                char: this.canvas.getCharMap()[keyEvent.keyCode][keyEvent.shiftKey ? 1 : 0]
             }
         });
         this.canvas.dispatchEvent(clickEvent);
@@ -1592,7 +1536,8 @@ Hypergrid.prototype = {
         var clickEvent = new CustomEvent('fin-editor-keypress', {
             detail: {
                 input: inputControl,
-                keyEvent: keyEvent
+                keyEvent: keyEvent,
+                char: this.canvas.getCharMap()[keyEvent.keyCode][keyEvent.shiftKey ? 1 : 0]
             }
         });
         this.canvas.dispatchEvent(clickEvent);
@@ -1662,7 +1607,7 @@ Hypergrid.prototype = {
             numColumns += this.getHiddenColumns().length;
             getColumn = this.behavior.getColumn;
         } else {
-            getColumn = this.behavior.getVisibleColumn;
+            getColumn = this.behavior.getActiveColumn;
         }
         getColumn = getColumn.bind(this.behavior);
 
@@ -1724,7 +1669,7 @@ Hypergrid.prototype = {
         var self = this;
         selectedColumnIndexes.forEach(function(selectedColumnIndex) {
             var column = new Array(rowCount);
-            result[self.getVisibleColumnName(selectedColumnIndex)] = column;
+            result[self.behavior.getActiveColumn(selectedColumnIndex).name] = column;
             for (var r = 0; r < rowCount; r++) {
                 column[r] = valOrFunc(self.getValue(selectedColumnIndex, r));
             }
@@ -1752,7 +1697,7 @@ Hypergrid.prototype = {
         var r;
         for (var c = 0; c < colCount; c++) {
             var column = new Array(rowCount);
-            result[this.getVisibleColumnName(c + ox)] = column;
+            result[this.behavior.getActiveColumn(c + ox).name] = column;
             for (r = 0; r < rowCount; r++) {
                 column[r] = valOrFunc(this.getValue(ox + c, oy + r));
             }
@@ -1893,13 +1838,9 @@ Hypergrid.prototype = {
         this.canvas.dispatchEvent(clickEvent);
     },
 
-    fireSyntheticFilterAppliedEvent: function(details) {
-        var event = new CustomEvent('fin-filter-applied', {
-            detail: details
-        });
-        if (this.canvas) {
-            this.canvas.dispatchEvent(event);
-        }
+    fireSyntheticFilterAppliedEvent: function() {
+        var filterEvent = new CustomEvent('fin-filter-applied');
+        this.canvas.dispatchEvent(filterEvent);
     },
 
     /**
@@ -2372,7 +2313,7 @@ Hypergrid.prototype = {
      * @returns {number} The number of columns.
      */
     getColumnCount: function() {
-        return this.behavior.getColumnCount();
+        return this.behavior.getActiveColumnCount();
     },
 
     /**
@@ -2446,30 +2387,8 @@ Hypergrid.prototype = {
      * @returns {undefined|CellEditor} The editor object or `undefined` if no editor or editor already open.
      */
     onEditorActivate: function(event) {
-        var editor,
-            point = event.gridCell;
-
-        if (this.isEditable() || this.isFilterRow(point.y)) {
-            var primEvent = event.primitiveEvent,
-                isDblClick = primEvent && primEvent.type === 'fin-canvas-dblclick';
-
-            editor = this.getCellEditorAt(point.x, point.y, isDblClick);
-
-            if (editor) {
-                var editorPoint = editor.getEditorPoint(),
-                    sameCell = point.equals(editorPoint),
-                    editorAlreadyOpen = this.cellEditor && sameCell;
-
-                if (editorAlreadyOpen) {
-                    editor = undefined;
-                } else {
-                    this.stopEditing(); //other editor is open, close it first
-                    this.editAt(editor, point);
-                }
-            }
-        }
-
-        return editor;
+        var point = event.gridCell;
+        return this.editAt(point);
     },
 
     /**
@@ -2477,12 +2396,10 @@ Hypergrid.prototype = {
      * @summary Get the cell editor.
      * @desc Delegates to the behavior.
      * @returns The cell editor at the given coordinates.
-     * @param {x} x - The horizontal coordinate.
-     * @param {y} y - The vertical coordinate.
-     * @param {boolean} isDblClick - When called from `onEditorActivate`, indicates if event was a double-click.
+     * @param {Point} editPoint - The grid cell coordinates.
      */
-    getCellEditorAt: function(x, y, isDblClick) {
-        return this.behavior.getCellEditorAt(x, y, isDblClick);
+    getCellEditorAt: function(editPoint) {
+        return this.behavior.getCellEditorAt(editPoint);
     },
 
     /**
@@ -2627,7 +2544,7 @@ Hypergrid.prototype = {
             row;
 
         headers.forEach(function(header, c) {
-            headers[c] = behavior.getColumnId(c, 0);
+            headers[c] = behavior.getActiveColumn(c).header;
         });
 
         results.forEach(function(result, r) {
@@ -2657,7 +2574,7 @@ Hypergrid.prototype = {
                 };
 
             for (var c = 0; c < colCount; c++) {
-                row[behavior.getColumnId(c, 0)] = behavior.getValue(c, topRow);
+                row[behavior.getActiveColumn(c).header] = behavior.getValue(c, topRow);
             }
 
             return row;
@@ -2723,8 +2640,8 @@ Hypergrid.prototype = {
      * @desc Autosize the column at colIndex for best fit.
      * @param {number} colIndex - The column index to modify at
      */
-    autosizeColumn: function(colIndex) {
-        var column = this.behavior.getVisibleColumn(colIndex);
+    autosizeColumn: function(activeColumnIndex) {
+        var column = this.behavior.getActiveColumn(activeColumnIndex);
         column.checkColumnAutosizing(true);
         this.computeCellsBounds();
     },
@@ -2838,10 +2755,10 @@ Hypergrid.prototype = {
         this.behavior.moveSingleSelect(this, x, y);
     },
 
-    selectCell: function(x, y) {
+    selectCell: function(x, y, silent) {
         var dontClearRows = this.isCheckboxOnlyRowSelections();
         this.selectionModel.clear(dontClearRows);
-        this.selectionModel.select(x, y, 0, 0);
+        this.selectionModel.select(x, y, 0, 0, silent);
     },
 
     getHeaderColumnCount: function() {
@@ -3300,9 +3217,6 @@ Hypergrid.prototype = {
         }
         this.repaint();
     },
-    getVisibleColumnName: function(x) {
-        return this.behavior.getVisibleColumnName(x);
-    },
     isSingleRowSelectionMode: function() {
         return this.resolveProperty('singleRowSelectionMode');
     },
@@ -3548,10 +3462,17 @@ function valOrFunc(vf) {
     return result || result === 0 ? result : '';
 }
 
-// npm "public" interface
-Hypergrid.behaviors = behaviors;
+/**
+ * @summary Shared localization defaults for all grid instances.
+ * @desc These property values are overridden by those supplied in the `Hypergrid` constructor's `options.localization`.
+ * @property {string|string[]} [options.localization.defaultLocale] - The default locale to use when an explicit `locale` is omitted from localizer constructor calls. Passed to Intl.NumberFomrat` and `Intl.DateFomrat`. See {@ https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl#Locale_identification_and_negotiation|Locale identification and negotiation} for more information. Omitting will use the runtime's local language and region.
+ * @property {object} [options.localization.numberOptions] - Options passed to `Intl.NumberFomrat` for creating the basic "number" localizer.
+ * @property {object} [options.localization.dateOptions] - Options passed to `Intl.DateFomrat` for creating the basic "date" localizer.
+ */
 
-// NOTE: The reason I put "public" in quotes is that in reality all files are accessible with node's sub-folder syntax.
-// Example: var behaviorJSON = require('fin-hypergrid/src/behaviors/JSON');
+Hypergrid.localization = {
+    locale: 'en-US',
+    numberOptions: { maximumFractionDigits: 0 }
+};
 
 module.exports = Hypergrid;

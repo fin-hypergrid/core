@@ -3,7 +3,7 @@
 'use strict';
 
 var popMenu = require('pop-menu');
-var Conditionals = require('filter-tree').Conditionals;
+var Conditionals = require('../Shared').FilterTree.Conditionals;
 
 var ComboBox = require('./ComboBox');
 var prototype = require('./CellEditor').prototype;
@@ -25,43 +25,46 @@ var prototype = require('./CellEditor').prototype;
  */
 var FilterBox = ComboBox.extend('FilterBox', {
 
-    beginEditAt: function(point) {
+    initialize: function() {
 
         // look in the filter, under column filters, for a column filter for this column
-        var filter = this.grid.getGlobalFilter(),
-            column = this.column = this.grid.behavior.columns[point.x],
-            columnName = column.name,
+        var root = this.grid.getGlobalFilter(),
+            columnName = this.column.name,
             columnFilters = this.grid.getGlobalFilter().columnFilters,
-            columnFilterSubtree = filter.getColumnFilter(columnName),
-            columnSchema = filter.schema.lookup(columnName);
+            columnFilterSubtree = root.getColumnFilter(columnName) || {},
+            columnSchema = root.schema.lookup(columnName) || {};
 
 
-        this.opMenu = // get the operator list from the node, schema, typeOpMap, or root:
+        // get the operator list from the node, schema, typeOpMap, or root:
+        // (This mimics the code in FilterLeaf.js's `getOpMenu` function becauase the node may not exist yet.)
+        this.opMenu =
 
-            columnFilterSubtree && columnFilterSubtree.opMenu || // first try column filter node's `operator` list, if any
+            // pull operator list from column schema if available
+            columnSchema.opMenu ||
 
-            columnSchema && ( // ELSE as column filter may not yet exist, try it's schema for `opMenu` or `type`
-                columnSchema.opMenu || // pull operator list from column schema if it has one; IF it doesn't...
-                columnSchema.type &&  // BUT it has a type...
-                filter.typeOpMap && // AND the filter has a defined type-operator map...
-                filter.typeOpMap[columnSchema.type] // THEN use the operator list for the column's type if there is one
-            ) ||
+            // operator list for the column's type if available
+            root.typeOpMap && root.typeOpMap[columnSchema.type || columnFilterSubtree.type] ||
 
-            filter.opMenu; // ELSE try the default operator list (which itself defaults to `Conditionals.defaultOpMenu`)
-
-
-        this.menuModesSource = // get the column filter's `menuModes` object -- contains the states of the drop-down option icons:
-
-            column.menuModes || // first try proxy from last time (because editing may have ended without a column filter to put in the filter tree)
-
-            columnFilterSubtree && columnFilterSubtree.menuModes || // ELSE try column filter's `menuModes` WHEN available
-
-            columnSchema && columnSchema.menuModes || // try use column schema's `menuModes` when defined
-
-            columnFilters.menuModes; // ELSE try the filter default (which itself defaults to operators ON, others OFF; see definition at top of DefaultFilter.js)
+            // default operator list (which itself defaults to `Conditionals.defaultOpMenu`)
+            root.opMenu;
 
 
-        prototype.beginEditAt.call(this, point);
+        // get the column filter's `menuModes` object -- contains the states of the drop-down option icons:
+        this.menuModesSource =
+
+            // first try proxy from last time (because editing may have ended without a column filter to put in the filter tree)
+            this.column.menuModes ||
+
+            // ELSE try column filter's `menuModes` WHEN available
+            columnFilterSubtree.menuModes ||
+            columnFilterSubtree.menuModes ||
+
+            // try use column schema's `menuModes` when defined
+            columnSchema.menuModes ||
+
+            // ELSE try the filter default (which itself defaults to operators ON, others OFF; see definition at top of DefaultFilter.js)
+            columnFilters.menuModes;
+
     },
 
 
@@ -97,7 +100,7 @@ var FilterBox = ComboBox.extend('FilterBox', {
             backgroundColor: '#eff',
             appendOptions: function(optgroup) {
                 var columns = this.grid.behavior.columns,
-                    x = this.editorPoint.x;
+                    x = this.editPoint.x;
 
                 while (optgroup.firstElementChild) {
                     optgroup.firstElementChild.remove();
@@ -107,7 +110,7 @@ var FilterBox = ComboBox.extend('FilterBox', {
                     if (index !== x) {
                         var name = column.name,
                             option = new Option(name);
-                        option.title = '[' + name + ']\r"' + column.getHeader() + '"';
+                        option.title = '[' + name + ']\r"' + column.header + '"';
                         optgroup.appendChild(option);
                     }
                 });

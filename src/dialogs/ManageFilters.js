@@ -7,7 +7,7 @@ var popMenu = require('pop-menu');
 var automat = require('automat');
 
 var Dialog = require('./Dialog');
-var markup = require('../html/markup.html');
+var markup = require('../../html');
 var copyInput = require('../lib/copy-input');
 
 var tabProperties = {
@@ -194,7 +194,7 @@ function decorateFilterInput(ctrl, error) {
     } while (!warningEl);
 
     // show or hide the error
-    warningEl.innerHTML = error || '';
+    warningEl.innerHTML = error.message || error || '';
 }
 
 function onNewColumnMouseDown(evt) { // to be called with filter object as syntax
@@ -311,8 +311,15 @@ function setColumnFilterState(queryLanguage, evt) {
         //        ctrl.blur();
         //        break;
         //    default:
-        var options = { syntax: queryLanguage, alert: true };
-        var error = this.filter.setColumnFilterState(ctrl.name, ctrl.value, options);
+        var error,
+            options = { syntax: queryLanguage, alert: true };
+
+        try {
+            error = this.filter.setColumnFilterState(ctrl.name, ctrl.value, options);
+        } catch (err) {
+            error = err;
+        }
+
         decorateFilterInput(ctrl, error);
         //}
     }

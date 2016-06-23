@@ -26,12 +26,22 @@ gulp.task('browserify', browserify);
 gulp.task('reloadBrowsers', reloadBrowsers);
 gulp.task('serve', browserSyncLaunchServer);
 
+gulp.task('html-templates', function() {
+    return templates('html');
+});
+
+gulp.task('css-templates', function() {
+    return templates('css');
+});
+
 gulp.task('build', function(callback) {
     clearBashScreen();
     runSequence(
         'lint',
         'test',
         'images',
+        'html-templates',
+        'css-templates',
         //'doc',
         //'beautify',
         'browserify',
@@ -42,6 +52,9 @@ gulp.task('build', function(callback) {
 gulp.task('watch', function () {
     gulp.watch([
         srcDir + '**',
+        '!' + srcDir + 'jsdoc/**',
+        './css/*.css',
+        './html/*.html',
         demoDir + 'js/*.js',
         testDir + '**',
         //'../../filter-tree/src/**' // comment off this line and the one below when filter tree on npm
@@ -50,7 +63,7 @@ gulp.task('watch', function () {
     ]);
 
     gulp.watch([
-        demoDir + 'index.html',
+        demoDir + '*.html',
         demoDir + 'css/demo.css',
         buildDir + '*'
     ], [
@@ -94,14 +107,13 @@ function browserify() {
                     $$.rename(name + '.js'),
                     $$.browserify({ debug: true })
                         .on('error', $$.util.log)
+                ),
+                pipe(
+                    $$.rename(name + '.min.js'),
+                    $$.browserify(),
+                    $$.uglify()
+                        .on('error', $$.util.log)
                 )
-                // uncomment following lines to restore min file
-                //,pipe(
-                //    $$.rename(name + '.min.js'),
-                //    $$.browserify(),
-                //    $$.uglify()
-                //        .on('error', $$.util.log)
-                //)
             )
         )
         .pipe(gulp.dest(buildDir));
@@ -164,4 +176,32 @@ function swallowImages() {
         .pipe($$.header(config.dest.header))
         .pipe($$.footer(config.dest.footer))
         .pipe(gulp.dest(config.dest.path, config.dest.options));
+}
+
+function templates(folder) {
+    return gulp.src('./' + folder + '/*.' + folder)
+        .pipe($$.each(function(content, file, callback) {
+            var filename = path.basename(file.path, "." + folder),
+                member = /[^\w]/.test(filename) ? "['" + filename + "']" : "." + filename;
+
+            // convert (groups of) 4 space chars at start of lines to tab(s)
+            do {
+                var len = content.length;
+                content = content.replace(/\n((    )*)    (.*)/, "\n$1\t$3");
+            } while (content.length < len);
+
+            // quote each line and join them into a single string
+            content = 'exports' + member + " = [\n'" + content
+                    .replace(/\\/g, "\\\\") // escape all backslashes
+                    .replace(/'/g, "\\'") // escape all single-quotes
+                    .replace(/\n/g, "',\n'") + "'\n].join('\\n');\n";
+
+            // remove possible blank line at end of each
+            content = content.replace(/,\n''\n]/g, "\n]");
+
+            callback(null, content); // the first argument is an error, if you encounter one
+        }))
+        .pipe($$.concat("index.js"))
+        .pipe($$.header("'use strict';\n\n"))
+        .pipe(gulp.dest(function(file) { return file.base; }));
 }

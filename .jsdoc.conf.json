@@ -4,7 +4,8 @@
         "dictionaries": ["jsdoc","closure"]
     },
     "source": {
-        "include": ["src"]
+        "include": ["src"],
+        "exclude": ["src/behaviors/old"]
     },
     "plugins": ["plugins/markdown"],
     "markdown": {
@@ -18,7 +19,7 @@
     },
     "opts": {
         "template": "jsdoc-template",
-        "tutorials": "jsdoc-tutorials",
+        "tutorials": "./src/jsdoc/tutorials",
         "recurse": true,
         "verbose": true,
         "destination": "./doc/",

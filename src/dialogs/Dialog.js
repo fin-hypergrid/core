@@ -5,12 +5,12 @@
 var automat = require('automat');
 
 var Base = require('../lib/Base');
-var markup = require('../html/markup.html');
+var markup = require('../../html');
 var images = require('../../images');
 var elfor = require('../lib/elfor');
 
 /**
- * Creates and services a DOM element used as a cntainer for a dialog. The standard `markup.diaglog` is simply a div with a _control panel_ containing a close box and a settings gear icon.
+ * Creates and services a DOM element used as a cntainer for a dialog. The standard `markup.dialog` is simply a div with a _control panel_ containing a close box and a settings gear icon.
  *
  * You can supply an alternative dialog template. The interface is:
  * * Class name `hypergrid-dialog`.
@@ -170,24 +170,28 @@ var Dialog = Base.extend('Dialog', {
 function nullPattern() {}
 
 function removeDialog(evt) {
-    if (this.el.parentElement.tagName !== 'BODY') {
-        this.el.parentElement.style.visibility = 'hidden';
-    }
-    this.el.remove();
-    delete this.el;
+    if (evt.target === this.el && evt.propertyName === 'opacity') {
+        if (this.el.parentElement.tagName !== 'BODY') {
+            this.el.parentElement.style.visibility = 'hidden';
+        }
+        this.el.remove();
+        delete this.el;
 
-    this.onClosed();
-    this.terminate();
-    this.closing = false;
-    this.closed = true;
+        this.onClosed();
+        this.terminate();
+        this.closing = false;
+        this.closed = true;
+    }
 }
 
 function hideApp(evt) {
-    this.appVisible('hidden');
-    this.el.removeEventListener('transitionend', this.hideAppBound);
-    this.onOpened();
-    this.opening = false;
-    this.opened = true;
+    if (evt.target === this.el && evt.propertyName === 'opacity') {
+        this.appVisible('hidden');
+        this.el.removeEventListener('transitionend', this.hideAppBound);
+        this.onOpened();
+        this.opening = false;
+        this.opened = true;
+    }
 }
 
 function onClick(evt) {
@@ -200,7 +204,7 @@ function onClick(evt) {
             evt.preventDefault(); // ignore href
             if (this.settings) { this.settings(); }
 
-        } else if (!this.onClick.call(this, evt) && evt.target.tagName === 'A') {
+        } else if (this.onClick && !this.onClick.call(this, evt) && evt.target.tagName === 'A') {
             evt.preventDefault(); // ignore href of handled event
         }
     }
