@@ -54,5 +54,5 @@ We are also maintaining [online API documentation](http://openfin.github.io/fin-
 
 (Cell Rendering information can be found [here](http://openfin.github.io/fin-hypergrid/doc/tutorial-cell-renderer.html).)
 
-* Hypergrid global configurations can be found [here](http://openfin.github.io/fin-hypergrid/doc/module-defaults.html)
+Hypergrid global configurations can be found [here](http://openfin.github.io/fin-hypergrid/doc/module-defaults.html)
     * Use it for modifying various hypergrid features and property defaults
