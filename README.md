@@ -44,6 +44,48 @@ Check out the Table view on Hyperblotter on a Windows machine via [this installe
 * We are currently working on expanding the API to enable application developers to easily provide their own functionality
  * Hypergrid will have no opinion on how the underlying data should be pivoted, but will remain capable of presenting pivoted data
 * The current filtering and analytics modules will become separate npm modules/JavaScript files that can be forked and further developed
+
+### Integrating
+
+This a basic example that embeds fin-hypergrid:
+```html
+<!doctype html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" >
+</head>
+<body>
+
+    <div id="fin-grid"></div>
+
+    <script src="https://openfin.github.io/fin-hypergrid/build/fin-hypergrid.js"></script>
+    <script>
+        var grid = new fin.Hypergrid('#fin-grid', {
+            data: [
+                {'symbol':'APPL', 'name':'Apple Inc.', 'prevclose':'93.13' },
+                { 'symbol':'MSFT', 'name':'Microsoft Corporation', 'prevclose':'51.91' },
+                { 'symbol':'TSLA', 'name':'Tesla Motors Inc.', 'prevclose':'196.40' },
+                { 'symbol':'IBM', 'name':'International Business Machines Corp', 'prevclose':'155.35' }
+            ],
+            schema: [ 'symbol', 'name','prevclose']
+        });
+        
+        grid.addProperties({
+            showRowNumbers:false, 
+            noDataMessage: "", 
+            columnAutosizing: false,
+            showFilterRow:false
+        });
+    </script>
+</body>
+</html>
+```
+
+Will look like:
+
+<img src="images/README/simple.png">
+
+
 ### Documentation
 
 Essential documentation and examples will be added to this page in the near future.
