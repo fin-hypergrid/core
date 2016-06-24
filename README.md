@@ -42,11 +42,7 @@ Check out the Table view on Hyperblotter on a Windows machine via [this installe
 ###### The Filtering & Analytics (sorting & aggregation) modules provided will be broken out of Hypergrid
 
 * We are currently working on expanding the API to enable application developers to easily provide their own functionality
-<<<<<<< cf6a2cad99664051ea21dff012ccc3f82fedea22
 * Hypergrid will have no opinion on how the underlying data should be pivoted, but will remain capable of presenting pivoted data
-=======
- * Hypergrid will have no opinion on how the underlying data should be pivoted, but will remain capable of presenting pivoted data
->>>>>>> updated readme to match master
 * The current filtering and analytics modules will become separate npm modules/JavaScript files that can be forked and further developed
 
 ### Integrating
@@ -85,7 +81,7 @@ Will look like:
 
 Essential documentation and examples will be added to this page in the near future.
 
-We are also maintaining [online API documentation](http://openfin.github.io/fin-hypergrid/doc/Hypergrid.html) for all public objects and modules. This documentation is necessarily a on-going work-in-progress.
+We are also maintaining [online API documentation](http://openfin.github.io/fin-hypergrid/doc/Hypergrid.html) for all public objects and modules - this documentation is necessarily a on-going work-in-progress
 
 (Cell editor information can be found [here](http://openfin.github.io/fin-hypergrid/doc/tutorial-cell-editors.html).)
 
