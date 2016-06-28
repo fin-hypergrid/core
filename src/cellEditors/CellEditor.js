@@ -392,7 +392,6 @@ var CellEditor = Base.extend('CellEditor', {
         el.style.left = el.style.top = 0; // work-around: move to upper left
 
         this.input.focus();
-        this.selectAll();
 
         el.style.left = leftWas;
         el.style.top = topWas;
