@@ -1,0 +1,30 @@
+<!doctype html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" >
+</head>
+<body>
+<div id="fin-grid"></div>
+
+<script src="https://openfin.github.io/fin-hypergrid/build/fin-hypergrid.js"></script>
+<script>
+    var grid = new fin.Hypergrid('#fin-grid', {
+        data: [
+            { 'symbol':'APPL', 'name':'Apple Inc.', 'prevclose':'93.13' },
+            { 'symbol':'MSFT', 'name':'Microsoft Corporation', 'prevclose':'51.91' },
+            { 'symbol':'TSLA', 'name':'Tesla Motors Inc.', 'prevclose':'196.40' },
+            { 'symbol':'IBM', 'name':'International Business Machines Corp', 'prevclose':'155.35' }
+        ]
+    });
+
+    grid.addProperties({
+        noDataMessage: "", // Message to show if the grid is bound to an empty list
+        columnAutosizing: false, //Whether to resize the columns automatically
+        showFilterRow:false, // Display of row dedicated to filtering by text input
+        cellSelection:false, // Ability to select and copy cells
+        rowSelection: false, // Ability to select and copy rows
+        columnSelection:false // Ability to select and copy rows
+    });
+</script>
+</body>
+</html>
