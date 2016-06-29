@@ -53,7 +53,7 @@ Check out the Table view on Hyperblotter on a Windows machine via [this installe
 
 This a basic example that embeds fin-hypergrid:
 ```html
-<!doctype html>
+<!DOCTYPE html>
 <html>
 <head>
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8" >
@@ -64,21 +64,13 @@ This a basic example that embeds fin-hypergrid:
 
     <script src="https://openfin.github.io/fin-hypergrid/build/fin-hypergrid.js"></script>
     <script>
-        var grid = new fin.Hypergrid('#fin-grid', {
+        new fin.Hypergrid('#fin-grid', {
             data: [
-                {'symbol':'APPL', 'name':'Apple Inc.', 'prevclose':'93.13' },
-                { 'symbol':'MSFT', 'name':'Microsoft Corporation', 'prevclose':'51.91' },
-                { 'symbol':'TSLA', 'name':'Tesla Motors Inc.', 'prevclose':'196.40' },
-                { 'symbol':'IBM', 'name':'International Business Machines Corp', 'prevclose':'155.35' }
-            ],
-            schema: [ 'symbol', 'name','prevclose']
-        });
-        
-        grid.addProperties({
-            showRowNumbers:false, 
-            noDataMessage: "", 
-            columnAutosizing: false,
-            showFilterRow:false
+                { symbol: 'APPL', name: 'Apple Inc.', prevclose: 93.13 },
+                { symbol: 'MSFT', name: 'Microsoft Corporation', prevclose: 51.91 },
+                { symbol: 'TSLA', name: 'Tesla Motors Inc.', prevclose: 196.40 },
+                { symbol: 'IBM', name: 'International Business Machines Corp', prevclose: 155.35 }
+            ]
         });
     </script>
 </body>
