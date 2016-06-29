@@ -19,7 +19,7 @@ module.exports = {
      * @type {cssFont}
      * @instance
      */
-    noDataMessage: 'no data to display',
+    noDataMessage: '',
 
 
     /**
@@ -512,14 +512,14 @@ module.exports = {
      * @type {boolean}
      * @instance
      */
-    showRowNumbers: true,
+    showRowNumbers: false,
 
     /**
      * @default
      * @type {boolean}
      * @instance
      */
-    showTreeColumn: true,
+    showTreeColumn: false,
 
     /**
      * @default
@@ -533,7 +533,7 @@ module.exports = {
      * @type {boolean}
      * @instance
      */
-    showFilterRow: true,
+    showFilterRow: false,
 
 
     /** Clicking in a cell "selects" it; it is added to the select region and repainted with "cell selection" colors.
@@ -541,21 +541,21 @@ module.exports = {
      * @type {boolean}
      * @instance
      */
-    cellSelection: true,
+    cellSelection: false,
 
     /** Clicking in a row header (leftmost column) "selects" the row; the entire row is added to the select region and repainted with "row selection" colors.
      * @default
      * @type {boolean}
      * @instance
      */
-    columnSelection: true,
+    columnSelection: false,
 
     /** Clicking in a column header (top row) "selects" the column; the entire column is added to the select region and repainted with "column selection" colors.
      * @default
      * @type {boolean}
      * @instance
      */
-    rowSelection: true,
+    rowSelection: false,
 
     /**
      * @default
@@ -583,7 +583,7 @@ module.exports = {
      * @type {boolean}
      * @instance
      */
-    columnAutosizing: true,
+    columnAutosizing: false,
 
     /**
      * @default
