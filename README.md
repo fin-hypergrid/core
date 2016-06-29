@@ -42,14 +42,14 @@ Check out the Table view on Hyperblotter on a Windows machine via [this installe
 ###### The Filtering & Analytics (sorting & aggregation) modules provided will be broken out of Hypergrid
 
 * We are currently working on expanding the API to enable application developers to easily provide their own functionality
-* Hypergrid will have no opinion on how the underlying data should be pivoted, but will remain capable of presenting pivoted data
+ * Hypergrid will have no opinion on how the underlying data should be pivoted, but will remain capable of presenting pivoted data
 * The current filtering and analytics modules will become separate npm modules/JavaScript files that can be forked and further developed
 
 ### Integrating
 
 This a basic example that embeds fin-hypergrid:
 ```html
-<!DOCTYPE html>
+<!doctype html>
 <html>
 <head>
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8" >
@@ -60,13 +60,21 @@ This a basic example that embeds fin-hypergrid:
 
     <script src="https://openfin.github.io/fin-hypergrid/build/fin-hypergrid.js"></script>
     <script>
-        new fin.Hypergrid('#fin-grid', {
+        var grid = new fin.Hypergrid('#fin-grid', {
             data: [
-                { symbol: 'APPL', name: 'Apple Inc.', prevclose: 93.13 },
-                { symbol: 'MSFT', name: 'Microsoft Corporation', prevclose: 51.91 },
-                { symbol: 'TSLA', name: 'Tesla Motors Inc.', prevclose: 196.40 },
-                { symbol: 'IBM', name: 'International Business Machines Corp', prevclose: 155.35 }
-            ]
+                {'symbol':'APPL', 'name':'Apple Inc.', 'prevclose':'93.13' },
+                { 'symbol':'MSFT', 'name':'Microsoft Corporation', 'prevclose':'51.91' },
+                { 'symbol':'TSLA', 'name':'Tesla Motors Inc.', 'prevclose':'196.40' },
+                { 'symbol':'IBM', 'name':'International Business Machines Corp', 'prevclose':'155.35' }
+            ],
+            schema: [ 'symbol', 'name','prevclose']
+        });
+        
+        grid.addProperties({
+            showRowNumbers:false, 
+            noDataMessage: "", 
+            columnAutosizing: false,
+            showFilterRow:false
         });
     </script>
 </body>
@@ -81,10 +89,11 @@ Will look like:
 
 Essential documentation and examples will be added to this page in the near future.
 
-We are also maintaining [online API documentation](http://openfin.github.io/fin-hypergrid/doc/Hypergrid.html) for all public objects and modules - this documentation is necessarily a on-going work-in-progress
+We are also maintaining [online API documentation](http://openfin.github.io/fin-hypergrid/doc/Hypergrid.html) for all public objects and modules. This documentation is necessarily a on-going work-in-progress.
 
 (Cell editor information can be found [here](http://openfin.github.io/fin-hypergrid/doc/tutorial-cell-editors.html).)
 
 (Cell Rendering information can be found [here](http://openfin.github.io/fin-hypergrid/doc/tutorial-cell-renderer.html).)
 
-Hypergrid global configurations can be found [here](http://openfin.github.io/fin-hypergrid/doc/module-defaults.html). Use it for modifying various hypergrid features and property defaults.
+Hypergrid global configurations can be found [here](http://openfin.github.io/fin-hypergrid/doc/module-defaults.html)
+Use it for modifying various hypergrid features and property defaults
