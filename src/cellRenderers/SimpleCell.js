@@ -359,7 +359,7 @@ function layerColors(gc, colors, x, y, width, height) {
 
 function valOrFunc(vf, config) {
     var result = (typeof vf)[0] === 'f' ? vf(config) : vf;
-    return result || result === 0 ? result : '';
+    return result || result === 0 || result === false ? result : '';
 }
 
 function alpha(cssColorSpec) {
