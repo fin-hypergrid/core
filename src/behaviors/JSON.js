@@ -245,7 +245,7 @@ var JSON = Local.extend('behaviors.JSON', {
         return this.dataModel.getActiveColumns();
     },
     getVisibleColumns: function() {
-        this.deprecated('getVisibleColumns()', 'getActiveColumns()', '1.0.6', arguments);
+        return this.deprecated('getVisibleColumns()', 'getActiveColumns()', '1.0.6', arguments);
     },
 
     getSelectedRows: function() {
