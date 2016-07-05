@@ -4,9 +4,6 @@
 
 require('./lib/polyfills'); // Installs misc. polyfills into global objects, as needed
 
-var extend = require('extend-me');
-extend.debug = true;
-
 var FinBar = require('finbars');
 var Canvas = require('fincanvas');
 var Point = require('rectangular').Point;
