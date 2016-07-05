@@ -82,6 +82,10 @@ var JSON = DataModel.extend('dataModels.JSON', {
         return this.sources.aggregator.hasAggregates();
     },
 
+    isTreeview: function() {
+        return !!(this.sources.treeview && this.sources.treeview.viewMakesSense());
+    },
+
     /**
      * @memberOf dataModels.JSON.prototype
      * @returns {boolean}
@@ -91,7 +95,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
     },
 
     getDataSource: function() {
-        return this.dataSource;
+        return this.deprecated('getDataSource()', 'dataSource', '1.0.7');
     },
 
     getGlobalFilterDataSource: function() {
@@ -103,7 +107,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
     },
 
     getFilteredData: function() {
-        var ds = this.getDataSource();
+        var ds = this.dataSource;
         var count = ds.getRowCount();
         var result = new Array(count);
         for (var y = 0; y < count; y++) {
@@ -136,13 +140,13 @@ var JSON = DataModel.extend('dataModels.JSON', {
             // if (hasHierarchyColumn) {
             //     y += 1;
             // }
-            value = this.getDataSource().getValue(x, y - headerRowCount);
+            value = this.dataSource.getValue(x, y - headerRowCount);
         }
         return value;
     },
 
     getDataIndex: function(y) {
-        return this.getDataSource().getDataIndex(y - this.grid.getHeaderRowCount());
+        return this.dataSource.getDataIndex(y - this.grid.getHeaderRowCount());
     },
 
     /**
@@ -197,7 +201,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
         if (y < headerRowCount) {
             this.setHeaderRowValue(x, y, value);
         } else {
-            this.getDataSource().setValue(x, y - headerRowCount, value);
+            this.dataSource.setValue(x, y - headerRowCount, value);
         }
         this.changed();
     },
@@ -260,7 +264,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
      * @returns {number}
      */
     getRowCount: function() {
-        var count = this.getDataSource().getRowCount();
+        var count = this.dataSource.getRowCount();
         count += this.grid.getHeaderRowCount();
         return count;
     },
@@ -278,7 +282,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
      * @param {string[]} headers
      */
     setHeaders: function(headers) {
-        this.getDataSource().setHeaders(headers);
+        this.dataSource.setHeaders(headers);
     },
 
     /**
@@ -286,7 +290,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
      * @param {string[]} fields
      */
     setFields: function(fields) {
-        this.getDataSource().setFields(fields);
+        this.dataSource.setFields(fields);
     },
 
     /**
@@ -294,7 +298,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
      * @returns {string[]}
      */
     getFields: function() {
-        return this.getDataSource().getFields();
+        return this.dataSource.getFields();
     },
 
     /** @typedef {object} dataSourcePipelineObject
@@ -352,6 +356,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
             sources[layer.name] = dataSource;
         }.bind(this, this.sources));
 
+        this.source = this.sources.source;
         this.dataSource = this.dataSource || dataSource; // tip of main trunk if never branched
 
         this.applyAnalytics();
@@ -391,7 +396,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
      * @returns {Array<Array>}
      */
     getTopTotals: function() {
-        return this.hasAggregates() ? this.getDataSource().getGrandTotals() : this.topTotals;
+        return this.hasAggregates() ? this.dataSource.getGrandTotals() : this.topTotals;
     },
 
     /**
@@ -407,7 +412,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
      * @returns {Array<Array>}
      */
     getBottomTotals: function() {
-        return this.hasAggregates() ? this.getDataSource().getGrandTotals() : this.bottomTotals;
+        return this.hasAggregates() ? this.dataSource.getGrandTotals() : this.bottomTotals;
     },
 
     /**
@@ -471,7 +476,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
         });
     },
     getVisibleColumns: function() {
-        this.deprecated('getVisibleColumns()', 'getActiveColumns()', '1.0.6', arguments);
+        return this.deprecated('getVisibleColumns()', 'getActiveColumns()', '1.0.6', arguments);
     },
 
     /**
@@ -681,15 +686,156 @@ var JSON = DataModel.extend('dataModels.JSON', {
      */
     cellClicked: function(cell, event) {
         if (
-            this.sources.treeview && event.dataCell.x === this.sources.treeview.treeColumnIndex ||
+            this.isTreeview() && event.dataCell.x === this.sources.treeview.treeColumnIndex ||
             this.hasAggregates() && event.gridCell.x === 0
         ) {
-            var expandable = this.getDataSource().click(event.gridCell.y - this.grid.getHeaderRowCount());
-            if (expandable) {
+            var y = event.gridCell.y - this.grid.getHeaderRowCount();
+            this.toggleRow(y);
+        }
+    },
+
+    /**
+     * @summary Toggle the drill-down control of a the specified row.
+     * @desc Ignored if the specified row has no drill-down control.
+     * @param y
+     * @param {boolean} [expand] - One of:
+     * * `true` - expands row (if expandable)
+     * * `false` - collapses row (if expandable)
+     * * `undefined` - toggles state of row (if expandable)
+     * @returns {undefined|boolean} One of:
+     * * `undefined` - row was not expandable
+     * * `true` - row was expandable _and_ state changed
+     * * `false` - row was expandable _but_ state did _not_ change
+     * @memberOf dataModels.JSON.prototypedrilldown
+     */
+    toggleRow: function(y, expand) {
+        var changed;
+        if (this.isTreeview() || this.hasAggregates()) {
+            changed = this.dataSource.click(y, expand);
+            if (changed) {
                 this.applyAnalytics(true);
                 this.changed();
             }
         }
+        return changed;
+    },
+
+    /**
+     * @summary Toggle all revealed drill-down controls.
+     * @desc Works its way from the bottom of the table to the top. Ignored for rows without a drill-down control or rows hidden inside of collapsed drill-downs.
+     * @param {boolean|number} [depth] - One of:
+     * * `undefined` (or omitted) - Expand all revealed expandable rows that are currently collapsed; collapse all revealed expandable rows that are currently expanded. _Not recommended. Results are unpredictable unless you know the current state of the drill-downs._
+     * * `true` - Expand all revealed expandable rows that are currently collapsed.
+     * * `false` (or `0`) - Collapse all revealed expandable rows that are currently expanded.
+     * * number > 0 - Expands revealed expandable rows that are currently collapsed but only to the given depth.
+     * @param {boolean} [smartApply=false] - One of:
+     * * `true` - Apply and repaint if and only if a change was detected.
+     * * `false` - Always apply and repaint.
+     * * `undefined` - Never apply and repaint.
+     * @returns {boolean} If any rows had a change of state.
+     */
+    toggleAllRows: function(expand, depth, smartApply) {
+        var changed = false;
+        if (this.isTreeview() || this.hasAggregates()) {
+            var initial, limit = this.dataSource.getRowCount(), increment;
+            if (expand) {
+                // work down from top
+                initial = 0;
+                increment = +1;
+            } else {
+                // work up from bottom
+                initial = limit - 1;
+                limit = increment = -1;
+            }
+            for (var y = initial; y !== limit; y += increment) {
+                if (this.dataSource.click(y, expand, depth)) {
+                    changed = true;
+                }
+            }
+            if (!smartApply || changed && smartApply) {
+                this.applyAnalytics(true);
+                this.changed();
+            }
+        }
+        return changed;
+    },
+
+    /**
+     * @summary Expand all rows to the given depth.
+     * @desc When called with a depth < Infinity, expands those rows but does not collapse deeper rows. In such a case, consider calling `expandAndCollapseRows` with that depth instead.
+     * @param {number} [depth=Infinity]
+     * @param {boolean} [smartApply=false] - One of:
+     * * `true` - Apply and repaint if and only if a change was detected.
+     * * `false` - Always apply and repaint.
+     * * `undefined` - Never apply and repaint.
+     * @returns {boolean} If any rows had a change of state.
+     */
+    expandRowsToDepth: function(depth, smartApply) {
+        var changed = false;
+        while (this.toggleAllRows(true, depth || Infinity)) {
+            changed = true;
+        }
+        if (!smartApply || changed && smartApply) {
+            this.applyAnalytics(true);
+            this.changed();
+        }
+        return changed;
+    },
+
+    /**
+     * Convenience function to expand all rows.
+     * @param {boolean} [smartApply=false] - One of:
+     * * `true` - Apply and repaint if and only if a change was detected.
+     * * `false` - Always apply and repaint.
+     * * `undefined` - Never apply and repaint.
+     * @returns {*}
+     */
+    expandAllRows: function(smartApply) {
+        return this.expandRowsToDepth(Infinity, smartApply);
+    },
+
+    /**
+     * @summary Collapse rows deeper than (or equal to) the given depth.
+     * @desc Only affects "revealed" rows (those rows not hidden inside of currently collapsed rows); to affect all rows, call `expandAndCollapseRows` instead.
+     * @param {number} [depth=0]
+     * @param {boolean} [smartApply=false] - One of:
+     * * `true` - Apply and repaint if and only if rows were collapsed.
+     * * `false` - Always apply and repaint.
+     * * `undefined` - Never apply and repaint.
+     * @returns {boolean} If any rows had a change of state.
+     */
+    collapseRowsFromDepth: function(depth, smartApply) {
+        return this.toggleAllRows(false, -depth || 0, smartApply);
+    },
+
+    /**
+     * @summary Expand all rows to the given depth and collapse all other rows.
+     * @desc Call without a `depth` to collapse all rows, including those that may be expanding even though not currently revealed (because hidden inside of currently collapsed rows).
+     * @param {number} [depth=0]
+     * @param {boolean} [apply=false] - One of:
+     * * `true` - Always apply and repaint. (Note that this logic differs from those methods that take `smartApply`.)
+     * * `false` - Always apply and repaint.
+     * * `undefined` - Never apply and repaint.
+     * @returns {boolean} Always returns `true`.
+     */
+    expandAndCollapseRows: function(depth, apply) {
+        this.expandAllRows();
+        this.collapseRowsFromDepth(depth, apply);
+        return true;
+    },
+
+    revealRowByID: function(ID, smartApply) {
+        var changed;
+
+        if (this.isTreeview()) {
+            changed = this.sources.treeview.revealRow(ID);
+            if (!smartApply || changed && smartApply) {
+                this.applyAnalytics(true);
+                this.changed();
+            }
+        }
+
+        return changed;
     },
 
     /**
@@ -703,7 +849,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
             var topTotals = this.getTopTotals();
             return topTotals[y - (headerRowCount - topTotals.length)];
         }
-        return this.getDataSource().getRow(y - headerRowCount);
+        return this.dataSource.getRow(y - headerRowCount);
     },
 
     /**
@@ -752,7 +898,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
         if (this.hasAggregates()) {
             y += 1;
         }
-        return this.getDataSource().getValue(index, y);
+        return this.dataSource.getValue(index, y);
     },
 
     /**
