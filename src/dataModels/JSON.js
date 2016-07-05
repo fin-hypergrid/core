@@ -88,6 +88,10 @@ var JSON = DataModel.extend('dataModels.JSON', {
         return result;
     },
 
+    isTreeview: function() {
+        return !!(this.sources.treeview && this.sources.treeview.viewMakesSense());
+    },
+
     /**
      * @memberOf dataModels.JSON.prototype
      * @returns {boolean}
