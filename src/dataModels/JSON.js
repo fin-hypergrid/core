@@ -91,7 +91,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
     },
 
     getDataSource: function() {
-        return this.dataSource;
+        return this.deprecated('getDataSource()', 'dataSource', '1.0.7');
     },
 
     getGlobalFilterDataSource: function() {
@@ -103,7 +103,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
     },
 
     getFilteredData: function() {
-        var ds = this.getDataSource();
+        var ds = this.dataSource;
         var count = ds.getRowCount();
         var result = new Array(count);
         for (var y = 0; y < count; y++) {
@@ -136,13 +136,13 @@ var JSON = DataModel.extend('dataModels.JSON', {
             // if (hasHierarchyColumn) {
             //     y += 1;
             // }
-            value = this.getDataSource().getValue(x, y - headerRowCount);
+            value = this.dataSource.getValue(x, y - headerRowCount);
         }
         return value;
     },
 
     getDataIndex: function(y) {
-        return this.getDataSource().getDataIndex(y - this.grid.getHeaderRowCount());
+        return this.dataSource.getDataIndex(y - this.grid.getHeaderRowCount());
     },
 
     /**
@@ -197,7 +197,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
         if (y < headerRowCount) {
             this.setHeaderRowValue(x, y, value);
         } else {
-            this.getDataSource().setValue(x, y - headerRowCount, value);
+            this.dataSource.setValue(x, y - headerRowCount, value);
         }
         this.changed();
     },
@@ -260,7 +260,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
      * @returns {number}
      */
     getRowCount: function() {
-        var count = this.getDataSource().getRowCount();
+        var count = this.dataSource.getRowCount();
         count += this.grid.getHeaderRowCount();
         return count;
     },
@@ -278,7 +278,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
      * @param {string[]} headers
      */
     setHeaders: function(headers) {
-        this.getDataSource().setHeaders(headers);
+        this.dataSource.setHeaders(headers);
     },
 
     /**
@@ -286,7 +286,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
      * @param {string[]} fields
      */
     setFields: function(fields) {
-        this.getDataSource().setFields(fields);
+        this.dataSource.setFields(fields);
     },
 
     /**
@@ -294,7 +294,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
      * @returns {string[]}
      */
     getFields: function() {
-        return this.getDataSource().getFields();
+        return this.dataSource.getFields();
     },
 
     /** @typedef {object} dataSourcePipelineObject
@@ -392,7 +392,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
      * @returns {Array<Array>}
      */
     getTopTotals: function() {
-        return this.hasAggregates() ? this.getDataSource().getGrandTotals() : this.topTotals;
+        return this.hasAggregates() ? this.dataSource.getGrandTotals() : this.topTotals;
     },
 
     /**
@@ -408,7 +408,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
      * @returns {Array<Array>}
      */
     getBottomTotals: function() {
-        return this.hasAggregates() ? this.getDataSource().getGrandTotals() : this.bottomTotals;
+        return this.hasAggregates() ? this.dataSource.getGrandTotals() : this.bottomTotals;
     },
 
     /**
@@ -472,7 +472,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
         });
     },
     getVisibleColumns: function() {
-        this.deprecated('getVisibleColumns()', 'getActiveColumns()', '1.0.6', arguments);
+        return this.deprecated('getVisibleColumns()', 'getActiveColumns()', '1.0.6', arguments);
     },
 
     /**
@@ -704,7 +704,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
             var topTotals = this.getTopTotals();
             return topTotals[y - (headerRowCount - topTotals.length)];
         }
-        return this.getDataSource().getRow(y - headerRowCount);
+        return this.dataSource.getRow(y - headerRowCount);
     },
 
     /**
@@ -753,7 +753,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
         if (this.hasAggregates()) {
             y += 1;
         }
-        return this.getDataSource().getValue(index, y);
+        return this.dataSource.getValue(index, y);
     },
 
     /**

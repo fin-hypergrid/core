@@ -392,7 +392,7 @@ Localization.prototype = {
     },
     deprecated: deprecated,
     set: function(name) {
-        this.deprecated('set(name, localizer)', 'add(name, localizer)', '1.0.6', arguments);
+        return this.deprecated('set(name, localizer)', 'add(name, localizer)', '1.0.6', arguments);
     },
 
     /**
