@@ -15,5 +15,5 @@
         { ID: 10, parentID: null, State: 'France', Latitude: 46.1274793, Longitude: -2.288454 },
         { ID: 11, parentID: 10, State: 'Paris', Latitude: 48.8588376, Longitude: 2.2773459 },
     ];
-    window.treedata = data;
+    window.treeData = data;
 })();

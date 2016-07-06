@@ -9,7 +9,7 @@
  *
  * @mixin
  */
-var drilldown = {
+var drillDown = {
 
     /**
      * @summary Toggle all revealed rows with drill-down controls.
@@ -140,7 +140,7 @@ var drilldown = {
 
 };
 
-Object.defineProperty(drilldown, 'mixInTo', {  // non-enumerable
+Object.defineProperty(drillDown, 'mixInTo', {  // non-enumerable
     value: function(target) {
         Object.keys(this).forEach(function(key) {
             target[key] = this[key];
@@ -148,4 +148,4 @@ Object.defineProperty(drilldown, 'mixInTo', {  // non-enumerable
     }
 });
 
-module.exports = drilldown;
+module.exports = drillDown;

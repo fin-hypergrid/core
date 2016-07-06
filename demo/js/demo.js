@@ -1,12 +1,19 @@
 /* eslint-env browser */
 
-/* globals fin, people1, people2, treedata, vent */
+/* globals fin, people1, people2, treeData, vent */
 
 /* eslint-disable no-alert, no-unused-vars */
 
 'use strict';
 
 window.onload = function() {
+
+    var Hypergrid = fin.Hypergrid;
+    var drillDown = Hypergrid.drillDown;
+    var treeView = Hypergrid.treeView;
+
+    // Install the drill-down mixin
+    drillDown.mixInTo(Hypergrid.dataModels.JSON.prototype);
 
     // List of properties to show as checkboxes in this demo's "dashboard"
     var toggleProps = [
@@ -81,18 +88,13 @@ window.onload = function() {
         }
     ];
 
-    // add the treeview mixin
-    Object.keys(fin.Hypergrid.drilldownAPI).forEach(function(key) {
-        fin.Hypergrid.dataModels.JSON.prototype[key] = fin.Hypergrid.drilldownAPI[key];
-    });
-
     // restore previous "opinionated" headerify behavior
-    var headerify = fin.Hypergrid.analytics.util.headerify;
+    var headerify = Hypergrid.analytics.util.headerify;
     headerify.transform = headerify.capitalize;
 
     function derivedPeopleSchema(columns) {
         // create a hierarchical schema organized by alias
-        var factory = new fin.Hypergrid.ColumnSchemaFactory(columns);
+        var factory = new Hypergrid.ColumnSchemaFactory(columns);
         factory.organize(/^(one|two|three|four|five|six|seven|eight)/i, { key: 'alias' });
         var columnSchema = factory.lookup('last_name');
         if (columnSchema) {
@@ -120,7 +122,7 @@ window.onload = function() {
             schema: peopleSchema,
             margin: { bottom: '17px' }
         },
-        grid = window.g = new fin.Hypergrid('div#json-example', gridOptions),
+        grid = window.g = new Hypergrid('div#json-example', gridOptions),
         behavior = window.b = grid.behavior,
         dataModel = window.m = behavior.dataModel,
         idx = behavior.columnEnum;
@@ -153,7 +155,7 @@ window.onload = function() {
         { label: 'toggle empty data', onclick: toggleEmptyData },
         { label: 'set data 1 (5000 rows)', onclick: setData.bind(null, people1) },
         { label: 'set data 2 (10000 rows)', onclick: setData.bind(null, people2) },
-        { label: 'set data 3 (treedata)', onclick: function() { dataset = addTreeDataSource(grid, treedata); } },
+        { label: 'set data 3 (tree data)', onclick: addTreeDataSource },
         { label: 'reset', onclick: grid.reset.bind(grid)}
 
     ].forEach(function(item) {
@@ -191,13 +193,12 @@ window.onload = function() {
             stdDevPets: rollups.stddev(2)
         };
 
-    function toggleTreeview() {
-        var treeViewOptions = this.checked && { treeColumnName: 'State'};
-        behavior.setRelation(treeViewOptions);
-    }
-
     function toggleAggregates() {
         behavior.setAggregates(this.checked ? aggregates : []);
+    }
+
+    function toggleTreeview() {
+        treeView.toggle.call(this, behavior);
     }
 
     var styleRowsFromData;
@@ -225,49 +226,11 @@ window.onload = function() {
     };
 */
 
-    /* eslint-disable no-shadow */
-    function addTreeDataSource(grid, data) {
-        var behavior = grid.behavior,
-            dataModel = behavior.dataModel,
-            idx = behavior.columnEnum;
-
-        // Optional: Clone the default pipeline.
-        // If you don't do this, the mutated pipeline will be shared among all grid instances.
-        dataModel.pipeline = Object.getPrototypeOf(dataModel).pipeline.slice();
-
-        // Insert the treeview after source
-        var pipe = {
-            type: 'DataSourceTreeview',
-            test: isTreeview
-        };
-        dataModel.addPipe(pipe, 'JSDataSource');
-
-        // Reset the pipeline, pointing at some tree (self-joined) data
-        behavior.setData(data);
-
-        // Only show the data columns; don't show the ID and parentID columns
-        grid.setState({
-            columnIndexes: [ idx.STATE, idx.LATITUDE, idx.LONGITUDE ],
-            checkboxOnlyRowSelections: true
-        });
-
-        return data;
-
-        /**
-         *
-         * @param {number} [columnIndex] If given, also checks that the column clicked is the tree column.
-         * @returns {boolean}
-         */
-        function isTreeview(event) {
-            var treeview = this.sources.treeview,
-                result = !!(treeview && treeview.viewMakesSense());
-            if (result && event) {
-                result = event.dataCell.x === treeview.treeColumnIndex;
-            }
-            return result;
-        }
+    function addTreeDataSource() {
+        treeView.addDataSourceTo(dataModel);
+        treeView.setData(grid, treeData);
+        dataset = treeData;
     }
-    /* eslint-enable no-shadow */
 
     var topTotals = [
             ['one', 'two', '3', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten'],
@@ -324,9 +287,9 @@ window.onload = function() {
     //sort ascending on the first column (first name)
     //behavior.toggleSort(0);
 
-    var upDown = fin.Hypergrid.images['down-rectangle'];
-    var upDownSpin = fin.Hypergrid.images['up-down-spin'];
-    var downArrow = fin.Hypergrid.images.calendar;
+    var upDown = Hypergrid.images['down-rectangle'];
+    var upDownSpin = Hypergrid.images['up-down-spin'];
+    var downArrow = Hypergrid.images.calendar;
 
     // CUSTOM CELL RENDERER
     var REGEXP_CSS_HEX6 = /^#(..)(..)(..)$/,
@@ -452,7 +415,7 @@ window.onload = function() {
 
             config.halign = 'left';
 
-            if (dataset === treedata) {
+            if (dataset === treeData) {
                 n = behavior.getRow(y).__DEPTH;
                 hex = n ? (105 + 75 * n).toString(16) : '00';
                 config.backgroundColor = '#' + hex + hex + hex;
@@ -1271,7 +1234,7 @@ window.onload = function() {
     }
 
     function resetFilter() {
-        grid.setGlobalFilter(fin.Hypergrid.behaviors.Behavior.prototype.getNewFilter.call(grid.behavior));
+        grid.setGlobalFilter(Hypergrid.behaviors.Behavior.prototype.getNewFilter.call(grid.behavior));
     }
 
     function redIfStartsWithS(config) {
