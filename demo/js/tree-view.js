@@ -4,22 +4,23 @@
 
 'use strict';
 
-var drilldown = fin.Hypergrid.drilldown;
-var treeview = fin.Hypergrid.treeview;
+var Hypergrid = fin.Hypergrid;
+var drillDown = Hypergrid.drillDown;
+var treeView = Hypergrid.treeView;
 
 var grid, behavior, dataModel;
 
 window.onload = function() {
 
-    grid = new fin.Hypergrid('div#tree-example', { data: treedata });
+    grid = new Hypergrid('div#tree-example', { data: treedata });
     dataModel = grid.behavior.dataModel;
 
-    drilldown.mixInTo(fin.Hypergrid.dataModels.JSON.prototype);
-    treeview.addDataSourceTo(dataModel);
-    treeview.setData(grid, treedata);
+    drillDown.mixInTo(Hypergrid.dataModels.JSON.prototype);
+    treeView.addDataSourceTo(dataModel);
+    treeView.setData(grid, treeData);
 
     document.querySelector('input[type=checkbox]').onclick = function() {
-        if (treeview.toggle.call(this, grid.behavior)) {
+        if (treeView.toggle.call(this, grid.behavior)) {
             dataModel.getCell = getCell;
         } else {
             delete dataModel.getCell;

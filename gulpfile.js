@@ -53,6 +53,7 @@ gulp.task('build', function(callback) {
 
 gulp.task('watch', function () {
     gulp.watch([
+        './add-ons/*.js',
         srcDir + '**',
         '!' + srcDir + 'jsdoc/**',
         './css/*.css',
@@ -212,23 +213,23 @@ function addOns() {
     return gulp.src('./add-ons/*.js')
     // Insert an IIFE around the code...
         .pipe($$.replace( // ...starting immediately following 'use strict' and...
-            /('use strict';)/,
-            '$1\n\n(function() {'
+            "'use strict';\n",
+            "'use strict';\n(function() {"
         ))
         .pipe($$.replace( // ...ending after modules.exports.
             /(module\.exports\s*=\s*)(\w+);/,
-            'window.fin.Hypergrid.$2 = $2;\n\n})();'
+            'window.fin.Hypergrid.$2 = $2;\n})();'
         ))
         .pipe(
             $$.mirror(
                 pipe(
                     $$.rename(function (path) {
-                        path.basename = "fin-hypergrid-" + path.basename;
+                        path.basename = "add-ons/" + path.basename;
                     })
                 ),
                 pipe(
                     $$.rename(function (path) {
-                        path.basename = "fin-hypergrid-" + path.basename + '.min';
+                        path.basename = "add-ons/" + path.basename + '.min';
                     }),
                     $$.uglify() // minimize
                         .on('error', $$.util.log)
