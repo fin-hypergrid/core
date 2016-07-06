@@ -81,6 +81,11 @@ window.onload = function() {
         }
     ];
 
+    // add the treeview mixin
+    Object.keys(fin.Hypergrid.drilldownAPI).forEach(function(key) {
+        fin.Hypergrid.dataModels.JSON.prototype[key] = fin.Hypergrid.drilldownAPI[key];
+    });
+
     // restore previous "opinionated" headerify behavior
     var headerify = fin.Hypergrid.analytics.util.headerify;
     headerify.transform = headerify.capitalize;
@@ -124,6 +129,18 @@ window.onload = function() {
     console.log('Headers:'); console.dir(behavior.dataModel.getHeaders());
     console.log('Indexes:'); console.dir(idx);
 
+    var dataset;
+
+    function setData(data, options) {
+        options = options || {};
+        if (data === people1 || data === people2) {
+            options.schema = peopleSchema;
+        }
+        dataset = data;
+        behavior.setData(data, options);
+        idx = behavior.columnEnum;
+    }
+
     // Preset a default dialog options object. Used by call to toggleDialog('ColumnPicker') from features/ColumnPicker.js and by toggleDialog() defined herein.
     grid.setDialogOptions({
         //container: document.getElementById('dialog-container'),
@@ -136,20 +153,7 @@ window.onload = function() {
         { label: 'toggle empty data', onclick: toggleEmptyData },
         { label: 'set data 1 (5000 rows)', onclick: setData.bind(null, people1) },
         { label: 'set data 2 (10000 rows)', onclick: setData.bind(null, people2) },
-        { label: 'set data 3 (treedata)', onclick: function() {
-            // Optional: Clone the default pipeline. If you don't do this, the mutated pipeline will be shared among all grid instances
-            dataModel.pipeline = Object.getPrototypeOf(dataModel).pipeline.slice();
-
-            // Insert the treeview after source
-            var pipe = { type: 'DataSourceTreeview' };
-            dataModel.addPipe(pipe, 'JSDataSource');
-
-            // Reset the pipeline, pointing at some tree (self-joined) data
-            setData(treedata);
-
-            // Only show the data columns; don't show the ID and parentID columns
-            grid.setState({ columnIndexes: [ idx.STATE, idx.LATITUDE, idx.LONGITUDE ], checkboxOnlyRowSelections: true });
-        } },
+        { label: 'set data 3 (treedata)', onclick: function() { dataset = addTreeDataSource(grid, treedata); } },
         { label: 'reset', onclick: grid.reset.bind(grid)}
 
     ].forEach(function(item) {
@@ -221,17 +225,49 @@ window.onload = function() {
     };
 */
 
-    var dataset;
+    /* eslint-disable no-shadow */
+    function addTreeDataSource(grid, data) {
+        var behavior = grid.behavior,
+            dataModel = behavior.dataModel,
+            idx = behavior.columnEnum;
 
-    function setData(data, options) {
-        options = options || {};
-        if (data === people1 || data === people2) {
-            options.schema = peopleSchema;
+        // Optional: Clone the default pipeline.
+        // If you don't do this, the mutated pipeline will be shared among all grid instances.
+        dataModel.pipeline = Object.getPrototypeOf(dataModel).pipeline.slice();
+
+        // Insert the treeview after source
+        var pipe = {
+            type: 'DataSourceTreeview',
+            test: isTreeview
+        };
+        dataModel.addPipe(pipe, 'JSDataSource');
+
+        // Reset the pipeline, pointing at some tree (self-joined) data
+        behavior.setData(data);
+
+        // Only show the data columns; don't show the ID and parentID columns
+        grid.setState({
+            columnIndexes: [ idx.STATE, idx.LATITUDE, idx.LONGITUDE ],
+            checkboxOnlyRowSelections: true
+        });
+
+        return data;
+
+        /**
+         *
+         * @param {number} [columnIndex] If given, also checks that the column clicked is the tree column.
+         * @returns {boolean}
+         */
+        function isTreeview(event) {
+            var treeview = this.sources.treeview,
+                result = !!(treeview && treeview.viewMakesSense());
+            if (result && event) {
+                result = event.dataCell.x === treeview.treeColumnIndex;
+            }
+            return result;
         }
-        dataset = data;
-        behavior.setData(data, options);
-        idx = behavior.columnEnum;
     }
+    /* eslint-enable no-shadow */
 
     var topTotals = [
             ['one', 'two', '3', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten'],

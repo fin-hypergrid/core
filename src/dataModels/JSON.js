@@ -75,15 +75,15 @@ var JSON = DataModel.extend('dataModels.JSON', {
     },
 
     /**
-     * @memberOf dataModels.JSON.prototype
+     * @param {number} [columnIndex] If given, also checks that the column clicked is the tree column.
      * @returns {boolean}
+     * @memberOf dataModels.JSON.prototype
      */
-    hasAggregates: function() {
-        return this.sources.aggregator.hasAggregates();
-    },
-
-    isTreeview: function() {
-        return !!(this.sources.treeview && this.sources.treeview.viewMakesSense());
+    hasAggregates: function(event) {
+        var result = this.sources.aggregator.hasAggregates();
+        if (result && event) {
+            result = event.gridCell.x === 0;
+        }
     },
 
     /**
@@ -313,7 +313,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
      */
     pipeline: [
         { type: 'JSDataSource' },
-        { type: 'DataSourceAggregator' },
+        { type: 'DataSourceAggregator', test: 'hasAggregates' },
         { type: 'DataSourceGlobalFilter' },
         { type: 'DataSourceSorterComposite' },
         { type: 'DataNodeGroupSorter', parent: 'DataSourceAggregator' }
@@ -321,39 +321,39 @@ var JSON = DataModel.extend('dataModels.JSON', {
 
     /**
      * @summary Instantiates the data source pipeline.
-     * @desc Each new layer is created using the supplied constructor and a reference to the previous data source in the pipeline. A reference to each new layer is added to `this` dataModel as a property using the layer's `name`.
+     * @desc Each new pipe is created using the supplied constructor and a reference to the previous data source in the pipeline. A reference to each new pipe is added to `this` dataModel as a property using the pipe's `name`.
      *
-     * The first layer must have a `@@CLASS_NAME` of `'DataSource'`. Hence, the start of the pipeline is `this.source`. The last layer is assigned the synonym `this.dataSource`.
+     * The first pipe must have a `@@CLASS_NAME` of `'DataSource'`. Hence, the start of the pipeline is `this.source`. The last pipe is assigned the synonym `this.dataSource`.
      *
-     * Branches are created when a layer specifies a name in `parent`.
+     * Branches are created when a pipe specifies a name in `parent`.
      * @param {object[]} dataSource - Array of uniform objects containing the grid data.
      * @memberOf dataModels.JSON.prototype
      */
     setData: function(dataSource) {
         this.resetSources();
 
-        this.pipeline.forEach(function(sources, layer, index) {
-            var DataSource = analytics[layer.type];
+        this.pipeline.forEach(function(sources, pipe, index) {
+            var DataSource = analytics[pipe.type];
 
-            layer.name = layer.name || getDataSourceName(layer.type);
+            pipe.name = pipe.name || getDataSourceName(pipe.type);
 
-            if (index === 0 && layer.name !== 'source') {
+            if (index === 0 && pipe.name !== 'source') {
                 throw 'Expected pipeline to begin with source.';
             }
 
-            if (layer.parent) {
+            if (pipe.parent) {
                 this.dataSource = this.dataSource || dataSource; // tip of main trunk on first diversion
-                dataSource = sources[getDataSourceName(layer.parent)];
+                dataSource = sources[getDataSourceName(pipe.parent)];
                 if (!dataSource) {
                     throw 'Parent data source not in pipeline.';
                 }
             }
 
-            dataSource = layer.options === undefined
+            dataSource = pipe.options === undefined
                 ? new DataSource(dataSource)
-                : new DataSource(dataSource, layer.options);
+                : new DataSource(dataSource, pipe.options);
 
-            sources[layer.name] = dataSource;
+            sources[pipe.name] = dataSource;
         }.bind(this, this.sources));
 
         this.source = this.sources.source;
@@ -363,24 +363,24 @@ var JSON = DataModel.extend('dataModels.JSON', {
     },
 
     /**
-     * Add a layer to the data source pipeline.
-     * @param {dataSourcePipelineObject} newLayer - The new pipeline layer.
-     * @param {string} [referenceLayer] - Name of an existing pipeline layer after which the new layer will be added. If not found (such as `null`), inserts at beginning. If `undefined` or omitted, adds to end.
+     * Add a pipe to the data source pipeline.
+     * @param {dataSourcePipelineObject} newPipe - The new pipeline pipe.
+     * @param {string} [referenceLayer] - Name of an existing pipeline pipe after which the new pipe will be added. If not found (such as `null`), inserts at beginning. If `undefined` or omitted, adds to end.
      * @memberOf dataModels.JSON.prototype
      */
-    addPipe: function(newLayer, referenceLayer) {
-        var layerIndex;
+    addPipe: function(newPipe, referenceLayer) {
+        var pipeIndex;
         if (referenceLayer !== undefined) {
-            referenceLayer = this.pipeline.find(function(layer, index) {
-                var found = layer.type === referenceLayer;
-                layerIndex = index;
+            referenceLayer = this.pipeline.find(function(pipe, index) {
+                var found = pipe.type === referenceLayer;
+                pipeIndex = index;
                 return found;
             });
         }
         if (referenceLayer === undefined) {
-            layerIndex = this.pipeline.length;
+            pipeIndex = this.pipeline.length;
         }
-        this.pipeline.splice(layerIndex + 1, 0, newLayer);
+        this.pipeline.splice(pipeIndex + 1, 0, newPipe);
     },
 
     /**
@@ -516,21 +516,16 @@ var JSON = DataModel.extend('dataModels.JSON', {
         return this.hasAggregates() && this.hasGroups() && showTree;
     },
 
-    setRelation: function(options) {
-        this.sources.treeview.setRelation(options);
-        this.applyAnalytics();
-    },
-
     /**
      * @memberOf dataModels.JSON.prototype
      */
     applyAnalytics: function(dontApplyAggregator) {
         selectedDataRowsBackingSelectedGridRows.call(this);
 
-        this.pipeline.forEach(function(sources, layer) {
-            var dataSource = sources[layer.name];
+        this.pipeline.forEach(function(sources, pipe) {
+            var dataSource = sources[pipe.name];
 
-            switch (layer.type) {
+            switch (pipe.type) {
                 case 'DataSourceAggregator':
                     if (dontApplyAggregator) {
                         dataSource = undefined;
@@ -679,16 +674,25 @@ var JSON = DataModel.extend('dataModels.JSON', {
         return rank + arrow + ' ';
     },
 
+    isDrillDown: function(event) {
+        return this.pipeline.find(function(pipe) {
+            var test = pipe.test,
+                type = typeof test;
+
+            test = type === 'function' && pipe.test ||
+                type === 'string' && this[pipe.test];
+
+            return test && test.call(this, event);
+        }.bind(this));
+    },
+
     /**
-     * @memberOf dataModels.JSON.prototypedrilldown
      * @param cell
      * @param event
+     * @memberOf dataModels.JSON.prototype
      */
     cellClicked: function(cell, event) {
-        if (
-            this.isTreeview() && event.dataCell.x === this.sources.treeview.treeColumnIndex ||
-            this.hasAggregates() && event.gridCell.x === 0
-        ) {
+        if (this.isDrillDown(event)) {
             var y = event.gridCell.y - this.grid.getHeaderRowCount();
             this.toggleRow(y);
         }
@@ -696,145 +700,26 @@ var JSON = DataModel.extend('dataModels.JSON', {
 
     /**
      * @summary Toggle the drill-down control of a the specified row.
-     * @desc Ignored if the specified row has no drill-down control.
-     * @param y
+     * @desc Operates only on the following rows:
+     * * Expandable rows - Rows with a drill-down control.
+     * * Revealed rows - Rows not hidden inside of collapsed drill-downs.
+     * @param y - Revealed row number. (This is not the row ID.)
      * @param {boolean} [expand] - One of:
-     * * `true` - expands row (if expandable)
-     * * `false` - collapses row (if expandable)
-     * * `undefined` - toggles state of row (if expandable)
-     * @returns {undefined|boolean} One of:
-     * * `undefined` - row was not expandable
-     * * `true` - row was expandable _and_ state changed
-     * * `false` - row was expandable _but_ state did _not_ change
-     * @memberOf dataModels.JSON.prototypedrilldown
+     * * `true` - Expand row.
+     * * `false` - Collapse row.
+     * * `undefined` (or omitted) - Toggle state of row.
+     * @returns {boolean|undefined} If any rows expanded or collapsed; `undefined` means row had no drill-down control.
+     * @memberOf dataModels.JSON.prototype
      */
     toggleRow: function(y, expand) {
         var changed;
-        if (this.isTreeview() || this.hasAggregates()) {
+        if (this.isDrillDown()) {
             changed = this.dataSource.click(y, expand);
             if (changed) {
                 this.applyAnalytics(true);
                 this.changed();
             }
         }
-        return changed;
-    },
-
-    /**
-     * @summary Toggle all revealed drill-down controls.
-     * @desc Works its way from the bottom of the table to the top. Ignored for rows without a drill-down control or rows hidden inside of collapsed drill-downs.
-     * @param {boolean|number} [depth] - One of:
-     * * `undefined` (or omitted) - Expand all revealed expandable rows that are currently collapsed; collapse all revealed expandable rows that are currently expanded. _Not recommended. Results are unpredictable unless you know the current state of the drill-downs._
-     * * `true` - Expand all revealed expandable rows that are currently collapsed.
-     * * `false` (or `0`) - Collapse all revealed expandable rows that are currently expanded.
-     * * number > 0 - Expands revealed expandable rows that are currently collapsed but only to the given depth.
-     * @param {boolean} [smartApply=false] - One of:
-     * * `true` - Apply and repaint if and only if a change was detected.
-     * * `false` - Always apply and repaint.
-     * * `undefined` - Never apply and repaint.
-     * @returns {boolean} If any rows had a change of state.
-     */
-    toggleAllRows: function(expand, depth, smartApply) {
-        var changed = false;
-        if (this.isTreeview() || this.hasAggregates()) {
-            var initial, limit = this.dataSource.getRowCount(), increment;
-            if (expand) {
-                // work down from top
-                initial = 0;
-                increment = +1;
-            } else {
-                // work up from bottom
-                initial = limit - 1;
-                limit = increment = -1;
-            }
-            for (var y = initial; y !== limit; y += increment) {
-                if (this.dataSource.click(y, expand, depth)) {
-                    changed = true;
-                }
-            }
-            if (!smartApply || changed && smartApply) {
-                this.applyAnalytics(true);
-                this.changed();
-            }
-        }
-        return changed;
-    },
-
-    /**
-     * @summary Expand all rows to the given depth.
-     * @desc When called with a depth < Infinity, expands those rows but does not collapse deeper rows. In such a case, consider calling `expandAndCollapseRows` with that depth instead.
-     * @param {number} [depth=Infinity]
-     * @param {boolean} [smartApply=false] - One of:
-     * * `true` - Apply and repaint if and only if a change was detected.
-     * * `false` - Always apply and repaint.
-     * * `undefined` - Never apply and repaint.
-     * @returns {boolean} If any rows had a change of state.
-     */
-    expandRowsToDepth: function(depth, smartApply) {
-        var changed = false;
-        while (this.toggleAllRows(true, depth || Infinity)) {
-            changed = true;
-        }
-        if (!smartApply || changed && smartApply) {
-            this.applyAnalytics(true);
-            this.changed();
-        }
-        return changed;
-    },
-
-    /**
-     * Convenience function to expand all rows.
-     * @param {boolean} [smartApply=false] - One of:
-     * * `true` - Apply and repaint if and only if a change was detected.
-     * * `false` - Always apply and repaint.
-     * * `undefined` - Never apply and repaint.
-     * @returns {*}
-     */
-    expandAllRows: function(smartApply) {
-        return this.expandRowsToDepth(Infinity, smartApply);
-    },
-
-    /**
-     * @summary Collapse rows deeper than (or equal to) the given depth.
-     * @desc Only affects "revealed" rows (those rows not hidden inside of currently collapsed rows); to affect all rows, call `expandAndCollapseRows` instead.
-     * @param {number} [depth=0]
-     * @param {boolean} [smartApply=false] - One of:
-     * * `true` - Apply and repaint if and only if rows were collapsed.
-     * * `false` - Always apply and repaint.
-     * * `undefined` - Never apply and repaint.
-     * @returns {boolean} If any rows had a change of state.
-     */
-    collapseRowsFromDepth: function(depth, smartApply) {
-        return this.toggleAllRows(false, -depth || 0, smartApply);
-    },
-
-    /**
-     * @summary Expand all rows to the given depth and collapse all other rows.
-     * @desc Call without a `depth` to collapse all rows, including those that may be expanding even though not currently revealed (because hidden inside of currently collapsed rows).
-     * @param {number} [depth=0]
-     * @param {boolean} [apply=false] - One of:
-     * * `true` - Always apply and repaint. (Note that this logic differs from those methods that take `smartApply`.)
-     * * `false` - Always apply and repaint.
-     * * `undefined` - Never apply and repaint.
-     * @returns {boolean} Always returns `true`.
-     */
-    expandAndCollapseRows: function(depth, apply) {
-        this.expandAllRows();
-        this.collapseRowsFromDepth(depth, apply);
-        return true;
-    },
-
-    revealRowByID: function(ID, smartApply) {
-        var changed;
-
-        if (this.isTreeview()) {
-            changed = this.sources.treeview.revealRow(ID);
-            if (!smartApply || changed && smartApply) {
-                this.applyAnalytics(true);
-                this.changed();
-            }
-        }
-
         return changed;
     },
 
