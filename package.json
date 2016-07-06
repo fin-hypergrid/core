@@ -48,6 +48,7 @@
     "gulp-mirror": "^0.4.0",
     "gulp-mocha": "^2.2.0",
     "gulp-rename": "^1.2.2",
+    "gulp-replace": "^0.5.4",
     "gulp-uglify": "^1.5.1",
     "gulp-util": "^3.0.7",
     "gutil": "^1.6.4",
