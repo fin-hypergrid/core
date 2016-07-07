@@ -1,52 +1,112 @@
 'use strict';
 
-var treeView = {
+var newPipe = { type: 'DataSourceTreeview', test: test },
+    referencePipe = 'JSDataSource';
+
+/**
+ * @classdesc This is a helper class to set up the tree-view data source in the context of a hypergrid.
+ *
+ * It includes methods to:
+ * * Insert `DataSourceTreeview` into the data model's pipeline (`addPipe`, `addPipeTo`).
+ * * Perform the self-join and rebuild the index to turn the tree-view on or off, optionally hiding the ID columns (`setRelation`).
+ *
+ * @desc Add the tree-view data source to the data source pipeline.
+ * @param {object} [options]
+ * @param {boolean} [options.shared=false]
+ * @constructor
+ */
+function TreeView(grid, options) {
+    this.grid = grid;
+    this.options = options;
+}
+
+TreeView.prototype = {
+    constructor: TreeView.prototype.constructor,
+
     /**
-     * Add the tree-view data source to the data source pipeline.
-     * @param {DataModel} dataModel
-     * @param {boolean} [shared=false] - Add to prototype.
+     * @summary Add the tree-view data source into the shared pipeline.
+     * @desc The tree-view data source is inserted into the shared pipeline of the given data model's prototype, immediately after the raw data source.
+     *
+     * The resulting pipeline addition is shared by all new grids using this data model.
+     *
+     * Intended to be called on the `TreeView` prototype, before the data model is instanced (which currently happens when the behavior is instanced (which currently happens when the grid is instanced)).
+     *
+     * @param {object} dataModelPrototype
      */
-    addDataSourceTo: function(dataModel, shared) {
-        if (!shared) {
-            // Not shared so clone the default pipeline.
-            // If you don't do this, the mutated pipeline will be shared among all grid instances.
-            dataModel.pipeline = Object.getPrototypeOf(dataModel).pipeline.slice();
+    addPipeTo: function(dataModelPrototype) {
+        dataModelPrototype.addPipe(newPipe, referencePipe);
+    },
+
+    /**
+     * @summary Add the tree-view data source into the instance pipeline.
+     * @desc The tree-view data source is inserted into the pipeline of the given data model instance, immediately after the raw data source.
+     *
+     * If necessary, a private copy of the prototype's `pipeline` array is cloned for use by the instance (unless `shared` is truthy).
+     *
+     * Finally, `setData` is called again with `data` to rebuild the pipeline. To avoid this, consider {@link TreeView#addPipeTo}.
+     *
+     * @param {object[]} data - Required for the `setData` call.
+     * @param {boolean} [shared=false] - Do not clone prototype's `pipeline` array. The default is to clone it.
+     */
+    addPipe: function(data, shared) {
+        var behavior = this.grid.behavior,
+            dataModel = behavior.dataModel;
+
+        if (!shared && !dataModel.hasOwnProperty('pipeline')) {
+            dataModel.pipeline = dataModel.pipeline.slice();
         }
 
-        // Insert the treeview data sourc e after the raw data source
-        var pipe = {
-            type: 'DataSourceTreeview',
-            test: test
-        };
-
-        dataModel.addPipe(pipe, 'JSDataSource');
-    },
-
-    setData: function(grid, data, options) {
-        // Reset the pipeline, pointing at some tree (self-joined) data
-        grid.behavior.setData(data, options);
-        var idx = grid.behavior.columnEnum;
-
-        // Only show the data columns; don't show the ID and parentID columns
-        grid.setState({
-            columnIndexes: [idx.STATE, idx.LATITUDE, idx.LONGITUDE],
-            checkboxOnlyRowSelections: true
-        });
-    },
-
-    toggle: function(behavior) {
-        var treeViewOptions = this.checked && { treeColumnName: 'State'};
-        behavior.dataModel.sources.treeview.setRelation(treeViewOptions);
-        behavior.dataModel.applyAnalytics();
+        dataModel.addPipe(newPipe, referencePipe);
+        behavior.setData(data);
         behavior.shapeChanged();
-        return treeViewOptions;
+    },
+
+    /**
+     * @summary Build/unbuild the tree view.
+     * @param {boolean} join - Turn tree-view **ON**. If falsy (or omitted), turn it **OFF**.
+     * @param {boolean} [hideIdColumns=false] - Once hidden, cannot be unhidden from here.
+     */
+    setRelation: function(join, hideIdColumns) {
+        var options = join && this.options,
+            behavior = this.grid.behavior,
+            dataModel = behavior.dataModel,
+            dataSource = dataModel.sources.treeview;
+
+        dataSource.setRelation(options);
+
+        // if grid state not set yet, set it now
+        if (!behavior.getPrivateState().columnIndexes) {
+            this.grid.setState({});
+        }
+
+        if (join && hideIdColumns) {
+            var ids = [dataSource.idColumnIndex, dataSource.parentIdColumnIndex],
+                state = behavior.getPrivateState(),
+                columnIndexes = state.columnIndexes;
+
+            ids.forEach(function(id) {
+                var i = columnIndexes.indexOf(id);
+                if (i >= 0) {
+                    columnIndexes.splice(i, 1);
+                }
+            });
+
+            state.checkboxOnlyRowSelections = true; // so drill-down clicks don't select the row they are in
+
+            this.grid.setState(state); // update state by resetting with mutated existing state
+        }
+
+        dataModel.applyAnalytics();
+        behavior.shapeChanged();
+
+        return join;
     }
 };
 
 /**
- *
+ * This is the required test function called by the data model's `isDrilldown` method in context. _Do not call directly._
  * @param {number} [columnIndex] If given, also checks that the column clicked is the tree column.
- * @returns {boolean} The data source is a tree view.
+ * @returns {boolean} If the data source is a tree view.
  */
 function test(event) {
     var treeview = this.sources.treeview,
@@ -57,4 +117,4 @@ function test(event) {
     return result;
 }
 
-module.exports = treeView;
+module.exports = TreeView;

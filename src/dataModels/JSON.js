@@ -364,23 +364,29 @@ var JSON = DataModel.extend('dataModels.JSON', {
 
     /**
      * Add a pipe to the data source pipeline.
+     * @desc No-op if already added.
      * @param {dataSourcePipelineObject} newPipe - The new pipeline pipe.
-     * @param {string} [referenceLayer] - Name of an existing pipeline pipe after which the new pipe will be added. If not found (such as `null`), inserts at beginning. If `undefined` or omitted, adds to end.
+     * @param {string} [referencePipe] - One of:
+     * * Name of an existing pipeline pipe after which the new pipe will be added. If `null`, inserts at beginning. If not found (or `undefined` or omitted), adds to end.
      * @memberOf dataModels.JSON.prototype
      */
-    addPipe: function(newPipe, referenceLayer) {
-        var pipeIndex;
-        if (referenceLayer !== undefined) {
-            referenceLayer = this.pipeline.find(function(pipe, index) {
-                var found = pipe.type === referenceLayer;
-                pipeIndex = index;
-                return found;
-            });
+    addPipe: function(newPipe, referencePipe) {
+        var referenceIndex,
+            added = this.pipeline.find(function(pipe) { return pipe.type === newPipe.type; });
+
+        if (!added) {
+            if (referencePipe === null) {
+                referenceIndex = 0; // add to beginning
+            } else if (
+                !this.pipeline.find(function(pipe, index) {
+                    referenceIndex = index + 1; // add after found pipe
+                    return pipe.type === referencePipe;
+                })
+            ) {
+                referenceIndex = this.pipeline.length; // not found: add to end
+            }
+            this.pipeline.splice(referenceIndex, 0, newPipe);
         }
-        if (referenceLayer === undefined) {
-            pipeIndex = this.pipeline.length;
-        }
-        this.pipeline.splice(pipeIndex + 1, 0, newPipe);
     },
 
     /**
