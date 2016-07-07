@@ -10,9 +10,9 @@ window.onload = function() {
 
     var Hypergrid = fin.Hypergrid;
     var drillDown = Hypergrid.drillDown;
-    var treeView = Hypergrid.treeView;
+    var TreeView = Hypergrid.TreeView;
 
-    // Install the drill-down mixin
+    // Install the drill-down API (optional).
     drillDown.mixInTo(Hypergrid.dataModels.JSON.prototype);
 
     // List of properties to show as checkboxes in this demo's "dashboard"
@@ -131,7 +131,7 @@ window.onload = function() {
     console.log('Headers:'); console.dir(behavior.dataModel.getHeaders());
     console.log('Indexes:'); console.dir(idx);
 
-    var dataset;
+    var treeView, dataset;
 
     function setData(data, options) {
         options = options || {};
@@ -197,8 +197,14 @@ window.onload = function() {
         behavior.setAggregates(this.checked ? aggregates : []);
     }
 
+    function addTreeDataSource() {
+        treeView = new TreeView(grid, { treeColumnName: 'State' });
+        treeView.addPipe(treeData);
+        dataset = treeData;
+    }
+
     function toggleTreeview() {
-        treeView.toggle.call(this, behavior);
+        treeView.setRelation(this.checked, true);
     }
 
     var styleRowsFromData;
@@ -225,12 +231,6 @@ window.onload = function() {
         behavior.setGroups([1, 2, 3, 4, 5, 6, 7]);
     };
 */
-
-    function addTreeDataSource() {
-        treeView.addDataSourceTo(dataModel);
-        treeView.setData(grid, treeData);
-        dataset = treeData;
-    }
 
     var topTotals = [
             ['one', 'two', '3', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten'],

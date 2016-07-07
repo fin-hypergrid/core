@@ -80,6 +80,7 @@ gulp.task('default', ['build', 'watch'], browserSyncLaunchServer);
 
 function lint() {
     return gulp.src([
+        './add-ons/*.js',
         srcDir + jsFiles,
         '!' + srcDir + '**/old/**/',
         demoDir + 'js/demo.js',

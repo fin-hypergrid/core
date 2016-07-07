@@ -1,29 +1,36 @@
 /* eslint-env browser */
 
-/* globals treedata */
+/* globals treedata  */
 
 'use strict';
 
-var Hypergrid = fin.Hypergrid;
-var drillDown = Hypergrid.drillDown;
-var treeView = Hypergrid.treeView;
-
-var grid, behavior, dataModel;
+var grid;
 
 window.onload = function() {
+    var Hypergrid = fin.Hypergrid,
+        drillDown = Hypergrid.drillDown,
+        TreeView = Hypergrid.TreeView,
+        dataModelPrototype = Hypergrid.dataModels.JSON.prototype,
+        shared = false;
 
-    grid = new Hypergrid('div#tree-example', { data: treedata });
-    dataModel = grid.behavior.dataModel;
+    // Install the drill-down API (optional).
+    drillDown.mixInTo(dataModelPrototype);
 
-    drillDown.mixInTo(Hypergrid.dataModels.JSON.prototype);
-    treeView.addDataSourceTo(dataModel);
-    treeView.setData(grid, treeData);
+    // Following call mutates the shared pipeline and, avoids calling setData twice.
+    // Or comment out and uncomment `addPipe` call below (which calls setData again to rebuild the pipeline).
+    TreeView.prototype.addPipeTo(dataModelPrototype);
+
+    grid = new Hypergrid('div#tree-example', { data: treeData });
+    var treeViewOptions = { treeColumnName: 'State' },
+        treeView = new TreeView(grid, treeViewOptions);
+
+    // treeView.addPipe(treeData, shared); // shared is falsy so clones a private pipeline for the instance.
 
     document.querySelector('input[type=checkbox]').onclick = function() {
-        if (treeView.toggle.call(this, grid.behavior)) {
-            dataModel.getCell = getCell;
+        if (treeView.setRelation(this.checked, true)) {
+            grid.behavior.dataModel.getCell = getCell;
         } else {
-            delete dataModel.getCell;
+            delete grid.behavior.dataModel.getCell;
         }
     };
 
