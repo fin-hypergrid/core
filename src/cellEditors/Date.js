@@ -24,6 +24,7 @@ var isChromium = window.chrome,
  * * If Chrome, uses chromeDate overrides format to that required by the value attribute, yyyy-mm-dd. (Note that this is not the format displayed in the control, which is always mm/dd/yyyy.)
  * * Otherwise uses localized date format _but_ falls back to a regular text box.
  * @constructor
+ * @extends CellEditor
  */
 var Date = CellEditor.extend('Date', {
 

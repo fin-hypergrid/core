@@ -9,6 +9,7 @@ var stylesheet = require('../lib/stylesheet');
 
 /**
  * @constructor
+ * @extends Dialog
  */
 var ColumnPicker = Dialog.extend('ColumnPicker', {
     /**

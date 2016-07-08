@@ -10,6 +10,7 @@ var aggregations = require('../Shared.js').analytics.util.aggregations;
  * @name behaviors.JSON
  * @desc > Same parameters as {@link behaviors.Behavior#initialize|initialize}, which is called by this constructor.
  * @constructor
+ * @extends Behavior
  */
 var JSON = Local.extend('behaviors.JSON', {
 

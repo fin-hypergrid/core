@@ -46,6 +46,7 @@ var Formatter = Base.extend({
  * @param {object} [options] - Passed to the `Intl.NumberFormat` constructor.
  * @param {boolean} [options.acceptStandardDigits=false] - Accept standard digits and decimal point interchangeably with localized digits and decimal point. (This option is interpreted here; it is not used by `Intl.NumberFormat`.)
  * @constructor
+ * @extends Formatter
  * @tutorial localization
  */
 var NumberFormatter = Formatter.extend('NumberFormatter', {
@@ -166,6 +167,7 @@ function demap(c) {
  * @param {string} [locale=defaultlocale] - Passed to the {@link Intl.DateFormat|https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/DateFormat} constructor.
  * @param {object} [options] - Passed to the `Intl.DateFormat` constructor.
  * @constructor
+ * @extends Formatter
  */
 var DateFormatter = Formatter.extend('DateFormatter', {
     initialize: function(defaultLocale, locale, options) {
