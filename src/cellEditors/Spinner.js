@@ -4,6 +4,7 @@ var CellEditor = require('./CellEditor.js');
 
 /**
  * @constructor
+ * @extends CellEditor
  */
 var Spinner = CellEditor.extend('Spinner', {
 

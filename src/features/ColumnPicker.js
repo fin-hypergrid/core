@@ -7,6 +7,7 @@ var Feature = require('./Feature.js');
 
 /**
  * @constructor
+ * @extends Feature
  */
 var ColumnPicker = Feature.extend('ColumnPicker', {
 

@@ -48,6 +48,7 @@ var nullDataSource = {
 /**
  * @name dataModels.JSON
  * @constructor
+ * @extends DataModel
  */
 var JSON = DataModel.extend('dataModels.JSON', {
 
@@ -84,6 +85,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
         if (result && event) {
             result = event.gridCell.x === 0;
         }
+        return result;
     },
 
     /**

@@ -4,6 +4,7 @@ var Feature = require('./Feature.js');
 
 /**
  * @constructor
+ * @extends Feature
  */
 var CellSelection = Feature.extend('CellSelection', {
 

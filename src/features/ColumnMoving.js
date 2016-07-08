@@ -16,6 +16,7 @@ var floatColumnCTX;
 
 /**
  * @constructor
+ * @extends Feature
  */
 var ColumnMoving = Feature.extend('ColumnMoving', {
 
