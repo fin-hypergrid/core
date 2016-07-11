@@ -4,13 +4,12 @@ var newPipe = { type: 'DataSourceTreeview', test: test },
     referencePipe = 'JSDataSource';
 
 /**
- * @classdesc This is a helper class to set up the tree-view data source in the context of a hypergrid.
+ * @classdesc This is a simple helper class to set up the tree-view data source in the context of a hypergrid.
  *
  * It includes methods to:
  * * Insert `DataSourceTreeview` into the data model's pipeline (`addPipe`, `addPipeTo`).
  * * Perform the self-join and rebuild the index to turn the tree-view on or off, optionally hiding the ID columns (`setRelation`).
  *
- * @desc Add the tree-view data source to the data source pipeline.
  * @param {object} [options]
  * @param {boolean} [options.shared=false]
  * @constructor
