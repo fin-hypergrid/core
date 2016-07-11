@@ -3,11 +3,58 @@
 /**
  * Methods for programmatic drill-down manipulation.
  *
- * Intended to be mixed into Hypergrid's in-memory data model object (./src/dataModels/JSON.js).
- *
+ * Intended to be mixed into Hypergrid's in-memory data model object (./src/dataModels/JSON.js) using the included {@link drillDown.mixInTo}
  * _Do not use directly._
  *
- * *Glossary*
+ * For example, you can mix it into the data model prototype like this:
+ *
+ * ```html
+ * <script src="https://openfin.github.io/fin-hypergrid/build/fin-hypergrid.min.js"></script>
+ * <script src="https://openfin.github.io/fin-hypergrid/build/fin-hypergrid-drilldown.min.js"></script>
+ * ```
+ * ```javascript
+ * fin.Hypergrid.drillDown.mixInTo(fin.Hypergrid.dataModels.JSON.prototype);
+ * var grid = new fin.Hypergrid(element, options);
+ * ```
+ *
+ * Or like this:
+ *
+ * ```javascript
+ * var grid1 = new fin.Hypergrid(element, options);
+ * var grid2 = new fin.Hypergrid(element, options);
+ * fin.Hypergrid.drillDown.mixInTo(Object.getPrototypeOf(grid1.behavior.dataModel));
+ * ```
+ *
+ * Or into s specific instance:
+ *
+ * ```javascript
+ * var grid1 = new fin.Hypergrid(element, options);
+ * var grid2 = new fin.Hypergrid(element, options);
+ * fin.Hypergrid.drillDown.mixInTo(grid1.behavior.dataModel);
+ * ```
+ *
+ * In this example, the mixed in methods will be available to `grid1` but not `grid2`.
+ *
+ * Using the npm modules, the above would look like this:
+ *
+ * ```javascript
+ * var Hypergrid = require('fin-hypergrid');
+ * var drillDown = require('fin-hypergrid-drill-down');
+ * var grid = new fin.Hypergrid(element, options);
+ * drillDown.mixInTo(grid.behavior.dataModel);
+ * ```
+ *
+ * And this:
+ *
+ * ```javascript
+ * var Hypergrid = require('fin-hypergrid');
+ * var dataModelPrototype = require('fin-hypergrid/dataModels.JSON').prototype;
+ * var drillDown = require('fin-hypergrid-drill-down');
+ * drillDown.mixInTo(dataModelPrototype);
+ * var grid = new fin.Hypergrid(element, options);
+ * ```
+ *
+ * **Glossary**
  * * _collapsed (rows)_ - Rows whose drill-down control is "closed" (leftwards-facing triangle).
  * * _collapsable (rows)_ - See _expandable_.
  * * _expanded (rows)_ - Rows whose drill-down control is "open" (downwards-facing triangle).
@@ -164,6 +211,16 @@ var drillDown = {
 
 };
 
+/**
+ * @name mixInTo
+ * @summary Mix all the `drillDown` members into the given target object.
+ * @desc The target object is intended to be Hypergrid's in-memory data model object (./src/dataModels/JSON.js).
+ *
+ * _NOTE:_ This `mixInTo` method is excluded (not mixed in).
+ * @function
+ * @param {object} target - Your data model instance or its prototype.
+ * @memberOf drillDown
+ */
 Object.defineProperty(drillDown, 'mixInTo', {  // defined here just to make it non-enumerable
     value: function(target) {
         Object.keys(this).forEach(function(key) {
