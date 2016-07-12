@@ -192,6 +192,7 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
         valignOffset = Math.max(vMin, valignOffset);
 
         gc.save(); // define a clipping region for cell
+        gc.beginPath();
         gc.rect(x, y, width, height);
         gc.clip();
 
