@@ -11,7 +11,7 @@ var LastSelection = CellRenderer.extend('LastSelection', {
      * @desc A rendering of the last Selection Model
      * @param {CanvasGraphicsContext} gc
      * @param {object} config
-     * @param {Rectangle} config.bounds - The bounding rect of the cell to be rendered.
+     * @param {Rectangle} config.bounds - The clipping rect of the cell to be rendered.
      * @param {number} config.x - the "translated" index into the `behavior.allColumns` array
      * @param {number} config.normalizedY - the vertical grid coordinate normalized to first data row
      * @param {number} config.untranslatedX - the horizontal grid coordinate measured from first data column

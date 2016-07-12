@@ -103,7 +103,7 @@ In your `getCell` override, you can optionally set additional arbitrary properti
 
 Parameter                       | Description
 :-----------------------------  | :---
-`bounds`                        | The region which the renderer's paint function should confine itself to.
+`bounds`                        | The clipping rect of the cell to be rendered; the region to which the renderer's paint function should confine itself.
 `bounds.height`                 | Paint region height in canvas pixels.
 `bounds.width`                  | Paint region width in canvas pixels.
 `bounds.x`                      | Paint region horizontal pixel coordinate from canvas origin (top left).
@@ -121,12 +121,10 @@ Parameter                       | Description
 `isSelected`                    | The cell is currently selected (included in one of the current selection models).
 `isUserDataArea`                | If the cell holds actual user data.
 `value`                         | an untyped field that represents contextual information for the cell to present. I.e. for a text cell value you may used this represent stringified data.
-`untranslatedX`                 | The column's index into the full column list, `grid.behavior.allColumns[]` (and the data source's `fields[]` array upon which it is based).
-`y`                 | The grid row index, including the header rows. The first header row index === 0; the first data row index varies based on the number of header rows.
-`x`                   | The column's index into the list of columns currently active in the grid, `grid.behavior.columns[]`, representing the position of the column in the grid. This list is a subset of of the full list because "hidden" columns are excluded and the remaining columns can be re-ordered at any time via the UI (dragging columns around) or programmatically. (The active column index is not available in the config object.)
-`normalizedY`                   | The data row index, where the first data row index === 0 (excludes the header rows).
-`x`                             | Legacy property === `x`. Use of this property triggers a deprecation warning. This property will be removed in a future release. _Do not use._
-`y`                             | Legacy property === `y`. Use of this property triggers a deprecation warning. This property will be removed in a future release. _Do not use._
+`untranslatedX`                 | The horizontal grid coordinate measured from first data column. That is, the column's index into the list of columns currently active in the grid, `grid.behavior.columns[]`. This list is a subset of of the full list (`grid.behavior.allColumns[]`) because (a) "hidden" columns are excluded and (b) remaining columns are ordered. The order of the columns in this list can be re-ordered at any time programmatically or via the UI by dragging columns around.
+`y`                             | The vertical grid coordinate measured from top header row.he grid row index, including the header rows. Because the number of header rows can vary, the first data row index also varies.
+`x`                             | The "translated" index into the `behavior.allColumns` array. That is, The column's index into the full column list, `grid.behavior.allColumns[]` (and the data source's `fields[]` array upon which it is based).
+`normalizedY`                   | The vertical grid coordinate normalized to first data row. For the first data row, this value is always 0. Excludes the header rows.
 
 ### Note about the LastSelection renderer
 

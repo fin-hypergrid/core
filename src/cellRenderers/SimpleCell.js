@@ -12,7 +12,7 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
      * @desc Great care has been taken in crafting this function as it needs to perform extremely fast. Reads on the gc object are expensive but not quite as expensive as writes to it. We do our best to avoid writes, then avoid reads. Clipping bounds are not set here as this is also an expensive operation. Instead, we truncate overflowing text and content by filling a rectangle with background color column by column instead of cell by cell.  This column by column fill happens higher up on the stack in a calling function from fin-hypergrid-renderer.  Take note we do not do cell by cell border renderering as that is expensive.  Instead we render many fewer gridlines after all cells are rendered.
      * @param {CanvasGraphicsContext} gc
      * @param {object} config
-     * @param {Rectangle} config.bounds - The bounding rect of the cell to be rendered.
+     * @param {Rectangle} config.bounds - The clipping rect of the cell to be rendered.
      * @param {number} config.x - the "translated" index into the `behavior.allColumns` array
      * @param {number} config.normalizedY - the vertical grid coordinate normalized to first data row
      * @param {number} config.untranslatedX - the horizontal grid coordinate measured from first data column
@@ -153,7 +153,7 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
      * @summary Renders single line text.
      * @param {CanvasGraphicsContext} gc
      * @param {object} config
-     * @param {Rectangle} config.bounds - The bounding rect of the cell to be rendered.
+     * @param {Rectangle} config.bounds - The clipping rect of the cell to be rendered.
      * @param {*} val - The text to render in the cell.
      * @memberOf SimpleCell.prototype
      */
@@ -209,7 +209,7 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
      * @summary Renders single line text.
      * @param {CanvasGraphicsContext} gc
      * @param {object} config
-     * @param {Rectangle} config.bounds - The bounding rect of the cell to be rendered.
+     * @param {Rectangle} config.bounds - The clipping rect of the cell to be rendered.
      * @param {*} val - The text to render in the cell.
      * @memberOf SimpleCell.prototype
      */
