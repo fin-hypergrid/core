@@ -54,163 +54,100 @@ The {@link http://openfin.github.io/fin-hypergrid/doc/CellRenderer.html|CellRend
 The following cell renderers are available for you to use declaratively. They have been extended from the CellRenderer base.
  
 Cell Renderer | Description
-------------- | -----------
-`simpleCell` | Is the normal cell renderer operation which accommodates for images/fonts/text.They will be centered vertical and be placed on horizontally aligned left, right or middle
-`emptyCell` | Paints a blank cell. Provided with the base CellRenderer class
-`treeCell` | Paints a tree cell that accommodates nested data
-`errorCell` | Renderer for *any* cell considered to be in an error state 
-`button` | Paints a button dependent on mousedown state
-`lastSeletion` | Renderer for painting a selection rectangle on top of cells 
-`linkCellRenderer` | Simple Cell with the link option set. Paint text in a cell that is underline
-`sparklineCell` | Paints an implementation of https://en.wikipedia.org/wiki/Sparkline. Requires a list of values to be useful.
+:.------------ | :----------
+`simpleCell` | Is the normal cell renderer operation which accommodates for images/fonts/text.They will be centered vertical and be placed on horizontally aligned left, right or middle.
+`emptyCell` | Paints a blank cell. Provided with the base CellRenderer class.
+`treeCell` | Paints a tree cell that accommodates nested data.
+`errorCell` | Renderer for *any* cell considered to be in an error state.
+`button` | Paints a button dependent on mousedown state.
+`lastSeletion` | Renderer for painting a selection rectangle on top of cells.
+`linkCellRenderer` | Simple Cell with the link option set. Paint text in a cell that is underline.
+`sparklineCell` | Paints an implementation of https://en.wikipedia.org/wiki/Sparkline. Requires an array of values to be useful.
 `sparkbarCell` | A tiny bar chart. Requires a list of values to be useful.
      
 
 #### Programmatic cell editor association
 
-`yourGrid.behavior.dataModel.getCell` method is called when HyperGrid will check which renderer to provide the selected *data* cell. 
-For programmatic cell renderer association, you can override it, keep in mind that `getCell` needs to always return a CellRenderer.
-
-It is recommended to first set a default, such as `simpleCell`, to be returned if not otherwise overridden by your custom logic.
-
-You can optionally set additional properties on config which includes internal properties about the cell in question. This will get passed to your renderer paint function later.
+The following examples refer to a `grid` object:
 
 ```javascript
-yourGrid.behavior.dataModel.getCell = function(config, rendererName) {
-    //A renderer should always be provided that has a paint function
-    //rendererName defaults to 'SimpleCell'
-
-    var x = config.x;
-    var y = config.y;
-    
-    var IMG = 'Your IMAGE';
-    var styleRowsFromData = true;
-    
-    config.halign = 'left';
-
-    switch (y) {
-        case 5:
-        case 0:
-        case 1:
-            config.backgroundColor = '#e8ffe8';
-            config.font = 'italic x-small verdana';
-            config.color = '#070';
-            break;
-
-        case 2:
-        case 3:
-        case 4:
-            config.backgroundColor = 'white';
-            config.font = 'normal small garamond';
-            break;
-    }
-
-    //Render conditionally based on column position of cell
-    switch (x) {
-        case 1:
-        case 2:
-        case 3:
-        case 8:
-            //we are a dropdown, lets provide a visual queue
-            config.value = [null, config.value, upDownIMG];
-    }
-
-    switch (x) {
-        case 3:
-            //Turn Simple Cell into a link
-            config.link = true;
-            break;
-
-        case 4: 
-            config.halign = 'center';
-            rendererName = 'TreeCell';
-            break;
-            
-
-        case 5:
-            config.halign = 'right';
-            break;
-
-        case 6:
-            travel = 60 + Math.round(config.value * 150 / 100000);
-            config.backgroundColor = '#00' + travel.toString(16) + '00';
-            config.color = '#FFFFFF';
-            config.halign = 'right';
-            rendererName = 'SparkBar';
-            break;
-
-        case 7:
-            travel = 105 + Math.round(config.value * 150 / 1000);
-            config.backgroundColor = '#' + travel.toString(16) + '0000';
-            config.color = '#FFFFFF';
-            config.halign = 'right';
-            break;
-    }
-
-    return grid.getCellRenderer(rendererName);
+var grid = new Hypergrid(...);
 ```
 
+`grid.behavior.dataModel.getCell` method is called by HyperGrid to resolve the renderer for each data cell. It is called with a `config` object (see below) and `declaredRendererName`, which the proposed cell renderer name (from the cell's render properties). As you can see from the default implementation, the return value of this method is one of the renderer singletons (from ./src/dataModels/DataModel.js):
 
-`getCell` is called with the rendererName and the config object providing stateful information about the cell:
+```javascript
+DataModel.prototype.getCell = function(config, declaredRendererName) {
+    return this.grid.cellRenderers.get(declaredRendererName);
+};
+```
 
+For a programmatic cell renderer association, simply reassign `rendererName` in your method override (in your main program):
+
+```javascript
+grid.behavior.dataModel.getCell = function(config, declaredRendererName) {
+    if (...) { // some condition based on config
+        declaredRendererName = 'myRegisteredRenderer'; // case-insensitive
+    }
+    return this.grid.cellRenderers.get(declaredRendererName);
+};
+```
+
+For useful example of `getCell` overrides, search for "getCell" in the demo folder.
+
+The grid-wide default renderer name as defined in ./src/defaults.js is `SimpleCell` (which you can of course override).
+
+In your `getCell` override, you can optionally set additional arbitrary properties on `config` which will be passed along to the renderer's paint function later.
+
+`getCell` is called with a `config` object which is created from (_i.e.,_ whose prototype is) the column's "state" object (its _render properties,_ as documented {@link module:defaults|here}), with the following additional stateful properties providing information about the cell:
 
 Parameter                       | Description
-------------------------------  | :---:
-`backgroundColor`               | Color of the background
-`backgroundSelectionColor`      | Color of the background when its selected
-`bounds`                        | The region which the renderer's paint function should confine itself to
-`buttonCells`                   | Array of cells that are buttons
-`color`                         | Font Color
-`Defaults`                      | Based on whether its a Header, Filter or tree cell. The appropriate fields will be loaded from [defaults.js](http://openfin.github.io/fin-hypergrid/doc/module-defaults.html)
-`font`                          | Font
-`foregroundSelectionColor`      | Color of foreground when its selected
-`foregroundSelectionFont`       | Color of the font when selected
-`formatValue`                   | Allow a localization of data
-`getTextHeight`                 | Function. Returns height of text
-`getTextWidth`                 | Function. Returns width of text
-`halign`                        | Whether to horizontally align 'left', 'right', or 'center'
-`isCellHovered`                 | If the cell is hovered by mouse
-`isCellSelected`                | If the cell was selected specifically
-`isColumnHovered`               | If the column the cell is is in is hovered
-`isColumnSelected`              | If the column the cell is in is selected
-`isGridColumn`                  | If its a header Column
-`isGridRow`                     | If its a header row
-`isInCurrentSelectionRectangle` | If the cell is in the current selection matrix
-`isRowHovered`                  | If the row the cell is is in is hovered
-`isRowSelected`                 | If the row the cell is is in is selected
-`isUserDataArea`                | If the cell holds actual user data
-`mouseDown`                     | If the mouse is down on the cell
-`preferredWidth`                | Minimum recommended width for the cell's containing column
-`untranslatedX`                 | 
-`untranslatedY`                 |
-`value`                         | an untyped field that represents contextual information for the cell to present. I.e. for a text cell value you may used this represent stringified data
-`x`                             | The _absolute_ column index. 
-`y`                             | The row index.
-
-__________________
-+This _absolute_ column index is the column's index into the full column list (both `grid.behavior.allColumns[]` and the data source's `fields[]` array upon which it is based). By comparison, the _active_ column index refers to the list of columns current active in the grid (`grid.behavior.columns[]`), representing the position of the column in the grid. This list is a subset of of the full list because "hidden" columns are excluded and the remaining columns can be re-ordered at any time via the UI or programmatically.
+:-----------------------------  | :---
+`bounds`                        | The region which the renderer's paint function should confine itself to.
+`bounds.height`                 | Paint region height in canvas pixels.
+`bounds.width`                  | Paint region width in canvas pixels.
+`bounds.x`                      | Paint region horizontal pixel coordinate from canvas origin (top left).
+`bounds.y`                      | Paint region vertical pixel coordinate from canvas origin (top left).
+`halign`                        | Whether to horizontally align 'left', 'right', or 'center'.
+`isCellHovered`                 | If the cell is hovered by mouse.
+`isCellSelected`                | If the cell was selected specifically.
+`isColumnHovered`               | If the column the cell is in is hovered.
+`isColumnSelected`              | If the column the cell is in is selected.
+`isGridColumn`                  | If the cell is in a column that is part of the data region (as opposed to column and row headers). Always `true`.
+`isGridColumn`                  | If the cell is in a row that is part of the data region (as opposed to column and row headers). Always `true`.
+`isInCurrentSelectionRectangle` | If the cell is in the last selected cell region.
+`isRowHovered`                  | If the row the cell is in is hovered.
+`isRowSelected`                 | If the row the cell is in is selected.
+`isSelected`                    | The cell is currently selected (included in one of the current selection models).
+`isUserDataArea`                | If the cell holds actual user data.
+`value`                         | an untyped field that represents contextual information for the cell to present. I.e. for a text cell value you may used this represent stringified data.
+`untranslatedX`                 | The column's index into the full column list, `grid.behavior.allColumns[]` (and the data source's `fields[]` array upon which it is based).
+`y`                 | The grid row index, including the header rows. The first header row index === 0; the first data row index varies based on the number of header rows.
+`x`                   | The column's index into the list of columns currently active in the grid, `grid.behavior.columns[]`, representing the position of the column in the grid. This list is a subset of of the full list because "hidden" columns are excluded and the remaining columns can be re-ordered at any time via the UI (dragging columns around) or programmatically. (The active column index is not available in the config object.)
+`normalizedY`                   | The data row index, where the first data row index === 0 (excludes the header rows).
+`x`                             | Legacy property === `x`. Use of this property triggers a deprecation warning. This property will be removed in a future release. _Do not use._
+`y`                             | Legacy property === `y`. Use of this property triggers a deprecation warning. This property will be removed in a future release. _Do not use._
 
 ### Note about the LastSelection renderer
 
 The `config` object only has access to `bounds` and the following 
 
 Parameter                       | Description
-------------------------------  | :---:
+:-----------------------------  | :---
 `selectionRegionOutlineColor`   | Borders of selected cells
 `selectionRegionOverlayColor`   | Color of selected cells
 
 ### Creating your own renderer
-You can create your own renderer by extending [CellRenderer Base Class](http://openfin.github.io/fin-hypergrid/doc/CellRenderer.html)  
-and overriding the `paint` method that expects a `2D graphics context` and a config object (described above).
 
-You would then need to register your new cell renderer on the grid with `YourGrid.registerCellRenderer`
+You can create your own renderer by extending from the [CellRenderer](http://openfin.github.io/fin-hypergrid/doc/CellRenderer.html) base class and overriding the `paint` method that expects `gc` (2D graphics context) object and a `config` object (described above).
+
+Register your new cell renderer on the grid with `grid.cellRenderers.add`. This allows it to be referenced by name (in the cell's `renderer` render property).
 
 #### Here's an example use the Star Rating as the inspiration 
-[Reference](https://openclipart.org/image/2400px/svg_to_png/117079/5-Star-Rating-System-20110205103828.png)
 
+"Star ratings" look something like [this](https://openclipart.org/image/2400px/svg_to_png/117079/5-Star-Rating-System-20110205103828.png).
 
 ```javascript
-
 /*
    Define your rendering logic
 */
@@ -320,29 +257,29 @@ function getRGBA(colorSpec) {
 
 
 //Extend HyperGrid's base Renderer
-var sparkStarRatingRenderer = YourGrid.cellRendererBase.extend({
+var sparkStarRatingRenderer = grid.cellRendererBase.extend({
     paint: paintSparkRating
 });
 
 //Register your renderer
-YourGrid.registerCellRenderer(sparkStarRatingRenderer, "Starry");
+grid.registerCellRenderer(sparkStarRatingRenderer, "Starry");
 
 
 // Using your new render
-yourGrid.behavior.dataModel.getCell = function(config, rendererName) {
-  //Retrieve the Singleton
-  var starryRenderer = grid.getCellRenderer('Starry');
-    idxOfStarColumn = 5;
-
-  if (config.x === idxOfStarColumn){
-    config.domain= 100; // default is 100
-    config.sizeFactor =  0.65; // default is 0.65; size of stars as fraction of height of cell
-    config.darkenFactor = 0.75; // default is 0.75; star stroke color as fraction of star fill color
-    config.color = 'gold'; // default is 'gold'; star fill color
-    return starry;
-  } 
-  
-  return starryRenderer;
+grid.behavior.dataModel.getCell = function(config, rendererName) {
+    //Retrieve the Singleton
+    var starryRenderer = this.grid.cellRenderers.get('Starry');
+        idxOfStarColumn = 5;
+    
+    if (config.x === idxOfStarColumn){
+        config.domain= 100; // default is 100
+        config.sizeFactor =  0.65; // default is 0.65; size of stars as fraction of height of cell
+        config.darkenFactor = 0.75; // default is 0.75; star stroke color as fraction of star fill color
+        config.color = 'gold'; // default is 'gold'; star fill color
+        return starry;
+    } 
+    
+    return starryRenderer;
 };
 ```
 
@@ -350,7 +287,7 @@ yourGrid.behavior.dataModel.getCell = function(config, rendererName) {
 ### Rendering in HyperGrid
 
 Note that HyperGrid...
-- is lazy in regards to rendering. It relies on explicit calls to `YourGrid.repaint()` (sometimes made on your behalf), to request a redraw of the canvas. 
+- is lazy in regards to rendering. It relies on explicit calls to `grid.repaint()` (sometimes made on your behalf), to request a redraw of the canvas. 
 - throttles multiple calls to `repaint` to 60 FPS.
 - every re-render is a complete re-render; there is no partial re-rendering.
 - for efficiency reasons, the grid lines that divide cells and establish their boundaries and painted separately and not part of the individual cell renders.
@@ -361,7 +298,7 @@ When wanting to do an animation within a cell renderer, you will need to set you
 You can additionally check for grid repaint events by listening on the `fin-grid-rendered` event like so 
 
 ```javascript
-    YourGrid.addEventListener('fin-grid-rendered', function(e) {
+    grid.addEventListener('fin-grid-rendered', function(e) {
        //Do something 
     });
 ```
@@ -382,7 +319,7 @@ jsonGrid.addFinEventListener('fin-cell-click', function(e){
 ```
 * override the getCursorAt method on behavior to be a function that returns the string of the name of the cursor for the column with the links
 ```javascript
-yourGrid.behavior.getCursorAt = function(x,y) {
+grid.behavior.getCursorAt = function(x,y) {
     if (x === 0) {
         return 'pointer'
     } else {
@@ -392,9 +329,9 @@ yourGrid.behavior.getCursorAt = function(x,y) {
 ```
 * override the cell-provider to return the linkRenderer for the desired link columns and set `config.link = true`
 ```javascript
-yourGrid.behavior.dataModel.getCell = function(config, renderName) {
+grid.behavior.dataModel.getCell = function(config, renderName) {
     config.link = true;
-    var defaultRenderer = grid.getCellRenderer(rendererName);
+    var defaultRenderer = this.grid.cellRenderers.get(rendererName);
     config.halign = 'left';
     var x = config.x;
     if (x === 0) {
