@@ -10,10 +10,12 @@ var Button = CellRenderer.extend('Button', {
     /**
      * @summary The default cell rendering function for a button cell.
      * @param {CanvasGraphicsContext} gc
-     * @param {number} config.x - the x screen coordinate of my origin
-     * @param {number} config.y - the y screen coordinate of my origin
-     * @param {number} config.bounds.width - the width I'm allowed to draw within
-     * @param {number} config.bounds.height - the height I'm allowed to draw within
+     * @param {object} config
+     * @param {Rectangle} config.bounds - The clipping rect of the cell to be rendered.
+     * @param {number} config.x - the "translated" index into the `behavior.allColumns` array
+     * @param {number} config.normalizedY - the vertical grid coordinate normalized to first data row
+     * @param {number} config.untranslatedX - the horizontal grid coordinate measured from first data column
+     * @param {number} config.y - the vertical grid coordinate measured from top header row
      */
     paint: function(gc, config) {
         var val = config.value;
