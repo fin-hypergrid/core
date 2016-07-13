@@ -438,10 +438,10 @@ window.onload = function() {
                     hex = (155 + 10 * (n % 11)).toString(16);
                     config.backgroundColor = '#' + hex + hex + hex;
                 } else {
-                    switch (y % 6) {
+                    switch (config.normalizedY % 6) {
+                        case 3:
+                        case 4:
                         case 5:
-                        case 0:
-                        case 1:
                             config.backgroundColor = '#e8ffe8';
                             config.font = 'italic x-small verdana';
                             if (config.color !== redIfStartsWithS) {
@@ -449,9 +449,9 @@ window.onload = function() {
                             }
                             break;
 
+                        case 0:
+                        case 1:
                         case 2:
-                        case 3:
-                        case 4:
                             config.backgroundColor = 'white';
                             config.font = 'normal small garamond';
                             break;
