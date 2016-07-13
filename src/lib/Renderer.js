@@ -1041,13 +1041,10 @@ var Renderer = Base.extend('Renderer', {
             cellProperties.mouseDown = point.x === c && point.y === r;
         }
 
-        cellProperties.x = c;
-        cellProperties.y = r;
-
-        behavior.cellPropertiesPrePaintNotification(cellProperties);
-
         var cell = behavior.getCellRenderer(cellProperties, c, r);
         var column = behavior.getActiveColumn(c);
+
+        behavior.cellPropertiesPrePaintNotification(cellProperties);
 
         //declarative cell properties
         if (isGridRow) {

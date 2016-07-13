@@ -131,9 +131,18 @@ Column.prototype = {
         this.getProperties().width = Math.max(5, width);
     },
 
-    getCellRenderer: function(config, y) {
-        config.x = this.index;
+    getCellRenderer: function(config, x, y) {
+        config.untranslatedX = x;
         config.y = y;
+
+        config.x = this.index;
+        config.normalizedY = y - this.behavior.getHeaderRowCount();
+
+        // Legacy config.x and config.y were confusing because the x was translated while the y was not.
+        // These have been deprecated and are currently implemented as getters with deprecation warnings.
+        // Rather than defining these getters here on every cell render, they are defined once in Behavior.prototype.getDefaultState.
+        //config.x = this.index;
+        //config.y = y;
 
         var declaredRendererName =
             this.getCellProperties(y).renderer ||
