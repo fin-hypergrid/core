@@ -56,6 +56,8 @@ var JSON = DataModel.extend('dataModels.JSON', {
     resetSources: function() {
         this.sources = {
             source: nullDataSource,
+            treeview: nullDataSource,
+            groupview: nullDataSource,
             aggregator: nullDataSource,
             globalfilter: nullDataSource,
             sortercomposite: nullDataSource
@@ -93,7 +95,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
      * @returns {boolean}
      */
     hasGroups: function() {
-        return this.sources.aggregator.hasGroups();
+        return this.sources.groupview.hasGroups();
     },
 
     getDataSource: function() {
@@ -258,7 +260,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
         var showTree = this.grid.resolveProperty('showTreeColumn') === true;
         var hasAggregates = this.hasAggregates();
         var offset = (hasAggregates && !showTree) ? -1 : 0;
-        return this.sources.aggregator.getColumnCount() + offset;
+        return this.sources.groupview.getColumnCount() + offset;
     },
 
     /**
@@ -276,7 +278,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
      * @returns {string[]}
      */
     getHeaders: function() {
-        return this.sources.aggregator.getHeaders();
+        return this.sources.groupview.getHeaders(); //needs to be aggregator
     },
 
     /**
@@ -315,10 +317,11 @@ var JSON = DataModel.extend('dataModels.JSON', {
      */
     pipeline: [
         { type: 'JSDataSource' },
+        { type: 'DataSourceGroupView' },
         { type: 'DataSourceAggregator', test: 'hasAggregates' },
         { type: 'DataSourceGlobalFilter' },
-        { type: 'DataSourceSorterComposite' },
-        { type: 'DataNodeGroupSorter', parent: 'DataSourceAggregator' }
+        { type: 'DataSourceSorterComposite' }
+        //{ type: 'DataNodeGroupSorter', parent: 'DataSourceAggregator' }
     ],
 
     /**
@@ -428,8 +431,8 @@ var JSON = DataModel.extend('dataModels.JSON', {
      * @param groups
      */
     setGroups: function(groups) {
-        this.sources.aggregator.setGroupBys(groups);
-        this.applyAnalytics();
+        this.sources.groupview.setGroupBys(groups);
+        //this.applyAnalytics();
         this.grid.fireSyntheticGroupsChangedEvent(this.getGroups());
     },
 
@@ -440,7 +443,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
     getGroups: function() {
         var headers = this.getHeaders().slice(0);
         var fields = this.getFields().slice(0);
-        var groupBys = this.sources.aggregator.groupBys;
+        var groupBys = this.sources.groupview.groupBys;
         var groups = [];
         for (var i = 0; i < groupBys.length; i++) {
             var field = headers[groupBys[i]];
@@ -459,7 +462,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
      */
     getAvailableGroups: function() {
         var headers = this.sources.source.getHeaders().slice(0);
-        var groupBys = this.sources.aggregator.groupBys;
+        var groupBys = this.sources.groupview.groupBys;
         var groups = [];
         for (var i = 0; i < headers.length; i++) {
             if (groupBys.indexOf(i) === -1) {
@@ -510,8 +513,8 @@ var JSON = DataModel.extend('dataModels.JSON', {
      * @memberOf dataModels.JSON.prototype
      * @param aggregations
      */
-    setAggregates: function(aggregations) {
-        this.sources.aggregator.setAggregates(aggregations);
+    setAggregates: function(aggregations, groups) {
+        this.sources.aggregator.setAggregates(aggregations, groups);
         this.applyAnalytics();
     },
 
