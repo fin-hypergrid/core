@@ -362,7 +362,9 @@ function layerColors(gc, colors, x, y, width, height) {
 }
 
 function valOrFunc(vf, config) {
-    var result = (typeof vf)[0] === 'f' ? vf(config) : vf;
+    var result = config.isGridColumn && config.isGridRow && (typeof vf)[0] === 'f'
+        ? vf(config.dataRow, config.columnName, config.x)
+        : vf;
     return result || result === 0 || result === false ? result : '';
 }
 
