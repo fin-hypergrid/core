@@ -1617,7 +1617,7 @@ Hypergrid.prototype = {
 
         function getValue(selectedRowIndex, j) {
             var dataRow = self.getRow(selectedRowIndex);
-            rows[j] = valOrFunc(dataRow, column.name, column.index);
+            rows[j] = valOrFunc(dataRow, column.name);
         }
 
         return result;
@@ -1642,7 +1642,7 @@ Hypergrid.prototype = {
 
         function getValue(selectedRowIndex, r) {
             var dataRow = self.getRow(selectedRowIndex);
-            result[c][r] = valOrFunc(dataRow, column.name, column.index);
+            result[c][r] = valOrFunc(dataRow, column.name);
         }
 
         return result;
@@ -1662,7 +1662,7 @@ Hypergrid.prototype = {
 
             for (var r = headerRowCount; r < numRows; r++) {
                 dataRow = self.getRow(r);
-                values[r] = valOrFunc(dataRow, column.name, column.index);
+                values[r] = valOrFunc(dataRow, column.name);
             }
         });
 
@@ -1683,7 +1683,7 @@ Hypergrid.prototype = {
 
             for (var r = headerRowCount; r < rowCount; r++) {
                 dataRow = self.getRow(r);
-                values[r] = valOrFunc(dataRow, column.name, column.index);
+                values[r] = valOrFunc(dataRow, column.name);
             }
         });
 
@@ -1710,7 +1710,7 @@ Hypergrid.prototype = {
 
                 for (var r = 0, y = rect.origin.y; r < rowCount; r++, y++) {
                     dataRow = self.getRow(y);
-                    values[r] = valOrFunc(dataRow, column.name, column.index);
+                    values[r] = valOrFunc(dataRow, column.name);
                 }
             }
 
@@ -1740,7 +1740,7 @@ Hypergrid.prototype = {
 
                 for (var r = 0, y = rect.origin.y; r < rowCount; r++, y++) {
                     dataRow = self.getRow(y);
-                    values[r] = valOrFunc(dataRow, column.name, column.index);
+                    values[r] = valOrFunc(dataRow, column.name);
                 }
             }
 
@@ -3476,9 +3476,9 @@ function clearObjectProperties(obj) {
     }
 }
 
-function valOrFunc(dataRow, columnName, columnIndex) {
-    var vf = dataRow[columnName];
-    var result = (typeof vf)[0] === 'f' ? vf(dataRow, columnName, columnIndex) : vf;
+function valOrFunc(dataRow, columnName) {
+    var vf = dataRow[columnName],
+        result = (typeof vf)[0] === 'f' ? vf(dataRow, columnName) : vf;
     return result || result === 0 || result === false ? result : '';
 }
 

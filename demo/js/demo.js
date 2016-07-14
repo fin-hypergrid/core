@@ -1237,7 +1237,7 @@ window.onload = function() {
         grid.setGlobalFilter(Hypergrid.behaviors.Behavior.prototype.getNewFilter.call(grid.behavior));
     }
 
-    function redIfStartsWithS(dataRow, columnName, columnIndex) {
+    function redIfStartsWithS(dataRow, columnName) {
         //does the data start with an 'S'?
         var value = dataRow[columnName];
         return value != null && (value + '')[0] === 'S' ? 'red' : '#191919';
