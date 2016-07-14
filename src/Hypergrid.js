@@ -1595,9 +1595,8 @@ Hypergrid.prototype = {
     },
 
     getRowSelection: function(includeHiddenColumns) {
-        var column, columnValues, getColumn,
-            config = { untranslatedX: undefined, x: undefined, y: undefined, normalizedY: undefined },
-            headerRowCount = this.getHeaderRowCount(),
+        var column, rows, getColumn,
+            self = this,
             selectedRowIndexes = this.selectionModel.getSelectedRows(),
             numColumns = this.getColumnCount(),
             result = {};
@@ -1612,17 +1611,13 @@ Hypergrid.prototype = {
 
         for (var c = 0; c < numColumns; c++) {
             column = getColumn(c);
-            config.x = column.index;
-            config.untranslatedX = c;
-            columnValues = new Array(selectedRowIndexes.length);
-            selectedRowIndexes.forEach(setColumnValue);
-            result[column.name] = columnValues;
+            rows = result[column.name] = new Array(selectedRowIndexes.length);
+            selectedRowIndexes.forEach(getValue);
         }
 
-        function setColumnValue(selectedRowIndex, j) {
-            config.y = selectedRowIndex;
-            config.normalizedY = selectedRowIndex - headerRowCount;
-            columnValues[j] = valOrFunc(column.getValue(selectedRowIndex), config);
+        function getValue(selectedRowIndex, j) {
+            var dataRow = self.getRow(selectedRowIndex);
+            rows[j] = valOrFunc(dataRow, column.name, column.index);
         }
 
         return result;
@@ -1635,48 +1630,39 @@ Hypergrid.prototype = {
 
     getRowSelectionMatrix: function() {
         var self = this,
-            config = { untranslatedX: undefined, x: undefined, y: undefined, normalizedY: undefined },
-            headerRowCount = this.getHeaderRowCount(),
             selectedRowIndexes = this.selectionModel.getSelectedRows(),
             numCols = this.getColumnCount(),
             result = new Array(numCols);
 
         for (var c = 0; c < numCols; c++) {
             var column = this.behavior.getActiveColumn(c);
-            config.untranslatedX = c;
-            config.x = column.index;
             result[c] = new Array(selectedRowIndexes.length);
             selectedRowIndexes.forEach(getValue);
         }
 
         function getValue(selectedRowIndex, r) {
-            config.y = selectedRowIndex;
-            config.normalizedY = selectedRowIndex - headerRowCount;
-            result[c][r] = valOrFunc(self.getValue(c, selectedRowIndex), config);
+            var dataRow = self.getRow(selectedRowIndex);
+            result[c][r] = valOrFunc(dataRow, column.name, column.index);
         }
 
         return result;
     },
 
     getColumnSelectionMatrix: function() {
-        var config = { untranslatedX: undefined, x: undefined, y: undefined, normalizedY: undefined },
+        var dataRow,
+            self = this,
             headerRowCount = this.getHeaderRowCount(),
             selectedColumnIndexes = this.getSelectedColumns(),
             numRows = this.getRowCount(),
-            result = new Array(selectedColumnIndexes.length),
-            behavior = this.behavior;
+            result = new Array(selectedColumnIndexes.length);
 
         selectedColumnIndexes.forEach(function(selectedColumnIndex, c) {
-            var column = behavior.getActiveColumn(selectedColumnIndex),
+            var column = self.behavior.getActiveColumn(selectedColumnIndex),
                 values = result[c] = new Array(numRows);
 
-            config.untranslatedX = selectedColumnIndex;
-            config.x = column.index;
-
-            for (var r = 0; r < numRows; r++) {
-                config.y = r;
-                config.normalizedY = r - headerRowCount;
-                values[r] = valOrFunc(behavior.getValue(selectedColumnIndex, r), config);
+            for (var r = headerRowCount; r < numRows; r++) {
+                dataRow = self.getRow(r);
+                values[r] = valOrFunc(dataRow, column.name, column.index);
             }
         });
 
@@ -1684,24 +1670,20 @@ Hypergrid.prototype = {
     },
 
     getColumnSelection: function() {
-        var config = { untranslatedX: undefined, x: undefined, y: undefined, normalizedY: undefined },
+        var dataRow,
+            self = this,
             headerRowCount = this.getHeaderRowCount(),
             selectedColumnIndexes = this.getSelectedColumns(),
             result = {},
-            rowCount = this.getRowCount(),
-            self = this;
+            rowCount = this.getRowCount();
 
         selectedColumnIndexes.forEach(function(selectedColumnIndex) {
             var column = self.behavior.getActiveColumn(selectedColumnIndex),
                 values = result[column.name] = new Array(rowCount);
 
-            config.untranslatedX = selectedColumnIndex;
-            config.x = column.index;
-
-            for (var r = 0; r < rowCount; r++) {
-                config.y = r;
-                config.normalizedY = r - headerRowCount;
-                values[r] = valOrFunc(self.getValue(selectedColumnIndex, r), config);
+            for (var r = headerRowCount; r < rowCount; r++) {
+                dataRow = self.getRow(r);
+                values[r] = valOrFunc(dataRow, column.name, column.index);
             }
         });
 
@@ -1709,11 +1691,10 @@ Hypergrid.prototype = {
     },
 
     getSelection: function() {
-        var config = { untranslatedX: undefined, x: undefined, y: undefined, normalizedY: undefined },
-            headerRowCount = this.getHeaderRowCount(),
+        var dataRow,
+            self = this,
             selections = this.getSelections(),
-            rects = new Array(selections.length),
-            self = this;
+            rects = new Array(selections.length);
 
         selections.forEach(getRect);
 
@@ -1725,15 +1706,11 @@ Hypergrid.prototype = {
 
             for (var c = 0, x = rect.origin.x; c < colCount; c++, x++) {
                 var column = self.behavior.getActiveColumn(x),
-                    rows = columns[column.name] = new Array(rowCount);
-
-                config.untranslatedX = x;
-                config.x = column.index;
+                    values = columns[column.name] = new Array(rowCount);
 
                 for (var r = 0, y = rect.origin.y; r < rowCount; r++, y++) {
-                    config.y = y;
-                    config.normalizedY = y - headerRowCount;
-                    rows[r] = valOrFunc(self.getValue(x, y), config);
+                    dataRow = self.getRow(y);
+                    values[r] = valOrFunc(dataRow, column.name, column.index);
                 }
             }
 
@@ -1744,9 +1721,8 @@ Hypergrid.prototype = {
     },
 
     getSelectionMatrix: function() {
-        var self = this,
-            config = { untranslatedX: undefined, x: undefined, y: undefined, normalizedY: undefined },
-            headerRowCount = this.getHeaderRowCount(),
+        var dataRow,
+            self = this,
             selections = this.getSelections(),
             rects = new Array(selections.length);
 
@@ -1759,16 +1735,12 @@ Hypergrid.prototype = {
                 rows = [];
 
             for (var c = 0, x = rect.origin.x; c < colCount; c++, x++) {
-                var row = rows[c] = new Array(rowCount),
+                var values = rows[c] = new Array(rowCount),
                     column = self.behavior.getActiveColumn(x);
 
-                config.untranslatedX = x;
-                config.x = column.index;
-
                 for (var r = 0, y = rect.origin.y; r < rowCount; r++, y++) {
-                    config.y = y;
-                    config.normalizedY = y - headerRowCount;
-                    row[r] = valOrFunc(self.getValue(x, y), config);
+                    dataRow = self.getRow(y);
+                    values[r] = valOrFunc(dataRow, column.name, column.index);
                 }
             }
 
@@ -3380,7 +3352,7 @@ Hypergrid.prototype = {
         }
 
         return result;
-    }
+    },
 };
 
 /**
@@ -3504,9 +3476,10 @@ function clearObjectProperties(obj) {
     }
 }
 
-function valOrFunc(vf, config) {
-    var result = (typeof vf)[0] === 'f' ? vf(config) : vf;
-    return result || result === 0 ? result : '';
+function valOrFunc(dataRow, columnName, columnIndex) {
+    var vf = dataRow[columnName];
+    var result = (typeof vf)[0] === 'f' ? vf(dataRow, columnName, columnIndex) : vf;
+    return result || result === 0 || result === false ? result : '';
 }
 
 /**
