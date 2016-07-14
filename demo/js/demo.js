@@ -196,7 +196,12 @@ window.onload = function() {
         groups = [idx.BIRTH_STATE, idx.LAST_NAME, idx.FIRST_NAME];
 
     function toggleAggregates() {
-        behavior.setAggregates(this.checked ? aggregates : []);
+        var a = [], g = [];
+        if (this.checked) {
+            a = aggregates;
+            g = groups;
+        }
+        behavior.setAggregateGroups(a, g);
     }
 
     function addTreeDataSource() {

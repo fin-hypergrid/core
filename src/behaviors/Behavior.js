@@ -1487,9 +1487,9 @@ var Behavior = Base.extend('Behavior', {
         this.changed();
     },
 
-    setAggregates: function(mapOfKeysToFunctions, groups) {
+    setAggregateGroups: function(mapOfKeysToFunctions, groups) {
         var self = this;
-        this.dataModel.setAggregates(mapOfKeysToFunctions, groups);
+        this.dataModel.setAggregateGroups(mapOfKeysToFunctions, groups);
         this.createColumns();
         setTimeout(function() {
             self.changed();

@@ -278,7 +278,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
      * @returns {string[]}
      */
     getHeaders: function() {
-        return this.sources.groupview.getHeaders(); //needs to be aggregator
+        return this.sources.aggregator.getHeaders();
     },
 
     /**
@@ -432,7 +432,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
      */
     setGroups: function(groups) {
         this.sources.groupview.setGroupBys(groups);
-        //this.applyAnalytics();
+        this.applyAnalytics();
         this.grid.fireSyntheticGroupsChangedEvent(this.getGroups());
     },
 
@@ -513,8 +513,8 @@ var JSON = DataModel.extend('dataModels.JSON', {
      * @memberOf dataModels.JSON.prototype
      * @param aggregations
      */
-    setAggregates: function(aggregations, groups) {
-        this.sources.aggregator.setAggregates(aggregations, groups);
+    setAggregateGroups: function(aggregations, groups) {
+        this.sources.aggregator.setAggregateGroups(aggregations, groups);
         this.applyAnalytics();
     },
 
