@@ -441,7 +441,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
      * @returns {object[]}
      */
     getGroups: function() {
-        var headers = this.getHeaders().slice(0);
+        var headers = this.getHeaders().slice(1); //Exclude the tree column
         var fields = this.getFields().slice(0);
         var groupBys = this.sources.groupview.groupBys;
         var groups = [];
