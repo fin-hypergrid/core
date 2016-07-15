@@ -260,7 +260,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
         var showTree = this.grid.resolveProperty('showTreeColumn') === true;
         var hasAggregates = this.hasAggregates();
         var offset = (hasAggregates && !showTree) ? -1 : 0;
-        return this.sources.groupview.getColumnCount() + offset;
+        return this.sources.aggregator.getColumnCount() + offset;
     },
 
     /**
