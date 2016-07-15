@@ -95,6 +95,9 @@ var JSON = DataModel.extend('dataModels.JSON', {
      * @returns {boolean}
      */
     hasGroups: function() {
+        if (this.hasAggregates()) { //BAD!! JUST BAD!!
+            return this.sources.aggregator.hasGroups();
+        }
         return this.sources.groupview.hasGroups();
     },
 
