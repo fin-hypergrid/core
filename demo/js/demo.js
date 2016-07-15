@@ -438,10 +438,10 @@ window.onload = function() {
                     hex = (155 + 10 * (n % 11)).toString(16);
                     config.backgroundColor = '#' + hex + hex + hex;
                 } else {
-                    switch (y % 6) {
+                    switch (config.normalizedY % 6) {
+                        case 3:
+                        case 4:
                         case 5:
-                        case 0:
-                        case 1:
                             config.backgroundColor = '#e8ffe8';
                             config.font = 'italic x-small verdana';
                             if (config.color !== redIfStartsWithS) {
@@ -449,9 +449,9 @@ window.onload = function() {
                             }
                             break;
 
+                        case 0:
+                        case 1:
                         case 2:
-                        case 3:
-                        case 4:
                             config.backgroundColor = 'white';
                             config.font = 'normal small garamond';
                             break;
@@ -1237,9 +1237,9 @@ window.onload = function() {
         grid.setGlobalFilter(Hypergrid.behaviors.Behavior.prototype.getNewFilter.call(grid.behavior));
     }
 
-    function redIfStartsWithS(config) {
+    function redIfStartsWithS(dataRow, columnName) {
         //does the data start with an 'S'?
-        var data = config.value[1];
-        return data && data[0] === 'S' ? 'red' : '#191919';
+        var value = dataRow[columnName];
+        return value != null && (value + '')[0] === 'S' ? 'red' : '#191919';
     }
 };

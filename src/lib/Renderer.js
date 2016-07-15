@@ -1021,7 +1021,10 @@ var Renderer = Base.extend('Renderer', {
             }
             cellProperties.halign = 'right';
         } else {
-            cellProperties.value = grid.getValue(c, r);
+            var column = behavior.getActiveColumn(c);
+            cellProperties.dataRow = grid.getRow(r);
+            cellProperties.columnName = column.name;
+            cellProperties.value = cellProperties.dataRow ? cellProperties.dataRow[column.name] : grid.getValue(c, r);
             cellProperties.halign = grid.getColumnAlignment(c);
         }
 
@@ -1041,16 +1044,12 @@ var Renderer = Base.extend('Renderer', {
             cellProperties.mouseDown = point.x === c && point.y === r;
         }
 
-        cellProperties.x = c;
-        cellProperties.y = r;
+        var cell = behavior.getCellRenderer(cellProperties, c, r);
 
         behavior.cellPropertiesPrePaintNotification(cellProperties);
 
-        var cell = behavior.getCellRenderer(cellProperties, c, r);
-        var column = behavior.getActiveColumn(c);
-
         //declarative cell properties
-        if (isGridRow) {
+        if (isGridRow && isGridColumn) {
             var overrides = behavior.getCellProperties(column.index, r);
             _(cellProperties).extendOwn(overrides);
         }

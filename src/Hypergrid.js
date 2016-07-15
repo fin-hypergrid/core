@@ -1594,9 +1594,9 @@ Hypergrid.prototype = {
         this.canvas.dispatchEvent(selectionEvent);
     },
 
-
     getRowSelection: function(includeHiddenColumns) {
-        var c, column, columnValues, getColumn,
+        var column, rows, getColumn,
+            self = this,
             selectedRowIndexes = this.selectionModel.getSelectedRows(),
             numColumns = this.getColumnCount(),
             result = {};
@@ -1609,15 +1609,15 @@ Hypergrid.prototype = {
         }
         getColumn = getColumn.bind(this.behavior);
 
-        for (c = 0; c < numColumns; c++) {
+        for (var c = 0; c < numColumns; c++) {
             column = getColumn(c);
-            columnValues = new Array(selectedRowIndexes.length);
-            selectedRowIndexes.forEach(setColumnValue);
-            result[column.name] = columnValues;
+            rows = result[column.name] = new Array(selectedRowIndexes.length);
+            selectedRowIndexes.forEach(getValue);
         }
 
-        function setColumnValue(selectedRowIndex, j) {
-            columnValues[j] = valOrFunc(column.getValue(selectedRowIndex));
+        function getValue(selectedRowIndex, j) {
+            var dataRow = self.getRow(selectedRowIndex);
+            rows[j] = valOrFunc(dataRow, column.name);
         }
 
         return result;
@@ -1629,106 +1629,127 @@ Hypergrid.prototype = {
     },
 
     getRowSelectionMatrix: function() {
-        var c, self = this,
+        var self = this,
             selectedRowIndexes = this.selectionModel.getSelectedRows(),
             numCols = this.getColumnCount(),
             result = new Array(numCols);
 
-        function getValue(selectedRowIndex, r) {
-            result[c][r] = valOrFunc(self.getValue(c, selectedRowIndex));
-        }
-
-        for (c = 0; c < numCols; c++) {
+        for (var c = 0; c < numCols; c++) {
+            var column = this.behavior.getActiveColumn(c);
             result[c] = new Array(selectedRowIndexes.length);
             selectedRowIndexes.forEach(getValue);
+        }
+
+        function getValue(selectedRowIndex, r) {
+            var dataRow = self.getRow(selectedRowIndex);
+            result[c][r] = valOrFunc(dataRow, column.name);
         }
 
         return result;
     },
 
     getColumnSelectionMatrix: function() {
-        var selectedColumnIndexes = this.getSelectedColumns();
-        var numRows = this.getRowCount();
-        var result = new Array(selectedColumnIndexes.length);
-        var self = this;
+        var dataRow,
+            self = this,
+            headerRowCount = this.getHeaderRowCount(),
+            selectedColumnIndexes = this.getSelectedColumns(),
+            numRows = this.getRowCount(),
+            result = new Array(selectedColumnIndexes.length);
+
         selectedColumnIndexes.forEach(function(selectedColumnIndex, c) {
-            result[c] = new Array(numRows);
-            for (var r = 0; r < numRows; r++) {
-                result[c][r] = valOrFunc(self.getValue(selectedColumnIndex, r));
+            var column = self.behavior.getActiveColumn(selectedColumnIndex),
+                values = result[c] = new Array(numRows);
+
+            for (var r = headerRowCount; r < numRows; r++) {
+                dataRow = self.getRow(r);
+                values[r] = valOrFunc(dataRow, column.name);
             }
         });
+
         return result;
     },
 
     getColumnSelection: function() {
-        var selectedColumnIndexes = this.getSelectedColumns();
-        var result = {};
-        var rowCount = this.getRowCount();
-        var self = this;
+        var dataRow,
+            self = this,
+            headerRowCount = this.getHeaderRowCount(),
+            selectedColumnIndexes = this.getSelectedColumns(),
+            result = {},
+            rowCount = this.getRowCount();
+
         selectedColumnIndexes.forEach(function(selectedColumnIndex) {
-            var column = new Array(rowCount);
-            result[self.behavior.getActiveColumn(selectedColumnIndex).name] = column;
-            for (var r = 0; r < rowCount; r++) {
-                column[r] = valOrFunc(self.getValue(selectedColumnIndex, r));
+            var column = self.behavior.getActiveColumn(selectedColumnIndex),
+                values = result[column.name] = new Array(rowCount);
+
+            for (var r = headerRowCount; r < rowCount; r++) {
+                dataRow = self.getRow(r);
+                values[r] = valOrFunc(dataRow, column.name);
             }
         });
+
         return result;
     },
 
     getSelection: function() {
-        var self = this;
-        var selections = this.getSelections();
-        var result = new Array(selections.length);
-        selections.forEach(function(selectionRect, i) {
-            result[i] = self._getSelection(selectionRect);
-        });
-        return result;
-    },
+        var dataRow,
+            self = this,
+            selections = this.getSelections(),
+            rects = new Array(selections.length);
 
-    _getSelection: function(rect) {
-        rect = normalizeRect(rect);
-        var colCount = rect.extent.x + 1;
-        var rowCount = rect.extent.y + 1;
-        var ox = rect.origin.x;
-        var oy = rect.origin.y;
-        var result = {};
-        var r;
-        for (var c = 0; c < colCount; c++) {
-            var column = new Array(rowCount);
-            result[this.behavior.getActiveColumn(c + ox).name] = column;
-            for (r = 0; r < rowCount; r++) {
-                column[r] = valOrFunc(this.getValue(ox + c, oy + r));
+        selections.forEach(getRect);
+
+        function getRect(selectionRect, i) {
+            var rect = normalizeRect(selectionRect),
+                colCount = rect.extent.x + 1,
+                rowCount = rect.extent.y + 1,
+                columns = {};
+
+            for (var c = 0, x = rect.origin.x; c < colCount; c++, x++) {
+                var column = self.behavior.getActiveColumn(x),
+                    values = columns[column.name] = new Array(rowCount);
+
+                for (var r = 0, y = rect.origin.y; r < rowCount; r++, y++) {
+                    dataRow = self.getRow(y);
+                    values[r] = valOrFunc(dataRow, column.name);
+                }
             }
+
+            rects[i] = columns;
         }
-        return result;
+
+        return rects;
     },
 
     getSelectionMatrix: function() {
-        var self = this;
-        var selections = this.getSelections();
-        var result = new Array(selections.length);
-        selections.forEach(function(selectionRect, i) {
-            result[i] = self._getSelectionMatrix(selectionRect);
-        });
-        return result;
+        var dataRow,
+            self = this,
+            selections = this.getSelections(),
+            rects = new Array(selections.length);
+
+        selections.forEach(getRect);
+
+        function getRect(selectionRect, i) {
+            var rect = normalizeRect(selectionRect),
+                colCount = rect.extent.x + 1,
+                rowCount = rect.extent.y + 1,
+                rows = [];
+
+            for (var c = 0, x = rect.origin.x; c < colCount; c++, x++) {
+                var values = rows[c] = new Array(rowCount),
+                    column = self.behavior.getActiveColumn(x);
+
+                for (var r = 0, y = rect.origin.y; r < rowCount; r++, y++) {
+                    dataRow = self.getRow(y);
+                    values[r] = valOrFunc(dataRow, column.name);
+                }
+            }
+
+            rects[i] = rows;
+        }
+
+        return rects;
     },
 
-    _getSelectionMatrix: function(rect) {
-        rect = normalizeRect(rect);
-        var colCount = rect.extent.x + 1;
-        var rowCount = rect.extent.y + 1;
-        var ox = rect.origin.x;
-        var oy = rect.origin.y;
-        var result = [];
-        for (var c = 0; c < colCount; c++) {
-            var column = new Array(rowCount);
-            result[c] = column;
-            for (var r = 0; r < rowCount; r++) {
-                column[r] = valOrFunc(this.getValue(ox + c, oy + r));
-            }
-        }
-        return result;
-    },
     /**
      * @memberOf Hypergrid.prototype
      * @desc Synthesize and fire a `fin-context-menu` event
@@ -2727,10 +2748,10 @@ Hypergrid.prototype = {
     },
 
     isMouseDownInHeaderArea: function() {
-        var numHeaderColumns = this.getHeaderColumnCount();
-        var numHeaderRows = this.getHeaderRowCount();
+        var headerColumnCount = this.getHeaderColumnCount();
+        var headerRowCount = this.getHeaderRowCount();
         var mouseDown = this.getMouseDown();
-        return mouseDown.x < numHeaderColumns || mouseDown.y < numHeaderRows;
+        return mouseDown.x < headerColumnCount || mouseDown.y < headerRowCount;
     },
 
     isHeaderWrapping: function() {
@@ -3331,7 +3352,7 @@ Hypergrid.prototype = {
         }
 
         return result;
-    }
+    },
 };
 
 /**
@@ -3455,17 +3476,18 @@ function clearObjectProperties(obj) {
     }
 }
 
-function valOrFunc(vf) {
-    var result = (typeof vf)[0] === 'f' ? vf() : vf;
-    return result || result === 0 ? result : '';
+function valOrFunc(dataRow, columnName) {
+    var vf = dataRow[columnName],
+        result = (typeof vf)[0] === 'f' ? vf(dataRow, columnName) : vf;
+    return result || result === 0 || result === false ? result : '';
 }
 
 /**
  * @summary Shared localization defaults for all grid instances.
  * @desc These property values are overridden by those supplied in the `Hypergrid` constructor's `options.localization`.
- * @property {string|string[]} [options.localization.defaultLocale] - The default locale to use when an explicit `locale` is omitted from localizer constructor calls. Passed to Intl.NumberFomrat` and `Intl.DateFomrat`. See {@ https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl#Locale_identification_and_negotiation|Locale identification and negotiation} for more information. Omitting will use the runtime's local language and region.
- * @property {object} [options.localization.numberOptions] - Options passed to `Intl.NumberFomrat` for creating the basic "number" localizer.
- * @property {object} [options.localization.dateOptions] - Options passed to `Intl.DateFomrat` for creating the basic "date" localizer.
+ * @property {string|string[]} [options.localization.defaultLocale] - The default locale to use when an explicit `locale` is omitted from localizer constructor calls. Passed to Intl.NumberFormat` and `Intl.DateFormat`. See {@ https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl#Locale_identification_and_negotiation|Locale identification and negotiation} for more information. Omitting will use the runtime's local language and region.
+ * @property {object} [options.localization.numberOptions] - Options passed to `Intl.NumberFormat` for creating the basic "number" localizer.
+ * @property {object} [options.localization.dateOptions] - Options passed to `Intl.DateFormat` for creating the basic "date" localizer.
  */
 
 Hypergrid.localization = {

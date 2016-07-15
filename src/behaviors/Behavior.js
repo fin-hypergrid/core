@@ -499,7 +499,7 @@ var Behavior = Base.extend('Behavior', {
     },
 
     getCellRenderer: function(config, x, y) {
-        return this.getActiveColumn(x).getCellRenderer(config, y);
+        return this.getActiveColumn(x).getCellRenderer(config, x, y);
     },
     getCellProvider: function(name) {
         return this.deprecated('getCellProvider()', 'grid.cellRenderers', '1.0.6', arguments);
