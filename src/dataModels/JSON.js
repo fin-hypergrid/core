@@ -544,10 +544,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
                     if (sources.aggregator && sources.aggregator.viewMakesSense()) {
                         dataSource = sources.groupsorter;
                     }
-                    dataSource.clearSorts();
-                    (this.getPrivateState().sorts || []).forEach(function(sort) {
-                        dataSource.sortOn(Math.abs(sort) - 1, Math.sign(sort));
-                    });
+                    dataSource.setSorts(this.getPrivateState().sorts);
                     break;
             }
 
@@ -574,11 +571,16 @@ var JSON = DataModel.extend('dataModels.JSON', {
      * @param {number} colIndex
      * @param {boolean} deferred
      */
-    unSortColumn: function(colIndex, deferred) {
-        colIndex++; //hack to get around 0 index
-        var already = this.getColumnSortState(colIndex);
-        if (already > -1) {
-            this.removeColumnSortState(colIndex, already);
+    unSortColumn: function(columnIndex, deferred) {
+        var state = this.getPrivateState(),
+            sorts = state.sorts = state.sorts || [],
+            sortPosition;
+
+        if (sorts.find(function(sortSpec, index) {
+            sortPosition = index;
+            return sortSpec.columnIndex === columnIndex;
+        })) {
+            sorts.splice(sortPosition, 1);
             if (!deferred) {
                 this.applyAnalytics(true);
             }
@@ -589,8 +591,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
      * @memberOf dataModels.JSON.prototype
      */
     getSortedColumnIndexes: function() {
-        var state = this.getPrivateState();
-        return state.sorts && state.sorts.slice() || [];
+        return (this.getPrivateState().sorts || []).slice();
     },
 
     /**
@@ -598,62 +599,28 @@ var JSON = DataModel.extend('dataModels.JSON', {
      * @param {number} colIndex
      * @param {string[]} keys
      */
-    incrementSortState: function(colIndex, keys) {
-        colIndex++; //hack to get around 0 index
-        var state = this.getPrivateState();
-        var hasCTRL = keys.indexOf('CTRL') > -1;
-        state.sorts = state.sorts || [];
-        var already = this.getColumnSortState(colIndex);
-        if (already > -1) {
-            if (state.sorts[already] > 0) {
-                state.sorts[already] = -1 * state.sorts[already]; //descending
-            } else {
-                this.removeColumnSortState(colIndex, already);
-            }
-        } else if (hasCTRL || state.sorts.length === 0) {
-            state.sorts.unshift(colIndex);
-        } else {
-            state.sorts.length = 0;
-            state.sorts.unshift(colIndex);
+    incrementSortState: function(columnIndex, keys) {
+        var state = this.getPrivateState(),
+            sorts = state.sorts = state.sorts || [],
+            sortPosition,
+            sortSpec = sorts.find(function(spec, index) {
+                sortPosition = index;
+                return spec.columnIndex === columnIndex;
+            });
+
+        if (!sortSpec) { // was unsorted
+            if (keys.indexOf('CTRL') < 0) { sorts.length = 0; }
+            sorts.unshift({ columnIndex: columnIndex, direction: 1 }); // so make ascending
+        } else if (sortSpec.direction > 0) { // was ascending
+            sortSpec.direction = -1; // so make descending
+        } else { // was descending
+            sorts.splice(sortPosition, 1); // so make unsorted
         }
-        //Minor improvement, but this check can happen earlier and terminate earlier
-        if (state.sorts.length > 3) {
-            state.sorts.length = 3;
+
+        //Minor improvement, but this check can happe n earlier and terminate earlier
+        if (sorts.length > 3) {
+            sorts.length = 3;
         }
-    },
-
-    /**
-     * @memberOf dataModels.JSON.prototype
-     * @param {number} colIndex
-     * @returns {number}
-     */
-    getColumnSortState: function(colIndex) {
-        //assumption is that colIndex has been hacked to get around 0
-        var already,
-            state = this.getPrivateState();
-
-        state.sorts = state.sorts || [];
-
-        //Check data columns
-        already = state.sorts.indexOf(colIndex);
-
-        //Check columns with negative indices. Meta columns??
-        if (already === -1) {
-            already = state.sorts.indexOf(-1 * colIndex);
-        }
-        return already;
-    },
-
-    /**
-     * @memberOf dataModels.JSON.prototype
-     * @param {number} colIndex
-     * @param {number} sortPosition
-     */
-    removeColumnSortState: function(colIndex, sortPosition) {
-        //assumption is that colIndex has been hacked to get around 0
-        var state = this.getPrivateState();
-        state.sorts = state.sorts || [];
-        state.sorts.splice(sortPosition, 1);
     },
 
     /**
@@ -662,24 +629,22 @@ var JSON = DataModel.extend('dataModels.JSON', {
      * @param returnAsString
      * @returns {*}
      */
-    getSortImageForColumn: function(index) {
-        index++;
-        var up = true;
-        var sorts = this.getPrivateState().sorts;
-        if (!sorts) {
-            return null;
+    getSortImageForColumn: function(columnIndex) {
+        var sorts = this.getPrivateState().sorts || [],
+            sortPosition,
+            sortSpec = sorts.find(function(spec, index) {
+                sortPosition = index;
+                return spec.columnIndex === columnIndex;
+            }),
+            result = null;
+
+        if (sortSpec) {
+            var rank = sorts.length - sortPosition,
+                arrow = sortSpec.direction > 0 ? UPWARDS_BLACK_ARROW : DOWNWARDS_BLACK_ARROW;
+            result = rank + arrow + ' ';
         }
-        var position = sorts.indexOf(index);
-        if (position < 0) {
-            position = sorts.indexOf(-1 * index);
-            up = false;
-        }
-        if (position < 0) {
-            return null;
-        }
-        var rank = sorts.length - position;
-        var arrow = up ? UPWARDS_BLACK_ARROW : DOWNWARDS_BLACK_ARROW;
-        return rank + arrow + ' ';
+
+        return result;
     },
 
     isDrillDown: function(event) {
