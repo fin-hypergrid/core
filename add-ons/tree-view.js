@@ -64,41 +64,51 @@ TreeView.prototype = {
      * @summary Build/unbuild the tree view.
      * @param {boolean} join - Turn tree-view **ON**. If falsy (or omitted), turn it **OFF**.
      * @param {boolean} [hideIdColumns=false] - Once hidden, cannot be unhidden from here.
+     * @returns {boolean} Joined state.
      */
     setRelation: function(join, hideIdColumns) {
         var options = join && this.options,
             behavior = this.grid.behavior,
             dataModel = behavior.dataModel,
-            dataSource = dataModel.sources.treeview;
-
-        dataSource.setRelation(options);
+            dataSource = dataModel.sources.treeview,
+            joined = dataSource.setRelation(options),
+            state = behavior.getPrivateState(),
+            column = behavior.getColumn(dataSource.treeColumnIndex),
+            columnProps = column.getProperties();
 
         // if grid state not set yet, set it now
-        if (!behavior.getPrivateState().columnIndexes) {
+        if (!state.columnIndexes) {
             this.grid.setState({});
         }
 
-        if (join && hideIdColumns) {
-            var ids = [dataSource.idColumnIndex, dataSource.parentIdColumnIndex],
-                state = behavior.getPrivateState(),
-                columnIndexes = state.columnIndexes;
+        if (joined) {
+            // save the current value of column's editable property and set it to false
+            this.wasEditable = !!columnProps.editable;
+            columnProps.editable = false;
 
-            ids.forEach(function(id) {
-                var i = columnIndexes.indexOf(id);
-                if (i >= 0) {
-                    columnIndexes.splice(i, 1);
-                }
-            });
+            if (hideIdColumns) {
+                var ids = [dataSource.idColumnIndex, dataSource.parentIdColumnIndex],
+                    columnIndexes = behavior.getPrivateState().columnIndexes;
 
-            state.checkboxOnlyRowSelections = true; // so drill-down clicks don't select the row they are in
+                ids.forEach(function(id) {
+                    var i = columnIndexes.indexOf(id);
+                    if (i >= 0) {
+                        columnIndexes.splice(i, 1);
+                    }
+                });
 
-            this.grid.setState(state); // update state by resetting with mutated existing state
+                state.checkboxOnlyRowSelections = true; // so drill-down clicks don't select the row they are in
+
+                this.grid.setState(state); // update state by resetting with mutated existing state
+            }
+        } else {
+            columnProps.editable = this.wasEditable;
         }
 
         dataModel.applyAnalytics();
         behavior.shapeChanged();
 
-        return join;
+        return joined;
     }
 };
 
