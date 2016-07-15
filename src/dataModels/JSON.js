@@ -352,6 +352,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
             sources[layer.name] = dataSource;
         }.bind(this, this.sources));
 
+        this.source = this.sources.source;
         this.dataSource = this.dataSource || dataSource; // tip of main trunk if never branched
 
         this.applyAnalytics();
