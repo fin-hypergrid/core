@@ -4,6 +4,7 @@ var CellRenderer = require('./CellRenderer');
 
 /**
  * @constructor
+ * @extends CellRenderer
  */
 var LastSelection = CellRenderer.extend('LastSelection', {
 

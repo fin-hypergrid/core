@@ -4,6 +4,7 @@ var ColumnResizing = require('./ColumnResizing');
 
 /**
  * @constructor
+ * @extends ColumnResizing
  */
 var RowResizing = ColumnResizing.extend('RowResizing', {
 

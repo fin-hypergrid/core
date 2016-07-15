@@ -94,11 +94,18 @@ Column.prototype = {
         });
     },
 
-    set header(value) {
-        this._header = value;
-        this.dataModel.getHeaders()[this.index] = value;
+    /**
+     * @summary Get or set the text of the column's header.
+     * @desc The _header_ is the label at the top of the column.
+     *
+     * Setting the value here updates the header in both this column object as well as the `fields` (aka, header) array in the underlying data source.
+     *
+     * The new text will appear on the next repaint.
+     * @type {string}
+     */
+    set header(headerText) {
+        this.dataModel.getHeaders()[this.index] = this._header = headerText;
     },
-
     get header() {
         return this._header;
     },

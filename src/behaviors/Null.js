@@ -7,6 +7,7 @@ var noop = function() {},
 
 /**
  * @constructor
+ * @extends Behavior
  */
 var Null = Behavior.extend('Null', {
 

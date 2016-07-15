@@ -48,6 +48,7 @@ var nullDataSource = {
 /**
  * @name dataModels.JSON
  * @constructor
+ * @extends DataModel
  */
 var JSON = DataModel.extend('dataModels.JSON', {
 
@@ -75,11 +76,16 @@ var JSON = DataModel.extend('dataModels.JSON', {
     },
 
     /**
-     * @memberOf dataModels.JSON.prototype
+     * @param {number} [columnIndex] If given, also checks that the column clicked is the tree column.
      * @returns {boolean}
+     * @memberOf dataModels.JSON.prototype
      */
-    hasAggregates: function() {
-        return this.sources.aggregator.hasAggregates();
+    hasAggregates: function(event) {
+        var result = this.sources.aggregator.hasAggregates();
+        if (result && event) {
+            result = event.gridCell.x === 0;
+        }
+        return result;
     },
 
     /**
@@ -309,7 +315,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
      */
     pipeline: [
         { type: 'JSDataSource' },
-        { type: 'DataSourceAggregator' },
+        { type: 'DataSourceAggregator', test: 'hasAggregates' },
         { type: 'DataSourceGlobalFilter' },
         { type: 'DataSourceSorterComposite' },
         { type: 'DataNodeGroupSorter', parent: 'DataSourceAggregator' }
@@ -317,39 +323,39 @@ var JSON = DataModel.extend('dataModels.JSON', {
 
     /**
      * @summary Instantiates the data source pipeline.
-     * @desc Each new layer is created using the supplied constructor and a reference to the previous data source in the pipeline. A reference to each new layer is added to `this` dataModel as a property using the layer's `name`.
+     * @desc Each new pipe is created using the supplied constructor and a reference to the previous data source in the pipeline. A reference to each new pipe is added to `this` dataModel as a property using the pipe's `name`.
      *
-     * The first layer must have a `@@CLASS_NAME` of `'DataSource'`. Hence, the start of the pipeline is `this.source`. The last layer is assigned the synonym `this.dataSource`.
+     * The first pipe must have a `@@CLASS_NAME` of `'DataSource'`. Hence, the start of the pipeline is `this.source`. The last pipe is assigned the synonym `this.dataSource`.
      *
-     * Branches are created when a layer specifies a name in `parent`.
+     * Branches are created when a pipe specifies a name in `parent`.
      * @param {object[]} dataSource - Array of uniform objects containing the grid data.
      * @memberOf dataModels.JSON.prototype
      */
     setData: function(dataSource) {
         this.resetSources();
 
-        this.pipeline.forEach(function(sources, layer, index) {
-            var DataSource = analytics[layer.type];
+        this.pipeline.forEach(function(sources, pipe, index) {
+            var DataSource = analytics[pipe.type];
 
-            layer.name = layer.name || getDataSourceName(layer.type);
+            pipe.name = pipe.name || getDataSourceName(pipe.type);
 
-            if (index === 0 && layer.name !== 'source') {
+            if (index === 0 && pipe.name !== 'source') {
                 throw 'Expected pipeline to begin with source.';
             }
 
-            if (layer.parent) {
+            if (pipe.parent) {
                 this.dataSource = this.dataSource || dataSource; // tip of main trunk on first diversion
-                dataSource = sources[getDataSourceName(layer.parent)];
+                dataSource = sources[getDataSourceName(pipe.parent)];
                 if (!dataSource) {
                     throw 'Parent data source not in pipeline.';
                 }
             }
 
-            dataSource = layer.options === undefined
+            dataSource = pipe.options === undefined
                 ? new DataSource(dataSource)
-                : new DataSource(dataSource, layer.options);
+                : new DataSource(dataSource, pipe.options);
 
-            sources[layer.name] = dataSource;
+            sources[pipe.name] = dataSource;
         }.bind(this, this.sources));
 
         this.source = this.sources.source;
@@ -359,24 +365,30 @@ var JSON = DataModel.extend('dataModels.JSON', {
     },
 
     /**
-     * Add a layer to the data source pipeline.
-     * @param {dataSourcePipelineObject} newLayer - The new pipeline layer.
-     * @param {string} [referenceLayer] - Name of an existing pipeline layer after which the new layer will be added. If not found (such as `null`), inserts at beginning. If `undefined` or omitted, adds to end.
+     * Add a pipe to the data source pipeline.
+     * @desc No-op if already added.
+     * @param {dataSourcePipelineObject} newPipe - The new pipeline pipe.
+     * @param {string} [referencePipe] - One of:
+     * * Name of an existing pipeline pipe after which the new pipe will be added. If `null`, inserts at beginning. If not found (or `undefined` or omitted), adds to end.
      * @memberOf dataModels.JSON.prototype
      */
-    addPipe: function(newLayer, referenceLayer) {
-        var layerIndex;
-        if (referenceLayer !== undefined) {
-            referenceLayer = this.pipeline.find(function(layer, index) {
-                var found = layer.type === referenceLayer;
-                layerIndex = index;
-                return found;
-            });
+    addPipe: function(newPipe, referencePipe) {
+        var referenceIndex,
+            added = this.pipeline.find(function(pipe) { return pipe.type === newPipe.type; });
+
+        if (!added) {
+            if (referencePipe === null) {
+                referenceIndex = 0; // add to beginning
+            } else if (
+                !this.pipeline.find(function(pipe, index) {
+                    referenceIndex = index + 1; // add after found pipe
+                    return pipe.type === referencePipe;
+                })
+            ) {
+                referenceIndex = this.pipeline.length; // not found: add to end
+            }
+            this.pipeline.splice(referenceIndex, 0, newPipe);
         }
-        if (referenceLayer === undefined) {
-            layerIndex = this.pipeline.length;
-        }
-        this.pipeline.splice(layerIndex + 1, 0, newLayer);
     },
 
     /**
@@ -512,21 +524,16 @@ var JSON = DataModel.extend('dataModels.JSON', {
         return this.hasAggregates() && this.hasGroups() && showTree;
     },
 
-    setRelation: function(options) {
-        this.sources.treeview.setRelation(options);
-        this.applyAnalytics();
-    },
-
     /**
      * @memberOf dataModels.JSON.prototype
      */
     applyAnalytics: function(dontApplyAggregator) {
         selectedDataRowsBackingSelectedGridRows.call(this);
 
-        this.pipeline.forEach(function(sources, layer) {
-            var dataSource = sources[layer.name];
+        this.pipeline.forEach(function(sources, pipe) {
+            var dataSource = sources[pipe.name];
 
-            switch (layer.type) {
+            switch (pipe.type) {
                 case 'DataSourceAggregator':
                     if (dontApplyAggregator) {
                         dataSource = undefined;
@@ -675,22 +682,53 @@ var JSON = DataModel.extend('dataModels.JSON', {
         return rank + arrow + ' ';
     },
 
+    isDrillDown: function(event) {
+        return this.pipeline.find(function(pipe) {
+            var test = pipe.test,
+                type = typeof test;
+
+            test = type === 'function' && pipe.test ||
+                type === 'string' && this[pipe.test];
+
+            return test && test.call(this, event);
+        }.bind(this));
+    },
+
     /**
-     * @memberOf dataModels.JSON.prototypedrilldown
      * @param cell
      * @param event
+     * @memberOf dataModels.JSON.prototype
      */
     cellClicked: function(cell, event) {
-        if (
-            this.sources.treeview && event.dataCell.x === this.sources.treeview.treeColumnIndex ||
-            this.hasAggregates() && event.gridCell.x === 0
-        ) {
-            var expandable = this.getDataSource().click(event.gridCell.y - this.grid.getHeaderRowCount());
-            if (expandable) {
+        if (this.isDrillDown(event)) {
+            var y = event.gridCell.y - this.grid.getHeaderRowCount();
+            this.toggleRow(y);
+        }
+    },
+
+    /**
+     * @summary Toggle the drill-down control of a the specified row.
+     * @desc Operates only on the following rows:
+     * * Expandable rows - Rows with a drill-down control.
+     * * Revealed rows - Rows not hidden inside of collapsed drill-downs.
+     * @param y - Revealed row number. (This is not the row ID.)
+     * @param {boolean} [expand] - One of:
+     * * `true` - Expand row.
+     * * `false` - Collapse row.
+     * * `undefined` (or omitted) - Toggle state of row.
+     * @returns {boolean|undefined} If any rows expanded or collapsed; `undefined` means row had no drill-down control.
+     * @memberOf dataModels.JSON.prototype
+     */
+    toggleRow: function(y, expand) {
+        var changed;
+        if (this.isDrillDown()) {
+            changed = this.dataSource.click(y, expand);
+            if (changed) {
                 this.applyAnalytics(true);
                 this.changed();
             }
         }
+        return changed;
     },
 
     /**

@@ -8,6 +8,7 @@ var Localization = require('../lib/Localization');
  * As of spring 2016:
  * Functions well in Chrome, Safari, Firefox, and Internet Explorer.
  * @constructor
+ * @extends CellEditor
  */
 var Textfield = CellEditor.extend('Textfield', {
 

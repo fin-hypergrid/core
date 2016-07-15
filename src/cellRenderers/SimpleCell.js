@@ -4,6 +4,7 @@ var CellRenderer = require('./CellRenderer');
 
 /**
  * @constructor
+ * @extends CellRenderer
  */
 var SimpleCell = CellRenderer.extend('SimpleCell', {
 
