@@ -527,7 +527,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
      */
     hasHierarchyColumn: function() {
         var showTree = this.grid.resolveProperty('showTreeColumn') === true;
-        return this.hasAggregates() && this.hasGroups() && showTree;
+        return this.hasGroups() && showTree;
     },
 
     /**
