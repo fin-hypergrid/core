@@ -21,6 +21,7 @@ var Hypergrid = require('./Hypergrid');
 Hypergrid.JSON = require('./lib/json');
 Hypergrid.images = require('../images');
 Hypergrid.behaviors = require('./behaviors');
+Hypergrid.dataModels = require('./dataModels');
 Hypergrid.features = require('./features');
 Hypergrid.analytics = require('./Shared.js').analytics;
 Hypergrid.DefaultFilter = require('./filter/DefaultFilter');

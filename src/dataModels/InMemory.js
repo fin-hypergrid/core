@@ -4,6 +4,7 @@ var DataModel = require('./DataModel');
 
 /**
  * @constructor
+ * @extends DataModel
  */
 var InMemory = DataModel.extend('InMemory', {
 

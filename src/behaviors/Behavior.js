@@ -132,16 +132,16 @@ var Behavior = Base.extend('Behavior', {
         return this.columns[x];
     },
     getVisibleColumn: function() {
-        this.deprecated('getVisibleColumn(x)', 'getActiveColumn(x)', '1.0.6', arguments);
+        return this.deprecated('getVisibleColumn(x)', 'getActiveColumn(x)', '1.0.6', arguments);
     },
     getVisibleColumnName: function() {
-        this.deprecated('getVisibleColumnName(x)', 'getActiveColumn(x).name', '1.0.6', arguments);
+        return this.deprecated('getVisibleColumnName(x)', 'getActiveColumn(x).name', '1.0.6', arguments);
     },
     getColumnId: function() {
-        this.deprecated('getColumnId(x)', 'getActiveColumn(x).header', '1.0.6', arguments);
+        return this.deprecated('getColumnId(x)', 'getActiveColumn(x).header', '1.0.6', arguments);
     },
     getHeader: function() {
-        this.deprecated('getHeader(x)', 'getActiveColumn(x).header', '1.0.6', arguments);
+        return this.deprecated('getHeader(x)', 'getActiveColumn(x).header', '1.0.6', arguments);
     },
 
     getColumn: function(x) {
@@ -499,10 +499,10 @@ var Behavior = Base.extend('Behavior', {
     },
 
     getCellRenderer: function(config, x, y) {
-        return this.getActiveColumn(x).getCellRenderer(config, y);
+        return this.getActiveColumn(x).getCellRenderer(config, x, y);
     },
     getCellProvider: function(name) {
-        this.deprecated('getCellProvider()', 'grid.cellRenderers', '1.0.6', arguments);
+        return this.deprecated('getCellProvider()', 'grid.cellRenderers', '1.0.6', arguments);
     },
     createCellProvider: function(name) {
         console.error('getCellProvider() is deprecated as of v1.0.6. No replacement; do not call. Previously called by `Behavior` constructor; `new CellRenderers()` is now called by `Hypergrid` constructor instead.', arguments);
@@ -1306,7 +1306,7 @@ var Behavior = Base.extend('Behavior', {
         return this.columns.length;
     },
     getColumnCount: function() {
-        this.deprecated('getColumnCount()', 'getActiveColumnCount()', '1.0.6', arguments);
+        return this.deprecated('getColumnCount()', 'getActiveColumnCount()', '1.0.6', arguments);
     },
 
     /**
@@ -1498,11 +1498,6 @@ var Behavior = Base.extend('Behavior', {
 
     hasHierarchyColumn: function() {
         return false;
-    },
-
-    setRelation: function(options) {
-        this.dataModel.setRelation(options);
-        this.shapeChanged();
     },
 
     getRowContextFunction: function(selectedRows) {

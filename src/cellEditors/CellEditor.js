@@ -158,7 +158,7 @@ var CellEditor = Base.extend('CellEditor', {
         }
     },
     beginEditAt: function(Constructor, name) {
-        this.deprecated('beginEditAt(point)', 'beginEditing()', '1.0.6');
+        return this.deprecated('beginEditAt(point)', 'beginEditing()', '1.0.6');
     },
 
     /**

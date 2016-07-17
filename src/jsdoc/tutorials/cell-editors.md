@@ -1,5 +1,9 @@
 A cell editor is an input control superimposed on the grid.
 
+### API
+
+For detailed functional descriptions of overrideable methods, see {@link CellEditor}.
+
 ### Usage
 
 The following examples require a grid object:
@@ -39,7 +43,7 @@ dataModel.getCellEditorAt = function(columnIndex, rowIndex, declaredEditorName, 
 ```
 
 Notes:
-1. See {@link DataModel#getCellEditorAt|getCellEditorAt) for parameter details.
+1. See {@link DataModel#getCellEditorAt|getCellEditorAt} for parameter details.
 2. The method override above pertains to this grid instance. To affect all instances, override the prototype's definition.
 3. The ellipsis (...) in the sample code above selects a specific cell (or column). Otherwise the assignment would affect all cells in the grid which is usually not what we want to do.
 
@@ -69,18 +73,21 @@ dataModel.getCellEditorAt = function(columnIndex, rowIndex, declaredEditorName, 
 
 #### Templates
 
-All cell editors (textual or graphical) create their DOM node from a template. This template typically comes from the cell editor's prototype. We will learn more about creating custom cell editors later on. For now, just consider this template of a hypothetical cell editor called `Checkbox`:
+All cell editors (textual or graphical) create their DOM node from a template, typically defined on the cell editor object's prototype. We will learn more about creating custom cell editors later on. For now, just consider the following template of a hypothetical cell editor called `Checkbox`:
 
 ```javascript
-Checkbox.prototype.template = '<input type="checkbox" {{checked}}>';
+var Checkbox = CellEditor.extend('Checkbox', {
+    template: '<input type="checkbox" {{chkattr}}>'
+};
+grid.cellEditors.add(Checkbox);
 ```
 
-`{{checked}}` is a {@link https://mustache.github.io|Mustache} variable which loads the cell editor's state. It can be defined on the instantiation `options` object at grid render time:
+A word about {@link https://mustache.github.io|mustache} data merge variables. These are useful for decorating the cell editor's markup with state. For example, `{{chkattr}}` in the above is such a variable, intended as a placeholder for a `checked` attribute in the `<input>` tag. Mustache variables are defined on the instantiation `options` object at grid render time:
 
 ```javascript
 dataModel.getCellEditorAt = function(columnIndex, rowIndex, declaredEditorName, options) {
     if (columnIndex === behavior.columnEnum.CITIZEN ) {
-        options.checked = this.getValue(columnIndex, rowIndex) ? 'checked="checked"' : '';
+        options.chkattr = this.getValue(columnIndex, rowIndex) ? 'checked="checked"' : '';
     }
     
     return grid.cellEditors.create(declaredEditorName, options);
@@ -93,17 +100,28 @@ Members of `options` will add (or override) instance members. On instantiation, 
 <input type="checkbox" checked="checked">
 ```
 
-A slightly different approach puts the logic in the cell editor prototype itself (rather than the `getCellEditorAt` override), where it arguably better belongs, by defining a getter:
+A better approach puts the logic on the cell editor object in a `chkattr` getter:
 
 ```javascript
-Object.defineProperty(Checkbox.prototype, "checked", {
-    get: function () { 
-        return this.initialValue ? 'checked="checked"' : ''; 
-    } 
-});
+grid.cellEditors.add(CellEditor.extend('Checkbox', {
+    template: '<input type="checkbox" {{chkattr}}>',
+    getEditorValue: function() {
+        return this.input.checked;
+    },
+    //setEditorValue: function(value) {
+    //    this.input.checked = value;
+    //},
+    chkattr: {
+        get: function() { 
+            return this.initialValue ? 'checked="checked"' : ''; 
+        } 
+    }
+}));
 ```
 
-Note that while `options` _could_ be used to set the cell editor's instance properties in general, it is generally cleaner to create a custom cell editor with your overrides. See _Create a custom cell editor_ below for more information.
+Custom cell editors are generally easy to create. The above example is more complicated than usual because it uses a `defineProperty` {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/defineProperty|accessor descriptor}, necessary to define a getter. (You cannot use getter/setter literal syntax here as you can in a true prototype object.) See _Create a custom cell editor_ below for more information.
+
+Tip: Best practice is to define custom cell editors when feasible rather than using the `options` instantiation parameter to override instance members.
 
 #### Object access
 
@@ -152,8 +170,8 @@ The following cell editors are preregistered in `grid.cellEditors`. See each for
 ### Development
 
 Custom cell editor development falls into two broad classes:
-* General (graphical) editors &mdash; extend from `CellEditor`
-* Text editors &mdash; extend from {@link Textfield} (which extends from `CellEditor`)
+* General (graphical) editors &mdash; extend from {@link CellEditor}
+* Text editors &mdash; extend from {@link Textfield} (which itself extends from `CellEditor`)
 
 Development of **text-based cell editors** is relatively simple because they consist of a single `<input>` element and use localizers (formatters/de-formatters) to do the heavy lifting.
 
@@ -312,7 +330,7 @@ The following markup for a complex cell editor consists of a `<div>` containing 
 </div>
 ```
 
-_NOTE: In practice, a CSS class is preferred over in-line styles. Regardless, always preserve the mustache variables, include `{{style}}`._
+_NOTE: In practice, a CSS class is preferred over in-line styles. Regardless, always preserve the mustache variables, including `{{style}}` as shown._
 
 Because this cell editor includes a text box, we continue to extend from `Textfield`:
 
@@ -495,9 +513,4 @@ Finally, for some good news: We can discard the `setEditorValue` and `getEditorV
 
 Purely graphical editors (with no text box) would descend directly from `CellEditor`.
 
-One thing to keep in mind about these is that while the dimensions of the container element are automatically constrained to those of the cell, the child GUI elements can nonetheless be rendered by the browser _outside_ the div. This is useful when your GUI cannot all fit inside the cell boundaries. Just make sure the {@link https://developer.mozilla.org/en-US/docs/Web/CSS/overflow|overflow} CSS property is set to `visible` (which is the default).
-
-### API
-
-For detailed functional descriptions of overrideable methods, see {@link CellEditor}.
- 
+One thing to keep in mind about these is that while the dimensions of the container element are automatically constrained to those of the cell, the child GUI elements can nonetheless be rendered by the browser _outside_ the div. This is useful when your GUI cannot all fit inside the cell boundaries. Just make sure the {@link https://developer.mozilla.org/en-US/docs/Web/CSS/overflow|overflow} CSS property is set to `visible` (which is the default). 

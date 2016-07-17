@@ -2,13 +2,13 @@
 
 <img src="images/README/gridshot04.gif">
 
-### Release 1.0.6 (23 June 2016)
+### Current Release (1.0.7 - 18 July 2016)
 
-This version replaces last year's [prototype version](https://github.com/openfin/fin-hypergrid/tree/polymer-prototype), which was built around Polymer. It is now completely "de-polymerized" and is being made available as:
+The current version replaces last year's [prototype version](https://github.com/openfin/fin-hypergrid/tree/polymer-prototype), which was built around Polymer. It is now completely "de-polymerized" and is being made available as:
 * An [npm module](https://www.npmjs.com/package/fin-hypergrid) for use with browserify.
 * A single JavaScript file [fin-hypergrid.js](https://openfin.github.io/fin-hypergrid/build/fin-hypergrid.js) you can reference in a `<script>` tag.
 
-_For a list of changes since the previous version, 1.0.3 (27 May 2016), click [here](version-history.md)._
+_For a complete list of changes, see the [version history](version-history.md)._
 
 ### Demos
 
@@ -33,7 +33,7 @@ Check out the Table view on Hyperblotter on a Windows machine via [this installe
 * Smooth scrolling on both axes
 * Supports local (client-side) as well as remote (server-side) data hosting
 * Events for all UI manipulations including mouse, keyboard, and programmatic UI changes
-* Tree-view (drill-downs) presentation for pre-aggregated local data
+* Tree-view (drill-downs) presentation for locally grouped, nested, or aggregated data
 
 ##### Future development
 
@@ -42,14 +42,14 @@ Check out the Table view on Hyperblotter on a Windows machine via [this installe
 ###### The Filtering & Analytics (sorting & aggregation) modules provided will be broken out of Hypergrid
 
 * We are currently working on expanding the API to enable application developers to easily provide their own functionality
- * Hypergrid will have no opinion on how the underlying data should be pivoted, but will remain capable of presenting pivoted data
+* Hypergrid will have no opinion on how the underlying data should be pivoted, but will remain capable of presenting pivoted data
 * The current filtering and analytics modules will become separate npm modules/JavaScript files that can be forked and further developed
 
 ### Integrating
 
-This a basic example that embeds fin-hypergrid:
+[This](https://openfin.github.io/fin-hypergrid/example.js) is a basic example that embeds fin-hypergrid:
 ```html
-<!doctype html>
+<!DOCTYPE html>
 <html>
 <head>
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8" >
@@ -59,22 +59,20 @@ This a basic example that embeds fin-hypergrid:
     <div id="fin-grid"></div>
 
     <script src="https://openfin.github.io/fin-hypergrid/build/fin-hypergrid.js"></script>
+    
     <script>
-        var grid = new fin.Hypergrid('#fin-grid', {
-            data: [
-                {'symbol':'APPL', 'name':'Apple Inc.', 'prevclose':'93.13' },
-                { 'symbol':'MSFT', 'name':'Microsoft Corporation', 'prevclose':'51.91' },
-                { 'symbol':'TSLA', 'name':'Tesla Motors Inc.', 'prevclose':'196.40' },
-                { 'symbol':'IBM', 'name':'International Business Machines Corp', 'prevclose':'155.35' }
-            ],
-            schema: [ 'symbol', 'name','prevclose']
-        });
+        var data = [
+           { symbol: 'APPL', name: 'Apple Inc.', prevclose: 93.13 },
+           { symbol: 'MSFT', name: 'Microsoft Corporation', prevclose: 51.91 },
+           { symbol: 'TSLA', name: 'Tesla Motors Inc.', prevclose: 196.40 },
+           { symbol: 'IBM', name: 'International Business Machines Corp', prevclose: 155.35 }
+        ];
+        
+        var grid = new fin.Hypergrid('#fin-grid', { data: data })
         
         grid.addProperties({
-            showRowNumbers:false, 
-            noDataMessage: "", 
-            columnAutosizing: false,
-            showFilterRow:false
+            showRowNumbers: false,
+            showFilterRow: false
         });
     </script>
 </body>
@@ -84,7 +82,6 @@ This a basic example that embeds fin-hypergrid:
 Will look like:
 
 <img src="images/README/simple.png">
-
 
 ### Documentation
 
@@ -96,5 +93,4 @@ We are also maintaining [online API documentation](http://openfin.github.io/fin-
 
 (Cell Rendering information can be found [here](http://openfin.github.io/fin-hypergrid/doc/tutorial-cell-renderer.html).)
 
-Hypergrid global configurations can be found [here](http://openfin.github.io/fin-hypergrid/doc/module-defaults.html)
-Use it for modifying various hypergrid features and property defaults
+Hypergrid global configurations can be found [here](http://openfin.github.io/fin-hypergrid/doc/module-defaults.html). Use it for modifying various hypergrid features and property defaults.

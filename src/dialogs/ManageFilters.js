@@ -33,6 +33,7 @@ var tabProperties = {
 
 /**
  * @constructor
+ * @extends Dialog
  */
 var ManageFilters = Dialog.extend('ManageFilters', {
 
