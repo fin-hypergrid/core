@@ -1,3 +1,40 @@
+### 1.0.7 - 18 July 2016
+
+* Fixed `deprecated()` calls that were discarding their results instead of returning. (So the warning was logged, but then the code would fail.)
+* Rendering
+    * New members added to renderer's `config` object:
+        * `config.untranslatedX` - Index into full column list. (The existing `config.x` is the index into the active column list.)
+        * `config.normalizedY` - Row index less an offset such that the first data row is now `0`.
+        * `config.dataRow` - So can be passed to calculator function as 1st parameter.
+        * `config.columnName` - So can be passed to calculator function as 2nd parameter.
+    * Default renderer (SimpleCell.js)
+        * Now renders `false` data primitive as "false" instead of blank.
+        * Adjusted clipping region so wrapped hdr txt does not overflow y.
+* Tree-view
+    * Tree column is set to uneditable (while joined).
+    * Moved tree-view code out of Hypergrid core, making it a small API for installing and invoking tree-view on proper data. Can be found in the new _add-ons_ folder: `./add-ons/tree-view.js` 
+    * Updated "Big Pink" demo (demo/index.html and demo/js/demoj.js) and the tree-view demo (demo/tree-view.js and demo/js/tree-view.js) to use the and the API.
+    * Created a drill-down API for use with aggregate view, tree view, and group view. Can also be found in the new _add-ons_ folder: `./add-ons/drill-down.js` This is a mix-in. Just included it and call it's `mixInTo` method with your data model.
+* Aggregate data view
+    * Reversed the order in which each column of a multi-column sort is sorted, which was backwards.
+* Calculated values
+    * Added parameters to cell calculator function:
+        * Param #1: `dataRow` - Access to the row's other columns' raw data.
+        * Param #1: `columnName` - The column name of the current column being rendered.
+    * Note that cell calculator functions are called on render, on COPY operation (applied to selected rows, columns, cells, or cell regions), on sorting, and on filtering (was commented out on filter previously).
+    * Note that you can also set the following cell properties to functions, which will be called with the same parameters above:
+        * `color`
+        * `backgroundColor`
+        * `foregroundSelectionColor`
+        * `backgroundSelectionColor`
+* Deprecated methods
+    * `dataModel.getDataSource()` &#x2192; `dataModel.dataSource`
+    * `grid.getColumnSortState(columnIndex)` _(removed)_
+    * `grid.removeColumnSortState(columnIndex, sortPosition)` _(removed)_
+* Edits to documentation, especially to:
+    * [Cell editors](http://openfin.github.io/fin-hypergrid/doc/tutorial-cell-editors.html) tutorial.
+    * [Cell renderers](http://openfin.github.io/fin-hypergrid/doc/tutorial-cell-renderers.html) tutorial.
+
 ### 1.0.6 - 23 June 2016
 
 * Added [fin-hypergrid.min.js](https://openfin.github.io/fin-hypergrid/build/fin-hypergrid.min.js) which was omitted from original release due to a technical issue.
