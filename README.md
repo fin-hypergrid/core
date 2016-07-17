@@ -47,6 +47,7 @@ Check out the Table view on Hyperblotter on a Windows machine via [this installe
 
 ### Integrating
 
+<<<<<<< HEAD
 [This](https://openfin.github.io/fin-hypergrid/example.js) is a basic example that embeds fin-hypergrid:
 ```html
 <!DOCTYPE html>
