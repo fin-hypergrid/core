@@ -320,7 +320,10 @@ var JSON = DataModel.extend('dataModels.JSON', {
      */
     pipeline: [
         { type: 'JSDataSource' },
-        { type: 'DataSourceGroupView' },
+        { type: 'DataSourceGroupView', test: function (event) {
+              return this.hasGroups() && event.gridCell.x === 0
+            }
+        },
         { type: 'DataSourceAggregator', test: 'hasAggregates' },
         { type: 'DataSourceGlobalFilter' },
         { type: 'DataSourceSorterComposite' }
