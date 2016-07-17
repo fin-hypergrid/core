@@ -1021,10 +1021,12 @@ var Renderer = Base.extend('Renderer', {
             }
             cellProperties.halign = 'right';
         } else {
+            // set dataRow and columnName used by valOrFunc (needed when func)
             var column = behavior.getActiveColumn(c);
             cellProperties.dataRow = grid.getRow(r);
             cellProperties.columnName = column.name;
-            cellProperties.value = cellProperties.dataRow ? cellProperties.dataRow[column.name] : grid.getValue(c, r);
+
+            cellProperties.value = grid.getValue(c, r);
             cellProperties.halign = grid.getColumnAlignment(c);
         }
 
