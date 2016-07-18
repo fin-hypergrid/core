@@ -73,37 +73,37 @@ TreeView.prototype = {
             dataSource = dataModel.sources.treeview,
             joined = dataSource.setRelation(options),
             state = behavior.getPrivateState(),
-            column = behavior.getColumn(dataSource.treeColumnIndex),
-            columnProps = column.getProperties();
-
-        // if grid state not set yet, set it now
-        if (!state.columnIndexes) {
-            this.grid.setState({});
-        }
+            columnProps = behavior.getColumn(dataSource.treeColumnIndex).getProperties();
 
         if (joined) {
             // save the current value of column's editable property and set it to false
-            this.wasEditable = !!columnProps.editable;
+            this.editableWas = !!columnProps.editable;
             columnProps.editable = false;
 
-            if (hideIdColumns) {
-                var ids = [dataSource.idColumnIndex, dataSource.parentIdColumnIndex],
-                    columnIndexes = behavior.getPrivateState().columnIndexes;
+            // save value of grid's checkboxOnlyRowSelections property and set it to true so drill-down clicks don't select the row they are in
+            this.checkboxOnlyRowSelectionsWas = state.checkboxOnlyRowSelections;
+            state.checkboxOnlyRowSelections = true;
 
-                ids.forEach(function(id) {
-                    var i = columnIndexes.indexOf(id);
-                    if (i >= 0) {
-                        columnIndexes.splice(i, 1);
+            if (hideIdColumns) {
+                var columnIndexes = [dataSource.idColumnIndex, dataSource.parentIdColumnIndex];
+
+                columnIndexes.forEach(function(columnIndex) {
+                    var index;
+                    if (behavior.columns.find(function(column, i) {
+                        index = i;
+                        return column.index === columnIndex;
+                    })) {
+                        behavior.columns.splice(index, 1);
                     }
                 });
-
-                state.checkboxOnlyRowSelections = true; // so drill-down clicks don't select the row they are in
-
-                this.grid.setState(state); // update state by resetting with mutated existing state
             }
         } else {
-            columnProps.editable = this.wasEditable;
+            columnProps.editable = this.editableWas;
+            state.checkboxOnlyRowSelections = this.checkboxOnlyRowSelectionsWas;
         }
+
+        this.grid.selectionModel.clear();
+        this.grid.clearMouseDown();
 
         dataModel.applyAnalytics();
         behavior.shapeChanged();
