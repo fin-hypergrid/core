@@ -68,7 +68,7 @@ Check out the Table view on Hyperblotter on a Windows machine via [this installe
            { symbol: 'IBM', name: 'International Business Machines Corp', prevclose: 155.35 }
         ];
         
-        var grid = new fin.Hypergrid('#fin-grid', { data: data })
+        var grid = new fin.Hypergrid('#fin-grid', { data: data });
         
         grid.addProperties({
             showRowNumbers: false,
