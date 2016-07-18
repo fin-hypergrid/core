@@ -213,7 +213,6 @@ window.onload = function() {
     function toggleTreeview() {
         treeView.setRelation(this.checked, true);
     }
-    
     function toggleGrouping(){
         grid.setGroups(this.checked ? groups : []);
     }
