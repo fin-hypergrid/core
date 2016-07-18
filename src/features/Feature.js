@@ -3,8 +3,8 @@
 var Base = require('../lib/Base');
 
 /**
+ * Instances of features are connected to one another to make a chain of responsibility for handling all the input to the hypergrid.
  * @constructor
- * @desc instances of features are connected to one another to make a chain of responsibility for handling all the input to the hypergrid.
  */
 var Feature = Base.extend('Feature', {
 

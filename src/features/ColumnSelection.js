@@ -13,6 +13,7 @@ var RACE_TIME = 50;
 
 /**
  * @constructor
+ * @extends Feature
  */
 var ColumnSelection = Feature.extend('ColumnSelection', {
 

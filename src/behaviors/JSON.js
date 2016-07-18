@@ -10,6 +10,7 @@ var aggregations = require('../Shared.js').analytics.util.aggregations;
  * @name behaviors.JSON
  * @desc > Same parameters as {@link behaviors.Behavior#initialize|initialize}, which is called by this constructor.
  * @constructor
+ * @extends Behavior
  */
 var JSON = Local.extend('behaviors.JSON', {
 
@@ -203,34 +204,6 @@ var JSON = Local.extend('behaviors.JSON', {
         }
     },
 
-
-    getRowSelectionMatrix: function(selectedRows) {
-        return this.dataModel.getRowSelectionMatrix(selectedRows);
-    },
-
-    getColumnSelectionMatrix: function(selectedColumns) {
-        return this.dataModel.getColumnSelectionMatrix(selectedColumns);
-    },
-
-    getSelectionMatrix: function(selections) {
-        return this.dataModel.getSelectionMatrix(selections);
-    },
-
-    getRowSelection: function() {
-        var selectedRows = this.getSelectedRows();
-        return this.dataModel.getRowSelection(selectedRows);
-    },
-
-    getColumnSelection: function() {
-        var selectedColumns = this.getSelectedColumns();
-        return this.dataModel.getColumnSelection(selectedColumns);
-    },
-
-    getSelection: function() {
-        var selections = this.getSelections();
-        return this.dataModel.getSelection(selections);
-    },
-
     getGroups: function() {
         return this.dataModel.getGroups();
     },
@@ -245,7 +218,7 @@ var JSON = Local.extend('behaviors.JSON', {
         return this.dataModel.getActiveColumns();
     },
     getVisibleColumns: function() {
-        this.deprecated('getVisibleColumns()', 'getActiveColumns()', '1.0.6', arguments);
+        return this.deprecated('getVisibleColumns()', 'getActiveColumns()', '1.0.6', arguments);
     },
 
     getSelectedRows: function() {

@@ -4,6 +4,7 @@ var CellEditor = require('./CellEditor');
 
 /**
  * @constructor
+ * @extends CellEditor
  */
 var Slider = CellEditor.extend('Slider', {
 

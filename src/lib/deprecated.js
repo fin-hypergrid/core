@@ -41,7 +41,7 @@ var deprecated = function(methodName, dotProps, since, args, notes) {
     }
     if (warned[methodName]) {
         var memberType = regexIsMethod.test(dotProps) ? 'method' : 'property';
-        var warning = 'The .' + methodName + '() method is deprecated as of v' + since +
+        var warning = 'The .' + methodName + ' method is deprecated as of v' + since +
             ' in favor of the .' + chain.join('.') + ' ' + memberType + '.' +
             ' (Will be removed in a future release.)';
 
