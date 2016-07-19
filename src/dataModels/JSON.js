@@ -326,8 +326,8 @@ var JSON = DataModel.extend('dataModels.JSON', {
         },
         { type: 'DataSourceAggregator', test: 'hasAggregates' },
         { type: 'DataSourceGlobalFilter' },
-        { type: 'DataSourceSorterComposite' }
-        //{ type: 'DataNodeGroupSorter', parent: 'DataSourceAggregator' }
+        { type: 'DataSourceSorterComposite' },
+        { type: 'DataNodeGroupSorter', parent: 'DataSourceAggregator' }
     ],
 
     /**
