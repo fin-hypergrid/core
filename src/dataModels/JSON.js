@@ -536,7 +536,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
     /**
      * @memberOf dataModels.JSON.prototype
      */
-    applyAnalytics: function(dontApplyAggregator) {
+    applyAnalytics: function(dontReGroup) {
         selectedDataRowsBackingSelectedGridRows.call(this);
 
         this.pipeline.forEach(function(sources, pipe) {
@@ -544,7 +544,8 @@ var JSON = DataModel.extend('dataModels.JSON', {
 
             switch (pipe.type) {
                 case 'DataSourceAggregator':
-                    if (dontApplyAggregator) {
+                case 'DataSourceGroupView':
+                    if (dontReGroup) {
                         dataSource = undefined;
                     }
                     break;
