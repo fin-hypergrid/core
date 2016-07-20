@@ -1,7 +1,7 @@
 'use strict';
 
 var newPipe = { type: 'DataSourceTreeview', test: test },
-    referencePipe = 'JSDataSource';
+    referencePipe = 'DataSourceTreeviewSorter';
 
 /**
  * @classdesc This is a simple helper class to set up the tree-view data source in the context of a hypergrid.
