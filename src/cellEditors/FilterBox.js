@@ -31,7 +31,7 @@ var FilterBox = ComboBox.extend('FilterBox', {
         // look in the filter, under column filters, for a column filter for this column
         var root = this.grid.getGlobalFilter(),
             columnName = this.column.name,
-            columnFilters = this.grid.getGlobalFilter().columnFilters,
+            columnFilters = root.columnFilters,
             columnFilterSubtree = root.getColumnFilter(columnName) || {},
             columnSchema = root.schema.lookup(columnName) || {};
 

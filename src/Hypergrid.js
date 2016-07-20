@@ -63,9 +63,8 @@ function Hypergrid(div, options) {
     this.renderOverridesCache = {};
 
     options = options || {};
-    var data = typeof options.data === 'function' ? options.data() : options.data;
     var Behavior = options.Behavior || behaviors.JSON;
-    this.behavior = new Behavior(this, options.schema, data);
+    this.behavior = new Behavior(this, options.data, options);
 
     var loc = options.localization || {};
     this.localization = new Localization(
@@ -3343,12 +3342,14 @@ Hypergrid.prototype = {
         var filter = this.getGlobalFilter(),
             result;
 
-        if (filter.invalid()) {
-            result = 'error';
-        } else if (filter.filterCount()) {
-            result = 'active';
-        } else {
-            result = 'inactive';
+        if (filter) {
+            if (filter.invalid()) {
+                result = 'error';
+            } else if (filter.filterCount()) {
+                result = 'active';
+            } else {
+                result = 'inactive';
+            }
         }
 
         return result;
