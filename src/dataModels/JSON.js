@@ -318,10 +318,11 @@ var JSON = DataModel.extend('dataModels.JSON', {
      */
     pipeline: [
         { type: 'JSDataSource' },
-        { type: 'DataSourceAggregator', test: 'hasAggregates' },
         { type: 'DataSourceGlobalFilter' },
-        { type: 'DataSourceSorterComposite' },
-        { type: 'DataNodeGroupSorter', parent: 'DataSourceAggregator' }
+        { type: 'DataSourceTreeviewSorter' },
+        { type: 'DataSourceAggregator', test: 'hasAggregates' },
+        //{ type: 'DataSourceSorterComposite' },
+        //{ type: 'DataNodeGroupSorter', parent: 'DataSourceAggregator' }
     ],
 
     /**
