@@ -1,8 +1,5 @@
 'use strict';
 
-var newPipe = { type: 'DataSourceTreeview', test: test },
-    referencePipe = 'DataSourceTreeviewSorter';
-
 /**
  * @classdesc This is a simple helper class to set up the tree-view data source in the context of a hypergrid.
  *
@@ -30,34 +27,41 @@ TreeView.prototype = {
      *
      * Intended to be called on the `TreeView` prototype, before the data model is instanced (which currently happens when the behavior is instanced (which currently happens when the grid is instanced)).
      *
-     * @param {object} dataModelPrototype
+     * @param {object} dataModelInstanceOrPrototype
      */
-    addPipeTo: function(dataModelPrototype) {
-        dataModelPrototype.addPipe(newPipe, referencePipe);
-    },
+    addPipes: function(options) {
+        options = options || {};
 
-    /**
-     * @summary Add the tree-view data source into the instance pipeline.
-     * @desc The tree-view data source is inserted into the pipeline of the given data model instance, immediately after the raw data source.
-     *
-     * If necessary, a private copy of the prototype's `pipeline` array is cloned for use by the instance (unless `shared` is truthy).
-     *
-     * Finally, `setData` is called again with `data` to rebuild the pipeline. To avoid this, consider {@link TreeView#addPipeTo}.
-     *
-     * @param {object[]} data - Required for the `setData` call.
-     * @param {boolean} [shared=false] - Do not clone prototype's `pipeline` array. The default is to clone it.
-     */
-    addPipe: function(data, shared) {
-        var behavior = this.grid.behavior,
-            dataModel = behavior.dataModel;
+        var amInstance = this instanceof TreeView,
+            dataModel = options.dataModel || amInstance && this.grid.behavior.dataModel;
 
-        if (!shared && !dataModel.hasOwnProperty('pipeline')) {
-            dataModel.pipeline = dataModel.pipeline.slice();
+        if (!dataModel) {
+            throw 'Expected dataModel.';
         }
 
-        dataModel.addPipe(newPipe, referencePipe);
-        behavior.setData(data);
-        behavior.shapeChanged();
+        if (options.dataSource) {
+            dataModel.pipeline.length = 0;
+            dataModel.addPipe(options.dataSource);
+        } else if (dataModel.pipeline.length) {
+            dataModel.pipeline.length = 1;
+        } else {
+            throw 'Expected data source.';
+        }
+
+        if (options.includeFilter) {
+            dataModel.addPipe({ type: 'DataSourceGlobalFilter' });
+        }
+
+        if (options.includeSorter) {
+            dataModel.addPipe({ type: 'DataSourceTreeviewSorter' });
+        }
+
+        dataModel.addPipe({ type: 'DataSourceTreeview', test: isTreeview });
+
+        if (amInstance) {
+            this.grid.behavior.setData();
+            this.grid.behavior.shapeChanged();
+        }
     },
 
     /**
@@ -90,9 +94,9 @@ TreeView.prototype = {
                 columnIndexes.forEach(function(columnIndex) {
                     var index;
                     if (behavior.columns.find(function(column, i) {
-                        index = i;
-                        return column.index === columnIndex;
-                    })) {
+                            index = i;
+                            return column.index === columnIndex;
+                        })) {
                         behavior.columns.splice(index, 1);
                     }
                 });
@@ -117,7 +121,7 @@ TreeView.prototype = {
  * @param {number} [columnIndex] If given, also checks that the column clicked is the tree column.
  * @returns {boolean} If the data source is a tree view.
  */
-function test(event) {
+function isTreeview(event) {
     var treeview = this.sources.treeview,
         result = !!(treeview && treeview.viewMakesSense());
     if (result && event) {

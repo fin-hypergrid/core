@@ -11,20 +11,34 @@ window.onload = function() {
         drillDown = Hypergrid.drillDown,
         TreeView = Hypergrid.TreeView,
         dataModelPrototype = Hypergrid.dataModels.JSON.prototype,
-        shared = false;
+        pipelineOptions = {
+            includeSorter: true,
+            includeFilter: true
+        },
+        shared = true;
 
     // Install the drill-down API (optional).
     drillDown.mixInTo(dataModelPrototype);
 
-    // Following call mutates the shared pipeline and, avoids calling setData twice.
-    // Or comment out and uncomment `addPipe` call below (which calls setData again to rebuild the pipeline).
-    TreeView.prototype.addPipeTo(dataModelPrototype);
+    if (shared) {
+        // Mutate shared pipeline (avoids calling setData twice).
+        pipelineOptions.dataModel = dataModelPrototype;
+        TreeView.prototype.addPipes(pipelineOptions);
+    }
 
     grid = new Hypergrid('div#tree-example', { data: treeData });
+
+    grid.setState({
+        showFilterRow: pipelineOptions.includeFilter
+    });
+
     var treeViewOptions = { treeColumnName: 'State' },
         treeView = new TreeView(grid, treeViewOptions);
 
-    // treeView.addPipe(treeData, shared); // shared is falsy so clones a private pipeline for the instance.
+    if (!shared) {
+        // Mutate intance pipeline (calls setData again to rebuild pipeline).
+        treeView.addPipes(pipelineOptions);
+    }
 
     document.querySelector('input[type=checkbox]').onclick = function() {
         if (treeView.setRelation(this.checked, true)) {
@@ -42,5 +56,5 @@ window.onload = function() {
         }
         return grid.cellRenderers.get(rendererName);
     }
-
 };
+

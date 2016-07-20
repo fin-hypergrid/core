@@ -560,15 +560,11 @@ var JSON = DataModel.extend('dataModels.JSON', {
                         dataSource = sources.groupsorter;
                     }
                     break;
-
-                case 'DataSourceTreeviewSorter':
-                    dataSource.setSorts(this.getPrivateState().sorts);
-                    break;
             }
 
             if (dataSource) {
                 if (dataSource.sorts) {
-                    dataSource.setSorts(this.getPrivateState().sorts);
+                    dataSource.set(this.getPrivateState().sorts);
                 }
 
                 if (dataSource.apply) {
