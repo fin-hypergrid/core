@@ -23,7 +23,7 @@ window.onload = function() {
     if (shared) {
         // Mutate shared pipeline (avoids calling setData twice).
         pipelineOptions.dataModelPrototype = dataModelPrototype;
-        TreeView.prototype.addPipes(pipelineOptions);
+        TreeView.prototype.setPipeline(pipelineOptions);
     }
 
     grid = new Hypergrid('div#tree-example', { data: treeData });
@@ -37,7 +37,7 @@ window.onload = function() {
 
     if (!shared) {
         // Mutate instance pipeline (calls setData again to rebuild pipeline).
-        treeView.addPipes(pipelineOptions);
+        treeView.setPipeline(pipelineOptions);
     }
 
     document.querySelector('input[type=checkbox]').onclick = function() {

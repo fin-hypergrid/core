@@ -32,31 +32,31 @@ TreeView.prototype = {
      * * The current data model instance. In this case, the instance is given its own new pipeline.
      *
      * @param {object} [options]
-     * @param {Data<pde;} [options.dataModelPrototype] - Adds the pipes to the given object. If omitted, this must be an instance; adds the pipes to a new "pwn" pipeline created from the first data source of the instance's old pipeline.
-     * @param {Data<pde;} [options.dataSource] - Use as first data source in the new pipeline. If omitted, re-uses the existing pipeline's first data source.
+     * @param {object} [options.dataModelPrototype] - Adds the pipes to the given object. If omitted, this must be an instance; adds the pipes to a new "pwn" pipeline created from the first data source of the instance's old pipeline.
+     * @param {dataSourcePipelineObject} [options.firstPipe] - Use as first data source in the new pipeline. If omitted, re-uses the existing pipeline's first data source.
      */
-    addPipes: function(options) {
+    setPipeline: function(options) {
         options = options || {};
 
         var amInstance = this instanceof TreeView,
             dataModel = options.dataModelPrototype || amInstance && this.grid.behavior.dataModel,
-            dataSource = options.dataSource || dataModel.pipeline[0];
+            firstPipe = options.firstPipe || dataModel.pipeline[0];
 
         if (!dataModel) {
             throw 'Expected dataModel.';
         }
 
-        if (!dataSource) {
-            throw 'Expected data source.';
+        if (!firstPipe) {
+            throw 'Expected pip (data source pipeline descriptor).';
         }
 
         if (options.dataModelPrototype) {
             // operating on prototype
             dataModel.truncatePipeline();
-            dataModel.addPipe(dataSource);
+            dataModel.addPipe(firstPipe);
         } else {
             // operating on an instance: create a new "own" pipeline
-            dataModel.pipeline = [dataSource];
+            dataModel.pipeline = [firstPipe];
         }
 
         if (options.includeFilter) {
