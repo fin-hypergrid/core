@@ -15,14 +15,14 @@ window.onload = function() {
             includeSorter: true,
             includeFilter: true
         },
-        shared = true;
+        shared = true; // operate on shared (prototype) pipeline vs. own (instance)
 
     // Install the drill-down API (optional).
     drillDown.mixInTo(dataModelPrototype);
 
     if (shared) {
         // Mutate shared pipeline (avoids calling setData twice).
-        pipelineOptions.dataModel = dataModelPrototype;
+        pipelineOptions.dataModelPrototype = dataModelPrototype;
         TreeView.prototype.addPipes(pipelineOptions);
     }
 
@@ -36,7 +36,7 @@ window.onload = function() {
         treeView = new TreeView(grid, treeViewOptions);
 
     if (!shared) {
-        // Mutate intance pipeline (calls setData again to rebuild pipeline).
+        // Mutate instance pipeline (calls setData again to rebuild pipeline).
         treeView.addPipes(pipelineOptions);
     }
 

@@ -20,32 +20,43 @@ TreeView.prototype = {
     constructor: TreeView.prototype.constructor,
 
     /**
-     * @summary Add the tree-view data source into the shared pipeline.
-     * @desc The tree-view data source is inserted into the shared pipeline of the given data model's prototype, immediately after the raw data source.
+     * @summary Reconfigure the dataModel's pipeline for tree view.
+     * @desc The pipeline is reset starting with either the given `options.dataSource` _or_ the existing pipeline's first data source.
      *
-     * The resulting pipeline addition is shared by all new grids using this data model.
+     * Then the tree view filter and sorter data sources are added as requested.
      *
-     * Intended to be called on the `TreeView` prototype, before the data model is instanced (which currently happens when the behavior is instanced (which currently happens when the grid is instanced)).
+     * Finally the tree view data source is added.
      *
-     * @param {object} dataModelInstanceOrPrototype
+     * This method can operate on either:
+     * * A data model prototype, which will affect all data models subsequently created therefrom. The prototype must be given in `options.dataModelPrototype`.
+     * * The current data model instance. In this case, the instance is given its own new pipeline.
+     *
+     * @param {object} [options]
+     * @param {Data<pde;} [options.dataModelPrototype] - Adds the pipes to the given object. If omitted, this must be an instance; adds the pipes to a new "pwn" pipeline created from the first data source of the instance's old pipeline.
+     * @param {Data<pde;} [options.dataSource] - Use as first data source in the new pipeline. If omitted, re-uses the existing pipeline's first data source.
      */
     addPipes: function(options) {
         options = options || {};
 
         var amInstance = this instanceof TreeView,
-            dataModel = options.dataModel || amInstance && this.grid.behavior.dataModel;
+            dataModel = options.dataModelPrototype || amInstance && this.grid.behavior.dataModel,
+            dataSource = options.dataSource || dataModel.pipeline[0];
 
         if (!dataModel) {
             throw 'Expected dataModel.';
         }
 
-        if (options.dataSource) {
-            dataModel.pipeline.length = 0;
-            dataModel.addPipe(options.dataSource);
-        } else if (dataModel.pipeline.length) {
-            dataModel.pipeline.length = 1;
-        } else {
+        if (!dataSource) {
             throw 'Expected data source.';
+        }
+
+        if (options.dataModelPrototype) {
+            // operating on prototype
+            dataModel.truncatePipeline();
+            dataModel.addPipe(dataSource);
+        } else {
+            // operating on an instance: create a new "own" pipeline
+            dataModel.pipeline = [dataSource];
         }
 
         if (options.includeFilter) {
@@ -59,7 +70,7 @@ TreeView.prototype = {
         dataModel.addPipe({ type: 'DataSourceTreeview', test: isTreeview });
 
         if (amInstance) {
-            this.grid.behavior.setData();
+            this.grid.behavior.setData(dataModel.source.data);
             this.grid.behavior.shapeChanged();
         }
     },
