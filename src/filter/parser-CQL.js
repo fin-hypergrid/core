@@ -217,26 +217,44 @@ ParserCQL.prototype = {
      * @returns {{start: number, end: number}}
      */
     getOperatorPosition: function(cql, cursor) {
-        var booleans = this.captureBooleans(cql),
-            expressions = this.captureExpressions(cql, booleans),
-            position = 0,
+        // first tokenize literals in case they contain booleans...
+        var literals = [];
+        cql = tokenizeLiterals(cql, ParserCQL.qt, literals);
+
+        // ...then expand tokens but with x's just for length
+        cql = cql.replace(this.REGEX_LITERAL_TOKENS, function(match, index) {
+            return Array(1 + literals[index].length + 1 + 1).join('x');
+        });
+
+        var booleans, expressions, position, tabs, end, tab, expression, oldOperator, oldOperatorOffset;
+
+        if ((booleans = this.captureBooleans(cql))) {
+            // boolean(s) found so concatenated expressions
+            expressions = this.captureExpressions(cql, booleans);
+            position = 0;
             tabs = expressions.map(function(expr, idx) { // get starting position of each expression
                 var bool = booleans[idx - 1] || '';
                 position += expr.length + bool.length;
                 return position;
-            }),
-            end, tab, expression, oldOperator, oldOperatorOffset;
+            });
 
-        // find beginning of expression under cursor position
-        tabs.find(function(tick, idx) {
-            tab = idx;
-            return cursor <= tick;
-        });
+            // find beginning of expression under cursor position
+            tabs.find(function(tick, idx) {
+                tab = idx;
+                return cursor <= tick;
+            });
 
-        cursor = tabs[tab - 1] || 0;
-        end = cursor += (booleans[tab - 1] || '').length;
+            cursor = tabs[tab - 1] || 0;
+            end = cursor += (booleans[tab - 1] || '').length;
 
-        expression = expressions[tab];
+            expression = expressions[tab];
+        } else {
+            // booleans not found so single expression
+            cursor = 0;
+            end = cql.length;
+            expression = cql;
+        }
+
         oldOperatorOffset = expression.search(this.REGEX_OPERATOR);
         if (oldOperatorOffset >= 0) {
             oldOperator = expression.match(this.REGEX_OPERATOR)[0];

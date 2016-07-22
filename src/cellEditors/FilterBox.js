@@ -177,12 +177,20 @@ var FilterBox = ComboBox.extend('FilterBox', {
             start = position.start;
             end = position.end;
 
-            // prefix space to the operator as needed
+            // prepend space to operator as needed
             if (
-                start > 0 && // if not at very beginning and...
-                !/\s/.test(cql[start - 1]) // no white space before operator
+                start > 0 && // not at very beginning? and...
+                !/\s/.test(cql[start - 1]) // no white space before operator?
             ) {
                 operator = ' ' + operator;
+            }
+
+            // append space to operator as needed
+            if (
+                end === cql.length || // at very end? or...
+                !/\s/.test(cql[end]) // no white space after operator?
+            ) {
+                operator += ' ';
             }
         }
 
