@@ -159,9 +159,35 @@ var FilterBox = ComboBox.extend('FilterBox', {
     },
 
     insertText: function(e) {
-        // insert the drop-downb text at the insertion point or over the selected text
+        var start = this.selectionStart,
+            end = this.selectionEnd,
+            dropdown = this.dropdown,
+            operator = dropdown.value,
+            option = dropdown.options[dropdown.selectedIndex],
+            optgroup = option.parentElement,
+            isOperator = !(optgroup.tagName === 'OPTGROUP' && optgroup.className);
+
         this.input.focus();
-        this.input.setRangeText(this.dropdown.value, this.selectionStart, this.selectionEnd, 'end');
+
+        if (start === end && isOperator) {
+            var parser = this.grid.getGlobalFilter().parserCQL,
+                cql = this.input.value,
+                position = parser.getOperatorPosition(cql, this.selectionStart, operator);
+
+            start = position.start;
+            end = position.end;
+
+            // prefix space to the operator as needed
+            if (
+                start > 0 && // if not at very beginning and...
+                !/\s/.test(cql[start - 1]) // no white space before operator
+            ) {
+                operator = ' ' + operator;
+            }
+        }
+
+        // insert the drop-down text at the insertion point or over the selected text
+        this.input.setRangeText(operator, start, end, 'end');
 
         // close the drop-down
         this.toggleDropDown();

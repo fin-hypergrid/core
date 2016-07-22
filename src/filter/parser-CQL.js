@@ -23,7 +23,7 @@ ParserCqlError.prototype.name = 'ParserCqlError';
  *
  * @desc See {@tutorial CQL} for the grammar.
  *
- * @param {object} operatorsHash - Hash of valid operators. Each is an object, the only property of interest being `complex` which if truthy means operand may be a list of multiple operands.
+ * @param {object} operatorsHash - Hash of valid operators.
  * @param {object} [options]
  * @param {menuItem[]} [options.schema] - Column schema for column name/alias validation. Throws an error if name fails validation (but see `resolveAliases`). Omit to skip column name validation.
  * @param {boolean} [options.defaultOp='='] - Default operator for column when not defined in column schema.
@@ -208,6 +208,46 @@ ParserCQL.prototype = {
                 return children;
             }
         }, []);
+    },
+
+    /**
+     * @summary The position of the operator of the expression under the cursor.
+     * @param {string} cql - CQL expression under construction.
+     * @param {number} cursor - Current cursor's starting position (`input.startSelection`)
+     * @returns {{start: number, end: number}}
+     */
+    getOperatorPosition: function(cql, cursor) {
+        var booleans = this.captureBooleans(cql),
+            expressions = this.captureExpressions(cql, booleans),
+            position = 0,
+            tabs = expressions.map(function(expr, idx) { // get starting position of each expression
+                var bool = booleans[idx - 1] || '';
+                position += expr.length + bool.length;
+                return position;
+            }),
+            end, tab, expression, oldOperator, oldOperatorOffset;
+
+        // find beginning of expression under cursor position
+        tabs.find(function(tick, idx) {
+            tab = idx;
+            return cursor <= tick;
+        });
+
+        cursor = tabs[tab - 1] || 0;
+        end = cursor += (booleans[tab - 1] || '').length;
+
+        expression = expressions[tab];
+        oldOperatorOffset = expression.search(this.REGEX_OPERATOR);
+        if (oldOperatorOffset >= 0) {
+            oldOperator = expression.match(this.REGEX_OPERATOR)[0];
+            cursor += oldOperatorOffset;
+            end = cursor + oldOperator.length;
+        }
+
+        return {
+            start: cursor,
+            end: end
+        };
     },
 
     /**
