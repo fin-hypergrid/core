@@ -331,8 +331,8 @@ var JSON = DataModel.extend('dataModels.JSON', {
      * The first pipe must have a `@@CLASS_NAME` of `'DataSource'`. Hence, the start of the pipeline is `this.source`. The last pipe is assigned the synonym `this.dataSource`.
      *
      * Branches are created when a pipe specifies a name in `parent`.
-     * @param {object[]} [dataSource] - Array of uniform objects containing the grid data. If omitted, the previous data source will be re-used.
-     * @param {string[]} [dataFields] - Passed to constructor of first data source object in the pipeline..
+     * @param {object[]} [dataSource] - Array of uniform objects containing the grid data. Passed as 1st param to constructor of first data source object in the pipeline. If omitted, the previous data source will be re-used.
+     * @param {string[]} [dataFields] - Array of field names. Passed as 2nd param to constructor of first data source object in the pipeline. If omitted (along with `dataSource`), the previous fields array will be re-used.
      * @memberOf dataModels.JSON.prototype
      */
     setData: function(dataSource, dataFields) {
@@ -377,9 +377,16 @@ var JSON = DataModel.extend('dataModels.JSON', {
     },
 
     /**
+     * @param {number} [newLength=0]
+     */
+    truncatePipeline: function(newLength) {
+        this.pipeline.length = newLength || 0;
+    },
+
+    /**
      * Add a pipe to the data source pipeline.
      * @desc No-op if already added.
-     * @param {dataSourcePipelineObject} newPipe - The new pipeline pipe.
+     * @param {dataSourcePipelineObject} newPipe
      * @param {string|null|undefined} [afterPipe] - One of:
      * * `null` - Inserts at beginning.
      * * *string* - Name of an existing pipe _after which_ the new pipe will be added.
@@ -563,7 +570,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
 
             if (dataSource) {
                 if (dataSource.sorts) {
-                    dataSource.setSorts(this.getPrivateState().sorts);
+                    dataSource.set(this.getPrivateState().sorts);
                 }
 
                 if (dataSource.apply) {

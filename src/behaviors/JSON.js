@@ -99,9 +99,9 @@ var JSON = Local.extend('behaviors.JSON', {
     /**
      * @memberOf behaviors.JSON.prototype
      * @description Set the data field.
-     * @param {function|object[]} dataRows - An array of uniform objects backing the rows in the grid.
+     * @param {function|object[]} [dataRows] - Array of uniform objects containing the grid data. If omitted, the previous data source will be re-used.
      * @param {object} [options]
-     * @param {function|object} [options.fields] - Passed as 2nd param to `this.dataModel.setData`.
+     * @param {function|object} [options.fields] - Array of field names. Passed as 2nd param to `this.dataModel.setData`. If omitted (along with `dataSource`), the previous fields array will be re-used.
      * @param {function|object} [options.schema=deriveSchema] - Used in filter instantiation.
      */
     setData: function(dataRows, options) {
@@ -121,6 +121,8 @@ var JSON = Local.extend('behaviors.JSON', {
         if (grid.cellEditor) {
             grid.cellEditor.cancelEditing();
         }
+
+        dataRows = dataRows || this.dataModel.source.data;
 
         if (grid.isColumnAutosizing()) {
             setTimeout(function() {
