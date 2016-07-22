@@ -309,9 +309,11 @@ var CellEditor = Base.extend('CellEditor', {
             }
 
             if (error) {
-                error = '\n' + error;
-                error = error.replace(/[\n\r]+/g, '\n\n   * ');
-                msg += '\n\nAdditional information about this error:' + error;
+                if (/[\n\r]/.test(error)) {
+                    error = '\n' + error;
+                    error = error.replace(/[\n\r]+/g, '\n\n   * ');
+                }
+                msg += '\n\nAdditional information about this error: ' + error;
             }
 
             alert(msg); // eslint-disable-line no-alert
