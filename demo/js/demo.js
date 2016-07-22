@@ -108,12 +108,12 @@ window.onload = function() {
     var customSchema = [
         { name: 'last_name', type: 'number', opMenu: ['=', '<', '>'] },
         { name: 'total_number_of_pets_owned', type: 'number' },
-        'height',
+        { name: 'height', type: 'number' },
         'birthDate',
         'birthState',
         'employed',
-        'income',
-        'travel'
+        { name: 'income', type: 'number' },
+        { name: 'travel', type: 'number' }
     ];
 
     var peopleSchema = customSchema;  // or try setting to derivedPeopleSchema
@@ -156,7 +156,7 @@ window.onload = function() {
         { label: 'toggle empty data', onclick: toggleEmptyData },
         { label: 'set data 1 (5000 rows)', onclick: setData.bind(null, people1) },
         { label: 'set data 2 (10000 rows)', onclick: setData.bind(null, people2) },
-        { label: 'set data 3 (tree data)', onclick: addTreeDataSource },
+        { label: 'set data 3 (tree data)', onclick: setData.bind(null, treeData) },
         { label: 'reset', onclick: grid.reset.bind(grid)}
 
     ].forEach(function(item) {
@@ -204,14 +204,17 @@ window.onload = function() {
         behavior.setAggregateGroups(a, g);
     }
 
-    function addTreeDataSource() {
-        treeView = new TreeView(grid, { treeColumnName: 'State' });
-        treeView.addPipe(treeData);
-        dataset = treeData;
-    }
-
     function toggleTreeview() {
-        treeView.setRelation(this.checked, true);
+        if (this.checked) {
+            treeView = new TreeView(grid, { treeColumnName: 'State' });
+            treeView.setPipeline({ includeSorter: true, includeFilter: true });
+            treeView.setRelation(true, true);
+        } else {
+            treeView.setRelation(false);
+            treeView = undefined;
+            delete dataModel.pipeline; // restore original (shared) pipeline
+            behavior.setData(); // reset with original pipelline
+        }
     }
     function toggleGrouping(){
         grid.setGroups(this.checked ? groups : []);
@@ -395,7 +398,7 @@ window.onload = function() {
 
             config.halign = 'left';
 
-            if (dataset === treeData) {
+            if (treeView) {
                 n = behavior.getRow(y).__DEPTH;
                 hex = n ? (105 + 75 * n).toString(16) : '00';
                 config.backgroundColor = '#' + hex + hex + hex;
