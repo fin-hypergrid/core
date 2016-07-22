@@ -1257,7 +1257,7 @@ Hypergrid.prototype = {
 
         this.stopEditing(); //other editor is open, close it first
 
-        if (editPoint.x >= 0 && editPoint.y >= 0) {
+        if (editPoint.x >= 0 && editPoint.y >= 0 && editPoint.x < this.getColumnCount()) {
             var editable = this.behavior.getActiveColumn(editPoint.x).getProperties().editable;
             if (editable || this.isFilterRow(editPoint.y)) {
                 this.setMouseDown(editPoint);
