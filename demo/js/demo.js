@@ -107,12 +107,12 @@ window.onload = function() {
     var customSchema = [
         { name: 'last_name', type: 'number', opMenu: ['=', '<', '>'] },
         { name: 'total_number_of_pets_owned', type: 'number' },
-        'height',
+        { name: 'height', type: 'number' },
         'birthDate',
         'birthState',
         'employed',
-        'income',
-        'travel'
+        { name: 'income', type: 'number' },
+        { name: 'travel', type: 'number' }
     ];
 
     var peopleSchema = customSchema;  // or try setting to derivedPeopleSchema
