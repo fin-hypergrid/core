@@ -100,18 +100,21 @@ ParserCQL.prototype = {
      */
     captureBooleans: function(cql) {
         var booleans = cql.match(REGEXP_BOOLS);
+        return booleans && booleans.map(function(bool) {
+            return bool.toLowerCase();
+        });
+    },
 
+    validateBooleans: function(booleans) {
         if (booleans) {
             var heterogeneousOperator = booleans.find(function(op, i) {
-                booleans[i] = op.toLowerCase();
                 return booleans[i] !== booleans[0];
             });
 
             if (heterogeneousOperator) {
-                throw new ParserCqlError('Expected homogeneous boolean operators. You cannot mix AND, OR, and NOR operators here because the order of operations is ambiguous. Everything after your ' + heterogeneousOperator.toUpperCase() + ' was ignored. Tip: You can group operations with subexpressions but only in the QueryBuilder or by using parentheses in SQL.');
+                throw new ParserCqlError('Expected homogeneous boolean operators. You cannot mix AND, OR, and NOR operators here because the order of operations is ambiguous.\nTip: In Manage Filters, you can group operations with subexpressions in the Query Builder tab or by using parentheses in the SQL tab.');
             }
         }
-
         return booleans;
     },
 
@@ -223,7 +226,8 @@ ParserCQL.prototype = {
 
         // ...then expand tokens but with x's just for length
         cql = cql.replace(this.REGEX_LITERAL_TOKENS, function(match, index) {
-            return Array(1 + literals[index].length + 1 + 1).join('x');
+            var length = 1 + literals[index].length + 1; // add quote chars
+            return Array(length + 1).join('x');
         });
 
         var booleans, expressions, position, tabs, end, tab, expression, oldOperator, oldOperatorOffset;
@@ -290,7 +294,7 @@ ParserCQL.prototype = {
         var literals = [];
         cql = tokenizeLiterals(cql, ParserCQL.qt, literals);
 
-        var booleans = this.captureBooleans(cql),
+        var booleans = this.validateBooleans(this.captureBooleans(cql)),
             expressions = this.captureExpressions(cql, booleans),
             children = this.makeChildren(columnName, expressions, literals),
             operator = booleans && booleans[0],
