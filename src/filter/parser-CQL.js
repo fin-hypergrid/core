@@ -211,6 +211,54 @@ ParserCQL.prototype = {
     },
 
     /**
+     * @summary The position of the operator of the expression under the cursor.
+     *
+     * @returns {{start: number, end: number, operator: string}}
+     */
+    getOperatorPosition: function(cql, start, operator) {
+        var booleans = this.captureBooleans(cql),
+            expressions = this.captureExpressions(cql, booleans),
+            cursor = 0,
+            tabs = expressions.map(function(expr, idx) {
+                var bool = booleans[idx - 1] || '';
+                cursor += expr.length + bool.length;
+                return cursor;
+            }),
+            end, tab, parts, expression;
+
+        tabs.find(function(tick, idx) {
+            tab = idx;
+            return start <= tick;
+        });
+
+        start = tabs[tab - 1] || 0;
+        end = start += (booleans[tab - 1] || '').length;
+
+        expression = expressions[tab];
+        parts = expression.match(/^(\s*)([a-z]+)/i) || // alpha operator?
+            expression.match(/^(\s*)([^a-z0-9".\s]+)/i); // non-alpha operator?
+
+        if (
+            start > 0 &&
+            /[a-z]/i.test(cql[start - 1]) &&
+            /[a-z]/i.test(operator)
+        ) {
+            operator = ' ' + operator;
+        }
+
+        if (parts) {
+            start += parts[1].length;
+            end = start + parts[2].length;
+        }
+
+        return {
+            start: start,
+            end: end,
+            operator: operator
+        };
+    },
+
+    /**
      * @summary Make a "locked" subexpression definition object from an expression chain.
      * @desc _Locked_ means it is locked to a single field.
      *
