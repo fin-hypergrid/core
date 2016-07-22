@@ -22,7 +22,7 @@ Hyperblotter is a demo app that shows the capabilities of both OpenFin and Hyper
 
 Check out the Table view on Hyperblotter on a Windows machine via [this installer](https://dl.openfin.co/services/download?fileName=Hyperblotter&config=http://cdn.openfin.co/demos/hyperblotter/app.json).
 
-![](https://github.com/openfin/fin-hypergrid/blob/master/images/Hyperblotter%20Tabled%20Reduced%20Rows.png)
+![](/images/README/Hyperblotter%20Tabled%20Reduced%20Rows.png)
 
 ### Features
 
@@ -59,7 +59,7 @@ Check out the Table view on Hyperblotter on a Windows machine via [this installe
     <div id="fin-grid"></div>
 
     <script src="https://openfin.github.io/fin-hypergrid/build/fin-hypergrid.js"></script>
-    
+
     <script>
         var data = [
            { symbol: 'APPL', name: 'Apple Inc.', prevclose: 93.13 },
@@ -67,9 +67,9 @@ Check out the Table view on Hyperblotter on a Windows machine via [this installe
            { symbol: 'TSLA', name: 'Tesla Motors Inc.', prevclose: 196.40 },
            { symbol: 'IBM', name: 'International Business Machines Corp', prevclose: 155.35 }
         ];
-        
+
         var grid = new fin.Hypergrid('#fin-grid', { data: data });
-        
+
         grid.addProperties({
             showRowNumbers: false,
             showFilterRow: false
