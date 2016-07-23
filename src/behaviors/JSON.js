@@ -20,14 +20,15 @@ var JSON = Local.extend('behaviors.JSON', {
      * > All `initialize()` methods in the inheritance chain are called, in turn, each with the same parameters that were passed to the constructor, beginning with that of the most "senior" class through that of the class of the new instance.
      *
      * @param grid - the hypergrid
-     * @param {undefined|function|menuItem[]} schema - Already consumed by Behavior's {@link Behavior#initialize|initialize}.
+     * @param {undefined|function|menuItem[]} options.schema - Already consumed by Behavior's {@link Behavior#initialize|initialize}.
      * @param {object[]} dataRows - May be:
      * * An array of congruent raw data objects
      * * A function returning same
+     * @param {object} [options] - _(See {@link behaviors.JSON#setData}.)_
      * @memberOf behaviors.JSON.prototype
      */
-    initialize: function(grid, schema, dataRows) {
-        this.setData(dataRows, schema);
+    initialize: function(grid, dataRows, options) {
+        this.setData(dataRows, options);
     },
 
     features: [
@@ -98,13 +99,20 @@ var JSON = Local.extend('behaviors.JSON', {
     /**
      * @memberOf behaviors.JSON.prototype
      * @description Set the data field.
-     * @param {object[]} dataRows - An array of uniform objects backing the rows in the grid.
+     * @param {function|object[]} [dataRows] - Array of uniform objects containing the grid data. If omitted, the previous data source will be re-used.
+     * @param {object} [options]
+     * @param {function|object} [options.fields] - Array of field names. Passed as 2nd param to `this.dataModel.setData`. If omitted (along with `dataSource`), the previous fields array will be re-used.
+     * @param {function|object} [options.schema=deriveSchema] - Used in filter instantiation.
      */
     setData: function(dataRows, options) {
         var self = this,
-            grid = this.grid;
+            grid = this.grid,
+            fields = options && options.fields;
 
-        this.dataModel.setData(dataRows, options);
+        fields = typeof fields === 'function' ? fields() : fields;
+        dataRows = typeof dataRows === 'function' ? dataRows() : dataRows;
+
+        this.dataModel.setData(dataRows, fields);
         this.createColumns();
 
         this.schema = options && options.schema || deriveSchema;
@@ -113,6 +121,8 @@ var JSON = Local.extend('behaviors.JSON', {
         if (grid.cellEditor) {
             grid.cellEditor.cancelEditing();
         }
+
+        dataRows = dataRows || this.dataModel.source.data;
 
         if (grid.isColumnAutosizing()) {
             setTimeout(function() {
