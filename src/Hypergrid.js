@@ -1616,7 +1616,7 @@ Hypergrid.prototype = {
 
         function getValue(selectedRowIndex, j) {
             var dataRow = self.getRow(selectedRowIndex);
-            rows[j] = valOrFunc(dataRow, column.name);
+            rows[j] = valOrFunc(dataRow, column);
         }
 
         return result;
@@ -1641,7 +1641,7 @@ Hypergrid.prototype = {
 
         function getValue(selectedRowIndex, r) {
             var dataRow = self.getRow(selectedRowIndex);
-            result[c][r] = valOrFunc(dataRow, column.name);
+            result[c][r] = valOrFunc(dataRow, column);
         }
 
         return result;
@@ -1661,7 +1661,7 @@ Hypergrid.prototype = {
 
             for (var r = headerRowCount; r < numRows; r++) {
                 dataRow = self.getRow(r);
-                values[r] = valOrFunc(dataRow, column.name);
+                values[r] = valOrFunc(dataRow, column);
             }
         });
 
@@ -1682,7 +1682,7 @@ Hypergrid.prototype = {
 
             for (var r = headerRowCount; r < rowCount; r++) {
                 dataRow = self.getRow(r);
-                values[r] = valOrFunc(dataRow, column.name);
+                values[r] = valOrFunc(dataRow, column);
             }
         });
 
@@ -1709,7 +1709,7 @@ Hypergrid.prototype = {
 
                 for (var r = 0, y = rect.origin.y; r < rowCount; r++, y++) {
                     dataRow = self.getRow(y);
-                    values[r] = valOrFunc(dataRow, column.name);
+                    values[r] = valOrFunc(dataRow, column);
                 }
             }
 
@@ -1739,7 +1739,7 @@ Hypergrid.prototype = {
 
                 for (var r = 0, y = rect.origin.y; r < rowCount; r++, y++) {
                     dataRow = self.getRow(y);
-                    values[r] = valOrFunc(dataRow, column.name);
+                    values[r] = valOrFunc(dataRow, column);
                 }
             }
 
@@ -3477,9 +3477,12 @@ function clearObjectProperties(obj) {
     }
 }
 
-function valOrFunc(dataRow, columnName) {
-    var vf = dataRow[columnName],
-        result = (typeof vf)[0] === 'f' ? vf(dataRow, columnName) : vf;
+function valOrFunc(dataRow, column) {
+    var result = dataRow[column.name],
+        calculator = (typeof result)[0] === 'f' && result || column.calculator;
+        if (calculator) {
+            result = calculator(dataRow, column.name);
+        }
     return result || result === 0 || result === false ? result : '';
 }
 

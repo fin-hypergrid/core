@@ -15,11 +15,17 @@ var popMenu = require('pop-menu');
  */
 function ColumnSchemaFactory(columns, findOptions) {
     this.schema = columns.map(function(column) {
-        return {
+        var item = {
             name: column.name,
             alias: column.header,
             type: column.getType()
         };
+
+        if (column.calculator) {
+            item.calculator = column.calculator;
+        }
+
+        return item;
     });
 }
 

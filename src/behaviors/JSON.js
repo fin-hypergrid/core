@@ -54,16 +54,25 @@ var JSON = Local.extend('behaviors.JSON', {
         var columnCount = dataModel.getColumnCount();
         var headers = dataModel.getHeaders();
         var fields = dataModel.getFields();
+        var calculators = dataModel.getCalculators();
         var REGEX_CAMEL_CASE = /([^_A-Z])([A-Z]+)/g;
         this.clearColumns();
         for (var index = 0; index < columnCount; index++) {
             var header = headers[index];
-            var column = this.addColumn({ index: index, header: header });
+            var calculator = calculators[index];
+            var column = this.addColumn({
+                index: index,
+                header: header,
+                calculator: calculator
+            });
             this.columnEnum[column.name.replace(REGEX_CAMEL_CASE, '$1_$2').toUpperCase()] = index;
             var properties = column.getProperties();
             properties.field = fields[index];
             properties.header = header;
             properties.complexFilter = null;
+            if (calculator) {
+                properties.calculator = calculator;
+            }
         }
     },
 
@@ -107,12 +116,14 @@ var JSON = Local.extend('behaviors.JSON', {
     setData: function(dataRows, options) {
         var self = this,
             grid = this.grid,
-            fields = options && options.fields;
+            fields = options && options.fields,
+            calculators = options && options.calculators;
 
         fields = typeof fields === 'function' ? fields() : fields;
+        calculators = typeof calculators === 'function' ? calculators() : calculators;
         dataRows = typeof dataRows === 'function' ? dataRows() : dataRows;
 
-        this.dataModel.setData(dataRows, fields);
+        this.dataModel.setData(dataRows, fields, calculators);
         this.createColumns();
 
         this.schema = options && options.schema || deriveSchema;
