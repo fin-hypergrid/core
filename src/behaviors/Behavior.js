@@ -1378,7 +1378,10 @@ var Behavior = Base.extend('Behavior', {
      * @param {string[]} keys
      */
     toggleSort: function(x, keys) {
-        this.getActiveColumn(x).toggleSort(keys);
+        var column = this.getActiveColumn(x);
+        if (column) {
+            column.toggleSort(keys);
+        }
     },
 
     /**
