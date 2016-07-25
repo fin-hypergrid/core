@@ -306,6 +306,14 @@ var JSON = DataModel.extend('dataModels.JSON', {
         return this.dataSource.getFields();
     },
 
+    /**
+     * @memberOf dataModels.JSON.prototype
+     * @returns {string[]}
+     */
+    getCalculators: function() {
+        return this.dataSource.getCalculators();
+    },
+
     /** @typedef {object} dataSourcePipelineObject
      * @property {function} DataSource - A `hyper-analytics`-style  "data source" constructor.
      * @property {*} [options] - When defined, passed as 2nd argument to constructor.
@@ -333,9 +341,10 @@ var JSON = DataModel.extend('dataModels.JSON', {
      * Branches are created when a pipe specifies a name in `parent`.
      * @param {object[]} [dataSource] - Array of uniform objects containing the grid data. Passed as 1st param to constructor of first data source object in the pipeline. If omitted, the previous data source will be re-used.
      * @param {string[]} [dataFields] - Array of field names. Passed as 2nd param to constructor of first data source object in the pipeline. If omitted (along with `dataSource`), the previous fields array will be re-used.
+     * @param {string[]} [dataCalculators] - Array of field names. Passed as 3rd param to constructor of first data source object in the pipeline. If omitted (along with `dataSource`), the previous calculators array will be re-used.
      * @memberOf dataModels.JSON.prototype
      */
-    setData: function(dataSource, dataFields) {
+    setData: function(dataSource, dataFields, dataCalculators) {
         this.resetSources();
 
         if (!dataSource) {
@@ -345,6 +354,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
             }
             dataSource = source.data;
             dataFields = source.fields;
+            dataCalculators = source.calculators;
         }
 
         this.pipeline.forEach(function(sources, pipe, index) {
@@ -364,8 +374,8 @@ var JSON = DataModel.extend('dataModels.JSON', {
                 }
             }
 
-            dataSource = new DataSource(dataSource, dataFields);
-            dataFields = undefined; // for first data source only
+            dataSource = new DataSource(dataSource, dataFields, dataCalculators);
+            dataFields = dataCalculators = undefined; // for first data source only
 
             sources[pipe.name] = dataSource;
         }.bind(this, this.sources));
