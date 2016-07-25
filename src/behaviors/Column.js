@@ -112,6 +112,13 @@ Column.prototype = {
     },
 
     set calculator(calculator) {
+        var name = this.name,
+            filter = this.behavior.grid.getGlobalFilter();
+
+        if (filter && filter.schema) {
+            filter.schema.find(function(item) { return item.name === name; }).calculator = calculator;
+        }
+
         this.dataModel.getCalculators()[this.index] = this._calculator = calculator;
     },
     get calculator() {
