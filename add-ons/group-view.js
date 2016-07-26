@@ -18,7 +18,7 @@ function GroupView(grid, options) {
     this.grid = grid;
     this.options = options;
 
-    var G =  Object.getPrototypeOf(this.grid),
+    var G = Object.getPrototypeOf(this.grid),
         B = Object.getPrototypeOf(this.grid.behavior),
         DM = Object.getPrototypeOf(this.grid.behavior.dataModel);
 
@@ -48,7 +48,7 @@ function GroupView(grid, options) {
         return this.dataModel.getGroups();
     }.bind(this.grid.behavior);
 
-    B. getAvailableGroups = function() {
+    B.getAvailableGroups = function() {
         return this.dataModel.getAvailableGroups();
     }.bind(this.grid.behavior);
 
