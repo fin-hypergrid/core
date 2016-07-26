@@ -519,6 +519,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
      * @param {boolean} deferred
      */
     unSortColumn: function(columnIndex, deferred) {
+        //TODO: Fire sort column event
         var state = this.getPrivateState(),
             sorts = state.sorts = state.sorts || [],
             sortPosition;
@@ -547,6 +548,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
      * @param {string[]} keys
      */
     incrementSortState: function(columnIndex, keys) {
+        //TODO: Fire sort toggle event
         var state = this.getPrivateState(),
             sorts = state.sorts = state.sorts || [],
             sortPosition,
@@ -659,23 +661,8 @@ var JSON = DataModel.extend('dataModels.JSON', {
         return this.dataSource.getRow(y - headerRowCount);
     },
 
-    /**
-     * @memberOf dataModels.JSON.prototype
-     * @param {number} y
-     * @returns {object}
-     */
     buildRow: function(y) {
-        var colCount = this.getColumnCount();
-        var fields = [].concat(this.getFields());
-        var result = {};
-        if (this.isDrillDown()) {
-            result.tree = this.getValue(-2, y);
-            fields.shift();
-        }
-        for (var i = 0; i < colCount; i++) {
-            result[fields[i]] = this.getValue(i, y);
-        }
-        return result;
+        return this.deprecated('buildRow', 'dataSource', '1.0.8');
     },
 
     /**
@@ -694,18 +681,8 @@ var JSON = DataModel.extend('dataModels.JSON', {
         return row;
     },
 
-    /**
-     * @memberOf dataModels.JSON.prototype
-     * @param {string} fieldName
-     * @param {number} y
-     * @returns {*}
-     */
     getValueByField: function(fieldName, y) {
-        var index = this.getFields().indexOf(fieldName);
-        if (this.isDrillDown()) {
-            y += 1;
-        }
-        return this.dataSource.getValue(index, y);
+        return this.deprecated('getValueByField', 'dataSource', '1.0.8');
     },
 
     /**
