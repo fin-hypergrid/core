@@ -42,10 +42,52 @@ function GroupView(grid, options) {
         this.changed();
     }.bind(this.grid.behavior);
 
+    B.getGroups = function() {
+        return this.dataModel.getGroups();
+    }.bind(this.grid.behavior);
+
+    B. getAvailableGroups = function() {
+        return this.dataModel.getAvailableGroups();
+    }.bind(this.grid.behavior);
+
+    DM.getGroups = function() {
+        var headers = this.getHeaders().slice(1); //Exclude the tree column
+        var fields = this.getFields().slice(0);
+        var groupBys = this.sources.groupview.groupBys;
+        var groups = [];
+        for (var i = 0; i < groupBys.length; i++) {
+            var field = headers[groupBys[i]];
+            groups.push({
+                id: groupBys[i],
+                label: field,
+                field: fields
+            });
+        }
+        return groups;
+    }.bind(this.grid.behavior.dataModel);
+
     DM.setGroups = function(groups) {
         this.sources.groupview.setGroupBys(groups);
         self.setRelation(groups);
         this.grid.fireSyntheticGroupsChangedEvent(this.getGroups());
+    }.bind(this.grid.behavior.dataModel);
+
+
+    DM.getAvailableGroups = function() {
+        var headers = this.sources.source.getHeaders().slice(0);
+        var groupBys = this.sources.groupview.groupBys;
+        var groups = [];
+        for (var i = 0; i < headers.length; i++) {
+            if (groupBys.indexOf(i) === -1) {
+                var field = headers[i];
+                groups.push({
+                    id: i,
+                    label: field,
+                    field: field
+                });
+            }
+        }
+        return groups;
     }.bind(this.grid.behavior.dataModel);
 
 }

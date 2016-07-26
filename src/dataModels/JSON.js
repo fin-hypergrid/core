@@ -33,6 +33,14 @@ var nullDataSource = {
     // getAggregateTotals: function() {
     //     return [];
     // },
+    getTopTotals:function(){
+      return [];
+    },
+    setTopTotals:function(){},
+    getBottomTotals: function (){
+        return []
+    },
+    setBottomTotals:function(){},
     setData: function(arr) {},
     click: function () {},
     apply: function () {},
@@ -467,47 +475,6 @@ var JSON = DataModel.extend('dataModels.JSON', {
      * @memberOf dataModels.JSON.prototype
      * @returns {object[]}
      */
-    getGroups: function() {
-        var headers = this.getHeaders().slice(1); //Exclude the tree column
-        var fields = this.getFields().slice(0);
-        var groupBys = this.sources.groupview.groupBys;
-        var groups = [];
-        for (var i = 0; i < groupBys.length; i++) {
-            var field = headers[groupBys[i]];
-            groups.push({
-                id: groupBys[i],
-                label: field,
-                field: fields
-            });
-        }
-        return groups;
-    },
-
-    /**
-     * @memberOf dataModels.JSON.prototype
-     * @returns {object[]}
-     */
-    getAvailableGroups: function() {
-        var headers = this.sources.source.getHeaders().slice(0);
-        var groupBys = this.sources.groupview.groupBys;
-        var groups = [];
-        for (var i = 0; i < headers.length; i++) {
-            if (groupBys.indexOf(i) === -1) {
-                var field = headers[i];
-                groups.push({
-                    id: i,
-                    label: field,
-                    field: field
-                });
-            }
-        }
-        return groups;
-    },
-
-    /**
-     * @memberOf dataModels.JSON.prototype
-     * @returns {object[]}
-     */
     getActiveColumns: function() {
         return this.grid.behavior.columns.filter(function(column) {
             return column.name !== 'tree';
@@ -551,7 +518,8 @@ var JSON = DataModel.extend('dataModels.JSON', {
      */
     hasHierarchyColumn: function() {
         var showTree = this.grid.resolveProperty('showTreeColumn') === true;
-        return this.hasGroups() && showTree;
+        return this.isDrillDown() && showTree;
+        //return this.hasGroups() && showTree;
     },
 
     /**

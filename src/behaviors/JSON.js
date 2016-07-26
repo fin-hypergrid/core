@@ -213,13 +213,7 @@ var JSON = Local.extend('behaviors.JSON', {
             return 'center';
         }
     },
-
-    getGroups: function() {
-        return this.dataModel.getGroups();
-    },
-    getAvailableGroups: function() {
-        return this.dataModel.getAvailableGroups();
-    },
+    
     getHiddenColumns: function() {
         return this.dataModel.getHiddenColumns();
     },
