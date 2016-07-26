@@ -495,7 +495,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
                 }
 
                 if (dataSource.apply) {
-                    dataSource.apply();
+                    dataSource.apply(options);
                 }
             }
         }.bind(this, this.sources));
@@ -510,7 +510,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
      */
     toggleSort: function(colIndex, keys) {
         this.incrementSortState(colIndex, keys);
-        this.applyAnalytics(true);
+        this.applyAnalytics({columnSort: true});
     },
 
     /**
@@ -530,7 +530,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
         })) {
             sorts.splice(sortPosition, 1);
             if (!deferred) {
-                this.applyAnalytics(true);
+                this.applyAnalytics({columnSort: true});
             }
         }
     },
@@ -634,11 +634,12 @@ var JSON = DataModel.extend('dataModels.JSON', {
      * @memberOf dataModels.JSON.prototype
      */
     toggleRow: function(y, expand) {
+        //TODO: fire a row toggle event
         var changed;
         if (this.isDrillDown()) {
             changed = this.dataSource.click(y, expand);
             if (changed) {
-                this.applyAnalytics(true);
+                this.applyAnalytics({rowClick: true});
                 this.changed();
             }
         }
