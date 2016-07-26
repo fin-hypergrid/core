@@ -26,7 +26,7 @@ window.onload = function() {
         GroupView.prototype.setPipeline(pipelineOptions);
     }
 
-    grid = new Hypergrid('div#tree-example', { data:  window.people1 });
+    grid = new Hypergrid('div#example', { data:  window.people1 });
 
     grid.setState({
         showFilterRow: pipelineOptions.includeFilter
@@ -40,9 +40,11 @@ window.onload = function() {
     }
 
     document.querySelector('input[type=checkbox]').onclick = function() {
-        if (groupView.setRelation(this.checked, true)) {
+        if (this.checked) {
+            grid.setGroups([6, 0, 1]);
             grid.behavior.dataModel.getCell = getCell;
         } else {
+            grid.setGroups([]);
             delete grid.behavior.dataModel.getCell;
         }
     };

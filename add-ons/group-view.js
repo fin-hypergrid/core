@@ -18,9 +18,9 @@ function GroupView(grid, options) {
     this.grid = grid;
     this.options = options;
 
-    var G =  this.grid.prototype,
-        B = this.grid.behavior.prototype,
-        DM = this.grid.behavior.dataModel.prototype;
+    var G =  Object.getPrototypeOf(this.grid),
+        B = Object.getPrototypeOf(this.grid.behavior),
+        DM = Object.getPrototypeOf(this.grid.behavior.dataModel);
 
     G.setGroups = function(arrayOfColumnIndexes) {
         this.behavior.setGroups(arrayOfColumnIndexes);
@@ -139,13 +139,13 @@ GroupView.prototype = {
         }
 
         if (options.includeFilter) {
-            dataModel.addPipe({ type: 'DataSourceGlobalFilter' });
+            dataModel.addPipe({ type: 'DataSourceGlobalFilter'});
         }
 
         dataModel.addPipe({ type: 'DataSourceGroupView', test: isGroupview });
 
         if (options.includeSorter) {
-            dataModel.addPipe({ type: 'DataSourceGroupSorter' });
+            dataModel.addPipe({ type: 'DataNodeGroupSorter', parent: 'DataSourceGroupView' });
         }
 
         if (amInstance) {
@@ -165,7 +165,7 @@ GroupView.prototype = {
             dataSource = dataModel.sources.groupview,
             grouped = !!groups.length,
             state = behavior.getPrivateState(),
-            columnProps = behavior.getColumn(dataSource.groupColumnIndex).getProperties();
+            columnProps = behavior.getColumn(dataSource.treeColumnIndex).getProperties();
 
         if (grouped) {
             // save the current value of column's editable property and set it to false
