@@ -213,7 +213,6 @@ var JSON = Local.extend('behaviors.JSON', {
             return 'center';
         }
     },
-    
     getHiddenColumns: function() {
         return this.dataModel.getHiddenColumns();
     },

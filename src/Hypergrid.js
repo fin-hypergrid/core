@@ -1880,7 +1880,6 @@ Hypergrid.prototype = {
         });
         this.canvas.dispatchEvent(clickEvent);
     },
-    
     /**
      * @memberOf Hypergrid.prototype
      * @desc Synthesize and fire a `fin-cell-exit` event.

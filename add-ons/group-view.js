@@ -1,3 +1,5 @@
+/* globals CustomEvent */
+
 'use strict';
 
 /**

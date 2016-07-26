@@ -37,26 +37,23 @@ var nullDataSource = {
       return [];
     },
     setTopTotals:function(){},
-    getBottomTotals: function (){
-        return []
+    getBottomTotals: function(){
+        return [];
     },
     setBottomTotals:function(){},
     setData: function(arr) {},
-    click: function () {},
-    apply: function () {},
+    click: function() {},
+    apply: function() {},
     // hasAggregates: function() {
-    //     return false;
-    // },
-    // hasGroups: function() {
     //     return false;
     // },
     getRow: function() {
         return null;
     },
-    getValue: function (x, y){
+    getValue: function(x, y){
         return 0;
     },
-    setValue: function (x, y, value){},
+    setValue: function(x, y, value){},
     get: function() {
         return null;
     },
@@ -65,9 +62,6 @@ var nullDataSource = {
         return false;
     },
     // setAggregates: function() {},
-    // setGroupBys: function() {},
-    //groupBys: [],
-
 };
 
 /**
@@ -113,17 +107,6 @@ var JSON = DataModel.extend('dataModels.JSON', {
             result = event.gridCell.x === 0;
         }
         return result;
-    },
-
-    /**
-     * @memberOf dataModels.JSON.prototype
-     * @returns {boolean}
-     */
-    hasGroups: function() {
-        if (this.hasAggregates()) { //BAD!! JUST BAD!!
-            return this.sources.aggregator.hasGroups();
-        }
-        return this.sources.groupview.hasGroups();
     },
 
     getDataSource: function() {
