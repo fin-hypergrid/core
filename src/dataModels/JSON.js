@@ -337,10 +337,6 @@ var JSON = DataModel.extend('dataModels.JSON', {
      */
     pipeline: [
         { type: 'JSDataSource' },
-        { type: 'DataSourceGroupView', test: function(event) {
-              return this.hasGroups() && (!event || event.gridCell.x === 0);
-            }
-        },
         { type: 'DataSourceAggregator', test: 'hasAggregates' },
         { type: 'DataSourceGlobalFilter' },
         { type: 'DataSourceSorterComposite' },
@@ -465,16 +461,6 @@ var JSON = DataModel.extend('dataModels.JSON', {
      */
     getBottomTotals: function() {
         return this.hasAggregates() ? this.dataSource.getGrandTotals() : this.bottomTotals;
-    },
-
-    /**
-     * @memberOf dataModels.JSON.prototype
-     * @param groups
-     */
-    setGroups: function(groups) {
-        this.sources.groupview.setGroupBys(groups);
-        this.applyAnalytics();
-        this.grid.fireSyntheticGroupsChangedEvent(this.getGroups());
     },
 
     /**

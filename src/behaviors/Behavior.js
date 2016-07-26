@@ -1481,12 +1481,6 @@ var Behavior = Base.extend('Behavior', {
         return newPoint;
     },
 
-    setGroups: function(arrayOfColumnIndexes) {
-        this.dataModel.setRelation(arrayOfColumnIndexes);
-        this.createColumns();
-        this.changed();
-    },
-
     setAggregateGroups: function(mapOfKeysToFunctions, groups) {
         var self = this;
         this.dataModel.setAggregateGroups(mapOfKeysToFunctions, groups);

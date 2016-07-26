@@ -1880,19 +1880,7 @@ Hypergrid.prototype = {
         });
         this.canvas.dispatchEvent(clickEvent);
     },
-
-    fireSyntheticGroupsChangedEvent: function(groups) {
-        var detail = {
-            groups: groups,
-            time: Date.now(),
-            grid: this
-        };
-        var clickEvent = new CustomEvent('fin-groups-changed', {
-            detail: detail
-        });
-        this.canvas.dispatchEvent(clickEvent);
-    },
-
+    
     /**
      * @memberOf Hypergrid.prototype
      * @desc Synthesize and fire a `fin-cell-exit` event.
@@ -3004,9 +2992,6 @@ Hypergrid.prototype = {
     },
     getFilterRowIndex: function() {
         return !this.isShowFilterRow() ? -1 : this.isShowHeaderRow() ? 1 : 0;
-    },
-    setGroups: function(arrayOfColumnIndexes) {
-        this.behavior.setRelation(arrayOfColumnIndexes);
     },
     hasHierarchyColumn: function() {
         return this.behavior.hasHierarchyColumn();

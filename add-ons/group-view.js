@@ -12,8 +12,42 @@
  * @constructor
  */
 function GroupView(grid, options) {
+    var self = this;
     this.grid = grid;
     this.options = options;
+
+    var G =  this.grid.prototype,
+        B = this.grid.behavior.prototype,
+        DM = this.grid.behavior.dataModel.prototype;
+
+    G.setGroups = function(arrayOfColumnIndexes) {
+        this.behavior.setGroups(arrayOfColumnIndexes);
+    }.bind(this.grid);
+
+    G.fireSyntheticGroupsChangedEvent = function(groups) {
+        var detail = {
+            groups: groups,
+            time: Date.now(),
+            grid: this
+        };
+        var clickEvent = new CustomEvent('fin-groups-changed', {
+            detail: detail
+        });
+        this.canvas.dispatchEvent(clickEvent);
+    }.bind(this.grid);
+
+    B.setGroups = function(arrayOfColumnIndexes) {
+        this.dataModel.setGroups(arrayOfColumnIndexes);
+        this.createColumns();
+        this.changed();
+    }.bind(this.grid.behavior);
+
+    DM.setGroups = function(groups) {
+        this.sources.groupview.setGroupBys(groups);
+        self.setRelation(groups);
+        this.grid.fireSyntheticGroupsChangedEvent(this.getGroups());
+    }.bind(this.grid.behavior.dataModel);
+
 }
 
 GroupView.prototype = {
