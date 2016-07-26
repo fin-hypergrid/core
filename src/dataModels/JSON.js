@@ -474,21 +474,6 @@ var JSON = DataModel.extend('dataModels.JSON', {
         this.pipeline.forEach(function(sources, pipe) {
             var dataSource = sources[pipe.name];
 
-            switch (pipe.type) {
-                case 'DataSourceAggregator':
-                case 'DataSourceGroupView':
-                    if (options) {
-                        dataSource = undefined;
-                    }
-                    break;
-
-                case 'DataSourceSorterComposite':
-                    if (sources.aggregator && sources.aggregator.viewMakesSense()) {
-                        dataSource = sources.groupsorter;
-                    }
-                    break;
-            }
-
             if (dataSource) {
                 if (dataSource.sorts) {
                     dataSource.set(this.getPrivateState().sorts);
