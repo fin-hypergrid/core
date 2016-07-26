@@ -116,7 +116,17 @@ Column.prototype = {
             filter = this.behavior.grid.getGlobalFilter();
 
         if (filter && filter.schema) {
-            filter.schema.find(function(item) { return item.name === name; }).calculator = calculator;
+            // Note that calculators are not applied to column schema that are simple string primitives.
+            var columnSchema = filter.schema.find(function(item) {
+                return item.name === name;
+            });
+            if (columnSchema) {
+                if (calculator) {
+                    columnSchema.calculator = calculator;
+                } else if (columnSchema.calculator) {
+                    delete columnSchema.calculator;
+                }
+            }
         }
 
         this.dataModel.getCalculators()[this.index] = this._calculator = calculator;
