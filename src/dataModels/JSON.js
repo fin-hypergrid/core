@@ -30,9 +30,6 @@ var nullDataSource = {
     getRowCount: function() {
         return 0;
     },
-    // getAggregateTotals: function() {
-    //     return [];
-    // },
     getTopTotals:function(){ //or maybe getGrandTotals
       return [];
     },
@@ -44,9 +41,6 @@ var nullDataSource = {
     setData: function(arr) {},
     click: function() {},
     apply: function() {},
-    // hasAggregates: function() {
-    //     return false;
-    // },
     getRow: function() {
         return null;
     },
@@ -60,8 +54,7 @@ var nullDataSource = {
     set: function() {},
     viewMakesSense: function() {
         return false;
-    },
-    // setAggregates: function() {},
+    }
 };
 
 /**
@@ -75,11 +68,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
     resetSources: function() {
         this.sources = {
             source: nullDataSource,
-            treeview: nullDataSource,
-            groupview: nullDataSource,
-            aggregator: nullDataSource,
-            globalfilter: nullDataSource,
-            sortercomposite: nullDataSource
+            globalfilter: nullDataSource
         };
         this.dataSource = undefined;
     },
@@ -94,19 +83,6 @@ var JSON = DataModel.extend('dataModels.JSON', {
 
     clearSelectedData: function() {
         this.selectedData.length = 0;
-    },
-
-    /**
-     * @param {number} [columnIndex] If given, also checks that the column clicked is the tree column.
-     * @returns {boolean}
-     * @memberOf dataModels.JSON.prototype
-     */
-    hasAggregates: function(event) {
-        var result = this.sources.aggregator.hasAggregates();
-        if (result && event) {
-            result = event.gridCell.x === 0;
-        }
-        return result;
     },
 
     getDataSource: function() {
@@ -327,10 +303,6 @@ var JSON = DataModel.extend('dataModels.JSON', {
      */
     pipeline: [
         { type: 'JSDataSource' },
-        { type: 'DataSourceAggregator', test: 'hasAggregates' },
-        { type: 'DataSourceGlobalFilter' },
-        { type: 'DataSourceSorterComposite' },
-        { type: 'DataNodeGroupSorter', parent: 'DataSourceAggregator' }
     ],
 
     /**
@@ -484,16 +456,6 @@ var JSON = DataModel.extend('dataModels.JSON', {
         });
         return hidden;
     },
-
-    /**
-     * @memberOf dataModels.JSON.prototype
-     * @param aggregations
-     */
-    setAggregateGroups: function(aggregations, groups) {
-        this.sources.aggregator.setAggregateGroups(aggregations, groups);
-        this.applyAnalytics();
-    },
-
     /**
      * @memberOf dataModels.JSON.prototype
      * @returns {boolean}
@@ -501,7 +463,6 @@ var JSON = DataModel.extend('dataModels.JSON', {
     hasHierarchyColumn: function() {
         var showTree = this.grid.resolveProperty('showTreeColumn') === true;
         return this.isDrillDown() && showTree;
-        //return this.hasGroups() && showTree;
     },
 
     /**

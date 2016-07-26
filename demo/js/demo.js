@@ -12,6 +12,7 @@ window.onload = function() {
     var drillDown = Hypergrid.drillDown;
     var TreeView = Hypergrid.TreeView;
     var GroupView = Hypergrid.GroupView;
+    var AggView = Hypergrid.AggregationsView;
 
     // Install the drill-down API (optional).
     drillDown.mixInTo(Hypergrid.dataModels.JSON.prototype);
@@ -183,8 +184,7 @@ window.onload = function() {
     window.vent = false;
 
     //functions for showing the grouping/rollup capabilities
-    var doAggregates = false,
-        rollups = behavior.aggregations,
+    var rollups = window.fin.Hypergrid.analytics.util.aggregations,
         aggregates = {
             totalPets: rollups.sum(2),
             averagePets: rollups.avg(2),
@@ -196,11 +196,18 @@ window.onload = function() {
         },
         groups = [idx.BIRTH_STATE, idx.LAST_NAME, idx.FIRST_NAME];
 
+    var aggView, aggViewOn = false, doAggregates = false;
     function toggleAggregates() {
+        if (!aggView){
+            aggView = new AggView(grid, {});
+            aggView.setPipeline({ includeSorter: true, includeFilter: true });
+        }
         if (this.checked) {
-            behavior.setAggregateGroups(aggregates, groups);
+            grid.setAggregateGroups(aggregates, groups);
+            aggViewOn = true;
         } else {
-            behavior.setAggregateGroups([], []);
+            grid.setAggregateGroups([], []);
+            aggViewOn = false;
         }
     }
 

@@ -1480,16 +1480,6 @@ var Behavior = Base.extend('Behavior', {
         var newPoint = this.grid.newPoint(newX, viewPoint.y);
         return newPoint;
     },
-
-    setAggregateGroups: function(mapOfKeysToFunctions, groups) {
-        var self = this;
-        this.dataModel.setAggregateGroups(mapOfKeysToFunctions, groups);
-        this.createColumns();
-        setTimeout(function() {
-            self.changed();
-        }, 100);
-    },
-
     hasHierarchyColumn: function() {
         return false;
     },

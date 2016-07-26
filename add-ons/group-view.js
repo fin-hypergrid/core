@@ -10,7 +10,6 @@
  * * Perform the column grouping and rebuild the index to turn the view on or off (`setRelation`).
  *
  * @param {object} [options]
- * @param {boolean} [options.shared=false]
  * @constructor
  */
 function GroupView(grid, options) {
@@ -157,7 +156,7 @@ GroupView.prototype = {
     /**
      * @summary Build/unbuild the group view.
      * @param {boolean} groups - Turn group-view **ON**. If falsy (or omitted), turn it **OFF**.
-     * @returns {boolean} Joined state.
+     * @returns {boolean} View State.
      */
     setRelation: function(groups) {
         var behavior = this.grid.behavior,
