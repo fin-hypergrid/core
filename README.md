@@ -56,12 +56,12 @@ The Hypergrid control is a [Google polymer](https://www.polymer-project.org/) [w
 # Getting Started
 Use the [Hypergrid OpenFin Installer](https://dl.openfin.co/services/download?fileName=hypergrid-demo-installer&config=http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/demo.json) to install an openfin startup link and see the demo running on your desktop.   You can also see a few demos..
 
-* [main demo](http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/demo.html) - the main demo using some paper-elements, showing off all the current behaviors
+* [main demo](http://openfin.github.io/fin-hypergrid-polymer-demo/components/fin-hypergrid/demo.html) - the main demo using some paper-elements, showing off all the current behaviors
 * [JSON standalone](http://openfin.github.io/example-fin-hypergrid-behavior-json/) - a side project demonstrating a fin-hypergrid use case of a standalone JSON behavior
-* [simple standalone](http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/examples/standalone.html) - the simplest example of just a standalone fin-hypergrid with default behavior
-* [styled standalone](http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/examples/tt.html) - a slightly more sophisticated styled example of a standalone fin-hypergrid with a JSON behavior
-* [jquery partials](http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/examples/partialtest.html) - an example using jquery dynamic partial loading
-* [multi window snap and dock example](https://dl.openfin.co/services/download?fileName=hypergrid-snap-installer&config=http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/examples/hypergrid-snap.json) 
+* [simple standalone](http://openfin.github.io/fin-hypergrid-polymer-demo/components/fin-hypergrid/examples/standalone.html) - the simplest example of just a standalone fin-hypergrid with default behavior
+* [styled standalone](http://openfin.github.io/fin-hypergrid-polymer-demo/components/fin-hypergrid/examples/tt.html) - a slightly more sophisticated styled example of a standalone fin-hypergrid with a JSON behavior
+* [jquery partials](http://openfin.github.io/fin-hypergrid-polymer-demo/components/fin-hypergrid/examples/partialtest.html) - an example using jquery dynamic partial loading
+* [multi window snap and dock example](https://dl.openfin.co/services/download?fileName=hypergrid-snap-installer&config=http://openfin.github.io/fin-hypergrid-polymer-demo/components/fin-hypergrid/examples/hypergrid-snap.json) 
 
 # Recent 
 * [HiDPI](http://www.html5rocks.com/en/tutorials/canvas/hidpi/) mode is now enabled by default and is no longer an attribute but a JSON startup config property.  The performance issue witnessed in chrome browsers seems to have been fixed.
