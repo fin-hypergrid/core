@@ -14,6 +14,7 @@
 function AggregationsView(grid, options) {
     this.grid = grid;
     this.options = options;
+    var self = this;
 
     var G = Object.getPrototypeOf(this.grid),
         B = Object.getPrototypeOf(this.grid.behavior),
@@ -24,17 +25,16 @@ function AggregationsView(grid, options) {
     }.bind(this.grid);
 
     B.setAggregateGroups = function(mapOfKeysToFunctions, groups) {
-        var self = this;
         this.dataModel.setAggregateGroups(mapOfKeysToFunctions, groups);
         this.createColumns();
         setTimeout(function() {
-            self.changed();
-        }, 100);
+            this.changed();
+        }.bind(this.grid.behavior), 100);
     }.bind(this.grid.behavior);
 
     DM.setAggregateGroups = function(aggregations, groups) {
         this.sources.aggregator.setAggregateGroups(aggregations, groups);
-        this.applyAnalytics();
+        self.setRelation(aggregations, groups);
     }.bind(this.grid.behavior.dataModel);
 }
 
@@ -108,7 +108,7 @@ AggregationsView.prototype = {
         var behavior = this.grid.behavior,
             dataModel = behavior.dataModel,
             aggregated = !!aggregations.length && !!groups.length,
-            dataSource = dataModel.sources.aggregationsview,
+            dataSource = dataModel.sources.aggregator,
             state = behavior.getPrivateState(),
             columnProps = behavior.getColumn(dataSource.treeColumnIndex).getProperties();
 
@@ -142,7 +142,7 @@ AggregationsView.prototype = {
  * @returns {boolean} If the data source is a aggregations view.
  */
 function isAggregationsview(event) {
-    var aggregationsview = this.sources.aggregationsview,
+    var aggregationsview = this.sources.aggregator,
         result = !!(aggregationsview && aggregationsview.viewMakesSense());
     if (result && event) {
         result = event.dataCell.x === aggregationsview.treeColumnIndex;
