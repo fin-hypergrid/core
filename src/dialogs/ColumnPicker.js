@@ -124,7 +124,7 @@ var ColumnPicker = Dialog.extend('ColumnPicker', {
             var groupBys = this.selectedGroups.models.map(function(e) {
                 return e.id;
             });
-            behavior.dataModel.setGroups(groupBys);
+            behavior.dataModel.setRelation(groupBys);
 
             if (this.sortOnHiddenColumns !== this.wasSortOnHiddenColumns) {
                 this.grid.addProperties({ sortOnHiddenColumns: this.sortOnHiddenColumns });

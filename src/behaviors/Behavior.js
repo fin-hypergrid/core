@@ -1482,7 +1482,7 @@ var Behavior = Base.extend('Behavior', {
     },
 
     setGroups: function(arrayOfColumnIndexes) {
-        this.dataModel.setGroups(arrayOfColumnIndexes);
+        this.dataModel.setRelation(arrayOfColumnIndexes);
         this.createColumns();
         this.changed();
     },

@@ -14,8 +14,15 @@ var nullDataSource = {
     getFields: function() {
         return [];
     },
+    getDataIndex: function(y) {
+        return 0;
+    },
+    setFields: function(arr) {
+    },
     getHeaders: function() {
         return [];
+    },
+    setHeaders: function(arr) {
     },
     getColumnCount: function() {
         return 0;
@@ -23,18 +30,25 @@ var nullDataSource = {
     getRowCount: function() {
         return 0;
     },
-    getAggregateTotals: function() {
-        return [];
-    },
-    hasAggregates: function() {
-        return false;
-    },
-    hasGroups: function() {
-        return false;
-    },
+    // getAggregateTotals: function() {
+    //     return [];
+    // },
+    setData: function(arr) {},
+    click: function () {},
+    apply: function () {},
+    // hasAggregates: function() {
+    //     return false;
+    // },
+    // hasGroups: function() {
+    //     return false;
+    // },
     getRow: function() {
         return null;
     },
+    getValue: function (x, y){
+        return 0;
+    },
+    setValue: function (x, y, value){},
     get: function() {
         return null;
     },
@@ -42,9 +56,9 @@ var nullDataSource = {
     viewMakesSense: function() {
         return false;
     },
-    setAggregates: function() {},
-    setGroupBys: function() {},
-    groupBys: [],
+    // setAggregates: function() {},
+    // setGroupBys: function() {},
+    //groupBys: [],
 
 };
 

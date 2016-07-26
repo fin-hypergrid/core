@@ -3006,7 +3006,7 @@ Hypergrid.prototype = {
         return !this.isShowFilterRow() ? -1 : this.isShowHeaderRow() ? 1 : 0;
     },
     setGroups: function(arrayOfColumnIndexes) {
-        this.behavior.setGroups(arrayOfColumnIndexes);
+        this.behavior.setRelation(arrayOfColumnIndexes);
     },
     hasHierarchyColumn: function() {
         return this.behavior.hasHierarchyColumn();

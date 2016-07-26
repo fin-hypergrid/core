@@ -216,7 +216,7 @@ window.onload = function() {
         }
     }
     function toggleGrouping(){
-        grid.setGroups(this.checked ? groups : []);
+        grid.setRelation(this.checked ? groups : []);
     }
 
     var styleRowsFromData;
@@ -1063,7 +1063,7 @@ window.onload = function() {
 
         // turn on grouping as per checkbox default setting (see toggleProps[])
         if (document.querySelector('#grouping').checked) {
-            grid.setGroups(groups);
+            grid.setRelation(groups);
         }
 
         // turn on aggregates as per checkbox default setting (see toggleProps[])
