@@ -33,7 +33,7 @@ var nullDataSource = {
     // getAggregateTotals: function() {
     //     return [];
     // },
-    getTopTotals:function(){
+    getTopTotals:function(){ //or maybe getGrandTotals
       return [];
     },
     setTopTotals:function(){},
@@ -146,7 +146,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
             if (x === -2) {
                 x = 0;
             }
-        } else if (this.hasAggregates()) {
+        } else if (this.isDrillDown()) {
             x += 1;
         }
         if (y < headerRowCount) {
@@ -210,7 +210,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
             if (x === -2) {
                 x = 0;
             }
-        } else if (this.hasAggregates()) {
+        } else if (this.isDrillDown()) {
             x += 1;
         }
         if (y < headerRowCount) {
@@ -269,8 +269,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
      */
     getColumnCount: function() {
         var showTree = this.grid.resolveProperty('showTreeColumn') === true;
-        var hasAggregates = this.hasAggregates();
-        var offset = (hasAggregates && !showTree) ? -1 : 0;
+        var offset = (this.isDrillDown() && !showTree) ? -1 : 0;
         return this.dataSource.getColumnCount() + offset;
     },
 
@@ -435,7 +434,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
      * @returns {Array<Array>}
      */
     getTopTotals: function() {
-        return this.hasAggregates() ? this.dataSource.getGrandTotals() : this.topTotals;
+        return this.dataSource.getGrandTotals() || this.topTotals;
     },
 
     /**
@@ -451,7 +450,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
      * @returns {Array<Array>}
      */
     getBottomTotals: function() {
-        return this.hasAggregates() ? this.dataSource.getGrandTotals() : this.bottomTotals;
+        return this.dataSource.getGrandTotals() || this.bottomTotals;
     },
 
     /**
@@ -690,8 +689,10 @@ var JSON = DataModel.extend('dataModels.JSON', {
      */
     getRow: function(y) {
         var headerRowCount = this.grid.getHeaderRowCount();
-        if (y < headerRowCount && !this.hasAggregates()) {
-            var topTotals = this.getTopTotals();
+        var topTotals = this.getTopTotals();
+        var hasToptotals = !!topTotals.length;
+        if (y < headerRowCount && !hasToptotals) {
+
             return topTotals[y - (headerRowCount - topTotals.length)];
         }
         return this.dataSource.getRow(y - headerRowCount);
@@ -706,7 +707,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
         var colCount = this.getColumnCount();
         var fields = [].concat(this.getFields());
         var result = {};
-        if (this.hasAggregates()) {
+        if (this.isDrillDown()) {
             result.tree = this.getValue(-2, y);
             fields.shift();
         }
@@ -740,7 +741,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
      */
     getValueByField: function(fieldName, y) {
         var index = this.getFields().indexOf(fieldName);
-        if (this.hasAggregates()) {
+        if (this.isDrillDown()) {
             y += 1;
         }
         return this.dataSource.getValue(index, y);
