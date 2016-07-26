@@ -1,6 +1,8 @@
 #Hypergrid by OpenFin
 
-###NOTICE: The Polymer version is no longer supported. Please use the `master` branch for supported development
+###NOTICE: The Polymer version is NO longer supported. 
+
+Please use the `master` branch for supported development
 
 <img src="images/gridshot04.gif" alt="screenshot">
 #Hypergrid
@@ -14,42 +16,42 @@ The Hypergrid control is a [Google polymer](https://www.polymer-project.org/) [w
 
 ## Shortcuts
 
-* [Getting Started](https://github.com/openfin/fin-hypergrid#getting-started)
-* [Recent](https://github.com/openfin/fin-hypergrid#recent)
-* [Pluggable Grid Behaviors](https://github.com/openfin/fin-hypergrid#pluggable-grid-behaviors)
-* [The Super Easy Setup](https://github.com/openfin/fin-hypergrid#the-super-easy-setup)
-* [Local Setup](https://github.com/openfin/fin-hypergrid#local-setup)
-* [Deploy your app with fin-hypergrid](https://github.com/openfin/fin-hypergrid#deploy-your-app-with-fin-hypergrid)
-* [Important notes about Polymer Development](https://github.com/openfin/fin-hypergrid#important-notes-about-polymer-development)
-* [JSON behavior](https://github.com/openfin/fin-hypergrid#json-behavior)
-    * [Populating a JSON behavior with data](https://github.com/openfin/fin-hypergrid#populating-a-json-behavior-with-data)
-    * [Specifying fields and headers for a JSON behavior](https://github.com/openfin/fin-hypergrid#specifying-fields-and-headers-for-a-json-behavior)
-    * [JSON behavior totals rows](https://github.com/openfin/fin-hypergrid#json-behavior-totals-rows)
-    * [JSON behavior table state](https://github.com/openfin/fin-hypergrid#json-behavior-table-state)
-    * [Updating Hypergrid Data with the JSON Behavior](https://github.com/openfin/fin-hypergrid#updating-hypergrid-data-with-the-json-behavior--)
-* [Cells as Links](https://github.com/openfin/fin-hypergrid#cells-as-links)
-* [Fixed Columns](https://github.com/openfin/fin-hypergrid#fixed-columns)
-* [Cell Renderers](https://github.com/openfin/fin-hypergrid#cell-renderers)
-    * [Creating a custom cell renderer.](https://github.com/openfin/fin-hypergrid#creating-a-custom-cell-renderer)
-    * [The cell render config object](https://github.com/openfin/fin-hypergrid#the-cell-renderer-config-object)
-* [Column autosizing](https://github.com/openfin/fin-hypergrid#column-autosizing)
-* [Cell Editors](https://github.com/openfin/fin-hypergrid#cell-editors)
-    * [Default cell editors](https://github.com/openfin/fin-hypergrid#default-cell-editors)
-    * [Creating your own cell editor](https://github.com/openfin/fin-hypergrid#creating-your-own-cell-editor-)
-* [Hypergrid configuration](https://github.com/openfin/fin-hypergrid#hypergrid-configuration)
-    * [Modifying various hypergrid features and property defaults](https://github.com/openfin/fin-hypergrid#modifying-various-hypergrid-features-and-property-defaults)
-    * [Example usage](https://github.com/openfin/fin-hypergrid#example-usage)
-* [Hypergrid events](https://github.com/openfin/fin-hypergrid#hypergrid-events)
-* [Column Picker](https://github.com/openfin/fin-hypergrid#column-picker)
-* [Hypergrid Excel Integration](https://github.com/openfin/fin-hypergrid#hypergrid-excel-integration)
-    * [Hypergrid Excel JSON Behavior Example Application](https://github.com/openfin/fin-hypergrid#hypergrid-excel-json-behavior-example-application)
-    * [Fin-Hypergrid-Excel plugin element](https://github.com/openfin/fin-hypergrid#fin-hypergrid-excel-plugin-element)
-    * [Excel Integration Links](https://github.com/openfin/fin-hypergrid#excel-integration-links)
-* [KDB+/Q by kx systems demo](https://github.com/openfin/fin-hypergrid#kdbq-by-kx-systems-demo-tabs-select-either-the-q-or-q-tree-tabs)
-* [Hypergrid example for displaying RDBMS data](https://github.com/openfin/fin-hypergrid#hypergrid-example-for-displaying-rdbms-data)
-* [Custom Scrollbars](https://github.com/openfin/fin-hypergrid#custom-scrollbars)
-* [Road Map](https://github.com/openfin/fin-hypergrid#road-map)
-* [Feature List](https://github.com/openfin/fin-hypergrid#feature-list)
+* [Getting Started](https://github.com/openfin/fin-hypergrid/tree/polymer-prototype/#getting-started)
+* [Recent](https://github.com/openfin/fin-hypergrid/tree/polymer-prototype/#recent)
+* [Pluggable Grid Behaviors](https://github.com/openfin/fin-hypergrid/tree/polymer-prototype/#pluggable-grid-behaviors)
+* [The Super Easy Setup](https://github.com/openfin/fin-hypergrid/tree/polymer-prototype/#the-super-easy-setup)
+* [Local Setup](https://github.com/openfin/fin-hypergrid/tree/polymer-prototype/#local-setup)
+* [Deploy your app with fin-hypergrid](https://github.com/openfin/fin-hypergrid/tree/polymer-prototype/#deploy-your-app-with-fin-hypergrid)
+* [Important notes about Polymer Development](https://github.com/openfin/fin-hypergrid/tree/polymer-prototype/#important-notes-about-polymer-development)
+* [JSON behavior](https://github.com/openfin/fin-hypergrid/tree/polymer-prototype/#json-behavior)
+    * [Populating a JSON behavior with data](https://github.com/openfin/fin-hypergrid/tree/polymer-prototype/#populating-a-json-behavior-with-data)
+    * [Specifying fields and headers for a JSON behavior](https://github.com/openfin/fin-hypergrid/tree/polymer-prototype/#specifying-fields-and-headers-for-a-json-behavior)
+    * [JSON behavior totals rows](https://github.com/openfin/fin-hypergrid/tree/polymer-prototype/#json-behavior-totals-rows)
+    * [JSON behavior table state](https://github.com/openfin/fin-hypergrid/tree/polymer-prototype/#json-behavior-table-state)
+    * [Updating Hypergrid Data with the JSON Behavior](https://github.com/openfin/fin-hypergrid/tree/polymer-prototype/#updating-hypergrid-data-with-the-json-behavior--)
+* [Cells as Links](https://github.com/openfin/fin-hypergrid/tree/polymer-prototype/#cells-as-links)
+* [Fixed Columns](https://github.com/openfin/fin-hypergrid/tree/polymer-prototype/#fixed-columns)
+* [Cell Renderers](https://github.com/openfin/fin-hypergrid/tree/polymer-prototype/#cell-renderers)
+    * [Creating a custom cell renderer.](https://github.com/openfin/fin-hypergrid/tree/polymer-prototype/#creating-a-custom-cell-renderer)
+    * [The cell render config object](https://github.com/openfin/fin-hypergrid/tree/polymer-prototype/#the-cell-renderer-config-object)
+* [Column autosizing](https://github.com/openfin/fin-hypergrid/tree/polymer-prototype/#column-autosizing)
+* [Cell Editors](https://github.com/openfin/fin-hypergrid/tree/polymer-prototype/#cell-editors)
+    * [Default cell editors](https://github.com/openfin/fin-hypergrid/tree/polymer-prototype/#default-cell-editors)
+    * [Creating your own cell editor](https://github.com/openfin/fin-hypergrid/tree/polymer-prototype/#creating-your-own-cell-editor-)
+* [Hypergrid configuration](https://github.com/openfin/fin-hypergrid/tree/polymer-prototype/#hypergrid-configuration)
+    * [Modifying various hypergrid features and property defaults](https://github.com/openfin/fin-hypergrid/tree/polymer-prototype/#modifying-various-hypergrid-features-and-property-defaults)
+    * [Example usage](https://github.com/openfin/fin-hypergrid/tree/polymer-prototype/#example-usage)
+* [Hypergrid events](https://github.com/openfin/fin-hypergrid/tree/polymer-prototype/#hypergrid-events)
+* [Column Picker](https://github.com/openfin/fin-hypergrid/tree/polymer-prototype/#column-picker)
+* [Hypergrid Excel Integration](https://github.com/openfin/fin-hypergrid/tree/polymer-prototype/#hypergrid-excel-integration)
+    * [Hypergrid Excel JSON Behavior Example Application](https://github.com/openfin/fin-hypergrid/tree/polymer-prototype/#hypergrid-excel-json-behavior-example-application)
+    * [Fin-Hypergrid-Excel plugin element](https://github.com/openfin/fin-hypergrid/tree/polymer-prototype/#fin-hypergrid-excel-plugin-element)
+    * [Excel Integration Links](https://github.com/openfin/fin-hypergrid/tree/polymer-prototype/#excel-integration-links)
+* [KDB+/Q by kx systems demo](https://github.com/openfin/fin-hypergrid/tree/polymer-prototype/#kdbq-by-kx-systems-demo-tabs-select-either-the-q-or-q-tree-tabs)
+* [Hypergrid example for displaying RDBMS data](https://github.com/openfin/fin-hypergrid/tree/polymer-prototype/#hypergrid-example-for-displaying-rdbms-data)
+* [Custom Scrollbars](https://github.com/openfin/fin-hypergrid/tree/polymer-prototype/#custom-scrollbars)
+* [Road Map](https://github.com/openfin/fin-hypergrid/tree/polymer-prototype/#road-map)
+* [Feature List](https://github.com/openfin/fin-hypergrid/tree/polymer-prototype/#feature-list)
 
 # Getting Started
 Use the [Hypergrid OpenFin Installer](https://dl.openfin.co/services/download?fileName=hypergrid-demo-installer&config=http://openfin.github.io/fin-hypergrid/components/fin-hypergrid/demo.json) to install an openfin startup link and see the demo running on your desktop.   You can also see a few demos..
