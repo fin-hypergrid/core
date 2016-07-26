@@ -11,6 +11,7 @@ window.onload = function() {
     var Hypergrid = fin.Hypergrid;
     var drillDown = Hypergrid.drillDown;
     var TreeView = Hypergrid.TreeView;
+    var GroupView = Hypergrid.GroupView;
 
     // Install the drill-down API (optional).
     drillDown.mixInTo(Hypergrid.dataModels.JSON.prototype);
@@ -215,8 +216,20 @@ window.onload = function() {
             behavior.setData(); // reset with original pipelline
         }
     }
+
+    var groupView, groupViewOn = false;
     function toggleGrouping(){
-        grid.setRelation(this.checked ? groups : []);
+        if (!groupView){
+            groupView = new GroupView(grid, {});
+            groupView.setPipeline({ includeSorter: true, includeFilter: true });
+        }
+        if (this.checked){
+            grid.setGroups(groups);
+            groupViewOn = true;
+        } else {
+            grid.setGroups([]);
+            groupViewOn = false;
+        }
     }
 
     var styleRowsFromData;
@@ -522,6 +535,9 @@ window.onload = function() {
                     //     return starry;
                     // }
                 }
+            }
+            if (groupViewOn && dataModel.getRow(config.y).hasChildren) {
+                return grid.cellRenderers.get('EmptyCell');
             }
         }
 
@@ -1063,7 +1079,7 @@ window.onload = function() {
 
         // turn on grouping as per checkbox default setting (see toggleProps[])
         if (document.querySelector('#grouping').checked) {
-            grid.setRelation(groups);
+            grid.setGroups(groups);
         }
 
         // turn on aggregates as per checkbox default setting (see toggleProps[])

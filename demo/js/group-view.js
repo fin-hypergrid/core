@@ -41,7 +41,7 @@ window.onload = function() {
 
     document.querySelector('input[type=checkbox]').onclick = function() {
         if (this.checked) {
-            grid.setGroups([6, 0, 1]);
+            grid.setGroups([5, 0, 1]);
             grid.behavior.dataModel.getCell = getCell;
         } else {
             grid.setGroups([]);
