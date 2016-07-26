@@ -1,8 +1,8 @@
 #Hypergrid by OpenFin
 
-###NOTICE: The Polymer version is NO longer supported. 
+##NOTICE: Polymer version _NO_ longer supported! 
 
-Please use the `master` branch for supported development
+##Please use the `master` branch for supported development
 
 <img src="images/gridshot04.gif" alt="screenshot">
 #Hypergrid
