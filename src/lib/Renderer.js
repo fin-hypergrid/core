@@ -806,7 +806,7 @@ var Renderer = Base.extend('Renderer', {
         if (loopLength) { // this if prevents painting just the fixed columns when there are no visible columns
 
             // For each column...
-            for (x = loopStart; x < loopLength; x++, clipX += clipWidth) {
+            for (x = loopStart; x < loopLength; x++/*, clipX += clipWidth*/) {
 
                 c = visibleCols[x];
                 this.renderedColumnMinWidths[c] = 0;
