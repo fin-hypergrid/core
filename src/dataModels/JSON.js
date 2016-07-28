@@ -176,7 +176,10 @@ var JSON = DataModel.extend('dataModels.JSON', {
             } else if (isHeaderRow && y === 0) {
                 value = this.getHeaders()[x];
                 var sortString = this.getSortImageForColumn(x);
-                if (sortString) { value = sortString + value; }
+                if (sortString) {
+                    var at = value.lastIndexOf('\n') + 1;
+                    value = at ? value.substr(0, at) + sortString + value.substr(at) : sortString + value;
+                }
             } else { // must be filter row
                 var filter = this.getGlobalFilter();
                 value = filter && filter.getColumnFilterState(this.getFields()[x]) || '';

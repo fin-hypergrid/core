@@ -32,7 +32,7 @@ TreeView.prototype = {
      * * The current data model instance. In this case, the instance is given its own new pipeline.
      *
      * @param {object} [options]
-     * @param {object} [options.dataModelPrototype] - Adds the pipes to the given object. If omitted, this must be an instance; adds the pipes to a new "pwn" pipeline created from the first data source of the instance's old pipeline.
+     * @param {object} [options.dataModelPrototype] - Adds the pipes to the given object. If omitted, this must be an instance; adds the pipes to a new "own" pipeline created from the first data source of the instance's old pipeline.
      * @param {dataSourcePipelineObject} [options.firstPipe] - Use as first data source in the new pipeline. If omitted, re-uses the existing pipeline's first data source.
      */
     setPipeline: function(options) {
@@ -47,7 +47,7 @@ TreeView.prototype = {
         }
 
         if (!firstPipe) {
-            throw 'Expected pip (data source pipeline descriptor).';
+            throw 'Expected pipe (data source pipeline descriptor).';
         }
 
         if (options.dataModelPrototype) {

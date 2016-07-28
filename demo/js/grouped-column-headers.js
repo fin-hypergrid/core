@@ -8,7 +8,8 @@ window.onload = function() {
     var Hypergrid = fin.Hypergrid;
     grid = new Hypergrid('div#example', { data: window.unitedStates });
     grid.setState({
-        rowHeights: { 0: 40 }
+        rowHeights: { 0: 60 },
+        // columnAutosizing: false
     });
 
     var headers = {
@@ -18,12 +19,12 @@ window.onload = function() {
         city: 'Largest City',
         founded: 'Statehood',
         population: 'Population',
-        areaTotalMi: 'Area\nTotal (mi)',
-        areaTotalKm: 'Area\nTotal (km)',
-        areaLandMi: 'Area\nLand (mi)',
-        areaLandKm: 'Area\nLand (km)',
-        areaWaterMi: 'Area\nWater (mi)',
-        areaWaterKm: 'Area\nWater (km)',
+        areaTotalMi: 'Area\nTotal\nmiles',
+        areaTotalKm: 'Area\nTotal\nkm',
+        areaLandMi: 'Area\nLand\nmiles',
+        areaLandKm: 'Area\nLand\nkm',
+        areaWaterMi: 'Area\nWater\nmiles',
+        areaWaterKm: 'Area\nWater\nkm',
         reps: 'House Seats'
     };
 
@@ -31,34 +32,75 @@ window.onload = function() {
         column.header = headers[column.name];
     });
 
-    var first, left, width;
+    var groups;
     var SimpleCell = Object.getPrototypeOf(grid.cellRenderers.get('simplecell')).constructor;
     var DoubleCell = SimpleCell.extend({
         paint: function(gc, config) {
-            if (config.y == 0) {
-                if (config.x === -1) {
-                    first = true;
-                } else if (config.x >= 0) {
-                    var values = config.value.split('\n');
-                    if (values.length > 1) {
-                        var boundsLeft = config.bounds.x,
-                            boundsWidth = config.bounds.width;
-                        if (first) {
-                            left = boundsLeft;
-                            width = boundsWidth;
-                            first = false;
+            if (config.y == 0 && config.x >= 0) {
+                var GREY = '#909090',
+                    values = config.value.split('\n'),
+                    groupCount = values.length - 1,
+                    group;
+
+                if (!groupCount || config.x === 0) {
+                    groups = [];
+                }
+
+                if (groupCount) {
+                    var bounds = config.bounds,
+                        boundsLeft = bounds.x,
+                        boundsTop = bounds.y,
+                        boundsWidth = bounds.width,
+                        boundsHeight = bounds.height,
+                        height = boundsHeight / values.length,
+                        isColumnHovered = config.isColumnHovered,
+                        isSelected = config.isSelected,
+                        font = config.font,
+                        color = config.color;
+
+                    bounds.height = height;
+
+                    for (var g = 0; g < groupCount; g++, boundsTop += height) {
+                        if (!groups[g] || values[g] !== groups[g].value) {
+                            group = groups[g] = groups[g] || {};
+                            group.value = values[g];
+                            group.left = boundsLeft;
+                            group.width = boundsWidth;
                         } else {
-                            config.bounds.width = width += boundsWidth;
-                            config.bounds.x = left;
+                            group = groups[g];
+                            group.width += boundsWidth;
                         }
-                        config.bounds.height = 20;
-                        config.value = values[0];
+
+                        bounds.x = group.left;
+                        bounds.y = boundsTop;
+                        bounds.width = group.width;
+                        config.value = group.value;
+
+                        config.isColumnHovered = config.isSelected = false;
+                        config.font = 'bold ' + font;
+                        config.color = GREY;
+
                         SimpleCell.prototype.paint.call(this, gc, config);
-                        config.bounds.width = boundsWidth;
-                        config.bounds.x = boundsLeft;
-                        config.bounds.y = 20;
-                        config.value = values[1];
+
+                        var w = groupCount - g;
+                        gc.beginPath();
+                        gc.strokeStyle = GREY;
+                        gc.lineWidth = w;
+                        gc.moveTo(bounds.x + 3, bounds.y + height - w);
+                        gc.lineTo(bounds.x + bounds.width - 2, bounds.y + height - w);
+                        gc.stroke();
+                        gc.closePath();
                     }
+
+                    bounds.x = boundsLeft;
+                    bounds.y = boundsTop;
+                    bounds.width = boundsWidth;
+                    config.value = values[g];
+
+                    config.isColumnHovered = isColumnHovered;
+                    config.isSelected = isSelected;
+                    config.font = font;
+                    config.color = color
                 }
             }
             SimpleCell.prototype.paint.call(this, gc, config);
