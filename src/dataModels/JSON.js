@@ -35,7 +35,10 @@ var nullDataSource = {
     getRow: function() {
         return null;
     },
-
+    get: function() {
+        return null;
+    },
+    set: function() {},
     viewMakesSense: function() {
         return false;
     },
@@ -258,7 +261,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
         var showTree = this.grid.resolveProperty('showTreeColumn') === true;
         var hasAggregates = this.hasAggregates();
         var offset = (hasAggregates && !showTree) ? -1 : 0;
-        return this.sources.aggregator.getColumnCount() + offset;
+        return this.dataSource.getColumnCount() + offset;
     },
 
     /**
@@ -276,7 +279,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
      * @returns {string[]}
      */
     getHeaders: function() {
-        return this.sources.aggregator.getHeaders();
+        return this.dataSource && this.dataSource.getHeaders() || [];
     },
 
     /**
@@ -301,6 +304,14 @@ var JSON = DataModel.extend('dataModels.JSON', {
      */
     getFields: function() {
         return this.dataSource.getFields();
+    },
+
+    /**
+     * @memberOf dataModels.JSON.prototype
+     * @returns {string[]}
+     */
+    getCalculators: function() {
+        return this.dataSource.getCalculators();
     },
 
     /** @typedef {object} dataSourcePipelineObject
@@ -328,11 +339,23 @@ var JSON = DataModel.extend('dataModels.JSON', {
      * The first pipe must have a `@@CLASS_NAME` of `'DataSource'`. Hence, the start of the pipeline is `this.source`. The last pipe is assigned the synonym `this.dataSource`.
      *
      * Branches are created when a pipe specifies a name in `parent`.
-     * @param {object[]} dataSource - Array of uniform objects containing the grid data.
+     * @param {object[]} [dataSource] - Array of uniform objects containing the grid data. Passed as 1st param to constructor of first data source object in the pipeline. If omitted, the previous data source will be re-used.
+     * @param {string[]} [dataFields] - Array of field names. Passed as 2nd param to constructor of first data source object in the pipeline. If omitted (along with `dataSource`), the previous fields array will be re-used.
+     * @param {string[]} [dataCalculators] - Array of field names. Passed as 3rd param to constructor of first data source object in the pipeline. If omitted (along with `dataSource`), the previous calculators array will be re-used.
      * @memberOf dataModels.JSON.prototype
      */
-    setData: function(dataSource) {
+    setData: function(dataSource, dataFields, dataCalculators) {
         this.resetSources();
+
+        if (!dataSource) {
+            var source = this.source;
+            if (!source) {
+                throw 'Expected dataSource.';
+            }
+            dataSource = source.data;
+            dataFields = source.fields;
+            dataCalculators = source.calculators;
+        }
 
         this.pipeline.forEach(function(sources, pipe, index) {
             var DataSource = analytics[pipe.type];
@@ -351,9 +374,8 @@ var JSON = DataModel.extend('dataModels.JSON', {
                 }
             }
 
-            dataSource = pipe.options === undefined
-                ? new DataSource(dataSource)
-                : new DataSource(dataSource, pipe.options);
+            dataSource = new DataSource(dataSource, dataFields, dataCalculators);
+            dataFields = dataCalculators = undefined; // for first data source only
 
             sources[pipe.name] = dataSource;
         }.bind(this, this.sources));
@@ -365,11 +387,20 @@ var JSON = DataModel.extend('dataModels.JSON', {
     },
 
     /**
+     * @param {number} [newLength=0]
+     */
+    truncatePipeline: function(newLength) {
+        this.pipeline.length = newLength || 0;
+    },
+
+    /**
      * Add a pipe to the data source pipeline.
      * @desc No-op if already added.
-     * @param {dataSourcePipelineObject} newPipe - The new pipeline pipe.
-     * @param {string} [referencePipe] - One of:
-     * * Name of an existing pipeline pipe after which the new pipe will be added. If `null`, inserts at beginning. If not found (or `undefined` or omitted), adds to end.
+     * @param {dataSourcePipelineObject} newPipe
+     * @param {string|null|undefined} [afterPipe] - One of:
+     * * `null` - Inserts at beginning.
+     * * *string* - Name of an existing pipe _after which_ the new pipe will be added.
+     * * *else* _(including `undefined` or omitted)_ - Adds to end.
      * @memberOf dataModels.JSON.prototype
      */
     addPipe: function(newPipe, referencePipe) {
@@ -544,12 +575,17 @@ var JSON = DataModel.extend('dataModels.JSON', {
                     if (sources.aggregator && sources.aggregator.viewMakesSense()) {
                         dataSource = sources.groupsorter;
                     }
-                    dataSource.setSorts(this.getPrivateState().sorts);
                     break;
             }
 
-            if (dataSource && dataSource.apply) {
-                dataSource.apply();
+            if (dataSource) {
+                if (dataSource.sorts) {
+                    dataSource.set(this.getPrivateState().sorts);
+                }
+
+                if (dataSource.apply) {
+                    dataSource.apply();
+                }
             }
         }.bind(this, this.sources));
 

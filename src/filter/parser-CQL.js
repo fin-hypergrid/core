@@ -23,7 +23,7 @@ ParserCqlError.prototype.name = 'ParserCqlError';
  *
  * @desc See {@tutorial CQL} for the grammar.
  *
- * @param {object} operatorsHash - Hash of valid operators. Each is an object, the only property of interest being `complex` which if truthy means operand may be a list of multiple operands.
+ * @param {object} operatorsHash - Hash of valid operators.
  * @param {object} [options]
  * @param {menuItem[]} [options.schema] - Column schema for column name/alias validation. Throws an error if name fails validation (but see `resolveAliases`). Omit to skip column name validation.
  * @param {boolean} [options.defaultOp='='] - Default operator for column when not defined in column schema.
@@ -100,18 +100,21 @@ ParserCQL.prototype = {
      */
     captureBooleans: function(cql) {
         var booleans = cql.match(REGEXP_BOOLS);
+        return booleans && booleans.map(function(bool) {
+            return bool.toLowerCase();
+        });
+    },
 
+    validateBooleans: function(booleans) {
         if (booleans) {
             var heterogeneousOperator = booleans.find(function(op, i) {
-                booleans[i] = op.toLowerCase();
                 return booleans[i] !== booleans[0];
             });
 
             if (heterogeneousOperator) {
-                throw new ParserCqlError('Expected homogeneous boolean operators. You cannot mix AND, OR, and NOR operators here because the order of operations is ambiguous. Everything after your ' + heterogeneousOperator.toUpperCase() + ' was ignored. Tip: You can group operations with subexpressions but only in the QueryBuilder or by using parentheses in SQL.');
+                throw new ParserCqlError('Expected homogeneous boolean operators. You cannot mix AND, OR, and NOR operators here because the order of operations is ambiguous.\nTip: In Manage Filters, you can group operations with subexpressions in the Query Builder tab or by using parentheses in the SQL tab.');
             }
         }
-
         return booleans;
     },
 
@@ -211,6 +214,65 @@ ParserCQL.prototype = {
     },
 
     /**
+     * @summary The position of the operator of the expression under the cursor.
+     * @param {string} cql - CQL expression under construction.
+     * @param {number} cursor - Current cursor's starting position (`input.startSelection`)
+     * @returns {{start: number, end: number}}
+     */
+    getOperatorPosition: function(cql, cursor) {
+        // first tokenize literals in case they contain booleans...
+        var literals = [];
+        cql = tokenizeLiterals(cql, ParserCQL.qt, literals);
+
+        // ...then expand tokens but with x's just for length
+        cql = cql.replace(this.REGEX_LITERAL_TOKENS, function(match, index) {
+            var length = 1 + literals[index].length + 1; // add quote chars
+            return Array(length + 1).join('x');
+        });
+
+        var booleans, expressions, position, tabs, end, tab, expression, oldOperator, oldOperatorOffset;
+
+        if ((booleans = this.captureBooleans(cql))) {
+            // boolean(s) found so concatenated expressions
+            expressions = this.captureExpressions(cql, booleans);
+            position = 0;
+            tabs = expressions.map(function(expr, idx) { // get starting position of each expression
+                var bool = booleans[idx - 1] || '';
+                position += expr.length + bool.length;
+                return position;
+            });
+
+            // find beginning of expression under cursor position
+            tabs.find(function(tick, idx) {
+                tab = idx;
+                return cursor <= tick;
+            });
+
+            cursor = tabs[tab - 1] || 0;
+            end = cursor += (booleans[tab - 1] || '').length;
+
+            expression = expressions[tab];
+        } else {
+            // booleans not found so single expression
+            cursor = 0;
+            end = cql.length;
+            expression = cql;
+        }
+
+        oldOperatorOffset = expression.search(this.REGEX_OPERATOR);
+        if (oldOperatorOffset >= 0) {
+            oldOperator = expression.match(this.REGEX_OPERATOR)[0];
+            cursor += oldOperatorOffset;
+            end = cursor + oldOperator.length;
+        }
+
+        return {
+            start: cursor,
+            end: end
+        };
+    },
+
+    /**
      * @summary Make a "locked" subexpression definition object from an expression chain.
      * @desc _Locked_ means it is locked to a single field.
      *
@@ -232,7 +294,7 @@ ParserCQL.prototype = {
         var literals = [];
         cql = tokenizeLiterals(cql, ParserCQL.qt, literals);
 
-        var booleans = this.captureBooleans(cql),
+        var booleans = this.validateBooleans(this.captureBooleans(cql)),
             expressions = this.captureExpressions(cql, booleans),
             children = this.makeChildren(columnName, expressions, literals),
             operator = booleans && booleans[0],

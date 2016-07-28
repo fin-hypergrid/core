@@ -1,3 +1,17 @@
+### 1.0.8 - 8 August 2016
+
+* Tree-view now sorts properly, sorting first within each group.
+* Wrapped column headers no longer overflow bottom of cell.
+* Clicking to right of last column no longer throws an error.
+* Zooming out (e.g., 80%) now properly clears the grid before repainting.
+* Nested grouped column headers demonstrated as an add-on
+    * Include: `<script src="http://openfin.github.io/fin-hypergrid/build/add-ons/grouped-header.js"></script>`
+    * Install: `fin.Hypergrid.groupedHeader.mixInTo(grid)`
+    * Usage: `grid.behavior.setHeaders({ lat: 'Coords|Lat.', long: 'Coords|Long.' })`
+    * The above call simply updates the headers of the named columns and increases the header row height to accommodate the group label ("Coords").
+* Group view
+    * [More notes needed.]
+
 ### 1.0.7 - 18 July 2016
 
 * Fixed `deprecated()` calls that were discarding their results instead of returning. (So the warning was logged, but then the code would fail.)

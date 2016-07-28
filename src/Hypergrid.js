@@ -63,9 +63,8 @@ function Hypergrid(div, options) {
     this.renderOverridesCache = {};
 
     options = options || {};
-    var data = typeof options.data === 'function' ? options.data() : options.data;
     var Behavior = options.Behavior || behaviors.JSON;
-    this.behavior = new Behavior(this, options.schema, data);
+    this.behavior = new Behavior(this, options.data, options);
 
     var loc = options.localization || {};
     this.localization = new Localization(
@@ -1258,7 +1257,9 @@ Hypergrid.prototype = {
         this.stopEditing(); //other editor is open, close it first
 
         if (editPoint.x >= 0 && editPoint.y >= 0) {
-            var editable = this.behavior.getActiveColumn(editPoint.x).getProperties().editable;
+            var column = this.behavior.getActiveColumn(editPoint.x),
+                editable = column && column.getProperties().editable;
+
             if (editable || this.isFilterRow(editPoint.y)) {
                 this.setMouseDown(editPoint);
                 this.setDragExtent(new Point(0, 0));
@@ -1617,7 +1618,7 @@ Hypergrid.prototype = {
 
         function getValue(selectedRowIndex, j) {
             var dataRow = self.getRow(selectedRowIndex);
-            rows[j] = valOrFunc(dataRow, column.name);
+            rows[j] = valOrFunc(dataRow, column);
         }
 
         return result;
@@ -1642,7 +1643,7 @@ Hypergrid.prototype = {
 
         function getValue(selectedRowIndex, r) {
             var dataRow = self.getRow(selectedRowIndex);
-            result[c][r] = valOrFunc(dataRow, column.name);
+            result[c][r] = valOrFunc(dataRow, column);
         }
 
         return result;
@@ -1662,7 +1663,7 @@ Hypergrid.prototype = {
 
             for (var r = headerRowCount; r < numRows; r++) {
                 dataRow = self.getRow(r);
-                values[r] = valOrFunc(dataRow, column.name);
+                values[r] = valOrFunc(dataRow, column);
             }
         });
 
@@ -1683,7 +1684,7 @@ Hypergrid.prototype = {
 
             for (var r = headerRowCount; r < rowCount; r++) {
                 dataRow = self.getRow(r);
-                values[r] = valOrFunc(dataRow, column.name);
+                values[r] = valOrFunc(dataRow, column);
             }
         });
 
@@ -1710,7 +1711,7 @@ Hypergrid.prototype = {
 
                 for (var r = 0, y = rect.origin.y; r < rowCount; r++, y++) {
                     dataRow = self.getRow(y);
-                    values[r] = valOrFunc(dataRow, column.name);
+                    values[r] = valOrFunc(dataRow, column);
                 }
             }
 
@@ -1740,7 +1741,7 @@ Hypergrid.prototype = {
 
                 for (var r = 0, y = rect.origin.y; r < rowCount; r++, y++) {
                     dataRow = self.getRow(y);
-                    values[r] = valOrFunc(dataRow, column.name);
+                    values[r] = valOrFunc(dataRow, column);
                 }
             }
 
@@ -3343,12 +3344,14 @@ Hypergrid.prototype = {
         var filter = this.getGlobalFilter(),
             result;
 
-        if (filter.invalid()) {
-            result = 'error';
-        } else if (filter.filterCount()) {
-            result = 'active';
-        } else {
-            result = 'inactive';
+        if (filter) {
+            if (filter.invalid()) {
+                result = 'error';
+            } else if (filter.filterCount()) {
+                result = 'active';
+            } else {
+                result = 'inactive';
+            }
         }
 
         return result;
@@ -3476,9 +3479,12 @@ function clearObjectProperties(obj) {
     }
 }
 
-function valOrFunc(dataRow, columnName) {
-    var vf = dataRow[columnName],
-        result = (typeof vf)[0] === 'f' ? vf(dataRow, columnName) : vf;
+function valOrFunc(dataRow, column) {
+    var result = dataRow[column.name],
+        calculator = (typeof result)[0] === 'f' && result || column.calculator;
+        if (calculator) {
+            result = calculator(dataRow, column.name);
+        }
     return result || result === 0 || result === false ? result : '';
 }
 
