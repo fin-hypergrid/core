@@ -36,4 +36,9 @@ window.onload = function() {
     // For this example we're just using it for all cells. (It only applies grouping logic to header cells.)
     grid.behavior.getPrivateState().renderer = 'GroupedHeader';
 
+    // Format the nubmers with thousands separated with commas
+    for (var i = grid.behavior.getActiveColumnCount() - 1; i >= 5; --i) {
+        grid.behavior.setColumnProperties(i, { format: 'number' });
+    }
+
 };
