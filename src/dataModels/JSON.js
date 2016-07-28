@@ -177,7 +177,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
                 value = this.getHeaders()[x];
                 var sortString = this.getSortImageForColumn(x);
                 if (sortString) {
-                    var at = value.lastIndexOf('\n') + 1;
+                    var at = value.lastIndexOf(this.groupHeaderDelimiter) + 1;
                     value = at ? value.substr(0, at) + sortString + value.substr(at) : sortString + value;
                 }
             } else { // must be filter row
