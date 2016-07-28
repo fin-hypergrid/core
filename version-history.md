@@ -9,6 +9,12 @@
     * Install: `fin.Hypergrid.groupedHeader.mixInTo(grid)`
     * Usage: `grid.behavior.setHeaders({ lat: 'Coords|Lat.', long: 'Coords|Long.' })`
     * The above call simply updates the headers of the named columns and increases the header row height to accommodate the group label ("Coords").
+* True calculated columns
+    * Previously, calculated values were supported only when a particular cell value was a "calculator" function.
+    * Now when a calculator function is assigned the `calculator` column property, all rows in the column become calculated values.
+    * The previous functionality is still supported when a function is defined in the data row, in which case it takes priority over the column function.
+    * If a non-function value is defined in the data row, it is available to the column function.
+    * Otherwise, it is not necessary for the data row to define a value for the column at all.
 * Group view
     * [More notes needed.]
 
