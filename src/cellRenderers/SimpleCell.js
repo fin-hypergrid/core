@@ -55,7 +55,7 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
             }
         }
 
-        val = valOrFunc(val, config);
+        val = valOrFunc(val, config, config.calculator);
         val = config.formatValue(val);
 
         font = config.isSelected ? config.foregroundSelectionFont : config.font;
@@ -361,10 +361,14 @@ function layerColors(gc, colors, x, y, width, height) {
     });
 }
 
-function valOrFunc(vf, config) {
-    var result = config.isGridColumn && config.isGridRow && (typeof vf)[0] === 'f'
-        ? vf(config.dataRow, config.columnName)
-        : vf;
+function valOrFunc(vf, config, calculator) {
+    var result = vf;
+    if (config.isGridColumn && config.isGridRow) {
+        calculator = (typeof vf)[0] === 'f' && vf || calculator;
+        if (calculator) {
+            result = calculator(config.dataRow, config.columnName);
+        }
+    }
     return result || result === 0 || result === false ? result : '';
 }
 

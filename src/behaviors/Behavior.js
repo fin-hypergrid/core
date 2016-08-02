@@ -34,13 +34,10 @@ var Behavior = Base.extend('Behavior', {
     /**
      * @desc this is the callback for the plugin pattern of nested tags
      * @param {Hypergrid} grid
-     * @param {function|menuItem[]} [schema=derivedSchema] - Passed to behavior constructor. May be:
-     * * A schema array
-     * * A function returning a schema array. Called at filter reset time with behavior as context.
-     * * Omit to generate a basic schema from `this.columns`.
+     * @param {object} [options] - _(See {@link behaviors.JSON#setData}.)_
      * @memberOf Behavior.prototype
      */
-    initialize: function(grid, schema, dataRows) {
+    initialize: function(grid, dataRows, options) {
         /**
          * @type {Hypergrid}
          * @memberOf Behavior.prototype
@@ -651,9 +648,10 @@ var Behavior = Base.extend('Behavior', {
      * @desc A specific cell was clicked; you've been notified.
      * @param {Point} cell - point of cell coordinates
      * @param {Object} event - all event information
+     * @return {boolean} Clicked in a drill-down column.
      */
     cellClicked: function(cell, event) {
-        this.dataModel.cellClicked(cell, event);
+        return this.dataModel.cellClicked(cell, event);
     },
 
     /**
@@ -1381,7 +1379,10 @@ var Behavior = Base.extend('Behavior', {
      * @param {string[]} keys
      */
     toggleSort: function(x, keys) {
-        this.getActiveColumn(x).toggleSort(keys);
+        var column = this.getActiveColumn(x);
+        if (column) {
+            column.toggleSort(keys);
+        }
     },
 
     /**
