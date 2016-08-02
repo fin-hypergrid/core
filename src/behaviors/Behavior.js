@@ -648,9 +648,10 @@ var Behavior = Base.extend('Behavior', {
      * @desc A specific cell was clicked; you've been notified.
      * @param {Point} cell - point of cell coordinates
      * @param {Object} event - all event information
+     * @return {boolean} Clicked in a drill-down column.
      */
     cellClicked: function(cell, event) {
-        this.dataModel.cellClicked(cell, event);
+        return this.dataModel.cellClicked(cell, event);
     },
 
     /**

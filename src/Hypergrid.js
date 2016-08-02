@@ -1454,9 +1454,11 @@ Hypergrid.prototype = {
      * @summary A click event occurred.
      * @desc Determine the cell and delegate to the behavior (model).
      * @param {MouseEvent} event - The mouse event to interrogate.
+     * @returns {boolean} Click was consumed.
      */
     cellClicked: function(event) {
-        var cell = event.gridCell;
+        var result = false,
+            cell = event.gridCell;
 
         //click occurred in background area
         if (
@@ -1475,8 +1477,9 @@ Hypergrid.prototype = {
                 y += this.getVScrollValue();
             }
 
-            this.behavior.cellClicked(new Point(x, y), event);
+            result = this.behavior.cellClicked(new Point(x, y), event);
         }
+        return result;
     },
 
     /**

@@ -129,13 +129,13 @@ TreeView.prototype = {
 
 /**
  * This is the required test function called by the data model's `isDrilldown` method in context. _Do not call directly._
- * @param {number} [columnIndex] If given, also checks that the column clicked is the tree column.
+ * @param {number} [event.dataCell.x] If available, also checks that the column clicked is the tree column.
  * @returns {boolean} If the data source is a tree view.
  */
 function isTreeview(event) {
     var treeview = this.sources.treeview,
         result = !!(treeview && treeview.viewMakesSense());
-    if (result && event) {
+    if (result && event && event.dataCell) {
         result = event.dataCell.x === treeview.treeColumnIndex;
     }
     return result;

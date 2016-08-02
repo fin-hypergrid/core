@@ -17,10 +17,10 @@ var CellClick = Feature.extend('CellClick', {
     handleClick: function(grid, event) {
         if (
             event.gridCell.y >= grid.behavior.getHeaderRowCount() &&
-            event.gridCell.x >= grid.behavior.getHeaderColumnCount()
+            event.gridCell.x >= grid.behavior.getHeaderColumnCount() &&
+            !grid.cellClicked(event) && // was not consumed...
+            this.next // ...and there is a next feature, so pass it along
         ) {
-            grid.cellClicked(event);
-        } else if (this.next) {
             this.next.handleClick(grid, event);
         }
     }
