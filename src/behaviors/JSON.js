@@ -42,8 +42,8 @@ var JSON = Local.extend('behaviors.JSON', {
         features.ColumnSelection,
         features.ColumnMoving,
         features.ColumnSorting,
-        features.CellEditing,
         features.CellClick,
+        features.CellEditing,
         features.OnHover
     ],
 

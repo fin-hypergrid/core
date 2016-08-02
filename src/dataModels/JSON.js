@@ -698,13 +698,16 @@ var JSON = DataModel.extend('dataModels.JSON', {
     /**
      * @param cell
      * @param event
+     * @return {boolean} Clicked in a drill-down column.
      * @memberOf dataModels.JSON.prototype
      */
     cellClicked: function(cell, event) {
-        if (this.isDrillDown(event)) {
+        var clickedInDrillDownColumn = this.isDrillDown(event);
+        if (clickedInDrillDownColumn) {
             var y = event.gridCell.y - this.grid.getHeaderRowCount();
             this.toggleRow(y);
         }
+        return clickedInDrillDownColumn;
     },
 
     /**
