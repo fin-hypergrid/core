@@ -161,7 +161,7 @@ var groupedHeader = {
 
     drawLinearGradient: function(gc) {
         var bounds = this.bounds;
-        var grad = gc.createLinearGradient(bounds.x, bounds.y, bounds.x, bounds.y + bounds.height - 1);
+        var grad = gc.createLinearGradient(bounds.x, bounds.y, bounds.x, bounds.y + bounds.height);
         this.gradientStops.forEach(function(stop) {
             grad.addColorStop.apply(grad, stop);
         });
