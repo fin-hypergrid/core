@@ -2,25 +2,50 @@
 
 var groupedHeader = {
 
-    mixInTo: function ColumnGrouper(grid, delimiter, color) {
-        // Create a cell renderer for the grouped header cells.
+    mixInTo: function ColumnGrouper(grid, options) {
+        options = options || {};
+
+        // 1. Create a special cell renderer to be used for the grouped header cells.
         var SimpleCell = Object.getPrototypeOf(grid.cellRenderers.get('SimpleCell')).constructor,
-            GroupedHeader = SimpleCell.extend('GroupedHeader', { paint: this.paintHeaderGroups }),
+            GroupedHeader = SimpleCell.extend('GroupedHeader', {
+                paint: this.paintHeaderGroups,
+                delimiter: '|',
+                groupColor: 'rgb(144, 144, 144)',
+                paintBackground: this.drawProportionalBottomBorder,
+                gradientStops: [
+                    [0, 'rgba(144, 144, 144, 0)'],
+                    [1, 'rgba(144, 144, 144, .35)']
+                ]
+            }),
             rendererSingleton = grid.cellRenderers.add(GroupedHeader);
 
         rendererSingleton.groups = [];
-        rendererSingleton.delimiter = grid.behavior.dataModel.groupHeaderDelimiter = delimiter || '|';
-        rendererSingleton.groupColor = color || '#909090';
 
+        if (options.delimiter) {
+            rendererSingleton.delimiter = grid.behavior.dataModel.groupHeaderDelimiter = options.delimiter;
+        }
+
+        if (options.groupColor) {
+            rendererSingleton.groupColor = options.groupColor;
+        }
+
+        if (options.paintBackground) {
+            rendererSingleton.paintBackground = options.paintBackground;
+            if (options.paintBackground === this.drawLinearGradient && options.gradientStops) {
+                this.gradientStops = options.gradientStops;
+            }
+        }
+
+        // 2. Add a `setHeaders` method to the behavior.
         grid.behavior.setHeaders = this.setHeaders;
     },
 
     setHeaders: function(headers) {
         var delimiter = this.grid.cellRenderers.get('GroupedHeader').delimiter;
 
-        Object.getPrototypeOf(this).setHeaders.call(this, headers);
+        Object.getPrototypeOf(this).setHeaders.call(this, headers); // see behavior/JSON.js:setHeaders for more info
 
-        // Get the maximum number of levels from the header strings
+        // Discover the deepest group level from all the header strings
         var levels = this.allColumns.reduce(function(max, column) {
             return Math.max(column.header.split(delimiter).length, max);
         }, 0);
@@ -33,6 +58,11 @@ var groupedHeader = {
         });
     },
 
+    /**
+     * @this {GroupHeader}
+     * @param gc
+     * @param config
+     */
     paintHeaderGroups: function(gc, config) {
         var paint = this.super.paint;
 
@@ -90,15 +120,11 @@ var groupedHeader = {
                     // Render the higher-order group labels
                     paint.call(this, gc, config);
 
-                    // draw bottom border (alternative: make background a blend from light at top to dark at bottom)
-                    var thickness = groupCount - g; // high-order group gets thickest border
-                    gc.beginPath();
-                    gc.strokeStyle = this.groupColor;
-                    gc.lineWidth = thickness;
-                    gc.moveTo(bounds.x + 3, bounds.y + bounds.height - thickness);
-                    gc.lineTo(bounds.x + bounds.width - 2, bounds.y + bounds.height - thickness);
-                    gc.stroke();
-                    gc.closePath();
+                    // draw a border of some kind
+                    this.bounds = bounds;
+                    this.groupIndex = g;
+                    this.groupCount = groupCount;
+                    this.paintBackground(gc);
                 }
 
                 // restore bounds for final column header render (although y and height have been altered)
@@ -119,6 +145,29 @@ var groupedHeader = {
 
         // Render the low-order column header
         paint.call(this, gc, config);
+    },
+
+    drawProportionalBottomBorder: function(gc) {
+        var bounds = this.bounds;
+        var thickness = this.groupCount - this.groupIndex; // high-order group gets thickest border
+        gc.beginPath();
+        gc.strokeStyle = this.groupColor;
+        gc.lineWidth = thickness;
+        gc.moveTo(bounds.x + 3, bounds.y + bounds.height - thickness);
+        gc.lineTo(bounds.x + bounds.width - 2, bounds.y + bounds.height - thickness);
+        gc.stroke();
+        gc.closePath();
+    },
+
+    drawLinearGradient: function(gc) {
+        var bounds = this.bounds;
+        var grad = gc.createLinearGradient(bounds.x, bounds.y, bounds.x, bounds.y + bounds.height - 1);
+        this.gradientStops.forEach(function(stop) {
+            grad.addColorStop.apply(grad, stop);
+        });
+        gc.fillStyle = grad;
+        gc.fillRect(bounds.x + 2, bounds.y, bounds.width - 3, bounds.height);
+
     }
 
 };

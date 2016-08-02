@@ -22,7 +22,7 @@ window.onload = function() {
         areaWaterMi: 'Area|Water|miles',
         areaWaterKm: 'Area|Water|km',
 
-        // The rest are not necessary; we only need the grouped ones
+        // The rest are not necessary; we only need the grouped ones.
         name: 'State',
         code: 'Postal Code',
         capital: 'Capital',
@@ -32,11 +32,10 @@ window.onload = function() {
         reps: 'House Seats'
     });
 
-    // Must use the GroupedHeader cell renderer for the header cells with groups.
-    // For this example we're just using it for all cells. (It only applies grouping logic to header cells.)
+    // Must use the GroupedHeader cell renderer for the header cells with groups. For this example we're using it for all cells. This works because it only applies grouping logic to header cells, otherwise behaving like SimpleCell for non-header cells.
     grid.behavior.getPrivateState().renderer = 'GroupedHeader';
 
-    // Format the nubmers with thousands separated with commas
+    // Format the numbers with thousands separated with commas.
     for (var i = grid.behavior.getActiveColumnCount() - 1; i >= 5; --i) {
         grid.behavior.setColumnProperties(i, { format: 'number' });
     }
