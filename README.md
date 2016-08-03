@@ -22,7 +22,7 @@ Hyperblotter is a demo app that shows the capabilities of both OpenFin and Hyper
 
 Check out the Table view on Hyperblotter on a Windows machine via [this installer](https://dl.openfin.co/services/download?fileName=Hyperblotter&config=http://cdn.openfin.co/demos/hyperblotter/app.json).
 
-![](https://github.com/openfin/fin-hypergrid/blob/master/images/Hyperblotter%20Tabled%20Reduced%20Rows.png)
+![](/images/README/Hyperblotter%20Tabled%20Reduced%20Rows.png)
 
 ### Features
 

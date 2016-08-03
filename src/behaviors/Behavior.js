@@ -34,13 +34,10 @@ var Behavior = Base.extend('Behavior', {
     /**
      * @desc this is the callback for the plugin pattern of nested tags
      * @param {Hypergrid} grid
-     * @param {function|menuItem[]} [schema=derivedSchema] - Passed to behavior constructor. May be:
-     * * A schema array
-     * * A function returning a schema array. Called at filter reset time with behavior as context.
-     * * Omit to generate a basic schema from `this.columns`.
+     * @param {object} [options] - _(See {@link behaviors.JSON#setData}.)_
      * @memberOf Behavior.prototype
      */
-    initialize: function(grid, schema, dataRows) {
+    initialize: function(grid, dataRows, options) {
         /**
          * @type {Hypergrid}
          * @memberOf Behavior.prototype
@@ -131,6 +128,21 @@ var Behavior = Base.extend('Behavior', {
     getActiveColumn: function(x) {
         return this.columns[x];
     },
+
+    /**
+     * The "grid index" given a "data index" (or column object)
+     * @param {Column|number} columnOrIndex
+     * @returns {undefined|number} The grid index of the column or undefined if column not in grid.
+     */
+    getActiveColumnIndex: function(columnOrIndex) {
+        var index = columnOrIndex instanceof Column ? columnOrIndex.index : columnOrIndex;
+        for (var i = 0; i < this.columns.length; ++i) {
+            if (this.columns[i].index === index) {
+                return i;
+            }
+        }
+    },
+
     getVisibleColumn: function() {
         return this.deprecated('getVisibleColumn(x)', 'getActiveColumn(x)', '1.0.6', arguments);
     },
@@ -1381,7 +1393,10 @@ var Behavior = Base.extend('Behavior', {
      * @param {string[]} keys
      */
     toggleSort: function(x, keys) {
-        this.getActiveColumn(x).toggleSort(keys);
+        var column = this.getActiveColumn(x);
+        if (column) {
+            column.toggleSort(keys);
+        }
     },
 
     /**

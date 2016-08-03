@@ -1025,6 +1025,7 @@ var Renderer = Base.extend('Renderer', {
             var column = behavior.getActiveColumn(c);
             cellProperties.dataRow = grid.getRow(r);
             cellProperties.columnName = column.name;
+            cellProperties.calculator = column.calculator;
 
             cellProperties.value = grid.getValue(c, r);
             cellProperties.halign = grid.getColumnAlignment(c);
