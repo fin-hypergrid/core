@@ -103,14 +103,18 @@ TreeView.prototype = {
                 var columnIndexes = [dataSource.idColumnIndex, dataSource.parentIdColumnIndex];
 
                 columnIndexes.forEach(function(columnIndex) {
-                    var index;
-                    if (behavior.columns.find(function(column, i) {
-                            index = i;
-                            return column.index === columnIndex;
-                        })) {
+                    var index = behavior.getActiveColumnIndex(columnIndex);
+                    if (index !== undefined) {
                         behavior.columns.splice(index, 1);
                     }
                 });
+            }
+
+            // If unsorted, sort by tree column
+            if (behavior.getSortedColumnIndexes().length === 0) {
+                var dataIndex = this.grid.behavior.dataModel.sources.treeview.treeColumnIndex,
+                    gridIndex = behavior.getActiveColumnIndex(dataIndex);
+                this.grid.toggleSort(gridIndex, []);
             }
         } else {
             columnProps.editable = this.editableWas;

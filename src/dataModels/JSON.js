@@ -580,7 +580,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
 
             if (dataSource) {
                 if (dataSource.sorts) {
-                    dataSource.set(this.getPrivateState().sorts);
+                    dataSource.set(this.getSortedColumnIndexes().slice());
                 }
 
                 if (dataSource.apply) {
@@ -608,15 +608,30 @@ var JSON = DataModel.extend('dataModels.JSON', {
      * @param {boolean} deferred
      */
     unSortColumn: function(columnIndex, deferred) {
-        var state = this.getPrivateState(),
-            sorts = state.sorts = state.sorts || [],
-            sortPosition;
+        var sorts = this.getSortedColumnIndexes(),
+            sortPosition, found;
 
         if (sorts.find(function(sortSpec, index) {
             sortPosition = index;
             return sortSpec.columnIndex === columnIndex;
         })) {
-            sorts.splice(sortPosition, 1);
+            if (sorts.length === 1) {
+                for (var dataSource = this.dataSource; dataSource; dataSource = dataSource.dataSource) {
+                    found = dataSource.joined && dataSource.treeColumnIndex !== undefined;
+                    if (found) { break; }
+                }
+            }
+
+            if (found) {
+                // Make the sole remaining sorted column the tree column of the "joined" data source
+                sorts[0] = {
+                    columnIndex: dataSource.treeColumnIndex,
+                    direction: 1
+                };
+            } else {
+                sorts.splice(sortPosition, 1);
+            }
+
             if (!deferred) {
                 this.applyAnalytics(true);
             }
@@ -627,7 +642,9 @@ var JSON = DataModel.extend('dataModels.JSON', {
      * @memberOf dataModels.JSON.prototype
      */
     getSortedColumnIndexes: function() {
-        return (this.getPrivateState().sorts || []).slice();
+        var state = this.getPrivateState();
+        state.sorts = state.sorts || [];
+        return state.sorts;
     },
 
     /**
@@ -636,21 +653,21 @@ var JSON = DataModel.extend('dataModels.JSON', {
      * @param {string[]} keys
      */
     incrementSortState: function(columnIndex, keys) {
-        var state = this.getPrivateState(),
-            sorts = state.sorts = state.sorts || [],
-            sortPosition,
+        var sorts = this.getSortedColumnIndexes(),
             sortSpec = sorts.find(function(spec, index) {
-                sortPosition = index;
                 return spec.columnIndex === columnIndex;
             });
 
         if (!sortSpec) { // was unsorted
             if (keys.indexOf('CTRL') < 0) { sorts.length = 0; }
-            sorts.unshift({ columnIndex: columnIndex, direction: 1 }); // so make ascending
+            sorts.unshift({
+                columnIndex: columnIndex, // so define and...
+                direction: 1 // ...make ascending
+            });
         } else if (sortSpec.direction > 0) { // was ascending
             sortSpec.direction = -1; // so make descending
         } else { // was descending
-            sorts.splice(sortPosition, 1); // so make unsorted
+            this.unSortColumn(columnIndex, true); // so make unsorted
         }
 
         //Minor improvement, but this check can happe n earlier and terminate earlier
@@ -666,8 +683,8 @@ var JSON = DataModel.extend('dataModels.JSON', {
      * @returns {*}
      */
     getSortImageForColumn: function(columnIndex) {
-        var sorts = this.getPrivateState().sorts || [],
-            sortPosition,
+        var sortPosition,
+            sorts = this.getSortedColumnIndexes(),
             sortSpec = sorts.find(function(spec, index) {
                 sortPosition = index;
                 return spec.columnIndex === columnIndex;
