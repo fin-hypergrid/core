@@ -559,14 +559,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
      * @param {string[]} keys
      */
     incrementSortState: function(columnIndex, keys) {
-<<<<<<< HEAD
-        //TODO: Fire sort toggle event
-        var state = this.getPrivateState(),
-            sorts = state.sorts = state.sorts || [],
-            sortPosition,
-=======
         var sorts = this.getSortedColumnIndexes(),
->>>>>>> develop
             sortSpec = sorts.find(function(spec, index) {
                 return spec.columnIndex === columnIndex;
             });
