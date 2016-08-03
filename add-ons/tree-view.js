@@ -103,14 +103,18 @@ TreeView.prototype = {
                 var columnIndexes = [dataSource.idColumnIndex, dataSource.parentIdColumnIndex];
 
                 columnIndexes.forEach(function(columnIndex) {
-                    var index;
-                    if (behavior.columns.find(function(column, i) {
-                            index = i;
-                            return column.index === columnIndex;
-                        })) {
+                    var index = behavior.getActiveColumnIndex(columnIndex);
+                    if (index !== undefined) {
                         behavior.columns.splice(index, 1);
                     }
                 });
+            }
+
+            // If unsorted, sort by tree column
+            if (behavior.getSortedColumnIndexes().length === 0) {
+                var dataIndex = this.grid.behavior.dataModel.sources.treeview.treeColumnIndex,
+                    gridIndex = behavior.getActiveColumnIndex(dataIndex);
+                this.grid.toggleSort(gridIndex, []);
             }
         } else {
             columnProps.editable = this.editableWas;
@@ -129,13 +133,13 @@ TreeView.prototype = {
 
 /**
  * This is the required test function called by the data model's `isDrilldown` method in context. _Do not call directly._
- * @param {number} [columnIndex] If given, also checks that the column clicked is the tree column.
+ * @param {number} [event.dataCell.x] If available, also checks that the column clicked is the tree column.
  * @returns {boolean} If the data source is a tree view.
  */
 function isTreeview(event) {
     var treeview = this.sources.treeview,
         result = !!(treeview && treeview.viewMakesSense());
-    if (result && event) {
+    if (result && event && event.dataCell) {
         result = event.dataCell.x === treeview.treeColumnIndex;
     }
     return result;

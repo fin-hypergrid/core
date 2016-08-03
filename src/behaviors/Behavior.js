@@ -128,6 +128,21 @@ var Behavior = Base.extend('Behavior', {
     getActiveColumn: function(x) {
         return this.columns[x];
     },
+
+    /**
+     * The "grid index" given a "data index" (or column object)
+     * @param {Column|number} columnOrIndex
+     * @returns {undefined|number} The grid index of the column or undefined if column not in grid.
+     */
+    getActiveColumnIndex: function(columnOrIndex) {
+        var index = columnOrIndex instanceof Column ? columnOrIndex.index : columnOrIndex;
+        for (var i = 0; i < this.columns.length; ++i) {
+            if (this.columns[i].index === index) {
+                return i;
+            }
+        }
+    },
+
     getVisibleColumn: function() {
         return this.deprecated('getVisibleColumn(x)', 'getActiveColumn(x)', '1.0.6', arguments);
     },
@@ -648,9 +663,10 @@ var Behavior = Base.extend('Behavior', {
      * @desc A specific cell was clicked; you've been notified.
      * @param {Point} cell - point of cell coordinates
      * @param {Object} event - all event information
+     * @return {boolean} Clicked in a drill-down column.
      */
     cellClicked: function(cell, event) {
-        this.dataModel.cellClicked(cell, event);
+        return this.dataModel.cellClicked(cell, event);
     },
 
     /**
