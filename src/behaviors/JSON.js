@@ -4,7 +4,6 @@ var Local = require('./Local');
 var DataModelJSON = require('../dataModels/JSON');
 var ColumnSchemaFactory = require('../filter/ColumnSchemaFactory');
 var features = require('../features');
-var aggregations = require('../Shared.js').analytics.util.aggregations;
 
 /**
  * @name behaviors.JSON
@@ -46,8 +45,6 @@ var JSON = Local.extend('behaviors.JSON', {
         features.CellEditing,
         features.OnHover
     ],
-
-    aggregations: aggregations,
 
     createColumns: function() {
         var dataModel = this.dataModel;
@@ -223,13 +220,6 @@ var JSON = Local.extend('behaviors.JSON', {
         } else {
             return 'center';
         }
-    },
-
-    getGroups: function() {
-        return this.dataModel.getGroups();
-    },
-    getAvailableGroups: function() {
-        return this.dataModel.getAvailableGroups();
     },
     getHiddenColumns: function() {
         return this.dataModel.getHiddenColumns();

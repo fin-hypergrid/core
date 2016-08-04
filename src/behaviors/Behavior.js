@@ -1496,22 +1496,6 @@ var Behavior = Base.extend('Behavior', {
         var newPoint = this.grid.newPoint(newX, viewPoint.y);
         return newPoint;
     },
-
-    setGroups: function(arrayOfColumnIndexes) {
-        this.dataModel.setGroups(arrayOfColumnIndexes);
-        this.createColumns();
-        this.changed();
-    },
-
-    setAggregates: function(mapOfKeysToFunctions) {
-        var self = this;
-        this.dataModel.setAggregates(mapOfKeysToFunctions);
-        this.createColumns();
-        setTimeout(function() {
-            self.changed();
-        }, 100);
-    },
-
     hasHierarchyColumn: function() {
         return false;
     },

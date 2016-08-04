@@ -103,7 +103,7 @@ var drillDown = {
                 }
             }
             if (smartApply === false || changed && smartApply) {
-                this.applyAnalytics(true);
+                this.applyAnalytics({rowClick: true});
                 this.changed();
             }
         }
@@ -123,7 +123,7 @@ var drillDown = {
     expandRowsToDepth: function(depth, smartApply) {
         var changed = false;
         while (this.toggleAllRows(true, depth || Infinity)) {
-            this.applyAnalytics(true);
+            this.applyAnalytics({rowClick: true});
             changed = true;
         }
         if (smartApply === false || changed && smartApply) {
@@ -190,6 +190,8 @@ var drillDown = {
         return true;
     },
 
+    //TODO: THIS IMPLEMENTATION IS SPECIFIC TO TREEVIEW it should be moved to add-ons/tree-view.js
+
     /**
      * @summary Expand nested drill-downs containing this row.
      * @param ID - The unique row ID.
@@ -201,7 +203,7 @@ var drillDown = {
         if (this.isTreeview()) {
             changed = this.sources.treeview.revealRow(ID);
             if (smartApply === false || changed && smartApply) {
-                this.applyAnalytics(true);
+                this.applyAnalytics({rowClick: true});
                 this.changed();
             }
         }

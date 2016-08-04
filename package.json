@@ -21,7 +21,7 @@
     "filter-tree": "0.3.34",
     "finbars": "1.5.1",
     "fincanvas": "1.3.0",
-    "hyper-analytics": "0.11.6",
+    "hyper-analytics": "git://github.com/openfin/hyper-analytics.git#develop",
     "list-dragon": "1.3.3",
     "lru-cache": "2.7.0",
     "mustache": "2.2.0",

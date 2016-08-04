@@ -1,11 +1,6 @@
 'use strict';
 
-//var ListDragon = require('list-dragon');
-
 var Behavior = require('./Behavior');
-//var DataModelJSON = require('../dataModels/JSON');
-//var features = require('../features');
-//var aggregations = require('../local_node_modules/finanalytics').aggregations;
 
 /**
  * @name behaviors.Local
