@@ -9,13 +9,12 @@
  * * Insert `DataSourceGroupview` into the data model's pipeline (`addPipe`, `addPipeTo`).
  * * Perform the column grouping and rebuild the index to turn the view on or off (`setRelation`).
  *
- * @param {object} [options]
+ * @param {object}
  * @constructor
  */
-function GroupView(grid, options) {
+function GroupView(grid) {
     var self = this;
     this.grid = grid;
-    this.options = options;
 
     var G = Object.getPrototypeOf(this.grid),
         B = Object.getPrototypeOf(this.grid.behavior),

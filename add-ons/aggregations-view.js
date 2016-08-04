@@ -7,13 +7,11 @@
  * * Insert `DataSourceAggregator` into the data model's pipeline (`addPipe`, `addPipeTo`).
  * * Perform the grouping and aggregations and rebuild the index to turn the aggregations-view on or off(`setRelation`).
  *
- * @param {object} [options]
- * @param {boolean} [options.shared=false]
+ * @param {object}
  * @constructor
  */
-function AggregationsView(grid, options) {
+function AggregationsView(grid) {
     this.grid = grid;
-    this.options = options;
     var self = this;
 
     var G = Object.getPrototypeOf(this.grid),
@@ -54,7 +52,7 @@ AggregationsView.prototype = {
      * * The current data model instance. In this case, the instance is given its own new pipeline.
      *
      * @param {object} [options]
-     * @param {object} [options.dataModelPrototype] - Adds the pipes to the given object. If omitted, this must be an instance; adds the pipes to a new "pwn" pipeline created from the first data source of the instance's old pipeline.
+     * @param {object} [options.dataModelPrototype] - Adds the pipes to the given object. If omitted, this must be an instance; adds the pipes to a new "own" pipeline created from the first data source of the instance's old pipeline.
      * @param {dataSourcePipelineObject} [options.firstPipe] - Use as first data source in the new pipeline. If omitted, re-uses the existing pipeline's first data source.
      */
     setPipeline: function(options) {
@@ -69,7 +67,7 @@ AggregationsView.prototype = {
         }
 
         if (!firstPipe) {
-            throw 'Expected pip (data source pipeline descriptor).';
+            throw 'Expected pipe (data source pipeline descriptor).';
         }
 
         if (options.dataModelPrototype) {
@@ -100,8 +98,10 @@ AggregationsView.prototype = {
 
     /**
      * @summary Build/unbuild the aggregations view.
+     * @desc Both parameters should must contain non-empty arrays to turn aggregations **ON**; if either or both are empty, aggregations are turned **OFF**.
+     Add a line note
      * @param {boolean} aggregations - Turn aggregations-view **ON**. If falsy (or omitted), turn it **OFF**.
-     * @param {boolean} groups
+     * @param {number[]} groups - indexes of columns to group against
      * @returns {boolean} aggregation view state.
      */
     setRelation: function(aggregations, groups) {
