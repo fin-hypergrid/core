@@ -723,6 +723,13 @@ module.exports = {
      */
     strikeThrough: false,
 
+    /** Ignore sort interaction (double-click).
+     * @todo Although double-click is ignored, cursor still changes to "pointer" (index finger) on hover.
+     * @type {boolean}
+     * @default
+     */
+    unsortable: false,
+
 };
 
 /** @typedef {string} cssColor

@@ -70,7 +70,7 @@ TreeView.prototype = {
         dataModel.addPipe({ type: 'DataSourceTreeview', test: isTreeview });
 
         if (amInstance) {
-            this.grid.behavior.setData(dataModel.source.data);
+            this.grid.behavior.setData();
             this.grid.behavior.shapeChanged();
         }
     },
@@ -110,13 +110,16 @@ TreeView.prototype = {
                 });
             }
 
+            dataSource.defaultSortColumnName = options.defaultSortColumnName || dataSource.treeColumnName;
+            dataSource.defaultSortColumnIndex = dataSource.getFields().indexOf(dataSource.defaultSortColumnName);
+
             // If unsorted, sort by tree column
             if (behavior.getSortedColumnIndexes().length === 0) {
-                var dataIndex = this.grid.behavior.dataModel.sources.treeview.treeColumnIndex,
-                    gridIndex = behavior.getActiveColumnIndex(dataIndex);
+                var gridIndex = behavior.getActiveColumnIndex(dataSource.defaultSortColumnIndex);
                 this.grid.toggleSort(gridIndex, []);
             }
         } else {
+            dataSource.defaultSortColumnName = dataSource.defaultSortColumnIndex = undefined;
             columnProps.editable = this.editableWas;
             state.checkboxOnlyRowSelections = this.checkboxOnlyRowSelectionsWas;
         }
