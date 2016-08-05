@@ -213,7 +213,7 @@ window.onload = function() {
 
     function toggleTreeview() {
         if (this.checked) {
-            treeView = new TreeView(grid, { treeColumnName: 'State' });
+            treeView = new TreeView(grid, { treeColumn: 'State' });
             treeView.setPipeline({ includeSorter: true, includeFilter: true });
             treeView.setRelation(true, true);
         } else {

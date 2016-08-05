@@ -38,7 +38,7 @@ window.onload = function() {
         showFilterRow: pipelineOptions.includeFilter
     });
 
-    var treeViewOptions = { defaultSortColumnName: 'State' },
+    var treeViewOptions = { defaultSortColumn: 'State' },
         treeView = new TreeView(grid, treeViewOptions),
         dd = treeView.drillDown = {};
 
@@ -49,7 +49,7 @@ window.onload = function() {
 
     document.querySelector('input[type=checkbox]').onclick = function() {
         if (treeView.setRelation(this.checked)) {
-            dd.column = grid.behavior.getColumn(treeView.dataSource.treeColumnIndex);
+            dd.column = grid.behavior.getColumn(treeView.dataSource.treeColumn.index);
 
             dd.header = dd.column.header;
             dd.column.header = '';
