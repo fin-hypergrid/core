@@ -1,20 +1,30 @@
 ### 1.0.8 - 8 August 2016
 
-* Tree-view now sorts properly, sorting first within each group.
-* Wrapped column headers no longer overflow bottom of cell.
+* Wrapped column headers no longer overflow bottom of cell. Overflow is clipped.
 * Clicking to right of last column no longer throws an error.
 * Zooming out (e.g., 80%) now properly clears the grid before repainting.
-* Nested grouped column headers demonstrated as an add-on
+* Tree-view add-on improvements:
+    * Now sorts properly and is always in a sorted state:
+        * On any column sort, applies a _group sorter_ which sorts the column as usual but then automatically stable-sorts each level of group starting with deepest and working up to the top level. (_Stable sorting_ from lowest to highest level grouping is an efficient means of sorting nested data, equivalent to starting with the highest groups and recursing down the tree to each lowest group.)
+        * Because raw data order is assumed to be undefined _and_ grouping structure requires that groups be sorted, automatically applies an initial _default sort_ to the "tree" column (name or index specified in `treeColumn` option passed to `TreeView` constructor; defaults to `'name'`). If a default sort column is defined (name or index specified in `defaultSortColumn` option; defaults to the tree column), the initial sort is applied to that column instead.
+        * Automatically _reapplies_ the default sort when user removes the sort. User can _change_ the sort to some other column or columns, but if user _removes_ the current sort (whatever that may be), tree column sort is added back. This guarantees that the groups will always be sorted so the drill-downs work as expected.
+        * Demo: [`tree-view.html`](http://openfin.github.io/fin-hypergrid/tree-view.html)
+    * Stand-alone tree column [sample code](http://openfin.github.io/fin-hypergrid/tree-view-separate-drill-down.html) demonstrates putting the drill-down controls in its own column. All of the following steps are required to get this to work:
+        * Add a blank column to your data which will be your tree column to hold just the drill-down controls. Specify the name of your column (in `option.treeColumn`; or call it `'name'`, the default).
+        * Set the new `unsortable` property for your column to `true` so it cannot be sorted (as it is all blank, there is nothing to sort and trying to sort it).
+        * Set the active column order by setting the grid's `columnIndexes` property. You want your blank column to appear on the left. Exclude the `ID` and `parentID` columns.
+        * Make this left-most column a fixed column.
+        * Specify some other column for the initial sort (in `option.defaultSortColumn`).
+* *Grouped column headers* add-on (`add-ons/grouped-columns.js`):
     * Include: `<script src="http://openfin.github.io/fin-hypergrid/build/add-ons/grouped-header.js"></script>`
     * Install: `fin.Hypergrid.groupedHeader.mixInTo(grid)`
-    * Usage: `grid.behavior.setHeaders({ lat: 'Coords|Lat.', long: 'Coords|Long.' })`
-    * The above call simply updates the headers of the named columns and increases the header row height to accommodate the group label ("Coords").
-* True calculated columns
-    * Previously, calculated values were supported only when a particular cell value was a "calculator" function.
-    * Now when a calculator function is assigned the `calculator` column property, all rows in the column become calculated values.
-    * The previous functionality is still supported when a function is defined in the data row, in which case it takes priority over the column function.
-    * If a non-function value is defined in the data row, it is available to the column function.
-    * Otherwise, it is not necessary for the data row to define a value for the column at all.
+    * Usage, for example: `grid.behavior.setHeaders({ lat: 'Coords|Lat.', long: 'Coords|Long.' })`
+    * `setHeaders` is a convenience function that simply updates the headers of the named columns while increasing the header row height to accommodate the maximum level of grouping (in the above example, the single group label "Coords").
+    * Demo: [`grouped-header.html`](http://openfin.github.io/fin-hypergrid/grouped-header.html)
+* Calculated columns are defined by assiging a "calculator" function to the column's `calculator` property. All cells in the column become calculated values.
+    * Data for the cell may be undefined. If defined, it is available to the column function, but otherwise ignored.
+    * If the cell value is a function, however, legacy behavior is maintained: This function takes priority over the column function.
+* Column filter operator selected from dropdown now _replaces_ the operator in the expression. If the column filter cell contains several expressions (concatenated with `and`, `or`, or `nor`), the operator in the expression under the cursor is replaced.
 * Group view
     * [More notes needed.]
 
