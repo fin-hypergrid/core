@@ -70,7 +70,8 @@ TreeView.prototype = {
         dataModel.addPipe({ type: 'DataSourceTreeview', test: isTreeview });
 
         if (amInstance) {
-            this.grid.behavior.setData(dataModel.source.data);
+            this.grid.behavior.setData();
+            this.dataSource = dataModel.sources.dataSource;
             this.grid.behavior.shapeChanged();
         }
     },
@@ -85,10 +86,10 @@ TreeView.prototype = {
         var options = join && this.options,
             behavior = this.grid.behavior,
             dataModel = behavior.dataModel,
-            dataSource = dataModel.sources.treeview,
+            dataSource = this.dataSource = dataModel.sources.treeview,
             joined = dataSource.setRelation(options),
             state = behavior.getPrivateState(),
-            columnProps = behavior.getColumn(dataSource.treeColumnIndex).getProperties();
+            columnProps = behavior.getColumn(dataSource.treeColumn.index).getProperties();
 
         if (joined) {
             // save the current value of column's editable property and set it to false
@@ -100,7 +101,7 @@ TreeView.prototype = {
             state.checkboxOnlyRowSelections = true;
 
             if (hideIdColumns) {
-                var columnIndexes = [dataSource.idColumnIndex, dataSource.parentIdColumnIndex];
+                var columnIndexes = [dataSource.idColumn.index, dataSource.parentIdColumn.index];
 
                 columnIndexes.forEach(function(columnIndex) {
                     var index = behavior.getActiveColumnIndex(columnIndex);
@@ -110,13 +111,15 @@ TreeView.prototype = {
                 });
             }
 
+            dataSource.defaultSortColumn = dataSource.getColumnInfo(options.defaultSortColumn, dataSource.treeColumn.name);
+
             // If unsorted, sort by tree column
             if (behavior.getSortedColumnIndexes().length === 0) {
-                var dataIndex = this.grid.behavior.dataModel.sources.treeview.treeColumnIndex,
-                    gridIndex = behavior.getActiveColumnIndex(dataIndex);
+                var gridIndex = behavior.getActiveColumnIndex(dataSource.defaultSortColumn.index);
                 this.grid.toggleSort(gridIndex, []);
             }
         } else {
+            dataSource.defaultSortColumn = undefined;
             columnProps.editable = this.editableWas;
             state.checkboxOnlyRowSelections = this.checkboxOnlyRowSelectionsWas;
         }
@@ -140,7 +143,7 @@ function isTreeview(event) {
     var treeview = this.sources.treeview,
         result = !!(treeview && treeview.viewMakesSense());
     if (result && event && event.dataCell) {
-        result = event.dataCell.x === treeview.treeColumnIndex;
+        result = event.dataCell.x === treeview.treeColumn.index;
     }
     return result;
 }

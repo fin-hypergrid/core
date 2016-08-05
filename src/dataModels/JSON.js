@@ -526,15 +526,17 @@ var JSON = DataModel.extend('dataModels.JSON', {
         })) {
             if (sorts.length === 1) {
                 for (var dataSource = this.dataSource; dataSource; dataSource = dataSource.dataSource) {
-                    found = dataSource.joined && dataSource.treeColumnIndex !== undefined;
-                    if (found) { break; }
+                    if (dataSource.defaultSortColumn) {
+                        found = true;
+                        break;
+                    }
                 }
             }
 
             if (found) {
                 // Make the sole remaining sorted column the tree column of the "joined" data source
                 sorts[0] = {
-                    columnIndex: dataSource.treeColumnIndex,
+                    columnIndex: dataSource.defaultSortColumn.index,
                     direction: 1
                 };
             } else {

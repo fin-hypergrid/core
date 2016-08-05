@@ -723,6 +723,12 @@ module.exports = {
      */
     strikeThrough: false,
 
+    /** Ignore sort interaction (double-click).
+     * @type {boolean}
+     * @default
+     */
+    unsortable: false,
+
 };
 
 /** @typedef {string} cssColor

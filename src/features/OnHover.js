@@ -8,7 +8,7 @@ var Feature = require('./Feature.js');
 var OnHover = Feature.extend('OnHover', {
 
     /**
-     * @desc Hhandle this event down the feature chain of responsibility.
+     * @desc Handle this event down the feature chain of responsibility.
      * @param {Hypergrid} grid
      * @param {Object} event - the event details
      * @memberOf OnHover.prototype
@@ -21,10 +21,8 @@ var OnHover = Feature.extend('OnHover', {
             }
             this.handleMouseEnter(grid, event);
             grid.setHoverCell(event.gridCell);
-        } else {
-            if (this.next) {
-                this.next.handleMouseMove(grid, event);
-            }
+        } else if (this.next) {
+            this.next.handleMouseMove(grid, event);
         }
     }
 
