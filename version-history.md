@@ -9,19 +9,21 @@
         * Because raw data order is assumed to be undefined _and_ grouping structure requires that groups be sorted, automatically applies an initial _default sort_ to the "tree" column (name or index specified in `treeColumn` option passed to `TreeView` constructor; defaults to `'name'`). If a default sort column is defined (name or index specified in `defaultSortColumn` option; defaults to the tree column), the initial sort is applied to that column instead.
         * Automatically _reapplies_ the default sort when user removes the sort. User can _change_ the sort to some other column or columns, but if user _removes_ the current sort (whatever that may be), tree column sort is added back. This guarantees that the groups will always be sorted so the drill-downs work as expected.
         * Demo: [`tree-view.html`](http://openfin.github.io/fin-hypergrid/tree-view.html)
-    * Stand-alone tree column [sample code](http://openfin.github.io/fin-hypergrid/tree-view-separate-drill-down.html) demonstrates putting the drill-down controls in its own column. All of the following steps are required to get this to work:
-        * Add a blank column to your data which will be your tree column to hold just the drill-down controls. Specify the name of your column (in `option.treeColumn`; or call it `'name'`, the default).
-        * Set the new `unsortable` property for your column to `true` so it cannot be sorted (as it is all blank, there is nothing to sort and trying to sort it).
-        * Set the active column order by setting the grid's `columnIndexes` property. You want your blank column to appear on the left. Exclude the `ID` and `parentID` columns.
-        * Make this left-most column a fixed column.
-        * Specify some other column for the initial sort (in `option.defaultSortColumn`).
+    * *Stand-alone tree column.* To put the drill-down controls in a column of its own, do all of the following steps:
+        * Add a blank column to your data which will be your tree column to hold just the drill-down controls.
+        * Specify the name of your blank column to the `TreeView` constructor in `options.treeColumn`. Alternatively, call it `'name'` (the default).
+        * Set the new `unsortable` property for your tree column to `true` so it cannot be sorted. As it is all blank, there is nothing to sort and trying to sort it.
+        * Set the active column order via the grid's `columnIndexes` property. You want your blank column to appear first (_i.e.,_ on the left). Exclude the `ID` and `parentID` columns.
+        * Make the blank column (now the left-most column) a fixed column via the grid's `fixedColumnCount` property.
+        * Specify some other column for the initial sort (in `option.defaultSortColumn`). This will typically be the column containing the name of the highest-order group.
+        * Demo: [`tree-view-separate-drill-down.html`](http://openfin.github.io/fin-hypergrid/tree-view-separate-drill-down.html)
 * *Grouped column headers* add-on (`add-ons/grouped-columns.js`):
     * Include: `<script src="http://openfin.github.io/fin-hypergrid/build/add-ons/grouped-header.js"></script>`
     * Install: `fin.Hypergrid.groupedHeader.mixInTo(grid)`
     * Usage, for example: `grid.behavior.setHeaders({ lat: 'Coords|Lat.', long: 'Coords|Long.' })`
     * `setHeaders` is a convenience function that simply updates the headers of the named columns while increasing the header row height to accommodate the maximum level of grouping (in the above example, the single group label "Coords").
     * Demo: [`grouped-header.html`](http://openfin.github.io/fin-hypergrid/grouped-header.html)
-* Calculated columns are defined by assiging a "calculator" function to the column's `calculator` property. All cells in the column become calculated values.
+* Calculated columns are defined by assigning a "calculator" function to the column's `calculator` property. All cells in the column become calculated values.
     * Data for the cell may be undefined. If defined, it is available to the column function, but otherwise ignored.
     * If the cell value is a function, however, legacy behavior is maintained: This function takes priority over the column function.
 * Column filter operator selected from dropdown now _replaces_ the operator in the expression. If the column filter cell contains several expressions (concatenated with `and`, `or`, or `nor`), the operator in the expression under the cursor is replaced.
