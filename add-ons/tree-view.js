@@ -71,6 +71,7 @@ TreeView.prototype = {
 
         if (amInstance) {
             this.grid.behavior.setData();
+            this.dataSource = dataModel.sources.dataSource;
             this.grid.behavior.shapeChanged();
         }
     },
@@ -85,7 +86,7 @@ TreeView.prototype = {
         var options = join && this.options,
             behavior = this.grid.behavior,
             dataModel = behavior.dataModel,
-            dataSource = dataModel.sources.treeview,
+            dataSource = this.dataSource = dataModel.sources.treeview,
             joined = dataSource.setRelation(options),
             state = behavior.getPrivateState(),
             columnProps = behavior.getColumn(dataSource.treeColumnIndex).getProperties();
