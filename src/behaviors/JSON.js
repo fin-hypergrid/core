@@ -84,10 +84,25 @@ var JSON = Local.extend('behaviors.JSON', {
     /**
      * @memberOf behaviors.JSON.prototype
      * @description Set the header labels.
-     * @param {string[]} headerLabels - The header labels.
+     * @param {string[]|object} headers - The header labels. One of:
+     * * _If an array:_ Must contain all headers in column order.
+     * * _If a hash:_ May contain any headers, keyed by field name, in any order (of course).
      */
-    setHeaders: function(headerLabels) {
-        this.dataModel.setHeaders(headerLabels);
+    setHeaders: function(headers) {
+        if (headers instanceof Array) {
+            // Reset all headers
+            var allColumns = this.allColumns;
+            headers.forEach(function(header, index) {
+                allColumns[index].header = header; // setter updates header in both column and data source objects
+            });
+        } else if (typeof headers === 'object') {
+            // Adjust just the headers in the hash
+            this.allColumns.forEach(function(column) {
+                if (headers[column.name]) {
+                    column.header = headers[column.name];
+                }
+            });
+        }
     },
 
     /**

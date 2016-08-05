@@ -93,7 +93,7 @@ function Hypergrid(div, options) {
 
     var margin = options.margin || {};
     margin.top = margin.top || 0;
-    margin.right = margin.right || '-200px';
+    margin.right = margin.right === undefined ? '-200px' : 0;
     margin.bottom = margin.bottom || 0;
     margin.left = margin.left || 0;
 
