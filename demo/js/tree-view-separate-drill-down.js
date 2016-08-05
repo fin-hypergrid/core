@@ -34,7 +34,8 @@ window.onload = function() {
     var idx = grid.behavior.columnEnum;
 
     grid.setState({
-        columnIndexes: [ idx.NAME, idx.STATE, idx.LATITUDE, idx.LONGITUDE ],
+        columnIndexes: [ idx.NAME, idx.STATE, idx.LATITUDE, idx.LONGITUDE ], // so drill-down column on far left
+        fixedColumnCount: 1, // so far left drill-down column always visible
         showFilterRow: pipelineOptions.includeFilter
     });
 
