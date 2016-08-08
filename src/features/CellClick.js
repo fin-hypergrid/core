@@ -15,12 +15,16 @@ var CellClick = Feature.extend('CellClick', {
      * @param {Object} event - the event details
      */
     handleClick: function(grid, event) {
+        var consumed;
+
         if (
             event.gridCell.y >= grid.behavior.getHeaderRowCount() &&
             event.gridCell.x >= grid.behavior.getHeaderColumnCount()
         ) {
-            grid.cellClicked(event);
-        } else if (this.next) {
+            consumed = grid.cellClicked(event);
+        }
+
+        if (!consumed && this.next) {
             this.next.handleClick(grid, event);
         }
     }

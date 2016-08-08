@@ -26,14 +26,32 @@ Check out the Table view on Hyperblotter on a Windows machine via [this installe
 
 ### Features
 
-* Any number of rows and columns
-* Grid, column, row, and cell styling
-* User-resizeable columns, column-dragging, column picking
-* Plug-in-able cell formatters and editors
-* Smooth scrolling on both axes
-* Supports local (client-side) as well as remote (server-side) data hosting
-* Events for all UI manipulations including mouse, keyboard, and programmatic UI changes
-* Tree-view (drill-downs) presentation for locally grouped, nested, or aggregated data
+| Ultra High Performance  || General
+|----------------------------|----|----------------------------
+| Any number of rows and columns <br> (100k+)| | Cross-browser support
+| Infinite, smooth scrolling      | | Clipboard copy & paste
+| Scrolling via cell | | Localization
+| Local (client-side) and remote <br> (server-side) data hosting | | Context menu
+
+| Flexible Data Views & Selection  || Look-and-Feel
+|----------------------------|----|----------------------------
+| Filtering and sorting | | CSS Themes
+| Aggregation | | Grid, column, row, and <br> cell styling
+| Tree view (drill-downs) and group <br> view | | Custom cell editors
+| Inline editing | | Customizable scroll bars
+| Column grouping, including <br> multi-level | | Column and row resizing
+| Freeze columns and rows | | Column auto-sizing
+| Cell range, checkbox, and row <br> selection | | Column dragging
+| Keyboard navigation | |
+
+| Available in the OpenFin Container
+|--------------------------------------------------------
+| CSV export
+| Cross app communication
+| Cross app docking
+| Printing
+| Easy deployment
+| Cross browser independence
 
 ##### Future development
 

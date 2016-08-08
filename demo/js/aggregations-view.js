@@ -9,12 +9,23 @@ var grid;
 window.onload = function() {
     var Hypergrid = fin.Hypergrid,
         drillDown = Hypergrid.drillDown,
-        TreeView = Hypergrid.TreeView,
+        AggregationsView = Hypergrid.AggregationsView,
         dataModelPrototype = Hypergrid.dataModels.JSON.prototype,
         pipelineOptions = {
             includeSorter: true,
             includeFilter: true
         },
+        rollups = window.fin.Hypergrid.analytics.util.aggregations, //functions for showing the grouping/rollup capabilities
+        aggregates = {
+            totalPets: rollups.sum(2),
+            averagePets: rollups.avg(2),
+            maxPets: rollups.max(2),
+            minPets: rollups.min(2),
+            firstPet: rollups.first(2),
+            lastPet: rollups.last(2),
+            stdDevPets: rollups.stddev(2)
+        },
+        groups = [5, 0, 1],
         shared = true; // operate on shared (prototype) pipeline vs. own (instance)
 
     // Install the drill-down API (optional).
@@ -23,37 +34,33 @@ window.onload = function() {
     if (shared) {
         // Mutate shared pipeline (avoids calling setData twice).
         pipelineOptions.dataModelPrototype = dataModelPrototype;
-        TreeView.prototype.setPipeline(pipelineOptions);
+        AggregationsView.prototype.setPipeline(pipelineOptions);
     }
 
-    grid = new Hypergrid('div#tree-example', { data: treeData });
+    grid = new Hypergrid('div#example', { data:  window.people1 });
 
     grid.setState({
         showFilterRow: pipelineOptions.includeFilter
     });
 
-    var treeViewOptions = { treeColumn: 'State' },
-        treeView = new TreeView(grid, treeViewOptions);
+    var aggView = new AggregationsView(grid, {});
 
     if (!shared) {
         // Mutate instance pipeline (calls setData again to rebuild pipeline).
-        treeView.setPipeline(pipelineOptions);
+        groupView.setPipeline(pipelineOptions);
     }
 
     document.querySelector('input[type=checkbox]').onclick = function() {
-        if (treeView.setRelation(this.checked, true)) {
+        if (this.checked) {
+            grid.setAggregateGroups(aggregates, groups);
             grid.behavior.dataModel.getCell = getCell;
         } else {
+            grid.setAggregateGroups([]);
             delete grid.behavior.dataModel.getCell;
         }
     };
 
     function getCell(config, rendererName) {
-        if (config.isUserDataArea) {
-            if (config.x === grid.behavior.columnEnum.STATE) {
-                config.halign = 'left';
-            }
-        }
         return grid.cellRenderers.get(rendererName);
     }
 };

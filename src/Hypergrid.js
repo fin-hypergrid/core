@@ -63,9 +63,8 @@ function Hypergrid(div, options) {
     this.renderOverridesCache = {};
 
     options = options || {};
-    var data = typeof options.data === 'function' ? options.data() : options.data;
     var Behavior = options.Behavior || behaviors.JSON;
-    this.behavior = new Behavior(this, options.schema, data);
+    this.behavior = new Behavior(this, options.data, options);
 
     var loc = options.localization || {};
     this.localization = new Localization(
@@ -94,7 +93,7 @@ function Hypergrid(div, options) {
 
     var margin = options.margin || {};
     margin.top = margin.top || 0;
-    margin.right = margin.right || '-200px';
+    margin.right = margin.right === undefined ? '-200px' : 0;
     margin.bottom = margin.bottom || 0;
     margin.left = margin.left || 0;
 
@@ -1258,7 +1257,9 @@ Hypergrid.prototype = {
         this.stopEditing(); //other editor is open, close it first
 
         if (editPoint.x >= 0 && editPoint.y >= 0) {
-            var editable = this.behavior.getActiveColumn(editPoint.x).getProperties().editable;
+            var column = this.behavior.getActiveColumn(editPoint.x),
+                editable = column && column.getProperties().editable;
+
             if (editable || this.isFilterRow(editPoint.y)) {
                 this.setMouseDown(editPoint);
                 this.setDragExtent(new Point(0, 0));
@@ -1453,9 +1454,11 @@ Hypergrid.prototype = {
      * @summary A click event occurred.
      * @desc Determine the cell and delegate to the behavior (model).
      * @param {MouseEvent} event - The mouse event to interrogate.
+     * @returns {boolean} Click was consumed.
      */
     cellClicked: function(event) {
-        var cell = event.gridCell;
+        var result = false,
+            cell = event.gridCell;
 
         //click occurred in background area
         if (
@@ -1474,8 +1477,9 @@ Hypergrid.prototype = {
                 y += this.getVScrollValue();
             }
 
-            this.behavior.cellClicked(new Point(x, y), event);
+            result = this.behavior.cellClicked(new Point(x, y), event);
         }
+        return result;
     },
 
     /**
@@ -1617,7 +1621,7 @@ Hypergrid.prototype = {
 
         function getValue(selectedRowIndex, j) {
             var dataRow = self.getRow(selectedRowIndex);
-            rows[j] = valOrFunc(dataRow, column.name);
+            rows[j] = valOrFunc(dataRow, column);
         }
 
         return result;
@@ -1642,7 +1646,7 @@ Hypergrid.prototype = {
 
         function getValue(selectedRowIndex, r) {
             var dataRow = self.getRow(selectedRowIndex);
-            result[c][r] = valOrFunc(dataRow, column.name);
+            result[c][r] = valOrFunc(dataRow, column);
         }
 
         return result;
@@ -1662,7 +1666,7 @@ Hypergrid.prototype = {
 
             for (var r = headerRowCount; r < numRows; r++) {
                 dataRow = self.getRow(r);
-                values[r] = valOrFunc(dataRow, column.name);
+                values[r] = valOrFunc(dataRow, column);
             }
         });
 
@@ -1683,7 +1687,7 @@ Hypergrid.prototype = {
 
             for (var r = headerRowCount; r < rowCount; r++) {
                 dataRow = self.getRow(r);
-                values[r] = valOrFunc(dataRow, column.name);
+                values[r] = valOrFunc(dataRow, column);
             }
         });
 
@@ -1710,7 +1714,7 @@ Hypergrid.prototype = {
 
                 for (var r = 0, y = rect.origin.y; r < rowCount; r++, y++) {
                     dataRow = self.getRow(y);
-                    values[r] = valOrFunc(dataRow, column.name);
+                    values[r] = valOrFunc(dataRow, column);
                 }
             }
 
@@ -1740,7 +1744,7 @@ Hypergrid.prototype = {
 
                 for (var r = 0, y = rect.origin.y; r < rowCount; r++, y++) {
                     dataRow = self.getRow(y);
-                    values[r] = valOrFunc(dataRow, column.name);
+                    values[r] = valOrFunc(dataRow, column);
                 }
             }
 
@@ -1879,19 +1883,6 @@ Hypergrid.prototype = {
         });
         this.canvas.dispatchEvent(clickEvent);
     },
-
-    fireSyntheticGroupsChangedEvent: function(groups) {
-        var detail = {
-            groups: groups,
-            time: Date.now(),
-            grid: this
-        };
-        var clickEvent = new CustomEvent('fin-groups-changed', {
-            detail: detail
-        });
-        this.canvas.dispatchEvent(clickEvent);
-    },
-
     /**
      * @memberOf Hypergrid.prototype
      * @desc Synthesize and fire a `fin-cell-exit` event.
@@ -3004,9 +2995,6 @@ Hypergrid.prototype = {
     getFilterRowIndex: function() {
         return !this.isShowFilterRow() ? -1 : this.isShowHeaderRow() ? 1 : 0;
     },
-    setGroups: function(arrayOfColumnIndexes) {
-        this.behavior.setGroups(arrayOfColumnIndexes);
-    },
     hasHierarchyColumn: function() {
         return this.behavior.hasHierarchyColumn();
     },
@@ -3343,12 +3331,14 @@ Hypergrid.prototype = {
         var filter = this.getGlobalFilter(),
             result;
 
-        if (filter.invalid()) {
-            result = 'error';
-        } else if (filter.filterCount()) {
-            result = 'active';
-        } else {
-            result = 'inactive';
+        if (filter) {
+            if (filter.invalid()) {
+                result = 'error';
+            } else if (filter.filterCount()) {
+                result = 'active';
+            } else {
+                result = 'inactive';
+            }
         }
 
         return result;
@@ -3476,9 +3466,12 @@ function clearObjectProperties(obj) {
     }
 }
 
-function valOrFunc(dataRow, columnName) {
-    var vf = dataRow[columnName],
-        result = (typeof vf)[0] === 'f' ? vf(dataRow, columnName) : vf;
+function valOrFunc(dataRow, column) {
+    var result = dataRow[column.name],
+        calculator = (typeof result)[0] === 'f' && result || column.calculator;
+        if (calculator) {
+            result = calculator(dataRow, column.name);
+        }
     return result || result === 0 || result === false ? result : '';
 }
 

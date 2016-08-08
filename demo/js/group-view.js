@@ -9,7 +9,7 @@ var grid;
 window.onload = function() {
     var Hypergrid = fin.Hypergrid,
         drillDown = Hypergrid.drillDown,
-        TreeView = Hypergrid.TreeView,
+        GroupView = Hypergrid.GroupView,
         dataModelPrototype = Hypergrid.dataModels.JSON.prototype,
         pipelineOptions = {
             includeSorter: true,
@@ -23,35 +23,36 @@ window.onload = function() {
     if (shared) {
         // Mutate shared pipeline (avoids calling setData twice).
         pipelineOptions.dataModelPrototype = dataModelPrototype;
-        TreeView.prototype.setPipeline(pipelineOptions);
+        GroupView.prototype.setPipeline(pipelineOptions);
     }
 
-    grid = new Hypergrid('div#tree-example', { data: treeData });
+    grid = new Hypergrid('div#example', { data:  window.people1 });
 
     grid.setState({
         showFilterRow: pipelineOptions.includeFilter
     });
 
-    var treeViewOptions = { treeColumn: 'State' },
-        treeView = new TreeView(grid, treeViewOptions);
+    var groupView = new GroupView(grid, {});
 
     if (!shared) {
         // Mutate instance pipeline (calls setData again to rebuild pipeline).
-        treeView.setPipeline(pipelineOptions);
+        groupView.setPipeline(pipelineOptions);
     }
 
     document.querySelector('input[type=checkbox]').onclick = function() {
-        if (treeView.setRelation(this.checked, true)) {
+        if (this.checked) {
+            grid.setGroups([5, 0, 1]);
             grid.behavior.dataModel.getCell = getCell;
         } else {
+            grid.setGroups([]);
             delete grid.behavior.dataModel.getCell;
         }
     };
 
     function getCell(config, rendererName) {
         if (config.isUserDataArea) {
-            if (config.x === grid.behavior.columnEnum.STATE) {
-                config.halign = 'left';
+            if (this.getRow(config.y).hasChildren) {
+                return grid.cellRenderers.get('EmptyCell');
             }
         }
         return grid.cellRenderers.get(rendererName);
