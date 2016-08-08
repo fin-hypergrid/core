@@ -26,7 +26,7 @@ Check out the Table view on Hyperblotter on a Windows machine via [this installe
 
 ### Features
 
-![](https://github.com/openfin/fin-hypergrid/blob/master/images/README/Hyperblotter%20Tabled%20Reduced%20Rows.png)
+![](https://github.com/openfin/fin-hypergrid/blob/master/images/README/Hypergrid%20Features.png)
 
 ##### Future development
 
