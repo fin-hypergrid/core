@@ -2,7 +2,7 @@
 
 var groupedHeader = {
 
-    mixInTo: function ColumnGrouper(grid, options) {
+    mixInTo: function(grid, options) {
         options = options || {};
 
         // 1. Create a special cell renderer to be used for the grouped header cells.
@@ -22,8 +22,9 @@ var groupedHeader = {
         rendererSingleton.groups = [];
 
         if (options.delimiter) {
-            rendererSingleton.delimiter = grid.behavior.dataModel.groupHeaderDelimiter = options.delimiter;
+            rendererSingleton.delimiter = options.delimiter;
         }
+        grid.behavior.dataModel.groupHeaderDelimiter = rendererSingleton.delimiter;
 
         if (options.groupColor) {
             rendererSingleton.groupColor = options.groupColor;
