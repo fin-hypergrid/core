@@ -4,7 +4,7 @@
 * Clicking to right of last column no longer throws an error.
 * Zooming out (e.g., 80%) now properly clears the grid before repainting.
 * Tree-view add-on improvements:
-    * Now sorts properly and is always in a sorted state:
+    * *Now sorts properly* and maintains a sorted state:
         * On any column sort, applies a _group sorter_ which sorts the column as usual but then automatically stable-sorts each level of group starting with deepest and working up to the top level. (_Stable sorting_ from lowest to highest level grouping is an efficient means of sorting nested data, equivalent to starting with the highest groups and recursing down the tree to each lowest group.)
         * Because raw data order is assumed to be undefined _and_ grouping structure requires that groups be sorted, automatically applies an initial _default sort_ to the "tree" column (name or index specified in `treeColumn` option passed to `TreeView` constructor; defaults to `'name'`). If a default sort column is defined (name or index specified in `defaultSortColumn` option; defaults to the tree column), the initial sort is applied to that column instead.
         * Automatically _reapplies_ the default sort when user removes the sort. User can _change_ the sort to some other column or columns, but if user _removes_ the current sort (whatever that may be), tree column sort is added back. This guarantees that the groups will always be sorted so the drill-downs work as expected.
@@ -12,21 +12,22 @@
     * *Stand-alone tree column.* To put the drill-down controls in a column of its own, do all of the following steps:
         * Add a blank column to your data which will be your tree column to hold just the drill-down controls.
         * Specify the name of your blank column to the `TreeView` constructor in `options.treeColumn`. Alternatively, call it `'name'` (the default).
-        * Set the new `unsortable` property for your tree column to `true` so it cannot be sorted. As it is all blank, there is nothing to sort and trying to sort it.
-        * Set the active column order via the grid's `columnIndexes` property. You want your blank column to appear first (_i.e.,_ on the left). Exclude the `ID` and `parentID` columns.
-        * Make the blank column (now the left-most column) a fixed column via the grid's `fixedColumnCount` property.
-        * Specify some other column for the initial sort (in `option.defaultSortColumn`). This will typically be the column containing the name of the highest-order group.
+        * Set the new `unsortable` property for your tree column to `true` so it cannot be sorted. As it is all blank, there is nothing to sort.
+        * Set the active column order (via the grid's `columnIndexes` property). You want your blank column to appear first (_i.e.,_ on the left). Exclude the `ID` and `parentID` columns (unless you want these to appear).
+        * Make the blank column (now the left-most column) a fixed column (via the grid's `fixedColumnCount` property).
+        * Specify some other column for the initial sort (in `option.defaultSortColumn`). This will typically be the column that identifies the group.
         * Demo: [`tree-view-separate-drill-down.html`](http://openfin.github.io/fin-hypergrid/tree-view-separate-drill-down.html)
 * *Grouped column headers* add-on (`add-ons/grouped-columns.js`):
     * Include: `<script src="http://openfin.github.io/fin-hypergrid/build/add-ons/grouped-header.js"></script>`
     * Install: `fin.Hypergrid.groupedHeader.mixInTo(grid)`
     * Usage, for example: `grid.behavior.setHeaders({ lat: 'Coords|Lat.', long: 'Coords|Long.' })`
-    * `setHeaders` is a convenience function that simply updates the headers of the named columns while increasing the header row height to accommodate the maximum level of grouping (in the above example, the single group label "Coords").
+    * The shared option `GroupedHeader.delimiter` specifies the delimiter; the default value is the vertical bar character: `'|'`
+    * `setHeaders` is a convenience function that simply updates the headers of the named columns while increasing the header row height to accommodate the maximum level of grouping. The above example has only a single level of grouping; the group label is  "Coords".
     * Demo: [`grouped-header.html`](http://openfin.github.io/fin-hypergrid/grouped-header.html)
 * Calculated columns are defined by assigning a "calculator" function to the column's `calculator` property. All cells in the column become calculated values.
-    * Data for the cell may be undefined. If defined, it is available to the column function, but otherwise ignored.
+    * Data for the column's cells may be undefined; but if defined, it is available to the calculator function, but otherwise ignored.
     * If the cell value is a function, however, legacy behavior is maintained: This function takes priority over the column function.
-* Column filter operator selected from dropdown now _replaces_ the operator in the expression. If the column filter cell contains several expressions (concatenated with `and`, `or`, or `nor`), the operator in the expression under the cursor is replaced.
+* Upon selecting a new operator from a column filter cell's dropdown, rather than inserting the new operator at the cursor position, the old operator is now _replaced_ by the new one the operator. If the column filter cell contains several expressions (_i.e.,_ concatenated with `and`, `or`, or `nor`), the operator in the expression under the cursor is replaced.
 * Group view
     * [More notes needed.]
 
