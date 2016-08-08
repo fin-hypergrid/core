@@ -29,11 +29,11 @@
     * If the cell value is a function, however, legacy behavior is maintained: This function takes priority over the column function.
 * Upon selecting a new operator from a column filter cell's dropdown, rather than inserting the new operator at the cursor position, the old operator is now _replaced_ by the new one the operator. If the column filter cell contains several expressions (_i.e.,_ concatenated with `and`, `or`, or `nor`), the operator in the expression under the cursor is replaced.
 * Group view
-    * Aggregations and Group View have been added as add-ons and removed from HyperGrid core
-    * The aggregations add-on has the same behavior as before while the Group View is a view of the original columns, with drill downs in the tree cell for expanding the groups provided 
-    * Hypergrid now only loads with the original Datasource and filter datasource as defaults
+    * Aggregations and Group View have been added as add-ons and removed from HyperGrid core.
+    * The aggregations add-on has the same behavior as before while the Group View is a view of the original columns, with drill downs in the tree cell for expanding the groups provided.
+    * Hypergrid now only loads with the original data source, the filter datasource as defaults, and the sorter data source.
     * Demo 1: [`aggregations.html`](http://openfin.github.io/fin-hypergrid/aggregations-view.html)
-    * See Group Demo for example usage: [`group.html`](http://openfin.github.io/fin-hypergrid/group-view.html)
+    * See Group Demo for example usage: [`group.html`](http://openfin.github.io/fin-hypergrid/group-view.html).
 
 ### 1.0.7 - 18 July 2016
 

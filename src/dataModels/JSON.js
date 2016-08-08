@@ -314,6 +314,8 @@ var JSON = DataModel.extend('dataModels.JSON', {
      */
     pipeline: [
         { type: 'JSDataSource' },
+        { type: 'DataSourceGlobalFilter' },
+        { type: 'DataSourceSorterComposite' },
     ],
 
     /**
