@@ -22,36 +22,11 @@ Hyperblotter is a demo app that shows the capabilities of both OpenFin and Hyper
 
 Check out the Table view on Hyperblotter on a Windows machine via [this installer](https://dl.openfin.co/services/download?fileName=Hyperblotter&config=http://cdn.openfin.co/demos/hyperblotter/app.json).
 
-![](https://github.com/openfin/fin-hypergrid/blob/master/images/Hyperblotter%20Tabled%20Reduced%20Rows.png)
+![](https://github.com/openfin/fin-hypergrid/blob/master/images/README/Hyperblotter%20Tabled%20Reduced%20Rows.png)
 
 ### Features
 
-| Ultra High Performance  || General
-|----------------------------|----|----------------------------
-| Any number of rows and columns <br> (100k+)| | Cross-browser support
-| Infinite, smooth scrolling      | | Clipboard copy & paste
-| Scrolling via cell | | Localization
-| Local (client-side) and remote <br> (server-side) data hosting | | Context menu
-
-| Flexible Data Views & Selection  || Look-and-Feel
-|----------------------------|----|----------------------------
-| Filtering and sorting | | CSS Themes
-| Aggregation | | Grid, column, row, and <br> cell styling
-| Tree view (drill-downs) and group <br> view | | Custom cell editors
-| Inline editing | | Customizable scroll bars
-| Column grouping, including <br> multi-level | | Column and row resizing
-| Freeze columns and rows | | Column auto-sizing
-| Cell range, checkbox, and row <br> selection | | Column dragging
-| Keyboard navigation | |
-
-| Available in the OpenFin Container
-|--------------------------------------------------------
-| CSV export
-| Cross app communication
-| Cross app docking
-| Printing
-| Easy deployment
-| Cross browser independence
+![](https://github.com/openfin/fin-hypergrid/blob/master/images/README/Hyperblotter%20Tabled%20Reduced%20Rows.png)
 
 ##### Future development
 
