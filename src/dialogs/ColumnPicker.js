@@ -9,6 +9,7 @@ var stylesheet = require('../lib/stylesheet');
 
 /**
  * @constructor
+ * @extends Dialog
  */
 var ColumnPicker = Dialog.extend('ColumnPicker', {
     /**
@@ -22,15 +23,17 @@ var ColumnPicker = Dialog.extend('ColumnPicker', {
 
         if (behavior.isColumnReorderable()) {
             // grab the lists from the behavior
-            this.selectedGroups = {
-                title: 'Groups',
-                models: behavior.getGroups()
-            };
+            if (behavior.setGroups){
+                this.selectedGroups = {
+                    title: 'Groups',
+                    models: behavior.getGroups()
+                };
 
-            this.availableGroups = {
-                title: 'Available Groups',
-                models: behavior.getAvailableGroups()
-            };
+                this.availableGroups = {
+                    title: 'Available Groups',
+                    models: behavior.getAvailableGroups()
+                };
+            }
 
             this.inactiveColumns = {
                 title: 'Inactive Columns',
@@ -107,10 +110,11 @@ var ColumnPicker = Dialog.extend('ColumnPicker', {
     },
 
     onClosed: function() {
+        var behavior = this.grid.behavior,
+            columns = behavior.columns;
+
         if (this.activeColumns) {
-            var behavior = this.grid.behavior,
-                columns = behavior.columns,
-                tree = columns[0];
+            var tree = columns[0];
 
             // TODO: breaking encapsulation; should be using setters and getters on the behavior
             columns.length = 0;
@@ -120,10 +124,6 @@ var ColumnPicker = Dialog.extend('ColumnPicker', {
             this.activeColumns.models.forEach(function(column) {
                 columns.push(column);
             });
-            var groupBys = this.selectedGroups.models.map(function(e) {
-                return e.id;
-            });
-            behavior.dataModel.setGroups(groupBys);
 
             if (this.sortOnHiddenColumns !== this.wasSortOnHiddenColumns) {
                 this.grid.addProperties({ sortOnHiddenColumns: this.sortOnHiddenColumns });
@@ -131,6 +131,13 @@ var ColumnPicker = Dialog.extend('ColumnPicker', {
             }
 
             behavior.changed();
+        }
+
+        if (this.selectedGroups){
+            var groupBys = this.selectedGroups.models.map(function(e) {
+                return e.id;
+            });
+            behavior.dataModel.setGroups(groupBys);
         }
     }
 });

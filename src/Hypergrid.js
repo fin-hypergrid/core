@@ -4,9 +4,6 @@
 
 require('./lib/polyfills'); // Installs misc. polyfills into global objects, as needed
 
-var extend = require('extend-me');
-extend.debug = true;
-
 var FinBar = require('finbars');
 var Canvas = require('fincanvas');
 var Point = require('rectangular').Point;
@@ -66,9 +63,8 @@ function Hypergrid(div, options) {
     this.renderOverridesCache = {};
 
     options = options || {};
-    var data = typeof options.data === 'function' ? options.data() : options.data;
     var Behavior = options.Behavior || behaviors.JSON;
-    this.behavior = new Behavior(this, options.schema, data);
+    this.behavior = new Behavior(this, options.data, options);
 
     var loc = options.localization || {};
     this.localization = new Localization(
@@ -97,7 +93,7 @@ function Hypergrid(div, options) {
 
     var margin = options.margin || {};
     margin.top = margin.top || 0;
-    margin.right = margin.right || '-200px';
+    margin.right = margin.right === undefined ? '-200px' : 0;
     margin.bottom = margin.bottom || 0;
     margin.left = margin.left || 0;
 
@@ -136,16 +132,16 @@ Hypergrid.prototype = {
 
     deprecated: deprecated,
     registerCellEditor: function(Constructor, name) {
-        this.deprecated('registerCellEditor(Constructor, name)', 'cellEditors.add(name, Constructor)', '1.0.6', arguments);
+        return this.deprecated('registerCellEditor(Constructor, name)', 'cellEditors.add(name, Constructor)', '1.0.6', arguments);
     },
     createCellEditor: function(name) {
-        this.deprecated('createCellEditor(name)', 'cellEditors.create(name)', '1.0.6', arguments);
+        return this.deprecated('createCellEditor(name)', 'cellEditors.create(name)', '1.0.6', arguments);
     },
     getCellProvider: function(name) {
-        this.deprecated('getCellProvider()', 'cellRenderers', '1.0.6', arguments);
+        return this.deprecated('getCellProvider()', 'cellRenderers', '1.0.6', arguments);
     },
     registerLocalizer: function(name, localizer, baseClassName, newClassName) {
-        this.deprecated('registerLocalizer(name, localizer, baseClassName, newClassName)', 'localization.add(name, localizer)', '1.0.6', arguments,
+        return this.deprecated('registerLocalizer(name, localizer, baseClassName, newClassName)', 'localization.add(name, localizer)', '1.0.6', arguments,
             'STRUCTURAL CHANGE: No longer supports deriving and registering a new cell editor class. Use .cellEditors.get(baseClassName).extend(newClassName || name, {...}) for that.');
     },
 
@@ -1261,7 +1257,10 @@ Hypergrid.prototype = {
         this.stopEditing(); //other editor is open, close it first
 
         if (editPoint.x >= 0 && editPoint.y >= 0) {
-            if (this.isEditable() || this.isFilterRow(editPoint.y)) {
+            var column = this.behavior.getActiveColumn(editPoint.x),
+                editable = column && column.getProperties().editable;
+
+            if (editable || this.isFilterRow(editPoint.y)) {
                 this.setMouseDown(editPoint);
                 this.setDragExtent(new Point(0, 0));
                 cellEditor = this.getCellEditorAt(editPoint);
@@ -1452,12 +1451,14 @@ Hypergrid.prototype = {
 
     /**
      * @memberOf Hypergrid.prototype
-     * @summary A click event occured.
+     * @summary A click event occurred.
      * @desc Determine the cell and delegate to the behavior (model).
      * @param {MouseEvent} event - The mouse event to interrogate.
+     * @returns {boolean} Click was consumed.
      */
     cellClicked: function(event) {
-        var cell = event.gridCell;
+        var result = false,
+            cell = event.gridCell;
 
         //click occurred in background area
         if (
@@ -1476,8 +1477,9 @@ Hypergrid.prototype = {
                 y += this.getVScrollValue();
             }
 
-            this.behavior.cellClicked(new Point(x, y), event);
+            result = this.behavior.cellClicked(new Point(x, y), event);
         }
+        return result;
     },
 
     /**
@@ -1596,9 +1598,9 @@ Hypergrid.prototype = {
         this.canvas.dispatchEvent(selectionEvent);
     },
 
-
     getRowSelection: function(includeHiddenColumns) {
-        var c, column, columnValues, getColumn,
+        var column, rows, getColumn,
+            self = this,
             selectedRowIndexes = this.selectionModel.getSelectedRows(),
             numColumns = this.getColumnCount(),
             result = {};
@@ -1611,15 +1613,15 @@ Hypergrid.prototype = {
         }
         getColumn = getColumn.bind(this.behavior);
 
-        for (c = 0; c < numColumns; c++) {
+        for (var c = 0; c < numColumns; c++) {
             column = getColumn(c);
-            columnValues = new Array(selectedRowIndexes.length);
-            selectedRowIndexes.forEach(setColumnValue);
-            result[column.name] = columnValues;
+            rows = result[column.name] = new Array(selectedRowIndexes.length);
+            selectedRowIndexes.forEach(getValue);
         }
 
-        function setColumnValue(selectedRowIndex, j) {
-            columnValues[j] = valOrFunc(column.getValue(selectedRowIndex));
+        function getValue(selectedRowIndex, j) {
+            var dataRow = self.getRow(selectedRowIndex);
+            rows[j] = valOrFunc(dataRow, column);
         }
 
         return result;
@@ -1631,106 +1633,127 @@ Hypergrid.prototype = {
     },
 
     getRowSelectionMatrix: function() {
-        var c, self = this,
+        var self = this,
             selectedRowIndexes = this.selectionModel.getSelectedRows(),
             numCols = this.getColumnCount(),
             result = new Array(numCols);
 
-        function getValue(selectedRowIndex, r) {
-            result[c][r] = valOrFunc(self.getValue(c, selectedRowIndex));
-        }
-
-        for (c = 0; c < numCols; c++) {
+        for (var c = 0; c < numCols; c++) {
+            var column = this.behavior.getActiveColumn(c);
             result[c] = new Array(selectedRowIndexes.length);
             selectedRowIndexes.forEach(getValue);
+        }
+
+        function getValue(selectedRowIndex, r) {
+            var dataRow = self.getRow(selectedRowIndex);
+            result[c][r] = valOrFunc(dataRow, column);
         }
 
         return result;
     },
 
     getColumnSelectionMatrix: function() {
-        var selectedColumnIndexes = this.getSelectedColumns();
-        var numRows = this.getRowCount();
-        var result = new Array(selectedColumnIndexes.length);
-        var self = this;
+        var dataRow,
+            self = this,
+            headerRowCount = this.getHeaderRowCount(),
+            selectedColumnIndexes = this.getSelectedColumns(),
+            numRows = this.getRowCount(),
+            result = new Array(selectedColumnIndexes.length);
+
         selectedColumnIndexes.forEach(function(selectedColumnIndex, c) {
-            result[c] = new Array(numRows);
-            for (var r = 0; r < numRows; r++) {
-                result[c][r] = valOrFunc(self.getValue(selectedColumnIndex, r));
+            var column = self.behavior.getActiveColumn(selectedColumnIndex),
+                values = result[c] = new Array(numRows);
+
+            for (var r = headerRowCount; r < numRows; r++) {
+                dataRow = self.getRow(r);
+                values[r] = valOrFunc(dataRow, column);
             }
         });
+
         return result;
     },
 
     getColumnSelection: function() {
-        var selectedColumnIndexes = this.getSelectedColumns();
-        var result = {};
-        var rowCount = this.getRowCount();
-        var self = this;
+        var dataRow,
+            self = this,
+            headerRowCount = this.getHeaderRowCount(),
+            selectedColumnIndexes = this.getSelectedColumns(),
+            result = {},
+            rowCount = this.getRowCount();
+
         selectedColumnIndexes.forEach(function(selectedColumnIndex) {
-            var column = new Array(rowCount);
-            result[self.behavior.getActiveColumn(selectedColumnIndex).name] = column;
-            for (var r = 0; r < rowCount; r++) {
-                column[r] = valOrFunc(self.getValue(selectedColumnIndex, r));
+            var column = self.behavior.getActiveColumn(selectedColumnIndex),
+                values = result[column.name] = new Array(rowCount);
+
+            for (var r = headerRowCount; r < rowCount; r++) {
+                dataRow = self.getRow(r);
+                values[r] = valOrFunc(dataRow, column);
             }
         });
+
         return result;
     },
 
     getSelection: function() {
-        var self = this;
-        var selections = this.getSelections();
-        var result = new Array(selections.length);
-        selections.forEach(function(selectionRect, i) {
-            result[i] = self._getSelection(selectionRect);
-        });
-        return result;
-    },
+        var dataRow,
+            self = this,
+            selections = this.getSelections(),
+            rects = new Array(selections.length);
 
-    _getSelection: function(rect) {
-        rect = normalizeRect(rect);
-        var colCount = rect.extent.x + 1;
-        var rowCount = rect.extent.y + 1;
-        var ox = rect.origin.x;
-        var oy = rect.origin.y;
-        var result = {};
-        var r;
-        for (var c = 0; c < colCount; c++) {
-            var column = new Array(rowCount);
-            result[this.behavior.getActiveColumn(c + ox).name] = column;
-            for (r = 0; r < rowCount; r++) {
-                column[r] = valOrFunc(this.getValue(ox + c, oy + r));
+        selections.forEach(getRect);
+
+        function getRect(selectionRect, i) {
+            var rect = normalizeRect(selectionRect),
+                colCount = rect.extent.x + 1,
+                rowCount = rect.extent.y + 1,
+                columns = {};
+
+            for (var c = 0, x = rect.origin.x; c < colCount; c++, x++) {
+                var column = self.behavior.getActiveColumn(x),
+                    values = columns[column.name] = new Array(rowCount);
+
+                for (var r = 0, y = rect.origin.y; r < rowCount; r++, y++) {
+                    dataRow = self.getRow(y);
+                    values[r] = valOrFunc(dataRow, column);
+                }
             }
+
+            rects[i] = columns;
         }
-        return result;
+
+        return rects;
     },
 
     getSelectionMatrix: function() {
-        var self = this;
-        var selections = this.getSelections();
-        var result = new Array(selections.length);
-        selections.forEach(function(selectionRect, i) {
-            result[i] = self._getSelectionMatrix(selectionRect);
-        });
-        return result;
+        var dataRow,
+            self = this,
+            selections = this.getSelections(),
+            rects = new Array(selections.length);
+
+        selections.forEach(getRect);
+
+        function getRect(selectionRect, i) {
+            var rect = normalizeRect(selectionRect),
+                colCount = rect.extent.x + 1,
+                rowCount = rect.extent.y + 1,
+                rows = [];
+
+            for (var c = 0, x = rect.origin.x; c < colCount; c++, x++) {
+                var values = rows[c] = new Array(rowCount),
+                    column = self.behavior.getActiveColumn(x);
+
+                for (var r = 0, y = rect.origin.y; r < rowCount; r++, y++) {
+                    dataRow = self.getRow(y);
+                    values[r] = valOrFunc(dataRow, column);
+                }
+            }
+
+            rects[i] = rows;
+        }
+
+        return rects;
     },
 
-    _getSelectionMatrix: function(rect) {
-        rect = normalizeRect(rect);
-        var colCount = rect.extent.x + 1;
-        var rowCount = rect.extent.y + 1;
-        var ox = rect.origin.x;
-        var oy = rect.origin.y;
-        var result = [];
-        for (var c = 0; c < colCount; c++) {
-            var column = new Array(rowCount);
-            result[c] = column;
-            for (var r = 0; r < rowCount; r++) {
-                column[r] = valOrFunc(this.getValue(ox + c, oy + r));
-            }
-        }
-        return result;
-    },
     /**
      * @memberOf Hypergrid.prototype
      * @desc Synthesize and fire a `fin-context-menu` event
@@ -1860,19 +1883,6 @@ Hypergrid.prototype = {
         });
         this.canvas.dispatchEvent(clickEvent);
     },
-
-    fireSyntheticGroupsChangedEvent: function(groups) {
-        var detail = {
-            groups: groups,
-            time: Date.now(),
-            grid: this
-        };
-        var clickEvent = new CustomEvent('fin-groups-changed', {
-            detail: detail
-        });
-        this.canvas.dispatchEvent(clickEvent);
-    },
-
     /**
      * @memberOf Hypergrid.prototype
      * @desc Synthesize and fire a `fin-cell-exit` event.
@@ -2729,10 +2739,10 @@ Hypergrid.prototype = {
     },
 
     isMouseDownInHeaderArea: function() {
-        var numHeaderColumns = this.getHeaderColumnCount();
-        var numHeaderRows = this.getHeaderRowCount();
+        var headerColumnCount = this.getHeaderColumnCount();
+        var headerRowCount = this.getHeaderRowCount();
         var mouseDown = this.getMouseDown();
-        return mouseDown.x < numHeaderColumns || mouseDown.y < numHeaderRows;
+        return mouseDown.x < headerColumnCount || mouseDown.y < headerRowCount;
     },
 
     isHeaderWrapping: function() {
@@ -2984,9 +2994,6 @@ Hypergrid.prototype = {
     },
     getFilterRowIndex: function() {
         return !this.isShowFilterRow() ? -1 : this.isShowHeaderRow() ? 1 : 0;
-    },
-    setGroups: function(arrayOfColumnIndexes) {
-        this.behavior.setGroups(arrayOfColumnIndexes);
     },
     hasHierarchyColumn: function() {
         return this.behavior.hasHierarchyColumn();
@@ -3324,16 +3331,18 @@ Hypergrid.prototype = {
         var filter = this.getGlobalFilter(),
             result;
 
-        if (filter.invalid()) {
-            result = 'error';
-        } else if (filter.filterCount()) {
-            result = 'active';
-        } else {
-            result = 'inactive';
+        if (filter) {
+            if (filter.invalid()) {
+                result = 'error';
+            } else if (filter.filterCount()) {
+                result = 'active';
+            } else {
+                result = 'inactive';
+            }
         }
 
         return result;
-    }
+    },
 };
 
 /**
@@ -3457,17 +3466,21 @@ function clearObjectProperties(obj) {
     }
 }
 
-function valOrFunc(vf) {
-    var result = (typeof vf)[0] === 'f' ? vf() : vf;
-    return result || result === 0 ? result : '';
+function valOrFunc(dataRow, column) {
+    var result = dataRow[column.name],
+        calculator = (typeof result)[0] === 'f' && result || column.calculator;
+        if (calculator) {
+            result = calculator(dataRow, column.name);
+        }
+    return result || result === 0 || result === false ? result : '';
 }
 
 /**
  * @summary Shared localization defaults for all grid instances.
  * @desc These property values are overridden by those supplied in the `Hypergrid` constructor's `options.localization`.
- * @property {string|string[]} [options.localization.defaultLocale] - The default locale to use when an explicit `locale` is omitted from localizer constructor calls. Passed to Intl.NumberFomrat` and `Intl.DateFomrat`. See {@ https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl#Locale_identification_and_negotiation|Locale identification and negotiation} for more information. Omitting will use the runtime's local language and region.
- * @property {object} [options.localization.numberOptions] - Options passed to `Intl.NumberFomrat` for creating the basic "number" localizer.
- * @property {object} [options.localization.dateOptions] - Options passed to `Intl.DateFomrat` for creating the basic "date" localizer.
+ * @property {string|string[]} [options.localization.defaultLocale] - The default locale to use when an explicit `locale` is omitted from localizer constructor calls. Passed to Intl.NumberFormat` and `Intl.DateFormat`. See {@ https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl#Locale_identification_and_negotiation|Locale identification and negotiation} for more information. Omitting will use the runtime's local language and region.
+ * @property {object} [options.localization.numberOptions] - Options passed to `Intl.NumberFormat` for creating the basic "number" localizer.
+ * @property {object} [options.localization.dateOptions] - Options passed to `Intl.DateFormat` for creating the basic "date" localizer.
  */
 
 Hypergrid.localization = {

@@ -5,6 +5,7 @@ var CellEditor = require('../cellEditors/CellEditor');
 
 /**
  * @constructor
+ * @extends Feature
  */
 var CellEditing = Feature.extend('CellEditing', {
 

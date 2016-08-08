@@ -5,6 +5,7 @@ var Textfield = require('./Textfield');
 /**
  * Functions well in Chrome, Safari, Firefox, and Internet Explorer.
  * @constructor
+ * @extends Textfield
  */
 var Number = Textfield.extend('Number', {
 

@@ -22,6 +22,7 @@ var prototype = require('./CellEditor').prototype;
  * *Persisting changes:* The only change this UI supports (besides the filter text itself) is the menu mode states, which are expected to be "sticky." That is, they are "persisted" (written back) to the filter. However, there is a problem: When the column filter is blank it doesn't actually exist yet in the filter, so there is nowhere to save it. The solution is to read the `menuModes` hash _from_ the filter tree but don't modify it until end of editing. Reading it from the filter tree picks up previous setting if there was an extant column filter or the default if there was not. But then, rather than modifying this structure (because it might be the default and we don't want to overwrite that), we hang a proxy copy off the behavior's column object for this column. This will persist it for the duration of the app session. At end of editing, if and only if there is now a column filter (text is not blank), we copy it to the column filter's subtree node in the filter tree.
  *
  * @constructor
+ * @extends ComboBox
  */
 var FilterBox = ComboBox.extend('FilterBox', {
 
@@ -30,7 +31,7 @@ var FilterBox = ComboBox.extend('FilterBox', {
         // look in the filter, under column filters, for a column filter for this column
         var root = this.grid.getGlobalFilter(),
             columnName = this.column.name,
-            columnFilters = this.grid.getGlobalFilter().columnFilters,
+            columnFilters = root.columnFilters,
             columnFilterSubtree = root.getColumnFilter(columnName) || {},
             columnSchema = root.schema.lookup(columnName) || {};
 
@@ -158,9 +159,43 @@ var FilterBox = ComboBox.extend('FilterBox', {
     },
 
     insertText: function(e) {
-        // insert the drop-downb text at the insertion point or over the selected text
+        var start = this.selectionStart,
+            end = this.selectionEnd,
+            dropdown = this.dropdown,
+            operator = dropdown.value,
+            option = dropdown.options[dropdown.selectedIndex],
+            optgroup = option.parentElement,
+            isOperator = !(optgroup.tagName === 'OPTGROUP' && optgroup.className);
+
         this.input.focus();
-        this.input.setRangeText(this.dropdown.value, this.selectionStart, this.selectionEnd, 'end');
+
+        if (start === end && isOperator) {
+            var parser = this.grid.getGlobalFilter().parserCQL,
+                cql = this.input.value,
+                position = parser.getOperatorPosition(cql, this.selectionStart, operator);
+
+            start = position.start;
+            end = position.end;
+
+            // prepend space to operator as needed
+            if (
+                start > 0 && // not at very beginning? and...
+                !/\s/.test(cql[start - 1]) // no white space before operator?
+            ) {
+                operator = ' ' + operator;
+            }
+
+            // append space to operator as needed
+            if (
+                end === cql.length || // at very end? or...
+                !/\s/.test(cql[end]) // no white space after operator?
+            ) {
+                operator += ' ';
+            }
+        }
+
+        // insert the drop-down text at the insertion point or over the selected text
+        this.input.setRangeText(operator, start, end, 'end');
 
         // close the drop-down
         this.toggleDropDown();

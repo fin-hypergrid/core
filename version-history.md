@@ -1,3 +1,77 @@
+### 1.0.8 - 8 August 2016
+
+* Wrapped column headers no longer overflow bottom of cell. Overflow is clipped.
+* Clicking to right of last column no longer throws an error.
+* Zooming out (e.g., 80%) now properly clears the grid before repainting.
+* Tree-view add-on improvements:
+    * *Now sorts properly* and maintains a sorted state:
+        * On any column sort, applies a _group sorter_ which sorts the column as usual but then automatically stable-sorts each level of group starting with deepest and working up to the top level. (_Stable sorting_ from lowest to highest level grouping is an efficient means of sorting nested data, equivalent to starting with the highest groups and recursing down the tree to each lowest group.)
+        * Because raw data order is assumed to be undefined _and_ grouping structure requires that groups be sorted, automatically applies an initial _default sort_ to the "tree" column (name or index specified in `treeColumn` option passed to `TreeView` constructor; defaults to `'name'`). If a default sort column is defined (name or index specified in `defaultSortColumn` option; defaults to the tree column), the initial sort is applied to that column instead.
+        * Automatically _reapplies_ the default sort when user removes the sort. User can _change_ the sort to some other column or columns, but if user _removes_ the current sort (whatever that may be), tree column sort is added back. This guarantees that the groups will always be sorted so the drill-downs work as expected.
+        * Demo: [`tree-view.html`](http://openfin.github.io/fin-hypergrid/tree-view.html)
+    * *Stand-alone tree column.* To put the drill-down controls in a column of its own, do all of the following steps:
+        * Add a blank column to your data which will be your tree column to hold just the drill-down controls.
+        * Specify the name of your blank column to the `TreeView` constructor in `options.treeColumn`. Alternatively, call it `'name'` (the default).
+        * Set the new `unsortable` property for your tree column to `true` so it cannot be sorted. As it is all blank, there is nothing to sort.
+        * Set the active column order (via the grid's `columnIndexes` property). You want your blank column to appear first (_i.e.,_ on the left). Exclude the `ID` and `parentID` columns (unless you want these to appear).
+        * Make the blank column (now the left-most column) a fixed column (via the grid's `fixedColumnCount` property).
+        * Specify some other column for the initial sort (in `option.defaultSortColumn`). This will typically be the column that identifies the group.
+        * Demo: [`tree-view-separate-drill-down.html`](http://openfin.github.io/fin-hypergrid/tree-view-separate-drill-down.html)
+* *Grouped column headers* add-on (`add-ons/grouped-columns.js`):
+    * Include: `<script src="http://openfin.github.io/fin-hypergrid/build/add-ons/grouped-header.js"></script>`
+    * Install: `fin.Hypergrid.groupedHeader.mixInTo(grid)`
+    * Usage, for example: `grid.behavior.setHeaders({ lat: 'Coords|Lat.', long: 'Coords|Long.' })`
+    * The shared option `GroupedHeader.delimiter` specifies the delimiter; the default value is the vertical bar character: `'|'`
+    * `setHeaders` is a convenience function that simply updates the headers of the named columns while increasing the header row height to accommodate the maximum level of grouping. The above example has only a single level of grouping; the group label is  "Coords".
+    * Demo: [`grouped-header.html`](http://openfin.github.io/fin-hypergrid/grouped-header.html)
+* Calculated columns are defined by assigning a "calculator" function to the column's `calculator` property. All cells in the column become calculated values.
+    * Data for the column's cells may be undefined; but if defined, it is available to the calculator function, but otherwise ignored.
+    * If the cell value is a function, however, legacy behavior is maintained: This function takes priority over the column function.
+* Upon selecting a new operator from a column filter cell's dropdown, rather than inserting the new operator at the cursor position, the old operator is now _replaced_ by the new one the operator. If the column filter cell contains several expressions (_i.e.,_ concatenated with `and`, `or`, or `nor`), the operator in the expression under the cursor is replaced.
+* Group view
+    * Aggregations and Group View have been added as add-ons and removed from HyperGrid core.
+    * The aggregations add-on has the same behavior as before while the Group View is a view of the original columns, with drill downs in the tree cell for expanding the groups provided.
+    * Hypergrid now only loads with the original data source, the filter datasource as defaults, and the sorter data source.
+    * Demo 1: [`aggregations.html`](http://openfin.github.io/fin-hypergrid/aggregations-view.html)
+    * See Group Demo for example usage: [`group.html`](http://openfin.github.io/fin-hypergrid/group-view.html).
+
+### 1.0.7 - 18 July 2016
+
+* Fixed `deprecated()` calls that were discarding their results instead of returning. (So the warning was logged, but then the code would fail.)
+* Rendering
+    * New members added to renderer's `config` object:
+        * `config.untranslatedX` - Index into full column list. (The existing `config.x` is the index into the active column list.)
+        * `config.normalizedY` - Row index less an offset such that the first data row is now `0`.
+        * `config.dataRow` - So can be passed to calculator function as 1st parameter.
+        * `config.columnName` - So can be passed to calculator function as 2nd parameter.
+    * Default renderer (SimpleCell.js)
+        * Now renders `false` data primitive as "false" instead of blank.
+        * Adjusted clipping region so wrapped hdr txt does not overflow y.
+* Tree-view
+    * Tree column is set to uneditable (while joined).
+    * Moved tree-view code out of Hypergrid core, making it a small API for installing and invoking tree-view on proper data. Can be found in the new _add-ons_ folder: `./add-ons/tree-view.js` 
+    * Updated "Big Pink" demo (demo/index.html and demo/js/demoj.js) and the tree-view demo (demo/tree-view.js and demo/js/tree-view.js) to use the and the API.
+    * Created a drill-down API for use with aggregate view, tree view, and group view. Can also be found in the new _add-ons_ folder: `./add-ons/drill-down.js` This is a mix-in. Just included it and call it's `mixInTo` method with your data model.
+* Aggregate data view
+    * Reversed the order in which each column of a multi-column sort is sorted, which was backwards.
+* Calculated values
+    * Added parameters to cell calculator function:
+        * Param #1: `dataRow` - Access to the row's other columns' raw data.
+        * Param #1: `columnName` - The column name of the current column being rendered.
+    * Note that cell calculator functions are called on render, on COPY operation (applied to selected rows, columns, cells, or cell regions), on sorting, and on filtering (was commented out on filter previously).
+    * Note that you can also set the following cell properties to functions, which will be called with the same parameters above:
+        * `color`
+        * `backgroundColor`
+        * `foregroundSelectionColor`
+        * `backgroundSelectionColor`
+* Deprecated methods
+    * `dataModel.getDataSource()` &#x2192; `dataModel.dataSource`
+    * `grid.getColumnSortState(columnIndex)` _(removed)_
+    * `grid.removeColumnSortState(columnIndex, sortPosition)` _(removed)_
+* Edits to documentation, especially to:
+    * [Cell editors](http://openfin.github.io/fin-hypergrid/doc/tutorial-cell-editors.html) tutorial.
+    * [Cell renderers](http://openfin.github.io/fin-hypergrid/doc/tutorial-cell-renderers.html) tutorial.
+
 ### 1.0.6 - 23 June 2016
 
 * Added [fin-hypergrid.min.js](https://openfin.github.io/fin-hypergrid/build/fin-hypergrid.min.js) which was omitted from original release due to a technical issue.

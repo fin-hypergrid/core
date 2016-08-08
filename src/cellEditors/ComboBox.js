@@ -27,6 +27,7 @@ var stateToActionMap = {
  *
  * Functions well in Chrome, Safari, Firefox, and Internet Explorer.
  * @constructor
+ * @extends Textfield
  */
 var ComboBox = Textfield.extend('ComboBox', {
 

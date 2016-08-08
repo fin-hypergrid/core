@@ -34,13 +34,10 @@ var Behavior = Base.extend('Behavior', {
     /**
      * @desc this is the callback for the plugin pattern of nested tags
      * @param {Hypergrid} grid
-     * @param {function|menuItem[]} [schema=derivedSchema] - Passed to behavior constructor. May be:
-     * * A schema array
-     * * A function returning a schema array. Called at filter reset time with behavior as context.
-     * * Omit to generate a basic schema from `this.columns`.
+     * @param {object} [options] - _(See {@link behaviors.JSON#setData}.)_
      * @memberOf Behavior.prototype
      */
-    initialize: function(grid, schema, dataRows) {
+    initialize: function(grid, dataRows, options) {
         /**
          * @type {Hypergrid}
          * @memberOf Behavior.prototype
@@ -131,17 +128,32 @@ var Behavior = Base.extend('Behavior', {
     getActiveColumn: function(x) {
         return this.columns[x];
     },
+
+    /**
+     * The "grid index" given a "data index" (or column object)
+     * @param {Column|number} columnOrIndex
+     * @returns {undefined|number} The grid index of the column or undefined if column not in grid.
+     */
+    getActiveColumnIndex: function(columnOrIndex) {
+        var index = columnOrIndex instanceof Column ? columnOrIndex.index : columnOrIndex;
+        for (var i = 0; i < this.columns.length; ++i) {
+            if (this.columns[i].index === index) {
+                return i;
+            }
+        }
+    },
+
     getVisibleColumn: function() {
-        this.deprecated('getVisibleColumn(x)', 'getActiveColumn(x)', '1.0.6', arguments);
+        return this.deprecated('getVisibleColumn(x)', 'getActiveColumn(x)', '1.0.6', arguments);
     },
     getVisibleColumnName: function() {
-        this.deprecated('getVisibleColumnName(x)', 'getActiveColumn(x).name', '1.0.6', arguments);
+        return this.deprecated('getVisibleColumnName(x)', 'getActiveColumn(x).name', '1.0.6', arguments);
     },
     getColumnId: function() {
-        this.deprecated('getColumnId(x)', 'getActiveColumn(x).header', '1.0.6', arguments);
+        return this.deprecated('getColumnId(x)', 'getActiveColumn(x).header', '1.0.6', arguments);
     },
     getHeader: function() {
-        this.deprecated('getHeader(x)', 'getActiveColumn(x).header', '1.0.6', arguments);
+        return this.deprecated('getHeader(x)', 'getActiveColumn(x).header', '1.0.6', arguments);
     },
 
     getColumn: function(x) {
@@ -499,10 +511,10 @@ var Behavior = Base.extend('Behavior', {
     },
 
     getCellRenderer: function(config, x, y) {
-        return this.getActiveColumn(x).getCellRenderer(config, y);
+        return this.getActiveColumn(x).getCellRenderer(config, x, y);
     },
     getCellProvider: function(name) {
-        this.deprecated('getCellProvider()', 'grid.cellRenderers', '1.0.6', arguments);
+        return this.deprecated('getCellProvider()', 'grid.cellRenderers', '1.0.6', arguments);
     },
     createCellProvider: function(name) {
         console.error('getCellProvider() is deprecated as of v1.0.6. No replacement; do not call. Previously called by `Behavior` constructor; `new CellRenderers()` is now called by `Hypergrid` constructor instead.', arguments);
@@ -651,9 +663,10 @@ var Behavior = Base.extend('Behavior', {
      * @desc A specific cell was clicked; you've been notified.
      * @param {Point} cell - point of cell coordinates
      * @param {Object} event - all event information
+     * @return {boolean} Clicked in a drill-down column.
      */
     cellClicked: function(cell, event) {
-        this.dataModel.cellClicked(cell, event);
+        return this.dataModel.cellClicked(cell, event);
     },
 
     /**
@@ -1306,7 +1319,7 @@ var Behavior = Base.extend('Behavior', {
         return this.columns.length;
     },
     getColumnCount: function() {
-        this.deprecated('getColumnCount()', 'getActiveColumnCount()', '1.0.6', arguments);
+        return this.deprecated('getColumnCount()', 'getActiveColumnCount()', '1.0.6', arguments);
     },
 
     /**
@@ -1381,7 +1394,10 @@ var Behavior = Base.extend('Behavior', {
      * @param {string[]} keys
      */
     toggleSort: function(x, keys) {
-        this.getActiveColumn(x).toggleSort(keys);
+        var column = this.getActiveColumn(x);
+        if (column) {
+            column.toggleSort(keys);
+        }
     },
 
     /**
@@ -1480,29 +1496,8 @@ var Behavior = Base.extend('Behavior', {
         var newPoint = this.grid.newPoint(newX, viewPoint.y);
         return newPoint;
     },
-
-    setGroups: function(arrayOfColumnIndexes) {
-        this.dataModel.setGroups(arrayOfColumnIndexes);
-        this.createColumns();
-        this.changed();
-    },
-
-    setAggregates: function(mapOfKeysToFunctions) {
-        var self = this;
-        this.dataModel.setAggregates(mapOfKeysToFunctions);
-        this.createColumns();
-        setTimeout(function() {
-            self.changed();
-        }, 100);
-    },
-
     hasHierarchyColumn: function() {
         return false;
-    },
-
-    setRelation: function(options) {
-        this.dataModel.setRelation(options);
-        this.shapeChanged();
     },
 
     getRowContextFunction: function(selectedRows) {

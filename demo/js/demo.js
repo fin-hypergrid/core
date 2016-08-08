@@ -1,12 +1,21 @@
 /* eslint-env browser */
 
-/* globals fin, people1, people2, treedata, vent */
+/* globals fin, people1, people2, treeData, vent */
 
 /* eslint-disable no-alert, no-unused-vars */
 
 'use strict';
 
 window.onload = function() {
+
+    var Hypergrid = fin.Hypergrid;
+    var drillDown = Hypergrid.drillDown;
+    var TreeView = Hypergrid.TreeView;
+    var GroupView = Hypergrid.GroupView;
+    var AggView = Hypergrid.AggregationsView;
+
+    // Install the drill-down API (optional).
+    drillDown.mixInTo(Hypergrid.dataModels.JSON.prototype);
 
     // List of properties to show as checkboxes in this demo's "dashboard"
     var toggleProps = [
@@ -19,7 +28,8 @@ window.onload = function() {
             label: 'Grouping',
             ctrls: [
                 { name: 'treeview', checked: false, setter: toggleTreeview },
-                { name: 'aggregates', checked: false, setter: toggleAggregates }
+                { name: 'aggregates', checked: false, setter: toggleAggregates },
+                { name: 'grouping', checked: false, setter: toggleGrouping}
             ]
         }, {
             label: 'Column header rows',
@@ -82,12 +92,12 @@ window.onload = function() {
     ];
 
     // restore previous "opinionated" headerify behavior
-    var headerify = fin.Hypergrid.analytics.util.headerify;
+    var headerify = Hypergrid.analytics.util.headerify;
     headerify.transform = headerify.capitalize;
 
     function derivedPeopleSchema(columns) {
         // create a hierarchical schema organized by alias
-        var factory = new fin.Hypergrid.ColumnSchemaFactory(columns);
+        var factory = new Hypergrid.ColumnSchemaFactory(columns);
         factory.organize(/^(one|two|three|four|five|six|seven|eight)/i, { key: 'alias' });
         var columnSchema = factory.lookup('last_name');
         if (columnSchema) {
@@ -100,12 +110,12 @@ window.onload = function() {
     var customSchema = [
         { name: 'last_name', type: 'number', opMenu: ['=', '<', '>'] },
         { name: 'total_number_of_pets_owned', type: 'number' },
-        'height',
+        { name: 'height', type: 'number' },
         'birthDate',
         'birthState',
         'employed',
-        'income',
-        'travel'
+        { name: 'income', type: 'number' },
+        { name: 'travel', type: 'number' }
     ];
 
     var peopleSchema = customSchema;  // or try setting to derivedPeopleSchema
@@ -115,7 +125,7 @@ window.onload = function() {
             schema: peopleSchema,
             margin: { bottom: '17px' }
         },
-        grid = window.g = new fin.Hypergrid('div#json-example', gridOptions),
+        grid = window.g = new Hypergrid('div#json-example', gridOptions),
         behavior = window.b = grid.behavior,
         dataModel = window.m = behavior.dataModel,
         idx = behavior.columnEnum;
@@ -123,6 +133,18 @@ window.onload = function() {
     console.log('Fields:');  console.dir(behavior.dataModel.getFields());
     console.log('Headers:'); console.dir(behavior.dataModel.getHeaders());
     console.log('Indexes:'); console.dir(idx);
+
+    var treeView, dataset;
+
+    function setData(data, options) {
+        options = options || {};
+        if (data === people1 || data === people2) {
+            options.schema = peopleSchema;
+        }
+        dataset = data;
+        behavior.setData(data, options);
+        idx = behavior.columnEnum;
+    }
 
     // Preset a default dialog options object. Used by call to toggleDialog('ColumnPicker') from features/ColumnPicker.js and by toggleDialog() defined herein.
     grid.setDialogOptions({
@@ -136,20 +158,7 @@ window.onload = function() {
         { label: 'toggle empty data', onclick: toggleEmptyData },
         { label: 'set data 1 (5000 rows)', onclick: setData.bind(null, people1) },
         { label: 'set data 2 (10000 rows)', onclick: setData.bind(null, people2) },
-        { label: 'set data 3 (treedata)', onclick: function() {
-            // Optional: Clone the default pipeline. If you don't do this, the mutated pipeline will be shared among all grid instances
-            dataModel.pipeline = Object.getPrototypeOf(dataModel).pipeline.slice();
-
-            // Insert the treeview after source
-            var pipe = { type: 'DataSourceTreeview' };
-            dataModel.addPipe(pipe, 'JSDataSource');
-
-            // Reset the pipeline, pointing at some tree (self-joined) data
-            setData(treedata);
-
-            // Only show the data columns; don't show the ID and parentID columns
-            grid.setState({ columnIndexes: [ idx.STATE, idx.LATITUDE, idx.LONGITUDE ], checkboxOnlyRowSelections: true });
-        } },
+        { label: 'set data 3 (tree data)', onclick: setData.bind(null, treeData) },
         { label: 'reset', onclick: grid.reset.bind(grid)}
 
     ].forEach(function(item) {
@@ -175,8 +184,7 @@ window.onload = function() {
     window.vent = false;
 
     //functions for showing the grouping/rollup capabilities
-    var doAggregates = false,
-        rollups = behavior.aggregations,
+    var rollups = window.fin.Hypergrid.analytics.util.aggregations,
         aggregates = {
             totalPets: rollups.sum(2),
             averagePets: rollups.avg(2),
@@ -185,15 +193,50 @@ window.onload = function() {
             firstPet: rollups.first(2),
             lastPet: rollups.last(2),
             stdDevPets: rollups.stddev(2)
-        };
+        },
+        groups = [idx.BIRTH_STATE, idx.LAST_NAME, idx.FIRST_NAME];
 
-    function toggleTreeview() {
-        var treeViewOptions = this.checked && { treeColumnName: 'State'};
-        behavior.setRelation(treeViewOptions);
+    var aggView, aggViewOn = false, doAggregates = false;
+    function toggleAggregates() {
+        if (!aggView){
+            aggView = new AggView(grid, {});
+            aggView.setPipeline({ includeSorter: true, includeFilter: true });
+        }
+        if (this.checked) {
+            grid.setAggregateGroups(aggregates, groups);
+            aggViewOn = true;
+        } else {
+            grid.setAggregateGroups([], []);
+            aggViewOn = false;
+        }
     }
 
-    function toggleAggregates() {
-        behavior.setAggregates(this.checked ? aggregates : []);
+    function toggleTreeview() {
+        if (this.checked) {
+            treeView = new TreeView(grid, { treeColumn: 'State' });
+            treeView.setPipeline({ includeSorter: true, includeFilter: true });
+            treeView.setRelation(true, true);
+        } else {
+            treeView.setRelation(false);
+            treeView = undefined;
+            delete dataModel.pipeline; // restore original (shared) pipeline
+            behavior.setData(); // reset with original pipelline
+        }
+    }
+
+    var groupView, groupViewOn = false;
+    function toggleGrouping(){
+        if (!groupView){
+            groupView = new GroupView(grid, {});
+            groupView.setPipeline({ includeSorter: true, includeFilter: true });
+        }
+        if (this.checked){
+            grid.setGroups(groups);
+            groupViewOn = true;
+        } else {
+            grid.setGroups([]);
+            groupViewOn = false;
+        }
     }
 
     var styleRowsFromData;
@@ -208,29 +251,6 @@ window.onload = function() {
     function toggleDialog(dialogName, evt) {
         grid.toggleDialog(dialogName);
         evt.stopPropagation(); // todo: without this other browsers get the event.... HOW?
-    }
-/*
-    var applyAggregates = document.querySelector('input[type=checkbox][value="Apply aggregates"]');
-
-    window.toggleAutosortGrouping = function() {
-        if (!applyAggregates.checked) {
-            applyAggregates.dispatchEvent(new MouseEvent('click'));
-        }
-        behavior.setAggregates(aggregates);
-        behavior.setGroups([1, 2, 3, 4, 5, 6, 7]);
-    };
-*/
-
-    var dataset;
-
-    function setData(data, options) {
-        options = options || {};
-        if (data === people1 || data === people2) {
-            options.schema = peopleSchema;
-        }
-        dataset = data;
-        behavior.setData(data, options);
-        idx = behavior.columnEnum;
     }
 
     var topTotals = [
@@ -265,32 +285,13 @@ window.onload = function() {
         color: 'green'
     });
 
-    //set the actual json row objects
-    //setData(people); //see sampledata.js for the random data
 
-    //make the first col fixed;
-    //behavior.setFixedColumnCount(2);
     behavior.setFixedRowCount(2);
 
-    // behavior.setHeaderColumnCount(1);
-    // behavior.setHeaderRowCount(2);
 
-    //behavior.setTopTotals(topTotals);
-    //behavior.setBottomTotals(bottomTotals);
-
-    // setInterval(function() {
-    //     topTotals[1][5] = Math.round(Math.random()*100);
-    //     behavior.changed();
-    // }, 300);
-
-    //lets set 2 rows of totals
-
-    //sort ascending on the first column (first name)
-    //behavior.toggleSort(0);
-
-    var upDown = fin.Hypergrid.images['down-rectangle'];
-    var upDownSpin = fin.Hypergrid.images['up-down-spin'];
-    var downArrow = fin.Hypergrid.images.calendar;
+    var upDown = Hypergrid.images['down-rectangle'];
+    var upDownSpin = Hypergrid.images['up-down-spin'];
+    var downArrow = Hypergrid.images.calendar;
 
     // CUSTOM CELL RENDERER
     var REGEXP_CSS_HEX6 = /^#(..)(..)(..)$/,
@@ -416,7 +417,7 @@ window.onload = function() {
 
             config.halign = 'left';
 
-            if (dataset === treedata) {
+            if (treeView) {
                 n = behavior.getRow(y).__DEPTH;
                 hex = n ? (105 + 75 * n).toString(16) : '00';
                 config.backgroundColor = '#' + hex + hex + hex;
@@ -439,10 +440,10 @@ window.onload = function() {
                     hex = (155 + 10 * (n % 11)).toString(16);
                     config.backgroundColor = '#' + hex + hex + hex;
                 } else {
-                    switch (y % 6) {
+                    switch (config.normalizedY % 6) {
+                        case 3:
+                        case 4:
                         case 5:
-                        case 0:
-                        case 1:
                             config.backgroundColor = '#e8ffe8';
                             config.font = 'italic x-small verdana';
                             if (config.color !== redIfStartsWithS) {
@@ -450,9 +451,9 @@ window.onload = function() {
                             }
                             break;
 
+                        case 0:
+                        case 1:
                         case 2:
-                        case 3:
-                        case 4:
                             config.backgroundColor = 'white';
                             config.font = 'normal small garamond';
                             break;
@@ -541,6 +542,9 @@ window.onload = function() {
                     //     return starry;
                     // }
                 }
+            }
+            if (groupViewOn && dataModel.getRow(config.y).hasChildren) {
+                return grid.cellRenderers.get('EmptyCell');
             }
         }
 
@@ -932,178 +936,166 @@ window.onload = function() {
 
     toggleProps.forEach(function(prop) { addToggle(prop); });
 
-    //setTimeout(function() {
-    //
-    //    behavior.setFields(['employed', 'income', 'travel', 'squareOfIncome']);
-    //    behavior.setHeaders(['one', 'two', 'three', 'four']);
-    //
-    //    console.log(behavior.getHeaders());
-    //    console.log(behavior.getFields());
-    //
-    //    console.log('visible rows = ' + grid.getVisibleRows());
-    //    console.log('visible columns = ' + grid.getVisibleColumns());
 
+    setTimeout(function() {
 
-        setTimeout(function() {
+        var state = {
+            columnIndexes: [
+                idx.LAST_NAME,
+                idx.TOTAL_NUMBER_OF_PETS_OWNED,
+                idx.HEIGHT,
+                idx.BIRTH_DATE,
+                idx.BIRTH_TIME,
+                idx.BIRTH_STATE,
+                // idx.RESIDENCE_STATE,
+                idx.EMPLOYED,
+                // idx.FIRST_NAME,
+                idx.INCOME,
+                idx.TRAVEL,
+                // idx.SQUARE_OF_INCOME
+            ],
 
-            //behavior.setFields(fields);
-            //behavior.setHeaders(headers);
+            rowHeights: { 0: 40 },
+            fixedColumnCount: 1,
+            fixedRowCount: 2,
 
-            var state = {
-                columnIndexes: [
-                    idx.LAST_NAME,
-                    idx.TOTAL_NUMBER_OF_PETS_OWNED,
-                    idx.HEIGHT,
-                    idx.BIRTH_DATE,
-                    idx.BIRTH_TIME,
-                    idx.BIRTH_STATE,
-                    // idx.RESIDENCE_STATE,
-                    idx.EMPLOYED,
-                    // idx.FIRST_NAME,
-                    idx.INCOME,
-                    idx.TRAVEL,
-                    // idx.SQUARE_OF_INCOME
-                ],
+            showRowNumbers: true,
+            showHeaderRow: true,
+            showFilterRow: true,
+            columnAutosizing: false,
+            headerTextWrapping: true,
 
-                rowHeights: { 0: 40 },
-                fixedColumnCount: 1,
-                fixedRowCount: 2,
+            filteringMode: 'onCommit', // vs. 'immediate' for every key press
+            //filterDefaultColumnFilterOperator: '<>',
 
-                showRowNumbers: true,
-                showHeaderRow: true,
-                showFilterRow: true,
-                columnAutosizing: false,
-                headerTextWrapping: true,
+            cellSelection: true,
+            columnSelection: true,
+            rowSelection: true
+        };
 
-                filteringMode: 'onCommit', // vs. 'immediate' for every key press
-                //filterDefaultColumnFilterOperator: '<>',
+        grid.setState(state);
 
-                cellSelection: true,
-                columnSelection: true,
-                rowSelection: true
-            };
+        behavior.setCellProperties(idx.HEIGHT, 16, {
+            font: '10pt Tahoma',
+            color: 'lightblue',
+            backgroundColor: 'red',
+            halign: 'left'
+        });
 
-            grid.setGroups([idx.BIRTH_STATE, idx.LAST_NAME, idx.FIRST_NAME]);
+        grid.addProperties({
+            scrollbarHoverOff: 'visible',
+            scrollbarHoverOver: 'visible',
+            columnHeaderBackgroundColor: 'pink',
+            repaintIntervalRate: 60
+        });
 
-            grid.setState(state);
+        grid.addProperties({
+            fixedRowCount: 4,
+            showRowNumbers: true,
+            singleRowSelectionMode: false,
+            checkboxOnlyRowSelections: true
+        });
+        // properties that can be set
+        // use a function or a value
 
-            behavior.setCellProperties(idx.HEIGHT, 16, {
-                font: '10pt Tahoma',
-                color: 'lightblue',
-                backgroundColor: 'red',
-                halign: 'left'
-            });
+        // font
+        // color
+        // backgroundColor
+        // foregroundSelectionColor
+        // backgroundSelectionColor
 
-            grid.addProperties({
-                scrollbarHoverOff: 'visible',
-                scrollbarHoverOver: 'visible',
-                columnHeaderBackgroundColor: 'pink',
-                repaintIntervalRate: 60
-            });
+        // columnHeaderFont
+        // columnHeaderColor
+        // columnHeaderBackgroundColor
+        // columnHeaderForegroundSelectionColor
+        // columnHeaderBackgroundSelectionColor
 
-            grid.addProperties({
-                fixedRowCount: 4,
-                showRowNumbers: true,
-                singleRowSelectionMode: false,
-                checkboxOnlyRowSelections: true
-            });
-            // properties that can be set
-            // use a function or a value
+        // rowHeaderFont
+        // rowHeaderColor
+        // rowHeaderBackgroundColor
+        // rowHeaderForegroundSelectionColor
+        // rowHeaderBackgroundSelectionColor
 
-            // font
-            // color
-            // backgroundColor
-            // foregroundSelectionColor
-            // backgroundSelectionColor
+        //                behavior.setCellProperties(idx.TOTAL_NUMBER_OF_PETS_OWNED, 0,
+        //                    {
+        //                        font: '10pt Tahoma',
+        //                        color: 'red',
+        //                        backgroundColor: 'lightblue',
+        //                        halign: 'left'
+        //                    });
 
-            // columnHeaderFont
-            // columnHeaderColor
-            // columnHeaderBackgroundColor
-            // columnHeaderForegroundSelectionColor
-            // columnHeaderBackgroundSelectionColor
+        behavior.setColumnProperties(idx.LAST_NAME, {
+            color: redIfStartsWithS,
+            columnHeaderBackgroundColor: '#142B6F', //dark blue
+            columnHeaderColor: 'white'
+        });
 
-            // rowHeaderFont
-            // rowHeaderColor
-            // rowHeaderBackgroundColor
-            // rowHeaderForegroundSelectionColor
-            // rowHeaderBackgroundSelectionColor
+        behavior.setColumnProperties(idx.LAST_NAME, {
+            link: true
+        });
 
-            //                behavior.setCellProperties(idx.TOTAL_NUMBER_OF_PETS_OWNED, 0,
-            //                    {
-            //                        font: '10pt Tahoma',
-            //                        color: 'red',
-            //                        backgroundColor: 'lightblue',
-            //                        halign: 'left'
-            //                    });
+        behavior.setColumnProperties(idx.FIRST_NAME, {
 
-            behavior.setColumnProperties(idx.LAST_NAME, {
-                color: redIfStartsWithS,
-                columnHeaderBackgroundColor: '#142B6F', //dark blue
-                columnHeaderColor: 'white'
-            });
+        });
 
-            behavior.setColumnProperties(idx.LAST_NAME, {
-                link: true
-            });
+        behavior.setColumnProperties(idx.TOTAL_NUMBER_OF_PETS_OWNED, {
+            format: 'number'
+        });
 
-            behavior.setColumnProperties(idx.FIRST_NAME, {
+        behavior.setColumnProperties(idx.HEIGHT, {
+            format: 'foot'
+        });
 
-            });
+        behavior.setColumnProperties(idx.BIRTH_DATE, {
+            format: 'singdate',
+            //strikeThrough: true
+        });
 
-            behavior.setColumnProperties(idx.TOTAL_NUMBER_OF_PETS_OWNED, {
-                format: 'number'
-            });
+        behavior.setColumnProperties(idx.BIRTH_TIME, {
+            editor: 'time',
+            format: 'hhmm'
+        });
 
-            behavior.setColumnProperties(idx.HEIGHT, {
-                format: 'foot'
-            });
+        behavior.setColumnProperties(idx.BIRTH_STATE, {
+            editor: 'colortext'
+        });
 
-            behavior.setColumnProperties(idx.BIRTH_DATE, {
-                format: 'singdate',
-                //strikeThrough: true
-            });
+        behavior.setColumnProperties(idx.EMPLOYED, {
 
-            behavior.setColumnProperties(idx.BIRTH_TIME, {
-                editor: 'time',
-                format: 'hhmm'
-            });
+        });
 
-            behavior.setColumnProperties(idx.BIRTH_STATE, {
-                editor: 'colortext'
-            });
+        behavior.setColumnProperties(idx.INCOME, {
+            format: 'pounds'
+        });
 
-            behavior.setColumnProperties(idx.EMPLOYED, {
+        behavior.setColumnProperties(idx.TRAVEL, {
+            format: 'francs'
+        });
 
-            });
+        resetFilter(); // re-instantiate filter using new property settings
 
-            behavior.setColumnProperties(idx.INCOME, {
-                format: 'pounds'
-            });
+        console.log('visible rows = ' + grid.getVisibleRows());
+        console.log('visible columns = ' + grid.getVisibleColumns());
 
-            behavior.setColumnProperties(idx.TRAVEL, {
-                format: 'francs'
-            });
+        //see myThemes.js file for how to create a theme
+        //grid.addProperties(myThemes.one);
+        //grid.addProperties(myThemes.two);
+        //grid.addProperties(myThemes.three);
 
-            resetFilter(); // re-instantiate filter using new property settings
+        grid.takeFocus();
 
-            console.log('visible rows = ' + grid.getVisibleRows());
-            console.log('visible columns = ' + grid.getVisibleColumns());
+        // turn on grouping as per checkbox default setting (see toggleProps[])
+        if (document.querySelector('#grouping').checked) {
+            grid.setGroups(groups);
+        }
 
-            //see myThemes.js file for how to create a theme
-            //grid.addProperties(myThemes.one);
-            //grid.addProperties(myThemes.two);
-            //grid.addProperties(myThemes.three);
+        // turn on aggregates as per checkbox default setting (see toggleProps[])
+        if (document.querySelector('#aggregates').checked) {
+            behavior.setAggregates(aggregates, [idx.BIRTH_STATE, idx.LAST_NAME, idx.FIRST_NAME]);
+        }
+        window.a = dataModel.analytics;
 
-            grid.takeFocus();
-
-            // turn on aggregates as per checkbox default setting (see toggleProps[])
-            if (document.querySelector('#aggregates').checked) {
-                behavior.setAggregates(aggregates);
-            }
-
-            window.a = dataModel.analytics;
-
-        }, 50);
+    }, 50);
 
     //});
 
@@ -1235,12 +1227,12 @@ window.onload = function() {
     }
 
     function resetFilter() {
-        grid.setGlobalFilter(fin.Hypergrid.behaviors.Behavior.prototype.getNewFilter.call(grid.behavior));
+        grid.setGlobalFilter(Hypergrid.behaviors.Behavior.prototype.getNewFilter.call(grid.behavior));
     }
 
-    function redIfStartsWithS(config) {
+    function redIfStartsWithS(dataRow, columnName) {
         //does the data start with an 'S'?
-        var data = config.value[1];
-        return data && data[0] === 'S' ? 'red' : '#191919';
+        var value = dataRow[columnName];
+        return value != null && (value + '')[0] === 'S' ? 'red' : '#191919';
     }
 };

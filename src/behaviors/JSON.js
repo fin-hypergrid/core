@@ -4,12 +4,12 @@ var Local = require('./Local');
 var DataModelJSON = require('../dataModels/JSON');
 var ColumnSchemaFactory = require('../filter/ColumnSchemaFactory');
 var features = require('../features');
-var aggregations = require('../Shared.js').analytics.util.aggregations;
 
 /**
  * @name behaviors.JSON
  * @desc > Same parameters as {@link behaviors.Behavior#initialize|initialize}, which is called by this constructor.
  * @constructor
+ * @extends Behavior
  */
 var JSON = Local.extend('behaviors.JSON', {
 
@@ -19,14 +19,15 @@ var JSON = Local.extend('behaviors.JSON', {
      * > All `initialize()` methods in the inheritance chain are called, in turn, each with the same parameters that were passed to the constructor, beginning with that of the most "senior" class through that of the class of the new instance.
      *
      * @param grid - the hypergrid
-     * @param {undefined|function|menuItem[]} schema - Already consumed by Behavior's {@link Behavior#initialize|initialize}.
+     * @param {undefined|function|menuItem[]} options.schema - Already consumed by Behavior's {@link Behavior#initialize|initialize}.
      * @param {object[]} dataRows - May be:
      * * An array of congruent raw data objects
      * * A function returning same
+     * @param {object} [options] - _(See {@link behaviors.JSON#setData}.)_
      * @memberOf behaviors.JSON.prototype
      */
-    initialize: function(grid, schema, dataRows) {
-        this.setData(dataRows, schema);
+    initialize: function(grid, dataRows, options) {
+        this.setData(dataRows, options);
     },
 
     features: [
@@ -40,28 +41,35 @@ var JSON = Local.extend('behaviors.JSON', {
         features.ColumnSelection,
         features.ColumnMoving,
         features.ColumnSorting,
-        features.CellEditing,
         features.CellClick,
+        features.CellEditing,
         features.OnHover
     ],
-
-    aggregations: aggregations,
 
     createColumns: function() {
         var dataModel = this.dataModel;
         var columnCount = dataModel.getColumnCount();
         var headers = dataModel.getHeaders();
         var fields = dataModel.getFields();
+        var calculators = dataModel.getCalculators();
         var REGEX_CAMEL_CASE = /([^_A-Z])([A-Z]+)/g;
         this.clearColumns();
         for (var index = 0; index < columnCount; index++) {
             var header = headers[index];
-            var column = this.addColumn({ index: index, header: header });
+            var calculator = calculators[index];
+            var column = this.addColumn({
+                index: index,
+                header: header,
+                calculator: calculator
+            });
             this.columnEnum[column.name.replace(REGEX_CAMEL_CASE, '$1_$2').toUpperCase()] = index;
             var properties = column.getProperties();
             properties.field = fields[index];
             properties.header = header;
             properties.complexFilter = null;
+            if (calculator) {
+                properties.calculator = calculator;
+            }
         }
     },
 
@@ -76,10 +84,25 @@ var JSON = Local.extend('behaviors.JSON', {
     /**
      * @memberOf behaviors.JSON.prototype
      * @description Set the header labels.
-     * @param {string[]} headerLabels - The header labels.
+     * @param {string[]|object} headers - The header labels. One of:
+     * * _If an array:_ Must contain all headers in column order.
+     * * _If a hash:_ May contain any headers, keyed by field name, in any order (of course).
      */
-    setHeaders: function(headerLabels) {
-        this.dataModel.setHeaders(headerLabels);
+    setHeaders: function(headers) {
+        if (headers instanceof Array) {
+            // Reset all headers
+            var allColumns = this.allColumns;
+            headers.forEach(function(header, index) {
+                allColumns[index].header = header; // setter updates header in both column and data source objects
+            });
+        } else if (typeof headers === 'object') {
+            // Adjust just the headers in the hash
+            this.allColumns.forEach(function(column) {
+                if (headers[column.name]) {
+                    column.header = headers[column.name];
+                }
+            });
+        }
     },
 
     /**
@@ -97,13 +120,22 @@ var JSON = Local.extend('behaviors.JSON', {
     /**
      * @memberOf behaviors.JSON.prototype
      * @description Set the data field.
-     * @param {object[]} dataRows - An array of uniform objects backing the rows in the grid.
+     * @param {function|object[]} [dataRows] - Array of uniform objects containing the grid data. If omitted, the previous data source will be re-used.
+     * @param {object} [options]
+     * @param {function|object} [options.fields] - Array of field names. Passed as 2nd param to `this.dataModel.setData`. If omitted (along with `dataSource`), the previous fields array will be re-used.
+     * @param {function|object} [options.schema=deriveSchema] - Used in filter instantiation.
      */
     setData: function(dataRows, options) {
         var self = this,
-            grid = this.grid;
+            grid = this.grid,
+            fields = options && options.fields,
+            calculators = options && options.calculators;
 
-        this.dataModel.setData(dataRows, options);
+        fields = typeof fields === 'function' ? fields() : fields;
+        calculators = typeof calculators === 'function' ? calculators() : calculators;
+        dataRows = typeof dataRows === 'function' ? dataRows() : dataRows;
+
+        this.dataModel.setData(dataRows, fields, calculators);
         this.createColumns();
 
         this.schema = options && options.schema || deriveSchema;
@@ -112,6 +144,8 @@ var JSON = Local.extend('behaviors.JSON', {
         if (grid.cellEditor) {
             grid.cellEditor.cancelEditing();
         }
+
+        dataRows = dataRows || this.dataModel.source.data;
 
         if (grid.isColumnAutosizing()) {
             setTimeout(function() {
@@ -202,41 +236,6 @@ var JSON = Local.extend('behaviors.JSON', {
             return 'center';
         }
     },
-
-
-    getRowSelectionMatrix: function(selectedRows) {
-        return this.dataModel.getRowSelectionMatrix(selectedRows);
-    },
-
-    getColumnSelectionMatrix: function(selectedColumns) {
-        return this.dataModel.getColumnSelectionMatrix(selectedColumns);
-    },
-
-    getSelectionMatrix: function(selections) {
-        return this.dataModel.getSelectionMatrix(selections);
-    },
-
-    getRowSelection: function() {
-        var selectedRows = this.getSelectedRows();
-        return this.dataModel.getRowSelection(selectedRows);
-    },
-
-    getColumnSelection: function() {
-        var selectedColumns = this.getSelectedColumns();
-        return this.dataModel.getColumnSelection(selectedColumns);
-    },
-
-    getSelection: function() {
-        var selections = this.getSelections();
-        return this.dataModel.getSelection(selections);
-    },
-
-    getGroups: function() {
-        return this.dataModel.getGroups();
-    },
-    getAvailableGroups: function() {
-        return this.dataModel.getAvailableGroups();
-    },
     getHiddenColumns: function() {
         return this.dataModel.getHiddenColumns();
     },
@@ -245,7 +244,7 @@ var JSON = Local.extend('behaviors.JSON', {
         return this.dataModel.getActiveColumns();
     },
     getVisibleColumns: function() {
-        this.deprecated('getVisibleColumns()', 'getActiveColumns()', '1.0.6', arguments);
+        return this.deprecated('getVisibleColumns()', 'getActiveColumns()', '1.0.6', arguments);
     },
 
     getSelectedRows: function() {

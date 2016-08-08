@@ -25,6 +25,7 @@ gulp.task('images', swallowImages);
 gulp.task('browserify', browserify);
 gulp.task('reloadBrowsers', reloadBrowsers);
 gulp.task('serve', browserSyncLaunchServer);
+gulp.task('add-ons', addOns);
 
 gulp.task('html-templates', function() {
     return templates('html');
@@ -42,6 +43,7 @@ gulp.task('build', function(callback) {
         'images',
         'html-templates',
         'css-templates',
+        'add-ons',
         //'doc',
         //'beautify',
         'browserify',
@@ -51,6 +53,7 @@ gulp.task('build', function(callback) {
 
 gulp.task('watch', function () {
     gulp.watch([
+        './add-ons/*.js',
         srcDir + '**',
         '!' + srcDir + 'jsdoc/**',
         './css/*.css',
@@ -77,6 +80,7 @@ gulp.task('default', ['build', 'watch'], browserSyncLaunchServer);
 
 function lint() {
     return gulp.src([
+        './add-ons/*.js',
         srcDir + jsFiles,
         '!' + srcDir + '**/old/**/',
         demoDir + 'js/demo.js',
@@ -204,4 +208,34 @@ function templates(folder) {
         .pipe($$.concat("index.js"))
         .pipe($$.header("'use strict';\n\n"))
         .pipe(gulp.dest(function(file) { return file.base; }));
+}
+
+function addOns() {
+    return gulp.src('./add-ons/*.js')
+    // Insert an IIFE around the code...
+        .pipe($$.replace( // ...starting immediately following 'use strict' and...
+            "'use strict';\n",
+            "'use strict';\n(function() {"
+        ))
+        .pipe($$.replace( // ...ending after modules.exports.
+            /(module\.exports\s*=\s*)(\w+);/,
+            'window.fin.Hypergrid.$2 = $2;\n})();'
+        ))
+        .pipe(
+            $$.mirror(
+                pipe(
+                    $$.rename(function (path) {
+                        path.basename = "add-ons/" + path.basename;
+                    })
+                ),
+                pipe(
+                    $$.rename(function (path) {
+                        path.basename = "add-ons/" + path.basename + '.min';
+                    }),
+                    $$.uglify() // minimize
+                        .on('error', $$.util.log)
+                )
+            )
+        )
+        .pipe(gulp.dest(buildDir));
 }

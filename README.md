@@ -2,13 +2,13 @@
 
 <img src="images/README/gridshot04.gif">
 
-### Release 1.0.6 (23 June 2016)
+### Current Release (1.0.8 - 8 August 2016)
 
-This version replaces last year's [prototype version](https://github.com/openfin/fin-hypergrid/tree/polymer-prototype), which was built around Polymer. It is now completely "de-polymerized" and is being made available as:
+The current version replaces last year's [prototype version](https://github.com/openfin/fin-hypergrid/tree/polymer-prototype), which was built around Polymer. It is now completely "de-polymerized" and is being made available as:
 * An [npm module](https://www.npmjs.com/package/fin-hypergrid) for use with browserify.
 * A single JavaScript file [fin-hypergrid.js](https://openfin.github.io/fin-hypergrid/build/fin-hypergrid.js) you can reference in a `<script>` tag.
 
-_For a list of changes since the previous version, 1.0.3 (27 May 2016), click [here](version-history.md)._
+_For a complete list of changes, see the [version history](version-history.md)._
 
 ### Demos
 
@@ -26,14 +26,32 @@ Check out the Table view on Hyperblotter on a Windows machine via [this installe
 
 ### Features
 
-* Any number of rows and columns
-* Grid, column, row, and cell styling
-* User-resizeable columns, column-dragging, column picking
-* Plug-in-able cell formatters and editors
-* Smooth scrolling on both axes
-* Supports local (client-side) as well as remote (server-side) data hosting
-* Events for all UI manipulations including mouse, keyboard, and programmatic UI changes
-* Tree-view (drill-downs) presentation for pre-aggregated local data
+| Ultra High Performance  || General
+|----------------------------|----|----------------------------
+| Any number of rows and columns <br> (100k+)| | Cross-browser support
+| Infinite, smooth scrolling      | | Clipboard copy & paste
+| Scrolling via cell | | Localization
+| Local (client-side) and remote <br> (server-side) data hosting | | Context menu
+
+| Flexible Data Views & Selection  || Look-and-Feel
+|----------------------------|----|----------------------------
+| Filtering and sorting | | CSS Themes
+| Aggregation | | Grid, column, row, and <br> cell styling
+| Tree view (drill-downs) and group <br> view | | Custom cell editors
+| Inline editing | | Customizable scroll bars
+| Column grouping, including <br> multi-level | | Column and row resizing
+| Freeze columns and rows | | Column auto-sizing
+| Cell range, checkbox, and row <br> selection | | Column dragging
+| Keyboard navigation | |
+
+| Available in the OpenFin Container
+|--------------------------------------------------------
+| CSV export
+| Cross app communication
+| Cross app docking
+| Printing
+| Easy deployment
+| Cross browser independence
 
 ##### Future development
 
@@ -42,8 +60,47 @@ Check out the Table view on Hyperblotter on a Windows machine via [this installe
 ###### The Filtering & Analytics (sorting & aggregation) modules provided will be broken out of Hypergrid
 
 * We are currently working on expanding the API to enable application developers to easily provide their own functionality
- * Hypergrid will have no opinion on how the underlying data should be pivoted, but will remain capable of presenting pivoted data
+* Hypergrid will have no opinion on how the underlying data should be pivoted, but will remain capable of presenting pivoted data
 * The current filtering and analytics modules will become separate npm modules/JavaScript files that can be forked and further developed
+
+### Integrating
+
+[This](https://openfin.github.io/fin-hypergrid/example.js) is a basic example that embeds fin-hypergrid:
+```html
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" >
+</head>
+<body>
+
+    <div id="fin-grid"></div>
+
+    <script src="https://openfin.github.io/fin-hypergrid/build/fin-hypergrid.js"></script>
+    
+    <script>
+        var data = [
+           { symbol: 'APPL', name: 'Apple Inc.', prevclose: 93.13 },
+           { symbol: 'MSFT', name: 'Microsoft Corporation', prevclose: 51.91 },
+           { symbol: 'TSLA', name: 'Tesla Motors Inc.', prevclose: 196.40 },
+           { symbol: 'IBM', name: 'International Business Machines Corp', prevclose: 155.35 }
+        ];
+        
+        var grid = new fin.Hypergrid('#fin-grid', { data: data });
+        
+        grid.addProperties({
+            showRowNumbers: false,
+            showFilterRow: false
+        });
+    </script>
+</body>
+</html>
+```
+
+Will look like:
+
+<img src="images/README/simple.png">
+
 ### Documentation
 
 Essential documentation and examples will be added to this page in the near future.
@@ -54,5 +111,8 @@ We are also maintaining [online API documentation](http://openfin.github.io/fin-
 
 (Cell Rendering information can be found [here](http://openfin.github.io/fin-hypergrid/doc/tutorial-cell-renderer.html).)
 
-Hypergrid global configurations can be found [here](http://openfin.github.io/fin-hypergrid/doc/module-defaults.html)
-Use it for modifying various hypergrid features and property defaults
+Hypergrid global configurations can be found [here](http://openfin.github.io/fin-hypergrid/doc/module-defaults.html). Use it for modifying various hypergrid features and property defaults.
+
+### Contributors
+
+Developers interested in contributing to this project should submit pull requests against the `develop` branch.

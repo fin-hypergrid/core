@@ -41,7 +41,7 @@ var deprecated = function(methodName, dotProps, since, args, notes) {
     }
     if (warned[methodName]) {
         var memberType = regexIsMethod.test(dotProps) ? 'method' : 'property';
-        var warning = 'The .' + methodName + '() method is deprecated as of v' + since +
+        var warning = 'The .' + methodName + ' method is deprecated as of v' + since +
             ' in favor of the .' + chain.join('.') + ' ' + memberType + '.' +
             ' (Will be removed in a future release.)';
 
@@ -64,15 +64,16 @@ var deprecated = function(methodName, dotProps, since, args, notes) {
 
     for (var i = 0, last = chain.length - 1; i <= last; ++i) {
         var link = chain[i],
+            name = link.match(/\w+/)[0],
             actualArgList = regexIsMethod.test(link) ? argList(link) : undefined,
             actualArgs = [];
 
         if (actualArgList) {
             actualArgs = actualArgList.map(mapToFormalArg);
             link = link.match(/(\w+)/)[1];
-            result = result[link].apply(result, actualArgs);
+            result = result[name].apply(result, actualArgs);
         } else {
-            result = result[link];
+            result = result[name]();
         }
     }
 
