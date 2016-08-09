@@ -146,6 +146,10 @@ window.onload = function() {
         idx = behavior.columnEnum;
     }
 
+    //Set Pipeline
+    dataModel.addPipe({ type: 'DataSourceGlobalFilter' });
+    dataModel.addPipe({type: 'DataSourceSorterComposite'});
+
     // Preset a default dialog options object. Used by call to toggleDialog('ColumnPicker') from features/ColumnPicker.js and by toggleDialog() defined herein.
     grid.setDialogOptions({
         //container: document.getElementById('dialog-container'),
