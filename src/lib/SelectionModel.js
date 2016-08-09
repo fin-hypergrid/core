@@ -392,6 +392,10 @@ SelectionModel.prototype = {
      * @param y2
      */
     deselectRow: function(y1, y2) {
+        if (this.allRowsSelected) {
+            this.setAllRowsSelected(false);
+            this.rowSelectionModel.select(this.grid.getHeaderRowCount(), this.grid.getRowCount() - 1);
+        }
         this.rowSelectionModel.deselect(y1, y2);
         this.setLastSelectionType('row');
     },
