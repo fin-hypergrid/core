@@ -28,10 +28,6 @@ Check out the Table view on Hyperblotter on a Windows machine via [this installe
 
 ![](https://github.com/openfin/fin-hypergrid/blob/master/images/README/Hypergrid%20Features.png)
 
-##### Future development
-
-* Tree-view presentation for remotely aggregated data
-
 ###### The Filtering & Analytics (sorting & aggregation) modules provided will be broken out of Hypergrid
 
 * We are currently working on expanding the API to enable application developers to easily provide their own functionality
@@ -91,3 +87,4 @@ Hypergrid global configurations can be found [here](http://openfin.github.io/fin
 ### Contributors
 
 Developers interested in contributing to this project should submit pull requests against the `develop` branch.
+We have several beginner `help wanted` [ticketd](https://github.com/openfin/fin-hypergrid/issues) open for community involvement
