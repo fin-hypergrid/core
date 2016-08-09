@@ -1,5 +1,7 @@
 'use strict';
 
+// NOTE: gulpfile.js's 'add-ons' task copies this file, altering the final line, to /demo/build/add-ons/, along with a minified version. Both files are eventually deployed to http://openfin.github.io/fin-hypergrid/add-ons/.
+
 /**
  * Methods for programmatic drill-down manipulation.
  *
@@ -189,8 +191,6 @@ var drillDown = {
         this.collapseRowsFromDepth(depth, apply);
         return true;
     },
-
-    //TODO: THIS IMPLEMENTATION IS SPECIFIC TO TREEVIEW it should be moved to add-ons/tree-view.js
 
     /**
      * @summary Expand nested drill-downs containing this row.
