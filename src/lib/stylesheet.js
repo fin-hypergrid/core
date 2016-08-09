@@ -4,7 +4,7 @@
 
 var automat = require('automat');
 
-var css = require('../../css');
+var css = require('../../assets/css');
 
 // note the position of the  first "natural" stylesheet. We will insert our stylesheets before this node.
 var head = document.querySelector('head');

@@ -5,8 +5,8 @@
 var automat = require('automat');
 
 var Base = require('../lib/Base');
-var markup = require('../../html');
-var images = require('../../images');
+var markup = require('../../assets/html');
+var images = require('../../assets/images');
 var elfor = require('../lib/elfor');
 
 /**
