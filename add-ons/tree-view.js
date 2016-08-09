@@ -1,5 +1,7 @@
 'use strict';
 
+// NOTE: gulpfile.js's 'add-ons' task copies this file, altering the final line, to /demo/build/add-ons/, along with a minified version. Both files are eventually deployed to http://openfin.github.io/fin-hypergrid/add-ons/.
+
 /**
  * @classdesc This is a simple helper class to set up the tree-view data source in the context of a hypergrid.
  *

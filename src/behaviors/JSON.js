@@ -86,7 +86,7 @@ var JSON = Local.extend('behaviors.JSON', {
      * @description Set the header labels.
      * @param {string[]|object} headers - The header labels. One of:
      * * _If an array:_ Must contain all headers in column order.
-     * * _If a hash:_ May contain any headers, keyed by field name, in any order (of course).
+     * * _If a hash:_ May contain any headers, keyed by field name, in any order.
      */
     setHeaders: function(headers) {
         if (headers instanceof Array) {
