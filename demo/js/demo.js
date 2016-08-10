@@ -108,7 +108,7 @@ window.onload = function() {
     }
 
     var customSchema = [
-        { name: 'last_name', type: 'number', opMenu: ['=', '<', '>'] },
+        { name: 'last_name', type: 'number', opMenu: ['=', '<', '>'], opMustBeInMenu: true },
         { name: 'total_number_of_pets_owned', type: 'number' },
         { name: 'height', type: 'number' },
         'birthDate',
