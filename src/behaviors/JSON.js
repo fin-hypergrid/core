@@ -77,10 +77,6 @@ var JSON = Local.extend('behaviors.JSON', {
         return new DataModelJSON(this.grid);
     },
 
-    applyAnalytics: function() {
-        this.dataModel.applyAnalytics();
-    },
-
     /**
      * @memberOf behaviors.JSON.prototype
      * @description Set the header labels.
