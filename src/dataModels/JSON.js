@@ -94,7 +94,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
     },
 
     getData: function() {
-        return this.source.data;
+        return this.sources.source.data;
     },
 
     getFilteredData: function() {
@@ -832,108 +832,12 @@ var JSON = DataModel.extend('dataModels.JSON', {
     },
 
     getUnfilteredValue: function(x, y) {
-        return this.source.getValue(x, y);
+        return this.sources.source.getValue(x, y);
     },
 
     getUnfilteredRowCount: function() {
-        return this.source.getRowCount();
-    },
-
-    /**
-     * @param {object} newDataRow
-     * @returns {object} The new row object.
-     */
-    addRow: function(newDataRow) {
-        this.getData().push(newDataRow);
-        return newDataRow;
-    },
-
-    /**
-     * @param {object|string} findKeyOrFindHash - One of:
-     * * _string_ - Column name.
-     * * _object_ - Hash of 0 or more key-value pairs to search for.
-     * @param {*|string[]} [findValueOrFindWhiteList] - One of:
-     * _omitted_ - When `findKeyOrFindHash` is a hash and you want to search all its keys.
-     * _string[]_ - When `findKeyOrFindHash` is a hash but you only want to search certain keys.
-     * _otherwise_ - When `findKeyOrFindHash` is a string. Value to search for.
-     * @returns {object} The deleted row object.
-     */
-    deleteRow: function(findKeyOrFindHash, findValueOrFindWhiteList) {
-        var args = Array.prototype.slice.call(arguments);
-        args.length = typeof findKeyOrFindHash !== 'object' || findValueOrFindWhiteList instanceof Array ? 2 : 1;
-        return this.source.findRow.apply(this.source, args.concat([null]));
-    },
-
-    getRowIndex: function(findKeyOrFindHash, findValueOrFindWhiteList) {
-        var args = Array.prototype.slice.call(arguments);
-        args.length = typeof findKeyOrFindHash !== 'object' || findValueOrFindWhiteList instanceof Array ? 2 : 1;
-        return this.source.findRow.apply(this.source, args.concat([undefined]));
-    },
-
-    fetchRow: function(findKeyOrFindHash, findValueOrFindWhiteList) {
-        var args = Array.prototype.slice.call(arguments);
-        args.length = typeof findKeyOrFindHash !== 'object' || findValueOrFindWhiteList instanceof Array ? 2 : 1;
-        return this.source.findRow.apply(this.source, args);
-    },
-
-    /**
-     * @param {object|string} findKeyOrFindHash - One of:
-     * * _string_ - Column name.
-     * * _object_ - Hash of 0 or more key-value pairs to search for.
-     * @param {*|string[]} [findValueOrFindWhiteList] - One of:
-     * _omitted_ - When `findKeyOrFindHash` is a hash and you want to search all its keys.
-     * _string[]_ - When `findKeyOrFindHash` is a hash but you only want to search certain keys.
-     * _otherwise_ - When `findKeyOrFindHash` is a string. Value to search for.
-     * @param {object|string} modifyKeyOrModifyHash - One of:
-     * * _string_ - Column name.
-     * * _object_ - Hash of 0 or more key-value pairs to modify.
-     * @param {*|string[]} [modifyValueOrModifyWhiteList] - One of:
-     * _omitted_ - When `modifyKeyOrModifyHash` is a hash and you want to modify all its keys.
-     * _string[]_ - When `modifyKeyOrModifyHash` is a hash but you only want to modify certain keys.
-     * _otherwise_ - When `modifyKeyOrModifyHash` is a string. The modified value.
-     * @returns {object} The modified row object.
-     */
-    modifyRow: function(findKeyOrFindHash, findValueOrFindWhiteList, modifyKeyOrModifyHash, modifyValueOrModifyWhiteList) {
-        var dataRow, keys, columnName;
-
-        if (typeof findKeyOrFindHash !== 'object' || findValueOrFindWhiteList instanceof Array) {
-            dataRow = this.source.findRow(findKeyOrFindHash, findValueOrFindWhiteList);
-        } else {
-            dataRow = this.source.findRow(findKeyOrFindHash);
-            modifyValueOrModifyWhiteList = modifyKeyOrModifyHash; // promote
-            modifyKeyOrModifyHash = findValueOrFindWhiteList; // promote
-        }
-
-        if (dataRow) {
-            if (typeof modifyKeyOrModifyHash !== 'object') {
-                dataRow[modifyKeyOrModifyHash] = modifyValueOrModifyWhiteList;
-            } else {
-                keys = modifyValueOrModifyWhiteList instanceof Array ? modifyValueOrModifyWhiteList : Object.keys(modifyKeyOrModifyHash);
-                for (var key in keys) {
-                    columnName = keys[key];
-                    dataRow[columnName] = modifyKeyOrModifyHash[columnName];
-                }
-            }
-        }
-
-        return dataRow;
-    },
-
-    /**
-     * @param {object|string} findKeyOrFindHash - One of:
-     * * _string_ - Column name.
-     * * _object_ - Hash of 0 or more key-value pairs to search for.
-     * @param {*|string[]} [findValueOrFindWhiteList] - One of:
-     * _omitted_ - When `findKeyOrFindHash` is a hash and you want to search all its keys.
-     * _string[]_ - When `findKeyOrFindHash` is a hash but you only want to search certain keys.
-     * _otherwise_ - When `findKeyOrFindHash` is a string. Value to search for.
-     * @param {object} [replacement] - Replacement for the data row if found.
-     * @returns {object} The replaced row object.
-     */
-    replaceRow: function(findKeyOrFindHash, findValueOrFindWhiteList, replacement) {
-        var args =  Array.prototype.slice.call(arguments);
-        return this.source.findRow.apply(this.source, args);
-    },
+        return this.sources.source.getRowCount();
+    }
 });
 
 // LOCAL METHODS -- to be called with `.call(this`

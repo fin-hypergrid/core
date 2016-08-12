@@ -807,7 +807,7 @@ Hypergrid.prototype = {
      * @desc The dimensions of the grid data have changed. You've been notified.
      */
     behaviorStateChanged: function() {
-        this.computeCellsBounds();
+        this.getRenderer().computeCellsBounds();
         this.repaint();
     },
 
@@ -828,7 +828,8 @@ Hypergrid.prototype = {
      * @desc Paint immediately in this microtask.
      */
     paintNow: function() {
-        this.getCanvas().paintNow();
+        var canvas = this.getCanvas();
+        canvas.paintNow();
     },
 
     /**
