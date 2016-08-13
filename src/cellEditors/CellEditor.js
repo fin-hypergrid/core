@@ -241,7 +241,7 @@ var CellEditor = Base.extend('CellEditor', {
             this.grid.selectViewportCell(point.x, point.y - this.grid.getHeaderRowCount());
             this.errorEffectBegin(++this.errors % feedback === 0 && error);
         } else { // invalid but no feedback
-            return this.cancelEditing();
+            this.cancelEditing();
         }
 
         return !error;
