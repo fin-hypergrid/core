@@ -75,6 +75,7 @@ function Hypergrid(div, options) {
 
     //prevent the default context menu for appearing
     this.div.oncontextmenu = function(event) {
+        event.stopPropagation();
         event.preventDefault();
         return false;
     };
