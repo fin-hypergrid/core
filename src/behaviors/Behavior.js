@@ -1676,56 +1676,56 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
-     * @param {object|string} findKeyOrFindHash - One of:
+     * @param {object|string} keyOrHash - One of:
      * * _string_ - Column name.
      * * _object_ - Hash of 0 or more key-value pairs to search for.
-     * @param {*|string[]} [findValueOrFindWhiteList] - One of:
-     * _omitted_ - When `findKeyOrFindHash` is a hash and you want to search all its keys.
-     * _string[]_ - When `findKeyOrFindHash` is a hash but you only want to search certain keys.
-     * _otherwise_ - When `findKeyOrFindHash` is a string. Value to search for.
+     * @param {*|string[]} [valOrList] - One of:
+     * _omitted_ - When `keyOrHash` is a hash and you want to search all its keys.
+     * _string[]_ - When `keyOrHash` is a hash but you only want to search certain keys.
+     * _otherwise_ - When `keyOrHash` is a string. Value to search for.
      * @returns {object} The deleted row object.
      */
-    deleteDataRow: function(findKeyOrFindHash, findValueOrFindWhiteList) {
+    deleteDataRow: function(keyOrHash, valOrList) {
         requeue.call(this, this.gridBehaviorChanged);
         return this.dataModel.deleteRow.apply(this.dataModel, arguments);
     },
 
     /**
-     * @param {object|string} findKeyOrFindHash - One of:
+     * @param {object|string} findKeyOrHash - One of:
      * * _string_ - Column name.
      * * _object_ - Hash of 0 or more key-value pairs to search for.
-     * @param {*|string[]} [findValueOrFindWhiteList] - One of:
-     * _omitted_ - When `findKeyOrFindHash` is a hash and you want to search all its keys.
-     * _string[]_ - When `findKeyOrFindHash` is a hash but you only want to search certain keys.
-     * _otherwise_ - When `findKeyOrFindHash` is a string. Value to search for.
-     * @param {object|string} modifyKeyOrModifyHash - One of:
+     * @param {*|string[]} [valOrList] - One of:
+     * _omitted_ - When `findKeyOrHash` is a hash and you want to search all its keys.
+     * _string[]_ - When `findKeyOrHash` is a hash but you only want to search certain keys.
+     * _otherwise_ - When `findKeyOrHash` is a string. Value to search for.
+     * @param {object|string} modKeyOrHash - One of:
      * * _string_ - Column name.
      * * _object_ - Hash of 0 or more key-value pairs to modify.
-     * @param {*|string[]} [modifyValueOrModifyWhiteList] - One of:
-     * _omitted_ - When `modifyKeyOrModifyHash` is a hash and you want to modify all its keys.
-     * _string[]_ - When `modifyKeyOrModifyHash` is a hash but you only want to modify certain keys.
-     * _otherwise_ - When `modifyKeyOrModifyHash` is a string. The modified value.
+     * @param {*|string[]} [modValOrList] - One of:
+     * _omitted_ - When `modKeyOrHash` is a hash and you want to modify all its keys.
+     * _string[]_ - When `modKeyOrHash` is a hash but you only want to modify certain keys.
+     * _otherwise_ - When `modKeyOrHash` is a string. The modified value.
      * @returns {object} The modified row object.
      */
-    modifyDataRow: function(findKeyOrFindHash, findValueOrFindWhiteList, modifyKeyOrModifyHash, modifyValueOrModifyWhiteList) {
+    modifyDataRow: function(findKeyOrHash, valOrList, modKeyOrHash, modValOrList) {
         requeue.call(this, this.gridRepaint);
         return this.dataModel.modifyRow.apply(this.dataModel, arguments);
     },
 
     /**
-     * @param {object|string} findKeyOrFindHash - One of:
+     * @param {object|string} keyOrHash - One of:
      * * _string_ - Column name.
      * * _object_ - Hash of 0 or more key-value pairs to search for.
-     * @param {*|string[]} [findValueOrFindWhiteList] - One of:
-     * _omitted_ - When `findKeyOrFindHash` is a hash and you want to search all its keys.
-     * _string[]_ - When `findKeyOrFindHash` is a hash but you only want to search certain keys.
-     * _otherwise_ - When `findKeyOrFindHash` is a string. Value to search for.
+     * @param {*|string[]} [valOrList] - One of:
+     * _omitted_ - When `keyOrHash` is a hash and you want to search all its keys.
+     * _string[]_ - When `keyOrHash` is a hash but you only want to search certain keys.
+     * _otherwise_ - When `keyOrHash` is a string. Value to search for.
      * @param {object} Treplacement
      * @returns {object} The replaced row object.
      */
-    replaceDataRow: function(findKeyOrFindHash, findValueOrFindWhiteList, replacement) {
-        if (typeof findKeyOrFindHash === 'object' && !(findValueOrFindWhiteList instanceof Array)) {
-            replacement = findValueOrFindWhiteList; // promote
+    replaceDataRow: function(keyOrHash, valOrList, replacement) {
+        if (typeof keyOrHash === 'object' && !(valOrList instanceof Array)) {
+            replacement = valOrList; // promote
         }
         if (typeof replacement !== 'object') {
             throw 'Expected an object for replacement but found ' + typeof replacement + '.';
