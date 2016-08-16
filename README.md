@@ -2,7 +2,7 @@
 
 **fin-hypergrid** is an ultra-fast HTML5 grid presentation layer, achieving its speed by rendering (in a canvas tag) only the currently visible portion of your (virtual) grid, thus avoiding the latency and life-cycle issues of building, walking, and maintaining a complex DOM structure.
 
-<img src="images/README/gridshot04.gif">
+<img src="assets/images/README/gridshot04.gif">
 
 ### Current Release (1.0.8 - 8 August 2016)
 
@@ -24,11 +24,11 @@ Hyperblotter is a demo app that shows the capabilities of both OpenFin and Hyper
 
 Check out the Table view on Hyperblotter on a Windows machine via [this installer](https://dl.openfin.co/services/download?fileName=Hyperblotter&config=http://cdn.openfin.co/demos/hyperblotter/app.json).
 
-![](https://github.com/openfin/fin-hypergrid/blob/master/images/README/Hyperblotter%20Tabled%20Reduced%20Rows.png)
+![](https://github.com/openfin/fin-hypergrid/blob/master/assets/images/README/Hyperblotter%20Tabled%20Reduced%20Rows.png)
 
 ### Features
 
-![](https://github.com/openfin/fin-hypergrid/blob/master/images/README/Hypergrid%20Features.png)
+![](https://github.com/openfin/fin-hypergrid/blob/master/assets/images/README/Hypergrid%20Features.png)
 
 ###### The Filtering & Analytics (sorting & aggregation) modules provided will be broken out of Hypergrid
 
@@ -72,7 +72,7 @@ Check out the Table view on Hyperblotter on a Windows machine via [this installe
 
 Will look like:
 
-<img src="images/README/simple.png">
+<img src="assets/images/README/simple.png">
 
 ### Documentation
 

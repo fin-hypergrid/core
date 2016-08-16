@@ -2,7 +2,7 @@
 
 var analytics = require('../Shared.js').analytics;
 var DataModel = require('./DataModel');
-var images = require('../../images');
+var images = require('../../assets/images');
 
 var UPWARDS_BLACK_ARROW = '\u25b2', // aka '▲'
     DOWNWARDS_BLACK_ARROW = '\u25bc'; // aka '▼'
