@@ -528,7 +528,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
         })) {
             if (sorts.length === 1) {
                 for (var dataSource = this.dataSource; dataSource; dataSource = dataSource.dataSource) {
-                    if (dataSource.defaultSortColumn) {
+                    if (dataSource.joined && dataSource.defaultSortColumn) {
                         found = true;
                         break;
                     }

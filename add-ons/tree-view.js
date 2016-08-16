@@ -113,15 +113,13 @@ TreeView.prototype = {
                 });
             }
 
-            dataSource.defaultSortColumn = dataSource.getColumnInfo(options.defaultSortColumn, dataSource.treeColumn.name);
-
             // If unsorted, sort by tree column
             if (behavior.getSortedColumnIndexes().length === 0) {
                 var gridIndex = behavior.getActiveColumnIndex(dataSource.defaultSortColumn.index);
                 this.grid.toggleSort(gridIndex, []);
             }
         } else {
-            dataSource.defaultSortColumn = undefined;
+            // dataSource.defaultSortColumn = undefined;
             columnProps.editable = this.editableWas;
             state.checkboxOnlyRowSelections = this.checkboxOnlyRowSelectionsWas;
         }
