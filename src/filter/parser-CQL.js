@@ -44,7 +44,12 @@ function ParserCQL(operatorsHash, options) {
     operators = operators.sort(descendingByLength);
 
     // Escape all symbolic (non alpha) operators.
-    operators = operators.map(function(op) { return /[^\w]/.test(op) ? '\\' + op.split('').join('\\') : op; });
+    operators = operators.map(function(op) {
+        if (/^[^A-Z]/.test(op)) {
+            op = '\\' + op.split('').join('\\');
+        }
+        return op;
+    });
 
     var symbolicOperators = operators.filter(function(op) { return op[0] === '\\'; }),
         alphaOperators = operators.filter(function(op) { return op[0] !== '\\'; }).join('|');
