@@ -313,11 +313,8 @@ var JSON = DataModel.extend('dataModels.JSON', {
      * @memberOf dataModels.JSON.prototype
      */
     pipeline: [
-        { type: 'JSDataSource' },
-        { type: 'DataSourceGlobalFilter' },
-        { type: 'DataSourceSorterComposite' },
+        { type: 'JSDataSource' }
     ],
-
     /**
      * @summary Instantiates the data source pipeline.
      * @desc Each new pipe is created using the supplied constructor and a reference to the previous data source in the pipeline. A reference to each new pipe is added to `this` dataModel as a property using the pipe's `name`.
