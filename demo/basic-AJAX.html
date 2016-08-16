@@ -8,11 +8,19 @@
         window.onload = function() {
             fin.Hypergrid.JSON.get('data/basic.json', function(data) {
                 var div = document.querySelector('div#json-example'),
-                    jsonGrid = new fin.Hypergrid(div, { data: data });
+                    grid = new fin.Hypergrid(div, { data: data });
 
-                jsonGrid.addProperties({ showFilterRow: false });
+//                grid.addProperties({
+//                    noDataMessage: "", // Message to show if the grid is bound to an empty list
+//                    columnAutosizing: false, //Whether to resize the columns automatically
+//                    showRowNumbers:false, //Show the row numbers
+//                    showFilterRow:false, // Display of row dedicated to filtering by text input
+//                    cellSelection:false, // Ability to select and copy cells
+//                    rowSelection: false, // Ability to select and copy rows
+//                    columnSelection:false // Ability to select and copy rows
+//                });
 
-                jsonGrid.behavior.setData(data);
+                grid.behavior.setData(data);
             });
         };
     </script>

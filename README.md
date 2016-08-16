@@ -16,7 +16,7 @@ _For a complete list of changes, see the [version history](version-history.md)._
 
 ##### Developer Tutorial
 
-This [tutorial](https://openfin.github.io/fin-hypergrid) is a tool that shows developers how to use Hypergrid and implement its features.
+This [tutorial](https://openfin.github.io/fin-hypergrid/doc/tutorial-getting-starte.html) is a tool that shows developers how to use Hypergrid and implement its features.
 
 ##### Hyperblotter
 
