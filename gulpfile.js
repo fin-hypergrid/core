@@ -84,6 +84,7 @@ function lint() {
         srcDir + jsFiles,
         '!' + srcDir + '**/old/**/',
         demoDir + 'js/demo.js',
+	testDir + '**/*.js',
         //'../../filter-tree/src/' + jsFiles // comment off this line and the one above when filter tree on npm
     ])
         .pipe($$.excludeGitignore())
@@ -93,12 +94,12 @@ function lint() {
 }
 
 function test(cb) {
-    return gulp.src(testDir + 'index.js')
+    return gulp.src(testDir + '**/*.js')
         .pipe($$.mocha({reporter: 'spec'}));
 }
 
 function beautify() {
-    return gulp.src(srcDir + jsFiles)
+    return gulp.src([srcDir + jsFiles, testDir + '**/*.js'])
         .pipe($$.beautify()) //apparent bug: presence of a .jsbeautifyrc file seems to force all options to their defaults (except space_after_anon_function which is forced to true) so I deleted the file. Any needed options can be included here.
         .pipe(gulp.dest(srcDir));
 }
