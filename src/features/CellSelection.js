@@ -315,8 +315,8 @@ var CellSelection = Feature.extend('CellSelection', {
 
         if (hasSHIFT) {
             grid.clearMostRecentSelection();
-            grid.select(mousePoint.x, mousePoint.y, x - mousePoint.x + 1, y - mousePoint.y + 1);
-            grid.setDragExtent(grid.newPoint(x - mousePoint.x + 1, y - mousePoint.y));
+            grid.select(mousePoint.x, mousePoint.y, x - mousePoint.x, y - mousePoint.y);
+            grid.setDragExtent(grid.newPoint(x - mousePoint.x, y - mousePoint.y));
         } else {
             grid.select(x, y, 0, 0);
             grid.setMouseDown(grid.newPoint(x, y));
