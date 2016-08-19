@@ -39,10 +39,10 @@ gulp.task('build', function(callback) {
     clearBashScreen();
     runSequence(
         'lint',
-        'test',
         'images',
         'html-templates',
         'css-templates',
+        'test',
         'add-ons',
         //'doc',
         //'beautify',
