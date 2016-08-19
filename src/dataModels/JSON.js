@@ -299,7 +299,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
      * @returns {string[]}
      */
     getCalculators: function() {
-        return this.dataSource.getCalculators();
+        return this.dataSource.getProperty('calculators');
     },
 
     /** @typedef {object} dataSourcePipelineObject
@@ -515,36 +515,18 @@ var JSON = DataModel.extend('dataModels.JSON', {
 
     /**
      * @memberOf dataModels.JSON.prototype
-     * @param {number} colIndex
+     * @param {number} columnIndex
      * @param {boolean} deferred
      */
     unSortColumn: function(columnIndex, deferred) {
         var sorts = this.getSortedColumnIndexes(),
-            sortPosition, found;
+            sortPosition;
 
         if (sorts.find(function(sortSpec, index) {
             sortPosition = index;
             return sortSpec.columnIndex === columnIndex;
         })) {
-            if (sorts.length === 1) {
-                for (var dataSource = this.dataSource; dataSource; dataSource = dataSource.dataSource) {
-                    if (dataSource.joined && dataSource.defaultSortColumn) {
-                        found = true;
-                        break;
-                    }
-                }
-            }
-
-            if (found) {
-                // Make the sole remaining sorted column the tree column of the "joined" data source
-                sorts[0] = {
-                    columnIndex: dataSource.defaultSortColumn.index,
-                    direction: 1
-                };
-            } else {
-                sorts.splice(sortPosition, 1);
-            }
-
+            sorts.splice(sortPosition, 1);
             if (!deferred) {
                 this.applyAnalytics({columnSort: true});
             }

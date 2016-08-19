@@ -9,12 +9,12 @@
  * * Insert the tree-view data source (`DataSourceTreeview`) into the data model's pipeline (see {#@link TreeView#setPipeline|setPipeline} method) along with the optional filter and sort data sources.
  * * Perform the self-join and rebuild the index to turn the tree-view on or off, optionally hiding the ID columns ({#@link TreeView#setRelation|setRelation} method).
  *
- * @param {object} options - Passed to data source's {@link DataSourceTreeView#setRelation|setRelation} method ({@link http://openfin.github.io/hyper-analytics/DataSourceTreeview.html#setRelation|see}) when called herein by this API's {@link TreeView#setRelation|setRelation} method.
+ * @param {object} options - Passed to data source's {@link DataSourceTreeView#setRelation|setRelation} method ({@link http://openfin.github.io/hyper-analytics/DataSourceTreeview.html#setRelation|see}) when called here by local API's {@link TreeView#setRelation|this.setRelation} method.
  * @constructor
  */
 function TreeView(grid, options) {
     this.grid = grid;
-    this.options = options;
+    this.options = options || {};
 }
 
 TreeView.prototype = {
@@ -144,12 +144,6 @@ TreeView.prototype = {
                         behavior.columns.splice(index, 1);
                     }
                 });
-            }
-
-            // If unsorted, sort by tree column
-            if (behavior.getSortedColumnIndexes().length === 0) {
-                var gridIndex = behavior.getActiveColumnIndex(dataSource.defaultSortColumn.index);
-                this.grid.toggleSort(gridIndex, []);
             }
         } else {
             columnProps.editable = this.editableWas;
