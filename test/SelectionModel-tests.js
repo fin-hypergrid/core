@@ -84,7 +84,6 @@ describe('SelectionModel', function(){
             var selectionModel = new SelectionModel(myMockGrid);
 
             instance.forEach(function(key){
-                console.log(key.name, typeof(selectionModel[key.name]));
                 expect(typeof(selectionModel[key.name])).to.equal(key.type);
             });
         });
