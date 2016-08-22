@@ -22,6 +22,7 @@ var CellEditors = require('./cellEditors');
 
 var themeInitialized = false,
     polymerTheme = Object.create(defaults),
+    defaultContainerHeight = 300,
     globalProperties = Object.create(polymerTheme);
 
 /**s
@@ -51,6 +52,15 @@ function Hypergrid(div, options) {
     var self = this;
 
     this.div = (typeof div === 'string') ? document.querySelector(div) : div;
+
+    //Default Position and height to ensure DnD works
+    if (!this.div.style.position){
+        this.div.style.position = 'relative';
+    }
+
+    if (this.div.clientHeight < 1){
+        this.div.style.height = defaultContainerHeight + 'px';
+    }
 
     stylesheet.inject('grid');
 
