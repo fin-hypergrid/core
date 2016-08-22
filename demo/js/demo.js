@@ -867,8 +867,31 @@ window.onload = function() {
     });
 
     grid.addEventListener('fin-row-selection-changed', function(e) {
-        if (vent) { console.log('fin-row-selection-changed', e.detail); }
-        if (e.detail.rows.length === 0) {
+        var detail = e.detail;
+
+        if (vent) { console.log('fin-row-selection-changed', detail); }
+
+        // Move cell selection with row selection
+        var rows = detail.rows,
+            selections = detail.selections;
+        if (
+            grid.getProperties().singleRowSelectionMode && // let's only attempt this when in this mode
+            !grid.getProperties().multipleSelections && // and only when in single selection mode
+            rows.length && // user just selected a row (must be single row due to mode we're in)
+            selections.length  // there was a cell region selected (must be the only one)
+        ) {
+            var rect = grid.selectionModel.getLastSelection(), // the only cell selection
+                x = rect.left,
+                y = rows[0] + grid.getHeaderRowCount(), // we know there's only 1 row selected
+                width = rect.right - x,
+                height = 0, // collapse the new region to occupy a single row
+                fireSelectionChangedEvent = false;
+
+            grid.selectionModel.select(x, y, width, height, fireSelectionChangedEvent);
+            grid.repaint();
+        }
+
+        if (rows.length === 0) {
             console.log('no rows selected');
             return;
         }
@@ -967,7 +990,6 @@ window.onload = function() {
 
             filteringMode: 'onCommit', // vs. 'immediate' for every key press
             //filterDefaultColumnFilterOperator: '<>',
-
             cellSelection: true,
             columnSelection: true,
             rowSelection: true
@@ -992,7 +1014,6 @@ window.onload = function() {
         grid.addProperties({
             fixedRowCount: 4,
             showRowNumbers: true,
-            singleRowSelectionMode: false,
             checkboxOnlyRowSelections: true
         });
         // properties that can be set
