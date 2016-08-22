@@ -335,7 +335,7 @@ var DefaultFilter = FilterTree.extend('DefaultFilter', {
                     state = this.parseStateString(state, options); // because .add() only takes object syntax
                     subexpression = this.columnFilters.add(state);
                 }
-                options.throw = true;
+
                 error = subexpression.invalid(options);
             }
         }

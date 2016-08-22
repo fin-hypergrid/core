@@ -392,6 +392,12 @@ SelectionModel.prototype = {
      * @param y2
      */
     deselectRow: function(y1, y2) {
+        if (this.areAllRowsSelected()) {
+            // To deselect a row, we must first remove the all rows flag...
+            this.setAllRowsSelected(false);
+            // ...and create a single range representing all rows
+            this.rowSelectionModel.select(this.grid.getHeaderRowCount(), this.grid.getRowCount() - 1);
+        }
         this.rowSelectionModel.deselect(y1, y2);
         this.setLastSelectionType('row');
     },

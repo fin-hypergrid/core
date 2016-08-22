@@ -60,7 +60,8 @@ var JSON = Local.extend('behaviors.JSON', {
             var column = this.addColumn({
                 index: index,
                 header: header,
-                calculator: calculator
+                calculator: calculator,
+                halign: ''
             });
             this.columnEnum[column.name.replace(REGEX_CAMEL_CASE, '$1_$2').toUpperCase()] = index;
             var properties = column.getProperties();
@@ -77,16 +78,12 @@ var JSON = Local.extend('behaviors.JSON', {
         return new DataModelJSON(this.grid);
     },
 
-    applyAnalytics: function() {
-        this.dataModel.applyAnalytics();
-    },
-
     /**
      * @memberOf behaviors.JSON.prototype
      * @description Set the header labels.
      * @param {string[]|object} headers - The header labels. One of:
      * * _If an array:_ Must contain all headers in column order.
-     * * _If a hash:_ May contain any headers, keyed by field name, in any order (of course).
+     * * _If a hash:_ May contain any headers, keyed by field name, in any order.
      */
     setHeaders: function(headers) {
         if (headers instanceof Array) {
@@ -230,11 +227,16 @@ var JSON = Local.extend('behaviors.JSON', {
     },
 
     getColumnAlignment: function(x) {
-        if (x === 0 && this.hasHierarchyColumn()) {
-            return 'left';
+        var align = this.getPrivateState().defaultColAlign;
+        if (x === -1) {
+            align = 'right';
+        } else if (x === 0 && this.hasHierarchyColumn()) {
+            align = 'left';
         } else {
-            return 'center';
+            align  = this.getActiveColumn(x).halign || align;
         }
+
+        return align;
     },
     getHiddenColumns: function() {
         return this.dataModel.getHiddenColumns();

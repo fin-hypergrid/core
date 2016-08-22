@@ -1,5 +1,7 @@
 /* globals CustomEvent */
 
+// NOTE: gulpfile.js's 'add-ons' task copies this file, altering the final line, to /demo/build/add-ons/, along with a minified version. Both files are eventually deployed to http://openfin.github.io/fin-hypergrid/add-ons/.
+
 'use strict';
 
 /**

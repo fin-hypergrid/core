@@ -9,7 +9,8 @@ var propertyNames = [
     'name',
     'header',
     'calculator',
-    'type'
+    'type',
+    'halign'
 ];
 
 /** @summary Create a new `Column` object.
