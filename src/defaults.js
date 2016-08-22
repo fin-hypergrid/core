@@ -729,6 +729,11 @@ module.exports = {
      */
     unsortable: false,
 
+    /** Allow multiple cell region selections.
+     * @type {boolean}
+     * @default
+     */
+    multipleSelections: false,
 };
 
 /** @typedef {string} cssColor
