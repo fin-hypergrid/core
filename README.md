@@ -40,7 +40,7 @@ Check out the Table view on Hyperblotter on a Windows machine via [this installe
 
 ### Integrating
 
-[This](https://openfin.github.io/fin-hypergrid/example.js) is a basic example that embeds fin-hypergrid:
+[This](https://openfin.github.io/fin-hypergrid/example.html) is a basic example that embeds fin-hypergrid:
 ```html
 <!DOCTYPE html>
 <html>
