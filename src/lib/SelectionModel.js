@@ -13,6 +13,14 @@ function SelectionModel(grid) {
     this.grid = grid;
 
     /**
+     * @name multipleSelections
+     * @type {boolean}
+     * @summary Can select multiple cell regions.
+     * @memberOf SelectionModel.prototype
+     */
+    this.multipleSelections = grid[grid.behavior ? 'getProperties' : '_getProperties']().multipleSelections;
+
+    /**
      * @name selections
      * @type {Rectangle[]}
      * @summary The selection rectangles.
@@ -108,19 +116,31 @@ SelectionModel.prototype = {
      */
     select: function(ox, oy, ex, ey, silent) {
         var newSelection = this.grid.newRectangle(ox, oy, ex, ey);
-        newSelection.firstSelectedCell = this.grid.newPoint(ox, oy); //Cache the first selected cell before it gets normalized to top-left origin
+
+        //Cache the first selected cell before it gets normalized to top-left origin
+        newSelection.firstSelectedCell = this.grid.newPoint(ox, oy);
+
         newSelection.lastSelectedCell = (
-            (newSelection.firstSelectedCell.x === newSelection.origin.x && newSelection.firstSelectedCell.y === newSelection.origin.y)
-            ?
-                newSelection.corner
-                :
-                newSelection.origin
-        );
-        this.selections.push(newSelection);
-        this.flattenedX.push(newSelection.flattenXAt(0));
-        this.flattenedY.push(newSelection.flattenYAt(0));
+            newSelection.firstSelectedCell.x === newSelection.origin.x &&
+            newSelection.firstSelectedCell.y === newSelection.origin.y
+        )
+            ? newSelection.corner
+            : newSelection.origin;
+
+        if (this.multipleSelections) {
+            this.selections.push(newSelection);
+            this.flattenedX.push(newSelection.flattenXAt(0));
+            this.flattenedY.push(newSelection.flattenYAt(0));
+        } else {
+            this.selections[0] = newSelection;
+            this.flattenedX[0] = newSelection.flattenXAt(0);
+            this.flattenedY[0] = newSelection.flattenYAt(0);
+        }
         this.setLastSelectionType('cell');
-        if (!silent) {this.grid.selectionChanged();}
+
+        if (!silent) {
+            this.grid.selectionChanged();
+        }
     },
 
     /**

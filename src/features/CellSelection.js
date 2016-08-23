@@ -72,11 +72,7 @@ var CellSelection = Feature.extend('CellSelection', {
 
         var isHeader = dy < headerRowCount || dx < headerColumnCount;
 
-        if (!grid.isCellSelection() || isRightClick || isHeader || isOutside) {
-            if (this.next) {
-                this.next.handleMouseDown(grid, event);
-            }
-        } else {
+        if (grid.isCellSelection() && !(isRightClick || isHeader || isOutside)) {
             var numFixedColumns = grid.getFixedColumnCount();
             var numFixedRows = grid.getFixedRowCount();
 
@@ -96,6 +92,8 @@ var CellSelection = Feature.extend('CellSelection', {
             var keys = primEvent.detail.keys;
             this.dragging = true;
             this.extendSelection(grid, dCell, keys);
+        } else if (this.next) {
+            this.next.handleMouseDown(grid, event);
         }
     },
 
@@ -108,12 +106,7 @@ var CellSelection = Feature.extend('CellSelection', {
     handleMouseDrag: function(grid, event) {
         var isRightClick = event.primitiveEvent.detail.isRightClick;
 
-        if (!grid.isCellSelection() || isRightClick || !this.dragging) {
-            if (this.next) {
-                this.next.handleMouseDrag(grid, event);
-            }
-        } else {
-
+        if (this.dragging && grid.isCellSelection() && !isRightClick) {
             var numFixedColumns = grid.getFixedColumnCount();
             var numFixedRows = grid.getFixedRowCount();
 
@@ -140,6 +133,8 @@ var CellSelection = Feature.extend('CellSelection', {
 
             this.checkDragScroll(grid, this.currentDrag);
             this.handleMouseDragCellSelection(grid, dCell, primEvent.detail.keys);
+        } else  if (this.next) {
+            this.next.handleMouseDrag(grid, event);
         }
     },
 
@@ -315,8 +310,8 @@ var CellSelection = Feature.extend('CellSelection', {
 
         if (hasSHIFT) {
             grid.clearMostRecentSelection();
-            grid.select(mousePoint.x, mousePoint.y, x - mousePoint.x + 1, y - mousePoint.y + 1);
-            grid.setDragExtent(grid.newPoint(x - mousePoint.x + 1, y - mousePoint.y));
+            grid.select(mousePoint.x, mousePoint.y, x - mousePoint.x, y - mousePoint.y);
+            grid.setDragExtent(grid.newPoint(x - mousePoint.x, y - mousePoint.y));
         } else {
             grid.select(x, y, 0, 0);
             grid.setMouseDown(grid.newPoint(x, y));

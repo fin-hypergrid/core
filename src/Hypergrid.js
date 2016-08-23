@@ -136,6 +136,8 @@ function Hypergrid(div, options) {
         self.checkClipboardCopy(evt);
     });
     this.getCanvas().resize();
+
+    this.refreshProperties();
 }
 
 Hypergrid.prototype = {
@@ -295,6 +297,8 @@ Hypergrid.prototype = {
         this.getRenderer().reset();
         this.getCanvas().resize();
         this.behaviorChanged();
+
+        this.refreshProperties();
     },
 
     //resetTextWidthCache: function() {
@@ -425,10 +429,13 @@ Hypergrid.prototype = {
      * @desc Utility function to push out properties if we change them.
      * @param {object} properties - An object of various key value pairs.
      */
-
     refreshProperties: function() {
+        var state = this.getProperties();
+        this.selectionModel.multipleSelections = state.multipleSelections;
+
         // this.canvas = this.shadowRoot.querySelector('fin-canvas');
         //this.canvas = new Canvas(this.divCanvas, this.renderer); //TODO: Do we really need to be recreating it here?
+
         this.renderer.computeCellsBounds();
         this.checkScrollbarVisibility();
         this.behavior.defaultRowHeight = null;
@@ -439,7 +446,7 @@ Hypergrid.prototype = {
 
     /**
      * @memberOf Hypergrid.prototype
-     * @desc Ammend properties for this hypergrid only.
+     * @desc Amend properties for this hypergrid only.
      * @param {object} moreProperties - A simple properties hash.
      */
     addProperties: function(moreProperties) {
@@ -466,6 +473,7 @@ Hypergrid.prototype = {
     setState: function(state) {
         var self = this;
         this.behavior.setState(state);
+        this.refreshProperties();
         setTimeout(function() {
             self.behaviorChanged();
             self.synchronizeScrollingBoundries();
