@@ -53,10 +53,11 @@ window.onload = function() {
                 { name: 'editOnKeydown', label: 'type to edit' }
             ]
         }, {
-            label: 'Row selection',
+            label: 'Selection',
             ctrls: [
                 { name: 'checkboxOnlyRowSelections', label: 'by row handles only', setter: setSelectionProp },
-                { name: 'singleRowSelectionMode', label: 'one row at a time', setter: setSelectionProp }
+                { name: 'singleRowSelectionMode', label: 'one row at a time', setter: setSelectionProp },
+                { name: '!multipleSelections', label: 'one cell region at a time', setter: setSelectionProp, checked: true }
             ]
         }, {
             label: 'Filtering',
@@ -875,8 +876,8 @@ window.onload = function() {
         var rows = detail.rows,
             selections = detail.selections;
         if (
-            grid.getProperties().singleRowSelectionMode && // let's only attempt this when in this mode
-            !grid.getProperties().multipleSelections && // and only when in single selection mode
+            grid.resolveProperty('singleRowSelectionMode') && // let's only attempt this when in this mode
+            !grid.resolveProperty('multipleSelections') && // and only when in single selection mode
             rows.length && // user just selected a row (must be single row due to mode we're in)
             selections.length  // there was a cell region selected (must be the only one)
         ) {
@@ -1205,7 +1206,15 @@ window.onload = function() {
 
     function setProp() { // standard checkbox click handler
         var hash = {}, depth = hash;
-        var keys = this.id.split('.');
+        var id = this.id;
+        if (id[0] === '!') {
+            if (this.type !== 'checkbox') {
+                throw 'Expected inverse operator (!) on checkbox dashboard controls only but found on ' + this.type + '.';
+            }
+            id = id.substr(1);
+            var inverse = true;
+        }
+        var keys = id.split('.');
 
         while (keys.length > 1) { depth = depth[keys.shift()] = {}; }
 
@@ -1214,7 +1223,7 @@ window.onload = function() {
                 depth[keys.shift()] = this.value;
                 break;
             case 'checkbox':
-                depth[keys.shift()] = this.checked;
+                depth[keys.shift()] = inverse ? !this.checked : this.checked;
                 break;
         }
 
