@@ -32,7 +32,7 @@ window.onload = function() {
         showFilterRow: pipelineOptions.includeFilter
     });
 
-    var treeViewOptions = { treeColumn: 'State' },
+    var treeViewOptions = { treeColumn: 'State' }, // groupColumn option defaults to treeColumn (or its default)
         treeView = new TreeView(grid, treeViewOptions);
 
     if (!shared) {

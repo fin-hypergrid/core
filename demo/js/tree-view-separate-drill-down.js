@@ -39,7 +39,8 @@ window.onload = function() {
         showFilterRow: pipelineOptions.includeFilter
     });
 
-    var treeViewOptions = { defaultSortColumn: 'State' },
+    // In order for the the State column to not sort the leaves (city names), we want it to use the "depth sorter" rather than the regular sorter used by the other columns. To make this work, the column does need to be called out when it differs from the tree (drill-down) column. In this demo, those columns are separate. We do this using the groupColumn (which normally defaults to whatever the tree column is set to).
+    var treeViewOptions = { groupColumn: 'State' },
         treeView = new TreeView(grid, treeViewOptions),
         dd = treeView.drillDown = {};
 
