@@ -303,7 +303,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
     },
 
     /** @typedef {object} dataSourcePipelineObject
-     * @property {function} DataSource - A `hyper-analytics`-style  "data source" constructor.
+     * @property {string} type - A `hyper-analytics`-style  "data source" constructor name.
      * @property {*} [options] - When defined, passed as 2nd argument to constructor.
      * @property {string} [parent] - Defines a branch off the main sequence.
      */
