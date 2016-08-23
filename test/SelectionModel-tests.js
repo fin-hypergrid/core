@@ -72,7 +72,9 @@ var instance = [
 
 //TODO: sinon mock object perhaps...
 function mockGrid(){
-    return {};
+    return {
+        _getProperties: function() { return {}; }
+    };
 }
 
 describe('SelectionModel', function(){
