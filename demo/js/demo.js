@@ -221,7 +221,7 @@ window.onload = function() {
             treeView.setRelation(false);
             treeView = undefined;
             delete dataModel.pipeline; // restore original (shared) pipeline
-            behavior.setData(); // reset with original pipelline
+            behavior.setPipeline(); // reset with original pipeline
         }
     }
 

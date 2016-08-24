@@ -61,24 +61,18 @@ AggregationsView.prototype = {
         options = options || {};
 
         var amInstance = this instanceof AggregationsView,
-            dataModel = options.dataModelPrototype || amInstance && this.grid.behavior.dataModel,
-            firstPipe = options.firstPipe || dataModel.pipeline[0];
+            dataModel = options.dataModelPrototype || amInstance && this.grid.behavior.dataModel;
 
         if (!dataModel) {
             throw 'Expected dataModel.';
         }
 
-        if (!firstPipe) {
-            throw 'Expected pipe (data source pipeline descriptor).';
-        }
-
         if (options.dataModelPrototype) {
             // operating on prototype
             dataModel.truncatePipeline();
-            dataModel.addPipe(firstPipe);
         } else {
             // operating on an instance: create a new "own" pipeline
-            dataModel.pipeline = [firstPipe];
+            dataModel.pipeline = [];
         }
 
         dataModel.addPipe({ type: 'DataSourceAggregator', test: isAggregationsview });
@@ -93,7 +87,7 @@ AggregationsView.prototype = {
         }
 
         if (amInstance) {
-            this.grid.behavior.setData(dataModel.source.data);
+            this.grid.behavior.setPipeline();
             this.grid.behavior.shapeChanged();
         }
     },

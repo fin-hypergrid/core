@@ -74,24 +74,18 @@ TreeView.prototype = {
         options = options || {};
 
         var amInstance = this instanceof TreeView,
-            dataModel = options.dataModelPrototype || amInstance && this.grid.behavior.dataModel,
-            firstPipe = options.firstPipe || dataModel.pipeline[0];
+            dataModel = options.dataModelPrototype || amInstance && this.grid.behavior.dataModel;
 
         if (!dataModel) {
             throw 'Expected dataModel.';
         }
 
-        if (!firstPipe) {
-            throw 'Expected pipe (data source pipeline descriptor).';
-        }
-
         if (options.dataModelPrototype) {
             // operating on prototype
             dataModel.truncatePipeline();
-            dataModel.addPipe(firstPipe);
         } else {
             // operating on an instance: create a new "own" pipeline
-            dataModel.pipeline = [firstPipe];
+            dataModel.pipeline = [];
         }
 
         if (options.includeFilter) {
@@ -105,8 +99,8 @@ TreeView.prototype = {
         dataModel.addPipe({ type: 'DataSourceTreeview', test: isTreeview });
 
         if (amInstance) {
-            this.grid.behavior.setData();
-            this.dataSource = dataModel.sources.dataSource;
+            this.grid.behavior.setPipeline();
+            this.dataSource = dataModel.dataSource;
             this.grid.behavior.shapeChanged();
         }
     },

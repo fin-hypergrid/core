@@ -1,6 +1,6 @@
 'use strict';
 
-var Local = require('./Local');
+var Behavior = require('./Behavior');
 var DataModelJSON = require('../dataModels/JSON');
 var ColumnSchemaFactory = require('../filter/ColumnSchemaFactory');
 var features = require('../features');
@@ -11,7 +11,7 @@ var features = require('../features');
  * @constructor
  * @extends Behavior
  */
-var JSON = Local.extend('behaviors.JSON', {
+var JSON = Behavior.extend('behaviors.JSON', {
 
     /**
      * @summary Constructor logic, called _after_{@link Behavior#initialize|Behavior.initialize()}.
@@ -112,6 +112,13 @@ var JSON = Local.extend('behaviors.JSON', {
         this.dataModel.setFields(fieldNames);
         this.createColumns();
     },
+    /**
+     * @memberOf behaviors.JSON.prototype
+     * @description Set the data transformation pipeline.
+     */
+    setPipeline: function() {
+        this.dataModel.setPipeline();
+    },
 
     /**
      * @memberOf behaviors.JSON.prototype
@@ -135,7 +142,9 @@ var JSON = Local.extend('behaviors.JSON', {
         this.createColumns();
 
         this.schema = options && options.schema || deriveSchema;
-        this.setGlobalFilter(this.getNewFilter());
+
+        //Should it cancel filter
+        //this.setGlobalFilter(this.getNewFilter());
 
         if (grid.cellEditor) {
             grid.cellEditor.cancelEditing();
