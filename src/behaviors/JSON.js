@@ -227,13 +227,13 @@ var JSON = Local.extend('behaviors.JSON', {
     },
 
     getColumnAlignment: function(x) {
-        var align = this.getPrivateState().defaultColAlign;
+        var align;
         if (x === -1) {
             align = 'right';
         } else if (x === 0 && this.hasHierarchyColumn()) {
             align = 'left';
         } else {
-            align  = this.getActiveColumn(x).halign || align;
+            align = this.getColumnProperties(x).halign;
         }
 
         return align;
