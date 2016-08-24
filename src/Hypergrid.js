@@ -3499,9 +3499,9 @@ function valOrFunc(dataRow, column) {
 /**
  * @summary Shared localization defaults for all grid instances.
  * @desc These property values are overridden by those supplied in the `Hypergrid` constructor's `options.localization`.
- * @property {string|string[]} [options.localization.defaultLocale] - The default locale to use when an explicit `locale` is omitted from localizer constructor calls. Passed to Intl.NumberFormat` and `Intl.DateFormat`. See {@ https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl#Locale_identification_and_negotiation|Locale identification and negotiation} for more information. Omitting will use the runtime's local language and region.
- * @property {object} [options.localization.numberOptions] - Options passed to `Intl.NumberFormat` for creating the basic "number" localizer.
- * @property {object} [options.localization.dateOptions] - Options passed to `Intl.DateFormat` for creating the basic "date" localizer.
+ * @property {string|string[]} [locale] - The default locale to use when an explicit `locale` is omitted from localizer constructor calls. Passed to Intl.NumberFormat` and `Intl.DateFormat`. See {@ https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl#Locale_identification_and_negotiation|Locale identification and negotiation} for more information. Omitting will use the runtime's local language and region.
+ * @property {object} [numberOptions] - Options passed to `Intl.NumberFormat` for creating the basic "number" localizer.
+ * @property {object} [dateOptions] - Options passed to `Intl.DateFormat` for creating the basic "date" localizer.
  */
 
 Hypergrid.localization = {
