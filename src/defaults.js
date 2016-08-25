@@ -369,7 +369,7 @@ module.exports = {
      * @type {string}
      * @instance
      */
-    colHAlign: 'center',
+    halign: 'center',
 
     /**
      * @default
