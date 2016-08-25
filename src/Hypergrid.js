@@ -585,6 +585,7 @@ Hypergrid.prototype = {
         behavior.autoSizeRowNumberColumn();
         if (this.isColumnAutosizing()) {
             behavior.checkColumnAutosizing(false);
+            setTimeout(function() { behavior.grid.synchronizeScrollingBoundries();});
         }
     },
     /**
@@ -787,9 +788,10 @@ Hypergrid.prototype = {
             this.numColumns = this.getColumnCount();
             this.numRows = this.getRowCount();
             this.behaviorShapeChanged();
+        } else {
+            this.computeCellsBounds();
+            this.repaint();
         }
-        this.computeCellsBounds();
-        this.repaint();
     },
 
     /**
