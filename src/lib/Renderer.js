@@ -460,7 +460,7 @@ var Renderer = Base.extend('Renderer', {
         var isMaxX = this.isLastColumnVisible();
         var chop = isMaxX ? 2 : 1;
         var colWall = this.getColumnEdges()[this.getColumnEdges().length - chop];
-        var result = Math.min(colWall, this.getBounds().width - 200);
+        var result = Math.min(colWall, this.getBounds().width);
         return result;
     },
 

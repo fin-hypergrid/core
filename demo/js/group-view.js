@@ -29,6 +29,7 @@ window.onload = function() {
     grid = new Hypergrid('div#example', { data:  window.people1 });
 
     grid.setState({
+        // columnAutosizing: false,
         showFilterRow: pipelineOptions.includeFilter
     });
 

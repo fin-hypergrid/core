@@ -44,7 +44,7 @@ var themeInitialized = false,
  * @param {string} [options.localization.dateOptions=Hypergrid.localization.dateOptions] - Options passed to `Intl.DateFomrat` for creating the basic "date" localizer.
  * @param {object} [options.margin] - optional canvas margins
  * @param {string} [options.margin.top=0]
- * @param {string} [options.margin.right='-200px']
+ * @param {string} [options.margin.right=0]
  * @param {string} [options.margin.bottom=0]
  * @param {string} [options.margin.left=0]
  */
@@ -104,7 +104,7 @@ function Hypergrid(div, options) {
 
     var margin = options.margin || {};
     margin.top = margin.top || 0;
-    margin.right = margin.right === undefined ? '-200px' : 0;
+    margin.right = margin.right || 0;
     margin.bottom = margin.bottom || 0;
     margin.left = margin.left || 0;
 
@@ -585,6 +585,7 @@ Hypergrid.prototype = {
         behavior.autoSizeRowNumberColumn();
         if (this.isColumnAutosizing()) {
             behavior.checkColumnAutosizing(false);
+            setTimeout(function() { behavior.grid.synchronizeScrollingBoundries();});
         }
     },
     /**
@@ -787,9 +788,10 @@ Hypergrid.prototype = {
             this.numColumns = this.getColumnCount();
             this.numRows = this.getRowCount();
             this.behaviorShapeChanged();
+        } else {
+            this.computeCellsBounds();
+            this.repaint();
         }
-        this.computeCellsBounds();
-        this.repaint();
     },
 
     /**
@@ -1233,14 +1235,8 @@ Hypergrid.prototype = {
      * @returns {Rectangle} The pixel coordinates of just the center 'main" data area.
      */
     getDataBounds: function() {
-        var colDNDHackWidth = 200; //this was a hack to help with column dnd, need to factor this into a shared variable
         var b = this.canvas.bounds;
-
-        //var x = this.getRowNumbersWidth();
-        // var y = behavior.getFixedRowsHeight() + 2;
-
-        var result = new Rectangle(0, 0, b.origin.x + b.extent.x - colDNDHackWidth, b.origin.y + b.extent.y);
-        return result;
+        return new Rectangle(0, 0, b.origin.x + b.extent.x, b.origin.y + b.extent.y);
     },
 
     getRowNumbersWidth: function() {
@@ -2202,8 +2198,10 @@ Hypergrid.prototype = {
         if (!bounds) {
             return;
         }
-        var scrollableHeight = bounds.height - this.behavior.getFixedRowsMaxHeight() - 15; //5px padding at bottom and right side
-        var scrollableWidth = (bounds.width - 200) - this.behavior.getFixedColumnsMaxWidth() - 15;
+
+        // 15px padding at bottom and right side
+        var scrollableHeight = bounds.height - this.behavior.getFixedRowsMaxHeight() - 15;
+        var scrollableWidth = bounds.width - this.behavior.getFixedColumnsMaxWidth() - 15;
 
         var lastPageColumnCount = 0;
         var columnsWidth = 0;
