@@ -100,7 +100,6 @@ TreeView.prototype = {
 
         if (amInstance) {
             this.grid.behavior.setPipeline();
-            this.dataSource = dataModel.dataSource;
             this.grid.behavior.shapeChanged();
         }
     },
