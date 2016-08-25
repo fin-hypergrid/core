@@ -137,7 +137,7 @@ function Hypergrid(div, options) {
     });
     this.getCanvas().resize();
     this.refreshProperties();
-    //this.getCanvas().stopPaintLoop(); // rely on explicit repaint calls
+    this.getCanvas().stopPaintLoop(); // rely on explicit repaint calls
 }
 
 Hypergrid.prototype = {
