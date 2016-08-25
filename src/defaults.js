@@ -364,6 +364,12 @@ module.exports = {
      * @instance
      */
     fixedColAlign: 'center',
+    /**
+     * @default
+     * @type {string}
+     * @instance
+     */
+    halign: 'center',
 
     /**
      * @default

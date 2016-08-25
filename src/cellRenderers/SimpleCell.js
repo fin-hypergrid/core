@@ -63,6 +63,7 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
         if (gc.font !== font) {
             gc.font = font;
         }
+
         if (gc.textAlign !== 'left') {
             gc.textAlign = 'left';
         }

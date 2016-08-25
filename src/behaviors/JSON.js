@@ -226,11 +226,16 @@ var JSON = Local.extend('behaviors.JSON', {
     },
 
     getColumnAlignment: function(x) {
-        if (x === 0 && this.hasHierarchyColumn()) {
-            return 'left';
+        var align;
+        if (x === -1) {
+            align = 'right';
+        } else if (x === 0 && this.hasHierarchyColumn()) {
+            align = 'left';
         } else {
-            return 'center';
+            align = this.getColumnProperties(x).halign;
         }
+
+        return align;
     },
     getHiddenColumns: function() {
         return this.dataModel.getHiddenColumns();
