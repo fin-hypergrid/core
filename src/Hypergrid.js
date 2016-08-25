@@ -22,6 +22,7 @@ var CellEditors = require('./cellEditors');
 
 var themeInitialized = false,
     polymerTheme = Object.create(defaults),
+    defaultContainerHeight = 300,
     globalProperties = Object.create(polymerTheme);
 
 /**s
@@ -52,6 +53,15 @@ function Hypergrid(div, options) {
 
     this.div = (typeof div === 'string') ? document.querySelector(div) : div;
 
+    //Default Position and height to ensure DnD works
+    if (!this.div.style.position){
+        this.div.style.position = 'relative';
+    }
+
+    if (this.div.clientHeight < 1){
+        this.div.style.height = defaultContainerHeight + 'px';
+    }
+
     stylesheet.inject('grid');
 
     this.lastEdgeSelection = [0, 0];
@@ -75,6 +85,7 @@ function Hypergrid(div, options) {
 
     //prevent the default context menu for appearing
     this.div.oncontextmenu = function(event) {
+        event.stopPropagation();
         event.preventDefault();
         return false;
     };
@@ -125,6 +136,8 @@ function Hypergrid(div, options) {
         self.checkClipboardCopy(evt);
     });
     this.getCanvas().resize();
+    this.refreshProperties();
+    this.getCanvas().stopPaintLoop(); // rely on explicit repaint calls
 }
 
 Hypergrid.prototype = {
@@ -284,6 +297,8 @@ Hypergrid.prototype = {
         this.getRenderer().reset();
         this.getCanvas().resize();
         this.behaviorChanged();
+
+        this.refreshProperties();
     },
 
     //resetTextWidthCache: function() {
@@ -414,10 +429,13 @@ Hypergrid.prototype = {
      * @desc Utility function to push out properties if we change them.
      * @param {object} properties - An object of various key value pairs.
      */
-
     refreshProperties: function() {
+        var state = this.getProperties();
+        this.selectionModel.multipleSelections = state.multipleSelections;
+
         // this.canvas = this.shadowRoot.querySelector('fin-canvas');
         //this.canvas = new Canvas(this.divCanvas, this.renderer); //TODO: Do we really need to be recreating it here?
+
         this.renderer.computeCellsBounds();
         this.checkScrollbarVisibility();
         this.behavior.defaultRowHeight = null;
@@ -428,7 +446,7 @@ Hypergrid.prototype = {
 
     /**
      * @memberOf Hypergrid.prototype
-     * @desc Ammend properties for this hypergrid only.
+     * @desc Amend properties for this hypergrid only.
      * @param {object} moreProperties - A simple properties hash.
      */
     addProperties: function(moreProperties) {
@@ -455,6 +473,7 @@ Hypergrid.prototype = {
     setState: function(state) {
         var self = this;
         this.behavior.setState(state);
+        this.refreshProperties();
         setTimeout(function() {
             self.behaviorChanged();
             self.synchronizeScrollingBoundries();
@@ -807,7 +826,7 @@ Hypergrid.prototype = {
      * @desc The dimensions of the grid data have changed. You've been notified.
      */
     behaviorStateChanged: function() {
-        this.getRenderer().computeCellsBounds();
+        this.computeCellsBounds();
         this.repaint();
     },
 
@@ -828,8 +847,7 @@ Hypergrid.prototype = {
      * @desc Paint immediately in this microtask.
      */
     paintNow: function() {
-        var canvas = this.getCanvas();
-        canvas.paintNow();
+        this.getCanvas().paintNow();
     },
 
     /**
@@ -3467,20 +3485,23 @@ function clearObjectProperties(obj) {
 }
 
 function valOrFunc(dataRow, column) {
-    var result = dataRow[column.name],
+    var result, calculator;
+    if (dataRow) {
+        result = dataRow[column.name];
         calculator = (typeof result)[0] === 'f' && result || column.calculator;
         if (calculator) {
             result = calculator(dataRow, column.name);
         }
+    }
     return result || result === 0 || result === false ? result : '';
 }
 
 /**
  * @summary Shared localization defaults for all grid instances.
  * @desc These property values are overridden by those supplied in the `Hypergrid` constructor's `options.localization`.
- * @property {string|string[]} [options.localization.defaultLocale] - The default locale to use when an explicit `locale` is omitted from localizer constructor calls. Passed to Intl.NumberFormat` and `Intl.DateFormat`. See {@ https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl#Locale_identification_and_negotiation|Locale identification and negotiation} for more information. Omitting will use the runtime's local language and region.
- * @property {object} [options.localization.numberOptions] - Options passed to `Intl.NumberFormat` for creating the basic "number" localizer.
- * @property {object} [options.localization.dateOptions] - Options passed to `Intl.DateFormat` for creating the basic "date" localizer.
+ * @property {string|string[]} [locale] - The default locale to use when an explicit `locale` is omitted from localizer constructor calls. Passed to Intl.NumberFormat` and `Intl.DateFormat`. See {@ https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl#Locale_identification_and_negotiation|Locale identification and negotiation} for more information. Omitting will use the runtime's local language and region.
+ * @property {object} [numberOptions] - Options passed to `Intl.NumberFormat` for creating the basic "number" localizer.
+ * @property {object} [dateOptions] - Options passed to `Intl.DateFormat` for creating the basic "date" localizer.
  */
 
 Hypergrid.localization = {

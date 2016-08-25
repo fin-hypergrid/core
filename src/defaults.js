@@ -16,7 +16,7 @@ module.exports = {
     /**
      * The font for data cells.
      * @default
-     * @type {cssFont}
+     * @type {string}
      * @instance
      */
     noDataMessage: 'no data to display',
@@ -543,14 +543,14 @@ module.exports = {
      */
     cellSelection: true,
 
-    /** Clicking in a row header (leftmost column) "selects" the row; the entire row is added to the select region and repainted with "row selection" colors.
+    /** Clicking in a column header (top row) "selects" the column; the entire column is added to the select region and repainted with "column selection" colors.
      * @default
      * @type {boolean}
      * @instance
      */
     columnSelection: true,
 
-    /** Clicking in a column header (top row) "selects" the column; the entire column is added to the select region and repainted with "column selection" colors.
+    /** Clicking in a row header (leftmost column) "selects" the row; the entire row is added to the select region and repainted with "row selection" colors.
      * @default
      * @type {boolean}
      * @instance
@@ -729,6 +729,11 @@ module.exports = {
      */
     unsortable: false,
 
+    /** Allow multiple cell region selections.
+     * @type {boolean}
+     * @default
+     */
+    multipleSelections: false,
 };
 
 /** @typedef {string} cssColor

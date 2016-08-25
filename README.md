@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/openfin/fin-hypergrid.svg?branch=develop)](https://travis-ci.org/openfin/fin-hypergrid)
+
 **fin-hypergrid** is an ultra-fast HTML5 grid presentation layer, achieving its speed by rendering (in a canvas tag) only the currently visible portion of your (virtual) grid, thus avoiding the latency and life-cycle issues of building, walking, and maintaining a complex DOM structure.
 
 <img src="images/README/gridshot04.gif">
@@ -27,10 +29,6 @@ Check out the Table view on Hyperblotter on a Windows machine via [this installe
 ### Features
 
 ![](https://github.com/openfin/fin-hypergrid/blob/master/images/README/Hypergrid%20Features.png)
-
-##### Future development
-
-* Tree-view presentation for remotely aggregated data
 
 ###### The Filtering & Analytics (sorting & aggregation) modules provided will be broken out of Hypergrid
 
@@ -91,3 +89,4 @@ Hypergrid global configurations can be found [here](http://openfin.github.io/fin
 ### Contributors
 
 Developers interested in contributing to this project should submit pull requests against the `develop` branch.
+We have several beginner `help wanted` [tickets](https://github.com/openfin/fin-hypergrid/issues) open for community involvement

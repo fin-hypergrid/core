@@ -53,10 +53,11 @@ window.onload = function() {
                 { name: 'editOnKeydown', label: 'type to edit' }
             ]
         }, {
-            label: 'Row selection',
+            label: 'Selection',
             ctrls: [
                 { name: 'checkboxOnlyRowSelections', label: 'by row handles only', setter: setSelectionProp },
-                { name: 'singleRowSelectionMode', label: 'one row at a time', setter: setSelectionProp }
+                { name: 'singleRowSelectionMode', label: 'one row at a time', setter: setSelectionProp },
+                { name: '!multipleSelections', label: 'one cell region at a time', setter: setSelectionProp, checked: true }
             ]
         }, {
             label: 'Filtering',
@@ -108,7 +109,7 @@ window.onload = function() {
     }
 
     var customSchema = [
-        { name: 'last_name', type: 'number', opMenu: ['=', '<', '>'] },
+        { name: 'last_name', type: 'number', opMenu: ['=', '<', '>'], opMustBeInMenu: true },
         { name: 'total_number_of_pets_owned', type: 'number' },
         { name: 'height', type: 'number' },
         'birthDate',
@@ -867,8 +868,31 @@ window.onload = function() {
     });
 
     grid.addEventListener('fin-row-selection-changed', function(e) {
-        if (vent) { console.log('fin-row-selection-changed', e.detail); }
-        if (e.detail.rows.length === 0) {
+        var detail = e.detail;
+
+        if (vent) { console.log('fin-row-selection-changed', detail); }
+
+        // Move cell selection with row selection
+        var rows = detail.rows,
+            selections = detail.selections;
+        if (
+            grid.resolveProperty('singleRowSelectionMode') && // let's only attempt this when in this mode
+            !grid.resolveProperty('multipleSelections') && // and only when in single selection mode
+            rows.length && // user just selected a row (must be single row due to mode we're in)
+            selections.length  // there was a cell region selected (must be the only one)
+        ) {
+            var rect = grid.selectionModel.getLastSelection(), // the only cell selection
+                x = rect.left,
+                y = rows[0] + grid.getHeaderRowCount(), // we know there's only 1 row selected
+                width = rect.right - x,
+                height = 0, // collapse the new region to occupy a single row
+                fireSelectionChangedEvent = false;
+
+            grid.selectionModel.select(x, y, width, height, fireSelectionChangedEvent);
+            grid.repaint();
+        }
+
+        if (rows.length === 0) {
             console.log('no rows selected');
             return;
         }
@@ -967,7 +991,6 @@ window.onload = function() {
 
             filteringMode: 'onCommit', // vs. 'immediate' for every key press
             //filterDefaultColumnFilterOperator: '<>',
-
             cellSelection: true,
             columnSelection: true,
             rowSelection: true
@@ -992,7 +1015,6 @@ window.onload = function() {
         grid.addProperties({
             fixedRowCount: 4,
             showRowNumbers: true,
-            singleRowSelectionMode: false,
             checkboxOnlyRowSelections: true
         });
         // properties that can be set
@@ -1184,7 +1206,15 @@ window.onload = function() {
 
     function setProp() { // standard checkbox click handler
         var hash = {}, depth = hash;
-        var keys = this.id.split('.');
+        var id = this.id;
+        if (id[0] === '!') {
+            if (this.type !== 'checkbox') {
+                throw 'Expected inverse operator (!) on checkbox dashboard controls only but found on ' + this.type + '.';
+            }
+            id = id.substr(1);
+            var inverse = true;
+        }
+        var keys = id.split('.');
 
         while (keys.length > 1) { depth = depth[keys.shift()] = {}; }
 
@@ -1193,7 +1223,7 @@ window.onload = function() {
                 depth[keys.shift()] = this.value;
                 break;
             case 'checkbox':
-                depth[keys.shift()] = this.checked;
+                depth[keys.shift()] = inverse ? !this.checked : this.checked;
                 break;
         }
 
