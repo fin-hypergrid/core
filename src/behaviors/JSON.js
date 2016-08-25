@@ -60,8 +60,7 @@ var JSON = Local.extend('behaviors.JSON', {
             var column = this.addColumn({
                 index: index,
                 header: header,
-                calculator: calculator,
-                halign: ''
+                calculator: calculator
             });
             this.columnEnum[column.name.replace(REGEX_CAMEL_CASE, '$1_$2').toUpperCase()] = index;
             var properties = column.getProperties();

@@ -181,9 +181,6 @@ var Behavior = Base.extend('Behavior', {
         var tableState = this.getPrivateState();
         var properties = Object.create(tableState);
 
-
-        properties.halign = tableState.colHAlign;
-
         properties.rowNumbersProperties = Object.create(properties, {
             foregroundSelectionColor: {
                 configurable: true,
