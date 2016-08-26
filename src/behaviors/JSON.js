@@ -18,17 +18,9 @@ var JSON = Behavior.extend('behaviors.JSON', {
      * @desc This method will be called upon instantiation of this class or of any class that extends from this class.
      * > All `initialize()` methods in the inheritance chain are called, in turn, each with the same parameters that were passed to the constructor, beginning with that of the most "senior" class through that of the class of the new instance.
      *
-     * @param grid - the hypergrid
-     * @param {undefined|function|menuItem[]} options.schema - Already consumed by Behavior's {@link Behavior#initialize|initialize}.
-     * @param {object[]} dataRows - May be:
-     * * An array of congruent raw data objects
-     * * A function returning same
-     * @param {object} [options] - _(See {@link behaviors.JSON#setData}.)_
      * @memberOf behaviors.JSON.prototype
      */
-    initialize: function(grid, dataRows, options) {
-        this.setData(dataRows, options);
-    },
+    initialize: function() {},
 
     features: [
         features.CellSelection,
