@@ -49,11 +49,6 @@ var Behavior = Base.extend('Behavior', {
          * @memberOf Behavior.prototype
          */
         this.dataModel = this.getNewDataModel();
-
-        grid.setBehavior(this);
-
-        this.reset();
-
         this.initializeFeatureChain(grid);
     },
 
