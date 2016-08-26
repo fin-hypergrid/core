@@ -6,8 +6,8 @@
 
 module.exports = {
 
-	analytics: require('hyper-analytics'), // npm
-    //analytics: require('../../hyper-analytics'), // developers
+	// analytics: require('hyper-analytics'), // npm
+    analytics: require('../../hyper-analytics'), // developers
 
     FilterTree: require('filter-tree'), // npm
     //FilterTree: require('../../filter-tree'), // developers

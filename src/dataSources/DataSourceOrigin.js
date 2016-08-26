@@ -231,8 +231,14 @@ var DataSourceOrigin = DataSourceBase.extend('DataSourceOrigin',  {
      * @memberOf DataSourceOrigin#
      */
     getGrandTotals: function() {
-        //nothing here
-    }
+        return [];
+    },
+    /**
+     * @memberOf DataSourceOrigin#
+     */
+    isDrillDown: function() {
+        return false;
+    },
 });
 
 /**

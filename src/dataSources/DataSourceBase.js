@@ -21,10 +21,14 @@ DataSourceBase.prototype = {
         }
     },
     getDataIndex: function(y) {
-        return 0;
+        if (this.dataSource) {
+            return this.dataSource.getDataIndex.apply(this.dataSource, arguments);
+        }
     },
     getRow: function() {
-        return null;
+        if (this.dataSource) {
+            return this.dataSource.getRow.apply(this.dataSource, arguments);
+        }
     },
     findRow: function(columnName, value) {
         if (this.dataSource) {
@@ -37,17 +41,29 @@ DataSourceBase.prototype = {
         }
     },
     getValue: function(x, y){
-        return 0;
+        if (this.dataSource) {
+            return this.dataSource.getValue.apply(this.dataSource, arguments);
+        }
     },
-    setValue: function(x, y, value){},
+    setValue: function(x, y, value){
+        if (this.dataSource) {
+            return this.dataSource.setValue.apply(this.dataSource, arguments);
+        }
+    },
     getRowCount: function() {
-        return 0;
+        if (this.dataSource) {
+            return this.dataSource.getRowCount.apply(this.dataSource, arguments);
+        }
     },
     getColumnCount: function() {
-        return 0;
+        if (this.dataSource) {
+            return this.dataSource.getColumnCount.apply(this.dataSource, arguments);
+        }
     },
     getFields: function() {
-        return [];
+        if (this.dataSource) {
+            return this.dataSource.getFields.apply(this.dataSource, arguments);
+        }
     },
     getHeaders: function() {
         if (this.dataSource) {
@@ -55,27 +71,52 @@ DataSourceBase.prototype = {
         }
     },
     getCalculators: function(){
-        return [];
+        if (this.dataSource) {
+            return this.dataSource.revealRow.apply(this.dataSource, arguments);
+        }
     },
     getDefaultHeaders: function(){
-        return [];
+        if (this.dataSource) {
+            return this.dataSource.getDefaultHeaders.apply(this.dataSource, arguments);
+        }
     },
-    setFields: function(arr) {},
-    setHeaders: function(arr) {},
+    setFields: function(arr) {
+        if (this.dataSource) {
+            return this.dataSource.setFields.apply(this.dataSource, arguments);
+        }
+    },
+    setHeaders: function(arr) {
+        if (this.dataSource) {
+            return this.dataSource.setHeaders.apply(this.dataSource, arguments);
+        }
+    },
     getGrandTotals: function(row){
-        return [];
         //row: Ideally this should be set and get bottom/top totals
         //Currently this function is just sending the same for both in aggregations
+        if (this.dataSource) {
+            return this.dataSource.getGrandTotals.apply(this.dataSource, arguments);
+        }
     },
-    setData: function(arr) {},
+    setData: function(arr) {
+        if (this.dataSource) {
+            return this.dataSource.setData.apply(this.dataSource, arguments);
+        }
+    },
     click: function() {
         if (this.dataSource) {
             return this.dataSource.click.apply(this.dataSource, arguments);
         }
     },
+    isDrillDown: function() {
+        if (this.dataSource) {
+            return this.dataSource.isDrillDown.apply(this.dataSource, arguments);
+        }
+    },
     apply: function() {},
     viewMakesSense: function() {
-        return false;
+        if (this.dataSource) {
+            return this.dataSource.viewMakesSense.apply(this.dataSource, arguments);
+        }
     },
 
     /**

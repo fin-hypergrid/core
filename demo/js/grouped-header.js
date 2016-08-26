@@ -3,9 +3,10 @@
 var grid;
 
 window.onload = function() {
-
+    var options = { data: window.unitedStates };
     // Create the grid and insert into the DOM
-    grid = new fin.Hypergrid('div#example', { data: window.unitedStates });
+    grid = new fin.Hypergrid('div#example');
+    grid.setBehavior(new fin.Hypergrid.behaviors.JSON(grid), options.data);
 
     // Adds GroupedHeader cell renderer
     fin.Hypergrid.groupedHeader.mixInTo(grid);
