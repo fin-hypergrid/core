@@ -114,7 +114,7 @@ TreeView.prototype = {
         var options = join && this.options,
             behavior = this.grid.behavior,
             dataModel = behavior.dataModel,
-            dataSource = this.dataSource = dataModel.sources.treeview,
+            dataSource = dataModel.sources.treeview,
             joined = dataSource.setRelation(options),
             state = behavior.getPrivateState(),
             columnProps = behavior.getColumn(dataSource.treeColumn.index).getProperties();

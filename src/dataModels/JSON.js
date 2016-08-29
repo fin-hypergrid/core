@@ -3,7 +3,7 @@
 var analytics = require('../Shared.js').analytics;
 var DataModel = require('./DataModel');
 var images = require('../../images');
-var DefaultDataSource = require('../dataSources/JSON');
+var DefaultDataSource = require('../dataSources/DataSourceOrigin');
 //var NullDataSource = require('../dataSources/Null');
 
 var UPWARDS_BLACK_ARROW = '\u25b2', // aka '▲'
