@@ -27,9 +27,10 @@
 * [Find Row API](http://openfin.github.io/fin-hypergrid/doc/rowById.html) plug-in: Find/modify/replace/delete a matching data row object.
 * Added [`dataModel.addRow()`](http://openfin.github.io/fin-hypergrid/doc/dataModels.JSON.html#addRow) method to add a new data row to the grid.
 * Internal change: Replaced use of `KeyboardEvent.keyIdentifier` in favor of `KeyboardEvent.key` because the former will be dropped in _Chromium M53_ due out in September. `KeyboardEvent.key` is also supported in IE 9 and FF 23. It is not however a perfect replacement. See comment under [1.4.0](https://github.com/openfin/fincanvas/blob/master/README.md) for more information.
-* Added grid property 'enableContinuousRepaint' (boolean). This is a _dynamic_ property and can be set or cleared at any time. When set:
-    * Repaint occurs continuously (without have to call `grid.repaint()`).
+* Added grid property `enableContinuousRepaint` (boolean). This is a _dynamic_ property and can be set or cleared at any time. When this mode is set:
+    * Repaint occurs continuously (without having to call `grid.repaint()`).
     * `grid.getCanvas().currentFPS` is a measure of the number times the grid is being re-rendered each second.
+    * While useful to get a measure of your grid's render speed, we emphatically adivse against shipping applications using this mode because it causes Hypergrid to gobble up CPU time even when the grid appears idle (the very scenario `repaint()` is designed to avoid). 
 
 ### 1.0.8 - 8 August 2016
 
