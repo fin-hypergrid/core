@@ -90,5 +90,4 @@ Hypergrid global configurations can be found [here](http://openfin.github.io/fin
 
 ### Contributors
 
-Developers interested in contributing to this project should submit pull requests against the `develop` branch.
-We have several beginner `help wanted` [tickets](https://github.com/openfin/fin-hypergrid/issues) open for community involvement.
+Developers interested in contributing to this project should review our [contributing guide](CONTRIBUTING.md) before making pull requests.

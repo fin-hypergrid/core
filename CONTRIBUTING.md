@@ -5,6 +5,10 @@ all the different ways the grid will be styled, configured and integrated in you
 Thank you in advance for being apart of this project and for helping to make HyperGrid the most performant and customizable grid
 available! 
 
+## Beginners
+
+We have several beginner `help wanted` [tickets](https://github.com/openfin/fin-hypergrid/issues) open for community involvement.
+
 ## HyperGrid Core vs Add-ons
 
 The core of Hypergrid is being improved to focus primarily as a fast data-view with customizable rendering. Data transformations (ie. sorting)
