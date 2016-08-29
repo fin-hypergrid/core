@@ -322,7 +322,6 @@ var JSON = DataModel.extend('dataModels.JSON', {
      *
      * The last pipe is assigned the synonym `this.dataSource`.
      *
-     * Branches are created when a pipe specifies a name in `parent`.
      * @param {boolean} [stopApply] - Whether or not to run applyAnalytics
      * @memberOf dataModels.JSON.prototype
      */
@@ -334,14 +333,6 @@ var JSON = DataModel.extend('dataModels.JSON', {
             var DataSource = analytics[pipe.type];
 
             pipe.name = pipe.name || getDataSourceName(pipe.type);
-
-            if (pipe.parent) {
-                mainPipeTip = dataSource; // tip of main trunk on first diversion
-                dataSource = sources[getDataSourceName(pipe.parent)];
-                if (!dataSource) {
-                    throw 'Parent data source not in pipeline.';
-                }
-            }
 
             dataSource = new DataSource(dataSource);
             sources[pipe.name] = dataSource;
