@@ -10,7 +10,7 @@ The current version 1.0 replaces last year's [prototype version](https://github.
 * An [npm module](https://www.npmjs.com/package/fin-hypergrid) for use with browserify.
 * A single JavaScript file [fin-hypergrid.js](https://openfin.github.io/fin-hypergrid/build/fin-hypergrid.js) you can reference in a `<script>` tag.
 
-_For a complete list of changes, see the [version history](version-history.md)._
+_For a complete list of changes, see the [release notes](https://github.com/openfin/fin-hypergrid/releases/latest)._
 
 ### Demos
 
