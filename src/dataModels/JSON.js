@@ -312,7 +312,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
      */
     setData: function(dataSource, dataFields, dataCalculators) {
         this.source.setData(dataSource, dataFields, dataCalculators);
-        this.applyAnalytics();
+        //this.applyAnalytics();
         //requeue ??
     },
 
