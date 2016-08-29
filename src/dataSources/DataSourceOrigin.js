@@ -94,10 +94,6 @@ var JSON = Null.extend('JSON',  {
         );
     },
 
-    getCalculators: function() {
-        return this.calculators;
-    },
-
     /**
      * @memberOf DataSource.prototype
      * @returns {string[]}
