@@ -1524,10 +1524,11 @@ var Behavior = Base.extend('Behavior', {
     checkColumnAutosizing: function(force) {
         force = force === true;
         this.autoSizeRowNumberColumn();
-        this.allColumns[-2].checkColumnAutosizing(force);
+        var autoSized = this.allColumns[-2].checkColumnAutosizing(force);
         this.allColumns.forEach(function(column) {
-            column.checkColumnAutosizing(force);
+            autoSized = column.checkColumnAutosizing(force) || autoSized;
         });
+        return autoSized;
     },
 
     autoSizeRowNumberColumn: function() {
