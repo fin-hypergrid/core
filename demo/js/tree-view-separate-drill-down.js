@@ -39,6 +39,10 @@ window.onload = function() {
         showFilterRow: pipelineOptions.includeFilter
     });
 
+    grid.behavior.setColumnProperties(grid.behavior.columnEnum.STATE, {
+        halign: 'left'
+    });
+
     // In order for the the State column to not sort the leaves (city names), we want it to use the "depth sorter" rather than the regular sorter used by the other columns. To make this work, the column does need to be called out when it differs from the tree (drill-down) column. In this demo, those columns are separate. We do this using the groupColumn (which normally defaults to whatever the tree column is set to).
     var treeViewOptions = { groupColumn: 'State' },
         treeView = new TreeView(grid, treeViewOptions),
@@ -58,22 +62,10 @@ window.onload = function() {
 
             dd.unsortable = dd.column.getProperties().unsortable;
             dd.column.getProperties().unsortable = true;
-
-            grid.behavior.dataModel.getCell = getCell;
         } else {
             dd.column.header = dd.header;
             dd.column.getProperties().unsortable = dd.unsortable;
-            delete grid.behavior.dataModel.getCell;
         }
     };
-
-    function getCell(config, rendererName) {
-        if (config.isUserDataArea) {
-            if (config.x === idx.NAME) {
-                config.halign = 'left';
-            }
-        }
-        return grid.cellRenderers.get(rendererName);
-    }
 };
 

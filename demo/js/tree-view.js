@@ -32,6 +32,10 @@ window.onload = function() {
         showFilterRow: pipelineOptions.includeFilter
     });
 
+    grid.behavior.setColumnProperties(grid.behavior.columnEnum.STATE, {
+        halign: 'left'
+    });
+
     var treeViewOptions = { treeColumn: 'State' }, // groupColumn option defaults to treeColumn (or its default)
         treeView = new TreeView(grid, treeViewOptions);
 
@@ -41,20 +45,7 @@ window.onload = function() {
     }
 
     document.querySelector('input[type=checkbox]').onclick = function() {
-        if (treeView.setRelation(this.checked, true)) {
-            grid.behavior.dataModel.getCell = getCell;
-        } else {
-            delete grid.behavior.dataModel.getCell;
-        }
+        treeView.setRelation(this.checked, true);
     };
-
-    function getCell(config, rendererName) {
-        if (config.isUserDataArea) {
-            if (config.x === grid.behavior.columnEnum.STATE) {
-                config.halign = 'left';
-            }
-        }
-        return grid.cellRenderers.get(rendererName);
-    }
 };
 
