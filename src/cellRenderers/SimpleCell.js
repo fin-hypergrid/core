@@ -63,6 +63,7 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
         if (gc.font !== font) {
             gc.font = font;
         }
+
         if (gc.textAlign !== 'left') {
             gc.textAlign = 'left';
         }
@@ -363,7 +364,7 @@ function layerColors(gc, colors, x, y, width, height) {
 
 function valOrFunc(vf, config, calculator) {
     var result = vf;
-    if (config.isGridColumn && config.isGridRow) {
+    if (config.isGridColumn && config.isGridRow && config.dataRow) {
         calculator = (typeof vf)[0] === 'f' && vf || calculator;
         if (calculator) {
             result = calculator(config.dataRow, config.columnName);

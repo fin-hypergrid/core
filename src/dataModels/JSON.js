@@ -94,7 +94,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
     },
 
     getData: function() {
-        return this.sources.source.data;
+        return this.source.data;
     },
 
     getFilteredData: function() {
@@ -221,7 +221,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
         } else if (isHeaderRow && y === 0) {
             return this._setHeader(x, value);
         } else if (isFilterRow) {
-            this.setFilter(x, value, { alert: true });
+            this.setFilter(x, value);
         } else {
             return this._setHeader(x, value);
         }
@@ -299,11 +299,11 @@ var JSON = DataModel.extend('dataModels.JSON', {
      * @returns {string[]}
      */
     getCalculators: function() {
-        return this.dataSource.getCalculators();
+        return this.dataSource.getProperty('calculators');
     },
 
     /** @typedef {object} dataSourcePipelineObject
-     * @property {function} DataSource - A `hyper-analytics`-style  "data source" constructor.
+     * @property {string} type - A `hyper-analytics`-style  "data source" constructor name.
      * @property {*} [options] - When defined, passed as 2nd argument to constructor.
      * @property {string} [parent] - Defines a branch off the main sequence.
      */
@@ -515,36 +515,18 @@ var JSON = DataModel.extend('dataModels.JSON', {
 
     /**
      * @memberOf dataModels.JSON.prototype
-     * @param {number} colIndex
+     * @param {number} columnIndex
      * @param {boolean} deferred
      */
     unSortColumn: function(columnIndex, deferred) {
         var sorts = this.getSortedColumnIndexes(),
-            sortPosition, found;
+            sortPosition;
 
         if (sorts.find(function(sortSpec, index) {
             sortPosition = index;
             return sortSpec.columnIndex === columnIndex;
         })) {
-            if (sorts.length === 1) {
-                for (var dataSource = this.dataSource; dataSource; dataSource = dataSource.dataSource) {
-                    if (dataSource.defaultSortColumn) {
-                        found = true;
-                        break;
-                    }
-                }
-            }
-
-            if (found) {
-                // Make the sole remaining sorted column the tree column of the "joined" data source
-                sorts[0] = {
-                    columnIndex: dataSource.defaultSortColumn.index,
-                    direction: 1
-                };
-            } else {
-                sorts.splice(sortPosition, 1);
-            }
-
+            sorts.splice(sortPosition, 1);
             if (!deferred) {
                 this.applyAnalytics({columnSort: true});
             }
@@ -832,12 +814,28 @@ var JSON = DataModel.extend('dataModels.JSON', {
     },
 
     getUnfilteredValue: function(x, y) {
-        return this.sources.source.getValue(x, y);
+        return this.source.getValue(x, y);
     },
 
     getUnfilteredRowCount: function() {
-        return this.sources.source.getRowCount();
-    }
+        return this.source.getRowCount();
+    },
+
+    /**
+     * @summary Add a new data row to the grid.
+     * @desc If data source pipeline in use, to see the new row in the grid, you must eventually call:
+     * ```javascript
+     * this.grid.behavior.applyAnalytics();
+     * this.grid.behaviorChanged();
+     * ```
+     * @param {object} newDataRow
+     * @returns {object} The new row object.
+     * @memberOf dataModels.JSON.prototype
+     */
+    addRow: function(newDataRow) {
+        this.getData().push(newDataRow);
+        return newDataRow;
+    },
 });
 
 // LOCAL METHODS -- to be called with `.call(this`

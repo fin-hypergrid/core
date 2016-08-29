@@ -37,6 +37,39 @@ var Formatter = Base.extend({
     }
 });
 
+
+// Safari has no Intl implementation
+window.Intl = window.Intl || {
+    NumberFormat: function(locale, options) {
+        var digits = '0123456789';
+        this.format = function(n) {
+                var s = n.toString();
+            if (!options || options.useGrouping === undefined || options.useGrouping) {
+                var dp = s.indexOf('.');
+                if (dp < 0) { dp = s.length; }
+                while ((dp -= 3) > 0 && digits.indexOf(s[dp - 1]) >= 0) {
+                    s = s.substr(0, dp) + ',' + s.substr(dp);
+                }
+            }
+            return s;
+        };
+    },
+    DateTimeFormat: function(locale, options) {
+        this.format = function(date) {
+            if (date != null) {
+                if (typeof date !== 'object') {
+                    date = new Date(date);
+                }
+                date = date.getMonth() + 1 + '-' + date.getDate() + '-' + date.getFullYear();
+            } else {
+                date = null;
+            }
+            return date;
+        };
+    }
+};
+
+
 /**
  * @summary Create a number localizer.
  * @implements localizerInterface
@@ -72,7 +105,7 @@ var NumberFormatter = Formatter.extend('NumberFormatter', {
          * @private
          * @desc Localized digits and decimal point. Will also include standardized digits and decimal point if `options.acceptStandardDigits` is truthy.
          *
-         * For internal use by the {@link NumberFormatter#standardize|standardize} method.
+         * For internal use by the {@link NumberFormatter#parse|parse} method.
          * @memberOf NumberFormatter.prototype
          */
         this.map = mapper(10123456789.5).substr(1, 11); // localized '0123456789.'
@@ -116,7 +149,7 @@ var NumberFormatter = Formatter.extend('NumberFormatter', {
      *
      * Use this method to:
      * 1. Filter out invalid characters on a `onkeydown` event; or
-     * 2. Test an edited string prior to calling the {@link module:localization~NumberFormatter#standardize|standardize}.
+     * 2. Test an edited string prior to calling the {@link module:localization~NumberFormatter#parse|parse}.
      *
      * NOTE: This method does not check grammatical syntax; it only checks for invalid characters.
      *
@@ -232,7 +265,7 @@ var DateFormatter = Formatter.extend('DateFormatter', {
          */
         this.invalids = new RegExp(
             '[^' +
-            localizedDate +
+            localizedDate.replace(/-/g, '\\-') +
             missingDigits +
             ']'
         );
@@ -247,7 +280,7 @@ var DateFormatter = Formatter.extend('DateFormatter', {
      *
      * Use this method to:
      * 1. Filter out invalid characters on a `onkeydown` event; or
-     * 2. Test an edited string prior to calling the {@link module:localization~DateFormatter#standardize|standardize}.
+     * 2. Test an edited string prior to calling the {@link module:localization~DateFormatter#parse|parse}.
      *
      * NOTE: The current implementation only supports date formats using all numerics (which is the default for `Intl.DateFormat`).
      *

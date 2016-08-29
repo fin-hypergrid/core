@@ -77,16 +77,12 @@ var JSON = Local.extend('behaviors.JSON', {
         return new DataModelJSON(this.grid);
     },
 
-    applyAnalytics: function() {
-        this.dataModel.applyAnalytics();
-    },
-
     /**
      * @memberOf behaviors.JSON.prototype
      * @description Set the header labels.
      * @param {string[]|object} headers - The header labels. One of:
      * * _If an array:_ Must contain all headers in column order.
-     * * _If a hash:_ May contain any headers, keyed by field name, in any order (of course).
+     * * _If a hash:_ May contain any headers, keyed by field name, in any order.
      */
     setHeaders: function(headers) {
         if (headers instanceof Array) {
@@ -230,11 +226,16 @@ var JSON = Local.extend('behaviors.JSON', {
     },
 
     getColumnAlignment: function(x) {
-        if (x === 0 && this.hasHierarchyColumn()) {
-            return 'left';
+        var align;
+        if (x === -1) {
+            align = 'right';
+        } else if (x === 0 && this.hasHierarchyColumn()) {
+            align = 'left';
         } else {
-            return 'center';
+            align = this.getColumnProperties(x).halign;
         }
+
+        return align;
     },
     getHiddenColumns: function() {
         return this.dataModel.getHiddenColumns();

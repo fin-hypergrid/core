@@ -1,10 +1,12 @@
+[![Build Status](https://travis-ci.org/openfin/fin-hypergrid.svg?branch=develop)](https://travis-ci.org/openfin/fin-hypergrid)
+
 **fin-hypergrid** is an ultra-fast HTML5 grid presentation layer, achieving its speed by rendering (in a canvas tag) only the currently visible portion of your (virtual) grid, thus avoiding the latency and life-cycle issues of building, walking, and maintaining a complex DOM structure.
 
 <img src="images/README/gridshot04.gif">
 
-### Current Release (1.0.8 - 8 August 2016)
+### Current Release (1.0.9 - 29 August 2016)
 
-The current version replaces last year's [prototype version](https://github.com/openfin/fin-hypergrid/tree/polymer-prototype), which was built around Polymer. It is now completely "de-polymerized" and is being made available as:
+The current version 1.0 replaces last year's [prototype version](https://github.com/openfin/fin-hypergrid/tree/polymer-prototype), which was built around Polymer. It is now completely "de-polymerized" and is being made available as:
 * An [npm module](https://www.npmjs.com/package/fin-hypergrid) for use with browserify.
 * A single JavaScript file [fin-hypergrid.js](https://openfin.github.io/fin-hypergrid/build/fin-hypergrid.js) you can reference in a `<script>` tag.
 
@@ -30,13 +32,11 @@ Check out the Table view on Hyperblotter on a Windows machine via [this installe
 
 ##### Future development
 
-* Tree-view presentation for remotely aggregated data
-
-###### The Filtering & Analytics (sorting & aggregation) modules provided will be broken out of Hypergrid
-
-* We are currently working on expanding the API to enable application developers to easily provide their own functionality
-* Hypergrid will have no opinion on how the underlying data should be pivoted, but will remain capable of presenting pivoted data
-* The current filtering and analytics modules will become separate npm modules/JavaScript files that can be forked and further developed
+* We are currently working on expanding the API to enable application developers to easily provide their own functionality.
+* Hypergrid will have no opinion on how the underlying data should be pivoted, but will remain capable of presenting pivoted data.
+* For local data transformations, the current sorting, filtering, _etc.,_ modules will be unbundled from the Hypergrid build and published as external modules, along with full API docs so you can roll your own.
+* Remote data transformations will be supported with all the eventing necessary for triggering such transformations on a remote server.
+* Drill-downs, currently implemented for local tree view, group view, and aggregated data view, will be supported for remote data as well.
 
 ### Integrating
 
@@ -91,3 +91,4 @@ Hypergrid global configurations can be found [here](http://openfin.github.io/fin
 ### Contributors
 
 Developers interested in contributing to this project should submit pull requests against the `develop` branch.
+We have several beginner `help wanted` [tickets](https://github.com/openfin/fin-hypergrid/issues) open for community involvement.

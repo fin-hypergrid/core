@@ -460,7 +460,7 @@ var Renderer = Base.extend('Renderer', {
         var isMaxX = this.isLastColumnVisible();
         var chop = isMaxX ? 2 : 1;
         var colWall = this.getColumnEdges()[this.getColumnEdges().length - chop];
-        var result = Math.min(colWall, this.getBounds().width - 200);
+        var result = Math.min(colWall, this.getBounds().width);
         return result;
     },
 
@@ -1019,7 +1019,6 @@ var Renderer = Base.extend('Renderer', {
             } else {
                 cellProperties.value = [images.checkbox(isRowSelected), rowNum, null];
             }
-            cellProperties.halign = 'right';
         } else {
             // set dataRow and columnName used by valOrFunc (needed when func)
             var column = behavior.getActiveColumn(c);
@@ -1028,9 +1027,9 @@ var Renderer = Base.extend('Renderer', {
             cellProperties.calculator = column.calculator;
 
             cellProperties.value = grid.getValue(c, r);
-            cellProperties.halign = grid.getColumnAlignment(c);
         }
 
+        cellProperties.halign = grid.getColumnAlignment(c);
         cellProperties.isGridColumn = isGridColumn;
         cellProperties.isGridRow = isGridRow;
         cellProperties.isColumnHovered = grid.isColumnHovered(c) && isGridColumn;

@@ -1,9 +1,42 @@
+### 1.0.9 - 29 August 2016
+
+* Restored Safari support
+* Context Menu events no longer propagates
+* Added `[halign](http://openfin.github.io/fin-hypergrid/doc/module-defaults.html#halign)` render property.
+* Fixed: Vertical scrollbar is no longer misplaced 200 pixels to the left when grid overflows canvas's container width.
+* Grid's container will default to a height of 300px and css relative positioning unless those attributes are set 
+* Selection model
+    * Added `[multipleSelections](http://openfin.github.io/fin-hypergrid/doc/module-defaults.html#multipleSelections)`, a new grid property that defaults to `false`. Set it to `true` to "opt in" to get the old behavior wherein CTRL-click(-drag) selects additional cell regions. These multiple regions are nearly useless. (The application developer can programmatically inspect the selection model to see all such selections, the user can only COPY the most recently selected region.)
+    * Sample code: Added a new dashboard checkbox _Selection: one cell region at a time_ which (when _one row at a time_ is also checked) causes the cell selection to travel with the row selection. See the code in `fin-row-selection-changed` event listener in demo.js.
+    * Fixed demo: The _Selection: one row at a time_ dashboard checkbox now initializes properly.
+    * Fixed: User can now _un_check individual row selection checkboxes after clicking on the _select all_ checkbox at the top of the row handle column.
+* Tree view
+    * Fixed: Error was previously being thrown when column count was greater than row count.
+    * Improved sorting: Now only sorts on _expandable rows_ (rows with drill-down controls), leaving non-expandable rows (leaf node rows) _stable sorted_ (_i.e.,_ they retain their sort positions from the previous sorter).
+    * Improved default sort: When no column has an explicit sort, the group sorter is automatically applied, _e.g.,_ to the ID column which is usually hidden. UI no longer insists on a visible column sort; this functionality is now completely transparent to the user.
+* Filtering: Filter cell syntax a.k.a. Column Query Language (CQL)
+    * Fixed: Error reported upon encountering operators consisting of consecutive non alpha chars, _e.g.,_ `<=`, `>=`, and `<>` (all of which incidentally have Unicode equivalents in CQL, `≤`, `≥`, and `≠`.)
+    * Added `[opMustBeInMenu](http://openfin.github.io/fin-hypergrid/doc/FilterNode.html#opMustBeInMenu)` column schema option. When `true`, rejects manually entered valid operators not specifically in column's operator menu. Added usage example to demo.js on `last_name` column, which had a custom operator menu.
+    * Fixed CQL syntax support: Certain error conditions were causing premature alerts. Now fails "gracefully."
+    * Fixed SQL syntax support:
+        * SQL parser
+            * Now accepts unquoted numeric operands
+            * Now accepts column name or alias as operand
+        * SQL output
+            * Now outputs column operands (restoring broken functionality)
+* [Find Row API](http://openfin.github.io/fin-hypergrid/doc/rowById.html) plug-in: Find/modify/replace/delete a matching data row object.
+* Added `[dataModel.addRow()](http://openfin.github.io/fin-hypergrid/doc/dataModels.JSON.html#addRow)` method to add a new data row to the grid.
+* Internal change: Replaced use of `KeyboardEvent.keyIdentifier` in favor of `KeyboardEvent.key` because the former will be dropped in _Chromium M53_ due out in September. `KeyboardEvent.key` is also supported in IE 9 and FF 23. It is not however a perfect replacement. See comment under [1.4.0](https://github.com/openfin/fincanvas/blob/master/README.md) for more information.
+* Added grid property 'enableContinuousRepaint' (boolean). This is a _dynamic_ property and can be set or cleared at any time. When set:
+    * Repaint occurs continuously (without have to call `grid.repaint()`).
+    * `grid.getCanvas().currentFPS` is a measure of the number times the grid is being re-rendered each second.
+
 ### 1.0.8 - 8 August 2016
 
 * Wrapped column headers no longer overflow bottom of cell. Overflow is clipped.
 * Clicking to right of last column no longer throws an error.
 * Zooming out (e.g., 80%) now properly clears the grid before repainting.
-* Tree-view add-on improvements:
+* Tree-view plug-in improvements:
     * *Now sorts properly* and maintains a sorted state:
         * On any column sort, applies a _group sorter_ which sorts the column as usual but then automatically stable-sorts each level of group starting with deepest and working up to the top level. (_Stable sorting_ from lowest to highest level grouping is an efficient means of sorting nested data, equivalent to starting with the highest groups and recursing down the tree to each lowest group.)
         * Because raw data order is assumed to be undefined _and_ grouping structure requires that groups be sorted, automatically applies an initial _default sort_ to the "tree" column (name or index specified in `treeColumn` option passed to `TreeView` constructor; defaults to `'name'`). If a default sort column is defined (name or index specified in `defaultSortColumn` option; defaults to the tree column), the initial sort is applied to that column instead.
@@ -17,7 +50,7 @@
         * Make the blank column (now the left-most column) a fixed column (via the grid's `fixedColumnCount` property).
         * Specify some other column for the initial sort (in `option.defaultSortColumn`). This will typically be the column that identifies the group.
         * Demo: [`tree-view-separate-drill-down.html`](http://openfin.github.io/fin-hypergrid/tree-view-separate-drill-down.html)
-* *Grouped column headers* add-on (`add-ons/grouped-columns.js`):
+* *Grouped column headers* plug-in (`add-ons/grouped-columns.js`):
     * Include: `<script src="http://openfin.github.io/fin-hypergrid/build/add-ons/grouped-header.js"></script>`
     * Install: `fin.Hypergrid.groupedHeader.mixInTo(grid)`
     * Usage, for example: `grid.behavior.setHeaders({ lat: 'Coords|Lat.', long: 'Coords|Long.' })`
@@ -29,8 +62,8 @@
     * If the cell value is a function, however, legacy behavior is maintained: This function takes priority over the column function.
 * Upon selecting a new operator from a column filter cell's dropdown, rather than inserting the new operator at the cursor position, the old operator is now _replaced_ by the new one the operator. If the column filter cell contains several expressions (_i.e.,_ concatenated with `and`, `or`, or `nor`), the operator in the expression under the cursor is replaced.
 * Group view
-    * Aggregations and Group View have been added as add-ons and removed from HyperGrid core.
-    * The aggregations add-on has the same behavior as before while the Group View is a view of the original columns, with drill downs in the tree cell for expanding the groups provided.
+    * Aggregations and Group View have been added as plug-ins and removed from HyperGrid core.
+    * The aggregations plug-in has the same behavior as before while the Group View is a view of the original columns, with drill downs in the tree cell for expanding the groups provided.
     * Hypergrid now only loads with the original data source, the filter datasource as defaults, and the sorter data source.
     * Demo 1: [`aggregations.html`](http://openfin.github.io/fin-hypergrid/aggregations-view.html)
     * See Group Demo for example usage: [`group.html`](http://openfin.github.io/fin-hypergrid/group-view.html).
