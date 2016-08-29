@@ -652,14 +652,16 @@ module.exports = {
     /**
      * @default
      * @type {boolean}
+     * @instance
      */
     checkboxOnlyRowSelections: false,
 
     /** @summary Name of a formatter for cell text.
-     * The default (`undefined`) falls back to `column.type`.
+     * @desc The default (`undefined`) falls back to `column.type`.
      * The value `null` does no formatting.
      * @default undefined
      * @type {undefined|null|string}
+     * @instance
      * @tutorial localization
      */
     format: undefined,
@@ -668,6 +670,7 @@ module.exports = {
      * @desc Not editable if named editor is does not exist.
      * @default undefined
      * @type {undefined|null|string}
+     * @instance
      * @tutorial cell-editors
      */
     editor: undefined,
@@ -676,6 +679,7 @@ module.exports = {
      * Name of cell renderer from the {@link module:cellRenderers|cellRenderers API}.
      * @default
      * @type {string}
+     * @instance
      */
     renderer: 'SimpleCell',
 
@@ -690,6 +694,7 @@ module.exports = {
     /** On mouse hover, whether to repaint the cell background and how.
      * @type {hoverColors}
      * @default '{ enabled: true, background: rgba(160, 160, 40, 0.30) }'
+     * @instance
      */
     hoverCellHighlight: {
         enabled: true,
@@ -699,6 +704,7 @@ module.exports = {
     /** On mouse hover, whether to repaint the row background and how.
      * @type {hoverColors}
      * @default '{ enabled: true, background: rgba(100, 100, 25, 0.15) }'
+     * @instance
      */
     hoverRowHighlight: {
         enabled: true,
@@ -709,6 +715,7 @@ module.exports = {
     /** On mouse hover, whether to repaint the column background and how.
      * @type {hoverColors}
      * @default '{ enabled: true, background: rgba(60, 60, 15, 0.15) }'
+     * @instance
      */
     hoverColumnHighlight: {
         enabled: true,
@@ -720,26 +727,41 @@ module.exports = {
      * > Implementation of links right now is not automatic; you must attach a 'fin-click' listener to the hypergrid object, etc.
      * @type {boolean}
      * @default
+     * @instance
      */
     link: false,
 
     /** Display cell font with strike-through line drawn over it.
      * @type {boolean}
      * @default
+     * @instance
      */
     strikeThrough: false,
 
     /** Ignore sort interaction (double-click).
      * @type {boolean}
      * @default
+     * @instance
      */
     unsortable: false,
 
     /** Allow multiple cell region selections.
      * @type {boolean}
      * @default
+     * @instance
      */
     multipleSelections: false,
+
+    /** @summary Re-render grid at maximum speed.
+     * @desc In this mode:
+     * * The "dirty" flag, set by calling `grid.repaint()`, is ignored.
+     * * `grid.getCanvas().currentFPS` is a measure of the number times the grid is being re-rendered each second.
+     * * The Hypergrid renderer gobbles up CPU time even when the grid appears idle (the very scenario `repaint()` is designed to avoid). For this reason, we emphatically advise against shipping applications using this mode.
+     * @type {boolean}
+     * @default
+     * @instance
+     */
+    enableContinuousRepaint: false,
 };
 
 /** @typedef {string} cssColor

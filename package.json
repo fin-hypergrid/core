@@ -1,6 +1,6 @@
 {
   "name": "fin-hypergrid",
-  "version": "1.0.9",
+  "version": "1.0.10",
   "description": "Canvas-based high-performance spreadsheet",
   "repository": {
     "type": "git",

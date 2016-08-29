@@ -193,7 +193,7 @@ Column.prototype = {
 
     checkColumnAutosizing: function(force) {
         var properties = this.getProperties();
-        var a, b, d;
+        var a, b, d, autoSized;
         if (properties) {
             a = properties.width;
             b = properties.preferredWidth || a;
@@ -201,8 +201,10 @@ Column.prototype = {
             if (a !== b || !d) {
                 properties.width = !d ? b : Math.max(a, b);
                 properties.columnAutosized = !isNaN(properties.width);
+                autoSized = properties.width !== a;
             }
         }
+        return autoSized;
     },
 
     getCellType: function(y) {
