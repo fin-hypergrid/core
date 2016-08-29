@@ -1,6 +1,6 @@
 'use strict';
 
-var Null = require('./Null');
+var Null = require('./DataSourceBase');
 
 /**
  * @constructor
