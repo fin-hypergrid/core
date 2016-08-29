@@ -1,8 +1,10 @@
 ### 1.0.9 - 29 August 2016
 
 * Restored Safari support
+* Context Menu events no longer propagates
 * Added `[halign](http://openfin.github.io/fin-hypergrid/doc/module-defaults.html#halign)` render property.
 * Fixed: Vertical scrollbar is no longer misplaced 200 pixels to the left when grid overflows canvas's container width.
+* Grid's container will default to a height of 300px and css relative positioning unless those attributes are set 
 * Selection model
     * Added `[multipleSelections](http://openfin.github.io/fin-hypergrid/doc/module-defaults.html#multipleSelections)`, a new grid property that defaults to `false`. Set it to `true` to "opt in" to get the old behavior wherein CTRL-click(-drag) selects additional cell regions. These multiple regions are nearly useless. (The application developer can programmatically inspect the selection model to see all such selections, the user can only COPY the most recently selected region.)
     * Sample code: Added a new dashboard checkbox _Selection: one cell region at a time_ which (when _one row at a time_ is also checked) causes the cell selection to travel with the row selection. See the code in `fin-row-selection-changed` event listener in demo.js.
