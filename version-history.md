@@ -2,11 +2,11 @@
 
 * Restored Safari support
 * Context Menu events no longer propagates
-* Added `[halign](http://openfin.github.io/fin-hypergrid/doc/module-defaults.html#halign)` render property.
+* Added [`halign`](http://openfin.github.io/fin-hypergrid/doc/module-defaults.html#halign) render property.
 * Fixed: Vertical scrollbar is no longer misplaced 200 pixels to the left when grid overflows canvas's container width.
 * Grid's container will default to a height of 300px and css relative positioning unless those attributes are set 
 * Selection model
-    * Added `[multipleSelections](http://openfin.github.io/fin-hypergrid/doc/module-defaults.html#multipleSelections)`, a new grid property that defaults to `false`. Set it to `true` to "opt in" to get the old behavior wherein CTRL-click(-drag) selects additional cell regions. These multiple regions are nearly useless. (The application developer can programmatically inspect the selection model to see all such selections, the user can only COPY the most recently selected region.)
+    * Added [`multipleSelections`](http://openfin.github.io/fin-hypergrid/doc/module-defaults.html#multipleSelections), a new grid property that defaults to `false`. Set it to `true` to "opt in" to get the old behavior wherein CTRL-click(-drag) selects additional cell regions. These multiple regions are nearly useless. (The application developer can programmatically inspect the selection model to see all such selections, the user can only COPY the most recently selected region.)
     * Sample code: Added a new dashboard checkbox _Selection: one cell region at a time_ which (when _one row at a time_ is also checked) causes the cell selection to travel with the row selection. See the code in `fin-row-selection-changed` event listener in demo.js.
     * Fixed demo: The _Selection: one row at a time_ dashboard checkbox now initializes properly.
     * Fixed: User can now _un_check individual row selection checkboxes after clicking on the _select all_ checkbox at the top of the row handle column.
@@ -16,7 +16,7 @@
     * Improved default sort: When no column has an explicit sort, the group sorter is automatically applied, _e.g.,_ to the ID column which is usually hidden. UI no longer insists on a visible column sort; this functionality is now completely transparent to the user.
 * Filtering: Filter cell syntax a.k.a. Column Query Language (CQL)
     * Fixed: Error reported upon encountering operators consisting of consecutive non alpha chars, _e.g.,_ `<=`, `>=`, and `<>` (all of which incidentally have Unicode equivalents in CQL, `≤`, `≥`, and `≠`.)
-    * Added `[opMustBeInMenu](http://openfin.github.io/fin-hypergrid/doc/FilterNode.html#opMustBeInMenu)` column schema option. When `true`, rejects manually entered valid operators not specifically in column's operator menu. Added usage example to demo.js on `last_name` column, which had a custom operator menu.
+    * Added [`opMustBeInMenu`](http://openfin.github.io/fin-hypergrid/doc/FilterNode.html#opMustBeInMenu) column schema option. When `true`, rejects manually entered valid operators not specifically in column's operator menu. Added usage example to demo.js on `last_name` column, which had a custom operator menu.
     * Fixed CQL syntax support: Certain error conditions were causing premature alerts. Now fails "gracefully."
     * Fixed SQL syntax support:
         * SQL parser
@@ -25,7 +25,7 @@
         * SQL output
             * Now outputs column operands (restoring broken functionality)
 * [Find Row API](http://openfin.github.io/fin-hypergrid/doc/rowById.html) plug-in: Find/modify/replace/delete a matching data row object.
-* Added `[dataModel.addRow()](http://openfin.github.io/fin-hypergrid/doc/dataModels.JSON.html#addRow)` method to add a new data row to the grid.
+* Added [`dataModel.addRow()`](http://openfin.github.io/fin-hypergrid/doc/dataModels.JSON.html#addRow) method to add a new data row to the grid.
 * Internal change: Replaced use of `KeyboardEvent.keyIdentifier` in favor of `KeyboardEvent.key` because the former will be dropped in _Chromium M53_ due out in September. `KeyboardEvent.key` is also supported in IE 9 and FF 23. It is not however a perfect replacement. See comment under [1.4.0](https://github.com/openfin/fincanvas/blob/master/README.md) for more information.
 * Added grid property 'enableContinuousRepaint' (boolean). This is a _dynamic_ property and can be set or cleared at any time. When set:
     * Repaint occurs continuously (without have to call `grid.repaint()`).
