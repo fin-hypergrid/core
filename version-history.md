@@ -6,7 +6,7 @@
 * Fixed: Vertical scrollbar is no longer misplaced 200 pixels to the left when grid overflows canvas's container width.
 * Grid's container will default to a height of 300px and css relative positioning unless those attributes are set 
 * Selection model
-    * Added [`multipleSelections`](http://openfin.github.io/fin-hypergrid/doc/module-defaults.html#multipleSelections), a new grid property that defaults to `false`. Set it to `true` to "opt in" to get the old behavior wherein CTRL-click(-drag) selects additional cell regions. These multiple regions are nearly useless. (The application developer can programmatically inspect the selection model to see all such selections, the user can only COPY the most recently selected region.)
+    * Added [`multipleSelections`](http://openfin.github.io/fin-hypergrid/doc/module-defaults.html#.multipleSelections), a new grid property that defaults to `false`. Set it to `true` to "opt in" to get the old behavior wherein CTRL-click(-drag) selects additional cell regions. These multiple regions are nearly useless. (The application developer can programmatically inspect the selection model to see all such selections, the user can only COPY the most recently selected region.)
     * Sample code: Added a new dashboard checkbox _Selection: one cell region at a time_ which (when _one row at a time_ is also checked) causes the cell selection to travel with the row selection. See the code in `fin-row-selection-changed` event listener in demo.js.
     * Fixed demo: The _Selection: one row at a time_ dashboard checkbox now initializes properly.
     * Fixed: User can now _un_check individual row selection checkboxes after clicking on the _select all_ checkbox at the top of the row handle column.
@@ -16,7 +16,7 @@
     * Improved default sort: When no column has an explicit sort, the group sorter is automatically applied, _e.g.,_ to the ID column which is usually hidden. UI no longer insists on a visible column sort; this functionality is now completely transparent to the user.
 * Filtering: Filter cell syntax a.k.a. Column Query Language (CQL)
     * Fixed: Error reported upon encountering operators consisting of consecutive non alpha chars, _e.g.,_ `<=`, `>=`, and `<>` (all of which incidentally have Unicode equivalents in CQL, `≤`, `≥`, and `≠`.)
-    * Added [`opMustBeInMenu`](http://openfin.github.io/fin-hypergrid/doc/FilterNode.html#opMustBeInMenu) column schema option. When `true`, rejects manually entered valid operators not specifically in column's operator menu. Added usage example to demo.js on `last_name` column, which had a custom operator menu.
+    * Added [`opMustBeInMenu`](http://joneit.github.io/filter-tree/FilterNode.html#opMustBeInMenu) column schema option. When `true`, rejects manually entered valid operators not specifically in column's operator menu. Added usage example to demo.js on `last_name` column, which had a custom operator menu.
     * Fixed CQL syntax support: Certain error conditions were causing premature alerts. Now fails "gracefully."
     * Fixed SQL syntax support:
         * SQL parser
@@ -30,7 +30,7 @@
 * Added grid property `enableContinuousRepaint` (boolean). This is a _dynamic_ property and can be set or cleared at any time. When this mode is set:
     * Repaint occurs continuously (without having to call `grid.repaint()`).
     * `grid.getCanvas().currentFPS` is a measure of the number times the grid is being re-rendered each second.
-    * While useful to get a measure of your grid's render speed, we emphatically adivse against shipping applications using this mode because it causes Hypergrid to gobble up CPU time even when the grid appears idle (the very scenario `repaint()` is designed to avoid). 
+    * While useful to get a measure of your grid's render speed, we emphatically advise against shipping applications using this mode because it causes Hypergrid to gobble up CPU time even when the grid appears idle (the very scenario `repaint()` is designed to avoid). 
 
 ### 1.0.8 - 8 August 2016
 
