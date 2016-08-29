@@ -1,7 +1,5 @@
 # Welcome
 
-Third-party contributors are essential for keeping Hypergrid great. We simply cannot imagine
-all the different ways the grid will be styled, configured and integrated in your application.
 Thank you in advance for being apart of this project and for helping to make HyperGrid the most performant and customizable grid
 available! 
 
@@ -58,6 +56,7 @@ Please note that eventually, these add-ons will be split out into their own set 
 
 * Make sure you have added the necessary [tests](https://github.com/openfin/fin-hypergrid/tree/master/test) for your changes.
 * Run _all_ the tests to assure nothing else was accidentally broken.
+* Test your changes in all IE11, Opera, Chrome, Chrome 40, Firefox
 
 
 ### Documentation
