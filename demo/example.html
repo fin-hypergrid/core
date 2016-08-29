@@ -8,7 +8,6 @@
     <div id="fin-grid"></div>
 
     <script src="build/fin-hypergrid.js"></script>
-    <script src="build/add-ons/row-by-id.js"></script>
 
     <script>
 var data = [
@@ -18,7 +17,7 @@ var data = [
     { symbol: 'IBM', name: 'International Business Machines Corp', prevclose: 155.35 }
 ];
 
-var grid = new fin.Hypergrid('#fin-grid', { data: data })
+var grid = new fin.Hypergrid('#fin-grid', { data: data });
 
 grid.addProperties({
     showRowNumbers: false,

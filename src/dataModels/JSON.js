@@ -823,7 +823,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
 
     /**
      * @summary Add a new data row to the grid.
-     * @desc Reminder: To see the deletion in the grid, you must eventually call:
+     * @desc If data source pipeline in use, to see the new row in the grid, you must eventually call:
      * ```javascript
      * this.grid.behavior.applyAnalytics();
      * this.grid.behaviorChanged();
