@@ -57,6 +57,17 @@ Please note that eventually, these add-ons will be split out into their own set 
 * Make sure you have added the necessary [tests](https://github.com/openfin/fin-hypergrid/tree/master/test) for your changes.
 * Run _all_ the tests to assure nothing else was accidentally broken.
 * Test your changes in all IE11, Opera, Chrome, Chrome 40, Firefox
+* We are evaluating different testing strategies but for the moment, the major considerations are for
+    * renders datacells when it is bound to homogenous data array
+    * scrolls/arrow-key navigates cell-by-cell
+    * uses less than 7% CPU when idle
+    * can use html5 controls to edit the data already loaded
+    * can draw customized renderers in cells performantly
+    * resizes based on its viewport
+    * can align fonts or unicode characters left, center or middle both horizontally and vertically
+    * the grid can pass the raw data it recieved through a customized data transformation pipeline
+    * Columns can be resized
+    ...
 
 
 ### Documentation
