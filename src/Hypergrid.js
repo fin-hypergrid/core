@@ -583,9 +583,10 @@ Hypergrid.prototype = {
     checkColumnAutosizing: function() {
         var behavior = this.behavior;
         behavior.autoSizeRowNumberColumn();
-        if (this.isColumnAutosizing()) {
-            behavior.checkColumnAutosizing(false);
-            setTimeout(function() { behavior.grid.synchronizeScrollingBoundries();});
+        if (this.isColumnAutosizing() && behavior.checkColumnAutosizing(false)) {
+            setTimeout(function() {
+                behavior.grid.synchronizeScrollingBoundries();
+            });
         }
     },
     /**

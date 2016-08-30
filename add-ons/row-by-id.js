@@ -33,7 +33,7 @@
  *
  * ### Examples
  *
- * _Instructions:_ You can try the examples below by going to [rowById.html](http://openfin.github.io/fin-hypergrid/rowById.html). This page is identical to [rowById.html](http://openfin.github.io/fin-hypergrid/example.html) _except_ with the addition of the above client-side install and mix-in lines. Then copy & paste each of the following code blocks into Chrome's developer console and hit the return key, observing the changes to the grid as you do so.
+ * _Instructions:_ You can try the examples below by going to [row-by-id.html](http://openfin.github.io/fin-hypergrid/row-by-id.html). This page is identical to [example.html](http://openfin.github.io/fin-hypergrid/example.html) _except_ with the addition of the above client-side install and mix-in lines. Then copy & paste each of the following code blocks into Chrome's developer console and hit the return key, observing the changes to the grid as you do so.
  *
  * 1. Set up some variables:
  * ```javascript

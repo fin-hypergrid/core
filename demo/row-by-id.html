@@ -8,6 +8,7 @@
     <div id="fin-grid"></div>
 
     <script src="build/fin-hypergrid.js"></script>
+    <script src="build/add-ons/row-by-id.js"></script>
 
     <script>
 var data = [
@@ -18,6 +19,8 @@ var data = [
 ];
 
 var grid = new fin.Hypergrid('#fin-grid', { data: data });
+
+fin.Hypergrid.rowById.mixInTo(grid.behavior.dataModel);
 
 grid.addProperties({
     showRowNumbers: false,
