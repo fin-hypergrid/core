@@ -730,8 +730,7 @@ var Behavior = Base.extend('Behavior', {
     },
     /**
      * @memberOf Behavior.prototype
-     * @desc First checks to see if something was overridden.
-     * @return {*} The value at x,y for the top left section of the hypergrid.
+     * @return {*} The value at x,y in the hypergrid.
      * @param {number} x - x coordinate
      * @param {number} y - y coordinate
      */
