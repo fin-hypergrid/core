@@ -136,7 +136,7 @@ var ColumnPicker = Dialog.extend('ColumnPicker', {
             var groupBys = this.selectedGroups.models.map(function(e) {
                 return e.id;
             });
-            behavior.dataModel.setGroups(groupBys);
+            behavior.setGroups(groupBys);
         }
     }
 });
