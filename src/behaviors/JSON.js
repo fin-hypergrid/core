@@ -121,6 +121,7 @@ var JSON = Behavior.extend('behaviors.JSON', {
      * @param {function|object} [options.schema=deriveSchema] - Used in filter instantiation.
      */
     setData: function(dataRows, options) {
+        options = options || {};
         var self = this,
             grid = this.grid,
             fields = options && options.fields,
@@ -129,7 +130,7 @@ var JSON = Behavior.extend('behaviors.JSON', {
         fields = typeof fields === 'function' ? fields() : fields;
         calculators = typeof calculators === 'function' ? calculators() : calculators;
         dataRows = typeof dataRows === 'function' ? dataRows() : dataRows;
-
+        dataRows = Array.isArray(dataRows) ? dataRows : options.data;
         this.dataModel.setData(dataRows, fields, calculators);
         this.createColumns();
 
