@@ -19,7 +19,7 @@ module.exports = {
      * @type {string}
      * @instance
      */
-    noDataMessage: 'no data to display',
+    noDataMessage: '',
 
 
     /**
