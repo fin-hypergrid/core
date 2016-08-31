@@ -27,9 +27,10 @@ var themeInitialized = false,
 
 /**s
  * @constructor
- * @param {string|Element} div - CSS selector or Element
+ * @param {string|Element} [container] - CSS selector or Element
  * @param {object} [options]
- * @param {function} [options.Behavior=behaviors.JSON] - A behavior constructor.
+ * @param {function} [options.Behavior=behaviors.JSON] - A behavior constructor or instance
+ * @param {function} [options.pipeline] - A pipeline of data-transforms to occur on applyAnalytics call
  * @param {function|object[]} [options.data] - Passed to behavior constructor. May be:
  * * An array of congruent raw data objects
  * * A function returning same
@@ -39,6 +40,7 @@ var themeInitialized = false,
  * * Omit to generate a basic schema from `this.behavior.columns`.
  * @param {Behavior} [options.Behavior=JSON] - A grid behavior (descendant of Behavior "class"). Will be used if `getBehavior` omitted, in which case `options.data` (which has no default) *must* also be provided.
  * @param {string} [options.localization=Hypergrid.localization]
+ * @param {string|Element} [options.container] - CSS selector or Element
  * @param {string|string[]} [options.localization.locale=Hypergrid.localization.locale] - The default locale to use when an explicit `locale` is omitted from localizer constructor calls. Passed to Intl.NumberFomrat` and `Intl.DateFomrat`. See {@ https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl#Locale_identification_and_negotiation|Locale identification and negotiation} for more information.
  * @param {string} [options.localization.numberOptions=Hypergrid.localization.numberOptions] - Options passed to `Intl.NumberFomrat` for creating the basic "number" localizer.
  * @param {string} [options.localization.dateOptions=Hypergrid.localization.dateOptions] - Options passed to `Intl.DateFomrat` for creating the basic "date" localizer.
@@ -47,13 +49,22 @@ var themeInitialized = false,
  * @param {string} [options.margin.right=0]
  * @param {string} [options.margin.bottom=0]
  * @param {string} [options.margin.left=0]
+ * @param {object} [options.boundingRect] - optional grid container argument
+ * @param {string} [options.boundingRect.height=300]
+ * @param {string} [options.boundingRect.width=300]
+ * @param {string} [options.boundingRect.postion=relative]
  */
-function Hypergrid(div, options) {
+function Hypergrid(container, options) {
     //var self = this;
     //initialize our various pieces
     if (!themeInitialized) {
         themeInitialized = true;
         gridTheme = buildTheme(gridTheme);
+    }
+    //Optional container argument
+    if (!(typeof container === 'string') && !(container instanceof HTMLElement)) {
+        options = container;
+        container = null;
     }
     this.options = options || {};
     this.lastEdgeSelection = [0, 0];
@@ -66,7 +77,7 @@ function Hypergrid(div, options) {
     this.numRows = 0;
     this.numColumns = 0;
     this.clearMouseDown();
-    this.setFormatter(this.options.localization || {});
+    this.setFormatter(this.options.localization);
     /**
      * @type {CellRenderers}
      * @memberOf Hypergrid.prototype
@@ -78,46 +89,21 @@ function Hypergrid(div, options) {
      * @memberOf Hypergrid.prototype
      */
     this.cellEditors = new CellEditors(this);
-    if (div) {
-        this.setContainer(div);
-    }
+    //Set up the container for the grid
+    container = container || this.options.container;
+    container = container || findOrCreateContainer(this.options.boundingRect);
+    this.setContainer(container);
+
     var Behavior = this.options.Behavior;
     if (Behavior) {
         this.setBehavior(new Behavior(this), this.options.data, this.options);
     }
 }
 
-function _initCanvasAndScrollBars(grid){
-    if (!grid.div){
-        throw 'Grid container not defined. Assign a div with .setContainer';
-    }
-
-    if (grid.divCanvas) {
-        grid.div.appendChild(grid.divCanvas);
-    } else {
-        var margin = grid.options.margin || {};
-        margin.top = margin.top || 0;
-        margin.right = margin.right || 0;
-        margin.bottom = margin.bottom || 0;
-        margin.left = margin.left || 0;
-        grid.initCanvas(margin);
-    }
-    if (grid.sbHScroller && grid.sbVScroller) {
-        grid.div.appendChild(grid.sbHScroller.bar);
-        grid.div.appendChild(grid.sbVScroller.bar);
-    } else {
-        grid.initScrollbars();
-    }
-    grid.getCanvas().resize();
-}
-
 Hypergrid.prototype = {
     constructor: Hypergrid.prototype.constructor,
 
     deprecated: deprecated,
-    addFinEventListener: function(eventName, callback) {
-        return this.deprecated('.addFinEventListener(eventName, callback)', 'v0.2', arguments, 'Use .addEventListener() instead. (Will be removed in a future release.)');
-    },
     registerCellEditor: function(Constructor, name) {
         return this.deprecated('registerCellEditor(Constructor, name)', 'cellEditors.add(name, Constructor)', '1.0.6', arguments);
     },
@@ -300,11 +286,12 @@ Hypergrid.prototype = {
         var p = this.getHoverCell();
         return p && p.x === x && p.y === y;
     },
-    setFormatter: function(loc){
+    setFormatter: function(options){
+        options = options || {};
         this.localization = new Localization(
-            loc.locale || Hypergrid.localization.locale,
-            loc.numberOptions || Hypergrid.localization.numberOptions,
-            loc.dateOptions || Hypergrid.localization.dateOptions
+            options.locale || Hypergrid.localization.locale,
+            options.numberOptions || Hypergrid.localization.numberOptions,
+            options.dateOptions || Hypergrid.localization.dateOptions
         );
     },
     getFormatter: function(localizerName) {
@@ -725,17 +712,26 @@ Hypergrid.prototype = {
      * @memberOf Hypergrid.prototype
      * @summary Set the Behavior (model) object for this grid control.
      * @desc This can be done dynamically.
-     * @param {Behavior} behavior - The behavior (model).
+     * @param {Behavior} behavior - The behavior (model) can be either a constructor or an instance.
      * @param {object[]} dataRows - _(See {@link behaviors.JSON#setData}.)_
      * @param {object} [options] - _(See {@link behaviors.JSON#setData}.)_
      */
     setBehavior: function(behavior, dataRows, options) {
+        if (typeof behavior === 'function'){
+            behavior = new behavior(this);  // eslint-disable-line
+        }
+
         behavior.changed = this.behaviorChanged.bind(this);
         behavior.shapeChanged = this.behaviorShapeChanged.bind(this);
         behavior.stateChanged = this.behaviorStateChanged.bind(this);
         this.behavior = behavior;
         this.behavior.reset();
-        _initCanvasAndScrollBars(this);
+        initCanvasAndScrollBars.call(this);
+        if (this.options.pipeline){
+            this.options.pipeline.forEach(function(p){
+                this.behavior.dataModel.addPipe(p);
+            });
+        }
         this.setData(dataRows, options);
         this.refreshProperties();
     },
@@ -757,9 +753,10 @@ Hypergrid.prototype = {
 
     /**
      * @memberOf Hypergrid.prototype
+     * @param {object} [stopApply] - _(See {@link dataModels.JSON#setPipeline}.)_
      */
-    setPipeline: function(){
-        //Not implemented in this branch
+    setPipeline: function(stopApply){
+        this.behavior.setPipeline(stopApply);
     },
     /**
      * @memberOf Hypergrid.prototype
@@ -849,7 +846,7 @@ Hypergrid.prototype = {
     setContainer: function(div) {
         this.initContainer(div);
         this.initRenderer();
-
+        injectGridElements.call(this);
     },
     /**
      * @memberOf Hypergrid.prototype
@@ -2094,6 +2091,9 @@ Hypergrid.prototype = {
      * @desc Initialize the scroll bars.
      */
     initScrollbars: function() {
+        if (this.sbHScroller && this.sbVScroller){
+            return;
+        }
 
         var self = this;
 
@@ -3375,8 +3375,58 @@ Hypergrid.prototype = {
         }
 
         return result;
-    },
+    }
 };
+function findOrCreateContainer(boundingRect){
+    boundingRect = boundingRect || {};
+    boundingRect.width = boundingRect.width || '300px';
+    boundingRect.height = boundingRect.height || '300px';
+    boundingRect.position = boundingRect.position || 'relative';
+
+    var div,
+        defaultID = 'hypergrid';
+    div = document.getElementById(defaultID);
+    if (div){
+        return div;
+    }
+    div = document.createElement('div');
+    div.setAttribute('id', defaultID);
+    div.style.width = boundingRect.width;
+    div.style.height = boundingRect.height;
+    div.setAttribute('ppsition', boundingRect.position);
+    document.body.appendChild(div);
+    return div;
+}
+
+/**
+* @this {Hypergrid}
+*/
+function initCanvasAndScrollBars(){
+    if (!this.divCanvas) {
+        var margin = this.options.margin || {};
+        margin.top = margin.top || 0;
+        margin.right = margin.right || 0;
+        margin.bottom = margin.bottom || 0;
+        margin.left = margin.left || 0;
+        this.initCanvas(margin);
+    }
+    this.initScrollbars();
+    injectGridElements.call(this);
+}
+/**
+ * @this {Hypergrid}
+ */
+function injectGridElements(){
+    if (this.divCanvas) {
+        this.div.appendChild(this.divCanvas);
+        this.getCanvas().resize();
+    }
+    if (this.sbHScroller && this.sbVScroller) {
+        this.div.appendChild(this.sbHScroller.bar);
+        this.div.appendChild(this.sbVScroller.bar);
+    }
+}
+
 
 /**
  * @summary Update deep properties with new values.

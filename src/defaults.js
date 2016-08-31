@@ -539,7 +539,7 @@ module.exports = {
      * @type {boolean}
      * @instance
      */
-    showFilterRow: true,
+    showFilterRow: false,
 
 
     /** Clicking in a cell "selects" it; it is added to the select region and repainted with "cell selection" colors.

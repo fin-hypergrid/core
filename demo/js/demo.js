@@ -763,7 +763,9 @@ window.onload = function() {
     });
 
     grid.addProperties({
-        readOnly: false
+        readOnly: false,
+        noDataMessage: 'No Date to Display',
+        showFilterRow: true
     });
 
     grid.addEventListener('fin-cell-enter', function(e) {
