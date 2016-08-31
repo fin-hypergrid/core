@@ -108,6 +108,7 @@ function _initCanvasAndScrollBars(grid){
     } else {
         grid.initScrollbars();
     }
+    grid.getCanvas().resize();
 }
 
 Hypergrid.prototype = {
@@ -1031,7 +1032,6 @@ Hypergrid.prototype = {
         document.body.addEventListener('copy', function(evt) {
             self.checkClipboardCopy(evt);
         });
-        this.resize();
     },
 
     convertViewPointToDataPoint: function(viewPoint) {
