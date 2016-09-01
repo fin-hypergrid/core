@@ -179,12 +179,29 @@ Column.prototype = {
     },
 
     getCellProperties: function(y) {
-        y = this.dataModel.getDataIndex(y);
+        var headers = this.behavior.getHeaderRowCount();
+        if (y >= headers) {
+            y = headers + this.dataModel.getDataIndex(y - headers);
+        }
         return this.cellProperties[y] || {};
     },
 
-    setCellProperties: function(y, value) {
-        this.cellProperties[y] = value;
+    setCellProperties: function(y, properties) {
+        var headers = this.behavior.getHeaderRowCount();
+        if (y >= headers) {
+            y = headers + this.dataModel.getDataIndex(y - headers);
+        }
+        this.cellProperties[y] = properties;
+    },
+
+    addCellProperty: function(y, key, value) {
+        var headers = this.behavior.getHeaderRowCount();
+        if (y >= headers) {
+            y = headers + this.dataModel.getDataIndex(y - headers);
+        }
+        var properties = this.cellProperties[y] = this.cellProperties[y] || {};
+        properties[key] = value;
+        return properties;
     },
 
     clearAllCellProperties: function() {
