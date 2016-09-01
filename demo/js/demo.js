@@ -145,6 +145,7 @@ window.onload = function() {
         dataset = data;
         behavior.setData(data, options);
         idx = behavior.columnEnum;
+        behavior.dataModel.applyAnalytics();
     }
 
     // Preset a default dialog options object. Used by call to toggleDialog('ColumnPicker') from features/ColumnPicker.js and by toggleDialog() defined herein.
@@ -221,7 +222,7 @@ window.onload = function() {
             treeView.setRelation(false);
             treeView = undefined;
             delete dataModel.pipeline; // restore original (shared) pipeline
-            behavior.setData(); // reset with original pipelline
+            behavior.setPipeline(); // reset with original pipeline
         }
     }
 
