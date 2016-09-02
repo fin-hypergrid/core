@@ -1,13 +1,16 @@
 'use strict';
 
-var Base = require('../lib/Base');
+DataSourceBase.extend = require('extend-me');
 
-var Null = Base.extend('Null', {
+function DataSourceBase() {}
+
+DataSourceBase.prototype = {
+    constructor: DataSourceBase.prototype.constructor,
+
     replaceIndent: '_',
 
-    isNullObject: function() {
-        return true;
-    },
+    isNullObject: true,
+
     getProperty: function getProperty(propName) {
         if (propName in this) {
             return this[propName];
@@ -125,6 +128,6 @@ var Null = Base.extend('Null', {
         }
         console.table(data);
     }
-});
+};
 
-module.exports = Null;
+module.exports = DataSourceBase;

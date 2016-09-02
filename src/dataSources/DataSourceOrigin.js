@@ -1,15 +1,20 @@
 'use strict';
 
-var Null = require('./DataSourceBase');
+var DataSourceBase = require('./DataSourceBase');
+var headerify = require('hyper-analytics').util.headerify;
 
 /**
+ * See {@link DataSourceOrigin#initialize} for constructor parameters.
  * @constructor
  */
-var JSON = Null.extend('JSON',  {
+var DataSourceOrigin = DataSourceBase.extend('DataSourceOrigin',  {
 
-    initialize: function(data, fields, calculators) {
-        this.setData(data, fields, calculators);
-    },
+    /**
+     * Currently a synonym for {@link DataSourceOrigin#setData} (see).
+     */
+    initialize: setData,
+
+    setData: setData,
 
     isNullObject: false,
 
@@ -18,7 +23,7 @@ var JSON = Null.extend('JSON',  {
     },
 
     /**
-     * @memberOf DataSource.prototype
+     * @memberOf DataSourceOrigin#
      * @param y
      * @returns {object[]}
      */
@@ -46,7 +51,7 @@ var JSON = Null.extend('JSON',  {
      * * _object_ - found data row object (will have been deleted if `replacement` was `null`)
      * * _number_ - index of found data row object in `this.data` (if `replacement` was `undefined`)
      * @todo Use a binary search (rather than `Array..find`) when column is known to be indexed (sorted).
-     * @memberOf DataSource#
+     * @memberOf DataSourceOrigin#
      */
     findRow: function findRow(columnName, value, replacement) {
         var result, index, keys, hash, args;
@@ -127,7 +132,7 @@ var JSON = Null.extend('JSON',  {
 
 
     /**
-     * @memberOf DataSource.prototype
+     * @memberOf DataSourceOrigin#
      * @param x
      * @param y
      * @returns {*}
@@ -141,7 +146,7 @@ var JSON = Null.extend('JSON',  {
     },
 
     /**
-     * @memberOf DataSource.prototype
+     * @memberOf DataSourceOrigin#
      * @param {number} x
      * @param {number} y
      * @param value
@@ -151,7 +156,7 @@ var JSON = Null.extend('JSON',  {
     },
 
     /**
-     * @memberOf DataSource.prototype
+     * @memberOf DataSourceOrigin#
      * @returns {number}
      */
     getRowCount: function() {
@@ -159,7 +164,7 @@ var JSON = Null.extend('JSON',  {
     },
 
     /**
-     * @memberOf DataSource.prototype
+     * @memberOf DataSourceOrigin#
      * @returns {number}
      */
     getColumnCount: function() {
@@ -167,7 +172,7 @@ var JSON = Null.extend('JSON',  {
     },
 
     /**
-     * @memberOf DataSource.prototype
+     * @memberOf DataSourceOrigin#
      * @returns {number[]}
      */
     getFields: function() {
@@ -175,19 +180,19 @@ var JSON = Null.extend('JSON',  {
     },
 
     /**
-     * @memberOf DataSource.prototype
+     * @memberOf DataSourceOrigin#
      * @returns {string[]}
      */
     getHeaders: function() {
         return (
-            this.headers = /*this.headers || (temporary until I get bootstrapping running unopionated)*/ this.getDefaultHeaders().map(function(each) {
-                    return capitalize(each);
-                })
+            this.headers = this.headers || this.getDefaultHeaders().map(function(each) {
+                return headerify.transform(each);
+            })
         );
     },
 
     /**
-     * @memberOf DataSource.prototype
+     * @memberOf DataSourceOrigin#
      * @returns {string[]}
      */
     getDefaultHeaders: function() {
@@ -195,7 +200,7 @@ var JSON = Null.extend('JSON',  {
     },
 
     /**
-     * @memberOf DataSource.prototype
+     * @memberOf DataSourceOrigin#
      * @param {string[]} fields
      */
     setFields: function(fields) {
@@ -203,7 +208,7 @@ var JSON = Null.extend('JSON',  {
     },
 
     /**
-     * @memberOf DataSource.prototype
+     * @memberOf DataSourceOrigin#
      * @param {string[]} headers
      */
     setHeaders: function(headers) {
@@ -214,34 +219,48 @@ var JSON = Null.extend('JSON',  {
     },
 
     /**
-     * @memberOf DataSource.prototype
+     * @memberOf DataSourceOrigin#
      */
     getGrandTotals: function() {
         //nothing here
-    },
-
-    /**
-     * @memberOf DataSource.prototype
-     * @param data
-     */
-    setData: function(data, fields, calculators) {
-
-        if (!data) {
-            data = [];
-        }
-        /**
-         * @type {string[]}
-         */
-        this.fields = fields || computeFieldNames(data[0]);
-
-        this.calculators = calculators || Array(this.fields.length);
-
-        /**
-         * @type {object[]}
-         */
-        this.data = data;
     }
 });
+
+/**
+ * @param {object[]} [data=[]] - Array of uniform objects containing the grid data.
+ * @param {string[]} [fields] - Array of field names.
+ * If omitted, derives names from first data row object (in no particular order).
+ * @param {string[]} [calculators] - Array of calculator functions.
+ * If omitted, set to an array of undefined elements with same length of `fields`.
+ * @memberOf DataSourceOrigin#
+ */
+function setData(data, fields, calculators) {
+
+    if (!data) {
+        data = [];
+    }
+
+    /**
+     * @summary Array of field names.
+     * @desc The order of the names in this array defines the concept of a column index.
+     * @type {string[]}
+     */
+    this.fields = fields || computeFieldNames(data[0]);
+
+    /**
+     * @summary JavaScript functions to calculate the value for computed columns.
+     * @desc The order of this array is defined by {@link DataSourceOrigin#fields}.
+     * This array is typically sparse: Regular columns must not define elements in this array.
+     * @type {function[]}
+     */
+    this.calculators = calculators || Array(this.fields.length);
+
+    /**
+     * @summary Array of uniform objects containing the grid data.
+     * @type {object[]}
+     */
+    this.data = data;
+}
 
 
 function error(methodName, message) {
@@ -262,15 +281,4 @@ function computeFieldNames(object) {
     });
 }
 
-function capitalize(string) {
-    return (/[a-z]/.test(string) ? string : string.toLowerCase())
-        .replace(/[\s\-_]*([^\s\-_])([^\s\-_]+)/g, replacer)
-        .replace(/[A-Z]/g, ' $&')
-        .trim();
-}
-
-function replacer(a, b, c) {
-    return b.toUpperCase() + c;
-}
-
-module.exports = JSON;
+module.exports = DataSourceOrigin;

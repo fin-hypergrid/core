@@ -3,7 +3,7 @@
 var analytics = require('../Shared.js').analytics;
 var DataModel = require('./DataModel');
 var images = require('../../images');
-var DefaultDataSource = require('../dataSources/DataSourceOrigin');
+var DataSourceOrigin = require('../dataSources/DataSourceOrigin');
 //var NullDataSource = require('../dataSources/Null');
 
 var UPWARDS_BLACK_ARROW = '\u25b2', // aka '▲'
@@ -19,8 +19,8 @@ var JSON = DataModel.extend('dataModels.JSON', {
     //null object pattern for the source object
     resetSources: function(stopApply) {
         this.sources = {
-            source: new DefaultDataSource(),
-            globalfilter: new DefaultDataSource()
+            source: new DataSourceOrigin(),
+            globalfilter: new DataSourceOrigin()
         };
         this.source = this.sources.source;
         this.setPipeline(stopApply);
@@ -302,12 +302,8 @@ var JSON = DataModel.extend('dataModels.JSON', {
     },
 
     /**
-     * @summary
-     * @desc
-     *
-     * @param {object[]} [dataSource] - Array of uniform objects containing the grid data. Passed as 1st param to constructor of first data source object in the pipeline. If omitted, the previous data source will be re-used.
-     * @param {string[]} [dataFields] - Array of field names. Passed as 2nd param to constructor of first data source object in the pipeline. If omitted (along with `dataSource`), the previous fields array will be re-used.
-     * @param {string[]} [dataCalculators] - Array of field names. Passed as 3rd param to constructor of first data source object in the pipeline. If omitted (along with `dataSource`), the previous calculators array will be re-used.
+     * @summary Set or reset grid data.
+     * See {@link DataSourceOrigin#setData} for details.
      * @memberOf dataModels.JSON.prototype
      */
     setData: function(dataSource, dataFields, dataCalculators) {
@@ -495,9 +491,9 @@ var JSON = DataModel.extend('dataModels.JSON', {
             sortPosition;
 
         if (sorts.find(function(sortSpec, index) {
-            sortPosition = index;
-            return sortSpec.columnIndex === columnIndex;
-        })) {
+                sortPosition = index;
+                return sortSpec.columnIndex === columnIndex;
+            })) {
             sorts.splice(sortPosition, 1);
             if (!deferred) {
                 this.applyAnalytics({columnSort: true});
