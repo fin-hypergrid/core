@@ -307,6 +307,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
      * @memberOf dataModels.JSON.prototype
      */
     setData: function(dataSource, dataFields, dataCalculators) {
+        this.source.setHeaders(); // force rederive default headers
         this.source.setData(dataSource, dataFields, dataCalculators);
         //this.applyAnalytics();
         //requeue ??

@@ -209,10 +209,10 @@ var DataSourceOrigin = DataSourceBase.extend('DataSourceOrigin',  {
 
     /**
      * @memberOf DataSourceOrigin#
-     * @param {string[]} headers
+     * @param {string[]} [headers] - If omitted, headers will be reset to their derived defaults on next call to `getHeaders`.
      */
     setHeaders: function(headers) {
-        if (!(headers instanceof Array)) {
+        if (!(headers === undefined || headers instanceof Array)) {
             error('setHeaders', 'param #1 `headers` not array');
         }
         this.headers = headers;
