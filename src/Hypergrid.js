@@ -2179,10 +2179,6 @@ Hypergrid.prototype = {
         this.behavior.setValue(x, y, value);
     },
 
-    getColumnAlignment: function(c) {
-        return this.behavior.getColumnAlignment(c);
-    },
-
     /**
      * @memberOf Hypergrid.prototype
      * @desc The data dimensions have changed, or our pixel boundries have changed.

@@ -985,6 +985,7 @@ var Renderer = Base.extend('Renderer', {
                 cellProperties = Object.create(baseProperties.rowHeader);
                 cellProperties.isSelected = isCellSelectedInRow;
             }
+            cellProperties.halign = isHierarchyColumn ? 'left' : 'right';
             cellProperties.isUserDataArea = false;
         } else if (isHeaderRow || isFooterRow) {
             if (isFilterRow) {
@@ -998,9 +999,6 @@ var Renderer = Base.extend('Renderer', {
                 cellProperties.isSelected = isCellSelectedInColumn;
             }
             cellProperties.isUserDataArea = false;
-        } else if (isHierarchyColumn) {
-            cellProperties = Object.create(baseProperties.rowHeader);
-            cellProperties.isSelected = isCellSelectedInRow;
         } else {
             cellProperties = Object.create(baseProperties);
             cellProperties.isSelected = isCellSelected || isRowSelected || isColumnSelected;
@@ -1029,7 +1027,6 @@ var Renderer = Base.extend('Renderer', {
             cellProperties.value = grid.getValue(c, r);
         }
 
-        cellProperties.halign = grid.getColumnAlignment(c);
         cellProperties.isGridColumn = isGridColumn;
         cellProperties.isGridRow = isGridRow;
         cellProperties.isColumnHovered = grid.isColumnHovered(c) && isGridColumn;

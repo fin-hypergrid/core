@@ -313,6 +313,15 @@ var Behavior = Base.extend('Behavior', {
                 set: function(value) {
                     this.columnHeaderBackgroundSelectionColor = value;
                 }
+            },
+            halign: {
+                configurable: true,
+                get: function() {
+                    return this.columnHeaderHalign;
+                },
+                set: function(value) {
+                    this.columnHeaderHalign = value;
+                }
             }
         });
 
@@ -1320,15 +1329,6 @@ var Behavior = Base.extend('Behavior', {
     },
     getColumnCount: function() {
         return this.deprecated('getColumnCount()', 'getActiveColumnCount()', '1.0.6', arguments);
-    },
-
-    /**
-     * @memberOf Behavior.prototype
-     * @return {string} The column alignment at column `x`: `'left'`, `'center'` , or `'right'`
-     * @param {number} x - The column index of interest.
-     */
-    getColumnAlignment: function(x) {
-        return 'center';
     },
 
     /**

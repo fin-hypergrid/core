@@ -137,6 +137,13 @@ module.exports = {
      */
     columnHeaderBackgroundColumnSelectionColor: 'rgb(255, 180, 0)',
 
+    /**
+     * @default
+     * @type {string}
+     * @instance
+     */
+    columnHeaderHalign: 'center',
+
 
     /********** SECTION: ROW HEADER COLORS **********/
 

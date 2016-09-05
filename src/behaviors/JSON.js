@@ -234,18 +234,6 @@ var JSON = Behavior.extend('behaviors.JSON', {
         return this.dataModel.hasHierarchyColumn();
     },
 
-    getColumnAlignment: function(x) {
-        var align;
-        if (x === -1) {
-            align = 'right';
-        } else if (x === 0 && this.hasHierarchyColumn()) {
-            align = 'left';
-        } else {
-            align = this.getColumnProperties(x).halign;
-        }
-
-        return align;
-    },
     getHiddenColumns: function() {
         return this.dataModel.getHiddenColumns();
     },
