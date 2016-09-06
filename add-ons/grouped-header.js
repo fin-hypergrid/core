@@ -150,7 +150,10 @@ function paintHeaderGroups(gc, config) {
                 isColumnHovered = config.isColumnHovered,
                 isSelected = config.isSelected,
                 font = config.font,
-                color = config.color;
+                color = config.color,
+                backgroundColor = config.backgroundColor;
+
+            config.backgroundColor = 'transparent';
 
             // height of each level is the same, 1/levels of total height
             bounds.height /= values.length;
@@ -171,23 +174,24 @@ function paintHeaderGroups(gc, config) {
                 bounds.x = group.left;
                 bounds.y = y;
                 bounds.width = group.width;
-                config.value = group.value;
+
+                // Paint the group header background
+                this.bounds = bounds;
+                this.groupIndex = g;
+                this.groupCount = groupCount;
+                this.backgroundColor = backgroundColor;
+                this.paintBackground(gc);
 
                 // Suppress hover and selection effects for group headers
                 config.isColumnHovered = config.isSelected = false;
 
                 // Make group headers bold & grey
+                config.value = group.value;
                 config.font = 'bold ' + font;
                 config.color = this.groupColor;
 
-                // Render the higher-order group labels
+                // Paint the group header foreground
                 paint.call(this, gc, config);
-
-                // Decorate the group label's background
-                this.bounds = bounds;
-                this.groupIndex = g;
-                this.groupCount = groupCount;
-                this.paintBackground(gc);
             }
 
             // restore bounds for final column header render (although y and height have been altered)
@@ -203,6 +207,7 @@ function paintHeaderGroups(gc, config) {
             // restore font and color which were set to bold grey above for group headers
             config.font = font;
             config.color = color;
+            config.backgroundColor = backgroundColor;
         }
     }
 
@@ -221,6 +226,10 @@ function paintHeaderGroups(gc, config) {
 function drawProportionalBottomBorder(gc) {
     var bounds = this.bounds;
     var thickness = this.groupCount - this.groupIndex; // high-order group gets thickest border
+
+    gc.fillStyle = this.backgroundColor;
+    gc.fillRect(bounds.x, bounds.y, bounds.width, bounds.height);
+
     gc.beginPath();
     gc.strokeStyle = this.groupColor;
     gc.lineWidth = thickness;
@@ -243,6 +252,10 @@ function drawLinearGradient(gc) {
     this.gradientStops.forEach(function(stop) {
         grad.addColorStop.apply(grad, stop);
     });
+
+    gc.fillStyle = this.backgroundColor;
+    gc.fillRect(bounds.x, bounds.y, bounds.width, bounds.height);
+
     gc.fillStyle = grad;
     gc.fillRect(bounds.x + 2, bounds.y, bounds.width - 3, bounds.height);
 }
