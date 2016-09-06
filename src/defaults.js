@@ -769,6 +769,13 @@ module.exports = {
      * @instance
      */
     enableContinuousRepaint: false,
+
+    /** @summary Reapply cell properties after `getCell`.
+     * @type {boolean}
+     * @default
+     * @instance
+     */
+    reapplyCellProperties: false
 };
 
 /** @typedef {string} cssColor

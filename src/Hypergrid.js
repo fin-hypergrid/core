@@ -3071,9 +3071,6 @@ Hypergrid.prototype = {
     isColumnSelection: function() {
         return this.resolveProperty('columnSelection') === true;
     },
-    getComputedRow: function(y) {
-        return this.behavior.getComputedRow(y);
-    },
     isColumnAutosizing: function() {
         return this.resolveProperty('columnAutosizing') === true;
     },
@@ -3246,10 +3243,18 @@ Hypergrid.prototype = {
     newRectangle: function(x, y, width, height) {
         return new Rectangle(x, y, width, height);
     },
-    getFormattedValue: function(x, y) {
+
+    /**
+     * @param {number} c - grid cell coordinate
+     * @param {number} r - grid cell coordinate
+     * @returns {*}
+     */
+    getFormattedValue: function(c, r) {
+        var x = this.behavior.getActiveColumn(c),
+            y = r - this.getHeaderRowCount();
         return this.formatValue(
-            this.getColumnProperties(x).format,
-            this.getValue(x, y + this.getHeaderRowCount())
+            this.behavior.getCellProperty(x, y, 'format'),
+            this.getValue(c, r)
         );
     },
 

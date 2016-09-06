@@ -5,7 +5,7 @@
 var HTTP_STATE_DONE = 4,
     HTTP_STATUS_OK = 200;
 
-module.exports.get = function(url, callback) {
+exports.get = function(url, callback) {
     var httpRequest = new XMLHttpRequest();
 
     httpRequest.open('GET', url, true);

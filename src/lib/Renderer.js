@@ -511,7 +511,7 @@ var Renderer = Base.extend('Renderer', {
 
         /*
 
-            Compute the Bounds of the Last Selection that is visible
+         Compute the Bounds of the Last Selection that is visible
 
          */
 
@@ -577,7 +577,7 @@ var Renderer = Base.extend('Renderer', {
 
         /*
 
-          Render the selection model around the bounds
+         Render the selection model around the bounds
 
          */
 
@@ -781,7 +781,7 @@ var Renderer = Base.extend('Renderer', {
      */
     paintCells: function(gc) {
         var message,
-            config = {},
+            config,
             x, y,
             c, r,
 
@@ -950,15 +950,15 @@ var Renderer = Base.extend('Renderer', {
 
         var grid = this.grid,
             behavior = grid.behavior,
-            baseProperties = behavior.getColumnProperties(c);
+            column = behavior.getActiveColumn(c),
+            cellProperties = column && column.getCellProperties(r),
+            baseProperties = cellProperties || column && column.getProperties();
 
-        if (baseProperties.isNull) {
+        if (!baseProperties) {
             return;
         }
 
-        var columnProperties = baseProperties,
-
-            headerRowCount = behavior.getHeaderRowCount(),
+        var headerRowCount = behavior.getHeaderRowCount(),
             isGridRow = r >= headerRowCount,
             isFooterRow = r < 0,
             isHeaderRow = !isGridRow && !isFooterRow,
@@ -975,92 +975,89 @@ var Renderer = Base.extend('Renderer', {
             isCellSelectedInColumn = grid.isCellSelectedInColumn(c),
             isCellSelectedInRow = grid.isCellSelectedInRow(r),
             areAllRowsSelected = grid.areAllRowsSelected(),
-            cellProperties;
+            config;
 
         if ((isShowRowNumbers && c === -1) || isHierarchyColumn) {
             if (isRowSelected) {
-                cellProperties = Object.create(baseProperties.rowHeaderRowSelection);
-                cellProperties.isSelected = true;
+                config = Object.create(baseProperties.rowHeaderRowSelection);
+                config.isSelected = true;
             } else {
-                cellProperties = Object.create(baseProperties.rowHeader);
-                cellProperties.isSelected = isCellSelectedInRow;
+                config = Object.create(baseProperties.rowHeader);
+                config.isSelected = isCellSelectedInRow;
             }
-            cellProperties.halign = isHierarchyColumn ? 'left' : 'right';
-            cellProperties.isUserDataArea = false;
+            config.halign = isHierarchyColumn ? 'left' : 'right';
+            config.isUserDataArea = false;
         } else if (isHeaderRow || isFooterRow) {
             if (isFilterRow) {
-                cellProperties = Object.create(baseProperties.filterProperties);
-                cellProperties.isSelected = false;
+                config = Object.create(baseProperties.filterProperties);
+                config.isSelected = false;
             } else if (isColumnSelected) {
-                cellProperties = Object.create(baseProperties.columnHeaderColumnSelection);
-                cellProperties.isSelected = true;
+                config = Object.create(baseProperties.columnHeaderColumnSelection);
+                config.isSelected = true;
             } else {
-                cellProperties = Object.create(baseProperties.columnHeader);
-                cellProperties.isSelected = isCellSelectedInColumn;
+                config = Object.create(baseProperties.columnHeader);
+                config.isSelected = isCellSelectedInColumn;
             }
-            cellProperties.isUserDataArea = false;
+            config.isUserDataArea = false;
         } else {
-            cellProperties = Object.create(baseProperties);
-            cellProperties.isSelected = isCellSelected || isRowSelected || isColumnSelected;
-            cellProperties.isUserDataArea = true;
+            config = Object.create(baseProperties);
+            config.isSelected = isCellSelected || isRowSelected || isColumnSelected;
+            config.isUserDataArea = true;
         }
 
         var rowNum = r - headerRowCount + 1;
 
         if (c === -1) {
             if (r === 0) { // header row gets "master" checkbox
-                cellProperties.value = [images.checkbox(areAllRowsSelected), '', null];
+                config.value = [images.checkbox(areAllRowsSelected), '', null];
             } else if (isFilterRow) { // no checkbox but show filter icon
-                cellProperties.value = [images.filter(false), '', null];
+                config.value = [images.filter(false), '', null];
             } else if (isHeaderRow || isFooterRow) { // no checkbox on "totals" rows
-                cellProperties.value = '';
+                config.value = '';
             } else {
-                cellProperties.value = [images.checkbox(isRowSelected), rowNum, null];
+                config.value = [images.checkbox(isRowSelected), rowNum, null];
             }
         } else {
             // set dataRow and columnName used by valOrFunc (needed when func)
-            var column = behavior.getActiveColumn(c);
-            cellProperties.dataRow = grid.getRow(r);
-            cellProperties.columnName = column.name;
-            cellProperties.calculator = column.calculator;
+            config.dataRow = grid.getRow(r);
+            config.columnName = column.name;
+            config.calculator = column.calculator;
 
-            cellProperties.value = grid.getValue(c, r);
+            config.value = grid.getValue(c, r);
         }
 
-        cellProperties.isGridColumn = isGridColumn;
-        cellProperties.isGridRow = isGridRow;
-        cellProperties.isColumnHovered = grid.isColumnHovered(c) && isGridColumn;
-        cellProperties.isRowHovered = grid.isRowHovered(r) && isGridRow;
-        cellProperties.isCellHovered = grid.isHovered(c, r) && isGridColumn && isGridRow;
-        cellProperties.bounds = this._getBoundsOfCell(c, r);
-        cellProperties.isCellSelected = isCellSelected;
-        cellProperties.isRowSelected = isRowSelected;
-        cellProperties.isColumnSelected = isColumnSelected;
-        cellProperties.isInCurrentSelectionRectangle = grid.isInCurrentSelectionRectangle(c, r);
+        config.isGridColumn = isGridColumn;
+        config.isGridRow = isGridRow;
+        config.isColumnHovered = grid.isColumnHovered(c) && isGridColumn;
+        config.isRowHovered = grid.isRowHovered(r) && isGridRow;
+        config.isCellHovered = grid.isHovered(c, r) && isGridColumn && isGridRow;
+        config.bounds = this._getBoundsOfCell(c, r);
+        config.isCellSelected = isCellSelected;
+        config.isRowSelected = isRowSelected;
+        config.isColumnSelected = isColumnSelected;
+        config.isInCurrentSelectionRectangle = grid.isInCurrentSelectionRectangle(c, r);
 
         if (grid.mouseDownState) {
             var point = grid.mouseDownState.gridCell;
-            cellProperties.mouseDown = point.x === c && point.y === r;
+            config.mouseDown = point.x === c && point.y === r;
         }
 
-        var cell = behavior.getCellRenderer(cellProperties, c, r);
+        var cell = behavior.getCellRenderer(config, c, r);
 
-        behavior.cellPropertiesPrePaintNotification(cellProperties);
-
-        //declarative cell properties
-        if (isGridRow && isGridColumn) {
-            var overrides = behavior.getCellProperties(column.index, r);
-            _(cellProperties).extendOwn(overrides);
+        if (config.reapplyCellProperties) {
+            _(config).extendOwn(cellProperties);
         }
+
+        behavior.cellPropertiesPrePaintNotification(config);
 
         //allow the renderer to identify itself if it's a button
-        cellProperties.buttonCells = this.buttonCells;
+        config.buttonCells = this.buttonCells;
 
-        cellProperties.formatValue = grid.getFormatter(cellProperties.isUserDataArea && cellProperties.format);
-        cell.paint(gc, cellProperties);
+        config.formatValue = grid.getFormatter(config.isUserDataArea && config.format);
+        cell.paint(gc, config);
 
-        this.renderedColumnMinWidths[c] = Math.max(cellProperties.minWidth || 0, this.renderedColumnMinWidths[c]);
-        columnProperties.preferredWidth = this.renderedColumnMinWidths[c];
+        this.renderedColumnMinWidths[c] = Math.max(config.minWidth || 0, this.renderedColumnMinWidths[c]);
+        baseProperties.preferredWidth = this.renderedColumnMinWidths[c];
     },
 
     isViewableButton: function(c, r) {
