@@ -6,7 +6,10 @@
 
 var prototypeAdditions = {
     /**
-     * Override of SimpleCell's {@link SimpleCell#paint|paint} method.
+     * @summary This cell renderer's paint function.
+     * @desc This function renders a grouped column header when both of the following are true:
+     * * Cell is a header cell.
+     * * Column's header string contains the `delimiter` string.
      * @type {function}
      * @memberOf groupedHeader.mixInTo~GroupedHeader.prototype
      */
@@ -15,7 +18,8 @@ var prototypeAdditions = {
     // Remaining members are exclusive to `GroupedHeader` (not overrides)
 
     /**
-     * Character used in header strings to concatenate group label(s) with actual header.
+     * @summary Group header delimiter.
+     * @desc String used within header strings to concatenate group label(s), always ending with actual header.
      * @type {string}
      * @default '|' (vertical bar)
      * @memberOf groupedHeader.mixInTo~GroupedHeader.prototype
@@ -23,7 +27,7 @@ var prototypeAdditions = {
     delimiter: '|',
 
     /**
-     * Group label color.
+     * @summary Group label color.
      * @type {string}
      * @default 'rgb(144, 144, 144)'
      * @memberOf groupedHeader.mixInTo~GroupedHeader.prototype
@@ -31,7 +35,7 @@ var prototypeAdditions = {
     groupColor: 'rgb(144, 144, 144)',
 
     /**
-     * Background renderer.
+     * @summary Reference to the current background renderer for this grid's grouped column labels.
      * @type {function}
      * @default {@link groupedHeader.drawProportionalBottomBorder}
      * @memberOf groupedHeader.mixInTo~GroupedHeader.prototype
@@ -39,8 +43,8 @@ var prototypeAdditions = {
     paintBackground: drawProportionalBottomBorder,
 
     /**
-     * List of gradient stops that define the gradient.
-     * See {@link https://developer.mozilla.org/en-US/docs/Web/API/CanvasGradient/addColorStop|addColorStop} for more info.
+     * @summary List of gradient stops that define the gradient.
+     * @desc See {@link https://developer.mozilla.org/en-US/docs/Web/API/CanvasGradient/addColorStop|addColorStop} for more info.
      * @type {gradientStop[]}
      * @default [ [0, 'rgba(144, 144, 144, 0)'], [1, 'rgba(144, 144, 144, .35)'] ]
      * @memberOf groupedHeader.mixInTo~GroupedHeader.prototype
@@ -153,8 +157,6 @@ function paintHeaderGroups(gc, config) {
                 color = config.color,
                 backgroundColor = config.backgroundColor;
 
-            config.backgroundColor = 'transparent';
-
             // height of each level is the same, 1/levels of total height
             bounds.height /= values.length;
 
@@ -176,11 +178,13 @@ function paintHeaderGroups(gc, config) {
                 bounds.width = group.width;
 
                 // Paint the group header background
-                this.bounds = bounds;
+                gc.fillStyle = backgroundColor;
+                gc.fillRect(bounds.x, bounds.y, bounds.width, bounds.height);
+
+                // Decorate the group header background
                 this.groupIndex = g;
                 this.groupCount = groupCount;
-                this.backgroundColor = backgroundColor;
-                this.paintBackground(gc);
+                this.paintBackground(gc, config);
 
                 // Suppress hover and selection effects for group headers
                 config.isColumnHovered = config.isSelected = false;
@@ -189,29 +193,33 @@ function paintHeaderGroups(gc, config) {
                 config.value = group.value;
                 config.font = 'bold ' + font;
                 config.color = this.groupColor;
+                config.backgroundColor = 'transparent';
 
                 // Paint the group header foreground
                 paint.call(this, gc, config);
             }
 
-            // restore bounds for final column header render (although y and height have been altered)
+            // Restore `config` for final `paint` call below for the "actual" header:
+
+            // Restore bounds for final column header render.
+            // Note that `y` and `height` have been altered from their original values.
             bounds.x = boundsLeft;
             bounds.y = y;
             bounds.width = boundsWidth;
             config.value = values[g]; // low-order header
 
-            // restore cosmetic values for hover and selection
+            // Restore cosmetic values for hover & selection.
             config.isColumnHovered = isColumnHovered;
             config.isSelected = isSelected;
 
-            // restore font and color which were set to bold grey above for group headers
+            // Restore font & color which were set to bold grey above for group headers.
             config.font = font;
             config.color = color;
             config.backgroundColor = backgroundColor;
         }
     }
 
-    // Render the low-order column header
+    // Render the actual column header
     paint.call(this, gc, config);
 }
 
@@ -221,14 +229,12 @@ function paintHeaderGroups(gc, config) {
  * @desc Supply a reference to this function in the `paintBackground` option in your {@link groupedHeader.mixInTo} call. This function is not called directly.
  * @this {GroupHeader}
  * @param {CanvasRenderingContext2D} gc
+ * @param {object} config - The `paint` method's `config` object.
  * @memberOf groupedHeader
  */
-function drawProportionalBottomBorder(gc) {
-    var bounds = this.bounds;
-    var thickness = this.groupCount - this.groupIndex; // high-order group gets thickest border
-
-    gc.fillStyle = this.backgroundColor;
-    gc.fillRect(bounds.x, bounds.y, bounds.width, bounds.height);
+function drawProportionalBottomBorder(gc, config) {
+    var bounds = config.bounds,
+        thickness = this.groupCount - this.groupIndex; // high-order group gets thickest border
 
     gc.beginPath();
     gc.strokeStyle = this.groupColor;
@@ -244,17 +250,16 @@ function drawProportionalBottomBorder(gc) {
  * @desc Supply a reference to this function in the `paintBackground` option in your {@link groupedHeader.mixInTo} call. This function is not called directly.
  * @this {GroupHeader}
  * @param {CanvasRenderingContext2D} gc
+ * @param {object} config - The `paint` method's `config` object.
  * @memberOf groupedHeader
  */
-function drawLinearGradient(gc) {
-    var bounds = this.bounds;
-    var grad = gc.createLinearGradient(bounds.x, bounds.y, bounds.x, bounds.y + bounds.height);
+function drawLinearGradient(gc, config) {
+    var bounds = config.bounds,
+        grad = gc.createLinearGradient(bounds.x, bounds.y, bounds.x, bounds.y + bounds.height);
+
     this.gradientStops.forEach(function(stop) {
         grad.addColorStop.apply(grad, stop);
     });
-
-    gc.fillStyle = this.backgroundColor;
-    gc.fillRect(bounds.x, bounds.y, bounds.width, bounds.height);
 
     gc.fillStyle = grad;
     gc.fillRect(bounds.x + 2, bounds.y, bounds.width - 3, bounds.height);
