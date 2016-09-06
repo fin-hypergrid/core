@@ -1022,7 +1022,6 @@ var Renderer = Base.extend('Renderer', {
             config.dataRow = grid.getRow(r);
             config.columnName = column.name;
             config.calculator = column.calculator;
-
             config.value = grid.getValue(c, r);
         }
 

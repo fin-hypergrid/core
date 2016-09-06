@@ -25,10 +25,10 @@ var Slider = CellRenderer.extend('Slider', {
             width = config.bounds.width,
             height = config.bounds.height;
         gc.strokeStyle = 'white';
-        var val = this.config.value;
+        var val = config.value;
         var radius = height / 2;
         var offset = width * val;
-        var bgColor = this.config.isSelected ? this.config.backgroundColor : '#333333';
+        var bgColor = config.isSelected ? config.backgroundColor : '#333333';
         var btnGradient = gc.createLinearGradient(x, y, x, y + height);
         btnGradient.addColorStop(0, bgColor);
         btnGradient.addColorStop(1, '#666666');
@@ -46,7 +46,7 @@ var Slider = CellRenderer.extend('Slider', {
         gc.arc(x + Math.max(offset - radius, radius), y + radius, radius, 0, 2 * Math.PI);
         gc.fill();
         gc.closePath();
-        this.config.minWidth = 100;
+        config.minWidth = 100;
     }
 });
 

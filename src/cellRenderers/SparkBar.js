@@ -26,15 +26,15 @@ var SparkBar = CellRenderer.extend('SparkBar', {
             height = config.bounds.height;
 
         gc.beginPath();
-        var val = this.config.value;
+        var val = config.value;
         if (!val || !val.length) {
             return;
         }
         var count = val.length;
         var eWidth = width / count;
-        var fgColor = this.config.isSelected ? this.config.foregroundSelectionColor : this.config.color;
-        if (this.config.backgroundColor || this.config.isSelected) {
-            gc.fillStyle = this.config.isSelected ? 'blue' : this.config.backgroundColor;
+        var fgColor = config.isSelected ? config.foregroundSelectionColor : config.color;
+        if (config.backgroundColor || config.isSelected) {
+            gc.fillStyle = config.isSelected ? 'blue' : config.backgroundColor;
             gc.fillRect(x, y, width, height);
         }
         gc.fillStyle = fgColor;
@@ -44,7 +44,7 @@ var SparkBar = CellRenderer.extend('SparkBar', {
             x = x + eWidth;
         }
         gc.closePath();
-        this.config.minWidth = count * 10;
+        config.minWidth = count * 10;
     }
 });
 
