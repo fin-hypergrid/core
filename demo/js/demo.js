@@ -417,8 +417,6 @@ window.onload = function() {
             var x = config.x;
             var y = config.y;
 
-            config.halign = 'left';
-
             if (treeView) {
                 n = behavior.getRow(y).__DEPTH;
                 hex = n ? (105 + 75 * n).toString(16) : '00';
@@ -476,19 +474,8 @@ window.onload = function() {
                         config.link = true;
                         break;
 
-                    case idx.TOTAL_NUMBER_OF_PETS_OWNED:
-                        config.halign = 'center';
-                        //config.value = [null, config.value, upDownSpinIMG];
-                        break;
-
-                    case idx.BIRTH_TIME:
-                    case idx.HEIGHT:
-                        config.halign = 'right';
-                        break;
-
                     case idx.BIRTH_DATE:
                         if (!doAggregates) {
-                            config.halign = 'left';
                             config.value = [null, config.value, downArrowIMG];
                         }
                         break;
@@ -501,14 +488,12 @@ window.onload = function() {
                         travel = 60 + Math.round(config.value * 150 / 100000);
                         config.backgroundColor = '#00' + travel.toString(16) + '00';
                         config.color = '#FFFFFF';
-                        config.halign = 'right';
                         break;
 
                     case idx.TRAVEL:
                         travel = 105 + Math.round(config.value * 150 / 1000);
                         config.backgroundColor = '#' + travel.toString(16) + '0000';
                         config.color = '#FFFFFF';
-                        config.halign = 'right';
                         break;
                 }
 
@@ -994,7 +979,9 @@ window.onload = function() {
             //filterDefaultColumnFilterOperator: '<>',
             cellSelection: true,
             columnSelection: true,
-            rowSelection: true
+            rowSelection: true,
+
+            halign: 'left'
         };
 
         grid.setState(state);
@@ -1054,6 +1041,7 @@ window.onload = function() {
         });
 
         behavior.setColumnProperties(idx.LAST_NAME, {
+            columnHeaderHalign: 'left',
             link: true
         });
 
@@ -1066,6 +1054,7 @@ window.onload = function() {
         });
 
         behavior.setColumnProperties(idx.HEIGHT, {
+            halign: 'right',
             format: 'foot'
         });
 
@@ -1075,6 +1064,7 @@ window.onload = function() {
         });
 
         behavior.setColumnProperties(idx.BIRTH_TIME, {
+            halign: 'right',
             editor: 'time',
             format: 'hhmm'
         });
@@ -1084,10 +1074,12 @@ window.onload = function() {
         });
 
         behavior.setColumnProperties(idx.EMPLOYED, {
+            halign: 'right',
 
         });
 
         behavior.setColumnProperties(idx.INCOME, {
+            halign: 'right',
             format: 'pounds'
         });
 
