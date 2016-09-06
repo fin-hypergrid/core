@@ -30,7 +30,7 @@ var themeInitialized = false,
  * @param {string|Element} [container] - CSS selector or Element
  * @param {object} [options]
  * @param {function} [options.Behavior=behaviors.JSON] - A behavior constructor or instance
- * @param {function} [options.pipeline] - A pipeline of data-transforms to occur on applyAnalytics call
+ * @param {function []} [options.pipeline] - A list function constructors to use for passing data through a series of transforms to occur on applyAnalytics call
  * @param {function|object[]} [options.data] - Passed to behavior constructor. May be:
  * * An array of congruent raw data objects
  * * A function returning same
@@ -727,12 +727,8 @@ Hypergrid.prototype = {
         this.behavior = behavior;
         this.behavior.reset();
         initCanvasAndScrollBars.call(this);
-        if (this.options.pipeline){
-            this.options.pipeline.forEach(function(p){
-                this.behavior.dataModel.addPipe(p);
-            });
-        }
         this.setData(dataRows, options);
+        if (options.pipeline){this.setPipeline(this.options.pipeline);}
         this.refreshProperties();
     },
 
@@ -753,10 +749,10 @@ Hypergrid.prototype = {
 
     /**
      * @memberOf Hypergrid.prototype
-     * @param {object} [stopApply] - _(See {@link dataModels.JSON#setPipeline}.)_
+     * @param {object} [pipelines] - _(See {@link dataModels.JSON#setPipeline}.)_
      */
-    setPipeline: function(stopApply){
-        this.behavior.setPipeline(stopApply);
+    setPipeline: function(pipelines){
+        this.behavior.setPipeline(pipelines);
     },
     /**
      * @memberOf Hypergrid.prototype

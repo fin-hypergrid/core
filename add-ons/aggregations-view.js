@@ -1,4 +1,5 @@
 'use strict';
+/* globals window */
 
 // NOTE: gulpfile.js's 'add-ons' task copies this file, altering the final line, to /demo/build/add-ons/, along with a minified version. Both files are eventually deployed to http://openfin.github.io/fin-hypergrid/add-ons/.
 
@@ -6,7 +7,7 @@
  * @classdesc This is a simple helper class to set up the aggregations-view data source in the context of a hypergrid.
  *
  * It includes methods to:
- * * Insert `DataSourceAggregator` into the data model's pipeline (`addPipe`, `addPipeTo`).
+ * * Insert `DataSourceAggregator` into the data model's pipeline.
  * * Perform the grouping and aggregations and rebuild the index to turn the aggregations-view on or off(`setRelation`).
  *
  * @param {object}
@@ -43,11 +44,10 @@ AggregationsView.prototype = {
 
     /**
      * @summary Reconfigure the dataModel's pipeline for aggregations view.
-     * @desc The pipeline is reset starting with either the given `options.dataSource` _or_ the existing pipeline's first data source.
+     * @desc The pipeline is reset starting with Hypergrid's DataSourceOrigin
      *
+     * The aggregations view data source is added.
      * Then the aggregations view filter and sorter data sources are added as requested.
-     *
-     * Finally the aggregations view data source is added.
      *
      * This method can operate on either:
      * * A data model prototype, which will affect all data models subsequently created therefrom. The prototype must be given in `options.dataModelPrototype`.
@@ -55,13 +55,13 @@ AggregationsView.prototype = {
      *
      * @param {object} [options]
      * @param {object} [options.dataModelPrototype] - Adds the pipes to the given object. If omitted, this must be an instance; adds the pipes to a new "own" pipeline created from the first data source of the instance's old pipeline.
-     * @param {dataSourcePipelineObject} [options.firstPipe] - Use as first data source in the new pipeline. If omitted, re-uses the existing pipeline's first data source.
      */
     setPipeline: function(options) {
         options = options || {};
 
         var amInstance = this instanceof AggregationsView,
-            dataModel = options.dataModelPrototype || amInstance && this.grid.behavior.dataModel;
+            dataModel = options.dataModelPrototype || amInstance && this.grid.behavior.dataModel,
+            pipelines = [];
 
         if (!dataModel) {
             throw 'Expected dataModel.';
@@ -75,19 +75,16 @@ AggregationsView.prototype = {
             dataModel.pipeline = [];
         }
 
-        dataModel.addPipe({ type: 'DataSourceAggregator', test: isAggregationsview });
-
         if (options.includeFilter) {
-            dataModel.addPipe({ type: 'DataSourceGlobalFilter' });
+            pipelines.push(window.fin.Hypergrid.analytics.DataSourceGlobalFilter);
         }
-
+        pipelines.push(window.fin.Hypergrid.analytics.DataSourceAggregator);
         if (options.includeSorter) {
-            dataModel.addPipe({type: 'DataSourceSorterComposite'});
-            dataModel.addPipe({type: 'DataNodeGroupSorter', parent: 'DataSourceAggregator'});
+            pipelines.push(window.fin.Hypergrid.analytics.DataNodeGroupSorter);
         }
 
         if (amInstance) {
-            this.grid.behavior.setPipeline();
+            this.grid.behavior.setPipeline(pipelines);
             this.grid.behavior.shapeChanged();
         }
     },
@@ -125,25 +122,11 @@ AggregationsView.prototype = {
         this.grid.selectionModel.clear();
         this.grid.clearMouseDown();
 
-        dataModel.applyAnalytics();
+        behavior.applyAnalytics();
         behavior.shapeChanged();
 
         return aggregated;
     }
 };
-
-/**
- * This is the required test function called by the data model's `isDrilldown` method in context. _Do not call directly._
- * @param {number} [columnIndex] If given, also checks that the column clicked is the aggregations column.
- * @returns {boolean} If the data source is a aggregations view.
- */
-function isAggregationsview(event) {
-    var aggregationsview = this.sources.aggregator,
-        result = !!(aggregationsview && aggregationsview.viewMakesSense());
-    if (result && event) {
-        result = event.dataCell.x === aggregationsview.treeColumnIndex;
-    }
-    return result;
-}
 
 module.exports = AggregationsView;

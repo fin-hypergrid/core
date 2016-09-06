@@ -622,7 +622,7 @@ var Behavior = Base.extend('Behavior', {
 
         //just to be close/ it's easier on the eyes
         this.setColumnWidth(-1, 24.193359375);
-        this.dataModel.applyState();
+        this.dataModel.applyAnalytics();
     },
 
     setAllColumnProperties: function(properties) {

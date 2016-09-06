@@ -106,10 +106,12 @@ var JSON = Behavior.extend('behaviors.JSON', {
     },
     /**
      * @memberOf behaviors.JSON.prototype
-     * @description Set the data transformation pipeline.
+     * @param {object} [pipelines] - _(See {@link dataModels.JSON#setPipeline}.)_
      */
-    setPipeline: function() {
-        this.dataModel.setPipeline();
+    setPipeline: function(pipelines) {
+        this.dataModel.setPipeline(pipelines);
+        //Only do this once. Code is temporary until filtering is externalized
+        this.setGlobalFilter(this.getNewFilter());
     },
 
     /**
@@ -136,8 +138,6 @@ var JSON = Behavior.extend('behaviors.JSON', {
 
         this.schema = options && options.schema || deriveSchema;
 
-        //Should it cancel filter
-        //this.setGlobalFilter(this.getNewFilter());
 
         if (grid.cellEditor) {
             grid.cellEditor.cancelEditing();
@@ -219,6 +219,7 @@ var JSON = Behavior.extend('behaviors.JSON', {
         event.row = this.getRow(event.gridCell.y);
     },
 
+    //Not being used. Should be repurposed??
     setDataProvider: function(dataProvider) {
         this.dataModel.setDataProvider(dataProvider);
     },

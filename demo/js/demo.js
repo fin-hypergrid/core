@@ -146,7 +146,7 @@ window.onload = function() {
         dataset = data;
         behavior.setData(data, options);
         idx = behavior.columnEnum;
-        behavior.dataModel.applyAnalytics();
+        behavior.applyAnalytics();
     }
 
     // Preset a default dialog options object. Used by call to toggleDialog('ColumnPicker') from features/ColumnPicker.js and by toggleDialog() defined herein.
