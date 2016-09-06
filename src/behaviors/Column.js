@@ -285,11 +285,9 @@ Column.prototype = {
      */
     getCellEditorAt: function(y, options) {
         var cellEditor,
-            cellProps = this.getCellProperties(y),
-            columnProps = this.getProperties(),
-            editorName = cellProps.editor || columnProps.editor;
+            editorName = this.getCellProperty(y, 'editor');
 
-        options.format = cellProps.format || columnProps.format;
+        options.format = this.getCellProperty(y, 'format');
 
         cellEditor = this.dataModel.getCellEditorAt(this.index, y, editorName, options);
 
