@@ -32,10 +32,7 @@ window.onload = function() {
         reps: 'House Seats'
     });
 
-    // Must use the GroupedHeader cell renderer for the header cells with groups. For this example we're using it for all cells. This works because it only applies grouping logic to header cells, otherwise behaving like SimpleCell for non-header cells.
-    grid.behavior.getPrivateState().renderer = 'GroupedHeader';
-
-    // Format the numbers with thousands separated with commas.
+    // Cosmetic: Format the number columns with comma-separator at every 3rd order of magnitude.
     for (var i = grid.behavior.getActiveColumnCount() - 1; i >= 5; --i) {
         grid.behavior.setColumnProperties(i, { format: 'number' });
     }

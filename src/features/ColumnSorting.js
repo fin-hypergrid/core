@@ -16,12 +16,14 @@ var ColumnSorting = Feature.extend('ColumnSorting', {
      */
 
     handleDoubleClick: function(grid, event) {
-        var gridCell = event.gridCell;
+        var gridCell = event.gridCell,
+            columnProperties;
         if (
             grid.isShowHeaderRow() &&
             gridCell.y === 0 &&
             gridCell.x !== -1 &&
-            !grid.behavior.getColumnProperties(gridCell.x).unsortable
+            (columnProperties = grid.behavior.getColumnProperties(gridCell.x)) &&
+            !columnProperties.unsortable
         ) {
             var keys = event.primitiveEvent.detail.keys;
             grid.toggleSort(gridCell.x, keys);
@@ -37,11 +39,13 @@ var ColumnSorting = Feature.extend('ColumnSorting', {
      * @param {Object} event - the event details
      */
     handleMouseMove: function(grid, event) {
-        var gridCell = event.gridCell;
+        var gridCell = event.gridCell,
+            columnProperties;
         if (
             this.isFixedRow(grid, event) &&
-            gridCell.y < 1 &&
-            !grid.behavior.getColumnProperties(gridCell.x).unsortable
+            gridCell.y === 0 &&
+            (columnProperties = grid.behavior.getColumnProperties(gridCell.x)) &&
+            !columnProperties.unsortable
         ) {
             this.cursor = 'pointer';
         } else {

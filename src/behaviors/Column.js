@@ -166,10 +166,11 @@ Column.prototype = {
         config.x = this.index;
         config.normalizedY = y - this.behavior.getHeaderRowCount();
 
-        var declaredRendererName = this.getCellProperty(y, 'renderer');
-        var renderer = this.dataModel.getCell(config, declaredRendererName);
-        renderer.config = config;
-        return renderer;
+        return this.dataModel.getCell(config, this.getCellProperty(y, 'renderer'));
+    },
+
+    clearAllCellProperties: function() {
+        this.cellProperties.length = 0;
     },
 
     checkColumnAutosizing: function(force) {
