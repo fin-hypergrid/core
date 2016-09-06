@@ -986,11 +986,14 @@ window.onload = function() {
 
         grid.setState(state);
 
-        behavior.setCellProperties(idx.HEIGHT, 16, {
+        // decorate height cell in row "17"
+        var rowOrdinal = 17;
+        behavior.setCellProperties(idx.HEIGHT, behavior.getHeaderRowCount() + (rowOrdinal - 1), {
             font: '10pt Tahoma',
             color: 'lightblue',
             backgroundColor: 'red',
-            halign: 'left'
+            halign: 'left',
+            reapplyCellProperties: true
         });
 
         grid.addProperties({
@@ -1084,6 +1087,7 @@ window.onload = function() {
         });
 
         behavior.setColumnProperties(idx.TRAVEL, {
+            halign: 'right',
             format: 'francs'
         });
 

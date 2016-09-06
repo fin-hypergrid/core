@@ -70,14 +70,14 @@ var JSON = DataModel.extend('dataModels.JSON', {
 
     /**
      * @memberOf dataModels.JSON.prototype
-     * @param {number} x
-     * @param {number} y
+     * @param {number} x - Data column coordinate.
+     * @param {number} r - Grid row coordinate.
      * @returns {*}
      */
-    getValue: function(x, y) {
-        var hasHierarchyColumn = this.hasHierarchyColumn();
-        var headerRowCount = this.grid.getHeaderRowCount();
-        var value;
+    getValue: function(x, r) {
+        var hasHierarchyColumn = this.hasHierarchyColumn(),
+            headerRowCount = this.grid.getHeaderRowCount(),
+            value;
 
         if (hasHierarchyColumn) {
             if (x === -2) {
@@ -86,25 +86,32 @@ var JSON = DataModel.extend('dataModels.JSON', {
         } else if (this.isDrillDown()) {
             x += 1;
         }
-        if (y < headerRowCount) {
-            value = this.getHeaderRowValue(x, y);
+
+        if (r < headerRowCount) {
+            value = this.getHeaderRowValue(x, r);
         } else {
+            var y = r - headerRowCount;
             // if (hasHierarchyColumn) {
             //     y += 1;
             // }
-            value = this.dataSource.getValue(x, y - headerRowCount);
+            value = this.dataSource.getValue(x, y);
         }
         return value;
     },
 
-    getDataIndex: function(y) {
-        return this.dataSource.getDataIndex(y - this.grid.getHeaderRowCount());
+    /**
+     * @param {number} r - Grid row coordinate.
+     * @returns {*}
+     */
+    getDataIndex: function(r) {
+        var y = r - this.grid.getHeaderRowCount();
+        return this.dataSource.getDataIndex(y);
     },
 
     /**
      * @memberOf dataModels.JSON.prototype
-     * @param {number} x
-     * @param {number} y - negative values refer to _bottom totals_ rows
+     * @param {number} x - Data column coordinate.
+     * @param {number} y - positive values refer to data rows; negative values refer to _bottom totals_ rows
      * @returns {*}
      */
     getHeaderRowValue: function(x, y) {
@@ -139,13 +146,14 @@ var JSON = DataModel.extend('dataModels.JSON', {
 
     /**
      * @memberOf dataModels.JSON.prototype
-     * @param {number} x
-     * @param {number} y
+     * @param {number} x - Data column coordinate.
+     * @param {number} r - Grid row coordinate.
      * @param value
      */
-    setValue: function(x, y, value) {
+    setValue: function(x, r, value) {
         var hasHierarchyColumn = this.hasHierarchyColumn();
         var headerRowCount = this.grid.getHeaderRowCount();
+
         if (hasHierarchyColumn) {
             if (x === -2) {
                 x = 0;
@@ -153,33 +161,35 @@ var JSON = DataModel.extend('dataModels.JSON', {
         } else if (this.isDrillDown()) {
             x += 1;
         }
-        if (y < headerRowCount) {
-            this.setHeaderRowValue(x, y, value);
+
+        if (r < headerRowCount) {
+            this.setHeaderRowValue(x, r, value);
         } else {
-            this.dataSource.setValue(x, y - headerRowCount, value);
+            var y = r - headerRowCount;
+            this.dataSource.setValue(x, y, value);
         }
         this.changed();
     },
 
     /**
      * @memberOf dataModels.JSON.prototype
-     * @param {number} x
-     * @param {number} y
+     * @param {number} x - Data column coordinate.
+     * @param {number} r - Grid row coordinate.
      * @param value
      * @returns {*}
      */
-    setHeaderRowValue: function(x, y, value) {
+    setHeaderRowValue: function(x, r, value) {
         if (value === undefined) {
-            return this._setHeader(x, y); // y is really the value
+            return this._setHeader(x, r); // r is really the value
         }
         var isFilterRow = this.grid.isShowFilterRow();
         var isHeaderRow = this.grid.isShowHeaderRow();
         var topTotalsOffset = (isFilterRow ? 1 : 0) + (isHeaderRow ? 1 : 0);
-        if (y >= topTotalsOffset) {
-            this.getTopTotals()[y - topTotalsOffset][x] = value;
+        if (r >= topTotalsOffset) {
+            this.getTopTotals()[r - topTotalsOffset][x] = value;
         } else if (x === -1) {
             return; // can't change the row numbers header
-        } else if (isHeaderRow && y === 0) {
+        } else if (isHeaderRow && r === 0) {
             return this._setHeader(x, value);
         } else if (isFilterRow) {
             this.setFilter(x, value);
@@ -191,16 +201,13 @@ var JSON = DataModel.extend('dataModels.JSON', {
 
     /**
      * @memberOf dataModels.JSON.prototype
-     * @param {number} colIndex
+     * @param {number} x - Data column coordinate.
      * @returns {*}
      */
-    getColumnProperties: function(colIndex) {
+    getColumnProperties: function(x) {
         //access directly because we want it ordered
-        var column = this.grid.behavior.getColumn(colIndex);
-        if (column) {
-            return column.getProperties();
-        }
-        return undefined;
+        var column = this.grid.behavior.getColumn(x);
+        return column && column.getProperties();
     },
 
     /**
@@ -607,42 +614,20 @@ var JSON = DataModel.extend('dataModels.JSON', {
 
     /**
      * @memberOf dataModels.JSON.prototype
-     * @param {number} y
+     * @param {number} r - Grid row coordinate.
      * @returns {object}
      */
-    getRow: function(y) {
-        var headerRowCount = this.grid.getHeaderRowCount();
-        var topTotals = this.getTopTotals();
-        var hasToptotals = !!topTotals.length;
-        if (y < headerRowCount && !hasToptotals) {
+    getRow: function(r) {
+        var headerRowCount = this.grid.getHeaderRowCount(),
+            topTotals = this.getTopTotals(),
+            hasToptotals = !!topTotals.length,
+            y = r - headerRowCount;
 
-            return topTotals[y - (headerRowCount - topTotals.length)];
+        if (r < headerRowCount && !hasToptotals) {
+            return topTotals[r - (headerRowCount - topTotals.length)];
         }
-        return this.dataSource.getRow(y - headerRowCount);
-    },
 
-    buildRow: function(y) {
-        return this.deprecated('buildRow', 'dataSource', '1.0.8');
-    },
-
-    /**
-     * @memberOf dataModels.JSON.prototype
-     * @param {number} y
-     * @returns {object}
-     */
-    getComputedRow: function(y) {
-        var rcf = this.getRowContextFunction([y]);
-        var fields = this.getFields();
-        var row = {};
-        for (var i = 0; i < fields.length; i++) {
-            var field = fields[i];
-            row[field] = rcf(field)[0];
-        }
-        return row;
-    },
-
-    getValueByField: function(fieldName, y) {
-        return this.deprecated('getValueByField', 'dataSource', '1.0.8');
+        return this.dataSource.getRow(y);
     },
 
     /**

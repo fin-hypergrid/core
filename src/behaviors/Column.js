@@ -1,5 +1,7 @@
 /* eslint-env browser */
 
+// NOTE: Cell.js is mixed into Column.prototype.
+
 'use strict';
 
 var _ = require('object-iterators');
@@ -30,7 +32,8 @@ var propertyNames = [
 function Column(behavior, indexOrOptions) {
     this.behavior = behavior;
     this.dataModel = behavior.dataModel;
-    this.cellProperties = [];
+
+    this.clearAllCellProperties();
 
     var options = typeof indexOrOptions === 'object' ? indexOrOptions : { index: indexOrOptions },
         index = options.index;
@@ -163,32 +166,10 @@ Column.prototype = {
         config.x = this.index;
         config.normalizedY = y - this.behavior.getHeaderRowCount();
 
-        // Legacy config.x and config.y were confusing because the x was translated while the y was not.
-        // These have been deprecated and are currently implemented as getters with deprecation warnings.
-        // Rather than defining these getters here on every cell render, they are defined once in Behavior.prototype.getDefaultState.
-        //config.x = this.index;
-        //config.y = y;
-
-        var declaredRendererName =
-            this.getCellProperties(y).renderer ||
-            this.getProperties().renderer;
-
+        var declaredRendererName = this.getCellProperty(y, 'renderer');
         var renderer = this.dataModel.getCell(config, declaredRendererName);
         renderer.config = config;
         return renderer;
-    },
-
-    getCellProperties: function(y) {
-        y = this.dataModel.getDataIndex(y);
-        return this.cellProperties[y] || {};
-    },
-
-    setCellProperties: function(y, value) {
-        this.cellProperties[y] = value;
-    },
-
-    clearAllCellProperties: function() {
-        this.cellProperties.length = 0;
     },
 
     checkColumnAutosizing: function(force) {
@@ -268,9 +249,16 @@ Column.prototype = {
         return this.behavior.getPrivateState().columnProperties[this.index];
     },
 
-    setProperties: function(properties) {
+    /**
+     *
+     * @param {object} properties
+     * @param {boolean} [preserve=false]
+     */
+    setProperties: function(properties, preserve) {
         var current = this.getProperties();
-        this.clearObjectProperties(current, false);
+        if (!preserve) {
+            this.clearObjectProperties(current, false);
+        }
         _(current).extendOwn(properties);
     },
 
@@ -290,7 +278,7 @@ Column.prototype = {
      *
      * Note that "render property" means in each case the first defined property found on the cell, column, or grid.
      *
-     * @param {number} y - The original untranslated row index.
+     * @param {number} y - The grid row index.
      * @param {object} options - Will be decorated with `format` and `column`.
      * @param {Point} options.editPoint
      * @returns {undefined|CellEditor} Falsy value means either no declared cell editor _or_ instantiation aborted by falsy return return from fireRequestCellEdit.
@@ -318,5 +306,7 @@ Column.prototype = {
         return this.behavior.grid.localization.get(localizerName).format;
     }
 };
+
+_(Column.prototype).extendOwn(require('./Cell'));
 
 module.exports = Column;

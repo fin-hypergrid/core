@@ -19,10 +19,6 @@ var noExportProperties = [
     'treeColumnPropertiesColumnSelection',
 ];
 
-var isNull = {
-    isNull: true
-};
-
 /**
  * @constructor
  * @abstract
@@ -721,13 +717,13 @@ var Behavior = Base.extend('Behavior', {
      * @memberOf Behavior.prototype
      * @desc update the data at point x, y with value
      * @return The data.
-     * @param {number} x - x coordinate
-     * @param {number} y - y coordinate
+     * @param {number} c - Grid column coordinate.
+     * @param {number} r - Grid row coordinate.
      * @param {Object} value - the value to use
      */
-    setValue: function(x, y, value) {
-        var column = this.getActiveColumn(x);
-        return column && column.setValue(y, value);
+    setValue: function(c, r, value) {
+        var column = this.getActiveColumn(c);
+        return column && column.setValue(r, value);
     },
 
     getDataValue: function(x, y) {
@@ -737,27 +733,38 @@ var Behavior = Base.extend('Behavior', {
     setDataValue: function(x, y, value) {
         this.dataModel.setValue(x, y, value);
     },
+
     /**
      * @memberOf Behavior.prototype
-     * @desc First checks to see if something was overridden.
-     * @return {*} The value at x,y for the top left section of the hypergrid.
-     * @param {number} x - x coordinate
-     * @param {number} y - y coordinate
+     * This does not include the column properties.
+     * @return {object} The cell properties for the cell at x,y in the hypergrid.
+     * @param {number} x - data x coordinate
+     * @param {number} y - data y coordinate
      */
     getCellProperties: function(x, y) {
-        var column = this.allColumns[x];
+        var column = this.getColumn(x);
         return column && column.getCellProperties(y);
+    },
+    /**
+     * @memberOf Behavior.prototype
+     * @return {*} The value at x,y in the hypergrid.
+     * @param {number} x - data x coordinate
+     * @param {number} y - data y coordinate
+     */
+    getCellProperty: function(x, y, key) {
+        var column = this.getColumn(x);
+        return column && column.getCellProperty(y, key);
     },
 
     /**
      * @memberOf Behavior.prototype
      * @desc update the data at point x, y with value
-     * @param {number} x - x coordinate
-     * @param {number} y - y coordinate
+     * @param {number} x - data x coordinate
+     * @param {number} y - data y coordinate
      * @param {Object} value - the value to use
      */
     setCellProperties: function(x, y, value) {
-        var column = this.allColumns[x];
+        var column = this.getColumn(x);
         if (column) {
             column.setCellProperties(y, value);
         }
@@ -1113,25 +1120,20 @@ var Behavior = Base.extend('Behavior', {
 
     /**
      * @memberOf Behavior.prototype
-     * @return {Object} The properties for a specific column. These are used if no cell properties are specified.
+     * @return {Object} The properties for a specific column.
      * @param {index} columnIndex - the column index of interest
      */
-    getColumnProperties: function(columnIndex) {
-        var column = this.columns[columnIndex];
-        if (!column) {
-            return isNull;
-        }
-        var properties = column.getProperties(); //TODO: returns `null` on Hypergrid.prototype.reset();
-        if (!properties) {
-            return isNull;
-        }
-        return properties;
+    getColumnProperties: function(x) {
+        var column = this.columns[x];
+        return column && column.getProperties();
     },
 
-    setColumnProperties: function(columnIndex, properties) {
-        var column = this.allColumns[columnIndex];
-        var columnProperties = column.getProperties();
-        _(columnProperties).extendOwn(properties);
+    setColumnProperties: function(x, properties) {
+        var column = this.getColumn(x);
+        if (!column) {
+            throw 'Expected data column.';
+        }
+        _(column.getProperties()).extendOwn(properties);
         this.changed();
     },
 
@@ -1139,13 +1141,13 @@ var Behavior = Base.extend('Behavior', {
      * Clears all cell properties of given column or of all columns.
      * @param {number} [columnIndex] - Omit for all columns.
      */
-    clearAllCellProperties: function(columnIndex) {
-        if (columnIndex === undefined) {
+    clearAllCellProperties: function(x) {
+        if (x === undefined) {
             for (var i = this.allColumns.length - 1; i >= 0; --i) {
-                this.allColumns[i].clearAllCellProperties();
+                this.getColumn(i).clearAllCellProperties();
             }
         } else {
-            var column = this.allColumns[i];
+            var column = this.getColumn(i);
             if (column) {
                 column.clearAllCellProperties();
             }
@@ -1500,20 +1502,10 @@ var Behavior = Base.extend('Behavior', {
         return false;
     },
 
-    getRowContextFunction: function(selectedRows) {
-        return function() {
-            return null;
-        };
-    },
-
     getSelectionMatrixFunction: function(selectedRows) {
         return function() {
             return null;
         };
-    },
-
-    getComputedRow: function(y) {
-        return this.dataModel.getComputedRow(y);
     },
 
     autosizeAllColumns: function() {

@@ -14,10 +14,10 @@ var regexIsMethod = /\)$/;
 
 /**
  * User is warned and new property is returned or new method is called and the result is returned.
- * @param {string} methodName - Deprecated method name with parentheses (required) containing argument list (optional).
+ * @param {string} methodName - Deprecated method name with parentheses (required) containing argument list (optional; see `args` below).
  * @param {string} dotProps - Dot-separated new property name to invoke or method name to call. Method names are indicated by including parentheses with optional argument list. The arguments in each list are drawn from the arguments presented in the `methodName` parameter.
  * @param {string} since - Version in which the name was deprecated.
- * @param {Arguments|Array} [args] - Actual arguments. Only needed when arguments are listed in `methodName`. The order of the arguments must match.
+ * @param {Arguments|Array} [args] - The actual arguments in the order listed in `methodName`. Only needed when arguments need to be forwarded.
  * @param {string} [notes] - Notes to add to message.
  * @returns {*} Return value of new property or method call.
  */
@@ -65,15 +65,17 @@ var deprecated = function(methodName, dotProps, since, args, notes) {
     for (var i = 0, last = chain.length - 1; i <= last; ++i) {
         var link = chain[i],
             name = link.match(/\w+/)[0],
-            actualArgList = regexIsMethod.test(link) ? argList(link) : undefined,
+            isMethod = regexIsMethod.test(link),
+            actualArgList = isMethod ? argList(link) : undefined,
             actualArgs = [];
 
         if (actualArgList) {
             actualArgs = actualArgList.map(mapToFormalArg);
-            link = link.match(/(\w+)/)[1];
             result = result[name].apply(result, actualArgs);
-        } else {
+        } else if (isMethod) {
             result = result[name]();
+        } else {
+            result = result[name];
         }
     }
 
