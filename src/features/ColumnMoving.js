@@ -162,7 +162,10 @@ var ColumnMoving = Feature.extend('ColumnMoving', {
      * @param {Object} event - the event details
      */
     handleMouseDown: function(grid, event) {
-        if (grid.behavior.isColumnReorderable() && !this.isFixedColumn(grid, event)) {
+        if (
+            grid.behavior.isColumnReorderable() &&
+            !this.isFixedColumn(grid, event)
+        ) {
             if (this.isHeaderRow(grid, event) && event.gridCell.x !== -1) {
                 this.dragArmed = true;
                 this.cursor = this.getDraggingCursorName();
@@ -211,7 +214,13 @@ var ColumnMoving = Feature.extend('ColumnMoving', {
      */
     handleMouseMove: function(grid, event) {
 
-        if (!this.dragging && event.mousePoint.y < 5 && event.viewPoint.y === 0 && !this.isFixedColumn(grid, event)) {
+        if (
+            grid.behavior.isColumnReorderable() &&
+            !this.isFixedColumn(grid, event) &&
+            !this.dragging &&
+            event.mousePoint.y < 5 &&
+            event.viewPoint.y === 0
+        ) {
             this.cursor = this.getCanDragCursorName();
         } else {
             this.cursor = null;

@@ -2,6 +2,18 @@
 
 var Base = require('./../lib/Base');
 
+/** @typedef paintFunction
+ * @type {function}
+ * @this {CellEditor}
+ * @param {CanvasGraphicsContext} gc
+ * @param {object} config
+ * @param {Rectangle} config.bounds - The clipping rect of the cell to be rendered.
+ * @param {number} config.x - the "translated" index into the `behavior.allColumns` array
+ * @param {number} config.normalizedY - the vertical grid coordinate normalized to first data row
+ * @param {number} config.untranslatedX - the horizontal grid coordinate measured from first data column
+ * @param {number} config.y - the vertical grid coordinate measured from top header row
+ */
+
 /** @constructor
  * @desc Instances of `CellRenderer` are used to render the 2D graphics context within the bound of a cell. Extend this base class to implement your own cell renderer
  *
@@ -11,13 +23,7 @@ var Base = require('./../lib/Base');
 var CellRenderer = Base.extend('CellRenderer', {
     /**
      * @desc An empty implementation of a cell renderer, see [the null object pattern](http://c2.com/cgi/wiki?NullObject).
-     * @param {CanvasGraphicsContext} gc
-     * @param {object} config
-     * @param {Rectangle} config.bounds - The clipping rect of the cell to be rendered.
-     * @param {number} config.x - the "translated" index into the `behavior.allColumns` array
-     * @param {number} config.normalizedY - the vertical grid coordinate normalized to first data row
-     * @param {number} config.untranslatedX - the horizontal grid coordinate measured from first data column
-     * @param {number} config.y - the vertical grid coordinate measured from top header row
+     * @implements paintFunction
      * @memberOf CellRenderer.prototype
      */
     paint: function(gc, config) {},

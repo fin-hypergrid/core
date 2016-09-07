@@ -770,12 +770,22 @@ module.exports = {
      */
     enableContinuousRepaint: false,
 
+    /** @summary Allow user to move columns .
+     * @desc Columns can be reordered through either of two interfaces:
+     * * Column Dragging feature
+     * * Column Picker dialog
+     * @type {boolean}
+     * @default
+     * @instance
+     */
+    columnsReorderable: true,
+
     /** @summary Reapply cell properties after `getCell`.
      * @type {boolean}
      * @default
      * @instance
      */
-    reapplyCellProperties: false
+     reapplyCellProperties: false
 };
 
 /** @typedef {string} cssColor

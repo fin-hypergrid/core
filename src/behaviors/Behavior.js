@@ -1115,7 +1115,7 @@ var Behavior = Base.extend('Behavior', {
      * @return {boolean} Can re-order columns.
      */
     isColumnReorderable: function() {
-        return true;
+        return this.getPrivateState().columnsReorderable;
     },
 
     /**
@@ -1334,6 +1334,13 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
+     * @summary Column alignment of given grid column.
+     * @desc One of:
+     * * `'left'`
+     * * `'center'`
+     * * `'right'`
+     *
+     * Cascades to grid.
      * @memberOf Behavior.prototype
      * @desc Quietly set the horizontal scroll position.
      * @param {number} x - The new position in pixels.

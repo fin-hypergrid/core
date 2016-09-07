@@ -2,91 +2,193 @@
 
 // NOTE: gulpfile.js's 'add-ons' task copies this file, altering the final line, to /demo/build/add-ons/, along with a minified version. Both files are eventually deployed to http://openfin.github.io/fin-hypergrid/add-ons/.
 
+// NOTE: This page generates 2 jsdoc pages, one for the `GroupedHeader` cell renderer class and the other for the add-on (API with `mixInTo` method).
+
 'use strict';
+
+var CLASS_NAME = 'GroupedHeader';
+
+/**
+ * @summary For detailed tutorial-style documentation, see the {@link https://github.com/openfin/fin-hypergrid/wiki/Grouped+Column+Headers|wiki page}.
+ *
+ * @desc This page is about the `groupedHeader` API.
+ *
+ * For the cell renderer installed by this API, see {@link groupedHeader.mixInTo~GroupedHeader|GroupedHeader}.
+ *
+ * #### Table of contents
+ *
+ * Method|Description
+ * ------|-----------
+ * {@link groupedHeader.mixInTo}|Installs the {@link groupedHeader.mixInTo~GroupedHeader GroupedHeader} cell renderer.
+ * {@link groupedHeader.decorateBackgroundWithBottomBorder}|The default background decorator.
+ * {@link groupedHeader.decorateBackgroundWithLinearGradient}|An alternative background decorator.
+ *
+ * @mixin
+ */
+var groupedHeader;
+
+/** @typedef gradientStop
+ * @type {Array}
+ * @desc Consists of two elements:
+ * 1. Element `[0]` (number): Stop position ranging from `0.0` (start of gradient) to `1.0` (end of gradient).
+ * 2. Element `[1]` (string): CSS color spec in a string, one of:
+ *  * color name (caution: some browsers may only accept the 16 HTML4 color names here)
+ *  * #nnnnnn
+ *  * rgb(r,g,b)
+ *  * rgba(r,g,b,a)
+ *  * hsl(h,s,l)
+ *  * hsla(h,s,l,a)
+ *
+ *  Applied to the graphic context's {@link https://developer.mozilla.org/en-US/docs/Web/API/CanvasGradient/addColorStop|addColorStop} method.
+ */
+
+/** @typedef groupConfigObject
+ * @type {object}
+ * @summary Grouped header paint function `config` object overrides.
+ * @desc Contains all of the regular paint function `config` object properties (see {@tutorial cell-renderer}).
+ *
+ * In addition, this object may contain the properties described below.
+ *
+ * Most of these properties (with some exceptions) may be "constructable":
+ * That is, they may be functions and if so the function will be called and the property will take on the returned value.
+ * Such functions are called once at the first column of each group with the cell renderer's `paint` function's {@link paintFunction|interface}.
+ * The exceptions are properties that are already defined as methods (such as `paintBackground`).
+ *
+ * @property {paintFunction} [paintBackground=groupedHeader.mixInTo~GroupedHeader#paintBackground]
+ * Reference to the current background renderer for this grid's grouped column labels.
+ * If omitted, uses {@link groupedHeader.mixInTo~GroupedHeader#paintBackground|cell renderer's}.
+ *
+ * @property {function|number} [thickness]
+ * Constant line thickness in pixels of the bottom border drawn when group config's (or cell renderer's) `paintBackground` is set to {@link groupedHeader.decorateBackgroundWithBottomBorder} (or a function that returns such a number).
+ * If omitted, the bottom border will be drawn proportionally: Lowest-order nested group gets a 1-pixel thick border, with each higher-order group getting a progressively thicker border.
+ *
+ * @property {function|gradientStop[]} [gradientStops]
+ * List of {@link https://developer.mozilla.org/en-US/docs/Web/API/CanvasGradient/addColorStop|gradient stops} that define the gradient (or a function that returns such a list).
+ * Required when group config's (or cell renderer's) `paintBackground` is set to {@link groupedHeader.decorateBackgroundWithLinearGradient}.
+ */
 
 var prototypeAdditions = {
     /**
-     * Override of SimpleCell's {@link SimpleCell#paint|paint} method.
-     * @type {function}
-     * @memberOf groupedHeader.mixInTo~GroupedHeader.prototype
+     * @summary The grouped header paint function.
+     * @desc This is the heart of the cell renderer.
+     *
+     * If you feel the urge to override this, you are on the wrong path! Write a new cell renderer instead.
+     * @implements paintFunction
+     * @default {@link groupedHeader.paintHeaderGroups}
+     * @memberOf groupedHeader.mixInTo~GroupedHeader#
      */
     paint: paintHeaderGroups,
 
-    // Remaining members are exclusive to `GroupedHeader` (not overrides)
+    // Remaining are exclusive to `GroupedHeader` and do not override regular cell renderer members:
 
     /**
-     * Character used in header strings to concatenate group label(s) with actual header.
+     * @summary Group header delimiter.
+     * @desc String used within header strings to concatenate group label(s), always ending with actual header.
      * @type {string}
-     * @default '|' (vertical bar)
-     * @memberOf groupedHeader.mixInTo~GroupedHeader.prototype
+     * @default '|' (the vertical bar character)
+     * @memberOf groupedHeader.mixInTo~GroupedHeader#
      */
     delimiter: '|',
 
     /**
-     * Group label color.
-     * @type {string}
-     * @default 'rgb(144, 144, 144)'
-     * @memberOf groupedHeader.mixInTo~GroupedHeader.prototype
+     * @summary An additional renderer for just the background.
+     * @desc This is called by the `paint` function to paint the background before it calls the superclass's paint function to paint the foreground.
+     * This will be overridden by similar definition in `groupConfig` for the current nesting level.
+     * @implements paintFunction
+     * @default {@link groupedHeader.decorateBackgroundWithLinearGradient}
+     * @memberOf groupedHeader.mixInTo~GroupedHeader#
      */
-    groupColor: 'rgb(144, 144, 144)',
+    paintBackground: decorateBackgroundWithBottomBorder,
 
     /**
-     * Background renderer.
-     * @type {function}
-     * @default {@link groupedHeader.drawProportionalBottomBorder}
-     * @memberOf groupedHeader.mixInTo~GroupedHeader.prototype
+     * @summary Grouped header configuration overrides.
+     * @desc This array is a list of {@link groupConfigObject} objects, one for each nesting level, each of which may contain:
+     * * An override for the background decorator
+     * * Properties of proprietary interest to the background decorator
+     * * Miscellaneous overrides for the cell renderer's `paint` function's regular `config` object properties (`color` in the above example)
+     *
+     * The properties contained in each `config` object pertain to the group labels and their background decorators only. They do not pertain to the actual column headers. Those appear below all the nested group headers and are rendered using the unaltered paint function's config object.
+     *
+     * You can list a separate object for each level of group header nesting, beginning with the highest-order group header.
+     * However, note that if there are fewer of these objects in the list than the maximum depth of nested group headers, the list wraps (repeats).
+     *
+     * The default is a single-element array.
+     * As a consequence of the wrapping feature described above, it therefore accommodates all levels of nested group headers.
+     * The default consists of:
+     * * `color` - A new color 50% lighter than `config.color` (the cell's "foreground" color).
+     * * `gradientStops` - A gradient, 0% at top to 35% at bottom, of the above derived color.
+     * @type {groupConfigObject[]}
+     * @default A single-element array (see above)
+     * @memberOf groupedHeader.mixInTo~GroupedHeader#
      */
-    paintBackground: drawProportionalBottomBorder,
-
-    /**
-     * List of gradient stops that define the gradient.
-     * See {@link https://developer.mozilla.org/en-US/docs/Web/API/CanvasGradient/addColorStop|addColorStop} for more info.
-     * @type {gradientStop[]}
-     * @default [ [0, 'rgba(144, 144, 144, 0)'], [1, 'rgba(144, 144, 144, .35)'] ]
-     * @memberOf groupedHeader.mixInTo~GroupedHeader.prototype
-     */
-    gradientStops: [
-        [0, 'rgba(144, 144, 144, 0)'],
-        [1, 'rgba(144, 144, 144, .35)']
-    ]
+    groupConfig: [{
+        color: function(gc, config) {
+            return lighterColor(gc, config.color, 0.5);
+        },
+        gradientStops: function(gc, config) {
+            return [
+                [0, lighterColor(gc, config.color, 0.5, 0)],
+                [1, lighterColor(gc, config.color, 0.5, .35)]
+            ];
+        }
+    }]
 };
 
 /**
  * @summary Mix in the code necessary to support grouped column headers.
  * @desc Performs the following mix ins:
  * 1. Creates a new renderer and adds it to the grid.
- * 2. Sets the data model's {@link dataModel#groupHeaderDelimiter|groupHeaderDelimiter} property, which tells the data model to prepend the up and down sort arrows to the actual column header part of the header string rather than the start of the header string (which is the highest-order group label).
+ * 2. Extend the behavior's {@link behaviors/JSON#setHeaders|setHeaders} method.
+ * 3. Sets the data model's {@link dataModel#groupHeaderDelimiter|groupHeaderDelimiter} property, which tells the data model to prepend the up and down sort arrows to the last item (actual column header) of the header string rather than the start of the header string (which is the highest-order group label).
  * @function
  * @param {Hypergrid} grid - Your instantiated grid object.
- * @param {object} options - Overrides for the {@link groupedHeader.mixInTo~GroupedHeader|GroupedHeader} cell renderer's _own_ members.
+ * @param {object} options - Additions/overrides for the grid's singleton {@link groupedHeader.mixInTo~GroupedHeader|GroupedHeader} instance.
+ * @param {function} [options.CellRenderer] - Extend from this constructor.
+ * If omitted, uses the constructor of the cell renderer being used by the first currently active header cell.
  * @memberOf groupedHeader
  */
 function mixInTo(grid, options) {
+    options = options || {};
 
-    var SimpleCell = Object.getPrototypeOf(grid.cellRenderers.get('SimpleCell')).constructor;
+    // 1. Creates a new renderer and adds it to the grid.
+    var CellRenderer = options.CellRenderer;
 
-    /**
-     * @extends SimpleCell
-     * @constructor
-     */
-    var GroupedHeader = SimpleCell.extend('GroupedHeader', prototypeAdditions);
-
-    // 1. Create a special cell renderer to be used for the grouped header cells.
-    var renderer = grid.cellRenderers.add(GroupedHeader);
-
-    // 2. Set instance variables from `options` object, overriding values in above prototype
-    if (options) {
-        for (var key in Object.keys(options)) {
-            if (options.hasOwnProperty(options)) {
-                renderer[key] = options[key];
-            }
-        }
+    if (!CellRenderer || typeof CellRenderer === 'string') {
+        var cellRendererName = CellRenderer || grid.behavior.getActiveColumn(0).getCellProperty(0, 'renderer'),
+            cellRenderer = grid.cellRenderers.get(cellRendererName);
+        CellRenderer = Object.getPrototypeOf(cellRenderer).constructor;
     }
 
-    // 2. Extend the behavior's `setHeaders` method.
-    grid.behavior.setHeaders = this.setHeaders; // This override calls the superclass's implementation
+    /**
+     * This is the cell renderer.
+     *
+     * For the API containing the mix-in and set-up code, see {@link groupedHeader}.
+     *
+     * This cell renderer extends {@link CellRenderer} or a descendant class (usually {@link SimpleCell}).
+     *
+     * _Note:_
+     * The code for this class is not in itw own file.
+     * It is found inside {@link groupedHeader.mixInto}.
+     *
+     * @constructor
+     */
+    var GroupedHeader = CellRenderer.extend(CLASS_NAME, prototypeAdditions);
 
-    // 3. Set the datamodel's `groupHeaderDelimiter` property
+    // Create a special cell renderer to be used by the grouped header cells.
+    var renderer = grid.cellRenderers.add(GroupedHeader);
+
+    // Set instance variables from `options` object, overriding values in above prototype
+    Object.getOwnPropertyNames(options).forEach(function(key) {
+        renderer[key] = options[key];
+    });
+
+    // Extend the behavior's `setHeaders` method.
+    grid.behavior.setHeaders = setHeaders; // This override calls the superclass's implementation
+
+    // Extend the behavior's `isColumnReorderable` method.
+    grid.behavior.isColumnReorderable = isColumnReorderable;
+
+    // Set the data model's `groupHeaderDelimiter` property
     grid.behavior.dataModel.groupHeaderDelimiter = renderer.delimiter;
 }
 
@@ -95,6 +197,7 @@ function mixInTo(grid, options) {
  * @desc Convenience function to:
  * 1. Call the underlying {@link behaviors/JSON#setHeaders|setHeaders} method.
  * 2. Set the header row height based on the maximum group depth.
+ * 3. Set all active header cells to use the GroupHeader cell renderer.
  * @this {Behavior}
  * @param {string[]|object} headers - The header labels. One of:
  * * _If an array:_ Must contain all headers in column order.
@@ -102,127 +205,237 @@ function mixInTo(grid, options) {
  * @memberOf groupedHeader
  */
 function setHeaders(headers) {
-    var delimiter = this.grid.cellRenderers.get('GroupedHeader').delimiter;
+    var originalMethodFromPrototype = Object.getPrototypeOf(this).setHeaders,
+        groupedHeaderCellRendererInstance = this.grid.cellRenderers.get(CLASS_NAME),
+        delimiter = groupedHeaderCellRendererInstance.delimiter;
 
-    // Call the original implementation to set the headers
-    Object.getPrototypeOf(this).setHeaders.call(this, headers);
+    // 1. Call the original implementation to actually set the headers
+    originalMethodFromPrototype.call(this, headers);
 
-    // Discover the deepest group level from all the header strings
-    var levels = this.allColumns.reduce(function(max, column) {
+    // 2. Set the header row height based on the maximum group depth among all active columns.
+    var levels = this.columns.reduce(function(max, column) {
         return Math.max(column.header.split(delimiter).length, max);
     }, 0);
-
-    // Increase the height of header row to accommodate all the deepest group header level
-    this.grid.setState({
+    this.grid.addProperties({
         rowHeights: {
             0: levels * 4 / 3 * this.grid.behavior.getDefaultRowHeight()
         }
     });
+
+    // 3. Set all active header cells to use the GroupHeader cell renderer
+    this.columns.forEach(function(column) {
+        column.setCellProperty(0, 'renderer', CLASS_NAME);
+    });
 }
 
 /**
- * @this {GroupHeader}
- * @param {CanvasRenderingContext2D} gc
- * @param {object} config
+ * Prevent column moving when there are any grouped headers.
+ * @returns {boolean}
+ */
+function isColumnReorderable() {
+    var originalMethodFromPrototype = Object.getPrototypeOf(this).isColumnReorderable,
+        isReorderable = originalMethodFromPrototype.call(this),
+        groupedHeaderCellRendererInstance = this.grid.cellRenderers.get(CLASS_NAME),
+        delimiter = groupedHeaderCellRendererInstance.delimiter;
+
+    return (
+        isReorderable &&
+        !this.columns.find(function(column) { // but only if no grouped columns
+            return column.getCellProperty(0, 'renderer') === CLASS_NAME && // header cell using GroupedHeader
+                column.header.indexOf(delimiter) !== -1; // header is part of a group
+        })
+    );
+}
+
+/**
+ * @summary This cell renderer's paint function.
+ * @desc This function renders a grouped column header when both of the following are true:
+ * * Cell is a header cell.
+ * * Column's header string contains the `delimiter` string.
+ * @type {function}
+ * @memberOf groupedHeader.mixInTo~GroupedHeader#
+ */
+
+/**
+ * @summary The {@link groupedHeader.mixInTo~GroupedHeader|GroupedHeader} cell renderer's `paint` function.
+ * @desc This function is called by the Hypergrid renderer on every grid render, once for each column header from left to right.
+ * Should be set on (and only on) all header cells — regardless of whether or not the header is part of a column group.
+ * (See {@link groupedHeader.setHeaders} which does this for you.)
+ * @implements paintFunction
  * @memberOf groupedHeader
  */
 function paintHeaderGroups(gc, config) {
     var paint = this.super.paint;
 
-    if (config.y === 0 && config.x >= 0) { // if a header cell...
-        var values = config.value.split(this.delimiter), // each group header including column header
-            groupCount = values.length - 1; // group header levels above column header
+    var args = arguments,
+        values = config.value.split(this.delimiter), // each group header including column header
+        groupCount = values.length - 1; // group header levels above column header
 
-        if (groupCount === 0 || config.x === 0) { // no group headers OR first column
-            this.groups = []; // start out with no groups defined
-        }
+    if (groupCount === 0 || config.x === 0) { // no group headers OR first column
+        this.groups = []; // start out with no groups defined
+    }
 
-        if (groupCount) { // has group headers
-            var group,
-                groups = this.groups,
-                bounds = config.bounds,
+    if (groupCount) { // has group headers
+        var group,
+            groups = this.groups,
+            bounds = config.bounds,
 
-                // save bounds for final column header render
-                boundsLeft = bounds.x,
-                boundsWidth = bounds.width,
+            // save bounds for final column header render
+            boundsLeft = bounds.x,
+            boundsWidth = bounds.width;
 
-                // save cosmetic properties for final column header render
-                isColumnHovered = config.isColumnHovered,
-                isSelected = config.isSelected,
-                font = config.font,
-                color = config.color;
+        // height of each level is the same, 1/levels of total height
+        bounds.height /= values.length;
 
-            // height of each level is the same, 1/levels of total height
-            bounds.height /= values.length;
+        for (var g = 0, y = bounds.y; g < groupCount; g++, y += bounds.height) {
+            if (!groups[g] || values[g] !== groups[g].value) {
+                // Level has changed so reset left position (group[g] as on the renderer and persists between calls)
+                group = groups[g] = groups[g] || {};
+                group.value = values[g];
+                group.left = boundsLeft;
+                group.width = boundsWidth;
 
-            for (var g = 0, y = bounds.y; g < groupCount; g++, y += bounds.height) {
-                if (!groups[g] || values[g] !== groups[g].value) {
-                    // Level has changed so reset left position (group[g] as on the renderer and persists between calls)
-                    group = groups[g] = groups[g] || {};
-                    group.value = values[g];
-                    group.left = boundsLeft;
-                    group.width = boundsWidth;
-                } else {
-                    // Continuation of same group level, so just repaint but with increased width
-                    group = groups[g];
-                    group.width += boundsWidth;
+                // save cosmetic properties for final column header render that follows this if-block
+                group.configStash = {
+                    isColumnHovered: config.isColumnHovered,
+                    isSelected: config.isSelected,
+                    font: config.font,
+                    backgroundColor: config.backgroundColor
+                };
+
+                // Stash config values that will be overridden and save overrides in `group` from config of first column in group
+                group.config = this.groupConfig[g % this.groupConfig.length]; // wrap if not enough elements
+                Object.keys(group.config).forEach(stash);
+            } else {
+                // Continuation of same group level, so just repaint but with increased width
+                group = groups[g];
+                group.width += boundsWidth;
+            }
+
+            bounds.x = group.left;
+            bounds.y = y;
+            bounds.width = group.width;
+
+            // Copy `group` members saved above from `group.config` to `config`
+            Object.keys(group.config).forEach(reconfig);
+
+            // Paint the group header background
+            gc.fillStyle = config.backgroundColor;
+            gc.fillRect(bounds.x, bounds.y, bounds.width, bounds.height);
+
+            if (group.value) {
+                // Decorate the group header background
+                this.groupIndex = g;
+                this.groupCount = groupCount;
+
+                var decorator = config.paintBackground || this.paintBackground;
+                if (decorator) {
+                    if (typeof decorator !== 'function') {
+                        decorator = groupedHeader[decorator];
+                        if (typeof decorator !== 'function') {
+                            throw 'Expected decorator function of name of registered decorator function.';
+                        }
+                    }
+                    decorator.apply(this, arguments);
                 }
-
-                bounds.x = group.left;
-                bounds.y = y;
-                bounds.width = group.width;
-                config.value = group.value;
 
                 // Suppress hover and selection effects for group headers
                 config.isColumnHovered = config.isSelected = false;
 
                 // Make group headers bold & grey
-                config.font = 'bold ' + font;
-                config.color = this.groupColor;
+                config.value = group.value;
+                config.font = 'bold ' + config.font;
+                config.backgroundColor = 'transparent';
 
-                // Render the higher-order group labels
-                paint.call(this, gc, config);
-
-                // Decorate the group label's background
-                this.bounds = bounds;
-                this.groupIndex = g;
-                this.groupCount = groupCount;
-                this.paintBackground(gc);
+                // Paint the group header foreground
+                paint.apply(this, arguments);
             }
 
-            // restore bounds for final column header render (although y and height have been altered)
-            bounds.x = boundsLeft;
-            bounds.y = y;
-            bounds.width = boundsWidth;
-            config.value = values[g]; // low-order header
-
-            // restore cosmetic values for hover and selection
-            config.isColumnHovered = isColumnHovered;
-            config.isSelected = isSelected;
-
-            // restore font and color which were set to bold grey above for group headers
-            config.font = font;
-            config.color = color;
+            // Restore `config`
+            Object.keys(group.configStash).forEach(unstash);
         }
+
+        // Restore bounds for final column header render.
+        // Note that `y` and `height` have been altered from their original values.
+        bounds.x = boundsLeft;
+        bounds.y = y;
+        bounds.width = boundsWidth;
+        config.value = values[g]; // low-order header
     }
 
-    // Render the low-order column header
-    paint.call(this, gc, config);
+    // Render the actual column header
+    paint.apply(this, arguments);
+
+    function stash(key) { // iteratee function for iterating over `group.config`
+        if (key in config) {
+            if (key in group.configStash) {
+                config[key] = group.configStash[key];
+            } else {
+                group.configStash[key] = config[key];
+            }
+        }
+        var property = group.config[key];
+        if (key !== 'paintBackground' && typeof property === 'function') {
+            property = property.apply(this, args);
+        }
+        group[key] = property;
+    }
+
+    function reconfig(key) { // iteratee function for iterating over `group`
+        config[key] = group[key];
+    }
+
+    function unstash(key) { // iteratee function for iterating over `group.configStash`
+        config[key] = group.configStash[key];
+    }
 }
 
-
 /**
- * @summary Draw underscore under group label.
- * @desc Supply a reference to this function in the `paintBackground` option in your {@link groupedHeader.mixInTo} call. This function is not called directly.
+ * @summary Draw vertical gradient behind group label.
+ * @desc _Do not call this function directly._
+ *
+ * Supply a reference to this function in one or both of the following options in your {@link groupedHeader.mixInTo} call:
+ * * option.{@link groupedHeader.mixInTo~GroupedHeader#paintBackground|paintBackground}
+ * * option.{@link groupedHeader.mixInTo~GroupedHeader#groupConfig|groupConfig} (within an element {@link groupConfigObject} object)
+ *
  * @this {GroupHeader}
  * @param {CanvasRenderingContext2D} gc
+ * @param {object} config - The `paint` method's `config` object.
  * @memberOf groupedHeader
  */
-function drawProportionalBottomBorder(gc) {
-    var bounds = this.bounds;
-    var thickness = this.groupCount - this.groupIndex; // high-order group gets thickest border
+function decorateBackgroundWithLinearGradient(gc, config) {
+    var bounds = config.bounds,
+        grad = gc.createLinearGradient(bounds.x, bounds.y, bounds.x, bounds.y + bounds.height);
+
+    (config.gradientStops || this.gradientStops).forEach(function(stop) {
+        grad.addColorStop.apply(grad, stop);
+    });
+
+    gc.fillStyle = grad;
+    gc.fillRect(bounds.x + 2, bounds.y, bounds.width - 3, bounds.height);
+}
+
+/**
+
+ * @summary Draw underscore under group label.
+ * @desc _Do not call this function directly._
+ *
+ * Supply a reference to this function in one or both of the following options in your {@link groupedHeader.mixInTo} call:
+ * * option.{@link groupedHeader.mixInTo~GroupedHeader#paintBackground|paintBackground}
+ * * option.{@link groupedHeader.mixInTo~GroupedHeader#groupConfig|groupConfig} (within an element {@link groupConfigObject} object)
+ *
+ * @this {GroupHeader}
+ * @param {CanvasRenderingContext2D} gc
+ * @param {object} config - The `paint` method's `config` object.
+ * @memberOf groupedHeader
+ */
+function decorateBackgroundWithBottomBorder(gc, config) {
+    var bounds = config.bounds,
+        thickness = config.thickness ||
+            this.groupCount - this.groupIndex; // when `thickness` undefined, higher-order groups get progressively thicker borders
+
     gc.beginPath();
-    gc.strokeStyle = this.groupColor;
+    gc.strokeStyle = config.color;
     gc.lineWidth = thickness;
     gc.moveTo(bounds.x + 3, bounds.y + bounds.height - thickness);
     gc.lineTo(bounds.x + bounds.width - 2, bounds.y + bounds.height - thickness);
@@ -230,145 +443,61 @@ function drawProportionalBottomBorder(gc) {
     gc.closePath();
 }
 
-/**
- * @summary Draw vertical gradient behind group label.
- * @desc Supply a reference to this function in the `paintBackground` option in your {@link groupedHeader.mixInTo} call. This function is not called directly.
- * @this {GroupHeader}
- * @param {CanvasRenderingContext2D} gc
- * @memberOf groupedHeader
- */
-function drawLinearGradient(gc) {
-    var bounds = this.bounds;
-    var grad = gc.createLinearGradient(bounds.x, bounds.y, bounds.x, bounds.y + bounds.height);
-    this.gradientStops.forEach(function(stop) {
-        grad.addColorStop.apply(grad, stop);
-    });
-    gc.fillStyle = grad;
-    gc.fillRect(bounds.x + 2, bounds.y, bounds.width - 3, bounds.height);
+// regexRGB - parses #rrggbb or rgb(r, g, b) or rgba(r, g, b, a)
+var regexRGB = /(^#([0-9a-f]{2,2})([0-9a-f]{2,2})([0-9a-f]{2,2})|rgba\((\d+),\s*(\d+),\s*(\d+),\s*([.\d]+)\))$/i;
+
+function lighterColor(gc, color, factor, newAlpha) {
+    var r, g, b, alpha, was = gc.fillStyle;
+
+    // translate color name to color spec
+    gc.fillStyle = color;
+    color = gc.fillStyle;
+    gc.fillStyle = was;
+
+    color = color.match(regexRGB);
+
+    alpha = color[8];
+
+    if (alpha) {
+        r = parseInt(color[5], 10);
+        g = parseInt(color[6], 10);
+        b = parseInt(color[7], 10);
+    } else {
+        r = parseInt(color[2], 16);
+        g = parseInt(color[3], 16);
+        b = parseInt(color[4], 16);
+    }
+
+    r = lighterComponent(r, factor);
+    g = lighterComponent(g, factor);
+    b = lighterComponent(b, factor);
+
+    if (newAlpha !== undefined) {
+        alpha = newAlpha;
+    }
+
+    return (
+        alpha !== undefined
+            ? 'rgba(' + r + ', ' + g + ', ' + b + ', ' + alpha + ')'
+            : '#' + toHex2(r) + toHex2(g) + toHex2(b)
+    );
 }
 
-/** @typedef gradientStop
- * @type {Array}
- * @desc Consists of two elements:
- * 1. Element `[0]` (number): Stop position ranging from `0.0` (start of gradient) to `1.0` (end of gradient).
- * 2. Element `[1]` (string): CSS color spec in a string, one of:
- *  * color name
- *  * #nnnnnn
- *  * rgb(r,g,b)
- *  * rgba(r,g,b,a)
- *
- *  Applied to the graphic context's {@link https://developer.mozilla.org/en-US/docs/Web/API/CanvasGradient/addColorStop|addColorStop} method.
- */
+function lighterComponent(n, factor) {
+    return n + (255 - n) * factor;
+}
 
-/**
- * Group headers are implemented by rendering each header with it's group(s) above it, all in the one header cell. This multi-line header has the highest-order group's label on the top, with each lower-order group's label on successive lines below it, ending with the actual column header. The conceit of this algorithm is that each group level is rendered in successive columns stretched across all the columns thus far rendered.
- *
- * Column grouping is specified by resetting the all headers involved to a list consisting of the labels of the common group header(s) and ending with the actual column header. For example, to strecth a group label "Age" above columns 4 and 5:
- *
- * ```javascript
- * grid.behavior.getActiveColumn[3].header = "Age|Years";
- * grid.behavior.getActiveColumn[4].header = "Age|Months";
- * ```
- *
- * It is usually convenient to use the behavior's `setHeaders` method. This mix-in actually extends that method to make it slightly more useful: In addition to setting the headers as usual, it also increases the header row height to accommodate the deepest group label. (You don't have to use this method; you can simply reset the headers as above and set the row height yourself.)
- *
- * ### API access
- *
- * If you're using browserify with the *npm* module:
- * ```javascript
- * var groupedHeader = require('fin-hypergrid/add-ons/grouped-header');
- * ```
- *
- * If you're using the script file on the CDN:
- * ```html
- * <script src="openfin.github.io/fin-hypergrid/build/fin-hypergrid.min.js"></script>
- * <script src="openfin.github.io/fin-hypergrid/build/add-ons/grouped-header.min.js"></script>
- * ```
- * ```javascript
- * var groupedHeader = fin.hypergrid.groupedHeader;
- * ```
- *
- * ### Usage
- *
- *  This example specifies that the two named columns are under a group labeled "Name":
- * ```javascript
- * var grid = new fin.Hypergrid(...);
- * groupedHeader.mixInTo(grid, options);
- * grid.behavior.setHeaders({
- *     firstName: 'Name|First',
- *     lastName: 'Name|Last'
- * });
- * ```
- *
- * You can nest headers to any level. The example above is only one level deep. The live {@link http://openfin.github.io/fin-hypergrid/grouped-header.html|demo} demonstrates a nested header (one additional level).
- *
- * This API uses its own extension of the {@link SimpleCell} cell renderer which does the stretched partial cell renders explained above. It also calls a background paint function to fill the area behind the group labels. This API comes with two such background paint functions, described below. These are both exposed so you can specify one over the other. You can also specify a reference to a custom function.
- *
- * ### Background paint functions
- *
- * #### {@link groupedHeader.drawProportionalBottomBorder|drawProportionalBottomBorder}
- * This is the default background paint function. It paints a bottom border under the group header whose thickness is in proportion to the order (level) of the group:
- *
- * ![Bottom Border Background](https://github.com/openfin/fin-hypergrid/raw/master/images/jsdoc/grouped-header/bottom-border.png)
- *
- * The lowest-order group has a 1-pixel thick border; borders grow progressively thicker with each superior group; the highest-order group has the thickest border.
- *
- * #### {@link groupedHeader.drawLinearGradient|drawLinearGradient}
- * This paints a background that transitions color from top to bottom:
- *
- * ![Linear Gradient Background](https://github.com/openfin/fin-hypergrid/raw/master/images/jsdoc/grouped-header/gradient.png)
- *
- * ### Options
- *
- * Options are supplied to the {@link groupedHeader.mixInTo|mixInTo} call and apply to the entire grid so that all column groups in a grid share the same appearance. Most options (with the exception of `delimiter`) are for the use of the {@link groupedHeader.mixInTo~GroupedHeader|GroupedHeader} cell renderer.
- *
- * #### `paintBackground` option
- *
- * To override the default background paint function, pass a reference in the `backgroundPaint` option:
- * ```javascript
- * fin.Hypergrid.groupedHeader.mixInTo(grid, {
- *    paintBackground: groupedHeader.drawLinearGradient
- * });
- * ```
- *
- * #### `gradientStops` option
- *
- * Gradients blend between a series of colors filling the area behind the group label from top to bottom. Each color may include an opacity level.
- *
- * The gradient illustrated above is the default. It uses the default header label color to fill the background, transitioning from top alpha=0% to bottom alpha=35%.
- *
- * You can however specify your own {@link https://developer.mozilla.org/en-US/docs/Web/API/CanvasGradient/addColorStop|gradient stops}:
- *
- * ```javascript
- * fin.Hypergrid.groupedHeader.mixInTo(grid, {
- *    paintBackground: fin.Hypergrid.groupedHeader.drawLinearGradient,
- *    gradientStops: [
- *        [0, 'rgba(255, 255, 0, 0)'],
- *        [1, 'rgba(255, 255, 0, .5)']
- *    ],
- *    groupColor: 'red'
- *});
- * ```
- *
- * The gradient shown above fills the background, transitioning from top (0) in yellow (`255, 255, 0`) with alpha=0% (`0`) to bottom (`1`) with alpha=50% (`.5`):
- *
- * ![Linear Gradient Background (Yellow)](https://github.com/openfin/fin-hypergrid/raw/master/images/jsdoc/grouped-header/gradient-yellow.png)
- *
- * #### `groupColor` option
- *
- * The example above also illustrates setting the `groupColor` option which specifies the font color for the group labels, in this case red (yuck! but it's just an example).
- *
- * #### `delimiter` option
- *
- * Allows you to change the delimiter in the header strings from the default vertical bar character (`'|'`) to something else.
- *
- * @mixin
- */
-var groupedHeader = {
+function toHex2(n) {
+    var x = Math.round(n).toString(16);
+    if (n < 0x10) { x = '0' + x; }
+    return x;
+}
+
+groupedHeader = {
     mixInTo: mixInTo,
-    setHeaders: setHeaders,
-    drawProportionalBottomBorder: drawProportionalBottomBorder,
-    drawLinearGradient: drawLinearGradient
+    decorateBackgroundWithBottomBorder: decorateBackgroundWithBottomBorder,
+    decorateBackgroundWithLinearGradient: decorateBackgroundWithLinearGradient,
+    lighterColor: lighterColor
 };
 
 module.exports = groupedHeader;
