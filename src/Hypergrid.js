@@ -2761,12 +2761,22 @@ Hypergrid.prototype = {
         return this.getRenderer()._getBoundsOfCell(x, y);
     },
 
-    getColumnProperties: function(columnIndex) {
-        return this.behavior.getColumnProperties(columnIndex);
+    /**
+     * @param {index} x - Data x coordinate.
+     * @return {Object} The properties for a specific column.
+     * @memberOf Hypergrid.prototype
+     */
+    getColumnProperties: function(x) {
+        return this.behavior.getColumnProperties(x);
     },
 
-    setColumnProperties: function(columnIndex, properties) {
-        this.behavior.setColumnProperties(columnIndex, properties);
+    /**
+     * @param {index} x - Data x coordinate.
+     * @return {Object} The properties for a specific column.
+     * @memberOf Hypergrid.prototype
+     */
+    setColumnProperties: function(x, properties) {
+        this.behavior.setColumnProperties(x, properties);
     },
 
     moveSingleSelect: function(x, y) {

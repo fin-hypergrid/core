@@ -157,12 +157,15 @@ GroupView.prototype = {
             dataSource = dataModel.sources.groupview,
             grouped = !!groups.length,
             state = behavior.getPrivateState(),
-            columnProps = behavior.getColumn(dataSource.treeColumnIndex).getProperties();
+            columnProps = behavior.getColumnProperties(dataSource.treeColumnIndex);
 
         if (grouped) {
             // save the current value of column's editable property and set it to false
             this.editableWas = !!columnProps.editable;
             columnProps.editable = false;
+
+            this.cellSelectionWas = !!columnProps.cellSelection;
+            columnProps.cellSelection = false;
 
             // save value of grid's checkboxOnlyRowSelections property and set it to true so drill-down clicks don't select the row they are in
             this.checkboxOnlyRowSelectionsWas = state.checkboxOnlyRowSelections;
@@ -170,6 +173,7 @@ GroupView.prototype = {
 
         } else {
             columnProps.editable = this.editableWas;
+            columnProps.cellSelection = this.cellSelectionWas;
             state.checkboxOnlyRowSelections = this.checkboxOnlyRowSelectionsWas;
         }
 

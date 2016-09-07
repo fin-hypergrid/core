@@ -124,7 +124,7 @@ TreeView.prototype = {
         dataModel.applyAnalytics();
 
         var joined = dataSource.setRelation(options),
-            columnProps = behavior.getColumn(dataSource.treeColumn.index).getProperties();
+            columnProps = behavior.getColumnProperties(dataSource.treeColumn.index);
 
         // restore filter after setRelation call
         filterDataSource.set(filter);
@@ -133,6 +133,9 @@ TreeView.prototype = {
             // Make the tree column uneditable: Save the current value of the tree column's editable property and set it to false.
             this.editableWas = !!columnProps.editable;
             columnProps.editable = false;
+
+            this.cellSelectionWas = !!columnProps.cellSelection;
+            columnProps.cellSelection = false;
 
             // Save value of grid's checkboxOnlyRowSelections property and set it to true so drill-down clicks don't select the row they are in
             this.checkboxOnlyRowSelectionsWas = state.checkboxOnlyRowSelections;
@@ -150,6 +153,7 @@ TreeView.prototype = {
             }
         } else {
             columnProps.editable = this.editableWas;
+            columnProps.cellSelection = this.cellSelectionWas;
             state.checkboxOnlyRowSelections = this.checkboxOnlyRowSelectionsWas;
         }
 
@@ -185,14 +189,15 @@ TreeView.prototype = {
      * @returns {number} Total rows deleted.
      */
     deleteRow: function(ID, adoptiveParentID, keepParent, keepDrillDown) {
-        var dataModel = this.grid.behavior.dataModel,
-            treeview = dataModel.sources.treeview,
-            idColumnName = treeview.idColumn.name,
-            parentIdColumnName = treeview.parentIdColumn.name,
+        var method, dataRow,
             adopting = typeof adoptiveParentID === 'number' || adoptiveParentID === null,
             deletions = 0,
-            dataRow,
-            method;
+            dataModel = this.grid.behavior.dataModel,
+            treeview = dataModel.sources.treeview,
+
+            // getIdColumn rather than idColumn in case setRelation not called yet:
+            idColumnName = treeview.setIdColumn(this.options.idColumn).name,
+            parentIdColumnName = treeview.setParentIdColumn(this.options.parentIdColumn).name;
 
         if (!adopting) {
             keepDrillDown = keepParent;
