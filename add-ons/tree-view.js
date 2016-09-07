@@ -160,6 +160,69 @@ TreeView.prototype = {
         behavior.shapeChanged();
 
         return joined;
+    },
+
+    /**
+     * @summary Delete a row and it's children.
+     * @desc _Requires that the row-by-id API is installed._
+     *
+     * Alternatively, you can reassign the children to another row (see `adoptiveParentID` below).
+     *
+     * After you're done with all your row manipulations, you must call:
+     * ```javascript
+     * grid.behavior.applyAnalytics();
+     * grid.behaviorShapeChanged();
+     * grid.repaint(); // call this eventually
+     * ```
+     *
+     * @param {number} ID - ID of the row to delete.
+     * @param {null|number} [adoptiveParentID] - ID of the row to reassign the orphaned children to.
+     * If null, reassigns to top-level.
+     * If omitted, the orphans are recursively deleted.
+     * _If omitted, the remaining parameters are promoted one position._
+     * @param {boolean} [keepParent] - Just delete (or reassign) children but keep the parent.
+     * @param {boolean} [keepDrillDown] - Keep drill down control on the kept parent.
+     * @returns {number} Total rows deleted.
+     */
+    deleteRow: function(ID, adoptiveParentID, keepParent, keepDrillDown) {
+        var dataModel = this.grid.behavior.dataModel,
+            treeview = dataModel.sources.treeview,
+            idColumnName = treeview.idColumn.name,
+            parentIdColumnName = treeview.parentIdColumn.name,
+            adopting = typeof adoptiveParentID === 'number' || adoptiveParentID === null,
+            deletions = 0,
+            dataRow,
+            method;
+
+        if (!adopting) {
+            keepDrillDown = keepParent;
+            keepParent = adoptiveParentID;
+            adoptiveParentID = undefined;
+        }
+
+        if (adoptiveParentID && !dataModel.source.findRow(idColumnName, adoptiveParentID)) {
+            throw 'Adoptive parent row not found.';
+        }
+
+        method = keepParent ? dataModel.getRowById : dataModel.deleteRowById;
+        dataRow = method.call(dataModel, idColumnName, ID);
+        if (dataRow) {
+            if (!keepParent) {
+                deletions++;
+            } else if (!keepDrillDown) {
+                delete dataRow.__EXPANDED;
+            }
+
+            while ((dataRow = dataModel.source.findRow(parentIdColumnName, ID))) {
+                if (adopting) {
+                    dataRow[parentIdColumnName] = adoptiveParentID;
+                } else {
+                    deletions += this.deleteRow(dataRow[idColumnName]);
+                }
+            }
+        }
+
+        return deletions;
     }
 
 };

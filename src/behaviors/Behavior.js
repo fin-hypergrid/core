@@ -1100,15 +1100,21 @@ var Behavior = Base.extend('Behavior', {
 
     /**
      * @memberOf Behavior.prototype
-     * @desc this function is replaced by the grid on initialization and serves as the callback
+     * @desc I've been notified that the behavior has changed.
      */
-    changed: function() {},
+    changed: function() { this.grid.behaviorChanged(); },
 
     /**
      * @memberOf Behavior.prototype
-     * @desc this function is replaced by the grid on initialization and serves as the callback
+     * @desc The dimensions of the grid data have changed. You've been notified.
      */
-    shapeChanged: function() {},
+    shapeChanged: function() { this.grid.behaviorShapeChanged(); },
+
+    /**
+     * @memberOf Behavior.prototype
+     * @desc The dimensions of the grid data have changed. You've been notified.
+     */
+    stateChanged: function() { this.grid.behaviorStateChanged(); },
 
     /**
      * @memberOf Behavior.prototype
