@@ -16,20 +16,21 @@ var Renderer = require('./lib/Renderer');
 var SelectionModel = require('./lib/SelectionModel');
 var stylesheet = require('./lib/stylesheet');
 var Localization = require('./lib/Localization');
-var behaviors = require('./behaviors');
+//var behaviors = require('./behaviors');
 var CellRenderers = require('./cellRenderers');
 var CellEditors = require('./cellEditors');
 
 var themeInitialized = false,
-    polymerTheme = Object.create(defaults),
+    gridTheme = Object.create(defaults),
     defaultContainerHeight = 300,
-    globalProperties = Object.create(polymerTheme);
+    globalProperties = Object.create(gridTheme);
 
 /**s
  * @constructor
- * @param {string|Element} div - CSS selector or Element
+ * @param {string|Element} [container] - CSS selector or Element
  * @param {object} [options]
- * @param {function} [options.Behavior=behaviors.JSON] - A behavior constructor.
+ * @param {function} [options.Behavior=behaviors.JSON] - A behavior constructor or instance
+ * @param {function} [options.pipeline] - A pipeline of data-transforms to occur on applyAnalytics call
  * @param {function|object[]} [options.data] - Passed to behavior constructor. May be:
  * * An array of congruent raw data objects
  * * A function returning same
@@ -39,6 +40,7 @@ var themeInitialized = false,
  * * Omit to generate a basic schema from `this.behavior.columns`.
  * @param {Behavior} [options.Behavior=JSON] - A grid behavior (descendant of Behavior "class"). Will be used if `getBehavior` omitted, in which case `options.data` (which has no default) *must* also be provided.
  * @param {string} [options.localization=Hypergrid.localization]
+ * @param {string|Element} [options.container] - CSS selector or Element
  * @param {string|string[]} [options.localization.locale=Hypergrid.localization.locale] - The default locale to use when an explicit `locale` is omitted from localizer constructor calls. Passed to Intl.NumberFomrat` and `Intl.DateFomrat`. See {@ https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl#Locale_identification_and_negotiation|Locale identification and negotiation} for more information.
  * @param {string} [options.localization.numberOptions=Hypergrid.localization.numberOptions] - Options passed to `Intl.NumberFomrat` for creating the basic "number" localizer.
  * @param {string} [options.localization.dateOptions=Hypergrid.localization.dateOptions] - Options passed to `Intl.DateFomrat` for creating the basic "date" localizer.
@@ -47,67 +49,35 @@ var themeInitialized = false,
  * @param {string} [options.margin.right=0]
  * @param {string} [options.margin.bottom=0]
  * @param {string} [options.margin.left=0]
+ * @param {object} [options.boundingRect] - optional grid container argument
+ * @param {string} [options.boundingRect.height=300]
+ * @param {string} [options.boundingRect.width=300]
+ * @param {string} [options.boundingRect.postion=relative]
  */
-function Hypergrid(div, options) {
-    var self = this;
-
-    this.div = (typeof div === 'string') ? document.querySelector(div) : div;
-
-    //Default Position and height to ensure DnD works
-    if (!this.div.style.position){
-        this.div.style.position = 'relative';
+function Hypergrid(container, options) {
+    //var self = this;
+    //initialize our various pieces
+    if (!themeInitialized) {
+        themeInitialized = true;
+        gridTheme = buildTheme(gridTheme);
     }
-
-    if (this.div.clientHeight < 1){
-        this.div.style.height = defaultContainerHeight + 'px';
+    //Optional container argument
+    if (!(typeof container === 'string') && !(container instanceof HTMLElement)) {
+        options = container;
+        container = null;
     }
-
-    stylesheet.inject('grid');
-
+    this.options = options || {};
     this.lastEdgeSelection = [0, 0];
-
     this.lnfProperties = Object.create(globalProperties);
-
     this.isWebkit = navigator.userAgent.toLowerCase().indexOf('webkit') > -1;
     this.selectionModel = new SelectionModel(this);
     this.renderOverridesCache = {};
-
-    options = options || {};
-    var Behavior = options.Behavior || behaviors.JSON;
-    this.behavior = new Behavior(this, options.data, options);
-
-    var loc = options.localization || {};
-    this.localization = new Localization(
-        loc.locale || Hypergrid.localization.locale,
-        loc.numberOptions || Hypergrid.localization.numberOptions,
-        loc.dateOptions || Hypergrid.localization.dateOptions
-    );
-
-    //prevent the default context menu for appearing
-    this.div.oncontextmenu = function(event) {
-        event.stopPropagation();
-        event.preventDefault();
-        return false;
-    };
-
-    this.clearMouseDown();
+    this.allowEventHandlers = true;
     this.dragExtent = new Point(0, 0);
     this.numRows = 0;
     this.numColumns = 0;
-
-    //install any plugins
-    this.pluginsDo(function(each) {
-        if (each.installOn) {
-            each.installOn(self);
-        }
-    });
-
-    var margin = options.margin || {};
-    margin.top = margin.top || 0;
-    margin.right = margin.right || 0;
-    margin.bottom = margin.bottom || 0;
-    margin.left = margin.left || 0;
-
+    this.clearMouseDown();
+    this.setFormatter(this.options.localization);
     /**
      * @type {CellRenderers}
      * @memberOf Hypergrid.prototype
@@ -119,25 +89,15 @@ function Hypergrid(div, options) {
      * @memberOf Hypergrid.prototype
      */
     this.cellEditors = new CellEditors(this);
+    //Set up the container for the grid
+    container = container || this.options.container;
+    container = container || findOrCreateContainer(this.options.boundingRect);
+    this.setContainer(container);
 
-    this.allowEventHandlers = true;
-
-    //initialize our various pieces
-    if (!themeInitialized) {
-        themeInitialized = true;
-        buildPolymerTheme();
+    var Behavior = this.options.Behavior;
+    if (Behavior) {
+        this.setBehavior(new Behavior(this), this.options.data, this.options);
     }
-    this.initRenderer();
-    this.initCanvas(margin);
-    this.initScrollbars();
-
-    //Register a listener for the copy event so we can copy our selected region to the pastebuffer if conditions are right.
-    document.body.addEventListener('copy', function(evt) {
-        self.checkClipboardCopy(evt);
-    });
-    this.getCanvas().resize();
-
-    this.refreshProperties();
 }
 
 Hypergrid.prototype = {
@@ -301,10 +261,6 @@ Hypergrid.prototype = {
         this.refreshProperties();
     },
 
-    //resetTextWidthCache: function() {
-    //    textWidthCache = new LRUCache(2000);
-    //},
-
     getProperties: function() {
         return this.getPrivateState();
     },
@@ -330,7 +286,14 @@ Hypergrid.prototype = {
         var p = this.getHoverCell();
         return p && p.x === x && p.y === y;
     },
-
+    setFormatter: function(options){
+        options = options || {};
+        this.localization = new Localization(
+            options.locale || Hypergrid.localization.locale,
+            options.numberOptions || Hypergrid.localization.numberOptions,
+            options.dateOptions || Hypergrid.localization.dateOptions
+        );
+    },
     getFormatter: function(localizerName) {
         return this.localization.get(localizerName).format;
     },
@@ -543,28 +506,6 @@ Hypergrid.prototype = {
 
     /**
      * @memberOf Hypergrid.prototype
-     * @summary Iterate over the plugins invoking the given function with each.
-     * @todo We need a new plugin mechanism!
-     * @param {function} func - The function to invoke on all the plugins.
-     */
-    pluginsDo: function(func) {
-        //TODO: We need a new plugin mechanism!
-        //var userPlugins = this.children.array();
-        //var pluginsTag = this.shadowRoot.querySelector('fin-plugins');
-        //
-        //var plugins = userPlugins;
-        //if (pluginsTag) {
-        //    var systemPlugins = pluginsTag.children.array();
-        //    plugins = systemPlugins.concat(plugins);
-        //}
-        //
-        //plugins.forEach(function(plugin) {
-        //    func(plugin);
-        //});
-    },
-
-    /**
-     * @memberOf Hypergrid.prototype
      * @desc This function is a callback from the HypergridRenderer sub-component. It is called after each paint of the canvas.
      */
     gridRenderedNotification: function() {
@@ -771,15 +712,52 @@ Hypergrid.prototype = {
      * @memberOf Hypergrid.prototype
      * @summary Set the Behavior (model) object for this grid control.
      * @desc This can be done dynamically.
-     * @param {Behavior} behavior - The behavior (model).
+     * @param {Behavior} behavior - The behavior (model) can be either a constructor or an instance.
+     * @param {object[]} dataRows - _(See {@link behaviors.JSON#setData}.)_
+     * @param {object} [options] - _(See {@link behaviors.JSON#setData}.)_
      */
-    setBehavior: function(behavior) {
+    setBehavior: function(behavior, dataRows, options) {
+        if (typeof behavior === 'function'){
+            behavior = new behavior(this);  // eslint-disable-line
+        }
+
         behavior.changed = this.behaviorChanged.bind(this);
         behavior.shapeChanged = this.behaviorShapeChanged.bind(this);
         behavior.stateChanged = this.behaviorStateChanged.bind(this);
         this.behavior = behavior;
+        this.behavior.reset();
+        initCanvasAndScrollBars.call(this);
+        if (this.options.pipeline){
+            this.options.pipeline.forEach(function(p){
+                this.behavior.dataModel.addPipe(p);
+            });
+        }
+        this.setData(dataRows, options);
+        this.refreshProperties();
     },
 
+    /**
+     * @memberOf Hypergrid.prototype
+     * @summary Set the underlying datasource.
+     * @desc This can be done dynamically.
+     * @param {object[]} dataRows - May be:
+     * An array of congruent raw data objects
+     * A function returning same
+     * @param {object} [options] - _(See {@link behaviors.JSON#setData}.)_
+     */
+    setData: function(dataRows, options){
+        if (this.behavior) {
+            this.behavior.setData(dataRows, options);
+        }
+    },
+
+    /**
+     * @memberOf Hypergrid.prototype
+     * @param {object} [stopApply] - _(See {@link dataModels.JSON#setPipeline}.)_
+     */
+    setPipeline: function(stopApply){
+        this.behavior.setPipeline(stopApply);
+    },
     /**
      * @memberOf Hypergrid.prototype
      * @desc I've been notified that the behavior has changed.
@@ -859,6 +837,44 @@ Hypergrid.prototype = {
      */
     useHiDPI: function() {
         return this.resolveProperty('useHiDPI') !== false;
+    },
+    /**
+     * @memberOf Hypergrid.prototype
+     * @summary Set the container for the grid
+     * @private
+     */
+    setContainer: function(div) {
+        this.initContainer(div);
+        this.initRenderer();
+        injectGridElements.call(this);
+    },
+    /**
+     * @memberOf Hypergrid.prototype
+     * @summary Initialize container
+     * @private
+     */
+    initContainer: function(div) {
+        this.div = (typeof div === 'string') ? document.querySelector(div) : div;
+
+        //Default Position and height to ensure DnD works
+        if (!this.div.style.position){
+            this.div.style.position = 'relative';
+        }
+
+        if (this.div.clientHeight < 1){
+            this.div.style.height = defaultContainerHeight + 'px';
+        }
+
+        stylesheet.inject('grid');
+
+        //prevent the default context menu for appearing
+        this.div.oncontextmenu = function(event) {
+            event.stopPropagation();
+            event.preventDefault();
+            return false;
+        };
+
+        this.div.removeAttribute('tabindex');
     },
 
     /**
@@ -1009,8 +1025,10 @@ Hypergrid.prototype = {
             self.delegateContextMenu(mouseEvent);
         });
 
-        this.div.removeAttribute('tabindex');
-
+        //Register a listener for the copy event so we can copy our selected region to the pastebuffer if conditions are right.
+        document.body.addEventListener('copy', function(evt) {
+            self.checkClipboardCopy(evt);
+        });
     },
 
     convertViewPointToDataPoint: function(viewPoint) {
@@ -1045,11 +1063,6 @@ Hypergrid.prototype = {
         }
 
         this.behavior.changed();
-    },
-
-    addFinEventListener: function(eventName, callback) {
-        console.warn('.addFinEventListener() method is deprecated as of v0.2. Use .addEventListener() instead. (Will be removed in a future release.)');
-        this.addEventListener(eventName, callback);
     },
 
     /**
@@ -2078,6 +2091,9 @@ Hypergrid.prototype = {
      * @desc Initialize the scroll bars.
      */
     initScrollbars: function() {
+        if (this.sbHScroller && this.sbVScroller){
+            return;
+        }
 
         var self = this;
 
@@ -2259,7 +2275,7 @@ Hypergrid.prototype = {
      * @summary Initialize the renderer sub-component.
      */
     initRenderer: function() {
-        this.renderer = new Renderer(this);
+        this.renderer = this.renderer || new Renderer(this);
     },
 
     /**
@@ -3360,8 +3376,58 @@ Hypergrid.prototype = {
         }
 
         return result;
-    },
+    }
 };
+function findOrCreateContainer(boundingRect){
+    boundingRect = boundingRect || {};
+    boundingRect.width = boundingRect.width || '300px';
+    boundingRect.height = boundingRect.height || '300px';
+    boundingRect.position = boundingRect.position || 'relative';
+
+    var div,
+        defaultID = 'hypergrid';
+    div = document.getElementById(defaultID);
+    if (div){
+        return div;
+    }
+    div = document.createElement('div');
+    div.setAttribute('id', defaultID);
+    div.style.width = boundingRect.width;
+    div.style.height = boundingRect.height;
+    div.setAttribute('ppsition', boundingRect.position);
+    document.body.appendChild(div);
+    return div;
+}
+
+/**
+* @this {Hypergrid}
+*/
+function initCanvasAndScrollBars(){
+    if (!this.divCanvas) {
+        var margin = this.options.margin || {};
+        margin.top = margin.top || 0;
+        margin.right = margin.right || 0;
+        margin.bottom = margin.bottom || 0;
+        margin.left = margin.left || 0;
+        this.initCanvas(margin);
+    }
+    this.initScrollbars();
+    injectGridElements.call(this);
+}
+/**
+ * @this {Hypergrid}
+ */
+function injectGridElements(){
+    if (this.divCanvas) {
+        this.div.appendChild(this.divCanvas);
+        this.getCanvas().resize();
+    }
+    if (this.sbHScroller && this.sbVScroller) {
+        this.div.appendChild(this.sbHScroller.bar);
+        this.div.appendChild(this.sbVScroller.bar);
+    }
+}
+
 
 /**
  * @summary Update deep properties with new values.
@@ -3415,9 +3481,9 @@ function normalizeRect(rect) {
     return result;
 }
 
-function buildPolymerTheme() {
-    clearObjectProperties(polymerTheme);
-    var pb = document.createElement('paper-button');
+function buildTheme(theme) {
+    clearObjectProperties(theme);
+    var pb = document.createElement('paper-button'); // styles were based on old polymer theme
 
     pb.style.display = 'none';
     pb.setAttribute('disabled', true);
@@ -3433,47 +3499,49 @@ function buildPolymerTheme() {
     var hb = window.getComputedStyle(document.querySelector('html, body'));
     var s = window.getComputedStyle(section);
 
-    polymerTheme.columnHeaderBackgroundColor = p.color;
-    polymerTheme.rowHeaderBackgroundColor = p.color;
-    polymerTheme.topLeftBackgroundColor = p.color;
-    polymerTheme.lineColor = p.backgroundColor;
+    theme.columnHeaderBackgroundColor = p.color;
+    theme.rowHeaderBackgroundColor = p.color;
+    theme.topLeftBackgroundColor = p.color;
+    theme.lineColor = p.backgroundColor;
 
-    polymerTheme.backgroundColor2 = hb.backgroundColor;
+    theme.backgroundColor2 = hb.backgroundColor;
 
-    polymerTheme.color = h.color;
-    polymerTheme.fontFamily = h.fontFamily;
-    polymerTheme.backgroundColor = s.backgroundColor;
+    theme.color = h.color;
+    theme.fontFamily = h.fontFamily;
+    theme.backgroundColor = s.backgroundColor;
 
     pb.setAttribute('disabled', false);
     pb.setAttribute('secondary', true);
     pb.setAttribute('raised', true);
     p = window.getComputedStyle(pb);
 
-    polymerTheme.columnHeaderColor = p.color;
-    polymerTheme.rowHeaderColor = p.color;
-    polymerTheme.topLeftColor = p.color;
+    theme.columnHeaderColor = p.color;
+    theme.rowHeaderColor = p.color;
+    theme.topLeftColor = p.color;
 
 
-    polymerTheme.backgroundSelectionColor = p.backgroundColor;
-    polymerTheme.foregroundSelectionColor = p.color;
+    theme.backgroundSelectionColor = p.backgroundColor;
+    theme.foregroundSelectionColor = p.color;
 
     pb.setAttribute('secondary', false);
     pb.setAttribute('warning', true);
 
-    polymerTheme.columnHeaderForegroundSelectionColor = p.color;
-    polymerTheme.columnHeaderBackgroundSelectionColor = p.backgroundColor;
-    polymerTheme.rowHeaderForegroundSelectionColor = p.color;
-    polymerTheme.fixedColumnBackgroundSelectionColor = p.backgroundColor;
+    theme.columnHeaderForegroundSelectionColor = p.color;
+    theme.columnHeaderBackgroundSelectionColor = p.backgroundColor;
+    theme.rowHeaderForegroundSelectionColor = p.color;
+    theme.fixedColumnBackgroundSelectionColor = p.backgroundColor;
 
     //check if there is actually a theme loaded if not, clear out all bogus values
     //from my cache
-    if (polymerTheme.columnHeaderBackgroundSelectionColor === 'rgba(0, 0, 0, 0)' ||
-        polymerTheme.lineColor === 'transparent') {
-        clearObjectProperties(polymerTheme);
+    if (theme.columnHeaderBackgroundSelectionColor === 'rgba(0, 0, 0, 0)' ||
+        theme.lineColor === 'transparent') {
+        clearObjectProperties(theme);
     }
 
     document.body.removeChild(pb);
     document.body.removeChild(section);
+
+    return theme;
 }
 
 function clearObjectProperties(obj) {

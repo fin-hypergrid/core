@@ -25,6 +25,7 @@ window.onload = function() {
             lastPet: rollups.last(2),
             stdDevPets: rollups.stddev(2)
         },
+        options = { data:  window.people1 },
         groups = [5, 0, 1],
         shared = true; // operate on shared (prototype) pipeline vs. own (instance)
 
@@ -37,8 +38,8 @@ window.onload = function() {
         AggregationsView.prototype.setPipeline(pipelineOptions);
     }
 
-    grid = new Hypergrid('div#example', { data:  window.people1 });
-
+    grid = new Hypergrid('div#example');
+    grid.setBehavior(new fin.Hypergrid.behaviors.JSON(grid), options.data);
     grid.setState({
         showFilterRow: pipelineOptions.includeFilter
     });

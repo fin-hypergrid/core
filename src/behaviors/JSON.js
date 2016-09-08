@@ -18,17 +18,9 @@ var JSON = Behavior.extend('behaviors.JSON', {
      * @desc This method will be called upon instantiation of this class or of any class that extends from this class.
      * > All `initialize()` methods in the inheritance chain are called, in turn, each with the same parameters that were passed to the constructor, beginning with that of the most "senior" class through that of the class of the new instance.
      *
-     * @param grid - the hypergrid
-     * @param {undefined|function|menuItem[]} options.schema - Already consumed by Behavior's {@link Behavior#initialize|initialize}.
-     * @param {object[]} dataRows - May be:
-     * * An array of congruent raw data objects
-     * * A function returning same
-     * @param {object} [options] - _(See {@link behaviors.JSON#setData}.)_
      * @memberOf behaviors.JSON.prototype
      */
-    initialize: function(grid, dataRows, options) {
-        this.setData(dataRows, options);
-    },
+    initialize: function() {},
 
     features: [
         features.CellSelection,
@@ -129,6 +121,7 @@ var JSON = Behavior.extend('behaviors.JSON', {
      * @param {function|object} [options.schema=deriveSchema] - Used in filter instantiation.
      */
     setData: function(dataRows, options) {
+        options = options || {};
         var self = this,
             grid = this.grid,
             fields = options && options.fields,
@@ -137,7 +130,7 @@ var JSON = Behavior.extend('behaviors.JSON', {
         fields = typeof fields === 'function' ? fields() : fields;
         calculators = typeof calculators === 'function' ? calculators() : calculators;
         dataRows = typeof dataRows === 'function' ? dataRows() : dataRows;
-
+        dataRows = Array.isArray(dataRows) ? dataRows : options.data;
         this.dataModel.setData(dataRows, fields, calculators);
         this.createColumns();
 

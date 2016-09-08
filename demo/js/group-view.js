@@ -15,6 +15,7 @@ window.onload = function() {
             includeSorter: true,
             includeFilter: true
         },
+        options = { data:  window.people1 },
         shared = true; // operate on shared (prototype) pipeline vs. own (instance)
 
     // Install the drill-down API (optional).
@@ -26,7 +27,8 @@ window.onload = function() {
         GroupView.prototype.setPipeline(pipelineOptions);
     }
 
-    grid = new Hypergrid('div#example', { data:  window.people1 });
+    grid = new Hypergrid('div#example');
+    grid.setBehavior(new fin.Hypergrid.behaviors.JSON(grid), options.data);
 
     grid.setState({
         // columnAutosizing: false,
