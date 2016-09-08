@@ -1,7 +1,7 @@
 'use strict';
 
 var DataSourceBase = require('./DataSourceBase');
-var headerify = require('hyper-analytics').util.headerify;
+var headerify = require('../Shared.js').analytics.util.headerify;
 
 /**
  * See {@link DataSourceOrigin#initialize} for constructor parameters.
@@ -185,6 +185,15 @@ var DataSourceOrigin = DataSourceBase.extend('DataSourceOrigin',  {
      */
     getHeaders: function() {
         return (
+            /**
+             * @summary The list of header strings.
+             * @desc Congruent to {@link DataSource#fields|fields}.
+             *
+             * Access through {@link DataSource#getHeaders|getHeaders()}.
+             * @name headers
+             * @type {string[]}
+             * @memberOf DataSource#
+             */
             this.headers = this.headers || this.getDefaultHeaders().map(function(each) {
                 return headerify.transform(each);
             })
@@ -236,30 +245,37 @@ var DataSourceOrigin = DataSourceBase.extend('DataSourceOrigin',  {
  */
 function setData(data, fields, calculators) {
 
-    if (!data) {
-        data = [];
-    }
-
     /**
-     * @summary Array of field names.
-     * @desc The order of the names in this array defines the concept of a column index.
-     * @type {string[]}
+     * @summary The array of data row objects.
+     * @desc Access through {@link DataSource#getRow|getRow()}.
+     * @name data
+     * @type {object[]}
+     * @memberOf DataSource#
      */
-    this.fields = fields || computeFieldNames(data[0]);
+    this.data = data || [];
 
     /**
-     * @summary JavaScript functions to calculate the value for computed columns.
-     * @desc The order of this array is defined by {@link DataSourceOrigin#fields}.
-     * This array is typically sparse: Regular columns must not define elements in this array.
+     * @summary The list of field names.
+     * @desc These are all the members of the data row objects visible to Hypergrid.
+     *
+     * Access through {@link DataSource#getFields|getFields()}.
+     * @name fields
+     * @type {string[]}
+     * @memberOf DataSource#
+     */
+    this.fields = fields || computeFieldNames(this.data[0]);
+
+    /**
+     * @summary The list of calculators that implement computed columns.
+     * @desc Congruent to {@link DataSource#fields|fields}.
+     *
+     * Elements representing regular (non-computed) fields should contain `undefined`.
+     * @name calculators
      * @type {function[]}
+     * @memberOf DataSource#
      */
     this.calculators = calculators || Array(this.fields.length);
 
-    /**
-     * @summary Array of uniform objects containing the grid data.
-     * @type {object[]}
-     */
-    this.data = data;
 }
 
 

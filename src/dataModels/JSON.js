@@ -19,8 +19,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
     //null object pattern for the source object
     resetSources: function(stopApply) {
         this.sources = {
-            source: new DataSourceOrigin(),
-            globalfilter: new DataSourceOrigin()
+            source: new DataSourceOrigin()
         };
         this.source = this.sources.source;
         this.setPipeline(stopApply);
@@ -51,7 +50,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
     },
 
     getGlobalFilterDataSource: function() {
-        return this.sources.globalfilter;
+        return this.sources.filter;
     },
 
     getData: function() {
@@ -832,7 +831,12 @@ function reselectGridRowsBackedBySelectedDataRows() {
 
 function getDataSourceName(name) {
     name = analytics[name].prototype.$$CLASS_NAME || name;
-    return name.replace(/^Data(Source|Node)/, '').toLowerCase() || 'source';
+    if (/^DataSource\w+Filter$/.test(name)) {
+        name = 'filter';
+    } else {
+        name = name.replace(/^Data(Source|Node)/, '').toLowerCase();
+    }
+    return name;
 }
 
 
