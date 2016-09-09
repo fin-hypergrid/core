@@ -414,7 +414,7 @@ Hypergrid.prototype = {
 
     /**
      * @memberOf Hypergrid.prototype
-     * @desc Ammend properties for all hypergrids in this process.
+     * @desc Amend properties for all hypergrids in this process.
      * @param {object} properties - A simple properties hash.
      * @private
      */
@@ -436,7 +436,7 @@ Hypergrid.prototype = {
         // this.canvas = this.shadowRoot.querySelector('fin-canvas');
         //this.canvas = new Canvas(this.divCanvas, this.renderer); //TODO: Do we really need to be recreating it here?
 
-        this.renderer.computeCellsBounds();
+        this.computeCellsBounds();
         this.checkScrollbarVisibility();
         this.behavior.defaultRowHeight = null;
         if (this.isColumnAutosizing()) {
@@ -774,9 +774,6 @@ Hypergrid.prototype = {
      * @param {Behavior} behavior - The behavior (model).
      */
     setBehavior: function(behavior) {
-        behavior.changed = this.behaviorChanged.bind(this);
-        behavior.shapeChanged = this.behaviorShapeChanged.bind(this);
-        behavior.stateChanged = this.behaviorStateChanged.bind(this);
         this.behavior = behavior;
     },
 
@@ -790,8 +787,7 @@ Hypergrid.prototype = {
             this.numRows = this.getRowCount();
             this.behaviorShapeChanged();
         } else {
-            this.computeCellsBounds();
-            this.repaint();
+            this.behaviorStateChanged();
         }
     },
 
@@ -2230,8 +2226,7 @@ Hypergrid.prototype = {
         this.setVScrollValue(Math.min(this.getVScrollValue(), vMax));
 
         //this.getCanvas().resize();
-        this.computeCellsBounds();
-        this.repaint();
+        this.behaviorStateChanged();
 
         this.resizeScrollbars();
     },
@@ -2766,12 +2761,22 @@ Hypergrid.prototype = {
         return this.getRenderer()._getBoundsOfCell(x, y);
     },
 
-    getColumnProperties: function(columnIndex) {
-        return this.behavior.getColumnProperties(columnIndex);
+    /**
+     * @param {index} x - Data x coordinate.
+     * @return {Object} The properties for a specific column.
+     * @memberOf Hypergrid.prototype
+     */
+    getColumnProperties: function(x) {
+        return this.behavior.getColumnProperties(x);
     },
 
-    setColumnProperties: function(columnIndex, properties) {
-        this.behavior.setColumnProperties(columnIndex, properties);
+    /**
+     * @param {index} x - Data x coordinate.
+     * @return {Object} The properties for a specific column.
+     * @memberOf Hypergrid.prototype
+     */
+    setColumnProperties: function(x, properties) {
+        this.behavior.setColumnProperties(x, properties);
     },
 
     moveSingleSelect: function(x, y) {

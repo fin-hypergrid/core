@@ -124,7 +124,7 @@ TreeView.prototype = {
         dataModel.applyAnalytics();
 
         var joined = dataSource.setRelation(options),
-            columnProps = behavior.getColumn(dataSource.treeColumn.index).getProperties();
+            columnProps = behavior.getColumnProperties(dataSource.treeColumn.index);
 
         // restore filter after setRelation call
         filterDataSource.set(filter);
@@ -133,6 +133,9 @@ TreeView.prototype = {
             // Make the tree column uneditable: Save the current value of the tree column's editable property and set it to false.
             this.editableWas = !!columnProps.editable;
             columnProps.editable = false;
+
+            this.cellSelectionWas = !!columnProps.cellSelection;
+            columnProps.cellSelection = false;
 
             // Save value of grid's checkboxOnlyRowSelections property and set it to true so drill-down clicks don't select the row they are in
             this.checkboxOnlyRowSelectionsWas = state.checkboxOnlyRowSelections;
@@ -150,6 +153,7 @@ TreeView.prototype = {
             }
         } else {
             columnProps.editable = this.editableWas;
+            columnProps.cellSelection = this.cellSelectionWas;
             state.checkboxOnlyRowSelections = this.checkboxOnlyRowSelectionsWas;
         }
 
@@ -160,6 +164,70 @@ TreeView.prototype = {
         behavior.shapeChanged();
 
         return joined;
+    },
+
+    /**
+     * @summary Delete a row and it's children.
+     * @desc _Requires that the row-by-id API is installed._
+     *
+     * Alternatively, you can reassign the children to another row (see `adoptiveParentID` below).
+     *
+     * After you're done with all your row manipulations, you must call:
+     * ```javascript
+     * grid.behavior.applyAnalytics();
+     * grid.behaviorShapeChanged();
+     * grid.repaint(); // call this eventually
+     * ```
+     *
+     * @param {number} ID - ID of the row to delete.
+     * @param {null|number} [adoptiveParentID] - ID of the row to reassign the orphaned children to.
+     * If null, reassigns to top-level.
+     * If omitted, the orphans are recursively deleted.
+     * _If omitted, the remaining parameters are promoted one position._
+     * @param {boolean} [keepParent] - Just delete (or reassign) children but keep the parent.
+     * @param {boolean} [keepDrillDown] - Keep drill down control on the kept parent.
+     * @returns {number} Total rows deleted.
+     */
+    deleteRow: function(ID, adoptiveParentID, keepParent, keepDrillDown) {
+        var method, dataRow,
+            adopting = typeof adoptiveParentID === 'number' || adoptiveParentID === null,
+            deletions = 0,
+            dataModel = this.grid.behavior.dataModel,
+            treeview = dataModel.sources.treeview,
+
+            // getIdColumn rather than idColumn in case setRelation not called yet:
+            idColumnName = treeview.setIdColumn(this.options.idColumn).name,
+            parentIdColumnName = treeview.setParentIdColumn(this.options.parentIdColumn).name;
+
+        if (!adopting) {
+            keepDrillDown = keepParent;
+            keepParent = adoptiveParentID;
+            adoptiveParentID = undefined;
+        }
+
+        if (adoptiveParentID && !dataModel.source.findRow(idColumnName, adoptiveParentID)) {
+            throw 'Adoptive parent row not found.';
+        }
+
+        method = keepParent ? dataModel.getRowById : dataModel.deleteRowById;
+        dataRow = method.call(dataModel, idColumnName, ID);
+        if (dataRow) {
+            if (!keepParent) {
+                deletions++;
+            } else if (!keepDrillDown) {
+                delete dataRow.__EXPANDED;
+            }
+
+            while ((dataRow = dataModel.source.findRow(parentIdColumnName, ID))) {
+                if (adopting) {
+                    dataRow[parentIdColumnName] = adoptiveParentID;
+                } else {
+                    deletions += this.deleteRow(dataRow[idColumnName]);
+                }
+            }
+        }
+
+        return deletions;
     }
 
 };

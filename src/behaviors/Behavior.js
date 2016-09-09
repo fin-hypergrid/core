@@ -738,35 +738,35 @@ var Behavior = Base.extend('Behavior', {
      * @memberOf Behavior.prototype
      * This does not include the column properties.
      * @return {object} The cell properties for the cell at x,y in the hypergrid.
-     * @param {number} x - data x coordinate
-     * @param {number} y - data y coordinate
+     * @param {number} x - Data x coordinate.
+     * @param {number} r - Grid row coordinate.
      */
-    getCellProperties: function(x, y) {
+    getCellProperties: function(x, r) {
         var column = this.getColumn(x);
-        return column && column.getCellProperties(y);
+        return column && column.getCellProperties(r);
     },
     /**
      * @memberOf Behavior.prototype
      * @return {*} The value at x,y in the hypergrid.
-     * @param {number} x - data x coordinate
-     * @param {number} y - data y coordinate
+     * @param {number} x - Data x coordinate.
+     * @param {number} r - Grid row coordinate.
      */
-    getCellProperty: function(x, y, key) {
+    getCellProperty: function(x, r, key) {
         var column = this.getColumn(x);
-        return column && column.getCellProperty(y, key);
+        return column && column.getCellProperty(r, key);
     },
 
     /**
      * @memberOf Behavior.prototype
      * @desc update the data at point x, y with value
-     * @param {number} x - data x coordinate
-     * @param {number} y - data y coordinate
+     * @param {number} x - Data x coordinate.
+     * @param {number} r - Grid row coordinate.
      * @param {Object} value - the value to use
      */
-    setCellProperties: function(x, y, value) {
+    setCellProperties: function(x, r, value) {
         var column = this.getColumn(x);
         if (column) {
-            column.setCellProperties(y, value);
+            column.setCellProperties(r, value);
         }
     },
     /**
@@ -1100,15 +1100,21 @@ var Behavior = Base.extend('Behavior', {
 
     /**
      * @memberOf Behavior.prototype
-     * @desc this function is replaced by the grid on initialization and serves as the callback
+     * @desc I've been notified that the behavior has changed.
      */
-    changed: function() {},
+    changed: function() { this.grid.behaviorChanged(); },
 
     /**
      * @memberOf Behavior.prototype
-     * @desc this function is replaced by the grid on initialization and serves as the callback
+     * @desc The dimensions of the grid data have changed. You've been notified.
      */
-    shapeChanged: function() {},
+    shapeChanged: function() { this.grid.behaviorShapeChanged(); },
+
+    /**
+     * @memberOf Behavior.prototype
+     * @desc The dimensions of the grid data have changed. You've been notified.
+     */
+    stateChanged: function() { this.grid.behaviorStateChanged(); },
 
     /**
      * @memberOf Behavior.prototype
@@ -1119,27 +1125,33 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
-     * @memberOf Behavior.prototype
+     * @param {index} x - Data x coordinate.
      * @return {Object} The properties for a specific column.
-     * @param {index} columnIndex - the column index of interest
+     * @memberOf Behavior.prototype
      */
     getColumnProperties: function(x) {
-        var column = this.columns[x];
+        var column = this.getColumn(x);
         return column && column.getProperties();
     },
 
+    /**
+     * @param {index} x - Data x coordinate.
+     * @return {Object} The properties for a specific column.
+     * @memberOf Behavior.prototype
+     */
     setColumnProperties: function(x, properties) {
         var column = this.getColumn(x);
         if (!column) {
-            throw 'Expected data column.';
+            throw 'Expected column.';
         }
-        _(column.getProperties()).extendOwn(properties);
+        var result = _(column.getProperties()).extendOwn(properties);
         this.changed();
+        return result;
     },
 
     /**
      * Clears all cell properties of given column or of all columns.
-     * @param {number} [columnIndex] - Omit for all columns.
+     * @param {number} [x] - Omit for all columns.
      */
     clearAllCellProperties: function(x) {
         if (x === undefined) {

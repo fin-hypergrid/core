@@ -16,17 +16,17 @@ var ColumnSorting = Feature.extend('ColumnSorting', {
      */
 
     handleDoubleClick: function(grid, event) {
-        var gridCell = event.gridCell,
+        var x = event.dataCell.x,
+            y = event.gridCell.y,
             columnProperties;
         if (
             grid.isShowHeaderRow() &&
-            gridCell.y === 0 &&
-            gridCell.x !== -1 &&
-            (columnProperties = grid.behavior.getColumnProperties(gridCell.x)) &&
+            y === 0 && // header cell
+            x !== -1 &&
+            (columnProperties = grid.behavior.getColumnProperties(x)) &&
             !columnProperties.unsortable
         ) {
-            var keys = event.primitiveEvent.detail.keys;
-            grid.toggleSort(gridCell.x, keys);
+            grid.toggleSort(x, event.primitiveEvent.detail.keys);
         } else if (this.next) {
             this.next.handleDoubleClick(grid, event);
         }
@@ -39,12 +39,13 @@ var ColumnSorting = Feature.extend('ColumnSorting', {
      * @param {Object} event - the event details
      */
     handleMouseMove: function(grid, event) {
-        var gridCell = event.gridCell,
+        var x = event.dataCell.x,
+            y = event.gridCell.y,
             columnProperties;
         if (
             this.isFixedRow(grid, event) &&
-            gridCell.y === 0 &&
-            (columnProperties = grid.behavior.getColumnProperties(gridCell.x)) &&
+            y === 0 && // header cell
+            (columnProperties = grid.behavior.getColumnProperties(x)) &&
             !columnProperties.unsortable
         ) {
             this.cursor = 'pointer';

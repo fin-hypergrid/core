@@ -205,8 +205,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
      */
     getColumnProperties: function(x) {
         //access directly because we want it ordered
-        var column = this.grid.behavior.getColumn(x);
-        return column && column.getProperties();
+        return this.deprecated('getColumnProperties(x)', 'grid.behavior.getColumnProperties(x)', '1.1.0', arguments);
     },
 
     /**

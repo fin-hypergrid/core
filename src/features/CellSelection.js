@@ -60,19 +60,19 @@ var CellSelection = Feature.extend('CellSelection', {
      * @param {Object} event - the event details
      */
     handleMouseDown: function(grid, event) {
-        var isRightClick = event.primitiveEvent.detail.isRightClick;
-        var cell = event.gridCell;
-        var viewCell = event.viewPoint;
-        var dx = cell.x;
-        var dy = cell.y;
-        var headerRowCount = grid.behavior.getHeaderRowCount();
-        var headerColumnCount = grid.behavior.getHeaderColumnCount();
-        var columnCount = grid.getColumnCount();
-        var isOutside = viewCell.x >= columnCount;
+        var cell = event.gridCell,
+            viewCell = event.viewPoint,
+            dx = cell.x,
+            dy = cell.y,
+            headerRowCount = grid.behavior.getHeaderRowCount(),
+            headerColumnCount = grid.behavior.getHeaderColumnCount(),
+            columnCount = grid.getColumnCount(),
+            isSelectable = grid.behavior.getCellProperty(event.dataCell.x, event.dataCell.y, 'cellSelection'),
+            isRightClick = event.primitiveEvent.detail.isRightClick,
+            isHeader = dy < headerRowCount || dx < headerColumnCount,
+            isOutside = viewCell.x >= columnCount;
 
-        var isHeader = dy < headerRowCount || dx < headerColumnCount;
-
-        if (grid.isCellSelection() && !(isRightClick || isHeader || isOutside)) {
+        if (isSelectable && !(isRightClick || isHeader || isOutside)) {
             var numFixedColumns = grid.getFixedColumnCount();
             var numFixedRows = grid.getFixedRowCount();
 
