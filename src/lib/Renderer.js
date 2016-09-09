@@ -880,7 +880,6 @@ var Renderer = Base.extend('Renderer', {
      */
     paintGridlines: function(gc) {
         var x, y, c, r = 0;
-
         var colWidths = this.getColumnEdges();
         var rowHeights = this.rowEdges;
         var viewHeight;
