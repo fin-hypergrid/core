@@ -906,7 +906,7 @@ var Renderer = Base.extend('Renderer', {
         }
 
         if (drawThemH) {
-            for (r = 0; r < rowHeights.length - 1; r++) {
+            for (r = 0; r < rowHeights.length; r++) {
                 y = rowHeights[r] + 0.5;
                 gc.moveTo(0, y);
                 gc.lineTo(viewWidth, y);
