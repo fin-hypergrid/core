@@ -1411,11 +1411,11 @@ var Behavior = Base.extend('Behavior', {
 
     /**
      * @memberOf Behavior.prototype
-     * @param {number} x - The column index.
+     * @param {number} c - grid column index.
      * @param {string[]} keys
      */
-    toggleSort: function(x, keys) {
-        var column = this.getActiveColumn(x);
+    toggleSort: function(c, keys) {
+        var column = this.getActiveColumn(c);
         if (column) {
             column.toggleSort(keys);
         }
