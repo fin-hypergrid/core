@@ -19,7 +19,7 @@
     "automat": "1.2.0",
     "chai": "^3.5.0",
     "extend-me": "2.2.4",
-    "filter-tree": "0.3.38",
+    "filter-tree": "0.3.39",
     "finbars": "1.5.1",
     "hyper-analytics": "0.11.14",
     "fincanvas": "1.4.0",

@@ -183,6 +183,7 @@ function onModeIconClick(e) {
 
 function setModeIconAndOptgroup(ctrl, name, state) {
     var style, optgroup, sum, display,
+        dropdown = this.dropdown,
         mode = this.modes.find(function(mode) { return mode.name === name; }); // eslint-disable-line no-shadow
 
     // set icon state (color)
@@ -196,14 +197,14 @@ function setModeIconAndOptgroup(ctrl, name, state) {
         setTimeout(function() { style.cursor = null; }, 333);
 
         if (mode.selector) {
-            optgroup = this.dropdown.querySelector(mode.selector);
+            optgroup = dropdown.querySelector(mode.selector);
             sum = mode.appendOptions.call(this, optgroup);
 
             // update sum
             optgroup.label = optgroup.label.replace(/ \(\d+\)$/, ''); // remove old sum
             optgroup.label += ' (' + sum + ')';
         } else {
-            sum = mode.appendOptions.call(this, this.dropdown);
+            sum = mode.appendOptions.call(this, dropdown);
             if (!this.controllable) {
                 ctrl.textContent = sum + ' values';
             }
@@ -215,11 +216,18 @@ function setModeIconAndOptgroup(ctrl, name, state) {
     }
 
     // hide/show the group
-    elfor.each(
-        mode.selector || ':scope>option,:scope>optgroup:not([class])',
-        function iteratee(el) { el.style.display = display; },
-        this.dropdown
-    );
+    var selector = mode.selector;
+    if (!selector) {
+        selector = 'option,optgroup:not([class])';
+        var mustBeChildren = true; // work-around for ':scope>option,...' not avail in IE11
+    }
+    elfor.each(selector, iteratee, dropdown);
+
+    function iteratee(el) {
+        if (!mustBeChildren || el.parentElement === dropdown) {
+            el.style.display = display;
+        }
+    }
 
     // TODO: Reset the width of this.options to the natural width of this.dropdown. To do this, we need to remove the latter's "width: 100%" from the CSS and then set an explicit this.options.style.width based on the computed width of this.dropdown. This is complicated by the fact that it cannot be done before it is in the DOM.
 }
