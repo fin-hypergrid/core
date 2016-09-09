@@ -390,6 +390,7 @@ Hypergrid.prototype = {
             return;
         }
         this.hoverCell = newPoint;
+        if (me) { this.fireSyntheticOnCellExitEvent(me); }
         this.fireSyntheticOnCellEnterEvent(newPoint);
         this.repaint();
     },
