@@ -15,6 +15,7 @@ window.onload = function() {
             includeSorter: true,
             includeFilter: true
         },
+        options = { data: treeData },
         shared = true; // operate on shared (prototype) pipeline vs. own (instance)
 
     // Install the drill-down API (optional).
@@ -26,7 +27,8 @@ window.onload = function() {
         TreeView.prototype.setPipeline(pipelineOptions);
     }
 
-    grid = new Hypergrid('div#tree-example', { data: treeData });
+    grid = new Hypergrid('div#tree-example');
+    grid.setBehavior(new fin.Hypergrid.behaviors.JSON(grid), options.data);
 
     grid.setState({
         showFilterRow: pipelineOptions.includeFilter

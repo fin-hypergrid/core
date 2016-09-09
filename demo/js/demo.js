@@ -124,7 +124,8 @@ window.onload = function() {
     var gridOptions = {
             data: people1,
             schema: peopleSchema,
-            margin: { bottom: '17px' }
+            margin: { bottom: '17px' },
+            Behavior: fin.Hypergrid.behaviors.JSON
         },
         grid = window.g = new Hypergrid('div#json-example', gridOptions),
         behavior = window.b = grid.behavior,
@@ -145,7 +146,7 @@ window.onload = function() {
         dataset = data;
         behavior.setData(data, options);
         idx = behavior.columnEnum;
-        behavior.dataModel.applyAnalytics();
+        behavior.applyAnalytics();
     }
 
     // Preset a default dialog options object. Used by call to toggleDialog('ColumnPicker') from features/ColumnPicker.js and by toggleDialog() defined herein.
@@ -747,7 +748,9 @@ window.onload = function() {
     });
 
     grid.addProperties({
-        readOnly: false
+        readOnly: false,
+        noDataMessage: 'No Date to Display',
+        showFilterRow: true
     });
 
     grid.addEventListener('fin-cell-enter', function(e) {

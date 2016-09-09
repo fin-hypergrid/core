@@ -1,7 +1,7 @@
 'use strict';
 
 var DataSourceBase = require('./DataSourceBase');
-var headerify = require('hyper-analytics').util.headerify;
+var headerify = require('../Shared.js').analytics.util.headerify;
 
 /**
  * See {@link DataSourceOrigin#initialize} for constructor parameters.
@@ -222,8 +222,14 @@ var DataSourceOrigin = DataSourceBase.extend('DataSourceOrigin',  {
      * @memberOf DataSourceOrigin#
      */
     getGrandTotals: function() {
-        //nothing here
-    }
+        return [];
+    },
+    /**
+     * @memberOf DataSourceOrigin#
+     */
+    isDrillDown: function() {
+        return false;
+    },
 });
 
 /**

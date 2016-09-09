@@ -4,8 +4,6 @@ var analytics = require('../Shared.js').analytics;
 var DataModel = require('./DataModel');
 var images = require('../../images');
 var DataSourceOrigin = require('../dataSources/DataSourceOrigin');
-//var NullDataSource = require('../dataSources/Null');
-
 var UPWARDS_BLACK_ARROW = '\u25b2', // aka '▲'
     DOWNWARDS_BLACK_ARROW = '\u25bc'; // aka '▼'
 
@@ -16,29 +14,41 @@ var UPWARDS_BLACK_ARROW = '\u25b2', // aka '▲'
  */
 var JSON = DataModel.extend('dataModels.JSON', {
 
-    //null object pattern for the source object
-    resetSources: function(stopApply) {
+    /**
+     * @memberOf dataModels.JSON.prototype
+     */
+    resetSources: function() {
         this.sources = {
             source: new DataSourceOrigin(),
             globalfilter: new DataSourceOrigin()
         };
         this.source = this.sources.source;
-        this.setPipeline(stopApply);
+        //For now Filtering and Sorting are hardcoded in the grid
+        // Will clear out any filtering and sorting state
+        this.setPipeline([
+            analytics.DataSourceGlobalFilter,
+            analytics.DataSourceSorterComposite
+        ]);
     },
-
     /**
      * @memberOf dataModels.JSON.prototype
      */
     reset: function() {
         this.setData([]);
-        this.setPipeline();
+        //For now Filtering and Sorting are hardcoded in the grid
+        // Will clear out any filtering and sorting state
+        this.setPipeline([
+            analytics.DataSourceGlobalFilter,
+            analytics.DataSourceSorterComposite
+        ]);
+        this.applyAnalytics();
     },
 
     topTotals: [],
     bottomTotals: [],
 
     initialize: function() {
-        this.resetSources(true);
+        this.resetSources();
         this.selectedData = [];
     },
 
@@ -271,7 +281,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
     },
 
     /** @typedef {object} dataSourcePipelineObject
-     * @property {string} type - A `hyper-analytics`-style  "data source" constructor name.
+     * @property {string} type - A "DataSourceOrigin" style constructor name.
      * @property {*} [options] - When defined, passed as 2nd argument to constructor.
      * @property {string} [parent] - Defines a branch off the main sequence.
      */
@@ -280,10 +290,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
      * @type {dataSourcePipelineObject[]}
      * @memberOf dataModels.JSON.prototype
      */
-    pipeline: [
-        { type: 'DataSourceGlobalFilter' },
-        { type: 'DataSourceSorterComposite' }
-    ],
+    pipeline: [],
 
     /**
      * @memberOf dataModels.JSON.prototype
@@ -316,46 +323,34 @@ var JSON = DataModel.extend('dataModels.JSON', {
     setData: function(dataSource, dataFields, dataCalculators) {
         this.source.setHeaders(); // force rederive default headers
         this.source.setData(dataSource, dataFields, dataCalculators);
-        //this.applyAnalytics();
-        //requeue ??
     },
 
     /**
      * @summary Instantiates the data source pipeline.
-     * @desc Each new pipe is created using the supplied constructor and a reference to the previous data source in the pipeline. A reference to each new pipe is added to `this` dataModel as a property using the pipe's `name`.
+     * @desc Each new pipe is created from the list of supplied constructors, each taking a reference to the previous data source in the pipeline.
+     *  A reference to each new pipe is added to `this` dataModel as a property using the pipe's `name`.
      *
      * The last pipe is assigned the synonym `this.dataSource`.
      *
      * Branches are created when a pipe specifies a name in `parent`.
-     * @param {boolean} [stopApply] - Whether or not to run applyAnalytics
+     * @param {Array<Array>} sources - list of constructors for the pipeline
      * @memberOf dataModels.JSON.prototype
      */
-    setPipeline: function(stopApply) {
-        var dataSource = this.source,
-            mainPipeTip;
+    setPipeline: function(sources) {
+        sources = sources || [];
+        var dataSource = this.source;
+        this.truncatePipeline(0);
 
-        this.pipeline.forEach(function(sources, pipe) {
-            var DataSource = analytics[pipe.type];
-
-            pipe.name = pipe.name || getDataSourceName(pipe.type);
-
-            if (pipe.parent) {
-                mainPipeTip = dataSource; // tip of main trunk on first diversion
-                dataSource = sources[getDataSourceName(pipe.parent)];
-                if (!dataSource) {
-                    throw 'Parent data source not in pipeline.';
-                }
-            }
-
+        sources.forEach(function(DataSource) {
+            var name;
             dataSource = new DataSource(dataSource);
-            sources[pipe.name] = dataSource;
+            name = getDataSourceName(dataSource);
+            this.sources[name] = dataSource;
+            this.pipeline.push({name: name});
 
-        }.bind(this, this.sources));
+        }.bind(this));
 
-        this.dataSource = mainPipeTip || dataSource;// tip of main trunk if never branched
-        if (!stopApply) {
-            this.applyAnalytics();
-        }
+        this.dataSource = dataSource;
     },
 
     /**
@@ -365,45 +360,8 @@ var JSON = DataModel.extend('dataModels.JSON', {
         this.pipeline.length = newLength || 0;
     },
 
-    /**
-     * Add a pipe to the data source pipeline.
-     * @desc No-op if already added.
-     * @param {dataSourcePipelineObject} newPipe
-     * @param {string|null|undefined} [afterPipe] - One of:
-     * * `null` - Inserts at beginning.
-     * * *string* - Name of an existing pipe _after which_ the new pipe will be added.
-     * * *else* _(including `undefined` or omitted)_ - Adds to end.
-     * @memberOf dataModels.JSON.prototype
-     */
-    addPipe: function(newPipe, referencePipe) {
-        var referenceIndex,
-            added = this.pipeline.find(function(pipe) { return pipe.type === newPipe.type; });
-
-        if (!added) {
-            if (referencePipe === null) {
-                referenceIndex = 0; // add to beginning
-            } else if (
-                !this.pipeline.find(function(pipe, index) {
-                    referenceIndex = index + 1; // add after found pipe
-                    return pipe.type === referencePipe;
-                })
-            ) {
-                referenceIndex = this.pipeline.length; // not found: add to end
-            }
-            this.pipeline.splice(referenceIndex, 0, newPipe);
-        }
-    },
-
     isDrillDown: function(event) {
-        return this.pipeline.find(function(pipe) {
-            var test = pipe.test,
-                type = typeof test;
-
-            test = type === 'function' && pipe.test ||
-                type === 'string' && this[pipe.test];
-
-            return test && test.call(this, event);
-        }.bind(this));
+        return this.dataSource.isDrillDown(event);
     },
 
     /**
@@ -745,7 +703,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
      * @memberOf dataModels.JSON.prototype
      */
     applyState: function() {
-        this.applyAnalytics();
+        return this.deprecated('applyState()', 'applyAnalytics()', '1.1.0', arguments);
     },
 
     getUnfilteredValue: function(x, y) {
@@ -830,10 +788,9 @@ function reselectGridRowsBackedBySelectedDataRows() {
     }
 }
 
-function getDataSourceName(name) {
-    name = analytics[name].prototype.$$CLASS_NAME || name;
+function getDataSourceName(ds) {
+    var name = ds.$$CLASS_NAME;
     return name.replace(/^Data(Source|Node)/, '').toLowerCase() || 'source';
 }
-
 
 module.exports = JSON;

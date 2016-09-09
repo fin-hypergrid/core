@@ -13,13 +13,13 @@ window.onload = function() {
         { value: -4 },
         { value: 5 }
     ];
-
-    grid = new Hypergrid('div#example', { data: data });
+    grid = new Hypergrid('div#example');
+    grid.setBehavior(new fin.Hypergrid.behaviors.JSON(grid), data);
 
     grid.behavior.dataModel.getFields().push('squared');
     grid.behavior.dataModel.getHeaders().push('squared');
     grid.behavior.dataModel.getCalculators().push(square);
-    grid.behavior.setData();
+    grid.repaint();
 
     function square(dataRow, columnName) {
         return dataRow.value * dataRow.value;
