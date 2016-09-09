@@ -132,7 +132,9 @@ var JSON = Behavior.extend('behaviors.JSON', {
         fields = typeof fields === 'function' ? fields() : fields;
         calculators = typeof calculators === 'function' ? calculators() : calculators;
         dataRows = typeof dataRows === 'function' ? dataRows() : dataRows;
-        dataRows = Array.isArray(dataRows) ? dataRows : options.data;
+        if (!Array.isArray(dataRows)) {
+            throw 'Data is not an array';
+        }
         this.dataModel.setData(dataRows, fields, calculators);
         this.createColumns();
 

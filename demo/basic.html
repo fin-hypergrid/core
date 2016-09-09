@@ -10,7 +10,7 @@
                 var div = document.querySelector('div#json-example'),
                     jsonGrid = new fin.Hypergrid(div);
 
-                jsonGrid.setBehavior(new fin.Hypergrid.behaviors.JSON(jsonGrid));
+                jsonGrid.setBehavior({ Behavior: fin.Hypergrid.behaviors.JSON });
                 jsonGrid.setData(data);
             });
         };

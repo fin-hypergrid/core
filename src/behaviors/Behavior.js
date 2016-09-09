@@ -522,6 +522,7 @@ var Behavior = Base.extend('Behavior', {
 
     applyAnalytics: function() {
         this.dataModel.applyAnalytics();
+        this.shapeChanged();
     },
 
     /**

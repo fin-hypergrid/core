@@ -25,21 +25,23 @@ window.onload = function() {
             lastPet: rollups.last(2),
             stdDevPets: rollups.stddev(2)
         },
-        options = { data:  window.people1 },
+        options = { data:  window.people1, Behavior: fin.Hypergrid.behaviors.JSON },
         groups = [5, 0, 1],
         shared = true; // operate on shared (prototype) pipeline vs. own (instance)
+
+    grid = new Hypergrid('div#example');
+    grid.setBehavior(options);
 
     // Install the drill-down API (optional).
     drillDown.mixInTo(dataModelPrototype);
 
     if (shared) {
         // Mutate shared pipeline (avoids calling setData twice).
+        dataModelPrototype.grid = grid;
         pipelineOptions.dataModelPrototype = dataModelPrototype;
         AggregationsView.prototype.setPipeline(pipelineOptions);
     }
 
-    grid = new Hypergrid('div#example');
-    grid.setBehavior(new fin.Hypergrid.behaviors.JSON(grid), options.data);
     grid.setState({
         showFilterRow: pipelineOptions.includeFilter
     });
@@ -48,7 +50,7 @@ window.onload = function() {
 
     if (!shared) {
         // Mutate instance pipeline (calls setData again to rebuild pipeline).
-        groupView.setPipeline(pipelineOptions);
+        aggView.setPipeline(pipelineOptions);
     }
 
     document.querySelector('input[type=checkbox]').onclick = function() {

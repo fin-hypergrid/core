@@ -136,10 +136,7 @@ GroupView.prototype = {
         if (options.includeSorter) {
             pipelines.push(window.fin.Hypergrid.analytics.DataNodeGroupSorter);
         }
-        if (amInstance) {
-            this.grid.behavior.setPipeline(pipelines);
-            this.grid.behavior.shapeChanged();
-        }
+        dataModel.grid.behavior.setPipeline(pipelines);
     },
 
     /**
@@ -177,8 +174,6 @@ GroupView.prototype = {
         this.grid.clearMouseDown();
 
         behavior.applyAnalytics();
-        behavior.shapeChanged();
-
         return grouped;
     }
 };

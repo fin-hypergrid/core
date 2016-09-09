@@ -99,10 +99,7 @@ TreeView.prototype = {
 
         pipelines.push(window.fin.Hypergrid.analytics.DataSourceTreeview);
 
-        if (amInstance) {
-            this.grid.behavior.setPipeline(pipelines);
-            this.grid.behavior.shapeChanged();
-        }
+        dataModel.grid.behavior.setPipeline(pipelines);
     },
 
     /**
@@ -162,8 +159,6 @@ TreeView.prototype = {
         this.grid.clearMouseDown();
 
         behavior.applyAnalytics();
-        behavior.shapeChanged();
-
         return joined;
     },
 

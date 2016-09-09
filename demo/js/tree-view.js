@@ -16,7 +16,7 @@ window.onload = function() {
             includeSorter: true,
             includeFilter: true
         },
-        options = { data: treeData },
+        options = { data: treeData, Behavior: fin.Hypergrid.behaviors.JSON },
         shared = true; // operate on shared (prototype) pipeline vs. own (instance)
 
     // Install the drill-down API (optional, to play with in console).
@@ -25,14 +25,15 @@ window.onload = function() {
     // Install the row-by-id API (optional, to play with treeviewAPI.deleteRowById in console, which needs it).
     rowById.mixInTo(dataModelPrototype);
 
+    grid = new Hypergrid('div#tree-example');
+    grid.setBehavior(options);
+
     if (shared) {
         // Mutate shared pipeline (avoids calling setData twice).
+        dataModelPrototype.grid = grid;
         pipelineOptions.dataModelPrototype = dataModelPrototype;
         TreeView.prototype.setPipeline(pipelineOptions);
     }
-
-    grid = new Hypergrid('div#tree-example');
-    grid.setBehavior(new fin.Hypergrid.behaviors.JSON(grid), options.data);
 
     grid.setState({
         showFilterRow: pipelineOptions.includeFilter

@@ -96,7 +96,7 @@ function Hypergrid(container, options) {
 
     var Behavior = this.options.Behavior;
     if (Behavior) {
-        this.setBehavior(new Behavior(this), this.options.data, this.options);
+        this.setBehavior(this.options);
     }
 }
 
@@ -286,7 +286,7 @@ Hypergrid.prototype = {
         var p = this.getHoverCell();
         return p && p.x === x && p.y === y;
     },
-    setFormatter: function(options){
+    setFormatter: function(options) {
         options = options || {};
         this.localization = new Localization(
             options.locale || Hypergrid.localization.locale,
@@ -712,19 +712,23 @@ Hypergrid.prototype = {
      * @memberOf Hypergrid.prototype
      * @summary Set the Behavior (model) object for this grid control.
      * @desc This can be done dynamically.
-     * @param {Behavior} behavior - The behavior (model) can be either a constructor or an instance.
-     * @param {object[]} dataRows - _(See {@link behaviors.JSON#setData}.)_
-     * @param {object} [options] - _(See {@link behaviors.JSON#setData}.)_
+     * @param {object} options - _(See {@link behaviors.JSON#setData}.)_
+     * @param {Behavior} options.behavior - The behavior (model) can be either a constructor or an instance.
+     * @param {object[]} [options.data] - _(See {@link behaviors.JSON#setData}.)_
      */
-    setBehavior: function(behavior, dataRows, options) {
+    setBehavior: function(options) {
+        options = options || this.options;
+        var behavior = options.Behavior;
         if (typeof behavior === 'function'){
             behavior = new behavior(this);  // eslint-disable-line
         }
         this.behavior = behavior;
         this.behavior.reset();
         initCanvasAndScrollBars.call(this);
-        this.setData(dataRows, options);
-        if (options.pipeline){this.setPipeline(this.options.pipeline);}
+        this.setData(options.data, options);
+        if (options.pipeline) {
+            this.setPipeline(options.pipeline);
+        }
         this.refreshProperties();
     },
 
@@ -737,7 +741,7 @@ Hypergrid.prototype = {
      * A function returning same
      * @param {object} [options] - _(See {@link behaviors.JSON#setData}.)_
      */
-    setData: function(dataRows, options){
+    setData: function(dataRows, options) {
         if (this.behavior) {
             this.behavior.setData(dataRows, options);
         }
@@ -3383,12 +3387,11 @@ Hypergrid.prototype = {
         return result;
     }
 };
-function findOrCreateContainer(boundingRect){
+function findOrCreateContainer(boundingRect) {
     boundingRect = boundingRect || {};
-    boundingRect.width = boundingRect.width || '300px';
-    boundingRect.height = boundingRect.height || '300px';
+    boundingRect.width = boundingRect.width || '500px';
+    boundingRect.height = boundingRect.height || '500px';
     boundingRect.position = boundingRect.position || 'relative';
-
     var div,
         defaultID = 'hypergrid';
     div = document.getElementById(defaultID);
@@ -3399,7 +3402,11 @@ function findOrCreateContainer(boundingRect){
     div.setAttribute('id', defaultID);
     div.style.width = boundingRect.width;
     div.style.height = boundingRect.height;
-    div.setAttribute('ppsition', boundingRect.position);
+    div.style.position = boundingRect.position;
+    if (boundingRect.top) { div.style.top = boundingRect.top; }
+    if (boundingRect.bottom) { div.style.bottom = boundingRect.bottom; }
+    if (boundingRect.left) { div.style.left = boundingRect.left; }
+    if (boundingRect.right) { div.style.right = boundingRect.right; }
     document.body.appendChild(div);
     return div;
 }
@@ -3407,7 +3414,7 @@ function findOrCreateContainer(boundingRect){
 /**
 * @this {Hypergrid}
 */
-function initCanvasAndScrollBars(){
+function initCanvasAndScrollBars() {
     if (!this.divCanvas) {
         var margin = this.options.margin || {};
         margin.top = margin.top || 0;
@@ -3422,7 +3429,7 @@ function initCanvasAndScrollBars(){
 /**
  * @this {Hypergrid}
  */
-function injectGridElements(){
+function injectGridElements() {
     if (this.divCanvas) {
         this.div.appendChild(this.divCanvas);
         this.getCanvas().resize();

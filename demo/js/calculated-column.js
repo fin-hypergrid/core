@@ -14,7 +14,7 @@ window.onload = function() {
         { value: 5 }
     ];
     grid = new Hypergrid('div#example');
-    grid.setBehavior(new fin.Hypergrid.behaviors.JSON(grid), data);
+    grid.setBehavior({ Behavior: fin.Hypergrid.behaviors.JSON, data: data });
 
     grid.behavior.dataModel.getFields().push('squared');
     grid.behavior.dataModel.getHeaders().push('squared');

@@ -359,7 +359,8 @@ var JSON = DataModel.extend('dataModels.JSON', {
     },
 
     isDrillDown: function(event) {
-        return this.dataSource.isDrillDown(event);
+        var colIndex = event && event.gridData && event.gridData.x;
+        return this.dataSource.isDrillDown(colIndex);
     },
 
     /**

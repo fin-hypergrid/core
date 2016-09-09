@@ -40,12 +40,12 @@ DataSourceBase.prototype = {
             return this.dataSource.revealRow.apply(this.dataSource, arguments);
         }
     },
-    getValue: function(x, y){
+    getValue: function(x, y) {
         if (this.dataSource) {
             return this.dataSource.getValue.apply(this.dataSource, arguments);
         }
     },
-    setValue: function(x, y, value){
+    setValue: function(x, y, value) {
         if (this.dataSource) {
             return this.dataSource.setValue.apply(this.dataSource, arguments);
         }
@@ -70,12 +70,12 @@ DataSourceBase.prototype = {
             return this.dataSource.getHeaders.apply(this.dataSource, arguments);
         }
     },
-    getCalculators: function(){
+    getCalculators: function() {
         if (this.dataSource) {
             return this.dataSource.revealRow.apply(this.dataSource, arguments);
         }
     },
-    getDefaultHeaders: function(){
+    getDefaultHeaders: function() {
         if (this.dataSource) {
             return this.dataSource.getDefaultHeaders.apply(this.dataSource, arguments);
         }
@@ -90,7 +90,7 @@ DataSourceBase.prototype = {
             return this.dataSource.setHeaders.apply(this.dataSource, arguments);
         }
     },
-    getGrandTotals: function(row){
+    getGrandTotals: function(row) {
         //row: Ideally this should be set and get bottom/top totals
         //Currently this function is just sending the same for both in aggregations
         if (this.dataSource) {
