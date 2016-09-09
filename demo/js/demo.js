@@ -1254,7 +1254,7 @@ window.onload = function() {
     }
 
     function resetFilter() {
-        grid.setGlobalFilter(Hypergrid.behaviors.Behavior.prototype.getNewFilter.call(grid.behavior));
+        grid.setGlobalFilter(grid.behavior.getNewFilter());
     }
 
     function redIfStartsWithS(dataRow, columnName) {

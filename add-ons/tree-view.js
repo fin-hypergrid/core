@@ -89,7 +89,7 @@ TreeView.prototype = {
         }
 
         if (options.includeFilter) {
-            dataModel.addPipe({ type: 'DataSourceGlobalFilter' });
+            dataModel.addPipe({ type: 'DataSourceTreeviewFilter' });
         }
 
         if (options.includeSorter) {
@@ -115,9 +115,19 @@ TreeView.prototype = {
             behavior = this.grid.behavior,
             dataModel = behavior.dataModel,
             dataSource = dataModel.sources.treeview,
-            joined = dataSource.setRelation(options),
             state = behavior.getPrivateState(),
+            filterDataSource = this.grid.behavior.dataModel.getGlobalFilterDataSource(),
+            filter = filterDataSource.get();
+
+        // clear filter before setRelation call
+        filterDataSource.set(undefined);
+        dataModel.applyAnalytics();
+
+        var joined = dataSource.setRelation(options),
             columnProps = behavior.getColumn(dataSource.treeColumn.index).getProperties();
+
+        // restore filter after setRelation call
+        filterDataSource.set(filter);
 
         if (joined) {
             // Make the tree column uneditable: Save the current value of the tree column's editable property and set it to false.
