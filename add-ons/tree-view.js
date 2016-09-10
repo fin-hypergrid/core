@@ -1,4 +1,5 @@
 'use strict';
+/* globals window */
 
 // NOTE: gulpfile.js's 'add-ons' task makes a copy of this file, altering the final line. The copy is placed in demo/build/add-ons/ along with a minified version. Both files are eventually deployed to http://openfin.github.io/fin-hypergrid/add-ons/. Neither file is saved to the repo.
 
@@ -68,13 +69,13 @@ TreeView.prototype = {
      *
      * In either case, if called "normally" (on the instance), the data is reset via `setData`. (If called on the prototype it is not reset here. Currently the `Hypergrid` constructor calls it.)
      *
-     * @param {dataSourcePipelineObject} [options.firstPipe] - Use as first data source in the new pipeline. If undefined, the existing pipeline's first data source will be reused.
      */
     setPipeline: function(options) {
         options = options || {};
 
         var amInstance = this instanceof TreeView,
-            dataModel = options.dataModelPrototype || amInstance && this.grid.behavior.dataModel;
+            dataModel = options.dataModelPrototype || amInstance && this.grid.behavior.dataModel,
+            pipelines = [];
 
         if (!dataModel) {
             throw 'Expected dataModel.';
@@ -84,24 +85,21 @@ TreeView.prototype = {
             // operating on prototype
             dataModel.truncatePipeline();
         } else {
-            // operating on an instance: create a new "own" pipeline
+            // operating on an instance: create a new"own" pipeline
             dataModel.pipeline = [];
         }
 
         if (options.includeFilter) {
-            dataModel.addPipe({ type: 'DataSourceTreeviewFilter' });
+            pipelines.push(window.fin.Hypergrid.analytics.DataSourceTreeviewFilter);
         }
 
         if (options.includeSorter) {
-            dataModel.addPipe({ type: 'DataSourceTreeviewSorter' });
+            pipelines.push(window.fin.Hypergrid.analytics.DataSourceTreeviewSorter);
         }
 
-        dataModel.addPipe({ type: 'DataSourceTreeview', test: isTreeview });
+        pipelines.push(window.fin.Hypergrid.analytics.DataSourceTreeview);
 
-        if (amInstance) {
-            this.grid.behavior.setPipeline();
-            this.grid.behavior.shapeChanged();
-        }
+        dataModel.grid.behavior.setPipeline(pipelines);
     },
 
     /**
@@ -160,9 +158,7 @@ TreeView.prototype = {
         this.grid.selectionModel.clear();
         this.grid.clearMouseDown();
 
-        dataModel.applyAnalytics();
-        behavior.shapeChanged();
-
+        behavior.applyAnalytics();
         return joined;
     },
 
@@ -231,20 +227,5 @@ TreeView.prototype = {
     }
 
 };
-
-/**
- * This is the required test function called by the data model's `isDrilldown` method in context. _Do not call directly._
- * @param {number} [event.dataCell.x] If available, also checks that the column clicked is the tree column.
- * @returns {boolean} If the data source is a tree view.
- * @private
- */
-function isTreeview(event) {
-    var treeview = this.sources.treeview,
-        result = !!(treeview && treeview.viewMakesSense());
-    if (result && event && event.dataCell) {
-        result = event.dataCell.x === treeview.treeColumn.index;
-    }
-    return result;
-}
 
 module.exports = TreeView;

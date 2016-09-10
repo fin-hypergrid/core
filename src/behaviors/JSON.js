@@ -18,17 +18,9 @@ var JSON = Behavior.extend('behaviors.JSON', {
      * @desc This method will be called upon instantiation of this class or of any class that extends from this class.
      * > All `initialize()` methods in the inheritance chain are called, in turn, each with the same parameters that were passed to the constructor, beginning with that of the most "senior" class through that of the class of the new instance.
      *
-     * @param grid - the hypergrid
-     * @param {undefined|function|menuItem[]} options.schema - Already consumed by Behavior's {@link Behavior#initialize|initialize}.
-     * @param {object[]} dataRows - May be:
-     * * An array of congruent raw data objects
-     * * A function returning same
-     * @param {object} [options] - _(See {@link behaviors.JSON#setData}.)_
      * @memberOf behaviors.JSON.prototype
      */
-    initialize: function(grid, dataRows, options) {
-        this.setData(dataRows, options);
-    },
+    initialize: function() {},
 
     features: [
         features.CellSelection,
@@ -114,10 +106,12 @@ var JSON = Behavior.extend('behaviors.JSON', {
     },
     /**
      * @memberOf behaviors.JSON.prototype
-     * @description Set the data transformation pipeline.
+     * @param {object} [pipelines] - _(See {@link dataModels.JSON#setPipeline}.)_
      */
-    setPipeline: function() {
-        this.dataModel.setPipeline();
+    setPipeline: function(pipelines) {
+        this.dataModel.setPipeline(pipelines);
+        //Only do this once. Code is temporary until filtering is externalized
+        this.setGlobalFilter(this.getNewFilter());
     },
 
     /**
@@ -129,6 +123,7 @@ var JSON = Behavior.extend('behaviors.JSON', {
      * @param {function|object} [options.schema=deriveSchema] - Used in filter instantiation.
      */
     setData: function(dataRows, options) {
+        options = options || {};
         var self = this,
             grid = this.grid,
             fields = options && options.fields,
@@ -137,14 +132,14 @@ var JSON = Behavior.extend('behaviors.JSON', {
         fields = typeof fields === 'function' ? fields() : fields;
         calculators = typeof calculators === 'function' ? calculators() : calculators;
         dataRows = typeof dataRows === 'function' ? dataRows() : dataRows;
-
+        if (!Array.isArray(dataRows)) {
+            throw 'Data is not an array';
+        }
         this.dataModel.setData(dataRows, fields, calculators);
         this.createColumns();
 
         this.schema = options && options.schema || deriveSchema;
 
-        //Should it cancel filter
-        //this.setGlobalFilter(this.getNewFilter());
 
         if (grid.cellEditor) {
             grid.cellEditor.cancelEditing();
@@ -226,6 +221,7 @@ var JSON = Behavior.extend('behaviors.JSON', {
         event.row = this.getRow(event.gridCell.y);
     },
 
+    //Not being used. Should be repurposed??
     setDataProvider: function(dataProvider) {
         this.dataModel.setDataProvider(dataProvider);
     },

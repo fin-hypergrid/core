@@ -1,4 +1,4 @@
-/* globals CustomEvent */
+/* globals CustomEvent window*/
 
 // NOTE: gulpfile.js's 'add-ons' task copies this file, altering the final line, to /demo/build/add-ons/, along with a minified version. Both files are eventually deployed to http://openfin.github.io/fin-hypergrid/add-ons/.
 
@@ -8,7 +8,7 @@
  * @classdesc This is a simple helper class to set up the group-view data source in the context of a hypergrid.
  *
  * It includes methods to:
- * * Insert `DataSourceGroupview` into the data model's pipeline (`addPipe`, `addPipeTo`).
+ * * Insert `DataSourceGroupview` into the data model's pipeline
  * * Perform the column grouping and rebuild the index to turn the view on or off (`setRelation`).
  *
  * @param {object}
@@ -99,11 +99,10 @@ GroupView.prototype = {
 
     /**
      * @summary Reconfigure the dataModel's pipeline for group view.
-     * @desc The pipeline is reset starting with either the given `options.dataSource` _or_ the existing pipeline's first data source.
+     * @desc The pipeline is reset starting with Hypergrid's DataSourceOrigin
      *
-     * Then the group view filter and sorter data sources are added as requested.
-     *
-     * The group view data source is then added.
+     * The group view data source is added.
+     * Then the group view filter is added as requested.
      * Finally the group view group sorter source is added.
      *
      * This method can operate on either:
@@ -111,14 +110,14 @@ GroupView.prototype = {
      * * The current data model instance. In this case, the instance is given its own new pipeline.
      *
      * @param {object} [options]
-     * @param {object} [options.dataModelPrototype] - Adds the pipes to the given object. If omitted, this must be an instance; adds the pipes to a new "pwn" pipeline created from the first data source of the instance's old pipeline.
-     * @param {dataSourcePipelineObject} [options.firstPipe] - Use as first data source in the new pipeline. If omitted, re-uses the existing pipeline's first data source.
+     * @param {object} [options.dataModelPrototype] - Adds the pipes to the given object. If omitted, this must be an instance; adds the pipes to a new "own" pipeline created from the first data source of the instance's old pipeline.
      */
     setPipeline: function(options) {
         options = options || {};
 
         var amInstance = this instanceof GroupView,
-            dataModel = options.dataModelPrototype || amInstance && this.grid.behavior.dataModel;
+            dataModel = options.dataModelPrototype || amInstance && this.grid.behavior.dataModel,
+            pipelines = [];
         if (!dataModel) {
             throw 'Expected dataModel.';
         }
@@ -129,21 +128,15 @@ GroupView.prototype = {
             // operating on an instance: create a new "own" pipeline
             dataModel.pipeline = [];
         }
-
         if (options.includeFilter) {
-            dataModel.addPipe({ type: 'DataSourceGlobalFilter'});
+            pipelines.push(window.fin.Hypergrid.analytics.DataSourceGlobalFilter);
         }
-
-        dataModel.addPipe({ type: 'DataSourceGroupView', test: isGroupview });
+        pipelines.push(window.fin.Hypergrid.analytics.DataSourceGroupView);
 
         if (options.includeSorter) {
-            dataModel.addPipe({ type: 'DataNodeGroupSorter', parent: 'DataSourceGroupView' });
+            pipelines.push(window.fin.Hypergrid.analytics.DataNodeGroupSorter);
         }
-
-        if (amInstance) {
-            this.grid.behavior.setPipeline();
-            this.grid.behavior.shapeChanged();
-        }
+        dataModel.grid.behavior.setPipeline(pipelines);
     },
 
     /**
@@ -180,25 +173,9 @@ GroupView.prototype = {
         this.grid.selectionModel.clear();
         this.grid.clearMouseDown();
 
-        dataModel.applyAnalytics();
-        behavior.shapeChanged();
-
+        behavior.applyAnalytics();
         return grouped;
     }
 };
-
-/**
- * This is the required test function called by the data model's `isDrilldown` method in context. _Do not call directly._
- * @param {number} [columnIndex] If given, also checks that the column clicked is the group column.
- * @returns {boolean} If the data source is a group view.
- */
-function isGroupview(event) {
-    var groupview = this.sources.groupview,
-        result = !!(groupview && groupview.viewMakesSense());
-    if (result && event) {
-        result = event.dataCell.x === groupview.treeColumnIndex;
-    }
-    return result;
-}
 
 module.exports = GroupView;

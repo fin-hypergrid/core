@@ -15,6 +15,7 @@ window.onload = function() {
             includeSorter: true,
             includeFilter: true
         },
+        options = { data: treeData, Behavior: fin.Hypergrid.behaviors.JSON },
         shared = true; // operate on shared (prototype) pipeline vs. own (instance)
 
     // Install the drill-down API (optional).
@@ -22,14 +23,15 @@ window.onload = function() {
 
     // Add a blank column.
     treeData.forEach(function(dataRow) { dataRow.name = ''; });
+    grid = new Hypergrid('div#tree-example');
+    grid.setBehavior(options);
 
     if (shared) {
         // Mutate shared pipeline (avoids calling setData twice).
+        dataModelPrototype.grid = grid;
         pipelineOptions.dataModelPrototype = dataModelPrototype;
         TreeView.prototype.setPipeline(pipelineOptions);
     }
-
-    grid = new Hypergrid('div#tree-example', { data: treeData });
 
     var idx = grid.behavior.columnEnum;
 
