@@ -337,7 +337,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
     setPipeline: function(sources) {
         sources = sources || [];
         var dataSource = this.source;
-        this.truncatePipeline(0);
+        this.pipeline = [];
 
         sources.forEach(function(DataSource) {
             var name;

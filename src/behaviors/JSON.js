@@ -20,7 +20,13 @@ var JSON = Behavior.extend('behaviors.JSON', {
      *
      * @memberOf behaviors.JSON.prototype
      */
-    initialize: function() {},
+    initialize: function(grid, options) {
+        this.setData(options.data, options);
+
+        if (options.pipeline) {
+            this.setPipeline(options.pipeline);
+        }
+    },
 
     features: [
         features.CellSelection,

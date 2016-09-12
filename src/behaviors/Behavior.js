@@ -33,7 +33,7 @@ var Behavior = Base.extend('Behavior', {
      * @param {object} [options] - _(See {@link behaviors.JSON#setData}.)_
      * @memberOf Behavior.prototype
      */
-    initialize: function(grid, dataRows, options) {
+    initialize: function(grid, options) {
         /**
          * @type {Hypergrid}
          * @memberOf Behavior.prototype
@@ -46,6 +46,9 @@ var Behavior = Base.extend('Behavior', {
          */
         this.dataModel = this.getNewDataModel();
         this.initializeFeatureChain(grid);
+
+        this.grid.behavior = this;
+        this.reset();
     },
 
     /**

@@ -98,6 +98,8 @@ function Hypergrid(container, options) {
     if (Behavior) {
         this.setBehavior(this.options);
     }
+
+    this.constructed = true;
 }
 
 Hypergrid.prototype = {
@@ -720,15 +722,10 @@ Hypergrid.prototype = {
         options = options || this.options;
         var behavior = options.Behavior;
         if (typeof behavior === 'function'){
-            behavior = new behavior(this);  // eslint-disable-line
+            behavior = new behavior(this, options);  // eslint-disable-line
         }
         this.behavior = behavior;
-        this.behavior.reset();
         initCanvasAndScrollBars.call(this);
-        this.setData(options.data, options);
-        if (options.pipeline) {
-            this.setPipeline(options.pipeline);
-        }
         this.refreshProperties();
     },
 
@@ -1057,7 +1054,9 @@ Hypergrid.prototype = {
             this.behavior.featureChain.detachChain();
         }
 
-        this.behavior.changed();
+        if (this.constructed) {
+            this.behavior.changed();
+        }
     },
 
     /**
@@ -2231,14 +2230,17 @@ Hypergrid.prototype = {
             }
         }
 
-        var hMax = Math.max(0, numColumns - numFixedColumns - lastPageColumnCount);
-        this.setHScrollbarValues(hMax);
-
-        var vMax = 1 + Math.max(0, numRows - numFixedRows - lastPageRowCount);
-        this.setVScrollbarValues(vMax);
-
-        this.setHScrollValue(Math.min(this.getHScrollValue(), hMax));
-        this.setVScrollValue(Math.min(this.getVScrollValue(), vMax));
+        // inform scroll bars
+        if (this.sbHScroller) {
+            var hMax = Math.max(0, numColumns - numFixedColumns - lastPageColumnCount);
+            this.setHScrollbarValues(hMax);
+            this.setHScrollValue(Math.min(this.getHScrollValue(), hMax));
+        }
+        if (this.sbVScroller) {
+            var vMax = 1 + Math.max(0, numRows - numFixedRows - lastPageRowCount);
+            this.setVScrollbarValues(vMax);
+            this.setVScrollValue(Math.min(this.getVScrollValue(), vMax));
+        }
 
         //this.getCanvas().resize();
         this.behaviorStateChanged();
