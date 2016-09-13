@@ -14,7 +14,7 @@ var LRUCache = require('lru-cache');
 module.exports = {
 
     /**
-     * The font for data cells.
+     * Message to show if the grid is loaded with no data.
      * @default
      * @type {string}
      * @instance
