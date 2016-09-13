@@ -11,60 +11,47 @@ window.onload = function() {
         drillDown = Hypergrid.drillDown,
         AggregationsView = Hypergrid.AggregationsView,
         dataModelPrototype = Hypergrid.dataModels.JSON.prototype,
-        pipelineOptions = {
+        rollups = window.fin.Hypergrid.analytics.util.aggregations, // aggregate function generator
+        options = {
             includeSorter: true,
-            includeFilter: true
-        },
-        rollups = window.fin.Hypergrid.analytics.util.aggregations, //functions for showing the grouping/rollup capabilities
-        aggregates = {
-            totalPets: rollups.sum(2),
-            averagePets: rollups.avg(2),
-            maxPets: rollups.max(2),
-            minPets: rollups.min(2),
-            firstPet: rollups.first(2),
-            lastPet: rollups.last(2),
-            stdDevPets: rollups.stddev(2)
-        },
-        options = { data:  window.people1, Behavior: fin.Hypergrid.behaviors.JSON },
-        groups = [5, 0, 1],
-        shared = true; // operate on shared (prototype) pipeline vs. own (instance)
-
-    grid = new Hypergrid('div#example');
-    grid.setBehavior(options);
+            includeFilter: true,
+            aggregations: {
+                totalPets: rollups.sum(2),
+                averagePets: rollups.avg(2),
+                maxPets: rollups.max(2),
+                minPets: rollups.min(2),
+                firstPet: rollups.first(2),
+                lastPet: rollups.last(2),
+                stdDevPets: rollups.stddev(2)
+            },
+            groups: [5, 0, 1]
+        };
 
     // Install the drill-down API (optional).
     drillDown.mixInTo(dataModelPrototype);
 
-    if (shared) {
-        // Mutate shared pipeline (avoids calling setData twice).
-        dataModelPrototype.grid = grid;
-        pipelineOptions.dataModelPrototype = dataModelPrototype;
-        AggregationsView.prototype.setPipeline(pipelineOptions);
-    }
-
-    grid.setState({
-        showFilterRow: pipelineOptions.includeFilter
+    grid = new Hypergrid('div#example');
+    grid.setBehavior({
+        data:  window.people1,
+        Behavior: fin.Hypergrid.behaviors.JSON
     });
 
-    var aggView = new AggregationsView(grid, {});
+    // show filter row as per `options`
+    grid.setState({
+        showFilterRow: options.includeFilter && grid.behavior.getGlobalFilter().columnFilters
+    });
 
-    if (!shared) {
-        // Mutate instance pipeline (calls setData again to rebuild pipeline).
-        aggView.setPipeline(pipelineOptions);
-    }
+    var aggViewAPI = new AggregationsView(grid, options);
 
     document.querySelector('input[type=checkbox]').onclick = function() {
         if (this.checked) {
-            grid.setAggregateGroups(aggregates, groups);
-            grid.behavior.dataModel.getCell = getCell;
+            // turn aggregations view ON using options.aggregates and options.group
+            // Alternatively, you may supply overrides for both as parameters here.
+            aggViewAPI.setAggregateGroups();
         } else {
-            grid.setAggregateGroups([]);
-            delete grid.behavior.dataModel.getCell;
+            // turn aggregations view OFF
+            aggViewAPI.setAggregateGroups([]);
         }
     };
-
-    function getCell(config, rendererName) {
-        return grid.cellRenderers.get(rendererName);
-    }
 };
 

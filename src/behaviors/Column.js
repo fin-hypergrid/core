@@ -1,7 +1,5 @@
 /* eslint-env browser */
 
-// NOTE: Cell.js is mixed into Column.prototype.
-
 'use strict';
 
 var _ = require('object-iterators');
@@ -15,6 +13,7 @@ var propertyNames = [
 ];
 
 /** @summary Create a new `Column` object.
+ * @see {@link module:Cell} is mixed into Column.prototype.
  * @constructor
  * @param behavior
  * @param {number|object} indexOrOptions - If a number, shorthand for `options.index`.
@@ -116,9 +115,9 @@ Column.prototype = {
 
     set calculator(calculator) {
         var name = this.name,
-            filter = this.behavior.grid.getGlobalFilter();
+            filter = this.behavior.getGlobalFilter();
 
-        if (filter && filter.schema) {
+        if (filter.schema) {
             // Note that calculators are not applied to column schema that are simple string primitives.
             var columnSchema = filter.schema.find(function(item) {
                 return item.name === name;

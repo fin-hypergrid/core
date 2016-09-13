@@ -6,126 +6,114 @@
 /**
  * @classdesc This is a simple helper class to set up the aggregations-view data source in the context of a hypergrid.
  *
- * It includes methods to:
- * * Insert `DataSourceAggregator` into the data model's pipeline.
- * * Perform the grouping and aggregations and rebuild the index to turn the aggregations-view on or off(`setRelation`).
+ * It includes a single method, {@link AggregationsView#setAggregateGroups|setAggregateGroups} to:
+ * * Build a new pipeline with `DataSourceAggregator` and appropriate sorter and filter.
+ * * Perform the grouping and aggregations and rebuild the index to turn the aggregations-view on or off .
  *
- * @param {object}
+ * @param {Hypergrid} grid
+ * @param {object} [options]
+ * @param {object} [options.aggregations] - Optional default for {@link AggregationsView#setAggregateGroups}.
+ * @param {number[]} [options.groups] - Optional default for {@link AggregationsView#setAggregateGroups}.
+ * @param {boolean} [options.includeFilter=false] - Enables filtering. Includes a filter data source. The filter row is hidden if falsy.
+ * @param {boolean} [options.includeSorter=false] - Enables sorting. Includes the specialized group sorter data source.
  * @constructor
  */
-function AggregationsView(grid) {
+function AggregationsView(grid, options) {
     this.grid = grid;
-    var self = this;
-
-    var G = Object.getPrototypeOf(this.grid),
-        B = Object.getPrototypeOf(this.grid.behavior),
-        DM = Object.getPrototypeOf(this.grid.behavior.dataModel);
-
-    G.setAggregateGroups = function(aggregations, arrayOfColumnIndexes) {
-        this.behavior.setAggregateGroups(aggregations, arrayOfColumnIndexes);
-    }.bind(this.grid);
-
-    B.setAggregateGroups = function(mapOfKeysToFunctions, groups) {
-        this.dataModel.setAggregateGroups(mapOfKeysToFunctions, groups);
-        this.createColumns();
-        setTimeout(function() {
-            this.changed();
-        }.bind(this.grid.behavior), 100);
-    }.bind(this.grid.behavior);
-
-    DM.setAggregateGroups = function(aggregations, groups) {
-        this.sources.aggregator.setAggregateGroups(aggregations, groups);
-        self.setRelation(aggregations, groups);
-    }.bind(this.grid.behavior.dataModel);
+    this.options = options || {};
 }
 
-AggregationsView.prototype = {
-    constructor: AggregationsView.prototype.constructor,
+/**
+ * @summary Build/unbuild the group view.
+ * @desc Sets up grouping on the table using the options given to the constructor (see above).
+ *
+ * Reconfigures the data model's data pipeline for aggregated view; restores it when unaggregated.
+ *
+ * Also saves and restores some grid properties:
+ * * Tree column is made non-editable.
+ * * Tree column is made non-selectable so clicking drill-down controls doesn't select the cell.
+ * * Row are made selectable by clicking in row handles only so clicking drill-down controls doesn't select the row.
+ *
+ * @see {@link http://openfin.github.io/hyper-analytics/DataSourceAggregator.html#setAggregateGroups}
+ *
+ * @param {object} [aggregations=this.options.aggregations] - Hash of aggregate functions. See also `DataSourceAggregator.prototype.setAggregateGroups`.
+ *
+ * @param {number[]} [groups=this.options.groups] - List of groups. See also `DataSourceAggregator.prototype.setAggregateGroups`. One of:
+ * * Non-empty array: Turn group-view **ON** using the supplied group list.
+ * * Empty array (`[]`): Turn group-view **OFF**.
+ *
+ * @returns {boolean} Aggregated state.
+ */
+AggregationsView.prototype.setAggregateGroups = function(aggregations, groups) {
+    aggregations = aggregations || this.options.aggregations;
+    groups = groups || this.options.groups;
 
-    /**
-     * @summary Reconfigure the dataModel's pipeline for aggregations view.
-     * @desc The pipeline is reset starting with Hypergrid's DataSourceOrigin
-     *
-     * The aggregations view data source is added.
-     * Then the aggregations view filter and sorter data sources are added as requested.
-     *
-     * This method can operate on either:
-     * * A data model prototype, which will affect all data models subsequently created therefrom. The prototype must be given in `options.dataModelPrototype`.
-     * * The current data model instance. In this case, the instance is given its own new pipeline.
-     *
-     * @param {object} [options]
-     * @param {object} [options.dataModelPrototype] - Adds the pipes to the given object. If omitted, this must be an instance; adds the pipes to a new "own" pipeline created from the first data source of the instance's old pipeline.
-     */
-    setPipeline: function(options) {
-        options = options || {};
-
-        var amInstance = this instanceof AggregationsView,
-            dataModel = options.dataModelPrototype || amInstance && this.grid.behavior.dataModel,
-            pipelines = [];
-
-        if (!dataModel) {
-            throw 'Expected dataModel.';
-        }
-
-        if (options.dataModelPrototype) {
-            // operating on prototype
-            dataModel.truncatePipeline();
-        } else {
-            // operating on an instance: create a new "own" pipeline
-            dataModel.pipeline = [];
-        }
-
-        if (options.includeFilter) {
-            pipelines.push(window.fin.Hypergrid.analytics.DataSourceGlobalFilter);
-        }
-        pipelines.push(window.fin.Hypergrid.analytics.DataSourceAggregator);
-        if (options.includeSorter) {
-            pipelines.push(window.fin.Hypergrid.analytics.DataNodeGroupSorter);
-        }
-
-        dataModel.grid.behavior.setPipeline(pipelines);
-    },
-
-    /**
-     * @summary Build/unbuild the aggregations view.
-     * @desc Both parameters should must contain non-empty arrays to turn aggregations **ON**; if either or both are empty, aggregations are turned **OFF**.
-     Add a line note
-     * @param {boolean} aggregations - Turn aggregations-view **ON**. If falsy (or omitted), turn it **OFF**.
-     * @param {number[]} groups - indexes of columns to group against
-     * @returns {boolean} aggregation view state.
-     */
-    setRelation: function(aggregations, groups) {
-        var behavior = this.grid.behavior,
-            dataModel = behavior.dataModel,
-            aggregated = !!aggregations.length && !!groups.length,
-            dataSource = dataModel.sources.aggregator,
-            state = behavior.getPrivateState(),
-            columnProps = behavior.getColumnProperties(dataSource.treeColumnIndex);
-
-        if (aggregated) {
-            // save the current value of column's editable property and set it to false
-            this.editableWas = !!columnProps.editable;
-            columnProps.editable = false;
-
-            this.cellSelectionWas = !!columnProps.cellSelection;
-            columnProps.cellSelection = false;
-
-            // save value of grid's checkboxOnlyRowSelections property and set it to true so drill-down clicks don't select the row they are in
-            this.checkboxOnlyRowSelectionsWas = state.checkboxOnlyRowSelections;
-            state.checkboxOnlyRowSelections = true;
-
-        } else {
-            columnProps.editable = this.editableWas;
-            columnProps.cellSelection = this.cellSelectionWas;
-            state.checkboxOnlyRowSelections = this.checkboxOnlyRowSelectionsWas;
-        }
-
-        this.grid.selectionModel.clear();
-        this.grid.clearMouseDown();
-
-        behavior.applyAnalytics();
-        return aggregated;
+    if (!aggregations || !groups) {
+        throw 'Expected both an aggregations hash and a group list.';
     }
+
+    var aggregated = groups.length,
+        grid = this.grid,
+        behavior = grid.behavior,
+        dataModel = behavior.dataModel;
+
+    // 1. ON AGGREGATING: INSTALL GROUP-VIEW PIPELINE
+
+    if (aggregated) {
+        var dataTransformers = window.fin.Hypergrid.analytics;
+        behavior.setPipeline([
+            this.options.includeFilter && dataTransformers.DataSourceGlobalFilter,
+            dataTransformers.DataSourceAggregator,
+            this.options.includeSorter && dataTransformers.DataNodeGroupSorter
+        ], {
+            stash: 'default',
+            apply: false // defer until after setGroupBys call below
+        });
+    }
+
+    // 2. PERFORM ACTUAL AGGREGATING OR UNAGGREGATING
+
+    var dataSource = dataModel.sources.aggregator,
+        columnProps = behavior.getColumnProperties(dataSource.treeColumnIndex),
+        state = behavior.getPrivateState();
+
+    if (aggregated) {
+        dataSource.setAggregateGroups(aggregations, groups);
+        behavior.applyAnalytics(); // rows have changed
+    } else {
+        dataSource.setAggregateGroups({}, []);
+    }
+
+    behavior.createColumns(); // columns changed
+    behavior.changed(); // number of rows changed
+
+    // 3. SAVE OR RESTORE SOME RENDER PROPERTIES
+
+    if (aggregated) {
+        // save the current value of column's editable property and set it to false
+        this.editableWas = !!columnProps.editable;
+        columnProps.editable = false;
+
+        this.cellSelectionWas = !!columnProps.cellSelection;
+        columnProps.cellSelection = false;
+
+        // save value of grid's checkboxOnlyRowSelections property and set it to true so drill-down clicks don't select the row they are in
+        this.checkboxOnlyRowSelectionsWas = state.checkboxOnlyRowSelections;
+        state.checkboxOnlyRowSelections = true;
+    } else {
+        // restore the saved render props
+        columnProps.editable = this.editableWas;
+        columnProps.cellSelection = this.cellSelectionWas;
+        state.checkboxOnlyRowSelections = this.checkboxOnlyRowSelectionsWas;
+
+        // 3a. ON UNGROUPING: RESTORE PIPELINE
+        behavior.unstashPipeline();
+    }
+
+    grid.selectionModel.clear();
+    grid.clearMouseDown();
+
+    return aggregated;
 };
 
 module.exports = AggregationsView;

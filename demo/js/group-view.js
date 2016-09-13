@@ -11,55 +11,38 @@ window.onload = function() {
         drillDown = Hypergrid.drillDown,
         GroupView = Hypergrid.GroupView,
         dataModelPrototype = Hypergrid.dataModels.JSON.prototype,
-        pipelineOptions = {
+        options = {
             includeSorter: true,
-            includeFilter: true
-        },
-        options = { data:  window.people1, Behavior: fin.Hypergrid.behaviors.JSON },
-        shared = true; // operate on shared (prototype) pipeline vs. own (instance)
+            includeFilter: true,
+            groups: [5, 0, 1] // alternatively this could be supplied in the setGroups call
+        };
 
     // Install the drill-down API (optional).
     drillDown.mixInTo(dataModelPrototype);
 
     grid = new Hypergrid('div#example');
-    grid.setBehavior(options);
-
-    if (shared) {
-        // Mutate shared pipeline (avoids calling setData twice).
-        dataModelPrototype.grid = grid;
-        pipelineOptions.dataModelPrototype = dataModelPrototype;
-        GroupView.prototype.setPipeline(pipelineOptions);
-    }
-
-    grid.setState({
-        // columnAutosizing: false,
-        showFilterRow: pipelineOptions.includeFilter
+    grid.setBehavior({
+        data: window.people1,
+        Behavior: fin.Hypergrid.behaviors.JSON
     });
 
-    var groupView = new GroupView(grid, {});
+    // show filter row as per `options`
+    grid.setState({
+        // columnAutosizing: false,
+        showFilterRow: options.includeFilter && grid.behavior.getGlobalFilter().columnFilters
+    });
 
-    if (!shared) {
-        // Mutate instance pipeline (calls setData again to rebuild pipeline).
-        groupView.setPipeline(pipelineOptions);
-    }
+    var groupViewAPI = new GroupView(grid, options);
 
     document.querySelector('input[type=checkbox]').onclick = function() {
         if (this.checked) {
-            grid.setGroups([5, 0, 1]);
-            grid.behavior.dataModel.getCell = getCell;
+            // turn group view ON using options.groups
+            // Alternatively, you can supply a group list override as a parameter here.
+            groupViewAPI.setGroups();
         } else {
-            grid.setGroups([]);
-            delete grid.behavior.dataModel.getCell;
+            // turn group view OFF
+            groupViewAPI.setGroups([]);
         }
     };
-
-    function getCell(config, rendererName) {
-        if (config.isUserDataArea) {
-            if (this.getRow(config.y).hasChildren) {
-                return grid.cellRenderers.get('EmptyCell');
-            }
-        }
-        return grid.cellRenderers.get(rendererName);
-    }
 };
 

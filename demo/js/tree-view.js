@@ -11,48 +11,39 @@ window.onload = function() {
         drillDown = Hypergrid.drillDown,
         rowById = Hypergrid.rowById,
         TreeView = Hypergrid.TreeView,
-        dataModelPrototype = Hypergrid.dataModels.JSON.prototype,
-        pipelineOptions = {
+        DataModel = Hypergrid.dataModels.JSON,
+        options = {
+            treeColumn: 'State', // groupColumn defaults to treeColumn by default
             includeSorter: true,
-            includeFilter: true
-        },
-        options = { data: treeData, Behavior: fin.Hypergrid.behaviors.JSON },
-        shared = true; // operate on shared (prototype) pipeline vs. own (instance)
+            includeFilter: true,
+            hideIdColumns: true
+        };
 
     // Install the drill-down API (optional, to play with in console).
-    drillDown.mixInTo(dataModelPrototype);
+    drillDown.mixInTo(DataModel.prototype);
 
     // Install the row-by-id API (optional, to play with treeviewAPI.deleteRowById in console, which needs it).
-    rowById.mixInTo(dataModelPrototype);
+    rowById.mixInTo(DataModel.prototype);
 
     grid = new Hypergrid('div#tree-example');
-    grid.setBehavior(options);
+    grid.setBehavior({
+        data: treeData,
+        Behavior: fin.Hypergrid.behaviors.JSON
+    });
 
-    if (shared) {
-        // Mutate shared pipeline (avoids calling setData twice).
-        dataModelPrototype.grid = grid;
-        pipelineOptions.dataModelPrototype = dataModelPrototype;
-        TreeView.prototype.setPipeline(pipelineOptions);
-    }
-
+    // show filter row as per `options`
     grid.setState({
-        showFilterRow: pipelineOptions.includeFilter
+        showFilterRow: options.includeFilter && grid.behavior.getGlobalFilter().columnFilters
     });
 
     grid.behavior.setColumnProperties(grid.behavior.columnEnum.STATE, {
         halign: 'left'
     });
 
-    var treeViewOptions = { treeColumn: 'State' }; // groupColumn option defaults to treeColumn (or its default)
-    treeviewAPI = new TreeView(grid, treeViewOptions);
-
-    if (!shared) {
-        // Mutate instance pipeline (calls setData again to rebuild pipeline).
-        treeviewAPI.setPipeline(pipelineOptions);
-    }
+    treeviewAPI = new TreeView(grid, options);
 
     document.querySelector('input[type=checkbox]').onclick = function() {
-        treeviewAPI.setRelation(this.checked, true);
+        treeviewAPI.setRelation(this.checked);
     };
 };
 

@@ -30,14 +30,19 @@ var FilterBox = ComboBox.extend('FilterBox', {
 
         // look in the filter, under column filters, for a column filter for this column
         var root = this.grid.getGlobalFilter(),
-            columnName = this.column.name,
-            columnFilters = root.columnFilters,
+            columnFilters = root.columnFilters;
+
+        if (!columnFilters) {
+            throw 'Column filters not available.';
+        }
+
+        var columnName = this.column.name,
             columnFilterSubtree = root.getColumnFilter(columnName) || {},
             columnSchema = root.schema.lookup(columnName) || {};
 
 
         // get the operator list from the node, schema, typeOpMap, or root:
-        // (This mimics the code in FilterLeaf.js's `getOpMenu` function becauase the node may not exist yet.)
+        // (This mimics the code in FilterLeaf.js's `getOpMenu` function because the node may not exist yet.)
         this.opMenu =
 
             // pull operator list from column schema if available
@@ -57,7 +62,6 @@ var FilterBox = ComboBox.extend('FilterBox', {
             this.column.menuModes ||
 
             // ELSE try column filter's `menuModes` WHEN available
-            columnFilterSubtree.menuModes ||
             columnFilterSubtree.menuModes ||
 
             // try use column schema's `menuModes` when defined

@@ -10,28 +10,26 @@ window.onload = function() {
     var Hypergrid = fin.Hypergrid,
         drillDown = Hypergrid.drillDown,
         TreeView = Hypergrid.TreeView,
-        dataModelPrototype = Hypergrid.dataModels.JSON.prototype,
-        pipelineOptions = {
+        DataModel = Hypergrid.dataModels.JSON,
+        options = {
+            // In order for the the State column not to sort the leaves (city names), we want it to use the "depth sorter" rather than the regular sorter used by the other columns. To make this work, the column does need to be called out when it differs from the tree (drill-down) column. In this demo, the tree column (containing the drill-down controls) is called name, which is the default. The `groupColumn` option normally defaults to whatever the `treeColumn` is set to but in this case we use it to call out the State column.
+            groupColumn: 'State',
             includeSorter: true,
-            includeFilter: true
-        },
-        options = { data: treeData, Behavior: fin.Hypergrid.behaviors.JSON },
-        shared = true; // operate on shared (prototype) pipeline vs. own (instance)
+            includeFilter: true,
+            hideIdColumns: true
+        };
 
     // Install the drill-down API (optional).
-    drillDown.mixInTo(dataModelPrototype);
+    drillDown.mixInTo(DataModel.prototype);
 
     // Add a blank column.
     treeData.forEach(function(dataRow) { dataRow.name = ''; });
-    grid = new Hypergrid('div#tree-example');
-    grid.setBehavior(options);
 
-    if (shared) {
-        // Mutate shared pipeline (avoids calling setData twice).
-        dataModelPrototype.grid = grid;
-        pipelineOptions.dataModelPrototype = dataModelPrototype;
-        TreeView.prototype.setPipeline(pipelineOptions);
-    }
+    grid = new Hypergrid('div#tree-example');
+    grid.setBehavior({
+        data: treeData,
+        Behavior: fin.Hypergrid.behaviors.JSON
+    });
 
     var idx = grid.behavior.columnEnum;
 
@@ -45,9 +43,7 @@ window.onload = function() {
         halign: 'left'
     });
 
-    // In order for the the State column to not sort the leaves (city names), we want it to use the "depth sorter" rather than the regular sorter used by the other columns. To make this work, the column does need to be called out when it differs from the tree (drill-down) column. In this demo, those columns are separate. We do this using the groupColumn (which normally defaults to whatever the tree column is set to).
-    var treeViewOptions = { groupColumn: 'State' },
-        treeView = new TreeView(grid, treeViewOptions),
+    var treeView = new TreeView(grid, options),
         dd = treeView.drillDown = {};
 
     if (!shared) {

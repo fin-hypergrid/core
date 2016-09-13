@@ -2,7 +2,6 @@
 
 var Behavior = require('./Behavior');
 var DataModelJSON = require('../dataModels/JSON');
-var ColumnSchemaFactory = require('../filter/ColumnSchemaFactory');
 var features = require('../features');
 
 /**
@@ -21,7 +20,7 @@ var JSON = Behavior.extend('behaviors.JSON', {
      * @memberOf behaviors.JSON.prototype
      */
     initialize: function(grid, options) {
-        this.setData(options.data, options);
+        this.setData(options);
 
         if (options.pipeline) {
             this.setPipeline(options.pipeline);
@@ -110,48 +109,92 @@ var JSON = Behavior.extend('behaviors.JSON', {
         this.dataModel.setFields(fieldNames);
         this.createColumns();
     },
+
     /**
+     * @see {@link dataModels.JSON#setPipeline}
+     * @param {object} [DataSources] - New pipeline description. _(See {@link dataModels.JSON#setPipeline}.)_
+     * @param {object} [options] - Takes first argument position when `DataSources` omitted. _(See {@link dataModels.JSON#setPipeline}.)_
+     * @param {boolean} [options.apply=true] Apply data transformations to the new data.
      * @memberOf behaviors.JSON.prototype
-     * @param {object} [pipelines] - _(See {@link dataModels.JSON#setPipeline}.)_
      */
-    setPipeline: function(pipelines) {
-        this.dataModel.setPipeline(pipelines);
-        //Only do this once. Code is temporary until filtering is externalized
-        this.setGlobalFilter(this.getNewFilter());
+    setPipeline: function(DataSources, options) {
+        if (!Array.isArray(DataSources)) {
+            options = DataSources;
+            DataSources = undefined;
+        }
+
+        this.dataModel.setPipeline(DataSources, options);
+
+        if (!options || options.apply === undefined || options.apply) {
+            this.applyAnalytics();
+        }
+    },
+
+    /**
+     * Pop pipeline stack.
+     * @see {@link dataModels.JSON#unstashPipeline}
+     * @param {string} [whichStash]
+     * @param {object} [options] - Takes first argument position when `DataSources` omitted.
+     * @param {boolean} [options.apply=true] Apply data transformations to the new data.
+     */
+    unstashPipeline: function(stash, options) {
+        if (typeof stash === 'object') {
+            options = stash;
+            stash = undefined;
+        }
+
+        this.dataModel.unstashPipeline(stash);
+
+        if (!options || options.apply === undefined || options.apply) {
+            this.applyAnalytics();
+        }
     },
 
     /**
      * @memberOf behaviors.JSON.prototype
      * @description Set the data field.
-     * @param {function|object[]} [dataRows] - Array of uniform objects containing the grid data. If omitted, the previous data source will be re-used.
-     * @param {object} [options]
-     * @param {function|object} [options.fields] - Array of field names. Passed as 2nd param to `this.dataModel.setData`. If omitted (along with `dataSource`), the previous fields array will be re-used.
-     * @param {function|object} [options.schema=deriveSchema] - Used in filter instantiation.
+     * @param {function|object[]} [dataRows=options.data] - Array of uniform objects containing the grid data.
+     * @param {object} [options] - Takes first argument position when `dataRows` omitted.
+     * @param {function|object} [options.data] - Array of uniform data objects or function returning same.
+     * Passed as 1st param to {@link dataModel.JSON#setData}. If falsy, method aborted.
+     * @param {function|object} [options.fields] - Array of field names or function returning same.
+     * Passed as 2nd param to {@link dataModel.JSON#setData}.
+     * @param {function|object} [options.calculators] - Array of calculators or function returning same.
+     * Passed as 3rd param to {@link dataModel.JSON#setData}.
+     * @param {boolean} [options.apply=true] Apply data transformations to the new data.
      */
     setData: function(dataRows, options) {
-        options = options || {};
-        var self = this,
-            grid = this.grid,
-            fields = options && options.fields,
-            calculators = options && options.calculators;
+        if (!(Array.isArray(dataRows) || typeof dataRows === 'function')) {
+            options = dataRows;
+            dataRows = options && options.data;
+        }
 
-        fields = typeof fields === 'function' ? fields() : fields;
-        calculators = typeof calculators === 'function' ? calculators() : calculators;
-        dataRows = typeof dataRows === 'function' ? dataRows() : dataRows;
+        dataRows = this.unwrap(dataRows);
+
+        if (dataRows === undefined)  {
+            return;
+        }
+
         if (!Array.isArray(dataRows)) {
             throw 'Data is not an array';
         }
-        this.dataModel.setData(dataRows, fields, calculators);
+
+        options = options || {};
+
+        var self = this,
+            grid = this.grid;
+
+        this.dataModel.setData(
+            dataRows,
+            this.unwrap(options.fields),
+            this.unwrap(options.calculators)
+        );
+
         this.createColumns();
-
-        this.schema = options && options.schema || deriveSchema;
-
 
         if (grid.cellEditor) {
             grid.cellEditor.cancelEditing();
         }
-
-        dataRows = dataRows || this.dataModel.source.data;
 
         if (grid.isColumnAutosizing()) {
             setTimeout(function() {
@@ -163,6 +206,10 @@ var JSON = Behavior.extend('behaviors.JSON', {
                 self.getColumn(-1).checkColumnAutosizing(true);
                 grid.allowEvents(dataRows.length);
             });
+        }
+
+        if (options.apply === undefined || options.apply) {
+            this.applyAnalytics();
         }
     },
 
@@ -279,12 +326,6 @@ var JSON = Behavior.extend('behaviors.JSON', {
     }
 
 });
-
-
-function deriveSchema() {
-    return new ColumnSchemaFactory(this.columns).schema;
-}
-
 
 //Logic to moved to adapter layer outside of Hypergrid Core
 function removeHiddenColumns(oldSorted, hiddenColumns){

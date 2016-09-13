@@ -6,7 +6,6 @@ var Base = require('../lib/Base');
 
 var Column = require('./Column');
 var dialogs = require('../dialogs');
-var DefaultFilter = require('../filter/DefaultFilter');
 
 var noExportProperties = [
     'columnHeader',
@@ -18,6 +17,11 @@ var noExportProperties = [
     'treeColumnProperties',
     'treeColumnPropertiesColumnSelection',
 ];
+
+var nullFilter = {
+    test: function() { return true; }, // all rows pass
+    setCaseSensitivity: function() {}
+};
 
 /**
  * @constructor
@@ -40,16 +44,13 @@ var Behavior = Base.extend('Behavior', {
          */
         this.grid = grid;
 
-        /**
-         * @type {DataModel}
-         * @memberOf Behavior.prototype
-         */
-        this.dataModel = this.getNewDataModel();
         this.initializeFeatureChain(grid);
 
         this.grid.behavior = this;
         this.reset();
     },
+
+    globalFilter: nullFilter,
 
     /**
      * @desc create the feature chain - this is the [chain of responsibility](http://c2.com/cgi/wiki?ChainOfResponsibilityPattern) pattern.
@@ -90,13 +91,22 @@ var Behavior = Base.extend('Behavior', {
     features: [], // override in implementing class unless no features
 
     reset: function() {
+        if (this.dataModel) {
+            this.dataModel.reset();
+        } else {
+            /**
+             * @type {DataModel}
+             * @memberOf Behavior.prototype
+             */
+            this.dataModel = this.getNewDataModel();
+        }
+
         this.renderedColumnCount = 30;
         this.renderedRowCount = 60;
         this.dataUpdates = {}; //for overriding with edit values;
         this.scrollPositionX = this.scrollPositionY = 0;
         this.clearColumns();
         this.clearState();
-        this.dataModel.reset();
         this.createColumns();
     },
 
@@ -1547,24 +1557,13 @@ var Behavior = Base.extend('Behavior', {
         }
     },
 
-    getNewFilter: function() {
-        var newFilter = new DefaultFilter({
-            schema: typeof this.schema === 'function' ? this.schema(this.columns) : this.schema,
-            caseSensitiveColumnNames: this.grid.resolveProperty('filterCaseSensitiveColumnNames'),
-            resolveAliases: this.grid.resolveProperty('filterResolveAliases'),
-            defaultColumnFilterOperator: this.grid.resolveProperty('filterDefaultColumnFilterOperator')
-        });
-        newFilter.loadColumnPropertiesFromSchema(this.columns);
-        return newFilter;
-    },
-
     /**
      * @summary Get a reference to the filter attached to the Hypergrid.
      * @returns {FilterTree}
      * @memberOf Behavior.prototype
      */
     getGlobalFilter: function() {
-        return this.dataModel.getGlobalFilter();
+        return this.globalFilter;
     },
 
     /**
@@ -1573,6 +1572,7 @@ var Behavior = Base.extend('Behavior', {
      * @memberOf Behavior.prototype
      */
     setGlobalFilter: function(filter) {
+        this.globalFilter = filter;
         this.dataModel.setGlobalFilter(filter);
     },
 

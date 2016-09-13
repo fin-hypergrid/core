@@ -27,21 +27,27 @@ describe('Base', function(){
             expect(typeof(myConstructor)).to.equal('function');
         });
 
-        it('Should extend with HypergridError', function() {
-            var base = require('../src/lib/Base');
-            var MyConstructor = base.extend('MyConstructor', {a:'a'});
-            var myObject = new MyConstructor();
+        describe('Should extend with', function() {
+            var base, MyConstructor, myObject;
+            beforeEach(function() {
+                base = require('../src/lib/Base');
+                MyConstructor = base.extend('MyConstructor', {a:'a'});
+                myObject = new MyConstructor();
+            });
 
-            expect(typeof(myObject.HypergridError)).to.equal('function');
+            it('Should extend with HypergridError', function() {
+                expect(typeof(myObject.HypergridError)).to.equal('function');
+            });
+
+            it('Should extend with deprecated', function(){
+                expect(typeof(myObject.deprecated)).to.equal('function');
+            });
+
+            it('Should extend with unwrap', function(){
+                expect(typeof(myObject.unwrap)).to.equal('function');
+            });
         });
 
-        it('Should extend with deprecated', function(){
-            var base = require('../src/lib/Base');
-            var MyConstructor = base.extend('MyConstructor', {a:'a'});
-            var myObject = new MyConstructor();
-
-            expect(typeof(myObject.deprecated)).to.not.be.an('undefined');
-        });
     });
 
     describe('HypergridError', function(){

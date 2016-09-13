@@ -30,7 +30,7 @@ var themeInitialized = false,
  * @param {string|Element} [container] - CSS selector or Element
  * @param {object} [options]
  * @param {function} [options.Behavior=behaviors.JSON] - A behavior constructor or instance
- * @param {function []} [options.pipeline] - A list function constructors to use for passing data through a series of transforms to occur on applyAnalytics call
+ * @param {function[]} [options.pipeline] - A list function constructors to use for passing data through a series of transforms to occur on applyAnalytics call
  * @param {function|object[]} [options.data] - Passed to behavior constructor. May be:
  * * An array of congruent raw data objects
  * * A function returning same
@@ -94,12 +94,9 @@ function Hypergrid(container, options) {
     container = container || findOrCreateContainer(this.options.boundingRect);
     this.setContainer(container);
 
-    var Behavior = this.options.Behavior;
-    if (Behavior) {
+    if (this.options.Behavior) {
         this.setBehavior(this.options);
     }
-
-    this.constructed = true;
 }
 
 Hypergrid.prototype = {
@@ -717,16 +714,15 @@ Hypergrid.prototype = {
      * @param {object} options - _(See {@link behaviors.JSON#setData}.)_
      * @param {Behavior} options.behavior - The behavior (model) can be either a constructor or an instance.
      * @param {object[]} [options.data] - _(See {@link behaviors.JSON#setData}.)_
+     * @param {pipelineSchema} [options.pipeline] - New pipeline description.
      */
     setBehavior: function(options) {
         options = options || this.options;
-        var behavior = options.Behavior;
-        if (typeof behavior === 'function'){
-            behavior = new behavior(this, options);  // eslint-disable-line
-        }
-        this.behavior = behavior;
-        initCanvasAndScrollBars.call(this);
+        this.behavior = new options.Behavior(this, options);
+        this.initCanvas();
+        this.initScrollbars();
         this.refreshProperties();
+        this.behavior.applyAnalytics();
     },
 
     /**
@@ -746,22 +742,47 @@ Hypergrid.prototype = {
 
     /**
      * @memberOf Hypergrid.prototype
-     * @param {object} [pipelines] - _(See {@link dataModels.JSON#setPipeline}.)_
+     * @param {object} [pipelines] - New pipeline description. _(See {@link dataModels.JSON#setPipeline}.)_
+     * @param {object} [options] - _(See {@link dataModels.JSON#setPipeline}.)_
      */
-    setPipeline: function(pipelines){
-        this.behavior.setPipeline(pipelines);
+    setPipeline: function(DataSources, options){
+        this.behavior.setPipeline(DataSources, options);
     },
+
     /**
      * @memberOf Hypergrid.prototype
      * @desc I've been notified that the behavior has changed.
      */
     behaviorChanged: function() {
-        if (this.numColumns !== this.getColumnCount() || this.numRows !== this.getRowCount()) {
-            this.numColumns = this.getColumnCount();
-            this.numRows = this.getRowCount();
-            this.behaviorShapeChanged();
-        } else {
-            this.behaviorStateChanged();
+        if (this.divCanvas) {
+            if (this.numColumns !== this.getColumnCount() || this.numRows !== this.getRowCount()) {
+                this.numColumns = this.getColumnCount();
+                this.numRows = this.getRowCount();
+                this.behaviorShapeChanged();
+            } else {
+                this.behaviorStateChanged();
+            }
+        }
+    },
+
+    /**
+     * @memberOf Hypergrid.prototype
+     * @desc The dimensions of the grid data have changed. You've been notified.
+     */
+    behaviorShapeChanged: function() {
+        if (this.divCanvas) {
+            this.synchronizeScrollingBoundries();
+        }
+    },
+
+    /**
+     * @memberOf Hypergrid.prototype
+     * @desc The dimensions of the grid data have changed. You've been notified.
+     */
+    behaviorStateChanged: function() {
+        if (this.divCanvas) {
+            this.computeCellsBounds();
+            this.repaint();
         }
     },
 
@@ -784,23 +805,6 @@ Hypergrid.prototype = {
         var prop = this.getProperties();
         while (keys.length) { prop = prop[keys.shift()]; }
         return prop;
-    },
-
-    /**
-     * @memberOf Hypergrid.prototype
-     * @desc The dimensions of the grid data have changed. You've been notified.
-     */
-    behaviorShapeChanged: function() {
-        this.synchronizeScrollingBoundries();
-    },
-
-    /**
-     * @memberOf Hypergrid.prototype
-     * @desc The dimensions of the grid data have changed. You've been notified.
-     */
-    behaviorStateChanged: function() {
-        this.computeCellsBounds();
-        this.repaint();
     },
 
     repaint: function() {
@@ -838,7 +842,7 @@ Hypergrid.prototype = {
     setContainer: function(div) {
         this.initContainer(div);
         this.initRenderer();
-        injectGridElements.call(this);
+        // injectGridElements.call(this);
     },
     /**
      * @memberOf Hypergrid.prototype
@@ -874,21 +878,27 @@ Hypergrid.prototype = {
      * @summary Initialize drawing surface.
      * @private
      */
-    initCanvas: function(margin) {
+    initCanvas: function() {
+        if (this.divCanvas) {
+            return;
+        }
 
-        var self = this;
+        var self = this,
+            margin = this.options.margin || {},
+            divCanvas = this.divCanvas = document.createElement('div'),
+            style = divCanvas.style;
 
-        var divCanvas = this.divCanvas = document.createElement('div');
+        style.position = 'absolute';
+        style.top = margin.top || 0;
+        style.right = margin.right || 0;
+        style.bottom = margin.bottom || 0;
+        style.left = margin.left || 0;
+
         this.div.appendChild(divCanvas);
+
         this.canvas = new Canvas(divCanvas, this.renderer);
         this.canvas.canvas.classList.add('hypergrid');
-
-        var style = divCanvas.style;
-        style.position = 'absolute';
-        style.top = margin.top;
-        style.right = margin.right;
-        style.bottom = margin.bottom;
-        style.left = margin.left;
+        this.canvas.resize();
 
         this.canvas.resizeNotification = function() {
             self.resized();
@@ -1054,9 +1064,7 @@ Hypergrid.prototype = {
             this.behavior.featureChain.detachChain();
         }
 
-        if (this.constructed) {
-            this.behavior.changed();
-        }
+        this.behavior.changed();
     },
 
     /**
@@ -2124,7 +2132,6 @@ Hypergrid.prototype = {
         this.div.appendChild(vertBar.bar);
 
         this.resizeScrollbars();
-
     },
 
     resizeScrollbars: function() {
@@ -3132,7 +3139,6 @@ Hypergrid.prototype = {
     setGlobalFilterCaseSensitivity: function(isSensitive) {
         // this setting affects all grids
         this.behavior.setGlobalFilterCaseSensitivity(isSensitive);
-        this.computeCellsBounds();
         this.behaviorChanged();
     },
 
@@ -3411,35 +3417,6 @@ function findOrCreateContainer(boundingRect) {
     if (boundingRect.right) { div.style.right = boundingRect.right; }
     document.body.appendChild(div);
     return div;
-}
-
-/**
-* @this {Hypergrid}
-*/
-function initCanvasAndScrollBars() {
-    if (!this.divCanvas) {
-        var margin = this.options.margin || {};
-        margin.top = margin.top || 0;
-        margin.right = margin.right || 0;
-        margin.bottom = margin.bottom || 0;
-        margin.left = margin.left || 0;
-        this.initCanvas(margin);
-    }
-    this.initScrollbars();
-    injectGridElements.call(this);
-}
-/**
- * @this {Hypergrid}
- */
-function injectGridElements() {
-    if (this.divCanvas) {
-        this.div.appendChild(this.divCanvas);
-        this.getCanvas().resize();
-    }
-    if (this.sbHScroller && this.sbVScroller) {
-        this.div.appendChild(this.sbHScroller.bar);
-        this.div.appendChild(this.sbVScroller.bar);
-    }
 }
 
 

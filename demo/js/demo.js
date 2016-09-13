@@ -17,6 +17,20 @@ window.onload = function() {
     // Install the drill-down API (optional).
     drillDown.mixInTo(Hypergrid.dataModels.JSON.prototype);
 
+    /**
+     * Options passed to `DefaultFilter` constructor.
+     * @property {menuItem[]} schema
+     * @property {boolean} [options.caseSensitiveColumnNames]
+     * @property {boolean} [options.resolveAliases]
+     * @property {string} [options.defaultColumnFilterOperator]
+     */
+    var filterOptions = {
+        caseSensitive: true,
+        caseSensitiveColumnNames: true,
+        resolveAliases: false,
+        defaultColumnFilterOperator: '' // blank means use default ('=')
+    };
+
     // List of properties to show as checkboxes in this demo's "dashboard"
     var toggleProps = [
         {
@@ -63,29 +77,32 @@ window.onload = function() {
             label: 'Filtering',
             ctrls: [
                 {
-                    name: '(Global setting)',
+                    name: 'filterOptions.caseSensitive',
                     label: 'case-sensitive operand',
-                    checked: true,
+                    checked: filterOptions.caseSensitive,
                     tooltip: 'Check to match case of operand and data in string comparisons. This is a shared property and instantly affects all grids.',
                     setter: toggleCaseSensitivity
                 },
                 {
-                    name: 'filterCaseSensitiveColumnNames',
+                    name: 'filterOptions.caseSensitiveColumnNames',
                     label: 'case-sensitive schema',
+                    checked: filterOptions.caseSensitiveColumnNames,
                     tooltip: 'Check to match case of filter column names. Resets filter.',
                     setter: resetFilterWithNewPropValue
                 },
                 {
-                    name: 'filterResolveAliases',
+                    name: 'filterOptions.resolveAliases',
                     label: 'resolve aliases',
+                    checked: filterOptions.resolveAliases,
                     tooltip: 'Check to allow column headers to be used in filters in addition to column names. Resets filter.',
                     setter: resetFilterWithNewPropValue
                 },
                 {
                     type: 'text',
-                    name: 'filterDefaultColumnFilterOperator',
+                    name: 'filterOptions.defaultColumnFilterOperator',
                     label: 'Default column filter operator:',
-                    tooltip: 'May be overridden by column schema\'s `defaultOp`. Blank means use the fall-back default ("=").',
+                    checked: filterOptions.defaultColumnFilterOperator,
+                    tooltip: 'May be overridden by column schema\'s `defaultOp`. Blank means use the default ("=").',
                     setter: resetFilterWithNewPropValue
                 }
             ]
@@ -123,7 +140,6 @@ window.onload = function() {
 
     var gridOptions = {
             data: people1,
-            schema: peopleSchema,
             margin: { bottom: '17px' },
             Behavior: fin.Hypergrid.behaviors.JSON
         },
@@ -131,6 +147,8 @@ window.onload = function() {
         behavior = window.b = grid.behavior,
         dataModel = window.m = behavior.dataModel,
         idx = behavior.columnEnum;
+
+    setGlobalFilter();
 
     console.log('Fields:');  console.dir(behavior.dataModel.getFields());
     console.log('Headers:'); console.dir(behavior.dataModel.getHeaders());
@@ -145,6 +163,7 @@ window.onload = function() {
         }
         dataset = data;
         behavior.setData(data, options);
+        setGlobalFilter();
         idx = behavior.columnEnum;
         behavior.applyAnalytics();
     }
@@ -216,14 +235,15 @@ window.onload = function() {
 
     function toggleTreeview() {
         if (this.checked) {
-            treeView = new TreeView(grid, { treeColumn: 'State' });
-            treeView.setPipeline({ includeSorter: true, includeFilter: true });
+            treeView = treeView || new TreeView(grid, {
+                treeColumn: 'State',
+                includeSorter: true,
+                includeFilter: true,
+                hideIdColumns: true
+            });
             treeView.setRelation(true, true);
         } else {
             treeView.setRelation(false);
-            treeView = undefined;
-            delete dataModel.pipeline; // restore original (shared) pipeline
-            behavior.setPipeline(); // reset with original pipeline
         }
     }
 
@@ -1094,8 +1114,6 @@ window.onload = function() {
             format: 'francs'
         });
 
-        resetFilter(); // re-instantiate filter using new property settings
-
         console.log('visible rows = ' + grid.getVisibleRows());
         console.log('visible columns = ' + grid.getVisibleColumns());
 
@@ -1240,9 +1258,23 @@ window.onload = function() {
     }
 
     function resetFilterWithNewPropValue() {
-        if (confirm('Filter reset required...')) {
-            setProp.call(this);
-            resetFilter();
+        var confirmed = confirm('Filter reset required...'),
+            value;
+
+        if (confirmed) {
+            switch (this.type) {
+                case 'text':
+                    value = this.value;
+                    this['data-was'] = value; // save for possible future user cancel
+                    break;
+                case 'checkbox':
+                    value = this.checked;
+                    break;
+            }
+            filterOptions[this.id] = value;
+            setGlobalFilter();
+            grid.behaviorChanged();
+            grid.repaint();
         } else {
             switch (this.type) {
                 case 'text':
@@ -1256,8 +1288,13 @@ window.onload = function() {
         }
     }
 
-    function resetFilter() {
-        grid.setGlobalFilter(grid.behavior.getNewFilter());
+    function setGlobalFilter() {
+        // if (!filterOptions.schema) {
+            filterOptions = filterOptions || {};
+            filterOptions.schema = new Hypergrid.ColumnSchemaFactory(behavior.columns).schema;
+        // }
+        var newFilter = new Hypergrid.DefaultFilter(filterOptions);
+        grid.setGlobalFilter(newFilter);
     }
 
     function redIfStartsWithS(dataRow, columnName) {

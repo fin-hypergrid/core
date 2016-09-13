@@ -8,55 +8,42 @@
  * @classdesc This is a simple helper class to set up the group-view data source in the context of a hypergrid.
  *
  * It includes methods to:
- * * Insert `DataSourceGroupview` into the data model's pipeline
- * * Perform the column grouping and rebuild the index to turn the view on or off (`setRelation`).
+ * * Build a new pipeline with `DataSourceGroupView` and appropriate sorter and filter.
+ * * Perform the column grouping and rebuild the index to turn the group-view on or off (`setRelation`).
  *
- * @param {object}
+ * @see {@link http://openfin.github.io/hyper-analytics/DataSourceGroupView.html#setGroups}
+ *
+ * @param {Hypergrid} grid
+ * @param {object} [options]
+ * @param {number[]} [options.groups] - Used by {@link GroupView#setGroups} as a default. See also `DataSourceGroupView.prototype.setGroups`.
+ * @param {boolean} [options.includeFilter=false] - Enables filtering. Includes a filter data source. The filter row is hidden if falsy.
+ * @param {boolean} [options.includeSorter=false] - Enables sorting. Includes the specialized group sorter data source.
  * @constructor
  */
-function GroupView(grid) {
-    var self = this;
+function GroupView(grid, options) {
     this.grid = grid;
+    this.options = options || {};
+}
 
-    var G = Object.getPrototypeOf(this.grid),
-        B = Object.getPrototypeOf(this.grid.behavior),
-        DM = Object.getPrototypeOf(this.grid.behavior.dataModel);
+GroupView.prototype = {
+    constructor: GroupView.prototype.constructor,
 
-    G.setGroups = function(arrayOfColumnIndexes) {
-        this.behavior.setGroups(arrayOfColumnIndexes);
-    }.bind(this.grid);
+    fireSyntheticGroupsChangedEvent: function() {
+        this.grid.canvas.dispatchEvent(new CustomEvent('fin-groups-changed', {
+            detail: {
+                groups: this.getGroups(),
+                time: Date.now(),
+                grid: this
+            }
+        }));
+    },
 
-    G.fireSyntheticGroupsChangedEvent = function(groups) {
-        var detail = {
-            groups: groups,
-            time: Date.now(),
-            grid: this
-        };
-        var clickEvent = new CustomEvent('fin-groups-changed', {
-            detail: detail
-        });
-        this.canvas.dispatchEvent(clickEvent);
-    }.bind(this.grid);
-
-    B.setGroups = function(arrayOfColumnIndexes) {
-        this.dataModel.setGroups(arrayOfColumnIndexes);
-        this.createColumns();
-        this.changed();
-    }.bind(this.grid.behavior);
-
-    B.getGroups = function() {
-        return this.dataModel.getGroups();
-    }.bind(this.grid.behavior);
-
-    B.getAvailableGroups = function() {
-        return this.dataModel.getAvailableGroups();
-    }.bind(this.grid.behavior);
-
-    DM.getGroups = function() {
-        var headers = this.getHeaders().slice(1); //Exclude the tree column
-        var fields = this.getFields().slice(0);
-        var groupBys = this.sources.groupview.groupBys;
-        var groups = [];
+    getGroups: function() {
+        var dataModel = this.grid.behavior.dataModel,
+            headers = dataModel.getHeaders().slice(1), //Exclude the tree column
+            fields = dataModel.getFields().slice(0),
+            groupBys = dataModel.sources.groupview.groupBys,
+            groups = [];
         for (var i = 0; i < groupBys.length; i++) {
             var field = headers[groupBys[i]];
             groups.push({
@@ -66,19 +53,13 @@ function GroupView(grid) {
             });
         }
         return groups;
-    }.bind(this.grid.behavior.dataModel);
+    },
 
-    DM.setGroups = function(groups) {
-        this.sources.groupview.setGroupBys(groups);
-        self.setRelation(groups);
-        this.grid.fireSyntheticGroupsChangedEvent(this.getGroups());
-    }.bind(this.grid.behavior.dataModel);
-
-
-    DM.getAvailableGroups = function() {
-        var headers = this.sources.source.getHeaders().slice(0);
-        var groupBys = this.sources.groupview.groupBys;
-        var groups = [];
+    getAvailableGroups: function() {
+        var dataModel = this.grid.behavior.dataModel,
+            headers = dataModel.source.getHeaders().slice(0),
+            groupBys = dataModel.sources.groupview.groupBys,
+            groups = [];
         for (var i = 0; i < headers.length; i++) {
             if (groupBys.indexOf(i) === -1) {
                 var field = headers[i];
@@ -90,67 +71,72 @@ function GroupView(grid) {
             }
         }
         return groups;
-    }.bind(this.grid.behavior.dataModel);
-
-}
-
-GroupView.prototype = {
-    constructor: GroupView.prototype.constructor,
-
-    /**
-     * @summary Reconfigure the dataModel's pipeline for group view.
-     * @desc The pipeline is reset starting with Hypergrid's DataSourceOrigin
-     *
-     * The group view data source is added.
-     * Then the group view filter is added as requested.
-     * Finally the group view group sorter source is added.
-     *
-     * This method can operate on either:
-     * * A data model prototype, which will affect all data models subsequently created therefrom. The prototype must be given in `options.dataModelPrototype`.
-     * * The current data model instance. In this case, the instance is given its own new pipeline.
-     *
-     * @param {object} [options]
-     * @param {object} [options.dataModelPrototype] - Adds the pipes to the given object. If omitted, this must be an instance; adds the pipes to a new "own" pipeline created from the first data source of the instance's old pipeline.
-     */
-    setPipeline: function(options) {
-        options = options || {};
-
-        var amInstance = this instanceof GroupView,
-            dataModel = options.dataModelPrototype || amInstance && this.grid.behavior.dataModel,
-            pipelines = [];
-        if (!dataModel) {
-            throw 'Expected dataModel.';
-        }
-        if (options.dataModelPrototype) {
-            // operating on prototype
-            dataModel.truncatePipeline();
-        } else {
-            // operating on an instance: create a new "own" pipeline
-            dataModel.pipeline = [];
-        }
-        if (options.includeFilter) {
-            pipelines.push(window.fin.Hypergrid.analytics.DataSourceGlobalFilter);
-        }
-        pipelines.push(window.fin.Hypergrid.analytics.DataSourceGroupView);
-
-        if (options.includeSorter) {
-            pipelines.push(window.fin.Hypergrid.analytics.DataNodeGroupSorter);
-        }
-        dataModel.grid.behavior.setPipeline(pipelines);
     },
 
     /**
      * @summary Build/unbuild the group view.
-     * @param {boolean} groups - Turn group-view **ON**. If falsy (or omitted), turn it **OFF**.
-     * @returns {boolean} View State.
+     * @desc Sets up grouping on the table using the options given to the constructor (see above).
+     *
+     * Reconfigures the data model's data pipeline for group view; restores it when ungrouped.
+     *
+     * Also saves and restores some grid properties:
+     * * Tree column is made non-editable.
+     * * Tree column is made non-selectable so clicking drill-down controls doesn't select the cell.
+     * * Row are made selectable by clicking in row handles only so clicking drill-down controls doesn't select the row.
+     *
+     * @param {number[]} [groups=this.options.groups] - One of:
+     * * Non-empty array: Turn group-view **ON** using the supplied group list.
+     * * Empty array (`[]`): Turn group-view **OFF**.
+     *
+     * @returns {boolean} Grouped state.
      */
-    setRelation: function(groups) {
-        var behavior = this.grid.behavior,
-            dataModel = behavior.dataModel,
-            dataSource = dataModel.sources.groupview,
-            grouped = !!groups.length,
-            state = behavior.getPrivateState(),
-            columnProps = behavior.getColumnProperties(dataSource.treeColumnIndex);
+    setGroups: function(groups) {
+        groups = groups || this.options.groups;
+
+        if (!groups) {
+            throw 'Expected a group list.';
+        }
+
+        var grouped = groups.length,
+            grid = this.grid,
+            behavior = grid.behavior,
+            dataModel = behavior.dataModel;
+
+        // 1. ON GROUPING: INSTALL GROUP-VIEW PIPELINE
+
+        if (grouped) {
+            var dataTransformers = window.fin.Hypergrid.analytics;
+            behavior.setPipeline([
+                this.options.includeFilter && dataTransformers.DataSourceGlobalFilter,
+                dataTransformers.DataSourceGroupView,
+                this.options.includeSorter && dataTransformers.DataNodeGroupSorter
+            ], {
+                stash: 'default',
+                apply: false // defer until after setGroupBys call below
+            });
+        }
+
+        // 2. PERFORM ACTUAL GROUPING OR UNGROUPING
+
+        var dataSource = dataModel.sources.groupview,
+            columnProps = behavior.getColumnProperties(dataSource.treeColumnIndex),
+            state = behavior.getPrivateState();
+
+        dataSource.setGroupBys(groups);
+
+        if (grouped) {
+            behavior.applyAnalytics(); // rows have changed
+
+            // 2a. ON GROUPING: OVERRIDE `getCell` TO FORCE `EmptyCell` RENDERER FOR PARENT ROWS
+            this.defaultGetCell = dataModel.getCell;
+            dataModel.getCell = getCell.bind(dataModel, this.defaultGetCell);
+        }
+
+        behavior.changed(); // number of rows changed
+        
+        this.fireSyntheticGroupsChangedEvent();
+
+        // 3. SAVE OR RESTORE SOME RENDER PROPERTIES
 
         if (grouped) {
             // save the current value of column's editable property and set it to false
@@ -163,19 +149,45 @@ GroupView.prototype = {
             // save value of grid's checkboxOnlyRowSelections property and set it to true so drill-down clicks don't select the row they are in
             this.checkboxOnlyRowSelectionsWas = state.checkboxOnlyRowSelections;
             state.checkboxOnlyRowSelections = true;
-
         } else {
+            // restore the saved render props
             columnProps.editable = this.editableWas;
             columnProps.cellSelection = this.cellSelectionWas;
             state.checkboxOnlyRowSelections = this.checkboxOnlyRowSelectionsWas;
+
+            // 3a. ON UNGROUPING: RESTORE PIPELINE
+            behavior.unstashPipeline();
+
+            // 3b. ON UNGROUPING: REMOVE `getCell` OVERRIDE
+            grid.behavior.dataModel.getCell = this.defaultGetCell;
         }
 
-        this.grid.selectionModel.clear();
-        this.grid.clearMouseDown();
+        grid.selectionModel.clear();
+        grid.clearMouseDown();
 
-        behavior.applyAnalytics();
         return grouped;
     }
 };
+
+/**
+ * Force `EmptyCell` renderer on parent rows.
+ * @this {DataModel} - bound above
+ * @param {function} defaultGetCell - bound above
+ * @param {object} config
+ * @param {string} rendererName
+ * @returns {CellRenderer}
+ */
+function getCell(defaultGetCell, config, rendererName) {
+    // First call the default getCell in case developer overrode it.
+    // This will decorate `config` and return a renderer which we might override below.
+    var cellRenderer = defaultGetCell.call(this, config, rendererName);
+
+    if (config.isUserDataArea && this.getRow(config.y).hasChildren) {
+        // Override renderer on parent rows
+        cellRenderer = this.grid.cellRenderers.get('EmptyCell');
+    }
+
+    return cellRenderer;
+}
 
 module.exports = GroupView;
