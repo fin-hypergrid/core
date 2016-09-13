@@ -8,7 +8,7 @@ var automat = require('automat');
 
 var Dialog = require('./Dialog');
 var markup = require('../../html');
-var copyInput = require('../lib/copy-input');
+var copyInput = require('../lib/DOM/copy-input');
 
 var tabProperties = {
     tableQB: {
