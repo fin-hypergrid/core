@@ -71,7 +71,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
 
     /**
      * @summary The default data sources for a new pipeline when none are give.
-     * @desc For now Filtering and Sorting are hardcoded in the grid.
+     * @desc For now Filtering is hardcoded in the grid.
      * In the future, this will likely be empty (unless overridden by application developer for his own purposes).
      * @type {pipelineSchema}
      * @memberOf dataModels.JSON.prototype
@@ -538,17 +538,19 @@ var JSON = DataModel.extend('dataModels.JSON', {
 
     /**
      * @memberOf dataModels.JSON.prototype
+     * @desc returns the columns that currently sorted and their intended direction of the sort
      */
     getSortedColumnIndexes: function() {
         var state = this.getPrivateState();
         state.sorts = state.sorts || [];
         return state.sorts;
     },
-    
+
     /**
      * @memberOf dataModels.JSON.prototype
      * @param index
      * @param returnAsString
+     * @desc Provides the unicode character used to denote visually if a column is a sorted state
      * @returns {*}
      */
     getSortImageForColumn: function(columnIndex) {
