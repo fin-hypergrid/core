@@ -133,7 +133,7 @@ GroupView.prototype = {
         }
 
         behavior.changed(); // number of rows changed
-        
+
         this.fireSyntheticGroupsChangedEvent();
 
         // 3. SAVE OR RESTORE SOME RENDER PROPERTIES

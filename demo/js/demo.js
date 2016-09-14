@@ -13,23 +13,12 @@ window.onload = function() {
     var TreeView = Hypergrid.TreeView;
     var GroupView = Hypergrid.GroupView;
     var AggView = Hypergrid.AggregationsView;
+    var Hyperfilter = Hypergrid.Hyperfilter;
+
+    var filterOptions = Hyperfilter.prototype;
 
     // Install the drill-down API (optional).
     drillDown.mixInTo(Hypergrid.dataModels.JSON.prototype);
-
-    /**
-     * Options passed to `DefaultFilter` constructor.
-     * @property {menuItem[]} schema
-     * @property {boolean} [options.caseSensitiveColumnNames]
-     * @property {boolean} [options.resolveAliases]
-     * @property {string} [options.defaultColumnFilterOperator]
-     */
-    var filterOptions = {
-        caseSensitive: true,
-        caseSensitiveColumnNames: true,
-        resolveAliases: false,
-        defaultColumnFilterOperator: '' // blank means use default ('=')
-    };
 
     // List of properties to show as checkboxes in this demo's "dashboard"
     var toggleProps = [
@@ -79,8 +68,8 @@ window.onload = function() {
                 {
                     name: 'filterOptions.caseSensitive',
                     label: 'case-sensitive operand',
-                    checked: filterOptions.caseSensitive,
-                    tooltip: 'Check to match case of operand and data in string comparisons. This is a shared property and instantly affects all grids.',
+                    checked: filterOptions.caseSensitiveData,
+                    tooltip: 'Check to match case of operand and data in string comparisons. This is a shared dynamic property that instantly affects all grids.',
                     setter: toggleCaseSensitivity
                 },
                 {
@@ -146,9 +135,10 @@ window.onload = function() {
         grid = window.g = new Hypergrid('div#json-example', gridOptions),
         behavior = window.b = grid.behavior,
         dataModel = window.m = behavior.dataModel,
-        idx = behavior.columnEnum;
+        idx = behavior.columnEnum,
+        hyperfilter = new Hyperfilter(grid);
 
-    setGlobalFilter();
+    resetGlobalFilter();
 
     console.log('Fields:');  console.dir(behavior.dataModel.getFields());
     console.log('Headers:'); console.dir(behavior.dataModel.getHeaders());
@@ -163,7 +153,7 @@ window.onload = function() {
         }
         dataset = data;
         behavior.setData(data, options);
-        setGlobalFilter();
+        resetGlobalFilter();
         idx = behavior.columnEnum;
         behavior.applyAnalytics();
     }
@@ -1076,6 +1066,7 @@ window.onload = function() {
         });
 
         behavior.setColumnProperties(idx.TOTAL_NUMBER_OF_PETS_OWNED, {
+            halign: 'center',
             format: 'number'
         });
 
@@ -1272,7 +1263,7 @@ window.onload = function() {
                     break;
             }
             filterOptions[this.id] = value;
-            setGlobalFilter();
+            resetGlobalFilter();
             grid.behaviorChanged();
             grid.repaint();
         } else {
@@ -1288,12 +1279,8 @@ window.onload = function() {
         }
     }
 
-    function setGlobalFilter() {
-        // if (!filterOptions.schema) {
-            filterOptions = filterOptions || {};
-            filterOptions.schema = new Hypergrid.ColumnSchemaFactory(behavior.columns).schema;
-        // }
-        var newFilter = new Hypergrid.DefaultFilter(filterOptions);
+    function resetGlobalFilter() {
+        var newFilter = hyperfilter.create(); // new filter with new derived column schema
         grid.setGlobalFilter(newFilter);
     }
 

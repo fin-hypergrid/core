@@ -8,12 +8,13 @@ var gulp        = require('gulp'),
     path        = require('path'),
     pipe        = require('multipipe');
 
-var name     = 'fin-hypergrid',
-    srcDir   = './src/',
-    testDir  = './test/',
-    jsFiles  = '**/*.js',
-    demoDir  = './demo/',
-    buildDir = demoDir + 'build/';
+var name        = 'fin-hypergrid',
+    srcDir      = './src/',
+    testDir     = './test/',
+    jsFiles     = '**/*.js',
+    addOnsDir   = './add-ons/',
+    demoDir     = './demo/',
+    buildDir    = demoDir + 'build/';
 
 //  //  //  //  //  //  //  //  //  //  //  //
 
@@ -22,7 +23,18 @@ gulp.task('test', test);
 gulp.task('doc', doc);
 gulp.task('beautify', beautify);
 gulp.task('images', swallowImages);
-gulp.task('browserify', browserify);
+gulp.task('browserify', browserify.bind(null,
+    name,
+    srcDir,
+    buildDir
+));
+gulp.task('browserify-hyperfilter', browserify.bind(null,
+    'hyper-filter',
+    addOnsDir + 'hyper-filter/',
+    buildDir + addOnsDir,
+    /\w+\.exports(\s*=)/,
+    'window.fin.Hypergrid.Hyperfilter$1'
+));
 gulp.task('reloadBrowsers', reloadBrowsers);
 gulp.task('serve', browserSyncLaunchServer);
 gulp.task('add-ons', addOns);
@@ -44,16 +56,17 @@ gulp.task('build', function(callback) {
         'css-templates',
         'test',
         'add-ons',
-        //'doc',
+        'browserify-hyperfilter',
         //'beautify',
         'browserify',
+        //'doc',
         callback
     );
 });
 
 gulp.task('watch', function () {
     gulp.watch([
-        './add-ons/*.js',
+        addOnsDir + jsFiles,
         srcDir + '**',
         '!' + srcDir + 'jsdoc/**',
         './css/*.css',
@@ -80,11 +93,11 @@ gulp.task('default', ['build', 'watch'], browserSyncLaunchServer);
 
 function lint() {
     return gulp.src([
-        './add-ons/*.js',
+        addOnsDir + jsFiles,
         srcDir + jsFiles,
         '!' + srcDir + '**/old/**/',
         demoDir + 'js/demo.js',
-	testDir + '**/*.js',
+        testDir + jsFiles,
         //'../../filter-tree/src/' + jsFiles // comment off this line and the one above when filter tree on npm
     ])
         .pipe($$.excludeGitignore())
@@ -94,30 +107,32 @@ function lint() {
 }
 
 function test(cb) {
-    return gulp.src(testDir + '**/*.js')
+    return gulp.src(testDir + jsFiles)
         .pipe($$.mocha({reporter: 'spec'}));
 }
 
 function beautify() {
-    return gulp.src([srcDir + jsFiles, testDir + '**/*.js'])
+    return gulp.src([srcDir + jsFiles, testDir + jsFiles])
         .pipe($$.beautify()) //apparent bug: presence of a .jsbeautifyrc file seems to force all options to their defaults (except space_after_anon_function which is forced to true) so I deleted the file. Any needed options can be included here.
         .pipe(gulp.dest(srcDir));
 }
 
-function browserify() {
+function browserify(name, srcDir, buildDir, a, b) {
     return gulp.src(srcDir + 'index.js')
         .pipe(
             $$.mirror(
                 pipe(
                     $$.rename(name + '.js'),
                     $$.browserify({ debug: true })
-                        .on('error', $$.util.log)
+                        .on('error', $$.util.log),
+                    $$.replace(a, b)
                 ),
                 pipe(
                     $$.rename(name + '.min.js'),
                     $$.browserify(),
                     $$.uglify()
-                        .on('error', $$.util.log)
+                        .on('error', $$.util.log),
+                    $$.replace(a, b)
                 )
             )
         )
@@ -212,26 +227,26 @@ function templates(folder) {
 }
 
 function addOns() {
-    return gulp.src('./add-ons/*.js')
+    return gulp.src(addOnsDir + '*.js')
     // Insert an IIFE around the code...
         .pipe($$.replace( // ...starting immediately following 'use strict' and...
             "'use strict';\n",
             "'use strict';\n(function() {"
         ))
         .pipe($$.replace( // ...ending after modules.exports.
-            /(module\.exports\s*=\s*)(\w+);/,
-            'window.fin.Hypergrid.$2 = $2;\n})();'
+            /\w+\.exports(\s*=\s*)(\w+);/,
+            'window.fin.Hypergrid.$2$1$2;\n})();'
         ))
         .pipe(
             $$.mirror(
                 pipe(
                     $$.rename(function (path) {
-                        path.basename = "add-ons/" + path.basename;
+                        path.basename = addOnsDir + path.basename;
                     })
                 ),
                 pipe(
                     $$.rename(function (path) {
-                        path.basename = "add-ons/" + path.basename + '.min';
+                        path.basename = addOnsDir + path.basename + '.min';
                     }),
                     $$.uglify() // minimize
                         .on('error', $$.util.log)

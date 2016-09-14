@@ -8,6 +8,7 @@ var grid;
 
 window.onload = function() {
     var Hypergrid = fin.Hypergrid,
+        Hyperfilter = Hypergrid.Hyperfilter,
         drillDown = Hypergrid.drillDown,
         AggregationsView = Hypergrid.AggregationsView,
         dataModelPrototype = Hypergrid.dataModels.JSON.prototype,
@@ -35,6 +36,9 @@ window.onload = function() {
         data:  window.people1,
         Behavior: fin.Hypergrid.behaviors.JSON
     });
+
+    var filterFactory = new Hyperfilter(grid);
+    grid.setGlobalFilter(filterFactory.create());
 
     // show filter row as per `options`
     grid.setState({

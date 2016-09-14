@@ -3,7 +3,6 @@
 'use strict';
 
 var popMenu = require('pop-menu');
-var Conditionals = require('../Shared').FilterTree.Conditionals;
 
 var ComboBox = require('./ComboBox');
 var prototype = require('./CellEditor').prototype;
@@ -83,9 +82,10 @@ var FilterBox = ComboBox.extend('FilterBox', {
             appendOptions: function(dropdown) {
                 if (!dropdown.length) {
                     // Various  operator options and/or optgroups vary per column based on `opMenu`.
+                    var opMenuGroups = this.grid.getGlobalFilter().opMenuGroups;
                     popMenu.build(dropdown, this.opMenu, {
                         group: function(groupName) {
-                            return Conditionals.groups[groupName];
+                            return opMenuGroups[groupName];
                         },
                         prompt: null
                     });

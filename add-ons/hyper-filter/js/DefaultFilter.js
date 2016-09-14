@@ -2,7 +2,7 @@
 
 var _ = require('object-iterators');
 
-var FilterTree = require('../Shared').FilterTree;
+var FilterTree = require('filter-tree');
 var ParserCQL = require('./parser-CQL');
 
 // Add a property `menuModes` to the tree, defaulting to `operators` as the only active mode

@@ -8,6 +8,7 @@ var grid;
 
 window.onload = function() {
     var Hypergrid = fin.Hypergrid,
+        Hyperfilter = Hypergrid.Hyperfilter,
         drillDown = Hypergrid.drillDown,
         TreeView = Hypergrid.TreeView,
         DataModel = Hypergrid.dataModels.JSON,
@@ -30,6 +31,9 @@ window.onload = function() {
         data: treeData,
         Behavior: fin.Hypergrid.behaviors.JSON
     });
+
+    var filterFactory = new Hyperfilter(grid);
+    grid.setGlobalFilter(filterFactory.create());
 
     var idx = grid.behavior.columnEnum;
 
