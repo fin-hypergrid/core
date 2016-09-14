@@ -252,14 +252,6 @@ Column.prototype = {
         _(current).extendOwn(properties);
     },
 
-    toggleSort: function(keys) {
-        this.dataModel.toggleSort(this.index, keys);
-    },
-
-    unSort: function(deferred) {
-        this.dataModel.unSortColumn(this.index, deferred);
-    },
-
     /**
      * This method determines the proposed cell editor name from the render properties. The algorithm is:
      * 1. `editor` render property (cell editor name)
