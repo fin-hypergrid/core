@@ -1549,20 +1549,6 @@ Hypergrid.prototype = {
         });
         this.canvas.dispatchEvent(clickEvent);
     },
-    /**
-     * @memberOf Hypergrid.prototype
-     * @param {number} c - grid column index.
-     * @param {string[]} keys
-     */
-    fireSyntheticColumnSortEvent: function(c, keys) {
-        var event = new CustomEvent('fin-column-sort', {
-            detail: {
-                column: c,
-                keys: keys
-            }
-        });
-        this.canvas.dispatchEvent(event);
-    },
 
     fireSyntheticEditorKeyUpEvent: function(inputControl, keyEvent) {
         var clickEvent = new CustomEvent('fin-editor-keyup', {

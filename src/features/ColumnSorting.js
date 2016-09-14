@@ -24,7 +24,6 @@ var ColumnSorting = Feature.extend('ColumnSorting', {
             !columnProperties.unsortable
         ) {
             grid.toggleSort(event.gridCell.x, event.primitiveEvent.detail.keys);
-            grid.fireSyntheticColumnSortEvent(event.gridCell.x, event.primitiveEvent.detail.keys);
         } else if (this.next) {
             this.next.handleDoubleClick(grid, event);
         }
