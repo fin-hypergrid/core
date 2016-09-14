@@ -238,6 +238,7 @@ var DefaultFilter = FilterTree.extend('DefaultFilter', {
      * CAUTION: This is the actual node object. Do not confuse it with the column filter _state_ object (for which see the {@link DefaultFilter#getColumnFilterState|getColumnFilterState()} method).
      * @param {string} columnName
      * @returns {undefined|DefaultFilter} Returns `undefined` if the column filter does not exist.
+     * @memberOf DefaultFilter.prototype
      */
     getColumnFilter: function(columnName) {
         return this.columnFilters.children.find(function(columnFilter) {

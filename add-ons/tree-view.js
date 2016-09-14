@@ -1,7 +1,29 @@
+/* eslint-env browser */
+
 'use strict';
-/* globals window */
 
 // NOTE: gulpfile.js's 'add-ons' task makes a copy of this file, altering the final line. The copy is placed in demo/build/add-ons/ along with a minified version. Both files are eventually deployed to http://openfin.github.io/fin-hypergrid/add-ons/. Neither file is saved to the repo.
+
+/** @typedef customDataSource
+ * @type {function|boolean}
+ * @summary One of:
+ * * A custom data source module (object constructor).
+ * * Truthy - Use a default data source object constructor.
+ * * Falsy - No datasource (exclude from pipeline).
+ * @memberOf TreeView
+ */
+
+/**
+ * @param {TreeView.customDataSource} dataSource - A custom data source object constructor *or* `true` to enable default *or* `false` to disable.
+ * @param {function} defaultDataSource - The default data source object constructor.
+ * @returns {function} Returns selected dataSource; or falsy `dataSource`.
+ * @memberOf TreeView
+ * @inner
+ */
+function include(dataSource, defaultDataSource) {
+    var isConstructor = typeof dataSource === 'function';
+    return isConstructor ? dataSource : dataSource && defaultDataSource;
+}
 
 /**
  * @classdesc This is a simple helper class to set up the tree-view data source in the context of a hypergrid.
@@ -18,8 +40,8 @@
  * @param {number|string} [options.parentIdColumn='parentID'] - See `DataSourceTreeview.prototype.setRelation`.
  * @param {number|string} [options.treeColumn='name'] - See `DataSourceTreeview.prototype.setRelation`.
  * @param {number|string} [options.groupColumn=dataSource.treeColumn.name] - See `DataSourceTreeview.prototype.setRelation`.
- * @param {boolean} [options.includeFilter=false] - Enables filtering. Includes the filter data source. The filter row is hidden if falsy.
- * @param {boolean} [options.includeSorter=false] - Enables sorting. Includes the specialized tree sorter data source.
+ * @param {TreeView.customDataSource} [options.includeFilter=false] - A custom filter data source *or* enable default tree filter data source. The filter row is hidden when disabled.
+ * @param {TreeView.customDataSource} [options.includeSorter=false] - A custom filter data source *or* enable default tree sorting data source.
  * @param {boolean} [options.hideIdColumns=false] - Once hidden, cannot be unhidden from here.
  * @constructor
  */
@@ -44,13 +66,13 @@ function TreeView(grid, options) {
 TreeView.prototype.setRelation = function(join) {
     var grid = this.grid,
         behavior = grid.behavior,
-        dataModel = behavior.dataModel,
-        dataTransformers = window.fin.Hypergrid.analytics;
+        dataModel = behavior.dataModel;
 
     if (join) {
+        var dataTransformers = window.fin.Hypergrid.analytics;
         behavior.setPipeline([
-            this.options.includeFilter && dataTransformers.DataSourceTreeviewFilter,
-            this.options.includeSorter && dataTransformers.DataSourceTreeviewSorter,
+            include(this.options.includeFilter, dataTransformers.DataSourceTreeviewFilter),
+            include(this.options.includeSorter, dataTransformers.DataSourceTreeviewSorter),
             dataTransformers.DataSourceTreeview
         ], {
             stash: 'default'

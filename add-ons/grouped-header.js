@@ -231,6 +231,8 @@ function setHeaders(headers) {
 /**
  * Prevent column moving when there are any grouped headers.
  * @returns {boolean}
+ * @memberOf groupedHeader
+ * @inner
  */
 function isColumnReorderable() {
     var originalMethodFromPrototype = Object.getPrototypeOf(this).isColumnReorderable,

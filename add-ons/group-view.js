@@ -1,8 +1,29 @@
-/* globals CustomEvent window*/
+/* eslint-env browser */
+
+'use strict';
 
 // NOTE: gulpfile.js's 'add-ons' task copies this file, altering the final line, to /demo/build/add-ons/, along with a minified version. Both files are eventually deployed to http://openfin.github.io/fin-hypergrid/add-ons/.
 
-'use strict';
+/** @typedef customDataSource
+ * @type {function|boolean}
+ * @summary One of:
+ * * A custom data source module (object constructor).
+ * * Truthy - Use a default data source object constructor.
+ * * Falsy - No datasource (exclude from pipeline).
+ * @memberOf GroupView
+ */
+
+/**
+ * @param {GroupView.customDataSource} dataSource - A custom data source object constructor *or* `true` to enable default *or* `false` to disable.
+ * @param {function} defaultDataSource - The default data source object constructor.
+ * @returns {function} Returns selected dataSource; or falsy `dataSource`.
+ * @memberOf GroupView
+ * @inner
+ */
+function include(dataSource, defaultDataSource) {
+    var isConstructor = typeof dataSource === 'function';
+    return isConstructor ? dataSource : dataSource && defaultDataSource;
+}
 
 /**
  * @classdesc This is a simple helper class to set up the group-view data source in the context of a hypergrid.
@@ -16,8 +37,8 @@
  * @param {Hypergrid} grid
  * @param {object} [options]
  * @param {number[]} [options.groups] - Used by {@link GroupView#setGroups} as a default. See also `DataSourceGroupView.prototype.setGroups`.
- * @param {boolean} [options.includeFilter=false] - Enables filtering. Includes a filter data source. The filter row is hidden if falsy.
- * @param {boolean} [options.includeSorter=false] - Enables sorting. Includes the specialized group sorter data source.
+ * @param {GroupView.customDataSource} [options.includeFilter=false] - A custom filter data source *or* enable default group filter data source. The filter row is hidden when disabled.
+ * @param {GroupView.customDataSource} [options.includeSorter=false] - A custom filter data source *or* enable default group sorting data source.
  * @constructor
  */
 function GroupView(grid, options) {
@@ -107,9 +128,9 @@ GroupView.prototype = {
         if (grouped) {
             var dataTransformers = window.fin.Hypergrid.analytics;
             behavior.setPipeline([
-                this.options.includeFilter && dataTransformers.DataSourceGlobalFilter,
+                include(this.options.includeFilter, dataTransformers.DataSourceGlobalFilter),
                 dataTransformers.DataSourceGroupView,
-                this.options.includeSorter && dataTransformers.DataNodeGroupSorter
+                include(this.options.includeSorter, dataTransformers.DataNodeGroupSorter)
             ], {
                 stash: 'default',
                 apply: false // defer until after setGroupBys call below
@@ -176,6 +197,8 @@ GroupView.prototype = {
  * @param {object} config
  * @param {string} rendererName
  * @returns {CellRenderer}
+ * @memberOf GroupView
+ * @inner
  */
 function getCell(defaultGetCell, config, rendererName) {
     // First call the default getCell in case developer overrode it.
