@@ -129,8 +129,7 @@ window.onload = function() {
 
     var gridOptions = {
             data: people1,
-            margin: { bottom: '17px' },
-            Behavior: fin.Hypergrid.behaviors.JSON
+            margin: { bottom: '17px' }
         },
         grid = window.g = new Hypergrid('div#json-example', gridOptions),
         behavior = window.b = grid.behavior,

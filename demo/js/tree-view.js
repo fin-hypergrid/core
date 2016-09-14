@@ -27,10 +27,7 @@ window.onload = function() {
     rowById.mixInTo(DataModel.prototype);
 
     grid = new Hypergrid('div#tree-example');
-    grid.setBehavior({
-        data: treeData,
-        Behavior: fin.Hypergrid.behaviors.JSON
-    });
+    grid.setData(treeData);
 
     var filterFactory = new Hyperfilter(grid);
     grid.setGlobalFilter(filterFactory.create());

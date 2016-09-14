@@ -22,10 +22,7 @@ window.onload = function() {
     drillDown.mixInTo(dataModelPrototype);
 
     grid = new Hypergrid('div#example');
-    grid.setBehavior({
-        data: window.people1,
-        Behavior: fin.Hypergrid.behaviors.JSON
-    });
+    grid.setData(window.people1);
 
     var filterFactory = new Hyperfilter(grid);
     grid.setGlobalFilter(filterFactory.create());

@@ -8,10 +8,7 @@
         window.onload = function() {
             fin.Hypergrid.JSON.get('data/basic.json', function(data) {
                 var div = document.querySelector('div#json-example'),
-                    jsonGrid = new fin.Hypergrid(div);
-
-                jsonGrid.setBehavior({ Behavior: fin.Hypergrid.behaviors.JSON });
-                jsonGrid.setData(data);
+                    grid = new fin.Hypergrid(div, { data: data });
             });
         };
     </script>

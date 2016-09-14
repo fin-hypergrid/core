@@ -153,9 +153,9 @@ var JSON = Behavior.extend('behaviors.JSON', {
     /**
      * @memberOf behaviors.JSON.prototype
      * @description Set the data field.
-     * @param {function|object[]} [dataRows=options.data] - Array of uniform objects containing the grid data.
+     * @param {function|object[]} [dataRows=options.data] - Array of uniform data row objects or function returning same.
      * @param {object} [options] - Takes first argument position when `dataRows` omitted.
-     * @param {function|object} [options.data] - Array of uniform data objects or function returning same.
+     * @param {function|object} [options.data] - Array of uniform data row objects or function returning same.
      * Passed as 1st param to {@link dataModel.JSON#setData}. If falsy, method aborted.
      * @param {function|object} [options.fields] - Array of field names or function returning same.
      * Passed as 2nd param to {@link dataModel.JSON#setData}.

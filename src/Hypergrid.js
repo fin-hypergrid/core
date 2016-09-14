@@ -19,6 +19,7 @@ var Localization = require('./lib/Localization');
 //var behaviors = require('./behaviors');
 var CellRenderers = require('./cellRenderers');
 var CellEditors = require('./cellEditors');
+var BehaviorJSON = require('./behaviors/JSON');
 
 var themeInitialized = false,
     gridTheme = Object.create(defaults),
@@ -38,7 +39,7 @@ var themeInitialized = false,
  * * A schema array
  * * A function returning a schema array. Called at filter reset time with behavior as context.
  * * Omit to generate a basic schema from `this.behavior.columns`.
- * @param {Behavior} [options.Behavior=JSON] - A grid behavior (descendant of Behavior "class"). Will be used if `getBehavior` omitted, in which case `options.data` (which has no default) *must* also be provided.
+ * @param {Behavior} [options.Behavior=JSON] - A grid behavior (descendant of Behavior "class").
  * @param {string} [options.localization=Hypergrid.localization]
  * @param {string|Element} [options.container] - CSS selector or Element
  * @param {string|string[]} [options.localization.locale=Hypergrid.localization.locale] - The default locale to use when an explicit `locale` is omitted from localizer constructor calls. Passed to Intl.NumberFomrat` and `Intl.DateFomrat`. See {@ https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl#Locale_identification_and_negotiation|Locale identification and negotiation} for more information.
@@ -95,7 +96,9 @@ function Hypergrid(container, options) {
     this.setContainer(container);
 
     if (this.options.Behavior) {
-        this.setBehavior(this.options);
+        this.setBehavior(this.options); // also sets this.options.pipeline and this.options.data
+    } else if (this.options.data) {
+        this.setData(this.options.data); // if no behavior has yet been set, also sets default behavior and this.options.pipeline
     }
 }
 
@@ -712,13 +715,13 @@ Hypergrid.prototype = {
      * @summary Set the Behavior (model) object for this grid control.
      * @desc This can be done dynamically.
      * @param {object} options - _(See {@link behaviors.JSON#setData}.)_
-     * @param {Behavior} options.behavior - The behavior (model) can be either a constructor or an instance.
+     * @param {Behavior} [options.behavior=BehaviorJSON] - The behavior (model) can be either a constructor or an instance.
      * @param {object[]} [options.data] - _(See {@link behaviors.JSON#setData}.)_
      * @param {pipelineSchema} [options.pipeline] - New pipeline description.
      */
     setBehavior: function(options) {
-        options = options || this.options;
-        this.behavior = new options.Behavior(this, options);
+        var Behavior = options.Behavior || BehaviorJSON;
+        this.behavior = new Behavior(this, options);
         this.initCanvas();
         this.initScrollbars();
         this.refreshProperties();
@@ -729,15 +732,20 @@ Hypergrid.prototype = {
      * @memberOf Hypergrid.prototype
      * @summary Set the underlying datasource.
      * @desc This can be done dynamically.
-     * @param {object[]} dataRows - May be:
-     * An array of congruent raw data objects
-     * A function returning same
+     * @param {function|object[]} dataRows - May be:
+     * * An array of congruent raw data objects.
+     * * A function returning same.
      * @param {object} [options] - _(See {@link behaviors.JSON#setData}.)_
      */
     setData: function(dataRows, options) {
-        if (this.behavior) {
-            this.behavior.setData(dataRows, options);
+        if (!this.behavior) {
+            // If we get hear it means:
+            // 1. `Behavior` option wasn't given to constructor.
+            // 2. `setBehavior` wasn't called explicitly.
+            // So we call it now to set the default behavior (by not specifying a `Behavior`) with the unused constructor `pipeline` option.
+            this.setBehavior({ pipeline: this.options.pipeline });
         }
+        this.behavior.setData(dataRows, options);
     },
 
     /**
