@@ -6,7 +6,6 @@ var Base = require('../lib/Base');
 
 var Column = require('./Column');
 var dialogs = require('../dialogs');
-var DefaultFilter = require('../filter/DefaultFilter');
 
 var noExportProperties = [
     'columnHeader',
@@ -18,6 +17,11 @@ var noExportProperties = [
     'treeColumnProperties',
     'treeColumnPropertiesColumnSelection',
 ];
+
+var nullFilter = {
+    test: function() { return true; }, // all rows pass
+    setCaseSensitivity: function() {}
+};
 
 /**
  * @constructor
@@ -33,20 +37,20 @@ var Behavior = Base.extend('Behavior', {
      * @param {object} [options] - _(See {@link behaviors.JSON#setData}.)_
      * @memberOf Behavior.prototype
      */
-    initialize: function(grid, dataRows, options) {
+    initialize: function(grid, options) {
         /**
          * @type {Hypergrid}
          * @memberOf Behavior.prototype
          */
         this.grid = grid;
 
-        /**
-         * @type {DataModel}
-         * @memberOf Behavior.prototype
-         */
-        this.dataModel = this.getNewDataModel();
         this.initializeFeatureChain(grid);
+
+        this.grid.behavior = this;
+        this.reset();
     },
+
+    globalFilter: nullFilter,
 
     /**
      * @desc create the feature chain - this is the [chain of responsibility](http://c2.com/cgi/wiki?ChainOfResponsibilityPattern) pattern.
@@ -87,13 +91,22 @@ var Behavior = Base.extend('Behavior', {
     features: [], // override in implementing class unless no features
 
     reset: function() {
+        if (this.dataModel) {
+            this.dataModel.reset();
+        } else {
+            /**
+             * @type {DataModel}
+             * @memberOf Behavior.prototype
+             */
+            this.dataModel = this.getNewDataModel();
+        }
+
         this.renderedColumnCount = 30;
         this.renderedRowCount = 60;
         this.dataUpdates = {}; //for overriding with edit values;
         this.scrollPositionX = this.scrollPositionY = 0;
         this.clearColumns();
         this.clearState();
-        this.dataModel.reset();
         this.createColumns();
     },
 
@@ -1544,24 +1557,13 @@ var Behavior = Base.extend('Behavior', {
         }
     },
 
-    getNewFilter: function() {
-        var newFilter = new DefaultFilter({
-            schema: typeof this.schema === 'function' ? this.schema(this.columns) : this.schema,
-            caseSensitiveColumnNames: this.grid.resolveProperty('filterCaseSensitiveColumnNames'),
-            resolveAliases: this.grid.resolveProperty('filterResolveAliases'),
-            defaultColumnFilterOperator: this.grid.resolveProperty('filterDefaultColumnFilterOperator')
-        });
-        newFilter.loadColumnPropertiesFromSchema(this.columns);
-        return newFilter;
-    },
-
     /**
      * @summary Get a reference to the filter attached to the Hypergrid.
      * @returns {FilterTree}
      * @memberOf Behavior.prototype
      */
     getGlobalFilter: function() {
-        return this.dataModel.getGlobalFilter();
+        return this.globalFilter;
     },
 
     /**
@@ -1570,6 +1572,7 @@ var Behavior = Base.extend('Behavior', {
      * @memberOf Behavior.prototype
      */
     setGlobalFilter: function(filter) {
+        this.globalFilter = filter;
         this.dataModel.setGlobalFilter(filter);
     },
 
@@ -1583,71 +1586,6 @@ var Behavior = Base.extend('Behavior', {
      */
     setGlobalFilterCaseSensitivity: function(isSensitive) {
         this.dataModel.setGlobalFilterCaseSensitivity(isSensitive);
-    },
-
-    /**
-     * @param {number|string} columnIndexOrName - The _column filter_ to set.
-     * @param {FilterTreeGetStateOptionsObject} [options] - Passed to the filter's {@link DefaultFilter#getState|getState} method.
-     * @param {boolean} [options.syntax='CQL'] - The syntax to use to describe the filter state. Note that `getFilter`'s default syntax, `'CQL'`, differs from the other get state methods.
-     * @returns {FilterTreeStateObject}
-     * @memberOf Behavior.prototype
-     */
-    getFilter: function(columnIndexOrName, options) {
-        return this.dataModel.getFilter(columnIndexOrName, options);
-    },
-
-    /**
-     * @summary Set a particular column filter's state.
-     * @desc After setting the new filter state, reapplies the filter to the data source.
-     * @param {number|string} columnIndexOrName - The _column filter_ to set.
-     * @param {string|object} [state] - A filter tree object or a JSON, SQL, or CQL subexpression string that describes the a new state for the named column filter. The existing column filter subexpression is replaced with a new node based on this state. If it does not exist, the new subexpression is added to the column filters subtree (`filter.columnFilters`).
-     *
-     * If undefined, removes the entire column filter subexpression from the column filters subtree.
-     * @param {FilterTreeSetStateOptionsObject} [options] - Passed to the filter's [setState]{@link http://joneit.github.io/filter-tree/FilterTree.html#setState} method. You may mix in members of the {@link http://joneit.github.io/filter-tree/global.html#FilterTreeValidationOptionsObject|FilterTreeValidationOptionsObject}
-     * @param {string} [options.syntax='CQL'] - The syntax to use to describe the filter state. Note that `setFilter`'s default syntax, `'CQL'`, differs from the other get state methods.
-     * @returns {undefined|Error|string} `undefined` indicates success.
-     * @memberOf Behavior.prototype
-     */
-    setFilter: function(columnIndexOrName, state, options) {
-        this.dataModel.setFilter(columnIndexOrName, state, options);
-    },
-
-    /**
-     * @param {FilterTreeGetStateOptionsObject} [options] - Passed to the filter's {@link DefaultFilter#getState|getState} method.
-     * @returns {FilterTreeStateObject}
-     * @memberOf Behavior.prototype
-     */
-    getFilters: function(options) {
-        return this.dataModel.getFilters(options);
-    },
-
-    /**
-     * @param {FilterTreeStateObject} state
-     * @param {FilterTreeSetStateOptionsObject} [options] - Passed to the filter's [setState]{@link http://joneit.github.io/filter-tree/FilterTree.html#setState} method. You may mix in members of the {@link http://joneit.github.io/filter-tree/global.html#FilterTreeValidationOptionsObject|FilterTreeValidationOptionsObject}
-     * @returns {undefined|Error|string} `undefined` indicates success.
-     * @memberOf Behavior.prototype
-     */
-    setFilters: function(state, options) {
-        this.dataModel.setFilters(state, options);
-    },
-
-    /**
-     * @param {FilterTreeGetStateOptionsObject} [options] - Passed to the filter's {@link DefaultFilter#getState|getState} method.
-     * @returns {FilterTreeStateObject}
-     * @memberOf Behavior.prototype
-     */
-    getTableFilter: function(options) {
-        return this.dataModel.getTableFilter(options);
-    },
-
-    /**
-     * @param {FilterTreeStateObject} state
-     * @param {FilterTreeSetStateOptionsObject} [options] - Passed to the filter's [setState]{@link http://joneit.github.io/filter-tree/FilterTree.html#setState} method. You may mix in members of the {@link http://joneit.github.io/filter-tree/global.html#FilterTreeValidationOptionsObject|FilterTreeValidationOptionsObject}
-     * @returns {undefined|Error|string} `undefined` indicates success.
-     * @memberOf Behavior.prototype
-     */
-    setTableFilter: function(state, options) {
-        this.dataModel.setTableFilter(state, options);
     },
 
     getSelectedRows: function() {

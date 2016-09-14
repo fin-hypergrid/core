@@ -1,12 +1,14 @@
 /* eslint-env bro wser */
 
-// NOTE: Column.js mixes this module into its prototype
-
 'use strict';
 
 var _ = require('object-iterators');
 
-module.exports = {
+/**
+ * Column.js mixes this module into its prototype.
+ * @module
+ */
+var Cell = {
 
     /**
      * Due to memory constraints, we don't create a cell options properties object for every cell.
@@ -106,3 +108,5 @@ function newCellPropertiesObject(r) {
         this.cellProperties[getDataIndex.call(this, r)] = Object.create(this.getProperties())
     );
 }
+
+module.exports = Cell;

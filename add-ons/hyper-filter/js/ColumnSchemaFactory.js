@@ -3,17 +3,20 @@
 var popMenu = require('pop-menu');
 
 /**
- * @constructor
- * @summary Build, organize, and sort a column schema list from a list of columns.
- * @desc FilterTree requires a column schema. As a fallback when you don't have a column schema of your own, the string array returned by behavior.dataModel.getFields() would work as is. This factory object will do a little better than that, taking Hypergrid's column array and creating a more textured column schema, including column aliases and types.
+ * @classdesc Build, organize, and sort a column schema list from a list of columns.
+ *
+ * FilterTree requires a column schema. As a fallback when you don't have a column schema of your own, the string array returned by behavior.dataModel.getFields() would work as is. This factory object will do a little better than that, taking Hypergrid's column array and creating a more textured column schema, including column aliases and types.
  *
  * CAVEAT: Set up the schema completely before instantiating your filter state. Filter-tree uses the schema (in part) to generate column selection drop-downs as part of its "query builder" UI. Note that the UI is *not* automatically updated if you change the schema later.
  *
  * @param {Column[]} columns
- *
- * @property {menuItem[]} schema - This is the output produced by the factory.
+ * @constructor
  */
-function ColumnSchemaFactory(columns, findOptions) {
+function ColumnSchemaFactory(columns) {
+    /**
+     * This is the output produced by the factory.
+     * @type {menuItem[]}
+     */
     this.schema = columns.map(function(column) {
         var item = {
             name: column.name,
@@ -28,6 +31,12 @@ function ColumnSchemaFactory(columns, findOptions) {
         return item;
     });
 }
+
+var placementPrefixMap = {
+    top: '\u0000',
+    bottom: '\uffff',
+    undefined: ''
+};
 
 ColumnSchemaFactory.prototype = {
 
@@ -68,23 +77,24 @@ ColumnSchemaFactory.prototype = {
     },
 
     lookup: function(findOptions, value) {
-        var args = Array.prototype.slice.call(arguments);
-        return popMenu.lookup.apply(this.schema, args);
+        return popMenu.lookup.apply(this.schema, arguments);
     },
 
     walk: function(iteratee) {
-        return popMenu.walk.call(this.schema, iteratee);
+        return popMenu.walk.apply(this.schema, arguments);
     },
 
     /**
      * @summary Sort the schema.
      * @desc Walk the menu structure, sorting each submenu until finally the top-level menu is sorted.
-     * @param {string} [prefix=''] - A submenu sort prefix:
-     * * Omit to give no special treatment to submenus.
-     * * Give `'\u0000'` to place all the submenus at the top of each enclosing submenu.
-     * * Give `'\uffff'` to place all the submenus at the bottom of each enclosing submenu.
+     * @param {boolean} [submenuPlacement] - One of:
+     * * `'top'` - Place all the submenus at the top of each enclosing submenu.
+     * * `'bottom'` - Place all the submenus at the bottom of each enclosing submenu.
+     * * `undefined` (or omitted) - Give no special treatment to submenus.
      */
-    sort: function(prefix) {
+    sort: function(submenuPlacement) {
+        var prefix = placementPrefixMap[submenuPlacement];
+
         this.schema.sort(function recurse(a, b) {
             if (a.label && !a.sorted) {
                 a.submenu.sort(recurse);

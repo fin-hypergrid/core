@@ -8,51 +8,52 @@ var grid, treeviewAPI;
 
 window.onload = function() {
     var Hypergrid = fin.Hypergrid,
+        Hyperfilter = Hypergrid.Hyperfilter,
         drillDown = Hypergrid.drillDown,
         rowById = Hypergrid.rowById,
         TreeView = Hypergrid.TreeView,
-        dataModelPrototype = Hypergrid.dataModels.JSON.prototype,
-        pipelineOptions = {
+        options = {
+            treeColumn: 'State', // groupColumn defaults to treeColumn by default
             includeSorter: true,
-            includeFilter: true
-        },
-        options = { data: treeData, Behavior: fin.Hypergrid.behaviors.JSON },
-        shared = true; // operate on shared (prototype) pipeline vs. own (instance)
+            includeFilter: true,
+            hideIdColumns: true
+        };
 
-    // Install the drill-down API (optional, to play with in console).
+    grid = new Hypergrid('div#tree-example');
+    grid.setData(treeData);
+
+    // Install the drill-down API (optional).
+    var dataModel = grid.behavior.dataModel,
+        dataModelPrototype = Object.getPrototypeOf(dataModel);
     drillDown.mixInTo(dataModelPrototype);
 
     // Install the row-by-id API (optional, to play with treeviewAPI.deleteRowById in console, which needs it).
     rowById.mixInTo(dataModelPrototype);
 
-    grid = new Hypergrid('div#tree-example');
-    grid.setBehavior(options);
+    var filterFactory = new Hyperfilter(grid);
+    grid.setGlobalFilter(filterFactory.create());
 
-    if (shared) {
-        // Mutate shared pipeline (avoids calling setData twice).
-        dataModelPrototype.grid = grid;
-        pipelineOptions.dataModelPrototype = dataModelPrototype;
-        TreeView.prototype.setPipeline(pipelineOptions);
-    }
-
+    // show filter row as per `options`
     grid.setState({
-        showFilterRow: pipelineOptions.includeFilter
+        showFilterRow: options.includeFilter && grid.behavior.getGlobalFilter().columnFilters
     });
 
     grid.behavior.setColumnProperties(grid.behavior.columnEnum.STATE, {
         halign: 'left'
     });
 
-    var treeViewOptions = { treeColumn: 'State' }; // groupColumn option defaults to treeColumn (or its default)
-    treeviewAPI = new TreeView(grid, treeViewOptions);
+    treeviewAPI = new TreeView(grid, options);
 
-    if (!shared) {
-        // Mutate instance pipeline (calls setData again to rebuild pipeline).
-        treeviewAPI.setPipeline(pipelineOptions);
-    }
+    var checkbox = document.querySelector('input[type=checkbox]'),
+        button = document.querySelector('input[type=button]');
 
-    document.querySelector('input[type=checkbox]').onclick = function() {
-        treeviewAPI.setRelation(this.checked, true);
+    checkbox.onclick = function() {
+        treeviewAPI.setRelation(this.checked);
+        button.disabled = !this.checked;
+    };
+
+    button.onclick = function() {
+        dataModel.expandAllRows(true);
     };
 };
 

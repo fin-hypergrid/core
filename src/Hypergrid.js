@@ -19,6 +19,7 @@ var Localization = require('./lib/Localization');
 //var behaviors = require('./behaviors');
 var CellRenderers = require('./cellRenderers');
 var CellEditors = require('./cellEditors');
+var BehaviorJSON = require('./behaviors/JSON');
 
 var themeInitialized = false,
     gridTheme = Object.create(defaults),
@@ -30,7 +31,7 @@ var themeInitialized = false,
  * @param {string|Element} [container] - CSS selector or Element
  * @param {object} [options]
  * @param {function} [options.Behavior=behaviors.JSON] - A behavior constructor or instance
- * @param {function []} [options.pipeline] - A list function constructors to use for passing data through a series of transforms to occur on applyAnalytics call
+ * @param {function[]} [options.pipeline] - A list function constructors to use for passing data through a series of transforms to occur on applyAnalytics call
  * @param {function|object[]} [options.data] - Passed to behavior constructor. May be:
  * * An array of congruent raw data objects
  * * A function returning same
@@ -38,7 +39,7 @@ var themeInitialized = false,
  * * A schema array
  * * A function returning a schema array. Called at filter reset time with behavior as context.
  * * Omit to generate a basic schema from `this.behavior.columns`.
- * @param {Behavior} [options.Behavior=JSON] - A grid behavior (descendant of Behavior "class"). Will be used if `getBehavior` omitted, in which case `options.data` (which has no default) *must* also be provided.
+ * @param {Behavior} [options.Behavior=JSON] - A grid behavior (descendant of Behavior "class").
  * @param {string} [options.localization=Hypergrid.localization]
  * @param {string|Element} [options.container] - CSS selector or Element
  * @param {string|string[]} [options.localization.locale=Hypergrid.localization.locale] - The default locale to use when an explicit `locale` is omitted from localizer constructor calls. Passed to Intl.NumberFomrat` and `Intl.DateFomrat`. See {@ https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl#Locale_identification_and_negotiation|Locale identification and negotiation} for more information.
@@ -94,9 +95,10 @@ function Hypergrid(container, options) {
     container = container || findOrCreateContainer(this.options.boundingRect);
     this.setContainer(container);
 
-    var Behavior = this.options.Behavior;
-    if (Behavior) {
-        this.setBehavior(this.options);
+    if (this.options.Behavior) {
+        this.setBehavior(this.options); // also sets this.options.pipeline and this.options.data
+    } else if (this.options.data) {
+        this.setData(this.options.data); // if no behavior has yet been set, also sets default behavior and this.options.pipeline
     }
 }
 
@@ -713,58 +715,82 @@ Hypergrid.prototype = {
      * @summary Set the Behavior (model) object for this grid control.
      * @desc This can be done dynamically.
      * @param {object} options - _(See {@link behaviors.JSON#setData}.)_
-     * @param {Behavior} options.behavior - The behavior (model) can be either a constructor or an instance.
+     * @param {Behavior} [options.behavior=BehaviorJSON] - The behavior (model) can be either a constructor or an instance.
      * @param {object[]} [options.data] - _(See {@link behaviors.JSON#setData}.)_
+     * @param {pipelineSchema} [options.pipeline] - New pipeline description.
      */
     setBehavior: function(options) {
-        options = options || this.options;
-        var behavior = options.Behavior;
-        if (typeof behavior === 'function'){
-            behavior = new behavior(this);  // eslint-disable-line
-        }
-        this.behavior = behavior;
-        this.behavior.reset();
-        initCanvasAndScrollBars.call(this);
-        this.setData(options.data, options);
-        if (options.pipeline) {
-            this.setPipeline(options.pipeline);
-        }
+        var Behavior = options.Behavior || BehaviorJSON;
+        this.behavior = new Behavior(this, options);
+        this.initCanvas();
+        this.initScrollbars();
         this.refreshProperties();
+        this.behavior.applyAnalytics();
     },
 
     /**
      * @memberOf Hypergrid.prototype
      * @summary Set the underlying datasource.
      * @desc This can be done dynamically.
-     * @param {object[]} dataRows - May be:
-     * An array of congruent raw data objects
-     * A function returning same
+     * @param {function|object[]} dataRows - May be:
+     * * An array of congruent raw data objects.
+     * * A function returning same.
      * @param {object} [options] - _(See {@link behaviors.JSON#setData}.)_
      */
     setData: function(dataRows, options) {
-        if (this.behavior) {
-            this.behavior.setData(dataRows, options);
+        if (!this.behavior) {
+            // If we get hear it means:
+            // 1. `Behavior` option wasn't given to constructor.
+            // 2. `setBehavior` wasn't called explicitly.
+            // So we call it now to set the default behavior (by not specifying a `Behavior`) with the unused constructor `pipeline` option.
+            this.setBehavior({ pipeline: this.options.pipeline });
         }
+        this.behavior.setData(dataRows, options);
     },
 
     /**
      * @memberOf Hypergrid.prototype
-     * @param {object} [pipelines] - _(See {@link dataModels.JSON#setPipeline}.)_
+     * @param {object} [pipelines] - New pipeline description. _(See {@link dataModels.JSON#setPipeline}.)_
+     * @param {object} [options] - _(See {@link dataModels.JSON#setPipeline}.)_
      */
-    setPipeline: function(pipelines){
-        this.behavior.setPipeline(pipelines);
+    setPipeline: function(DataSources, options){
+        this.behavior.setPipeline(DataSources, options);
     },
+
     /**
      * @memberOf Hypergrid.prototype
      * @desc I've been notified that the behavior has changed.
      */
     behaviorChanged: function() {
-        if (this.numColumns !== this.getColumnCount() || this.numRows !== this.getRowCount()) {
-            this.numColumns = this.getColumnCount();
-            this.numRows = this.getRowCount();
-            this.behaviorShapeChanged();
-        } else {
-            this.behaviorStateChanged();
+        if (this.divCanvas) {
+            if (this.numColumns !== this.getColumnCount() || this.numRows !== this.getRowCount()) {
+                this.numColumns = this.getColumnCount();
+                this.numRows = this.getRowCount();
+                this.behaviorShapeChanged();
+            } else {
+                this.behaviorStateChanged();
+            }
+        }
+    },
+
+    /**
+     * @memberOf Hypergrid.prototype
+     * @desc The dimensions of the grid data have changed. You've been notified.
+     */
+    behaviorShapeChanged: function() {
+        if (this.divCanvas) {
+            this.synchronizeScrollingBoundries();
+        }
+    },
+
+    /**
+     * @memberOf Hypergrid.prototype
+     * @desc The dimensions of the grid data have changed. You've been notified.
+     */
+    behaviorStateChanged: function() {
+        if (this.divCanvas) {
+            this.computeCellsBounds();
+            this.repaint();
         }
     },
 
@@ -787,23 +813,6 @@ Hypergrid.prototype = {
         var prop = this.getProperties();
         while (keys.length) { prop = prop[keys.shift()]; }
         return prop;
-    },
-
-    /**
-     * @memberOf Hypergrid.prototype
-     * @desc The dimensions of the grid data have changed. You've been notified.
-     */
-    behaviorShapeChanged: function() {
-        this.synchronizeScrollingBoundries();
-    },
-
-    /**
-     * @memberOf Hypergrid.prototype
-     * @desc The dimensions of the grid data have changed. You've been notified.
-     */
-    behaviorStateChanged: function() {
-        this.computeCellsBounds();
-        this.repaint();
     },
 
     repaint: function() {
@@ -841,7 +850,7 @@ Hypergrid.prototype = {
     setContainer: function(div) {
         this.initContainer(div);
         this.initRenderer();
-        injectGridElements.call(this);
+        // injectGridElements.call(this);
     },
     /**
      * @memberOf Hypergrid.prototype
@@ -877,21 +886,27 @@ Hypergrid.prototype = {
      * @summary Initialize drawing surface.
      * @private
      */
-    initCanvas: function(margin) {
+    initCanvas: function() {
+        if (this.divCanvas) {
+            return;
+        }
 
-        var self = this;
+        var self = this,
+            margin = this.options.margin || {},
+            divCanvas = this.divCanvas = document.createElement('div'),
+            style = divCanvas.style;
 
-        var divCanvas = this.divCanvas = document.createElement('div');
+        style.position = 'absolute';
+        style.top = margin.top || 0;
+        style.right = margin.right || 0;
+        style.bottom = margin.bottom || 0;
+        style.left = margin.left || 0;
+
         this.div.appendChild(divCanvas);
+
         this.canvas = new Canvas(divCanvas, this.renderer);
         this.canvas.canvas.classList.add('hypergrid');
-
-        var style = divCanvas.style;
-        style.position = 'absolute';
-        style.top = margin.top;
-        style.right = margin.right;
-        style.bottom = margin.bottom;
-        style.left = margin.left;
+        this.canvas.resize();
 
         this.canvas.resizeNotification = function() {
             self.resized();
@@ -2125,7 +2140,6 @@ Hypergrid.prototype = {
         this.div.appendChild(vertBar.bar);
 
         this.resizeScrollbars();
-
     },
 
     resizeScrollbars: function() {
@@ -2231,14 +2245,17 @@ Hypergrid.prototype = {
             }
         }
 
-        var hMax = Math.max(0, numColumns - numFixedColumns - lastPageColumnCount);
-        this.setHScrollbarValues(hMax);
-
-        var vMax = 1 + Math.max(0, numRows - numFixedRows - lastPageRowCount);
-        this.setVScrollbarValues(vMax);
-
-        this.setHScrollValue(Math.min(this.getHScrollValue(), hMax));
-        this.setVScrollValue(Math.min(this.getVScrollValue(), vMax));
+        // inform scroll bars
+        if (this.sbHScroller) {
+            var hMax = Math.max(0, numColumns - numFixedColumns - lastPageColumnCount);
+            this.setHScrollbarValues(hMax);
+            this.setHScrollValue(Math.min(this.getHScrollValue(), hMax));
+        }
+        if (this.sbVScroller) {
+            var vMax = 1 + Math.max(0, numRows - numFixedRows - lastPageRowCount);
+            this.setVScrollbarValues(vMax);
+            this.setVScrollValue(Math.min(this.getVScrollValue(), vMax));
+        }
 
         //this.getCanvas().resize();
         this.behaviorStateChanged();
@@ -3130,83 +3147,6 @@ Hypergrid.prototype = {
     setGlobalFilterCaseSensitivity: function(isSensitive) {
         // this setting affects all grids
         this.behavior.setGlobalFilterCaseSensitivity(isSensitive);
-        this.computeCellsBounds();
-        this.behaviorChanged();
-    },
-
-    /**
-     * @param {number|string} columnIndexOrName - The _column filter_ to set.
-     * @param {FilterTreeGetStateOptionsObject} [options] - Passed to the filter's {@link DefaultFilter#getState|getState} method.
-     * @param {boolean} [options.syntax='CQL'] - The syntax to use to describe the filter state. Note that `getFilter`'s default syntax, `'CQL'`, differs from the other get state methods.
-     * @returns {FilterTreeStateObject}
-     * @memberOf Hypergrid.prototype
-     */
-    getFilter: function(columnIndexOrName, options) {
-        return this.behavior.getFilter(columnIndexOrName, options);
-    },
-
-    /**
-     * @summary Set a particular column filter's state.
-     * @desc After setting the new filter state:
-     * * Reapplies the filter to the data source.
-     * * Calls `behaviorChanged()` to update the grid canvas.
-     * @param {number|string} columnIndexOrName - The _column filter_ to set.
-     * @param {string|object} [state] - A filter tree object or a JSON, SQL, or CQL subexpression string that describes the a new state for the named column filter. The existing column filter subexpression is replaced with a new node based on this state. If it does not exist, the new subexpression is added to the column filters subtree (`filter.columnFilters`).
-     *
-     * If undefined, removes the entire column filter subexpression from the column filters subtree.
-     * @param {FilterTreeSetStateOptionsObject} [options] - Passed to the filter's [setState]{@link http://joneit.github.io/filter-tree/FilterTree.html#setState} method. You may mix in members of the {@link http://joneit.github.io/filter-tree/global.html#FilterTreeValidationOptionsObject|FilterTreeValidationOptionsObject}
-     * @param {string} [options.syntax='CQL'] - The syntax to use to describe the filter state. Note that `setFilter`'s default syntax, `'CQL'`, differs from the other get state methods.
-     * @returns {undefined|Error|string} `undefined` indicates success.
-     * @memberOf Hypergrid.prototype
-     */
-    setFilter: function(columnIndexOrName, state, options) {
-        if (this.cellEditor) {
-            this.cellEditor.hideEditor();
-        }
-        this.behavior.setFilter(columnIndexOrName, state, options);
-        this.behaviorChanged();
-    },
-
-    /**
-     * @param {FilterTreeGetStateOptionsObject} [options] - Passed to the filter's {@link DefaultFilter#getState|getState} method.
-     * @returns {FilterTreeStateObject}
-     * @memberOf Hypergrid.prototype
-     */
-    getFilters: function(options) {
-        return this.behavior.getFilters(options);
-    },
-
-    /**
-     * @param {FilterTreeStateObject} state
-     * @param {FilterTreeSetStateOptionsObject} [options] - Passed to the filter's [setState]{@link http://joneit.github.io/filter-tree/FilterTree.html#setState} method. You may mix in members of the {@link http://joneit.github.io/filter-tree/global.html#FilterTreeValidationOptionsObject|FilterTreeValidationOptionsObject}
-     * @returns {undefined|Error|string} `undefined` indicates success.
-     * @memberOf Hypergrid.prototype
-     */
-    setFilters: function(state, options) {
-        if (this.cellEditor) {
-            this.cellEditor.hideEditor();
-        }
-        this.behavior.setFilters(state, options);
-        this.behaviorChanged();
-    },
-
-    /**
-     * @param {FilterTreeGetStateOptionsObject} [options] - Passed to the filter's {@link DefaultFilter#getState|getState} method.
-     * @returns {FilterTreeStateObject}
-     * @memberOf Hypergrid.prototype
-     */
-    getTableFilter: function(options) {
-        return this.behavior.getTableFilter(options);
-    },
-
-    /**
-     * @param {FilterTreeStateObject} state
-     * @param {FilterTreeSetStateOptionsObject} [options] - Passed to the filter's [setState]{@link http://joneit.github.io/filter-tree/FilterTree.html#setState} method. You may mix in members of the {@link http://joneit.github.io/filter-tree/global.html#FilterTreeValidationOptionsObject|FilterTreeValidationOptionsObject}
-     * @returns {undefined|Error|string} `undefined` indicates success.
-     * @memberOf Hypergrid.prototype
-     */
-    setTableFilter: function(state, options) {
-        this.behavior.setTableFilter(state, options);
         this.behaviorChanged();
     },
 
@@ -3409,35 +3349,6 @@ function findOrCreateContainer(boundingRect) {
     if (boundingRect.right) { div.style.right = boundingRect.right; }
     document.body.appendChild(div);
     return div;
-}
-
-/**
-* @this {Hypergrid}
-*/
-function initCanvasAndScrollBars() {
-    if (!this.divCanvas) {
-        var margin = this.options.margin || {};
-        margin.top = margin.top || 0;
-        margin.right = margin.right || 0;
-        margin.bottom = margin.bottom || 0;
-        margin.left = margin.left || 0;
-        this.initCanvas(margin);
-    }
-    this.initScrollbars();
-    injectGridElements.call(this);
-}
-/**
- * @this {Hypergrid}
- */
-function injectGridElements() {
-    if (this.divCanvas) {
-        this.div.appendChild(this.divCanvas);
-        this.getCanvas().resize();
-    }
-    if (this.sbHScroller && this.sbVScroller) {
-        this.div.appendChild(this.sbHScroller.bar);
-        this.div.appendChild(this.sbVScroller.bar);
-    }
 }
 
 

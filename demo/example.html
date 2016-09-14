@@ -16,7 +16,6 @@
             { symbol: 'IBM', name: 'International Business Machines Corp', prevclose: 155.35 }
         ];
         var grid = new fin.Hypergrid();
-        grid.setBehavior({ Behavior: fin.Hypergrid.behaviors.JSON });
         grid.setData(data);
         grid.addProperties({
             showRowNumbers: false
