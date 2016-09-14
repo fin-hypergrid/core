@@ -12,7 +12,6 @@ window.onload = function() {
         drillDown = Hypergrid.drillDown,
         rowById = Hypergrid.rowById,
         TreeView = Hypergrid.TreeView,
-        DataModel = Hypergrid.dataModels.JSON,
         options = {
             treeColumn: 'State', // groupColumn defaults to treeColumn by default
             includeSorter: true,
@@ -20,14 +19,16 @@ window.onload = function() {
             hideIdColumns: true
         };
 
-    // Install the drill-down API (optional, to play with in console).
-    drillDown.mixInTo(DataModel.prototype);
-
-    // Install the row-by-id API (optional, to play with treeviewAPI.deleteRowById in console, which needs it).
-    rowById.mixInTo(DataModel.prototype);
-
     grid = new Hypergrid('div#tree-example');
     grid.setData(treeData);
+
+    // Install the drill-down API (optional).
+    var dataModel = grid.behavior.dataModel,
+        dataModelPrototype = Object.getPrototypeOf(dataModel);
+    drillDown.mixInTo(dataModelPrototype);
+
+    // Install the row-by-id API (optional, to play with treeviewAPI.deleteRowById in console, which needs it).
+    rowById.mixInTo(dataModelPrototype);
 
     var filterFactory = new Hyperfilter(grid);
     grid.setGlobalFilter(filterFactory.create());
@@ -43,8 +44,16 @@ window.onload = function() {
 
     treeviewAPI = new TreeView(grid, options);
 
-    document.querySelector('input[type=checkbox]').onclick = function() {
+    var checkbox = document.querySelector('input[type=checkbox]'),
+        button = document.querySelector('input[type=button]');
+
+    checkbox.onclick = function() {
         treeviewAPI.setRelation(this.checked);
+        button.disabled = !this.checked;
+    };
+
+    button.onclick = function() {
+        dataModel.expandAllRows(true);
     };
 };
 

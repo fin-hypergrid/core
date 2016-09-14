@@ -11,18 +11,19 @@ window.onload = function() {
         Hyperfilter = Hypergrid.Hyperfilter,
         drillDown = Hypergrid.drillDown,
         GroupView = Hypergrid.GroupView,
-        dataModelPrototype = Hypergrid.dataModels.JSON.prototype,
         options = {
             includeSorter: true,
             includeFilter: true,
             groups: [5, 0, 1] // alternatively this could be supplied in the setGroups call
         };
 
-    // Install the drill-down API (optional).
-    drillDown.mixInTo(dataModelPrototype);
-
     grid = new Hypergrid('div#example');
     grid.setData(window.people1);
+
+    // Install the drill-down API (optional, to play with in console).
+    var dataModel = grid.behavior.dataModel,
+        dataModelPrototype = Object.getPrototypeOf(dataModel);
+    drillDown.mixInTo(dataModelPrototype);
 
     var filterFactory = new Hyperfilter(grid);
     grid.setGlobalFilter(filterFactory.create());
