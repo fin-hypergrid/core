@@ -4,13 +4,14 @@ module.exports = {
 
     /**
      * @memberOf Hypergrid.prototype
-     * @param {number} c - grid column index.
-     * @param {string[]} keys
+     * @param event
      */
-    toggleSort: function(c, keys) {
+    toggleSort: function(event) {
         this.stopEditing();
-        var behavior = this.behavior;
-        var self = this;
+        var behavior = this.behavior,
+            self = this,
+            c = event.detail.column,
+            keys =  event.detail.keys;
         behavior.toggleSort(c, keys);
 
         setTimeout(function() {

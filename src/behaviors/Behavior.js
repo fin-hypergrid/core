@@ -1410,7 +1410,6 @@ var Behavior = Base.extend('Behavior', {
 
         return cellEditor;
     },
-    
     /**
      * @memberOf Behavior.prototype
      * @return {boolean} `true` if we should highlight on hover

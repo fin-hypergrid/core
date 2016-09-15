@@ -14,6 +14,7 @@ window.onload = function() {
     var GroupView = Hypergrid.GroupView;
     var AggView = Hypergrid.AggregationsView;
     var Hyperfilter = Hypergrid.Hyperfilter;
+    var Hypersorter = Hypergrid.Hypersorter;
 
     var filterOptions = Hyperfilter.prototype;
 
@@ -136,7 +137,8 @@ window.onload = function() {
         behavior = window.b = grid.behavior,
         dataModel = window.m = behavior.dataModel,
         idx = behavior.columnEnum,
-        hyperfilter = new Hyperfilter(grid);
+        hyperfilter = new Hyperfilter(grid),
+        hypersorter = new Hypersorter(grid, {Column: fin.Hypergrid.behaviors.Column});
 
     resetGlobalFilter();
 

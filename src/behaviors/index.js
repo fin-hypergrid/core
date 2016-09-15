@@ -2,5 +2,6 @@
 
 module.exports = {
     Behavior: require('./Behavior'), // abstract base class
-    JSON: require('./JSON')
+    JSON: require('./JSON'),
+    Column: require('./Column')
 };
