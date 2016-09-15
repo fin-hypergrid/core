@@ -93,10 +93,6 @@ var JSON = DataModel.extend('dataModels.JSON', {
         return this.deprecated('getDataSource()', 'dataSource', '1.0.7');
     },
 
-    getGlobalFilterDataSource: function() {
-        return this.sources.filter;
-    },
-
     getData: function() {
         return this.source.data;
     },
@@ -178,8 +174,10 @@ var JSON = DataModel.extend('dataModels.JSON', {
                     value = at ? value.substr(0, at) + sortString + value.substr(at) : sortString + value;
                 }
             } else { // must be filter row
-                var filter = this.getGlobalFilter();
-                value = filter.columnFilters && filter.getColumnFilterState(this.getFields()[x]) || '';
+                var behavior = this.grid.behavior,
+                    filter;
+                value = behavior.getGlobalFilter && (filter = behavior.getGlobalFilter()) &&
+                    filter.getColumnFilterState && filter.getColumnFilterState(this.getFields()[x]) || '';
                 var icon = images.filter(value.length);
                 return [null, value, icon];
             }
@@ -396,7 +394,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
                 this.pipeline.push(dataSource);
 
                 if (dataSource.filterTest && this.grid.behavior) {
-                    dataSource.set(this.grid.behavior.getGlobalFilter());
+                    dataSource.set(this.grid.behavior.getGlobalFilter && this.grid.behavior.getGlobalFilter());
                 }
             }
         }.bind(this));
@@ -689,38 +687,6 @@ var JSON = DataModel.extend('dataModels.JSON', {
         }
 
         return this.dataSource.getRow(y);
-    },
-
-    /**
-     * @summary Get a reference to the filter attached to the Hypergrid.
-     * @returns {FilterTree}
-     * @memberOf dataModels.JSON.prototype
-     */
-    getGlobalFilter: function() {
-        return this.getGlobalFilterDataSource().get();
-    },
-
-    /**
-     * @summary Attach/detach a filter to a Hypergrid.
-     * @param {FilterTree} [filter] - The filter object. If undefined, any attached filter is removed, turning filtering OFF.
-     * @memberOf dataModels.JSON.prototype
-     */
-    setGlobalFilter: function(filter) {
-        this.getGlobalFilterDataSource().set(filter);
-        this.applyAnalytics();
-    },
-
-    /**
-     * @summary Set the case sensitivity of filter tests against data.
-     * @desc Case sensitivity pertains to string compares only. This includes untyped columns, columns typed as strings, typed columns containing data that cannot be coerced to type or when the filter expression operand cannot be coerced.
-     *
-     * NOTE: This is a shared property and affects all grid managed by this instance of the app.
-     * @param {boolean} isSensitive
-     * @memberOf dataModels.JSON.prototype
-     */
-    setGlobalFilterCaseSensitivity: function(isSensitive) {
-        this.getGlobalFilter().setCaseSensitivity(isSensitive);
-        this.applyAnalytics();
     },
 
     /**

@@ -19,6 +19,18 @@ window.onload = function() {
     grid.behavior.dataModel.getFields().push('squared');
     grid.behavior.dataModel.getHeaders().push('squared');
     grid.behavior.dataModel.getCalculators().push(square);
+
+    // recreate to include new column
+    grid.behavior.createColumns();
+
+    // force type of new column to 'number' because current auto-detect does not know about calculated columns
+    grid.behavior.setColumnProperties(1, { type: 'number' });
+
+    var filterFactory = new Hypergrid.Hyperfilter(grid);
+    grid.setGlobalFilter(filterFactory.create());
+
+    grid.setState({ showFilterRow: true });
+
     grid.repaint();
 
     function square(dataRow, columnName) {

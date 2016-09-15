@@ -454,6 +454,18 @@ var DefaultFilter = FilterTree.extend('DefaultFilter', {
         }
 
         return result;
+    },
+
+    columnProperty: function(columnName, key, value) {
+        // Note that calculators are not applied to column schema that are simple string primitives.
+        var columnSchema = this.schema.lookup(columnName);
+        if (columnSchema) {
+            if (value) {
+                columnSchema[key] = value;
+            } else if (key in columnSchema) {
+                delete columnSchema[key];
+            }
+        }
     }
 });
 
