@@ -18,11 +18,6 @@ var noExportProperties = [
     'treeColumnPropertiesColumnSelection',
 ];
 
-var nullFilter = {
-    test: function() { return true; }, // all rows pass
-    setCaseSensitivity: function() {}
-};
-
 /**
  * @constructor
  * @abstract
@@ -49,8 +44,6 @@ var Behavior = Base.extend('Behavior', {
         this.grid.behavior = this;
         this.reset();
     },
-
-    globalFilter: nullFilter,
 
     /**
      * @desc create the feature chain - this is the [chain of responsibility](http://c2.com/cgi/wiki?ChainOfResponsibilityPattern) pattern.
@@ -1555,37 +1548,6 @@ var Behavior = Base.extend('Behavior', {
         if (this.grid.isRowNumberAutosizing()) {
             this.allColumns[-1].checkColumnAutosizing(true);
         }
-    },
-
-    /**
-     * @summary Get a reference to the filter attached to the Hypergrid.
-     * @returns {FilterTree}
-     * @memberOf Behavior.prototype
-     */
-    getGlobalFilter: function() {
-        return this.globalFilter;
-    },
-
-    /**
-     * @summary Attach/detach a filter to a Hypergrid.
-     * @param {FilterTree} [filter] - The filter object. If undefined, any attached filter is removed, turning filtering OFF.
-     * @memberOf Behavior.prototype
-     */
-    setGlobalFilter: function(filter) {
-        this.globalFilter = filter;
-        this.dataModel.setGlobalFilter(filter);
-    },
-
-    /**
-     * @summary Set the case sensitivity of filter tests against data.
-     * @desc Case sensitivity pertains to string compares only. This includes untyped columns, columns typed as strings, typed columns containing data that cannot be coerced to type or when the filter expression operand cannot be coerced.
-     *
-     * NOTE: This is a shared property and affects all grid managed by this instance of the app.
-     * @param {boolean} isSensitive
-     * @memberOf Behavior.prototype
-     */
-    setGlobalFilterCaseSensitivity: function(isSensitive) {
-        this.dataModel.setGlobalFilterCaseSensitivity(isSensitive);
     },
 
     getSelectedRows: function() {

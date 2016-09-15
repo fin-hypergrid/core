@@ -3,6 +3,38 @@
 module.exports = {
 
     /**
+     * @summary Get a reference to the filter attached to the Hypergrid.
+     * @returns {FilterTree}
+     * @memberOf dataModels.JSON.prototype
+     */
+    getGlobalFilter: function() {
+        return this.sources.filter.get();
+    },
+
+    /**
+     * @summary Attach/detach a filter to a Hypergrid.
+     * @param {FilterTree} [filter] - The filter object. If undefined, any attached filter is removed, turning filtering OFF.
+     * @memberOf dataModels.JSON.prototype
+     */
+    setGlobalFilter: function(filter) {
+        this.sources.filter.set(filter);
+        this.applyAnalytics();
+    },
+
+    /**
+     * @summary Set the case sensitivity of filter tests against data.
+     * @desc Case sensitivity pertains to string compares only. This includes untyped columns, columns typed as strings, typed columns containing data that cannot be coerced to type or when the filter expression operand cannot be coerced.
+     *
+     * NOTE: This is a shared property and affects all grid managed by this instance of the app.
+     * @param {boolean} isSensitive
+     * @memberOf dataModels.JSON.prototype
+     */
+    setGlobalFilterCaseSensitivity: function(isSensitive) {
+        this.sources.filter.get().setCaseSensitivity(isSensitive);
+        this.applyAnalytics();
+    },
+
+    /**
      * @summary Get a particular column filter's state.
      * @param {string} columnName
      * @param {FilterTreeGetStateOptionsObject} [options] - Passed to the filter's {@link DefaultFilter#getState|getState} method.

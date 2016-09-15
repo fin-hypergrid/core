@@ -3117,39 +3117,6 @@ Hypergrid.prototype = {
         return this.resolveProperty('columnAutosizing') === true;
     },
 
-    /**
-     * @summary Get a reference to the filter attached to the Hypergrid.
-     * @returns {FilterTree}
-     * @memberOf Hypergrid.prototype
-     */
-    getGlobalFilter: function() {
-        return this.behavior.getGlobalFilter();
-    },
-
-    /**
-     * @summary Attach/detach a filter to a Hypergrid.
-     * @param {FilterTree} [filter] - The filter object. If undefined, any attached filter is removed.
-     * @memberOf Hypergrid.prototype
-     */
-    setGlobalFilter: function(filter) {
-        this.behavior.setGlobalFilter(filter);
-        this.behaviorChanged();
-    },
-
-    /**
-     * @summary Set the case sensitivity of filter tests against data.
-     * @desc Case sensitivity pertains to string compares only. This includes untyped columns, columns typed as strings, typed columns containing data that cannot be coerced to type or when the filter expression operand cannot be coerced.
-     *
-     * NOTE: This is a shared property and affects all grid managed by this instance of the app.
-     * @param {boolean} isSensitive
-     * @memberOf Hypergrid.prototype
-     */
-    setGlobalFilterCaseSensitivity: function(isSensitive) {
-        // this setting affects all grids
-        this.behavior.setGlobalFilterCaseSensitivity(isSensitive);
-        this.behaviorChanged();
-    },
-
     selectRowsFromCells: function() {
         if (!this.isCheckboxOnlyRowSelections()) {
             var last,
@@ -3302,29 +3269,6 @@ Hypergrid.prototype = {
                 dialog.terminate = this.openDialog.bind(this, newDialogName, options);
             }
         }
-    },
-
-    /**
-     * @returns {string} One of:
-     * * `'active'` - There is at least one defined filter (leaf node) in the filter tree.
-     * * `'inactive'` - There are no defined filters (no leaf nodes) in the filter tree.
-     * * `'error'` - There is at least one partially defined filter.
-     */
-    getFilterStatus: function() {
-        var filter = this.getGlobalFilter(),
-            result;
-
-        if (filter) {
-            if (filter.invalid()) {
-                result = 'error';
-            } else if (filter.filterCount()) {
-                result = 'active';
-            } else {
-                result = 'inactive';
-            }
-        }
-
-        return result;
     }
 };
 function findOrCreateContainer(boundingRect) {

@@ -30,9 +30,10 @@ window.onload = function() {
         }, {
             label: 'Grouping',
             ctrls: [
-                { name: 'treeview', checked: false, setter: toggleTreeview },
-                { name: 'aggregates', checked: false, setter: toggleAggregates },
-                { name: 'grouping', checked: false, setter: toggleGrouping}
+                { name: 'none',       type: 'radio', checked: true, setter: function() {} },
+                { name: 'treeview',   type: 'radio', checked: false, setter: toggleTreeview },
+                { name: 'aggregates', type: 'radio', checked: false, setter: toggleAggregates },
+                { name: 'grouping',   type: 'radio', checked: false, setter: toggleGrouping}
             ]
         }, {
             label: 'Column header rows',
@@ -143,14 +144,13 @@ window.onload = function() {
     console.log('Headers:'); console.dir(behavior.dataModel.getHeaders());
     console.log('Indexes:'); console.dir(idx);
 
-    var treeView, dataset;
+    var treeView, aggView, groupView;
 
     function setData(data, options) {
         options = options || {};
         if (data === people1 || data === people2) {
             options.schema = peopleSchema;
         }
-        dataset = data;
         behavior.setData(data, options);
         resetGlobalFilter();
         idx = behavior.columnEnum;
@@ -207,48 +207,41 @@ window.onload = function() {
         },
         groups = [idx.BIRTH_STATE, idx.LAST_NAME, idx.FIRST_NAME];
 
-    var aggView, aggViewOn = false, doAggregates = false;
     function toggleAggregates() {
         if (!aggView){
-            aggView = new AggView(grid, {});
-            aggView.setPipeline({ includeSorter: true, includeFilter: true });
+            aggView = new AggView(grid, {
+                includeSorter: true,
+                includeFilter: true
+            });
         }
-        if (this.checked) {
-            grid.setAggregateGroups(aggregates, groups);
-            aggViewOn = true;
-        } else {
-            grid.setAggregateGroups([], []);
-            aggViewOn = false;
-        }
+        console.log('agg', this.checked);
+        aggView.setAggregateGroups(
+            this.checked ? aggregates : [],
+            this.checked ? groups : []
+        );
     }
 
     function toggleTreeview() {
-        if (this.checked) {
-            treeView = treeView || new TreeView(grid, {
+        if (!treeView) {
+            treeView = new TreeView(grid, {
                 treeColumn: 'State',
                 includeSorter: true,
                 includeFilter: true,
                 hideIdColumns: true
             });
-            treeView.setRelation(true, true);
-        } else {
-            treeView.setRelation(false);
         }
+        treeView.setRelation(this.checked);
     }
 
-    var groupView, groupViewOn = false;
-    function toggleGrouping(){
+    function toggleGrouping() {
         if (!groupView){
-            groupView = new GroupView(grid, {});
-            groupView.setPipeline({ includeSorter: true, includeFilter: true });
+            groupView = new GroupView(grid, {
+                includeSorter: true,
+                includeFilter: true
+            });
         }
-        if (this.checked){
-            grid.setGroups(groups);
-            groupViewOn = true;
-        } else {
-            grid.setGroups([]);
-            groupViewOn = false;
-        }
+        console.log('grp', this.checked);
+        groupView.setGroups(this.checked ? groups : []);
     }
 
     var styleRowsFromData;
@@ -485,9 +478,7 @@ window.onload = function() {
                         break;
 
                     case idx.BIRTH_DATE:
-                        if (!doAggregates) {
-                            config.value = [null, config.value, downArrowIMG];
-                        }
+                        config.value = [null, config.value, downArrowIMG];
                         break;
 
                     case idx.EMPLOYED:
@@ -539,9 +530,6 @@ window.onload = function() {
                     //     return starry;
                     // }
                 }
-            }
-            if (groupViewOn && dataModel.getRow(config.y).hasChildren) {
-                return grid.cellRenderers.get('EmptyCell');
             }
         }
 
@@ -1158,7 +1146,7 @@ window.onload = function() {
     // The following functions service these controls.
 
     function addToggle(ctrlGroup) {
-        var input, label, eventName,
+        var input, label,
             dashboard = document.getElementById('dashboard'),
             container = document.createElement('div');
 
@@ -1171,8 +1159,10 @@ window.onload = function() {
         }
 
         ctrlGroup.ctrls.forEach(function(ctrl) {
-            var type = ctrl.type || 'checkbox',
+            var referenceElement,
+                type = ctrl.type || 'checkbox',
                 tooltip = 'Property name: ' + ctrl.name;
+
             if (ctrl.tooltip) {
                 tooltip += '\n\n' + ctrl.tooltip;
             }
@@ -1180,36 +1170,53 @@ window.onload = function() {
             input = document.createElement('input');
             input.type = type;
             input.id = ctrl.name;
+            input.name = ctrlGroup.label;
 
             switch (type) {
                 case 'text':
                     input.value = ctrl.value || '';
-                    eventName = 'change';
                     input.style.width = '40px';
                     input.style.marginLeft = '4px';
+                    referenceElement = input; // label goes after input
                     break;
                 case 'checkbox':
-                    eventName = 'click';
+                case 'radio':
                     input.checked = 'checked' in ctrl
                         ? ctrl.checked
                         : grid.resolveProperty(ctrl.name);
+                    referenceElement = null; // label goes before input
                     break;
             }
 
-            input.addEventListener(eventName, ctrl.setter || setProp);
+            input.onchange = function() {
+                handleRadioClick.call(this, ctrl.setter || setProp);
+            };
 
             label = document.createElement('label');
             label.title = tooltip;
             label.appendChild(input);
             label.insertBefore(
                 document.createTextNode(' ' + (ctrl.label || ctrl.name)),
-                type !== 'checkbox' ? input : null // label goes before : after input
+                referenceElement
             );
 
             container.appendChild(label);
         });
 
         dashboard.appendChild(container);
+    }
+
+    var radioGroup = {};
+
+    function handleRadioClick(handler) {
+        if (this.type === 'radio') {
+            var lastRadio = radioGroup[this.name];
+            if (lastRadio) {
+                lastRadio.handler.call(lastRadio.ctrl);
+            }
+            radioGroup[this.name] = { ctrl: this, handler: handler };
+        }
+        handler.call(this);
     }
 
     function setProp() { // standard checkbox click handler

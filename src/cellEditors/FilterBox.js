@@ -28,8 +28,8 @@ var FilterBox = ComboBox.extend('FilterBox', {
     initialize: function() {
 
         // look in the filter, under column filters, for a column filter for this column
-        var root = this.grid.getGlobalFilter(),
-            columnFilters = root.columnFilters;
+        var root = this.grid.behavior.getGlobalFilter && this.grid.behavior.getGlobalFilter(),
+            columnFilters = root && root.columnFilters;
 
         if (!columnFilters) {
             throw 'Column filters not available.';
@@ -82,7 +82,7 @@ var FilterBox = ComboBox.extend('FilterBox', {
             appendOptions: function(dropdown) {
                 if (!dropdown.length) {
                     // Various  operator options and/or optgroups vary per column based on `opMenu`.
-                    var opMenuGroups = this.grid.getGlobalFilter().opMenuGroups;
+                    var opMenuGroups = this.grid.behavior.getGlobalFilter().opMenuGroups;
                     popMenu.build(dropdown, this.opMenu, {
                         group: function(groupName) {
                             return opMenuGroups[groupName];
@@ -137,7 +137,7 @@ var FilterBox = ComboBox.extend('FilterBox', {
      */
     hideEditor: function() {
         // look in the filter, under column filters, for a column filter for this column
-        var filter = this.grid.getGlobalFilter(),
+        var filter = this.grid.behavior.getGlobalFilter(),
             columnName = this.column.name,
             columnFilterSubtree = filter.getColumnFilter(columnName);
 
@@ -174,7 +174,7 @@ var FilterBox = ComboBox.extend('FilterBox', {
         this.input.focus();
 
         if (start === end && isOperator) {
-            var parser = this.grid.getGlobalFilter().parserCQL,
+            var parser = this.grid.behavior.getGlobalFilter().parserCQL,
                 cql = this.input.value,
                 position = parser.getOperatorPosition(cql, this.selectionStart, operator);
 
