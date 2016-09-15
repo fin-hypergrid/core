@@ -7,7 +7,7 @@ var automat = require('automat');
 var Base = require('../lib/Base');
 var markup = require('../../html');
 var images = require('../../images');
-var elfor = require('../lib/elfor');
+var elfor = require('../lib/DOM/elfor');
 
 /**
  * Creates and services a DOM element used as a cntainer for a dialog. The standard `markup.dialog` is simply a div with a _control panel_ containing a close box and a settings gear icon.

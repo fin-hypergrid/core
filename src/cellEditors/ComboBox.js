@@ -8,8 +8,8 @@
 
 var Textfield = require('./Textfield');
 var prototype = require('./CellEditor').prototype;
-var Queueless = require('../lib/queueless');
-var elfor = require('../lib/elfor');
+var Queueless = require('../lib/DOM/queueless');
+var elfor = require('../lib/DOM/elfor');
 
 /*********************************/
 /* eslint-disable no-unused-vars */

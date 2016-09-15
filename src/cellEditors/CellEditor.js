@@ -6,7 +6,7 @@ var mustache = require('mustache');
 var _ = require('object-iterators');
 
 var Base = require('../lib/Base');
-var effects = require('../lib/effects');
+var effects = require('../lib/DOM/effects');
 var Localization = require('../lib/Localization');
 
 /**
