@@ -117,7 +117,7 @@ Column.prototype = {
         this._calculator = calculator;
 
         if (this.behavior.getGlobalFilter) {
-            this.behavior.getGlobalFilter().columnProperty(this.name, 'calculator', calculator);
+            this.behavior.filterProp(this.index, 'calculator', calculator);
         }
 
         this.dataModel.getCalculators()[this.index] = calculator;

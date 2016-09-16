@@ -27,7 +27,7 @@ window.onload = function() {
     grid.behavior.setColumnProperties(1, { type: 'number' });
 
     var filterFactory = new Hypergrid.Hyperfilter(grid);
-    grid.setGlobalFilter(filterFactory.create());
+    grid.filter = filterFactory.create();
 
     grid.setState({ showFilterRow: true });
 

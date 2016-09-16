@@ -43,7 +43,7 @@ var ManageFilters = Dialog.extend('ManageFilters', {
      * @param {HTMLElement} [options.container=document.body]
      */
     initialize: function(grid, options) {
-        this.filter = grid.getGlobalFilter();
+        this.filter = grid.filter;
 
         this.append(markup.filterTrees);
 
