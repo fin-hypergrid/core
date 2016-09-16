@@ -1550,6 +1550,20 @@ Hypergrid.prototype = {
         });
         this.canvas.dispatchEvent(clickEvent);
     },
+    /**
+     * @memberOf Hypergrid.prototype
+     * @param {number} c - grid column index.
+     * @param {string[]} keys
+     */
+    fireSyntheticColumnSortEvent: function(c, keys) {
+        var event = new CustomEvent('fin-column-sort', {
+            detail: {
+                column: c,
+                keys: keys
+            }
+        });
+        this.canvas.dispatchEvent(event);
+    },
 
     fireSyntheticEditorKeyUpEvent: function(inputControl, keyEvent) {
         var clickEvent = new CustomEvent('fin-editor-keyup', {
@@ -2824,27 +2838,6 @@ Hypergrid.prototype = {
 
     getHeaderColumnCount: function() {
         return this.behavior.getHeaderColumnCount();
-    },
-
-    /**
-     * @memberOf Hypergrid.prototype
-     * @param {number} c - grid column index.
-     * @param {string[]} keys
-     */
-    toggleSort: function(c, keys) {
-        this.stopEditing();
-        var behavior = this.behavior;
-        var self = this;
-        behavior.toggleSort(c, keys);
-
-        setTimeout(function() {
-            self.synchronizeScrollingBoundries();
-            //self.behaviorChanged();
-            if (self.isColumnAutosizing()) {
-                behavior.autosizeAllColumns();
-            }
-            self.repaint();
-        }, 10);
     },
 
     toggleSelectColumn: function(x, keys) {

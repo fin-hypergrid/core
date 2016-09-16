@@ -71,14 +71,13 @@ var JSON = DataModel.extend('dataModels.JSON', {
 
     /**
      * @summary The default data sources for a new pipeline when none are give.
-     * @desc For now Filtering and Sorting are hardcoded in the grid.
+     * @desc For now Filtering is hardcoded in the grid.
      * In the future, this will likely be empty (unless overridden by application developer for his own purposes).
      * @type {pipelineSchema}
      * @memberOf dataModels.JSON.prototype
      */
     defaultPipelineSchema: [
-        analytics.DataSourceGlobalFilter,
-        analytics.DataSourceSorterComposite
+        analytics.DataSourceGlobalFilter
     ],
 
     clearSelectedData: function() {
@@ -537,39 +536,9 @@ var JSON = DataModel.extend('dataModels.JSON', {
         return this.isDrillDown() && showTree;
     },
 
-
     /**
      * @memberOf dataModels.JSON.prototype
-     * @param {number} colIndex
-     * @param keys
-     */
-    toggleSort: function(colIndex, keys) {
-        this.incrementSortState(colIndex, keys);
-        this.applyAnalytics({columnSort: true});
-    },
-
-    /**
-     * @memberOf dataModels.JSON.prototype
-     * @param {number} columnIndex
-     * @param {boolean} deferred
-     */
-    unSortColumn: function(columnIndex, deferred) {
-        var sorts = this.getSortedColumnIndexes(),
-            sortPosition;
-
-        if (sorts.find(function(sortSpec, index) {
-                sortPosition = index;
-                return sortSpec.columnIndex === columnIndex;
-            })) {
-            sorts.splice(sortPosition, 1);
-            if (!deferred) {
-                this.applyAnalytics({columnSort: true});
-            }
-        }
-    },
-
-    /**
-     * @memberOf dataModels.JSON.prototype
+     * @desc returns the columns that currently sorted and their intended direction of the sort
      */
     getSortedColumnIndexes: function() {
         var state = this.getPrivateState();
@@ -579,37 +548,9 @@ var JSON = DataModel.extend('dataModels.JSON', {
 
     /**
      * @memberOf dataModels.JSON.prototype
-     * @param {number} colIndex
-     * @param {string[]} keys
-     */
-    incrementSortState: function(columnIndex, keys) {
-        var sorts = this.getSortedColumnIndexes(),
-            sortSpec = sorts.find(function(spec, index) {
-                return spec.columnIndex === columnIndex;
-            });
-
-        if (!sortSpec) { // was unsorted
-            if (keys.indexOf('CTRL') < 0) { sorts.length = 0; }
-            sorts.unshift({
-                columnIndex: columnIndex, // so define and...
-                direction: 1 // ...make ascending
-            });
-        } else if (sortSpec.direction > 0) { // was ascending
-            sortSpec.direction = -1; // so make descending
-        } else { // was descending
-            this.unSortColumn(columnIndex, true); // so make unsorted
-        }
-
-        //Minor improvement, but this check can happe n earlier and terminate earlier
-        if (sorts.length > 3) {
-            sorts.length = 3;
-        }
-    },
-
-    /**
-     * @memberOf dataModels.JSON.prototype
      * @param index
      * @param returnAsString
+     * @desc Provides the unicode character used to denote visually if a column is a sorted state
      * @returns {*}
      */
     getSortImageForColumn: function(columnIndex) {

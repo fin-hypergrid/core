@@ -23,7 +23,7 @@ var ColumnSorting = Feature.extend('ColumnSorting', {
             (columnProperties = grid.behavior.getColumnProperties(event.dataCell.x)) &&
             !columnProperties.unsortable
         ) {
-            grid.toggleSort(event.gridCell.x, event.primitiveEvent.detail.keys);
+            grid.fireSyntheticColumnSortEvent(event.gridCell.x, event.primitiveEvent.detail.keys);
         } else if (this.next) {
             this.next.handleDoubleClick(grid, event);
         }

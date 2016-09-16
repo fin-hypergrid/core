@@ -1410,19 +1410,6 @@ var Behavior = Base.extend('Behavior', {
 
         return cellEditor;
     },
-
-    /**
-     * @memberOf Behavior.prototype
-     * @param {number} c - grid column index.
-     * @param {string[]} keys
-     */
-    toggleSort: function(c, keys) {
-        var column = this.getActiveColumn(c);
-        if (column) {
-            column.toggleSort(keys);
-        }
-    },
-
     /**
      * @memberOf Behavior.prototype
      * @return {boolean} `true` if we should highlight on hover
