@@ -173,10 +173,10 @@ var JSON = DataModel.extend('dataModels.JSON', {
                     value = at ? value.substr(0, at) + sortString + value.substr(at) : sortString + value;
                 }
             } else { // must be filter row
-                var behavior = this.grid.behavior,
-                    filter;
-                value = behavior.getGlobalFilter && (filter = behavior.getGlobalFilter()) &&
-                    filter.getColumnFilterState && filter.getColumnFilterState(this.getFields()[x]) || '';
+                if (!this.filter.getColumnFilterState) {
+                    throw new this.HypergridError('Column filters not available.');
+                }
+                value = this.filter.getColumnFilterState(this.getFields()[x]) || '';
                 var icon = images.filter(value.length);
                 return [null, value, icon];
             }
@@ -392,8 +392,8 @@ var JSON = DataModel.extend('dataModels.JSON', {
                 this.sources[getDataSourceName(dataSource)] = dataSource;
                 this.pipeline.push(dataSource);
 
-                if (dataSource.filterTest && this.grid.behavior) {
-                    dataSource.set(this.grid.behavior.getGlobalFilter && this.grid.behavior.getGlobalFilter());
+                if (dataSource.filterTest) {
+                    dataSource.set(this.filter);
                 }
             }
         }.bind(this));

@@ -68,7 +68,7 @@ window.onload = function() {
             label: 'Filtering',
             ctrls: [
                 {
-                    name: 'filterOptions.caseSensitive',
+                    name: 'filterOptions.caseSensitiveData',
                     label: 'case-sensitive operand',
                     checked: filterOptions.caseSensitiveData,
                     tooltip: 'Check to match case of operand and data in string comparisons. This is a shared dynamic property that instantly affects all grids.',
@@ -184,7 +184,7 @@ window.onload = function() {
 
     // add a column filter subexpression containing a single condition purely for demo purposes
     if (false) { // eslint-disable-line no-constant-condition
-        grid.getGlobalFilter().columnFilters.add({
+        grid.filter.columnFilters.add({
             children: [{
                 column: 'total_number_of_pets_owned',
                 operator: '=',
@@ -252,7 +252,7 @@ window.onload = function() {
     }
 
     function toggleCaseSensitivity() {
-        grid.setGlobalFilterCaseSensitivity(this.checked);
+        grid.filterProp('caseSensitiveData', this.checked);
     }
 
     function toggleDialog(dialogName, evt) {
@@ -973,7 +973,7 @@ window.onload = function() {
 
             showRowNumbers: true,
             showHeaderRow: true,
-            showFilterRow: true,
+            showFilterRow: grid.filter.columnFilters,
             columnAutosizing: false,
             headerTextWrapping: true,
 
@@ -1288,8 +1288,7 @@ window.onload = function() {
     }
 
     function resetGlobalFilter() {
-        var newFilter = hyperfilter.create(); // new filter with new derived column schema
-        grid.setGlobalFilter(newFilter);
+        grid.filter = hyperfilter.create(); // new filter with new derived column schema
     }
 
     function redIfStartsWithS(dataRow, columnName) {

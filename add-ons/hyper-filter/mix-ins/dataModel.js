@@ -1,14 +1,20 @@
 'use strict';
 
+var nullFilter = {
+    test: function() { return true; } // all rows pass
+};
+
 module.exports = {
+
+    _filter: nullFilter,
 
     /**
      * @summary Get a reference to the filter attached to the Hypergrid.
      * @returns {FilterTree}
      * @memberOf dataModels.JSON.prototype
      */
-    getGlobalFilter: function() {
-        return this.sources.filter.get();
+    get filter() {
+        return this._filter;
     },
 
     /**
@@ -16,22 +22,101 @@ module.exports = {
      * @param {FilterTree} [filter] - The filter object. If undefined, any attached filter is removed, turning filtering OFF.
      * @memberOf dataModels.JSON.prototype
      */
-    setGlobalFilter: function(filter) {
+    set filter(filter) {
+        this._filter = filter;
         this.sources.filter.set(filter);
         this.applyAnalytics();
     },
 
     /**
-     * @summary Set the case sensitivity of filter tests against data.
-     * @desc Case sensitivity pertains to string compares only. This includes untyped columns, columns typed as strings, typed columns containing data that cannot be coerced to type or when the filter expression operand cannot be coerced.
+     * @summary Set a filter property.
+     * @desc There are two kinds of filter properties:
+     * * *root* properties - Pertain to entire filter.
+     * * *column* properties - Pertain to a specific column.
      *
-     * NOTE: This is a shared property and affects all grid managed by this instance of the app.
-     * @param {boolean} isSensitive
+     * NOTE: Not all filter properties are guaranteed to be dynamic; some are set at instantiation time and updating them later will have no effect.
+     *
+     * @param {number} [columnIndex] - If given, operate on this specific column properties object. If omitted, operate on the whole filter properties object.
+     *
+     * @param {string|object} [property] - _If `columnIndex` is omitted, this takes first position._
+     *
+     * One of:
+     * * Omitted returns the entire properties object.
+     * * *string* - Explicit property name to set on the properties object with `value`.
+     * * *object* - Hash of properties to copy to the properties object.
+     * Note that fore each member of the has, all values including all falsy values are considered valid with the exception of `undefined` which deletes the property with the same key from the properties object.
+     *
+     * @param [value] - _If `columnIndex` is omitted, this takes second position._
+     *
+     * One of:
+     * * When `property` is a hash and `value` is given:
+     * Unexpected! (Throws error.)
+     * * When `property` is a string and `value` is given:
+     * Copy this value to properties object using the key in `property`.
+     * Note that all values including all falsy values are considered valid with the exception of `undefined` which deletes the property from the properties object.
+     * * When `property` is a string and `value` is omitted:
+     * Return the value from the properties object of the key in `property`.
+     *
+     * @returns One of:
+     * * Properties object when `property` omitted or when `property` is a hash containing more than one property.
+     * * Explicit property value when getting/setting a single property either because property was named explicitly in `property` or because `property` contained a hash with exactly one value.
      * @memberOf dataModels.JSON.prototype
      */
-    setGlobalFilterCaseSensitivity: function(isSensitive) {
-        this.sources.filter.get().setCaseSensitivity(isSensitive);
+    filterProp: function(columnIndex, property, value) {
+        if (!this.filter.prop) {
+            return; // fail silently when filter does not support properties
+        }
+
+        var invalid, properties,
+            isColumnProp = typeof columnIndex === 'number';
+
+        if (!isColumnProp) {
+            value = property;
+            property = columnIndex;
+        }
+
+        switch (arguments.length - isColumnProp) {
+            case 0: // getter for whole filter properties object
+                if (isColumnProp) {
+                    properties = {};
+                }
+                break;
+            case 1: // getter for single filter property (string) or setter (hash)
+                if (typeof property === 'object') {
+                    properties = property;
+                } else {
+                    properties = { property: property };
+                }
+                break;
+            case 2: // setter for single filter/column property (string, value)
+                if (typeof property !== 'string') {
+                    invalid = true;
+                } else {
+                    properties = {};
+                    properties[property] = value;
+                }
+                break;
+            default: // too many args
+                invalid = true;
+        }
+
+        if (invalid) {
+            throw new this.HypergridError('Invalid overload.');
+        }
+
+        if (isColumnProp) {
+            // non-enumerable property:
+            Object.defineProperty(properties, 'column', {
+                index: columnIndex,
+                name: this.source.getFields()[columnIndex]
+            });
+        }
+
+        var result = this.filter.prop(properties);
+
         this.applyAnalytics();
+
+        return result;
     },
 
     /**
@@ -46,7 +131,7 @@ module.exports = {
         var isIndex = !isNaN(Number(columnIndexOrName)),
             columnName = isIndex ? this.getFields()[columnIndexOrName] : columnIndexOrName;
 
-        return this.getGlobalFilter().getColumnFilterState(columnName, options);
+        return this.filter.getColumnFilterState(columnName, options);
     },
 
     /**
@@ -65,7 +150,7 @@ module.exports = {
         var isIndex = !isNaN(Number(columnIndexOrName)),
             columnName = isIndex ? this.getFields()[columnIndexOrName] : columnIndexOrName;
 
-        this.getGlobalFilter().setColumnFilterState(columnName, state, options);
+        this.filter.setColumnFilterState(columnName, state, options);
         this.grid.fireSyntheticFilterAppliedEvent();
         this.applyAnalytics();
     },
@@ -76,7 +161,7 @@ module.exports = {
      * @memberOf dataModels.JSON.prototype
      */
     getFilters: function(options) {
-        return this.getGlobalFilter().getColumnFiltersState(options);
+        return this.filter.getColumnFiltersState(options);
     },
 
     /**
@@ -86,7 +171,7 @@ module.exports = {
      * @memberOf dataModels.JSON.prototype
      */
     setFilters: function(state, options) {
-        this.getGlobalFilter().setColumnFiltersState(state, options);
+        this.filter.setColumnFiltersState(state, options);
         this.grid.fireSyntheticFilterAppliedEvent();
         this.applyAnalytics();
     },
@@ -97,7 +182,7 @@ module.exports = {
      * @memberOf dataModels.JSON.prototype
      */
     getTableFilter: function(options) {
-        return this.getGlobalFilter().getTableFilterState(options);
+        return this.filter.getTableFilterState(options);
     },
 
     /**
@@ -108,7 +193,7 @@ module.exports = {
      * @memberOf dataModels.JSON.prototype
      */
     setTableFilter: function(state, options) {
-        this.getGlobalFilter().setTableFilterState(state, options);
+        this.filter.setTableFilterState(state, options);
         this.grid.fireSyntheticFilterAppliedEvent();
         this.applyAnalytics();
     },

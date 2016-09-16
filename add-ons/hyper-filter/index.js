@@ -1,31 +1,27 @@
 'use strict';
 
+var overrider = require('overrider');
+
 var DefaultFilter = require('./js/DefaultFilter');
 var ColumnSchemaFactory = require('./js/ColumnSchemaFactory');
 
 /**
  * @param {Hypergrid} grid
- * @param {boolean} [basic=false] - Truthy means to limit mixin to "GlobalFilter" methods. This would exclude the methods that deal with the table and column filter subtree states.
- * @param {object} objects - Hash of mixin targets. These are typically prototype objects. If targets are missing, targets current grid's various prototypes.
+ * @param {object} [targets] - Hash of mixin targets. These are typically prototype objects. If not given or any targets are missing, defaults to current grid's various prototypes.
  * @constructor
  */
-function Hyperfilter(grid, basic, objects) {
+function Hyperfilter(grid, targets) {
     this.grid = grid;
-    objects = objects || {};
+    targets = targets || {};
 
     mixInTo('Hypergrid', grid, require('./mix-ins/grid'));
     mixInTo('Behavior', grid.behavior, require('./mix-ins/behavior'));
     mixInTo('DataModel', grid.behavior.dataModel, require('./mix-ins/dataModel'));
 
     function mixInTo(target, instance, mixin) {
-        var object = objects[target];
+        var object = targets[target];
         var prototype = object && object.prototype || Object.getPrototypeOf(instance);
-
-        for (var key in mixin) {
-            if (!basic || /globalfilter/.test(key)) {
-                prototype[key] = mixin[key];
-            }
-        }
+        overrider(prototype, mixin);
     }
 }
 

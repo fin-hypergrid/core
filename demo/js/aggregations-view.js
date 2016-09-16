@@ -35,11 +35,11 @@ window.onload = function() {
     grid.setData(window.people1);
 
     var filterFactory = new Hyperfilter(grid);
-    grid.setGlobalFilter(filterFactory.create());
+    grid.filter = filterFactory.create();
 
     // show filter row as per `options`
     grid.setState({
-        showFilterRow: options.includeFilter && grid.behavior.getGlobalFilter().columnFilters
+        showFilterRow: options.includeFilter && grid.behavior.filter.columnFilters
     });
 
     var aggViewAPI = new AggregationsView(grid, options);

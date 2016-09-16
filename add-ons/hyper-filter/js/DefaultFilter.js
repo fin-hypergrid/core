@@ -5,7 +5,7 @@ var _ = require('object-iterators');
 var FilterTree = require('filter-tree');
 var ParserCQL = require('./parser-CQL');
 
-// Add a property `menuModes` to the tree, defaulting to `operators` as the only active mode
+// Add a property `menuModes` to th e tree, defaulting to `operators` as the only active mode
 FilterTree.Node.optionsSchema.menuModes = {
     default: {
         operators: 1
@@ -121,6 +121,12 @@ _(FilterTree.Node.prototype.templates).extendOwn({
         .join('\n')
 });
 
+// Properties be assigned as first class objects.
+// If *not* here, property values presented as functions will be executed to get value to assign to property.
+var firstClassProperties = {
+    calculator: true
+};
+
 /** @constructor
  *
  * @desc This extension of FilterTree forces a specific tree structure.
@@ -134,7 +140,6 @@ _(FilterTree.Node.prototype.templates).extendOwn({
  *
  * NOTE: If `options.state` is undefined, it is defined in `preInitialize()` as a new empty state scaffold (see {@link makeNewRoot}) with the two trunks to hold a table filter and column filters. Expressions and subexpressions can be added to this empty scaffold either programmatically or through the Query Builder UI.
  */
-
 var DefaultFilter = FilterTree.extend('DefaultFilter', {
     preInitialize: function(options) {
         options = options || {};
@@ -456,16 +461,48 @@ var DefaultFilter = FilterTree.extend('DefaultFilter', {
         return result;
     },
 
-    columnProperty: function(columnName, key, value) {
-        // Note that calculators are not applied to column schema that are simple string primitives.
-        var columnSchema = this.schema.lookup(columnName);
-        if (columnSchema) {
-            if (value) {
-                columnSchema[key] = value;
-            } else if (key in columnSchema) {
-                delete columnSchema[key];
+    /**
+     * @summary Column property accessor.
+     * @desc Gets or sets whole filter object or specific column properties object or explicit property value (or, when setting, multiple values) on such object.
+     *
+     * Notes regarding specific properties:
+     * * `caseSensitiveData` (root property) pertains to string compares only. This includes untyped columns, columns typed as strings, typed columns containing data that cannot be coerced to type or when the filter expression operand cannot be coerced. This is a shared property and affects all grids managed by this instance of the app.
+     * * `calculator` (column property) Computed column calculator.
+     *
+     * * @param {object} properties - Interpreted as follows:
+     * 1. Determine which property object to operate on:
+     *    If `column` defined, then column property, else filter property.
+     * 2. If `property` defined, return value of named property in object.
+     * 3. else if no other properties, return entire properties object.
+     * 4. else enumerable properties are values to set where:
+     *    * `undefined` deletes property
+     *    * functions are executed to get value to assign to property (except when key is listed in `firstClassProperties`)
+     *    * all other values are assigned to property
+     * @returns Properties object except property value when getting/setting a single property.
+     */
+    prop: function(properties) {
+        var propCount = 0,
+            object = properties && properties.column
+                ? this.schema.lookup(properties.column.name)
+                : this.root;
+
+        if (properties && object) {
+            if (properties.property) {
+                return object[properties.property];
+            }
+            for (var key in properties) {
+                var value = properties[key];
+                if (value === undefined) {
+                    delete object[key];
+                } else if (typeof value === 'function' && !firstClassProperties[key]) {
+                    object[key] = value();
+                } else {
+                    object[key] = value;
+                }
+                propCount++;
             }
         }
+        return propCount === 1 ? value : object;
     }
 });
 

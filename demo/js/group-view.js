@@ -26,12 +26,12 @@ window.onload = function() {
     drillDown.mixInTo(dataModelPrototype);
 
     var filterFactory = new Hyperfilter(grid);
-    grid.setGlobalFilter(filterFactory.create());
+    grid.filter = filterFactory.create();
 
     // show filter row as per `options`
     grid.setState({
         // columnAutosizing: false,
-        showFilterRow: options.includeFilter && grid.behavior.getGlobalFilter().columnFilters
+        showFilterRow: options.includeFilter && grid.behavior.filter.columnFilters
     });
 
     var groupViewAPI = new GroupView(grid, options);

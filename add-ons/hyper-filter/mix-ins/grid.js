@@ -7,31 +7,26 @@ module.exports = {
      * @returns {FilterTree}
      * @memberOf Hypergrid.prototype
      */
-    getGlobalFilter: function() {
-        return this.behavior.getGlobalFilter();
+    get filter() {
+        return this.behavior.filter;
     },
 
     /**
      * @summary Attach/detach a filter to a Hypergrid.
-     * @param {FilterTree} [filter] - The filter object. If undefined, any attached filter is removed.
+     * @param {FilterTree} [filter] - The filter object. If omitted, any attached filter is removed, turning filtering *OFF*.
      * @memberOf Hypergrid.prototype
      */
-    setGlobalFilter: function(filter) {
-        this.behavior.setGlobalFilter(filter);
+    set filter(filter) {
+        this.behavior.filter = filter;
         this.behaviorChanged();
     },
 
     /**
-     * @summary Set the case sensitivity of filter tests against data.
-     * @desc Case sensitivity pertains to string compares only. This includes untyped columns, columns typed as strings, typed columns containing data that cannot be coerced to type or when the filter expression operand cannot be coerced.
-     *
-     * NOTE: This is a shared property and affects all grid managed by this instance of the app.
-     * @param {boolean} isSensitive
+     * @see {@link dataModels.JSON#filterProp|filterProp}
      * @memberOf Hypergrid.prototype
      */
-    setGlobalFilterCaseSensitivity: function(isSensitive) {
-        // this setting affects all grids
-        this.behavior.setGlobalFilterCaseSensitivity(isSensitive);
+    filterProp: function(columnIndex, property, value) {
+        this.behavior.filterProp.apply(this.behavior, arguments);
         this.behaviorChanged();
     },
 

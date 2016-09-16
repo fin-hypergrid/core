@@ -1,44 +1,31 @@
 'use strict';
 
-var nullFilter = {
-    test: function() { return true; }, // all rows pass
-    setCaseSensitivity: function() {},
-    columnProperty: function() {}
-};
-
 module.exports = {
-
-    globalFilter: nullFilter,
 
     /**
      * @summary Get a reference to the filter attached to the Hypergrid.
      * @returns {FilterTree}
      * @memberOf Behavior.prototype
      */
-    getGlobalFilter: function() {
-        return this.globalFilter;
+    get filter() {
+        return this.dataModel.filter;
     },
 
     /**
      * @summary Attach/detach a filter to a Hypergrid.
-     * @param {FilterTree} [filter] - The filter object. If undefined, any attached filter is removed, turning filtering OFF.
+     * @param {FilterTree} [filter] - The filter object. If omitted, any attached filter is removed, turning filtering *OFF*.
      * @memberOf Behavior.prototype
      */
-    setGlobalFilter: function(filter) {
-        this.globalFilter = filter;
-        this.dataModel.setGlobalFilter(filter);
+    set filter(filter) {
+        this.dataModel.filter = filter;
     },
 
     /**
-     * @summary Set the case sensitivity of filter tests against data.
-     * @desc Case sensitivity pertains to string compares only. This includes untyped columns, columns typed as strings, typed columns containing data that cannot be coerced to type or when the filter expression operand cannot be coerced.
-     *
-     * NOTE: This is a shared property and affects all grid managed by this instance of the app.
-     * @param {boolean} isSensitive
+     * @see {@link dataModels.JSON#filterProp|filterProp}
      * @memberOf Behavior.prototype
      */
-    setGlobalFilterCaseSensitivity: function(isSensitive) {
-        this.dataModel.setGlobalFilterCaseSensitivity(isSensitive);
+    filterProp: function(columnIndex, property, value) {
+        this.dataModel.filterProp.apply(this.dataModel, arguments);
     },
 
     /**
