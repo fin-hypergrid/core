@@ -7,13 +7,11 @@ var grid;
 
 window.onload = function() {
     var Hypergrid = fin.Hypergrid;
-
     // Create the grid and insert into the DOM
     grid = new Hypergrid('div#example');
     grid.setData(window.unitedStates);
-
     grid.installPlugins([
-        Hypergrid.Hypersorter, // object API instantiation to grid.plugins; no `name` or `$$CLASS_NAME` defined so no ref saved
+        //Hypergrid.Hypersorter, // object API instantiation to grid.plugins; no `name` or `$$CLASS_NAME` defined so no ref saved
         Hypergrid.groupedHeader // simple API install (plain object with `install` method) but no `name` defined so no ref is saved
     ]);
 

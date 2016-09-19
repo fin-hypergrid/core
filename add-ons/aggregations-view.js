@@ -81,7 +81,7 @@ AggregationsView.prototype.setAggregateGroups = function(aggregations, groups) {
         behavior = grid.behavior,
         dataModel = behavior.dataModel;
 
-    // 1. ON AGGREGATING: INSTALL GROUP-VIEW PIPELINE
+    // 1. ON AGGREGATING: INSTALL PIPELINE
 
     if (aggregated) {
         var dataTransformers = window.fin.Hypergrid.analytics;
@@ -103,7 +103,7 @@ AggregationsView.prototype.setAggregateGroups = function(aggregations, groups) {
 
     if (aggregated) {
         dataSource.setAggregateGroups(aggregations, groups);
-        behavior.applyAnalytics(); // rows have changed
+        behavior.reindex(); // rows have changed
     } else {
         dataSource.setAggregateGroups({}, []);
     }

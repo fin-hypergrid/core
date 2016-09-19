@@ -22,6 +22,7 @@ Hypergrid.images = require('../images');
 Hypergrid.behaviors = require('./behaviors');
 Hypergrid.dataModels = require('./dataModels');
 Hypergrid.features = require('./features');
+Hypergrid.dataSourceBase = require('./dataSources/DataSourceBase');
 Hypergrid.analytics = require('./Shared.js').analytics;
 Hypergrid.rectangular = require('rectangular');
 

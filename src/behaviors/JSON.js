@@ -72,8 +72,8 @@ var JSON = Behavior.extend('behaviors.JSON', {
         return key.replace(REGEX_CAMEL_CASE, '$1_$2').toUpperCase();
     },
 
-    getNewDataModel: function() {
-        return new DataModelJSON(this.grid);
+    getNewDataModel: function(options) {
+        return new DataModelJSON(this.grid, options);
     },
 
     /**
@@ -128,7 +128,7 @@ var JSON = Behavior.extend('behaviors.JSON', {
         this.dataModel.setPipeline(DataSources, options);
 
         if (!options || options.apply === undefined || options.apply) {
-            this.applyAnalytics();
+            this.reindex();
         }
     },
 
@@ -148,7 +148,7 @@ var JSON = Behavior.extend('behaviors.JSON', {
         this.dataModel.unstashPipeline(stash);
 
         if (!options || options.apply === undefined || options.apply) {
-            this.applyAnalytics();
+            this.reindex();
         }
     },
 
@@ -195,7 +195,7 @@ var JSON = Behavior.extend('behaviors.JSON', {
         }
 
         if (options.apply === undefined || options.apply) {
-            this.applyAnalytics();
+            this.reindex();
         }
 
         var self = this;
@@ -228,7 +228,8 @@ var JSON = Behavior.extend('behaviors.JSON', {
             this.unwrap(options.fields),
             this.unwrap(options.calculators)
         );
-        this.applyAnalytics();
+
+        this.reindex();
     },
 
     /**
@@ -280,7 +281,7 @@ var JSON = Behavior.extend('behaviors.JSON', {
      * @param {Array} columnDefinitions - an array of objects with fields 'title', and 'field'
      */
     setColumns: function(columnDefinitions) {
-        this.dataModel.setColumns(columnDefinitions); // TODO: this method is missing
+        this.dataModel.setColumns(columnDefinitions); // TODO: this method is missing. Should this be deprecated
     },
 
     /**

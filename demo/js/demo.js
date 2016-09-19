@@ -89,11 +89,6 @@ window.onload = function() {
             ]
         }
     ];
-
-    // restore previous "opinionated" headerify behavior
-    var headerify = Hypergrid.analytics.util.headerify;
-    headerify.transform = headerify.capitalize;
-
     function derivedPeopleSchema(columns) {
         // create a hierarchical schema organized by alias
         var factory = new Hypergrid.ColumnSchemaFactory(columns);
@@ -148,9 +143,12 @@ window.onload = function() {
             includeFilter: true
         }],
         Hypergrid.Hyperfilter,
-        Hypergrid.Hypersorter
+        [Hypergrid.Hypersorter, {Column: fin.Hypergrid.behaviors.Column}]
     ]);
 
+    // Install the sorter and Filter APIs (optional).
+    grid.setPipeline([window.fin.Hypergrid.analytics.DataSourceGlobalFilter, window.fin.Hypergrid.analytics.DataSourceSorterComposite]);
+    setGlobalSorter();
     resetGlobalFilter();
 
     console.log('Fields:');  console.dir(behavior.dataModel.getFields());
@@ -165,7 +163,7 @@ window.onload = function() {
         grid.setData(data, options);
         resetGlobalFilter();
         idx = behavior.columnEnum;
-        behavior.applyAnalytics();
+        behavior.reindex();
     }
 
     // Preset a default dialog options object. Used by call to toggleDialog('ColumnPicker') from features/ColumnPicker.js and by toggleDialog() defined herein.
@@ -273,6 +271,7 @@ window.onload = function() {
 
 
     behavior.setFixedRowCount(2);
+    dataModel.source.transform = dataModel.source.capitalize; //No longer defaulted;
 
 
     var upDown = Hypergrid.images['down-rectangle'];
@@ -1097,7 +1096,6 @@ window.onload = function() {
         if (document.querySelector('#aggregates').checked) {
             behavior.setAggregates(aggregates, [idx.BIRTH_STATE, idx.LAST_NAME, idx.FIRST_NAME]);
         }
-        window.a = dataModel.analytics;
 
     }, 50);
 
@@ -1309,6 +1307,10 @@ window.onload = function() {
 
     function resetGlobalFilter() {
         grid.filter = grid.plugins.hyperfilter.create(); // new filter with new derived column schema
+    }
+
+    function setGlobalSorter() {
+        grid.sorter = grid.plugins.hypersorter;
     }
 
     function redIfStartsWithS(dataRow, columnName) {

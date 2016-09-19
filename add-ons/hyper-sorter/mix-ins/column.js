@@ -2,10 +2,10 @@
 
 module.exports = {
     toggleSort: function(keys) {
-        this.dataModel.toggleSort(this.index, keys);
+        this.dataModel.toggleSort(this, keys);
     },
 
     unSort: function(deferred) {
-        this.dataModel.unSortColumn(this.index, deferred);
+        this.dataModel.unSortColumn(this, deferred);
     }
 };

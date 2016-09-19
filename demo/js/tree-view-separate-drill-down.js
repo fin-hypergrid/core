@@ -22,11 +22,12 @@ window.onload = function() {
         Hypergrid.drillDown, // simple API install (plain object with `install` method) but no `name` defined so no ref is saved
         Hypergrid.rowById, // ditto
         Hypergrid.Hyperfilter, // object API instantiation; `$$CLASS_NAME` defined so ref saved in `grid.plugins.hyperfilter`
-        Hypergrid.Hypersorter, // object API instantiation to grid.plugins; no `name` or `$$CLASS_NAME` defined so no ref saved
+        [Hypergrid.Hypersorter, {Column: fin.Hypergrid.behaviors.Column}], // object API instantiation to grid.plugins; no `name` or `$$CLASS_NAME` defined so no ref saved
         [Hypergrid.TreeView, options] // object API instantiation with one arg; `$$CLASS_NAME` defined so ref saved in `grid.plugins.treeViewAPI`
     ] });
 
     grid.filter = grid.plugins.hyperfilter.create();
+    grid.sorter = grid.plugins.hypersorter;
 
     var idx = grid.behavior.columnEnum;
 

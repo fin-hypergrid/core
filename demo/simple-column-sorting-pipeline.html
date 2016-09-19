@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" >
+</head>
+<body>
+
+
+    <script src="build/fin-hypergrid.js"></script>
+    <script>
+        /*
+        * As with ALL HyperGrid Demos. This code is for EXEMPLARY purposes ONLY.
+        * THIS IS NOT PRODUCTION CODE.
+        * We intend this as a community guideline, where users can adopt and take ownership of.
+        *
+        * */
+        var grid = new fin.Hypergrid(),
+            UPWARDS_BLACK_ARROW = '\u25b2'; //icon to indicate toggle state
+
+        grid.setData([
+            { symbol: 'APPL', name: 'Apple Inc.', prevclose: 93.13 },
+            { symbol: 'TSLA', name: 'Tesla Motors Inc.', prevclose: 196.40 },
+            { symbol: 'MSFT', name: 'Microsoft Corporation', prevclose: 51.91 },
+            { symbol: 'IBM', name: 'International Business Machines Corp', prevclose: 155.35 }
+        ]);
+
+        //All custom pipelines should extend from pipelineBase
+        var MySorterDataSource = window.fin.Hypergrid.dataSourceBase.extend('MySorterDataSource',  {
+            //The `get` and `set` are two functions are use by HyperGrid core if there if the DataSource has the type "sorter"
+            type: 'sorter',
+            data: [],
+            set: function(sorter) {
+                if (sorter) {
+                    this.sorter = sorter; // Will become a ref to MySorterAPI
+                } else {
+                    delete this.sorter;
+                }
+            },
+
+            get: function() {
+                return this.sorter;
+            },
+            // This function is called on every reIndex call if this object is in the pipelne
+            apply: function (){
+                var c = this.sorter.columnIndex;
+                if (c === null) {
+                    this.data.length = 0;
+                    return;
+                }
+
+                var fields = this.dataSource.getFields()[c];
+                //All objects added to your pipeline will have access to the underlying "raw" data
+                // getReIndex resolves the entire pipeline beneath this dataSource for all rows
+                // Furthermore this sort reorders objects in an array as opposed to leveraging an index
+                // This trivial example would not scale
+                this.data =  (function () {
+                    var ds = this.dataSource;
+                    var count = ds.getRowCount();
+                    var result = new Array(count);
+                    for (var y = 0; y < count; y++) {
+                        result[y] = ds.getRow(y);
+                    }
+
+                    return result;
+                }).bind(this)();
+
+
+                this.data = this.data.sort(function (a, b) {
+                    if (a[fields] > b[fields]) {
+                        return 1;
+                    }
+                    if (a[fields] < b[fields]) {
+                        return -1;
+                    }
+                    // a must be equal to b
+                    return 0;
+                })
+            },
+            getRow: function (y){
+                //Data available after an apply call
+                if (this.data.length > 0) {
+                    return this.data[y];
+                }
+                //No sorted columns. Go down the pipeline for the dataRows
+                return this.dataSource.getRow(y);
+            },
+            //Since we are not using an index, but making a copy of the underlying data for this pipeline
+            //We also need to override the following
+            //If we override setValue the update will not persist down the other pipelineDataSources
+            getValue: function (c, r){
+                var row = this.getRow(r);
+                if (!row) {
+                    return null;
+                }
+                return row[this.dataSource.getFields()[c]];
+            }
+        });
+
+
+        /*
+        * An Example of how to hook into the Grid's sorting interface
+        * Composed primarily of a 'fin-column-sort' event and `getSortImageForColumn` used to determine if the
+        * column header should be displayed with any icon
+        * */
+        function MySorterAPI (grid){
+            var self = this;
+            grid.addEventListener('fin-column-sort', function toggleSort(event){
+                var c = event.detail.column,
+                    keys =  event.detail.keys;
+                self.toggleSort(c);
+                grid.behavior.reindex();
+
+            });
+            grid.behavior.dataModel.getSortImageForColumn = function(columnIndex) {
+                var icon = '';
+                if (self.columnIndex === columnIndex) {
+                    icon = UPWARDS_BLACK_ARROW;
+                }
+                return icon;
+            }
+        }
+        MySorterAPI.prototype = {
+            $$CLASS_NAME: 'mysorterapi',
+            constructor: MySorterAPI,
+            //This is read by MySorterDataSource instance to determine which column to sort.
+            // However it is arbitrarily named as your pipeline has access to the entire instance of MySorterAPI
+            columnIndex: null,
+            //This is used as the event handler for the grid UI sort event
+            toggleSort: function (c){
+                //Toggle sort one column at a time
+                if (this.columnIndex === c){
+                    this.columnIndex = null;
+                } else {
+                    this.columnIndex = c;
+                }
+            }
+//            sorted = [],
+//            toggleSort: function (col){
+//                var idx,
+//                    column = this.sorted.find(function(c, index){
+//                        if (col === c){
+//                            idx = index;
+//                            return true;
+//                        };
+//                    });
+//
+//                //Remove column
+//                if (column){
+//                    sorted.splice(idx, 1);
+//                } else {
+//                    //Add column
+//                    sorted.push(col);
+//                }
+//            }
+        };
+
+
+        grid.installPlugins([MySorterAPI]);
+        grid.sorter = grid.plugins.mysorterapi;
+        grid.setPipeline([MySorterDataSource], {
+            stash: 'default',
+            apply: false //  Set the new pipeline without calling reindex.
+        });
+        //Miscellaneous
+        grid.addProperties({
+            showRowNumbers: false
+        });
+    </script>
+</body>
+</html>

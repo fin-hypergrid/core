@@ -7,7 +7,7 @@ var Base = require('../lib/Base');
  */
 var DataModel = Base.extend('DataModel', {
     grid: null,
-    initialize: function(grid) {
+    initialize: function(grid, options) {
         this.grid = grid;
     },
 

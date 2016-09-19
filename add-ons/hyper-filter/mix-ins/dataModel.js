@@ -35,7 +35,7 @@ module.exports = {
 
         this.filter.setColumnFilterState(columnName, state, options);
         this.grid.fireSyntheticFilterAppliedEvent();
-        this.applyAnalytics();
+        this.reindex();
     },
 
     /**
@@ -56,7 +56,7 @@ module.exports = {
     setFilters: function(state, options) {
         this.filter.setColumnFiltersState(state, options);
         this.grid.fireSyntheticFilterAppliedEvent();
-        this.applyAnalytics();
+        this.reindex();
     },
 
     /**
@@ -78,7 +78,7 @@ module.exports = {
     setTableFilter: function(state, options) {
         this.filter.setTableFilterState(state, options);
         this.grid.fireSyntheticFilterAppliedEvent();
-        this.applyAnalytics();
+        this.reindex();
     },
 
 };

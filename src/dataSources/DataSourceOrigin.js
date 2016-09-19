@@ -1,7 +1,6 @@
 'use strict';
 
 var DataSourceBase = require('./DataSourceBase');
-var headerify = require('../Shared.js').analytics.util.headerify;
 
 /**
  * See {@link DataSourceOrigin#initialize} for constructor parameters.
@@ -12,7 +11,10 @@ var DataSourceOrigin = DataSourceBase.extend('DataSourceOrigin',  {
     /**
      * Currently a synonym for {@link DataSourceOrigin#setData} (see).
      */
-    initialize: setData,
+    initialize: function(){
+        delete this.dataSource;
+        setData.apply(this, arguments);
+    },
 
     setData: setData,
 
@@ -195,8 +197,8 @@ var DataSourceOrigin = DataSourceBase.extend('DataSourceOrigin',  {
              * @memberOf DataSource#
              */
             this.headers = this.headers || this.getDefaultHeaders().map(function(each) {
-                return headerify.transform(each);
-            })
+                return this.transform(each);
+            }, this)
         );
     },
 
@@ -239,6 +241,8 @@ var DataSourceOrigin = DataSourceBase.extend('DataSourceOrigin',  {
     isDrillDown: function() {
         return false;
     },
+    transform: passthrough,
+    capitalize: capitalize
 });
 
 /**
@@ -287,6 +291,21 @@ function setData(data, fields, calculators) {
 
 function error(methodName, message) {
     throw new Error('DataSource.' + methodName + ': ' + message);
+}
+
+function capitalize(string) {
+    return (/[a-z]/.test(string) ? string : string.toLowerCase())
+        .replace(/[\s\-_]*([^\s\-_])([^\s\-_]+)/g, replacer)
+        .replace(/[A-Z]/g, ' $&')
+        .trim();
+}
+
+function replacer(a, b, c) {
+    return b.toUpperCase() + c;
+}
+
+function passthrough(string) {
+    return string;
 }
 
 /**

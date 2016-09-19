@@ -1,12 +1,8 @@
 'use strict';
 
-var analytics = require('../Shared.js').analytics;
 var DataModel = require('./DataModel');
 var images = require('../../images');
 var DataSourceOrigin = require('../dataSources/DataSourceOrigin');
-
-var UPWARDS_BLACK_ARROW = '\u25b2', // aka '▲'
-    DOWNWARDS_BLACK_ARROW = '\u25bc'; // aka '▼'
 
 /** @typedef {object} dataSourcePipelineObject
  * @property {string} type - A "DataSourceOrigin" style constructor name.
@@ -41,10 +37,10 @@ var nullDataSourceHelperAPI = {
  * @constructor
  * @extends DataModel
  */
-var JSON = DataModel.extend('dataModels.JSON', {
+var DJSON = DataModel.extend('dataModels.JSON', {
 
-    initialize: function() {
-        this.reset();
+    initialize: function(grid, options) {
+        this.reset(options);
     },
 
     /**
@@ -63,8 +59,9 @@ var JSON = DataModel.extend('dataModels.JSON', {
 
     /**
      * @memberOf dataModels.JSON.prototype
+     * @param {object} [options]
      */
-    reset: function() {
+    reset: function(options) {
         /**
          * Each instance has its own top totals rows.
          * @name topTotals
@@ -93,9 +90,14 @@ var JSON = DataModel.extend('dataModels.JSON', {
 
         delete this.pipelineSchemaStash; // remove existing "own" version if any
 
-        this.source = new this.DataSourceOrigin;
+        this.source = new this.DataSourceOrigin(options.data, options.fields, options.calculators);
+        //this.source = new this.DataSourceOrigin(options.data, options.schema);
 
         this.setPipeline();
+        //Register Defaults
+        this.registerHelperAPI('filter');
+        this.registerHelperAPI('sorter');
+
         this.setData([]);
     },
 
@@ -106,10 +108,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
      * @type {pipelineSchema}
      * @memberOf dataModels.JSON.prototype
      */
-    defaultPipelineSchema: [
-        analytics.DataSourceGlobalFilter,
-        analytics.DataSourceSorterComposite
-    ],
+    defaultPipelineSchema: [],
 
     clearSelectedData: function() {
         this.selectedData.length = 0;
@@ -127,7 +126,14 @@ var JSON = DataModel.extend('dataModels.JSON', {
         return this.source.data;
     },
 
+    /**
+     * @deprecated As of v1.1.0, use getIndexedData
+     */
     getFilteredData: function() {
+        return this.deprecated('getFilteredData()', 'getIndexedData()', '1.1.0', arguments);
+    },
+
+    getIndexedData: function() {
         var ds = this.dataSource;
         var count = ds.getRowCount();
         var result = new Array(count);
@@ -198,12 +204,13 @@ var JSON = DataModel.extend('dataModels.JSON', {
                 value = this.getTopTotals()[y - topTotalsOffset][x];
             } else if (isHeaderRow && y === 0) {
                 value = this.getHeaders()[x];
-                var sortString = this.getSortImageForColumn(x);
+                var sortString = this.getSortImageForColumn(x); //TODO: Should be cleaned up with a proper rowProperties
                 if (sortString) {
                     var at = value.lastIndexOf(this.groupHeaderDelimiter) + 1;
                     value = at ? value.substr(0, at) + sortString + value.substr(at) : sortString + value;
                 }
             } else { // must be filter row
+                //TODO: Should be cleaned up with a proper rowProperties
                 if (!this.filter.getColumnFilterState) {
                     throw new this.HypergridError('Column filters not available.');
                 }
@@ -342,6 +349,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
     },
 
     /**
+     * @deprecated
      * @memberOf dataModels.JSON.prototype
      */
     applyAnalytics: function(options) {
@@ -349,15 +357,11 @@ var JSON = DataModel.extend('dataModels.JSON', {
 
         this.pipeline.forEach(function(dataSource) {
             if (dataSource) {
-                if (dataSource.sorts) {
-                    dataSource.set(this.getSortedColumnIndexes().slice());
-                }
-
                 if (dataSource.apply) {
                     dataSource.apply(options);
                 }
             }
-        }.bind(this));
+        });
 
         reselectGridRowsBackedBySelectedDataRows.call(this);
     },
@@ -614,37 +618,13 @@ var JSON = DataModel.extend('dataModels.JSON', {
 
     /**
      * @memberOf dataModels.JSON.prototype
-     * @desc returns the columns that currently sorted and their intended direction of the sort
-     */
-    getSortedColumnIndexes: function() {
-        var state = this.getPrivateState();
-        state.sorts = state.sorts || [];
-        return state.sorts;
-    },
-
-    /**
-     * @memberOf dataModels.JSON.prototype
      * @param index
      * @param returnAsString
      * @desc Provides the unicode character used to denote visually if a column is a sorted state
      * @returns {*}
      */
     getSortImageForColumn: function(columnIndex) {
-        var sortPosition,
-            sorts = this.getSortedColumnIndexes(),
-            sortSpec = sorts.find(function(spec, index) {
-                sortPosition = index;
-                return spec.columnIndex === columnIndex;
-            }),
-            result = null;
-
-        if (sortSpec) {
-            var rank = sorts.length - sortPosition,
-                arrow = sortSpec.direction > 0 ? UPWARDS_BLACK_ARROW : DOWNWARDS_BLACK_ARROW;
-            result = rank + arrow + ' ';
-        }
-
-        return result;
+        //Not implemented
     },
 
     /**
@@ -681,7 +661,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
         if (this.isDrillDown()) {
             changed = this.dataSource.click(y, expand);
             if (changed) {
-                this.applyAnalytics({rowClick: true});
+                this.reindex({rowClick: true});
                 this.changed();
             }
         }
@@ -727,6 +707,27 @@ var JSON = DataModel.extend('dataModels.JSON', {
     set filter(filter) {
         this.registerHelperAPI('filter', filter);
     },
+    /**
+     * @summary _Getter_
+     * @method
+     * @returns {sorterAPI} The grid's currently assigned sorter.
+     * @memberOf dataModels.JSON.prototype
+     */
+    get sorter() {
+        return this.api.sorter;
+    },
+
+    /**
+     * @summary _Setter:_ Assign a sorter to the grid.
+     * @method
+     * @param {sorterAPI|undefined|null} sorter - One of:
+     * * A sorter object, turning sorting *ON*.
+     * * If `undefined` or `null`, the {@link dataModels.JSON~nullSorter|nullSorter} is reassigned to the grid, turning sorting *OFF.*
+     * @memberOf dataModels.JSON.prototype
+     */
+    set sorter(sorter) {
+        this.registerHelperAPI('sorter', sorter);
+    },
 
     /**
      * @summary Register the data source helper API.
@@ -745,31 +746,31 @@ var JSON = DataModel.extend('dataModels.JSON', {
         }
 
         if (this.updateDataSources(dataSourceType)) {
-            this.applyAnalytics();
+            this.reindex();
         }
     },
 
     /**
-     * @deprecated As of v1.1.0, use `this.applyAnalytics` instead.
+     * @deprecated As of v1.1.0, use `this.reindex` instead.
      * @memberOf dataModels.JSON.prototype
      */
     applyState: function() {
-        return this.deprecated('applyState()', 'applyAnalytics()', '1.1.0', arguments);
+        return this.deprecated('applyState()', 'reindex()', '1.1.0', arguments);
     },
 
     getUnfilteredValue: function(x, y) {
-        return this.source.getValue(x, y);
+        return this.deprecated('getUnfilteredValue(x, y)', null, '1.1.0', arguments, 'No longer supported');
     },
 
     getUnfilteredRowCount: function() {
-        return this.source.getRowCount();
+        return this.deprecated('getUnfilteredValue(x, y)', null, '1.1.0', arguments, 'No longer supported');
     },
 
     /**
      * @summary Add a new data row to the grid.
      * @desc If data source pipeline in use, to see the new row in the grid, you must eventually call:
      * ```javascript
-     * this.grid.behavior.applyAnalytics();
+     * this.grid.behavior.reindex();
      * this.grid.behaviorChanged();
      * ```
      * @param {object} newDataRow
@@ -794,15 +795,15 @@ var JSON = DataModel.extend('dataModels.JSON', {
 function selectedDataRowsBackingSelectedGridRows() {
     var selectedData = this.selectedData,
         hasRowSelections = this.grid.selectionModel.hasRowSelections(),
-        needFilteredDataList = selectedData.length || hasRowSelections;
+        needIndexedDataList = selectedData.length || hasRowSelections;
 
-    if (needFilteredDataList) {
-        var filteredData = this.getFilteredData();
+    if (needIndexedDataList) {
+        var indexedData = this.getIndexedData();
     }
 
     // STEP 1: Remove any filtered data rows from the recently selected list.
     selectedData.forEach(function(dataRow, index) {
-        if (filteredData.indexOf(dataRow) >= 0) {
+        if (indexedData.indexOf(dataRow) >= 0) {
             delete selectedData[index];
         }
     });
@@ -810,7 +811,7 @@ function selectedDataRowsBackingSelectedGridRows() {
     // STEP 2: Accumulate the data rows backing any currently selected grid rows in `this.selectedData`.
     if (hasRowSelections) { // any current grid row selections?
         this.grid.getSelectedRows().forEach(function(selectedRowIndex) {
-            var dataRow = filteredData[selectedRowIndex];
+            var dataRow = indexedData[selectedRowIndex];
             if (selectedData.indexOf(dataRow) < 0) {
                 selectedData.push(dataRow);
             }
@@ -828,7 +829,7 @@ function reselectGridRowsBackedBySelectedDataRows() {
     if (this.selectedData.length) { // any data row objects added from previous grid row selections?
         var selectionModel = this.grid.selectionModel,
             offset = this.grid.getHeaderRowCount(),
-            filteredData = this.getFilteredData();
+            filteredData = this.getIndexedData();
 
         selectionModel.clearRowSelection();
 
@@ -860,7 +861,7 @@ function reselectGridRowsBackedBySelectedDataRows() {
  *
  * @this {dataSourceHelperAPI}
  *
- * @param {DataSourceBase} dataSource - The data model. This parameter is bound to the call by {@link dataModels.JSON#setHelperAPI|setHelperAPI}.
+ * @param {DataSourceBase} dataModel - The data model. This parameter is bound to the call by {@link dataModels.JSON#setHelperAPI|setHelperAPI}.
  *
  * @param {number} [columnIndex] - If given, this is a property on a specific column. If omitted, this is a property on the whole API properties object.
  *
@@ -879,7 +880,7 @@ function reselectGridRowsBackedBySelectedDataRows() {
  *
  * @returns {propObject}
  */
-function propPrep(dataSource, columnIndex, propName, value) {
+function propPrep(dataModel, columnIndex, propName, value) {
     var invalid,
         properties = {},
         argCount = arguments.length;
@@ -918,12 +919,18 @@ function propPrep(dataSource, columnIndex, propName, value) {
     if (columnIndex !== undefined) {
         // non-enumerable propName:
         Object.defineProperty(properties, 'column', {
-            index: columnIndex,
-            name: dataSource.getFields()[columnIndex]
+            value: {
+                index: columnIndex,
+                name: dataModel.source.getFields()[columnIndex]
+            }
         });
     }
 
     return this.properties(properties);
 }
+/**
+ * @memberOf JSON.prototype
+ */
+DJSON.prototype.reindex = DJSON.prototype.applyAnalytics;
 
-module.exports = JSON;
+module.exports = DJSON;

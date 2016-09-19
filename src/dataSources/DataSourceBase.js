@@ -11,6 +11,10 @@ DataSourceBase.prototype = {
 
     isNullObject: true,
 
+    initialize: function(dataSource){
+        this.dataSource = dataSource;
+    },
+
     getProperty: function getProperty(propName) {
         if (propName in this) {
             return this[propName];

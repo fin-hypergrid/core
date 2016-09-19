@@ -140,15 +140,17 @@ Column.prototype = {
      */
     set type(type) {
         this._type = type;
+        //TODO: This is calling reindex for every column during grid init. Maybe defer all reindex calls until after an grid 'ready' event
         this.behavior.filter.prop(this.index, 'type', type);
-        this.behavior.applyAnalytics();
+        this.behavior.sorter.prop(this.index, 'type', type);
+        this.behavior.reindex();
     },
     get type() {
         return this._type;
     },
 
     getUnfilteredValue: function(y) {
-        return this.dataModel.getUnfilteredValue(this.index, y);
+        return this.deprecated('getUnfilteredValue(y)', null, '1.1.0', arguments, 'No longer supported');
     },
 
     getValue: function(y) {
@@ -224,17 +226,17 @@ Column.prototype = {
             return 'unknown';
         }
         var type = this.typeOf(value);
-        var isNumber = ((typeof value) === 'number');
+        //var isNumber = ((typeof value) === 'number');
         for (var y = headerRowCount; y < height; y++) {
             value = this.getValue(y);
             eachType = this.typeOf(value);
-            if (type !== eachType) {
-                if (isNumber && (typeof value === 'number')) {
-                    type = 'float';
-                } else {
-                    return 'mixed';
-                }
-            }
+            // if (type !== eachType) {
+            //     if (isNumber && (typeof value === 'number')) {
+            //         type = 'float';
+            //     } else {
+            //         return 'mixed';
+            //     }
+            // }
         }
         return type;
     },

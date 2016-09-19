@@ -105,7 +105,7 @@ var drillDown = {
                 }
             }
             if (smartApply === false || changed && smartApply) {
-                this.applyAnalytics({rowClick: true});
+                this.reindex({rowClick: true});
                 this.changed();
             }
         }
@@ -125,7 +125,7 @@ var drillDown = {
     expandRowsToDepth: function(depth, smartApply) {
         var changed = false;
         while (this.toggleAllRows(true, depth || Infinity)) {
-            this.applyAnalytics({rowClick: true});
+            this.reindex({rowClick: true});
             changed = true;
         }
         if (smartApply === false || changed && smartApply) {
@@ -203,7 +203,7 @@ var drillDown = {
         if (this.isTreeview()) {
             changed = this.dataSource.revealRow(ID);
             if (smartApply === false || changed && smartApply) {
-                this.applyAnalytics({rowClick: true});
+                this.reindex({rowClick: true});
                 this.changed();
             }
         }

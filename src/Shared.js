@@ -6,7 +6,7 @@
 
 module.exports = {
 
-	analytics: require('hyper-analytics'), // npm
-    // analytics: require('../../hyper-analytics'), // developers
+	// analytics: require('hyper-analytics'), // npm
+    analytics: require('../../hyper-analytics'), // developer
 
 };
