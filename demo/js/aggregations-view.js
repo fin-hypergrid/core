@@ -1,6 +1,5 @@
 /* eslint-env browser */
-
-/* globals treedata  */
+/* globals fin */
 
 'use strict';
 
@@ -9,6 +8,7 @@ var grid;
 window.onload = function() {
     var Hypergrid = fin.Hypergrid,
         Hyperfilter = Hypergrid.Hyperfilter,
+        Hypersorter = Hypergrid.Hypersorter,
         drillDown = Hypergrid.drillDown,
         AggregationsView = Hypergrid.AggregationsView,
         dataModelPrototype = Hypergrid.dataModels.JSON.prototype,
@@ -33,6 +33,11 @@ window.onload = function() {
 
     grid = new Hypergrid('div#example');
     grid.setData(window.people1);
+
+    // Install the sorter API (optional).
+    new Hypersorter(grid, { // eslint-disable-line no-new
+        Column: fin.Hypergrid.behaviors.Column
+    });
 
     var filterFactory = new Hyperfilter(grid);
     grid.filter = filterFactory.create();

@@ -1,11 +1,22 @@
 /* eslint-env browser */
+/* globals fin */
+
+'use strict';
 
 var grid;
 
 window.onload = function() {
+    var Hypergrid = fin.Hypergrid,
+        Hypersorter = Hypergrid.Hypersorter;
+
     // Create the grid and insert into the DOM
-    grid = new fin.Hypergrid('div#example');
+    grid = new Hypergrid('div#example');
     grid.setData(window.unitedStates);
+
+    // Install the sorter API (optional).
+    new Hypersorter(grid, { // eslint-disable-line no-new
+        Column: fin.Hypergrid.behaviors.Column
+    });
 
     // Adds GroupedHeader cell renderer
     fin.Hypergrid.groupedHeader.mixInTo(grid);

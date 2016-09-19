@@ -1,13 +1,20 @@
 /* eslint-env browser */
+/* globals fin */
 
 'use strict';
 
 var grid;
 
 window.onload = function() {
-    var Hypergrid = fin.Hypergrid;
+    var Hypergrid = fin.Hypergrid,
+        Hypersorter = Hypergrid.Hypersorter;
 
     grid = new Hypergrid('div#example');
+
+    // Install the sorter API (optional).
+    new Hypersorter(grid, { // eslint-disable-line no-new
+        Column: fin.Hypergrid.behaviors.Column
+    });
 
     grid.setData([
         { value: 3 },
