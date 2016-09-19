@@ -43,7 +43,7 @@ var Behavior = Base.extend('Behavior', {
         this.initializeFeatureChain(grid);
 
         this.grid.behavior = this;
-        this.reset();
+        this.reset(options);
     },
 
     /**
@@ -84,7 +84,7 @@ var Behavior = Base.extend('Behavior', {
 
     features: [], // override in implementing class unless no features
 
-    reset: function() {
+    reset: function(options) {
         this.clearState();
 
         if (this.dataModel) {
@@ -94,7 +94,7 @@ var Behavior = Base.extend('Behavior', {
              * @type {DataModel}
              * @memberOf Behavior.prototype
              */
-            this.dataModel = this.getNewDataModel();
+            this.dataModel = this.getNewDataModel(options);
         }
 
         this.renderedColumnCount = 30;
@@ -199,8 +199,12 @@ var Behavior = Base.extend('Behavior', {
         console.error('getCellProvider() is deprecated as of v1.0.6. No replacement; do not call. Previously called by `Behavior` constructor; `new CellRenderers()` is now called by `Hypergrid` constructor instead.', arguments);
     },
 
+    /**
+     * @deprecated
+     * @memberOf Behavior.prototype
+     */
     applyAnalytics: function() {
-        this.dataModel.applyAnalytics();
+        this.dataModel.reindex();
         this.shapeChanged();
     },
 
@@ -281,9 +285,9 @@ var Behavior = Base.extend('Behavior', {
 
         //we don't want to clobber the column properties completely
         if (!memento.columnIndexes) {
-            var fields = this.dataModel.getFields();
+            var length = this.dataModel.schema.length;
             memento.columnIndexes = [];
-            for (var i = 0; i < fields.length; i++) {
+            for (var i = 0; i < length; i++) {
                 memento.columnIndexes[i] = i;
             }
         }
@@ -299,7 +303,7 @@ var Behavior = Base.extend('Behavior', {
 
         //just to be close/ it's easier on the eyes
         this.setColumnWidth(-1, 24.193359375);
-        this.dataModel.applyAnalytics();
+        this.dataModel.reindex();
     },
 
     setAllColumnProperties: function(properties) {
@@ -556,7 +560,7 @@ var Behavior = Base.extend('Behavior', {
     },
 
     getUnfilteredRowCount: function() {
-        return this.dataModel.getUnfilteredRowCount();
+        return this.deprecated('getUnfilteredRowCount()', null, '1.1.0', arguments, 'No longer supported');
     },
     /**
      * @memberOf Behavior.prototype
@@ -1299,6 +1303,28 @@ var Behavior = Base.extend('Behavior', {
         this.dataModel.filter = filter;
     },
 
+    /**
+     * @summary _Getter_
+     * @method
+     * @returns {sorterAPI} The grid's currently assigned sorter.
+     * @memberOf dataModels.JSON.prototype
+     */
+    get sorter() {
+        return this.dataModel.sorter;
+    },
+
+    /**
+     * @summary _Setter:_ Assign a sorter to the grid.
+     * @method
+     * @param {sorterAPI|undefined|null} sorter - One of:
+     * * A sorter object, turning sorting *ON*.
+     * * If `undefined` or `null`, the {@link dataModels.JSON~nullSorter|nullSorter} is reassigned to the grid, turning sorting *OFF.*
+     * @memberOf Hypergrid.prototype
+     */
+    set sorter(sorter) {
+        this.dataModel.sorter = sorter;
+    },
+
     getSelectedRows: function() {
         return this.grid.selectionModel.getSelectedRows();
     },
@@ -1316,8 +1342,16 @@ var Behavior = Base.extend('Behavior', {
     },
 
     getFilteredData: function() {
-        return this.dataModel.getFilteredData();
+        return this.deprecated('getIndexedData()', 'getIndexedData', '1.1.0', arguments);
+    },
+    getIndexedData: function() {
+       this.dataModel.getIndexedData();
     },
 });
+
+/**
+ * @memberOf Behavior.prototype
+ */
+Behavior.prototype.reindex = Behavior.prototype.applyAnalytics;
 
 module.exports = Behavior;

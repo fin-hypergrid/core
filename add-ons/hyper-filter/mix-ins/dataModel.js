@@ -12,7 +12,7 @@ module.exports = {
      */
     getFilter: function(columnIndexOrName, options) {
         var isIndex = !isNaN(Number(columnIndexOrName)),
-            columnName = isIndex ? this.getFields()[columnIndexOrName] : columnIndexOrName;
+            columnName = isIndex ? this.schema[columnIndexOrName].name : columnIndexOrName;
 
         return this.filter.getColumnFilterState(columnName, options);
     },
@@ -31,11 +31,11 @@ module.exports = {
      */
     setFilter: function(columnIndexOrName, state, options) {
         var isIndex = !isNaN(Number(columnIndexOrName)),
-            columnName = isIndex ? this.getFields()[columnIndexOrName] : columnIndexOrName;
+            columnName = isIndex ? this.schema[columnIndexOrName].name : columnIndexOrName;
 
         this.filter.setColumnFilterState(columnName, state, options);
         this.grid.fireSyntheticFilterAppliedEvent();
-        this.applyAnalytics();
+        this.reindex();
     },
 
     /**
@@ -56,7 +56,7 @@ module.exports = {
     setFilters: function(state, options) {
         this.filter.setColumnFiltersState(state, options);
         this.grid.fireSyntheticFilterAppliedEvent();
-        this.applyAnalytics();
+        this.reindex();
     },
 
     /**
@@ -78,7 +78,7 @@ module.exports = {
     setTableFilter: function(state, options) {
         this.filter.setTableFilterState(state, options);
         this.grid.fireSyntheticFilterAppliedEvent();
-        this.applyAnalytics();
+        this.reindex();
     },
 
 };

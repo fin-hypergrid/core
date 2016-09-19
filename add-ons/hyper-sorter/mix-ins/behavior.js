@@ -19,7 +19,7 @@ module.exports = {
             (hiddenColumns || this.getHiddenColumns())
         );
         if (dirty){
-            this.applyAnalytics();
+            this.reindex();
         }
     }
 

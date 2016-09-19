@@ -89,11 +89,6 @@ window.onload = function() {
             ]
         }
     ];
-
-    // restore previous "opinionated" headerify behavior
-    var headerify = Hypergrid.analytics.util.headerify;
-    headerify.transform = headerify.capitalize;
-
     function derivedPeopleSchema(columns) {
         // create a hierarchical schema organized by alias
         var factory = new Hypergrid.ColumnSchemaFactory(columns);
@@ -130,6 +125,7 @@ window.onload = function() {
         dashboard = document.getElementById('dashboard'),
         ctrlGroups = document.getElementById('ctrl-groups'),
         buttons = document.getElementById('buttons');
+    dataModel.source.transform = dataModel.source.capitalize; //No longer defaulted;
 
     grid.installPlugins([
         Hypergrid.drillDown,
@@ -148,10 +144,13 @@ window.onload = function() {
             includeFilter: true
         }],
         Hypergrid.Hyperfilter,
-        Hypergrid.Hypersorter
+        [Hypergrid.Hypersorter, {Column: fin.Hypergrid.behaviors.Column}]
     ]);
 
-    resetGlobalFilter();
+    // Install the sorter and Filter APIs (optional).
+    grid.setPipeline([window.fin.Hypergrid.analytics.DataSourceGlobalFilter, window.fin.Hypergrid.analytics.DataSourceSorterComposite]);
+    setGlobalSorter();
+    resetGlobalFilter(people1);
 
     console.log('Fields:');  console.dir(behavior.dataModel.getFields());
     console.log('Headers:'); console.dir(behavior.dataModel.getHeaders());
@@ -159,13 +158,10 @@ window.onload = function() {
 
     function setData(data, options) {
         options = options || {};
-        if (data === people1 || data === people2) {
-            options.schema = peopleSchema;
-        }
         grid.setData(data, options);
-        resetGlobalFilter();
+        resetGlobalFilter(data);
         idx = behavior.columnEnum;
-        behavior.applyAnalytics();
+        behavior.reindex();
     }
 
     // Preset a default dialog options object. Used by call to toggleDialog('ColumnPicker') from features/ColumnPicker.js and by toggleDialog() defined herein.
@@ -273,7 +269,6 @@ window.onload = function() {
 
 
     behavior.setFixedRowCount(2);
-
 
     var upDown = Hypergrid.images['down-rectangle'];
     var upDownSpin = Hypergrid.images['up-down-spin'];
@@ -1097,7 +1092,6 @@ window.onload = function() {
         if (document.querySelector('#aggregates').checked) {
             behavior.setAggregates(aggregates, [idx.BIRTH_STATE, idx.LAST_NAME, idx.FIRST_NAME]);
         }
-        window.a = dataModel.analytics;
 
     }, 50);
 
@@ -1376,8 +1370,13 @@ window.onload = function() {
         }
     }
 
-    function resetGlobalFilter() {
-        grid.filter = grid.plugins.hyperfilter.create(); // new filter with new derived column schema
+    function resetGlobalFilter(data) {
+        var schema = (data === people1 || data === people2) && peopleSchema;
+        grid.filter = grid.plugins.hyperfilter.create(schema); // new filter with new derived column schema
+    }
+
+    function setGlobalSorter() {
+        grid.sorter = grid.plugins.hypersorter;
     }
 
     function redIfStartsWithS(dataRow, columnName) {

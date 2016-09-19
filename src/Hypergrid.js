@@ -31,7 +31,7 @@ var themeInitialized = false,
  * @param {string|Element} [container] - CSS selector or Element
  * @param {object} [options]
  * @param {function} [options.Behavior=behaviors.JSON] - A behavior constructor or instance
- * @param {function[]} [options.pipeline] - A list function constructors to use for passing data through a series of transforms to occur on applyAnalytics call
+ * @param {function[]} [options.pipeline] - A list function constructors to use for passing data through a series of transforms to occur on reindex call
  * @param {function|object[]} [options.data] - Passed to behavior constructor. May be:
  * * An array of congruent raw data objects
  * * A function returning same
@@ -45,6 +45,8 @@ var themeInitialized = false,
  * @param {string|string[]} [options.localization.locale=Hypergrid.localization.locale] - The default locale to use when an explicit `locale` is omitted from localizer constructor calls. Passed to Intl.NumberFomrat` and `Intl.DateFomrat`. See {@ https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl#Locale_identification_and_negotiation|Locale identification and negotiation} for more information.
  * @param {string} [options.localization.numberOptions=Hypergrid.localization.numberOptions] - Options passed to `Intl.NumberFomrat` for creating the basic "number" localizer.
  * @param {string} [options.localization.dateOptions=Hypergrid.localization.dateOptions] - Options passed to `Intl.DateFomrat` for creating the basic "date" localizer.
+ * @param {object} [options.calculators] - functions to use for computed columns
+ * @param {object} [options.fields]
  * @param {object} [options.margin] - optional canvas margins
  * @param {string} [options.margin.top=0]
  * @param {string} [options.margin.right=0]
@@ -98,7 +100,7 @@ function Hypergrid(container, options) {
     if (this.options.Behavior) {
         this.setBehavior(this.options); // also sets this.options.pipeline and this.options.data
     } else if (this.options.data) {
-        this.setData(this.options.data); // if no behavior has yet been set, also sets default behavior and this.options.pipeline
+        this.setData(this.options.data, this.options); // if no behavior has yet been set, also sets default behavior and this.options.pipeline
     }
 
     this.plugins = {};
@@ -834,7 +836,7 @@ Hypergrid.prototype = {
         this.initCanvas();
         this.initScrollbars();
         this.refreshProperties();
-        this.behavior.applyAnalytics();
+        this.behavior.reindex();
     },
 
     /**
@@ -1080,7 +1082,7 @@ Hypergrid.prototype = {
             var mouse = e.detail.mouse;
             var mouseEvent = self.getGridCellFromMousePoint(mouse);
             mouseEvent.primitiveEvent = e;
-            mouseEvent.keys = e.detail.keys; // todo: this was in fin-tap but wasn't here
+            mouseEvent.keys = e.detail.keys;
             self.fireSyntheticClickEvent(mouseEvent);
             self.delegateClick(mouseEvent);
         });
@@ -2523,12 +2525,8 @@ Hypergrid.prototype = {
         return this.behavior.getRowCount();
     },
 
-    /**
-     * @memberOf Hypergrid.prototype
-     * @returns {number} The number of unfiltered rows.
-     */
     getUnfilteredRowCount: function() {
-        return this.behavior.getUnfilteredRowCount();
+        return this.deprecated('getUnfilteredRowCount()', null, '1.1.0', arguments, 'No longer supported');
     },
 
     /**
@@ -3316,6 +3314,30 @@ Hypergrid.prototype = {
             this.behavior.getCellProperty(x, y, 'format'),
             this.getValue(c, r)
         );
+    },
+
+
+    /**
+     * @summary _Getter_
+     * @method
+     * @returns {sorterAPI} The grid's currently assigned sorter.
+     * @memberOf dataModels.JSON.prototype
+     */
+    get sorter() {
+        return this.behavior.sorter;
+    },
+
+    /**
+     * @summary _Setter:_ Assign a sorter to the grid.
+     * @method
+     * @param {sorterAPI|undefined|null} sorter - One of:
+     * * A sorter object, turning sorting *ON*.
+     * * If `undefined` or `null`, the {@link dataModels.JSON~nullSorter|nullSorter} is reassigned to the grid, turning sorting *OFF.*
+     * @memberOf Hypergrid.prototype
+     */
+    set sorter(sorter) {
+        this.behavior.sorter = sorter;
+        this.behaviorChanged();
     },
 
     /**

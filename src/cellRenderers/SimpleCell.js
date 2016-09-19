@@ -49,7 +49,10 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
             }
         }
 
-        val = valOrFunc(val, config, config.calculator);
+        if (x >= 0) {
+            val = valOrFunc(val, config, config.calculator);
+        }
+
         val = config.formatValue(val);
 
         font = config.isSelected ? config.foregroundSelectionFont : config.font;

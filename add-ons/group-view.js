@@ -150,7 +150,7 @@ GroupView.prototype = {
         dataSource.setGroupBys(groups);
 
         if (grouped) {
-            behavior.applyAnalytics(); // rows have changed
+            behavior.reindex(); // rows have changed
 
             // 2a. ON GROUPING: OVERRIDE `getCell` TO FORCE `EmptyCell` RENDERER FOR PARENT ROWS
             this.defaultGetCell = dataModel.getCell;

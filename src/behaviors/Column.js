@@ -26,11 +26,12 @@ var warned;
  *    -2   | Tree (drill-down) column
  */
 function Column(behavior, options) {
-    var index, fields;
+    var index, schema;
 
     this.behavior = behavior;
     this.dataModel = behavior.dataModel;
-    fields = this.dataModel.getFields();
+
+    schema = this.behavior.dataModel.schema;
 
     switch (typeof options) {
         case 'number':
@@ -38,13 +39,22 @@ function Column(behavior, options) {
             options = {};
             break;
         case 'string':
-            index = fields.indexOf(options);
+            index = getIndexFromName(options);
             options = {};
             break;
         case 'object':
             index = options.index !== undefined
                 ? options.index
-                : fields.indexOf(options.name);
+                : getIndexFromName(options.name);
+    }
+
+    function getIndexFromName(name) {
+        var index;
+        schema.find(function(columnSchema, i) {
+            index = i;
+            return columnSchema.name === name;
+        });
+        return index;
     }
 
     if (index === undefined) {
@@ -89,7 +99,7 @@ Column.prototype = {
      * @returns {string}
      */
     get name() { // read-only (no setter)
-        return this.dataModel.getFields()[this._index];
+        return this.dataModel.schema[this._index].name;
     },
 
     /**
@@ -102,12 +112,12 @@ Column.prototype = {
      * @type {string}
      */
     set header(headerText) {
-        this.dataModel.getHeaders()[this.index] = headerText;
+        this.dataModel.schema[this.index].header = headerText;
         this.behavior.filter.prop(this.index, 'header', headerText);
         this.behavior.grid.repaint();
     },
     get header() {
-        return this.dataModel.getHeaders()[this.index];
+        return this.dataModel.schema[this.index].header;
     },
 
     /**
@@ -120,17 +130,17 @@ Column.prototype = {
      * @type {string}
      */
     set calculator(calculator) {
-        var calculators = this.dataModel.getCalculators();
+        var schema = this.dataModel.schema;
         if (calculator === undefined) {
-            delete calculators[this.index];
+            delete schema[this.index].calculator;
         } else {
-            calculators[this.index] = calculator;
+            schema[this.index].calculator = calculator;
         }
         this.behavior.filter.prop(this.index, 'calculator', calculator);
         this.behavior.applyAnalytics();
     },
     get calculator() {
-        return this.dataModel.getCalculators()[this.index];
+        return this.dataModel.schema[this.index].calculator;
     },
 
     /**
@@ -142,15 +152,17 @@ Column.prototype = {
      */
     set type(type) {
         this._type = type;
+        //TODO: This is calling reindex for every column during grid init. Maybe defer all reindex calls until after an grid 'ready' event
         this.behavior.filter.prop(this.index, 'type', type);
-        this.behavior.applyAnalytics();
+        this.behavior.sorter.prop(this.index, 'type', type);
+        this.behavior.reindex();
     },
     get type() {
         return this._type;
     },
 
     getUnfilteredValue: function(y) {
-        return this.dataModel.getUnfilteredValue(this.index, y);
+        return this.deprecated('getUnfilteredValue(y)', null, '1.1.0', arguments, 'No longer supported');
     },
 
     getValue: function(y) {
@@ -226,17 +238,17 @@ Column.prototype = {
             return 'unknown';
         }
         var type = this.typeOf(value);
-        var isNumber = ((typeof value) === 'number');
+        //var isNumber = ((typeof value) === 'number');
         for (var y = headerRowCount; y < height; y++) {
             value = this.getValue(y);
             eachType = this.typeOf(value);
-            if (type !== eachType) {
-                if (isNumber && (typeof value === 'number')) {
-                    type = 'float';
-                } else {
-                    return 'mixed';
-                }
-            }
+            // if (type !== eachType) {
+            //     if (isNumber && (typeof value === 'number')) {
+            //         type = 'float';
+            //     } else {
+            //         return 'mixed';
+            //     }
+            // }
         }
         return type;
     },
