@@ -182,18 +182,6 @@ window.onload = function() {
         document.getElementById('dashboard').appendChild(button);
     });
 
-    // add a column filter subexpression containing a single condition purely for demo purposes
-    if (false) { // eslint-disable-line no-constant-condition
-        grid.filter.columnFilters.add({
-            children: [{
-                column: 'total_number_of_pets_owned',
-                operator: '=',
-                operand: '3'
-            }],
-            type: 'columnFilter'
-        });
-    }
-
     window.vent = false;
 
     //functions for showing the grouping/rollup capabilities
@@ -973,7 +961,7 @@ window.onload = function() {
 
             showRowNumbers: true,
             showHeaderRow: true,
-            showFilterRow: grid.filter.columnFilters,
+            showFilterRow: !!grid.filterProp('columnFilters'),
             columnAutosizing: false,
             headerTextWrapping: true,
 

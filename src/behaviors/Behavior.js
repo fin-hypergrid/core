@@ -1208,6 +1208,36 @@ var Behavior = Base.extend('Behavior', {
         }
     },
 
+    /**
+     * @summary _Getter_
+     * @method
+     * @returns {filterAPI} The grid's currently assigned filter.
+     * @memberOf Behavior.prototype
+     */
+    get filter() {
+        return this.dataModel.filter;
+    },
+
+    /**
+     * @summary _Setter:_ Assign a filter to the grid.
+     * @method
+     * @param {filterAPI|undefined|null} filter - One of:
+     * * A filter object, turning filter *ON*.
+     * * If `undefined` or `null`, the null filter is reassigned to the grid, turning filtering *OFF.*
+     * @memberOf Behavior.prototype
+     */
+    set filter(filter) {
+        this.dataModel.filter = filter;
+    },
+
+    /**
+     * @see {@link dataModels.JSON#filterProp|filterProp}
+     * @memberOf Behavior.prototype
+     */
+    filterProp: function(columnIndex, property, value) {
+        return this.dataModel.filterProp.apply(this.dataModel, arguments);
+    },
+
     getSelectedRows: function() {
         return this.grid.selectionModel.getSelectedRows();
     },

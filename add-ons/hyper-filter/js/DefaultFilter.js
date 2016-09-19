@@ -121,12 +121,6 @@ _(FilterTree.Node.prototype.templates).extendOwn({
         .join('\n')
 });
 
-// Properties be assigned as first class objects.
-// If *not* here, property values presented as functions will be executed to get value to assign to property.
-var firstClassProperties = {
-    calculator: true
-};
-
 /** @constructor
  *
  * @desc This extension of FilterTree forces a specific tree structure.
@@ -461,24 +455,22 @@ var DefaultFilter = FilterTree.extend('DefaultFilter', {
         return result;
     },
 
+    /** @summary List of filter properties to be treated as first class objects.
+     * @desc On filter property set, for a property value that is a function:
+     * * If listed here, function it self is assigned to property.
+     * * If _not_ listed here, function will be executed to get value to assign to property.
+     * @memberOf DefaultFilter.prototype
+     */
+    firstClassProperties: {
+        calculator: true
+    },
+
     /**
-     * @summary Column property accessor.
-     * @desc Gets or sets whole filter object or specific column properties object or explicit property value (or, when setting, multiple values) on such object.
-     *
-     * Notes regarding specific properties:
+     * @implements filterAPI
+     * @desc Notes regarding specific properties:
      * * `caseSensitiveData` (root property) pertains to string compares only. This includes untyped columns, columns typed as strings, typed columns containing data that cannot be coerced to type or when the filter expression operand cannot be coerced. This is a shared property and affects all grids managed by this instance of the app.
      * * `calculator` (column property) Computed column calculator.
-     *
-     * * @param {object} properties - Interpreted as follows:
-     * 1. Determine which property object to operate on:
-     *    If `column` defined, then column property, else filter property.
-     * 2. If `property` defined, return value of named property in object.
-     * 3. else if no other properties, return entire properties object.
-     * 4. else enumerable properties are values to set where:
-     *    * `undefined` deletes property
-     *    * functions are executed to get value to assign to property (except when key is listed in `firstClassProperties`)
-     *    * all other values are assigned to property
-     * @returns Properties object except property value when getting/setting a single property.
+     * @memberOf DefaultFilter.prototype
      */
     prop: function(properties) {
         var propCount = 0,
@@ -487,14 +479,14 @@ var DefaultFilter = FilterTree.extend('DefaultFilter', {
                 : this.root;
 
         if (properties && object) {
-            if (properties.property) {
-                return object[properties.property];
+            if (properties.getterName) {
+                return object[properties.getterName] || '';
             }
             for (var key in properties) {
                 var value = properties[key];
                 if (value === undefined) {
                     delete object[key];
-                } else if (typeof value === 'function' && !firstClassProperties[key]) {
+                } else if (typeof value === 'function' && !this.firstClassProperties[key]) {
                     object[key] = value();
                 } else {
                     object[key] = value;
@@ -502,7 +494,6 @@ var DefaultFilter = FilterTree.extend('DefaultFilter', {
                 propCount++;
             }
         }
-        return propCount === 1 ? value : object;
     }
 });
 

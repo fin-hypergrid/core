@@ -39,7 +39,7 @@ window.onload = function() {
 
     // show filter row as per `options`
     grid.setState({
-        showFilterRow: options.includeFilter && grid.behavior.filter.columnFilters
+        showFilterRow: options.includeFilter && grid.filterProp('columnFilters')
     });
 
     var aggViewAPI = new AggregationsView(grid, options);

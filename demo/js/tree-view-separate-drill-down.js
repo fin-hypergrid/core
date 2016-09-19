@@ -38,7 +38,7 @@ window.onload = function() {
     grid.setState({
         columnIndexes: [ idx.NAME, idx.STATE, idx.LATITUDE, idx.LONGITUDE ], // so drill-down column on far left
         fixedColumnCount: 1, // so far left drill-down column always visible
-        showFilterRow: options.includeFilter && grid.behavior.filter.columnFilters
+        showFilterRow: options.includeFilter && grid.filterProp('columnFilters')
     });
 
     grid.behavior.setColumnProperties(grid.behavior.columnEnum.STATE, {

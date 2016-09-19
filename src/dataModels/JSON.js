@@ -14,6 +14,19 @@ var UPWARDS_BLACK_ARROW = '\u25b2', // aka '▲'
  */
 
 /**
+ * @implements filterAPI
+ * @desc This is a simple "null" filter implementation.
+ * It does no actual filtering.
+ * @see {@link http://c2.com/cgi/wiki?NullObject}
+ * @memberOf dataModels.JSON
+ * @inner
+ */
+var nullFilter = {
+    test: function(dataRow) { return true; }, // all rows pass
+    prop: function(columnIndex, propName, value) {}
+};
+
+/**
  * @name dataModels.JSON
  * @constructor
  * @extends DataModel
@@ -630,6 +643,83 @@ var JSON = DataModel.extend('dataModels.JSON', {
         return this.dataSource.getRow(y);
     },
 
+    _filter: nullFilter,
+
+    /**
+     * @summary _Getter_
+     * @method
+     * @returns {filterAPI} The grid's currently assigned filter.
+     * @memberOf dataModels.JSON.prototype
+     */
+    get filter() {
+        return this._filter;
+    },
+
+    /**
+     * @summary _Setter:_ Assign a filter to the grid.
+     * @method
+     * @param {filterAPI|undefined|null} filter - One of:
+     * * A filter object, turning filter *ON*.
+     * * If `undefined` or `null`, the {@link dataModels.JSON~nullFilter|nullFilter} is reassigned to the grid, turning filtering *OFF.*
+     * @memberOf dataModels.JSON.prototype
+     */
+    set filter(filter) {
+        filter = filter || nullFilter;
+        this._filter = filter;
+        if (this.sources.filter) {
+            this.sources.filter.set(filter);
+            this.applyAnalytics();
+        }
+    },
+
+    /**
+     * @summary Set a filter property.
+     * @see {@link joneit.
+     * @desc There are two kinds of filter properties:
+     * * **Filter** properties - Pertain to entire filter.
+     * * **Column** properties - Pertain to a specific column.
+     *
+     * This method supports two types of actions:
+     * * **Getter** call where you supply just the property name. The method gets the property value from the filter and returns it.
+     * * **Setter** call where you supply a value along with the property name; or you supply a hash of property name/value pairs. The method sets the property on the filter and returns nothing. All values are valid with the exception of `undefined` which deletes the property of the given name rather than setting it to `undefined`.
+     *
+     * The way this method is called determines the kind of property (filter, column) and type of action (getter, setter).
+     *
+     * NOTE: Not all filter properties are dynamic; some are static and updating them later will have no effect.
+     *
+     * @param {number} [columnIndex] - If given, this is a property on a specific column. If omitted, this is a property on the whole filter properties object.
+     *
+     * @param {string|object} property - _If `columnIndex` is omitted, this arg takes first position._
+     *
+     * One of these types:
+     * * **string** - Property name. The name of the explicit property to either get or (if  with `value` also given) set on the properties object.
+     * * **object** - Hash of properties to set on the properties object.
+     *
+     * @param [value] - _If `columnIndex` is omitted, this arg takes second position._
+     *
+     * One of:
+     * * Omitted (when `property` is a string), this is the "getter" action: Return the value from the properties object of the key in `property`.
+     * * When `property` is a string and `value` is given, this is the "setter" action: Copy this value to properties object using the key in `property`.
+     * * When `property` is a hash and `value` is given: Unexpected; throws an error.
+     *
+     * @returns One of:
+     * * Value of requested property in a "getter" type call.
+     * * `undefined` in a "setter" type call.
+     *
+     * @memberOf dataModels.JSON.prototype
+     */
+    filterProp: function(columnIndex, property, value) {
+        var properties = filterPropsFromParams.apply(this, arguments),
+            result = this.filter.prop(properties);
+
+        if (result === undefined) {
+            // this was a set operation
+            this.applyAnalytics();
+        }
+
+        return result;
+    },
+
     /**
      * @deprecated As of v1.1.0, use `this.applyAnalytics` instead.
      * @memberOf dataModels.JSON.prototype
@@ -728,6 +818,54 @@ function getDataSourceName(ds) {
         name = name.replace(/^Data(Source|Node)/, '').toLowerCase();
     }
     return name;
+}
+
+/**
+ * Creates an object to be used as the only parameter to an implementation of {@link filterAPI#prop} from the three parameters of {@link dataModels.JSON#filterProp}.
+ * @private
+ */
+function filterPropsFromParams(columnIndex, propName, value) {
+    var invalid,
+        properties = {},
+        isColumnProp = typeof columnIndex === 'number';
+
+    if (!isColumnProp) {
+        value = propName;
+        propName = columnIndex;
+    }
+
+    switch (arguments.length - isColumnProp) {
+        case 1: // getter propName name or setter hash
+            if (typeof propName === 'object') {
+                properties = propName;
+            } else {
+                properties.getterName = propName;
+            }
+            break;
+        case 2: // setter for value
+            if (typeof propName !== 'string') {
+                invalid = true;
+            } else {
+                properties[propName] = value;
+            }
+            break;
+        default: // too few or too many args
+            invalid = true;
+    }
+
+    if (invalid) {
+        throw 'Invalid overload.';
+    }
+
+    if (isColumnProp) {
+        // non-enumerable propName:
+        Object.defineProperty(properties, 'column', {
+            index: columnIndex,
+            name: this.source.getFields()[columnIndex]
+        });
+    }
+
+    return properties;
 }
 
 module.exports = JSON;
