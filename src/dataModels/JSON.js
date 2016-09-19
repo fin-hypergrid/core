@@ -4,6 +4,7 @@ var analytics = require('../Shared.js').analytics;
 var DataModel = require('./DataModel');
 var images = require('../../images');
 var DataSourceOrigin = require('../dataSources/DataSourceOrigin');
+
 var UPWARDS_BLACK_ARROW = '\u25b2', // aka '▲'
     DOWNWARDS_BLACK_ARROW = '\u25bc'; // aka '▼'
 
@@ -38,6 +39,12 @@ var JSON = DataModel.extend('dataModels.JSON', {
     },
 
     /**
+     * Override to use a different origin.
+     * @type(DataSourceBase}
+     */
+    DataSourceOrigin: DataSourceOrigin,
+
+    /**
      * @type {dataSourcePipelineObject[][]}
      * @summary Pipeline stash push-down list.
      * @desc The pipeline stash may be shared or instanced. This is the shared stash. An instance may override this with an instance stash variable (of the same name). See {@link dataModels.JSON.prototype#getPipelineSchemaStash}.
@@ -69,17 +76,10 @@ var JSON = DataModel.extend('dataModels.JSON', {
 
         delete this.pipelineSchemaStash; // remove existing "own" version if any
 
-        this.resetSources();
+        this.source = new this.DataSourceOrigin;
+
         this.setPipeline();
         this.setData([]);
-    },
-
-    /**
-     * @memberOf dataModels.JSON.prototype
-     */
-    resetSources: function(Origin) {
-        this.sources = {};
-        this.source = new (Origin || DataSourceOrigin);
     },
 
     /**
@@ -90,7 +90,8 @@ var JSON = DataModel.extend('dataModels.JSON', {
      * @memberOf dataModels.JSON.prototype
      */
     defaultPipelineSchema: [
-        analytics.DataSourceGlobalFilter
+        analytics.DataSourceGlobalFilter,
+        analytics.DataSourceSorterComposite
     ],
 
     clearSelectedData: function() {
@@ -402,18 +403,58 @@ var JSON = DataModel.extend('dataModels.JSON', {
         DataSources.forEach(function(DataSource) {
             if (DataSource) {
                 dataSource = new DataSource(dataSource);
-                this.sources[getDataSourceName(dataSource)] = dataSource;
                 this.pipeline.push(dataSource);
-
-                if (dataSource.filterTest) {
-                    dataSource.set(this.filter);
-                }
             }
         }.bind(this));
+
+        this.updateDataSources();
 
         this.dataSource = dataSource;
 
         this.DataSources = DataSources;
+    },
+
+    /**
+     * Find the last data source in the pipeline of specified type.
+     * @param {string} type
+     * @returns {DataSourceBase}
+     */
+    findDataSourceByType: function(type) {
+        var dataSource;
+        for (var i = this.pipeline.length - 1; i >= 0; i--) {
+            dataSource = this.pipeline[i];
+            if (dataSource.type === type) {
+                return dataSource;
+            }
+        }
+    },
+
+    /**
+     * Update data sources to point to APIs.
+     * @param {string} [type] - Type of data sources to update. If omitted, updates all "set-able" data sources for which there are objects.
+     * @returns {object|boolean} Hash of booleans if no type specified; otherwise boolean.
+     */
+    updateDataSources: function(type) {
+        var dataSources = this.pipeline,
+            result = false,
+            results = {},
+            self = this;
+
+        if (type) {
+            dataSources = dataSources.filter(function(dataSource) {
+                return dataSource.type === type;
+            });
+        }
+
+        this.pipeline.filter(function(dataSource) {
+            var api = self[dataSource.type];
+            if (api && dataSource.set) {
+                dataSource.set(api);
+                results[dataSource.type] = result = true;
+            }
+        });
+
+        return type ? result : results;
     },
 
     /**
@@ -666,8 +707,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
     set filter(filter) {
         filter = filter || nullFilter;
         this._filter = filter;
-        if (this.sources.filter) {
-            this.sources.filter.set(filter);
+        if (this.updateDataSources('filter')) {
             this.applyAnalytics();
         }
     },
@@ -808,16 +848,6 @@ function reselectGridRowsBackedBySelectedDataRows() {
             }
         });
     }
-}
-
-function getDataSourceName(ds) {
-    var name = ds.$$CLASS_NAME;
-    if (/^DataSource\w+Filter$/.test(name)) {
-        name = 'filter';
-    } else {
-        name = name.replace(/^Data(Source|Node)/, '').toLowerCase();
-    }
-    return name;
 }
 
 /**
