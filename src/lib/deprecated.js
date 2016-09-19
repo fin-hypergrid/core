@@ -82,7 +82,7 @@ var deprecated = function(methodName, dotProps, since, args, notes) {
     return result;
 };
 
-deprecated.warnings = 5; // just enough to be annoying
+deprecated.warnings = 1; // 3 or 5 would get more attention
 
 function argList(s) {
     return s.match(/^\w+\((.*)\)$/)[1].match(/(\w+)/g);

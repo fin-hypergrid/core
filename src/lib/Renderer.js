@@ -1019,8 +1019,6 @@ var Renderer = Base.extend('Renderer', {
         } else {
             // set dataRow and columnName used by valOrFunc (needed when func)
             config.dataRow = grid.getRow(r);
-            config.columnName = column.name;
-            config.calculator = column.calculator;
             config.value = grid.getValue(c, r);
         }
 

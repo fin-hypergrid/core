@@ -169,9 +169,9 @@ window.onload = function() {
         { label: 'Column Picker&hellip;', onclick: toggleDialog.bind(this, 'ColumnPicker') },
         { label: 'Manage Filters&hellip;', onclick: toggleDialog.bind(this, 'ManageFilters') },
         { label: 'toggle empty data', onclick: toggleEmptyData },
-        { label: 'set data 1 (5000 rows)', onclick: setData.bind(null, people1) },
-        { label: 'set data 2 (10000 rows)', onclick: setData.bind(null, people2) },
-        { label: 'set data 3 (tree data)', onclick: setData.bind(null, treeData) },
+        { label: 'set data 1 (5000 rows)', onclick: function() { setData(people1); } },
+        { label: 'set data 2 (10000 rows)', onclick: function() { setData(people2); } },
+        { label: 'set data 3 (tree data)', onclick: function() { setData(treeData); } },
         { label: 'reset', onclick: grid.reset.bind(grid)}
 
     ].forEach(function(item) {

@@ -361,7 +361,7 @@ function valOrFunc(vf, config, calculator) {
     if (config.isGridColumn && config.isGridRow && config.dataRow) {
         calculator = (typeof vf)[0] === 'f' && vf || calculator;
         if (calculator) {
-            result = calculator(config.dataRow, config.columnName);
+            result = calculator(config.dataRow, config.name);
         }
     }
     return result || result === 0 || result === false ? result : '';

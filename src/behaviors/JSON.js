@@ -4,6 +4,8 @@ var Behavior = require('./Behavior');
 var DataModelJSON = require('../dataModels/JSON');
 var features = require('../features');
 
+var REGEX_CAMEL_CASE = /([^_A-Z])([A-Z]+)/g; // all instances of xX or _X within a "word"
+
 /**
  * @name behaviors.JSON
  * @desc > Same parameters as {@link behaviors.Behavior#initialize|initialize}, which is called by this constructor.
@@ -44,30 +46,31 @@ var JSON = Behavior.extend('behaviors.JSON', {
     ],
 
     createColumns: function() {
-        var dataModel = this.dataModel;
-        var columnCount = dataModel.getColumnCount();
-        var headers = dataModel.getHeaders();
-        var fields = dataModel.getFields();
-        var calculators = dataModel.getCalculators();
-        var REGEX_CAMEL_CASE = /([^_A-Z])([A-Z]+)/g;
+        var dataModel = this.dataModel,
+            columnCount = dataModel.getColumnCount(),
+            headers = dataModel.getHeaders(),
+            calculators = dataModel.getCalculators();
+
         this.clearColumns();
+
         for (var index = 0; index < columnCount; index++) {
-            var header = headers[index];
-            var calculator = calculators[index];
             var column = this.addColumn({
                 index: index,
-                header: header,
-                calculator: calculator
+                header: headers[index],
+                calculator: calculators[index]
             });
-            this.columnEnum[column.name.replace(REGEX_CAMEL_CASE, '$1_$2').toUpperCase()] = index;
-            var properties = column.getProperties();
-            properties.field = fields[index];
-            properties.header = header;
-            properties.complexFilter = null;
-            if (calculator) {
-                properties.calculator = calculator;
-            }
+            this.columnEnum[this.columnEnumKey(column.name)] = index;
         }
+    },
+
+    /**
+     * @summary Style enum keys.
+     * @desc Override this method to style your keys to your liking.
+     * @param key
+     * @returns {string}
+     */
+    columnEnumKey: function(key) {
+        return key.replace(REGEX_CAMEL_CASE, '$1_$2').toUpperCase();
     },
 
     getNewDataModel: function() {
