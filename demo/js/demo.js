@@ -169,9 +169,9 @@ window.onload = function() {
         { label: 'Column Picker&hellip;', onclick: toggleDialog.bind(this, 'ColumnPicker') },
         { label: 'Manage Filters&hellip;', onclick: toggleDialog.bind(this, 'ManageFilters') },
         { label: 'toggle empty data', onclick: toggleEmptyData },
-        { label: 'set data 1 (5000 rows)', onclick: setData.bind(null, people1) },
-        { label: 'set data 2 (10000 rows)', onclick: setData.bind(null, people2) },
-        { label: 'set data 3 (tree data)', onclick: setData.bind(null, treeData) },
+        { label: 'set data 1 (5000 rows)', onclick: function() { setData(people1); } },
+        { label: 'set data 2 (10000 rows)', onclick: function() { setData(people2); } },
+        { label: 'set data 3 (tree data)', onclick: function() { setData(treeData); } },
         { label: 'reset', onclick: grid.reset.bind(grid)}
 
     ].forEach(function(item) {
@@ -181,18 +181,6 @@ window.onload = function() {
         button.title = item.title;
         document.getElementById('dashboard').appendChild(button);
     });
-
-    // add a column filter subexpression containing a single condition purely for demo purposes
-    if (false) { // eslint-disable-line no-constant-condition
-        grid.filter.columnFilters.add({
-            children: [{
-                column: 'total_number_of_pets_owned',
-                operator: '=',
-                operand: '3'
-            }],
-            type: 'columnFilter'
-        });
-    }
 
     window.vent = false;
 
@@ -973,7 +961,7 @@ window.onload = function() {
 
             showRowNumbers: true,
             showHeaderRow: true,
-            showFilterRow: grid.filter.columnFilters,
+            showFilterRow: !!grid.filterProp('columnFilters'),
             columnAutosizing: false,
             headerTextWrapping: true,
 

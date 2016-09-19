@@ -201,7 +201,7 @@ var drillDown = {
         var changed;
 
         if (this.isTreeview()) {
-            changed = this.sources.treeview.revealRow(ID);
+            changed = this.dataSource.revealRow(ID);
             if (smartApply === false || changed && smartApply) {
                 this.applyAnalytics({rowClick: true});
                 this.changed();

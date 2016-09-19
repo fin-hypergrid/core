@@ -79,7 +79,7 @@ TreeView.prototype.setRelation = function(join) {
         });
     }
 
-    var dataSource = dataModel.sources.treeview,
+    var dataSource = dataModel.findDataSourceByType('treeviewer'),
         joined = dataSource.setRelation(join && this.options),
         columnProps = behavior.getColumnProperties(dataSource.treeColumn.index),
         state = behavior.getPrivateState();
@@ -151,7 +151,7 @@ TreeView.prototype.deleteRow = function(ID, adoptiveParentID, keepParent, keepDr
         adopting = typeof adoptiveParentID === 'number' || adoptiveParentID === null,
         deletions = 0,
         dataModel = this.grid.behavior.dataModel,
-        treeview = dataModel.sources.treeview,
+        treeview = dataModel.findDataSourceByType('treeviewer'),
 
         // getIdColumn rather than idColumn in case setRelation not called yet:
         idColumnName = treeview.setIdColumn(this.options.idColumn).name,

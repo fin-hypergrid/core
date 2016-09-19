@@ -38,7 +38,7 @@ window.onload = function() {
     grid.setState({
         columnIndexes: [ idx.NAME, idx.STATE, idx.LATITUDE, idx.LONGITUDE ], // so drill-down column on far left
         fixedColumnCount: 1, // so far left drill-down column always visible
-        showFilterRow: options.includeFilter && grid.behavior.filter.columnFilters
+        showFilterRow: options.includeFilter && grid.filterProp('columnFilters')
     });
 
     grid.behavior.setColumnProperties(grid.behavior.columnEnum.STATE, {
@@ -49,11 +49,12 @@ window.onload = function() {
     var dd = treeviewAPI.drillDown = {};
 
     var checkbox = document.querySelector('input[type=checkbox]'),
-        button = document.querySelector('input[type=button]');
+        button = document.querySelector('input[type=button]'),
+        dataSource = dataModel.findDataSourceByType('treeview');
 
     checkbox.onclick = function() {
         if (treeviewAPI.setRelation(this.checked)) {
-            dd.column = grid.behavior.getColumn(dataModel.sources.treeview.treeColumn.index);
+            dd.column = grid.behavior.getColumn(dataSource.treeColumn.index);
 
             dd.header = dd.column.header;
             dd.column.header = '';

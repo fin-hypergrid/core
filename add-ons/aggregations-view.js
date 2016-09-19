@@ -95,7 +95,7 @@ AggregationsView.prototype.setAggregateGroups = function(aggregations, groups) {
 
     // 2. PERFORM ACTUAL AGGREGATING OR UNAGGREGATING
 
-    var dataSource = dataModel.sources.aggregator,
+    var dataSource = dataModel.findDataSourceByType('aggregator'),
         columnProps = behavior.getColumnProperties(dataSource.treeColumnIndex),
         state = behavior.getPrivateState();
 

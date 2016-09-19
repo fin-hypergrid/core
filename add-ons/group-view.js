@@ -63,7 +63,8 @@ GroupView.prototype = {
         var dataModel = this.grid.behavior.dataModel,
             headers = dataModel.getHeaders().slice(1), //Exclude the tree column
             fields = dataModel.getFields().slice(0),
-            groupBys = dataModel.sources.groupview.groupBys,
+            dataSource = dataModel.findDataSourceByType('groupviewer'),
+            groupBys = dataSource.groupBys,
             groups = [];
         for (var i = 0; i < groupBys.length; i++) {
             var field = headers[groupBys[i]];
@@ -79,7 +80,8 @@ GroupView.prototype = {
     getAvailableGroups: function() {
         var dataModel = this.grid.behavior.dataModel,
             headers = dataModel.source.getHeaders().slice(0),
-            groupBys = dataModel.sources.groupview.groupBys,
+            dataSource = dataModel.findDataSourceByType('groupviewer'),
+            groupBys = dataSource.groupBys,
             groups = [];
         for (var i = 0; i < headers.length; i++) {
             if (groupBys.indexOf(i) === -1) {
@@ -139,7 +141,7 @@ GroupView.prototype = {
 
         // 2. PERFORM ACTUAL GROUPING OR UNGROUPING
 
-        var dataSource = dataModel.sources.groupview,
+        var dataSource = dataModel.findDataSourceByType('groupviewer'),
             columnProps = behavior.getColumnProperties(dataSource.treeColumnIndex),
             state = behavior.getPrivateState();
 

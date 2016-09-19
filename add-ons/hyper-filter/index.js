@@ -60,6 +60,12 @@ Hyperfilter.prototype = {
     sortSchema: function(submenuPlacement) {
         this.factory.sort(submenuPlacement);
     },
+    lookupInSchema: function(findOptions, value) {
+        return this.factory.lookup(findOptions, value);
+    },
+    walkSchema: function(iteratee) {
+        return this.factory.walk(iteratee);
+    },
 
     /**
      * @param {menuItem[]} [schema] - If omitted, use derived schema. If no derived schema, derive it now.

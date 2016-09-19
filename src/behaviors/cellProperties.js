@@ -8,7 +8,7 @@ var _ = require('object-iterators');
  * Column.js mixes this module into its prototype.
  * @module
  */
-var Cell = {
+var cell = {
 
     /**
      * Due to memory constraints, we don't create a cell options properties object for every cell.
@@ -109,4 +109,4 @@ function newCellPropertiesObject(r) {
     );
 }
 
-module.exports = Cell;
+module.exports = cell;

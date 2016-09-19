@@ -31,7 +31,7 @@ window.onload = function() {
     // show filter row as per `options`
     grid.setState({
         // columnAutosizing: false,
-        showFilterRow: options.includeFilter && grid.behavior.filter.columnFilters
+        showFilterRow: options.includeFilter && grid.filterProp('columnFilters')
     });
 
     var groupViewAPI = new GroupView(grid, options);

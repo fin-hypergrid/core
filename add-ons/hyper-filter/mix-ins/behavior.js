@@ -3,32 +3,6 @@
 module.exports = {
 
     /**
-     * @summary Get a reference to the filter attached to the Hypergrid.
-     * @returns {FilterTree}
-     * @memberOf Behavior.prototype
-     */
-    get filter() {
-        return this.dataModel.filter;
-    },
-
-    /**
-     * @summary Attach/detach a filter to a Hypergrid.
-     * @param {FilterTree} [filter] - The filter object. If omitted, any attached filter is removed, turning filtering *OFF*.
-     * @memberOf Behavior.prototype
-     */
-    set filter(filter) {
-        this.dataModel.filter = filter;
-    },
-
-    /**
-     * @see {@link dataModels.JSON#filterProp|filterProp}
-     * @memberOf Behavior.prototype
-     */
-    filterProp: function(columnIndex, property, value) {
-        this.dataModel.filterProp.apply(this.dataModel, arguments);
-    },
-
-    /**
      * @param {number|string} columnIndexOrName - The _column filter_ to set.
      * @param {FilterTreeGetStateOptionsObject} [options] - Passed to the filter's {@link DefaultFilter#getState|getState} method.
      * @param {boolean} [options.syntax='CQL'] - The syntax to use to describe the filter state. Note that `getFilter`'s default syntax, `'CQL'`, differs from the other get state methods.
