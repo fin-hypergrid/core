@@ -1,6 +1,5 @@
 /* eslint-env browser */
-
-/* globals treedata  */
+/* globals fin, treeData */
 
 'use strict';
 
@@ -9,6 +8,7 @@ var grid, treeviewAPI;
 window.onload = function() {
     var Hypergrid = fin.Hypergrid,
         Hyperfilter = Hypergrid.Hyperfilter,
+        Hypersorter = Hypergrid.Hypersorter,
         drillDown = Hypergrid.drillDown,
         rowById = Hypergrid.rowById,
         TreeView = Hypergrid.TreeView,
@@ -21,6 +21,11 @@ window.onload = function() {
 
     grid = new Hypergrid('div#tree-example');
     grid.setData(treeData);
+
+    // Install the sorter API (optional).
+    new Hypersorter(grid, { // eslint-disable-line no-new
+        Column: fin.Hypergrid.behaviors.Column
+    });
 
     // Install the drill-down API (optional).
     var dataModel = grid.behavior.dataModel,

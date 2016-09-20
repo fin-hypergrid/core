@@ -137,8 +137,12 @@ window.onload = function() {
         behavior = window.b = grid.behavior,
         dataModel = window.m = behavior.dataModel,
         idx = behavior.columnEnum,
-        hyperfilter = new Hyperfilter(grid),
-        hypersorter = new Hypersorter(grid, {Column: fin.Hypergrid.behaviors.Column});
+        hyperfilter = new Hyperfilter(grid);
+
+    // Install the sorter API (optional).
+    new Hypersorter(grid, { // eslint-disable-line no-new
+        Column: fin.Hypergrid.behaviors.Column
+    });
 
     resetGlobalFilter();
 

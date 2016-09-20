@@ -104,7 +104,7 @@ function lint() {
         addOnsDir + jsFiles,
         srcDir + jsFiles,
         '!' + srcDir + '**/old/**/',
-        demoDir + 'js/demo.js',
+        demoDir + 'js/*.js',
         testDir + jsFiles,
         //'../../filter-tree/src/' + jsFiles // comment off this line and the one above when filter tree on npm
     ])

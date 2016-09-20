@@ -1,6 +1,6 @@
 'use strict';
 
-var _ = require('object-iterators');
+var overrider = require('overrider');
 
 function Hypersorter(grid, objects) {
     this.grid = grid;
@@ -18,7 +18,8 @@ function Hypersorter(grid, objects) {
     function mixInTo(name, instance, mixin) {
         var object = objects[name];
         var prototype = object && object.prototype || Object.getPrototypeOf(instance);
-        _(prototype).extend(mixin);
+
+        overrider(prototype, mixin);
     }
 }
 

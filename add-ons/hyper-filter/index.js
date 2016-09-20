@@ -21,6 +21,7 @@ function Hyperfilter(grid, targets) {
     function mixInTo(target, instance, mixin) {
         var object = targets[target];
         var prototype = object && object.prototype || Object.getPrototypeOf(instance);
+
         overrider(prototype, mixin);
     }
 }
