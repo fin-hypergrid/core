@@ -54,11 +54,11 @@ window.onload = function() {
     var dd = treeviewAPI.drillDown = {};
 
     var checkbox = document.querySelector('input[type=checkbox]'),
-        button = document.querySelector('input[type=button]'),
-        dataSource = dataModel.findDataSourceByType('treeview');
+        button = document.querySelector('input[type=button]');
 
     checkbox.onclick = function() {
         if (treeviewAPI.setRelation(this.checked)) {
+            var dataSource = dataModel.findDataSourceByType('treeviewer');
             dd.column = grid.behavior.getColumn(dataSource.treeColumn.index);
 
             dd.header = dd.column.header;
