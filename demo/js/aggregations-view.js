@@ -7,12 +7,7 @@ var grid;
 
 window.onload = function() {
     var Hypergrid = fin.Hypergrid,
-        Hyperfilter = Hypergrid.Hyperfilter,
-        Hypersorter = Hypergrid.Hypersorter,
-        drillDown = Hypergrid.drillDown,
-        AggregationsView = Hypergrid.AggregationsView,
-        dataModelPrototype = Hypergrid.dataModels.JSON.prototype,
-        rollups = window.fin.Hypergrid.analytics.util.aggregations, // aggregate function generator
+        rollups = Hypergrid.analytics.util.aggregations, // aggregate function generator
         options = {
             includeSorter: true,
             includeFilter: true,
@@ -28,35 +23,31 @@ window.onload = function() {
             groups: [5, 0, 1]
         };
 
-    // Install the drill-down API (optional).
-    drillDown.mixInTo(dataModelPrototype);
-
-    grid = new Hypergrid('div#example');
-    grid.setData(window.people1);
-
-    // Install the sorter API (optional).
-    new Hypersorter(grid, { // eslint-disable-line no-new
-        Column: fin.Hypergrid.behaviors.Column
+    grid = new Hypergrid('div#example', {
+        data: window.people1,
+        plugins: [
+            Hypergrid.drillDown, // simple API install (plain object with `install` method) but no `name` defined so no ref is saved
+            Hypergrid.Hyperfilter, // object API instantiation; `$$CLASS_NAME` defined so ref saved in `grid.plugins.hyperfilter`
+            Hypergrid.Hypersorter, // object API instantiation to grid.plugins; no `name` or `$$CLASS_NAME` defined so no ref saved
+            [Hypergrid.AggregationsView, options] // object API instantiation with one arg; `$$CLASS_NAME` defined so ref saved in `grid.plugins.aggregationsView`
+        ]
     });
 
-    var filterFactory = new Hyperfilter(grid);
-    grid.filter = filterFactory.create();
+    grid.filter = grid.plugins.hyperfilter.create();
 
     // show filter row as per `options`
     grid.setState({
         showFilterRow: options.includeFilter && grid.filterProp('columnFilters')
     });
 
-    var aggViewAPI = new AggregationsView(grid, options);
-
     document.querySelector('input[type=checkbox]').onclick = function() {
         if (this.checked) {
             // turn aggregations view ON using options.aggregates and options.group
             // Alternatively, you may supply overrides for both as parameters here.
-            aggViewAPI.setAggregateGroups();
+            grid.plugins.aggregationsView.setAggregateGroups();
         } else {
             // turn aggregations view OFF
-            aggViewAPI.setAggregateGroups([]);
+            grid.plugins.aggregationsView.setAggregateGroups([]);
         }
     };
 };

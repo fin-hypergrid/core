@@ -45,6 +45,8 @@ function AggregationsView(grid, options) {
     this.options = options || {};
 }
 
+AggregationsView.prototype.$$CLASS_NAME = 'AggregationsView';
+
 /**
  * @summary Build/unbuild the group view.
  * @desc Sets up grouping on the table using the options given to the constructor (see above).

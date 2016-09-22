@@ -49,6 +49,8 @@ function GroupView(grid, options) {
 GroupView.prototype = {
     constructor: GroupView.prototype.constructor,
 
+    $$CLASS_NAME: 'GroupView',
+
     fireSyntheticGroupsChangedEvent: function() {
         this.grid.canvas.dispatchEvent(new CustomEvent('fin-groups-changed', {
             detail: {

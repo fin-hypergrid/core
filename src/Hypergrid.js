@@ -67,7 +67,7 @@ function Hypergrid(container, options) {
         options = container;
         container = null;
     }
-    this.options = options || {};
+    this.options = options = options || {};
     this.lastEdgeSelection = [0, 0];
     this.lnfProperties = Object.create(globalProperties);
     this.isWebkit = navigator.userAgent.toLowerCase().indexOf('webkit') > -1;
@@ -78,7 +78,7 @@ function Hypergrid(container, options) {
     this.numRows = 0;
     this.numColumns = 0;
     this.clearMouseDown();
-    this.setFormatter(this.options.localization);
+    this.setFormatter(options.localization);
     /**
      * @type {CellRenderers}
      * @memberOf Hypergrid.prototype
@@ -91,15 +91,18 @@ function Hypergrid(container, options) {
      */
     this.cellEditors = new CellEditors(this);
     //Set up the container for the grid
-    container = container || this.options.container;
-    container = container || findOrCreateContainer(this.options.boundingRect);
+    container = container || options.container;
+    container = container || findOrCreateContainer(options.boundingRect);
     this.setContainer(container);
 
-    if (this.options.Behavior) {
-        this.setBehavior(this.options); // also sets this.options.pipeline and this.options.data
-    } else if (this.options.data) {
-        this.setData(this.options.data); // if no behavior has yet been set, also sets default behavior and this.options.pipeline
+    if (options.Behavior) {
+        this.setBehavior(options); // also sets options.pipeline and options.data
+    } else if (options.data) {
+        this.setData(options.data); // if no behavior has yet been set, also sets default behavior and options.pipeline
     }
+
+    this.plugins = {};
+    this.installPlugins(options.plugins);
 }
 
 Hypergrid.prototype = {
@@ -261,6 +264,109 @@ Hypergrid.prototype = {
         this.behaviorChanged();
 
         this.refreshProperties();
+    },
+
+    /** @typedef pluginSpec
+     * @type {object|function|Array}
+     * One of:
+     * * simple API - a plain object with an `install` method
+     * * object API - an object constructor
+     * * array:
+     *    * first element is an optional name for the API or the newly instantiated object
+     *    * next element (or first element when not a string) is the simple or object API
+     *    * remaining arguments are optional arguments for the object constructor
+     * * falsy value such as `undefined` - ignored
+     *
+     * The API may have a `name` or `$$CLASS_NAME` property.
+     */
+    /**
+     * @desc Plugin installation:
+     * * Each simple API is installed by calling it's `install` method with `this` as first arg + any additional args listed in the `pluginSpec` (when it is an array).
+     * * Each object API is installed by instantiating it's constructor with `this` as first arg + any additional args listed in the `pluginSpec` (when it is an array).
+     *
+     * The resulting plain object or instantiated objects may be named by (in priority order):
+     * 1. if `pluginSpec` contains an array and first element is a string
+     * 2. object has a `name` property
+     * 3. object has a `$$CLASS_NAME` property
+     *
+     * If named, reference to each object is saved in `this.plugins`. If not name, no reference is kept.
+     *
+     * @param {pluginSpec|pluginSpec[]} [plugins] - The plugins to install. This call is a no-op if omitted.
+     */
+    installPlugins: function(plugins) {
+        if (!plugins) {
+            return;
+        } else if (!Array.isArray(plugins)) {
+            plugins = [plugins];
+        }
+        plugins.forEach(function(plugin) {
+            var name, args = [this];
+
+            if (!plugin) {
+                return; // ingore falsy plugin spec
+            }
+
+            if (Array.isArray(plugin)) {
+                if (!plugin.length) {
+                    plugin = undefined;
+                } else if (typeof plugin[0] !== 'string') {
+                    args = args.concat(plugin.splice(1));
+                    plugin = plugin[0];
+                } else if (plugin.length >= 2) {
+                    args = args.concat(plugin.splice(2));
+                    name = plugin[0];
+                    plugin = plugin[1];
+                } else {
+                    plugin = undefined;
+                }
+            }
+
+            if (!plugin) {
+                return; // ignore empty array or array with single string element
+            }
+
+            if (typeof plugin === 'function') {
+                args.unshift(null); // this `null` is for the `this` arg for the `bind` call
+                plugin = new (Function.prototype.bind.apply(plugin, args));
+            } else if (plugin.install) {
+                plugin.install.apply(plugin, args);
+            } else {
+                throw new this.HypergridError('Expected plugin.');
+            }
+
+            name = name || plugin.name || plugin.$$CLASS_NAME;
+            if (name) {
+                name = name.substr(0, 1).toLowerCase() + name.substr(1);
+                this.plugins[name] = plugin;
+            }
+        }, this);
+    },
+
+    /**
+     * @summary Uninstall all plugins or just named plugins.
+     * @desc Calls `uninstall` on plugins that define such a method.
+     * For convenience, the following args are passed to the call:
+     * * `this` - the plugin to be uninstalled
+     * * `grid` - the hypergrid object
+     * * `key` - name of the plugin to be uninstalled (_i.e.,_ key in `plugins`)
+     * * `plugins` - the plugins hash (a.k.a. `grid.plugins`)
+     * @param {string|stirng[]} [pluginNames] If provided, limit uninstall to the named plugin (string) or plugins (string[]).
+     */
+    uninstallPlugins: function(pluginNames) {
+        if (!pluginNames) {
+            pluginNames = [];
+        } else if (!Array.isArray(pluginNames)) {
+            pluginNames = [pluginNames];
+        }
+        _(this.plugins).each(function(plugin, key, plugins) {
+            if (
+                plugins.hasOwnProperty(key) &&
+                pluginNames.indexOf(key) >= 0 &&
+                plugin.uninstall
+            ) {
+                plugin.uninstall(this, key, plugins);
+            }
+        }, this);
     },
 
     getProperties: function() {
