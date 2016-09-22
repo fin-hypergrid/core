@@ -5,7 +5,7 @@
 var ListDragon = require('list-dragon');
 
 var Dialog = require('./Dialog');
-var stylesheet = require('../lib/stylesheet');
+var stylesheet = window.fin.Hypergrid.stylesheet;
 
 /**
  * @constructor

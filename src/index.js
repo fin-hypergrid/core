@@ -24,6 +24,8 @@ Hypergrid.dataModels = require('./dataModels');
 Hypergrid.features = require('./features');
 Hypergrid.analytics = require('./Shared.js').analytics;
 Hypergrid.rectangular = require('rectangular');
+Hypergrid.stylesheet = require('./lib/stylesheet');
+Hypergrid.base = require('./lib/Base');
 
 // Create the `fin` and in particular the `fin.Hypergrid` objects:
 (window.fin = window.fin || {}).Hypergrid = Hypergrid;

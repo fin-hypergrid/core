@@ -21,7 +21,7 @@ var ColumnPicker = Feature.extend('ColumnPicker', {
         var key = event.detail.char.toLowerCase();
         var keys = grid.resolveProperty('editorActivationKeys');
         if (keys.indexOf(key) > -1) {
-           grid.toggleDialog('ColumnPicker');
+           grid.fireSyntheticExternalUIActivationEvent(keys);
         }
     },
 

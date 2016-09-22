@@ -145,7 +145,8 @@ window.onload = function() {
             includeFilter: true
         }],
         Hypergrid.Hyperfilter,
-        Hypergrid.Hypersorter
+        Hypergrid.Hypersorter,
+        Hypergrid.DialogUI
     ]);
 
     resetGlobalFilter();
@@ -165,7 +166,7 @@ window.onload = function() {
         behavior.applyAnalytics();
     }
 
-    // Preset a default dialog options object. Used by call to toggleDialog('ColumnPicker') from features/ColumnPicker.js and by toggleDialog() defined herein.
+    // Preset a default dialog options object. Used by call to toggleDialog('ColumnPicker') from features/ExternalUI.js and by toggleDialog() defined herein.
     grid.setDialogOptions({
         //container: document.getElementById('dialog-container'),
         settings: false

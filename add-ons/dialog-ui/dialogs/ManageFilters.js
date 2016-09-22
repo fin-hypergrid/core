@@ -7,8 +7,8 @@ var popMenu = require('pop-menu');
 var automat = require('automat');
 
 var Dialog = require('./Dialog');
-var markup = require('../../html');
-var copyInput = require('../lib/DOM/copy-input');
+var markup = require('../html');
+var copyInput = require('./copy-input');
 
 var tabProperties = {
     tableQB: {

@@ -3,11 +3,18 @@
 'use strict';
 
 var automat = require('automat');
+var markup = require('../html');
 
-var Base = require('../lib/Base');
-var markup = require('../../html');
-var images = require('../../images');
-var elfor = require('../lib/DOM/elfor');
+var Base = window.fin.Hypergrid.base;
+var images = window.fin.Hypergrid.base;
+var elfor = {
+    each: function(selector, iteratee, context) {
+        return Array.prototype.forEach.call((context || document).querySelectorAll(selector), iteratee);
+    },
+    find: function(selector, iteratee, context) {
+        return Array.prototype.find.call((context || document).querySelectorAll(selector), iteratee);
+    }
+};
 
 /**
  * Creates and services a DOM element used as a cntainer for a dialog. The standard `markup.dialog` is simply a div with a _control panel_ containing a close box and a settings gear icon.

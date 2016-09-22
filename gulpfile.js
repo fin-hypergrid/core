@@ -42,6 +42,13 @@ gulp.task('browserify-hypersorter', browserify.bind(null,
     /\w+\.exports(\s*=)/,
     'window.fin.Hypergrid.Hypersorter$1'
 ));
+gulp.task('browserify-dialog-ui', browserify.bind(null,
+    'dialog-ui',
+    addOnsDir + 'dialog-ui/',
+    buildDir + addOnsDir,
+    /\w+\.exports(\s*=)/,
+    'window.fin.Hypergrid.DialogUI$1'
+));
 gulp.task('reloadBrowsers', reloadBrowsers);
 gulp.task('serve', browserSyncLaunchServer);
 gulp.task('add-ons', addOns);
@@ -65,6 +72,7 @@ gulp.task('build', function(callback) {
         'add-ons',
         'browserify-hyperfilter',
         'browserify-hypersorter',
+        'browserify-dialog-ui',
         //'beautify',
         'browserify',
         //'doc',
