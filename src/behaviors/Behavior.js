@@ -5,8 +5,6 @@ var Point = require('rectangular').Point;
 var Base = require('../Base');
 var Column = require('./Column');
 var cellEventFactory = require('./../lib/cellEventFactory');
-var dialogs = require('../dialogs');
-
 var noExportProperties = [
     'columnHeader',
     'columnHeaderColumnSelection',
@@ -912,17 +910,6 @@ var Behavior = Base.extend('Behavior', {
             this.setCursor(grid);
         }
     },
-
-    /**
-     * @memberOf Behavior#
-     * @desc delegate handling double click to the feature chain of responsibility
-     * @param {Hypergrid} grid
-     * @param {string[]} [options] - Forwarded to dialog constructor.
-     */
-    openDialog: function(dialogName, options) {
-        return new dialogs[dialogName](this.grid, options);
-    },
-
     /**
      * @memberOf Behavior#
      * @desc delegate handling mouse down to the feature chain of responsibility

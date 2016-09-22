@@ -49,16 +49,27 @@ gulp.task('browserify-totals-toolkit', browserify.bind(null,
     /\w+\.exports(\s*=)/,
     'window.fin.Hypergrid.totalsToolkit$1'
 ));
+gulp.task('browserify-dialog-ui', browserify.bind(null,
+    'dialog-ui',
+    addOnsDir + 'dialog-ui/',
+    buildDir + addOnsDir,
+    /\w+\.exports(\s*=\s*DialogUI)/,
+    'window.fin.Hypergrid.DialogUI$1'
+));
 gulp.task('reloadBrowsers', reloadBrowsers);
 gulp.task('serve', browserSyncLaunchServer);
 gulp.task('add-ons', addOns);
 
 gulp.task('html-templates', function() {
-    return templates('html');
+    return templates('./html/*.html', 'html');
 });
 
 gulp.task('css-templates', function() {
-    return templates('css');
+    return templates('./css/*.css', 'css');
+});
+
+gulp.task('dialogs-css-templates', function() {
+    return templates(addOnsDir + 'dialog-ui/css/*.css', 'css');
 });
 
 gulp.task('build', function(callback) {
@@ -68,11 +79,13 @@ gulp.task('build', function(callback) {
         'images',
         'html-templates',
         'css-templates',
+        'dialogs-css-templates',
         'test',
         'add-ons',
         'browserify-hyperfilter',
         'browserify-hypersorter',
         'browserify-totals-toolkit',
+        'browserify-dialog-ui',
         //'beautify',
         'browserify',
         //'doc',
@@ -215,10 +228,10 @@ function swallowImages() {
         .pipe(gulp.dest(config.dest.path, config.dest.options));
 }
 
-function templates(folder) {
-    return gulp.src('./' + folder + '/*.' + folder)
+function templates(src, type) {
+    return gulp.src(src)
         .pipe($$.each(function(content, file, callback) {
-            var filename = path.basename(file.path, "." + folder),
+            var filename = path.basename(file.path, "." + type),
                 member = /[^\w]/.test(filename) ? "['" + filename + "']" : "." + filename;
 
             // convert (groups of) 4 space chars at start of lines to tab(s)

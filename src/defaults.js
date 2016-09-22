@@ -1056,7 +1056,7 @@ var defaults = {
     /** @summary Allow user to move columns .
      * @desc Columns can be reordered through either of two interfaces:
      * * Column Dragging feature
-     * * Column Picker dialog
+     * * behavior.columns API
      * @type {boolean}
      * @default
      * @memberOf module:defaults
