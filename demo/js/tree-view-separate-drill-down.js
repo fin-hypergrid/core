@@ -3,14 +3,10 @@
 
 'use strict';
 
-var grid, treeviewAPI;
+var grid;
 
 window.onload = function() {
     var Hypergrid = fin.Hypergrid,
-        Hyperfilter = Hypergrid.Hyperfilter,
-        Hypersorter = Hypergrid.Hypersorter,
-        drillDown = Hypergrid.drillDown,
-        TreeView = Hypergrid.TreeView,
         options = {
             // In order for the the State column not to sort the leaves (city names), we want it to use the "depth sorter" rather than the regular sorter used by the other columns. To make this work, the column does need to be called out when it differs from the tree (drill-down) column. In this demo, the tree column (containing the drill-down controls) is called name, which is the default. The `groupColumn` option normally defaults to whatever the `treeColumn` is set to but in this case we use it to call out the State column.
             groupColumn: 'State',
@@ -22,21 +18,15 @@ window.onload = function() {
     // Add a blank column.
     treeData.forEach(function(dataRow) { dataRow.name = ''; });
 
-    grid = new Hypergrid('div#tree-example');
-    grid.setData(treeData);
+    grid = new Hypergrid('div#tree-example', { data: treeData, plugins: [
+        Hypergrid.drillDown, // simple API install (plain object with `install` method) but no `name` defined so no ref is saved
+        Hypergrid.rowById, // ditto
+        Hypergrid.Hyperfilter, // object API instantiation; `$$CLASS_NAME` defined so ref saved in `grid.plugins.hyperfilter`
+        Hypergrid.Hypersorter, // object API instantiation to grid.plugins; no `name` or `$$CLASS_NAME` defined so no ref saved
+        [Hypergrid.TreeView, options] // object API instantiation with one arg; `$$CLASS_NAME` defined so ref saved in `grid.plugins.treeViewAPI`
+    ] });
 
-    // Install the sorter API (optional).
-    new Hypersorter(grid, { // eslint-disable-line no-new
-        Column: fin.Hypergrid.behaviors.Column
-    });
-
-    // Install the drill-down API (optional).
-    var dataModel = grid.behavior.dataModel,
-        dataModelPrototype = Object.getPrototypeOf(dataModel);
-    drillDown.mixInTo(dataModelPrototype);
-
-    var filterFactory = new Hyperfilter(grid);
-    grid.filter = filterFactory.create();
+    grid.filter = grid.plugins.hyperfilter.create();
 
     var idx = grid.behavior.columnEnum;
 
@@ -50,15 +40,14 @@ window.onload = function() {
         halign: 'left'
     });
 
-    treeviewAPI = new TreeView(grid, options);
-    var dd = treeviewAPI.drillDown = {};
+    var dd = grid.plugins.treeView.drillDown = {};
 
     var checkbox = document.querySelector('input[type=checkbox]'),
         button = document.querySelector('input[type=button]');
 
     checkbox.onclick = function() {
-        if (treeviewAPI.setRelation(this.checked)) {
-            var dataSource = dataModel.findDataSourceByType('treeviewer');
+        var dataSource = grid.plugins.treeView.setRelation(this.checked);
+        if (dataSource) {
             dd.column = grid.behavior.getColumn(dataSource.treeColumn.index);
 
             dd.header = dd.column.header;
@@ -74,7 +63,7 @@ window.onload = function() {
     };
 
     button.onclick = function() {
-        dataModel.expandAllRows(true);
+        grid.behavior.dataModel.expandAllRows(true);
     };
 };
 

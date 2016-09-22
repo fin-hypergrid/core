@@ -29,6 +29,8 @@ function Hyperfilter(grid, targets) {
 Hyperfilter.prototype = {
     constructor: Hyperfilter.prototype.constructor,
 
+    $$CLASS_NAME: 'Hyperfilter',
+
     /**
      * @type {boolean}
      */

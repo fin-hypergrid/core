@@ -8,7 +8,7 @@ function Hypersorter(grid, objects) {
 
     mixInTo('Hypergrid', grid, require('./mix-ins/grid'));
     mixInTo('Behavior', grid.behavior, require('./mix-ins/behavior'));
-    mixInTo('Column', null, require('./mix-ins/column'));
+    mixInTo('Column', grid.behavior.allColumns.length && grid.behavior.allColumns[0], require('./mix-ins/column'));
     mixInTo('DataModel', grid.behavior.dataModel, require('./mix-ins/dataModel'));
 
     this.grid.addEventListener('fin-column-sort', function(c, keys){

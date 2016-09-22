@@ -9,17 +9,7 @@
 window.onload = function() {
 
     var Hypergrid = fin.Hypergrid;
-    var drillDown = Hypergrid.drillDown;
-    var TreeView = Hypergrid.TreeView;
-    var GroupView = Hypergrid.GroupView;
-    var AggView = Hypergrid.AggregationsView;
-    var Hyperfilter = Hypergrid.Hyperfilter;
-    var Hypersorter = Hypergrid.Hypersorter;
-
-    var filterOptions = Hyperfilter.prototype;
-
-    // Install the drill-down API (optional).
-    drillDown.mixInTo(Hypergrid.dataModels.JSON.prototype);
+    var filterOptions = Hypergrid.Hyperfilter.prototype;
 
     // List of properties to show as checkboxes in this demo's "dashboard"
     var toggleProps = [
@@ -136,21 +126,33 @@ window.onload = function() {
         grid = window.g = new Hypergrid('div#json-example', gridOptions),
         behavior = window.b = grid.behavior,
         dataModel = window.m = behavior.dataModel,
-        idx = behavior.columnEnum,
-        hyperfilter = new Hyperfilter(grid);
+        idx = behavior.columnEnum;
 
-    // Install the sorter API (optional).
-    new Hypersorter(grid, { // eslint-disable-line no-new
-        Column: fin.Hypergrid.behaviors.Column
-    });
+    grid.installPlugins([
+        Hypergrid.drillDown,
+        [Hypergrid.TreeView, {
+            treeColumn: 'State',
+            includeSorter: true,
+            includeFilter: true,
+            hideIdColumns: true
+        }],
+        [Hypergrid.GroupView, {
+            includeSorter: true,
+            includeFilter: true
+        }],
+        [Hypergrid.AggregationsView, {
+            includeSorter: true,
+            includeFilter: true
+        }],
+        Hypergrid.Hyperfilter,
+        Hypergrid.Hypersorter
+    ]);
 
     resetGlobalFilter();
 
     console.log('Fields:');  console.dir(behavior.dataModel.getFields());
     console.log('Headers:'); console.dir(behavior.dataModel.getHeaders());
     console.log('Indexes:'); console.dir(idx);
-
-    var treeView, aggView, groupView;
 
     function setData(data, options) {
         options = options || {};
@@ -202,40 +204,19 @@ window.onload = function() {
         groups = [idx.BIRTH_STATE, idx.LAST_NAME, idx.FIRST_NAME];
 
     function toggleAggregates() {
-        if (!aggView){
-            aggView = new AggView(grid, {
-                includeSorter: true,
-                includeFilter: true
-            });
-        }
-        console.log('agg', this.checked);
-        aggView.setAggregateGroups(
+        grid.plugins.aggregationsView.setAggregateGroups(
             this.checked ? aggregates : [],
             this.checked ? groups : []
         );
     }
 
+    var treeViewing;
     function toggleTreeview() {
-        if (!treeView) {
-            treeView = new TreeView(grid, {
-                treeColumn: 'State',
-                includeSorter: true,
-                includeFilter: true,
-                hideIdColumns: true
-            });
-        }
-        treeView.setRelation(this.checked);
+        treeViewing = grid.plugins.treeView.setRelation(this.checked);
     }
 
     function toggleGrouping() {
-        if (!groupView){
-            groupView = new GroupView(grid, {
-                includeSorter: true,
-                includeFilter: true
-            });
-        }
-        console.log('grp', this.checked);
-        groupView.setGroups(this.checked ? groups : []);
+        grid.plugins.groupView.setGroups(this.checked ? groups : []);
     }
 
     var styleRowsFromData;
@@ -414,7 +395,7 @@ window.onload = function() {
             var x = config.x;
             var y = config.y;
 
-            if (treeView) {
+            if (treeViewing) {
                 n = behavior.getRow(y).__DEPTH;
                 hex = n ? (105 + 75 * n).toString(16) : '00';
                 config.backgroundColor = '#' + hex + hex + hex;
@@ -1280,7 +1261,7 @@ window.onload = function() {
     }
 
     function resetGlobalFilter() {
-        grid.filter = hyperfilter.create(); // new filter with new derived column schema
+        grid.filter = grid.plugins.hyperfilter.create(); // new filter with new derived column schema
     }
 
     function redIfStartsWithS(dataRow, columnName) {

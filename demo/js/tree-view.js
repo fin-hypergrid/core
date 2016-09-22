@@ -3,15 +3,10 @@
 
 'use strict';
 
-var grid, treeviewAPI;
+var grid;
 
 window.onload = function() {
     var Hypergrid = fin.Hypergrid,
-        Hyperfilter = Hypergrid.Hyperfilter,
-        Hypersorter = Hypergrid.Hypersorter,
-        drillDown = Hypergrid.drillDown,
-        rowById = Hypergrid.rowById,
-        TreeView = Hypergrid.TreeView,
         options = {
             treeColumn: 'State', // groupColumn defaults to treeColumn by default
             includeSorter: true,
@@ -22,21 +17,15 @@ window.onload = function() {
     grid = new Hypergrid('div#tree-example');
     grid.setData(treeData);
 
-    // Install the sorter API (optional).
-    new Hypersorter(grid, { // eslint-disable-line no-new
-        Column: fin.Hypergrid.behaviors.Column
-    });
+    grid.installPlugins([
+        Hypergrid.drillDown, // simple API install (plain object with `install` method) but no `name` defined so no ref is saved
+        Hypergrid.rowById, // ditto
+        Hypergrid.Hyperfilter, // object API instantiation; `$$CLASS_NAME` defined so ref saved in `grid.plugins.hyperfilter`
+        Hypergrid.Hypersorter, // object API instantiation to grid.plugins; no `name` or `$$CLASS_NAME` defined so no ref saved
+        ['treeviewAPI', Hypergrid.TreeView, options] // object API instantiation with one arg; [0] overrides any defined name so ref saved in `grid.plugins.treeViewAPI`
+    ]);
 
-    // Install the drill-down API (optional).
-    var dataModel = grid.behavior.dataModel,
-        dataModelPrototype = Object.getPrototypeOf(dataModel);
-    drillDown.mixInTo(dataModelPrototype);
-
-    // Install the row-by-id API (optional, to play with treeviewAPI.deleteRowById in console, which needs it).
-    rowById.mixInTo(dataModelPrototype);
-
-    var filterFactory = new Hyperfilter(grid);
-    grid.filter = filterFactory.create();
+    grid.filter = grid.plugins.hyperfilter.create();
 
     // show filter row as per `options`
     grid.setState({
@@ -47,18 +36,16 @@ window.onload = function() {
         halign: 'left'
     });
 
-    treeviewAPI = new TreeView(grid, options);
-
     var checkbox = document.querySelector('input[type=checkbox]'),
         button = document.querySelector('input[type=button]');
 
     checkbox.onclick = function() {
-        treeviewAPI.setRelation(this.checked);
+        grid.plugins.treeviewAPI.setRelation(this.checked);
         button.disabled = !this.checked;
     };
 
     button.onclick = function() {
-        dataModel.expandAllRows(true);
+        grid.behavior.dataModel.expandAllRows(true);
     };
 };
 

@@ -7,10 +7,6 @@ var grid;
 
 window.onload = function() {
     var Hypergrid = fin.Hypergrid,
-        Hyperfilter = Hypergrid.Hyperfilter,
-        Hypersorter = Hypergrid.Hypersorter,
-        drillDown = Hypergrid.drillDown,
-        GroupView = Hypergrid.GroupView,
         options = {
             includeSorter: true,
             includeFilter: true,
@@ -20,17 +16,14 @@ window.onload = function() {
     grid = new Hypergrid('div#example');
     grid.setData(window.people1);
 
-    new Hypersorter(grid, { // eslint-disable-line no-new
-        Column: fin.Hypergrid.behaviors.Column
-    });
+    grid.installPlugins([
+        Hypergrid.drillDown, // simple API install (plain object with `install` method) but no `name` defined so no ref is saved
+        Hypergrid.Hyperfilter, // object API instantiation; `$$CLASS_NAME` defined so ref saved in `grid.plugins.hyperfilter`
+        Hypergrid.Hypersorter, // object API instantiation to grid.plugins; no `name` or `$$CLASS_NAME` defined so no ref saved
+        [Hypergrid.GroupView, options] // object API instantiation with one arg; `$$CLASS_NAME` defined so ref saved in `grid.plugins.groupView`
+    ]);
 
-    // Install the drill-down API (optional, to play with in console).
-    var dataModel = grid.behavior.dataModel,
-        dataModelPrototype = Object.getPrototypeOf(dataModel);
-    drillDown.mixInTo(dataModelPrototype);
-
-    var filterFactory = new Hyperfilter(grid);
-    grid.filter = filterFactory.create();
+    grid.filter = grid.plugins.hyperfilter.create();
 
     // show filter row as per `options`
     grid.setState({
@@ -38,16 +31,14 @@ window.onload = function() {
         showFilterRow: options.includeFilter && grid.filterProp('columnFilters')
     });
 
-    var groupViewAPI = new GroupView(grid, options);
-
     document.querySelector('input[type=checkbox]').onclick = function() {
         if (this.checked) {
             // turn group view ON using options.groups
             // Alternatively, you can supply a group list override as a parameter here.
-            groupViewAPI.setGroups();
+            grid.plugins.groupView.setGroups();
         } else {
             // turn group view OFF
-            groupViewAPI.setGroups([]);
+            grid.plugins.groupView.setGroups([]);
         }
     };
 };

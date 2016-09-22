@@ -50,6 +50,8 @@ function TreeView(grid, options) {
     this.options = options || {};
 }
 
+TreeView.prototype.$$CLASS_NAME = 'TreeView';
+
 /**
  * @summary Build/unbuild the tree view.
  * @desc "Joins" the table to itself through the ID and parent ID columns using the options given to the constructor (see above).
@@ -61,7 +63,7 @@ function TreeView(grid, options) {
  * * Tree column is made non-selectable so clicking drill-down controls doesn't select the cell.
  * * Row are made selectable by clicking in row handles only so clicking drill-down controls doesn't select the row.
  * @param {boolean} join - If truthy, turn tree-view **ON**. If falsy (or omitted), turn it **OFF**.
- * @returns {boolean} Joined state.
+ * @returns {DataSourceTreeView} Indicates joined state; undefined indicates unjoined.
  */
 TreeView.prototype.setRelation = function(join) {
     var grid = this.grid,
@@ -121,7 +123,7 @@ TreeView.prototype.setRelation = function(join) {
     grid.selectionModel.clear();
     grid.clearMouseDown();
 
-    return joined;
+    return joined && dataSource;
 };
 
 /**
