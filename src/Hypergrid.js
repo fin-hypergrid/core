@@ -95,10 +95,10 @@ function Hypergrid(container, options) {
     container = container || findOrCreateContainer(options.boundingRect);
     this.setContainer(container);
 
-    if (options.Behavior) {
-        this.setBehavior(options); // also sets options.pipeline and options.data
-    } else if (options.data) {
-        this.setData(options.data); // if no behavior has yet been set, also sets default behavior and options.pipeline
+    if (this.options.Behavior) {
+        this.setBehavior(this.options); // also sets this.options.pipeline and this.options.data
+    } else if (this.options.data) {
+        this.setData(this.options.data); // if no behavior has yet been set, also sets default behavior and this.options.pipeline
     }
 
     this.plugins = {};
@@ -853,6 +853,23 @@ Hypergrid.prototype = {
             this.setBehavior({ pipeline: this.options.pipeline });
         }
         this.behavior.setData(dataRows, options);
+    },
+
+    /**
+     * @memberOf Hypergrid.prototype
+     * @summary _(See {@link Hypergrid.prototype#setData}.)_
+     * @desc Binds the data and reshapes the grid (new column objects created)
+     * @param {function|object[]} dataRows - May be:
+     * * An array of congruent raw data objects.
+     * * A function returning same.
+     * @param {object} [options]
+     */
+    updateData: function(dataRows, options){
+        if (!this.behavior){
+            this.setData(dataRows, options);
+        }
+        this.behavior.updateData(dataRows, options);
+        this.behavior.changed();
     },
 
     /**
