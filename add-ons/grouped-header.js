@@ -497,6 +497,7 @@ function toHex2(n) {
 
 groupedHeader = {
     mixInTo: mixInTo,
+    install: mixInTo,
     decorateBackgroundWithBottomBorder: decorateBackgroundWithBottomBorder,
     decorateBackgroundWithLinearGradient: decorateBackgroundWithLinearGradient,
     lighterColor: lighterColor

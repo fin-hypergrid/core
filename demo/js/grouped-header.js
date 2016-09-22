@@ -6,20 +6,16 @@
 var grid;
 
 window.onload = function() {
-    var Hypergrid = fin.Hypergrid,
-        Hypersorter = Hypergrid.Hypersorter;
+    var Hypergrid = fin.Hypergrid;
 
     // Create the grid and insert into the DOM
     grid = new Hypergrid('div#example');
     grid.setData(window.unitedStates);
 
-    // Install the sorter API (optional).
-    new Hypersorter(grid, { // eslint-disable-line no-new
-        Column: fin.Hypergrid.behaviors.Column
-    });
-
-    // Adds GroupedHeader cell renderer
-    fin.Hypergrid.groupedHeader.mixInTo(grid);
+    grid.installPlugins([
+        Hypergrid.Hypersorter, // object API instantiation to grid.plugins; no `name` or `$$CLASS_NAME` defined so no ref saved
+        Hypergrid.groupedHeader // simple API install (plain object with `install` method) but no `name` defined so no ref is saved
+    ]);
 
     // New header definitions. This example has three levels of headers.
     // The idea here is that group headers are repeated for each column participating in the group.

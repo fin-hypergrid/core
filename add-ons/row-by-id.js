@@ -325,22 +325,43 @@ function getByIdArgs(keyOrHash, valOrList) {
     return Array.prototype.slice.call(arguments, 0, length);
 }
 
-/**
- * @name mixInTo
- * @summary Mix all the other members into the given target object.
- * @desc The target object is intended to be Hypergrid's in-memory data model object ({@link dataModels.JSON}).
- *
- * **NOTE:** This `mixInTo` method is defined here rather than above just so that it will be non-enumerable and therefore not itself mixed into the `target` object.
- * @function
- * @param {object} target - Your data model instance or its prototype.
- * @memberOf rowById
- */
-Object.defineProperty(rowById, 'mixInTo', {  // defined here just to make it non-enumerable
-    value: function(target) {
-        Object.keys(this).forEach(function(key) {
-            target[key] = this[key];
-        }.bind(this));
+Object.defineProperties(rowById, { // These objects are defined here so they will be non-enumerable to avoid being mixed in.
+    /**
+     * @name install
+     * @summary Installer for plugin.
+     * @desc Required by {@link Hypergrid#installPlugins}
+     * @function
+     * @param {object} target - Your data model instance or its prototype.
+     * @memberOf rowById
+     */
+    install: {
+        value: function(grid, target) {
+            mixInTo.call(this, target || Object.getPrototypeOf(grid.behavior.dataModel));
+        }
+    },
+
+    /**
+     * @name mixInTo
+     * @summary Mix all the other members into the given target object.
+     * @desc The target object is intended to be Hypergrid's in-memory data model object ({@link dataModels.JSON}).
+     * @function
+     * @param {object} target - Your data model instance or its prototype.
+     * @memberOf rowById
+     */
+    mixInTo: {
+        value: function(target) {
+            console.warn('rowById.mixInTo(target) deprecated as of Hypergrid 1.10.0 in favor of grid.installPlugins([[rowById, target]]) where target defaults to grid\'s dataModel prototype. (Will be removed in a future release.)');
+            mixInTo.call(this, target);
+        }
     }
 });
+
+function mixInTo(target) {
+    for (var key in this) {
+        if (this.hasOwnProperty(key)) {
+            Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(this, key));
+        }
+    }
+}
 
 module.exports = rowById;

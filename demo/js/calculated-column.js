@@ -6,15 +6,9 @@
 var grid;
 
 window.onload = function() {
-    var Hypergrid = fin.Hypergrid,
-        Hypersorter = Hypergrid.Hypersorter;
+    var Hypergrid = fin.Hypergrid;
 
     grid = new Hypergrid('div#example');
-
-    // Install the sorter API (optional).
-    new Hypersorter(grid, { // eslint-disable-line no-new
-        Column: fin.Hypergrid.behaviors.Column
-    });
 
     grid.setData([
         { value: 3 },
@@ -33,8 +27,12 @@ window.onload = function() {
     // force type of new column to 'number' because current auto-detect does not know about calculated columns
     grid.behavior.setColumnProperties(1, { type: 'number' });
 
-    var filterFactory = new Hypergrid.Hyperfilter(grid);
-    grid.filter = filterFactory.create();
+    grid.installPlugins([
+        Hypergrid.Hyperfilter, // object API instantiation; `$$CLASS_NAME` defined so ref saved in `grid.plugins.hyperfilter`
+        Hypergrid.Hypersorter // object API instantiation to grid.plugins; no `name` or `$$CLASS_NAME` defined so no ref saved
+    ]);
+
+    grid.filter = grid.plugins.hyperfilter.create();
 
     grid.setState({ showFilterRow: true });
 

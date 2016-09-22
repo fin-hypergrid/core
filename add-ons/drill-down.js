@@ -213,22 +213,43 @@ var drillDown = {
 
 };
 
-/**
- * @name mixInTo
- * @summary Mix all the `drillDown` members into the given target object.
- * @desc The target object is intended to be Hypergrid's in-memory data model object (./src/dataModels/JSON.js).
- *
- * _NOTE:_ This `mixInTo` method is excluded (not mixed in).
- * @function
- * @param {object} target - Your data model instance or its prototype.
- * @memberOf drillDown
- */
-Object.defineProperty(drillDown, 'mixInTo', {  // defined here just to make it non-enumerable
-    value: function(target) {
-        Object.keys(this).forEach(function(key) {
-            target[key] = this[key];
-        }.bind(this));
+Object.defineProperties(drillDown, { // These objects are defined here so they will be non-enumerable to avoid being mixed in.
+    /**
+     * @name install
+     * @summary Installer for plugin.
+     * @desc Required by {@link Hypergrid#installPlugins}
+     * @function
+     * @param {object} target - Your data model instance or its prototype.
+     * @memberOf rowById
+     */
+    install: {
+        value: function(grid, target) {
+            mixInTo.call(this, target || Object.getPrototypeOf(grid.behavior.dataModel));
+        }
+    },
+
+    /**
+     * @name mixInTo
+     * @summary Mix all the other members into the given target object.
+     * @desc The target object is intended to be Hypergrid's in-memory data model object ({@link dataModels.JSON}).
+     * @function
+     * @param {object} target - Your data model instance or its prototype.
+     * @memberOf rowById
+     */
+    mixInTo: {
+        value: function(target) {
+            console.warn('drillDown.mixInTo(target) deprecated as of Hypergrid 1.10.0 in favor of grid.installPlugins([[drillDown, target]]) where target defaults to grid\'s dataModel prototype. (Will be removed in a future release.)');
+            mixInTo.call(this, target);
+        }
     }
 });
+
+function mixInTo(target) {
+    for (var key in this) {
+        if (this.hasOwnProperty(key)) {
+            Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(this, key));
+        }
+    }
+}
 
 module.exports = drillDown;
