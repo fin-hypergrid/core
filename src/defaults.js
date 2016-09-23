@@ -14,7 +14,7 @@ var LRUCache = require('lru-cache');
 module.exports = {
 
     /**
-     * The font for data cells.
+     * Message to show if the grid is loaded with no data.
      * @default
      * @type {string}
      * @instance
@@ -61,12 +61,6 @@ module.exports = {
      * @instance
      */
     foregroundSelectionColor: 'rgb(0, 0, 128)',
-    /**
-     * @default
-     * @type {boolean}
-     * @instance
-     */
-    sortOnHiddenColumns: true,
     /**
      * Background color for selected cell(s).
      * @default
@@ -340,7 +334,7 @@ module.exports = {
      * @type {boolean}
      * @instance
      */
-    scrollingEnabled: true,
+    scrollingEnabled: false,
 
     /**
      * @default
@@ -390,14 +384,14 @@ module.exports = {
      * @type {boolean}
      * @instance
      */
-    gridLinesH: true,
+    gridLinesH: false,
 
     /**
      * @default
      * @type {boolean}
      * @instance
      */
-    gridLinesV: true,
+    gridLinesV: false,
     /**
      * @default
      * @type {boolean}
@@ -465,7 +459,7 @@ module.exports = {
      * @type {boolean}
      * @instance
      */
-    useHiDPI: true,
+    useHiDPI: false,
 
     /**
      * @default ['alt', 'esc']
@@ -525,21 +519,21 @@ module.exports = {
      * @type {boolean}
      * @instance
      */
-    showRowNumbers: true,
+    showRowNumbers: false,
 
     /**
      * @default
      * @type {boolean}
      * @instance
      */
-    showTreeColumn: true,
+    showTreeColumn: false,
 
     /**
      * @default
      * @type {boolean}
      * @instance
      */
-    showHeaderRow: true,
+    showHeaderRow: false,
 
     /**
      * @default
@@ -554,28 +548,28 @@ module.exports = {
      * @type {boolean}
      * @instance
      */
-    cellSelection: true,
+    cellSelection: false,
 
     /** Clicking in a column header (top row) "selects" the column; the entire column is added to the select region and repainted with "column selection" colors.
      * @default
      * @type {boolean}
      * @instance
      */
-    columnSelection: true,
+    columnSelection: false,
 
     /** Clicking in a row header (leftmost column) "selects" the row; the entire row is added to the select region and repainted with "row selection" colors.
      * @default
      * @type {boolean}
      * @instance
      */
-    rowSelection: true,
+    rowSelection: false,
 
     /**
      * @default
      * @type {boolean}
      * @instance
      */
-    singleRowSelectionMode: true,
+    singleRowSelectionMode: false,
 
     /**
      * @default
@@ -596,14 +590,14 @@ module.exports = {
      * @type {boolean}
      * @instance
      */
-    columnAutosizing: true,
+    columnAutosizing: false,
 
     /**
      * @default
      * @type {boolean}
      * @instance
      */
-    rowNumberAutosizing: true,
+    rowNumberAutosizing: false,
 
     /**
      * @default
@@ -624,14 +618,14 @@ module.exports = {
      * @type {boolean}
      * @instance
      */
-    editable: true,
+    editable: false,
 
     /**
      * @default
      * @type {boolean}
      * @instance
      */
-    editOnDoubleClick: true,
+    editOnDoubleClick: false,
 
     /**
      * @default
@@ -654,7 +648,7 @@ module.exports = {
      * @type {boolean}
      * @instance
      */
-    editOnKeydown: true,
+    editOnKeydown: false,
 
     /**
      * @default
@@ -704,7 +698,7 @@ module.exports = {
      * @instance
      */
     hoverCellHighlight: {
-        enabled: true,
+        enabled: false,
         backgroundColor: 'rgba(160, 160, 40, 0.45)'
     },
 
@@ -714,7 +708,7 @@ module.exports = {
      * @instance
      */
     hoverRowHighlight: {
-        enabled: true,
+        enabled: false,
         backgroundColor: 'rgba(100, 100, 25, 0.30)'
 
     },
@@ -725,7 +719,7 @@ module.exports = {
      * @instance
      */
     hoverColumnHighlight: {
-        enabled: true,
+        enabled: false,
         backgroundColor: 'rgba(60, 60, 15, 0.15)'
     },
 
@@ -778,7 +772,7 @@ module.exports = {
      * @default
      * @instance
      */
-    columnsReorderable: true,
+    columnsReorderable: false,
 
     /** @summary Reapply cell properties after `getCell`.
      * @type {boolean}

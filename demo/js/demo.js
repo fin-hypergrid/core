@@ -722,7 +722,36 @@ window.onload = function() {
     grid.addProperties({
         readOnly: false,
         noDataMessage: 'No Date to Display',
-        showFilterRow: true
+        showFilterRow: true,
+        scrollingEnabled: true,
+        gridLinesH: true,
+        gridLinesV: true,
+        useHiDPI: true,
+        showRowNumbers: true,
+        showTreeColumn: true,
+        showHeaderRow: true,
+        cellSelection: true,
+        columnSelection: true,
+        rowSelection: true,
+        singleRowSelectionMode: true,
+        columnAutosizing: true,
+        rowNumberAutosizing: true,
+        editable: true,
+        editOnDoubleClick: true,
+        editOnKeydown: true,
+        hoverCellHighlight: {
+            enabled: true,
+            backgroundColor: 'rgba(160, 160, 40, 0.45)'
+        },
+        hoverRowHighlight: {
+            enabled: true,
+            backgroundColor: 'rgba(100, 100, 25, 0.30)'
+        },
+        hoverColumnHighlight: {
+            enabled: true,
+            backgroundColor: 'rgba(60, 60, 15, 0.15)'
+        },
+        columnsReorderable: true
     });
 
     grid.addEventListener('fin-cell-enter', function(e) {
