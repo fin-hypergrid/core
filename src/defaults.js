@@ -62,12 +62,6 @@ module.exports = {
      */
     foregroundSelectionColor: 'rgb(0, 0, 128)',
     /**
-     * @default
-     * @type {boolean}
-     * @instance
-     */
-    sortOnHiddenColumns: false,
-    /**
      * Background color for selected cell(s).
      * @default
      * @type {string}
