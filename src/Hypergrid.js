@@ -249,7 +249,7 @@ Hypergrid.prototype = {
         this.vScrollValue = 0;
         this.hScrollValue = 0;
 
-        this.cellEditor = null;
+        this.cancelEditing();
 
         this.sbPrevVScrollValue = null;
         this.sbPrevHScrollValue = null;
