@@ -124,10 +124,10 @@ window.onload = function() {
             margin: { bottom: '17px' }
         },
         grid = window.g = new Hypergrid('div#json-example', gridOptions),
-        gridLeft = parseInt(grid.div.style.marginLeft),
         behavior = window.b = grid.behavior,
         dataModel = window.m = behavior.dataModel,
         idx = behavior.columnEnum,
+        dashboard = document.getElementById('dashboard'),
         ctrlGroups = document.getElementById('ctrl-groups'),
         buttons = document.getElementById('buttons');
 
@@ -926,6 +926,7 @@ window.onload = function() {
     // make buttons div absolute so buttons width of 100% doesn't stretch to width of dashboard
     ctrlGroups.style.top = ctrlGroups.getBoundingClientRect().top + 'px';
     buttons.style.position = 'absolute';
+    dashboard.style.display = 'none';
 
     toggleProps.forEach(function(prop) { addToggle(prop); });
 
@@ -1162,8 +1163,9 @@ window.onload = function() {
             switch (type) {
                 case 'text':
                     input.value = ctrl.value || '';
-                    input.style.width = '40px';
+                    input.style.width = '25px';
                     input.style.marginLeft = '4px';
+                    input.style.marginRight = '4px';
                     referenceElement = input; // label goes after input
                     break;
                 case 'checkbox':
@@ -1193,11 +1195,24 @@ window.onload = function() {
         ctrlGroups.appendChild(container);
     }
 
+    document.getElementById('tabs').addEventListener('click', function(event) {
+        if (dashboard.style.display === 'none') {
+            dashboard.style.display = 'block';
+            grid.div.style.transition = 'margin-left .75s';
+            grid.div.style.marginLeft = Math.max(200, dashboard.getBoundingClientRect().right) + 'px';
+        } else {
+            setTimeout(function() {
+                dashboard.style.display = 'none';
+            }, 800);
+            grid.div.style.marginLeft = '30px';
+        }
+    });
+
     document.getElementById('dashboard').addEventListener('click', function(event) {
         var ctrl = event.target;
         if (ctrl.classList.contains('twister')) {
             ctrl.nextElementSibling.style.display = ctrl.classList.toggle('open') ? 'block' : 'none';
-            grid.div.style.marginLeft = Math.max(gridLeft, event.currentTarget.getBoundingClientRect().right) + 'px';
+            grid.div.style.marginLeft = Math.max(200, event.currentTarget.getBoundingClientRect().right) + 'px';
         }
     });
 

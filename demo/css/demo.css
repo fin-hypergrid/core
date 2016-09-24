@@ -1,5 +1,6 @@
 body {
     font-family: sans-serif;
+    margin:0;
 }
 #json-example div.finbar-vertical {
     margin: 0px;
@@ -31,34 +32,60 @@ body {
     border: 1px solid rgba(132, 132, 132, 1);
     bottom: 3px;
 }
-div#dashboard {
-    position: static;
-    float: left;
-    font-size: 9pt;
-    margin: .5em;
-    color: #666;
-}
-div#dashboard div.twister {
+div#tabs {
+    position: absolute;
+    width: 100px;
+    height: 16px;
+    transform: translate(-1px,110px) rotate(-90deg);
+    transform-origin:0 0;
+    padding: 4px 0 2px 1px;
+    font-size: 8pt;
+    color:#aa9;
+    letter-spacing:1px;
+    text-align: center;
+    background-color: #eed;
+    border: 1px solid #d0d0c8;
+    box-shadow:-2px 2px 5px #bbb;
+    border-bottom-left-radius: 9px;
+    border-bottom-right-radius: 9px;
     cursor: pointer;
 }
-div#dashboard div.twister:before {
+div#dashboard {
+    position: absolute;
+    font-size: 9pt;
+    margin: .5em 0 0 30px;
+    color: #666;
+    height: 100%;
+}
+div.twister {
+    cursor: pointer;
+}
+div.twister:hover {
+    color: black;
+}
+div.twister:before {
     content: '▶ ';
 }
-div#dashboard div.twister.open:before {
+/*
+div.twister:hover:before {
+    color: blue;
+}
+*/
+div.twister.open:before {
     content: '▼ ';
     margin-left: -1px;
 }
-div#dashboard div.choices {
+div.choices {
     display: none;
     margin-left: 1.325em;
 }
-div#dashboard div.choices > label {
+div.choices > label {
     display: block;
 }
 div#dashboard > div {
     position: relative;
 }
-div#dashboard > div#buttons > button {
+div#buttons > button {
     margin-bottom: .5em;
     display: block;
     white-space: nowrap;
