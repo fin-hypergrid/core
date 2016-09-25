@@ -126,7 +126,10 @@ window.onload = function() {
         grid = window.g = new Hypergrid('div#json-example', gridOptions),
         behavior = window.b = grid.behavior,
         dataModel = window.m = behavior.dataModel,
-        idx = behavior.columnEnum;
+        idx = behavior.columnEnum,
+        dashboard = document.getElementById('dashboard'),
+        ctrlGroups = document.getElementById('ctrl-groups'),
+        buttons = document.getElementById('buttons');
 
     grid.installPlugins([
         Hypergrid.drillDown,
@@ -174,18 +177,19 @@ window.onload = function() {
     [
         { label: 'Column Picker&hellip;', onclick: toggleDialog.bind(this, 'ColumnPicker') },
         { label: 'Manage Filters&hellip;', onclick: toggleDialog.bind(this, 'ManageFilters') },
-        { label: 'toggle empty data', onclick: toggleEmptyData },
-        { label: 'set data 1 (5000 rows)', onclick: function() { setData(people1); } },
-        { label: 'set data 2 (10000 rows)', onclick: function() { setData(people2); } },
-        { label: 'set data 3 (tree data)', onclick: function() { setData(treeData); } },
-        { label: 'reset', onclick: grid.reset.bind(grid)}
+        { label: 'Toggle Empty Data', onclick: toggleEmptyData },
+        { label: 'Set Data 1 (5000 rows)', onclick: function() { setData(people1); } },
+        { label: 'Set Data 2 (10000 rows)', onclick: function() { setData(people2); } },
+        { label: 'Set Data 3 (tree data)', onclick: function() { setData(treeData); } },
+        { label: 'Reset Grid', onclick: grid.reset.bind(grid) },
+        { label: 'Toggle all drill-downs', onclick: toggleAllCtrlGroups }
 
     ].forEach(function(item) {
         var button = document.createElement('button');
         button.innerHTML = item.label;
         button.onclick = item.onclick;
-        button.title = item.title;
-        document.getElementById('dashboard').appendChild(button);
+        if (item.title) { button.title = item.title; }
+        buttons.appendChild(button);
     });
 
     window.vent = false;
@@ -919,6 +923,11 @@ window.onload = function() {
         if (vent) { console.log('fin-context-menu(' + modelPoint.x + ', ' + (modelPoint.y - headerRowCount) + ')'); }
     });
 
+    // make buttons div absolute so buttons width of 100% doesn't stretch to width of dashboard
+    ctrlGroups.style.top = ctrlGroups.getBoundingClientRect().top + 'px';
+    buttons.style.position = 'absolute';
+    dashboard.style.display = 'none';
+
     toggleProps.forEach(function(prop) { addToggle(prop); });
 
 
@@ -1122,16 +1131,20 @@ window.onload = function() {
 
     function addToggle(ctrlGroup) {
         var input, label,
-            dashboard = document.getElementById('dashboard'),
             container = document.createElement('div');
 
         container.className = 'ctrl-group';
 
         if (ctrlGroup.label) {
-            label = document.createElement('span');
+            label = document.createElement('div');
+            label.className = 'twister';
             label.innerHTML = ctrlGroup.label;
             container.appendChild(label);
         }
+
+        var choices = document.createElement('div');
+        choices.className = 'choices';
+        container.appendChild(choices);
 
         ctrlGroup.ctrls.forEach(function(ctrl) {
             var referenceElement,
@@ -1150,8 +1163,9 @@ window.onload = function() {
             switch (type) {
                 case 'text':
                     input.value = ctrl.value || '';
-                    input.style.width = '40px';
+                    input.style.width = '25px';
                     input.style.marginLeft = '4px';
+                    input.style.marginRight = '4px';
                     referenceElement = input; // label goes after input
                     break;
                 case 'checkbox':
@@ -1175,10 +1189,41 @@ window.onload = function() {
                 referenceElement
             );
 
-            container.appendChild(label);
+            choices.appendChild(label);
         });
 
-        dashboard.appendChild(container);
+        ctrlGroups.appendChild(container);
+    }
+
+    document.getElementById('tabs').addEventListener('click', function(event) {
+        if (dashboard.style.display === 'none') {
+            dashboard.style.display = 'block';
+            grid.div.style.transition = 'margin-left .75s';
+            grid.div.style.marginLeft = Math.max(200, dashboard.getBoundingClientRect().right) + 'px';
+        } else {
+            setTimeout(function() {
+                dashboard.style.display = 'none';
+            }, 800);
+            grid.div.style.marginLeft = '30px';
+        }
+    });
+
+    document.getElementById('dashboard').addEventListener('click', function(event) {
+        var ctrl = event.target;
+        if (ctrl.classList.contains('twister')) {
+            ctrl.nextElementSibling.style.display = ctrl.classList.toggle('open') ? 'block' : 'none';
+            grid.div.style.marginLeft = Math.max(200, event.currentTarget.getBoundingClientRect().right) + 'px';
+        }
+    });
+
+    function toggleAllCtrlGroups() {
+        var twisters = Array.prototype.slice.call(document.querySelectorAll('.twister')),
+            open = twisters[0].classList.contains('open') ? 'add' : 'remove';
+
+        twisters.forEach(function(twister) {
+            twister.classList[open]('open');
+            twister.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+        });
     }
 
     var radioGroup = {};

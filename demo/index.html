@@ -3,10 +3,6 @@
 <head>
     <title>fin-hypergrid Demo</title>
 
-    <!-- Latest compiled and minified CSS -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">
-
     <link rel="icon" type="image/x-icon" href="favicon.ico" />
 
     <script src="data/widedata.js"></script>
@@ -26,24 +22,19 @@
 </head>
 <body>
 
-<div class="container" style="border-style: solid; border-color: red">
-    <div class="row" style="border-style: solid; border-color: blue">
-        <div id="dashboard" class="col-md-12 col-lg-12" style="border-style: solid; border-color: grey">
-        </div>
+    <div id="tabs">
+        Dashboard
     </div>
-    <div class="row" style="overflow: hidden">
-        <div class="col-md-12 col-lg-12" style="overflow:hidden;border-style: solid; border-color: green; padding:0">
-            <div class="abs" id="json-example"></div>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-md-12 col-lg-12" style="border-style: solid; border-color: grey">
-            blah
-        </div>
-    </div>
-</div>
 
-<div id='dialog-container' style="visibility:hidden; position:absolute; top:3em; bottom:3em; left:3em; right:3em;"></div>
+    <div id="dashboard">
+        <div id="buttons"></div>
+        <div id="ctrl-groups"></div>
+    </div>
+
+    <!-- recommended height: multiple of default row height, plus horizontal scroll bar height -->
+    <div id="json-example" style="margin-left:30px; height:402px"></div>
+
+    <div id='dialog-container' style="visibility:hidden; position:absolute; top:3em; bottom:3em; left:3em; right:3em;"></div>
 
 </body>
 </html>
