@@ -867,9 +867,10 @@ Hypergrid.prototype = {
     updateData: function(dataRows, options){
         if (!this.behavior){
             this.setData(dataRows, options);
+        } else {
+            this.behavior.updateData(dataRows, options);
+            this.behavior.changed();
         }
-        this.behavior.updateData(dataRows, options);
-        this.behavior.changed();
     },
 
     /**
