@@ -162,7 +162,7 @@ window.onload = function() {
         if (data === people1 || data === people2) {
             options.schema = peopleSchema;
         }
-        behavior.setData(data, options);
+        grid.setData(data, options);
         resetGlobalFilter();
         idx = behavior.columnEnum;
         behavior.applyAnalytics();

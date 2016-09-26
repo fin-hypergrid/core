@@ -23,7 +23,6 @@ var JSON = Behavior.extend('behaviors.JSON', {
      */
     initialize: function(grid, options) {
         this.setData(options);
-
         if (options.pipeline) {
             this.setPipeline(options.pipeline);
         }
@@ -174,7 +173,7 @@ var JSON = Behavior.extend('behaviors.JSON', {
 
         dataRows = this.unwrap(dataRows);
 
-        if (dataRows === undefined)  {
+        if (dataRows === undefined) {
             return;
         }
 
@@ -183,9 +182,7 @@ var JSON = Behavior.extend('behaviors.JSON', {
         }
 
         options = options || {};
-
-        var self = this,
-            grid = this.grid;
+        var grid = this.grid;
 
         this.dataModel.setData(
             dataRows,
@@ -193,27 +190,45 @@ var JSON = Behavior.extend('behaviors.JSON', {
             this.unwrap(options.calculators)
         );
 
-        this.createColumns();
-
         if (grid.cellEditor) {
             grid.cellEditor.cancelEditing();
-        }
-
-        if (grid.isColumnAutosizing()) {
-            setTimeout(function() {
-                self.autosizeAllColumns();
-            }, 100);
-            grid.allowEvents(dataRows.length);
-        } else {
-            setTimeout(function() {
-                self.getColumn(-1).checkColumnAutosizing(true);
-                grid.allowEvents(dataRows.length);
-            });
         }
 
         if (options.apply === undefined || options.apply) {
             this.applyAnalytics();
         }
+
+        var self = this;
+        this.createColumns();
+        if (self.grid.isColumnAutosizing()) {
+            setTimeout(function() {
+                self.autosizeAllColumns();
+            }, 100);
+            self.grid.allowEvents(self.dataModel.getRowCount() > 0);
+        } else {
+            setTimeout(function() {
+                self.getColumn(-1).checkColumnAutosizing(true);
+                self.grid.allowEvents(self.dataModel.getRowCount() > 0);
+            });
+        }
+    },
+    /**
+     * @memberOf behaviors.JSON.prototype
+     * @description Rebinds the data without reshaping it
+     */
+    updateData: function(dataRows, options){
+        options = options || {};
+        if (!(Array.isArray(dataRows) || typeof dataRows === 'function')) {
+            options = dataRows;
+            dataRows = options && options.data;
+        }
+        dataRows = this.unwrap(dataRows);
+        this.dataModel.setData(
+            dataRows,
+            this.unwrap(options.fields),
+            this.unwrap(options.calculators)
+        );
+        this.applyAnalytics();
     },
 
     /**
