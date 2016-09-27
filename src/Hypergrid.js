@@ -3311,7 +3311,7 @@ Hypergrid.prototype = {
     /**
      * @summary _Getter_
      * @method
-     * @returns {filterAPI} The grid's currently assigned filter.
+     * @returns {dataSourceHelperAPI} The grid's currently assigned filter.
      * @memberOf Hypergrid.prototype
      */
     get filter() {
@@ -3322,7 +3322,7 @@ Hypergrid.prototype = {
      * @summary _Setter:_ Set the grid's filter.
      * @desc Requires a filter data source be installed in the transformation pipeline.
      * @method
-     * @param {filterAPI|undefined|null} filter - One of:
+     * @param {dataSourceHelperAPI|undefined|null} filter - One of:
      * * A filter object, turning filter *ON*.
      * * If `undefined` or `null`, the null filter is reassigned to the grid, turning filtering *OFF.*
      * @memberOf Hypergrid.prototype
@@ -3330,18 +3330,6 @@ Hypergrid.prototype = {
     set filter(filter) {
         this.behavior.filter = filter;
         this.behaviorChanged();
-    },
-
-    /**
-     * @see {@link dataModels.JSON#filterProp|filterProp}
-     * @memberOf Hypergrid.prototype
-     */
-    filterProp: function(columnIndex, property, value) {
-        var result = this.behavior.filterProp.apply(this.behavior, arguments);
-        if (result === undefined) {
-            this.behaviorChanged();
-        }
-        return result;
     },
 
     /**

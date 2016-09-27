@@ -29,7 +29,7 @@ window.onload = function() {
 
     // show filter row as per `options`
     grid.setState({
-        showFilterRow: options.includeFilter && grid.filterProp('columnFilters')
+        showFilterRow: options.includeFilter && grid.filter.prop('columnFilters')
     });
 
     grid.behavior.setColumnProperties(grid.behavior.columnEnum.STATE, {

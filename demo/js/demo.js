@@ -229,7 +229,9 @@ window.onload = function() {
     }
 
     function toggleCaseSensitivity() {
-        grid.filterProp('caseSensitiveData', this.checked);
+        grid.filter.prop('caseSensitiveData', this.checked);
+        this.applyAnalytics();
+        this.behaviorChanged();
     }
 
     function toggleDialog(dialogName, evt) {
@@ -955,7 +957,7 @@ window.onload = function() {
 
             showRowNumbers: true,
             showHeaderRow: true,
-            showFilterRow: !!grid.filterProp('columnFilters'),
+            showFilterRow: !!grid.filter.prop('columnFilters'),
             columnAutosizing: false,
             headerTextWrapping: true,
 

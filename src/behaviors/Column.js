@@ -97,15 +97,12 @@ Column.prototype = {
      * Setting the header updates both:
      * * the `fields` (aka, header) array in the underlying data source; and
      * * the filter.
-     *
-     * The new text will appear in the header cell on the next repaint.
-     *
-     * Side effect: The call to `filterProp` calls both `applyAnalytics` and `behaviorChanged`, a desired side-effect.
      * @type {string}
      */
     set header(headerText) {
         this.dataModel.getHeaders()[this.index] = headerText;
-        this.behavior.filterProp(this.index, 'header', headerText);
+        this.behavior.filter.prop(this.index, 'header', headerText);
+        this.behavior.grid.repaint();
     },
     get header() {
         return this.dataModel.getHeaders()[this.index];
@@ -118,8 +115,6 @@ Column.prototype = {
      * * the filter.
      *
      * The results of the new calculations will appear in the column cells on the next repaint.
-     *
-     * Side effect: The call to `dataModel.filterProp` calls `applyAnalytics`, a desired side-effect.
      * @type {string}
      */
     set calculator(calculator) {
@@ -129,7 +124,8 @@ Column.prototype = {
         } else {
             calculators[this.index] = calculator;
         }
-        this.behavior.dataModel.filterProp(this.index, 'calculator', calculator);
+        this.behavior.filter.prop(this.index, 'calculator', calculator);
+        this.behavior.applyAnalytics();
     },
     get calculator() {
         return this.dataModel.getCalculators()[this.index];
@@ -140,13 +136,12 @@ Column.prototype = {
      * @desc Setting the type updates the filter which typically uses this information for proper collation.
      *
      * @todo: Instead of using `this._type`, put on data source like the other essential properties. In this case, sorter could use the info to choose a comparator more intelligently and efficiently.
-     *
-     * Side effect: The call to `behavior.filterProp` calls both `applyAnalytics` and `behaviorChanged`, a desired side-effect.
      * @type {string}
      */
     set type(type) {
         this._type = type;
-        this.behavior.filterProp(this.index, 'type', type);
+        this.behavior.filter.prop(this.index, 'type', type);
+        this.behavior.applyAnalytics();
     },
     get type() {
         return this._type;

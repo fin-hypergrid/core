@@ -15,16 +15,25 @@ var UPWARDS_BLACK_ARROW = '\u25b2', // aka '▲'
  */
 
 /**
- * @implements filterAPI
- * @desc This is a simple "null" filter implementation.
- * It does no actual filtering.
+ * @implements dataSourceHelperAPI
+ * @desc This is a simple "null" helper API implementation with only a null `properties` method is defined.
  * @see {@link http://c2.com/cgi/wiki?NullObject}
  * @memberOf dataModels.JSON
  * @inner
  */
-var nullFilter = {
-    test: function(dataRow) { return true; }, // all rows pass
-    prop: function(columnIndex, propName, value) {}
+var nullDataSourceHelperAPI = {
+    properties: function(properties) {
+        var result,
+            isGetter = 'getPropName' in properties;
+
+        if (isGetter) {
+            // All props are undefined in this null API regardless of their name; and
+            // undefined props return `null` as per interface definition.
+            result = null;
+        }
+
+        return result;
+    }
 };
 
 /**
@@ -73,6 +82,14 @@ var JSON = DataModel.extend('dataModels.JSON', {
         this.bottomTotals = [];
 
         this.selectedData = [];
+
+        /**
+         * @summary Hash of data source helper APIs.
+         * @desc Keyed by data source type. An API is required by data sources with an `api` property.
+         * @see {@link dataModels.JSON/updateDataSources}
+         * @type {object}
+         */
+        this.api = {};
 
         delete this.pipelineSchemaStash; // remove existing "own" version if any
 
@@ -404,8 +421,13 @@ var JSON = DataModel.extend('dataModels.JSON', {
             if (DataSource) {
                 dataSource = new DataSource(dataSource);
                 this.pipeline.push(dataSource);
+
+                // Ensure a null helper API defined for all data sources that require one
+                if (dataSource.type && dataSource.set && !this.api[dataSource.type]) {
+                    this.registerHelperAPI(dataSource.type);
+                }
             }
-        }.bind(this));
+        }, this);
 
         this.updateDataSources();
 
@@ -430,31 +452,31 @@ var JSON = DataModel.extend('dataModels.JSON', {
     },
 
     /**
-     * Update data sources to point to APIs.
-     * @param {string} [type] - Type of data sources to update. If omitted, updates all "set-able" data sources for which there are objects.
-     * @returns {object|boolean} Hash of booleans if no type specified; otherwise boolean.
+     * @summary Update data sources with APIs of matching types.
+     * @desc Only updates _qualified_ data sources, which include:
+     * * those for which an API of the data source's type is defined in `this.api`; and
+     * * those that can accept an API (have an `api` property to set).
+     * @param {string} [type] - Type of data source to update. If omitted, updates all data sources.
+     * @returns {number|object} One of:
+     * `type` specified - The number of updated data sources of the specified type.
+     * `type` omitted - Hash containing the number of updated data sources by type.
+     * *
      */
     updateDataSources: function(type) {
-        var dataSources = this.pipeline,
-            result = false,
-            results = {},
-            self = this;
-
-        if (type) {
-            dataSources = dataSources.filter(function(dataSource) {
-                return dataSource.type === type;
-            });
-        }
+        var results = {},
+            api = this.api;
 
         this.pipeline.filter(function(dataSource) {
-            var api = self[dataSource.type];
-            if (api && dataSource.set) {
-                dataSource.set(api);
-                results[dataSource.type] = result = true;
+            if (
+                (!type || dataSource.type === type) &&
+                api[dataSource.type]
+            ) {
+                dataSource.set(api[dataSource.type]);
+                results[dataSource.type] = (results[dataSource.type] || 0) + 1;
             }
         });
 
-        return type ? result : results;
+        return type ? results[type] : results;
     },
 
     /**
@@ -684,80 +706,47 @@ var JSON = DataModel.extend('dataModels.JSON', {
         return this.dataSource.getRow(y);
     },
 
-    _filter: nullFilter,
-
     /**
-     * @summary _Getter_
+     * @summary _Getter:_ Return the filter from the data model.
      * @method
-     * @returns {filterAPI} The grid's currently assigned filter.
+     * @returns {dataSourceHelperAPI} The grid's currently assigned filter.
      * @memberOf dataModels.JSON.prototype
      */
     get filter() {
-        return this._filter;
+        return this.api.filter;
     },
 
     /**
-     * @summary _Setter:_ Assign a filter to the grid.
+     * @summary _Setter:_ Assign a filter to the data model.
      * @method
-     * @param {filterAPI|undefined|null} filter - One of:
-     * * A filter object, turning filter *ON*.
-     * * If `undefined` or `null`, the {@link dataModels.JSON~nullFilter|nullFilter} is reassigned to the grid, turning filtering *OFF.*
+     * @param {dataSourceHelperAPI|undefined|null} filter - One of:
+     * * A filter object - Turns the filter *ON*.
+     * * `undefined` or `null` - Turns the filter *OFF.*
      * @memberOf dataModels.JSON.prototype
      */
     set filter(filter) {
-        filter = filter || nullFilter;
-        this._filter = filter;
-        if (this.updateDataSources('filter')) {
-            this.applyAnalytics();
-        }
+        this.registerHelperAPI('filter', filter);
     },
 
     /**
-     * @summary Set a filter property.
-     * @see {@link joneit.
-     * @desc There are two kinds of filter properties:
-     * * **Filter** properties - Pertain to entire filter.
-     * * **Column** properties - Pertain to a specific column.
-     *
-     * This method supports two types of actions:
-     * * **Getter** call where you supply just the property name. The method gets the property value from the filter and returns it.
-     * * **Setter** call where you supply a value along with the property name; or you supply a hash of property name/value pairs. The method sets the property on the filter and returns nothing. All values are valid with the exception of `undefined` which deletes the property of the given name rather than setting it to `undefined`.
-     *
-     * The way this method is called determines the kind of property (filter, column) and type of action (getter, setter).
-     *
-     * NOTE: Not all filter properties are dynamic; some are static and updating them later will have no effect.
-     *
-     * @param {number} [columnIndex] - If given, this is a property on a specific column. If omitted, this is a property on the whole filter properties object.
-     *
-     * @param {string|object} property - _If `columnIndex` is omitted, this arg takes first position._
-     *
-     * One of these types:
-     * * **string** - Property name. The name of the explicit property to either get or (if  with `value` also given) set on the properties object.
-     * * **object** - Hash of properties to set on the properties object.
-     *
-     * @param [value] - _If `columnIndex` is omitted, this arg takes second position._
-     *
-     * One of:
-     * * Omitted (when `property` is a string), this is the "getter" action: Return the value from the properties object of the key in `property`.
-     * * When `property` is a string and `value` is given, this is the "setter" action: Copy this value to properties object using the key in `property`.
-     * * When `property` is a hash and `value` is given: Unexpected; throws an error.
-     *
-     * @returns One of:
-     * * Value of requested property in a "getter" type call.
-     * * `undefined` in a "setter" type call.
-     *
-     * @memberOf dataModels.JSON.prototype
+     * @summary Register the data source helper API.
+     * @desc The API is immediately applied to all data sources in the pipeline of the given type; and reassigned later whenever the pipeline is reset.
+     * @param {string} dataSourceType
+     * @param {dataSourceHelperAPI|undefined|null} helper - One of:
+     * * A filter object - Turns the data source *ON*.
+     * * `undefined` or `null` - Turns the data source *OFF.*
+     * * A helper API. Turns the data source *ON*.
      */
-    filterProp: function(columnIndex, property, value) {
-        var properties = filterPropsFromParams.apply(this, arguments),
-            result = this.filter.prop(properties);
+    registerHelperAPI: function(dataSourceType, helper) {
+        this.api[dataSourceType] = helper = helper || nullDataSourceHelperAPI;
 
-        if (result === undefined) {
-            // this was a set operation
-            this.applyAnalytics();
+        if (typeof helper.properties === 'function' && helper.properties.length === 1) {
+            helper.prop = propPrep.bind(helper, this);
         }
 
-        return result;
+        if (this.updateDataSources(dataSourceType)) {
+            this.applyAnalytics();
+        }
     },
 
     /**
@@ -799,6 +788,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
  * Accumulate actual data row objects backing current grid row selections.
  * This call should be paired with a subsequent call to `reselectGridRowsBackedBySelectedDataRows`.
  * @private
+ * @this {dataModels.JSON}
  * @memberOf dataModels.JSON.prototype
  */
 function selectedDataRowsBackingSelectedGridRows() {
@@ -831,6 +821,7 @@ function selectedDataRowsBackingSelectedGridRows() {
 /**
  * Re-establish grid row selections based on actual data row objects accumulated by `selectedDataRowsBackingSelectedGridRows` which should be called first.
  * @private
+ * @this {dataModels.JSON}
  * @memberOf dataModels.JSON.prototype
  */
 function reselectGridRowsBackedBySelectedDataRows() {
@@ -851,28 +842,65 @@ function reselectGridRowsBackedBySelectedDataRows() {
 }
 
 /**
- * Creates an object to be used as the only parameter to an implementation of {@link filterAPI#prop} from the three parameters of {@link dataModels.JSON#filterProp}.
- * @private
+ * @inner
+ * @summary Digests `(columnIndex, propName, value)` and calls `properties`.
+ * @desc Digests the three parameters `(columnIndex, propName, value)` detailed below, creating a single object with which it then calls the helper API `properties` method.
+ *
+ * A helper API `properties` method:
+ * * Supports two types of actions:
+ *   * **Getter** call where you supply just the property name. The method gets the property value from the API and returns it.
+ *   * **Setter** call where you supply a value along with the property name; or you supply a hash of property name/value pairs. The method sets the property on the API and returns nothing. All values are valid with the exception of `undefined` which deletes the property of the given name rather than setting it to `undefined`.
+ * * Supports two types of properties:
+ *   * **Global properties** affect the API globally.
+ *   * **Column properties** pertain to specific columns.
+ *
+ * This method is overloaded. The way it is called as explained in the Parameters section below determines both the type of action (getter, setter) and the kind of property (global, column).
+ *
+ * Note: Not all API properties are dynamic; some are static and updating them later will have no effect.
+ *
+ * @this {dataSourceHelperAPI}
+ *
+ * @param {DataSourceBase} dataSource - The data model. This parameter is bound to the call by {@link dataModels.JSON#setHelperAPI|setHelperAPI}.
+ *
+ * @param {number} [columnIndex] - If given, this is a property on a specific column. If omitted, this is a property on the whole API properties object.
+ *
+ * @param {string|object} property - _If `columnIndex` is omitted, this arg takes first position._
+ *
+ * One of these types:
+ * * **string** - Property name. The name of the explicit property to either get or (if `value` also given) set on the properties object.
+ * * **object** - Hash of properties to set on the properties object.
+ *
+ * @param [value] - _If `columnIndex` is omitted, this arg takes second position._
+ *
+ * One of:
+ * * Omitted (when `property` is a string), this is the "getter" action: Return the value from the properties object of the key in `property`.
+ * * When `property` is a string and `value` is given, this is the "setter" action: Copy this value to properties object using the key in `property`.
+ * * When `property` is a hash and `value` is given: Unexpected; throws an error.
+ *
+ * @returns {propObject}
  */
-function filterPropsFromParams(columnIndex, propName, value) {
+function propPrep(dataSource, columnIndex, propName, value) {
     var invalid,
         properties = {},
-        isColumnProp = typeof columnIndex === 'number';
+        argCount = arguments.length;
 
-    if (!isColumnProp) {
+    if (typeof columnIndex === 'number') {
+        argCount--;
+    } else {
         value = propName;
         propName = columnIndex;
+        columnIndex = undefined;
     }
 
-    switch (arguments.length - isColumnProp) {
-        case 1: // getter propName name or setter hash
+    switch (argCount) {
+        case 2: // getter propName name or setter hash
             if (typeof propName === 'object') {
                 properties = propName;
             } else {
-                properties.getterName = propName;
+                properties.getPropName = propName;
             }
             break;
-        case 2: // setter for value
+        case 3: // setter for value
             if (typeof propName !== 'string') {
                 invalid = true;
             } else {
@@ -887,15 +915,15 @@ function filterPropsFromParams(columnIndex, propName, value) {
         throw 'Invalid overload.';
     }
 
-    if (isColumnProp) {
+    if (columnIndex !== undefined) {
         // non-enumerable propName:
         Object.defineProperty(properties, 'column', {
             index: columnIndex,
-            name: this.source.getFields()[columnIndex]
+            name: dataSource.getFields()[columnIndex]
         });
     }
 
-    return properties;
+    return this.properties(properties);
 }
 
 module.exports = JSON;
