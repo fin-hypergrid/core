@@ -466,34 +466,44 @@ var DefaultFilter = FilterTree.extend('DefaultFilter', {
     },
 
     /**
-     * @implements filterAPI
+     * @implements dataSourceHelperAPI#properties
      * @desc Notes regarding specific properties:
      * * `caseSensitiveData` (root property) pertains to string compares only. This includes untyped columns, columns typed as strings, typed columns containing data that cannot be coerced to type or when the filter expression operand cannot be coerced. This is a shared property and affects all grids managed by this instance of the app.
      * * `calculator` (column property) Computed column calculator.
+     *
+     * @returns One of:
+     * * **Getter** type call: Value of requested property or `null` if undefined.
+     * * **Setter** type call: `undefined`
+     *
      * @memberOf DefaultFilter.prototype
      */
-    prop: function(properties) {
-        var propCount = 0,
+    properties: function(properties) {
+        var result, value,
             object = properties && properties.column
                 ? this.schema.lookup(properties.column.name)
                 : this.root;
 
         if (properties && object) {
-            if (properties.getterName) {
-                return object[properties.getterName] || '';
-            }
-            for (var key in properties) {
-                var value = properties[key];
-                if (value === undefined) {
-                    delete object[key];
-                } else if (typeof value === 'function' && !this.firstClassProperties[key]) {
-                    object[key] = value();
-                } else {
-                    object[key] = value;
+            if (properties.getPropName) {
+                result = object[properties.getPropName];
+                if (result === undefined) {
+                    result = null;
                 }
-                propCount++;
+            } else {
+                for (var key in properties) {
+                    value = properties[key];
+                    if (value === undefined) {
+                        delete object[key];
+                    } else if (typeof value === 'function' && !this.firstClassProperties[key]) {
+                        object[key] = value();
+                    } else {
+                        object[key] = value;
+                    }
+                }
             }
         }
+
+        return result;
     }
 });
 
