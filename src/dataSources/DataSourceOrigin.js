@@ -289,13 +289,7 @@ function setData(data, schema) {
      * @type {columnSchemaObject[]}
      * @memberOf DataSource#
      */
-    this.calculators = calculators || Array(this.fields.length);
-
-}
-
-
-function error(methodName, message) {
-    throw new Error('DataSource.' + methodName + ': ' + message);
+    this.schema = schema;
 }
 
 function capitalize(string) {
