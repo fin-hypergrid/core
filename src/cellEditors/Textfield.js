@@ -21,8 +21,7 @@ var Textfield = CellEditor.extend('Textfield', {
     localizer: Localization.prototype.string,
 
     selectAll: function() {
-        var lastCharPlusOne = this.getEditorValue().length;
-        this.input.setSelectionRange(0, lastCharPlusOne);
+        this.input.setSelectionRange(0, this.input.value.length);
     }
 });
 
