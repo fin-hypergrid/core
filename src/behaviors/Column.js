@@ -87,7 +87,7 @@ Column.prototype = {
      * @returns {string}
      */
     get name() { // read-only (no setter)
-        return this.dataModel.getFields()[this._index];
+        return this.dataModel.source.schema[this._index].name;
     },
 
     /**
@@ -100,12 +100,12 @@ Column.prototype = {
      * @type {string}
      */
     set header(headerText) {
-        this.dataModel.getHeaders()[this.index] = headerText;
+        this.dataModel.source.schema[this.index].header = headerText
         this.behavior.filter.prop(this.index, 'header', headerText);
         this.behavior.grid.repaint();
     },
     get header() {
-        return this.dataModel.getHeaders()[this.index];
+        return this.dataModel.source.schema[this.index].header;
     },
 
     /**
@@ -118,7 +118,7 @@ Column.prototype = {
      * @type {string}
      */
     set calculator(calculator) {
-        var calculators = this.dataModel.getCalculators();
+        var calculators = this.dataModel.source.schema[this.index].calculators
         if (calculator === undefined) {
             delete calculators[this.index];
         } else {
@@ -128,7 +128,7 @@ Column.prototype = {
         this.behavior.applyAnalytics();
     },
     get calculator() {
-        return this.dataModel.getCalculators()[this.index];
+        return this.dataModel.source.schema[this.index].calculators
     },
 
     /**

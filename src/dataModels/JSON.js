@@ -90,8 +90,7 @@ var DJSON = DataModel.extend('dataModels.JSON', {
 
         delete this.pipelineSchemaStash; // remove existing "own" version if any
 
-        this.source = new this.DataSourceOrigin(options.data, options.fields, options.calculators);
-        //this.source = new this.DataSourceOrigin(options.data, options.schema);
+        this.source = new this.DataSourceOrigin(options.data, options.schema);
 
         this.setPipeline();
         //Register Defaults
@@ -781,6 +780,18 @@ var DJSON = DataModel.extend('dataModels.JSON', {
         this.getData().push(newDataRow);
         return newDataRow;
     },
+
+    get schema() { return this.source.schema; },
+
+    set schema(schema) {
+        var transform = this.source.transform;
+        schema.forEach(function(columnSchema) {
+            if (!columnSchema.header) {
+                columnSchema.header = transform(columnSchema.name);
+            }
+        });
+        this.source.schema = schema;
+    }
 });
 
 // LOCAL METHODS -- to be called with `.call(this`

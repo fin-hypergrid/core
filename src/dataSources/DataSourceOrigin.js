@@ -11,9 +11,9 @@ var DataSourceOrigin = DataSourceBase.extend('DataSourceOrigin',  {
     /**
      * Currently a synonym for {@link DataSourceOrigin#setData} (see).
      */
-    initialize: function(){
-        delete this.dataSource;
-        setData.apply(this, arguments);
+    initialize: function(data, schema) {
+        delete this.dataSource; // added by DataSourceBase#initialize but we don't want here
+        this.setData.apply(this, arguments);
     },
 
     setData: setData,
@@ -178,7 +178,13 @@ var DataSourceOrigin = DataSourceBase.extend('DataSourceOrigin',  {
      * @returns {number[]}
      */
     getFields: function() {
-        return this.fields;
+        if (!this.warnedGetFields) {
+            console.warn('The returned fields array is a now a copy. DO NOT MUTATE.');
+            this.warnedGetFields = true;
+        }
+        return this.schema.map(function(columnSchema) {
+            return columnSchema.name;
+        });
     },
 
     /**
@@ -186,20 +192,13 @@ var DataSourceOrigin = DataSourceBase.extend('DataSourceOrigin',  {
      * @returns {string[]}
      */
     getHeaders: function() {
-        return (
-            /**
-             * @summary The list of header strings.
-             * @desc Congruent to {@link DataSource#fields|fields}.
-             *
-             * Access through {@link DataSource#getHeaders|getHeaders()}.
-             * @name headers
-             * @type {string[]}
-             * @memberOf DataSource#
-             */
-            this.headers = this.headers || this.getDefaultHeaders().map(function(each) {
-                return this.transform(each);
-            }, this)
-        );
+        if (!this.warnedGetHeaders) {
+            console.warn('The returned headers array is a now a copy. DO NOT MUTATE.');
+            this.warnedGetHeaders = true;
+        }
+        return this.schema.map(function(columnSchema) {
+            return columnSchema.header;
+        }, this);
     },
 
     /**
@@ -215,7 +214,10 @@ var DataSourceOrigin = DataSourceBase.extend('DataSourceOrigin',  {
      * @param {string[]} fields
      */
     setFields: function(fields) {
-        this.fields = fields;
+        if (!(Array.isArray(fields) && fields.length === this.schema.length)) {
+            throw new this.HypergridError('Expected argument to be an array with correct length.');
+        }
+        fields.forEach(function(field, i) { this.schema[i].field = field; }, this);
     },
 
     /**
@@ -223,10 +225,10 @@ var DataSourceOrigin = DataSourceBase.extend('DataSourceOrigin',  {
      * @param {string[]} [headers] - If omitted, headers will be reset to their derived defaults on next call to `getHeaders`.
      */
     setHeaders: function(headers) {
-        if (!(headers === undefined || headers instanceof Array)) {
-            error('setHeaders', 'param #1 `headers` not array');
+        if (!(Array.isArray(headers) && headers.length === this.schema.length)) {
+            throw new this.HypergridError('Expected argument to be an array with correct length.');
         }
-        this.headers = headers;
+        headers.forEach(function(header, i) { this.schema[i].header = header; }, this);
     },
 
     /**
@@ -245,6 +247,16 @@ var DataSourceOrigin = DataSourceBase.extend('DataSourceOrigin',  {
     capitalize: capitalize
 });
 
+/** @typdef {object} columnSchemaObject
+ * @property {string} name - The required column name.
+ * @property {string} [header] - An override for derived header
+ * @property {function} [calculator] - A function for a computed column. Undefined for normal data columns.
+ * @property {string} [type] - Used for sorting when and only when comparator not given.
+ * @property {object} [comparator] - For sorting, both of following required:
+ * @property {function} comparator.asc - ascending comparator
+ * @property {function} comparator.desc - descending comparator
+ */
+
 /**
  * @param {object[]} [data=[]] - Array of uniform objects containing the grid data.
  * @param {string[]} [fields] - Array of field names.
@@ -253,35 +265,28 @@ var DataSourceOrigin = DataSourceBase.extend('DataSourceOrigin',  {
  * If omitted, set to an array of undefined elements with same length of `fields`.
  * @memberOf DataSourceOrigin#
  */
-function setData(data, fields, calculators) {
+function setData(data, schema) {
+    if (!data) {
+        data = [];
+        schema = [];
+    } else if (!schema) {
+        var fields = computeFieldNames(this.data[0]);
+        schema = Array(this.fields.length);
+        this.setFields(fields);
+    }
 
     /**
-     * @summary The array of data row objects.
-     * @desc Access through {@link DataSource#getRow|getRow()}.
-     * @name data
-     * @type {object[]}
+     * @summary The array of uniform data objects.
+     * @name schema
+     * @type {columnSchemaObject[]}
      * @memberOf DataSource#
      */
-    this.data = data || [];
+    this.data = data;
 
     /**
-     * @summary The list of field names.
-     * @desc These are all the members of the data row objects visible to Hypergrid.
-     *
-     * Access through {@link DataSource#getFields|getFields()}.
-     * @name fields
-     * @type {string[]}
-     * @memberOf DataSource#
-     */
-    this.fields = fields || computeFieldNames(this.data[0]);
-
-    /**
-     * @summary The list of calculators that implement computed columns.
-     * @desc Congruent to {@link DataSource#fields|fields}.
-     *
-     * Elements representing regular (non-computed) fields should contain `undefined`.
-     * @name calculators
-     * @type {function[]}
+     * @summary The array of column schema objects.
+     * @name schema
+     * @type {columnSchemaObject[]}
      * @memberOf DataSource#
      */
     this.calculators = calculators || Array(this.fields.length);

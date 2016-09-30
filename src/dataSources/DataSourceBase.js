@@ -1,12 +1,8 @@
 'use strict';
 
-DataSourceBase.extend = require('extend-me');
+var Base = require('../lib/Base');
 
-function DataSourceBase() {}
-
-DataSourceBase.prototype = {
-    constructor: DataSourceBase.prototype.constructor,
-
+var DataSourceBase = Base.extend('DataSourceBase', {
     replaceIndent: '_',
 
     isNullObject: true,
@@ -173,6 +169,6 @@ DataSourceBase.prototype = {
         }
         console.table(data);
     }
-};
+});
 
 module.exports = DataSourceBase;
