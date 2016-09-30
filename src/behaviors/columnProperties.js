@@ -362,6 +362,15 @@ function createColumnProperties() {
             set: function(value) {
                 this.filterCellBorderThickness = value;
             }
+        },
+        halign: {
+            configurable: true,
+            get: function() {
+                return this.filterHalign;
+            },
+            set: function(value) {
+                this.filterHalign = value;
+            }
         }
     })});
 
