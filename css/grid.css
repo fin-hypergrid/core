@@ -1,15 +1,27 @@
-.hypergrid-input {
+input.hypergrid-textfield {
+    position: absolute;
+    font-size: 10px;
+    font-weight: bold;
+    color: black;
+    background-color: ivory;
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0 3px;
+    border: 2px inset #bbb;
+    outline: 0;
+}
+
+div.hypergrid-input {
     position: absolute;
     display: none;
     outline: 0;
     padding: 0;
-    border: solid 2px black;
+    border: 2px solid #777;
     box-sizing: border-box;
-    box-shadow: white 0 0 1px 1px;
     background-color: ivory;
     color: black;
     font-size: 7pt;
-    line--height: 0;
+    line-height: 1.5em;
 }
 div.hypergrid-input > input {
     position: absolute;
@@ -27,7 +39,7 @@ div.hypergrid-input > input {
     box-sizing: border-box;
 
     font-size: 7pt;
-    line--height: 0;
+    font-weight: bold;
     color: black;
     background-color: transparent;
 }
@@ -38,8 +50,8 @@ div.hypergrid-input > span {
     height: 100%;
     right: 0;
     text-align: center;
-    font-size: 15px;
-    line-height: 11px;
+    font-size: 1.5em;
+    line-height: 1em;
 }
 div.hypergrid-input span[title] {
     color: lightgrey;
@@ -57,16 +69,15 @@ div.hypergrid-input > span::after {
 }
 div.hypergrid-input > div {
     position: absolute;
-    height: 137px;
     left: -2px;
     right: -2px;
-    top: 13px;
+    top: 14px;
     height: 0;
     transition: height .25s;
     visibility: hidden;
-    box-shadow: white 0 0 1px 1px;
+    /*box-shadow: white 0 0 1px 1px;*/
     box-sizing: border-box;
-    border: 2px solid black;
+    border: 2px solid #777;
     background-color: ivory;
     -webkit-user-select: none;
     -moz-user-select: none;
@@ -93,9 +104,13 @@ div.hypergrid-input > div select {
     position: absolute;
     border: 0;
     outline: 0;
-    border-top: 2px solid black;
+    border-top: 2px solid #777;
     width: 100%;
     bottom: 0;
     top:14px;
     background-color: transparent;
+}
+div.hypergrid-input > div select option:hover {
+    background-color: #777;
+    color: ivory;
 }

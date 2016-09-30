@@ -12,7 +12,7 @@ var Localization = require('../lib/Localization');
  */
 var Textfield = CellEditor.extend('Textfield', {
 
-    template: '<input type="text" lang="{{locale}}" style="{{style}}">',
+    template: '<input type="text" lang="{{locale}}" class="hypergrid-textfield" style="{{style}}">',
 
     localizer: Localization.prototype.string,
 
