@@ -217,7 +217,11 @@ var DataSourceOrigin = DataSourceBase.extend('DataSourceOrigin',  {
         if (!(Array.isArray(fields) && fields.length === this.schema.length)) {
             throw new this.HypergridError('Expected argument to be an array with correct length.');
         }
-        fields.forEach(function(field, i) { this.schema[i].field = field; }, this);
+        if (this.schema.length > 0) {
+            fields.forEach(function(field, i) {
+                this.schema[i].field = field;
+            }, this);
+        }
     },
 
     /**
@@ -226,9 +230,16 @@ var DataSourceOrigin = DataSourceBase.extend('DataSourceOrigin',  {
      */
     setHeaders: function(headers) {
         if (!(Array.isArray(headers) && headers.length === this.schema.length)) {
-            throw new this.HypergridError('Expected argument to be an array with correct length.');
+            //throw new this.HypergridError('Expected argument to be an array with correct length.');
+            return;
         }
-        headers.forEach(function(header, i) { this.schema[i].header = header; }, this);
+
+        if (this.schema.length > 0) {
+            headers.forEach(function(header, i) {
+                this.schema[i].header = header;
+            }, this);
+        }
+
     },
 
     /**
@@ -242,6 +253,16 @@ var DataSourceOrigin = DataSourceBase.extend('DataSourceOrigin',  {
      */
     isDrillDown: function() {
         return false;
+    },
+    get schema() { return this.schema; },
+
+    set schema(schema) {
+        var transform = this.transform;
+        schema.forEach(function(columnSchema) {
+            if (!columnSchema.header) {
+                columnSchema.header = transform(columnSchema.name);
+            }
+        });
     },
     transform: passthrough,
     capitalize: capitalize
@@ -259,20 +280,22 @@ var DataSourceOrigin = DataSourceBase.extend('DataSourceOrigin',  {
 
 /**
  * @param {object[]} [data=[]] - Array of uniform objects containing the grid data.
- * @param {string[]} [fields] - Array of field names.
- * If omitted, derives names from first data row object (in no particular order).
- * @param {string[]} [calculators] - Array of calculator functions.
- * If omitted, set to an array of undefined elements with same length of `fields`.
+ * @param {columnSchemaObject[]} [schema=[]]
  * @memberOf DataSourceOrigin#
  */
 function setData(data, schema) {
     if (!data) {
         data = [];
-        schema = [];
-    } else if (!schema) {
-        var fields = computeFieldNames(this.data[0]);
-        schema = Array(this.fields.length);
-        this.setFields(fields);
+    }
+    var fields = computeFieldNames(data[0]);
+    schema = schema || defaultSchema(fields);
+
+    function defaultSchema(f){
+        var s = [];
+        for (var i = 0; i < f.length; i++) {
+            s.push({name: f[i]});
+        }
+        return s;
     }
 
     /**
@@ -290,6 +313,8 @@ function setData(data, schema) {
      * @memberOf DataSource#
      */
     this.schema = schema;
+
+    this.setFields(fields);
 }
 
 function capitalize(string) {

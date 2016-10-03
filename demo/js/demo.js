@@ -125,6 +125,7 @@ window.onload = function() {
         dashboard = document.getElementById('dashboard'),
         ctrlGroups = document.getElementById('ctrl-groups'),
         buttons = document.getElementById('buttons');
+    dataModel.source.transform = dataModel.source.capitalize; //No longer defaulted;
 
     grid.installPlugins([
         Hypergrid.drillDown,
@@ -271,8 +272,6 @@ window.onload = function() {
 
 
     behavior.setFixedRowCount(2);
-    dataModel.source.transform = dataModel.source.capitalize; //No longer defaulted;
-
 
     var upDown = Hypergrid.images['down-rectangle'];
     var upDownSpin = Hypergrid.images['up-down-spin'];

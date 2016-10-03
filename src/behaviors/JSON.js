@@ -186,8 +186,7 @@ var JSON = Behavior.extend('behaviors.JSON', {
 
         this.dataModel.setData(
             dataRows,
-            this.unwrap(options.fields),
-            this.unwrap(options.calculators)
+            this.unwrap(options.schema)
         );
 
         if (grid.cellEditor) {
@@ -225,8 +224,7 @@ var JSON = Behavior.extend('behaviors.JSON', {
         dataRows = this.unwrap(dataRows);
         this.dataModel.setData(
             dataRows,
-            this.unwrap(options.fields),
-            this.unwrap(options.calculators)
+            this.unwrap(options.schema)
         );
 
         this.reindex();

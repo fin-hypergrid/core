@@ -72,7 +72,7 @@ var DataSourceBase = Base.extend('DataSourceBase', {
     },
     getCalculators: function() {
         if (this.dataSource) {
-            return this.dataSource.revealRow.apply(this.dataSource, arguments);
+            return this.dataSource.getCalculators.apply(this.dataSource, arguments);
         }
     },
     getDefaultHeaders: function() {

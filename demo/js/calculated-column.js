@@ -18,7 +18,7 @@ window.onload = function() {
 
     grid.behavior.dataModel.getFields().push('squared'); //TODO: Needs to get fixed. get fields returns a copy of the fields array from schema
     grid.behavior.dataModel.getHeaders().push('squared'); //TODO: See above
-    grid.behavior.dataModel.getCalculators().push(square);
+    grid.behavior.dataModel.getCalculators().push(square); //TODO: See above
 
     // recreate to include new column
     grid.behavior.createColumns();
