@@ -14,9 +14,38 @@ var DataSourceOrigin = DataSourceBase.extend('DataSourceOrigin',  {
     initialize: function(data, schema) {
         delete this.dataSource; // added by DataSourceBase#initialize but we don't want here
         this.setData.apply(this, arguments);
+        this.setSchema(schema);
     },
 
     setData: setData,
+
+    setSchema: function(schema){
+        var fields = computeFieldNames(this.data[0]),
+            transform = this.transform;
+        if (!schema) {
+            schema = Array(fields.length);
+        }
+
+        schema.forEach(function(columnSchema, i) {
+            if (!columnSchema.field) {
+                columnSchema.field = fields[i];
+            }
+            if (!columnSchema.name) {
+                columnSchema.name = fields[i];
+            }
+            if (!columnSchema.header && columnSchema.name) {
+                columnSchema.header = transform(columnSchema.name);
+            }
+        });
+
+        /**
+         * @summary The array of column schema objects.
+         * @name schema
+         * @type {columnSchemaObject[]}
+         * @memberOf DataSource#
+         */
+        this.schema = schema;
+    },
 
     isNullObject: false,
 
@@ -182,6 +211,7 @@ var DataSourceOrigin = DataSourceBase.extend('DataSourceOrigin',  {
             console.warn('The returned fields array is a now a copy. DO NOT MUTATE.');
             this.warnedGetFields = true;
         }
+        if (this.schema.length > 0) {return [];}
         return this.schema.map(function(columnSchema) {
             return columnSchema.name;
         });
@@ -196,6 +226,7 @@ var DataSourceOrigin = DataSourceBase.extend('DataSourceOrigin',  {
             console.warn('The returned headers array is a now a copy. DO NOT MUTATE.');
             this.warnedGetHeaders = true;
         }
+        if (this.schema.length > 0) {return [];}
         return this.schema.map(function(columnSchema) {
             return columnSchema.header;
         }, this);
@@ -254,16 +285,7 @@ var DataSourceOrigin = DataSourceBase.extend('DataSourceOrigin',  {
     isDrillDown: function() {
         return false;
     },
-    get schema() { return this.schema; },
 
-    set schema(schema) {
-        var transform = this.transform;
-        schema.forEach(function(columnSchema) {
-            if (!columnSchema.header) {
-                columnSchema.header = transform(columnSchema.name);
-            }
-        });
-    },
     transform: passthrough,
     capitalize: capitalize
 });
@@ -283,19 +305,9 @@ var DataSourceOrigin = DataSourceBase.extend('DataSourceOrigin',  {
  * @param {columnSchemaObject[]} [schema=[]]
  * @memberOf DataSourceOrigin#
  */
-function setData(data, schema) {
+function setData(data) {
     if (!data) {
         data = [];
-    }
-    var fields = computeFieldNames(data[0]);
-    schema = schema || defaultSchema(fields);
-
-    function defaultSchema(f){
-        var s = [];
-        for (var i = 0; i < f.length; i++) {
-            s.push({name: f[i]});
-        }
-        return s;
     }
 
     /**
@@ -305,17 +317,8 @@ function setData(data, schema) {
      * @memberOf DataSource#
      */
     this.data = data;
-
-    /**
-     * @summary The array of column schema objects.
-     * @name schema
-     * @type {columnSchemaObject[]}
-     * @memberOf DataSource#
-     */
-    this.schema = schema;
-
-    this.setFields(fields);
 }
+
 
 function capitalize(string) {
     return (/[a-z]/.test(string) ? string : string.toLowerCase())

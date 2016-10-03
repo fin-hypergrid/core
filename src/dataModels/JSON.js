@@ -372,7 +372,8 @@ var DJSON = DataModel.extend('dataModels.JSON', {
      */
     setData: function(dataSource, schema) {
         this.source.setHeaders(); // force rederive default headers
-        this.source.setData(dataSource, schema);
+        this.source.setData(dataSource);
+        this.source.schema = schema;
     },
 
     /** @typedef pipelineSchema
@@ -784,7 +785,7 @@ var DJSON = DataModel.extend('dataModels.JSON', {
     get schema() { return this.source.schema; },
 
     set schema(schema) {
-        this.source.schema = schema;
+        this.source.setSchema = schema;
     }
 });
 
