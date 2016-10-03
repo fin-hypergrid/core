@@ -96,10 +96,7 @@ var DJSON = DataModel.extend('dataModels.JSON', {
         //Register Defaults
         this.registerHelperAPI('filter');
         this.registerHelperAPI('sorter');
-
-        this.setData([]);
     },
-
     /**
      * @summary The default data sources for a new pipeline when none are give.
      * @desc For now Filtering is hardcoded in the grid.
@@ -370,10 +367,9 @@ var DJSON = DataModel.extend('dataModels.JSON', {
      * See {@link DataSourceOrigin#setData} for details.
      * @memberOf dataModels.JSON.prototype
      */
-    setData: function(dataSource, schema) {
-        this.source.setHeaders(); // force rederive default headers
+    setData: function(dataSource) {
+        //this.source.setHeaders(); // force rederive default headers
         this.source.setData(dataSource);
-        this.source.schema = schema;
     },
 
     /** @typedef pipelineSchema

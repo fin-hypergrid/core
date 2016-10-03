@@ -20,21 +20,14 @@ var DataSourceOrigin = DataSourceBase.extend('DataSourceOrigin',  {
     setData: setData,
 
     setSchema: function(schema){
-        var fields = computeFieldNames(this.data[0]),
-            transform = this.transform;
+        var fields = computeFieldNames(this.data[0]);
         if (!schema) {
             schema = Array(fields.length);
         }
 
         schema.forEach(function(columnSchema, i) {
-            if (!columnSchema.field) {
-                columnSchema.field = fields[i];
-            }
             if (!columnSchema.name) {
                 columnSchema.name = fields[i];
-            }
-            if (!columnSchema.header && columnSchema.name) {
-                columnSchema.header = transform(columnSchema.name);
             }
         });
 
@@ -211,7 +204,6 @@ var DataSourceOrigin = DataSourceBase.extend('DataSourceOrigin',  {
             console.warn('The returned fields array is a now a copy. DO NOT MUTATE.');
             this.warnedGetFields = true;
         }
-        if (this.schema.length > 0) {return [];}
         return this.schema.map(function(columnSchema) {
             return columnSchema.name;
         });
@@ -226,7 +218,6 @@ var DataSourceOrigin = DataSourceBase.extend('DataSourceOrigin',  {
             console.warn('The returned headers array is a now a copy. DO NOT MUTATE.');
             this.warnedGetHeaders = true;
         }
-        if (this.schema.length > 0) {return [];}
         return this.schema.map(function(columnSchema) {
             return columnSchema.header;
         }, this);
@@ -248,11 +239,9 @@ var DataSourceOrigin = DataSourceBase.extend('DataSourceOrigin',  {
         if (!(Array.isArray(fields) && fields.length === this.schema.length)) {
             throw new this.HypergridError('Expected argument to be an array with correct length.');
         }
-        if (this.schema.length > 0) {
-            fields.forEach(function(field, i) {
-                this.schema[i].field = field;
-            }, this);
-        }
+        fields.forEach(function(field, i) {
+            this.schema[i].field = field;
+        }, this);
     },
 
     /**
@@ -265,11 +254,10 @@ var DataSourceOrigin = DataSourceBase.extend('DataSourceOrigin',  {
             return;
         }
 
-        if (this.schema.length > 0) {
-            headers.forEach(function(header, i) {
-                this.schema[i].header = header;
-            }, this);
-        }
+        headers.forEach(function(header, i) {
+            this.schema[i].header = header;
+        }, this);
+
 
     },
 
