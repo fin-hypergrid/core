@@ -575,8 +575,8 @@ window.onload = function() {
 
     var Time = Textfield.extend('Time', {
         template: [
-'<div style="background-color:white; text-align:right; font-size:10px; padding-right:4px; font-weight:bold; border:1px solid black">',
-'    <input type="text" lang="{{locale}}" style="background-color:transparent; width:80%; height:100%; float:left; border:0; padding:0; font-family:monospace; font-size:11px; text-align:right; ' +
+'<div class="hypergrid-textfield" style="text-align:right;">',
+'    <input type="text" lang="{{locale}}" style="background-color:transparent; width:75%; text-align:right; border:0; padding:0; outline:0; font-size:inherit; font-weight:inherit;' +
 '{{style}}">',
 '    <span>AM</span>',
 '</div>'

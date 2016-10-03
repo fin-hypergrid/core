@@ -197,7 +197,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
             if (y >= topTotalsOffset) { // top totals rows
                 value = this.getTopTotals()[y - topTotalsOffset][x];
             } else if (isHeaderRow && y === 0) {
-                value = this.getHeaders()[x];
+                value = this.getHeaders()[x] || this.getFields()[x];
                 var sortString = this.getSortImageForColumn(x);
                 if (sortString) {
                     var at = value.lastIndexOf(this.groupHeaderDelimiter) + 1;

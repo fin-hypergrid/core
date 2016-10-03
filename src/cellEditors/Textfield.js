@@ -12,13 +12,16 @@ var Localization = require('../lib/Localization');
  */
 var Textfield = CellEditor.extend('Textfield', {
 
-    template: '<input type="text" lang="{{locale}}" style="{{style}}">',
+    template: '<input type="text" lang="{{locale}}" class="hypergrid-textfield" style="{{style}}">',
+
+    initialize: function() {
+        this.input.style.textAlign = this.grid.behavior.getActiveColumn(this.editPoint.x).getCellProperty(this.editPoint.y, 'halign');
+    },
 
     localizer: Localization.prototype.string,
 
     selectAll: function() {
-        var lastCharPlusOne = this.getEditorValue().length;
-        this.input.setSelectionRange(0, lastCharPlusOne);
+        this.input.setSelectionRange(0, this.input.value.length);
     }
 });
 

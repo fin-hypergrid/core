@@ -255,6 +255,15 @@ module.exports = {
      * @instance
      */
     filterCellBorderThickness: 0.4,
+
+    /**
+     * @default
+     * @type {string}
+     * @instance
+     */
+    filterHalign: 'center',
+
+
     /********** SECTION: TREE COLUMN COLORS **********/
     // The "tree column" contains the hierarchical drill-down controls.
 

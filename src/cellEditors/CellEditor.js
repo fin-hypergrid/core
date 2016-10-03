@@ -412,13 +412,12 @@ var CellEditor = Base.extend('CellEditor', {
      * @param {rectangle} rectangle - the bounds to move to
      */
     setBounds: function(cellBounds) {
-        var input = this.el;
+        var style = this.el.style;
 
-        input.style.position = 'absolute';
-        input.style.left = px(cellBounds.x - 1);
-        input.style.top = px(cellBounds.y - 1);
-        input.style.width = px(cellBounds.width + 2);
-        input.style.height = px(cellBounds.height + 2);
+        style.left = px(cellBounds.x - 1);
+        style.top = px(cellBounds.y - 1);
+        style.width = px(cellBounds.width + 3);
+        style.height = px(cellBounds.height + 3);
     },
 
     /**

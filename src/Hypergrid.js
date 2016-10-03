@@ -11,6 +11,7 @@ var Rectangle = require('rectangular').Rectangle;
 var _ = require('object-iterators'); // fyi: installs the Array.prototype.find polyfill, as needed
 
 var deprecated = require('./lib/deprecated');
+var HypergridError = require('./lib/error');
 var defaults = require('./defaults');
 var Renderer = require('./lib/Renderer');
 var SelectionModel = require('./lib/SelectionModel');
@@ -107,6 +108,8 @@ function Hypergrid(container, options) {
 
 Hypergrid.prototype = {
     constructor: Hypergrid.prototype.constructor,
+
+    HypergridError: HypergridError,
 
     deprecated: deprecated,
     registerCellEditor: function(Constructor, name) {
