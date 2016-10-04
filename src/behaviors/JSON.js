@@ -222,7 +222,10 @@ var JSON = Behavior.extend('behaviors.JSON', {
             dataRows = options && options.data;
         }
         dataRows = this.unwrap(dataRows);
-        this.dataModel.setData(dataRows);
+        this.dataModel.setData(
+            dataRows,
+            this.unwrap(options.schema)
+        );
 
         this.reindex();
     },
