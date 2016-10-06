@@ -31,7 +31,7 @@ var LastSelection = CellRenderer.extend('LastSelection', {
         //     [3, 5, 2, 0],
         //     [4, 5, 1, 0]
         // ];
-        gc.rect(x, y, width, height);
+        gc.rect(x + 1, y + 1, width - 2, height - 2);
         gc.fillStyle = config.selectionRegionOverlayColor;
         gc.fill();
         gc.lineWidth = 1;

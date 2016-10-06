@@ -6,7 +6,7 @@
     box-sizing: border-box;
     margin: 0;
     padding: 0 5px;
-    border: 1px solid #777;
+    border: 0; /*border: 1px solid #777;*/
     outline: 0;
 }
 
@@ -15,7 +15,7 @@ div.hypergrid-input {
     display: none;
     outline: 0;
     padding: 0;
-    border: 1px solid #777;
+    border: 0; /*border: 1px solid #777;*/
     box-sizing: border-box;
     background-color: ivory;
     color: black;
@@ -54,12 +54,16 @@ div.hypergrid-input > span {
 div.hypergrid-input span[title] {
     color: lightgrey;
     cursor: pointer;
+    margin-top: -2px;
 }
 div.hypergrid-input span[title]:hover {
     color: grey;
 }
 div.hypergrid-input span[title]:active, div.hypergrid-input span[title].active {
     color: blue;
+}
+div.hypergrid-input > span {
+    margin-top: -1px;
 }
 div.hypergrid-input > span::after {
     content: '\25BE';
@@ -100,13 +104,19 @@ div.hypergrid-input > div span:not([title]) {
 }
 div.hypergrid-input > div select {
     position: absolute;
+    padding-top: 2px;
     border: 0;
     outline: 0;
     border-top: 1px solid #777;
     width: 100%;
+    top: 15px;
     bottom: 0;
-    top:14px;
+    left: 0;
+    right: 0;
     background-color: transparent;
+    font-family: sans-serif;
+    font-weight: bold;
+    font-size: 9px;
 }
 div.hypergrid-input > div select option:hover {
     background-color: #777;

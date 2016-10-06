@@ -60,7 +60,7 @@ var ComboBox = Textfield.extend('ComboBox', {
 '    <span title="Click for options"></span>',
 '    <div>',
 '        <div></div>',
-'        <select size="12" lang="{{locale}}"></select>',
+'        <select size="15" lang="{{locale}}"></select>',
 '    </div>',
 '</div>'
     ].join('\n'),
@@ -243,8 +243,10 @@ function slideDown() {
 
     // show the drop-down slide down effect
     this.options.style.visibility = 'visible';
-    var dropDownHeight = this.dropdown.size * 15;
-    this.options.style.height = 2 + 15 + dropDownHeight + 2 + 'px'; // starts the slide down effect
+    var dropDownTopMargin = getFloat(this.dropdown, 'marginTop'),
+        dropDownRows = this.dropdown.size,
+        optionHeight = Math.ceil((this.dropdown.length ? getFloat(this.dropdown[0], 'height') : 13.1875) * 2) / 2 + 1;
+    this.options.style.height = dropDownTopMargin + optionHeight * dropDownRows + 'px'; // starts the slide down effect
 
     // while in drop-down, listen for clicks in text box which means abprt
     this.input.addEventListener('mousedown', this.slideUpBound = slideUp.bind(this));
@@ -264,6 +266,10 @@ function slideUp() {
     this.optionsTransition.begin(function(event) {
         this.style.visibility = 'hidden';
     });
+}
+
+function getFloat(el, style) {
+    return parseFloat(window.getComputedStyle(el)[style]);
 }
 
 
