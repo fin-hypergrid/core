@@ -62,6 +62,9 @@ div.hypergrid-input span[title]:hover {
 div.hypergrid-input span[title]:active, div.hypergrid-input span[title].active {
     color: blue;
 }
+div.hypergrid-input > span {
+    margin-top: -1px;
+}
 div.hypergrid-input > span::after {
     content: '\25BE';
     font-size: 20px;
@@ -70,7 +73,7 @@ div.hypergrid-input > div {
     position: absolute;
     left: -1px;
     right: -1px;
-    top: 14px;
+    top: 16px;
     height: 0;
     transition: height .25s;
     visibility: hidden;
@@ -101,13 +104,19 @@ div.hypergrid-input > div span:not([title]) {
 }
 div.hypergrid-input > div select {
     position: absolute;
+    padding-top: 2px;
     border: 0;
     outline: 0;
     border-top: 1px solid #777;
     width: 100%;
+    top: 15px;
     bottom: 0;
-    top:14px;
+    left: 0;
+    right: 0;
     background-color: transparent;
+    font-family: sans-serif;
+    font-weight: bold;
+    font-size: 9px;
 }
 div.hypergrid-input > div select option:hover {
     background-color: #777;
