@@ -73,7 +73,7 @@ div.hypergrid-input > div {
     position: absolute;
     left: -1px;
     right: -1px;
-    top: 16px;
+    top: 14px;
     height: 0;
     transition: height .25s;
     visibility: hidden;
