@@ -31,7 +31,7 @@
     "pop-menu": "0.2.5",
     "rectangular": "1.0.1",
     "sparse-boolean-array": "1.0.1",
-      "fin-hypergrid-data-source-base": "0.4.0",
+      "fin-hypergrid-data-source-base": "0.4.1",
     "tabz": "1.1.3"
   },
   "devDependencies": {

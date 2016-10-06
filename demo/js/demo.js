@@ -114,9 +114,34 @@ window.onload = function() {
 
     var peopleSchema = customSchema;  // or try setting to derivedPeopleSchema
 
+    function capitalize(string) {
+        return (/[a-z]/.test(string) ? string : string.toLowerCase())
+            .replace(/[\s\-_]*([^\s\-_])([^\s\-_]+)/g, replacer)
+            .replace(/[A-Z]/g, ' $&')
+            .trim();
+    }
+
+    function replacer(a, b, c) {
+        return b.toUpperCase() + c;
+    }
+
+    function getSchema(data){
+        var schema = [],
+            firstRow = Array.isArray(data) && data[0];
+
+        firstRow = (typeof firstRow === 'object') ? firstRow : {};
+        for (var p in firstRow) {
+            if (firstRow.hasOwnProperty(p)){
+                schema.push({name: p, header: capitalize(p)});
+            }
+        }
+        return schema;
+    }
+
     var gridOptions = {
             data: people1,
-            margin: { bottom: '17px' }
+            margin: { bottom: '17px' },
+            schema: getSchema(people1)
         },
         grid = window.g = new Hypergrid('div#json-example', gridOptions),
         behavior = window.b = grid.behavior,
@@ -125,7 +150,6 @@ window.onload = function() {
         dashboard = document.getElementById('dashboard'),
         ctrlGroups = document.getElementById('ctrl-groups'),
         buttons = document.getElementById('buttons');
-    dataModel.source.transform = dataModel.source.capitalize; //No longer defaulted;
 
     grid.installPlugins([
         Hypergrid.drillDown,
@@ -157,7 +181,7 @@ window.onload = function() {
     console.log('Indexes:'); console.dir(idx);
 
     function setData(data, options) {
-        options = options || {};
+        options = options || {schema: getSchema(data)};
         grid.setData(data, options);
         resetGlobalFilter(data);
         idx = behavior.columnEnum;

@@ -784,7 +784,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
     get schema() { return this.source.schema; },
 
     set schema(schema) {
-        this.source.setSchema = schema;
+        this.source.setSchema(schema);
     }
 });
 

@@ -46,6 +46,7 @@ var themeInitialized = false,
  * @param {string} [options.localization.numberOptions=Hypergrid.localization.numberOptions] - Options passed to `Intl.NumberFomrat` for creating the basic "number" localizer.
  * @param {string} [options.localization.dateOptions=Hypergrid.localization.dateOptions] - Options passed to `Intl.DateFomrat` for creating the basic "date" localizer.
  * @param {object} [options.calculators] - functions to use for computed columns
+ * @param {object} [options.schema]
  * @param {object} [options.fields]
  * @param {object} [options.margin] - optional canvas margins
  * @param {string} [options.margin.top=0]
