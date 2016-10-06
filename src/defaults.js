@@ -598,7 +598,7 @@ module.exports = {
      * @type {string}
      * @instance
      */
-    selectionRegionOutlineColor: 'black',
+    selectionRegionOutlineColor: 'rgb(69, 69, 69)',
 
     /**
      * @default

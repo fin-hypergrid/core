@@ -414,10 +414,10 @@ var CellEditor = Base.extend('CellEditor', {
     setBounds: function(cellBounds) {
         var style = this.el.style;
 
-        style.left = px(cellBounds.x - 1);
-        style.top = px(cellBounds.y - 1);
-        style.width = px(cellBounds.width + 3);
-        style.height = px(cellBounds.height + 3);
+        style.left = px(cellBounds.x + 1);
+        style.top = px(cellBounds.y + 1);
+        style.width = px(cellBounds.width - 1);
+        style.height = px(cellBounds.height - 1);
     },
 
     /**

@@ -6,7 +6,7 @@
     box-sizing: border-box;
     margin: 0;
     padding: 0 5px;
-    border: 1px solid #777;
+    border: 0; /*border: 1px solid #777;*/
     outline: 0;
 }
 
@@ -15,7 +15,7 @@ div.hypergrid-input {
     display: none;
     outline: 0;
     padding: 0;
-    border: 1px solid #777;
+    border: 0; /*border: 1px solid #777;*/
     box-sizing: border-box;
     background-color: ivory;
     color: black;
@@ -54,6 +54,7 @@ div.hypergrid-input > span {
 div.hypergrid-input span[title] {
     color: lightgrey;
     cursor: pointer;
+    margin-top: -2px;
 }
 div.hypergrid-input span[title]:hover {
     color: grey;
