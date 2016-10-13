@@ -1,3 +1,7 @@
+.hypergrid-container {
+    position: relative;
+    height: 500px;
+}
 .hypergrid-textfield {
     position: absolute;
     font-size: 12px;

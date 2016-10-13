@@ -24,7 +24,6 @@ var BehaviorJSON = require('./behaviors/JSON');
 
 var themeInitialized = false,
     gridTheme = Object.create(defaults),
-    defaultContainerHeight = 300,
     globalProperties = Object.create(gridTheme);
 
 /**s
@@ -970,6 +969,7 @@ Hypergrid.prototype = {
     useHiDPI: function() {
         return this.resolveProperty('useHiDPI') !== false;
     },
+
     /**
      * @memberOf Hypergrid.prototype
      * @summary Set the container for the grid
@@ -980,33 +980,41 @@ Hypergrid.prototype = {
         this.initRenderer();
         // injectGridElements.call(this);
     },
+
     /**
      * @memberOf Hypergrid.prototype
      * @summary Initialize container
      * @private
      */
     initContainer: function(div) {
-        this.div = (typeof div === 'string') ? document.querySelector(div) : div;
-
-        //Default Position and height to ensure DnD works
-        if (!this.div.style.position){
-            this.div.style.position = 'relative';
+        if (typeof div === 'string') {
+            div = document.querySelector(div);
         }
 
-        if (this.div.clientHeight < 1){
-            this.div.style.height = defaultContainerHeight + 'px';
+        //Default Position and height to ensure DnD works
+        if (!div.style.position) {
+            div.style.position = null; // revert to stylesheet value
+        }
+
+        if (div.clientHeight < 1) {
+            div.style.height = null; // revert to stylesheet value
         }
 
         stylesheet.inject('grid');
 
         //prevent the default context menu for appearing
-        this.div.oncontextmenu = function(event) {
+        div.oncontextmenu = function(event) {
             event.stopPropagation();
             event.preventDefault();
             return false;
         };
 
-        this.div.removeAttribute('tabindex');
+        div.removeAttribute('tabindex');
+
+        div.classList.add('hypergrid-container');
+        div.id = 'hypergrid' + (document.querySelectorAll('.hypergrid-container').length - 1 || '');
+
+        this.div = div;
     },
 
     /**
@@ -3418,26 +3426,23 @@ Hypergrid.prototype = {
 };
 
 function findOrCreateContainer(boundingRect) {
-    boundingRect = boundingRect || {};
-    boundingRect.width = boundingRect.width || '500px';
-    boundingRect.height = boundingRect.height || '500px';
-    boundingRect.position = boundingRect.position || 'relative';
-    var div,
-        defaultID = 'hypergrid';
-    div = document.getElementById(defaultID);
-    if (div){
-        return div;
+    var div = document.getElementById('hypergrid'),
+        used = div && !div.firstElementChild;
+
+    if (!used) {
+        div = document.createElement('div');
+
+        if (boundingRect) {
+            ['width', 'height', 'position', 'top', 'bottom', 'left', 'right'].forEach(function(style) {
+                if (boundingRect[style]) {
+                    div.style[style] = boundingRect[style];
+                }
+            });
+        }
+
+        document.body.appendChild(div);
     }
-    div = document.createElement('div');
-    div.setAttribute('id', defaultID);
-    div.style.width = boundingRect.width;
-    div.style.height = boundingRect.height;
-    div.style.position = boundingRect.position;
-    if (boundingRect.top) { div.style.top = boundingRect.top; }
-    if (boundingRect.bottom) { div.style.bottom = boundingRect.bottom; }
-    if (boundingRect.left) { div.style.left = boundingRect.left; }
-    if (boundingRect.right) { div.style.right = boundingRect.right; }
-    document.body.appendChild(div);
+
     return div;
 }
 
