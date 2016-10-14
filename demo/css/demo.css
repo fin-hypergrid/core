@@ -34,6 +34,10 @@ body {
 }
 div#tabs {
     position: absolute;
+}
+div#tabs > div {
+    margin-top: 6px;
+    margin-bottom: 96px;
     width: 100px;
     height: 16px;
     transform: translate(-1px,110px) rotate(-90deg);
@@ -49,6 +53,9 @@ div#tabs {
     border-bottom-left-radius: 9px;
     border-bottom-right-radius: 9px;
     cursor: pointer;
+}
+div#tabs > div:hover {
+    color: black;
 }
 div#dashboard {
     position: absolute;
