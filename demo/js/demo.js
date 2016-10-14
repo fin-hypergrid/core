@@ -1236,7 +1236,7 @@ window.onload = function() {
         if (!height) {
             height = window.getComputedStyle(grid.div).height;
             grid.div.style.transition = 'height 1.5s linear';
-            grid.div.style.height = window.innerHeight - 20 + 'px'; // the -20 gets rid of window scrollbar
+            grid.div.style.height = window.innerHeight + 'px'; // the -20 gets rid of window scrollbar
             label = 'Shrink';
         } else {
             grid.div.style.height = height;

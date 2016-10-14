@@ -92,6 +92,7 @@ var ColumnMoving = Feature.extend('ColumnMoving', {
             dragger = document.createElement('canvas');
             dragger.setAttribute('width', '0px');
             dragger.setAttribute('height', '0px');
+            dragger.style.position = 'fixed';
 
             document.body.appendChild(dragger);
             draggerCTX = dragger.getContext('2d');
@@ -100,6 +101,7 @@ var ColumnMoving = Feature.extend('ColumnMoving', {
             floatColumn = document.createElement('canvas');
             floatColumn.setAttribute('width', '0px');
             floatColumn.setAttribute('height', '0px');
+            floatColumn.style.position = 'fixed';
 
             document.body.appendChild(floatColumn);
             floatColumnCTX = floatColumn.getContext('2d');
@@ -372,7 +374,6 @@ var ColumnMoving = Feature.extend('ColumnMoving', {
 
         style.top = (location.top - 2) + 'px';
         style.left = location.left + 'px';
-        style.position = 'fixed';
 
         var hdpiRatio = grid.getHiDPI(floatColumnCTX);
 
@@ -460,7 +461,6 @@ var ColumnMoving = Feature.extend('ColumnMoving', {
 
         style.top = location.top + 'px';
         style.left = location.left + 'px';
-        style.position = 'fixed';
         style.opacity = 0.85;
         style.boxShadow = '0 19px 38px rgba(0,0,0,0.30), 0 15px 12px rgba(0,0,0,0.22)';
         //style.zIndex = 100;
