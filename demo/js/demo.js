@@ -1197,7 +1197,7 @@ window.onload = function() {
         ctrlGroups.appendChild(container);
     }
 
-    document.getElementById('tabs').addEventListener('click', function(event) {
+    document.getElementById('tab-dashboard').addEventListener('click', function(event) {
         if (dashboard.style.display === 'none') {
             dashboard.style.display = 'block';
             grid.div.style.transition = 'margin-left .75s';
@@ -1208,6 +1208,43 @@ window.onload = function() {
             }, 800);
             grid.div.style.marginLeft = '30px';
         }
+    });
+
+    var fpsTimer;
+    document.getElementById('tab-fps').addEventListener('click', function(event) {
+        var el = this, st = el.style;
+        if ((grid.getProperties().enableContinuousRepaint ^= true)) {
+            st.backgroundColor = '#666';
+            st.textShadow = '-1px 1px 3px black';
+            st.fontWeight = 'bold';
+            code();
+            fpsTimer = setInterval(code, 500);
+        } else {
+            clearInterval(fpsTimer);
+            st.backgroundColor = st.color = st.fontWeight = st.textShadow = null;
+        }
+        function code() {
+            var fps = grid.canvas.currentFPS;
+            st.color = fps >= 29.95 ? '#0d0' : fps >= 14.95 ? '#ee0' : '#f77'; // green, yellow, red
+            el.innerHTML = 'FPS = ' + fps.toFixed(1);
+        }
+    });
+
+    var height;
+    document.getElementById('tab-grow-shrink').addEventListener('click', function(event) {
+        var label;
+        if (!height) {
+            height = window.getComputedStyle(grid.div).height;
+            grid.div.style.transition = 'height 1.5s linear';
+            grid.div.style.height = window.innerHeight - 20 + 'px'; // the -20 gets rid of window scrollbar
+            label = 'Shrink';
+        } else {
+            grid.div.style.height = height;
+            height = undefined;
+            label = 'Grow';
+        }
+        this.innerHTML += ' ...';
+        setTimeout(function() { this.innerHTML = label; }.bind(this), 1500);
     });
 
     document.getElementById('dashboard').addEventListener('click', function(event) {
