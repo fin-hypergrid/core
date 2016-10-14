@@ -57,6 +57,45 @@ div#tabs > div {
 div#tabs > div:hover {
     color: black;
 }
+div#tabs > div#tab-fps {
+    width: 130px;
+    margin-top: 126px;
+}
+div#tabs > div#tab-grow-shrink {
+    width: 80px;
+    margin-top: -19px;
+}
+div#tabs > div#tab-fps > span {
+    position: relative;
+    letter-spacing: -1px;
+}
+div#tabs > div#tab-fps > span:nth-child(1) { /* background bars */
+    position: absolute;
+    margin-left: 4px;
+    color: #555;
+}
+div#tabs > div#tab-fps > span:nth-child(1):before { /* background bars */
+    content: 'IIIIIIIIIIIIIIIIIIIIIIIIIIIIII';
+}
+div#tabs > div#tab-fps > span:nth-child(2) {
+    position: absolute;
+    z-index: 2;
+    text-align: right;
+    right: 5px;
+    color: white;
+    font-weight: bold;
+    letter-spacing: 1px;
+}
+div#tabs > div#tab-fps > span:nth-child(3) {
+    margin-left: 4px;
+    color: #f77;
+}
+div#tabs > div#tab-fps > span:nth-child(4) {
+    color: #ee0;
+}
+div#tabs > div#tab-fps > span:nth-child(5) {
+    color: #0d0;
+}
 div#dashboard {
     position: absolute;
     font-size: 9pt;

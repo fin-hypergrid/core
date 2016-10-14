@@ -1215,18 +1215,35 @@ window.onload = function() {
         var el = this, st = el.style;
         if ((grid.getProperties().enableContinuousRepaint ^= true)) {
             st.backgroundColor = '#666';
-            st.textShadow = '-1px 1px 3px black';
-            st.fontWeight = 'bold';
+            st.textAlign = 'left';
             code();
             fpsTimer = setInterval(code, 500);
         } else {
             clearInterval(fpsTimer);
-            st.backgroundColor = st.color = st.fontWeight = st.textShadow = null;
+            st.backgroundColor = st.textAlign = null;
+            el.innerHTML = 'FPS';
         }
         function code() {
-            var fps = grid.canvas.currentFPS;
-            st.color = fps >= 29.95 ? '#0d0' : fps >= 14.95 ? '#ee0' : '#f77'; // green, yellow, red
-            el.innerHTML = 'FPS = ' + fps.toFixed(1);
+            var fps = grid.canvas.currentFPS,
+                bars = Array(Math.round(fps) + 1).join('I'),
+                subrange, span;
+
+            // first span holds the 30 background bars
+            el.innerHTML = '';
+            el.appendChild(document.createElement('span'));
+
+            // 2nd span holds the numeric
+            span = document.createElement('span');
+            span.innerHTML = fps.toFixed(1);
+            el.appendChild(span);
+
+            // 0 to 4 color range bar subsets: 1..10:red, 11:20:yellow, 21:30:green
+            while ((subrange = bars.substr(0, 12)).length) {
+                span = document.createElement('span');
+                span.innerHTML = subrange;
+                el.appendChild(span);
+                bars = bars.substr(12);
+            }
         }
     });
 
@@ -1236,7 +1253,7 @@ window.onload = function() {
         if (!height) {
             height = window.getComputedStyle(grid.div).height;
             grid.div.style.transition = 'height 1.5s linear';
-            grid.div.style.height = window.innerHeight - 20 + 'px'; // the -20 gets rid of window scrollbar
+            grid.div.style.height = window.innerHeight + 'px';
             label = 'Shrink';
         } else {
             grid.div.style.height = height;
