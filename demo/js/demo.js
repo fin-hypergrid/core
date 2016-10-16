@@ -1210,18 +1210,19 @@ window.onload = function() {
         }
     });
 
-    var fpsTimer;
+    var fpsTimer, secs = 0, frames = 0;
     document.getElementById('tab-fps').addEventListener('click', function(event) {
         var el = this, st = el.style;
         if ((grid.getProperties().enableContinuousRepaint ^= true)) {
             st.backgroundColor = '#666';
             st.textAlign = 'left';
             code();
-            fpsTimer = setInterval(code, 500);
+            fpsTimer = setInterval(code, 1000);
         } else {
             clearInterval(fpsTimer);
             st.backgroundColor = st.textAlign = null;
             el.innerHTML = 'FPS';
+            secs = frames = 0;
         }
         function code() {
             var fps = grid.canvas.currentFPS,
@@ -1235,6 +1236,9 @@ window.onload = function() {
             // 2nd span holds the numeric
             span = document.createElement('span');
             span.innerHTML = fps.toFixed(1);
+            secs += 1;
+            frames += fps;
+            span.title = secs + '-second average = ' + (frames / secs).toFixed(1);
             el.appendChild(span);
 
             // 0 to 4 color range bar subsets: 1..10:red, 11:20:yellow, 21:30:green
