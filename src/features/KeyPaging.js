@@ -1,6 +1,6 @@
 'use strict';
 
-var Feature = require('./Feature.js');
+var Feature = require('./Feature');
 
 var commands = {
     PAGEDOWN: function(grid) { grid.pageDown(); },

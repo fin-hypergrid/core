@@ -1,6 +1,6 @@
 'use strict';
 
-var Feature = require('./Feature.js');
+var Feature = require('./Feature');
 
 /**
  * @constructor
@@ -50,10 +50,6 @@ var RowSelection = Feature.extend('RowSelection', {
     handleMouseUp: function(grid, event) {
         if (this.dragArmed) {
             this.dragArmed = false;
-            //global row selection
-            if (event.gridCell.x === -1 && event.gridCell.y === 0) {
-                grid.toggleSelectAllRows();
-            }
             grid.fireSyntheticRowSelectionChangedEvent();
         } else if (this.dragging) {
             this.dragging = false;
@@ -65,41 +61,29 @@ var RowSelection = Feature.extend('RowSelection', {
 
     /**
      * @memberOf RowSelection.prototype
-     * @desc * @desc Handle this event down the feature chain of responsibility.
+     * @desc Handle this event down the feature chain of responsibility.
      * @param {Hypergrid} grid
      * @param {Object} event - the event details
      */
     handleMouseDown: function(grid, event) {
+        var rowSelectable = grid.isRowSelection() &&
+            !event.primitiveEvent.detail.isRightClick &&
+            grid.isShowRowNumbers() &&
+            event.isHandleColumn;
 
-        var isRightClick = event.primitiveEvent.detail.isRightClick;
-        var cell = event.gridCell;
-        var viewCell = event.viewPoint;
-        var dx = cell.x;
-        var dy = cell.y;
+        if (rowSelectable && event.isHeaderHandle) {
+            //global row selection
+            grid.toggleSelectAllRows();
+        } else if (rowSelectable && event.isGridRow)  {
+            // if we are in the fixed area, do not apply the scroll values
+            var dy = event.unscrolled.dataCell.y < grid.getPrivateState().fixedRowCount
+                ? event.unscrolled.dataCell.y
+                : event.dataCell.y;
 
-
-        var isHeader = grid.isShowRowNumbers() && dx < 0;
-
-        if (!grid.isRowSelection() || isRightClick || !isHeader) {
-            if (this.next) {
-                this.next.handleMouseDown(grid, event);
-            }
-        } else {
-
-            var numFixedRows = grid.getFixedRowCount();
-
-            //if we are in the fixed area do not apply the scroll values
-            //check both x and y values independently
-            if (viewCell.y < numFixedRows) {
-                dy = viewCell.y;
-            }
-
-            var dCell = grid.newPoint(0, dy);
-
-            var primEvent = event.primitiveEvent;
-            var keys = primEvent.detail.keys;
             this.dragArmed = true;
-            this.extendSelection(grid, dCell, keys);
+            this.extendSelection(grid, dy, event.primitiveEvent.detail.keys);
+        } else if (this.next) {
+            this.next.handleMouseDown(grid, event);
         }
     },
 
@@ -110,35 +94,23 @@ var RowSelection = Feature.extend('RowSelection', {
      * @param {Object} event - the event details
      */
     handleMouseDrag: function(grid, event) {
-        var isRightClick = event.primitiveEvent.detail.isRightClick;
-
-        if (!this.dragArmed || !grid.isRowSelection() || isRightClick) {
-            if (this.next) {
-                this.next.handleMouseDrag(grid, event);
-            }
-        } else {
-            this.dragging = true;
-            var numFixedRows = grid.getFixedRowCount();
-
-            var cell = event.gridCell;
-            var viewCell = event.viewPoint;
-            //var dx = cell.x;
-            var dy = cell.y;
-
+        if (
+            this.dragArmed &&
+            grid.isRowSelection() &&
+            !event.primitiveEvent.detail.isRightClick
+        ) {
             //if we are in the fixed area do not apply the scroll values
-            //check both x and y values independently
-            if (viewCell.y < numFixedRows) {
-                dy = viewCell.y;
-            }
+            this.lastDragRow = event.unscrolled.dataCell.y < grid.getFixedRowCount()
+                ? event.unscrolled.dataCell.y
+                : event.dataCell.y;
 
-            var dCell = grid.newPoint(0, dy);
-
-            var primEvent = event.primitiveEvent;
-            this.currentDrag = primEvent.detail.mouse;
-            this.lastDragCell = dCell;
+            this.dragging = true;
+            this.currentDrag = event.primitiveEvent.detail.mouse;
 
             this.checkDragScroll(grid, this.currentDrag);
-            this.handleMouseDragCellSelection(grid, dCell, primEvent.detail.keys);
+            this.handleMouseDragCellSelection(grid, this.lastDragRow, event.primitiveEvent.detail.keys);
+        } else if (this.next) {
+            this.next.handleMouseDrag(grid, event);
         }
     },
 
@@ -167,22 +139,13 @@ var RowSelection = Feature.extend('RowSelection', {
      * @param {Object} mouse - the event details
      * @param {Array} keys - array of the keys that are currently pressed down
      */
-    handleMouseDragCellSelection: function(grid, gridCell, keys) {
-        var y = gridCell.y;
-        //            var previousDragExtent = grid.getDragExtent();
-        var mouseDown = grid.getMouseDown();
-
-        var newY = y - mouseDown.y;
-        //var newY = y - mouseDown.y;
-
-        // if (previousDragExtent.x === newX && previousDragExtent.y === newY) {
-        //     return;
-        // }
+    handleMouseDragCellSelection: function(grid, y, keys) {
+        var mouseY = grid.getMouseDown().y;
 
         grid.clearMostRecentRowSelection();
 
-        grid.selectRow(mouseDown.y, y);
-        grid.setDragExtent(grid.newPoint(0, newY));
+        grid.selectRow(mouseY, y);
+        grid.setDragExtent(grid.newPoint(0, y - mouseY));
 
         grid.repaint();
     },
@@ -194,18 +157,18 @@ var RowSelection = Feature.extend('RowSelection', {
      * @param {Object} mouse - the event details
      */
     checkDragScroll: function(grid, mouse) {
-        if (!grid.properties.scrollingEnabled) {
-            return;
-        }
-        var b = grid.getDataBounds();
-        var inside = b.contains(mouse);
-        if (inside) {
+        if (
+            grid.properties.scrollingEnabled &&
+            grid.getDataBounds().contains(mouse)
+        ) {
             if (grid.isScrollingNow()) {
                 grid.setScrollingNow(false);
             }
-        } else if (!grid.isScrollingNow()) {
-            grid.setScrollingNow(true);
-            this.scrollDrag(grid);
+        } else {
+            if (!grid.isScrollingNow()) {
+                grid.setScrollingNow(true);
+                this.scrollDrag(grid);
+            }
         }
     },
 
@@ -219,39 +182,23 @@ var RowSelection = Feature.extend('RowSelection', {
             return;
         }
 
-        var lastDragCell = this.lastDragCell;
-        var b = grid.getDataBounds();
-        var xOffset = 0;
-        var yOffset = 0;
-
-        var numFixedColumns = grid.getFixedColumnCount();
-        var numFixedRows = grid.getFixedRowCount();
-
-        var dragEndInFixedAreaX = lastDragCell.x < numFixedColumns;
-        var dragEndInFixedAreaY = lastDragCell.y < numFixedRows;
+        var b = grid.getDataBounds(),
+            yOffset;
 
         if (this.currentDrag.y < b.origin.y) {
             yOffset = -1;
-        }
-
-        if (this.currentDrag.y > b.origin.y + b.extent.y) {
+        } else if (this.currentDrag.y > b.origin.y + b.extent.y) {
             yOffset = 1;
         }
 
-        var dragCellOffsetX = xOffset;
-        var dragCellOffsetY = yOffset;
-
-        if (dragEndInFixedAreaX) {
-            dragCellOffsetX = 0;
+        if (yOffset) {
+            if (this.lastDragRow >= grid.getFixedRowCount()) {
+                this.lastDragRow += yOffset;
+            }
+            grid.scrollBy(0, yOffset);
         }
 
-        if (dragEndInFixedAreaY) {
-            dragCellOffsetY = 0;
-        }
-
-        this.lastDragCell = lastDragCell.plusXY(dragCellOffsetX, dragCellOffsetY);
-        grid.scrollBy(xOffset, yOffset);
-        this.handleMouseDragCellSelection(grid, lastDragCell, []); // update the selection
+        this.handleMouseDragCellSelection(grid, this.lastDragRow, []); // update the selection
         grid.repaint();
         setTimeout(this.scrollDrag.bind(this, grid), 25);
     },
@@ -263,29 +210,26 @@ var RowSelection = Feature.extend('RowSelection', {
      * @param {Object} gridCell - the event details
      * @param {Array} keys - array of the keys that are currently pressed down
      */
-    extendSelection: function(grid, gridCell, keys) {
-        grid.stopEditing();
-        //var hasCTRL = keys.indexOf('CTRL') !== -1;
-        var hasSHIFT = keys.indexOf('SHIFT') !== -1;
+    extendSelection: function(grid, y, keys) {
+        if (!grid.abortEditing()) { return; }
 
-        var mousePoint = grid.getMouseDown();
-        var x = gridCell.x; // - numFixedColumns + scrollLeft;
-        var y = gridCell.y; // - numFixedRows + scrollTop;
+        var mouseY = grid.getMouseDown().y,
+            hasSHIFT = keys.indexOf('SHIFT') > 0;
 
-        //were outside of the grid do nothing
-        if (x < 0 || y < 0) {
-            return;
+        if (y < 0) { // outside of the grid?
+            return; // do nothing
         }
 
         if (hasSHIFT) {
             grid.clearMostRecentRowSelection();
-            grid.selectRow(y, mousePoint.y);
-            grid.setDragExtent(grid.newPoint(0, y - mousePoint.y));
+            grid.selectRow(y, mouseY);
+            grid.setDragExtent(grid.newPoint(0, y - mouseY));
         } else {
             grid.toggleSelectRow(y, keys);
-            grid.setMouseDown(grid.newPoint(x, y));
+            grid.setMouseDown(grid.newPoint(0, y));
             grid.setDragExtent(grid.newPoint(0, 0));
         }
+
         grid.repaint();
     },
 
@@ -360,12 +304,10 @@ var RowSelection = Feature.extend('RowSelection', {
      * @param {Object} event - the event details
      */
     handleRIGHT: function(grid) {
-
-        var mouseCorner = grid.getMouseDown().plus(grid.getDragExtent());
-        var maxColumns = grid.getColumnCount() - 1;
-
-        var newX = grid.getHeaderColumnCount() + grid.getHScrollValue();
-        var newY = mouseCorner.y;
+        var mouseCorner = grid.getMouseDown().plus(grid.getDragExtent()),
+            maxColumns = grid.getColumnCount() - 1,
+            newX = grid.getHScrollValue(),
+            newY = mouseCorner.y;
 
         newX = Math.min(maxColumns, newX);
 
@@ -429,26 +371,21 @@ var RowSelection = Feature.extend('RowSelection', {
      * @param {number} offsetY - y coordinate to start at
      */
     moveShiftSelect: function(grid, offsetY) {
-
-        var maxRows = grid.getRowCount() - 1;
-
-        var maxViewableRows = grid.getVisibleRows() - 1;
+        var origin = grid.getMouseDown(),
+            extent = grid.getDragExtent(),
+            maxViewableRows = grid.renderer.visibleRows.length - 1,
+            maxRows = grid.getRowCount() - 1;
 
         if (!grid.properties.scrollingEnabled) {
             maxRows = Math.min(maxRows, maxViewableRows);
         }
 
-        var origin = grid.getMouseDown();
-        var extent = grid.getDragExtent();
-
         var newY = extent.y + offsetY;
-        //var newY = grid.getRowCount();
 
         newY = Math.min(maxRows - origin.y, Math.max(-origin.y, newY));
 
         grid.clearMostRecentRowSelection();
         grid.selectRow(origin.y, origin.y + newY);
-
         grid.setDragExtent(grid.newPoint(0, newY));
 
         if (grid.insureModelRowIsVisible(newY + origin.y, offsetY)) {
@@ -456,8 +393,8 @@ var RowSelection = Feature.extend('RowSelection', {
         }
 
         grid.fireSyntheticRowSelectionChangedEvent();
-        grid.repaint();
 
+        grid.repaint();
     },
 
     /**
@@ -468,19 +405,14 @@ var RowSelection = Feature.extend('RowSelection', {
      * @param {number} offsetY - y coordinate to start at
      */
     moveSingleSelect: function(grid, offsetY) {
-
-        var maxRows = grid.getRowCount() - 1;
-
-        var maxViewableRows = grid.getVisibleRowsCount() - 1;
+        var maxRows = grid.getRowCount() - 1,
+            maxViewableRows = grid.getVisibleRowsCount() - 1,
+            mouseCorner = grid.getMouseDown().plus(grid.getDragExtent()),
+            newY = mouseCorner.y + offsetY;
 
         if (!grid.properties.scrollingEnabled) {
             maxRows = Math.min(maxRows, maxViewableRows);
         }
-
-        var mouseCorner = grid.getMouseDown().plus(grid.getDragExtent());
-
-        var newY = mouseCorner.y + offsetY;
-        //var newY = grid.getRowCount();
 
         newY = Math.min(maxRows, Math.max(0, newY));
 
@@ -495,7 +427,6 @@ var RowSelection = Feature.extend('RowSelection', {
 
         grid.fireSyntheticRowSelectionChangedEvent();
         grid.repaint();
-
     },
 
     isSingleRowSelection: function() {

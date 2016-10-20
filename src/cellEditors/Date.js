@@ -38,7 +38,7 @@ var Date = CellEditor.extend('Date', {
             this.template = '<input type="date">';
         } else {
             localizerName = 'date';
-            this.template = '<input type="text">';
+            this.template = '<input type="text" lang="{{locale}}">';
 
             this.selectAll = function() {
                 var lastCharPlusOne = this.getEditorValue().length;

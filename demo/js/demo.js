@@ -89,6 +89,32 @@ window.onload = function() {
             ]
         }
     ];
+
+    var plugins = [
+        Hypergrid.drillDown,
+        Hypergrid.totalsToolkit,
+        [Hypergrid.TreeView, {
+            treeColumn: 'State',
+            includeSorter: true,
+            includeFilter: true,
+            hideIdColumns: true
+        }],
+        [Hypergrid.GroupView, {
+            includeSorter: true,
+            includeFilter: true
+        }],
+        [Hypergrid.AggregationsView, {
+            includeSorter: true,
+            includeFilter: true
+        }],
+        Hypergrid.Hyperfilter,
+        [Hypergrid.Hypersorter, {Column: fin.Hypergrid.behaviors.Column}]
+    ];
+
+    // restore previous "opinionated" headerify behavior
+    var headerify = Hypergrid.analytics.util.headerify;
+    headerify.transform = headerify.capitalize;
+
     function derivedPeopleSchema(columns) {
         // create a hierarchical schema organized by alias
         var factory = new Hypergrid.ColumnSchemaFactory(columns);
@@ -141,7 +167,8 @@ window.onload = function() {
     var gridOptions = {
             data: people1,
             margin: { bottom: '17px' },
-            schema: getSchema(people1)
+            schema: getSchema(people1),
+            plugins: plugins
         },
         grid = window.g = new Hypergrid('div#json-example', gridOptions),
         behavior = window.b = grid.behavior,
@@ -150,26 +177,6 @@ window.onload = function() {
         dashboard = document.getElementById('dashboard'),
         ctrlGroups = document.getElementById('ctrl-groups'),
         buttons = document.getElementById('buttons');
-
-    grid.installPlugins([
-        Hypergrid.drillDown,
-        [Hypergrid.TreeView, {
-            treeColumn: 'State',
-            includeSorter: true,
-            includeFilter: true,
-            hideIdColumns: true
-        }],
-        [Hypergrid.GroupView, {
-            includeSorter: true,
-            includeFilter: true
-        }],
-        [Hypergrid.AggregationsView, {
-            includeSorter: true,
-            includeFilter: true
-        }],
-        Hypergrid.Hyperfilter,
-        [Hypergrid.Hypersorter, {Column: fin.Hypergrid.behaviors.Column}]
-    ]);
 
     // Install the sorter and Filter APIs (optional).
     grid.setPipeline([window.fin.Hypergrid.analytics.DataSourceGlobalFilter, window.fin.Hypergrid.analytics.DataSourceSorterComposite]);
@@ -443,7 +450,7 @@ window.onload = function() {
                     hex = (155 + 10 * (n % 11)).toString(16);
                     config.backgroundColor = '#' + hex + hex + hex;
                 } else {
-                    switch (config.normalizedY % 6) {
+                    switch (config.y % 6) {
                         case 3:
                         case 4:
                         case 5:
@@ -585,7 +592,7 @@ window.onload = function() {
     var Textfield = grid.cellEditors.get('textfield');
 
     var ColorText = Textfield.extend('colorText', {
-        template: '<input type="text" style="color:{{textColor}}">'
+        template: '<input type="text" lang="{{locale}}" style="color:{{textColor}}">'
     });
 
     grid.cellEditors.add(ColorText);
@@ -693,7 +700,7 @@ window.onload = function() {
     dataModel.getCellEditorAt = function(x, y, declaredEditorName, options) {
         var editorName = declaredEditorName || editorTypes[x % editorTypes.length];
 
-        lastEditPoint = options.editPoint;
+        lastEditPoint = options.gridCell;
 
         switch (x) {
             case idx.BIRTH_STATE:
@@ -733,7 +740,7 @@ window.onload = function() {
 
     grid.addEventListener('fin-button-pressed', function(e) {
         var p = e.detail.gridCell;
-        behavior.setValue(p.x, p.y, !behavior.getValue(p.x, p.y));
+        behavior.setValue(p, !behavior.getValue(p));
     });
 
     grid.addEventListener('fin-scroll-x', function(e) {
@@ -869,7 +876,7 @@ window.onload = function() {
         ) {
             var rect = grid.selectionModel.getLastSelection(), // the only cell selection
                 x = rect.left,
-                y = rows[0] + grid.getHeaderRowCount(), // we know there's only 1 row selected
+                y = rows[0], // we know there's only 1 row selected
                 width = rect.right - x,
                 height = 0, // collapse the new region to occupy a single row
                 fireSelectionChangedEvent = false;
@@ -1084,7 +1091,7 @@ window.onload = function() {
 
         behavior.setColumnProperties(idx.EMPLOYED, {
             halign: 'right',
-
+            backgroundColor: 'white'
         });
 
         behavior.setColumnProperties(idx.INCOME, {
@@ -1097,8 +1104,8 @@ window.onload = function() {
             format: 'francs'
         });
 
-        console.log('visible rows = ' + grid.getVisibleRows());
-        console.log('visible columns = ' + grid.getVisibleColumns());
+        console.log('visible rows = ' + grid.renderer.visibleRows.map(function(vr){ return vr.index; }));
+        console.log('visible columns = ' + grid.renderer.visibleColumns.map(function(vc){ return vc.index; }));
 
         //see myThemes.js file for how to create a theme
         //grid.addProperties(myThemes.one);
@@ -1226,7 +1233,7 @@ window.onload = function() {
         if (dashboard.style.display === 'none') {
             dashboard.style.display = 'block';
             grid.div.style.transition = 'margin-left .75s';
-            grid.div.style.marginLeft = Math.max(200, dashboard.getBoundingClientRect().right) + 'px';
+            grid.div.style.marginLeft = Math.max(180, dashboard.getBoundingClientRect().right + 8) + 'px';
         } else {
             setTimeout(function() {
                 dashboard.style.display = 'none';
@@ -1301,7 +1308,7 @@ window.onload = function() {
         var ctrl = event.target;
         if (ctrl.classList.contains('twister')) {
             ctrl.nextElementSibling.style.display = ctrl.classList.toggle('open') ? 'block' : 'none';
-            grid.div.style.marginLeft = Math.max(200, event.currentTarget.getBoundingClientRect().right) + 'px';
+            grid.div.style.marginLeft = Math.max(180, event.currentTarget.getBoundingClientRect().right + 8) + 'px';
         }
     });
 

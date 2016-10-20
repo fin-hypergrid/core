@@ -65,7 +65,7 @@ var DataSourceOrigin = DataSourceBase.extend('DataSourceOrigin',  {
     /**
      * @memberOf DataSourceOrigin#
      * @param y
-     * @returns {object[]}
+     * @returns {dataRowObject}
      */
     getRow: function(y) {
         return this.data[y];

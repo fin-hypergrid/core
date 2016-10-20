@@ -1,6 +1,6 @@
 'use strict';
 
-var Feature = require('./Feature.js');
+var Feature = require('./Feature');
 
 /**
  * @constructor
@@ -19,7 +19,7 @@ var CellClick = Feature.extend('CellClick', {
 
         if (
             event.gridCell.y >= grid.behavior.getHeaderRowCount() &&
-            event.gridCell.x >= grid.behavior.getHeaderColumnCount()
+            event.gridCell.x >= 0
         ) {
             consumed = grid.cellClicked(event);
         }

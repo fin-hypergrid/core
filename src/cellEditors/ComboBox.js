@@ -51,11 +51,10 @@ var ComboBox = Textfield.extend('ComboBox', {
         this.dropper.addEventListener('mousedown', this.toggleDropDown.bind(this));
         this.dropdown.addEventListener('mousewheel', function(e) { e.stopPropagation(); });
         this.dropdown.addEventListener('change', this.insertText.bind(this));
-        el.onblur = null; // void this one, set by super's initialize
     },
 
     template: [
-'<div class="hypergrid-input" title="">',
+'<div class="hypergrid-combobox" title="">',
 '    <input type="text" lang="{{locale}}" style="{{style}}">',
 '    <span title="Click for options"></span>',
 '    <div>',

@@ -156,8 +156,8 @@ TreeView.prototype.deleteRow = function(ID, adoptiveParentID, keepParent, keepDr
         treeview = dataModel.findDataSourceByType('treeviewer'),
 
         // getIdColumn rather than idColumn in case setRelation not called yet:
-        idColumnName = treeview.setIdColumn(this.options.idColumn).name,
-        parentIdColumnName = treeview.setParentIdColumn(this.options.parentIdColumn).name;
+        idColumnName = (treeview.idColumn = this.options.idColumn).name,
+        parentIdColumnName = (treeview.parentIdColumn = this.options.parentIdColumn).name;
 
     if (!adopting) {
         keepDrillDown = keepParent;

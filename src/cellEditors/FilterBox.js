@@ -71,6 +71,7 @@ var FilterBox = ComboBox.extend('FilterBox', {
 
     },
 
+    abortEditing: prototype.cancelEditing,
 
     /**
      * When there's only one mode defined here, the control area portion of the UI is hidden.
@@ -105,7 +106,7 @@ var FilterBox = ComboBox.extend('FilterBox', {
             backgroundColor: '#eff',
             appendOptions: function(optgroup) {
                 var columns = this.grid.behavior.columns,
-                    x = this.editPoint.x;
+                    x = this.event.gridCell.x;
 
                 while (optgroup.firstElementChild) {
                     optgroup.firstElementChild.remove();
@@ -203,6 +204,11 @@ var FilterBox = ComboBox.extend('FilterBox', {
 
         // close the drop-down
         this.toggleDropDown();
+    },
+
+    saveEditorValue: function(value) {
+        prototype.saveEditorValue.call(this, value);
+        this.grid.behavior.applyAnalytics();
     }
 
 });

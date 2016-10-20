@@ -7,7 +7,8 @@ module.exports = {
      * @param event
      */
     toggleSort: function(event) {
-        this.stopEditing();
+        if (!this.abortEditing()) { return; }
+
         var behavior = this.behavior,
             self = this,
             c = event.detail.column,

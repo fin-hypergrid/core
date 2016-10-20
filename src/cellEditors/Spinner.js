@@ -1,6 +1,6 @@
 'use strict';
 
-var CellEditor = require('./CellEditor.js');
+var CellEditor = require('./CellEditor');
 
 /**
  * @constructor

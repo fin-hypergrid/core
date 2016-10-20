@@ -3,7 +3,7 @@
 
 'use strict';
 
-var Feature = require('./Feature.js');
+var Feature = require('./Feature');
 
 /**
  * @constructor

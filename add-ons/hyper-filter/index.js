@@ -1,7 +1,5 @@
 'use strict';
 
-var overrider = require('overrider');
-
 var DefaultFilter = require('./js/DefaultFilter');
 var ColumnSchemaFactory = require('./js/ColumnSchemaFactory');
 
@@ -22,7 +20,7 @@ function Hyperfilter(grid, targets) {
         var object = targets[target];
         var prototype = object && object.prototype || Object.getPrototypeOf(instance);
 
-        overrider(prototype, mixin);
+        prototype.mixIn(mixin);
     }
 }
 

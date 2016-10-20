@@ -5,7 +5,7 @@
 var mustache = require('mustache');
 var _ = require('object-iterators');
 
-var Base = require('../lib/Base');
+var Base = require('../Base');
 var effects = require('../lib/DOM/effects');
 var Localization = require('../lib/Localization');
 
@@ -16,20 +16,22 @@ var CellEditor = Base.extend('CellEditor', {
 
     /**
      * @param grid
-     * @param {string} options - Properties listed below + arbitrary mustache "variables" for merging into template.
-     * @param {Point} options.editPoint
+     * @param {CellEvent} options - Properties listed below + arbitrary mustache "variables" for merging into template.
+     * @param {Point} options.editPoint - Deprecated; use `options.gridCell`.
      * @param {string} [options.format] - Name of a localizer with which to override prototype's `localizer` property.
      */
     initialize: function(grid, options) {
 
-        // Establish `this.editPoint` and possibly `this.format`; plus other arbitrary properties for mustache use.
+        // Mix in arbitrary properties for mustache use.
         for (var key in options) {
             if (options.hasOwnProperty(key) && this[key] !== null) {
                 this[key] = options[key];
             }
         }
 
-        var value = grid.behavior.getValue(this.editPoint.x, this.editPoint.y);
+        this.event = options;
+
+        var value = grid.behavior.getValue(this.event);
         if (value instanceof Array) {
             value = value[1]; //it's a nested object
         }
@@ -80,9 +82,6 @@ var CellEditor = Base.extend('CellEditor', {
         this.el.addEventListener('keypress', function(e) {
             grid.fireSyntheticEditorKeyPressEvent(self, e);
         });
-        this.el.onblur = function(e) {
-            self.cancelEditing();
-        };
     },
 
     localizer: Localization.prototype.null,
@@ -139,7 +138,7 @@ var CellEditor = Base.extend('CellEditor', {
      * @desc move the editor to the current editor point
      */
     moveEditor: function() {
-        var cellBounds = this.grid._getBoundsOfCell(this.editPoint.x, this.editPoint.y);
+        var cellBounds = this.grid._getBoundsOfCell(this.event.gridCell.x, this.event.gridCell.y);
 
         //hack to accommodate bootstrap margin issues...
         var xOffset =
@@ -152,7 +151,7 @@ var CellEditor = Base.extend('CellEditor', {
     },
 
     beginEditing: function() {
-        if (this.grid.fireRequestCellEdit(this.editPoint, this.initialValue)) {
+        if (this.grid.fireRequestCellEdit(this.event.gridCell, this.initialValue)) {
             this.checkEditorPositionFlag = true;
             this.checkEditor();
         }
@@ -237,7 +236,7 @@ var CellEditor = Base.extend('CellEditor', {
             this.grid.cellEditor = null;
             this.el.remove();
         } else if (feedback >= 0) { // never true when `feedback` undefined
-            var point = this.editPoint;
+            var point = this.event.gridCell;
             this.grid.selectViewportCell(point.x, point.y - this.grid.getHeaderRowCount());
             this.errorEffectBegin(++this.errors % feedback === 0 && error);
         } else { // invalid but no feedback
@@ -251,12 +250,11 @@ var CellEditor = Base.extend('CellEditor', {
      * @returns {boolean} Successful. (Cancel is always successful.)
      */
     cancelEditing: function() {
-        if (this.grid.cellEditor) { // because stopEditing's .remove triggers blur which comes here
-            this.setEditorValue(this.initialValue);
-            this.hideEditor();
-            this.grid.cellEditor = null;
-            this.el.remove();
-        }
+        this.setEditorValue(this.initialValue);
+        this.hideEditor();
+        this.grid.cellEditor = null;
+        this.el.remove();
+
         return true;
     },
 
@@ -345,18 +343,20 @@ var CellEditor = Base.extend('CellEditor', {
 
     /**
      * @desc save the new value into the behavior (model)
+     * @returns {boolean} Data changed and pre-cell-edit event was not canceled.
      * @memberOf CellEditor.prototype
      */
     saveEditorValue: function(value) {
-        var point = this.editPoint;
-
-        if (
+        var save =
             !(value && value === this.initialValue) && // data changed
-            this.grid.fireBeforeCellEdit(point, this.initialValue, value, this) // not aborting
-        ) {
-            this.grid.behavior.setValue(point.x, point.y, value);
-            this.grid.fireAfterCellEdit(point, this.initialValue, value, this);
+            this.grid.fireBeforeCellEdit(this.event.gridCell, this.initialValue, value, this); // proceed
+
+        if (save) {
+            this.grid.behavior.setValue(this.event, value);
+            this.grid.fireAfterCellEdit(this.event.gridCell, this.initialValue, value, this);
         }
+
+        return save;
     },
 
     /**
@@ -427,7 +427,7 @@ var CellEditor = Base.extend('CellEditor', {
     checkEditor: function() {
         if (this.checkEditorPositionFlag) {
             this.checkEditorPositionFlag = false;
-            if (this.grid.isDataVisible(this.editPoint.x, this.editPoint.y)) {
+            if (this.grid.isDataVisible(this.event.gridCell.x, this.event.gridCell.y)) {
                 this.setEditorValue(this.initialValue);
                 this.attachEditor();
                 this.moveEditor();
@@ -442,9 +442,9 @@ var CellEditor = Base.extend('CellEditor', {
     attachEditor: function() {
         var input = this.el,
             div = this.grid.div,
-            referenceNode = div.querySelectorAll('.finbar-horizontal, .finbar-vertical');
+            referenceNode = div.querySelector('.finbar-horizontal, .finbar-vertical');
 
-        div.insertBefore(input, referenceNode.length ? referenceNode[0] : null);
+        div.insertBefore(input, referenceNode);
     },
 
     template: ''

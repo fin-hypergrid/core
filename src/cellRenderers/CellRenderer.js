@@ -1,6 +1,6 @@
 'use strict';
 
-var Base = require('./../lib/Base');
+var Base = require('../Base');
 
 /** @typedef paintFunction
  * @type {function}

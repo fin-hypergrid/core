@@ -16,13 +16,12 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
      */
     paint: function(gc, config) {
         var val = config.value,
-            x = config.bounds.x,
-            y = config.bounds.y,
-            width = config.bounds.width,
-            height = config.bounds.height,
-            wrapHeaders = config.headerTextWrapping,
-            leftPadding = 2, //TODO: fix this
-            isHeader = config.y === 0;
+            bounds = config.bounds,
+            x = bounds.x,
+            y = bounds.y,
+            width = bounds.width,
+            height = bounds.height,
+            leftPadding = 2; //TODO: fix this
 
         var leftIcon, rightIcon, centerIcon, ixoffset, iyoffset, font;
 
@@ -105,7 +104,7 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
             gc.strokeStyle = theColor;
         }
 
-        if (isHeader && wrapHeaders) {
+        if (config.isHeaderRow && config.headerTextWrapping) {
             this.renderMultiLineText(gc, config, val);
         } else {
             this.renderSingleLineText(gc, config, val);

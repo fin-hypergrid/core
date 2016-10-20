@@ -1,6 +1,6 @@
 'use strict';
 
-var Base = require('../lib/Base');
+var Base = require('../Base');
 
 /**
  * Instances of features are connected to one another to make a chain of responsibility for handling all the input to the hypergrid.
@@ -245,7 +245,7 @@ var Feature = Base.extend('Feature', {
      * @param {Object} event - the event details
      */
     isFixedRow: function(grid, event) {
-        return event.viewPoint.y < grid.getFixedRowCount();
+        return event.unscrolled.gridCell.y < grid.getFixedRowCount();
     },
 
     /**
@@ -255,7 +255,7 @@ var Feature = Base.extend('Feature', {
      * @param {Object} event - the event details
      */
     isFirstFixedRow: function(grid, event) {
-        return event.viewPoint.y < 1;
+        return event.unscrolled.gridCell.y < 1;
     },
 
     /**
@@ -265,7 +265,7 @@ var Feature = Base.extend('Feature', {
      * @param {Object} event - the event details
      */
     isFixedColumn: function(grid, event) {
-        return event.viewPoint.x < grid.getFixedColumnCount();
+        return event.unscrolled.gridCell.x < grid.getFixedColumnCount();
     },
 
     /**
@@ -275,7 +275,7 @@ var Feature = Base.extend('Feature', {
      * @param {Object} event - the event details
      */
     isFirstFixedColumn: function(grid, event) {
-        return event.viewPoint.x === 0;
+        return event.unscrolled.gridCell.x === 0;
     },
 
     /**

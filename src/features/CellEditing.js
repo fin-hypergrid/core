@@ -1,6 +1,6 @@
 'use strict';
 
-var Feature = require('./Feature.js');
+var Feature = require('./Feature');
 var CellEditor = require('../cellEditors/CellEditor');
 
 /**
@@ -16,8 +16,10 @@ var CellEditing = Feature.extend('CellEditing', {
      * @param {Object} event - the event details
      */
     handleDoubleClick: function(grid, event) {
-        var isDoubleClickEditorActivation = grid.properties.editOnDoubleClick;
-        if (this.checkActivateEditor(grid, event, isDoubleClickEditorActivation)) {
+        if (
+            grid.properties.editOnDoubleClick &&
+            event.isGridCell
+        ) {
             grid.onEditorActivate(event);
         } else if (this.next) {
             this.next.handleDoubleClick(grid, event);
@@ -25,23 +27,14 @@ var CellEditing = Feature.extend('CellEditing', {
     },
 
     handleClick: function(grid, event) {
-        var isDoubleClickEditorActivation = grid.properties.editOnDoubleClick;
-        if (this.checkActivateEditor(grid, event, !isDoubleClickEditorActivation)) {
+        if (
+            !grid.properties.editOnDoubleClick &&
+            event.isGridCell
+        ) {
             grid.onEditorActivate(event);
         } else if (this.next) {
             this.next.handleClick(grid, event);
         }
-    },
-
-    checkActivateEditor: function(grid, event, isDoubleClickEditorActivation) {
-        var headerRowCount = grid.behavior.getHeaderRowCount();
-        var headerColumnCount = grid.behavior.getHeaderColumnCount();
-        var gridCell = event.gridCell;
-        var isFilterRow = grid.isFilterRow(gridCell.y);
-
-        return isDoubleClickEditorActivation &&
-            gridCell.x >= headerColumnCount &&
-            (isFilterRow || gridCell.y >= headerRowCount);
     },
 
     /**
@@ -64,8 +57,11 @@ var CellEditing = Feature.extend('CellEditing', {
         ) {
             currentCell = grid.selectionModel.getLastSelection();
             if (currentCell) {
-                var pseudoEvent = { gridCell: currentCell.origin };
+                var pseudoEvent = grid.behavior.newCellEvent(currentCell.origin.x,
+                    currentCell.origin.y + grid.behavior.getHeaderRowCount());
+
                 editor = grid.onEditorActivate(pseudoEvent);
+
                 if (editor instanceof CellEditor) {
                     if (isVisibleChar) {
                         editor.input.value = char;

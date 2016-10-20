@@ -1,6 +1,6 @@
 'use strict';
 
-var Feature = require('./Feature.js');
+var Feature = require('./Feature');
 
 /**
  * @constructor
@@ -15,12 +15,11 @@ var ColumnSorting = Feature.extend('ColumnSorting', {
      * @param {Object} event - the event details
      */
 
-    handleDoubleClick: function(grid, event) {
+    handleDoubleClick: function(grid, event) { //refac
         var columnProperties;
         if (
-            event.dataCell.x !== -1 && // is not row handle column
-            grid.isShowHeaderRow() && event.gridCell.y === 0 && // is header cell
-            (columnProperties = grid.behavior.getColumnProperties(event.dataCell.x)) &&
+            event.isHeaderCell &&
+            (columnProperties = grid.behavior.getColumnProperties(event.gridCell.x)) &&
             !columnProperties.unsortable
         ) {
             grid.fireSyntheticColumnSortEvent(event.gridCell.x, event.primitiveEvent.detail.keys);
@@ -35,12 +34,12 @@ var ColumnSorting = Feature.extend('ColumnSorting', {
      * @param {Hypergrid} grid
      * @param {Object} event - the event details
      */
-    handleMouseMove: function(grid, event) {
+    handleMouseMove: function(grid, event) { //refac
         var columnProperties;
         if (
             this.isFixedRow(grid, event) &&
-            event.gridCell.y === 0 && // is header cell
-            (columnProperties = grid.behavior.getColumnProperties(event.dataCell.x)) &&
+            event.isHeaderCell &&
+            (columnProperties = grid.behavior.getColumnProperties(event.gridCell.x)) &&
             !columnProperties.unsortable
         ) {
             this.cursor = 'pointer';

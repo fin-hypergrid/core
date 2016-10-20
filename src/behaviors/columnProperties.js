@@ -345,24 +345,6 @@ function createColumnProperties() {
                 this.filterBackgroundSelectionColor = value;
             }
         },
-        cellBorderStyle: {
-            configurable: true,
-            get: function() {
-                return this.filterCellBorderStyle;
-            },
-            set: function(value) {
-                this.filterCellBorderStyle = value;
-            }
-        },
-        cellBorderThickness: {
-            configurable: true,
-            get: function() {
-                return this.filterCellBorderThickness;
-            },
-            set: function(value) {
-                this.filterCellBorderThickness = value;
-            }
-        },
         halign: {
             configurable: true,
             get: function() {

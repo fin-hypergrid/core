@@ -1,6 +1,6 @@
 'use strict';
 
-var Base = require('../lib/Base');
+var Base = require('../Base');
 
 /**
  * @constructor
@@ -12,7 +12,7 @@ var DataModel = Base.extend('DataModel', {
     },
 
     changed: function() {
-        this.grid.behavior.changed();
+        this.deprecated('changed()', 'grid.behavior.changed()', '1.1.0');
     },
 
     getPrivateState: function() {
@@ -45,9 +45,10 @@ var DataModel = Base.extend('DataModel', {
      * @param {object} options - Properties to copy to the new cell editor primarily for mustache's use. Additionally, always includes the following:
      * @param {string} options.format - The value of the `format` render prop. May be `undefined`.
      * @param {object} options.column - For convenience, the column object in `behavior.allColumns[]` to which `columnIndex` refers.
-     * @param {Point} options.editPoint - The grid coordinates of the cell to edit.
-     * @param {number} options.editPoint.x - The horizontal model coordinate of the cell to edit. This is the grid coordinate regardless of horizontal scroll position. I.e., the position of the column in the ordered list of selected columns (`behavior.columns[]`). (This is the coordinate required by {@link Hypergrid#editAt|editAt}.)
-     * @param {number} options.editPoint.y - Same as `rowIndex`.
+     * @param {Point} options.editPoint - Deprecated; use `options.gridCell`.
+     * @param {Point} options.gridCell - The grid coordinates of the cell to edit.
+     * @param {number} options.gridCell.x - The horizontal model coordinate of the cell to edit. This is the grid coordinate regardless of horizontal scroll position. I.e., the position of the column in the ordered list of selected columns (`behavior.columns[]`). (This is the coordinate required by {@link Hypergrid#editAt|editAt}.)
+     * @param {number} options.gridCell.y - Same as `rowIndex`.
      *
      * @returns {undefined|CellEditor} An object instantiated from the registered cell editor constructor named in `declaredEditorName`. A falsy return means the cell is not editable because the `declaredEditorName` was not registered.
      *
