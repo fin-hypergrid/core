@@ -311,18 +311,123 @@ var Behavior = Base.extend('Behavior', {
         }
     },
 
-    _setColumnOrder: function(indexes) {
-        if (!Array.isArray(indexes)){
-            return;
+    _setColumnOrder: function(columnIndexes) {
+        if (Array.isArray(columnIndexes)){
+            this.columns.length = columnIndexes.length;
+            columnIndexes.forEach(function(index, i) {
+                this.columns[i] = this.allColumns[index];
+            }, this);
         }
-        if (!indexes) {
-            this.columns.length = 0;
-            return;
+    },
+
+    /**
+     * @memberOf Behavior.prototype
+     * @desc Rebuild the column order indexes
+     * @param {Array} columnIndexes - list of column indexes
+     * @param {Boolean} [silent=false] - whether to trigger column changed event
+     */
+    setColumnIndexes: function(columnIndexes, silent) {
+        var tableState = this.grid.properties;
+        this._setColumnOrder(columnIndexes);
+        tableState.columnIndexes = columnIndexes;
+        this.changed();
+        if (!silent) {
+            this.grid.fireSyntheticOnColumnsChangedEvent();
         }
-        this.columns.length = indexes.length;
-        for (var i = 0; i < indexes.length; i++) {
-            this.columns[i] = this.allColumns[indexes[i]];
+    },
+
+    /**
+     * @summary Show inactive column(s) or move active column(s).
+     *
+     * @desc Adds one or several columns to the "active" column list.
+     *
+     * @param {boolean} [isActiveColumnIndexes=false] - Which list `columnIndexes` refers to:
+     * * `true` - The active column list. This can only move columns around within the active column list; it cannot add inactive columns (because it can only refer to columns in the active column list).
+     * * `false` - The full column list (as per column schema array). This inserts columns from the "inactive" column list, moving columns that are already active.
+     *
+     * @param {number|number[]} columnIndexes - Column index(es) into list as determined by `isActiveColumnIndexes`. One of:
+     * * **Scalar column index** - Adds single column at insertion point.
+     * * **Array of column indexes** - Adds multiple consecutive columns at insertion point.
+     *
+     * _This required parameter is promoted left one arg position when `isActiveColumnIndexes` omitted._
+     *
+     * @param {number} [referenceIndex=this.columns.length] - Insertion point, _i.e.,_ the element to insert before. A negative values skips the reinsert. Default is to insert new columns at end of active column list.
+     *
+     * _Promoted left one arg position when `isActiveColumnIndexes` omitted._
+     *
+     * @param {boolean} [allowDuplicateColumns=false] - Unless true, already visible columns are removed first.
+     *
+     * _Promoted left one arg position when `isActiveColumnIndexes` omitted + one position when `referenceIndex` omitted._
+     *
+     * @memberOf Behavior.prototype
+     */
+    showColumns: function(isActiveColumnIndexes, columnIndexes, referenceIndex, allowDuplicateColumns) {
+        // Promote args when isActiveColumnIndexes omitted
+        if (typeof isActiveColumnIndexes === 'number' || Array.isArray(isActiveColumnIndexes)) {
+            allowDuplicateColumns = referenceIndex;
+            referenceIndex = columnIndexes;
+            columnIndexes = isActiveColumnIndexes;
+            isActiveColumnIndexes = false;
         }
+
+        var activeColumns = this.columns,
+            sourceColumnList = isActiveColumnIndexes ? activeColumns : this.allColumns;
+
+        // Nest scalar index
+        if (typeof columnIndexes === 'number') {
+            columnIndexes = [columnIndexes];
+        }
+
+        var newColumns = columnIndexes
+            // Look up columns using provided indexes
+            .map(function(index) { return sourceColumnList[index]; })
+            // Remove any undefined columns
+            .filter(function(column) { return column; });
+
+        // Default insertion point is end (i.e., before (last+1)th element)
+        if (typeof referenceIndex !== 'number') {
+            allowDuplicateColumns = referenceIndex; // assume reference index was omitted when not a number
+            referenceIndex = activeColumns.length;
+        }
+
+        // Remove already visible columns and adjust insertion point
+        if (!allowDuplicateColumns) {
+            newColumns.forEach(function(column) {
+                var i = activeColumns.indexOf(column);
+                if (i >= 0) {
+                    activeColumns.splice(i, 1);
+                    if (referenceIndex > i) {
+                        --referenceIndex;
+                    }
+                }
+            });
+        }
+
+        // Insert the new columns at the insertion point
+        if (referenceIndex >= 0) {
+            activeColumns.splice.apply(activeColumns, [referenceIndex, 0].concat(newColumns));
+        }
+
+        this.getPrivateState().columnIndexes = activeColumns.map(function(column) { return column.index; });
+    },
+
+    /**
+     * @summary Hide active column(s).
+     * @desc Removes one or several columns from the "active" column list.
+     * @param {boolean} [isActiveColumnIndexes=false] - Which list `columnIndexes` refers to:
+     * * `true` - The active column list.
+     * * `false` - The full column list (as per column schema array).
+     * @param {number|number[]} columnIndexes - Column index(es) into list as determined by `isActiveColumnIndexes`. One of:
+     * * **Scalar column index** - Adds single column at insertion point.
+     * * **Array of column indexes** - Adds multiple consecutive columns at insertion point.
+     *
+     * _This required parameter is promoted left one arg position when `isActiveColumnIndexes` omitted._
+     * @memberOf Behavior.prototype
+     */
+    hideColumns: function(isActiveColumnIndexes, columnIndexes) {
+        var args = Array.prototype.slice.call(arguments); // Convert to array so we can add an argument (element)
+        args.push(-1); // Remove only; do not reinsert.
+        this.showColumns.apply(this, args);
     },
 
     /**
@@ -573,7 +678,6 @@ var Behavior = Base.extend('Behavior', {
     setRenderedRowCount: function(count) {
         this.renderedRowCount = count;
     },
-
 
     /**
      * @memberOf Behavior.prototype
@@ -841,22 +945,6 @@ var Behavior = Base.extend('Behavior', {
 
     /**
      * @memberOf Behavior.prototype
-     * @desc Rebuild the column order indexes
-     * @param {Array} columnIndexes - list of column indexes
-     * @param {Boolean} [silent=false] - whether to trigger column changed event
-     */
-    setColumnIndexes: function(columnIndexes, silent) {
-        var tableState = this.grid.properties;
-        this._setColumnOrder(columnIndexes);
-        tableState.columnIndexes = columnIndexes;
-        this.changed();
-        if (!silent) {
-            this.grid.fireSyntheticOnColumnsChangedEvent();
-        }
-    },
-
-    /**
-     * @memberOf Behavior.prototype
      * @return {string[]} All the currently hidden column header labels.
      */
     getHiddenColumnDescriptors: function() {
@@ -875,22 +963,6 @@ var Behavior = Base.extend('Behavior', {
             }
         }
         return labels;
-    },
-
-    /**
-     * @memberOf Behavior.prototype
-     * @desc hide columns that are specified by their indexes
-     * @param {Array} arrayOfIndexes - an array of column indexes to hide
-     */
-    hideColumns: function(arrayOfIndexes) {
-        var tableState = this.grid.properties;
-        var order = tableState.columnIndexes;
-        for (var i = 0; i < arrayOfIndexes.length; i++) {
-            var each = arrayOfIndexes[i];
-            if (order.indexOf(each) !== -1) {
-                order.splice(order.indexOf(each), 1);
-            }
-        }
     },
 
     /**
