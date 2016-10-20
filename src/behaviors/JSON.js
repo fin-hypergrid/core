@@ -45,35 +45,34 @@ var JSON = Behavior.extend('behaviors.JSON', {
     ],
 
     createColumns: function() {
-        var dataModel = this.dataModel,
-            columnCount = dataModel.getColumnCount(),
-            headers = dataModel.getHeaders(),
-            calculators = dataModel.getCalculators();
+        var schema = this.dataModel.schema;
 
         this.clearColumns();
 
-        for (var index = 0; index < columnCount; index++) {
-            var column = this.addColumn({
+        schema.forEach(function(columnSchema, index) {
+            this.addColumn({
                 index: index,
-                header: headers[index],
-                calculator: calculators[index]
+                header: columnSchema.header,
+                calculator: columnSchema.calculators
             });
-            this.columnEnum[this.columnEnumKey(column.name)] = index;
-        }
+
+            this.columnEnum[this.columnEnumKey(columnSchema.name)] = index; // todo: move columnEnum code from core to demo
+        }, this);
     },
 
     /**
      * @summary Style enum keys.
      * @desc Override this method to style your keys to your liking.
      * @param key
+     * @todo move columnEnum code from core to demo
      * @returns {string}
      */
     columnEnumKey: function(key) {
         return key.replace(REGEX_CAMEL_CASE, '$1_$2').toUpperCase();
     },
 
-    getNewDataModel: function() {
-        return new DataModelJSON(this.grid);
+    getNewDataModel: function(options) {
+        return new DataModelJSON(this.grid, options);
     },
 
     /**
@@ -128,7 +127,7 @@ var JSON = Behavior.extend('behaviors.JSON', {
         this.dataModel.setPipeline(DataSources, options);
 
         if (!options || options.apply === undefined || options.apply) {
-            this.applyAnalytics();
+            this.reindex();
         }
     },
 
@@ -148,7 +147,7 @@ var JSON = Behavior.extend('behaviors.JSON', {
         this.dataModel.unstashPipeline(stash);
 
         if (!options || options.apply === undefined || options.apply) {
-            this.applyAnalytics();
+            this.reindex();
         }
     },
 
@@ -186,8 +185,7 @@ var JSON = Behavior.extend('behaviors.JSON', {
 
         this.dataModel.setData(
             dataRows,
-            this.unwrap(options.fields),
-            this.unwrap(options.calculators)
+            this.unwrap(options.schema) || [] // *always* define a new schema on reset
         );
 
         if (grid.cellEditor) {
@@ -195,7 +193,7 @@ var JSON = Behavior.extend('behaviors.JSON', {
         }
 
         if (options.apply === undefined || options.apply) {
-            this.applyAnalytics();
+            this.reindex();
         }
 
         var self = this;
@@ -213,8 +211,10 @@ var JSON = Behavior.extend('behaviors.JSON', {
         }
     },
     /**
+     * @summary Rebinds the data without reshaping it.
+     * @param dataRows
+     * @param options
      * @memberOf behaviors.JSON.prototype
-     * @description Rebinds the data without reshaping it
      */
     updateData: function(dataRows, options){
         options = options || {};
@@ -225,10 +225,10 @@ var JSON = Behavior.extend('behaviors.JSON', {
         dataRows = this.unwrap(dataRows);
         this.dataModel.setData(
             dataRows,
-            this.unwrap(options.fields),
-            this.unwrap(options.calculators)
+            this.unwrap(options.schema) // undefined will be ignored
         );
-        this.applyAnalytics();
+
+        this.reindex();
     },
 
     /**
@@ -268,19 +268,10 @@ var JSON = Behavior.extend('behaviors.JSON', {
     },
 
     /**
-     * @memberOf behaviors.JSON.prototype
-     * @description Build the fields and headers from the supplied column definitions.
-     * ```javascript
-     * myJsonBehavior.setColumns([
-     *     { header: 'Stock Name', name: 'short_description' },
-     *     { header: 'Status', name: 'trading_phase' },
-     *     { header: 'Reference Price', name: 'reference_price' }
-     * ]);
-     * ```
-     * @param {Array} columnDefinitions - an array of objects with fields 'title', and 'field'
+     * @deprecated
      */
     setColumns: function(columnDefinitions) {
-        this.dataModel.setColumns(columnDefinitions); // TODO: this method is missing
+        console.warn('This function does not do anything');
     },
 
     /**

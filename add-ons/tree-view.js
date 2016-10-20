@@ -110,7 +110,7 @@ TreeView.prototype.setRelation = function(join) {
         }
 
         // setRelation changed rows and hiding ID columns changed columns so reapply analytics
-        behavior.applyAnalytics();
+        behavior.reindex();
     } else {
         // restore the saved render props
         columnProps.editable = this.editableWas;
@@ -134,7 +134,7 @@ TreeView.prototype.setRelation = function(join) {
  *
  * After you're done with all your row manipulations, you must call:
  * ```javascript
- * grid.behavior.applyAnalytics();
+ * grid.behavior.reindex();
  * grid.behaviorShapeChanged();
  * grid.repaint(); // call this eventually
  * ```
