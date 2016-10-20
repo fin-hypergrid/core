@@ -286,7 +286,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
      * @returns {number}
      */
     getColumnCount: function() {
-        var showTree = this.grid.resolveProperty('showTreeColumn') === true;
+        var showTree = this.grid.properties.showTreeColumn === true;
         var offset = (this.isDrillDown() && !showTree) ? -1 : 0;
         return this.dataSource.getColumnCount() + offset;
     },
@@ -608,7 +608,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
      * @returns {boolean}
      */
     hasHierarchyColumn: function() {
-        var showTree = this.grid.resolveProperty('showTreeColumn') === true;
+        var showTree = this.grid.properties.showTreeColumn === true;
         return this.isDrillDown() && showTree;
     },
 
@@ -617,7 +617,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
      * @desc returns the columns that currently sorted and their intended direction of the sort
      */
     getSortedColumnIndexes: function() {
-        var state = this.getPrivateState();
+        var state = this.grid.properties;
         state.sorts = state.sorts || [];
         return state.sorts;
     },

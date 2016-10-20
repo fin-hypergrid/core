@@ -14,7 +14,7 @@ var ThumbwheelScrolling = Feature.extend('ThumbwheelScrolling', {
      * @param {Object} event - the event details
      */
     handleWheelMoved: function(grid, e) {
-        if (!grid.resolveProperty('scrollingEnabled')) {
+        if (!grid.properties.scrollingEnabled) {
             return;
         }
 

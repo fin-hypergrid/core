@@ -145,7 +145,7 @@ GroupView.prototype = {
 
         var dataSource = dataModel.findDataSourceByType('groupviewer'),
             columnProps = behavior.getColumnProperties(dataSource.treeColumnIndex),
-            state = behavior.getPrivateState();
+            state = grid.properties;
 
         dataSource.setGroupBys(groups);
 

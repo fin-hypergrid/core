@@ -121,7 +121,7 @@ var ColumnSelection = Feature.extend('ColumnSelection', {
                 var keys = primEvent.detail.keys;
                 this.dragging = true;
                 this.extendSelection(grid, dCell, keys);
-            }.bind(this), grid.resolveProperty('doubleClickDelay') + RACE_TIME);
+            }.bind(this), grid.properties.doubleClickDelay + RACE_TIME);
         }
     },
 
@@ -222,7 +222,7 @@ var ColumnSelection = Feature.extend('ColumnSelection', {
      * @param {Object} mouse - the event details
      */
     checkDragScroll: function(grid, mouse) {
-        if (!grid.resolveProperty('scrollingEnabled')) {
+        if (!grid.properties.scrollingEnabled) {
             return;
         }
         var b = grid.getDataBounds();
@@ -481,7 +481,7 @@ var ColumnSelection = Feature.extend('ColumnSelection', {
 
         var maxViewableColumns = grid.getVisibleColumns() - 1;
 
-        if (!grid.resolveProperty('scrollingEnabled')) {
+        if (!grid.properties.scrollingEnabled) {
             maxColumns = Math.min(maxColumns, maxViewableColumns);
         }
 
@@ -519,7 +519,7 @@ var ColumnSelection = Feature.extend('ColumnSelection', {
 
         var maxViewableColumns = grid.getVisibleColumnsCount() - 1;
 
-        if (!grid.resolveProperty('scrollingEnabled')) {
+        if (!grid.properties.scrollingEnabled) {
             maxColumns = Math.min(maxColumns, maxViewableColumns);
         }
 

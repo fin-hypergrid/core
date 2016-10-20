@@ -196,7 +196,7 @@ var CellSelection = Feature.extend('CellSelection', {
      * @param {Object} mouse - the event details
      */
     checkDragScroll: function(grid, mouse) {
-        if (!grid.resolveProperty('scrollingEnabled')) {
+        if (!grid.properties.scrollingEnabled) {
             return;
         }
         var b = grid.getDataBounds();
@@ -467,7 +467,7 @@ var CellSelection = Feature.extend('CellSelection', {
         var maxViewableColumns = grid.getVisibleColumns() - 1;
         var maxViewableRows = grid.getVisibleRows() - 1;
 
-        if (!grid.resolveProperty('scrollingEnabled')) {
+        if (!grid.properties.scrollingEnabled) {
             maxColumns = Math.min(maxColumns, maxViewableColumns);
             maxRows = Math.min(maxRows, maxViewableRows);
         }
@@ -515,7 +515,7 @@ var CellSelection = Feature.extend('CellSelection', {
         var minRows = grid.getHeaderRowCount();
         var minCols = grid.getHeaderColumnCount();
 
-        if (!grid.resolveProperty('scrollingEnabled')) {
+        if (!grid.properties.scrollingEnabled) {
             maxColumns = Math.min(maxColumns, maxViewableColumns);
             maxRows = Math.min(maxRows, maxViewableRows);
         }

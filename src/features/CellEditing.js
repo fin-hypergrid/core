@@ -16,7 +16,7 @@ var CellEditing = Feature.extend('CellEditing', {
      * @param {Object} event - the event details
      */
     handleDoubleClick: function(grid, event) {
-        var isDoubleClickEditorActivation = grid.resolveProperty('editOnDoubleClick');
+        var isDoubleClickEditorActivation = grid.properties.editOnDoubleClick;
         if (this.checkActivateEditor(grid, event, isDoubleClickEditorActivation)) {
             grid.onEditorActivate(event);
         } else if (this.next) {
@@ -25,7 +25,7 @@ var CellEditing = Feature.extend('CellEditing', {
     },
 
     handleClick: function(grid, event) {
-        var isDoubleClickEditorActivation = grid.resolveProperty('editOnDoubleClick');
+        var isDoubleClickEditorActivation = grid.properties.editOnDoubleClick;
         if (this.checkActivateEditor(grid, event, !isDoubleClickEditorActivation)) {
             grid.onEditorActivate(event);
         } else if (this.next) {
@@ -54,7 +54,7 @@ var CellEditing = Feature.extend('CellEditing', {
         var char, isVisibleChar, isDeleteChar, currentCell, editor;
 
         if (
-            grid.resolveProperty('editOnKeydown') &&
+            grid.properties.editOnKeydown &&
             !grid.cellEditor &&
             (
                 (char = event.detail.char) === 'F2' ||

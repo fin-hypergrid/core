@@ -99,7 +99,7 @@ AggregationsView.prototype.setAggregateGroups = function(aggregations, groups) {
 
     var dataSource = dataModel.findDataSourceByType('aggregator'),
         columnProps = behavior.getColumnProperties(dataSource.treeColumnIndex),
-        state = behavior.getPrivateState();
+        state = grid.properties;
 
     if (aggregated) {
         dataSource.setAggregateGroups(aggregations, groups);

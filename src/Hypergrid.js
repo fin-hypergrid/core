@@ -372,7 +372,7 @@ Hypergrid.prototype = {
     },
 
     getProperties: function() {
-        return this.getPrivateState();
+        return this.deprecated('getProperties()', 'properties', '1.2.0');
     },
 
     _getProperties: function() {
@@ -424,11 +424,11 @@ Hypergrid.prototype = {
     },
 
     isRowResizeable: function() {
-        return this.resolveProperty('rowResize');
+        return this.properties.rowResize;
     },
 
     isCheckboxOnlyRowSelections: function() {
-        return this.resolveProperty('checkboxOnlyRowSelections');
+        return this.properties.checkboxOnlyRowSelections;
     },
 
     /**
@@ -504,7 +504,7 @@ Hypergrid.prototype = {
      * @param {object} properties - An object of various key value pairs.
      */
     refreshProperties: function() {
-        var state = this.getProperties();
+        var state = this.properties;
         this.selectionModel.multipleSelections = state.multipleSelections;
 
         // this.canvas = this.shadowRoot.querySelector('fin-canvas');
@@ -524,7 +524,7 @@ Hypergrid.prototype = {
      * @param {object} moreProperties - A simple properties hash.
      */
     addProperties: function(moreProperties) {
-        var properties = this.getProperties();
+        var properties = this.properties;
         addDeepProperties(properties, moreProperties);
         this.refreshProperties();
     },
@@ -535,7 +535,7 @@ Hypergrid.prototype = {
      * @see [Memento pattern](http://en.wikipedia.org/wiki/Memento_pattern)
      */
     getPrivateState: function() {
-        return this.behavior.getPrivateState();
+        return this.deprecate('getPrivateState()', 'properties', '1.2.0');
     },
 
     /**
@@ -936,14 +936,13 @@ Hypergrid.prototype = {
      * @param {string} key - A look-and-feel key.
      */
     resolveProperty: function(key) {
-        var keys = key.split('.');
-        var prop = this.getProperties();
-        while (keys.length) { prop = prop[keys.shift()]; }
-        return prop;
+        // todo: when we remove this mehtod, also remove forwards from Behavior.js and Renderer.js
+        console.warn('resolveProperty(key) deprecated as of v1.2.0 in favor of grid.properties[key] and will be removed in a future version.');
+        return this.properties[key];
     },
 
     repaint: function() {
-        var now = this.resolveProperty('repaintImmediately');
+        var now = this.properties.repaintImmediately;
         var canvas = this.getCanvas();
         if (canvas) {
             if (now === true) {
@@ -967,7 +966,7 @@ Hypergrid.prototype = {
      * @returns {boolean} In HiDPI mode (has an attribute as such).
      */
     useHiDPI: function() {
-        return this.resolveProperty('useHiDPI') !== false;
+        return this.properties.useHiDPI !== false;
     },
 
     /**
@@ -1049,7 +1048,7 @@ Hypergrid.prototype = {
         };
 
         this.addEventListener('fin-canvas-mousemove', function(e) {
-            if (self.resolveProperty('readOnly')) {
+            if (self.properties.readOnly) {
                 return;
             }
             var mouse = e.detail.mouse;
@@ -1059,7 +1058,7 @@ Hypergrid.prototype = {
         });
 
         this.addEventListener('fin-canvas-mousedown', function(e) {
-            if (self.resolveProperty('readOnly')) {
+            if (self.properties.readOnly) {
                 return;
             }
             //self.stopEditing();
@@ -1074,7 +1073,7 @@ Hypergrid.prototype = {
         });
 
         this.addEventListener('fin-canvas-click', function(e) {
-            if (self.resolveProperty('readOnly')) {
+            if (self.properties.readOnly) {
                 return;
             }
             //self.stopEditing();
@@ -1087,7 +1086,7 @@ Hypergrid.prototype = {
         });
 
         this.addEventListener('fin-canvas-mouseup', function(e) {
-            if (self.resolveProperty('readOnly')) {
+            if (self.properties.readOnly) {
                 return;
             }
             self.dragging = false;
@@ -1110,7 +1109,7 @@ Hypergrid.prototype = {
         });
 
         this.addEventListener('fin-canvas-dblclick', function(e) {
-            if (self.resolveProperty('readOnly')) {
+            if (self.properties.readOnly) {
                 return;
             }
             var mouse = e.detail.mouse;
@@ -1121,7 +1120,7 @@ Hypergrid.prototype = {
         });
 
         this.addEventListener('fin-canvas-drag', function(e) {
-            if (self.resolveProperty('readOnly')) {
+            if (self.properties.readOnly) {
                 return;
             }
             self.dragging = true;
@@ -1132,7 +1131,7 @@ Hypergrid.prototype = {
         });
 
         this.addEventListener('fin-canvas-keydown', function(e) {
-            if (self.resolveProperty('readOnly')) {
+            if (self.properties.readOnly) {
                 return;
             }
             self.fireSyntheticKeydownEvent(e);
@@ -1140,7 +1139,7 @@ Hypergrid.prototype = {
         });
 
         this.addEventListener('fin-canvas-keyup', function(e) {
-            if (self.resolveProperty('readOnly')) {
+            if (self.properties.readOnly) {
                 return;
             }
             self.fireSyntheticKeyupEvent(e);
@@ -1155,7 +1154,7 @@ Hypergrid.prototype = {
         });
 
         this.addEventListener('fin-canvas-mouseout', function(e) {
-            if (self.resolveProperty('readOnly')) {
+            if (self.properties.readOnly) {
                 return;
             }
             var mouse = e.detail.mouse;
@@ -1432,7 +1431,7 @@ Hypergrid.prototype = {
 
         if (editPoint.x >= 0 && editPoint.y >= 0) {
             var column = this.behavior.getActiveColumn(editPoint.x),
-                editable = column && column.getProperties().editable;
+                editable = column && column.properties.editable;
 
             if (editable || this.isFilterRow(editPoint.y)) {
                 this.setMouseDown(editPoint);
@@ -2275,8 +2274,8 @@ Hypergrid.prototype = {
         this.sbHScroller = horzBar;
         this.sbVScroller = vertBar;
 
-        var hPrefix = this.resolveProperty('hScrollbarClassPrefix');
-        var vPrefix = this.resolveProperty('vScrollbarClassPrefix');
+        var hPrefix = this.properties.hScrollbarClassPrefix;
+        var vPrefix = this.properties.vScrollbarClassPrefix;
 
         if (hPrefix && hPrefix !== '') {
             this.sbHScroller.classPrefix = hPrefix;
@@ -2936,7 +2935,7 @@ Hypergrid.prototype = {
     },
 
     isHeaderWrapping: function() {
-        return this.resolveProperty('headerTextWrapping');
+        return this.properties.headerTextWrapping;
     },
 
     _getBoundsOfCell: function(x, y) {
@@ -3159,16 +3158,16 @@ Hypergrid.prototype = {
     },
 
     isShowRowNumbers: function() {
-        return this.resolveProperty('showRowNumbers');
+        return this.properties.showRowNumbers;
     },
     isEditable: function() {
-        return this.resolveProperty('editable') === true;
+        return this.properties.editable === true;
     },
     isShowFilterRow: function() {
-        return this.resolveProperty('showFilterRow');
+        return this.properties.showFilterRow;
     },
     isShowHeaderRow: function() {
-        return this.resolveProperty('showHeaderRow');
+        return this.properties.showHeaderRow;
     },
     getHeaderRowCount: function() {
         return this.behavior.getHeaderRowCount();
@@ -3186,8 +3185,8 @@ Hypergrid.prototype = {
         return this.hasHierarchyColumn() && x === 0;
     },
     checkScrollbarVisibility: function() {
-        // var hoverClassOver = this.resolveProperty('scrollbarHoverOver');
-        // var hoverClassOff = this.resolveProperty('scrollbarHoverOff');
+        // var hoverClassOver = this.properties.scrollbarHoverOver;
+        // var hoverClassOff = this.properties.scrollbarHoverOff;
 
         // if (hoverClassOff === 'visible') {
         //     this.sbHScroller.classList.remove(hoverClassOver);
@@ -3219,7 +3218,7 @@ Hypergrid.prototype = {
         }
     },
     isRowNumberAutosizing: function() {
-        return this.resolveProperty('rowNumberAutosizing');
+        return this.properties.rowNumberAutosizing;
     },
     isRowSelected: function(r) {
         return this.selectionModel.isRowSelected(r);
@@ -3234,16 +3233,16 @@ Hypergrid.prototype = {
         return this.behavior.getRow(y);
     },
     isCellSelection: function() {
-        return this.resolveProperty('cellSelection') === true;
+        return this.properties.cellSelection === true;
     },
     isRowSelection: function() {
-        return this.resolveProperty('rowSelection') === true;
+        return this.properties.rowSelection === true;
     },
     isColumnSelection: function() {
-        return this.resolveProperty('columnSelection') === true;
+        return this.properties.columnSelection === true;
     },
     isColumnAutosizing: function() {
-        return this.resolveProperty('columnAutosizing') === true;
+        return this.properties.columnAutosizing === true;
     },
 
     selectRowsFromCells: function() {
@@ -3296,7 +3295,7 @@ Hypergrid.prototype = {
         this.repaint();
     },
     isSingleRowSelectionMode: function() {
-        return this.resolveProperty('singleRowSelectionMode');
+        return this.properties.singleRowSelectionMode;
     },
     newPoint: function(x, y) {
         return new Point(x, y);
