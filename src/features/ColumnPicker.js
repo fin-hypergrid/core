@@ -19,7 +19,7 @@ var ColumnPicker = Feature.extend('ColumnPicker', {
      */
     handleKeyUp: function(grid, event) {
         var key = event.detail.char.toLowerCase();
-        var keys = grid.resolveProperty('editorActivationKeys');
+        var keys = grid.properties.editorActivationKeys;
         if (keys.indexOf(key) > -1) {
            grid.toggleDialog('ColumnPicker');
         }

@@ -53,11 +53,11 @@ window.onload = function() {
             dd.header = dd.column.header;
             dd.column.header = '';
 
-            dd.unsortable = dd.column.getProperties().unsortable;
-            dd.column.getProperties().unsortable = true;
+            dd.unsortable = dd.column.properties.unsortable;
+            dd.column.properties.unsortable = true;
         } else {
             dd.column.header = dd.header;
-            dd.column.getProperties().unsortable = dd.unsortable;
+            dd.column.properties.unsortable = dd.unsortable;
         }
         button.disabled = !this.checked;
     };

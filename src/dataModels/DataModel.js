@@ -16,13 +16,7 @@ var DataModel = Base.extend('DataModel', {
     },
 
     getPrivateState: function() {
-        var state;
-        try {
-            state = this.grid.getPrivateState();
-        } catch (err) {
-            state = {}; // in case no beahvior yet
-        }
-        return state;
+        return this.deprecate('getPrivateState()', 'grid.properties', '1.2.0');
     },
 
     /**

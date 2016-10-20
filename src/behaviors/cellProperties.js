@@ -37,7 +37,7 @@ var cell = {
      * @memberOf Column#
      */
     getCellProperty: function(r, key) {
-        return (this.getCellProperties(r) || this.getProperties())[key];
+        return (this.getCellProperties(r) || this.properties)[key];
     },
 
     /**
@@ -105,7 +105,7 @@ function getCellPropertiesObject(r) {
  */
 function newCellPropertiesObject(r) {
     return (
-        this.cellProperties[getDataIndex.call(this, r)] = Object.create(this.getProperties())
+        this.cellProperties[getDataIndex.call(this, r)] = Object.create(this.properties)
     );
 }
 

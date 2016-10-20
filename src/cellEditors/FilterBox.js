@@ -155,7 +155,7 @@ var FilterBox = ComboBox.extend('FilterBox', {
         if (e) {
             prototype.keyup.call(this, e);
 
-            if (this.grid.resolveProperty('filteringMode') === 'immediate') {
+            if (this.grid.properties.filteringMode === 'immediate') {
                 this.saveEditorValue(this.getEditorValue());
                 this.moveEditor();
             }

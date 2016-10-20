@@ -6,6 +6,8 @@ var overrider = require('overrider');
 
 var deprecated = require('../lib/deprecated');
 
+var warned;
+
 /** @summary Create a new `Column` object.
  * @see {@link module:Cell} is mixed into Column.prototype.
  * @constructor
@@ -61,7 +63,7 @@ function Column(behavior, options) {
             if (index < 0) {
                 throw '`index` out of range';
             } else {
-                this.setProperties(options);
+                this.properties = options;
             }
     }
 }
@@ -160,12 +162,12 @@ Column.prototype = {
     },
 
     getWidth: function() {
-        var properties = this.getProperties();
-        return properties && properties.width || this.behavior.resolveProperty('defaultColumnWidth');
+        var properties = this.properties;
+        return properties && properties.width || this.behavior.grid.properties.defaultColumnWidth;
     },
 
     setWidth: function(width) {
-        this.getProperties().width = Math.max(5, width);
+        this.properties.width = Math.max(5, width);
     },
 
     getCellRenderer: function(config, x, y) {
@@ -183,7 +185,7 @@ Column.prototype = {
     },
 
     checkColumnAutosizing: function(force) {
-        var properties = this.getProperties();
+        var properties = this.properties;
         var a, b, d, autoSized;
         if (properties) {
             a = properties.width;
@@ -204,7 +206,7 @@ Column.prototype = {
     },
 
     getType: function() {
-        var props = this.getProperties();
+        var props = this.properties;
         var type = props.type;
         if (!type) {
             type = this.computeColumnType();
@@ -254,17 +256,32 @@ Column.prototype = {
         }
     },
 
-    getProperties: function() {
-        var tableState = this.behavior.getPrivateState(),
+    get properties() {
+        var tableState = this.behavior.grid.properties,
             columnProperties = tableState.columnProperties,
-            properties = columnProperties[this.index];
+            result = columnProperties[this.index];
 
-        if (!properties) {
-            properties = this.createColumnProperties();
-            columnProperties[this.index] = properties;
+        if (!result) {
+            result = columnProperties[this.index] = this.createColumnProperties();
         }
 
-        return properties;
+        return result;
+    },
+    set properties(properties) {
+        var key, descriptor, obj = this.properties;
+
+        for (key in obj) {
+            descriptor = Object.getOwnPropertyDescriptor(obj, key);
+            if (!descriptor || descriptor.configurable) {
+                delete obj[key];
+            }
+        }
+
+        this.addProperties(properties);
+    },
+
+    getProperties: function() {
+        return this.deprecated('getProperties()', 'properties', '1.2.0');
     },
 
     /**
@@ -272,16 +289,19 @@ Column.prototype = {
      * @param {boolean} [preserve=false]
      */
     setProperties: function(properties, preserve) {
-        var key, descriptor, obj = this.getProperties();
-
         if (!preserve) {
-            for (key in obj) {
-                descriptor = Object.getOwnPropertyDescriptor(obj, key);
-                if (!descriptor || descriptor.configurable) {
-                    delete obj[key];
-                }
+            if (!warned) {
+                warned = true;
+                console.warn('setProperties(properties) has been deprecated in favor of properties (setter) as of v1.2.0 and will be removed in a future version. This advice only pertains to usages of setProperties when called with a single parameter. When called with a truthy second parameter, use the new addProperties(properties) call instead.');
             }
+            this.properties = properties;
+        } else {
+            this.deprecated('setProperties(properties, preserve)', 'addProperties(properties)', '1.2.0', arguments, 'This warning pertains to setProperties only when preserve is truthy. When preserve is faulty, use the new properties setter.');
         }
+    },
+
+    addProperties: function(properties) {
+        var key, descriptor, obj = this.properties;
 
         for (key in properties) {
             descriptor = Object.getOwnPropertyDescriptor(obj, key);
@@ -317,7 +337,7 @@ Column.prototype = {
     },
 
     getFormatter: function() {
-        var localizerName = this.getProperties().format;
+        var localizerName = this.properties.format;
         return this.behavior.grid.localization.get(localizerName).format;
     }
 };

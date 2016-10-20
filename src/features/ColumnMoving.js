@@ -382,8 +382,8 @@ var ColumnMoving = Feature.extend('ColumnMoving', {
         style.boxShadow = '0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23)';
         style.width = columnWidth + 'px'; //Math.round(columnWidth / hdpiRatio) + 'px';
         style.height = colHeight + 'px'; //Math.round(colHeight / hdpiRatio) + 'px';
-        style.borderTop = '1px solid ' + renderer.resolveProperty('lineColor');
-        style.backgroundColor = renderer.resolveProperty('backgroundColor');
+        style.borderTop = '1px solid ' + grid.properties.lineColor;
+        style.backgroundColor = grid.properties.backgroundColor;
 
         var startX = columnEdges[columnIndex - scrollLeft];
         startX = startX * hdpiRatio;
@@ -464,8 +464,8 @@ var ColumnMoving = Feature.extend('ColumnMoving', {
         style.opacity = 0.85;
         style.boxShadow = '0 19px 38px rgba(0,0,0,0.30), 0 15px 12px rgba(0,0,0,0.22)';
         //style.zIndex = 100;
-        style.borderTop = '1px solid ' + renderer.resolveProperty('lineColor');
-        style.backgroundColor = grid.renderer.resolveProperty('backgroundColor');
+        style.borderTop = '1px solid ' + grid.properties.lineColor;
+        style.backgroundColor = grid.properties.backgroundColor;
 
         d.setAttribute('width', Math.round(columnWidth * hdpiRatio) + 'px');
         d.setAttribute('height', Math.round(colHeight * hdpiRatio) + 'px');

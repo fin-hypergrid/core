@@ -52,7 +52,7 @@ var FIELD = 'columnProperties.field is deprecated as of v1.1.0 in favor of colum
  */
 function createColumnProperties() {
     var column = this,
-        tableState = column.behavior.getPrivateState(),
+        tableState = column.behavior.grid.properties,
         properties;
 
     properties = Object.create(tableState, {

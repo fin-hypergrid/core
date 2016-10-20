@@ -85,6 +85,8 @@ var Behavior = Base.extend('Behavior', {
     features: [], // override in implementing class unless no features
 
     reset: function() {
+        this.clearState();
+
         if (this.dataModel) {
             this.dataModel.reset();
         } else {
@@ -176,7 +178,7 @@ var Behavior = Base.extend('Behavior', {
     getColumnWidth: function(x) {
         var column = this.getActiveColumn(x);
         if (!column) {
-            return this.resolveProperty('defaultColumnWidth');
+            return this.grid.properties.defaultColumnWidth;
         }
         var width = column.getWidth();
         return width;
@@ -231,15 +233,12 @@ var Behavior = Base.extend('Behavior', {
      * @returns {object}
      */
     getPrivateState: function() {
-        if (!this.tableState) {
-            this.tableState = this.getDefaultState();
-        }
-        return this.tableState;
+        return this.deprecate('getPrivateState()', 'grid.properties', '1.2.0');
     },
 
     //this is effectively a clone, with certain things removed....
     getState: function() {
-        var copy = JSON.parse(JSON.stringify(this.getPrivateState()));
+        var copy = JSON.parse(JSON.stringify(this.grid.properties));
         this.clearObjectProperties(copy.columnProperties, false);
         return copy;
     },
@@ -253,7 +252,7 @@ var Behavior = Base.extend('Behavior', {
          * @type {object}
          * @memberOf Behavior.prototype
          */
-        this.tableState = null;
+        this.grid.properties = this.getDefaultState();
     },
 
     /**
@@ -290,8 +289,8 @@ var Behavior = Base.extend('Behavior', {
         }
         var colProperties = memento.columnProperties;
         delete memento.columnProperties;
-        this.tableState = null;
-        var state = this.getPrivateState();
+        this.clearState();
+        var state = this.grid.properties;
         this.createColumns();
         this._setColumnOrder(memento.columnIndexes);
         _(state).extendOwn(memento);
@@ -306,7 +305,7 @@ var Behavior = Base.extend('Behavior', {
     setAllColumnProperties: function(properties) {
         properties = properties || [];
         for (var i = 0; i < properties.length; i++) {
-            var current = this.getPrivateState().columnProperties[i];
+            var current = this.grid.properties.columnProperties[i];
             this.clearObjectProperties(current, false);
             _(current).extendOwn(properties[i]);
         }
@@ -333,6 +332,7 @@ var Behavior = Base.extend('Behavior', {
      * @param {string} key - a property name
      */
     resolveProperty: function(key) {
+        // todo: remove when we remove the deprecated grid.resolveProperty
         return this.grid.resolveProperty(key);
     },
 
@@ -474,7 +474,7 @@ var Behavior = Base.extend('Behavior', {
      * @param {number} rowNum - row index of interest
      */
     getRowHeight: function(rowNum) {
-        var rowHeights = this.getPrivateState().rowHeights;
+        var rowHeights = this.grid.properties.rowHeights;
         return rowHeights && rowHeights[rowNum] || this.getDefaultRowHeight();
     },
 
@@ -485,7 +485,7 @@ var Behavior = Base.extend('Behavior', {
      */
     getDefaultRowHeight: function() {
         if (!this.defaultRowHeight) {
-            this.defaultRowHeight = this.resolveProperty('defaultRowHeight');
+            this.defaultRowHeight = this.grid.properties.defaultRowHeight;
         }
         return this.defaultRowHeight;
     },
@@ -497,7 +497,7 @@ var Behavior = Base.extend('Behavior', {
      * @param {number} height - pixel height
      */
     setRowHeight: function(rowNum, height) {
-        var tableState = this.getPrivateState();
+        var tableState = this.grid.properties;
         tableState.rowHeights[rowNum] = Math.max(5, height);
         this.stateChanged();
     },
@@ -794,7 +794,7 @@ var Behavior = Base.extend('Behavior', {
      * @return {boolean} Can re-order columns.
      */
     isColumnReorderable: function() {
-        return this.getPrivateState().columnsReorderable;
+        return this.grid.properties.columnsReorderable;
     },
 
     /**
@@ -804,7 +804,7 @@ var Behavior = Base.extend('Behavior', {
      */
     getColumnProperties: function(x) {
         var column = this.getColumn(x);
-        return column && column.getProperties();
+        return column && column.properties;
     },
 
     /**
@@ -817,7 +817,7 @@ var Behavior = Base.extend('Behavior', {
         if (!column) {
             throw 'Expected column.';
         }
-        var result = _(column.getProperties()).extendOwn(properties);
+        var result = _(column.properties).extendOwn(properties);
         this.changed();
         return result;
     },
@@ -846,7 +846,7 @@ var Behavior = Base.extend('Behavior', {
      * @param {Boolean} [silent=false] - whether to trigger column changed event
      */
     setColumnIndexes: function(columnIndexes, silent) {
-        var tableState = this.getPrivateState();
+        var tableState = this.grid.properties;
         this._setColumnOrder(columnIndexes);
         tableState.columnIndexes = columnIndexes;
         this.changed();
@@ -860,7 +860,7 @@ var Behavior = Base.extend('Behavior', {
      * @return {string[]} All the currently hidden column header labels.
      */
     getHiddenColumnDescriptors: function() {
-        var tableState = this.getPrivateState();
+        var tableState = this.grid.properties;
         var indexes = tableState.columnIndexes;
         var labels = [];
         var columnCount = this.getActiveColumnCount();
@@ -883,7 +883,7 @@ var Behavior = Base.extend('Behavior', {
      * @param {Array} arrayOfIndexes - an array of column indexes to hide
      */
     hideColumns: function(arrayOfIndexes) {
-        var tableState = this.getPrivateState();
+        var tableState = this.grid.properties;
         var order = tableState.columnIndexes;
         for (var i = 0; i < arrayOfIndexes.length; i++) {
             var each = arrayOfIndexes[i];
@@ -898,7 +898,7 @@ var Behavior = Base.extend('Behavior', {
      * @return {integer} The number of fixed columns.
      */
     getFixedColumnCount: function() {
-        return this.getPrivateState().fixedColumnCount || 0;
+        return this.grid.properties.fixedColumnCount || 0;
     },
 
     /**
@@ -907,7 +907,7 @@ var Behavior = Base.extend('Behavior', {
      * @param {number} n - the integer count of how many columns to be fixed
      */
     setFixedColumnCount: function(n) {
-        this.getPrivateState().fixedColumnCount = n;
+        this.grid.properties.fixedColumnCount = n;
     },
 
     /**
@@ -915,11 +915,8 @@ var Behavior = Base.extend('Behavior', {
      * @return {integer} The number of fixed rows.
      */
     getFixedRowCount: function() {
-        if (!this.tableState) {
-            return 0;
-        }
         var headers = this.grid.getHeaderRowCount();
-        var usersSize = this.tableState.fixedRowCount || 0;
+        var usersSize = this.grid.properties.fixedRowCount || 0;
         return headers + usersSize;
     },
 
@@ -937,7 +934,7 @@ var Behavior = Base.extend('Behavior', {
      * @param {number} n - The number of rows.
      */
     setFixedRowCount: function(n) {
-        this.tableState.fixedRowCount = n;
+        this.grid.properties.fixedRowCount = n;
     },
 
     /**
@@ -971,7 +968,7 @@ var Behavior = Base.extend('Behavior', {
      * (The remaining _fixed rows_ are the _top totals_ rows.)
      */
     setHeaderRowCount: function(n) {
-        this.tableState.headerRowCount = n;
+        this.grid.properties.headerRowCount = n;
     },
 
     /**
@@ -979,7 +976,7 @@ var Behavior = Base.extend('Behavior', {
      * @return {number} The number of fixed rows.
      */
     getHeaderColumnCount: function() {
-        return this.grid.resolveProperty('headerColumnCount');
+        return this.grid.properties.headerColumnCount;
     },
 
     /**
@@ -987,7 +984,7 @@ var Behavior = Base.extend('Behavior', {
      * @param {number} The number of fixed rows.
      */
     setHeaderColumnCount: function(numberOfHeaderColumns) {
-        this.tableState.headerColumnCount = numberOfHeaderColumns;
+        this.grid.properties.headerColumnCount = numberOfHeaderColumns;
     },
 
     /**

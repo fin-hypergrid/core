@@ -843,8 +843,8 @@ window.onload = function() {
         var rows = detail.rows,
             selections = detail.selections;
         if (
-            grid.resolveProperty('singleRowSelectionMode') && // let's only attempt this when in this mode
-            !grid.resolveProperty('multipleSelections') && // and only when in single selection mode
+            grid.properties.singleRowSelectionMode && // let's only attempt this when in this mode
+            !grid.properties.multipleSelections && // and only when in single selection mode
             rows.length && // user just selected a row (must be single row due to mode we're in)
             selections.length  // there was a cell region selected (must be the only one)
         ) {
@@ -1174,7 +1174,7 @@ window.onload = function() {
                 case 'radio':
                     input.checked = 'checked' in ctrl
                         ? ctrl.checked
-                        : grid.resolveProperty(ctrl.name);
+                        : resolveGridProperty(ctrl.name);
                     referenceElement = null; // label goes before input
                     break;
             }
@@ -1197,6 +1197,13 @@ window.onload = function() {
         ctrlGroups.appendChild(container);
     }
 
+    function resolveGridProperty(key) {
+        var keys = key.split('.');
+        var prop = grid.properties;
+        while (keys.length) { prop = prop[keys.shift()]; }
+        return prop;
+    }
+
     document.getElementById('tab-dashboard').addEventListener('click', function(event) {
         if (dashboard.style.display === 'none') {
             dashboard.style.display = 'block';
@@ -1213,7 +1220,7 @@ window.onload = function() {
     var fpsTimer, secs, frames;
     document.getElementById('tab-fps').addEventListener('click', function(event) {
         var el = this, st = el.style;
-        if ((grid.getProperties().enableContinuousRepaint ^= true)) {
+        if ((grid.properties.enableContinuousRepaint ^= true)) {
             st.backgroundColor = '#666';
             st.textAlign = 'left';
             secs = frames = 0;

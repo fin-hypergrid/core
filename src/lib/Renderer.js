@@ -172,11 +172,12 @@ var Renderer = Base.extend('Renderer', {
     },
 
     /**
+     * Keep in place! Used by fin-canvas.
      * @memberOf Renderer.prototype
      * @returns {Object} a property value at a key, delegates to the grid
      */
     resolveProperty: function(key) {
-        return this.grid.resolveProperty(key);
+        return this.grid.properties[key];
     },
 
     /**
@@ -188,7 +189,7 @@ var Renderer = Base.extend('Renderer', {
     paint: function(gc) {
         if (this.grid) {
             if (!this.hasData()) {
-                var message = this.grid.resolveProperty('noDataMessage');
+                var message = this.grid.properties.noDataMessage;
                 gc.font = '20px Arial';
                 gc.fillText(message, 20, 30);
             } else {
@@ -588,8 +589,8 @@ var Renderer = Base.extend('Renderer', {
                 width: width,
                 height: height
             },
-            selectionRegionOverlayColor: this.grid.resolveProperty('selectionRegionOverlayColor'),
-            selectionRegionOutlineColor: this.grid.resolveProperty('selectionRegionOutlineColor')
+            selectionRegionOverlayColor: this.grid.properties.selectionRegionOverlayColor,
+            selectionRegionOutlineColor: this.grid.properties.selectionRegionOutlineColor
         };
         this.grid.cellRenderers.get('lastselection').paint(gc, config);
     },
@@ -627,7 +628,7 @@ var Renderer = Base.extend('Renderer', {
         var targetCTX = override.ctx;
         var imgData = gc.getImageData(startX, 0, Math.round(width * hdpiRatio), Math.round(height * hdpiRatio));
         targetCTX.putImageData(imgData, 0, 0);
-        gc.fillStyle = this.resolveProperty('backgroundColor2');
+        gc.fillStyle = this.grid.properties.backgroundColor2;
         gc.fillRect(Math.round(startX / hdpiRatio), 0, width, height);
     },
 
@@ -884,10 +885,11 @@ var Renderer = Base.extend('Renderer', {
         var rowHeights = this.rowEdges;
         var viewHeight;
         var viewWidth = colWidths[colWidths.length - 1];
-        var drawThemH = this.resolveProperty('gridLinesH');
-        var drawThemVOverflow = this.resolveProperty('gridLinesVOverflow');
-        var drawThemV = this.resolveProperty('gridLinesV');
-        var lineColor = this.resolveProperty('lineColor');
+        var props = this.grid.properties;
+        var drawThemH = props.gridLinesH;
+        var drawThemVOverflow = props.gridLinesVOverflow;
+        var drawThemV = props.gridLinesV;
+        var lineColor = props.lineColor;
         if (drawThemVOverflow){
             viewHeight = this.getBounds().height;
         } else {
@@ -924,7 +926,7 @@ var Renderer = Base.extend('Renderer', {
         gc.closePath();
 
         gc.strokeStyle = lineColor;
-        gc.lineWidth = this.resolveProperty('lineWidth');
+        gc.lineWidth = props.lineWidth;
         gc.stroke();
     },
 
@@ -951,7 +953,7 @@ var Renderer = Base.extend('Renderer', {
             behavior = grid.behavior,
             column = behavior.getActiveColumn(c),
             cellProperties = column && column.getCellProperties(r),
-            baseProperties = cellProperties || column && column.getProperties();
+            baseProperties = cellProperties || column && column.properties;
 
         if (!baseProperties) {
             return;

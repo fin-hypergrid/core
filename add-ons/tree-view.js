@@ -84,7 +84,7 @@ TreeView.prototype.setRelation = function(join) {
     var dataSource = dataModel.findDataSourceByType('treeviewer'),
         joined = dataSource.setRelation(join && this.options),
         columnProps = behavior.getColumnProperties(dataSource.treeColumn.index),
-        state = behavior.getPrivateState();
+        state = grid.properties;
 
     if (joined) {
         // Make the tree column uneditable: Save the current value of the tree column's editable property and set it to false.
