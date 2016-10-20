@@ -142,7 +142,7 @@ var Renderer = Base.extend('Renderer', {
             insertionBoundsCursor = 0,
             previousInsertionBoundsCursorValue = 0,
 
-            lineWidth = grid.getProperties().lineWidth,
+            lineWidth = grid.properties.lineWidth,
 
             start,
             x, X, // horizontal pixel loop index and limit
@@ -621,7 +621,7 @@ var Renderer = Base.extend('Renderer', {
             return;
         }
 
-        var props = this.grid.getProperties();
+        var props = this.grid.properties;
         vcOrigin = vcOrigin || lastColumn;
         vcCorner = vcCorner || selection.corner.x > lastColumn.index ? lastColumn.index : vci[props.fixedColumnCount - 1];
         vrOrigin = vrOrigin || lastRow;
@@ -770,7 +770,7 @@ var Renderer = Base.extend('Renderer', {
     getPageUpRow: function() {
         var grid = this.grid,
             scrollHeight = this.getVisibleScrollHeight(),
-            top = this.dataWindow.origin.y - this.grid.getProperties().fixedRowCount - 1,
+            top = this.dataWindow.origin.y - this.grid.properties.fixedRowCount - 1,
             scanHeight = 0;
         while (scanHeight < scrollHeight && top >= 0) {
             scanHeight = scanHeight + grid.getRowHeight(top);
@@ -784,7 +784,7 @@ var Renderer = Base.extend('Renderer', {
      * @returns {number} The row to goto for a page down.
      */
     getPageDownRow: function() {
-        return this.dataWindow.corner.y - this.grid.getProperties().fixedRowCount + 1;
+        return this.dataWindow.corner.y - this.grid.properties.fixedRowCount + 1;
     },
 
     /**

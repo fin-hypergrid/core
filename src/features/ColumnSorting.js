@@ -15,7 +15,7 @@ var ColumnSorting = Feature.extend('ColumnSorting', {
      * @param {Object} event - the event details
      */
 
-    handleDoubleClick: function(grid, event) { //refac
+    handleDoubleClick: function(grid, event) {
         var columnProperties;
         if (
             event.isHeaderCell &&
@@ -34,7 +34,7 @@ var ColumnSorting = Feature.extend('ColumnSorting', {
      * @param {Hypergrid} grid
      * @param {Object} event - the event details
      */
-    handleMouseMove: function(grid, event) { //refac
+    handleMouseMove: function(grid, event) {
         var columnProperties;
         if (
             this.isFixedRow(grid, event) &&

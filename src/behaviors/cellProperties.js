@@ -26,7 +26,7 @@ var cell = {
             // accept absolute row coordinate to maintain backwards compatibility
             yOrCellEvent = this.behavior.newCellEvent(0, yOrCellEvent); // x coordinate not used
         }
-        return this.getCellOwnProperties(yOrCellEvent) || this.getProperties();
+        return this.getCellOwnProperties(yOrCellEvent) || this.properties;
     },
 
     /**

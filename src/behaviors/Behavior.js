@@ -428,7 +428,7 @@ var Behavior = Base.extend('Behavior', {
             activeColumns.splice.apply(activeColumns, [referenceIndex, 0].concat(newColumns));
         }
 
-        this.getPrivateState().columnIndexes = activeColumns.map(function(column) { return column.index; });
+        this.grid.properties.columnIndexes = activeColumns.map(function(column) { return column.index; });
     },
 
     /**
@@ -1108,7 +1108,7 @@ var Behavior = Base.extend('Behavior', {
      * @desc Defined as the combined number of rows in all the subgrids before the (first) data subgrid.
      * @memberOf behaviors.JSON.prototype
      */
-    getHeaderRowCount: function() { //refac
+    getHeaderRowCount: function() {
         var result = 0;
 
         this.subgrids.find(function(subgrid) {

@@ -25,6 +25,8 @@ var themeInitialized = false,
     gridTheme = Object.create(defaults),
     globalProperties = Object.create(gridTheme);
 
+var warned = {};
+
 /**s
  * @constructor
  * @param {string|Element} [container] - CSS selector or Element
@@ -975,8 +977,11 @@ var Hypergrid = Base.extend('Hypergrid', {
      * @param {string} key - A look-and-feel key.
      */
     resolveProperty: function(key) {
-        // todo: when we remove this mehtod, also remove forwards from Behavior.js and Renderer.js
-        console.warn('resolveProperty(key) deprecated as of v1.2.0 in favor of grid.properties[key] and will be removed in a future version.');
+        // todo: when we remove this method, also remove forwards from Behavior.js and Renderer.js
+        if (!warned.resolveProperty) {
+            warned.resolveProperty = true;
+            console.warn('resolveProperty(key) deprecated as of v1.2.0 in favor of grid.properties[key] and will be removed in a future version.');
+        }
         return this.properties[key];
     },
 
@@ -1080,7 +1085,7 @@ var Hypergrid = Base.extend('Hypergrid', {
 
         this.canvas = new Canvas(divCanvas, this.renderer);
         this.canvas.canvas.classList.add('hypergrid');
-        this.canvas.canvas.style.backgroundColor = this.getProperties().lineColor;
+        this.canvas.canvas.style.backgroundColor = this.properties.lineColor;
         this.canvas.resize();
 
         function getMouseEvent(e) {
@@ -1482,31 +1487,31 @@ var Hypergrid = Base.extend('Hypergrid', {
     },
 
     /**
+     * @todo refac and move to CellEvent
      * @memberOf Hypergrid.prototype
-     * @returns {boolean} The given column is fully visible.
      * @param {number} columnIndex - The column index in question.
-     * @return {boolan} Visible.
+     * @returns {boolean} The given column is fully visible.
      */
     isColumnVisible: function(columnIndex) {
         return this.renderer.isColumnVisible(columnIndex);
     },
 
     /**
+     * @todo refac and move to CellEvent
      * @memberOf Hypergrid.prototype
-     * @returns {boolean} The given row is fully visible.
      * @param {number} r - The raw row index in question.
-     * @return {boolan} Visible.
+     * @returns {boolean} The given row is fully visible.
      */
     isDataRowVisible: function(r) {
         return this.renderer.isRowVisible(r);
     },
 
     /**
+     * @todo refac and move to CellEvent
      * @memberOf Hypergrid.prototype
-     * @returns {boolean} The given cell is fully is visible.
      * @param {number} c - The column index in question.
      * @param {number} rn - The grid row index in question.
-     * @return {boolean} Data is visible.
+     * @returns {boolean} The given cell is fully is visible.
      */
     isDataVisible: function(c, rn) {
         return (!this.isGridRow(rn) || this.isDataRowVisible(rn + this.getHeaderRowCount())) &&
@@ -1595,8 +1600,8 @@ var Hypergrid = Base.extend('Hypergrid', {
     scrollToMakeVisible: function(c, r) {
         var delta,
             dw = this.renderer.dataWindow,
-            fixedColumnCount = this.getProperties().fixedColumnCount,
-            fixedRowCount = this.getProperties().fixedRowCount;
+            fixedColumnCount = this.properties.fixedColumnCount,
+            fixedRowCount = this.properties.fixedRowCount;
 
         if (
             c >= fixedColumnCount && // scroll only if target not in fixed columns
@@ -3120,6 +3125,7 @@ var Hypergrid = Base.extend('Hypergrid', {
     },
 
     /**
+     * @todo row refac: deprecate in favor of CellEvent.isGridRow
      * @param {integerRowIndex|sectionPoint} rn
      * @returns {boolean}
      */
@@ -3135,7 +3141,7 @@ var Hypergrid = Base.extend('Hypergrid', {
     },
 
     isShowFilterRow: function() {
-        return this.resolveProperty('showFilterRow');
+        return this.properties.showFilterRow;
     },
 
     hasHierarchyColumn: function() {

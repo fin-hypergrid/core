@@ -45,7 +45,7 @@ var prototype = {
 
     get isHierarchyColumn() {
         return this.gridCell.x === 0 &&
-            this.grid.resolveProperty('showTreeColumn') &&
+            this.grid.properties.showTreeColumn &&
             this.dataModel.isDrillDown(this.behavior.getActiveColumn(this.gridCell.x).index);
     },
 

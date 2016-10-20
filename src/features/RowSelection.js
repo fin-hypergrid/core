@@ -76,7 +76,7 @@ var RowSelection = Feature.extend('RowSelection', {
             grid.toggleSelectAllRows();
         } else if (rowSelectable && event.isGridRow)  {
             // if we are in the fixed area, do not apply the scroll values
-            var dy = event.unscrolled.dataCell.y < grid.getPrivateState().fixedRowCount
+            var dy = event.unscrolled.dataCell.y < grid.properties.fixedRowCount
                 ? event.unscrolled.dataCell.y
                 : event.dataCell.y;
 

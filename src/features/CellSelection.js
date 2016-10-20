@@ -59,7 +59,7 @@ var CellSelection = Feature.extend('CellSelection', {
      * @param {Hypergrid} grid
      * @param {Object} event - the event details
      */
-    handleMouseDown: function(grid, event) { //refac
+    handleMouseDown: function(grid, event) {
         var dx = event.gridCell.x,
             dy = event.dataCell.y,
             columnCount = grid.getColumnCount(),
@@ -94,7 +94,7 @@ var CellSelection = Feature.extend('CellSelection', {
                 ? event.unscrolled.gridCell.x
                 : event.gridCell.x;
 
-            var dy = event.unscrolled.dataCell.y < grid.getProperties().fixedRowCount
+            var dy = event.unscrolled.dataCell.y < grid.properties.fixedRowCount
                 ? event.unscrolled.dataCell.y
                 : event.dataCell.y;
 

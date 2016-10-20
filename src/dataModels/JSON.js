@@ -128,7 +128,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
      * @param {number} y - Data row coordinate.
      * @memberOf dataModels.JSON.prototype
      */
-    getValue: function(x, y) { //refac
+    getValue: function(x, y) {
         if (this.hasHierarchyColumn()) {
             if (x === -2) {
                 x = 0;
@@ -571,7 +571,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
      * @returns {object|undefined} Returns data row object or `undefined` if a header row.
      * @memberOf dataModels.JSON.prototype
      */
-    getRow: function(r) { //refac removed faulty topTotals access
+    getRow: function(r) {
         return this.dataSource.getRow(r);
     },
 

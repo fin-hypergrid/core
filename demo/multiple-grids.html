@@ -17,8 +17,8 @@
     var grid = [], options = { data: data, boundingRect: { height: '90px' } };
     for (var i = 0; i < 14; ++i) {
         grid[i] = new fin.Hypergrid(options);
-        grid[i].getProperties().editor = 'textfield';
-        grid[i].getProperties().editOnDoubleClick = false;
+        grid[i].properties.editor = 'textfield';
+        grid[i].properties.editOnDoubleClick = false;
     }
 </script>
 </body>

@@ -173,8 +173,7 @@ Column.prototype = {
     },
 
     getWidth: function() {
-        var properties = this.properties;
-        return properties && properties.width || this.behavior.grid.properties.defaultColumnWidth;
+        return this.properties && this.properties.width || this.behavior.grid.properties.defaultColumnWidth;
     },
 
     setWidth: function(width) {
@@ -269,11 +268,10 @@ Column.prototype = {
 
     get properties() {
         var tableState = this.behavior.grid.properties,
-            columnProperties = tableState.columnProperties,
-            result = columnProperties[this.index];
+            result = tableState.columnProperties[this.index];
 
         if (!result) {
-            result = columnProperties[this.index] = this.createColumnProperties();
+            result = tableState.columnProperties[this.index] = this.createColumnProperties();
         }
 
         return result;
