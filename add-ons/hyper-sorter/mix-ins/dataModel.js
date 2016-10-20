@@ -54,6 +54,7 @@ module.exports = {
     incrementSortState: function(column, keys) {
         var sorts = this.getSortedColumnIndexes(),
             columnIndex = column.index,
+            columnSchema = this.schema[columnIndex],
             sortSpec = this.getColumnSortState(columnIndex).sortSpec;
 
         if (!sortSpec) { // was unsorted
@@ -61,7 +62,7 @@ module.exports = {
             sorts.unshift({
                 columnIndex: columnIndex, // so define and...
                 direction: 1, // ...make ascending
-                type: column.getType()
+                type: columnSchema.type
             });
         } else if (sortSpec.direction > 0) { // was ascending
             sortSpec.direction = -1; // so make descending

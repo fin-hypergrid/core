@@ -127,7 +127,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
      * @deprecated As of v1.1.0, use getIndexedData
      */
     getFilteredData: function() {
-        return this.deprecated('getFilteredData()', 'getIndexedData()', '1.1.0', arguments);
+        return this.deprecated('getFilteredData()', 'getIndexedData()', '1.2.0', arguments);
     },
 
     getIndexedData: function() {
@@ -282,7 +282,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
      */
     getColumnProperties: function(x) {
         //access directly because we want it ordered
-        return this.deprecated('getColumnProperties(x)', 'grid.behavior.getColumnProperties(x)', '1.1.0', arguments);
+        return this.deprecated('getColumnProperties(x)', 'grid.behavior.getColumnProperties(x)', '1.2.0', arguments);
     },
 
     /**
@@ -310,7 +310,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
      * @returns {string[]}
      */
     getHeaders: function() {
-        console.warn('getHeaders() has been deprecated as of v1.1.0. It will be removed in a future release. Header strings are now found in dataSource.schema[*].header.');
+        console.warn('getHeaders() has been deprecated as of v1.2.0. It will be removed in a future release. Header strings are now found in dataSource.schema[*].header.');
         return this.dataSource && this.dataSource.getHeaders();
     },
 
@@ -335,7 +335,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
      * @returns {string[]}
      */
     getFields: function() {
-        console.warn('getFields() has been deprecated as of v1.1.0. It will be removed in a future release. Field names are now found in dataSource.schema[*].name.');
+        console.warn('getFields() has been deprecated as of v1.2.0. It will be removed in a future release. Field names are now found in dataSource.schema[*].name.');
         return this.dataSource.getFields();
     },
 
@@ -344,15 +344,14 @@ var JSON = DataModel.extend('dataModels.JSON', {
      * @returns {string[]}
      */
     getCalculators: function() {
-        console.warn('getCalculators() has been deprecated as of v1.1.0. It will be removed in a future release. Calculator functions are now found in dataSource.schema[*].calculator.');
+        console.warn('getCalculators() has been deprecated as of v1.2.0. It will be removed in a future release. Calculator functions are now found in dataSource.schema[*].calculator.');
         return this.dataSource.getProperty('calculators');
     },
 
     /**
-     * @deprecated
      * @memberOf dataModels.JSON.prototype
      */
-    applyAnalytics: function(options) {
+    reindex: function(options) {
         selectedDataRowsBackingSelectedGridRows.call(this);
 
         this.pipeline.forEach(function(dataSource) {
@@ -530,7 +529,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
      * @memberOf dataModels.JSON.prototype
      */
     truncatePipeline: function(newLength) {
-        return this.deprecated('truncatePipeline(newLength)', 'setPipeline()', '1.1.0', arguments, 'Build a local pipeline (array of data source constructors) and pass it to setPipeline.');
+        return this.deprecated('truncatePipeline(newLength)', 'setPipeline()', '1.2.0', arguments, 'Build a local pipeline (array of data source constructors) and pass it to setPipeline.');
     },
 
     isDrillDown: function(event) {
@@ -754,15 +753,15 @@ var JSON = DataModel.extend('dataModels.JSON', {
      * @memberOf dataModels.JSON.prototype
      */
     applyState: function() {
-        return this.deprecated('applyState()', 'reindex()', '1.1.0', arguments);
+        return this.deprecated('applyState()', 'reindex()', '1.2.0', arguments);
     },
 
     getUnfilteredValue: function(x, y) {
-        return this.deprecated('getUnfilteredValue(x, y)', null, '1.1.0', arguments, 'No longer supported');
+        return this.deprecated('getUnfilteredValue(x, y)', null, '1.2.0', arguments, 'No longer supported');
     },
 
     getUnfilteredRowCount: function() {
-        return this.deprecated('getUnfilteredValue(x, y)', null, '1.1.0', arguments, 'No longer supported');
+        return this.deprecated('getUnfilteredValue(x, y)', null, '1.2.0', arguments, 'No longer supported');
     },
 
     /**
@@ -933,9 +932,11 @@ function propPrep(dataModel, columnIndex, propName, value) {
 
     return this.properties(properties);
 }
+
 /**
- * @memberOf JSON.prototype
+ * @deprecated
+ * @memberOf dataModels.JSON.prototype
  */
-JSON.prototype.reindex = JSON.prototype.applyAnalytics; // eslint-disable-line no-extend-native
+JSON.prototype.applyAnalytics = JSON.prototype.reindex; // eslint-disable-line no-extend-native
 
 module.exports = JSON;

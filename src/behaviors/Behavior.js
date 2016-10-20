@@ -560,7 +560,7 @@ var Behavior = Base.extend('Behavior', {
     },
 
     getUnfilteredRowCount: function() {
-        return this.deprecated('getUnfilteredRowCount()', null, '1.1.0', arguments, 'No longer supported');
+        return this.deprecated('getUnfilteredRowCount()', null, '1.2.0', arguments, 'No longer supported');
     },
     /**
      * @memberOf Behavior.prototype
@@ -1342,7 +1342,7 @@ var Behavior = Base.extend('Behavior', {
     },
 
     getFilteredData: function() {
-        return this.deprecated('getIndexedData()', 'getIndexedData', '1.1.0', arguments);
+        return this.deprecated('getIndexedData()', 'getIndexedData', '1.2.0', arguments);
     },
     getIndexedData: function() {
        this.dataModel.getIndexedData();

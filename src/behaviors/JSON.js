@@ -268,19 +268,10 @@ var JSON = Behavior.extend('behaviors.JSON', {
     },
 
     /**
-     * @memberOf behaviors.JSON.prototype
-     * @description Build the fields and headers from the supplied column definitions.
-     * ```javascript
-     * myJsonBehavior.setColumns([
-     *     { header: 'Stock Name', name: 'short_description' },
-     *     { header: 'Status', name: 'trading_phase' },
-     *     { header: 'Reference Price', name: 'reference_price' }
-     * ]);
-     * ```
-     * @param {Array} columnDefinitions - an array of objects with fields 'title', and 'field'
+     * @deprecated
      */
     setColumns: function(columnDefinitions) {
-        this.dataModel.setColumns(columnDefinitions); // TODO: this method is missing. Should this be deprecated
+        console.warn('This function does not do anything');
     },
 
     /**

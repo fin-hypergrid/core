@@ -23,7 +23,7 @@ Hypergrid.behaviors = require('./behaviors');
 Hypergrid.dataModels = require('./dataModels');
 Hypergrid.features = require('./features');
 Hypergrid.analytics = require('./Shared.js').analytics;
-Hypergrid.DataSourceBase = require('fin-hypergrid-data-source-base');
+Hypergrid.DataSourceBase = require('./dataSources').DataSourceBase;
 Hypergrid.rectangular = require('rectangular');
 
 // Create the `fin` and in particular the `fin.Hypergrid` objects:

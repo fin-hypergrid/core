@@ -45,9 +45,7 @@ var themeInitialized = false,
  * @param {string|string[]} [options.localization.locale=Hypergrid.localization.locale] - The default locale to use when an explicit `locale` is omitted from localizer constructor calls. Passed to Intl.NumberFomrat` and `Intl.DateFomrat`. See {@ https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl#Locale_identification_and_negotiation|Locale identification and negotiation} for more information.
  * @param {string} [options.localization.numberOptions=Hypergrid.localization.numberOptions] - Options passed to `Intl.NumberFomrat` for creating the basic "number" localizer.
  * @param {string} [options.localization.dateOptions=Hypergrid.localization.dateOptions] - Options passed to `Intl.DateFomrat` for creating the basic "date" localizer.
- * @param {object} [options.calculators] - functions to use for computed columns
  * @param {object} [options.schema]
- * @param {object} [options.fields]
  * @param {object} [options.margin] - optional canvas margins
  * @param {string} [options.margin.top=0]
  * @param {string} [options.margin.right=0]
@@ -2527,7 +2525,7 @@ Hypergrid.prototype = {
     },
 
     getUnfilteredRowCount: function() {
-        return this.deprecated('getUnfilteredRowCount()', null, '1.1.0', arguments, 'No longer supported');
+        return this.deprecated('getUnfilteredRowCount()', null, '1.2.0', arguments, 'No longer supported');
     },
 
     /**

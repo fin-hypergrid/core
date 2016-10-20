@@ -49,12 +49,9 @@ function Column(behavior, options) {
     }
 
     function getIndexFromName(name) {
-        var index;
-        schema.find(function(columnSchema, i) {
-            index = i;
+        return schema.findIndex(function(columnSchema, i) {
             return columnSchema.name === name;
         });
-        return index;
     }
 
     if (index === undefined) {
@@ -83,7 +80,7 @@ Column.prototype = {
 
     deprecated: deprecated,
     set: function(options) {
-        return this.deprecated('set(options)', 'setProperties(options)', '1.1.0', arguments);
+        return this.deprecated('set(options)', 'setProperties(options)', '1.2.0', arguments);
     },
 
     /**
@@ -162,7 +159,7 @@ Column.prototype = {
     },
 
     getUnfilteredValue: function(y) {
-        return this.deprecated('getUnfilteredValue(y)', null, '1.1.0', arguments, 'No longer supported');
+        return this.deprecated('getUnfilteredValue(y)', null, '1.2.0', arguments, 'No longer supported');
     },
 
     getValue: function(y) {
