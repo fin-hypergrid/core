@@ -1104,8 +1104,12 @@ window.onload = function() {
             format: 'francs'
         });
 
-        console.log('visible rows = ' + grid.renderer.visibleRows.map(function(vr){ return vr.index; }));
-        console.log('visible columns = ' + grid.renderer.visibleColumns.map(function(vc){ return vc.index; }));
+        console.log('visible rows = ' + grid.renderer.visibleRows.map(function(vr){
+            return (vr.subgrid.type || '')[0] + vr.rowIndex;
+        }));
+        console.log('visible columns = ' + grid.renderer.visibleColumns.map(function(vc){
+            return vc.columnIndex;
+        }));
 
         //see myThemes.js file for how to create a theme
         //grid.addProperties(myThemes.one);

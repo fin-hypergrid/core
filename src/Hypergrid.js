@@ -3020,8 +3020,8 @@ var Hypergrid = Base.extend('Hypergrid', {
 
     selectViewportCell: function(x, y) {
         var headerRowCount = this.getHeaderRowCount(),
-            realX = this.renderer.visibleColumns[x].index,
-            realY = this.renderer.visibleRows[y].index;
+            realX = this.renderer.visibleColumns[x].ColumnIndex, // todo refac
+            realY = this.renderer.visibleRows[y].rowIndex; // todo refac
         this.clearSelections();
         this.select(realX, realY + headerRowCount, 0, 0);
         this.setMouseDown(this.newPoint(realX, realY + headerRowCount)); // todo refac
@@ -3033,8 +3033,8 @@ var Hypergrid = Base.extend('Hypergrid', {
         var selections = this.getSelections();
         if (selections && selections.length) {
             var headerRowCount = this.getHeaderRowCount(),
-                realX = this.renderer.visibleColumns[x].index,
-                realY = this.renderer.visibleRows[y].index + headerRowCount, // todo refac
+                realX = this.renderer.visibleColumns[x].columnIndex, // todo refac
+                realY = this.renderer.visibleRows[y].rowIndex + headerRowCount, // todo refac
                 selection = selections[0],
                 origin = selection.origin;
             this.setDragExtent(this.newPoint(realX - origin.x, realY - origin.y));

@@ -197,7 +197,8 @@ var Renderer = Base.extend('Renderer', {
             xSpaced = x ? x + lineWidth : x;
             widthSpaced = x ? width - lineWidth : width;
             this.visibleColumns[c] = this.visibleColumnsByIndex[vx] = {
-                index: vx,
+                index: c,
+                columnIndex: vx,
                 left: xSpaced,
                 width: widthSpaced,
                 right: xSpaced + widthSpaced
@@ -247,7 +248,7 @@ var Renderer = Base.extend('Renderer', {
 
                 heightSpaced = height - lineWidth;
                 this.visibleRows[r] = vr = {
-                    index: vy,
+                    index: r,
                     subgrid: subgrid,
                     rowIndex: vy - base,
                     top: y,
@@ -325,8 +326,8 @@ var Renderer = Base.extend('Renderer', {
      * @returns {number[]} Rows we just rendered.
      */
     getVisibleRows: function() {
-        warn('getVisibleRows', 'The getVisibleRows() method has been deprecated as of v1.2.0 in favor of the getVisibleRows[*].index property and will be removed in a future version.');
-        return this.visibleRows.map(function(vr) { return vr.index; });
+        warn('getVisibleRows', 'The getVisibleRows() method has been deprecated as of v1.2.0 in favor of the getVisibleRows[*].rowIndex and .subgrid properties and will be removed in a future version.');
+        return this.visibleRows.map(function(vr) { return vr.rowIndex; });
     },
 
     /**
@@ -342,8 +343,8 @@ var Renderer = Base.extend('Renderer', {
      * @returns {number} Columns we just rendered.
      */
     getVisibleColumns: function() {
-        warn('visibleColumns', 'The getVisibleColumns() method has been deprecated as of v1.2.0 in favor of the visibleColumns[*].index property and will be removed in a future version.');
-        return this.visibleColumns.map(function(vc) { return vc.index; });
+        warn('visibleColumns', 'The getVisibleColumns() method has been deprecated as of v1.2.0 in favor of the visibleColumns[*].columnIndex property and will be removed in a future version.');
+        return this.visibleColumns.map(function(vc) { return vc.columnIndex; });
     },
 
     /**
@@ -539,7 +540,7 @@ var Renderer = Base.extend('Renderer', {
      * @param {number} rowIndex - the row index
      * @returns {boolean} The given row is fully visible.
      */
-    isRowVisible: function(rowIndex) {
+    isRowVisible: function(rowIndex) { // todo refac which row index to use?
         return !!this.visibleRows.find(function(vr) {
             return !vr.subgrid.type && vr.index === rowIndex;
         });
@@ -590,12 +591,14 @@ var Renderer = Base.extend('Renderer', {
 
         var vci = this.visibleColumnsByIndex,
             vri = this.visibleRowsByDataRowIndex,
-            lastColumn = this.visibleColumns[this.visibleColumns.length - 1],
-            lastRow = vri[this.dataWindow.corner.y]; // last row in scrollable data section
+            lastColumn = this.visibleColumns[this.visibleColumns.length - 1], // last column in scrollable section
+            lastRow = vri[this.dataWindow.corner.y], // last row in scrollable data section
+            lastColumnIndex = lastColumn.columnIndex,
+            lastRowIndex = lastRow.rowIndex;
 
         if (
-            selection.origin.x > lastColumn.index ||
-            selection.origin.y > lastRow.index
+            selection.origin.x > lastColumnIndex ||
+            selection.origin.y > lastRowIndex
         ) {
             // selection area begins to right or below grid
             return;
@@ -615,9 +618,9 @@ var Renderer = Base.extend('Renderer', {
 
         var props = this.grid.properties;
         vcOrigin = vcOrigin || lastColumn;
-        vcCorner = vcCorner || selection.corner.x > lastColumn.index ? lastColumn.index : vci[props.fixedColumnCount - 1];
+        vcCorner = vcCorner || selection.corner.x > lastColumnIndex ? lastColumnIndex : vci[props.fixedColumnCount - 1];
         vrOrigin = vrOrigin || lastRow;
-        vrCorner = vrCorner || selection.corner.y > lastRow.index ? lastRow.index : vri[props.fixedRowCount - 1];
+        vrCorner = vrCorner || selection.corner.y > lastRowIndex ? lastRowIndex : vri[props.fixedRowCount - 1];
 
         // Render the selection model around the bounds
         var config = {
@@ -701,7 +704,7 @@ var Renderer = Base.extend('Renderer', {
      */
     isLastColumnVisible: function() {
         var lastColumnIndex = this.getColumnCount() - 1;
-        return !!this.visibleColumns.find(function(vc) { return vc.index === lastColumnIndex; });
+        return !!this.visibleColumns.find(function(vc) { return vc.columnIndex === lastColumnIndex; });
     },
 
     /**
@@ -866,7 +869,7 @@ var Renderer = Base.extend('Renderer', {
             c++
         ) {
             vc = visibleColumns[c];
-            cellEvent.column = behavior.getActiveColumn(vc.index);
+            cellEvent.column = behavior.getActiveColumn(vc.columnIndex);
 
             gridCell.x = vc.index;
             dataCell.x = cellEvent.column && cellEvent.column.index;
@@ -937,7 +940,7 @@ var Renderer = Base.extend('Renderer', {
     paintCell: function(gc, x, y) {
         gc.moveTo(0, 0);
 
-        var c = this.visibleColumns[x].index,
+        var c = this.visibleColumns[x].index, // todo refac
             r = this.visibleRows[y].index;
 
         if (c) { //something is being viewed at at the moment (otherwise returns undefined)
