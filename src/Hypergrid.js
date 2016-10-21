@@ -1647,12 +1647,12 @@ var Hypergrid = Base.extend('Hypergrid', {
     },
 
     /**
+     * @param {Point} gridCell - The pixel location of the mouse in physical grid coordinates.
      * @returns {Rectangle} The pixel based bounds rectangle given a data cell point.
-     * @param {Point} cell - The pixel location of the mouse.
      * @memberOf Hypergrid.prototype
      */
-    getBoundsOfCell: function(cell) {
-        var b = this.renderer.getBoundsOfCell(cell);
+    getBoundsOfCell: function(gridCell) {
+        var b = this.renderer.getBoundsOfCell(gridCell.x, gridCell.y);
 
         //convert to a proper rectangle
         return new Rectangle(b.x, b.y, b.width, b.height);
@@ -2906,7 +2906,7 @@ var Hypergrid = Base.extend('Hypergrid', {
     },
 
     _getBoundsOfCell: function(x, y) {
-        return this.renderer._getBoundsOfCell(x, y);
+        return this.deprecated('_getBoundsOfCell()', 'getBoundsOfCell()', '1.2.0', arguments);
     },
 
     /**

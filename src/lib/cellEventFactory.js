@@ -26,6 +26,8 @@ var prototype = {
     get value() { return this.subgrid.getValue(this.dataCell.x, this.dataCell.y); },
     set value(value) { this.subgrid.setValue(this.dataCell.x, this.dataCell.y, value); },
 
+    get bounds() { return this._bounds || (this._bounds = this.renderer.getBoundsOfCell(this.gridCell.x, this.gridCell.y)); },
+
     getCellProperty: function(propName) { return this.column.getCellProperty(this, propName); },
 
     get isGridRow() { return !this.subgrid.type; },
@@ -143,6 +145,7 @@ function CellEvent(grid) {
     Object.defineProperties(CellEvent.prototype, {
         constructor: { value: CellEvent },
         grid: { value: grid },
+        renderer: { value: grid.renderer },
         selectionModel: { value: grid.selectionModel },
         behavior: { value: grid.behavior },
         dataModel: { value: grid.behavior.dataModel }

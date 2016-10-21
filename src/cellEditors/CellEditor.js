@@ -82,6 +82,14 @@ var CellEditor = Base.extend('CellEditor', {
         this.el.addEventListener('keypress', function(e) {
             grid.fireSyntheticEditorKeyPressEvent(self, e);
         });
+        this.el.addEventListener('mousedown', function(e) {
+            self.onmousedown(e);
+        });
+    },
+
+    // If you override this method, be sure to call it as a final step (or call stopPropagation yourself).
+    onmousedown: function(event) {
+        event.stopPropagation(); // Catch mouseodwn here before it gets to the document listener defined in Hypergrid().
     },
 
     localizer: Localization.prototype.null,
@@ -138,7 +146,7 @@ var CellEditor = Base.extend('CellEditor', {
      * @desc move the editor to the current editor point
      */
     moveEditor: function() {
-        var cellBounds = this.grid._getBoundsOfCell(this.event.gridCell.x, this.event.gridCell.y);
+        var cellBounds = this.event.bounds;
 
         //hack to accommodate bootstrap margin issues...
         var xOffset =
@@ -414,10 +422,10 @@ var CellEditor = Base.extend('CellEditor', {
     setBounds: function(cellBounds) {
         var style = this.el.style;
 
-        style.left = px(cellBounds.x + 1);
-        style.top = px(cellBounds.y + 1);
-        style.width = px(cellBounds.width - 1);
-        style.height = px(cellBounds.height - 1);
+        style.left = px(cellBounds.x);
+        style.top = px(cellBounds.y);
+        style.width = px(cellBounds.width);
+        style.height = px(cellBounds.height);
     },
 
     /**

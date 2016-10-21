@@ -518,11 +518,12 @@ var Behavior = Base.extend('Behavior', {
      * @memberOf Behavior.prototype
      */
     getValue: function(xOrCellEvent, y) {
-        if (arguments.length === 2) {
-            xOrCellEvent = this.newCellEvent(xOrCellEvent, y);
+        switch (arguments.length) {
+            case 1:
+                return xOrCellEvent.value;
+            case 2:
+                return this.newCellEvent(xOrCellEvent, y).value;
         }
-
-        return xOrCellEvent.value;
     },
 
     getUnfilteredValue: function(x, y) {
@@ -1105,7 +1106,7 @@ var Behavior = Base.extend('Behavior', {
 
     /**
      * @summary Gets the number of "header rows".
-     * @desc Defined as the combined number of rows in all the subgrids before the (first) data subgrid.
+     * @desc Defined as the sum of all rows of all subgrids before the (first) data subgrid.
      * @memberOf behaviors.JSON.prototype
      */
     getHeaderRowCount: function() {

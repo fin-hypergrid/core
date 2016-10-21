@@ -388,30 +388,20 @@ var Renderer = Base.extend('Renderer', {
 
     /**
      * @memberOf Renderer.prototype
-     * @param {Point} cell
-     * @returns {Rectangle} Bounding rect of the given `cell`.
-     */
-    getBoundsOfCell: function(cell) {
-        return this._getBoundsOfCell(cell.x, cell.y);
-    },
-
-    /**
-     * @memberOf Renderer.prototype
-     * @param {number} x - The horizontal grid coordinate.
-     * @param {number} y - The vertical grid coordinate.
+     * @param {CellEvent|number} x - CellEvent object or grid column coordinate.
+     * @param {number} [y] - Grid row coordinate. Omit if `xOrCellEvent` is a CellEvent.
      * @returns {Rectangle} Bounding rect of cell with the given coordinates.
      */
-    _getBoundsOfCell: function(x, y) {
+    getBoundsOfCell: function(x, y) {
         var vc = this.visibleColumns[x],
-            vr = this.visibleRows[y],
-            cell = this.cell;
+            vr = this.visibleRows[y];
 
-        cell.x = vc.left;
-        cell.y = vr.top;
-        cell.wdith = vc.width;
-        cell.height = vr.height;
-
-        return cell;
+        return {
+            x: vc.left,
+            y: vr.top,
+            width: vc.width,
+            height: vr.height
+        };
     },
 
     /**
@@ -550,7 +540,9 @@ var Renderer = Base.extend('Renderer', {
      * @returns {boolean} The given row is fully visible.
      */
     isRowVisible: function(rowIndex) {
-        return !!this.visibleRows.find(function(vr) { return vr.index === rowIndex; });
+        return !!this.visibleRows.find(function(vr) {
+            return !vr.subgrid.type && vr.index === rowIndex;
+        });
     },
 
     /**
@@ -840,11 +832,15 @@ var Renderer = Base.extend('Renderer', {
      *   * `cellEvent.column`
      *   * `cellEvent.gridCell.x`
      *   * `cellEvent.dataCell.x`
+     *   * `cellEvent.bounds.x`
+     *   * `cellEvent.bounds.width`
      * * Set in subgrid loop:
      *   * `cellEvent.subgrid`
      * * Set in row loop:
      *   * `cellEvent.gridCell.y`
      *   * `cellEvent.dataCell.y`
+     *   * `cellEvent.bounds.y`
+     *   * `cellEvent.bounds.height`
      * @memberOf Renderer.prototype
      * @param {CanvasRenderingContext2D} gc
      */
@@ -854,7 +850,7 @@ var Renderer = Base.extend('Renderer', {
             c, C, // column loop index and limit
             r, R, // row loop index and limit
             cellEvent = new behavior.CellEvent(0, 0),
-            bounds = cellEvent.bounds = { x: 0, y: 0, width: 0, height: 0 },
+            bounds = cellEvent.bounds, // invoking .bounds getter here creates a bounds object
             gridCell = cellEvent.gridCell,
             dataCell = cellEvent.dataCell,
             vc, visibleColumns = this.visibleColumns,
