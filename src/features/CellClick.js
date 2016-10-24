@@ -10,7 +10,6 @@ var CellClick = Feature.extend('CellClick', {
 
     /**
      * @memberOf CellClick.prototype
-     * @desc Handle this event down the feature chain of responsibility
      * @param {Hypergrid} grid
      * @param {Object} event - the event details
      */

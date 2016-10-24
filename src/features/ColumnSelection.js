@@ -52,7 +52,6 @@ var ColumnSelection = Feature.extend('ColumnSelection', {
 
     /**
      * @memberOf ColumnSelection.prototype
-     * @desc Handle this event down the feature chain of responsibility.
      * @param {Hypergrid} grid
      * @param {Object} event - the event details
      */
@@ -77,7 +76,6 @@ var ColumnSelection = Feature.extend('ColumnSelection', {
 
     /**
      * @memberOf ColumnSelection.prototype
-     * @desc Handle this event down the feature chain of responsibility.
      * @param {Hypergrid} grid
      * @param {Object} event - the event details
      */
@@ -96,14 +94,8 @@ var ColumnSelection = Feature.extend('ColumnSelection', {
             // HOLD OFF WHILE WAITING FOR DOUBLE-CLICK
             this.doubleClickTimer = setTimeout(function() {
                 this.doubleClickTimer = undefined;
-
-                //if we are in the fixed area do not apply the scroll values
-                var dx = event.unscrolled.gridCell.x < grid.getFixedColumnCount()
-                    ? event.unscrolled.gridCell.x
-                    : event.gridCell.x;
-
                 this.dragging = true;
-                this.extendSelection(grid, dx, event.primitiveEvent.detail.keys);
+                this.extendSelection(grid, event.gridCell.x, event.primitiveEvent.detail.keys);
             }.bind(this), grid.properties.doubleClickDelay + RACE_TIME);
         } else if (this.next) {
             this.next.handleMouseDown(grid, event);
@@ -112,7 +104,6 @@ var ColumnSelection = Feature.extend('ColumnSelection', {
 
     /**
      * @memberOf ColumnSelection.prototype
-     * @desc handle this event down the feature chain of responsibility
      * @param {Hypergrid} grid
      * @param {Object} event - the event details
      */
@@ -124,12 +115,8 @@ var ColumnSelection = Feature.extend('ColumnSelection', {
             this.dragging
         ) {
             //if we are in the fixed area do not apply the scroll values
-            this.lastDragColumn = event.unscrolled.gridCell.x < grid.getFixedColumnCount()
-                ? event.unscrolled.gridCell.x
-                : event.gridCell.x;
-
+            this.lastDragColumn = event.gridCell.x;
             this.currentDrag = event.primitiveEvent.detail.mouse;
-
             this.checkDragScroll(grid, this.currentDrag);
             this.handleMouseDragCellSelection(grid, this.lastDragColumn, event.primitiveEvent.detail.keys);
         } else if (this.next) {
@@ -139,7 +126,6 @@ var ColumnSelection = Feature.extend('ColumnSelection', {
 
     /**
      * @memberOf ColumnSelection.prototype
-     * @desc handle this event down the feature chain of responsibility
      * @param {Hypergrid} grid
      * @param {Object} event - the event details
      */
@@ -259,14 +245,12 @@ var ColumnSelection = Feature.extend('ColumnSelection', {
 
     /**
      * @memberOf ColumnSelection.prototype
-     * @desc handle this event
      * @param {Hypergrid} grid
      */
     handleDOWNSHIFT: function(grid) {},
 
     /**
      * @memberOf ColumnSelection.prototype
-     * @desc handle this event
      * @param {Hypergrid} grid
      * @param {Object} event - the event details
      */
@@ -274,7 +258,6 @@ var ColumnSelection = Feature.extend('ColumnSelection', {
 
     /**
      * @memberOf ColumnSelection.prototype
-     * @desc handle this event
      * @param {Hypergrid} grid
      * @param {Object} event - the event details
      */
@@ -284,7 +267,6 @@ var ColumnSelection = Feature.extend('ColumnSelection', {
 
     /**
      * @memberOf ColumnSelection.prototype
-     * @desc handle this event
      * @param {Hypergrid} grid
      * @param {Object} event - the event details
      */
@@ -294,7 +276,6 @@ var ColumnSelection = Feature.extend('ColumnSelection', {
 
     /**
      * @memberOf ColumnSelection.prototype
-     * @desc handle this event
      * @param {Hypergrid} grid
      * @param {Object} event - the event details
      */
@@ -318,7 +299,6 @@ var ColumnSelection = Feature.extend('ColumnSelection', {
 
     /**
      * @memberOf ColumnSelection.prototype
-     * @desc handle this event
      * @param {Hypergrid} grid
      * @param {Object} event - the event details
      */
@@ -326,7 +306,6 @@ var ColumnSelection = Feature.extend('ColumnSelection', {
 
     /**
      * @memberOf ColumnSelection.prototype
-     * @desc handle this event
      * @param {Hypergrid} grid
      * @param {Object} event - the event details
      */
@@ -336,7 +315,6 @@ var ColumnSelection = Feature.extend('ColumnSelection', {
 
     /**
      * @memberOf ColumnSelection.prototype
-     * @desc handle this event
      * @param {Hypergrid} grid
      * @param {Object} event - the event details
      */

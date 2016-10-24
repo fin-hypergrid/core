@@ -183,8 +183,8 @@ window.onload = function() {
     setGlobalSorter();
     resetGlobalFilter(people1);
 
-    console.log('Fields:');  console.dir(behavior.dataModel.getFields());
-    console.log('Headers:'); console.dir(behavior.dataModel.getHeaders());
+    console.log('Fields:');  console.dir(behavior.dataModel.schema.map(function(cs) { return cs.name; }));
+    console.log('Headers:'); console.dir(behavior.dataModel.schema.map(function(cs) { return cs.header; }));
     console.log('Indexes:'); console.dir(idx);
 
     function setData(data, options) {
@@ -1000,7 +1000,7 @@ window.onload = function() {
 
         // decorate height cell in row "17"
         var rowOrdinal = 17;
-        behavior.setCellProperties(idx.HEIGHT, behavior.getHeaderRowCount() + (rowOrdinal - 1), {
+        behavior.setCellProperties(idx.HEIGHT, rowOrdinal - 1, {
             font: '10pt Tahoma',
             color: 'lightblue',
             backgroundColor: 'red',
@@ -1105,7 +1105,7 @@ window.onload = function() {
         });
 
         console.log('visible rows = ' + grid.renderer.visibleRows.map(function(vr){
-            return (vr.subgrid.type || '')[0] + vr.rowIndex;
+            return (vr.subgrid.type || 'data')[0] + vr.rowIndex;
         }));
         console.log('visible columns = ' + grid.renderer.visibleColumns.map(function(vc){
             return vc.columnIndex;

@@ -333,16 +333,18 @@ Column.prototype = {
      * @returns {undefined|CellEditor} Falsy value means either no declared cell editor _or_ instantiation aborted by falsy return return from fireRequestCellEdit.
      */
     getCellEditorAt: function(event) {
+
         var columnIndex = this.index,
             rowIndex = event.gridCell.y,
             editorName = event.getCellProperty('editor'),
             options = Object.defineProperties(event, {
-                // Mix in the cell `format` property
                 format: {
+                    // `options.fomrat` is a copy of the cell's `format` property which is:
+                    // 1. Subject to adjustment by the `getCellEditorAt` override.
+                    // 2. Then used by the cell editor to reference the predefined localizer.
+                    writable: true,
                     value: event.getCellProperty('format')
                 },
-
-                // Add back `editPoint` but with a deprecation warning.
                 editPoint: {
                     get: function() {
                         if (!warned.editPoint) {

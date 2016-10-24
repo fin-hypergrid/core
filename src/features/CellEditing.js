@@ -11,7 +11,6 @@ var CellEditing = Feature.extend('CellEditing', {
 
     /**
      * @memberOf CellEditing.prototype
-     * @desc handle this event down the feature chain of responsibility
      * @param {Hypergrid} grid
      * @param {Object} event - the event details
      */
@@ -38,7 +37,6 @@ var CellEditing = Feature.extend('CellEditing', {
     },
 
     /**
-     * @desc Handle this event down the feature chain of responsibility.
      * @param {Hypergrid} grid
      * @param {Object} event - the event details
      * @memberOf KeyPaging.prototype
@@ -57,7 +55,7 @@ var CellEditing = Feature.extend('CellEditing', {
         ) {
             currentCell = grid.selectionModel.getLastSelection();
             if (currentCell) {
-                var pseudoEvent = grid.behavior.newCellEvent(currentCell.origin.x,
+                var pseudoEvent = new grid.behavior.CellEvent(currentCell.origin.x,
                     currentCell.origin.y + grid.behavior.getHeaderRowCount());
 
                 editor = grid.onEditorActivate(pseudoEvent);

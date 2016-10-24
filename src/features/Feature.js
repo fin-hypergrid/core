@@ -2,6 +2,8 @@
 
 var Base = require('../Base');
 
+var warned = {};
+
 /**
  * Instances of features are connected to one another to make a chain of responsibility for handling all the input to the hypergrid.
  * @constructor
@@ -86,7 +88,6 @@ var Feature = Base.extend('Feature', {
 
     /**
      * @memberOf Feature.prototype
-     * @desc handle this event down the feature chain of responsibility
      * @param {Hypergrid} grid
      * @param {Object} event - the event details
      * @private Not really private but was cluttering up all the feature doc pages.
@@ -99,7 +100,6 @@ var Feature = Base.extend('Feature', {
 
     /**
      * @memberOf Feature.prototype
-     * @desc handle this event down the feature chain of responsibility
      * @param {Hypergrid} grid
      * @param {Object} event - the event details
      * @private Not really private but was cluttering up all the feature doc pages.
@@ -112,7 +112,6 @@ var Feature = Base.extend('Feature', {
 
     /**
      * @memberOf Feature.prototype
-     * @desc handle this event down the feature chain of responsibility
      * @param {Hypergrid} grid
      * @param {Object} event - the event details
      * @private Not really private but was cluttering up all the feature doc pages.
@@ -125,7 +124,6 @@ var Feature = Base.extend('Feature', {
 
     /**
      * @memberOf Feature.prototype
-     * @desc handle this event down the feature chain of responsibility
      * @param {Hypergrid} grid
      * @param {Object} event - the event details
      * @private Not really private but was cluttering up all the feature doc pages.
@@ -138,7 +136,6 @@ var Feature = Base.extend('Feature', {
 
     /**
      * @memberOf Feature.prototype
-     * @desc handle this event down the feature chain of responsibility
      * @param {Hypergrid} grid
      * @param {Object} event - the event details
      * @private Not really private but was cluttering up all the feature doc pages.
@@ -151,7 +148,6 @@ var Feature = Base.extend('Feature', {
 
     /**
      * @memberOf Feature.prototype
-     * @desc handle this event down the feature chain of responsibility
      * @param {Hypergrid} grid
      * @param {Object} event - the event details
      * @private Not really private but was cluttering up all the feature doc pages.
@@ -164,7 +160,6 @@ var Feature = Base.extend('Feature', {
 
     /**
      * @memberOf Feature.prototype
-     * @desc handle this event down the feature chain of responsibility
      * @param {Hypergrid} grid
      * @param {Object} event - the event details
      * @private Not really private but was cluttering up all the feature doc pages.
@@ -177,7 +172,6 @@ var Feature = Base.extend('Feature', {
 
     /**
      * @memberOf Feature.prototype
-     * @desc handle this event down the feature chain of responsibility
      * @param {Hypergrid} grid
      * @param {Object} event - the event details
      * @private Not really private but was cluttering up all the feature doc pages.
@@ -190,7 +184,6 @@ var Feature = Base.extend('Feature', {
 
     /**
      * @memberOf Feature.prototype
-     * @desc handle this event down the feature chain of responsibility
      * @param {Hypergrid} grid
      * @param {Object} event - the event details
      * @private Not really private but was cluttering up all the feature doc pages.
@@ -203,7 +196,6 @@ var Feature = Base.extend('Feature', {
 
     /**
      * @memberOf Feature.prototype
-     * @desc handle this event down the feature chain of responsibility
      * @param {Hypergrid} grid
      * @param {Object} event - the event details
      * @private Not really private but was cluttering up all the feature doc pages.
@@ -216,7 +208,6 @@ var Feature = Base.extend('Feature', {
 
     /**
      * @memberOf Feature.prototype
-     * @desc handle this event down the feature chain of responsibility
      * @param {Hypergrid} grid
      * @param {Object} event - the event details
      * @private Not really private but was cluttering up all the feature doc pages.
@@ -240,57 +231,63 @@ var Feature = Base.extend('Feature', {
 
     /**
      * @memberOf Feature.prototype
-     * @desc handle this event down the feature chain of responsibility
      * @param {Hypergrid} grid
      * @param {Object} event - the event details
      */
     isFixedRow: function(grid, event) {
-        return event.unscrolled.gridCell.y < grid.getFixedRowCount();
+        if (!warned.isFixedRow) {
+            warned.isFixedRow = true;
+            console.warn('isFixedRow(grid, event) has been deprecated as of v1.2.0 in favor of event.isRowFixed and will be removed in a future version.');
+        }
+        return event.isRowFixed;
     },
 
     /**
      * @memberOf Feature.prototype
-     * @desc handle this event down the feature chain of responsibility
      * @param {Hypergrid} grid
      * @param {Object} event - the event details
      */
     isFirstFixedRow: function(grid, event) {
-        return event.unscrolled.gridCell.y < 1;
+        return event.gridCell.y < 1;
     },
 
     /**
      * @memberOf Feature.prototype
-     * @desc handle this event down the feature chain of responsibility
      * @param {Hypergrid} grid
      * @param {Object} event - the event details
      */
     isFixedColumn: function(grid, event) {
-        return event.unscrolled.gridCell.x < grid.getFixedColumnCount();
+        if (!warned.isFixedColumn) {
+            warned.isFixedColumn = true;
+            console.warn('isFixedColumn(grid, event) has been deprecated as of v1.2.0 in favor of event.isColumnFixed and will be removed in a future version.');
+        }
+        return event.isColumnFixed;
     },
 
     /**
      * @memberOf Feature.prototype
-     * @desc handle this event down the feature chain of responsibility
      * @param {Hypergrid} grid
      * @param {Object} event - the event details
      */
     isFirstFixedColumn: function(grid, event) {
-        return event.unscrolled.gridCell.x === 0;
+        return event.gridCell.x === 0;
     },
 
     /**
      * @memberOf Feature.prototype
-     * @desc handle this event down the feature chain of responsibility
      * @param {Hypergrid} grid
      * @param {Object} event - the event details
      */
     isTopLeft: function(grid, event) {
-        return this.isFixedRow(grid, event) && this.isFixedColumn(grid, event);
+        if (!warned.isTopLeft) {
+            warned.isTopLeft = true;
+            console.warn('isTopLeft(grid, event) has been deprecated as of v1.2.0 in favor of event.isCellFixed and will be removed in a future version.');
+        }
+        return event.isCellFixed;
     },
 
     /**
      * @memberOf Feature.prototype
-     * @desc handle this event down the feature chain of responsibility
      * @param {Hypergrid} grid
      * @param {Object} event - the event details
      * @private Not really private but was cluttering up all the feature doc pages.
@@ -306,7 +303,6 @@ var Feature = Base.extend('Feature', {
 
     /**
      * @memberOf Feature.prototype
-     * @desc handle this event down the feature chain of responsibility
      * @param {Hypergrid} grid
      * @param {Object} event - the event details
      * @private Not really private but was cluttering up all the feature doc pages.

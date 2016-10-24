@@ -60,7 +60,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
      * @memberOf dataModels.JSON.prototype
      * @param {object} [options]
      */
-    reset: function() {
+    reset: function(options) {
         this.selectedData = [];
 
         /**
@@ -140,11 +140,10 @@ var JSON = DataModel.extend('dataModels.JSON', {
     },
 
     /**
-     * @param {number} r - Grid row coordinate.
+     * @param {number} y - Data row coordinate.
      * @returns {*}
      */
-    getDataIndex: function(r) {
-        var y = r - this.grid.getHeaderRowCount();
+    getDataIndex: function(y) {
         return this.dataSource.getDataIndex(y);
     },
 

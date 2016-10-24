@@ -48,7 +48,7 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
             }
         }
 
-        if (x >= 0) {
+        if (config.isUserDataArea) {
             val = valOrFunc(val, config, config.calculator);
         }
 

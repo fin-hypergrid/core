@@ -65,19 +65,11 @@ var Hypergrid = Base.extend('Hypergrid', {
             gridTheme = buildTheme(gridTheme);
         }
 
-<<<<<<< b46c840e476a3f23d41bf400257f030897ebec05
-    if (this.options.Behavior) {
-        this.setBehavior(this.options); // also sets this.options.pipeline and this.options.data
-    } else if (this.options.data) {
-        this.setData(this.options.data, this.options); // if no behavior has yet been set, also sets default behavior and this.options.pipeline
-    }
-=======
         //Optional container argument
         if (!(typeof container === 'string') && !(container instanceof HTMLElement)) {
             options = container;
             container = null;
         }
->>>>>>> GRID-283 squashed
 
         this.options = options = options || {};
 
@@ -118,7 +110,7 @@ var Hypergrid = Base.extend('Hypergrid', {
         if (this.options.Behavior) {
             this.setBehavior(this.options); // also sets this.options.pipeline and this.options.data
         } else if (this.options.data) {
-            this.setData(this.options.data); // if no behavior has yet been set, `setData` sets a default behavior and this.options.pipeline
+            this.setData(this.options.data, this.options); // if no behavior has yet been set, `setData` sets a default behavior and this.options.pipeline
         }
 
         /**
@@ -595,7 +587,7 @@ var Hypergrid = Base.extend('Hypergrid', {
         this.refreshProperties();
         setTimeout(function() {
             self.behaviorChanged();
-            self.synchronizeScrollingBoundries();
+            self.synchronizeScrollingBoundaries();
         }, 100);
     },
 
@@ -682,7 +674,7 @@ var Hypergrid = Base.extend('Hypergrid', {
         behavior.autoSizeRowNumberColumn();
         if (this.isColumnAutosizing() && behavior.checkColumnAutosizing(false)) {
             setTimeout(function() {
-                behavior.grid.synchronizeScrollingBoundries();
+                behavior.grid.synchronizeScrollingBoundaries();
             });
         }
     },
@@ -948,7 +940,7 @@ var Hypergrid = Base.extend('Hypergrid', {
      */
     behaviorShapeChanged: function() {
         if (this.divCanvas) {
-            this.synchronizeScrollingBoundries();
+            this.synchronizeScrollingBoundaries();
         }
     },
 
@@ -1132,16 +1124,8 @@ var Hypergrid = Base.extend('Hypergrid', {
             if (self.properties.readOnly) {
                 return;
             }
-<<<<<<< b46c840e476a3f23d41bf400257f030897ebec05
-            //self.stopEditing();
-            var mouse = e.detail.mouse;
-            var mouseEvent = self.getGridCellFromMousePoint(mouse);
-            mouseEvent.primitiveEvent = e;
-            mouseEvent.keys = e.detail.keys;
-=======
             var mouseEvent = getMouseEvent(e);
             mouseEvent.keys = e.detail.keys; // todo: this was in fin-tap but wasn't here
->>>>>>> GRID-283 squashed
             self.fireSyntheticClickEvent(mouseEvent);
             self.delegateClick(mouseEvent);
         });
@@ -1487,7 +1471,6 @@ var Hypergrid = Base.extend('Hypergrid', {
     },
 
     /**
-     * @todo refac and move to CellEvent
      * @memberOf Hypergrid.prototype
      * @param {number} columnIndex - The column index in question.
      * @returns {boolean} The given column is fully visible.
@@ -1497,7 +1480,6 @@ var Hypergrid = Base.extend('Hypergrid', {
     },
 
     /**
-     * @todo refac and move to CellEvent
      * @memberOf Hypergrid.prototype
      * @param {number} r - The raw row index in question.
      * @returns {boolean} The given row is fully visible.
@@ -1514,8 +1496,7 @@ var Hypergrid = Base.extend('Hypergrid', {
      * @returns {boolean} The given cell is fully is visible.
      */
     isDataVisible: function(c, rn) {
-        return (!this.isGridRow(rn) || this.isDataRowVisible(rn + this.getHeaderRowCount())) &&
-            this.isColumnVisible(c);
+        return this.isDataRowVisible(rn) && this.isColumnVisible(c);
     },
 
     /**
@@ -1663,7 +1644,7 @@ var Hypergrid = Base.extend('Hypergrid', {
      * @desc This is called by the fin-canvas when a resize occurs.
      */
     resized: function() {
-        this.synchronizeScrollingBoundries();
+        this.synchronizeScrollingBoundaries();
     },
 
     /**
@@ -2344,7 +2325,7 @@ var Hypergrid = Base.extend('Hypergrid', {
      * @desc The data dimensions have changed, or our pixel boundries have changed.
      * Adjust the scrollbar properties as necessary.
      */
-    synchronizeScrollingBoundries: function() {
+    synchronizeScrollingBoundaries: function() {
         var numFixedColumns = this.getFixedColumnCount();
         var numFixedRows = this.getFixedRowCount();
 
@@ -2392,6 +2373,9 @@ var Hypergrid = Base.extend('Hypergrid', {
         this.behaviorStateChanged();
 
         this.resizeScrollbars();
+    },
+    synchronizeScrollingBoundries: function() {
+        this.deprecated('synchronizeScrollingBoundries', 'synchronizeScrollingBoundaries', '1.2.0');
     },
 
     /**

@@ -10,7 +10,6 @@ var ColumnSorting = Feature.extend('ColumnSorting', {
 
     /**
      * @memberOf ColumnSorting.prototype
-     * @desc Handle this event down the feature chain of responsibility.
      * @param {Hypergrid} grid
      * @param {Object} event - the event details
      */
@@ -30,14 +29,13 @@ var ColumnSorting = Feature.extend('ColumnSorting', {
 
     /**
      * @memberOf ColumnSorting.prototype
-     * @desc Handle this event down the feature chain of responsibility.
      * @param {Hypergrid} grid
      * @param {Object} event - the event details
      */
     handleMouseMove: function(grid, event) {
         var columnProperties;
         if (
-            this.isFixedRow(grid, event) &&
+            event.isRowFixed &&
             event.isHeaderCell &&
             (columnProperties = grid.behavior.getColumnProperties(event.gridCell.x)) &&
             !columnProperties.unsortable

@@ -489,30 +489,6 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
-     * @memberOf Behavior.prototype
-     * @desc setter for the hypergrid
-     * @param {Hypergrid} grid
-     */
-    setGrid: function(grid) {
-    },
-
-    /**
-     * @summary Create a new `CellEvent` object.
-     * @desc Finds the subgrid containing the given grid row, which the new `CellEvent` object needs to know.
-     * @returns {CellEvent}
-     * @memberOf Behavior.prototype
-     */
-    newCellEvent: function(x, y) {
-        var rowIndex = 0,
-            prevLen = 0,
-            subgrid = this.subgrids.find(function(subgrid) {
-                return y < (rowIndex += prevLen) + (prevLen = subgrid.getRowCount());
-            });
-
-        return new this.CellEvent(x, y, subgrid, y - rowIndex);
-    },
-
-    /**
      * @param {CellEvent|number} xOrCellEvent - Grid column coordinate.
      * @param {number} [y] - Grid row coordinate. Omit if `xOrCellEvent` is a CellEvent.
      * @memberOf Behavior.prototype
@@ -522,7 +498,7 @@ var Behavior = Base.extend('Behavior', {
             case 1:
                 return xOrCellEvent.value;
             case 2:
-                return this.newCellEvent(xOrCellEvent, y).value;
+                return new this.CellEvent(xOrCellEvent, y).value;
         }
     },
 
@@ -542,7 +518,7 @@ var Behavior = Base.extend('Behavior', {
      */
     setValue: function(xOrCellEvent, y, value) {
         switch (arguments.length) {
-            case 3: xOrCellEvent = this.newCellEvent(xOrCellEvent, y); break;
+            case 3: xOrCellEvent = new this.CellEvent(xOrCellEvent, y); break;
             case 2: value = y; break;
         }
 
@@ -566,14 +542,13 @@ var Behavior = Base.extend('Behavior', {
      * @memberOf Behavior.prototype
      */
     getCellOwnProperties: function(xOrCellEvent, y) {
-        var column;
         switch (arguments.length) {
             case 1:
-                column = xOrCellEvent.column;
-                return column && column.getCellOwnProperties(xOrCellEvent);
+                return xOrCellEvent.column // xOrCellEvent is cellEvent
+                    .getCellOwnProperties(xOrCellEvent);
             case 2:
-                column = this.getColumn(xOrCellEvent);
-                return column && column.getCellOwnProperties(y);
+                return this.getColumn(xOrCellEvent) // xOrCellEvent is x
+                    .getCellOwnProperties(y);
         }
     },
 
@@ -588,14 +563,13 @@ var Behavior = Base.extend('Behavior', {
      * @memberOf Behavior.prototype
      */
     getCellProperties: function(xOrCellEvent, y) {
-        var column;
         switch (arguments.length) {
             case 1:
-                column = xOrCellEvent.column;
-                return column && column.getCellProperties(xOrCellEvent);
+                return xOrCellEvent.column // xOrCellEvent is cellEvent
+                    .getCellProperties(xOrCellEvent);
             case 2:
-                column = this.getColumn(xOrCellEvent);
-                return column && column.getCellProperties(y);
+                return this.getColumn(xOrCellEvent) // xOrCellEvent is x
+                    .getCellProperties(y);
         }
     },
 
@@ -609,14 +583,13 @@ var Behavior = Base.extend('Behavior', {
      * @memberOf Behavior.prototype
      */
     getCellProperty: function(xOrCellEvent, y, key) {
-        var column;
         switch (arguments.length) {
             case 2:
-                column = xOrCellEvent.column;
-                return column && column.getCellProperty(xOrCellEvent, y);
+                return xOrCellEvent.column // xOrCellEvent is cellEvent
+                    .getCellProperty(xOrCellEvent, y); // y omitted so y here is actually key
             case 3:
-                column = this.getColumn(xOrCellEvent);
-                return column && column.getCellProperty(y, key);
+                return this.getColumn(xOrCellEvent) // xOrCellEvent is x
+                    .getCellProperty(y, key);
         }
     },
 
@@ -629,17 +602,32 @@ var Behavior = Base.extend('Behavior', {
      * @param {boolean} [preserve=false] - Falsy creates new object; truthy copies `properties` members into existing object. _When `y` omitted, this param promoted to 3rd arg._
      */
     setCellProperties: function(xOrCellEvent, y, properties, preserve) {
-        var column;
         if (typeof y === 'object') {
-            column = xOrCellEvent.column;
-            if (column) {
-                column.setCellProperties(xOrCellEvent, y, properties);
-            }
+            xOrCellEvent.column // xOrCellEvent is cellEvent
+                .setCellProperties(xOrCellEvent, y, properties); // y omitted so y here is actually properties; properties is actually preserve
         } else {
-            column = this.getColumn(xOrCellEvent);
-            if (column) {
-                column.setCellProperties(y, properties, preserve);
-            }
+            this.getColumn(xOrCellEvent) // xOrCellEvent is x
+                .setCellProperties(y, properties, preserve);
+        }
+    },
+
+    /**
+     * @summary Set a specific cell property.
+     * @desc If there is no cell properties object, defers to column properties object.
+     * @param {CellEvent|number} xOrCellEvent - Data x coordinate.
+     * @param {number} [y] - Grid row coordinate. Omit when `xOrCellEvent` is a `CellEvent`.
+     * @param {string} key - Name of property to get. _When `y` omitted, this param promoted to 2nd arg._
+     * @param value
+     * @memberOf Behavior.prototype
+     */
+    setCellProperty: function(xOrCellEvent, y, key, value) {
+        switch (arguments.length) {
+            case 3:
+                return xOrCellEvent.column // xOrCellEvent is cellEvent
+                    .setCellProperty(xOrCellEvent, y, key); // y omitted so y here is actually key and key is actually value
+            case 4:
+                return this.getColumn(xOrCellEvent) // xOrCellEvent is x
+                    .setCellProperty(y, key, value);
         }
     },
 

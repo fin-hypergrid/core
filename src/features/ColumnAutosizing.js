@@ -9,7 +9,6 @@ var Feature = require('./Feature');
 var ColumnAutosizing = Feature.extend('ColumnAutosizing', {
 
     /**
-     * @desc handle this event down the feature chain of responsibility
      * @param {Hypergrid} grid
      * @param {Object} event - the event details
      * @memberOf ColumnAutosizing.prototype

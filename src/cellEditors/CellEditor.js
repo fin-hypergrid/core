@@ -21,8 +21,7 @@ var CellEditor = Base.extend('CellEditor', {
      * @param {string} [options.format] - Name of a localizer with which to override prototype's `localizer` property.
      */
     initialize: function(grid, options) {
-
-        // Mix in arbitrary properties for mustache use.
+        // Mix in all enumerable properties for mustache use.
         for (var key in options) {
             if (options.hasOwnProperty(key) && this[key] !== null) {
                 this[key] = options[key];
@@ -48,8 +47,8 @@ var CellEditor = Base.extend('CellEditor', {
         this.locale = grid.localization.locale; // for template's `lang` attribute
 
         // override native localizer with localizer named in format if defined (from instantiation options)
-        if (this.format) {
-            this.localizer = this.grid.localization.get(this.format);
+        if (options.format) {
+            this.localizer = this.grid.localization.get(options.format);
         }
 
         this.initialValue = value;
@@ -435,7 +434,7 @@ var CellEditor = Base.extend('CellEditor', {
     checkEditor: function() {
         if (this.checkEditorPositionFlag) {
             this.checkEditorPositionFlag = false;
-            if (this.grid.isDataVisible(this.event.gridCell.x, this.event.gridCell.y)) {
+            if (this.event.isCellVisible) {
                 this.setEditorValue(this.initialValue);
                 this.attachEditor();
                 this.moveEditor();
@@ -448,11 +447,7 @@ var CellEditor = Base.extend('CellEditor', {
     },
 
     attachEditor: function() {
-        var input = this.el,
-            div = this.grid.div,
-            referenceNode = div.querySelector('.finbar-horizontal, .finbar-vertical');
-
-        div.insertBefore(input, referenceNode);
+        this.grid.div.appendChild(this.el);
     },
 
     template: ''

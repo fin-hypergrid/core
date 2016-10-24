@@ -15,36 +15,29 @@ var cell = {
      * @desc This is the cell's own properties object if found; else the column object.
      *
      * If you are seeking a single specific property, consider calling {@link Column#getCellProperty} instead (which calls this method).
-     *
-     * For backwards compatibility, this function still accepts an absolute row coordinate as well as a CellEvent.
-     * @param {number|CellEvent} yOrCellEvent - Grid row coordinate.
+     * @param {number|CellEvent} yOrCellEvent - Data row coordinate or cell event object.
      * @return {object} The properties of the cell at x,y in the grid.
      * @memberOf Column#
      */
     getCellProperties: function(yOrCellEvent) {
-        if (yOrCellEvent >= 0) {
-            // accept absolute row coordinate to maintain backwards compatibility
-            yOrCellEvent = this.behavior.newCellEvent(0, yOrCellEvent); // x coordinate not used
-        }
-        return this.getCellOwnProperties(yOrCellEvent) || this.properties;
+        var cellEvent = newDataRowCellEvent.call(this, yOrCellEvent);
+        return this.getCellOwnProperties(cellEvent) || this.properties;
     },
 
     /**
      *
-     * @param {number|CellEvent} yOrCellEvent - Grid row coordinate.
+     * @param {number|CellEvent} yOrCellEvent - Data row coordinate or cell event object.
      * @param {Object} properties - Hash of cell properties.
      * @param {boolean} [preserve=false] - Falsy creates new object; truthy copies `properties` members into existing object.
      * @returns {*}
      * @memberOf Column#
      */
     setCellProperties: function(yOrCellEvent, properties, preserve) {
-        if (yOrCellEvent >= 0) {
-            // accept absolute row coordinate to maintain backwards compatibility
-            yOrCellEvent = this.behavior.newCellEvent(0, yOrCellEvent); // x coordinate not used
-        }
-        var cellPropertiesObject = preserve ? getCellPropertiesObject : newCellPropertiesObject,
-            props = cellPropertiesObject.call(this, yOrCellEvent);
-        return _(props).extendOwn(properties);
+        var cellEvent = newDataRowCellEvent.call(this, yOrCellEvent),
+            getPropertiesObject = preserve ? getCellPropertiesObject : newCellPropertiesObject,
+            cellPropertiesObject = getPropertiesObject.call(this, cellEvent);
+
+        return _(cellPropertiesObject).extendOwn(properties);
     },
 
     /**
@@ -60,37 +53,37 @@ var cell = {
      *
      * Call this method only when you need to know if the the cell has its own properties object; otherwise call {@link Column#getCellProperties|getCellProperties}.
      *
-     * @param {number} cellEvent - Grid row coordinate.
+     * @param {number|CellEvent} yOrCellEvent - Data row coordinate or cell event object.
      * @returns {undefined|object} The "own" properties of the cell at x,y in the grid. If the cell does not own a properties object, returns `undefined`.
      * @memberOf Column#
      */
-    getCellOwnProperties: function(cellEvent) {
-        return this.cellProperties[getDataIndex.call(this, cellEvent)];
+    getCellOwnProperties: function(yOrCellEvent) {
+        return this.cellProperties[getDataIndex.call(this, yOrCellEvent)];
     },
 
     /**
      * @summary Return a specific cell property.
      * @desc If there is no cell properties object, defers to column properties object.
-     * @param {number} cellEvent - Grid row coordinate.
+     * @param {number|CellEvent} yOrCellEvent - Data row coordinate or cell event object.
      * @param {string} key
      * @return {object} The specified property for the cell at x,y in the grid.
      * @memberOf Column#
      */
-    getCellProperty: function(cellEvent, key) {
-        return this.getCellProperties(cellEvent)[key];
+    getCellProperty: function(yOrCellEvent, key) {
+        return this.getCellProperties(yOrCellEvent)[key];
     },
 
     /**
-     * @param {number} cellEvent - Grid row coordinate.
+     * @param {number|CellEvent} yOrCellEvent - Data row coordinate or cell event object.
      * @param {string} key
      * @param value
      * @returns {object}
      * @memberOf Column#
      */
-    setCellProperty: function(cellEvent, key, value) {
-        var props = getCellPropertiesObject.call(this, cellEvent);
-        props[key] = value;
-        return props;
+    setCellProperty: function(yOrCellEvent, key, value) {
+        var propertiesObject = getCellPropertiesObject.call(this, yOrCellEvent);
+        propertiesObject[key] = value;
+        return propertiesObject;
     },
 
     clearAllCellProperties: function() {
@@ -111,7 +104,8 @@ var cell = {
  * @private
  */
 function getDataIndex(cellEvent) {
-    return cellEvent.type || this.dataModel.getDataIndex(cellEvent.dataCell.y);
+    var type = cellEvent.visibleRow.subgrid.type;
+    return type ? type.toUpperCase() : this.dataModel.getDataIndex(cellEvent.dataCell.y);
 }
 
 /**
@@ -137,6 +131,19 @@ function newCellPropertiesObject(cellEvent) {
     var newObj = Object.create(this.properties);
     this.cellProperties[getDataIndex.call(this, cellEvent)] = newObj;
     return newObj;
+}
+
+function newDataRowCellEvent(yOrCellEvent) {
+    var cellEvent, firstDataGridRow;
+
+    if (yOrCellEvent >= 0) {
+        firstDataGridRow = this.behavior.getHeaderRowCount();
+        cellEvent = new this.behavior.CellEvent(0, firstDataGridRow); // x coordinate not used
+        cellEvent.dataCell.y = yOrCellEvent; // scroll to y
+    } else {
+        cellEvent = yOrCellEvent;
+    }
+    return cellEvent;
 }
 
 module.exports = cell;

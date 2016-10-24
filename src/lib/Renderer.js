@@ -13,15 +13,16 @@ var images = require('../../images');
  */
 
 /** @typedef {object} visibleColumnDescriptor
- * @property {number} index - Index into {@link Behavior#columns}, the subset of "active" columns. See {@link Renderer#visibleColumns} for details.
+ * @property {number} index - A back reference to the element's array index in {@link Renderer#visibleColumns}.
+ * @property {number} columnIndex - Dereferences {@link Behavior#columns}, the subset of _active_ columns, specifying which column to show in that position.
  * @property {number} left - Pixel coordinate of the left edge of this column, rounded to nearest integer.
  * @property {number} right - Pixel coordinate of the right edge of this column, rounded to nearest integer.
  * @property {number} width - Width of this column in pixels, rounded to nearest integer.
  */
 
 /** @typedef {object} visibleRowDescriptor
- * @property {number} index - Physical vertical row coordinate, possibly adjusted for scrolling.
- * @property {number} rowIndex - Local vertical row coordinate within the subgrid to which the row belongs.
+ * @property {number} index - A back reference to the element's array index in {@link Renderer#visibleRows}.
+ * @property {number} rowIndex - Local vertical row coordinate within the subgrid to which the row belongs, adjusted for scrolling.
  * @property {DataModel} subgrid - A reference to the subgrid to which the row belongs.
  * @property {number} top - Pixel coordinate of the top edge of this row, rounded to nearest integer.
  * @property {number} bottom - Pixel coordinate of the bottom edge of this row, rounded to nearest integer.
@@ -72,32 +73,30 @@ var Renderer = Base.extend('Renderer', {
         this.renderedColumnMinWidths = [];
 
         /**
-         * Size: Always the exact number of visible columns, the last of which may be only partially visible.
+         * Represents the ordered set of visible columns. Array size is always the exact number of visible columns, the last of which may only be partially visible.
          *
-         * The `index` property of each object in the list dereferences {@link Behavior#columns} (the subset of "active" columns) specifying which column to show in that position. This list can take three forms, based on whether or not there are "fixed" columns on the left and whether or not the grid is horizontally scrolled:
-         * * Unscrolled grid: These indexes are a zero-based sequence of integers.
-         * * Scrolled grid:
-         *   * Without fixed columns: These indexes are a sequence of integers beginning with the index of the first _visible_ column, _i.e.,_ based on the number of columns scrolled off to the left.
-         *   * With fixed columns: These indexes are two concatenated sequences of consecutive integers:
-         *     1. A zero-based list of consecutive of integers representing the fixed columns.
-         *     2. A sequence of consecutive integers beginning with the index of the first visible column (which equals the number of columns scrolled off to the left).
+         * This sequence of elements' `columnIndex` values assumes one of three patterns. Which pattern is base on the following two questions:
+         * * Are there "fixed" columns on the left?
+         * * Is the grid horizontally scrolled?
+         *
+         * The set of `columnIndex` values consists of:
+         * 1. The first element will be -1 if the row handle column is being rendered.
+         * 2. A zero-based list of consecutive of integers representing the fixed columns (if any).
+         * 3. An n-based list of consecutive of integers representing the scrollable columns (where n = number of fixed columns + the number of columns scrolled off to the left).
          * @type {visibleColumnDescriptor}
          */
         this.visibleColumns = [];
 
         /**
-         * Size: Always the exact number of visible rows.
+         * Represents the ordered set of visible rows. Array size is always the exact number of visible rows.
          *
-         * The `index` property of each object in the list is the zero-based row number:
-         * 1. A zero-based list of consecutive integers representing all the rows of all the non-empty subgrids up to (but not including) the single scrollable data subgrid. These are therefore the vertical row coordinates for the rows in these subgrids.
-         * 2. A subset of consecutive rows from the data source, which will either be unscrolled or scrolled. In both cases, the number of rows in this sequence is the maximum number of rows for which there is room, given the current height of the grid and the height of each row, with room reserved at the bottom for all rows of all remaining non-empty subgrids.
-         *    * Unscrolled grid: The sequence begins with the next vertical row coordinate (which equals the total number of rows from all the subgrids so far).
-         *    * Scrolled grid: The sequence begins with the first _visible_ data row, based on the next vertical row coordinate but adjusted upwards by adding in the number of rows scrolled off the top.
-         * 3. A list of consecutive integers representing all the rows of all remaining non-empty subgrids, based on the p[hysical vertical row coordinate of the first of these remaining rows.
+         * The sequence of elements' `rowIndex` values is local to each subgrid.
+         * * **For each non-scrollable subgrid:** The sequence is a zero-based list of consecutive integers.
+         * * **For the scrollable subgrid:**
+         *   1. A zero-based list of consecutive of integers representing the fixed rows (if any).
+         *   2. An n-based list of consecutive of integers representing the scrollable rows (where n = number of fixed rows + the number of rows scrolled off the top).
          *
-         * `rowIndex` is the _local_ zero-based row number within the subgrid to which this row belongs.
-         *
-         * `subgrid` is a reference to the subgrid data model object to which this row belongs.
+         * Note that non-scrollable subgrids can come both before _and_ after the scrollable subgrid.
          * @type {visibleRowDescriptor}
          */
         this.visibleRows = [];
@@ -137,6 +136,11 @@ var Renderer = Base.extend('Renderer', {
             numRows = this.getRowCount(),
             bounds = this.getBounds(),
             grid = this.grid,
+            editorCellEvent = grid.cellEditor && grid.cellEditor.event,
+            dx = editorCellEvent && editorCellEvent.gridCell.x,
+            dy = editorCellEvent && editorCellEvent.dataCell.y,
+            vcEd,
+            vrEd,
             behavior = grid.behavior,
 
             insertionBoundsCursor = 0,
@@ -144,7 +148,7 @@ var Renderer = Base.extend('Renderer', {
 
             lineWidth = grid.properties.lineWidth,
 
-            start,
+            start = this.grid.isShowRowNumbers() ? -1 : 0,
             x, X, // horizontal pixel loop index and limit
             y, Y, // vertical pixel loop index and limit
             c, C, // column loop index and limit
@@ -154,10 +158,11 @@ var Renderer = Base.extend('Renderer', {
             base, // sum of rows for all subgrids so far
             subgrids = behavior.subgrids,
             subgrid,
+            rowIndex,
             scrollableSubgrid,
             footerHeight,
             vx, vy,
-            vr,
+            vr, vc,
             width, height,
             firstVX, lastVX,
             firstVY, lastVY,
@@ -170,11 +175,9 @@ var Renderer = Base.extend('Renderer', {
         this.visibleRows.length = 0;
 
         this.visibleColumnsByIndex = []; // array because number of columns will always be reasonable
-        this.visibleRowsByDataRowIndex = {}; // hash because keyed by both fixed and scrolled row indexes
+        this.visibleRowsByDataRowIndex = {}; // hash because keyed by (fixed and) scrolled row indexes
 
         this.insertionBounds = [];
-
-        start = this.grid.isShowRowNumbers() ? -1 : 0;
 
         for (
             x = 0, c = start, C = this.getColumnCount(), X = bounds.width || grid.canvas.width;
@@ -196,13 +199,16 @@ var Renderer = Base.extend('Renderer', {
 
             xSpaced = x ? x + lineWidth : x;
             widthSpaced = x ? width - lineWidth : width;
-            this.visibleColumns[c] = this.visibleColumnsByIndex[vx] = {
+            this.visibleColumns[c] = this.visibleColumnsByIndex[vx] = vc = {
                 index: c,
                 columnIndex: vx,
                 left: xSpaced,
                 width: widthSpaced,
                 right: xSpaced + widthSpaced
             };
+            if (dx === vx) {
+                vcEd = vc;
+            }
 
             x += width;
 
@@ -244,19 +250,24 @@ var Renderer = Base.extend('Renderer', {
                     }
                 }
 
+
+                rowIndex = vy - base;
                 height = grid.getRowHeight(vy);
 
                 heightSpaced = height - lineWidth;
                 this.visibleRows[r] = vr = {
                     index: r,
                     subgrid: subgrid,
-                    rowIndex: vy - base,
+                    rowIndex: rowIndex,
                     top: y,
                     height: heightSpaced,
                     bottom: y + heightSpaced
                 };
                 if (scrollableSubgrid) {
                     this.visibleRowsByDataRowIndex[vy - base] = vr;
+                    if (dy === rowIndex) {
+                        vrEd = vr;
+                    }
                 }
 
                 y += height;
@@ -266,6 +277,13 @@ var Renderer = Base.extend('Renderer', {
                 subrows = r - topR;
                 Y += footerHeight;
             }
+        }
+
+        if (editorCellEvent) {
+            editorCellEvent.visibleColumn = vcEd;
+            editorCellEvent.visibleRow = vrEd;
+            editorCellEvent.gridCell.y = vrEd && vrEd.index;
+            editorCellEvent._bounds = null;
         }
 
         this.viewHeight = Y;
@@ -326,13 +344,13 @@ var Renderer = Base.extend('Renderer', {
      * @returns {number[]} Rows we just rendered.
      */
     getVisibleRows: function() {
-        warn('getVisibleRows', 'The getVisibleRows() method has been deprecated as of v1.2.0 in favor of the getVisibleRows[*].rowIndex and .subgrid properties and will be removed in a future version.');
+        warn('getVisibleRows', 'The getVisibleRows() method has been deprecated as of v1.2.0 and will be removed in a future version. Previously returned the this.visibleRows array but because this.visibleRows is no longer a simple array of integers but is now an array of objects, it now returns an array mapped to this.visibleRows[*].rowIndex. Note however that this mapping is not equivalent to what this method previously returned because while each object\'s .rowIndex property is still adjusted for scrolling within the data subgrid, the index is now local to (zero-based within) each subgrid');
         return this.visibleRows.map(function(vr) { return vr.rowIndex; });
     },
 
     /**
      * @memberOf Renderer.prototype
-     * @returns {number} Numer of columns we just rendered.
+     * @returns {number} Number of columns we just rendered.
      */
     getVisibleColumnsCount: function() {
         return this.visibleColumns.length - 1;
@@ -343,7 +361,7 @@ var Renderer = Base.extend('Renderer', {
      * @returns {number} Columns we just rendered.
      */
     getVisibleColumns: function() {
-        warn('visibleColumns', 'The getVisibleColumns() method has been deprecated as of v1.2.0 in favor of the visibleColumns[*].columnIndex property and will be removed in a future version.');
+        warn('visibleColumns', 'The getVisibleColumns() method has been deprecated as of v1.2.0 and will be removed in a future version. Previously returned the this.visibleColumns but because this.visibleColumns is no longer a simple array of integers but is now an array of objects, it now returns an array mapped to the equivalent visibleColumns[*].columnIndex.');
         return this.visibleColumns.map(function(vc) { return vc.columnIndex; });
     },
 
@@ -440,78 +458,21 @@ var Renderer = Base.extend('Renderer', {
      * @returns {Point} Cell coordinates
      */
     getGridCellFromMousePoint: function(point) {
+        var x = point.x,
+            y = point.y,
+            vrs = this.visibleRows,
+            vcs = this.visibleColumns,
+            firstColumn = vcs[this.grid.isShowRowNumbers() ? -1 : 0],
+            inFirstColumn = x < firstColumn.right,
+            vc = inFirstColumn ? firstColumn : vcs.find(function(vc) { return x < vc.right; }) || vcs[vcs.length - 1],
+            vr = vrs.find(function(vr) { return y < vr.bottom; }) || vrs[vrs.length - 1],
+            mousePoint = this.grid.newPoint(vc.left + vc.width / 2, vr.top + vr.height / 2),
+            cellEvent = new this.grid.behavior.CellEvent(vc.columnIndex, vr.index);
 
-        var width, height,
-            mx, my, // mouse pixels
-            gx, gy, // grid cells
-            previous,
-            visibleRows = this.visibleRows,
-            visibleColumns = this.visibleColumns,
-            fixedColumnCount = this.getFixedColumnCount(), // + gridSize;
-            fixedRowCount = this.getFixedRowCount();
+        // cellEvent.visibleColumn = vc;
+        // cellEvent.visibleRow = vr;
 
-        // var fixedColumnCount = this.getFixedColumnCount();
-        // var fixedRowCount = this.getFixedRowCount();
-        var scrollX = this.getScrollLeft();
-        var scrollY = this.getScrollTop();
-
-        if (point.x < 0) {
-            gx = -1;
-        } else {
-            for (gx = previous = 0; gx < visibleColumns.length; gx++) {
-                width = visibleColumns[gx].left;
-                if (point.x < width) {
-                    mx = Math.max(0, point.x - previous - 2);
-                    break;
-                }
-                previous = width;
-            }
-            gx--;
-        }
-
-        if (point.y < 0) {
-            gy = 0;
-        } else {
-            for (gy = previous = 0; gy < visibleRows.length; gy++) {
-                height = visibleRows[gy].top;
-                if (point.y < height) {
-                    my = Math.max(0, point.y - previous - 2);
-                    break;
-                }
-                previous = height;
-            }
-            gy--;
-        }
-
-        var unscrolled = this.grid.behavior.newCellEvent(gx, gy); // coordinates before scrolling applied
-
-        //compensate if we are scrolled
-        if (gx >= fixedColumnCount) {
-            gx += scrollX;
-        }
-        if (gy >= fixedRowCount) {
-            gy += scrollY;
-        }
-
-        var mousePoint = this.grid.newPoint(mx, my);
-
-        return Object.defineProperties(
-            this.grid.behavior.newCellEvent(gx, gy), // defines Point objects .gridCell, .dataCell
-            {
-                mousePoint: {
-                    value: mousePoint
-                },
-                unscrolled: {
-                    value: unscrolled  // defines Point objects .unscrolled.gridCell, .unscrolled.dataCell
-                },
-                viewPoint: {
-                    get: function() {
-                        warn('viewpoint', 'The .viewPoint property has been deprecated as of v1.2.0 in favor of .unscrolled.gridCell and may be removed in a future release.');
-                        return this.unscrolled.gridCell;
-                    }
-                }
-            }
-        );
+        return Object.defineProperty(cellEvent, 'mousePoint', { value: mousePoint });
     },
 
     /**
@@ -520,15 +481,15 @@ var Renderer = Base.extend('Renderer', {
      * @param {number} colIndex - the column index*
      * @returns {boolean} The given column is fully visible.
      */
-    isColumnVisible: function(colIndex) {
-        return !!this.visibleColumns.find(function(vc) { return vc.index === colIndex; });
+    isColumnVisible: function(columnIndex) {
+        return !!this.visibleColumns.find(function(vc) { return vc.columnIndex === columnIndex; });
     },
 
     /**
      * @memberOf Renderer.prototype
      * @returns {number} The width x coordinate of the last rendered column
      */
-    getFinalVisableColumnBoundary: function() {
+    getFinalVisibleColumnBoundary: function() {
         var chop = this.isLastColumnVisible() ? 2 : 1;
         var colWall = this.visibleColumns[this.visibleColumns.length - chop].right;
         return Math.min(colWall, this.getBounds().width);
@@ -537,13 +498,11 @@ var Renderer = Base.extend('Renderer', {
     /**
      * @memberOf Renderer.prototype
      * @summary Determines visibility of a row.
-     * @param {number} rowIndex - the row index
+     * @param {number} y - The physical (unscrolled) grid row index.
      * @returns {boolean} The given row is fully visible.
      */
-    isRowVisible: function(rowIndex) { // todo refac which row index to use?
-        return !!this.visibleRows.find(function(vr) {
-            return !vr.subgrid.type && vr.index === rowIndex;
-        });
+    isRowVisible: function(y) {
+        return !!this.visibleRows[y];
     },
 
     /**
@@ -853,7 +812,7 @@ var Renderer = Base.extend('Renderer', {
             c, C, // column loop index and limit
             r, R, // row loop index and limit
             cellEvent = new behavior.CellEvent(0, 0),
-            bounds = cellEvent.bounds, // invoking .bounds getter here creates a bounds object
+            bounds = cellEvent._bounds = { x:0, y:0, width:0, height:0 },
             gridCell = cellEvent.gridCell,
             dataCell = cellEvent.dataCell,
             vc, visibleColumns = this.visibleColumns,
@@ -868,10 +827,10 @@ var Renderer = Base.extend('Renderer', {
             c < C;
             c++
         ) {
-            vc = visibleColumns[c];
+            cellEvent.visibleColumn = vc = visibleColumns[c];
             cellEvent.column = behavior.getActiveColumn(vc.columnIndex);
 
-            gridCell.x = vc.index;
+            gridCell.x = vc.columnIndex;
             dataCell.x = cellEvent.column && cellEvent.column.index;
 
             bounds.x = vc.left;
@@ -893,8 +852,7 @@ var Renderer = Base.extend('Renderer', {
                 r < R;
                 r++
             ) {
-                vr = visibleRows[r];
-                cellEvent.subgrid = vr.subgrid;
+                cellEvent.visibleRow = vr = visibleRows[r];
 
                 bounds.y = vr.top;
                 bounds.height = vr.height;

@@ -43,7 +43,6 @@ var RowSelection = Feature.extend('RowSelection', {
 
     /**
      * @memberOf RowSelection.prototype
-     * @desc Handle this event down the feature chain of responsibility.
      * @param {Hypergrid} grid
      * @param {Object} event - the event details
      */
@@ -61,7 +60,6 @@ var RowSelection = Feature.extend('RowSelection', {
 
     /**
      * @memberOf RowSelection.prototype
-     * @desc Handle this event down the feature chain of responsibility.
      * @param {Hypergrid} grid
      * @param {Object} event - the event details
      */
@@ -76,12 +74,8 @@ var RowSelection = Feature.extend('RowSelection', {
             grid.toggleSelectAllRows();
         } else if (rowSelectable && event.isGridRow)  {
             // if we are in the fixed area, do not apply the scroll values
-            var dy = event.unscrolled.dataCell.y < grid.properties.fixedRowCount
-                ? event.unscrolled.dataCell.y
-                : event.dataCell.y;
-
             this.dragArmed = true;
-            this.extendSelection(grid, dy, event.primitiveEvent.detail.keys);
+            this.extendSelection(grid, event.dataCell.y, event.primitiveEvent.detail.keys);
         } else if (this.next) {
             this.next.handleMouseDown(grid, event);
         }
@@ -89,7 +83,6 @@ var RowSelection = Feature.extend('RowSelection', {
 
     /**
      * @memberOf RowSelection.prototype
-     * @desc handle this event down the feature chain of responsibility
      * @param {Hypergrid} grid
      * @param {Object} event - the event details
      */
@@ -100,13 +93,9 @@ var RowSelection = Feature.extend('RowSelection', {
             !event.primitiveEvent.detail.isRightClick
         ) {
             //if we are in the fixed area do not apply the scroll values
-            this.lastDragRow = event.unscrolled.dataCell.y < grid.getFixedRowCount()
-                ? event.unscrolled.dataCell.y
-                : event.dataCell.y;
-
+            this.lastDragRow = event.dataCell.y;
             this.dragging = true;
             this.currentDrag = event.primitiveEvent.detail.mouse;
-
             this.checkDragScroll(grid, this.currentDrag);
             this.handleMouseDragCellSelection(grid, this.lastDragRow, event.primitiveEvent.detail.keys);
         } else if (this.next) {
@@ -116,7 +105,6 @@ var RowSelection = Feature.extend('RowSelection', {
 
     /**
      * @memberOf RowSelection.prototype
-     * @desc handle this event down the feature chain of responsibility
      * @param {Hypergrid} grid
      * @param {Object} event - the event details
      */
@@ -236,7 +224,6 @@ var RowSelection = Feature.extend('RowSelection', {
 
     /**
      * @memberOf RowSelection.prototype
-     * @desc handle this event
      * @param {Hypergrid} grid
      */
     handleDOWNSHIFT: function(grid) {
@@ -245,7 +232,6 @@ var RowSelection = Feature.extend('RowSelection', {
 
     /**
      * @memberOf RowSelection.prototype
-     * @desc handle this event
      * @param {Hypergrid} grid
      * @param {Object} event - the event details
      */
@@ -255,7 +241,6 @@ var RowSelection = Feature.extend('RowSelection', {
 
     /**
      * @memberOf RowSelection.prototype
-     * @desc handle this event
      * @param {Hypergrid} grid
      * @param {Object} event - the event details
      */
@@ -263,7 +248,6 @@ var RowSelection = Feature.extend('RowSelection', {
 
     /**
      * @memberOf RowSelection.prototype
-     * @desc handle this event
      * @param {Hypergrid} grid
      * @param {Object} event - the event details
      */
@@ -271,7 +255,6 @@ var RowSelection = Feature.extend('RowSelection', {
 
     /**
      * @memberOf RowSelection.prototype
-     * @desc handle this event
      * @param {Hypergrid} grid
      * @param {Object} event - the event details
      */
@@ -281,7 +264,6 @@ var RowSelection = Feature.extend('RowSelection', {
 
     /**
      * @memberOf RowSelection.prototype
-     * @desc handle this event
      * @param {Hypergrid} grid
      * @param {Object} event - the event details
      */
@@ -291,7 +273,6 @@ var RowSelection = Feature.extend('RowSelection', {
 
     /**
      * @memberOf RowSelection.prototype
-     * @desc handle this event
      * @param {Hypergrid} grid
      * @param {Object} event - the event details
      */
@@ -299,7 +280,6 @@ var RowSelection = Feature.extend('RowSelection', {
 
     /**
      * @memberOf RowSelection.prototype
-     * @desc handle this event
      * @param {Hypergrid} grid
      * @param {Object} event - the event details
      */

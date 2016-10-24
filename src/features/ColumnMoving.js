@@ -114,7 +114,6 @@ var ColumnMoving = Feature.extend('ColumnMoving', {
 
     /**
      * @memberOf CellMoving.prototype
-     * @desc handle this event
      * @param {Hypergrid} grid
      * @param {Object} event - the event details
      */
@@ -126,7 +125,7 @@ var ColumnMoving = Feature.extend('ColumnMoving', {
 
         var distance = Math.abs(event.primitiveEvent.detail.dragstart.x - event.primitiveEvent.detail.mouse.x);
 
-        if (distance < 10 || this.isFixedColumn(grid, event)) {
+        if (distance < 10 || event.isColumnFixed) {
             if (this.next) {
                 this.next.handleMouseDrag(grid, event);
             }
@@ -154,14 +153,13 @@ var ColumnMoving = Feature.extend('ColumnMoving', {
 
     /**
      * @memberOf CellMoving.prototype
-     * @desc handle this event
      * @param {Hypergrid} grid
      * @param {Object} event - the event details
      */
     handleMouseDown: function(grid, event) {
         if (
             grid.behavior.isColumnReorderable() &&
-            !this.isFixedColumn(grid, event)
+            !event.isColumnFixed
         ) {
             if (event.isHeaderCell) {
                 this.dragArmed = true;
@@ -176,7 +174,6 @@ var ColumnMoving = Feature.extend('ColumnMoving', {
 
     /**
      * @memberOf CellMoving.prototype
-     * @desc handle this event
      * @param {Hypergrid} grid
      * @param {Object} event - the event details
      */
@@ -205,7 +202,6 @@ var ColumnMoving = Feature.extend('ColumnMoving', {
 
     /**
      * @memberOf CellMoving.prototype
-     * @desc handle this event
      * @param {Hypergrid} grid
      * @param {Object} event - the event details
      */
@@ -213,7 +209,7 @@ var ColumnMoving = Feature.extend('ColumnMoving', {
 
         if (
             grid.behavior.isColumnReorderable() &&
-            !this.isFixedColumn(grid, event) &&
+            !event.isColumnFixed &&
             !this.dragging &&
             event.isHeaderCell &&
             event.mousePoint.y < 5 // todo: < 5 depends on header is top-most row which is currently always true but we may allow header "section" to be arbitrary position within quadrant (see also handleMouseDown in ColumnSelection.js)
@@ -499,7 +495,7 @@ var ColumnMoving = Feature.extend('ColumnMoving', {
         var dragColumnIndex = grid.renderOverridesCache.dragger.columnIndex;
 
         var minX = 0;
-        var maxX = grid.renderer.getFinalVisableColumnBoundary();
+        var maxX = grid.renderer.getFinalVisibleColumnBoundary();
         x = Math.min(x, maxX + 15);
         x = Math.max(minX - 15, x);
 

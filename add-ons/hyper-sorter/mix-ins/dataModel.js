@@ -77,8 +77,7 @@ module.exports = {
     },
 
     serializeSortState: function(){
-        var state = this.getPrivateState();
-        state.sorts = this.getSortedColumnIndexes();
+        this.grid.properties.sorts = this.getSortedColumnIndexes();
     },
 
     /**

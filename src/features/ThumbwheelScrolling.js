@@ -9,7 +9,6 @@ var ThumbwheelScrolling = Feature.extend('ThumbwheelScrolling', {
 
     /**
      * @memberOf ThumbwheelScrolling.prototype
-     * @desc handle this event down the feature chain of responsibility
      * @param {Hypergrid} grid
      * @param {Object} event - the event details
      */

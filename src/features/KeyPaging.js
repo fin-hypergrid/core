@@ -15,7 +15,6 @@ var commands = {
 var KeyPaging = Feature.extend('KeyPaging', {
 
     /**
-     * @desc Handle this event down the feature chain of responsibility.
      * @param {Hypergrid} grid
      * @param {Object} event - the event details
      * @memberOf KeyPaging.prototype

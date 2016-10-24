@@ -16,7 +16,7 @@ module.exports = {
         behavior.toggleSort(c, keys);
 
         setTimeout(function() {
-            self.synchronizeScrollingBoundries();
+            self.synchronizeScrollingBoundaries();
             //self.behaviorChanged();
             if (self.isColumnAutosizing()) {
                 behavior.autosizeAllColumns();
