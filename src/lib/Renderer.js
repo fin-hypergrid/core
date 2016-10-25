@@ -466,7 +466,7 @@ var Renderer = Base.extend('Renderer', {
             inFirstColumn = x < firstColumn.right,
             vc = inFirstColumn ? firstColumn : vcs.find(function(vc) { return x < vc.right; }) || vcs[vcs.length - 1],
             vr = vrs.find(function(vr) { return y < vr.bottom; }) || vrs[vrs.length - 1],
-            mousePoint = this.grid.newPoint(vc.left + vc.width / 2, vr.top + vr.height / 2),
+            mousePoint = this.grid.newPoint(x - vc.left, y - vr.top),
             cellEvent = new this.grid.behavior.CellEvent(vc.columnIndex, vr.index);
 
         // cellEvent.visibleColumn = vc;

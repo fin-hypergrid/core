@@ -786,7 +786,14 @@ module.exports = {
      * @default
      * @instance
      */
-    reapplyCellProperties: false
+    reapplyCellProperties: false,
+
+    /** @summary Column grab within this number of pixels from top of cell.
+     * @type {number}
+     * @default
+     * @instance
+     */
+    columnGrabMargin: 5
 };
 
 /** @typedef {string} cssColor

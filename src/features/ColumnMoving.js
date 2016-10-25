@@ -206,13 +206,12 @@ var ColumnMoving = Feature.extend('ColumnMoving', {
      * @param {Object} event - the event details
      */
     handleMouseMove: function(grid, event) {
-
         if (
             grid.behavior.isColumnReorderable() &&
             !event.isColumnFixed &&
             !this.dragging &&
             event.isHeaderCell &&
-            event.mousePoint.y < 5 // todo: < 5 depends on header is top-most row which is currently always true but we may allow header "section" to be arbitrary position within quadrant (see also handleMouseDown in ColumnSelection.js)
+            event.mousePoint.y < grid.properties.columnGrabMargin
         ) {
             this.cursor = canDragCursorName;
         } else {

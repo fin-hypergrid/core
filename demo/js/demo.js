@@ -997,7 +997,7 @@ window.onload = function() {
 
         grid.setState(state);
 
-        var headerDataModel = behavior.subgrids[0];
+        var headerDataModel = behavior.subgrids.find(function(sg) { return sg.type === 'header'; });
         grid.setRowHeight(0, 40, headerDataModel);
 
         // decorate "Height" cell in 17th row
