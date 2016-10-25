@@ -179,7 +179,10 @@ window.onload = function() {
         buttons = document.getElementById('buttons');
 
     // Install the sorter and Filter APIs (optional).
-    grid.setPipeline([window.fin.Hypergrid.analytics.DataSourceGlobalFilter, window.fin.Hypergrid.analytics.DataSourceSorterComposite]);
+    grid.setPipeline([
+        window.datasaur.filter,
+        window.fin.Hypergrid.analytics.DataSourceSorterComposite
+    ]);
     setGlobalSorter();
     resetGlobalFilter(people1);
 
@@ -976,7 +979,6 @@ window.onload = function() {
                 idx.TRAVEL,
                 // idx.SQUARE_OF_INCOME
             ],
-            rowHeights: { 0: 40 },
 
             fixedColumnCount: 1,
             fixedRowCount: 2,

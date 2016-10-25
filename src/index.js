@@ -26,8 +26,11 @@ Hypergrid.analytics = require('./Shared.js').analytics;
 Hypergrid.DataSourceBase = require('./dataSources').DataSourceBase;
 Hypergrid.rectangular = require('rectangular');
 
-// Create the `fin` and in particular the `fin.Hypergrid` objects:
+// Create the `fin` namespace and the `fin.Hypergrid` objects:
 (window.fin = window.fin || {}).Hypergrid = Hypergrid;
+
+// Create the `datasaur` namespace and the `datasaur.base` objects:
+(window.datasaur = window.datasaur || {}).base = Hypergrid.DataSourceBase;
 
 // Note that while users of the npm module can also access the above namespaces through the Hypergrid object, in reality they also have access to any namespace through `require`, for example:
 // var behaviorJSON = require('fin-hypergrid/src/behaviors/JSON');
