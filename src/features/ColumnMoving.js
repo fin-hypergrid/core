@@ -530,7 +530,7 @@ var ColumnMoving = Feature.extend('ColumnMoving', {
         if (doAFloat && !atMax && !autoScrollingNow) {
             var draggedToTheRight = dragColumnIndex < overCol;
             // if (draggedToTheRight) {
-            //     overCol = overCol - 1;
+            //     overCol -= 1;
             // }
             if (this.isFloatingNow) {
                 return;

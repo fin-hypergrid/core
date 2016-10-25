@@ -136,12 +136,12 @@ var Renderer = Base.extend('Renderer', {
             numRows = this.getRowCount(),
             bounds = this.getBounds(),
             grid = this.grid,
+            behavior = grid.behavior,
             editorCellEvent = grid.cellEditor && grid.cellEditor.event,
             dx = editorCellEvent && editorCellEvent.gridCell.x,
             dy = editorCellEvent && editorCellEvent.dataCell.y,
             vcEd,
             vrEd,
-            behavior = grid.behavior,
 
             insertionBoundsCursor = 0,
             previousInsertionBoundsCursorValue = 0,
@@ -217,7 +217,7 @@ var Renderer = Base.extend('Renderer', {
             previousInsertionBoundsCursorValue = Math.round(width / 2);
         }
 
-        footerHeight = behavior.getDefaultRowHeight() * subgrids.reduce(function(rows, subgrid) {
+        footerHeight = grid.properties.defaultRowHeight * subgrids.reduce(function(rows, subgrid) {
             if (scrollableSubgrid) {
                 rows += subgrid.getRowCount();
             } else {
@@ -252,7 +252,7 @@ var Renderer = Base.extend('Renderer', {
 
 
                 rowIndex = vy - base;
-                height = grid.getRowHeight(vy);
+                height = behavior.getRowHeight(rowIndex, subgrid);
 
                 heightSpaced = height - lineWidth;
                 this.visibleRows[r] = vr = {
@@ -439,13 +439,13 @@ var Renderer = Base.extend('Renderer', {
             width = visibleColumns[c].left - (visibleColumns[c].left - visibleColumns[c - 1].left) / 2;
             if (pixelX < width) {
                 if (c > fixedColumnCount) {
-                    c = c + scrollLeft;
+                    c += scrollLeft;
                 }
                 return c - 1;
             }
         }
         if (c > fixedColumnCount) {
-            c = c + scrollLeft;
+            c += scrollLeft;
         }
         return c - 1;
     },
@@ -727,7 +727,7 @@ var Renderer = Base.extend('Renderer', {
             top = this.dataWindow.origin.y - this.grid.properties.fixedRowCount - 1,
             scanHeight = 0;
         while (scanHeight < scrollHeight && top >= 0) {
-            scanHeight = scanHeight + grid.getRowHeight(top);
+            scanHeight += grid.getRowHeight(top);
             top--;
         }
         return top + 1;
@@ -914,8 +914,6 @@ var Renderer = Base.extend('Renderer', {
             // y = cellEvent.gridCell.y,
             c = cellEvent.dataCell.x,
             r = cellEvent.dataCell.y,
-            cellProperties = behavior.getCellOwnProperties(cellEvent),
-            baseProperties,
 
             isHandleColumn = cellEvent.isHandleColumn,
             isHierarchyColumn = cellEvent.isHierarchyColumn,
@@ -931,6 +929,8 @@ var Renderer = Base.extend('Renderer', {
             isHeaderRow = cellEvent.isHeaderRow,
             isFilterRow = cellEvent.isFilterRow,
 
+            cellProperties = isGridRow && !isRowHandleOrHierarchyColumn && behavior.getCellOwnProperties(cellEvent),
+            baseProperties,
             config = this.config;
 
         if (cellProperties && cellProperties.applyCellProperties) {

@@ -977,7 +977,6 @@ window.onload = function() {
                 // idx.SQUARE_OF_INCOME
             ],
 
-            rowHeights: { 0: 40 },
             fixedColumnCount: 1,
             fixedRowCount: 2,
 
@@ -998,9 +997,12 @@ window.onload = function() {
 
         grid.setState(state);
 
-        // decorate height cell in row "17"
-        var rowOrdinal = 17;
-        behavior.setCellProperties(idx.HEIGHT, rowOrdinal - 1, {
+        var headerDataModel = behavior.subgrids[0];
+        grid.setRowHeight(0, 40, headerDataModel);
+
+        // decorate "Height" cell in 17th row
+        var rowIndex = 17 - 1;
+        behavior.setCellProperties(idx.HEIGHT, rowIndex, {
             font: '10pt Tahoma',
             color: 'lightblue',
             backgroundColor: 'red',

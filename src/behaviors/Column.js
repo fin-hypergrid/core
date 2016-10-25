@@ -5,6 +5,7 @@
 var overrider = require('overrider');
 
 var deprecated = require('../lib/deprecated');
+var HypergridError = require('../lib/error');
 
 var warned = {};
 
@@ -77,6 +78,8 @@ function Column(behavior, options) {
 
 Column.prototype = {
     constructor: Column.prototype.constructor,
+
+    HypergridError: HypergridError,
 
     mixIn: overrider.mixIn,
 
@@ -188,10 +191,6 @@ Column.prototype = {
         config.normalizedY = cellEvent.dataCell.y;
 
         return this.dataModel.getCell(config, this.getCellProperty(cellEvent.gridCell.y, 'renderer'));
-    },
-
-    clearAllCellProperties: function() {
-        this.cellProperties.length = 0;
     },
 
     checkColumnAutosizing: function(force) {
@@ -333,7 +332,6 @@ Column.prototype = {
      * @returns {undefined|CellEditor} Falsy value means either no declared cell editor _or_ instantiation aborted by falsy return return from fireRequestCellEdit.
      */
     getCellEditorAt: function(event) {
-
         var columnIndex = this.index,
             rowIndex = event.gridCell.y,
             editorName = event.getCellProperty('editor'),

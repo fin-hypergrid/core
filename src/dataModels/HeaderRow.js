@@ -1,11 +1,9 @@
 'use strict';
 
-var UPWARDS_BLACK_ARROW = '\u25b2', // aka '▲'
-    DOWNWARDS_BLACK_ARROW = '\u25bc'; // aka '▼'
-
 function HeaderRow(grid) {
     this.grid = grid;
     this.behavior = grid.behavior;
+    this.dataRow = {}; // for meta data (__HEIGHT)
 }
 
 HeaderRow.prototype = {
@@ -20,7 +18,7 @@ HeaderRow.prototype = {
     getValue: function(x, y) {
         var column = this.behavior.getColumn(x),
             result = column.header || column.name, // uses field name when header undefined
-            sortString = this.getSortImageForColumn(x),
+            sortString = this.behavior.dataModel.getSortImageForColumn(x),
             groups;
 
         if (sortString) {
@@ -41,37 +39,8 @@ HeaderRow.prototype = {
         this.behavior.getColumn(x).header = value;
     },
 
-    /**
-     * @param {number} columnIndex
-     * @desc Returns a "sort indicator" string to display in the header. It is made up of the following parts:
-     * 1. **Sort rank** - A natural number that indicates the order in which the columns are sorted in a multi-column sort. (Excluded for a single-column sort.)
-     * 2. **Sort direction** - A string that indicates if the column is sorted ascending or descending.
-     * 3. **Separator** - A space character to separate the sort indicator from the column header string that follows it.
-     * @returns {string}
-     * @memberOf DataSourceFilterRow#prototype
-     */
-    getSortImageForColumn: function(columnIndex) {
-        var result, sortPosition, rank, arrow,
-            sorts = this.behavior.dataModel.getSortedColumnIndexes(),
-            sortSpec = sorts.find(function(spec, index) {
-                sortPosition = index;
-                return spec.columnIndex === columnIndex;
-            });
-
-        if (sortSpec) {
-            arrow = sortSpec.direction > 0
-                ? UPWARDS_BLACK_ARROW
-                : DOWNWARDS_BLACK_ARROW;
-
-            result = arrow + ' ';
-
-            if (sorts.length > 1) {
-                rank = sorts.length - sortPosition; // reverse of index
-                result = rank + result;
-            }
-        }
-
-        return result;
+    getRow: function(y) {
+        return this.dataRow;
     }
 };
 

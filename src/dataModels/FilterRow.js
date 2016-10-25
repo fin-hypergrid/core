@@ -5,6 +5,7 @@ var images = require('../../images');
 function FilterRow(grid) {
     this.grid = grid;
     this.behavior = grid.behavior;
+    this.dataRow = {}; // for meta data (__HEIGHT)
 }
 
 FilterRow.prototype = {
@@ -32,6 +33,10 @@ FilterRow.prototype = {
 
         var column = this.behavior.getColumn(x);
         this.behavior.filter.setColumnFilterState(column.name, value);
+    },
+
+    getRow: function(y) {
+        return this.dataRow;
     }
 };
 

@@ -43,7 +43,7 @@ var SparkLine = CellRenderer.extend('SparkLine', {
             }
             gc.lineTo(x + 5, y + height - barheight);
             gc.arc(x + 5, y + height - barheight, 1, 0, 2 * Math.PI, false);
-            x = x + eWidth;
+            x += eWidth;
         }
         config.minWidth = count * 10;
         gc.stroke();

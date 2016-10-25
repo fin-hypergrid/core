@@ -246,7 +246,7 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
         }
 
         halignOffset = Math.max(0, halignOffset);
-        valignOffset = valignOffset + Math.ceil(height / 2);
+        valignOffset += Math.ceil(height / 2);
 
         if (val !== null) {
             gc.fillText(val, x + halignOffset, y + valignOffset);
@@ -316,11 +316,11 @@ function squeeze(string) {
 function strikeThrough(config, gc, text, x, y, thickness) {
     var fontMetrics = config.getTextHeight(config.font);
     var width = config.getTextWidth(gc, text);
-    y = y - (fontMetrics.height * 0.4);
+    y -= fontMetrics.height * 0.4;
 
     switch (gc.textAlign) {
         case 'center':
-            x -= (width / 2);
+            x -= width / 2;
             break;
         case 'right':
             x -= width;
@@ -338,7 +338,7 @@ function underline(config, gc, text, x, y, thickness) {
 
     switch (gc.textAlign) {
         case 'center':
-            x -= (width / 2);
+            x -= width / 2;
             break;
         case 'right':
             x -= width;

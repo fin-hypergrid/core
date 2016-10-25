@@ -14,17 +14,13 @@ WritablePoint.prototype = rectangular.Point.prototype;
 // var nullSubgrid = {};
 
 var prototype = Object.defineProperties({}, {
-
-    // Following x, y, c, r are **temporary** bug-catchers:
-    /* eslint-disable no-debugger */
-    x: { get: function() { debugger; } },
-    y: { get: function() { debugger; } },
-    c: { get: function() { debugger; } },
-    r: { get: function() { debugger; } },
-
     value: {
         get: function() { return this.visibleRow.subgrid.getValue(this.dataCell.x, this.dataCell.y); },
         set: function(value) { this.visibleRow.subgrid.setValue(this.dataCell.x, this.dataCell.y, value); }
+    },
+
+    formattedValue: {
+        get: function() { return this.grid.formatValue(this.getCellProperty('format'), this.value); }
     },
 
     bounds: {
@@ -38,12 +34,14 @@ var prototype = Object.defineProperties({}, {
         }
     },
 
+    getCellProperty: {
+        value: function(propName) { return this.column.getCellProperty(this.dataCell.y, propName); }
+    },
+
     // "Visible" means scrolled into view.
     isRowVisible:    { get: function() { return !!this.visibleRow; } },
     isColumnVisible: { get: function() { return !!this.visibleColumn; } },
     isCellVisible:   { get: function() { return this.isRowVisible && this.isColumnVisible; } },
-
-    getCellProperty: { value: function(propName) { return this.column.getCellProperty(this, propName); } },
 
     isGridRow:    { get: function() { return !this.visibleRow.subgrid.type; } },
     isGridColumn: { get: function() { return this.gridCell.x >= 0; } },

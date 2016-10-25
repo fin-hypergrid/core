@@ -36,6 +36,10 @@ SummaryRow.prototype = {
 
     setValue: function(x, y, value) {
         this.data[x] = value;
+    },
+
+    getRow: function(y) {
+        return this.data[y];
     }
 };
 

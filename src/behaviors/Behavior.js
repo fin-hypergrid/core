@@ -113,6 +113,8 @@ var Behavior = Base.extend('Behavior', {
             new SummaryRow(this.grid, { name: 'bottomTotals' })
         ];
 
+        this.rowHeights = {};
+
         this.renderedColumnCount = 30;
         this.renderedRowCount = 60;
         this.dataUpdates = {}; //for overriding with edit values;
@@ -284,7 +286,6 @@ var Behavior = Base.extend('Behavior', {
         var state = Object.create(tableProperties);
 
         _(state).extendOwn({
-            rowHeights: {},
             columnProperties: []
         });
 
@@ -537,7 +538,7 @@ var Behavior = Base.extend('Behavior', {
      * @summary Get the cell's own properties object.
      * @desc May be undefined because cells only have their own properties object when at lest one own property has been set.
      * @param {CellEvent|number} xOrCellEvent - Data x coordinate.
-     * @param {number} [y] - Grid row coordinate. Omit when `xOrCellEvent` is a `CellEvent`.
+     * @param {number} [y] - Grid row coordinate. _Omit when `xOrCellEvent` is a `CellEvent`._
      * @returns {undefined|object} The "own" properties of the cell at x,y in the grid. If the cell does not own a properties object, returns `undefined`.
      * @memberOf Behavior.prototype
      */
@@ -545,7 +546,7 @@ var Behavior = Base.extend('Behavior', {
         switch (arguments.length) {
             case 1:
                 return xOrCellEvent.column // xOrCellEvent is cellEvent
-                    .getCellOwnProperties(xOrCellEvent);
+                    .getCellOwnProperties(xOrCellEvent.dataCell.y);
             case 2:
                 return this.getColumn(xOrCellEvent) // xOrCellEvent is x
                     .getCellOwnProperties(y);
@@ -558,7 +559,7 @@ var Behavior = Base.extend('Behavior', {
      *
      * If you are seeking a single specific property, consider calling {@link Behavior#getCellProperty} instead.
      * @param {CellEvent|number} xOrCellEvent - Data x coordinate.
-     * @param {number} [y] - Grid row coordinate. Omit when `xOrCellEvent` is a `CellEvent`.
+     * @param {number} [y] - Grid row coordinate. _Omit when `xOrCellEvent` is a `CellEvent`._
      * @return {object} The properties of the cell at x,y in the grid.
      * @memberOf Behavior.prototype
      */
@@ -566,7 +567,7 @@ var Behavior = Base.extend('Behavior', {
         switch (arguments.length) {
             case 1:
                 return xOrCellEvent.column // xOrCellEvent is cellEvent
-                    .getCellProperties(xOrCellEvent);
+                    .getCellProperties(xOrCellEvent.dataCell.y);
             case 2:
                 return this.getColumn(xOrCellEvent) // xOrCellEvent is x
                     .getCellProperties(y);
@@ -577,7 +578,7 @@ var Behavior = Base.extend('Behavior', {
      * @summary Return a specific cell property.
      * @desc If there is no cell properties object, defers to column properties object.
      * @param {CellEvent|number} xOrCellEvent - Data x coordinate.
-     * @param {number} [y] - Grid row coordinate. Omit when `xOrCellEvent` is a `CellEvent`.
+     * @param {number} [y] - Grid row coordinate._ Omit when `xOrCellEvent` is a `CellEvent`._
      * @param {string} key - Name of property to get. _When `y` omitted, this param promoted to 2nd arg._
      * @return {object} The specified property for the cell at x,y in the grid.
      * @memberOf Behavior.prototype
@@ -586,7 +587,7 @@ var Behavior = Base.extend('Behavior', {
         switch (arguments.length) {
             case 2:
                 return xOrCellEvent.column // xOrCellEvent is cellEvent
-                    .getCellProperty(xOrCellEvent, y); // y omitted so y here is actually key
+                    .getCellProperty(xOrCellEvent.dataCell.y, y); // y omitted so y here is actually key
             case 3:
                 return this.getColumn(xOrCellEvent) // xOrCellEvent is x
                     .getCellProperty(y, key);
@@ -597,14 +598,14 @@ var Behavior = Base.extend('Behavior', {
      * @memberOf Behavior.prototype
      * @desc update the data at point x, y with value
      * @param {CellEvent|number} xOrCellEvent - Data x coordinate.
-     * @param {number} [y] - Grid row coordinate. Omit when `xOrCellEvent` is a `CellEvent`.
+     * @param {number} [y] - Grid row coordinate. _Omit when `xOrCellEvent` is a `CellEvent`._
      * @param {Object} properties - Hash of cell properties. _When `y` omitted, this param promoted to 2nd arg._
      * @param {boolean} [preserve=false] - Falsy creates new object; truthy copies `properties` members into existing object. _When `y` omitted, this param promoted to 3rd arg._
      */
     setCellProperties: function(xOrCellEvent, y, properties, preserve) {
         if (typeof y === 'object') {
             xOrCellEvent.column // xOrCellEvent is cellEvent
-                .setCellProperties(xOrCellEvent, y, properties); // y omitted so y here is actually properties; properties is actually preserve
+                .setCellProperties(xOrCellEvent.dataCell.y, y, properties); // y omitted so y here is actually properties; properties is actually preserve
         } else {
             this.getColumn(xOrCellEvent) // xOrCellEvent is x
                 .setCellProperties(y, properties, preserve);
@@ -615,7 +616,7 @@ var Behavior = Base.extend('Behavior', {
      * @summary Set a specific cell property.
      * @desc If there is no cell properties object, defers to column properties object.
      * @param {CellEvent|number} xOrCellEvent - Data x coordinate.
-     * @param {number} [y] - Grid row coordinate. Omit when `xOrCellEvent` is a `CellEvent`.
+     * @param {number} [y] - Grid row coordinate. _Omit when `xOrCellEvent` is a `CellEvent`._
      * @param {string} key - Name of property to get. _When `y` omitted, this param promoted to 2nd arg._
      * @param value
      * @memberOf Behavior.prototype
@@ -624,7 +625,7 @@ var Behavior = Base.extend('Behavior', {
         switch (arguments.length) {
             case 3:
                 return xOrCellEvent.column // xOrCellEvent is cellEvent
-                    .setCellProperty(xOrCellEvent, y, key); // y omitted so y here is actually key and key is actually value
+                    .setCellProperty(xOrCellEvent.dataCell.y, y, key); // y omitted so y here is actually key and key is actually value
             case 4:
                 return this.getColumn(xOrCellEvent) // xOrCellEvent is x
                     .setCellProperty(y, key, value);
@@ -645,6 +646,7 @@ var Behavior = Base.extend('Behavior', {
     getUnfilteredRowCount: function() {
         return this.deprecated('getUnfilteredRowCount()', null, '1.2.0', arguments, 'No longer supported');
     },
+
     /**
      * @memberOf Behavior.prototype
      * @return {number} The height in pixels of the fixed rows area  of the hypergrid.
@@ -653,19 +655,19 @@ var Behavior = Base.extend('Behavior', {
         var count = this.getFixedRowCount();
         var total = 0;
         for (var i = 0; i < count; i++) {
-            total = total + this.getRowHeight(i);
+            total += this.getRowHeight(i);
         }
         return total;
     },
 
     /**
      * @memberOf Behavior.prototype
-     * @return {number} The height in pixels of a specific row in the hypergrid.
-     * @param {number} rowNum - row index of interest
+     * @param {number} rowIndex - Data row coordinate local to datsModel.
+     * @param {DataModel} [dataModel=this.dataModel]
      */
-    getRowHeight: function(rowNum) {
-        var rowHeights = this.grid.properties.rowHeights;
-        return rowHeights && rowHeights[rowNum] || this.getDefaultRowHeight();
+    getRowHeight: function(rowIndex, dataModel) {
+        var rowData = (dataModel || this.dataModel).getRow(rowIndex);
+        return rowData && rowData.__ROW_HEIGHT || this.grid.properties.defaultRowHeight;
     },
 
     /**
@@ -674,19 +676,22 @@ var Behavior = Base.extend('Behavior', {
      * @returns {number} The row height in pixels.
      */
     getDefaultRowHeight: function() {
-        return (this.defaultRowHeight = this.defaultRowHeight || this.grid.properties.defaultRowHeight);
+        return this.deprecated('getDefaultRowHeight', 'grid.properties.defaultRowHeight', '1.2.0');
     },
 
     /**
      * @memberOf Behavior.prototype
      * @desc set the pixel height of a specific row
-     * @param {number} rowNum - the row index of interest
+     * @param {number} rowIndex - Data row coordinate local to datsModel.
      * @param {number} height - pixel height
+     * @param {DataModel} [dataModel=this.dataModel]
      */
-    setRowHeight: function(rowNum, height) {
-        var tableState = this.grid.properties;
-        tableState.rowHeights[rowNum] = Math.max(5, height);
-        this.stateChanged();
+    setRowHeight: function(rowIndex, height, dataModel) {
+        var rowData = (dataModel || this.dataModel).getRow(rowIndex);
+        if (rowData) {
+            rowData.__ROW_HEIGHT = Math.max(5, height);
+            this.stateChanged();
+        }
     },
 
     /**
@@ -709,7 +714,7 @@ var Behavior = Base.extend('Behavior', {
             total = this.getColumnWidth(-1);
         }
         for (var i = 0; i < count; i++) {
-            total = total + this.getColumnWidth(i);
+            total += this.getColumnWidth(i);
         }
         return total;
     },
@@ -1014,6 +1019,7 @@ var Behavior = Base.extend('Behavior', {
      */
     clearAllCellProperties: function(x) {
         if (x === undefined) {
+            // todo: More efficient might be to undefine `dataModel.getData(*).__META`.
             for (var i = this.allColumns.length - 1; i >= 0; --i) {
                 this.getColumn(i).clearAllCellProperties();
             }

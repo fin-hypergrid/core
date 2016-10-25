@@ -2442,8 +2442,8 @@ var Hypergrid = Base.extend('Hypergrid', {
      * @returns {number} The height of the given row
      * @param {number} rowIndex - The untranslated fixed column index.
      */
-    getRowHeight: function(rowIndex) {
-        return this.behavior.getRowHeight(rowIndex);
+    getRowHeight: function(rowIndex, dataModel) {
+        return this.behavior.getRowHeight(rowIndex, dataModel);
     },
 
     /**
@@ -2452,9 +2452,9 @@ var Hypergrid = Base.extend('Hypergrid', {
      * @param {number} rowIndex - The row index.
      * @param {number} rowHeight - The width in pixels.
      */
-    setRowHeight: function(rowIndex, rowHeight) {
+    setRowHeight: function(rowIndex, rowHeight, dataModel) {
         if (this.abortEditing()) {
-            this.behavior.setRowHeight(rowIndex, rowHeight);
+            this.behavior.setRowHeight(rowIndex, rowHeight, dataModel);
         }
     },
 
@@ -3241,19 +3241,6 @@ var Hypergrid = Base.extend('Hypergrid', {
     newRectangle: function(x, y, width, height) {
         return new Rectangle(x, y, width, height);
     },
-
-    /**
-     * @param {number} c - grid cell coordinate
-     * @param {number} rn - grid cell coordinate
-     * @returns {*}
-     */
-    getFormattedValue: function(c, rn) {
-        return this.formatValue(
-            this.behavior.getCellProperty(c, rn, 'format'),
-            this.getValue(c, rn)
-        );
-    },
-
 
     /**
      * @summary _Getter_

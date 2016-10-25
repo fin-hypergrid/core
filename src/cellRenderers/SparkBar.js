@@ -35,7 +35,7 @@ var SparkBar = CellRenderer.extend('SparkBar', {
         for (var i = 0; i < val.length; i++) {
             var barheight = val[i] / 110 * height;
             gc.fillRect(x + 5, y + height - barheight, eWidth * 0.6666, barheight);
-            x = x + eWidth;
+            x += eWidth;
         }
         gc.closePath();
         config.minWidth = count * 10;

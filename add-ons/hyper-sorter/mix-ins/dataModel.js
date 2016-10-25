@@ -99,12 +99,17 @@ module.exports = {
             state = this.getColumnSortState(columnIndex),
             sortSpec = state.sortSpec,
             sortPosition = state.sortPosition,
-            result = null;
+            result, rank;
 
         if (sortSpec) {
-            var rank = sorts.length - sortPosition,
-                arrow = sortSpec.direction > 0 ? UPWARDS_BLACK_ARROW : DOWNWARDS_BLACK_ARROW;
-            result = rank + arrow + ' ';
+            var arrow = sortSpec.direction > 0
+                ? UPWARDS_BLACK_ARROW
+                : DOWNWARDS_BLACK_ARROW;
+
+            if (sorts.length > 1) {
+                rank = sorts.length - sortPosition;
+                result = rank + arrow + ' ';
+            }
         }
 
         return result;

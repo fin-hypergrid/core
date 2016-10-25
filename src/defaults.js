@@ -802,7 +802,7 @@ function getTextWidth(gc, string) {
     if (string === null || string === undefined) {
         return 0;
     }
-    string = string + '';
+    string += '';
     if (string.length === 0) {
         return 0;
     }
