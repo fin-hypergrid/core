@@ -976,6 +976,7 @@ window.onload = function() {
                 idx.TRAVEL,
                 // idx.SQUARE_OF_INCOME
             ],
+            rowHeights: { 0: 40 },
 
             fixedColumnCount: 1,
             fixedRowCount: 2,

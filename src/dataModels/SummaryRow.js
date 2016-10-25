@@ -27,7 +27,19 @@ SummaryRow.prototype = {
     },
 
     setData: function(data) {
+        var oldData = this.data = [];
         this.data = data || [];
+
+        // Reuse old row heights unless new rows already have heights
+        if (!this.data.find(function(dataRow) { return dataRow.__HEIGHT; })) {
+            oldData.find(function(oldDataRow, i) {
+                var newDataRow = this.data[i];
+                if (newDataRow && oldDataRow.__HEIGHT) {
+                    newDataRow.__HEIGHT = oldDataRow.__HEIGHT;
+                }
+                return !newDataRow;
+            });
+        }
     },
 
     getValue: function(x, y) {
