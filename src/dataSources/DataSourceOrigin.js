@@ -170,6 +170,48 @@ var DataSourceOrigin = DataSourceBase.extend('DataSourceOrigin',  {
         return result;
     },
 
+    /**
+     * @summary Find, replace, or update a row by it's index.
+     * @param {number} index - Row index that is being accessed
+     * @param {object|null|undefined} [replacement] - One of:
+     * * _omitted_ - Ignored.
+     * * _object_ - Replacement for the data row if found.
+     * * `null` - Flag to delete the data row if found. The found data row is nonetheless returned.
+     * * `undefined` - Flag to delete the row at that index.
+     * @returns {object|number|undefined} One of:
+     * * `undefined` - data row not found
+     * * _object_ - found data row object (will have been deleted if `replacement` was `null`)
+     * @todo Use a binary search (rather than `Array..find`) when column is known to be indexed (sorted).
+     * @memberOf DataSourceOrigin#
+     */
+    findRowByIndex: function findRow(index, replacement) {
+        var result;
+
+        if (arguments.length < 1) {
+            throw 'Expected at least 1 argument but found ' + arguments.length + '.';
+        }
+
+        if (typeof index !== 'number') {
+            throw 'Expected at index to be a number but got ' + index + '.';
+        }
+
+        result = this.data[index];
+
+        if (result) {
+            if (replacement === null) {
+                this.data.splice(index, 1);
+            } else if (typeof replacement === 'object') {
+                this.data[index] = replacement;
+            } else if (replacement === undefined && arguments.length >= 2) {
+                delete this.data[index];
+            } else if (replacement !== undefined) {
+                throw 'Expected null, undefined, or object but found ' + typeof replacement + '.';
+            }
+        }
+
+        return result;
+    },
+
 
     /**
      * @memberOf DataSourceOrigin#
