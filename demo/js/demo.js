@@ -742,8 +742,8 @@ window.onload = function() {
     });
 
     grid.addEventListener('fin-button-pressed', function(e) {
-        var p = e.detail.gridCell;
-        behavior.setValue(p, !behavior.getValue(p));
+        var cellEvent = e.detail;
+        cellEvent.value = !cellEvent.value;
     });
 
     grid.addEventListener('fin-scroll-x', function(e) {
