@@ -204,7 +204,7 @@ var DataSourceOrigin = DataSourceBase.extend('DataSourceOrigin',  {
                 this.data[index] = replacement;
             } else if (replacement === undefined && arguments.length >= 2) {
                 delete this.data[index];
-            } else {
+            } else if (replacement !== undefined) {
                 throw 'Expected null, undefined, or object but found ' + typeof replacement + '.';
             }
         }
