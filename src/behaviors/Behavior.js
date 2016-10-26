@@ -37,7 +37,8 @@ var Behavior = Base.extend('Behavior', {
     /**
      * @desc this is the callback for the plugin pattern of nested tags
      * @param {Hypergrid} grid
-     * @param {object} [options] - _(See {@link behaviors.JSON#setData}.)_
+     * @param {object} [options] - _(See {@link behaviors.JSON#setData} for additional options.)_
+     * @param {DataModels[]} [options.subgrids]
      * @memberOf Behavior.prototype
      */
     initialize: function(grid, options) {
@@ -107,23 +108,62 @@ var Behavior = Base.extend('Behavior', {
         // recreate `CellEvent` class so it can set up its internal `grid`, `behavior`, and `dataModel` convenience properties
         this.CellEvent = cellEventFactory(this.grid);
 
-        this.subgrids = [
+        this.setSubgrids(options.subgrids || [
             new HeaderRow(this.grid),
             new FilterRow(this.grid),
             new SummaryRow(this.grid, { name: 'topTotals' }),
             this.dataModel,
             new SummaryRow(this.grid, { name: 'bottomTotals' })
-        ];
+        ]);
 
-        this.rowHeights = {};
-
-        this.renderedColumnCount = 30;
-        this.renderedRowCount = 60;
         this.dataUpdates = {}; //for overriding with edit values;
         this.scrollPositionX = this.scrollPositionY = 0;
         this.clearColumns();
         this.clearState();
         this.createColumns();
+    },
+
+    /**
+     * Replaces the subgrid list and clears the subgrid dictionary.
+     * @param {DataModel[]} ubgrids
+     * @memberOf Behavior.prototype
+     */
+    setSubgrids: function(subgrids) {
+        this.subgrids = subgrids;
+        this.subgridDict = {};
+    },
+
+    /**
+     * @summary Lookup a subgrid in the subgrid list.
+     * @desc You can get a subgrid reference by index or by property value.
+     *
+     * If both args omitted, returns `this.dataModel` if it's in the subgrid list. (The works because `this.dataModel` has neither a `name` nor a `type` property.)
+     * @param {number|string} [index] - One of:
+     * * **number** and `key` omitted - Index of the subgrid in the subgrid list. If `key` is provided, treated the same as a string.
+     * * **string** - The value to match the property against.
+     * @param {string} [key] - Name of property to match string value to. If omitted, will match against first of:
+     * * `name` property, when defined
+     * * `type` property, when `name` property undefined
+     * @returns {DataModel|undefined} If the sought after subgrid is not in the subgrid list return value is `undefined`.
+     */
+    getSubgrid: function(index, key) {
+        var result;
+        if (!key && typeof index === 'number') {
+            result = this.subgrids[index];
+        } else if (!(result = this.subgridDict[index])) {
+            result = this.subgridDict[index] = this.subgrids.find(function(subgrid) {
+                return index === (key ? subgrid[key] : subgrid.name || subgrid.type);
+            });
+        }
+        return result;
+    },
+
+    get renderedColumnCount() {
+        return this.grid.renderer.visibleColumns.length;
+    },
+
+    get renderedRowCount() {
+        return this.grid.renderer.visibleRows.length;
     },
 
     clearColumns: function() {
@@ -755,24 +795,6 @@ var Behavior = Base.extend('Behavior', {
     _setScrollPositionX: function(x) {
         this.setScrollPositionX(x);
         this.changed();
-    },
-
-    /**
-     * @memberOf Behavior.prototype
-     * @desc Set the number of columns just rendered, including partially rendered columns.
-     * @param {number} count - how many columns were just rendered
-     */
-    setRenderedColumnCount: function(count) {
-        this.renderedColumnCount = count;
-    },
-
-    /**
-     * @memberOf Behavior.prototype
-     * @desc Set the number of rows just rendered, including partially rendered rows.
-     * @param {number} count - how many rows were just rendered
-     */
-    setRenderedRowCount: function(count) {
-        this.renderedRowCount = count;
     },
 
     /**

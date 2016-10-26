@@ -431,7 +431,7 @@ window.onload = function() {
             var y = config.y;
 
             if (treeViewing) {
-                n = behavior.getRow(y).__DEPTH;
+                n = config.dataRow.__DEPTH;
                 hex = n ? (105 + 75 * n).toString(16) : '00';
                 config.backgroundColor = '#' + hex + hex + hex;
                 config.color = n ? 'black' : 'white';
@@ -1000,7 +1000,7 @@ window.onload = function() {
 
         grid.setState(state);
 
-        var headerDataModel = behavior.subgrids.find(function(sg) { return sg.type === 'header'; });
+        var headerDataModel = behavior.getSubgrid('header');
         grid.setRowHeight(0, 40, headerDataModel);
 
         // decorate "Height" cell in 17th row

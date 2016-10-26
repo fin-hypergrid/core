@@ -42,6 +42,7 @@ var warned = {};
  * * Omit to generate a basic schema from `this.behavior.columns`.
  * @param {Behavior} [options.Behavior=JSON] - A grid behavior (descendant of Behavior "class").
  * @param {pluginSpec|pluginSpec[]} [options.plugins]
+ * @param {DataModels[]} [options.subgrids]
  * @param {string} [options.localization=Hypergrid.localization]
  * @param {string|Element} [options.container] - CSS selector or Element
  * @param {string|string[]} [options.localization.locale=Hypergrid.localization.locale] - The default locale to use when an explicit `locale` is omitted from localizer constructor calls. Passed to Intl.NumberFomrat` and `Intl.DateFomrat`. See {@ https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl#Locale_identification_and_negotiation|Locale identification and negotiation} for more information.
@@ -363,10 +364,10 @@ var Hypergrid = Base.extend('Hypergrid', {
                 if (!plugin.length) {
                     plugin = undefined;
                 } else if (typeof plugin[0] !== 'string') {
-                    args = args.concat(plugin.splice(1));
+                    args = args.concat(plugin.slice(1));
                     plugin = plugin[0];
                 } else if (plugin.length >= 2) {
-                    args = args.concat(plugin.splice(2));
+                    args = args.concat(plugin.slice(2));
                     name = plugin[0];
                     plugin = plugin[1];
                 } else {
@@ -657,7 +658,6 @@ var Hypergrid = Base.extend('Hypergrid', {
      * @desc This function is a callback from the HypergridRenderer sub-component. It is called after each paint of the canvas.
      */
     gridRenderedNotification: function() {
-        this.updateRenderedSizes();
         if (this.cellEditor) {
             this.cellEditor.gridRenderedNotification();
         }
@@ -677,16 +677,6 @@ var Hypergrid = Base.extend('Hypergrid', {
                 behavior.grid.synchronizeScrollingBoundaries();
             });
         }
-    },
-    /**
-     * @memberOf Hypergrid.prototype
-     * @desc Notify the GridBehavior how many rows and columns we just rendered.
-     */
-    updateRenderedSizes: function() {
-        //add one to each of these values as we want also to include
-        //the columns and rows that are partially visible
-        this.behavior.setRenderedColumnCount(this.renderer.visibleColumns.length + 1);
-        this.behavior.setRenderedRowCount(this.renderer.visibleRows.length + 1);
     },
 
     /**
@@ -1799,7 +1789,7 @@ var Hypergrid = Base.extend('Hypergrid', {
 
         function getValue(selectedRowIndex, j) {
             var dataRow = self.getRow(selectedRowIndex);
-            rows[j] = valOrFunc(dataRow, column);
+            rows[j] = valOrFunc.call(dataRow, column);
         }
 
         return result;
@@ -1824,7 +1814,7 @@ var Hypergrid = Base.extend('Hypergrid', {
 
         function getValue(selectedRowIndex, r) {
             var dataRow = self.getRow(selectedRowIndex);
-            result[c][r] = valOrFunc(dataRow, column);
+            result[c][r] = valOrFunc.call(dataRow, column);
         }
 
         return result;
@@ -1844,7 +1834,7 @@ var Hypergrid = Base.extend('Hypergrid', {
 
             for (var r = headerRowCount; r < numRows; r++) {
                 dataRow = self.getRow(r);
-                values[r] = valOrFunc(dataRow, column);
+                values[r] = valOrFunc.call(dataRow, column);
             }
         });
 
@@ -1865,7 +1855,7 @@ var Hypergrid = Base.extend('Hypergrid', {
 
             for (var r = headerRowCount; r < rowCount; r++) {
                 dataRow = self.getRow(r);
-                values[r] = valOrFunc(dataRow, column);
+                values[r] = valOrFunc.call(dataRow, column);
             }
         });
 
@@ -1892,7 +1882,7 @@ var Hypergrid = Base.extend('Hypergrid', {
 
                 for (var r = 0, y = rect.origin.y; r < rowCount; r++, y++) {
                     dataRow = self.getRow(y);
-                    values[r] = valOrFunc(dataRow, column);
+                    values[r] = valOrFunc.call(dataRow, column);
                 }
             }
 
@@ -1922,7 +1912,7 @@ var Hypergrid = Base.extend('Hypergrid', {
 
                 for (var r = 0, y = rect.origin.y; r < rowCount; r++, y++) {
                     dataRow = self.getRow(y);
-                    values[r] = valOrFunc(dataRow, column);
+                    values[r] = valOrFunc.call(dataRow, column);
                 }
             }
 
@@ -3514,13 +3504,18 @@ function clearObjectProperties(obj) {
     }
 }
 
-function valOrFunc(dataRow, column) {
+/**
+ * @this {dataRowObject}
+ * @param column
+ * @returns {string}
+ */
+function valOrFunc(column) {
     var result, calculator;
-    if (dataRow) {
-        result = dataRow[column.name];
+    if (this) {
+        result = this[column.name];
         calculator = (typeof result)[0] === 'f' && result || column.calculator;
         if (calculator) {
-            result = calculator(dataRow, column.name);
+            result = calculator.call(this, column.name);
         }
     }
     return result || result === 0 || result === false ? result : '';

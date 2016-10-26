@@ -129,7 +129,7 @@ var drillDown = {
             changed = true;
         }
         if (smartApply === false || changed && smartApply) {
-            this.changed();
+            this.grid.behavior.changed();
         }
         return changed;
     },
@@ -224,7 +224,8 @@ Object.defineProperties(drillDown, { // These objects are defined here so they w
      */
     install: {
         value: function(grid, target) {
-            grid.mixIn.call(target || Object.getPrototypeOf(grid.behavior.dataModel), this);
+            target = target || Object.getPrototypeOf(grid.behavior.dataModel);
+            target.mixIn(this);
         }
     },
 
