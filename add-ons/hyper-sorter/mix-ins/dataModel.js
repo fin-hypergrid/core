@@ -106,12 +106,14 @@ module.exports = {
                 ? UPWARDS_BLACK_ARROW
                 : DOWNWARDS_BLACK_ARROW;
 
+            result = arrow + ' ';
+
             if (sorts.length > 1) {
                 rank = sorts.length - sortPosition;
-                result = rank + arrow + ' ';
+                result = rank + result;
             }
         }
-
+        
         return result;
     }
 };
