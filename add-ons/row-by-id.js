@@ -50,7 +50,7 @@
  * newDataRow.prevclose = 125.08;
  * dataModel.addRow(newDataRow);
  * // To see the new row you must (eventually) call:
- * behavior.applyAnalytics();
+ * behavior.reindex();
  * grid.behaviorChanged();
  * ```
  * 3. Modify an existing row:
@@ -59,14 +59,14 @@
  * var modVal = 'Facebook, Inc.';
  * var dataRow = dataModel.modifyRowById(findKey, findVal, modKey, modVal);
  * // To see the modified cells you must (eventually) call:
- * behavior.applyAnalytics();
+ * behavior.reindex();
  * grid.repaint();
  * ```
  * 4. Delete (remove) a row:
  * ```javascript
  * var oldRow = dataModel.deleteRowById(findKey, findVal);
  * // To see the row disappear you must (eventually) call:
- * behavior.applyAnalytics();
+ * behavior.reindex();
  * grid.behaviorChanged();
  * ```
  * 5. Replace an existing row:
@@ -75,7 +75,7 @@
  * var newRow = {symbol: "ABC", name: "Google", prevclose: 666};
  * var oldRow = dataModel.replaceRowById(findKey, findVal, newRow);
  * // To see the row change you must (eventually) call:
- * behavior.applyAnalytics();
+ * behavior.reindex();
  * grid.repaint();
  * ```
  * This replaces the row with the new row object, returning but otherwise discarding the old row object. That is, the new row object takes on the ordinal of the old row object. By contrast, modifyDataRow keeps the existing row object, updating it in place.
@@ -93,7 +93,7 @@
  * ```javascript
  * var oldRow = dataModel.eraseRowById(findKey, findVal);
  * // To see the row blank you must (eventually) call:
- * grid.behavior.applyAnalytics();
+ * grid.behavior.reindex();
  * grid.repaint();
  * ```
  *
@@ -102,7 +102,7 @@
  * ##### Updating the rendered grid
  *
  * The following calls should be made sparingly as they can be expensive. The good news is that they only need to be called at the very end of a batch grid data changes.
- *    1. Call `grid.behavior.applyAnalytics()`. This call does nothing when the data source pipeline is empty. Otherwise, applies each data source transformations (filter, sort) in the pipeline. Needed when adding, deleting, or modifying rows.
+ *    1. Call `grid.behavior.reindex()`. This call does nothing when the data source pipeline is empty. Otherwise, applies each data source transformations (filter, sort) in the pipeline. Needed when adding, deleting, or modifying rows.
  *    2. Call `grid.behaviorChanged()` when the number of rows (or columns) changes as a result of the data alteration.
  *    3. Call `grid.repaint()` when cells are updated in place. Note that `behaviorChanged` calls `repaint` for you so you only need to call one or the other.
  *
@@ -173,7 +173,7 @@ var rowById = {
      * @summary Remove the ID'd data row object from the data store.
      * @desc If data source pipeline in use, to see the deletion in the grid, you must eventually call:
      * ```javascript
-     * this.grid.behavior.applyAnalytics();
+     * this.grid.behavior.reindex();
      * this.grid.behaviorChanged();
      * ```
      * Caveat: The row indexes of all rows following the deleted row will now be one less than they were!
@@ -196,7 +196,7 @@ var rowById = {
      *
      * If data source pipeline in use, to see the deletion in the grid, you must eventually call:
      * ```javascript
-     * this.grid.behavior.applyAnalytics();
+     * this.grid.behavior.reindex();
      * this.grid.behaviorChanged();
      * ```
      * @param {object|string} keyOrHash - One of:
@@ -245,7 +245,7 @@ var rowById = {
      * @summary Update selected columns in existing data row.
      * @desc If data source pipeline in use, to see the deletion in the grid, you must eventually call:
      * ```javascript
-     * this.grid.behavior.applyAnalytics();
+     * this.grid.behavior.reindex();
      * this.grid.repaint();
      * ```
      * @param {object|string} findKeyOrHash - One of:
@@ -296,7 +296,7 @@ var rowById = {
      *
      * If data source pipeline in use, to see the replaced row in the grid, you must eventually call:
      * ```javascript
-     * this.grid.behavior.applyAnalytics();
+     * this.grid.behavior.reindex();
      * this.grid.behaviorChanged();
      * ```
      * @param {object|string} keyOrHash - One of:
@@ -325,21 +325,35 @@ function getByIdArgs(keyOrHash, valOrList) {
     return Array.prototype.slice.call(arguments, 0, length);
 }
 
-/**
- * @name mixInTo
- * @summary Mix all the other members into the given target object.
- * @desc The target object is intended to be Hypergrid's in-memory data model object ({@link dataModels.JSON}).
- *
- * **NOTE:** This `mixInTo` method is defined here rather than above just so that it will be non-enumerable and therefore not itself mixed into the `target` object.
- * @function
- * @param {object} target - Your data model instance or its prototype.
- * @memberOf rowById
- */
-Object.defineProperty(rowById, 'mixInTo', {  // defined here just to make it non-enumerable
-    value: function(target) {
-        Object.keys(this).forEach(function(key) {
-            target[key] = this[key];
-        }.bind(this));
+Object.defineProperties(rowById, { // These objects are defined here so they will be non-enumerable to avoid being mixed in.
+    /**
+     * @name install
+     * @summary Installer for plugin.
+     * @desc Required by {@link Hypergrid#installPlugins}
+     * @function
+     * @param {Hypergrid} grid -
+     * @param {object} target - Your data model instance or its prototype.
+     * @memberOf rowById
+     */
+    install: {
+        value: function(grid, target) {
+            target = target || Object.getPrototypeOf(grid.behavior.dataModel);
+            target.mixIn(this);
+        }
+    },
+
+    /**
+     * @name mixInTo
+     * @summary Mix all the other members into the given target object.
+     * @desc The target object is intended to be Hypergrid's in-memory data model object ({@link dataModels.JSON}).
+     * @function
+     * @param {object} target - Your data model instance or its prototype.
+     * @memberOf rowById
+     */
+    mixInTo: {
+        value: function(target) {
+            throw 'rowById.mixInTo(target) removed as of Hypergrid 1.2.0 in favor of grid.installPlugins([[rowById, target]]) where target if omitted defaults to grid\'s dataModel prototype.';
+        }
     }
 });
 

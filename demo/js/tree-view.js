@@ -1,6 +1,5 @@
 /* eslint-env browser */
-
-/* globals treedata  */
+/* globals fin, treeData */
 
 'use strict';
 
@@ -8,44 +7,45 @@ var grid;
 
 window.onload = function() {
     var Hypergrid = fin.Hypergrid,
-        drillDown = Hypergrid.drillDown,
-        TreeView = Hypergrid.TreeView,
-        dataModelPrototype = Hypergrid.dataModels.JSON.prototype,
-        pipelineOptions = {
+        options = {
+            treeColumn: 'State', // groupColumn defaults to treeColumn by default
             includeSorter: true,
-            includeFilter: true
-        },
-        shared = true; // operate on shared (prototype) pipeline vs. own (instance)
+            includeFilter: true,
+            hideIdColumns: true
+        };
 
-    // Install the drill-down API (optional).
-    drillDown.mixInTo(dataModelPrototype);
+    grid = new Hypergrid('div#tree-example');
+    grid.setData(treeData);
 
-    if (shared) {
-        // Mutate shared pipeline (avoids calling setData twice).
-        pipelineOptions.dataModelPrototype = dataModelPrototype;
-        TreeView.prototype.setPipeline(pipelineOptions);
-    }
+    grid.installPlugins([
+        Hypergrid.drillDown, // simple API install (plain object with `install` method) but no `name` defined so no ref is saved
+        Hypergrid.rowById, // ditto
+        Hypergrid.Hyperfilter, // object API instantiation; `$$CLASS_NAME` defined so ref saved in `grid.plugins.hyperfilter`
+        [Hypergrid.Hypersorter, {Column: fin.Hypergrid.behaviors.Column}], // object API instantiation to grid.plugins; no `name` or `$$CLASS_NAME` defined so no ref saved
+        ['treeviewAPI', Hypergrid.TreeView, options] // object API instantiation with one arg; [0] overrides any defined name so ref saved in `grid.plugins.treeViewAPI`
+    ]);
+    grid.sorter = grid.plugins.hypersorter;
+    grid.filter = grid.plugins.hyperfilter.create();
 
-    grid = new Hypergrid('div#tree-example', { data: treeData });
-
+    // show filter row as per `options`
     grid.setState({
-        showFilterRow: pipelineOptions.includeFilter
+        showFilterRow: options.includeFilter && grid.filter.prop('columnFilters')
     });
 
     grid.behavior.setColumnProperties(grid.behavior.columnEnum.STATE, {
         halign: 'left'
     });
 
-    var treeViewOptions = { treeColumn: 'State' }, // groupColumn option defaults to treeColumn (or its default)
-        treeView = new TreeView(grid, treeViewOptions);
+    var checkbox = document.querySelector('input[type=checkbox]'),
+        button = document.querySelector('input[type=button]');
 
-    if (!shared) {
-        // Mutate instance pipeline (calls setData again to rebuild pipeline).
-        treeView.setPipeline(pipelineOptions);
-    }
+    checkbox.onclick = function() {
+        grid.plugins.treeviewAPI.setRelation(this.checked);
+        button.disabled = !this.checked;
+    };
 
-    document.querySelector('input[type=checkbox]').onclick = function() {
-        treeView.setRelation(this.checked, true);
+    button.onclick = function() {
+        grid.behavior.dataModel.expandAllRows(true);
     };
 };
 

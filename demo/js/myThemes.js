@@ -1,4 +1,8 @@
-var myThemes = {
+/* eslint-env browser */
+
+'use strict';
+
+window.fin.Hypergrid.myThemes = {
     one: {
         font: '8px Tahoma, Geneva, sans-serif',
         color: 'rgb(25, 25, 25)',

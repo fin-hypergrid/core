@@ -1,12 +1,17 @@
 /* eslint-env browser */
+
 'use strict';
 
 var _ = require('object-iterators');
-var Base = require('../lib/Base');
+var Point = require('rectangular').Point;
 
+var Base = require('../Base');
 var Column = require('./Column');
+var cellEventFactory = require('./../lib/cellEventFactory');
+var HeaderRow = require('../dataModels/HeaderRow');
+var FilterRow = require('../dataModels/FilterRow');
+var SummaryRow = require('../dataModels/SummaryRow');
 var dialogs = require('../dialogs');
-var DefaultFilter = require('../filter/DefaultFilter');
 
 var noExportProperties = [
     'columnHeader',
@@ -19,9 +24,7 @@ var noExportProperties = [
     'treeColumnPropertiesColumnSelection',
 ];
 
-var isNull = {
-    isNull: true
-};
+var warned = {};
 
 /**
  * @constructor
@@ -34,27 +37,21 @@ var Behavior = Base.extend('Behavior', {
     /**
      * @desc this is the callback for the plugin pattern of nested tags
      * @param {Hypergrid} grid
-     * @param {object} [options] - _(See {@link behaviors.JSON#setData}.)_
+     * @param {object} [options] - _(See {@link behaviors.JSON#setData} for additional options.)_
+     * @param {DataModels[]} [options.subgrids]
      * @memberOf Behavior.prototype
      */
-    initialize: function(grid, dataRows, options) {
+    initialize: function(grid, options) {
         /**
          * @type {Hypergrid}
          * @memberOf Behavior.prototype
          */
         this.grid = grid;
 
-        /**
-         * @type {DataModel}
-         * @memberOf Behavior.prototype
-         */
-        this.dataModel = this.getNewDataModel();
-
-        grid.setBehavior(this);
-
-        this.reset();
-
         this.initializeFeatureChain(grid);
+
+        this.grid.behavior = this;
+        this.reset(options);
     },
 
     /**
@@ -95,15 +92,78 @@ var Behavior = Base.extend('Behavior', {
 
     features: [], // override in implementing class unless no features
 
-    reset: function() {
-        this.renderedColumnCount = 30;
-        this.renderedRowCount = 60;
+    reset: function(options) {
+        this.clearState();
+
+        if (this.dataModel) {
+            this.dataModel.reset();
+        } else {
+            /**
+             * @type {DataModel}
+             * @memberOf Behavior.prototype
+             */
+            this.dataModel = this.getNewDataModel(options);
+        }
+
+        // recreate `CellEvent` class so it can set up its internal `grid`, `behavior`, and `dataModel` convenience properties
+        this.CellEvent = cellEventFactory(this.grid);
+
+        this.setSubgrids(options.subgrids || [
+            new HeaderRow(this.grid),
+            new FilterRow(this.grid),
+            new SummaryRow(this.grid, { name: 'topTotals' }),
+            this.dataModel,
+            new SummaryRow(this.grid, { name: 'bottomTotals' })
+        ]);
+
         this.dataUpdates = {}; //for overriding with edit values;
         this.scrollPositionX = this.scrollPositionY = 0;
         this.clearColumns();
         this.clearState();
-        this.dataModel.reset();
         this.createColumns();
+    },
+
+    /**
+     * Replaces the subgrid list and clears the subgrid dictionary.
+     * @param {DataModel[]} ubgrids
+     * @memberOf Behavior.prototype
+     */
+    setSubgrids: function(subgrids) {
+        this.subgrids = subgrids;
+        this.subgridDict = {};
+    },
+
+    /**
+     * @summary Lookup a subgrid in the subgrid list.
+     * @desc You can get a subgrid reference by index or by property value.
+     *
+     * If both args omitted, returns `this.dataModel` if it's in the subgrid list. (The works because `this.dataModel` has neither a `name` nor a `type` property.)
+     * @param {number|string} [index] - One of:
+     * * **number** and `key` omitted - Index of the subgrid in the subgrid list. If `key` is provided, treated the same as a string.
+     * * **string** - The value to match the property against.
+     * @param {string} [key] - Name of property to match string value to. If omitted, will match against first of:
+     * * `name` property, when defined
+     * * `type` property, when `name` property undefined
+     * @returns {DataModel|undefined} If the sought after subgrid is not in the subgrid list return value is `undefined`.
+     */
+    getSubgrid: function(index, key) {
+        var result;
+        if (!key && typeof index === 'number') {
+            result = this.subgrids[index];
+        } else if (!(result = this.subgridDict[index])) {
+            result = this.subgridDict[index] = this.subgrids.find(function(subgrid) {
+                return index === (key ? subgrid[key] : subgrid.name || subgrid.type);
+            });
+        }
+        return result;
+    },
+
+    get renderedColumnCount() {
+        return this.grid.renderer.visibleColumns.length;
+    },
+
+    get renderedRowCount() {
+        return this.grid.renderer.visibleRows.length;
     },
 
     clearColumns: function() {
@@ -119,8 +179,8 @@ var Behavior = Base.extend('Behavior', {
          */
         this.allColumns = [];
 
-        this.allColumns[-1] = this.columns[-1] = this.newColumn(-1);
-        this.allColumns[-2] = this.columns[-2] = this.newColumn(-2);
+        this.allColumns[-1] = this.columns[-1] = this.newColumn({ index: -1 });
+        this.allColumns[-2] = this.columns[-2] = this.newColumn({ index: -2 });
 
         this.columnEnum = {};
     },
@@ -161,9 +221,7 @@ var Behavior = Base.extend('Behavior', {
     },
 
     newColumn: function(options) {
-        var column = new Column(this, options);
-        this.getPrivateState().columnProperties[column.index] = this.createColumnProperties();
-        return column;
+        return new Column(this, options);
     },
 
     addColumn: function(options) {
@@ -177,329 +235,10 @@ var Behavior = Base.extend('Behavior', {
         //concrete implementation here
     },
 
-    createColumnProperties: function() {
-        var tableState = this.getPrivateState();
-        var properties = Object.create(tableState);
-
-        properties.rowNumbersProperties = Object.create(properties, {
-            foregroundSelectionColor: {
-                configurable: true,
-                get: function() {
-                    return this.columnHeaderForegroundSelectionColor;
-                },
-                set: function(value) {
-                    this.columnHeaderForegroundSelectionColor = value;
-                }
-            },
-            backgroundSelectionColor: {
-                configurable: true,
-                get: function() {
-                    return this.columnHeaderBackgroundSelectionColor;
-                },
-                set: function(value) {
-                    this.columnHeaderBackgroundSelectionColor = value;
-                }
-            }
-        });
-
-        properties.rowHeader = Object.create(properties, {
-            font: {
-                configurable: true,
-                get: function() {
-                    return this.rowHeaderFont;
-                },
-                set: function(value) {
-                    this.rowHeaderFont = value;
-                }
-            },
-            color: {
-                configurable: true,
-                get: function() {
-                    return this.rowHeaderColor;
-                },
-                set: function(value) {
-                    this.rowHeaderColor = value;
-                }
-            },
-            backgroundColor: {
-                configurable: true,
-                get: function() {
-                    return this.rowHeaderBackgroundColor;
-                },
-                set: function(value) {
-                    this.rowHeaderBackgroundColor = value;
-                }
-            },
-            foregroundSelectionFont: {
-                configurable: true,
-                get: function() {
-                    return this.rowHeaderForegroundSelectionFont;
-                },
-                set: function(value) {
-                    this.rowHeaderForegroundSelectionFont = value;
-                }
-            },
-            foregroundSelectionColor: {
-                configurable: true,
-                get: function() {
-                    return this.rowHeaderForegroundSelectionColor;
-                },
-                set: function(value) {
-                    this.rowHeaderForegroundSelectionColor = value;
-                }
-            },
-            backgroundSelectionColor: {
-                configurable: true,
-                get: function() {
-                    return this.rowHeaderBackgroundSelectionColor;
-                },
-                set: function(value) {
-                    this.rowHeaderBackgroundSelectionColor = value;
-                }
-            }
-        });
-
-        properties.columnHeader = Object.create(properties, {
-            font: {
-                configurable: true,
-                get: function() {
-                    return this.columnHeaderFont;
-                },
-                set: function(value) {
-                    this.columnHeaderFont = value;
-                }
-            },
-            color: {
-                configurable: true,
-                get: function() {
-                    return this.columnHeaderColor;
-                },
-                set: function(value) {
-                    this.columnHeaderColor = value;
-                }
-            },
-            backgroundColor: {
-                configurable: true,
-                get: function() {
-                    return this.columnHeaderBackgroundColor;
-                },
-                set: function(value) {
-                    this.columnHeaderBackgroundColor = value;
-                }
-            },
-            foregroundSelectionFont: {
-                configurable: true,
-                get: function() {
-                    return this.columnHeaderForegroundSelectionFont;
-                },
-                set: function(value) {
-                    this.columnHeaderForegroundSelectionFont = value;
-                }
-            },
-            foregroundSelectionColor: {
-                configurable: true,
-                get: function() {
-                    return this.columnHeaderForegroundSelectionColor;
-                },
-                set: function(value) {
-                    this.columnHeaderForegroundSelectionColor = value;
-                }
-            },
-            backgroundSelectionColor: {
-                configurable: true,
-                get: function() {
-                    return this.columnHeaderBackgroundSelectionColor;
-                },
-                set: function(value) {
-                    this.columnHeaderBackgroundSelectionColor = value;
-                }
-            }
-        });
-
-        properties.columnHeaderColumnSelection = Object.create(properties.columnHeader, {
-            foregroundSelectionColor: {
-                configurable: true,
-                get: function() {
-                    return this.columnHeaderForegroundColumnSelectionColor;
-                },
-                set: function(value) {
-                    this.columnHeaderForegroundColumnSelectionColor = value;
-                }
-            },
-            backgroundSelectionColor: {
-                configurable: true,
-                get: function() {
-                    return this.columnHeaderBackgroundColumnSelectionColor;
-                },
-                set: function(value) {
-                    this.columnHeaderBackgroundColumnSelectionColor = value;
-                }
-            }
-        });
-
-        properties.rowHeaderRowSelection = Object.create(properties.rowHeader, {
-            foregroundSelectionColor: {
-                configurable: true,
-                get: function() {
-                    return this.rowHeaderForegroundRowSelectionColor;
-                },
-                set: function(value) {
-                    this.rowHeaderForegroundRowSelectionColor = value;
-                }
-            },
-            backgroundSelectionColor: {
-                configurable: true,
-                get: function() {
-                    return this.rowHeaderBackgroundRowSelectionColor;
-                },
-                set: function(value) {
-                    this.rowHeaderBackgroundRowSelectionColor = value;
-                }
-            }
-        });
-
-        properties.filterProperties = Object.create(properties, {
-            font: {
-                configurable: true,
-                get: function() {
-                    return this.filterFont;
-                },
-                set: function(value) {
-                    this.filterFont = value;
-                }
-            },
-            color: {
-                configurable: true,
-                get: function() {
-                    return this.filterColor;
-                },
-                set: function(value) {
-                    this.filterColor = value;
-                }
-            },
-            backgroundColor: {
-                configurable: true,
-                get: function() {
-                    return this.filterBackgroundColor;
-                },
-                set: function(value) {
-                    this.filterBackgroundColor = value;
-                }
-            },
-            foregroundSelectionColor: {
-                configurable: true,
-                get: function() {
-                    return this.filterForegroundSelectionColor;
-                },
-                set: function(value) {
-                    this.filterForegroundSelectionColor = value;
-                }
-            },
-            backgroundSelectionColor: {
-                configurable: true,
-                get: function() {
-                    return this.filterBackgroundSelectionColor;
-                },
-                set: function(value) {
-                    this.filterBackgroundSelectionColor = value;
-                }
-            },
-            cellBorderStyle: {
-                configurable: true,
-                get: function() {
-                    return this.filterCellBorderStyle;
-                },
-                set: function(value) {
-                    this.filterCellBorderStyle = value;
-                }
-            },
-            cellBorderThickness: {
-                configurable: true,
-                get: function() {
-                    return this.filterCellBorderThickness;
-                },
-                set: function(value) {
-                    this.filterCellBorderThickness = value;
-                }
-            }
-        });
-
-        properties.treeColumnProperties = Object.create(properties, {
-            font: {
-                configurable: true,
-                get: function() {
-                    return this.treeColumnFont;
-                },
-                set: function(value) {
-                    this.treeColumnFont = value;
-                }
-            },
-            color: {
-                configurable: true,
-                get: function() {
-                    return this.treeColumnColor;
-                },
-                set: function(value) {
-                    this.treeColumnColor = value;
-                }
-            },
-            backgroundColor: {
-                configurable: true,
-                get: function() {
-                    return this.treeColumnBackgroundColor;
-                },
-                set: function(value) {
-                    this.treeColumnBackgroundColor = value;
-                }
-            },
-            foregroundSelectionColor: {
-                configurable: true,
-                get: function() {
-                    return this.treeColumnForegroundSelectionColor;
-                },
-                set: function(value) {
-                    this.treeColumnForegroundSelectionColor = value;
-                }
-            },
-            backgroundSelectionColor: {
-                configurable: true,
-                get: function() {
-                    return this.treeColumnBackgroundSelectionColor;
-                },
-                set: function(value) {
-                    this.treeColumnBackgroundSelectionColor = value;
-                }
-            }
-        });
-
-        properties.treeColumnPropertiesColumnSelection = Object.create(properties.treeColumnProperties, {
-            foregroundSelectionColor: {
-                configurable: true,
-                get: function() {
-                    return this.treeColumnForegroundColumnSelectionColor;
-                },
-                set: function(value) {
-                    this.treeColumnForegroundColumnSelectionColor = value;
-                }
-            },
-            backgroundSelectionColor: {
-                configurable: true,
-                get: function() {
-                    return this.treeColumnBackgroundColumnSelectionColor;
-                },
-                set: function(value) {
-                    this.treeColumnBackgroundColumnSelectionColor = value;
-                }
-            }
-        });
-
-        return properties;
-    },
-
     getColumnWidth: function(x) {
         var column = this.getActiveColumn(x);
         if (!column) {
-            return this.resolveProperty('defaultColumnWidth');
+            return this.grid.properties.defaultColumnWidth;
         }
         var width = column.getWidth();
         return width;
@@ -510,8 +249,8 @@ var Behavior = Base.extend('Behavior', {
         this.stateChanged();
     },
 
-    getCellRenderer: function(config, x, y) {
-        return this.getActiveColumn(x).getCellRenderer(config, x, y);
+    getCellRenderer: function(config, cellEvent) {
+        return cellEvent.column.getCellRenderer(config, cellEvent);
     },
     getCellProvider: function(name) {
         return this.deprecated('getCellProvider()', 'grid.cellRenderers', '1.0.6', arguments);
@@ -520,8 +259,13 @@ var Behavior = Base.extend('Behavior', {
         console.error('getCellProvider() is deprecated as of v1.0.6. No replacement; do not call. Previously called by `Behavior` constructor; `new CellRenderers()` is now called by `Hypergrid` constructor instead.', arguments);
     },
 
+    /**
+     * @deprecated
+     * @memberOf Behavior.prototype
+     */
     applyAnalytics: function() {
-        this.dataModel.applyAnalytics();
+        this.dataModel.reindex();
+        this.shapeChanged();
     },
 
     /**
@@ -553,15 +297,12 @@ var Behavior = Base.extend('Behavior', {
      * @returns {object}
      */
     getPrivateState: function() {
-        if (!this.tableState) {
-            this.tableState = this.getDefaultState();
-        }
-        return this.tableState;
+        return this.deprecate('getPrivateState()', 'grid.properties', '1.2.0');
     },
 
     //this is effectively a clone, with certain things removed....
     getState: function() {
-        var copy = JSON.parse(JSON.stringify(this.getPrivateState()));
+        var copy = JSON.parse(JSON.stringify(this.grid.properties));
         this.clearObjectProperties(copy.columnProperties, false);
         return copy;
     },
@@ -575,7 +316,7 @@ var Behavior = Base.extend('Behavior', {
          * @type {object}
          * @memberOf Behavior.prototype
          */
-        this.tableState = null;
+        this.grid.properties = this.getDefaultState();
     },
 
     /**
@@ -587,7 +328,6 @@ var Behavior = Base.extend('Behavior', {
         var state = Object.create(tableProperties);
 
         _(state).extendOwn({
-            rowHeights: {},
             columnProperties: []
         });
 
@@ -602,18 +342,25 @@ var Behavior = Base.extend('Behavior', {
      */
     setState: function(memento) {
 
+        if (memento.rowHeights) {
+            if (!warned.rowHeights) {
+                warned.rowHeights = true;
+                console.warn('rowHeights, the hash of row heights you provided to setState method, is no longer supported as of v1.2.0 and will be ignored. Instead use individual calls to setRowHeight(y, height, dataModel) for each row height you wish to set, where y is local zero-based row index within dataModel. The dataModel arg is optional and defaults to this.dataModel; specify to set row heights in other data models, such as header row, filter cell row, individual summary rows, etc.');
+            }
+        }
+
         //we don't want to clobber the column properties completely
         if (!memento.columnIndexes) {
-            var fields = this.dataModel.getFields();
+            var length = this.dataModel.schema.length;
             memento.columnIndexes = [];
-            for (var i = 0; i < fields.length; i++) {
+            for (var i = 0; i < length; i++) {
                 memento.columnIndexes[i] = i;
             }
         }
         var colProperties = memento.columnProperties;
         delete memento.columnProperties;
-        this.tableState = null;
-        var state = this.getPrivateState();
+        this.clearState();
+        var state = this.grid.properties;
         this.createColumns();
         this._setColumnOrder(memento.columnIndexes);
         _(state).extendOwn(memento);
@@ -622,30 +369,135 @@ var Behavior = Base.extend('Behavior', {
 
         //just to be close/ it's easier on the eyes
         this.setColumnWidth(-1, 24.193359375);
-        this.dataModel.applyState();
+        this.dataModel.reindex();
     },
 
     setAllColumnProperties: function(properties) {
         properties = properties || [];
         for (var i = 0; i < properties.length; i++) {
-            var current = this.getPrivateState().columnProperties[i];
+            var current = this.grid.properties.columnProperties[i];
             this.clearObjectProperties(current, false);
             _(current).extendOwn(properties[i]);
         }
     },
 
-    _setColumnOrder: function(indexes) {
-        if (!Array.isArray(indexes)){
-            return;
+    _setColumnOrder: function(columnIndexes) {
+        if (Array.isArray(columnIndexes)){
+            this.columns.length = columnIndexes.length;
+            columnIndexes.forEach(function(index, i) {
+                this.columns[i] = this.allColumns[index];
+            }, this);
         }
-        if (!indexes) {
-            this.columns.length = 0;
-            return;
+    },
+
+    /**
+     * @memberOf Behavior.prototype
+     * @desc Rebuild the column order indexes
+     * @param {Array} columnIndexes - list of column indexes
+     * @param {Boolean} [silent=false] - whether to trigger column changed event
+     */
+    setColumnIndexes: function(columnIndexes, silent) {
+        var tableState = this.grid.properties;
+        this._setColumnOrder(columnIndexes);
+        tableState.columnIndexes = columnIndexes;
+        this.changed();
+        if (!silent) {
+            this.grid.fireSyntheticOnColumnsChangedEvent();
         }
-        this.columns.length = indexes.length;
-        for (var i = 0; i < indexes.length; i++) {
-            this.columns[i] = this.allColumns[indexes[i]];
+    },
+
+    /**
+     * @summary Show inactive column(s) or move active column(s).
+     *
+     * @desc Adds one or several columns to the "active" column list.
+     *
+     * @param {boolean} [isActiveColumnIndexes=false] - Which list `columnIndexes` refers to:
+     * * `true` - The active column list. This can only move columns around within the active column list; it cannot add inactive columns (because it can only refer to columns in the active column list).
+     * * `false` - The full column list (as per column schema array). This inserts columns from the "inactive" column list, moving columns that are already active.
+     *
+     * @param {number|number[]} columnIndexes - Column index(es) into list as determined by `isActiveColumnIndexes`. One of:
+     * * **Scalar column index** - Adds single column at insertion point.
+     * * **Array of column indexes** - Adds multiple consecutive columns at insertion point.
+     *
+     * _This required parameter is promoted left one arg position when `isActiveColumnIndexes` omitted._
+     *
+     * @param {number} [referenceIndex=this.columns.length] - Insertion point, _i.e.,_ the element to insert before. A negative values skips the reinsert. Default is to insert new columns at end of active column list.
+     *
+     * _Promoted left one arg position when `isActiveColumnIndexes` omitted._
+     *
+     * @param {boolean} [allowDuplicateColumns=false] - Unless true, already visible columns are removed first.
+     *
+     * _Promoted left one arg position when `isActiveColumnIndexes` omitted + one position when `referenceIndex` omitted._
+     *
+     * @memberOf Behavior.prototype
+     */
+    showColumns: function(isActiveColumnIndexes, columnIndexes, referenceIndex, allowDuplicateColumns) {
+        // Promote args when isActiveColumnIndexes omitted
+        if (typeof isActiveColumnIndexes === 'number' || Array.isArray(isActiveColumnIndexes)) {
+            allowDuplicateColumns = referenceIndex;
+            referenceIndex = columnIndexes;
+            columnIndexes = isActiveColumnIndexes;
+            isActiveColumnIndexes = false;
         }
+
+        var activeColumns = this.columns,
+            sourceColumnList = isActiveColumnIndexes ? activeColumns : this.allColumns;
+
+        // Nest scalar index
+        if (typeof columnIndexes === 'number') {
+            columnIndexes = [columnIndexes];
+        }
+
+        var newColumns = columnIndexes
+            // Look up columns using provided indexes
+            .map(function(index) { return sourceColumnList[index]; })
+            // Remove any undefined columns
+            .filter(function(column) { return column; });
+
+        // Default insertion point is end (i.e., before (last+1)th element)
+        if (typeof referenceIndex !== 'number') {
+            allowDuplicateColumns = referenceIndex; // assume reference index was omitted when not a number
+            referenceIndex = activeColumns.length;
+        }
+
+        // Remove already visible columns and adjust insertion point
+        if (!allowDuplicateColumns) {
+            newColumns.forEach(function(column) {
+                var i = activeColumns.indexOf(column);
+                if (i >= 0) {
+                    activeColumns.splice(i, 1);
+                    if (referenceIndex > i) {
+                        --referenceIndex;
+                    }
+                }
+            });
+        }
+
+        // Insert the new columns at the insertion point
+        if (referenceIndex >= 0) {
+            activeColumns.splice.apply(activeColumns, [referenceIndex, 0].concat(newColumns));
+        }
+
+        this.grid.properties.columnIndexes = activeColumns.map(function(column) { return column.index; });
+    },
+
+    /**
+     * @summary Hide active column(s).
+     * @desc Removes one or several columns from the "active" column list.
+     * @param {boolean} [isActiveColumnIndexes=false] - Which list `columnIndexes` refers to:
+     * * `true` - The active column list.
+     * * `false` - The full column list (as per column schema array).
+     * @param {number|number[]} columnIndexes - Column index(es) into list as determined by `isActiveColumnIndexes`. One of:
+     * * **Scalar column index** - Adds single column at insertion point.
+     * * **Array of column indexes** - Adds multiple consecutive columns at insertion point.
+     *
+     * _This required parameter is promoted left one arg position when `isActiveColumnIndexes` omitted._
+     * @memberOf Behavior.prototype
+     */
+    hideColumns: function(isActiveColumnIndexes, columnIndexes) {
+        var args = Array.prototype.slice.call(arguments); // Convert to array so we can add an argument (element)
+        args.push(-1); // Remove only; do not reinsert.
+        this.showColumns.apply(this, args);
     },
 
     /**
@@ -655,18 +507,21 @@ var Behavior = Base.extend('Behavior', {
      * @param {string} key - a property name
      */
     resolveProperty: function(key) {
+        // todo: remove when we remove the deprecated grid.resolveProperty
         return this.grid.resolveProperty(key);
     },
 
     /**
      * @memberOf Behavior.prototype
      * @desc A specific cell was clicked; you've been notified.
-     * @param {Point} cell - point of cell coordinates
      * @param {Object} event - all event information
      * @return {boolean} Clicked in a drill-down column.
      */
-    cellClicked: function(cell, event) {
-        return this.dataModel.cellClicked(cell, event);
+    cellClicked: function(event) {
+        if (arguments.length === 2) {
+            return this.deprecated('cellClicked(cell, event)', 'cellClicked(event)', '1.2.0', arguments);
+        }
+        return this.dataModel.cellClicked(event);
     },
 
     /**
@@ -684,23 +539,17 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
+     * @param {CellEvent|number} xOrCellEvent - Grid column coordinate.
+     * @param {number} [y] - Grid row coordinate. Omit if `xOrCellEvent` is a CellEvent.
      * @memberOf Behavior.prototype
-     * @desc setter for the hypergrid
-     * @param {Hypergrid} grid
      */
-    setGrid: function(grid) {
-    },
-
-    /**
-     * @memberOf Behavior.prototype
-     * @desc First check to see if something was overridden.
-     * @return {*} The value at `x,y` for the top left section of the hypergrid.
-     * @param {number} x - x coordinate
-     * @param {number} y - y coordinate
-     */
-    getValue: function(x, y) {
-        var column = this.getActiveColumn(x);
-        return column && column.getValue(y);
+    getValue: function(xOrCellEvent, y) {
+        switch (arguments.length) {
+            case 1:
+                return xOrCellEvent.value;
+            case 2:
+                return new this.CellEvent(xOrCellEvent, y).value;
+        }
     },
 
     getUnfilteredValue: function(x, y) {
@@ -712,58 +561,157 @@ var Behavior = Base.extend('Behavior', {
      * @memberOf Behavior.prototype
      * @desc update the data at point x, y with value
      * @return The data.
-     * @param {number} x - x coordinate
-     * @param {number} y - y coordinate
-     * @param {Object} value - the value to use
+     * @param {CellEvent|number} xOrCellEvent - Grid column coordinate.
+     * @param {number} [y] - Grid row coordinate. Omit if `xOrCellEvent` is a CellEvent.
+     * @param {Object} value - The value to use. _When `y` omitted, promoted to 2nd arg._
+     * @return {boolean} Consumed.
      */
-    setValue: function(x, y, value) {
-        var column = this.getActiveColumn(x);
-        return column && column.setValue(y, value);
+    setValue: function(xOrCellEvent, y, value) {
+        switch (arguments.length) {
+            case 3: xOrCellEvent = new this.CellEvent(xOrCellEvent, y); break;
+            case 2: value = y; break;
+        }
+
+        xOrCellEvent.value = value;
     },
 
     getDataValue: function(x, y) {
-        return this.dataModel.getValue(x, y);
+        return this.deprecated('getDataValue(x, y, value)', 'dataModel.getValue(x, y, value)', '1.1.0', arguments);
     },
 
     setDataValue: function(x, y, value) {
-        this.dataModel.setValue(x, y, value);
+        return this.deprecated('setDataValue(x, y, value)', 'dataModel.setValue(x, y, value)', '1.1.0', arguments);
     },
+
     /**
+     * @summary Get the cell's own properties object.
+     * @desc May be undefined because cells only have their own properties object when at lest one own property has been set.
+     * @param {CellEvent|number} xOrCellEvent - Data x coordinate.
+     * @param {number} [y] - Grid row coordinate. _Omit when `xOrCellEvent` is a `CellEvent`._
+     * @returns {undefined|object} The "own" properties of the cell at x,y in the grid. If the cell does not own a properties object, returns `undefined`.
      * @memberOf Behavior.prototype
-     * @desc First checks to see if something was overridden.
-     * @return {*} The value at x,y for the top left section of the hypergrid.
-     * @param {number} x - x coordinate
-     * @param {number} y - y coordinate
      */
-    getCellProperties: function(x, y) {
-        var column = this.allColumns[x];
-        return column && column.getCellProperties(y);
+    getCellOwnProperties: function(xOrCellEvent, y) {
+        switch (arguments.length) {
+            case 1:
+                return xOrCellEvent.column // xOrCellEvent is cellEvent
+                    .getCellOwnProperties(xOrCellEvent.dataCell.y, xOrCellEvent.visibleRow.subgrid);
+            case 2:
+                return this.getColumn(xOrCellEvent) // xOrCellEvent is x
+                    .getCellOwnProperties(y);
+        }
+    },
+
+    /**
+     * @summary Get the properties object for cell.
+     * @desc This is the cell's own properties object if found else the column object.
+     *
+     * If you are seeking a single specific property, consider calling {@link Behavior#getCellProperty} instead.
+     * @param {CellEvent|number} xOrCellEvent - Data x coordinate.
+     * @param {number} [y] - Grid row coordinate. _Omit when `xOrCellEvent` is a `CellEvent`._
+     * @return {object} The properties of the cell at x,y in the grid.
+     * @memberOf Behavior.prototype
+     */
+    getCellProperties: function(xOrCellEvent, y) {
+        switch (arguments.length) {
+            case 1:
+                return xOrCellEvent.column // xOrCellEvent is cellEvent
+                    .getCellProperties(xOrCellEvent.dataCell.y, xOrCellEvent.visibleRow.subgrid);
+            case 2:
+                return this.getColumn(xOrCellEvent) // xOrCellEvent is x
+                    .getCellProperties(y);
+        }
+    },
+
+    /**
+     * @summary Return a specific cell property.
+     * @desc If there is no cell properties object, defers to column properties object.
+     * @param {CellEvent|number} xOrCellEvent - Data x coordinate.
+     * @param {number} [y] - Grid row coordinate._ Omit when `xOrCellEvent` is a `CellEvent`._
+     * @param {string} key - Name of property to get. _When `y` omitted, this param promoted to 2nd arg._
+     * @return {object} The specified property for the cell at x,y in the grid.
+     * @memberOf Behavior.prototype
+     */
+    getCellProperty: function(xOrCellEvent, y, key) {
+        switch (arguments.length) {
+            case 2:
+                return xOrCellEvent.column // xOrCellEvent is cellEvent
+                    .getCellProperty(xOrCellEvent.dataCell.y, y, xOrCellEvent.visibleRow.subgrid); // y omitted so y here is actually key
+            case 3:
+                return this.getColumn(xOrCellEvent) // xOrCellEvent is x
+                    .getCellProperty(y, key);
+        }
     },
 
     /**
      * @memberOf Behavior.prototype
      * @desc update the data at point x, y with value
-     * @param {number} x - x coordinate
-     * @param {number} y - y coordinate
-     * @param {Object} value - the value to use
+     * @param {CellEvent|number} xOrCellEvent - Data x coordinate.
+     * @param {number} [y] - Grid row coordinate. _Omit when `xOrCellEvent` is a `CellEvent`._
+     * @param {Object} properties - Hash of cell properties. _When `y` omitted, this param promoted to 2nd arg._
      */
-    setCellProperties: function(x, y, value) {
-        var column = this.allColumns[x];
-        if (column) {
-            column.setCellProperties(y, value);
+    setCellProperties: function(xOrCellEvent, y, properties) {
+        if (typeof y === 'object') {
+            xOrCellEvent.column // xOrCellEvent is cellEvent
+                .setCellProperties(xOrCellEvent.dataCell.y, y, xOrCellEvent.visibleRow.subgrid); // y omitted so y here is actually properties
+        } else {
+            this.getColumn(xOrCellEvent) // xOrCellEvent is x
+                .setCellProperties(y, properties);
         }
     },
+
     /**
      * @memberOf Behavior.prototype
-     * @return {number} The number of rows in the hypergrid.
+     * @desc update the data at point x, y with value
+     * @param {CellEvent|number} xOrCellEvent - Data x coordinate.
+     * @param {number} [y] - Grid row coordinate. _Omit when `xOrCellEvent` is a `CellEvent`._
+     * @param {Object} properties - Hash of cell properties. _When `y` omitted, this param promoted to 2nd arg._
+     */
+    addCellProperties: function(xOrCellEvent, y, properties) {
+        if (typeof y === 'object') {
+            xOrCellEvent.column // xOrCellEvent is cellEvent
+                .addCellProperties(xOrCellEvent.dataCell.y, y, xOrCellEvent.visibleRow.subgrid); // y omitted so y here is actually properties
+        } else {
+            this.getColumn(xOrCellEvent) // xOrCellEvent is x
+                .addCellProperties(y, properties);
+        }
+    },
+
+    /**
+     * @summary Set a specific cell property.
+     * @desc If there is no cell properties object, defers to column properties object.
+     * @param {CellEvent|number} xOrCellEvent - Data x coordinate.
+     * @param {number} [y] - Grid row coordinate. _Omit when `xOrCellEvent` is a `CellEvent`._
+     * @param {string} key - Name of property to get. _When `y` omitted, this param promoted to 2nd arg._
+     * @param value
+     * @memberOf Behavior.prototype
+     */
+    setCellProperty: function(xOrCellEvent, y, key, value) {
+        switch (arguments.length) {
+            case 3:
+                return xOrCellEvent.column // xOrCellEvent is cellEvent
+                    .setCellProperty(xOrCellEvent.dataCell.y, y, key, xOrCellEvent.visibleRow.subgrid); // y omitted so y here is actually key and key is actually value
+            case 4:
+                return this.getColumn(xOrCellEvent) // xOrCellEvent is x
+                    .setCellProperty(y, key, value);
+        }
+    },
+
+    /**
+     * @summary Gets the number of rows in the hypergrid.
+     * @dsc Defined as the sum of all rows from all subgrids.
+     * @memberOf Behavior.prototype
      */
     getRowCount: function() {
-        return this.dataModel.getRowCount();
+        return this.subgrids.reduce(function(sum, subgrid) {
+            return sum + subgrid.getRowCount();
+        }, 0);
     },
 
     getUnfilteredRowCount: function() {
-        return this.dataModel.getUnfilteredRowCount();
+        return this.deprecated('getUnfilteredRowCount()', null, '1.2.0', arguments, 'No longer supported');
     },
+
     /**
      * @memberOf Behavior.prototype
      * @return {number} The height in pixels of the fixed rows area  of the hypergrid.
@@ -772,21 +720,19 @@ var Behavior = Base.extend('Behavior', {
         var count = this.getFixedRowCount();
         var total = 0;
         for (var i = 0; i < count; i++) {
-            total = total + this.getRowHeight(i);
+            total += this.getRowHeight(i);
         }
-        //var footerHeight = this.getDefaultRowHeight();
-        //total = total + (footerHeight * this.getFooterRowCount());
         return total;
     },
 
     /**
      * @memberOf Behavior.prototype
-     * @return {number} The height in pixels of a specific row in the hypergrid.
-     * @param {number} rowNum - row index of interest
+     * @param {number} rowIndex - Data row coordinate local to datsModel.
+     * @param {DataModel} [dataModel=this.dataModel]
      */
-    getRowHeight: function(rowNum) {
-        var rowHeights = this.getPrivateState().rowHeights;
-        return rowHeights && rowHeights[rowNum] || this.getDefaultRowHeight();
+    getRowHeight: function(rowIndex, dataModel) {
+        var rowData = (dataModel || this.dataModel).getRow(rowIndex);
+        return rowData && rowData.__ROW_HEIGHT || this.grid.properties.defaultRowHeight;
     },
 
     /**
@@ -795,22 +741,22 @@ var Behavior = Base.extend('Behavior', {
      * @returns {number} The row height in pixels.
      */
     getDefaultRowHeight: function() {
-        if (!this.defaultRowHeight) {
-            this.defaultRowHeight = this.resolveProperty('defaultRowHeight');
-        }
-        return this.defaultRowHeight;
+        return this.deprecated('getDefaultRowHeight', 'grid.properties.defaultRowHeight', '1.2.0');
     },
 
     /**
      * @memberOf Behavior.prototype
      * @desc set the pixel height of a specific row
-     * @param {number} rowNum - the row index of interest
+     * @param {number} rowIndex - Data row coordinate local to datsModel.
      * @param {number} height - pixel height
+     * @param {DataModel} [dataModel=this.dataModel]
      */
-    setRowHeight: function(rowNum, height) {
-        var tableState = this.getPrivateState();
-        tableState.rowHeights[rowNum] = Math.max(5, height);
-        this.stateChanged();
+    setRowHeight: function(rowIndex, height, dataModel) {
+        var rowData = (dataModel || this.dataModel).getRow(rowIndex);
+        if (rowData) {
+            rowData.__ROW_HEIGHT = Math.max(5, height);
+            this.stateChanged();
+        }
     },
 
     /**
@@ -833,7 +779,7 @@ var Behavior = Base.extend('Behavior', {
             total = this.getColumnWidth(-1);
         }
         for (var i = 0; i < count; i++) {
-            total = total + this.getColumnWidth(i);
+            total += this.getColumnWidth(i);
         }
         return total;
     },
@@ -869,32 +815,13 @@ var Behavior = Base.extend('Behavior', {
 
     /**
      * @memberOf Behavior.prototype
-     * @desc Set the number of columns just rendered, including partially rendered columns.
-     * @param {number} count - how many columns were just rendered
-     */
-    setRenderedColumnCount: function(count) {
-        this.renderedColumnCount = count;
-    },
-
-    /**
-     * @memberOf Behavior.prototype
-     * @desc Set the number of rows just rendered, including partially rendered rows.
-     * @param {number} count - how many rows were just rendered
-     */
-    setRenderedRowCount: function(count) {
-        this.renderedRowCount = count;
-    },
-
-
-    /**
-     * @memberOf Behavior.prototype
      * @desc The fixed row area has been clicked, massage the details and call the real function.
      * @param {Hypergrid} grid
      * @param {Object} mouse - event details
      */
     _fixedRowClicked: function(grid, mouse) {
         var x = this.translateColumnIndex(this.getScrollPositionX() + mouse.gridCell.x - this.getFixedColumnCount());
-        var translatedPoint = this.grid.newPoint(x, mouse.gridCell.y);
+        var translatedPoint = new Point(x, mouse.gridCell.y);
         mouse.gridCell = translatedPoint;
         this.fixedRowClicked(grid, mouse);
     },
@@ -906,7 +833,7 @@ var Behavior = Base.extend('Behavior', {
      * @param {Object} mouse - event details
      */
     _fixedColumnClicked: function(grid, mouse) {
-        var translatedPoint = this.grid.newPoint(mouse.gridCell.x, this.getScrollPositionY() + mouse.gridCell.y - this.getFixedRowCount());
+        var translatedPoint = new Point(mouse.gridCell.x, this.getScrollPositionY() + mouse.gridCell.y - this.getFixedRowCount());
         mouse.gridCell = translatedPoint;
         this.fixedColumnClicked(grid, mouse);
     },
@@ -1084,59 +1011,67 @@ var Behavior = Base.extend('Behavior', {
 
     /**
      * @memberOf Behavior.prototype
-     * @desc this function is replaced by the grid on initialization and serves as the callback
+     * @desc I've been notified that the behavior has changed.
      */
-    changed: function() {},
+    changed: function() { this.grid.behaviorChanged(); },
 
     /**
      * @memberOf Behavior.prototype
-     * @desc this function is replaced by the grid on initialization and serves as the callback
+     * @desc The dimensions of the grid data have changed. You've been notified.
      */
-    shapeChanged: function() {},
+    shapeChanged: function() { this.grid.behaviorShapeChanged(); },
+
+    /**
+     * @memberOf Behavior.prototype
+     * @desc The dimensions of the grid data have changed. You've been notified.
+     */
+    stateChanged: function() { this.grid.behaviorStateChanged(); },
 
     /**
      * @memberOf Behavior.prototype
      * @return {boolean} Can re-order columns.
      */
     isColumnReorderable: function() {
-        return true;
+        return this.grid.properties.columnsReorderable;
     },
 
     /**
+     * @param {index} x - Data x coordinate.
+     * @return {Object} The properties for a specific column.
      * @memberOf Behavior.prototype
-     * @return {Object} The properties for a specific column. These are used if no cell properties are specified.
-     * @param {index} columnIndex - the column index of interest
      */
-    getColumnProperties: function(columnIndex) {
-        var column = this.columns[columnIndex];
-        if (!column) {
-            return isNull;
-        }
-        var properties = column.getProperties(); //TODO: returns `null` on Hypergrid.prototype.reset();
-        if (!properties) {
-            return isNull;
-        }
-        return properties;
+    getColumnProperties: function(x) {
+        var column = this.getColumn(x);
+        return column && column.properties;
     },
 
-    setColumnProperties: function(columnIndex, properties) {
-        var column = this.allColumns[columnIndex];
-        var columnProperties = column.getProperties();
-        _(columnProperties).extendOwn(properties);
+    /**
+     * @param {index} x - Data x coordinate.
+     * @return {Object} The properties for a specific column.
+     * @memberOf Behavior.prototype
+     */
+    setColumnProperties: function(x, properties) {
+        var column = this.getColumn(x);
+        if (!column) {
+            throw 'Expected column.';
+        }
+        var result = _(column.properties).extendOwn(properties);
         this.changed();
+        return result;
     },
 
     /**
      * Clears all cell properties of given column or of all columns.
-     * @param {number} [columnIndex] - Omit for all columns.
+     * @param {number} [x] - Omit for all columns.
      */
-    clearAllCellProperties: function(columnIndex) {
-        if (columnIndex === undefined) {
+    clearAllCellProperties: function(x) {
+        if (x === undefined) {
+            // todo: More efficient might be to undefine `dataModel.getData(*).__META`.
             for (var i = this.allColumns.length - 1; i >= 0; --i) {
-                this.allColumns[i].clearAllCellProperties();
+                this.getColumn(i).clearAllCellProperties();
             }
         } else {
-            var column = this.allColumns[i];
+            var column = this.getColumn(i);
             if (column) {
                 column.clearAllCellProperties();
             }
@@ -1145,26 +1080,10 @@ var Behavior = Base.extend('Behavior', {
 
     /**
      * @memberOf Behavior.prototype
-     * @desc Rebuild the column order indexes
-     * @param {Array} columnIndexes - list of column indexes
-     * @param {Boolean} [silent=false] - whether to trigger column changed event
-     */
-    setColumnIndexes: function(columnIndexes, silent) {
-        var tableState = this.getPrivateState();
-        this._setColumnOrder(columnIndexes);
-        tableState.columnIndexes = columnIndexes;
-        this.changed();
-        if (!silent) {
-            this.grid.fireSyntheticOnColumnsChangedEvent();
-        }
-    },
-
-    /**
-     * @memberOf Behavior.prototype
      * @return {string[]} All the currently hidden column header labels.
      */
     getHiddenColumnDescriptors: function() {
-        var tableState = this.getPrivateState();
+        var tableState = this.grid.properties;
         var indexes = tableState.columnIndexes;
         var labels = [];
         var columnCount = this.getActiveColumnCount();
@@ -1183,26 +1102,10 @@ var Behavior = Base.extend('Behavior', {
 
     /**
      * @memberOf Behavior.prototype
-     * @desc hide columns that are specified by their indexes
-     * @param {Array} arrayOfIndexes - an array of column indexes to hide
-     */
-    hideColumns: function(arrayOfIndexes) {
-        var tableState = this.getPrivateState();
-        var order = tableState.columnIndexes;
-        for (var i = 0; i < arrayOfIndexes.length; i++) {
-            var each = arrayOfIndexes[i];
-            if (order.indexOf(each) !== -1) {
-                order.splice(order.indexOf(each), 1);
-            }
-        }
-    },
-
-    /**
-     * @memberOf Behavior.prototype
      * @return {integer} The number of fixed columns.
      */
     getFixedColumnCount: function() {
-        return this.getPrivateState().fixedColumnCount || 0;
+        return this.grid.properties.fixedColumnCount;
     },
 
     /**
@@ -1211,7 +1114,7 @@ var Behavior = Base.extend('Behavior', {
      * @param {number} n - the integer count of how many columns to be fixed
      */
     setFixedColumnCount: function(n) {
-        this.getPrivateState().fixedColumnCount = n;
+        this.grid.properties.fixedColumnCount = n;
     },
 
     /**
@@ -1219,12 +1122,10 @@ var Behavior = Base.extend('Behavior', {
      * @return {integer} The number of fixed rows.
      */
     getFixedRowCount: function() {
-        if (!this.tableState) {
-            return 0;
-        }
-        var headers = this.grid.getHeaderRowCount();
-        var usersSize = this.tableState.fixedRowCount || 0;
-        return headers + usersSize;
+        return (
+            this.grid.getHeaderRowCount() +
+            this.grid.properties.fixedRowCount
+        );
     },
 
     /**
@@ -1238,44 +1139,28 @@ var Behavior = Base.extend('Behavior', {
      *
      * @returns {number} Sum of the above or 0 if none of the above are in use.
      *
-     * @param {number} n - The number of rows.
+     * @param {number} The number of rows.
      */
     setFixedRowCount: function(n) {
-        this.tableState.fixedRowCount = n;
+        this.grid.properties.fixedRowCount = n;
     },
 
     /**
-     * @memberOf Behavior.prototype
-     * @return {number} The number of header rows.
-     * A portion of the number returned by {@link Behavior#getFixedRowCount()|getFixedRowCount()}.
-     * (The remaining _fixed rows_ are the _top totals_ rows.)
+     * @summary Gets the number of "header rows".
+     * @desc Defined as the sum of all rows of all subgrids before the (first) data subgrid.
+     * @memberOf behaviors.JSON.prototype
      */
     getHeaderRowCount: function() {
-        var header = this.grid.isShowHeaderRow() ? 1 : 0;
-        var filter = this.grid.isShowFilterRow() ? 1 : 0;
-        var totals = this.getTopTotals().length;
-        return header + filter + totals;
-    },
+        var result = 0;
 
-    /**
-     * @memberOf Behavior.prototype
-     * @return {number} The number of footer rows, consisting entirely of 0 or more _bottom totals_ rows.
-     */
-    getFooterRowCount: function() {
-        return this.getBottomTotals().length;
-    },
+        this.subgrids.find(function(subgrid) {
+            if (!subgrid.type) {
+                return true; // stop
+            }
+            result += subgrid.getRowCount();
+        });
 
-    getTopTotals: function() {
-        return this.dataModel.getTopTotals();
-    },
-    /**
-     * @memberOf Behavior.prototype
-     * @summary Set the number of header rows.
-     * @param {number} n - The number of _fixed rows_ to reserve as header rows.
-     * (The remaining _fixed rows_ are the _top totals_ rows.)
-     */
-    setHeaderRowCount: function(n) {
-        this.tableState.headerRowCount = n;
+        return result;
     },
 
     /**
@@ -1283,7 +1168,7 @@ var Behavior = Base.extend('Behavior', {
      * @return {number} The number of fixed rows.
      */
     getHeaderColumnCount: function() {
-        return this.grid.resolveProperty('headerColumnCount');
+        throw new this.HypergridError('getHeaderColumnCount() deprecated as of v1.1.0. The naming of this function, analogous to getHeaderColumnCount, implied it returned the number of columns to the left of the data area. In fact, it returned the x coordinate of the first data column, which was (and still is) always 0. There is no replacement; use 0 instead.');
     },
 
     /**
@@ -1291,7 +1176,7 @@ var Behavior = Base.extend('Behavior', {
      * @param {number} The number of fixed rows.
      */
     setHeaderColumnCount: function(numberOfHeaderColumns) {
-        this.tableState.headerColumnCount = numberOfHeaderColumns;
+        throw new this.HypergridError('setHeaderColumnCount() deprecated as of v1.1.0. The naming of this function implied the abililty to set the number of columns to the left of the data area. In fact, it set the value returned by getHeaderColumnCount which was always expected to be 0. There is no replacement.');
     },
 
     /**
@@ -1323,15 +1208,13 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
-     * @memberOf Behavior.prototype
-     * @return {string} The column alignment at column `x`: `'left'`, `'center'` , or `'right'`
-     * @param {number} x - The column index of interest.
-     */
-    getColumnAlignment: function(x) {
-        return 'center';
-    },
-
-    /**
+     * @summary Column alignment of given grid column.
+     * @desc One of:
+     * * `'left'`
+     * * `'center'`
+     * * `'right'`
+     *
+     * Cascades to grid.
      * @memberOf Behavior.prototype
      * @desc Quietly set the horizontal scroll position.
      * @param {number} x - The new position in pixels.
@@ -1368,36 +1251,14 @@ var Behavior = Base.extend('Behavior', {
     /**
      * @memberOf Behavior.prototype
      * @return {cellEditor} The cell editor for the cell at the given coordinates.
-     * @param {Point} editPoint - The grid cell coordinates.
+     * @param {CellEvent} editPoint - The grid cell coordinates.
      */
-    getCellEditorAt: function(editPoint) {
-        var cellEditor, options,
-            column = this.getActiveColumn(editPoint.x);
-
-        if (column) {
-            options = {
-                column: column,
-                editPoint: editPoint
-            };
-
-            cellEditor = this.grid.isFilterRow(editPoint.y)
-                ? this.grid.cellEditors.create('filterbox', options)
-                : column.getCellEditorAt(editPoint.y, options);
-        }
-
-        return cellEditor;
-    },
-
-    /**
-     * @memberOf Behavior.prototype
-     * @param {number} x - The column index.
-     * @param {string[]} keys
-     */
-    toggleSort: function(x, keys) {
-        var column = this.getActiveColumn(x);
-        if (column) {
-            column.toggleSort(keys);
-        }
+    getCellEditorAt: function(event) {
+        return event.isGridColumn && (
+            event.isFilterCell
+                ? this.grid.cellEditors.create('filterbox', event)
+                : event.column.getCellEditorAt(event)
+        );
     },
 
     /**
@@ -1473,17 +1334,6 @@ var Behavior = Base.extend('Behavior', {
 
     /**
      * @memberOf Behavior.prototype
-     * @param {number} x - column index
-     * @param {number} y - totals row index local to the totals area
-     * @param value
-     * @param {string[]} [areas=['top', 'bottom']] - may include `'top'` and/or `'bottom'`
-     */
-    setTotalsValue: function(x, y, value, areas) {
-        this.grid.setTotalsValueNotification(x, y, value, areas);
-    },
-
-    /**
-     * @memberOf Behavior.prototype
      * @return {object} The object at y index.
      * @param {number} y - the row index of interest
      */
@@ -1491,29 +1341,21 @@ var Behavior = Base.extend('Behavior', {
         return this.dataModel.getRow(y);
     },
 
-    convertViewPointToDataPoint: function(viewPoint) {
-        var newX = this.getActiveColumn(viewPoint.x).index;
-        var newPoint = this.grid.newPoint(newX, viewPoint.y);
-        return newPoint;
-    },
-    hasHierarchyColumn: function() {
-        return false;
+    convertViewPointToDataPoint: function(unscrolled) {
+        return new Point(
+            this.getActiveColumn(unscrolled.x).index,
+            unscrolled.y
+        );
     },
 
-    getRowContextFunction: function(selectedRows) {
-        return function() {
-            return null;
-        };
+    hasHierarchyColumn: function() {
+        return false;
     },
 
     getSelectionMatrixFunction: function(selectedRows) {
         return function() {
             return null;
         };
-    },
-
-    getComputedRow: function(y) {
-        return this.dataModel.getComputedRow(y);
     },
 
     autosizeAllColumns: function() {
@@ -1537,110 +1379,48 @@ var Behavior = Base.extend('Behavior', {
         }
     },
 
-    getNewFilter: function() {
-        var newFilter = new DefaultFilter({
-            schema: typeof this.schema === 'function' ? this.schema(this.columns) : this.schema,
-            caseSensitiveColumnNames: this.grid.resolveProperty('filterCaseSensitiveColumnNames'),
-            resolveAliases: this.grid.resolveProperty('filterResolveAliases'),
-            defaultColumnFilterOperator: this.grid.resolveProperty('filterDefaultColumnFilterOperator')
-        });
-        newFilter.loadColumnPropertiesFromSchema(this.columns);
-        return newFilter;
+    /**
+     * @summary _Getter_
+     * @method
+     * @returns {dataSourceHelperAPI} The grid's currently assigned filter.
+     * @memberOf Behavior.prototype
+     */
+    get filter() {
+        return this.dataModel.filter;
     },
 
     /**
-     * @summary Get a reference to the filter attached to the Hypergrid.
-     * @returns {FilterTree}
+     * @summary _Setter:_ Assign a filter to the grid.
+     * @method
+     * @param {dataSourceHelperAPI|undefined|null} filter - One of:
+     * * A filter object, turning filter *ON*.
+     * * If `undefined` or `null`, the null filter is reassigned to the grid, turning filtering *OFF*.
      * @memberOf Behavior.prototype
      */
-    getGlobalFilter: function() {
-        return this.dataModel.getGlobalFilter();
+    set filter(filter) {
+        this.dataModel.filter = filter;
     },
 
     /**
-     * @summary Attach/detach a filter to a Hypergrid.
-     * @param {FilterTree} [filter] - The filter object. If undefined, any attached filter is removed, turning filtering OFF.
-     * @memberOf Behavior.prototype
+     * @summary _Getter_
+     * @method
+     * @returns {sorterAPI} The grid's currently assigned sorter.
+     * @memberOf dataModels.JSON.prototype
      */
-    setGlobalFilter: function(filter) {
-        this.dataModel.setGlobalFilter(filter);
+    get sorter() {
+        return this.dataModel.sorter;
     },
 
     /**
-     * @summary Set the case sensitivity of filter tests against data.
-     * @desc Case sensitivity pertains to string compares only. This includes untyped columns, columns typed as strings, typed columns containing data that cannot be coerced to type or when the filter expression operand cannot be coerced.
-     *
-     * NOTE: This is a shared property and affects all grid managed by this instance of the app.
-     * @param {boolean} isSensitive
-     * @memberOf Behavior.prototype
+     * @summary _Setter:_ Assign a sorter to the grid.
+     * @method
+     * @param {sorterAPI|undefined|null} sorter - One of:
+     * * A sorter object, turning sorting *ON*.
+     * * If `undefined` or `null`, the {@link dataModels.JSON~nullSorter|nullSorter} is reassigned to the grid, turning sorting *OFF.*
+     * @memberOf Hypergrid.prototype
      */
-    setGlobalFilterCaseSensitivity: function(isSensitive) {
-        this.dataModel.setGlobalFilterCaseSensitivity(isSensitive);
-    },
-
-    /**
-     * @param {number|string} columnIndexOrName - The _column filter_ to set.
-     * @param {FilterTreeGetStateOptionsObject} [options] - Passed to the filter's {@link DefaultFilter#getState|getState} method.
-     * @param {boolean} [options.syntax='CQL'] - The syntax to use to describe the filter state. Note that `getFilter`'s default syntax, `'CQL'`, differs from the other get state methods.
-     * @returns {FilterTreeStateObject}
-     * @memberOf Behavior.prototype
-     */
-    getFilter: function(columnIndexOrName, options) {
-        return this.dataModel.getFilter(columnIndexOrName, options);
-    },
-
-    /**
-     * @summary Set a particular column filter's state.
-     * @desc After setting the new filter state, reapplies the filter to the data source.
-     * @param {number|string} columnIndexOrName - The _column filter_ to set.
-     * @param {string|object} [state] - A filter tree object or a JSON, SQL, or CQL subexpression string that describes the a new state for the named column filter. The existing column filter subexpression is replaced with a new node based on this state. If it does not exist, the new subexpression is added to the column filters subtree (`filter.columnFilters`).
-     *
-     * If undefined, removes the entire column filter subexpression from the column filters subtree.
-     * @param {FilterTreeSetStateOptionsObject} [options] - Passed to the filter's [setState]{@link http://joneit.github.io/filter-tree/FilterTree.html#setState} method. You may mix in members of the {@link http://joneit.github.io/filter-tree/global.html#FilterTreeValidationOptionsObject|FilterTreeValidationOptionsObject}
-     * @param {string} [options.syntax='CQL'] - The syntax to use to describe the filter state. Note that `setFilter`'s default syntax, `'CQL'`, differs from the other get state methods.
-     * @returns {undefined|Error|string} `undefined` indicates success.
-     * @memberOf Behavior.prototype
-     */
-    setFilter: function(columnIndexOrName, state, options) {
-        this.dataModel.setFilter(columnIndexOrName, state, options);
-    },
-
-    /**
-     * @param {FilterTreeGetStateOptionsObject} [options] - Passed to the filter's {@link DefaultFilter#getState|getState} method.
-     * @returns {FilterTreeStateObject}
-     * @memberOf Behavior.prototype
-     */
-    getFilters: function(options) {
-        return this.dataModel.getFilters(options);
-    },
-
-    /**
-     * @param {FilterTreeStateObject} state
-     * @param {FilterTreeSetStateOptionsObject} [options] - Passed to the filter's [setState]{@link http://joneit.github.io/filter-tree/FilterTree.html#setState} method. You may mix in members of the {@link http://joneit.github.io/filter-tree/global.html#FilterTreeValidationOptionsObject|FilterTreeValidationOptionsObject}
-     * @returns {undefined|Error|string} `undefined` indicates success.
-     * @memberOf Behavior.prototype
-     */
-    setFilters: function(state, options) {
-        this.dataModel.setFilters(state, options);
-    },
-
-    /**
-     * @param {FilterTreeGetStateOptionsObject} [options] - Passed to the filter's {@link DefaultFilter#getState|getState} method.
-     * @returns {FilterTreeStateObject}
-     * @memberOf Behavior.prototype
-     */
-    getTableFilter: function(options) {
-        return this.dataModel.getTableFilter(options);
-    },
-
-    /**
-     * @param {FilterTreeStateObject} state
-     * @param {FilterTreeSetStateOptionsObject} [options] - Passed to the filter's [setState]{@link http://joneit.github.io/filter-tree/FilterTree.html#setState} method. You may mix in members of the {@link http://joneit.github.io/filter-tree/global.html#FilterTreeValidationOptionsObject|FilterTreeValidationOptionsObject}
-     * @returns {undefined|Error|string} `undefined` indicates success.
-     * @memberOf Behavior.prototype
-     */
-    setTableFilter: function(state, options) {
-        this.dataModel.setTableFilter(state, options);
+    set sorter(sorter) {
+        this.dataModel.sorter = sorter;
     },
 
     getSelectedRows: function() {
@@ -1660,8 +1440,35 @@ var Behavior = Base.extend('Behavior', {
     },
 
     getFilteredData: function() {
-        return this.dataModel.getFilteredData();
+        return this.deprecated('getIndexedData()', 'getIndexedData', '1.2.0', arguments);
     },
+    getIndexedData: function() {
+       this.dataModel.getIndexedData();
+    },
+
+    /**
+     * An array where each element represents a subgrid to be rendered in the hypergrid.
+     * The list will always include at least one "data" subgrid, typically {@link Behavior#dataModel|dataModel}.
+     * It may also include zero or more other types of subgrids such as header, filter, and summary subgrids.
+     *
+     * ### totals-toolkit
+     *
+     * When the totals-toolkit is loaded, this object also serves as a hash of selected subgrids by name (i.e., for those subgrids that have a defined property `name`).
+     *
+     * @type {DataModel[]}
+     * @memberOf Behavior.prototype
+     */
+    set subgrids(subgrids) {
+        this._subgrids = subgrids;
+    },
+    get subgrids() {
+        return this._subgrids;
+    }
 });
+
+/**
+ * @memberOf Behavior.prototype
+ */
+Behavior.prototype.reindex = Behavior.prototype.applyAnalytics;
 
 module.exports = Behavior;

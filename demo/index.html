@@ -3,21 +3,22 @@
 <head>
     <title>fin-hypergrid Demo</title>
 
-    <!-- Latest compiled and minified CSS -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">
-
-    <link rel="icon" type="image/x-icon" href="../favicon.ico" />
+    <link rel="icon" type="image/x-icon" href="favicon.ico" />
 
     <script src="data/widedata.js"></script>
     <script src="data/tree-data.js"></script>
-    <script src="js/myThemes.js"></script>
 
     <script src="build/fin-hypergrid.js"></script>
+    <script src="build/add-ons/hyper-filter.js"></script>
+    <script src="build/add-ons/hyper-sorter.js"></script>
     <script src="build/add-ons/drill-down.js"></script>
+    <script src="build/add-ons/totals-toolkit.js"></script>
     <script src="build/add-ons/tree-view.js"></script>
     <script src="build/add-ons/group-view.js"></script>
     <script src="build/add-ons/aggregations-view.js"></script>
+
+    <script src="http://joneit.github.io/datasaur-indexed/build/datasaur-indexed.js"></script>
+    <script src="http://joneit.github.io/datasaur-filter/build/datasaur-filter.js"></script>
 
     <script src="js/demo.js"></script>
     <link rel="stylesheet" href="css/demo.css">
@@ -25,24 +26,21 @@
 </head>
 <body>
 
-<div class="container" style="border-style: solid; border-color: red">
-    <div class="row" style="border-style: solid; border-color: blue">
-        <div id="dashboard" class="col-md-12 col-lg-12" style="border-style: solid; border-color: grey">
-        </div>
+    <div id="tabs">
+        <div id="tab-dashboard">Dashboard</div>
+        <div id="tab-fps">FPS = ??</div>
+        <div id="tab-grow-shrink">Grow</div>
     </div>
-    <div class="row" style="overflow: hidden">
-        <div class="col-md-12 col-lg-12" style="overflow:hidden;border-style: solid; border-color: green; padding:0">
-            <div class="abs" id="json-example"></div>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-md-12 col-lg-12" style="border-style: solid; border-color: grey">
-            blah
-        </div>
-    </div>
-</div>
 
-<div id='dialog-container' style="visibility:hidden; position:absolute; top:3em; bottom:3em; left:3em; right:3em;"></div>
+    <div id="dashboard">
+        <div id="buttons"></div>
+        <div id="ctrl-groups"></div>
+    </div>
+
+    <!-- recommended height: multiple of default row height, plus horizontal scroll bar height -->
+    <div id="json-example" style="margin-top:12px; margin-left:30px; height:402px"></div>
+
+    <div id='dialog-container' style="visibility:hidden; position:absolute; top:3em; bottom:3em; left:3em; right:3em;"></div>
 
 </body>
 </html>

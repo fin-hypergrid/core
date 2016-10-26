@@ -1,6 +1,6 @@
 'use strict';
 
-var Feature = require('./Feature.js');
+var Feature = require('./Feature');
 
 /**
  * @constructor
@@ -10,21 +10,18 @@ var ColumnSorting = Feature.extend('ColumnSorting', {
 
     /**
      * @memberOf ColumnSorting.prototype
-     * @desc Handle this event down the feature chain of responsibility.
      * @param {Hypergrid} grid
      * @param {Object} event - the event details
      */
 
     handleDoubleClick: function(grid, event) {
-        var gridCell = event.gridCell;
+        var columnProperties;
         if (
-            grid.isShowHeaderRow() &&
-            gridCell.y === 0 &&
-            gridCell.x !== -1 &&
-            !grid.behavior.getColumnProperties(gridCell.x).unsortable
+            event.isHeaderCell &&
+            (columnProperties = grid.behavior.getColumnProperties(event.gridCell.x)) &&
+            !columnProperties.unsortable
         ) {
-            var keys = event.primitiveEvent.detail.keys;
-            grid.toggleSort(gridCell.x, keys);
+            grid.fireSyntheticColumnSortEvent(event.gridCell.x, event.primitiveEvent.detail.keys);
         } else if (this.next) {
             this.next.handleDoubleClick(grid, event);
         }
@@ -32,16 +29,16 @@ var ColumnSorting = Feature.extend('ColumnSorting', {
 
     /**
      * @memberOf ColumnSorting.prototype
-     * @desc Handle this event down the feature chain of responsibility.
      * @param {Hypergrid} grid
      * @param {Object} event - the event details
      */
     handleMouseMove: function(grid, event) {
-        var gridCell = event.gridCell;
+        var columnProperties;
         if (
-            this.isFixedRow(grid, event) &&
-            gridCell.y < 1 &&
-            !grid.behavior.getColumnProperties(gridCell.x).unsortable
+            event.isRowFixed &&
+            event.isHeaderCell &&
+            (columnProperties = grid.behavior.getColumnProperties(event.gridCell.x)) &&
+            !columnProperties.unsortable
         ) {
             this.cursor = 'pointer';
         } else {

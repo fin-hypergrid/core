@@ -2,15 +2,19 @@
 <html>
     <head>
         <title>Hypergrid Treeview Demo</title>
-        <link rel="icon" type="image/x-icon" href="../favicon.ico" />
+        <link rel="icon" type="image/x-icon" href="favicon.ico" />
         <script src="build/fin-hypergrid.js"></script>
+        <script src="build/add-ons/hyper-filter.js"></script>
+        <script src="build/add-ons/hyper-sorter.js"></script>
         <script src="build/add-ons/drill-down.js"></script>
+        <script src="build/add-ons/row-by-id.js"></script>
         <script src="build/add-ons/tree-view.js"></script>
         <script src="data/tree-data.js"></script>
         <script src="js/tree-view.js"></script>
     </head>
     <body>
         <input type="checkbox"> Treeview
-        <div id="tree-example" style="position:relative; width:400px; height:400px"></div>
+        <input type="button" value="Expand All Rows" disabled style="margin-left:50px">
+        <div id="tree-example" style="margin-top:.5em; position:relative; width:400px; height:400px"></div>
     </body>
 </html>

@@ -34,7 +34,7 @@ Instead of `FilterTree` in the above, you could use any object extended therefro
 
 Hypergrid includes a default filter object, called {@link DefaultFilter}, extended from [FilterTree]{@link http://joneit.github.io/filter-tree/FilterTree.html}. Whenever you point your grid at some new data (such as upon instantiation a new {@link Hypergrid} object or on a subsequent call to {@link behaviors.JSON#setData}), a call is made to the {@link Behavior#getNewFilter} method to instantiate a new default filter object for you.
 
-The application programmer has full control of the type of filter to use and how it is set up. You can override the `getNewFilter()` method to instantiate a `DefaultFilter` with your own specific options; or you may instantiate a different filter object entirely. Alternatively, you can instantiate a new filter at any time and hand it to the grid by way of the {@link Hypergrid#setGlobalFilter} method.
+The application programmer has full control of the type of filter to use and how it is set up. You can override the `getNewFilter()` method to instantiate a `DefaultFilter` with your own specific options; or you may instantiate a different filter object entirely. Alternatively, you can instantiate a new filter at any time and hand it to the grid by way of the {@link Hypergrid#filter} setter.
 
 ### Hypergrid's filter
 
@@ -51,7 +51,7 @@ Filters should be instantiated with a column schema, an array of {@link http://j
 ### Filter integration with Hypergrid
 
 In any case, after any call that sets state on the filter, all three of the following actions _must_ be performed before the next grid render or you will not see the results of the change of state:
-1. **Filter validation** (`grid.getGlobalFilter().invalid()`).<br> In addition to validating the filter state, this method also sets some internal state for efficient subsequent execution of the critical `test()` method.
+1. **Filter validation** (`grid.filter.invalid()`).<br> In addition to validating the filter state, this method also sets some internal state for efficient subsequent execution of the critical `test()` method.
 2. **Filter execution** (`grid.behavior.dataModel.applyAnalytics()`).<br> This is what calls the filter's `test()` method on every data row. This is expensive and should not be called more often than necessary!
 3. **Update the grid canvas** (`grid.behaviorChanged()` which calls `.repaint()`).<br> Must be called at least once before the next animation frame in order to see the results of the filtering.
 
@@ -66,10 +66,10 @@ _NOTE: The "shy" hyphens that may appear in the identifiers below should not be 
 module | Hypergrid | behavior | dataModel | DefaultFilter | hyper-analytics | filter-tree
 --- | --- | --- | --- | --- | --- | ---
 _file_ | Hypergrid.js | Behavior.js | dataModel/JSON.js | DefaultFilter.js | DataSource&shy;GlobalFilter.js | &mdash;
-_prefix_ | `grid.` | `grid.behavior.` | `grid.behavior.dataModel.` | `grid.getGlobalFilter().` | &mdash; | `grid.getGlobalFilter().`
-_set up_ | [getGlobalFilter()]{@link Hypergrid#getGlobalFilter} | [getGlobalFilter()]{@link Behavior#getGlobalFilter} | [getGlobalFilter()]{@link dataModels.JSON#getGlobalFilter} | &mdash; | [get(filter)]{@link http://openfin.github.io/hyper-analytics/DataSourceGlobalFilter.html#get} | &mdash;
- | [setGlobalFilter(filter)]{@link Hypergrid#setGlobalFilter}<sup>1</sup> | [setGlobalFilter(filter)]{@link Behavior#setGlobalFilter} | [setGlobalFilter(filter)]{@link Hypergrid#setGlobalFilter}<sup>2</sup> | &mdash; | [set(filter)]{@link http://openfin.github.io/hyper-analytics/DataSourceGlobalFilter.html#set} | &mdash;
-_properties_ | [setGlobalFilter&shy;CaseSensitivity(&#x200b;isSensitive)]{@link Hypergrid#setGlobalFilterCaseSensitivity}<sup>1</sup> | [setGlobalFilter&shy;CaseSensitivity(&#x200b;isSensitive)]{@link Behavior#setGlobalFilterCaseSensitivity} | [setGlobalFilter&shy;CaseSensitivity(&#x200b;isSensitive)]{@link dataModels.JSON#setGlobalFilterCaseSensitivity} | &mdash; | &mdash; | [setCaseSensitivity(&#x200b;isSensitive)]{@link http://joneit.github.io/filter-tree/FilterTree.html#setCaseSensitivity}
+_prefix_ | `grid.` | `grid.behavior.` | `grid.behavior.dataModel.` | `grid.filter.` | &mdash; | `grid.filter.`
+_set up_ | [filter]{@link Hypergrid#filter} | [filter]{@link Behavior#filter} | [filter]{@link dataModels.JSON#filter} | &mdash; | [get(filter)]{@link http://openfin.github.io/hyper-analytics/DataSourceGlobalFilter.html#get} | &mdash;
+ | [filter]{@link Hypergrid#filter}<sup>1</sup> = filter | [filter]{@link Behavior#filter} = filter | [filter]{@link dataModels.JSON#filter}<sup>2</sup> = filter | &mdash; | [set(filter)]{@link http://openfin.github.io/hyper-analytics/DataSourceGlobalFilter.html#set} | &mdash;
+_properties_ | filter.prop(&#x200b;'caseSensitiveData', isSensitive)<sup>1</sup> | filter.prop(&#x200b;'caseSensitiveData', isSensitive) | filter.prop(&#x200b;'caseSensitiveData', isSensitive) | [properties({ caseSensitiveData: isSensitive })]{@link DefaultFilter#properties}
 _grid state_ | &mdash; | &mdash; | &mdash; | &mdash; | &mdash; | [getState(options)]{@link http://joneit.github.io/filter-tree/FilterTree.html#getState}<sup>8</sup>
  | &mdash; | &mdash; | &mdash; | &mdash; | &mdash; | [setState(state, options)]{@link http://joneit.github.io/filter-tree/FilterTree.html#setState}<sup>8</sup>
 _column_ | [getFilter(&#x200b;columnIndexOrName, options)]{@link Hypergrid#getFilter} | [getFilter(&#x200b;columnIndexOrName, options)]{@link Behavior#getFilter} | [getFilter(&#x200b;columnIndexOrName, options)]{@link dataModels.JSON#getFilter}<sup>3</sup> | [getColumnFilterState(&#x200b;columnIndexOrName, options)]{@link DefaultFilter#getColumnFilterState}<sup><sup>4, 5</sup></sup> | &mdash; | [getState(options)]{@link http://joneit.github.io/filter-tree/FilterTree.html#getState}<sup>8</sup>

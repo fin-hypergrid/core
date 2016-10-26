@@ -2,15 +2,18 @@
 
 var _ = require('object-iterators');
 
-var FilterTree = require('../Shared').FilterTree;
+var FilterTree = require('filter-tree');
 var ParserCQL = require('./parser-CQL');
 
-// Add a property `menuModes` to the tree, defaulting to `operators` as the only active mode
+// Add a property `menuModes` to th e tree, defaulting to `operators` as the only active mode
 FilterTree.Node.optionsSchema.menuModes = {
     default: {
         operators: 1
     }
 };
+
+// Add `opMenuGroups` to prototype because needed by FilterBox.
+FilterTree.Node.prototype.opMenuGroups = FilterTree.Conditionals.groups;
 
 function quote(text) {
     var qt = ParserCQL.qt;
@@ -131,7 +134,6 @@ _(FilterTree.Node.prototype.templates).extendOwn({
  *
  * NOTE: If `options.state` is undefined, it is defined in `preInitialize()` as a new empty state scaffold (see {@link makeNewRoot}) with the two trunks to hold a table filter and column filters. Expressions and subexpressions can be added to this empty scaffold either programmatically or through the Query Builder UI.
  */
-
 var DefaultFilter = FilterTree.extend('DefaultFilter', {
     preInitialize: function(options) {
         options = options || {};
@@ -235,6 +237,7 @@ var DefaultFilter = FilterTree.extend('DefaultFilter', {
      * CAUTION: This is the actual node object. Do not confuse it with the column filter _state_ object (for which see the {@link DefaultFilter#getColumnFilterState|getColumnFilterState()} method).
      * @param {string} columnName
      * @returns {undefined|DefaultFilter} Returns `undefined` if the column filter does not exist.
+     * @memberOf DefaultFilter.prototype
      */
     getColumnFilter: function(columnName) {
         return this.columnFilters.children.find(function(columnFilter) {
@@ -452,16 +455,55 @@ var DefaultFilter = FilterTree.extend('DefaultFilter', {
         return result;
     },
 
-    loadColumnPropertiesFromSchema: function(columns) {
-        this.root.schema.walk(function(columnSchema) {
-            var column = columns.find(function(thisColumn) {
-                return thisColumn.name === columnSchema.name || columnSchema;
-            });
-            if (column) {
-                column.type = columnSchema.type || column.type;
-                column.header = columnSchema.alias || column.header;
+    /** @summary List of filter properties to be treated as first class objects.
+     * @desc On filter property set, for a property value that is a function:
+     * * If listed here, function it self is assigned to property.
+     * * If _not_ listed here, function will be executed to get value to assign to property.
+     * @memberOf DefaultFilter.prototype
+     */
+    firstClassProperties: {
+        calculator: true
+    },
+
+    /**
+     * @implements dataSourceHelperAPI#properties
+     * @desc Notes regarding specific properties:
+     * * `caseSensitiveData` (root property) pertains to string compares only. This includes untyped columns, columns typed as strings, typed columns containing data that cannot be coerced to type or when the filter expression operand cannot be coerced. This is a shared property and affects all grids managed by this instance of the app.
+     * * `calculator` (column property) Computed column calculator.
+     *
+     * @returns One of:
+     * * **Getter** type call: Value of requested property or `null` if undefined.
+     * * **Setter** type call: `undefined`
+     *
+     * @memberOf DefaultFilter.prototype
+     */
+    properties: function(properties) {
+        var result, value,
+            object = properties && properties.column
+                ? this.schema.lookup(properties.column.name)
+                : this.root;
+
+        if (properties && object) {
+            if (properties.getPropName) {
+                result = object[properties.getPropName];
+                if (result === undefined) {
+                    result = null;
+                }
+            } else {
+                for (var key in properties) {
+                    value = properties[key];
+                    if (value === undefined) {
+                        delete object[key];
+                    } else if (typeof value === 'function' && !this.firstClassProperties[key]) {
+                        object[key] = value();
+                    } else {
+                        object[key] = value;
+                    }
+                }
             }
-        });
+        }
+
+        return result;
     }
 });
 

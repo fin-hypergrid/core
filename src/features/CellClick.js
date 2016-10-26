@@ -1,6 +1,6 @@
 'use strict';
 
-var Feature = require('./Feature.js');
+var Feature = require('./Feature');
 
 /**
  * @constructor
@@ -10,7 +10,6 @@ var CellClick = Feature.extend('CellClick', {
 
     /**
      * @memberOf CellClick.prototype
-     * @desc Handle this event down the feature chain of responsibility
      * @param {Hypergrid} grid
      * @param {Object} event - the event details
      */
@@ -19,7 +18,7 @@ var CellClick = Feature.extend('CellClick', {
 
         if (
             event.gridCell.y >= grid.behavior.getHeaderRowCount() &&
-            event.gridCell.x >= grid.behavior.getHeaderColumnCount()
+            event.gridCell.x >= 0
         ) {
             consumed = grid.cellClicked(event);
         }

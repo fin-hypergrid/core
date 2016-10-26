@@ -8,7 +8,7 @@ var automat = require('automat');
 
 var Dialog = require('./Dialog');
 var markup = require('../../html');
-var copyInput = require('../lib/copy-input');
+var copyInput = require('../lib/DOM/copy-input');
 
 var tabProperties = {
     tableQB: {
@@ -43,7 +43,7 @@ var ManageFilters = Dialog.extend('ManageFilters', {
      * @param {HTMLElement} [options.container=document.body]
      */
     initialize: function(grid, options) {
-        this.filter = grid.getGlobalFilter();
+        this.filter = grid.filter;
 
         this.append(markup.filterTrees);
 
@@ -81,7 +81,7 @@ var ManageFilters = Dialog.extend('ManageFilters', {
 
     onClosed: function() {
         var behavior = this.grid.behavior;
-        behavior.applyAnalytics();
+        behavior.reindex();
         behavior.changed();
     },
 

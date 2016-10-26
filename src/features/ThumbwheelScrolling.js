@@ -1,6 +1,6 @@
 'use strict';
 
-var Feature = require('./Feature.js');
+var Feature = require('./Feature');
 
 /**
  * @constructor
@@ -9,12 +9,11 @@ var ThumbwheelScrolling = Feature.extend('ThumbwheelScrolling', {
 
     /**
      * @memberOf ThumbwheelScrolling.prototype
-     * @desc handle this event down the feature chain of responsibility
      * @param {Hypergrid} grid
      * @param {Object} event - the event details
      */
     handleWheelMoved: function(grid, e) {
-        if (!grid.resolveProperty('scrollingEnabled')) {
+        if (!grid.properties.scrollingEnabled) {
             return;
         }
 

@@ -1,14 +1,19 @@
 /* eslint-env browser */
+/* globals fin */
+
+'use strict';
 
 var grid;
 
 window.onload = function() {
-
+    var Hypergrid = fin.Hypergrid;
     // Create the grid and insert into the DOM
-    grid = new fin.Hypergrid('div#example', { data: window.unitedStates });
-
-    // Adds GroupedHeader cell renderer
-    fin.Hypergrid.groupedHeader.mixInTo(grid);
+    grid = new Hypergrid('div#example');
+    grid.setData(window.unitedStates);
+    grid.installPlugins([
+        //Hypergrid.Hypersorter, // object API instantiation to grid.plugins; no `name` or `$$CLASS_NAME` defined so no ref saved
+        Hypergrid.groupedHeader // simple API install (plain object with `install` method) but no `name` defined so no ref is saved
+    ]);
 
     // New header definitions. This example has three levels of headers.
     // The idea here is that group headers are repeated for each column participating in the group.
@@ -32,10 +37,7 @@ window.onload = function() {
         reps: 'House Seats'
     });
 
-    // Must use the GroupedHeader cell renderer for the header cells with groups. For this example we're using it for all cells. This works because it only applies grouping logic to header cells, otherwise behaving like SimpleCell for non-header cells.
-    grid.behavior.getPrivateState().renderer = 'GroupedHeader';
-
-    // Format the numbers with thousands separated with commas.
+    // Cosmetic: Format the number columns with comma-separator at every 3rd order of magnitude.
     for (var i = grid.behavior.getActiveColumnCount() - 1; i >= 5; --i) {
         grid.behavior.setColumnProperties(i, { format: 'number' });
     }

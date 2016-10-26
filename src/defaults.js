@@ -19,7 +19,7 @@ module.exports = {
      * @type {string}
      * @instance
      */
-    noDataMessage: 'no data to display',
+    noDataMessage: '',
 
 
     /**
@@ -137,6 +137,13 @@ module.exports = {
      */
     columnHeaderBackgroundColumnSelectionColor: 'rgb(255, 180, 0)',
 
+    /**
+     * @default
+     * @type {string}
+     * @instance
+     */
+    columnHeaderHalign: 'center',
+
 
     /********** SECTION: ROW HEADER COLORS **********/
 
@@ -237,17 +244,12 @@ module.exports = {
 
     /**
      * @default
-     * @type {cssColor}
+     * @type {string}
      * @instance
      */
-    filterCellBorderStyle: 'rgba(0,0,0,0.8)',
+    filterHalign: 'center',
 
-    /**
-     * @default
-     * @type {number}
-     * @instance
-     */
-    filterCellBorderThickness: 0.4,
+
     /********** SECTION: TREE COLUMN COLORS **********/
     // The "tree column" contains the hierarchical drill-down controls.
 
@@ -410,7 +412,7 @@ module.exports = {
      * @type {number}
      * @instance
      */
-    lineWidth: 0.4,
+    lineWidth: 1,
 
 
     /**
@@ -507,14 +509,6 @@ module.exports = {
 
     /**
      * @default
-     * @type {number}
-     * @instance
-     */
-    headerColumnCount: 0,
-
-
-    /**
-     * @default
      * @type {boolean}
      * @instance
      */
@@ -539,7 +533,7 @@ module.exports = {
      * @type {boolean}
      * @instance
      */
-    showFilterRow: true,
+    showFilterRow: false,
 
 
     /** Clicking in a cell "selects" it; it is added to the select region and repainted with "cell selection" colors.
@@ -582,7 +576,7 @@ module.exports = {
      * @type {string}
      * @instance
      */
-    selectionRegionOutlineColor: 'black',
+    selectionRegionOutlineColor: 'rgb(69, 69, 69)',
 
     /**
      * @default
@@ -618,6 +612,13 @@ module.exports = {
      * @instance
      */
     editable: true,
+
+    /**
+     * @default
+     * @type {boolean}
+     * @instance
+     */
+    filterable: true,
 
     /**
      * @default
@@ -762,6 +763,37 @@ module.exports = {
      * @instance
      */
     enableContinuousRepaint: false,
+
+    /** @summary Allow user to move columns .
+     * @desc Columns can be reordered through either of two interfaces:
+     * * Column Dragging feature
+     * * Column Picker dialog
+     * @type {boolean}
+     * @default
+     * @instance
+     */
+    columnsReorderable: true,
+
+    /** @summary Apply cell properties before `getCell`.
+     * @type {boolean}
+     * @default
+     * @instance
+     */
+    applyCellProperties: true,
+
+    /** @summary Reapply cell properties after `getCell`.
+     * @type {boolean}
+     * @default
+     * @instance
+     */
+    reapplyCellProperties: false,
+
+    /** @summary Column grab within this number of pixels from top of cell.
+     * @type {number}
+     * @default
+     * @instance
+     */
+    columnGrabMargin: 5
 };
 
 /** @typedef {string} cssColor
@@ -777,7 +809,7 @@ function getTextWidth(gc, string) {
     if (string === null || string === undefined) {
         return 0;
     }
-    string = string + '';
+    string += '';
     if (string.length === 0) {
         return 0;
     }

@@ -88,7 +88,7 @@ var drillDown = {
      */
     toggleAllRows: function(expand, depth, smartApply) {
         var changed = false;
-        if (this.isDrillDown()) {
+        if (this.dataSource.isDrillDown()) {
             var initial, limit = this.dataSource.getRowCount(), increment;
             if (expand) {
                 // work down from top
@@ -105,7 +105,7 @@ var drillDown = {
                 }
             }
             if (smartApply === false || changed && smartApply) {
-                this.applyAnalytics({rowClick: true});
+                this.reindex({rowClick: true});
                 this.changed();
             }
         }
@@ -125,11 +125,11 @@ var drillDown = {
     expandRowsToDepth: function(depth, smartApply) {
         var changed = false;
         while (this.toggleAllRows(true, depth || Infinity)) {
-            this.applyAnalytics({rowClick: true});
+            this.reindex({rowClick: true});
             changed = true;
         }
         if (smartApply === false || changed && smartApply) {
-            this.changed();
+            this.grid.behavior.changed();
         }
         return changed;
     },
@@ -201,9 +201,9 @@ var drillDown = {
         var changed;
 
         if (this.isTreeview()) {
-            changed = this.sources.treeview.revealRow(ID);
+            changed = this.dataSource.revealRow(ID);
             if (smartApply === false || changed && smartApply) {
-                this.applyAnalytics({rowClick: true});
+                this.reindex({rowClick: true});
                 this.changed();
             }
         }
@@ -213,21 +213,34 @@ var drillDown = {
 
 };
 
-/**
- * @name mixInTo
- * @summary Mix all the `drillDown` members into the given target object.
- * @desc The target object is intended to be Hypergrid's in-memory data model object (./src/dataModels/JSON.js).
- *
- * _NOTE:_ This `mixInTo` method is excluded (not mixed in).
- * @function
- * @param {object} target - Your data model instance or its prototype.
- * @memberOf drillDown
- */
-Object.defineProperty(drillDown, 'mixInTo', {  // defined here just to make it non-enumerable
-    value: function(target) {
-        Object.keys(this).forEach(function(key) {
-            target[key] = this[key];
-        }.bind(this));
+Object.defineProperties(drillDown, { // These objects are defined here so they will be non-enumerable to avoid being mixed in.
+    /**
+     * @name install
+     * @summary Installer for plugin.
+     * @desc Required by {@link Hypergrid#installPlugins}
+     * @function
+     * @param {object} target - Your data model instance or its prototype.
+     * @memberOf rowById
+     */
+    install: {
+        value: function(grid, target) {
+            target = target || Object.getPrototypeOf(grid.behavior.dataModel);
+            target.mixIn(this);
+        }
+    },
+
+    /**
+     * @name mixInTo
+     * @summary Mix all the other members into the given target object.
+     * @desc The target object is intended to be Hypergrid's in-memory data model object ({@link dataModels.JSON}).
+     * @function
+     * @param {object} target - Your data model instance or its prototype.
+     * @memberOf rowById
+     */
+    mixInTo: {
+        value: function(target) {
+            throw 'drillDown.mixInTo(target) removed as of Hypergrid 1.2.0 in favor of grid.installPlugins([[rowById, target]]) where target if omitted defaults to grid\'s dataModel prototype.';
+        }
     }
 });
 

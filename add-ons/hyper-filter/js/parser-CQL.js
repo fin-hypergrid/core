@@ -332,6 +332,8 @@ function descendingByLength(a, b) {
  * @param {string} qt
  * @param {string[]} literals - Empty array in which to return extracted literals.
  * @returns {string}
+ * @memberOf ParserCQL
+ * @inner
  */
 function tokenizeLiterals(text, qt, literals) {
     literals.length = 0;
@@ -339,7 +341,7 @@ function tokenizeLiterals(text, qt, literals) {
     for (
         var i = 0, j = 0, k, innerLiteral;
         (j = text.indexOf(qt, j)) >= 0;
-        j = j + 1 + (i + '').length + 1, i++
+        j += 1 + (i + '').length + 1, i++
     ) {
         k = j;
         do {

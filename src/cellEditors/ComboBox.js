@@ -8,8 +8,8 @@
 
 var Textfield = require('./Textfield');
 var prototype = require('./CellEditor').prototype;
-var Queueless = require('../lib/queueless');
-var elfor = require('../lib/elfor');
+var Queueless = require('../lib/DOM/queueless');
+var elfor = require('../lib/DOM/elfor');
 
 /*********************************/
 /* eslint-disable no-unused-vars */
@@ -51,16 +51,15 @@ var ComboBox = Textfield.extend('ComboBox', {
         this.dropper.addEventListener('mousedown', this.toggleDropDown.bind(this));
         this.dropdown.addEventListener('mousewheel', function(e) { e.stopPropagation(); });
         this.dropdown.addEventListener('change', this.insertText.bind(this));
-        el.onblur = null; // void this one, set by super's initialize
     },
 
     template: [
-'<div class="hypergrid-input" title="">',
+'<div class="hypergrid-combobox" title="">',
 '    <input type="text" lang="{{locale}}" style="{{style}}">',
 '    <span title="Click for options"></span>',
 '    <div>',
 '        <div></div>',
-'        <select size="12" lang="{{locale}}"></select>',
+'        <select size="15" lang="{{locale}}"></select>',
 '    </div>',
 '</div>'
     ].join('\n'),
@@ -183,6 +182,7 @@ function onModeIconClick(e) {
 
 function setModeIconAndOptgroup(ctrl, name, state) {
     var style, optgroup, sum, display,
+        dropdown = this.dropdown,
         mode = this.modes.find(function(mode) { return mode.name === name; }); // eslint-disable-line no-shadow
 
     // set icon state (color)
@@ -196,14 +196,14 @@ function setModeIconAndOptgroup(ctrl, name, state) {
         setTimeout(function() { style.cursor = null; }, 333);
 
         if (mode.selector) {
-            optgroup = this.dropdown.querySelector(mode.selector);
+            optgroup = dropdown.querySelector(mode.selector);
             sum = mode.appendOptions.call(this, optgroup);
 
             // update sum
             optgroup.label = optgroup.label.replace(/ \(\d+\)$/, ''); // remove old sum
             optgroup.label += ' (' + sum + ')';
         } else {
-            sum = mode.appendOptions.call(this, this.dropdown);
+            sum = mode.appendOptions.call(this, dropdown);
             if (!this.controllable) {
                 ctrl.textContent = sum + ' values';
             }
@@ -215,11 +215,18 @@ function setModeIconAndOptgroup(ctrl, name, state) {
     }
 
     // hide/show the group
-    elfor.each(
-        mode.selector || ':scope>option,:scope>optgroup:not([class])',
-        function iteratee(el) { el.style.display = display; },
-        this.dropdown
-    );
+    var selector = mode.selector;
+    if (!selector) {
+        selector = 'option,optgroup:not([class])';
+        var mustBeChildren = true; // work-around for ':scope>option,...' not avail in IE11
+    }
+    elfor.each(selector, iteratee, dropdown);
+
+    function iteratee(el) {
+        if (!mustBeChildren || el.parentElement === dropdown) {
+            el.style.display = display;
+        }
+    }
 
     // TODO: Reset the width of this.options to the natural width of this.dropdown. To do this, we need to remove the latter's "width: 100%" from the CSS and then set an explicit this.options.style.width based on the computed width of this.dropdown. This is complicated by the fact that it cannot be done before it is in the DOM.
 }
@@ -235,8 +242,10 @@ function slideDown() {
 
     // show the drop-down slide down effect
     this.options.style.visibility = 'visible';
-    var dropDownHeight = this.dropdown.size * 15;
-    this.options.style.height = 2 + 15 + dropDownHeight + 2 + 'px'; // starts the slide down effect
+    var dropDownTopMargin = getFloat(this.dropdown, 'marginTop'),
+        dropDownRows = this.dropdown.size,
+        optionHeight = Math.ceil((this.dropdown.length ? getFloat(this.dropdown[0], 'height') : 13.1875) * 2) / 2 + 1;
+    this.options.style.height = dropDownTopMargin + optionHeight * dropDownRows + 'px'; // starts the slide down effect
 
     // while in drop-down, listen for clicks in text box which means abprt
     this.input.addEventListener('mousedown', this.slideUpBound = slideUp.bind(this));
@@ -256,6 +265,10 @@ function slideUp() {
     this.optionsTransition.begin(function(event) {
         this.style.visibility = 'hidden';
     });
+}
+
+function getFloat(el, style) {
+    return parseFloat(window.getComputedStyle(el)[style]);
 }
 
 

@@ -58,7 +58,7 @@ var ColumnPicker = Dialog.extend('ColumnPicker', {
                 models: behavior.getActiveColumns()
             };
 
-            this.sortOnHiddenColumns = this.wasSortOnHiddenColumns = grid.resolveProperty('sortOnHiddenColumns');
+            this.sortOnHiddenColumns = this.wasSortOnHiddenColumns = grid.properties.sortOnHiddenColumns;
 
             var columnPicker = new ListDragon([
                 this.inactiveColumns,
@@ -79,7 +79,7 @@ var ColumnPicker = Dialog.extend('ColumnPicker', {
                 grid.fireSyntheticOnColumnsChangedEvent();
             });
 
-            this.sortOnHiddenColumns = this.grid.resolveProperty('sortOnHiddenColumns');
+            this.sortOnHiddenColumns = this.grid.properties.sortOnHiddenColumns;
         } else {
             var div = document.createElement('div');
             div.style.textAlign = 'center';
@@ -136,7 +136,7 @@ var ColumnPicker = Dialog.extend('ColumnPicker', {
             var groupBys = this.selectedGroups.models.map(function(e) {
                 return e.id;
             });
-            behavior.dataModel.setGroups(groupBys);
+            behavior.setGroups(groupBys);
         }
     }
 });

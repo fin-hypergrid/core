@@ -5,27 +5,24 @@
 </head>
 <body>
 
-    <div id="fin-grid"></div>
 
     <script src="build/fin-hypergrid.js"></script>
     <script src="build/add-ons/row-by-id.js"></script>
 
     <script>
-var data = [
-    { symbol: 'APPL', name: 'Apple Inc.', prevclose: 93.13 },
-    { symbol: 'MSFT', name: 'Microsoft Corporation', prevclose: 51.91 },
-    { symbol: 'TSLA', name: 'Tesla Motors Inc.', prevclose: 196.40 },
-    { symbol: 'IBM', name: 'International Business Machines Corp', prevclose: 155.35 }
-];
+        var data = [
+            { symbol: 'APPL', name: 'Apple Inc.', prevclose: 93.13 },
+            { symbol: 'MSFT', name: 'Microsoft Corporation', prevclose: 51.91 },
+            { symbol: 'TSLA', name: 'Tesla Motors Inc.', prevclose: 196.40 },
+            { symbol: 'IBM', name: 'International Business Machines Corp', prevclose: 155.35 }
+        ];
+        var grid = new fin.Hypergrid();
+        grid.setData(data);
+        fin.Hypergrid.rowById.mixInTo(grid.behavior.dataModel);
 
-var grid = new fin.Hypergrid('#fin-grid', { data: data });
-
-fin.Hypergrid.rowById.mixInTo(grid.behavior.dataModel);
-
-grid.addProperties({
-    showRowNumbers: false,
-    showFilterRow: false
-});
+        grid.addProperties({
+            showRowNumbers: false,
+        });
     </script>
 </body>
 </html>

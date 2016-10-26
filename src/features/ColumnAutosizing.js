@@ -1,6 +1,6 @@
 'use strict';
 
-var Feature = require('./Feature.js');
+var Feature = require('./Feature');
 
 /**
  * @constructor
@@ -9,7 +9,6 @@ var Feature = require('./Feature.js');
 var ColumnAutosizing = Feature.extend('ColumnAutosizing', {
 
     /**
-     * @desc handle this event down the feature chain of responsibility
      * @param {Hypergrid} grid
      * @param {Object} event - the event details
      * @memberOf ColumnAutosizing.prototype

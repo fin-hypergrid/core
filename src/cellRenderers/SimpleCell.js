@@ -11,24 +11,17 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
     /**
      * @summary The default cell rendering function for rendering a vanilla cell.
      * @desc Great care has been taken in crafting this function as it needs to perform extremely fast. Reads on the gc object are expensive but not quite as expensive as writes to it. We do our best to avoid writes, then avoid reads. Clipping bounds are not set here as this is also an expensive operation. Instead, we truncate overflowing text and content by filling a rectangle with background color column by column instead of cell by cell.  This column by column fill happens higher up on the stack in a calling function from fin-hypergrid-renderer.  Take note we do not do cell by cell border renderering as that is expensive.  Instead we render many fewer gridlines after all cells are rendered.
-     * @param {CanvasGraphicsContext} gc
-     * @param {object} config
-     * @param {Rectangle} config.bounds - The clipping rect of the cell to be rendered.
-     * @param {number} config.x - the "translated" index into the `behavior.allColumns` array
-     * @param {number} config.normalizedY - the vertical grid coordinate normalized to first data row
-     * @param {number} config.untranslatedX - the horizontal grid coordinate measured from first data column
-     * @param {number} config.y - the vertical grid coordinate measured from top header row
+     * @implements paintFunction
      * @memberOf SimpleCell.prototype
      */
     paint: function(gc, config) {
         var val = config.value,
-            x = config.bounds.x,
-            y = config.bounds.y,
-            width = config.bounds.width,
-            height = config.bounds.height,
-            wrapHeaders = config.headerTextWrapping,
-            leftPadding = 2, //TODO: fix this
-            isHeader = config.y === 0;
+            bounds = config.bounds,
+            x = bounds.x,
+            y = bounds.y,
+            width = bounds.width,
+            height = bounds.height,
+            leftPadding = 2; //TODO: fix this
 
         var leftIcon, rightIcon, centerIcon, ixoffset, iyoffset, font;
 
@@ -55,7 +48,10 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
             }
         }
 
-        val = valOrFunc(val, config, config.calculator);
+        if (config.isUserDataArea) {
+            val = valOrFunc(val, config, config.calculator);
+        }
+
         val = config.formatValue(val);
 
         font = config.isSelected ? config.foregroundSelectionFont : config.font;
@@ -108,7 +104,7 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
             gc.strokeStyle = theColor;
         }
 
-        if (isHeader && wrapHeaders) {
+        if (config.isHeaderRow && config.headerTextWrapping) {
             this.renderMultiLineText(gc, config, val);
         } else {
             this.renderSingleLineText(gc, config, val);
@@ -250,7 +246,7 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
         }
 
         halignOffset = Math.max(0, halignOffset);
-        valignOffset = valignOffset + Math.ceil(height / 2);
+        valignOffset += Math.ceil(height / 2);
 
         if (val !== null) {
             gc.fillText(val, x + halignOffset, y + valignOffset);
@@ -320,11 +316,11 @@ function squeeze(string) {
 function strikeThrough(config, gc, text, x, y, thickness) {
     var fontMetrics = config.getTextHeight(config.font);
     var width = config.getTextWidth(gc, text);
-    y = y - (fontMetrics.height * 0.4);
+    y -= fontMetrics.height * 0.4;
 
     switch (gc.textAlign) {
         case 'center':
-            x -= (width / 2);
+            x -= width / 2;
             break;
         case 'right':
             x -= width;
@@ -342,7 +338,7 @@ function underline(config, gc, text, x, y, thickness) {
 
     switch (gc.textAlign) {
         case 'center':
-            x -= (width / 2);
+            x -= width / 2;
             break;
         case 'right':
             x -= width;
@@ -367,7 +363,7 @@ function valOrFunc(vf, config, calculator) {
     if (config.isGridColumn && config.isGridRow && config.dataRow) {
         calculator = (typeof vf)[0] === 'f' && vf || calculator;
         if (calculator) {
-            result = calculator(config.dataRow, config.columnName);
+            result = calculator(config.dataRow, config.name);
         }
     }
     return result || result === 0 || result === false ? result : '';
