@@ -216,15 +216,14 @@ function setHeaders(headers) {
     var levels = this.columns.reduce(function(max, column) {
         return Math.max(column.header.split(delimiter).length, max);
     }, 0);
-    this.grid.addProperties({
-        rowHeights: {
-            0: levels * 4 / 3 * this.grid.properties.defaultRowHeight
-        }
-    });
+
+    var headerDataModel = this.grid.behavior.getSubgrid('header'),
+        headerRowHeight = levels * 4 / 3 * this.grid.properties.defaultRowHeight;
+    this.grid.setRowHeight(0, headerRowHeight, headerDataModel);
 
     // 3. Set all active header cells to use the GroupHeader cell renderer
     this.columns.forEach(function(column) {
-        column.setCellProperty(0, 'renderer', CLASS_NAME);
+        column.setCellProperty(0, 'renderer', CLASS_NAME, headerDataModel);
     });
 }
 
@@ -311,7 +310,7 @@ function paintHeaderGroups(gc, config) {
             } else {
                 // Continuation of same group level, so just repaint but with increased width
                 group = groups[g];
-                group.width += boundsWidth;
+                group.width += config.lineWidth + boundsWidth;
             }
 
             bounds.x = group.left;

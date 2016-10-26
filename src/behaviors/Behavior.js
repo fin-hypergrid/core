@@ -107,23 +107,44 @@ var Behavior = Base.extend('Behavior', {
         // recreate `CellEvent` class so it can set up its internal `grid`, `behavior`, and `dataModel` convenience properties
         this.CellEvent = cellEventFactory(this.grid);
 
-        this.subgrids = [
+        this.setSubgrids(options.subgrids || [
             new HeaderRow(this.grid),
             new FilterRow(this.grid),
             new SummaryRow(this.grid, { name: 'topTotals' }),
             this.dataModel,
             new SummaryRow(this.grid, { name: 'bottomTotals' })
-        ];
+        ]);
 
-        this.rowHeights = {};
-
-        this.renderedColumnCount = 30;
-        this.renderedRowCount = 60;
         this.dataUpdates = {}; //for overriding with edit values;
         this.scrollPositionX = this.scrollPositionY = 0;
         this.clearColumns();
         this.clearState();
         this.createColumns();
+    },
+
+    setSubgrids: function(subgrids) {
+        this.subgrids = subgrids;
+        this.subgridDict = {};
+    },
+
+    getSubgrid: function(index, key) {
+        var result;
+        if (!key && typeof index === 'number') {
+            result = this.subgrids[index];
+        } else if (!(result = this.subgridDict[index])) {
+            result = this.subgridDict[index] = this.subgrids.find(function(subgrid) {
+                return index === (key ? subgrid[key] : subgrid.name || subgrid.type);
+            });
+        }
+        return result;
+    },
+
+    get renderedColumnCount() {
+        return this.grid.renderer.visibleColumns.length;
+    },
+
+    get renderedRowCount() {
+        return this.grid.renderer.visibleRows.length;
     },
 
     clearColumns: function() {
@@ -755,24 +776,6 @@ var Behavior = Base.extend('Behavior', {
     _setScrollPositionX: function(x) {
         this.setScrollPositionX(x);
         this.changed();
-    },
-
-    /**
-     * @memberOf Behavior.prototype
-     * @desc Set the number of columns just rendered, including partially rendered columns.
-     * @param {number} count - how many columns were just rendered
-     */
-    setRenderedColumnCount: function(count) {
-        this.renderedColumnCount = count;
-    },
-
-    /**
-     * @memberOf Behavior.prototype
-     * @desc Set the number of rows just rendered, including partially rendered rows.
-     * @param {number} count - how many rows were just rendered
-     */
-    setRenderedRowCount: function(count) {
-        this.renderedRowCount = count;
     },
 
     /**

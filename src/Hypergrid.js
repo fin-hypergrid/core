@@ -657,7 +657,6 @@ var Hypergrid = Base.extend('Hypergrid', {
      * @desc This function is a callback from the HypergridRenderer sub-component. It is called after each paint of the canvas.
      */
     gridRenderedNotification: function() {
-        this.updateRenderedSizes();
         if (this.cellEditor) {
             this.cellEditor.gridRenderedNotification();
         }
@@ -677,16 +676,6 @@ var Hypergrid = Base.extend('Hypergrid', {
                 behavior.grid.synchronizeScrollingBoundaries();
             });
         }
-    },
-    /**
-     * @memberOf Hypergrid.prototype
-     * @desc Notify the GridBehavior how many rows and columns we just rendered.
-     */
-    updateRenderedSizes: function() {
-        //add one to each of these values as we want also to include
-        //the columns and rows that are partially visible
-        this.behavior.setRenderedColumnCount(this.renderer.visibleColumns.length + 1);
-        this.behavior.setRenderedRowCount(this.renderer.visibleRows.length + 1);
     },
 
     /**

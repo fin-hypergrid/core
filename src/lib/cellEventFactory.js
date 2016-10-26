@@ -35,7 +35,7 @@ var prototype = Object.defineProperties({}, {
     },
 
     getCellProperty: {
-        value: function(propName) { return this.column.getCellProperty(this.dataCell.y, propName); }
+        value: function(propName) { return this.column.getCellProperty(this.dataCell.y, propName, this.visibleRow.subgrid); }
     },
 
     // "Visible" means scrolled into view.

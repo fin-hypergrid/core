@@ -19,8 +19,18 @@ var cell = {
      * @return {object} The properties of the cell at x,y in the grid.
      * @memberOf Column#
      */
-    getCellProperties: function(rowIndex) {
-        return this.getCellOwnProperties(rowIndex) || this.properties;
+    getCellProperties: function(rowIndex, dataModel) {
+        return this.getCellOwnProperties(rowIndex, dataModel) || this.properties;
+    },
+
+    /**
+     * @param {number} rowIndex - Data row coordinate.
+     * @param {Object} properties - Hash of cell properties.
+     * @returns {*}
+     * @memberOf Column#
+     */
+    setCellProperties: function(rowIndex, properties, dataModel) {
+        return _(newCellPropertiesObject.call(this, rowIndex, dataModel)).extendOwn(properties);
     },
 
     /**
@@ -30,11 +40,8 @@ var cell = {
      * @returns {*}
      * @memberOf Column#
      */
-    setCellProperties: function(rowIndex, properties, preserve) {
-        var getPropertiesObject = preserve ? getCellPropertiesObject : newCellPropertiesObject,
-            cellPropertiesObject = getPropertiesObject.call(this, rowIndex);
-
-        return _(cellPropertiesObject).extendOwn(properties);
+    addCellProperties: function(rowIndex, properties, dataModel) {
+        return _(getCellPropertiesObject.call(this, rowIndex, dataModel)).extendOwn(properties);
     },
 
     /**
@@ -53,12 +60,11 @@ var cell = {
      * @returns {undefined|object} The "own" properties of the cell at x,y in the grid. If the cell does not own a properties object, returns `undefined`.
      * @memberOf Column#
      */
-    getCellOwnProperties: function(rowIndex) {
+    getCellOwnProperties: function(rowIndex, dataModel) {
         var rowData;
         return (
-            rowIndex >= 0 && // no cell props on now data rows
             this.index >= 0 && // no cell props on row handle cells
-            (rowData = this.dataModel.getRow(rowIndex)) && // no cell props on non-existant rows
+            (rowData = (dataModel || this.dataModel).getRow(rowIndex)) && // no cell props on non-existant rows
             rowData.__META && rowData.__META[this.name] // undefined if not previously created
         );
     },
@@ -71,8 +77,8 @@ var cell = {
      * @return {object} The specified property for the cell at x,y in the grid.
      * @memberOf Column#
      */
-    getCellProperty: function(rowIndex, key) {
-        return this.getCellProperties(rowIndex)[key];
+    getCellProperty: function(rowIndex, key, dataModel) {
+        return this.getCellProperties(rowIndex, dataModel)[key];
     },
 
     /**
@@ -82,8 +88,8 @@ var cell = {
      * @returns {object}
      * @memberOf Column#
      */
-    setCellProperty: function(rowIndex, key, value) {
-        var propertiesObject = getCellPropertiesObject.call(this, rowIndex);
+    setCellProperty: function(rowIndex, key, value, dataModel) {
+        var propertiesObject = getCellPropertiesObject.call(this, rowIndex, dataModel);
         propertiesObject[key] = value;
         return propertiesObject;
     },
@@ -100,8 +106,8 @@ var cell = {
  * @returns {object}
  * @private
  */
-function getCellPropertiesObject(rowIndex) {
-    return this.getCellOwnProperties(rowIndex) || newCellPropertiesObject.call(this, rowIndex);
+function getCellPropertiesObject(rowIndex, dataModel) {
+    return this.getCellOwnProperties(rowIndex, dataModel) || newCellPropertiesObject.call(this, rowIndex, dataModel);
 }
 
 /**
@@ -111,8 +117,8 @@ function getCellPropertiesObject(rowIndex) {
  * @returns {object}
  * @private
  */
-function newCellPropertiesObject(rowIndex) {
-    var rowData = this.dataModel.getRow(rowIndex),
+function newCellPropertiesObject(rowIndex, dataModel) {
+    var rowData = (dataModel || this.dataModel).getRow(rowIndex),
         metaData = rowData.__META = rowData.__META || {};
     return (metaData[this.name] = Object.create(this.properties));
 }
