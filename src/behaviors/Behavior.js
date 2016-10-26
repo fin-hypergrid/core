@@ -595,7 +595,7 @@ var Behavior = Base.extend('Behavior', {
         switch (arguments.length) {
             case 1:
                 return xOrCellEvent.column // xOrCellEvent is cellEvent
-                    .getCellOwnProperties(xOrCellEvent.dataCell.y);
+                    .getCellOwnProperties(xOrCellEvent.dataCell.y, xOrCellEvent.visibleRow.subgrid);
             case 2:
                 return this.getColumn(xOrCellEvent) // xOrCellEvent is x
                     .getCellOwnProperties(y);
@@ -616,7 +616,7 @@ var Behavior = Base.extend('Behavior', {
         switch (arguments.length) {
             case 1:
                 return xOrCellEvent.column // xOrCellEvent is cellEvent
-                    .getCellProperties(xOrCellEvent.dataCell.y);
+                    .getCellProperties(xOrCellEvent.dataCell.y, xOrCellEvent.visibleRow.subgrid);
             case 2:
                 return this.getColumn(xOrCellEvent) // xOrCellEvent is x
                     .getCellProperties(y);
@@ -636,7 +636,7 @@ var Behavior = Base.extend('Behavior', {
         switch (arguments.length) {
             case 2:
                 return xOrCellEvent.column // xOrCellEvent is cellEvent
-                    .getCellProperty(xOrCellEvent.dataCell.y, y); // y omitted so y here is actually key
+                    .getCellProperty(xOrCellEvent.dataCell.y, y, xOrCellEvent.visibleRow.subgrid); // y omitted so y here is actually key
             case 3:
                 return this.getColumn(xOrCellEvent) // xOrCellEvent is x
                     .getCellProperty(y, key);
@@ -649,15 +649,31 @@ var Behavior = Base.extend('Behavior', {
      * @param {CellEvent|number} xOrCellEvent - Data x coordinate.
      * @param {number} [y] - Grid row coordinate. _Omit when `xOrCellEvent` is a `CellEvent`._
      * @param {Object} properties - Hash of cell properties. _When `y` omitted, this param promoted to 2nd arg._
-     * @param {boolean} [preserve=false] - Falsy creates new object; truthy copies `properties` members into existing object. _When `y` omitted, this param promoted to 3rd arg._
      */
-    setCellProperties: function(xOrCellEvent, y, properties, preserve) {
+    setCellProperties: function(xOrCellEvent, y, properties) {
         if (typeof y === 'object') {
             xOrCellEvent.column // xOrCellEvent is cellEvent
-                .setCellProperties(xOrCellEvent.dataCell.y, y, properties); // y omitted so y here is actually properties; properties is actually preserve
+                .setCellProperties(xOrCellEvent.dataCell.y, y, xOrCellEvent.visibleRow.subgrid); // y omitted so y here is actually properties
         } else {
             this.getColumn(xOrCellEvent) // xOrCellEvent is x
-                .setCellProperties(y, properties, preserve);
+                .setCellProperties(y, properties);
+        }
+    },
+
+    /**
+     * @memberOf Behavior.prototype
+     * @desc update the data at point x, y with value
+     * @param {CellEvent|number} xOrCellEvent - Data x coordinate.
+     * @param {number} [y] - Grid row coordinate. _Omit when `xOrCellEvent` is a `CellEvent`._
+     * @param {Object} properties - Hash of cell properties. _When `y` omitted, this param promoted to 2nd arg._
+     */
+    addCellProperties: function(xOrCellEvent, y, properties) {
+        if (typeof y === 'object') {
+            xOrCellEvent.column // xOrCellEvent is cellEvent
+                .addCellProperties(xOrCellEvent.dataCell.y, y, xOrCellEvent.visibleRow.subgrid); // y omitted so y here is actually properties
+        } else {
+            this.getColumn(xOrCellEvent) // xOrCellEvent is x
+                .addCellProperties(y, properties);
         }
     },
 
@@ -674,7 +690,7 @@ var Behavior = Base.extend('Behavior', {
         switch (arguments.length) {
             case 3:
                 return xOrCellEvent.column // xOrCellEvent is cellEvent
-                    .setCellProperty(xOrCellEvent.dataCell.y, y, key); // y omitted so y here is actually key and key is actually value
+                    .setCellProperty(xOrCellEvent.dataCell.y, y, key, xOrCellEvent.visibleRow.subgrid); // y omitted so y here is actually key and key is actually value
             case 4:
                 return this.getColumn(xOrCellEvent) // xOrCellEvent is x
                     .setCellProperty(y, key, value);
