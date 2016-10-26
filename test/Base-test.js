@@ -11,7 +11,7 @@ describe('Base', function(){
     describe('Module expected shape', function(){
 
         it('Should have the instance shape', function(){
-            var base = require('../src/lib/Base');
+            var base = require('../src/Base');
 
             instance.forEach(function(key){
                 expect(typeof(base[key.name])).to.equal(key.type);
@@ -21,7 +21,7 @@ describe('Base', function(){
 
     describe('extend', function(){
         it('Should create a new constructor', function(){
-            var base = require('../src/lib/Base');
+            var base = require('../src/Base');
             var myConstructor = base.extend('myConstructor', {a:'a'});
 
             expect(typeof(myConstructor)).to.equal('function');
@@ -30,7 +30,7 @@ describe('Base', function(){
         describe('Should extend with', function() {
             var base, MyConstructor, myObject;
             beforeEach(function() {
-                base = require('../src/lib/Base');
+                base = require('../src/Base');
                 MyConstructor = base.extend('MyConstructor', {a:'a'});
                 myObject = new MyConstructor();
             });
@@ -52,7 +52,7 @@ describe('Base', function(){
 
     describe('HypergridError', function(){
         it('should assign the message', function(){
-            var base = require('../src/lib/Base');
+            var base = require('../src/Base');
             var message = 'this is the message';
             var MyConstructor = base.extend('MyConstructor', {a:'a'});
             var myObject = new MyConstructor();

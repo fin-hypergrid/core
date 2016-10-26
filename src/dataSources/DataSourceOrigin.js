@@ -65,7 +65,7 @@ var DataSourceOrigin = DataSourceBase.extend('DataSourceOrigin',  {
     /**
      * @memberOf DataSourceOrigin#
      * @param y
-     * @returns {object[]}
+     * @returns {dataRowObject}
      */
     getRow: function(y) {
         return this.data[y];
@@ -307,7 +307,7 @@ var warnings = {};
  */
 function getSchemaPropArr(propName) {
     if (!warnings[propName]) {
-        console.warn('The returned ' + propName + ' array is a now a copy. DO NOT MUTATE.');
+        console.warn('The `' + propName + '` array returned by the data source is now a copy as of v1.2.0.');
         warnings[propName] = true;
     }
     return this.schema.map(function(columnSchema) {

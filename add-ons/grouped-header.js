@@ -218,7 +218,7 @@ function setHeaders(headers) {
     }, 0);
     this.grid.addProperties({
         rowHeights: {
-            0: levels * 4 / 3 * this.grid.behavior.getDefaultRowHeight()
+            0: levels * 4 / 3 * this.grid.properties.defaultRowHeight
         }
     });
 

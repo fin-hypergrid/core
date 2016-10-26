@@ -11,102 +11,110 @@ var _ = require('object-iterators');
 var cell = {
 
     /**
-     * Due to memory constraints, we don't create a cell options properties object for every cell.
+     * @summary Get the properties object for cell.
+     * @desc This is the cell's own properties object if found; else the column object.
      *
-     * When such a properties object already exists, it:
+     * If you are seeking a single specific property, consider calling {@link Column#getCellProperty} instead (which calls this method).
+     * @param {number} rowIndex - Data row coordinate.
+     * @return {object} The properties of the cell at x,y in the grid.
+     * @memberOf Column#
+     */
+    getCellProperties: function(rowIndex) {
+        return this.getCellOwnProperties(rowIndex) || this.properties;
+    },
+
+    /**
+     * @param {number} rowIndex - Data row coordinate.
+     * @param {Object} properties - Hash of cell properties.
+     * @param {boolean} [preserve=false] - Falsy creates new object; truthy copies `properties` members into existing object.
+     * @returns {*}
+     * @memberOf Column#
+     */
+    setCellProperties: function(rowIndex, properties, preserve) {
+        var getPropertiesObject = preserve ? getCellPropertiesObject : newCellPropertiesObject,
+            cellPropertiesObject = getPropertiesObject.call(this, rowIndex);
+
+        return _(cellPropertiesObject).extendOwn(properties);
+    },
+
+    /**
+     * @summary Get the cell's own properties object.
+     * @desc Due to memory constraints, we don't create a cell options properties object for every cell.
+     *
+     * If the cell has its own properties object, it:
      * * was created by a previous call to `setCellProperties` or `setCellProperty`
      * * has the column properties object as its prototype
      * * is returned
      *
-     * When the cell properties object does not yet exist, this method simply returns `undefined`.
-     * Call this method when you need to know if the the cell has its own properties object.
-     * In general, if you are seeking a certain property, you might call {@link Column#getCellProperty} instead (which calls this method).
+     * If the cell does not have its own properties object, this method simply returns `undefined`.
      *
-     * @param {number} r - Grid row coordinate.
-     * @returns {undefined|object}
+     * Call this method only when you need to know if the the cell has its own properties object; otherwise call {@link Column#getCellProperties|getCellProperties}.
+     * @param {number} rowIndex - Data row coordinate.
+     * @returns {undefined|object} The "own" properties of the cell at x,y in the grid. If the cell does not own a properties object, returns `undefined`.
      * @memberOf Column#
      */
-    getCellProperties: function(r) {
-        return this.cellProperties[getDataIndex.call(this, r)];
+    getCellOwnProperties: function(rowIndex) {
+        var rowData;
+        return (
+            rowIndex >= 0 && // no cell props on now data rows
+            this.index >= 0 && // no cell props on row handle cells
+            (rowData = this.dataModel.getRow(rowIndex)) && // no cell props on non-existant rows
+            rowData.__META && rowData.__META[this.name] // undefined if not previously created
+        );
     },
 
     /**
-     * @param {number} r - Grid row coordinate.
+     * @summary Return a specific cell property.
+     * @desc If there is no cell properties object, defers to column properties object.
+     * @param {number} rowIndex - Data row coordinate.
      * @param {string} key
-     * @returns {object}
+     * @return {object} The specified property for the cell at x,y in the grid.
      * @memberOf Column#
      */
-    getCellProperty: function(r, key) {
-        return (this.getCellProperties(r) || this.properties)[key];
+    getCellProperty: function(rowIndex, key) {
+        return this.getCellProperties(rowIndex)[key];
     },
 
     /**
-     *
-     * @param {number} r - Grid row coordinate.
-     * @param {object} properties
-     * @param {boolean} [preserve=false]
-     * @returns {*}
-     * @memberOf Column#
-     */
-    setCellProperties: function(r, properties, preserve) {
-        var props = preserve ? getCellPropertiesObject.call(this, r) : newCellPropertiesObject.call(this, r);
-        return _(props).extendOwn(properties);
-    },
-
-    /**
-     * @param {number} r - Grid row coordinate.
+     * @param {number} rowIndex - Data row coordinate.
      * @param {string} key
      * @param value
      * @returns {object}
      * @memberOf Column#
      */
-    setCellProperty: function(r, key, value) {
-        var props = getCellPropertiesObject.call(this, r);
-        props[key] = value;
-        return props;
+    setCellProperty: function(rowIndex, key, value) {
+        var propertiesObject = getCellPropertiesObject.call(this, rowIndex);
+        propertiesObject[key] = value;
+        return propertiesObject;
     },
 
     clearAllCellProperties: function() {
-        this.cellProperties = [];
+        // Unimplemented!
+        // Need to undefine all `dataModel.getData(*).__META[this.name]`.
     }
 };
 
 /**
- * @summary The data row index at the given grid row index.
- * @desc If a header row index, returned as is.
  * @this {Column}
- * @param {number} r - Grid row coordinate.
+ * @param {number} rowIndex - Data row coordinate.
  * @returns {object}
  * @private
  */
-function getDataIndex(r) {
-    var headers = this.behavior.getHeaderRowCount();
-    return r < headers ? r : headers + this.dataModel.getDataIndex(r);
+function getCellPropertiesObject(rowIndex) {
+    return this.getCellOwnProperties(rowIndex) || newCellPropertiesObject.call(this, rowIndex);
 }
 
 /**
+ * @todo: For v8 optimization, consider setting the new `__META` object to a "regularly shaped object" (i.e., with all the columns) instead of simply to `{}`. Considerations include how many of these objects are there, how often are they referenced, etc.
  * @this {Column}
- * @param {number} r - Grid row coordinate.
+ * @param {number} rowIndex - Data row coordinate.
  * @returns {object}
  * @private
  */
-function getCellPropertiesObject(r) {
-    return (
-        this.getCellProperties(r) ||
-        newCellPropertiesObject.call(this, r)
-    );
-}
-
-/**
- * @this {Column}
- * @param {number} r - Grid row coordinate.
- * @returns {object}
- * @private
- */
-function newCellPropertiesObject(r) {
-    return (
-        this.cellProperties[getDataIndex.call(this, r)] = Object.create(this.properties)
-    );
+function newCellPropertiesObject(rowIndex) {
+    var rowData = this.dataModel.getRow(rowIndex),
+        metaData = rowData.__META = rowData.__META || {};
+    return (metaData[this.name] = Object.create(this.properties));
 }
 
 module.exports = cell;

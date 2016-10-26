@@ -224,7 +224,7 @@ Object.defineProperties(drillDown, { // These objects are defined here so they w
      */
     install: {
         value: function(grid, target) {
-            mixInTo.call(this, target || Object.getPrototypeOf(grid.behavior.dataModel));
+            grid.mixIn.call(target || Object.getPrototypeOf(grid.behavior.dataModel), this);
         }
     },
 
@@ -238,18 +238,9 @@ Object.defineProperties(drillDown, { // These objects are defined here so they w
      */
     mixInTo: {
         value: function(target) {
-            console.warn('drillDown.mixInTo(target) deprecated as of Hypergrid 1.10.0 in favor of grid.installPlugins([[drillDown, target]]) where target defaults to grid\'s dataModel prototype. (Will be removed in a future release.)');
-            mixInTo.call(this, target);
+            throw 'drillDown.mixInTo(target) removed as of Hypergrid 1.2.0 in favor of grid.installPlugins([[rowById, target]]) where target if omitted defaults to grid\'s dataModel prototype.';
         }
     }
 });
-
-function mixInTo(target) {
-    for (var key in this) {
-        if (this.hasOwnProperty(key)) {
-            Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(this, key));
-        }
-    }
-}
 
 module.exports = drillDown;

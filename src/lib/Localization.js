@@ -6,7 +6,7 @@
 
 'use strict';
 
-var Base = require('./Base');
+var Base = require('../Base');
 var deprecated = require('./deprecated');
 
 

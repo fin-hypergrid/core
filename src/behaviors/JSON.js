@@ -232,43 +232,16 @@ var JSON = Behavior.extend('behaviors.JSON', {
     },
 
     /**
-     * @summary Set the top totals.
-     * @memberOf behaviors.JSON.p rototype
-     * @param {Array<Array>} totalRows - array of rows (arrays) of totals
-     */
-    setTopTotals: function(totalRows) {
-        this.dataModel.setTopTotals(totalRows);
-    },
-
-    /**
-     * @summary Get the top totals.
      * @memberOf behaviors.JSON.prototype
-     * @returns {Array<Array>}
-     */
-    getTopTotals: function() {
-        return this.dataModel.getTopTotals();
-    },
-
-    /**
-     * @summary Set the bottom totals.
-     * @memberOf behaviors.JSON.prototype
-     * @param {Array<Array>} totalRows - array of rows (arrays) of totals
-     */
-    setBottomTotals: function(totalRows) {
-        this.dataModel.setBottomTotals(totalRows);
-    },
-
-    /**
-     * @summary Get the bottom totals.
-     * @memberOf behaviors.JSON.prototype
-     * @returns {Array<Array>}
-     */
-    getBottomTotals: function() {
-        return this.dataModel.getBottomTotals();
-    },
-
-    /**
-     * @deprecated
+     * @description Build the fields and headers from the supplied column definitions.
+     * ```javascript
+     * myJsonBehavior.setColumns([
+     *     { header: 'Stock Name', name: 'short_description' },
+     *     { header: 'Status', name: 'trading_phase' },
+     *     { header: 'Reference Price', name: 'reference_price' }
+     * ]);
+     * ```
+     * @param {Array} columnDefinitions - an array of objects with fields 'title', and 'field'
      */
     setColumns: function(columnDefinitions) {
         console.warn('This function does not do anything');
@@ -301,15 +274,6 @@ var JSON = Behavior.extend('behaviors.JSON', {
     },
     getVisibleColumns: function() {
         return this.deprecated('getVisibleColumns()', 'getActiveColumns()', '1.0.6', arguments);
-    },
-
-    getSelectedRows: function() {
-        var offset = -this.grid.getHeaderRowCount();
-        var selections = this.grid.selectionModel.getSelectedRows();
-        var result = selections.map(function(each) {
-            return each + offset;
-        });
-        return result;
     },
 
     getSelectedColumns: function() {

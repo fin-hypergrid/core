@@ -3,7 +3,7 @@
 
 'use strict';
 
-var Feature = require('./Feature.js');
+var Feature = require('./Feature');
 
 /**
  * @constructor
@@ -13,7 +13,6 @@ var ColumnPicker = Feature.extend('ColumnPicker', {
 
     /**
      * @memberOf ColumnPicker.prototype
-     * @desc handle this event down the feature chain of responsibility
      * @param {Hypergrid} grid
      * @param {Object} event - the event details
      */

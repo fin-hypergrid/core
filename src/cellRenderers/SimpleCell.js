@@ -16,13 +16,12 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
      */
     paint: function(gc, config) {
         var val = config.value,
-            x = config.bounds.x,
-            y = config.bounds.y,
-            width = config.bounds.width,
-            height = config.bounds.height,
-            wrapHeaders = config.headerTextWrapping,
-            leftPadding = 2, //TODO: fix this
-            isHeader = config.y === 0;
+            bounds = config.bounds,
+            x = bounds.x,
+            y = bounds.y,
+            width = bounds.width,
+            height = bounds.height,
+            leftPadding = 2; //TODO: fix this
 
         var leftIcon, rightIcon, centerIcon, ixoffset, iyoffset, font;
 
@@ -49,7 +48,7 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
             }
         }
 
-        if (x >= 0) {
+        if (config.isUserDataArea) {
             val = valOrFunc(val, config, config.calculator);
         }
 
@@ -105,7 +104,7 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
             gc.strokeStyle = theColor;
         }
 
-        if (isHeader && wrapHeaders) {
+        if (config.isHeaderRow && config.headerTextWrapping) {
             this.renderMultiLineText(gc, config, val);
         } else {
             this.renderSingleLineText(gc, config, val);
@@ -247,7 +246,7 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
         }
 
         halignOffset = Math.max(0, halignOffset);
-        valignOffset = valignOffset + Math.ceil(height / 2);
+        valignOffset += Math.ceil(height / 2);
 
         if (val !== null) {
             gc.fillText(val, x + halignOffset, y + valignOffset);
@@ -317,11 +316,11 @@ function squeeze(string) {
 function strikeThrough(config, gc, text, x, y, thickness) {
     var fontMetrics = config.getTextHeight(config.font);
     var width = config.getTextWidth(gc, text);
-    y = y - (fontMetrics.height * 0.4);
+    y -= fontMetrics.height * 0.4;
 
     switch (gc.textAlign) {
         case 'center':
-            x -= (width / 2);
+            x -= width / 2;
             break;
         case 'right':
             x -= width;
@@ -339,7 +338,7 @@ function underline(config, gc, text, x, y, thickness) {
 
     switch (gc.textAlign) {
         case 'center':
-            x -= (width / 2);
+            x -= width / 2;
             break;
         case 'right':
             x -= width;

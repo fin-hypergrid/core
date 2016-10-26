@@ -5,8 +5,9 @@
 var overrider = require('overrider');
 
 var deprecated = require('../lib/deprecated');
+var HypergridError = require('../lib/error');
 
-var warned;
+var warned = {};
 
 /** @summary Create a new `Column` object.
  * @see {@link module:Cell} is mixed into Column.prototype.
@@ -77,6 +78,10 @@ function Column(behavior, options) {
 
 Column.prototype = {
     constructor: Column.prototype.constructor,
+
+    HypergridError: HypergridError,
+
+    mixIn: overrider.mixIn,
 
     deprecated: deprecated,
     set: function(options) {
@@ -171,26 +176,21 @@ Column.prototype = {
     },
 
     getWidth: function() {
-        var properties = this.properties;
-        return properties && properties.width || this.behavior.grid.properties.defaultColumnWidth;
+        return this.properties && this.properties.width || this.behavior.grid.properties.defaultColumnWidth;
     },
 
     setWidth: function(width) {
         this.properties.width = Math.max(5, width);
     },
 
-    getCellRenderer: function(config, x, y) {
-        config.untranslatedX = x;
-        config.y = y;
+    getCellRenderer: function(config, cellEvent) {
+        config.untranslatedX = cellEvent.gridCell.x;
+        config.y = cellEvent.gridCell.y;
 
         config.x = this.index;
-        config.normalizedY = y - this.behavior.getHeaderRowCount();
+        config.normalizedY = cellEvent.dataCell.y;
 
-        return this.dataModel.getCell(config, this.getCellProperty(y, 'renderer'));
-    },
-
-    clearAllCellProperties: function() {
-        this.cellProperties.length = 0;
+        return this.dataModel.getCell(config, this.getCellProperty(cellEvent.gridCell.y, 'renderer'));
     },
 
     checkColumnAutosizing: function(force) {
@@ -267,11 +267,10 @@ Column.prototype = {
 
     get properties() {
         var tableState = this.behavior.grid.properties,
-            columnProperties = tableState.columnProperties,
-            result = columnProperties[this.index];
+            result = tableState.columnProperties[this.index];
 
         if (!result) {
-            result = columnProperties[this.index] = this.createColumnProperties();
+            result = tableState.columnProperties[this.index] = this.createColumnProperties();
         }
 
         return result;
@@ -299,8 +298,8 @@ Column.prototype = {
      */
     setProperties: function(properties, preserve) {
         if (!preserve) {
-            if (!warned) {
-                warned = true;
+            if (!warned.setProperties) {
+                warned.setProperties = true;
                 console.warn('setProperties(properties) has been deprecated in favor of properties (setter) as of v1.2.0 and will be removed in a future version. This advice only pertains to usages of setProperties when called with a single parameter. When called with a truthy second parameter, use the new addProperties(properties) call instead.');
             }
             this.properties = properties;
@@ -329,13 +328,32 @@ Column.prototype = {
      *
      * @param {number} y - The grid row index.
      * @param {object} options - Will be decorated with `format` and `column`.
-     * @param {Point} options.editPoint
+     * @param {CellEvent} options.editPoint
      * @returns {undefined|CellEditor} Falsy value means either no declared cell editor _or_ instantiation aborted by falsy return return from fireRequestCellEdit.
      */
-    getCellEditorAt: function(y, options) {
-        options.format = this.getCellProperty(y, 'format');
-        var editorName = this.getCellProperty(y, 'editor'),
-            cellEditor = this.dataModel.getCellEditorAt(this.index, y, editorName, options);
+    getCellEditorAt: function(event) {
+        var columnIndex = this.index,
+            rowIndex = event.gridCell.y,
+            editorName = event.getCellProperty('editor'),
+            options = Object.defineProperties(event, {
+                format: {
+                    // `options.fomrat` is a copy of the cell's `format` property which is:
+                    // 1. Subject to adjustment by the `getCellEditorAt` override.
+                    // 2. Then used by the cell editor to reference the predefined localizer.
+                    writable: true,
+                    value: event.getCellProperty('format')
+                },
+                editPoint: {
+                    get: function() {
+                        if (!warned.editPoint) {
+                            warned.editPoint = true;
+                            console.warn('The .editPoint property has been deprecated as of v1.2.0 in favor of .gridCell. It may be removed in a future release.');
+                        }
+                        return this.gridCell;
+                    }
+                }
+            }),
+            cellEditor = this.dataModel.getCellEditorAt(columnIndex, rowIndex, editorName, options);
 
         if (cellEditor && !cellEditor.grid) {
             // cell editor returned but not fully instantiated (aborted by falsy return from fireRequestCellEdit)
@@ -351,9 +369,7 @@ Column.prototype = {
     }
 };
 
-overrider(Column.prototype,
-    require('./cellProperties'),
-    require('./columnProperties')
-);
+Column.prototype.mixIn(require('./cellProperties'));
+Column.prototype.mixIn(require('./columnProperties'));
 
 module.exports = Column;

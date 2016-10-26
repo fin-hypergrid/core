@@ -244,20 +244,6 @@ module.exports = {
 
     /**
      * @default
-     * @type {cssColor}
-     * @instance
-     */
-    filterCellBorderStyle: 'rgba(0,0,0,0.8)',
-
-    /**
-     * @default
-     * @type {number}
-     * @instance
-     */
-    filterCellBorderThickness: 0.4,
-
-    /**
-     * @default
      * @type {string}
      * @instance
      */
@@ -426,7 +412,7 @@ module.exports = {
      * @type {number}
      * @instance
      */
-    lineWidth: 0.4,
+    lineWidth: 1,
 
 
     /**
@@ -520,14 +506,6 @@ module.exports = {
      * @instance
      */
     fixedRowCount: 0,
-
-    /**
-     * @default
-     * @type {number}
-     * @instance
-     */
-    headerColumnCount: 0,
-
 
     /**
      * @default
@@ -634,6 +612,13 @@ module.exports = {
      * @instance
      */
     editable: true,
+
+    /**
+     * @default
+     * @type {boolean}
+     * @instance
+     */
+    filterable: true,
 
     /**
      * @default
@@ -789,12 +774,26 @@ module.exports = {
      */
     columnsReorderable: true,
 
+    /** @summary Apply cell properties before `getCell`.
+     * @type {boolean}
+     * @default
+     * @instance
+     */
+    applyCellProperties: true,
+
     /** @summary Reapply cell properties after `getCell`.
      * @type {boolean}
      * @default
      * @instance
      */
-     reapplyCellProperties: false
+    reapplyCellProperties: false,
+
+    /** @summary Column grab within this number of pixels from top of cell.
+     * @type {number}
+     * @default
+     * @instance
+     */
+    columnGrabMargin: 5
 };
 
 /** @typedef {string} cssColor
@@ -810,7 +809,7 @@ function getTextWidth(gc, string) {
     if (string === null || string === undefined) {
         return 0;
     }
-    string = string + '';
+    string += '';
     if (string.length === 0) {
         return 0;
     }

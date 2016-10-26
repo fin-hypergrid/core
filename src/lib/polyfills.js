@@ -1,5 +1,14 @@
 'use strict';
 
+
+/* IMPORTANT NOTE:
+ * The following polyfills are defined in external npm modules. If any of these modules is removed from Hypergrid, the polyfill(s) they define must be added here!!!
+ *
+ * Array.prototype.find is defined in object-iterators.
+ */
+
+
+// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/sign#Polyfill
 Math.sign = Math.sign || function(x) {
     x = +x; // convert to a number
     if (x === 0 || isNaN(x)) {

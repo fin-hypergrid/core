@@ -1,6 +1,6 @@
 'use strict';
 
-var Feature = require('./Feature.js');
+var Feature = require('./Feature');
 
 /**
  * @constructor
@@ -8,7 +8,7 @@ var Feature = require('./Feature.js');
 var Filters = Feature.extend('Filters', {
 
     handleDoubleClick: function(grid, event) {
-        if (grid.isFilterRow(event.gridCell.y)) {
+        if (event.isFilterCell) {
             grid.onEditorActivate(event);
         } else if (this.next) {
             this.next.handleDoubleClick(grid, event);
@@ -16,7 +16,7 @@ var Filters = Feature.extend('Filters', {
     },
 
     handleClick: function(grid, event) {
-        if (grid.isFilterRow(event.gridCell.y)) {
+        if (event.isFilterCell) {
             grid.onEditorActivate(event);
         } else if (this.next) {
             this.next.handleClick(grid, event);

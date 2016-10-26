@@ -1,7 +1,6 @@
 'use strict';
 
 var DataModel = require('./DataModel');
-var images = require('../../images');
 var DataSourceOrigin = require('../dataSources/DataSourceOrigin');
 
 /** @typedef {object} dataSourcePipelineObject
@@ -62,22 +61,6 @@ var JSON = DataModel.extend('dataModels.JSON', {
      * @param {object} [options]
      */
     reset: function(options) {
-        /**
-         * Each instance has its own top totals rows.
-         * @name topTotals
-         * @type {object[]}
-         * @memberOf dataModels.JSON.prototype
-         */
-        this.topTotals = [];
-
-        /**
-         * Each instance has its own bottom totals rows.
-         * @name bottomTotals
-         * @type {object[]}
-         * @memberOf dataModels.JSON.prototype
-         */
-        this.bottomTotals = [];
-
         this.selectedData = [];
 
         /**
@@ -141,82 +124,27 @@ var JSON = DataModel.extend('dataModels.JSON', {
     },
 
     /**
-     * @memberOf dataModels.JSON.prototype
      * @param {number} x - Data column coordinate.
-     * @param {number} r - Grid row coordinate.
-     * @returns {*}
+     * @param {number} y - Data row coordinate.
+     * @memberOf dataModels.JSON.prototype
      */
-    getValue: function(x, r) {
-        var hasHierarchyColumn = this.hasHierarchyColumn(),
-            headerRowCount = this.grid.getHeaderRowCount(),
-            value;
-
-        if (hasHierarchyColumn) {
+    getValue: function(x, y) {
+        if (this.hasHierarchyColumn()) {
             if (x === -2) {
                 x = 0;
             }
         } else if (this.isDrillDown()) {
             x += 1;
         }
-
-        if (r < headerRowCount) {
-            value = this.getHeaderRowValue(x, r);
-        } else {
-            var y = r - headerRowCount;
-            // if (hasHierarchyColumn) {
-            //     y += 1;
-            // }
-            value = this.dataSource.getValue(x, y);
-        }
-        return value;
+        return this.dataSource.getValue(x, y);
     },
 
     /**
-     * @param {number} r - Grid row coordinate.
+     * @param {number} y - Data row coordinate.
      * @returns {*}
      */
-    getDataIndex: function(r) {
-        var y = r - this.grid.getHeaderRowCount();
+    getDataIndex: function(y) {
         return this.dataSource.getDataIndex(y);
-    },
-
-    /**
-     * @memberOf dataModels.JSON.prototype
-     * @param {number} x - Data column coordinate.
-     * @param {number} y - positive values refer to data rows; negative values refer to _bottom totals_ rows
-     * @returns {*}
-     */
-    getHeaderRowValue: function(x, y) {
-        var value;
-        if (y === undefined) {
-            value = this.schema[Math.max(x, 0)].header;
-        } else if (y < 0) { // bottom totals rows
-            var bottomTotals = this.getBottomTotals();
-            value = bottomTotals[bottomTotals.length + y][x];
-        } else {
-            var isFilterRow = this.grid.isShowFilterRow(),
-                isHeaderRow = this.grid.isShowHeaderRow(),
-                topTotalsOffset = (isFilterRow ? 1 : 0) + (isHeaderRow ? 1 : 0);
-            if (y >= topTotalsOffset) { // top totals rows
-                value = this.getTopTotals()[y - topTotalsOffset][x];
-            } else if (isHeaderRow && y === 0) {
-                value = this.schema[x].header || this.schema[x].name;
-                var sortString = this.getSortImageForColumn(x); //TODO: Should be cleaned up with a proper rowProperties
-                if (sortString) {
-                    var at = value.lastIndexOf(this.groupHeaderDelimiter) + 1;
-                    value = at ? value.substr(0, at) + sortString + value.substr(at) : sortString + value;
-                }
-            } else { // must be filter row
-                //TODO: Should be cleaned up with a proper rowProperties
-                if (!this.filter.getColumnFilterState) {
-                    throw new this.HypergridError('Column filters not available.');
-                }
-                value = this.filter.getColumnFilterState(this.schema[x].name) || '';
-                var icon = images.filter(value.length);
-                return [null, value, icon];
-            }
-        }
-        return value;
     },
 
     /**
@@ -226,52 +154,14 @@ var JSON = DataModel.extend('dataModels.JSON', {
      * @param value
      */
     setValue: function(x, r, value) {
-        var hasHierarchyColumn = this.hasHierarchyColumn();
-        var headerRowCount = this.grid.getHeaderRowCount();
-
-        if (hasHierarchyColumn) {
+        if (this.hasHierarchyColumn()) {
             if (x === -2) {
                 x = 0;
             }
         } else if (this.isDrillDown()) {
             x += 1;
         }
-
-        if (r < headerRowCount) {
-            this.setHeaderRowValue(x, r, value);
-        } else {
-            var y = r - headerRowCount;
-            this.dataSource.setValue(x, y, value);
-        }
-        this.changed();
-    },
-
-    /**
-     * @memberOf dataModels.JSON.prototype
-     * @param {number} x - Data column coordinate.
-     * @param {number} r - Grid row coordinate.
-     * @param value
-     * @returns {*}
-     */
-    setHeaderRowValue: function(x, r, value) {
-        if (value === undefined) {
-            return this._setHeader(x, r); // r is really the value
-        }
-        var isFilterRow = this.grid.isShowFilterRow();
-        var isHeaderRow = this.grid.isShowHeaderRow();
-        var topTotalsOffset = (isFilterRow ? 1 : 0) + (isHeaderRow ? 1 : 0);
-        if (r >= topTotalsOffset) {
-            this.getTopTotals()[r - topTotalsOffset][x] = value;
-        } else if (x === -1) {
-            return; // can't change the row numbers header
-        } else if (isHeaderRow && r === 0) {
-            return this._setHeader(x, value);
-        } else if (isFilterRow) {
-            this.setFilter(x, value);
-        } else {
-            return this._setHeader(x, value);
-        }
-        return '';
+        this.dataSource.setValue(x, r, value);
     },
 
     /**
@@ -300,9 +190,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
      * @returns {number}
      */
     getRowCount: function() {
-        var count = this.dataSource.getRowCount();
-        count += this.grid.getHeaderRowCount();
-        return count;
+        return this.dataSource.getRowCount();
     },
 
     /**
@@ -462,13 +350,12 @@ var JSON = DataModel.extend('dataModels.JSON', {
      * @returns {number|object} One of:
      * `type` specified - The number of updated data sources of the specified type.
      * `type` omitted - Hash containing the number of updated data sources by type.
-     * *
      */
     updateDataSources: function(type) {
         var results = {},
             api = this.api;
 
-        this.pipeline.filter(function(dataSource) {
+        this.pipeline.forEach(function(dataSource) {
             if (
                 (!type || dataSource.type === type) &&
                 api[dataSource.type]
@@ -494,9 +381,11 @@ var JSON = DataModel.extend('dataModels.JSON', {
     getPipelineSchemaStash: function(whichStash) {
         var stash;
         switch (whichStash) {
+
             case 'shared':
                 stash = DataModel.prototype.stash;
                 break;
+
             case 'own':
             case 'instance':
                 if (!this.hasOwnProperty('pipelineSchemaStash')) {
@@ -507,6 +396,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
             case undefined:
                 stash = this.pipelineSchemaStash;
                 break;
+
         }
         return stash;
     },
@@ -538,35 +428,43 @@ var JSON = DataModel.extend('dataModels.JSON', {
     },
 
     /**
+     * @deprecated
+     * @summary Set the top total row(s).
+     * @param {dataRowObject[]} totalRows - Array of 0 or more rows containing summary data. Omit to set to empty array.
      * @memberOf dataModels.JSON.prototype
-     * @param {Array<Array>} totalRows
      */
     setTopTotals: function(totalRows) {
-        this.topTotals = totalRows;
+        return this.deprecate('setTopTotals(rows)', 'grid.behavior.setTopTotals(rows)', '1.1.0', arguments);
     },
 
     /**
+     * @deprecated
+     * @summary Get the top total row(s).
+     * @returns {dataRowObject[]}
      * @memberOf dataModels.JSON.prototype
-     * @returns {Array<Array>}
      */
     getTopTotals: function() {
-        return this.dataSource.getGrandTotals() || this.topTotals;
+        return this.deprecate('getTopTotals(rows)', 'grid.behavior.getTopTotals(rows)', '1.1.0', arguments);
     },
 
     /**
+     * @deprecated
+     * @summary Set the bottom total row(s).
+     * @param {dataRowObject[]} totalRows - Array of 0 or more rows containing summary data. Omit to set to empty array.
      * @memberOf dataModels.JSON.prototype
-     * @param {Array<Array>} totalRows
      */
     setBottomTotals: function(totalRows) {
-        this.bottomTotals = totalRows;
+        return this.deprecate('setBottomTotals(rows)', 'grid.behavior.setBottomTotals(rows)', '1.1.0', arguments);
     },
 
     /**
+     * @deprecated
+     * @summary Get the bottom total row(s).
+     * @returns {dataRowObject[]}
      * @memberOf dataModels.JSON.prototype
-     * @returns {Array<Array>}
      */
     getBottomTotals: function() {
-        return this.dataSource.getGrandTotals() || this.bottomTotals;
+        return this.deprecate('getBottomTotals(rows)', 'grid.behavior.getBottomTotals(rows)', '1.1.0', arguments);
     },
 
     /**
@@ -631,13 +529,11 @@ var JSON = DataModel.extend('dataModels.JSON', {
      * @return {boolean} Clicked in a drill-down column.
      * @memberOf dataModels.JSON.prototype
      */
-    cellClicked: function(cell, event) {
-        var clickedInDrillDownColumn = this.isDrillDown(event);
-        if (clickedInDrillDownColumn) {
-            var y = event.gridCell.y - this.grid.getHeaderRowCount();
-            this.toggleRow(y);
+    cellClicked: function(event) {
+        if (arguments.length === 2) {
+            return this.deprecated('cellClicked(cell, event)', 'cellClicked(event)', '1.2.0', arguments);
         }
-        return clickedInDrillDownColumn;
+        return this.toggleRow(event.dataCell.y);
     },
 
     /**
@@ -650,7 +546,10 @@ var JSON = DataModel.extend('dataModels.JSON', {
      * * `true` - Expand row.
      * * `false` - Collapse row.
      * * `undefined` (or omitted) - Toggle state of row.
-     * @returns {boolean|undefined} If any rows expanded or collapsed; `undefined` means row had no drill-down control.
+     * @returns {boolean|undefined} Changed. Specifically, one of:
+     * * `undefined` row had no drill-down control
+     * * `true` drill-down changed
+     * * `false` drill-down unchanged (was already in requested state)
      * @memberOf dataModels.JSON.prototype
      */
     toggleRow: function(y, expand) {
@@ -667,21 +566,12 @@ var JSON = DataModel.extend('dataModels.JSON', {
     },
 
     /**
+     * @param {number} r - Data row coordinate.
+     * @returns {object|undefined} Returns data row object or `undefined` if a header row.
      * @memberOf dataModels.JSON.prototype
-     * @param {number} r - Grid row coordinate.
-     * @returns {object}
      */
     getRow: function(r) {
-        var headerRowCount = this.grid.getHeaderRowCount(),
-            topTotals = this.getTopTotals(),
-            hasToptotals = !!topTotals.length,
-            y = r - headerRowCount;
-
-        if (r < headerRowCount && !hasToptotals) {
-            return topTotals[r - (headerRowCount - topTotals.length)];
-        }
-
-        return this.dataSource.getRow(y);
+        return this.dataSource.getRow(r);
     },
 
     /**
@@ -869,13 +759,13 @@ function reselectGridRowsBackedBySelectedDataRows() {
  *
  * @param {number} [columnIndex] - If given, this is a property on a specific column. If omitted, this is a property on the whole API properties object.
  *
- * @param {string|object} property - _If `columnIndex` is omitted, this arg takes first position._
+ * @param {string|object} property - _If `columnIndex` is omitted, this arg takes its place._
  *
  * One of these types:
  * * **string** - Property name. The name of the explicit property to either get or (if `value` also given) set on the properties object.
  * * **object** - Hash of properties to set on the properties object.
  *
- * @param [value] - _If `columnIndex` is omitted, this arg takes second position._
+ * @param [value] - _If `columnIndex` is omitted, this arg takes its place._
  *
  * One of:
  * * Omitted (when `property` is a string), this is the "getter" action: Return the value from the properties object of the key in `property`.
@@ -898,6 +788,7 @@ function propPrep(dataModel, columnIndex, propName, value) {
     }
 
     switch (argCount) {
+
         case 2: // getter propName name or setter hash
             if (typeof propName === 'object') {
                 properties = propName;
@@ -905,6 +796,7 @@ function propPrep(dataModel, columnIndex, propName, value) {
                 properties.getPropName = propName;
             }
             break;
+
         case 3: // setter for value
             if (typeof propName !== 'string') {
                 invalid = true;
@@ -912,8 +804,10 @@ function propPrep(dataModel, columnIndex, propName, value) {
                 properties[propName] = value;
             }
             break;
+
         default: // too few or too many args
             invalid = true;
+
     }
 
     if (invalid) {
