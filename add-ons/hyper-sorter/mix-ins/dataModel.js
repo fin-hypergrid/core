@@ -67,7 +67,7 @@ module.exports = {
         } else if (sortSpec.direction > 0) { // was ascending
             sortSpec.direction = -1; // so make descending
         } else { // was descending
-            this.unSortColumn(columnIndex, true); // so make unsorted
+            this.unSortColumn(column, true); // so make unsorted
         }
 
         //Minor improvement, but this check can happe n earlier and terminate earlier
