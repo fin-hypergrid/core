@@ -113,7 +113,7 @@ module.exports = {
                 result = rank + result;
             }
         }
-        
+
         return result;
     }
 };
