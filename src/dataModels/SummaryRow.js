@@ -4,7 +4,7 @@ function SummaryRow(grid, options) {
     this.behavior = grid.behavior;
 
     /**
-     * @type {dataRows[]}
+     * @type {dataRowObject[]}
      */
     this.data = [];
 

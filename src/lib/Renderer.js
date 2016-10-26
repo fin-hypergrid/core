@@ -551,13 +551,12 @@ var Renderer = Base.extend('Renderer', {
         var vci = this.visibleColumnsByIndex,
             vri = this.visibleRowsByDataRowIndex,
             lastColumn = this.visibleColumns[this.visibleColumns.length - 1], // last column in scrollable section
-            lastRow = vri[this.dataWindow.corner.y], // last row in scrollable data section
-            lastColumnIndex = lastColumn.columnIndex,
-            lastRowIndex = lastRow.rowIndex;
+            lastRow = vri[this.dataWindow.corner.y]; // last row in scrollable data section
 
         if (
-            selection.origin.x > lastColumnIndex ||
-            selection.origin.y > lastRowIndex
+            !lastColumn || !lastRow ||
+            selection.origin.x > lastColumn.columnIndex ||
+            selection.origin.y > lastRow.rowIndex
         ) {
             // selection area begins to right or below grid
             return;
@@ -577,9 +576,13 @@ var Renderer = Base.extend('Renderer', {
 
         var props = this.grid.properties;
         vcOrigin = vcOrigin || lastColumn;
-        vcCorner = vcCorner || selection.corner.x > lastColumnIndex ? lastColumnIndex : vci[props.fixedColumnCount - 1];
+        vcCorner = vcCorner || selection.corner.x > lastColumn.columnIndex
+            ? lastColumn.columnIndex
+            : vci[props.fixedColumnCount - 1];
         vrOrigin = vrOrigin || lastRow;
-        vrCorner = vrCorner || selection.corner.y > lastRowIndex ? lastRowIndex : vri[props.fixedRowCount - 1];
+        vrCorner = vrCorner || selection.corner.y > lastRow.rowIndex
+            ? lastRow.rowIndex
+            : vri[props.fixedRowCount - 1];
 
         // Render the selection model around the bounds
         var config = {

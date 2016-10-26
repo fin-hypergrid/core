@@ -37,7 +37,8 @@ var Behavior = Base.extend('Behavior', {
     /**
      * @desc this is the callback for the plugin pattern of nested tags
      * @param {Hypergrid} grid
-     * @param {object} [options] - _(See {@link behaviors.JSON#setData}.)_
+     * @param {object} [options] - _(See {@link behaviors.JSON#setData} for additional options.)_
+     * @param {DataModels[]} [options.subgrids]
      * @memberOf Behavior.prototype
      */
     initialize: function(grid, options) {
@@ -122,11 +123,29 @@ var Behavior = Base.extend('Behavior', {
         this.createColumns();
     },
 
+    /**
+     * Replaces the subgrid list and clears the subgrid dictionary.
+     * @param {DataModel[]} ubgrids
+     * @memberOf Behavior.prototype
+     */
     setSubgrids: function(subgrids) {
         this.subgrids = subgrids;
         this.subgridDict = {};
     },
 
+    /**
+     * @summary Lookup a subgrid in the subgrid list.
+     * @desc You can get a subgrid reference by index or by property value.
+     *
+     * If both args omitted, returns `this.dataModel` if it's in the subgrid list. (The works because `this.dataModel` has neither a `name` nor a `type` property.)
+     * @param {number|string} [index] - One of:
+     * * **number** and `key` omitted - Index of the subgrid in the subgrid list. If `key` is provided, treated the same as a string.
+     * * **string** - The value to match the property against.
+     * @param {string} [key] - Name of property to match string value to. If omitted, will match against first of:
+     * * `name` property, when defined
+     * * `type` property, when `name` property undefined
+     * @returns {DataModel|undefined} If the sought after subgrid is not in the subgrid list return value is `undefined`.
+     */
     getSubgrid: function(index, key) {
         var result;
         if (!key && typeof index === 'number') {
