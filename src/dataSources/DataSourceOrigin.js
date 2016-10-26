@@ -216,7 +216,7 @@ var DataSourceOrigin = DataSourceBase.extend('DataSourceOrigin',  {
      * @returns {number[]}
      */
     getFields: function() {
-        return getSchemaPropArr.call(this, 'name');
+        return getSchemaPropArr.call(this, 'name', 'getFields');
     },
 
     /**
@@ -224,7 +224,7 @@ var DataSourceOrigin = DataSourceBase.extend('DataSourceOrigin',  {
      * @returns {string[]}
      */
     getHeaders: function() {
-        return getSchemaPropArr.call(this, 'header');
+        return getSchemaPropArr.call(this, 'header', 'getHeaders');
     },
 
     /**
@@ -305,10 +305,10 @@ var warnings = {};
  * @this DataSourceOrigin#
  * @returns {*[]}
  */
-function getSchemaPropArr(propName) {
-    if (!warnings[propName]) {
-        console.warn('The `' + propName + '` array returned by the data source is now a copy as of v1.2.0.');
-        warnings[propName] = true;
+function getSchemaPropArr(propName, deprecatedMethodName) {
+    if (!warnings[deprecatedMethodName]) {
+        console.warn('The array returned by dataSource.' + deprecatedMethodName + '() is now a copy. As of v1.2.0, constructs like .' + deprecatedMethodName + '()[i] should be changed to .schema[i].' + propName + '.');
+        warnings[deprecatedMethodName] = true;
     }
     return this.schema.map(function(columnSchema) {
         return columnSchema[propName];

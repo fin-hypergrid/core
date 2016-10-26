@@ -559,7 +559,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
             changed = this.dataSource.click(y, expand);
             if (changed) {
                 this.reindex({rowClick: true});
-                this.changed();
+                this.grid.behavior.changed();
             }
         }
         return changed;

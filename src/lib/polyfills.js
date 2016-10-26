@@ -2,11 +2,13 @@
 
 
 /* IMPORTANT NOTE:
- * The following polyfills are defined in external npm modules. If any of these modules is removed from Hypergrid, the polyfill(s) they define must be added here!!!
+ * If any of the modules listed below is removed from Hypergrid, the polyfill(s) they define must be added here!!!
  *
- * Array.prototype.find is defined in object-iterators.
+ * 1. object-iterators defines Array.prototype.find
  */
 
+
+/* eslint-disable no-extend-native */
 
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/sign#Polyfill
 Math.sign = Math.sign || function(x) {
@@ -16,7 +18,8 @@ Math.sign = Math.sign || function(x) {
     }
     return x > 0 ? 1 : -1;
 };
-/* eslint-disable */
+
+// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/findIndex
 if (!Array.prototype.findIndex) {
     Array.prototype.findIndex = function(predicate) {
         if (this == null) {
@@ -39,4 +42,3 @@ if (!Array.prototype.findIndex) {
         return -1;
     };
 }
-/* eslint-disable */

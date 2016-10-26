@@ -337,7 +337,8 @@ Object.defineProperties(rowById, { // These objects are defined here so they wil
      */
     install: {
         value: function(grid, target) {
-            grid.overrider.mixInTo.call(this, target || Object.getPrototypeOf(grid.behavior.dataModel));
+            target = target || Object.getPrototypeOf(grid.behavior.dataModel);
+            target.mixIn(this);
         }
     },
 

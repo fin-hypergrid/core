@@ -363,10 +363,10 @@ var Hypergrid = Base.extend('Hypergrid', {
                 if (!plugin.length) {
                     plugin = undefined;
                 } else if (typeof plugin[0] !== 'string') {
-                    args = args.concat(plugin.splice(1));
+                    args = args.concat(plugin.slice(1));
                     plugin = plugin[0];
                 } else if (plugin.length >= 2) {
-                    args = args.concat(plugin.splice(2));
+                    args = args.concat(plugin.slice(2));
                     name = plugin[0];
                     plugin = plugin[1];
                 } else {
