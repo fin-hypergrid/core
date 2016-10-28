@@ -8,9 +8,9 @@ var Point = require('rectangular').Point;
 var Base = require('../Base');
 var Column = require('./Column');
 var cellEventFactory = require('./../lib/cellEventFactory');
-var HeaderRow = require('../dataModels/HeaderRow');
-var FilterRow = require('../dataModels/FilterRow');
-var SummaryRow = require('../dataModels/SummaryRow');
+var HeaderSubgrid = require('../dataModels/HeaderSubgrid');
+var FilterSubgrid = require('../dataModels/FilterSubgrid');
+var SummarySubgrid = require('../dataModels/SummarySubgrid');
 var dialogs = require('../dialogs');
 
 var noExportProperties = [
@@ -108,54 +108,19 @@ var Behavior = Base.extend('Behavior', {
         // recreate `CellEvent` class so it can set up its internal `grid`, `behavior`, and `dataModel` convenience properties
         this.CellEvent = cellEventFactory(this.grid);
 
-        this.setSubgrids(options.subgrids || [
-            new HeaderRow(this.grid),
-            new FilterRow(this.grid),
-            new SummaryRow(this.grid, { name: 'topTotals' }),
-            this.dataModel,
-            new SummaryRow(this.grid, { name: 'bottomTotals' })
-        ]);
-
         this.dataUpdates = {}; //for overriding with edit values;
         this.scrollPositionX = this.scrollPositionY = 0;
         this.clearColumns();
         this.clearState();
         this.createColumns();
-    },
 
-    /**
-     * Replaces the subgrid list and clears the subgrid dictionary.
-     * @param {DataModel[]} ubgrids
-     * @memberOf Behavior.prototype
-     */
-    setSubgrids: function(subgrids) {
-        this.subgrids = subgrids;
-        this.subgridDict = {};
-    },
-
-    /**
-     * @summary Lookup a subgrid in the subgrid list.
-     * @desc You can get a subgrid reference by index or by property value.
-     *
-     * If both args omitted, returns `this.dataModel` if it's in the subgrid list. (The works because `this.dataModel` has neither a `name` nor a `type` property.)
-     * @param {number|string} [index] - One of:
-     * * **number** and `key` omitted - Index of the subgrid in the subgrid list. If `key` is provided, treated the same as a string.
-     * * **string** - The value to match the property against.
-     * @param {string} [key] - Name of property to match string value to. If omitted, will match against first of:
-     * * `name` property, when defined
-     * * `type` property, when `name` property undefined
-     * @returns {DataModel|undefined} If the sought after subgrid is not in the subgrid list return value is `undefined`.
-     */
-    getSubgrid: function(index, key) {
-        var result;
-        if (!key && typeof index === 'number') {
-            result = this.subgrids[index];
-        } else if (!(result = this.subgridDict[index])) {
-            result = this.subgridDict[index] = this.subgrids.find(function(subgrid) {
-                return index === (key ? subgrid[key] : subgrid.name || subgrid.type);
-            });
-        }
-        return result;
+        this.subgrids = options.subgrids || [
+            HeaderSubgrid,
+            FilterSubgrid,
+            [SummarySubgrid, { name: 'topTotals' }],
+            this.dataModel,
+            [SummarySubgrid, { name: 'bottomTotals' }]
+        ];
     },
 
     get renderedColumnCount() {
@@ -1165,22 +1130,6 @@ var Behavior = Base.extend('Behavior', {
 
     /**
      * @memberOf Behavior.prototype
-     * @return {number} The number of fixed rows.
-     */
-    getHeaderColumnCount: function() {
-        throw new this.HypergridError('getHeaderColumnCount() deprecated as of v1.1.0. The naming of this function, analogous to getHeaderColumnCount, implied it returned the number of columns to the left of the data area. In fact, it returned the x coordinate of the first data column, which was (and still is) always 0. There is no replacement; use 0 instead.');
-    },
-
-    /**
-     * @memberOf Behavior.prototype
-     * @param {number} The number of fixed rows.
-     */
-    setHeaderColumnCount: function(numberOfHeaderColumns) {
-        throw new this.HypergridError('setHeaderColumnCount() deprecated as of v1.1.0. The naming of this function implied the abililty to set the number of columns to the left of the data area. In fact, it set the value returned by getHeaderColumnCount which was always expected to be 0. There is no replacement.');
-    },
-
-    /**
-     * @memberOf Behavior.prototype
      * @desc a dnd column has just been dropped, we've been notified
      */
     endDragColumnNotification: function() {},
@@ -1448,23 +1397,55 @@ var Behavior = Base.extend('Behavior', {
 
     /**
      * An array where each element represents a subgrid to be rendered in the hypergrid.
-     * The list will always include at least one "data" subgrid, typically {@link Behavior#dataModel|dataModel}.
+     *
+     * The list should always include at least one "data" subgrid, typically {@link Behavior#dataModel|dataModel}.
      * It may also include zero or more other types of subgrids such as header, filter, and summary subgrids.
      *
-     * ### totals-toolkit
+     * This object also serves as a dictionary of selected subgrids by name (i.e., for those subgrids that have a defined property `name`).
      *
-     * When the totals-toolkit is loaded, this object also serves as a hash of selected subgrids by name (i.e., for those subgrids that have a defined property `name`).
+     * The setter:
+     * * "Enlivens" any constructors
+     * * Reconstructs the dictionary
+     * * Calls {@link Behavior#shapeChanged|shpaeChanged()}.
      *
      * @type {DataModel[]}
      * @memberOf Behavior.prototype
      */
     set subgrids(subgrids) {
-        this._subgrids = subgrids;
+        this._subgrids = subgrids = subgrids.map(enlivenSubgrids, this);
+
+        subgrids.forEach(function(subgrid) {
+            subgrids[subgrid.name || subgrid.type || 'data'] = subgrid;
+        });
+
+        this.shapeChanged();
     },
     get subgrids() {
         return this._subgrids;
     }
 });
+
+/**
+ *
+ * @param {DataModel|Array|function|undefined|null} [subgridSpec] - One of:
+ * * `DataModel` - Mapped to self (passed through as is).
+ * * `Array` - Mapped to newly instantiated data model: First element is assumed to be a `DataModel` constructor to be called with `new` keyword and `this.grid` as first arg and remaining elements as additional args.
+ * * function - Mapped to newly instantiated data model: A `DataModel` constructor to be called with `new` keyword and `this.grid` as only arg.
+ * * Falsy value - Mapped to the behavior's data model (`this.dataModel`).
+ * @returns {DataModel}
+ */
+function enlivenSubgrids(dataModel) {
+    if (!dataModel) {
+        dataModel = this.dataModel;
+    } else if (dataModel instanceof Array && dataModel.length) {
+        var Constructor = dataModel[0],
+            args = dataModel.slice(1);
+        dataModel = new (Function.prototype.bind.apply(Constructor, [null, this.grid].concat(args)));
+    } else if (typeof dataModel === 'function') {
+        dataModel = new dataModel(this.grid); // eslint-disable-line new-cap
+    }
+    return dataModel;
+}
 
 /**
  * @memberOf Behavior.prototype

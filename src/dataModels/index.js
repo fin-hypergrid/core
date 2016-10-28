@@ -2,5 +2,8 @@
 
 module.exports = {
     DataModel: require('./DataModel'), // abstract base class
-    JSON: require('./JSON')
+    JSON: require('./JSON'),
+    HeaderSubgrid: require('./HeaderSubgrid'),
+    FilterSubgrid: require('./FilterSubgrid'),
+    SummarySubgrid: require('./SummarySubgrid')
 };

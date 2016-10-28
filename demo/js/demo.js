@@ -24,7 +24,7 @@ window.onload = function() {
                 { name: 'none',       type: 'radio', checked: true, setter: function() {} },
                 { name: 'treeview',   type: 'radio', checked: false, setter: toggleTreeview },
                 { name: 'aggregates', type: 'radio', checked: false, setter: toggleAggregates },
-                { name: 'grouping',   type: 'radio', checked: false, setter: toggleGrouping}
+                Hypergrid.GroupView && { name: 'grouping',   type: 'radio', checked: false, setter: toggleGrouping}
             ]
         }, {
             label: 'Column header rows',
@@ -1000,8 +1000,7 @@ window.onload = function() {
 
         grid.setState(state);
 
-        var headerDataModel = behavior.getSubgrid('header');
-        grid.setRowHeight(0, 40, headerDataModel);
+        grid.setRowHeight(0, 40, behavior.subgrids.header);
 
         // decorate "Height" cell in 17th row
         var rowIndex = 17 - 1;
@@ -1124,7 +1123,7 @@ window.onload = function() {
         grid.takeFocus();
 
         // turn on grouping as per checkbox default setting (see toggleProps[])
-        if (document.querySelector('#grouping').checked) {
+        if (Hypergrid.GroupView && document.querySelector('#grouping').checked) {
             grid.setGroups(groups);
         }
 
@@ -1183,6 +1182,10 @@ window.onload = function() {
         container.appendChild(choices);
 
         ctrlGroup.ctrls.forEach(function(ctrl) {
+            if (!ctrl) {
+                return;
+            }
+
             var referenceElement,
                 type = ctrl.type || 'checkbox',
                 tooltip = 'Property name: ' + ctrl.name;
