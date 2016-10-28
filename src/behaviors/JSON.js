@@ -53,7 +53,7 @@ var JSON = Behavior.extend('behaviors.JSON', {
             this.addColumn({
                 index: index,
                 header: columnSchema.header,
-                calculator: columnSchema.calculators
+                calculator: columnSchema.calculator
             });
 
             this.columnEnum[this.columnEnumKey(columnSchema.name)] = index; // todo: move columnEnum code from core to demo

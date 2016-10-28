@@ -2,28 +2,6 @@
 
 module.exports = {
 
-    // This override properly maintain the subgrids dictionary.
-    set subgrids(subgrids) {
-        // first delete dictionary members in case supplied object is an existing dictionary
-        Object.keys(subgrids).filter(function(property) {
-            return !/^\d+$/.test(property);
-        }).forEach(function(nonNumericProperty) {
-            delete subgrids[nonNumericProperty];
-        });
-
-        // extract names from named subgrids and add to dictionary
-        subgrids.forEach(function(subgrid) {
-            if (subgrid.name) {
-                subgrids[subgrid.name] = subgrid;
-            }
-        });
-
-        this._subgrids = subgrids;
-    },
-    get subgrids() {
-        return this._subgrids;
-    },
-
     /** @typedef {*[]} valueList
      * @desc One of:
      * * `activeColumnsList` falsy - Array of row values semantically congruent to `this.columns`.
@@ -104,7 +82,9 @@ module.exports = {
     setTotals: function(key, rows, activeColumnsList) {
         key += 'Totals';
 
-        if (!this.subgrids[key]) {
+        var totals = this.subgrids[key];
+
+        if (!totals) {
             throw new this.HypergridError('Expected subgrids.' + key + '.');
         }
 
@@ -122,9 +102,17 @@ module.exports = {
             }, this);
         }
 
-        this.subgrids[key].setData(rows);
+        var newRowCount = rows.length,
+            oldRowCount = totals.getRowCount();
 
-        this.grid.repaint();
+        totals.setData(rows);
+
+        if (newRowCount === oldRowCount) {
+            this.grid.repaint();
+        } else {
+            this.grid.behavior.shapeChanged();
+        }
+
         return rows;
     },
 

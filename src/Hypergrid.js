@@ -158,9 +158,6 @@ var Hypergrid = Base.extend('Hypergrid', {
     getRenderer: function() {
         return this.deprecated('getRenderer()', 'renderer', '1.1.0');
     },
-    getHeaderColumnCount: function() {
-        throw new this.HypergridError('getHeaderColumnCount deprecated as of v1.1.0. The naming of this function, analogous to getHeaderRowCount, implied it returned the number of columns to the left of the data area. In fact, it returned the x coordinate of the first data column, which was (and still is) always 0. There is no replacement; use 0 instead.');
-    },
 
     /**
      *

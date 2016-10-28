@@ -932,14 +932,16 @@ var Renderer = Base.extend('Renderer', {
             isHeaderRow = cellEvent.isHeaderRow,
             isFilterRow = cellEvent.isFilterRow,
 
-            cellProperties = isGridRow && !isRowHandleOrHierarchyColumn && behavior.getCellOwnProperties(cellEvent),
+            cellProperties = behavior.getCellOwnProperties(cellEvent),
             baseProperties,
+            nonGridCellProps,
             config = this.config;
 
         if (cellProperties && cellProperties.applyCellProperties) {
             this.c = undefined;
             config = undefined;
             baseProperties = cellProperties;
+            nonGridCellProps = !isGridRow;
         } else if (!config || c !== this.c) {
             this.c = c;
             config = undefined;
@@ -1043,7 +1045,7 @@ var Renderer = Base.extend('Renderer', {
         var cellRenderer = behavior.getCellRenderer(config, cellEvent);
 
         // Overwrite possibly mutated cell properties, if requested to do so by `getCell` override
-        if (config.reapplyCellProperties) {
+        if (config.reapplyCellProperties || nonGridCellProps) {
             _(config).extendOwn(cellProperties);
         }
 

@@ -19,7 +19,7 @@ SummaryRow.prototype = {
     type: 'summary',
 
     getRowCount: function() {
-        return this.data && this.data.length || 0;
+        return this.getData().length;
     },
 
     getData: function() {
