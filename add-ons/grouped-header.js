@@ -217,7 +217,7 @@ function setHeaders(headers) {
         return Math.max(column.header.split(delimiter).length, max);
     }, 0);
 
-    var headerDataModel = this.grid.behavior.getSubgrid('header'),
+    var headerDataModel = this.grid.behavior.subgrids.header,
         headerRowHeight = levels * 4 / 3 * this.grid.properties.defaultRowHeight;
     this.grid.setRowHeight(0, headerRowHeight, headerDataModel);
 

@@ -198,8 +198,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
      * @returns {string[]}
      */
     getHeaders: function() {
-        console.warn('getHeaders() has been deprecated as of v1.2.0. It will be removed in a future release. Header strings are now found in dataSource.schema[*].header.');
-        return this.dataSource && this.dataSource.getHeaders();
+        return getSchemaPropArr.call(this, 'header', 'getHeaders');
     },
 
     /**
@@ -223,8 +222,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
      * @returns {string[]}
      */
     getFields: function() {
-        console.warn('getFields() has been deprecated as of v1.2.0. It will be removed in a future release. Field names are now found in dataSource.schema[*].name.');
-        return this.dataSource.getFields();
+        return getSchemaPropArr.call(this, 'name', 'getFields');
     },
 
     /**
@@ -232,8 +230,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
      * @returns {string[]}
      */
     getCalculators: function() {
-        console.warn('getCalculators() has been deprecated as of v1.2.0. It will be removed in a future release. Calculator functions are now found in dataSource.schema[*].calculator.');
-        return this.dataSource.getProperty('calculators');
+        return getSchemaPropArr.call(this, 'calculator', 'getCalculators');
     },
 
     /**
@@ -391,7 +388,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
                 if (!this.hasOwnProperty('pipelineSchemaStash')) {
                     this.pipelineSchemaStash = [];
                 }
-                // disable eslint no-fallthrough
+            // disable eslint no-fallthrough
             case 'default':
             case undefined:
                 stash = this.pipelineSchemaStash;
@@ -825,6 +822,23 @@ function propPrep(dataModel, columnIndex, propName, value) {
     }
 
     return this.properties(properties);
+}
+
+var warned = {};
+/**
+ * @private
+ * @param {string} propName
+ * @this DataSourceOrigin#
+ * @returns {*[]}
+ */
+function getSchemaPropArr(propName, deprecatedMethodName) {
+    if (!warned[deprecatedMethodName]) {
+        console.warn(deprecatedMethodName + '() has been deprecated as of v1.2.0 and will be removed in a future release. Constructs like ' + deprecatedMethodName + '()[i] should be changed to schema[i]. (This deprecated method now returns a new array derived from schema.)');
+        warned[deprecatedMethodName] = true;
+    }
+    return this.schema.map(function(columnSchema) {
+        return columnSchema[propName];
+    }, this);
 }
 
 /**

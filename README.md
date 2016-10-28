@@ -4,14 +4,13 @@
 
 <img src="images/README/gridshot04.gif">
 
-### Current Release (1.2.0 - 26 October 2016)
+### Current Release (1.2.0 - 27 October 2016)
 
 The current version 1.0 replaces last year's [prototype version](https://github.com/openfin/fin-hypergrid/tree/polymer-prototype), which was built around Polymer. It is now completely "de-polymerized" and is being made available as:
 * An [npm module](https://www.npmjs.com/package/fin-hypergrid) for use with browserify.
 * A single JavaScript file [fin-hypergrid.js](https://openfin.github.io/fin-hypergrid/build/fin-hypergrid.js) you can reference in a `<script>` tag.
 
 _For a complete list of changes, see the [release notes](https://github.com/openfin/fin-hypergrid/releases)._
-**The release notes for v1.2.0 are under review and will be posted no later than 27 October 2016.**
 
 ### Demos
 
