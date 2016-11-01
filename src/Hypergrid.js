@@ -5,7 +5,7 @@
 require('./lib/polyfills'); // Installs misc. polyfills into global objects, as needed
 
 var FinBar = require('finbars');
-var Canvas = require('fincanvas');
+var Canvas = require('./lib/fincanvas');
 var Point = require('rectangular').Point;
 var Rectangle = require('rectangular').Rectangle;
 var _ = require('object-iterators'); // fyi: installs the Array.prototype.find polyfill, as needed

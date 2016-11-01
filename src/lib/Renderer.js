@@ -822,7 +822,10 @@ var Renderer = Base.extend('Renderer', {
             vr, visibleRows = this.visibleRows,
             clipHeight = this.getBounds().height,
             lineWidth = this.grid.properties.lineWidth,
-            lineColor = this.grid.properties.lineColor;
+            lineColor = this.grid.properties.lineColor,
+            value,
+            oldValues,
+            oldColumns = this.oldColumns = this.oldColumns || Array(visibleColumns.length);
 
         this.buttonCells = {};
 
@@ -842,6 +845,14 @@ var Renderer = Base.extend('Renderer', {
             bounds.width = vc.width;
 
             cellEvent.column.properties.preferredWidth = 0;
+
+            if (c >= 0) {
+                oldValues = oldColumns[c] = oldColumns[c] || Array(visibleRows.length);
+            } else if (oldColumns[c]) {
+                continue;
+            } else {
+                oldColumns[c] = true;
+            }
 
             gc.save();
 
@@ -873,6 +884,14 @@ var Renderer = Base.extend('Renderer', {
 
                 gridCell.y = vr.index;
                 dataCell.y = vr.rowIndex;
+
+                if (c >= 0) {
+                    value = cellEvent.value;
+                    if (value === oldValues[r]) {
+                        continue;
+                    }
+                    oldValues[r] = value;
+                }
 
                 try {
                     this._paintCell(gc, cellEvent);
