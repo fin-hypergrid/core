@@ -80,14 +80,22 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
         }
         if (alpha(hoverColor) < 1) {
             if (config.isSelected) {
-                selectColor = valOrFunc(config.backgroundSelectionColor, config);
+                selectColor = config.backgroundSelectionColor;
             }
+
             if (alpha(selectColor) < 1) {
-                backgroundColor = valOrFunc(config.backgroundColor, config);
-                if (alpha(backgroundColor) > 0) {
-                    colors.push(backgroundColor);
-                }
+                backgroundColor = config.backgroundColor;
+                if (backgroundColor !== config.columnBackgroundColor) {
+                    var bgAlpha = alpha(backgroundColor);
+                    if (bgAlpha > 0) {
+                        if (bgAlpha < 1) {
+                            gc.clearRect(x, y, width, height);
+                        }
+                        colors.push(backgroundColor);
+                    }
+}
             }
+
             if (selectColor !== undefined) {
                 colors.push(selectColor);
             }
@@ -98,7 +106,7 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
         layerColors(gc, colors, x, y, width, height);
 
         // draw text
-        var theColor = valOrFunc(config.isSelected ? config.foregroundSelectionColor : config.color, config);
+        var theColor = config.isSelected ? config.foregroundSelectionColor : config.color;
         if (gc.fillStyle !== theColor) {
             gc.fillStyle = theColor;
             gc.strokeStyle = theColor;
