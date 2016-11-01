@@ -70,7 +70,6 @@ var Renderer = Base.extend('Renderer', {
             width: 0,
             height: 0
         };
-        this.renderedColumnMinWidths = [];
 
         /**
          * Represents the ordered set of visible columns. Array size is always the exact number of visible columns, the last of which may only be partially visible.
@@ -839,7 +838,7 @@ var Renderer = Base.extend('Renderer', {
             bounds.x = vc.left;
             bounds.width = vc.width;
 
-            this.renderedColumnMinWidths[gridCell.x] = 0;
+            cellEvent.column.properties.preferredWidth = 0;
 
             gc.save();
 
@@ -915,7 +914,7 @@ var Renderer = Base.extend('Renderer', {
             behavior = grid.behavior,
             x = cellEvent.gridCell.x,
             // y = cellEvent.gridCell.y,
-            c = cellEvent.dataCell.x,
+            // c = cellEvent.dataCell.x,
             r = cellEvent.dataCell.y,
 
             isHandleColumn = cellEvent.isHandleColumn,
@@ -932,71 +931,27 @@ var Renderer = Base.extend('Renderer', {
             isHeaderRow = cellEvent.isHeaderRow,
             isFilterRow = cellEvent.isFilterRow,
 
-            cellProperties = behavior.getCellOwnProperties(cellEvent),
-            baseProperties,
-            nonGridCellProps,
-            config = this.config;
+            columnProperties = cellEvent.column.properties,
+            cellProperties,
+            config,
+            isSelected;
 
-        if (cellProperties && cellProperties.applyCellProperties) {
-            this.c = undefined;
-            config = undefined;
-            baseProperties = cellProperties;
-            nonGridCellProps = !isGridRow;
-        } else if (!config || c !== this.c) {
-            this.c = c;
-            config = undefined;
-        }
-
-        var configType;
         if (isRowHandleOrHierarchyColumn) {
-            configType = isRowSelected ? 1 : 2;
-        } else if (isGridRow) {
-            configType = 3;
-        } else if (isFilterRow) {
-            configType = 4;
-        } else if (isColumnSelected) {
-            configType = 5;
-        } else { // header or summary or other
-            configType = 6;
-        }
-
-        if (!config || configType !== this.configType) {
-            this.configType = configType;
-            if (!baseProperties) {
-                baseProperties = behavior.getColumnProperties(c);
-                if (!baseProperties) {
-                    this.config = undefined;
-                    return;
-                }
-            }
-            switch (configType) {
-                case 1: config = Object.create(baseProperties.rowHeaderRowSelection); break;
-                case 2: config = Object.create(baseProperties.rowHeader); break;
-                case 3: config = Object.create(baseProperties); break;
-                case 4: config = Object.create(baseProperties.filterProperties); break;
-                case 5: config = Object.create(baseProperties.columnHeaderColumnSelection); break;
-                case 6: config = Object.create(baseProperties.columnHeader); break;
-            }
-            this.config = config;
-            this.baseProperties = baseProperties;
-        }
-
-        // Create `config` (render props) object
-        // * with appropriate prototype
-        // * set `isSelected` (added to `config` below as a read-only property)
-        // * for row handle column, set `config.halign` to `'right'`
-        // * for hierarchy column, set `config.halign` to `'left'`
-        var isSelected;
-        if (isRowHandleOrHierarchyColumn) {
-            isSelected = isRowSelected || grid.isCellSelectedInRow(r);
+            config = Object.create(isRowSelected ? columnProperties.rowHeaderRowSelection : columnProperties.rowHeader);
             config.halign = isHierarchyColumn ? 'left' : 'right';
+            isSelected = isRowSelected || grid.isCellSelectedInRow(r);
         } else if (isGridRow) {
+            cellProperties = behavior.getCellOwnProperties(cellEvent);
+            config = Object.create(cellProperties || columnProperties);
             isSelected = isCellSelected || isRowSelected || isColumnSelected;
         } else if (isFilterRow) {
+            config = Object.create(columnProperties.filterProperties);
             isSelected = false;
         } else if (isColumnSelected) {
+            config = Object.create(columnProperties.columnHeaderColumnSelection);
             isSelected = true;
         } else { // header or summary or other
+            config = Object.create(columnProperties.columnHeader);
             isSelected = grid.isCellSelectedInColumn(x);
         }
 
@@ -1045,7 +1000,7 @@ var Renderer = Base.extend('Renderer', {
         var cellRenderer = behavior.getCellRenderer(config, cellEvent);
 
         // Overwrite possibly mutated cell properties, if requested to do so by `getCell` override
-        if (config.reapplyCellProperties || nonGridCellProps) {
+        if (cellProperties && config.reapplyCellProperties) {
             _(config).extendOwn(cellProperties);
         }
 
@@ -1058,8 +1013,9 @@ var Renderer = Base.extend('Renderer', {
 
         cellRenderer.paint(gc, config);
 
-        this.renderedColumnMinWidths[x] = Math.max(config.minWidth || 0, this.renderedColumnMinWidths[x]);
-        this.baseProperties.preferredWidth = this.renderedColumnMinWidths[x];
+        if (config.minWidth > columnProperties.preferredWidth) {
+            columnProperties.preferredWidth = config.minWidth;
+        }
     },
 
     isViewableButton: function(c, r) {

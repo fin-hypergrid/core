@@ -18,7 +18,7 @@ function SelectionModel(grid) {
      * @summary Can select multiple cell regions.
      * @memberOf SelectionModel.prototype
      */
-    this.multipleSelections = grid[grid.behavior ? 'getProperties' : '_getProperties']().multipleSelections;
+    this.multipleSelections = (grid.behavior ? grid.properties : grid._getProperties()).multipleSelections;
 
     /**
      * @name selections
