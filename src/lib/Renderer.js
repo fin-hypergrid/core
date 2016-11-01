@@ -1019,7 +1019,7 @@ var Renderer = Base.extend('Renderer', {
         config.isRowSelected = isRowSelected;
         config.isColumnSelected = isColumnSelected;
         config.isInCurrentSelectionRectangle = grid.isInCurrentSelectionRectangle(x, r);
-        config.columnBackgroundColor = columnProperties.backgroundColor; // could be function?
+        config.columnBackgroundColor = columnProperties.backgroundColor;
 
         if (grid.mouseDownState) {
             config.mouseDown = grid.mouseDownState.gridCell.equals(cellEvent.gridCell);
