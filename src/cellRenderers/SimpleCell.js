@@ -85,7 +85,7 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
 
             if (alpha(selectColor) < 1) {
                 backgroundColor = config.backgroundColor;
-                if (backgroundColor !== config.columnBackgroundColor) {
+                // if (backgroundColor !== config.columnBackgroundColor) {
                     var bgAlpha = alpha(backgroundColor);
                     if (bgAlpha > 0) {
                         if (bgAlpha < 1) {
@@ -93,7 +93,7 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
                         }
                         colors.push(backgroundColor);
                     }
-}
+                // }
             }
 
             if (selectColor !== undefined) {
