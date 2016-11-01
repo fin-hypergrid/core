@@ -266,11 +266,11 @@ Column.prototype = {
     },
 
     get properties() {
-        var tableState = this.behavior.grid.properties,
-            result = tableState.columnProperties[this.index];
+        var columnProperties = this.behavior.grid.properties.columnProperties,
+            result = columnProperties[this.index];
 
         if (!result) {
-            result = tableState.columnProperties[this.index] = this.createColumnProperties();
+            result = columnProperties[this.index] = this.createColumnProperties();
         }
 
         return result;

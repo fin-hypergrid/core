@@ -334,7 +334,7 @@ function computeFieldNames(object) {
     if (!object) {
         return [];
     }
-    return Object.getOwnPropertyNames(object || []).filter(function(e) {
+    return Object.keys(object || []).filter(function(e) {
         return e.substr(0, 2) !== '__';
     });
 }

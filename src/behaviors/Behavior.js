@@ -289,14 +289,10 @@ var Behavior = Base.extend('Behavior', {
      * @return {object} Newly created default empty tablestate.
      */
     getDefaultState: function() {
-        var tableProperties = this.grid._getProperties();
-        var state = Object.create(tableProperties);
-
-        _(state).extendOwn({
-            columnProperties: []
-        });
-
-        return state;
+        return Object.create(
+            this.grid._getProperties(),
+            { columnProperties: { value: [] } }
+        );
     },
 
     /**

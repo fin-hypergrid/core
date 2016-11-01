@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" >
+    <style>.hypergrid-container { width:1000px; height:1000px }</style>
+</head>
+<body>
+    <script src="build/fin-hypergrid.js"></script>
+
+    <script>
+        var data = [
+            { s: 'APPL', n: 'Apple', c: 93.13 },
+            { s: 'MSFT', n: 'Microsoft', c: 51.91 },
+            { s: 'TSLA', n: 'Tesla', c: 196.40 },
+            { s: 'IBM', n: 'IBM', c: 155.35 }
+        ];
+        var grid = new fin.Hypergrid();
+        data.forEach(function(dr) { for (var i=1; i<=6; ++i) { ['s','n','c'].find(function(key) { dr[key+i] = dr[key] }); } });
+        for(var i=7; --i; ) { data = data.concat(data); }
+        grid.setData(data);
+        grid.addProperties({
+            enableContinuousRepaint: true
+        });
+    </script>
+</body>
+</html>
