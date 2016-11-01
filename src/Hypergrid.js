@@ -922,7 +922,6 @@ var Hypergrid = Base.extend('Hypergrid', {
 
         this.canvas = new Canvas(divCanvas, this.renderer);
         this.canvas.canvas.classList.add('hypergrid');
-        this.canvas.canvas.style.backgroundColor = this.properties.lineColor;
         this.canvas.resize();
 
         this.delegateCanvasEvents();

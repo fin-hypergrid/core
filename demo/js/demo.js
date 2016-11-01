@@ -459,7 +459,7 @@ window.onload = function() {
                         case 5:
                             config.backgroundColor = '#e8ffe8';
                             config.font = 'italic x-small verdana';
-                            if (config.color !== redIfStartsWithS) {
+                            if (x !== idx.LAST_NAME) {
                                 config.color = '#070';
                             }
                             break;
@@ -475,6 +475,8 @@ window.onload = function() {
 
                 switch (x) {
                     case idx.LAST_NAME:
+                        config.color = config.value != null && (config.value + '')[0] === 'S' ? 'red' : '#191919';
+                        // eslint-disable-line no-fallthrough
                     case idx.FIRST_NAME:
                     case idx.BIRTH_STATE:
                     case idx.RESIDENCE_STATE:
@@ -1054,7 +1056,6 @@ window.onload = function() {
         //                    });
 
         behavior.setColumnProperties(idx.LAST_NAME, {
-            color: redIfStartsWithS,
             columnHeaderBackgroundColor: '#142B6F', //dark blue
             columnHeaderColor: 'white'
         });
@@ -1420,11 +1421,5 @@ window.onload = function() {
 
     function setGlobalSorter() {
         grid.sorter = grid.plugins.hypersorter;
-    }
-
-    function redIfStartsWithS(dataRow, columnName) {
-        //does the data start with an 'S'?
-        var value = dataRow[columnName];
-        return value != null && (value + '')[0] === 'S' ? 'red' : '#191919';
     }
 };

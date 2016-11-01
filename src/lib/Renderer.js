@@ -524,6 +524,7 @@ var Renderer = Base.extend('Renderer', {
         gc.beginPath();
 
         this.paintCells(gc);
+        this.paintGridlines(gc);
         this.renderOverrides(gc);
         this.renderLastSelection(gc);
         gc.closePath();
@@ -819,7 +820,9 @@ var Renderer = Base.extend('Renderer', {
             dataCell = cellEvent.dataCell,
             vc, visibleColumns = this.visibleColumns,
             vr, visibleRows = this.visibleRows,
-            clipHeight = this.getBounds().height;
+            clipHeight = this.getBounds().height,
+            lineWidth = this.grid.properties.lineWidth,
+            lineColor = this.grid.properties.lineColor;
 
         this.buttonCells = {};
 
@@ -842,11 +845,20 @@ var Renderer = Base.extend('Renderer', {
 
             gc.save();
 
-            // Clip to visible portion of column to prevent overflow to right. Previously we clipped to entire visible grid and dealt with overflow by overpainting with next column. However, this strategy fails when transparent background (no background color).
-            // TODO: if extra clip() calls per column affect performance (not the clipping itself which was happening anyway, but the clip calls which set up the clipping), use previous strategy when there is a background color
+            // Clip to visible portion of column to prevent text from overflowing to right.
+            // (Text never overflows to left because text starting point is never < 0.)
+            // (The reason we don't clip to the left is for cell renderers that rerender to the left to produce a merged cell effect, such as grouped column header.)
             gc.beginPath();
             gc.rect(0, 0, bounds.x + bounds.width, clipHeight);
             gc.clip();
+
+            gc.fillStyle = cellEvent.column.properties.backgroundColor;
+            gc.fillRect(bounds.x, 0, bounds.width, clipHeight);
+
+            if (this.grid.properties.gridLinesV) {
+                gc.fillStyle = lineColor;
+                gc.fillRect(bounds.x - lineWidth, 0, lineWidth, clipHeight);
+            }
 
             // For each row of each subgrid (of each column)...
             for (
@@ -889,6 +901,24 @@ var Renderer = Base.extend('Renderer', {
         }
 
         setNumberColumnWidth(gc, behavior, this.grid.getRowCount());
+    },
+
+    /**
+     * @memberOf Renderer.prototype
+     * @desc We opted to not paint borders for each cell as that was extremely expensive. Instead we draw gridlines here. Also we record the widths and heights for later.
+     * @param {CanvasRenderingContext2D} gc
+     */
+    paintGridlines: function(gc) {
+        if (this.grid.properties.gridLinesH) {
+            var viewWidth = this.visibleColumns[this.visibleColumns.length - 1].right,
+                lineWidth = this.grid.properties.lineWidth;
+
+            gc.fillStyle = this.grid.properties.lineColor;
+
+            this.visibleRows.forEach(function(visibleRow) {
+                gc.fillRect(0, visibleRow.bottom, viewWidth, lineWidth);
+            });
+        }
     },
 
     /**
@@ -989,6 +1019,7 @@ var Renderer = Base.extend('Renderer', {
         config.isRowSelected = isRowSelected;
         config.isColumnSelected = isColumnSelected;
         config.isInCurrentSelectionRectangle = grid.isInCurrentSelectionRectangle(x, r);
+        config.columnBackgroundColor = columnProperties.backgroundColor;
 
         if (grid.mouseDownState) {
             config.mouseDown = grid.mouseDownState.gridCell.equals(cellEvent.gridCell);
