@@ -821,8 +821,11 @@ var Renderer = Base.extend('Renderer', {
             vc, visibleColumns = this.visibleColumns,
             vr, visibleRows = this.visibleRows,
             clipHeight = this.getBounds().height,
-            lineWidth = this.grid.properties.lineWidth,
-            lineColor = this.grid.properties.lineColor;
+            // lineWidth = this.grid.properties.lineWidth,
+            // lineColor = this.grid.properties.lineColor,
+            value,
+            oldValues,
+            oldColumns = this.oldColumns = this.oldColumns || Array(visibleColumns.length);
 
         this.buttonCells = {};
 
@@ -843,6 +846,14 @@ var Renderer = Base.extend('Renderer', {
 
             cellEvent.column.properties.preferredWidth = 0;
 
+            if (c >= 0) {
+                oldValues = oldColumns[c] = oldColumns[c] || Array(visibleRows.length);
+            } else if (oldColumns[c]) {
+                continue;
+            } else {
+                oldColumns[c] = true;
+            }
+
             gc.save();
 
             // Clip to visible portion of column to prevent text from overflowing to right.
@@ -852,13 +863,13 @@ var Renderer = Base.extend('Renderer', {
             gc.rect(0, 0, bounds.x + bounds.width, clipHeight);
             gc.clip();
 
-            gc.fillStyle = cellEvent.column.properties.backgroundColor;
-            gc.fillRect(bounds.x, 0, bounds.width, clipHeight);
-
-            if (this.grid.properties.gridLinesV) {
-                gc.fillStyle = lineColor;
-                gc.fillRect(bounds.x - lineWidth, 0, lineWidth, clipHeight);
-            }
+            // gc.fillStyle = cellEvent.column.properties.backgroundColor;
+            // gc.fillRect(bounds.x, 0, bounds.width, clipHeight);
+            //
+            // if (this.grid.properties.gridLinesV) {
+            //     gc.fillStyle = lineColor;
+            //     gc.fillRect(bounds.x - lineWidth, 0, lineWidth, clipHeight);
+            // }
 
             // For each row of each subgrid (of each column)...
             for (
@@ -873,6 +884,14 @@ var Renderer = Base.extend('Renderer', {
 
                 gridCell.y = vr.index;
                 dataCell.y = vr.rowIndex;
+
+                if (c >= 0) {
+                    value = cellEvent.value;
+                    if (value === oldValues[r]) {
+                        continue;
+                    }
+                    oldValues[r] = value;
+                }
 
                 try {
                     this._paintCell(gc, cellEvent);

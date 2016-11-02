@@ -16,12 +16,25 @@
         ];
         var grid = new fin.Hypergrid();
         data.forEach(function(dr) { for (var i=1; i<=6; ++i) { ['s','n','c'].find(function(key) { dr[key+i] = dr[key] }); } });
-        for(var i=7; --i; ) { data = data.concat(data); }
+        for(var i = 0; i < 252; ++i) {
+            data.push(Object.create({}, Object.getOwnPropertyDescriptors(data[i % 4])));
+        }
         grid.setData(data);
         grid.addProperties({
             foregroundSelectionFont: '13px Tahoma, Geneva, sans-serif',
             enableContinuousRepaint: true
         });
+        setTimeout(function() {
+            grid.renderer.oldColumns = undefined;
+            setTimeout(function() {
+                grid.properties.color = 'red';
+                setInterval(function() {
+                    var x = Math.floor(Math.random() * 19);
+                    var y = Math.floor(Math.random() * 66);
+                    grid.behavior.dataModel.source.setValue(x, y, Math.floor(Math.random() * 10000));
+                }, 13);
+            }, 500);
+        }, 500);
     </script>
 </body>
 </html>
