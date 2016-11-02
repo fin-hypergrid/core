@@ -5,13 +5,13 @@
 require('./lib/polyfills'); // Installs misc. polyfills into global objects, as needed
 
 var FinBar = require('finbars');
-var Canvas = require('fincanvas');
 var Point = require('rectangular').Point;
 var Rectangle = require('rectangular').Rectangle;
 var _ = require('object-iterators'); // fyi: installs the Array.prototype.find polyfill, as needed
 
 var Base = require('./Base');
 var defaults = require('./defaults');
+var Canvas = require('./lib/Canvas');
 var Renderer = require('./lib/Renderer');
 var SelectionModel = require('./lib/SelectionModel');
 var stylesheet = require('./lib/stylesheet');
@@ -96,17 +96,19 @@ var Hypergrid = Base.extend('Hypergrid', {
          */
         this.cellRenderers = new CellRenderers();
 
+        //Set up the container for a grid instance
+        this.setContainer(
+            container ||
+            options.container ||
+            findOrCreateContainer(options.boundingRect)
+        );
+
         /**
          * @name cellEditors
          * @type {CellEditor}
          * @memberOf Hypergrid#
          */
         this.cellEditors = new CellEditors(this);
-
-        //Set up the container for a grid instance
-        container = container || options.container;
-        container = container || findOrCreateContainer(options.boundingRect);
-        this.setContainer(container);
 
         if (this.options.Behavior) {
             this.setBehavior(this.options); // also sets this.options.pipeline and this.options.data
@@ -542,9 +544,6 @@ var Hypergrid = Base.extend('Hypergrid', {
         var state = this.properties;
         this.selectionModel.multipleSelections = state.multipleSelections;
 
-        // this.canvas = this.shadowRoot.querySelector('fin-canvas');
-        //this.canvas = new Canvas(this.divCanvas, this.renderer); //TODO: Do we really need to be recreating it here?
-
         this.computeCellsBounds();
         this.checkScrollbarVisibility();
         this.behavior.defaultRowHeight = null;
@@ -920,7 +919,7 @@ var Hypergrid = Base.extend('Hypergrid', {
 
         this.div.appendChild(divCanvas);
 
-        this.canvas = new Canvas(divCanvas, this.renderer);
+        this.canvas = new Canvas(divCanvas, this.renderer, this.options.canvas);
         this.canvas.canvas.classList.add('hypergrid');
         this.canvas.resize();
 
