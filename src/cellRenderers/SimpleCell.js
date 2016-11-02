@@ -10,7 +10,7 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
 
     /**
      * @summary The default cell rendering function for rendering a vanilla cell.
-     * @desc Great care has been taken in crafting this function as it needs to perform extremely fast. Reads on the gc object are expensive but not quite as expensive as writes to it. We do our best to avoid writes, then avoid reads. Clipping bounds are not set here as this is also an expensive operation. Instead, we truncate overflowing text and content by filling a rectangle with background color column by column instead of cell by cell.  This column by column fill happens higher up on the stack in a calling function from fin-hypergrid-renderer.  Take note we do not do cell by cell border renderering as that is expensive.  Instead we render many fewer gridlines after all cells are rendered.
+     * @desc Great care has been taken in crafting this function as it needs to perform extremely fast. Reads on the gc object are expensive but not quite as expensive as writes to it. We do our best to avoid writes, then avoid reads. Clipping bounds are not set here as this is also an expensive operation. Instead, we truncate overflowing text and content by filling a rectangle with background color column by column instead of cell by cell.  This column by column fill happens higher up on the stack in a calling function from fin-hypergrid-renderer.  Take note we do not do cell by cell border rendering as that is expensive.  Instead we render many fewer gridlines after all cells are rendered.
      * @implements paintFunction
      * @memberOf SimpleCell.prototype
      */
@@ -78,22 +78,23 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
         } else if (config.isColumnHovered && (hover = config.hoverColumnHighlight).enabled) {
             hoverColor = config.isGridRow || !hover.header || hover.header.backgroundColor === undefined ? hover.backgroundColor : hover.header.backgroundColor;
         }
-        if (alpha(hoverColor) < 1) {
+        if (config.alpha(hoverColor) < 1) {
             if (config.isSelected) {
                 selectColor = config.backgroundSelectionColor;
             }
 
-            if (alpha(selectColor) < 1) {
+            if (config.alpha(selectColor) < 1) {
                 backgroundColor = config.backgroundColor;
                 if (backgroundColor !== config.columnBackgroundColor) {
-                    var bgAlpha = alpha(backgroundColor);
+                    var bgAlpha = config.alpha(backgroundColor);
+                    if (bgAlpha < 1) {
+                        // If background is translucent, we must clear the column before the fillRect below to prevent mixing with previous frame's render.
+                        gc.clearRect(x, y, width, height);
+                    }
                     if (bgAlpha > 0) {
-                        if (bgAlpha < 1) {
-                            gc.clearRect(x, y, width, height);
-                        }
                         colors.push(backgroundColor);
                     }
-}
+                }
             }
 
             if (selectColor !== undefined) {
@@ -376,30 +377,5 @@ function valOrFunc(vf, config, calculator) {
     }
     return result || result === 0 || result === false ? result : '';
 }
-
-function alpha(cssColorSpec) {
-    if (cssColorSpec === undefined) {
-        // undefined so not visible; treat as transparent
-        return 0;
-    }
-
-    var matches = cssColorSpec.match(alpha.regex);
-
-    if (matches === null) {
-        // an opaque color (a color spec with no alpha channel)
-        return 1;
-    }
-
-    var A = matches[4];
-
-    if (A === undefined) {
-        // cssColorSpec must have been 'transparent'
-        return 0;
-    }
-
-    return Number(A);
-}
-
-alpha.regex = /^(transparent|((RGB|HSL)A\(.*,\s*([\d\.]+)\)))$/i;
 
 module.exports = SimpleCell;

@@ -334,7 +334,7 @@ function paintHeaderGroups(gc, config) {
                     if (typeof decorator !== 'function') {
                         decorator = groupedHeader[decorator];
                         if (typeof decorator !== 'function') {
-                            throw 'Expected decorator function of name of registered decorator function.';
+                            throw 'Expected decorator function or name of registered decorator function.';
                         }
                     }
                     decorator.apply(this, arguments);

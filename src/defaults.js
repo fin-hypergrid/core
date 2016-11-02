@@ -4,6 +4,7 @@
 
 var LRUCache = require('lru-cache');
 
+var ALPHA_REGEX = /^(transparent|((RGB|HSL)A\(.*,\s*([\d\.]+)\)))$/i;
 
 /**
  * This module lists the properties that can be set on a {@link Hypergrid} along with their default values.
@@ -11,13 +12,13 @@ var LRUCache = require('lru-cache');
  * @module defaults
  */
 
-module.exports = {
+var defaults = {
 
     /**
      * The font for data cells.
      * @default
      * @type {string}
-     * @instance
+     * @memberOf module:defaults
      */
     noDataMessage: '',
 
@@ -26,7 +27,7 @@ module.exports = {
      * The font for data cells.
      * @default
      * @type {cssFont}
-     * @instance
+     * @memberOf module:defaults
      */
     font: '13px Tahoma, Geneva, sans-serif',
 
@@ -34,7 +35,7 @@ module.exports = {
      * Font color for data cells.
      * @default
      * @type {string}
-     * @instance
+     * @memberOf module:defaults
      */
     color: 'rgb(25, 25, 25)',
 
@@ -42,7 +43,7 @@ module.exports = {
      * Background color for data cells.
      * @default
      * @type {string}
-     * @instance
+     * @memberOf module:defaults
      */
     backgroundColor: 'rgb(241, 241, 241)',
 
@@ -50,7 +51,7 @@ module.exports = {
      * Font style for selected cell(s).
      * @default
      * @type {string}
-     * @instance
+     * @memberOf module:defaults
      */
     foregroundSelectionFont: 'bold 13px Tahoma, Geneva, sans-serif',
 
@@ -58,20 +59,20 @@ module.exports = {
      * Font color for selected cell(s).
      * @default
      * @type {string}
-     * @instance
+     * @memberOf module:defaults
      */
     foregroundSelectionColor: 'rgb(0, 0, 128)',
     /**
      * @default
      * @type {boolean}
-     * @instance
+     * @memberOf module:defaults
      */
     sortOnHiddenColumns: true,
     /**
      * Background color for selected cell(s).
      * @default
      * @type {string}
-     * @instance
+     * @memberOf module:defaults
      */
     backgroundSelectionColor: 'rgba(147, 185, 255, 0.625)',
 
@@ -83,14 +84,14 @@ module.exports = {
     /**
      * @default
      * @type {cssFont}
-     * @instance
+     * @memberOf module:defaults
      */
     columnHeaderFont: '12px Tahoma, Geneva, sans-serif',
 
     /**
      * @default
      * @type {cssColor}
-     * @instance
+     * @memberOf module:defaults
      */
     columnHeaderColor: 'rgb(25, 25, 25)',
 
@@ -98,49 +99,49 @@ module.exports = {
      * Font style for selected columns' headers.
      * @default
      * @type {string}
-     * @instance
+     * @memberOf module:defaults
      */
     columnHeaderForegroundSelectionFont: 'bold 12px Tahoma, Geneva, sans-serif',
 
     /**
      * @default
      * @type {cssColor}
-     * @instance
+     * @memberOf module:defaults
      */
     columnHeaderBackgroundColor: 'rgb(223, 227, 232)',
 
     /**
      * @default
      * @type {cssColor}
-     * @instance
+     * @memberOf module:defaults
      */
     columnHeaderForegroundSelectionColor: 'rgb(80, 80, 80)',
 
     /**
      * @default
      * @type {cssColor}
-     * @instance
+     * @memberOf module:defaults
      */
     columnHeaderBackgroundSelectionColor: 'rgba(255, 220, 97, 0.45)',
 
     /**
      * @default
      * @type {cssColor}
-     * @instance
+     * @memberOf module:defaults
      */
     columnHeaderForegroundColumnSelectionColor: 'rgb(25, 25, 25)',
 
     /**
      * @default
      * @type {cssColor}
-     * @instance
+     * @memberOf module:defaults
      */
     columnHeaderBackgroundColumnSelectionColor: 'rgb(255, 180, 0)',
 
     /**
      * @default
      * @type {string}
-     * @instance
+     * @memberOf module:defaults
      */
     columnHeaderHalign: 'center',
 
@@ -150,28 +151,28 @@ module.exports = {
     /**
      * @default
      * @type {cssFont}
-     * @instance
+     * @memberOf module:defaults
      */
     rowHeaderFont: '12px Tahoma, Geneva, sans-serif',
 
     /**
      * @default
      * @type {cssColor}
-     * @instance
+     * @memberOf module:defaults
      */
     rowHeaderColor: 'rgb(25, 25, 25)',
 
     /**
      * @default
      * @type {cssColor}
-     * @instance
+     * @memberOf module:defaults
      */
     rowHeaderBackgroundColor: 'rgb(223, 227, 232)',
 
     /**
      * @default
      * @type {cssColor}
-     * @instance
+     * @memberOf module:defaults
      */
     rowHeaderForegroundSelectionColor: 'rgb(80, 80, 80)',
 
@@ -179,28 +180,28 @@ module.exports = {
      * Font style for selected rows' headers.
      * @default
      * @type {string}
-     * @instance
+     * @memberOf module:defaults
      */
     rowHeaderForegroundSelectionFont: 'bold 12px Tahoma, Geneva, sans-serif',
 
     /**
      * @default
      * @type {cssColor}
-     * @instance
+     * @memberOf module:defaults
      */
     rowHeaderBackgroundSelectionColor: 'rgba(255, 220, 97, 0.45)',
 
     /**
      * @default
      * @type {cssColor}
-     * @instance
+     * @memberOf module:defaults
      */
     rowHeaderForegroundRowSelectionColor: 'rgb(25, 25, 25)',
 
     /**
      * @default
      * @type {cssColor}
-     * @instance
+     * @memberOf module:defaults
      */
     rowHeaderBackgroundRowSelectionColor: 'rgb(255, 180, 0)',
 
@@ -210,42 +211,42 @@ module.exports = {
     /**
      * @default
      * @type {cssFont}
-     * @instance
+     * @memberOf module:defaults
      */
     filterFont: '12px Tahoma, Geneva, sans-serif',
 
     /**
      * @default
      * @type {cssColor}
-     * @instance
+     * @memberOf module:defaults
      */
     filterColor: 'rgb(25, 25, 25)',
 
     /**
      * @default
      * @type {cssColor}
-     * @instance
+     * @memberOf module:defaults
      */
     filterBackgroundColor: 'white',
 
     /**
      * @default
      * @type {cssColor}
-     * @instance
+     * @memberOf module:defaults
      */
     filterForegroundSelectionColor: 'rgb(25, 25, 25)',
 
     /**
      * @default
      * @type {cssColor}
-     * @instance
+     * @memberOf module:defaults
      */
     filterBackgroundSelectionColor: 'rgb(255, 220, 97)',
 
     /**
      * @default
      * @type {string}
-     * @instance
+     * @memberOf module:defaults
      */
     filterHalign: 'center',
 
@@ -256,98 +257,98 @@ module.exports = {
     /**
      * @default
      * @type {cssFont}
-     * @instance
+     * @memberOf module:defaults
      */
     treeColumnFont: '12px Tahoma, Geneva, sans-serif',
 
     /**
      * @default
      * @type {cssColor}
-     * @instance
+     * @memberOf module:defaults
      */
     treeColumnColor: 'rgb(25, 25, 25)',
 
     /**
      * @default
      * @type {cssColor}
-     * @instance
+     * @memberOf module:defaults
      */
     treeColumnBackgroundColor: 'rgb(223, 227, 232)',
 
     /**
      * @default
      * @type {cssColor}
-     * @instance
+     * @memberOf module:defaults
      */
     treeColumnForegroundSelectionColor: 'rgb(25, 25, 25)',
 
     /**
      * @default
      * @type {cssColor}
-     * @instance
+     * @memberOf module:defaults
      */
     treeColumnBackgroundSelectionColor: 'rgba(255, 220, 97, 0.45)',
 
     /**
      * @default
      * @type {cssColor}
-     * @instance
+     * @memberOf module:defaults
      */
     treeColumnForegroundColumnSelectionColor: 'rgb(25, 25, 25)',
 
     /**
      * @default
      * @type {cssColor}
-     * @instance
+     * @memberOf module:defaults
      */
     treeColumnBackgroundColumnSelectionColor: 'rgb(255, 180, 0)',
 
     /**
      * @default
      * @type {cssColor}
-     * @instance
+     * @memberOf module:defaults
      */
     backgroundColor2: 'rgb(201, 201, 201)',
 
     /**
      * @default
      * @type {number}
-     * @instance
+     * @memberOf module:defaults
      */
     voffset: 0,
 
     /**
      * @default
      * @type {string}
-     * @instance
+     * @memberOf module:defaults
      */
     scrollbarHoverOver: 'visible',
 
     /**
      * @default
      * @type {string}
-     * @instance
+     * @memberOf module:defaults
      */
     scrollbarHoverOff: 'hidden',
 
     /**
      * @default
      * @type {boolean}
-     * @instance
+     * @memberOf module:defaults
      */
     scrollingEnabled: true,
 
     /**
      * @default
      * @type {string}
-     * @instance
+     * @memberOf module:defaults
      */
     vScrollbarClassPrefix: '',
 
     /**
      * @default
      * @type {string}
-     * @instance
+     * @memberOf module:defaults
      */
     hScrollbarClassPrefix: '',
 
@@ -356,61 +357,61 @@ module.exports = {
     /**
      * @default
      * @type {string}
-     * @instance
+     * @memberOf module:defaults
      */
     fixedRowAlign: 'center',
 
     /**
      * @default
      * @type {string}
-     * @instance
+     * @memberOf module:defaults
      */
     fixedColAlign: 'center',
     /**
      * @default
      * @type {string}
-     * @instance
+     * @memberOf module:defaults
      */
     halign: 'center',
 
     /**
      * @default
      * @type {number}
-     * @instance
+     * @memberOf module:defaults
      */
     cellPadding: 5,
 
     /**
      * @default
      * @type {boolean}
-     * @instance
+     * @memberOf module:defaults
      */
     gridLinesH: true,
 
     /**
      * @default
      * @type {boolean}
-     * @instance
+     * @memberOf module:defaults
      */
     gridLinesV: true,
     /**
      * @default
      * @type {boolean}
-     * @instance
+     * @memberOf module:defaults
      */
     gridLinesVOverflow: false,
 
     /**
      * @default
      * @type {cssColor}
-     * @instance
+     * @memberOf module:defaults
      */
     lineColor: 'rgb(199, 199, 199)',
 
     /**
      * @default
      * @type {number}
-     * @instance
+     * @memberOf module:defaults
      */
     lineWidth: 1,
 
@@ -418,14 +419,14 @@ module.exports = {
     /**
      * @default
      * @type {number}
-     * @instance
+     * @memberOf module:defaults
      */
     defaultRowHeight: 15,
 
     /**
      * @default
      * @type {number}
-     * @instance
+     * @memberOf module:defaults
      */
     defaultColumnWidth: 100,
 
@@ -434,14 +435,14 @@ module.exports = {
     /**
      * @default
      * @type {number}
-     * @instance
+     * @memberOf module:defaults
      */
     repaintIntervalRate: 60,
 
     /**
      * @default
      * @type {boolean}
-     * @instance
+     * @memberOf module:defaults
      */
     repaintImmediately: false,
 
@@ -450,7 +451,7 @@ module.exports = {
     /**
      * @default
      * @type {boolean}
-     * @instance
+     * @memberOf module:defaults
      */
     useBitBlit: false,
 
@@ -458,80 +459,89 @@ module.exports = {
     /**
      * @default
      * @type {boolean}
-     * @instance
+     * @memberOf module:defaults
      */
     useHiDPI: true,
 
     /**
      * @default ['alt', 'esc']
      * @type {string}
-     * @instance
+     * @memberOf module:defaults
      */
     editorActivationKeys: ['alt', 'esc'],
 
     /**
      * @default
      * @type {boolean}
-     * @instance
+     * @memberOf module:defaults
      */
     readOnly: false,
 
     // inherited by cell renderers
 
     /**
-     * @default `getTextWidth`
+     * This function is referenced here so it will be available to the renderer and cell renderers.
+     * @default {@link module:defaults.getTextWidth|getTextWidth}
      * @type {function}
-     * @instance
+     * @memberOf module:defaults
      */
     getTextWidth: getTextWidth,
 
     /**
-     * @default `getTextHeight`
+     * This function is referenced here so it will be available to the renderer and cell renderers.
+     * @default {@link module:defaults.getTextHeight|getTextHeight}
      * @type {function}
-     * @instance
+     * @memberOf module:defaults
      */
     getTextHeight: getTextHeight,
 
+    /**
+     * This function is referenced here so it will be available to the renderer and cell renderers.
+     * @default {@link module:defaults.alpha|alpha}
+     * @type {function}
+     * @memberOf module:defaults
+     */
+    alpha: alpha,
 
     /**
      * @default
      * @type {number}
-     * @instance
+     * @memberOf module:defaults
      */
     fixedColumnCount: 0,
 
     /**
      * @default
      * @type {number}
-     * @instance
+     * @memberOf module:defaults
      */
     fixedRowCount: 0,
 
     /**
      * @default
      * @type {boolean}
-     * @instance
+     * @memberOf module:defaults
      */
     showRowNumbers: true,
 
     /**
      * @default
      * @type {boolean}
-     * @instance
+     * @memberOf module:defaults
      */
     showTreeColumn: true,
 
     /**
      * @default
      * @type {boolean}
-     * @instance
+     * @memberOf module:defaults
      */
     showHeaderRow: true,
 
     /**
      * @default
      * @type {boolean}
-     * @instance
+     * @memberOf module:defaults
      */
     showFilterRow: false,
 
@@ -539,98 +549,98 @@ module.exports = {
     /** Clicking in a cell "selects" it; it is added to the select region and repainted with "cell selection" colors.
      * @default
      * @type {boolean}
-     * @instance
+     * @memberOf module:defaults
      */
     cellSelection: true,
 
     /** Clicking in a column header (top row) "selects" the column; the entire column is added to the select region and repainted with "column selection" colors.
      * @default
      * @type {boolean}
-     * @instance
+     * @memberOf module:defaults
      */
     columnSelection: true,
 
     /** Clicking in a row header (leftmost column) "selects" the row; the entire row is added to the select region and repainted with "row selection" colors.
      * @default
      * @type {boolean}
-     * @instance
+     * @memberOf module:defaults
      */
     rowSelection: true,
 
     /**
      * @default
      * @type {boolean}
-     * @instance
+     * @memberOf module:defaults
      */
     singleRowSelectionMode: true,
 
     /**
      * @default
      * @type {cssColor}
-     * @instance
+     * @memberOf module:defaults
      */
     selectionRegionOverlayColor: 'rgba(0, 0, 48, 0.2)',
 
     /**
      * @default
      * @type {string}
-     * @instance
+     * @memberOf module:defaults
      */
     selectionRegionOutlineColor: 'rgb(69, 69, 69)',
 
     /**
      * @default
      * @type {boolean}
-     * @instance
+     * @memberOf module:defaults
      */
-    columnAutosizing: true,
+    columnAutosizing: false,
 
     /**
      * @default
      * @type {boolean}
-     * @instance
+     * @memberOf module:defaults
      */
     rowNumberAutosizing: true,
 
     /**
      * @default
      * @type {boolean}
-     * @instance
+     * @memberOf module:defaults
      */
     headerTextWrapping: false,
 
     /**
      * @default
      * @type {boolean}
-     * @instance
+     * @memberOf module:defaults
      */
     rowResize: false,
 
     /**
      * @default
      * @type {boolean}
-     * @instance
+     * @memberOf module:defaults
      */
     editable: true,
 
     /**
      * @default
      * @type {boolean}
-     * @instance
+     * @memberOf module:defaults
      */
     filterable: true,
 
     /**
      * @default
      * @type {boolean}
-     * @instance
+     * @memberOf module:defaults
      */
     editOnDoubleClick: true,
 
     /**
      * @default
      * @type {number}
-     * @instance
+     * @memberOf module:defaults
      */
     doubleClickDelay: 325,
 
@@ -646,14 +656,14 @@ module.exports = {
      *
      * @default
      * @type {boolean}
-     * @instance
+     * @memberOf module:defaults
      */
     editOnKeydown: true,
 
     /**
      * @default
      * @type {boolean}
-     * @instance
+     * @memberOf module:defaults
      */
     checkboxOnlyRowSelections: false,
 
@@ -662,7 +672,7 @@ module.exports = {
      * The value `null` does no formatting.
      * @default undefined
      * @type {undefined|null|string}
-     * @instance
+     * @memberOf module:defaults
      * @tutorial localization
      */
     format: undefined,
@@ -671,7 +681,7 @@ module.exports = {
      * @desc Not editable if named editor is does not exist.
      * @default undefined
      * @type {undefined|null|string}
-     * @instance
+     * @memberOf module:defaults
      * @tutorial cell-editors
      */
     editor: undefined,
@@ -680,7 +690,7 @@ module.exports = {
      * Name of cell renderer from the {@link module:cellRenderers|cellRenderers API}.
      * @default
      * @type {string}
-     * @instance
+     * @memberOf module:defaults
      */
     renderer: 'SimpleCell',
 
@@ -695,7 +705,7 @@ module.exports = {
     /** On mouse hover, whether to repaint the cell background and how.
      * @type {hoverColors}
      * @default '{ enabled: true, background: rgba(160, 160, 40, 0.30) }'
-     * @instance
+     * @memberOf module:defaults
      */
     hoverCellHighlight: {
         enabled: true,
@@ -705,7 +715,7 @@ module.exports = {
     /** On mouse hover, whether to repaint the row background and how.
      * @type {hoverColors}
      * @default '{ enabled: true, background: rgba(100, 100, 25, 0.15) }'
-     * @instance
+     * @memberOf module:defaults
      */
     hoverRowHighlight: {
         enabled: true,
@@ -716,7 +726,7 @@ module.exports = {
     /** On mouse hover, whether to repaint the column background and how.
      * @type {hoverColors}
      * @default '{ enabled: true, background: rgba(60, 60, 15, 0.15) }'
-     * @instance
+     * @memberOf module:defaults
      */
     hoverColumnHighlight: {
         enabled: true,
@@ -728,28 +738,28 @@ module.exports = {
      * > Implementation of links right now is not automatic; you must attach a 'fin-click' listener to the hypergrid object, etc.
      * @type {boolean}
      * @default
-     * @instance
+     * @memberOf module:defaults
      */
     link: false,
 
     /** Display cell font with strike-through line drawn over it.
      * @type {boolean}
      * @default
-     * @instance
+     * @memberOf module:defaults
      */
     strikeThrough: false,
 
     /** Ignore sort interaction (double-click).
      * @type {boolean}
      * @default
-     * @instance
+     * @memberOf module:defaults
      */
     unsortable: false,
 
     /** Allow multiple cell region selections.
      * @type {boolean}
      * @default
-     * @instance
+     * @memberOf module:defaults
      */
     multipleSelections: false,
 
@@ -760,7 +770,7 @@ module.exports = {
      * * The Hypergrid renderer gobbles up CPU time even when the grid appears idle (the very scenario `repaint()` is designed to avoid). For this reason, we emphatically advise against shipping applications using this mode.
      * @type {boolean}
      * @default
-     * @instance
+     * @memberOf module:defaults
      */
     enableContinuousRepaint: false,
 
@@ -770,30 +780,51 @@ module.exports = {
      * * Column Picker dialog
      * @type {boolean}
      * @default
-     * @instance
+     * @memberOf module:defaults
      */
     columnsReorderable: true,
 
     /** @summary Apply cell properties before `getCell`.
      * @type {boolean}
      * @default
-     * @instance
+     * @memberOf module:defaults
      */
     applyCellProperties: true,
 
     /** @summary Reapply cell properties after `getCell`.
      * @type {boolean}
      * @default
-     * @instance
+     * @memberOf module:defaults
      */
     reapplyCellProperties: false,
 
     /** @summary Column grab within this number of pixels from top of cell.
      * @type {number}
      * @default
-     * @instance
+     * @memberOf module:defaults
      */
-    columnGrabMargin: 5
+    columnGrabMargin: 5,
+
+    /** @summary Set up a clipping region around each column before painting cells.
+     * @desc One of:
+     * * `true` - Clip column.
+     * * `false` - Do not clip column.
+     * * `null` - Clip iff last active column.
+     *
+     * Clipping prevents text that overflows to the right of the cell from being rendered.
+     * If you can guarantee that none of your text will overflow, turn column clipping off
+     * for better performance. If not, you may still be able to get away without clipping.
+     * If the background color of the next column is opaque, you don't really need to clip,
+     * although text can leak out to the right of the last column. Clipping the last column
+     * only can help this but not solve it since the leaked text from (say) the column before
+     * the last column could stretch across the entire last column and leak out anyway.
+     * The solution to this is to clip the rendered string so at most only a partial character
+     * will overflow.
+     * @type {boolean|undefined}
+     * @default
+     * @memberOf module:defaults
+     */
+    columnClip: true,
 };
 
 /** @typedef {string} cssColor
@@ -805,6 +836,12 @@ module.exports = {
 
 var textWidthCache = new LRUCache(2000);
 
+/**
+ * @memberOf module:defaults
+ * @param gc
+ * @param string
+ * @returns {*}
+ */
 function getTextWidth(gc, string) {
     if (string === null || string === undefined) {
         return 0;
@@ -824,6 +861,11 @@ function getTextWidth(gc, string) {
 
 var fontData = {};
 
+/**
+ * @memberOf module:defaults
+ * @param font
+ * @returns {*}
+ */
 function getTextHeight(font) {
     var result = fontData[font];
 
@@ -870,3 +912,29 @@ function getTextHeight(font) {
 
     return result;
 }
+
+/**
+ * @memberOf module:defaults
+ * @param cssColorSpec
+ * @returns {*}
+ */
+function alpha(cssColorSpec) {
+    var matches, result;
+
+    if (cssColorSpec === undefined) {
+        // undefined so not visible; treat as transparent
+        result = 0;
+    } else if ((matches = cssColorSpec.match(ALPHA_REGEX)) === null) {
+        // an opaque color (a color spec with no alpha channel)
+        result = 1;
+    } else if (matches[4] === undefined) {
+        // cssColorSpec must have been 'transparent'
+        result = 0;
+    } else {
+        result = Number(matches[4]);
+    }
+
+    return result;
+}
+
+module.exports = defaults;

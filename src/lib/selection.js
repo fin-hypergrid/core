@@ -296,6 +296,196 @@ module.exports = {
 
         return rects;
     },
+
+    moveSingleSelect: function(x, y) {
+        this.behavior.moveSingleSelect(this, x, y);
+    },
+
+    selectCell: function(x, y, silent) {
+        var dontClearRows = this.isCheckboxOnlyRowSelections();
+        this.selectionModel.clear(dontClearRows);
+        this.selectionModel.select(x, y, 0, 0, silent);
+    },
+
+    toggleSelectColumn: function(x, keys) {
+        keys = keys || [];
+        var model = this.selectionModel;
+        var alreadySelected = model.isColumnSelected(x);
+        var hasCTRL = keys.indexOf('CTRL') > -1;
+        var hasSHIFT = keys.indexOf('SHIFT') > -1;
+        if (!hasCTRL && !hasSHIFT) {
+            model.clear();
+            if (!alreadySelected) {
+                model.selectColumn(x);
+            }
+        } else {
+            if (hasCTRL) {
+                if (alreadySelected) {
+                    model.deselectColumn(x);
+                } else {
+                    model.selectColumn(x);
+                }
+            }
+            if (hasSHIFT) {
+                model.clear();
+                model.selectColumn(this.lastEdgeSelection[0], x);
+            }
+        }
+        if (!alreadySelected && !hasSHIFT) {
+            this.lastEdgeSelection[0] = x;
+        }
+        this.repaint();
+        this.fireSyntheticColumnSelectionChangedEvent();
+    },
+
+    toggleSelectRow: function(y, keys) {
+        //we can select the totals rows if they exist, but not rows above that
+        keys = keys || [];
+
+        var sm = this.selectionModel;
+        var alreadySelected = sm.isRowSelected(y);
+        var hasSHIFT = keys.indexOf('SHIFT') >= 0;
+
+        if (alreadySelected) {
+            sm.deselectRow(y);
+        } else {
+            this.singleSelect();
+            sm.selectRow(y);
+        }
+
+        if (hasSHIFT) {
+            sm.clear();
+            sm.selectRow(this.lastEdgeSelection[1], y);
+        }
+
+        if (!alreadySelected && !hasSHIFT) {
+            this.lastEdgeSelection[1] = y;
+        }
+
+        this.repaint();
+    },
+
+    singleSelect: function() {
+        var isCheckboxOnlyRowSelections = this.isCheckboxOnlyRowSelections(),
+            isSingleRowSelectionMode = this.isSingleRowSelectionMode(),
+            hasCTRL = false,
+            result;
+
+        if (this.mouseDownState){
+            //triggered programmatically
+            hasCTRL = this.mouseDownState.primitiveEvent.detail.primitiveEvent.ctrlKey;
+        }
+
+        result = (
+            isCheckboxOnlyRowSelections && isSingleRowSelectionMode ||
+            !isCheckboxOnlyRowSelections && (!hasCTRL || isSingleRowSelectionMode)
+        );
+
+        if (result) {
+            this.selectionModel.clearRowSelection();
+        }
+
+        return result;
+    },
+
+    selectViewportCell: function(x, y) {
+        var headerRowCount = this.getHeaderRowCount(),
+            realX = this.renderer.visibleColumns[x].ColumnIndex, // todo refac
+            realY = this.renderer.visibleRows[y].rowIndex; // todo refac
+        this.clearSelections();
+        this.select(realX, realY + headerRowCount, 0, 0);
+        this.setMouseDown(this.newPoint(realX, realY + headerRowCount)); // todo refac
+        this.setDragExtent(this.newPoint(0, 0));
+        this.repaint();
+    },
+
+    selectToViewportCell: function(x, y) {
+        var selections = this.getSelections();
+        if (selections && selections.length) {
+            var headerRowCount = this.getHeaderRowCount(),
+                realX = this.renderer.visibleColumns[x].columnIndex, // todo refac
+                realY = this.renderer.visibleRows[y].rowIndex + headerRowCount, // todo refac
+                selection = selections[0],
+                origin = selection.origin;
+            this.setDragExtent(this.newPoint(realX - origin.x, realY - origin.y));
+            this.select(origin.x, origin.y, realX - origin.x, realY - origin.y);
+            this.repaint();
+        }
+    },
+
+    selectFinalCellOfCurrentRow: function() {
+        var x = this.getColumnCount() - 1,
+            y = this.getSelectedRows()[0],
+            headerRowCount = this.getHeaderRowCount();
+        this.clearSelections();
+        this.scrollBy(this.getColumnCount(), 0);
+        this.select(x, y + headerRowCount, 0, 0);
+        this.setMouseDown(this.newPoint(x, y + headerRowCount));
+        this.setDragExtent(this.newPoint(0, 0));
+        this.repaint();
+    },
+
+    selectToFinalCellOfCurrentRow: function() {
+        var selections = this.getSelections();
+        if (selections && selections.length) {
+            var selection = selections[0],
+                origin = selection.origin,
+                extent = selection.extent,
+                columnCount = this.getColumnCount();
+            this.scrollBy(columnCount, 0);
+
+            this.clearSelections();
+            this.select(origin.x, origin.y, columnCount - origin.x - 1, extent.y);
+
+            this.repaint();
+        }
+    },
+
+    selectFirstCellOfCurrentRow: function() {
+        var x = 0,
+            y = this.getSelectedRows()[0],
+            headerRowCount = this.getHeaderRowCount();
+        this.clearSelections();
+        this.setHScrollValue(0);
+        this.select(x, y + headerRowCount, 0, 0);
+        this.setMouseDown(this.newPoint(x, y + headerRowCount));
+        this.setDragExtent(this.newPoint(0, 0));
+        this.repaint();
+    },
+
+    selectToFirstCellOfCurrentRow: function() {
+        var selections = this.getSelections();
+        if (selections && selections.length) {
+            var selection = selections[0],
+                origin = selection.origin,
+                extent = selection.extent;
+            this.clearSelections();
+            this.select(origin.x, origin.y, -origin.x, extent.y);
+            this.setHScrollValue(0);
+            this.repaint();
+        }
+    },
+
+    selectFinalCell: function() {
+        this.selectCell(this.getColumnCount() - 1, this.getRowCount() - 1);
+        this.scrollBy(this.getColumnCount(), this.getRowCount());
+        this.repaint();
+    },
+
+    selectToFinalCell: function() {
+        var selections = this.getSelections();
+        if (selections && selections.length) {
+            var selection = selections[0],
+                origin = selection.origin,
+                columnCount = this.getColumnCount(),
+                rowCount = this.getRowCount();
+
+            this.clearSelections();
+            this.select(origin.x, origin.y, columnCount - origin.x - 1, rowCount - origin.y - 1);
+            this.scrollBy(columnCount, rowCount);
+            this.repaint();
+        }
+    },
 };
 
 function normalizeRect(rect) {
