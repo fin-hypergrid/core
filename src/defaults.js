@@ -593,7 +593,7 @@ var defaults = {
      * @type {boolean}
      * @memberOf module:defaults
      */
-    columnAutosizing: false,
+    columnAutosizing: true,
 
     /**
      * @default
