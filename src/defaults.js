@@ -430,6 +430,13 @@ var defaults = {
      */
     defaultColumnWidth: 100,
 
+    /**
+     * @default
+     * @type {number}
+     * @memberOf module:defaults
+     */
+    minimumColumnWidth: 5,
+
     //for immediate painting, set these values to 0, true respectively
 
     /**

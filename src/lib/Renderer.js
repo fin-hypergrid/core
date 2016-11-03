@@ -8,6 +8,23 @@ var _ = require('object-iterators');
 var Base = require('../Base');
 var images = require('../../images');
 
+
+var visibleColumnPropertiesDescriptor = {
+    find: {
+        // Like Array.prototype.find except searches negative indexes as well.
+        value: function(iteratee, context) {
+            for (var i = -1; i in this; --i); // eslint-disable-line curly
+            while (++i) {
+                if (iteratee.call(context, this[i], i, this)) {
+                    return this[i];
+                }
+            }
+            return Array.prototype.find.apply(this, arguments);
+        }
+    }
+};
+
+
 /** @typedef {object} CanvasRenderingContext2D
  * @see [CanvasRenderingContext2D](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D)
  */
@@ -84,7 +101,7 @@ var Renderer = Base.extend('Renderer', {
          * 3. An n-based list of consecutive of integers representing the scrollable columns (where n = number of fixed columns + the number of columns scrolled off to the left).
          * @type {visibleColumnDescriptor}
          */
-        this.visibleColumns = [];
+        this.visibleColumns = Object.defineProperties([], visibleColumnPropertiesDescriptor);
 
         /**
          * Represents the ordered set of visible rows. Array size is always the exact number of visible rows.
@@ -362,46 +379,6 @@ var Renderer = Base.extend('Renderer', {
     getVisibleColumns: function() {
         warn('visibleColumns', 'The getVisibleColumns() method has been deprecated as of v1.2.0 and will be removed in a future version. Previously returned the this.visibleColumns but because this.visibleColumns is no longer a simple array of integers but is now an array of objects, it now returns an array mapped to the equivalent visibleColumns[*].columnIndex.');
         return this.visibleColumns.map(function(vc) { return vc.columnIndex; });
-    },
-
-    /**
-     * @memberOf Renderer.prototype
-     * @returns {number} The column index when the mouseEvent coordinates are over a column divider.
-     */
-    overColumnDivider: function(x) {
-        var vc = this.visibleColumns,
-            xi = Math.round(x),
-            x1 = xi - 3,
-            x2 = xi + 1;
-
-        for (var c = (-1 in vc ? -1 : 0), C = vc.length; c < C; ++c) {
-            x = vc[c].right;
-            if (x1 <= x && x <= x2) {
-                return c + 1;
-            }
-        }
-
-        return -1;
-    },
-
-    /**
-     * @memberOf Renderer.prototype
-     * @returns {number} The row index when the mouseEvent coordinates are over a row divider.
-     */
-    overRowDivider: function(y) {
-        var vr = this.visibleRows,
-            yi = Math.round(y),
-            y1 = yi - 3,
-            y2 = yi + 1;
-
-        for (var r = 0, R = vr.length; r < R; ++r) {
-            y = vr[r].bottom;
-            if (y1 <= y && y <= y2) {
-                return r + 1;
-            }
-        }
-
-        return -1;
     },
 
     /**
@@ -816,8 +793,6 @@ var Renderer = Base.extend('Renderer', {
             r, R, // row loop index and limit
             cellEvent = new behavior.CellEvent(0, 0),
             bounds = cellEvent._bounds = { x:0, y:0, width:0, height:0 },
-            gridCell = cellEvent.gridCell,
-            dataCell = cellEvent.dataCell,
             vc, visibleColumns = this.visibleColumns,
             vr, visibleRows = this.visibleRows,
             gridProps = this.grid.properties,
@@ -835,16 +810,12 @@ var Renderer = Base.extend('Renderer', {
             c < C;
             c++
         ) {
-            cellEvent.visibleColumn = vc = visibleColumns[c];
-            cellEvent.column = behavior.getActiveColumn(vc.columnIndex);
-
-            gridCell.x = vc.columnIndex;
-            dataCell.x = cellEvent.column && cellEvent.column.index;
+            cellEvent.resetColumn(vc = visibleColumns[c]);
 
             bounds.x = vc.left;
             bounds.width = vc.width;
 
-            cellEvent.column.properties.preferredWidth = 0;
+            cellEvent.columnProperties.preferredWidth = 0;
 
             gc.save();
 
@@ -857,7 +828,7 @@ var Renderer = Base.extend('Renderer', {
                 gc.clip();
             }
 
-            backgroundColor = cellEvent.column.properties.backgroundColor;
+            backgroundColor = cellEvent.columnProperties.backgroundColor;
             bgAlpha = gridProps.alpha(backgroundColor);
             if (bgAlpha < 1) {
                 // If background is translucent, we must clear the column before the fillRect below to prevent mixing with previous frame's render.
@@ -879,13 +850,10 @@ var Renderer = Base.extend('Renderer', {
                 r < R;
                 r++
             ) {
-                cellEvent.visibleRow = vr = visibleRows[r];
+                cellEvent.resetRow(vr = visibleRows[r]);
 
                 bounds.y = vr.top;
                 bounds.height = vr.height;
-
-                gridCell.y = vr.index;
-                dataCell.y = vr.rowIndex;
 
                 try {
                     this._paintCell(gc, cellEvent);
@@ -974,8 +942,7 @@ var Renderer = Base.extend('Renderer', {
             isHeaderRow = cellEvent.isHeaderRow,
             isFilterRow = cellEvent.isFilterRow,
 
-            columnProperties = cellEvent.column.properties,
-            cellProperties,
+            columnProperties = cellEvent.columnProperties,
             config,
             isSelected;
 
@@ -984,8 +951,7 @@ var Renderer = Base.extend('Renderer', {
             config.halign = isHierarchyColumn ? 'left' : 'right';
             isSelected = isRowSelected || grid.isCellSelectedInRow(r);
         } else if (isGridRow) {
-            cellProperties = behavior.getCellOwnProperties(cellEvent);
-            config = Object.create(cellProperties || columnProperties);
+            config = Object.create(cellEvent.properties);
             isSelected = isCellSelected || isRowSelected || isColumnSelected;
         } else if (isFilterRow) {
             config = Object.create(columnProperties.filterProperties);
@@ -1044,8 +1010,8 @@ var Renderer = Base.extend('Renderer', {
         var cellRenderer = behavior.getCellRenderer(config, cellEvent);
 
         // Overwrite possibly mutated cell properties, if requested to do so by `getCell` override
-        if (cellProperties && config.reapplyCellProperties) {
-            _(config).extendOwn(cellProperties);
+        if (cellEvent.cellOwnProperties && config.reapplyCellProperties) {
+            _(config).extendOwn(cellEvent.cellOwnProperties);
         }
 
         behavior.cellPropertiesPrePaintNotification(config);

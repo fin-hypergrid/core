@@ -23,20 +23,42 @@ var prototype = Object.defineProperties({}, {
         get: function() { return this.grid.formatValue(this.getCellProperty('format'), this.value); }
     },
 
-    bounds: {
-        get: function() {
-            return this._bounds || (this._bounds = {
-                x: this.visibleColumn.left,
-                y: this.visibleRow.top,
-                width: this.visibleColumn.width,
-                height: this.visibleRow.height
-            });
-        }
-    },
+    bounds: { get: function() {
+        return this._bounds || (this._bounds = {
+            x: this.visibleColumn.left,
+            y: this.visibleRow.top,
+            width: this.visibleColumn.width,
+            height: this.visibleRow.height
+        });
+    } },
 
-    getCellProperty: {
-        value: function(propName) { return this.column.getCellProperty(this.dataCell.y, propName, this.visibleRow.subgrid); }
-    },
+    columnProperties: { get: function() {
+        return (this._columnProperties = this._columnProperties || this.column.properties);
+    } },
+    cellOwnProperties: { get: function() {
+        return (this._cellOwnProperties = this._cellOwnProperties || this.column.getCellOwnProperties(this.dataCell.y, this.visibleRow.subgrid));
+    } },
+    properties: { get: function() {
+        return (this._properties = this._properties || this.cellOwnProperties || this.columnProperties);
+    } },
+    getCellProperty: { value: function(propName) {
+        return this.properties[propName];
+    } },
+
+    // special methods for use by renderer which reuses cellEvent object for performance reasons
+    resetColumn: { value: function(visibleColumn) {
+        this.visibleColumn = visibleColumn;
+        this.column = this.behavior.getActiveColumn(visibleColumn.columnIndex);
+        this.gridCell.x = visibleColumn.columnIndex;
+        this.dataCell.x = this.column && this.column.index;
+        this._columnProperties = undefined;
+    } },
+    resetRow: { value: function(visibleRow) {
+        this.visibleRow = visibleRow;
+        this.gridCell.y = visibleRow.index;
+        this.dataCell.y = visibleRow.rowIndex;
+        this._cellOwnProperties = this._properties = undefined;
+    } },
 
     // "Visible" means scrolled into view.
     isRowVisible:    { get: function() { return !!this.visibleRow; } },

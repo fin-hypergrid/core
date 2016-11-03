@@ -65,6 +65,8 @@ function Column(behavior, options) {
 
     switch (index) {
         case -1:
+            this.properties.minimumColumnWidth = 16;
+            break;
         case -2:
             break;
         default:
@@ -180,7 +182,11 @@ Column.prototype = {
     },
 
     setWidth: function(width) {
-        this.properties.width = Math.max(5, width);
+        width = Math.max(this.properties.minimumColumnWidth, width);
+        if (width !== this.properties.width) {
+            this.properties.width = width;
+            this.properties.columnAutosizing = false;
+        }
     },
 
     getCellRenderer: function(config, cellEvent) {
@@ -194,18 +200,20 @@ Column.prototype = {
     },
 
     checkColumnAutosizing: function(force) {
-        var properties = this.properties;
-        var a, b, d, autoSized;
-        if (properties) {
-            a = properties.width;
-            b = properties.preferredWidth || a;
-            d = properties.columnAutosized && !force;
-            if (a !== b || !d) {
-                properties.width = !d ? b : Math.max(a, b);
+        var properties = this.properties,
+            width, preferredWidth, autoSized;
+
+        if (properties.columnAutosizing) {
+            width = properties.width;
+            preferredWidth = properties.preferredWidth || width;
+            force = force || !properties.columnAutosized;
+            if (width !== preferredWidth || force) {
+                properties.width = force ? preferredWidth : Math.max(width, preferredWidth);
                 properties.columnAutosized = !isNaN(properties.width);
-                autoSized = properties.width !== a;
+                autoSized = properties.width !== width;
             }
         }
+
         return autoSized;
     },
 

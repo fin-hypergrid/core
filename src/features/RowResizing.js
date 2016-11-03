@@ -98,7 +98,7 @@ var RowResizing = ColumnResizing.extend('RowResizing', {
      * @param {Object} event - the event details
      */
     overAreaDivider: function(grid, event) {
-        return grid.overRowDivider(event);
+
     },
 
     /**
@@ -121,29 +121,6 @@ var RowResizing = ColumnResizing.extend('RowResizing', {
      */
     getCursorName: function() {
         return 'row-resize';
-    },
-
-    /**
-     * @function
-     * @memberOf RowResizing.prototype
-     * @desc return the recently rendered area's width/height
-     * @returns {number}
-     * @param {Hypergrid} grid
-     * @param {number} index - the row/column index of interest
-     */
-    getPreviousAbsoluteSize: function(grid, index) {
-        return grid.getRenderedHeight(index);
-    },
-
-    /**
-     * @function
-     * @memberOf RowResizing.prototype
-     * @desc return the fixed area rows/columns count
-     * @returns {number}
-     * @param {Hypergrid} grid
-     */
-    getOtherFixedAreaCount: function(grid) {
-        return grid.getFixedColumnCount();
     },
 
     /**
