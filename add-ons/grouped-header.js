@@ -281,6 +281,14 @@ function paintHeaderGroups(gc, config) {
             groups = this.groups,
             bounds = config.bounds,
 
+            // save cosmetic properties for final column header render that follows this if-block
+            columnConfigStash = {
+                isColumnHovered: config.isColumnHovered,
+                isSelected: config.isSelected,
+                font: config.font,
+                backgroundColor: config.backgroundColor
+            },
+
             // save bounds for final column header render
             boundsLeft = bounds.x,
             boundsWidth = bounds.width;
@@ -298,8 +306,6 @@ function paintHeaderGroups(gc, config) {
 
                 // save cosmetic properties for final column header render that follows this if-block
                 group.configStash = {
-                    isColumnHovered: config.isColumnHovered,
-                    isSelected: config.isSelected,
                     font: config.font,
                     backgroundColor: config.backgroundColor
                 };
@@ -318,7 +324,7 @@ function paintHeaderGroups(gc, config) {
             bounds.width = group.width;
 
             // Copy `group` members saved above from `group.config` to `config`
-            Object.keys(group.config).forEach(reconfig);
+            Object.keys(group.config).forEach(unstash.bind(group));
 
             // Paint the group header background
             gc.fillStyle = config.backgroundColor;
@@ -328,32 +334,32 @@ function paintHeaderGroups(gc, config) {
                 // Decorate the group header background
                 this.groupIndex = g;
                 this.groupCount = groupCount;
-
-                var decorator = config.paintBackground || this.paintBackground;
-                if (decorator) {
-                    if (typeof decorator !== 'function') {
-                        decorator = groupedHeader[decorator];
-                        if (typeof decorator !== 'function') {
-                            throw 'Expected decorator function of name of registered decorator function.';
-                        }
-                    }
-                    decorator.apply(this, arguments);
-                }
-
                 // Suppress hover and selection effects for group headers
                 config.isColumnHovered = config.isSelected = false;
 
                 // Make group headers bold & grey
                 config.value = group.value;
                 config.font = 'bold ' + config.font;
-                config.backgroundColor = 'transparent';
+                // config.backgroundColor = 'transparent';
 
                 // Paint the group header foreground
                 paint.apply(this, arguments);
+
+                var decorator = config.paintBackground || this.paintBackground;
+                if (decorator) {
+                    if (typeof decorator !== 'function') {
+                        decorator = groupedHeader[decorator];
+                        if (typeof decorator !== 'function') {
+                            throw 'Expected decorator function or name of registered decorator function.';
+                        }
+                    }
+                    decorator.apply(this, arguments);
+                }
+
             }
 
             // Restore `config`
-            Object.keys(group.configStash).forEach(unstash);
+            Object.keys(group.configStash).forEach(unstash.bind(group.configStash));
         }
 
         // Restore bounds for final column header render.
@@ -362,6 +368,9 @@ function paintHeaderGroups(gc, config) {
         bounds.y = y;
         bounds.width = boundsWidth;
         config.value = values[g]; // low-order header
+
+        // restore original column cosmetic properties for actual column header
+        Object.keys(columnConfigStash).forEach(unstash.bind(columnConfigStash));
     }
 
     // Render the actual column header
@@ -382,12 +391,8 @@ function paintHeaderGroups(gc, config) {
         group[key] = property;
     }
 
-    function reconfig(key) { // iteratee function for iterating over `group`
-        config[key] = group[key];
-    }
-
     function unstash(key) { // iteratee function for iterating over `group.configStash`
-        config[key] = group.configStash[key];
+        config[key] = this[key];
     }
 }
 
@@ -435,13 +440,8 @@ function decorateBackgroundWithBottomBorder(gc, config) {
         thickness = config.thickness ||
             this.groupCount - this.groupIndex; // when `thickness` undefined, higher-order groups get progressively thicker borders
 
-    gc.beginPath();
-    gc.strokeStyle = config.color;
-    gc.lineWidth = thickness;
-    gc.moveTo(bounds.x + 3, bounds.y + bounds.height - thickness);
-    gc.lineTo(bounds.x + bounds.width - 2, bounds.y + bounds.height - thickness);
-    gc.stroke();
-    gc.closePath();
+    gc.fillStyle = config.color;
+    gc.fillRect(bounds.x + 3, bounds.y + bounds.height - thickness, bounds.width - 6, thickness);
 }
 
 // regexRGB - parses #rrggbb or rgb(r, g, b) or rgba(r, g, b, a)

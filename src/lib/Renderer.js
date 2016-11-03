@@ -820,9 +820,12 @@ var Renderer = Base.extend('Renderer', {
             dataCell = cellEvent.dataCell,
             vc, visibleColumns = this.visibleColumns,
             vr, visibleRows = this.visibleRows,
+            gridProps = this.grid.properties,
+            columnClip = gridProps.columnClip,
             clipHeight = this.getBounds().height,
-            lineWidth = this.grid.properties.lineWidth,
-            lineColor = this.grid.properties.lineColor;
+            lineWidth = gridProps.lineWidth,
+            lineColor = gridProps.lineColor,
+            backgroundColor, bgAlpha;
 
         this.buttonCells = {};
 
@@ -845,17 +848,27 @@ var Renderer = Base.extend('Renderer', {
 
             gc.save();
 
-            // Clip to visible portion of column to prevent text from overflowing to right.
-            // (Text never overflows to left because text starting point is never < 0.)
-            // (The reason we don't clip to the left is for cell renderers that rerender to the left to produce a merged cell effect, such as grouped column header.)
-            gc.beginPath();
-            gc.rect(0, 0, bounds.x + bounds.width, clipHeight);
-            gc.clip();
+            if (columnClip || columnClip === null && c === C - 1) {
+                // Clip to visible portion of column to prevent text from overflowing to right.
+                // (Text never overflows to left because text starting point is never < 0.)
+                // (The reason we don't clip to the left is for cell renderers that need to re-render to the left to produce a merged cell effect, such as grouped column header.)
+                gc.beginPath();
+                gc.rect(0, 0, bounds.x + bounds.width, clipHeight);
+                gc.clip();
+            }
 
-            gc.fillStyle = cellEvent.column.properties.backgroundColor;
-            gc.fillRect(bounds.x, 0, bounds.width, clipHeight);
+            backgroundColor = cellEvent.column.properties.backgroundColor;
+            bgAlpha = gridProps.alpha(backgroundColor);
+            if (bgAlpha < 1) {
+                // If background is translucent, we must clear the column before the fillRect below to prevent mixing with previous frame's render.
+                gc.clearRect(bounds.x, 0, bounds.width, clipHeight);
+            }
+            if (bgAlpha > 0) {
+                gc.fillStyle = backgroundColor;
+                gc.fillRect(bounds.x, 0, bounds.width, clipHeight);
+            }
 
-            if (this.grid.properties.gridLinesV) {
+            if (gridProps.gridLinesV) {
                 gc.fillStyle = lineColor;
                 gc.fillRect(bounds.x - lineWidth, 0, lineWidth, clipHeight);
             }
