@@ -25,7 +25,7 @@ var TreeCell = CellRenderer.extend('TreeCell', {
 
         //fill background only if our bgColor is populated or we are a selected cell
         if (config.backgroundColor || config.isSelected) {
-            gc.fillStyle = config.isSelected ? config.backgroundColor : config.backgroundColor;
+            gc.cache.fillStyle = config.isSelected ? config.backgroundColor : config.backgroundColor;
             gc.fillRect(x, y, width, height);
         }
 
@@ -34,7 +34,7 @@ var TreeCell = CellRenderer.extend('TreeCell', {
         }
         var valignOffset = Math.ceil(height / 2);
 
-        gc.fillStyle = config.isSelected ? config.backgroundColor : config.backgroundColor;
+        gc.cache.fillStyle = config.isSelected ? config.backgroundColor : config.backgroundColor;
         gc.fillText(icon + val, x + indent, y + valignOffset);
 
         var textWidth = config.getTextWidth(gc, icon + val);

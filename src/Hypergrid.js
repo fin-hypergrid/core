@@ -298,7 +298,7 @@ var Hypergrid = Base.extend('Hypergrid', {
 
         this.behavior.reset();
         this.renderer.reset();
-        this.getCanvas().resize();
+        this.canvas.resize();
         this.behaviorChanged();
 
         this.refreshProperties();
@@ -694,7 +694,7 @@ var Hypergrid = Base.extend('Hypergrid', {
      * @returns {boolean} We have focus.
      */
     hasFocus: function() {
-        return this.getCanvas().hasFocus();
+        return this.canvas.hasFocus();
     },
 
     /**
@@ -824,7 +824,7 @@ var Hypergrid = Base.extend('Hypergrid', {
 
     repaint: function() {
         var now = this.properties.repaintImmediately;
-        var canvas = this.getCanvas();
+        var canvas = this.canvas;
         if (canvas) {
             if (now === true) {
                 canvas.paintNow();
@@ -839,7 +839,7 @@ var Hypergrid = Base.extend('Hypergrid', {
      * @desc Paint immediately in this microtask.
      */
     paintNow: function() {
-        this.getCanvas().paintNow();
+        this.canvas.paintNow();
     },
 
     /**
@@ -1057,7 +1057,7 @@ var Hypergrid = Base.extend('Hypergrid', {
      * @returns {Canvas} Our fin-canvas instance.
      */
     getCanvas: function() {
-        return this.canvas;
+        return this.deprecated('getCanvas()', 'canvas', '1.2.2');
     },
 
     /**
@@ -1387,7 +1387,7 @@ var Hypergrid = Base.extend('Hypergrid', {
         var wasCellEditor = this.cellEditor;
         this.stopEditing();
         if (!wasCellEditor) {
-            this.getCanvas().takeFocus();
+            this.canvas.takeFocus();
         }
     },
 
@@ -1564,7 +1564,7 @@ var Hypergrid = Base.extend('Hypergrid', {
         this.resizeScrollbars();
     },
     synchronizeScrollingBoundries: function() {
-        this.deprecated('synchronizeScrollingBoundries', 'synchronizeScrollingBoundaries', '1.2.0');
+        this.deprecated('synchronizeScrollingBoundries()', 'synchronizeScrollingBoundaries()', '1.2.0');
     },
 
     /**
@@ -1940,7 +1940,7 @@ var Hypergrid = Base.extend('Hypergrid', {
      * @param {boolean} - canReceiveFocus
      */
     setFocusable: function(canReceiveFocus) {
-        this.getCanvas().setFocusable(canReceiveFocus);
+        this.canvas.setFocusable(canReceiveFocus);
     },
 
     /**

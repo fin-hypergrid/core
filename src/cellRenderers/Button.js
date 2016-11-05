@@ -34,21 +34,21 @@ var Button = CellRenderer.extend('Button', {
         }
 
         // draw the background
-        gc.fillStyle = config.backgroundColor;
+        gc.cache.fillStyle = config.backgroundColor;
         gc.fillRect(bounds.x, bounds.y, bounds.width, bounds.height);
 
         // draw the capsule
-        gc.fillStyle = arcGradient;
-        gc.strokeStyle = '#000000';
+        gc.cache.fillStyle = arcGradient;
+        gc.cache.strokeStyle = '#000000';
         this.roundRect(gc, x, y, width, height, radius, arcGradient, true);
 
         var ox = (width - config.getTextWidth(gc, val)) / 2;
-        var oy = (height - config.getTextHeight(gc.font).descent) / 2;
+        var oy = (height - config.getTextHeight(gc.cache.font).descent) / 2;
 
         // draw the text
-        gc.textBaseline = 'middle';
-        gc.fillStyle = '#333333';
-        gc.font = height - 2 + 'px sans-serif';
+        gc.cache.textBaseline = 'middle';
+        gc.cache.fillStyle = '#333333';
+        gc.cache.font = height - 2 + 'px sans-serif';
         config.backgroundColor = 'rgba(0,0,0,0)';
         gc.fillText(val, x + ox, y + oy);
 

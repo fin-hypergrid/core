@@ -23,7 +23,7 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
             height = bounds.height,
             leftPadding = 2; //TODO: fix this
 
-        var leftIcon, rightIcon, centerIcon, ixoffset, iyoffset, font;
+        var leftIcon, rightIcon, centerIcon, ixoffset, iyoffset;
 
         // setting gc properties are expensive, let's not do it needlessly
 
@@ -54,18 +54,9 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
 
         val = config.formatValue(val);
 
-        font = config.isSelected ? config.foregroundSelectionFont : config.font;
-
-        if (gc.font !== font) {
-            gc.font = font;
-        }
-
-        if (gc.textAlign !== 'left') {
-            gc.textAlign = 'left';
-        }
-        if (gc.textBaseline !== 'middle') {
-            gc.textBaseline = 'middle';
-        }
+        gc.cache.font = config.isSelected ? config.foregroundSelectionFont : config.font;
+        gc.cache.textAlign = 'left';
+        gc.textBaseline = 'middle';
 
         // fill background only if our bgColor is populated or we are a selected cell
         var backgroundColor, hover, hoverColor, selectColor,
@@ -107,11 +98,7 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
         layerColors(gc, colors, x, y, width, height);
 
         // draw text
-        var theColor = config.isSelected ? config.foregroundSelectionColor : config.color;
-        if (gc.fillStyle !== theColor) {
-            gc.fillStyle = theColor;
-            gc.strokeStyle = theColor;
-        }
+        gc.cache.fillStyle = gc.cache.strokeStyle = config.isSelected ? config.foregroundSelectionColor : config.color;
 
         if (config.isHeaderRow && config.headerTextWrapping) {
             this.renderMultiLineText(gc, config, val);
@@ -145,11 +132,8 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
         if (config.cellBorderThickness) {
             gc.beginPath();
             gc.rect(x, y, width, height);
-            gc.lineWidth = config.cellBorderThickness;
-            gc.strokeStyle = config.cellBorderStyle;
-
-            // animate the dashed line a bit here for fun
-
+            gc.cache.lineWidth = config.cellBorderThickness;
+            gc.cache.strokeStyle = config.cellBorderStyle;
             gc.stroke();
             gc.closePath();
         }
@@ -199,18 +183,18 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
         halignOffset = Math.max(hMin, halignOffset);
         valignOffset = Math.max(vMin, valignOffset);
 
-        gc.save(); // define a clipping region for cell
+        gc.cache.save(); // define a clipping region for cell
         gc.beginPath();
         gc.rect(x, y, width, height);
         gc.clip();
 
-        gc.textAlign = halign;
+        gc.cache.textAlign = halign;
 
         for (var i = 0; i < lines.length; i++) {
             gc.fillText(lines[i], x + halignOffset, y + valignOffset + (i * textHeight));
         }
 
-        gc.restore(); // discard clipping region
+        gc.cache.restore(); // discard clipping region
     },
 
     /**
@@ -327,7 +311,7 @@ function strikeThrough(config, gc, text, x, y, thickness) {
     var width = config.getTextWidth(gc, text);
     y -= fontMetrics.height * 0.4;
 
-    switch (gc.textAlign) {
+    switch (gc.cache.textAlign) {
         case 'center':
             x -= width / 2;
             break;
@@ -337,7 +321,7 @@ function strikeThrough(config, gc, text, x, y, thickness) {
     }
 
     //gc.beginPath();
-    gc.lineWidth = thickness;
+    gc.cache.lineWidth = thickness;
     gc.moveTo(x + 0.5, y + 0.5);
     gc.lineTo(x + width + 0.5, y + 0.5);
 }
@@ -345,7 +329,7 @@ function strikeThrough(config, gc, text, x, y, thickness) {
 function underline(config, gc, text, x, y, thickness) {
     var width = config.getTextWidth(gc, text);
 
-    switch (gc.textAlign) {
+    switch (gc.cache.textAlign) {
         case 'center':
             x -= width / 2;
             break;
@@ -355,14 +339,14 @@ function underline(config, gc, text, x, y, thickness) {
     }
 
     //gc.beginPath();
-    gc.lineWidth = thickness;
+    gc.cache.lineWidth = thickness;
     gc.moveTo(x + 0.5, y + 0.5);
     gc.lineTo(x + width + 0.5, y + 0.5);
 }
 
 function layerColors(gc, colors, x, y, width, height) {
     colors.forEach(function(color) {
-        gc.fillStyle = color;
+        gc.cache.fillStyle = color;
         gc.fillRect(x, y, width, height);
     });
 }
