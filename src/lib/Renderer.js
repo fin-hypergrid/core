@@ -211,7 +211,7 @@ var Renderer = Base.extend('Renderer', {
                 break; // scrolled beyond last column
             }
 
-            width = grid.getColumnWidth(vx);
+            width = behavior.getColumnWidth(vx);
 
             xSpaced = x ? x + lineWidth : x;
             widthSpaced = x ? width - lineWidth : width;
@@ -880,7 +880,7 @@ var Renderer = Base.extend('Renderer', {
             gc.cache.restore(); // Remove column's clip region (and anything else renderCellError() might have set)
         }
 
-        setNumberColumnWidth(gc, behavior, this.grid.getRowCount());
+        resetNumberColumnWidth(gc, behavior);
     },
 
     /**
@@ -1039,17 +1039,20 @@ var Renderer = Base.extend('Renderer', {
     setBounds: function(bounds) {
         return (this.bounds = bounds);
     }
-
 });
 
-function setNumberColumnWidth(gc, behavior, maxRow) {
-    var columnProperties = behavior.getColumnProperties(-1),
+function resetNumberColumnWidth(gc, behavior) {
+    var rowCount = behavior.dataModel.getRowCount(),
+        columnProperties = behavior.getColumnProperties(-1),
         cellProperties = columnProperties.rowHeader,
-        icon = images.checked;
+        icon = images.checked,
+        padding = 2 * columnProperties.cellPadding;
 
     gc.cache.font = cellProperties.font;
-
-    columnProperties.preferredWidth = icon.width + 7 + cellProperties.getTextWidth(gc, maxRow + 1);
+    columnProperties.preferredWidth = icon.width + padding + cellProperties.getTextWidth(gc, rowCount);
+    if (columnProperties.width === undefined) {
+        columnProperties.width = columnProperties.preferredWidth;
+    }
 }
 
 var warnings = {};
