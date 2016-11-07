@@ -857,7 +857,7 @@ function getTextWidth(gc, string) {
     if (string.length === 0) {
         return 0;
     }
-    var key = gc.font + string;
+    var key = gc.cache.font + string;
     var width = textWidthCache.get(key);
     if (!width) {
         width = gc.measureText(string).width;

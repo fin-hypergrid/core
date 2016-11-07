@@ -350,9 +350,9 @@ window.onload = function() {
             points.push(points[0]); // close the path
         }
 
-        gc.shadowColor = 'transparent';
+        gc.cache.shadowColor = 'transparent';
 
-        gc.lineJoin = 'round';
+        gc.cache.lineJoin = 'round';
         gc.beginPath();
         for (var j = 5, sx = x + 5 + outerRadius; j; --j, sx += diameter) {
             points.forEach(function(point, index) { // eslint-disable-line
@@ -363,7 +363,7 @@ window.onload = function() {
 
         val = val / domain * 5;
 
-        gc.fillStyle = color;
+        gc.cache.fillStyle = color;
         gc.save();
         gc.clip();
         gc.fillRect(x + 5, y,
@@ -371,17 +371,17 @@ window.onload = function() {
             height);
         gc.restore(); // remove clipping region
 
-        gc.strokeStyle = stroke;
-        gc.lineWidth = 1;
+        gc.cache.strokeStyle = stroke;
+        gc.cache.lineWidth = 1;
         gc.stroke();
 
         if (fgColor && fgColor !== 'transparent') {
-            gc.fillStyle = fgColor;
-            gc.font = '11px verdana';
-            gc.textAlign = 'right';
-            gc.textBaseline = 'middle';
-            gc.shadowColor = shadowColor;
-            gc.shadowOffsetX = gc.shadowOffsetY = 1;
+            gc.cache.fillStyle = fgColor;
+            gc.cache.font = '11px verdana';
+            gc.cache.textAlign = 'right';
+            gc.cache.textBaseline = 'middle';
+            gc.cache.shadowColor = shadowColor;
+            gc.cache.shadowOffsetX = gc.cache.shadowOffsetY = 1;
             gc.fillText(val.toFixed(1), x + width + 10, y + height / 2);
         }
     }
@@ -393,7 +393,7 @@ window.onload = function() {
 
     function getRGBA(gc, colorSpec) {
         // Normalize variety of CSS color spec syntaxes to one of two
-        gc.fillStyle = colorSpec;
+        gc.cache.fillStyle = colorSpec;
 
         var rgba = colorSpec.match(REGEXP_CSS_HEX6);
         if (rgba) {

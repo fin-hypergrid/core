@@ -327,7 +327,7 @@ function paintHeaderGroups(gc, config) {
             Object.keys(group.config).forEach(unstash.bind(group));
 
             // Paint the group header background
-            gc.fillStyle = config.backgroundColor;
+            gc.cache.fillStyle = config.backgroundColor;
             gc.fillRect(bounds.x, bounds.y, bounds.width, bounds.height);
 
             if (group.value) {
@@ -417,7 +417,7 @@ function decorateBackgroundWithLinearGradient(gc, config) {
         grad.addColorStop.apply(grad, stop);
     });
 
-    gc.fillStyle = grad;
+    gc.cache.fillStyle = grad;
     gc.fillRect(bounds.x + 2, bounds.y, bounds.width - 3, bounds.height);
 }
 
@@ -440,7 +440,7 @@ function decorateBackgroundWithBottomBorder(gc, config) {
         thickness = config.thickness ||
             this.groupCount - this.groupIndex; // when `thickness` undefined, higher-order groups get progressively thicker borders
 
-    gc.fillStyle = config.color;
+    gc.cache.fillStyle = config.color;
     gc.fillRect(bounds.x + 3, bounds.y + bounds.height - thickness, bounds.width - 6, thickness);
 }
 
@@ -448,12 +448,12 @@ function decorateBackgroundWithBottomBorder(gc, config) {
 var regexRGB = /(^#([0-9a-f]{2,2})([0-9a-f]{2,2})([0-9a-f]{2,2})|rgba\((\d+),\s*(\d+),\s*(\d+),\s*([.\d]+)\))$/i;
 
 function lighterColor(gc, color, factor, newAlpha) {
-    var r, g, b, alpha, was = gc.fillStyle;
+    var r, g, b, alpha;
 
     // translate color name to color spec
     gc.fillStyle = color;
     color = gc.fillStyle;
-    gc.fillStyle = was;
+    gc.fillStyle = gc.cache.fillStyle;
 
     color = color.match(regexRGB);
 

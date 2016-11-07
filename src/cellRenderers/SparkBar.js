@@ -28,10 +28,10 @@ var SparkBar = CellRenderer.extend('SparkBar', {
         var eWidth = width / count;
         var fgColor = config.isSelected ? config.foregroundSelectionColor : config.color;
         if (config.backgroundColor || config.isSelected) {
-            gc.fillStyle = config.isSelected ? 'blue' : config.backgroundColor;
+            gc.cache.fillStyle = config.isSelected ? 'blue' : config.backgroundColor;
             gc.fillRect(x, y, width, height);
         }
-        gc.fillStyle = fgColor;
+        gc.cache.fillStyle = fgColor;
         for (var i = 0; i < val.length; i++) {
             var barheight = val[i] / 110 * height;
             gc.fillRect(x + 5, y + height - barheight, eWidth * 0.6666, barheight);

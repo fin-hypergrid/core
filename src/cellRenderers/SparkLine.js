@@ -29,11 +29,11 @@ var SparkLine = CellRenderer.extend('SparkLine', {
 
         var fgColor = config.isSelected ? config.foregroundSelectionColor : config.color;
         if (config.backgroundColor || config.isSelected) {
-            gc.fillStyle = config.isSelected ? config.backgroundSelectionColor : config.backgroundColor;
+            gc.cache.fillStyle = config.isSelected ? config.backgroundSelectionColor : config.backgroundColor;
             gc.fillRect(x, y, width, height);
         }
-        gc.strokeStyle = fgColor;
-        gc.fillStyle = fgColor;
+        gc.cache.strokeStyle = fgColor;
+        gc.cache.fillStyle = fgColor;
         gc.beginPath();
         var prev;
         for (var i = 0; i < val.length; i++) {

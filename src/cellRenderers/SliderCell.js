@@ -18,7 +18,7 @@ var Slider = CellRenderer.extend('Slider', {
             y = config.bounds.y,
             width = config.bounds.width,
             height = config.bounds.height;
-        gc.strokeStyle = 'white';
+        gc.cache.strokeStyle = 'white';
         var val = config.value;
         var radius = height / 2;
         var offset = width * val;
@@ -29,12 +29,12 @@ var Slider = CellRenderer.extend('Slider', {
         var arcGradient = gc.createLinearGradient(x, y, x, y + height);
         arcGradient.addColorStop(0, '#aaaaaa');
         arcGradient.addColorStop(1, '#777777');
-        gc.fillStyle = btnGradient;
+        gc.cache.fillStyle = btnGradient;
         this.roundRect(gc, x, y, width, height, radius, btnGradient);
         if (val < 1.0) {
-            gc.fillStyle = arcGradient;
+            gc.cache.fillStyle = arcGradient;
         } else {
-            gc.fillStyle = '#eeeeee';
+            gc.cache.fillStyle = '#eeeeee';
         }
         gc.beginPath();
         gc.arc(x + Math.max(offset - radius, radius), y + radius, radius, 0, 2 * Math.PI);

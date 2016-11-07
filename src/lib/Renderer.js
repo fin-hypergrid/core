@@ -326,7 +326,7 @@ var Renderer = Base.extend('Renderer', {
         if (this.grid) {
             if (!this.hasData()) {
                 var message = this.grid.properties.noDataMessage;
-                gc.font = '20px Arial';
+                gc.cache.font = '20px Arial';
                 gc.fillText(message, 20, 30);
             } else {
                 this.renderGrid(gc);
@@ -607,7 +607,7 @@ var Renderer = Base.extend('Renderer', {
         var targetCTX = override.ctx;
         var imgData = gc.getImageData(startX, 0, Math.round(width * hdpiRatio), Math.round(height * hdpiRatio));
         targetCTX.putImageData(imgData, 0, 0);
-        gc.fillStyle = this.grid.properties.backgroundColor2;
+        gc.cache.fillStyle = this.grid.properties.backgroundColor2;
         gc.fillRect(Math.round(startX / hdpiRatio), 0, width, height);
     },
 
@@ -686,7 +686,7 @@ var Renderer = Base.extend('Renderer', {
      * @returns {fin-canvas} my [fin-canvas](https://github.com/stevewirts/fin-canvas)
      */
     getCanvas: function() {
-        return this.grid.getCanvas();
+        return this.deprecated('getCanvas()', 'grid.canvas', '1.2.2');
     },
 
     /**
@@ -817,7 +817,7 @@ var Renderer = Base.extend('Renderer', {
 
             cellEvent.columnProperties.preferredWidth = 0;
 
-            gc.save();
+            gc.cache.save();
 
             if (columnClip || columnClip === null && c === C - 1) {
                 // Clip to visible portion of column to prevent text from overflowing to right.
@@ -835,12 +835,12 @@ var Renderer = Base.extend('Renderer', {
                 gc.clearRect(bounds.x, 0, bounds.width, clipHeight);
             }
             if (bgAlpha > 0) {
-                gc.fillStyle = backgroundColor;
+                gc.cache.fillStyle = backgroundColor;
                 gc.fillRect(bounds.x, 0, bounds.width, clipHeight);
             }
 
             if (gridProps.gridLinesV) {
-                gc.fillStyle = lineColor;
+                gc.cache.fillStyle = lineColor;
                 gc.fillRect(bounds.x - lineWidth, 0, lineWidth, clipHeight);
             }
 
@@ -862,23 +862,22 @@ var Renderer = Base.extend('Renderer', {
 
                     console.error(message);
 
-                    var rawGc = gc.gc || gc, // Don't log these canvas calls
-                        errX = vc.left, errWidth = vc.right,
+                    var errX = vc.left, errWidth = vc.right,
                         errY = vr.top, errHeight = vr.bottom,
                         config = { bounds: { c: errX, y: errY, width: errWidth, height: errHeight } };
 
-                    rawGc.save(); // define clipping region
-                    rawGc.beginPath();
-                    rawGc.rect(errX, errY, errWidth, errHeight);
-                    rawGc.clip();
+                    gc.cache.save(); // define clipping region
+                    gc.beginPath();
+                    gc.rect(errX, errY, errWidth, errHeight);
+                    gc.clip();
 
-                    this.grid.cellRenderers.get('errorcell').paint(rawGc, config, message);
+                    this.grid.cellRenderers.get('errorcell').paint(gc, config, message);
 
-                    rawGc.restore(); // discard clipping region
+                    gc.cache.restore(); // discard clipping region
                 }
             }
 
-            gc.restore(); // Remove column's clip region (and anything else renderCellError() might have set)
+            gc.cache.restore(); // Remove column's clip region (and anything else renderCellError() might have set)
         }
 
         setNumberColumnWidth(gc, behavior, this.grid.getRowCount());
@@ -894,7 +893,7 @@ var Renderer = Base.extend('Renderer', {
             var viewWidth = this.visibleColumns[this.visibleColumns.length - 1].right,
                 lineWidth = this.grid.properties.lineWidth;
 
-            gc.fillStyle = this.grid.properties.lineColor;
+            gc.cache.fillStyle = this.grid.properties.lineColor;
 
             this.visibleRows.forEach(function(visibleRow) {
                 gc.fillRect(0, visibleRow.bottom, viewWidth, lineWidth);
@@ -1033,23 +1032,6 @@ var Renderer = Base.extend('Renderer', {
         return this.buttonCells[key] === true;
     },
 
-    startAnimator: function() {
-        var self = this;
-        requestAnimationFrame(function animate() {
-            self.animate();
-            requestAnimationFrame(animate);
-        });
-    },
-
-    animate: function() {
-        var ctx = this.getCanvas().canvasCTX;
-        ctx.beginPath();
-        ctx.save();
-        this.renderLastSelection(ctx);
-        ctx.restore();
-        ctx.closePath();
-    },
-
     getBounds: function() {
         return this.bounds;
     },
@@ -1065,7 +1047,7 @@ function setNumberColumnWidth(gc, behavior, maxRow) {
         cellProperties = columnProperties.rowHeader,
         icon = images.checked;
 
-    gc.font = cellProperties.font;
+    gc.cache.font = cellProperties.font;
 
     columnProperties.preferredWidth = icon.width + 7 + cellProperties.getTextWidth(gc, maxRow + 1);
 }

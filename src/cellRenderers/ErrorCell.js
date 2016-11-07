@@ -42,11 +42,11 @@ var ErrorCell = CellRenderer.extend('ErrorCell', {
 
         // clear the cell
         // (this makes use of the rect path defined by the caller)
-        gc.fillStyle = '#FFD500';
+        gc.cache.fillStyle = '#FFD500';
         gc.fill();
         // render cell border
-        //gc.strokeStyle = gc.createPattern(images.caution, 'repeat'); // Causes Error
-        gc.lineWidth = 5;
+        //gc.cache.strokeStyle = gc.createPattern(images.caution, 'repeat'); // Causes Error
+        gc.cache.lineWidth = 5;
         gc.beginPath();
         gc.moveTo(x, y); // caution: do not use rect() here because Chrome does not clip its stroke properly
         gc.lineTo(x + width, y);
@@ -59,10 +59,10 @@ var ErrorCell = CellRenderer.extend('ErrorCell', {
         gc.rect(x, y, width - 2, height);
         gc.clip();
         // render message text
-        gc.fillStyle = '#A00';
-        gc.textAlign = 'start';
-        gc.textBaseline = 'middle';
-        gc.font = 'bold 6pt "arial narrow", verdana, geneva';
+        gc.cache.fillStyle = '#A00';
+        gc.cache.textAlign = 'start';
+        gc.cache.textBaseline = 'middle';
+        gc.cache.font = 'bold 6pt "arial narrow", verdana, geneva';
         gc.fillText(message, x + 4, y + height / 2 + 0.5);
     }
 });

@@ -15,8 +15,6 @@ if (typeof window.CustomEvent !== 'function') {
 
 var rectangular = require('rectangular');
 
-var GraphicsContext = require('./GraphicsContext.js');
-
 var RESIZE_POLLING_INTERVAL = 200,
     paintables = [],
     resizables = [],
@@ -24,36 +22,20 @@ var RESIZE_POLLING_INTERVAL = 200,
     resizeLoopRunning = true,
     charMap = makeCharMap();
 
-function Canvas(div, component, options) {
+function Canvas(div, component) {
     var self = this;
 
     this.div = div;
     this.component = component;
-    this.gridProps = component.grid.properties;
-
-    options = options || {};
 
     this.dragEndtime = Date.now();
 
-    this.canvas = document.createElement('canvas');
+    this.gc = getCachedContext(this.canvas = document.createElement('canvas'));
+    this.bc = getCachedContext(this.buffer = document.createElement('canvas'));
+
     this.div.appendChild(this.canvas);
 
     this.canvas.style.outline = 'none';
-
-    // this.focuser = document.createElement('button');
-    // this.focuser.style.position = 'absolute';
-    // this.focuser.style.top = '0px';
-    // this.focuser.style.left = '0px';
-    // this.focuser.style.zIndex = '-1';
-    // this.focuser.style.outline = 'none';
-    // this.div.appendChild(this.focuser);
-
-    this.canvasCTX = this.canvas.getContext('2d');
-    this.gc = GraphicsContext.get(this.canvasCTX, options.logger);
-
-    this.buffer = document.createElement('canvas');
-    this.bufferCTX = this.buffer.getContext('2d');
-    this.bufferGC = GraphicsContext.get(this.bufferCTX, options.logger);
 
     this.mouseLocation = new rectangular.Point(-1, -1);
     this.dragstart = new rectangular.Point(-1, -1);
@@ -118,7 +100,6 @@ Canvas.prototype = {
     div: null,
     component: null,
     canvas: null,
-    canvasCTX: null,
     focuser: null,
     buffer: null,
     ctx: null,
@@ -264,11 +245,11 @@ Canvas.prototype = {
         var isHIDPI = window.devicePixelRatio && this.component.resolveProperty('useHiDPI');
         if (isHIDPI) {
             var devicePixelRatio = window.devicePixelRatio || 1;
-            var backingStoreRatio = this.canvasCTX.webkitBackingStorePixelRatio ||
-                this.canvasCTX.mozBackingStorePixelRatio ||
-                this.canvasCTX.msBackingStorePixelRatio ||
-                this.canvasCTX.oBackingStorePixelRatio ||
-                this.canvasCTX.backingStorePixelRatio || 1;
+            var backingStoreRatio = this.gc.webkitBackingStorePixelRatio ||
+                this.gc.mozBackingStorePixelRatio ||
+                this.gc.msBackingStorePixelRatio ||
+                this.gc.oBackingStorePixelRatio ||
+                this.gc.backingStorePixelRatio || 1;
 
             ratio = devicePixelRatio / backingStoreRatio;
             //this.canvasCTX.scale(ratio, ratio);
@@ -280,9 +261,9 @@ Canvas.prototype = {
         this.canvas.style.width = this.buffer.style.width = this.width + 'px';
         this.canvas.style.height = this.buffer.style.height = this.height + 'px';
 
-        this.bufferCTX.scale(ratio, ratio);
+        this.bc.scale(ratio, ratio);
         if (isHIDPI && !this.component.resolveProperty('useBitBlit')) {
-            this.canvasCTX.scale(ratio, ratio);
+            this.gc.scale(ratio, ratio);
         }
 
         //this.origin = new rectangular.Point(Math.round(this.size.left), Math.round(this.size.top));
@@ -321,14 +302,14 @@ Canvas.prototype = {
 
     safePaintImmediately: function(paintFunction) {
         var useBitBlit = this.component.resolveProperty('useBitBlit'),
-            gc = useBitBlit ? this.bufferGC : this.gc;
+            gc = useBitBlit ? this.bc : this.gc;
         try {
-            gc.save();
+            gc.cache.save();
             paintFunction(gc);
         } catch (e) {
             console.error(e);
         } finally {
-            gc.restore();
+            gc.cache.restore();
         }
         if (useBitBlit) {
             this.flushBuffer();
@@ -337,7 +318,7 @@ Canvas.prototype = {
 
     flushBuffer: function() {
         if (this.buffer.width > 0 && this.buffer.height > 0) {
-            this.canvasCTX.drawImage(this.buffer, 0, 0);
+            this.gc.drawImage(this.buffer, 0, 0);
         }
     },
 
@@ -757,6 +738,52 @@ function makeCharMap() {
     map[123] = ['F12', 'F121HIFT'];
 
     return map;
+}
+
+function getCachedContext(canvasElement, type) {
+    var gc = canvasElement.getContext(type || '2d'),
+        props = {},
+        values = {};
+
+    // Stub out all the prototype members of the canvas 2D graphics context:
+    Object.keys(Object.getPrototypeOf(gc)).forEach(makeStub);
+
+    // Some older browsers (e.g., Chrome 40) did not have all members of canvas
+    // 2D graphics context in the prototype so we make this additional call:
+    Object.keys(gc).forEach(makeStub);
+
+    function makeStub(key) {
+        if (
+            !(key in props) &&
+            !/^(webkit|moz|ms|o)[A-Z]/.test(key) &&
+            typeof gc[key] !== 'function'
+        ) {
+            Object.defineProperty(props, key, {
+                get: function() {
+                    return (values[key] = values[key] || gc[key]);
+                },
+                set: function(value) {
+                    if (value !== values[key]) {
+                        gc[key] = values[key] = value;
+                    }
+                }
+            });
+        }
+    }
+
+    gc.cache = props;
+
+    gc.cache.save = function() {
+        gc.save();
+        values = Object.create(values);
+    };
+
+    gc.cache.restore = function() {
+        gc.restore();
+        values = Object.getPrototypeOf(values);
+    };
+
+    return gc;
 }
 
 module.exports = Canvas;
