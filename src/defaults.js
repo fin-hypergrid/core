@@ -493,6 +493,14 @@ var defaults = {
     getTextWidth: getTextWidth,
 
     /**
+     * This function is referenced here so it will be available to truncateTextToWidththe renderer and cell renderers.
+     * @default {@link module:defaults.getTextWidthTruncated|getTextWidthTruncated}
+     * @type {function}
+     * @memberOf module:defaults
+     */
+    getTextWidthTruncated: getTextWidthTruncated,
+
+    /**
      * This function is referenced here so it will be available to the renderer and cell renderers.
      * @default {@link module:defaults.getTextHeight|getTextHeight}
      * @type {function}
@@ -842,10 +850,13 @@ var defaults = {
 var fontMetrics = {};
 
 /**
+ * Accumulates width of string in pixels, character by character, by chaching character widths and reusing those values when previously cached.
+ *
+ * NOTE: There is a minor measuring error when taking the sum of the pixel widths of individual characters that make up a string vs. the pixel width of the string taken as a whole. This is possibly due to kerning or rounding. The error is typically about 0.1%.
  * @memberOf module:defaults
- * @param gc
- * @param string
- * @returns {*}
+ * @param {CanvasRenderingContext2D} gc
+ * @param {string} string - Text to measure.
+ * @returns {nubmer} Width of string in pixels.
  */
 function getTextWidth(gc, string) {
     var metrics = fontMetrics[gc.cache.font] = fontMetrics[gc.cache.font] || {};
@@ -855,6 +866,36 @@ function getTextWidth(gc, string) {
         sum += metrics[c] = metrics[c] || gc.measureText(c).width;
     }
     return sum;
+}
+
+/**
+ * Similar to `getTextWidth` except:
+ * 1. Aborts accumulating when sum exceeds given `width`.
+ * 2. Returns an object rather than a number.
+ * @param {CanvasRenderingContext2D} gc
+ * @param {string} string - Text to measure.
+ * @param {number} width - Width of target cell; overflow point.
+ * @param {boolean} [abort=false] - Abort measuring upon overflow.
+ * @returns {{string:string,width:number}}
+ * * `object.string` - `undefined` if it fits; truncated version of provided `string` if it does not.
+ * * `object.width` - Width of provided `string` if it fits; width of truncated string if it does not.
+ */
+function getTextWidthTruncated(gc, string, width, abort) {
+    var metrics = fontMetrics[gc.cache.font] = fontMetrics[gc.cache.font] || {},
+        truncString;
+    string += '';
+    for (var i = 0, sum = 0, len = string.length; i < len; ++i) {
+        var c = string[i];
+        sum += metrics[c] = metrics[c] || gc.measureText(c).width;
+        if (!truncString && sum > width) {
+            truncString = string.substr(0, i);
+            if (abort) { break; }
+        }
+    }
+    return {
+        string: truncString,
+        width: sum
+    };
 }
 
 var fontData = {};

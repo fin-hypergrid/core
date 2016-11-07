@@ -11,7 +11,7 @@
         var data = [
             { s: 'APPL', n: 'Apple', c: 93.13 },
             { s: 'MSFT', n: 'Microsoft', c: 51.91 },
-            { s: 'TSLA', n: 'Tesla', c: 196.40 },
+            { s: 'TSLA', n: 'Tesla', c: 196.48 },
             { s: 'IBM', n: 'IBM', c: 155.35 }
         ];
         var grid = new fin.Hypergrid();
@@ -34,7 +34,7 @@
         function mangle(s) {
             return s.toString().split('').map(function(c) {
                 if (/\d/.test(c)) {
-                    return Math.random() * 10 | 0;
+                    return Math.random() * 9 + 1 | 0;
                 } else if (/[A-Z]/.test(c)) {
                     return String.fromCharCode(Math.random() * 26 + 65 | 0);
                 } else if (/[a-z]/.test(c)) {

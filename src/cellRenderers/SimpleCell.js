@@ -142,7 +142,7 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
 
     /**
      * @summary Renders single line text.
-     * @param {CanvasGraphicsContext} gc
+     * @param {CanvasRenderingContext2D} gc
      * @param {object} config
      * @param {Rectangle} config.bounds - The clipping rect of the cell to be rendered.
      * @param {*} val - The text to render in the cell.
@@ -199,7 +199,7 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
 
     /**
      * @summary Renders single line text.
-     * @param {CanvasGraphicsContext} gc
+     * @param {CanvasRenderingContext2D} gc
      * @param {object} config
      * @param {Rectangle} config.bounds - The clipping rect of the cell to be rendered.
      * @param {*} val - The text to render in the cell.
@@ -209,39 +209,45 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
         var x = config.bounds.x,
             y = config.bounds.y,
             width = config.bounds.width,
-            height = config.bounds.height;
-        var colHEdgeOffset = config.cellPadding,
-            halignOffset = 0,
+            height = config.bounds.height,
+            colHEdgeOffset = config.cellPadding,
+            halignOffset = colHEdgeOffset,
             valignOffset = config.voffset,
             halign = config.halign,
             isCellHovered = config.isCellHovered,
-            isLink = config.link;
-
-        var fontMetrics = config.getTextHeight(config.font);
-        var textWidth;
-
-        switch (halign) {
-            case 'right':
-                textWidth = config.getTextWidth(gc, val);
-                halignOffset = width - colHEdgeOffset - textWidth;
-                break;
-            case 'center':
-                textWidth = config.getTextWidth(gc, val);
-                halignOffset = (width - textWidth) / 2;
-                break;
-            case 'left':
-                halignOffset = colHEdgeOffset;
-                break;
-        }
+            isLink = config.link,
+            fontMetrics = config.getTextHeight(config.font),
+            metrics;
 
         if (config.columnAutosizing) {
-            if (textWidth === undefined) {
-                textWidth = config.getTextWidth(gc, val); // call only as needed (expensive)
+            metrics = config.getTextWidthTruncated(gc, val, width);
+            val = metrics.string || val;
+            switch (halign) {
+                case 'right':
+                    halignOffset = width - colHEdgeOffset - metrics.width;
+                    break;
+                case 'center':
+                    halignOffset = (width - metrics.width) / 2;
+                    break;
             }
-            config.minWidth = colHEdgeOffset + textWidth + colHEdgeOffset;
+            config.minWidth = colHEdgeOffset + metrics.width + colHEdgeOffset;
+        } else {
+            metrics = config.getTextWidthTruncated(gc, val, width, true);
+            if (metrics.string) {
+                val = metrics.string;
+            } else {
+                switch (halign) {
+                    case 'right':
+                        halignOffset = width - colHEdgeOffset - metrics.width;
+                        break;
+                    case 'center':
+                        halignOffset = (width - metrics.width) / 2;
+                        break;
+                }
+            }
         }
 
-        halignOffset = Math.max(0, halignOffset);
+        halignOffset = Math.max(colHEdgeOffset, halignOffset);
         valignOffset += Math.ceil(height / 2);
 
         if (val !== null) {
