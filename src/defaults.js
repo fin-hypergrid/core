@@ -2,8 +2,6 @@
 
 'use strict';
 
-var LRUCache = require('lru-cache');
-
 var ALPHA_REGEX = /^(transparent|((RGB|HSL)A\(.*,\s*([\d\.]+)\)))$/i;
 
 /**
@@ -841,7 +839,7 @@ var defaults = {
  * @see https://developer.mozilla.org/en-US/docs/Web/CSS/font
  */
 
-var textWidthCache = new LRUCache(2000);
+var fontMetrics = {};
 
 /**
  * @memberOf module:defaults
@@ -850,20 +848,12 @@ var textWidthCache = new LRUCache(2000);
  * @returns {*}
  */
 function getTextWidth(gc, string) {
-    if (string === null || string === undefined) {
-        return 0;
+    var metrics = fontMetrics[gc.cache.font] = fontMetrics[gc.cache.font] || {};
+    for (var i = 0, sum = 0, len = string.length; i < len; ++i) {
+        var c = string[i];
+        sum += metrics[c] = metrics[c] || gc.measureText(c).width;
     }
-    string += '';
-    if (string.length === 0) {
-        return 0;
-    }
-    var key = gc.cache.font + string;
-    var width = textWidthCache.get(key);
-    if (!width) {
-        width = gc.measureText(string).width;
-        textWidthCache.set(key, width);
-    }
-    return width;
+    return sum;
 }
 
 var fontData = {};
