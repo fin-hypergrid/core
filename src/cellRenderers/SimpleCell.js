@@ -218,24 +218,27 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
             isLink = config.link;
 
         var fontMetrics = config.getTextHeight(config.font);
-        var textWidth = config.getTextWidth(gc, val);
-
-        //we must set this in order to compute the minimum width
-        //for column autosizing purposes
-        config.minWidth = textWidth + (2 * colHEdgeOffset);
+        var textWidth;
 
         switch (halign) {
             case 'right':
-                //textWidth = config.getTextWidth(gc, config.value);
+                textWidth = config.getTextWidth(gc, val);
                 halignOffset = width - colHEdgeOffset - textWidth;
                 break;
             case 'center':
-                //textWidth = config.getTextWidth(gc, config.value);
+                textWidth = config.getTextWidth(gc, val);
                 halignOffset = (width - textWidth) / 2;
                 break;
             case 'left':
                 halignOffset = colHEdgeOffset;
                 break;
+        }
+
+        if (config.columnAutosizing) {
+            if (textWidth === undefined) {
+                textWidth = config.getTextWidth(gc, val); // call only as needed (expensive)
+            }
+            config.minWidth = colHEdgeOffset + textWidth + colHEdgeOffset;
         }
 
         halignOffset = Math.max(0, halignOffset);
